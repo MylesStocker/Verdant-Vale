@@ -884,7 +884,10 @@ const SIMPLE_NPCS = [
     get x()   { return day % 5 === 0 ?  8.5 * TILE : 10.5 * TILE; },
     get y()   { return day % 5 === 0 ?  7.5 * TILE :  9.5 * TILE; },
     solid: true, facing: 'down', spriteType: 'child',
-    dialogue: [['\u201cI\u2019m thinking about lunch.\u201d']],
+    dialogue: [
+      ['\u201cI\u2019m thinking about lunch.\u201d'],
+      ['\u201cPress M for your menu. Inventory, notebook, all that.\u201d'],
+    ],
     flag_required: null, flag_sets: null, action: null,
   },
 
@@ -1170,9 +1173,32 @@ const SIMPLE_NPCS = [
         ['\u201cYour supervisor files clean reports.\u201d',
          '\u201cI don\u2019t read them closely, but they\u2019re clean.\u201d'],
       ];
-      if (fort_quest_stage >= 6 && smugglers_execution_day > 0) pages.push(
+      if (fort_quest_stage >= 6 && smugglers_dead && smugglers_execution_day === 0) pages.push(
+        ['\u201cThe district received a report on the fen post south of town.\u201d',
+         '\u201cTwo dead. You handled it before it reached us.\u201d'],
+        ['\u201cPolwick was on our books. Registered rareborn, Empire employed \u2014 not many of those out this far.\u201d',
+         'He checks something against a ledger without elaborating.'],
+        ['\u201cWhatever he was running out of that post, it wasn\u2019t sanctioned.',
+         'The drought\u2019s hard on everyone. That\u2019s not a license.\u201d'],
+        ['\u201cI won\u2019t comment further.\u201d',
+         '\u201cBut I appreciate that it came through the correct channel.\u201d']
+      );
+      else if (fort_quest_stage >= 6 && smugglers_execution_day > 0 && day < smugglers_execution_day) pages.push(
         ['\u201cThe district received a report on the fen post south of town.\u201d',
          '\u201cIt\u2019s been flagged for priority review.\u201d'],
+        ['\u201cPolwick, if it\u2019s the name I\u2019m thinking of \u2014 registered rareborn, Empire employed.',
+         'Not many of those out this far.\u201d',
+         'He doesn\u2019t say more than that.'],
+        ['\u201cI won\u2019t comment further.\u201d',
+         '\u201cBut I appreciate that it came through the correct channel.\u201d']
+      );
+      else if (fort_quest_stage >= 6 && smugglers_execution_day > 0 && day >= smugglers_execution_day) pages.push(
+        ['\u201cThe fen post matter is closed.\u201d',
+         '\u201cThe district doesn\u2019t send people out for a clerical error.\u201d'],
+        ['\u201cPolwick was registered rareborn, Empire employed.',
+         'Whatever he thought the smuggling covered \u2014 the drought, the pay, whatever it was \u2014 it didn\u2019t.\u201d'],
+        ['\u201cInefficiency we work around out here.',
+         'Helping yourself to the ledger isn\u2019t inefficiency.\u201d'],
         ['\u201cI won\u2019t comment further.\u201d',
          '\u201cBut I appreciate that it came through the correct channel.\u201d']
       );

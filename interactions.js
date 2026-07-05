@@ -783,6 +783,13 @@ function interactSupervisor() {
                 ['\u201cI won\u2019t ask how.',
                  'The post will be flagged for district review.',
                  'It\u2019s not your concern anymore.\u201d'],
+                ['\u201cPolwick, though \u2014 that\u2019s a name I recognize.\u201d',
+                 'He sets down his pen.',
+                 '\u201cRegistered rareborn. Empire employed, same as half the edge posts out this way.\u201d'],
+                ['\u201cMust have been running the smuggling on the side.',
+                 'Or the drought\u2019s made the honest pay not worth the trouble.\u201d',
+                 'A dry look.',
+                 '\u201cEither way \u2014 inefficiency\u2019s no excuse for self-dealing.\u201d'],
                 ['\u201cTwo hundred gold.',
                  'I\u2019ve issued a pay ticket.',
                  'Speak to Petra.\u201d'],
@@ -793,6 +800,14 @@ function interactSupervisor() {
                 ['\u201cYou let them go.\u201d',
                  'He doesn\u2019t look up.',
                  '\u201cUnregistered. Operating under Imperial cover.\u201d'],
+                ['\u201cPolwick, though \u2014 that\u2019s a name I recognize.\u201d',
+                 'He sets down his pen.',
+                 '\u201cRegistered rareborn. Empire employed, same as half the edge posts out this way.\u201d'],
+                ['\u201cMust have been running the smuggling on the side.',
+                 'Or the drought\u2019s made the honest pay not worth the trouble.\u201d',
+                 'A dry look.',
+                 '\u201cInefficiency\u2019s no excuse for self-dealing.',
+                 'District will sort out which it was.\u201d'],
                 ['\u201cI\u2019ll forward it to the district office.',
                  'That\u2019s above my authority now.',
                  'Above yours too.\u201d'],
@@ -2141,6 +2156,42 @@ function handleInteract() {
                '\u201cHe hasn\u2019t noticed yet. Or he has, and he\u2019s decided not to say.\u201d'],
               ['\u201cI\u2019m not asking.\u201d',
                '\u201cI notice more than I say. This is one of those times.\u201d'],
+            );
+          }
+          if (fort_quest_stage >= 6 && smugglers_dead && smugglers_execution_day === 0) {
+            eslaPages.push(
+              ['\u201cPolwick.\u201d',
+               'She doesn\u2019t look up right away.',
+               '\u201cI only met him twice. Registry business, mostly.\u201d'],
+              ['\u201cThere aren\u2019t many of us posted this far out.',
+               'You notice the other ones. Even if you don\u2019t know them.\u201d',
+               'She sets her pen down.'],
+              ['\u201cI don\u2019t know what he was doing with that post.',
+               'I don\u2019t think I want to.\u201d',
+               '\u201cBut I keep thinking about the drought, and what people do when the ledger stops adding up.\u201d'],
+            );
+          } else if (fort_quest_stage >= 6 && smugglers_execution_day > 0 && day < smugglers_execution_day) {
+            eslaPages.push(
+              ['\u201cI heard about the fen post.\u201d',
+               'She doesn\u2019t look up right away.',
+               '\u201cPolwick. I only met him twice, registry business.\u201d'],
+              ['\u201cThere aren\u2019t many of us posted this far out.',
+               'You notice the other ones, even the ones you don\u2019t know well.\u201d'],
+              ['\u201cI don\u2019t know yet what the district will do with him.\u201d',
+               'A pause.',
+               '\u201cI try not to guess. It doesn\u2019t usually help.\u201d'],
+            );
+          } else if (fort_quest_stage >= 6 && smugglers_execution_day > 0 && day >= smugglers_execution_day) {
+            eslaPages.push(
+              ['\u201cI heard the district closed the fen post matter.\u201d',
+               'She doesn\u2019t look up right away.',
+               '\u201cPolwick. I only met him twice, registry business.\u201d'],
+              ['\u201cThere aren\u2019t many of us posted this far out.',
+               'You notice the other ones, even the ones you don\u2019t know well.\u201d'],
+              ['\u201cRegistered rareborn, same as me. Employed, same as me.\u201d',
+               'A pause.',
+               '\u201cI keep thinking about the drought, and what people do when the ledger stops adding up. It doesn\u2019t excuse it.\u201d'],
+              ['\u201cIt just makes it less simple than the report will say.\u201d'],
             );
           }
           dialogue.pages = eslaPages;

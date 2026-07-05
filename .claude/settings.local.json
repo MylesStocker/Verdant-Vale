@@ -61,7 +61,8 @@
       "Bash(npm view *)",
       "Bash(mkdir -p /private/tmp/claude-501/-Users-mylesstocker-Desktop-empire-game/285291b8-ab27-4ade-8d16-ee2075decf8a/scratchpad/canvas_test)",
       "Bash(npm init *)",
-      "Bash(timeout 60 npm install canvas --silent)"
+      "Bash(timeout 60 npm install canvas --silent)",
+      "Bash(git stash *)"
     ]
   }
 }

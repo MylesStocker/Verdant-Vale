@@ -25,10 +25,9 @@ dialogue.name  = '';
 dialogue.pages = [
   ['Morning light comes through the east window the same as always.',
    'Three years in Calwick.',
-   'The canal, the square, the office. Familiar enough.'],
-  ['There\u2019s a posting waiting at the office.',
-   'Might as well see what it is.',
-   'Open the menu with Escape if you need it \u2014 Items, Notebook, Save.'],
+   'The square, the office. Familiar enough.'],
+  ['Yesterday was your day off.',
+   'Today, you\u2019re due back at the office \u2014 same as every other working day.'],
 ];
 dialogue.open  = true;
 dialogue.page  = 0;
