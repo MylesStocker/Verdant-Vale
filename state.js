@@ -67,9 +67,15 @@ let slitherSpd = 1;
 function rollSlitherSpd()  { return Math.floor(Math.random() * 20) + 1; }
 function triggerSlither()  { addStatusEffect('slither'); slitherSpd = rollSlitherSpd(); }
 function triggerCursed()   { addStatusEffect('cursed'); }
+// Burn — combat-only damage-over-time. Deals a random 0..20 HP each turn the
+// player takes while burning, and is cleared when combat ends (see endCombat).
+// Because it can only exist during a fight (which blocks saving), it never
+// needs to persist across a save/load.
+function triggerBurn()     { addStatusEffect('burn'); }
 window.triggerPoison   = triggerPoison;
 window.triggerMuddied  = triggerMuddied;
 window.triggerCursed   = triggerCursed;
+window.triggerBurn     = triggerBurn;
 
 // ─── World notification toast ─────────────────────────────────────────────────
 // Short auto-fading overlay for passive effects (trip, curse flare-ups, etc.)
@@ -170,10 +176,18 @@ const warpMenu = {
 
 // Returns a grouped view of stats.items — does not modify the underlying array.
 // Each entry: { name, item (one representative instance), count }
+// Normal inventory: everything the player can equip, use, or sell. Key items
+// (special quest items such as the Dispatch Letter) live in stats.items so they
+// save/load and appear in the Special Items notebook, but must never surface as
+// ordinary inventory — not equippable, not usable in combat, not sellable.
+function inventoryItems() {
+  return stats.items.filter(it => !it.keyItem);
+}
+
 function groupItems() {
   const groups = [];
   const index  = new Map();
-  for (const item of stats.items) {
+  for (const item of inventoryItems()) {
     if (index.has(item.name)) {
       groups[index.get(item.name)].count++;
     } else {

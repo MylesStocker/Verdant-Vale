@@ -326,9 +326,10 @@ function update() {
   if (combat.cooldown > 0) combat.cooldown--;
   if (worldToastTimer > 0) worldToastTimer--;
 
-  // Combat is active — only tick the flash timer, freeze everything else
+  // Combat is active — only tick the flash / fire-cast timers, freeze everything else
   if (combat.active) {
     if (combat.flashTimer > 0) combat.flashTimer--;
+    if (combat.fireCastTimer > 0) combat.fireCastTimer--;
     return;
   }
 

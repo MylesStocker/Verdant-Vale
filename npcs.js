@@ -975,7 +975,8 @@ const SIMPLE_NPCS = [
     flag_required: null, flag_sets: null, action: null,
   },
 
-  // Apt 2 — sluice worker (Dayoff); partner (every other Dayoff); occasional child
+  // Apt 2 — sluice worker (Dayoff); partner (every other Dayoff); occasional
+  // child; Fenna (always — the one resident actually home during the work week)
   {
     id:   'apt2_donn', name: 'Donn',
     get map() { return day % 5 === 0 ? 'house:apt_2' : null; },
@@ -1010,6 +1011,30 @@ const SIMPLE_NPCS = [
       ['\u201cDonn said maybe.\u201d'],
     ],
     flag_required: null, flag_sets: null, action: null,
+  },
+
+  // Fenna — Apt 2, always home. Sael's daughter (Drenwick, corridor B2 unit 1).
+  // Quest: A Bottle for Her Father. Full branching logic lives in
+  // interactions.js's currentHouseId === 'apt_2' block; the getter below is a
+  // plain fallback, mirroring the Orwen/Voss pattern elsewhere in this file.
+  {
+    id:         'fenna',
+    name:       'Fenna',
+    map:        'house:apt_2',
+    x:           7.5 * TILE,
+    y:           7.5 * TILE,
+    solid:      true,
+    facing:     'down',
+    spriteType: 'patron',
+    get dialogue() {
+      if (wine_quest_rewarded) return [['\u201cThank you again for that.\u201d', '\u201cReally.\u201d']];
+      if (wine_quest_delivered) return [['\u201cDid he send anything back with you?\u201d']];
+      if (wine_quest_started)   return [['\u201cNo rush. Just \u2014 whenever you can.\u201d']];
+      return [['\u201cSorry \u2014 I don\u2019t get many visitors during the week.\u201d']];
+    },
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
   },
 
   // Apt 3 — elderly woman (always); reed worker visits on Dayoff
@@ -1389,6 +1414,34 @@ const SIMPLE_NPCS = [
       );
       return pages;
     },
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
+
+  // Drenwick Canal/Docks — Kest, Harbormaster Renn's assistant
+  // Regular post: quay, one tile east of Renn's usual spot (cols 10-11).
+  // Present every day, including Dayoff -- unlike Renn, who at least gets to
+  // claim he's "not here officially." Kest doesn't get that excuse.
+  {
+    id:         'harbormaster_assistant',
+    name:       'Kest',
+    map:        'drenwick_canal_docks',
+    x:          11.5 * TILE,
+    y:           3.5 * TILE,
+    solid:      true,
+    facing:     'down',
+    spriteType: 'worker',
+    dialogue: [
+      ['\u201cSomeone has to actually walk the channel readings twice a day.\u201d',
+       '\u201cThat\u2019s not in anyone\u2019s job title. It\u2019s just become mine.\u201d'],
+      ['\u201cRenn gets the title. I get the wet boots.\u201d',
+       '\u201cHe\u2019s not a bad sort, really. He just forgets I\u2019m not also the harbormaster.\u201d'],
+      ['\u201cThird year the water table\u2019s been low. Third year running.\u201d',
+       '\u201cThere\u2019s a word for it now. \u2018Drought.\u2019 Official, apparently. Someone in Halcyra signed a form.\u201d'],
+      ['\u201cSigning a form doesn\u2019t refill the channel.\u201d',
+       '\u201cBut at least now I get to write \u2018drought conditions\u2019 on the survey instead of making something up.\u201d'],
+    ],
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -2134,7 +2187,11 @@ const SIMPLE_NPCS = [
     flag_required: null, flag_sets: null, action: null,
   },
 
-  // Corridor B2, Unit 1 — Sael (mushroom wine philosopher)
+  // Corridor B2, Unit 1 — Sael (mushroom wine philosopher; Fenna's father)
+  // Quest: A Bottle for Her Father. Full branching logic (receiving the wine,
+  // handing over the Thank-You Note) lives in interactions.js's
+  // currentHouseId === 'drenwick_apt_b2_u1' block; the getter below is a
+  // plain fallback plus his ambient reaction once the quest has moved on.
   {
     id:         'apt_sael',
     name:       'Sael',
@@ -2144,20 +2201,40 @@ const SIMPLE_NPCS = [
     solid:      true,
     facing:     'down',
     spriteType: 'patron',
-    dialogue: [
-      ['\u201cHave some.\u201d',
-       '\u201cNo, I\u2019m serious. It\u2019s different from regular wine.\u201d',
-       '\u201cRegular wine makes the world smaller. Mushroom wine makes it\u2026 textured.\u201d'],
-      ['\u201cThe fen mushrooms grow where the reed beds meet the peat layer.\u201d',
-       '\u201cYou can only pick them in the two weeks after the first frost. Miss the window and they\u2019re gone until next year.\u201d',
-       '\u201cSomebody discovered you could ferment them. I would very much like to shake that person\u2019s hand.\u201d'],
-      ['\u201cThe Empire has lasted a thousand years.\u201d',
-       '\u201cDo you know what that means? It means it outlasted every single idea people had for doing it differently.\u201d',
-       '\u201cThe fen didn\u2019t care either way. The fen was here before the Empire and will be here after.\u201d'],
-      ['\u201cThe interesting question isn\u2019t who built the Empire. It\u2019s what they decided to do with the people they beat.\u201d',
-       '\u201cThey didn\u2019t eliminate them. They built a system instead.\u201d',
-       '\u201cA cage made of paperwork. Quite elegant, if you think about it at the right angle.\u201d'],
-    ],
+    get dialogue() {
+      if (wine_quest_delivered) {
+        return wine_quest_gift === 'case'
+          ? [['\u201cStill working through that case, if you can believe it.\u201d',
+              '\u201cTell her I said she didn\u2019t need to send quite so much.\u201d',
+              '\u201cI\u2019m glad she did, though.\u201d']]
+          : [['\u201cThat bottle didn\u2019t last the week.\u201d',
+              '\u201cTell her thank you again.\u201d']];
+      }
+      if (wine_quest_started) {
+        return [
+          ['\u201cHave some.\u201d',
+           '\u201cNo, I\u2019m serious. It\u2019s different from regular wine.\u201d',
+           '\u201cRegular wine makes the world smaller. Mushroom wine makes it\u2026 textured.\u201d'],
+          ['\u201cFenna sent you, did she.\u201d',
+           '\u201cTold her I didn\u2019t need anyone walking the fen road on my account.\u201d',
+           '\u201cShe worries anyway. Always has.\u201d'],
+        ];
+      }
+      return [
+        ['\u201cHave some.\u201d',
+         '\u201cNo, I\u2019m serious. It\u2019s different from regular wine.\u201d',
+         '\u201cRegular wine makes the world smaller. Mushroom wine makes it\u2026 textured.\u201d'],
+        ['\u201cThe fen mushrooms grow where the reed beds meet the peat layer.\u201d',
+         '\u201cYou can only pick them in the two weeks after the first frost. Miss the window and they\u2019re gone until next year.\u201d',
+         '\u201cSomebody discovered you could ferment them. I would very much like to shake that person\u2019s hand.\u201d'],
+        ['\u201cThe Empire has lasted a thousand years.\u201d',
+         '\u201cDo you know what that means? It means it outlasted every single idea people had for doing it differently.\u201d',
+         '\u201cThe fen didn\u2019t care either way. The fen was here before the Empire and will be here after.\u201d'],
+        ['\u201cThe interesting question isn\u2019t who built the Empire. It\u2019s what they decided to do with the people they beat.\u201d',
+         '\u201cThey didn\u2019t eliminate them. They built a system instead.\u201d',
+         '\u201cA cage made of paperwork. Quite elegant, if you think about it at the right angle.\u201d'],
+      ];
+    },
     flag_required: null, flag_sets: null, action: null,
   },
 
@@ -4732,12 +4809,13 @@ const HOUSE_DATA = {
     chair:  { x:  8.5 * TILE, y: 7.5 * TILE },
   },
   player_house: {
-    hearth: { x:  4.5 * TILE, y: 2.5 * TILE },
-    bed:    { x: 10.5 * TILE, y: 3.5 * TILE, canRest: true },
-    cat:    { x:  5.5 * TILE, y: 7.5 * TILE },
-    tables: [{ x:  8.5 * TILE, y: 6.5 * TILE }],
-    chair:  { x:  7.5 * TILE, y: 6.5 * TILE },
-    chest:  { x: 11.5 * TILE, y: 7.5 * TILE, gold: 91 },  // life savings — bank chest
+    hearth:     { x:  4.5 * TILE, y: 2.5 * TILE },
+    bed:        { x: 10.5 * TILE, y: 3.5 * TILE, canRest: true },
+    cat:        { x:  5.5 * TILE, y: 7.5 * TILE },
+    tables:     [{ x:  8.5 * TILE, y: 6.5 * TILE }],
+    chair:      { x:  7.5 * TILE, y: 6.5 * TILE },
+    chest:      { x: 11.5 * TILE, y: 7.5 * TILE, gold: 91 },  // life savings — bank chest
+    northWindow: { x:  7.5 * TILE, y: 2.5 * TILE },  // north wall — the morning light the intro describes
   },
   west_b: {
     hearth: { x: 11.5 * TILE, y: 2.5 * TILE },

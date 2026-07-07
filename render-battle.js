@@ -2928,6 +2928,64 @@ function drawBattleEnemy(cx, cy) {
 }
 
 
+// ─── Fire-cast animation (Polwick) ───────────────────────────────────────────
+// A layered flame blob: outer glow → orange body → yellow inner → white core,
+// with a small per-frame flicker in radius. Used both for the travelling
+// fireball and the tongues of flame in the burst.
+function drawFlameBall(x, y, r, alpha) {
+  const fr = r * (0.85 + 0.15 * Math.sin(tick * 0.5 + x));
+  ctx.fillStyle = `rgba(200,60,20,${(0.45 * alpha).toFixed(3)})`;
+  ctx.beginPath(); ctx.arc(x, y, fr * 1.4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = `rgba(240,130,30,${(0.85 * alpha).toFixed(3)})`;
+  ctx.beginPath(); ctx.arc(x, y, fr, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = `rgba(250,200,70,${alpha.toFixed(3)})`;
+  ctx.beginPath(); ctx.arc(x, y, fr * 0.6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = `rgba(255,246,222,${alpha.toFixed(3)})`;
+  ctx.beginPath(); ctx.arc(x, y, fr * 0.28, 0, Math.PI * 2); ctx.fill();
+}
+
+// Plays while combat.fireCastTimer > 0: Polwick gathers fire at his hand, hurls
+// it across the field, and it blooms over the player. Progress runs 0→1 as the
+// timer counts down.
+function drawFireCast() {
+  if (combat.fireCastTimer <= 0) return;
+  const t  = 1 - combat.fireCastTimer / FIRE_CAST_FRAMES;   // 0..1
+  const sx = 338, sy = 206;   // Polwick's outstretched hand
+  const tx = 122, ty = 236;   // the player
+
+  if (t < 0.35) {
+    // Charge — a flame gathers and grows at the hand.
+    const c = t / 0.35;
+    drawFlameBall(sx, sy, 4 + c * 9, 0.6 + 0.4 * c);
+  } else if (t < 0.82) {
+    // Fly — the fireball streaks toward the player with a fading ember tail.
+    const f  = (t - 0.35) / 0.47;
+    const bx = sx + (tx - sx) * f;
+    const by = sy + (ty - sy) * f;
+    for (let i = 5; i >= 1; i--) {
+      const tf = Math.max(0, f - i * 0.05);
+      const ex = sx + (tx - sx) * tf;
+      const ey = sy + (ty - sy) * tf;
+      ctx.fillStyle = `rgba(240,150,40,${(0.32 * (1 - i / 6)).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(ex, ey, 9 - i, 0, Math.PI * 2); ctx.fill();
+    }
+    drawFlameBall(bx, by, 12, 1);
+  } else {
+    // Burst — flames bloom over the player and fade.
+    const b = (t - 0.82) / 0.18;
+    const R = 10 + b * 26;
+    ctx.fillStyle = `rgba(255,120,30,${(0.5 * (1 - b)).toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(tx, ty, R, 0, Math.PI * 2); ctx.fill();
+    for (let i = 0; i < 8; i++) {
+      const ang = (i / 8) * Math.PI * 2 + tick * 0.2;
+      const fr  = R * (0.5 + 0.4 * Math.sin(tick * 0.4 + i));
+      drawFlameBall(tx + Math.cos(ang) * fr, ty + Math.sin(ang) * fr * 0.7,
+                    5 * (1 - b) + 2, 1 - b * 0.5);
+    }
+    drawFlameBall(tx, ty, 12 * (1 - b) + 4, 1 - b * 0.6);
+  }
+}
+
 // ─── Text wrapping (combat message box) ───────────────────────────────────────
 // Wraps text to fit maxWidth, breaking on spaces. Uses the *current*
 // ctx.font, so callers must set that first. A single token wider than
@@ -3053,6 +3111,9 @@ function drawCombat() {
   // Player battle sprite — left side, on the ground
   drawBattlePlayer(108, 254);
 
+  // Polwick's fire cast — drawn over the sprites while the animation runs
+  drawFireCast();
+
   // Enemy name + HP (top-left of battle field)
   ctx.fillStyle = '#c0dcd0';
   ctx.font = 'bold 13px "Courier New", monospace';
@@ -3137,7 +3198,9 @@ function drawCombat() {
   const pPoisoned  = hasStatusEffect('poison');
   const pMuddied   = hasStatusEffect('muddied');
   const pSlithered = hasStatusEffect('slither');
+  const pBurning   = hasStatusEffect('burn');
   const pFillColor = pFilled <= 3 ? '#a06820'
+                   : pBurning      ? '#c85028'
                    : pPoisoned     ? '#7a9820'
                    : pMuddied      ? '#9a8430'
                    : pSlithered    ? '#4a9aaa'
@@ -3166,6 +3229,13 @@ function drawCombat() {
     ctx.fillStyle = '#40c8c8';
     ctx.font = 'bold 10px "Courier New", monospace';
     ctx.fillText('SLI', PX + PAD + 54, pStatusY);
+    pStatusY += 11;
+  }
+  if (pBurning) {
+    // Flicker the burn tag warm so it reads as active fire.
+    ctx.fillStyle = ((tick >> 3) & 1) ? '#f08028' : '#f0b040';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.fillText('BRN', PX + PAD + 54, pStatusY);
   }
 
   // Rule
@@ -3217,12 +3287,13 @@ function drawCombat() {
     ctx.fillStyle = '#1e3040';
     ctx.fillRect(PX + PAD + 8, PY + 94 + shift, PW - PAD * 2 - 16, 1);
 
-    if (stats.items.length === 0) {
+    const battleItems = inventoryItems();
+    if (battleItems.length === 0) {
       ctx.fillStyle = '#2a4848';
       ctx.font = '12px "Courier New", monospace';
       ctx.fillText('no items', PX + PAD + 24, PY + 110 + shift);
     } else {
-      stats.items.forEach((item, i) => {
+      battleItems.forEach((item, i) => {
         const iy       = PY + 110 + shift + i * 22;
         const selected = i === combat.itemCursor;
         if (selected) {
@@ -3242,8 +3313,8 @@ function drawCombat() {
     }
 
     // [ Back ] entry at bottom of list
-    const backIY    = PY + 110 + shift + stats.items.length * 22;
-    const backSel   = combat.itemCursor === stats.items.length;
+    const backIY    = PY + 110 + shift + battleItems.length * 22;
+    const backSel   = combat.itemCursor === battleItems.length;
     if (backSel) {
       ctx.fillStyle = '#0e2434';
       ctx.fillRect(PX + PAD + 6, backIY - 13, PW - PAD * 2 - 12, 18);

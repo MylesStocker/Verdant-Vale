@@ -1614,12 +1614,13 @@ function drawShop() {
     ctx.font = 'bold 11px "Courier New", monospace';
     ctx.fillText('SELL  (50% of value)', BX + PAD, BY + 44);
 
-    if (stats.items.length === 0) {
+    const sellable = inventoryItems();
+    if (sellable.length === 0) {
       ctx.fillStyle = '#3a5060';
       ctx.font = '12px "Courier New", monospace';
       ctx.fillText('  No items to sell.', BX + PAD, BY + 60);
     } else {
-      stats.items.forEach((it, i) => {
+      sellable.forEach((it, i) => {
         const sel      = i === shop.cursor;
         const iy       = BY + 60 + i * 22;
         const sellVal  = Math.floor((it.price || 0) / 2);
@@ -1637,7 +1638,7 @@ function drawShop() {
     }
 
     // Back option — placed at least one row below the item list (or empty message)
-    const backI   = stats.items.length;
+    const backI   = sellable.length;
     const backSel = shop.cursor === backI;
     const backY   = BY + 60 + Math.max(backI, 1) * 22;
     ctx.fillStyle = backSel ? '#f0e090' : '#5a7878';

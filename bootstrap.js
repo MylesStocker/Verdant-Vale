@@ -23,11 +23,12 @@ player.facing       = 'up';
 // in Calwick for several years). Gives brief gameplay reminder only.
 dialogue.name  = '';
 dialogue.pages = [
-  ['Morning light comes through the east window the same as always.',
+  ['Morning light comes through the north window the same as always.',
    'Three years in Calwick.',
    'The square, the office. Familiar enough.'],
-  ['Yesterday was your day off.',
-   'Today, you\u2019re due back at the office \u2014 same as every other working day.'],
+  ['Yesterday was dayoff.',
+   'Today, you\u2019re due back at the office \u2014 same as every first working day.',
+   'No rain again last night \u2014 third month running. Officially a drought, now.'],
 ];
 dialogue.open  = true;
 dialogue.page  = 0;

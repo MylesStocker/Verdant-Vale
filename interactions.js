@@ -719,7 +719,7 @@ function interactSupervisor() {
     ];
     dialogue.callbacks = [function() {
       dispatch_quest_started = true;
-      stats.items.push({ name: 'Dispatch Letter', type: 'accessory', bonus: 0, price: 0, questItem: true });
+      stats.items.push({ name: 'Dispatch Letter', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true });
       syncQuestFlagsToWindow();
       refreshJobBoard();
     }];
@@ -3608,6 +3608,23 @@ function handleInteract() {
           return;
         }
       }
+      // ── North window (player's house) ──────────────────────────────────────
+      if (hd && hd.northWindow) {
+        const nwdx = player.x - hd.northWindow.x;
+        const nwdy = player.y - hd.northWindow.y;
+        if (Math.sqrt(nwdx * nwdx + nwdy * nwdy) < TALK_RADIUS) {
+          dialogue.name  = '';
+          dialogue.pages = [
+            ['The north window. The morning sun comes in low over the rooftops opposite.',
+             'Light falls across the boards in a long, warm slant — the same as every morning.'],
+            ['The square is quiet below. Dry. It has been dry for a long time now.',
+             'No cloud to speak of. There won’t be rain today either.'],
+          ];
+          dialogue.open  = true;
+          dialogue.page  = 0;
+          return;
+        }
+      }
       // ── Letter Quest: Dessa (Drenwick west_a) ──────────────────────────────
       if (currentHouseId === 'drenwick_west_a') {
         const dessa = SIMPLE_NPCS.find(n => n.id === 'dessa');
@@ -3976,6 +3993,119 @@ function handleInteract() {
         }
       }
 
+      // \u2500\u2500 Fenna (Calwick apt_2) \u2014 A Bottle for Her Father \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+      if (currentHouseId === 'apt_2') {
+        const fenna = SIMPLE_NPCS.find(n => n.id === 'fenna');
+        if (fenna) {
+          const fdx = player.x - fenna.x;
+          const fdy = player.y - fenna.y;
+          if (Math.sqrt(fdx * fdx + fdy * fdy) < TALK_RADIUS) {
+
+            if (!wine_quest_started) {
+              dialogue.name  = 'Fenna';
+              dialogue.pages = [
+                ['\u201cOh \u2014 hello.\u201d',
+                 'She looks relieved to have someone to talk to.'],
+                ['\u201cIt\u2019s my dad\u2019s birthday in a few days.\u201d',
+                 '\u201cHe lives out in Drenwick. He loves mushroom wine \u2014 the fresh kind, from the fen brewery.\u201d'],
+                ['\u201cI\u2019d take it myself, but\u2014\u201d',
+                 'She glances toward the door.',
+                 '\u201cThere are things on that road. I\u2019m not going out there.\u201d'],
+                ['\u201cWould you carry some to him? A bottle, whatever you think.\u201d',
+                 '\u201cI\u2019ll pay you back for it. I just want him to have it.\u201d'],
+              ];
+              dialogue.callbacks = [function() {
+                choice.title   = 'Fenna';
+                choice.options = ['Agree to carry the wine', 'Not right now'];
+                choice.cursor  = 0;
+                choice.callbacks = [
+                  function agree() {
+                    wine_quest_started = true;
+                    syncQuestFlagsToWindow();
+                    dialogue.name  = 'Fenna';
+                    dialogue.pages = [
+                      ['\u201cThank you.\u201d',
+                       'She looks like a weight just came off her.'],
+                      ['\u201cWend\u2019s brewery, out in the fen. Just tell him it\u2019s from me \u2014 he\u2019s Sael, corridor B2 in Drenwick.\u201d'],
+                    ];
+                    dialogue.open  = true;
+                    dialogue.page  = 0;
+                  },
+                  function decline() {
+                    dialogue.name  = 'Fenna';
+                    dialogue.pages = [['\u201cOh. Okay.\u201d', '\u201cIf you change your mind.\u201d']];
+                    dialogue.open  = true;
+                    dialogue.page  = 0;
+                  },
+                ];
+                choice.open = true;
+              }];
+              dialogue.open  = true;
+              dialogue.page  = 0;
+
+            } else if (wine_quest_started && !wine_quest_delivered) {
+              dialogue.name  = 'Fenna';
+              dialogue.pages = [
+                ['\u201cWend\u2019s brewery, in the fen, if you haven\u2019t been yet.\u201d',
+                 '\u201cSael \u2014 that\u2019s my dad. Drenwick, corridor B2.\u201d'],
+              ];
+              dialogue.open  = true;
+              dialogue.page  = 0;
+
+            } else if (wine_quest_delivered && !wine_quest_rewarded) {
+              const hasNote = stats.items.some(i => i.name === 'Thank-You Note');
+              if (hasNote) {
+                const gaveCase = wine_quest_gift === 'case';
+                dialogue.name  = 'Fenna';
+                dialogue.pages = gaveCase
+                  ? [
+                      ['She reads the note twice before she says anything.'],
+                      ['\u201cA whole case. You didn\u2019t have to do that.\u201d',
+                       '\u201cHe must have been so pleased.\u201d'],
+                      ['\u201cI don\u2019t have much, but \u2014 I want you to have this.\u201d',
+                       'She presses a small amethyst bangle into your hand.',
+                       '\u201cIt was my mother\u2019s. I think she\u2019d rather it went somewhere it\u2019d actually be used.\u201d'],
+                    ]
+                  : [
+                      ['She reads the note twice before she says anything.'],
+                      ['\u201cHe got it. He\u2019s happy.\u201d',
+                       '\u201cThat\u2019s the whole thing, really.\u201d'],
+                      ['\u201cHere. For the trouble.\u201d',
+                       'She counts out fifty gold.'],
+                    ];
+                dialogue.callbacks = [function() {
+                  stats.items = stats.items.filter(i => i.name !== 'Thank-You Note');
+                  if (gaveCase) {
+                    stats.items.push({ name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 400, preventsCursed: true });
+                  } else {
+                    stats.gold += 50;
+                  }
+                  wine_quest_rewarded = true;
+                  syncQuestFlagsToWindow();
+                }];
+                dialogue.open  = true;
+                dialogue.page  = 0;
+              } else {
+                dialogue.name  = 'Fenna';
+                dialogue.pages = [['\u201cDid he send anything back with you?\u201d']];
+                dialogue.open  = true;
+                dialogue.page  = 0;
+              }
+
+            } else {
+              dialogue.name  = 'Fenna';
+              dialogue.pages = [
+                ['\u201cThank you again for that.\u201d',
+                 '\u201cReally.\u201d'],
+              ];
+              dialogue.open  = true;
+              dialogue.page  = 0;
+            }
+            return;
+          }
+        }
+      }
+
       // ── Voss (Drenwick apt_a1_u3) — moral dilemma ─────────────────────────
       if (currentHouseId === 'drenwick_apt_a1_u3') {
         const voss = SIMPLE_NPCS.find(n => n.id === 'apt_voss');
@@ -4104,10 +4234,121 @@ function handleInteract() {
         }
       }
 
+      // \u2500\u2500 Sael (Drenwick apt_b2_u1) \u2014 receives the wine, gives the note \u2500\u2500\u2500\u2500
+      if (currentHouseId === 'drenwick_apt_b2_u1') {
+        const sael = SIMPLE_NPCS.find(n => n.id === 'apt_sael');
+        if (sael) {
+          const slx = player.x - sael.x;
+          const sly = player.y - sael.y;
+          if (Math.sqrt(slx * slx + sly * sly) < TALK_RADIUS) {
+            const hasCase   = stats.items.some(i => i.name === 'Case of Mushroom Wine');
+            const hasBottle = stats.items.some(i => i.name === 'Bottle of Mushroom Wine');
+            if (wine_quest_started && !wine_quest_delivered && (hasCase || hasBottle)) {
+              const gift = hasCase ? 'case' : 'bottle';
+              dialogue.name  = 'Sael';
+              dialogue.pages = gift === 'case'
+                ? [
+                    ['He sees what you\u2019re carrying before you say anything.'],
+                    ['\u201cA whole case.\u201d',
+                     'For a moment he doesn\u2019t say anything else.',
+                     '\u201cShe didn\u2019t have to do that.\u201d'],
+                    ['\u201cTell Fenna \u2014 tell her thank you. Really.\u201d',
+                     'He scribbles a short note and presses it into your hand.',
+                     '\u201cTake this back to her, would you? She\u2019ll want to know it arrived.\u201d'],
+                  ]
+                : [
+                    ['He sees the bottle before you say anything.'],
+                    ['\u201cShe sent you all this way for one bottle?\u201d',
+                     'He\u2019s smiling despite himself.',
+                     '\u201cThat\u2019s Fenna.\u201d'],
+                    ['He scribbles a short note and presses it into your hand.',
+                     '\u201cTake this back to her. Tell her thank you.\u201d'],
+                  ];
+              dialogue.callbacks = [function() {
+                const giftItemName = gift === 'case' ? 'Case of Mushroom Wine' : 'Bottle of Mushroom Wine';
+                stats.items = stats.items.filter(i => i.name !== giftItemName);
+                stats.items.push({ name: 'Thank-You Note', type: 'accessory', bonus: 0, price: 0, questItem: true });
+                wine_quest_delivered = true;
+                wine_quest_gift      = gift;
+                syncQuestFlagsToWindow();
+              }];
+              dialogue.open  = true;
+              dialogue.page  = 0;
+              return;
+            }
+          }
+        }
+      }
+
       interactSimpleNPCs();
     } else {
       // Smuggler fort — all interaction routed through interactSmugglerFort
       if (activeMap === SMUGGLER_FORT_MAP) { interactSmugglerFort(); return; }
+      // Fen Brewery \u2014 Gorrit sells freshly made mushroom wine by the bottle or case
+      if (inFenBrewery) {
+        const gorrit = SIMPLE_NPCS.find(n => n.id === 'gorrit_wend');
+        if (gorrit) {
+          const gwx = player.x - gorrit.x;
+          const gwy = player.y - gorrit.y;
+          if (Math.sqrt(gwx * gwx + gwy * gwy) < TALK_RADIUS) {
+            dialogue.name  = 'Gorrit';
+            dialogue.pages = [
+              ['\u201cFresh batch, just strained.\u201d',
+               'He nods at the row of corked bottles beside the vats.'],
+              ['\u201cBottle\u2019s twelve gold.\u201d',
+               '\u201cCase of twelve\u2019s a hundred thirty-two \u2014 buy eleven, twelfth\u2019s on the house.\u201d'],
+            ];
+            dialogue.callbacks = [function() {
+              choice.title     = 'Gorrit';
+              choice.options   = ['Buy a Bottle (12g)', 'Buy a Case of 12 (132g)', 'Leave'];
+              choice.cursor    = 0;
+              choice.callbacks = [
+                function buyBottle() {
+                  if (stats.gold >= 12) {
+                    stats.gold -= 12;
+                    stats.items.push({ name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12, questItem: true });
+                    dialogue.name  = 'Gorrit';
+                    dialogue.pages = [
+                      ['\u201cThere you go.\u201d',
+                       'He corks it and sets it down carefully.',
+                       '\u201cMind the road on the way back.\u201d'],
+                    ];
+                  } else {
+                    dialogue.name  = 'Gorrit';
+                    dialogue.pages = [['\u201cTwelve gold.\u201d', '\u201cYou\u2019re short.\u201d']];
+                  }
+                  dialogue.open  = true;
+                  dialogue.page  = 0;
+                },
+                function buyCase() {
+                  if (stats.gold >= 132) {
+                    stats.gold -= 132;
+                    stats.items.push({ name: 'Case of Mushroom Wine', type: 'accessory', bonus: 0, price: 132, questItem: true });
+                    dialogue.name  = 'Gorrit';
+                    dialogue.pages = [
+                      ['\u201cA whole case.\u201d',
+                       'He looks briefly, genuinely pleased.',
+                       '\u201cDon\u2019t see that order much. Careful carrying it \u2014 heavier than it looks.\u201d'],
+                    ];
+                  } else {
+                    dialogue.name  = 'Gorrit';
+                    dialogue.pages = [['\u201cHundred thirty-two.\u201d', '\u201cNot today, looks like.\u201d']];
+                  }
+                  dialogue.open  = true;
+                  dialogue.page  = 0;
+                },
+                function leave() {},
+              ];
+              choice.open = true;
+            }];
+            dialogue.open  = true;
+            dialogue.page  = 0;
+            return;
+          }
+        }
+        interactSimpleNPCs();
+        return;
+      }
       // Drenwick guard post — Constable Tarvec, Pale Sentry contract
       if (inDrenwrickPost) {
         const tarvec = SIMPLE_NPCS.find(n => n.id === 'tarvec');

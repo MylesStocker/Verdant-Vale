@@ -137,6 +137,17 @@ let netto_letter_received = false;
 // Dessa will not offer her quest on first contact — she needs one visit first.
 let dessa_met = false;
 
+// ─── Side quest: A Bottle for Her Father ──────────────────────────────────────
+// Fenna (Calwick, apt_2) asks the player to carry mushroom wine from the Wend
+// family's fen brewery to her father Sael, who lives alone in a Drenwick
+// apartment (corridor B2, unit 1) — she's too scared of the road to go herself.
+// wine_quest_gift records which tier Sael actually received ('bottle'/'case'),
+// since Fenna's reward later depends on it.
+let wine_quest_started   = false; // accepted from Fenna
+let wine_quest_gift      = null;  // 'bottle' | 'case' — set once Sael receives the wine
+let wine_quest_delivered = false; // Sael has the wine and gave the player a note for Fenna
+let wine_quest_rewarded  = false; // Fenna has paid out for the returned note
+
 // ─── Window sync ─────────────────────────────────────────────────────────────
 // window.* values are for debugging and console inspection only — gameplay code
 // uses the let bindings directly. Call syncQuestFlagsToWindow() after any
@@ -181,6 +192,10 @@ function syncQuestFlagsToWindow() {
   window.den_wraith_rewarded      = den_wraith_rewarded;
   window.netto_letter_received    = netto_letter_received;
   window.dessa_met                = dessa_met;
+  window.wine_quest_started   = wine_quest_started;
+  window.wine_quest_gift      = wine_quest_gift;
+  window.wine_quest_delivered = wine_quest_delivered;
+  window.wine_quest_rewarded  = wine_quest_rewarded;
 }
 window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 

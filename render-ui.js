@@ -587,6 +587,12 @@ function drawMenu() {
     } else if (den_wraith_defeated && !den_wraith_rewarded) {
       notes.push({ title: 'Den Wraith', body: "Return to claim the wraith bounty." });
     }
+    // A Bottle for Her Father
+    if (wine_quest_started && !wine_quest_delivered) {
+      notes.push({ title: "Fenna's Father", body: "Buy mushroom wine at Wend's brewery in the fen and bring it to Sael, Fenna's father, in Drenwick." });
+    } else if (wine_quest_delivered && !wine_quest_rewarded) {
+      notes.push({ title: "Fenna's Father", body: "Bring Sael's note back to Fenna in Calwick." });
+    }
 
     // Special Items — quest-flagged items (stats.items with questItem: true)
     // get their own section here so they don't just blend into the regular
@@ -598,6 +604,9 @@ function drawMenu() {
       'Mushroom Wine':      "Wend's brew, from the fen settlements.",
       'Schilling':          "Pip's teddy bear. He's waiting for it back.",
       'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
+      'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
+      'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
+      'Thank-You Note':          "From Sael. Fenna will want to see this.",
     };
     const seenSpecial = new Set();
     const specialItems = stats.items.filter(it => it.questItem && !seenSpecial.has(it.name) && seenSpecial.add(it.name));

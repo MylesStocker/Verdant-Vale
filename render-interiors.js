@@ -484,6 +484,106 @@ function drawHouseFurniture() {
       }
     }
   }
+  // ── North wall window + morning light beam ────────────────────────────────
+  // A window set into the north wall with a shaft of low morning sun fanning
+  // down into the room. This is the "morning light through the north window"
+  // the intro opens on. The frame is drawn raised onto the wall tiles — sill
+  // resting at the wall/floor junction — so it reads as set into the wall,
+  // not lying on the boards. The beam is a translucent gradient wedge slanting
+  // down-and-west (low sun in the east), with a few drifting dust motes for
+  // life. Kept subtle — it's mood, not a light-source system.
+  if (hd.northWindow) {
+    const wx = Math.round(hd.northWindow.x);
+    const wy = Math.round(hd.northWindow.y) - 34;   // raised onto the wall face
+
+    // ── Light shaft (drawn first, so the crisp frame sits on top of it) ─────
+    // Origin edge runs along the sill; the far edge spreads wider and drifts
+    // west across the boards — a low, early-morning sun angle.
+    const oxL = wx - 10, oxR = wx + 10;   // origin edge (at the sill)
+    const oy  = wy + 9;
+    const fy  = wy + 122;                 // far edge y (deep into the room)
+    const fxL = wx - 62;                  // far edge left — light has spread
+    const fxR = wx + 24;                  // far edge right — slanted west
+
+    const beam = ctx.createLinearGradient(wx, oy, wx - 18, fy);
+    beam.addColorStop(0,   'rgba(255,226,150,0.34)');
+    beam.addColorStop(0.45,'rgba(255,224,150,0.17)');
+    beam.addColorStop(1,   'rgba(255,224,150,0.0)');
+    ctx.fillStyle = beam;
+    ctx.beginPath();
+    ctx.moveTo(oxL, oy);
+    ctx.lineTo(oxR, oy);
+    ctx.lineTo(fxR, fy);
+    ctx.lineTo(fxL, fy);
+    ctx.closePath();
+    ctx.fill();
+
+    // Brighter inner core of the shaft
+    const core = ctx.createLinearGradient(wx, oy, wx - 14, fy - 24);
+    core.addColorStop(0, 'rgba(255,240,196,0.30)');
+    core.addColorStop(1, 'rgba(255,240,196,0.0)');
+    ctx.fillStyle = core;
+    ctx.beginPath();
+    ctx.moveTo(wx - 5, oy);
+    ctx.lineTo(wx + 5, oy);
+    ctx.lineTo(fxR - 20, fy - 20);
+    ctx.lineTo(fxL + 28, fy - 20);
+    ctx.closePath();
+    ctx.fill();
+
+    // Drifting dust motes riding the shaft — slow fall from window into room
+    for (let i = 0; i < 4; i++) {
+      const t  = (((tick >> 1) + i * 47) % 200) / 200;   // 0..1 along the beam
+      const mx = wx + 4 - t * 46 + Math.sin((tick / 22) + i * 1.7) * 3;
+      const my = oy + 4 + t * 100;
+      const a  = 0.45 * (1 - t);                          // fade as they travel
+      ctx.fillStyle = 'rgba(255,246,214,' + a.toFixed(3) + ')';
+      ctx.fillRect(Math.round(mx), Math.round(my), 2, 2);
+    }
+
+    // ── Window set into the north wall ──────────────────────────────────────
+    // Stone surround / lintel
+    ctx.fillStyle = '#989080';
+    ctx.fillRect(wx - 14, wy - 13, 28, 22);
+    // Inner reveal — shadow depth
+    ctx.fillStyle = '#787068';
+    ctx.fillRect(wx - 11, wy - 10, 22, 16);
+    // Sky through glass — pale, cool up top
+    ctx.fillStyle = '#b8ccd4';
+    ctx.fillRect(wx - 10, wy -  9, 20, 14);
+    // Warm dawn glow low in the pane (sun near the horizon)
+    ctx.fillStyle = '#e9d7a0';
+    ctx.fillRect(wx - 10, wy -  1, 20,  6);
+    // Bright sun catch
+    ctx.fillStyle = '#fdf1c6';
+    ctx.fillRect(wx -  6, wy,      12,  4);
+    // Lead dividers — centre post and horizontal rail
+    ctx.fillStyle = '#686058';
+    ctx.fillRect(wx -  1, wy -  9,  2, 14);  // vertical post
+    ctx.fillRect(wx - 10, wy -  2, 20,  2);  // horizontal rail
+    // Upper-pane highlight (cool glass sheen)
+    ctx.fillStyle = '#d8e8ee';
+    ctx.fillRect(wx -  9, wy -  8,  5,  3);
+    ctx.fillRect(wx +  2, wy -  8,  5,  3);
+    // Stone sill — rests at the wall/floor junction
+    ctx.fillStyle = '#b0a898';
+    ctx.fillRect(wx - 14, wy +  9, 28,  4);
+    // Sill top highlight
+    ctx.fillStyle = '#c8beb0';
+    ctx.fillRect(wx - 14, wy +  9, 28,  1);
+    // SPACE hint when in range
+    if (!dialogue.open && !choice.open && !shop.open) {
+      const dx = player.x - hd.northWindow.x;
+      const dy = player.y - hd.northWindow.y;
+      if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS && (tick >> 4) & 1) {
+        ctx.fillStyle = '#d8c878';
+        ctx.font = 'bold 11px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('SPACE', wx, wy - 20);
+        ctx.textAlign = 'left';
+      }
+    }
+  }
 }
 
 // ─── Falls Hamlet Interior Furniture ─────────────────────────────────────────

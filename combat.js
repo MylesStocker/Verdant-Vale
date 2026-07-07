@@ -112,6 +112,7 @@ const combat = {
   pendingDefeat:  false,
   pendingEscape:  false,
   flashTimer:     0,
+  fireCastTimer:  0,         // frames remaining on Polwick's fire-cast animation
   cooldown:       0,
   isBoss:         false,
   isWarden:       false,
@@ -243,6 +244,8 @@ function endCombat() {
   combat.active      = false;
   combat.enemy       = null;
   combat.cooldown    = ENCOUNTER_COOLDOWN;
+  combat.fireCastTimer = 0;
+  removeStatusEffect('burn');   // Burn is combat-only — it wears off when the fight ends.
   combat.isBoss        = false;
   combat.isWarden      = false;
   combat.isFortGuard   = false;
@@ -502,13 +505,64 @@ function applyEnemyHitEffects() {
     triggerPoison();
     combat.messageQueue.unshift('The hag\u2019s curse seeps in. Poisoned! (lose HP each rest)');
   }
-  if (combat.enemy && combat.enemy.curseChance && !hasStatusEffect('cursed') && Math.random() < combat.enemy.curseChance) {
-    triggerCursed();
-    const curseMsg = combat.enemy.name === 'Den Wraith'
-      ? 'The Den Wraith\u2019s wail settles into your bones. Cursed!'
-      : 'Something unravels. Cursed!';
-    combat.messageQueue.unshift(curseMsg);
+  // Polwick — a firelit rareborn. When he lands a blow and the player isn't
+  // already alight, he sometimes flares his hand into flame: a burst of scorch
+  // damage on top of the hit, plus the Burn status (0..20 HP each following
+  // turn). The cast kicks off a short fire animation (see drawFireCast).
+  if (combat.isFortPolwick && !hasStatusEffect('burn') && Math.random() < 0.5) {
+    triggerBurn();
+    combat.fireCastTimer = FIRE_CAST_FRAMES;
+    const scorch = 4 + Math.floor(Math.random() * 5);   // 4..8 immediate fire damage
+    stats.hp = Math.max(0, stats.hp - scorch);
+    combat.messageQueue.unshift(
+      `Polwick's hand bursts into flame— a gout of fire scorches you for ${scorch}! Burning!`
+    );
+    if (stats.hp <= 0 && !combat.pendingDefeat) {
+      combat.messageQueue.push(`${stats.name} has fallen...`);
+      combat.pendingDefeat = true;
+    }
   }
+  if (combat.enemy && combat.enemy.curseChance && !hasStatusEffect('cursed') && Math.random() < combat.enemy.curseChance) {
+    if (stats.accessory && stats.accessory.preventsCursed) {
+      combat.messageQueue.unshift('The amethyst bangle flares faintly. The curse doesn\u2019t take.');
+    } else {
+      triggerCursed();
+      const curseMsg = combat.enemy.name === 'Den Wraith'
+        ? 'The Den Wraith\u2019s wail settles into your bones. Cursed!'
+        : 'Something unravels. Cursed!';
+      combat.messageQueue.unshift(curseMsg);
+    }
+  }
+}
+
+// How long Polwick's fire-cast animation plays, in frames (~0.75s at 60fps).
+const FIRE_CAST_FRAMES = 45;
+
+// Burn — a combat-only damage-over-time. Returns a deferred message-queue entry
+// (or null when the player isn't burning) to append at the END of a turn that
+// consumes an action, so the sear resolves after the enemy has acted. The
+// random 0..20 roll is fixed when the entry is built but only applied when its
+// message is shown. Evaluated at message-build time, so on the very turn Burn
+// is first inflicted (which happens later, inside the enemy hit's deferred
+// apply) this returns null — the first tick lands on the following turn.
+function burnTickEntry() {
+  if (!hasStatusEffect('burn')) return null;
+  const burnDmg = Math.floor(Math.random() * 21);   // 0..20 inclusive
+  return {
+    text: burnDmg > 0
+      ? `The burn sears ${stats.name} for ${burnDmg}!`
+      : 'The burn smoulders, but does no damage this turn.',
+    apply() {
+      if (stats.hp <= 0) return;   // player already fell this turn — don't double up
+      if (burnDmg > 0) {
+        stats.hp = Math.max(0, stats.hp - burnDmg);
+        if (stats.hp <= 0 && !combat.pendingDefeat) {
+          combat.messageQueue.push(`${stats.name} has fallen...`);
+          combat.pendingDefeat = true;
+        }
+      }
+    },
+  };
 }
 
 // The enemy's response to a player turn that didn't itself fight the enemy
@@ -696,9 +750,9 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['They\u2019re watching for you to hesitate.', 'Don\u2019t give them the window.'] },
   ],
   'Polwick': [
-    { lines: ['Fast. Strong. He\u2019s been waiting for this.', 'Better than the guard. He\u2019s fought his way into this position.'] },
+    { lines: ['Fast. Strong. He\u2019s been waiting for this.', 'Better than the guard. He\u2019s fought his way into this position.', 'Firelit \u2014 he\u2019ll set you alight if he gets a hand on you. Watch for the burn.'] },
     { lines: ['He runs the fort through intimidation and performance.', 'This is both.', 'He needs you to lose visibly.'] },
-    { lines: ['His form is good. He trained somewhere.', 'He\u2019s also been drinking, which complicates reading him.', 'The hesitation is real, not feinted.'] },
+    { lines: ['His form is good. He trained somewhere.', 'The fire is rareborn, not trained \u2014 firelit, like the fen brewers warn about.', 'He\u2019s also been drinking, which complicates reading him.'] },
   ],
   'Essa': [
     { lines: ['Fast. Fragile. Desperate.', 'She has nothing left to lose here.', 'Desperate fighters are unpredictable. End it cleanly.'] },
@@ -952,27 +1006,28 @@ function handleCombatAction() {
     return;
   }
   if (combat.phase === 'item') {
-    if (combat.itemCursor === stats.items.length) {
+    const items = inventoryItems();
+    if (combat.itemCursor === items.length) {
       // "Back" entry selected \u2014 return to the action menu; no turn spent, no enemy response.
       combat.phase = 'choose';
       return;
     }
-    const item = stats.items[combat.itemCursor];
+    const item = items[combat.itemCursor];
     if (!item) return;
 
     const msgs = [];
     if (item.type === 'potion') {
       if (item.curesPoison) {
         removeStatusEffect('poison');
-        stats.items.splice(combat.itemCursor, 1);
-        combat.itemCursor = Math.min(combat.itemCursor, stats.items.length);
+        stats.items.splice(stats.items.indexOf(item), 1);
+        combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
         msgs.push(`Used ${item.name} \u2014 poison cured!`);
       } else {
         const healed = Math.min(item.heals || 0, stats.maxHp - stats.hp);
         stats.hp += healed;
         if (item.causesMuddied) addStatusEffect('muddied');
-        stats.items.splice(combat.itemCursor, 1);
-        combat.itemCursor = Math.min(combat.itemCursor, stats.items.length);
+        stats.items.splice(stats.items.indexOf(item), 1);
+        combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
         msgs.push(item.causesMuddied
           ? `Used ${item.name} \u2014 restored ${healed} HP. Legs feel heavy.`
           : `Used ${item.name} \u2014 restored ${healed} HP!`);
@@ -984,6 +1039,9 @@ function handleCombatAction() {
 
     // Using an item consumes the turn just like Attack \u2014 the enemy still acts.
     msgs.push(enemyTurnResponse(d => `${combat.enemy.name} attacks for ${d}!`));
+    // Burn ticks at the end of the turn, after the enemy's response.
+    const itemBurn = burnTickEntry();
+    if (itemBurn) msgs.push(itemBurn);
 
     const first = msgs.shift();
     if (typeof first === 'string') {
@@ -1033,6 +1091,9 @@ function handleCombatAction() {
         msgs.push(`${stats.name} has fallen...`);
         combat.pendingDefeat = true;
       }
+      // Burn still ticks on a failed escape — it's a turn spent in the fight.
+      const runBurn = burnTickEntry();
+      if (runBurn) msgs.push(runBurn);
       combat.message      = msgs.shift();
       combat.messageQueue = msgs;
       combat.phase        = 'message';
@@ -1178,6 +1239,14 @@ function handleCombatAction() {
         },
       });
     }
+  }
+
+  // Burn ticks at the end of the turn (Attack / Observe), after the enemy has
+  // acted — but not if the enemy just died (fight's won) or the turn produced
+  // no messages at all.
+  if (msgs.length > 0 && !combat.pendingVictory) {
+    const turnBurn = burnTickEntry();
+    if (turnBurn) msgs.push(turnBurn);
   }
 
   if (msgs.length > 0) {

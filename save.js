@@ -28,6 +28,7 @@ const QUEST_FLAG_SCHEMA = [
   'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
   'netto_letter_received',  // was absent from saveGame() before; now included
   'dessa_met',              // rapport gate: must meet Dessa once before quest offer
+  'wine_quest_started', 'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
 
@@ -263,6 +264,10 @@ function loadGame() {
   if (data.den_wraith_rewarded      !== undefined) den_wraith_rewarded      = data.den_wraith_rewarded;
   if (data.netto_letter_received    !== undefined) netto_letter_received    = data.netto_letter_received;
   if (data.dessa_met                !== undefined) dessa_met                = data.dessa_met;
+  if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
+  if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
+  if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;
+  if (data.wine_quest_rewarded      !== undefined) wine_quest_rewarded      = data.wine_quest_rewarded;
   // dilemma_voss: main.js var, not in syncQuestFlagsToWindow — remains in location block below
   refreshJobBoard();
 

@@ -36,6 +36,14 @@ const ITEM_REGISTRY = {
   'Mirestone Blade': { name: 'Mirestone Blade', type: 'weapon', bonus: 8, price: 200 },
   'Fen Cowl':        { name: 'Fen Cowl',        type: 'armor',  bonus: 4, price: 120 },
   'Ember Root':      { name: 'Ember Root',       type: 'potion', heals: 15, causesMuddied: true, price: 20 },
+  // Fen Brewery — Gorrit Wend sells freshly made mushroom wine directly (distinct
+  // from the tavern's by-the-cup 'Mushroom Wine'); bought as a gift, not a heal item.
+  'Bottle of Mushroom Wine': { name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12,  questItem: true },
+  'Case of Mushroom Wine':   { name: 'Case of Mushroom Wine',   type: 'accessory', bonus: 0, price: 132, questItem: true },
+  'Thank-You Note':          { name: 'Thank-You Note',          type: 'accessory', bonus: 0, price: 0,   questItem: true },
+  // Fenna's reward for delivering a case rather than a bottle — real equipment,
+  // not a flavor-only key item, so it isn't questItem-flagged.
+  'Amethyst Bangle': { name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 400, preventsCursed: true },
 };
 
 window.ITEM_REGISTRY = ITEM_REGISTRY;

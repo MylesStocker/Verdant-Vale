@@ -28,7 +28,7 @@ window.addEventListener('keydown', e => {
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleCombatAction(); }
       } else if (combat.phase === 'item') {
         // cursor 0..items.length-1 = items, items.length = Back
-        const last = stats.items.length;
+        const last = inventoryItems().length;
         if (e.key === 'ArrowUp'   || e.key === 'w') combat.itemCursor = Math.max(0, combat.itemCursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') combat.itemCursor = Math.min(last, combat.itemCursor + 1);
         if (e.key === 'b' || e.key === 'B' || e.key === 'Escape') { e.preventDefault(); combat.phase = 'choose'; }
@@ -158,14 +158,15 @@ window.addEventListener('keydown', e => {
           }
           if (e.key === 'Escape' || e.key === 'b' || e.key === 'B') { shop.screen = 'main'; shop.cursor = 0; }
         } else if (shop.screen === 'sell') {
-          const listLen = stats.items.length + 1; // +1 for Back
+          const sellable = inventoryItems();
+          const listLen = sellable.length + 1; // +1 for Back
           if (e.key === 'ArrowUp'   || e.key === 'w') shop.cursor = Math.max(0, shop.cursor - 1);
           if (e.key === 'ArrowDown' || e.key === 's') shop.cursor = Math.min(listLen - 1, shop.cursor + 1);
           if (e.key === ' ' || e.key === 'Enter') {
-            if (shop.cursor === stats.items.length) {
+            if (shop.cursor === sellable.length) {
               shop.screen = 'main'; shop.cursor = 0;
             } else {
-              const it = stats.items[shop.cursor];
+              const it = sellable[shop.cursor];
               if (it) {
                 stats.gold += Math.floor((it.price || 0) / 2);
                 // If selling an equipped item, clear its slot
@@ -173,8 +174,8 @@ window.addEventListener('keydown', e => {
                 if (stats.armor     === it) stats.armor     = null;
                 if (stats.shield    === it) stats.shield    = null;
                 if (stats.accessory === it) stats.accessory = null;
-                stats.items.splice(shop.cursor, 1);
-                shop.cursor = Math.min(shop.cursor, stats.items.length);
+                stats.items.splice(stats.items.indexOf(it), 1);
+                shop.cursor = Math.min(shop.cursor, inventoryItems().length);
               }
             }
           }
