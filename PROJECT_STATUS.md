@@ -158,12 +158,21 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
   added the same unpooled way, remember `validateEnemies()` still won't
   catch a missing sprite for it — check `render-battle.js`'s dispatch by
   hand and update `BATTLE_SPRITE_NAMES` there.
-- **`handleInteract()` (`interactions.js`) is ~3,300 lines**, almost
-  entirely one hand-written `if`/`else if` chain. `MAP_FEATURES`'
-  lowest-priority guarantee depends on every higher-priority path in that
-  chain setting `dialogue.open = true` as feedback — true today (verified
-  by reading every custom NPC `.action`), but nothing enforces it stays
-  true for a newly-added scripted interaction that does something "silent."
+- **`handleInteract()` (`interactions.js`) has been refactored** from one
+  ~3,600-line `if`/`else if` chain into a priority orchestrator over 23
+  named location handlers (`INTERACT_HANDLERS` /
+  `OVERWORLD_INTERACT_HANDLERS` tables; first matching location wins,
+  mirroring the old else-if dispatch). Consumption is now **explicit**: a
+  handler returns `true` to consume the interact press (inside a handler
+  body, `return true` is what the old chain's bare `return` was), and the
+  `MAP_FEATURES` fallback runs only when nothing consumed — guarded by
+  `interactionUiOpened()` (dialogue/choice/shop/reading panels), no longer
+  by `dialogue.open` alone. The old failure mode ("a scripted interaction
+  that opens a choice menu but not dialogue lets MAP_FEATURES open a
+  competing dialogue underneath") is fixed structurally. Remaining caveat:
+  the individual handler bodies are still long hand-written proximity-check
+  sequences — the refactor changed the dispatch/fallback skeleton, not the
+  per-location content.
 - **`movement.js`'s `update()` has a proven brace-counting trap** right
   after the world-item pickup loop — see `architecture.md`'s "Movement"
   section. Any future edit in that vicinity should be verified against a
@@ -242,9 +251,13 @@ Roughly in priority order:
   (validated automatically by `validateEnemies()`).
 
 **Reserve for a stronger/more careful model:**
-- Anything touching `handleInteract()`'s priority ordering, or adding a new
-  kind of "silent" interaction (one that doesn't set `dialogue.open`) —
-  risks quietly breaking the `MAP_FEATURES` priority guarantee.
+- Changing `handleInteract()`'s dispatch tables or consumption semantics
+  (`INTERACT_HANDLERS` order, `interactionUiOpened()`, the
+  matched-but-not-consumed fallthrough). Adding a proximity check *inside*
+  an existing location handler is now a normal, lower-risk task — just
+  `return true` once handled — but reordering handlers or touching the
+  orchestrator loop can still silently change which interaction wins a
+  press.
 - Anything editing inside or near `movement.js`'s `update()` function body,
   especially near/after the world-item pickup loop.
 - Any new "safe entrance area" (full 17-step pattern in `architecture.md`)
