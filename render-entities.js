@@ -420,9 +420,70 @@ function drawWenSprite(npc) {
 
 // Draw-function lookup keyed by NPC id. Add an entry here when adding a new
 // simple NPC; the sprite function receives the full NPC data entry.
+// Calwick schoolhouse bookshelf. Registered as a SIMPLE_NPC (id
+// 'calwick_school_bookshelf') so it inherits the standard proximity
+// interaction and solid-body collision, but drawn as furniture rather than a
+// person. Sprite mirrors the house bookshelf (render-interiors.js).
+function drawSchoolBookshelf(npc) {
+  const bx = Math.round(npc.x), by = Math.round(npc.y);
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.22)';
+  ctx.beginPath();
+  ctx.ellipse(bx, by + 15, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Back panel — dark wood
+  ctx.fillStyle = '#1e1208';
+  ctx.fillRect(bx - 11, by - 16, 22, 30);
+  // Side frame boards
+  ctx.fillStyle = '#4a2e10';
+  ctx.fillRect(bx - 11, by - 16,  2, 30);
+  ctx.fillRect(bx +  9, by - 16,  2, 30);
+  // Top cap
+  ctx.fillStyle = '#3a2010';
+  ctx.fillRect(bx - 12, by - 18, 24,  3);
+  ctx.fillStyle = '#5a3818';
+  ctx.fillRect(bx - 12, by - 18, 24,  1);
+  // Bottom board
+  ctx.fillStyle = '#3a2010';
+  ctx.fillRect(bx - 12, by + 13, 24,  2);
+  // Shelf dividers
+  ctx.fillStyle = '#3a2010';
+  ctx.fillRect(bx - 11, by -  5, 20,  2);
+  ctx.fillRect(bx - 11, by +  6, 20,  2);
+  // Top shelf books
+  const bkc = ['#7a2e18','#28485a','#2a5030','#6a4810','#4a2858','#1e3a5a','#5a3418'];
+  let bkx = bx - 9;
+  [4, 3, 5, 4].forEach(function(w, i) {
+    ctx.fillStyle = bkc[i % bkc.length];
+    ctx.fillRect(bkx, by - 15, w, 9);
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(bkx + w - 1, by - 15, 1, 9);
+    bkx += w + 1;
+  });
+  // Middle shelf books
+  bkx = bx - 9;
+  [3, 4, 3, 3, 3].forEach(function(w, i) {
+    ctx.fillStyle = bkc[(i + 3) % bkc.length];
+    ctx.fillRect(bkx, by -  4, w, 9);
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(bkx + w - 1, by - 4, 1, 9);
+    bkx += w + 1;
+  });
+  // Bottom shelf — small objects
+  ctx.fillStyle = '#786040';          // small urn
+  ctx.fillRect(bx - 9, by + 7, 5, 6);
+  ctx.fillStyle = '#484840';          // tin box
+  ctx.fillRect(bx - 3, by + 8, 5, 5);
+  ctx.fillStyle = '#7a3020';          // book lying flat
+  ctx.fillRect(bx + 3, by + 9, 6, 3);
+  // SPACE prompt when in range (drawn above the shelf)
+  drawNPCSpaceHint(npc, bx, by - 8);
+}
+
 const NPC_DRAW_FNS = {
   maren: drawMarenSprite,
   wen:   drawWenSprite,
+  calwick_school_bookshelf: drawSchoolBookshelf,
 };
 
 // Shared SPACE prompt drawn above an NPC when the player is in range.

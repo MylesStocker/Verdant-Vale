@@ -40,6 +40,14 @@ module.exports = {
     g.press('Enter');
     g.press('Enter'); // close intro dialogue
 
+    // debugMode suppresses random encounters. Several steps below hold a
+    // direction key across many frames on encounter-eligible ground with
+    // combat.cooldown = 0 (the movement check, and the point-tile/edge
+    // crossings); without this an unlucky roll could start real combat
+    // mid-walk and fail the "menu opens" / "crossed" assertions
+    // nondeterministically -- same guard, same reason, as tests 20 and 21.
+    g.run('debugMode = true;');
+
     // ── 1. Inspector data reads cleanly, and a real render() doesn't throw ──
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap = NORTH_BASIN_SW_MAP;

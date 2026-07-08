@@ -2981,6 +2981,7 @@ function handleInteract() {
                   ['SEAL AND DATING',
                    'Issued under the Seal of the Empire, in the presence of the Council of Thirty-Three, in the Seven Hundredth Year After Century, and entered into force forthwith.'],
                 ];
+                accordPanel.title = 'IMPERIAL INSTRUMENT NO. 7 OF YEAR 700 — ACCORD OF THREADS';
                 accordPanel.page = 0;
                 accordPanel.open = true;
               },

@@ -924,6 +924,94 @@ const SIMPLE_NPCS = [
     flag_required: null, flag_sets: null, action: null,
   },
 
+  // ── Schoolhouse bookshelf ──────────────────────────────────────────────────
+  // Not a person: solid classroom furniture registered as a SIMPLE_NPC so it
+  // reuses the standard proximity interaction and solid-body collision. Its
+  // action opens a reading menu — "Read a history book" offers five imperial
+  // school-primer topics, each shown in the accordPanel parchment reader in a
+  // formal textbook register (content drawn from LORE.md). Drawn by
+  // NPC_DRAW_FNS['calwick_school_bookshelf'] (render-entities.js).
+  {
+    id: 'calwick_school_bookshelf', name: 'Bookshelf',
+    map: 'school', x: 13.5 * TILE, y: 2.5 * TILE,
+    solid: true, facing: 'down', spriteType: 'clerk',
+    dialogue: null,
+    flag_required: null, flag_sets: null,
+    action: function() {
+      const TOPICS = [
+        {
+          label: 'The Century War',
+          title: 'IMPERIAL SCHOOL PRIMER — THE CENTURY WAR',
+          pages: [
+            ['The Century War stands as the defining rupture of recorded history: a conflict of a hundred years fought between the commonborn majority and the rareborn, those possessing resonant ability. Though the rareborn commanded formidable powers, their scarcity — roughly one in three hundred — told against them across a long war of attrition. The commonborn prevailed not through any single victory but through sheer, grinding persistence.',
+             'The war concluded at Year Zero, when the two surviving city-states, Lumina and Halcyra, set aside their remaining differences and signed a compact of unification, from which the present Empire descends.'],
+            ['In the purge that followed, the victors put to death nearly every surviving rareborn, drawing no distinction between combatants, collaborators, and those who had surrendered. Execution became settled policy, and would remain so for seven centuries.',
+             'The war’s most enduring casualty, however, was memory itself. The fighting consumed the archives and monuments of the age before it. Scholars agree that civilisation extended back many thousands of years — the ruins and abandoned shrines attest to it — yet no living person can say with authority what that world contained. The Empire, in a real sense, begins where its own knowledge ends.'],
+          ],
+        },
+        {
+          label: 'The Accord of Threads',
+          title: 'IMPERIAL SCHOOL PRIMER — THE ACCORD OF THREADS',
+          pages: [
+            ['The Accord of Threads — a popular name; the instrument bears a far longer official title — was ratified in the seven hundredth year After Century, and remains the cornerstone of imperial law concerning the rareborn.',
+             'Its drafting is a study in deliberate evasion. Nowhere does the document name the rareborn, resonance, or ability of any kind; it speaks only of “the condition,” identifiable “through outward and measurable signs.” By this careful abstraction the Accord rescinded the standing death warrants of the Silent Centuries, replacing systematic execution with a regime of registration, education, and supervised employment.'],
+            ['The death penalty was not abolished but repurposed: it now attaches to non-compliance rather than to existence.',
+             'Students of law direct particular attention to Article VIII, which provides that any ambiguity in the text shall be resolved in favour of public order. This clause functions as the document’s immune system, ensuring that its many silences can never be construed against the state. The Accord is thus best understood not as a grant of rights but as a managed truce — one that transformed the rareborn from a people to be killed into a people to be counted, catalogued, and put to use.'],
+          ],
+        },
+        {
+          label: 'The Eight Threads',
+          title: 'IMPERIAL SCHOOL PRIMER — THE EIGHT THREADS',
+          pages: [
+            ['Resonant ability, popularly termed rarebirth, appears in roughly one person in three hundred and follows no hereditary pattern whatsoever. It is this randomness, above all else, that shapes the present order: because ability cannot be bred, no lineage may hoard it, and no dynasty of the gifted can arise.',
+             'Ability manifests in eight distinct forms, or threads, each announced from birth by the colour of the hair — a marker that renders concealment difficult and registration reliable.'],
+            ['The threads are conventionally listed thus: Voidborn (black), governing dampening; Bloommarked (green), organic growth; Tidebound (blue), water; Firelit (red), heat and flame; Galeheart (silver), air; Stonewrought (brown or grey), stone and structure; Starlit (gold), light; and Rosebound (pink), emotional cohesion and bodily maintenance. Each occurs in perhaps one person in two thousand four hundred; rarer still is the prismborn, an amplifier across the full spectrum, seen perhaps once in a million births.',
+             'Students should note that vivid eye colour, though sometimes mistaken for a sign of ability, carries no such meaning. It is a matter of appearance only, and nothing follows from it.'],
+          ],
+        },
+        {
+          label: 'The Council of 33',
+          title: 'IMPERIAL SCHOOL PRIMER — THE COUNCIL OF THIRTY-THREE',
+          pages: [
+            ['The Empire is governed by the Council of Thirty-Three, composed of three parts of eleven seats each — the arrangement commonly called the Three Elevens. The first eleven are hereditary, held by the noble houses of the eight constituent kingdoms. The second eleven are elected, one to each region, for five-year terms. The third eleven form the Wisdom Council, chosen by the sitting members from among those who have completed thirty-three years of imperial service, and serving thereafter until death.',
+             'Presiding over all is the Concordant, a figure often likened to a president but in practice closer to a speaker: the office votes only to break a tie.'],
+            ['The system’s central and unresolved tension lies in its arithmetic. The elected eleven answer to some ninety-five parts in a hundred of the population, yet they are routinely outvoted, for the Wisdom Council sides with the hereditary nobility in roughly nine cases of ten.',
+             'The result is a settlement in which the great majority of imperial subjects are represented by a small minority of the Council’s votes — a discrepancy the Empire has learned to manage but has never resolved, and which its critics regard as the flaw from which all others descend.'],
+          ],
+        },
+        {
+          label: 'The Quiet',
+          title: 'IMPERIAL SCHOOL PRIMER — THE QUIET',
+          pages: [
+            ['Historians name the long span from the ratification of the Accord to the present day — from the year seven hundred to the year one thousand and forty — the Quiet: three hundred and forty years of managed peace.',
+             'By any material measure it has been an age of flourishing. The population of the Continent has tripled, from some three millions to nine and a half, and literacy has risen to seventy parts in a hundred, owing chiefly to the Instruction to Twelve Act, which extended free schooling to every child to the age of twelve.'],
+            ['The period’s most visible marvel is the aetherrail, the resonance-driven railway worked by Stonewrought, Galeheart, and Voidborn practitioners in concert. Its first line, joining the twin capitals of Lumina and Halcyra, opened in the year nine hundred and forty; the network now comprises eleven lines and forty-seven stations.',
+             'Yet the Quiet is not a golden age so much as a competent one — a civilisation that has solved the problems of survival and arrived, in consequence, at the subtler and more dangerous problems of prosperity.'],
+          ],
+        },
+      ];
+      function openTopics() {
+        choice.title     = 'Imperial School Primer';
+        choice.options   = TOPICS.map(function(t) { return t.label; }).concat(['Put it back']);
+        choice.cursor    = 0;
+        choice.callbacks = TOPICS.map(function(t) {
+          return function() {
+            accordPanel.title = t.title;
+            accordPanel.pages = t.pages;
+            accordPanel.page  = 0;
+            accordPanel.open  = true;
+          };
+        }).concat([function putBack() {}]);
+        choice.open = true;
+      }
+      choice.title     = 'Schoolhouse bookshelf';
+      choice.options   = ['Read a history book', 'Leave it'];
+      choice.cursor    = 0;
+      choice.callbacks = [openTopics, function leave() {}];
+      choice.open      = true;
+    },
+  },
+
   // ── Pip — Schilling quest ─────────────────────────────────────────────────
   // Appears day 2+ in the southeast corner of the school (not at a desk).
   // Lost his teddy bear Schilling to Wrongteeth; rewards the cat-shaped key.

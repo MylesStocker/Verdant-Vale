@@ -238,7 +238,10 @@ const continentMap = { open: false };
 // Near-full-screen reading panel for the Accord of Threads.
 // pages: array of string[] (same shape as dialogue.pages) — set before opening.
 // page: current page index.
-const accordPanel = { open: false, page: 0, pages: [] };
+// Near-full-screen parchment reading panel. Originally the Accord of Threads
+// reader; now a general imperial-document reader — set `title` before opening
+// (falls back to the Accord title if left blank, preserving old behaviour).
+const accordPanel = { open: false, page: 0, pages: [], title: '' };
 
 
 // ─── Frame counter ────────────────────────────────────────────────────────────

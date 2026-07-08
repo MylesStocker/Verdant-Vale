@@ -239,7 +239,7 @@ function drawAccordPanel() {
   ctx.fillStyle = '#d8c070';
   ctx.font      = 'bold 11px "Courier New", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('IMPERIAL INSTRUMENT NO. 7 OF YEAR 700 \u2014 ACCORD OF THREADS', 256, PY + 23);
+  ctx.fillText(accordPanel.title || 'IMPERIAL INSTRUMENT NO. 7 OF YEAR 700 \u2014 ACCORD OF THREADS', 256, PY + 23);
   ctx.textAlign = 'left';
 
   // Imperial seal — small embossed circle, top-right of title bar
