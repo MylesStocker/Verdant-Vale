@@ -1,6 +1,6 @@
 # Project Status Checkpoint
 
-Browser JRPG, plain `<script>` tags, no build step, no git repo. This is a
+Browser JRPG, plain `<script>` tags, no build step. This is a
 snapshot, not a full report — see `architecture.md` for how everything
 actually fits together.
 
@@ -9,20 +9,21 @@ actually fits together.
 Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels), Mirethyst's Vault, and the newer North Basin region
-(4 maps: South Approach, Reservoir, Silt Flats, Badlands) reached via
-`EDGE_TRANSITIONS` rather than point-tile doors. 69 registered maps total
-(`MAP_REGISTRY`/`MAP_METADATA`, kept in exact agreement by
+(4 maps: South Approach, Reservoir, Silt Flats, West Shore). Every link
+*between* North Basin maps now uses `EDGE_TRANSITIONS` rather than point-tile
+doors (the region's entry from Drenwick is still a point-tile). 69 registered
+maps total (`MAP_REGISTRY`/`MAP_METADATA`, kept in exact agreement by
 `validateGameData()`).
 
 - **26 tests**, `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — 69 maps, 228
-  fixed-destination transitions, 24 preserved-coordinate transitions, 42
-  house doors, 57 tile constants cross-referenced — clean, no findings.
+  fixed-destination transitions, 22 preserved-coordinate transitions, 42
+  house doors, 55 tile constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
-  (see below), across 69 maps, 16,560 tile cells, 4 edge transitions, 159
-  NPCs, 98 item placements, 29 enemy templates, 432 dialogue/text entries,
-  75 save flags, 17 map features.
+  (see below), across 69 maps, 16,560 tile cells, 6 edge transitions, 160
+  NPCs, 103 item placements, 29 enemy templates, 444 dialogue/text entries,
+  80 save flags, 20 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 
@@ -51,8 +52,9 @@ still can't see to warn about at all.)
 In roughly the order built:
 
 1. **North Basin region** — 4 new maps (South Approach, Reservoir, Silt
-   Flats, Badlands), the region's first real random-encounter content
-   (Silt Crab, Mudflat Strider).
+   Flats, and the Badlands skeleton — since fleshed out and renamed
+   West Shore, see the content pass below), the region's first real
+   random-encounter content (Silt Crab, Mudflat Strider).
 2. **`EDGE_TRANSITIONS`** (`world-transitions.js`) — a second, additive
    transition mechanism for broad open borders between adjacent maps,
    alongside (not replacing) the original one-tile point-transition system.
@@ -85,6 +87,59 @@ Each of the above shipped with its own new/updated `test/cases/*.test.js`
 file (23 through 26 cover the debug tools, tile properties, and map
 features specifically) and a full `validateGameData()`/regression/
 transition-audit pass before being considered done.
+
+## Latest content & gameplay pass
+
+Built on top of the infrastructure above; each item shipped with a regression
+test update and a clean `validateGameData()`/audit pass.
+
+1. **North Basin — West Shore** — the region's 4th map, previously the
+   "Badlands" skeleton, fleshed out into the reservoir's west bank: an uneven
+   eastern shoreline (the water edge ripples between roughly cols 11–14 rather
+   than a straight vertical wall), a reeds/mud fringe, stranded waterline
+   stakes, and a fisher's hut near the shore (reuses the `TRAPPER_HUT` tile —
+   no fisher-specific tile added for one prop). 4 new `MAP_FEATURES`
+   inspectables (fisher's hut, reservoir shore, waterline posts, west warning
+   stakes). Its south link to the Silt Flats was the **last remaining North
+   Basin point-tile transition** (tiles 90/91, `NORTH_BASIN_W_EXIT/ENTRANCE`)
+   and is now an open `EDGE_TRANSITIONS` crossing (cols 1–10, x preserved;
+   cols 11–14 stay border because the Silt Flats' reservoir finger, WATER,
+   backs onto that side — an open edge there would soft-lock). Tiles 90/91 are
+   now unused/dead: left defined (not formally retired in `TILE_PROPERTIES`
+   like 84–87) as a conservative choice to stay off the tiles/rendering/
+   movement machinery — safe to retire later. Renamed `data.js`/`MAP_REGISTRY`
+   label Badlands → West Shore; test renamed `20-north-basin-badlands` →
+   `20-north-basin-west-shore`.
+2. **Burn status effect + Polwick's fire attack** (`state.js`, `combat.js`,
+   `movement.js`, `render-battle.js`) — a combat-only damage-over-time status,
+   **Burn**: a random 0–20 HP each turn with its own message line, cleared
+   when the battle ends (it can't exist outside combat, so it needs no save
+   persistence). Polwick — a firelit rareborn — now sometimes casts a fire
+   attack when he lands a hit: extra scorch damage plus Burn, with a short
+   fireball cast animation and a flickering `BRN` HUD tag. Polwick-only; no
+   broad combat-balance change.
+3. **Key items (`keyItem` flag)** (`state.js`, `combat.js`, `input.js`,
+   `render-ui.js`, `render-entities.js`) — quest items flagged `keyItem: true`
+   are filtered out of the equippable/usable/sellable inventory (via a shared
+   `inventoryItems()` helper) while still shown in the notebook's Special Items
+   section. Applied to the 2nd MainQuest's **Dispatch Letter** (was an
+   equippable "accessory" — you could accidentally equip or sell the quest
+   letter) and the new **Tweezers** item.
+4. **Small content additions:**
+   - **Rareborn spotting-rhyme** — a Calwick school child recites a
+     hair-vs-eye-colour rhyme (canon: interesting *hair* colour signals a
+     rareborn thread; interesting *eye* colour is purely cosmetic). A Drenwick
+     school child starts the same rhyme and trails off if the player has
+     already heard it (`rareborn_rhyme_heard` save flag; both children were
+     previously filler-only).
+   - **Abandoned Drenwick apartment** (`drenwick_apt_c1_u4`) — former resident
+     (Ossian) removed; a searchable dresser (yields a Potion + Reed Remedy,
+     once) and a floor sparkle that grants the **Tweezers** key item once.
+     New save flags `abandonedAptDresserLooted` / `abandonedAptSparkleTaken`.
+   - Player's-house window moved from the east to the north wall (cosmetic).
+
+New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
+`abandonedAptSparkleTaken` (all added to `QUEST_FLAG_SCHEMA`/`saveGame()`).
 
 ## Known risks / caveats
 
@@ -124,8 +179,9 @@ transition-audit pass before being considered done.
   actual `case` statements (can't parse a file's own source from inside a
   running browser). They currently agree with reality; nothing but
   `validateGameData()` catches future drift.
-- **No git repository** — changes aren't version-controlled at the repo
-  level; be extra careful with anything destructive.
+- **Git history is sparse** — a repo now exists, but with only a couple of
+  commits and no branch discipline; commit (or at least stage) before large or
+  destructive changes rather than assuming you can cleanly undo.
 - Two historical audit docs (`TRANSITION_AUDIT.md`, `QUEST_TRACE.md`) have
   been moved to `Archived : Stale md files/` and are no longer maintained
   or linked from current docs — their *findings* were fixed and folded
@@ -152,9 +208,11 @@ Roughly in priority order:
    deliberately continue the North Basin drought/water-level story
    ("consistent with reports from the northern basin district"), and the
    floor-6 sign references the same seepage lore already established in
-   Fen Shade's "Observe" flavor text. `MAP_FEATURES` now covers 7 maps, 17
-   entries total. Plenty of maps are still uncovered (most of Calwick, the
-   rest of Drenwick's interiors, most dungeon floors) if more is wanted.
+   Fen Shade's "Observe" flavor text. `MAP_FEATURES` covered 7 maps / 17
+   entries after that pass (now 20 entries, after the West Shore content pass
+   added its shoreline set). Plenty of maps are still uncovered (most of
+   Calwick, the rest of Drenwick's interiors, most dungeon floors) if more is
+   wanted.
 3. **Consider a dedicated regression test for the Schilling-the-bear
    sequence-break** (defeating the floor-5 boss before ever meeting Pip
    permanently locks that quest) — a known, still-unfixed issue from
