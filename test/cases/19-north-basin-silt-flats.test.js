@@ -119,15 +119,21 @@ module.exports = {
     assert.equal(g.run('player.x'), 7.5 * 32);
     assert.equal(g.run('player.y'), 5.5 * 32);
 
-    // ── 4. Edges: east and north are real; south/west are the true region edge ─
+    // ── 4. Edges: east and north are real open edges; south/west are the true region edge ─
     const map = g.run('NORTH_BASIN_SW_MAP');
     const TREE = g.run('TREE');
-    const NORTH_BASIN_W_EXIT = g.run('NORTH_BASIN_W_EXIT');
+    const WALKABLE = g.run('WALKABLE');
+    // North edge: now an open EDGE_TRANSITIONS crossing to the West Shore
+    // within its configured range (cols 1-10), plain impassable border
+    // elsewhere (cols 11-14 back onto the reservoir finger). Converted from
+    // the old NORTH_BASIN_W_EXIT point-tile in this pass, same way the east
+    // and the C/SW links were.
+    const [northMin, northMax] = g.run("EDGE_TRANSITIONS['NORTH_BASIN_SW_MAP']").north[0].sourceRange;
     for (let c = 0; c < map[0].length; c++) {
-      if (c === 4) {
-        assert.equal(map[0][c], NORTH_BASIN_W_EXIT, 'the one real north exit (col 4) should be the NORTH_BASIN_W_EXIT tile');
+      if (c >= northMin && c <= northMax) {
+        assert.ok(WALKABLE[map[0][c]], `north edge col ${c} is inside the EDGE_TRANSITIONS range and should be walkable`);
       } else {
-        assert.equal(map[0][c], TREE, `north edge col ${c} (not the real exit) should be plain impassable border`);
+        assert.equal(map[0][c], TREE, `north edge col ${c} (outside the range) should be plain impassable border`);
       }
     }
     assert.ok(map[14].every(t => t === TREE), 'south edge should be plain impassable border (true edge of the region)');
@@ -136,7 +142,6 @@ module.exports = {
     }
     // East edge: walkable within the configured EDGE_TRANSITIONS range,
     // plain impassable border everywhere else along it.
-    const WALKABLE = g.run('WALKABLE');
     const [eastMin, eastMax] = g.run("EDGE_TRANSITIONS['NORTH_BASIN_SW_MAP']").east[0].sourceRange;
     for (let r = 0; r < map.length; r++) {
       if (r >= eastMin && r <= eastMax) {

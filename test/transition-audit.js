@@ -380,14 +380,14 @@ const preservedTransitions = [
   { name: 'exitMapN2', srcMap: 'MAP_N2', srcTile: 'NORTH2_ENTRANCE', destMap: 'MAP_N1', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
   { name: 'enterNorthBasinS', srcMap: 'MAP3_N2', srcTile: 'NORTH_BASIN_EXIT', destMap: 'NORTH_BASIN_S_MAP', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
   { name: 'exitNorthBasinS', srcMap: 'NORTH_BASIN_S_MAP', srcTile: 'NORTH_BASIN_ENTRANCE', destMap: 'MAP3_N2', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
-  // South approach <-> Reservoir and south approach <-> Silt Flats used to
-  // be point-tile entries here (enterNorthBasinC/exitNorthBasinC/
-  // enterNorthBasinSW/exitNorthBasinSW); both are now handled by the
-  // generic EDGE_TRANSITIONS system, which this preserved-coordinate sweep
-  // doesn't model (it's specifically for the fixed single-tile pattern) —
-  // see test/cases/21-edge-transitions.test.js for their dedicated coverage.
-  { name: 'enterNorthBasinW', srcMap: 'NORTH_BASIN_SW_MAP', srcTile: 'NORTH_BASIN_W_EXIT', destMap: 'NORTH_BASIN_W_MAP', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
-  { name: 'exitNorthBasinW', srcMap: 'NORTH_BASIN_W_MAP', srcTile: 'NORTH_BASIN_W_ENTRANCE', destMap: 'NORTH_BASIN_SW_MAP', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
+  // South approach <-> Reservoir, south approach <-> Silt Flats, AND Silt
+  // Flats <-> West Shore used to be point-tile entries here (enterNorthBasinC/
+  // exitNorthBasinC/enterNorthBasinSW/exitNorthBasinSW, and
+  // enterNorthBasinW/exitNorthBasinW); all are now handled by the generic
+  // EDGE_TRANSITIONS system, which this preserved-coordinate sweep doesn't
+  // model (it's specifically for the fixed single-tile pattern) — see
+  // test/cases/21-edge-transitions.test.js and 20-north-basin-west-shore.test.js
+  // for their dedicated coverage.
   { name: 'enterEastTown', srcMap: 'TOWN_MAP', srcTile: 'EAST_ENTRANCE', destMap: 'EAST_TOWN_MAP', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
   { name: 'exitEastTown', srcMap: 'EAST_TOWN_MAP', srcTile: 'EAST_EXIT', destMap: 'TOWN_MAP', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
   { name: 'enterWestTown', srcMap: 'TOWN_MAP', srcTile: 'WEST_ENTRANCE', destMap: 'WEST_TOWN_MAP', fixedAxis: 'x', fixedVal: 13.5, facing: 'left' },
@@ -442,7 +442,11 @@ const transitionTileNames = [
   'D3_SOUTH_PASSAGE', 'D3_NORTH_PASSAGE', 'TAKOMO_GATE', 'TAKOMO_EXIT',
   'RUIN_STAIRS_DOWN', 'RUIN_EXIT',
   'NORTH_BASIN_EXIT', 'NORTH_BASIN_ENTRANCE',
-  'NORTH_BASIN_W_EXIT', 'NORTH_BASIN_W_ENTRANCE',
+  // NORTH_BASIN_W_EXIT/ENTRANCE (90/91) retired: the Silt Flats <-> West Shore
+  // link is now an EDGE_TRANSITIONS crossing, not a point-tile, so those tiles
+  // are no longer placed on any map (this list is a cross-reference of
+  // *active* transition tiles — the orphan check in
+  // test/cases/10-transition-audit.test.js would flag them otherwise).
 ];
 const tileUsage = [];
 for (const name of transitionTileNames) {

@@ -278,6 +278,87 @@ function drawHouseFurniture() {
       }
     }
   }
+  // ── Dresser (chest of drawers) — searchable furniture ──────────────────────
+  if (hd.dresser) {
+    const dx = Math.round(hd.dresser.x);
+    const dy = Math.round(hd.dresser.y);
+    // Carcass — dark oak
+    ctx.fillStyle = '#4a2e14';
+    ctx.fillRect(dx - 13, dy - 16, 26, 32);
+    // Top surface + highlight
+    ctx.fillStyle = '#6a4420';
+    ctx.fillRect(dx - 14, dy - 17, 28, 4);
+    ctx.fillStyle = '#8a5c30';
+    ctx.fillRect(dx - 14, dy - 17, 28, 1);
+    // Right-side shadow
+    ctx.fillStyle = '#3a2410';
+    ctx.fillRect(dx + 9, dy - 13, 4, 29);
+    // Three drawers, each with a top bevel, bottom seam, and a brass pull
+    for (let i = 0; i < 3; i++) {
+      const ry = dy - 12 + i * 10;
+      ctx.fillStyle = '#5a3818';
+      ctx.fillRect(dx - 10, ry, 19, 8);
+      ctx.fillStyle = '#79512a';
+      ctx.fillRect(dx - 10, ry, 19, 1);
+      ctx.fillStyle = '#2e1c0c';
+      ctx.fillRect(dx - 10, ry + 8, 19, 1);
+      ctx.fillStyle = '#c8b060';
+      ctx.fillRect(dx - 3, ry + 3, 6, 2);
+    }
+    // Once searched, the top drawer hangs pulled open
+    if (hd.dresser.looted) {
+      ctx.fillStyle = '#140c06';
+      ctx.fillRect(dx - 10, dy - 12, 19, 4);
+      ctx.fillStyle = '#5a3818';
+      ctx.fillRect(dx - 12, dy - 9, 23, 5);
+      ctx.fillStyle = '#c8b060';
+      ctx.fillRect(dx - 3, dy - 8, 6, 2);
+    }
+    // SPACE hint when in range
+    if (!dialogue.open && !choice.open && !shop.open) {
+      const pdx = player.x - hd.dresser.x;
+      const pdy = player.y - hd.dresser.y;
+      if (Math.sqrt(pdx * pdx + pdy * pdy) < TALK_RADIUS && (tick >> 4) & 1) {
+        ctx.fillStyle = '#d8c878';
+        ctx.font = 'bold 11px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('SPACE', dx, dy - 23);
+        ctx.textAlign = 'left';
+      }
+    }
+  }
+  // ── Floor sparkle — a glint that yields a pickup, drawn until taken ─────────
+  if (hd.sparkle && !hd.sparkle.taken) {
+    const sx = Math.round(hd.sparkle.x);
+    const sy = Math.round(hd.sparkle.y);
+    const a  = 0.55 + 0.35 * Math.sin(tick * 0.2);
+    const r  = ((tick >> 2) % 8) < 4 ? 5 : 3;   // twinkle: arms pulse in and out
+    // Four-point star
+    ctx.fillStyle = 'rgba(255,248,200,' + a.toFixed(3) + ')';
+    ctx.fillRect(sx - 1, sy - r, 2, r * 2);
+    ctx.fillRect(sx - r, sy - 1, r * 2, 2);
+    // Faint diagonal glimmers
+    ctx.fillStyle = 'rgba(255,240,180,' + (a * 0.5).toFixed(3) + ')';
+    ctx.fillRect(sx - 3, sy - 3, 2, 2);
+    ctx.fillRect(sx + 1, sy + 1, 2, 2);
+    ctx.fillRect(sx - 3, sy + 1, 2, 2);
+    ctx.fillRect(sx + 1, sy - 3, 2, 2);
+    // Bright core
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(sx - 1, sy - 1, 2, 2);
+    // SPACE hint when in range
+    if (!dialogue.open && !choice.open && !shop.open) {
+      const pdx = player.x - hd.sparkle.x;
+      const pdy = player.y - hd.sparkle.y;
+      if (Math.sqrt(pdx * pdx + pdy * pdy) < TALK_RADIUS && (tick >> 4) & 1) {
+        ctx.fillStyle = '#d8c878';
+        ctx.font = 'bold 11px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('SPACE', sx, sy - 12);
+        ctx.textAlign = 'left';
+      }
+    }
+  }
   if (hd.cat) {
     const cx = Math.round(hd.cat.x);
     const cy = Math.round(hd.cat.y);

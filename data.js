@@ -536,10 +536,10 @@ const MAP_METADATA = {
     allowRandomEncounters: true, allowSave: true,
   },
   NORTH_BASIN_W_MAP: {
-    id: 'NORTH_BASIN_W_MAP', map: NORTH_BASIN_W_MAP, displayName: 'North Basin \u2014 Badlands', region: 'North Basin',
+    id: 'NORTH_BASIN_W_MAP', map: NORTH_BASIN_W_MAP, displayName: 'North Basin \u2014 West Shore', region: 'North Basin',
     type: 'outdoor', items: NORTH_BASIN_W_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Shares the Silt Flats\u2019 enemy pool by design (user request), not a separate harsher tier.',
+    notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats\u2019 enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; west/north are impassable border until those neighbours are built.',
   },
 
   // ── Drenwick (guard post, bridge, fort, civic districts, interiors) ──────

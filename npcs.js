@@ -868,8 +868,41 @@ const SIMPLE_NPCS = [
     id: 'student_b2', name: 'The Imaginative Escapist Child',
     map: 'school', x: 5.5 * TILE, y: 9.5 * TILE,
     solid: true, facing: 'down', spriteType: 'child',
-    dialogue: [['\u201cI wrote my name on the top of the page.', 'That\u2019s the part I\u2019m most confident about.\u201d']],
-    flag_required: null, flag_sets: null, action: null,
+    // A schoolyard rhyme for telling rareborn \u2014 and it's canonically accurate.
+    // In this world a rareborn "thread" (ability) is signalled by HAIR colour
+    // and registered at birth (cf. Ms. Vale: "Thread type is identifiable by
+    // hair colour at birth"): red = firelit (Polwick), blue/green = bloommark
+    // and the like (cf. the Tinkerer Child: "Bloommark is the green hair"),
+    // silver/violet = other rareborn signs. EYE colour (gold, pink, purple) is
+    // purely cosmetic \u2014 pretty, but it carries no thread and no power. The
+    // verse's second stanza states exactly that, so it's true, not folk fancy.
+    // Couplets are split one-per-page so the dialogue box doesn't reflow them.
+    dialogue: [
+      ['\u201cWe learned a rhyme for spotting rareborn.',
+       'Ms. Vale says the true part is really true.\u201d'],
+      ['\u201cIf hair burns red, or blooms in blue or green,',
+       'A thread may stir where rareborn signs are seen.\u201d'],
+      ['\u201cIf silver curls or violet locks arise,',
+       'Then folk may look for power in disguise.\u201d'],
+      ['\u201cBut golden eyes, or pink, or purple-bright,',
+       'Hold not a thread, nor whisper any might.\u201d'],
+      ['\u201cBright eyes are pretty eyes, and nothing more;',
+       'The power\u2019s in the hair, as said before.\u201d'],
+      ['\u201cThe eyes are only pretty \u2014 the hair\u2019s what tells.',
+       'Ms. Vale says that part\u2019s really true.\u201d'],
+    ],
+    flag_required: null, flag_sets: null,
+    // Opens the rhyme dialogue and records that the player has now heard it, so
+    // the Drenwick school child (drenwick_gs_7) can react to a player who
+    // already knows it. Reuses this.dialogue rather than duplicating the pages.
+    action: function(npc) {
+      dialogue.name  = npc.name;
+      dialogue.pages = npc.dialogue;
+      dialogue.open  = true;
+      dialogue.page  = 0;
+      rareborn_rhyme_heard = true;
+      syncQuestFlagsToWindow();
+    },
   },
   {
     id: 'student_b3', name: 'The Defiant Contrarian Child',
@@ -2657,36 +2690,11 @@ const SIMPLE_NPCS = [
     flag_required: null, flag_sets: null, action: null,
   },
 
-  // Corridor C1, Unit 4 — Ossian (47; district market weight inspector)
-  {
-    id:         'apt_ossian',
-    name:       'Ossian',
-    map:        'house:drenwick_apt_c1_u4',
-    x:           7.5 * TILE,
-    y:           6.5 * TILE,
-    solid:      true,
-    facing:     'down',
-    spriteType: 'clerk',
-    dialogue: [
-      ['\u201cI certify cargo weights for the district market.\u201d',
-       '\u201cIf your scales are off, I find it.\u201d',
-       '\u201cIf your paperwork is off, I note it.\u201d',
-       '\u201cI have never not found it. This keeps me employed.\u201d'],
-      ['\u201cThe river wrestling is the only fair contest I know of.\u201d',
-       '\u201cThe river doesn\u2019t care about your family name or your certification tier.\u201d',
-       '\u201cYou either keep your footing or you don\u2019t.\u201d',
-       '\u201cI find that deeply satisfying to watch.\u201d'],
-      ['\u201cI took the Civic exam six years ago. Failed the administrative law section.\u201d',
-       '\u201cNot because I don\u2019t understand administrative law \u2014 I apply it every working day.\u201d',
-       '\u201cBecause the exam wants you to write it back in a specific register,',
-       'which takes practice, which takes time, which takes proximity to people who already have both.\u201d'],
-      ['\u201cMushroom wine is better than it sounds.\u201d',
-       '\u201cRegular wine makes you sentimental about things that don\u2019t deserve it.\u201d',
-       '\u201cMushroom wine just makes the evening feel longer.\u201d',
-       '\u201cI prefer a long evening.\u201d'],
-    ],
-    flag_required: null, flag_sets: null, action: null,
-  },
+  // Corridor C1, Unit 4 — abandoned (no resident). This unit was always the
+  // block’s odd one out (originally sketched as storage) and is now dressed as
+  // a moved-out apartment: a searchable dresser and a glint on the floor that
+  // yields the Tweezers key item. See HOUSE_DATA.drenwick_apt_c1_u4 for the
+  // furniture and interactions.js for the dresser / sparkle handlers.
 
   // Corridor C2, Unit 4 — Yoren (with Josse; opposite temperament)
   // Canal maintenance like Josse, but a full decade older and considerably less cheerful about it.
@@ -3009,9 +3017,23 @@ const SIMPLE_NPCS = [
     solid:      true,
     facing:     'up',
     spriteType: 'child',
-    dialogue: [
-      ['\u201cWe had porridge again this morning.\u201d'],
-    ],
+    // The same rareborn spotting-rhyme is known in Drenwick too. If the player
+    // has already heard it (from the Calwick school child \u2014 rareborn_rhyme_heard),
+    // this child begins reciting, then clocks the recognition on the player's
+    // face and trails off. Otherwise it's just an ordinary schoolyard remark.
+    get dialogue() {
+      if (rareborn_rhyme_heard) {
+        return [
+          ['\u201cIf hair burns red, or blooms in blue or gre\u2014\u201d'],
+          ['The child stops, looking at your face.',
+           '\u201cOh. You already know it.\u201d',
+           '\u201cEveryone always already knows it.\u201d'],
+        ];
+      }
+      return [
+        ['\u201cWe had porridge again this morning.\u201d'],
+      ];
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -5007,7 +5029,7 @@ const HOUSE_DATA = {
   },
   // ── Drenwick East Apartments — Corridor C1 ─────────────────────────────────
   // u1: Bren (failed engineering apprentice), u2: Sova (reluctant Halcyra transfer),
-  // u3: Holt (former river wrestling champion), u4: storage (jammed lock)
+  // u3: Holt (former river wrestling champion), u4: abandoned (moved-out; searchable)
   drenwick_apt_c1_u1: {
     bed:    { x: 5.5 * TILE, y: 5.5 * TILE, canRest: false, inspect: 'Folded exam papers tucked under the mattress. Fail marks in red.' },
     stove:  { x: 9.5 * TILE, y: 5.5 * TILE },
@@ -5023,9 +5045,14 @@ const HOUSE_DATA = {
     bed:    { x: 5.5 * TILE, y: 8.5 * TILE, canRest: false, inspect: 'Wide and sagging from years of use. The sheets are faded river-grey.' },
     stove:  { x: 9.5 * TILE, y: 5.5 * TILE },
   },
+  // Abandoned unit — the tenant moved out and little was left behind: a stripped
+  // cot, a cold stove, a dresser still worth searching, and a glint on the boards
+  // (the Tweezers key item). looted/taken are one-shot flags, persisted in save.js.
   drenwick_apt_c1_u4: {
-    bed:    { x: 5.5 * TILE, y: 5.5 * TILE, canRest: false, inspect: 'An old cot. Dusty. This room is being used as storage.' },
-    stove:  { x: 9.5 * TILE, y: 8.5 * TILE },
+    bed:     { x: 5.5 * TILE, y: 5.5 * TILE, canRest: false, inspect: 'A stripped cot — no bedding left. A pale rectangle on the wall above it, where a picture used to hang.' },
+    stove:   { x: 9.5 * TILE, y: 8.5 * TILE },
+    dresser: { x: 9.5 * TILE, y: 5.5 * TILE, looted: false },
+    sparkle: { x: 6.5 * TILE, y: 7.5 * TILE, taken: false },
   },
   // ── Drenwick East Apartments — Corridor C2 ─────────────────────────────────
   // u1: Desca (letter-writer), u2: Tern (boy, refused Imperial school),

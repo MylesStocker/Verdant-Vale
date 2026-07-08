@@ -41,6 +41,9 @@ const ITEM_REGISTRY = {
   'Bottle of Mushroom Wine': { name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12,  questItem: true },
   'Case of Mushroom Wine':   { name: 'Case of Mushroom Wine',   type: 'accessory', bonus: 0, price: 132, questItem: true },
   'Thank-You Note':          { name: 'Thank-You Note',          type: 'accessory', bonus: 0, price: 0,   questItem: true },
+  // Found in the abandoned Drenwick apartment (c1_u4). Flavor/quest key item —
+  // questItem + keyItem so it lives in Special Items, never equippable or sold.
+  'Tweezers':                { name: 'Tweezers',                type: 'accessory', bonus: 0, price: 0,   questItem: true, keyItem: true },
   // Fenna's reward for delivering a case rather than a bottle — real equipment,
   // not a flavor-only key item, so it isn't questItem-flagged.
   'Amethyst Bangle': { name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 400, preventsCursed: true },

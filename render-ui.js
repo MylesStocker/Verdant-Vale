@@ -604,6 +604,7 @@ function drawMenu() {
       'Mushroom Wine':      "Wend's brew, from the fen settlements.",
       'Schilling':          "Pip's teddy bear. He's waiting for it back.",
       'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
+      'Tweezers':           'A small pair of steel tweezers, found in an abandoned Drenwick apartment.',
       'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
       'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
       'Thank-You Note':          "From Sael. Fenna will want to see this.",

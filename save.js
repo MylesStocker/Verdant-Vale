@@ -28,6 +28,7 @@ const QUEST_FLAG_SCHEMA = [
   'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
   'netto_letter_received',  // was absent from saveGame() before; now included
   'dessa_met',              // rapport gate: must meet Dessa once before quest offer
+  'rareborn_rhyme_heard',   // player has heard the rareborn spotting-rhyme (Calwick school)
   'wine_quest_started', 'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
@@ -157,6 +158,9 @@ function saveGame() {
     alcoveChestOpened:       DUNGEON_ALCOVE_CHEST.opened,
     sluiceDeepChestOpened:   SLUICE_DEEP_CHEST.opened,
     catArmorChestOpened:     CAT_ARMOR_CHEST.opened,
+    // Abandoned Drenwick apartment (c1_u4) — searchable dresser + Tweezers sparkle
+    abandonedAptDresserLooted: HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted,
+    abandonedAptSparkleTaken:  HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken,
     // ── Status effects ────────────────────────────────────────────────────
     statusEffects: statusEffects.slice(),
     // ── Combat ────────────────────────────────────────────────────────────
@@ -264,6 +268,7 @@ function loadGame() {
   if (data.den_wraith_rewarded      !== undefined) den_wraith_rewarded      = data.den_wraith_rewarded;
   if (data.netto_letter_received    !== undefined) netto_letter_received    = data.netto_letter_received;
   if (data.dessa_met                !== undefined) dessa_met                = data.dessa_met;
+  if (data.rareborn_rhyme_heard     !== undefined) rareborn_rhyme_heard     = data.rareborn_rhyme_heard;
   if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
   if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
   if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;
@@ -445,6 +450,8 @@ function loadGame() {
   if (data.alcoveChestOpened       !== undefined) DUNGEON_ALCOVE_CHEST.opened   = data.alcoveChestOpened;
   if (data.sluiceDeepChestOpened   !== undefined) SLUICE_DEEP_CHEST.opened      = data.sluiceDeepChestOpened;
   if (data.catArmorChestOpened     !== undefined) CAT_ARMOR_CHEST.opened        = data.catArmorChestOpened;
+  if (data.abandonedAptDresserLooted !== undefined) HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted = data.abandonedAptDresserLooted;
+  if (data.abandonedAptSparkleTaken  !== undefined) HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken  = data.abandonedAptSparkleTaken;
 
   // ── Status effects ──────────────────────────────────────────────────────
   statusEffects = Array.isArray(data.statusEffects) ? data.statusEffects.slice() : [];

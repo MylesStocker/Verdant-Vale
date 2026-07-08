@@ -343,8 +343,14 @@ const NORTH_BASIN_S_ITEMS = [];
 // point-tile: col 15, rows 9-11, is open ground leading back to
 // NORTH_BASIN_S_MAP's west edge (same rows on both sides, so crossing never
 // clamps) — see EDGE_TRANSITIONS['NORTH_BASIN_SW_MAP'].
-// North of this map is NORTH_BASIN_W_MAP, reached via NORTH_BASIN_W_EXIT at
-// row 0 col 4 — that link is still a point-tile transition (unconverted).
+// North is now ALSO an OPEN EDGE (EDGE_TRANSITIONS, not the old point-tile):
+// row 0, cols 1-10, is open ground up to NORTH_BASIN_W_MAP's (West Shore)
+// south edge, x preserved. The open range stops at col 10 rather than col 14
+// because rows 1-3 cols 11-13 are the reservoir finger (WATER) — landing a
+// crossing there would strand the player, so cols 11-14 stay impassable
+// border on that (water) side. See EDGE_TRANSITIONS['NORTH_BASIN_SW_MAP'].north.
+// (The old NORTH_BASIN_W_EXIT/ENTRANCE point-tiles 90/91 are retired the same
+// way tiles 84-87 were when their links became edges — see tiles.js.)
 //
 // Only a literal 3×3 block of water (rows 1-3, cols 11-13) — the SW finger
 // of the central reservoir, poking down toward this corner of the basin,
@@ -358,14 +364,15 @@ const NORTH_BASIN_S_ITEMS = [];
 // boundary the encroaching marsh swallowed long before the drought started
 // exposing the rest of it. South/west borders are plain impassable TREE —
 // SW is a corner of the planned 3×3 grid, so those two edges are the true
-// edge of the region, not "future neighbour" placeholders.
+// edge of the region, not "future neighbour" placeholders. North is the one
+// open crossing (to the West Shore), cols 1-10 of row 0.
 //
 // Encounters: NORTH_BASIN_ENEMY_TEMPLATES (combat.js), gentler than
 // FAR_ENEMY_TEMPLATES on purpose — this is meant to be the basin's on-ramp,
 // not another spike (see BALANCE_REPORT.md re: FAR pool's Rotwood Troll).
 const NORTH_BASIN_SW_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3, 90,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 4 = NORTH_BASIN_W_EXIT (north, to NORTH_BASIN_W_MAP)
+  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  3,  3,  3],  //  0  open edge, cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_W_MAP (cols 11-14 stay border: reservoir finger below)
   [  3,  0, 23,  0,  0,  0, 23,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  1  3×3 reservoir finger begins (cols 11-13)
   [  3, 23,  0,  0, 88,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  2  reservoir finger
   [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  3  reservoir finger ends; reed fringe around it
@@ -384,48 +391,55 @@ const NORTH_BASIN_SW_MAP = [
 
 const NORTH_BASIN_SW_ITEMS = [];
 
-// ─── The North Basin — Badlands  (16 × 15) ───────────────────────────────────
-// North of the Silt Flats ("W" in the future 3×3 grid), reached by going off
-// the road rather than continuing along it — this is the exposed floor of
-// what used to be the reservoir's western shallows, now a stretch of
-// cracked mud and bare stone. Entered from NORTH_BASIN_SW_MAP's row 0 col 4
-// (NORTH_BASIN_W_EXIT); this map's own NORTH_BASIN_W_ENTRANCE (row 14 col 4)
-// returns south to it.
+// ─── The North Basin — West Shore  (16 × 15) ─────────────────────────────────
+// North of the Silt Flats ("W" in the future 3×3 grid). This is the west bank
+// of the North Basin: still part of the drying reservoir system, but rougher
+// and less maintained than the South Approach. The maintained road never
+// reaches here — you come up off the flats onto bare shore ground.
 //
-// The east side (cols 13-14) is open reservoir water — the same central
-// basin the Silt Flats' 3×3 finger and NORTH_BASIN_C_MAP both show, visible
-// here from its western shore. Col 1, the whole height of the map, is a
-// solid line of EXPOSED_STONE — higher ground marking where the shoreline
-// used to run, now stranded well back from the water. Everything between is
-// badlands/basin-bed: BASIN_MUD and EXPOSED_STONE dominant, with GRASS
-// patches sparser than the Silt Flats (this is harsher, more exposed
-// ground — fewer things grow here, though the same things hunt here; see
-// below). A single TRAPPER_HUT sits at row 7 col 6 — abandoned, cold
-// chimney, no interior (the North Basin is still a skeleton pass; no
-// enterable buildings yet). North/west/east borders are plain impassable
-// TREE — NW, W's own west neighbour, and the reservoir itself aren't
-// traversable from here.
+// SOUTH is an OPEN EDGE (EDGE_TRANSITIONS, not a point-tile): row 14, cols
+// 1-10, is open ground back down to the Silt Flats' north edge, x preserved
+// (see EDGE_TRANSITIONS['NORTH_BASIN_W_MAP'].south). Cols 11-14 of row 14 stay
+// border to line up with the Silt Flats' own reservoir-finger side.
+//
+// EAST is the reservoir itself — not a canal — and its shore is drawn UNEVEN
+// on purpose: the WATER edge ripples between roughly col 11 and col 14 rather
+// than sitting in a straight vertical line, with REEDS at the waterline and a
+// couple of stranded FENCE_POST stakes (old waterline markers) where the
+// basin has fallen away. A fisher's hut (drawn with the shared TRAPPER_HUT
+// tile — a weathered shack; no fisher-specific tile added for one prop) leans
+// near the eastern shore at row 6 col 10, exterior-only (no interior in this
+// pass; MAP_FEATURES gives it flavor text). GRASS is the dominant walkable
+// ground (so this map is dangerous — GRASS/REEDS are encounter-eligible),
+// broken up by safer BASIN_MUD and EXPOSED_STONE patches.
+//
+// WEST (col 0) and NORTH (row 0) are plain impassable TREE border FOR NOW —
+// their neighbours in the 3×3 grid aren't built yet. TODO: when the west and
+// north maps are added, convert these two edges to EDGE_TRANSITIONS exactly
+// like the south edge here (open the relevant border tiles + add the segment).
+// They're kept as a plain TREE border line specifically so that's a one-line
+// change later, not a teardown of hard-coded shore geometry.
 //
 // Encounters: NORTH_BASIN_ENEMY_TEMPLATES, same pool as the Silt Flats
 // (combat.js) — the user asked to keep the same enemies rather than
 // introduce a second, harsher tier for this map.
 const NORTH_BASIN_W_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  border
-  [  3, 88, 81,  0, 81,  0, 88,  0, 81,  0,  0, 81, 23,  1,  1,  3],  //  1  shoreline ridge (col 1) begins; reservoir (cols 13-14) begins
-  [  3, 88,  0, 81,  0, 81,  0, 81,  0, 88, 81,  0, 23,  1,  1,  3],  //  2
-  [  3, 88, 81,  0,  0, 88,  0,  0,  0, 81,  0,  0, 23,  1,  1,  3],  //  3
-  [  3, 88,  0, 81,  0, 81,  0, 88,  0, 81, 88,  0, 23,  1,  1,  3],  //  4
-  [  3, 88, 81,  0, 81,  0, 81,  0, 81,  0, 81,  0, 23,  1,  1,  3],  //  5
-  [  3, 88,  0, 88,  0, 81,  0, 81,  0, 81,  0, 81, 23,  1,  1,  3],  //  6
-  [  3, 88, 81,  0, 81,  0, 92,  0, 81,  0, 88,  0, 23,  1,  1,  3],  //  7  ← col 6 = TRAPPER_HUT
-  [  3, 88,  0, 81, 88,  0,  0,  0, 81,  0, 81,  0, 23,  1,  1,  3],  //  8
-  [  3, 88, 81,  0, 81,  0, 81,  0, 88, 81,  0, 81, 23,  1,  1,  3],  //  9
-  [  3, 88,  0, 88,  0, 81,  0, 81,  0,  0, 81,  0, 23,  1,  1,  3],  // 10
-  [  3, 88, 81,  0, 81,  0, 88,  0, 81,  0, 81,  0, 23,  1,  1,  3],  // 11
-  [  3, 88,  0, 81,  0, 81,  0, 81,  0, 88,  0, 81, 23,  1,  1,  3],  // 12
-  [  3, 88, 81,  0, 88,  0, 81,  0, 81,  0, 81,  0, 23,  1,  1,  3],  // 13
-  [  3,  3,  3,  3, 91,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 4 = NORTH_BASIN_W_ENTRANCE (south, to NORTH_BASIN_SW_MAP)
+  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north border (TODO: open to future N neighbour)
+  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  3],  //  1  reservoir shore begins (uneven): reeds at c12, water c13-14
+  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  //  2  water reaches in to c12
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  3],  //  3  ← c9 stranded waterline stake
+  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  3],  //  4  inlet: water reaches in to c11
+  [  3,  0,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  3],  //  5  drying mud patch (safer ground)
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 92,  0, 23,  1,  1,  3],  //  6  ← c10 = fisher's hut (TRAPPER_HUT tile)
+  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  //  7
+  [  3,  0,  0,  0,  0,  0, 89,  0,  0,  0,  0,  0, 23,  1,  1,  3],  //  8  ← c6 old fishing gear (stranded stake)
+  [  3,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1,  3],  //  9  inlet: water reaches in to c11
+  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  // 10
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  3],  // 11
+  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  // 12
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  3],  // 13
+  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  3,  3,  3],  // 14  open edge, cols 1-10 → EDGE_TRANSITIONS south to NORTH_BASIN_SW_MAP
 ];
 
 const NORTH_BASIN_W_ITEMS = [];
@@ -1856,7 +1870,7 @@ const MAP_REGISTRY = {
   NORTH_BASIN_S_MAP:     { id: 'NORTH_BASIN_S_MAP',     label: 'North Basin',                map: NORTH_BASIN_S_MAP     },
   NORTH_BASIN_C_MAP:     { id: 'NORTH_BASIN_C_MAP',     label: 'North Basin \u2014 Reservoir', map: NORTH_BASIN_C_MAP     },
   NORTH_BASIN_SW_MAP:    { id: 'NORTH_BASIN_SW_MAP',    label: 'North Basin \u2014 Silt Flats', map: NORTH_BASIN_SW_MAP    },
-  NORTH_BASIN_W_MAP:     { id: 'NORTH_BASIN_W_MAP',     label: 'North Basin \u2014 Badlands', map: NORTH_BASIN_W_MAP     },
+  NORTH_BASIN_W_MAP:     { id: 'NORTH_BASIN_W_MAP',     label: 'North Basin \u2014 West Shore', map: NORTH_BASIN_W_MAP    },
   DRENWICK_POST_MAP:     { id: 'DRENWICK_POST_MAP',     label: 'Guard Post',                 map: DRENWICK_POST_MAP     },
   BRIDGE_CROSSING_MAP:   { id: 'BRIDGE_CROSSING_MAP',   label: 'Imperial Bridge \u2014 Toll Gate', map: BRIDGE_CROSSING_MAP   },
   SMUGGLER_FORT_MAP:     { id: 'SMUGGLER_FORT_MAP',     label: 'Guard Post',                 map: SMUGGLER_FORT_MAP     },

@@ -254,6 +254,7 @@ function canWalk(cx, cy) {
       if (hd.stove  && Math.abs(cx - hd.stove.x) < 16 && Math.abs(cy - hd.stove.y) < 16) return false;
       if (hd.cat    && Math.abs(cx - hd.cat.x)   < 12 && Math.abs(cy - hd.cat.y)   < 12) return false;
       if (hd.chest  && Math.abs(cx - hd.chest.x) < 14 && Math.abs(cy - hd.chest.y) < 14) return false;
+      if (hd.dresser && Math.abs(cx - hd.dresser.x) < 15 && Math.abs(cy - hd.dresser.y) < 16) return false;
     }
     if (currentHouseId === 'player_house' && day >= 2 && !CAT_ARMOR_CHEST.opened) {
       if (Math.abs(cx - CAT_ARMOR_CHEST.x) < 14 && Math.abs(cy - CAT_ARMOR_CHEST.y) < 14) return false;

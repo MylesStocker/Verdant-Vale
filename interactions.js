@@ -237,12 +237,31 @@ const MAP_FEATURES = {
   // ── The North Basin \u2014 Badlands ───────────────────────────────────
   NORTH_BASIN_W_MAP: [
     {
-      id: 'north_basin_trapper_hut', type: 'inspect', x: 6.5, y: 8.5, label: 'Trapper\u2019s hut',
+      id: 'north_basin_fisher_hut', type: 'inspect', x: 10.5, y: 7.5, label: 'Fisher\u2019s hut',
       pages: [
-        ['A trapper\u2019s hut, half-sunk into the drying mud. The door hangs open.'],
-        ['No fire\u2019s been lit here in a long time. The lines out past the ridge haven\u2019t been checked either.'],
-        ['Whoever worked this ground left in a hurry, or didn\u2019t leave by choice.',
-         'Either way, they didn\u2019t come back for their gear.'],
+        ['A fisher\u2019s hut leans toward the water, as if it expected the basin to come back for it.'],
+        ['The door is shut but not locked. No smoke, no nets drying. Whoever worked this shore stopped coming a while ago.'],
+      ],
+    },
+    {
+      id: 'north_basin_reservoir_shore', type: 'inspect', x: 11.5, y: 11.5, label: 'Reservoir shore',
+      pages: [
+        ['The shore breaks unevenly here: mud, reeds, and dark reservoir water where the ground gives up.'],
+        ['This is still the reservoir, not a canal \u2014 no dressed edge, no maintained bank. Just the basin, lower than it should be.'],
+      ],
+    },
+    {
+      id: 'north_basin_waterline_posts', type: 'inspect', x: 9.5, y: 4.5, label: 'Waterline posts',
+      pages: [
+        ['The old waterline is still visible on the posts. The basin has fallen far enough to make the hut look stranded.'],
+        ['Someone notched the drop by hand, season after season. The last notch is well below your knee.'],
+      ],
+    },
+    {
+      id: 'north_basin_west_stakes', type: 'inspect', x: 1.5, y: 7.5, label: 'Warning stakes',
+      pages: [
+        ['The west road is choked off for now. Someone has made the old warning stakes very hard to ignore.'],
+        ['UNSTABLE GROUND BEYOND. Below, in a steadier hand: \u201cThe mud looks solid. It isn\u2019t. Wait for the survey.\u201d'],
       ],
     },
   ],
@@ -3556,6 +3575,47 @@ function handleInteract() {
               ];
           dialogue.open  = true;
           dialogue.page  = 0;
+          return;
+        }
+      }
+      // ── Dresser — searchable furniture, yields a couple items once ─────────
+      if (hd && hd.dresser) {
+        const ddx = player.x - hd.dresser.x;
+        const ddy = player.y - hd.dresser.y;
+        if (Math.sqrt(ddx * ddx + ddy * ddy) < TALK_RADIUS) {
+          dialogue.name = 'Dresser';
+          if (!hd.dresser.looted) {
+            hd.dresser.looted = true;
+            stats.items.push({ name: 'Potion',      type: 'potion', heals: 20, price: 30 });
+            stats.items.push({ name: 'Reed Remedy', type: 'potion', heals: 0, curesPoison: true, price: 50 });
+            dialogue.pages = [
+              ['You work the swollen drawers open. Most are empty.',
+               'In the bottom one, wrapped in a rag: a stoppered potion and a twist of reed remedy.'],
+              ['Found: Potion, Reed Remedy.'],
+            ];
+          } else {
+            dialogue.pages = [['The drawers hang open now. Nothing left but dust and a lost button.']];
+          }
+          dialogue.open = true;
+          dialogue.page = 0;
+          return;
+        }
+      }
+      // ── Floor sparkle — one-time Tweezers pickup ───────────────────────────
+      if (hd && hd.sparkle && !hd.sparkle.taken) {
+        const spdx = player.x - hd.sparkle.x;
+        const spdy = player.y - hd.sparkle.y;
+        if (Math.sqrt(spdx * spdx + spdy * spdy) < TALK_RADIUS) {
+          hd.sparkle.taken = true;
+          stats.items.push({ name: 'Tweezers', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true });
+          dialogue.name  = '';
+          dialogue.pages = [
+            ['Something glints between the floorboards.',
+             'You work it loose — a small pair of steel tweezers, still bright.'],
+            ['Got Tweezers.'],
+          ];
+          dialogue.open = true;
+          dialogue.page = 0;
           return;
         }
       }

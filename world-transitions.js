@@ -599,8 +599,14 @@ function exitNorthBasinS() {
 // this file, so those four functions and their dedicated tile IDs no longer
 // exist — see the "Edge-based map transitions" section below.
 
-// Silt Flats <-> Badlands (north-south crossing, preserved x). Same pattern
-// as enterMap3N1()/exitMap3N1().
+// Silt Flats <-> West Shore (north-south crossing).
+// SUPERSEDED: this link is now an OPEN EDGE via the generic EDGE_TRANSITIONS
+// system below (NORTH_BASIN_SW_MAP.north / NORTH_BASIN_W_MAP.south), the same
+// way the C/SW point-tiles were converted. The NORTH_BASIN_W_EXIT/ENTRANCE
+// tiles (90/91) are no longer placed on any map, so these two functions and
+// their movement.js dispatch are now unreachable; they're left in place
+// (not torn out) to keep this conservative pass off the movement/transition
+// machinery. Safe to delete whenever tiles 90/91 are formally retired.
 function enterNorthBasinW() {
   activeMap   = NORTH_BASIN_W_MAP;
   player.y    = 13.5 * TILE; // row 13 — just inside the Badlands' south edge
@@ -1126,6 +1132,20 @@ const EDGE_TRANSITIONS = {
   NORTH_BASIN_SW_MAP: {
     east: [
       { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'west', sourceRange: [9, 11] },
+    ],
+    // North edge: cols 1-10 into the West Shore's south edge. The range stops
+    // at col 10 (not 14) because the Silt Flats' reservoir finger (rows 1-3,
+    // cols 11-13, WATER) backs onto the east end of this edge -- landing a
+    // crossing there would strand the player on water. Source and target
+    // ranges match exactly, so crossings within 1-10 never clamp. (Replaces
+    // the old NORTH_BASIN_W_EXIT/ENTRANCE point-tile, retired like 84-87.)
+    north: [
+      { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'south', sourceRange: [1, 10] },
+    ],
+  },
+  NORTH_BASIN_W_MAP: {
+    south: [
+      { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'north', sourceRange: [1, 10] },
     ],
   },
 };

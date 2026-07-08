@@ -137,6 +137,13 @@ let netto_letter_received = false;
 // Dessa will not offer her quest on first contact — she needs one visit first.
 let dessa_met = false;
 
+// ─── Rareborn spotting-rhyme flag ─────────────────────────────────────────────
+// True once the player has heard the schoolyard rhyme about telling rareborn by
+// hair colour (from the Calwick school child). A Drenwick school child checks
+// this: if the player already knows the rhyme, that child starts it, realises
+// the player has heard it, and trails off instead of reciting the whole thing.
+let rareborn_rhyme_heard = false;
+
 // ─── Side quest: A Bottle for Her Father ──────────────────────────────────────
 // Fenna (Calwick, apt_2) asks the player to carry mushroom wine from the Wend
 // family's fen brewery to her father Sael, who lives alone in a Drenwick
@@ -192,6 +199,7 @@ function syncQuestFlagsToWindow() {
   window.den_wraith_rewarded      = den_wraith_rewarded;
   window.netto_letter_received    = netto_letter_received;
   window.dessa_met                = dessa_met;
+  window.rareborn_rhyme_heard     = rareborn_rhyme_heard;
   window.wine_quest_started   = wine_quest_started;
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;

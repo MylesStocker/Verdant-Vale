@@ -7463,46 +7463,6 @@
       ]
     },
     {
-      "name": "enterNorthBasinW",
-      "srcMap": "NORTH_BASIN_SW_MAP",
-      "srcTile": "NORTH_BASIN_W_EXIT",
-      "destMap": "NORTH_BASIN_W_MAP",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 4,
-          "px": 144,
-          "py": 432,
-          "tileId": 88,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
-      "name": "exitNorthBasinW",
-      "srcMap": "NORTH_BASIN_W_MAP",
-      "srcTile": "NORTH_BASIN_W_ENTRANCE",
-      "destMap": "NORTH_BASIN_SW_MAP",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 4,
-          "px": 144,
-          "py": 48,
-          "tileId": 0,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
       "name": "enterEastTown",
       "srcMap": "TOWN_MAP",
       "srcTile": "EAST_ENTRANCE",
@@ -7888,16 +7848,6 @@
     },
     {
       "name": "NORTH_BASIN_ENTRANCE",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "NORTH_BASIN_W_EXIT",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "NORTH_BASIN_W_ENTRANCE",
       "mapsUsingIt": 1,
       "handledInMovement": true
     }
