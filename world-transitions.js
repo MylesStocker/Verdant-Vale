@@ -599,6 +599,27 @@ function exitNorthBasinS() {
 // this file, so those four functions and their dedicated tile IDs no longer
 // exist — see the "Edge-based map transitions" section below.
 
+// Hidden meadow <-> Verdant Vale (MAP). Entered by stepping on the
+// MEADOW_HIDDEN_ENTRANCE tile in the vale's top-left tree nook (MAP row 1
+// col 1 — drawn as plain grass, deliberately secret); exit is the gap in the
+// meadow's south tree border. The exit lands one tile BELOW the hidden tile
+// (row 2), not on it, so leaving the meadow doesn't immediately re-enter it.
+function enterMeadow() {
+  activeMap   = MEADOW_MAP;
+  player.x    = 7.5 * TILE;   // just inside the south gap
+  player.y    = 13.5 * TILE;
+  player.facing = 'up';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
+function exitMeadow() {
+  activeMap   = MAP;
+  player.x    = 1.5 * TILE;   // col 1, row 2 — one south of the hidden entrance
+  player.y    = 2.5 * TILE;
+  player.facing = 'down';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
 // Silt Flats <-> West Shore (north-south crossing).
 // SUPERSEDED: this link is now an OPEN EDGE via the generic EDGE_TRANSITIONS
 // system below (NORTH_BASIN_SW_MAP.north / NORTH_BASIN_W_MAP.south), the same

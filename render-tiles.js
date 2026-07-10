@@ -1858,6 +1858,11 @@ function drawTile(id, x, y) {
     case NORTH_BASIN_W_EXIT:      drawNorthBasinWExit(x, y);      break;
     case NORTH_BASIN_W_ENTRANCE:  drawNorthBasinWEntrance(x, y);  break;
     case TRAPPER_HUT:             drawTrapperHut(x, y);           break;
+    // Hidden meadow tiles — both deliberately drawn as plain grass. The
+    // entrance is a secret (indistinguishable from the nook around it); the
+    // exit's visual cue is the gap in the meadow's tree border, not the tile.
+    case MEADOW_HIDDEN_ENTRANCE:  drawGrass(x, y);                break;
+    case MEADOW_EXIT:             drawGrass(x, y);                break;
   }
 }
 
@@ -1887,7 +1892,7 @@ const RENDERABLE_TILE_IDS = new Set([
   DUNGEON_FALSE_WALL, WORLD_HOLLOW, INTERIOR_FALSE_WALL, TAKOMO_GATE, TAKOMO_EXIT,
   RUIN_FLOOR, RUIN_WALL, RUIN_STAIRS_DOWN, RUIN_EXIT, BASIN_MUD, NORTH_BASIN_EXIT,
   NORTH_BASIN_ENTRANCE, EXPOSED_STONE, FENCE_POST, NORTH_BASIN_W_EXIT,
-  NORTH_BASIN_W_ENTRANCE, TRAPPER_HUT,
+  NORTH_BASIN_W_ENTRANCE, TRAPPER_HUT, MEADOW_HIDDEN_ENTRANCE, MEADOW_EXIT,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;
 

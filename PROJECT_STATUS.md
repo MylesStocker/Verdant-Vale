@@ -203,7 +203,7 @@ Roughly in priority order:
 
 1. ~~Draw dedicated battle sprites for the 4 remaining scripted bosses~~ —
    **done**: Smuggler Guard (plain steel-armored guard, sword and shield),
-   Polwick (sky-blue hair, dirty tunic, bare-knuckle swagger), Essa (long
+   Polwick (copper-red Firelit hair, dirty tunic, bare-knuckle swagger), Essa (long
    brown hair, fire-red eyes, drawn bow), and Rainfish (translucent,
    drippy, deliberately quizzical-looking rather than threatening) all now
    have dedicated sprites. Every enemy in the game has a bespoke battle

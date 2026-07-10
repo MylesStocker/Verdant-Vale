@@ -158,6 +158,7 @@ function saveGame() {
     alcoveChestOpened:       DUNGEON_ALCOVE_CHEST.opened,
     sluiceDeepChestOpened:   SLUICE_DEEP_CHEST.opened,
     catArmorChestOpened:     CAT_ARMOR_CHEST.opened,
+    meadowChestOpened:       MEADOW_CHEST.opened,
     // Abandoned Drenwick apartment (c1_u4) — searchable dresser + Tweezers sparkle
     abandonedAptDresserLooted: HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted,
     abandonedAptSparkleTaken:  HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken,
@@ -450,6 +451,7 @@ function loadGame() {
   if (data.alcoveChestOpened       !== undefined) DUNGEON_ALCOVE_CHEST.opened   = data.alcoveChestOpened;
   if (data.sluiceDeepChestOpened   !== undefined) SLUICE_DEEP_CHEST.opened      = data.sluiceDeepChestOpened;
   if (data.catArmorChestOpened     !== undefined) CAT_ARMOR_CHEST.opened        = data.catArmorChestOpened;
+  if (data.meadowChestOpened       !== undefined) MEADOW_CHEST.opened           = data.meadowChestOpened;
   if (data.abandonedAptDresserLooted !== undefined) HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted = data.abandonedAptDresserLooted;
   if (data.abandonedAptSparkleTaken  !== undefined) HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken  = data.abandonedAptSparkleTaken;
 

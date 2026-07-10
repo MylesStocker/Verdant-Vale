@@ -111,6 +111,10 @@ const NORTH_BASIN_W_EXIT     = 90; // north edge of NORTH_BASIN_SW_MAP → the B
 const NORTH_BASIN_W_ENTRANCE = 91; // south edge of NORTH_BASIN_W_MAP → return to NORTH_BASIN_SW_MAP
 const TRAPPER_HUT            = 92; // abandoned trapper's hut — impassable, decorative (no interior)
 
+// ─── Hidden meadow (Verdant Vale NW tree nook) ────────────────────────────────
+const MEADOW_HIDDEN_ENTRANCE = 93; // on MAP (1,1): renders as plain GRASS; stepping on it enters MEADOW_MAP
+const MEADOW_EXIT            = 94; // gap in MEADOW_MAP's south tree border → back to MAP beside the nook
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -206,6 +210,8 @@ const WALKABLE = [
   /* 90 NORTH_BASIN_W_EXIT     */ true,
   /* 91 NORTH_BASIN_W_ENTRANCE */ true,
   /* 92 TRAPPER_HUT            */ false,
+  /* 93 MEADOW_HIDDEN_ENTRANCE */ true,
+  /* 94 MEADOW_EXIT            */ true,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -299,6 +305,8 @@ window.FENCE_POST              = FENCE_POST;
 window.NORTH_BASIN_W_EXIT     = NORTH_BASIN_W_EXIT;
 window.NORTH_BASIN_W_ENTRANCE = NORTH_BASIN_W_ENTRANCE;
 window.TRAPPER_HUT            = TRAPPER_HUT;
+window.MEADOW_HIDDEN_ENTRANCE = MEADOW_HIDDEN_ENTRANCE;
+window.MEADOW_EXIT            = MEADOW_EXIT;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -323,7 +331,7 @@ const DEBUG_TILE_NAMES = [
   'GUARD_POST',  'HOUSE_DOOR',  'INN_DOOR',  'INTERIOR_EXIT',  'INTERIOR_FALSE_WALL',  'INTERIOR_FLOOR',
   'INTERIOR_WALL',  'MAP2_ENTRANCE',  'MAP2_EXIT',  'MAP3_ENTRANCE',  'MAP3_EXIT',  'MAP4_ENTRANCE',
   'MAP4_EXIT',  'MAP5_ENTRANCE',  'MAP5_EXIT',  'MIRE_ENTRANCE',  'MIRE_EXIT',  'NORTH_BASIN_ENTRANCE',
-  'NORTH_BASIN_EXIT',  'NORTH_BASIN_W_ENTRANCE',  'NORTH_BASIN_W_EXIT',  'NORTH_ENTRANCE',  'NORTH_EXIT',  'NORTH2_ENTRANCE',
+  'MEADOW_EXIT',  'MEADOW_HIDDEN_ENTRANCE',  'NORTH_BASIN_EXIT',  'NORTH_BASIN_W_ENTRANCE',  'NORTH_BASIN_W_EXIT',  'NORTH_ENTRANCE',  'NORTH_EXIT',  'NORTH2_ENTRANCE',
   'NORTH2_EXIT',  'NOTICE_BOARD',  'OFFICE_DOOR',  'PATH',  'REEDS',  'RUIN_EXIT',
   'RUIN_FLOOR',  'RUIN_STAIRS_DOWN',  'RUIN_WALL',  'SCHOOL_DOOR',  'SLUICE_CHANNEL',  'SLUICE_ENTRANCE',
   'SLUICE_EXIT',  'SLUICE_FLOOR',  'SLUICE_WALL',  'TABLE',  'TAKOMO_EXIT',  'TAKOMO_GATE',
@@ -716,6 +724,16 @@ const TILE_PROPERTIES = {
   [TRAPPER_HUT]: {
     id: TRAPPER_HUT, name: 'Trapper\u2019s Hut', debugName: 'TRAPPER_HUT', walkable: WALKABLE[TRAPPER_HUT],
     category: 'decorative_blocker', tags: ['outdoor', 'decorative', 'blocker', 'building'], encounterEligible: false, isDecorative: true,
+  },
+  [MEADOW_HIDDEN_ENTRANCE]: {
+    id: MEADOW_HIDDEN_ENTRANCE, name: 'Meadow Hidden Entrance', debugName: 'MEADOW_HIDDEN_ENTRANCE', walkable: WALKABLE[MEADOW_HIDDEN_ENTRANCE],
+    category: 'transition', tags: ['outdoor', 'transition', 'secret'], encounterEligible: false, isTransition: true,
+    notes: 'Deliberately drawn as plain GRASS (render-tiles.js) \u2014 the meadow entrance is hidden. Stepping on it enters MEADOW_MAP.',
+  },
+  [MEADOW_EXIT]: {
+    id: MEADOW_EXIT, name: 'Meadow Exit', debugName: 'MEADOW_EXIT', walkable: WALKABLE[MEADOW_EXIT],
+    category: 'transition', tags: ['outdoor', 'transition'], encounterEligible: false, isTransition: true,
+    notes: 'The gap in the meadow\u2019s south tree border; also drawn as GRASS \u2014 the gap itself is the visual cue.',
   },
 
   // ── Retired tile IDs (84-87) -- no constant, unused in every map, kept in

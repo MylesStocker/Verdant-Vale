@@ -7,8 +7,10 @@
 
 // ─── Enemy templates ─────────────────────────────────────────────────────────
 // ─── Removal Contract quest objects ───────────────────────────────────────────
-// Briar Warden — territorial fen creature denning in dungeon floor 1 east passage.
-// Stats sit between floor-1 and floor-2 enemies; no gold (Mault pays the reward instead).
+// Briar Warden — territorial fen creature denning in the hidden spring meadow
+// off the Verdant Vale's NW tree nook (MEADOW_MAP; formerly dungeon floor 1's
+// east passage). Stats sit between floor-1 and floor-2 enemies; no gold
+// (Mault pays the reward instead).
 const BRIAR_WARDEN_TEMPLATE = {
   name: 'Briar Warden', hp: 75, maxHp: 75, atk: 18, def: 5, spd: 7,
   xp: 110, goldMin: 0, goldMax: 0,
@@ -89,6 +91,7 @@ const shop = { open: false, screen: 'main', cursor: 0, title: 'MERCHANT', stock:
 // Returns the short stat label shown next to an item in menus
 function itemStatLabel(item) {
   if (item.curesPoison)                            return 'Cures poison';
+  if (item.curesCursed)                            return 'Cures cursed';
   if (item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
   if (item.questItem && item.type === 'potion')    return `HP  +${item.heals} \u2022 quest`;
   if (item.type === 'weapon')    return `ATK +${item.bonus}`;
@@ -113,6 +116,7 @@ const combat = {
   pendingEscape:  false,
   flashTimer:     0,
   fireCastTimer:  0,         // frames remaining on Polwick's fire-cast animation
+  polwickHasCast: false,     // true once Polwick has cast fire this fight (first hit always casts)
   cooldown:       0,
   isBoss:         false,
   isWarden:       false,
@@ -245,6 +249,7 @@ function endCombat() {
   combat.enemy       = null;
   combat.cooldown    = ENCOUNTER_COOLDOWN;
   combat.fireCastTimer = 0;
+  combat.polwickHasCast = false;
   removeStatusEffect('burn');   // Burn is combat-only — it wears off when the fight ends.
   combat.isBoss        = false;
   combat.isWarden      = false;
@@ -319,6 +324,7 @@ function startFortPolwickCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isFortPolwick  = true;
+  combat.polwickHasCast = false;   // first hit of the fight always casts fire
   combat.observeCount   = 0;
 }
 
@@ -412,12 +418,13 @@ function refreshJobBoard() {
         : 'MISSING \u2014 child\u2019s toy bear, name Schilling, believed taken into the east dungeon by a large creature. Child at the schoolhouse. Please return if recovered. \u2014 Bram, Schoolhouse, Calwick.'
     );
   }
-  // Briar Warden removal contract
-  if (sluice_reward_given && !warden_quest_rewarded) {
+  // Briar Warden removal contract — posted a few days in (day 5+), matching
+  // Overseer Mault's appearance in the square (npcs.js getter)
+  if (sluice_reward_given && day >= 5 && !warden_quest_rewarded) {
     JOB_BOARD_NOTICES.push(
       warden_quest_started
-        ? 'REMOVAL CONTRACT \u2014 IN PROGRESS. Briar Warden, east dungeon passage. Report to Overseer Mault on completion.'
-        : 'REMOVAL CONTRACT. A Briar Warden has been confirmed in the east dungeon passage, blocking maintenance access. Fee: 120 gold, payable on confirmed removal. Report to Overseer Mault, main square. \u2014 District Infrastructure Office, Calwick.'
+        ? 'REMOVAL CONTRACT \u2014 IN PROGRESS. Briar Warden, spring meadow, northwest corner of the vale. Report to Overseer Mault on completion.'
+        : 'REMOVAL CONTRACT. A Briar Warden has been confirmed denning in the overgrown spring meadow at the vale\u2019s far northwest corner (entrance grown over \u2014 push through the grass in the top-left tree nook). Fee: 120 gold, payable on confirmed removal. Report to Overseer Mault, main square. \u2014 District Infrastructure Office, Calwick.'
     );
   }
   // Den Wraith — Unoccupied Property (appears from day 11, hidden once rewarded)
@@ -506,10 +513,14 @@ function applyEnemyHitEffects() {
     combat.messageQueue.unshift('The hag\u2019s curse seeps in. Poisoned! (lose HP each rest)');
   }
   // Polwick — a firelit rareborn. When he lands a blow and the player isn't
-  // already alight, he sometimes flares his hand into flame: a burst of scorch
-  // damage on top of the hit, plus the Burn status (0..20 HP each following
-  // turn). The cast kicks off a short fire animation (see drawFireCast).
-  if (combat.isFortPolwick && !hasStatusEffect('burn') && Math.random() < 0.5) {
+  // already alight, he flares his hand into flame: a burst of scorch damage on
+  // top of the hit, plus the Burn status (0..20 HP each following turn). His
+  // FIRST hit of the fight always casts — he opens with the showpiece — and
+  // later hits re-ignite at 50% once the burn has worn off. The cast kicks
+  // off a short fire animation (see drawFireCast).
+  if (combat.isFortPolwick && !hasStatusEffect('burn') &&
+      (!combat.polwickHasCast || Math.random() < 0.5)) {
+    combat.polwickHasCast = true;
     triggerBurn();
     combat.fireCastTimer = FIRE_CAST_FRAMES;
     const scorch = 4 + Math.floor(Math.random() * 5);   // 4..8 immediate fire damage
@@ -761,7 +772,7 @@ const ENEMY_OBSERVATIONS = {
   ],
   'Briar Warden': [
     { lines: ['Durable. Strong. Moderate speed.', 'It will Muddy you if it connects \u2014 that penalty stacks badly.', 'Avoid taking hits. Easier said.'] },
-    { lines: ['It grew out of the dungeon ecology, not into it.', 'The briars are structural. It doesn\u2019t stop growing.'] },
+    { lines: ['It grew out of the fen ecology, not into it.', 'The briars are structural. It doesn\u2019t stop growing.'] },
     { lines: ['It doesn\u2019t consider this a conflict.', 'You are an obstacle in its territory.', 'It is responding to an obstacle.'] },
   ],
   'Pale Sentry': [
@@ -1000,7 +1011,31 @@ function handleCombatAction() {
     ['poison', 'muddied', 'slither', 'cursed'].forEach(id => removeStatusEffect(id));
     endCombat();
     dialogue.name  = '';
-    dialogue.pages = [['\u2026a day later, you awaken without your gold.']];
+    if (defeatWakeAtHome) {
+      // Someone carried you home: wake beside your own bed in the Calwick
+      // player house, wherever the defeat happened. Location state mirrors
+      // bootstrap.js's opening block exactly, so every interior/dungeon flag
+      // is cleared and exiting the house returns to west Calwick as normal.
+      // Toggleable from the debug menu ("Home on Defeat").
+      inDungeon = false; inSluice = false; inMireVault = false;
+      inTakomo = false; inFenBrewery = false; inHamletInterior = false;
+      inDungeonEntrance = false;
+      inTown              = true;
+      currentTownId       = 'calwick';
+      townBuilding        = 'house';
+      currentHouseId      = 'player_house';
+      houseSourceMap      = WEST_TOWN_MAP;
+      houseSourceBuilding = 'west';
+      houseReturnPos      = { x: 2.5 * TILE, y: 12.5 * TILE };
+      activeMap           = HOUSE_INTERIOR_MAP;
+      player.x            = 9.5 * TILE;   // on the floor beside the bed
+      player.y            = 3.5 * TILE;
+      player.facing       = 'down';
+      dialogue.pages = [['\u2026a day later, you awaken in your own bed, without your gold.',
+                         'Someone must have carried you home.']];
+    } else {
+      dialogue.pages = [['\u2026a day later, you awaken without your gold.']];
+    }
     dialogue.open  = true;
     dialogue.page  = 0;
     return;
@@ -1022,6 +1057,11 @@ function handleCombatAction() {
         stats.items.splice(stats.items.indexOf(item), 1);
         combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
         msgs.push(`Used ${item.name} \u2014 poison cured!`);
+      } else if (item.curesCursed) {
+        removeStatusEffect('cursed');
+        stats.items.splice(stats.items.indexOf(item), 1);
+        combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
+        msgs.push(`Used ${item.name} \u2014 the curse lifts!`);
       } else {
         const healed = Math.min(item.heals || 0, stats.maxHp - stats.hp);
         stats.hp += healed;
@@ -1058,14 +1098,28 @@ function handleCombatAction() {
   // phase === 'choose'
   const action = combatOptions()[combat.cursor];
   if (action === 'run') {
-    // Rainfish: can't run — the school is all around you in the shallows.
-    if (combat.isRainfish) {
+    // No-escape fights. Rainfish: the school is all around you in the
+    // shallows. Fort arrest sequence (guard → Polwick → Essa): each opponent
+    // stands between the player and the fort's only door — and fleeing
+    // mid-sequence left the quest in odd half-states (opponents vanishing at
+    // off-stages, the chain resumable in the wrong order), so Run is simply
+    // not available. Attempting it costs the turn: the enemy gets a free hit,
+    // same as the Rainfish rule.
+    if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa) {
       const atkRoll = combat.enemy.atk * (0.8 + Math.random() * 0.4);
       const eDmg = Math.max(1, Math.round(atkRoll - effectiveDef()));
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const msgs = [`Nowhere to go! Rainfish thrashes for ${eDmg}!`];
+      const noRunText =
+          combat.isRainfish     ? `Nowhere to go! Rainfish thrashes for ${eDmg}!`
+        : combat.isFortGuard    ? `The guard holds the door! He strikes for ${eDmg}!`
+        : combat.isFortPolwick  ? `Polwick stays between you and the door! He strikes for ${eDmg}!`
+        :                         `Essa keeps herself between you and the door! She strikes for ${eDmg}!`;
+      const msgs = [noRunText];
       if (newHp <= 0) { msgs.push(`${stats.name} has fallen...`); combat.pendingDefeat = true; }
+      // A blocked run still spends the turn — Burn ticks, same as a failed run.
+      const blockedRunBurn = burnTickEntry();
+      if (blockedRunBurn) msgs.push(blockedRunBurn);
       combat.message = msgs.shift();
       combat.messageQueue = msgs;
       combat.phase = 'message';

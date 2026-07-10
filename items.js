@@ -25,6 +25,9 @@ const ITEM_REGISTRY = {
   'Cat Armor':    { name: 'Cat Armor',    type: 'armor',     bonus: 99, price:   0 },
   // Herbalist items
   'Reed Remedy':  { name: 'Reed Remedy',  type: 'potion', heals: 0, curesPoison: true, price: 50 },
+  // Hidden meadow chest (MEADOW_CHEST, data.js) — the one curse-cure item.
+  // Amethyst is the established anti-curse material (cf. Amethyst Bangle).
+  'Amethyst Dust': { name: 'Amethyst Dust', type: 'potion', heals: 0, curesCursed: true, price: 60 },
   // Tavern items
   'Mushroom Wine': { name: 'Mushroom Wine', type: 'potion', heals: 5, questItem: true, price: 8 },
   // Fishing — Drenwick Waterfront

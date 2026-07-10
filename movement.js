@@ -196,7 +196,10 @@ function canWalk(cx, cy) {
   } else if (inDungeon && dungeonFloor === 1) {
     if (!DUNGEON_CHEST.opened && Math.abs(cx - DUNGEON_CHEST.x) < 18 && Math.abs(cy - DUNGEON_CHEST.y) < 18) return false;
     if (!DUNGEON_ALCOVE_CHEST.opened && Math.abs(cx - DUNGEON_ALCOVE_CHEST.x) < 18 && Math.abs(cy - DUNGEON_ALCOVE_CHEST.y) < 18) return false;
+  } else if (!inDungeon && !inTown && activeMap === MEADOW_MAP) {
+    // Hidden meadow — the Warden's body (quest active) and the chest are solid
     if (warden_quest_started && !warden_quest_defeated && Math.abs(cx - BRIAR_WARDEN_SPAWN.x) < 18 && Math.abs(cy - BRIAR_WARDEN_SPAWN.y) < 18) return false;
+    if (!MEADOW_CHEST.opened && Math.abs(cx - MEADOW_CHEST.x) < 18 && Math.abs(cy - MEADOW_CHEST.y) < 18) return false;
   } else if (inDungeon && (dungeonFloor === 2 || dungeonFloor === 3)) {
     // bland floors — no solid obstacles beyond tile walkability
   } else if (inDungeon && dungeonFloor === 4) {
@@ -302,6 +305,7 @@ function canWalk(cx, cy) {
 // combat.js's currentEncounterPool(), same shape of special case) currently
 // encodes, which is more risk than this pass calls for.
 function isEncounterEligibleTile(tile) {
+  if (activeMap === MEADOW_MAP) return false; // hidden meadow — deliberately encounter-free (the Warden is its only danger)
   if (!inDungeon && !inTown && !inSluice && !inMireVault && !inTakomo && !inFenBrewery && !inHamletInterior && !inDungeonEntrance) return isTileEncounterEligible(tile);
   if (inDungeonEntrance) return false; // South Ruins Entrance Hall — deliberately encounter-free
   if (inDungeon && dungeonFloor === 1)  return tile === DUNGEON_FLOOR;
@@ -467,6 +471,8 @@ function update() {
     // movement block above (see EDGE_TRANSITIONS in world-transitions.js).
     if (!inDungeon && !inTown && !inSluice && activeMap === NORTH_BASIN_SW_MAP && curTile === NORTH_BASIN_W_EXIT) { enterNorthBasinW(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === NORTH_BASIN_W_MAP && curTile === NORTH_BASIN_W_ENTRANCE) { exitNorthBasinW(); return; }
+    if (!inDungeon && !inTown && !inSluice && activeMap === MAP && curTile === MEADOW_HIDDEN_ENTRANCE) { enterMeadow(); return; }
+    if (!inDungeon && !inTown && !inSluice && activeMap === MEADOW_MAP && curTile === MEADOW_EXIT) { exitMeadow(); return; }
     if (!inDungeon && !inTown && !inSluice && !inMireVault && activeMap === MAP3_N1 && curTile === MIRE_ENTRANCE) { enterMireVault(); return; }
     if (inMireVault && curTile === MIRE_EXIT)                                                        { exitMireVault();  return; }
     // Falls hamlet houses (MAP3_N1 rows 10-12 cols 1-2) — three houses share one interior map

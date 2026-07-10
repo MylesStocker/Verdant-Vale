@@ -53,7 +53,10 @@ function render() {
   if (inDungeon && dungeonFloor === 4 && !MULHOLLAND.defeated) drawMulholland();
   if (inDungeon && dungeonFloor === 5)   drawBoss();
   if (inTown && townBuilding === 'house' && currentHouseId === 'west_i' && den_wraith_quest_started && !den_wraith_defeated) drawDenWraith();
-  if (inDungeon && dungeonFloor === 1)   drawBriarWarden();
+  if (!inDungeon && !inTown && activeMap === MEADOW_MAP) {
+    drawBriarWarden();                                       // self-gates on quest state
+    if (!MEADOW_CHEST.opened) drawChest(MEADOW_CHEST);
+  }
   if (inMireVault && !MIRE_VAULT_CHEST.opened) drawChest(MIRE_VAULT_CHEST);
   if (inTown && !townBuilding)           drawNoticeBoardHint();
   if (inTown && !townBuilding && currentTownId === 'drenwick' && activeMap === DRENWICK_WATERFRONT_MAP)

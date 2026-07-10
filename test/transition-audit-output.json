@@ -61,6 +61,7 @@
     "SMALL_APARTMENT_MAP",
     "EAST_TOWN_MAP",
     "WEST_TOWN_MAP",
+    "MEADOW_MAP",
     "HOUSE_INTERIOR_MAP",
     "SLUICE_MAP",
     "SLUICE_LEVEL2_MAP",
@@ -433,6 +434,12 @@
     },
     {
       "id": "WEST_TOWN_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MEADOW_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -3534,9 +3541,9 @@
       "verdict": "OK"
     },
     {
-      "name": "enterHouse('west_b')",
+      "name": "enterHouse('west_i')",
       "group": "enter-house",
-      "setupCode": "enterHouse('west_b')",
+      "setupCode": "enterHouse('west_i')",
       "error": null,
       "destMap": "HOUSE_INTERIOR_MAP",
       "px": 240,
@@ -3621,9 +3628,9 @@
       "verdict": "OK"
     },
     {
-      "name": "enterHouse('west_i')",
+      "name": "enterHouse('west_b')",
       "group": "enter-house",
-      "setupCode": "enterHouse('west_i')",
+      "setupCode": "enterHouse('west_b')",
       "error": null,
       "destMap": "HOUSE_INTERIOR_MAP",
       "px": 240,
@@ -5303,9 +5310,9 @@
       "verdict": "OK"
     },
     {
-      "name": "exitBuilding() [house: west_b]",
+      "name": "exitBuilding() [house: west_i]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_b'); exitBuilding();",
+      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_i'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 336,
@@ -5390,9 +5397,9 @@
       "verdict": "OK"
     },
     {
-      "name": "exitBuilding() [house: west_i]",
+      "name": "exitBuilding() [house: west_b]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_i'); exitBuilding();",
+      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_b'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 336,
@@ -7850,6 +7857,16 @@
       "name": "NORTH_BASIN_ENTRANCE",
       "mapsUsingIt": 1,
       "handledInMovement": true
+    },
+    {
+      "name": "MEADOW_HIDDEN_ENTRANCE",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
+    },
+    {
+      "name": "MEADOW_EXIT",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
     }
   ],
   "houseDoorResults": [
@@ -7890,7 +7907,7 @@
       "map": "west",
       "col": 10,
       "row": 3,
-      "houseId": "west_b",
+      "houseId": "west_i",
       "mapExpr": "WEST_TOWN_MAP",
       "rx": 336,
       "ry": 144,
@@ -7923,7 +7940,7 @@
       "map": "west",
       "col": 10,
       "row": 11,
-      "houseId": "west_i",
+      "houseId": "west_b",
       "mapExpr": "WEST_TOWN_MAP",
       "rx": 336,
       "ry": 400,

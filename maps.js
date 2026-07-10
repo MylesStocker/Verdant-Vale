@@ -4,7 +4,7 @@
 // 0=grass 1=water 2=path 3=tree 6=dungeon entrance 14=town entrance
 const MAP = [
   [3,3,3,3,3,3,3,43,3,3,3,3,3,3,3,3],  //  0  ← col 7 = NORTH_EXIT
-  [3,0,0,0,0,14,0,2,0,0,3,0,0,0,0,3],  //  1  ← col 5 = town entrance, col 7 = path (north road)
+  [3,93,0,0,0,14,0,2,0,0,3,0,0,0,0,3], //  1  ← col 1 = MEADOW_HIDDEN_ENTRANCE (draws as grass — secret), col 5 = town entrance, col 7 = path (north road)
   [3,0,0,3,3,2,0,2,0,0,3,3,0,0,0,3],   //  2  ← col 5 = path, col 7 = path (north road)
   [3,0,0,3,3,2,0,2,0,0,3,0,0,0,0,3],   //  3  ← col 5 = path, col 7 = path (north road)
   [3,0,0,0,0,2,2,2,2,2,2,2,2,2,2,39],  //  4  ← col 15 = east world exit, col 7 = crossroads
@@ -1597,6 +1597,35 @@ const WEST_TOWN_MAP = [
 // One reusable single-room interior for all residential houses.
 // Which NPCs and props appear is controlled by currentHouseId + SIMPLE_NPCS.
 // Floor: cols 4–11, rows 2–9.  Exit door: col 7, row 10.
+// ─── Hidden Meadow  (16 × 15) ────────────────────────────────────────────────
+// A secluded clearing reached through the MEADOW_HIDDEN_ENTRANCE tile in the
+// Verdant Vale's top-left tree nook (MAP row 1 col 1 — drawn as plain grass,
+// found only by walking on it). Tree-ringed grass with a small spring pool
+// (rows 3-4, cols 6-7), scattered reeds, the relocated Briar Warden's den
+// (BRIAR_WARDEN_SPAWN, beside the pool — render-entities.js), and MEADOW_CHEST
+// (col 12 row 2, data.js — Amethyst Dust, cures the cursed status). The one
+// exit is the gap in the south tree border (MEADOW_EXIT, row 14 col 7), which
+// returns to MAP just below the nook. Deliberately encounter-free (see
+// isEncounterEligibleTile in movement.js) — the Warden is the only danger.
+const MEADOW_MAP = [
+  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0
+  [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  3],  //  1
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  3],  //  2  ← chest at col 12 (overlay)
+  [  3,  0, 23,  0,  0,  0,  1,  1,  0,  0,  0,  0,  0,  0,  0,  3],  //  3  spring pool begins; Warden den at col 8 (overlay)
+  [  3,  0,  0,  0,  0,  0,  1,  1,  0,  0,  0,  0, 23,  0,  0,  3],  //  4  spring pool ends
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  5
+  [  3, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  3],  //  6
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  7
+  [  3,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  3],  //  8
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  9
+  [  3,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  3],  // 10
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 11
+  [  3,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0,  3],  // 12
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 13
+  [  3,  3,  3,  3,  3,  3,  3, 94,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = MEADOW_EXIT (gap in the trees, back to MAP)
+];
+
 const HOUSE_INTERIOR_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0
@@ -1848,6 +1877,7 @@ window.APARTMENT_CORRIDOR_MAP = APARTMENT_CORRIDOR_MAP;
 window.SMALL_APARTMENT_MAP  = SMALL_APARTMENT_MAP;
 window.EAST_TOWN_MAP        = EAST_TOWN_MAP;
 window.WEST_TOWN_MAP        = WEST_TOWN_MAP;
+window.MEADOW_MAP           = MEADOW_MAP;
 window.HOUSE_INTERIOR_MAP   = HOUSE_INTERIOR_MAP;
 window.SLUICE_MAP           = SLUICE_MAP;
 window.SLUICE_LEVEL2_MAP    = SLUICE_LEVEL2_MAP;
@@ -1919,6 +1949,7 @@ const MAP_REGISTRY = {
   SMALL_APARTMENT_MAP:   { id: 'SMALL_APARTMENT_MAP',   label: 'Apartment',                  map: SMALL_APARTMENT_MAP   },
   EAST_TOWN_MAP:         { id: 'EAST_TOWN_MAP',         label: 'Calwick East Side',          map: EAST_TOWN_MAP         },
   WEST_TOWN_MAP:         { id: 'WEST_TOWN_MAP',         label: 'Calwick West Side',          map: WEST_TOWN_MAP         },
+  MEADOW_MAP:            { id: 'MEADOW_MAP',            label: 'Hidden Meadow',              map: MEADOW_MAP            },
   HOUSE_INTERIOR_MAP:    { id: 'HOUSE_INTERIOR_MAP',    label: 'House',                      map: HOUSE_INTERIOR_MAP    },
   SLUICE_MAP:            { id: 'SLUICE_MAP',            label: 'East Sluice',                map: SLUICE_MAP            },
   SLUICE_LEVEL2_MAP:     { id: 'SLUICE_LEVEL2_MAP',     label: 'East Sluice \u2014 Lower Works', map: SLUICE_LEVEL2_MAP },

@@ -52,6 +52,10 @@ let inHamletInterior     = false; // true when inside the Falls hamlet interior 
 let inDungeonEntrance    = false; // true when inside the South Ruins Entrance Hall (top floor, between the overworld and dungeon floor 1 — no encounters, kept separate from inDungeon/dungeonFloor on purpose so it never picks up a combat-encounter pool)
 let sluiceFloor          = 1;    // 1 = Level 1, 2 = Level 2
 let debugMode            = false; // when true, random encounters are suppressed
+// When true (default), a combat defeat relocates the player to their own bed
+// in the Calwick player house ("someone carried you home") instead of waking
+// them on the spot where they fell. Toggleable from the debug menu.
+let defeatWakeAtHome     = true;
 let dilemma_voss         = null; // null | 'report' | 'protect' | 'abstain'
 
 // ─── Status effects ───────────────────────────────────────────────────────────
@@ -146,7 +150,7 @@ const debugMenu = {
   open:   false,
   cursor: 0,
 };
-const DEBUG_MENU_ROW_COUNT = 8;
+const DEBUG_MENU_ROW_COUNT = 9;
 
 // ─── Debug map inspector state ─────────────────────────────────────────────────
 // A lightweight, always-updating HUD overlay (not a modal menu — doesn't

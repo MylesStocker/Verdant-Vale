@@ -442,6 +442,7 @@ const transitionTileNames = [
   'D3_SOUTH_PASSAGE', 'D3_NORTH_PASSAGE', 'TAKOMO_GATE', 'TAKOMO_EXIT',
   'RUIN_STAIRS_DOWN', 'RUIN_EXIT',
   'NORTH_BASIN_EXIT', 'NORTH_BASIN_ENTRANCE',
+  'MEADOW_HIDDEN_ENTRANCE', 'MEADOW_EXIT',
   // NORTH_BASIN_W_EXIT/ENTRANCE (90/91) retired: the Silt Flats <-> West Shore
   // link is now an EDGE_TRANSITIONS crossing, not a point-tile, so those tiles
   // are no longer placed on any map (this list is a cross-reference of

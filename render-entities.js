@@ -480,10 +480,53 @@ function drawSchoolBookshelf(npc) {
   drawNPCSpaceHint(npc, bx, by - 8);
 }
 
+// Polwick's overworld sprite (smuggler fort). Copper-red Firelit hair — the
+// same marker as his battle sprite (render-battle.js drawBattlePolwick) —
+// on a grubby, untucked tunic. Worker body proportions.
+function drawPolwickSprite(npc) {
+  const px = Math.round(npc.x), py = Math.round(npc.y);
+  // Tunic — dirty tan, matching the battle sprite's palette
+  ctx.fillStyle = '#8a7c58';
+  ctx.fillRect(px - 7, py - 10, 14, 10);         // torso
+  ctx.fillRect(px - 3, py - 10, 6, 5);           // no contrast collar
+  ctx.fillRect(px - 12, py - 6, 6, 5);           // left arm
+  ctx.fillRect(px +  6, py - 6, 6, 5);           // right arm
+  // Dirt/stain patch
+  ctx.fillStyle = '#5c5238';
+  ctx.fillRect(px - 4, py - 6, 4, 3);
+  // Hands
+  ctx.fillStyle = '#c09070';
+  ctx.fillRect(px - 13, py - 3, 6, 4);
+  ctx.fillRect(px +  7, py - 3, 6, 4);
+  // Head
+  ctx.fillStyle = '#c09070';
+  ctx.fillRect(px - 5, py - 22, 10, 13);
+  // Copper-red hair — medium length, a little unkempt, past the jaw
+  ctx.fillStyle = '#c05a20';
+  ctx.fillRect(px - 5, py - 23, 10, 6);          // top, a touch taller/messier
+  ctx.fillRect(px - 6, py - 21, 2, 8);           // left side, past the jaw
+  ctx.fillRect(px + 4, py - 21, 2, 7);           // right side
+  ctx.fillStyle = '#e08040';
+  ctx.fillRect(px - 4, py - 23, 8, 2);           // highlight
+  // Eyes — half-lidded, sure of himself
+  ctx.fillStyle = '#241f1a';
+  ctx.fillRect(px - 3, py - 15, 2, 2);
+  ctx.fillRect(px + 1, py - 15, 2, 2);
+  // Legs — worn trousers, scuffed boots
+  ctx.fillStyle = '#4a4438';
+  ctx.fillRect(px - 5, py,      4, 8);
+  ctx.fillRect(px + 1, py,      4, 8);
+  ctx.fillStyle = '#2c281e';
+  ctx.fillRect(px - 6, py + 6,  5, 3);
+  ctx.fillRect(px + 1, py + 6,  5, 3);
+  drawNPCSpaceHint(npc, px, py);
+}
+
 const NPC_DRAW_FNS = {
   maren: drawMarenSprite,
   wen:   drawWenSprite,
   calwick_school_bookshelf: drawSchoolBookshelf,
+  polwick: drawPolwickSprite,
 };
 
 // Shared SPACE prompt drawn above an NPC when the player is in range.
@@ -759,7 +802,7 @@ function drawInnkeeper() {
 // Drenwick waterfront fishing spot — col 3 row 3, dock edge facing water.
 const DRENWICK_FISHING_SPOT = { x: 3.5 * TILE, y: 3.5 * TILE };
 
-const BRIAR_WARDEN_SPAWN  = { x: 12.5 * TILE, y:  7.5 * TILE }; // col 12 row 7, east side of dungeon floor 1 main hall
+const BRIAR_WARDEN_SPAWN  = { x: 8.5 * TILE, y: 3.5 * TILE }; // col 8 row 3 — beside the spring pool in the hidden meadow (MEADOW_MAP)
 const OVERSEER_MAULT_POS  = { x: 11.5 * TILE, y:  7.5 * TILE }; // col 11 row 7, Calwick main square
 
 // ─── Drenwick Waterfront Fishing Spot ────────────────────────────────────────
@@ -2243,11 +2286,11 @@ function drawBoss() {
   }
 }
 
-// ─── Briar Warden (dungeon floor 1, side quest) ───────────────────────────────
+// ─── Briar Warden (hidden meadow, side quest) ─────────────────────────────────
 // Drawn only when quest is active and the Warden has not yet been defeated.
 // Palette: deep fen greens, orange eyes, thorn protrusions from back.
 function drawBriarWarden() {
-  if (!inDungeon || dungeonFloor !== 1 || !warden_quest_started || warden_quest_defeated) return;
+  if (activeMap !== MEADOW_MAP || inTown || inDungeon || !warden_quest_started || warden_quest_defeated) return;
   const px = Math.round(BRIAR_WARDEN_SPAWN.x);
   const py = Math.round(BRIAR_WARDEN_SPAWN.y);
   const breathe = Math.round(Math.sin(tick * 0.05) * 1);

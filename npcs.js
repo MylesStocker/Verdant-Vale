@@ -236,7 +236,7 @@ const SIMPLE_NPCS = [
       const pages = [
         ['\u201cEast channel\u2019s running shallow.', 'Don\u2019t know if it\u2019s the sluice or something further in.\u201d'],
         ['\u201cUsed to get twice the catch this time of year.', 'Reeds have shifted. Changes the run.\u201d'],
-        ['\u201cSaw a green-haired child coming out of the fen with a reed crew last season. Bloommark.\u201d',
+        ['\u201cSaw a green-haired child coming out of the fen with a reed crew last season. Bloommarked.\u201d',
          '\u201cFamilies out that way know what it means. They register when they can get to town. Just part of the work out there.\u201d'],
       ];
       if (sluice_reward_given) pages.push(
@@ -416,9 +416,9 @@ const SIMPLE_NPCS = [
       }
       if (warden_quest_rewarded) {
         pages.push([
-          '\u201cThe east dungeon passage has been quiet lately.\u201d',
-          '\u201cBram mentioned the maintenance crew went back in.\u201d',
-          '\u201cThat passage hadn\u2019t been used properly in months.\u201d',
+          '\u201cThat spring meadow up in the northwest corner has gone quiet again.\u201d',
+          '\u201cThe reed crews went back last week. First time in a season.\u201d',
+          '\u201cNobody\u2019s saying thank you, but everyone means it.\u201d',
         ]);
       }
       return pages;
@@ -631,6 +631,31 @@ const SIMPLE_NPCS = [
       );
       return pages;
     },
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
+  // Harlan — night-shift sluice worker, on the west residential street just
+  // east of the player's front door on WORK days only (his "evening" is
+  // everyone else's morning). Explains why the west-side houses stand empty
+  // during the working day. Gone on Dayoff — the street is full then, and
+  // he sleeps through it.
+  {
+    id:            'harlan',
+    name:          'Harlan',
+    get map()      { return day % 5 === 0 ? null : 'west'; },
+    x:              4.5 * TILE,
+    y:             10.5 * TILE,
+    solid:         true,
+    facing:        'left',
+    spriteType:    'worker',
+    dialogue: [
+      ['“Quiet, isn’t it. Most of these houses are empty this time of day.”',
+       '“Everyone’s at work. Sluice, office, reed crews.”'],
+      ['“Me? Nights at the sluice. This is my evening.”',
+       '“Give the street until dusk — or catch a Dayoff.',
+       'Then you can’t move for neighbours.”'],
+    ],
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -851,8 +876,8 @@ const SIMPLE_NPCS = [
             '\u201cIt\u2019s probably a seed pod.\u201d',
             '\u201cBut it opened when I looked at it and I don\u2019t think seed pods are supposed to do that.\u201d']]
         : [['\u201cI understand all of it.\u201d'],
-           ['\u201cIf you combine bloommark growth with a little firelit heat, you get things growing faster, but sometimes they grow\u2026 fiery.\u201d',
-            '\u201cWhich is still growing. Bloommark is the green hair. I\u2019ve done the observation part.\u201d']];
+           ['\u201cIf you combine bloommarked growth with a little firelit heat, you get things growing faster, but sometimes they grow\u2026 fiery.\u201d',
+            '\u201cWhich is still growing. Bloommarked is the green hair. I\u2019ve done the observation part.\u201d']];
     },
     flag_required: null, flag_sets: null, action: null,
   },
@@ -871,9 +896,11 @@ const SIMPLE_NPCS = [
     // A schoolyard rhyme for telling rareborn \u2014 and it's canonically accurate.
     // In this world a rareborn "thread" (ability) is signalled by HAIR colour
     // and registered at birth (cf. Ms. Vale: "Thread type is identifiable by
-    // hair colour at birth"): red = firelit (Polwick), blue/green = bloommark
-    // and the like (cf. the Tinkerer Child: "Bloommark is the green hair"),
-    // silver/violet = other rareborn signs. EYE colour (gold, pink, purple) is
+    // hair colour at birth"): red = Firelit (Polwick), blue = Tidebound,
+    // green = Bloommarked (cf. the Tinkerer Child: "Bloommarked is the green
+    // hair"), silver = Galeheart, rosy/pink = Rosebound \u2014 all eight are hair
+    // markers; violet is deliberately NOT used (no violet thread exists).
+    // EYE colour (gold, pink, purple) is
     // purely cosmetic \u2014 pretty, but it carries no thread and no power. The
     // verse's second stanza states exactly that, so it's true, not folk fancy.
     // Couplets are split one-per-page so the dialogue box doesn't reflow them.
@@ -882,7 +909,7 @@ const SIMPLE_NPCS = [
        'Ms. Vale says the true part is really true.\u201d'],
       ['\u201cIf hair burns red, or blooms in blue or green,',
        'A thread may stir where rareborn signs are seen.\u201d'],
-      ['\u201cIf silver curls or violet locks arise,',
+      ['\u201cIf silver curls or rosy locks arise,',
        'Then folk may look for power in disguise.\u201d'],
       ['\u201cBut golden eyes, or pink, or purple-bright,',
        'Hold not a thread, nor whisper any might.\u201d'],
@@ -943,50 +970,49 @@ const SIMPLE_NPCS = [
           label: 'The Century War',
           title: 'IMPERIAL SCHOOL PRIMER — THE CENTURY WAR',
           pages: [
-            ['The Century War stands as the defining rupture of recorded history: a conflict of a hundred years fought between the commonborn majority and the rareborn, those possessing resonant ability. Though the rareborn commanded formidable powers, their scarcity — roughly one in three hundred — told against them across a long war of attrition. The commonborn prevailed not through any single victory but through sheer, grinding persistence.',
-             'The war concluded at Year Zero, when the two surviving city-states, Lumina and Halcyra, set aside their remaining differences and signed a compact of unification, from which the present Empire descends.'],
-            ['In the purge that followed, the victors put to death nearly every surviving rareborn, drawing no distinction between combatants, collaborators, and those who had surrendered. Execution became settled policy, and would remain so for seven centuries.',
-             'The war’s most enduring casualty, however, was memory itself. The fighting consumed the archives and monuments of the age before it. Scholars agree that civilisation extended back many thousands of years — the ruins and abandoned shrines attest to it — yet no living person can say with authority what that world contained. The Empire, in a real sense, begins where its own knowledge ends.'],
+            ['The Century War stands at the threshold of unified time: a conflict of one hundred years between the commonborn multitude and the rareborn few, from which the Empire itself was born. Against arts of great and terrible power, the commonborn prevailed by those virtues the Empire honours still — patience, discipline, and the refusal to yield.',
+             'At Year Zero the two surviving city-states, Lumina and Halcyra, set aside a century of grief and signed the compact of unification: an act of statesmanship from which all subsequent peace descends.'],
+            ['In the settlement that followed, the young Empire acted to secure the realm by measures deemed needful in that stern age. A gentler century may weigh those judgments differently; the student should recall that the founders governed amid ruin, and chose order first, so that their descendants might one day afford mercy — as, by the Accord of Threads, they did.',
+             'Of the age before the war, little survives; the fighting consumed the archives of a thousand years. Where other peoples might have mourned, the founders built. The Empire’s history begins in light, at Year Zero, with law — and it has not been interrupted since.'],
           ],
         },
         {
           label: 'The Accord of Threads',
           title: 'IMPERIAL SCHOOL PRIMER — THE ACCORD OF THREADS',
           pages: [
-            ['The Accord of Threads — a popular name; the instrument bears a far longer official title — was ratified in the seven hundredth year After Century, and remains the cornerstone of imperial law concerning the rareborn.',
-             'Its drafting is a study in deliberate evasion. Nowhere does the document name the rareborn, resonance, or ability of any kind; it speaks only of “the condition,” identifiable “through outward and measurable signs.” By this careful abstraction the Accord rescinded the standing death warrants of the Silent Centuries, replacing systematic execution with a regime of registration, education, and supervised employment.'],
-            ['The death penalty was not abolished but repurposed: it now attaches to non-compliance rather than to existence.',
-             'Students of law direct particular attention to Article VIII, which provides that any ambiguity in the text shall be resolved in favour of public order. This clause functions as the document’s immune system, ensuring that its many silences can never be construed against the state. The Accord is thus best understood not as a grant of rights but as a managed truce — one that transformed the rareborn from a people to be killed into a people to be counted, catalogued, and put to use.'],
+            ['Ratified in the seven hundredth year After Century, the Accord of Threads is justly accounted the most far-sighted instrument of governance the Empire has issued. In recognition of existing realities, and in furtherance of the Empire’s enduring charge to preserve order, continuity, and the common peace, it set aside the final remedy of an earlier and sterner age, and established in its place a durable framework of registry, instruction, and licensed standing.',
+             'The drafting itself is a model of delicacy and precision: the instrument addresses “the condition” through outward and measurable signs alone, and thereby spares a whole class of subjects the weight of harsher language.'],
+            ['By its provisions, those who might once have lived in concealment and fear were brought instead into partnership with the realm — counted, educated, certified, and set to honourable service. Article VIII, providing that ambiguity resolves in favour of public order, ensures that no quarrel of interpretation can ever unsettle the peace the Accord secured.',
+             'Three hundred and seventy years of unbroken quiet stand as its vindication. It is difficult, from the vantage of the present age, to name another act of state that has purchased so much peace at so modest a price.'],
           ],
         },
         {
           label: 'The Eight Threads',
           title: 'IMPERIAL SCHOOL PRIMER — THE EIGHT THREADS',
           pages: [
-            ['Resonant ability, popularly termed rarebirth, appears in roughly one person in three hundred and follows no hereditary pattern whatsoever. It is this randomness, above all else, that shapes the present order: because ability cannot be bred, no lineage may hoard it, and no dynasty of the gifted can arise.',
-             'Ability manifests in eight distinct forms, or threads, each announced from birth by the colour of the hair — a marker that renders concealment difficult and registration reliable.'],
-            ['The threads are conventionally listed thus: Voidborn (black), governing dampening; Bloommarked (green), organic growth; Tidebound (blue), water; Firelit (red), heat and flame; Galeheart (silver), air; Stonewrought (brown or grey), stone and structure; Starlit (gold), light; and Rosebound (pink), emotional cohesion and bodily maintenance. Each occurs in perhaps one person in two thousand four hundred; rarer still is the prismborn, an amplifier across the full spectrum, seen perhaps once in a million births.',
-             'Students should note that vivid eye colour, though sometimes mistaken for a sign of ability, carries no such meaning. It is a matter of appearance only, and nothing follows from it.'],
+            ['Among the many fortunes of the realm, none is greater than this: resonant ability, arising in roughly one subject in three hundred, follows no line of descent. What fortune distributes freely, no dynasty may hoard; no house may breed itself into mastery; and every rareborn child, whether of manor or fen, comes equally into the care and instruction of the Empire. Upon this providence the whole equity of imperial governance rests.',
+             'Ability declares itself honestly, from birth, in the colour of the hair — nature’s own registry, wanting only the Empire’s diligence to complete it.'],
+            ['The eight threads, each a gift in the service of the realm, are conventionally listed thus: Voidborn (black), the calming of forces; Bloommarked (green), the increase of harvests; Tidebound (blue), the mastery of waters; Firelit (red), heat and forge-craft; Galeheart (silver), the winds; Stonewrought (brown or grey), the raising of works; Starlit (gold), light; and Rosebound (pink), the mending of body and spirit. Rarest of all is the prismborn, one in a million, in whom every gift is amplified together.',
+             'The student should note that vivid colour of the eye, however striking, signifies nothing: it is an ornament of nature, and no thread attends it.'],
           ],
         },
         {
           label: 'The Council of 33',
           title: 'IMPERIAL SCHOOL PRIMER — THE COUNCIL OF THIRTY-THREE',
           pages: [
-            ['The Empire is governed by the Council of Thirty-Three, composed of three parts of eleven seats each — the arrangement commonly called the Three Elevens. The first eleven are hereditary, held by the noble houses of the eight constituent kingdoms. The second eleven are elected, one to each region, for five-year terms. The third eleven form the Wisdom Council, chosen by the sitting members from among those who have completed thirty-three years of imperial service, and serving thereafter until death.',
-             'Presiding over all is the Concordant, a figure often likened to a president but in practice closer to a speaker: the office votes only to break a tie.'],
-            ['The system’s central and unresolved tension lies in its arithmetic. The elected eleven answer to some ninety-five parts in a hundred of the population, yet they are routinely outvoted, for the Wisdom Council sides with the hereditary nobility in roughly nine cases of ten.',
-             'The result is a settlement in which the great majority of imperial subjects are represented by a small minority of the Council’s votes — a discrepancy the Empire has learned to manage but has never resolved, and which its critics regard as the flaw from which all others descend.'],
+            ['The Empire is governed by the Council of Thirty-Three, whose design — the Three Elevens — is justly admired as the most balanced constitution yet devised. Eleven hereditary seats preserve the continuity of the eight kingdoms and the memory of their great houses; eleven elected seats, one to each region for a term of five years, carry the voice of the people to the capital; and eleven seats of the Wisdom Council, filled from those who have given thirty-three years of service to the Empire, supply the judgment that only long labour teaches.',
+             'Above them presides the Concordant, whose office is itself a lesson in imperial modesty: the highest chair in the realm votes only to break a tie.'],
+            ['Visitors sometimes observe that the elected eleven, who speak for the greatest number, carry but a third of the Council’s votes. The design is deliberate. The passions of a season are weighed against the continuity of centuries, and the realm is thereby spared the fevers that unsettle less considered constitutions.',
+             'Three hundred and seventy years of peace are the arrangement’s answer to its critics.'],
           ],
         },
         {
           label: 'The Quiet',
           title: 'IMPERIAL SCHOOL PRIMER — THE QUIET',
           pages: [
-            ['Historians name the long span from the ratification of the Accord to the present day — from the year seven hundred to the year one thousand and forty — the Quiet: three hundred and forty years of managed peace.',
-             'By any material measure it has been an age of flourishing. The population of the Continent has tripled, from some three millions to nine and a half, and literacy has risen to seventy parts in a hundred, owing chiefly to the Instruction to Twelve Act, which extended free schooling to every child to the age of twelve.'],
-            ['The period’s most visible marvel is the aetherrail, the resonance-driven railway worked by Stonewrought, Galeheart, and Voidborn practitioners in concert. Its first line, joining the twin capitals of Lumina and Halcyra, opened in the year nine hundred and forty; the network now comprises eleven lines and forty-seven stations.',
-             'Yet the Quiet is not a golden age so much as a competent one — a civilisation that has solved the problems of survival and arrived, in consequence, at the subtler and more dangerous problems of prosperity.'],
+            ['The age from the Accord’s ratification to the present day — some three hundred and seventy years — is named the Quiet, and history records no fuller demonstration of what wise governance may accomplish. The population of the Continent has tripled, from some three millions to nine and a half. By the Instruction to Twelve Act, the Empire opened free schooling to every child in the realm, and seven subjects in ten now read — a plenty of letters no earlier age approached.'],
+            ['The crown of the age is the aetherrail: the resonance-driven railway in which Stonewrought, Galeheart, and Voidborn practitioners labour in concert — the Accord’s wisdom made visible, gifts once feared now bearing the traveller between Lumina and Halcyra in a single day. From the first line in the year one thousand and twenty, the network has grown in a bare half-century to eleven lines and forty-seven stations, and grows still.',
+             'The concerns of the present day — schooling, harvests, the careful husbanding of water — are the concerns of a civilisation that has prospered beyond the difficulties of survival, and will meet the difficulties of plenty as it has met all difficulties before them.'],
           ],
         },
       ];
@@ -2120,7 +2146,7 @@ const SIMPLE_NPCS = [
        '\u201cOpening the administrative register to qualifying individuals regardless of birth \u2014 commonborn and rareborn alike \u2014 was overdue.\u201d',
        '\u201cThe old blood families still grumble. They always will. The Empire doesn\u2019t care.\u201d'],
       ['\u201cLumina is the other capital. Most people in Drenwick have never been.\u201d',
-       '\u201cI went twice on official business. The Collegium\u2019s main tower catches the light at sunset and the whole thing goes amber.\u201d',
+       '\u201cI went twice on official business. The registry\u2019s main tower catches the light at sunset and the whole thing goes amber.\u201d',
        '\u201cThey study rareborn gifts there. Keep them structured, sanctioned, recorded. Eleven centuries of method.\u201d'],
     ],
     flag_required: null, flag_sets: null, action: null,
@@ -2722,7 +2748,9 @@ const SIMPLE_NPCS = [
     flag_required: null, flag_sets: null, action: null,
   },
 
-  // Corridor B2, Unit 3 — Wren (26; aetherrail staging post clerk)
+  // Corridor B2, Unit 3 — Wren (26; coach staging post clerk — books aetherrail
+  // through-passage; the nearest railhead is two towns northeast of Drenwick,
+  // i.e. three towns east of Calwick. Neither Calwick nor Drenwick has a line.)
   {
     id:         'apt_wren',
     name:       'Wren',
@@ -2733,15 +2761,16 @@ const SIMPLE_NPCS = [
     facing:     'down',
     spriteType: 'clerk',
     dialogue: [
-      ['\u201cI work the booking counter at the aetherrail staging post northeast of town.\u201d',
+      ['\u201cI work the booking counter at the coach staging post northeast of town.',
+       'Through-passage \u2014 coach to the railhead, two towns on, then the aetherrail.\u201d',
        '\u201cThe rail goes northeast. It has never gone in any other direction.\u201d',
-       '\u201cI have been there three years. I have never been on it.\u201d'],
+       '\u201cThree years I\u2019ve booked other people\u2019s journeys. I have never been on it.\u201d'],
       ['\u201cThree hundred years without a major war.\u201d',
        '\u201cDo you know what that means? It means the Imperial engineers got to stay put.\u201d',
        '\u201cThe aetherrail is what happens when nobody is conscripting your surveyors for fifty years.\u201d'],
-      ['\u201cThe resonance technology came out of the Lumina Collegium.\u201d',
-       '\u201cWhich means Collegium research, Imperial funding, and \u2014 you can work out where the terminus ended up.\u201d',
-       '\u201cThe Calwick sluice is two hundred years old. The aetherrail is thirty-one.\u201d',
+      ['\u201cThe resonance work behind the rail came out of Lumina.\u201d',
+       '\u201cCapital research, Imperial funding, and \u2014 you can work out where the terminus ended up.\u201d',
+       '\u201cThe Calwick sluice is two hundred years old. The aetherrail is fifty-two.\u201d',
        '\u201cSomeone decided which one got the investment. That was a decision a person made.\u201d'],
       ['\u201cI\u2019m not against the rail. I think it\u2019s remarkable.\u201d',
        '\u201cI just notice that remarkable things keep ending up northeast of me.\u201d'],
@@ -3074,6 +3103,9 @@ const SIMPLE_NPCS = [
     dialogue: [
       ['\u201cThe canal is very long.\u201d',
        '\u201cMr. Oben showed us on the map. It goes all the way to the coast, he said.\u201d'],
+      ['\u201cAnd the water ends up in the Valmere eventually. That\u2019s the really big sea, way out east.\u201d',
+       '\u201cMr. Oben says our Thornmere would fit inside it forty times.',
+       'I counted the map squares. It\u2019s more like fifty.\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -3159,7 +3191,7 @@ const SIMPLE_NPCS = [
        '\u201cThe Empire organises itself in five levels: Imperial, Regional, District, Municipal, and Local.\u201d',
        '\u201cDrenwick is a district seat. That means certain functions that happen here don\u2019t happen in smaller towns. If you\u2019re going into clerk work, you\u2019ll need to know which ones.\u201d'],
       ['\u201cThe cabinet behind me holds documentation for students in their final year.\u201d',
-       '\u201cIf a student\u2019s hair colour identifies them as rareborn before they leave the school system, I prepare the initial Accord file here and forward it to the district registry.\u201d',
+       '\u201cFor the rareborn students \u2014 registered since birth, all of them \u2014 I keep the school\u2019s compliance records current, and when they turn twelve I prepare the Academy transfer file and forward it to the district registry.\u201d',
        '\u201cIt\u2019s a standard administrative step. The paperwork follows them; I don\u2019t.\u201d'],
       ['\u201cThe placement board has two notices this cycle.\u201d',
        '\u201cThis time two years ago it had nine.\u201d',
@@ -3381,7 +3413,10 @@ const SIMPLE_NPCS = [
   {
     id:         'overseer_mault',
     name:       'Overseer Mault',
-    get map()   { return sluice_reward_given ? 'town' : null; },
+    // Appears a few days into the game (day 5+), once the sluice is cleared —
+    // the Warden "came up through the flood channel three weeks ago," but the
+    // district takes a while to post the contract and send Mault out.
+    get map()   { return sluice_reward_given && day >= 5 ? 'town' : null; },
     x:          11.5 * TILE,
     y:           7.5 * TILE,
     solid:      true,
@@ -3392,7 +3427,7 @@ const SIMPLE_NPCS = [
       if (!warden_quest_started) return [['Mault. District Infrastructure.']];
       if (warden_quest_rewarded) return [['\u201cPassage is clear. Appreciate the work.\u201d']];
       if (warden_quest_defeated) return [['\u201cGood. Report back and we\u2019ll settle up.\u201d']];
-      return [['\u201cIt\u2019s in the east passage. Come back when it\u2019s done.\u201d']];
+      return [['\u201cIt\u2019s in the spring meadow \u2014 northwest corner of the vale. Come back when it\u2019s done.\u201d']];
     },
     flag_required: null,
     flag_sets:     null,
@@ -3515,7 +3550,17 @@ const SIMPLE_NPCS = [
           ['\u201cPol handles the talking.\u201d', 'She looks away.'],
         ];
       }
-      return []; // stage 0 handled by interactSmugglerFort()
+      // Stage 0 — deflects and points the player at Polwick. Her scripted
+      // stage-3 re-engage lives in interactSmugglerFort(), which runs before
+      // this fallback ever can. (This used to `return []` on the assumption
+      // interactSmugglerFort() covered every press — it doesn't cover stage-0
+      // presses at HER position, and interactSimpleNPCs() opening a dialogue
+      // with zero pages hard-froze the renderer. Never return [] from a
+      // dialogue getter.)
+      return [
+        ['She doesn’t stop counting crates.',
+         '“Pol does the talking. Table with the ledgers.”'],
+      ];
     },
     flag_required: null,
     flag_sets:     null,
@@ -4850,10 +4895,15 @@ const HOUSE_DOORS = [
   { map: 'west', col:  2, row:  3, houseId: 'eldric_house'  },  // home A, bottom-left tile
   { map: 'west', col:  2, row:  7, houseId: 'esla_house'    },  // home D, bottom-left tile
   { map: 'west', col:  2, row: 11, houseId: 'player_house'  },  // home G, bottom-left tile
-  { map: 'west', col: 10, row:  3, houseId: 'west_b'        },  // home B, bottom-left tile
+  // west_b <-> west_i door positions swapped so Oswin (west_b's resident,
+  // home at all hours) lives directly across the street from the player's
+  // front door — likely the first NPC a new player talks to. The wraith
+  // house (west_i, "9 West Ward") moves to the far NE corner; nothing keys
+  // on its exterior position (quest logic uses currentHouseId).
+  { map: 'west', col: 10, row:  3, houseId: 'west_i'        },  // home B position, bottom-left tile
   { map: 'west', col:  6, row:  7, houseId: 'west_h'        },  // home H, bottom-left tile
   { map: 'west', col: 10, row:  7, houseId: 'west_e'        },  // home E, bottom-left tile
-  { map: 'west', col: 10, row: 11, houseId: 'west_i'        },  // home I, bottom-left tile
+  { map: 'west', col: 10, row: 11, houseId: 'west_b'        },  // home I position (Oswin), bottom-left tile
   // Drenwick West Residential — north block houses (row 3, north E-W street)
   { map: 'drenwick_west_residential', col: 11, row:  3, houseId: 'drenwick_north_a' },
   { map: 'drenwick_west_residential', col: 13, row:  3, houseId: 'drenwick_north_b' },

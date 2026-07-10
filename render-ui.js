@@ -463,7 +463,12 @@ function drawDialogue() {
     dialogue._preprocessedFor = visualPages;
   }
 
-  const lines = dialogue.pages[dialogue.page];
+  // Guard against a dialogue opened with zero pages (or a cursor past the
+  // end): render an empty box rather than throwing. An exception here kills
+  // the render loop — the whole game hard-freezes on a content mistake like
+  // an NPC dialogue getter returning []. (That exact bug shipped once, via
+  // the fort Essa's stage-0 fallback.)
+  const lines = dialogue.pages[dialogue.page] || [];
   let lineY = BY + 52;
   for (const subline of lines) {
     ctx.fillText(subline, BX + PAD, lineY);
@@ -1073,7 +1078,7 @@ function drawDebugMenu() {
   if (!debugMenu.open) return;
 
   const W = 512, H = 480;
-  const PW = 200, PH = 244;
+  const PW = 200, PH = 268;
   const PX = Math.floor((W - PW) / 2);
   const PY = Math.floor((H - PH) / 2);
 
@@ -1103,6 +1108,7 @@ function drawDebugMenu() {
     { type: 'action', label: '[ Day +1 ]  (day ' + day + ')' },
     { type: 'action', label: '[ Warp to Map... ]' },
     { type: 'action', label: '[ Validate Data ]' },
+    { type: 'toggle', label: '[ Home on Defeat ]', value: defeatWakeAtHome,      onColor: '#78e888', offColor: '#3a5858' },
   ];
 
   rows.forEach((row, i) => {

@@ -771,10 +771,16 @@ function interactSupervisor() {
       ['\u201cDrenwick confirmed receipt.\u201d',
        '\u201cHarrow\u2019s office processed it the same day.',
        'That\u2019s faster than the last three dispatches combined.\u201d'],
+      // Escalation beat \u2014 the sluice and the dispatch were routine; this one
+      // is the step up in danger, and he says so plainly.
+      ['\u201cThe sluice was maintenance. The letter was an errand.\u201d',
+       '\u201cNow something more serious.\u201d'],
       ['\u201cInvestigator ' + stats.name + '.', 'There\u2019s a post on the fen road I can\u2019t account for.'],
       ['South of Drenwick. Off the main approach.', 'No station number in the ledgers. No patrol roster on record.\u201d'],
       ['\u201cGo and have a look.', 'Don\u2019t announce yourself ahead of time.'],
       ['\u201cIf it turns out to be a clerical error, fine.', 'If it doesn\u2019t\u2014 report what you find.\u201d'],
+      ['\u201cAnd go carefully.',
+       'A post that isn\u2019t in the ledgers is a post somebody built not to be seen.\u201d'],
     ];
     dialogue.callbacks = [function() { fort_quest_started = true; syncQuestFlagsToWindow(); }];
   } else if (fort_quest_stage >= 4 && fort_quest_stage < 6) {
@@ -1059,21 +1065,8 @@ function interactDungeonFloor1() {
       return true;
     }
   }
-  // Briar Warden encounter — side quest, triggered on proximity
-  if (warden_quest_started && !warden_quest_defeated) {
-    const wx = player.x - BRIAR_WARDEN_SPAWN.x;
-    const wy = player.y - BRIAR_WARDEN_SPAWN.y;
-    if (Math.sqrt(wx * wx + wy * wy) < TALK_RADIUS) {
-      dialogue.name  = '';
-      dialogue.pages = [
-        ['The Briar Warden turns toward you.', 'It does not back down.'],
-      ];
-      dialogue.triggerWardenCombat = true;
-      dialogue.open  = true;
-      dialogue.page  = 0;
-      return true;
-    }
-  }
+  // (The Briar Warden used to den here; it now waits in the hidden meadow —
+  // see interactWildsAndOutposts.)
   interactSimpleNPCs();
   return interactionUiOpened();
 }
@@ -1500,10 +1493,12 @@ function interactTownOutdoor() {
       return true;
     }
   }
-  // Overseer Mault — removal contract quest (Calwick, post-sluice)
+  // Overseer Mault — removal contract quest (Calwick, post-sluice, day 5+).
+  // The map check mirrors his npcs.js getter gating: without it, standing on
+  // his spot before he appears would still trigger this block.
   if (currentTownId === 'calwick' && sluice_reward_given) {
     const mault = SIMPLE_NPCS.find(n => n.id === 'overseer_mault');
-    if (mault) {
+    if (mault && mault.map === 'town') {
       const mdx = player.x - mault.x;
       const mdy = player.y - mault.y;
       if (Math.sqrt(mdx * mdx + mdy * mdy) < TALK_RADIUS) {
@@ -1512,12 +1507,14 @@ function interactTownOutdoor() {
           dialogue.pages = [
             ['Mault. District Infrastructure.',
              'You\u2019re the one who cleared the east sluice. I read the report.'],
-            ['There\u2019s a Briar Warden denning in the east dungeon passage.',
-             'Came up through the flood channel. Three weeks ago now.',
+            ['There\u2019s a Briar Warden denning in the old spring meadow,',
+             'the far northwest corner of the vale. Three weeks now.',
              'Won\u2019t leave on its own.'],
+            ['The way in is grown over \u2014 push through the grass in the',
+             'top-left tree nook, west of the town road. You\u2019ll find the clearing.'],
             ['We\u2019ve posted a removal contract.',
              'A hundred and twenty gold, paid on confirmed removal.',
-             'The passage can\u2019t be re-opened until it\u2019s done.'],
+             'The reed crews won\u2019t go near that corner until it\u2019s done.'],
           ];
           dialogue.callbacks = [function() {
             choice.title     = 'Overseer Mault';
@@ -1531,7 +1528,7 @@ function interactTownOutdoor() {
                 dialogue.pages = [
                   ['\u201cGood.\u201d',
                    'He notes it in his ledger without looking up.',
-                   '\u201cEast passage. Come back when it\u2019s done.\u201d'],
+                   '\u201cThe meadow, northwest corner. Come back when it\u2019s done.\u201d'],
                 ];
                 dialogue.open  = true;
                 dialogue.page  = 0;
@@ -1566,7 +1563,7 @@ function interactTownOutdoor() {
           dialogue.page  = 0;
         } else if (warden_quest_started && !warden_quest_defeated) {
           dialogue.name  = 'Overseer Mault';
-          dialogue.pages = [['\u201cEast passage. Come back when it\u2019s done.\u201d']];
+          dialogue.pages = [['\u201cThe meadow, northwest corner. Come back when it\u2019s done.\u201d']];
           dialogue.open  = true;
           dialogue.page  = 0;
         } else {
@@ -1637,13 +1634,20 @@ function interactTownOutdoor() {
             // Player hasn't yet carried the dispatch letter to Drenwick and back.
             // Sena recognises them as a neighbour but doesn't yet ask for a favour.
             dialogue.name  = 'Sena';
+            // Second page is day-aware: Tev stands beside her in the square on
+            // Dayoff, but he's at the schoolhouse on work days \u2014 "over there"
+            // was wrong five days out of five... four out of five.
             dialogue.pages = [
               ['\u201cOh \u2014 sorry. I was miles away.\u201d',
                'She tucks something into her coat pocket.',
                '\u201cYou\u2019re from the office, aren\u2019t you. I\u2019ve seen you on the square.\u201d'],
-              ['\u201cI\u2019m Sena.\u201d',
-               '\u201cThat\u2019s my son over there.\u201d',
-               '\u201cTev. He won\u2019t bite.\u201d'],
+              day % 5 === 0
+                ? ['\u201cI\u2019m Sena.\u201d',
+                   '\u201cThat\u2019s my son over there.\u201d',
+                   '\u201cTev. He won\u2019t bite.\u201d']
+                : ['\u201cI\u2019m Sena.\u201d',
+                   '\u201cMy son Tev\u2019s at the schoolhouse just now.\u201d',
+                   '\u201cYou\u2019ll know him if you meet him. He talks.\u201d'],
             ];
             dialogue.open  = true;
             dialogue.page  = 0;
@@ -1842,6 +1846,47 @@ function interactTownOutdoor() {
   return interactionUiOpened();
 }
 
+// ─── Office cabinet rummage flavor ───────────────────────────────────────────
+// Shared by both offices' filing cabinets (Drenwick FILING_CABINET and Calwick
+// ESLA_CABINET) as their default, non-quest response — quest branches (the
+// Weight Discrepancy note, the disturbed-files aftermath) take priority and
+// are unchanged. One entry is picked fresh on every press. Strictly mundane
+// administrative texture: no plot, no secrets, just the machinery of district
+// paperwork and its occasional quiet absurdity.
+const OFFICE_CABINET_FLAVOR = [
+  [['Requisition forms. Form R-11: Request for Additional Forms.',
+    'The stack is nearly out.',
+    'Someone will need to file an R-11 to order more R-11s. A note in the drawer acknowledges this.']],
+  [['A folder labelled MISCELLANEOUS — DO NOT MISFILE.',
+    'It is empty, and filed under P.']],
+  [['Thirty years of sluice inspection logs. Every entry reads “no change.”',
+    'Except the year the log itself was water-damaged.',
+    'That entry reads “some change.”']],
+  [['Ink requisitions, quarterly, in triplicate.',
+    'By the office’s own records, roughly a fifth of its ink is spent ordering ink.']],
+  [['A drawer of worn pen nibs, sorted into labelled trays:',
+    'NEW. SERVICEABLE. QUESTIONABLE. CEREMONIAL.',
+    'The ceremonial tray is the fullest.']],
+  [['A complaint about the draught under the north window, filed in 1043.',
+    'It has been re-stamped PENDING SITE VISIT every year since. Twenty-nine stamps.',
+    'The window is four steps from the cabinet.']],
+  [['Correspondence regarding a missing ledger.',
+    'It is filed inside the ledger it reports missing.',
+    'Nobody has annotated this.']],
+  [['The rainfall observation ledger.',
+    'The last dozen entries read “nothing to report,” then “nothing,” then just a date.',
+    'Somebody kept showing up to write it, though. Every single day.']],
+  [['A boundary memorandum settling which files belong in which cabinet.',
+    'It cites an earlier memorandum, which cites a hearing, which was adjourned.',
+    'The files in question have been in a box on the floor since before the hearing.']],
+  [['Someone’s lunch order, filed under URGENT.',
+    'It is nine years old.',
+    'Eel, bread, no pickle. Underlined twice.']],
+];
+function randomCabinetPages() {
+  return OFFICE_CABINET_FLAVOR[Math.floor(Math.random() * OFFICE_CABINET_FLAVOR.length)];
+}
+
 function interactDrenwickOffice() {
   // District Supervisor Harrow — col 7 row 4; no longer receives the letter directly
   {
@@ -1928,10 +1973,21 @@ function interactDrenwickOffice() {
       return true;
     }
   }
+  // Records shelving (east wall, col 13 rows 6-10) — randomized rummage
+  // flavor from the same pool as the Calwick office cabinets. Wider radius
+  // (like the school wall display) since the unit spans several rows.
+  const rsx = player.x - 13.5 * TILE;
+  const rsy = player.y -  8.5 * TILE;
+  if (Math.sqrt(rsx * rsx + rsy * rsy) < TALK_RADIUS * 1.5) {
+    dialogue.name  = 'Records Shelf';
+    dialogue.pages = randomCabinetPages();
+    dialogue.open  = true;
+    dialogue.page  = 0;
+    return true;
+  }
   // Holt and any other office NPCs caught by interactSimpleNPCs
   interactSimpleNPCs();
   return true;
-  return interactionUiOpened();
 }
 
 function interactCalwickOffice() {
@@ -2011,7 +2067,7 @@ function interactCalwickOffice() {
       dialogue.name = 'Filing Cabinet';
       dialogue.pages = cabinetCaseFlag
         ? [['The files have been disturbed.', 'Someone was looking for something.']]
-        : [['You look through the files,', 'but find nothing of interest.']];
+        : randomCabinetPages();
       dialogue.open = true;
       dialogue.page = 0;
       return true;
@@ -2022,7 +2078,7 @@ function interactCalwickOffice() {
       dialogue.name = 'Filing Cabinet';
       dialogue.pages = weight_note_signed && !cabinetCaseFlag
         ? [['Not this drawer.', 'Corvin\u2019s section is the other cabinet, past the window.']]
-        : [['You look through the files,', 'but find nothing of interest.']];
+        : randomCabinetPages();
       dialogue.open = true;
       dialogue.page = 0;
       return true;
@@ -2188,13 +2244,18 @@ function interactCalwickOffice() {
         eslaPages.push(
           ['\u201cPolwick.\u201d',
            'She doesn\u2019t look up right away.',
-           '\u201cI only met him twice. Registry business, mostly.\u201d'],
+           '\u201cI only met him twice. Registry business, mostly.\u201d',
+           '\u201cI keep saying that like it settles something. It doesn\u2019t.\u201d'],
           ['\u201cThere aren\u2019t many of us posted this far out.',
-           'You notice the other ones. Even if you don\u2019t know them.\u201d',
-           'She sets her pen down.'],
+           'You notice the other ones. You keep a kind of count, without ever deciding to.\u201d',
+           'She sets her pen down.',
+           '\u201cThe count is smaller now. I keep arriving at that.\u201d'],
+          ['\u201cI closed his registry file this morning. It\u2019s a short form.',
+           'Date of determination. Date of death. Nothing in between that the Empire wanted written down.\u201d'],
           ['\u201cI don\u2019t know what he was doing with that post.',
            'I don\u2019t think I want to.\u201d',
-           '\u201cBut I keep thinking about the drought, and what people do when the ledger stops adding up.\u201d'],
+           '\u201cI keep thinking about the drought, and what people do when the ledger stops adding up.',
+           'And then I stop thinking, and I\u2019m just sad. That\u2019s all that\u2019s left of it. I\u2019m sad.\u201d'],
         );
       } else if (fort_quest_stage >= 6 && smugglers_execution_day > 0 && day < smugglers_execution_day) {
         eslaPages.push(
@@ -2211,13 +2272,19 @@ function interactCalwickOffice() {
         eslaPages.push(
           ['\u201cI heard the district closed the fen post matter.\u201d',
            'She doesn\u2019t look up right away.',
-           '\u201cPolwick. I only met him twice, registry business.\u201d'],
+           '\u201cPolwick. I only met him twice, registry business.\u201d',
+           '\u201cTwice turns out to be enough to grieve. Nobody warns you about that.\u201d'],
           ['\u201cThere aren\u2019t many of us posted this far out.',
-           'You notice the other ones, even the ones you don\u2019t know well.\u201d'],
+           'You notice the other ones, even the ones you don\u2019t know well.\u201d',
+           '\u201cI took his name off the three-year cycle list this morning.',
+           'It was a short list. It\u2019s shorter.\u201d'],
           ['\u201cRegistered rareborn, same as me. Employed, same as me.\u201d',
            'A pause.',
            '\u201cI keep thinking about the drought, and what people do when the ledger stops adding up. It doesn\u2019t excuse it.\u201d'],
-          ['\u201cIt just makes it less simple than the report will say.\u201d'],
+          ['\u201cIt just makes it less simple than the report will say.\u201d',
+           'She looks at her hands.',
+           '\u201cI filed that report. I read every line.',
+           'There\u2019s no line where you\u2019re allowed to say you\u2019re sorry.\u201d'],
         );
       }
       dialogue.pages = eslaPages;
@@ -2602,32 +2669,35 @@ function interactCalwickInn() {
       } else if (eslaInnState === 4) {
         dialogue.pages = [
           ['\u201cI grew up in Alecton.\u201d',
-           '\u201cThe Academy, specifically.',
+           '\u201cThe prep school, specifically.',
            'Most people here don\u2019t know what that means.\u201d'],
-          ['\u201cIt\u2019s where they send rareborn children.',
-           'Not all of them. But the ones whose families sign the forms.\u201d'],
-          ['\u201cMy mother signed them before I was two.',
+          ['\u201cIt\u2019s a private school. Rareborn children only \u2014 the early kind of early.',
+           'Years before the Academy takes everyone at twelve.\u201d',
+           '\u201cThe sort of place a family pays for, and then mentions.\u201d'],
+          ['\u201cMy mother signed the forms before I was two.',
            '\u201cShe was proud. I think she was proud.\u201d',
            'She looks at her glass.',
            '\u201cI never actually asked her.\u201d'],
         ];
       } else if (eslaInnState === 5) {
         dialogue.pages = [
-          ['\u201cThey test you at five.\u201d',
-           '\u201cTo measure it. The rareborn trait. What it is, how strong.\u201d',
-           '\u201cI already knew what mine was.\u201d'],
-          ['\u201cI could always tell when something was being left unsaid.',
-           'In a room. Between people.',
-           'You feel it like a draft under a door.\u201d'],
-          ['\u201cThe examiner asked me three questions',
-           'and I answered the one she hadn\u2019t asked yet.\u201d',
+          ['\u201cThey test you at five. At Alecton, anyway.\u201d',
+           '\u201cNot the thread \u2014 anyone can read a thread. It\u2019s the hair.\u201d',
+           '\u201cControl. Temperament. How much teaching you\u2019ll take.\u201d'],
+          ['\u201cMine was green things.',
+           'Anything growing.',
+           'I could feel what a plant was about to do,',
+           'the way you feel a room about to go quiet.\u201d'],
+          ['\u201cThe examiner kept a pot of clover on her desk.',
+           'By her third question it had leaned toward me and flowered.\u201d',
            'A small smile.',
-           '\u201cShe wrote something down. I could feel that too.\u201d'],
+           '\u201cShe wrote something down. The clover and I watched her do it.\u201d'],
         ];
       } else if (eslaInnState === 6) {
         dialogue.pages = [
-          ['\u201cThere were twelve of us, my year.\u201d',
-           '\u201cYou don\u2019t make friends at the Academy the way you do here.',
+          ['\u201cThere were twelve of us in my year. At Alecton, I mean.',
+           'The Academy proper takes everyone at twelve \u2014 that\u2019s hundreds.\u201d',
+           '\u201cYou don\u2019t make friends in those places the way you do here.',
            'It\u2019s different when everyone knows what everyone else is.\u201d'],
           ['\u201cThere was a boy \u2014 Pell, we called him \u2014',
            'who could read water. Current, pressure, what was upstream.\u201d',
@@ -2876,7 +2946,7 @@ function interactDrenwickSchool() {
       dialogue.pages = [
         ['Locked.',
          'Accord filing for students approaching completion of schooling.'],
-        ['Pre-departure registration forms are prepared here and forwarded to the district registry before the student leaves the school system.'],
+        ['Academy transfer files are prepared here and forwarded to the district registry before the student leaves the school system.'],
       ];
       dialogue.open  = true;
       dialogue.page  = 0;
@@ -4380,6 +4450,38 @@ function interactHouseInterior() {
 }
 
 function interactWildsAndOutposts() {
+  // Hidden meadow — the amethyst chest, and the Briar Warden waiting by the
+  // pool (quest active only; prompted with Space, same as its old dungeon den)
+  if (activeMap === MEADOW_MAP) {
+    if (!MEADOW_CHEST.opened) {
+      const mcx = player.x - MEADOW_CHEST.x;
+      const mcy = player.y - MEADOW_CHEST.y;
+      if (Math.sqrt(mcx * mcx + mcy * mcy) < TALK_RADIUS) {
+        MEADOW_CHEST.opened = true;
+        const it = MEADOW_CHEST.item;
+        stats.items.push({ name: it.name, type: it.type, heals: it.heals, curesCursed: it.curesCursed, price: it.price });
+        dialogue.name  = '';
+        dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  — added to items.`]];
+        dialogue.open  = true;
+        dialogue.page  = 0;
+        return true;
+      }
+    }
+    if (warden_quest_started && !warden_quest_defeated) {
+      const wx = player.x - BRIAR_WARDEN_SPAWN.x;
+      const wy = player.y - BRIAR_WARDEN_SPAWN.y;
+      if (Math.sqrt(wx * wx + wy * wy) < TALK_RADIUS) {
+        dialogue.name  = '';
+        dialogue.pages = [
+          ['The Briar Warden turns toward you.', 'It does not back down.'],
+        ];
+        dialogue.triggerWardenCombat = true;
+        dialogue.open  = true;
+        dialogue.page  = 0;
+        return true;
+      }
+    }
+  }
   // Smuggler fort — all interaction routed through interactSmugglerFort
   if (activeMap === SMUGGLER_FORT_MAP) { interactSmugglerFort(); return true; }
   // Fen Brewery \u2014 Gorrit sells freshly made mushroom wine by the bottle or case
@@ -4541,7 +4643,7 @@ function interactWildsAndOutposts() {
          'East: Calwick, 2 leagues.',
          'West: Drenwick canal road, 11 leagues.',
          'North: fen access track \u2014 seasonal, use with caution.',
-         'Aetherrail: Calwick East Station, road east.'],
+         'Aetherrail: nearest railhead three towns east. Road east, coach from Drenwick.'],
         ['Conditions (last updated by waykeeper):',
          'Canal road: maintained. Night travel not advised \u2014 canal edge unmarked in parts.',
          'Fen track: passable. Soft margins after rain.',

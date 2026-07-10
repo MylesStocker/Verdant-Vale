@@ -97,6 +97,10 @@ window.addEventListener('keydown', e => {
                 removeStatusEffect('poison');
                 const idx = stats.items.findIndex(i => i.name === name);
                 if (idx !== -1) stats.items.splice(idx, 1);
+              } else if (it.curesCursed) {
+                removeStatusEffect('cursed');
+                const idx = stats.items.findIndex(i => i.name === name);
+                if (idx !== -1) stats.items.splice(idx, 1);
               } else if (it.type === 'potion') {
                 stats.hp = Math.min(stats.maxHp, stats.hp + it.heals);
                 // Remove one instance from the underlying array
@@ -185,7 +189,8 @@ window.addEventListener('keydown', e => {
         // ── Debug menu navigation ─────────────────────────────────────────
         // Row order must match drawDebugMenu() (render-ui.js) and
         // DEBUG_MENU_ROW_COUNT (state.js): 0 No Enemies, 1 Poison,
-        // 2 Muddied, 3 Slither, 4 Heal Full, 5 Day +1, 6 Warp to Map...
+        // 2 Muddied, 3 Slither, 4 Heal Full, 5 Day +1, 6 Warp to Map...,
+        // 7 Validate Data, 8 Home on Defeat
         e.preventDefault();
         if (e.key === 'ArrowUp'   || e.key === 'w') debugMenu.cursor = Math.max(0, debugMenu.cursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') debugMenu.cursor = Math.min(DEBUG_MENU_ROW_COUNT - 1, debugMenu.cursor + 1);
@@ -228,6 +233,11 @@ window.addEventListener('keydown', e => {
               ', ' + (result.warnings ? '⚠' : '✓') + ' ' + result.warnings + ' warning' + (result.warnings === 1 ? '' : 's') +
               ' — see console'
             );
+          } else if (debugMenu.cursor === 8) {
+            // Home on Defeat — losing a fight relocates the player to their
+            // bed in the Calwick player house (default ON); off = the old
+            // behavior of waking on the spot where they fell.
+            defeatWakeAtHome = !defeatWakeAtHome;
           }
         }
         if (e.key === 'Escape' || e.key === '`') { debugMenu.open = false; }

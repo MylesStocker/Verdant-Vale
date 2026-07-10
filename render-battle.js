@@ -2568,8 +2568,9 @@ function drawBattleSmugglerGuard(cx, cy) {
 }
 
 // Polwick — the fort's charismatic, half-drunk enforcer. Young-ish, medium-
-// length sky-blue hair (unmistakable, out of place against the grubby
-// tunic), swaggering rather than armored. Fights bare-handed, confidently.
+// length copper-red hair (the Firelit marker — unmistakable, out of place
+// against the grubby tunic), swaggering rather than armored. Fights
+// bare-handed, confidently — and sometimes with fire.
 function drawBattlePolwick(cx, cy) {
   const sway = Math.round(Math.sin(tick * 0.06) * 3);
 
@@ -2627,12 +2628,14 @@ function drawBattlePolwick(cx, cy) {
   ctx.fillStyle = '#d4a898';
   ctx.fillRect(cx - 9 + sway, cy - 84, 8, 6); // flushed cheek
 
-  // Sky-blue hair — medium length, a little unkempt
-  ctx.fillStyle = '#5ab0d8';
+  // Copper-red hair — medium length, a little unkempt. Firelit: red/copper is
+  // the thread's hair marker (LORE.md, The Eight Threads), matching his fire
+  // attack and the Observe text.
+  ctx.fillStyle = '#c05a20';
   ctx.fillRect(cx - 14 + sway, cy - 100, 28, 12); // top
   ctx.fillRect(cx - 16 + sway, cy - 92, 5, 18);   // left side, past the jaw
   ctx.fillRect(cx + 11 + sway, cy - 92, 5, 16);   // right side
-  ctx.fillStyle = '#78c8e8';
+  ctx.fillStyle = '#e08040';
   ctx.fillRect(cx - 10 + sway, cy - 100, 20, 5);  // highlight
 
   // Eyes — half-lidded, sure of himself

@@ -310,6 +310,17 @@ const CAT_ARMOR_CHEST = {
   item:   { name: 'Cat Armor', type: 'armor', bonus: 99, price: 0 },
 };
 
+// ─── Hidden meadow chest (MEADOW_MAP col 12 row 2) ────────────────────────────
+// Holds the game's one curse-cure consumable. Deliberately NOT subject to the
+// cursed-fumble chest gag the dungeon chests have — a cursed player is exactly
+// who needs this chest. Opened flag persists via save.js (meadowChestOpened).
+const MEADOW_CHEST = {
+  x:      12.5 * TILE,
+  y:       2.5 * TILE,
+  opened: false,
+  item:   { name: 'Amethyst Dust', type: 'potion', heals: 0, curesCursed: true, price: 60 },
+};
+
 // ─── Dungeon floor-1 hidden alcove chest ──────────────────────────────────────
 // Actually inside the alcove now (col 0, row 7), reached through the false
 // wall at row 7 col 1 (DUNGEON_FALSE_WALL, see DUNGEON_MAP) -- previously
@@ -474,6 +485,12 @@ const MAP_METADATA = {
     id: 'MAP', map: MAP, displayName: 'Verdant Vale', region: 'Verdant Vale',
     type: 'outdoor', items: WORLD_ITEMS, encounterPool: EARLY_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true,
+  },
+  MEADOW_MAP: {
+    id: 'MEADOW_MAP', map: MEADOW_MAP, displayName: 'Hidden Meadow', region: 'Verdant Vale',
+    type: 'outdoor', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'Secret clearing behind the vale’s NW tree nook. Deliberately encounter-free (hard gate in isEncounterEligibleTile, movement.js) — the relocated Briar Warden is its only danger.',
   },
   MAP2: {
     id: 'MAP2', map: MAP2, displayName: 'Eastern Reaches', region: 'Eastern Reaches',
