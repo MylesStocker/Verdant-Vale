@@ -78,13 +78,35 @@ module.exports = {
     g.run('day = 11;');
     const assignment = talkThrough(g);
     assert.ok(/reservoir bed north of drenwick/.test(assignment), 'assignment should point at the reservoir bed');
+    assert.ok(/drought/.test(assignment), 'assignment should tie the exposed ground to the drought');
+    assert.ok(/did not come back/.test(assignment), 'assignment should mention the missing basin observer');
+    assert.ok(/uneasy/.test(assignment), 'the supervisor should acknowledge the job is frightening');
     assert.ok(/rather final/.test(assignment), 'killed outcome should get the "rather final" Drenwick line');
     assert.equal(g.run('reservoir_quest_started'), true, 'assignment should now be started');
     assert.equal(g.run('MainQuest'), 3, 'MainQuest stays 3 until the reservoir quest is completed');
 
-    // 4. Repeat visit: reminder only, nothing re-triggers.
-    assert.ok(/reservoir bed/.test(talkThrough(g)), 'follow-up visit should remind about the assignment');
+    // 4. Repeat visit: reminder only, nothing re-triggers — and no second
+    //    "good morning" (the assignment talk was already today's first).
+    assert.ok(/good morning/.test(assignment), 'first conversation of the day opens with the greeting');
+    const reminder = talkThrough(g);
+    assert.ok(/reservoir bed/.test(reminder), 'follow-up visit should remind about the assignment');
+    assert.ok(!/good morning/.test(reminder), 'the greeting must not repeat within the same day');
     assert.equal(g.run('mq4_available_day'), 11, 'gate day must not be recomputed');
+
+    // 5. Esla greets the same way on her own first conversation of the day.
+    g.run('player.x = ESLA.x; player.y = ESLA.y;');
+    g.press('Enter');
+    assert.equal(g.run('dialogue.name'), 'Esla');
+    const eslaText = JSON.stringify(g.run('dialogue.pages')).toLowerCase();
+    assert.ok(/good morning/.test(eslaText), 'Esla greets on the first conversation of the day');
+    const eslaPages = g.run('dialogue.pages.length');
+    for (let i = 0; i < eslaPages; i++) g.press('Enter');
+    g.press('Enter');
+    assert.equal(g.run('dialogue.name'), 'Esla');
+    assert.ok(!/good morning/.test(JSON.stringify(g.run('dialogue.pages')).toLowerCase()),
+      'Esla must not greet twice in one day');
+    const eslaPages2 = g.run('dialogue.pages.length');
+    for (let i = 0; i < eslaPages2; i++) g.press('Enter');
 
     // ── Wording variants for the other two outcomes ────────────────────────
     // Reported (spared, honest report): Polwick is in the district's paperwork.

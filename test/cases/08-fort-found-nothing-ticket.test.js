@@ -24,6 +24,7 @@ module.exports = {
       inTown = true;
       currentTownId = 'calwick';
       townBuilding = 'office';
+      supervisor_greet_day = 1; // suppress the once-per-day greeting page; this test counts presses
       sluice_job_started = true;
       sluice_fixed = true;
       sluice_reward_given = true;

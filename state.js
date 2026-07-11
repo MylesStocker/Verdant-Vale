@@ -33,7 +33,8 @@ const ACCORD_DAY     = 133;  // the annual celebration of the Accord
 function isDayOff() { return day % 5 === 0; }
 function isClosedToday(building) {
   if (building === 'office') return isDayOff();
-  if (building === 'school') return isDayOff();
+  if (building === 'school') return isDayOff();          // both towns' schools (Calwick west + Drenwick)
+  if (building === 'provision_store') return isDayOff(); // Drenwick's shop; the inn/tavern stay open
   return false;
 }
 let travellerPresent = false; // re-rolled each time the player enters town

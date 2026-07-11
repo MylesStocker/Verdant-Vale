@@ -123,6 +123,12 @@ const SLUICE_JOURNAL_FLOOR = 98; // sluice floor with an abandoned journal again
 const SLUICE_SECRET_ENTRANCE = 99;  // on SLUICE_LEVEL3_MAP (r7 c14): renders as plain SLUICE_WALL; stepping on it enters SLUICE_SECRET_MAP
 const SLUICE_SECRET_EXIT     = 100; // on SLUICE_SECRET_MAP (r2 c7): the way back to the Deep Works east pocket
 
+// ─── Dream space (DREAM_MAP) ──────────────────────────────────────────────────
+// Both render as featureless pure white — the dream has no visible geometry,
+// only an invisible boundary ring so the player can't leave the map.
+const DREAM_FLOOR = 101; // walkable white void (DREAM_MAP interior)
+const DREAM_EDGE  = 102; // blocking white void (DREAM_MAP border ring; identical to DREAM_FLOOR on screen)
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -226,6 +232,8 @@ const WALKABLE = [
   /* 98 SLUICE_JOURNAL_FLOOR   */ true,
   /* 99 SLUICE_SECRET_ENTRANCE */ true,
   /* 100 SLUICE_SECRET_EXIT    */ true,
+  /* 101 DREAM_FLOOR           */ true,
+  /* 102 DREAM_EDGE            */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -327,6 +335,8 @@ window.SLUICE_BLOOD_FLOOR     = SLUICE_BLOOD_FLOOR;
 window.SLUICE_JOURNAL_FLOOR   = SLUICE_JOURNAL_FLOOR;
 window.SLUICE_SECRET_ENTRANCE = SLUICE_SECRET_ENTRANCE;
 window.SLUICE_SECRET_EXIT     = SLUICE_SECRET_EXIT;
+window.DREAM_FLOOR            = DREAM_FLOOR;
+window.DREAM_EDGE             = DREAM_EDGE;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -346,6 +356,7 @@ const DEBUG_TILE_NAMES = [
   'D3_EAST_PASSAGE',  'D3_NORTH_PASSAGE',  'D3_SOUTH_PASSAGE',  'D3_WEST_PASSAGE',  'DUNGEON_ENTRANCE',  'DUNGEON_EXIT',
   'DUNGEON_FALSE_WALL',  'DUNGEON_FLOOR',  'DUNGEON_STAIRS_DOWN',  'DUNGEON_WALL',  'DUNGEON2_FLOOR',  'DUNGEON2_STAIRS_UP',
   'DUNGEON2_WALL',  'DUNGEON3_FLOOR',  'DUNGEON3_WALL',  'DUNGEON8_EAST_DOOR',  'DUNGEON8_EAST_RET',  'DUNGEON8_WEST_DOOR',
+  'DREAM_EDGE',  'DREAM_FLOOR',
   'DUNGEON8_WEST_RET',  'EAST_ENTRANCE',  'EAST_EXIT',  'EXPOSED_STONE',  'FALSE_WALL',  'FARM_HOUSE',
   'FEN_N_ENTRANCE',  'FEN_N_EXIT',  'FEN_N2_ENTRANCE',  'FEN_N2_EXIT',  'FENCE_POST',  'GRASS',
   'GUARD_POST',  'HOUSE_DOOR',  'INN_DOOR',  'INTERIOR_EXIT',  'INTERIOR_FALSE_WALL',  'INTERIOR_FLOOR',
@@ -621,6 +632,18 @@ const TILE_PROPERTIES = {
     id: SLUICE_SECRET_EXIT, name: 'Sealed Room Exit', debugName: 'SLUICE_SECRET_EXIT', walkable: WALKABLE[SLUICE_SECRET_EXIT],
     category: 'transition', tags: ['sluice', 'transition'], encounterEligible: false, isTransition: true,
     notes: 'Tile 100. SLUICE_SECRET_MAP r2 c7, drawn as floor under a doorway shadow -- returns to the Deep Works east pocket.',
+  },
+
+  // ── Dream space (DREAM_MAP) — see maps.js ────────────────────────────────
+  [DREAM_FLOOR]: {
+    id: DREAM_FLOOR, name: 'Dream', debugName: 'DREAM_FLOOR', walkable: WALKABLE[DREAM_FLOOR],
+    category: 'special', tags: ['dream', 'floor'], encounterEligible: false,
+    notes: 'Tile 101. DREAM_MAP interior: featureless pure white, walkable. Deliberately identical on screen to DREAM_EDGE (102) -- the dream has no visible geometry.',
+  },
+  [DREAM_EDGE]: {
+    id: DREAM_EDGE, name: 'Dream Boundary', debugName: 'DREAM_EDGE', walkable: WALKABLE[DREAM_EDGE],
+    category: 'special', tags: ['dream', 'wall'], encounterEligible: false, isWall: true,
+    notes: 'Tile 102. DREAM_MAP border ring: renders exactly like DREAM_FLOOR (pure white) but blocks -- an invisible boundary, not a visible wall.',
   },
   [TAKOMO_GATE]: {
     id: TAKOMO_GATE, name: 'Takomo Gate', debugName: 'TAKOMO_GATE', walkable: WALKABLE[TAKOMO_GATE],

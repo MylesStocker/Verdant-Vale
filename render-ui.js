@@ -579,7 +579,7 @@ function drawMenu() {
       notes.push({ title: 'Stood Down', body: "The rest week is over. Report to the supervisor at the Calwick office for the next assignment." });
     }
     if (reservoir_quest_started) {
-      notes.push({ title: 'Reservoir Bed', body: "Something has surfaced in the exposed reservoir bed north of Drenwick. Go and see what the surveyors found." });
+      notes.push({ title: 'Reservoir Bed', body: "The drought has uncovered old stonework in the reservoir bed north of Drenwick. Investigate it — in daylight. A basin observer already went out and did not come back." });
     }
     // Schilling
     if (schilling_quest_started && !schilling_returned) {

@@ -1098,6 +1098,43 @@ function exitSluiceSecret() {
   combat.cooldown = ENCOUNTER_COOLDOWN;
 }
 
+// ─── The Dream (DREAM_MAP) ────────────────────────────────────────────────────
+// Entered when the weekly strange dream plays (resting in the player's own
+// bed, day % 7 === 3) and left when the dream dialogue closes. Unlike every
+// other transition here, the return point isn't a fixed coordinate — it's
+// wherever the player fell asleep — so enterDream() stashes the waking world
+// (map, position, and the three flags render.js keys its house/town overlays
+// on) and exitDream() restores it. The stash is transient on purpose: the
+// menu (and therefore saving) can't open while the dream dialogue is up, so
+// no save can ever happen mid-dream.
+let _dreamReturn = null;
+
+function enterDream() {
+  _dreamReturn = {
+    map: activeMap, x: player.x, y: player.y, facing: player.facing,
+    inTown, townBuilding, currentHouseId,
+  };
+  inTown          = false;
+  townBuilding    = null;
+  currentHouseId  = null;
+  activeMap       = DREAM_MAP;
+  player.x        = 7.5 * TILE;   // centre of the white
+  player.y        = 7.5 * TILE;
+  player.facing   = 'down';
+}
+
+function exitDream() {
+  if (!_dreamReturn) return; // defensive: never entered (e.g. audit calling order)
+  activeMap       = _dreamReturn.map;
+  player.x        = _dreamReturn.x;
+  player.y        = _dreamReturn.y;
+  player.facing   = _dreamReturn.facing;
+  inTown          = _dreamReturn.inTown;
+  townBuilding    = _dreamReturn.townBuilding;
+  currentHouseId  = _dreamReturn.currentHouseId;
+  _dreamReturn    = null;
+}
+
 // ─── Edge-based map transitions ───────────────────────────────────────────────
 // A general, reusable system for walking off an open EDGE (or a segment of
 // one) of a map into an adjacent one, rather than stepping onto a single

@@ -1417,6 +1417,14 @@ function drawSluiceJournalFloor(x, y) {
   ctx.fillRect(x + 13, y + 11,  2, 11);
 }
 
+// The dream — featureless pure white. Both DREAM_FLOOR and DREAM_EDGE draw
+// through this, so the walkable interior and the blocking boundary ring are
+// indistinguishable: the dream simply ends where you can't walk any further.
+function drawDreamVoid(x, y) {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(x, y, TILE, TILE);
+}
+
 // Sealed-room exit — the gap the player came in through: sluice floor under a
 // deep doorway shadow, reading as "the dark you arrived from".
 function drawSluiceSecretExit(x, y) {
@@ -1891,6 +1899,8 @@ function drawTile(id, x, y) {
     case SLUICE_JOURNAL_FLOOR: drawSluiceJournalFloor(x, y); break;
     case SLUICE_SECRET_ENTRANCE: drawSluiceWall(x, y);    break;  // deliberately indistinguishable from wall
     case SLUICE_SECRET_EXIT:  drawSluiceSecretExit(x, y); break;
+    case DREAM_FLOOR:         drawDreamVoid(x, y);        break;
+    case DREAM_EDGE:          drawDreamVoid(x, y);        break;  // boundary is invisible on purpose
     case MAP2_EXIT:           drawMap2Exit(x, y);         break;
     case MAP2_ENTRANCE:       drawMap2Entrance(x, y);     break;
     case MAP3_EXIT:           drawMap3Exit(x, y);         break;
@@ -1979,7 +1989,7 @@ const RENDERABLE_TILE_IDS = new Set([
   NORTH_BASIN_ENTRANCE, EXPOSED_STONE, FENCE_POST, NORTH_BASIN_W_EXIT,
   NORTH_BASIN_W_ENTRANCE, TRAPPER_HUT, MEADOW_HIDDEN_ENTRANCE, MEADOW_EXIT,
   SLUICE_MARK_WALL, SLUICE_NOTCH_WALL, SLUICE_BLOOD_FLOOR, SLUICE_JOURNAL_FLOOR,
-  SLUICE_SECRET_ENTRANCE, SLUICE_SECRET_EXIT,
+  SLUICE_SECRET_ENTRANCE, SLUICE_SECRET_EXIT, DREAM_FLOOR, DREAM_EDGE,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;
 

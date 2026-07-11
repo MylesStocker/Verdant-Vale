@@ -13,19 +13,19 @@ below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
 the newer North Basin region (4 maps: South Approach, Reservoir, Silt Flats,
 West Shore). Every link *between* North Basin maps now uses
 `EDGE_TRANSITIONS` rather than point-tile doors (the region's entry from
-Drenwick is still a point-tile). 71 registered maps total
+Drenwick is still a point-tile). 72 registered maps total
 (`MAP_REGISTRY`/`MAP_METADATA`, kept in exact agreement by
 `validateGameData()`).
 
-- **29 tests**, `node test/run.js` — all passing.
-- **Transition audit**, `node test/transition-audit.js` — 71 maps, 230
+- **31 tests**, `node test/run.js` — all passing.
+- **Transition audit**, `node test/transition-audit.js` — 72 maps, 232
   fixed-destination transitions, 22 preserved-coordinate transitions, 42
   house doors, 59 tile constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
-  (see below), across 71 maps, 17,040 tile cells, 6 edge transitions, 162
+  (see below), across 72 maps, 17,280 tile cells, 6 edge transitions, 162
   NPCs, 104 item placements, 30 enemy templates, 463 dialogue/text entries,
-  91 save flags, 24 map features.
+  95 save-flag checks, 24 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 
@@ -150,8 +150,10 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
    Polwick/Essa matter in outcome-aware wording (killed / reported /
    claimed-nothing — what he was *told*, via the new `fort_report_filed`
    flag, not what actually happened), orders the rest of the week off, and
-   only offers the next main assignment (the exposed reservoir bed north of
-   Drenwick) from the first workday after the next Dayoff
+   only offers the next main assignment (the drought-exposed reservoir bed
+   north of Drenwick — a missing basin observer, and the supervisor plainly
+   acknowledging the job is dangerous) from the first workday after the next
+   Dayoff
    (`mq4_available_day = day + (5 - day % 5) + 1`). One main-story path in
    all three cases; the assignment sets `reservoir_quest_started` and
    `MainQuest` stays 3 until that quest (not yet built) completes. Notebook
@@ -176,8 +178,63 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
 3. **Fenna's wine quest gate** — "A Bottle for Her Father" is now offered
    only at `MainQuest >= 2`; below that Fenna worries about the drought
    reaching the fen mushroom beds instead (seeding the quest's ingredients).
+4. **Outdoor-map water edges (cosmetic)** — border TREE tiles were swapped
+   to WATER where the adjacent interior tile is water or reeds (both tiles
+   are impassable, so collision/encounters/transitions are untouched):
+   MAP3 (north lake runs off the NW edge; south marsh drains off the
+   bottom), MAP4 (the Thornmere opens off-map on the lower west/east and
+   the whole south edge), MAP5 (open sea on all sides of the spit except
+   the west landing), MAP3_N2 (the Drenwick canal now flows off both map
+   edges instead of dead-ending into trees; the NE bog continues off-map
+   under the causeway). Other outdoor maps keep tree borders — no interior
+   water reaches their edges (and North Basin's dry edges are the drought
+   story; the hidden meadow's tree ring is deliberate).
+5. **Rest-week inn reactions** — on the Dayoff(s) between the fen post
+   close-out and the reservoir assignment, the office staff at the Calwick
+   inn get outcome-aware dialogue about the Polwick matter: Supervisor,
+   Petra, and Corvin key on the filed report (`fort_report_filed` — they
+   never magically know about an unreported kill), Esla keys on
+   `smugglers_dead` itself (she closes the registry files, matching her
+   office dialogue). Found-nothing playthroughs and post-assignment Dayoffs
+   get the ordinary lines.
+6. **Drenwick Dayoff closures** — `isClosedToday()` now covers
+   `provision_store`; the Canal/Docks store door shows a closed notice on
+   Dayoff instead of entering. The Drenwick school was already gated (same
+   `isClosedToday('school')` as Calwick's); the inn/tavern deliberately
+   stay open — Dayoff drinking is canon.
+7. **Drenwick staff Dayoff relocation** — the office and school staff no
+   longer vanish on Dayoff (`map: null`): Officer Veth, Holt, and Ms. Farne
+   appear at the Drenwick inn, Officer Sable and Mr. Oben at the wash
+   house, each with new off-duty dialogue (workday positions and dialogue
+   untouched, including Veth's post-fort-quest commentary). Sable's old
+   "absent on dayoff, coordinating northeast" comment was replaced — her
+   new lines nod at it ("the Registry's northeast office doesn't answer on
+   Dayoff either"). Test 30 sweeps the Dayoff inn/wash-house crowd for
+   overlapping NPC positions.
+8. **Daily office greetings** — the Supervisor and Esla open the player's
+   first conversation of each day in the Calwick office with a
+   "good morning" page (new save flags `supervisor_greet_day` /
+   `esla_greet_day` record the last day each greeted). Implemented by
+   prepending a page after the branch logic runs — safe because dialogue
+   callbacks fire on the LAST page — via a thin `interactSupervisor()`
+   wrapper around the renamed `supervisorDialogueBody()`, and at the Esla
+   office block's single exit point (spread, not unshift: her rotation
+   pages are shared array literals).
+9. **The dream map (`DREAM_MAP`)** — the weekly strange dreams (rest in own
+   bed, day % 7 === 3) now play with the player standing in a registered,
+   all-white map: walkable `DREAM_FLOOR` (101) interior inside an invisible
+   blocking `DREAM_EDGE` (102) ring (both tiles render identical pure
+   white; the vignette overlay is skipped there so the white is total).
+   `enterDream()`/`exitDream()` (world-transitions.js) stash and restore
+   the waking world — map, position, facing, and the
+   inTown/townBuilding/currentHouseId flags render.js keys its overlays on
+   — with exitDream() wired as the dream dialogue's close callback. The
+   stash is deliberately transient: the menu (hence saving) can't open
+   during the dream dialogue. Movement is currently locked by the open
+   dialogue, but the map is real and first-class specifically so the
+   player can later walk around in it.
 
-Each item shipped with tests (27-29), a clean `validateGameData()` run, and
+Each item shipped with tests (27-30), a clean `validateGameData()` run, and
 a clean transition audit (the Sealed Room enter/exit functions and both new
 transition tiles are registered in `test/transition-audit.js`).
 
@@ -286,7 +343,7 @@ Roughly in priority order:
   (constant, `WALKABLE[]`, `TILE_PROPERTIES`, `window.X` export,
   `drawTile()` case, `RENDERABLE_TILE_IDS`).
 - Writing additional regression tests that follow an existing test file's
-  pattern closely (there are 29 to copy from).
+  pattern closely (there are 31 to copy from).
 - Adding new enemy templates to an *existing* pool with reasonable stats
   (validated automatically by `validateEnemies()`).
 

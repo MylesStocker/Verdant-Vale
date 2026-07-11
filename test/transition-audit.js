@@ -213,6 +213,7 @@ const flatFns = [
   'enterSluice', 'exitSluice',
   'descendToSluice2', 'ascendToSluice1', 'descendToSluice3', 'ascendToSluice2',
   'enterSluiceSecret', 'exitSluiceSecret',
+  'enterDream', 'exitDream', // paired: enterDream stashes state, exitDream restores it (no-op without a stash)
   'exitEastTownToWorld',
   // NOTE: enterEastTown/exitEastTown/enterWestTown/exitWestTown are
   // deliberately NOT in this flat list -- they preserve player.y from

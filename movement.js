@@ -658,7 +658,17 @@ function update() {
     if (inTown && !townBuilding && currentTownId === 'drenwick' && activeMap === DRENWICK_CANAL_DOCKS_MAP && curTile === OFFICE_DOOR) {
       if      (ttx === 2  && tty === 6) { enterBuilding('harbormaster');    return; }  // Harbormaster col 2
       else if (ttx === 7  && tty === 6) { enterBuilding('wash_house');      return; }  // Wash House    col 7
-      else if (ttx === 11 && tty === 6) { enterBuilding('provision_store'); return; }  // Provision St. col 11
+      else if (ttx === 11 && tty === 6) {                                              // Provision St. col 11
+        if (isClosedToday('provision_store')) {
+          dialogue.name  = 'Store Door';
+          dialogue.pages = [['Closed for dayoff.', 'Please come back tomorrow.']];
+          dialogue.open  = true;
+          dialogue.page  = 0;
+        } else {
+          enterBuilding('provision_store');
+        }
+        return;
+      }
       return; // unknown door — consume event without crashing
     }
     if (inTown && !townBuilding && curTile === OFFICE_DOOR) {

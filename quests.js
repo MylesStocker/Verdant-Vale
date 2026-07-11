@@ -173,6 +173,13 @@ let esla_said_cabinet         = false; // noticed Aldric's cabinet was disturbed
 let esla_said_polwick_pending = false; // spoke about Polwick awaiting the district's decision
 let esla_said_polwick_dead    = false; // grieved Polwick's death (killed or executed)
 
+// ─── Daily office greetings ───────────────────────────────────────────────────
+// The Supervisor and Esla open the player's FIRST conversation of each day in
+// the Calwick office with a "good morning" page. These record the last day
+// each greeted, so it happens once per day (0 = never greeted yet).
+let supervisor_greet_day = 0;
+let esla_greet_day       = 0;
+
 // ─── Side quest: A Bottle for Her Father ──────────────────────────────────────
 // Offered only once MainQuest >= 2 (the Drenwick dispatch done); before that
 // Fenna only frets about the drought reaching the fen mushroom beds.
@@ -239,6 +246,8 @@ function syncQuestFlagsToWindow() {
   window.esla_said_cabinet         = esla_said_cabinet;
   window.esla_said_polwick_pending = esla_said_polwick_pending;
   window.esla_said_polwick_dead    = esla_said_polwick_dead;
+  window.supervisor_greet_day      = supervisor_greet_day;
+  window.esla_greet_day            = esla_greet_day;
   window.wine_quest_started   = wine_quest_started;
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;

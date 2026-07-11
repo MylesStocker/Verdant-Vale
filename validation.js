@@ -1022,6 +1022,7 @@ function validateSaveFlags() {
       'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready',
       'smugglers_dead', 'smugglers_execution_day',
       'fort_report_filed', 'mq4_available_day', 'reservoir_quest_started',
+      'supervisor_greet_day', 'esla_greet_day',
       'schilling_quest_started', 'schilling_returned',
       'drama_stage', 'weight_quest_stage', 'weight_note_signed',
       'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded', 'pale_sentry_hp',

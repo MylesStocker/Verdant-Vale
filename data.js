@@ -857,6 +857,13 @@ const MAP_METADATA = {
     notes: 'sluiceFloor 4 -- the sealed room behind the Deep Works false walls (L3 r7 c12-c13 -> SLUICE_SECRET_ENTRANCE). Encounter rate is overridden at runtime to SLUICE_SECRET_ENCOUNTER_CHANCE (1/64) via inSluiceSealedRoom() (movement.js); the pool here IS what the runtime inSluice branch selects on this map (combat.js).',
   },
 
+  DREAM_MAP: {
+    id: 'DREAM_MAP', map: DREAM_MAP, displayName: '???', region: 'Dream',
+    type: 'special', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: false,
+    notes: 'The weekly strange-dream space (all white). Entered/left only via enterDream()/exitDream() while resting; unreachable by walking, no NPCs, no items. allowSave false is documentation -- the menu cannot open during the dream dialogue anyway.',
+  },
+
   // ── Special vaults/chambers ────────────────────────────────────────────────
   MIRE_VAULT_MAP: {
     id: 'MIRE_VAULT_MAP', map: MIRE_VAULT_MAP, displayName: 'Mirethyst\u2019s Vault', region: 'Thornmere',

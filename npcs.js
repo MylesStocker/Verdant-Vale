@@ -147,6 +147,21 @@ const SIMPLE_NPCS = [
     facing:        'down',
     spriteType:    'patron',
     get dialogue() {
+      // Rest-week Dayoff (after the fen post close-out, before the reservoir
+      // assignment): the office is at the inn and the Polwick matter is the
+      // thing nobody is officially talking about. Petra only knows what went
+      // through her register, so her lines key on the honest report.
+      if (day % 5 === 0 && mq4_available_day > 0 && !reservoir_quest_started && fort_report_filed) {
+        return smugglers_dead
+          ? [['\u201cI processed your ticket this week. Two hundred gold.\u201d',
+              '\u201cBiggest single entry of the season. I keep thinking about which column it belongs in.\u201d'],
+             ['\u201cThat\u2019s not a complaint about you.\u201d',
+              '\u201cThe register doesn\u2019t have a column for what that entry was for. That\u2019s all.\u201d']]
+          : [['\u201cThe fen post ticket cleared my register this week.\u201d',
+              '\u201cThe rest of it went up to district. Polwick with it.\u201d'],
+             ['\u201cI balance what reaches my desk.\u201d',
+              '\u201cI\u2019m glad the rest doesn\u2019t.\u201d']];
+      }
       const pages = day % 5 === 0
         ? [['\u201cI told myself I wouldn\u2019t think about the ledger.\u201d',
             '\u201cI thought about the ledger.\u201d']]
@@ -174,6 +189,21 @@ const SIMPLE_NPCS = [
     facing:        'down',
     spriteType:    'worker',
     get dialogue() {
+      // Rest-week Dayoff override, same gate as Petra's above. Corvin heard
+      // it the way clerks hear everything \u2014 secondhand, and keyed on the
+      // filed report rather than the truth.
+      if (day % 5 === 0 && mq4_available_day > 0 && !reservoir_quest_started && fort_report_filed) {
+        return smugglers_dead
+          ? [['\u201cWord gets around an office fast. Word gets around an inn faster.\u201d',
+              '\u201cThe fen post. Three entries, closed in one week.\u201d'],
+             ['\u201cI reconcile ledgers. When a number\u2019s wrong, I fix the number.\u201d',
+              '\u201cNo idea what you do when it isn\u2019t a number.\u201d',
+              'He lifts his cup slightly.',
+              '\u201cThis, I suppose.\u201d']]
+          : [['\u201cI heard the fen post matter went up to district.\u201d',
+              '\u201cAn inquiry means forms. Forms mean somebody has to countersign.\u201d'],
+             ['\u201cI\u2019m very glad it isn\u2019t me.\u201d']];
+      }
       const pages = day % 5 === 0
         ? [['\u201cYou know what I\u2019m not thinking about today?', 'The form.\u201d'],
            ['\u201cI\u2019m thinking about it anyway.\u201d']]
@@ -1329,16 +1359,29 @@ const SIMPLE_NPCS = [
   },
 
   // Drenwick Office — district officer (Officer Veth)
+  // Dayoff: at the Drenwick inn, off duty (back-corner table near the
+  // crescent booth), with his own out-of-uniform lines.
   {
     id:         'district_officer',
     name:       'Officer Veth',
-    get map()   { return day % 5 === 0 ? null : 'drenwick_office'; },
+    get map()   { return day % 5 === 0 ? 'drenwick_inn' : 'drenwick_office'; },
     x:          12.5 * TILE,
-    y:           3.5 * TILE,
+    get y()     { return day % 5 === 0 ? 4.5 * TILE : 3.5 * TILE; },
     solid:      true,
     facing:     'down',
     spriteType: 'clerk',
     get dialogue() {
+      if (day % 5 === 0) return [
+        ['He’s out of uniform, which takes a moment to register.',
+         '“Investigator. Sit if you like.',
+         'The district can’t object — it’s shut.”'],
+        ['“The office closes one day in five.',
+         'Which means one day in five, the district is officially incapable of emergencies.”',
+         '“It’s the only regulation I have never once argued with.”'],
+        ['“Tomorrow the ledgers reopen and I go back to being careful about what I say.”',
+         '“Today I’m only careful about the ale.',
+         'Moderately careful.”'],
+      ];
       const pages = [
         ['\u201cCalwick posting. I heard about it.\u201d',
          '\u201cSmall station. That\u2019s not a comment on the work.\u201d'],
@@ -1393,18 +1436,28 @@ const SIMPLE_NPCS = [
   {
     id:         'drenwick_clerk',
     name:       'Holt',
-    get map()   { return day % 5 === 0 ? null : 'drenwick_office'; },
+    // Dayoff: at the Drenwick inn, drinking on a schedule.
+    get map()   { return day % 5 === 0 ? 'drenwick_inn' : 'drenwick_office'; },
     x:           4.5 * TILE,
-    y:           5.5 * TILE,
+    get y()     { return day % 5 === 0 ? 9.5 * TILE : 5.5 * TILE; },
     solid:      true,
     facing:     'down',
     spriteType: 'clerk',
-    dialogue: [
-      ['\u201cThe third-quarter variance cross-references against the interim schedule before I can close the batch.\u201d',
-       '\u201cIt has been this way for six weeks.\u201d'],
-      ['\u201cIf the countersignature arrives after the period closes, it doesn\u2019t retroactively close the period.\u201d',
-       '\u201cI\u2019ve explained this. I\u2019ll explain it again.\u201d'],
-    ],
+    get dialogue() {
+      if (day % 5 === 0) return [
+        ['\u201cThe batch is still open. The countersignature still hasn\u2019t come.\u201d',
+         '\u201cBut it is Dayoff.',
+         'So today, that is somebody else\u2019s tragedy.\u201d'],
+        ['\u201cTomorrow at first bell it resumes being mine.\u201d',
+         'He drinks with the focus of a man keeping to a schedule.'],
+      ];
+      return [
+        ['\u201cThe third-quarter variance cross-references against the interim schedule before I can close the batch.\u201d',
+         '\u201cIt has been this way for six weeks.\u201d'],
+        ['\u201cIf the countersignature arrives after the period closes, it doesn\u2019t retroactively close the period.\u201d',
+         '\u201cI\u2019ve explained this. I\u2019ll explain it again.\u201d'],
+      ];
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -1598,22 +1651,36 @@ const SIMPLE_NPCS = [
 
   // Drenwick Office — Thread Officer Sable
   // Corner desk lower-right (col 11, row 8) — distinct from Veth (col 12, row 3)
-  // and Holt (col 4, row 5). Absent on dayoff: coordinates northeast with full Registry.
+  // and Holt (col 4, row 5).
   {
     id:         'thread_officer',
     name:       'Officer Sable',
-    get map()   { return day % 5 === 0 ? null : 'drenwick_office'; },
-    x:          11.5 * TILE,
-    y:           8.5 * TILE,
+    // Dayoff: at the wash house (bench by the east wall) \u2014 even the thread
+    // desk takes the fifth day; the northeast Registry doesn't answer on
+    // Dayoff either, as the dialogue notes.
+    get map()   { return day % 5 === 0 ? 'drenwick_wash_house' : 'drenwick_office'; },
+    get x()     { return day % 5 === 0 ? 10.5 * TILE : 11.5 * TILE; },
+    get y()     { return day % 5 === 0 ?  9.5 * TILE :  8.5 * TILE; },
     solid:      true,
     facing:     'down',
     spriteType: 'clerk',
-    dialogue: [
-      ['\u201cThread registration for this district runs through this office.\u201d',
-       '\u201cIf a classification requires full Registry processing, I refer it northeast. Most things can be handled here.\u201d'],
-      ['\u201cRareborn dispersal in the wetland settlements is difficult to reach.\u201d',
-       '\u201cWe have outstanding compliance checks in four outlying sites. Getting there is the issue, not the filing.\u201d'],
-    ],
+    get dialogue() {
+      if (day % 5 === 0) return [
+        ['\u201cYes. Even this desk takes the fifth day.\u201d',
+         '\u201cThe Registry\u2019s northeast office doesn\u2019t answer on Dayoff either.',
+         'I checked once, early in the posting. Only once.\u201d'],
+        ['\u201cThe steam is good for the joints.\u201d',
+         '\u201cFiling is harder on the body than anyone admits.\u201d'],
+        ['\u201cCompliance visits resume tomorrow.',
+         'The mud will still be there. The mud is very reliable.\u201d'],
+      ];
+      return [
+        ['\u201cThread registration for this district runs through this office.\u201d',
+         '\u201cIf a classification requires full Registry processing, I refer it northeast. Most things can be handled here.\u201d'],
+        ['\u201cRareborn dispersal in the wetland settlements is difficult to reach.\u201d',
+         '\u201cWe have outstanding compliance checks in four outlying sites. Getting there is the issue, not the filing.\u201d'],
+      ];
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -3004,13 +3071,25 @@ const SIMPLE_NPCS = [
   {
     id:         'drenwick_teacher_ground',
     name:       'Mr. Oben',
-    get map()   { return day % 5 === 0 ? null : 'drenwick_school_ground'; },
-    x:           7.5 * TILE,
-    y:           3.5 * TILE,
+    // Dayoff: at the wash house (bench by the west wall), gloriously unasked.
+    get map()   { return day % 5 === 0 ? 'drenwick_wash_house' : 'drenwick_school_ground'; },
+    get x()     { return day % 5 === 0 ? 4.5 * TILE : 7.5 * TILE; },
+    get y()     { return day % 5 === 0 ? 9.5 * TILE : 3.5 * TILE; },
     solid:      true,
     facing:     'down',
     spriteType: 'clerk',
-    dialogue: [
+    get dialogue() {
+      if (day % 5 === 0) return [
+        ['\u201cEight-year-olds, five days out of five, would be the end of me.\u201d',
+         '\u201cWhoever wrote the fifth day into the school code understood teaching.\u201d'],
+        ['\u201cOn Dayoff I come here, I sit in the steam, and nobody asks me a single question.\u201d',
+         '\u201cIt\u2019s the questions, you understand. Not the children.',
+         'The questions.\u201d'],
+        ['\u201cA boy asked me yesterday where the canal water has gone.\u201d',
+         '\u201cI told him: downhill, same as ever. Just less of it.\u201d',
+         '\u201cHe wrote it down. I rather wish I hadn\u2019t watched him write it down.\u201d'],
+      ];
+      return [
       ['\u201cAgain, please. Water flows from higher ground to lower ground.\u201d',
        '\u201cIf you can remember that, the rest of the canal lesson makes itself.\u201d'],
       ['\u201cThe Accord is the simplest thing to explain to a young child.\u201d',
@@ -3018,7 +3097,8 @@ const SIMPLE_NPCS = [
        '\u201cSix-year-olds understand this immediately. It\u2019s a visible fact. They can see it.\u201d'],
       ['\u201cOne of them asked me this morning whether rain is made of the same water as the canal.\u201d',
        '\u201cIt is, in a way. I wasn\u2019t expecting to spend half the lesson on the water cycle, but here we are.\u201d'],
-    ],
+      ];
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -3182,13 +3262,27 @@ const SIMPLE_NPCS = [
   {
     id:         'drenwick_teacher_upper',
     name:       'Ms. Farne',
-    get map()   { return day % 5 === 0 ? null : 'drenwick_school_upper'; },
-    x:           7.5 * TILE,
-    y:           3.5 * TILE,
+    // Dayoff: at the Drenwick inn (south end, past the rhen table).
+    get map()   { return day % 5 === 0 ? 'drenwick_inn' : 'drenwick_school_upper'; },
+    get x()     { return day % 5 === 0 ? 12.5 * TILE : 7.5 * TILE; },
+    get y()     { return day % 5 === 0 ? 11.5 * TILE : 3.5 * TILE; },
     solid:      true,
     facing:     'down',
     spriteType: 'clerk',
-    dialogue: [
+    get dialogue() {
+      if (day % 5 === 0) return [
+        ['\u201cYou\u2019re the Calwick investigator.\u201d',
+         '\u201cMy students have theories about you. I won\u2019t repeat them.\u201d',
+         '\u201cYou\u2019d be flattered by two of them and alarmed by the rest.\u201d'],
+        ['\u201cI tell them investigation work is mostly paperwork.',
+         'They refuse to believe me.\u201d',
+         '\u201cChildhood should be allowed to keep a few illusions.',
+         'That one seems harmless.\u201d'],
+        ['\u201cOne day in five, I am not the school.\u201d',
+         'She lifts her cup very slightly.',
+         '\u201cTo the fifth day.\u201d'],
+      ];
+      return [
       ['\u201cWe\u2019re covering the district tier this week.\u201d',
        '\u201cThe Empire organises itself in five levels: Imperial, Regional, District, Municipal, and Local.\u201d',
        '\u201cDrenwick is a district seat. That means certain functions that happen here don\u2019t happen in smaller towns. If you\u2019re going into clerk work, you\u2019ll need to know which ones.\u201d'],
@@ -3219,7 +3313,8 @@ const SIMPLE_NPCS = [
       ['\u201cThe Accord passed when it became undeniable that another failed crackdown would be more destabilising than a structured, permanent framework.\u201d',
        '\u201cThis is what the Accord is: not a concession on principle, but a recognition that the old method had stopped working.\u201d',
        '\u201cThe basement archive has a copy of the full instrument if you want to read the legal language. It\u2019s \u2014 thorough.\u201d'],
-    ],
+      ];
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,

@@ -642,7 +642,25 @@ const DREAMS = [
 ];
 
 // ─── Supervisor interaction ───────────────────────────────────────────────────
+// Thin wrapper: whatever branch supervisorDialogueBody() picks, the player's
+// FIRST conversation with him each day opens with a good-morning page
+// (supervisor_greet_day tracks the last day he greeted). Prepending after the
+// body runs is safe: dialogue.callbacks fire when the LAST page closes, so an
+// extra page up front never disturbs a branch's callback.
 function interactSupervisor() {
+  supervisorDialogueBody();
+  if (supervisor_greet_day !== day) {
+    supervisor_greet_day = day;
+    syncQuestFlagsToWindow();
+    dialogue.pages = [
+      ['“Good morning, Investigator.”',
+       'He says it to the ledger first, then looks up.'],
+      ...dialogue.pages,
+    ];
+  }
+}
+
+function supervisorDialogueBody() {
   dialogue.name = 'Supervisor';
   dialogue.open = true;
   dialogue.page = 0;
@@ -1014,10 +1032,22 @@ function interactSupervisor() {
        '\u201cSomething\u2019s come in.\u201d'],
       ['\u201cThe reservoir bed north of Drenwick has given up something it was not supposed to have.\u201d',
        '\u201cSurveyors found it after the waterline dropped again.\u201d'],
+      ['\u201cThree years of drought have pulled the basin back further every season.',
+       'Ground nobody has stood on in living memory is open sky now.\u201d',
+       '\u201cOld stonework. Old waterlines. Things the district maps do not have,',
+       'because when the maps were drawn, all of it was underwater.\u201d'],
       drenwickLine,
       ['\u201cSo it comes to this office. Which means it comes to you.\u201d',
        '\u201cNorth of Drenwick, past the basin flats.',
        'Go and look at what the water left behind.\u201d'],
+      ['\u201cOne more thing, and I will say it plainly.\u201d',
+       '\u201cA basin observer went out ahead of you to inspect the exposed stonework.',
+       'His report came back incomplete. He did not come back at all.\u201d'],
+      ['\u201cI won\u2019t dress this up as routine. It isn\u2019t the sluice, and it isn\u2019t a ledger error.\u201d',
+       '\u201cIf you find yourself uneasy walking out there \u2014 good.',
+       'Uneasy is the correct reading of the file.\u201d'],
+      ['\u201cGo in daylight. Note what you see. Don\u2019t stay out there to be thorough.\u201d',
+       '\u201cAnd come back. That instruction is part of the assignment.\u201d'],
     ];
     dialogue.callbacks = [function() {
       reservoir_quest_started = true;
@@ -1026,8 +1056,10 @@ function interactSupervisor() {
   } else if (fort_quest_stage === 6 && reservoir_quest_started) {
     dialogue.pages = [
       ['\u201cThe reservoir bed. North of Drenwick.\u201d',
-       '\u201cThe water took its time leaving.',
-       'Don\u2019t make the surveyors wait on you as well.\u201d'],
+       '\u201cThe surveyors won\u2019t go back out until somebody tells them what\u2019s there.',
+       'Somebody is you.\u201d'],
+      ['\u201cDaylight. Notes.',
+       'And back \u2014 the last part is still part of the job.\u201d'],
     ];
     dialogue.callbacks = null;
   } else {
@@ -2428,6 +2460,18 @@ function interactCalwickOffice() {
         const weekSlot = (day % 5 >= 1 && day % 5 <= 3) ? (day % 5) - 1 : 0;
         dialogue.pages = eslaVariants[(Math.floor(day / 5) * 3 + weekSlot) % 10];
       }
+      // First conversation of the day: she greets before whatever the
+      // branches above chose. Spread, don't unshift — eslaVariants pages
+      // are shared array literals and must not be mutated.
+      if (esla_greet_day !== day) {
+        esla_greet_day = day;
+        syncQuestFlagsToWindow();
+        dialogue.pages = [
+          ['“Good morning.”',
+           'She says it without looking up, before you’re fully through the door.'],
+          ...dialogue.pages,
+        ];
+      }
       dialogue.open = true;
       dialogue.page = 0;
       return true;
@@ -2762,22 +2806,79 @@ function interactCalwickInn() {
     return true;
   }
   if (currentTownId === 'calwick' && isDayOff()) {
-    // Supervisor at dayoff position
+    // Supervisor at dayoff position. During the ordered rest week after the
+    // fen post case (mq4_available_day set, reservoir assignment not yet
+    // given), he reacts to how the Polwick matter ended \u2014 but only to what
+    // he was actually TOLD (fort_report_filed): a player who killed everyone
+    // and claimed nothing gets his ordinary Dayoff lines.
     const sdx = player.x - SUPERVISOR_DAYOFF.x, sdy = player.y - SUPERVISOR_DAYOFF.y;
     if (Math.sqrt(sdx * sdx + sdy * sdy) < TALK_RADIUS) {
       dialogue.name  = 'Supervisor';
-      dialogue.pages = [
-        ['\u201cFourteen years.\u201d'],
-        ['\u201cYou learn to leave it at the door.\u201d', 'He takes a slow sip of his drink.'],
-      ];
+      const restWeekDayoff = mq4_available_day > 0 && !reservoir_quest_started;
+      if (restWeekDayoff && fort_report_filed && smugglers_dead) {
+        dialogue.pages = [
+          ['He\u2019s at his usual table.',
+           'The drink in front of him is untouched.'],
+          ['\u201cFourteen years, I told you once. You learn to leave it at the door.\u201d',
+           '\u201cSome weeks the door doesn\u2019t hold.\u201d'],
+          ['\u201cI sent you out to that post. That\u2019s the job, and I\u2019d send you again.\u201d',
+           '\u201cBut I sign the file. So I buy the drink I\u2019m not drinking.',
+           'That\u2019s the arrangement I\u2019ve come to.\u201d'],
+          ['\u201cEnjoy your Dayoff, Investigator.',
+           'That\u2019s an instruction.\u201d'],
+        ];
+      } else if (restWeekDayoff && fort_report_filed) {
+        dialogue.pages = [
+          ['\u201cThe district has Polwick now.\u201d',
+           '\u201cPaper moves slower than a verdict. But it arrives.\u201d'],
+          ['\u201cNothing about that matter is ours anymore.',
+           'I keep telling the ledger that. The ledger is unconvinced.\u201d'],
+          ['\u201cEnjoy your Dayoff. We\u2019re back at it after.\u201d'],
+        ];
+      } else {
+        dialogue.pages = [
+          ['\u201cFourteen years.\u201d'],
+          ['\u201cYou learn to leave it at the door.\u201d', 'He takes a slow sip of his drink.'],
+        ];
+      }
       dialogue.open = true;
       dialogue.page = 0;
       return true;
     }
-    // Esla at dayoff position
+    // Esla at dayoff position. Same rest-week override as the Supervisor
+    // above — but Esla's condition keys on smugglers_dead itself, not on
+    // what the player reported: she closes registry files, so she knows
+    // Polwick died whether or not the report said "found nothing" (exactly
+    // like her established office dialogue for the same event).
     const edx = player.x - ESLA_DAYOFF.x, edy = player.y - ESLA_DAYOFF.y;
     if (Math.sqrt(edx * edx + edy * edy) < TALK_RADIUS) {
       dialogue.name  = 'Esla';
+      const eslaRestDayoff = mq4_available_day > 0 && !reservoir_quest_started;
+      if (eslaRestDayoff && smugglers_dead) {
+        dialogue.pages = [
+          ['She’s at the bar tonight, not her usual table.',
+           '“Don’t ask me how I am.',
+           'Everyone keeps deciding not to ask. I watch them decide.”'],
+          ['“I closed his registry file this week. Polwick’s.”',
+           '“Tonight I’m going to finish this drink and not be a registry clerk until tomorrow.”'],
+          ['“You can stand here, though.',
+           'You don’t have to say anything.”'],
+        ];
+        dialogue.open = true;
+        dialogue.page = 0;
+        return true;
+      } else if (eslaRestDayoff && smugglers_execution_day > 0) {
+        dialogue.pages = [
+          ['“Registry work follows you to the inn. Did you know that?”',
+           '“Someone asked me tonight what happens to him now. Polwick.”'],
+          ['“I said: I don’t decide that. Which is true.”',
+           'She turns her glass a quarter-turn.',
+           '“It didn’t feel true when I said it.”'],
+        ];
+        dialogue.open = true;
+        dialogue.page = 0;
+        return true;
+      }
       // Rotate through 22 states across successive dayoffs.
       const eslaInnState = Math.floor(day / 5) % 22;
       if (eslaInnState === 0) {
@@ -3709,11 +3810,17 @@ function interactHouseInterior() {
             console.log('[day] now day', day, '\u2014 isDayOff:', isDayOff());
             if (cat_quest_stage === 0) { cat_quest_stage = 1; syncQuestFlagsToWindow(); }
             if (day % 7 === 3) {
+              // The strange dream plays with the player standing in the
+              // all-white DREAM_MAP; the waking world (bed, house, town
+              // flags) is stashed by enterDream() and restored when the
+              // last dream page closes.
               const dreamIdx = Math.floor(day / 7) % DREAMS.length;
-              dialogue.name  = '';
-              dialogue.pages = DREAMS[dreamIdx];
-              dialogue.open  = true;
-              dialogue.page  = 0;
+              enterDream();
+              dialogue.name      = '';
+              dialogue.pages     = DREAMS[dreamIdx];
+              dialogue.callbacks = [function() { exitDream(); }];
+              dialogue.open      = true;
+              dialogue.page      = 0;
             }
           },
           function leave() {},

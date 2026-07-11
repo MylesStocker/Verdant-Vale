@@ -80,8 +80,11 @@ function render() {
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
   drawPlayer();
 
-  ctx.fillStyle = vignette;
-  ctx.fillRect(0, 0, 512, 480);
+  // No vignette in the dream — the white is meant to be total.
+  if (activeMap !== DREAM_MAP) {
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, 512, 480);
+  }
 
   drawDialogue();
   drawChoice();

@@ -99,9 +99,9 @@ const MAREN_POST_MAP = [
 // row 0 (FEN_N_EXIT). Also branches east at row 6: road runs col 8→15 (MAP4_EXIT).
 const MAP3 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3, 47,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = FEN_N_EXIT
-  [  3, 23, 23,  1,  1,  1,  1, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  1  N lake + reeds; road at col 8
-  [  3, 23,  1,  1,  1,  1,  1,  1,  2,  0,  0,  0,  0,  3,  3,  3],  //  2  N lake + reeds; road at col 8
+  [  1,  1,  1,  1,  1,  1,  1,  1, 47,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = FEN_N_EXIT; N lake continues off-map W of the road
+  [  1, 23, 23,  1,  1,  1,  1, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  1  N lake + reeds; road at col 8; water W edge
+  [  1, 23,  1,  1,  1,  1,  1,  1,  2,  0,  0,  0,  0,  3,  3,  3],  //  2  N lake + reeds; road at col 8; water W edge
   [  3,  0,  1,  1,  1, 23, 23,  0,  2,  0,  0,  0,  0,  3,  0,  3],  //  3  N lake edge; road at col 8
   [  3,  0, 23, 23, 23,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  4  reeds band; road at col 8
   [  3,  0,  0, 23,  1,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  5  mid-pond; road at col 8
@@ -113,7 +113,7 @@ const MAP3 = [
   [ 42,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  // 11  ← col 0 = entrance from MAP2
   [  3,  0,  0, 23, 23,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  3],  // 12  S marsh
   [  3,  0,  0,  0, 23,  1,  1,  0, 23,  0,  0,  0,  0,  0,  0,  3],  // 13  S marsh + reeds
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14
+  [  3,  3,  3,  3,  1,  1,  1,  3,  1,  3,  3,  3,  3,  3,  3,  3],  // 14  S marsh drains off-map (cols 4-6, 8)
 ];
 
 const MAP3_ITEMS = [];
@@ -133,14 +133,14 @@ const MAP4 = [
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  4
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  5  reeds on E shore mid
   [ 52,  0,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0, 60],  //  6  ← island NW/NE (cols 7-8); col 0 = entrance; col 15 = MAP5_EXIT
-  [  3, 23,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  3],  //  7  ← island SW/SE (cols 7-8); reeds at W shore
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  8  E shore ends here (bottom of П)
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  9  E grass (path gone), open lake
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 10  full lake
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 11  full lake
-  [  3, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 12  reeds on SW shore
-  [  3,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 13  reeds trailing SW
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  border
+  [  1, 23,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  3],  //  7  ← island SW/SE (cols 7-8); reeds at W shore; water W edge
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  8  E shore ends here (bottom of П); water W edge
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  9  E grass (path gone), open lake; water W edge
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  full lake, open to W and E edges
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  full lake, open to W and E edges
+  [  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  reeds on SW shore; water W and E edges
+  [  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  reeds trailing SW; water W and E edges
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  the Thornmere continues off-map south
 ];
 
 const MAP4_ITEMS = [];
@@ -152,21 +152,21 @@ const MAP4_ITEMS = [];
 // col 9 (row 7), then reeds mark the dissolution into water. No eastern exit.
 const MAP5 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  border
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  1  open water
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  2  open water
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  3  open water
-  [  3,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  4  spit north shoulder
-  [  3, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  3],  //  5  spit north edge, cols 2-7
-  [ 61,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  3],  //  6  ← col 0 = entrance; spit body
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  3],  //  7  spit widest / tip extends to col 9
-  [  3, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  3],  //  8  spit south edge, mirrors row 5
-  [  3,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  9  spit south shoulder, mirrors row 4
-  [  3,  1,  1, 23,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 10  spit inner tip
-  [  3,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 11  last reed marking spit end
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 12  open water
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  // 13  open water
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  border
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  open water — the shallows continue off-map north
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open water, open to W and E edges
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open water, open to W and E edges
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open water, open to W and E edges
+  [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  spit north shoulder; water W and E edges
+  [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  5  spit north edge, cols 2-7; water W and E edges
+  [ 61,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1],  //  6  ← col 0 = entrance; spit body; water E edge
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  7  spit widest / tip extends to col 9; lone shore tree by the landing (col 0)
+  [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  8  spit south edge, mirrors row 5; water W and E edges
+  [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  spit south shoulder, mirrors row 4
+  [  1,  1,  1, 23,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  spit inner tip
+  [  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  last reed marking spit end
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  open water
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open water
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  open water — the shallows continue off-map south
 ];
 
 const MAP5_ITEMS = [];
@@ -267,17 +267,17 @@ const SMUGGLER_FORT_MAP = [
 // rows 2-3 col 12 (now paved as part of the same through-road).
 const MAP3_N2 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, 82,  3,  3,  3],  //  0  border ← col 12 = NORTH_BASIN_EXIT
-  [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23,  3],  //  1  N marsh: bog pond E; col 12 = causeway path
-  [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23,  3],  //  2  bog pond W + bog pond E; col 12 = path
+  [  3,  3,  3,  3,  3,  1,  3,  3,  3,  3,  3,  1, 82,  1,  1,  1],  //  0  border ← col 12 = NORTH_BASIN_EXIT; marsh gaps (cols 5, 11) + bog pond E off-map (cols 13-15), causeway crossing it
+  [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23,  1],  //  1  N marsh: bog pond E; col 12 = causeway path; water E edge
+  [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23,  1],  //  2  bog pond W + bog pond E; col 12 = path; water E edge
   [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  2, 23,  0,  3],  //  3  reeds, clearing; col 12 = path
   [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  //  4  open, N canal bank; col 12 = path (bridge north landing)
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 57,  1,  1,  3],  //  5  canal WATER cols 1-11,13-14; BRIDGE_GATE col 12
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 57,  1,  1,  1],  //  5  canal WATER, flowing off-map both W and E; BRIDGE_GATE col 12
   [  3,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  3],  //  6  Drenwick south gate col 8; approach path col 12
   [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  0,  0,  3],  //  7  road col 8; E-W spur cols 9-12 to bridge approach
   [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds W
   [  3,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  9  bog W + reeds E
-  [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23,  3],  // 10  bog E
+  [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23,  1],  // 10  bog E, draining off-map east
   [  3,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  3],  // 11  reeds + bog E
   [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 53, 23,  0,  0,  3],  // 12  GUARD_POST c11; reeds c12
   [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  open approach
@@ -1759,6 +1759,34 @@ const SLUICE_SECRET_MAP = [
   [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // 14
 ];
 
+// ─── The Dream  (16 × 15) ─────────────────────────────────────────────────────
+// Where the player stands during the weekly strange dreams (day % 7 === 3
+// after resting in their own bed) — a featureless, pure-white space. The
+// border ring is DREAM_EDGE (102, blocks) and the interior DREAM_FLOOR
+// (101, walkable); both render identical white, so the boundary is
+// invisible. Entered/left only via enterDream()/exitDream()
+// (world-transitions.js), which stash and restore the waking world. For now
+// the dream text plays over it and movement is locked by the open dialogue;
+// the map is real and registered so the player can later walk around in it.
+const DREAM_MAP = [
+  //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+  [ 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102],  //  0
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  1
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  2
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  3
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  4
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  5
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  6
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  7  player wakes-in at c7/c8
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  8
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  //  9
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  // 10
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  // 11
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  // 12
+  [ 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 102],  // 13
+  [ 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102],  // 14
+];
+
 // ─── Takomo's Chamber  (16 × 15) ─────────────────────────────────────────────
 // Secret boss area accessed through TAKOMO_GATE on the Drenwick Waterfront quay.
 // Dungeon-tile set. TAKOMO_EXIT at col 0, row 7 returns to the waterfront.
@@ -1916,6 +1944,7 @@ window.SLUICE_MAP           = SLUICE_MAP;
 window.SLUICE_LEVEL2_MAP    = SLUICE_LEVEL2_MAP;
 window.SLUICE_LEVEL3_MAP    = SLUICE_LEVEL3_MAP;
 window.SLUICE_SECRET_MAP    = SLUICE_SECRET_MAP;
+window.DREAM_MAP            = DREAM_MAP;
 
 // ─── Map registry ─────────────────────────────────────────────────────────────
 // Additive/reference-only: gameplay code has not yet been migrated to use this.
@@ -1989,6 +2018,7 @@ const MAP_REGISTRY = {
   SLUICE_LEVEL2_MAP:     { id: 'SLUICE_LEVEL2_MAP',     label: 'East Sluice \u2014 Lower Works', map: SLUICE_LEVEL2_MAP },
   SLUICE_LEVEL3_MAP:     { id: 'SLUICE_LEVEL3_MAP',     label: 'East Sluice \u2014 Deep Works',  map: SLUICE_LEVEL3_MAP },
   SLUICE_SECRET_MAP:     { id: 'SLUICE_SECRET_MAP',     label: 'East Sluice \u2014 Sealed Room', map: SLUICE_SECRET_MAP },
+  DREAM_MAP:             { id: 'DREAM_MAP',             label: '???',                       map: DREAM_MAP         },
   MIRE_VAULT_MAP:        { id: 'MIRE_VAULT_MAP',        label: "Mirethyst\u2019s Vault",         map: MIRE_VAULT_MAP    },
   TAKOMO_MAP:            { id: 'TAKOMO_MAP',            label: "Takomo\u2019s Chamber",          map: TAKOMO_MAP        },
   HAMLET_INTERIOR_MAP:   { id: 'HAMLET_INTERIOR_MAP',   label: 'The Falls',                      map: HAMLET_INTERIOR_MAP },

@@ -33,6 +33,7 @@ const QUEST_FLAG_SCHEMA = [
   'rareborn_rhyme_heard',   // player has heard the rareborn spotting-rhyme (Calwick school)
   'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet',   // Esla one-shot commentary
   'esla_said_polwick_pending', 'esla_said_polwick_dead',
+  'supervisor_greet_day', 'esla_greet_day',  // once-per-day office "good morning" greetings
   'wine_quest_started', 'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
@@ -282,6 +283,8 @@ function loadGame() {
   if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;
   if (data.esla_said_polwick_pending !== undefined) esla_said_polwick_pending = data.esla_said_polwick_pending;
   if (data.esla_said_polwick_dead    !== undefined) esla_said_polwick_dead    = data.esla_said_polwick_dead;
+  if (data.supervisor_greet_day      !== undefined) supervisor_greet_day      = data.supervisor_greet_day;
+  if (data.esla_greet_day            !== undefined) esla_greet_day            = data.esla_greet_day;
   if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
   if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
   if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;

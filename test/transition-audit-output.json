@@ -67,6 +67,7 @@
     "SLUICE_LEVEL2_MAP",
     "SLUICE_LEVEL3_MAP",
     "SLUICE_SECRET_MAP",
+    "DREAM_MAP",
     "MIRE_VAULT_MAP",
     "TAKOMO_MAP",
     "HAMLET_INTERIOR_MAP",
@@ -471,6 +472,12 @@
     },
     {
       "id": "SLUICE_SECRET_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DREAM_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -2613,6 +2620,64 @@
       "escapes": {
         "up": true,
         "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterDream",
+      "group": "flat-transitions",
+      "setupCode": "enterDream()",
+      "error": null,
+      "destMap": "DREAM_MAP",
+      "px": 240,
+      "py": 240,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 101,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitDream",
+      "group": "flat-transitions",
+      "setupCode": "exitDream()",
+      "error": null,
+      "destMap": "MAP",
+      "px": 256,
+      "py": 256,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 8,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
         "left": true,
         "right": true
       },
