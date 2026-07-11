@@ -443,191 +443,193 @@ const SIMPLE_NPCS = [
         // Dayoff — she's at the inn, he's home
         if (cycle === 0 || cycle === 1) {
           pages = [
-            ['\u201cShe\u2019s at the inn.\u201d', '\u201cDayoff. Apparently it\u2019s a tradition.\u201d'],
-            ['\u201cI don\u2019t go to those things. Never felt right,',
-             'sitting there while they all talk shop.\u201d'],
-            ['\u201cI\u2019m sure she\u2019ll be back by evening.\u201d'],
+            ['“She’s at the inn.”', '“Dayoff. It’s a tradition. I’m told the soup there is an insult to soup.”'],
+            ['“I don’t go. An inn full of clerks comparing filing systems on their one free day —',
+             'I chose the clerk, not the agenda.”'],
+            ['“Meanwhile I get the kitchen to myself and first pick of the market eels.',
+             'Everyone wins. Mostly me.”'],
           ];
         } else if (cycle === 2) {
           pages = [
-            ['\u201cShe\u2019s at the inn.\u201d'],
-            ['\u201cI used to ask what they talked about.',
-             'She\u2019d tell me, but the telling was always\u2014\u201d',
+            ['“She’s at the inn.”'],
+            ['“I used to ask what they talked about.',
+             'She’d tell me, but the telling was always—',
              'He pauses.',
-             '\u201cIt was like getting a report. Accurate, but not quite the thing.\u201d'],
-            ['\u201cI stopped asking. It\u2019s fine. We\u2019re fine.\u201d'],
+             '“It was like getting a report. Accurate, but not quite the thing.”'],
+            ['“So I stopped asking. By midnight she tells me the real version anyway.',
+             'You just leave the door unlatched and the pot on.”'],
           ];
         } else if (cycle === 3) {
           pages = [
-            ['\u201cI made soup.\u201d',
-             '\u201cThere\u2019s enough for two if you\u2019re not going anywhere.\u201d'],
-            ['\u201cShe\u2019s always home by evening.',
-             'I don\u2019t worry about it anymore.\u201d',
-             'A beat.',
-             '\u201cMuch.\u201d'],
+            ['“I made soup.”',
+             '“There’s enough for two if you’re not going anywhere.”'],
+            ['“She’s always home by evening. The soup is timed to it. To the minute.”',
+             '“That’s not devotion, that’s craft.”',
+             'It is obviously both.'],
           ];
         } else if (cycle === 4) {
           pages = [
-            ['\u201cShe grew up in a building full of people exactly like her.\u201d',
-             '\u201cI try to imagine it.',
-             'I can\u2019t really.\u201d'],
-            ['\u201cI grew up here.',
-             'Everyone I knew was someone\u2019s kid or someone\u2019s neighbour.',
-             'You knew their whole story before you knew their name.\u201d'],
-            ['\u201cI wonder sometimes if that\u2019s why she finds this place unusual.',
+            ['“She grew up in a building full of people exactly like her.”',
+             '“I try to imagine it.',
+             'I can’t really.”'],
+            ['“I grew up here.',
+             'Everyone I knew was someone’s kid or someone’s neighbour.',
+             'You knew their whole story before you knew their name.”'],
+            ['“I wonder sometimes if that’s why she finds this place unusual.',
              'Or if she finds it restful.',
-             'I\u2019m not always sure which.\u201d'],
+             'I’m not always sure which.”'],
           ];
         } else if (cycle === 5) {
           pages = [
-            ['\u201cShe goes up to the roof sometimes.',
+            ['“She goes up to the roof sometimes.',
              'At night.',
-             'I don\u2019t think she knows I\u2019ve noticed.\u201d'],
-            ['\u201cI don\u2019t follow her up there.',
-             'Some things are someone\u2019s own.\u201d'],
-            ['\u201cShe comes back down quieter.',
+             'I don’t think she knows I’ve noticed.”'],
+            ['“I don’t follow her up there.',
+             'Some things are someone’s own.”'],
+            ['“She comes back down quieter.',
              'Good quiet.',
-             'I\u2019ve learned the difference.\u201d'],
+             'I’ve learned the difference.”'],
           ];
         } else if (cycle === 6) {
           pages = [
-            ['\u201cShe\u2019s at the inn.',
-             'Same table, I\u2019d guess.',
-             'She\u2019s a creature of habit in ways she doesn\u2019t realise.\u201d'],
-            ['\u201cShe thinks she\u2019s\u2014unpredictable, maybe.',
-             'She\u2019s not.',
-             'The patterns are just\u2014 longer.\u201d'],
-            ['\u201cI\u2019ve been here long enough to see them.',
-             'I don\u2019t say that to her.',
-             'She\u2019d only prove me right.\u201d'],
+            ['“She’s at the inn.',
+             'Same table, I’d guess.',
+             'She’s a creature of habit in ways she doesn’t realise.”'],
+            ['“She thinks she’s—unpredictable, maybe.',
+             'She’s not.',
+             'The patterns are just— longer.”'],
+            ['“I’ve been here long enough to see them.',
+             'I don’t say that to her.',
+             'She’d only prove me right.”'],
           ];
         } else if (cycle === 7) {
           pages = [
-            ['\u201cI pulled out a form once.',
-             'Transfer request.',
-             'I\u2019d found it in a drawer, half-filled-out.\u201d'],
-            ['\u201cI put it back.',
-             'Didn\u2019t say anything.\u201d'],
-            ['\u201cI\u2019m not sure if I was relieved it was unfinished',
-             'or frightened that it existed at all.\u201d',
-             '\u201cBoth, probably.\u201d'],
+            ['“I found a transfer request in a drawer once.',
+             'Half-filled-out.”'],
+            ['“I asked her about it at dinner. Straight out.”',
+             '“She said it was from her second year, and she’d stopped filling it in',
+             'around the time she stopped minding the smell of the fens.”'],
+            ['“It’s still in the drawer.',
+             'Some people press flowers in books.”',
+             '“We’re not sentimental people,” he says, sentimentally.'],
           ];
         } else {
           pages = [
-            ['\u201cSix years.\u201d',
-             '\u201cI\u2019d say it went fast but it didn\u2019t, really.',
-             'It went the right speed.\u201d'],
-            ['\u201cShe didn\u2019t expect to stay.',
-             'I\u2019m not sure she\u2019d say she\u2019s decided to.',
-             'And yet.\u201d'],
+            ['“Six years.”',
+             '“I’d say it went fast but it didn’t, really.',
+             'It went the right speed.”'],
+            ['“She didn’t expect to stay.',
+             'I’m not sure she’d say she’s decided to.',
+             'And yet.”'],
           ];
         }
       } else {
         // Work day — she's at the office
         if (cycle === 0) {
           pages = [
-            ['\u201cEsla talks about work more than she used to.\u201d', '\u201cNames come up.\u201d'],
-            ['\u201cYours has come up a few times.\u201d'],
-            ['\u201cI\u2019m sure it\u2019s nothing.\u201d'],
-            ['\u201cNew place, you notice the moment someone clocks her hair.\u201d',
-             '\u201cShe knows too. She just keeps moving. I find it harder to let go of than she does.\u201d'],
+            ['“Esla talks about work more than she used to.”', '“Names come up. Yours comes up.”'],
+            ['“Relax. She rates everyone by their paperwork. You’re currently a seven.”',
+             '“I’ve been a nine for six years. Home-field advantage.”'],
+            ['“New place, you notice the moment someone clocks her hair.”',
+             '“She knows too. She just keeps moving. I find it harder to let go of than she does.”'],
           ];
         } else if (cycle === 1) {
           pages = [
-            ['\u201cShe\u2019s good at her work.\u201d',
-             '\u201cI don\u2019t entirely understand what the work is.',
+            ['“She’s good at her work.”',
+             '“I don’t entirely understand what the work is.',
              'The filing, the cross-referencing.',
-             'She\u2019s tried to explain it.\u201d'],
-            ['\u201cI understand the words.',
-             'I\u2019m not sure I understand what it means to be good at it.',
-             'But she is.\u201d',
-             '\u201cYou can tell.\u201d'],
+             'She’s tried to explain it.”'],
+            ['“I understand the words.',
+             'I’m not sure I understand what it means to be good at it.',
+             'But she is.”',
+             '“You can tell.”'],
           ];
         } else if (cycle === 2) {
           pages = [
-            ['\u201cI know everyone in this town.',
+            ['“I know everyone in this town.',
              'Their parents, most of their grandparents.',
-             'This place has been my whole geography.\u201d'],
-            ['\u201cShe found that strange at first.',
-             'She\u2019d ask \u2014 how do you know all this?',
-             'As if there were another way.\u201d'],
-            ['\u201cI think she envies it, a little.',
-             'Or finds it\u2014 grounding.',
-             'I\u2019m never sure which word she\u2019d use.\u201d'],
+             'This place has been my whole geography.”'],
+            ['“She found that strange at first.',
+             'She’d ask — how do you know all this?',
+             'As if there were another way.”'],
+            ['“I think she envies it, a little.',
+             'Or finds it— grounding.',
+             'I’m never sure which word she’d use.”'],
           ];
         } else if (cycle === 3) {
           pages = [
-            ['\u201cShe doesn\u2019t talk much about the Academy.\u201d'],
-            ['\u201cWhen she does, she picks her words very carefully.',
+            ['“She doesn’t talk much about the Academy.”'],
+            ['“When she does, she picks her words very carefully.',
              'More carefully than usual.',
-             'Which is saying something.\u201d'],
-            ['\u201cI think she\u2019s trying to translate something',
-             'that doesn\u2019t have words in the language I speak.\u201d',
-             '\u201cI appreciate the effort.',
-             'I do.\u201d'],
+             'Which is saying something.”'],
+            ['“I think she’s trying to translate something',
+             'that doesn’t have words in the language I speak.”',
+             '“I appreciate the effort.',
+             'I do.”'],
           ];
         } else if (cycle === 4) {
           pages = [
-            ['\u201cI make the soup she likes.',
-             'She\u2019s mentioned it.',
-             'More than once.\u201d'],
-            ['\u201cI know it\u2019s a small thing.\u201d',
+            ['“I make the soup she likes.',
+             'She’s mentioned it.',
+             'More than once.”'],
+            ['“I know it’s a small thing.”',
              'He says this evenly, without self-pity.',
-             '\u201cSmall things are most of what there is.',
-             'I\u2019m good at small things.\u201d'],
+             '“Small things are most of what there is.',
+             'I’m good at small things.”'],
           ];
         } else if (cycle === 5) {
           pages = [
-            ['\u201cShe watches people.',
-             'In a room, she\u2019ll be the last one through the door',
-             'and the first one to know what\u2019s going on.\u201d'],
-            ['\u201cI think it\u2019s the rareborn thing, that.',
-             'I don\u2019t fully understand it.',
-             'But I\u2019ve seen it too many times to doubt it.\u201d'],
-            ['\u201cSometimes I catch her watching me.',
+            ['“She watches people.',
+             'In a room, she’ll be the last one through the door',
+             'and the first one to know what’s going on.”'],
+            ['“It’s not the thread — that’s for green things, she’s very clear on it.”',
+             '“It’s just her. She’d have been like that anyway.”'],
+            ['“Sometimes I catch her watching me.',
              'I pretend not to notice.',
-             'I\u2019m not sure it works.\u201d'],
+             'Badly. On purpose.”'],
           ];
         } else if (cycle === 6) {
           pages = [
-            ['\u201cShe asked me once if I\u2019d ever wanted to leave.\u201d',
-             '\u201cGo somewhere else. See more.\u201d'],
-            ['\u201cI said no.',
-             'It\u2019s true.',
-             'But I think it surprised her.\u201d'],
-            ['\u201cShe couldn\u2019t imagine not wanting to.',
+            ['“She asked me once if I’d ever wanted to leave.”',
+             '“Go somewhere else. See more.”'],
+            ['“I said no.',
+             'It’s true.',
+             'But I think it surprised her.”'],
+            ['“She couldn’t imagine not wanting to.',
              'I think.',
-             'I couldn\u2019t imagine wanting to.',
-             'We didn\u2019t say that out loud.\u201d'],
+             'I couldn’t imagine wanting to.',
+             'We didn’t say that out loud.”'],
           ];
         } else if (cycle === 7) {
           pages = [
-            ['\u201cI think about what her life was like before here.',
+            ['“I think about what her life was like before here.',
              'Before the fens.',
-             'I can\u2019t picture it.\u201d'],
-            ['\u201cThe Academy, other rareborn, that whole\u2014 world.',
+             'I can’t picture it.”'],
+            ['“The Academy, other rareborn, that whole— world.',
              'She carries it with her.',
-             'I can tell it\u2019s heavy.',
-             'She\u2019s never said so.\u201d'],
+             'I can tell it’s heavy.',
+             'She’s never said so.”'],
           ];
         } else {
           pages = [
-            ['\u201cThere are mornings she\u2019s already somewhere else',
-             'before she\u2019s even left the house.\u201d'],
-            ['\u201cI\u2019ve learned not to try to follow her there.',
-             'That\u2019s not the right word \u2014 she\u2019s here.',
-             'She\u2019s here.\u201d'],
-            ['\u201cI just mean there are distances I can\u2019t close.',
-             'I\u2019ve made my peace with that.',
-             'Most days.\u201d'],
+            ['“There are mornings she’s already somewhere else',
+             'before she’s even left the house.”'],
+            ['“I’ve learned not to try to follow her there.',
+             'That’s not the right word — she’s here.',
+             'She’s here.”'],
+            ['“I just mean there are distances I can’t close.',
+             'I don’t need to close them.',
+             'I just like knowing where they are.”'],
           ];
         }
       }
+      // Reactive flavor once the player has been to Drenwick. Phrased in the
+      // timeless present so it reads fine on every later visit too.
       if (dispatch_delivered) pages.push(
-        ['\u201cEsla mentioned you went to Drenwick.\u201d',
-         '\u201cShe was quiet about it. More than usual.\u201d'],
-        ['\u201cShe gets quiet about things that matter to her.\u201d',
-         '\u201cI don\u2019t ask. I\u2019ve learned that\u2019s the right call.\u201d']
+        ['“Esla mentioned you went to Drenwick.”',
+         '“She got quiet about it. She gets quiet about things that matter.”'],
+        ['“I make more soup on the quiet days.',
+         'It’s a system. It has never once failed.”']
       );
       return pages;
     },
@@ -791,7 +793,7 @@ const SIMPLE_NPCS = [
               ['\u201cYour field kit was issued this morning. It should be in your pack.\u201d',
                '\u201cThere are enemy encounters on the overworld roads.\u201d',
                '\u201cUnequipped, you cannot attack. An unequipped agent is a dead agent.\u201d'],
-              ['\u201cOpen your menu with Escape.\u201d',
+              ['\u201cOpen your menu with Esc or M.\u201d',
                '\u201cGo to Items, select a weapon or piece of armour, and choose Equip.\u201d',
                '\u201cEquip both a weapon and armour before leaving the civic district.\u201d'],
               ['\u201cYour level increases automatically as you earn experience from fights.\u201d',

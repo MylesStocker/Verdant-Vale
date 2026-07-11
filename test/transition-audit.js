@@ -212,6 +212,7 @@ const flatFns = [
   'exitHamletInterior', // room-dependent branch handled by pre-seeding player.x below
   'enterSluice', 'exitSluice',
   'descendToSluice2', 'ascendToSluice1', 'descendToSluice3', 'ascendToSluice2',
+  'enterSluiceSecret', 'exitSluiceSecret',
   'exitEastTownToWorld',
   // NOTE: enterEastTown/exitEastTown/enterWestTown/exitWestTown are
   // deliberately NOT in this flat list -- they preserve player.y from
@@ -443,6 +444,7 @@ const transitionTileNames = [
   'RUIN_STAIRS_DOWN', 'RUIN_EXIT',
   'NORTH_BASIN_EXIT', 'NORTH_BASIN_ENTRANCE',
   'MEADOW_HIDDEN_ENTRANCE', 'MEADOW_EXIT',
+  'SLUICE_SECRET_ENTRANCE', 'SLUICE_SECRET_EXIT',
   // NORTH_BASIN_W_EXIT/ENTRANCE (90/91) retired: the Silt Flats <-> West Shore
   // link is now an EDGE_TRANSITIONS crossing, not a point-tile, so those tiles
   // are no longer placed on any map (this list is a cross-reference of

@@ -115,6 +115,14 @@ const TRAPPER_HUT            = 92; // abandoned trapper's hut — impassable, de
 const MEADOW_HIDDEN_ENTRANCE = 93; // on MAP (1,1): renders as plain GRASS; stepping on it enters MEADOW_MAP
 const MEADOW_EXIT            = 94; // gap in MEADOW_MAP's south tree border → back to MAP beside the nook
 
+// ─── East Sluice Deep Works — sealed room (sluice L3, behind false walls) ────
+const SLUICE_MARK_WALL     = 95; // sluice wall carved with unreadable markings (SLUICE_SECRET_MAP)
+const SLUICE_NOTCH_WALL    = 96; // sluice wall bearing eleven cut notches (SLUICE_SECRET_MAP)
+const SLUICE_BLOOD_FLOOR   = 97; // sluice floor with an old dark stain soaked into the joints (SLUICE_SECRET_MAP)
+const SLUICE_JOURNAL_FLOOR = 98; // sluice floor with an abandoned journal against the wall (SLUICE_SECRET_MAP)
+const SLUICE_SECRET_ENTRANCE = 99;  // on SLUICE_LEVEL3_MAP (r7 c14): renders as plain SLUICE_WALL; stepping on it enters SLUICE_SECRET_MAP
+const SLUICE_SECRET_EXIT     = 100; // on SLUICE_SECRET_MAP (r2 c7): the way back to the Deep Works east pocket
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -212,6 +220,12 @@ const WALKABLE = [
   /* 92 TRAPPER_HUT            */ false,
   /* 93 MEADOW_HIDDEN_ENTRANCE */ true,
   /* 94 MEADOW_EXIT            */ true,
+  /* 95 SLUICE_MARK_WALL       */ false,
+  /* 96 SLUICE_NOTCH_WALL      */ false,
+  /* 97 SLUICE_BLOOD_FLOOR     */ true,
+  /* 98 SLUICE_JOURNAL_FLOOR   */ true,
+  /* 99 SLUICE_SECRET_ENTRANCE */ true,
+  /* 100 SLUICE_SECRET_EXIT    */ true,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -307,6 +321,12 @@ window.NORTH_BASIN_W_ENTRANCE = NORTH_BASIN_W_ENTRANCE;
 window.TRAPPER_HUT            = TRAPPER_HUT;
 window.MEADOW_HIDDEN_ENTRANCE = MEADOW_HIDDEN_ENTRANCE;
 window.MEADOW_EXIT            = MEADOW_EXIT;
+window.SLUICE_MARK_WALL       = SLUICE_MARK_WALL;
+window.SLUICE_NOTCH_WALL      = SLUICE_NOTCH_WALL;
+window.SLUICE_BLOOD_FLOOR     = SLUICE_BLOOD_FLOOR;
+window.SLUICE_JOURNAL_FLOOR   = SLUICE_JOURNAL_FLOOR;
+window.SLUICE_SECRET_ENTRANCE = SLUICE_SECRET_ENTRANCE;
+window.SLUICE_SECRET_EXIT     = SLUICE_SECRET_EXIT;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -333,8 +353,8 @@ const DEBUG_TILE_NAMES = [
   'MAP4_EXIT',  'MAP5_ENTRANCE',  'MAP5_EXIT',  'MIRE_ENTRANCE',  'MIRE_EXIT',  'NORTH_BASIN_ENTRANCE',
   'MEADOW_EXIT',  'MEADOW_HIDDEN_ENTRANCE',  'NORTH_BASIN_EXIT',  'NORTH_BASIN_W_ENTRANCE',  'NORTH_BASIN_W_EXIT',  'NORTH_ENTRANCE',  'NORTH_EXIT',  'NORTH2_ENTRANCE',
   'NORTH2_EXIT',  'NOTICE_BOARD',  'OFFICE_DOOR',  'PATH',  'REEDS',  'RUIN_EXIT',
-  'RUIN_FLOOR',  'RUIN_STAIRS_DOWN',  'RUIN_WALL',  'SCHOOL_DOOR',  'SLUICE_CHANNEL',  'SLUICE_ENTRANCE',
-  'SLUICE_EXIT',  'SLUICE_FLOOR',  'SLUICE_WALL',  'TABLE',  'TAKOMO_EXIT',  'TAKOMO_GATE',
+  'RUIN_FLOOR',  'RUIN_STAIRS_DOWN',  'RUIN_WALL',  'SCHOOL_DOOR',  'SLUICE_BLOOD_FLOOR',  'SLUICE_CHANNEL',  'SLUICE_ENTRANCE',
+  'SLUICE_EXIT',  'SLUICE_FLOOR',  'SLUICE_JOURNAL_FLOOR',  'SLUICE_MARK_WALL',  'SLUICE_NOTCH_WALL',  'SLUICE_SECRET_ENTRANCE',  'SLUICE_SECRET_EXIT',  'SLUICE_WALL',  'TABLE',  'TAKOMO_EXIT',  'TAKOMO_GATE',
   'TOWN_BUILDING',  'TOWN_ENTRANCE',  'TOWN_EXIT',  'TOWN_FLOOR',  'TOWN_MARKET',  'TRAPPER_HUT',
   'TREE',  'WATER',  'WEST_ENTRANCE',  'WEST_EXIT',  'WORLD_HOLLOW',
 ];
@@ -504,6 +524,26 @@ const TILE_PROPERTIES = {
     id: SLUICE_WALL, name: 'Sluice Wall', debugName: 'SLUICE_WALL', walkable: WALKABLE[SLUICE_WALL],
     category: 'dungeon_wall', tags: ['sluice', 'wall'], encounterEligible: false, isWall: true,
   },
+  [SLUICE_MARK_WALL]: {
+    id: SLUICE_MARK_WALL, name: 'Marked Sluice Wall', debugName: 'SLUICE_MARK_WALL', walkable: WALKABLE[SLUICE_MARK_WALL],
+    category: 'dungeon_wall', tags: ['sluice', 'wall', 'secret'], encounterEligible: false, isWall: true,
+    notes: 'Sealed Room (SLUICE_SECRET_MAP): brick carved with markings in no known script. Blocking; inspectable via MAP_FEATURES.',
+  },
+  [SLUICE_NOTCH_WALL]: {
+    id: SLUICE_NOTCH_WALL, name: 'Notched Sluice Wall', debugName: 'SLUICE_NOTCH_WALL', walkable: WALKABLE[SLUICE_NOTCH_WALL],
+    category: 'dungeon_wall', tags: ['sluice', 'wall', 'secret'], encounterEligible: false, isWall: true,
+    notes: 'Sealed Room (SLUICE_SECRET_MAP): eleven notches cut into the brick. Blocking; inspectable via MAP_FEATURES.',
+  },
+  [SLUICE_BLOOD_FLOOR]: {
+    id: SLUICE_BLOOD_FLOOR, name: 'Stained Sluice Floor', debugName: 'SLUICE_BLOOD_FLOOR', walkable: WALKABLE[SLUICE_BLOOD_FLOOR],
+    category: 'dungeon_floor', tags: ['sluice', 'floor', 'secret'], encounterEligible: true,
+    notes: 'Sealed Room (SLUICE_SECRET_MAP): old blood soaked into the stone. Encounter-eligible like SLUICE_FLOOR (the map rolls its own rarer, deadlier pool -- see movement.js/combat.js).',
+  },
+  [SLUICE_JOURNAL_FLOOR]: {
+    id: SLUICE_JOURNAL_FLOOR, name: 'Sluice Floor (Journal)', debugName: 'SLUICE_JOURNAL_FLOOR', walkable: WALKABLE[SLUICE_JOURNAL_FLOOR],
+    category: 'dungeon_floor', tags: ['sluice', 'floor', 'secret'], encounterEligible: true,
+    notes: 'Sealed Room (SLUICE_SECRET_MAP): an abandoned journal lies here. Encounter-eligible like SLUICE_FLOOR; readable via MAP_FEATURES.',
+  },
   [SLUICE_EXIT]: {
     id: SLUICE_EXIT, name: 'Sluice Exit', debugName: 'SLUICE_EXIT', walkable: WALKABLE[SLUICE_EXIT],
     category: 'transition', tags: ['sluice', 'transition'], encounterEligible: false, isTransition: true,
@@ -568,6 +608,19 @@ const TILE_PROPERTIES = {
     id: INTERIOR_FALSE_WALL, name: 'Interior False Wall', debugName: 'INTERIOR_FALSE_WALL', walkable: WALKABLE[INTERIOR_FALSE_WALL],
     category: 'secret_passage', tags: ['interior', 'secret'], encounterEligible: false, isInterior: true, isSecret: true,
     notes: 'Renders like INTERIOR_WALL but is walkable -- house secret passage.',
+  },
+  [SLUICE_SECRET_ENTRANCE]: {
+    id: SLUICE_SECRET_ENTRANCE, name: 'Sealed Room Entrance', debugName: 'SLUICE_SECRET_ENTRANCE', walkable: WALKABLE[SLUICE_SECRET_ENTRANCE],
+    category: 'secret_passage', tags: ['sluice', 'secret', 'transition'], encounterEligible: false, isSecret: true, isTransition: true,
+    notes: 'Tile 99. Renders like SLUICE_WALL (deliberately no indication) -- Deep Works r7 c14, past the two FALSE_WALLs; stepping on it enters SLUICE_SECRET_MAP.',
+  },
+  // Not disguised (the only tile in this group that isn't): the way BACK
+  // from the Sealed Room, kept next to its entrance rather than filed with
+  // the ordinary transition tiles so the pair reads as one mechanism.
+  [SLUICE_SECRET_EXIT]: {
+    id: SLUICE_SECRET_EXIT, name: 'Sealed Room Exit', debugName: 'SLUICE_SECRET_EXIT', walkable: WALKABLE[SLUICE_SECRET_EXIT],
+    category: 'transition', tags: ['sluice', 'transition'], encounterEligible: false, isTransition: true,
+    notes: 'Tile 100. SLUICE_SECRET_MAP r2 c7, drawn as floor under a doorway shadow -- returns to the Deep Works east pocket.',
   },
   [TAKOMO_GATE]: {
     id: TAKOMO_GATE, name: 'Takomo Gate', debugName: 'TAKOMO_GATE', walkable: WALKABLE[TAKOMO_GATE],

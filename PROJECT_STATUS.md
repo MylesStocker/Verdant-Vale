@@ -8,22 +8,24 @@ actually fits together.
 
 Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
-East Sluice (3 levels), Mirethyst's Vault, and the newer North Basin region
-(4 maps: South Approach, Reservoir, Silt Flats, West Shore). Every link
-*between* North Basin maps now uses `EDGE_TRANSITIONS` rather than point-tile
-doors (the region's entry from Drenwick is still a point-tile). 69 registered
-maps total (`MAP_REGISTRY`/`MAP_METADATA`, kept in exact agreement by
+East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass
+below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
+the newer North Basin region (4 maps: South Approach, Reservoir, Silt Flats,
+West Shore). Every link *between* North Basin maps now uses
+`EDGE_TRANSITIONS` rather than point-tile doors (the region's entry from
+Drenwick is still a point-tile). 71 registered maps total
+(`MAP_REGISTRY`/`MAP_METADATA`, kept in exact agreement by
 `validateGameData()`).
 
-- **26 tests**, `node test/run.js` — all passing.
-- **Transition audit**, `node test/transition-audit.js` — 69 maps, 228
+- **29 tests**, `node test/run.js` — all passing.
+- **Transition audit**, `node test/transition-audit.js` — 71 maps, 230
   fixed-destination transitions, 22 preserved-coordinate transitions, 42
-  house doors, 55 tile constants cross-referenced — clean, no findings.
+  house doors, 59 tile constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
-  (see below), across 69 maps, 16,560 tile cells, 6 edge transitions, 160
-  NPCs, 103 item placements, 29 enemy templates, 444 dialogue/text entries,
-  80 save flags, 20 map features.
+  (see below), across 71 maps, 17,040 tile cells, 6 edge transitions, 162
+  NPCs, 104 item placements, 30 enemy templates, 463 dialogue/text entries,
+  91 save flags, 24 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 
@@ -141,6 +143,44 @@ test update and a clean `validateGameData()`/audit pass.
 New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
 `abandonedAptSparkleTaken` (all added to `QUEST_FLAG_SCHEMA`/`saveGame()`).
 
+## Newest pass — main-story pacing + the East Sluice Sealed Room
+
+1. **Post-MainQuest-3 rest week + reservoir assignment gate** — after Petra
+   pays the fen post ticket (`MainQuest = 3`), the supervisor closes out the
+   Polwick/Essa matter in outcome-aware wording (killed / reported /
+   claimed-nothing — what he was *told*, via the new `fort_report_filed`
+   flag, not what actually happened), orders the rest of the week off, and
+   only offers the next main assignment (the exposed reservoir bed north of
+   Drenwick) from the first workday after the next Dayoff
+   (`mq4_available_day = day + (5 - day % 5) + 1`). One main-story path in
+   all three cases; the assignment sets `reservoir_quest_started` and
+   `MainQuest` stays 3 until that quest (not yet built) completes. Notebook
+   entries cover resting, returning, and the assignment. New save flags:
+   `fort_report_filed`, `mq4_available_day`, `reservoir_quest_started`.
+2. **East Sluice Sealed Room** — a hidden room now exists below the Deep
+   Works. It is a **separate registered map, `SLUICE_SECRET_MAP`**
+   ("East Sluice — Sealed Room", treated as `sluiceFloor` 4), reached only
+   by walking through two `FALSE_WALL` tiles at Deep Works r7 c12-c13 (the
+   east pocket's dead end) onto `SLUICE_SECRET_ENTRANCE` (tile 99, renders
+   as plain sluice wall — deliberately zero indication); `SLUICE_SECRET_EXIT`
+   (tile 100) returns to the pocket. The room contains **the Tallyman
+   encounter** — `SLUICE_SECRET_ENEMY_TEMPLATES`, rolled at 1/64
+   (`SLUICE_SECRET_ENCOUNTER_CHANCE`) via `inSluiceSealedRoom()`
+   (movement.js/combat.js); atk 55 outclasses every boss, fleeing is the
+   intended response — **and four related inspectables** on bespoke visible
+   tiles 95-98: carved markings, eleven notches, an old blood stain, and an
+   unsigned works clerk's journal (`MAP_FEATURES.SLUICE_SECRET_MAP`).
+   **Lore boundary:** the room is deliberately unexplained (pre-war erasure
+   tone); LORE.md was intentionally *not* updated and should stay untouched
+   unless the room becomes story-important.
+3. **Fenna's wine quest gate** — "A Bottle for Her Father" is now offered
+   only at `MainQuest >= 2`; below that Fenna worries about the drought
+   reaching the fen mushroom beds instead (seeding the quest's ingredients).
+
+Each item shipped with tests (27-29), a clean `validateGameData()` run, and
+a clean transition audit (the Sealed Room enter/exit functions and both new
+transition tiles are registered in `test/transition-audit.js`).
+
 ## Known risks / caveats
 
 - **`validateEnemies()`'s battle-sprite check has a real, accepted blind
@@ -246,7 +286,7 @@ Roughly in priority order:
   (constant, `WALKABLE[]`, `TILE_PROPERTIES`, `window.X` export,
   `drawTile()` case, `RENDERABLE_TILE_IDS`).
 - Writing additional regression tests that follow an existing test file's
-  pattern closely (there are 26 to copy from).
+  pattern closely (there are 29 to copy from).
 - Adding new enemy templates to an *existing* pool with reasonable stats
   (validated automatically by `validateEnemies()`).
 

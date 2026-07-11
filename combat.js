@@ -148,7 +148,7 @@ let sailor_brawl_fight_day = -1;
 // comment there.
 function currentEncounterPool() {
   return inMireVault ? MIRE_VAULT_ENEMY_TEMPLATES
-    : inSluice             ? SLUICE_ENEMY_TEMPLATES
+    : inSluice             ? (inSluiceSealedRoom() ? SLUICE_SECRET_ENEMY_TEMPLATES : SLUICE_ENEMY_TEMPLATES)
     : inDungeon            ? (dungeonFloor === 1                    ? DUNGEON_ENEMY_TEMPLATES :
                              dungeonFloor === 2 || dungeonFloor === 3 ? DUNGEON2_ENEMY_TEMPLATES :
                              dungeonFloor === 4 || dungeonFloor === 5 ? DUNGEON2_ENEMY_TEMPLATES :
@@ -194,7 +194,9 @@ function startCombat() {
   combat.phase          = 'choose';
   combat.cursor         = 0;
   combat.messageQueue   = [];
-  combat.message        = `A ${combat.enemy.name} appeared!`;
+  combat.message        = combat.enemy.name === 'Tallyman'
+    ? 'Something unfolds from the corner of the room.'
+    : `A ${combat.enemy.name} appeared!`;
   combat.pendingVictory = false;
   combat.pendingDefeat  = false;
   combat.pendingEscape  = false;

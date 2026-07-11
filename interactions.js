@@ -366,6 +366,71 @@ const MAP_FEATURES = {
       ],
     },
   ],
+
+  // \u2500\u2500 East Sluice \u2014 Sealed Room (SLUICE_SECRET_MAP, behind the L3 false
+  // walls) \u2500\u2500 Four inspectables, all anchored to their own visible tiles
+  // (95-98). Floor features use radius 24 (fire only while standing on the
+  // tile); wall features use radius 40 (fire from the adjacent floor tile).
+  // The geometry was chosen so no two features are in range at once \u2014
+  // nothing here relies on array order to disambiguate. Deliberately no
+  // feature, no hint, and no changed tile at the L3 false walls or the
+  // hidden entrance: the passage is findable only by walking into it.
+  SLUICE_SECRET_MAP: [
+    {
+      id: 'sluice_sealed_bloodstain', type: 'inspect', x: 7.5, y: 9.5, radius: 24, label: 'Old stain',
+      pages: [
+        ['A stain, soaked deep into the slab and the joints around it.',
+         'Old enough to have gone black. Wide enough that you stop trying to think of it as anything but what it is.'],
+        ['Someone scrubbed at the edges once. Only the edges.',
+         'Either they gave up, or they only ever meant to make room to kneel.'],
+      ],
+    },
+    {
+      id: 'sluice_sealed_journal', type: 'inspect', x: 5.5, y: 10.5, radius: 24, label: 'Abandoned journal',
+      pages: [
+        ['A journal lies against the wall, cover warped with damp, strap still buckled.',
+         'The hand inside is neat, provincial \u2014 a works clerk\u2019s hand.'],
+        ['\u201cThe survey says this level is thirty-one years old. The survey is correct about the level.',
+         'It is not correct about this room. The brick courses do not meet ours. Ours were laid around these.\u201d'],
+        ['\u201cNo drain serves it. No conduit passes through it. It holds nothing, feeds nothing, drains nothing.',
+         'A room with no purpose, sealed on every side, under twenty feet of working stone.',
+         'Except nobody seals a room that has no purpose.\u201d'],
+        ['\u201cI have asked the district for the pre-works plans. The district says there are no pre-works plans.',
+         'Not lost. Says there never were any. A thing was built here and there was never a plan for it.\u201d'],
+        ['\u201cI keep coming back to the marks on the east wall. I have stopped showing them to people.',
+         'The foreman looked at them and put me on the north gates for a month.\u201d'],
+        ['\u201cEleven cuts in the south wall. Made with a blade, patient, all the same depth.',
+         'Eleven of what? I have counted everything I can think to count down here.',
+         'Nothing in the Deep Works comes to eleven.\u201d'],
+        ['\u201cWhat was any of it for? That is the whole of what I want to know.',
+         'What was this for, and why did whoever knew make so certain the knowing would not keep?\u201d'],
+        ['The remaining pages are blank.',
+         'The last entry is not signed. None of them are.'],
+      ],
+    },
+    {
+      id: 'sluice_sealed_markings', type: 'inspect', x: 10.5, y: 9.5, radius: 40, allowUnwalkable: true, label: 'Carved markings',
+      pages: [
+        ['The east wall is carved, shoulder to waist height, with lines of short strokes.',
+         'Deliberate. Spaced like writing. Not the Empire\u2019s script, and not anything the Empire replaced.'],
+        ['The cuts are older than the mortar around them \u2014 the brick was trimmed to fit the carving, not the other way round.',
+         'Whoever built the sluice found this wall already here, and chose to keep it.'],
+        ['Near the floor, one line has been struck through with a single deeper cut.',
+         'It is impossible to know whether that was the carver, or a reader.'],
+      ],
+    },
+    {
+      id: 'sluice_sealed_notches', type: 'inspect', x: 7.5, y: 11.5, radius: 40, allowUnwalkable: true, label: 'Eleven notches',
+      pages: [
+        ['A row of notches, cut into the brick at shoulder height.',
+         'Even spacing. Even depth. A patient blade.'],
+        ['You count them twice.',
+         'Eleven, both times.'],
+        ['Not a tally that trails off \u2014 a tally that stopped.',
+         'There is room on the wall for a twelfth.'],
+      ],
+    },
+  ],
 };
 
 // Evaluates a feature's `condition`, safely -- a throwing condition is
@@ -843,6 +908,7 @@ function interactSupervisor() {
           dialogue.callbacks = [function() {
             fort_quest_stage = 6;
             fort_pay_ticket_ready = true;
+            fort_report_filed = true;
             if (!smugglers_dead) smugglers_execution_day = day + 5;
             syncQuestFlagsToWindow();
             refreshJobBoard();
@@ -874,10 +940,94 @@ function interactSupervisor() {
       ];
       choice.open = true;
     }];
-  } else if (fort_quest_stage === 6) {
+  } else if (fort_quest_stage === 6 && MainQuest < 3) {
+    // Reported/denied but the pay ticket hasn't been processed by Petra yet
+    // (MainQuest only reaches 3 in her fort-ticket callback).
     dialogue.pages = [
       ['\u201cThe fen post is logged.',
        'District\u2019s handling it from here.\u201d'],
+    ];
+    dialogue.callbacks = null;
+  } else if (fort_quest_stage === 6 && mq4_available_day === 0) {
+    // MainQuest 3 closed out \u2014 the supervisor shuts the Polwick/Essa file
+    // (wording varies by what he was actually TOLD, not by what happened:
+    // fort_report_filed distinguishes an honest report from "found nothing")
+    // and stands the player down for the rest of the week. The next main
+    // assignment unlocks on the first workday after the next Dayoff; the
+    // office is closed on Dayoff itself, so day % 5 is 1..4 here and the
+    // formula in the callback lands exactly on next-Dayoff + 1.
+    const closeOut = (smugglers_dead && fort_report_filed)
+      ? [
+          ['\u201cThe fen post file went up to district and came back stamped.\u201d',
+           '\u201cClosed. Confirmed. Three names, struck through.\u201d'],
+          ['\u201cIt reads very tidy on paper.\u201d',
+           'He looks at you for a moment.',
+           '\u201cPaper is like that.\u201d'],
+        ]
+      : fort_report_filed
+        ? [
+            ['\u201cThe fen post file went up to district.\u201d',
+             '\u201cPolwick went with it.',
+             'The inquiry is Drenwick\u2019s arithmetic now, not ours.\u201d'],
+            ['\u201cYou did the job as written.',
+             'Whatever the district writes next is not yours to carry.\u201d'],
+          ]
+        : [
+            ['\u201cThe fen post is marked resolved. Clerical error.\u201d',
+             'He taps the ledger once.',
+             '\u201cThe tidiest kind of file. Nothing in it.\u201d'],
+            ['\u201cI\u2019ve stopped being surprised by what the fens don\u2019t contain.\u201d'],
+          ];
+    dialogue.pages = closeOut.concat([
+      ['\u201cYou have done enough for one week.',
+       'More than enough, depending who writes the summary.\u201d',
+       '\u201cTake the rest of it off.\u201d'],
+      ['\u201cThe office will still be here after Dayoff.',
+       'So will I. Go.\u201d'],
+    ]);
+    dialogue.callbacks = [function() {
+      mq4_available_day = day + (5 - day % 5) + 1;
+      syncQuestFlagsToWindow();
+    }];
+  } else if (fort_quest_stage === 6 && day < mq4_available_day && !reservoir_quest_started) {
+    // Still on ordered rest \u2014 no assignment until after the next Dayoff.
+    dialogue.pages = [
+      ['\u201cYou\u2019re off the roster until after Dayoff.\u201d',
+       '\u201cIf you\u2019re here out of habit, that\u2019s a condition.',
+       'I\u2019d have it looked at.\u201d'],
+    ];
+    dialogue.callbacks = null;
+  } else if (fort_quest_stage === 6 && !reservoir_quest_started) {
+    // First workday after the rest week \u2014 the MainQuest-4 assignment.
+    // One main-story path in all cases; only the "why not Drenwick" beat
+    // varies with the Polwick/Essa outcome as the supervisor knows it.
+    const drenwickLine = (smugglers_dead && fort_report_filed)
+      ? ['\u201cOrdinarily I would send this to Drenwick.\u201d',
+         '\u201cDrenwick also had Polwick, until the matter became rather final.\u201d']
+      : fort_report_filed
+        ? ['\u201cDrenwick has investigators.\u201d',
+           '\u201cDrenwick also has Polwick sitting in the middle of its paperwork like a knife in a ledger.\u201d']
+        : ['\u201cOrdinarily I would send this to Drenwick.\u201d',
+           '\u201cOrdinarily Drenwick would send back something I trusted.\u201d'];
+    dialogue.pages = [
+      ['\u201cInvestigator ' + stats.name + '. Rested, or near enough.\u201d',
+       '\u201cSomething\u2019s come in.\u201d'],
+      ['\u201cThe reservoir bed north of Drenwick has given up something it was not supposed to have.\u201d',
+       '\u201cSurveyors found it after the waterline dropped again.\u201d'],
+      drenwickLine,
+      ['\u201cSo it comes to this office. Which means it comes to you.\u201d',
+       '\u201cNorth of Drenwick, past the basin flats.',
+       'Go and look at what the water left behind.\u201d'],
+    ];
+    dialogue.callbacks = [function() {
+      reservoir_quest_started = true;
+      syncQuestFlagsToWindow();
+    }];
+  } else if (fort_quest_stage === 6 && reservoir_quest_started) {
+    dialogue.pages = [
+      ['\u201cThe reservoir bed. North of Drenwick.\u201d',
+       '\u201cThe water took its time leaving.',
+       'Don\u2019t make the surveyors wait on you as well.\u201d'],
     ];
     dialogue.callbacks = null;
   } else {
@@ -1260,7 +1410,8 @@ function interactThornmereStone() {
 function interactSluiceInterior() {
   const sluiceChests = sluiceFloor === 1 ? [SLUICE_CHEST]
                      : sluiceFloor === 2 ? [SLUICE_LEVEL2_CHEST, SLUICE_SECRET_CHEST]
-                     :                     [SLUICE_LEVEL3_CHEST, SLUICE_DEEP_CHEST];
+                     : sluiceFloor === 3 ? [SLUICE_LEVEL3_CHEST, SLUICE_DEEP_CHEST]
+                     :                     []; // sluiceFloor 4 (Sealed Room) has no chests
   for (const chest of sluiceChests) {
     if (!chest.opened) {
       const cx = player.x - chest.x;
@@ -2088,206 +2239,195 @@ function interactCalwickOffice() {
     if (Math.sqrt(elx * elx + ely * ely) < TALK_RADIUS) {
       const dayBeforeAccord = day % 5 === 4;
       dialogue.name = 'Esla';
-      const eslaVariants = [
-        // 0 — rareborn privilege / parents unknown
-        [
-          ['\u201cI got this posting because I\u2019m rareborn.\u201d',
-           '\u201cCivic priority. It\u2019s in the Accords.\u201d',
-           'She says it plainly, not proudly.'],
-          ['\u201cMy parents weren\u2019t.\u201d',
+      dialogue.callbacks = null;
+
+      // ── One-shot event commentary ─────────────────────────────────────────
+      // Esla reacts to fresh developments exactly ONCE each (esla_said_*
+      // flags, set on dialogue close and persisted via save.js), shown
+      // INSTEAD of her daily rotation so the reaction reads as "she has
+      // something to say today." The old code appended these to every
+      // conversation forever (and the sluice comment used MainQuest === 1,
+      // so it vanished unseen if the player outpaced it). Priority: deaths
+      // before gossip before work commentary.
+      const polwickDead = fort_quest_stage >= 6 &&
+        (smugglers_dead || (smugglers_execution_day > 0 && day >= smugglers_execution_day));
+      const polwickPending = fort_quest_stage >= 6 && !smugglers_dead &&
+        smugglers_execution_day > 0 && day < smugglers_execution_day;
+
+      if (polwickDead && !esla_said_polwick_dead) {
+        dialogue.pages = (smugglers_dead && smugglers_execution_day === 0)
+          ? [
+              ['“Polwick.”',
+               'She doesn’t look up right away.',
+               '“I only met him twice. Registry business, mostly.”',
+               '“I keep saying that like it settles something. It doesn’t.”'],
+              ['“There aren’t many of us posted this far out.',
+               'You notice the other ones. You keep a kind of count, without ever deciding to.”',
+               'She sets her pen down.',
+               '“The count is smaller now. I keep arriving at that.”'],
+              ['“I closed his registry file this morning. It’s a short form.',
+               'Date of determination. Date of death. Nothing in between that the Empire wanted written down.”'],
+              ['“I don’t know what he was doing with that post.',
+               'I don’t think I want to.”',
+               '“I keep thinking about the drought, and what people do when the ledger stops adding up.',
+               'And then I stop thinking, and I’m just sad. That’s all that’s left of it. I’m sad.”'],
+            ]
+          : [
+              ['“I heard the district closed the fen post matter.”',
+               'She doesn’t look up right away.',
+               '“Polwick. I only met him twice, registry business.”',
+               '“Twice turns out to be enough to grieve. Nobody warns you about that.”'],
+              ['“There aren’t many of us posted this far out.',
+               'You notice the other ones, even the ones you don’t know well.”',
+               '“I took his name off the three-year cycle list this morning.',
+               'It was a short list. It’s shorter.”'],
+              ['“Registered rareborn, same as me. Employed, same as me.”',
+               'A pause.',
+               '“I keep thinking about the drought, and what people do when the ledger stops adding up. It doesn’t excuse it.”'],
+              ['“It just makes it less simple than the report will say.”',
+               'She looks at her hands.',
+               '“I filed that report. I read every line.',
+               'There’s no line where you’re allowed to say you’re sorry.”'],
+            ];
+        dialogue.callbacks = [function() { esla_said_polwick_dead = true; syncQuestFlagsToWindow(); }];
+      } else if (polwickPending && !esla_said_polwick_pending) {
+        dialogue.pages = [
+          ['“I heard about the fen post.”',
+           'She doesn’t look up right away.',
+           '“Polwick. I only met him twice, registry business.”'],
+          ['“There aren’t many of us posted this far out.',
+           'You notice the other ones, even the ones you don’t know well.”'],
+          ['“I don’t know yet what the district will do with him.”',
            'A pause.',
-           '\u201cI don\u2019t know what happened to them.\u201d',
-           '\u201cI got the posting. So.\u201d'],
-        ],
-        // 1 — flirty/helpful: she reads you specifically
-        [
-          ['She doesn\u2019t look up when you come in.',
-           '\u201cYou again.\u201d',
-           'She\u2019s smiling slightly at the page.'],
-          ['\u201cIf you\u2019re here about something official,',
-           'the morning window is better.\u201d',
-           '\u201cIf you\u2019re not\u2014\u201d',
-           'She looks up.',
-           '\u201cI\u2019m on lunch at the second bell.\u201d'],
-        ],
-        // 2 — empire/watched: she doesn't remember before
-        [
-          ['\u201cSomeone asked me once what it was like',
-           'before the empire.\u201d',
-           '\u201cI didn\u2019t know what to say.\u201d'],
-          ['\u201cI don\u2019t remember a before.\u201d',
-           'She taps her pen on the desk, once.',
-           '\u201cI\u2019m not sure anyone my age does.\u201d',
-           '\u201cThat\u2019s probably the point.\u201d'],
-        ],
-        // 3 — quietly flirty: her sensitivity notices *you*
-        [
-          ['\u201cThe sensitivity thing\u2014\u201d',
-           'She makes a small gesture with one hand.',
-           '\u201cIt\u2019s not all the time.\u201d'],
-          ['\u201cBut some people walk in and something\u2026 shifts.\u201d',
-           'She glances up at you for just a moment.',
-           '\u201cYou do that.\u201d',
-           '\u201cJust so you know.\u201d'],
-        ],
-        // 4 — wistful: the empire watches, she doesn't mind, mostly
-        [
-          ['\u201cThere\u2019s a census update form every three years.\u201d',
-           '\u201cRareborn-specific. Different questions.\u201d'],
-          ['\u201cI used to think that was strange.\u201d',
-           'She shrugs, just barely.',
-           '\u201cNow I just fill it in.\u201d',
-           '\u201cIt\u2019s fine. I think it\u2019s fine.\u201d'],
-        ],
-        // 5 — helpful/flirty: ask her directly
-        [
-          ['\u201cYou have a very obvious \u2018I need something\u2019 face,\u201d she says.',
-           'She doesn\u2019t look up.',
-           '\u201cYou\u2019re making it right now.\u201d'],
-          ['\u201cJust ask me directly.\u201d',
-           '\u201cI process things faster for people',
-           'who don\u2019t make me guess.\u201d',
-           'A small smile.',
-           '\u201cIt\u2019s a personal policy.\u201d'],
-        ],
-        // 6 — rareborn privilege, complicated
-        [
-          ['\u201cI\u2019ve had opportunities I didn\u2019t earn.\u201d',
-           '\u201cThe register, the posting priority,',
-           'the housing supplement\u2014\u201d',
-           'She stops herself.'],
-          ['\u201cI use them. I\u2019m not going to pretend I don\u2019t.\u201d',
-           'She looks at you steadily.',
-           '\u201cBut I know what they are.\u201d'],
-        ],
-        // 7 — parents: doesn't know, won't perform grief
-        [
-          ['\u201cI was registered at six.\u201d',
-           '\u201cThe sensitivity showed early, apparently.\u201d',
-           '\u201cThey flagged it at school.\u201d'],
-          ['\u201cAfter that\u2014\u201d',
-           'She considers the sentence.',
-           '\u201cThe empire was very thorough about my education.\u201d',
-           '\u201cMy parents weren\u2019t rareborn.',
-           'We didn\u2019t have a lot in common after a while.\u201d'],
-        ],
-        // 8 — helpful/warm: she'd remember your file anyway
-        [
-          ['\u201cYou don\u2019t need to introduce yourself.\u201d',
-           '\u201cI know your file.\u201d'],
-          ['\u201cI know everyone\u2019s file.\u201d',
-           'She pauses.',
-           '\u201cYours I looked up twice.\u201d',
-           '\u201cKeep that in mind, if it helps.\u201d'],
-        ],
-        // 9 — warm/playful: she's made peace with Drenwick, mostly
-        [
-          ['\u201cThis isn\u2019t where I planned to be.\u201d',
-           '\u201cBut then\u2014 I\u2019m not sure I planned anything.\u201d',
-           'She tilts her head slightly.',
-           '\u201cDid you?\u201d'],
-          ['\u201cI only ask because most people here didn\u2019t plan it either.\u201d',
-           '\u201cAnd yet.\u201d',
-           'She gestures vaguely at the office, the town, everything.',
-           '\u201cHere we all are.\u201d'],
-        ],
-      ];
-      const eslaPages = dayBeforeAccord
-        ? [
-            ['\u201cToday\u2019s the day,\u201d she says quietly.'],
-            ['\u201cAsk for that promotion', 'before you leave tonight.'],
-            ['\u201cThey\u2019re always most receptive', 'on the eve of Accord Day.\u201d'],
-          ]
-        : eslaVariants[day % 10].slice();
-      if (MainQuest === 1) {
-        eslaPages.push(
-          ['\u201cThe sluice assignment came across my desk first.\u201d',
-           'She doesn\u2019t look up.',
-           '\u201cI filed it. Didn\u2019t think about it.\u201d'],
-          ['\u201cThen I looked up your name in the register.\u201d',
-           '\u201cI\u2019m not sure why I did that.\u201d',
-           '\u201cOld habit, maybe. I check more than I\u2019m supposed to.\u201d'],
-          ['\u201cYou came back without incident.\u201d',
-           '\u201cI noticed that too.\u201d',
-           'A pause.',
-           '\u201cI notice more than I say. Most people don\u2019t know that.\u201d'],
-        );
+           '“I try not to guess. It doesn’t usually help.”'],
+        ];
+        dialogue.callbacks = [function() { esla_said_polwick_pending = true; syncQuestFlagsToWindow(); }];
+      } else if (cabinetCaseFlag && !esla_said_cabinet) {
+        dialogue.pages = [
+          ['“Someone’s been in Aldric’s cabinet.”',
+           'She doesn’t look up from her own drawer.',
+           '“He hasn’t noticed yet. Or he has, and he’s decided not to say.”'],
+          ['“I’m not asking.”',
+           '“I notice more than I say. This is one of those times.”'],
+        ];
+        dialogue.callbacks = [function() { esla_said_cabinet = true; syncQuestFlagsToWindow(); }];
+      } else if (MainQuest >= 2 && !esla_said_dispatch) {
+        dialogue.pages = [
+          ['“Drenwick processed your dispatch the same day. Harrow’s office.”',
+           '“I’ve seen that happen twice in six years. Both times it was a filing error.”'],
+          ['“I’ve logged yours as intentional. That took a separate form.”',
+           '“Don’t let it go to your head. The form was going spare.”'],
+        ];
+        dialogue.callbacks = [function() {
+          esla_said_dispatch = true;
+          esla_said_sluice   = true;  // superseded — no stale sluice follow-up next visit
+          syncQuestFlagsToWindow();
+        }];
+      } else if (MainQuest >= 1 && !esla_said_sluice) {
+        dialogue.pages = [
+          ['“The sluice assignment crossed my desk before it reached you.',
+           'I filed it under routine.”'],
+          ['“You came back dry, on schedule, with legible paperwork.”',
+           '“I’ve re-filed it under routine, underlined.',
+           'That is as impressed as this office gets. Spend it wisely.”'],
+        ];
+        dialogue.callbacks = [function() { esla_said_sluice = true; syncQuestFlagsToWindow(); }];
+      } else if (dayBeforeAccord) {
+        dialogue.pages = [
+          ['“Today’s the day,” she says quietly.'],
+          ['“Ask for that promotion', 'before you leave tonight.'],
+          ['“They’re always most receptive', 'on the eve of Accord Day.”'],
+        ];
+      } else {
+        // ── Daily rotation (day % 10) ────────────────────────────────────────
+        // Helpful, dry, and hard to impress. Practical hints (rest, the job
+        // board, road danger, potions, Dayoff) mixed with the quiet absurdity
+        // of registry work. Kept consistent with her canon: Bloommarked
+        // (green thread — the clover), registered at birth, Alecton prep
+        // school then the Academy, placed here six years ago, inn on Dayoff.
+        const eslaVariants = [
+          // 0 — helpful: sleep before travel
+          [
+            ['“You have the look of someone planning to walk somewhere far on no sleep.”',
+             '“Don’t. Sleep first. Your bed restores you completely, and the roads will still be there.”'],
+            ['“I can’t believe that’s a thing I have to tell a licensed investigator.”',
+             'She stamps a form with unnecessary force.'],
+          ],
+          // 1 — silly: the forms
+          [
+            ['“Today I processed forty-one forms.',
+             'Nine were requests for other forms.”',
+             '“One was a request for the form you use to request forms.”'],
+            ['“The system works.”',
+             'She says it the way people say things that aren’t true.'],
+          ],
+          // 2 — helpful: job board + Petra
+          [
+            ['“If you’re between assignments, the notice board on the square posts contract work.”',
+             '“Pay tickets go through Petra. Not me.”'],
+            ['“People keep bringing me their tickets anyway, because my desk is nearer the door.”',
+             '“I’ve started scoring their innocent expressions. Best this week was a seven.”'],
+          ],
+          // 3 — silly: the clover (Bloommarked, deflected)
+          [
+            ['There’s a small pot of clover on her desk. It is doing suspiciously well.',
+             '“Don’t compliment the clover. It gets smug.”'],
+            ['“And before you ask — that’s not a thread thing. That’s a clover thing.”',
+             'The clover leans toward you slightly.'],
+          ],
+          // 4 — helpful, darkly: stay on the road
+          [
+            ['“Going east, stay on the road. The ruins south of it are not a shortcut.”',
+             '“I file the incident reports of people who thought otherwise.”'],
+            ['“The paperwork outlives them.',
+             'I find that motivating.”'],
+          ],
+          // 5 — unimpressed: exciting registry work
+          [
+            ['“Someone asked me today whether registry work is exciting.”',
+             '“This week I renumbered six hundred pages because a Drenwick clerk invented his own alphabet.”'],
+            ['“So yes.”', '“Constantly.”'],
+          ],
+          // 6 — helpful: potions, with a statistic
+          [
+            ['“Buy more potions than you think you need. The traveller stocks them.”',
+             '“Every incident report I file contains the phrase ‘had one potion.’',
+             'Every single one.”'],
+            ['“Be a statistical outlier.',
+             'It’s an attractive quality in an investigator.”'],
+          ],
+          // 7 — helpful/silly: Dayoff (and where to find her)
+          [
+            ['“Every fifth day is Dayoff. The office shuts, and I go to the inn',
+             'to watch Tomas defend his soup from public opinion.”'],
+            ['“It’s the best entertainment in Calwick.”',
+             '“Which tells you a great deal about Calwick.”'],
+          ],
+          // 8 — knowing, deflating: your file
+          [
+            ['“You don’t need to introduce yourself. I know your file.”',
+             '“I know everyone’s file.”'],
+            ['“Yours is not the thickest, before you look flattered.',
+             'The thickest belongs to a man who reports his neighbour’s fence weekly.”',
+             '“I have, however, read yours twice. Filing purposes.”'],
+          ],
+          // 9 — registry deadpan: the census cycle
+          [
+            ['“Census update cycle this year. Registered folk get different questions.”',
+             '“This one asks whether my abilities have ‘materially changed.’”'],
+            ['“The clover flowered early, and I have developed opinions about the drainage ditch.',
+             'I left it blank. The Empire can subpoena the clover.”'],
+          ],
+        ];
+        // Index by WORKDAY, not by raw day % 10: days where day % 5 is 0
+        // (Dayoff, office closed) or 4 (Accord-eve override above) never
+        // reach this branch, so a plain day-mod rotation would leave four
+        // variants permanently unreachable. Each 5-day week contributes its
+        // three plain office days (day % 5 = 1..3), walking the whole list
+        // in ~3⅓ weeks with no repeats inside a cycle.
+        const weekSlot = (day % 5 >= 1 && day % 5 <= 3) ? (day % 5) - 1 : 0;
+        dialogue.pages = eslaVariants[(Math.floor(day / 5) * 3 + weekSlot) % 10];
       }
-      if (MainQuest >= 2) {
-        eslaPages.push(
-          ['\u201cDrenwick.\u201d',
-           '\u201cHand-delivered. Harrow\u2019s office, same day.\u201d',
-           '\u201cDo you know how rarely that happens?\u201d'],
-          ['\u201cSix years I\u2019ve been sitting at this desk.\u201d',
-           '\u201cI have never once seen a dispatch processed same-day by Harrow\u2019s office.\u201d',
-           '\u201cNot once.\u201d'],
-          ['\u201cIt won\u2019t show on your record the way you think it will.\u201d',
-           '\u201cIt never does.\u201d',
-           '\u201cBut I wrote it in the internal log anyway.\u201d',
-           'She turns a page.',
-           '\u201cSomebody should.\u201d'],
-        );
-      }
-      if (cabinetCaseFlag) {
-        // Reactive flavor \u2014 ties back to her established trait ("I notice
-        // more than I say") from the MainQuest === 1 lines above. Purely
-        // reactive; doesn't gate or change anything.
-        eslaPages.push(
-          ['\u201cSomeone\u2019s been in Aldric\u2019s cabinet.\u201d',
-           'She doesn\u2019t look up from her own drawer.',
-           '\u201cHe hasn\u2019t noticed yet. Or he has, and he\u2019s decided not to say.\u201d'],
-          ['\u201cI\u2019m not asking.\u201d',
-           '\u201cI notice more than I say. This is one of those times.\u201d'],
-        );
-      }
-      if (fort_quest_stage >= 6 && smugglers_dead && smugglers_execution_day === 0) {
-        eslaPages.push(
-          ['\u201cPolwick.\u201d',
-           'She doesn\u2019t look up right away.',
-           '\u201cI only met him twice. Registry business, mostly.\u201d',
-           '\u201cI keep saying that like it settles something. It doesn\u2019t.\u201d'],
-          ['\u201cThere aren\u2019t many of us posted this far out.',
-           'You notice the other ones. You keep a kind of count, without ever deciding to.\u201d',
-           'She sets her pen down.',
-           '\u201cThe count is smaller now. I keep arriving at that.\u201d'],
-          ['\u201cI closed his registry file this morning. It\u2019s a short form.',
-           'Date of determination. Date of death. Nothing in between that the Empire wanted written down.\u201d'],
-          ['\u201cI don\u2019t know what he was doing with that post.',
-           'I don\u2019t think I want to.\u201d',
-           '\u201cI keep thinking about the drought, and what people do when the ledger stops adding up.',
-           'And then I stop thinking, and I\u2019m just sad. That\u2019s all that\u2019s left of it. I\u2019m sad.\u201d'],
-        );
-      } else if (fort_quest_stage >= 6 && smugglers_execution_day > 0 && day < smugglers_execution_day) {
-        eslaPages.push(
-          ['\u201cI heard about the fen post.\u201d',
-           'She doesn\u2019t look up right away.',
-           '\u201cPolwick. I only met him twice, registry business.\u201d'],
-          ['\u201cThere aren\u2019t many of us posted this far out.',
-           'You notice the other ones, even the ones you don\u2019t know well.\u201d'],
-          ['\u201cI don\u2019t know yet what the district will do with him.\u201d',
-           'A pause.',
-           '\u201cI try not to guess. It doesn\u2019t usually help.\u201d'],
-        );
-      } else if (fort_quest_stage >= 6 && smugglers_execution_day > 0 && day >= smugglers_execution_day) {
-        eslaPages.push(
-          ['\u201cI heard the district closed the fen post matter.\u201d',
-           'She doesn\u2019t look up right away.',
-           '\u201cPolwick. I only met him twice, registry business.\u201d',
-           '\u201cTwice turns out to be enough to grieve. Nobody warns you about that.\u201d'],
-          ['\u201cThere aren\u2019t many of us posted this far out.',
-           'You notice the other ones, even the ones you don\u2019t know well.\u201d',
-           '\u201cI took his name off the three-year cycle list this morning.',
-           'It was a short list. It\u2019s shorter.\u201d'],
-          ['\u201cRegistered rareborn, same as me. Employed, same as me.\u201d',
-           'A pause.',
-           '\u201cI keep thinking about the drought, and what people do when the ledger stops adding up. It doesn\u2019t excuse it.\u201d'],
-          ['\u201cIt just makes it less simple than the report will say.\u201d',
-           'She looks at her hands.',
-           '\u201cI filed that report. I read every line.',
-           'There\u2019s no line where you\u2019re allowed to say you\u2019re sorry.\u201d'],
-        );
-      }
-      dialogue.pages = eslaPages;
       dialogue.open = true;
       dialogue.page = 0;
       return true;
@@ -2386,7 +2526,7 @@ function interactCalwickOffice() {
         dialogue.pages = [
           ['\u201cRequisition slip.\u201d', 'He glances at it, then at you.', '\u201cNew posting?\u201d'],
           ['He doesn\u2019t wait for an answer.', 'Pulls a bundle from under the counter.', '\u201cSword, armor. Standard issue. Sign here.\u201d'],
-          ['\u201cOpen the menu with Escape, go to Items, and choose Equip.\u201d',
+          ['\u201cOpen the menu with Esc or M, go to Items, and choose Equip.\u201d',
            'He\u2019s already looking back down at his ledger.'],
         ];
         dialogue.callbacks = [function() {
@@ -4166,7 +4306,27 @@ function interactHouseInterior() {
       const fdy = player.y - fenna.y;
       if (Math.sqrt(fdx * fdx + fdy * fdy) < TALK_RADIUS) {
 
-        if (!wine_quest_started) {
+        if (!wine_quest_started && MainQuest < 2) {
+          // Quest gate: Fenna doesn't ask until the player is established
+          // (MainQuest >= 2, i.e. the Drenwick dispatch is done). Before
+          // that she just frets about the drought \u2014 which quietly seeds the
+          // quest's ingredients: the fen mushrooms, the wine, her dad.
+          dialogue.name  = 'Fenna';
+          dialogue.pages = [
+            ['\u201cOh \u2014 hello.\u201d',
+             'She looks relieved to have someone to talk to.'],
+            ['\u201cIt hasn\u2019t rained in three months. You\u2019ve noticed, obviously.',
+             'Everyone\u2019s noticed. Everyone talks about the canal.\u201d'],
+            ['\u201cNobody talks about the mushroom beds.',
+             'The fen mushrooms need the wet \u2014 if the beds dry out, that\u2019s the wine gone too.\u201d'],
+            ['\u201cMy dad practically lives on the stuff.\u201d',
+             'She shakes her head.',
+             '\u201cListen to me. There are people losing barges, and I\u2019m worrying about wine.\u201d'],
+          ];
+          dialogue.open  = true;
+          dialogue.page  = 0;
+
+        } else if (!wine_quest_started) {
           dialogue.name  = 'Fenna';
           dialogue.pages = [
             ['\u201cOh \u2014 hello.\u201d',

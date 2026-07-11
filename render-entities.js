@@ -1227,7 +1227,7 @@ function currentItemList() {
                          dungeonFloor === 8  ? DUNGEON8_ITEMS :
                          dungeonFloor === 9  ? DUNGEON8_WEST_ITEMS :
                          DUNGEON8_EAST_ITEMS)
-       : inSluice     ? (sluiceFloor === 1 ? SLUICE_ITEMS : sluiceFloor === 2 ? SLUICE_LEVEL2_ITEMS : SLUICE_LEVEL3_ITEMS)
+       : inSluice     ? (sluiceFloor === 1 ? SLUICE_ITEMS : sluiceFloor === 2 ? SLUICE_LEVEL2_ITEMS : sluiceFloor === 3 ? SLUICE_LEVEL3_ITEMS : SLUICE_SECRET_ITEMS)
        : inMireVault  ? MIRE_VAULT_ITEMS
        : inTown       ? []
        : inLorraHouse    ? []

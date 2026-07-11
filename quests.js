@@ -69,6 +69,24 @@ let fort_pay_ticket_ready    = false; // supervisor issued pay ticket after repo
 let fort_pay_ticket_reduced  = false; // true if the ready ticket is the reduced "Found nothing" rate (15g) rather than the full 200g
 let smugglers_dead           = false; // true once smugglers are eliminated (fought or Imperial follow-up)
 let smugglers_execution_day  = 0;     // >0: the day Empire arrives (day reported + 5); 0 = not scheduled
+// True if the player told the supervisor the truth about the fen post
+// ("Report what I found", killed or spared); false if they claimed to have
+// found nothing. Distinguishes what the SUPERVISOR knows from what actually
+// happened (smugglers_dead) — a player who killed everyone and then claimed
+// "found nothing" gets neutral wording later, not killed-aware wording.
+let fort_report_filed        = false;
+
+// ─── Main story: rest week + reservoir bed assignment (post-MainQuest 3) ──────
+// After the fen post pay ticket is processed (MainQuest = 3), the supervisor
+// closes out the Polwick matter and stands the player down for the rest of the
+// week. The next main assignment (the exposed reservoir bed north of Drenwick,
+// the MainQuest-4 arc) is only offered from the first workday after the next
+// Dayoff. mq4_available_day is that workday's day number, computed when the
+// rest order is given (0 = rest order not yet given). The assignment itself
+// only sets reservoir_quest_started; MainQuest stays 3 until the reservoir
+// quest is actually completed (same pattern as every earlier main step).
+let mq4_available_day        = 0;     // day the reservoir assignment unlocks; 0 = rest order not yet given
+let reservoir_quest_started  = false; // supervisor gave the reservoir bed assignment
 
 // ─── Side quest: The Weight Discrepancy ───────────────────────────────────────
 // A cargo weight mismatch between Drenwick harbormaster records and Calwick
@@ -144,7 +162,20 @@ let dessa_met = false;
 // the player has heard it, and trails off instead of reciting the whole thing.
 let rareborn_rhyme_heard = false;
 
+// ─── Esla one-shot commentary flags ───────────────────────────────────────────
+// Esla (Calwick office) reacts to fresh developments exactly once each; these
+// record that the reaction has been shown so it never repeats on later visits
+// (her old dialogue appended event commentary to every conversation forever).
+// Set via dialogue callbacks in interactions.js's Esla block.
+let esla_said_sluice          = false; // commented on the cleared sluice (MainQuest >= 1)
+let esla_said_dispatch        = false; // commented on the same-day Drenwick dispatch (MainQuest >= 2)
+let esla_said_cabinet         = false; // noticed Aldric's cabinet was disturbed (cabinetCaseFlag)
+let esla_said_polwick_pending = false; // spoke about Polwick awaiting the district's decision
+let esla_said_polwick_dead    = false; // grieved Polwick's death (killed or executed)
+
 // ─── Side quest: A Bottle for Her Father ──────────────────────────────────────
+// Offered only once MainQuest >= 2 (the Drenwick dispatch done); before that
+// Fenna only frets about the drought reaching the fen mushroom beds.
 // Fenna (Calwick, apt_2) asks the player to carry mushroom wine from the Wend
 // family's fen brewery to her father Sael, who lives alone in a Drenwick
 // apartment (corridor B2, unit 1) — she's too scared of the road to go herself.
@@ -182,6 +213,9 @@ function syncQuestFlagsToWindow() {
   window.fort_pay_ticket_reduced = fort_pay_ticket_reduced;
   window.smugglers_dead          = smugglers_dead;
   window.smugglers_execution_day = smugglers_execution_day;
+  window.fort_report_filed       = fort_report_filed;
+  window.mq4_available_day       = mq4_available_day;
+  window.reservoir_quest_started = reservoir_quest_started;
   window.schilling_quest_started = schilling_quest_started;
   window.schilling_returned      = schilling_returned;
   window.drama_stage             = drama_stage;
@@ -200,6 +234,11 @@ function syncQuestFlagsToWindow() {
   window.netto_letter_received    = netto_letter_received;
   window.dessa_met                = dessa_met;
   window.rareborn_rhyme_heard     = rareborn_rhyme_heard;
+  window.esla_said_sluice          = esla_said_sluice;
+  window.esla_said_dispatch        = esla_said_dispatch;
+  window.esla_said_cabinet         = esla_said_cabinet;
+  window.esla_said_polwick_pending = esla_said_polwick_pending;
+  window.esla_said_polwick_dead    = esla_said_polwick_dead;
   window.wine_quest_started   = wine_quest_started;
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;

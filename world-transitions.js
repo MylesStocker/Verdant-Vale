@@ -1075,6 +1075,29 @@ function ascendToSluice2() {
   combat.cooldown = ENCOUNTER_COOLDOWN;
 }
 
+// The Deep Works sealed room (SLUICE_SECRET_MAP) — reached by stepping onto
+// SLUICE_SECRET_ENTRANCE (L3 r7 c14, past the two false walls). Treated as
+// "sluiceFloor 4": inSluice stays true so the sluice's encounter/interaction
+// machinery keeps working, and every sluiceFloor branch elsewhere already
+// checks floors 1-3 explicitly.
+function enterSluiceSecret() {
+  sluiceFloor     = 4;
+  activeMap       = SLUICE_SECRET_MAP;
+  player.x        = 7.5 * TILE;   // col 7 — entry corridor, one south of the exit tile (r2 c7)
+  player.y        = 3.5 * TILE;   // row 3
+  player.facing   = 'down';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
+function exitSluiceSecret() {
+  sluiceFloor     = 3;
+  activeMap       = SLUICE_LEVEL3_MAP;
+  player.x        = 11.5 * TILE;  // col 11 — east pocket floor, just west of the false walls
+  player.y        =  7.5 * TILE;  // row 7
+  player.facing   = 'left';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
 // ─── Edge-based map transitions ───────────────────────────────────────────────
 // A general, reusable system for walking off an open EDGE (or a segment of
 // one) of a map into an adjacent one, rather than stepping onto a single

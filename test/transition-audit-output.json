@@ -66,6 +66,7 @@
     "SLUICE_MAP",
     "SLUICE_LEVEL2_MAP",
     "SLUICE_LEVEL3_MAP",
+    "SLUICE_SECRET_MAP",
     "MIRE_VAULT_MAP",
     "TAKOMO_MAP",
     "HAMLET_INTERIOR_MAP",
@@ -464,6 +465,12 @@
     },
     {
       "id": "SLUICE_LEVEL3_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SLUICE_SECRET_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -2548,6 +2555,64 @@
       "escapes": {
         "up": false,
         "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterSluiceSecret",
+      "group": "flat-transitions",
+      "setupCode": "enterSluiceSecret()",
+      "error": null,
+      "destMap": "SLUICE_SECRET_MAP",
+      "px": 240,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 27,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitSluiceSecret",
+      "group": "flat-transitions",
+      "setupCode": "exitSluiceSecret()",
+      "error": null,
+      "destMap": "SLUICE_LEVEL3_MAP",
+      "px": 368,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 11,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 27,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -7865,6 +7930,16 @@
     },
     {
       "name": "MEADOW_EXIT",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
+    },
+    {
+      "name": "SLUICE_SECRET_ENTRANCE",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
+    },
+    {
+      "name": "SLUICE_SECRET_EXIT",
       "mapsUsingIt": 1,
       "handledInMovement": true
     }

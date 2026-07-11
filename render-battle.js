@@ -2836,6 +2836,65 @@ function drawBattleRainfish(cx, cy) {
   ctx.restore();
 }
 
+// Tallyman — the thing in the Deep Works sealed room. Tall past the point of
+// sense, stooped as if the ceiling has always been too low for it. Brick-dust
+// grey, a pale flat face with no features but a horizontal seam, and hands of
+// long thin fingers held slightly apart -- the kind of fingers that cut
+// notches. It sways very slowly. It is not in a hurry. It has never been in
+// a hurry.
+function drawBattleTallyman(cx, cy) {
+  const sway  = Math.sin(tick * 0.03) * 3;          // slow, patient sway
+  const breath = Math.sin(tick * 0.05) * 1.5;
+  const bx = cx + sway;
+
+  // Shadow pooled at its feet
+  ctx.fillStyle = 'rgba(10,12,10,0.45)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 2, 30, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Legs — too thin, too long
+  ctx.fillStyle = '#3a3a36';
+  ctx.fillRect(bx - 9, cy - 46, 5, 48);
+  ctx.fillRect(bx + 4, cy - 46, 5, 48);
+
+  // Torso — a narrow slab, stooped forward at the top
+  ctx.fillStyle = '#46443e';
+  ctx.fillRect(bx - 13, cy - 96 + breath, 26, 54);
+  ctx.fillStyle = '#52504a';
+  ctx.fillRect(bx - 10, cy - 92 + breath, 20, 44);
+  // Brick-dust streaks down the body
+  ctx.fillStyle = '#3a382f';
+  ctx.fillRect(bx - 6, cy - 88 + breath, 2, 34);
+  ctx.fillRect(bx + 3, cy - 82 + breath, 2, 28);
+
+  // Stooped shoulders and a forward-hung neck
+  ctx.fillStyle = '#46443e';
+  ctx.fillRect(bx - 17, cy - 100 + breath, 34, 10);
+  ctx.fillRect(bx - 3, cy - 112 + breath, 8, 16);
+
+  // Head — hung low, pale, flat. No eyes. A single horizontal seam.
+  ctx.fillStyle = '#b8b2a0';
+  ctx.fillRect(bx - 8, cy - 126 + breath, 18, 17);
+  ctx.fillStyle = '#a49e8c';
+  ctx.fillRect(bx - 8, cy - 126 + breath, 18, 4);
+  ctx.fillStyle = '#2a2822';
+  ctx.fillRect(bx - 6, cy - 117 + breath, 14, 1);   // the seam
+
+  // Arms — hanging past the knees, swaying a half-beat behind the body
+  const armSway = Math.sin(tick * 0.03 - 0.6) * 4;
+  ctx.fillStyle = '#3a3a36';
+  ctx.fillRect(bx - 20 + armSway * 0.4, cy - 92 + breath, 5, 62);
+  ctx.fillRect(bx + 15 + armSway * 0.4, cy - 92 + breath, 5, 62);
+
+  // Hands — splayed fans of long thin fingers, held slightly open
+  ctx.fillStyle = '#b8b2a0';
+  for (let i = 0; i < 4; i++) {
+    ctx.fillRect(bx - 22 + i * 3 + armSway * 0.4, cy - 30, 1, 12 + (i % 2) * 4);
+    ctx.fillRect(bx + 13 + i * 3 + armSway * 0.4, cy - 30, 1, 12 + ((i + 1) % 2) * 4);
+  }
+}
+
 // Every name drawBattleEnemy() below has a dedicated case for. Kept as an
 // explicit Set (not derived by parsing this file's source, which isn't
 // possible from the browser) so validateEnemies() (validation.js) can catch
@@ -2862,7 +2921,7 @@ const BATTLE_SPRITE_NAMES = new Set([
   'Silt Crab', 'Mudflat Strider', 'Hollow', 'Fen Shade', 'Tomb Sentry',
   'Crypt Revenant', 'Wall Tendril', 'Dripping Maw', 'The Seep',
   'Pale Drowned', 'Silt Hag', 'Pale Sentry', 'Smuggler Guard', 'Polwick',
-  'Essa', 'Rainfish',
+  'Essa', 'Rainfish', 'Tallyman',
 ]);
 window.BATTLE_SPRITE_NAMES = BATTLE_SPRITE_NAMES;
 
@@ -2927,6 +2986,7 @@ function drawBattleEnemy(cx, cy) {
   else if (n === 'Polwick')           drawBattlePolwick(cx, cy + 58);
   else if (n === 'Essa')              drawBattleEssa(cx, cy + 55);
   else if (n === 'Rainfish')          drawBattleRainfish(cx, cy + 20);
+  else if (n === 'Tallyman')          drawBattleTallyman(cx, cy + 62);
   else                            drawBattleGenericEnemy(cx, cy + 40);
 }
 

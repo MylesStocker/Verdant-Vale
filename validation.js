@@ -248,6 +248,14 @@ function validateTiles() {
       if (typeof props.encounterEligible !== 'boolean') addValidationError(PROPS_GROUP, lbl + ': encounterEligible is not a boolean (use false explicitly, not undefined/omitted, for "never eligible")');
       if (!props.category) addValidationWarning(PROPS_GROUP, lbl + ': missing/vague category');
       if (!props.debugName && !props.deprecated) addValidationWarning(PROPS_GROUP, lbl + ': no debugName -- debug inspector/validation messages for this tile will be harder to identify');
+      // Note: isSecret tiles deliberately render as some OTHER tile's art
+      // (drawTile() gives them the disguise's case, not their own look):
+      // FALSE_WALL 38, DUNGEON_FALSE_WALL 72, WORLD_HOLLOW 73,
+      // INTERIOR_FALSE_WALL 74, TAKOMO_GATE 75, MEADOW_HIDDEN_ENTRANCE 93,
+      // SLUICE_SECRET_ENTRANCE 99 (plain SLUICE_WALL). Partner return tiles (e.g.
+      // SLUICE_SECRET_EXIT 100, drawn as ordinary floor + shadow) are NOT
+      // isSecret. Nothing here can catch a disguised tile whose drawTile()
+      // case drifts to look distinctive -- that stays a by-hand check.
       if (props.isSecret && props.walkable === false) addValidationWarning(PROPS_GROUP, lbl + ': marked isSecret but not walkable -- a secret passage that can\'t be walked on isn\'t much of a passage; confirm intentional');
       if (props.isDecorative && props.walkable === true) addValidationWarning(PROPS_GROUP, lbl + ': marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)');
 
@@ -881,6 +889,7 @@ function validateEnemies() {
     ['FAR_ENEMY_TEMPLATES',           typeof FAR_ENEMY_TEMPLATES           !== 'undefined' ? FAR_ENEMY_TEMPLATES           : undefined],
     ['THORNMERE_ENEMY_TEMPLATES',     typeof THORNMERE_ENEMY_TEMPLATES     !== 'undefined' ? THORNMERE_ENEMY_TEMPLATES     : undefined],
     ['SLUICE_ENEMY_TEMPLATES',        typeof SLUICE_ENEMY_TEMPLATES        !== 'undefined' ? SLUICE_ENEMY_TEMPLATES        : undefined],
+    ['SLUICE_SECRET_ENEMY_TEMPLATES', typeof SLUICE_SECRET_ENEMY_TEMPLATES !== 'undefined' ? SLUICE_SECRET_ENEMY_TEMPLATES : undefined],
     ['NORTH_BASIN_ENEMY_TEMPLATES',   typeof NORTH_BASIN_ENEMY_TEMPLATES   !== 'undefined' ? NORTH_BASIN_ENEMY_TEMPLATES   : undefined],
     ['MIRE_VAULT_ENEMY_TEMPLATES',    typeof MIRE_VAULT_ENEMY_TEMPLATES    !== 'undefined' ? MIRE_VAULT_ENEMY_TEMPLATES    : undefined],
   ];
@@ -1012,6 +1021,7 @@ function validateSaveFlags() {
       'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
       'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready',
       'smugglers_dead', 'smugglers_execution_day',
+      'fort_report_filed', 'mq4_available_day', 'reservoir_quest_started',
       'schilling_quest_started', 'schilling_returned',
       'drama_stage', 'weight_quest_stage', 'weight_note_signed',
       'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded', 'pale_sentry_hp',

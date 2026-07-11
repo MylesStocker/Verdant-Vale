@@ -25,10 +25,14 @@ const QUEST_FLAG_SCHEMA = [
   'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
   'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
   'smugglers_dead', 'smugglers_execution_day',
+  'fort_report_filed',      // player filed an honest fen post report (vs "found nothing")
+  'mq4_available_day', 'reservoir_quest_started',  // post-MQ3 rest week + reservoir bed assignment
   'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
   'netto_letter_received',  // was absent from saveGame() before; now included
   'dessa_met',              // rapport gate: must meet Dessa once before quest offer
   'rareborn_rhyme_heard',   // player has heard the rareborn spotting-rhyme (Calwick school)
+  'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet',   // Esla one-shot commentary
+  'esla_said_polwick_pending', 'esla_said_polwick_dead',
   'wine_quest_started', 'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
@@ -264,12 +268,20 @@ function loadGame() {
   if (data.fort_pay_ticket_reduced  !== undefined) fort_pay_ticket_reduced  = data.fort_pay_ticket_reduced;
   if (data.smugglers_dead           !== undefined) smugglers_dead           = data.smugglers_dead;
   if (data.smugglers_execution_day  !== undefined) smugglers_execution_day  = data.smugglers_execution_day;
+  if (data.fort_report_filed        !== undefined) fort_report_filed        = data.fort_report_filed;
+  if (data.mq4_available_day        !== undefined) mq4_available_day        = data.mq4_available_day;
+  if (data.reservoir_quest_started  !== undefined) reservoir_quest_started  = data.reservoir_quest_started;
   if (data.den_wraith_quest_started !== undefined) den_wraith_quest_started = data.den_wraith_quest_started;
   if (data.den_wraith_defeated      !== undefined) den_wraith_defeated      = data.den_wraith_defeated;
   if (data.den_wraith_rewarded      !== undefined) den_wraith_rewarded      = data.den_wraith_rewarded;
   if (data.netto_letter_received    !== undefined) netto_letter_received    = data.netto_letter_received;
   if (data.dessa_met                !== undefined) dessa_met                = data.dessa_met;
   if (data.rareborn_rhyme_heard     !== undefined) rareborn_rhyme_heard     = data.rareborn_rhyme_heard;
+  if (data.esla_said_sluice          !== undefined) esla_said_sluice          = data.esla_said_sluice;
+  if (data.esla_said_dispatch        !== undefined) esla_said_dispatch        = data.esla_said_dispatch;
+  if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;
+  if (data.esla_said_polwick_pending !== undefined) esla_said_polwick_pending = data.esla_said_polwick_pending;
+  if (data.esla_said_polwick_dead    !== undefined) esla_said_polwick_dead    = data.esla_said_polwick_dead;
   if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
   if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
   if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;

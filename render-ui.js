@@ -572,6 +572,15 @@ function drawMenu() {
     } else if (fort_quest_stage === 6 && fort_pay_ticket_ready) {
       notes.push({ title: 'Fort Investigation', body: "Take the pay ticket to Petra at the Calwick market." });
     }
+    // Rest week after the fen post case, then the reservoir bed assignment
+    if (mq4_available_day > 0 && day < mq4_available_day) {
+      notes.push({ title: 'Stood Down', body: "The fen post matter is closed. The supervisor has taken you off the roster — rest until after Dayoff." });
+    } else if (mq4_available_day > 0 && !reservoir_quest_started) {
+      notes.push({ title: 'Stood Down', body: "The rest week is over. Report to the supervisor at the Calwick office for the next assignment." });
+    }
+    if (reservoir_quest_started) {
+      notes.push({ title: 'Reservoir Bed', body: "Something has surfaced in the exposed reservoir bed north of Drenwick. Go and see what the surveyors found." });
+    }
     // Schilling
     if (schilling_quest_started && !schilling_returned) {
       notes.push({ title: 'Missing Person', body: "Find Schilling and bring him back." });

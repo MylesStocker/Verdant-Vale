@@ -117,6 +117,18 @@ window.NORTH_BASIN_ENEMY_TEMPLATES = NORTH_BASIN_ENEMY_TEMPLATES;
 const ENCOUNTER_CHANCE   = 1 / 6;
 const ENCOUNTER_COOLDOWN = 120;
 
+// ─── East Sluice Deep Works — sealed room (behind the L3 false walls) ─────────
+// The room's encounter roll replaces ENCOUNTER_CHANCE, not the roll cadence:
+// same every-16th-step check as everywhere else, but at 1/64 -- rare enough
+// that most visits are silent, which is the point. The pool has exactly one
+// entry and it is not scaled to the sluice: the Tallyman outclasses every
+// boss in the game. Running away is the correct response.
+const SLUICE_SECRET_ENCOUNTER_CHANCE = 1 / 64;
+const SLUICE_SECRET_ENEMY_TEMPLATES = [
+  // The thing that keeps the count. Do not fight it on purpose.
+  { name: 'Tallyman', hp: 330, maxHp: 330, atk: 55, def: 11, spd: 22, xp: 550, goldMin: 0, goldMax: 0 },
+];
+
 // ── World pick-up items ───────────────────────────────────────────────────────
 // Iron Sword and Leather Armor moved to starting inventory (issued by Empire office).
 const WORLD_ITEMS = [
@@ -278,6 +290,10 @@ const SLUICE_LEVEL3_ITEMS = [
   { name: 'Potion', type: 'potion', heals: 20, price: 30, x:  4.5 * TILE, y:  7.5 * TILE, picked: false },  // west pocket (r7 c4)
   { name: 'Elixir', type: 'potion', heals: 50, price: 80, x: 10.5 * TILE, y:  7.5 * TILE, picked: false },  // east pocket (r7 c10)
 ];
+
+// The Sealed Room (SLUICE_SECRET_MAP) holds no pickups — nothing in it is
+// meant to leave. Empty array kept so MAP_METADATA's items field stays real.
+const SLUICE_SECRET_ITEMS = [];
 
 // ─── Sluice level 3 chest ─────────────────────────────────────────────────────
 // South chamber centre (r10 c7). Opened by pressing Space when adjacent.
@@ -833,6 +849,12 @@ const MAP_METADATA = {
     id: 'SLUICE_LEVEL3_MAP', map: SLUICE_LEVEL3_MAP, displayName: 'East Sluice \u2014 Deep Works', region: 'East Sluice',
     type: 'dungeon', items: SLUICE_LEVEL3_ITEMS, encounterPool: SLUICE_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true, notes: 'sluiceFloor 3.',
+  },
+  SLUICE_SECRET_MAP: {
+    id: 'SLUICE_SECRET_MAP', map: SLUICE_SECRET_MAP, displayName: 'East Sluice \u2014 Sealed Room', region: 'East Sluice',
+    type: 'dungeon', items: SLUICE_SECRET_ITEMS, encounterPool: SLUICE_SECRET_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'sluiceFloor 4 -- the sealed room behind the Deep Works false walls (L3 r7 c12-c13 -> SLUICE_SECRET_ENTRANCE). Encounter rate is overridden at runtime to SLUICE_SECRET_ENCOUNTER_CHANCE (1/64) via inSluiceSealedRoom() (movement.js); the pool here IS what the runtime inSluice branch selects on this map (combat.js).',
   },
 
   // ── Special vaults/chambers ────────────────────────────────────────────────

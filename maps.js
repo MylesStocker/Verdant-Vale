@@ -1707,6 +1707,11 @@ const SLUICE_LEVEL2_MAP = [
 // Layout: narrow entry shaft → wide east-west corridor (r5 c3-c11) →
 //   west dead-end pocket (r7 c3-c5) + east dead-end pocket (r7 c9-c11) →
 //   south shaft (c7 r4-r8) → south chamber (r9-r11 c5-c9).
+// SEALED ROOM ENTRANCE: two consecutive FALSE_WALLs (38) at r7 c12-c13 — the
+//   east pocket's dead end, deliberately indistinguishable from wall — lead
+//   to SLUICE_SECRET_ENTRANCE (99, also rendered as wall) at r7 c14, which
+//   transitions to SLUICE_SECRET_MAP (below). Nothing on this floor hints at
+//   any of the three tiles; the floor looks exactly as it did before them.
 const SLUICE_LEVEL3_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  //  0
@@ -1716,11 +1721,39 @@ const SLUICE_LEVEL3_MAP = [
   [ 28, 28, 28, 28, 28, 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28],  //  4  player entry shaft (c7)
   [ 28, 28, 28, 27, 27, 27, 27, 27, 27, 27, 27, 27, 28, 28, 28, 28],  //  5  main corridor (c3-c11)
   [ 28, 28, 28, 27, 28, 28, 28, 27, 28, 28, 28, 27, 28, 28, 28, 28],  //  6  corridor sides (c3, c7, c11)
-  [ 28, 28, 28, 27, 27, 27, 28, 27, 28, 27, 27, 27, 28, 28, 28, 28],  //  7  west pocket (c3-c5), c7 shaft, east pocket (c9-c11)
+  [ 28, 28, 28, 27, 27, 27, 28, 27, 28, 27, 27, 27, 38, 38, 99, 28],  //  7  west pocket (c3-c5), c7 shaft, east pocket (c9-c11); FALSE_WALLs c12-c13 + hidden entrance (99, c14)
   [ 28, 28, 28, 28, 28, 27, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28],  //  8  west end (c5), south shaft (c7)
   [ 28, 28, 28, 28, 28, 27, 27, 27, 27, 27, 27, 27, 28, 28, 28, 28],  //  9  south chamber top + hidden annex (c10-c11)
   [ 28, 28, 28, 28, 28, 27, 28, 28, 28, 27, 27, 27, 28, 28, 28, 28],  // 10  south chamber sides + hidden annex (c10-c11)
   [ 28, 28, 28, 28, 28, 27, 27, 27, 27, 27, 38, 27, 28, 28, 28, 28],  // 11  south chamber bottom; c10 = false wall (secret)
+  [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // 12
+  [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // 13
+  [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // 14
+];
+
+// ─── East Sluice — Sealed Room (SLUICE_SECRET_MAP, "sluiceFloor 4") ──────────
+// Reached only through the Deep Works false walls above (L3 r7 c12-c13 →
+// SLUICE_SECRET_ENTRANCE at c14). A narrow corridor from the entry point
+// (SLUICE_SECRET_EXIT, 100, at r2 c7 — stepping on it returns to the L3 east
+// pocket) runs down into a room the sluice was built around, not for:
+// carved markings (95, east wall r9 c10), eleven notches (96, south wall
+// r11 c7), an old blood stain (97, r9 c7), and a works clerk's journal
+// (98, r10 c5). Encounters anywhere on this map are rare (1/64 per roll)
+// but draw the Tallyman pool — see inSluiceSealedRoom() (movement.js).
+const SLUICE_SECRET_MAP = [
+  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+  [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  //  0
+  [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  //  1
+  [ 28, 28, 28, 28, 28, 28, 28,100, 28, 28, 28, 28, 28, 28, 28, 28],  //  2  SLUICE_SECRET_EXIT (c7) → back to Deep Works
+  [ 28, 28, 28, 28, 28, 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28],  //  3  entry corridor (c7)
+  [ 28, 28, 28, 28, 28, 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28],  //  4  entry corridor
+  [ 28, 28, 28, 28, 28, 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28],  //  5  entry corridor
+  [ 28, 28, 28, 28, 28, 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28],  //  6  entry corridor
+  [ 28, 28, 28, 28, 28, 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28],  //  7  doorway into the room
+  [ 28, 28, 28, 28, 28, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 28],  //  8  room top (c5-c9)
+  [ 28, 28, 28, 28, 28, 27, 27, 97, 27, 27, 95, 28, 28, 28, 28, 28],  //  9  room middle: blood stain (97, c7); marked wall (95, c10)
+  [ 28, 28, 28, 28, 28, 98, 27, 27, 27, 27, 28, 28, 28, 28, 28, 28],  // 10  room bottom: journal (98, c5)
+  [ 28, 28, 28, 28, 28, 28, 28, 96, 28, 28, 28, 28, 28, 28, 28, 28],  // 11  notched wall (96, c7) in the room's south wall
   [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // 12
   [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // 13
   [ 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // 14
@@ -1882,6 +1915,7 @@ window.HOUSE_INTERIOR_MAP   = HOUSE_INTERIOR_MAP;
 window.SLUICE_MAP           = SLUICE_MAP;
 window.SLUICE_LEVEL2_MAP    = SLUICE_LEVEL2_MAP;
 window.SLUICE_LEVEL3_MAP    = SLUICE_LEVEL3_MAP;
+window.SLUICE_SECRET_MAP    = SLUICE_SECRET_MAP;
 
 // ─── Map registry ─────────────────────────────────────────────────────────────
 // Additive/reference-only: gameplay code has not yet been migrated to use this.
@@ -1954,6 +1988,7 @@ const MAP_REGISTRY = {
   SLUICE_MAP:            { id: 'SLUICE_MAP',            label: 'East Sluice',                map: SLUICE_MAP            },
   SLUICE_LEVEL2_MAP:     { id: 'SLUICE_LEVEL2_MAP',     label: 'East Sluice \u2014 Lower Works', map: SLUICE_LEVEL2_MAP },
   SLUICE_LEVEL3_MAP:     { id: 'SLUICE_LEVEL3_MAP',     label: 'East Sluice \u2014 Deep Works',  map: SLUICE_LEVEL3_MAP },
+  SLUICE_SECRET_MAP:     { id: 'SLUICE_SECRET_MAP',     label: 'East Sluice \u2014 Sealed Room', map: SLUICE_SECRET_MAP },
   MIRE_VAULT_MAP:        { id: 'MIRE_VAULT_MAP',        label: "Mirethyst\u2019s Vault",         map: MIRE_VAULT_MAP    },
   TAKOMO_MAP:            { id: 'TAKOMO_MAP',            label: "Takomo\u2019s Chamber",          map: TAKOMO_MAP        },
   HAMLET_INTERIOR_MAP:   { id: 'HAMLET_INTERIOR_MAP',   label: 'The Falls',                      map: HAMLET_INTERIOR_MAP },

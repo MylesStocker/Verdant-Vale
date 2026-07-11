@@ -318,10 +318,20 @@ function isEncounterEligibleTile(tile) {
   if (inDungeon && dungeonFloor === 8)  return tile === DUNGEON2_FLOOR;
   if (inDungeon && dungeonFloor === 9)  return tile === DUNGEON3_FLOOR;
   if (inDungeon && dungeonFloor === 10) return tile === DUNGEON3_FLOOR;
-  if (inSluice)    return tile === SLUICE_FLOOR;
+  if (inSluice)    return tile === SLUICE_FLOOR || tile === SLUICE_BLOOD_FLOOR || tile === SLUICE_JOURNAL_FLOOR;
   if (inMireVault) return tile === DUNGEON2_FLOOR;
   return false;
 }
+
+// True while the player is inside the Deep Works sealed room map
+// (SLUICE_SECRET_MAP, reached through the L3 r7 c12-c13 false walls).
+// Used by the encounter roll below (rate: SLUICE_SECRET_ENCOUNTER_CHANCE
+// instead of ENCOUNTER_CHANCE) and by combat.js's currentEncounterPool()
+// (pool: SLUICE_SECRET_ENEMY_TEMPLATES instead of SLUICE_ENEMY_TEMPLATES).
+function inSluiceSealedRoom() {
+  return inSluice && activeMap === SLUICE_SECRET_MAP;
+}
+window.inSluiceSealedRoom = inSluiceSealedRoom;
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 const SPEED = 2; // pixels per frame
@@ -751,6 +761,8 @@ function update() {
     if (inSluice && sluiceFloor === 1 && curTile === DUNGEON_STAIRS_DOWN)  { descendToSluice2();    return; }
     if (inSluice && sluiceFloor === 2 && curTile === DUNGEON_STAIRS_DOWN)  { descendToSluice3();    return; }
     if (inSluice && sluiceFloor === 3 && curTile === DUNGEON2_STAIRS_UP)   { ascendToSluice2();     return; }
+    if (inSluice && sluiceFloor === 3 && curTile === SLUICE_SECRET_ENTRANCE) { enterSluiceSecret(); return; }
+    if (inSluice && sluiceFloor === 4 && curTile === SLUICE_SECRET_EXIT)   { exitSluiceSecret();    return; }
 
     // ── Rainfish danger zone (Still Water quest) ─────────────────────────────
     // The bog pond's water-edge (rows 4-6, cols 3-7 on MAP3_N1) is where the
@@ -768,7 +780,8 @@ function update() {
     // Random encounters: overworld grass, dungeon floors, and East Sluice floor
     if (player.step % 16 === 0 && combat.cooldown === 0) {
       const onEncounterTile = isEncounterEligibleTile(curTile);
-      if (!debugMode && onEncounterTile && Math.random() < ENCOUNTER_CHANCE) startCombat();
+      const encounterChance = inSluiceSealedRoom() ? SLUICE_SECRET_ENCOUNTER_CHANCE : ENCOUNTER_CHANCE;
+      if (!debugMode && onEncounterTile && Math.random() < encounterChance) startCombat();
     }
   }
 

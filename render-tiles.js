@@ -1348,6 +1348,85 @@ function drawSluiceWall(x, y) {
   ctx.fillRect(x, y + 28, TILE, 4);
 }
 
+// Sealed-room wall — sluice brick carved with markings in no script anyone
+// reads. Pale scratches, deliberate but unreadable: curves and crossing lines,
+// older than the mortar around them.
+function drawSluiceMarkWall(x, y) {
+  drawSluiceWall(x, y);
+  ctx.fillStyle = '#8a8270';
+  // A curving line of short strokes, like a sentence written in cuts
+  ctx.fillRect(x +  5, y +  6, 2, 6);
+  ctx.fillRect(x +  9, y +  9, 2, 5);
+  ctx.fillRect(x + 13, y +  7, 2, 7);
+  ctx.fillRect(x + 18, y + 10, 2, 4);
+  ctx.fillRect(x + 22, y +  6, 2, 6);
+  // Crossing strokes
+  ctx.fillRect(x +  7, y + 12, 8, 2);
+  ctx.fillRect(x + 17, y +  8, 7, 2);
+  // A lone spiral-ish hook, lower course
+  ctx.fillRect(x + 12, y + 20, 2, 7);
+  ctx.fillRect(x + 12, y + 20, 7, 2);
+  ctx.fillRect(x + 17, y + 20, 2, 5);
+  ctx.fillRect(x + 14, y + 25, 5, 2);
+}
+
+// Sealed-room wall — eleven notches cut into the brick at shoulder height,
+// evenly spaced, five then six. Counted by someone. Nothing says why.
+function drawSluiceNotchWall(x, y) {
+  drawSluiceWall(x, y);
+  ctx.fillStyle = '#948a76';
+  // Group of five
+  for (let i = 0; i < 5; i++) ctx.fillRect(x + 3 + i * 3, y + 12, 1, 8);
+  // Group of six
+  for (let i = 0; i < 6; i++) ctx.fillRect(x + 19 + i * 2, y + 12, 1, 8);
+}
+
+// Sealed-room floor — an old stain soaked into the slab joints. Black-brown,
+// scrubbed once at the edges and given up on.
+function drawSluiceBloodFloor(x, y) {
+  drawSluiceFloor(x, y);
+  ctx.fillStyle = '#38201c';
+  ctx.fillRect(x +  8, y + 10, 14, 12);
+  ctx.fillRect(x +  5, y + 14, 20,  6);
+  ctx.fillRect(x + 12, y +  7,  8, 18);
+  ctx.fillStyle = '#241410';
+  ctx.fillRect(x + 11, y + 12,  9,  8);
+  // Thin runs following the slab joints
+  ctx.fillStyle = '#38201c';
+  ctx.fillRect(x + 16, y + 22,  1,  7);
+  ctx.fillRect(x +  6, y + 16,  1,  5);
+}
+
+// Sealed-room floor — a small journal lying against the wall, cover warped
+// by damp, a strap keeping it shut.
+function drawSluiceJournalFloor(x, y) {
+  drawSluiceFloor(x, y);
+  // Shadow under the book
+  ctx.fillStyle = '#2c3834';
+  ctx.fillRect(x + 9, y + 13, 15, 11);
+  // Cover
+  ctx.fillStyle = '#6a5638';
+  ctx.fillRect(x + 8, y + 11, 14, 11);
+  ctx.fillStyle = '#7a6644';
+  ctx.fillRect(x + 9, y + 12, 12,  9);
+  // Page edges peeking out
+  ctx.fillStyle = '#b0a888';
+  ctx.fillRect(x + 21, y + 13,  2,  8);
+  // Strap
+  ctx.fillStyle = '#3a2e1c';
+  ctx.fillRect(x + 13, y + 11,  2, 11);
+}
+
+// Sealed-room exit — the gap the player came in through: sluice floor under a
+// deep doorway shadow, reading as "the dark you arrived from".
+function drawSluiceSecretExit(x, y) {
+  drawSluiceFloor(x, y);
+  ctx.fillStyle = 'rgba(10,12,10,0.55)';
+  ctx.fillRect(x, y, TILE, 12);
+  ctx.fillStyle = 'rgba(10,12,10,0.3)';
+  ctx.fillRect(x, y + 12, TILE, 6);
+}
+
 // Drainage channel — dark murky standing water, slower shimmer than open water
 function drawSluiceChannel(x, y) {
   const a = (tick >> 5) & 1;
@@ -1806,6 +1885,12 @@ function drawTile(id, x, y) {
     case SLUICE_FLOOR:        drawSluiceFloor(x, y);      break;
     case SLUICE_WALL:         drawSluiceWall(x, y);       break;
     case FALSE_WALL:          drawSluiceWall(x, y);       break;
+    case SLUICE_MARK_WALL:    drawSluiceMarkWall(x, y);   break;
+    case SLUICE_NOTCH_WALL:   drawSluiceNotchWall(x, y);  break;
+    case SLUICE_BLOOD_FLOOR:  drawSluiceBloodFloor(x, y); break;
+    case SLUICE_JOURNAL_FLOOR: drawSluiceJournalFloor(x, y); break;
+    case SLUICE_SECRET_ENTRANCE: drawSluiceWall(x, y);    break;  // deliberately indistinguishable from wall
+    case SLUICE_SECRET_EXIT:  drawSluiceSecretExit(x, y); break;
     case MAP2_EXIT:           drawMap2Exit(x, y);         break;
     case MAP2_ENTRANCE:       drawMap2Entrance(x, y);     break;
     case MAP3_EXIT:           drawMap3Exit(x, y);         break;
@@ -1893,6 +1978,8 @@ const RENDERABLE_TILE_IDS = new Set([
   RUIN_FLOOR, RUIN_WALL, RUIN_STAIRS_DOWN, RUIN_EXIT, BASIN_MUD, NORTH_BASIN_EXIT,
   NORTH_BASIN_ENTRANCE, EXPOSED_STONE, FENCE_POST, NORTH_BASIN_W_EXIT,
   NORTH_BASIN_W_ENTRANCE, TRAPPER_HUT, MEADOW_HIDDEN_ENTRANCE, MEADOW_EXIT,
+  SLUICE_MARK_WALL, SLUICE_NOTCH_WALL, SLUICE_BLOOD_FLOOR, SLUICE_JOURNAL_FLOOR,
+  SLUICE_SECRET_ENTRANCE, SLUICE_SECRET_EXIT,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;
 
