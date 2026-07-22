@@ -105,7 +105,7 @@ matter just as much for where new content goes:
 | `maps.js` | Every 16×15 map-grid constant, `MAP_REGISTRY`, and `mapRegistryId()`. |
 | `data.js` | `MAP_METADATA`, the enemy-template pools (`ENEMY_TEMPLATES`, `DUNGEON_ENEMY_TEMPLATES`, etc), and most per-map `*_ITEMS` arrays. |
 | `npcs.js` | `SIMPLE_NPCS` (every data-driven NPC) and `NPC_ACTIONS`. |
-| `items.js` | `ITEM_REGISTRY`. |
+| `items.js` | `ITEM_REGISTRY`, `createItem()`, `grantItem()`. **Rule: define item properties in `ITEM_REGISTRY` and grant items with `createItem(name)`/`grantItem(name)` — never hand-write inventory item objects at runtime.** `loadGame()` re-creates saved items from the registry by name, so a registry edit propagates to existing saves. |
 | `shops.js` | `SHOP_REGISTRY`. |
 | `quests.js` | Quest-flag variables, `syncQuestFlagsToWindow()`, and quest-progression helper functions. |
 | `validation.js` | `validateGameData()` and its ten `validate*()` category functions — see "Validation" below. |

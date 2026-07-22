@@ -75,13 +75,16 @@ function render() {
   if (inTown && townBuilding === 'harbormaster')      drawHarbormasterFurniture();
   if (inTown && townBuilding === 'wash_house')        drawWashHouseFurniture();
   if (inTown && townBuilding === 'provision_store')   drawProvisionStoreFurniture();
+  if (inTown && townBuilding === 'guild_hall')        drawGuildHallFurniture();
   if (inSluice) drawSluiceGateHint();
   if (activeMap === MAP4) drawThornmereStone();
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
   drawPlayer();
 
-  // No vignette in the dream — the white is meant to be total.
-  if (activeMap !== DREAM_MAP) {
+  // No vignette in the dream — the white is meant to be total. Same in the
+  // unmarked chamber — flat light with no darkened corners is part of the
+  // room's wrongness (see BASIN_CHAMBER_MAP, maps.js).
+  if (activeMap !== DREAM_MAP && activeMap !== BASIN_CHAMBER_MAP) {
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, 512, 480);
   }

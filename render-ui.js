@@ -956,6 +956,22 @@ function drawMenu() {
     ctx.textAlign = 'left';
   }
 
+  // ── "Won't hold" banner (save refused: MAP_METADATA allowSave: false) ─────
+  if (menu.saveBlockedMessage > 0) {
+    menu.saveBlockedMessage--;
+    const alpha = Math.min(1, menu.saveBlockedMessage / 20);
+    ctx.fillStyle = `rgba(8,18,30,${(0.90 * alpha).toFixed(2)})`;
+    ctx.fillRect(BX + 8, BY + 8, BW - 16, 34);
+    ctx.strokeStyle = `rgba(160,100,60,${alpha.toFixed(2)})`;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(BX + 9, BY + 9, BW - 18, 32);
+    ctx.fillStyle = `rgba(220,160,80,${alpha.toFixed(2)})`;
+    ctx.font = 'bold 14px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('The record won’t hold here.', BX + BW / 2, BY + 31);
+    ctx.textAlign = 'left';
+  }
+
   // ── Load result banner (shown after load attempt, menu may be closed) ─────
   if (menu.loadMessage > 0) {
     menu.loadMessage--;

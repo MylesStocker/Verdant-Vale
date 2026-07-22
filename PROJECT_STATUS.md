@@ -10,22 +10,23 @@ Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass
 below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
-the newer North Basin region (4 maps: South Approach, Reservoir, Silt Flats,
-West Shore). Every link *between* North Basin maps now uses
-`EDGE_TRANSITIONS` rather than point-tile doors (the region's entry from
-Drenwick is still a point-tile). 72 registered maps total
-(`MAP_REGISTRY`/`MAP_METADATA`, kept in exact agreement by
-`validateGameData()`).
+the newer North Basin region (now 5 maps: South Approach, Reservoir, Silt
+Flats, West Shore, and the Upper Reach — plus the unmarked chamber and the
+Sunken Gallery hanging off the Upper Reach, see the newest pass below).
+Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
+point-tile doors (the region's entry from Drenwick is still a point-tile).
+76 registered maps total (`MAP_REGISTRY`/`MAP_METADATA`, kept in exact
+agreement by `validateGameData()`).
 
-- **31 tests**, `node test/run.js` — all passing.
-- **Transition audit**, `node test/transition-audit.js` — 72 maps, 232
+- **41 tests**, `node test/run.js` — all passing.
+- **Transition audit**, `node test/transition-audit.js` — 76 maps, 236
   fixed-destination transitions, 22 preserved-coordinate transitions, 42
-  house doors, 59 tile constants cross-referenced — clean, no findings.
+  house doors, 63 tile constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
-  (see below), across 72 maps, 17,280 tile cells, 6 edge transitions, 162
-  NPCs, 104 item placements, 30 enemy templates, 463 dialogue/text entries,
-  95 save-flag checks, 24 map features.
+  (see below), across 76 maps, 18,240 tile cells, 10 edge transitions, 163
+  NPCs, 110 item placements, 33 enemy templates, 529 dialogue/text entries,
+  105 save-flag checks, 49 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 
@@ -233,9 +234,276 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
    during the dream dialogue. Movement is currently locked by the open
    dialogue, but the map is real and first-class specifically so the
    player can later walk around in it.
+10. **Guild Hall furnished** — the Drenwick Guild Hall had NPCs (Foss,
+    Cae) and a posting-board interact but rendered as a completely bare
+    room: unlike every other Drenwick interior it had neither TABLE (33)
+    blockers in its map nor a furniture overlay function. It now has both
+    (`drawGuildHallFurniture()`, wired in render.js): north archive shelf,
+    registrar's desk beside Foss, long members' table, and a visible
+    freestanding posting board at r2 c13 — one tile north of the
+    (unchanged) `GUILD_HALL_BOARD` reading spot, so the existing interact
+    still works from where the player can actually stand (TALK_RADIUS 28 <
+    a full tile). Also added Senna, a workday apprentice-post applicant
+    planted in front of the board, echoing Ms. Farne's two-notices-where-
+    there-were-nine placement lore.
 
-Each item shipped with tests (27-30), a clean `validateGameData()` run, and
-a clean transition audit (the Sealed Room enter/exit functions and both new
+11. **Calwick flavor pass + Basin Gull** — the starting town finally has
+    environmental text: five new `MAP_FEATURES` inspectables (charter
+    stone and public cistern on `TOWN_MAP`, water gauge and reed-drying
+    racks on `EAST_TOWN_MAP`, a tenants' notice in
+    `APARTMENT_CORRIDOR_MAP` — all Calwick-gated with the same
+    `currentTownId` condition convention as the west survey marker, all on
+    walkable street/grass/floor tiles clear of NPC/market/door
+    positions). The cistern and gauge deliberately carry the drought
+    story (three rainless months, "drought" now official, "same story up
+    north"). Plus a third North Basin enemy, the **Basin Gull** —
+    scavenger gull come inland for the die-offs on the exposed bed; hp 24
+    / atk 14 / spd 12, same tier as its poolmates, with its own bespoke
+    battle sprite (`drawBattleBasinGull()`, registered in
+    `BATTLE_SPRITE_NAMES`). Test 34 covers all of it end-to-end.
+
+12. **The Upper Reach, the unmarked chamber, and the Sunken Gallery** — the
+    North Basin's 5th square (`NORTH_BASIN_NW_MAP`, north of the West Shore
+    via a new cols-1-10 `EDGE_TRANSITIONS` crossing — the "one-line change
+    later" the West Shore's row-0 border comment reserved) plus two areas
+    hanging off it, both built on the full safe-entrance-area pattern (own
+    flags `inBasinChamber`/`inSunkenGallery`, 8 new tiles 103–110):
+    - **The Upper Reach** — the drained NW arm, exposed bed border to
+      border, deliberately liminal: no NPCs, no encounters (structurally —
+      note that REEDS are encounter-eligible game-wide, so the map uses
+      BASIN_MUD everywhere including its open edge; a reeds border would
+      have rolled generic-pool encounters). Saving IS allowed here
+      (`allowSave: true` — see the audit-pass note below for why). 6
+      `MAP_FEATURES` entries carry the wrongness (fence line across open
+      water, a too-high waterline, a pool that won't ripple, first-entry
+      narration).
+    - **The unmarked chamber** (`BASIN_CHAMBER_MAP`) — through a
+      freestanding doorframe (`CHAMBER_DOOR`, r3 c12; renders as clean
+      masonry with a flat black opening — and stays flat black from every
+      angle and from both sides, per the audit-pass fix below; nothing is
+      visible through it in either direction). Perfectly square room,
+      seamless surfaces, no vignette (render.js skips it like the dream),
+      locationName "No Recorded Location". Saving is blocked here. Same
+      lore boundary as the Sealed Room: deliberately unexplained, LORE.md
+      untouched.
+    - **The Sunken Gallery** (`SUNKEN_GALLERY_MAP`) — the drought-uncovered
+      dungeon, down `SUNKEN_STAIR` (r9 c4). Half the hall still flooded;
+      encounters via `MAP_METADATA.encounterPool` fall-through (zero
+      combat.js changes) using `SUNKEN_GALLERY_ENEMY_TEMPLATES` — Pale
+      Drowned/Silt Hag at their exact Mire Vault stats (same creatures,
+      existing sprites). Saving is blocked here too. Bootless footprints
+      walk out of the water and end at the stair — deliberately
+      unresolved environmental strangeness, same register as the rest of
+      this area; not documented anywhere as the missing basin observer or
+      any other specific person/thing (see the audit-pass note below).
+    - **First pass, two mechanics**: `MAP_METADATA.allowSave: false` was
+      runtime-enforced for the first time (input.js save-confirm guard +
+      a "The record won't hold here." banner) across all three new maps.
+      A later audit pass (below) corrected this to just the two interiors
+      — see that entry for the authoritative `canSaveHere()` version. The
+      three first-entry narration onceFlags are the first *persisted*
+      `MAP_FEATURES` flags: window-native flags in `QUEST_FLAG_SCHEMA`,
+      normalized (never clobbered) by `syncQuestFlagsToWindow()`, restored
+      via explicit `window.*` lines in `loadGame()`.
+    Test 35 covers the whole chain: real-movement edge crossing both ways,
+    structural silence, trigger once-firing, chamber worst-case-RNG
+    no-encounter guarantee, gallery pool wiring + combat render, and (as
+    extended by the later audit pass) save-allowed-on-the-Reach plus
+    menu-level *and* direct-`saveGame()` save-refusal in the two interiors,
+    a round trip on the Reach, and pre-MQ4 accessibility/persistence
+    proof. Test 20's "north edge is border" assertion was updated to
+    expect the new open edge.
+
+13. **Flag-dependent dialogue pass** — seven previously-static NPCs
+    converted to the established `get dialogue()` pattern: base pages
+    unchanged, flag-gated pages appended after them. Test 36 proves the
+    base prefix is unaffected by which flags are set (with vs. without,
+    at current runtime) — it does *not* prove, and was never meant to
+    prove, that the base text is byte-identical to whatever the static
+    array literally read before this pass's conversion; no pre-conversion
+    snapshot was ever captured to compare against.
+    - **Maren** (guard post): reacts to `fort_report_filed` (what was
+      *filed*, never an unreported kill — same convention as the rest-week
+      inn reactions) and to `reservoir_quest_started` (road advice).
+    - **Edda / Orren / Foss** key on `reservoir_quest_started` — the job
+      posting that skipped the board, an inn rumor seeding the missing
+      basin observer, and the guild's documentation-class-three pedantry
+      for uncovered masonry.
+    - **Cres** keys on the permanent `window.basin_chamber_seen` discovery
+      flag via a plausible reaction that isn't perishable evidence — the
+      player's own decision not to ask the records clerk about a
+      structure with no file.
+    - **Rhen / Kest** originally keyed on the permanent
+      `window.upper_reach_seen` / `sunken_gallery_seen` discovery flags
+      too (pale basin mud on the player's boots, the smell of
+      channel-bottom) — a bug, fixed in the audit pass below: physical
+      evidence that repeated forever isn't plausible. See that entry for
+      the corrected same-day behavior.
+    Side effect: test 24's dialogue-overflow check needed a plain
+    assignable dialogue array and had been borrowing Maren's — it now uses
+    Tern (still static) instead.
+14. **Roddon Way** — one new 16×15 outdoor fen map (`RODDON_WAY_MAP`),
+    modeling a roddon: the raised, silt-filled bed of a long-dead creek,
+    left standing as the surrounding peat drained and subsided over a much
+    longer span than the current three-month dry spell. No settlement,
+    dungeon, quest, boss, or new enemy — deliberately in scope-only for a
+    single map square.
+    - **Attachment point**: MAP3_N1's (Northern Fen) west edge, rows 4-9,
+      via a new reciprocal `EDGE_TRANSITIONS` pair. That edge was entirely
+      unused border (plain `TREE` for all 15 rows) before this, and the
+      chosen row range sits with a full buffer row clear of the Mire
+      Entrance (col 1, row 3) and the hamlet farmhouses (col 1, rows
+      10-12) on the MAP3_N1 side — no existing entrance, house, or pickup
+      touched.
+    - **One new tile, `RODDON_SILT`** (111) — the ridge itself: walkable,
+      deliberately *not* encounter-eligible (the safe route through),
+      visually distinct from `BASIN_MUD`/`EXPOSED_STONE` on purpose (those
+      already carry specific North Basin drought-terrain meaning
+      elsewhere; reusing them here would blur two unrelated stories).
+      Registered everywhere the architecture requires: `WALKABLE[]`,
+      `TILE_PROPERTIES`, `window.*` export, `DEBUG_TILE_NAMES`, a
+      `drawRoddonSilt()` case in `render-tiles.js`, and
+      `RENDERABLE_TILE_IDS`.
+    - **Layout**: the ridge enters at the crossing's full width (rows
+      4-9), tapers to its normal 2-3 tile width, and winds northwest
+      through two bends to a small rounded terminus/viewpoint — a
+      winding fossil watercourse shape, not a straight road. Surrounding
+      wet fen mixes `GRASS` (peat), `REEDS` (reed/sedge, concentrated in
+      the lower ground), two small `WATER` pools, and a few single-tile
+      `TREE` scrub clumps, none of which enclose any ground. Reuses
+      `FAR_ENEMY_TEMPLATES` — MAP3_N1's own pool — for encounters; no new
+      enemies. `allowSave: true`, ordinary rules, no special-casing.
+    - **Six inspectables** (`MAP_FEATURES`, no `onceFlag` on any of them —
+      ordinary observational text, not worth a persistent flag): a
+      viewpoint that explains "roddon" in-world and is the only one that
+      does; an exposed bank showing silt over peat; a curved old channel
+      bend in the ridge itself; a leaning District Drainage survey post
+      (subsidence predates the current dry spell — explicit); stranded
+      eel stakes above a shrunken pool; and cracked peat in the low
+      ground, whose caption is careful to blame *only* the current
+      three-month dry spell for the surface cracking, not the ridge
+      itself. No `LORE.md` changes.
+    - A design-time bug worth recording: the first hand-transcription of
+      the map grid accidentally opened the *west* border (col 0, rows
+      4-9) instead of leaving it sealed — a copy/paste artifact from
+      simultaneously editing MAP3_N1's own crossing tiles. Test 37's
+      border-sealed check (not just the flood-fill) caught it immediately
+      before this ever reached a save file; fixed by re-checking the
+      transcription against the connectivity script's original output.
+15. **Audit pass over items 11-13** — six targeted corrections, no new
+    content, all existing behavior preserved except where explicitly
+    listed below:
+    - **Chamber visuals vs. text** — the standing doorframe and the
+      chamber threshold render as flat black openings (`drawChamberDoor()`/
+      `drawChamberExit()`, render-tiles.js — unchanged), but their
+      inspect text (interactions.js) said the exterior mudflat was
+      visible through them. Rewritten so nothing is visible through
+      either opening, in either direction, with no depth/reflection/light
+      cue — still restrained, still unexplained.
+    - **Rhen/Kest physical evidence made temporary** — `window.
+      upper_reach_seen`/`sunken_gallery_seen` are permanent discovery
+      flags; keying Rhen's mud comment and Kest's smell comment on them
+      directly meant those lines repeated in every conversation forever
+      after one visit. Both now key on new same-day markers,
+      `window.upper_reach_visit_day`/`sunken_gallery_visit_day`
+      (movement.js, written every frame the player is physically present,
+      compared with `=== day`) — session-only, not in
+      `QUEST_FLAG_SCHEMA`, and explicitly cleared at the top of
+      `loadGame()` (save.js) so a same-day load from an older save can't
+      leak a "visited today" marker into a timeline where the visit never
+      happened. Resting always increments `day` (three `rest()` functions
+      in interactions.js, one defeat-handler in combat.js), so the
+      comparison expires on its own the moment a day passes. Test 38
+      covers same-day firing, expiry on rest, expiry across a load, and
+      re-arming on a fresh visit. Cres's permanent chamber reaction (a
+      remembered decision, not perishable evidence) was intentionally
+      left alone.
+    - **Five Calwick inspectables made visible** — the Charter Stone,
+      Public Cistern, Water Gauge, Reed-Drying Racks, and Apartment
+      Notice sat on plain street/floor/reed/grass tiles with nothing
+      marking them. Four new small walkable decorative tiles
+      (`CHARTER_STONE`/`CISTERN`/`WATER_GAUGE`/`REED_RACK`, 112-115) now
+      sit at each inspectable's exact interaction coordinate, following
+      the same walkable-prop convention `NOTICE_BOARD` already
+      established. The fifth (`APT_NOTICE`, 116) is a dedicated tile
+      rather than a reuse of `NOTICE_BOARD` itself: that tile's draw
+      function hard-codes a town-market cobblestone base, which would
+      render wrong inside an interior corridor. None of the five set
+      `isDecorative: true` (that flag only feeds a cosmetic debug label
+      and would otherwise multiply `validateGameData()`'s one documented
+      "isDecorative + walkable" warning fivefold for no benefit — the
+      convention is documented in each tile's `notes` field instead, same
+      as `BASIN_MUD`/`EXPOSED_STONE`). Test 39 proves the coordinate
+      match, walkability, renderability, real-keypress interaction, and
+      that no NPC or house door was displaced — automated coverage stops
+      there; **actual visual appearance in a browser has not been
+      manually checked in this pass.**
+    - **Save restriction narrowed to the two interiors** — "no safe
+      haven" was over-applied to the entire outdoor Upper Reach in the
+      original pass. Re-read as "no town/bed/healing/shelter," not "the
+      whole region refuses to save": `NORTH_BASIN_NW_MAP.allowSave` is
+      now `true`; `BASIN_CHAMBER_MAP`/`SUNKEN_GALLERY_MAP` stay `false`.
+      A new single authoritative helper, `canSaveHere()` (save.js, based
+      on `MAP_METADATA...allowSave`), replaces the inline check that used
+      to live only in input.js — the save-confirm menu still consults it
+      for the banner, and `saveGame()` itself now also calls it as its
+      first line, refusing to write *before touching localStorage* on any
+      blocked map regardless of caller. Test 35 (extended) proves saving
+      succeeds on the Reach via a real `saveGame()` call and a full
+      round trip, and proves refusal in both interiors at both the
+      menu level and via a direct `saveGame()` call, with the stored save
+      byte-for-byte unchanged after every refusal.
+    - **Pre-MQ4 flexibility confirmed, not newly built** — nothing in the
+      code ever gated the Reach/chamber/gallery on
+      `reservoir_quest_started` (no `condition` on the `EDGE_TRANSITIONS`
+      crossing, no check in any tile trigger); this was already true, just
+      unproven. Test 35 now explicitly asserts
+      `reservoir_quest_started === false` before the walkthrough starts
+      and again after the save/load round trip, and confirms all three
+      discovery flags are in `QUEST_FLAG_SCHEMA` for a future reservoir
+      quest to read back. The reservoir chapter itself is still not
+      built.
+    - **Gallery footprints un-canonized** — the footprints' own inspect
+      text (interactions.js) was already appropriately ambiguous ("They
+      are not yours. They are not wearing boots.") and untouched; only
+      this file's *description* of them as "a soft, unwired hook for the
+      MQ4 missing-observer quest" was overreaching, and is corrected
+      above (item 12) to describe them as unresolved environmental
+      strangeness. No code or player-visible text change was needed for
+      this one — a documentation-only correction.
+    - **Stale documentation corrected** — the Schilling sequence-break
+      entry (recommended-tasks, below) and test 36's description (item 13
+      above) were both inaccurate; both fixed above rather than left as
+      separate entries.
+    Tests 38, 39, 40 are new; tests 20, 24, 35, 36 were updated in place
+    (not superseded) to match the corrected behavior.
+16. **Pre-MQ4 north-bridge admonishment** — reactive dialogue, no new
+    map/quest/lore. The Imperial toll bridge north of Drenwick (MAP3_N2)
+    is the only crossing of the canal onto the basin road, and the North
+    Basin is deliberately reachable before the reservoir assignment
+    exists. If the player crosses NORTH before `reservoir_quest_started`,
+    `exitBridgeNorth()` (world-transitions.js) sets a new monotonic flag
+    `north_bridge_crossed_early`; the next time they report to the Calwick
+    office supervisor, `interactSupervisor()` (interactions.js) prepends a
+    one-time light admonishment (he asks why they went up there and tells
+    them off, mildly), gated by a second flag `north_bridge_scolded` so it
+    never repeats. Both flags are ordinary `quests.js` let-bindings —
+    synced, in `QUEST_FLAG_SCHEMA`, restored in `loadGame()`, and mirrored
+    in validation.js's cross-check list — following the `supervisor_greet_day`
+    / `esla_said_*` pattern exactly. The scold is gated on
+    `!reservoir_quest_started`, so it never fires once the basin actually
+    *is* the assignment; it's set synchronously (like the daily greeting),
+    not via `dialogue.callbacks`, so it can't collide with a branch's own
+    callback (e.g. the MQ4 assignment). The bridge remains the sole
+    chokepoint north (the canal is impassable WATER except the gate), so
+    the one hook reliably captures every northward crossing. Test 41
+    covers the real northward crossing arming the flag, the one-time
+    admonishment firing and not repeating, save/load persistence, and the
+    four negative cases (after assignment, already-assigned, never-crossed,
+    and a southbound crossing).
+
+Each item shipped with tests (27-30, 34-41), a clean `validateGameData()`
+run, and a clean transition audit (all new enter/exit functions and
 transition tiles are registered in `test/transition-audit.js`).
 
 ## Known risks / caveats
@@ -315,16 +583,27 @@ Roughly in priority order:
    ("consistent with reports from the northern basin district"), and the
    floor-6 sign references the same seepage lore already established in
    Fen Shade's "Observe" flavor text. `MAP_FEATURES` covered 7 maps / 17
-   entries after that pass (now 20 entries, after the West Shore content pass
-   added its shoreline set). Plenty of maps are still uncovered (most of
-   Calwick, the rest of Drenwick's interiors, most dungeon floors) if more is
-   wanted.
-3. **Consider a dedicated regression test for the Schilling-the-bear
-   sequence-break** (defeating the floor-5 boss before ever meeting Pip
-   permanently locks that quest) — a known, still-unfixed issue from
-   before this development arc; explicitly out of scope until someone
-   decides whether to fix the underlying quest logic or just document it
-   as intended.
+   entries after that pass (now 17 maps / 49 entries, after the West Shore
+   shoreline set, the Sealed Room set, the Calwick flavor pass — item 11
+   above, which finally gave the starting town itself, its east side, and
+   its apartment corridor their first environmental text — the Upper Reach
+   pass — item 12, the Upper Reach/chamber/gallery signage — and Roddon
+   Way — item 14, six inspectables). Still uncovered if more is wanted:
+   Calwick's interiors, the rest of Drenwick's interiors, most dungeon
+   floors, and most of the Thornmere fen proper (MAP3/MAP4/MAP5).
+3. ~~Consider a dedicated regression test for the Schilling-the-bear
+   sequence-break~~ — **fixed** (turned out to already be fixed in the
+   underlying quest logic, just never confirmed by a test or reflected
+   here): defeating or hugging Wrongteeth awards Schilling gated only on
+   `!schilling_returned` (interactions.js's `killWrongteeth()`/
+   `hugWrongteeth()`), never on `schilling_quest_started`, and Pip's
+   `action()` (npcs.js) checks `stats.items.some(i => i.name ===
+   'Schilling')` *before* checking whether the quest was ever started. A
+   player who resolves Wrongteeth first, without ever having met Pip, can
+   still turn the bear in and complete the quest normally. Test 40 proves
+   this end to end (both the kill and hug branches) through the real
+   boss-choice and NPC-interaction code paths, not just by granting the
+   item directly.
 4. **A full multi-district Drenwick walkthrough test**, and a save/load
    round-trip test for a specific mid-stage quest — both were suggested by
    earlier audits and never added; still open.
@@ -343,7 +622,7 @@ Roughly in priority order:
   (constant, `WALKABLE[]`, `TILE_PROPERTIES`, `window.X` export,
   `drawTile()` case, `RENDERABLE_TILE_IDS`).
 - Writing additional regression tests that follow an existing test file's
-  pattern closely (there are 31 to copy from).
+  pattern closely (there are 32 to copy from).
 - Adding new enemy templates to an *existing* pool with reasonable stats
   (validated automatically by `validateEnemies()`).
 

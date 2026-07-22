@@ -1480,6 +1480,65 @@ function drawBattleMudflatStrider(cx, cy) {
   ctx.fillRect(cx + 9, cy - 115, 2, 2);
 }
 
+// Basin Gull — scavenger gull come inland off the Thornmere for the
+// die-offs on the exposed reservoir bed. White and grey, black wingtips,
+// heavy yellow bill; stands square-on with the wings half-lifted, more
+// belligerent than afraid.
+function drawBattleBasinGull(cx, cy) {
+  const bob   = Math.round(Math.sin(tick * 0.09) * 2);  // restless shifting
+  const flick = Math.round(Math.sin(tick * 0.23) * 3);  // half-raised wing flick
+
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 4, 24, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Legs — sturdy, dull yellow, set wide
+  ctx.fillStyle = '#c8b048';
+  ctx.fillRect(cx - 11, cy - 26, 4, 26);
+  ctx.fillRect(cx +  7, cy - 26, 4, 26);
+  // Webbed feet
+  ctx.fillStyle = '#b09c3c';
+  ctx.fillRect(cx - 16, cy - 3, 14, 3);
+  ctx.fillRect(cx +  3, cy - 3, 14, 3);
+
+  // Wings — grey mantle, half-lifted and twitching
+  ctx.fillStyle = '#9aa2a8';
+  ctx.fillRect(cx - 32, cy - 56 - flick + bob, 16, 26);
+  ctx.fillRect(cx + 16, cy - 56 - flick + bob, 16, 26);
+  // Black wingtips
+  ctx.fillStyle = '#2a2c30';
+  ctx.fillRect(cx - 32, cy - 34 - flick + bob, 16, 6);
+  ctx.fillRect(cx + 16, cy - 34 - flick + bob, 16, 6);
+
+  // Body — white breast, grey back
+  ctx.fillStyle = '#b4bcc2';
+  ctx.fillRect(cx - 20, cy - 62 + bob, 40, 20);
+  ctx.fillStyle = '#e8eaec';
+  ctx.fillRect(cx - 18, cy - 52 + bob, 36, 28);
+  // Tail — short, black-barred
+  ctx.fillStyle = '#d8dadc';
+  ctx.fillRect(cx - 8, cy - 30 + bob, 16, 8);
+  ctx.fillStyle = '#2a2c30';
+  ctx.fillRect(cx - 8, cy - 24 + bob, 16, 3);
+
+  // Neck and head — white, thrust slightly forward
+  ctx.fillStyle = '#e8eaec';
+  ctx.fillRect(cx - 8, cy - 84 + bob, 20, 24);
+  // Bill — heavy, yellow, hooked tip, slightly open
+  ctx.fillStyle = '#d8b838';
+  ctx.fillRect(cx + 10, cy - 76 + bob, 18, 5);
+  ctx.fillRect(cx + 24, cy - 72 + bob, 4, 4);   // hooked tip
+  ctx.fillStyle = '#c0a028';
+  ctx.fillRect(cx + 10, cy - 69 + bob, 14, 3);  // lower mandible, agape
+
+  // Eye — pale, ringed, unfriendly
+  ctx.fillStyle = '#e8e0c0';
+  ctx.fillRect(cx + 1, cy - 80 + bob, 6, 6);
+  ctx.fillStyle = '#141008';
+  ctx.fillRect(cx + 3, cy - 78 + bob, 3, 3);
+}
+
 // Dispatcher — routes to the right sprite; ground creatures get a cy offset
 function drawBattleDenWraith(cx, cy) {
   const drift = Math.round(Math.sin(tick * 0.04) * 3);
@@ -2921,7 +2980,7 @@ const BATTLE_SPRITE_NAMES = new Set([
   'Silt Crab', 'Mudflat Strider', 'Hollow', 'Fen Shade', 'Tomb Sentry',
   'Crypt Revenant', 'Wall Tendril', 'Dripping Maw', 'The Seep',
   'Pale Drowned', 'Silt Hag', 'Pale Sentry', 'Smuggler Guard', 'Polwick',
-  'Essa', 'Rainfish', 'Tallyman',
+  'Essa', 'Rainfish', 'Tallyman', 'Basin Gull',
 ]);
 window.BATTLE_SPRITE_NAMES = BATTLE_SPRITE_NAMES;
 
@@ -2972,6 +3031,7 @@ function drawBattleEnemy(cx, cy) {
   else if (n === 'Thornback')     drawBattleThornback(cx, cy + 55);
   else if (n === 'Silt Crab')         drawBattleSiltCrab(cx, cy + 50);
   else if (n === 'Mudflat Strider')   drawBattleMudflatStrider(cx, cy + 20);
+  else if (n === 'Basin Gull')        drawBattleBasinGull(cx, cy + 55);
   else if (n === 'Hollow')            drawBattleHollow(cx, cy + 62);
   else if (n === 'Fen Shade')         drawBattleFenShade(cx, cy + 20);
   else if (n === 'Tomb Sentry')       drawBattleTombSentry(cx, cy + 62);

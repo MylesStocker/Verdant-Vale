@@ -129,6 +129,50 @@ const SLUICE_SECRET_EXIT     = 100; // on SLUICE_SECRET_MAP (r2 c7): the way bac
 const DREAM_FLOOR = 101; // walkable white void (DREAM_MAP interior)
 const DREAM_EDGE  = 102; // blocking white void (DREAM_MAP border ring; identical to DREAM_FLOOR on screen)
 
+// ─── The Upper Reach (NORTH_BASIN_NW_MAP) and what's under it ────────────────
+// The unmarked chamber (BASIN_CHAMBER_MAP) is reached by stepping through a
+// freestanding doorframe on the drained bed; the Sunken Gallery
+// (SUNKEN_GALLERY_MAP) by a stair the receding water exposed. Both areas get
+// their own dedicated transition tiles per the safe-entrance-area rule
+// (architecture.md) -- never reuse another area's stairs/exit ids.
+const CHAMBER_DOOR     = 103; // freestanding doorframe on the Upper Reach -- step through to enter the chamber
+const CHAMBER_FLOOR    = 104; // unmarked chamber interior -- flat, seamless, too clean
+const CHAMBER_WALL     = 105; // unmarked chamber wall -- same surface as the floor, upright
+const CHAMBER_EXIT     = 106; // chamber south-wall gap -- returns to the Upper Reach
+const SUNKEN_STAIR     = 107; // drought-exposed stairhead on the Upper Reach -- descends to the Sunken Gallery
+const GALLERY_FLOOR    = 108; // Sunken Gallery floor -- silt-filmed stone, recently underwater (encounter-eligible)
+const GALLERY_WALL     = 109; // Sunken Gallery wall -- dark masonry with a pale waterline band
+const GALLERY_STAIR_UP = 110; // Sunken Gallery stair back up to the Upper Reach
+
+// ─── Roddon Way (RODDON_WAY_MAP, Thornmere fen) ──────────────────────────────
+// A roddon is the raised course of an old silt-filled creek: as the
+// surrounding peat drains and subsides, the mineral-rich former creek bed
+// stays behind as a firmer, slightly higher ridge. Ordinary GRASS/PATH read
+// as turf or a maintained road, and BASIN_MUD/EXPOSED_STONE already carry
+// specific North Basin drought-terrain meaning elsewhere -- none of them
+// read as "ancient winding silt ridge," so this is the one new tile the
+// area's design brief allows. Walkable, deliberately not encounter-eligible
+// (the firmer ground is the safe route through the wet fen around it).
+const RODDON_SILT = 111; // the roddon ridge itself -- pale, silty, firm going
+
+// ─── Calwick flavor-pass props (visual discoverability fix) ──────────────────
+// The five Calwick inspectables added in an earlier pass sat on plain
+// street/floor/reed/grass tiles with nothing visible marking them. Each now
+// gets a small walkable decorative prop tile at its exact interaction
+// coordinate -- same "stand on/beside it" convention NOTICE_BOARD already
+// established (walkable, not a blocker) -- so the interaction point and the
+// visible object are the same tile by construction, not a separately
+// positioned overlay. The apartment notice reuses NOTICE_BOARD itself where
+// that fits (see interactions.js); these four are new because no existing
+// tile's base terrain or shape matches (a market noticeboard's cobblestone
+// base would render wrong inside an interior corridor, wrong material for a
+// street boundary stone, etc).
+const CHARTER_STONE = 112; // west-road boundary stone (TOWN_MAP)
+const CISTERN       = 113; // stone-lipped public cistern (TOWN_MAP)
+const WATER_GAUGE   = 114; // reed-bed measuring stave (EAST_TOWN_MAP)
+const REED_RACK     = 115; // reed-drying rack (EAST_TOWN_MAP)
+const APT_NOTICE    = 116; // framed corridor tenant notice (APARTMENT_CORRIDOR_MAP)
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -234,6 +278,20 @@ const WALKABLE = [
   /* 100 SLUICE_SECRET_EXIT    */ true,
   /* 101 DREAM_FLOOR           */ true,
   /* 102 DREAM_EDGE            */ false,
+  /* 103 CHAMBER_DOOR          */ true,
+  /* 104 CHAMBER_FLOOR         */ true,
+  /* 105 CHAMBER_WALL          */ false,
+  /* 106 CHAMBER_EXIT          */ true,
+  /* 107 SUNKEN_STAIR          */ true,
+  /* 108 GALLERY_FLOOR         */ true,
+  /* 109 GALLERY_WALL          */ false,
+  /* 110 GALLERY_STAIR_UP      */ true,
+  /* 111 RODDON_SILT           */ true,
+  /* 112 CHARTER_STONE         */ true,
+  /* 113 CISTERN               */ true,
+  /* 114 WATER_GAUGE           */ true,
+  /* 115 REED_RACK             */ true,
+  /* 116 APT_NOTICE            */ true,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -337,6 +395,20 @@ window.SLUICE_SECRET_ENTRANCE = SLUICE_SECRET_ENTRANCE;
 window.SLUICE_SECRET_EXIT     = SLUICE_SECRET_EXIT;
 window.DREAM_FLOOR            = DREAM_FLOOR;
 window.DREAM_EDGE             = DREAM_EDGE;
+window.CHAMBER_DOOR           = CHAMBER_DOOR;
+window.CHAMBER_FLOOR          = CHAMBER_FLOOR;
+window.CHAMBER_WALL           = CHAMBER_WALL;
+window.CHAMBER_EXIT           = CHAMBER_EXIT;
+window.SUNKEN_STAIR           = SUNKEN_STAIR;
+window.GALLERY_FLOOR          = GALLERY_FLOOR;
+window.GALLERY_WALL           = GALLERY_WALL;
+window.GALLERY_STAIR_UP       = GALLERY_STAIR_UP;
+window.RODDON_SILT            = RODDON_SILT;
+window.CHARTER_STONE          = CHARTER_STONE;
+window.CISTERN                = CISTERN;
+window.WATER_GAUGE            = WATER_GAUGE;
+window.REED_RACK              = REED_RACK;
+window.APT_NOTICE             = APT_NOTICE;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -357,6 +429,9 @@ const DEBUG_TILE_NAMES = [
   'DUNGEON_FALSE_WALL',  'DUNGEON_FLOOR',  'DUNGEON_STAIRS_DOWN',  'DUNGEON_WALL',  'DUNGEON2_FLOOR',  'DUNGEON2_STAIRS_UP',
   'DUNGEON2_WALL',  'DUNGEON3_FLOOR',  'DUNGEON3_WALL',  'DUNGEON8_EAST_DOOR',  'DUNGEON8_EAST_RET',  'DUNGEON8_WEST_DOOR',
   'DREAM_EDGE',  'DREAM_FLOOR',
+  'CHAMBER_DOOR',  'CHAMBER_FLOOR',  'CHAMBER_WALL',  'CHAMBER_EXIT',
+  'SUNKEN_STAIR',  'GALLERY_FLOOR',  'GALLERY_WALL',  'GALLERY_STAIR_UP',  'RODDON_SILT',
+  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',
   'DUNGEON8_WEST_RET',  'EAST_ENTRANCE',  'EAST_EXIT',  'EXPOSED_STONE',  'FALSE_WALL',  'FARM_HOUSE',
   'FEN_N_ENTRANCE',  'FEN_N_EXIT',  'FEN_N2_ENTRANCE',  'FEN_N2_EXIT',  'FENCE_POST',  'GRASS',
   'GUARD_POST',  'HOUSE_DOOR',  'INN_DOOR',  'INTERIOR_EXIT',  'INTERIOR_FALSE_WALL',  'INTERIOR_FLOOR',
@@ -644,6 +719,87 @@ const TILE_PROPERTIES = {
     id: DREAM_EDGE, name: 'Dream Boundary', debugName: 'DREAM_EDGE', walkable: WALKABLE[DREAM_EDGE],
     category: 'special', tags: ['dream', 'wall'], encounterEligible: false, isWall: true,
     notes: 'Tile 102. DREAM_MAP border ring: renders exactly like DREAM_FLOOR (pure white) but blocks -- an invisible boundary, not a visible wall.',
+  },
+
+  // ── The Upper Reach: the unmarked chamber + the Sunken Gallery ──────────
+  [CHAMBER_DOOR]: {
+    id: CHAMBER_DOOR, name: 'Standing Doorframe', debugName: 'CHAMBER_DOOR', walkable: WALKABLE[CHAMBER_DOOR],
+    category: 'transition', tags: ['basin', 'secret', 'transition'], encounterEligible: false, isTransition: true,
+    notes: 'Tile 103. NORTH_BASIN_NW_MAP r3 c12: a freestanding stone doorframe on the drained bed, attached to no building. Stepping onto it enters BASIN_CHAMBER_MAP (enterBasinChamber, world-transitions.js).',
+  },
+  [CHAMBER_FLOOR]: {
+    id: CHAMBER_FLOOR, name: 'Chamber Floor', debugName: 'CHAMBER_FLOOR', walkable: WALKABLE[CHAMBER_FLOOR],
+    category: 'special', tags: ['chamber', 'floor'], encounterEligible: false,
+    notes: 'Tile 104. BASIN_CHAMBER_MAP interior: flat bone-grey, deliberately featureless -- no seams, no texture. The room’s wrongness is that there is nothing wrong to point at.',
+  },
+  [CHAMBER_WALL]: {
+    id: CHAMBER_WALL, name: 'Chamber Wall', debugName: 'CHAMBER_WALL', walkable: WALKABLE[CHAMBER_WALL],
+    category: 'special', tags: ['chamber', 'wall'], encounterEligible: false, isWall: true,
+    notes: 'Tile 105. BASIN_CHAMBER_MAP walls: the same surface as the floor, upright. Barely darker than CHAMBER_FLOOR on purpose.',
+  },
+  [CHAMBER_EXIT]: {
+    id: CHAMBER_EXIT, name: 'Chamber Threshold', debugName: 'CHAMBER_EXIT', walkable: WALKABLE[CHAMBER_EXIT],
+    category: 'transition', tags: ['chamber', 'transition'], encounterEligible: false, isTransition: true,
+    notes: 'Tile 106. BASIN_CHAMBER_MAP south-wall gap -- returns to the Upper Reach one tile south of the doorframe (exitBasinChamber, world-transitions.js).',
+  },
+  [SUNKEN_STAIR]: {
+    id: SUNKEN_STAIR, name: 'Exposed Stairhead', debugName: 'SUNKEN_STAIR', walkable: WALKABLE[SUNKEN_STAIR],
+    category: 'transition', tags: ['basin', 'transition'], encounterEligible: false, isTransition: true,
+    notes: 'Tile 107. NORTH_BASIN_NW_MAP r9 c4: a stone stair descending into the lakebed, uncovered by the drought. Stepping onto it descends to SUNKEN_GALLERY_MAP (descendSunkenGallery, world-transitions.js).',
+  },
+  [GALLERY_FLOOR]: {
+    id: GALLERY_FLOOR, name: 'Gallery Floor', debugName: 'GALLERY_FLOOR', walkable: WALKABLE[GALLERY_FLOOR],
+    category: 'dungeon', tags: ['gallery', 'floor'], encounterEligible: true,
+    notes: 'Tile 108. SUNKEN_GALLERY_MAP floor: silt-filmed stone, underwater until recently. Encounter-eligible -- the pool comes from MAP_METADATA.encounterPool (SUNKEN_GALLERY_ENEMY_TEMPLATES), not a dungeonFloor branch.',
+  },
+  [GALLERY_WALL]: {
+    id: GALLERY_WALL, name: 'Gallery Wall', debugName: 'GALLERY_WALL', walkable: WALKABLE[GALLERY_WALL],
+    category: 'dungeon', tags: ['gallery', 'wall'], encounterEligible: false, isWall: true,
+    notes: 'Tile 109. SUNKEN_GALLERY_MAP walls: dark masonry with a pale mineral waterline band near the top -- the room remembers its water level.',
+  },
+  [GALLERY_STAIR_UP]: {
+    id: GALLERY_STAIR_UP, name: 'Gallery Stair Up', debugName: 'GALLERY_STAIR_UP', walkable: WALKABLE[GALLERY_STAIR_UP],
+    category: 'transition', tags: ['gallery', 'transition'], encounterEligible: false, isTransition: true,
+    notes: 'Tile 110. SUNKEN_GALLERY_MAP r2 c2 -- climbs back to the Upper Reach beside the stairhead (ascendSunkenGallery, world-transitions.js).',
+  },
+  [RODDON_SILT]: {
+    id: RODDON_SILT, name: 'Roddon Silt', debugName: 'RODDON_SILT', walkable: WALKABLE[RODDON_SILT],
+    category: 'fen', tags: ['fen', 'ridge', 'roddon'], encounterEligible: false,
+    notes: 'Tile 111. RODDON_WAY_MAP: the raised, silt-filled bed of a long-dead creek -- firmer and paler than the peat around it. Walkable and deliberately not encounter-eligible (the safe route through the wet fen), unlike the ordinary GRASS/REEDS fen terrain surrounding it.',
+  },
+
+  // ── Calwick flavor-pass props ────────────────────────────────────────────
+  // None of these five set isDecorative: true, unlike NOTICE_BOARD -- that
+  // flag only feeds a cosmetic debug-inspector label (render-ui.js) and
+  // also triggers validateGameData()'s "isDecorative + walkable" warning
+  // (intentional for NOTICE_BOARD, the one documented exception). Marking
+  // five more tiles that way would just multiply that same warning for no
+  // functional benefit; the walkable-prop convention is documented here in
+  // `notes` instead, same as BASIN_MUD/EXPOSED_STONE.
+  [CHARTER_STONE]: {
+    id: CHARTER_STONE, name: 'Charter Stone', debugName: 'CHARTER_STONE', walkable: WALKABLE[CHARTER_STONE],
+    category: 'decorative', tags: ['town', 'decorative', 'prop'], encounterEligible: false,
+    notes: 'Tile 112. TOWN_MAP r5 c1: the west-road boundary stone (MAP_FEATURES "calwick_charter_stone"). Walkable, same stand-beside-it convention as NOTICE_BOARD -- the interaction coordinate sits directly on this tile.',
+  },
+  [CISTERN]: {
+    id: CISTERN, name: 'Public Cistern', debugName: 'CISTERN', walkable: WALKABLE[CISTERN],
+    category: 'decorative', tags: ['town', 'decorative', 'prop'], encounterEligible: false,
+    notes: 'Tile 113. TOWN_MAP r12 c11: the south-lane public cistern (MAP_FEATURES "calwick_town_cistern"). Walkable -- the interaction coordinate sits at the tank’s edge.',
+  },
+  [WATER_GAUGE]: {
+    id: WATER_GAUGE, name: 'Water Gauge', debugName: 'WATER_GAUGE', walkable: WALKABLE[WATER_GAUGE],
+    category: 'decorative', tags: ['town', 'decorative', 'prop'], encounterEligible: false,
+    notes: 'Tile 114. EAST_TOWN_MAP r5 c13: the reed-bed measuring stave (MAP_FEATURES "calwick_wetland_gauge"). Walkable, driven into the reeds where the wetland meets the road.',
+  },
+  [REED_RACK]: {
+    id: REED_RACK, name: 'Reed-Drying Rack', debugName: 'REED_RACK', walkable: WALKABLE[REED_RACK],
+    category: 'decorative', tags: ['town', 'decorative', 'prop'], encounterEligible: false,
+    notes: 'Tile 115. EAST_TOWN_MAP r10 c7: the reed-cutters’ drying rack (MAP_FEATURES "calwick_reed_racks"). Walkable, standing in open grass.',
+  },
+  [APT_NOTICE]: {
+    id: APT_NOTICE, name: 'Apartment Notice', debugName: 'APT_NOTICE', walkable: WALKABLE[APT_NOTICE],
+    category: 'decorative', tags: ['interior', 'decorative', 'prop'], encounterEligible: false,
+    notes: 'Tile 116. APARTMENT_CORRIDOR_MAP r7 c2: the framed tenant notice (MAP_FEATURES "calwick_apt_notice"). A dedicated tile rather than reusing NOTICE_BOARD (22): that tile’s draw function hard-codes a town-market cobblestone base, which would render wrong inside an interior corridor.',
   },
   [TAKOMO_GATE]: {
     id: TAKOMO_GATE, name: 'Takomo Gate', debugName: 'TAKOMO_GATE', walkable: WALKABLE[TAKOMO_GATE],

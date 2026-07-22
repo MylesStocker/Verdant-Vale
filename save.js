@@ -34,7 +34,14 @@ const QUEST_FLAG_SCHEMA = [
   'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet',   // Esla one-shot commentary
   'esla_said_polwick_pending', 'esla_said_polwick_dead',
   'supervisor_greet_day', 'esla_greet_day',  // once-per-day office "good morning" greetings
+  'north_bridge_crossed_early', 'north_bridge_scolded',  // pre-MQ4 north-bridge crossing + one-time supervisor admonishment
   'wine_quest_started', 'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
+  // Upper Reach / chamber / gallery first-entry narrations — the first
+  // MAP_FEATURES onceFlags to be persisted. These are window-native flags
+  // (MAP_FEATURES sets window[name] directly), NOT quests.js let-bindings:
+  // syncQuestFlagsToWindow() only normalizes undefined -> false for them,
+  // never overwrites a true. See quests.js.
+  'upper_reach_seen', 'basin_chamber_seen', 'sunken_gallery_seen',
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
 
@@ -63,9 +70,51 @@ function validateSaveSchema(data) {
 }
 window.validateSaveSchema = validateSaveSchema;
 
+// ─── Re-creates a saved inventory/equipment item from its current
+// ─── ITEM_REGISTRY definition (items.js). Registry properties override stale
+// ─── saved metadata (missing keyItem flags, outdated prices/bonuses), while
+// ─── legitimate per-instance fields the registry doesn't know about are
+// ─── preserved. An item name no longer in the registry is kept as saved,
+// ─── with a warning, rather than failing the whole load.
+function rehydrateItem(saved) {
+  if (!saved || !saved.name) return saved;
+  const def = ITEM_REGISTRY[saved.name];
+  if (!def) {
+    console.warn('[loadGame] saved item "' + saved.name + '" is not in ITEM_REGISTRY — keeping it as saved');
+    return { ...saved };
+  }
+  return { ...saved, ...def };
+}
+
+// ─── The single authoritative answer to "can the player save right now?" ───
+// Based on MAP_METADATA[mapRegistryId(activeMap)].allowSave -- defaults to
+// true if the active map has no metadata entry at all (so an unregistered
+// map, which shouldn't happen, doesn't silently block saving). Two
+// independent call sites consult this exact function, not two copies of
+// the same lookup: input.js's save-confirm menu (to decide whether to show
+// the "won't hold" banner) and saveGame() itself, right below (so a save
+// can never be written from a blocked map by any path, not just the menu).
+// "No safe haven" (the design intent behind allowSave: false) means no
+// town/bed/healing/shelter, not "the whole outdoor region refuses to
+// save" -- see NORTH_BASIN_NW_MAP's MAP_METADATA entry (data.js), which is
+// allowSave: true; only the unmarked chamber and the Sunken Gallery it
+// leads to are actually blocked.
+function canSaveHere() {
+  const meta = MAP_METADATA[mapRegistryId(activeMap)];
+  return !meta || meta.allowSave !== false;
+}
+window.canSaveHere = canSaveHere;
+
 // ─── All mutable game state that must survive a save/load cycle should be
 // ─── included here. Add new persistent variables to both saveGame() and loadGame().
 function saveGame() {
+  // Authoritative guard: refuse to write anything at all on a blocked map,
+  // regardless of caller. Returns before touching localStorage or any menu
+  // state -- the caller (normally input.js's save-confirm handler, which
+  // already checked canSaveHere() itself before deciding to call this at
+  // all) is responsible for showing the "won't hold" banner.
+  if (!canSaveHere()) return false;
+
   // Resolve a map grid reference to its MAP_REGISTRY key for serialisation
   function mapToId(mapRef) {
     if (!mapRef) return null;
@@ -115,6 +164,8 @@ function saveGame() {
     inFenBrewery,
     inHamletInterior,
     inDungeonEntrance,
+    inBasinChamber,
+    inSunkenGallery,
     inLorraHouse,
     inMarenPost,
     inDrenwrickPost,
@@ -152,6 +203,7 @@ function saveGame() {
     sluiceLevel2Items: SLUICE_LEVEL2_ITEMS.map(w => w.picked),
     sluiceLevel3Items: SLUICE_LEVEL3_ITEMS.map(w => w.picked),
     mireVaultItems:    MIRE_VAULT_ITEMS.map(w => w.picked),
+    sunkenGalleryItems: SUNKEN_GALLERY_ITEMS.map(w => w.picked),
     // ── Chests ────────────────────────────────────────────────────────────
     homeChestGold:           HOUSE_DATA.player_house.chest.gold,
     mireVaultChestOpened:    MIRE_VAULT_CHEST.opened,
@@ -175,12 +227,16 @@ function saveGame() {
     mulhollandDefeated:  MULHOLLAND.defeated,
     takomoDefeated:      TAKOMO.defeated,
     denWraithDefeated:   DEN_WRAITH.defeated,
+    // Kolm's once-per-Dayoff inn brawl (combat.js) — non-quest combat state,
+    // so it is persisted directly here rather than via QUEST_FLAG_SCHEMA.
+    sailorBrawlFightDay: sailor_brawl_fight_day,
     // ── Vault NPC ─────────────────────────────────────────────────────────
     mirethystRewarded:   !!window.mirethyst_rewarded,
   };
   localStorage.setItem('verdantVale_save', JSON.stringify(data));
   menu.saveMessage = 120;   // show banner for ~2 s
   menu.screen      = 'main';
+  return true;
 }
 
 function loadGame() {
@@ -198,6 +254,18 @@ function loadGame() {
 
   // Warn-only schema validation — no gameplay impact.
   validateSaveSchema(data);
+
+  // Clear the Upper Reach / Sunken Gallery "visited today" markers
+  // (movement.js) unconditionally, before anything else restores. They are
+  // deliberately session-only (not part of the save schema — see
+  // movement.js's comment), so without this a same-day load from an older
+  // save could otherwise leak this session's leftover "visited today" state
+  // into a timeline where the visit never happened, letting Rhen/Kest's
+  // physical-evidence lines (npcs.js) incorrectly reappear. The very next
+  // frame re-sets either flag correctly if the loaded state actually has
+  // the player standing on the relevant map.
+  window.upper_reach_visit_day    = undefined;
+  window.sunken_gallery_visit_day = undefined;
 
   // Resolve a MAP_REGISTRY key back to a map grid reference; returns null if not found
   function mapFromId(id) {
@@ -222,11 +290,25 @@ function loadGame() {
     if (s.xp    !== undefined) stats.xp    = s.xp;
     if (s.level !== undefined) stats.level = s.level;
     if (s.gold  !== undefined) stats.gold  = s.gold;
-    stats.weapon    = s.weapon    !== undefined ? s.weapon    : null;
-    stats.armor     = s.armor     !== undefined ? s.armor     : null;
-    stats.shield    = s.shield    !== undefined ? s.shield    : null;
-    stats.accessory = s.accessory !== undefined ? s.accessory : null;
-    stats.items     = Array.isArray(s.items) ? s.items.map(i => ({ ...i })) : [];
+    stats.weapon    = s.weapon    ? rehydrateItem(s.weapon)    : null;
+    stats.armor     = s.armor     ? rehydrateItem(s.armor)     : null;
+    stats.shield    = s.shield    ? rehydrateItem(s.shield)    : null;
+    stats.accessory = s.accessory ? rehydrateItem(s.accessory) : null;
+    stats.items     = Array.isArray(s.items) ? s.items.map(rehydrateItem) : [];
+  }
+
+  // ── Key-item equipment normalization ────────────────────────────────────
+  // Older saves predate the keyItem flag, so a one-off quest item (type
+  // 'accessory') may sit in an equipment slot. Rehydration above restored
+  // its keyItem flag from the registry; move it back into stats.items
+  // (deduped) and clear the slot so it only surfaces in the Special Items
+  // notebook. Everything else in the equipment is left untouched.
+  for (const slot of ['weapon', 'armor', 'shield', 'accessory']) {
+    const eq = stats[slot];
+    if (eq && eq.keyItem) {
+      if (!stats.items.some(i => i.name === eq.name)) stats.items.push(eq);
+      stats[slot] = null;
+    }
   }
 
   // ── World / time ────────────────────────────────────────────────────────
@@ -278,6 +360,11 @@ function loadGame() {
   if (data.netto_letter_received    !== undefined) netto_letter_received    = data.netto_letter_received;
   if (data.dessa_met                !== undefined) dessa_met                = data.dessa_met;
   if (data.rareborn_rhyme_heard     !== undefined) rareborn_rhyme_heard     = data.rareborn_rhyme_heard;
+  // Window-native MAP_FEATURES onceFlags (no let-binding to restore into --
+  // window[name] IS the runtime state; see quests.js's normalization note).
+  if (data.upper_reach_seen     !== undefined) window.upper_reach_seen     = data.upper_reach_seen;
+  if (data.basin_chamber_seen   !== undefined) window.basin_chamber_seen   = data.basin_chamber_seen;
+  if (data.sunken_gallery_seen  !== undefined) window.sunken_gallery_seen  = data.sunken_gallery_seen;
   if (data.esla_said_sluice          !== undefined) esla_said_sluice          = data.esla_said_sluice;
   if (data.esla_said_dispatch        !== undefined) esla_said_dispatch        = data.esla_said_dispatch;
   if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;
@@ -285,6 +372,8 @@ function loadGame() {
   if (data.esla_said_polwick_dead    !== undefined) esla_said_polwick_dead    = data.esla_said_polwick_dead;
   if (data.supervisor_greet_day      !== undefined) supervisor_greet_day      = data.supervisor_greet_day;
   if (data.esla_greet_day            !== undefined) esla_greet_day            = data.esla_greet_day;
+  if (data.north_bridge_crossed_early !== undefined) north_bridge_crossed_early = data.north_bridge_crossed_early;
+  if (data.north_bridge_scolded      !== undefined) north_bridge_scolded      = data.north_bridge_scolded;
   if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
   if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
   if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;
@@ -309,6 +398,8 @@ function loadGame() {
     if (data.inFenBrewery    !== undefined) inFenBrewery    = data.inFenBrewery;
     if (data.inHamletInterior !== undefined) inHamletInterior = data.inHamletInterior;
     if (data.inDungeonEntrance !== undefined) inDungeonEntrance = data.inDungeonEntrance;
+    if (data.inBasinChamber  !== undefined) inBasinChamber  = data.inBasinChamber;
+    if (data.inSunkenGallery !== undefined) inSunkenGallery = data.inSunkenGallery;
     if (data.inLorraHouse    !== undefined) inLorraHouse    = data.inLorraHouse;
     if (data.inMarenPost     !== undefined) inMarenPost     = data.inMarenPost;
     if (data.inDrenwrickPost !== undefined) inDrenwrickPost = data.inDrenwrickPost;
@@ -454,6 +545,9 @@ function loadGame() {
   if (Array.isArray(data.mireVaultItems)) {
     data.mireVaultItems.forEach((picked, i) => { if (MIRE_VAULT_ITEMS[i]) MIRE_VAULT_ITEMS[i].picked = picked; });
   }
+  if (Array.isArray(data.sunkenGalleryItems)) {
+    data.sunkenGalleryItems.forEach((picked, i) => { if (SUNKEN_GALLERY_ITEMS[i]) SUNKEN_GALLERY_ITEMS[i].picked = picked; });
+  }
 
   // ── Chests ──────────────────────────────────────────────────────────────
   if (data.homeChestGold           !== undefined) HOUSE_DATA.player_house.chest.gold = data.homeChestGold;
@@ -479,7 +573,14 @@ function loadGame() {
   if (data.mulhollandDefeated !== undefined) MULHOLLAND.defeated = data.mulhollandDefeated;
   if (data.takomoDefeated     !== undefined) TAKOMO.defeated     = data.takomoDefeated;
   if (data.denWraithDefeated !== undefined) DEN_WRAITH.defeated = data.denWraithDefeated;
-  if (data.mirethystRewarded) window.mirethyst_rewarded = true;
+  // Kolm's once-per-Dayoff brawl: restore unconditionally with a -1 default so
+  // a pre-fight save (or an older save without the field) does not inherit a
+  // later in-session victory.
+  sailor_brawl_fight_day = data.sailorBrawlFightDay !== undefined ? data.sailorBrawlFightDay : -1;
+  // Restore the saved boolean even when it is false — loading must be able to
+  // undo an in-session reward. Older saves without the field keep the current
+  // runtime value.
+  if (data.mirethystRewarded !== undefined) window.mirethyst_rewarded = !!data.mirethystRewarded;
 
   return true;
 }

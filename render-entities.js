@@ -1241,7 +1241,10 @@ function currentItemList() {
        // Plain overworld maps (MAP2, MAP3, the North Basin maps, etc.) --
        // this used to be one "activeMap === X ? X_ITEMS :" clause per map;
        // a new outdoor map now needs zero changes here, just a
-       // MAP_METADATA entry with an `items` array (even if empty). Falls
+       // MAP_METADATA entry with an `items` array (even if empty). The same
+       // fall-through also serves flag-based areas whose flag has no branch
+       // above but whose activeMap is registered with metadata items (the
+       // unmarked chamber and the Sunken Gallery resolve here). Falls
        // back to WORLD_ITEMS only if activeMap has no metadata at all
        // (shouldn't happen for a registered map -- see validateGameData()'s
        // MAP_METADATA section -- but this keeps the function from ever

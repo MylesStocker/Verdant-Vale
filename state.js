@@ -51,6 +51,8 @@ let inTakomo             = false; // true when inside Takomo's Chamber (Drenwick
 let inFenBrewery         = false; // true when inside Wend's fen brewery (MAP3_N1)
 let inHamletInterior     = false; // true when inside the Falls hamlet interior (MAP3_N1)
 let inDungeonEntrance    = false; // true when inside the South Ruins Entrance Hall (top floor, between the overworld and dungeon floor 1 — no encounters, kept separate from inDungeon/dungeonFloor on purpose so it never picks up a combat-encounter pool)
+let inBasinChamber       = false; // true when inside the unmarked chamber off the Upper Reach (North Basin NW) — no encounters, no save; own flag per the entrance-area rule (never reuse inDungeon etc.)
+let inSunkenGallery      = false; // true when inside the Sunken Gallery (drought-exposed structure under the Upper Reach) — has its own encounter pool via MAP_METADATA, kept off inDungeon/dungeonFloor so it never inherits a dungeon-floor pool
 let sluiceFloor          = 1;    // 1 = Level 1, 2 = Level 2
 let debugMode            = false; // when true, random encounters are suppressed
 // When true (default), a combat defeat relocates the player to their own bed
@@ -136,6 +138,7 @@ const menu = {
   screen:       'main',  // 'main' | 'saveConfirm' | 'loadConfirm' | 'notebook'
   saveCursor:   0,        // 0 = Yes, 1 = No
   saveMessage:  0,        // frame countdown for "Game Saved" banner
+  saveBlockedMessage: 0,  // frame countdown for the "won't hold" banner (maps with MAP_METADATA allowSave: false — see input.js's save-confirm guard)
   loadCursor:   0,        // 0 = Yes, 1 = No
   loadMessage:  0,        // frame countdown for load result banner
   loadStatus:     null,     // 'loaded' | 'nosave' — set alongside loadMessage

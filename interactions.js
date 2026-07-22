@@ -154,6 +154,280 @@ const MAP_FEATURES = {
     },
   ],
 
+  // \u2500\u2500 Calwick main square & lanes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  // First environmental flavor for the starting town itself (it had none).
+  // Same currentTownId condition convention as the west survey marker
+  // above. Both sit on plain street tiles, well clear of the market rows
+  // (6-8) and every SIMPLE_NPCS position, so nothing higher-priority can
+  // shadow them.
+  TOWN_MAP: [
+    {
+      id:        'calwick_charter_stone',
+      type:      'inspect',
+      x:         1.5, y: 5.5,
+      condition: () => currentTownId === 'calwick',
+      label:     'Charter stone',
+      pages: [
+        ['A waist-high boundary stone where the west road enters town.',
+         'The face has been re-cut at least twice.'],
+        ['CALWICK \u2014 INCORPORATED TOWN',
+         'Thornmere Drainage District.',
+         'Re-dedicated in the Millennial year, 1000 AC.'],
+        ['Under the newer lettering, an older line survives in shallower strokes:',
+         '\u201c\u2026raised from the reeds, and holds while the water lets it.\u201d'],
+      ],
+    },
+    {
+      id:        'calwick_town_cistern',
+      type:      'inspect',
+      x:         11.5, y: 12.5,
+      condition: () => currentTownId === 'calwick',
+      label:     'Public cistern',
+      pages: [
+        ['The town cistern \u2014 a broad stone-lipped tank at the end of the south lane.',
+         'Depth marks are painted down the inside wall.'],
+        ['The water stands a full hand below the lowest painted mark.',
+         'Someone has chalked a new line under it rather than repainting properly.'],
+        ['A damp office notice is tacked to the lip:',
+         'DRAW FOR HOUSEHOLD USE ONLY UNTIL FURTHER NOTICE.',
+         'Third month without rain. The word \u201cdrought\u201d is official now.'],
+      ],
+    },
+  ],
+
+  // \u2500\u2500 Calwick east side \u2014 the wetland margin \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  // The working edge of town: reed harvest and the office's water-level
+  // bookkeeping. The gauge deliberately reads like a small local echo of
+  // the North Basin story (old high marks stranded above the water).
+  EAST_TOWN_MAP: [
+    {
+      id:        'calwick_wetland_gauge',
+      type:      'inspect',
+      x:         13.5, y: 5.5,
+      condition: () => currentTownId === 'calwick',
+      label:     'Water gauge',
+      pages: [
+        ['A numbered measuring stave driven into the reed bed where the wetland meets the road.',
+         'The paint is freshest near the bottom.'],
+        ['The wet line sits well below the old high-water stains.',
+         'A weathered tin plate: READINGS TAKEN FIRST WORKDAY. FORWARD TO OFFICE.'],
+        ['Someone has scratched beside the lowest number:',
+         '\u201csame story up north.\u201d'],
+      ],
+    },
+    {
+      id:        'calwick_reed_racks',
+      type:      'inspect',
+      x:         7.5, y: 10.5,
+      condition: () => currentTownId === 'calwick',
+      label:     'Reed-drying racks',
+      pages: [
+        ['Reed-cutters\u2019 drying racks \u2014 long horizontal poles hung with bound bundles.',
+         'Half the pegs are empty.'],
+        ['Tally marks are cut into the end post, one row per season.',
+         'This season\u2019s row is the shortest by some way.'],
+        ['The bundles that are here are thin.',
+         'Good reed wants standing water, and the beds have been drying back all year.'],
+      ],
+    },
+  ],
+
+  // \u2500\u2500 The Upper Reach (North Basin NW) \u2014 liminal wrongness pass \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  // No NPCs, no encounters, no saving up here (see MAP_METADATA). All the
+  // area's wrongness is carried by this text: everything is described
+  // plainly and nothing is explained. Same lore boundary as the Deep Works
+  // sealed room \u2014 do not extend LORE.md for any of it.
+  // The three onceFlag'd triggers below ARE persisted (first MAP_FEATURES
+  // flags in QUEST_FLAG_SCHEMA \u2014 see save.js/quests.js).
+  NORTH_BASIN_NW_MAP: [
+    {
+      id:       'upper_reach_arrival',
+      type:     'trigger',
+      rect:     { x1: 1, y1: 12, x2: 11, y2: 14 },  // tile rows 12-13, cols 1-10 (player-center coords are fractional: row 13's center is 13.5, so the bounds are exclusive-feeling +1s)
+      onceFlag: 'upper_reach_seen',
+      label:    'Upper Reach first entry',
+      pages: [
+        ['The ground changes under your boots \u2014 the crack pattern here is old, set hard.',
+         'This arm of the reservoir didn\u2019t recede. It finished.'],
+        ['No birds. No wind you can hear, though you can watch it move the dead reeds.',
+         'The office has no readings from up here.',
+         'Nobody sends readings from up here.'],
+      ],
+    },
+    {
+      id: 'upper_reach_fence', type: 'inspect', x: 5.5, y: 6.5, radius: 40, allowUnwalkable: true,
+      label: 'Fence line',
+      pages: [
+        ['A fence line. Eight posts, dead straight, the wire long gone.',
+         'It runs across what was open water.'],
+        ['The posts are old \u2014 older than the drought by decades at least.',
+         'Whoever set them, set them on the lake bottom. In a line.'],
+        ['There is no gate.'],
+      ],
+    },
+    {
+      id: 'upper_reach_highwater', type: 'inspect', x: 2.5, y: 2.5,
+      label: 'High-water stone',
+      pages: [
+        ['A shoulder of bare rock, silt-scoured.',
+         'The old waterline stains ring it like growth rings.'],
+        ['You put your hand up to the highest stain.',
+         'You cannot reach it.'],
+      ],
+    },
+    {
+      id: 'upper_reach_doorframe', type: 'inspect', x: 11.5, y: 3.5,
+      label: 'Standing doorframe',
+      pages: [
+        ['A stone doorframe, standing. No wall on either side of it. No building behind it.',
+         'The frame is clean. Everything else out here wears the silt.'],
+        ['The opening inside it is black. Not shadowed \u2014 black, the same flat black head-on as from an angle.',
+         'No far wall. No light. Nothing catches on it at all.'],
+        ['You lean in for a better look.',
+         'There is no better look to get.'],
+      ],
+    },
+    {
+      id: 'upper_reach_stairhead', type: 'inspect', x: 3.5, y: 9.5,
+      label: 'Exposed stairhead',
+      pages: [
+        ['Cut stone, fresh out of the silt: an apron of flagging, and a stairhead going down.',
+         'The reservoir was built over this. Or around it. Or without knowing it was there.'],
+        ['The steps are still wet below the third one.',
+         'Water under the ground has nowhere to be but level. These steps go below it.'],
+      ],
+    },
+    {
+      id: 'upper_reach_pool', type: 'inspect', x: 10.5, y: 10.5, radius: 40, allowUnwalkable: true,
+      label: 'Residual pool',
+      pages: [
+        ['One of the last pools the drought has left up here.',
+         'It does not ripple. Not while you watch it.'],
+        ['You can hear the wind cross the flat.',
+         'The pool holds still.'],
+      ],
+    },
+  ],
+
+  // \u2500\u2500 The unmarked chamber \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  BASIN_CHAMBER_MAP: [
+    {
+      id:       'basin_chamber_arrival',
+      type:     'trigger',
+      rect:     { x1: 5, y1: 3, x2: 12, y2: 10 },  // the whole interior (rows 3-9, cols 5-11, center coords)
+      onceFlag: 'basin_chamber_seen',
+      label:    'Chamber first entry',
+      pages: [
+        ['The mud stops at the threshold. Inside, the floor is clean.',
+         'Not swept-clean. Never-needed-sweeping clean.'],
+        ['The room is lit evenly, from nowhere in particular.',
+         'It is exactly as bright behind you as ahead of you.'],
+        ['It is quiet in a way that has weight.'],
+      ],
+    },
+    {
+      id: 'basin_chamber_wall', type: 'inspect', x: 8.5, y: 2.5, radius: 40, allowUnwalkable: true,
+      label: 'The wall',
+      pages: [
+        ['The wall is one surface. No blocks, no seams, no tool marks.',
+         'It is very slightly warm.'],
+        ['Every wall in the Empire says who made it, if you know how to read it.',
+         'This one says nothing, fluently.'],
+      ],
+    },
+    {
+      id: 'basin_chamber_floor', type: 'inspect', x: 8.5, y: 6.5,
+      label: 'The floor',
+      pages: [
+        ['No dust. No silt \u2014 and the reach outside is nothing but silt.',
+         'Your boots have left prints as far as the middle of the room.'],
+        ['After that the prints stop.',
+         'You are standing past where they stop.'],
+      ],
+    },
+    {
+      id: 'basin_chamber_threshold', type: 'inspect', x: 7.5, y: 9.5,
+      label: 'The threshold',
+      pages: [
+        ['From this side, the doorway is the same flat black rectangle it was from outside.',
+         'No reach. No silt. No light.'],
+        ['You know which way you walked in from.',
+         'That is not the same as being able to see it.',
+         'You have been here a while.'],
+      ],
+    },
+  ],
+
+  // \u2500\u2500 The Sunken Gallery \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  SUNKEN_GALLERY_MAP: [
+    {
+      id:       'sunken_gallery_arrival',
+      type:     'trigger',
+      rect:     { x1: 2, y1: 2, x2: 9, y2: 5 },  // the foot of the stair (rows 2-4, cols 2-8, center coords)
+      onceFlag: 'sunken_gallery_seen',
+      label:    'Gallery first descent',
+      pages: [
+        ['The air is cold and closed, like the inside of a bell.',
+         'Everything smells of river bottom \u2014 silt, iron, the underside of a long time.'],
+        ['This hall was full of water until this season.',
+         'The drought did not build the stair behind you. It only stopped hiding it.'],
+      ],
+    },
+    {
+      id: 'sunken_gallery_waterline', type: 'inspect', x: 7.5, y: 1.5, radius: 40, allowUnwalkable: true,
+      label: 'Waterline band',
+      pages: [
+        ['A chalky mineral band runs the walls at head height, dead level, all the way around.',
+         'The hall was full to here. For longer than anyone has been counting anything.'],
+      ],
+    },
+    {
+      id: 'sunken_gallery_footprints', type: 'inspect', x: 7.5, y: 8.5,
+      label: 'Footprints in the silt',
+      pages: [
+        ['The silt lies over the floor like a dropped cloth.',
+         'There is a line of footprints in it.'],
+        ['They come up out of the standing water, cross the hall, and end at the stair.',
+         'They are not yours. They are not wearing boots.'],
+        ['The silt was underwater until this season.',
+         'Recently, then.'],
+      ],
+    },
+    {
+      id: 'sunken_gallery_water', type: 'inspect', x: 6.5, y: 9.5,
+      label: 'The flooded hall',
+      pages: [
+        ['The south half of the hall is still drowned. The water is perfectly clear and perfectly dark at once.',
+         'Rows of columns continue down into it, then stop being visible, without getting smaller.'],
+        ['Nothing in it moves.',
+         'You notice you have been holding your breath, and stop, and the sound is enormous.'],
+      ],
+    },
+  ],
+
+  // \u2500\u2500 Calwick apartment building \u2014 lobby corridor notice \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  // The corridor was a bare placeholder with nothing to read. Placed at
+  // the west end of the corridor, two tiles clear of the nearest apt door
+  // (c3, r5), so the door interact can't contest the press.
+  APARTMENT_CORRIDOR_MAP: [
+    {
+      id:        'calwick_apt_notice',
+      type:      'inspect',
+      x:         2.5, y: 7.5,
+      condition: () => currentTownId === 'calwick',
+      label:     'Building notice',
+      pages: [
+        ['A framed notice by the entrance, glass fogged with age.',
+         'The paper inside has been replaced recently.'],
+        ['TO ALL TENANTS:',
+         'Cistern drawing hours are posted at the square.',
+         'Do not wash stairs, stoops, or windows until the notice lifts.'],
+        ['Below, in a tighter hand:',
+         'The rain is not the building warden\u2019s doing either. Kindly stop asking.'],
+      ],
+    },
+  ],
+
   // ── The North Basin \u2014 South Approach signage (skeleton pass) ─────────
   // Five inspectable signs. No NPCs/quests on this map yet -- see maps.js's
   // header comment on NORTH_BASIN_S_MAP for the full layout.
@@ -431,6 +705,69 @@ const MAP_FEATURES = {
       ],
     },
   ],
+
+  // ── Roddon Way — the old creek-bed ridge ─────────────────────────────
+  // Ordinary regional geography, not a mystery: every entry here describes
+  // something the player can see from where they're standing. No onceFlag
+  // on any of these -- plain repeatable inspect text, not a discovery worth
+  // a persistent flag. Only 'roddon_way_viewpoint' explains the word
+  // itself; the rest just describe what's in front of the player.
+  RODDON_WAY_MAP: [
+    {
+      id: 'roddon_way_viewpoint', type: 'inspect', x: 6.5, y: 2.5, label: 'Viewpoint',
+      pages: [
+        ['A slight rise in the ridge here, just enough to see over the reeds.',
+         'Below, a shallow hollow of standing water and sedge — and around you, the ground you’re standing on, paler and firmer than anywhere near it.'],
+        ['“Roddon” is the old word for it: the silt bed of a creek that used to run here, packed firm while it flowed.',
+         'The creek is long gone. The peat around it has been sinking for longer than anyone’s kept a record. The silt never did.'],
+        ['The ridge you’re walking is what’s left standing.'],
+      ],
+    },
+    {
+      id: 'roddon_way_bank', type: 'inspect', x: 8.5, y: 3.5, label: 'Exposed bank',
+      pages: [
+        ['Where the ridge drops away toward the hollow, the cut edge is bare.',
+         'A band of grey-brown silt sits cleanly over black peat beneath it — two different grounds, stacked.'],
+        ['The silt band doesn’t waver. It holds the same width the whole visible length of the bank.',
+         'Whatever laid it down did the same work, the same way, for a long time.'],
+      ],
+    },
+    {
+      id: 'roddon_way_channel_curve', type: 'inspect', x: 3.5, y: 2.5, label: 'Old channel bend',
+      pages: [
+        ['The ridge bends here — not at an angle, but in a long, easy curve, the way water turns rather than the way a road does.',
+         'Nothing was built to make it do that. It simply never straightened out.'],
+        ['Following the curve with your eye, it’s not hard to see the creek that used to fill it.'],
+      ],
+    },
+    {
+      id: 'roddon_way_survey_post', type: 'inspect', x: 3.5, y: 1.5, label: 'Leaning post',
+      pages: [
+        ['A wooden marker post, driven in at the ridge’s high point. It leans hard, though nothing looks to have pushed it.',
+         'A District Drainage stamp is still legible near the base, and a scored line above it, roughly waist height.'],
+        ['The line likely marked the ground level once.',
+         'The ground it marked is a long way below it now — not from this year’s dry spell. Settling like this takes decades, not a season.'],
+      ],
+    },
+    {
+      id: 'roddon_way_eel_stakes', type: 'inspect', x: 6.5, y: 11.5, label: 'Old eel stakes',
+      pages: [
+        ['A row of split stakes stands along the bank, evenly spaced, backed with old cord.',
+         'An eel run, set to funnel a catch along the bank — into water that no longer reaches them.'],
+        ['The pool has drawn back a stake’s width, maybe two.',
+         'Whoever set these expected the water to stay put.'],
+      ],
+    },
+    {
+      id: 'roddon_way_cracked_peat', type: 'inspect', x: 6.5, y: 8.5, label: 'Cracked peat',
+      pages: [
+        ['Below the ridge, the low ground is duller and softer underfoot — proper peat, not silt.',
+         'It’s cracked into loose plates here, the pattern of ground that’s been wet longer than it’s been dry.'],
+        ['Three rainless months will do that to the topmost inch.',
+         'The ridge above it hasn’t changed at all.'],
+      ],
+    },
+  ],
 };
 
 // Evaluates a feature's `condition`, safely -- a throwing condition is
@@ -649,6 +986,31 @@ const DREAMS = [
 // extra page up front never disturbs a branch's callback.
 function interactSupervisor() {
   supervisorDialogueBody();
+  // One-time light admonishment: if the player crossed the bridge north of
+  // Drenwick before the reservoir assignment existed (recorded in
+  // exitBridgeNorth(), world-transitions.js), the supervisor notes it the next
+  // time they report in. Prepended like the greeting below, and the scolded
+  // flag is set synchronously HERE rather than through dialogue.callbacks —
+  // callbacks fire only on the LAST page and would collide with a branch's own
+  // callback (e.g. the MQ4 assignment). Gated on !reservoir_quest_started so it
+  // never fires once the basin actually IS the assignment; if the crossing and
+  // the assignment land in the same conversation, the scold reads first (this
+  // check runs before the assignment callback flips the flag), which is fine.
+  if (north_bridge_crossed_early && !north_bridge_scolded && !reservoir_quest_started) {
+    north_bridge_scolded = true;
+    syncQuestFlagsToWindow();
+    dialogue.pages = [
+      ['He sets the pen down before you’ve finished crossing the room.',
+       '“You went over the bridge north of Drenwick. Past the canal, onto the basin road.”',
+       '“What took you up there?”'],
+      ['He doesn’t wait for the answer, which tells you he has already decided it wasn’t a good one.',
+       '“There is no posting north of the canal. Nothing this office has asked you to look at.”',
+       '“The toll buys you across a bridge. It does not hand you a reason to be on the far side of it.”'],
+      ['“I won’t write it up. Consider that the whole of my generosity on the subject.”',
+       '“When the north is yours to walk, you will hear it from me. Not from your own boots.”'],
+      ...dialogue.pages,
+    ];
+  }
   if (supervisor_greet_day !== day) {
     supervisor_greet_day = day;
     syncQuestFlagsToWindow();
@@ -766,7 +1128,7 @@ function supervisorDialogueBody() {
     ];
     dialogue.callbacks = [function () {
       netto_letter_received = true;
-      stats.items.push({ name: 'Letter from Netto', type: 'accessory', bonus: 0, price: 0, questItem: true });
+      grantItem('Letter from Netto');
       syncQuestFlagsToWindow();
     }];
     return;
@@ -821,7 +1183,7 @@ function supervisorDialogueBody() {
     ];
     dialogue.callbacks = [function() {
       dispatch_quest_started = true;
-      stats.items.push({ name: 'Dispatch Letter', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true });
+      grantItem('Dispatch Letter');
       syncQuestFlagsToWindow();
       refreshJobBoard();
     }];
@@ -1032,7 +1394,8 @@ function supervisorDialogueBody() {
        '\u201cSomething\u2019s come in.\u201d'],
       ['\u201cThe reservoir bed north of Drenwick has given up something it was not supposed to have.\u201d',
        '\u201cSurveyors found it after the waterline dropped again.\u201d'],
-      ['\u201cThree years of drought have pulled the basin back further every season.',
+      ['\u201cThe basin has been declining for years, pulling back further every season.',
+       'Three rainless months have turned that decline into a drought.',
        'Ground nobody has stood on in living memory is open sky now.\u201d',
        '\u201cOld stonework. Old waterlines. Things the district maps do not have,',
        'because when the maps were drawn, all of it was underwater.\u201d'],
@@ -1218,7 +1581,7 @@ function interactDungeonFloor1() {
         dialogue.name  = '';
         dialogue.pages = [['You yank the latch too hard.', `The ${it.name} flies out and shatters on the stone floor.`, 'Pieces everywhere. It\u2019s ruined.']];
       } else {
-        stats.items.push({ name: it.name, type: it.type, bonus: it.bonus, price: it.price });
+        grantItem(it.name);
         dialogue.name  = '';
         dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
       }
@@ -1238,7 +1601,7 @@ function interactDungeonFloor1() {
         dialogue.name  = '';
         dialogue.pages = [['You yank the latch too hard.', `The ${it.name} flies out and shatters on the stone floor.`, 'Pieces everywhere. It\u2019s ruined.']];
       } else {
-        stats.items.push({ name: it.name, type: it.type, bonus: it.bonus, price: it.price });
+        grantItem(it.name);
         dialogue.name  = '';
         dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
       }
@@ -1455,7 +1818,7 @@ function interactSluiceInterior() {
           dialogue.name  = '';
           dialogue.pages = [['You trip on the latch mechanism.', `The ${it.name} tumbles into the channel water below.`, 'A soft glug. It\u2019s gone.']];
         } else {
-          stats.items.push({ name: it.name, type: it.type, bonus: it.bonus, heals: it.heals, price: it.price });
+          grantItem(it.name);
           dialogue.name  = '';
           dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
         }
@@ -1533,7 +1896,7 @@ function interactMireVault() {
         dialogue.name  = '';
         dialogue.pages = [['The chest lid snaps up and hits you in the face.', `The ${it.name} clatters across the flagstones and falls into the vault\u2019s central pool.`, 'You watch the ripples. The vault watches too.']];
       } else {
-        stats.items.push({ name: it.name, type: it.type, bonus: it.bonus, price: it.price });
+        grantItem(it.name);
         dialogue.name  = '';
         dialogue.pages = [['Ancient chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
       }
@@ -1777,16 +2140,16 @@ function interactTownOutdoor() {
           if (roll < 0.40) {
             dialogue.pages = [['You cast the line.', 'The water sits still.', 'Nothing bites.']];
           } else if (roll < 0.65) {
-            stats.items.push({ name: 'River Smelt', type: 'potion', heals: 8, price: 4 });
+            grantItem('River Smelt');
             dialogue.pages = [['Something on the line.', 'River Smelt. Small, cold, indignant.', 'Added to items.']];
           } else if (roll < 0.85) {
-            stats.items.push({ name: 'Canal Eel', type: 'potion', heals: 20, price: 12 });
+            grantItem('Canal Eel');
             dialogue.pages = [['Heavy on the line.', 'Canal Eel. Long, dark, unhappy about it.', 'Added to items.']];
           } else if (roll < 0.97) {
-            stats.items.push({ name: 'Old Boot', type: 'accessory', bonus: 0, price: 0 });
+            grantItem('Old Boot');
             dialogue.pages = [['Heavy on the line.', 'You pull it up.', 'Old Boot. Added to items.']];
           } else {
-            stats.items.push({ name: 'Sealed Letter', type: 'accessory', bonus: 0, price: 0, questItem: true });
+            grantItem('Sealed Letter');
             dialogue.pages = [
               ['Something catches on the line.', 'You pull it up carefully.'],
               ['A sealed letter. Still mostly dry.', 'The seal is already broken.', 'You unfold it.'],
@@ -2575,8 +2938,8 @@ function interactCalwickOffice() {
         ];
         dialogue.callbacks = [function() {
           equipment_ticket_ready = false;
-          stats.items.push({ name: 'Iron Sword', type: 'weapon', bonus: 4, price: 80 });
-          stats.items.push({ name: 'Leather Armor', type: 'armor', bonus: 3, price: 60 });
+          grantItem('Iron Sword');
+          grantItem('Leather Armor');
           syncQuestFlagsToWindow();
         }];
         dialogue.open = true;
@@ -3631,7 +3994,7 @@ function interactDrenwickTavern() {
         function buy() {
           if (stats.gold >= 8) {
             stats.gold -= 8;
-            stats.items.push({ name: 'Mushroom Wine', type: 'potion', heals: 5, questItem: true, price: 8 });
+            grantItem('Mushroom Wine');
             dialogue.name  = 'Brenn';
             dialogue.pages = [
               ['\u201cThere you go.\u201d',
@@ -3683,7 +4046,7 @@ function interactHouseInterior() {
     if (Math.sqrt(cax * cax + cay * cay) < TALK_RADIUS) {
       CAT_ARMOR_CHEST.opened = true;
       const it = CAT_ARMOR_CHEST.item;
-      stats.items.push({ name: it.name, type: it.type, bonus: it.bonus, price: it.price });
+      grantItem(it.name);
       dialogue.name  = '';
       dialogue.pages = [['There is something here after all.',
                          `\u2014 ${it.name} found.`,
@@ -3938,8 +4301,8 @@ function interactHouseInterior() {
       dialogue.name = 'Dresser';
       if (!hd.dresser.looted) {
         hd.dresser.looted = true;
-        stats.items.push({ name: 'Potion',      type: 'potion', heals: 20, price: 30 });
-        stats.items.push({ name: 'Reed Remedy', type: 'potion', heals: 0, curesPoison: true, price: 50 });
+        grantItem('Potion');
+        grantItem('Reed Remedy');
         dialogue.pages = [
           ['You work the swollen drawers open. Most are empty.',
            'In the bottom one, wrapped in a rag: a stoppered potion and a twist of reed remedy.'],
@@ -3959,7 +4322,7 @@ function interactHouseInterior() {
     const spdy = player.y - hd.sparkle.y;
     if (Math.sqrt(spdx * spdx + spdy * spdy) < TALK_RADIUS) {
       hd.sparkle.taken = true;
-      stats.items.push({ name: 'Tweezers', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true });
+      grantItem('Tweezers');
       dialogue.name  = '';
       dialogue.pages = [
         ['Something glints between the floorboards.',
@@ -4508,7 +4871,7 @@ function interactHouseInterior() {
             dialogue.callbacks = [function() {
               stats.items = stats.items.filter(i => i.name !== 'Thank-You Note');
               if (gaveCase) {
-                stats.items.push({ name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 400, preventsCursed: true });
+                grantItem('Amethyst Bangle');
               } else {
                 stats.gold += 50;
               }
@@ -4699,7 +5062,7 @@ function interactHouseInterior() {
           dialogue.callbacks = [function() {
             const giftItemName = gift === 'case' ? 'Case of Mushroom Wine' : 'Bottle of Mushroom Wine';
             stats.items = stats.items.filter(i => i.name !== giftItemName);
-            stats.items.push({ name: 'Thank-You Note', type: 'accessory', bonus: 0, price: 0, questItem: true });
+            grantItem('Thank-You Note');
             wine_quest_delivered = true;
             wine_quest_gift      = gift;
             syncQuestFlagsToWindow();
@@ -4726,7 +5089,7 @@ function interactWildsAndOutposts() {
       if (Math.sqrt(mcx * mcx + mcy * mcy) < TALK_RADIUS) {
         MEADOW_CHEST.opened = true;
         const it = MEADOW_CHEST.item;
-        stats.items.push({ name: it.name, type: it.type, heals: it.heals, curesCursed: it.curesCursed, price: it.price });
+        grantItem(it.name);
         dialogue.name  = '';
         dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  — added to items.`]];
         dialogue.open  = true;
@@ -4773,7 +5136,7 @@ function interactWildsAndOutposts() {
             function buyBottle() {
               if (stats.gold >= 12) {
                 stats.gold -= 12;
-                stats.items.push({ name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12, questItem: true });
+                grantItem('Bottle of Mushroom Wine');
                 dialogue.name  = 'Gorrit';
                 dialogue.pages = [
                   ['\u201cThere you go.\u201d',
@@ -4790,7 +5153,7 @@ function interactWildsAndOutposts() {
             function buyCase() {
               if (stats.gold >= 132) {
                 stats.gold -= 132;
-                stats.items.push({ name: 'Case of Mushroom Wine', type: 'accessory', bonus: 0, price: 132, questItem: true });
+                grantItem('Case of Mushroom Wine');
                 dialogue.name  = 'Gorrit';
                 dialogue.pages = [
                   ['\u201cA whole case.\u201d',
@@ -4961,7 +5324,9 @@ function interactWrongteethFloor() {
              'It doesn\u2019t flinch. It keeps looking at you.',
              'Then it\u2019s over.'],
           ];
-          if (schilling_quest_started && !schilling_returned) {
+          // Award the bear even if the player never met Pip — resolving
+          // Wrongteeth first must not lock the Schilling quest.
+          if (!schilling_returned) {
             kPages.push([
               'On the ground beside it, half-buried in the mud,',
               'is a small cloth bear.',
@@ -4969,7 +5334,7 @@ function interactWrongteethFloor() {
               'You pick it up.',
             ]);
             dialogue.callbacks = [function() {
-              stats.items.push({ name: 'Schilling', type: 'accessory', bonus: 0, price: 0, questItem: true });
+              grantItem('Schilling');
             }];
           } else {
             dialogue.callbacks = null;
@@ -5003,7 +5368,9 @@ function interactWrongteethFloor() {
              'The big eye finds yours. The tiny eye finds yours.',
              'Then it curls smaller, and is quiet.'],
           ];
-          if (schilling_quest_started && !schilling_returned) {
+          // Same as the kill branch: award the bear regardless of whether the
+          // player has met Pip yet.
+          if (!schilling_returned) {
             hPages.push([
               'When it lets go, something drops from the tangle of its arms.',
               'A small cloth bear.',
@@ -5012,7 +5379,7 @@ function interactWrongteethFloor() {
               'You pick it up.',
             ]);
             dialogue.callbacks = [function() {
-              stats.items.push({ name: 'Schilling', type: 'accessory', bonus: 0, price: 0, questItem: true });
+              grantItem('Schilling');
             }];
           } else {
             dialogue.callbacks = null;

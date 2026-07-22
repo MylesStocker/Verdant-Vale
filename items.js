@@ -1,22 +1,31 @@
 'use strict';
 
-// ─── Items ────────────────────────────────────────────────────────────────────
-// Placeholder for static item/equipment catalog definitions.
-//
-// Audit result: all item definitions in data.js are embedded inside stateful
-// collections (picked: false, opened: false) and cannot be separated without
-// breaking mutable game state. No standalone item catalog arrays exist to move.
-//
-// Shop inventories (MERCHANT_STOCK, TRAVELLER_STOCK) live in npcs.js as they
-// are tightly coupled to NPC placement data.
-//
-// Add standalone item catalog constants here as they are introduced.
-
 // ─── Item registry ────────────────────────────────────────────────────────────
-// Additive/reference-only: gameplay code has not yet been migrated to use this.
-// Keyed by item name. Chest-only items seeded here (data.js loads before items.js).
-// Shop items are added in shops.js after MERCHANT_STOCK/TRAVELLER_STOCK are defined.
+// The single authoritative source for inventory-item properties. Every item
+// that can enter stats.items or an equipment slot is defined here, keyed by
+// item name. Runtime code must not hand-write item objects — use
+// createItem(name) / grantItem(name) below. Placed world/chest records in
+// data.js keep only their positional/mutable fields (x, y, picked, opened)
+// plus the item name; loadGame() re-creates saved items from these
+// definitions so stale saved metadata never survives a load.
+//
+// Inscriptions (type 'inscription') are lore text, never enter the inventory,
+// and are intentionally not registered.
 const ITEM_REGISTRY = {
+  // Merchant (Calwick) stock — see SHOP_REGISTRY in shops.js for who sells what
+  'Potion':        { name: 'Potion',        type: 'potion',    heals: 20, price: 30  },
+  'Iron Sword':    { name: 'Iron Sword',    type: 'weapon',    bonus: 4,  price: 80  },
+  'Leather Armor': { name: 'Leather Armor', type: 'armor',     bonus: 3,  price: 60  },
+  'Steel Sword':   { name: 'Steel Sword',   type: 'weapon',    bonus: 7,  price: 150 },
+  'Iron Shield':   { name: 'Iron Shield',   type: 'shield',    bonus: 3,  price: 70  },
+  'Swiftstone':    { name: 'Swiftstone',    type: 'accessory', bonus: 2,  price: 90  },
+  // Travelling Salesman stock
+  'Elixir':         { name: 'Elixir',         type: 'potion',    heals: 50, price: 80  },
+  'Battle Axe':     { name: 'Battle Axe',     type: 'weapon',    bonus: 9,  price: 250 },
+  'Dragon Blade':   { name: 'Dragon Blade',   type: 'weapon',    bonus: 12, price: 350 },
+  'Shadow Cloak':   { name: 'Shadow Cloak',   type: 'armor',     bonus: 8,  price: 280 },
+  'Mithril Shield': { name: 'Mithril Shield', type: 'shield',    bonus: 6,  price: 220 },
+  'Wraithband':     { name: 'Wraithband',     type: 'accessory', bonus: 4,  price: 200 },
   // Chest-only items (not sold in any shop)
   'Warden Blade': { name: 'Warden Blade', type: 'weapon',    bonus: 10, price: 220 },
   'Void Shard':   { name: 'Void Shard',   type: 'accessory', bonus:  5, price: 180 },
@@ -43,13 +52,35 @@ const ITEM_REGISTRY = {
   // from the tavern's by-the-cup 'Mushroom Wine'); bought as a gift, not a heal item.
   'Bottle of Mushroom Wine': { name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12,  questItem: true },
   'Case of Mushroom Wine':   { name: 'Case of Mushroom Wine',   type: 'accessory', bonus: 0, price: 132, questItem: true },
-  'Thank-You Note':          { name: 'Thank-You Note',          type: 'accessory', bonus: 0, price: 0,   questItem: true },
-  // Found in the abandoned Drenwick apartment (c1_u4). Flavor/quest key item —
-  // questItem + keyItem so it lives in Special Items, never equippable or sold.
-  'Tweezers':                { name: 'Tweezers',                type: 'accessory', bonus: 0, price: 0,   questItem: true, keyItem: true },
   // Fenna's reward for delivering a case rather than a bottle — real equipment,
   // not a flavor-only key item, so it isn't questItem-flagged.
   'Amethyst Bangle': { name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 400, preventsCursed: true },
+  // One-off quest/event key items — questItem + keyItem so they live in the
+  // Special Items notebook, never equippable, usable, or sold. (keyItem is
+  // never inferred from questItem — the mushroom wines above stay ordinary.)
+  'Thank-You Note':    { name: 'Thank-You Note',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Tweezers':          { name: 'Tweezers',          type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Schilling':         { name: 'Schilling',         type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Cat-Shaped Key':    { name: 'Cat-Shaped Key',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Letter from Netto': { name: 'Letter from Netto', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Dispatch Letter':   { name: 'Dispatch Letter',   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
 };
 
+// Returns a fresh instance of the named item. Never hands out (or mutates)
+// the registry definition itself.
+function createItem(name) {
+  const def = ITEM_REGISTRY[name];
+  if (!def) throw new Error('createItem: unknown item "' + name + '" — add it to ITEM_REGISTRY (items.js)');
+  return { ...def };
+}
+
+// Creates the named item, adds it to the player's inventory, and returns it.
+function grantItem(name) {
+  const item = createItem(name);
+  stats.items.push(item);
+  return item;
+}
+
 window.ITEM_REGISTRY = ITEM_REGISTRY;
+window.createItem    = createItem;
+window.grantItem     = grantItem;

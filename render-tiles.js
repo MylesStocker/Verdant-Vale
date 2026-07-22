@@ -1851,6 +1851,267 @@ function drawEastExit(x, y) {
   ctx.fill();
 }
 
+// ─── The Upper Reach: the standing doorframe + the Sunken Gallery ────────────
+
+// A freestanding stone doorframe on the drained bed, attached to nothing.
+// The opening is pure black regardless of the light — that IS the tell, the
+// only one it gets. Drawn over the same mud as everything around it.
+function drawChamberDoor(x, y) {
+  drawBasinMud(x, y);
+  // Uprights and lintel — pale grey masonry, cleaner than anything this far
+  // out has a right to be
+  ctx.fillStyle = '#9a968c';
+  ctx.fillRect(x + 4,  y + 2, 5, 30);   // left upright
+  ctx.fillRect(x + 23, y + 2, 5, 30);   // right upright
+  ctx.fillRect(x + 4,  y,     24, 5);   // lintel
+  // Face shading
+  ctx.fillStyle = '#7e7a70';
+  ctx.fillRect(x + 7,  y + 5, 2, 27);
+  ctx.fillRect(x + 26, y + 5, 2, 27);
+  // The opening — black, flat, no depth cue at all
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(x + 9, y + 5, 14, 27);
+}
+
+// The unmarked chamber: floor and wall are almost the same surface. Flat
+// bone-grey with no texture, no seams, no grain — the room gives the eye
+// nothing to hold. The wall is barely darker so geometry stays readable.
+function drawChamberFloor(x, y) {
+  ctx.fillStyle = '#c9c5bc';
+  ctx.fillRect(x, y, TILE, TILE);
+}
+
+function drawChamberWall(x, y) {
+  ctx.fillStyle = '#b4b0a7';
+  ctx.fillRect(x, y, TILE, TILE);
+}
+
+// The threshold out — the one interruption in the room: a doorway of the
+// same black as the frame outside, set flush in the south wall.
+function drawChamberExit(x, y) {
+  drawChamberWall(x, y);
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(x + 8, y + 4, 16, 28);
+  // Thin pale reveal around the opening
+  ctx.fillStyle = '#d6d2c9';
+  ctx.fillRect(x + 6,  y + 2, 2, 30);
+  ctx.fillRect(x + 24, y + 2, 2, 30);
+  ctx.fillRect(x + 6,  y + 2, 20, 2);
+}
+
+// The drought-exposed stairhead: cut stone steps descending into the bed,
+// still dark and wet below the third step. Set in its EXPOSED_STONE apron.
+function drawSunkenStair(x, y) {
+  drawExposedStone(x, y);
+  // Stair shaft
+  ctx.fillStyle = '#3a362c';
+  ctx.fillRect(x + 5, y + 5, 22, 22);
+  // Descending steps, darker with depth — the water line is still down there
+  ctx.fillStyle = '#6a665a';
+  ctx.fillRect(x + 5,  y + 5,  22, 5);
+  ctx.fillStyle = '#4e4a40';
+  ctx.fillRect(x + 7,  y + 10, 18, 5);
+  ctx.fillStyle = '#34302a';
+  ctx.fillRect(x + 9,  y + 15, 14, 5);
+  ctx.fillStyle = '#1c1a16';
+  ctx.fillRect(x + 11, y + 20, 10, 7);
+  // Wet sheen on the lowest visible step
+  ctx.fillStyle = '#2c3438';
+  ctx.fillRect(x + 11, y + 25, 10, 2);
+}
+
+// Sunken Gallery floor — stone flags under a film of silt. Recently
+// underwater: everything has the same waterlogged grey-green cast.
+function drawGalleryFloor(x, y) {
+  ctx.fillStyle = '#4c5248';
+  ctx.fillRect(x, y, TILE, TILE);
+  // Flag seams
+  ctx.fillStyle = '#3c4238';
+  ctx.fillRect(x, y + 15, TILE, 2);
+  ctx.fillRect(x + 15, y, 2, TILE);
+  // Silt film patches — paler, dried in curls
+  ctx.fillStyle = '#5e6252';
+  ctx.fillRect(x + 3,  y + 3,  9, 7);
+  ctx.fillRect(x + 20, y + 20, 9, 8);
+  // Damp pooling in the seam corners
+  ctx.fillStyle = '#343c3c';
+  ctx.fillRect(x + 13, y + 13, 6, 6);
+}
+
+// Sunken Gallery wall — dark masonry with a pale mineral waterline band
+// near the top: the room remembers exactly how full it was.
+function drawGalleryWall(x, y) {
+  ctx.fillStyle = '#2e332e';
+  ctx.fillRect(x, y, TILE, TILE);
+  // Block courses
+  ctx.fillStyle = '#262b26';
+  ctx.fillRect(x, y + 10, TILE, 2);
+  ctx.fillRect(x, y + 21, TILE, 2);
+  ctx.fillRect(x + 15, y, 2, 10);
+  ctx.fillRect(x + 7,  y + 12, 2, 9);
+  ctx.fillRect(x + 22, y + 23, 2, 9);
+  // The waterline band — chalky mineral crust, dead level
+  ctx.fillStyle = '#8a8f80';
+  ctx.fillRect(x, y + 6, TILE, 3);
+}
+
+// Stair back up to the Upper Reach — daylight falling down the shaft.
+function drawGalleryStairUp(x, y) {
+  drawGalleryFloor(x, y);
+  ctx.fillStyle = '#181c18';
+  ctx.fillRect(x + 5, y + 5, 22, 22);
+  // Ascending steps, lighter with height
+  ctx.fillStyle = '#3e443e';
+  ctx.fillRect(x + 5,  y + 22, 22, 5);
+  ctx.fillStyle = '#565c50';
+  ctx.fillRect(x + 7,  y + 17, 18, 5);
+  ctx.fillStyle = '#787c68';
+  ctx.fillRect(x + 9,  y + 12, 14, 5);
+  ctx.fillStyle = '#a8a890';
+  ctx.fillRect(x + 11, y + 7,  10, 5);
+}
+
+// Roddon silt — the raised bed of a long-dead creek. Firm, pale, and dry:
+// no cracking (that's BASIN_MUD's drought look elsewhere), just a smooth
+// silty crown with faint mineral banding and a scatter of small pale
+// pebbles washed up when the creek still ran. Deliberately warmer and
+// paler than the peat around it, so the ridge reads at a glance.
+function drawRoddonSilt(x, y) {
+  ctx.fillStyle = '#a89878';
+  ctx.fillRect(x, y, TILE, TILE);
+  // Faint banding — old sediment layers, laid down when the creek still ran
+  ctx.fillStyle = '#b8a888';
+  ctx.fillRect(x,      y +  9, TILE, 3);
+  ctx.fillRect(x,      y + 21, TILE, 3);
+  ctx.fillStyle = '#988868';
+  ctx.fillRect(x,      y + 16, TILE, 2);
+  // Scattered pale pebbles — small, washed smooth
+  ctx.fillStyle = '#c8bc9c';
+  ctx.fillRect(x +  5, y +  4, 3, 3);
+  ctx.fillRect(x + 22, y +  7, 3, 2);
+  ctx.fillRect(x + 13, y + 24, 3, 3);
+  ctx.fillRect(x + 26, y + 19, 2, 3);
+  // A darker fleck or two — a little peat still worked into the surface
+  ctx.fillStyle = '#6c604a';
+  ctx.fillRect(x +  9, y + 13, 2, 2);
+  ctx.fillRect(x + 20, y + 27, 2, 2);
+}
+
+// ─── Calwick flavor-pass props ────────────────────────────────────────────────
+// Small walkable decorative props at each inspectable's exact interaction
+// coordinate (see tiles.js's header comment on CHARTER_STONE for why these
+// are new tiles rather than an overlay system).
+
+// Waist-high boundary stone, TOWN_MAP west road. Squat grey stone block,
+// re-cut face suggested by faint inscribed lines, on the ordinary street.
+function drawCharterStone(x, y) {
+  drawTownFloor(x, y);
+  ctx.fillStyle = 'rgba(0,0,0,0.20)';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 27, 9, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Stone body
+  ctx.fillStyle = '#8a8880';
+  ctx.fillRect(x + 9, y + 10, 14, 17);
+  // Lit top face
+  ctx.fillStyle = '#a4a298';
+  ctx.fillRect(x + 9, y + 10, 14, 4);
+  // Shadowed side
+  ctx.fillStyle = '#706e66';
+  ctx.fillRect(x + 20, y + 10, 3, 17);
+  // Faint re-cut inscription lines
+  ctx.fillStyle = '#5c5a52';
+  ctx.fillRect(x + 12, y + 17, 8, 1);
+  ctx.fillRect(x + 12, y + 20, 6, 1);
+  ctx.fillRect(x + 12, y + 23, 7, 1);
+}
+
+// Broad stone-lipped cistern tank, TOWN_MAP south lane. Viewed from above:
+// a stone rim ring around dark, still water.
+function drawCistern(x, y) {
+  drawTownFloor(x, y);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 18, 14, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Stone rim
+  ctx.fillStyle = '#8a8880';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 16, 14, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#a4a298';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 15, 14, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Water surface, well below the rim (matches the inspect text)
+  ctx.fillStyle = '#3a4a54';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 16, 10, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#4c5c66';
+  ctx.beginPath();
+  ctx.ellipse(x + 14, y + 15, 4, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Numbered measuring stave, EAST_TOWN_MAP reed bed. Tall thin post with
+// painted tick marks and a small tin reading plate near the top.
+function drawWaterGauge(x, y) {
+  drawReeds(x, y);
+  // Post
+  ctx.fillStyle = '#6a5c44';
+  ctx.fillRect(x + 14, y + 4, 4, 25);
+  ctx.fillStyle = '#7c6c50';
+  ctx.fillRect(x + 14, y + 4, 2, 25);
+  // Painted number ticks, dense near the base (the "readings" line)
+  ctx.fillStyle = '#d8c878';
+  ctx.fillRect(x + 12, y + 10, 8, 1);
+  ctx.fillRect(x + 12, y + 15, 8, 1);
+  ctx.fillRect(x + 12, y + 20, 8, 1);
+  ctx.fillRect(x + 12, y + 25, 8, 1);
+  // Small tin reading plate
+  ctx.fillStyle = '#9a9488';
+  ctx.fillRect(x + 17, y + 6, 6, 5);
+}
+
+// Reed-cutters' drying rack, EAST_TOWN_MAP grass. Two uprights, a
+// crossbar, and hanging bound bundles (half the pegs empty, per the text).
+function drawReedRack(x, y) {
+  drawGrass(x, y);
+  // Uprights
+  ctx.fillStyle = '#5a4c34';
+  ctx.fillRect(x + 5,  y + 6, 3, 22);
+  ctx.fillRect(x + 24, y + 6, 3, 22);
+  // Crossbar
+  ctx.fillStyle = '#6a5c40';
+  ctx.fillRect(x + 5, y + 6, 22, 3);
+  // Hanging bundles — thin, sparse (this season's row is short)
+  ctx.fillStyle = '#a89858';
+  ctx.fillRect(x + 9,  y + 9, 3, 12);
+  ctx.fillRect(x + 20, y + 9, 3, 9);
+  ctx.fillStyle = '#8a7c48';
+  ctx.fillRect(x + 9,  y + 18, 3, 3);
+  ctx.fillRect(x + 20, y + 15, 3, 3);
+}
+
+// Framed tenant notice, APARTMENT_CORRIDOR_MAP. Small glass-fronted frame
+// with a hint of pinned paper — deliberately not NOTICE_BOARD's freestanding
+// outdoor post-and-board (see tiles.js).
+function drawAptNotice(x, y) {
+  drawInteriorFloor(x, y);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.fillRect(x + 8, y + 21, 16, 3);
+  // Frame
+  ctx.fillStyle = '#4a3c28';
+  ctx.fillRect(x + 8, y + 7, 16, 14);
+  // Fogged glass
+  ctx.fillStyle = 'rgba(200,204,196,0.55)';
+  ctx.fillRect(x + 10, y + 9, 12, 10);
+  // Paper inside, just visible through the fog
+  ctx.fillStyle = 'rgba(232,224,200,0.65)';
+  ctx.fillRect(x + 12, y + 11, 8, 6);
+}
+
 function drawTile(id, x, y) {
   switch (id) {
     case GRASS:               drawGrass(x, y);            break;
@@ -1958,6 +2219,20 @@ function drawTile(id, x, y) {
     // exit's visual cue is the gap in the meadow's tree border, not the tile.
     case MEADOW_HIDDEN_ENTRANCE:  drawGrass(x, y);                break;
     case MEADOW_EXIT:             drawGrass(x, y);                break;
+    case CHAMBER_DOOR:            drawChamberDoor(x, y);          break;
+    case CHAMBER_FLOOR:           drawChamberFloor(x, y);         break;
+    case CHAMBER_WALL:            drawChamberWall(x, y);          break;
+    case CHAMBER_EXIT:            drawChamberExit(x, y);          break;
+    case SUNKEN_STAIR:            drawSunkenStair(x, y);          break;
+    case GALLERY_FLOOR:           drawGalleryFloor(x, y);         break;
+    case GALLERY_WALL:            drawGalleryWall(x, y);          break;
+    case GALLERY_STAIR_UP:        drawGalleryStairUp(x, y);       break;
+    case RODDON_SILT:             drawRoddonSilt(x, y);           break;
+    case CHARTER_STONE:           drawCharterStone(x, y);         break;
+    case CISTERN:                 drawCistern(x, y);              break;
+    case WATER_GAUGE:             drawWaterGauge(x, y);           break;
+    case REED_RACK:               drawReedRack(x, y);             break;
+    case APT_NOTICE:              drawAptNotice(x, y);            break;
   }
 }
 
@@ -1990,6 +2265,9 @@ const RENDERABLE_TILE_IDS = new Set([
   NORTH_BASIN_W_ENTRANCE, TRAPPER_HUT, MEADOW_HIDDEN_ENTRANCE, MEADOW_EXIT,
   SLUICE_MARK_WALL, SLUICE_NOTCH_WALL, SLUICE_BLOOD_FLOOR, SLUICE_JOURNAL_FLOOR,
   SLUICE_SECRET_ENTRANCE, SLUICE_SECRET_EXIT, DREAM_FLOOR, DREAM_EDGE,
+  CHAMBER_DOOR, CHAMBER_FLOOR, CHAMBER_WALL, CHAMBER_EXIT,
+  SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, RODDON_SILT,
+  CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;
 

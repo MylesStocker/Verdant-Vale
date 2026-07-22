@@ -180,6 +180,18 @@ let esla_said_polwick_dead    = false; // grieved Polwick's death (killed or exe
 let supervisor_greet_day = 0;
 let esla_greet_day       = 0;
 
+// ─── North-bridge early crossing (pre-MQ4 admonishment) ───────────────────────
+// The Imperial toll bridge north of Drenwick (MAP3_N2) is the only crossing of
+// the canal, and the North Basin beyond it is deliberately reachable before the
+// reservoir assignment exists. If the player crosses north before
+// reservoir_quest_started is set, the Calwick supervisor lightly admonishes them
+// the next time they report in (that ground isn't on any assignment yet).
+// crossed_early records the fact (set in exitBridgeNorth(), world-transitions.js);
+// scolded gates the one-time line (set in interactSupervisor(), interactions.js).
+// Both are monotonic — once true, they stay true, so re-crossing never re-scolds.
+let north_bridge_crossed_early = false;
+let north_bridge_scolded       = false;
+
 // ─── Side quest: A Bottle for Her Father ──────────────────────────────────────
 // Offered only once MainQuest >= 2 (the Drenwick dispatch done); before that
 // Fenna only frets about the drought reaching the fen mushroom beds.
@@ -248,10 +260,20 @@ function syncQuestFlagsToWindow() {
   window.esla_said_polwick_dead    = esla_said_polwick_dead;
   window.supervisor_greet_day      = supervisor_greet_day;
   window.esla_greet_day            = esla_greet_day;
+  window.north_bridge_crossed_early = north_bridge_crossed_early;
+  window.north_bridge_scolded       = north_bridge_scolded;
   window.wine_quest_started   = wine_quest_started;
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;
   window.wine_quest_rewarded  = wine_quest_rewarded;
+  // Window-native MAP_FEATURES onceFlags (Upper Reach pass) -- window[name]
+  // is the source of truth (interactions.js sets it directly), so these
+  // lines only normalize undefined -> false. They must NEVER assign from a
+  // let-binding: that would clobber a flag the player just earned before
+  // saveGame() reads it.
+  window.upper_reach_seen     = !!window.upper_reach_seen;
+  window.basin_chamber_seen   = !!window.basin_chamber_seen;
+  window.sunken_gallery_seen  = !!window.sunken_gallery_seen;
 }
 window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 

@@ -891,6 +891,7 @@ function validateEnemies() {
     ['SLUICE_ENEMY_TEMPLATES',        typeof SLUICE_ENEMY_TEMPLATES        !== 'undefined' ? SLUICE_ENEMY_TEMPLATES        : undefined],
     ['SLUICE_SECRET_ENEMY_TEMPLATES', typeof SLUICE_SECRET_ENEMY_TEMPLATES !== 'undefined' ? SLUICE_SECRET_ENEMY_TEMPLATES : undefined],
     ['NORTH_BASIN_ENEMY_TEMPLATES',   typeof NORTH_BASIN_ENEMY_TEMPLATES   !== 'undefined' ? NORTH_BASIN_ENEMY_TEMPLATES   : undefined],
+    ['SUNKEN_GALLERY_ENEMY_TEMPLATES', typeof SUNKEN_GALLERY_ENEMY_TEMPLATES !== 'undefined' ? SUNKEN_GALLERY_ENEMY_TEMPLATES : undefined],
     ['MIRE_VAULT_ENEMY_TEMPLATES',    typeof MIRE_VAULT_ENEMY_TEMPLATES    !== 'undefined' ? MIRE_VAULT_ENEMY_TEMPLATES    : undefined],
   ];
   let anyPoolFound = false;
@@ -1023,12 +1024,16 @@ function validateSaveFlags() {
       'smugglers_dead', 'smugglers_execution_day',
       'fort_report_filed', 'mq4_available_day', 'reservoir_quest_started',
       'supervisor_greet_day', 'esla_greet_day',
+      'north_bridge_crossed_early', 'north_bridge_scolded',
       'schilling_quest_started', 'schilling_returned',
       'drama_stage', 'weight_quest_stage', 'weight_note_signed',
       'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded', 'pale_sentry_hp',
       'sickle_quest_stage', 'gridd_rainfish_warned', 'rainfish_woken',
       'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
       'netto_letter_received',
+      // Window-native MAP_FEATURES onceFlags -- sync only normalizes these
+      // (undefined -> false), it never assigns from a let-binding.
+      'upper_reach_seen', 'basin_chamber_seen', 'sunken_gallery_seen',
     ];
     for (const key of syncedByQuestFlagsToWindow) {
       checked++;

@@ -188,23 +188,25 @@ module.exports = {
     g.run(`ENEMY_TEMPLATES.pop();`); // restore
 
     // ── 10. Dialogue overflow warns, does not error or throw ────────────────
-    // maren (unlike e.g. vann) has a plain, assignable dialogue array rather
-    // than a getter-computed one -- needed since this test overwrites it.
+    // tern has a plain, assignable dialogue array rather than a
+    // getter-computed one -- needed since this test overwrites it. (This
+    // used to use maren, whose dialogue became a flag-dependent getter in
+    // the flag-dialogue pass.)
     g.run(`
-      window.__savedMarenDialogue = SIMPLE_NPCS.find(n => n.id === 'maren').dialogue;
-      SIMPLE_NPCS.find(n => n.id === 'maren').dialogue = [[ 'x'.repeat(400) ]];
+      window.__savedTernDialogue = SIMPLE_NPCS.find(n => n.id === 'tern').dialogue;
+      SIMPLE_NPCS.find(n => n.id === 'tern').dialogue = [[ 'x'.repeat(400) ]];
     `);
     let longLine;
     assert.doesNotThrow(() => { longLine = runValidation(g); }, 'an overly long dialogue line must not throw validateGameData()');
     assert.ok(
-      longLine.warningList.some(w => w.group === 'Dialogue' && w.message.includes('maren') && w.message.includes('exceed dialogue width')),
+      longLine.warningList.some(w => w.group === 'Dialogue' && w.message.includes('tern') && w.message.includes('exceed dialogue width')),
       'an overly long dialogue line should be a warning: ' + JSON.stringify(longLine.warningList.filter(w => w.group === 'Dialogue'))
     );
     assert.ok(
-      !longLine.errorList.some(e => e.message.includes('maren')),
+      !longLine.errorList.some(e => e.message.includes('tern')),
       'an overly long dialogue line must not also be reported as an error'
     );
-    g.run(`SIMPLE_NPCS.find(n => n.id === 'maren').dialogue = window.__savedMarenDialogue; delete window.__savedMarenDialogue;`); // restore
+    g.run(`SIMPLE_NPCS.find(n => n.id === 'tern').dialogue = window.__savedTernDialogue; delete window.__savedTernDialogue;`); // restore
 
     // ── 11. Existing point transition (MAP <-> MAP2) still works ───────────
     g.run(`

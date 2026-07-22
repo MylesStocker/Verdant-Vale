@@ -8,11 +8,15 @@
     "MAP4",
     "MAP5",
     "MAP3_N1",
+    "RODDON_WAY_MAP",
     "MAP3_N2",
     "NORTH_BASIN_S_MAP",
     "NORTH_BASIN_C_MAP",
     "NORTH_BASIN_SW_MAP",
     "NORTH_BASIN_W_MAP",
+    "NORTH_BASIN_NW_MAP",
+    "BASIN_CHAMBER_MAP",
+    "SUNKEN_GALLERY_MAP",
     "DRENWICK_POST_MAP",
     "BRIDGE_CROSSING_MAP",
     "SMUGGLER_FORT_MAP",
@@ -123,6 +127,12 @@
       "ok": true
     },
     {
+      "id": "RODDON_WAY_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
       "id": "MAP3_N2",
       "rows": 15,
       "cols": 16,
@@ -148,6 +158,24 @@
     },
     {
       "id": "NORTH_BASIN_W_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "NORTH_BASIN_NW_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "BASIN_CHAMBER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -2243,7 +2271,7 @@
       "escapes": {
         "up": true,
         "down": true,
-        "left": false,
+        "left": true,
         "right": true
       },
       "canEscape": true,
@@ -2620,6 +2648,122 @@
       "escapes": {
         "up": true,
         "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterBasinChamber",
+      "group": "flat-transitions",
+      "setupCode": "enterBasinChamber()",
+      "error": null,
+      "destMap": "BASIN_CHAMBER_MAP",
+      "px": 272,
+      "py": 304,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 9,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 104,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitBasinChamber",
+      "group": "flat-transitions",
+      "setupCode": "exitBasinChamber()",
+      "error": null,
+      "destMap": "NORTH_BASIN_NW_MAP",
+      "px": 400,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 81,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "descendSunkenGallery",
+      "group": "flat-transitions",
+      "setupCode": "descendSunkenGallery()",
+      "error": null,
+      "destMap": "SUNKEN_GALLERY_MAP",
+      "px": 80,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 2,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 108,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "ascendSunkenGallery",
+      "group": "flat-transitions",
+      "setupCode": "ascendSunkenGallery()",
+      "error": null,
+      "destMap": "NORTH_BASIN_NW_MAP",
+      "px": 144,
+      "py": 336,
+      "facing": "down",
+      "tileCol": 4,
+      "tileRow": 10,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 88,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
         "left": true,
         "right": true
       },
@@ -7697,7 +7841,7 @@
           "idx": 5,
           "px": 48,
           "py": 176,
-          "tileId": 12,
+          "tileId": 112,
           "walkableByTable": true,
           "canWalkHere": true
         },
@@ -8005,6 +8149,26 @@
     },
     {
       "name": "SLUICE_SECRET_EXIT",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
+    },
+    {
+      "name": "CHAMBER_DOOR",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
+    },
+    {
+      "name": "CHAMBER_EXIT",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
+    },
+    {
+      "name": "SUNKEN_STAIR",
+      "mapsUsingIt": 1,
+      "handledInMovement": true
+    },
+    {
+      "name": "GALLERY_STAIR_UP",
       "mapsUsingIt": 1,
       "handledInMovement": true
     }

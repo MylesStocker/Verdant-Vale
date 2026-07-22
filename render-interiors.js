@@ -2077,3 +2077,106 @@ function drawDrenwichSchoolFurniture() {
   }
 }
 
+// ─── Drenwick Guild Hall furniture ────────────────────────────────────────────
+// Canal Engineers' Guild. Draws over the TABLE (33) blockers placed in
+// DRENWICK_GUILD_HALL_MAP: the north archive shelf (r1 c1-c5), the posting
+// board (r2 c13 — read from GUILD_HALL_BOARD one tile south), the
+// registrar's desk (r4 c1-c2, beside Foss), and the long members' table
+// (r8 c5-c8, below Cae's dayoff spot).
+function drawGuildHallFurniture() {
+  if (!inTown || townBuilding !== 'guild_hall') return;
+
+  // ── North archive shelf (r1, c1-c5): ledger spines + rolled drawings ──────
+  {
+    const sx = 1 * TILE, sy = 1 * TILE;
+    ctx.fillStyle = '#3a2010';
+    ctx.fillRect(sx + 1, sy + 2, 5 * TILE - 2, TILE - 6);
+    ctx.fillStyle = '#2a1608';
+    ctx.fillRect(sx + 1, sy + TILE - 6, 5 * TILE - 2, 2);
+    // Ledger spines, guild colours faded by damp
+    const spines = ['#7a2c20', '#5a5030', '#37507b', '#6a6258', '#7a2c20', '#44603c'];
+    for (let i = 0; i < 18; i++) {
+      ctx.fillStyle = spines[i % spines.length];
+      ctx.fillRect(sx + 5 + i * 8, sy + 6, 6, 16);
+    }
+    // Rolled gate drawings stacked at the right end
+    ctx.fillStyle = '#c8b880';
+    ctx.fillRect(sx + 5 * TILE - 14, sy + 8, 10, 3);
+    ctx.fillRect(sx + 5 * TILE - 12, sy + 13, 10, 3);
+    ctx.fillStyle = '#a89860';
+    ctx.fillRect(sx + 5 * TILE - 13, sy + 18, 10, 3);
+  }
+
+  // ── Posting board (r2, c13): freestanding, papers pinned both tidy and not ─
+  {
+    const bx = 13 * TILE, by = 2 * TILE;
+    // Post legs
+    ctx.fillStyle = '#3a2010';
+    ctx.fillRect(bx + 6,  by + 22, 4, 8);
+    ctx.fillRect(bx + 22, by + 22, 4, 8);
+    // Board face + frame
+    ctx.fillStyle = '#5a3a1a';
+    ctx.fillRect(bx + 2, by + 2, 28, 22);
+    ctx.fillStyle = '#7a5a30';
+    ctx.fillRect(bx + 4, by + 4, 24, 18);
+    // Members' notices (left, straight) and guild business (right, one askew)
+    ctx.fillStyle = '#e8e0c8';
+    ctx.fillRect(bx + 6,  by + 6, 7, 9);
+    ctx.fillRect(bx + 6,  by + 16, 7, 4);
+    ctx.fillRect(bx + 15, by + 6, 7, 12);
+    ctx.save();
+    ctx.translate(bx + 26, by + 8);
+    ctx.rotate(0.22);
+    ctx.fillRect(-3, -2, 6, 8); // the handwritten survey-rod complaint, pinned at an angle
+    ctx.restore();
+    // Pin dots
+    ctx.fillStyle = '#802818';
+    ctx.fillRect(bx + 9,  by + 6, 1, 1);
+    ctx.fillRect(bx + 18, by + 6, 1, 1);
+  }
+
+  // ── Registrar's desk (r4, c1-c2): counter, open dues ledger, inkwell ──────
+  {
+    const dx = 1 * TILE, dy = 4 * TILE;
+    ctx.fillStyle = '#4a2c10';
+    ctx.fillRect(dx + 2, dy + 4, 2 * TILE - 4, TILE - 8);
+    ctx.fillStyle = '#6a4020';
+    ctx.fillRect(dx + 2, dy + 4, 2 * TILE - 4, 4);
+    // Open ledger, ruled columns
+    ctx.fillStyle = '#e8e0c8';
+    ctx.fillRect(dx + 8, dy + 10, 18, 12);
+    ctx.fillStyle = '#8a8268';
+    ctx.fillRect(dx + 17, dy + 10, 1, 12);
+    for (let r = 0; r < 4; r++) ctx.fillRect(dx + 9, dy + 12 + r * 3, 16, 1);
+    // Inkwell
+    ctx.fillStyle = '#1a1a22';
+    ctx.fillRect(dx + 32, dy + 12, 5, 5);
+    ctx.fillStyle = '#3a3a48';
+    ctx.fillRect(dx + 33, dy + 12, 3, 1);
+  }
+
+  // ── Members' table (r8, c5-c8): long table, papers, two abandoned mugs ────
+  {
+    const tx = 5 * TILE, ty = 8 * TILE;
+    ctx.fillStyle = '#4a2c10';
+    ctx.fillRect(tx + 2, ty + 4, 4 * TILE - 4, TILE - 8);
+    ctx.fillStyle = '#6a4020';
+    ctx.fillRect(tx + 2, ty + 4, 4 * TILE - 4, 4);
+    ctx.fillStyle = '#3a1e08';
+    ctx.fillRect(tx + 2 * TILE - 1, ty + 6, 2, TILE - 12); // joint between the two boards
+    // Spread of working papers
+    ctx.fillStyle = '#e8e0c8';
+    ctx.fillRect(tx + 10, ty + 10, 14, 10);
+    ctx.fillStyle = '#d0c898';
+    ctx.save();
+    ctx.translate(tx + 30, ty + 15);
+    ctx.rotate(-0.15);
+    ctx.fillRect(-7, -5, 14, 10);
+    ctx.restore();
+    // Mugs
+    ctx.fillStyle = '#5a5048';
+    ctx.fillRect(tx + 3 * TILE + 6, ty + 10, 6, 7);
+    ctx.fillRect(tx + 3 * TILE + 12, ty + 12, 2, 3);
+    ctx.fillRect(tx + 52, ty + 18, 6, 7);
+  }
+}

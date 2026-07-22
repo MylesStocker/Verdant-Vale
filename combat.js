@@ -1191,7 +1191,7 @@ function handleCombatAction() {
         Math.floor(Math.random() * (combat.enemy.goldMax - combat.enemy.goldMin + 1));
       stats.gold += goldGain;
       const droppedPotion = Math.random() < 0.12;
-      if (droppedPotion) stats.items.push({ name: 'Potion', type: 'potion', heals: 20, price: 30 });
+      if (droppedPotion) grantItem('Potion');
       msgs.push(`Gained ${goldGain} gold.`);
       if (droppedPotion) msgs.push(`Found a potion!`);
       combat.pendingVictory = true;

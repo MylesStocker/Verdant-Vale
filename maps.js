@@ -174,6 +174,14 @@ const MAP5_ITEMS = [];
 // ─── Northern Fen — MAP3_N1  (16 × 15) ───────────────────────────────────────
 // Connected south to MAP3 via FEN_N_EXIT at MAP3 row 0 col 8 / FEN_N_ENTRANCE at row 14 col 8.
 // Connected north to MAP3_N2 (Drenwick) via FEN_N2_EXIT at row 0 col 8 / FEN_N2_ENTRANCE at row 14.
+// Connected west to RODDON_WAY_MAP via an open EDGE_TRANSITIONS crossing,
+// rows 4-9 of col 0 — see EDGE_TRANSITIONS['MAP3_N1']. That range sits
+// between the Mire Entrance (col 1, row 3) and the hamlet's farmhouses
+// (col 1, rows 10-12) with a clear row of buffer on each side, so the new
+// crossing can't be confused for either. Col 0 in that range is
+// RODDON_SILT rather than plain REEDS: the roddon ridge is a single
+// continuous feature crossing the map boundary, not two coincidentally
+// similar landforms.
 // Continuation of fen theme: boggy grassland, scattered water, reeds, sparse trees.
 const MAP3_N1 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
@@ -181,12 +189,12 @@ const MAP3_N1 = [
   [  3,  0,  0, 23,  0,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  3],  //  1
   [  3,  0,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  2  NW trees
   [  3, 55,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  3  col 1 = MIRE_ENTRANCE
-  [  3,  0,  0,  0, 23,  1,  1, 23,  2,  2,  2,  2,  2, 54,  0,  3],  //  4  W bog pond; cols 9-12=path to brewery; col 13=FARM_HOUSE (fen brewery)
-  [  3,  0,  0, 23,  1,  1,  1, 23,  2, 23,  0,  0,  0,  0,  0,  3],  //  5  bog pond + E reeds
-  [  3,  0,  0,  0, 23,  1, 23,  0,  2,  0, 23,  1, 23,  0,  0,  3],  //  6  bog + E pond
-  [  3,  0,  0,  0,  0, 23,  0,  0,  2,  0, 23,  1,  1, 23,  0,  3],  //  7  reeds + E pond
-  [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 23,  0,  0,  0,  3],  //  8  clearing
-  [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0, 53,  0,  3],  //  9  GUARD_POST c13 (smugglers' fort)
+  [111,  0,  0,  0, 23,  1,  1, 23,  2,  2,  2,  2,  2, 54,  0,  3],  //  4  ← col 0 = roddon crossing (top); W bog pond; cols 9-12=path to brewery; col 13=FARM_HOUSE (fen brewery)
+  [111,  0,  0, 23,  1,  1,  1, 23,  2, 23,  0,  0,  0,  0,  0,  3],  //  5  ← col 0 = roddon crossing; bog pond + E reeds
+  [111,  0,  0,  0, 23,  1, 23,  0,  2,  0, 23,  1, 23,  0,  0,  3],  //  6  ← col 0 = roddon crossing; bog + E pond
+  [111,  0,  0,  0,  0, 23,  0,  0,  2,  0, 23,  1,  1, 23,  0,  3],  //  7  ← col 0 = roddon crossing; reeds + E pond
+  [111,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 23,  0,  0,  0,  3],  //  8  ← col 0 = roddon crossing; clearing
+  [111,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0, 53,  0,  3],  //  9  ← col 0 = roddon crossing (bottom); GUARD_POST c13 (smugglers' fort)
   [  3, 54, 23,  1, 23,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 10  FARM_HOUSE c1 (hamlet north); SW marsh; tree c13 screens fort
   [  3,  0, 54, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3,  3,  0,  3],  // 11  FARM_HOUSE c2 (hamlet middle)
   [  3, 54,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 12  FARM_HOUSE c1 (hamlet south)
@@ -198,6 +206,70 @@ const MAP3_N1_ITEMS = [
   // Mabel's fen sickle — lost at the north bank overhang (quest: Still Water).
   // Col 5, row 3: REEDS tile, directly above the bog pond water at row 4 col 5.
   { name: 'Fen Sickle', type: 'quest_item', x: 5.5 * TILE, y: 3.5 * TILE, picked: false },
+];
+
+// ─── Roddon Way  (16 × 15) ────────────────────────────────────────────────────
+// A roddon: the raised course of an old silt-filled creek. As the peat
+// around it has drained and subsided — over a much longer span than the
+// current three-month dry spell — the mineral-rich former creek bed held
+// firm and now stands as a winding ridge above the surrounding wet fen.
+// Ordinary regional geography, not connected to the North Basin drought
+// story or any other plot thread.
+//
+// Connected east to MAP3_N1 via an open EDGE_TRANSITIONS crossing, rows
+// 4-9 (RODDON_SILT on both sides of the boundary — see MAP3_N1's header
+// comment). No other edge of this map connects anywhere: north, south,
+// and west stay plain impassable TREE border throughout, and the small
+// unused stretches of the east edge (rows 0-3, 10-14, also TREE) make
+// clear those aren't overlooked exits either.
+//
+// The ridge (RODDON_SILT, 111) enters at the full width of the crossing
+// (rows 4-9, cols 13-14), tapers over cols 12-9 down to its normal 2-3
+// tile width, then winds northwest in two broad bends — first climbing
+// from the row 6-7 band up to row 3-4 around col 8-9, then bending again
+// toward a small rounded terminus/viewpoint at rows 1-3, cols 1-4. A
+// single-tile bulge at row 2 col 6 is a pull-out overlooking the reedy
+// hollow just north of it (rows 1-2, cols 8-10) — the roddon's own
+// "explain the landform" viewpoint (see MAP_FEATURES).
+//
+// Surrounding terrain is the same wet-fen palette as the rest of the
+// Thornmere region: GRASS (peat/turf), REEDS (reed and sedge growth,
+// concentrated in the lower ground away from the ridge — the SE and SW
+// corners and the hollow below the viewpoint), two small WATER pools
+// (shallow, one south-central near the eel-stake feature, one
+// north-central), and a few single-tile TREE scrub/carr clumps. None of
+// the water or scrub fully encloses any patch of ground — every walkable
+// tile on this map can reach the entrance (verified by the flood-fill
+// check in test/cases/37-roddon-way.test.js).
+//
+// Encounters: FAR_ENEMY_TEMPLATES, the same pool MAP3_N1 already uses —
+// no new enemies. GRASS/REEDS roll as usual; RODDON_SILT (like PATH) does
+// not, so the ridge is the safe route through, matching the brief.
+const RODDON_WAY_MAP = [
+  //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+  [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3],  //  0  border
+  [   3,   0, 111, 111,   0,   0,   0,   0,   0,  23,  23,   1,   1,   0,   0,   3],  //  1  terminus knob; N pool c11-12
+  [   3, 111, 111, 111, 111,   0, 111,   0,  23,  23,  23,   0,   0,   0,   0,   3],  //  2  terminus curve; viewpoint bulge c6; reed hollow c8-10
+  [   3,   0, 111, 111, 111, 111, 111, 111, 111,   0,   0,   0,   0,   0,   0,   3],  //  3  bend 2 into the middle leg
+  [   3,   0,   0,   0,   0, 111, 111, 111, 111,   0,   0,   0,   0, 111, 111, 111],  //  4  middle leg; bend 1 begins c8; entry flare c13-15 → mouth (col 15) opens to MAP3_N1
+  [   3,   0,   3,   0,   0,   0,   0,   0, 111, 111,   0,   0,   0, 111, 111, 111],  //  5  scrub c2; bend 1 continues; entry flare c13-15
+  [   3,   0,   0,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111, 111, 111, 111],  //  6  entry band, full width from c9 → mouth
+  [   3,   0,   0,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111, 111, 111, 111],  //  7  entry band → mouth
+  [   3,   0,  23,   0,   0,   3,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111],  //  8  old channel edge c2; scrub c5; entry taper → mouth
+  [   3,   0,  23,  23,   0,   0,   0,   0,   0,   0,  23,  23,   0, 111, 111, 111],  //  9  entry taper → mouth (col 15, bottom of the crossing)
+  [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,  23,  23,  23,   0,   0,   3],  // 10  SE reed patch
+  [   3,   0,   0,  23,  23,   0,   0,   1,   1,   0,   0,  23,   0,   0,   0,   3],  // 11  SW reed patch; S pool c7-8 (eel stakes at c6)
+  [   3,   0,   0,  23,  23,  23,   0,   1,   0,   0,   3,   0,   0,   0,   0,   3],  // 12  SW reed patch continues; S pool; SE scrub c10
+  [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3],  // 13  open lower fen
+  [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3],  // 14  border
+];
+
+const RODDON_WAY_ITEMS = [
+  // A small find at the end of the ridge — reaching the terminus/viewpoint
+  // is its own reward; this is just a nod to it. Ordinary consumable via
+  // the item registry (items.js); grantItem() overwrites type/heals/price
+  // from ITEM_REGISTRY at pickup time regardless of what's listed here.
+  { name: 'Potion', type: 'potion', heals: 20, price: 30, x: 2.5 * TILE, y: 1.5 * TILE, picked: false },
 ];
 
 // ─── Mirethyst's Vault  (16 × 15) ────────────────────────────────────────────
@@ -425,7 +497,7 @@ const NORTH_BASIN_SW_ITEMS = [];
 // introduce a second, harsher tier for this map.
 const NORTH_BASIN_W_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north border (TODO: open to future N neighbour)
+  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  3,  3,  3],  //  0  open edge cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_NW_MAP (the Upper Reach) — the "one-line change later" this border was reserved for
   [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  3],  //  1  reservoir shore begins (uneven): reeds at c12, water c13-14
   [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  //  2  water reaches in to c12
   [  3,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  3],  //  3  ← c9 stranded waterline stake
@@ -490,6 +562,120 @@ const NORTH_BASIN_C_MAP = [
 ];
 
 const NORTH_BASIN_C_ITEMS = [];
+
+// ─── The North Basin — Upper Reach  (16 × 15) ────────────────────────────────
+// The NW square of the 3×3 North Basin grid, directly north of the West
+// Shore. This is the arm of the reservoir the water left FIRST — not a
+// receding shoreline like the Reservoir map, but a finished fact: the whole
+// square is exposed bed (BASIN_MUD) from border to border, with only two
+// residual pools the drought hasn't taken yet. Deliberately liminal and
+// wrong: no NPCs, no towns, no encounters (no GRASS and no other
+// encounter-eligible terrain — the silence is the point), and no saving
+// (MAP_METADATA allowSave: false, enforced by the save-confirm guard in
+// input.js — the first map to actually use it). The wrongness is authored
+// in MAP_FEATURES: a fence line crossing what was open water, a doorframe
+// standing attached to nothing, a stair the water was hiding.
+//
+// Two entrances lead OUT of the square:
+//   - CHAMBER_DOOR (103) at r3 c12 — the freestanding doorframe; stepping
+//     through enters BASIN_CHAMBER_MAP (enterBasinChamber).
+//   - SUNKEN_STAIR (107) at r9 c4 — the drought-exposed stairhead in its
+//     stonework apron; stepping on descends to SUNKEN_GALLERY_MAP
+//     (descendSunkenGallery).
+//
+// South edge: open cols 1-10 (REEDS, walkable) → EDGE_TRANSITIONS south to
+// NORTH_BASIN_W_MAP (whose row-0 border opens the same cols — the "one-line
+// change later" its header comment reserved). Ranges match exactly, so
+// crossings never clamp. North/east/west stay TREE (unbuilt neighbours).
+//
+// The straight FENCE_POST line at r6 c2-c9 blocks — pass around it at c1 or
+// c10+. Both entrances and the south edge stay mutually reachable either
+// way (checked by the transition audit's escapability sweep).
+const NORTH_BASIN_NW_MAP = [
+  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north border (unbuilt N neighbour)
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  1  open bed
+  [  3, 81, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81, 88, 81, 81,  3],  //  2  north pool begins (c7-8)
+  [  3, 81, 81, 81, 81, 81,  1,  1,  1,  1, 81, 88,103, 88, 81,  3],  //  3  pool c6-9; THE DOORFRAME at c12, stone flanks c11/c13
+  [  3, 81, 81, 81, 81, 81, 81,  1,  1, 81, 81, 81, 81, 81, 81,  3],  //  4  pool tapers
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  5
+  [  3, 81, 89, 89, 89, 89, 89, 89, 89, 89, 81, 81, 81, 81, 81,  3],  //  6  the fence line (c2-c9) — dead straight, in what was open water
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 88, 81, 81,  3],  //  7
+  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  8  stonework apron begins (c3-5)
+  [  3, 81, 81, 88,107, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  9  THE STAIRHEAD at c4
+  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81,  3],  // 10  apron ends; south residual pool c10-11
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 11
+  [  3, 81, 81, 81, 81, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 12
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 13  north-crossing landing row (cols 1-10 all walkable)
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3,  3,  3,  3,  3],  // 14  open edge cols 1-10 (BASIN_MUD, walkable) → EDGE_TRANSITIONS south to NORTH_BASIN_W_MAP
+];
+
+const NORTH_BASIN_NW_ITEMS = [];
+
+// ─── The Unmarked Chamber  (16 × 15) ─────────────────────────────────────────
+// Through the freestanding doorframe on the Upper Reach. A perfectly square
+// 7×7 room (rows 3-9, cols 5-11) with the threshold gap dead center in the
+// south wall (CHAMBER_EXIT, r10 c8). Nothing else. No encounters, no save,
+// no NPCs, no vignette (render.js skips it here like the dream — flat light
+// with no darkened corners is part of the wrongness). All the content is
+// MAP_FEATURES text.
+//
+// Lore boundary: like the Deep Works sealed room, this chamber is
+// deliberately unexplained. LORE.md was intentionally not updated and
+// should stay untouched unless the chamber becomes story-important.
+const BASIN_CHAMBER_MAP = [
+  //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105],  //  0
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105],  //  1
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105],  //  2
+  [ 105, 105, 105, 105, 105, 104, 104, 104, 104, 104, 104, 104, 105, 105, 105, 105],  //  3  interior top (c5-c11)
+  [ 105, 105, 105, 105, 105, 104, 104, 104, 104, 104, 104, 104, 105, 105, 105, 105],  //  4
+  [ 105, 105, 105, 105, 105, 104, 104, 104, 104, 104, 104, 104, 105, 105, 105, 105],  //  5
+  [ 105, 105, 105, 105, 105, 104, 104, 104, 104, 104, 104, 104, 105, 105, 105, 105],  //  6  center row
+  [ 105, 105, 105, 105, 105, 104, 104, 104, 104, 104, 104, 104, 105, 105, 105, 105],  //  7
+  [ 105, 105, 105, 105, 105, 104, 104, 104, 104, 104, 104, 104, 105, 105, 105, 105],  //  8
+  [ 105, 105, 105, 105, 105, 104, 104, 104, 104, 104, 104, 104, 105, 105, 105, 105],  //  9  interior bottom
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 106, 105, 105, 105, 105, 105, 105, 105],  // 10  threshold (CHAMBER_EXIT) dead center, c8
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105],  // 11
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105],  // 12
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105],  // 13
+  [ 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105],  // 14
+];
+
+const BASIN_CHAMBER_ITEMS = [];
+
+// ─── The Sunken Gallery  (16 × 15) ───────────────────────────────────────────
+// Down the drought-exposed stair. A long east-west hall that was underwater
+// until this year: silt drifts (BASIN_MUD) on the floor, column stubs, and
+// the whole south side still flooded — the water didn't leave, it only
+// pulled back this far. The flooded rows are impassable WATER: the gallery
+// visibly continues under it (future expansion goes there). Encounters use
+// SUNKEN_GALLERY_ENEMY_TEMPLATES via MAP_METADATA.encounterPool — Pale
+// Drowned and Silt Hag, identical stats to their Mire Vault entries (same
+// creatures, newly exposed hunting ground). GALLERY_STAIR_UP (110) at r2 c2
+// climbs back to the Upper Reach. No save here either (allowSave: false).
+const SUNKEN_GALLERY_MAP = [
+  //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  //  0
+  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  //  1
+  [ 109, 109, 110, 108, 108, 108, 108, 108, 108, 109, 108, 108, 108, 108, 109, 109],  //  2  stair up c2; column stub c9
+  [ 109, 109, 108, 108,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 109, 109],  //  3  silt drifts c4, c12
+  [ 109, 109, 108, 108, 108, 109, 108, 108, 109, 108, 108, 108, 108, 108, 109, 109],  //  4  column stubs c5, c8
+  [ 109, 109,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 108, 108, 109, 109],  //  5  ← Potion at c13 (dry ledge)
+  [ 109, 109, 108, 108, 108, 108, 109, 108, 108, 108, 108, 108, 108,  81, 109, 109],  //  6  column stub c6
+  [ 109, 109,   1,   1, 108, 108, 108, 108, 108, 108, 108, 108,   1,   1, 109, 109],  //  7  water reaching in from both ends
+  [ 109, 109,   1,   1,   1, 108, 108,  81, 108, 108, 108,   1,   1,   1, 109, 109],  //  8
+  [ 109, 109,   1,   1,   1,   1, 108, 108, 108,   1,   1,   1,   1,   1, 109, 109],  //  9  mostly flooded
+  [ 109, 109,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1, 109, 109],  // 10  fully flooded — the gallery continues under it
+  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  // 11
+  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  // 12
+  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  // 13
+  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  // 14
+];
+
+const SUNKEN_GALLERY_ITEMS = [
+  { name: 'Potion', type: 'potion', heals: 20, price: 30, x: 13.5 * TILE, y: 5.5 * TILE, picked: false },
+];
 
 // ─── Drenwick Guard Post Interior  (16 × 15) ─────────────────────────────────
 // Imperial checkpoint on MAP3_N1 row 9 col 13 (GUARD_POST tile).
@@ -838,20 +1024,25 @@ const DRENWICK_PROVISION_STORE_MAP = [
 ];
 
 // ─── Drenwick Market — Guild Hall interior (16 × 15) ─────────────────────────
-// Wider trading floor: cols 1-14 walkable rows 1-11.
-// Entrance door from DRENWICK_MARKET_MAP row 3 col 5.
-// Exit: col 7 row 12.
+// Canal Engineers' Guild. Wide trading floor: cols 1-14 walkable rows 1-11.
+// Entrance door from DRENWICK_MARKET_MAP row 3 col 5. Exit: col 7 row 12.
+// Furniture (TABLE 33, drawn by drawGuildHallFurniture(), render-interiors.js):
+//   r1 c1-c5:  archive shelf along the north wall (ledgers, rolled drawings)
+//   r2 c13:    the posting board itself — the player reads it standing one
+//              tile south, at GUILD_HALL_BOARD (13.5, 3.5) (npcs.js)
+//   r4 c1-c2:  registrar's desk (Foss stands at c3 r4, beside it)
+//   r8 c5-c8:  long members' table (Cae stands at c8 r7, dayoff)
 const DRENWICK_GUILD_HALL_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0  top wall
-  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  1  wide floor
-  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  2
-  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  3
-  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  4
+  [ 19, 33, 33, 33, 33, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  1  archive shelf (c1-c5)
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19],  //  2  posting board (c13)
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  3  board-reading spot at c13
+  [ 19, 33, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  4  registrar's desk (c1-c2); Foss at c3
   [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  5
   [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  6
-  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  7
-  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  8
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  7  Cae at c8 (dayoff)
+  [ 19, 18, 18, 18, 18, 33, 33, 33, 33, 18, 18, 18, 18, 18, 18, 19],  //  8  members' table (c5-c8)
   [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  9
   [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  // 10
   [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  // 11
@@ -1430,14 +1621,14 @@ const TOWN_MAP = [
   [ 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],  //  2
   [ 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],  //  3
   [ 13, 13, 13, 16, 13, 13, 13, 13, 13, 13, 13, 13, 17, 13, 13, 13],  //  4  inn(3) office(12)
-  [ 31, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 24],  //  5  main street (col 0 = west entrance, col 15 = east entrance)
+  [ 31,112, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 24],  //  5  main street (col 0 = west entrance, col 15 = east entrance); col 1 = CHARTER_STONE ("calwick_charter_stone", audit fix)
   [ 13, 13, 12, 12, 12, 21, 21, 21, 21, 21, 12, 12, 12, 12, 13, 13],  //  6  market sq
   [ 13, 13, 12, 12, 12, 21, 21, 22, 21, 21, 12, 12, 12, 12, 13, 13],  //  7  notice board col 7
   [ 13, 13, 12, 12, 12, 21, 21, 21, 21, 21, 12, 12, 12, 12, 13, 13],  //  8  market sq
   [ 31, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 24],  //  9  south street (col 0 = west entrance, col 15 = east entrance)
   [ 13, 13, 12, 12, 13, 13, 12, 12, 12, 13, 13, 12, 12, 13, 13, 13],  // 10  residential
   [ 13, 13, 12, 12, 13, 13, 12, 12, 12, 13, 13, 12, 12, 13, 13, 13],  // 11  residential
-  [ 13, 13, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13],  // 12  south lane
+  [ 13, 13, 12, 12, 12, 12, 12, 12, 12, 12, 12,113, 12, 13, 13, 13],  // 12  south lane; col 11 = CISTERN ("calwick_town_cistern", audit fix)
   [ 13, 13, 13, 13, 13, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13],  // 13  funnel
   [ 13, 13, 13, 13, 13, 13, 13, 15, 13, 13, 13, 13, 13, 13, 13, 13],  // 14  exit col 7
 ];
@@ -1513,7 +1704,7 @@ const APARTMENT_CORRIDOR_MAP = [
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  4
   [ 19, 19, 19, 37, 19, 19, 37, 19, 19, 37, 19, 19, 37, 19, 19, 19],  //  5  apt doors at c3,c6,c9,c12
   [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  6  corridor
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  7  corridor
+  [ 19, 19,116, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  7  corridor; col 2 = APT_NOTICE ("calwick_apt_notice", audit fix)
   [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  8  corridor
   [ 19, 19, 19, 19, 19, 19, 19, 20, 19, 19, 19, 19, 19, 19, 19, 19],  //  9  exit col 7
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 10
@@ -1555,12 +1746,12 @@ const EAST_TOWN_MAP = [
   [ 12, 13, 13, 12, 13, 13, 12,  0,  0,  0,  3,  3,  3,  3,  3,  3],  //  2  house row A (cols 1-2, 4-5)
   [ 12, 13, 13, 12, 13, 13, 12,  0,  0,  0,  3,  3,  3,  3,  3,  3],  //  3  house row A
   [ 12, 13, 13, 12, 13, 13, 12,  0,  0,  0,  3,  3, 26, 23,  3,  3],  //  4  house row A; sluice hatch at c12
-  [ 25, 12, 12, 12, 12, 12, 12, 12,  0,  0,  0,  0, 23, 23, 23, 15],  //  5  main E-W street
+  [ 25, 12, 12, 12, 12, 12, 12, 12,  0,  0,  0,  0, 23,114, 23, 15],  //  5  main E-W street; col 13 = WATER_GAUGE ("calwick_wetland_gauge", audit fix)
   [ 12, 13, 13, 12, 13, 13, 12,  0,  0,  0,  3,  3,  1,  1, 23,  3],  //  6  house row B; water begins
   [ 12, 13, 13, 12, 13, 13, 12,  0,  0,  3,  3,  1,  1,  1, 23,  3],  //  7  house row B; wetland core
   [ 12, 13, 13, 12, 13, 36, 12,  0,  0,  3,  3,  1,  1,  3, 23,  3],  //  8  house row B; apt door at c5 (east building, bottom-right)
   [ 25, 12, 12, 12, 12, 12, 12, 12,  0,  0,  0,  0, 23, 23, 23, 15],  //  9  south E-W street
-  [ 12, 13, 13, 12, 13, 13, 12,  0,  0,  3,  3, 23, 23,  3,  3,  3],  // 10  house row C; reeds south
+  [ 12, 13, 13, 12, 13, 13, 12,115,  0,  3,  3, 23, 23,  3,  3,  3],  // 10  house row C; reeds south; col 7 = REED_RACK ("calwick_reed_racks", audit fix)
   [ 12, 13, 13, 12, 13, 13, 12,  0,  0,  3,  3,  3,  3,  3,  3,  3],  // 11  house row C
   [ 13, 13, 13, 13, 13, 13, 13,  0,  0,  3,  3,  3,  3,  3,  3,  3],  // 12  south wall | grass
   [ 13, 13, 13, 13, 13, 13, 13,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 13  south border | treeline
@@ -1876,6 +2067,8 @@ window.MAP5                 = MAP5;
 window.MAP5_ITEMS           = MAP5_ITEMS;
 window.MAP3_N1              = MAP3_N1;
 window.MAP3_N1_ITEMS        = MAP3_N1_ITEMS;
+window.RODDON_WAY_MAP       = RODDON_WAY_MAP;
+window.RODDON_WAY_ITEMS     = RODDON_WAY_ITEMS;
 window.MIRE_VAULT_MAP       = MIRE_VAULT_MAP;
 window.TAKOMO_MAP           = TAKOMO_MAP;
 window.HAMLET_INTERIOR_MAP  = HAMLET_INTERIOR_MAP;
@@ -1890,6 +2083,12 @@ window.NORTH_BASIN_SW_MAP   = NORTH_BASIN_SW_MAP;
 window.NORTH_BASIN_SW_ITEMS = NORTH_BASIN_SW_ITEMS;
 window.NORTH_BASIN_W_MAP    = NORTH_BASIN_W_MAP;
 window.NORTH_BASIN_W_ITEMS  = NORTH_BASIN_W_ITEMS;
+window.NORTH_BASIN_NW_MAP   = NORTH_BASIN_NW_MAP;
+window.NORTH_BASIN_NW_ITEMS = NORTH_BASIN_NW_ITEMS;
+window.BASIN_CHAMBER_MAP    = BASIN_CHAMBER_MAP;
+window.BASIN_CHAMBER_ITEMS  = BASIN_CHAMBER_ITEMS;
+window.SUNKEN_GALLERY_MAP   = SUNKEN_GALLERY_MAP;
+window.SUNKEN_GALLERY_ITEMS = SUNKEN_GALLERY_ITEMS;
 window.BRIDGE_CROSSING_MAP  = BRIDGE_CROSSING_MAP;
 window.DRENWICK_CIVIC_MAP              = DRENWICK_CIVIC_MAP;
 window.DRENWICK_WEST_RESIDENTIAL_MAP   = DRENWICK_WEST_RESIDENTIAL_MAP;
@@ -1959,11 +2158,15 @@ const MAP_REGISTRY = {
   MAP4:                  { id: 'MAP4',                  label: 'Thornmere',                  map: MAP4                  },
   MAP5:                  { id: 'MAP5',                  label: 'Thornmere Shallows',         map: MAP5                  },
   MAP3_N1:               { id: 'MAP3_N1',               label: 'Northern Fen',               map: MAP3_N1               },
+  RODDON_WAY_MAP:        { id: 'RODDON_WAY_MAP',        label: 'Roddon Way',                 map: RODDON_WAY_MAP        },
   MAP3_N2:               { id: 'MAP3_N2',               label: 'Drenwick',                   map: MAP3_N2               },
   NORTH_BASIN_S_MAP:     { id: 'NORTH_BASIN_S_MAP',     label: 'North Basin',                map: NORTH_BASIN_S_MAP     },
   NORTH_BASIN_C_MAP:     { id: 'NORTH_BASIN_C_MAP',     label: 'North Basin \u2014 Reservoir', map: NORTH_BASIN_C_MAP     },
   NORTH_BASIN_SW_MAP:    { id: 'NORTH_BASIN_SW_MAP',    label: 'North Basin \u2014 Silt Flats', map: NORTH_BASIN_SW_MAP    },
   NORTH_BASIN_W_MAP:     { id: 'NORTH_BASIN_W_MAP',     label: 'North Basin \u2014 West Shore', map: NORTH_BASIN_W_MAP    },
+  NORTH_BASIN_NW_MAP:    { id: 'NORTH_BASIN_NW_MAP',    label: 'North Basin \u2014 Upper Reach', map: NORTH_BASIN_NW_MAP  },
+  BASIN_CHAMBER_MAP:     { id: 'BASIN_CHAMBER_MAP',     label: 'No Recorded Location',      map: BASIN_CHAMBER_MAP    },
+  SUNKEN_GALLERY_MAP:    { id: 'SUNKEN_GALLERY_MAP',    label: 'Sunken Gallery',            map: SUNKEN_GALLERY_MAP   },
   DRENWICK_POST_MAP:     { id: 'DRENWICK_POST_MAP',     label: 'Guard Post',                 map: DRENWICK_POST_MAP     },
   BRIDGE_CROSSING_MAP:   { id: 'BRIDGE_CROSSING_MAP',   label: 'Imperial Bridge \u2014 Toll Gate', map: BRIDGE_CROSSING_MAP   },
   SMUGGLER_FORT_MAP:     { id: 'SMUGGLER_FORT_MAP',     label: 'Guard Post',                 map: SMUGGLER_FORT_MAP     },

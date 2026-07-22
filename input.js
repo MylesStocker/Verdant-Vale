@@ -44,7 +44,22 @@ window.addEventListener('keydown', e => {
           if (e.key === 'ArrowRight' || e.key === 'd') menu.saveCursor = 1;
           if (e.key === ' ' || e.key === 'Enter') {
             e.preventDefault();
-            if (menu.saveCursor === 0) saveGame(); else menu.screen = 'main';
+            if (menu.saveCursor === 0) {
+              // canSaveHere() (save.js) is the single authoritative check --
+              // consulted here for the banner, and again inside saveGame()
+              // itself so a save can never be written from a blocked map by
+              // any path. Maps flagged allowSave: false (the unmarked
+              // chamber, the Sunken Gallery — no town/bed/healing/shelter
+              // there) refuse with a banner instead of writing a save.
+              if (!canSaveHere()) {
+                menu.saveBlockedMessage = 120;
+                menu.screen = 'main';
+              } else {
+                saveGame();
+              }
+            } else {
+              menu.screen = 'main';
+            }
           }
           if (e.key === 'Escape' || e.key === 'm' || e.key === 'M' || e.key === 'b' || e.key === 'B') {
             e.preventDefault(); menu.screen = 'main';
@@ -156,7 +171,7 @@ window.addEventListener('keydown', e => {
               const it = shop.stock[shop.cursor];
               if (stats.gold >= it.price) {
                 stats.gold -= it.price;
-                stats.items.push({ name: it.name, type: it.type, bonus: it.bonus, heals: it.heals, price: it.price });
+                grantItem(it.name);
               }
             }
           }

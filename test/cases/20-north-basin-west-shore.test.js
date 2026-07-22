@@ -119,11 +119,21 @@ module.exports = {
     assert.equal(g.run('player.x'), 5.5 * 32);
     assert.equal(g.run('player.y'), 9.5 * 32);
 
-    // ── 4. Edges: only south is a real crossing ─────────────────────────────
+    // ── 4. Edges: south and north are real crossings ────────────────────────
     const map = g.run('NORTH_BASIN_W_MAP');
     const TREE = g.run('TREE');
     const WALKABLE = g.run('WALKABLE');
-    assert.ok(map[0].every(t => t === TREE), 'north edge (future N neighbour) should be plain impassable border');
+    // North edge: was plain border until the Upper Reach was built; now an
+    // open EDGE_TRANSITIONS crossing on cols 1-10 (mirrors the south edge),
+    // border elsewhere. The full crossing behaviour is exercised by the
+    // Upper Reach's own test (35) -- here we just pin the border shape.
+    for (let c = 0; c < map[0].length; c++) {
+      if (c >= 1 && c <= 10) {
+        assert.ok(WALKABLE[map[0][c]], `north edge col ${c} is inside the EDGE_TRANSITIONS range and should be walkable`);
+      } else {
+        assert.equal(map[0][c], TREE, `north edge col ${c} (outside the range) should be plain impassable border`);
+      }
+    }
     for (const row of map) {
       assert.equal(row[15], TREE, 'east edge (the reservoir itself) should be plain impassable border');
       assert.equal(row[0], TREE, 'west edge (future W neighbour) should be plain impassable border');

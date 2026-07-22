@@ -111,8 +111,27 @@ const NORTH_BASIN_ENEMY_TEMPLATES = [
   // Mudflat Strider — long-legged wader that used to work the shallows;
   // exposed ground suits it fine. Fast, fragile, low reward.
   { name: 'Mudflat Strider', hp: 20, maxHp: 20, atk: 11, def: 2, spd: 10, xp: 16, goldMin: 3, goldMax:  7 },
+  // Basin Gull — scavenger gull come inland off the Thornmere, working the
+  // stranded-fish die-offs on the exposed bed. Bold enough to go for the
+  // eyes; quick, hits harder than it looks, folds fast when hit back.
+  { name: 'Basin Gull',      hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin: 5, goldMax: 10 },
 ];
 window.NORTH_BASIN_ENEMY_TEMPLATES = NORTH_BASIN_ENEMY_TEMPLATES;
+
+// ─── The Sunken Gallery (under the Upper Reach) ──────────────────────────────
+// The drought-exposed structure below NORTH_BASIN_NW_MAP. Pale Drowned and
+// Silt Hag with stats IDENTICAL to their MIRE_VAULT_ENEMY_TEMPLATES entries
+// -- same creatures, newly exposed hunting ground, not a new tier. Selected
+// via MAP_METADATA.encounterPool (currentEncounterPool()'s fall-through),
+// zero combat.js changes -- the gallery deliberately does NOT use
+// inDungeon/dungeonFloor (see state.js's inSunkenGallery comment).
+const SUNKEN_GALLERY_ENEMY_TEMPLATES = [
+  // Pale Drowned — spectral drowning victim; the reservoir had its own
+  { name: 'Pale Drowned', hp: 30, maxHp: 30, atk: 11, def: 2, spd: 10, xp: 35, goldMin:  6, goldMax: 14 },
+  // Silt Hag — the silt here is deep, and it was never empty
+  { name: 'Silt Hag',     hp: 45, maxHp: 45, atk: 18, def: 5, spd:  3, xp: 50, goldMin: 10, goldMax: 20 },
+];
+window.SUNKEN_GALLERY_ENEMY_TEMPLATES = SUNKEN_GALLERY_ENEMY_TEMPLATES;
 
 const ENCOUNTER_CHANCE   = 1 / 6;
 const ENCOUNTER_COOLDOWN = 120;
@@ -543,6 +562,12 @@ const MAP_METADATA = {
     type: 'outdoor', items: MAP3_N1_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true,
   },
+  RODDON_WAY_MAP: {
+    id: 'RODDON_WAY_MAP', map: RODDON_WAY_MAP, displayName: 'Roddon Way', region: 'Thornmere',
+    type: 'outdoor', items: RODDON_WAY_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'A single dead-end fen map off MAP3_N1’s west edge (an old creek-bed ridge, RODDON_SILT) -- no other neighbours. Reuses MAP3_N1’s own encounter pool; no new enemies. Ordinary regional geography, not connected to the North Basin drought story.',
+  },
   MAP3_N2: {
     id: 'MAP3_N2', map: MAP3_N2, displayName: 'Drenwick', region: 'Drenwick',
     type: 'outdoor', items: MAP3_N2_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
@@ -572,7 +597,25 @@ const MAP_METADATA = {
     id: 'NORTH_BASIN_W_MAP', map: NORTH_BASIN_W_MAP, displayName: 'North Basin \u2014 West Shore', region: 'North Basin',
     type: 'outdoor', items: NORTH_BASIN_W_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true,
-    notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats\u2019 enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; west/north are impassable border until those neighbours are built.',
+    notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats\u2019 enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; north edge is now an open crossing (cols 1-10) to the Upper Reach; west is impassable border until that neighbour is built.',
+  },
+  NORTH_BASIN_NW_MAP: {
+    id: 'NORTH_BASIN_NW_MAP', map: NORTH_BASIN_NW_MAP, displayName: 'North Basin \u2014 Upper Reach', region: 'North Basin',
+    type: 'outdoor', items: NORTH_BASIN_NW_ITEMS, encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'The drained NW arm \u2014 exposed bed border to border. Deliberately silent (no encounters, no NPCs). "No safe haven" here means no town, bed, healing, or shelter -- it does NOT mean the outdoors itself refuses to save; allowSave is true like any other ordinary outdoor map (see canSaveHere(), save.js). Only the two interiors it leads to actually block saving. Holds the standing doorframe (CHAMBER_DOOR \u2192 BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR \u2192 SUNKEN_GALLERY_MAP).',
+  },
+  BASIN_CHAMBER_MAP: {
+    id: 'BASIN_CHAMBER_MAP', map: BASIN_CHAMBER_MAP, displayName: 'No Recorded Location', region: 'North Basin',
+    type: 'special', items: BASIN_CHAMBER_ITEMS, encounterPool: null,
+    allowRandomEncounters: false, allowSave: false,
+    notes: 'The unmarked chamber through the Upper Reach doorframe. Perfectly square, no seams, no dust, no explanation (lore boundary: like the Deep Works sealed room, deliberately unexplained -- do not extend LORE.md for it). locationName() returns the displayName via an explicit inBasinChamber line (type "special", so the outdoor fast path doesn\u2019t apply). allowSave: false is runtime-enforced by canSaveHere() (save.js) -- consulted by both the save-confirm menu (input.js, for the banner) and saveGame() itself (so a save can never be written here by any path).',
+  },
+  SUNKEN_GALLERY_MAP: {
+    id: 'SUNKEN_GALLERY_MAP', map: SUNKEN_GALLERY_MAP, displayName: 'Sunken Gallery', region: 'North Basin',
+    type: 'dungeon', items: SUNKEN_GALLERY_ITEMS, encounterPool: SUNKEN_GALLERY_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: false,
+    notes: 'Drought-exposed hall below the Upper Reach, flooded along its whole south side (the water pulled back, it didn\u2019t leave -- future expansion continues under it). Encounters via encounterPool fall-through, not a dungeonFloor branch. allowSave: false is runtime-enforced by canSaveHere() (save.js), same as BASIN_CHAMBER_MAP.',
   },
 
   // ── Drenwick (guard post, bridge, fort, civic districts, interiors) ──────

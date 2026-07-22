@@ -12,10 +12,24 @@ const SIMPLE_NPCS = [
     y:              4.5 * TILE,
     solid:         true,
     facing:        'down',
-    dialogue: [
-      ['\u201cThe aetherrail stops three towns', 'east of here.\u201d'],
-      ['\u201cBeyond that, you walk.\u201d'],
-    ],
+    get dialogue() {
+      const pages = [
+        ['\u201cThe aetherrail stops three towns', 'east of here.\u201d'],
+        ['\u201cBeyond that, you walk.\u201d'],
+      ];
+      // Keys on what was FILED (fort_report_filed), never on an unreported
+      // kill -- same convention as the rest-week inn reactions.
+      if (fort_report_filed) pages.push(
+        ['\u201cWord came down the post line about the fen business.\u201d',
+         '\u201cYou did the part that goes in a report. That\u2019s the part that counts out here.\u201d']
+      );
+      if (reservoir_quest_started) pages.push(
+        ['\u201cThey\u2019ve given you the basin road, then.\u201d',
+         '\u201cPast Marker 4 nobody maintains anything. Including the maps.\u201d'],
+        ['\u201cWalk it in daylight.\u201d', '\u201cThat\u2019s not a regulation. It\u2019s advice.\u201d']
+      );
+      return pages;
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -294,10 +308,24 @@ const SIMPLE_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'traveler',
-    dialogue: [
-      ['\u201cCame through expecting something larger.', 'The maps are generous to Calwick.\u201d'],
-      ['\u201cMet three people who work in the same office.', 'They didn\u2019t seem to know each other.\u201d'],
-    ],
+    get dialogue() {
+      const pages = [
+        ['\u201cCame through expecting something larger.', 'The maps are generous to Calwick.\u201d'],
+        ['\u201cMet three people who work in the same office.', 'They didn\u2019t seem to know each other.\u201d'],
+      ];
+      // Visible evidence, not omniscience -- and evidence on your boots,
+      // not a fact he somehow always knows: only while it's still there.
+      // window.upper_reach_visit_day is a same-day marker (movement.js),
+      // not the permanent upper_reach_seen discovery flag -- it expires the
+      // moment `day` advances (any rest) and never survives a load (see
+      // save.js's loadGame()), so this can't fire forever once true.
+      if (window.upper_reach_visit_day === day) pages.push(
+        ['He glances down, then back up.',
+         '\u201cThat pale mud on your boots. I\u2019ve only seen that colour once, from a coach window, north of the reservoir.\u201d'],
+        ['\u201cThe driver wouldn\u2019t stop there.\u201d', '\u201cHe didn\u2019t give a reason, and nobody asked twice.\u201d']
+      );
+      return pages;
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -311,9 +339,22 @@ const SIMPLE_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'patron',
+    // Kept as a plain (assignable) dialogue array, not a getter \u2014 test 24's
+    // dialogue-overflow check swaps this in and out. Was pure filler ("No
+    // particular reason." / "Whatever it was."); now the same contented,
+    // never-travelled regular, but his idle talk drifts to the wider world he
+    // will never see (aetherrail, the twin capitals, the Valmere \u2014 see LORE.md).
     dialogue: [
-      ['\u201cI like it here in the evenings.', 'No particular reason.\u201d'],
-      ['\u201cI had the same thing last time.', 'Whatever it was.\u201d'],
+      ['\u201cI like it here in the evenings.',
+       'The mushroom wine\u2019s cheap and nobody\u2019s in a hurry.\u201d'],
+      ['\u201cThey say there\u2019s an aetherrail now, three towns east of here.',
+       'Halcyra to Lumina in an afternoon, on rails the Stonewrought laid.\u201d',
+       '\u201cFifty years it\u2019s run, and I\u2019ve never once seen it.\u201d'],
+      ['\u201cAll this canal water goes east in the end \u2014 out to the Valmere,',
+       'the big sea the province is named for.\u201d',
+       '\u201cNever seen that either.\u201d'],
+      ['\u201cThe Thornmere\u2019s sea enough for me.',
+       'It\u2019s shallow, and it\u2019s here, and so am I.\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -328,7 +369,8 @@ const SIMPLE_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'clerk',
-    dialogue: [
+    get dialogue() {
+      const pages = [
       ['\u201cThe cross-referencing is the satisfying part.', 'Most people find that strange.\u201d'],
       ['\u201cWe notice things in records.', 'We just file them rather than say them.\u201d'],
       ['\u201cThread Registry batches come through with classification codes, registration dates, and compliance windows.\u201d',
@@ -351,7 +393,17 @@ const SIMPLE_NPCS = [
        'People stayed dead.\u201d',
        '\u201cThe question became academic.\u201d'],
       ['\u201cWe notice things in records.\u201d', 'She picks up her drink.', '\u201cWe just file them rather than say them.\u201d'],
-    ],
+      ];
+      // The unmarked chamber has no file anywhere. Cres never learns that --
+      // this page is the PLAYER deciding not to ask the one person who
+      // would care most (window-native flag -- see save.js).
+      if (window.basin_chamber_seen) pages.push(
+        ['You consider asking her what the Registry does when a structure has no record at all.',
+         'No parcel line. No survey year. Nothing to cross-reference.'],
+        ['You decide not to ask.']
+      );
+      return pages;
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -365,10 +417,18 @@ const SIMPLE_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'patron',
-    dialogue: [
-      ['\u201cWent to check the board earlier.', 'Same listings as last week. And the week before.\u201d'],
-      ['\u201cI\u2019m sure something will come up.', 'That\u2019s what people keep saying, anyway.\u201d'],
-    ],
+    get dialogue() {
+      const pages = [
+        ['\u201cWent to check the board earlier.', 'Same listings as last week. And the week before.\u201d'],
+        ['\u201cI\u2019m sure something will come up.', 'That\u2019s what people keep saying, anyway.\u201d'],
+      ];
+      if (reservoir_quest_started) pages.push(
+        ['\u201cFirst new posting in a month, and it\u2019s the north basin.\u201d',
+         '\u201cAnd it went straight to the office. Never even reached the board.\u201d'],
+        ['\u201cThat\u2019s you, isn\u2019t it.\u201d', 'She doesn\u2019t say it unkindly.']
+      );
+      return pages;
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -1099,7 +1159,7 @@ const SIMPLE_NPCS = [
         ];
         dialogue.callbacks = [function() {
           stats.items = stats.items.filter(i => i.name !== 'Schilling');
-          stats.items.push({ name: 'Cat-Shaped Key', type: 'accessory', bonus: 0, price: 0, questItem: true });
+          grantItem('Cat-Shaped Key');
           schilling_returned = true;
           syncQuestFlagsToWindow();
           refreshJobBoard();
@@ -1527,12 +1587,22 @@ const SIMPLE_NPCS = [
     solid:      true,
     facing:     'down',
     spriteType: 'traveler',
-    dialogue: [
-      ['\u201cCame from Ashford. Three days east, past the rail terminus.\u201d',
-       '\u201cLarger than here. Louder. I\u2019m not sure I prefer it.\u201d'],
-      ['\u201cFirst impression of Drenwick: the canal is bigger than the maps suggest.\u201d',
-       '\u201cThe streets are quieter than the canal. I\u2019d stay another day to see if it opens up.\u201d'],
-    ],
+    get dialogue() {
+      const pages = [
+        ['\u201cCame from Ashford. Three days east, past the rail terminus.\u201d',
+         '\u201cLarger than here. Louder. I\u2019m not sure I prefer it.\u201d'],
+        ['\u201cFirst impression of Drenwick: the canal is bigger than the maps suggest.\u201d',
+         '\u201cThe streets are quieter than the canal. I\u2019d stay another day to see if it opens up.\u201d'],
+      ];
+      // Inn-rumor seeding for the MQ4 assignment -- travellers carry talk.
+      if (reservoir_quest_started) pages.push(
+        ['\u201cCoachman on the east road had a story. The basin office north of here keeps one observer on the books.\u201d',
+         '\u201cKept, maybe. Apparently the reports stopped coming and nobody wants the walk up to find out why.\u201d'],
+        ['\u201cIt\u2019s always \u2018nobody wants the walk.\u2019\u201d',
+         '\u201cIt\u2019s never \u2018nobody wants to know.\u2019 People always want to know.\u201d']
+      );
+      return pages;
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -1634,16 +1704,29 @@ const SIMPLE_NPCS = [
     solid:      true,
     facing:     'down',
     spriteType: 'worker',
-    dialogue: [
-      ['\u201cSomeone has to actually walk the channel readings twice a day.\u201d',
-       '\u201cThat\u2019s not in anyone\u2019s job title. It\u2019s just become mine.\u201d'],
-      ['\u201cRenn gets the title. I get the wet boots.\u201d',
-       '\u201cHe\u2019s not a bad sort, really. He just forgets I\u2019m not also the harbormaster.\u201d'],
-      ['\u201cThird year the water table\u2019s been low. Third year running.\u201d',
-       '\u201cThere\u2019s a word for it now. \u2018Drought.\u2019 Official, apparently. Someone in Halcyra signed a form.\u201d'],
-      ['\u201cSigning a form doesn\u2019t refill the channel.\u201d',
-       '\u201cBut at least now I get to write \u2018drought conditions\u2019 on the survey instead of making something up.\u201d'],
-    ],
+    get dialogue() {
+      const pages = [
+        ['\u201cSomeone has to actually walk the channel readings twice a day.\u201d',
+         '\u201cThat\u2019s not in anyone\u2019s job title. It\u2019s just become mine.\u201d'],
+        ['\u201cRenn gets the title. I get the wet boots.\u201d',
+         '\u201cHe\u2019s not a bad sort, really. He just forgets I\u2019m not also the harbormaster.\u201d'],
+        ['\u201cThird year the water table\u2019s been low. Third year running.\u201d',
+         '\u201cThere\u2019s a word for it now. \u2018Drought.\u2019 Official, apparently. Someone in Halcyra signed a form.\u201d'],
+        ['\u201cSigning a form doesn\u2019t refill the channel.\u201d',
+         '\u201cBut at least now I get to write \u2018drought conditions\u2019 on the survey instead of making something up.\u201d'],
+      ];
+      // Smellable evidence, not omniscience -- and a smell fades. Same-day
+      // marker (window.sunken_gallery_visit_day, movement.js), not the
+      // permanent sunken_gallery_seen discovery flag: expires the moment
+      // `day` advances and never survives a load (save.js's loadGame()).
+      if (window.sunken_gallery_visit_day === day) pages.push(
+        ['He stops writing mid-reading and looks at you properly.',
+         '\u201cYou smell like the bottom of a channel. Not the top of one. The bottom.\u201d'],
+        ['\u201cThere\u2019s exactly one place the water\u2019s low enough to walk a bottom that old.\u201d',
+         '\u201cI\u2019m not going to ask. Write your reading down somewhere, though. Whatever it was.\u201d']
+      );
+      return pages;
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -1847,7 +1930,7 @@ const SIMPLE_NPCS = [
             ['\u201cUsed to be the old man ran this place like it was a tight ship.\u201d',
              '\u201cTables got cleared without asking. You knew where things were.\u201d',
              '\u201cStill standing, though.\u201d'],
-            ['\u201cEight silver a day.\u201d',
+            ['\u201cEight gold a day.\u201d',
              '\u201cWhich is what it was four years ago. Everything else has gone up.\u201d'],
           ];
       if (sentry_quest_done) pages.push(
@@ -2946,16 +3029,53 @@ const SIMPLE_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'clerk',
+    get dialogue() {
+      const pages = [
+        ['\u201cCanal Engineers\u2019 Guild.',
+         'If you\u2019re here about the apprentice post, bring your arithmetic certification.',
+         'We don\u2019t make exceptions on that.\u201d'],
+        ['\u201cDues are paid by the fifth of each cycle.',
+         'Late dues carry a surcharge. The surcharge is not waived.\u201d',
+         '\u201cThis is not a policy I invented. It predates me by fifty years.\u201d'],
+        ['\u201cThe posting board is on the far wall.',
+         'Members\u2019 notices go on the left. Guild business on the right.',
+         'If you can\u2019t tell the difference, the board will teach you.\u201d'],
+      ];
+      // Ruins documentation is this region's trade (see LORE.md: structures
+      // emerge from the mud in dry years). The guild hears about uncovered
+      // masonry the way guilds hear about everything.
+      if (reservoir_quest_started) pages.push(
+        ['\u201cIf your basin assignment turns up masonry, and in a dry year it will:\u201d',
+         '\u201cSubmerged works predating the guild\u2019s charter are documentation class three.\u201d'],
+        ['\u201cThat means drawings, dimensions, and no opinions.\u201d',
+         '\u201cThe opinions come later, from people with worse handwriting.\u201d']
+      );
+      return pages;
+    },
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
+  // Hopeful apprentice-post applicant — workdays only, planted in front of
+  // the posting board (r2 c13; she stands one tile west of the reading spot).
+  // Ties into Ms. Farne's placement-board lore: two notices this cycle where
+  // there used to be nine.
+  {
+    id:            'guild_applicant',
+    name:          'Senna',
+    get map()      { return day % 5 === 0 ? null : 'drenwick_guild_hall'; },
+    x:             12.5 * TILE,
+    y:              2.5 * TILE,
+    solid:         true,
+    facing:        'right',
+    spriteType:    'child',
     dialogue: [
-      ['\u201cCanal Engineers\u2019 Guild.',
-       'If you\u2019re here about the apprentice post, bring your arithmetic certification.',
-       'We don\u2019t make exceptions on that.\u201d'],
-      ['\u201cDues are paid by the fifth of each cycle.',
-       'Late dues carry a surcharge. The surcharge is not waived.\u201d',
-       '\u201cThis is not a policy I invented. It predates me by fifty years.\u201d'],
-      ['\u201cThe posting board is on the far wall.',
-       'Members\u2019 notices go on the left. Guild business on the right.',
-       'If you can\u2019t tell the difference, the board will teach you.\u201d'],
+      ['“I’m not in the queue. There isn’t a queue.',
+       'I’m just reading the notice again.”'],
+      ['“One apprentice post. My teacher says the board used to carry nine notices a cycle.”',
+       '“Everyone’s waiting to see if the canal keeps its depth before they take anyone on.”'],
+      ['“I have the arithmetic certification. I sat it twice to get the mark I wanted.”',
+       '“Now I mostly stand here and re-read the word ‘shortlist.’”'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -3434,8 +3554,19 @@ const SIMPLE_NPCS = [
     solid:      true,
     facing:     'up',
     spriteType: 'child',
+    // Was a one-line placeholder ("I'm very tired."). Kept the weary opener,
+    // then a tired kid half-reciting a geography lesson \u2014 the two canon facts
+    // no other NPC mentions (LORE.md, "The World"): the Continent sits in the
+    // southern hemisphere (so north is warm, south is cold), and a permanent
+    // resonance storm at the equator seals off the world's northern half, and
+    // is pointedly never explained.
     dialogue: [
       ['\u201cI\u2019m very tired.\u201d'],
+      ['\u201cWe had to copy the whole big map. Ms. Farne says north is the warm way and south is the cold way \u2014 which is backwards from what everyone thinks.\u201d',
+       '\u201cAnd there\u2019s a storm all round the middle of the world that never stops, so no ship can get past it to the top half.\u201d'],
+      ['\u201cI asked her why the storm is there.',
+       'She said nobody knows. Nobody has ever known.\u201d',
+       '\u201cThat\u2019s the part I keep thinking about instead of sleeping.\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -4315,7 +4446,7 @@ const SIMPLE_NPCS = [
         ];
         dialogue.callbacks = [function() {
           window.mirethyst_rewarded = true;
-          stats.items.push({ name: 'Fen Cowl', type: 'armor', bonus: 4, price: 120 });
+          grantItem('Fen Cowl');
           dialogue.name  = 'Mirethyst';
           dialogue.pages = [['\u2018Fen Cowl\u2019  (DEF +4)  \u2014 added to items.']];
           dialogue.open  = true;
@@ -4656,7 +4787,7 @@ NPC_ACTIONS.lorraShop = function(npc) {
       function buy() {
         if (stats.gold >= 50) {
           stats.gold -= 50;
-          stats.items.push({ name: 'Reed Remedy', type: 'potion', heals: 0, curesPoison: true, price: 50 });
+          grantItem('Reed Remedy');
           dialogue.name  = npc.name;
           dialogue.pages = [['\u201cUse it before it uses you.\u201d']];
           dialogue.open  = true;

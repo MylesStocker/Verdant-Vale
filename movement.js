@@ -30,6 +30,8 @@ function locationName() {
   const meta = MAP_METADATA[mapRegistryId(activeMap)];
   if (meta && meta.type === 'outdoor') return meta.displayName;
 
+  if (inBasinChamber)                      return 'No Recorded Location';
+  if (inSunkenGallery)                     return 'Sunken Gallery';
   if (inTakomo)                            return 'Takomo\u2019s Chamber';
   if (inMireVault)                         return 'Mirethyst\u2019s Vault';
   if (inHamletInterior)                    return 'The Falls';
@@ -112,6 +114,9 @@ function currentMapId() {
   if (activeMap === NORTH_BASIN_C_MAP) return 'north_basin_c';
   if (activeMap === NORTH_BASIN_SW_MAP) return 'north_basin_sw';
   if (activeMap === NORTH_BASIN_W_MAP) return 'north_basin_w';
+  if (activeMap === NORTH_BASIN_NW_MAP) return 'north_basin_nw';
+  if (inBasinChamber)                 return 'basin_chamber';
+  if (inSunkenGallery)                return 'sunken_gallery';
   if (inTakomo)                       return 'takomo_chamber';
   if (inMireVault)                    return 'mire_vault';
   if (inHamletInterior)               return 'hamlet_interior';
@@ -306,6 +311,10 @@ function canWalk(cx, cy) {
 // encodes, which is more risk than this pass calls for.
 function isEncounterEligibleTile(tile) {
   if (activeMap === MEADOW_MAP) return false; // hidden meadow — deliberately encounter-free (the Warden is its only danger)
+  if (inBasinChamber) return false; // the unmarked chamber — deliberately encounter-free (redundant with CHAMBER_FLOOR's encounterEligible: false, kept as a visible guarantee per the entrance-area rule)
+  // (inSunkenGallery deliberately has NO branch here: it falls through to the
+  // TILE_PROPERTIES check below, where GALLERY_FLOOR is encounter-eligible —
+  // the pool comes from MAP_METADATA.encounterPool, see combat.js.)
   if (!inDungeon && !inTown && !inSluice && !inMireVault && !inTakomo && !inFenBrewery && !inHamletInterior && !inDungeonEntrance) return isTileEncounterEligible(tile);
   if (inDungeonEntrance) return false; // South Ruins Entrance Hall — deliberately encounter-free
   if (inDungeon && dungeonFloor === 1)  return tile === DUNGEON_FLOOR;
@@ -340,6 +349,22 @@ function update() {
   // Cooldown ticks every frame regardless of game state
   if (combat.cooldown > 0) combat.cooldown--;
   if (worldToastTimer > 0) worldToastTimer--;
+
+  // "Visited today" markers for the Upper Reach / Sunken Gallery physical
+  // evidence (Rhen's mud observation, Kest's channel-bottom smell -- both
+  // in npcs.js). Written every frame the player is physically present,
+  // unconditional of dialogue/menu state, so any arrival method (edge
+  // crossing, the stairs, a debug warp) is covered. Deliberately a day
+  // NUMBER compared with `===`, not a boolean flag: resting always
+  // increments `day` (interactions.js's rest() functions, combat.js's
+  // defeat handler), so the comparison expires on its own the moment a day
+  // passes -- no separate reset needed for that case. Session-only
+  // (window-native, not in QUEST_FLAG_SCHEMA) and explicitly cleared in
+  // loadGame() (save.js) so a same-day load from an older save can't leak
+  // this session's "visited today" state into a timeline where the visit
+  // never happened.
+  if (activeMap === NORTH_BASIN_NW_MAP) window.upper_reach_visit_day = day;
+  if (inSunkenGallery)                  window.sunken_gallery_visit_day = day;
 
   // Combat is active — only tick the flash / fire-cast timers, freeze everything else
   if (combat.active) {
@@ -774,6 +799,14 @@ function update() {
     if (inSluice && sluiceFloor === 3 && curTile === SLUICE_SECRET_ENTRANCE) { enterSluiceSecret(); return; }
     if (inSluice && sluiceFloor === 4 && curTile === SLUICE_SECRET_EXIT)   { exitSluiceSecret();    return; }
 
+    // ── The Upper Reach: the unmarked chamber + the Sunken Gallery ──────────
+    // All four tiles are unique to their maps, but the activeMap/flag guards
+    // keep the pattern identical to every other point transition above.
+    if (activeMap === NORTH_BASIN_NW_MAP && curTile === CHAMBER_DOOR) { enterBasinChamber();    return; }
+    if (inBasinChamber  && curTile === CHAMBER_EXIT)                  { exitBasinChamber();     return; }
+    if (activeMap === NORTH_BASIN_NW_MAP && curTile === SUNKEN_STAIR) { descendSunkenGallery(); return; }
+    if (inSunkenGallery && curTile === GALLERY_STAIR_UP)              { ascendSunkenGallery();  return; }
+
     // ── Rainfish danger zone (Still Water quest) ─────────────────────────────
     // The bog pond's water-edge (rows 4-6, cols 3-7 on MAP3_N1) is where the
     // rainfish school nests. Entering this zone during the quest wakes them —
@@ -860,7 +893,7 @@ function update() {
           dialogue.open  = true;
           dialogue.page  = 0;
         } else {
-          stats.items.push({ name: wi.name, type: wi.type, bonus: wi.bonus, heals: wi.heals, price: wi.price });
+          grantItem(wi.name);
         }
       }
     }

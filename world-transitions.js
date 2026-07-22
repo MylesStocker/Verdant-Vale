@@ -360,6 +360,14 @@ function exitBridgeNorth() {
   player.y               =  4.5 * TILE; // row 4 — one step north of the bridge gate
   player.facing          = 'up';
   combat.cooldown        = ENCOUNTER_COOLDOWN;
+  // Record crossing north onto the basin road ahead of any assignment, so
+  // the Calwick supervisor can note it next time the player reports in (see
+  // interactSupervisor(), interactions.js). Monotonic — set once and left
+  // set; the one-time admonishment is gated separately by north_bridge_scolded.
+  if (!reservoir_quest_started && !north_bridge_crossed_early) {
+    north_bridge_crossed_early = true;
+    syncQuestFlagsToWindow();
+  }
 }
 
 // ─── Smugglers' Fort (MAP3_N1 row 9 col 13) ──────────────────────────────────
@@ -1098,6 +1106,48 @@ function exitSluiceSecret() {
   combat.cooldown = ENCOUNTER_COOLDOWN;
 }
 
+// ─── The Upper Reach: the unmarked chamber + the Sunken Gallery ──────────────
+// Both areas hang off NORTH_BASIN_NW_MAP and follow the full safe-entrance-
+// area pattern (own state flag each — see state.js). Entered by stepping on
+// CHAMBER_DOOR (r3 c12) / SUNKEN_STAIR (r9 c4); movement.js holds the tile
+// triggers.
+
+function enterBasinChamber() {
+  inBasinChamber  = true;
+  activeMap       = BASIN_CHAMBER_MAP;
+  player.x        = 8.5 * TILE;   // col 8 — directly inside the threshold
+  player.y        = 9.5 * TILE;   // row 9 — interior bottom row
+  player.facing   = 'up';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
+function exitBasinChamber() {
+  inBasinChamber  = false;
+  activeMap       = NORTH_BASIN_NW_MAP;
+  player.x        = 12.5 * TILE;  // col 12 — one tile south of the doorframe
+  player.y        =  4.5 * TILE;  // row 4
+  player.facing   = 'down';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
+function descendSunkenGallery() {
+  inSunkenGallery = true;
+  activeMap       = SUNKEN_GALLERY_MAP;
+  player.x        = 2.5 * TILE;   // col 2 — foot of the stair
+  player.y        = 3.5 * TILE;   // row 3, one south of GALLERY_STAIR_UP
+  player.facing   = 'down';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
+function ascendSunkenGallery() {
+  inSunkenGallery = false;
+  activeMap       = NORTH_BASIN_NW_MAP;
+  player.x        = 4.5 * TILE;   // col 4 — one tile south of the stairhead
+  player.y        = 10.5 * TILE;  // row 10 (EXPOSED_STONE apron, walkable)
+  player.facing   = 'down';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
 // ─── The Dream (DREAM_MAP) ────────────────────────────────────────────────────
 // Entered when the weekly strange dream plays (resting in the player's own
 // bed, day % 7 === 3) and left when the dream dialogue closes. Unlike every
@@ -1227,6 +1277,33 @@ const EDGE_TRANSITIONS = {
   NORTH_BASIN_W_MAP: {
     south: [
       { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'north', sourceRange: [1, 10] },
+    ],
+    // North edge: cols 1-10 into the Upper Reach (the drained NW arm). Same
+    // width as the south edge and both maps' open borders match exactly, so
+    // crossings never clamp. The east end (c11+) stays border on both sides:
+    // the West Shore's own row-1 shoreline turns to reeds/water there.
+    north: [
+      { targetMap: 'NORTH_BASIN_NW_MAP', targetEdge: 'south', sourceRange: [1, 10] },
+    ],
+  },
+  NORTH_BASIN_NW_MAP: {
+    south: [
+      { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'north', sourceRange: [1, 10] },
+    ],
+  },
+  // West edge: rows 4-9 into Roddon Way's east edge -- the roddon ridge
+  // crossing the map boundary. Deliberately clear of the Mire Entrance
+  // (col 1, row 3) and the hamlet farmhouses (col 1, rows 10-12) on the
+  // MAP3_N1 side. Source and target ranges match exactly, so crossings
+  // never clamp.
+  MAP3_N1: {
+    west: [
+      { targetMap: 'RODDON_WAY_MAP', targetEdge: 'east', sourceRange: [4, 9] },
+    ],
+  },
+  RODDON_WAY_MAP: {
+    east: [
+      { targetMap: 'MAP3_N1', targetEdge: 'west', sourceRange: [4, 9] },
     ],
   },
 };
