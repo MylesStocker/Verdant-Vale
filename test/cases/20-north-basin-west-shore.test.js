@@ -122,6 +122,7 @@ module.exports = {
     // ── 4. Edges: south and north are real crossings ────────────────────────
     const map = g.run('NORTH_BASIN_W_MAP');
     const TREE = g.run('TREE');
+    const WATER = g.run('WATER');
     const WALKABLE = g.run('WALKABLE');
     // North edge: was plain border until the Upper Reach was built; now an
     // open EDGE_TRANSITIONS crossing on cols 1-10 (mirrors the south edge),
@@ -131,11 +132,13 @@ module.exports = {
       if (c >= 1 && c <= 10) {
         assert.ok(WALKABLE[map[0][c]], `north edge col ${c} is inside the EDGE_TRANSITIONS range and should be walkable`);
       } else {
-        assert.equal(map[0][c], TREE, `north edge col ${c} (outside the range) should be plain impassable border`);
+        assert.ok(map[0][c] === TREE || map[0][c] === WATER, `north edge col ${c} (outside the range) should be impassable border (TREE, or WATER at the NE reservoir corner)`);
       }
     }
     for (const row of map) {
-      assert.equal(row[15], TREE, 'east edge (the reservoir itself) should be plain impassable border');
+      // East edge IS the reservoir — now drawn as impassable WATER rather than a
+      // TREE line (rows 1-13); the N/S corners of the column stay TREE.
+      assert.ok(row[15] === TREE || row[15] === WATER, 'east edge (the reservoir itself) should be impassable border (WATER, or TREE at the corners)');
       assert.equal(row[0], TREE, 'west edge (future W neighbour) should be plain impassable border');
     }
     // South edge: walkable within the EDGE_TRANSITIONS range, border elsewhere.
@@ -143,7 +146,7 @@ module.exports = {
       if (c >= southMin && c <= southMax) {
         assert.ok(WALKABLE[map[14][c]], `south edge col ${c} is inside the EDGE_TRANSITIONS range and should be walkable`);
       } else {
-        assert.equal(map[14][c], TREE, `south edge col ${c} (outside the range) should be plain impassable border`);
+        assert.ok(map[14][c] === TREE || map[14][c] === WATER, `south edge col ${c} (outside the range) should be impassable border (TREE, or WATER at the SE reservoir corner)`);
       }
     }
 
@@ -194,7 +197,7 @@ module.exports = {
     assert.equal(unreachable, 0, `NORTH_BASIN_W_MAP has ${unreachable} unreachable walkable tile(s) out of ${totalWalkable} -- the hut or shoreline may be sealing off a pocket`);
 
     // ── 7. The eastern reservoir shore is uneven (not a straight water wall) ─
-    const WATER = g.run('WATER');
+    // (WATER const already declared above for the border check.)
     const waterStartCols = [];
     for (let r = 0; r < rows; r++) {
       const i = map[r].indexOf(WATER);

@@ -180,6 +180,7 @@ const SIMPLE_NPCS = [
         ? [['\u201cI told myself I wouldn\u2019t think about the ledger.\u201d',
             '\u201cI thought about the ledger.\u201d']]
         : [['\u201cToday I am updating the ledger.', 'Yesterday I was also updating the ledger.\u201d']];
+      pages.unshift(['\u201cMorning, ' + stats.name + '.\u201d', '\u201cMind the wet ink.\u201d']);
       if (sluice_reward_given && dispatch_rewarded && MainQuest >= 3) pages.push(
         ['\u201cYou\u2019ve been bringing in a lot of pay tickets.\u201d',
          '\u201cNot complaining.',
@@ -283,6 +284,7 @@ const SIMPLE_NPCS = [
         ['\u201cWater\u2019s lower than I\u2019ve ever worked it. You can see old stonework off the east bank now \u2014 walls, a doorway.\u201d',
          '\u201cSome say there were whole towns out here before the Empire. Whoever they were, the water had them long before we did.\u201d'],
       ];
+      pages.unshift(['\u201c' + stats.name + '. Sit \u2014 you\u2019re in my light.\u201d']);
       if (sluice_reward_given) pages.push(
         ['\u201cEast channel\u2019s running better these days.\u201d',
          '\u201cFlow\u2019s more consistent. You notice it in the catch \u2014 more even across the week than it was in spring.\u201d'],
@@ -464,8 +466,8 @@ const SIMPLE_NPCS = [
     spriteType:    'patron',
     get dialogue() {
       const pages = [
-        ['\u201cOh \u2014 ' + stats.name + '. Come in, come in.\u201d',
-         '\u201cNo need to knock around here. Never has been, for you.\u201d'],
+        ['\u201cOh, hello. Come in, come in.\u201d',
+         '\u201cNo need to knock around here.\u201d'],
         ['\u201cIn this part of the world it\u2019s considered perfectly polite to just walk into someone\u2019s house and start talking to them.\u201d'],
         ['\u201cBeen that way as long as I can remember.',
          'Doors are more of a suggestion, really.\u201d'],

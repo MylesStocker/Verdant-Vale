@@ -96,10 +96,15 @@ module.exports = {
     // ── 4. No nonexistent future-map exit is currently traversable ──────────
     const map = g.run('NORTH_BASIN_C_MAP');
     const TREE = g.run('TREE');
-    assert.ok(map[0].every(t => t === TREE), 'north edge (future N neighbour) should be plain impassable border, no working exit yet');
+    const WATER = g.run('WATER');
+    // An impassable border tile may be TREE (unbuilt-neighbour edge) or WATER
+    // (the open reservoir continuing off-map). Both block the player equally;
+    // the invariant here is "no walkable gap", not "specifically TREE".
+    const isBorder = (t) => t === TREE || t === WATER;
+    assert.ok(map[0].every(isBorder), 'north edge (open reservoir off-map) should be impassable border, no working exit yet');
     for (const row of map) {
-      assert.equal(row[0], TREE, 'west edge (future W neighbour) should be plain impassable border');
-      assert.equal(row[15], TREE, 'east edge (future E neighbour) should be plain impassable border');
+      assert.ok(isBorder(row[0]), 'west edge should be impassable border (TREE or reservoir WATER)');
+      assert.ok(isBorder(row[15]), 'east edge should be impassable border (TREE or reservoir WATER)');
     }
     const southRow = map[14];
     const WALKABLE = g.run('WALKABLE');

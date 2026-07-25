@@ -24,8 +24,8 @@ agreement by `validateGameData()`).
   house doors, 63 tile constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
-  (see below), across 76 maps, 18,240 tile cells, 10 edge transitions, 167
-  NPCs, 108 item placements, 33 enemy templates, 534 dialogue/text entries,
+  (see below), across 76 maps, 18,240 tile cells, 12 edge transitions, 167
+  NPCs, 108 item placements, 33 enemy templates, 540 dialogue/text entries,
   106 save-flag checks, 49 map features.
 
 ## The 2 current warnings, and why neither needs fixing

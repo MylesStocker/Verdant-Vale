@@ -1305,6 +1305,20 @@ const EDGE_TRANSITIONS = {
     east: [
       { targetMap: 'MAP3_N1', targetEdge: 'west', sourceRange: [4, 9] },
     ],
+    // South edge: cols 12-14 down into the Eastern Reaches (MAP2)'s north
+    // edge. Deliberately roadless — you leave the ridge and cut across open
+    // fen. Source and target ranges match exactly, so crossings never clamp.
+    south: [
+      { targetMap: 'MAP2', targetEdge: 'north', sourceRange: [12, 14] },
+    ],
+  },
+  // North edge: cols 12-14 up into Roddon Way's south edge — the reciprocal of
+  // the link above. Also roadless: reach it by leaving the MAP2 road and
+  // cutting north-east across the open fen.
+  MAP2: {
+    north: [
+      { targetMap: 'RODDON_WAY_MAP', targetEdge: 'south', sourceRange: [12, 14] },
+    ],
   },
 };
 window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;

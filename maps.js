@@ -27,7 +27,7 @@ const MAP = [
 // Small lake at rows 8-10, cols 5-7.  Reeds at rows 7,10.  Forest clusters rows 2-3 and 7-8.
 const MAP2 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0
+  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, 23, 23, 23,  3],  //  0  ← cols 12-14 = open-fen crossing → EDGE_TRANSITIONS north to Roddon Way (roadless: cut NE across the fen)
   [  3,  0,  0,  0,  0,  0,  3,  3,  0,  0,  0,  0,  0,  0,  0,  3],  //  1
   [  3,  0,  0,  3,  0,  0,  0,  0,  0,  0,  3,  3,  0,  0,  0,  3],  //  2
   [  3,  0,  0,  3,  3,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0,  3],  //  3
@@ -218,10 +218,13 @@ const MAP3_N1_ITEMS = [
 //
 // Connected east to MAP3_N1 via an open EDGE_TRANSITIONS crossing, rows
 // 4-9 (RODDON_SILT on both sides of the boundary — see MAP3_N1's header
-// comment). No other edge of this map connects anywhere: north, south,
-// and west stay plain impassable TREE border throughout, and the small
-// unused stretches of the east edge (rows 0-3, 10-14, also TREE) make
-// clear those aren't overlooked exits either.
+// comment), and south to the Eastern Reaches (MAP2) via a second open
+// crossing at cols 12-14 — a deliberately roadless fen gap off the SE
+// corner, so reaching it means leaving the ridge and cutting across open
+// fen (dissuading casual use). North and west stay plain impassable TREE
+// border throughout, and the unused stretches of the east edge (rows 0-3,
+// 10-14) and south edge (cols 1-11, also TREE) make clear those aren't
+// overlooked exits either.
 //
 // The ridge (RODDON_SILT, 111) enters at the full width of the crossing
 // (rows 4-9, cols 13-14), tapers over cols 12-9 down to its normal 2-3
@@ -260,8 +263,8 @@ const RODDON_WAY_MAP = [
   [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,  23,  23,  23,   0,   0,   3],  // 10  SE reed patch
   [   3,   0,   0,  23,  23,   0,   0,   1,   1,   0,   0,  23,   0,   0,   0,   3],  // 11  SW reed patch; S pool c7-8 (eel stakes at c6)
   [   3,   0,   0,  23,  23,  23,   0,   1,   0,   0,   3,   0,   0,   0,   0,   3],  // 12  SW reed patch continues; S pool; SE scrub c10
-  [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3],  // 13  open lower fen
-  [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3],  // 14  border
+  [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3],  // 13  open lower fen; the SE stretch (c12-14) runs down to the MAP2 crossing
+  [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,  23,  23,  23,   3],  // 14  cols 12-14 = open-fen crossing → EDGE_TRANSITIONS south to MAP2 (Eastern Reaches); no road
 ];
 
 const RODDON_WAY_ITEMS = [
@@ -419,8 +422,9 @@ const NORTH_BASIN_S_ITEMS = [];
 // row 0, cols 1-10, is open ground up to NORTH_BASIN_W_MAP's (West Shore)
 // south edge, x preserved. The open range stops at col 10 rather than col 14
 // because rows 1-3 cols 11-13 are the reservoir finger (WATER) — landing a
-// crossing there would strand the player, so cols 11-14 stay impassable
-// border on that (water) side. See EDGE_TRANSITIONS['NORTH_BASIN_SW_MAP'].north.
+// crossing there would strand the player, so cols 11-14 stay impassable —
+// and cols 11-13 of row 0 are drawn as WATER (the finger continues off-map),
+// col 14 as TREE. See EDGE_TRANSITIONS['NORTH_BASIN_SW_MAP'].north.
 // (The old NORTH_BASIN_W_EXIT/ENTRANCE point-tiles 90/91 are retired the same
 // way tiles 84-87 were when their links became edges — see tiles.js.)
 //
@@ -444,7 +448,7 @@ const NORTH_BASIN_S_ITEMS = [];
 // not another spike (see BALANCE_REPORT.md re: FAR pool's Rotwood Troll).
 const NORTH_BASIN_SW_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  3,  3,  3],  //  0  open edge, cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_W_MAP (cols 11-14 stay border: reservoir finger below)
+  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1,  1,  1,  3,  3],  //  0  open edge, cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_W_MAP (cols 11-13 = the reservoir finger continuing off-map as WATER; col 14 stays TREE border)
   [  3,  0, 23,  0,  0,  0, 23,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  1  3×3 reservoir finger begins (cols 11-13)
   [  3, 23,  0,  0, 88,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  2  reservoir finger
   [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  3  reservoir finger ends; reed fringe around it
@@ -475,8 +479,10 @@ const NORTH_BASIN_SW_ITEMS = [];
 // border to line up with the Silt Flats' own reservoir-finger side.
 //
 // EAST is the reservoir itself — not a canal — and its shore is drawn UNEVEN
-// on purpose: the WATER edge ripples between roughly col 11 and col 14 rather
-// than sitting in a straight vertical line, with REEDS at the waterline and a
+// on purpose: the WATER edge ripples between roughly col 11 and col 14, then
+// carries on as open WATER right off the east border (col 15, rows 1-13) —
+// the reservoir doesn't stop at the map edge, so that whole column is WATER
+// rather than a TREE line — with REEDS at the waterline and a
 // couple of stranded FENCE_POST stakes (old waterline markers) where the
 // basin has fallen away. A fisher's hut (drawn with the shared TRAPPER_HUT
 // tile — a weathered shack; no fisher-specific tile added for one prop) leans
@@ -497,21 +503,21 @@ const NORTH_BASIN_SW_ITEMS = [];
 // introduce a second, harsher tier for this map.
 const NORTH_BASIN_W_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  3,  3,  3],  //  0  open edge cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_NW_MAP (the Upper Reach) — the "one-line change later" this border was reserved for
-  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  3],  //  1  reservoir shore begins (uneven): reeds at c12, water c13-14
-  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  //  2  water reaches in to c12
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  3],  //  3  ← c9 stranded waterline stake
-  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  3],  //  4  inlet: water reaches in to c11
-  [  3,  0,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  3],  //  5  drying mud patch (safer ground)
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 92,  0, 23,  1,  1,  3],  //  6  ← c10 = fisher's hut (TRAPPER_HUT tile)
-  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  //  7
-  [  3,  0,  0,  0,  0,  0, 89,  0,  0,  0,  0,  0, 23,  1,  1,  3],  //  8  ← c6 old fishing gear (stranded stake)
-  [  3,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1,  3],  //  9  inlet: water reaches in to c11
-  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  // 10
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  3],  // 11
-  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  3],  // 12
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  3],  // 13
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  3,  3,  3],  // 14  open edge, cols 1-10 → EDGE_TRANSITIONS south to NORTH_BASIN_SW_MAP
+  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  //  0  open edge cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_NW_MAP (the Upper Reach) — the "one-line change later" this border was reserved for
+  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  1  reservoir shore begins (uneven): reeds at c12, water c13-14
+  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  2  water reaches in to c12
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  1],  //  3  ← c9 stranded waterline stake
+  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  4  inlet: water reaches in to c11
+  [  3,  0,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  5  drying mud patch (safer ground)
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 92,  0, 23,  1,  1,  1],  //  6  ← c10 = fisher's hut (TRAPPER_HUT tile)
+  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  7
+  [  3,  0,  0,  0,  0,  0, 89,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  8  ← c6 old fishing gear (stranded stake)
+  [  3,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  9  inlet: water reaches in to c11
+  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 10
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 11
+  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 12
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 13
+  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  // 14  open edge, cols 1-10 → EDGE_TRANSITIONS south to NORTH_BASIN_SW_MAP
 ];
 
 const NORTH_BASIN_W_ITEMS = [];
@@ -536,21 +542,24 @@ const NORTH_BASIN_W_ITEMS = [];
 // (no new decorative-overlay system added for a two-sign skeleton map), but
 // the two signs below place that idea in the text instead.
 //
-// North/east/west are plain impassable TREE (the future N/NE/E/SE/S/SW/W/NW
+// The north edge is open reservoir WATER (the lake simply continues off-map),
+// and the east/west edges are WATER too through the still-flooded upper rows
+// (1-6); all of it is impassable, exactly like a TREE border — there's no
+// working exit on any of these edges (the future N/NE/E/SE/S/SW/W/NW
 // neighbours aren't built yet — see NORTH_BASIN_S_MAP's header for the full
-// 3×3 layout); south is the one real, working edge.
+// 3×3 layout). South is the one real, working edge.
 //
 // No GRASS tiles anywhere on this map either (same reasoning as
 // NORTH_BASIN_S_MAP) — zero encounter-eligible terrain, no combat.js changes.
 const NORTH_BASIN_C_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  border (reservoir continues beyond, off-map)
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  1  open reservoir
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  2  open reservoir
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  3  open reservoir
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  4  open reservoir
-  [  3,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  3],  //  5  shoreline starts to ripple
-  [  3,  1, 23, 23, 81,  1,  1,  1,  1,  1,  1, 81, 23, 23,  1,  3],  //  6  mud creeping in at the edges
+  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open reservoir
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open reservoir
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open reservoir
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  open reservoir
+  [  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1],  //  5  shoreline starts to ripple
+  [  1,  1, 23, 23, 81,  1,  1,  1,  1,  1,  1, 81, 23, 23,  1,  1],  //  6  mud creeping in at the edges
   [  3, 23, 81, 81, 81, 23,  1,  1,  1,  1, 23, 81, 81, 81, 23,  3],  //  7  ← water authority gauge (c4)
   [  3, 81, 81, 81, 23, 23,  1,  1,  1,  1, 23, 23, 81, 81, 81,  3],  //  8  receding inlet reaches down at c6-9
   [  3, 81, 81, 23, 23,  1,  1, 23, 23,  1,  1, 23, 23, 81, 81,  3],  //  9  last residual pools

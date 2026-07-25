@@ -67,6 +67,18 @@ module.exports = {
     assert.equal(west[0].targetRange, undefined, 'identical ranges -- targetRange should default to sourceRange, not be duplicated');
     assert.equal(east[0].targetRange, undefined);
 
+    // Reciprocal south crossing to the Eastern Reaches (MAP2), cols 12-14.
+    const rodSouth  = g.run("EDGE_TRANSITIONS.RODDON_WAY_MAP.south");
+    const map2North = g.run("EDGE_TRANSITIONS.MAP2.north");
+    assert.equal(rodSouth.length, 1);
+    assert.equal(map2North.length, 1);
+    assert.equal(rodSouth[0].targetMap, 'MAP2');
+    assert.equal(rodSouth[0].targetEdge, 'north');
+    assert.equal(map2North[0].targetMap, 'RODDON_WAY_MAP');
+    assert.equal(map2North[0].targetEdge, 'south');
+    assert.equal(JSON.stringify(rodSouth[0].sourceRange), '[12,14]');
+    assert.equal(JSON.stringify(map2North[0].sourceRange), '[12,14]');
+
     // ── 3. Real-movement crossing, both directions ──────────────────────────
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3_N1;
@@ -133,7 +145,9 @@ module.exports = {
       const problems = [];
       for (let c = 0; c < 16; c++) {
         if (grid[0][c] !== TREE) problems.push('north row col ' + c + ' is not TREE');
-        if (grid[14][c] !== TREE) problems.push('south row col ' + c + ' is not TREE');
+        // South edge: cols 12-14 are the open MAP2 crossing (REEDS); the rest stays TREE.
+        const southOK = (c >= 12 && c <= 14) ? grid[14][c] === REEDS : grid[14][c] === TREE;
+        if (!southOK) problems.push('south row col ' + c + ' unexpected tile ' + grid[14][c]);
       }
       for (let r = 0; r < 15; r++) {
         if (grid[r][0] !== TREE) problems.push('west col row ' + r + ' is not TREE');
@@ -146,7 +160,7 @@ module.exports = {
     // context, so its Array prototype differs from the host's and strict
     // deepEqual would fail even when empty.
     assert.equal(borderCheck.length, 0,
-      `every unconnected border tile must stay TREE; only the rows 4-9 mouth may open. Problems: ${borderCheck.join(' | ')}`);
+      `every unconnected border tile must stay TREE; only the rows 4-9 east mouth and the cols 12-14 south crossing may open. Problems: ${borderCheck.join(' | ')}`);
 
     // ── 6. Encounter pool + tile encounter-eligibility ──────────────────────
     g.run('inMireVault=false; inSluice=false; inDungeon=false;');

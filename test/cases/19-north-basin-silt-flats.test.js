@@ -122,6 +122,7 @@ module.exports = {
     // ── 4. Edges: east and north are real open edges; south/west are the true region edge ─
     const map = g.run('NORTH_BASIN_SW_MAP');
     const TREE = g.run('TREE');
+    const WATER = g.run('WATER');
     const WALKABLE = g.run('WALKABLE');
     // North edge: now an open EDGE_TRANSITIONS crossing to the West Shore
     // within its configured range (cols 1-10), plain impassable border
@@ -133,7 +134,7 @@ module.exports = {
       if (c >= northMin && c <= northMax) {
         assert.ok(WALKABLE[map[0][c]], `north edge col ${c} is inside the EDGE_TRANSITIONS range and should be walkable`);
       } else {
-        assert.equal(map[0][c], TREE, `north edge col ${c} (outside the range) should be plain impassable border`);
+        assert.ok(map[0][c] === TREE || map[0][c] === WATER, `north edge col ${c} (outside the range) should be impassable border (TREE, or WATER at cols 11-13 where the reservoir finger continues off-map)`);
       }
     }
     assert.ok(map[14].every(t => t === TREE), 'south edge should be plain impassable border (true edge of the region)');
