@@ -468,14 +468,10 @@ const MIRE_VAULT_ITEMS = [
   { name: 'Ember Root', type: 'potion', heals: 15, causesMuddied: true, price: 20, x: 13.5 * TILE, y:  8.5 * TILE, picked: false },
 ];
 
-// ─── Mirethyst's Vault — chest ────────────────────────────────────────────────
-// Mid-hall centre (col 7, row 6). Opened by pressing Space when adjacent.
-const MIRE_VAULT_CHEST = {
-  x:      7.5 * TILE,
-  y:      6.5 * TILE,
-  opened: false,
-  item:   { name: 'Mirestone Blade', type: 'weapon', bonus: 8, price: 200 },
-};
+// ─── Mirethyst's Vault — (no chest) ───────────────────────────────────────────
+// The Mirestone Blade chest was removed. The mid-hall centre (col 7, row 6) is
+// held for a future secret crypt entrance. Mirethyst gives the Fen Cowl through
+// her own dialogue now (npcs.js), as thanks for the player keeping her company.
 
 // ─── MAP_METADATA ───────────────────────────────────────────────────────────
 // The single source of truth for per-map bookkeeping. Adding a new map should

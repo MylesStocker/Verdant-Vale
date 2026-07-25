@@ -228,15 +228,27 @@ function drawHouseFurniture() {
     ctx.fillStyle = '#3a1808';
     ctx.fillRect(bx + 3,  by + 25, 4, 4);
     ctx.fillRect(bx + 25, by + 25, 4, 4);
-    // SPACE hint when in range
-    if (!dialogue.open && !choice.open && !shop.open) {
+    if (!dialogue.open && !choice.open && !shop.open && !menu.open) {
       const dx = player.x - hd.bed.x;
       const dy = player.y - hd.bed.y;
-      if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS && (tick >> 4) & 1) {
+      const near = Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS;
+      if (near && (tick >> 4) & 1) {
+        // SPACE prompt when standing next to it
         ctx.fillStyle = '#d8c878';
         ctx.font = 'bold 11px "Courier New", monospace';
         ctx.textAlign = 'center';
         ctx.fillText('SPACE', bx + 16, by - 4);
+        ctx.textAlign = 'left';
+      } else if (hd.bed.canRest && !near) {
+        // Persistent "can rest here" marker over the player's own (special) bed,
+        // so it reads as interactable from across the room. A gentle bobbing Zz.
+        const bob = (tick >> 4) & 1;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#e6d68a';
+        ctx.font = 'bold 8px "Courier New", monospace';
+        ctx.fillText('z', bx + 22, by - 3 - bob);
+        ctx.font = 'bold 6px "Courier New", monospace';
+        ctx.fillText('z', bx + 16, by - 7 - bob);
         ctx.textAlign = 'left';
       }
     }
@@ -1364,7 +1376,10 @@ function drawDrenwickOfficeFurniture() {
 function drawOfficeFurniture() {
   if (!inTown || townBuilding !== 'office' || currentTownId !== 'calwick') return;
 
-  // ── Wall map (hung on north wall, row 1, cols 6–9) ────────────────────────
+  // ── Wall primer (hung on north wall, row 1, cols 6–9) ─────────────────────
+  // A framed service manual explaining agent stats — inspecting it opens the
+  // stats primer dialogue (interactCalwickOffice). The continent map moved to
+  // the school.
   {
     const wx = 6 * TILE + 4;   // x = 196
     const wy = TILE + 6;       // y = 38  (within row-1 wall tile)
@@ -1374,28 +1389,19 @@ function drawOfficeFurniture() {
     ctx.fillStyle = '#5a3818';
     ctx.fillRect(wx - 3, wy - 3, ww + 6, wh + 6);
     // Parchment surface
-    ctx.fillStyle = '#d4c880';
+    ctx.fillStyle = '#e2d6a4';
     ctx.fillRect(wx, wy, ww, wh);
-    // Land masses
-    ctx.fillStyle = '#7a9858';
-    ctx.fillRect(wx + 2,  wy + 3, 26, 12);
-    ctx.fillRect(wx + 36, wy + 5, 18,  8);
-    ctx.fillRect(wx + 62, wy + 4, 24, 10);
-    ctx.fillRect(wx + 94, wy + 3, 22, 11);
-    // Water patches
-    ctx.fillStyle = '#6888a0';
-    ctx.fillRect(wx + 29, wy + 5,  7,  7);
-    ctx.fillRect(wx + 56, wy + 4,  6,  8);
-    ctx.fillRect(wx + 88, wy + 5,  6,  7);
-    // Roads
-    ctx.fillStyle = '#c0a060';
-    ctx.fillRect(wx + 24, wy + 8, 5, 2);
-    ctx.fillRect(wx + 54, wy + 7, 7, 2);
-    ctx.fillRect(wx + 85, wy + 8, 5, 2);
-    // Location pin
-    ctx.fillStyle = '#b83030';
-    ctx.fillRect(wx + 66, wy + 2, 3, 5);
-    ctx.fillRect(wx + 65, wy + 6, 5, 2);
+    // Heading bar
+    ctx.fillStyle = '#8a3030';
+    ctx.fillRect(wx + 4, wy + 3, ww - 8, 3);
+    // Ruled text lines (a manual, not a map)
+    ctx.fillStyle = '#5a4a30';
+    for (let i = 0; i < 3; i++) ctx.fillRect(wx + 4, wy + 9 + i * 3, ww - 40, 1);
+    // A small stat bar motif on the right
+    ctx.fillStyle = '#3a6a4a';
+    ctx.fillRect(wx + ww - 30, wy + 9, 22, 2);
+    ctx.fillStyle = '#6a3a3a';
+    ctx.fillRect(wx + ww - 30, wy + 13, 16, 2);
     // Frame corner bolts
     ctx.fillStyle = '#2a1008';
     ctx.fillRect(wx - 3, wy - 3, 4, 4);
@@ -1406,7 +1412,7 @@ function drawOfficeFurniture() {
     ctx.fillStyle = '#8a6030';
     ctx.font = 'bold 7px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('REGIONAL MAP', wx + ww / 2, wy + wh + 9);
+    ctx.fillText('FIELD MANUAL', wx + ww / 2, wy + wh + 9);
     ctx.textAlign = 'left';
   }
 
@@ -1884,28 +1890,28 @@ function drawDrenwichSchoolFurniture() {
       ctx.fillRect(tx + 5, ty + 7, 8, 6);
     }
 
-    // ── Locked document cabinet (west wall, col 2 row 3) ──────────────────
+    // ── Document cabinet (west wall, col 2 row 3) ─────────────────────────
     // Drawn at INTERIOR_WALL tile position — tile is already impassable (19).
-    // Dark cabinet with visible lock bar; labelled REGISTRY in small font.
+    // An ordinary school records cabinet of student report cards.
     {
       const cx3 = 2 * TILE, cy3 = 3 * TILE;
-      ctx.fillStyle = '#1e1808';
+      ctx.fillStyle = '#2a2012';
       ctx.fillRect(cx3 + 2,  cy3 + 4,  28, 26);
-      ctx.fillStyle = '#2e2810';
+      ctx.fillStyle = '#3a2c18';
       ctx.fillRect(cx3 + 3,  cy3 + 5,  26, 24);
-      // Door panel divide
+      // Two drawer divides + small drawer handles
       ctx.fillStyle = '#1e1808';
-      ctx.fillRect(cx3 + 3,  cy3 + 16, 26,  1);
-      // Lock bar
-      ctx.fillStyle = '#707060';
-      ctx.fillRect(cx3 + 10, cy3 + 9,  12,  3);
-      ctx.fillStyle = '#505040';
-      ctx.fillRect(cx3 + 15, cy3 + 8,   3,  2);
+      ctx.fillRect(cx3 + 3,  cy3 + 13, 26,  1);
+      ctx.fillRect(cx3 + 3,  cy3 + 22, 26,  1);
+      ctx.fillStyle = '#8a7048';
+      ctx.fillRect(cx3 + 14, cy3 + 9,   4,  2);
+      ctx.fillRect(cx3 + 14, cy3 + 18,  4,  2);
+      ctx.fillRect(cx3 + 14, cy3 + 26,  4,  2);
       // Label
       ctx.fillStyle = '#a09060';
       ctx.font = 'bold 4px "Courier New", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('REGISTRY', cx3 + 16, cy3 + 3);
+      ctx.fillText('REPORTS', cx3 + 16, cy3 + 3);
       ctx.textAlign = 'left';
     }
 

@@ -271,6 +271,7 @@ function syncQuestFlagsToWindow() {
   // lines only normalize undefined -> false. They must NEVER assign from a
   // let-binding: that would clobber a flag the player just earned before
   // saveGame() reads it.
+  window.vale_tutorial_seen   = !!window.vale_tutorial_seen;
   window.upper_reach_seen     = !!window.upper_reach_seen;
   window.basin_chamber_seen   = !!window.basin_chamber_seen;
   window.sunken_gallery_seen  = !!window.sunken_gallery_seen;

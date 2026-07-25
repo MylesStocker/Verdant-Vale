@@ -196,8 +196,6 @@ function canWalk(cx, cy) {
     if (sluiceFloor === 3 && !SLUICE_DEEP_CHEST.opened && Math.abs(cx - SLUICE_DEEP_CHEST.x) < 18 && Math.abs(cy - SLUICE_DEEP_CHEST.y) < 18) return false;
   } else if (inTakomo) {
     if (!TAKOMO.defeated && Math.abs(cx - TAKOMO.x) < 18 && Math.abs(cy - TAKOMO.y) < 18) return false;
-  } else if (inMireVault) {
-    if (!MIRE_VAULT_CHEST.opened && Math.abs(cx - MIRE_VAULT_CHEST.x) < 18 && Math.abs(cy - MIRE_VAULT_CHEST.y) < 18) return false;
   } else if (inDungeon && dungeonFloor === 1) {
     if (!DUNGEON_CHEST.opened && Math.abs(cx - DUNGEON_CHEST.x) < 18 && Math.abs(cy - DUNGEON_CHEST.y) < 18) return false;
     if (!DUNGEON_ALCOVE_CHEST.opened && Math.abs(cx - DUNGEON_ALCOVE_CHEST.x) < 18 && Math.abs(cy - DUNGEON_ALCOVE_CHEST.y) < 18) return false;
@@ -659,14 +657,53 @@ function update() {
         enterBuilding('tavern'); return;
       }
       if (curTile === OFFICE_DOOR) {
-        // Infirmary — door-tap dialogue, no interior map
+        // Infirmary — door-tap service, no interior map. Heals HP for a fee of
+        // one gold per point (does not advance the day, unlike resting).
+        const missing = stats.maxHp - stats.hp;
+        if (missing <= 0) {
+          dialogue.name  = 'Infirmary';
+          dialogue.pages = [
+            ['\u201cOpen for anyone who needs it.\u201d',
+             '\u201cBut you\u2019re sound enough \u2014 nothing here to mend today.\u201d'],
+          ];
+          dialogue.open = true;
+          dialogue.page = 0;
+          return;
+        }
         dialogue.name  = 'Infirmary';
         dialogue.pages = [
           ['\u201cOpen for anyone who needs it.\u201d',
-           '\u201cNo charge for basic treatment.\u201d'],
-          ['\u201cIf it\u2019s serious, you\u2019ll need to go northeast.\u201d',
-           '\u201cWe do what we can here.\u201d'],
+           '\u201cWe charge by the mending \u2014 one coin a point. The serious cases want a proper ward; we do what we can here.\u201d'],
         ];
+        dialogue.callbacks = [function() {
+          const pay = Math.min(stats.maxHp - stats.hp, stats.gold);
+          if (pay <= 0) {
+            dialogue.name  = 'Infirmary';
+            dialogue.pages = [['\u201cCome back with a coin or two and we\u2019ll set you right.\u201d']];
+            dialogue.open  = true;
+            dialogue.page  = 0;
+            return;
+          }
+          choice.title    = 'Infirmary';
+          choice.options   = ['Be treated  (' + pay + 'g)', 'Leave'];
+          choice.cursor    = 0;
+          choice.callbacks = [
+            function treat() {
+              const need    = stats.maxHp - stats.hp;
+              const restore = Math.min(need, stats.gold);
+              stats.gold -= restore;
+              stats.hp   += restore;
+              dialogue.name  = 'Infirmary';
+              dialogue.pages = restore >= need
+                ? [['They clean and bind what needs it.', 'HP restored. Paid ' + restore + ' gold.']]
+                : [['They patch you as far as your coin runs.', 'Restored ' + restore + ' HP. Paid ' + restore + ' gold.']];
+              dialogue.open  = true;
+              dialogue.page  = 0;
+            },
+            function leave() {},
+          ];
+          choice.open = true;
+        }];
         dialogue.open = true;
         dialogue.page = 0;
         return;

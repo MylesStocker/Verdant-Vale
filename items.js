@@ -43,9 +43,11 @@ const ITEM_REGISTRY = {
   'River Smelt':   { name: 'River Smelt',   type: 'potion', heals:  8, price:  4 },
   'Canal Eel':     { name: 'Canal Eel',     type: 'potion', heals: 20, price: 12 },
   'Old Boot':      { name: 'Old Boot',      type: 'accessory', bonus: 0, price: 0 },
-  'Sealed Letter': { name: 'Sealed Letter', type: 'accessory', bonus: 0, price: 0, questItem: true },
-  // Mirethyst's Vault items
-  'Mirestone Blade': { name: 'Mirestone Blade', type: 'weapon', bonus: 8, price: 200 },
+  // Pure flavor/quest artifact (a voided transit letter fished up) — keyItem so
+  // it lives in the Special Items notebook only, never the equip/use list.
+  'Sealed Letter': { name: 'Sealed Letter', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  // Mirethyst's Vault items (the Mirestone Blade chest was removed — the
+  // vault's mid-hall is reserved for a future secret crypt entrance)
   'Fen Cowl':        { name: 'Fen Cowl',        type: 'armor',  bonus: 4, price: 120 },
   'Ember Root':      { name: 'Ember Root',       type: 'potion', heals: 15, causesMuddied: true, price: 20 },
   // Fen Brewery — Gorrit Wend sells freshly made mushroom wine directly (distinct

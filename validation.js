@@ -807,7 +807,6 @@ function validateItems() {
     ['SLUICE_SECRET_CHEST',  typeof SLUICE_SECRET_CHEST  !== 'undefined' ? SLUICE_SECRET_CHEST  : undefined],
     ['SLUICE_LEVEL3_CHEST',  typeof SLUICE_LEVEL3_CHEST  !== 'undefined' ? SLUICE_LEVEL3_CHEST  : undefined],
     ['SLUICE_DEEP_CHEST',    typeof SLUICE_DEEP_CHEST    !== 'undefined' ? SLUICE_DEEP_CHEST    : undefined],
-    ['MIRE_VAULT_CHEST',     typeof MIRE_VAULT_CHEST     !== 'undefined' ? MIRE_VAULT_CHEST     : undefined],
     ['CAT_ARMOR_CHEST',      typeof CAT_ARMOR_CHEST      !== 'undefined' ? CAT_ARMOR_CHEST      : undefined],
   ];
   const seenChestSpots = new Map(); // "x,y" -> chest name, duplicate-coordinate check

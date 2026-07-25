@@ -326,6 +326,32 @@ pressed) is checked in this priority order:
    this line runs, something above already claimed the press this frame.
 4. If nothing above fired, the press is a no-op.
 
+### Dialogue page formatting contract
+
+A dialogue page is an array of authored strings. `drawDialogue()` (via the pure
+helpers `wrapDialogueLine` / `paginateDialoguePages` in `render-ui.js`)
+word-wraps **each string independently** to the box width (496px box, 468px
+text) and treats the boundary between two strings as a **hard line break**;
+the wrapped sub-lines are then repaginated into height-safe visual pages of at
+most three lines each.
+
+Because of that, the rule for authoring content is:
+
+> **Within a dialogue page, each string is a hard authored line. Continuous
+> prose that should wrap naturally must be stored as one string. Use multiple
+> strings only for intentional line breaks.**
+
+One complete prose sentence or continuous paragraph is one string — let the
+renderer wrap it. Use multiple strings only for genuinely intentional breaks:
+verse and song lyrics, the rareborn rhyme and other metrical writing, signs /
+plaques / notices, lists and document formatting, short system-message
+sequences, and deliberate comic or dramatic fragments (`'Twice.'`,
+`'Nothing bites.'`) or separately quoted statements. Splitting one sentence
+across two strings is the classic bug: if the first fragment is a little too
+wide it wraps and orphans its final word before the second fragment begins.
+Do **not** add a runtime heuristic that joins strings while the game runs —
+that would unpredictably destroy poetry and deliberate pacing. Fix the content.
+
 **`MAP_FEATURES`** (`interactions.js`) is the general, game-wide registry
 for simple map content — signs, plaques, gauges, notices, survey markers
 (`type: 'inspect'`), and rectangular area-discovery text (`type: 'trigger'`).

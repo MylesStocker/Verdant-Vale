@@ -11,7 +11,7 @@ const CAT_PET_RESPONSES = [
   ['It starts purring before you\u2019ve finished reaching for it.', 'It does not acknowledge this.'],
   ['It bites you. Gently.', 'Then purrs.'],
   ['It kneads the air briefly,', 'remembers you\u2019re watching,', 'and stops.'],
-  ['It tucks its paws under itself and becomes', 'a perfectly spherical object.'],
+  ['It tucks its paws under itself and becomes', 'a perfectly bread-shaped object.'],
 ];
 function catPetResponse() {
   return CAT_PET_RESPONSES[Math.floor(Math.random() * CAT_PET_RESPONSES.length)];
@@ -1885,26 +1885,6 @@ function interactSluiceInterior() {
 }
 
 function interactMireVault() {
-  // ── Mirethyst's Vault chest ────────────────────────────────────────────
-  if (!MIRE_VAULT_CHEST.opened) {
-    const cx = player.x - MIRE_VAULT_CHEST.x;
-    const cy = player.y - MIRE_VAULT_CHEST.y;
-    if (Math.sqrt(cx * cx + cy * cy) < TALK_RADIUS) {
-      MIRE_VAULT_CHEST.opened = true;
-      const it = MIRE_VAULT_CHEST.item;
-      if (hasStatusEffect('cursed')) {
-        dialogue.name  = '';
-        dialogue.pages = [['The chest lid snaps up and hits you in the face.', `The ${it.name} clatters across the flagstones and falls into the vault\u2019s central pool.`, 'You watch the ripples. The vault watches too.']];
-      } else {
-        grantItem(it.name);
-        dialogue.name  = '';
-        dialogue.pages = [['Ancient chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
-      }
-      dialogue.open  = true;
-      dialogue.page  = 0;
-      return true;
-    }
-  }
   // ── Environmental: inscribed stone wall (row 1, col 4 area) ───────────
   if (nearPlayer(4.5 * TILE, 1.5 * TILE)) {
     openDialogue('', [
@@ -2053,11 +2033,9 @@ function interactTownOutdoor() {
           dialogue.pages = [
             ['Mault. District Infrastructure.',
              'You\u2019re the one who cleared the east sluice. I read the report.'],
-            ['There\u2019s a Briar Warden denning in the old spring meadow,',
-             'the far northwest corner of the vale. Three weeks now.',
+            ['There\u2019s a Briar Warden denning in the old spring meadow, the far northwest corner of the vale. Three weeks now.',
              'Won\u2019t leave on its own.'],
-            ['The way in is grown over \u2014 push through the grass in the',
-             'top-left tree nook, west of the town road. You\u2019ll find the clearing.'],
+            ['The way in is grown over \u2014 so you will have to fit the way in yourself west of the town road. You\u2019ll find the clearing.'],
             ['We\u2019ve posted a removal contract.',
              'A hundred and twenty gold, paid on confirmed removal.',
              'The reed crews won\u2019t go near that corner until it\u2019s done.'],
@@ -2538,11 +2516,25 @@ function interactDrenwickOffice() {
 
 function interactCalwickOffice() {
   if (currentTownId === 'calwick') {
-    // Wall map — inspectable continent map on north wall (row 1, cols 6-9)
+    // Wall primer — a framed service manual on the north wall (row 1, cols 6-9)
+    // explaining how an agent's stats work. (The continent map lives in the
+    // school now, on the calwick_school_map wall fixture.)
     const wmx = player.x - CALWICK_OFFICE_WALL_MAP.x;
     const wmy = player.y - CALWICK_OFFICE_WALL_MAP.y;
     if (Math.sqrt(wmx * wmx + wmy * wmy) < TALK_RADIUS * 1.5) {
-      continentMap.open = true;
+      dialogue.name  = 'Field Manual';
+      dialogue.pages = [
+        ['A framed service primer, the kind pinned up in every district office.',
+         'HP is what keeps you standing. Reach zero in the field and you are carried home, lighter a purse.'],
+        ['ATK is how hard you hit; DEF, how much you shrug off; SPD, who strikes first.',
+         'A weapon raises ATK, armour raises DEF. Keep both equipped before leaving the civic district.'],
+        ['Win fights and you earn experience. Enough of it and your Level rises on its own —',
+         'more HP, sharper stats, no paperwork required.'],
+        ['Rest at an inn, or in your own bed, to restore HP.',
+         'An unequipped agent is a dead agent. — District Investigative Corps'],
+      ];
+      dialogue.open  = true;
+      dialogue.page  = 0;
       return true;
     }
     const sx = player.x - SUPERVISOR.x;
@@ -2830,7 +2822,7 @@ function interactCalwickOffice() {
         esla_greet_day = day;
         syncQuestFlagsToWindow();
         dialogue.pages = [
-          ['“Good morning.”',
+          ['“Good morning, ' + stats.name + '.”',
            'She says it without looking up, before you’re fully through the door.'],
           ...dialogue.pages,
         ];
@@ -2931,7 +2923,7 @@ function interactCalwickOffice() {
       if (Math.sqrt(agx * agx + agy * agy) < TALK_RADIUS) {
         dialogue.name  = 'Aldric';
         dialogue.pages = [
-          ['\u201cRequisition slip.\u201d', 'He glances at it, then at you.', '\u201cNew posting?\u201d'],
+          ['\u201cRequisition slip for our Junior Investigator.\u201d', 'He glances at it, then at you.', '\u201cRisky assignment?\u201d'],
           ['He doesn\u2019t wait for an answer.', 'Pulls a bundle from under the counter.', '\u201cSword, armor. Standard issue. Sign here.\u201d'],
           ['\u201cOpen the menu with Esc or M, go to Items, and choose Equip.\u201d',
            'He\u2019s already looking back down at his ledger.'],
@@ -3130,8 +3122,8 @@ function interactCalwickInn() {
   if (Math.sqrt(ix * ix + iy * iy) < TALK_RADIUS) {
     dialogue.name  = 'Innkeeper';
     dialogue.pages = [
-      ['\u201cA room? Of course.\u201d',
-       '\u201cThough \u2014 you do have a house on the west side, if I\u2019m not mistaken.\u201d'],
+      ['\u201c' + stats.name + '! A room? For you, of course.\u201d',
+       '\u201cThough you\u2019ve a perfectly good house on the west side, and we both know it.\u201d'],
       ['\u201cIt\u2019s your coin. I won\u2019t argue with it.\u201d'],
     ];
     dialogue.callbacks = [function() {
@@ -3251,9 +3243,9 @@ function interactCalwickInn() {
         ];
       } else if (eslaInnState === 1) {
         dialogue.pages = [
-          ['\u201cYou live on the west side, don\u2019t you.\u201d'],
-          ['\u201cI pass that way to the office.',
-           'I\u2019ve been doing that longer than I\u2019ve been at the filing desk.\u201d'],
+          ['\u201cI pass your place on the west side most mornings. Have for years.\u201d'],
+          ['\u201cLights on early, more often than not.',
+           'I never say anything about it. But I notice.\u201d'],
           ['\u201cI\u2019m not sure why I\u2019m telling you that.\u201d'],
         ];
       } else if (eslaInnState === 2) {
@@ -3548,9 +3540,10 @@ function interactDrenwickSchool() {
     if (Math.sqrt(cabx * cabx + caby * caby) < TALK_RADIUS) {
       dialogue.name  = 'Document Cabinet';
       dialogue.pages = [
-        ['Locked.',
-         'Accord filing for students approaching completion of schooling.'],
-        ['Academy transfer files are prepared here and forwarded to the district registry before the student leaves the school system.'],
+        ['Rows of student report cards, one folder to a child, sorted by year.',
+         'Marks, attendance, and a line or two in the teacher’s hand at the end of each term.'],
+        ['One folder is tabbed for a parent meeting. Another has a gold star stuck slightly crooked to the cover.',
+         'The drawer smells of chalk and old paper.'],
       ];
       dialogue.open  = true;
       dialogue.page  = 0;

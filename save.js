@@ -31,6 +31,7 @@ const QUEST_FLAG_SCHEMA = [
   'netto_letter_received',  // was absent from saveGame() before; now included
   'dessa_met',              // rapport gate: must meet Dessa once before quest offer
   'rareborn_rhyme_heard',   // player has heard the rareborn spotting-rhyme (Calwick school)
+  'vale_tutorial_seen',     // Ms. Vale has given the one-time field-kit tutorial (window-native)
   'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet',   // Esla one-shot commentary
   'esla_said_polwick_pending', 'esla_said_polwick_dead',
   'supervisor_greet_day', 'esla_greet_day',  // once-per-day office "good morning" greetings
@@ -206,7 +207,6 @@ function saveGame() {
     sunkenGalleryItems: SUNKEN_GALLERY_ITEMS.map(w => w.picked),
     // ── Chests ────────────────────────────────────────────────────────────
     homeChestGold:           HOUSE_DATA.player_house.chest.gold,
-    mireVaultChestOpened:    MIRE_VAULT_CHEST.opened,
     chestOpened:             DUNGEON_CHEST.opened,
     sluiceChestOpened:       SLUICE_CHEST.opened,
     sluiceLevel2ChestOpened: SLUICE_LEVEL2_CHEST.opened,
@@ -551,7 +551,6 @@ function loadGame() {
 
   // ── Chests ──────────────────────────────────────────────────────────────
   if (data.homeChestGold           !== undefined) HOUSE_DATA.player_house.chest.gold = data.homeChestGold;
-  if (data.mireVaultChestOpened    !== undefined) MIRE_VAULT_CHEST.opened    = data.mireVaultChestOpened;
   if (data.chestOpened             !== undefined) DUNGEON_CHEST.opened       = data.chestOpened;
   if (data.sluiceChestOpened       !== undefined) SLUICE_CHEST.opened        = data.sluiceChestOpened;
   if (data.sluiceLevel2ChestOpened !== undefined) SLUICE_LEVEL2_CHEST.opened = data.sluiceLevel2ChestOpened;

@@ -480,6 +480,68 @@ function drawSchoolBookshelf(npc) {
   drawNPCSpaceHint(npc, bx, by - 8);
 }
 
+// Calwick schoolhouse world map. Registered as a SIMPLE_NPC
+// ('calwick_school_map') like the bookshelf; drawn as a framed wall map rather
+// than a person. Examining it opens the continent-map overlay (render-ui.js).
+function drawSchoolWorldMap(npc) {
+  const bx = Math.round(npc.x), by = Math.round(npc.y);
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.20)';
+  ctx.beginPath();
+  ctx.ellipse(bx, by + 15, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Dark wood frame
+  ctx.fillStyle = '#3a2010';
+  ctx.fillRect(bx - 13, by - 16, 26, 30);
+  ctx.fillStyle = '#5a3818';
+  ctx.fillRect(bx - 13, by - 16, 26, 2);
+  // Parchment sea field (desaturated blue, matches the full survey panel)
+  ctx.fillStyle = '#7d99b3';
+  ctx.fillRect(bx - 11, by - 14, 22, 26);
+  // Equatorial resonance storm hazing the north edge (violet, not a wall)
+  ctx.fillStyle = 'rgba(120,80,150,0.75)';
+  ctx.fillRect(bx - 11, by - 14, 22, 3);
+  // One coherent, irregular landmass (sage lowlands)
+  ctx.fillStyle = '#8fa86a';
+  ctx.beginPath();
+  ctx.moveTo(bx - 8, by - 9);
+  ctx.lineTo(bx - 2, by - 10);
+  ctx.lineTo(bx + 5, by - 8);
+  ctx.lineTo(bx + 9, by - 3);
+  ctx.lineTo(bx + 7, by + 4);
+  ctx.lineTo(bx + 9, by + 9);   // south-east cape
+  ctx.lineTo(bx + 2, by + 10);
+  ctx.lineTo(bx - 5, by + 8);
+  ctx.lineTo(bx - 9, by + 1);
+  ctx.closePath();
+  ctx.fill();
+  // Grey-brown mountain spine down the west
+  ctx.fillStyle = '#8a7c68';
+  ctx.fillRect(bx - 8, by - 7, 2, 12);
+  // Pale ice tint across the cold south
+  ctx.fillStyle = 'rgba(206,220,230,0.6)';
+  ctx.fillRect(bx - 6, by + 6, 15, 4);
+  // Two inland seas (Cyrmere NE, Valmere / fens SW)
+  ctx.fillStyle = '#6f92b0';
+  ctx.beginPath(); ctx.ellipse(bx + 4, by - 3, 2.4, 2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(bx - 3, by + 3, 2, 1.6, 0, 0, Math.PI * 2); ctx.fill();
+  // Twin capitals (red) on the north-east
+  ctx.fillStyle = '#b83030';
+  ctx.fillRect(bx + 1, by - 6, 2, 2);
+  ctx.fillRect(bx + 5, by - 5, 2, 2);
+  // You-are-here home marker (blue) in the SW fens
+  ctx.fillStyle = '#3060a0';
+  ctx.fillRect(bx - 6, by + 4, 2, 2);
+  // Frame corner bolts
+  ctx.fillStyle = '#2a1008';
+  ctx.fillRect(bx - 13, by - 16, 3, 3);
+  ctx.fillRect(bx + 10, by - 16, 3, 3);
+  ctx.fillRect(bx - 13, by + 11, 3, 3);
+  ctx.fillRect(bx + 10, by + 11, 3, 3);
+  // SPACE prompt when in range
+  drawNPCSpaceHint(npc, bx, by - 8);
+}
+
 // Polwick's overworld sprite (smuggler fort). Copper-red Firelit hair — the
 // same marker as his battle sprite (render-battle.js drawBattlePolwick) —
 // on a grubby, untucked tunic. Worker body proportions.
@@ -526,6 +588,7 @@ const NPC_DRAW_FNS = {
   maren: drawMarenSprite,
   wen:   drawWenSprite,
   calwick_school_bookshelf: drawSchoolBookshelf,
+  calwick_school_map: drawSchoolWorldMap,
   polwick: drawPolwickSprite,
 };
 
@@ -617,9 +680,14 @@ function drawCalwickChild(npc) {
   // Head (large relative to body — child proportions)
   ctx.fillStyle = '#b88060';
   ctx.fillRect(px - 4, py - 16, 8, 10); // head
-  // Hair
-  ctx.fillStyle = '#4a3020';
+  // Hair — optional npc.hairColor lets a child show a visible thread colour
+  // (e.g. a Rosebound child's pink); defaults to ordinary brown.
+  ctx.fillStyle = npc.hairColor || '#4a3020';
   ctx.fillRect(px - 4, py - 16, 8,  3); // hair
+  if (npc.hairColor) {                  // a little fringe, so the colour reads clearly
+    ctx.fillRect(px - 4, py - 13, 2, 2);
+    ctx.fillRect(px + 2, py - 13, 2, 2);
+  }
   // Eyes
   ctx.fillStyle = '#181620';
   ctx.fillRect(px - 2, py - 11, 2,  2); // left eye

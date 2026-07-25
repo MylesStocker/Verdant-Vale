@@ -57,7 +57,6 @@ function render() {
     drawBriarWarden();                                       // self-gates on quest state
     if (!MEADOW_CHEST.opened) drawChest(MEADOW_CHEST);
   }
-  if (inMireVault && !MIRE_VAULT_CHEST.opened) drawChest(MIRE_VAULT_CHEST);
   if (inTown && !townBuilding)           drawNoticeBoardHint();
   if (inTown && !townBuilding && currentTownId === 'drenwick' && activeMap === DRENWICK_WATERFRONT_MAP)
     drawDrenwichFishingSpot();

@@ -15,7 +15,7 @@ const SIMPLE_NPCS = [
     get dialogue() {
       const pages = [
         ['\u201cThe aetherrail stops three towns', 'east of here.\u201d'],
-        ['\u201cBeyond that, you walk.\u201d'],
+        ['\u201cIt will never come out this far.\u201d'],
       ];
       // Keys on what was FILED (fort_report_filed), never on an unreported
       // kill -- same convention as the rest-week inn reactions.
@@ -280,8 +280,8 @@ const SIMPLE_NPCS = [
       const pages = [
         ['\u201cEast channel\u2019s running shallow.', 'Don\u2019t know if it\u2019s the sluice or something further in.\u201d'],
         ['\u201cUsed to get twice the catch this time of year.', 'Reeds have shifted. Changes the run.\u201d'],
-        ['\u201cSaw a green-haired child coming out of the fen with a reed crew last season. Bloommarked.\u201d',
-         '\u201cFamilies out that way know what it means. They register when they can get to town. Just part of the work out there.\u201d'],
+        ['\u201cWater\u2019s lower than I\u2019ve ever worked it. You can see old stonework off the east bank now \u2014 walls, a doorway.\u201d',
+         '\u201cSome say there were whole towns out here before the Empire. Whoever they were, the water had them long before we did.\u201d'],
       ];
       if (sluice_reward_given) pages.push(
         ['\u201cEast channel\u2019s running better these days.\u201d',
@@ -350,8 +350,7 @@ const SIMPLE_NPCS = [
       ['\u201cThey say there\u2019s an aetherrail now, three towns east of here.',
        'Halcyra to Lumina in an afternoon, on rails the Stonewrought laid.\u201d',
        '\u201cFifty years it\u2019s run, and I\u2019ve never once seen it.\u201d'],
-      ['\u201cAll this canal water goes east in the end \u2014 out to the Valmere,',
-       'the big sea the province is named for.\u201d',
+      ['\u201cAll this canal water goes east in the end \u2014 out to the Valmere, the big sea the province is named for.\u201d',
        '\u201cNever seen that either.\u201d'],
       ['\u201cThe Thornmere\u2019s sea enough for me.',
        'It\u2019s shallow, and it\u2019s here, and so am I.\u201d'],
@@ -465,10 +464,9 @@ const SIMPLE_NPCS = [
     spriteType:    'patron',
     get dialogue() {
       const pages = [
-        ['\u201cOh, hello. Come in, come in.\u201d',
-         '\u201cNo need to knock around here.\u201d'],
-        ['\u201cIn this part of the world it\u2019s considered perfectly polite',
-         'to just walk into someone\u2019s house and start talking to them.\u201d'],
+        ['\u201cOh \u2014 ' + stats.name + '. Come in, come in.\u201d',
+         '\u201cNo need to knock around here. Never has been, for you.\u201d'],
+        ['\u201cIn this part of the world it\u2019s considered perfectly polite to just walk into someone\u2019s house and start talking to them.\u201d'],
         ['\u201cBeen that way as long as I can remember.',
          'Doors are more of a suggestion, really.\u201d'],
       ];
@@ -527,199 +525,49 @@ const SIMPLE_NPCS = [
     facing:        'down',
     spriteType:    'patron',
     get dialogue() {
-      const cycle = Math.floor(day / 5) % 9;
+      // Tomas — Esla's husband; a lifelong Calwick man who has never left the
+      // fen and keeps an obsessive home-made almanac of everything in it. Warm,
+      // chatty, and entirely content with a small, thoroughly documented world.
+      // Home every day; Esla is out at the office (or the inn on Dayoff).
+      const away = day % 5 === 0 ? 'at the inn, defending that soup slander' : 'down at the office';
+      const cycle = day % 5;
       let pages;
-      if (day % 5 === 0) {
-        // Dayoff — she's at the inn, he's home
-        if (cycle === 0 || cycle === 1) {
-          pages = [
-            ['“She’s at the inn.”', '“Dayoff. It’s a tradition. I’m told the soup there is an insult to soup.”'],
-            ['“I don’t go. An inn full of clerks comparing filing systems on their one free day —',
-             'I chose the clerk, not the agenda.”'],
-            ['“Meanwhile I get the kitchen to myself and first pick of the market eels.',
-             'Everyone wins. Mostly me.”'],
-          ];
-        } else if (cycle === 2) {
-          pages = [
-            ['“She’s at the inn.”'],
-            ['“I used to ask what they talked about.',
-             'She’d tell me, but the telling was always—',
-             'He pauses.',
-             '“It was like getting a report. Accurate, but not quite the thing.”'],
-            ['“So I stopped asking. By midnight she tells me the real version anyway.',
-             'You just leave the door unlatched and the pot on.”'],
-          ];
-        } else if (cycle === 3) {
-          pages = [
-            ['“I made soup.”',
-             '“There’s enough for two if you’re not going anywhere.”'],
-            ['“She’s always home by evening. The soup is timed to it. To the minute.”',
-             '“That’s not devotion, that’s craft.”',
-             'It is obviously both.'],
-          ];
-        } else if (cycle === 4) {
-          pages = [
-            ['“She grew up in a building full of people exactly like her.”',
-             '“I try to imagine it.',
-             'I can’t really.”'],
-            ['“I grew up here.',
-             'Everyone I knew was someone’s kid or someone’s neighbour.',
-             'You knew their whole story before you knew their name.”'],
-            ['“I wonder sometimes if that’s why she finds this place unusual.',
-             'Or if she finds it restful.',
-             'I’m not always sure which.”'],
-          ];
-        } else if (cycle === 5) {
-          pages = [
-            ['“She goes up to the roof sometimes.',
-             'At night.',
-             'I don’t think she knows I’ve noticed.”'],
-            ['“I don’t follow her up there.',
-             'Some things are someone’s own.”'],
-            ['“She comes back down quieter.',
-             'Good quiet.',
-             'I’ve learned the difference.”'],
-          ];
-        } else if (cycle === 6) {
-          pages = [
-            ['“She’s at the inn.',
-             'Same table, I’d guess.',
-             'She’s a creature of habit in ways she doesn’t realise.”'],
-            ['“She thinks she’s—unpredictable, maybe.',
-             'She’s not.',
-             'The patterns are just— longer.”'],
-            ['“I’ve been here long enough to see them.',
-             'I don’t say that to her.',
-             'She’d only prove me right.”'],
-          ];
-        } else if (cycle === 7) {
-          pages = [
-            ['“I found a transfer request in a drawer once.',
-             'Half-filled-out.”'],
-            ['“I asked her about it at dinner. Straight out.”',
-             '“She said it was from her second year, and she’d stopped filling it in',
-             'around the time she stopped minding the smell of the fens.”'],
-            ['“It’s still in the drawer.',
-             'Some people press flowers in books.”',
-             '“We’re not sentimental people,” he says, sentimentally.'],
-          ];
-        } else {
-          pages = [
-            ['“Six years.”',
-             '“I’d say it went fast but it didn’t, really.',
-             'It went the right speed.”'],
-            ['“She didn’t expect to stay.',
-             'I’m not sure she’d say she’s decided to.',
-             'And yet.”'],
-          ];
-        }
+      if (cycle === 0) {
+        pages = [
+          ['“Esla’s ' + away + '. I’m the fixture — born in this house, likely to go out of it the same way.”',
+           '“Tomas. I keep the almanac. Weather, water, birds, the price of eels. Somebody has to.”'],
+          ['“People think a record only counts if it’s official. I disagree. I’ve forty years of the date the first frog sang. Nobody can take that off me.”'],
+        ];
+      } else if (cycle === 1) {
+        pages = [
+          ['“Today’s page: wind out of the southwest, reeds leaning hard, three herons on the near bank.”',
+           '“The herons aren’t important. I write them down anyway. That’s the whole trick of it.”'],
+          ['“Esla files things because the Empire tells her to. I file things because I want to. We understand each other completely and not at all.”'],
+        ];
+      } else if (cycle === 2) {
+        pages = [
+          ['“She grew up in a city you could lose a town inside. I’ve never once left the fen.”',
+           '“She finds that restful, or alarming. She won’t say which, and I’ve stopped guessing.”'],
+          ['“My whole world’s about a mile across. I know every soul and every ditch in it.”',
+           '“That’s not a small life. It’s a thoroughly documented one.”'],
+        ];
+      } else if (cycle === 3) {
+        pages = [
+          ['“The soup — yes. There are opinions about my soup at the inn. The opinions are wrong.”',
+           '“I keep a log of every batch. Eel, stock, timing. The good ones are reproducible. That’s not luck, it’s method.”'],
+          ['“She’s always home by dark, and the pot’s always ready. I timed it once, to the minute. Don’t tell her I wrote it down.”'],
+        ];
       } else {
-        // Work day — she's at the office
-        if (cycle === 0) {
-          pages = [
-            ['“Esla talks about work more than she used to.”', '“Names come up. Yours comes up.”'],
-            ['“Relax. She rates everyone by their paperwork. You’re currently a seven.”',
-             '“I’ve been a nine for six years. Home-field advantage.”'],
-            ['“New place, you notice the moment someone clocks her hair.”',
-             '“She knows too. She just keeps moving. I find it harder to let go of than she does.”'],
-          ];
-        } else if (cycle === 1) {
-          pages = [
-            ['“She’s good at her work.”',
-             '“I don’t entirely understand what the work is.',
-             'The filing, the cross-referencing.',
-             'She’s tried to explain it.”'],
-            ['“I understand the words.',
-             'I’m not sure I understand what it means to be good at it.',
-             'But she is.”',
-             '“You can tell.”'],
-          ];
-        } else if (cycle === 2) {
-          pages = [
-            ['“I know everyone in this town.',
-             'Their parents, most of their grandparents.',
-             'This place has been my whole geography.”'],
-            ['“She found that strange at first.',
-             'She’d ask — how do you know all this?',
-             'As if there were another way.”'],
-            ['“I think she envies it, a little.',
-             'Or finds it— grounding.',
-             'I’m never sure which word she’d use.”'],
-          ];
-        } else if (cycle === 3) {
-          pages = [
-            ['“She doesn’t talk much about the Academy.”'],
-            ['“When she does, she picks her words very carefully.',
-             'More carefully than usual.',
-             'Which is saying something.”'],
-            ['“I think she’s trying to translate something',
-             'that doesn’t have words in the language I speak.”',
-             '“I appreciate the effort.',
-             'I do.”'],
-          ];
-        } else if (cycle === 4) {
-          pages = [
-            ['“I make the soup she likes.',
-             'She’s mentioned it.',
-             'More than once.”'],
-            ['“I know it’s a small thing.”',
-             'He says this evenly, without self-pity.',
-             '“Small things are most of what there is.',
-             'I’m good at small things.”'],
-          ];
-        } else if (cycle === 5) {
-          pages = [
-            ['“She watches people.',
-             'In a room, she’ll be the last one through the door',
-             'and the first one to know what’s going on.”'],
-            ['“It’s not the thread — that’s for green things, she’s very clear on it.”',
-             '“It’s just her. She’d have been like that anyway.”'],
-            ['“Sometimes I catch her watching me.',
-             'I pretend not to notice.',
-             'Badly. On purpose.”'],
-          ];
-        } else if (cycle === 6) {
-          pages = [
-            ['“She asked me once if I’d ever wanted to leave.”',
-             '“Go somewhere else. See more.”'],
-            ['“I said no.',
-             'It’s true.',
-             'But I think it surprised her.”'],
-            ['“She couldn’t imagine not wanting to.',
-             'I think.',
-             'I couldn’t imagine wanting to.',
-             'We didn’t say that out loud.”'],
-          ];
-        } else if (cycle === 7) {
-          pages = [
-            ['“I think about what her life was like before here.',
-             'Before the fens.',
-             'I can’t picture it.”'],
-            ['“The Academy, other rareborn, that whole— world.',
-             'She carries it with her.',
-             'I can tell it’s heavy.',
-             'She’s never said so.”'],
-          ];
-        } else {
-          pages = [
-            ['“There are mornings she’s already somewhere else',
-             'before she’s even left the house.”'],
-            ['“I’ve learned not to try to follow her there.',
-             'That’s not the right word — she’s here.',
-             'She’s here.”'],
-            ['“I just mean there are distances I can’t close.',
-             'I don’t need to close them.',
-             'I just like knowing where they are.”'],
-          ];
-        }
+        pages = [
+          ['“Want to know something my ledgers know that the district’s don’t?”',
+           '“The water’s been dropping for years. A little every season. I’ve the lines to prove it, from back before anyone called it a drought.”'],
+          ['“I’m not clever about what it means. I only write down what’s there.”',
+           '“That’s the difference between me and Esla’s office. They decide first. I count first.”'],
+        ];
       }
-      // Reactive flavor once the player has been to Drenwick. Phrased in the
-      // timeless present so it reads fine on every later visit too.
       if (dispatch_delivered) pages.push(
-        ['“Esla mentioned you went to Drenwick.”',
-         '“She got quiet about it. She gets quiet about things that matter.”'],
-        ['“I make more soup on the quiet days.',
-         'It’s a system. It has never once failed.”']
+        ['“Esla said you’d been out to Drenwick. She went quiet about it — she does that with things that matter.”',
+         '“I wrote the date down. It’s all I know how to do with a thing I can’t help.”']
       );
       return pages;
     },
@@ -861,6 +709,14 @@ const SIMPLE_NPCS = [
   },
 
   // ── School NPCs ───────────────────────────────────────────────────────────
+  // Ms. Vale, the Calwick teacher. On a Dayoff she is off-duty at the inn and
+  // gives the whole cynical confession at once. On a school day she says ONE
+  // thing per talk: the very first time she is ever spoken to she runs the
+  // field-kit tutorial (persisted via vale_tutorial_seen); after that she
+  // rotates through her four civics topics -- water management, the sluice,
+  // Mera Dren, thread type -- one per interaction, with the Pip/assessment
+  // reactions folded into the rotation when their flags are set.
+  // dialogue:null + action, same pattern as pip/mirethyst.
   {
     id:            'ms_vale',
     name:          'Ms. Vale',
@@ -870,56 +726,78 @@ const SIMPLE_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'clerk',
-    get dialogue() {
-      const pages = day % 5 === 0
-        ? [
-            ['\u201cThe chalk keeps breaking.\u201d', '\u201cI have mentioned it three times.\u201d'],
-            ['\u201cSomeone moved my chair slightly to the left.', 'I have been sitting in that spot for eleven years.\u201d'],
-            ['\u201cThe bread at breakfast was stale.\u201d', '\u201cNot bad. Stale.\u201d'],
-            ['\u201cI came here to stop thinking about the register.', 'I am thinking about the register.\u201d'],
-          ]
-        : [
-            ...(day === 1 ? [
-              ['\u201cYour field kit was issued this morning. It should be in your pack.\u201d',
-               '\u201cThere are enemy encounters on the overworld roads.\u201d',
-               '\u201cUnequipped, you cannot attack. An unequipped agent is a dead agent.\u201d'],
-              ['\u201cOpen your menu with Esc or M.\u201d',
-               '\u201cGo to Items, select a weapon or piece of armour, and choose Equip.\u201d',
-               '\u201cEquip both a weapon and armour before leaving the civic district.\u201d'],
-              ['\u201cYour level increases automatically as you earn experience from fights.\u201d',
-               '\u201cEach level raises your stats. You do not need to do anything to trigger this.\u201d'],
-              ['\u201cThat is all.\u201d',
-               '\u201cYou may now proceed to have adventures or whatever it is you are here for.\u201d'],
-            ] : []),
-            ['\u201cWater management is the foundation of settled life.', 'Everything else follows from it.\u201d'],
-            ['\u201cThe Calwick sluice system predates the current charter', 'by at least three hundred years.\u201d'],
-            ['\u201cAsk a good question and I will give you a better answer\u2014', 'that is the only rule in this room.\u201d'],
-            ['\u201cThread type is identifiable by hair colour at birth. Registration with the local IJC post follows from that.\u201d',
-             '\u201cRemote families have a year. After that, the office sends a welfare check. This is not complicated, and I have explained it before.\u201d'],
-          ];
-      if (schilling_returned) pages.push(
-        ['\u201cPip has been considerably more settled this week.\u201d',
-         '\u201cHe brought something in on the second day. Wouldn\u2019t let go of it during the lesson.\u201d',
-         '\u201cI decided it wasn\u2019t worth the argument.\u201d'],
-        ['\u201cI don\u2019t know what changed.\u201d', '\u201cI\u2019m glad for it.\u201d']
-      );
-      if (drama_stage >= 5) pages.push(
-        ['\u201cOne of my students mentioned a parent was coming for the assessment.\u201d',
-         '\u201cThey said it quietly. Like it mattered very much and they didn\u2019t want to show how much.\u201d'],
-        ['\u201cI keep those things to myself.\u201d', '\u201cBut I noticed.\u201d']
-      );
-      return pages;
-    },
+    dialogue:      null,
     flag_required: null,
     flag_sets:     null,
-    action:        null,
+    action:        function() {
+      dialogue.name = 'Ms. Vale';
+      dialogue.page = 0;
+      dialogue.open = true;
+      // Dayoff: off-duty at the inn, the whole cynical half at once.
+      if (day % 5 === 0) {
+        dialogue.pages = [
+          ['She has a cup in front of her and no chalk in her hand.',
+           '“In the classroom I tell them to be a Mera. In here I can tell you the rest of it.”'],
+          ['“Mera’s road got moved by the very same Empire that planned it through her village’s well to begin with. And for every petition that works, a hundred correct ones die unanswered in a drawer.”',
+           '“I don’t teach that half. The pamphlet is cheerier, and the children are young.”'],
+          ['“It isn’t only Mera. The Accord that spared the rareborn wasn’t mercy — it was arithmetic. The old killing stopped controlling anything, so they stopped paying for it.”',
+           '“At the front of the room I call it a gift, to be born into a system with a plan for you. The plan is a register, and an Academy you don’t get to refuse.”'],
+          ['“Don’t mistake me. The lesson is still worth teaching — a clean petition is real power, and the Empire mostly works.”',
+           '“But in here I don’t have to leave the hard half out. That’s worth a bad glass of wine.”'],
+        ];
+        return;
+      }
+      // School day, first-ever talk: the field-kit tutorial, once only.
+      if (!window.vale_tutorial_seen) {
+        window.vale_tutorial_seen = true;
+        dialogue.pages = [
+          ['“This is an RPG. Standard RPG rules apply.”',
+           '“There are enemy encounters on the overworld roads.”',
+           '“Unequipped, you cannot attack. An unequipped agent is a dead agent.”'],
+          ['“Open your menu with Esc or M.”',
+           '“Go to Items, select a weapon or piece of armour, and choose Equip.”',
+           '“Equip both a weapon and armour before leaving the civic district.”'],
+          ['“Your level increases automatically as you earn experience from fights.”',
+           '“Each level raises your stats. You do not need to do anything to trigger this.”'],
+          ['“That is all.”',
+           '“You may now proceed to have adventures or whatever it is you are here for.”'],
+        ];
+        return;
+      }
+      // Otherwise: one civics topic per talk, rotating. The Pip and assessment
+      // reactions join the rotation as extra segments when their flags are set.
+      const segments = [
+        [['“Water management is the foundation of settled life — and the Empire is why we have it. Never forget that.”',
+          '“Three months without rain, and are we frightened? We are not. We are prepared. That is what the Empire buys you.”']],
+        [['“Our sluice predates the charter by three hundred years, and the Empire has kept it running every day of them.”',
+          '“Name me another power in history that lasted long enough to bother. You cannot. Only this one.”']],
+        [['“And Mera Dren — we did her petition this week!”',
+          '“One girl, one clause, good manners, and the district moved an Imperial road for her. That is the Empire at its finest: ask the right office the right way, and it listens. Be a Mera, all of you.”']],
+        [['“Thread type shows in the hair at birth, and the Empire records every rareborn child and keeps them safe — registration, schooling, a place at the Academy already waiting.”',
+          '“What a thing, to be born into a system with a plan for you. Now — good questions only. That is the one rule in this room.”']],
+      ];
+      if (schilling_returned) segments.push([
+        ['“Pip has been considerably more settled this week.”',
+         '“He brought something in on the second day. Wouldn’t let go of it during the lesson.”',
+         '“I decided it wasn’t worth the argument.”'],
+        ['“I don’t know what changed.”', '“I’m glad for it.”'],
+      ]);
+      if (drama_stage >= 5) segments.push([
+        ['“One of my students mentioned a parent was coming for the assessment.”',
+         '“They said it quietly. Like it mattered very much and they didn’t want to show how much.”'],
+        ['“I keep those things to myself.”', '“But I noticed.”'],
+      ]);
+      const i = (window._valeTopic || 0) % segments.length;
+      window._valeTopic = i + 1;
+      dialogue.pages = segments[i];
+    },
   },
   // Student row 1 (y = 6.5T)
   {
     id: 'student_a1', name: 'The Precocious Analyst Child',
     map: 'school', x: 3.5 * TILE, y: 6.5 * TILE,
     solid: true, facing: 'down', spriteType: 'child',
-    dialogue: [['\u201cI copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram.  copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram.copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram.\u201d', '\u201cAgain.\u201d']],
+    dialogue: [['\u201cI copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram.  copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram.copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram. copied the wrong diagram.\u201d', '\u201cAgain. Hey mister or lady, have you ever wondered what your life would be like if you only existed to test overflow text parameters?\u201d']],
     flag_required: null, flag_sets: null, action: null,
   },
   {
@@ -1037,8 +915,13 @@ const SIMPLE_NPCS = [
     get y()   { return day % 5 === 0 ?  7.5 * TILE :  9.5 * TILE; },
     solid: true, facing: 'down', spriteType: 'child',
     dialogue: [
-      ['\u201cI\u2019m thinking about lunch.\u201d'],
-      ['\u201cPress M for your menu. Inventory, notebook, all that.\u201d'],
+      ['\u201cWe learned about Mera Dren today. The petition girl.\u201d',
+       '\u201cHer village\u2019s road was going to block the way to their water, so she found the right rule \u2014 the Water Access Clause \u2014 and asked properly, and they moved the road. Thirty paces.\u201d',
+       '\u201cMs. Vale says: if you ever have a problem, be a Mera. Find the right office, ask the right way.\u201d'],
+      ['\u201cI think that\u2019s good. Everyone\u2019s always shouting. Mera didn\u2019t shout.\u201d',
+       '\u201cMy sister says it doesn\u2019t always work like that. But it worked for Mera, so.\u201d'],
+      ['\u201cPress M for your menu, by the way. Inventory, notebook, all of it.\u201d',
+       '\u201cI like knowing where things are kept.\u201d'],
     ],
     flag_required: null, flag_sets: null, action: null,
   },
@@ -1127,6 +1010,24 @@ const SIMPLE_NPCS = [
       choice.cursor    = 0;
       choice.callbacks = [openTopics, function leave() {}];
       choice.open      = true;
+    },
+  },
+
+  // ── Schoolhouse world map ──────────────────────────────────────────────────
+  // A classroom fixture, like the bookshelf: registered as a SIMPLE_NPC so it
+  // reuses proximity interaction + solid-body collision, but drawn as a framed
+  // wall map rather than a person. Examining it opens the continent-map overlay
+  // (render-ui.js's drawContinentMapPanel) — the same world map the Calwick
+  // office wall shows. Drawn by NPC_DRAW_FNS['calwick_school_map']
+  // (render-entities.js).
+  {
+    id: 'calwick_school_map', name: 'World Map',
+    map: 'school', x: 2.5 * TILE, y: 2.5 * TILE,
+    solid: true, facing: 'down', spriteType: 'clerk',
+    dialogue: null,
+    flag_required: null, flag_sets: null,
+    action: function() {
+      continentMap.open = true;
     },
   },
 
@@ -1536,14 +1437,14 @@ const SIMPLE_NPCS = [
     get dialogue() {
       return day % 5 === 0
         ? [
-            ['\u201cI\u2019ve been watching the gate traffic all morning.\u201d',
-             '\u201cCan\u2019t seem to stop once you know what to look at.\u201d'],
+            ['\u201cForty-one barges since the morning bell. Nine riding low \u2014 laden. Four riding high \u2014 empty, returning.\u201d',
+             '\u201cI don\u2019t decide to count. It counts itself. Once you know what to look at, you can\u2019t stop looking. You won\u2019t either, now. Sorry.\u201d'],
           ]
         : [
-            ['\u201cThey\u2019re running the east lock at half-draw this month.\u201d',
-             '\u201cFlow\u2019s been off since the sediment survey. Should correct once they adjust the weir.\u201d'],
-            ['\u201cThey dredged the west channel last season.\u201d',
-             '\u201cFirst time in forty years. The silt at the bottom was older than the town.\u201d'],
+            ['\u201cEast lock\u2019s at half-draw this month. You can see it in the wake \u2014 the water sets wrong off the second gate. Wrong, wrong, every cycle, wrong.\u201d',
+             '\u201cFlow\u2019s been off since the sediment survey. Watch the weir. It\u2019ll correct, and I\u2019ll know the very hour it does.\u201d'],
+            ['\u201cThey dredged the west channel last season. First time in forty years \u2014 forty exactly, I checked twice.\u201d',
+             '\u201cSilt at the bottom older than the town. I think about that more than is healthy. I think about most things more than is healthy.\u201d'],
           ];
     },
     flag_required: null,
@@ -1621,8 +1522,8 @@ const SIMPLE_NPCS = [
     get dialogue() {
       const pages = day % 5 === 0
         ? [
-            ['\u201cFive-day week. My wife calls it the long week \u2014 she has us all underfoot at once.\u201d',
-             '\u201cShe\u2019s not wrong.\u201d'],
+            ['\u201cSou\u2019re youA boy or a girl? I can\u2019t tell. Duzzent matter though you\u2019re pretty cute. But I do want to know just to know, you know? What\u2019s your name again?\u201d',
+             '\u201cThat doesn\u2019t help me; I still dont know what you are. But you are kind of cute eitherway. I love mushroom wine.\u201d'],
           ]
         : [
             ['\u201cMy father used to say the canal is why we have a town.\u201d',
@@ -1784,14 +1685,14 @@ const SIMPLE_NPCS = [
     get dialogue() {
       return day % 5 === 0
         ? [
-            ['\u201cNot loading anything today.\u201d',
-             '\u201cJust waiting for the afternoon. My wife\u2019s sister is passing through.\u201d'],
+            ['\u201cEn\u2019t loadin\u2019 naught today.\u201d',
+             '\u201cWaitin\u2019 on the afternoon. Wife\u2019s sister, passin\u2019 through. Aye.\u201d'],
           ]
         : [
-            ['\u201cReeds this morning, salted fish on the afternoon barge.\u201d',
-             '\u201cFurther up the line they sort what goes where. Down here it\u2019s just move the load.\u201d'],
-            ['\u201cI\u2019ve never been on the aetherrail.\u201d',
-             '\u201cNothing I move goes near the terminus. Peat blocks, reed bundles \u2014 they\u2019re not putting those on the resonance cars.\u201d'],
+            ['\u201cReeds this mornin\u2019. Salted fish come the afternoon barge.\u201d',
+             '\u201cUp the line they sort what goes where. Down here? Ye move the load. That\u2019s the whole of it.\u201d'],
+            ['\u201cNever been on that aetherrail, me. Reckon I never will.\u201d',
+             '\u201cNaught I carry goes near the terminus. Peat blocks, reed bundles \u2014 they en\u2019t puttin\u2019 that on the resonance cars.\u201d'],
           ];
     },
     flag_required: null,
@@ -1961,13 +1862,15 @@ const SIMPLE_NPCS = [
     get dialogue() {
       return day % 5 === 0
         ? [
-            ['\u201cStill cheap. Still close.\u201d'],
+            ['\u201cStill cheap. Still close. Still here.\u201d',
+             '\u201cThat\u2019s the review. Quote me.\u201d'],
           ]
         : [
-            ['\u201cCheap and close. I\u2019m not here for the atmosphere.\u201d'],
+            ['\u201cCheap and close. The wine\u2019s bad. I stay anyway.\u201d',
+             '\u201cDraw your own conclusions about me. I have.\u201d'],
             ['\u201cThose two in the far corner have been here two nights running.\u201d',
-             '\u201cNot dock workers. Not traders either, by the look.\u201d',
-             '\u201cNothing to do with me.\u201d'],
+             '\u201cNot dock workers. Not traders. Not talking, either \u2014 which is the tell.\u201d',
+             '\u201cNothing to do with me. I\u2019m very good at things being nothing to do with me.\u201d'],
           ];
     },
     flag_required: null,
@@ -2176,10 +2079,12 @@ const SIMPLE_NPCS = [
     facing:     'down',
     spriteType: 'clerk',
     dialogue: [
-      ['\u201cI review the allocation manifests against the district household registry.\u201d',
-       '\u201cOda keeps clean records. I\u2019m here mainly to stamp them.\u201d'],
-      ['\u201cThe reed oil allocation has been delayed three cycles running.\u201d',
-       '\u201cI\u2019ve filed the note. At some point a supply office decides to act on it. Or doesn\u2019t.\u201d'],
+      ['\u201cTallin. District Allocation Inspector, Provisioning Subdirectorate, Drenwick seat.\u201d',
+       '\u201cMy office is the reconciliation of allocation manifests against the district household registry. Precise work. Not, I am given to understand, interesting work. I reject the premise entirely.\u201d'],
+      ['\u201cThe clerk Oda maintains records of a commendable cleanliness. My own function is chiefly one of ratification \u2014 the affixing of the seal, the conferral of official countenance.\u201d',
+       '\u201c\u2018A stamp,\u2019 says the layman. A stamp. As though the sun merely rises.\u201d'],
+      ['\u201cI will note, for the record, that the reed-oil allocation stands delayed three cycles consecutive.\u201d',
+       '\u201cI have filed the requisite memorandum. In the fullness of bureaucratic time, a superior office shall deign to act upon it. Or shall not. Both outcomes are, procedurally, complete.\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -2192,7 +2097,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_maret',
     name:       'Maret',
-    map:        'house:drenwick_apt_a1_u1',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_a1_u1' : null; },
     x:           7.5 * TILE,
     y:           6.5 * TILE,
     solid:      true,
@@ -2216,7 +2121,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_clodagh',
     name:       'Clodagh',
-    map:        'house:drenwick_apt_a1_u2',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_a1_u2' : null; },
     x:           8.5 * TILE,
     y:           7.5 * TILE,
     solid:      true,
@@ -2256,7 +2161,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_yssa',
     name:       'Yssa',
-    map:        'house:drenwick_apt_a1_u4',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_a1_u4' : null; },
     x:           6.5 * TILE,
     y:           7.5 * TILE,
     solid:      true,
@@ -2308,7 +2213,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_nessa',
     name:       'Nessa',
-    map:        'house:drenwick_apt_a2_u2',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_a2_u2' : null; },
     x:           8.5 * TILE,
     y:           7.5 * TILE,
     solid:      true,
@@ -2412,7 +2317,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_druck',
     name:       'Druck',
-    map:        'house:drenwick_apt_b1_u2',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_b1_u2' : null; },
     x:           7.5 * TILE,
     y:           6.5 * TILE,
     solid:      true,
@@ -2464,7 +2369,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_corra',
     name:       'Corra',
-    map:        'house:drenwick_apt_b1_u4',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_b1_u4' : null; },
     x:           6.5 * TILE,
     y:           7.5 * TILE,
     solid:      true,
@@ -2684,7 +2589,7 @@ const SIMPLE_NPCS = [
     dialogue: [
       ['\u201cI write letters for people who struggle with the formal style.\u201d',
        '\u201cPetitions, family correspondence, official complaints. A small fee per page.\u201d',
-       '\u201cBefore the Education Act, I was busier. Now the children read and write and the trade will die with my generation.\u201d'],
+       '\u201cThere was a time this trade fed a whole family. Each generation reads a little more of its own post and needs me a little less. It\u2019ll die with me, I think.\u201d'],
       ['\u201cI wrote a letter for a woman in the west houses recently.\u201d',
        '\u201cSearching for a sister. Rareborn, transferred away young \u2014 the family lost track.\u201d',
        '\u201cFamilies lose rareborn children to the system all the time. The transfer records exist somewhere, but finding them requires knowing which office received them.\u201d'],
@@ -2714,7 +2619,7 @@ const SIMPLE_NPCS = [
       ['\u201cI know all the good fishing spots on the south bank.\u201d',
        '\u201cThat\u2019s worth something.\u201d',
        '\u201cNot on the Civic Register, but still. Worth something.\u201d'],
-      ['\u201cDruck upstairs teaches me odds calculation.\u201d',
+      ['\u201cDruck down the corridor teaches me odds calculation.\u201d',
        '\u201cFor the wrestling bets. He says it\u2019s applied arithmetic.\u201d',
        '\u201cI asked Hazel down the corridor if that counts as school and she said no and looked tired.\u201d'],
       ['\u201cI\u2019m fourteen.\u201d',
@@ -2735,18 +2640,14 @@ const SIMPLE_NPCS = [
     facing:     'left',
     spriteType: 'patron',
     dialogue: [
-      ['\u201cMy grandmother was rareborn. She lived before the Integration Accords were extended to the outer provinces.\u201d',
-       '\u201cOut here, back then, that meant hiding.\u201d',
-       '\u201cShe hid well. I\u2019m here, so it worked.\u201d'],
-      ['\u201cPeople ask me if I have gifts.\u201d',
-       '\u201cRareborn gifts don\u2019t necessarily pass to family. The births are completely random, one in three hundred.\u201d',
-       '\u201cThat\u2019s what the Empire says. That\u2019s what the Lumina scholars say. That\u2019s probably true.\u201d',
-       '\u201cI still notice things. I notice them quietly.\u201d'],
-      ['\u201cThe blanket on the bed was hers. The pattern is from the fen settlements before the canal expansion changed the territory.\u201d',
-       '\u201cThose villages don\u2019t exist anymore. The water table shifted.\u201d',
-       '\u201cShe used to say the land remembers even when the people don\u2019t.\u201d'],
-      ['\u201cI\u2019m on no register. I claim nothing officially.\u201d',
-       '\u201cI just keep the blanket, and know what I know, and let people decide what they think.\u201d'],
+      ['\u201cMy family\u2019s been in this fen longer than the canal has. Longer than Drenwick, if you believe my grandmother \u2014 and I did.\u201d',
+       '\u201cShe read the water the way a clerk reads a ledger.\u201d'],
+      ['\u201cThe blanket on the bed was hers. That pattern\u2019s from the old settlements, out past where the canal cut through.\u201d',
+       '\u201cThose villages are gone now. They widened the works, the water table shifted, and the fen took them back.\u201d'],
+      ['\u201cIn a dry season like this one you can see them again \u2014 a wall, a well-mouth, a doorstep with nothing behind it.\u201d',
+       '\u201cThe fens are full of that. People lived and lost out here long before the Empire drew a line round it.\u201d'],
+      ['\u201cShe used to say the land remembers even when the people don\u2019t.\u201d',
+       '\u201cSo I keep the blanket. Somebody should remember the remembering.\u201d'],
     ],
     flag_required: null, flag_sets: null, action: null,
   },
@@ -2755,7 +2656,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_josse',
     name:       'Josse',
-    map:        'house:drenwick_apt_c2_u4',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_c2_u4' : null; },
     x:           8.5 * TILE,
     y:           6.5 * TILE,
     solid:      true,
@@ -2787,7 +2688,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_sona',
     name:       'Sona',
-    map:        'house:drenwick_apt_a1_u1',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_a1_u1' : null; },
     x:           9.5 * TILE,
     y:           6.5 * TILE,
     solid:      true,
@@ -2816,7 +2717,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_theis',
     name:       'Theis',
-    map:        'house:drenwick_apt_a2_u2',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_a2_u2' : null; },
     x:           6.5 * TILE,
     y:           6.5 * TILE,
     solid:      true,
@@ -2906,7 +2807,7 @@ const SIMPLE_NPCS = [
   {
     id:         'apt_wren',
     name:       'Wren',
-    map:        'house:drenwick_apt_b2_u3',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_b2_u3' : null; },
     x:           7.5 * TILE,
     y:           6.5 * TILE,
     solid:      true,
@@ -2990,6 +2891,79 @@ const SIMPLE_NPCS = [
        '\u201cThe canal doesn\u2019t care if you passed an exam.\u201d',
        '\u201cBut the allocation meetings, the equipment requests, the depot priority queue \u2014',
        'all of that runs on register status. So it matters. I just resent that it does.\u201d'],
+    ],
+    flag_required: null, flag_sets: null, action: null,
+  },
+
+  // Corridor A1, Unit 4 — Sethe (ledger clerk; shares the flat and the civic
+  // track with Yssa). References the Bracelet as a class marker (see LORE.md,
+  // Economics). Distinct tile from Yssa (6.5,7.5).
+  {
+    id:         'apt_sethe',
+    name:       'Sethe',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_a1_u4' : null; },
+    x:           8.5 * TILE,
+    y:           6.5 * TILE,
+    solid:      true,
+    facing:     'down',
+    spriteType: 'clerk',
+    dialogue: [
+      ['“Yssa and I are both on the civic track. Two clerks’ wages, one flat.”',
+       '“The future is a thing we have to plan, not just fall into. So we plan it.”'],
+      ['“You know what a Bracelet costs at our level? Months of pay, for the real article.”',
+       '“The Academy hands them to its students for nothing. Nobles never once look at the price.”',
+       '“An administrator saves for one. A reed-cutter never sees a true one at all — just the bootleg imitations that half-work, if that.”'],
+      ['“So the people who can afford to be careless get called libertines for it.”',
+       '“Being careless is a luxury good. It’s money wearing a moral costume.”',
+       '“Down here, courtship still costs you something. Strip it all back and that’s the whole difference.”'],
+    ],
+    flag_required: null, flag_sets: null, action: null,
+  },
+
+  // Corridor A2, Unit 3 — Wisa (Tombers’s younger sister). Carries Academy
+  // youth culture out to the fens: the “Shut Up and Kiss Me” dance (see
+  // LORE.md, The Academy System). Distinct tile from Tombers (7.5,6.5).
+  {
+    id:         'apt_wisa',
+    name:       'Wisa',
+    map:        'house:drenwick_apt_a2_u3',
+    x:           9.5 * TILE,
+    y:           6.5 * TILE,
+    solid:      true,
+    facing:     'left',
+    spriteType: 'child',
+    dialogue: [
+      ['“Tombers is my brother. He does the wrestling. I do not care about the wrestling.”',
+       '“I care about the dance. Everyone knows it now — the Shut Up and Kiss Me. It came down out of the Academy.”'],
+      ['“It’s set to the very start of Erik Jontek’s Resonant Symphony No. 2.”',
+       '“Nobody’s ever heard the rest of it. Just the opening, for the dance. The rest may as well not exist.”',
+       '“The Academy students started it, up at the Bowl, and now it’s everywhere. Even here. Even Drenwick.”'],
+      ['“I’ll never see the Academy myself. There’s nothing in my hair — no thread, nothing to register.”',
+       '“But the dance got out. That’s the part anybody can have.”'],
+    ],
+    flag_required: null, flag_sets: null, action: null,
+  },
+
+  // Corridor B2, Unit 2 — Vesk (small-goods peddler; shares the room with Pip,
+  // the messenger). References the sugar economy and the far cities (see
+  // LORE.md, The World). Distinct tile from Pip (6.5,7.5).
+  {
+    id:         'apt_vesk',
+    name:       'Vesk',
+    get map()   { return day % 5 === 0 ? 'house:drenwick_apt_b2_u2' : null; },
+    x:           8.5 * TILE,
+    y:           6.5 * TILE,
+    solid:      true,
+    facing:     'left',
+    spriteType: 'traveler',
+    dialogue: [
+      ['“I share the room with Pip. He carries the district’s letters; I carry small goods.”',
+       '“We’re both always half-packed. Honey, mostly, and dried fruit. The cheap sweet — what people can actually afford.”'],
+      ['“Real sugar? Cane grows on just two islands in the whole world, away up north past the storm.”',
+       '“By the time the fine refined grades reach a Drenwick counter, they can cost more than their weight in gold.”',
+       '“So a fen family sweetens with honey and calls it plenty. They’re right to.”'],
+      ['“I ran a load up to Calivar City once. A proper northern port — grows its own grain, so it haggles like it owns you. Never again at those prices.”',
+       '“Merovar, though — out on the island chains — that’s a city worth the trip. Older than the Empire, they say, and it carries on like it knows it.”'],
     ],
     flag_required: null, flag_sets: null, action: null,
   },
@@ -3154,8 +3128,8 @@ const SIMPLE_NPCS = [
         : [
             ['\u201cLong day.\u201d',
              '\u201cNothing went wrong. It just kept going.\u201d'],
-            ['\u201cMy neighbour had to travel northeast to register.\u201d',
-             '\u201cThe officer here handles most things, but something about her classification needed the full Registry. She said it wasn\u2019t difficult. Just far.\u201d'],
+            ['\u201cCanal\u2019s down a hand this month. You feel it in the trade \u2014 fewer boats, longer faces.\u201d',
+             '\u201cDrenwick lives on that water moving. Nobody says it out loud, but everyone\u2019s counting the same barges.\u201d'],
           ];
     },
     flag_required: null,
@@ -3391,48 +3365,40 @@ const SIMPLE_NPCS = [
     spriteType: 'clerk',
     get dialogue() {
       if (day % 5 === 0) return [
-        ['\u201cYou\u2019re the Calwick investigator.\u201d',
-         '\u201cMy students have theories about you. I won\u2019t repeat them.\u201d',
-         '\u201cYou\u2019d be flattered by two of them and alarmed by the rest.\u201d'],
-        ['\u201cI tell them investigation work is mostly paperwork.',
-         'They refuse to believe me.\u201d',
-         '\u201cChildhood should be allowed to keep a few illusions.',
-         'That one seems harmless.\u201d'],
-        ['\u201cOne day in five, I am not the school.\u201d',
+        ['\u201cThe Calwick investigator. Off the clock, then \u2014 so am I.\u201d',
+         '\u201cIn the classroom I\u2019m a great believer. In here I keep the receipts.\u201d'],
+        ['\u201cTake Mera Dren, since I taught her again this week. True story, every word.\u201d',
+         '\u201cAlso true: the Empire\u2019s own road planners put the problem through her village to begin with, and for every petition that moves a road, a stack of correct ones rots unanswered in a district drawer.\u201d',
+         '\u201cI don\u2019t say that part at the front of the room. The pamphlet is cheerier, and the children are twelve.\u201d'],
+        ['\u201cAnd the Accord I praise so warmly? It wasn\u2019t mercy. It was arithmetic \u2014 the old killing stopped controlling anything, so the Council stopped paying for it.\u201d',
+         '\u201c\u2018A structured, permanent framework,\u2019 I tell them. I make it sound like grace. It was a ledger.\u201d'],
+        ['\u201cDon\u2019t mistake me \u2014 I mean every cheerful word I give them. The system mostly works, and a child who can file a clean petition is better armed than one who can\u2019t.\u201d',
          'She lifts her cup very slightly.',
-         '\u201cTo the fifth day.\u201d'],
+         '\u201cBut one day in five, I get to teach the whole of it. To the fifth day.\u201d'],
       ];
       return [
-      ['\u201cWe\u2019re covering the district tier this week.\u201d',
-       '\u201cThe Empire organises itself in five levels: Imperial, Regional, District, Municipal, and Local.\u201d',
-       '\u201cDrenwick is a district seat. That means certain functions that happen here don\u2019t happen in smaller towns. If you\u2019re going into clerk work, you\u2019ll need to know which ones.\u201d'],
-      ['\u201cThe cabinet behind me holds documentation for students in their final year.\u201d',
-       '\u201cFor the rareborn students \u2014 registered since birth, all of them \u2014 I keep the school\u2019s compliance records current, and when they turn twelve I prepare the Academy transfer file and forward it to the district registry.\u201d',
-       '\u201cIt\u2019s a standard administrative step. The paperwork follows them; I don\u2019t.\u201d'],
-      ['\u201cThe placement board has two notices this cycle.\u201d',
-       '\u201cThis time two years ago it had nine.\u201d',
-       '\u201cI don\u2019t speculate on what that means. I tell the students what\u2019s posted and advise them to write directly to the guild offices for anything not listed.\u201d'],
-      ['\u201cSince you\u2019ve asked: the Accord wasn\u2019t passed easily. It took several hundred years of active resistance before the Empire could enact it.\u201d',
-       '\u201cUnderstanding why is a legitimate part of understanding how the Empire works.\u201d'],
-      ['\u201cThe core hardliner argument was this: any concession would unravel control.\u201d',
-       '\u201cThe old execution statute was harsh, but it was legible. It kept a specific kind of fear in place and ensured rareborn families stayed hidden.\u201d',
-       '\u201cIn their view, the moment you admitted rareborn had any rights at all, you had legitimised their existence. And legitimacy, once granted, is difficult to contain.\u201d'],
-      ['\u201cThe second argument concerned capability.\u201d',
-       '\u201cHardliners held that rareborn traits \u2014 whether visible or dormant \u2014 constituted a structural threat that could never be fully neutralised.\u201d',
-       '\u201cThey would point to the Century War. Their position was simple: once, rareborn rose against the Empire. Given the right conditions, they could do so again.\u201d'],
-      ['\u201cThe third argument was about precedent.\u201d',
-       '\u201cIf the Empire backed down on this, what other absolutes would come under pressure?\u201d',
-       '\u201cFor hardliners, the execution statute wasn\u2019t just a policy. It was a signal of what the Empire was prepared to do. Removing it removed the signal.\u201d'],
-      ['\u201cSo why did it take so long?\u201d',
-       '\u201cBecause for generations, the Empire could manage without resolving it.\u201d',
-       '\u201cUneven enforcement was the default. A district officer could turn a blind eye when it suited them and invoke the old law when it didn\u2019t.\u201d',
-       '\u201cHardliners retained the statute as a symbol of authority even when they weren\u2019t actively enforcing it.\u201d'],
-      ['\u201cThe tipping point came when selective enforcement stopped being sustainable.\u201d',
-       '\u201cHidden rareborn networks had grown too large to suppress. Purges failed repeatedly. Administrative records were inconsistent across districts.\u201d',
-       '\u201cPragmatists within the Council began arguing that the old law wasn\u2019t controlling the situation \u2014 it was just creating the appearance of control.\u201d'],
-      ['\u201cThe Accord passed when it became undeniable that another failed crackdown would be more destabilising than a structured, permanent framework.\u201d',
-       '\u201cThis is what the Accord is: not a concession on principle, but a recognition that the old method had stopped working.\u201d',
-       '\u201cThe basement archive has a copy of the full instrument if you want to read the legal language. It\u2019s \u2014 thorough.\u201d'],
+        ['\u201cDistrict tier this week \u2014 my favourite unit!\u201d',
+         '\u201cFive clean levels: Imperial, Regional, District, Municipal, Local. Everything reporting neatly upward. Isn\u2019t that marvellous?\u201d'],
+        ['\u201cDrenwick is a district seat, which means there\u2019s a whole ladder above you.\u201d',
+         '\u201cThe Empire built it on purpose, for people exactly like you. Chin up and climb.\u201d'],
+        ['\u201cThe cabinet behind me holds the final-year files, and I do love a file that ends happily.\u201d',
+         '\u201cReport cards, placements, a tidy record for every child who passes through.\u201d'],
+        ['\u201cOnce in a great while a rareborn child comes through \u2014 not often, out here.\u201d',
+         '\u201cWhen one does, the system already holds a place for them, up at the Bowl. The paperwork walks them the whole way there.\u201d'],
+        ['\u201cThe placement board has two notices this cycle.\u201d',
+         '\u201cTwo years back it had nine \u2014 but never you mind that.\u201d'],
+        ['\u201cFor the rest, write straight to the guild offices. A polite letter opens more doors than a sulk ever will!\u201d'],
+        ['\u201cAnd the Petition of Mera Dren \u2014 every schoolroom does it, and rightly!\u201d',
+         '\u201cA fen girl filed a clean petition, and the district moved an Imperial road clear of her well.\u201d'],
+        ['\u201c\u2018Be a Mera,\u2019 the pamphlets say \u2014 and so do I.\u201d',
+         '\u201cA child who can write a proper petition holds real power. That is the Empire keeping its promises.\u201d'],
+        ['\u201cYou want the hard history? The Accord wasn\u2019t passed easily. Centuries of resistance came first.\u201d'],
+        ['\u201cThe hardliners said any concession would unravel control \u2014 that the old execution law kept a useful fear in place.\u201d'],
+        ['\u201cIt only changed when the cruelty stopped working. Hidden networks grew too large; the purges kept failing.\u201d'],
+        ['\u201cSo the Empire looked at centuries of its own failure and, in the end, chose a better way.\u201d',
+         '\u201cNot every power in history managed that. Ours did.\u201d'],
+        ['\u201cThe basement archive has the full instrument, if you\u2019d like the legal language.\u201d',
+         '\u201cIt\u2019s \u2014 thorough. Gloriously thorough.\u201d'],
       ];
     },
     flag_required: null,
@@ -3468,8 +3434,10 @@ const SIMPLE_NPCS = [
     facing:     'up',
     spriteType: 'child',
     dialogue: [
-      ['\u201cI don\u2019t know what I\u2019m going to do yet.\u201d',
-       '\u201cEveryone else seems to know. I don\u2019t know how they know.\u201d'],
+      ['\u201cI don\u2019t know what I\u2019m going to do yet. Everyone else knows. How does everyone else know?\u201d',
+       '\u201cMarn wants the canal guild. Pel wants the registry. I asked Pel how she knew and she looked at me like the knowing came free with breakfast and I\u2019d missed mine.\u201d'],
+      ['\u201cWhat if I choose wrong? You only get the one Placement. What if I pick the canal guild and I\u2019m secretly a registry person and I don\u2019t find out until I\u2019m forty and it\u2019s too late and \u2014\u201d',
+       '\u201c\u2014 sorry. Ms. Farne says I do this. I\u2019m doing it right now, aren\u2019t I. I can hear that I\u2019m doing it.\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -3536,10 +3504,12 @@ const SIMPLE_NPCS = [
     solid:      true,
     facing:     'up',
     spriteType: 'child',
+    hairColor:  '#e88ab0',
     dialogue: [
-      ['\u201cI have to stay in school after this year even though all my friends get to stay here with their parents.\u201d',
-       '\u201cMs. Farne explained it. Because of my hair, there\u2019s a boarding school I have to go to further up north, and then another school after that.\u201d',
-       '\u201cShe says it\u2019s just regulations. It doesn\u2019t feel like it\u2019s just regulations.\u201d'],
+      ['\u201cI\u2019m rosebound \u2014 the pink. It\u2019s a thread, for mending: bodies, and the parts of people that come loose.\u201d',
+       '\u201cI can tell when someone in the room is about to cry before they can. It isn\u2019t a trick. It\u2019s just what I am.\u201d'],
+      ['\u201cAfter this year I have to go \u2014 the Academy, up north. My friends get to stay here with their parents.\u201d',
+       '\u201cI know why I can\u2019t. Knowing why doesn\u2019t make it feel fair.\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -3562,7 +3532,7 @@ const SIMPLE_NPCS = [
     // is pointedly never explained.
     dialogue: [
       ['\u201cI\u2019m very tired.\u201d'],
-      ['\u201cWe had to copy the whole big map. Ms. Farne says north is the warm way and south is the cold way \u2014 which is backwards from what everyone thinks.\u201d',
+      ['\u201cWe had to copy the whole big map. North is the warm way, Ms. Farne says, and south is the cold way, right down to the ice.\u201d',
        '\u201cAnd there\u2019s a storm all round the middle of the world that never stops, so no ship can get past it to the top half.\u201d'],
       ['\u201cI asked her why the storm is there.',
        'She said nobody knows. Nobody has ever known.\u201d',
@@ -3888,18 +3858,16 @@ const SIMPLE_NPCS = [
     get dialogue() {
       return day % 5 === 0
         ? [
-            ['\u201cClosed for dayoff.\u201d',
-             '\u201cAlthough I\u2019m standing here. With the stall. And the produce.\u201d',
-             '\u201cOld habit.\u201d'],
+            ['\u201cClosed, technically. Dayoff. Though here I am, stall and all \u2014 which reminds me of my uncle, who also couldn\u2019t sit still, terrible man, lovely singing voice \u2014\u201d',
+             '\u201c\u2014 where was I. Dayoff. Yes. That.\u201d'],
           ]
         : [
-            ['\u201cRoot turnips, smoked eel strips, preserved canal rye.\u201d',
-             '\u201cNothing fancy. It\u2019s all out of the fen, same as everything else around here.\u201d'],
-            ['\u201cThe smoked eel keeps three weeks if you wrap it right.\u201d',
-             '\u201cMost people don\u2019t wrap it right.\u201d'],
-            ['\u201cSixteen years at this stall.\u201d',
-             '\u201cThere\u2019s a worn patch in the paving where I stand.\u201d',
-             '\u201cI find that either comforting or alarming, depending on the day.\u201d'],
+            ['\u201cRoot turnips, smoked eel, preserved canal rye. All out the fen. Now the canal rye, there\u2019s a story behind that \u2014 well, not a story exactly, more of a\u2026\u201d',
+             '\u201c\u2026and I\u2019ve lost it. It\u2019ll come back. They always come back. Buy the turnips while we wait.\u201d'],
+            ['\u201cSmoked eel keeps three weeks if you wrap it right. My mother wrapped it right. My mother wrapped everything right, rest her \u2014 including, once, memorably, a cat \u2014\u201d',
+             '\u201c\u2014 no. Different thing entirely. The point, and I do have one: most folk don\u2019t wrap it right.\u201d'],
+            ['\u201cSixteen years at this stall. There\u2019s a worn patch in the paving, just there, shaped like my own two feet, and some mornings I stand in it and think \u2014\u201d',
+             '\u201c\u2014 and then a customer comes and I never do finish the thought. Which is likely for the best. Now. What was it you wanted?\u201d'],
           ];
     },
     flag_required: null,
@@ -4083,18 +4051,16 @@ const SIMPLE_NPCS = [
     get dialogue() {
       return day % 5 === 0
         ? [
-            ['\u201cHalf-price on the pickled roots.\u201d',
-             '\u201cNot because they\u2019re bad. I just don\u2019t want to carry them home.\u201d'],
+            ['\u201cHalf off the pickled roots, love, half off! Come see, come buy!\u201d',
+             '\u201cNot gone bad \u2014 I just en\u2019t haulin\u2019 them home. Your gain, and my poor back\u2019s relief.\u201d'],
           ]
         : [
-            ['\u201cPickled fen root, dried marsh herb, sealed eel paste.\u201d',
-             '\u201cAll in reed-wax jars. Keeps for a year if you don\u2019t puncture the seal.\u201d'],
-            ['\u201cThe district changed the market hours twice this season.\u201d',
-             '\u201cFirst they moved morning opening earlier. Then they moved it back.\u201d',
-             '\u201cNobody consulted the vendors. This is not a surprise, but it is tiresome.\u201d'],
-            ['\u201cI\u2019ve been at this corner for eleven years.\u201d',
-             '\u201cWhen the new canal extension opened, I doubled my volume for three seasons.\u201d',
-             '\u201cThen it settled. Everything settles.\u201d'],
+            ['\u201cPickled fen root, dried marsh herb, sealed eel paste! Reed-wax jars, sealed tight and true!\u201d',
+             '\u201cKeeps a year and a day, if you love it and don\u2019t poke it. Puncture the seal and you\u2019ve only yourself to blame, dear.\u201d'],
+            ['\u201cDistrict moved the market hours twice this season \u2014 earlier, then back again, la!\u201d',
+             '\u201cAsk the vendors first? Never. They never do. You learn to sing over it, love, or you learn to sulk. I sing.\u201d'],
+            ['\u201cEleven years on this very corner, and I\u2019ll tell you a thing for free \u2014\u201d',
+             '\u201cwhen the new canal opened I doubled my trade three seasons running. Then it settled. Everything settles, pet. Even me. Now: two jars or three?\u201d'],
           ];
     },
     flag_required: null,
@@ -4149,25 +4115,33 @@ const SIMPLE_NPCS = [
     facing:     'down',
     spriteType: 'patron',
     get dialogue() {
-      return day % 5 === 2
-        ? [
-            ['\u201cI come down to look.\u201d',
-             '\u201cI don\u2019t have a reason. I just do.\u201d'],
-          ]
-        : [
-            ['\u201cTwenty-two years on the upper run.\u201d',
-             '\u201cI knew the channel by feel in the dark.\u201d',
-             '\u201cNow I know the ceiling of this room the same way. That\u2019s not nothing, I tell myself.\u201d'],
-            ['\u201cA pilot reads the water. The colour, the surface break, where it goes quiet.\u201d',
-             '\u201cYou stop being able to turn it off, even on land.\u201d',
-             '\u201cI look at a puddle and I can tell you which way it drains.\u201d'],
-            ['\u201cRetirement was the right choice.\u201d',
-             '\u201cMy hands were going. You can\u2019t hold the line well when your grip isn\u2019t what it was.\u201d',
-             '\u201cBetter to stop early and let someone sharper take the run. I believe that. Most days I believe it.\u201d'],
-            ['\u201cThe canal will outlast all of us.\u201d',
-             '\u201cThe Empire built it to last and then made sure someone was always patching it.\u201d',
-             '\u201cThat\u2019s the only real trick to keeping anything running. Someone has to care enough to keep patching.\u201d'],
-          ];
+      if (day % 5 === 2) return [
+        ['\u201cI come down to look.\u201d',
+         '\u201cI don\u2019t have a reason. I just do.\u201d'],
+      ];
+      const pages = [
+        ['\u201cTwenty-two years on the upper run.\u201d',
+         '\u201cI knew the channel by feel in the dark.\u201d',
+         '\u201cNow I know the ceiling of this room the same way. That\u2019s not nothing, I tell myself.\u201d'],
+        ['\u201cA pilot reads the water. The colour, the surface break, where it goes quiet.\u201d',
+         '\u201cYou stop being able to turn it off, even on land.\u201d',
+         '\u201cI look at a puddle and I can tell you which way it drains.\u201d'],
+        ['\u201cRetirement was the right choice.\u201d',
+         '\u201cMy hands were going. You can\u2019t hold the line well when your grip isn\u2019t what it was.\u201d',
+         '\u201cBetter to stop early and let someone sharper take the run. I believe that. Most days I believe it.\u201d'],
+        ['\u201cThe canal will outlast all of us.\u201d',
+         '\u201cThe Empire built it to last and then made sure someone was always patching it.\u201d',
+         '\u201cThat\u2019s the only real trick to keeping anything running. Someone has to care enough to keep patching.\u201d'],
+      ];
+      // Occasional: a comfortable retiree who could pay for real care — a quiet
+      // reminder that in the Empire good treatment is a thing you buy.
+      if (Math.floor(day / 5) % 2 === 0) pages.push(
+        ['\u201cThe hands \u2014 I had them seen to over the winter. A proper physician up the district, not the door-front infirmary.\u201d',
+         '\u201cCost what a reed-cutter makes in a season. I could pay it.\u201d'],
+        ['\u201cThat\u2019s the whole of it, in the end. Not whether a body can be mended.\u201d',
+         '\u201cWhether you can pay to be.\u201d']
+      );
+      return pages;
     },
     flag_required: null,
     flag_sets:     null,
@@ -4397,8 +4371,12 @@ const SIMPLE_NPCS = [
 
   // ─── Mirethyst's Vault ────────────────────────────────────────────────────────
   // Old woman, commonborn, has lived in this sunken ruin for over twenty years.
-  // Nobody sent her here. She gives the Fen Cowl because she made it herself
-  // and doesn't go far enough into the fen anymore to need it.
+  // Lonely and delighted by any visitor -- rambly, occasionally strange, forever
+  // circling back to offering tea. She gives the Fen Cowl (which she made herself
+  // years ago) only after the player accepts her tea and hears her out, as thanks
+  // for the company -- not a reward for "finding" her (the vault isn't hidden).
+  // Flow: intro ramble -> tea choice -> on accept, more ramble + the cowl grant;
+  // on decline, a wistful line and no cowl (re-offered on the next visit).
   {
     id:         'mirethyst',
     name:       'Mirethyst',
@@ -4412,59 +4390,87 @@ const SIMPLE_NPCS = [
     flag_required: null,
     flag_sets:     null,
     action: function() {
-      if (!window.mirethyst_rewarded) {
+      if (window.mirethyst_rewarded) {
+        // Return visits: still delighted, still rambling.
         dialogue.name  = 'Mirethyst';
         dialogue.pages = [
-          ['The chamber is low and damp. Someone has lived here a long time \u2014',
-           'dried reeds bundled by the wall, a small iron stove, two stacked crates.',
-           'An old woman watches you from the far end without getting up.'],
-          ['\u2018You found it, then.\u2019',
-           'She doesn\u2019t say it like a question.',
-           '\u2018Most people don\u2019t come this far into the fen. The ground puts them off.\u2019'],
-          ['\u2018This was a grain store, I think. Imperial construction \u2014 you can tell by the coursing.',
-           'Four hundred years old, maybe more. Still standing.\u2019',
-           '\u2018Better built than most of what\u2019s in Drenwick right now. Make of that what you will.\u2019'],
-          ['\u2018I\u2019ve been here twenty-three years.\u2019',
-           '\u2018Before that, a house in town. Before that, the east reed beds with my husband.',
-           'He died. The house got too loud with quiet, if you know what I mean.',
-           'I came out here to think and didn\u2019t go back.\u2019'],
-          ['\u2018The fen is not dramatic.\u2019',
-           '\u2018People expect it to be. Fog, strange sounds, danger.\u2019',
-           '\u2018Mostly it\u2019s mud and heron and the same eel run every dawn.',
-           'It requires attention, not courage. That suited me better.\u2019'],
-          ['\u2018I eat smoked eel, fen mushroom, pickled reed root.',
-           'Corvel from the Falls brings surplus when the run\u2019s good.',
-           'The drainage crew leave bread sometimes, when they come through.',
-           'I get by.\u2019'],
-          ['\u2018I made this a few years back, when I still went further out.\u2019',
-           'She reaches to a shelf beside the stove and lifts a folded garment.',
-           '\u2018My knees have decided otherwise since then.',
-           'It\u2019s good work. Better on someone who\u2019ll use it.\u2019'],
-          ['\u2018Come back through if you\u2019re passing.\u2019',
-           '\u2018I\u2019m not always talkative. But the stove\u2019s usually going.\u2019',
-           '\u2014 The garment is dark grey-green, oiled reed-cloth, light as fen-weed.'],
+          ['She lights up when you duck in \u2014 no less of it than the first time.',
+           '\u2018You came back! You came back. Sit, the left crate\u2019s still the dry one.\u2019',
+           '\u2018Heron was early this morning. Doesn\u2019t mean anything. It just was. I tell you because there\u2019s no one else to tell, and now there\u2019s you.\u2019'],
+          ['\u2018The kettle remembers you, I think. Ticks friendlier.\u2019',
+           '\u2018Stay as long as you like. Longer. The eels won\u2019t mind, and neither will I.\u2019'],
         ];
-        dialogue.callbacks = [function() {
-          window.mirethyst_rewarded = true;
-          grantItem('Fen Cowl');
-          dialogue.name  = 'Mirethyst';
-          dialogue.pages = [['\u2018Fen Cowl\u2019  (DEF +4)  \u2014 added to items.']];
-          dialogue.open  = true;
-          dialogue.page  = 0;
-        }];
+        dialogue.callbacks = null;
         dialogue.open  = true;
         dialogue.page  = 0;
-      } else {
-        dialogue.name  = 'Mirethyst';
-        dialogue.pages = [
-          ['The stove is lower than before.',
-           'She nods when she sees you.',
-           '\u2018Heron was early this morning.\u2019',
-           '\u2018Doesn\u2019t mean anything. It just was.\u2019'],
-        ];
-        dialogue.open  = true;
-        dialogue.page  = 0;
+        return;
       }
+      // First visit: glad of the company, rambling and a touch odd, and forever
+      // circling back to tea. The cowl comes only if she is accepted and heard.
+      dialogue.name  = 'Mirethyst';
+      dialogue.pages = [
+        ['The chamber is low and damp \u2014 dried reeds bundled by the wall, a small iron stove, two stacked crates.',
+         'An old woman looks up, and her whole face opens like a window thrown wide.',
+         '\u2018Oh \u2014 oh, a person! A whole person, come all this way down. Sit, sit, mind the wet patch, the left crate\u2019s the dry one.\u2019'],
+        ['\u2018I don\u2019t get many. The drainage crew now and then, Corvel with the eel, but they never stay \u2014 always somewhere to be, everyone\u2019s always got a somewhere, except me. I\u2019ve the one place, and here it is.\u2019',
+         '\u2018You\u2019ll have tea. You will, I\u2019ll not hear otherwise \u2014 but let me get the water on, and let me look at you. It\u2019s been\u2026 goodness. It\u2019s been a while.\u2019'],
+        ['She sets a battered kettle on the stove.',
+         '\u2018This was a grain store once. Imperial coursing, four hundred years if it\u2019s a day. Better built than half of Drenwick, which tells you something, though I\u2019ve never settled on what.\u2019',
+         '\u2018The walls hum on the cold nights. Not words \u2014 I checked. Listened three winters running. It is not words. Probably.\u2019'],
+        ['\u2018Twenty-three years I\u2019ve been down here. A house in town before that, the east reed beds before that, with my husband \u2014 he died, and the house got too loud with all its quiet, if you follow me. You don\u2019t. That\u2019s all right, nobody does the first time.\u2019',
+         '\u2018I named a heron once. Bram. Then a different heron came and I called that one Bram as well, for how was I to know? They don\u2019t sign anything.\u2019'],
+        ['The kettle begins to tick.',
+         '\u2018There now \u2014 tea. Fen mushroom and a little dried marsh mint. It\u2019s better than it sounds, and it sounds dreadful.\u2019',
+         '\u2018Will you? It\u2019s no trouble. It\u2019s the very opposite of trouble. Say yes.\u2019'],
+      ];
+      dialogue.callbacks = [function() {
+        choice.title   = 'Mirethyst';
+        choice.options = ['Accept the tea', 'Not just now'];
+        choice.cursor  = 0;
+        choice.callbacks = [
+          function acceptTea() {
+            dialogue.name  = 'Mirethyst';
+            dialogue.pages = [
+              ['\u2018Ha! Good. Good. Two cups, then \u2014 the chipped one\u2019s mine, I\u2019ve grown fond of the chip.\u2019',
+               'She pours. The tea is grey-green and smells of pondweed and, faintly, of mint. Against the odds, it is not bad.',
+               '\u2018Blow on it. No rush down here. There\u2019s never any rush \u2014 that\u2019s the good part and the bad part, and they are the same part.\u2019'],
+              ['\u2018You know what I\u2019ve worked out, all these years alone with the eels? People think the fen is dramatic. Fog, spirits, something with teeth in the dark.\u2019',
+               '\u2018It is mud and heron and the same eel run every dawn. It asks attention, not courage. Courage is for people with somewhere to be.\u2019',
+               '\u2018I did see a light in the water once that had no business being there. But I\u2019d had the mushroom tea, so.\u2019'],
+              ['She drains her cup and sits a moment, just glad of you.',
+               '\u2018That\u2019s the first cup I\u2019ve poured for anyone in \u2014 no. I\u2019ll not count it. Counting it makes it sad.\u2019',
+               'She rises, stiffly, and takes a folded garment from the shelf beside the stove.'],
+              ['\u2018I made this back when my knees still carried me past the deep reeds. Oiled reed-cloth, dark as fen-weed, light as nothing at all.\u2019',
+               '\u2018Take it. Not for anything you did \u2014 for the company. For sitting, and drinking my dreadful tea, and letting an old woman talk.\u2019',
+               '\u2018That\u2019s worth more than a cowl. But the cowl is what I have to give.\u2019'],
+            ];
+            dialogue.callbacks = [function() {
+              window.mirethyst_rewarded = true;
+              grantItem('Fen Cowl');
+              dialogue.name  = 'Mirethyst';
+              dialogue.pages = [['\u2018Fen Cowl\u2019  (DEF +4)  \u2014 added to items.']];
+              dialogue.open  = true;
+              dialogue.page  = 0;
+            }];
+            dialogue.open  = true;
+            dialogue.page  = 0;
+          },
+          function declineTea() {
+            dialogue.name  = 'Mirethyst';
+            dialogue.pages = [
+              ['Something in her face folds back down, just a little. She rallies.',
+               '\u2018No \u2014 no, of course, you\u2019ll be wanting on. Everyone\u2019s wanting on.\u2019',
+               '\u2018The stove\u2019s usually going, if you pass this way again. The tea another time, perhaps. I\u2019ll keep the water near.\u2019'],
+            ];
+            dialogue.callbacks = null;
+            dialogue.open  = true;
+            dialogue.page  = 0;
+          },
+        ];
+        choice.open = true;
+      }];
+      dialogue.open  = true;
+      dialogue.page  = 0;
     },
   },
 

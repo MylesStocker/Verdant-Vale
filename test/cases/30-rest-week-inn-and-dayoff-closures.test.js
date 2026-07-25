@@ -126,7 +126,7 @@ module.exports = {
     assert.ok(/somebody else’s tragedy/.test(staffLine('drenwick_clerk')), 'Holt: off-duty lines');
     assert.ok(/steam is good for the joints/.test(staffLine('thread_officer')), 'Sable: wash house lines');
     assert.ok(/nobody asks me a single question/.test(staffLine('drenwick_teacher_ground')), 'Oben: wash house lines');
-    assert.ok(/theories about you/.test(staffLine('drenwick_teacher_upper')), 'Farne: inn lines');
+    assert.ok(/keep the receipts/.test(staffLine('drenwick_teacher_upper')), 'Farne: inn (off-duty) lines');
 
     // No two NPCs share a tile in the Dayoff inn/wash house crowd.
     const spots = JSON.parse(g.run(`JSON.stringify(

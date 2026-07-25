@@ -3,206 +3,473 @@
 // render-ui.js — overlay panel rendering: continent map, Accord panel,
 // choice box, dialogue box, main/pause menu, and the debug menu.
 
-// ─── Continent Map Panel ──────────────────────────────────────────────────────
+// ─── Continent Map Panel ─────────────────────────────────────────────────────
 // Full-screen inspection panel opened when the player examines the wall map in
-// the Calwick Empire office. Flavor/worldbuilding only — not the playable map.
+// the Calwick school (and, for continuity, the Calwick office). A stylised but
+// professional Imperial school survey of the Continent, dated 1072 AC. Flavour /
+// worldbuilding only -- not the playable map. Geography follows LORE.md: a
+// southern-hemisphere continent (warm north, cold south) angling south-east
+// toward its polar cape, laid out on the A-D / 1-4 development grid.
+//
+// Rendering is split into small helpers that share a projection object `m`
+// ({ MX, MY, MW, MH, px(col), py(row) }) mapping grid coordinates -- columns
+// A..D as 0..4, rows 1..4 as 0..4 -- to canvas pixels on the 512x480 `ctx`.
+
+// Irregular coastline traced clockwise from the north-west, in [col,row] grid
+// fractions. Corner squares stay mostly ocean; a westward notch near row 2.5
+// is the Tidewave Chasm, and the south-east finger is Cape Denial.
+const CM_COAST = [
+  [0.75,0.62],[0.95,0.55],[1.12,0.61],[1.33,0.53],[1.55,0.60],[1.74,0.51],
+  [1.98,0.56],[2.22,0.50],[2.48,0.58],[2.72,0.52],[2.93,0.61],[3.13,0.72],
+  [3.30,0.92],[3.46,1.12],[3.55,1.36],[3.49,1.60],[3.62,1.84],[3.50,2.08],
+  [3.64,2.30],[3.57,2.48],[3.18,2.54],[3.55,2.63],
+  [3.72,2.82],[3.95,3.06],[3.90,3.30],[3.60,3.40],
+  [3.30,3.52],[3.02,3.62],[2.74,3.86],[2.45,3.72],[2.14,3.52],[1.83,3.36],
+  [1.52,3.20],[1.24,3.03],[1.03,2.83],
+  [0.86,2.58],[0.71,2.33],[0.76,2.08],[0.64,1.84],[0.71,1.58],[0.60,1.34],
+  [0.72,1.09],[0.67,0.84],
+];
+
+// Offshore island groups: [col, row, rx, ry] (radii in px).
+const CM_ISLES = {
+  fishing:  [[0.30,0.55,5,4],[0.46,0.76,4,3],[0.50,0.40,3,3],[0.22,0.66,3,2]],
+  sugar:    [[2.40,0.28,3,3],[2.70,0.33,3,2]],
+  trading:  [[3.52,0.50,4,3],[3.72,0.74,3,3],[3.38,0.38,3,2]],
+  subpolar: [[0.40,3.42,4,3],[0.60,3.66,3,3],[0.28,3.14,3,2]],
+  spindler: [[3.80,2.38,2,4],[3.86,2.60,2,3]],
+};
+
+function _cmProject(MX, MY, MW, MH) {
+  return {
+    MX: MX, MY: MY, MW: MW, MH: MH,
+    px: function (col) { return MX + (col / 4) * MW; },
+    py: function (row) { return MY + (row / 4) * MH; },
+  };
+}
+
+// Trace (but do not fill) the mainland outline, so callers may fill or clip.
+function _cmLandPath(m) {
+  ctx.beginPath();
+  for (let i = 0; i < CM_COAST.length; i++) {
+    const x = m.px(CM_COAST[i][0]), y = m.py(CM_COAST[i][1]);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+}
+
+// A soft, slightly irregular blob (used for terrain patches and islands).
+function _cmBlob(cx, cy, rx, ry, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + rx * 0.4, cy + ry * 0.2, rx * 0.7, ry * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx - rx * 0.5, cy - ry * 0.3, rx * 0.6, ry * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+}
+
+// Irregular inland-sea water body with a soft highlight.
+function _cmWater(cx, cy, rx, ry) {
+  ctx.fillStyle = '#6f92b0';
+  ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx - rx * 0.55, cy + ry * 0.25, rx * 0.5, ry * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + rx * 0.5, cy - ry * 0.4, rx * 0.45, ry * 0.4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(150,185,215,0.4)';
+  ctx.beginPath(); ctx.ellipse(cx - rx * 0.2, cy - ry * 0.2, rx * 0.45, ry * 0.35, 0, 0, Math.PI * 2); ctx.fill();
+}
+
+// A single hachured mountain caret: shaded right face + a couple of ridge lines.
+function _cmMountain(x, y, s) {
+  ctx.fillStyle = '#9b8f7c';
+  ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x + s * 0.9, y + s * 0.6); ctx.lineTo(x - s * 0.9, y + s * 0.6); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#7c6f5c';
+  ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x + s * 0.9, y + s * 0.6); ctx.lineTo(x, y + s * 0.6); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(60,50,35,0.5)'; ctx.lineWidth = 0.6;
+  ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x - s * 0.3, y + s * 0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x + s * 0.35, y + s * 0.5); ctx.stroke();
+  ctx.lineWidth = 1;
+}
+
+// A labelled place-name with a parchment halo for legibility over terrain.
+function _cmLabel(text, x, y, o) {
+  o = o || {};
+  const weight = o.bold ? 'bold ' : (o.italic ? 'italic ' : '');
+  ctx.font = weight + (o.size || 7) + 'px "Courier New", monospace';
+  ctx.textAlign = o.align || 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = o.halo || 'rgba(240,232,205,0.9)';
+  const offs = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1]];
+  for (let i = 0; i < offs.length; i++) ctx.fillText(text, x + offs[i][0], y + offs[i][1]);
+  ctx.fillStyle = o.color || '#2a1a0a';
+  ctx.fillText(text, x, y);
+  ctx.textAlign = 'left';
+}
+
+// ── Place-marker glyphs (all take pixel coordinates) ──────────────────────────
+function _cmCapital(x, y) {
+  ctx.fillStyle = '#a02020';
+  ctx.beginPath(); ctx.moveTo(x, y - 4.5); ctx.lineTo(x + 4.5, y); ctx.lineTo(x, y + 4.5); ctx.lineTo(x - 4.5, y); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#e8c040'; ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+}
+function _cmCity(x, y) {
+  ctx.strokeStyle = '#3a2410'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(x, y, 2.7, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = '#f2e8ca'; ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI * 2); ctx.fill();
+  ctx.lineWidth = 1;
+}
+function _cmTown(x, y) {
+  ctx.fillStyle = '#f2e8ca'; ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+  ctx.strokeStyle = '#3a2410'; ctx.lineWidth = 0.8; ctx.strokeRect(x - 1.5, y - 1.5, 3, 3); ctx.lineWidth = 1;
+}
+function _cmFort(x, y) {
+  ctx.fillStyle = '#4a3018';
+  ctx.beginPath(); ctx.moveTo(x, y - 4.5); ctx.lineTo(x + 3, y + 2); ctx.lineTo(x - 3, y + 2); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#4a3018'; ctx.lineWidth = 0.9;
+  ctx.beginPath(); ctx.moveTo(x, y - 4.5); ctx.lineTo(x, y - 7); ctx.stroke();
+  ctx.fillStyle = '#a02020'; ctx.fillRect(x, y - 7, 3, 2); ctx.lineWidth = 1;
+}
+function _cmAcademyGlyph(x, y) {
+  ctx.fillStyle = '#5a3a1a';
+  ctx.beginPath(); ctx.moveTo(x - 5, y - 1); ctx.lineTo(x, y - 6); ctx.lineTo(x + 5, y - 1); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#cbb47a'; ctx.fillRect(x - 4, y - 1, 8, 5);
+  ctx.fillStyle = '#5a3a1a'; ctx.fillRect(x - 2.5, y + 0.5, 1.6, 3); ctx.fillRect(x + 1, y + 0.5, 1.6, 3);
+}
+
 function drawContinentMapPanel() {
   if (!continentMap.open) return;
 
-  // Dim background
-  ctx.fillStyle = 'rgba(0,0,0,0.80)';
+  // ── Backdrop + framed parchment ───────────────────────────────────────────
+  ctx.fillStyle = 'rgba(0,0,0,0.82)';
   ctx.fillRect(0, 0, 512, 480);
 
-  const PX = 20, PY = 16, PW = 472, PH = 448;
+  const PX = 14, PY = 10, PW = 484, PH = 460;
 
-  // Parchment background
-  ctx.fillStyle = '#c8b870';
+  ctx.fillStyle = '#c9ba84';
   ctx.fillRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#d4c47a';
-  ctx.fillRect(PX + 2, PY + 2, PW - 4, PH - 4);
-
-  // Outer frame — dark wood
-  ctx.strokeStyle = '#3a1e08';
-  ctx.lineWidth   = 4;
-  ctx.strokeRect(PX, PY, PW, PH);
-  ctx.strokeStyle = '#7a5020';
-  ctx.lineWidth   = 2;
-  ctx.strokeRect(PX + 5, PY + 5, PW - 10, PH - 10);
-
-  // Frame corner bolts
-  ctx.fillStyle = '#2a1008';
-  for (const [bx, by] of [[PX, PY], [PX + PW - 8, PY], [PX, PY + PH - 8], [PX + PW - 8, PY + PH - 8]]) {
-    ctx.fillRect(bx, by, 8, 8);
-    ctx.fillStyle = '#a07030';
-    ctx.fillRect(bx + 2, by + 2, 4, 4);
-    ctx.fillStyle = '#2a1008';
+  ctx.fillStyle = '#d7c88c';
+  ctx.fillRect(PX + 3, PY + 3, PW - 6, PH - 6);
+  // Faint parchment mottling
+  ctx.fillStyle = 'rgba(150,120,60,0.06)';
+  for (let i = 0; i < 26; i++) {
+    const rx = PX + 6 + ((i * 97) % (PW - 12));
+    const ry = PY + 6 + ((i * 173) % (PH - 12));
+    ctx.beginPath(); ctx.ellipse(rx, ry, 14, 9, 0, 0, Math.PI * 2); ctx.fill();
   }
 
-  // Title
+  // Institutional double frame + corner bolts
+  ctx.strokeStyle = '#3a1e08'; ctx.lineWidth = 4; ctx.strokeRect(PX, PY, PW, PH);
+  ctx.strokeStyle = '#7a5020'; ctx.lineWidth = 2; ctx.strokeRect(PX + 5, PY + 5, PW - 10, PH - 10);
   ctx.fillStyle = '#2a1008';
-  ctx.font      = 'bold 13px "Courier New", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('IMPERIAL DOMAIN \u2014 SURVEY OF YEAR 700', 256, PY + 26);
+  const bolts = [[PX, PY], [PX + PW - 8, PY], [PX, PY + PH - 8], [PX + PW - 8, PY + PH - 8]];
+  for (let i = 0; i < bolts.length; i++) {
+    ctx.fillStyle = '#2a1008'; ctx.fillRect(bolts[i][0], bolts[i][1], 8, 8);
+    ctx.fillStyle = '#a07030'; ctx.fillRect(bolts[i][0] + 2, bolts[i][1] + 2, 4, 4);
+  }
+
+  // ── Title block ───────────────────────────────────────────────────────────
+  ctx.fillStyle = '#2a1008'; ctx.textAlign = 'center';
+  ctx.font = 'bold 14px "Courier New", monospace';
+  ctx.fillText('THE CONTINENT', 256, PY + 24);
   ctx.font = '9px "Courier New", monospace';
-  ctx.fillText('Cartographic Office of the Council of Thirty-Three', 256, PY + 40);
+  ctx.fillText('Imperial School Survey — 1072 AC', 256, PY + 38);
+  ctx.fillStyle = '#8a6030'; ctx.fillRect(PX + 12, PY + 44, PW - 24, 1);
+  ctx.textAlign = 'left';
 
-  // Separator line
-  ctx.fillStyle = '#8a6030';
-  ctx.fillRect(PX + 10, PY + 46, PW - 20, 1);
+  // ── Map field geometry + projection ───────────────────────────────────────
+  const MX = 28, MY = 58, MW = 300, MH = 390;
+  const m = _cmProject(MX, MY, MW, MH);
 
-  // ── Continent outline ──────────────────────────────────────────────────────
-  // Main landmass — a large irregular polygon covering ~80% of the map panel
-  const MX = PX + 18, MY = PY + 55, MW = PW - 36, MH = PH - 80;
-
-  // Sea background
-  ctx.fillStyle = '#7a9ab8';
+  // Ocean (desaturated blue, cool toward the south)
+  const seaGrad = ctx.createLinearGradient(0, MY, 0, MY + MH);
+  seaGrad.addColorStop(0, '#7d99b3');
+  seaGrad.addColorStop(1, '#8fa7bd');
+  ctx.fillStyle = seaGrad;
   ctx.fillRect(MX, MY, MW, MH);
+  ctx.fillStyle = 'rgba(120,160,195,0.28)';
+  for (let wy = MY + 20; wy < MY + MH - 6; wy += 16) ctx.fillRect(MX + 4, wy, MW - 8, 1);
 
-  // Light wave lines on sea
-  ctx.fillStyle = 'rgba(120, 160, 200, 0.4)';
-  for (let wy = MY + 18; wy < MY + MH; wy += 14) {
-    ctx.fillRect(MX + 4, wy, MW - 8, 1);
+  // ── Equatorial resonance storm: a violet-gold disturbance ABOVE the north
+  //    coast, fading into clear ocean before it reaches land (not a wall). ─────
+  const stormH = m.py(0.44) - MY;
+  const stormGrad = ctx.createLinearGradient(0, MY, 0, MY + stormH);
+  stormGrad.addColorStop(0, 'rgba(96,58,120,0.85)');
+  stormGrad.addColorStop(0.55, 'rgba(150,96,168,0.45)');
+  stormGrad.addColorStop(1, 'rgba(150,96,168,0)');
+  ctx.fillStyle = stormGrad;
+  ctx.fillRect(MX, MY, MW, stormH);
+  ctx.strokeStyle = 'rgba(232,204,120,0.5)'; ctx.lineWidth = 1;
+  for (let sx = MX - 8; sx < MX + MW; sx += 15) {
+    ctx.beginPath();
+    ctx.moveTo(sx, MY + 2);
+    ctx.quadraticCurveTo(sx + 6, MY + stormH * 0.4, sx + 2, MY + stormH * 0.72);
+    ctx.stroke();
+  }
+  _cmLabel('Equatorial Resonance Storm', MX + MW / 2, MY + 12, { size: 7, italic: true, color: '#e8d0a0', halo: 'rgba(60,30,80,0.7)' });
+
+  // ── Mainland: sage lowland base, then layered terrain clipped to the coast ──
+  _cmLandPath(m);
+  ctx.fillStyle = '#8fa86a'; ctx.fill();
+
+  ctx.save();
+  _cmLandPath(m); ctx.clip();
+
+  // Warm-north tint / cold-south tint
+  ctx.fillStyle = 'rgba(206,158,70,0.12)'; ctx.fillRect(MX, m.py(0.4), MW, m.py(1.4) - m.py(0.4));
+  ctx.fillStyle = 'rgba(150,180,210,0.16)'; ctx.fillRect(MX, m.py(2.9), MW, m.py(4) - m.py(2.9));
+
+  // Ochre uplands: western spine skirts + southern (C3) uplands
+  _cmBlob(m.px(0.82), m.py(1.7), 26, 62, '#c2a05e');
+  _cmBlob(m.px(0.8), m.py(2.35), 24, 34, '#bd9a58');
+  _cmBlob(m.px(2.55), m.py(2.45), 40, 30, '#c2a05e');
+
+  // Granite shield (D2-D3): grey-green bedrock + conifer stipple
+  _cmBlob(m.px(3.35), m.py(1.85), 34, 60, '#7f8a6e');
+  ctx.fillStyle = '#3f5a34';
+  for (let i = 0; i < 46; i++) {
+    const fx = m.px(3.05 + ((i * 0.11) % 0.62));
+    const fy = m.py(1.25 + ((i * 0.29) % 1.35));
+    ctx.beginPath(); ctx.moveTo(fx, fy - 2.2); ctx.lineTo(fx + 1.6, fy + 1.4); ctx.lineTo(fx - 1.6, fy + 1.4); ctx.closePath(); ctx.fill();
   }
 
-  // Main continent (Empire-controlled — gold-green)
-  ctx.fillStyle = '#8aaa60';
-  ctx.beginPath();
-  ctx.moveTo(MX + 30,       MY + 10);
-  ctx.lineTo(MX + MW - 60,  MY + 8);
-  ctx.lineTo(MX + MW - 30,  MY + 30);
-  ctx.lineTo(MX + MW - 10,  MY + 80);
-  ctx.lineTo(MX + MW - 5,   MY + MH * 0.55);
-  ctx.lineTo(MX + MW - 30,  MY + MH - 30);
-  ctx.lineTo(MX + MW - 80,  MY + MH - 10);
-  ctx.lineTo(MX + 60,       MY + MH - 8);
-  ctx.lineTo(MX + 20,       MY + MH - 50);
-  ctx.lineTo(MX + 10,       MY + MH * 0.60);
-  ctx.lineTo(MX + 15,       MY + MH * 0.35);
-  ctx.lineTo(MX + 8,        MY + 50);
-  ctx.closePath();
-  ctx.fill();
-
-  // Terrain shading (slightly darker interior — gives relief impression)
-  ctx.fillStyle = 'rgba(60,90,30,0.15)';
-  ctx.beginPath();
-  ctx.moveTo(MX + 80,       MY + 40);
-  ctx.lineTo(MX + MW - 100, MY + 38);
-  ctx.lineTo(MX + MW - 60,  MY + MH * 0.50);
-  ctx.lineTo(MX + MW - 110, MY + MH - 50);
-  ctx.lineTo(MX + 100,      MY + MH - 55);
-  ctx.lineTo(MX + 60,       MY + MH * 0.50);
-  ctx.closePath();
-  ctx.fill();
-
-  // Unmapped fringe — grey, at edges of continent
-  ctx.fillStyle = '#9a9a88';
-  // North-west fringe
-  ctx.beginPath();
-  ctx.moveTo(MX + 8,  MY + 50);
-  ctx.lineTo(MX + 30, MY + 10);
-  ctx.lineTo(MX + 60, MY + 22);
-  ctx.lineTo(MX + 30, MY + 60);
-  ctx.lineTo(MX + 15, MY + 65);
-  ctx.closePath();
-  ctx.fill();
-  // South-east fringe
-  ctx.beginPath();
-  ctx.moveTo(MX + MW - 30, MY + MH - 30);
-  ctx.lineTo(MX + MW - 10, MY + MH - 80);
-  ctx.lineTo(MX + MW - 5,  MY + MH * 0.55);
-  ctx.lineTo(MX + MW - 20, MY + MH - 15);
-  ctx.closePath();
-  ctx.fill();
-
-  // Canal zone / river system (thin blue lines)
-  ctx.strokeStyle = '#5888a8';
-  ctx.lineWidth   = 2;
-  ctx.beginPath();
-  ctx.moveTo(MX + 140, MY + MH * 0.55);
-  ctx.lineTo(MX + 200, MY + MH * 0.48);
-  ctx.lineTo(MX + 260, MY + MH * 0.52);
-  ctx.lineTo(MX + 310, MY + MH * 0.44);
-  ctx.stroke();
+  // Great Fens (B3): reed/marsh texture around the Thornmere & Valmere
+  ctx.fillStyle = 'rgba(96,132,86,0.5)';
+  ctx.fillRect(m.px(0.95), m.py(2.2), m.px(1.95) - m.px(0.95), m.py(3.05) - m.py(2.2));
+  ctx.strokeStyle = 'rgba(70,104,74,0.6)'; ctx.lineWidth = 0.7;
+  for (let i = 0; i < 60; i++) {
+    const rx = m.px(1.0 + ((i * 0.13) % 0.9));
+    const ry = m.py(2.28 + ((i * 0.19) % 0.72));
+    ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx, ry - 3); ctx.stroke();
+  }
   ctx.lineWidth = 1;
 
-  // Road network (thin tan lines)
-  ctx.strokeStyle = 'rgba(160, 120, 60, 0.6)';
-  ctx.beginPath();
-  ctx.moveTo(MX + 180, MY + MH - 55);
-  ctx.lineTo(MX + 210, MY + MH * 0.55);
-  ctx.lineTo(MX + 230, MY + 50);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(MX + 230, MY + MH * 0.55);
-  ctx.lineTo(MX + 310, MY + MH * 0.50);
-  ctx.stroke();
+  // Cold south: coastal ice & glacial texture (pale blue-grey), plus Ariel's
+  // small residual green refuge amid the ice.
+  ctx.fillStyle = 'rgba(206,220,230,0.7)';
+  ctx.fillRect(MX, m.py(3.25), MW, m.py(4) - m.py(3.25));
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1;
+  for (let i = 0; i < 22; i++) {
+    const gx = m.px(1.6 + ((i * 0.17) % 2.1));
+    const gy = m.py(3.35 + ((i * 0.11) % 0.55));
+    ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx + 8, gy); ctx.stroke();
+  }
+  _cmBlob(m.px(2.72), m.py(3.74), 7, 6, 'rgba(120,168,96,0.9)');
 
-  // ── Location markers ───────────────────────────────────────────────────────
-  function placeMarker(x, y, label, color, dotSize) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#2a1008';
-    ctx.font = 'bold 8px "Courier New", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(label, x, y - dotSize - 3);
-    ctx.textAlign = 'left';
+  // Western spine / the Arc: hachured mountains down the west
+  const spine = [[0.74,1.08],[0.81,1.28],[0.72,1.5],[0.8,1.72],[0.71,1.95],[0.79,2.16],[0.72,2.36]];
+  for (let i = 0; i < spine.length; i++) _cmMountain(m.px(spine[i][0]), m.py(spine[i][1]), 6);
+  // A lighter southern (C3) range
+  const srange = [[2.35,2.28],[2.55,2.4],[2.75,2.3]];
+  for (let i = 0; i < srange.length; i++) _cmMountain(m.px(srange[i][0]), m.py(srange[i][1]), 4);
+
+  // Mercury Lake (A3): a tiny dark metallic anomaly in a minute barren zone.
+  _cmBlob(m.px(0.66), m.py(2.4), 5, 4, '#8a7d74');
+  ctx.fillStyle = '#2a2630';
+  ctx.beginPath(); ctx.ellipse(m.px(0.66), m.py(2.4), 2, 1.6, 0, 0, Math.PI * 2); ctx.fill();
+
+  ctx.restore();
+
+  // Coastline stroke
+  _cmLandPath(m);
+  ctx.strokeStyle = '#4a3418'; ctx.lineWidth = 1.3; ctx.stroke(); ctx.lineWidth = 1;
+
+  // ── Islands ───────────────────────────────────────────────────────────────
+  const isleGroups = ['fishing', 'sugar', 'trading', 'subpolar', 'spindler'];
+  for (let g = 0; g < isleGroups.length; g++) {
+    const arr = CM_ISLES[isleGroups[g]];
+    for (let i = 0; i < arr.length; i++) {
+      const ix = m.px(arr[i][0]), iy = m.py(arr[i][1]);
+      _cmBlob(ix, iy, arr[i][2], arr[i][3], '#8aa564');
+      ctx.strokeStyle = 'rgba(74,52,24,0.7)'; ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.ellipse(ix, iy, arr[i][2], arr[i][3], 0, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1;
+    }
   }
 
-  // Halcyra — imperial capital (center-right of continent)
-  placeMarker(MX + 280, MY + MH * 0.40, 'Halcyra \u2605', '#b83030', 5);
-  // Verdant Vale region — player's area (lower-left)
-  placeMarker(MX + 160, MY + MH * 0.62, 'Verdant Vale', '#3060a0', 4);
-  // Ardwick — north province
-  placeMarker(MX + 220, MY + 55,        'Ardwick',      '#2a1008', 3);
-  // Eastern reaches
-  placeMarker(MX + MW - 90, MY + MH * 0.38, 'Eastern Reaches', '#2a1008', 3);
+  // ── Inland seas ───────────────────────────────────────────────────────────
+  _cmWater(m.px(2.56), m.py(1.56), 26, 21);   // Cyrmere
+  _cmWater(m.px(1.92), m.py(2.46), 33, 27);   // Valmere
+  _cmWater(m.px(1.22), m.py(2.73), 14, 10);   // Thornmere
 
-  // Imperial boundary line — dashed outer ring showing full territorial extent
-  ctx.strokeStyle = '#b83030';
-  ctx.lineWidth   = 1;
-  ctx.setLineDash([4, 3]);
+  // ── Rivers (branching): the Lume, the Brinne, the Cyr ─────────────────────
+  ctx.strokeStyle = '#5f8db0'; ctx.lineJoin = 'round';
+  function river(pts, w) {
+    ctx.lineWidth = w; ctx.beginPath();
+    ctx.moveTo(m.px(pts[0][0]), m.py(pts[0][1]));
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(m.px(pts[i][0]), m.py(pts[i][1]));
+    ctx.stroke();
+  }
+  river([[2.35,2.12],[2.15,1.9],[1.92,1.75],[1.72,1.62],[1.76,1.42],[1.85,1.2]], 2);   // Lume
+  river([[1.3,1.6],[1.45,1.5],[1.62,1.42],[1.72,1.5]], 1.4);                            // Brinne -> Lume (the Bowl)
+  river([[2.58,1.02],[2.62,1.2],[2.52,1.34],[2.4,1.42]], 1.6);                          // Cyr -> Cyrmere
+  ctx.lineWidth = 1;
+
+  // The Bowl / Junior Academy: a small unlabelled crater ring at the Brinne-Lume
+  // confluence, kept visually distinct from THE ACADEMY on the capital ridge.
+  ctx.strokeStyle = '#7a5a30'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(m.px(1.65), m.py(1.43), 3, 0, Math.PI * 2); ctx.stroke();
+
+  // ── Subtle A-D / 1-4 grid ─────────────────────────────────────────────────
+  ctx.strokeStyle = 'rgba(90,66,34,0.22)'; ctx.lineWidth = 1;
+  for (let c = 1; c <= 3; c++) { ctx.beginPath(); ctx.moveTo(m.px(c), MY); ctx.lineTo(m.px(c), MY + MH); ctx.stroke(); }
+  for (let r = 1; r <= 3; r++) { ctx.beginPath(); ctx.moveTo(MX, m.py(r)); ctx.lineTo(MX + MW, m.py(r)); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(90,66,34,0.5)'; ctx.lineWidth = 1.2; ctx.strokeRect(MX, MY, MW, MH); ctx.lineWidth = 1;
+  ctx.fillStyle = 'rgba(70,50,26,0.5)';
+  ctx.font = 'bold 8px "Courier New", monospace'; ctx.textAlign = 'center';
+  const cols = ['A', 'B', 'C', 'D'];
+  for (let c = 0; c < 4; c++) ctx.fillText(cols[c], m.px(c + 0.5), MY + 9);
+  for (let r = 0; r < 4; r++) ctx.fillText(String(r + 1), MX + 7, m.py(r + 0.5) + 3);
+  ctx.textAlign = 'left';
+
+  // ── Palefall Line: the climatic/ecological transition across northern C4,
+  //    bending south-east toward the base of Cape Denial (a boundary, not a
+  //    border; drawn faint, unlabelled). ──────────────────────────────────────
+  ctx.strokeStyle = 'rgba(150,178,206,0.75)'; ctx.lineWidth = 1.1; ctx.setLineDash([3, 2]);
   ctx.beginPath();
-  ctx.moveTo(MX + 35,       MY + 14);
-  ctx.lineTo(MX + MW - 65,  MY + 12);
-  ctx.lineTo(MX + MW - 32,  MY + 34);
-  ctx.lineTo(MX + MW - 14,  MY + 84);
-  ctx.lineTo(MX + MW - 8,   MY + MH * 0.55);
-  ctx.lineTo(MX + MW - 32,  MY + MH - 34);
-  ctx.lineTo(MX + MW - 82,  MY + MH - 14);
-  ctx.lineTo(MX + 64,       MY + MH - 12);
-  ctx.lineTo(MX + 24,       MY + MH - 54);
-  ctx.lineTo(MX + 12,       MY + MH * 0.60);
-  ctx.lineTo(MX + 16,       MY + MH * 0.35);
-  ctx.lineTo(MX + 10,       MY + 54);
-  ctx.closePath();
+  ctx.moveTo(m.px(2.0), m.py(3.02));
+  ctx.lineTo(m.px(2.45), m.py(3.08));
+  ctx.lineTo(m.px(2.9), m.py(3.2));
+  ctx.lineTo(m.px(3.28), m.py(3.46));
   ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.setLineDash([]); ctx.lineWidth = 1;
 
-  // ── Legend ─────────────────────────────────────────────────────────────────
-  const LX = PX + 14, LY = PY + PH - 26;
-  ctx.fillStyle = '#8aaa60';
-  ctx.fillRect(LX, LY - 6, 10, 8);
-  ctx.fillStyle = '#2a1008';
-  ctx.font = '8px "Courier New", monospace';
-  ctx.fillText('Empire', LX + 13, LY);
+  // ── Roads (fen settlement chain) — distinct from rail: dotted tan ─────────
+  ctx.strokeStyle = '#9a7038'; ctx.lineWidth = 1.4; ctx.setLineDash([1.5, 2.5]);
+  ctx.beginPath();
+  ctx.moveTo(m.px(1.28), m.py(2.72));   // Calwick
+  ctx.lineTo(m.px(1.45), m.py(2.58));   // Drenwick
+  ctx.lineTo(m.px(1.6), m.py(2.42));    // unnamed town
+  ctx.lineTo(m.px(1.55), m.py(2.22));   // Drynport
+  ctx.stroke();
+  ctx.setLineDash([]); ctx.lineWidth = 1;
 
-  ctx.fillStyle = '#9a9a88';
-  ctx.fillRect(LX + 58, LY - 6, 10, 8);
-  ctx.fillStyle = '#2a1008';
-  ctx.fillText('Unmapped', LX + 71, LY);
+  // ── Aetherrail: thin red mainline + spur + south-western line ─────────────
+  ctx.strokeStyle = '#b22a2a'; ctx.lineWidth = 1.6;
+  ctx.beginPath();                                   // Lumina <-> Halcyra mainline
+  ctx.moveTo(m.px(1.85), m.py(1.15)); ctx.lineTo(m.px(2.32), m.py(1.4)); ctx.stroke();
+  ctx.beginPath();                                   // spur to THE ACADEMY (Senior)
+  ctx.moveTo(m.px(2.05), m.py(1.27)); ctx.lineTo(m.px(2.08), m.py(1.42)); ctx.stroke();
+  ctx.beginPath();                                   // Halcyra <-> Drynport
+  ctx.moveTo(m.px(2.32), m.py(1.4)); ctx.lineTo(m.px(2.05), m.py(1.75)); ctx.lineTo(m.px(1.7), m.py(2.05)); ctx.lineTo(m.px(1.55), m.py(2.2)); ctx.stroke();
+  // Rail tick marks along the mainline
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(m.px(2.05), m.py(1.24)); ctx.lineTo(m.px(2.07), m.py(1.31)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(m.px(2.18), m.py(1.29)); ctx.lineTo(m.px(2.2), m.py(1.36)); ctx.stroke();
 
-  ctx.fillStyle = '#b83030';
-  ctx.fillRect(LX + 136, LY - 6, 10, 3);
-  ctx.fillStyle = '#2a1008';
-  ctx.fillText('Imperial boundary', LX + 149, LY);
+  // ── Silver Vein: a warm current flowing SOUTH outside the east coast ──────
+  ctx.strokeStyle = 'rgba(224,142,58,0.85)'; ctx.lineWidth = 1.6;
+  const vein = [[3.72,1.45],[3.86,1.9],[3.96,2.35],[3.9,2.78],[3.78,3.02]];
+  ctx.beginPath(); ctx.moveTo(m.px(vein[0][0]), m.py(vein[0][1]));
+  for (let i = 1; i < vein.length; i++) ctx.lineTo(m.px(vein[i][0]), m.py(vein[i][1]));
+  ctx.stroke();
+  // Southward arrowheads (must always point south / down-coast)
+  const arrowsAt = [[3.9,1.7],[3.94,2.55]];
+  ctx.fillStyle = 'rgba(224,142,58,0.95)';
+  for (let i = 0; i < arrowsAt.length; i++) {
+    const ax = m.px(arrowsAt[i][0]), ay = m.py(arrowsAt[i][1]);
+    ctx.beginPath(); ctx.moveTo(ax, ay + 4); ctx.lineTo(ax - 3, ay - 2); ctx.lineTo(ax + 3, ay - 2); ctx.closePath(); ctx.fill();
+  }
+  ctx.lineWidth = 1;
 
-  // Close hint
-  ctx.fillStyle = '#5a3810';
-  ctx.font = '9px "Courier New", monospace';
-  ctx.textAlign = 'right';
-  ctx.fillText('[ SPACE / ESC ] close', PX + PW - 12, PY + PH - 6);
+  // ── Place markers ─────────────────────────────────────────────────────────
+  _cmCapital(m.px(1.85), m.py(1.15));            // Lumina
+  _cmCapital(m.px(2.32), m.py(1.4));             // Halcyra
+  _cmAcademyGlyph(m.px(2.08), m.py(1.43));       // The Academy (Senior, capital ridge)
+  _cmCity(m.px(1.4), m.py(0.7));                 // Calivar
+  _cmCity(m.px(2.5), m.py(0.6));                 // Merovar
+  _cmCity(m.px(2.8), m.py(1.75));               // Litorra
+  _cmCity(m.px(3.55), m.py(1.4));               // Stonehaven
+  _cmCity(m.px(1.55), m.py(2.2));               // Drynport
+  _cmTown(m.px(1.28), m.py(2.72));              // Calwick
+  _cmTown(m.px(1.45), m.py(2.58));              // Drenwick
+  _cmTown(m.px(1.6), m.py(2.42));               // unnamed town (no label)
+  _cmFort(m.px(2.28), m.py(3.12));              // Fort Orrivar
+  _cmFort(m.px(2.5), m.py(3.48));               // Fort Drenn
+  _cmFort(m.px(2.72), m.py(3.74));              // Fort Ariel
+
+  // ── Labels (halo'd; capital-ridge cluster uses a smaller font) ────────────
+  _cmLabel('Calivar',       m.px(1.4),  m.py(0.7) - 6);
+  _cmLabel('Merovar',       m.px(2.5),  m.py(0.6) - 6);
+  _cmLabel('Lumina',        m.px(1.85), m.py(1.15) - 7, { bold: true });
+  _cmLabel('Halcyra',       m.px(2.36), m.py(1.4) - 7,  { bold: true });
+  _cmLabel('THE ACADEMY',   m.px(1.98), m.py(1.62),      { size: 6, color: '#6a2a1a' });
+  _cmLabel('Litorra',       m.px(2.86), m.py(1.75) + 11);
+  _cmLabel('Stonehaven',    m.px(3.5),  m.py(1.4) - 6,   { align: 'right' });
+  _cmLabel('Drynport',      m.px(1.55), m.py(2.2) - 6);
+  _cmLabel('Drenwick',      m.px(1.5),  m.py(2.58) - 5,  { align: 'left' });
+  _cmLabel('Calwick',       m.px(1.24), m.py(2.72) + 8,  { align: 'right' });
+  _cmLabel('Cyrmere',       m.px(2.62), m.py(1.72),      { italic: true, color: '#1f3648' });
+  _cmLabel('Valmere',       m.px(1.92), m.py(2.46) + 2,  { italic: true, color: '#1f3648' });
+  _cmLabel('Thornmere',     m.px(1.22), m.py(2.9),       { italic: true, color: '#1f3648' });
+  _cmLabel('Great Fens',    m.px(1.12), m.py(2.28),      { italic: true, color: '#3a4a2a' });
+  _cmLabel('Tidewave Chasm', m.px(3.35), m.py(2.5) + 12, { size: 6 });
+  _cmLabel("Spindler's Coast", MX + MW - 2, m.py(2.35), { size: 6, align: 'right' });
+  _cmLabel('Cape Denial',   m.px(3.66), m.py(3.12) - 6,  { size: 6 });
+  _cmLabel('Polar Verge',   m.px(2.05), m.py(2.98),      { italic: true, size: 6, color: '#3a4656' });
+  _cmLabel('Frostward Reach', m.px(2.98), m.py(3.28),    { italic: true, size: 6, color: '#3a4656' });
+  _cmLabel('Fort Orrivar',  m.px(2.28) + 7, m.py(3.12) + 2, { size: 6, align: 'left' });
+  _cmLabel('Fort Drenn',    m.px(2.5) + 7,  m.py(3.48) + 2, { size: 6, align: 'left' });
+  _cmLabel('Fort Ariel',    m.px(2.72) + 7, m.py(3.74) + 2, { size: 6, align: 'left' });
+
+  // ── Right column: compass, scale bar, legend, seal ────────────────────────
+  const RX = MX + MW + 12, RW = (PX + PW - 12) - RX;
+
+  // Compass (warm north / cold south)
+  const ccx = RX + RW / 2, ccy = MY + 30;
+  ctx.strokeStyle = '#2a1008'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ccx, ccy - 16); ctx.lineTo(ccx, ccy + 16); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ccx - 12, ccy); ctx.lineTo(ccx + 12, ccy); ctx.stroke();
+  ctx.fillStyle = '#a02020';
+  ctx.beginPath(); ctx.moveTo(ccx, ccy - 22); ctx.lineTo(ccx - 4, ccy - 13); ctx.lineTo(ccx + 4, ccy - 13); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#2a1008'; ctx.font = '7px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.fillText('N', ccx, ccy - 24); ctx.fillText('S', ccx, ccy + 24);
+  ctx.fillText('warm', ccx, ccy - 32); ctx.fillText('cold', ccx, ccy + 33);
+  ctx.fillText('W', ccx - 18, ccy + 3); ctx.fillText('E', ccx + 18, ccy + 3);
+
+  // Scale bar (~800 km per grid column)
+  const kmPerPx = 800 / (MW / 4);
+  const barPx = Math.round(500 / kmPerPx);
+  const sbx = RX + (RW - barPx) / 2, sby = MY + 74;
+  ctx.strokeStyle = '#2a1008'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(sbx, sby); ctx.lineTo(sbx + barPx, sby); ctx.stroke();
+  for (const t of [0, 0.5, 1]) { ctx.beginPath(); ctx.moveTo(sbx + barPx * t, sby - 3); ctx.lineTo(sbx + barPx * t, sby + 3); ctx.stroke(); }
+  ctx.lineWidth = 1; ctx.fillStyle = '#2a1008'; ctx.font = '7px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.fillText('0', sbx, sby + 12); ctx.fillText('500 km', sbx + barPx, sby + 12);
+  ctx.textAlign = 'left';
+
+  // Legend
+  let ly = MY + 104; const lx = RX + 4;
+  ctx.font = 'bold 8px "Courier New", monospace'; ctx.fillStyle = '#2a1008';
+  ctx.fillText('LEGEND', lx, ly); ly += 13;
+  ctx.font = '7px "Courier New", monospace';
+  function legend(drawGlyph, text) {
+    drawGlyph(lx + 5, ly - 2);
+    ctx.fillStyle = '#2a1008'; ctx.textAlign = 'left'; ctx.fillText(text, lx + 14, ly);
+    ly += 13;
+  }
+  legend(function (x, y) { _cmCapital(x, y); }, 'Capital');
+  legend(function (x, y) { _cmCity(x, y); }, 'City');
+  legend(function (x, y) { _cmTown(x, y); }, 'Town / village');
+  legend(function (x, y) { _cmAcademyGlyph(x, y + 2); }, 'The Academy');
+  legend(function (x, y) { _cmFort(x, y + 1); }, 'Imperial fort');
+  legend(function (x, y) { ctx.strokeStyle = '#b22a2a'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.stroke(); ctx.lineWidth = 1; }, 'Aetherrail');
+  legend(function (x, y) { ctx.strokeStyle = '#9a7038'; ctx.lineWidth = 1.4; ctx.setLineDash([1.5, 2.5]); ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1; }, 'Road');
+  legend(function (x, y) { ctx.strokeStyle = 'rgba(224,142,58,0.95)'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x - 5, y - 2); ctx.lineTo(x + 5, y - 2); ctx.stroke(); ctx.fillStyle = 'rgba(224,142,58,0.95)'; ctx.beginPath(); ctx.moveTo(x + 5, y + 2); ctx.lineTo(x + 1, y - 3); ctx.lineTo(x + 6, y - 3); ctx.closePath(); ctx.fill(); ctx.lineWidth = 1; }, 'Silver Vein');
+  legend(function (x, y) { ctx.fillStyle = 'rgba(120,80,150,0.7)'; ctx.fillRect(x - 5, y - 4, 11, 5); ctx.fillStyle = 'rgba(232,204,120,0.7)'; ctx.fillRect(x - 5, y - 4, 11, 1); }, 'Resonance storm');
+
+  // Imperial seal (subtle): double ring + eight-point motif (the eight threads)
+  const sx = RX + RW / 2, sy = MY + MH - 34;
+  ctx.strokeStyle = '#6a2a1a'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(sx, sy, 16, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(sx, sy, 13, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = 'rgba(106,42,26,0.8)';
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + Math.cos(a) * 11, sy + Math.sin(a) * 11); ctx.stroke();
+  }
+  ctx.fillStyle = '#6a2a1a'; ctx.beginPath(); ctx.arc(sx, sy, 2.4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#5a3010'; ctx.font = '6px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.fillText('IMPERIAL SURVEY OFFICE', sx, sy + 26);
+  ctx.textAlign = 'left';
+
+  // ── Close hint ────────────────────────────────────────────────────────────
+  ctx.fillStyle = '#5a3810'; ctx.font = '9px "Courier New", monospace'; ctx.textAlign = 'right';
+  ctx.fillText('[ SPACE / ESC ] close', PX + PW - 12, PY + PH - 7);
   ctx.textAlign = 'left';
 }
 
@@ -381,6 +648,57 @@ function drawChoice() {
 }
 
 
+// ─── Dialogue text layout (pure, testable) ───────────────────────────────────
+// FORMATTING CONTRACT: within a dialogue page, each string is a hard authored
+// line. Continuous prose that should wrap naturally must be stored as ONE
+// string; use multiple strings only for intentional line breaks (verse, signs,
+// lists, deliberate dramatic fragments, separate speakers/quotes). See
+// architecture.md.
+//
+// `measure(str)` returns the rendered pixel width of a string. drawDialogue()
+// passes ctx.measureText; tests pass a Courier-New monospace model. Behaviour
+// is identical to the previous inline logic — these are extractions, not a
+// redesign.
+
+// Greedy word-wrap of a single authored string to fit within maxW pixels.
+function wrapDialogueLine(text, maxW, measure) {
+  if (measure(text) <= maxW) return [text];
+  const words = text.split(' ');
+  const out = [];
+  let cur = '';
+  for (const word of words) {
+    const candidate = cur ? cur + ' ' + word : word;
+    if (measure(candidate) <= maxW) {
+      cur = candidate;
+    } else {
+      if (cur) out.push(cur);
+      cur = word;
+    }
+  }
+  if (cur) out.push(cur);
+  return out.length ? out : [text];
+}
+
+// Preprocess authored pages (array of pages; each page an array of authored
+// line-strings) into height-safe visual pages of at most maxVisLines wrapped
+// sub-lines each. Each authored string wraps independently — its boundary with
+// the next authored string is a hard line break.
+function paginateDialoguePages(pages, maxW, maxVisLines, measure) {
+  const visualPages = [];
+  for (const page of pages) {
+    const sublines = [];
+    for (const line of page) {
+      for (const sub of wrapDialogueLine(line, maxW, measure)) sublines.push(sub);
+    }
+    for (let i = 0; i < sublines.length; i += maxVisLines) {
+      visualPages.push(sublines.slice(i, i + maxVisLines));
+    }
+  }
+  return visualPages;
+}
+window.wrapDialogueLine = wrapDialogueLine;
+window.paginateDialoguePages = paginateDialoguePages;
+
 // ─── Dialogue Box Drawing ─────────────────────────────────────────────────────
 function drawDialogue() {
   if (!dialogue.open) return;
@@ -425,42 +743,16 @@ function drawDialogue() {
   ctx.font = '14px "Courier New", monospace';
   const maxLineW = BW - PAD * 2;
 
-  // Word-wrap a single string to fit within maxW pixels, returning sub-lines.
-  function wrapLine(text, maxW) {
-    if (ctx.measureText(text).width <= maxW) return [text];
-    const words = text.split(' ');
-    const out = [];
-    let cur = '';
-    for (const word of words) {
-      const candidate = cur ? cur + ' ' + word : word;
-      if (ctx.measureText(candidate).width <= maxW) {
-        cur = candidate;
-      } else {
-        if (cur) out.push(cur);
-        cur = word;
-      }
-    }
-    if (cur) out.push(cur);
-    return out.length ? out : [text];
-  }
-
-  // Lazily preprocess authored pages into height-safe visual pages.
-  // Replaces dialogue.pages in-place; identity check avoids reprocessing each frame.
+  // Lazily preprocess authored pages into height-safe visual pages via the
+  // shared pure helpers (wrapDialogueLine / paginateDialoguePages), so the exact
+  // layout is unit-testable. Replaces dialogue.pages in-place; the identity
+  // check avoids reprocessing each frame.
   if (dialogue._preprocessedFor !== dialogue.pages) {
     const LINE_H = 22;
     const maxVisLines = Math.max(1, Math.floor((BH - 40) / LINE_H));
-    const visualPages = [];
-    for (const page of dialogue.pages) {
-      const sublines = [];
-      for (const line of page) {
-        for (const sub of wrapLine(line, maxLineW)) sublines.push(sub);
-      }
-      for (let i = 0; i < sublines.length; i += maxVisLines) {
-        visualPages.push(sublines.slice(i, i + maxVisLines));
-      }
-    }
-    dialogue.pages = visualPages;
-    dialogue._preprocessedFor = visualPages;
+    const measure = (s) => ctx.measureText(s).width;
+    dialogue.pages = paginateDialoguePages(dialogue.pages, maxLineW, maxVisLines, measure);
+    dialogue._preprocessedFor = dialogue.pages;
   }
 
   // Guard against a dialogue opened with zero pages (or a cursor past the
