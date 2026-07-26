@@ -64,6 +64,7 @@ function locationName() {
   if (inTown && townBuilding === 'office'           && currentTownId === 'drenwick') return 'Drenwick \u2014 IJC District Office';
   if (inTown && townBuilding === 'harbormaster'     && currentTownId === 'drenwick') return 'Drenwick \u2014 Harbormaster\u2019s Office';
   if (inTown && townBuilding === 'wash_house'       && currentTownId === 'drenwick') return 'Drenwick \u2014 Wash House';
+  if (inTown && townBuilding === 'infirmary'        && currentTownId === 'drenwick') return 'Drenwick \u2014 Infirmary';
   if (inTown && townBuilding === 'provision_store'  && currentTownId === 'drenwick') return 'Drenwick \u2014 Provision Store';
   if (inTown && townBuilding === 'guild_hall'        && currentTownId === 'drenwick') return 'Drenwick \u2014 Guild Hall';
   if (activeMap === DRENWICK_TAVERN_MAP)  return 'Drenwick \u2014 Dockworkers\u2019 Tavern';
@@ -134,6 +135,7 @@ function currentMapId() {
   if (inTown && townBuilding === 'office'          && currentTownId === 'drenwick') return 'drenwick_office';
   if (inTown && townBuilding === 'harbormaster'    && currentTownId === 'drenwick') return 'drenwick_harbormaster';
   if (inTown && townBuilding === 'wash_house'      && currentTownId === 'drenwick') return 'drenwick_wash_house';
+  if (inTown && townBuilding === 'infirmary'       && currentTownId === 'drenwick') return 'drenwick_infirmary';
   if (inTown && townBuilding === 'provision_store' && currentTownId === 'drenwick') return 'drenwick_provision_store';
   if (inTown && townBuilding === 'guild_hall'      && currentTownId === 'drenwick') return 'drenwick_guild_hall';
   if (activeMap === DRENWICK_TAVERN_MAP)        return 'drenwick_tavern';
@@ -310,6 +312,11 @@ function canWalk(cx, cy) {
 function isEncounterEligibleTile(tile) {
   if (activeMap === MEADOW_MAP) return false; // hidden meadow — deliberately encounter-free (the Warden is its only danger)
   if (inBasinChamber) return false; // the unmarked chamber — deliberately encounter-free (redundant with CHAMBER_FLOOR's encounterEligible: false, kept as a visible guarantee per the entrance-area rule)
+  // The Upper Reach's drought-exposed bed now rolls encounters, but only its
+  // BASIN_MUD, and only HERE — the same tile stays safe on the other basin maps
+  // (Centre, Silt Flats, West Shore). Its pool is UPPER_REACH_ENEMY_TEMPLATES
+  // (MAP_METADATA.encounterPool). The stonework apron / residual pools stay quiet.
+  if (activeMap === NORTH_BASIN_NW_MAP) return tile === BASIN_MUD;
   // (inSunkenGallery deliberately has NO branch here: it falls through to the
   // TILE_PROPERTIES check below, where GALLERY_FLOOR is encounter-eligible —
   // the pool comes from MAP_METADATA.encounterPool, see combat.js.)
@@ -494,8 +501,10 @@ function update() {
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP5   && curTile === MAP5_ENTRANCE)    { exitMap5();    return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP3   && curTile === FEN_N_EXIT)       { enterMap3N1(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N1 && curTile === FEN_N_ENTRANCE)  { exitMap3N1();  return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N1 && curTile === FEN_N2_EXIT)     { enterMap3N2(); return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N2 && curTile === FEN_N2_ENTRANCE) { exitMap3N2();  return; }
+    // MAP3_N1 <-> MAP3_N2 (Drenwick) is now an open EDGE_TRANSITIONS crossing
+    // (fen row 3-13, road at col 8), not a single FEN_N2_EXIT/ENTRANCE tile —
+    // handled by tryEdgeTransition() above. (enterMap3N2()/exitMap3N2() in
+    // world-transitions.js are now unused, like the retired point-tiles.)
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N2 && curTile === NORTH_BASIN_EXIT) { enterNorthBasinS(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === NORTH_BASIN_S_MAP && curTile === NORTH_BASIN_ENTRANCE) { exitNorthBasinS(); return; }
     // South approach <-> Reservoir (north/south) and south approach <->

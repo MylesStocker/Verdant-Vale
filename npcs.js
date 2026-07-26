@@ -1996,6 +1996,84 @@ const SIMPLE_NPCS = [
     action:        null,
   },
 
+  // ── Drenwick Infirmary staff & occupants (map 'drenwick_infirmary') ────────
+  // Only ever met via the chamber dream sequence, when the player wakes here.
+  // Senior commonborn infirmarer — competent, overworked, relieved you're up.
+  {
+    id:         'infirmarer',
+    name:       'Merrin',
+    map:        'drenwick_infirmary',
+    x:           3.5 * TILE,
+    y:           9.5 * TILE,
+    solid:      true,
+    facing:     'up',
+    spriteType: 'clerk',
+    dialogue: [
+      ['\u201cAwake, and on your feet. Good. You had us guessing for a day and a night.\u201d',
+       '\u201cDrink when you\u2019re thirsty, eat when you can keep it down, and don\u2019t go far yet.\u201d'],
+      ['\u201cI set a reed-cutter\u2019s arm this morning and stitched a barge-hand before noon. You\u2019re the third thing the fen sent me this week that couldn\u2019t explain itself.\u201d',
+       '\u201cI don\u2019t ask what people were doing out there. I put them back together and let them work it out after.\u201d'],
+      ['\u201cNo miracles here. Clean water, boiled linen, splints, and patience. It\u2019s enough, most days.\u201d'],
+    ],
+    flag_required: null, flag_sets: null, action: null,
+  },
+  // Orderly / apprentice — near the stove and the clean-water supply.
+  {
+    id:         'infirmary_orderly',
+    name:       'Fisk',
+    map:        'drenwick_infirmary',
+    x:          12.5 * TILE,
+    y:           9.5 * TILE,
+    solid:      true,
+    facing:     'up',
+    spriteType: 'worker',
+    dialogue: [
+      ['\u201cKeep the pot on the boil \u2014 that\u2019s half my day. Boiled linen, or you may as well not bandage at all.\u201d'],
+      ['\u201cWe get the cold-water ones off the canal all winter. You don\u2019t rub them warm, you warm them slow, by the stove. Rub them and the heart can stop. Nobody believes that till they\u2019ve seen it.\u201d'],
+      ['\u201cAnd never let canal water near an open wound. I don\u2019t care how clean it looks \u2014 I\u2019ve watched a nick on a thumb turn a whole hand black.\u201d'],
+      ['\u201cWhat we haven\u2019t got is a rareborn healer. Old Master Yeddin retired north five years back, and no one\u2019s been sent since.\u201d',
+       '\u201cHalcyra keeps two to a ward. Drenwick\u2019s a district seat and it makes do with me and a copper pot. We\u2019re owed one. We\u2019re owed a lot of things.\u201d'],
+    ],
+    flag_required: null, flag_sets: null, action: null,
+  },
+  // A patient — occupies the ward; a short, understated line, no quest.
+  {
+    id:         'infirmary_patient',
+    name:       'Odger',
+    map:        'drenwick_infirmary',
+    x:           7.5 * TILE,
+    y:           4.5 * TILE,
+    solid:      true,
+    facing:     'left',
+    spriteType: 'patron',
+    dialogue: [
+      ['He is propped up in the near bed, one leg splinted straight out.',
+       '\u201cSlipped on the lock stair. Three weeks, they tell me.\u201d'],
+      ['\u201cCould be worse. The bed\u2019s warm, and every one of them faces the stove.\u201d'],
+    ],
+    flag_required: null, flag_sets: null, action: null,
+  },
+  // Esla — the colleague who found the player in the marshes and brought them
+  // back. Physically present at the bedside; the scripted wake dialogue plays
+  // on arrival, this is her follow-up if spoken to again.
+  {
+    id:         'infirmary_esla',
+    name:       'Esla',
+    map:        'drenwick_infirmary',
+    x:           8.5 * TILE,
+    y:           7.5 * TILE,
+    solid:      true,
+    facing:     'left',
+    spriteType: 'clerk',
+    dialogue: [
+      ['\u201cDon\u2019t thank me. Just don\u2019t make me do it twice.\u201d'],
+      ['\u201cWhen they say you\u2019re fit to travel, I\u2019ll see you as far as the coach road. Not before.\u201d'],
+      ['\u201cI still don\u2019t know what took you out into that fen. You can keep it to yourself.\u201d',
+       '\u201cBut I saw the state you came back in. I won\u2019t forget that soon.\u201d'],
+    ],
+    flag_required: null, flag_sets: null, action: null,
+  },
+
   // Provision store — Oda, store clerk (col 7 row 5)
   // Imperial civic provisions: dry goods, salted catch, preserved roots.
   // Absent on dayoff: store formally closed, allocation records updated overnight.

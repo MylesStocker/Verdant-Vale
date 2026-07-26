@@ -2,8 +2,9 @@
 // Covers: the North Basin centre reservoir (NORTH_BASIN_C_MAP), the second
 // map of the future 3×3 North Basin grid, directly north of
 // NORTH_BASIN_S_MAP. Same skeleton constraints as the south approach: no
-// NPCs/quests/shops, two inspectable signs only, no GRASS (encounter-free by
-// construction). Mirrors 17-north-basin-entry.test.js's structure:
+// NPCs/quests/shops, two inspectable signs only, and no GRASS — though its
+// REEDS are encounter-eligible, so it does roll encounters (from the basin
+// pool). Mirrors 17-north-basin-entry.test.js's structure:
 //
 //   1. Walking north off NORTH_BASIN_S_MAP's row 0 (within the
 //      EDGE_TRANSITIONS open range) really enters NORTH_BASIN_C_MAP, via
@@ -20,8 +21,8 @@
 //   4. None of NORTH_BASIN_C_MAP's other three edges (north, east, west --
 //      the future N/E/W neighbours) have a working exit yet, and the south
 //      edge's open range matches exactly what EDGE_TRANSITIONS expects.
-//   5. No GRASS tiles (kept encounter-free by construction, same as the
-//      south approach).
+//   5. No GRASS, but it uses the basin enemy pool (REEDS roll encounters),
+//      same as the south approach.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -117,9 +118,14 @@ module.exports = {
       }
     }
 
-    // ── 5. Zero encounter-eligible terrain ──────────────────────────────────
-    const GRASS = g.run('GRASS');
-    assert.ok(!map.some(row => row.includes(GRASS)), 'NORTH_BASIN_C_MAP should contain no GRASS tiles (kept encounter-free by construction)');
+    // ── 5. Encounters: no GRASS, but REEDS are encounter-eligible, so it rolls
+    //       encounters from the basin pool (not the generic fallback). ─────────
+    assert.equal(
+      g.run("MAP_METADATA['NORTH_BASIN_C_MAP'].encounterPool === NORTH_BASIN_ENEMY_TEMPLATES"), true,
+      'Centre Reservoir should use the basin enemy pool (not the generic starting-area fallback)'
+    );
+    assert.equal(g.run("MAP_METADATA['NORTH_BASIN_C_MAP'].allowRandomEncounters"), true,
+      'Centre Reservoir now has random encounters');
 
     g.renderFrame();
   },

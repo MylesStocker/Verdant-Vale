@@ -546,7 +546,7 @@ function validateNPCs() {
     'smuggler_fort', 'takomo_chamber', 'mire_vault', 'hamlet_interior',
     'fen_brewery',
     'drenwick_inn', 'drenwick_office', 'drenwick_harbormaster',
-    'drenwick_wash_house', 'drenwick_provision_store', 'drenwick_guild_hall',
+    'drenwick_wash_house', 'drenwick_provision_store', 'drenwick_guild_hall', 'drenwick_infirmary',
     'drenwick_tavern', 'drenwick_school_ground', 'drenwick_school_upper',
     'drenwick_school_basement',
     'drenwick_west_residential', 'drenwick_canal_docks',
@@ -891,6 +891,7 @@ function validateEnemies() {
     ['SLUICE_SECRET_ENEMY_TEMPLATES', typeof SLUICE_SECRET_ENEMY_TEMPLATES !== 'undefined' ? SLUICE_SECRET_ENEMY_TEMPLATES : undefined],
     ['NORTH_BASIN_ENEMY_TEMPLATES',   typeof NORTH_BASIN_ENEMY_TEMPLATES   !== 'undefined' ? NORTH_BASIN_ENEMY_TEMPLATES   : undefined],
     ['SUNKEN_GALLERY_ENEMY_TEMPLATES', typeof SUNKEN_GALLERY_ENEMY_TEMPLATES !== 'undefined' ? SUNKEN_GALLERY_ENEMY_TEMPLATES : undefined],
+    ['UPPER_REACH_ENEMY_TEMPLATES',   typeof UPPER_REACH_ENEMY_TEMPLATES   !== 'undefined' ? UPPER_REACH_ENEMY_TEMPLATES   : undefined],
     ['MIRE_VAULT_ENEMY_TEMPLATES',    typeof MIRE_VAULT_ENEMY_TEMPLATES    !== 'undefined' ? MIRE_VAULT_ENEMY_TEMPLATES    : undefined],
   ];
   let anyPoolFound = false;

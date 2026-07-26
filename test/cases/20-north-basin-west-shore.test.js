@@ -155,6 +155,7 @@ module.exports = {
     assert.ok(map.some(row => row.includes(GRASS)), 'NORTH_BASIN_W_MAP should have some GRASS -- it shares the Silt Flats’ encounter mechanism');
     const validNames = new Set(g.run('NORTH_BASIN_ENEMY_TEMPLATES').map(t => t.name));
     validNames.add('23'); // pre-existing, unrelated 1-in-256 universal secret encounter -- see test 19
+    validNames.add('Swamp Donkey'); // ~1/16 hard-hitting override on every North Basin outdoor square
     g.run(`
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_W_MAP;
       combat.cooldown = 0;

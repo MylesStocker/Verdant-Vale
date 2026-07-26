@@ -49,7 +49,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 module.exports = {
-  name: 'Upper Reach: open edge, liminal silence, the unmarked chamber, the Sunken Gallery (save refusal + round trip)',
+  name: 'Upper Reach: open edge, exposed-bed encounters (map-local), the unmarked chamber, the Sunken Gallery (save refusal + round trip)',
   run() {
     const g = createContext();
     g.press('Enter');
@@ -95,13 +95,23 @@ module.exports = {
     assert.equal(g.run('window.upper_reach_seen'), true, 'onceFlag should be set');
     g.run('dialogue.open = false;');
 
-    // ── 2. Silence, checked structurally: no eligible tile anywhere ─────────
-    const eligibleCount = g.run(`(() => {
-      let n = 0;
-      for (const row of NORTH_BASIN_NW_MAP) for (const t of row) if (isEncounterEligibleTile(t)) n++;
-      return n;
-    })()`);
-    assert.equal(eligibleCount, 0, 'no tile on the Upper Reach may be encounter-eligible -- the silence is structural');
+    // ── 2. The exposed bed now rolls its own encounters — but only BASIN_MUD,
+    //       and only on THIS map (other basin maps keep their mud safe). ────────
+    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), true,
+      'the Upper Reach BASIN_MUD is now encounter-eligible (the drought-exposed arm has its own dangers)');
+    assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), false,
+      'only BASIN_MUD rolls on the Upper Reach; the stonework apron stays quiet');
+    // The override is map-local: the same tile stays safe elsewhere in the basin.
+    g.run('activeMap = NORTH_BASIN_SW_MAP;');
+    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), false,
+      'BASIN_MUD must stay safe on the Silt Flats — the Upper Reach override is map-local');
+    g.run('activeMap = NORTH_BASIN_NW_MAP;');
+    // Its pool: two creatures shared with the Silt Flats + two new tough ones.
+    assert.equal(
+      g.run('JSON.stringify(currentEncounterPool().map(t => t.name).sort())'),
+      JSON.stringify(['Basin Gull', 'Dust-Drowned', 'Marrow Hulk', 'Silt Crab']),
+      'Upper Reach pool = 2 shared basin creatures (Silt Crab, Basin Gull) + 2 new tough ones (Dust-Drowned, Marrow Hulk)'
+    );
 
     // Leaving and re-entering the trigger zone must NOT re-fire (onceFlag).
     g.run('player.x = 3.5*TILE; player.y = 10.5*TILE;'); // outside the zone (rows 12-13)

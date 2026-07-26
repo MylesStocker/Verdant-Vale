@@ -188,7 +188,15 @@ function startCombat() {
   // comes from MAP_METADATA.encounterPool instead -- a new outdoor map with
   // encounters needs zero changes here, just a metadata entry.
   const pool = currentEncounterPool();
-  const t = pool[Math.floor(Math.random() * pool.length)];
+  let t = pool[Math.floor(Math.random() * pool.length)];
+  // North Basin outdoor squares: ~1 fight in 16 is a Swamp Donkey instead of a
+  // normal pool draw — uncommon, and a real spike (mostly its attack). Keyed
+  // on MAP_METADATA region/type so it covers all five squares (South Approach,
+  // Reservoir, Silt Flats, West Shore, Upper Reach) and nothing else.
+  const _nbMeta = (typeof MAP_METADATA !== 'undefined') ? MAP_METADATA[mapRegistryId(activeMap)] : null;
+  if (_nbMeta && _nbMeta.region === 'North Basin' && _nbMeta.type === 'outdoor' && Math.random() < 1 / 16) {
+    t = SWAMP_DONKEY_TEMPLATE;
+  }
   combat.enemy          = { ...t };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -196,6 +204,8 @@ function startCombat() {
   combat.messageQueue   = [];
   combat.message        = combat.enemy.name === 'Tallyman'
     ? 'Something unfolds from the corner of the room.'
+    : combat.enemy.name === 'Swamp Donkey'
+    ? 'The reeds crash apart — a Swamp Donkey barrels out, all muscle and bad temper.'
     : `A ${combat.enemy.name} appeared!`;
   combat.pendingVictory = false;
   combat.pendingDefeat  = false;

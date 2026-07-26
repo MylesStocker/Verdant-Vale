@@ -173,7 +173,11 @@ const MAP5_ITEMS = [];
 
 // ─── Northern Fen — MAP3_N1  (16 × 15) ───────────────────────────────────────
 // Connected south to MAP3 via FEN_N_EXIT at MAP3 row 0 col 8 / FEN_N_ENTRANCE at row 14 col 8.
-// Connected north to MAP3_N2 (Drenwick) via FEN_N2_EXIT at row 0 col 8 / FEN_N2_ENTRANCE at row 14.
+// Connected north to MAP3_N2 (Drenwick) via an open EDGE_TRANSITIONS crossing:
+// row 0, cols 3-13 (open fen, with the road at col 8 running through the
+// middle) — see EDGE_TRANSITIONS['MAP3_N1'].north. Replaced the old single
+// FEN_N2_EXIT road tile, so the fen now continues across the boundary instead
+// of being walled by trees with one gap.
 // Connected west to RODDON_WAY_MAP via an open EDGE_TRANSITIONS crossing,
 // rows 4-9 of col 0 — see EDGE_TRANSITIONS['MAP3_N1']. That range sits
 // between the Mire Entrance (col 1, row 3) and the hamlet's farmhouses
@@ -185,7 +189,7 @@ const MAP5_ITEMS = [];
 // Continuation of fen theme: boggy grassland, scattered water, reeds, sparse trees.
 const MAP3_N1 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3, 49,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = FEN_N2_EXIT
+  [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  //  0  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS north to MAP3_N2 (Drenwick)
   [  3,  0,  0, 23,  0,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  3],  //  1
   [  3,  0,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  2  NW trees
   [  3, 55,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  3  col 1 = MIRE_ENTRANCE
@@ -327,7 +331,9 @@ const SMUGGLER_FORT_MAP = [
 ];
 
 // ─── Drenwick — MAP3_N2  (16 × 15) ───────────────────────────────────────────
-// Connected south to MAP3_N1 via FEN_N2_ENTRANCE at row 14 col 8.
+// Connected south to MAP3_N1 via an open EDGE_TRANSITIONS crossing: row 14,
+// cols 3-13 (open fen, road at col 8 through the middle) — see
+// EDGE_TRANSITIONS['MAP3_N2'].south. Replaced the old single FEN_N2_ENTRANCE tile.
 // Drenwick south gate: single TOWN_ENTRANCE tile at row 6 col 8.
 // Canal runs east-west at row 5 (north of the gate).
 // Imperial toll bridge (BRIDGE_GATE) at row 5 col 12; northeast of Drenwick gate.
@@ -356,7 +362,7 @@ const MAP3_N2 = [
   [  3,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  3],  // 11  reeds + bog E
   [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 53, 23,  0,  0,  3],  // 12  GUARD_POST c11; reeds c12
   [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  open approach
-  [  3,  3,  3,  3,  3,  3,  3,  3, 50,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 8 = FEN_N2_ENTRANCE
+  [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  // 14  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS south to MAP3_N1 (Northern Fen)
 ];
 
 // ─── The North Basin — South Approach  (16 × 15) ─────────────────────────────
@@ -387,9 +393,11 @@ const MAP3_N2 = [
 // east border remains plain impassable TREE, so it's still not traversable
 // into the not-yet-built SE/E neighbours.
 //
-// No GRASS tiles anywhere on this map (deliberately) — movement.js's random-
-// encounter check only rolls on GRASS, so this map has zero encounter-
-// eligible terrain and needs no entry in combat.js's farMap/pool selection.
+// No GRASS on this map, but its REEDS are encounter-eligible all the same
+// (same as GRASS — see tiles.js's TILE_PROPERTIES), so it DOES roll random
+// encounters. Its pool is NORTH_BASIN_ENEMY_TEMPLATES (MAP_METADATA) — the
+// same gentle basin creatures as the Silt Flats; the maintained road (PATH)
+// and the water stay safe, so you meet things in the reeds.
 const NORTH_BASIN_S_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3],  //  0  open edge, cols 1-14 → EDGE_TRANSITIONS north to NORTH_BASIN_C_MAP
@@ -549,8 +557,10 @@ const NORTH_BASIN_W_ITEMS = [];
 // neighbours aren't built yet — see NORTH_BASIN_S_MAP's header for the full
 // 3×3 layout). South is the one real, working edge.
 //
-// No GRASS tiles anywhere on this map either (same reasoning as
-// NORTH_BASIN_S_MAP) — zero encounter-eligible terrain, no combat.js changes.
+// No GRASS on this map either, but (like the South Approach) its REEDS are
+// encounter-eligible, so it rolls random encounters from the basin pool
+// (NORTH_BASIN_ENEMY_TEMPLATES, MAP_METADATA). Open water and the exposed mud
+// bed stay safe; encounters lurk in the reed fringe.
 const NORTH_BASIN_C_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
@@ -578,10 +588,13 @@ const NORTH_BASIN_C_ITEMS = [];
 // receding shoreline like the Reservoir map, but a finished fact: the whole
 // square is exposed bed (BASIN_MUD) from border to border, with only two
 // residual pools the drought hasn't taken yet. Deliberately liminal and
-// wrong: no NPCs, no towns, no encounters (no GRASS and no other
-// encounter-eligible terrain — the silence is the point), and no saving
-// (MAP_METADATA allowSave: false, enforced by the save-confirm guard in
-// input.js — the first map to actually use it). The wrongness is authored
+// wrong: no NPCs, no towns. It was long silent, but the oldest-exposed ground
+// now carries its own random encounters — its BASIN_MUD rolls (this map only;
+// see isEncounterEligibleTile in movement.js) against UPPER_REACH_ENEMY_TEMPLATES:
+// two stranded basin creatures shared with the Silt Flats, and two new tough
+// ones (Dust-Drowned, Marrow Hulk) that reflect how long and how wrong this
+// arm has been dry. Ordinary outdoor saving still applies (allowSave: true;
+// only the two interiors it leads to block saving). The wrongness is authored
 // in MAP_FEATURES: a fence line crossing what was open water, a doorframe
 // standing attached to nothing, a stair the water was hiding.
 //
@@ -595,28 +608,30 @@ const NORTH_BASIN_C_ITEMS = [];
 // South edge: open cols 1-10 (REEDS, walkable) → EDGE_TRANSITIONS south to
 // NORTH_BASIN_W_MAP (whose row-0 border opens the same cols — the "one-line
 // change later" its header comment reserved). Ranges match exactly, so
-// crossings never clamp. North/east/west stay TREE (unbuilt neighbours).
+// crossings never clamp. The north edge (row 0) and the whole east edge
+// (col 15) are open reservoir WATER — the flooded arm the water pulled back
+// into, continuing off-map; impassable exactly like a border. West stays TREE.
 //
 // The straight FENCE_POST line at r6 c2-c9 blocks — pass around it at c1 or
 // c10+. Both entrances and the south edge stay mutually reachable either
 // way (checked by the transition audit's escapability sweep).
 const NORTH_BASIN_NW_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north border (unbuilt N neighbour)
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  1  open bed
-  [  3, 81, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81, 88, 81, 81,  3],  //  2  north pool begins (c7-8)
-  [  3, 81, 81, 81, 81, 81,  1,  1,  1,  1, 81, 88,103, 88, 81,  3],  //  3  pool c6-9; THE DOORFRAME at c12, stone flanks c11/c13
-  [  3, 81, 81, 81, 81, 81, 81,  1,  1, 81, 81, 81, 81, 81, 81,  3],  //  4  pool tapers
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  5
-  [  3, 81, 89, 89, 89, 89, 89, 89, 89, 89, 81, 81, 81, 81, 81,  3],  //  6  the fence line (c2-c9) — dead straight, in what was open water
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 88, 81, 81,  3],  //  7
-  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  8  stonework apron begins (c3-5)
-  [  3, 81, 81, 88,107, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  //  9  THE STAIRHEAD at c4
-  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81,  3],  // 10  apron ends; south residual pool c10-11
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 11
-  [  3, 81, 81, 81, 81, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 12
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 13  north-crossing landing row (cols 1-10 all walkable)
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3,  3,  3,  3,  3],  // 14  open edge cols 1-10 (BASIN_MUD, walkable) → EDGE_TRANSITIONS south to NORTH_BASIN_W_MAP
+  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge: open reservoir WATER (the flooded arm continues off-map; impassable)
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  1  open bed
+  [  3, 81, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81, 88, 81, 81,  1],  //  2  north pool begins (c7-8)
+  [  3, 81, 81, 81, 81, 81,  1,  1,  1,  1, 81, 88,103, 88, 81,  1],  //  3  pool c6-9; THE DOORFRAME at c12, stone flanks c11/c13
+  [  3, 81, 81, 81, 81, 81, 81,  1,  1, 81, 81, 81, 81, 81, 81,  1],  //  4  pool tapers
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  5
+  [  3, 81, 89, 89, 89, 89, 89, 89, 89, 89, 81, 81, 81, 81, 81,  1],  //  6  the fence line (c2-c9) — dead straight, in what was open water
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 88, 81, 81,  1],  //  7
+  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  8  stonework apron begins (c3-5)
+  [  3, 81, 81, 88,107, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  9  THE STAIRHEAD at c4
+  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81,  1],  // 10  apron ends; south residual pool c10-11
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 11
+  [  3, 81, 81, 81, 81, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 12
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 13  north-crossing landing row (cols 1-10 all walkable)
+  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3,  3,  3,  3,  1],  // 14  open edge cols 1-10 (BASIN_MUD, walkable) → EDGE_TRANSITIONS south to NORTH_BASIN_W_MAP
 ];
 
 const NORTH_BASIN_NW_ITEMS = [];
@@ -1008,6 +1023,41 @@ const DRENWICK_WASH_HOUSE_MAP = [
   [ 19, 19, 19, 19, 19, 19, 19, 20, 19, 19, 19, 19, 19, 19, 19, 19],  // 12  INTERIOR_EXIT col 7
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 13
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14
+];
+
+// ─── Drenwick Infirmary Interior  (16 × 15) ──────────────────────────────────
+// A small, orderly civic medical facility on the waterfront — serves Drenwick,
+// the nearby hamlets, fen workers, fishermen and travellers. Cuts, broken
+// bones, fever, exposure, near-drowning, work accidents, difficult births;
+// practical empirical medicine (boiled linen, splints, herbs, ventilation),
+// no magical healing. Only ever visited via the chamber dream sequence
+// (wakeAtDrenwickInfirmary, world-transitions.js): the player wakes here, and
+// once they leave through the vestibule door (INTERIOR_EXIT col 7) they can't
+// re-enter — the waterfront door gives the pay-per-HP healing dialogue instead.
+// Zones (drawn by drawInfirmaryFurniture): treatment room (upper-left),
+// private room behind a door (upper-right), main ward (centre-left, beds all
+// angled toward the stove), intake desk + waiting benches (lower-left),
+// service/dispensary with stove, cupboards and counter (right), and the
+// bottom-centre mud vestibule (mat, boot scraper, cloak pegs, wash basin).
+// Base tiles are only floor(18)/wall(19)/TABLE(33)/exit(20); the institutional
+// fen palette and all detail come from the furniture pass.
+const DRENWICK_INFIRMARY_MAP = [
+  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0  top wall
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  1  top wall (window over treatment; rear service door drawn c11-12)
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  2  top wall
+  [ 19, 19, 33, 33, 33, 18, 18, 18, 18, 18, 19, 18, 33, 33, 19, 19],  //  3  treatment counter c2-4 (instrument cabinet, splints); private room: partition c10, bed c12-13
+  [ 19, 19, 18, 33, 18, 33, 33, 18, 18, 18, 19, 18, 18, 18, 19, 19],  //  4  treatment: exam table c3; ward bed A c5-6; private-room floor c11-13
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 18, 19, 19, 19],  //  5  private room south wall c10-11,c13; proper door c12
+  [ 19, 19, 18, 18, 18, 33, 33, 18, 18, 18, 18, 18, 18, 33, 19, 19],  //  6  ward bed B c5-6; service floor; linen/med cupboard c13
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 33, 33, 18, 33, 19, 19],  //  7  utility stove c10-11 (beds face it); med cupboard c13
+  [ 19, 19, 33, 33, 18, 33, 33, 18, 18, 18, 33, 33, 18, 18, 19, 19],  //  8  intake desk c2-3; ward bed C c5-6; stove c10-11
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 19, 19],  //  9  clean-linen store c13
+  [ 19, 19, 33, 33, 18, 18, 18, 18, 18, 18, 18, 33, 33, 18, 19, 19],  // 10  waiting bench c2-3; dispensary counter c11-12 (Doctor's Letter)
+  [ 19, 19, 33, 33, 18, 18, 18, 18, 33, 18, 18, 18, 18, 18, 19, 19],  // 11  waiting bench c2-3; vestibule hand-wash basin c8
+  [ 19, 19, 19, 19, 19, 19, 19, 20, 19, 19, 19, 19, 19, 19, 19, 19],  // 12  INTERIOR_EXIT c7 (vestibule → waterfront, in front of the door)
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 13  bottom wall
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14  bottom wall
 ];
 
 // ─── Drenwick Provision Store Interior  (16 × 15) ────────────────────────────
@@ -2109,6 +2159,7 @@ window.DRENWICK_INN_MAP                = DRENWICK_INN_MAP;
 window.DRENWICK_OFFICE_MAP             = DRENWICK_OFFICE_MAP;
 window.DRENWICK_HARBORMASTER_MAP       = DRENWICK_HARBORMASTER_MAP;
 window.DRENWICK_WASH_HOUSE_MAP         = DRENWICK_WASH_HOUSE_MAP;
+window.DRENWICK_INFIRMARY_MAP          = DRENWICK_INFIRMARY_MAP;
 window.DRENWICK_PROVISION_STORE_MAP    = DRENWICK_PROVISION_STORE_MAP;
 window.DRENWICK_GUILD_HALL_MAP         = DRENWICK_GUILD_HALL_MAP;
 window.DRENWICK_TAVERN_MAP             = DRENWICK_TAVERN_MAP;
@@ -2189,6 +2240,7 @@ const MAP_REGISTRY = {
   DRENWICK_OFFICE_MAP:            { id: 'drenwick_office',            label: 'Drenwick \u2014 Office',             map: DRENWICK_OFFICE_MAP            },
   DRENWICK_HARBORMASTER_MAP:      { id: 'drenwick_harbormaster',      label: 'Drenwick \u2014 Harbormaster',       map: DRENWICK_HARBORMASTER_MAP      },
   DRENWICK_WASH_HOUSE_MAP:        { id: 'drenwick_wash_house',        label: 'Drenwick \u2014 Wash House',         map: DRENWICK_WASH_HOUSE_MAP        },
+  DRENWICK_INFIRMARY_MAP:         { id: 'drenwick_infirmary',         label: 'Drenwick \u2014 Infirmary',          map: DRENWICK_INFIRMARY_MAP         },
   DRENWICK_PROVISION_STORE_MAP:   { id: 'drenwick_provision_store',   label: 'Drenwick \u2014 Provision Store',    map: DRENWICK_PROVISION_STORE_MAP   },
   DRENWICK_GUILD_HALL_MAP:        { id: 'drenwick_guild_hall',        label: 'Drenwick \u2014 Guild Hall',               map: DRENWICK_GUILD_HALL_MAP        },
   DRENWICK_TAVERN_MAP:            { id: 'drenwick_tavern',            label: 'Drenwick \u2014 Dockworkers\u2019 Tavern',  map: DRENWICK_TAVERN_MAP            },

@@ -322,6 +322,8 @@ const MAP_FEATURES = {
          'Not swept-clean. Never-needed-sweeping clean.'],
         ['The room is lit evenly, from nowhere in particular.',
          'It is exactly as bright behind you as ahead of you.'],
+        ['Then you notice the smell — or rather, that there isn’t one.',
+         'Out on the reach it is all peat-rot and standing water, always. Here there is nothing to smell at all. The air is completely odourless.'],
         ['It is quiet in a way that has weight.'],
       ],
     },
@@ -3928,6 +3930,32 @@ function interactWashHouse() {
   return interactionUiOpened();
 }
 
+function interactDrenwickInfirmary() {
+  // The Doctor's Letter, left on the dispensary counter (row 10, cols 11-12).
+  // Picked up once; after that it's a Special Item and the drawn letter is gone.
+  const lx = 11.5 * TILE, ly = 10.5 * TILE;
+  const ldx = player.x - lx, ldy = player.y - ly;
+  if (Math.sqrt(ldx * ldx + ldy * ldy) < TALK_RADIUS * 1.3 &&
+      !stats.items.some(it => it.name === "Doctor's Letter")) {
+    grantItem("Doctor's Letter");
+    dialogue.name  = "Doctor's Letter";
+    dialogue.pages = [
+      ['A letter on the counter, its wax seal already broken. The hand is old and careful.', 'Doctor\'s Letter \u2014 added to items.'],
+      ['\u201cTo whoever keeps this room after me \u2014\u201d',
+       '\u201cYou will manage the cuts and the fevers and the drownings well enough. Those are honest work, and I have taught Fisk what I can.\u201d'],
+      ['\u201cIt is the other cases I cannot hand over. The ones the fen sends back wrong. A cold no stove will touch. A sleep that is not sleep. People who have been somewhere and cannot say where.\u201d'],
+      ['\u201cI mended what bodies I could. I never learned to mend what they had heard out there, and I am too old now to keep listening for it.\u201d'],
+      ['\u201cDo not go looking for the source of it. That is the one prescription I am sure of.\u201d',
+       '\u201c\u2014 Yeddin\u201d'],
+    ];
+    dialogue.open  = true;
+    dialogue.page  = 0;
+    return true;
+  }
+  interactSimpleNPCs();
+  return interactionUiOpened();
+}
+
 function interactProvisionStore() {
   // Allocation manifest on east shelving
   const mnx = player.x - DRENWICK_PROVISION_MANIFEST.x;
@@ -5417,6 +5445,7 @@ const OVERWORLD_INTERACT_HANDLERS = [
   { name: "harbormaster"        , match: () => inTown && townBuilding === 'harbormaster'                             , run: interactHarbormaster },
   { name: "guild-hall-drenwick" , match: () => inTown && townBuilding === 'guild_hall' && currentTownId === 'drenwick', run: interactDrenwickGuildHall },
   { name: "wash-house"          , match: () => inTown && townBuilding === 'wash_house'                               , run: interactWashHouse },
+  { name: "infirmary-drenwick"  , match: () => inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick', run: interactDrenwickInfirmary },
   { name: "provision-store"     , match: () => inTown && townBuilding === 'provision_store'                          , run: interactProvisionStore },
   { name: "tavern-drenwick"     , match: () => inTown && townBuilding === 'tavern' && currentTownId === 'drenwick'   , run: interactDrenwickTavern },
   { name: "house-interior"      , match: () => inTown && townBuilding === 'house'                                    , run: interactHouseInterior },

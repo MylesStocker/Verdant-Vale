@@ -30,6 +30,7 @@
     "DRENWICK_OFFICE_MAP",
     "DRENWICK_HARBORMASTER_MAP",
     "DRENWICK_WASH_HOUSE_MAP",
+    "DRENWICK_INFIRMARY_MAP",
     "DRENWICK_PROVISION_STORE_MAP",
     "DRENWICK_GUILD_HALL_MAP",
     "DRENWICK_TAVERN_MAP",
@@ -254,6 +255,12 @@
     },
     {
       "id": "DRENWICK_WASH_HOUSE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DRENWICK_INFIRMARY_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -2038,7 +2045,7 @@
       "canWalkHere": true,
       "escapes": {
         "up": true,
-        "down": false,
+        "down": true,
         "left": true,
         "right": true
       },
@@ -7584,46 +7591,6 @@
       ]
     },
     {
-      "name": "enterMap3N2",
-      "srcMap": "MAP3_N1",
-      "srcTile": "FEN_N2_EXIT",
-      "destMap": "MAP3_N2",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 8,
-          "px": 272,
-          "py": 432,
-          "tileId": 2,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
-      "name": "exitMap3N2",
-      "srcMap": "MAP3_N2",
-      "srcTile": "FEN_N2_ENTRANCE",
-      "destMap": "MAP3_N1",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 8,
-          "px": 272,
-          "py": 48,
-          "tileId": 2,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
       "name": "enterMapN1",
       "srcMap": "MAP",
       "srcTile": "NORTH_EXIT",
@@ -7899,7 +7866,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 20,
+      "mapsUsingIt": 21,
       "handledInMovement": true
     },
     {
@@ -7999,16 +7966,6 @@
     },
     {
       "name": "FEN_N_ENTRANCE",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "FEN_N2_EXIT",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "FEN_N2_ENTRANCE",
       "mapsUsingIt": 1,
       "handledInMovement": true
     },

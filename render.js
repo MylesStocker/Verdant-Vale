@@ -73,6 +73,7 @@ function render() {
   if (inFenBrewery)                                  drawFenBreweryFurniture();
   if (inTown && townBuilding === 'harbormaster')      drawHarbormasterFurniture();
   if (inTown && townBuilding === 'wash_house')        drawWashHouseFurniture();
+  if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
   if (inTown && townBuilding === 'provision_store')   drawProvisionStoreFurniture();
   if (inTown && townBuilding === 'guild_hall')        drawGuildHallFurniture();
   if (inSluice) drawSluiceGateHint();

@@ -927,6 +927,17 @@ function exitBuilding() {
       player.facing = 'down';
       return;
     }
+    // Infirmary exits to the Waterfront, in front of its door (OFFICE_DOOR
+    // row 9 col 10 → row 10 col 10). The door itself can't be re-entered — on
+    // the waterfront it gives the pay-per-HP healing dialogue (movement.js).
+    if (prev === 'infirmary') {
+      townBuilding  = null;
+      activeMap     = DRENWICK_WATERFRONT_MAP;
+      player.x      = 10.5 * TILE;  // infirmary door col 10
+      player.y      = 10.5 * TILE;  // one tile south of row 9 door
+      player.facing = 'down';
+      return;
+    }
     // School exits to West Residential, one south of SCHOOL_DOOR (row 3 col 3 → row 4 col 3)
     if (prev === 'school') {
       townBuilding  = null;
@@ -1122,12 +1133,88 @@ function enterBasinChamber() {
 }
 
 function exitBasinChamber() {
+  // Once the player has walked out of the unmarked chamber at least twice AND
+  // the fourth main quest — the reservoir assignment — has been given, the
+  // world doesn't just let them step back onto the reach: the dream sequence
+  // takes over (basinChamberDreamSequence), ending with them waking at the
+  // Drenwick infirmary. It fires exactly once (basin_chamber_dream_done).
+  // Gating on reservoir_quest_started means the whole sequence can't happen
+  // before MQ4; using >= 2 (not === 2) means an early, pre-MQ4 second exit
+  // doesn't permanently miss the trigger — it just waits for the next exit
+  // after the assignment. Every other exit is the ordinary step to the Reach.
+  window.basin_chamber_exits = (window.basin_chamber_exits || 0) + 1;
+  if (window.basin_chamber_exits >= 2 && reservoir_quest_started && !window.basin_chamber_dream_done) {
+    window.basin_chamber_dream_done = true;
+    basinChamberDreamSequence();
+    return;
+  }
   inBasinChamber  = false;
   activeMap       = NORTH_BASIN_NW_MAP;
   player.x        = 12.5 * TILE;  // col 12 — one tile south of the doorframe
   player.y        =  4.5 * TILE;  // row 4
   player.facing   = 'down';
   combat.cooldown = ENCOUNTER_COOLDOWN;
+}
+
+// ─── The chamber's second-exit dream, and waking at Drenwick ─────────────────
+// The long monologue plays in the all-white DREAM_MAP (reusing enterDream's
+// setup); when its last page closes, wakeAtDrenwickInfirmary() takes over.
+// enterDream()'s _dreamReturn stash is deliberately discarded on waking — the
+// player does NOT return to the chamber: Esla carried them out of the marshes.
+const BASIN_CHAMBER_DREAM_PAGES = [
+  ['I remember that night when the four of us took the backroads to the cave. I go hollow when I think about it. The way Jane stood at its mouth, she knew before the rest of us. She’d seen the maw of God. She’d heard the blaring Engine.'],
+  ['We brought some beer. No cops were gonna catch us in the middle of the woods. We were fine. Tendrils of cold air coiled out of the cave; you could feel them touching you. You could hear their whispers. Something sweet was in their words. I loved them.'],
+  ['It was all fun and games before we entered. We sat around the campfire for a long time just drinking and talking. I don’t remember talking to my friends. We were all alone, alone with the cosmos. Since we were far from the city, the stars were bright and you could see the Milky Way in the sky. It was beautiful.'],
+  ['Sarah dared someone to go into the cave. I don’t know if she was even talking to him, but Jeffrey accepted the challenge. His dad was our boy-scout leader and the coach of our soccer team, his son wasn’t one to turn down a dare. You could see the galaxies in the depths of his eyes. The knowing of tomorrow. The Forever Dream begun in his mind. In it, he soared.'],
+  ['His first steps were timid, but soon he was several yards into the cave. He shouted my name. The trees spoke it too. A yearning for belonging. I followed him between the stalactites. Sarah and Jane were quick to join us. The stars reflected off the pools of water at the mouth, and were multiplied into millions of dazzling points on the walls. They danced and laughed and drifted between among us. I think I was alive. Only truly then.'],
+  ['We walked deeper and deeper. Eventually the cave stopped, and the darkness began. Our thin trail down into the depths ended. A vast expanse opened up before us. I didn’t know Jeffrey had brought a flashlight, but it did little use to illuminate the void. The chilly air ceased. We bathed in warmth. We lived in love.'],
+  ['The darkness sang. I remember the words of my mother coming from the black expanse. She was so young. She sang in unearthly tones. She was beyond death. She was with me. And in the dark a shape rumbled and throbbed. It churned, the heaps of flesh writhing and quivering. In places it was torn, and the stars shined through, the universe seen through windows in its skin. Cogs and wires jutted from it. They spun faster and faster. Jane was the only one among us not to avert her eyes. She knew that we could not hide what we were going to see. There was no reason to.'],
+  ['The thing bellowed and someone screamed. I faintly remember it being me.'],
+  ['In that cave I was not afraid. It was beautiful. So beautiful.'],
+  ['The beast spoke to me with my mother’s voice.'],
+  ['“You will find the Truth.”'],
+];
+
+const ESLA_INFIRMARY_WAKE_PAGES = [
+  ['A low plank ceiling. The bog-smell is back — peat, canal water, tallow smoke. You are somewhere with walls again.'],
+  ['“There you are.”',
+   'Esla is on a stool beside the cot. She looks like she hasn’t slept.'],
+  ['“I found you out past the north bank, wandering the marshes. You didn’t answer to your name. You didn’t answer to anything.”'],
+  ['“I couldn’t get any sense out of you, so I got you onto a cart and brought you back to Drenwick. The infirmary here did what they could.”'],
+  ['“I don’t know what you were doing out there alone. I don’t think I want to.”',
+   'She doesn’t ask.'],
+  ['“Rest. You’re back now.”'],
+];
+
+function basinChamberDreamSequence() {
+  inBasinChamber = false;
+  enterDream();  // warp to the white space; its _dreamReturn stash is discarded on wake
+  dialogue.name      = '';
+  dialogue.pages     = BASIN_CHAMBER_DREAM_PAGES;
+  dialogue.callbacks = [function () { wakeAtDrenwickInfirmary(); }];
+  dialogue.open      = true;
+  dialogue.page      = 0;
+}
+
+function wakeAtDrenwickInfirmary() {
+  _dreamReturn    = null;   // discard the dream stash — not returning to the chamber
+  inBasinChamber  = false;
+  inSunkenGallery = false;
+  inDungeon       = false;
+  inSluice        = false;
+  inTown          = true;
+  townBuilding    = 'infirmary';       // wake INSIDE the infirmary interior
+  currentTownId   = 'drenwick';
+  activeMap       = DRENWICK_INFIRMARY_MAP;
+  player.x        = 7.5 * TILE;   // ward aisle, by the beds; Esla is at the bedside
+  player.y        = 8.5 * TILE;
+  player.facing   = 'up';
+  combat.cooldown = ENCOUNTER_COOLDOWN;
+  dialogue.name      = 'Esla';
+  dialogue.pages     = ESLA_INFIRMARY_WAKE_PAGES;
+  dialogue.callbacks = [];   // NOT null: handleInteract reads .length right after this returns
+  dialogue.open      = true;
+  dialogue.page      = 0;
 }
 
 function descendSunkenGallery() {
@@ -1299,6 +1386,22 @@ const EDGE_TRANSITIONS = {
   MAP3_N1: {
     west: [
       { targetMap: 'RODDON_WAY_MAP', targetEdge: 'east', sourceRange: [4, 9] },
+    ],
+    // North edge: cols 3-13 up into MAP3_N2 (Drenwick)'s south fen approach.
+    // Was the single FEN_N2_EXIT road tile at col 8; now the whole fen edge is
+    // open, with that road running through the middle of the crossing. Ranges
+    // match exactly, so crossings never clamp. (South stays the FEN_N road
+    // point-tile — MAP3's north edge is open lake, so it can't be an edge.)
+    north: [
+      { targetMap: 'MAP3_N2', targetEdge: 'south', sourceRange: [3, 13] },
+    ],
+  },
+  // South edge: the reciprocal of MAP3_N1's north — cols 3-13 down into the
+  // Northern Fen, road at col 8 through the middle. (The other MAP3_N2 edges
+  // stay point-tiles/gates: the north causeway, the Drenwick gate, the bridge.)
+  MAP3_N2: {
+    south: [
+      { targetMap: 'MAP3_N1', targetEdge: 'north', sourceRange: [3, 13] },
     ],
   },
   RODDON_WAY_MAP: {

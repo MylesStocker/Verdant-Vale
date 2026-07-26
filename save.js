@@ -43,6 +43,8 @@ const QUEST_FLAG_SCHEMA = [
   // syncQuestFlagsToWindow() only normalizes undefined -> false for them,
   // never overwrites a true. See quests.js.
   'upper_reach_seen', 'basin_chamber_seen', 'sunken_gallery_seen',
+  'basin_chamber_exits',       // window-native counter (chamber exits)
+  'basin_chamber_dream_done',   // window-native flag: the one-time dream+infirmary sequence has fired
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
 
@@ -365,6 +367,8 @@ function loadGame() {
   if (data.upper_reach_seen     !== undefined) window.upper_reach_seen     = data.upper_reach_seen;
   if (data.basin_chamber_seen   !== undefined) window.basin_chamber_seen   = data.basin_chamber_seen;
   if (data.sunken_gallery_seen  !== undefined) window.sunken_gallery_seen  = data.sunken_gallery_seen;
+  if (data.basin_chamber_exits  !== undefined) window.basin_chamber_exits  = data.basin_chamber_exits;
+  if (data.basin_chamber_dream_done !== undefined) window.basin_chamber_dream_done = data.basin_chamber_dream_done;
   if (data.esla_said_sluice          !== undefined) esla_said_sluice          = data.esla_said_sluice;
   if (data.esla_said_dispatch        !== undefined) esla_said_dispatch        = data.esla_said_dispatch;
   if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;

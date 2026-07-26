@@ -66,6 +66,7 @@ const ITEM_REGISTRY = {
   'Cat-Shaped Key':    { name: 'Cat-Shaped Key',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   'Letter from Netto': { name: 'Letter from Netto', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   'Dispatch Letter':   { name: 'Dispatch Letter',   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  "Doctor's Letter":   { name: "Doctor's Letter",   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },  // picked from the Drenwick infirmary counter
 };
 
 // Returns a fresh instance of the named item. Never hands out (or mutates)

@@ -1071,6 +1071,252 @@ function drawWashHouseFurniture() {
   }
 }
 
+// ─── Drenwick Infirmary Furniture ─────────────────────────────────────────────
+// Draws the institutional fen palette (scrubbed grey-brown floorboards, aged-
+// ivory upper wall with a deep-teal wainscot) and every zone of the infirmary
+// over the base floor/wall tile pass. All ward beds are angled the same way,
+// foot toward the central-right stove — a repeated, matching-linen ward look
+// that reads instantly differently from Drenwick's warm, cluttered houses.
+function drawInfirmaryFurniture() {
+  if (!inTown || townBuilding !== 'infirmary' || currentTownId !== 'drenwick') return;
+  const T = TILE;
+
+  // ── Palette overlay ──────────────────────────────────────────────────────
+  // Scrubbed grey-brown floorboards across the interior (rows 3-11, cols 2-13).
+  ctx.fillStyle = '#6c6353';
+  ctx.fillRect(2 * T, 3 * T, 12 * T, 9 * T);
+  ctx.fillStyle = 'rgba(0,0,0,0.10)';               // board seams
+  for (let y = 3 * T + 6; y < 12 * T; y += 11) ctx.fillRect(2 * T, y, 12 * T, 1);
+  ctx.fillStyle = 'rgba(210,200,180,0.05)';         // faint scrub sheen
+  for (let y = 3 * T + 12; y < 12 * T; y += 22) ctx.fillRect(2 * T, y, 12 * T, 1);
+  // Aged-ivory back wall (row 2) with a deep-teal wainscot cap where it meets
+  // the floor — the infirmary's cool, clean upper/lower wall banding.
+  ctx.fillStyle = '#d7cdb6';
+  ctx.fillRect(2 * T, 2 * T, 12 * T, T);
+  ctx.fillStyle = '#33514b';
+  ctx.fillRect(2 * T, 3 * T - 7, 12 * T, 7);
+  ctx.fillStyle = '#4a6e66';
+  ctx.fillRect(2 * T, 3 * T - 7, 12 * T, 1);
+  // Thin teal skirting down the visible interior side walls (cols 2 & 13 edges).
+  ctx.fillStyle = '#33514b';
+  ctx.fillRect(2 * T, 3 * T, 3, 9 * T);
+  ctx.fillRect(14 * T - 3, 3 * T, 3, 9 * T);
+
+  // Rear service door on the back wall (c11-12) — depicted only, not an exit.
+  ctx.fillStyle = '#2a2016';
+  ctx.fillRect(11 * T + 4, 2 * T + 4, 2 * T - 8, T - 4);
+  ctx.fillStyle = '#3a2c1c';
+  ctx.fillRect(11 * T + 6, 2 * T + 6, 2 * T - 12, T - 6);
+  ctx.fillStyle = '#20201e';                        // iron latch
+  ctx.fillRect(12 * T - 2, 2 * T + 16, 4, 4);
+
+  // Big treatment-room window on the back wall (c2-4), bright fen daylight.
+  ctx.fillStyle = '#2a2016';
+  ctx.fillRect(2 * T + 3, 2 * T + 3, 3 * T - 6, T - 8);
+  ctx.fillStyle = '#b7cdc8';
+  ctx.fillRect(2 * T + 5, 2 * T + 5, 3 * T - 10, T - 12);
+  ctx.fillStyle = '#2a2016';                        // muntins
+  ctx.fillRect(3 * T + 1, 2 * T + 5, 2, T - 12);
+  ctx.fillRect(4 * T + 1, 2 * T + 5, 2, T - 12);
+  ctx.fillRect(2 * T + 5, 2 * T + 11, 3 * T - 10, 2);
+
+  // ── Treatment room (upper-left): counter c2-4 + exam table c3 ────────────
+  {
+    const cx = 2 * T, cy = 3 * T;                   // counter across cols 2-4
+    ctx.fillStyle = '#3a2c1a';                      // dark varnished wood
+    ctx.fillRect(cx + 1, cy + 2, 3 * T - 2, T - 4);
+    ctx.fillStyle = '#4a3824';
+    ctx.fillRect(cx + 1, cy + 2, 3 * T - 2, 3);
+    // Instrument cabinet (c2): glass front, steel tools
+    ctx.fillStyle = '#20201e';
+    ctx.fillRect(cx + 3, cy + 5, T - 6, T - 10);
+    ctx.fillStyle = '#8a9a9a';
+    for (let i = 0; i < 3; i++) ctx.fillRect(cx + 6 + i * 5, cy + 8, 2, T - 16);
+    // Rolled bandages + splints (c3-4)
+    ctx.fillStyle = '#e6ddc8';
+    for (let i = 0; i < 3; i++) ctx.fillRect(cx + T + 4 + i * 8, cy + 6, 6, 6);
+    ctx.fillStyle = '#8a6a42';                      // splint slats
+    for (let i = 0; i < 3; i++) ctx.fillRect(cx + 2 * T + 4, cy + 6 + i * 5, T - 8, 2);
+    // High examination table (row4 c3) — dark slate top, tall iron legs
+    const ex = 3 * T, ey = 4 * T;
+    ctx.fillStyle = '#20201e';
+    ctx.fillRect(ex + 3, ey + 12, 3, T - 12);
+    ctx.fillRect(ex + T - 6, ey + 12, 3, T - 12);
+    ctx.fillStyle = '#3a4448';                      // slate
+    ctx.fillRect(ex + 1, ey + 4, T - 2, 9);
+    ctx.fillStyle = '#e6ddc8';                       // paper sheet
+    ctx.fillRect(ex + 3, ey + 5, T - 6, 4);
+  }
+
+  // ── Private room (upper-right): partition, proper door, one bed ──────────
+  {
+    // West + south partition (drawn over the wall tiles for the panelled look)
+    ctx.fillStyle = '#d7cdb6';
+    ctx.fillRect(10 * T, 3 * T, T, 2 * T + 8);       // west partition c10 rows3-5
+    ctx.fillRect(10 * T, 5 * T, 4 * T, T);           // south partition row5
+    ctx.fillStyle = '#33514b';                        // teal wainscot on partition
+    ctx.fillRect(10 * T, 5 * T - 4, 4 * T, 4);
+    // Proper door (row5 c12) — dark leaf, ajar
+    ctx.fillStyle = '#2a2016';
+    ctx.fillRect(12 * T + 2, 5 * T + 2, T - 4, T - 4);
+    ctx.fillStyle = '#3a2c1c';
+    ctx.fillRect(12 * T + 4, 5 * T + 3, T - 8, T - 6);
+    ctx.fillStyle = '#20201e';
+    ctx.fillRect(12 * T + 5, 5 * T + 14, 3, 4);
+    // The one private bed (row3 c12-13), headboard left toward the door side
+    drawInfirmaryBed(12 * T, 3 * T, 2);
+  }
+
+  // ── Main ward: three matching narrow beds, all angled toward the stove ───
+  // Beds occupy cols 5-6 at rows 4, 6, 8; headboard on the left (col 5), foot
+  // to the right (col 6) pointing at the stove; a small bedside stool at col 7.
+  for (const br of [4, 6, 8]) {
+    drawInfirmaryBed(5 * T, br * T, 2);
+    // bedside stool in the aisle
+    ctx.fillStyle = '#2a2016';
+    ctx.fillRect(7 * T + 6, br * T + 10, 10, 3);
+    ctx.fillStyle = '#3a2c1c';
+    ctx.fillRect(7 * T + 8, br * T + 13, 3, 8);
+    ctx.fillRect(7 * T + 14, br * T + 13, 3, 8);
+  }
+
+  // ── Intake (lower-left): infirmarer's desk + ledger, two waiting benches ─
+  {
+    const dx = 2 * T, dy = 8 * T;                   // desk c2-3
+    ctx.fillStyle = '#3a2c1a';
+    ctx.fillRect(dx + 1, dy + 4, 2 * T - 2, T - 8);
+    ctx.fillStyle = '#4a3824';
+    ctx.fillRect(dx + 1, dy + 4, 2 * T - 2, 3);
+    ctx.fillStyle = '#e6ddc8';                       // patient ledger (open)
+    ctx.fillRect(dx + 6, dy + 9, T - 8, T - 16);
+    ctx.fillStyle = 'rgba(60,50,40,0.5)';
+    for (let i = 0; i < 3; i++) ctx.fillRect(dx + 9, dy + 12 + i * 4, T - 14, 1);
+    ctx.fillStyle = '#181410';                       // inkwell
+    ctx.fillRect(dx + 2 * T - 10, dy + 10, 5, 5);
+    // Waiting benches (rows 10-11 c2-3) — plain dark wood
+    for (const brow of [10, 11]) {
+      ctx.fillStyle = '#3a2c1c';
+      ctx.fillRect(2 * T + 2, brow * T + 8, 2 * T - 4, 8);
+      ctx.fillStyle = '#4a3824';
+      ctx.fillRect(2 * T + 2, brow * T + 8, 2 * T - 4, 2);
+    }
+  }
+
+  // ── Service / dispensary (right): stove + copper pot, cupboards, counter ──
+  {
+    // Utility stove (rows 7-8, cols 10-11) — black iron, warm firebox glow
+    const sx = 10 * T, sy = 7 * T;
+    ctx.fillStyle = '#20201e';
+    ctx.fillRect(sx + 2, sy + 2, 2 * T - 4, 2 * T - 4);
+    ctx.fillStyle = '#33302c';
+    ctx.fillRect(sx + 4, sy + 4, 2 * T - 8, 2 * T - 8);
+    const glow = (tick >> 4) & 1 ? '#d86a28' : '#c05a22';
+    ctx.fillStyle = glow;                            // firebox
+    ctx.fillRect(sx + 8, sy + 2 * T - 14, 2 * T - 16, 8);
+    // Copper boiling pot on top, faint steam
+    ctx.fillStyle = '#b06a3a';
+    ctx.fillRect(sx + T - 8, sy + 6, 16, 12);
+    ctx.fillStyle = '#c88248';
+    ctx.fillRect(sx + T - 8, sy + 6, 16, 3);
+    if ((tick >> 5) & 1) {
+      ctx.fillStyle = 'rgba(220,220,215,0.35)';
+      ctx.fillRect(sx + T - 2, sy - 2, 3, 8);
+    }
+    // Locked medicine cupboard + linen store (col 13, rows 6-9)
+    ctx.fillStyle = '#3a2c1a';
+    ctx.fillRect(13 * T + 1, 6 * T + 2, T - 2, 2 * T - 4); // med cupboard c13 r6-7
+    ctx.fillStyle = '#4a3824';
+    ctx.fillRect(13 * T + 2, 6 * T + 4, T - 4, 3);
+    ctx.fillStyle = '#20201e';                        // lock bar
+    ctx.fillRect(13 * T + 4, 7 * T - 2, T - 8, 3);
+    // amber/green medicine bottles on a ledge
+    ctx.fillStyle = '#c8922e';
+    ctx.fillRect(13 * T + 4, 6 * T + 9, 4, 7);
+    ctx.fillStyle = '#5a8a4a';
+    ctx.fillRect(13 * T + 10, 6 * T + 10, 4, 6);
+    // Clean-linen store (col 13, row 9) — stacked cream linens
+    const lc = ['#e6ddc8', '#dcd2bc', '#e2d8c2'];
+    for (let i = 0; i < 3; i++) { ctx.fillStyle = lc[i]; ctx.fillRect(13 * T + 3, 9 * T + 5 + i * 6, T - 6, 4); }
+    // Dispensary counter (row10 c11-12) — mortar & pestle, and the letter
+    const px = 11 * T, py = 10 * T;
+    ctx.fillStyle = '#3a2c1a';
+    ctx.fillRect(px + 1, py + 4, 2 * T - 2, T - 8);
+    ctx.fillStyle = '#4a3824';
+    ctx.fillRect(px + 1, py + 4, 2 * T - 2, 3);
+    ctx.fillStyle = '#8a8278';                        // stone mortar
+    ctx.beginPath(); ctx.arc(px + T + 8, py + T - 8, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#6a6260';
+    ctx.fillRect(px + T + 11, py + 6, 2, 9);          // pestle
+  }
+
+  // ── The Doctor's Letter on the dispensary counter (until picked up) ──────
+  if (!stats.items.some(it => it.name === "Doctor's Letter")) {
+    const lx = 11 * T + 6, ly = 10 * T + 8;
+    ctx.fillStyle = '#efe7d2';
+    ctx.fillRect(lx, ly, 15, 11);
+    ctx.fillStyle = '#d8ceb4';                        // fold shadow
+    ctx.fillRect(lx, ly + 6, 15, 1);
+    ctx.fillStyle = '#8a2a2a';                        // broken wax seal
+    ctx.beginPath(); ctx.arc(lx + 12, ly + 8, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(70,55,40,0.5)';             // lines of writing
+    for (let i = 0; i < 3; i++) ctx.fillRect(lx + 2, ly + 2 + i * 3, 10, 1);
+    if ((tick >> 4) & 1) {                            // faint "take me" glint
+      ctx.fillStyle = 'rgba(240,230,180,0.6)';
+      ctx.fillRect(lx + 5, ly - 3, 5, 1);
+    }
+  }
+
+  // ── Bottom-centre mud vestibule: reed mat, boot scraper, pegs, wash basin ─
+  {
+    // Reed mat in front of the door (rows 10-11, cols 6-8)
+    ctx.fillStyle = '#7a6a44';
+    ctx.fillRect(6 * T, 10 * T + 6, 3 * T, 2 * T - 8);
+    ctx.fillStyle = 'rgba(50,40,24,0.4)';            // reed weave
+    for (let x = 6 * T; x < 9 * T; x += 4) ctx.fillRect(x, 10 * T + 6, 1, 2 * T - 8);
+    // Boot scraper (iron) by the door
+    ctx.fillStyle = '#20201e';
+    ctx.fillRect(7 * T + 10, 11 * T + 20, 12, 3);
+    ctx.fillRect(7 * T + 14, 11 * T + 16, 4, 4);
+    // Cloak pegs on the left vestibule wall (col 4 edge), a hung cloak
+    ctx.fillStyle = '#20201e';
+    for (let i = 0; i < 3; i++) ctx.fillRect(4 * T + 2, 10 * T + 6 + i * 8, 5, 2);
+    ctx.fillStyle = '#3a4a48';
+    ctx.fillRect(4 * T + 1, 10 * T + 16, 8, 14);
+    // Hand-wash basin (row 11 col 8) — copper bowl over a dark slate stand
+    const wx = 8 * T, wy = 11 * T;
+    ctx.fillStyle = '#3a4448';
+    ctx.fillRect(wx + 3, wy + 10, T - 6, T - 12);
+    ctx.fillStyle = '#b06a3a';
+    ctx.fillRect(wx + 4, wy + 5, T - 8, 8);
+    ctx.fillStyle = '#9ab8c0';                        // water
+    ctx.fillRect(wx + 6, wy + 6, T - 12, 4);
+  }
+}
+
+// A single narrow infirmary bed at pixel (bx, by) spanning `wcols` tiles wide,
+// drawn horizontally: dark iron frame, unbleached cream sheet, muted-teal
+// blanket, pillow at the LEFT (headboard) so every bed faces the same way
+// (toward the stove on the right — see drawInfirmaryFurniture).
+function drawInfirmaryBed(bx, by, wcols) {
+  const w = wcols * TILE;
+  // Iron frame + legs
+  ctx.fillStyle = '#20201e';
+  ctx.fillRect(bx + 2, by + 4, w - 4, TILE - 8);
+  ctx.fillStyle = '#2a2a26';
+  ctx.fillRect(bx + 2, by + 4, 3, TILE - 8);         // headboard rail (left)
+  // Cream sheet / mattress
+  ctx.fillStyle = '#e6ddc8';
+  ctx.fillRect(bx + 5, by + 6, w - 9, TILE - 12);
+  // Muted-teal blanket over the foot (right two-thirds)
+  ctx.fillStyle = '#4a6e66';
+  ctx.fillRect(bx + Math.round(w * 0.42), by + 6, Math.round(w * 0.55) - 4, TILE - 12);
+  ctx.fillStyle = '#557a72';
+  ctx.fillRect(bx + Math.round(w * 0.42), by + 6, Math.round(w * 0.55) - 4, 2);
+  // Pillow at the head (left)
+  ctx.fillStyle = '#f0e9d6';
+  ctx.fillRect(bx + 6, by + 8, 12, TILE - 16);
+}
+
 // ─── Drenwick Provision Store Furniture ───────────────────────────────────────
 // Drawn over the tile pass: north shelving (row 3), east shelf (col 12),
 // crate stack (rows 7-8 cols 3-5), ledger shelf (col 2 rows 9-10).

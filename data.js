@@ -133,6 +133,38 @@ const SUNKEN_GALLERY_ENEMY_TEMPLATES = [
 ];
 window.SUNKEN_GALLERY_ENEMY_TEMPLATES = SUNKEN_GALLERY_ENEMY_TEMPLATES;
 
+// ─── The Upper Reach surface (NORTH_BASIN_NW_MAP) ────────────────────────────
+// The drained NW arm was silent for a long while; now the exposed bed has its
+// own dangers. Two are the same creatures worked elsewhere in the basin, come
+// up onto the oldest-exposed ground (not a new tier); two are new and much
+// tougher — the long-stranded, dried, wrong things the retreating water left
+// behind first. The surface counterpart to the Sunken Gallery's drowned dead
+// directly below it. Only BASIN_MUD rolls here (see isEncounterEligibleTile,
+// movement.js); the stonework apron and the pools stay quiet.
+const UPPER_REACH_ENEMY_TEMPLATES = [
+  // Same creatures as the Silt Flats / West Shore pool, stranded up here too.
+  { name: 'Silt Crab',    hp: 28, maxHp: 28, atk: 12, def: 5, spd:  4, xp: 18, goldMin:  4, goldMax:  9, defendChance: 0.20 },
+  { name: 'Basin Gull',   hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin:  5, goldMax: 10 },
+  // New and tough: the arm the water left first, and what it left there.
+  // Dust-Drowned — a reservoir drowning the drought gave up first, dried to
+  // grave-leather and still walking the bed; its touch carries the cold.
+  { name: 'Dust-Drowned', hp: 50, maxHp: 50, atk: 16, def: 5, spd:  8, xp: 46, goldMin:  9, goldMax: 19, curseChance: 0.20 },
+  // Marrow Hulk — the largest thing the retreating water stranded, mineral-
+  // and-bone-crusted from the long exposure; terribly slow, but it braces, and
+  // it crushes.
+  { name: 'Marrow Hulk',  hp: 66, maxHp: 66, atk: 19, def: 8, spd:  3, xp: 56, goldMin: 14, goldMax: 26, defendChance: 0.25 },
+];
+window.UPPER_REACH_ENEMY_TEMPLATES = UPPER_REACH_ENEMY_TEMPLATES;
+
+// ─── Swamp Donkey — the North Basin's rare spike ─────────────────────────────
+// An uncommon, very hard-hitting bog beast that can turn up on ANY of the five
+// outdoor North Basin squares (see startCombat, combat.js) at roughly one fight
+// in sixteen — not part of any square's normal pool. Moderate HP (it dies in a
+// few solid hits), but a punishing attack: the encounter hurts almost entirely
+// because of what it kicks for. No status gimmick — just the boot.
+const SWAMP_DONKEY_TEMPLATE = { name: 'Swamp Donkey', hp: 46, maxHp: 46, atk: 28, def: 5, spd: 9, xp: 60, goldMin: 16, goldMax: 32 };
+window.SWAMP_DONKEY_TEMPLATE = SWAMP_DONKEY_TEMPLATE;
+
 const ENCOUNTER_CHANCE   = 1 / 6;
 const ENCOUNTER_COOLDOWN = 120;
 
@@ -574,15 +606,15 @@ const MAP_METADATA = {
   // ── The North Basin ────────────────────────────────────────────────────────
   NORTH_BASIN_S_MAP: {
     id: 'NORTH_BASIN_S_MAP', map: NORTH_BASIN_S_MAP, displayName: 'North Basin \u2014 South Approach', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_S_ITEMS, encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
-    notes: 'Deliberately safe skeleton map -- no GRASS tiles, so no encounters regardless of pool.',
+    type: 'outdoor', items: NORTH_BASIN_S_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'The basin entry. It has no GRASS, but its REEDS are encounter-eligible all the same (see tiles.js TILE_PROPERTIES), so it does roll random encounters \u2014 now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES, the same gentle creatures as the Silt Flats) instead of the generic ENEMY_TEMPLATES fallback it used when this was left encounterPool: null. The maintained road (PATH, col 12) and the water stay safe; you meet things by cutting through the reeds.',
   },
   NORTH_BASIN_C_MAP: {
     id: 'NORTH_BASIN_C_MAP', map: NORTH_BASIN_C_MAP, displayName: 'North Basin \u2014 Reservoir', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_C_ITEMS, encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
-    notes: 'Deliberately safe skeleton map -- no GRASS tiles, so no encounters regardless of pool.',
+    type: 'outdoor', items: NORTH_BASIN_C_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'The receding reservoir. Like the South Approach it has no GRASS but its REEDS are encounter-eligible, so it rolls random encounters \u2014 now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES) instead of the generic ENEMY_TEMPLATES fallback. Open water and the exposed BASIN_MUD bed stay safe; encounters lurk in the reed fringe of the receding shoreline.',
   },
   NORTH_BASIN_SW_MAP: {
     id: 'NORTH_BASIN_SW_MAP', map: NORTH_BASIN_SW_MAP, displayName: 'North Basin \u2014 Silt Flats', region: 'North Basin',
@@ -597,9 +629,9 @@ const MAP_METADATA = {
   },
   NORTH_BASIN_NW_MAP: {
     id: 'NORTH_BASIN_NW_MAP', map: NORTH_BASIN_NW_MAP, displayName: 'North Basin \u2014 Upper Reach', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_NW_ITEMS, encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
-    notes: 'The drained NW arm \u2014 exposed bed border to border. Deliberately silent (no encounters, no NPCs). "No safe haven" here means no town, bed, healing, or shelter -- it does NOT mean the outdoors itself refuses to save; allowSave is true like any other ordinary outdoor map (see canSaveHere(), save.js). Only the two interiors it leads to actually block saving. Holds the standing doorframe (CHAMBER_DOOR \u2192 BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR \u2192 SUNKEN_GALLERY_MAP).',
+    type: 'outdoor', items: NORTH_BASIN_NW_ITEMS, encounterPool: UPPER_REACH_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'The drained NW arm \u2014 exposed bed border to border. Once deliberately silent; now the oldest-exposed ground has its own encounters (UPPER_REACH_ENEMY_TEMPLATES): two stranded basin creatures shared with the Silt Flats, and two new tough ones (Dust-Drowned, Marrow Hulk) reflecting how long this arm has been dry and wrong. Only BASIN_MUD rolls (isEncounterEligibleTile special-cases this map so other maps\u2019 mud stays safe). No NPCs. "No safe haven" means no town, bed, healing, or shelter -- allowSave is still true like any ordinary outdoor map (see canSaveHere(), save.js); only the two interiors it leads to block saving. Holds the standing doorframe (CHAMBER_DOOR \u2192 BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR \u2192 SUNKEN_GALLERY_MAP).',
   },
   BASIN_CHAMBER_MAP: {
     id: 'BASIN_CHAMBER_MAP', map: BASIN_CHAMBER_MAP, displayName: 'No Recorded Location', region: 'North Basin',
@@ -679,6 +711,12 @@ const MAP_METADATA = {
     id: 'DRENWICK_WASH_HOUSE_MAP', map: DRENWICK_WASH_HOUSE_MAP, displayName: 'Drenwick \u2014 Wash House', region: 'Drenwick',
     type: 'interior', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
+  },
+  DRENWICK_INFIRMARY_MAP: {
+    id: 'DRENWICK_INFIRMARY_MAP', map: DRENWICK_INFIRMARY_MAP, displayName: 'Drenwick \u2014 Infirmary', region: 'Drenwick',
+    type: 'interior', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'Small civic infirmary on the waterfront. Only reached via the chamber dream sequence (wakeAtDrenwickInfirmary); the vestibule INTERIOR_EXIT (col 7) returns to the waterfront in front of the door, which then gives the pay-per-HP healing dialogue instead of re-entry.',
   },
   DRENWICK_PROVISION_STORE_MAP: {
     id: 'DRENWICK_PROVISION_STORE_MAP', map: DRENWICK_PROVISION_STORE_MAP, displayName: 'Drenwick \u2014 Provision Store', region: 'Drenwick',

@@ -143,12 +143,16 @@ module.exports = {
       }
     }
 
-    // Bonus (not asked for by name, but cheap to pin): confirm the map really
-    // has zero encounter-eligible terrain, matching the "safe entry/levee
-    // map" design choice -- movement.js's random-encounter check only rolls
-    // on GRASS.
-    const GRASS = g.run('GRASS');
-    assert.ok(!map.some(row => row.includes(GRASS)), 'NORTH_BASIN_S_MAP should contain no GRASS tiles (kept encounter-free by construction)');
+    // The basin entry has no GRASS, but its REEDS are encounter-eligible all
+    // the same, so it DOES roll random encounters -- and they should come from
+    // the basin pool, not the generic ENEMY_TEMPLATES fallback it used when it
+    // was left encounterPool: null.
+    assert.equal(
+      g.run("MAP_METADATA['NORTH_BASIN_S_MAP'].encounterPool === NORTH_BASIN_ENEMY_TEMPLATES"), true,
+      'South Approach should use the basin enemy pool (not the generic starting-area fallback)'
+    );
+    assert.equal(g.run("MAP_METADATA['NORTH_BASIN_S_MAP'].allowRandomEncounters"), true,
+      'South Approach now has random encounters');
 
     g.renderFrame();
   },

@@ -275,6 +275,11 @@ function syncQuestFlagsToWindow() {
   window.upper_reach_seen     = !!window.upper_reach_seen;
   window.basin_chamber_seen   = !!window.basin_chamber_seen;
   window.sunken_gallery_seen  = !!window.sunken_gallery_seen;
+  // Count of times the player has walked OUT of the unmarked chamber; the
+  // second exit triggers the one-time dream sequence. Window-native counter
+  // (not a boolean), normalized undefined -> 0 so saveGame() never writes undefined.
+  window.basin_chamber_exits  = window.basin_chamber_exits || 0;
+  window.basin_chamber_dream_done = !!window.basin_chamber_dream_done;
 }
 window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 

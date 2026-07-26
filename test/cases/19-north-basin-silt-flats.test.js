@@ -161,6 +161,7 @@ module.exports = {
     assert.ok(map.some(row => row.includes(GRASS)), 'NORTH_BASIN_SW_MAP should have GRASS -- this is the region’s first real encounter map');
     const validNames = new Set(g.run('NORTH_BASIN_ENEMY_TEMPLATES').map(t => t.name));
     validNames.add('23');
+    validNames.add('Swamp Donkey'); // ~1/16 hard-hitting override on every North Basin outdoor square
     g.run(`
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_SW_MAP;
       combat.cooldown = 0;

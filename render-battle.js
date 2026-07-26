@@ -2428,6 +2428,197 @@ function drawBattleSiltHag(cx, cy) {
   ctx.fillRect(cx +  3 + sway, cy - 45, 3, 2);
 }
 
+// Dust-Drowned — a drowning the reservoir gave up first, dried to grave-leather
+// on the oldest-exposed bed. The Pale Drowned's parched cousin: same slack
+// silhouette, but cracked, dusty-brown, shedding motes, with a cold curse-glint
+// in the hollows instead of waterlogged tears.
+function drawBattleDustDrowned(cx, cy) {
+  const drift = Math.round(Math.sin(tick * 0.05) * 3);
+  const bob   = Math.round(Math.sin(tick * 0.07) * 3);
+  const dx = cx + drift, dy = cy + bob;
+
+  // Faint cold aura (the curse it carries)
+  ctx.fillStyle = 'rgba(150,175,190,0.08)';
+  ctx.beginPath(); ctx.ellipse(dx, dy - 30, 30, 46, 0, 0, Math.PI * 2); ctx.fill();
+  // Drifting dust motes
+  ctx.fillStyle = 'rgba(180,165,140,0.5)';
+  for (let i = 0; i < 5; i++) {
+    const mx = dx - 18 + ((i * 47 + (tick >> 2)) % 40);
+    const my = dy - 50 + ((i * 31 + (tick >> 1)) % 44);
+    ctx.fillRect(mx, my, 2, 2);
+  }
+
+  // Tattered dried hem — cracked, not dissolving
+  ctx.fillStyle = '#7a6a54';
+  ctx.fillRect(dx - 13, dy - 6, 7, 15);
+  ctx.fillRect(dx -  3, dy - 4, 6, 13);
+  ctx.fillRect(dx +  7, dy - 6, 7, 15);
+  ctx.fillStyle = '#5a4c3a';
+  ctx.fillRect(dx - 12, dy + 4, 8, 5);
+  ctx.fillRect(dx +  5, dy + 4, 8, 5);
+
+  // Torso — dried, cracked leather-brown
+  ctx.fillStyle = '#8a7860';
+  ctx.fillRect(dx - 14, dy - 34, 28, 30);
+  ctx.fillStyle = '#9c8a70';
+  ctx.fillRect(dx - 12, dy - 32, 24,  8);
+  // Cracks across the chest
+  ctx.fillStyle = '#403426';
+  ctx.fillRect(dx - 8, dy - 28, 2, 16);
+  ctx.fillRect(dx + 4, dy - 24, 2, 12);
+  ctx.fillRect(dx - 12, dy - 18, 20, 2);
+
+  // Heavy dried arms (a little bulkier than the Pale Drowned — tougher)
+  ctx.fillStyle = '#7a6a54';
+  ctx.fillRect(dx - 24, dy - 30, 9, 24);
+  ctx.fillRect(dx + 15, dy - 30, 9, 24);
+  ctx.fillStyle = '#5a4c3a';
+  ctx.fillRect(dx - 24, dy - 8, 9, 7);
+  ctx.fillRect(dx + 15, dy - 8, 9, 7);
+
+  // Head — parched, hollow
+  ctx.fillStyle = '#94826a';
+  ctx.fillRect(dx - 11, dy - 54, 22, 21);
+  // Dried, dust-caked hair strands
+  ctx.fillStyle = '#3a3024';
+  ctx.fillRect(dx - 13 + drift / 2, dy - 58, 4, 14);
+  ctx.fillRect(dx -  3,             dy - 60, 3, 12);
+  ctx.fillRect(dx +  5,             dy - 60, 3, 12);
+  ctx.fillRect(dx + 10 - drift / 2, dy - 58, 4, 14);
+  // Cold curse-glint in the hollow sockets
+  ctx.fillStyle = '#111a1e';
+  ctx.fillRect(dx - 8, dy - 44, 7, 8);
+  ctx.fillRect(dx + 2, dy - 44, 7, 8);
+  ctx.fillStyle = 'rgba(150,190,205,0.85)';
+  ctx.fillRect(dx - 6, dy - 42, 2, 2);
+  ctx.fillRect(dx + 4, dy - 42, 2, 2);
+  // Slack cracked mouth
+  ctx.fillStyle = '#181008';
+  ctx.fillRect(dx - 4, dy - 33, 8, 4);
+}
+
+// Marrow Hulk — the largest thing the retreating water stranded, dried and
+// crusted with mineral and bone from the long exposure. Huge, low, blocky;
+// terribly slow (a heavy, sluggish bob). Pale mineral grey over bone-white
+// plates, deep dark cracks.
+function drawBattleMarrowHulk(cx, cy) {
+  const bob = Math.round(Math.sin(tick * 0.03) * 2); // heavy and slow
+  const dy = cy + bob;
+
+  // Ground shadow — it's massive
+  ctx.fillStyle = 'rgba(0,0,0,0.22)';
+  ctx.beginPath(); ctx.ellipse(cx, dy + 12, 40, 9, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Squat legs / base
+  ctx.fillStyle = '#8f887a';
+  ctx.fillRect(cx - 26, dy - 8, 18, 22);
+  ctx.fillRect(cx +  8, dy - 8, 18, 22);
+  ctx.fillStyle = '#6a6456';
+  ctx.fillRect(cx - 26, dy + 8, 18, 6);
+  ctx.fillRect(cx +  8, dy + 8, 18, 6);
+
+  // Massive hunched body
+  ctx.fillStyle = '#a8a090';
+  ctx.fillRect(cx - 32, dy - 46, 64, 42);
+  // Bone-white crust plates
+  ctx.fillStyle = '#d6cebc';
+  ctx.fillRect(cx - 30, dy - 44, 26, 16);
+  ctx.fillRect(cx +  4, dy - 44, 26, 16);
+  ctx.fillRect(cx - 20, dy - 24, 40, 12);
+  // Deep dark cracks across the crust
+  ctx.fillStyle = '#403a2e';
+  ctx.fillRect(cx - 4, dy - 46, 3, 42);
+  ctx.fillRect(cx - 22, dy - 30, 16, 3);
+  ctx.fillRect(cx +  8, dy - 34, 14, 3);
+  ctx.fillRect(cx - 30, dy - 14, 60, 2);
+
+  // Huge shoulders / crusted spines
+  ctx.fillStyle = '#c4bca8';
+  ctx.beginPath(); ctx.moveTo(cx - 34, dy - 44); ctx.lineTo(cx - 40, dy - 58); ctx.lineTo(cx - 26, dy - 48); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx + 34, dy - 44); ctx.lineTo(cx + 40, dy - 58); ctx.lineTo(cx + 26, dy - 48); ctx.closePath(); ctx.fill();
+
+  // Heavy arms hanging low (it crushes)
+  ctx.fillStyle = '#9a9282';
+  ctx.fillRect(cx - 44, dy - 40, 14, 40);
+  ctx.fillRect(cx + 30, dy - 40, 14, 40);
+  ctx.fillStyle = '#7a7466';
+  ctx.fillRect(cx - 46, dy - 2, 18, 12); // slab fist
+  ctx.fillRect(cx + 28, dy - 2, 18, 12);
+
+  // Small sunken head set low between the shoulders
+  ctx.fillStyle = '#8f887a';
+  ctx.fillRect(cx - 12, dy - 56, 24, 16);
+  ctx.fillStyle = '#403a2e';
+  ctx.fillRect(cx - 9, dy - 50, 7, 5); // deep-set eyes, no light
+  ctx.fillRect(cx + 3, dy - 50, 7, 5);
+  ctx.fillStyle = '#d6cebc';           // cracked tusk-crust of a jaw
+  ctx.fillRect(cx - 10, dy - 42, 20, 3);
+}
+
+// Swamp Donkey — a big, mangy, foul-tempered bog beast: a donkey the fen got
+// hold of and made wrong. Stocky four-legged bulk, muck-matted grey-brown coat,
+// a heavy lowered head, and a mean red glint. Sways slightly, breathing hard.
+function drawBattleSwampDonkey(cx, cy) {
+  const sway = Math.round(Math.sin(tick * 0.07) * 2);
+  const dx = cx + sway;
+
+  // Ground shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.22)';
+  ctx.beginPath(); ctx.ellipse(cx, cy + 12, 40, 8, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Four stocky legs
+  ctx.fillStyle = '#4a4234';
+  ctx.fillRect(dx - 28, cy - 6, 8, 20);
+  ctx.fillRect(dx - 12, cy - 6, 8, 20);
+  ctx.fillRect(dx + 8,  cy - 6, 8, 20);
+  ctx.fillRect(dx + 22, cy - 6, 8, 20);
+  ctx.fillStyle = '#2a241a';                  // muck-caked hooves
+  ctx.fillRect(dx - 28, cy + 11, 8, 4);
+  ctx.fillRect(dx - 12, cy + 11, 8, 4);
+  ctx.fillRect(dx + 8,  cy + 11, 8, 4);
+  ctx.fillRect(dx + 22, cy + 11, 8, 4);
+
+  // Heavy barrel body
+  ctx.fillStyle = '#6a6150';
+  ctx.fillRect(dx - 32, cy - 30, 60, 26);
+  ctx.fillStyle = '#5a5344';                  // shadowed underbelly
+  ctx.fillRect(dx - 32, cy - 12, 60, 8);
+  // Mangy matted patches + reed/muck clumps
+  ctx.fillStyle = '#4a4234';
+  ctx.fillRect(dx - 24, cy - 28, 10, 7);
+  ctx.fillRect(dx - 4,  cy - 26, 12, 6);
+  ctx.fillRect(dx + 14, cy - 22, 8, 8);
+  ctx.fillStyle = '#3a4a30';                  // reed muck on the flank
+  ctx.fillRect(dx + 2, cy - 8, 10, 4);
+  // Ragged mane / dorsal bristle
+  ctx.fillStyle = '#2f2a1e';
+  for (let i = 0; i < 7; i++) ctx.fillRect(dx - 24 + i * 6, cy - 34, 3, 6);
+
+  // Thick neck dropping to a lowered head (left, aggressive)
+  ctx.fillStyle = '#6a6150';
+  ctx.fillRect(dx - 42, cy - 26, 14, 20);
+  // Long heavy head
+  ctx.fillStyle = '#655c4b';
+  ctx.fillRect(dx - 54, cy - 16, 18, 16);
+  ctx.fillStyle = '#4a4234';                  // dark muzzle
+  ctx.fillRect(dx - 56, cy - 6, 12, 8);
+  ctx.fillStyle = '#181410';                  // flared nostrils
+  ctx.fillRect(dx - 55, cy - 3, 3, 3);
+  ctx.fillRect(dx - 50, cy - 3, 3, 3);
+  // Long ragged ears laid back (angry)
+  ctx.fillStyle = '#4a4234';
+  ctx.fillRect(dx - 40, cy - 34, 5, 12);
+  ctx.fillRect(dx - 33, cy - 33, 5, 12);
+  // Mean red eye-glint
+  ctx.fillStyle = '#181410';
+  ctx.fillRect(dx - 48, cy - 14, 6, 5);
+  ctx.fillStyle = ((tick >> 4) & 1) ? '#e05a30' : '#c04a24';
+  ctx.fillRect(dx - 46, cy - 13, 2, 2);
+  // Big yellowed teeth, bared
+  ctx.fillStyle = '#d8ceac';
+  ctx.fillRect(dx - 55, cy + 2, 11, 2);
+}
+
 // Pale Sentry — "It rose from the fen grass and has not left." Boss-scale
 // (500 HP, the game's toughest single fight): towering, fen-grown, eerily
 // motionless. Drawn largest and most detailed of this batch, on purpose.
@@ -2980,7 +3171,7 @@ const BATTLE_SPRITE_NAMES = new Set([
   'Silt Crab', 'Mudflat Strider', 'Hollow', 'Fen Shade', 'Tomb Sentry',
   'Crypt Revenant', 'Wall Tendril', 'Dripping Maw', 'The Seep',
   'Pale Drowned', 'Silt Hag', 'Pale Sentry', 'Smuggler Guard', 'Polwick',
-  'Essa', 'Rainfish', 'Tallyman', 'Basin Gull',
+  'Essa', 'Rainfish', 'Tallyman', 'Basin Gull', 'Dust-Drowned', 'Marrow Hulk', 'Swamp Donkey',
 ]);
 window.BATTLE_SPRITE_NAMES = BATTLE_SPRITE_NAMES;
 
@@ -3041,6 +3232,9 @@ function drawBattleEnemy(cx, cy) {
   else if (n === 'The Seep')          drawBattleTheSeep(cx, cy + 30);
   else if (n === 'Pale Drowned')      drawBattlePaleDrowned(cx, cy + 30);
   else if (n === 'Silt Hag')          drawBattleSiltHag(cx, cy + 40);
+  else if (n === 'Dust-Drowned')      drawBattleDustDrowned(cx, cy + 30);
+  else if (n === 'Marrow Hulk')       drawBattleMarrowHulk(cx, cy + 46);
+  else if (n === 'Swamp Donkey')      drawBattleSwampDonkey(cx, cy + 44);
   else if (n === 'Pale Sentry')       drawBattlePaleSentry(cx, cy + 58);
   else if (n === 'Smuggler Guard')    drawBattleSmugglerGuard(cx, cy + 62);
   else if (n === 'Polwick')           drawBattlePolwick(cx, cy + 58);
