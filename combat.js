@@ -72,6 +72,30 @@ function effectiveSpd() {
   );
 }
 
+// Probability that a combatant with speed `own` beats one with speed `other`
+// in a speed contest. Used for BOTH turn order and flee attempts, so neither
+// is deterministic: equal speed is a coin flip, the faster side is favoured,
+// and the outcome is never guaranteed either way (clamped to [0.1, 0.9] so
+// even a large speed gap leaves a real chance of the slower side winning).
+function speedWinChance(own, other) {
+  const a = Math.max(1, own), b = Math.max(1, other);
+  return Math.min(0.9, Math.max(0.1, a / (a + b)));
+}
+
+// Shared damage roll for EVERY attack in combat, player and enemy alike, so no
+// hit lands the same flat number twice. Base is (atk - def); the attack takes a
+// ±20% variance swing, and there's a CRIT_CHANCE for a harder CRIT_MULT hit.
+// Never below 1. Returns { dmg, crit } so callers can flag a critical.
+const CRIT_CHANCE = 0.10;
+const CRIT_MULT   = 1.5;
+function rollAttackDamage(atk, def) {
+  const variance = 0.8 + Math.random() * 0.4;   // 0.8 .. 1.2
+  const crit = Math.random() < CRIT_CHANCE;
+  let dmg = atk * variance - def;
+  if (crit) dmg *= CRIT_MULT;
+  return { dmg: Math.max(1, Math.round(dmg)), crit };
+}
+
 function equipItem(item) {
   const slot = slotForType(item.type);
   if (!slot) return;                        // non-equippable type (e.g. potion)
@@ -90,6 +114,8 @@ const shop = { open: false, screen: 'main', cursor: 0, title: 'MERCHANT', stock:
 
 // Returns the short stat label shown next to an item in menus
 function itemStatLabel(item) {
+  if (item.sexBane === 'male')                     return 'Bane: male';
+  if (item.sexBane === 'female')                   return 'Bane: female';
   if (item.curesPoison)                            return 'Cures poison';
   if (item.curesCursed)                            return 'Cures cursed';
   if (item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
@@ -415,6 +441,26 @@ function startTakomoCombat() {
   combat.observeCount   = 0;
 }
 
+// The Sunken Gallery's trapped Pale Drowned, when the player chooses to put it
+// down rather than free it (interactions.js). An ordinary Pale Drowned fight
+// (SUNKEN_GALLERY_ENEMY_TEMPLATES[0]) with its own opening line — victory,
+// defeat, and flight are all handled by the generic combat resolution. The
+// clue it was snagged on is destroyed at the moment of the choice, not here,
+// so fleeing the fight doesn't get the clue back.
+function startTrappedDrownedCombat() {
+  combat.enemy          = { ...SUNKEN_GALLERY_ENEMY_TEMPLATES[0] };
+  combat.active         = true;
+  combat.phase          = 'choose';
+  combat.cursor         = 0;
+  combat.messageQueue   = [];
+  combat.message        = 'The Pale Drowned wrenches free of the silt and turns on you.';
+  combat.pendingVictory = false;
+  combat.pendingDefeat  = false;
+  combat.pendingEscape  = false;
+  combat.flashTimer     = 8;
+}
+window.startTrappedDrownedCombat = startTrappedDrownedCombat;
+
 // Clears and re-populates JOB_BOARD_NOTICES (Calwick) and DRENWICK_JOB_BOARD_NOTICES
 // based on current quest state. Call whenever a relevant quest flag changes, and once on loadGame().
 function refreshJobBoard() {
@@ -545,6 +591,15 @@ function applyEnemyHitEffects() {
       combat.pendingDefeat = true;
     }
   }
+  // Generic poison-on-hit (template `poisonChance`) — currently the poison-
+  // skinned Mire Toad. The Fen Witch keeps its own by-name poison above.
+  if (combat.enemy && combat.enemy.poisonChance && !hasStatusEffect('poison') && Math.random() < combat.enemy.poisonChance) {
+    triggerPoison();
+    const pMsg = combat.enemy.name === 'Mire Toad'
+      ? 'The toad’s skin weeps a bitter slime where it struck. Poisoned! (lose HP each rest)'
+      : 'Venom works into the wound. Poisoned! (lose HP each rest)';
+    combat.messageQueue.unshift(pMsg);
+  }
   if (combat.enemy && combat.enemy.curseChance && !hasStatusEffect('cursed') && Math.random() < combat.enemy.curseChance) {
     if (stats.accessory && stats.accessory.preventsCursed) {
       combat.messageQueue.unshift('The amethyst bangle flares faintly. The curse doesn\u2019t take.');
@@ -595,10 +650,9 @@ function burnTickEntry() {
 // message line; returns a deferred { text, apply() } queue entry, the same
 // shape every other enemy hit in this file uses.
 function enemyTurnResponse(textFn) {
-  const atkRoll = combat.enemy.atk * (0.8 + Math.random() * 0.4);
-  const eDmg    = Math.max(1, Math.round(atkRoll - effectiveDef()));
+  const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
   return {
-    text: textFn(eDmg),
+    text: (crit ? 'Critical! ' : '') + textFn(eDmg),
     apply() {
       stats.hp = Math.max(0, stats.hp - eDmg);
       applyEnemyHitEffects();
@@ -608,6 +662,25 @@ function enemyTurnResponse(textFn) {
       }
     },
   };
+}
+
+// Records a kill: pushes the defeat/XP/gold messages onto the given queue,
+// awards XP (with level-up), rolls gold and a 12% potion drop, and flags the
+// pending victory. Module-level so both the Attack branch and the sex-reagent
+// item branch (handleCombatAction) grant kills identically.
+function applyKillRewards(msgs) {
+  msgs.push(`${combat.enemy.name} was defeated!`);
+  stats.xp += combat.enemy.xp;
+  msgs.push(`Gained ${combat.enemy.xp} XP!  (Total: ${stats.xp})`);
+  checkLevelUp(msgs);
+  const goldGain = combat.enemy.goldMin +
+    Math.floor(Math.random() * (combat.enemy.goldMax - combat.enemy.goldMin + 1));
+  stats.gold += goldGain;
+  const droppedPotion = Math.random() < 0.12;
+  if (droppedPotion) grantItem('Potion');
+  msgs.push(`Gained ${goldGain} gold.`);
+  if (droppedPotion) msgs.push(`Found a potion!`);
+  combat.pendingVictory = true;
 }
 
 // Custom observation text keyed by enemy name. Each entry is an array of
@@ -817,6 +890,28 @@ const ENEMY_OBSERVATIONS = {
 // Returns observation text for the current enemy and observe count.
 // Falls back to stat-derived traits on first look, then to a generic line.
 function getObservationText(enemy, count) {
+  // Sexed enemies (the identical-looking Mire Toads) can ONLY be told apart by
+  // observing them — nothing in the battle art or name gives it away. The first
+  // Observe reveals the sex (and hints at the matching reagent); later Observes
+  // add flavour. This runs ahead of the name-keyed table below.
+  if (enemy.sex) {
+    // The sex is told by a real, subtle physical difference Lélý spots on close
+    // study — nuptial pads and a vocal-sac throat on the male; the larger, egg-
+    // heavy body and smooth fingers of the female — not by intuition.
+    const reveal = enemy.sex === 'male'
+      ? ['Lélý leans in close, reading the animal instead of the fight.',
+         'Dark, roughened pads on the inner fingers; a loose, dusky throat that swells and sinks — the nuptial pads and calling-sac of a male. A jack. A Jackbane Vial would end it in one.']
+      : ['Lélý leans in close, reading the animal instead of the fight.',
+         'Bigger than a jack, and low and round through the belly with the weight of eggs; the throat pale and tight, the fingers smooth — a female. A hen. A Henbane Sprig would end it in one.'];
+    const later = [
+      ['Jack or hen, they’re one animal to a glance — you have to know the tells. The fen-wives in Drenwick sell a sprig for the one and a vial for the other.',
+       'The wrong one only wastes your hand. The right one does the whole job at once.'],
+      ['It watches you back now, toad-patient. It has all the time the fen has.',
+       'Which is all of it.'],
+    ];
+    if (count === 0) return reveal;
+    return later[Math.min(count - 1, later.length - 1)];
+  }
   const entries = ENEMY_OBSERVATIONS[enemy.name];
   if (entries && count < entries.length) return entries[count].lines;
   if (count === 0) {
@@ -1063,7 +1158,24 @@ function handleCombatAction() {
     if (!item) return;
 
     const msgs = [];
-    if (item.type === 'potion') {
+    let enemyActs = true; // whether the enemy still gets its turn after this
+    if (item.sexBane) {
+      // Sex-specific reagent (Henbane Sprig / Jackbane Vial). Consumed on use.
+      // A sex-matched target drops instantly (no counter); the wrong sex, or any
+      // enemy without a sex, shrugs it off and the turn is wasted.
+      stats.items.splice(stats.items.indexOf(item), 1);
+      combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
+      if (combat.enemy.sex === item.sexBane) {
+        combat.enemy.hp = 0;
+        msgs.push(`Used ${item.name} \u2014 the ${combat.enemy.name} stiffens, shudders once, and goes still. The right sort.`);
+        applyKillRewards(msgs);
+        enemyActs = false; // it's dead; no counter-attack
+      } else if (combat.enemy.sex) {
+        msgs.push(`Used ${item.name} \u2014 the ${combat.enemy.name} shakes it off. Wrong sort entirely.`);
+      } else {
+        msgs.push(`Used ${item.name} \u2014 it does nothing to the ${combat.enemy.name}. Wasted on this one.`);
+      }
+    } else if (item.type === 'potion') {
       if (item.curesPoison) {
         removeStatusEffect('poison');
         stats.items.splice(stats.items.indexOf(item), 1);
@@ -1089,11 +1201,14 @@ function handleCombatAction() {
       msgs.push(`Equipped ${item.name}!`);
     }
 
-    // Using an item consumes the turn just like Attack \u2014 the enemy still acts.
-    msgs.push(enemyTurnResponse(d => `${combat.enemy.name} attacks for ${d}!`));
-    // Burn ticks at the end of the turn, after the enemy's response.
-    const itemBurn = burnTickEntry();
-    if (itemBurn) msgs.push(itemBurn);
+    // Using an item consumes the turn just like Attack \u2014 the enemy still acts,
+    // UNLESS a reagent just killed it (nothing left to counter).
+    if (enemyActs) {
+      msgs.push(enemyTurnResponse(d => `${combat.enemy.name} attacks for ${d}!`));
+      // Burn ticks at the end of the turn, after the enemy's response.
+      const itemBurn = burnTickEntry();
+      if (itemBurn) msgs.push(itemBurn);
+    }
 
     const first = msgs.shift();
     if (typeof first === 'string') {
@@ -1118,15 +1233,15 @@ function handleCombatAction() {
     // not available. Attempting it costs the turn: the enemy gets a free hit,
     // same as the Rainfish rule.
     if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa) {
-      const atkRoll = combat.enemy.atk * (0.8 + Math.random() * 0.4);
-      const eDmg = Math.max(1, Math.round(atkRoll - effectiveDef()));
+      const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const ec = crit ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
       const noRunText =
-          combat.isRainfish     ? `Nowhere to go! Rainfish thrashes for ${eDmg}!`
-        : combat.isFortGuard    ? `The guard holds the door! He strikes for ${eDmg}!`
-        : combat.isFortPolwick  ? `Polwick stays between you and the door! He strikes for ${eDmg}!`
-        :                         `Essa keeps herself between you and the door! She strikes for ${eDmg}!`;
+          combat.isRainfish     ? `${ec}Nowhere to go! Rainfish thrashes for ${eDmg}!`
+        : combat.isFortGuard    ? `${ec}The guard holds the door! He strikes for ${eDmg}!`
+        : combat.isFortPolwick  ? `${ec}Polwick stays between you and the door! He strikes for ${eDmg}!`
+        :                         `${ec}Essa keeps herself between you and the door! She strikes for ${eDmg}!`;
       const msgs = [noRunText];
       if (newHp <= 0) { msgs.push(`${stats.name} has fallen...`); combat.pendingDefeat = true; }
       // A blocked run still spends the turn — Burn ticks, same as a failed run.
@@ -1137,10 +1252,9 @@ function handleCombatAction() {
       combat.phase = 'message';
       return;
     }
-    // Run — success chance scales with speed advantage
-    const escapeChance = Math.min(0.7, Math.max(0.15,
-      0.35 + (effectiveSpd() - combat.enemy.spd) * 0.05
-    ));
+    // Run — same probabilistic speed contest as turn order (speedWinChance):
+    // faster gets away more often, slower less, but it's never a certainty.
+    const escapeChance = speedWinChance(effectiveSpd(), combat.enemy.spd);
     if (Math.random() < escapeChance) {
       combat.message      = 'Got away safely!';
       combat.messageQueue = [];
@@ -1148,11 +1262,11 @@ function handleCombatAction() {
       combat.phase        = 'message';
     } else {
       // Failed to flee — enemy gets a free hit
-      const atkRoll = combat.enemy.atk * (0.8 + Math.random() * 0.4);
-      const eDmg = Math.max(1, Math.round(atkRoll - effectiveDef()));
+      const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const ec = crit ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const msgs = [`Couldn't escape! ${combat.enemy.name} attacks for ${eDmg}!`];
+      const msgs = [`${ec}Couldn't escape! ${combat.enemy.name} attacks for ${eDmg}!`];
       if (newHp <= 0) {
         msgs.push(`${stats.name} has fallen...`);
         combat.pendingDefeat = true;
@@ -1174,44 +1288,33 @@ function handleCombatAction() {
     msgs.push(`Speed shifts to ${slitherSpd}! (Slither)`);
   }
   if (action === 'attack') {
-    // Determine turn order by comparing speed; ties go to a coin flip
+    // Determine turn order probabilistically from speed: faster is favoured but
+    // never guaranteed (see speedWinChance) -- a slower fighter can still land
+    // the first blow, and a faster one can still be beaten to it.
     const playerSpd  = effectiveSpd();
     const enemySpd   = combat.enemy.spd;
-    const playerFirst = playerSpd > enemySpd ||
-                        (playerSpd === enemySpd && Math.random() < 0.5);
+    const playerFirst = Math.random() < speedWinChance(playerSpd, enemySpd);
 
     // Enemy defend — armoured enemies occasionally brace, halving incoming damage and skipping counter
     const enemyDefending = !!(combat.enemy.defendChance && Math.random() < combat.enemy.defendChance);
-    const rawPDmg = Math.max(1, effectiveAtk() - combat.enemy.def);
+    const pRoll = rollAttackDamage(effectiveAtk(), combat.enemy.def);
     // Cursed fumble — 25% chance of a wild swing dealing only 1 damage
     const cursedFumble = !enemyDefending && hasStatusEffect('cursed') && Math.random() < 0.25;
-    const pDmg = enemyDefending ? Math.max(1, Math.floor(rawPDmg / 2))
+    const pDmg = enemyDefending ? Math.max(1, Math.floor(pRoll.dmg / 2))
                : cursedFumble   ? 1
-               : rawPDmg;
-    const atkRoll = combat.enemy.atk * (0.8 + Math.random() * 0.4);
-    const eDmg    = Math.max(1, Math.round(atkRoll - effectiveDef()));
+               : pRoll.dmg;
+    const pCrit = pRoll.crit && !enemyDefending && !cursedFumble; // only a clean hit reads as a crit
+    const pc = pCrit ? 'Critical hit! ' : '';
+    const eRoll = rollAttackDamage(combat.enemy.atk, effectiveDef());
+    const eDmg  = eRoll.dmg;
+    const ec    = eRoll.crit ? 'Critical! ' : '';
 
-    // Helper: record a kill (XP, gold, potion drop)
-    function applyKillRewards() {
-      msgs.push(`${combat.enemy.name} was defeated!`);
-      stats.xp += combat.enemy.xp;
-      msgs.push(`Gained ${combat.enemy.xp} XP!  (Total: ${stats.xp})`);
-      checkLevelUp(msgs);
-      const goldGain = combat.enemy.goldMin +
-        Math.floor(Math.random() * (combat.enemy.goldMax - combat.enemy.goldMin + 1));
-      stats.gold += goldGain;
-      const droppedPotion = Math.random() < 0.12;
-      if (droppedPotion) grantItem('Potion');
-      msgs.push(`Gained ${goldGain} gold.`);
-      if (droppedPotion) msgs.push(`Found a potion!`);
-      combat.pendingVictory = true;
-    }
 
     if (enemyDefending) {
       // ── Enemy bracing: player deals half damage, enemy skips counter ──────
       combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
       msgs.push(`${combat.enemy.name} braces! ${stats.name} deals only ${pDmg} damage.`);
-      if (combat.enemy.hp <= 0) applyKillRewards();
+      if (combat.enemy.hp <= 0) applyKillRewards(msgs);
 
     } else if (playerFirst) {
       // ── Player attacks first ──────────────────────────────────────────────
@@ -1219,15 +1322,15 @@ function handleCombatAction() {
       if (cursedFumble) {
         msgs.push(`Cursed fumble! ${stats.name} swings wildly for ${pDmg} damage.`);
       } else {
-        msgs.push(`${stats.name} attacks for ${pDmg} damage!`);
+        msgs.push(`${pc}${stats.name} attacks for ${pDmg} damage!`);
       }
 
       if (combat.enemy.hp <= 0) {
-        applyKillRewards();
+        applyKillRewards(msgs);
       } else {
         // Enemy counter-attacks — damage deferred until message is shown
         msgs.push({
-          text: `${combat.enemy.name} strikes back for ${eDmg}!`,
+          text: `${ec}${combat.enemy.name} strikes back for ${eDmg}!`,
           apply() {
             stats.hp = Math.max(0, stats.hp - eDmg);
             applyEnemyHitEffects();
@@ -1245,7 +1348,7 @@ function handleCombatAction() {
       const newEnemyHp  = Math.max(0, combat.enemy.hp - pDmg);
 
       msgs.push({
-        text: `${combat.enemy.name} strikes first for ${eDmg}!`,
+        text: `${ec}${combat.enemy.name} strikes first for ${eDmg}!`,
         apply() {
           stats.hp = newPlayerHp;
           applyEnemyHitEffects();
@@ -1260,13 +1363,13 @@ function handleCombatAction() {
         // Player counter-attacks; enemy HP update deferred to match message
         const counterText = cursedFumble
           ? `Cursed fumble! ${stats.name} swings wildly for ${pDmg}!`
-          : `${stats.name} counter-attacks for ${pDmg}!`;
+          : `${pc}${stats.name} counter-attacks for ${pDmg}!`;
         msgs.push({
           text: counterText,
           apply() { combat.enemy.hp = newEnemyHp; },
         });
 
-        if (newEnemyHp <= 0) applyKillRewards();
+        if (newEnemyHp <= 0) applyKillRewards(msgs);
       }
     }
   } else if (action === 'item') {
@@ -1290,11 +1393,11 @@ function handleCombatAction() {
     if (Math.random() < skipChance) {
       msgs.push('It does not close the distance.');
     } else {
-      const obsAtkRoll = combat.enemy.atk * (0.8 + Math.random() * 0.4);
-      const obsEDmg    = Math.max(1, Math.round(obsAtkRoll - effectiveDef()));
-      const obsNewHp   = Math.max(0, stats.hp - obsEDmg);
+      const obsRoll  = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const obsEDmg  = obsRoll.dmg;
+      const obsNewHp = Math.max(0, stats.hp - obsEDmg);
       msgs.push({
-        text: `${combat.enemy.name} strikes for ${obsEDmg}!`,
+        text: `${obsRoll.crit ? 'Critical! ' : ''}${combat.enemy.name} strikes for ${obsEDmg}!`,
         apply() {
           stats.hp = obsNewHp;
           applyEnemyHitEffects();

@@ -117,16 +117,26 @@ function xpForNextLevel() {
   return XP_THRESHOLDS[stats.level]; // e.g. level 1 → index 1 → 100
 }
 
-// Call after awarding XP; pushes level-up messages into the provided array
+// Call after awarding XP; pushes level-up messages into the provided array.
+// Max HP is a flat +10 per level. ATK and DEF each roll an independent 1-3.
+// SPD rises only some of the time (about half of level-ups), so it climbs more
+// slowly and unevenly than the other stats. The message reports whatever
+// actually rolled, and only mentions SPD on the levels it went up.
 function checkLevelUp(msgs) {
   while (stats.level < MAX_LEVEL && stats.xp >= XP_THRESHOLDS[stats.level]) {
     stats.level++;
+    const atkGain = 1 + Math.floor(Math.random() * 3); // 1, 2, or 3
+    const defGain = 1 + Math.floor(Math.random() * 3); // 1, 2, or 3
+    const spdGain = Math.random() < 0.5 ? 1 : 0;        // speed only goes up sometimes
     stats.maxHp += 10;
     stats.hp     = Math.min(stats.hp + 10, stats.maxHp);
-    stats.atk   += 2;
-    stats.def++;
+    stats.atk   += atkGain;
+    stats.def   += defGain;
+    stats.spd   += spdGain;
     msgs.push(`*** LEVEL UP!  Now Lv. ${stats.level}! ***`);
-    msgs.push(`Max HP +10  \u2022  ATK +2  \u2022  DEF +1`);
+    let gains = `Max HP +10  \u2022  ATK +${atkGain}  \u2022  DEF +${defGain}`;
+    if (spdGain) gains += `  \u2022  SPD +${spdGain}`;
+    msgs.push(gains);
   }
 }
 

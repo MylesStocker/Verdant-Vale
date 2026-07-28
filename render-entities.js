@@ -2140,6 +2140,188 @@ function drawTakomo() {
   }
 }
 
+// The trapped Pale Drowned snared in the pool of Sunken Gallery room R1C2 — a
+// pale arm and hand thrashing up out of the deep water, the marking cord and
+// its chalked tag tangled at the wrist. Drawn on the map (not just in dialogue)
+// so the player can SEE there is something in the water to examine. Gated by
+// render.js on !freed && !slain, so once you free or kill it the pool is empty.
+function drawTrappedDrowned() {
+  const cx   = 8 * TILE + 16;              // pool centre (col 8)
+  const sway = Math.sin(tick * 0.06);
+  const dx   = Math.round(sway * 3);       // slow, tireless thrash
+  const handY = 7 * TILE + 18;             // south part of the pool, toward the player
+
+  // Disturbed water — this pool is not still where it's caught
+  ctx.strokeStyle = 'rgba(150,172,166,0.40)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(cx, handY, 20 + Math.round(sway * 2), 9, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Submerged form, dim under the surface (deeper, to the north)
+  ctx.fillStyle = 'rgba(150,162,150,0.28)';
+  ctx.fillRect(cx - 13, 6 * TILE + 6, 26, 22);
+  ctx.fillStyle = 'rgba(120,132,122,0.34)';
+  ctx.fillRect(cx - 7,  6 * TILE + 0, 14, 10);   // a bowed head, just under
+
+  // Pale straining arm up out of the water
+  ctx.fillStyle = '#adb5a6';
+  ctx.fillRect(cx - 3 + dx, 6 * TILE + 22, 7, handY - (6 * TILE + 22));
+
+  // Hand breaking the surface, fingers splayed
+  ctx.fillStyle = '#c4cabb';
+  ctx.fillRect(cx - 7 + dx, handY - 3, 14, 7);
+  ctx.fillStyle = '#adb5a6';
+  for (let i = 0; i < 4; i++) ctx.fillRect(cx - 7 + i * 4 + dx, handY - 8, 2, 6);
+
+  // Marking cord tangled at the wrist, tied to a small chalked wooden tag
+  ctx.strokeStyle = '#8a7d5a';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx + dx, handY + 2);
+  ctx.lineTo(cx + 13, handY + 9);
+  ctx.stroke();
+  ctx.fillStyle = '#d8ceac';
+  ctx.fillRect(cx + 12, handY + 8, 5, 4);
+}
+
+// ─── Sunken Gallery: little graphics for the investigative finds ──────────────
+// Each observer clue sits on an ordinary gallery tile (a column, a silt patch,
+// standing water) and would otherwise be indistinguishable scenery. These small
+// map overlays draw the actual FOUND OBJECT at each feature's spot so the player
+// can tell there's something to examine. Dispatched by room from render.js
+// whenever inSunkenGallery. Positions match the inspect coordinates in
+// interactions.js / the tiles placed in maps.js.
+function drawSunkenGalleryFeatures() {
+  const m = activeMap;
+  if      (m === SUNKEN_GALLERY_R4C1) drawGallerySiltPatch();
+  else if (m === SUNKEN_GALLERY_R3C0) drawGallerySatchel();
+  else if (m === SUNKEN_GALLERY_R4C2) drawGallerySurveyMarks();
+  else if (m === SUNKEN_GALLERY_R3C1) drawGalleryGauge();
+  else if (m === SUNKEN_GALLERY_R2C1) drawGalleryReliefs();
+  else if (m === SUNKEN_GALLERY_R2C2) drawGalleryRecess();
+  else if (m === SUNKEN_GALLERY_R1C2) {
+    if (!window.sunken_gallery_drowned_freed && !window.sunken_gallery_drowned_slain) drawTrappedDrowned();
+  }
+  else if (m === SUNKEN_GALLERY_R1C3) drawGalleryBootprint();
+  else if (m === SUNKEN_GALLERY_R0C2) drawGalleryNotebook();
+  else if (m === SUNKEN_GALLERY_R0C4) drawGallerySubmergedStair();
+  else if (m === SUNKEN_GALLERY_R1C4) drawGalleryBody();
+}
+
+// R4C1 — a pressed handprint and a dragged heel-mark in the disturbed silt.
+function drawGallerySiltPatch() {
+  const hx = 8 * TILE + 16, hy = 8 * TILE + 16;
+  ctx.fillStyle = 'rgba(38,42,32,0.55)';
+  ctx.fillRect(hx - 5, hy - 2, 10, 8);                    // palm
+  for (let i = 0; i < 4; i++) ctx.fillRect(hx - 6 + i * 4, hy - 8, 2, 6); // fingers
+  ctx.fillRect(hx - 9, hy - 1, 4, 5);                     // thumb
+  ctx.strokeStyle = 'rgba(38,42,32,0.5)'; ctx.lineWidth = 4; // dragged heel-mark leading away
+  ctx.beginPath(); ctx.moveTo(hx + 8, hy + 6); ctx.lineTo(9 * TILE + 22, 8 * TILE + 28); ctx.stroke();
+}
+
+// R3C0 — the field satchel caught at the base of the column (row 7, col 8).
+function drawGallerySatchel() {
+  const x = 8 * TILE + 5, y = 7 * TILE + 15;
+  ctx.fillStyle = '#5a4a32'; ctx.fillRect(x, y, 18, 14);   // leather body
+  ctx.fillStyle = '#4a3c28'; ctx.fillRect(x - 1, y - 3, 20, 7); // flap
+  ctx.fillStyle = '#3a2f1e'; ctx.fillRect(x + 7, y - 3, 4, 12); // strap
+  ctx.fillStyle = '#c8b06a'; ctx.fillRect(x + 7, y + 4, 4, 3);  // brass buckle
+  ctx.strokeStyle = '#4a3c28'; ctx.lineWidth = 2;               // strap snagged up the column
+  ctx.beginPath(); ctx.moveTo(x + 2, y); ctx.lineTo(x - 2, y - 11); ctx.stroke();
+}
+
+// R4C2 — chalk ticks and scratched dates climbing the survey columns.
+function drawGallerySurveyMarks() {
+  for (const col of [4, 8, 12]) {
+    const x = col * TILE + 4, y0 = 6 * TILE + 5;
+    ctx.fillStyle = 'rgba(232,234,222,0.85)';
+    for (let i = 0; i < 5; i++) ctx.fillRect(x, y0 + i * 4, 8 - (i % 2) * 3, 1); // descending ticks
+    ctx.fillRect(x + 12, y0 + 1, 1, 19);                                          // scored vertical
+    ctx.fillStyle = 'rgba(220,222,210,0.7)';
+    ctx.fillRect(x + 2, y0 + 22, 9, 1);                                           // a scrawled date
+  }
+}
+
+// R3C1 — the broken Imperial depth gauge bolted to the masonry (row 7, col 8).
+function drawGalleryGauge() {
+  const x = 8 * TILE + 8, y = 7 * TILE + 4;
+  ctx.fillStyle = '#7a6a3a'; ctx.fillRect(x, y, 14, 24);   // mounting plate
+  ctx.fillStyle = '#c8b45a'; ctx.fillRect(x + 4, y + 2, 6, 20); // brass scale
+  ctx.fillStyle = '#4a4020';
+  for (let i = 0; i < 6; i++) ctx.fillRect(x + 4, y + 3 + i * 3, 6, 1); // ticks
+  ctx.fillStyle = '#d05030'; ctx.fillRect(x + 3, y + 19, 8, 2);         // snapped float marker (low)
+  ctx.fillStyle = '#3a3018';                                            // bolts
+  ctx.fillRect(x + 1, y + 1, 2, 2); ctx.fillRect(x + 11, y + 1, 2, 2);
+  ctx.fillRect(x + 1, y + 21, 2, 2); ctx.fillRect(x + 11, y + 21, 2, 2);
+}
+
+// R2C1 — carved relief figures on the wall run (row 7, cols 7-9).
+function drawGalleryReliefs() {
+  for (const col of [7, 8, 9]) {
+    const x = col * TILE, y = 7 * TILE;
+    ctx.fillStyle = 'rgba(58,64,52,0.6)'; ctx.fillRect(x + 3, y + 4, TILE - 6, TILE - 8); // sunk panel
+    ctx.fillStyle = '#7a8068';
+    for (let i = 0; i < 3; i++) { ctx.fillRect(x + 6 + i * 8, y + 12, 3, 10); ctx.fillRect(x + 6 + i * 8, y + 9, 3, 3); }
+  }
+}
+
+// R2C2 — the maintenance recess; a fallen fragment leans across it until opened.
+function drawGalleryRecess() {
+  const x = 8 * TILE + 6, y = 7 * TILE + 6;
+  ctx.fillStyle = '#14170f'; ctx.fillRect(x, y, 20, 18);   // dark recess
+  if (window.sunken_gallery_recess_opened) {
+    ctx.fillStyle = '#3a4234'; ctx.fillRect(x + 19, y + 9, 10, 9); // fragment shoved aside; recess empty
+  } else {
+    ctx.fillStyle = '#4a5240'; ctx.fillRect(x + 3, y + 3, 8, 16);  // fragment leaning across
+    ctx.fillStyle = '#3a4234'; ctx.fillRect(x + 4, y + 1, 6, 4);
+  }
+}
+
+// R1C3 — a single hard-heeled boot print, wrong for either observer (silt col 8).
+function drawGalleryBootprint() {
+  const x = 8 * TILE + 16, y = 7 * TILE + 16;
+  ctx.fillStyle = 'rgba(34,38,28,0.6)';
+  ctx.fillRect(x - 4, y - 8, 9, 10);                        // ball
+  ctx.fillRect(x - 3, y + 3, 7, 6);                         // heel
+  ctx.fillStyle = 'rgba(72,78,62,0.5)';                     // tread lines
+  for (let i = 0; i < 3; i++) ctx.fillRect(x - 4, y - 6 + i * 3, 9, 1);
+}
+
+// R0C2 — the notebook, oilcloth-wrapped and tied, on the ledge above the water.
+function drawGalleryNotebook() {
+  const x = 8 * TILE + 8, y = 6 * TILE + 17;
+  ctx.fillStyle = '#6a6250'; ctx.fillRect(x, y, 16, 12);   // oilcloth wrap
+  ctx.fillStyle = '#585040'; ctx.fillRect(x, y + 5, 16, 3); // fold shadow
+  ctx.strokeStyle = '#3a3226'; ctx.lineWidth = 1;           // tie cords
+  ctx.beginPath(); ctx.moveTo(x + 8, y - 1); ctx.lineTo(x + 8, y + 13); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 1, y + 6); ctx.lineTo(x + 17, y + 6); ctx.stroke();
+}
+
+// R0C4 — worked steps descending into the dark water, dimming with depth.
+function drawGallerySubmergedStair() {
+  const x0 = 6 * TILE, w = 4 * TILE;
+  for (let i = 0; i < 4; i++) {
+    const y = 6 * TILE + 6 + i * 7;
+    ctx.fillStyle = `rgba(120,142,142,${0.5 - i * 0.11})`;
+    ctx.fillRect(x0 + 6 + i * 6, y, w - 12 - i * 12, 3);   // each step narrower + dimmer deeper down
+  }
+  ctx.fillStyle = 'rgba(172,192,192,0.4)';                  // glint on the top step
+  ctx.fillRect(x0 + 8, 6 * TILE + 5, w - 16, 1);
+}
+
+// R1C4 — Dreyfuss's body, face-down on the silt bar (greatcoat, one pale hand).
+function drawGalleryBody() {
+  const cx = 7 * TILE + 16, cy = 7 * TILE + 20;
+  ctx.fillStyle = '#2a2c26'; ctx.fillRect(cx - 16, cy - 6, 32, 16); // sodden greatcoat
+  ctx.fillStyle = '#232520'; ctx.fillRect(cx - 16, cy + 2, 32, 5);  // fold shadow
+  ctx.fillStyle = '#9aa08a'; ctx.fillRect(cx - 22, cy - 4, 8, 8);   // pale head, turned
+  ctx.fillStyle = '#2a2c26'; ctx.fillRect(cx + 12, cy - 2, 12, 5);  // reaching sleeve
+  ctx.fillStyle = '#9aa08a'; ctx.fillRect(cx + 22, cy - 1, 5, 4);   // pale hand on the silt
+  ctx.strokeStyle = '#4a3c28'; ctx.lineWidth = 2;                    // empty satchel-strap
+  ctx.beginPath(); ctx.moveTo(cx - 8, cy - 6); ctx.lineTo(cx + 6, cy + 9); ctx.stroke();
+}
+
 function drawBoss() {
   if (!inDungeon || dungeonFloor !== 5 || BOSS.defeated) return;
   const px = Math.round(BOSS.x);

@@ -79,7 +79,8 @@ module.exports = {
     const assignment = talkThrough(g);
     assert.ok(/reservoir bed north of drenwick/.test(assignment), 'assignment should point at the reservoir bed');
     assert.ok(/drought/.test(assignment), 'assignment should tie the exposed ground to the drought');
-    assert.ok(/did not come back/.test(assignment), 'assignment should mention the missing basin observer');
+    assert.ok(/garrick/.test(assignment) && /dreyfuss/.test(assignment), 'assignment should name the two missing basin observers');
+    assert.ok(/neither.*came back/.test(assignment), 'assignment should note neither observer returned');
     assert.ok(/uneasy/.test(assignment), 'the supervisor should acknowledge the job is frightening');
     assert.ok(/rather final/.test(assignment), 'killed outcome should get the "rather final" Drenwick line');
     assert.equal(g.run('reservoir_quest_started'), true, 'assignment should now be started');

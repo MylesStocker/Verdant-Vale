@@ -143,6 +143,8 @@ const SUNKEN_STAIR     = 107; // drought-exposed stairhead on the Upper Reach --
 const GALLERY_FLOOR    = 108; // Sunken Gallery floor -- silt-filmed stone, recently underwater (encounter-eligible)
 const GALLERY_WALL     = 109; // Sunken Gallery wall -- dark masonry with a pale waterline band
 const GALLERY_STAIR_UP = 110; // Sunken Gallery stair back up to the Upper Reach
+const TEMPLE_SHALLOWS  = 117; // Sunken Gallery: standing water over the old temple floor -- walkable, encounter-eligible (floods rooms without blocking them)
+const TEMPLE_CARVING   = 118; // Sunken Gallery: a wall worked with relief carving -- blocking, inspected via MAP_FEATURES
 
 // ─── Roddon Way (RODDON_WAY_MAP, Thornmere fen) ──────────────────────────────
 // A roddon is the raised course of an old silt-filled creek: as the
@@ -292,6 +294,8 @@ const WALKABLE = [
   /* 114 WATER_GAUGE           */ true,
   /* 115 REED_RACK             */ true,
   /* 116 APT_NOTICE            */ true,
+  /* 117 TEMPLE_SHALLOWS       */ true,
+  /* 118 TEMPLE_CARVING        */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -403,6 +407,8 @@ window.SUNKEN_STAIR           = SUNKEN_STAIR;
 window.GALLERY_FLOOR          = GALLERY_FLOOR;
 window.GALLERY_WALL           = GALLERY_WALL;
 window.GALLERY_STAIR_UP       = GALLERY_STAIR_UP;
+window.TEMPLE_SHALLOWS        = TEMPLE_SHALLOWS;
+window.TEMPLE_CARVING         = TEMPLE_CARVING;
 window.RODDON_SILT            = RODDON_SILT;
 window.CHARTER_STONE          = CHARTER_STONE;
 window.CISTERN                = CISTERN;
@@ -430,7 +436,7 @@ const DEBUG_TILE_NAMES = [
   'DUNGEON2_WALL',  'DUNGEON3_FLOOR',  'DUNGEON3_WALL',  'DUNGEON8_EAST_DOOR',  'DUNGEON8_EAST_RET',  'DUNGEON8_WEST_DOOR',
   'DREAM_EDGE',  'DREAM_FLOOR',
   'CHAMBER_DOOR',  'CHAMBER_FLOOR',  'CHAMBER_WALL',  'CHAMBER_EXIT',
-  'SUNKEN_STAIR',  'GALLERY_FLOOR',  'GALLERY_WALL',  'GALLERY_STAIR_UP',  'RODDON_SILT',
+  'SUNKEN_STAIR',  'GALLERY_FLOOR',  'GALLERY_WALL',  'GALLERY_STAIR_UP',  'TEMPLE_SHALLOWS',  'TEMPLE_CARVING',  'RODDON_SILT',
   'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',
   'DUNGEON8_WEST_RET',  'EAST_ENTRANCE',  'EAST_EXIT',  'EXPOSED_STONE',  'FALSE_WALL',  'FARM_HOUSE',
   'FEN_N_ENTRANCE',  'FEN_N_EXIT',  'FEN_N2_ENTRANCE',  'FEN_N2_EXIT',  'FENCE_POST',  'GRASS',
@@ -761,6 +767,16 @@ const TILE_PROPERTIES = {
     id: GALLERY_STAIR_UP, name: 'Gallery Stair Up', debugName: 'GALLERY_STAIR_UP', walkable: WALKABLE[GALLERY_STAIR_UP],
     category: 'transition', tags: ['gallery', 'transition'], encounterEligible: false, isTransition: true,
     notes: 'Tile 110. SUNKEN_GALLERY_MAP r2 c2 -- climbs back to the Upper Reach beside the stairhead (ascendSunkenGallery, world-transitions.js).',
+  },
+  [TEMPLE_SHALLOWS]: {
+    id: TEMPLE_SHALLOWS, name: 'Temple Shallows', debugName: 'TEMPLE_SHALLOWS', walkable: WALKABLE[TEMPLE_SHALLOWS],
+    category: 'dungeon', tags: ['gallery', 'water', 'floor'], encounterEligible: true,
+    notes: 'Tile 117. Sunken Gallery: shin-deep water standing over the old temple floor -- walkable and encounter-eligible like GALLERY_FLOOR, but visibly flooded. Used to flood the ceremonial rooms without blocking a crossing.',
+  },
+  [TEMPLE_CARVING]: {
+    id: TEMPLE_CARVING, name: 'Temple Carving', debugName: 'TEMPLE_CARVING', walkable: WALKABLE[TEMPLE_CARVING],
+    category: 'dungeon', tags: ['gallery', 'wall', 'carving'], encounterEligible: false, isWall: true,
+    notes: 'Tile 118. Sunken Gallery: a wall worked with relief carving -- blocking like GALLERY_WALL. Inspected via MAP_FEATURES for the temple’s tribute and child-presentation scenes.',
   },
   [RODDON_SILT]: {
     id: RODDON_SILT, name: 'Roddon Silt', debugName: 'RODDON_SILT', walkable: WALKABLE[RODDON_SILT],

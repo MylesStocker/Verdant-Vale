@@ -47,6 +47,7 @@ function render() {
   if (inMireVault) drawMireVaultPillars();
   if (inDungeonEntrance) drawSouthRuinsEntranceDecor();
   if (inTakomo && !TAKOMO.defeated) drawTakomo();
+  if (inSunkenGallery) drawSunkenGalleryFeatures();
   if (inTown) drawSupervisorSprite();
   if (inTown) drawEslaSprite();
   drawSimpleNPCs();

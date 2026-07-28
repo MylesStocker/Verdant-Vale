@@ -116,6 +116,11 @@ function openDialogue(name, pages, callbacks) {
 //   repeatPages  (optional) shown instead of `pages`/`fallbackPages` once
 //                onceFlag has already been set true. If onceFlag is set but
 //                repeatPages isn't, interacting/entering again does nothing.
+//   flag         (optional) a persistent window-flag name set true whenever
+//                this feature's pages are shown. UNLIKE onceFlag it does not
+//                gate repeats -- the feature stays re-readable; the flag just
+//                records that the player has seen it, for later logic to read
+//                (e.g. the Sunken Gallery clue report to the Supervisor).
 //   name         (optional) shown as the dialogue box's name-plate; empty
 //                by default, matching every migrated sign/plaque (no NPC
 //                name to show).
@@ -770,6 +775,136 @@ const MAP_FEATURES = {
       ],
     },
   ],
+
+  // ── The Sunken Gallery — the observers' trail (Garrick & Dreyfuss) ────────
+  // Investigative set-dressing across the 5×5 grid, one feature per room (the
+  // two interactive beats — the maintenance recess and the trapped Pale
+  // Drowned — live in interactSunkenGallery(), not here). Plainly described,
+  // nothing explained: neither the drought's real cause nor who built the
+  // Gallery. Same lore boundary as the Upper Reach and the Deep Works — do not
+  // extend LORE.md for any of it. Coordinates match the tiles placed in maps.js.
+  SUNKEN_GALLERY_R4C1: [
+    {
+      id: 'gallery_silt_patch', type: 'inspect', x: 8.5, y: 8.5, label: 'Disturbed silt', flag: 'gallery_clue_silt',
+      pages: [
+        ['The silt here is churned and pressed — the shape of someone who stopped hard, or went down.',
+         'It hasn’t re-settled. This is days old at most, not the years everything else wears.'],
+        ['One handprint, splayed, faces back toward the drowned end of the hall.',
+         'From it a single heel drags away — deeper in, the other direction. Just the one heel. Pulled, or dragging a bad leg.'],
+        ['You can’t tell from the mud alone whether they were taken, hurt, or simply got up and walked further in.',
+         'All three read the same in silt.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R3C0: [
+    {
+      id: 'gallery_satchel', type: 'inspect', x: 8.5, y: 8.5, facing: 'up', label: "Observer's satchel", flag: 'gallery_clue_satchel',
+      pages: [
+        ['A field satchel, wedged behind the column ahead — not dropped in the open but caught, as if it slipped off a shoulder in a hurry and snagged there.',
+         'The strap is still buckled.'],
+        ['Inside: a coil of measuring cord, a nub of chalk, a meal gone to grey pulp in its cloth.',
+         'The notebook pocket is empty. Empty, not lost — the flap was unbuttoned and left that way.'],
+        ['Tucked in the seam, a stamped brass tag: NORTH BASIN SURVEY — and a name struck into it below the seal. G. GARRICK.',
+         'So one of the two men the office sent got at least this far. The satchel says so even if nothing else does.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R4C2: [
+    {
+      id: 'gallery_survey_marks', type: 'inspect', x: 8.5, y: 7.5, label: 'Fresh survey marks', flag: 'gallery_clue_survey',
+      pages: [
+        ['Chalk and scratched dates climb these columns — a survey done fast, mark against falling water.',
+         'One hand throughout, careful and even — Garrick’s, the same as the satchel’s tag. He measured as the level dropped.'],
+        ['Read in order, the marks tell it plainly: a rapid fall, then a long pause where the water held for days —',
+         'then a second drop, most of it in a single night. There’s a date underlined twice for that one.'],
+        ['Water doesn’t leave in steps like that. Not from heat, not from a leak.',
+         'It doesn’t tell you why. It only makes the how stranger the longer you look.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R3C1: [
+    {
+      id: 'gallery_depth_gauge', type: 'inspect', x: 8.5, y: 8.5, label: 'Broken depth gauge', flag: 'gallery_clue_gauge',
+      pages: [
+        ['An Imperial water-depth gauge — new brass, the maker’s stamp barely worn — bolted straight onto the old masonry.',
+         'Someone drilled into stone this old without a second thought, to hang a modern instrument on it.'],
+        ['The float mechanism is snapped clean. The last marker it set sits far down the scale.',
+         'Below every line printed for the seasonal minimum. Below the numbers the makers thought worth printing.'],
+        ['The Empire came to measure this. It brought a good instrument and a firm bolt.',
+         'It did not bring any idea of what it was measuring.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R2C1: [
+    {
+      id: 'gallery_relief_panels', type: 'inspect', x: 8.5, y: 8.5, label: 'Ruined reliefs', flag: 'gallery_clue_reliefs',
+      pages: [
+        ['A run of carved relief panels, most of it eaten to blur by long immersion.',
+         'What survives shows figures moving through a hall like this one — upright, unhurried, on dry footing.'],
+        ['Around them the carver cut open ground and low horizon. No water over any of it.',
+         'Either the basin stood dry when this was made, or it was made before there was a reservoir to fill it.'],
+        ['The figures give you nothing else. No faces left, no marks you can read, no name.',
+         'Only this: the hall was not built to be underwater. It was underwater later.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R1C3: [
+    {
+      id: 'gallery_second_visitor', type: 'inspect', x: 8.5, y: 8.5, label: 'A second track', flag: 'gallery_clue_visitor',
+      pages: [
+        ['A single boot print in a skin of silt, set apart from the rest.',
+         'The tread is wrong for either of them — narrower, harder-heeled than the boots the district issues to men like Garrick and Dreyfuss. A better boot than a surveyor draws.'],
+        ['Nearby a length of cord has been cut, not snapped: one clean face, no fray.',
+         'And a smear of lamp-soot with an oily sheen the fen’s tallow doesn’t leave. Someone burned better oil than you can buy in Drenwick.'],
+        ['None of it proves a third person came down here after the two observers.',
+         'It’s the kind of thing you write in a report as noticed, not concluded. But you notice it.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R0C2: [
+    {
+      id: 'gallery_notebook', type: 'inspect', x: 8.5, y: 7.5, facing: 'up', label: "Observer's notebook", flag: 'gallery_clue_notebook',
+      pages: [
+        ['The notebook — here, of all places. Not dropped in flight but wrapped in oilcloth and set on the ledge, deliberately, above the old waterline.',
+         'The cover is inked in the same hand as the survey marks: G. GARRICK. He wanted it kept — took a steady minute to see it kept — which fits nothing else down here.'],
+        ['The measurements run for pages, careful and ordinary, until the last complete entry:',
+         '“The rate of loss cannot be accounted for by heat or by any ordinary drainage. I have stopped pretending otherwise.”'],
+        ['The next page — the last one written — has been torn out. Cleanly, close to the spine.',
+         'Not by water. Not by hurry. By a hand that took the time to leave the rest and remove only that.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R0C4: [
+    {
+      id: 'gallery_submerged_stair', type: 'inspect', x: 7.5, y: 9.5, facing: 'up', label: 'Submerged staircase', flag: 'gallery_clue_stair',
+      pages: [
+        ['The floor gives way to standing black water, and through it — worked steps.',
+         'A staircase, wide and deliberate, descending straight down past where the light quits.'],
+        ['You crouch at the edge. The water is dead still and colder than the air.',
+         'The steps go well below anything you could reach without the level falling much further, or a way you don’t have yet.'],
+        ['Wherever this hall truly goes, it goes down there.',
+         'Not today. You mark the spot and leave it for the water to give up on its own.'],
+      ],
+    },
+  ],
+  // The body of the second observer, Dreyfuss, washed up on a silt bar in a
+  // flooded hall. `flag: gallery_body_found` feeds the Supervisor's report
+  // (reportBasinFindings) but is NOT one of the eight reward-tier clues.
+  SUNKEN_GALLERY_R1C4: [
+    {
+      id: 'gallery_dreyfuss_body', type: 'inspect', x: 7.5, y: 7.5, label: 'A body in the silt', flag: 'gallery_body_found',
+      pages: [
+        ['A shape on the silt bar that your eye keeps refusing, until it won’t any longer.',
+         'A man. Face down where the shallows meet a silt bank, one arm folded under him, the other reaching nothing.'],
+        ['District greatcoat, sodden black. A surveyor’s satchel-strap, empty. The cold and the water have kept him better than the months should have.',
+         'You turn back the collar. A laundry-tag, and a name inked on it by someone who once did his washing at home: DREYFUSS.'],
+        ['No wound you can find. No struggle in the silt around him — he lay down here, or was laid, and the water came up quiet.',
+         'So that is one of them answered, and answered the worst way. Garrick is still a question. This is not.'],
+        ['You cannot carry him out, not through what’s between here and the stair. You note the place, and how he lies, and you say the one useful thing there is to say to a man in the dark.',
+         'Then you leave him to the cold that kept him, and go on.'],
+      ],
+    },
+  ],
 };
 
 // Evaluates a feature's `condition`, safely -- a throwing condition is
@@ -845,6 +980,14 @@ function tryMapFeatures() {
       pages = resolveMapFeaturePages(feature.pages, feature.id);
       if (pages && feature.onceFlag) window[feature.onceFlag] = true;
     }
+
+    // `flag` (optional): a persistent window flag set to true whenever this
+    // feature's pages are actually shown -- UNLIKE onceFlag it does NOT gate
+    // repeats (the clue stays re-readable), it just records "the player has
+    // investigated this". Used by the Sunken Gallery clue-reporting: each
+    // observer clue sets its gallery_clue_* flag, which the Supervisor reads
+    // back when the player reports in (interactSupervisor).
+    if (pages && feature.flag) window[feature.flag] = true;
 
     // This IS the matching feature for the player's position (map + coords
     // + facing all satisfied) -- consume the interact press either way, so
@@ -1406,8 +1549,8 @@ function supervisorDialogueBody() {
        '\u201cNorth of Drenwick, past the basin flats.',
        'Go and look at what the water left behind.\u201d'],
       ['\u201cOne more thing, and I will say it plainly.\u201d',
-       '\u201cA basin observer went out ahead of you to inspect the exposed stonework.',
-       'His report came back incomplete. He did not come back at all.\u201d'],
+       '\u201cTwo basin observers went out ahead of you to inspect the exposed stonework \u2014 Garrick and Dreyfuss, the pair the Drenwick office keeps on its books.',
+       'Garrick\u2019s reports came back a while, then stopped. Dreyfuss sent nothing at all. Neither of them came back.\u201d'],
       ['\u201cI won\u2019t dress this up as routine. It isn\u2019t the sluice, and it isn\u2019t a ledger error.\u201d',
        '\u201cIf you find yourself uneasy walking out there \u2014 good.',
        'Uneasy is the correct reading of the file.\u201d'],
@@ -1418,7 +1561,23 @@ function supervisorDialogueBody() {
       reservoir_quest_started = true;
       syncQuestFlagsToWindow();
     }];
-  } else if (fort_quest_stage === 6 && reservoir_quest_started) {
+  } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed) {
+    // The findings have been reported and logged \u2014 closing acknowledgment, with
+    // a lasting line on the two observers' standing outcome.
+    dialogue.pages = [
+      ['\u201cThe basin report is logged. District has it now.\u201d',
+       '\u201cWhat becomes of it is above this office, and for once I am glad of that.\u201d'],
+      window.gallery_body_found
+        ? ['\u201cDreyfuss\u2019s file I can close, in the way you close a file with a body under it. Garrick\u2019s I cannot.\u201d',
+           '\u201cOne found, one still a question. If you go back down and the basin has given up more of him, you tell me first.\u201d']
+        : ['\u201cGarrick and Dreyfuss stay open on the ledger. Two lines with no last entry.\u201d',
+           '\u201cThe basin has not finished answering. It rarely has.\u201d'],
+      ['\u201cYou went down there, and you came back up. Note the order.\u201d',
+       'He almost smiles. He doesn\u2019t quite.'],
+    ];
+    dialogue.callbacks = null;
+  } else if (fort_quest_stage === 6 && reservoir_quest_started && !window.sunken_gallery_seen) {
+    // Assigned, but the player hasn't descended into the gallery yet.
     dialogue.pages = [
       ['\u201cThe reservoir bed. North of Drenwick.\u201d',
        '\u201cThe surveyors won\u2019t go back out until somebody tells them what\u2019s there.',
@@ -1427,12 +1586,167 @@ function supervisorDialogueBody() {
        'And back \u2014 the last part is still part of the job.\u201d'],
     ];
     dialogue.callbacks = null;
+  } else if (fort_quest_stage === 6 && reservoir_quest_started) {
+    // Been down into the gallery and returned \u2014 offer to make the report.
+    dialogue.pages = [
+      ['\u201cInvestigator.\u201d',
+       'He closes the ledger.'],
+      ['\u201cYou went down into the reservoir bed. Into whatever the water uncovered.\u201d',
+       '\u201cTell me what you found.\u201d'],
+    ];
+    dialogue.callbacks = [function () {
+      choice.title   = 'Supervisor';
+      choice.options = ['Report what I found', 'Not finished down there'];
+      choice.cursor  = 0;
+      choice.callbacks = [reportBasinFindings, function notYet() {}];
+      choice.open = true;
+    }];
   } else {
     dialogue.pages = [
       ['\u201cThat post south of Drenwick.', 'Have you looked into it yet?\u201d'],
     ];
     dialogue.callbacks = null;
   }
+}
+
+// The Sunken Gallery report. Assembled from the observer-clue investigation
+// flags (gallery_clue_*, set by the MAP_FEATURES `flag` field) plus the two
+// interactive-beat flags, so the supervisor's reply reflects exactly which
+// clues the player actually investigated. Called from the "Report what I found"
+// choice in supervisorDialogueBody once the player has descended and returned.
+// Sets reservoir_report_filed so the report is one-time; no reward/quest-stage
+// side effects (this closes the observer thread narratively, not the main quest).
+function reportBasinFindings() {
+  const f = (k) => !!window[k];
+  const satchel  = f('gallery_clue_satchel');
+  const notebook = f('gallery_clue_notebook');
+  const visitor  = f('gallery_clue_visitor');
+  const survey   = f('gallery_clue_survey');
+  const silt     = f('gallery_clue_silt');
+  const gauge    = f('gallery_clue_gauge');
+  const reliefs  = f('gallery_clue_reliefs');
+  const stair    = f('gallery_clue_stair');
+  const body     = f('gallery_body_found'); // Dreyfuss's body \u2014 not a reward-tier clue, but the supervisor reacts to it
+  const clueCount = [satchel, notebook, visitor, survey, silt, gauge, reliefs, stair].filter(Boolean).length;
+
+  const pages = [];
+  pages.push(['He listens without writing anything down.',
+              'With him that is not inattention. It is the opposite.']);
+
+  // 1. The two observers \u2014 Dreyfuss (the body) and Garrick (the notebook/kit
+  //    trail) \u2014 what the supervisor cares about first.
+  if (body) {
+    pages.push(['You tell him about Dreyfuss first. You do not soften it and he does not ask you to.',
+                '\u201cFace down on a silt bar. No wound on him.\u201d He lets it sit. \u201cThen that is one of the two found, and found the worst way there is.\u201d']);
+  } else {
+    pages.push(['\u201cNeither man did you find laid to rest, then. Not Garrick, not Dreyfuss.\u201d',
+                'He does not make it an accusation. \u201cTwo went north and the basin kept both. Note only that I asked after them.\u201d']);
+  }
+  if (notebook) {
+    pages.push(['You set Garrick\u2019s notebook on the desk. He does not pick it up at once.',
+                '\u201cSo Garrick kept writing. Right to the end of it.\u201d']);
+    pages.push(['He reads the last full entry twice \u2014 the water loss that heat and drainage do not account for \u2014 then the torn edge after it.',
+                '\u201cThe conclusion is here. The reason he reached it is on the page somebody took.\u201d']);
+    pages.push(['\u201cHe was a careful man. Careful men do not mislay their last page.\u201d',
+                'He closes the book. \u201cThat part will not go in the summary. Not because it isn\u2019t true.\u201d']);
+  } else if (satchel) {
+    pages.push(['\u201cGarrick\u2019s kit, at least, and where it snagged going by.\u201d He nods, slowly.',
+                '\u201cThen he reached it too. His notebook you did not find \u2014 so it is still down there, or it is not, and I dislike both.\u201d']);
+  } else if (silt) {
+    pages.push(['\u201cA place in the silt where a man went down, you say \u2014 and you could not tell me which of them.\u201d',
+                '\u201cNo. Down there I don\u2019t suppose you could.\u201d']);
+  } else if (!body) {
+    pages.push(['\u201cAnd of either of them, nothing at all \u2014 no kit, no line, no body.\u201d',
+                'He is quiet a moment. \u201cThen the stair is real, and both my observers are still a question.\u201d']);
+  } else {
+    pages.push(['\u201cOf Garrick, though \u2014 nothing. Not his kit, not a line he wrote.\u201d',
+                '\u201cOne found, one a question. It is not the halves I would have chosen.\u201d']);
+  }
+
+  // 2. The water itself \u2014 the local strangeness, no global cause.
+  if (survey || gauge) {
+    const bits = [];
+    if (survey) bits.push('water that fell in steps \u2014 fast, then held for days, then most of it gone in a single night');
+    if (gauge)  bits.push('an Imperial gauge reading below the lowest mark it was built to carry');
+    pages.push(['You describe ' + bits.join(', and ') + '.',
+                '\u201cThat is not a drought behaving. That is a drought being made to.\u201d']);
+    pages.push(['\u201cI will write \u2018cause undetermined,\u2019 because it is the honest phrase.',
+                'On the file it will read as though we simply did not try.\u201d']);
+  }
+
+  // 3. The structure \u2014 old, built dry, and it keeps going down.
+  if (reliefs || stair) {
+    const bits = [];
+    if (reliefs) bits.push('carvings of a dry hall, older than any map the district holds');
+    if (stair)   bits.push('a worked stair running on down, well below the standing water');
+    pages.push(['You tell him about ' + bits.join(', and ') + '.',
+                '\u201cSo it was built. Deliberately. Before the water, or in spite of it.\u201d']);
+    if (stair) {
+      pages.push(['\u201cAnd it continues below the line you could reach.\u201d',
+                  '\u201cWhen the water gives up more of it, this office will be interested again. Note that it will not be your choice when.\u201d']);
+    }
+  }
+
+  // 4. The second visitor \u2014 kept as suspicion, not fact.
+  if (visitor) {
+    pages.push(['\u201cOne more thing,\u201d you say, and describe the second track \u2014 a harder boot, a cord cut clean, lamp-soot from oil the fens don\u2019t sell.',
+                'The pen stops.']);
+    pages.push(['\u201cYou are certain?\u201d',
+                'You say you are not \u2014 that it is the kind of thing a report should call noticed, not concluded.']);
+    pages.push(['\u201cGood. Then that is how I file it, and how you speak of it.\u201d',
+                '\u201cSomeone was down there who was neither of my observers nor you. That sentence stays in this room until it cannot.\u201d']);
+  }
+
+  // 5. Close and pay, weighted by how much the player actually turned up.
+  // Four tiers, four different rewards, on the same clue-count thresholds the
+  // closing assessment uses: nothing (0), thin (1-2), serviceable (3-5), and
+  // thorough (6-8). The district pays field rate directly on a report this size;
+  // the top tier also carries a piece of commendation gear off the hazard line.
+  let rewardGold, rewardItem;
+  if (clueCount >= 6) {
+    rewardGold = 250; rewardItem = 'Swiftstone';
+    pages.push(['He looks at you a moment longer than is comfortable.',
+                '\u201cYou were thorough. I asked for that and still did not quite expect it.\u201d',
+                '\u201cA good report. I only wish it frightened me less.\u201d']);
+    pages.push(['\u201cTwo hundred and fifty gold \u2014 full field rate, and the hazard line on top of it.\u201d',
+                'He sets a small polished stone beside the coin. \u201cAnd this. Commendation issue, not requisition. It answers to your name now.\u201d',
+                'Swiftstone \u2014 added to items.']);
+  } else if (clueCount >= 3) {
+    rewardGold = 150; rewardItem = 'Elixir';
+    pages.push(['\u201cA serviceable report,\u201d he says. \u201cThere is more down there than you brought me \u2014 there always is \u2014 but it holds together.\u201d']);
+    pages.push(['\u201cOne hundred and fifty gold, standard field rate.\u201d',
+                'He takes a stoppered flask from the office cabinet and sets it on the coin. \u201cAnd that. For next time. Out here there is usually a next time.\u201d',
+                'Elixir \u2014 added to items.']);
+  } else if (clueCount >= 1) {
+    rewardGold = 75; rewardItem = null;
+    pages.push(['\u201cThin,\u201d he says, not unkindly. \u201cYou did not linger. Given where you were standing, I will not fault you for it.\u201d']);
+    pages.push(['\u201cSeventy-five gold. Field rate, no bonus.\u201d',
+                'He counts it out without comment.']);
+  } else {
+    rewardGold = 20; rewardItem = null;
+    pages.push(['\u201cYou went down, and came up with almost nothing.\u201d He sets the pen down.',
+                '\u201cI would still rather have you back than the notes. But the notes would have helped.\u201d']);
+    pages.push(['\u201cTwenty gold. For the walk.\u201d',
+                'He does not pretend it is more than that.']);
+  }
+  pages.push(['\u201cIt is logged. District will do with it what district does.\u201d',
+              '\u201cYou came back. On this assignment I am counting that as the objective met.\u201d']);
+
+  dialogue.name = 'Supervisor';
+  dialogue.pages = pages;
+  dialogue.callbacks = [function () {
+    reservoir_report_filed = true;
+    stats.gold += rewardGold;
+    if (rewardItem) grantItem(rewardItem);
+    // Filing the basin report IS the completion of the reservoir arc — the
+    // main-story step advances here (MainQuest 3 -> 4), the same way each
+    // earlier arc closed on its reward callback (see the fen-post pay ticket).
+    if (MainQuest < 4) MainQuest = 4;
+    syncQuestFlagsToWindow();
+    refreshJobBoard();
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
 }
 
 // ─── Smuggler fort interaction ────────────────────────────────────────────────
@@ -5427,6 +5741,132 @@ function interactWrongteethFloor() {
   return interactionUiOpened();
 }
 
+// The Sunken Gallery's two interactive features. Everything else in the gallery
+// is a MAP_FEATURES inspect (see MAP_FEATURES above): this returns false when
+// the player isn't standing at one of the two, so handleInteract() falls
+// through to the generic inspect pass exactly as it does elsewhere.
+function interactSunkenGallery() {
+  // ── Maintenance recess (R2C2) — a small environmental action, not a fight ──
+  if (activeMap === SUNKEN_GALLERY_R2C2 && nearPlayer(8.5 * TILE, 8.5 * TILE, TALK_RADIUS * 1.5)) {
+    if (window.sunken_gallery_recess_opened) {
+      dialogue.name  = '';
+      dialogue.pages = [['The recess stands open, its fallen fragment shoved aside.',
+                         'Empty now but for grit and the smell of old oil.']];
+      dialogue.open  = true; dialogue.page = 0;
+      return true;
+    }
+    dialogue.name  = '';
+    dialogue.pages = [
+      ['Set into the masonry, a maintenance recess — its cover seated but not sealed, a fallen column fragment leaning across it.',
+       'No lock. Only weight, and a steady thread of cool air drawn in through the gap. Something behind it still draws breath.'],
+    ];
+    dialogue.callbacks = [function () {
+      choice.title     = 'Maintenance recess';
+      choice.cursor    = 0;
+      choice.options   = ['Shift the fallen fragment aside', 'Leave it'];
+      choice.callbacks = [
+        function openIt() {
+          window.sunken_gallery_recess_opened = true;
+          grantItem('Potion');
+          dialogue.name  = '';
+          dialogue.pages = [
+            ['The fragment grinds aside. Behind it a maintenance cache, kept bone-dry by its own draught of air:',
+             'a sealed flask of lamp oil, and an old ceramic water-filter, finely made, one edge chipped away.'],
+            ['Wedged behind them, a stoppered flask that has kept its contents clean all this time.',
+             'Potion — added to items.'],
+          ];
+          dialogue.open  = true; dialogue.page = 0;
+        },
+        function leaveIt() {},
+      ];
+      choice.open = true;
+    }];
+    dialogue.open = true; dialogue.page = 0;
+    return true;
+  }
+
+  // ── Trapped Pale Drowned (R1C2) — free it, put it down, or leave it ────────
+  if (activeMap === SUNKEN_GALLERY_R1C2 && nearPlayer(8.5 * TILE, 8.5 * TILE, TALK_RADIUS * 1.6)) {
+    if (window.sunken_gallery_drowned_slain) {
+      dialogue.name  = '';
+      dialogue.pages = [['Churned silt and flat water where the Pale Drowned was pinned.',
+                         'Whatever it had snagged on came apart in the fight — threads and nothing legible.']];
+      dialogue.open  = true; dialogue.page = 0;
+      return true;
+    }
+    if (window.sunken_gallery_drowned_freed) {
+      // Once the reservoir arc is finished (MainQuest 4) the Drowned you spared
+      // leaves a gift at the pool where you freed it — a one-time discovery.
+      if (MainQuest >= 4 && !window.sunken_gallery_gift_taken) {
+        dialogue.name  = '';
+        dialogue.pages = [
+          ['The pool lies still — but something waits at its edge that was not here before, set out with care on the dry stone above the waterline.',
+           'It has not been dropped. It has been placed. It has been left for you.'],
+          ['It is a made thing, a gift, and it is hideous: a lump of stretched pale skin bound over a knot of small bones, studded with teeth set in no order at all, blind chips of green river-glass pressed in where eyes would go.',
+           'Cold water still beads along it. Something worked at this a long while — with enormous care, and no idea in the world what a kind thing is shaped like.'],
+          ['Propped against it, a slab of damp wood. Letters have been dug deep into the grain by something with hard, sharp nails, pressed slow:',
+           '“GIANT THANK.”'],
+          ['You could leave it here in the dark that made it.',
+           'You take it. Of course you take it.',
+           'The Drowned’s Gift — added to items.'],
+        ];
+        dialogue.callbacks = [function () {
+          window.sunken_gallery_gift_taken = true;
+          grantItem("The Drowned's Gift");
+          syncQuestFlagsToWindow();
+        }];
+        dialogue.open  = true; dialogue.page = 0;
+        return true;
+      }
+      if (window.sunken_gallery_gift_taken) {
+        dialogue.name  = '';
+        dialogue.pages = [['The pool lies still. The stone above the waterline is bare now, where the gift had been set out for you.',
+                           'Somewhere under the black water, you hope, something is quietly pleased with itself.']];
+        dialogue.open  = true; dialogue.page = 0;
+        return true;
+      }
+      dialogue.name  = '';
+      dialogue.pages = [['The pool lies still. The Pale Drowned is somewhere under it now, or further down than that.',
+                         'You already have what it was tangled in, and the one word chalked on it.']];
+      dialogue.open  = true; dialogue.page = 0;
+      return true;
+    }
+    dialogue.name  = '';
+    dialogue.pages = [
+      ['A Pale Drowned is caught here — not waiting but snared, one arm sunk to the shoulder where the silt meets the pool, thrashing slow and tireless.',
+       'Tangled at its wrist: a length of a surveyor’s marking cord, and knotted to it a chalked wooden tag. You could read it — if it survives.'],
+    ];
+    dialogue.callbacks = [function () {
+      choice.title     = 'The trapped Pale Drowned';
+      choice.cursor    = 0;
+      choice.options   = ['Work it free', 'Put it down', 'Back away'];
+      choice.callbacks = [
+        function freeIt() {
+          window.sunken_gallery_drowned_freed = true;
+          dialogue.name  = '';
+          dialogue.pages = [
+            ['You brace and haul the cord loose. The Drowned tears free all at once — and doesn’t turn on you.',
+             'It slides backward into the black water without a ripple, and is simply gone, deeper in.'],
+            ['The tag stays whole in your hand. One word, chalked and scored hard enough to bite the wood:',
+             '“LISTENS.”'],
+          ];
+          dialogue.open  = true; dialogue.page = 0;
+        },
+        function killIt() {
+          window.sunken_gallery_drowned_slain = true; // clue destroyed the moment you choose the fight
+          startTrappedDrownedCombat();
+        },
+        function backAway() {},
+      ];
+      choice.open = true;
+    }];
+    dialogue.open = true; dialogue.page = 0;
+    return true;
+  }
+
+  return false; // not at either feature — let the MAP_FEATURES inspects run
+}
+
 // Overworld/town location handlers, in priority order. Mirrors the old inner
 // else-if chain exactly: conditions are unchanged and more-specific entries
 // (Drenwick variants) stay above their generic counterparts.
@@ -5449,6 +5889,7 @@ const OVERWORLD_INTERACT_HANDLERS = [
   { name: "provision-store"     , match: () => inTown && townBuilding === 'provision_store'                          , run: interactProvisionStore },
   { name: "tavern-drenwick"     , match: () => inTown && townBuilding === 'tavern' && currentTownId === 'drenwick'   , run: interactDrenwickTavern },
   { name: "house-interior"      , match: () => inTown && townBuilding === 'house'                                    , run: interactHouseInterior },
+  { name: "sunken-gallery"      , match: () => inSunkenGallery                                                       , run: interactSunkenGallery },
   { name: "wilds-and-outposts"  , match: () => true                                                                  , run: interactWildsAndOutposts },
 ];
 

@@ -1388,6 +1388,23 @@ const SIMPLE_NPCS = [
         ['\u201cThat road is properly open again.',
          'We had patrol requests backed up.\u201d']
       );
+      if (reservoir_quest_started && window.gallery_body_found) pages.push(
+        ['\u201cYou found Dreyfuss.\u201d He does not make it a question. Word comes down the canal faster than any report.',
+         '\u201cFace down in the flooded end. No wound. The water simply kept him.\u201d'],
+        ['\u201cThat is one of my two accounted for \u2014 and the worse of the two accounts to have to write.\u201d',
+         '\u201cGarrick is still out there. Or still down there. No body is not the same as alive. It is not the same as Dreyfuss either.\u201d'],
+        ['\u201cIf you go back, keep your eyes open for him. A man, or the place a man stopped.\u201d',
+         '\u201cI would close his file the honest way. I am not sure the basin means to let me.\u201d']
+      );
+      else if (reservoir_quest_started) pages.push(
+        ['\u201cThe basin observers \u2014 Garrick and Dreyfuss.\u201d',
+         'He says the names off a list he has read too many times.',
+         '\u201cThey worked out of this office. My signatures on their postings.\u201d'],
+        ['\u201cGarrick was the careful one \u2014 measured everything twice, wrote it all down. Dreyfuss went where Garrick pointed and didn\u2019t ask why.',
+         'A good pair for dull work. This stopped being dull.\u201d'],
+        ['\u201cGarrick\u2019s reports came thinner, then stranger, then not at all. From Dreyfuss, nothing once they passed the flats.\u201d',
+         '\u201cIf you find either of them out there, word comes back to this office as well as yours. They were mine before they were a file.\u201d']
+      );
       return pages;
     },
     flag_required: null,
@@ -1414,12 +1431,27 @@ const SIMPLE_NPCS = [
         ['\u201cTomorrow at first bell it resumes being mine.\u201d',
          'He drinks with the focus of a man keeping to a schedule.'],
       ];
-      return [
+      const pages = [
         ['\u201cThe third-quarter variance cross-references against the interim schedule before I can close the batch.\u201d',
          '\u201cIt has been this way for six weeks.\u201d'],
         ['\u201cIf the countersignature arrives after the period closes, it doesn\u2019t retroactively close the period.\u201d',
          '\u201cI\u2019ve explained this. I\u2019ll explain it again.\u201d'],
       ];
+      if (reservoir_quest_started && window.gallery_body_found) pages.push(
+        ['\u201cDreyfuss I can nearly close now. Cause of cessation: deceased, recovered \u2014 the register keeps a box for it. A small box, for a whole man.\u201d',
+         '\u201cGarrick stays open. Overdue past any schedule I could defend, and I have defended schedules no reasonable person would.\u201d'],
+        ['\u201cOne found, one not. The office prefers its pairs to resolve together. It is tidier.\u201d',
+         'He does not look tidy.',
+         '\u201cI did their postings. I initialed the line that sent the two of them up the flats. I remember doing it. It took me under a minute.\u201d']
+      );
+      else if (reservoir_quest_started) pages.push(
+        ['\u201cThere are two field files I cannot close. Garrick, G. \u2014 basin survey. Dreyfuss, no initial recorded, which is its own small crime against the register.\u201d',
+         '\u201cReports overdue eleven weeks and nine. A file stays open until its holder files or is filed. Neither man has done either.\u201d'],
+        ['\u201cPeople take me for callous about it. I am being accurate. The two are often confused.\u201d',
+         'He squares a corner of paper that was already square.',
+         '\u201cI would rather close them the ordinary way \u2014 sign-off, archive, done. I have started to doubt I will be given the ordinary way.\u201d']
+      );
+      return pages;
     },
     flag_required: null,
     flag_sets:     null,
@@ -1499,7 +1531,7 @@ const SIMPLE_NPCS = [
       ];
       // Inn-rumor seeding for the MQ4 assignment -- travellers carry talk.
       if (reservoir_quest_started) pages.push(
-        ['\u201cCoachman on the east road had a story. The basin office north of here keeps one observer on the books.\u201d',
+        ['\u201cCoachman on the east road had a story. The basin office north of here keeps two observers on the books \u2014 Garrick and Dreyfuss, he named them.\u201d',
          '\u201cKept, maybe. Apparently the reports stopped coming and nobody wants the walk up to find out why.\u201d'],
         ['\u201cIt\u2019s always \u2018nobody wants the walk.\u2019\u201d',
          '\u201cIt\u2019s never \u2018nobody wants to know.\u2019 People always want to know.\u201d']
@@ -4128,24 +4160,10 @@ const SIMPLE_NPCS = [
     solid:      true,
     facing:     'down',
     spriteType: 'patron',
-    get dialogue() {
-      return day % 5 === 0
-        ? [
-            ['\u201cHalf off the pickled roots, love, half off! Come see, come buy!\u201d',
-             '\u201cNot gone bad \u2014 I just en\u2019t haulin\u2019 them home. Your gain, and my poor back\u2019s relief.\u201d'],
-          ]
-        : [
-            ['\u201cPickled fen root, dried marsh herb, sealed eel paste! Reed-wax jars, sealed tight and true!\u201d',
-             '\u201cKeeps a year and a day, if you love it and don\u2019t poke it. Puncture the seal and you\u2019ve only yourself to blame, dear.\u201d'],
-            ['\u201cDistrict moved the market hours twice this season \u2014 earlier, then back again, la!\u201d',
-             '\u201cAsk the vendors first? Never. They never do. You learn to sing over it, love, or you learn to sulk. I sing.\u201d'],
-            ['\u201cEleven years on this very corner, and I\u2019ll tell you a thing for free \u2014\u201d',
-             '\u201cwhen the new canal opened I doubled my trade three seasons running. Then it settled. Everything settles, pet. Even me. Now: two jars or three?\u201d'],
-          ];
-    },
+    dialogue:   [],   // handled by NPC_ACTIONS.noraReagentShop (fen-goods vendor)
     flag_required: null,
     flag_sets:     null,
-    action:        null,
+    action:        'noraReagentShop',
   },
 
   // ─── Drenwick canal docks — canal-margin fisher (Jost) ───────────────────────
@@ -4884,6 +4902,44 @@ NPC_ACTIONS.lorraShop = function(npc) {
           dialogue.open  = true;
           dialogue.page  = 0;
         }
+      },
+      function leave() {},
+    ];
+    choice.open = true;
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
+};
+
+// Nora — Drenwick market fen-goods seller. Sells the two cheap sex-specific
+// toad-banes (Henbane Sprig / Jackbane Vial, 8g each) that instantly drop a
+// matched Mire Toad in combat. Same dialogue→choice→buy shape as lorraShop.
+NPC_ACTIONS.noraReagentShop = function(npc) {
+  dialogue.name  = npc.name;
+  dialogue.pages = [
+    ['“Fen remedies, love! Dried marsh herb, pickled root — and the two you’ll really want out in the reeds.”',
+     '“Toad-bane. There’s jack-toads and hen-toads, see — same to the eye as two peas in a pod. But a Jackbane drops the one, a Henbane the other. Eight gold each, cheap at twice it.”'],
+    ['“Use the wrong one and you’ve wasted your hand and only made the toad cross. Use the right one and it’s over before it’s begun.”',
+     '“Can’t tell jack from hen by looking? No one can, pet. You look close — really close — before you throw. That’s the whole trick, and the only bit I give free.”'],
+  ];
+  dialogue.callbacks = [function() {
+    choice.title   = npc.name;
+    choice.options = ['Henbane Sprig  (8g)', 'Jackbane Vial  (8g)', 'No thank you'];
+    choice.cursor  = 0;
+    choice.callbacks = [
+      function buyHen() {
+        dialogue.name = npc.name;
+        if (stats.gold >= 8) { stats.gold -= 8; grantItem('Henbane Sprig');
+          dialogue.pages = [['“There you are. For the hen, mind — look close before you throw.”']]; }
+        else { dialogue.pages = [['“Eight gold, love. Come back when you’ve got it.”']]; }
+        dialogue.open = true; dialogue.page = 0;
+      },
+      function buyJack() {
+        dialogue.name = npc.name;
+        if (stats.gold >= 8) { stats.gold -= 8; grantItem('Jackbane Vial');
+          dialogue.pages = [['“Good pick. For the jack — and match it to the toad, or you’ve thrown coin in the reeds.”']]; }
+        else { dialogue.pages = [['“Eight gold, love. Come back when you’ve got it.”']]; }
+        dialogue.open = true; dialogue.page = 0;
       },
       function leave() {},
     ];

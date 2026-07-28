@@ -87,6 +87,7 @@ let fort_report_filed        = false;
 // quest is actually completed (same pattern as every earlier main step).
 let mq4_available_day        = 0;     // day the reservoir assignment unlocks; 0 = rest order not yet given
 let reservoir_quest_started  = false; // supervisor gave the reservoir bed assignment
+let reservoir_report_filed   = false; // player has reported the Sunken Gallery findings back to the supervisor
 
 // ─── Side quest: The Weight Discrepancy ───────────────────────────────────────
 // A cargo weight mismatch between Drenwick harbormaster records and Calwick
@@ -235,6 +236,7 @@ function syncQuestFlagsToWindow() {
   window.fort_report_filed       = fort_report_filed;
   window.mq4_available_day       = mq4_available_day;
   window.reservoir_quest_started = reservoir_quest_started;
+  window.reservoir_report_filed  = reservoir_report_filed;
   window.schilling_quest_started = schilling_quest_started;
   window.schilling_returned      = schilling_returned;
   window.drama_stage             = drama_stage;
@@ -280,6 +282,24 @@ function syncQuestFlagsToWindow() {
   // (not a boolean), normalized undefined -> 0 so saveGame() never writes undefined.
   window.basin_chamber_exits  = window.basin_chamber_exits || 0;
   window.basin_chamber_dream_done = !!window.basin_chamber_dream_done;
+  // Sunken Gallery investigation flags -- window-native, set directly by the
+  // gallery interaction handlers; only normalized undefined -> false here.
+  window.sunken_gallery_recess_opened = !!window.sunken_gallery_recess_opened;
+  window.sunken_gallery_drowned_freed = !!window.sunken_gallery_drowned_freed;
+  window.sunken_gallery_drowned_slain = !!window.sunken_gallery_drowned_slain;
+  window.sunken_gallery_gift_taken    = !!window.sunken_gallery_gift_taken;
+  // Observer-clue investigation flags (set by MAP_FEATURES `flag`) -- window is
+  // the source of truth; only normalize undefined -> false so saveGame() never
+  // writes undefined for a clue the player hasn't reached yet.
+  window.gallery_clue_silt     = !!window.gallery_clue_silt;
+  window.gallery_clue_satchel  = !!window.gallery_clue_satchel;
+  window.gallery_clue_survey   = !!window.gallery_clue_survey;
+  window.gallery_clue_gauge    = !!window.gallery_clue_gauge;
+  window.gallery_clue_reliefs  = !!window.gallery_clue_reliefs;
+  window.gallery_clue_visitor  = !!window.gallery_clue_visitor;
+  window.gallery_clue_notebook = !!window.gallery_clue_notebook;
+  window.gallery_clue_stair    = !!window.gallery_clue_stair;
+  window.gallery_body_found    = !!window.gallery_body_found;
 }
 window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 

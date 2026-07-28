@@ -19,14 +19,14 @@ point-tile doors (the region's entry from Drenwick is still a point-tile).
 agreement by `validateGameData()`).
 
 - **44 tests**, `node test/run.js` — all passing.
-- **Transition audit**, `node test/transition-audit.js` — 77 maps, 236
-  fixed-destination transitions, 22 preserved-coordinate transitions, 42
-  house doors, 63 tile constants cross-referenced — clean, no findings.
+- **Transition audit**, `node test/transition-audit.js` — 101 maps, 236
+  fixed-destination transitions, 20 preserved-coordinate transitions, 42
+  house doors, 61 tile constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
-  (see below), across 77 maps, 18,480 tile cells, 14 edge transitions, 171
-  NPCs, 109 item placements, 38 enemy templates, 553 dialogue/text entries,
-  108 save-flag checks, 49 map features.
+  (see below), across 101 maps, 24,240 tile cells, 94 edge transitions, 171
+  NPCs, 109 item placements, 40 enemy templates, 577 dialogue/text entries,
+  111 save-flag checks, 57 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 

@@ -45,6 +45,20 @@ const QUEST_FLAG_SCHEMA = [
   'upper_reach_seen', 'basin_chamber_seen', 'sunken_gallery_seen',
   'basin_chamber_exits',       // window-native counter (chamber exits)
   'basin_chamber_dream_done',   // window-native flag: the one-time dream+infirmary sequence has fired
+  // Sunken Gallery investigation — window-native flags for the two interactive
+  // features (interactions.js). The gallery is allowSave:false, so these only
+  // ever persist a resolution made on one descent into a save written later
+  // (after climbing back out), keeping the recess un-relootable and the freed/
+  // slain Pale Drowned decision permanent.
+  'sunken_gallery_recess_opened', 'sunken_gallery_drowned_freed', 'sunken_gallery_drowned_slain',
+  'sunken_gallery_gift_taken',  // window-native: took the freed Pale Drowned's post-MQ4 gift
+  // Sunken Gallery observer-clue investigation flags (window-native, set by the
+  // MAP_FEATURES `flag` field when each clue is inspected) + the let-binding for
+  // whether the player has reported the findings to the Calwick supervisor.
+  'gallery_clue_silt', 'gallery_clue_satchel', 'gallery_clue_survey', 'gallery_clue_gauge',
+  'gallery_clue_reliefs', 'gallery_clue_visitor', 'gallery_clue_notebook', 'gallery_clue_stair',
+  'gallery_body_found',  // found the second observer (Dreyfuss)'s body in the gallery
+  'reservoir_report_filed',
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
 
@@ -356,6 +370,7 @@ function loadGame() {
   if (data.fort_report_filed        !== undefined) fort_report_filed        = data.fort_report_filed;
   if (data.mq4_available_day        !== undefined) mq4_available_day        = data.mq4_available_day;
   if (data.reservoir_quest_started  !== undefined) reservoir_quest_started  = data.reservoir_quest_started;
+  if (data.reservoir_report_filed   !== undefined) reservoir_report_filed   = data.reservoir_report_filed;
   if (data.den_wraith_quest_started !== undefined) den_wraith_quest_started = data.den_wraith_quest_started;
   if (data.den_wraith_defeated      !== undefined) den_wraith_defeated      = data.den_wraith_defeated;
   if (data.den_wraith_rewarded      !== undefined) den_wraith_rewarded      = data.den_wraith_rewarded;
@@ -369,6 +384,14 @@ function loadGame() {
   if (data.sunken_gallery_seen  !== undefined) window.sunken_gallery_seen  = data.sunken_gallery_seen;
   if (data.basin_chamber_exits  !== undefined) window.basin_chamber_exits  = data.basin_chamber_exits;
   if (data.basin_chamber_dream_done !== undefined) window.basin_chamber_dream_done = data.basin_chamber_dream_done;
+  if (data.sunken_gallery_recess_opened !== undefined) window.sunken_gallery_recess_opened = data.sunken_gallery_recess_opened;
+  if (data.sunken_gallery_drowned_freed !== undefined) window.sunken_gallery_drowned_freed = data.sunken_gallery_drowned_freed;
+  if (data.sunken_gallery_drowned_slain !== undefined) window.sunken_gallery_drowned_slain = data.sunken_gallery_drowned_slain;
+  if (data.sunken_gallery_gift_taken    !== undefined) window.sunken_gallery_gift_taken    = data.sunken_gallery_gift_taken;
+  for (const k of ['gallery_clue_silt','gallery_clue_satchel','gallery_clue_survey','gallery_clue_gauge',
+                   'gallery_clue_reliefs','gallery_clue_visitor','gallery_clue_notebook','gallery_clue_stair',
+                   'gallery_body_found'])
+    if (data[k] !== undefined) window[k] = data[k];
   if (data.esla_said_sluice          !== undefined) esla_said_sluice          = data.esla_said_sluice;
   if (data.esla_said_dispatch        !== undefined) esla_said_dispatch        = data.esla_said_dispatch;
   if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;

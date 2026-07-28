@@ -76,7 +76,31 @@
     "MIRE_VAULT_MAP",
     "TAKOMO_MAP",
     "HAMLET_INTERIOR_MAP",
-    "FEN_BREWERY_MAP"
+    "FEN_BREWERY_MAP",
+    "SUNKEN_GALLERY_R0C0",
+    "SUNKEN_GALLERY_R0C1",
+    "SUNKEN_GALLERY_R0C2",
+    "SUNKEN_GALLERY_R0C3",
+    "SUNKEN_GALLERY_R0C4",
+    "SUNKEN_GALLERY_R1C0",
+    "SUNKEN_GALLERY_R1C1",
+    "SUNKEN_GALLERY_R1C2",
+    "SUNKEN_GALLERY_R1C3",
+    "SUNKEN_GALLERY_R1C4",
+    "SUNKEN_GALLERY_R2C0",
+    "SUNKEN_GALLERY_R2C1",
+    "SUNKEN_GALLERY_R2C2",
+    "SUNKEN_GALLERY_R2C3",
+    "SUNKEN_GALLERY_R2C4",
+    "SUNKEN_GALLERY_R3C0",
+    "SUNKEN_GALLERY_R3C1",
+    "SUNKEN_GALLERY_R3C2",
+    "SUNKEN_GALLERY_R3C3",
+    "SUNKEN_GALLERY_R3C4",
+    "SUNKEN_GALLERY_R4C1",
+    "SUNKEN_GALLERY_R4C2",
+    "SUNKEN_GALLERY_R4C3",
+    "SUNKEN_GALLERY_R4C4"
   ],
   "dimReport": [
     {
@@ -537,6 +561,150 @@
     },
     {
       "id": "FEN_BREWERY_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R0C0",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R0C1",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R0C2",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R0C3",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R0C4",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R1C0",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R1C1",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R1C2",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R1C3",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R1C4",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R2C0",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R2C1",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R2C2",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R2C3",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R2C4",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R3C0",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R3C1",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R3C2",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R3C3",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R3C4",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R4C1",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R4C2",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R4C3",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SUNKEN_GALLERY_R4C4",
       "rows": 15,
       "cols": 16,
       "ok": true

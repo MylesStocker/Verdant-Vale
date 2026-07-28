@@ -1426,6 +1426,52 @@ const EDGE_TRANSITIONS = {
 };
 window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 
+// ─── Sunken Gallery 5×5 grid links ────────────────────────────────────────────
+// The gallery grid (maps.js) is wired here rather than as 25 more hand-written
+// EDGE_TRANSITIONS literals: every interior room joins its orthogonal neighbours
+// with a full-width open edge, so the join ranges are uniform and mechanical.
+// The entrance room (SUNKEN_GALLERY_MAP, grid cell R4C0) is the one exception —
+// it keeps the two narrower, offset doorways cut into its existing detailed
+// layout (north cols 4-6 up to R3C0; east rows 3-5 across to R4C1), so those
+// four segments are spelled out explicitly and the loop skips the entrance.
+// The blank neighbours open their whole facing side, so the return trips clamp
+// back into those narrow ranges via targetRange.
+(function wireSunkenGalleryGrid() {
+  const ENTRANCE = 'SUNKEN_GALLERY_MAP';
+  const cellId = (r, c) => (r === 4 && c === 0) ? ENTRANCE : ('SUNKEN_GALLERY_R' + r + 'C' + c);
+  const FULL_NS = [1, 14]; // full open width for a north/south join between two blank rooms
+  const FULL_EW = [1, 13]; // full open height for an east/west join
+  function add(mapId, dir, seg) {
+    if (!EDGE_TRANSITIONS[mapId]) EDGE_TRANSITIONS[mapId] = {};
+    if (!EDGE_TRANSITIONS[mapId][dir]) EDGE_TRANSITIONS[mapId][dir] = [];
+    EDGE_TRANSITIONS[mapId][dir].push(seg);
+  }
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const id = cellId(r, c);
+      if (c < 4) { // east neighbour
+        const east = cellId(r, c + 1);
+        if (id !== ENTRANCE && east !== ENTRANCE) {
+          add(id,   'east', { targetMap: east, targetEdge: 'west', sourceRange: FULL_EW });
+          add(east, 'west', { targetMap: id,   targetEdge: 'east', sourceRange: FULL_EW });
+        }
+      }
+      if (r < 4) { // south neighbour
+        const south = cellId(r + 1, c);
+        if (id !== ENTRANCE && south !== ENTRANCE) {
+          add(id,    'south', { targetMap: south, targetEdge: 'north', sourceRange: FULL_NS });
+          add(south, 'north', { targetMap: id,    targetEdge: 'south', sourceRange: FULL_NS });
+        }
+      }
+    }
+  }
+  // The entrance's two doorways and their reciprocals.
+  add(ENTRANCE, 'north', { targetMap: 'SUNKEN_GALLERY_R3C0', targetEdge: 'south', sourceRange: [4, 6] });
+  add('SUNKEN_GALLERY_R3C0', 'south', { targetMap: ENTRANCE, targetEdge: 'north', sourceRange: FULL_NS, targetRange: [4, 6] });
+  add(ENTRANCE, 'east', { targetMap: 'SUNKEN_GALLERY_R4C1', targetEdge: 'west', sourceRange: [3, 5] });
+  add('SUNKEN_GALLERY_R4C1', 'west', { targetMap: ENTRANCE, targetEdge: 'east', sourceRange: FULL_EW, targetRange: [3, 5] });
+})();
+
 // Attempts an edge transition off activeMap in the given direction, from the
 // player's current position. Returns true if a transition actually
 // executed (activeMap/player position/facing were changed) — false in

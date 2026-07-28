@@ -28,7 +28,7 @@ module.exports = {
     g.run('startCombat()');
     g.run(`
       stats.items = [{ name: 'Potion', type: 'potion', heals: 20, price: 30 }];
-      stats.hp = 10; stats.maxHp = 100; stats.def = 0;
+      stats.hp = 60; stats.maxHp = 100; stats.def = 0; // headroom to survive a crit (up to 36) so the turn resolves to 'choose'
       stats.armor = null; stats.shield = null;
       combat.enemy = { name: 'Test Dummy', hp: 999, maxHp: 999, atk: 20, def: 100, spd: 0 };
       combat.phase = 'choose'; combat.cursor = 1; // combatOptions()[1] === 'item'
@@ -58,11 +58,17 @@ module.exports = {
     // press (there's no pending victory/defeat/escape flag to hold it open).
     const hpBeforeEnemyTurn = g.run('stats.hp');
     g.press('Enter');
-    assert.match(g.run('combat.message'), /attacks for \d+!/, 'the enemy should get a response message after the item turn');
+    const enemyMsg = g.run('combat.message');
+    assert.match(enemyMsg, /attacks for \d+!/, 'the enemy should get a response message after the item turn');
     const hpAfterEnemyTurn = g.run('stats.hp');
     assert.ok(hpAfterEnemyTurn < hpBeforeEnemyTurn, 'the enemy should have dealt damage after the item turn');
-    assert.ok(hpBeforeEnemyTurn - hpAfterEnemyTurn >= 16 && hpBeforeEnemyTurn - hpAfterEnemyTurn <= 24,
-      `enemy damage should land in the expected 16-24 range (got ${hpBeforeEnemyTurn - hpAfterEnemyTurn})`);
+    // Base range is 16-24 (atk 20 * 0.8-1.2, def 0). A critical hit (flagged in
+    // the message) multiplies by 1.5, so allow up to 36 on those turns.
+    const dealt   = hpBeforeEnemyTurn - hpAfterEnemyTurn;
+    const wasCrit = /Critical/.test(enemyMsg);
+    const hiBound = wasCrit ? 36 : 24;
+    assert.ok(dealt >= 16 && dealt <= hiBound,
+      `enemy damage should land in the expected ${wasCrit ? 'crit 24-36' : '16-24'} range (got ${dealt})`);
     assert.equal(g.run('combat.phase'), 'choose', 'combat should return to choose once the item-turn message sequence is fully drained');
 
     g.renderFrame();

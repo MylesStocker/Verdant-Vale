@@ -2619,6 +2619,50 @@ function drawBattleSwampDonkey(cx, cy) {
   ctx.fillRect(dx - 55, cy + 2, 11, 2);
 }
 
+// Mire Toad — a squat, wide fen toad, drawn IDENTICALLY for both the jack and
+// the hen (the sex is deliberately invisible; only Observe tells them apart).
+// A slow throat-pulse is the only motion. Mottled bog green over a pale belly,
+// bulging half-lidded eyes, a wide flat mouth.
+function drawBattleMireToad(cx, cy) {
+  const pulse = Math.round(Math.sin(tick * 0.06) * 2); // throat breathing
+  // Ground shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath(); ctx.ellipse(cx, cy + 10, 42, 8, 0, 0, Math.PI * 2); ctx.fill();
+  // Squat splayed legs
+  ctx.fillStyle = '#4c5a30';
+  ctx.fillRect(cx - 40, cy - 2, 14, 12);
+  ctx.fillRect(cx + 26, cy - 2, 14, 12);
+  ctx.fillStyle = '#3a4624';                       // webbed feet
+  ctx.fillRect(cx - 44, cy + 8, 20, 4);
+  ctx.fillRect(cx + 24, cy + 8, 20, 4);
+  // Wide low body
+  ctx.fillStyle = '#5c6c38';
+  ctx.fillRect(cx - 34, cy - 20, 68, 30);
+  ctx.fillStyle = '#6e7e46';                        // dorsal highlight
+  ctx.fillRect(cx - 30, cy - 22, 60, 8);
+  // Pale swollen belly
+  ctx.fillStyle = '#9aa06a';
+  ctx.fillRect(cx - 22, cy + 2 + pulse, 44, 8 - pulse);
+  // Warts / mottling
+  ctx.fillStyle = '#3f4a26';
+  ctx.fillRect(cx - 26, cy - 14, 7, 6);
+  ctx.fillRect(cx - 6,  cy - 16, 8, 7);
+  ctx.fillRect(cx + 14, cy - 12, 6, 6);
+  ctx.fillRect(cx + 2,  cy - 4,  7, 5);
+  // Broad head ridge with two bulging eyes
+  ctx.fillStyle = '#5c6c38';
+  ctx.fillRect(cx - 26, cy - 30, 52, 12);
+  ctx.fillStyle = '#c8c68a';                        // eye bulges
+  ctx.fillRect(cx - 22, cy - 36, 14, 12);
+  ctx.fillRect(cx + 8,  cy - 36, 14, 12);
+  ctx.fillStyle = '#141810';                        // slit pupils, half-lidded
+  ctx.fillRect(cx - 18, cy - 30, 7, 4);
+  ctx.fillRect(cx + 12, cy - 30, 7, 4);
+  // Wide flat mouth
+  ctx.fillStyle = '#2a3018';
+  ctx.fillRect(cx - 24, cy - 8, 48, 3);
+}
+
 // Pale Sentry — "It rose from the fen grass and has not left." Boss-scale
 // (500 HP, the game's toughest single fight): towering, fen-grown, eerily
 // motionless. Drawn largest and most detailed of this batch, on purpose.
@@ -3172,6 +3216,7 @@ const BATTLE_SPRITE_NAMES = new Set([
   'Crypt Revenant', 'Wall Tendril', 'Dripping Maw', 'The Seep',
   'Pale Drowned', 'Silt Hag', 'Pale Sentry', 'Smuggler Guard', 'Polwick',
   'Essa', 'Rainfish', 'Tallyman', 'Basin Gull', 'Dust-Drowned', 'Marrow Hulk', 'Swamp Donkey',
+  'Mire Toad',
 ]);
 window.BATTLE_SPRITE_NAMES = BATTLE_SPRITE_NAMES;
 
@@ -3235,6 +3280,7 @@ function drawBattleEnemy(cx, cy) {
   else if (n === 'Dust-Drowned')      drawBattleDustDrowned(cx, cy + 30);
   else if (n === 'Marrow Hulk')       drawBattleMarrowHulk(cx, cy + 46);
   else if (n === 'Swamp Donkey')      drawBattleSwampDonkey(cx, cy + 44);
+  else if (n === 'Mire Toad')         drawBattleMireToad(cx, cy + 54);
   else if (n === 'Pale Sentry')       drawBattlePaleSentry(cx, cy + 58);
   else if (n === 'Smuggler Guard')    drawBattleSmugglerGuard(cx, cy + 62);
   else if (n === 'Polwick')           drawBattlePolwick(cx, cy + 58);

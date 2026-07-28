@@ -50,6 +50,12 @@ const ITEM_REGISTRY = {
   // vault's mid-hall is reserved for a future secret crypt entrance)
   'Fen Cowl':        { name: 'Fen Cowl',        type: 'armor',  bonus: 4, price: 120 },
   'Ember Root':      { name: 'Ember Root',       type: 'potion', heals: 15, causesMuddied: true, price: 20 },
+  // Sex-specific fen reagents (folk toad-banes sold cheap in Drenwick). Used in
+  // combat: a matched reagent instantly drops the target (see combat.js's item
+  // branch); the wrong one, or one used on anything but a sexed enemy, is wasted
+  // and costs the turn. Henbane kills the hen (female); Jackbane the jack (male).
+  'Henbane Sprig':   { name: 'Henbane Sprig',    type: 'reagent', sexBane: 'female', price: 8 },
+  'Jackbane Vial':   { name: 'Jackbane Vial',    type: 'reagent', sexBane: 'male',   price: 8 },
   // Fen Brewery — Gorrit Wend sells freshly made mushroom wine directly (distinct
   // from the tavern's by-the-cup 'Mushroom Wine'); bought as a gift, not a heal item.
   'Bottle of Mushroom Wine': { name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12,  questItem: true },
@@ -67,6 +73,7 @@ const ITEM_REGISTRY = {
   'Letter from Netto': { name: 'Letter from Netto', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   'Dispatch Letter':   { name: 'Dispatch Letter',   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   "Doctor's Letter":   { name: "Doctor's Letter",   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },  // picked from the Drenwick infirmary counter
+  "The Drowned's Gift": { name: "The Drowned's Gift", type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true }, // left at the freed Pale Drowned's pool, post-MQ4 (Sunken Gallery R1C2)
 };
 
 // Returns a fresh instance of the named item. Never hands out (or mutates)

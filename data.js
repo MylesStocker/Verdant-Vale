@@ -1,10 +1,18 @@
 'use strict';
 
 // ─── Levelling ────────────────────────────────────────────────────────────────
-// XP required to reach each level; index = current level when checking for level-up.
-// e.g. at level 1, need xp >= XP_THRESHOLDS[1] (100) to advance to level 2.
-const XP_THRESHOLDS = [0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600];
-const MAX_LEVEL = 10; // indices 1-9 cover level-ups 1→2 through 9→10
+// Cumulative XP required to reach each level; index = current level when
+// checking for level-up. e.g. at level 1, need xp >= XP_THRESHOLDS[1] (100) to
+// advance to level 2. Levels 1→10 keep the original doubling curve (…12800,
+// 25600). From 10 onward the curve tapers to a steadily-growing (not doubling)
+// gap so levels 11-20 are a real endgame grind rather than unreachable: the
+// step between thresholds rises by ~5,000 each level, reaching 400,000 total
+// XP at level 20.
+const XP_THRESHOLDS = [
+  0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600,
+  40000, 60000, 85000, 115000, 150000, 190000, 235000, 285000, 340000, 400000,
+];
+const MAX_LEVEL = 20; // indices 1-19 cover level-ups 1→2 through 19→20
 
 // ─── Combat ───────────────────────────────────────────────────────────────────
 const ENEMY_TEMPLATES = [
@@ -83,6 +91,17 @@ const FAR_ENEMY_TEMPLATES = [
   { name: 'Fen Witch',     hp: 32, maxHp: 32, atk: 20, def: 2,  spd:  8, xp: 50, goldMin: 12, goldMax: 22 },
   // Bog Serpent — massive wetland snake; high HP and moderate attack, swift
   { name: 'Bog Serpent',   hp: 48, maxHp: 48, atk: 15, def: 4,  spd:  9, xp: 48, goldMin: 10, goldMax: 20 },
+  // Mire Toad — the jack and the hen. Two common fen toads, IDENTICAL in name,
+  // sprite and EVERY stat: the `sex` field is the only difference, and it is
+  // invisible in battle (never shown in the name, message, HP or stats). Only
+  // Observe reveals which is which (getObservationText), and only a sex-matched
+  // reagent (Henbane Sprig / Jackbane Vial, items.js) drops it in one move.
+  // Deliberately durable (high HP + def) and unpleasant (poison-skinned): a slow
+  // slog to grind down by attacks, and it drips toxin on a hit, so paying 8 gold
+  // and an Observe to end it instantly is the better play. Both entries in the
+  // pool so each sex is ~1-in-7 of a fen fight.
+  { name: 'Mire Toad',     hp: 72, maxHp: 72, atk: 15, def: 10, spd:  5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'male'   },
+  { name: 'Mire Toad',     hp: 72, maxHp: 72, atk: 15, def: 10, spd:  5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'female' },
 ];
 
 // Enemies specific to Thornmere (MAP4) and Thornmere Shallows (MAP5) — deeper fen, harder than the open marsh
@@ -965,4 +984,20 @@ const MAP_METADATA = {
     allowRandomEncounters: false, allowSave: true,
   },
 };
+
+// The 24 additional Sunken Gallery rooms (maps.js's 5×5 grid) all share the
+// entrance hall's profile: a dungeon-type map in the North Basin region, the
+// same Pale Drowned / Silt Hag encounter pool, no items, and no saving. Added
+// in a loop rather than as 24 near-identical literals. window[id] is the same
+// array MAP_REGISTRY holds, so the two tables agree by reference (validation
+// requires MAP_METADATA[id].map === MAP_REGISTRY[id].map).
+for (const cell of window.SUNKEN_GALLERY_GRID_CELLS) {
+  const id = 'SUNKEN_GALLERY_' + cell;
+  MAP_METADATA[id] = {
+    id: id, map: window[id], displayName: 'Sunken Gallery', region: 'North Basin',
+    type: 'dungeon', items: [], encounterPool: SUNKEN_GALLERY_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: false,
+    notes: 'One of the 24 blank rooms of the Sunken Gallery 5×5 grid (maps.js). GALLERY_FLOOR/GALLERY_WALL only, no other elements yet. Joined to its neighbours by EDGE_TRANSITIONS; shares the entrance hall’s encounter pool and allowSave: false.',
+  };
+}
 window.MAP_METADATA = MAP_METADATA;

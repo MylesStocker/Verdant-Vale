@@ -1971,6 +1971,47 @@ function drawGalleryStairUp(x, y) {
   ctx.fillRect(x + 11, y + 7,  10, 5);
 }
 
+// Temple shallows — the old gallery floor under a hand's-depth of standing
+// water. Same flagged stone as GALLERY_FLOOR, drowned under a green-grey sheen
+// with a couple of still reflections. Walkable and encounter-eligible: this is
+// what floods the ceremonial rooms without walling them off.
+function drawTempleShallows(x, y) {
+  ctx.fillStyle = '#3f4a4a';
+  ctx.fillRect(x, y, TILE, TILE);
+  // submerged flag seams, blurred darker
+  ctx.fillStyle = '#333e3e';
+  ctx.fillRect(x, y + 15, TILE, 2);
+  ctx.fillRect(x + 15, y, 2, TILE);
+  // standing-water sheen over the whole tile
+  ctx.fillStyle = 'rgba(84,126,132,0.42)';
+  ctx.fillRect(x, y, TILE, TILE);
+  // pale reflection glints
+  ctx.fillStyle = 'rgba(150,178,182,0.32)';
+  ctx.fillRect(x + 5,  y + 8,  8, 2);
+  ctx.fillRect(x + 19, y + 22, 7, 2);
+}
+
+// Temple carving — masonry worked with relief. Same dark block as GALLERY_WALL,
+// its face recessed into a panel and cut with a row of small standing figures,
+// crossed by the same dead-level mineral waterline crust. Blocking; the scene
+// itself is carried by MAP_FEATURES text where one is inspectable.
+function drawTempleCarving(x, y) {
+  ctx.fillStyle = '#2e332e';
+  ctx.fillRect(x, y, TILE, TILE);
+  // sunk panel
+  ctx.fillStyle = '#272c27';
+  ctx.fillRect(x + 3, y + 3, TILE - 6, TILE - 6);
+  // relief figures — three small standing forms with heads
+  ctx.fillStyle = '#3c4239';
+  for (const fx of [6, 14, 22]) {
+    ctx.fillRect(x + fx, y + 9, 3, 12);
+    ctx.fillRect(x + fx, y + 6, 3, 3);
+  }
+  // waterline crust across the carving
+  ctx.fillStyle = 'rgba(127,133,118,0.6)';
+  ctx.fillRect(x, y + 6, TILE, 2);
+}
+
 // Roddon silt — the raised bed of a long-dead creek. Firm, pale, and dry:
 // no cracking (that's BASIN_MUD's drought look elsewhere), just a smooth
 // silty crown with faint mineral banding and a scatter of small pale
@@ -2227,6 +2268,8 @@ function drawTile(id, x, y) {
     case GALLERY_FLOOR:           drawGalleryFloor(x, y);         break;
     case GALLERY_WALL:            drawGalleryWall(x, y);          break;
     case GALLERY_STAIR_UP:        drawGalleryStairUp(x, y);       break;
+    case TEMPLE_SHALLOWS:         drawTempleShallows(x, y);       break;
+    case TEMPLE_CARVING:          drawTempleCarving(x, y);        break;
     case RODDON_SILT:             drawRoddonSilt(x, y);           break;
     case CHARTER_STONE:           drawCharterStone(x, y);         break;
     case CISTERN:                 drawCistern(x, y);              break;
@@ -2266,7 +2309,7 @@ const RENDERABLE_TILE_IDS = new Set([
   SLUICE_MARK_WALL, SLUICE_NOTCH_WALL, SLUICE_BLOOD_FLOOR, SLUICE_JOURNAL_FLOOR,
   SLUICE_SECRET_ENTRANCE, SLUICE_SECRET_EXIT, DREAM_FLOOR, DREAM_EDGE,
   CHAMBER_DOOR, CHAMBER_FLOOR, CHAMBER_WALL, CHAMBER_EXIT,
-  SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, RODDON_SILT,
+  SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, TEMPLE_SHALLOWS, TEMPLE_CARVING, RODDON_SILT,
   CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;

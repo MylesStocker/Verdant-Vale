@@ -306,13 +306,16 @@ function dangerRating(stats) {
 // STEP 4 — player level curve (from the real XP_THRESHOLDS / level-up deltas)
 // ─────────────────────────────────────────────────────────────────────────
 function baseStatsAtLevel(level) {
-  // Mirrors state.js checkLevelUp(): +10 maxHp, +2 atk, +1 def per level; SPD never changes with level.
+  // Mirrors state.js checkLevelUp(). Max HP is a flat +10/level. ATK and DEF now
+  // each roll 1-3 per level (expected +2 each), and SPD rises ~half the time
+  // (expected +0.5). These are the EXPECTED (average) curves; a real playthrough
+  // varies run to run.
   return {
     level,
     maxHp: STARTING_STATS.maxHp + 10 * (level - 1),
     atk:   STARTING_STATS.atk + 2 * (level - 1),
-    def:   STARTING_STATS.def + 1 * (level - 1),
-    spd:   STARTING_STATS.spd,
+    def:   STARTING_STATS.def + 2 * (level - 1),
+    spd:   STARTING_STATS.spd + 0.5 * (level - 1),
   };
 }
 
@@ -343,12 +346,12 @@ console.log('='.repeat(78) + '\n');
 
 selfCheck();
 
-console.log('--- Player level curve (base stats, no gear) ---');
-console.log('Lvl | XP to reach | MaxHP | ATK | DEF | SPD');
+console.log('--- Player level curve (base stats, no gear; ATK/DEF/SPD are expected averages) ---');
+console.log('Lvl | XP to reach | MaxHP | ATK | DEF |  SPD');
 for (let lvl = 1; lvl <= MAX_LEVEL; lvl++) {
   const b = baseStatsAtLevel(lvl);
   const xpNeeded = lvl === 1 ? 0 : XP_THRESHOLDS[lvl - 1];
-  console.log(`${String(lvl).padStart(3)} | ${String(xpNeeded).padStart(11)} | ${String(b.maxHp).padStart(5)} | ${String(b.atk).padStart(3)} | ${String(b.def).padStart(3)} | ${String(b.spd).padStart(3)}`);
+  console.log(`${String(lvl).padStart(3)} | ${String(xpNeeded).padStart(11)} | ${String(b.maxHp).padStart(5)} | ${String(b.atk).padStart(3)} | ${String(b.def).padStart(3)} | ${b.spd.toFixed(1).padStart(4)}`);
 }
 
 console.log('\n--- Gear tiers (illustrative benchmarking assumption, see report) ---');

@@ -668,24 +668,29 @@ const BASIN_CHAMBER_MAP = [
 
 const BASIN_CHAMBER_ITEMS = [];
 
-// ─── The Sunken Gallery  (16 × 15) ───────────────────────────────────────────
+// ─── The Sunken Gallery — entrance hall  (16 × 15) ───────────────────────────
 // Down the drought-exposed stair. A long east-west hall that was underwater
 // until this year: silt drifts (BASIN_MUD) on the floor, column stubs, and
 // the whole south side still flooded — the water didn't leave, it only
 // pulled back this far. The flooded rows are impassable WATER: the gallery
-// visibly continues under it (future expansion goes there). Encounters use
+// visibly continues under it.
+// This hall is only the south-west corner (grid cell R4C0) of a larger 5×5
+// complex; the other 24 rooms (galleryRoom() below) open off to the north and
+// east. Two doorways are cut into this hall's walls to reach them: the north
+// wall at cols 4-6 (up into R3C0) and the east wall at rows 3-5 (across into
+// R4C1) — see EDGE_TRANSITIONS in world-transitions.js. Encounters use
 // SUNKEN_GALLERY_ENEMY_TEMPLATES via MAP_METADATA.encounterPool — Pale
 // Drowned and Silt Hag, identical stats to their Mire Vault entries (same
 // creatures, newly exposed hunting ground). GALLERY_STAIR_UP (110) at r2 c2
 // climbs back to the Upper Reach. No save here either (allowSave: false).
 const SUNKEN_GALLERY_MAP = [
   //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
-  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  //  0
-  [ 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109, 109],  //  1
+  [ 109, 109, 109, 109, 108, 108, 108, 109, 109, 109, 109, 109, 109, 109, 109, 109],  //  0  north doorway c4-6 → R3C0
+  [ 109, 109, 109, 109, 108, 108, 108, 109, 109, 109, 109, 109, 109, 109, 109, 109],  //  1
   [ 109, 109, 110, 108, 108, 108, 108, 108, 108, 109, 108, 108, 108, 108, 109, 109],  //  2  stair up c2; column stub c9
-  [ 109, 109, 108, 108,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 109, 109],  //  3  silt drifts c4, c12
-  [ 109, 109, 108, 108, 108, 109, 108, 108, 109, 108, 108, 108, 108, 108, 109, 109],  //  4  column stubs c5, c8
-  [ 109, 109,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 108, 108, 109, 109],  //  5  ← Potion at c13 (dry ledge)
+  [ 109, 109, 108, 108,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 108, 108],  //  3  east doorway c14-15 → R4C1; silt c4, c12
+  [ 109, 109, 108, 108, 108, 109, 108, 108, 109, 108, 108, 108, 108, 108, 108, 108],  //  4  east doorway c14-15; column stubs c5, c8
+  [ 109, 109,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 108, 108, 108, 108],  //  5  east doorway c14-15; ← Potion at c13 (dry ledge)
   [ 109, 109, 108, 108, 108, 108, 109, 108, 108, 108, 108, 108, 108,  81, 109, 109],  //  6  column stub c6
   [ 109, 109,   1,   1, 108, 108, 108, 108, 108, 108, 108, 108,   1,   1, 109, 109],  //  7  water reaching in from both ends
   [ 109, 109,   1,   1,   1, 108, 108,  81, 108, 108, 108,   1,   1,   1, 109, 109],  //  8
@@ -700,6 +705,164 @@ const SUNKEN_GALLERY_MAP = [
 const SUNKEN_GALLERY_ITEMS = [
   { name: 'Potion', type: 'potion', heals: 20, price: 30, x: 13.5 * TILE, y: 5.5 * TILE, picked: false },
 ];
+
+// ─── The Sunken Gallery — the wider complex  (5 × 5 grid of rooms) ────────────
+// The entrance hall above is only the south-west corner of a far larger drowned
+// structure. The remaining twenty-four rooms are laid out on a 5×5 grid and
+// joined with the generic open-edge system (EDGE_TRANSITIONS, world-
+// transitions.js) — the same mechanism the North Basin surface maps use, so
+// walking off one room's open side arrives in its neighbour with the
+// inSunkenGallery flag still set (tryEdgeTransition never touches it).
+//
+// Grid coordinates (row, col); row 0 = north, col 0 = west:
+//
+//     C0     C1     C2     C3     C4
+//   R0[R0C0][R0C1][R0C2][R0C3][R0C4]
+//   R1[R1C0][R1C1][R1C2][R1C3][R1C4]
+//   R2[R2C0][R2C1][R2C2][R2C3][R2C4]
+//   R3[R3C0][R3C1][R3C2][R3C3][R3C4]
+//   R4[ENTR][R4C1][R4C2][R4C3][R4C4]     ENTR = SUNKEN_GALLERY_MAP (the stair down)
+//
+// For now every new room is deliberately blank: GALLERY_FLOOR (108) throughout,
+// a GALLERY_WALL (109) border, and no other elements at all. Each side that
+// faces an adjacent room is opened (its border run becomes floor) so the player
+// can walk through; sides on the outside of the grid stay walled. No new tile
+// types are introduced — only the two the gallery already uses.
+//
+// galleryRoom(sides) builds one room. `sides` is any combination of the letters
+// n/s/e/w naming the open sides. Dimensions are the literal 16×15 grid (COLS ×
+// ROWS from state.js, which loads AFTER this file, so they can't be referenced
+// by name here). Each call returns a fresh array, so every room is its own
+// object and mapRegistryId() identity holds.
+function galleryRoom(sides) {
+  const F = GALLERY_FLOOR, W = GALLERY_WALL;
+  const H = 15, Wd = 16; // ROWS × COLS
+  const grid = [];
+  for (let r = 0; r < H; r++) {
+    const row = [];
+    for (let c = 0; c < Wd; c++)
+      row.push((r === 0 || r === H - 1 || c === 0 || c === Wd - 1) ? W : F);
+    grid.push(row);
+  }
+  // Open each requested side by turning its border run into floor, stopping one
+  // tile short of the corners so the corners stay solid masonry.
+  if (sides.includes('n')) for (let c = 1; c < Wd - 1; c++) grid[0][c]      = F;
+  if (sides.includes('s')) for (let c = 1; c < Wd - 1; c++) grid[H - 1][c]  = F;
+  if (sides.includes('w')) for (let r = 1; r < H - 1; r++)  grid[r][0]      = F;
+  if (sides.includes('e')) for (let r = 1; r < H - 1; r++)  grid[r][Wd - 1] = F;
+  return grid;
+}
+
+// The 24 grid cells other than the entrance (R4C0), in reading order. Shared
+// with data.js (MAP_METADATA) and the MAP_REGISTRY loop below via window.
+const SUNKEN_GALLERY_GRID_CELLS = [
+  'R0C0', 'R0C1', 'R0C2', 'R0C3', 'R0C4',
+  'R1C0', 'R1C1', 'R1C2', 'R1C3', 'R1C4',
+  'R2C0', 'R2C1', 'R2C2', 'R2C3', 'R2C4',
+  'R3C0', 'R3C1', 'R3C2', 'R3C3', 'R3C4',
+           'R4C1', 'R4C2', 'R4C3', 'R4C4',
+];
+
+// Each room's open sides point only at real neighbours. The entrance is at
+// (R4,C0), so R3C0 opens south onto it and R4C1 opens west onto it (those two
+// joins use the entrance's narrower, offset doorways — see EDGE_TRANSITIONS).
+// `const X = window.X = ...` both declares the const and exports it, so the
+// MAP_REGISTRY loop below and data.js can reach every room by id.
+const SUNKEN_GALLERY_R0C0 = window.SUNKEN_GALLERY_R0C0 = galleryRoom('se');
+const SUNKEN_GALLERY_R0C1 = window.SUNKEN_GALLERY_R0C1 = galleryRoom('sew');
+const SUNKEN_GALLERY_R0C2 = window.SUNKEN_GALLERY_R0C2 = galleryRoom('sew');
+const SUNKEN_GALLERY_R0C3 = window.SUNKEN_GALLERY_R0C3 = galleryRoom('sew');
+const SUNKEN_GALLERY_R0C4 = window.SUNKEN_GALLERY_R0C4 = galleryRoom('sw');
+const SUNKEN_GALLERY_R1C0 = window.SUNKEN_GALLERY_R1C0 = galleryRoom('nse');
+const SUNKEN_GALLERY_R1C1 = window.SUNKEN_GALLERY_R1C1 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R1C2 = window.SUNKEN_GALLERY_R1C2 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R1C3 = window.SUNKEN_GALLERY_R1C3 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R1C4 = window.SUNKEN_GALLERY_R1C4 = galleryRoom('nsw');
+const SUNKEN_GALLERY_R2C0 = window.SUNKEN_GALLERY_R2C0 = galleryRoom('nse');
+const SUNKEN_GALLERY_R2C1 = window.SUNKEN_GALLERY_R2C1 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R2C2 = window.SUNKEN_GALLERY_R2C2 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R2C3 = window.SUNKEN_GALLERY_R2C3 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R2C4 = window.SUNKEN_GALLERY_R2C4 = galleryRoom('nsw');
+const SUNKEN_GALLERY_R3C0 = window.SUNKEN_GALLERY_R3C0 = galleryRoom('nse');
+const SUNKEN_GALLERY_R3C1 = window.SUNKEN_GALLERY_R3C1 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R3C2 = window.SUNKEN_GALLERY_R3C2 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R3C3 = window.SUNKEN_GALLERY_R3C3 = galleryRoom('nsew');
+const SUNKEN_GALLERY_R3C4 = window.SUNKEN_GALLERY_R3C4 = galleryRoom('nsw');
+const SUNKEN_GALLERY_R4C1 = window.SUNKEN_GALLERY_R4C1 = galleryRoom('new');
+const SUNKEN_GALLERY_R4C2 = window.SUNKEN_GALLERY_R4C2 = galleryRoom('new');
+const SUNKEN_GALLERY_R4C3 = window.SUNKEN_GALLERY_R4C3 = galleryRoom('new');
+const SUNKEN_GALLERY_R4C4 = window.SUNKEN_GALLERY_R4C4 = galleryRoom('nw');
+
+// ─── Sunken Gallery: the water temple's upper level ───────────────────────────
+// The Gallery is the topmost, most public floor of a temple older than the
+// Empire — a violent, priest-ruled people who held water not as a shared
+// resource but as something the sacred ruler owned and granted downward in
+// return for tribute, oaths, soldiers, hostages and submission. This level is
+// laid out to read as that machine: an entrance colonnade, a tribute court with
+// a receiving dais, guarded training pools that double as cells, family
+// surrender chambers, and carved friezes of children presented to the
+// sanctuary — all of it now flooded and water-wrecked, half-drowned by the same
+// water it once rationed. The deeper, restricted floors are still under the
+// water (the submerged stair in R0C4).
+//
+// This builder paints each room's interior to its zone. It touches only rows
+// 3-11, cols 3-12, leaving a two-tile walkable margin inside every border — so
+// the full-width doorways always connect no matter what's in the middle
+// (verified by the connectivity sweep). Tiles: GALLERY_WALL (109) columns/
+// masonry, TEMPLE_CARVING (118) relief walls, TEMPLE_SHALLOWS (117) wadeable
+// flood, WATER (1) deep pools, BASIN_MUD (81) silt, EXPOSED_STONE (88) dry dais.
+// The ten investigative features (interactions.js) keep their exact tiles and
+// their walkable standing-tiles, re-asserted after each room's flooding.
+(function buildSunkenGalleryTemple() {
+  const W = GALLERY_WALL, C = TEMPLE_CARVING, SH = TEMPLE_SHALLOWS, DP = 1, SI = BASIN_MUD, DA = EXPOSED_STONE, F = GALLERY_FLOOR;
+  const fill = (m, r1, c1, r2, c2, t) => { for (let r = r1; r <= r2; r++) for (let c = c1; c <= c2; c++) m[r][c] = t; };
+  const put  = (m, r, c, t) => { m[r][c] = t; };
+  const grid = (m, rs, cs, t) => { for (const r of rs) for (const c of cs) m[r][c] = t; };
+
+  // ENTRANCE COLONNADE — two files of columns flank the processional aisle.
+  grid(SUNKEN_GALLERY_R4C1, [4, 6, 8, 10], [4, 11], W);
+  fill(SUNKEN_GALLERY_R4C1, 7, 7, 8, 9, SI);                 // (feature) disturbed silt patch
+  grid(SUNKEN_GALLERY_R3C0, [4, 6, 10], [4, 11], W);
+  put(SUNKEN_GALLERY_R3C0, 7, 8, W);                         // (feature) column the satchel is caught behind
+  put(SUNKEN_GALLERY_R3C0, 8, 8, F);
+  grid(SUNKEN_GALLERY_R4C2, [6, 10], [4, 8, 12], W);         // (feature) survey-marked columns + a matching file
+  put(SUNKEN_GALLERY_R4C2, 7, 8, F);
+
+  // TRIBUTE COURT — a broad court with a raised receiving dais and reliefs.
+  fill(SUNKEN_GALLERY_R4C3, 3, 5, 3, 9, C); fill(SUNKEN_GALLERY_R4C3, 7, 6, 9, 9, SH); grid(SUNKEN_GALLERY_R4C3, [5, 11], [4, 11], W);
+  fill(SUNKEN_GALLERY_R4C4, 3, 6, 3, 9, C); fill(SUNKEN_GALLERY_R4C4, 6, 6, 8, 9, DA);
+  fill(SUNKEN_GALLERY_R3C2, 3, 5, 3, 10, C); fill(SUNKEN_GALLERY_R3C2, 5, 6, 7, 9, DA); grid(SUNKEN_GALLERY_R3C2, [9], [5, 10], W);
+  fill(SUNKEN_GALLERY_R3C3, 3, 4, 3, 11, C); grid(SUNKEN_GALLERY_R3C3, [5, 7, 9], [4, 11], W);
+  fill(SUNKEN_GALLERY_R3C4, 6, 5, 9, 10, SH);
+
+  // GUARDED TRAINING POOLS / CELLS — pools boxed by posts, half prison.
+  fill(SUNKEN_GALLERY_R2C0, 6, 7, 8, 9, DP); grid(SUNKEN_GALLERY_R2C0, [5, 6, 7, 8, 9], [6, 10], W);
+  fill(SUNKEN_GALLERY_R2C1, 5, 5, 6, 10, SH);
+  put(SUNKEN_GALLERY_R2C1, 7, 7, W); put(SUNKEN_GALLERY_R2C1, 7, 8, W); put(SUNKEN_GALLERY_R2C1, 7, 9, W); // (feature) reliefs
+  put(SUNKEN_GALLERY_R2C1, 8, 8, F); grid(SUNKEN_GALLERY_R2C1, [5, 9], [4, 11], W);
+
+  // FLOODED CEREMONIAL HALLS — wadeable shallows with deeper basins.
+  fill(SUNKEN_GALLERY_R3C1, 4, 4, 6, 11, SH); put(SUNKEN_GALLERY_R3C1, 7, 8, W); put(SUNKEN_GALLERY_R3C1, 8, 8, F); // (feature) gauge masonry
+  fill(SUNKEN_GALLERY_R2C2, 5, 4, 9, 11, SH); put(SUNKEN_GALLERY_R2C2, 7, 8, W); put(SUNKEN_GALLERY_R2C2, 8, 8, F); // (feature) recess masonry
+  fill(SUNKEN_GALLERY_R2C3, 4, 4, 10, 11, SH); fill(SUNKEN_GALLERY_R2C3, 6, 7, 8, 9, DP);
+  fill(SUNKEN_GALLERY_R2C4, 4, 4, 10, 10, SH);
+  fill(SUNKEN_GALLERY_R1C2, 4, 4, 9, 11, SH); fill(SUNKEN_GALLERY_R1C2, 6, 7, 7, 9, DP); put(SUNKEN_GALLERY_R1C2, 8, 8, SH); // (feature) drowned pool
+  fill(SUNKEN_GALLERY_R1C3, 4, 4, 6, 11, SH); fill(SUNKEN_GALLERY_R1C3, 9, 4, 11, 11, SH);
+  put(SUNKEN_GALLERY_R1C3, 7, 8, SI); put(SUNKEN_GALLERY_R1C3, 8, 8, SI);                                   // (feature) boot-print silt
+  fill(SUNKEN_GALLERY_R1C4, 4, 4, 10, 10, SH);
+  fill(SUNKEN_GALLERY_R1C4, 7, 6, 8, 8, SI); // silt bar where Dreyfuss's body washed up (feature)
+
+  // FAMILY FAREWELL / SURRENDER CHAMBERS — carved friezes of the presentation.
+  fill(SUNKEN_GALLERY_R1C0, 3, 5, 3, 9, C); fill(SUNKEN_GALLERY_R1C0, 7, 6, 8, 9, SH);
+  fill(SUNKEN_GALLERY_R1C1, 4, 4, 4, 11, C); grid(SUNKEN_GALLERY_R1C1, [7, 9], [5, 10], W);
+
+  // SANCTUARY THRESHOLD — deepest and most drowned; the stair goes on down.
+  fill(SUNKEN_GALLERY_R0C0, 5, 4, 9, 10, SH); fill(SUNKEN_GALLERY_R0C0, 6, 4, 8, 6, DP); fill(SUNKEN_GALLERY_R0C0, 3, 7, 3, 11, C);
+  fill(SUNKEN_GALLERY_R0C1, 5, 4, 9, 11, SH); fill(SUNKEN_GALLERY_R0C1, 6, 7, 8, 9, DP);
+  fill(SUNKEN_GALLERY_R0C2, 8, 4, 10, 11, SH); put(SUNKEN_GALLERY_R0C2, 6, 8, W); put(SUNKEN_GALLERY_R0C2, 7, 8, F);   // (feature) notebook ledge
+  fill(SUNKEN_GALLERY_R0C3, 5, 4, 9, 11, SH); fill(SUNKEN_GALLERY_R0C3, 6, 6, 8, 9, DP); fill(SUNKEN_GALLERY_R0C3, 3, 4, 3, 11, C);
+  fill(SUNKEN_GALLERY_R0C4, 4, 4, 10, 11, SH); fill(SUNKEN_GALLERY_R0C4, 6, 6, 8, 9, DP); put(SUNKEN_GALLERY_R0C4, 9, 7, F); // (feature) submerged stair pool
+})();
 
 // ─── Drenwick Guard Post Interior  (16 × 15) ─────────────────────────────────
 // Imperial checkpoint on MAP3_N1 row 9 col 13 (GUARD_POST tile).
@@ -2148,6 +2311,7 @@ window.BASIN_CHAMBER_MAP    = BASIN_CHAMBER_MAP;
 window.BASIN_CHAMBER_ITEMS  = BASIN_CHAMBER_ITEMS;
 window.SUNKEN_GALLERY_MAP   = SUNKEN_GALLERY_MAP;
 window.SUNKEN_GALLERY_ITEMS = SUNKEN_GALLERY_ITEMS;
+window.SUNKEN_GALLERY_GRID_CELLS = SUNKEN_GALLERY_GRID_CELLS;
 window.BRIDGE_CROSSING_MAP  = BRIDGE_CROSSING_MAP;
 window.DRENWICK_CIVIC_MAP              = DRENWICK_CIVIC_MAP;
 window.DRENWICK_WEST_RESIDENTIAL_MAP   = DRENWICK_WEST_RESIDENTIAL_MAP;
@@ -2288,6 +2452,14 @@ const MAP_REGISTRY = {
   HAMLET_INTERIOR_MAP:   { id: 'HAMLET_INTERIOR_MAP',   label: 'The Falls',                      map: HAMLET_INTERIOR_MAP },
   FEN_BREWERY_MAP:       { id: 'FEN_BREWERY_MAP',       label: 'Wend Brewery',                   map: FEN_BREWERY_MAP   },
 };
+
+// The 24 additional Sunken Gallery grid rooms (galleryRoom() above). Registered
+// in a loop rather than as 24 near-identical literals; each shares the plain
+// 'Sunken Gallery' label (locationName() keys off inSunkenGallery, not the map).
+for (const cell of SUNKEN_GALLERY_GRID_CELLS) {
+  const id = 'SUNKEN_GALLERY_' + cell;
+  MAP_REGISTRY[id] = { id: id, label: 'Sunken Gallery', map: window[id] };
+}
 
 window.MAP_REGISTRY = MAP_REGISTRY;
 
