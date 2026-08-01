@@ -311,6 +311,7 @@ function canWalk(cx, cy) {
 // encodes, which is more risk than this pass calls for.
 function isEncounterEligibleTile(tile) {
   if (activeMap === MEADOW_MAP) return false; // hidden meadow — deliberately encounter-free (the Warden is its only danger)
+  if (inBridgePost) return false; // Imperial toll checkpoint — manned, encounter-free (its GRASS banks previously fell through to the generic outdoor roll, contradicting the map's allowRandomEncounters: false metadata; dying here also used to strand inBridgePost through the defeat respawn)
   if (inBasinChamber) return false; // the unmarked chamber — deliberately encounter-free (redundant with CHAMBER_FLOOR's encounterEligible: false, kept as a visible guarantee per the entrance-area rule)
   // The Upper Reach's drought-exposed bed now rolls encounters, but only its
   // BASIN_MUD, and only HERE — the same tile stays safe on the other basin maps
@@ -958,5 +959,404 @@ function update() {
   // handleInteract()'s trailing tryMapFeatures() call does.
   if (!dialogue.open && !combat.active && !menu.open && !shop.open && !choice.open && !debugMenu.open && !warpMenu.open)
     checkMapFeatureTriggers();
+
+  // NPC movement runtime (Phase 1 pilots: the two bridge toll guards run
+  // one-way scriptedRoutes; Tobb Wend runs an auto-starting looping patrol in
+  // the fen brewery; Tomas runs a bounded random wander in Esla's house).
+  // Placed at the very tail of update() so every existing freeze is inherited
+  // for free: the combat/dialogue/menu/choice/shop early-returns above already
+  // bailed out, and any map transition this frame `return`ed before reaching
+  // here. The same started-this-frame guard as checkMapFeatureTriggers() keeps
+  // NPCs from stepping during a dialogue that opened this frame.
+  // ensureAutoMovers() runs first so an auto-mover that just became present
+  // (map entry, load) begins the same frame, and one that just left is
+  // suspended cleanly.
+  if (!dialogue.open && !combat.active && !menu.open && !shop.open && !choice.open && !debugMenu.open && !warpMenu.open) {
+    ensureAutoMovers();
+    updateNpcRoutes();
+  }
 }
+
+// ─── Opt-in NPC movement runtime (Phase 1) ───────────────────────────────────
+// Minimal runtime for the authored `movement` contract (architecture.md). Two
+// route kinds, no wandering and no pathfinding:
+//   • scriptedRoute — a one-way authored waypoint walk, played once when
+//     explicitly started via startNpcRoute(id). The two Imperial bridge guards
+//     use this (started by paying the toll).
+//   • patrol — a looping authored waypoint route with a per-waypoint dwell.
+//     When `autoStart: true` it initialises by itself whenever the NPC is
+//     present on the active map (ensureAutoPatrols()) and suspends cleanly when
+//     it leaves. Tobb Wend is the only patrol pilot this phase.
+//
+// Runtime motion state lives here (NPC_ROUTES, keyed by stable NPC id) and is
+// never persisted: saves never contain incidental coordinates. loadGame()
+// re-derives guard placement from bridge_toll_paid and resets patrol NPCs to
+// their authored home (see save.js); auto-patrols then re-start themselves on
+// the next frame if their map is active. The moving NPC's live position is
+// written to npc.x/npc.y because collision (canWalk()), rendering
+// (drawSimpleNPCs()) and interaction (TALK_RADIUS) all read those fields — the
+// explicit reset helpers below restore the authored anchors so mutated
+// positions never leak between visits.
+const NPC_ROUTES = {};
+window.NPC_ROUTES = NPC_ROUTES;
+
+// Authored home anchors for the auto-managed movement types (patrol,
+// boundedWander) — DERIVED once at load from each NPC's own authored
+// `x`/`y`/`facing`, not a hand-maintained table. npcs.js loads before
+// movement.js, so `SIMPLE_NPCS` positions here are the pristine authored
+// values (before any runtime motion mutates them). Reset targets on
+// suspend/load so an auto-mover always re-enters its map at its authored
+// position, never wherever the last frame left it. (The bridge guards use
+// scriptedRoute and their own BRIDGE_GUARD_POSTS, so they are excluded here —
+// their reset restores blocking-vs-aside posts, which a plain home can't.)
+const MOVEMENT_HOMES = {};
+for (const _mvNpc of SIMPLE_NPCS) {
+  const _mv = _mvNpc.movement;
+  if (_mv && (_mv.type === 'patrol' || _mv.type === 'boundedWander')) {
+    MOVEMENT_HOMES[_mvNpc.id] = { x: _mvNpc.x, y: _mvNpc.y, facing: _mvNpc.facing };
+  }
+}
+
+// Suspend one auto-mover cleanly: drop its runtime route and return it to its
+// authored home. Safe to call on any map (it only mutates that NPC's own
+// fields, which don't render off its map).
+function resetMovementNpc(id) {
+  delete NPC_ROUTES[id];
+  const home = MOVEMENT_HOMES[id];
+  const npc = SIMPLE_NPCS.find(n => n.id === id);
+  if (npc && home) { npc.x = home.x; npc.y = home.y; npc.facing = home.facing; }
+}
+
+// Reset every auto-managed mover (patrol + boundedWander) to its authored home
+// (used by loadGame(), the defeat/respawn handler, and map-exit hooks,
+// mirroring resetBridgeGuards()).
+function resetAllMovers() {
+  for (const id in MOVEMENT_HOMES) resetMovementNpc(id);
+}
+// Back-compat aliases (older call sites / tests referred to the patrol-only
+// names; the behaviour is now the generic all-movers reset).
+const resetPatrolNpc = resetMovementNpc;
+const resetAllPatrols = resetAllMovers;
+window.resetMovementNpc = resetMovementNpc;
+window.resetAllMovers   = resetAllMovers;
+window.resetPatrolNpc   = resetMovementNpc;
+window.resetAllPatrols  = resetAllMovers;
+
+// Per-frame lifecycle for the auto-managed movers: start one that is present on
+// the active map and has no route yet, and suspend one whose route outlived its
+// map (a defence-in-depth mirror of the map-local filters in
+// updateNpcRoutes()/drawSimpleNPCs() — the shared invariant, not an
+// NPC-specific hide condition). A `patrol` auto-starts only with
+// `autoStart: true`; a `boundedWander` is always auto-managed (it has no
+// explicit start). Called from update()'s tail under the same freeze guard as
+// updateNpcRoutes().
+function ensureAutoMovers() {
+  const mapId = currentMapId();
+  for (const npc of SIMPLE_NPCS) {
+    const mv = npc.movement;
+    if (!mv) continue;
+    const auto = mv.type === 'boundedWander' || (mv.type === 'patrol' && mv.autoStart === true);
+    if (!auto) continue;
+    if (npc.map === mapId) {
+      if (!NPC_ROUTES[npc.id]) startNpcRoute(npc.id);
+    } else if (NPC_ROUTES[npc.id]) {
+      resetMovementNpc(npc.id);
+    }
+  }
+}
+const ensureAutoPatrols = ensureAutoMovers; // back-compat alias
+window.ensureAutoMovers  = ensureAutoMovers;
+window.ensureAutoPatrols = ensureAutoMovers;
+
+// Interaction hook for a moving/patrolling NPC: freeze it at its LIVE position,
+// turn it to face the player (Lélý), and open its ordinary dialogue. The route
+// is preserved, not restarted — updateNpcRoutes()'s frozen branch thaws it a
+// beat after the dialogue closes and it resumes toward the same target
+// waypoint. Because update() early-returns while dialogue is open, the freeze
+// needs no per-frame upkeep; this only sets the resume behaviour and facing.
+// Interaction, collision and the SPACE hint all already read npc.x/npc.y, so
+// they follow the live position with no ghost at the authored start.
+function patrolNpcTalk(npc) {
+  const rt = (typeof NPC_ROUTES !== 'undefined') ? NPC_ROUTES[npc.id] : null;
+  const dx = player.x - npc.x, dy = player.y - npc.y;
+  npc.facing = Math.abs(dx) >= Math.abs(dy) ? (dx >= 0 ? 'right' : 'left')
+                                            : (dy >= 0 ? 'down'  : 'up');
+  if (rt) { rt.frozen = true; rt.facing = npc.facing; rt.resumeDelay = 30; }
+  dialogue.name  = npc.name;
+  dialogue.pages = npc.dialogue;
+  dialogue.open  = true;
+  dialogue.page  = 0;
+}
+window.patrolNpcTalk = patrolNpcTalk;
+
+// NPC-aware walkability for a route step. NOT canWalk(): that function embeds
+// player-specific custom solids and would detect the moving NPC's own solid
+// body as a collision with itself. Same sources of truth, though — tile
+// walkability via isTileWalkable()/tileAt() (the exact corner check canWalk
+// uses), transition tiles banned via TILE_PROPERTIES.isTransition, the
+// player's body and every OTHER solid NPC at canWalk()'s own 18px AABB, plus
+// the current map's custom-code fixed solids (house furniture — see
+// npcRouteCustomSolidBlocks()). The bridge checkpoint and the brewery have no
+// such fixed solids; a house wanderer (Tomas) does, so those are honoured too.
+function npcRouteCanOccupy(npc, nx, ny) {
+  const r = 9; // same hitbox radius as the player's canWalk()
+  const corners = [[nx - r, ny - r], [nx + r, ny - r], [nx - r, ny + r], [nx + r, ny + r]];
+  for (const [px, py] of corners) {
+    const t = tileAt(px, py);
+    if (!isTileWalkable(t)) return false;
+    const props = (typeof TILE_PROPERTIES !== 'undefined') ? TILE_PROPERTIES[t] : null;
+    if (props && props.isTransition) return false; // never enter exits/doorways
+  }
+  if (Math.abs(nx - player.x) < 18 && Math.abs(ny - player.y) < 18) return false; // never push/trap the player
+  const mapId = currentMapId();
+  for (const other of SIMPLE_NPCS) {
+    if (other === npc || other.map !== mapId || !other.solid) continue;
+    if (Math.abs(nx - other.x) < 18 && Math.abs(ny - other.y) < 18) return false;
+  }
+  if (npcRouteCustomSolidBlocks(nx, ny)) return false;
+  return true;
+}
+
+// Custom-code fixed solids for the current map, mirroring canWalk()'s location
+// ladder — the ones a route NPC can actually encounter. House furniture blocks
+// via HOUSE_DATA (tables/hearth/bed/stove/cat/chest/dresser), not via tiles, so
+// a house wanderer must reject those the exact same way (and at the same AABB
+// radii) the player's canWalk() does. Add other maps' fixed solids here if a
+// future route NPC lives among them.
+function npcRouteCustomSolidBlocks(nx, ny) {
+  if (inTown && townBuilding === 'house') {
+    const hd = (typeof HOUSE_DATA !== 'undefined') ? HOUSE_DATA[currentHouseId] : null;
+    if (hd) {
+      if (hd.tables) for (const t of hd.tables) if (Math.abs(nx - t.x) < 18 && Math.abs(ny - t.y) < 18) return true;
+      if (hd.hearth  && Math.abs(nx - hd.hearth.x)  < 18 && Math.abs(ny - hd.hearth.y)  < 18) return true;
+      if (hd.bed     && Math.abs(nx - hd.bed.x)     < 18 && Math.abs(ny - hd.bed.y)     < 18) return true;
+      if (hd.stove   && Math.abs(nx - hd.stove.x)   < 16 && Math.abs(ny - hd.stove.y)   < 16) return true;
+      if (hd.cat     && Math.abs(nx - hd.cat.x)     < 12 && Math.abs(ny - hd.cat.y)     < 12) return true;
+      if (hd.chest   && Math.abs(nx - hd.chest.x)   < 14 && Math.abs(ny - hd.chest.y)   < 14) return true;
+      if (hd.dresser && Math.abs(nx - hd.dresser.x) < 15 && Math.abs(ny - hd.dresser.y) < 16) return true;
+    }
+  }
+  return false;
+}
+
+// A random pause length (frames) for a boundedWander decision, rolled ONCE per
+// pause — never per frame.
+function wanderPauseFrames(rt) {
+  const lo = rt.minPauseFrames, hi = rt.maxPauseFrames;
+  return lo + Math.floor(Math.random() * (hi - lo + 1));
+}
+
+// Choose the next one-tile orthogonal step for a boundedWander NPC, rolling
+// randomness ONCE (a shuffled direction order). Returns a px target that stays
+// inside the authored tile bounds AND passes live occupancy (npcRouteCanOccupy
+// — walkable tile, no transition, no furniture, not the player, not another
+// solid NPC), or null if no legal move exists (then the NPC waits and re-rolls
+// after another pause). Bounds are authored intent; occupancy is authority.
+function chooseWanderTarget(rt, npc) {
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  for (let i = dirs.length - 1; i > 0; i--) {   // Fisher-Yates, one roll set per decision
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = dirs[i]; dirs[i] = dirs[j]; dirs[j] = tmp;
+  }
+  const b = rt.bounds;
+  for (const [dc, dr] of dirs) {
+    const nx = npc.x + dc * TILE, ny = npc.y + dr * TILE;
+    const col = Math.floor(nx / TILE), row = Math.floor(ny / TILE);
+    if (col < b.minCol || col > b.maxCol || row < b.minRow || row > b.maxRow) continue; // out of authored bounds
+    if (!npcRouteCanOccupy(npc, nx, ny)) continue;                                       // live collision authority
+    return { x: nx, y: ny };
+  }
+  return null;
+}
+
+// Starts an authored route (scriptedRoute, patrol, or boundedWander) for the
+// given NPC id. Returns true if the route was started. No-ops (returns false)
+// when: the NPC has no route movement config, the route is already running, or
+// a non-looping route has already completed — a completed one-way route stays
+// completed and never restarts automatically; only an explicit reset
+// (resetBridgeGuards() / resetMovementNpc()) clears it. A patrol loops and a
+// boundedWander never terminates, so neither is ever `done`.
+function startNpcRoute(id) {
+  const npc = SIMPLE_NPCS.find(n => n.id === id);
+  if (!npc || !npc.movement) return false;
+  const mv = npc.movement;
+  const existing = NPC_ROUTES[id];
+  if (existing && (existing.moving || existing.done)) return false;
+
+  if (mv.type === 'boundedWander') {
+    // Intermittent domestic wander inside an authored tile region. Home is
+    // derived (MOVEMENT_HOMES); no waypoints. Starts on a random pause so he
+    // waits before his first short walk.
+    const rt = {
+      npc,
+      type: 'boundedWander',
+      bounds: mv.bounds,
+      speed: mv.speed,
+      minPauseFrames: mv.minPauseFrames, maxPauseFrames: mv.maxPauseFrames,
+      target: null, pauseLeft: 0, step: 0,
+      moving: true, done: false, frozen: false, resumeDelay: 0,
+      facing: npc.facing,
+    };
+    rt.pauseLeft = wanderPauseFrames(rt);
+    NPC_ROUTES[id] = rt;
+    return true;
+  }
+
+  if (mv.type !== 'scriptedRoute' && mv.type !== 'patrol') return false;
+  // patrol loops by default (loop !== false); scriptedRoute is always one-way.
+  const loop = mv.type === 'patrol' ? (mv.loop !== false) : false;
+  NPC_ROUTES[id] = {
+    npc,
+    type:  mv.type,
+    // Waypoints are authored in TILE units (architecture.md); runtime works in
+    // px. Each waypoint carries its own dwell: waypoint-level pauseFrames wins
+    // (the patrol form), else the movement-level pauseFrames (scriptedRoute).
+    waypoints: mv.waypoints.map(wp => ({
+      x: wp.x * TILE, y: wp.y * TILE,
+      pauseFrames: wp.pauseFrames !== undefined ? wp.pauseFrames : (mv.pauseFrames || 0),
+    })),
+    speed: mv.speed,
+    loop,
+    idx: 0, pauseLeft: 0, step: 0,
+    moving: true, done: false, frozen: false, resumeDelay: 0,
+    facing: npc.facing,
+  };
+  return true;
+}
+window.startNpcRoute = startNpcRoute;
+
+// Per-frame route updater — called only from update()'s tail (see above), so
+// it inherits every global freeze. Movement is orthogonal (x resolved before
+// y), with arrival tolerance and snapping: when the remaining distance along
+// the current axis is no greater than one step, the NPC is placed exactly on
+// the waypoint — no overshoot, no oscillation, no drift across repeated loops
+// (every waypoint is re-snapped to its exact coordinate). A blocked NPC waits
+// in place (stays `moving`, retries next frame) rather than pushing or
+// re-pathing. Moving NPCs never roll encounters, never trigger interactions,
+// and never enter transition tiles (npcRouteCanOccupy) — nothing here touches
+// any of those systems.
+function updateNpcRoutes() {
+  const mapId = currentMapId();
+  for (const id in NPC_ROUTES) {
+    const rt = NPC_ROUTES[id];
+    if (rt.done || !rt.moving) continue;
+    const npc = rt.npc;
+    if (npc.map !== mapId) continue; // only NPCs on the active map update
+    // Frozen by an interaction (patrolNpcTalk): the first frame after the
+    // dialogue closes (this updater only runs when dialogue is shut), thaw and
+    // wait a beat before resuming — never a restart, never a teleport. For a
+    // waypoint route this resumes toward the same waypoint; for a wander it
+    // drops the in-progress step (target cleared) and re-decides after the wait.
+    if (rt.frozen) { rt.frozen = false; rt.target = null; rt.pauseLeft = rt.resumeDelay || 0; rt.resumeDelay = 0; continue; }
+    if (rt.pauseLeft > 0) { rt.pauseLeft--; continue; }
+
+    // ── Bounded random wander (Tomas) ───────────────────────────────────────
+    // Intermittent domestic motion: wait, take one short orthogonal step toward
+    // a randomly-chosen in-bounds neighbour, wait again. Randomness is rolled
+    // only at a decision point / pause start, never per frame.
+    if (rt.type === 'boundedWander') {
+      if (rt.target) {
+        const dx = rt.target.x - npc.x, dy = rt.target.y - npc.y;
+        let sx = 0, sy = 0;
+        if (dx !== 0) sx = Math.sign(dx); else if (dy !== 0) sy = Math.sign(dy);
+        if (sx !== 0)      rt.facing = sx > 0 ? 'right' : 'left';
+        else if (sy !== 0) rt.facing = sy > 0 ? 'down' : 'up';
+        npc.facing = rt.facing;
+        const remaining = sx !== 0 ? Math.abs(dx) : Math.abs(dy);
+        if (remaining <= rt.speed) {
+          // Arrival: snap exactly (no drift), then pause before the next decision.
+          if (!npcRouteCanOccupy(npc, rt.target.x, rt.target.y)) { rt.target = null; rt.pauseLeft = wanderPauseFrames(rt); continue; }
+          npc.x = rt.target.x; npc.y = rt.target.y;
+          rt.target = null;
+          rt.pauseLeft = wanderPauseFrames(rt);
+          continue;
+        }
+        const nx = npc.x + sx * rt.speed, ny = npc.y + sy * rt.speed;
+        if (npcRouteCanOccupy(npc, nx, ny)) { npc.x = nx; npc.y = ny; rt.step++; }
+        else { rt.target = null; rt.pauseLeft = wanderPauseFrames(rt); } // blocked mid-walk (e.g. player stepped in) — abort, pause, re-decide
+        continue;
+      }
+      // Decision point (pause elapsed): take one legal one-tile move, else wait.
+      const target = chooseWanderTarget(rt, npc);
+      if (target) rt.target = target;
+      else rt.pauseLeft = wanderPauseFrames(rt);
+      continue;
+    }
+
+    const wp = rt.waypoints[rt.idx];
+    const dx = wp.x - npc.x, dy = wp.y - npc.y;
+    let sx = 0, sy = 0;
+    if (dx !== 0) sx = Math.sign(dx);
+    else if (dy !== 0) sy = Math.sign(dy);
+    if (sx !== 0)      rt.facing = sx > 0 ? 'right' : 'left';
+    else if (sy !== 0) rt.facing = sy > 0 ? 'down' : 'up';
+    npc.facing = rt.facing;
+
+    const remaining = sx !== 0 ? Math.abs(dx) : Math.abs(dy);
+    if (remaining <= rt.speed) {
+      // Arrival: snap exactly onto the waypoint (if the spot is clear).
+      if (!npcRouteCanOccupy(npc, wp.x, wp.y)) continue; // blocked — wait
+      npc.x = wp.x; npc.y = wp.y;
+      const dwell = rt.waypoints[rt.idx].pauseFrames; // dwell at the waypoint just reached
+      rt.idx++;
+      if (rt.idx >= rt.waypoints.length) {
+        if (rt.loop) {
+          // patrol: wrap to the first waypoint and keep going (dwell here too).
+          rt.idx = 0; rt.pauseLeft = dwell;
+        } else {
+          // scriptedRoute is one-way (loop: false): finish and stay finished.
+          rt.done = true; rt.moving = false;
+          npc.facing = rt.facing; // remain facing the direction walked
+        }
+      } else {
+        rt.pauseLeft = dwell;
+      }
+      continue;
+    }
+    const nx = npc.x + sx * rt.speed, ny = npc.y + sy * rt.speed;
+    if (npcRouteCanOccupy(npc, nx, ny)) {
+      npc.x = nx; npc.y = ny;
+      rt.step++; // walk-animation frame counter advances only on real steps
+    }
+    // else: blocked — wait in place, keep `moving` so we retry next frame
+  }
+}
+
+// ─── Bridge-guard placement helpers ──────────────────────────────────────────
+// The authored anchors and post-payment aside positions for the two pilots.
+// Entry (enterBridgePostFromSouth/North) and both exits call
+// resetBridgeGuards(); loadGame() calls resetBridgeGuards() or
+// placeBridgeGuardsAside() depending on bridge_toll_paid (save.js).
+const BRIDGE_GUARD_POSTS = {
+  bridge_soldier_north: { x: 7.5 * TILE, y: 4.5 * TILE, facing: 'down', asideX: 8.5 * TILE, asideFacing: 'right' },
+  bridge_soldier_south: { x: 7.5 * TILE, y: 7.5 * TILE, facing: 'up',   asideX: 6.5 * TILE, asideFacing: 'left'  },
+};
+
+// Blocking positions + original stationary state/facing; clears any runtime
+// route so mutated positions and half-finished walks never leak between
+// visits (a fresh visit always requires a fresh toll).
+function resetBridgeGuards() {
+  for (const id in BRIDGE_GUARD_POSTS) {
+    delete NPC_ROUTES[id];
+    const npc = SIMPLE_NPCS.find(n => n.id === id);
+    if (!npc) continue;
+    const post = BRIDGE_GUARD_POSTS[id];
+    npc.x = post.x; npc.y = post.y; npc.facing = post.facing;
+  }
+}
+window.resetBridgeGuards = resetBridgeGuards;
+
+// Fully-aside positions (route already completed) — used by loadGame() when a
+// save was made inside the bridge with the toll already paid: a save made
+// midway through the sidestep loads with the guards already fully aside.
+function placeBridgeGuardsAside() {
+  for (const id in BRIDGE_GUARD_POSTS) {
+    delete NPC_ROUTES[id];
+    const npc = SIMPLE_NPCS.find(n => n.id === id);
+    if (!npc) continue;
+    const post = BRIDGE_GUARD_POSTS[id];
+    npc.x = post.asideX; npc.y = post.y; npc.facing = post.asideFacing;
+  }
+}
+window.placeBridgeGuardsAside = placeBridgeGuardsAside;
 

@@ -327,6 +327,9 @@ function enterBridgePostFromSouth() {
   player.y               = 13.5 * TILE; // row 13 — south bank entry point
   player.facing          = 'up';
   combat.cooldown        = ENCOUNTER_COOLDOWN;
+  // Phase 1 pilot: fresh visit -- both guards back at their blocking
+  // posts, stationary, original facing; any prior route state cleared.
+  resetBridgeGuards();
 }
 
 function enterBridgePostFromNorth() {
@@ -338,6 +341,9 @@ function enterBridgePostFromNorth() {
   player.y               =  1.5 * TILE; // row 1 — north bank entry point
   player.facing          = 'down';
   combat.cooldown        = ENCOUNTER_COOLDOWN;
+  // Phase 1 pilot: fresh visit -- both guards back at their blocking
+  // posts, stationary, original facing; any prior route state cleared.
+  resetBridgeGuards();
 }
 
 function exitBridgeSouth() {
@@ -349,6 +355,7 @@ function exitBridgeSouth() {
   player.y               =  6.5 * TILE; // row 6 — one step south of the bridge gate
   player.facing          = 'down';
   combat.cooldown        = ENCOUNTER_COOLDOWN;
+  resetBridgeGuards(); // clear route state + restore blocking posts for the next visit
 }
 
 function exitBridgeNorth() {
@@ -360,6 +367,7 @@ function exitBridgeNorth() {
   player.y               =  4.5 * TILE; // row 4 — one step north of the bridge gate
   player.facing          = 'up';
   combat.cooldown        = ENCOUNTER_COOLDOWN;
+  resetBridgeGuards(); // clear route state + restore blocking posts for the next visit
   // Record crossing north onto the basin road ahead of any assignment, so
   // the Calwick supervisor can note it next time the player reports in (see
   // interactSupervisor(), interactions.js). Monotonic — set once and left
@@ -437,6 +445,10 @@ function enterFenBrewery() {
 }
 
 function exitFenBrewery() {
+  // Suspend Tobb's patrol cleanly and return him to his authored home (the
+  // per-frame ensureAutoPatrols() also enforces this, but do it explicitly on
+  // exit, mirroring resetBridgeGuards() at the bridge exits).
+  if (typeof resetAllPatrols === 'function') resetAllPatrols();
   inFenBrewery    = false;
   activeMap       = MAP3_N1;
   player.x        = 13.5 * TILE; // col 13 — just south of the FARM_HOUSE tile

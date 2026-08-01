@@ -34,6 +34,11 @@ function interactSimpleNPCs() {
         npc.action(npc);
       } else if (npc.action && NPC_ACTIONS[npc.action]) {
         NPC_ACTIONS[npc.action](npc);
+      } else if (typeof NPC_ROUTES !== 'undefined' && NPC_ROUTES[npc.id]) {
+        // A moving NPC with no custom action (Toby's patrol, Tomas's wander):
+        // freeze it at its live position, face the player, open its dialogue,
+        // and resume a beat after it closes. Generic — no per-NPC branch.
+        patrolNpcTalk(npc);
       } else {
         dialogue.name  = npc.name;
         dialogue.pages = npc.dialogue;
@@ -787,12 +792,12 @@ const MAP_FEATURES = {
     {
       id: 'gallery_silt_patch', type: 'inspect', x: 8.5, y: 8.5, label: 'Disturbed silt', flag: 'gallery_clue_silt',
       pages: [
-        ['The silt here is churned and pressed — the shape of someone who stopped hard, or went down.',
-         'It hasn’t re-settled. This is days old at most, not the years everything else wears.'],
-        ['One handprint, splayed, faces back toward the drowned end of the hall.',
-         'From it a single heel drags away — deeper in, the other direction. Just the one heel. Pulled, or dragging a bad leg.'],
-        ['You can’t tell from the mud alone whether they were taken, hurt, or simply got up and walked further in.',
-         'All three read the same in silt.'],
+        ['The silt here is churned and torn — the shape of someone who went down hard, and did not go down by choice.',
+         'It hasn’t re-settled. Days old at most. Everything else in this hall wears centuries of silt undisturbed; nothing living has walked here in longer than the district has kept books.'],
+        ['One handprint, splayed and clawed — and from it a long drag, heels first, toward the drowned end of the hall. Toward the water.',
+         'Not the track of a man walking deeper in. The track of a man hauled somewhere he dug in against, and lost.'],
+        ['To either side of the drag, in the churned silt, are other marks. Wide. Clawed. Nothing a boot ever made.',
+         'Whatever came up out of the flood for him left its own prints going back down.'],
       ],
     },
   ],
@@ -826,12 +831,12 @@ const MAP_FEATURES = {
     {
       id: 'gallery_depth_gauge', type: 'inspect', x: 8.5, y: 8.5, label: 'Broken depth gauge', flag: 'gallery_clue_gauge',
       pages: [
-        ['An Imperial water-depth gauge — new brass, the maker’s stamp barely worn — bolted straight onto the old masonry.',
-         'Someone drilled into stone this old without a second thought, to hang a modern instrument on it.'],
-        ['The float mechanism is snapped clean. The last marker it set sits far down the scale.',
-         'Below every line printed for the seasonal minimum. Below the numbers the makers thought worth printing.'],
-        ['The Empire came to measure this. It brought a good instrument and a firm bolt.',
-         'It did not bring any idea of what it was measuring.'],
+        ['A water-depth gauge, wedged upright into a gap in the old stone — not fixed there, just jammed to stand while it was read. A field instrument, the kind one man carries in on his back.',
+         'Garrick’s, by the same careful hand as the marks and the notebook. Nobody built this into the wall. Nobody built anything into this wall. He set it down where he could read it and moved on.'],
+        ['The float is snapped clean off. The last mark it held sits far down the scale —',
+         'below the lowest line the maker thought worth printing. Below any water this basin should have been able to lose.'],
+        ['He came down here to measure a drought and found something a gauge has no numbers for.',
+         'He wrote as much, in the book. He did not get the chance to write the rest of it.'],
       ],
     },
   ],
@@ -850,14 +855,14 @@ const MAP_FEATURES = {
   ],
   SUNKEN_GALLERY_R1C3: [
     {
-      id: 'gallery_second_visitor', type: 'inspect', x: 8.5, y: 8.5, label: 'A second track', flag: 'gallery_clue_visitor',
+      id: 'gallery_second_visitor', type: 'inspect', x: 8.5, y: 8.5, label: 'A trail from the water', flag: 'gallery_clue_visitor',
       pages: [
-        ['A single boot print in a skin of silt, set apart from the rest.',
-         'The tread is wrong for either of them — narrower, harder-heeled than the boots the district issues to men like Garrick and Dreyfuss. A better boot than a surveyor draws.'],
-        ['Nearby a length of cord has been cut, not snapped: one clean face, no fray.',
-         'And a smear of lamp-soot with an oily sheen the fen’s tallow doesn’t leave. Someone burned better oil than you can buy in Drenwick.'],
-        ['None of it proves a third person came down here after the two observers.',
-         'It’s the kind of thing you write in a report as noticed, not concluded. But you notice it.'],
+        ['A trail crosses the silt here, apart from the rest — and no boot made it.',
+         'A broad wet drag, and to either side deep gouges, the marks of something that hauls itself along by the fingers. It comes up out of the flooded end, crosses, and goes back into the water.'],
+        ['It didn’t walk. It dragged — the way the pale things in the deep water drag when they come up hunting, and lie still again after.',
+         'The silt is torn where it turned. It was in no hurry either time. It had no reason to be. There is nothing else living down here, and nothing living has come down here in a very long time.'],
+        ['You’ve seen what stands in this water. You don’t have to guess hard at what left this.',
+         'It came up for the men the office sent, and it went back down heavier than it came.'],
       ],
     },
   ],
@@ -869,8 +874,8 @@ const MAP_FEATURES = {
          'The cover is inked in the same hand as the survey marks: G. GARRICK. He wanted it kept — took a steady minute to see it kept — which fits nothing else down here.'],
         ['The measurements run for pages, careful and ordinary, until the last complete entry:',
          '“The rate of loss cannot be accounted for by heat or by any ordinary drainage. I have stopped pretending otherwise.”'],
-        ['The next page — the last one written — has been torn out. Cleanly, close to the spine.',
-         'Not by water. Not by hurry. By a hand that took the time to leave the rest and remove only that.'],
+        ['The next page — the last one written — has been torn out. Cleanly, close to the spine, by his own careful hand: the stub matches the man who wrapped the book to keep it.',
+         'He tore out his own last conclusion and took it with him. Whatever it said went wherever he did — and he is not on this ledge, nor anywhere in this hall you can reach.'],
       ],
     },
   ],
@@ -895,13 +900,43 @@ const MAP_FEATURES = {
       id: 'gallery_dreyfuss_body', type: 'inspect', x: 7.5, y: 7.5, label: 'A body in the silt', flag: 'gallery_body_found',
       pages: [
         ['A shape on the silt bar that your eye keeps refusing, until it won’t any longer.',
-         'A man. Face down where the shallows meet a silt bank, one arm folded under him, the other reaching nothing.'],
-        ['District greatcoat, sodden black. A surveyor’s satchel-strap, empty. The cold and the water have kept him better than the months should have.',
-         'You turn back the collar. A laundry-tag, and a name inked on it by someone who once did his washing at home: DREYFUSS.'],
-        ['No wound you can find. No struggle in the silt around him — he lay down here, or was laid, and the water came up quiet.',
-         'So that is one of them answered, and answered the worst way. Garrick is still a question. This is not.'],
+         'A man. Face down where the shallows meet a silt bank, one arm folded under him, the other flung out and clawed deep into the silt.'],
+        ['District greatcoat, sodden black, and raked open across the back. A surveyor’s satchel-strap, empty, torn through. The cold water has kept him better than the months should have.',
+         'You turn back the collar. A laundry-tag, a name inked by someone who once did his washing at home: DREYFUSS.'],
+        ['The silt around him is churned wide and dragged, and printed on both sides with something clawed that no boot ever made.',
+         'He didn’t lie down here. He was pulled down, and held under, and the water did the rest. One of them answered, and answered the worst way there is.'],
         ['You cannot carry him out, not through what’s between here and the stair. You note the place, and how he lies, and you say the one useful thing there is to say to a man in the dark.',
          'Then you leave him to the cold that kept him, and go on.'],
+      ],
+    },
+  ],
+  // ── Ancient-society flavour: this people were violent and religious ─────────
+  // Two finds about the builders themselves, exempt from the "nobody modern has
+  // been here" framing (they are supposed to be centuries dead). No flags — pure
+  // re-readable environmental flavour, not part of the observer report.
+  SUNKEN_GALLERY_R3C3: [
+    {
+      id: 'gallery_altar', type: 'inspect', x: 7.5, y: 8.5, label: 'Bloodstone altar',
+      pages: [
+        ['A low block of black stone stands clear of the walls, its top dished and worn glass-smooth — not by water, by hands, and by whatever was laid on it, again and again.',
+         'Shallow channels are cut from the hollow to the floor, angled with care to carry something away. They run to a drain the silt has never quite filled.'],
+        ['The grain under the channels is stained a deeper black than the stone around it, soaked in the way water does not soak.',
+         'Whatever these people were, they killed here — not once, and not in a rage. Carefully. With a place built for it, and a groove cut to keep the floor clean after.'],
+        ['Around the base runs the same worshipful carving as the rest of the hall: bowed heads, upraised hands, an offering made and taken.',
+         'The offering was the thing on the stone. To them, killing and worship were one word, and this was where they said it.'],
+      ],
+    },
+  ],
+  SUNKEN_GALLERY_R1C1: [
+    {
+      id: 'gallery_idol', type: 'inspect', x: 7.5, y: 5.5, facing: 'up', label: 'Drowned idol',
+      pages: [
+        ['Set in a niche in the wall, an idol — squat, broad, faceless now, its features worn to blur under long water. A figure seated, arms open, palms turned up to take what was brought.',
+         'Small stone cups are ranked on the ledge before it, tipped and silted, whatever they held long since dissolved.'],
+        ['It is water these people worshipped. Everything in the hall bends toward it — the channels, the stair going down, the open hands of this thing in its niche.',
+         'They did not pray to be spared the flood. They prayed to the flood. They fed it, and begged it to rise for them and fall on their enemies.'],
+        ['Someone, at the very end, took a hammer to its face. Once, hard, and no more — as if there was no time for a second blow.',
+         'Fury or apology, the water has had the centuries to wear the difference away.'],
       ],
     },
   ],
@@ -1153,6 +1188,26 @@ function interactSupervisor() {
        '“The toll buys you across a bridge. It does not hand you a reason to be on the far side of it.”'],
       ['“I won’t write it up. Consider that the whole of my generosity on the subject.”',
        '“When the north is yours to walk, you will hear it from me. Not from your own boots.”'],
+      ...dialogue.pages,
+    ];
+  }
+  // One-time backstory: once the reservoir assignment exists, the supervisor
+  // (economical with words and alarm) explains, once, where his caution comes
+  // from — a flood evacuation he coordinated as a young works clerk — and that
+  // signing an order into danger never makes it weigh less. Prepended and its
+  // flag set synchronously (like the north-bridge scold) so it can't collide
+  // with any branch's dialogue callback. Fires the visit AFTER the assignment
+  // (reservoir_quest_started is set by that branch's own close callback).
+  if (reservoir_quest_started && !supervisor_said_flood) {
+    supervisor_said_flood = true;
+    syncQuestFlagsToWindow();
+    dialogue.pages = [
+      ['He doesn’t hand the basin file straight over.',
+       '“Before this desk I was a field officer. Before that I wrote flood summaries for a works office, twenty years old, no business being listened to.”'],
+      ['“One spring I read four reports that disagreed about which embankment would fail first. I picked one and sent the villages the other way.”',
+       '“I was right. That is the whole of the story people tell. They leave out that I could have been wrong, and that I’d have signed the same order either way.”'],
+      ['He turns the file around for you to take.',
+       '“I send you north because it’s your work, not because it’s safe. Signing the paper doesn’t make it lighter. Go carefully.”'],
       ...dialogue.pages,
     ];
   }
@@ -1637,7 +1692,7 @@ function reportBasinFindings() {
   //    trail) \u2014 what the supervisor cares about first.
   if (body) {
     pages.push(['You tell him about Dreyfuss first. You do not soften it and he does not ask you to.',
-                '\u201cFace down on a silt bar. No wound on him.\u201d He lets it sit. \u201cThen that is one of the two found, and found the worst way there is.\u201d']);
+                '\u201cPulled under and held. His coat raked open, the silt round him clawed wide.\u201d He lets it sit. \u201cThen that is one of the two found, and found the worst way there is.\u201d']);
   } else {
     pages.push(['\u201cNeither man did you find laid to rest, then. Not Garrick, not Dreyfuss.\u201d',
                 'He does not make it an accusation. \u201cTwo went north and the basin kept both. Note only that I asked after them.\u201d']);
@@ -1646,8 +1701,8 @@ function reportBasinFindings() {
     pages.push(['You set Garrick\u2019s notebook on the desk. He does not pick it up at once.',
                 '\u201cSo Garrick kept writing. Right to the end of it.\u201d']);
     pages.push(['He reads the last full entry twice \u2014 the water loss that heat and drainage do not account for \u2014 then the torn edge after it.',
-                '\u201cThe conclusion is here. The reason he reached it is on the page somebody took.\u201d']);
-    pages.push(['\u201cHe was a careful man. Careful men do not mislay their last page.\u201d',
+                '\u201cThe conclusion is here. The reason he reached it is on the page he tore out and carried off \u2014 and he is past giving it back.\u201d']);
+    pages.push(['\u201cHe was a careful man. Careful men do not tear out their own last page for nothing.\u201d',
                 'He closes the book. \u201cThat part will not go in the summary. Not because it isn\u2019t true.\u201d']);
   } else if (satchel) {
     pages.push(['\u201cGarrick\u2019s kit, at least, and where it snagged going by.\u201d He nods, slowly.',
@@ -1667,7 +1722,7 @@ function reportBasinFindings() {
   if (survey || gauge) {
     const bits = [];
     if (survey) bits.push('water that fell in steps \u2014 fast, then held for days, then most of it gone in a single night');
-    if (gauge)  bits.push('an Imperial gauge reading below the lowest mark it was built to carry');
+    if (gauge)  bits.push('Garrick’s own field gauge, its last reading below the lowest mark it was built to carry');
     pages.push(['You describe ' + bits.join(', and ') + '.',
                 '\u201cThat is not a drought behaving. That is a drought being made to.\u201d']);
     pages.push(['\u201cI will write \u2018cause undetermined,\u2019 because it is the honest phrase.',
@@ -1687,14 +1742,14 @@ function reportBasinFindings() {
     }
   }
 
-  // 4. The second visitor \u2014 kept as suspicion, not fact.
+  // 4. What killed them \u2014 the thing in the water, not a person.
   if (visitor) {
-    pages.push(['\u201cOne more thing,\u201d you say, and describe the second track \u2014 a harder boot, a cord cut clean, lamp-soot from oil the fens don\u2019t sell.',
+    pages.push(['\u201cOne more thing,\u201d you say, and describe the trail \u2014 no boot, but a broad drag out of the flooded end and clawed gouges to either side, up out of the water and back down into it.',
                 'The pen stops.']);
-    pages.push(['\u201cYou are certain?\u201d',
-                'You say you are not \u2014 that it is the kind of thing a report should call noticed, not concluded.']);
-    pages.push(['\u201cGood. Then that is how I file it, and how you speak of it.\u201d',
-                '\u201cSomeone was down there who was neither of my observers nor you. That sentence stays in this room until it cannot.\u201d']);
+    pages.push(['\u201cYou are certain it was no man.\u201d',
+                'You say you are. You have stood in that water and seen what stands in it with you. You are certain.']);
+    pages.push(['He is quiet a moment. \u201cThen that is what took them. Not the cold, not a fall, not each other \u2014 a thing that lives down there and came up hunting.\u201d',
+                '\u201cNobody has walked that hall in centuries but my two men. And something in the water saw to it they did not walk out.\u201d']);
   }
 
   // 5. Close and pay, weighted by how much the player actually turned up.
@@ -3005,6 +3060,19 @@ function interactCalwickOffice() {
            '“I try not to guess. It doesn’t usually help.”'],
         ];
         dialogue.callbacks = [function() { esla_said_polwick_pending = true; syncQuestFlagsToWindow(); }];
+      } else if (reservoir_quest_started && !esla_said_basin) {
+        // The basin assignment routes an ecological problem across a Bloommarked
+        // officer's desk. She reads a drying landscape more easily than people,
+        // and — guardedly — the fen is why she asked to be sent somewhere quiet.
+        dialogue.pages = [
+          ['“They routed the basin file through me before it reached you.',
+           'Water tables, silt cores, a die-off count off the exposed bed.”',
+           '“I read a drying landscape more easily than I read most people. That isn’t a boast. It’s nearly a complaint.”'],
+          ['“When the Academy asked where I wanted posting, I said somewhere quiet.',
+           'They heard modest. I meant it as a request.”',
+           '“The fen answered in fungi and beetles and reed-rot, none of which have ever lied to me. Whatever’s wrong up there, it is telling the truth about it. Go and read it back.”'],
+        ];
+        dialogue.callbacks = [function() { esla_said_basin = true; syncQuestFlagsToWindow(); }];
       } else if (cabinetCaseFlag && !esla_said_cabinet) {
         dialogue.pages = [
           ['“Someone’s been in Aldric’s cabinet.”',
@@ -5511,6 +5579,9 @@ function interactWildsAndOutposts() {
         return true;
       }
     }
+    // Toby patrols the eastern workspace; talking to him at his live position
+    // (freeze/face/resume) is handled generically by interactSimpleNPCs() now
+    // that it routes any moving NPC through patrolNpcTalk().
     interactSimpleNPCs();
     return true;
   }
@@ -5826,15 +5897,17 @@ function interactSunkenGallery() {
         return true;
       }
       dialogue.name  = '';
-      dialogue.pages = [['The pool lies still. The Pale Drowned is somewhere under it now, or further down than that.',
-                         'You already have what it was tangled in, and the one word chalked on it.']];
+      dialogue.pages = [['The pool lies still. The Pale Drowned is somewhere under it now, or deeper than that.',
+                         'You let a dangerous thing go free. It knew what you did. So do you.']];
       dialogue.open  = true; dialogue.page = 0;
       return true;
     }
     dialogue.name  = '';
     dialogue.pages = [
-      ['A Pale Drowned is caught here — not waiting but snared, one arm sunk to the shoulder where the silt meets the pool, thrashing slow and tireless.',
-       'Tangled at its wrist: a length of a surveyor’s marking cord, and knotted to it a chalked wooden tag. You could read it — if it survives.'],
+      ['A Pale Drowned is caught here — not lying in wait but snagged, one arm hooked to the shoulder under something in the pool, wrenching against it slow and tireless.',
+       'It caught itself. No trap, no cord — its own hand run under a snag of drowned stone as it moved through the black water, and now it cannot pull loose.'],
+      ['You know what this is. You read the silt in the halls behind you; you know what its kind did to the men the office sent. It could do the same to you in a breath, if it were free.',
+       'And yet its eyes, when they find yours, are not a hunter’s. They are wide and white and full of a plain animal terror — held fast in the one place a drowned thing cannot bear to be held.'],
     ];
     dialogue.callbacks = [function () {
       choice.title     = 'The trapped Pale Drowned';
@@ -5845,10 +5918,10 @@ function interactSunkenGallery() {
           window.sunken_gallery_drowned_freed = true;
           dialogue.name  = '';
           dialogue.pages = [
-            ['You brace and haul the cord loose. The Drowned tears free all at once — and doesn’t turn on you.',
-             'It slides backward into the black water without a ripple, and is simply gone, deeper in.'],
-            ['The tag stays whole in your hand. One word, chalked and scored hard enough to bite the wood:',
-             '“LISTENS.”'],
+            ['You brace against the snag and lever it up. The Drowned’s arm comes free all at once — and it does not turn on you.',
+             'It folds backward into the black water without a ripple, and is simply gone, deeper in.'],
+            ['You set loose a thing that would have killed you, and you both knew it, and it went anyway.',
+             'The pool closes over where it hung, and the terror goes out of the room with it.'],
           ];
           dialogue.open  = true; dialogue.page = 0;
         },

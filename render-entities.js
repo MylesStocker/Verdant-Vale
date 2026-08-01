@@ -776,11 +776,198 @@ function drawGenericNPC(npc) {
   else                           drawGenericClerk(npc);
 }
 
+// Walking variant of the generic humanoid — Phase 1 bridge-guard pilot only.
+// Reaches the screen exclusively through the NPC_ROUTES check in
+// drawSimpleNPCs() below, and only while a scripted route is actively moving:
+// stationary NPCs (no route, or route finished with moving === false) take
+// the exact pre-existing drawGenericNPC path, so every stationary render —
+// the guards' included — is pixel-identical to before.
+// Preserves drawGenericClerk's exact design (the guards' current sprite:
+// same jacket, collar, skin, hair, eye and boot colours, same proportions),
+// adding only what walking needs: left/right facing (eyes shift toward the
+// walked direction), two alternating walk frames keyed off the route's step
+// counter (same >>3 cadence as the player), alternating forward/rear legs,
+// and slight opposing arm swing.
+function drawWalkingGenericNPC(npc, rt) {
+  const px = Math.round(npc.x), py = Math.round(npc.y);
+  const frame  = (rt.step >> 3) & 1;          // flips every 8 real steps, like drawPlayer
+  const dir    = rt.facing === 'left' ? -1 : 1;
+  const stride = frame === 0 ? 2 : -2;        // forward/rear leg offset, alternating
+  const swing  = frame === 0 ? 1 : -1;        // slight opposing arm movement
+
+  ctx.fillStyle = '#3a404e';
+  ctx.fillRect(px - 7, py - 10, 14, 10);              // jacket/shoulders
+  ctx.fillStyle = '#c8c0b0';
+  ctx.fillRect(px - 3, py - 10, 6, 5);                // shirt collar
+  ctx.fillStyle = '#3a404e';
+  ctx.fillRect(px - 12, py - 6 + swing, 6, 5);        // left arm (swings opposite the right)
+  ctx.fillRect(px +  6, py - 6 - swing, 6, 5);        // right arm
+  ctx.fillStyle = '#c09070';
+  ctx.fillRect(px - 13, py - 3 + swing, 6, 4);        // left hand
+  ctx.fillRect(px +  7, py - 3 - swing, 6, 4);        // right hand
+  ctx.fillStyle = '#c09070';
+  ctx.fillRect(px - 5, py - 22, 10, 13);              // head
+  ctx.fillStyle = '#2a1c10';
+  ctx.fillRect(px - 5, py - 22, 10, 4);               // dark hair
+  ctx.fillStyle = '#181620';
+  ctx.fillRect(px - 3 + 2 * dir, py - 15, 2, 2);      // eyes shifted toward the walked direction
+  ctx.fillRect(px + 1 + 2 * dir, py - 15, 2, 2);
+  ctx.fillStyle = '#2a303c';
+  ctx.fillRect(px - 5 + stride * dir, py, 4, 8);      // forward/rear leg pair, alternating
+  ctx.fillRect(px + 1 - stride * dir, py, 4, 8);
+  ctx.fillStyle = '#1a1814';
+  ctx.fillRect(px - 6 + stride * dir, py + 6, 5, 3);  // boots follow their legs
+  ctx.fillRect(px + 1 - stride * dir, py + 6, 5, 3);
+  drawNPCSpaceHint(npc, px, py);
+}
+
+// Walking (and interaction-facing) variant of the worker sprite — the Phase 1
+// auto-patrol pilot (Tobb Wend). Keeps drawGenericWorker's exact design (same
+// tunic, hands, head, hair, sideburns, leg and boot colours, same proportions),
+// adding only what motion needs. Driven by the route's `facing`, `step` and a
+// `moving` flag:
+//   • moving: two alternating walk frames (>>3 cadence, like the player) —
+//     forward/rear leg alternation (horizontal stride for left/right, an
+//     alternating leg-length step for up/down so vertical motion still reads),
+//     a slight opposing arm swing, and eyes shifted toward a left/right facing.
+//   • not moving (interaction only): a still worker turned to face the player,
+//     eyes shifted by facing but legs/arms neutral. Called ONLY when the route
+//     is frozen by a conversation — every other stationary/paused frame uses
+//     drawGenericWorker unchanged, so unrelated workers stay pixel-identical.
+function drawWalkingWorker(npc, facing, step, moving) {
+  const px = Math.round(npc.x), py = Math.round(npc.y);
+  const frame = (step >> 3) & 1;                                  // flips every 8 real steps
+  const horiz = (facing === 'left' || facing === 'right');
+  const dir   = facing === 'left' ? -1 : facing === 'right' ? 1 : 0;
+  const swing = moving ? (frame === 0 ? 1 : -1) : 0;             // opposing arm movement
+  // Leg animation: neutral when standing; horizontal stride for L/R; an
+  // alternating leg-length step for U/D (a horizontal stride would be invisible
+  // when facing the camera). l#h stays 8 (== drawGenericWorker) when standing.
+  let l1x = px - 5, l2x = px + 1, l1h = 8, l2h = 8;
+  if (moving) {
+    if (horiz) {
+      const stride = frame === 0 ? 2 : -2;
+      l1x = px - 5 + stride * dir;
+      l2x = px + 1 - stride * dir;
+    } else {
+      l1h = frame === 0 ? 9 : 7;
+      l2h = frame === 0 ? 7 : 9;
+    }
+  }
+  ctx.fillStyle = '#4a5638';
+  ctx.fillRect(px - 7, py - 10, 14, 10);              // rough tunic
+  ctx.fillRect(px - 3, py - 10, 6, 5);               // (no contrast collar)
+  ctx.fillRect(px - 12, py - 6 + swing, 6, 5);       // left arm (opposing swing)
+  ctx.fillRect(px +  6, py - 6 - swing, 6, 5);       // right arm
+  ctx.fillStyle = '#a07858';
+  ctx.fillRect(px - 13, py - 3 + swing, 6, 4);       // left hand
+  ctx.fillRect(px +  7, py - 3 - swing, 6, 4);       // right hand
+  ctx.fillStyle = '#a07858';
+  ctx.fillRect(px - 5, py - 22, 10, 13);             // head
+  ctx.fillStyle = '#3a2820';
+  ctx.fillRect(px - 5, py - 22, 10, 5);              // thick dark hair
+  ctx.fillRect(px - 6, py - 20, 2, 3);               // sideburn left
+  ctx.fillRect(px + 4, py - 20, 2, 3);               // sideburn right
+  // Eyes: shift toward a left/right facing; hidden when facing away (up), so
+  // up and down frames are visibly distinct. Facing 'down' keeps the exact
+  // stationary eye position (dir 0), so a standing down-facing worker stays
+  // pixel-identical to drawGenericWorker.
+  if (facing !== 'up') {
+    ctx.fillStyle = '#181620';
+    ctx.fillRect(px - 3 + 2 * dir, py - 15, 2, 2);
+    ctx.fillRect(px + 1 + 2 * dir, py - 15, 2, 2);
+  }
+  ctx.fillStyle = '#3a4030';
+  ctx.fillRect(l1x, py, 4, l1h);                     // left leg
+  ctx.fillRect(l2x, py, 4, l2h);                     // right leg
+  ctx.fillStyle = '#1a1814';
+  ctx.fillRect(l1x - 1, py + l1h - 2, 5, 3);         // left boot (follows its leg)
+  ctx.fillRect(l2x,     py + l2h - 2, 5, 3);         // right boot
+  drawNPCSpaceHint(npc, px, py);
+}
+
+// Walking (and interaction-facing) variant of the patron sprite — the Phase 1
+// bounded-wander pilot (Tomas). Same structure and identity guarantees as
+// drawWalkingWorker, but with drawGenericPatron's palette (warm vest, cream
+// collar, auburn hair). Signature (npc, facing, step, moving) is shared, so the
+// dispatcher treats worker and patron uniformly and any other patron-type
+// wanderer reuses this with no extra renderer work. `moving:false, facing
+// 'down'` is byte-identical to drawGenericPatron (see the render test).
+function drawWalkingPatron(npc, facing, step, moving) {
+  const px = Math.round(npc.x), py = Math.round(npc.y);
+  const frame = (step >> 3) & 1;
+  const horiz = (facing === 'left' || facing === 'right');
+  const dir   = facing === 'left' ? -1 : facing === 'right' ? 1 : 0;
+  const swing = moving ? (frame === 0 ? 1 : -1) : 0;
+  let l1x = px - 5, l2x = px + 1, l1h = 8, l2h = 8;
+  if (moving) {
+    if (horiz) {
+      const stride = frame === 0 ? 2 : -2;
+      l1x = px - 5 + stride * dir;
+      l2x = px + 1 - stride * dir;
+    } else {
+      l1h = frame === 0 ? 9 : 7;
+      l2h = frame === 0 ? 7 : 9;
+    }
+  }
+  ctx.fillStyle = '#5a3828';
+  ctx.fillRect(px - 7, py - 10, 14, 10);             // vest
+  ctx.fillStyle = '#e8d8c0';
+  ctx.fillRect(px - 3, py - 10, 6, 5);               // white shirt collar
+  ctx.fillStyle = '#5a3828';
+  ctx.fillRect(px - 12, py - 6 + swing, 6, 5);       // left arm (opposing swing)
+  ctx.fillRect(px +  6, py - 6 - swing, 6, 5);       // right arm
+  ctx.fillStyle = '#b88060';
+  ctx.fillRect(px - 13, py - 3 + swing, 6, 4);       // left hand
+  ctx.fillRect(px +  7, py - 3 - swing, 6, 4);       // right hand
+  ctx.fillStyle = '#b88060';
+  ctx.fillRect(px - 5, py - 22, 10, 13);             // head
+  ctx.fillStyle = '#7a3a18';
+  ctx.fillRect(px - 5, py - 22, 10, 4);              // auburn hair
+  if (facing !== 'up') {                             // eyes: shift for L/R, hidden facing away
+    ctx.fillStyle = '#181620';
+    ctx.fillRect(px - 3 + 2 * dir, py - 15, 2, 2);
+    ctx.fillRect(px + 1 + 2 * dir, py - 15, 2, 2);
+  }
+  ctx.fillStyle = '#3a2418';
+  ctx.fillRect(l1x, py, 4, l1h);                     // left leg
+  ctx.fillRect(l2x, py, 4, l2h);                     // right leg
+  ctx.fillStyle = '#1a1814';
+  ctx.fillRect(l1x - 1, py + l1h - 2, 5, 3);         // left shoe (follows its leg)
+  ctx.fillRect(l2x,     py + l2h - 2, 5, 3);         // right shoe
+  drawNPCSpaceHint(npc, px, py);
+}
+
 // Iterates SIMPLE_NPCS, draws those on the current map.
 function drawSimpleNPCs() {
   const mapId = currentMapId();
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId) continue;
+    // Route-driven rendering (Phase 1 pilots: the bridge guards run
+    // scriptedRoutes; Tobb Wend an auto-patrol; Tomas a bounded wander). A
+    // frozen route (interaction in progress) draws a still, player-facing pose;
+    // an actively stepping route draws the walk animation. Everything else — no
+    // route, a finished route, a paused patrol, or a wanderer between steps —
+    // renders through the exact pre-existing stationary path, so every unrelated
+    // NPC and every stationary/paused frame is pixel-identical.
+    const rt = (typeof NPC_ROUTES !== 'undefined') ? NPC_ROUTES[npc.id] : undefined;
+    if (rt) {
+      const style  = npc.spriteType || 'clerk';
+      const walkFn = style === 'worker' ? drawWalkingWorker
+                   : style === 'patron' ? drawWalkingPatron
+                   : null; // clerk-bodied (bridge guards) use drawWalkingGenericNPC
+      // "Stepping" means actively moving this frame: a waypoint route that is
+      // moving and not paused, or a wander with a live target.
+      const stepping = !rt.done && (rt.type === 'boundedWander'
+        ? rt.target != null
+        : (rt.moving && rt.pauseLeft === 0));
+      if (rt.frozen) {
+        if (walkFn) { walkFn(npc, rt.facing, 0, false); continue; }
+      } else if (stepping) {
+        if (walkFn) { walkFn(npc, rt.facing, rt.step, true); continue; }
+        drawWalkingGenericNPC(npc, rt); continue;
+      }
+    }
     const fn = NPC_DRAW_FNS[npc.id];
     if (fn) fn(npc); else drawGenericNPC(npc);
   }
@@ -2140,11 +2327,11 @@ function drawTakomo() {
   }
 }
 
-// The trapped Pale Drowned snared in the pool of Sunken Gallery room R1C2 — a
-// pale arm and hand thrashing up out of the deep water, the marking cord and
-// its chalked tag tangled at the wrist. Drawn on the map (not just in dialogue)
-// so the player can SEE there is something in the water to examine. Gated by
-// render.js on !freed && !slain, so once you free or kill it the pool is empty.
+// The trapped Pale Drowned snagged in the pool of Sunken Gallery room R1C2 — a
+// pale arm and hand wrenching out of the deep water, its shoulder hooked under a
+// chunk of drowned stone (it caught itself; no cord). Drawn on the map (not just
+// in dialogue) so the player can SEE there is something in the water to examine.
+// Gated by render.js on !freed && !slain, so once you free or kill it it's empty.
 function drawTrappedDrowned() {
   const cx   = 8 * TILE + 16;              // pool centre (col 8)
   const sway = Math.sin(tick * 0.06);
@@ -2174,15 +2361,13 @@ function drawTrappedDrowned() {
   ctx.fillStyle = '#adb5a6';
   for (let i = 0; i < 4; i++) ctx.fillRect(cx - 7 + i * 4 + dx, handY - 8, 2, 6);
 
-  // Marking cord tangled at the wrist, tied to a small chalked wooden tag
-  ctx.strokeStyle = '#8a7d5a';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(cx + dx, handY + 2);
-  ctx.lineTo(cx + 13, handY + 9);
-  ctx.stroke();
-  ctx.fillStyle = '#d8ceac';
-  ctx.fillRect(cx + 12, handY + 8, 5, 4);
+  // The snag: a chunk of drowned stone the shoulder is hooked under, pinning it.
+  // Drawn last (over the arm) and barely swaying — it is fixed, the Drowned isn't.
+  ctx.fillStyle = '#2b312a';
+  ctx.fillRect(cx - 12 + Math.round(sway), 6 * TILE + 18, 22, 9);   // stone across the upper arm
+  ctx.fillStyle = '#3a4238';
+  ctx.fillRect(cx - 10 + Math.round(sway), 6 * TILE + 18, 7, 4);    // lit top edges
+  ctx.fillRect(cx + 4  + Math.round(sway), 6 * TILE + 20, 5, 3);
 }
 
 // ─── Sunken Gallery: little graphics for the investigative finds ──────────────
@@ -2203,21 +2388,29 @@ function drawSunkenGalleryFeatures() {
   else if (m === SUNKEN_GALLERY_R1C2) {
     if (!window.sunken_gallery_drowned_freed && !window.sunken_gallery_drowned_slain) drawTrappedDrowned();
   }
-  else if (m === SUNKEN_GALLERY_R1C3) drawGalleryBootprint();
+  else if (m === SUNKEN_GALLERY_R1C3) drawGalleryDragTrail();
   else if (m === SUNKEN_GALLERY_R0C2) drawGalleryNotebook();
   else if (m === SUNKEN_GALLERY_R0C4) drawGallerySubmergedStair();
   else if (m === SUNKEN_GALLERY_R1C4) drawGalleryBody();
+  else if (m === SUNKEN_GALLERY_R3C3) drawGalleryAltar();
+  else if (m === SUNKEN_GALLERY_R1C1) drawGalleryIdol();
 }
 
-// R4C1 — a pressed handprint and a dragged heel-mark in the disturbed silt.
+// R4C1 — a clawing handprint and a body-drag toward the water, with the wide
+// clawed marks of the thing that took him to either side.
 function drawGallerySiltPatch() {
   const hx = 8 * TILE + 16, hy = 8 * TILE + 16;
   ctx.fillStyle = 'rgba(38,42,32,0.55)';
   ctx.fillRect(hx - 5, hy - 2, 10, 8);                    // palm
-  for (let i = 0; i < 4; i++) ctx.fillRect(hx - 6 + i * 4, hy - 8, 2, 6); // fingers
+  for (let i = 0; i < 4; i++) ctx.fillRect(hx - 6 + i * 4, hy - 8, 2, 6); // fingers, clawing
   ctx.fillRect(hx - 9, hy - 1, 4, 5);                     // thumb
-  ctx.strokeStyle = 'rgba(38,42,32,0.5)'; ctx.lineWidth = 4; // dragged heel-mark leading away
-  ctx.beginPath(); ctx.moveTo(hx + 8, hy + 6); ctx.lineTo(9 * TILE + 22, 8 * TILE + 28); ctx.stroke();
+  ctx.strokeStyle = 'rgba(38,42,32,0.5)'; ctx.lineWidth = 5; // body dragged toward the water
+  ctx.beginPath(); ctx.moveTo(hx + 6, hy + 6); ctx.lineTo(9 * TILE + 22, 6 * TILE + 24); ctx.stroke();
+  ctx.strokeStyle = 'rgba(46,54,44,0.5)'; ctx.lineWidth = 2; // clawed gouges alongside the drag
+  for (let i = 0; i < 3; i++) {
+    const t = i * 10;
+    ctx.beginPath(); ctx.moveTo(hx + 10 + t, hy - 2 - t); ctx.lineTo(hx + 16 + t, hy - 6 - t); ctx.stroke();
+  }
 }
 
 // R3C0 — the field satchel caught at the base of the column (row 7, col 8).
@@ -2278,14 +2471,20 @@ function drawGalleryRecess() {
   }
 }
 
-// R1C3 — a single hard-heeled boot print, wrong for either observer (silt col 8).
-function drawGalleryBootprint() {
-  const x = 8 * TILE + 16, y = 7 * TILE + 16;
-  ctx.fillStyle = 'rgba(34,38,28,0.6)';
-  ctx.fillRect(x - 4, y - 8, 9, 10);                        // ball
-  ctx.fillRect(x - 3, y + 3, 7, 6);                         // heel
-  ctx.fillStyle = 'rgba(72,78,62,0.5)';                     // tread lines
-  for (let i = 0; i < 3; i++) ctx.fillRect(x - 4, y - 6 + i * 3, 9, 1);
+// R1C3 — the monster's drag-trail: a broad wet drag out of the water with
+// clawed gouges to either side (no boot). What came up for the observers.
+function drawGalleryDragTrail() {
+  const x = 8 * TILE + 16;
+  // broad central drag, from the deeper north down across the silt
+  ctx.strokeStyle = 'rgba(30,40,38,0.5)'; ctx.lineWidth = 7;
+  ctx.beginPath(); ctx.moveTo(x, 6 * TILE + 4); ctx.lineTo(x + 2, 8 * TILE + 20); ctx.stroke();
+  // clawed gouges dug in either side, dragging along
+  ctx.strokeStyle = 'rgba(40,50,46,0.55)'; ctx.lineWidth = 2;
+  for (let i = 0; i < 4; i++) {
+    const y = 6 * TILE + 14 + i * 12;
+    ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.lineTo(x - 12, y + 5); ctx.stroke();   // left claw set
+    ctx.beginPath(); ctx.moveTo(x + 8, y + 4); ctx.lineTo(x + 14, y + 9); ctx.stroke(); // right claw set
+  }
 }
 
 // R0C2 — the notebook, oilcloth-wrapped and tied, on the ledge above the water.
@@ -2320,6 +2519,34 @@ function drawGalleryBody() {
   ctx.fillStyle = '#9aa08a'; ctx.fillRect(cx + 22, cy - 1, 5, 4);   // pale hand on the silt
   ctx.strokeStyle = '#4a3c28'; ctx.lineWidth = 2;                    // empty satchel-strap
   ctx.beginPath(); ctx.moveTo(cx - 8, cy - 6); ctx.lineTo(cx + 6, cy + 9); ctx.stroke();
+}
+
+// R3C3 — the sacrificial bloodstone: a low black altar block with a dished top,
+// blood-channels cut to the floor, and dark staining soaked into the grain.
+function drawGalleryAltar() {
+  const x = 6 * TILE + 8, y = 6 * TILE + 8;      // block sits around row 6-7, col 7
+  ctx.fillStyle = '#1a1c18'; ctx.fillRect(x, y + 4, 40, 22);        // black stone block
+  ctx.fillStyle = '#26281f'; ctx.fillRect(x + 2, y, 36, 8);         // dished top rim
+  ctx.fillStyle = '#0e0f0b'; ctx.fillRect(x + 8, y + 1, 24, 6);     // the worn hollow
+  ctx.fillStyle = 'rgba(60,20,18,0.55)';                            // old stain down the grain
+  ctx.fillRect(x + 14, y + 6, 8, 20);
+  ctx.strokeStyle = 'rgba(50,16,14,0.5)'; ctx.lineWidth = 2;        // channels cut to the floor
+  ctx.beginPath(); ctx.moveTo(x + 16, y + 24); ctx.lineTo(x + 6, y + 34); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + 22, y + 24); ctx.lineTo(x + 32, y + 34); ctx.stroke();
+}
+
+// R1C1 — the drowned idol in its wall niche: a squat faceless seated figure,
+// arms open, with silted offering-cups ranked on the ledge, its face broken.
+function drawGalleryIdol() {
+  const x = 7 * TILE + 6, y = 4 * TILE + 4;      // in the north wall niche (row 4, col 7)
+  ctx.fillStyle = '#14170f'; ctx.fillRect(x, y, 26, 26);           // dark niche
+  ctx.fillStyle = '#4a5240'; ctx.fillRect(x + 4, y + 10, 18, 14);  // squat seated body
+  ctx.fillRect(x + 7, y + 3, 12, 9);                               // head/shoulders
+  ctx.fillStyle = '#3a4234'; ctx.fillRect(x + 9, y + 5, 8, 5);     // broken, faceless (hammered)
+  ctx.fillStyle = '#4a5240';                                       // open arms, palms up
+  ctx.fillRect(x + 1, y + 12, 5, 4); ctx.fillRect(x + 20, y + 12, 5, 4);
+  ctx.fillStyle = '#5a6250';                                       // offering-cups on the ledge
+  ctx.fillRect(x + 3, y + 26, 5, 3); ctx.fillRect(x + 11, y + 26, 5, 3); ctx.fillRect(x + 19, y + 26, 5, 3);
 }
 
 function drawBoss() {

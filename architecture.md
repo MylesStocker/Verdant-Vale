@@ -744,3 +744,285 @@ Using the South Ruins Entrance Hall as the running example:
 - [ ] `node --check` every touched file, then `node test/run.js`,
       `node test/transition-audit.js`, and `validateGameData()` (via a
       quick harness script or the debug menu) before calling it done
+
+## NPC movement contract (Phase 1 — implemented for four pilots)
+
+Status: **Movement is implemented for exactly four pilot NPCs, and no other
+NPC moves.** All three authored types are live:
+
+- **`scriptedRoute`** (one-way, explicitly started) — the two Imperial bridge
+  toll guards (`bridge_soldier_north`, `bridge_soldier_south`). These are, and
+  remain, the **only** scripted-route pilots.
+- **`patrol`** (looping waypoint route, optionally auto-starting) — **Tobb Wend
+  (`tobb_wend`, display name "Toby")** in `FEN_BREWERY_MAP`, the only patrol
+  pilot. A small looping route among the eastern brewery vats.
+- **`boundedWander`** (intermittent random wander inside an authored tile
+  region) — **Tomas (`tomas`)** in `house:esla_house`, the only bounded-wander
+  pilot. He waits, takes one short orthogonal step to a random legal neighbour,
+  and waits again — domestic pottering, not a route.
+
+The engine is shared (one route runtime, not three): movement.js holds
+`NPC_ROUTES`, `startNpcRoute()` / `updateNpcRoutes()` (a `type` switch over the
+three behaviours), `npcRouteCanOccupy()` (the one NPC-aware collision path),
+`chooseWanderTarget()` / `wanderPauseFrames()`, `ensureAutoMovers()`,
+`patrolNpcTalk()`, and the reset helpers `resetBridgeGuards()` /
+`placeBridgeGuardsAside()` (guards) and `resetMovementNpc()` /
+`resetAllMovers()` over `MOVEMENT_HOMES` (patrol + wander). The walking
+renderers (render-entities.js: `drawWalkingGenericNPC()` for the clerk-bodied
+guards, `drawWalkingWorker()` for Toby, `drawWalkingPatron()` for Tomas —
+each preserving its own stationary sprite exactly) share one `(npc, facing,
+step, moving)` signature, so a new NPC of an existing generic sprite type needs
+no renderer work. Interaction is generic: `interactSimpleNPCs()` routes any
+moving NPC with no custom `action` through `patrolNpcTalk()` (no per-NPC
+branch). Tests: `45-npc-movement-contract` (validation), `46-bridge-guard-toll`
+(guards), `47-brewery-patrol` (Toby), `48-bounded-wander` (Tomas). Broader NPC
+movement remains deferred; there is deliberately no pathfinding, no schedules,
+no cross-map movement, and no simulation of inactive maps.
+
+Key invariants (all enforced and tested):
+
+- **Auto-movers update only on their resolved active map.** `ensureAutoMovers()`
+  starts an auto-managed mover (a `boundedWander`, or a `patrol` with
+  `autoStart: true`) the frame its NPC's `map` equals `currentMapId()`, and
+  suspends it (dropping the route, homing the NPC) the frame it doesn't — the
+  same map-local filter `updateNpcRoutes()` and `drawSimpleNPCs()` already
+  apply. This shared invariant keeps a mover off every other screen (the
+  bridge-guard "appear everywhere after death" bug class), **not** an
+  NPC-specific hide condition.
+- **Runtime state is transient and never saved.** Position, facing, pause
+  timer and the current wander/patrol target live in `NPC_ROUTES` only.
+  `saveGame()` writes no route/position data; `loadGame()` calls
+  `resetAllMovers()`, re-seating each auto-mover at its authored home (a save
+  made mid-motion loads as a clean start), and the mover auto-restarts next
+  frame if its map is active. No new save fields, no `SAVE_VERSION` bump. The
+  defeat/respawn handler (combat.js) calls `resetAllMovers()` alongside
+  `resetBridgeGuards()`.
+- **Home is derived, not hardcoded.** `MOVEMENT_HOMES` is snapshotted once at
+  movement.js load from each auto-mover's own authored `x`/`y`/`facing`
+  (npcs.js loads first, so those are the pristine values) — no hand-maintained
+  home table. `resetMovementNpc()` restores from it.
+- **Interaction pauses and resumes a mover** (never a restart or teleport).
+  Talking runs `patrolNpcTalk()`: the route freezes at its live position, the
+  NPC faces the player (Lélý), and its ordinary dialogue opens unchanged. A
+  beat after the dialogue closes it thaws — a patrol continues toward its same
+  target waypoint; a wander drops the in-progress step and re-decides after a
+  short pause. Interaction, collision and the SPACE hint all read live
+  `npc.x`/`npc.y`, so there is no ghost target at the authored start.
+- **Bounds are intent; live collision is authority.** A `boundedWander`'s
+  `bounds` describe the safe interior region in tile coordinates and must
+  exclude the exit/doorway, but every attempted step is *also* checked by
+  `npcRouteCanOccupy()` — walkable tile, no transition, no house furniture
+  (HOUSE_DATA solids, honoured at canWalk()'s own AABB radii), not the player,
+  not another solid NPC. A blocked NPC picks another legal direction or waits
+  and re-rolls after a pause; randomness is rolled only at a decision point,
+  never per frame.
+
+### Authored schema (opt-in)
+
+Movement is opt-in per NPC via a `movement` property on the `SIMPLE_NPCS`
+entry. **An NPC without `movement` must remain exactly as stationary as it
+is today** — absence of the property is the permanent "never moves"
+guarantee, not a default route.
+
+```js
+movement: {
+  type: 'patrol',            // looping authored patrol (Tobb Wend)
+  autoStart: true,           // patrol-only: initialise on map presence, no explicit start call
+  waypoints: [               // authored route, walked in order, then repeated
+    { x: 13.5, y: 3.5, pauseFrames: 180 },  // TILE units; per-waypoint dwell (frames)
+    { x: 11.5, y: 4.5, pauseFrames: 240 },
+  ],
+  speed: 0.5,                // px per frame while moving; > 0, finite
+  pauseFrames: 90,           // OPTIONAL movement-level default dwell; a waypoint's own wins
+  loop: true,                // true: cycle forever; false: walk once, stop at the end
+}
+```
+
+A `patrol` walks its waypoints in order and, with `loop: true`, wraps from the
+last back to the first forever, dwelling at each waypoint for that waypoint's
+`pauseFrames` (falling back to the movement-level `pauseFrames`, else 0).
+`autoStart: true` (patrol-only) means `ensureAutoMovers()` starts and stops it
+by map presence with no game-code call. Arrival snaps exactly to each waypoint,
+so repeated loops accrue no positional drift.
+
+The `scriptedRoute` type is a **one-way**
+route that plays exactly once when explicitly started from game code via
+`startNpcRoute(id)` (movement.js), rather than running on its own schedule.
+`loop` must be `false`; a completed route stays completed (restarts require
+an explicit reset, e.g. `resetBridgeGuards()`). This is the type the two
+bridge-guard pilots use for their post-payment sidestep:
+
+```js
+movement: {
+  type: 'scriptedRoute',
+  waypoints: [{ x: 6.5, y: 9.5 }],  // TILE units
+  speed: 0.5,
+  pauseFrames: 0,
+  loop: false,
+}
+```
+
+The third type, `boundedWander`, is an intermittent random wander inside an
+authored tile region — no route, no waypoints. It auto-manages by map presence
+(like an `autoStart` patrol, but with no flag: a wander is always auto). At each
+decision point it rolls **once** for a shuffled direction order and takes the
+first one-tile orthogonal step that is both in `bounds` **and** passes live
+occupancy, else it waits and re-rolls after another randomized pause. This is
+the type Tomas uses to potter around Esla's house:
+
+```js
+movement: {
+  type: 'boundedWander',
+  bounds: { minCol: 4, maxCol: 11, minRow: 2, maxRow: 9 },  // TILE indices; safe interior, EXCLUDING the doorway
+  speed: 0.5,               // px per frame while stepping (the shared NPC speed)
+  minPauseFrames: 60,       // randomized wait between steps, min (~1s at 60fps)
+  maxPauseFrames: 180,      // ...and max (~3s); min <= max
+}
+```
+
+`bounds` are tile **indices** (integer col/row), unlike waypoints (tile-centre
+`x.5` coordinates). They are authored *intent* describing the safe region; they
+are **not** collision authority. Every attempted destination is also checked by
+`npcRouteCanOccupy()` — walkable tile, no transition tile, no house furniture
+(the HOUSE_DATA solids, at canWalk()'s own AABB radii — the one map-specific
+extension the wander needed), not the player, not another solid NPC — so a
+bound may safely overlap a wall or a chair as long as the doorway is excluded.
+Runtime state (position, facing, pause timer, current step target) is transient
+and never saved; home is the derived authored `x`/`y`/`facing` (`MOVEMENT_HOMES`).
+
+Runtime motion state lives in movement.js's `NPC_ROUTES` (keyed by NPC id,
+never saved); the live position is written to `npc.x`/`npc.y` because
+collision, rendering and interaction all read those fields, and the explicit
+reset helpers (`resetBridgeGuards()` / `placeBridgeGuardsAside()`) restore
+the authored anchors on every bridge entry, exit and load — derived from
+`bridge_toll_paid`, with no new save fields.
+
+**Coordinate decision: waypoints are authored in TILE units** (`4.5` = the
+horizontal centre of column 4), the same convention `MAP_FEATURES` already
+uses for inspect coordinates — *not* pixels. This is deliberately different
+from `npc.x`/`npc.y`, which are pixels (`4.5 * TILE`): authored content
+reads best in tiles, and the runtime converts once (`wp.x * TILE`) when
+following the route. Validation checks waypoints against tile-unit map
+bounds (0..COLS, 0..ROWS). Do not mix conventions inside `movement`.
+
+### Behavioural rules Phase 1 must implement
+
+- **Opt-in only.** No `movement` property → the NPC never moves, turns,
+  animates, or blocks differently than today.
+- **Active map only.** Only NPCs whose resolved `map` equals
+  `currentMapId()` update. Off-map NPCs never accumulate route progress.
+- **Orthogonal authored routes.** NPCs walk axis-aligned segments between
+  authored waypoints (waypoint pairs should share an x or a y; L-shapes are
+  authored as explicit corner waypoints). No pathfinding.
+- **Global freezes.** Movement stops whenever the player-update gate stops:
+  `combat.active`, `dialogue.open`, `menu.open`, `choice.open`,
+  `shop.open`, and during/after a map transition in the same frame.
+- **Conversation stop.** An NPC being spoken to stops moving and sets its
+  `facing` toward Lélý for the duration of the dialogue.
+- **Collision-respecting.** A moving NPC must not enter: unwalkable tiles
+  (`WALKABLE`), fixed solid obstacles (custom-code solids in `canWalk()`),
+  the player's body (mirror of the existing 18px AABB), or another solid
+  NPC's body. Blocked → wait, do not shove or re-path.
+- **Forbidden tiles.** Moving NPCs may never stand on or cross transition
+  tiles (`TILE_PROPERTIES.isTransition`), doorways, or authored prohibited
+  chokepoints; routes must be authored clear of them and validation should
+  eventually enforce it (see Phase 1 requirement below).
+- **No world side effects.** NPC motion never rolls encounters, never
+  triggers `EDGE_TRANSITIONS` or point-tile transitions, never picks up
+  items, never fires `MAP_FEATURES` triggers.
+- **Animation model.** Moving NPCs animate exactly the way the player does:
+  `facing` (direction), `moving` (bool), `step` (frame counter) — the
+  fields drawPlayer() already keys off. Generic NPC renderers are currently
+  front-facing only, so Phase 1 must add directional/walk variants for the
+  generic sprite types before any NPC visibly moves.
+- **Runtime state is separate from authored data.** Route progress (current
+  waypoint index, pause countdown, live px position) lives in a separate
+  runtime table keyed by NPC id — the authored `SIMPLE_NPCS` entry (and its
+  `movement` object) is never mutated. `NPC_REGISTRY` stays reference-only.
+- **No save impact.** Incidental live coordinates are NOT saved; on load an
+  NPC resumes from its authored anchor exactly as today. If a later feature
+  needs persisted positions it must add that explicitly (new save fields +
+  `SAVE_VERSION` bump), not inherit it silently from this system.
+- **Permanently stationary categories.** Seated/workstation NPCs (clerks at
+  desks, counters), shopkeepers, the two props inside `SIMPLE_NPCS`
+  (`calwick_school_bookshelf`, `calwick_school_map`), the six position-only
+  named figures (MERCHANT, TRAVELLER, INNKEEPER, DRENWICK_INNKEEPER,
+  SUPERVISOR, ESLA — bespoke renderers, custom interaction wiring), and any
+  bespoke-sprite NPC (`NPC_DRAW_FNS`) without directional rendering work
+  stay stationary. Validation enforces the bespoke/prop part today.
+
+### Validation (additive)
+
+`validateNPCs()` validates `movement` only when present, so an NPC without it
+reports nothing new. Checks: recognized `type`; `loop` must be `false` for a
+`scriptedRoute`; `autoStart` must be boolean and is patrol-only; nonempty
+`waypoints` array of finite tile-unit coordinates within map bounds, each with
+an optional nonnegative finite per-waypoint `pauseFrames`; **every route
+segment orthogonal** (each consecutive waypoint pair — and, for a looping
+patrol, the last-to-first closure — shares an x or a y; diagonals error);
+positive finite `speed`; nonnegative finite movement-level `pauseFrames`;
+boolean `loop`; a (unique) id; a rendering classification that can move
+(generic `spriteType`, not a bespoke `NPC_DRAW_FNS` entry); and no authored
+`x`/`y` getter (a schedule getter would fight runtime motion). For a
+`boundedWander` it instead requires a `bounds` object of finite in-map tile
+indices with `minCol <= maxCol` and `minRow <= maxRow`, nonnegative finite
+`minPauseFrames`/`maxPauseFrames` with `min <= max`, and rejects the
+incompatible combinations (waypoints on a wanderer, `bounds` on a waypoint
+route, `autoStart` on a non-patrol). **Full tile-by-tile route walkability is
+intentionally NOT re-checked in the validator** — resolving an arbitrary
+`npc.map` string to a grid there and re-deriving `canWalk()`'s corner/solid
+logic would duplicate the collision system. Instead the real collision path
+(`npcRouteCanOccupy()`) is exercised directly by the behavioural tests
+(46/47/48), which drive actual frames and assert the pilots never stick,
+overlap, clip furniture, leave bounds, or enter the exit — the single source of
+truth stays in movement.js.
+
+### Phase 1 implementation inventory
+
+NPC population, classified for the pilot (counts as of Phase 0):
+
+- **Generic standing humanoids — first-pilot candidates.** Standing
+  `spriteType` patron/worker/traveler/child NPCs in open rooms (market
+  browsers, dock loiterers, street children: e.g. `drenwick_market_2`
+  (Sera), `drenwick_civic` patrons, Calwick square children). Requirement
+  before any of them move: directional + walk-frame variants for the four
+  generic sprite bodies.
+- **Bespoke sprites needing directional rendering work.** `maren`, `wen`,
+  `polwick` (`NPC_DRAW_FNS`), plus the six position-only named figures
+  above. Excluded from movement until each gets its own directional art;
+  validation errors on `movement` for `NPC_DRAW_FNS` ids today.
+- **Seated / workstation NPCs — permanently stationary by design.** Desk
+  clerks (Holt, Officer Veth at his ledger, Petra, harbormaster staff),
+  counter staff (Oda, innkeepers, Nora's stall, tavern keeper), the
+  infirmary staff around fixed furniture. Their sprites and interactions
+  assume the furniture around them.
+- **Dynamic schedule/getter NPCs — special care.** 89 `get map()` / 17
+  `get x()` / 20 `get y()` entries (dayoff relocation, flag-gated
+  appearances). A getter-scheduled NPC given `movement` is a validation
+  error (x/y getters) or needs Phase 1 rules for "route only while resolved
+  to this map" (map getters). Do not convert getters to plain fields for
+  the pilot.
+- **Non-NPC props — excluded.** `calwick_school_bookshelf`,
+  `calwick_school_map` (inside `SIMPLE_NPCS`, bespoke draw fns), and all
+  furniture/props outside it (HOUSE_DATA furniture, FILING_CABINET, etc.).
+
+Exact touch-points Phase 1 will need (none touched in Phase 0):
+
+- `npcs.js` — add `movement` to the chosen pilot NPCs; nothing structural.
+- `movement.js` (or a new `npc-movement.js` loaded after it) — the route
+  updater; called from `update()` **after** the player-freeze early-returns
+  so every global freeze is inherited for free; reuse/extract the solid-NPC
+  AABB constants from `canWalk()` rather than duplicating numbers.
+- `render-entities.js` — directional/walk-frame variants of
+  `drawGenericClerk/Patron/Worker/Traveler/drawCalwickChild`, keyed off the
+  runtime `facing`/`moving`/`step`; `drawSimpleNPCs()` reads live runtime
+  position for moving NPCs (authored position for everyone else).
+- `interactions.js` — `interactSimpleNPCs()` gains the stop-and-face hook
+  (set runtime `moving=false`, face the player) on successful interaction.
+- `state.js` — the runtime motion-state table (id → {wpIndex, pause,
+  px, py, facing, moving, step}), reset on map change.
+- `validation.js` — the deferred route-walkability check via the real
+  collision path.
+- `test/` — a Phase 1 behavioural test (route following, freezes,
+  collision, stop-and-face, no-encounter guarantee), replacing test 45's
+  final "no real NPC has movement" assertion intentionally.

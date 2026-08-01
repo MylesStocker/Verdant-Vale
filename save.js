@@ -33,9 +33,10 @@ const QUEST_FLAG_SCHEMA = [
   'rareborn_rhyme_heard',   // player has heard the rareborn spotting-rhyme (Calwick school)
   'vale_tutorial_seen',     // Ms. Vale has given the one-time field-kit tutorial (window-native)
   'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet',   // Esla one-shot commentary
-  'esla_said_polwick_pending', 'esla_said_polwick_dead',
+  'esla_said_polwick_pending', 'esla_said_polwick_dead', 'esla_said_basin',
   'supervisor_greet_day', 'esla_greet_day',  // once-per-day office "good morning" greetings
   'north_bridge_crossed_early', 'north_bridge_scolded',  // pre-MQ4 north-bridge crossing + one-time supervisor admonishment
+  'supervisor_said_flood',  // one-time supervisor flood-evacuation backstory (post reservoir assignment)
   'wine_quest_started', 'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
   // Upper Reach / chamber / gallery first-entry narrations — the first
   // MAP_FEATURES onceFlags to be persisted. These are window-native flags
@@ -397,10 +398,12 @@ function loadGame() {
   if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;
   if (data.esla_said_polwick_pending !== undefined) esla_said_polwick_pending = data.esla_said_polwick_pending;
   if (data.esla_said_polwick_dead    !== undefined) esla_said_polwick_dead    = data.esla_said_polwick_dead;
+  if (data.esla_said_basin           !== undefined) esla_said_basin           = data.esla_said_basin;
   if (data.supervisor_greet_day      !== undefined) supervisor_greet_day      = data.supervisor_greet_day;
   if (data.esla_greet_day            !== undefined) esla_greet_day            = data.esla_greet_day;
   if (data.north_bridge_crossed_early !== undefined) north_bridge_crossed_early = data.north_bridge_crossed_early;
   if (data.north_bridge_scolded      !== undefined) north_bridge_scolded      = data.north_bridge_scolded;
+  if (data.supervisor_said_flood     !== undefined) supervisor_said_flood     = data.supervisor_said_flood;
   if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
   if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
   if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;
@@ -607,6 +610,33 @@ function loadGame() {
   // undo an in-session reward. Older saves without the field keep the current
   // runtime value.
   if (data.mirethystRewarded !== undefined) window.mirethyst_rewarded = !!data.mirethystRewarded;
+
+  // ── Bridge-guard placement (Phase 1 NPC-movement pilot) ────────────────
+  // Repair: saves written while the defeat-respawn bug left inBridgePost
+  // stranded (died at the bridge, carried home, flag never cleared) carry
+  // inBridgePost=true with a non-bridge activeMap. Loading that unrepaired
+  // would make currentMapId() report 'bridge_post' everywhere — the guards
+  // would render on every screen. Clear the inconsistent state instead.
+  if (inBridgePost && activeMap !== BRIDGE_CROSSING_MAP) {
+    inBridgePost = false; bridge_entry_direction = null; bridge_toll_paid = false;
+  }
+  // Nothing incidental is saved (no coordinates, no animation frames): guard
+  // placement is DERIVED from the flags just restored. Loading inside the
+  // bridge with the toll already paid puts both guards fully aside at their
+  // completed destinations (a mid-sidestep save loads as finished); any other
+  // load restores the blocking posts. Touches only the two pilot guards —
+  // no other NPC is disturbed.
+  if (typeof resetBridgeGuards === 'function') {
+    if (inBridgePost && bridge_toll_paid) placeBridgeGuardsAside();
+    else resetBridgeGuards();
+  }
+
+  // Auto-patrol NPCs (Tobb Wend) carry no saved position — patrol state is
+  // transient. Reset every patrol NPC to its authored home; if the save was
+  // made inside its map (e.g. the brewery), ensureAutoPatrols() re-starts it
+  // from the start position on the next frame. Loading elsewhere leaves it
+  // parked at home, off the active map, so it never initialises or renders.
+  if (typeof resetAllPatrols === 'function') resetAllPatrols();
 
   return true;
 }

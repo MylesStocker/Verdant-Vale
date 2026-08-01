@@ -25,8 +25,8 @@ agreement by `validateGameData()`).
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
   (see below), across 101 maps, 24,240 tile cells, 94 edge transitions, 171
-  NPCs, 109 item placements, 40 enemy templates, 577 dialogue/text entries,
-  111 save-flag checks, 57 map features.
+  NPCs, 109 item placements, 40 enemy templates, 584 dialogue/text entries,
+  111 save-flag checks, 60 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 

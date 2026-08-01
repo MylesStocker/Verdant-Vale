@@ -892,21 +892,25 @@ const DRENWICK_POST_MAP = [
 // Bridge planks (BRIDGE_DECK=58) span the water at rows 5-6, col 7.
 // BRIDGE_EXIT (59) at row 0 (north) and row 14 (south) — stepping on either
 //   triggers return to MAP3_N2 (row 4 col 12 from north, row 6 col 12 from south).
-// bridge_soldier_north at col 7 row 3: facing down, tolls southbound travelers.
-// bridge_soldier_south at col 7 row 9: facing up, tolls northbound travelers.
+// TOLL GUARDS (Phase 1 NPC-movement pilot): each soldier stands directly on
+// his bank's one-tile bridge approach (col 7, the row adjoining the deck) —
+// the canal is impassable everywhere else, so the guard's solid body is the
+// physical reason the player cannot cross before paying. No fences needed.
+// bridge_soldier_north at col 7 row 4: facing down, steps RIGHT to col 8.
+// bridge_soldier_south at col 7 row 7: facing up,   steps LEFT  to col 6.
 // Player entering from south spawns at row 13; from north at row 1.
 const BRIDGE_CROSSING_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [  3,  3,  3,  3,  3,  3,  3, 59,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  BRIDGE_EXIT north col 7
   [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  1  N bank; player entry from north
   [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  2  N bank
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  3  bridge_soldier_north at c7
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  4  N bank approach
+  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  3  N bank
+  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  4  N bridge approach; bridge_soldier_north at c7 (aside: c8)
   [  1,  1,  1,  1,  1,  1,  1, 58,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  canal; BRIDGE_DECK c7
   [  1,  1,  1,  1,  1,  1,  1, 58,  1,  1,  1,  1,  1,  1,  1,  1],  //  6  canal; BRIDGE_DECK c7
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  7  S bank
+  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  7  S bridge approach; bridge_soldier_south at c7 (aside: c6)
   [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  8  S bank
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  bridge_soldier_south at c7
+  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  S bank
   [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 10  S bank
   [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 11  S bank
   [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 12  S bank

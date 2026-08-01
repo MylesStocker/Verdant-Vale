@@ -652,6 +652,124 @@ function validateNPCs() {
         addValidationError(GROUP, lbl + ': action has unexpected type "' + t + '" (expected function, string, null, or undefined)');
       }
     }
+
+    // ── Optional future `movement` property (Phase 0 contract) ─────────────
+    // Purely additive: no current NPC has `movement`, so this block does
+    // nothing for the present game. See architecture.md's "Future NPC
+    // movement contract" for the schema. Waypoints are authored in TILE
+    // units (4.5 = centre of column 4), unlike npc.x/npc.y which are pixels.
+    // Full route WALKABILITY validation is deliberately deferred to Phase 1:
+    // checking segments against WALKABLE/solids here would duplicate
+    // canWalk()'s runtime collision logic and create a second source of
+    // truth — Phase 1 must expose a route check that calls the real path.
+    if (npc.movement !== undefined) {
+      const mv = npc.movement;
+      // All three types are implemented in Phase 1 (movement.js's
+      // startNpcRoute()/updateNpcRoutes()/ensureAutoMovers()): 'scriptedRoute'
+      // is the one-way route used by the two bridge-guard pilots; 'patrol' is
+      // the looping waypoint route (optionally autoStart, per-waypoint dwell)
+      // used by Tobb Wend; 'boundedWander' is the intermittent random wander
+      // within an authored tile region used by Tomas.
+      const MOVEMENT_TYPES = new Set(['patrol', 'scriptedRoute', 'boundedWander']);
+      if (mv === null || typeof mv !== 'object' || Array.isArray(mv)) {
+        addValidationError(GROUP, lbl + ': movement must be a plain object (see architecture.md movement contract)');
+      } else {
+        const rows = _validationRows(), cols = _validationCols();
+        if (!MOVEMENT_TYPES.has(mv.type))
+          addValidationError(GROUP, lbl + ': movement.type "' + mv.type + '" is not a recognized movement type (' + [...MOVEMENT_TYPES].join(', ') + ')');
+        if (mv.type === 'scriptedRoute' && mv.loop === true)
+          addValidationError(GROUP, lbl + ': movement.loop must be false for a scriptedRoute (one-way, plays once when explicitly started)');
+        // autoStart (auto-initialise on map presence) is patrol-only, boolean.
+        if (mv.autoStart !== undefined && typeof mv.autoStart !== 'boolean')
+          addValidationError(GROUP, lbl + ': movement.autoStart must be a boolean');
+        if (mv.autoStart === true && mv.type !== 'patrol')
+          addValidationError(GROUP, lbl + ': movement.autoStart is only meaningful for a patrol (scriptedRoutes start explicitly)');
+
+        if (mv.type === 'boundedWander') {
+          // A wanderer roams a region, not a route: waypoints are incompatible.
+          if (mv.waypoints !== undefined)
+            addValidationError(GROUP, lbl + ': a boundedWander must not have waypoints (it roams within bounds, not along a route)');
+          const b = mv.bounds;
+          if (b === null || typeof b !== 'object' || Array.isArray(b)) {
+            addValidationError(GROUP, lbl + ': boundedWander requires a bounds object { minCol, maxCol, minRow, maxRow } (tile units)');
+          } else {
+            const bkeys = ['minCol', 'maxCol', 'minRow', 'maxRow'];
+            bkeys.forEach(k => { if (!_isFiniteNumber(b[k])) addValidationError(GROUP, lbl + ': movement.bounds.' + k + ' must be a finite number (tile units)'); });
+            if (bkeys.every(k => _isFiniteNumber(b[k]))) {
+              if (b.minCol > b.maxCol) addValidationError(GROUP, lbl + ': movement.bounds.minCol must be <= maxCol');
+              if (b.minRow > b.maxRow) addValidationError(GROUP, lbl + ': movement.bounds.minRow must be <= maxRow');
+              if (b.minCol < 0 || b.maxCol >= cols || b.minRow < 0 || b.maxRow >= rows)
+                addValidationError(GROUP, lbl + ': movement.bounds must be inside the map (col 0-' + (cols - 1) + ', row 0-' + (rows - 1) + '); bounds are tile indices');
+            }
+          }
+          // Pauses: optional, nonnegative finite, min <= max.
+          const mn = mv.minPauseFrames, mx = mv.maxPauseFrames;
+          if (mn !== undefined && (!_isFiniteNumber(mn) || mn < 0))
+            addValidationError(GROUP, lbl + ': movement.minPauseFrames must be a nonnegative finite number of frames');
+          if (mx !== undefined && (!_isFiniteNumber(mx) || mx < 0))
+            addValidationError(GROUP, lbl + ': movement.maxPauseFrames must be a nonnegative finite number of frames');
+          if (_isFiniteNumber(mn) && _isFiniteNumber(mx) && mn > mx)
+            addValidationError(GROUP, lbl + ': movement.minPauseFrames must be <= maxPauseFrames');
+        } else {
+          // Waypoint routes (scriptedRoute / patrol): bounds are incompatible.
+          if (mv.bounds !== undefined)
+            addValidationError(GROUP, lbl + ': movement.bounds applies only to a boundedWander (waypoint routes use waypoints)');
+          if (!_isPlainArray(mv.waypoints) || mv.waypoints.length === 0) {
+            addValidationError(GROUP, lbl + ': movement.waypoints must be a nonempty array');
+          } else {
+            mv.waypoints.forEach((wp, i) => {
+              if (wp === null || typeof wp !== 'object' || !_isFiniteNumber(wp.x) || !_isFiniteNumber(wp.y)) {
+                addValidationError(GROUP, lbl + ': movement.waypoints[' + i + '] must be { x, y } with finite numbers (tile units)');
+              } else if (wp.x < 0 || wp.x > cols || wp.y < 0 || wp.y > rows) {
+                addValidationError(GROUP, lbl + ': movement.waypoints[' + i + '] (' + wp.x + ', ' + wp.y + ') outside map bounds 0-' + cols + ' x 0-' + rows + ' (waypoints are TILE units, not pixels)');
+              }
+              // Per-waypoint dwell (patrol form): optional, nonnegative finite.
+              if (wp && typeof wp === 'object' && wp.pauseFrames !== undefined && (!_isFiniteNumber(wp.pauseFrames) || wp.pauseFrames < 0))
+                addValidationError(GROUP, lbl + ': movement.waypoints[' + i + '].pauseFrames must be a nonnegative finite number of frames');
+            });
+            // Orthogonal-segment check: the runtime resolves one axis per frame,
+            // so every segment the NPC walks — each consecutive waypoint pair,
+            // and (for a looping patrol) the last waypoint back to the first —
+            // must be axis-aligned (share an x or a y). Diagonal segments would
+            // move along one axis only, missing the destination. Only run when
+            // every waypoint is a finite {x,y} (avoids cascading on bad data).
+            if (mv.waypoints.every(wp => wp && typeof wp === 'object' && _isFiniteNumber(wp.x) && _isFiniteNumber(wp.y))) {
+              const pts = mv.waypoints.slice();
+              if (mv.type === 'patrol' && mv.loop !== false && pts.length > 1) pts.push(pts[0]); // loop closure
+              for (let i = 1; i < pts.length; i++) {
+                const a = pts[i - 1], b = pts[i];
+                if (a.x !== b.x && a.y !== b.y)
+                  addValidationError(GROUP, lbl + ': movement.waypoints segment ' + (i - 1) + '->' + (i % mv.waypoints.length) + ' is diagonal; routes must be orthogonal (each segment shares an x or a y)');
+              }
+            }
+          }
+        }
+        if (!_isFiniteNumber(mv.speed) || mv.speed <= 0)
+          addValidationError(GROUP, lbl + ': movement.speed must be a positive finite number (px per frame)');
+        if (mv.pauseFrames !== undefined && (!_isFiniteNumber(mv.pauseFrames) || mv.pauseFrames < 0))
+          addValidationError(GROUP, lbl + ': movement.pauseFrames must be a nonnegative finite number of frames');
+        if (mv.loop !== undefined && typeof mv.loop !== 'boolean')
+          addValidationError(GROUP, lbl + ': movement.loop must be a boolean');
+        // Runtime motion state is keyed by id — movement without a unique id
+        // can never be tracked. (Duplicate-id errors are reported above.)
+        if (!npc.id)
+          addValidationError(GROUP, lbl + ': movement requires the NPC to have an id (runtime motion state is keyed by id)');
+        // Rendering classification: only the generic sprite bodies can gain
+        // directional/walk variants in Phase 1. Bespoke NPC_DRAW_FNS entries
+        // (including the two props) have no movement-capable rendering path.
+        if (npc.id && typeof NPC_DRAW_FNS !== 'undefined' && NPC_DRAW_FNS[npc.id])
+          addValidationError(GROUP, lbl + ': movement on a bespoke-rendered NPC (NPC_DRAW_FNS) — bespoke sprites/props have no directional rendering and must remain stationary until given one');
+        // Authored x/y getters are schedules; runtime motion would fight
+        // them. Phase 1 must resolve such NPCs differently, so flag it now.
+        const xDesc = Object.getOwnPropertyDescriptor(npc, 'x');
+        const yDesc = Object.getOwnPropertyDescriptor(npc, 'y');
+        if ((xDesc && xDesc.get) || (yDesc && yDesc.get))
+          addValidationError(GROUP, lbl + ': movement on an NPC with a dynamic x/y getter — the authored schedule would fight runtime motion (see architecture.md Phase 1 inventory)');
+        const mapDesc = Object.getOwnPropertyDescriptor(npc, 'map');
+        if (mapDesc && mapDesc.get)
+          addValidationWarning(GROUP, lbl + ': movement on an NPC with a dynamic map getter — needs Phase 1 "route only while resolved to this map" handling; confirm intentional');
+      }
+    }
   }
 
   // Overlap detection: two solid NPCs within canWalk()'s own 18px collision
@@ -1023,8 +1141,8 @@ function validateSaveFlags() {
       'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready',
       'smugglers_dead', 'smugglers_execution_day',
       'fort_report_filed', 'mq4_available_day', 'reservoir_quest_started',
-      'supervisor_greet_day', 'esla_greet_day',
-      'north_bridge_crossed_early', 'north_bridge_scolded',
+      'supervisor_greet_day', 'esla_greet_day', 'esla_said_basin',
+      'north_bridge_crossed_early', 'north_bridge_scolded', 'supervisor_said_flood',
       'schilling_quest_started', 'schilling_returned',
       'drama_stage', 'weight_quest_stage', 'weight_note_signed',
       'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded', 'pale_sentry_hp',

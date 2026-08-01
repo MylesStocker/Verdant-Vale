@@ -173,6 +173,7 @@ let esla_said_dispatch        = false; // commented on the same-day Drenwick dis
 let esla_said_cabinet         = false; // noticed Aldric's cabinet was disturbed (cabinetCaseFlag)
 let esla_said_polwick_pending = false; // spoke about Polwick awaiting the district's decision
 let esla_said_polwick_dead    = false; // grieved Polwick's death (killed or executed)
+let esla_said_basin           = false; // opened up about the drying basin + her Bloommarked affinity (reservoir_quest_started)
 
 // ─── Daily office greetings ───────────────────────────────────────────────────
 // The Supervisor and Esla open the player's FIRST conversation of each day in
@@ -192,6 +193,12 @@ let esla_greet_day       = 0;
 // Both are monotonic — once true, they stay true, so re-crossing never re-scolds.
 let north_bridge_crossed_early = false;
 let north_bridge_scolded       = false;
+
+// One-time: the supervisor's flood-evacuation backstory, offered once after the
+// reservoir assignment exists (reservoir_quest_started). Set synchronously in
+// interactSupervisor() like north_bridge_scolded, so it can't collide with a
+// branch's own dialogue callback.
+let supervisor_said_flood      = false;
 
 // ─── Side quest: A Bottle for Her Father ──────────────────────────────────────
 // Offered only once MainQuest >= 2 (the Drenwick dispatch done); before that
@@ -260,10 +267,12 @@ function syncQuestFlagsToWindow() {
   window.esla_said_cabinet         = esla_said_cabinet;
   window.esla_said_polwick_pending = esla_said_polwick_pending;
   window.esla_said_polwick_dead    = esla_said_polwick_dead;
+  window.esla_said_basin           = esla_said_basin;
   window.supervisor_greet_day      = supervisor_greet_day;
   window.esla_greet_day            = esla_greet_day;
   window.north_bridge_crossed_early = north_bridge_crossed_early;
   window.north_bridge_scolded       = north_bridge_scolded;
+  window.supervisor_said_flood      = supervisor_said_flood;
   window.wine_quest_started   = wine_quest_started;
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;

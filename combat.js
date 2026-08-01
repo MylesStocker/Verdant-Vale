@@ -1120,13 +1120,25 @@ function handleCombatAction() {
     dialogue.name  = '';
     if (defeatWakeAtHome) {
       // Someone carried you home: wake beside your own bed in the Calwick
-      // player house, wherever the defeat happened. Location state mirrors
-      // bootstrap.js's opening block exactly, so every interior/dungeon flag
-      // is cleared and exiting the house returns to west Calwick as normal.
+      // player house, wherever the defeat happened. EVERY location flag
+      // currentMapId() consults must be cleared here — a stuck flag (e.g.
+      // inBridgePost after dying at the toll bridge) makes currentMapId()
+      // report that location on every map, so its NPCs render everywhere.
       // Toggleable from the debug menu ("Home on Defeat").
       inDungeon = false; inSluice = false; inMireVault = false;
       inTakomo = false; inFenBrewery = false; inHamletInterior = false;
       inDungeonEntrance = false;
+      inLorraHouse = false; inMarenPost = false; inDrenwrickPost = false;
+      inBridgePost = false; inSmugglerFort = false;
+      inSunkenGallery = false; inBasinChamber = false;
+      // Bridge toll state can't survive being carried off the bridge: clear
+      // it and put both guards back at their blocking posts (Phase 1 pilots).
+      bridge_entry_direction = null; bridge_toll_paid = false;
+      resetBridgeGuards();
+      // Same map-local invariant for auto-patrols (Tobb Wend): drop any live
+      // route and return him to his authored brewery home, so no stale route
+      // survives the carried-home respawn onto another map.
+      if (typeof resetAllPatrols === 'function') resetAllPatrols();
       inTown              = true;
       currentTownId       = 'calwick';
       townBuilding        = 'house';

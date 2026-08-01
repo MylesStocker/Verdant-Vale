@@ -34,70 +34,47 @@ const SIMPLE_NPCS = [
     flag_sets:     null,
     action:        null,
   },
-  // ── Imperial Bridge Toll Gate (MAP3_N2, bridge_post interior) ────────────────
-  // South bank soldier — faces north (up), tolls travellers heading north (from row 13)
+  // ── Imperial Bridge Toll Gate (MAP3_N2, bridge_post interior) ────────────────────
+  // Phase 1 NPC-movement pilots (the ONLY two NPCs with a `movement` config).
+  // Each stands on his bank's one-tile bridge approach (the canal blocks every
+  // other column), physically blocking the crossing.
+  // Paying EITHER guard authorizes the whole crossing: the payment dialogue's
+  // callback sets bridge_toll_paid and starts BOTH guards' scriptedRoutes, so
+  // each sidesteps off the approach (north: right to col 8; south: left to
+  // col 6) and the player crosses manually. No auto-exit is called — the
+  // BRIDGE_EXIT payment-direction check (movement.js) remains only as a
+  // defensive fallback against corrupted state. Waypoints are TILE units
+  // (architecture.md movement contract); see bridgeTollInteraction() below
+  // NPC_ACTIONS for the shared toll logic.
+  // South bank soldier (col 7 row 7) — faces up, tolls northbound travellers
   {
     id:            'bridge_soldier_south',
     name:          'Imperial Soldier',
     map:           'bridge_post',
     x:              7.5 * TILE,
-    y:              9.5 * TILE,
+    y:              7.5 * TILE,
     solid:         true,
     facing:        'up',
     dialogue:      [], // unused — action handles interaction
     flag_required: null,
     flag_sets:     null,
-    action: function() {
-      dialogue.name = 'Imperial Soldier';
-      if (stats.gold >= 1) {
-        stats.gold -= 1;
-        dialogue.pages = [
-          ['\u201cOne gold. Canal bridge toll.\u201d', 'He marks his ledger and steps aside.'],
-          ['\u201cProceed north.\u201d'],
-        ];
-        dialogue.callbacks = [function() { bridge_toll_paid = true; exitBridgeNorth(); }];
-      } else {
-        dialogue.pages = [
-          ['\u201cOne gold to cross.\u201d', '\u201cImperial canal toll. No exceptions.\u201d'],
-          ['\u201cCome back when you have the coin.\u201d'],
-        ];
-        dialogue.callbacks = null;
-      }
-      dialogue.open = true;
-      dialogue.page = 0;
-    },
+    movement: { type: 'scriptedRoute', waypoints: [{ x: 6.5, y: 7.5 }], speed: 0.5, pauseFrames: 0, loop: false },
+    action: function() { bridgeTollInteraction('\u201cProceed north.\u201d'); },
   },
-  // North bank soldier — faces south (down), tolls travellers heading south (from row 1)
+  // North bank soldier (col 7 row 4) — faces down, tolls southbound travellers
   {
     id:            'bridge_soldier_north',
     name:          'Imperial Soldier',
     map:           'bridge_post',
     x:              7.5 * TILE,
-    y:              3.5 * TILE,
+    y:              4.5 * TILE,
     solid:         true,
     facing:        'down',
     dialogue:      [], // unused — action handles interaction
     flag_required: null,
     flag_sets:     null,
-    action: function() {
-      dialogue.name = 'Imperial Soldier';
-      if (stats.gold >= 1) {
-        stats.gold -= 1;
-        dialogue.pages = [
-          ['\u201cOne gold. Canal bridge toll.\u201d', 'He marks his ledger and steps aside.'],
-          ['\u201cProceed south.\u201d'],
-        ];
-        dialogue.callbacks = [function() { bridge_toll_paid = true; exitBridgeSouth(); }];
-      } else {
-        dialogue.pages = [
-          ['\u201cOne gold to cross.\u201d', '\u201cImperial canal toll. No exceptions.\u201d'],
-          ['\u201cCome back when you have the coin.\u201d'],
-        ];
-        dialogue.callbacks = null;
-      }
-      dialogue.open = true;
-      dialogue.page = 0;
-    },
+    movement: { type: 'scriptedRoute', waypoints: [{ x: 8.5, y: 4.5 }], speed: 0.5, pauseFrames: 0, loop: false },
+    action: function() { bridgeTollInteraction('\u201cProceed south.\u201d'); },
   },
   {
     id:            'wen',
@@ -145,6 +122,14 @@ const SIMPLE_NPCS = [
         ['\u201cYour supervisor will see the confirmation.\u201d',
          '\u201cThat\u2019s faster than most.\u201d']
       );
+      // Basin assignment: the office's longest-serving hand, on his trade and
+      // where his exactness comes from.
+      if (reservoir_quest_started) pages.push(
+        ['\u201cTwenty-two years I\u2019ve kept this office\u2019s stores and its archive.',
+         'Four supervisors have sat that desk. I\u2019ve outlasted every one, and never once wanted it.\u201d'],
+        ['\u201cMy father ran the equipment stores at a road post. He taught me a wrong inventory kills as sure as a wrong blade.\u201d',
+         '\u201cYou\u2019re going up to the basin. Check your kit before you do. That isn\u2019t clerk\u2019s fuss \u2014 it\u2019s the one thing I\u2019m certain of.\u201d']
+      );
       return pages;
     },
     flag_required: null,
@@ -188,6 +173,13 @@ const SIMPLE_NPCS = [
         ['\u201cThree in one season.\u201d',
          '\u201cThat\u2019s more than most post an entire year.\u201d']
       );
+      // Once she trusts you a little, why a market-stall girl chose a ledger.
+      if (MainQuest >= 2) pages.push(
+        ['\u201cMy people kept a market stall. Preserved fish, grain, whatever kept.',
+         'I was counting coin before I could read a word of it.\u201d'],
+        ['\u201cThe Empire pays the same whether the fish run or not. Whether it floods, whether it doesn\u2019t.',
+         'That steadiness is the whole reason I\u2019m on this side of a counter and not behind a stall.\u201d']
+      );
       return pages;
     },
     flag_required: null,
@@ -229,6 +221,13 @@ const SIMPLE_NPCS = [
         ['\u201cI put it in the addendum: Copy error, corrected.',
          'Aldric countersigned.\u201d',
          '\u201cDone.\u201d']
+      );
+      // Basin assignment: the docks man on why he gets the number right.
+      if (reservoir_quest_started) pages.push(
+        ['\u201cI loaded barges before I ever sat an examination. Canal family, out past Drenwick.\u201d',
+         'He says it without apology, the way he says everything.'],
+        ['\u201cA record\u2019s the only proof a canal man has that a thing happened at all.',
+         'That\u2019s why I get the number right. It\u2019s somebody\u2019s word, after everyone\u2019s stopped listening to them.\u201d']
       );
       return pages;
     },
@@ -526,6 +525,20 @@ const SIMPLE_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'patron',
+    // Phase 1 bounded-wander pilot: Tomas potters around his own house — waits
+    // a beat, takes a short orthogonal step to a neighbouring tile, waits again.
+    // bounds are the safe interior floor of HOUSE_INTERIOR_MAP (cols 4-11, rows
+    // 2-9); the exit doorway (col 7, row 10) is outside them, and live collision
+    // (walls, the hearth/bed/table furniture, the player, Esla, transitions)
+    // is the real authority — see movement.js's boundedWander runtime. Home is
+    // derived from the authored x/y/facing above (no hardcoded home table).
+    movement: {
+      type: 'boundedWander',
+      bounds: { minCol: 4, maxCol: 11, minRow: 2, maxRow: 9 },
+      speed: 0.5,               // the shared NPC walking speed
+      minPauseFrames: 60,       // ~1s at 60fps
+      maxPauseFrames: 180,      // ~3s
+    },
     get dialogue() {
       // Tomas — Esla's husband; a lifelong Calwick man who has never left the
       // fen and keeps an obsessive home-made almanac of everything in it. Warm,
@@ -1390,9 +1403,9 @@ const SIMPLE_NPCS = [
       );
       if (reservoir_quest_started && window.gallery_body_found) pages.push(
         ['\u201cYou found Dreyfuss.\u201d He does not make it a question. Word comes down the canal faster than any report.',
-         '\u201cFace down in the flooded end. No wound. The water simply kept him.\u201d'],
+         '\u201cPulled under in the flooded end and held there. Something in that water killed him \u2014 a man does not claw the silt like that going quietly.\u201d'],
         ['\u201cThat is one of my two accounted for \u2014 and the worse of the two accounts to have to write.\u201d',
-         '\u201cGarrick is still out there. Or still down there. No body is not the same as alive. It is not the same as Dreyfuss either.\u201d'],
+         '\u201cGarrick is still out there. Or still down there, in whatever took Dreyfuss. No body is not the same as alive. It is not the same as Dreyfuss either.\u201d'],
         ['\u201cIf you go back, keep your eyes open for him. A man, or the place a man stopped.\u201d',
          '\u201cI would close his file the honest way. I am not sure the basin means to let me.\u201d']
       );
@@ -4694,7 +4707,7 @@ const SIMPLE_NPCS = [
          '\u201cI can always tell. You\u2019re not wet enough.\u201d'],
         ['\u201cWe make do. There\u2019s no shame in it.\u201d',
          '\u201cBog-cap grows whether you want it to or not. Might as well put it to use.\u201d'],
-        ['\u201cTobb\u2019s good with the vats. Better than Gorrit was at his age.\u201d',
+        ['\u201cToby\u2019s good with the vats. Better than Gorrit was at his age.\u201d',
          '\u201cLiss reads whenever she can find something. I don\u2019t stop her.\u201d',
          '\u201cBut the work has to get done. School\u2019s in Drenwick. That\u2019s half a day each way.\u201d'],
       ];
@@ -4704,17 +4717,36 @@ const SIMPLE_NPCS = [
     action:        null,
   },
 
-  // Tobb Wend, ~15, their son. Sullen, resentful — knows he\u2019s missing something
+  // Toby Wend, ~15, their son. Sullen, resentful — knows he\u2019s missing something
   // but doesn\u2019t quite have the words for it. Takes it out on small things.
   {
     id:         'tobb_wend',
-    name:       'Tobb',
+    name:       'Toby',
     map:        'fen_brewery',
     x:          13.5 * TILE,
     y:           3.5 * TILE,
     solid:      true,
     facing:     'down',
     spriteType: 'worker',
+    // Phase 1 auto-patrol pilot: a small looping route through the eastern
+    // brewery workspace (cols 11-13 / rows 3-6), among the vats and straining
+    // positions and clear of the exit, partition, Gorrit and furniture.
+    // Waypoints are TILE units with per-waypoint dwell (frames). See
+    // movement.js (startNpcRoute/updateNpcRoutes/ensureAutoPatrols/PATROL_HOMES).
+    movement: {
+      type: 'patrol',
+      autoStart: true,
+      speed: 0.5,
+      loop: true,
+      waypoints: [
+        { x: 13.5, y: 3.5, pauseFrames: 180 },
+        { x: 13.5, y: 4.5, pauseFrames: 120 },
+        { x: 11.5, y: 4.5, pauseFrames: 240 },
+        { x: 11.5, y: 6.5, pauseFrames: 150 },
+        { x: 13.5, y: 6.5, pauseFrames: 210 },
+        { x: 13.5, y: 4.5, pauseFrames: 120 },
+      ],
+    },
     get dialogue() {
       return [
         ['\u201cWhat.\u201d'],
@@ -4870,6 +4902,69 @@ const SIMPLE_NPCS = [
 // Named functions for NPCs with extra behaviour beyond dialogue.
 // Referenced by the action field. Populated as needed.
 const NPC_ACTIONS = {};
+
+// ─── Bridge toll interaction (shared by both Phase 1 pilot guards) ───────────
+// The nearer guard is whichever one the player can reach (they're six rows
+// apart, so only one is ever in TALK_RADIUS). Paying EITHER guard authorizes
+// the entire crossing and moves BOTH guards — otherwise the far guard would
+// still block the path. `proceedLine` keeps each guard's original direction
+// line (the south guard sends you north, the north guard south).
+// After payment: a short acknowledgement, no second charge, and no restart
+// of the (completed or running) sidestep routes — startNpcRoute() itself
+// also refuses to restart a running/completed route, belt and braces.
+function bridgeTollInteraction(proceedLine) {
+  dialogue.name = 'Imperial Soldier';
+  if (bridge_toll_paid) {
+    dialogue.pages = [['\u201cYou\u2019re marked through. Proceed.\u201d']];
+    dialogue.callbacks = null;
+  } else if (stats.gold >= 1) {
+    // Ask first: the toll is only charged if the player chooses to pay.
+    dialogue.pages = [
+      ['\u201cOne gold. Canal bridge toll.\u201d'],
+    ];
+    dialogue.callbacks = [function() {
+      choice.title   = 'Imperial Soldier';
+      choice.options = ['Pay the toll  (1g)', 'Not now'];
+      choice.cursor  = 0;
+      choice.callbacks = [
+        function pay() {
+          stats.gold -= 1;
+          dialogue.name  = 'Imperial Soldier';
+          dialogue.pages = [
+            ['He takes the coin and marks his ledger.'],
+            [proceedLine],
+          ];
+          // Movement begins only after the successful dialogue completes:
+          // the callback fires when the last page is dismissed.
+          dialogue.callbacks = [function() {
+            bridge_toll_paid = true;
+            startNpcRoute('bridge_soldier_north');
+            startNpcRoute('bridge_soldier_south');
+          }];
+          dialogue.open = true;
+          dialogue.page = 0;
+        },
+        function decline() {
+          dialogue.name  = 'Imperial Soldier';
+          dialogue.pages = [['\u201cThen the bridge stays shut to you.\u201d', 'He does not move.']];
+          dialogue.callbacks = null;
+          dialogue.open = true;
+          dialogue.page = 0;
+        },
+      ];
+      choice.open = true;
+    }];
+  } else {
+    dialogue.pages = [
+      ['\u201cOne gold to cross.\u201d', '\u201cImperial canal toll. No exceptions.\u201d'],
+      ['\u201cCome back when you have the coin.\u201d'],
+    ];
+    dialogue.callbacks = null;
+  }
+  dialogue.open = true;
+  dialogue.page = 0;
+}
+window.bridgeTollInteraction = bridgeTollInteraction;
 
 NPC_ACTIONS.lorraShop = function(npc) {
   const isPoisoned = hasStatusEffect('poison');
