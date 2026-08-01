@@ -944,10 +944,12 @@ const SIMPLE_NPCS = [
   // ── Schoolhouse bookshelf ──────────────────────────────────────────────────
   // Not a person: solid classroom furniture registered as a SIMPLE_NPC so it
   // reuses the standard proximity interaction and solid-body collision. Its
-  // action opens a reading menu — "Read a history book" offers five imperial
-  // school-primer topics, each shown in the accordPanel parchment reader in a
-  // formal textbook register (content drawn from LORE.md). Drawn by
-  // NPC_DRAW_FNS['calwick_school_bookshelf'] (render-entities.js).
+  // action opens a reading menu — five imperial school-primer topics in a
+  // formal, glorifying textbook register, plus one plainer scholarly note (on
+  // Fort Ariel), each shown in the accordPanel parchment reader (content drawn
+  // from LORE.md). The Ariel note is deliberately in a different, sceptical
+  // voice from the primers — a corrective gloss, not Imperial celebration.
+  // Drawn by NPC_DRAW_FNS['calwick_school_bookshelf'] (render-entities.js).
   {
     id: 'calwick_school_bookshelf', name: 'Bookshelf',
     map: 'school', x: 13.5 * TILE, y: 2.5 * TILE,
@@ -1005,9 +1007,24 @@ const SIMPLE_NPCS = [
              'The concerns of the present day — schooling, harvests, the careful husbanding of water — are the concerns of a civilisation that has prospered beyond the difficulties of survival, and will meet the difficulties of plenty as it has met all difficulties before them.'],
           ],
         },
+        {
+          // A plainer, sceptical scholarly note bound in among the primers —
+          // deliberately NOT in the Imperial glorifying voice. Content per the
+          // Fort Ariel / Warm Circle facts (see LORE.md).
+          label: 'Fort Ariel',
+          title: 'FORT ARIEL AND THE WARM CIRCLE — A SCHOLAR’S NOTE',
+          pages: [
+            ['Modern Prismborn are extraordinarily rare, and potentially versatile, but they are not routinely capable of reshaping regional climates. Ariel was unimaginably powerful even by Prismborn standards — and, it appears, possessed knowledge no living practitioner can reproduce. What follows sets down only what may be defended.',
+             'The known and defensible facts are these. She was born at Fort Arrhall around fifty years Before Century, and was recognised as Prismborn. Over several decades she transformed the surrounding polar landscape.'],
+            ['The resulting warmth forms a precise circle, approximately six kilometres in radius. The inner four kilometres remain warm and fertile enough for strawberries; the outer two cool progressively, but remain suitable for cereal agriculture.',
+             'The effect persisted after Ariel disappeared during the Century War, and has continued for more than eleven centuries. No measurable weakening has ever been detected.'],
+            ['No modern examination has identified its power source or its operating mechanism, and attempts to reproduce even a tiny equivalent have failed.',
+             'The warmth is unquestionably Ariel’s work. It is not a naturally occurring geothermal feature subsequently attributed to her. Something she created is still, today, actively maintaining an environment that should not exist.'],
+          ],
+        },
       ];
       function openTopics() {
-        choice.title     = 'Imperial School Primer';
+        choice.title     = 'The history shelf';
         choice.options   = TOPICS.map(function(t) { return t.label; }).concat(['Put it back']);
         choice.cursor    = 0;
         choice.callbacks = TOPICS.map(function(t) {

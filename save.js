@@ -60,6 +60,10 @@ const QUEST_FLAG_SCHEMA = [
   'gallery_clue_reliefs', 'gallery_clue_visitor', 'gallery_clue_notebook', 'gallery_clue_stair',
   'gallery_body_found',  // found the second observer (Dreyfuss)'s body in the gallery
   'reservoir_report_filed',
+  // The Fourteenth File side quest: let-binding progression + the once-per-Dayoff
+  // 1/3 availability roll, plus three window-native MAP_FEATURES clue flags.
+  'fourteenth_file_stage', 'fourteenth_file_offer_day', 'fourteenth_file_offered', 'fourteenth_file_outcome',
+  'ff_clue_skiff', 'ff_clue_ledger', 'ff_clue_dedication',
 ];
 window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
 
@@ -391,7 +395,8 @@ function loadGame() {
   if (data.sunken_gallery_gift_taken    !== undefined) window.sunken_gallery_gift_taken    = data.sunken_gallery_gift_taken;
   for (const k of ['gallery_clue_silt','gallery_clue_satchel','gallery_clue_survey','gallery_clue_gauge',
                    'gallery_clue_reliefs','gallery_clue_visitor','gallery_clue_notebook','gallery_clue_stair',
-                   'gallery_body_found'])
+                   'gallery_body_found',
+                   'ff_clue_skiff','ff_clue_ledger','ff_clue_dedication'])
     if (data[k] !== undefined) window[k] = data[k];
   if (data.esla_said_sluice          !== undefined) esla_said_sluice          = data.esla_said_sluice;
   if (data.esla_said_dispatch        !== undefined) esla_said_dispatch        = data.esla_said_dispatch;
@@ -404,6 +409,10 @@ function loadGame() {
   if (data.north_bridge_crossed_early !== undefined) north_bridge_crossed_early = data.north_bridge_crossed_early;
   if (data.north_bridge_scolded      !== undefined) north_bridge_scolded      = data.north_bridge_scolded;
   if (data.supervisor_said_flood     !== undefined) supervisor_said_flood     = data.supervisor_said_flood;
+  if (data.fourteenth_file_stage     !== undefined) fourteenth_file_stage     = data.fourteenth_file_stage;
+  if (data.fourteenth_file_offer_day !== undefined) fourteenth_file_offer_day = data.fourteenth_file_offer_day;
+  if (data.fourteenth_file_offered   !== undefined) fourteenth_file_offered   = data.fourteenth_file_offered;
+  if (data.fourteenth_file_outcome   !== undefined) fourteenth_file_outcome   = data.fourteenth_file_outcome;
   if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
   if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
   if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;

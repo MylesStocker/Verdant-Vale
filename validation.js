@@ -1143,6 +1143,8 @@ function validateSaveFlags() {
       'fort_report_filed', 'mq4_available_day', 'reservoir_quest_started',
       'supervisor_greet_day', 'esla_greet_day', 'esla_said_basin',
       'north_bridge_crossed_early', 'north_bridge_scolded', 'supervisor_said_flood',
+      'fourteenth_file_stage', 'fourteenth_file_offer_day', 'fourteenth_file_offered', 'fourteenth_file_outcome',
+      'ff_clue_skiff', 'ff_clue_ledger', 'ff_clue_dedication',
       'schilling_quest_started', 'schilling_returned',
       'drama_stage', 'weight_quest_stage', 'weight_note_signed',
       'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded', 'pale_sentry_hp',

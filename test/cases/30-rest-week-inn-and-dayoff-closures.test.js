@@ -29,6 +29,10 @@ module.exports = {
     const g = createContext();
     g.press('Enter');
     g.press('Enter'); // close intro dialogue
+    // Deterministically fail the Fourteenth File's 1/3 Dayoff availability roll
+    // so it never supersedes the supervisor's ordinary/rest-week Dayoff lines
+    // this test asserts (the quest itself is covered by its own test).
+    g.run('Math.random = () => 0.9;');
 
     // ── Rest-week Dayoff at the Calwick inn, killed-and-reported outcome ────
     g.run(`

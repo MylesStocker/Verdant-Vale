@@ -242,6 +242,48 @@ const MAP_FEATURES = {
     },
   ],
 
+  // ── The Fourteenth File (side quest) clues ─────────────────────────────────
+  // Three drought-exposed clues on far-flung but accessible maps, each gated to
+  // while the case is being worked (fourteenth_file_stage === 1) and each
+  // recording a window-native `flag` the Supervisor reads back at report time
+  // (reportFourteenthFile). Coordinates verified walkable / non-transition /
+  // clear of NPCs on the live maps. Same clue-report pattern as the Sunken
+  // Gallery observer clues above.
+  MAP5: [
+    {
+      id: 'ff_skiff', type: 'inspect', x: 8.5, y: 7.5, label: 'A foundered skiff', flag: 'ff_clue_skiff',
+      condition: () => fourteenth_file_stage === 1,
+      pages: [
+        ['The drought has walked the shallows back and left a boat sitting on cracked mud where open water used to be.',
+         'A patrol skiff — flat-bottomed, iron-shod, the kind the district issued its fen constables. It has been under a long time.'],
+        ['Silt fills the hull to the thwarts. Wedged beneath the bench, a tin patrol tally-book, swollen shut; you work a few pages open.',
+         'A constable’s hand, dutiful and dull: reed counts, toll checks, a name at the head of each page. HALDEN MARSH.'],
+        ['The last legible entries stop being about reeds. A works barge logged where no barge was scheduled. A night count that doesn’t match the day’s. A line: “raise it with the Warden direct.”',
+         'The final page is torn out at the spine. Whatever Marsh meant to raise, he carried it into the water with him — fourteen years ago, by the dates.'],
+      ],
+      repeatPages: [
+        ['The skiff sits in the dried mud. Marsh’s tally-book is back under the bench where you found it — its last page still gone.'],
+      ],
+    },
+  ],
+  MAP3: [
+    {
+      id: 'ff_dedication', type: 'inspect', x: 8.5, y: 12.5, label: 'A dedication stone', flag: 'ff_clue_dedication',
+      condition: () => fourteenth_file_stage === 1,
+      pages: [
+        ['A dedication stone set into the bank where the fen road meets the old sluice — the works that keep the south marsh from taking the road each wet season.',
+         'Someone keeps it clean. Fresh reeds are laid at its foot, the way they’re laid for the respected dead.'],
+        ['RAISED FOR THE SAFETY OF THE DISTRICT — BY REEVE CALLIS, WARDEN — AND COMPLETED IN HIS OWN HAND.',
+         '“That the fen may hold while the water lets it,” the old town blessing, cut deep. Below it, smaller and newer: “In memory. — his daughter.”'],
+        ['A good man’s monument, tended by a daughter with no reason to doubt it: the Warden who saved the fen from the flood.',
+         'Only the completion date sits wrong now. It’s the season the drainage fund closed short — and the season a fen constable went into the water with a torn-out page.'],
+      ],
+      repeatPages: [
+        ['Callis’s dedication stone stands clean at the sluice, fresh reeds at its foot. His daughter still tends it.'],
+      ],
+    },
+  ],
+
   // \u2500\u2500 The Upper Reach (North Basin NW) \u2014 liminal wrongness pass \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   // No NPCs, no encounters, no saving up here (see MAP_METADATA). All the
   // area's wrongness is carried by this text: everything is described
@@ -777,6 +819,22 @@ const MAP_FEATURES = {
          'It’s cracked into loose plates here, the pattern of ground that’s been wet longer than it’s been dry.'],
         ['Three rainless months will do that to the topmost inch.',
          'The ridge above it hasn’t changed at all.'],
+      ],
+    },
+    {
+      // The Fourteenth File — the drainage-fund ledger (implicating clue).
+      id: 'ff_ledger', type: 'inspect', x: 13.5, y: 13.5, label: 'A works coffer', flag: 'ff_clue_ledger',
+      condition: () => fourteenth_file_stage === 1,
+      pages: [
+        ['Half-sunk in the peat where the old crossing runs down to the reaches: a district works coffer, iron-banded, its lock long rusted through.',
+         'The subsidence that bared the roddon bared this with it. It hasn’t been opened in a very long time.'],
+        ['Inside, dry enough to have survived: a drainage-fund ledger — the improvement account for the fen works. Two hands keep it.',
+         'One is a clerk’s, even and honest. The other signs off the totals in a broad, confident stroke: R. CALLIS, District Warden.'],
+        ['The clerk’s columns and the Warden’s totals disagree, and they disagree the same way every season — gold drawn for stone and labour the works never received.',
+         'Skimmed steadily, signed clean, for years. The account was closed the season the Warden’s great sluice was “completed.” The same season, by the dates, a fen constable was logged presumed lost.'],
+      ],
+      repeatPages: [
+        ['The works coffer stands open in the peat. Callis’s totals still don’t add up to the clerk’s columns, and never will now.'],
       ],
     },
   ],
@@ -1799,6 +1857,119 @@ function reportBasinFindings() {
     if (MainQuest < 4) MainQuest = 4;
     syncQuestFlagsToWindow();
     refreshJobBoard();
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
+}
+
+// ─── The Fourteenth File report ───────────────────────────────────────────────
+// Called from the "Report what I found" choice at the Supervisor's Dayoff inn
+// table once the drought-exposed skiff (ff_clue_skiff) has been found. Reads the
+// three window-native clue flags (set by the MAP_FEATURES `flag` field), builds
+// the reconstruction, and — only when BOTH implicating clues were found (the
+// drainage ledger and Callis's dedication) — hands the moral choice to the
+// player: file the truth, or seal the dead Warden's part to spare his daughter.
+// A partial investigation (skiff only, or skiff + one) corrects the file but
+// resolves without the dilemma. Tiered field-rate pay either way.
+function reportFourteenthFile() {
+  const skiff  = !!window.ff_clue_skiff;
+  const ledger = !!window.ff_clue_ledger;
+  const ded    = !!window.ff_clue_dedication;
+  const clueCount = [skiff, ledger, ded].filter(Boolean).length;
+  const implicated = ledger && ded; // both threads → the cover-up is provable
+  const rewardGold = clueCount >= 3 ? 150 : clueCount === 2 ? 90 : 50;
+
+  if (!implicated) {
+    // The patrolman, but not the why — no one to indict, so no dilemma.
+    const pages = [
+      ['He listens the way he listens — without writing, which with him is the opposite of not attending.'],
+      ['You give him Marsh: the skiff in the dried shallows, the swollen tally-book, the torn-out last page.',
+       '“So he’s found. Fourteen years, and the water hands him back inside a week.”'],
+    ];
+    if (ledger || ded) {
+      pages.push(['You lay out the rest of it — ' + (ledger ? 'a works ledger that never balanced' : 'a warden’s dedication cut with a wrong date') + ' — and where the thread stops.',
+                  '“A thread, then. Not a knot. It points somewhere and doesn’t arrive.”']);
+    } else {
+      pages.push(['“And why he went into the water — that’s the page he tore out and took with him.”',
+                  '“The boat corrects the file. ‘Presumed lost’ becomes ‘lost on patrol, recovered.’ It doesn’t tell me who to be angry at.”']);
+    }
+    pages.push(['“I’ll amend it to what you can stand up: Marsh died on the water, on duty. His people can bury a fact instead of a maybe.”',
+                '“The rest stays open. It usually does.”']);
+    pages.push(['“' + rewardGold + ' gold, field rate. For giving a dead man his last page back, even torn.”']);
+    dialogue.name = 'Supervisor';
+    dialogue.pages = pages;
+    dialogue.callbacks = [function () {
+      fourteenth_file_stage   = 2;
+      fourteenth_file_outcome = 0;
+      stats.gold += rewardGold;
+      syncQuestFlagsToWindow();
+    }];
+    dialogue.open = true;
+    dialogue.page = 0;
+    return;
+  }
+
+  // The full reconstruction, then the choice.
+  dialogue.name = 'Supervisor';
+  dialogue.pages = [
+    ['He listens without writing. You lay it out in order.'],
+    ['Marsh, in the shallows — the tally-book, a works barge logged where no barge was scheduled, a note to raise it with the Warden direct, the torn last page.',
+     'The drainage fund, in the drained creek beds — a clerk’s honest columns, and Warden Callis’s totals that never matched them, gold drawn for stone the works never got.'],
+    ['And Callis’s own dedication stone at the sluice: his great works “completed” the very season the fund closed short — the same season Marsh went into the water.',
+     'The pen stays down. He is not surprised, and he does not pretend it fails to land.'],
+    ['“So. Reeve Callis skimmed the fund for years, and when a fen constable followed the numbers to his door, the constable became ‘presumed lost.’”',
+     '“And I signed that file closed, fourteen years ago, because I was new and it was tidy.”'],
+    ['“Callis is dead. Died decorated. There’s a stone with his name cut deep, fresh reeds at the foot of it, and a daughter who lays them.”',
+     '“She knows him as the man who kept the fen from drowning the road. That is the man I’d be taking from her.”'],
+    ['He looks at you.',
+     '“I asked for an accurate report and I meant it. But I won’t pretend I don’t understand what filing it does. So I’ll let you write the last line, and I’ll sign what you write.”'],
+  ];
+  dialogue.callbacks = [function () {
+    choice.title   = 'The Fourteenth File';
+    choice.options = ['File it accurately', 'Seal the Warden’s part'];
+    choice.cursor  = 0;
+    choice.callbacks = [
+      function fileTrue() { finishFourteenthFile(1, rewardGold); },
+      function sealIt()   { finishFourteenthFile(2, rewardGold); },
+    ];
+    choice.open = true;
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
+}
+
+// Resolves the implicated-case choice: outcome 1 = filed accurately (truth on
+// record, Callis named, the family will learn), outcome 2 = sealed (Marsh gets
+// an honourable correction, Callis's part sealed-not-erased, his daughter keeps
+// her father). Same field-rate pay + an Elixir either way — the pay is for the
+// investigation, not the verdict.
+function finishFourteenthFile(outcome, rewardGold) {
+  const pages = outcome === 1
+    ? [
+        ['“Then it goes on the record true.” He writes now, finally, and it takes him a while.',
+         '“Marsh’s death is a killing, reclassified. Callis’s name goes in the finding beside it.”'],
+        ['“The daughter will hear it from the district, not from me — a small cowardice I’ll own.”',
+         '“A true file costs someone who didn’t earn the cost. It’s still the one I asked you for. I won’t insult it by calling it easy.”'],
+      ]
+    : [
+        ['“Then the Warden keeps his stone.” He writes it the quiet way.',
+         '“Marsh: died on patrol, in the line, recovered with honour. True as far as it goes — and it goes far enough for a headstone.”'],
+        ['“Callis’s part I seal under my own hand — not erased, sealed. If a day comes it must be opened, it can be. Today is not that day, and his daughter keeps her father.”',
+         '“Some would call that a lie by tidy filing. I’ve signed worse for worse reasons. This one I can carry.”'],
+      ];
+  pages.push(['“' + rewardGold + ' gold, and this.” He sets a stoppered flask on the coin.',
+              '“Field rate and the hazard line. You reopened fourteen years and closed them clean. That’s the work.”',
+              'Elixir — added to items.']);
+  pages.push(['“It’s logged. It’s mine now, not yours.”',
+              'He picks up the drink he hasn’t been drinking, and for once he drinks it.']);
+  dialogue.name = 'Supervisor';
+  dialogue.pages = pages;
+  dialogue.callbacks = [function () {
+    fourteenth_file_stage   = 2;
+    fourteenth_file_outcome = outcome;
+    stats.gold += rewardGold;
+    grantItem('Elixir');
+    syncQuestFlagsToWindow();
   }];
   dialogue.open = true;
   dialogue.page = 0;
@@ -3553,6 +3724,90 @@ function interactCalwickInn() {
     const sdx = player.x - SUPERVISOR_DAYOFF.x, sdy = player.y - SUPERVISOR_DAYOFF.y;
     if (Math.sqrt(sdx * sdx + sdy * sdy) < TALK_RADIUS) {
       dialogue.name  = 'Supervisor';
+      // ── The Fourteenth File (side quest) ─────────────────────────────────
+      // Assigned and reported here, at his off-the-clock Dayoff table. Offered
+      // at a 1/3 chance each Dayoff once the player is an established
+      // investigator and not during the fen-post rest week; the roll is stored
+      // per Dayoff (fourteenth_file_offer_day/offered) so re-talking — or a
+      // save/load — the same day is stable. See quests.js for the flags and
+      // reportFourteenthFile() below for the report + moral choice.
+      if (fourteenth_file_stage === 1) {
+        if (window.ff_clue_skiff) {
+          dialogue.pages = [
+            ['He sees the look on you and closes the folder he keeps for this.',
+             '“You’ve been out to the boat. Tell me what the water gave up.”'],
+          ];
+          dialogue.callbacks = [function () {
+            choice.title   = 'The Fourteenth File';
+            choice.options = ['Report what I found', 'Still working it'];
+            choice.cursor  = 0;
+            choice.callbacks = [reportFourteenthFile, function notYet() {}];
+            choice.open = true;
+          }];
+        } else {
+          dialogue.pages = [
+            ['“The Marsh business.” He doesn’t look up from his untouched drink.',
+             '“The skiff’s out in the Thornmere shallows — the dried mud where open water used to be. Start there. The rest follows the boat.”'],
+            ['“This low water’s baring more than one thing. The old drainage works. The drained creek beds up past the fen.”',
+             '“Bring me what’s actually there.”'],
+          ];
+          dialogue.callbacks = null;
+        }
+        dialogue.open = true;
+        dialogue.page = 0;
+        return true;
+      }
+      if (fourteenth_file_stage === 0 && MainQuest >= 1 && !(mq4_available_day > 0 && !reservoir_quest_started)) {
+        if (fourteenth_file_offer_day !== day) {
+          fourteenth_file_offer_day = day;
+          fourteenth_file_offered   = Math.random() < (1 / 3);
+          syncQuestFlagsToWindow();
+        }
+        if (fourteenth_file_offered) {
+          dialogue.pages = [
+            ['He’s at his usual Dayoff table, but he isn’t drinking. A thin, water-stained folder sits closed under his hand.',
+             '“Sit a moment. This is off the clock — you can say no, and it stays said.”'],
+            ['“The drought’s handing things back. A boat came up out of the Thornmere shallows this week that’s been down fourteen years.”',
+             '“It was a fen constable’s. Halden Marsh. His is the first file I inherited when I came to Calwick, and the only line in it reads ‘presumed lost.’ I signed it closed. I was new. I trusted the record.”'],
+            ['“I never liked it and never had a reason I could write down. The water’s given me one.”',
+             '“I want an accurate account of what happened to that man. That’s all. It may come to nothing.”',
+             'The way he says “nothing” is not the way a man says it when he believes it.'],
+          ];
+          dialogue.callbacks = [function () {
+            choice.title   = 'Supervisor';
+            choice.options = ['Take the case', 'Not tonight'];
+            choice.cursor  = 0;
+            choice.callbacks = [
+              function take() {
+                fourteenth_file_stage = 1;
+                syncQuestFlagsToWindow();
+                dialogue.name  = 'Supervisor';
+                dialogue.pages = [
+                  ['He slides the folder across. It’s almost empty, which is the point.',
+                   '“Start with the boat, in the shallows. Then wherever the boat sends you — the drainage works, the drained creek beds. The same low water is showing all of it.”'],
+                  ['“Bring me what you actually find. Not what tidies the file.”',
+                   '“I’m here every Dayoff. This one doesn’t touch your regular work — it’s mine, and now a little of it is yours.”'],
+                ];
+                dialogue.callbacks = null;
+                dialogue.open  = true;
+                dialogue.page  = 0;
+              },
+              function notNow() {
+                dialogue.name  = 'Supervisor';
+                dialogue.pages = [['“No shame in it.” He puts the folder back under his hand.',
+                                   '“It’s waited fourteen years. It can wait for a Dayoff you’ve the stomach for.”']];
+                dialogue.callbacks = null;
+                dialogue.open  = true;
+                dialogue.page  = 0;
+              },
+            ];
+            choice.open = true;
+          }];
+          dialogue.open = true;
+          dialogue.page = 0;
+          return true;
+        }
+      }
       const restWeekDayoff = mq4_available_day > 0 && !reservoir_quest_started;
       if (restWeekDayoff && fort_report_filed && smugglers_dead) {
         dialogue.pages = [

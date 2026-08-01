@@ -200,6 +200,28 @@ let north_bridge_scolded       = false;
 // branch's own dialogue callback.
 let supervisor_said_flood      = false;
 
+// ─── Side quest: The Fourteenth File ──────────────────────────────────────────
+// Offered by the Supervisor at the Calwick inn on a Dayoff, at a 1/3 chance each
+// Dayoff (rolled once per Dayoff and remembered, so re-talking the same day is
+// stable). The drought has exposed a foundered patrol skiff; reconstructing it
+// reopens the first unresolved case of his Calwick posting — a patrolman filed
+// "presumed lost" who was in fact silenced by the revered, now-dead drainage
+// Warden Callis to bury his skimming. The player searches three far-flung but
+// accessible areas (the exposed skiff, a drainage-fund ledger, Callis's
+// dedication plaque), then reports; if the implicating clues were found, the
+// player chooses whether to file the truth or seal it to spare Callis's family.
+//   stage: 0 not offered/started, 1 assigned/investigating, 2 filed (done)
+//   offer_day / offered: the once-per-Dayoff 1/3 availability roll (persisted so
+//     save/load and re-talking within a Dayoff are stable)
+//   outcome: 0 none, 1 filed accurately (truth on record), 2 sealed (family spared)
+// The three clue flags (ff_clue_*) are window-native MAP_FEATURES `flag` fields,
+// like the gallery_clue_* set — normalized below, in QUEST_FLAG_SCHEMA, and
+// restored via window.* in loadGame().
+let fourteenth_file_stage     = 0;
+let fourteenth_file_offer_day = 0;
+let fourteenth_file_offered   = false;
+let fourteenth_file_outcome   = 0;
+
 // ─── Side quest: A Bottle for Her Father ──────────────────────────────────────
 // Offered only once MainQuest >= 2 (the Drenwick dispatch done); before that
 // Fenna only frets about the drought reaching the fen mushroom beds.
@@ -273,6 +295,10 @@ function syncQuestFlagsToWindow() {
   window.north_bridge_crossed_early = north_bridge_crossed_early;
   window.north_bridge_scolded       = north_bridge_scolded;
   window.supervisor_said_flood      = supervisor_said_flood;
+  window.fourteenth_file_stage      = fourteenth_file_stage;
+  window.fourteenth_file_offer_day  = fourteenth_file_offer_day;
+  window.fourteenth_file_offered    = fourteenth_file_offered;
+  window.fourteenth_file_outcome    = fourteenth_file_outcome;
   window.wine_quest_started   = wine_quest_started;
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;
@@ -309,6 +335,9 @@ function syncQuestFlagsToWindow() {
   window.gallery_clue_notebook = !!window.gallery_clue_notebook;
   window.gallery_clue_stair    = !!window.gallery_clue_stair;
   window.gallery_body_found    = !!window.gallery_body_found;
+  window.ff_clue_skiff         = !!window.ff_clue_skiff;
+  window.ff_clue_ledger        = !!window.ff_clue_ledger;
+  window.ff_clue_dedication    = !!window.ff_clue_dedication;
 }
 window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 
