@@ -150,11 +150,22 @@ module.exports = {
       ['zz_wander_wps',       `{ type: 'boundedWander', bounds: { minCol: 4, maxCol: 8, minRow: 2, maxRow: 4 }, speed: 1, waypoints: [{ x: 4.5, y: 3.5 }] }`, /must not have waypoints/],
       ['zz_wander_speed',     `{ type: 'boundedWander', bounds: { minCol: 4, maxCol: 8, minRow: 2, maxRow: 4 }, speed: 0 }`,        /speed must be a positive finite number/],
       ['zz_patrol_bounds',    `{ type: 'patrol', waypoints: [{ x: 3.5, y: 3.5 }], speed: 1, bounds: { minCol: 4, maxCol: 8, minRow: 2, maxRow: 4 } }`, /bounds applies only to a boundedWander/],
+      // Waypoint upper bound is EXCLUSIVE of COLS/ROWS: a coordinate equal to
+      // the map dimension is out of bounds (valid tile range is 0..COLS-1 / 0..ROWS-1).
+      ['zz_wp_x_cols',        `{ type: 'patrol', waypoints: [{ x: COLS, y: 3.5 }], speed: 1 }`,                                     /outside map bounds/],
+      ['zz_wp_y_rows',        `{ type: 'patrol', waypoints: [{ x: 3.5, y: ROWS }], speed: 1 }`,                                     /outside map bounds/],
     ];
     for (const [id, movement, rx] of failCases) {
       const bad = validateFixture(g, base(id, movement), id);
       assert.ok(bad.errors.some(e => rx.test(e)), id + ' should fail with ' + rx + '; got: ' + JSON.stringify(bad.errors));
     }
+    // A waypoint just inside the boundary (x = COLS - 0.5, y = ROWS - 0.5) is accepted.
+    const wpInside = validateFixture(g, `{
+      id: 'zz_wp_inside', name: 'Fixture', map: 'town', x: 3.5 * TILE, y: 3.5 * TILE,
+      solid: false, facing: 'down', spriteType: 'patron', dialogue: [], flag_required: null, flag_sets: null, action: null,
+      movement: { type: 'scriptedRoute', waypoints: [{ x: COLS - 0.5, y: ROWS - 0.5 }], speed: 0.5, pauseFrames: 0, loop: false },
+    }`, 'zz_wp_inside');
+    assert.equal(wpInside.errors.length, 0, 'a waypoint just inside the boundary must be accepted: ' + JSON.stringify(wpInside.errors));
 
     // Bespoke-rendered id (NPC_DRAW_FNS) — movement must be rejected.
     // 'maren' is a real bespoke id; the fixture reuses it, which also trips

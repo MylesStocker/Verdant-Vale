@@ -20,8 +20,12 @@
 //
 // Run: node test/transition-audit.js
 //
-// This does not mutate any file. It's read-only introspection of the loaded
-// game plus (harmless, in-memory) calls to its own transition functions.
+// This does not mutate game/runtime source or any persistent gameplay state:
+// it is read-only introspection of the loaded game plus (harmless, in-memory)
+// calls to its own transition functions. Running it DIRECTLY as a CLI (not when
+// required as a module by a test) does regenerate exactly one artifact at the
+// end -- test/transition-audit-output.json, the audit's own output file, which
+// is not game data.
 
 const path = require('path');
 const { createContext } = require('./harness');
@@ -36,35 +40,34 @@ const ROWS = g.run('ROWS');
 function esc(s) { return JSON.stringify(s); }
 
 // Resolves a live `activeMap` array reference back to its MAP_REGISTRY id.
-// Falls back to a small list of maps confirmed (by a source-text sweep, see
-// the "MAP_REGISTRY completeness" section of the audit report) to be real,
-// in-use map grids that MAP_REGISTRY itself doesn't list -- without this,
-// any transition landing on one of them would be unauditable rather than
-// flagged as the actual finding (a missing registry entry).
-const UNREGISTERED_BUT_REAL_MAPS = ['DRENWICK_SCHOOL_BASEMENT_MAP'];
+// MAP_REGISTRY is the sole source of truth: a transition that lands on a map
+// with no registry entry returns null here and is reported as an UNRESOLVED_MAP
+// finding (a missing registry entry) rather than being silently rescued through
+// a hand-maintained fallback list. (DRENWICK_SCHOOL_BASEMENT_MAP once needed
+// exactly such a rescue; it is now registered -- positively confirmed by the
+// basementInRegistry assertion below -- so the fallback has been removed.)
 function mapLabel() {
-  const fromRegistry = g.run(`(() => {
+  return g.run(`(() => {
     for (const [id, entry] of Object.entries(MAP_REGISTRY)) {
       if (entry.map === activeMap) return id;
     }
     return null;
   })()`);
-  if (fromRegistry) return fromRegistry;
-  for (const name of UNREGISTERED_BUT_REAL_MAPS) {
-    if (g.run(`activeMap === ${name}`)) return name;
-  }
-  return null;
 }
 // Given a label from mapLabel(), returns a JS expression (valid inside
-// g.run()) that evaluates to that map's array -- MAP_REGISTRY[label].map
-// for registered maps, or the bare global name for the small fallback list.
+// g.run()) that evaluates to that map's array.
 function mapExprForLabel(label) {
-  return UNREGISTERED_BUT_REAL_MAPS.includes(label) ? label : `MAP_REGISTRY['${label}'].map`;
+  return `MAP_REGISTRY['${label}'].map`;
 }
 
-// Snapshot the handful of location flags a transition might set, so we can
-// restore a clean baseline between checks (each transition function is
-// side-effecting on shared globals).
+// Restore a clean baseline between checks (each transition function is
+// side-effecting on shared globals). This resets EVERY location flag and
+// accompanying discriminator in state.js that can affect currentMapId(),
+// locationName(), currentItemList(), collision (canWalk()), SIMPLE_NPCS
+// filtering, or a transition's landing -- so no case can contaminate the next.
+// (Unrelated quest-progression / balance / content state is intentionally NOT
+// reset: it can't change a transition destination, and resetting it for
+// cosmetic completeness would just add noise.)
 function resetState() {
   g.run(`
     inDungeon=false; dungeonFloor=1; inTown=false; currentTownId=null; townBuilding=null;
@@ -72,10 +75,48 @@ function resetState() {
     inSluice=false; sluiceFloor=1; inMireVault=false; inTakomo=false; inFenBrewery=false;
     inHamletInterior=false; inLorraHouse=false; inMarenPost=false; inDrenwrickPost=false;
     inBridgePost=false; inSmugglerFort=false; bridge_entry_direction=null; bridge_toll_paid=false;
-    inDungeonEntrance=false;
+    inDungeonEntrance=false; inBasinChamber=false; inSunkenGallery=false;
     activeMap = MAP; player.x = 8*TILE; player.y = 8*TILE; player.facing='down';
   `);
 }
+
+// Reset-isolation self-check: deliberately dirty every location flag /
+// discriminator resetState() is responsible for (inBasinChamber and
+// inSunkenGallery included), call the real resetState(), then confirm each
+// field returned to its neutral baseline. Exposed via auditData.resetIsolation
+// and asserted by test/cases/10-transition-audit.test.js, so if a flag is ever
+// removed from resetState() again the regression suite fails.
+function resetIsolationCheck() {
+  const NEUTRAL = {
+    inDungeon: false, dungeonFloor: 1, inTown: false, currentTownId: null, townBuilding: null,
+    currentHouseId: null, houseSourceMap: null, houseSourceBuilding: null,
+    inSluice: false, sluiceFloor: 1, inMireVault: false, inTakomo: false, inFenBrewery: false,
+    inHamletInterior: false, inLorraHouse: false, inMarenPost: false, inDrenwrickPost: false,
+    inBridgePost: false, inSmugglerFort: false, inDungeonEntrance: false,
+    inBasinChamber: false, inSunkenGallery: false,
+    bridge_entry_direction: null, bridge_toll_paid: false,
+  };
+  // Dirty every field to a decidedly non-neutral value, plus map/position.
+  g.run(`
+    inDungeon=true; dungeonFloor=9; inTown=true; currentTownId='drenwick'; townBuilding='house';
+    currentHouseId='esla_house'; houseSourceMap=MAP2; houseSourceBuilding='west';
+    inSluice=true; sluiceFloor=3; inMireVault=true; inTakomo=true; inFenBrewery=true;
+    inHamletInterior=true; inLorraHouse=true; inMarenPost=true; inDrenwrickPost=true;
+    inBridgePost=true; inSmugglerFort=true; inDungeonEntrance=true;
+    inBasinChamber=true; inSunkenGallery=true;
+    bridge_entry_direction='south'; bridge_toll_paid=true;
+    activeMap=MAP3; player.x=3*TILE; player.y=3*TILE; player.facing='up';
+  `);
+  resetState();
+  const failures = [];
+  for (const [field, expected] of Object.entries(NEUTRAL)) {
+    const actual = g.run(field);
+    if (actual !== expected) failures.push({ field, expected, actual });
+  }
+  if (!g.run('activeMap === MAP')) failures.push({ field: 'activeMap', expected: 'MAP', actual: mapLabel() });
+  return { passed: failures.length === 0, checkedFields: Object.keys(NEUTRAL).length + 1, failures };
+}
+const resetIsolation = resetIsolationCheck();
 
 const results = [];
 
@@ -178,16 +219,9 @@ for (const id of registryIds) {
   const dims = g.run(`(() => { const m = MAP_REGISTRY['${id}'].map; return { rows: m.length, cols: m[0]?m[0].length:0 }; })()`);
   dimReport.push({ id, rows: dims.rows, cols: dims.cols, ok: dims.rows === ROWS && dims.cols === COLS });
 }
-// Also sweep any maps in UNREGISTERED_BUT_REAL_MAPS that AREN'T already
-// covered by the registry loop above -- keeps this a live safety net for a
-// *future* map added without a registry entry, without double-counting one
-// that's already been fixed (DRENWICK_SCHOOL_BASEMENT_MAP was exactly this
-// case; it's now in MAP_REGISTRY, so the loop above already covers it).
-for (const name of UNREGISTERED_BUT_REAL_MAPS) {
-  if (registryIds.includes(name)) continue;
-  const dims = g.run(`(() => { const m = ${name}; return { rows: m.length, cols: m[0]?m[0].length:0 }; })()`);
-  dimReport.push({ id: name + ' (UNREGISTERED)', rows: dims.rows, cols: dims.cols, ok: dims.rows === ROWS && dims.cols === COLS });
-}
+// (No separate unregistered-map sweep: MAP_REGISTRY is the source of truth and
+// the dimension loop above covers every registered map -- the Drenwick school
+// basement included, now that it is registered.)
 
 // ── 2. Simple flat transition functions (no args, no branches) ─────────
 const flatFns = [
@@ -347,8 +381,10 @@ const schoolStairs = [
 for (const [label, code] of schoolStairs) {
   check(`Drenwick school stairs: ${label}`, `currentTownId='drenwick'; inTown=true; ${code()}`, { group: 'school-stairs' });
 }
-// Flag: DRENWICK_SCHOOL_BASEMENT_MAP is used by the above but is NOT in
-// MAP_REGISTRY -- record that separately (checked below, not a `check()` case).
+// Registry-completeness assertion: the Drenwick school basement (used by the
+// stairs checks above) must be present in MAP_REGISTRY. It formerly was not --
+// the reason it once needed a hand-kept fallback in mapLabel(). That fallback
+// is gone; this positively confirms the map is now registered.
 const basementInRegistry = registryIds.includes('DRENWICK_SCHOOL_BASEMENT_MAP');
 
 // ── 10. "Preserved coordinate" transitions -- scan every occurrence of the
@@ -494,7 +530,7 @@ for (const d of houseDoors) {
 // module -- both `node test/transition-audit.js` (standalone CLI) and
 // `require('../transition-audit.js')` (from a regression test case) get the
 // exact same results. Only the human-readable report below is CLI-only.
-const auditData = { registryIds, dimReport, basementInRegistry, results, preservedResults, tileUsage, houseDoorResults };
+const auditData = { registryIds, dimReport, basementInRegistry, resetIsolation, results, preservedResults, tileUsage, houseDoorResults };
 module.exports = auditData;
 
 // ── Report (standalone CLI use only; skipped when required as a module) ──
@@ -505,6 +541,13 @@ for (const d of dimReport) if (!d.ok) console.log('  MISMATCH', d.id, `rows=${d.
 
 console.log('='.repeat(80));
 console.log('DRENWICK_SCHOOL_BASEMENT_MAP in MAP_REGISTRY:', basementInRegistry);
+
+console.log('='.repeat(80));
+console.log('RESET-STATE ISOLATION:', resetIsolation.passed ? 'PASS' : 'FAIL',
+  `(${resetIsolation.checkedFields} location fields checked after a deliberate dirty + resetState())`);
+for (const f of resetIsolation.failures) {
+  console.log('  DID NOT RESET', f.field, '-> expected', JSON.stringify(f.expected), 'got', JSON.stringify(f.actual));
+}
 
 console.log('='.repeat(80));
 const byVerdict = {};
@@ -545,6 +588,7 @@ for (const d of badDoors) {
 
 console.log('='.repeat(80));
 console.log('SUMMARY');
+console.log('  reset-state isolation:', resetIsolation.passed ? 'pass' : ('FAIL (' + resetIsolation.failures.map(f => f.field).join(', ') + ')'));
 console.log('  maps checked:', registryIds.length);
 console.log('  fixed-destination transitions checked:', results.length);
 console.log('  preserved-coordinate transitions checked:', preservedResults.length);

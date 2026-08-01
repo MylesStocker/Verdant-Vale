@@ -1617,7 +1617,7 @@ function debugWarpToMap(mapId, col, row) {
   inDungeon = false; inDungeonEntrance = false; inTown = false; inSluice = false;
   inMireVault = false; inTakomo = false; inFenBrewery = false; inHamletInterior = false;
   inLorraHouse = false; inMarenPost = false; inDrenwrickPost = false; inBridgePost = false;
-  inSmugglerFort = false;
+  inSmugglerFort = false; inBasinChamber = false; inSunkenGallery = false;
 
   activeMap     = targetMap;
   player.x      = (landing.col + 0.5) * TILE;

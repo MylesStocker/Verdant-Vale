@@ -176,6 +176,61 @@ module.exports = {
     );
     g.run(`SIMPLE_NPCS.pop();`); // restore
 
+    // ── 8b. Coordinate upper bound is EXCLUSIVE of COLS/ROWS ────────────────
+    // Regression: several validator checks accepted an index equal to the map
+    // dimensions. Valid tile indices are 0..COLS-1 (columns) / 0..ROWS-1 (rows).
+    // Mutations are guaranteed-restored in finally blocks so nothing leaks.
+    // NPC exactly on the column edge (x === COLS*TILE) is rejected.
+    g.run(`SIMPLE_NPCS.push({ id: '_test_npc_x_cols', name: 'T', map: 'town', x: COLS * TILE, y: 4 * TILE, solid: false, facing: 'down', dialogue: [['hi']], flag_required: null, flag_sets: null, action: null });`);
+    try {
+      const r = runValidation(g);
+      assert.ok(r.errorList.some(e => e.group === 'NPCs' && e.message.includes('_test_npc_x_cols') && e.message.includes('outside')),
+        'an NPC at exactly COLS*TILE must be out of bounds: ' + JSON.stringify(r.errorList.filter(e => e.message.includes('_test_npc_x_cols'))));
+    } finally { g.run(`SIMPLE_NPCS.pop();`); }
+    // NPC exactly on the row edge (y === ROWS*TILE) is rejected.
+    g.run(`SIMPLE_NPCS.push({ id: '_test_npc_y_rows', name: 'T', map: 'town', x: 4 * TILE, y: ROWS * TILE, solid: false, facing: 'down', dialogue: [['hi']], flag_required: null, flag_sets: null, action: null });`);
+    try {
+      const r = runValidation(g);
+      assert.ok(r.errorList.some(e => e.group === 'NPCs' && e.message.includes('_test_npc_y_rows') && e.message.includes('outside')),
+        'an NPC at exactly ROWS*TILE must be out of bounds');
+    } finally { g.run(`SIMPLE_NPCS.pop();`); }
+    // NPC just inside the boundary is accepted.
+    g.run(`SIMPLE_NPCS.push({ id: '_test_npc_inside', name: 'T', map: 'town', x: (COLS - 0.5) * TILE, y: (ROWS - 0.5) * TILE, solid: false, facing: 'down', dialogue: [['hi']], flag_required: null, flag_sets: null, action: null });`);
+    try {
+      const r = runValidation(g);
+      assert.ok(!r.errorList.some(e => e.message.includes('_test_npc_inside')),
+        'an NPC just inside the boundary must be accepted: ' + JSON.stringify(r.errorList.filter(e => e.message.includes('_test_npc_inside'))));
+    } finally { g.run(`SIMPLE_NPCS.pop();`); }
+
+    // MAP_FEATURES inspect coordinate at x === COLS / y === ROWS is out of bounds.
+    g.run(`MAP_FEATURES['TOWN_MAP'].push({ id: '_test_feat_x_cols', type: 'inspect', x: COLS, y: 3.5, label: 'T', pages: [['x']], allowUnwalkable: true });`);
+    try {
+      const r = runValidation(g);
+      assert.ok(r.errorList.some(e => e.message.includes('_test_feat_x_cols') && e.message.includes('out of bounds')),
+        'an inspect feature at x === COLS must be out of bounds: ' + JSON.stringify(r.errorList.filter(e => e.message.includes('_test_feat_x_cols'))));
+    } finally { g.run(`MAP_FEATURES['TOWN_MAP'].pop();`); }
+    g.run(`MAP_FEATURES['TOWN_MAP'].push({ id: '_test_feat_y_rows', type: 'inspect', x: 3.5, y: ROWS, label: 'T', pages: [['x']], allowUnwalkable: true });`);
+    try {
+      const r = runValidation(g);
+      assert.ok(r.errorList.some(e => e.message.includes('_test_feat_y_rows') && e.message.includes('out of bounds')),
+        'an inspect feature at y === ROWS must be out of bounds');
+    } finally { g.run(`MAP_FEATURES['TOWN_MAP'].pop();`); }
+    // Inspect coordinate just inside the boundary is accepted.
+    g.run(`MAP_FEATURES['TOWN_MAP'].push({ id: '_test_feat_inside', type: 'inspect', x: COLS - 0.5, y: ROWS - 0.5, label: 'T', pages: [['x']], allowUnwalkable: true });`);
+    try {
+      const r = runValidation(g);
+      assert.ok(!r.errorList.some(e => e.message.includes('_test_feat_inside')),
+        'an inspect feature just inside the boundary must be accepted: ' + JSON.stringify(r.errorList.filter(e => e.message.includes('_test_feat_inside'))));
+    } finally { g.run(`MAP_FEATURES['TOWN_MAP'].pop();`); }
+    // Trigger-rect convention is PRESERVED: rect boundaries x2 === COLS / y2 === ROWS
+    // (player-center coordinates) are intentionally allowed and must not be flagged.
+    g.run(`MAP_FEATURES['TOWN_MAP'].push({ id: '_test_trig_boundary', type: 'trigger', rect: { x1: 0, y1: 0, x2: COLS, y2: ROWS }, label: 'T', pages: [['x']] });`);
+    try {
+      const r = runValidation(g);
+      assert.ok(!r.errorList.some(e => e.message.includes('_test_trig_boundary') && e.message.includes('out of bounds')),
+        'a trigger rect with x2 === COLS / y2 === ROWS must remain permitted: ' + JSON.stringify(r.errorList.filter(e => e.message.includes('_test_trig_boundary'))));
+    } finally { g.run(`MAP_FEATURES['TOWN_MAP'].pop();`); }
+
     // ── 9. Structurally invalid enemy template fails ────────────────────────
     g.run(`
       ENEMY_TEMPLATES.push({ name: '_test_bad_enemy', hp: 50, maxHp: 10, atk: 5, def: 1, spd: 5, xp: 5, goldMin: 1, goldMax: 2 });

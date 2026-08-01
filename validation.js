@@ -602,8 +602,8 @@ function validateNPCs() {
       if (npc.x != null && npc.y != null) {
         const rows = _validationRows(), cols = _validationCols();
         const tx = npc.x / TILE, ty = npc.y / TILE;
-        if (tx < 0 || tx > cols) addValidationError(GROUP, lbl + ': x=' + npc.x + ' (tile ' + tx.toFixed(2) + ') outside 0-' + cols);
-        if (ty < 0 || ty > rows) addValidationError(GROUP, lbl + ': y=' + npc.y + ' (tile ' + ty.toFixed(2) + ') outside 0-' + rows);
+        if (tx < 0 || tx >= cols) addValidationError(GROUP, lbl + ': x=' + npc.x + ' (tile ' + tx.toFixed(2) + ') outside valid tile columns 0-' + (cols - 1));
+        if (ty < 0 || ty >= rows) addValidationError(GROUP, lbl + ': y=' + npc.y + ' (tile ' + ty.toFixed(2) + ') outside valid tile rows 0-' + (rows - 1));
 
         if (npc.solid) {
           // Group by the FULL resolved map value (e.g. "house:apt_maret"),
@@ -720,8 +720,8 @@ function validateNPCs() {
             mv.waypoints.forEach((wp, i) => {
               if (wp === null || typeof wp !== 'object' || !_isFiniteNumber(wp.x) || !_isFiniteNumber(wp.y)) {
                 addValidationError(GROUP, lbl + ': movement.waypoints[' + i + '] must be { x, y } with finite numbers (tile units)');
-              } else if (wp.x < 0 || wp.x > cols || wp.y < 0 || wp.y > rows) {
-                addValidationError(GROUP, lbl + ': movement.waypoints[' + i + '] (' + wp.x + ', ' + wp.y + ') outside map bounds 0-' + cols + ' x 0-' + rows + ' (waypoints are TILE units, not pixels)');
+              } else if (wp.x < 0 || wp.x >= cols || wp.y < 0 || wp.y >= rows) {
+                addValidationError(GROUP, lbl + ': movement.waypoints[' + i + '] (' + wp.x + ', ' + wp.y + ') outside map bounds 0-' + (cols - 1) + ' x 0-' + (rows - 1) + ' (waypoints are TILE units, not pixels)');
               }
               // Per-waypoint dwell (patrol form): optional, nonnegative finite.
               if (wp && typeof wp === 'object' && wp.pauseFrames !== undefined && (!_isFiniteNumber(wp.pauseFrames) || wp.pauseFrames < 0))
@@ -1275,8 +1275,8 @@ function validateMapFeatures() {
         if (feature.x == null || feature.y == null) {
           addValidationError(GROUP, lbl + ': missing x/y');
         } else {
-          if (feature.x < 0 || feature.x > cols || feature.y < 0 || feature.y > rows)
-            addValidationError(GROUP, lbl + ': (' + feature.x + ',' + feature.y + ') is out of bounds for a ' + cols + 'x' + rows + ' grid (tile units, not pixels)');
+          if (feature.x < 0 || feature.x >= cols || feature.y < 0 || feature.y >= rows)
+            addValidationError(GROUP, lbl + ': (' + feature.x + ',' + feature.y + ') is out of bounds (valid tile indices 0-' + (cols - 1) + ' by 0-' + (rows - 1) + ', tile units not pixels)');
           else if (mapArr && typeof WALKABLE !== 'undefined' && !feature.allowUnwalkable) {
             const tile = mapArr[Math.floor(feature.y)] ? mapArr[Math.floor(feature.y)][Math.floor(feature.x)] : undefined;
             if (tile !== undefined && !WALKABLE[tile])

@@ -711,6 +711,11 @@
     }
   ],
   "basementInRegistry": true,
+  "resetIsolation": {
+    "passed": true,
+    "checkedFields": 25,
+    "failures": []
+  },
   "results": [
     {
       "name": "enterDungeon",

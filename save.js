@@ -398,6 +398,11 @@ function loadGame() {
                    'gallery_body_found',
                    'ff_clue_skiff','ff_clue_ledger','ff_clue_dedication'])
     if (data[k] !== undefined) window[k] = data[k];
+  // vale_tutorial_seen is window-native (in QUEST_FLAG_SCHEMA, saved by
+  // saveGame()). Restore it explicitly, and — unlike the flags just above —
+  // default a MISSING field to false rather than inheriting the current runtime
+  // session's value, so an older save that predates the flag loads as unseen.
+  window.vale_tutorial_seen = data.vale_tutorial_seen !== undefined ? !!data.vale_tutorial_seen : false;
   if (data.esla_said_sluice          !== undefined) esla_said_sluice          = data.esla_said_sluice;
   if (data.esla_said_dispatch        !== undefined) esla_said_dispatch        = data.esla_said_dispatch;
   if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;

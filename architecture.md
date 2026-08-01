@@ -92,7 +92,7 @@ The rule this codebase actually follows:
 | `combat.js` | Equip helpers (`effectiveAtk`/etc), enemy stat templates, `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
 | `render-battle.js` | Battle-screen sprite drawing for the player and every enemy type, `drawBattleGenericEnemy()` (the fallback for any enemy name with no dedicated sprite), the `BATTLE_SPRITE_NAMES` Set (debug/validation-only — mirrors which names *do* have a dedicated `case`), and `drawCombat()` (the action menu / item subscreen / message / victory / defeat UI). | Combat *logic* (damage, turn order, state transitions) lives in `combat.js` — this file only reads `combat` state and draws it. |
 | `bootstrap.js` | The one-time new-game startup state (starting map/position, intro dialogue). | Must stay the last file loaded before `interactions.js` — see ordering rules above. Don't add anything here beyond one-time startup values. |
-| `interactions.js` | `handleInteract()` (the interact-key dispatcher), `interactSimpleNPCs()`, and the `MAP_FEATURES` content-authoring registry (`tryMapFeatures()`, `checkMapFeatureTriggers()`, `evaluateMapFeatureCondition()`, `resolveMapFeaturePages()`, `debugMapFeatureInfo()`). Loaded last since `update()`/`handleInteract()` are called at runtime, by which point every script has finished loading. | See "Interactions" below for the full priority story — this file is the single biggest one in the codebase (~4,200 lines) precisely because most scripted, one-off interaction logic (chests, quest triggers, boss encounters, town-specific dialogue branches) is hand-written directly in `handleInteract()`'s giant `if`/`else if` chain, not data-driven. `MAP_FEATURES` doesn't replace that chain — it's the lowest-priority fallback checked only if nothing in it fired. |
+| `interactions.js` | `handleInteract()` (the interact-key dispatcher — a priority orchestrator over named location handlers, see below), `interactSimpleNPCs()`, and the `MAP_FEATURES` content-authoring registry (`tryMapFeatures()`, `checkMapFeatureTriggers()`, `evaluateMapFeatureCondition()`, `resolveMapFeaturePages()`, `debugMapFeatureInfo()`). Loaded last since `update()`/`handleInteract()` are called at runtime, by which point every script has finished loading. | See "Interactions" below for the full priority story. This is by far the largest file in the codebase. The *dispatch* is now a clean priority orchestrator (`INTERACT_HANDLERS` / `OVERWORLD_INTERACT_HANDLERS`, first-match-wins with explicit consumption), but the per-location behaviour it routes to — chests, quest triggers, boss encounters, town-specific dialogue branches — is still large, hand-written and one-off, so the physical file remains a maintainability hotspot despite the improved dispatch. `MAP_FEATURES` doesn't replace those handlers — it's the lowest-priority generic fallback, checked only if nothing consumed the press. |
 
 ### Content / data files
 
@@ -304,26 +304,34 @@ pressed) is checked in this priority order:
 1. **Dialogue continuation** — if `dialogue.open`, advance/close it (and
    run any queued combat/callback triggers) and return; nothing else in
    this list runs on the same press.
-2. **The entire hand-written `if`/`else if` chain** (by `dungeonFloor`,
-   then the enormous "not in a dungeon" branch covering every town/area,
-   then floors 4/5) — chests, quest-object encounters, boss triggers,
-   town-specific scripted dialogue, and (inside each area's branch)
-   `interactSimpleNPCs()` (which itself checks every `SIMPLE_NPCS` entry
-   whose `.map` matches `currentMapId()`, opening either a plain
-   `.dialogue` array or a custom `.action(npc)` callback for the nearest
-   one in `TALK_RADIUS`). NPCs and chests/quest content are interleaved
-   throughout this chain by area, not globally ordered against each other —
-   whichever this specific area's branch checks first wins for that area.
-3. **`MAP_FEATURES` inspectables** (`tryMapFeatures()`) — checked **last**,
-   guarded by a plain `if (!dialogue.open) tryMapFeatures();` at the very
-   end of `handleInteract()`. This single guard is enough to guarantee
-   `MAP_FEATURES` never steals an interaction from anything above it,
-   *without* restructuring the giant chain: every path through it that
-   "handles" a press sets `dialogue.open = true` as its feedback mechanism
-   (verified for every custom NPC `.action` callback in the codebase), and
-   `dialogue.open` is guaranteed false on entry to `handleInteract()` (step
-   1 would have returned early otherwise) — so if it's true by the time
-   this line runs, something above already claimed the press this frame.
+2. **Named location handlers.** `handleInteract()` is a priority orchestrator
+   over two dispatch tables — `INTERACT_HANDLERS` (top-level) and
+   `OVERWORLD_INTERACT_HANDLERS`. The **first** entry whose `match()` returns
+   true gets to `run()`, and no later entry runs, exactly reproducing the old
+   else-if dispatch (locations are mutually exclusive; first match wins). Each
+   handler is the hand-written behaviour for one map/building — chests,
+   quest-object encounters, boss triggers, town-specific scripted dialogue, and
+   (inside the relevant handler) `interactSimpleNPCs()` (which checks every
+   `SIMPLE_NPCS` entry whose `.map` matches `currentMapId()`, opening either a
+   plain `.dialogue` array or a custom `.action(npc)` callback for the nearest
+   one in `TALK_RADIUS`). A handler returns **`true` when it CONSUMED the
+   press** — opened dialogue/choice/shop/a reading panel, or otherwise handled
+   it; a handler that wants to swallow a press without opening any UI just
+   `return true`s. Within a single handler, NPCs and chests/quest content are
+   still interleaved by proximity, not globally ordered against each other.
+   Ordering rule for the tables: more-specific conditions go before
+   more-generic ones (e.g. the Drenwick office handler before the generic
+   office handler).
+3. **`MAP_FEATURES` inspectables** (`tryMapFeatures()`) — the lowest-priority
+   **generic fallback**, run only when *no handler matched, or the matching
+   handler did not consume the press*. "Consumed" is `interactionUiOpened()` —
+   dialogue, choice, shop, reading panel (`accordPanel`), or continent map
+   open — which is deliberately broader than the old `dialogue.open`-only
+   guard, so a scripted interaction that opens a *choice menu* (not dialogue)
+   can no longer let `MAP_FEATURES` open a second, competing dialogue
+   underneath it. This is the invariant the priority contract exists to
+   protect; handler ordering and the consumed/not-consumed return value are
+   both load-bearing.
 4. If nothing above fired, the press is a no-op.
 
 ### Dialogue page formatting contract
@@ -514,14 +522,16 @@ has a sprite.
   checking first if a test's simulated movement mysteriously doesn't move
   the player at all.
 - **`test/run.js`** — discovers and runs every `test/cases/*.test.js` file
-  in its own fresh context; currently 26 tests, all passing.
+  in its own fresh context; currently 50 tests, all passing.
 - **`test/transition-audit.js`** — a standalone, exhaustive sweep: calls
   every real `enter*`/`exit*`/`ascend*`/`descend*` transition function live
   and checks the landing spot against the game's own collision logic
   (bounds + walkability), cross-references every `flatFns`-listed
   transition against `transitionTileNames`, and checks house doors and
   tile-constant references. Also wired into the main suite as one of the
-  26 tests. Not the same thing as `validateGameData()`'s lighter-weight,
+  50 tests (`10-transition-audit`), which additionally asserts the audit's
+  reset-state isolation self-check passes. Not the same thing as
+  `validateGameData()`'s lighter-weight,
   browser-console-reachable point-transition sanity checks (see
   "Transitions" above) — this audit is exhaustive but test-only (uses
   `fs`/Node, can't run in a browser); `validateGameData()` is the
@@ -555,12 +565,15 @@ has a sprite.
 - **Don't assume `MAP_FEATURES`/`INTERACTION_REGISTRY` interchangeably** —
   `INTERACTION_REGISTRY` no longer exists in this codebase. If you find a
   reference to it anywhere (an old comment, an old doc), it's stale.
-- **Don't restructure `handleInteract()`'s priority ordering** by moving
-  logic around inside the giant `if`/`else if` chain without re-reading
-  "Interactions" above first — the `MAP_FEATURES` priority guarantee
-  depends specifically on every higher-priority path setting
-  `dialogue.open = true`, which is easy to accidentally break with a
-  "silent" action that doesn't.
+- **Don't reorder `handleInteract()`'s dispatch tables** (`INTERACT_HANDLERS`
+  / `OVERWORLD_INTERACT_HANDLERS`), or change a handler's consumed/not-consumed
+  return value, without re-reading "Interactions" above first — the
+  `MAP_FEATURES` fallback guarantee depends on the first-match-wins ordering
+  and on every higher-priority path that handles a press *consuming* it
+  (`interactionUiOpened()` becomes true, or the handler `return true`s). A
+  "silent" action that handles a press but neither opens UI nor returns true
+  is the classic way to let `MAP_FEATURES` fire a competing dialogue
+  underneath it.
 - **Don't add code after the world-item pickup loop in `movement.js`'s
   `update()` without counting braces carefully** — see "Movement" above
   for the exact bug this caused once already.

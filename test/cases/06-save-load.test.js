@@ -67,6 +67,32 @@ module.exports = {
     assert.equal(g.run('player.y'), 6.5 * 32);
     assert.equal(g.run('player.facing'), 'left');
 
+    // ── vale_tutorial_seen restores through loadGame() (window-native flag) ──
+    // Regression: the flag is saved by saveGame() and normalized by
+    // syncQuestFlagsToWindow(), but loadGame() never restored it. An older save
+    // lacking the field must default to false rather than inherit the current
+    // runtime session's value.
+    // 1. A saved `true` loads as true even after the runtime value is reset.
+    g.run('window.vale_tutorial_seen = true; saveGame();');
+    g.run('window.vale_tutorial_seen = false;');
+    g.run('loadGame();');
+    assert.equal(g.run('window.vale_tutorial_seen === true'), true, 'saved vale_tutorial_seen: true must load as true');
+    // 2. An explicit `false` is preserved across a round-trip.
+    g.run('window.vale_tutorial_seen = false; saveGame();');
+    g.run('window.vale_tutorial_seen = true;');
+    g.run('loadGame();');
+    assert.equal(g.run('window.vale_tutorial_seen === false'), true, 'saved vale_tutorial_seen: false must load as false');
+    // 3. A save that lacks the field defaults it to false — even when the
+    //    in-memory value was true before loading (older-save compatibility).
+    g.run(`(function(){
+      var raw = JSON.parse(localStorage.getItem('verdantVale_save'));
+      delete raw.vale_tutorial_seen;
+      localStorage.setItem('verdantVale_save', JSON.stringify(raw));
+    })();`);
+    g.run('window.vale_tutorial_seen = true;'); // stale runtime value that must NOT survive the load
+    g.run('loadGame();');
+    assert.equal(g.run('window.vale_tutorial_seen === false'), true, 'a save missing vale_tutorial_seen must default it to false, not inherit the runtime value');
+
     // ── loadGame() with no save present should fail cleanly, not throw ──────
     g.run("localStorage.removeItem('verdantVale_save')");
     const okEmpty = g.run('loadGame()');

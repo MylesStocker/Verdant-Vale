@@ -25,6 +25,14 @@ module.exports = {
       'DRENWICK_SCHOOL_BASEMENT_MAP should be registered in MAP_REGISTRY'
     );
 
+    // resetState() must return every location flag/discriminator to neutral --
+    // including inBasinChamber and inSunkenGallery. Fails if either is dropped
+    // from resetState() again.
+    assert.equal(
+      audit.resetIsolation.passed, true,
+      `resetState() left location state dirty: ${(audit.resetIsolation.failures || []).map(f => f.field).join(', ')}`
+    );
+
     const destFailures = audit.results.filter(r => r.verdict !== 'OK');
     assert.equal(
       destFailures.length, 0,

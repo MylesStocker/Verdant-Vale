@@ -315,7 +315,7 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   linter (`validation.js`), rebuilt as ten focused functions
   (`validateMaps`/`validateMapMetadata`/`validateTiles`/
   `validateEdgeTransitions`/`validateNPCs`/`validateItems`/`validateEnemies`/
-  `validateDialogue`/`validateSaveFlags`/`validateInteractions`) with a real
+  `validateDialogue`/`validateSaveFlags`/`validateMapFeatures`) with a real
   error-vs-warning severity split (`addValidationError`/
   `addValidationWarning`, collected into `VALIDATION_ERRORS`/
   `VALIDATION_WARNINGS` and returned structurally, not just printed) and a
@@ -440,6 +440,109 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   priority guard around `tryMapFeatures()` in `handleInteract()` and
   confirming the test (co-located NPC vs. inspectable) catches it, then
   restoring the fix.
+- `27-post-fort-rest-week` — after the fen-post case (`MainQuest 3`), the
+  supervisor's outcome-aware close-out (killed / reported / claimed-nothing
+  wording, keyed on `fort_report_filed`), the ordered rest week, and the next
+  main assignment (the drought-exposed reservoir bed) only becoming available
+  from the first workday after the next Dayoff. Runtime: drives the office
+  supervisor dialogue across the relevant flag states.
+- `28-sluice-sealed-room` — the East Sluice Sealed Room: walking through the two
+  `FALSE_WALL` tiles at Deep Works r7 c12–13 reaches `SLUICE_SECRET_MAP` (a
+  separate registered map treated as `sluiceFloor` 4) with its own deadly
+  rare-encounter pool (the Tallyman) and its bespoke inspectables. Runtime
+  transitions + encounter wiring.
+- `29-fenna-quest-gate` — "A Bottle for Her Father" is offered only at
+  `MainQuest >= 2`; below that Fenna instead voices the drought complaint that
+  seeds the quest's ingredients. Runtime dialogue gating.
+- `30-rest-week-inn-and-dayoff-closures` — on the rest-week Dayoff the Calwick
+  inn office staff (Supervisor / Petra / Corvin key on the filed report; Esla on
+  `smugglers_dead` itself) give outcome-aware lines, and Drenwick Dayoff
+  building closures (`isClosedToday`) behave. Runtime; also stubs `Math.random`
+  so the Fourteenth File 1/3 offer can't perturb these Dayoff assertions.
+- `31-dream-map` — resting in the player's own bed on `day % 7 === 3` enters the
+  registered all-white `DREAM_MAP`, and the dialogue's close callback
+  (`exitDream`) restores the waking world (map, position, facing, and the
+  in-town/building flags render keys on). Runtime.
+- `32-guild-hall` — the Drenwick Guild Hall: `TABLE` blockers + the furniture
+  overlay (`drawGuildHallFurniture`), a visible free-standing posting board one
+  tile north of the (unchanged) reading spot, and staff present on all days.
+  Runtime + render.
+- `33-item-registry` — `createItem()`/`grantItem()` are the single source of
+  item properties: a granted item's fields come from `ITEM_REGISTRY`, key-item
+  filtering routes correctly, and an unknown saved item is preserved. Runtime /
+  source-of-truth.
+- `34-calwick-flavor-and-basin-gull` — the Calwick flavor pass (five
+  `MAP_FEATURES` inspectables across the town maps) plus the Basin Gull (the
+  third North Basin enemy) with its dedicated battle sprite registered in
+  `BATTLE_SPRITE_NAMES`. Runtime + validation.
+- `35-upper-reach-chamber-gallery` — the North Basin NW "Upper Reach" open-edge
+  crossing, its map-local exposed-bed encounters (`BASIN_MUD` only, own pool),
+  the unmarked chamber (save refused), and the Sunken Gallery (save refusal plus
+  a full save/load round trip after climbing back out). Runtime.
+- `36-flag-dependent-dialogue` — seven NPCs converted to the `get dialogue()`
+  flag-gated pattern react to filed reports / the basin assignment / Upper Reach
+  evidence; proves the base pages are unaffected by which flags are set. Runtime.
+- `37-roddon-way` — the Roddon Way map: registration, the reciprocal
+  `EDGE_TRANSITIONS` crossing with MAP3_N1, flood-fill connectivity with sealed
+  borders, encounter/save rules, the six inspectables, and `RODDON_SILT` tile
+  rendering. Runtime + validation + render.
+- `38-temporary-physical-evidence` — Rhen's mud and Kest's smell lines key on
+  same-day `window.*_visit_day` markers that expire on day-advance and on load,
+  and re-arm on a fresh visit — never permanent. Runtime.
+- `39-calwick-prop-visibility` — the five Calwick inspectables sit on visible
+  walkable prop tiles at their exact interaction coordinates; collision,
+  interaction and render are unaffected and no NPC or house door is displaced.
+  Runtime + render.
+- `40-schilling-sequence-break` — defeating *or* hugging Wrongteeth before ever
+  meeting Pip still awards Schilling and completes the quest, exercised through
+  the real boss-choice and NPC-interaction code paths (not by granting the item
+  directly). Runtime.
+- `41-north-bridge-admonishment` — crossing the north bridge before the
+  reservoir assignment arms `north_bridge_crossed_early`; the supervisor
+  questions it once (`north_bridge_scolded`), it persists across save/load, and
+  never fires after the assignment, when already assigned, when never crossed,
+  or on a southbound crossing. Runtime.
+- `42-school-continent-map` — the Calwick school continent-map fixture:
+  interacting opens/closes the overlay panel, a real render doesn't throw, and
+  no game state changes. Runtime + render.
+- `43-dialogue-wrapping` — the dialogue-page formatting contract: continuous
+  prose stored as one string wraps with no orphaned words, and intentional
+  breaks (separate strings) are preserved. Exercises the `render-ui.js` wrap
+  helpers directly (source/behavior check).
+- `44-chamber-dream-sequence` — the unmarked chamber's odourless first-entry
+  text, and the second-exit → dream → wake-at-Drenwick-infirmary sequence.
+  Runtime.
+- `45-npc-movement-contract` — the additive `validateNPCs()` movement-config
+  validation: synthetic patrol / scriptedRoute / boundedWander fixtures pass or
+  fail with the right diagnostics (including the exclusive `COLS`/`ROWS`
+  bounds), and exactly the approved real NPCs carry a `movement` config.
+  Validation / static — synthetic fixtures pushed into `SIMPLE_NPCS` and popped;
+  no real NPC moves in this test.
+- `46-bridge-guard-toll` — the two Imperial bridge toll-guard `scriptedRoute`
+  pilots: physical gating before payment, both guards' paid sidestep routes,
+  resets, save/load, defeat-respawn map-locality (they don't leak onto other
+  screens), and the clerk-bodied walking render. Runtime + render.
+- `47-brewery-patrol` — Toby (`tobb_wend`) auto-patrols the brewery vats on a
+  looping `patrol`: correct order/pauses/loop with no positional drift, waits
+  when blocked, freezes to talk and resumes toward the same waypoint, stays
+  map-local, and uses the worker walk render. Runtime + render.
+- `48-bounded-wander` — Tomas (`tomas`) `boundedWander`s inside Esla's house:
+  over many deterministic (seeded-`Math.random`) decisions he never leaves his
+  bounds, enters the exit, occupies an invalid tile, or overlaps the player /
+  another solid NPC; moves only orthogonally with pauses; every global freeze
+  stops him; live interaction stops/faces/resumes him; he's map-local; save/load
+  restores a valid home; and the patron walk render animates then returns to the
+  exact stationary sprite. Runtime + render.
+- `49-fourteenth-file` — the Fourteenth File side quest: the 1/3 Dayoff
+  availability roll (offered / not / stable within a Dayoff / gated), assignment,
+  the three far-flung `MAP_FEATURES` clues, and the report with its moral choice
+  (file accurately vs seal the warden's part), the partial-evidence path, and
+  save/load. Runtime.
+- `50-history-book-ariel` — the Calwick schoolhouse bookshelf gains a sixth
+  reading entry, a plainer scholarly Fort Ariel note shelved among the five
+  Imperial primers; the note opens in the parchment reader with a non-primer
+  heading and the defensible facts, while the primers keep their heading.
+  Runtime.
 
 ## Known simplifications (see comments at the top of each affected test)
 
@@ -467,20 +570,29 @@ fresh, isolated game (no state leaks between tests), then drives it with:
 
 ## Not covered yet
 
-- Save-file schema drift / old-save-format handling (`validateSaveSchema`'s
-  warn-only path, `SAVE_VERSION` mismatch discarding a stale save).
-- Any of the ~20 dungeon/town/building sub-transitions beyond the one
-  house-exit boundary exercised here (bridge toll gate, dungeon floors,
-  Drenwick districts, etc.) — `world-transitions.js` is otherwise
-  untested.
-- Quest-gated NPCs and multi-stage quest dialogue trees (only the
-  quest-flag-free survey marker is exercised).
-- Shop buy/sell flows, equip/unequip, and the notebook menu screen.
-- Special/boss combat variants (Pale Sentry, bosses, rainfish chain, the
-  1-in-256 "23" encounter) — only a generic enemy fight is covered.
-- Visual/pixel output — the canvas context is a no-op stub, so nothing
-  asserts on what's actually drawn, only that drawing code runs without
-  throwing.
+- Save-file schema drift / old-save-format handling — a `SAVE_VERSION`
+  mismatch discarding a stale save, and the warn-only legacy-fallback path in
+  `loadGame()`. (Save/load *round-trips* are well covered — `06`, `09`, `49` —
+  and `46` exercises one corrupted-save repair.)
+- Shop buy/sell gold flows, equip/unequip, and the notebook/inventory menu
+  screen. (The Aldric requisition *exchange* is covered in `11`, and reading
+  panels in `42`/`50`, but no test drives a gold buy/sell or the equip UI.)
+- Most special/boss combat variants — the Pale Sentry contract fight, the sailor
+  brawl (Kolm), Mulholland, the Den Wraith, Takomo, the rainfish chain, and the
+  1-in-256 "23" encounter. (Wrongteeth's boss-choice path *is* covered, through
+  real combat, in `40`; a generic random fight in `05`; a retriable guard fight
+  in `07`.)
+- Actual rasterized/pixel output. The canvas context is a no-op stub, so no test
+  asserts what a frame literally looks like. Several render tests (`46`–`48`,
+  `50`) do, however, assert on the *sequence of draw calls* (`fillRect`
+  arguments + `fillStyle`) to prove walk frames differ, stationary sprites stay
+  byte-identical, and unrelated NPCs are unchanged.
+
+(No longer gaps, now that they are covered: individual map/building transitions
+— `world-transitions.js` is exhaustively exercised by the transition audit
+(`10`), with the bridge toll gate specifically in `46` and many crossings in
+`16`–`21`/`28`/`35`/`37`; and quest-gated NPCs / multi-stage quest dialogue —
+see `07`/`08`/`14`/`27`/`29`/`36`/`40`/`41`/`49`.)
 
 Extending: drop a new `NN-name.test.js` file in `cases/` exporting
 `{ name, run() }` (`run` may be async) — `run.js` picks it up automatically,

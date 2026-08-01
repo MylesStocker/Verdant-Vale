@@ -91,6 +91,31 @@ module.exports = {
     assert.equal(g.run('inMireVault'), false);
     assert.equal(g.run('canWalk(player.x, player.y)'), true);
 
+    // ── 2b. Warp clears inBasinChamber / inSunkenGallery too ────────────────
+    // Regression: debugWarpToMap()'s clean-baseline reset omitted these two
+    // special-location flags, so warping out of the unmarked chamber or the
+    // Sunken Gallery left currentMapId()/locationName() reporting the wrong
+    // place. Set both new flags AND representative older special-location flags
+    // true, warp to ordinary MAP, and require every flag cleared. (Fails
+    // against the pre-fix implementation, which left the two new flags set.)
+    g.run(`
+      inBasinChamber = true; inSunkenGallery = true;
+      inSluice = true; inMireVault = true; inDungeon = true; inFenBrewery = true;
+      activeMap = MAP2; player.x = 3*TILE; player.y = 3*TILE; player.facing = 'up';
+    `);
+    const warp2b = g.run("debugWarpToMap('MAP', 5, 7)");
+    assert.equal(warp2b.success, true, 'warp to ordinary MAP succeeds');
+    assert.equal(g.run('activeMap === MAP'), true, 'activeMap is the ordinary destination');
+    assert.equal(g.run('inBasinChamber'), false, 'warp must clear inBasinChamber');
+    assert.equal(g.run('inSunkenGallery'), false, 'warp must clear inSunkenGallery');
+    assert.equal(g.run('inSluice'), false, 'previously-covered special-location flags stay cleared');
+    assert.equal(g.run('inMireVault'), false);
+    assert.equal(g.run('inDungeon'), false);
+    assert.equal(g.run('inFenBrewery'), false);
+    assert.equal(g.run('currentMapId()'), 'overworld', 'currentMapId() agrees with the ordinary Verdant Vale destination');
+    assert.equal(g.run('locationName()'), 'Verdant Vale', 'locationName() agrees with the ordinary Verdant Vale destination');
+    assert.doesNotThrow(() => g.renderFrame(), 'a render() once after the warp must not throw');
+
     // ── 3. Warp to an invalid map is rejected safely ────────────────────────
     g.run(`activeMap = MAP2; player.x = 3*TILE; player.y = 3*TILE;`);
     const mapBefore = g.run('mapRegistryId(activeMap)');

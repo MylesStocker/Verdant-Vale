@@ -15,18 +15,23 @@ Flats, West Shore, and the Upper Reach — plus the unmarked chamber and the
 Sunken Gallery hanging off the Upper Reach, see the newest pass below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-77 registered maps total (`MAP_REGISTRY`/`MAP_METADATA`, kept in exact
-agreement by `validateGameData()`).
+101 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 101 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 77 are the
+individually-authored base maps. (Earlier notes here said "77 registered
+maps" — that was the base-map count, from before the Sunken Gallery grid
+rooms were added to the registry.)
 
-- **44 tests**, `node test/run.js` — all passing.
-- **Transition audit**, `node test/transition-audit.js` — 101 maps, 236
-  fixed-destination transitions, 20 preserved-coordinate transitions, 42
-  house doors, 61 tile constants cross-referenced — clean, no findings.
+- **50 tests** (`test/cases/01-…50-`), `node test/run.js` — all passing.
+- **Transition audit**, `node test/transition-audit.js` — reset-state
+  isolation pass, 101 maps, 236 fixed-destination transitions, 20
+  preserved-coordinate transitions, 42 house doors (0 problems), 61 tile
+  constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
-  (see below), across 101 maps, 24,240 tile cells, 94 edge transitions, 171
-  NPCs, 109 item placements, 40 enemy templates, 584 dialogue/text entries,
-  111 save-flag checks, 60 map features.
+  (see below), across 101 maps, 101 metadata entries, 24,240 tile cells, 94
+  edge transitions, 171 NPCs, 112 item placements, 39 enemy templates, 596
+  dialogue/text entries, 140 save-flag checks, 63 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 
@@ -46,9 +51,9 @@ Wall Tendril, Dripping Maw, The Seep, Pale Drowned, Silt Hag, Pale Sentry —
 all got bespoke sprites; and the four ruins NPCs whose `map:
 'dungeon_entrance'` wasn't in `validateNPCs()`'s known-map-id list got
 fixed by adding that id to the list in `validation.js` — a real false
-positive, now corrected, not a real gap. See "Known risks" below for four
-*more* enemies in the same missing-sprite situation that `validateEnemies()`
-still can't see to warn about at all.)
+positive, now corrected, not a real gap. See "Known risks" below for the
+broader set of scripted/boss enemies in the same missing-sprite situation
+that `validateEnemies()` structurally can't see to warn about at all.)
 
 ## Recently completed infrastructure (this development arc)
 
@@ -509,25 +514,33 @@ transition tiles are registered in `test/transition-audit.js`).
 ## Known risks / caveats
 
 - **`validateEnemies()`'s battle-sprite check has a real, accepted blind
-  spot**: it only scans the pooled `*_ENEMY_TEMPLATES` arrays plus
-  `PALE_SENTRY_TEMPLATE`. Four enemies — **Polwick, Essa, Smuggler
-  Guard, Rainfish** — are hand-written stat objects inside `combat.js`'s
-  scripted `start*Combat()` functions, outside any pool, so
-  `validateGameData()` structurally cannot warn about them either way.
-  All four now have dedicated sprites anyway (added by hand, checked
-  against `render-battle.js`'s dispatch directly, not discovered via the
-  linter) — along with the ten pooled enemies from the same backlog
-  (Hollow, Fen Shade, Tomb Sentry, Crypt Revenant, Wall Tendril, Dripping
-  Maw, The Seep, Pale Drowned, Silt Hag, Pale Sentry), every enemy in the
-  game now has a bespoke battle sprite. If a *future* scripted enemy is
-  added the same unpooled way, remember `validateEnemies()` still won't
-  catch a missing sprite for it — check `render-battle.js`'s dispatch by
-  hand and update `BATTLE_SPRITE_NAMES` there.
-- **`handleInteract()` (`interactions.js`) has been refactored** from one
-  ~3,600-line `if`/`else if` chain into a priority orchestrator over 23
-  named location handlers (`INTERACT_HANDLERS` /
-  `OVERWORLD_INTERACT_HANDLERS` tables; first matching location wins,
-  mirroring the old else-if dispatch). Consumption is now **explicit**: a
+  spot, larger than earlier notes claimed.** It structurally scans only the
+  15 named random-encounter pools (`ENEMY_TEMPLATES`, `EARLY_ENEMY_TEMPLATES`,
+  the dungeon/sluice/basin/gallery/etc. `*_ENEMY_TEMPLATES` arrays) **plus the
+  single specifically-listed special template `PALE_SENTRY_TEMPLATE`**. Every
+  *other* scripted/boss enemy is defined outside those — as its own named
+  `*_TEMPLATE` const spread into `combat.enemy` inside a `start*Combat()`
+  function (`BOSS_TEMPLATE`/Wrongteeth, `BRIAR_WARDEN_TEMPLATE`,
+  `MULHOLLAND_TEMPLATE`, `DEN_WRAITH_TEMPLATE`, `SAILOR_BRAWLER_TEMPLATE`/Kolm,
+  `TAKOMO_TEMPLATE`, `SMUGGLER_GUARD_TEMPLATE`, `POLWICK_TEMPLATE`,
+  `ESSA_TEMPLATE`, `RAINFISH_TEMPLATE`), or as a fully-inline object. The
+  validator therefore cannot see any of them — it can't warn about their stats
+  or a missing sprite. This is more than the "four" an older note listed; the
+  earlier count only mentioned the fort/rainfish bosses. What *does* keep this
+  from ever being a literal problem is `drawBattleEnemy()`'s generic fallback
+  (`drawBattleGenericEnemy()`): a name with no entry in `BATTLE_SPRITE_NAMES`
+  renders as a generic sprite, never a blank. As of this pass every current
+  enemy — pooled and scripted alike — already has a bespoke sprite (each is in
+  `BATTLE_SPRITE_NAMES`), added and checked against `render-battle.js`'s
+  dispatch by hand, not discovered via the linter. If a *future* scripted enemy
+  is added the same unscanned way, remember `validateEnemies()` still won't
+  catch a missing sprite for it — check `render-battle.js`'s dispatch by hand
+  and update `BATTLE_SPRITE_NAMES` there.
+- **`handleInteract()` (`interactions.js`) has been refactored** from a single
+  giant `if`/`else if` chain into a priority orchestrator over named location
+  handlers held in two dispatch tables (`INTERACT_HANDLERS` /
+  `OVERWORLD_INTERACT_HANDLERS`; first matching location wins, mirroring the
+  old else-if dispatch). Consumption is now **explicit**: a
   handler returns `true` to consume the interact press (inside a handler
   body, `return true` is what the old chain's bare `return` was), and the
   `MAP_FEATURES` fallback runs only when nothing consumed — guarded by
