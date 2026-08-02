@@ -1023,6 +1023,47 @@ function validateEnemies() {
   // Scripted/special templates (boss-style, not part of a random pool).
   if (typeof PALE_SENTRY_TEMPLATE !== 'undefined') checkTemplate(PALE_SENTRY_TEMPLATE, 'PALE_SENTRY_TEMPLATE');
 
+  // ── #4: enemy-template identity registry (removes the special-enemy blind spot)
+  // Previously only pooled templates + PALE_SENTRY were structurally checked;
+  // every OTHER scripted template (Wrongteeth, Kolm, Takomo, ...) went unchecked.
+  // Now structurally check every scripted template, and validate the id-keyed
+  // registry: unique lowercase `enemy_<snake>` ids, key === template.id, and that
+  // every pooled + scripted template is registered. The runtime-inline "23" has a
+  // stable id but no static stat block, so it is checked for identity only.
+  const ENEMY_ID_RE = /^enemy_[a-z0-9_]+$/;
+  const scripted = window.ENEMY_SCRIPTED_TEMPLATES;
+  if (_isPlainArray(scripted)) {
+    for (const t of scripted) {
+      if (t && t !== (typeof PALE_SENTRY_TEMPLATE !== 'undefined' ? PALE_SENTRY_TEMPLATE : null)) checkTemplate(t, 'scripted:' + (t && t.name));
+    }
+  }
+  const enemyReg = window.ENEMY_TEMPLATE_REGISTRY;
+  if (enemyReg && typeof enemyReg === 'object') {
+    for (const id of Object.keys(enemyReg)) {
+      checked++;
+      const t = enemyReg[id];
+      if (!ENEMY_ID_RE.test(id)) addValidationError(GROUP, 'enemy template id "' + id + '" is not lowercase enemy_<snake> format');
+      if (!t || typeof t !== 'object') { addValidationError(GROUP, 'enemy registry entry "' + id + '" is not an object'); continue; }
+      if (t.id !== id) addValidationError(GROUP, 'enemy registry key "' + id + '" != template id "' + t.id + '"');
+      if (typeof t.name !== 'string' || !t.name) addValidationError(GROUP, 'enemy template "' + id + '" has no display name');
+    }
+    // Completeness + duplicate-id across every static template (pooled + scripted
+    // + the inline "23"): each must be present in the registry under its own id.
+    const statics = [];
+    if (_isPlainArray(window.ENEMY_TEMPLATE_POOLS)) window.ENEMY_TEMPLATE_POOLS.forEach((p) => { if (_isPlainArray(p)) p.forEach((t) => statics.push(t)); });
+    if (_isPlainArray(scripted)) scripted.forEach((t) => statics.push(t));
+    if (window.SECRET_23_TEMPLATE) statics.push(window.SECRET_23_TEMPLATE);
+    const idCounts = {};
+    for (const t of statics) {
+      if (!t || typeof t.id !== 'string' || !t.id) { addValidationError(GROUP, 'an enemy template has a missing/invalid id'); continue; }
+      if (enemyReg[t.id] !== t) addValidationError(GROUP, 'enemy template "' + t.name + '" (' + t.id + ') is not registered in ENEMY_TEMPLATE_REGISTRY');
+      idCounts[t.id] = (idCounts[t.id] || 0) + 1;
+    }
+    for (const id of Object.keys(idCounts)) if (idCounts[id] > 1) addValidationError(GROUP, 'duplicate enemy template id "' + id + '" (two distinct template records)');
+  } else {
+    addValidationWarning(GROUP, 'ENEMY_TEMPLATE_REGISTRY unavailable — enemy identity checks skipped (script load order)');
+  }
+
   // Cross-check MAP_METADATA.encounterPool references a real, known pool
   // (by reference, not by re-validating contents again -- that already
   // happened above).
@@ -1339,6 +1380,95 @@ function validateMapFeatures() {
 // category. Returns a plain summary object so callers that aren't just
 // reading the console (tests, the debug menu's "Validate Data" row) can act
 // on the result without re-parsing console output.
+// ─── 11. Stable-ID pickups (#4) ──────────────────────────────────────────────
+// Registry-driven: every persistent placed pickup carries an authored, unique,
+// lowercase `pickup_<snake>` id, is registered, and every id in the frozen
+// v2→v3 migration snapshot resolves to a real current pickup. Discovery source
+// is MAP_METADATA.items (the authoritative content list), so a placed pickup
+// that lacks an id — and would therefore silently fail to persist — is flagged.
+function validatePickups() {
+  const GROUP = 'Pickups';
+  let checked = 0;
+  const ID_RE = /^pickup_[a-z0-9_]+$/;
+  const reg = window.PICKUP_REGISTRY;
+  if (!reg || typeof MAP_METADATA === 'undefined') {
+    addValidationWarning(GROUP, 'PICKUP_REGISTRY or MAP_METADATA unavailable — pickup checks skipped (script load order)');
+    return checked;
+  }
+  if (_isPlainArray(window.PICKUP_REGISTRY_DUP_IDS)) {
+    for (const id of window.PICKUP_REGISTRY_DUP_IDS)
+      addValidationError(GROUP, 'duplicate pickup id "' + id + '" — two different pickup objects share it');
+  }
+  for (const id of Object.keys(reg)) {
+    checked++;
+    const p = reg[id];
+    if (!ID_RE.test(id)) addValidationError(GROUP, 'pickup id "' + id + '" is not lowercase pickup_<snake> format');
+    if (!p || typeof p !== 'object') { addValidationError(GROUP, 'pickup "' + id + '" does not reference a real object'); continue; }
+    if (p.id !== id) addValidationError(GROUP, 'pickup registry key "' + id + '" != object id "' + p.id + '"');
+    if (!('picked' in p)) addValidationError(GROUP, 'pickup "' + id + '" has no boolean `picked` — likely an accidental non-placement registration');
+    if (typeof p.name !== 'string') addValidationError(GROUP, 'pickup "' + id + '" has no name — likely not a placed pickup');
+  }
+  // Every placed pickup reachable via MAP_METADATA.items must be registered.
+  for (const key of Object.keys(MAP_METADATA)) {
+    const items = MAP_METADATA[key].items;
+    if (!_isPlainArray(items)) continue;
+    for (const p of items) {
+      if (!p || typeof p !== 'object') continue;
+      if (typeof p.id !== 'string' || !reg[p.id])
+        addValidationError(GROUP, 'MAP_METADATA[' + key + '] has a placed pickup (' + (p.name || '?') + ') with no id in PICKUP_REGISTRY — it would not persist');
+    }
+  }
+  // Frozen v2→v3 migration snapshot: every mapped id must be a real current pickup.
+  const snap = window.LEGACY_V2_PICKUP_FIELDS;
+  if (snap && typeof snap === 'object') {
+    for (const field of Object.keys(snap)) {
+      checked++;
+      const ids = snap[field];
+      if (!_isPlainArray(ids)) { addValidationError(GROUP, 'v2→v3 pickup snapshot field "' + field + '" is not an array'); continue; }
+      for (const id of ids) if (!reg[id]) addValidationError(GROUP, 'v2→v3 pickup snapshot field "' + field + '" maps to unknown id "' + id + '"');
+    }
+  }
+  return checked;
+}
+
+// ─── 12. Stable-ID openable chests (#4) ──────────────────────────────────────
+// Every ordinary openable chest (boolean `.opened`) carries a unique, lowercase
+// `chest_<snake>` id, is registered, and every OPENABLE_CHESTS entry + every
+// frozen v2→v3 chest-field mapping resolves to a real registered chest.
+function validateChests() {
+  const GROUP = 'Chests';
+  let checked = 0;
+  const ID_RE = /^chest_[a-z0-9_]+$/;
+  const reg = window.CHEST_REGISTRY;
+  if (!reg) { addValidationWarning(GROUP, 'CHEST_REGISTRY unavailable — chest checks skipped (script load order)'); return checked; }
+  if (_isPlainArray(window.CHEST_REGISTRY_DUP_IDS)) {
+    for (const id of window.CHEST_REGISTRY_DUP_IDS) addValidationError(GROUP, 'duplicate chest id "' + id + '"');
+  }
+  for (const id of Object.keys(reg)) {
+    checked++;
+    const c = reg[id];
+    if (!ID_RE.test(id)) addValidationError(GROUP, 'chest id "' + id + '" is not lowercase chest_<snake> format');
+    if (!c || typeof c !== 'object') { addValidationError(GROUP, 'chest "' + id + '" does not reference a real object'); continue; }
+    if (c.id !== id) addValidationError(GROUP, 'chest registry key "' + id + '" != object id "' + c.id + '"');
+    if (typeof c.opened !== 'boolean') addValidationError(GROUP, 'chest "' + id + '" has no boolean `opened` field');
+  }
+  // Every authoritative openable chest must be registered (one registration path).
+  if (_isPlainArray(window.OPENABLE_CHESTS)) {
+    for (const c of window.OPENABLE_CHESTS) {
+      if (!c || typeof c !== 'object') continue;
+      if (typeof c.id !== 'string' || !reg[c.id]) addValidationError(GROUP, 'an OPENABLE_CHESTS entry (' + (c.id || '?') + ') is not in CHEST_REGISTRY');
+    }
+  }
+  const snap = window.LEGACY_V2_CHEST_FIELDS;
+  if (snap && typeof snap === 'object') {
+    for (const field of Object.keys(snap)) {
+      checked++;
+      if (!reg[snap[field]]) addValidationError(GROUP, 'v2→v3 chest snapshot field "' + field + '" maps to unknown id "' + snap[field] + '"');
+    }
+  }
+  return checked;
+}
+
 function validateGameData() {
   VALIDATION_ERRORS   = [];
   VALIDATION_WARNINGS = [];
@@ -1354,6 +1484,8 @@ function validateGameData() {
     'Dialogue':        validateDialogue(),
     'Save/Flags':      validateSaveFlags(),
     'Map Features':    validateMapFeatures(),
+    'Pickups':         validatePickups(),
+    'Chests':          validateChests(),
   };
 
   console.log('validateGameData:');
@@ -1368,6 +1500,8 @@ function validateGameData() {
     'Dialogue':         'dialogue/text entries checked',
     'Save/Flags':       'save flags checked',
     'Map Features':     'map features checked',
+    'Pickups':          'pickup ids checked',
+    'Chests':           'chest ids checked',
   };
   for (const [group, count] of Object.entries(counts)) {
     console.log('✓ ' + count + ' ' + LABELS[group]);

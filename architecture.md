@@ -452,14 +452,16 @@ maintained reverse-direction copy of the synced-flag list to keep in step.
 
 ### Versioned migration — old saves are upgraded, never deleted
 
-`SAVE_VERSION` is the on-disk format number (currently **2**).
+`SAVE_VERSION` is the on-disk format number (currently **3**).
 `SAVE_MIGRATIONS[v]` is a per-step function transforming a version-`v`
 payload into a version-`(v+1)` one — a registry, deliberately *not* one
 growing conditional, so the next format bump adds `SAVE_MIGRATIONS[N]` and
 nothing else. `SAVE_MIGRATIONS[1]` (v1→v2) *clones* the parsed object (never
 mutates it), preserves every existing field and flag value, seeds any binding
 key the old save lacked with that binding's declared default, and sets
-`version = 2`.
+`version = 2`. `SAVE_MIGRATIONS[2]` (v2→v3) replaces the positional pickup
+arrays and per-chest fields with stable-id sets (see "Stable identity" below).
+An old v1 save runs the whole chain **v1→v2→v3** in order.
 
 `migrateSave(parsed)` is the coordinator. It validates the payload
 (object-like, numeric `version ≥ 1`, not from a future version) and applies
@@ -473,11 +475,88 @@ non-destructive. A save is never silently deleted.
 
 Only after a *successful* migrating load does `loadGame()` persist the
 upgrade: it backs the original raw text up under
-`verdantVale_save_backup_v<from>` (**only if that key doesn't already
-exist** — a backup is never overwritten) and writes the migrated v2 object to
-the normal key via direct `localStorage.setItem` (**not** `saveGame()`, so no
-current-session state leaks into the rewrite). A normal (already-current) v2
-load creates no backup and rewrites nothing.
+`verdantVale_save_backup_v<from>` where `<from>` is the **original source
+version** (**only if that key doesn't already exist** — a backup is never
+overwritten) and writes the migrated object to the normal key via direct
+`localStorage.setItem` (**not** `saveGame()`, so no current-session state leaks
+into the rewrite). So a v1→v3 migration writes only `..._backup_v1` (it never
+fabricates a `_backup_v2`); a v2→v3 writes only `..._backup_v2`. A normal
+(already-current) v3 load creates no backup and rewrites nothing.
+
+### Stable identity — pickups, chests, and enemy templates (v3)
+
+**Every persistent placed pickup, openable chest, and enemy template carries an
+authored, immutable `id`.** IDs are lowercase, category-prefixed snake case —
+`pickup_<snake>` / `chest_<snake>` / `enemy_<snake>` — developer-facing (never
+shown to the player), and **never derived at runtime** from array index,
+coordinates, display name, or registry order. The id lives *on the object*, so
+moving a pickup, reordering an array, or renaming an enemy's display `name`
+never changes its id. **Once an id has shipped in a save, it must never be
+renamed or reused for a different entity without an explicit migration** — a
+stored id string is a permanent contract, even if the object later moves (an id
+containing a location hint keeps that literal string regardless).
+
+Three runtime registries key those objects by id (all in `data.js` except the
+enemy one, which is in `combat.js` because scripted templates live there):
+
+- **`PICKUP_REGISTRY`** — *discovered* by walking `MAP_METADATA.items` (the
+  authoritative per-map content list), so it's complete and dedupes an array
+  reachable under two names (`DUNGEON3_ITEMS === DUNGEON3_TC_ITEMS`) or via two
+  metadata keys. Shops, `ITEM_REGISTRY` definitions, chest rewards and combat
+  items are never here. 47 pickups.
+- **`CHEST_REGISTRY`** — built from the explicit `OPENABLE_CHESTS` list (the one
+  registration path: add a chest there + give it an id). Only *ordinary openable
+  chests* (`.opened` boolean). 9 chests. The player-house stored-gold container
+  (a value, not open/closed), dresser `.looted`, and sparkle `.taken` are
+  **not** chests — they keep their own direct save fields.
+- **`ENEMY_TEMPLATE_REGISTRY`** — every pooled template, every scripted/special
+  template, and the runtime-inline "23" (a descriptor, since it's generated with
+  random stats). Combat clones a template with `{ ...t }`, which carries `id`
+  through to `combat.enemy`, so two identically-named records (the male/female
+  Mire Toads, and several cross-pool duplicates like Silt Crab) stay
+  distinguishable. 51 templates. **This pass adds identity + validation only** —
+  combat/render/observe/status dispatch still key on `enemy.name`, unchanged.
+
+**v3 save shape.** `saveGame()` writes `collectedPickupIds` (ids whose pickup is
+`picked`) and `openedChestIds` (ids whose chest is `opened`) — sorted,
+duplicate-free arrays — and **no** positional pickup arrays or per-chest
+`.opened` fields. `loadGame()` first *resets* every registered pickup to
+uncollected / chest to closed, then applies the saved id arrays; a registered
+object absent from the arrays keeps its reset state (it never inherits the
+current session's value). An **unknown id** (content temporarily missing or
+retired) is warned about, kept in an internal unresolved set so a later save
+doesn't erase it, and never applied to gameplay.
+
+**v2→v3 migration snapshots.** `SAVE_MIGRATIONS[2]` maps the exact legacy v2
+fields to ids using two **frozen** tables in `save.js` — `LEGACY_V2_PICKUP_FIELDS`
+(legacy field → ids in v2 index order) and `LEGACY_V2_CHEST_FIELDS` (legacy
+field → id). These are *migration history, not the runtime source of truth*:
+never change or reorder them after shipping, even if the live arrays are later
+reordered (that independence is the whole point). A legacy `true` beyond the
+snapshot's known length is a meaningful value with no mapping — the migration
+*throws* (so `migrateSave` fails safely and the save is left untouched) rather
+than silently discarding it. After conversion the obsolete positional/per-chest
+fields are removed from the v3 payload.
+
+### Adding, moving, renaming, or retiring a pickup / chest / enemy
+
+- **Add a pickup**: put the object in the map's `_ITEMS` array (reachable via
+  `MAP_METADATA.items`) with a fresh `id: 'pickup_<snake>'`. That's it —
+  discovery + save/load are automatic. Do **not** add it to
+  `LEGACY_V2_PICKUP_FIELDS` (it never existed in a v2 save).
+- **Add an openable chest**: give it an `id: 'chest_<snake>'` and list it in
+  `OPENABLE_CHESTS`.
+- **Add an enemy template**: give it an `id: 'enemy_<snake>'`; it's picked up by
+  the registry automatically if it's in a pool or in `ENEMY_SCRIPTED_TEMPLATES`.
+- **Move / re-place** any of them: change coordinates freely — the id is
+  unchanged, so existing saves still resolve it.
+- **Rename the display `name`**: fine — `name` is player-facing, `id` is not.
+- **Retire** an entity: removing it leaves old saves carrying an id the registry
+  no longer knows; that id is preserved (unresolved) and simply does nothing.
+- **Never** rename or reuse a shipped `id`, or reorder a `LEGACY_V2_*` snapshot —
+  either silently corrupts existing saves. `validateGameData()` catches missing/
+  duplicate/misformatted ids, placements with no id, and snapshot ids that don't
+  resolve.
 
 ## Validation: `validateGameData()` as a content linter
 
@@ -567,14 +646,14 @@ has a sprite.
   checking first if a test's simulated movement mysteriously doesn't move
   the player at all.
 - **`test/run.js`** — discovers and runs every `test/cases/*.test.js` file
-  in its own fresh context; currently 51 tests, all passing.
+  in its own fresh context; currently 52 tests, all passing.
 - **`test/transition-audit.js`** — a standalone, exhaustive sweep: calls
   every real `enter*`/`exit*`/`ascend*`/`descend*` transition function live
   and checks the landing spot against the game's own collision logic
   (bounds + walkability), cross-references every `flatFns`-listed
   transition against `transitionTileNames`, and checks house doors and
   tile-constant references. Also wired into the main suite as one of the
-  51 tests (`10-transition-audit`), which additionally asserts the audit's
+  52 tests (`10-transition-audit`), which additionally asserts the audit's
   reset-state isolation self-check passes. Not the same thing as
   `validateGameData()`'s lighter-weight,
   browser-console-reachable point-transition sanity checks (see

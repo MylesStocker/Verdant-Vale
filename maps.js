@@ -209,7 +209,7 @@ const MAP3_N1 = [
 const MAP3_N1_ITEMS = [
   // Mabel's fen sickle — lost at the north bank overhang (quest: Still Water).
   // Col 5, row 3: REEDS tile, directly above the bog pond water at row 4 col 5.
-  { name: 'Fen Sickle', type: 'quest_item', x: 5.5 * TILE, y: 3.5 * TILE, picked: false },
+  { id: 'pickup_map3n1_fen_sickle', name: 'Fen Sickle', type: 'quest_item', x: 5.5 * TILE, y: 3.5 * TILE, picked: false },
 ];
 
 // ─── Roddon Way  (16 × 15) ────────────────────────────────────────────────────
@@ -276,7 +276,7 @@ const RODDON_WAY_ITEMS = [
   // is its own reward; this is just a nod to it. Ordinary consumable via
   // the item registry (items.js); grantItem() overwrites type/heals/price
   // from ITEM_REGISTRY at pickup time regardless of what's listed here.
-  { name: 'Potion', type: 'potion', heals: 20, price: 30, x: 2.5 * TILE, y: 1.5 * TILE, picked: false },
+  { id: 'pickup_roddon_way_potion', name: 'Potion', type: 'potion', heals: 20, price: 30, x: 2.5 * TILE, y: 1.5 * TILE, picked: false },
 ];
 
 // ─── Mirethyst's Vault  (16 × 15) ────────────────────────────────────────────
@@ -703,7 +703,7 @@ const SUNKEN_GALLERY_MAP = [
 ];
 
 const SUNKEN_GALLERY_ITEMS = [
-  { name: 'Potion', type: 'potion', heals: 20, price: 30, x: 13.5 * TILE, y: 5.5 * TILE, picked: false },
+  { id: 'pickup_sunken_gallery_potion', name: 'Potion', type: 'potion', heals: 20, price: 30, x: 13.5 * TILE, y: 5.5 * TILE, picked: false },
 ];
 
 // ─── The Sunken Gallery — the wider complex  (5 × 5 grid of rooms) ────────────

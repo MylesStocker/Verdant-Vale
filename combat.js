@@ -12,6 +12,7 @@
 // east passage). Stats sit between floor-1 and floor-2 enemies; no gold
 // (Mault pays the reward instead).
 const BRIAR_WARDEN_TEMPLATE = {
+  id: 'enemy_briar_warden',
   name: 'Briar Warden', hp: 75, maxHp: 75, atk: 18, def: 5, spd: 7,
   xp: 110, goldMin: 0, goldMax: 0,
 };
@@ -19,14 +20,17 @@ const BRIAR_WARDEN_TEMPLATE = {
 // ─── Smugglers' Fort combat templates ─────────────────────────────────────────
 // Intentionally hard for early-game players: fight-path is optional but punishing.
 const SMUGGLER_GUARD_TEMPLATE = {
+  id: 'enemy_smuggler_guard',
   name: 'Smuggler Guard', hp: 34, maxHp: 34, atk: 12, def: 5, spd: 7,
   xp: 40, goldMin: 12, goldMax: 22,
 };
 const POLWICK_TEMPLATE = {
+  id: 'enemy_polwick',
   name: 'Polwick', hp: 42, maxHp: 42, atk: 14, def: 5, spd: 6,
   xp: 52, goldMin: 20, goldMax: 35,
 };
 const ESSA_TEMPLATE = {
+  id: 'enemy_essa',
   name: 'Essa', hp: 26, maxHp: 26, atk: 11, def: 2, spd: 12,
   xp: 36, goldMin: 10, goldMax: 18,
 };
@@ -34,9 +38,51 @@ const ESSA_TEMPLATE = {
 // ─── Pale Sentry — fen road contract creature ─────────────────────────────────
 // Spawns on MAP_N2 once sentry_quest_started. HP persists between encounters.
 const PALE_SENTRY_TEMPLATE = {
+  id: 'enemy_pale_sentry',
   name: 'Pale Sentry', hp: 500, maxHp: 500, atk: 20, def: 10, spd: 4,
   xp: 350, goldMin: 40, goldMax: 80,
 };
+
+// ─── Enemy-template identity registry (stable IDs, #4) ───────────────────────
+// One authoritative, id-keyed registry of every enemy TEMPLATE. Combat clones a
+// template into combat.enemy with `{ ...t }`, which carries the `id` through, so
+// a generated enemy always knows which template it came from — independent of
+// its display `name` (two Mire Toads and several cross-pool duplicates share a
+// name but have distinct ids). This pass provides durable identity + complete
+// validation ONLY: nothing in combat/render/observe dispatch reads `id` yet.
+//
+// Built here (combat.js, loaded after data.js) because the scripted templates
+// above live in this file while the random pools live in data.js — both are in
+// scope by now. IDs are authored, immutable, and lowercase `enemy_<snake>`; once
+// shipped, an id must never be renamed or reused for a different creature.
+const ENEMY_TEMPLATE_POOLS = [
+  ENEMY_TEMPLATES, EARLY_ENEMY_TEMPLATES, DUNGEON_ENEMY_TEMPLATES,
+  DUNGEON2_ENEMY_TEMPLATES, DUNGEON6_ENEMY_TEMPLATES, DUNGEON8_ENEMY_TEMPLATES,
+  DUNGEON_HORROR_ENEMY_TEMPLATES, FAR_ENEMY_TEMPLATES, THORNMERE_ENEMY_TEMPLATES,
+  SLUICE_ENEMY_TEMPLATES, SLUICE_SECRET_ENEMY_TEMPLATES, NORTH_BASIN_ENEMY_TEMPLATES,
+  SUNKEN_GALLERY_ENEMY_TEMPLATES, UPPER_REACH_ENEMY_TEMPLATES, MIRE_VAULT_ENEMY_TEMPLATES,
+];
+const ENEMY_SCRIPTED_TEMPLATES = [
+  BRIAR_WARDEN_TEMPLATE, SMUGGLER_GUARD_TEMPLATE, POLWICK_TEMPLATE, ESSA_TEMPLATE,
+  PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,
+  MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
+];
+// The 1/256 secret "23" enemy is generated fresh each encounter with random
+// stats (startCombat, below), so it has no static stat block — only a stable id.
+// Registered as an inline descriptor so validation knows the id without
+// demanding combat stats it deliberately doesn't have.
+const SECRET_23_TEMPLATE = { id: 'enemy_23', name: '23', inline: true };
+const ENEMY_TEMPLATE_REGISTRY = {};
+(function buildEnemyTemplateRegistry() {
+  const add = (t) => { if (t && typeof t.id === 'string') ENEMY_TEMPLATE_REGISTRY[t.id] = t; };
+  ENEMY_TEMPLATE_POOLS.forEach((pool) => pool.forEach(add));
+  ENEMY_SCRIPTED_TEMPLATES.forEach(add);
+  add(SECRET_23_TEMPLATE);
+})();
+window.ENEMY_TEMPLATE_REGISTRY  = ENEMY_TEMPLATE_REGISTRY;
+window.ENEMY_TEMPLATE_POOLS     = ENEMY_TEMPLATE_POOLS;
+window.ENEMY_SCRIPTED_TEMPLATES = ENEMY_SCRIPTED_TEMPLATES;
+window.SECRET_23_TEMPLATE       = SECRET_23_TEMPLATE;
 
 
 // ─── Equipment helpers ────────────────────────────────────────────────────────
@@ -243,6 +289,7 @@ function startCombat() {
     const hp = r23();
     const gA = r23(), gB = r23();
     combat.enemy = {
+      id: 'enemy_23',
       name: '23',
       hp: hp, maxHp: hp,
       atk: r23(), def: r23(), spd: r23(),

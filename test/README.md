@@ -549,15 +549,34 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   derived from it, every binding has a default + callable get/set, both
   lexical and window kinds present), a complete round-trip of *all* 85 flags
   plus their window mirrors, missing-field fallback to declared defaults (never
-  the dirtied session value, `vale_tutorial_seen` included), the v1→v2 migration
-  (existing values + non-flag fields survive, absent flags default, normal key
-  rewritten to v2, original text backed up under `verdantVale_save_backup_v1`
-  and never overwritten, a v2 load re-migrates/rewrites nothing), and that a
-  save it can't understand (malformed / future / unversioned / missing-step) is
-  refused *and left untouched on disk* rather than deleted. Includes a
-  load-bearing section that breaks a binding setter, the v1→v2 registration, and
-  the future-version guard in turn — confirming each check fails, then restoring
-  in a `finally`. Runtime.
+  the dirtied session value, `vale_tutorial_seen` included), the sequential
+  **v1→v2→v3** migration (existing flag values + non-flag fields survive both
+  steps, absent flags default, legacy positional pickup / per-chest state maps to
+  stable ids, normal key rewritten to **v3** with only `verdantVale_save_backup_v1`
+  created — no fabricated v2 backup — and never overwritten, a current v3 load
+  re-migrates/rewrites nothing), and that a save it can't understand (malformed /
+  future / unversioned / missing-step) is refused *and left untouched on disk*
+  rather than deleted. Includes a load-bearing section that breaks a binding
+  setter, the v1→v2 registration, and the future-version guard in turn —
+  confirming each check fails, then restoring in a `finally`. Runtime.
+- `52-stable-persistence-ids` — the stable-identity systems (`#4`): immutable
+  ids for the 47 world pickups, 9 openable chests and 51 enemy templates, v3
+  id-based persistence, and the v2→v3 migration. Asserts the registry contracts
+  (one valid unique id each; keys === object/template ids; all random + scripted
+  enemy templates represented; both Mire Toads share their display name but have
+  distinct ids; combat-start paths — boss/Takomo/Kolm/a random encounter/the
+  inline "23" — preserve the template id). Proves **pickup persistence is by id,
+  not array position** (reverses a pickup array, saves/loads, confirms the same
+  objects are collected — fails if index persistence returns) and **chest
+  persistence is by id** and independent of registry enumeration order, with the
+  nonstandard home-chest gold / dresser / sparkle fields surviving. Exercises the
+  v2→v3 migration on a realistic legacy payload (positional booleans + per-chest
+  fields → stable ids, unrelated state preserved, legacy fields removed, verbatim
+  write-once `backup_v2`), and unknown-id handling (warn not throw, no gameplay,
+  preserved + deduped on resave). A load-bearing section breaks a pickup id, a
+  chest migration mapping, an enemy registry entry, the v2→v3 registration and
+  id-based application in turn, confirming each check fails then restoring in a
+  `finally`. Runtime.
 
 ## Known simplifications (see comments at the top of each affected test)
 
@@ -587,10 +606,12 @@ fresh, isolated game (no state leaks between tests), then drives it with:
 
 - The warn-only legacy-fallback restore path in `loadGame()` (an old save with
   no `activeMapId`, where `activeMap` is derived from the stored `inX` flags).
-  (Save-file schema drift and version handling are now covered by `51` — the
-  binding-registry round-trip, v1→v2 migration + backup, and the never-delete
-  guarantees for malformed/future/unversioned/missing-step saves; save/load
-  *round-trips* also in `06`, `09`, `49`, and one corrupted-save repair in `46`.)
+  (Save-file schema drift and version handling are now covered by `51` and `52` —
+  the binding-registry round-trip, the sequential v1→v2→v3 migration + per-source
+  backups, id-based pickup/chest persistence, unknown-id preservation, and the
+  never-delete guarantees for malformed/future/unversioned/missing-step saves;
+  save/load *round-trips* also in `06`, `09`, `49`, and one corrupted-save repair
+  in `46`.)
 - Shop buy/sell gold flows, equip/unequip, and the notebook/inventory menu
   screen. (The Aldric requisition *exchange* is covered in `11`, and reading
   panels in `42`/`50`, but no test drives a gold buy/sell or the equip UI.)

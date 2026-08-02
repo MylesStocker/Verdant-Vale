@@ -22,38 +22,43 @@ individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
 
-- **51 tests** (`test/cases/01-…51-`), `node test/run.js` — all passing.
+- **52 tests** (`test/cases/01-…52-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
-  menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
+  menu's "Validate Data" row) — **0 errors, 3 warnings**, all intentional
   (see below), across 101 maps, 101 metadata entries, 24,240 tile cells, 94
-  edge transitions, 171 NPCs, 112 item placements, 39 enemy templates, 596
-  dialogue/text entries, 171 save-flag checks, 63 map features.
+  edge transitions, 171 NPCs, 112 item placements, 101 enemy templates, 596
+  dialogue/text entries, 172 save-flag checks, 63 map features, 72 pickup ids,
+  18 chest ids.
 
-## The 2 current warnings, and why neither needs fixing
+## The 3 current warnings, and why none needs fixing
 
 1. **`NOTICE_BOARD` is `isDecorative` and walkable** (`Tile Properties`
    group) — intentional, documented in `TILE_PROPERTIES`'s own `notes`
    field: it's a stand-in-front-of-it interactable, not a blocker, unlike
    most decorative tiles.
-2. **One dialogue line (`npc.student_a1`) is 549 characters** (`Dialogue`
+2. **`Takomo` has no dedicated battle sprite** (`Enemies` group) — a real,
+   long-standing gap that was previously invisible: the old `validateEnemies()`
+   only checked pooled templates + Pale Sentry, so scripted bosses like Takomo
+   were a blind spot. The #4 enemy-template registry now structurally checks
+   every template, which correctly surfaces that Takomo falls back to the
+   generic battle sprite (`drawBattleGenericEnemy()`). It renders fine; giving
+   it a bespoke sprite is a deliberately separate art task (out of scope for the
+   identity/validation pass), so the warning is left as an honest TODO.
+3. **One dialogue line (`npc.student_a1`) is 549 characters** (`Dialogue`
    group) — the renderer word-wraps it fine; flagged only because it's a
    genuine outlier against the rest of the game's dialogue (median ~57
    chars). Cosmetic, not broken.
 
-(Two categories of warning that used to show up here are gone for good
-reasons, not just suppressed: the ten pooled enemy templates that had no
-dedicated battle sprite — Hollow, Fen Shade, Tomb Sentry, Crypt Revenant,
-Wall Tendril, Dripping Maw, The Seep, Pale Drowned, Silt Hag, Pale Sentry —
-all got bespoke sprites; and the four ruins NPCs whose `map:
-'dungeon_entrance'` wasn't in `validateNPCs()`'s known-map-id list got
-fixed by adding that id to the list in `validation.js` — a real false
-positive, now corrected, not a real gap. See "Known risks" below for the
-broader set of scripted/boss enemies in the same missing-sprite situation
-that `validateEnemies()` structurally can't see to warn about at all.)
+(The ten pooled enemy templates that once warned for missing sprites — Hollow,
+Fen Shade, Tomb Sentry, Crypt Revenant, Wall Tendril, Dripping Maw, The Seep,
+Pale Drowned, Silt Hag, Pale Sentry — all got bespoke sprites earlier; and the
+old "scripted/boss enemies validateEnemies structurally can't see" blind spot is
+now gone — the #4 registry checks them all, which is exactly how Takomo's gap
+finally became visible.)
 
 ## Recently completed infrastructure (this development arc)
 
@@ -105,10 +110,33 @@ In roughly the order built:
    all return false and leave the file on disk untouched). `validateSaveFlags()`
    now checks the registry structurally instead of a copied list. Covered by
    the new **test 51**. See `architecture.md`'s "Save/flags" section.
+9. **Stable identity for pickups, chests, and enemies + version-3 save**
+   (`data.js`/`maps.js`/`combat.js`/`save.js`) — every persistent placed pickup
+   (47), openable chest (9) and enemy template (51 = 38 pooled + 12 scripted + 1
+   inline "23") now carries an authored, immutable id (`pickup_`/`chest_`/`enemy_`
+   `<snake>`). Runtime registries: `PICKUP_REGISTRY` (discovered from
+   `MAP_METADATA.items`), `CHEST_REGISTRY` (from `OPENABLE_CHESTS`), and
+   `ENEMY_TEMPLATE_REGISTRY`; enemy clones into `combat.enemy` carry the id, so
+   the two identically-named Mire Toads (and several cross-pool duplicates) stay
+   distinguishable. `SAVE_VERSION` is now **3**: pickups/chests persist as
+   `collectedPickupIds` / `openedChestIds` (stable ids), NOT array positions or
+   per-chest fields, so reordering or adding a pickup never changes an existing
+   save. A sequential `SAVE_MIGRATIONS[2]` converts v2 → v3 via frozen legacy
+   snapshots (positional field → ordered ids; per-chest field → id); v1 saves run
+   v1→v2→v3, backing up only the original source version write-once. Unknown ids
+   are preserved (not erased) and never touch gameplay. New registry-driven
+   pickup/chest/enemy validation (the enemy check removed the old special-enemy
+   blind spot — which is how Takomo's missing sprite finally surfaced). This pass
+   is identity + validation only: no combat/render/observe dispatch switched from
+   name to id. One incidental fix: the Roddon Way potion (`pickup_roddon_way_potion`),
+   previously omitted from persistence entirely, now persists like every other
+   pickup. Covered by the new **test 52** (test 51 extended to the v1→v3 chain).
+   See `architecture.md`'s "Save/flags" section.
 
 Each of the above shipped with its own new/updated `test/cases/*.test.js`
 file (23 through 26 cover the debug tools, tile properties, and map
-features; 51 covers the save binding registry + migration) and a full
+features; 51 covers the save binding registry + migration; 52 covers stable
+persistence ids) and a full
 `validateGameData()`/regression/transition-audit pass before being
 considered done.
 

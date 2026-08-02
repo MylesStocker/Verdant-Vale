@@ -5,7 +5,7 @@
 // Bumped when the on-disk save format changes. loadGame() MIGRATES older saves
 // forward (SAVE_MIGRATIONS / migrateSave, below) rather than discarding them; a
 // save it genuinely cannot understand is left untouched on disk, never deleted.
-const SAVE_VERSION = 2;
+const SAVE_VERSION = 3;
 
 // ─── Authoritative quest/world-flag binding registry ─────────────────────────
 // ONE source of truth for every persistent quest/world flag. Each binding owns:
@@ -137,6 +137,106 @@ const QUEST_FLAG_SCHEMA   = QUEST_FLAG_BINDINGS.map((b) => b.key);
 window.QUEST_FLAG_SCHEMA   = QUEST_FLAG_SCHEMA;
 window.QUEST_FLAG_BINDINGS = QUEST_FLAG_BINDINGS;  // read-only registry access for validation/tests
 
+// ─── Frozen v2→v3 migration snapshots (#4) ───────────────────────────────────
+// MIGRATION HISTORY, not the runtime source of truth: these map the exact
+// version-2 on-disk fields to stable ids. Each pickup field lists ids in the
+// SAME order as that array's v2 indices — index i of a saved boolean array is
+// the pickup with id [i]. FROZEN: never change or reorder these after shipping,
+// even if the live runtime arrays are later reordered (that independence is the
+// entire point). Only fields that could appear in a genuine version-2 file live
+// here; a pickup/chest added after v3 (e.g. the Roddon Way potion, never in a v2
+// save) does NOT belong here.
+const LEGACY_V2_PICKUP_FIELDS = Object.freeze({
+  worldItems:         ['pickup_world_potion'],
+  map3n1Items:        ['pickup_map3n1_fen_sickle'],
+  dungeonItems:       ['pickup_dungeon1_a', 'pickup_dungeon1_b', 'pickup_dungeon1_c'],
+  dungeon2Items:      ['pickup_dungeon2_a', 'pickup_dungeon2_b'],
+  dungeon3Items:      ['pickup_dungeon3_tc_a', 'pickup_dungeon3_tc_b'],
+  dungeon3TlItems:    ['pickup_dungeon3_tl_potion', 'pickup_dungeon3_tl_ancient_writing'],
+  dungeon3TrItems:    ['pickup_dungeon3_tr_a', 'pickup_dungeon3_tr_b'],
+  dungeon3MlItems:    ['pickup_dungeon3_ml_potion', 'pickup_dungeon3_ml_garrison_log'],
+  dungeon3McItems:    ['pickup_dungeon3_mc_elixir'],
+  dungeon3MrItems:    ['pickup_dungeon3_mr_potion', 'pickup_dungeon3_mr_elixir'],
+  dungeon3BlItems:    ['pickup_dungeon3_bl_potion', 'pickup_dungeon3_bl_scratched_warning'],
+  dungeon3BcItems:    ['pickup_dungeon3_bc_potion'],
+  dungeon3BrItems:    ['pickup_dungeon3_br_elixir'],
+  dungeon4Items:      ['pickup_dungeon4_a', 'pickup_dungeon4_b'],
+  dungeon5Items:      ['pickup_dungeon5_a', 'pickup_dungeon5_b'],
+  dungeon6Items:      ['pickup_dungeon6_a', 'pickup_dungeon6_b'],
+  dungeon7Items:      ['pickup_dungeon7_a', 'pickup_dungeon7_b', 'pickup_dungeon7_burial_record', 'pickup_dungeon7_c'],
+  dungeon8Items:      ['pickup_dungeon8_a', 'pickup_dungeon8_b'],
+  dungeon8WestItems:  ['pickup_dungeon8_west_elixir'],
+  dungeon8EastItems:  ['pickup_dungeon8_east_elixir'],
+  sluiceItems:        ['pickup_sluice1_potion'],
+  sluiceLevel2Items:  ['pickup_sluice2_a', 'pickup_sluice2_b', 'pickup_sluice2_c', 'pickup_sluice2_d'],
+  sluiceLevel3Items:  ['pickup_sluice3_potion', 'pickup_sluice3_elixir'],
+  mireVaultItems:     ['pickup_mire_vault_potion', 'pickup_mire_vault_ember_root'],
+  sunkenGalleryItems: ['pickup_sunken_gallery_potion'],
+});
+const LEGACY_V2_CHEST_FIELDS = Object.freeze({
+  chestOpened:             'chest_dungeon_main',
+  sluiceChestOpened:       'chest_sluice1',
+  sluiceLevel2ChestOpened: 'chest_sluice2',
+  sluiceSecretChestOpened: 'chest_sluice_secret',
+  sluiceLevel3ChestOpened: 'chest_sluice3',
+  alcoveChestOpened:       'chest_dungeon_alcove',
+  sluiceDeepChestOpened:   'chest_sluice_deep',
+  catArmorChestOpened:     'chest_cat_armor',
+  meadowChestOpened:       'chest_meadow',
+});
+window.LEGACY_V2_PICKUP_FIELDS = LEGACY_V2_PICKUP_FIELDS;
+window.LEGACY_V2_CHEST_FIELDS  = LEGACY_V2_CHEST_FIELDS;
+
+// ─── v3 stable-id pickup/chest persistence (#4) ──────────────────────────────
+// Unknown ids read from a save (content temporarily missing or retired) are
+// preserved here so a subsequent save doesn't silently erase that data. They
+// never affect gameplay — there is no registry object for them to mark.
+let _unresolvedPickupIds = [];
+let _unresolvedChestIds  = [];
+
+// Deterministic, duplicate-free id arrays for saveGame(): every registered
+// pickup currently picked / chest currently opened, plus preserved unknown ids.
+function collectedPickupIdsForSave() {
+  const out = new Set(_unresolvedPickupIds);
+  for (const id of PICKUP_REGISTRY_IDS) if (PICKUP_REGISTRY[id].picked === true) out.add(id);
+  return Array.from(out).sort();
+}
+function openedChestIdsForSave() {
+  const out = new Set(_unresolvedChestIds);
+  for (const id of CHEST_REGISTRY_IDS) if (CHEST_REGISTRY[id].opened === true) out.add(id);
+  return Array.from(out).sort();
+}
+
+// loadGame() side: reset every registered pickup/chest to its default state,
+// then apply the saved id arrays. Registered ids set the object; unknown ids are
+// preserved (warned once) without touching gameplay. A registered object whose
+// id is absent from the saved array keeps its reset (uncollected/closed) state —
+// it never inherits the current runtime session's value.
+function applyCollectedPickupIds(ids) {
+  for (const id of PICKUP_REGISTRY_IDS) PICKUP_REGISTRY[id].picked = false;
+  const unresolved = [];
+  const seen = new Set();
+  for (const id of Array.isArray(ids) ? ids : []) {
+    if (typeof id !== 'string' || seen.has(id)) continue; // normalize duplicates
+    seen.add(id);
+    if (PICKUP_REGISTRY[id]) PICKUP_REGISTRY[id].picked = true;
+    else { unresolved.push(id); console.warn('[loadGame] unknown pickup id "' + id + '" — preserving it, not applying to gameplay'); }
+  }
+  _unresolvedPickupIds = unresolved;
+}
+function applyOpenedChestIds(ids) {
+  for (const id of CHEST_REGISTRY_IDS) CHEST_REGISTRY[id].opened = false;
+  const unresolved = [];
+  const seen = new Set();
+  for (const id of Array.isArray(ids) ? ids : []) {
+    if (typeof id !== 'string' || seen.has(id)) continue;
+    seen.add(id);
+    if (CHEST_REGISTRY[id]) CHEST_REGISTRY[id].opened = true;
+    else { unresolved.push(id); console.warn('[loadGame] unknown chest id "' + id + '" — preserving it, not applying to gameplay'); }
+  }
+  _unresolvedChestIds = unresolved;
+}
+
 // ─── Versioned save migrations ────────────────────────────────────────────────
 // SAVE_MIGRATIONS[v] transforms a version-v payload into a version-(v+1) one.
 // migrateSave() applies them sequentially until the payload reaches
@@ -154,6 +254,38 @@ const SAVE_MIGRATIONS = {
       if (!(b.key in next)) next[b.key] = cloneDefaultValue(b.default);
     }
     next.version = 2;
+    return next;
+  },
+  // v2 → v3: replace positional pickup arrays and per-chest `.opened` fields with
+  // stable-id sets (collectedPickupIds / openedChestIds). Uses the FROZEN legacy
+  // snapshots below (never the live registries, which may reorder later). Clones
+  // the payload, preserves every unrelated field (stats, inventory, location,
+  // flags, home-chest gold, dresser looted, sparkle taken, boss state, ...), then
+  // deletes the obsolete positional/per-chest fields.
+  2: function migrateV2toV3(old) {
+    const next = JSON.parse(JSON.stringify(old));
+    const collected = new Set(Array.isArray(next.collectedPickupIds) ? next.collectedPickupIds : []);
+    for (const field of Object.keys(LEGACY_V2_PICKUP_FIELDS)) {
+      if (!(field in next)) continue;                 // absent field: nothing to migrate
+      const arr = next[field];
+      if (!Array.isArray(arr)) { delete next[field]; continue; } // malformed: drop safely
+      const ids = LEGACY_V2_PICKUP_FIELDS[field];
+      for (let i = 0; i < arr.length; i++) {
+        if (!arr[i]) continue;                        // uncollected slot
+        if (i < ids.length) collected.add(ids[i]);
+        else throw new Error('v2→v3: legacy pickup field "' + field + '"[' + i + '] is collected but has no id mapping — refusing to silently discard it');
+      }
+      delete next[field];                             // remove obsolete positional field
+    }
+    const opened = new Set(Array.isArray(next.openedChestIds) ? next.openedChestIds : []);
+    for (const field of Object.keys(LEGACY_V2_CHEST_FIELDS)) {
+      if (!(field in next)) continue;
+      if (next[field]) opened.add(LEGACY_V2_CHEST_FIELDS[field]);
+      delete next[field];                             // remove obsolete per-chest field
+    }
+    next.collectedPickupIds = Array.from(collected);
+    next.openedChestIds      = Array.from(opened);
+    next.version = 3;
     return next;
   },
 };
@@ -334,43 +466,14 @@ function saveGame() {
     houseSourceMapId:   mapToId(houseSourceMap),
     houseSourceBuilding,
     houseReturnPos:     { x: houseReturnPos.x, y: houseReturnPos.y },
-    // ── Floor pickups ─────────────────────────────────────────────────────
-    worldItems:        WORLD_ITEMS.map(w => w.picked),
-    map3n1Items:       MAP3_N1_ITEMS.map(w => w.picked),
-    dungeonItems:      DUNGEON_ITEMS.map(w => w.picked),
-    dungeon2Items:     DUNGEON2_ITEMS.map(w => w.picked),
-    dungeon3Items:     DUNGEON3_TC_ITEMS.map(w => w.picked),
-    dungeon3TlItems:   DUNGEON3_TL_ITEMS.map(w => w.picked),
-    dungeon3TrItems:   DUNGEON3_TR_ITEMS.map(w => w.picked),
-    dungeon3MlItems:   DUNGEON3_ML_ITEMS.map(w => w.picked),
-    dungeon3McItems:   DUNGEON3_MC_ITEMS.map(w => w.picked),
-    dungeon3MrItems:   DUNGEON3_MR_ITEMS.map(w => w.picked),
-    dungeon3BlItems:   DUNGEON3_BL_ITEMS.map(w => w.picked),
-    dungeon3BcItems:   DUNGEON3_BC_ITEMS.map(w => w.picked),
-    dungeon3BrItems:   DUNGEON3_BR_ITEMS.map(w => w.picked),
-    dungeon4Items:     DUNGEON4_ITEMS.map(w => w.picked),
-    dungeon5Items:     DUNGEON5_ITEMS.map(w => w.picked),
-    dungeon6Items:     DUNGEON6_ITEMS.map(w => w.picked),
-    dungeon7Items:     DUNGEON7_ITEMS.map(w => w.picked),
-    dungeon8Items:     DUNGEON8_ITEMS.map(w => w.picked),
-    dungeon8WestItems: DUNGEON8_WEST_ITEMS.map(w => w.picked),
-    dungeon8EastItems: DUNGEON8_EAST_ITEMS.map(w => w.picked),
-    sluiceItems:       SLUICE_ITEMS.map(w => w.picked),
-    sluiceLevel2Items: SLUICE_LEVEL2_ITEMS.map(w => w.picked),
-    sluiceLevel3Items: SLUICE_LEVEL3_ITEMS.map(w => w.picked),
-    mireVaultItems:    MIRE_VAULT_ITEMS.map(w => w.picked),
-    sunkenGalleryItems: SUNKEN_GALLERY_ITEMS.map(w => w.picked),
-    // ── Chests ────────────────────────────────────────────────────────────
+    // ── Floor pickups + openable chests (v3: stable ids, never array positions) ─
+    // collectedPickupIds / openedChestIds are the ONLY pickup/chest persistence
+    // now. Built from the id registries (data.js), plus any unresolved ids
+    // preserved from a prior load so temporarily-missing content isn't erased.
+    collectedPickupIds: collectedPickupIdsForSave(),
+    openedChestIds:     openedChestIdsForSave(),
+    // ── Home chest stored gold — a value container, NOT an openable chest ────
     homeChestGold:           HOUSE_DATA.player_house.chest.gold,
-    chestOpened:             DUNGEON_CHEST.opened,
-    sluiceChestOpened:       SLUICE_CHEST.opened,
-    sluiceLevel2ChestOpened: SLUICE_LEVEL2_CHEST.opened,
-    sluiceSecretChestOpened: SLUICE_SECRET_CHEST.opened,
-    sluiceLevel3ChestOpened: SLUICE_LEVEL3_CHEST.opened,
-    alcoveChestOpened:       DUNGEON_ALCOVE_CHEST.opened,
-    sluiceDeepChestOpened:   SLUICE_DEEP_CHEST.opened,
-    catArmorChestOpened:     CAT_ARMOR_CHEST.opened,
-    meadowChestOpened:       MEADOW_CHEST.opened,
     // Abandoned Drenwick apartment (c1_u4) — searchable dresser + Tweezers sparkle
     abandonedAptDresserLooted: HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted,
     abandonedAptSparkleTaken:  HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken,
@@ -592,94 +695,16 @@ function loadGame() {
     // else: overworld — activeMap stays MAP (default), all flags stay false ✓
   }
 
-  // ── Floor pickups ───────────────────────────────────────────────────────
-  if (Array.isArray(data.worldItems)) {
-    data.worldItems.forEach((picked, i) => { if (WORLD_ITEMS[i]) WORLD_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.map3n1Items)) {
-    data.map3n1Items.forEach((picked, i) => { if (MAP3_N1_ITEMS[i]) MAP3_N1_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeonItems)) {
-    data.dungeonItems.forEach((picked, i) => { if (DUNGEON_ITEMS[i]) DUNGEON_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon2Items)) {
-    data.dungeon2Items.forEach((picked, i) => { if (DUNGEON2_ITEMS[i]) DUNGEON2_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3Items)) {
-    data.dungeon3Items.forEach((picked, i) => { if (DUNGEON3_TC_ITEMS[i]) DUNGEON3_TC_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3TlItems)) {
-    data.dungeon3TlItems.forEach((picked, i) => { if (DUNGEON3_TL_ITEMS[i]) DUNGEON3_TL_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3TrItems)) {
-    data.dungeon3TrItems.forEach((picked, i) => { if (DUNGEON3_TR_ITEMS[i]) DUNGEON3_TR_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3MlItems)) {
-    data.dungeon3MlItems.forEach((picked, i) => { if (DUNGEON3_ML_ITEMS[i]) DUNGEON3_ML_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3McItems)) {
-    data.dungeon3McItems.forEach((picked, i) => { if (DUNGEON3_MC_ITEMS[i]) DUNGEON3_MC_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3MrItems)) {
-    data.dungeon3MrItems.forEach((picked, i) => { if (DUNGEON3_MR_ITEMS[i]) DUNGEON3_MR_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3BlItems)) {
-    data.dungeon3BlItems.forEach((picked, i) => { if (DUNGEON3_BL_ITEMS[i]) DUNGEON3_BL_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3BcItems)) {
-    data.dungeon3BcItems.forEach((picked, i) => { if (DUNGEON3_BC_ITEMS[i]) DUNGEON3_BC_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon3BrItems)) {
-    data.dungeon3BrItems.forEach((picked, i) => { if (DUNGEON3_BR_ITEMS[i]) DUNGEON3_BR_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon4Items)) {
-    data.dungeon4Items.forEach((picked, i) => { if (DUNGEON4_ITEMS[i]) DUNGEON4_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon5Items)) {
-    data.dungeon5Items.forEach((picked, i) => { if (DUNGEON5_ITEMS[i]) DUNGEON5_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon6Items)) {
-    data.dungeon6Items.forEach((picked, i) => { if (DUNGEON6_ITEMS[i]) DUNGEON6_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon7Items)) {
-    data.dungeon7Items.forEach((picked, i) => { if (DUNGEON7_ITEMS[i]) DUNGEON7_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon8Items)) {
-    data.dungeon8Items.forEach((picked, i) => { if (DUNGEON8_ITEMS[i]) DUNGEON8_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon8WestItems)) {
-    data.dungeon8WestItems.forEach((picked, i) => { if (DUNGEON8_WEST_ITEMS[i]) DUNGEON8_WEST_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.dungeon8EastItems)) {
-    data.dungeon8EastItems.forEach((picked, i) => { if (DUNGEON8_EAST_ITEMS[i]) DUNGEON8_EAST_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.sluiceItems)) {
-    data.sluiceItems.forEach((picked, i) => { if (SLUICE_ITEMS[i]) SLUICE_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.sluiceLevel2Items)) {
-    data.sluiceLevel2Items.forEach((picked, i) => { if (SLUICE_LEVEL2_ITEMS[i]) SLUICE_LEVEL2_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.sluiceLevel3Items)) {
-    data.sluiceLevel3Items.forEach((picked, i) => { if (SLUICE_LEVEL3_ITEMS[i]) SLUICE_LEVEL3_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.mireVaultItems)) {
-    data.mireVaultItems.forEach((picked, i) => { if (MIRE_VAULT_ITEMS[i]) MIRE_VAULT_ITEMS[i].picked = picked; });
-  }
-  if (Array.isArray(data.sunkenGalleryItems)) {
-    data.sunkenGalleryItems.forEach((picked, i) => { if (SUNKEN_GALLERY_ITEMS[i]) SUNKEN_GALLERY_ITEMS[i].picked = picked; });
-  }
+  // ── Floor pickups + openable chests (v3: applied by stable id) ────────────
+  // Reset every registered pickup/chest to its default (uncollected / closed),
+  // then apply the saved id arrays. A registered object absent from the arrays
+  // keeps its reset state (it never inherits the current session's value); an
+  // unknown id is preserved for the next save but does not touch gameplay.
+  applyCollectedPickupIds(data.collectedPickupIds);
+  applyOpenedChestIds(data.openedChestIds);
 
-  // ── Chests ──────────────────────────────────────────────────────────────
-  if (data.homeChestGold           !== undefined) HOUSE_DATA.player_house.chest.gold = data.homeChestGold;
-  if (data.chestOpened             !== undefined) DUNGEON_CHEST.opened       = data.chestOpened;
-  if (data.sluiceChestOpened       !== undefined) SLUICE_CHEST.opened        = data.sluiceChestOpened;
-  if (data.sluiceLevel2ChestOpened !== undefined) SLUICE_LEVEL2_CHEST.opened = data.sluiceLevel2ChestOpened;
-  if (data.sluiceSecretChestOpened !== undefined) SLUICE_SECRET_CHEST.opened    = data.sluiceSecretChestOpened;
-  if (data.sluiceLevel3ChestOpened !== undefined) SLUICE_LEVEL3_CHEST.opened    = data.sluiceLevel3ChestOpened;
-  if (data.alcoveChestOpened       !== undefined) DUNGEON_ALCOVE_CHEST.opened   = data.alcoveChestOpened;
-  if (data.sluiceDeepChestOpened   !== undefined) SLUICE_DEEP_CHEST.opened      = data.sluiceDeepChestOpened;
-  if (data.catArmorChestOpened     !== undefined) CAT_ARMOR_CHEST.opened        = data.catArmorChestOpened;
-  if (data.meadowChestOpened       !== undefined) MEADOW_CHEST.opened           = data.meadowChestOpened;
+  // ── Home chest stored gold + nonstandard direct persistence (unchanged) ───
+  if (data.homeChestGold             !== undefined) HOUSE_DATA.player_house.chest.gold           = data.homeChestGold;
   if (data.abandonedAptDresserLooted !== undefined) HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted = data.abandonedAptDresserLooted;
   if (data.abandonedAptSparkleTaken  !== undefined) HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken  = data.abandonedAptSparkleTaken;
 
