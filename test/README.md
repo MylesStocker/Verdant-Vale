@@ -577,6 +577,25 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   chest migration mapping, an enemy registry entry, the v2→v3 registration and
   id-based application in turn, confirming each check fails then restoring in a
   `finally`. Runtime.
+- `53-canonical-location-transition` — the canonical location-transition
+  boundary (`#5`): the `LOCATION_STATE_BINDINGS` registry and
+  `transitionToLocation()` (`world-transitions.js`). Asserts registry
+  completeness (all ~25 location fields); that dirtying every field then doing a
+  neutral outdoor transition resets EVERY one (no hand-copied list can forget
+  one); that invalid destinations — unknown map, out-of-bounds/non-finite
+  coordinates, bad facing, unknown state key, invalid floor, contradictory
+  modes — each return false and leave all map/position/facing/cooldown/flags
+  untouched (atomic); and that representative real transitions (town district/
+  building/house with source+return context that doesn't leak, dungeon floors,
+  sluice floors + Sealed Room, basin chamber, sunken gallery, bridge from both
+  directions with toll/direction cleared on exit, an edge transition preserving
+  a coordinate, debug warp with its clamp + full reset + no side effects, and
+  the defeat-relocation-to-home shape) land on walkable tiles with
+  `currentMapId()`/`currentEncounterPool()` agreeing. Confirms the East Sluice
+  top floor still rolls Marsh Wisp/Sluice Slime, and that `loadGame()` restores
+  location WITHOUT running a transition (cooldown untouched). Load-bearing
+  section breaks reset coverage, a special-flag application, and rejects a
+  contradictory destination, restoring in `finally`. Runtime.
 
 ## Known simplifications (see comments at the top of each affected test)
 

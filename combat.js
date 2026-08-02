@@ -1187,31 +1187,21 @@ function handleCombatAction() {
       // inBridgePost after dying at the toll bridge) makes currentMapId()
       // report that location on every map, so its NPCs render everywhere.
       // Toggleable from the debug menu ("Home on Defeat").
-      inDungeon = false; inSluice = false; inMireVault = false;
-      inTakomo = false; inFenBrewery = false; inHamletInterior = false;
-      inDungeonEntrance = false;
-      inLorraHouse = false; inMarenPost = false; inDrenwrickPost = false;
-      inBridgePost = false; inSmugglerFort = false;
-      inSunkenGallery = false; inBasinChamber = false;
-      // Bridge toll state can't survive being carried off the bridge: clear
-      // it and put both guards back at their blocking posts (Phase 1 pilots).
-      bridge_entry_direction = null; bridge_toll_paid = false;
+      // The canonical transition resets EVERY location flag (the old hand-cleared
+      // list here was exactly the fragility this refactor removes), then applies
+      // the player-house context. Bridge toll state can't survive being carried
+      // off the bridge: restore both guards to their blocking posts (the flags
+      // are cleared by the reset). Same map-local invariant for auto-patrols
+      // (Tobb Wend). Toggleable from the debug menu ("Home on Defeat").
       resetBridgeGuards();
-      // Same map-local invariant for auto-patrols (Tobb Wend): drop any live
-      // route and return him to his authored brewery home, so no stale route
-      // survives the carried-home respawn onto another map.
       if (typeof resetAllPatrols === 'function') resetAllPatrols();
-      inTown              = true;
-      currentTownId       = 'calwick';
-      townBuilding        = 'house';
-      currentHouseId      = 'player_house';
-      houseSourceMap      = WEST_TOWN_MAP;
-      houseSourceBuilding = 'west';
-      houseReturnPos      = { x: 2.5 * TILE, y: 12.5 * TILE };
-      activeMap           = HOUSE_INTERIOR_MAP;
-      player.x            = 9.5 * TILE;   // on the floor beside the bed
-      player.y            = 3.5 * TILE;
-      player.facing       = 'down';
+      transitionToLocation({
+        mapId: 'HOUSE_INTERIOR_MAP', x: 9.5 * TILE, y: 3.5 * TILE, facing: 'down', // on the floor beside the bed
+        state: {
+          inTown: true, currentTownId: 'calwick', townBuilding: 'house', currentHouseId: 'player_house',
+          houseSourceMap: WEST_TOWN_MAP, houseSourceBuilding: 'west', houseReturnPos: { x: 2.5 * TILE, y: 12.5 * TILE },
+        },
+      });
       dialogue.pages = [['\u2026a day later, you awaken in your own bed, without your gold.',
                          'Someone must have carried you home.']];
     } else {

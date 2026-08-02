@@ -566,36 +566,27 @@ function update() {
     // Drenwick school staircases — guarded with inTown to avoid dungeon/sluice false positives.
     // Ground floor: col 2 = DUNGEON_STAIRS_DOWN (basement), col 13 = DUNGEON2_STAIRS_UP (upper).
     // Tiles are visually distinct — stairs-down vs stairs-up — so the direction is clear.
+    // Drenwick school inter-floor stairs stay in town (inTown + Drenwick + the
+    // 'school' building carried forward); go through the canonical helper.
+    const _schoolState = { inTown: true, currentTownId: 'drenwick', townBuilding: townBuilding };
     if (inTown && currentTownId === 'drenwick' && activeMap === DRENWICK_SCHOOL_GROUND_MAP && curTile === DUNGEON_STAIRS_DOWN) {
       // West stairs only (col 2) — descend to basement
-      activeMap     = DRENWICK_SCHOOL_BASEMENT_MAP;
-      player.x      =  2.5 * TILE;
-      player.y      =  3.5 * TILE;
-      player.facing = 'down';
+      transitionToLocation({ mapId: 'DRENWICK_SCHOOL_BASEMENT_MAP', x: 2.5 * TILE, y: 3.5 * TILE, facing: 'down', state: _schoolState });
       return;
     }
     if (inTown && currentTownId === 'drenwick' && activeMap === DRENWICK_SCHOOL_GROUND_MAP && curTile === DUNGEON2_STAIRS_UP) {
       // East stairs (col 13) — ascend to upper floor
-      activeMap     = DRENWICK_SCHOOL_UPPER_MAP;
-      player.x      = 13.5 * TILE;
-      player.y      =  3.5 * TILE;
-      player.facing = 'up';
+      transitionToLocation({ mapId: 'DRENWICK_SCHOOL_UPPER_MAP', x: 13.5 * TILE, y: 3.5 * TILE, facing: 'up', state: _schoolState });
       return;
     }
     if (inTown && currentTownId === 'drenwick' && activeMap === DRENWICK_SCHOOL_UPPER_MAP && curTile === DUNGEON_STAIRS_DOWN) {
       // Uses the "stairs down" tile (not stairs-up) since these stairs
       // descend to the ground floor from here -- see maps.js.
-      activeMap     = DRENWICK_SCHOOL_GROUND_MAP;
-      player.x      = 13.5 * TILE;  // col 13 — bottom of stairs on ground floor
-      player.y      =  3.5 * TILE;  // row 3 — one south of staircase tile
-      player.facing = 'down';
+      transitionToLocation({ mapId: 'DRENWICK_SCHOOL_GROUND_MAP', x: 13.5 * TILE, y: 3.5 * TILE, facing: 'down', state: _schoolState });
       return;
     }
     if (inTown && currentTownId === 'drenwick' && activeMap === DRENWICK_SCHOOL_BASEMENT_MAP && curTile === DUNGEON2_STAIRS_UP) {
-      activeMap     = DRENWICK_SCHOOL_GROUND_MAP;
-      player.x      =  2.5 * TILE;  // col 2 — bottom of basement stairs on ground floor
-      player.y      =  3.5 * TILE;  // row 3
-      player.facing = 'down';
+      transitionToLocation({ mapId: 'DRENWICK_SCHOOL_GROUND_MAP', x: 2.5 * TILE, y: 3.5 * TILE, facing: 'down', state: _schoolState });
       return;
     }
     if (inDungeon && dungeonFloor === 1 && curTile === DUNGEON_EXIT) { ascendToDungeonEntrance(); return; }

@@ -1058,7 +1058,7 @@
       "canWalkHere": true,
       "escapes": {
         "up": true,
-        "down": true,
+        "down": false,
         "left": false,
         "right": true
       },
@@ -1083,35 +1083,6 @@
       "dimsMismatch": false,
       "outOfBounds": false,
       "tileId": 8,
-      "walkableByTable": true,
-      "canWalkHere": true,
-      "escapes": {
-        "up": true,
-        "down": true,
-        "left": true,
-        "right": true
-      },
-      "canEscape": true,
-      "verdict": "OK"
-    },
-    {
-      "name": "ascendToDungeon5",
-      "group": "flat-transitions",
-      "setupCode": "ascendToDungeon5()",
-      "error": null,
-      "destMap": "DUNGEON5_MAP",
-      "px": 240,
-      "py": 368,
-      "facing": "up",
-      "tileCol": 7,
-      "tileRow": 11,
-      "actualDims": {
-        "rows": 15,
-        "cols": 16
-      },
-      "dimsMismatch": false,
-      "outOfBounds": false,
-      "tileId": 4,
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
@@ -3038,6 +3009,35 @@
       "verdict": "OK"
     },
     {
+      "name": "ascendToDungeon5",
+      "group": "flat-transitions",
+      "setupCode": "BOSS.defeated=true; ascendToDungeon5();",
+      "error": null,
+      "destMap": "DUNGEON5_MAP",
+      "px": 240,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 4,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
       "name": "exitHamletInterior (from room A)",
       "group": "flat-transitions",
       "setupCode": "player.x = 2*TILE; exitHamletInterior();",
@@ -4334,7 +4334,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -4450,7 +4450,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -4537,7 +4537,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -4711,7 +4711,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -4769,7 +4769,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -4827,7 +4827,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -4972,7 +4972,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -5059,7 +5059,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -5147,7 +5147,7 @@
       "canWalkHere": true,
       "escapes": {
         "up": true,
-        "down": true,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -5206,7 +5206,7 @@
       "escapes": {
         "up": true,
         "down": true,
-        "left": true,
+        "left": false,
         "right": true
       },
       "canEscape": true,
@@ -5679,7 +5679,7 @@
     {
       "name": "exitBuilding() [house: eldric_house]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('eldric_house'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"west\"; activeMap=WEST_TOWN_MAP; enterHouse('eldric_house'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 80,
@@ -5708,7 +5708,7 @@
     {
       "name": "exitBuilding() [house: esla_house]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('esla_house'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"west\"; activeMap=WEST_TOWN_MAP; enterHouse('esla_house'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 80,
@@ -5737,7 +5737,7 @@
     {
       "name": "exitBuilding() [house: player_house]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('player_house'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"west\"; activeMap=WEST_TOWN_MAP; enterHouse('player_house'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 80,
@@ -5766,7 +5766,7 @@
     {
       "name": "exitBuilding() [house: west_i]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_i'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"west\"; activeMap=WEST_TOWN_MAP; enterHouse('west_i'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 336,
@@ -5795,7 +5795,7 @@
     {
       "name": "exitBuilding() [house: west_h]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_h'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"west\"; activeMap=WEST_TOWN_MAP; enterHouse('west_h'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 208,
@@ -5824,7 +5824,7 @@
     {
       "name": "exitBuilding() [house: west_e]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_e'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"west\"; activeMap=WEST_TOWN_MAP; enterHouse('west_e'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 336,
@@ -5853,7 +5853,7 @@
     {
       "name": "exitBuilding() [house: west_b]",
       "group": "exit-building",
-      "setupCode": " activeMap=WEST_TOWN_MAP; enterHouse('west_b'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"west\"; activeMap=WEST_TOWN_MAP; enterHouse('west_b'); exitBuilding();",
       "error": null,
       "destMap": "WEST_TOWN_MAP",
       "px": 336,
@@ -5882,7 +5882,7 @@
     {
       "name": "exitBuilding() [house: drenwick_north_a]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_north_a'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_west_residential\"; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_north_a'); exitBuilding();",
       "error": null,
       "destMap": "DRENWICK_WEST_RESIDENTIAL_MAP",
       "px": 368,
@@ -5911,7 +5911,7 @@
     {
       "name": "exitBuilding() [house: drenwick_north_b]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_north_b'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_west_residential\"; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_north_b'); exitBuilding();",
       "error": null,
       "destMap": "DRENWICK_WEST_RESIDENTIAL_MAP",
       "px": 432,
@@ -5940,7 +5940,7 @@
     {
       "name": "exitBuilding() [house: drenwick_west_a]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_west_a'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_west_residential\"; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_west_a'); exitBuilding();",
       "error": null,
       "destMap": "DRENWICK_WEST_RESIDENTIAL_MAP",
       "px": 112,
@@ -5969,7 +5969,7 @@
     {
       "name": "exitBuilding() [house: drenwick_west_b]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_west_b'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_west_residential\"; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_west_b'); exitBuilding();",
       "error": null,
       "destMap": "DRENWICK_WEST_RESIDENTIAL_MAP",
       "px": 368,
@@ -5998,7 +5998,7 @@
     {
       "name": "exitBuilding() [house: drenwick_south_a]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_south_a'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_west_residential\"; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_south_a'); exitBuilding();",
       "error": null,
       "destMap": "DRENWICK_WEST_RESIDENTIAL_MAP",
       "px": 112,
@@ -6027,7 +6027,7 @@
     {
       "name": "exitBuilding() [house: drenwick_south_b]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_south_b'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_west_residential\"; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_south_b'); exitBuilding();",
       "error": null,
       "destMap": "DRENWICK_WEST_RESIDENTIAL_MAP",
       "px": 368,
@@ -6056,7 +6056,7 @@
     {
       "name": "exitBuilding() [house: drenwick_south_c]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_south_c'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_west_residential\"; activeMap=DRENWICK_WEST_RESIDENTIAL_MAP; enterHouse('drenwick_south_c'); exitBuilding();",
       "error": null,
       "destMap": "DRENWICK_WEST_RESIDENTIAL_MAP",
       "px": 432,
@@ -6085,7 +6085,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a1_u1]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u1'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u1'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 112,
@@ -6114,7 +6114,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a1_u2]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u2'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u2'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 208,
@@ -6143,7 +6143,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a1_u3]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u3'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u3'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 304,
@@ -6172,7 +6172,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a1_u4]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u4'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a1_u4'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 400,
@@ -6201,7 +6201,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a2_u1]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u1'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u1'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 112,
@@ -6230,7 +6230,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a2_u2]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u2'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u2'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 208,
@@ -6259,7 +6259,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a2_u3]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u3'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u3'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 304,
@@ -6288,7 +6288,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_a2_u4]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u4'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_a2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_a2_u4'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 400,
@@ -6317,7 +6317,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b1_u1]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u1'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u1'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 112,
@@ -6346,7 +6346,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b1_u2]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u2'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u2'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 208,
@@ -6375,7 +6375,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b1_u3]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u3'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u3'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 304,
@@ -6404,7 +6404,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b1_u4]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u4'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b1_u4'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 400,
@@ -6433,7 +6433,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b2_u1]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u1'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u1'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 112,
@@ -6462,7 +6462,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b2_u2]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u2'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u2'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 208,
@@ -6491,7 +6491,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b2_u3]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u3'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u3'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 304,
@@ -6520,7 +6520,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_b2_u4]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u4'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_b2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_b2_u4'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 400,
@@ -6549,7 +6549,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c1_u1]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u1'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u1'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 112,
@@ -6578,7 +6578,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c1_u2]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u2'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u2'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 208,
@@ -6607,7 +6607,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c1_u3]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u3'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u3'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 304,
@@ -6636,7 +6636,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c1_u4]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u4'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c1\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c1_u4'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 400,
@@ -6665,7 +6665,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c2_u1]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u1'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u1'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 112,
@@ -6694,7 +6694,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c2_u2]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u2'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u2'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 208,
@@ -6723,7 +6723,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c2_u3]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u3'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u3'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 304,
@@ -6752,7 +6752,7 @@
     {
       "name": "exitBuilding() [house: drenwick_apt_c2_u4]",
       "group": "exit-building",
-      "setupCode": "currentTownId='drenwick'; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u4'); exitBuilding();",
+      "setupCode": "currentTownId='drenwick'; inTown=true; townBuilding=\"drenwick_apt_c2\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('drenwick_apt_c2_u4'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 400,
@@ -6781,7 +6781,7 @@
     {
       "name": "exitBuilding() [house: apt_1]",
       "group": "exit-building",
-      "setupCode": " activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_1'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"apt\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_1'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 112,
@@ -6810,7 +6810,7 @@
     {
       "name": "exitBuilding() [house: apt_2]",
       "group": "exit-building",
-      "setupCode": " activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_2'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"apt\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_2'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 208,
@@ -6839,7 +6839,7 @@
     {
       "name": "exitBuilding() [house: apt_3]",
       "group": "exit-building",
-      "setupCode": " activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_3'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"apt\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_3'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 304,
@@ -6868,7 +6868,7 @@
     {
       "name": "exitBuilding() [house: apt_4]",
       "group": "exit-building",
-      "setupCode": " activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_4'); exitBuilding();",
+      "setupCode": " inTown=true; townBuilding=\"apt\"; activeMap=APARTMENT_CORRIDOR_MAP; enterHouse('apt_4'); exitBuilding();",
       "error": null,
       "destMap": "APARTMENT_CORRIDOR_MAP",
       "px": 400,

@@ -4,6 +4,201 @@
 // the player between maps: dungeon floors, floor-3 sub-rooms, guard posts,
 // the bridge checkpoint, smugglers' fort, Mirethyst's Vault, the fen brewery,
 // Falls hamlet, and town/building/house transitions.
+//
+// Every normal runtime location change goes through ONE boundary,
+// transitionToLocation() (below): it validates the whole destination, resets
+// all location state to neutral, applies the destination's explicit overrides,
+// changes the map, places+faces the player, and applies cooldown. The wrapper
+// functions keep only their story/quest/dialogue/return-context side effects.
+
+// ─── Location-state binding registry (#5) ────────────────────────────────────
+// ONE authoritative list of the mutable fields that define runtime LOCATION
+// context — which area/map "mode" the player is in. Each binding owns a stable
+// key, a neutral default, and get/set closures over the state.js `let` that
+// holds it. resetLocationState() returns every field to neutral; the canonical
+// transitionToLocation() then layers a destination's explicit non-neutral
+// overrides on top. Debug warp and the transition-audit reset use THIS list, so
+// there are no more hand-copied flag lists that silently forget a field (which
+// is exactly how inBasinChamber / inSunkenGallery were once missed).
+//
+// NOT included: persistent story/quest flags that merely sit near location
+// fields in save.js (e.g. dilemma_voss) — those are not location context and a
+// transition must never reset them. houseReturnPos IS included (the house-exit
+// return coordinate); its neutral is a fresh {x:0,y:0} (never null — saveGame()
+// reads houseReturnPos.x/.y unconditionally).
+const LOCATION_STATE_BINDINGS = [
+  { key: 'inDungeon',           neutral: false, get: () => inDungeon,           set: (v) => { inDungeon = v; } },
+  { key: 'dungeonFloor',        neutral: 1,     get: () => dungeonFloor,        set: (v) => { dungeonFloor = v; } },
+  { key: 'inDungeonEntrance',   neutral: false, get: () => inDungeonEntrance,   set: (v) => { inDungeonEntrance = v; } },
+  { key: 'inTown',              neutral: false, get: () => inTown,              set: (v) => { inTown = v; } },
+  { key: 'currentTownId',       neutral: null,  get: () => currentTownId,       set: (v) => { currentTownId = v; } },
+  { key: 'townBuilding',        neutral: null,  get: () => townBuilding,        set: (v) => { townBuilding = v; } },
+  { key: 'currentHouseId',      neutral: null,  get: () => currentHouseId,      set: (v) => { currentHouseId = v; } },
+  { key: 'houseSourceMap',      neutral: null,  get: () => houseSourceMap,      set: (v) => { houseSourceMap = v; } },
+  { key: 'houseSourceBuilding', neutral: null,  get: () => houseSourceBuilding, set: (v) => { houseSourceBuilding = v; } },
+  { key: 'houseReturnPos',      neutral: null,  get: () => houseReturnPos,      set: (v) => { houseReturnPos = v; }, isPos: true },
+  { key: 'inSluice',            neutral: false, get: () => inSluice,            set: (v) => { inSluice = v; } },
+  { key: 'sluiceFloor',         neutral: 1,     get: () => sluiceFloor,         set: (v) => { sluiceFloor = v; } },
+  { key: 'inMireVault',         neutral: false, get: () => inMireVault,         set: (v) => { inMireVault = v; } },
+  { key: 'inTakomo',            neutral: false, get: () => inTakomo,            set: (v) => { inTakomo = v; } },
+  { key: 'inFenBrewery',        neutral: false, get: () => inFenBrewery,        set: (v) => { inFenBrewery = v; } },
+  { key: 'inHamletInterior',    neutral: false, get: () => inHamletInterior,    set: (v) => { inHamletInterior = v; } },
+  { key: 'inLorraHouse',        neutral: false, get: () => inLorraHouse,        set: (v) => { inLorraHouse = v; } },
+  { key: 'inMarenPost',         neutral: false, get: () => inMarenPost,         set: (v) => { inMarenPost = v; } },
+  { key: 'inDrenwrickPost',     neutral: false, get: () => inDrenwrickPost,     set: (v) => { inDrenwrickPost = v; } },
+  { key: 'inBridgePost',        neutral: false, get: () => inBridgePost,        set: (v) => { inBridgePost = v; } },
+  { key: 'inSmugglerFort',      neutral: false, get: () => inSmugglerFort,      set: (v) => { inSmugglerFort = v; } },
+  { key: 'inBasinChamber',      neutral: false, get: () => inBasinChamber,      set: (v) => { inBasinChamber = v; } },
+  { key: 'inSunkenGallery',     neutral: false, get: () => inSunkenGallery,     set: (v) => { inSunkenGallery = v; } },
+  { key: 'bridge_entry_direction', neutral: null,  get: () => bridge_entry_direction, set: (v) => { bridge_entry_direction = v; } },
+  { key: 'bridge_toll_paid',       neutral: false, get: () => bridge_toll_paid,       set: (v) => { bridge_toll_paid = v; } },
+];
+const LOCATION_STATE_KEY_SET = new Set(LOCATION_STATE_BINDINGS.map((b) => b.key));
+// Every `in*` mode flag: at most ONE may be true at a time (a house is inTown +
+// townBuilding='house', so it is the inTown mode, not a separate flag).
+const LOCATION_MAJOR_MODE_KEYS = [
+  'inDungeon', 'inDungeonEntrance', 'inTown', 'inSluice', 'inMireVault', 'inTakomo',
+  'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inMarenPost', 'inDrenwrickPost',
+  'inBridgePost', 'inSmugglerFort', 'inBasinChamber', 'inSunkenGallery',
+];
+
+function _neutralValueFor(binding) {
+  return binding.isPos ? { x: 0, y: 0 } : binding.neutral; // fresh object for position fields
+}
+
+// Snapshot every location field to a plain object (deep-copies position fields).
+function snapshotLocationState() {
+  const snap = {};
+  for (const b of LOCATION_STATE_BINDINGS) {
+    const v = b.get();
+    snap[b.key] = (b.isPos && v) ? { x: v.x, y: v.y } : v;
+  }
+  return snap;
+}
+
+// Validate a proposed COMPLETE location state (every field present) against the
+// invariants. Returns { ok, errors:[...] }; performs no mutation.
+function validateLocationState(state) {
+  const errors = [];
+  // Unknown / missing keys.
+  for (const k of Object.keys(state)) if (!LOCATION_STATE_KEY_SET.has(k)) errors.push('unknown location key "' + k + '"');
+  for (const b of LOCATION_STATE_BINDINGS) if (!(b.key in state)) errors.push('missing location key "' + b.key + '"');
+  if (errors.length) return { ok: false, errors };
+  // At most one major area mode active.
+  const active = LOCATION_MAJOR_MODE_KEYS.filter((k) => state[k] === true);
+  if (active.length > 1) errors.push('multiple major location modes active at once: ' + active.join(', '));
+  // Town/house context requires inTown.
+  if (state.inTown !== true) {
+    for (const k of ['currentTownId', 'townBuilding', 'currentHouseId', 'houseSourceMap', 'houseSourceBuilding']) {
+      if (state[k] !== null) errors.push(k + ' must be neutral when inTown is false (got ' + JSON.stringify(state[k]) + ')');
+    }
+  }
+  // A house id requires the house building.
+  if (state.currentHouseId !== null && state.townBuilding !== 'house') errors.push('currentHouseId set but townBuilding is not "house"');
+  // Dungeon floor validity.
+  if (state.inDungeon === true) {
+    if (typeof state.dungeonFloor !== 'number' || !Number.isFinite(state.dungeonFloor) || state.dungeonFloor < 1) errors.push('inDungeon requires a valid dungeonFloor >= 1');
+  } else if (state.dungeonFloor !== 1) {
+    errors.push('dungeonFloor must be neutral (1) when inDungeon is false (got ' + state.dungeonFloor + ')');
+  }
+  // Sluice floor validity.
+  if (state.inSluice === true) {
+    if (![1, 2, 3, 4].includes(state.sluiceFloor)) errors.push('inSluice requires sluiceFloor in {1,2,3,4}');
+  } else if (state.sluiceFloor !== 1) {
+    errors.push('sluiceFloor must be neutral (1) when inSluice is false (got ' + state.sluiceFloor + ')');
+  }
+  // Bridge state cannot leak off the bridge.
+  if (state.inBridgePost !== true) {
+    if (state.bridge_entry_direction !== null) errors.push('bridge_entry_direction must be null off the bridge');
+    if (state.bridge_toll_paid !== false) errors.push('bridge_toll_paid must be false off the bridge');
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+// Reset every registered location field to its neutral value. Used by the
+// canonical helper, debug warp, and the transition-audit reset — the single
+// source of truth for "clear all location context".
+function resetLocationState() {
+  for (const b of LOCATION_STATE_BINDINGS) b.set(_neutralValueFor(b));
+}
+
+// Apply a COMPLETE, already-validated location state (every field present).
+function applyLocationState(state) {
+  for (const b of LOCATION_STATE_BINDINGS) b.set(state[b.key]);
+}
+
+// ─── The one canonical location-transition boundary (#5) ─────────────────────
+// spec = {
+//   mapId:   registered MAP_REGISTRY id (string) — preferred over raw refs;
+//   x, y:    exact destination pixel coordinates (the caller computes these,
+//            including any preserved coordinate like the current player.y);
+//   facing:  'up'|'down'|'left'|'right';
+//   state:   OPTIONAL object of non-neutral location-field overrides (unknown
+//            keys rejected; every unspecified field defaults to neutral);
+//   cooldown: OPTIONAL boolean — if true, set combat.cooldown to ENCOUNTER_COOLDOWN.
+// }
+// Validates the ENTIRE destination (map resolves, coords finite + in-bounds,
+// facing valid, state keys known, invariants hold) BEFORE mutating anything. On
+// any failure it warns and returns false, leaving map/position/facing/cooldown
+// and every location field completely untouched. On success it resets all
+// location state to neutral, applies the overrides, changes the map, places and
+// faces the player, and applies cooldown. Returns true.
+//
+// Story/quest/dialogue/reward/NPC-reroll side effects belong in the wrapper
+// functions, NOT here.
+function transitionToLocation(spec) {
+  if (!spec || typeof spec !== 'object') { console.warn('transitionToLocation: no spec'); return false; }
+  // Resolve + validate the destination map (registry ids only).
+  const entry = (typeof MAP_REGISTRY !== 'undefined') ? MAP_REGISTRY[spec.mapId] : undefined;
+  const destMap = entry && entry.map;
+  if (!Array.isArray(destMap) || !Array.isArray(destMap[0])) {
+    console.warn('transitionToLocation: unknown/invalid map id "' + spec.mapId + '"');
+    return false;
+  }
+  // Validate coordinates: finite and inside the destination map.
+  const rows = destMap.length, cols = destMap[0].length;
+  if (!Number.isFinite(spec.x) || !Number.isFinite(spec.y)) {
+    console.warn('transitionToLocation: non-finite coordinates', spec.x, spec.y);
+    return false;
+  }
+  const tx = spec.x / TILE, ty = spec.y / TILE;
+  if (tx < 0 || tx >= cols || ty < 0 || ty >= rows) {
+    console.warn('transitionToLocation: coordinates out of bounds for "' + spec.mapId + '" (' + spec.x + ',' + spec.y + ')');
+    return false;
+  }
+  // Validate facing.
+  if (!['up', 'down', 'left', 'right'].includes(spec.facing)) {
+    console.warn('transitionToLocation: invalid facing "' + spec.facing + '"');
+    return false;
+  }
+  // Build the complete proposed state = neutral defaults + explicit overrides.
+  const overrides = spec.state || {};
+  for (const k of Object.keys(overrides)) {
+    if (!LOCATION_STATE_KEY_SET.has(k)) { console.warn('transitionToLocation: unknown state key "' + k + '"'); return false; }
+  }
+  const proposed = {};
+  for (const b of LOCATION_STATE_BINDINGS) proposed[b.key] = (b.key in overrides) ? overrides[b.key] : _neutralValueFor(b);
+  const inv = validateLocationState(proposed);
+  if (!inv.ok) { console.warn('transitionToLocation: invalid destination state — ' + inv.errors.join('; ')); return false; }
+
+  // ── All validated. Mutate atomically. ──
+  applyLocationState(proposed);
+  activeMap     = destMap;
+  player.x      = spec.x;
+  player.y      = spec.y;
+  player.facing = spec.facing;
+  if (spec.cooldown) combat.cooldown = ENCOUNTER_COOLDOWN;
+  return true;
+}
+
+if (typeof window !== 'undefined') {
+  window.LOCATION_STATE_BINDINGS = LOCATION_STATE_BINDINGS;
+  window.snapshotLocationState   = snapshotLocationState;
+  window.resetLocationState      = resetLocationState;
+  window.applyLocationState      = applyLocationState;
+  window.validateLocationState   = validateLocationState;
+  window.transitionToLocation    = transitionToLocation;
+}
 
 // ─── Dungeon transitions ──────────────────────────────────────────────────────
 // Overworld ↔ South Ruins Entrance Hall ↔ dungeon floor 1. The entrance hall
@@ -11,362 +206,223 @@
 // the overworld and the monster-infested floors, so entering the ruins no
 // longer drops the player straight into combat territory.
 function enterDungeon() {
-  inDungeonEntrance = true;
-  activeMap    = DUNGEON_ENTRANCE_MAP;
   // Spawn just above the exit tile (row 12, col 7)
-  player.x   = 7.5 * TILE;
-  player.y   = 12.5 * TILE;
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON_ENTRANCE_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inDungeonEntrance: true }, cooldown: true });
 }
 
 function exitDungeon() {
-  inDungeonEntrance = false;
-  activeMap    = MAP;
   // Place player one tile south of the entrance (row 13, col 11)
-  player.x   = 11.5 * TILE;
-  player.y   = 13.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP', x: 11.5 * TILE, y: 13.5 * TILE, facing: 'down', cooldown: true });
 }
 
 // Entrance hall's own stairs down → the real, monster-infested floor 1.
 function descendToDungeon1() {
-  inDungeonEntrance = false;
-  inDungeon    = true;
-  dungeonFloor = 1;
-  activeMap    = DUNGEON_MAP;
   // Spawn just above the south exit tile (row 12, col 7)
-  player.x   = 7.5 * TILE;
-  player.y   = 12.5 * TILE;
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inDungeon: true, dungeonFloor: 1 }, cooldown: true });
 }
 
 // Floor 1's existing exit tile (row 13, col 7 of DUNGEON_MAP) now leads back
 // up to the entrance hall rather than straight outside.
 function ascendToDungeonEntrance() {
-  inDungeon    = false;
-  dungeonFloor = 1;
-  inDungeonEntrance = true;
-  activeMap    = DUNGEON_ENTRANCE_MAP;
   // Spawn just south of the stairs-down tile (row 1, cols 7-8)
-  player.x   = 7.5 * TILE;
-  player.y   = 2.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON_ENTRANCE_MAP', x: 7.5 * TILE, y: 2.5 * TILE, facing: 'down',
+    state: { inDungeonEntrance: true }, cooldown: true });
 }
 
 function descendToDungeon2() {
-  dungeonFloor = 2;
-  activeMap    = DUNGEON2_MAP;
   // Spawn just south of the stairs-up tile (row 2, col 7) on floor 2
-  player.x   = 7.5 * TILE;
-  player.y   = 3.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON2_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 2 }, cooldown: true });
 }
 
 function ascendToDungeon1() {
-  dungeonFloor = 1;
-  activeMap    = DUNGEON_MAP;
   // Spawn just south of the stairs-down tile (row 1, col 8) on floor 1
-  player.x   = 8.5 * TILE;
-  player.y   = 2.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON_MAP', x: 8.5 * TILE, y: 2.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 1 }, cooldown: true });
 }
 
 function descendToDungeon3() {
-  dungeonFloor = 3;
-  activeMap    = DUNGEON3_MAP;
-  player.x   = 7.5 * TILE;  // col 7 — one south of stairs-up (row 1, col 8)
-  player.y   = 3.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON3_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 3 }, cooldown: true }); // col 7 — one south of stairs-up (row 1, col 8)
 }
 
 function ascendToDungeon2() {
-  dungeonFloor = 2;
-  activeMap    = DUNGEON2_MAP;
-  player.x   = 7.5 * TILE;  // col 7 — one north of stairs-down (row 13, col 7)
-  player.y   = 12.5 * TILE;
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON2_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inDungeon: true, dungeonFloor: 2 }, cooldown: true }); // col 7 — one north of stairs-down (row 13, col 7)
 }
 
 function descendToDungeon4() {
-  dungeonFloor = 4;
-  activeMap    = DUNGEON4_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 3.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON4_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 4 }, cooldown: true });
 }
 
 function ascendToDungeon3() {
-  dungeonFloor = 3;
-  activeMap    = DUNGEON3_BR_MAP;  // stairs down are in BR; arriving from below
-  player.x   = 7.5 * TILE;
-  player.y   = 12.5 * TILE;  // one tile above stairs at row 13
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  // stairs down are in BR; arriving from below, one tile above stairs at row 13
+  transitionToLocation({ mapId: 'DUNGEON3_BR_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inDungeon: true, dungeonFloor: 3 }, cooldown: true });
 }
 
 function descendToDungeon5() {
-  dungeonFloor = 5;
-  activeMap    = DUNGEON5_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 3.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON5_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 5 }, cooldown: true });
 }
 
 function ascendToDungeon4() {
-  dungeonFloor = 4;
-  activeMap    = DUNGEON4_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 10.5 * TILE;  // one north of stair tile at row 12, Mulholland defeated
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  // one north of stair tile at row 12, Mulholland defeated
+  transitionToLocation({ mapId: 'DUNGEON4_MAP', x: 7.5 * TILE, y: 10.5 * TILE, facing: 'up',
+    state: { inDungeon: true, dungeonFloor: 4 }, cooldown: true });
 }
 
 function descendToDungeon6() {
-  dungeonFloor = 6;
-  activeMap    = DUNGEON6_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 3.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON6_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 6 }, cooldown: true });
 }
 
 function ascendToDungeon5() {
-  dungeonFloor = 5;
-  activeMap    = DUNGEON5_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 11.5 * TILE;
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON5_MAP', x: 7.5 * TILE, y: 11.5 * TILE, facing: 'up',
+    state: { inDungeon: true, dungeonFloor: 5 }, cooldown: true });
 }
 
 function descendToDungeon7() {
-  dungeonFloor = 7;
-  activeMap    = DUNGEON7_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 3.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON7_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 7 }, cooldown: true });
 }
 
 function ascendToDungeon6() {
-  dungeonFloor = 6;
-  activeMap    = DUNGEON6_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 12.5 * TILE;
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON6_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inDungeon: true, dungeonFloor: 6 }, cooldown: true });
 }
 
 function descendToDungeon8() {
-  dungeonFloor = 8;
-  activeMap    = DUNGEON8_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 3.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON8_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 8 }, cooldown: true });
 }
 
 function ascendToDungeon7() {
-  dungeonFloor = 7;
-  activeMap    = DUNGEON7_MAP;
-  player.x   = 7.5 * TILE;
-  player.y   = 12.5 * TILE;
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON7_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inDungeon: true, dungeonFloor: 7 }, cooldown: true });
 }
 
 function enterDungeon8West() {
-  dungeonFloor = 9;
-  activeMap    = DUNGEON8_WEST_MAP;
-  player.x   = 13.5 * TILE;
-  player.y   = 7.5 * TILE;
-  player.facing = 'left';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON8_WEST_MAP', x: 13.5 * TILE, y: 7.5 * TILE, facing: 'left',
+    state: { inDungeon: true, dungeonFloor: 9 }, cooldown: true });
 }
 
 function exitDungeon8West() {
-  dungeonFloor = 8;
-  activeMap    = DUNGEON8_MAP;
-  player.x   = 1.5 * TILE;
-  player.y   = 7.5 * TILE;
-  player.facing = 'right';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON8_MAP', x: 1.5 * TILE, y: 7.5 * TILE, facing: 'right',
+    state: { inDungeon: true, dungeonFloor: 8 }, cooldown: true });
 }
 
 function enterDungeon8East() {
-  dungeonFloor = 10;
-  activeMap    = DUNGEON8_EAST_MAP;
-  player.x   = 1.5 * TILE;
-  player.y   = 7.5 * TILE;
-  player.facing = 'right';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON8_EAST_MAP', x: 1.5 * TILE, y: 7.5 * TILE, facing: 'right',
+    state: { inDungeon: true, dungeonFloor: 10 }, cooldown: true });
 }
 
 function exitDungeon8East() {
-  dungeonFloor = 8;
-  activeMap    = DUNGEON8_MAP;
-  player.x   = 13.5 * TILE;
-  player.y   = 7.5 * TILE;
-  player.facing = 'left';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DUNGEON8_MAP', x: 13.5 * TILE, y: 7.5 * TILE, facing: 'left',
+    state: { inDungeon: true, dungeonFloor: 8 }, cooldown: true });
 }
 
 // ─── Floor 3 — 3×3 sub-room navigation ───────────────────────────────────────
 // All functions keep dungeonFloor = 3. Spawn positions place the player just
 // inside the destination room, one tile away from the passage they came through.
 // TC ↔ TL  (east wall of TL / west wall of TC)
-function d3_TC_to_TL() { activeMap=DUNGEON3_TL_MAP; player.x=14.5*TILE; player.y=7.5*TILE; player.facing='left';  combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_TL_to_TC() { activeMap=DUNGEON3_MAP;    player.x= 1.5*TILE; player.y=7.5*TILE; player.facing='right'; combat.cooldown=ENCOUNTER_COOLDOWN; }
+// Floor-3 room-to-room move: same floor (inDungeon, dungeonFloor 3), new sub-room
+// map + landing. Pure geometry, no story side effects.
+function d3Move(mapId, x, y, facing) {
+  transitionToLocation({ mapId, x, y, facing, state: { inDungeon: true, dungeonFloor: 3 }, cooldown: true });
+}
+function d3_TC_to_TL() { d3Move('DUNGEON3_TL_MAP', 14.5 * TILE, 7.5 * TILE, 'left'); }
+function d3_TL_to_TC() { d3Move('DUNGEON3_MAP', 1.5 * TILE, 7.5 * TILE, 'right'); }
 // TC ↔ TR  (west wall of TR / east wall of TC)
-function d3_TC_to_TR() { activeMap=DUNGEON3_TR_MAP; player.x= 1.5*TILE; player.y=7.5*TILE; player.facing='right'; combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_TR_to_TC() { activeMap=DUNGEON3_MAP;    player.x=14.5*TILE; player.y=7.5*TILE; player.facing='left';  combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_TC_to_TR() { d3Move('DUNGEON3_TR_MAP', 1.5 * TILE, 7.5 * TILE, 'right'); }
+function d3_TR_to_TC() { d3Move('DUNGEON3_MAP', 14.5 * TILE, 7.5 * TILE, 'left'); }
 // TC ↔ MC  (south wall of TC / north wall of MC)
-function d3_TC_to_MC() { activeMap=DUNGEON3_MC_MAP; player.x=7.5*TILE; player.y= 1.5*TILE; player.facing='down';  combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_MC_to_TC() { activeMap=DUNGEON3_MAP;    player.x=7.5*TILE; player.y=13.5*TILE; player.facing='up';    combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_TC_to_MC() { d3Move('DUNGEON3_MC_MAP', 7.5 * TILE, 1.5 * TILE, 'down'); }
+function d3_MC_to_TC() { d3Move('DUNGEON3_MAP', 7.5 * TILE, 13.5 * TILE, 'up'); }
 // TL ↔ ML  (south wall of TL / north wall of ML)
-function d3_TL_to_ML() { activeMap=DUNGEON3_ML_MAP; player.x=7.5*TILE; player.y= 1.5*TILE; player.facing='down';  combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_ML_to_TL() { activeMap=DUNGEON3_TL_MAP; player.x=7.5*TILE; player.y=13.5*TILE; player.facing='up';    combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_TL_to_ML() { d3Move('DUNGEON3_ML_MAP', 7.5 * TILE, 1.5 * TILE, 'down'); }
+function d3_ML_to_TL() { d3Move('DUNGEON3_TL_MAP', 7.5 * TILE, 13.5 * TILE, 'up'); }
 // TR ↔ MR  (south wall of TR / north wall of MR)
-function d3_TR_to_MR() { activeMap=DUNGEON3_MR_MAP; player.x=7.5*TILE; player.y= 1.5*TILE; player.facing='down';  combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_MR_to_TR() { activeMap=DUNGEON3_TR_MAP; player.x=7.5*TILE; player.y=13.5*TILE; player.facing='up';    combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_TR_to_MR() { d3Move('DUNGEON3_MR_MAP', 7.5 * TILE, 1.5 * TILE, 'down'); }
+function d3_MR_to_TR() { d3Move('DUNGEON3_TR_MAP', 7.5 * TILE, 13.5 * TILE, 'up'); }
 // ML ↔ MC  (east wall of ML / west wall of MC)
-function d3_ML_to_MC() { activeMap=DUNGEON3_MC_MAP; player.x= 1.5*TILE; player.y=7.5*TILE; player.facing='right'; combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_MC_to_ML() { activeMap=DUNGEON3_ML_MAP; player.x=14.5*TILE; player.y=7.5*TILE; player.facing='left';  combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_ML_to_MC() { d3Move('DUNGEON3_MC_MAP', 1.5 * TILE, 7.5 * TILE, 'right'); }
+function d3_MC_to_ML() { d3Move('DUNGEON3_ML_MAP', 14.5 * TILE, 7.5 * TILE, 'left'); }
 // MC ↔ MR  (east wall of MC / west wall of MR)
-function d3_MC_to_MR() { activeMap=DUNGEON3_MR_MAP; player.x= 1.5*TILE; player.y=7.5*TILE; player.facing='right'; combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_MR_to_MC() { activeMap=DUNGEON3_MC_MAP; player.x=14.5*TILE; player.y=7.5*TILE; player.facing='left';  combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_MC_to_MR() { d3Move('DUNGEON3_MR_MAP', 1.5 * TILE, 7.5 * TILE, 'right'); }
+function d3_MR_to_MC() { d3Move('DUNGEON3_MC_MAP', 14.5 * TILE, 7.5 * TILE, 'left'); }
 // ML ↔ BL  (south wall of ML / north wall of BL)
-function d3_ML_to_BL() { activeMap=DUNGEON3_BL_MAP; player.x=7.5*TILE; player.y= 1.5*TILE; player.facing='down';  combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_BL_to_ML() { activeMap=DUNGEON3_ML_MAP; player.x=7.5*TILE; player.y=13.5*TILE; player.facing='up';    combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_ML_to_BL() { d3Move('DUNGEON3_BL_MAP', 7.5 * TILE, 1.5 * TILE, 'down'); }
+function d3_BL_to_ML() { d3Move('DUNGEON3_ML_MAP', 7.5 * TILE, 13.5 * TILE, 'up'); }
 // MC ↔ BC  (south wall of MC / north wall of BC)
-function d3_MC_to_BC() { activeMap=DUNGEON3_BC_MAP; player.x=7.5*TILE; player.y= 1.5*TILE; player.facing='down';  combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_BC_to_MC() { activeMap=DUNGEON3_MC_MAP; player.x=7.5*TILE; player.y=13.5*TILE; player.facing='up';    combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_MC_to_BC() { d3Move('DUNGEON3_BC_MAP', 7.5 * TILE, 1.5 * TILE, 'down'); }
+function d3_BC_to_MC() { d3Move('DUNGEON3_MC_MAP', 7.5 * TILE, 13.5 * TILE, 'up'); }
 // MR ↔ BR  (south wall of MR / north wall of BR)
-function d3_MR_to_BR() { activeMap=DUNGEON3_BR_MAP; player.x=7.5*TILE; player.y= 1.5*TILE; player.facing='down';  combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_BR_to_MR() { activeMap=DUNGEON3_MR_MAP; player.x=7.5*TILE; player.y=13.5*TILE; player.facing='up';    combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_MR_to_BR() { d3Move('DUNGEON3_BR_MAP', 7.5 * TILE, 1.5 * TILE, 'down'); }
+function d3_BR_to_MR() { d3Move('DUNGEON3_MR_MAP', 7.5 * TILE, 13.5 * TILE, 'up'); }
 // BL ↔ BC  (east wall of BL / west wall of BC)
-function d3_BL_to_BC() { activeMap=DUNGEON3_BC_MAP; player.x= 1.5*TILE; player.y=7.5*TILE; player.facing='right'; combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_BC_to_BL() { activeMap=DUNGEON3_BL_MAP; player.x=14.5*TILE; player.y=7.5*TILE; player.facing='left';  combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_BL_to_BC() { d3Move('DUNGEON3_BC_MAP', 1.5 * TILE, 7.5 * TILE, 'right'); }
+function d3_BC_to_BL() { d3Move('DUNGEON3_BL_MAP', 14.5 * TILE, 7.5 * TILE, 'left'); }
 // BC ↔ BR  (east wall of BC / west wall of BR)
-function d3_BC_to_BR() { activeMap=DUNGEON3_BR_MAP; player.x= 1.5*TILE; player.y=7.5*TILE; player.facing='right'; combat.cooldown=ENCOUNTER_COOLDOWN; }
-function d3_BR_to_BC() { activeMap=DUNGEON3_BC_MAP; player.x=14.5*TILE; player.y=7.5*TILE; player.facing='left';  combat.cooldown=ENCOUNTER_COOLDOWN; }
+function d3_BC_to_BR() { d3Move('DUNGEON3_BR_MAP', 1.5 * TILE, 7.5 * TILE, 'right'); }
+function d3_BR_to_BC() { d3Move('DUNGEON3_BC_MAP', 14.5 * TILE, 7.5 * TILE, 'left'); }
 
 // ─── Lorra's Farmhouse ────────────────────────────────────────────────────────
 function enterLorraHouse() {
-  inLorraHouse    = true;
-  activeMap       = LORRA_HOUSE_MAP;
-  player.x        = 7.5 * TILE;  // col 7 — centre aisle
-  player.y        = 11.5 * TILE; // row 11 — just inside the door
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'LORRA_HOUSE_MAP', x: 7.5 * TILE, y: 11.5 * TILE, facing: 'up',
+    state: { inLorraHouse: true }, cooldown: true }); // col 7 centre aisle, row 11 just inside door
 }
 
 function exitLorraHouse() {
-  inLorraHouse    = false;
-  activeMap       = MAP2;
-  player.x        = 2.5 * TILE;  // col 2 — in front of the door
-  player.y        = 13.5 * TILE; // row 13 — one step south of HOUSE_DOOR at row 12
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP2', x: 2.5 * TILE, y: 13.5 * TILE, facing: 'down', cooldown: true }); // one step south of HOUSE_DOOR
 }
 
 function enterMarenPost() {
-  inMarenPost     = true;
-  activeMap       = MAREN_POST_MAP;
-  player.x        = 7.5 * TILE;  // col 7 — centre aisle
-  player.y        = 10.5 * TILE; // row 10 — just inside the post door
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAREN_POST_MAP', x: 7.5 * TILE, y: 10.5 * TILE, facing: 'up',
+    state: { inMarenPost: true }, cooldown: true }); // col 7 centre aisle, just inside the post door
 }
 
 function exitMarenPost() {
-  inMarenPost     = false;
-  activeMap       = MAP;
-  player.x        = 13.5 * TILE; // col 13 — back on the GUARD_POST tile
-  player.y        =  6.5 * TILE; // row 6 — one step south of the post
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP', x: 13.5 * TILE, y: 6.5 * TILE, facing: 'down', cooldown: true }); // back on GUARD_POST tile, one south
 }
 
 // ─── Drenwick Guard Post (MAP3_N2 row 12 col 11) ─────────────────────────────
 function enterDrenwrickPost() {
-  inDrenwrickPost = true;
-  activeMap       = DRENWICK_POST_MAP;
-  player.x        = 7.5 * TILE;  // col 7 — centre aisle
-  player.y        = 10.5 * TILE; // row 10 — just inside the post door
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DRENWICK_POST_MAP', x: 7.5 * TILE, y: 10.5 * TILE, facing: 'up',
+    state: { inDrenwrickPost: true }, cooldown: true }); // col 7 centre aisle, just inside the post door
 }
 
 function exitDrenwrickPost() {
-  inDrenwrickPost = false;
-  activeMap       = MAP3_N2;
-  player.x        = 11.5 * TILE; // col 11 — back on the GUARD_POST tile
-  player.y        = 13.5 * TILE; // row 13 — one step south of the post
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N2', x: 11.5 * TILE, y: 13.5 * TILE, facing: 'down', cooldown: true }); // GUARD_POST tile, one south
 }
 
 // ─── Imperial Bridge Checkpoint (MAP3_N2 row 5 col 12) ───────────────────────
 function enterBridgePostFromSouth() {
-  inBridgePost           = true;
-  bridge_entry_direction = 'south';
-  bridge_toll_paid       = false;
-  activeMap              = BRIDGE_CROSSING_MAP;
-  player.x               = 7.5 * TILE;  // col 7 — bridge centre path
-  player.y               = 13.5 * TILE; // row 13 — south bank entry point
-  player.facing          = 'up';
-  combat.cooldown        = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'BRIDGE_CROSSING_MAP', x: 7.5 * TILE, y: 13.5 * TILE, facing: 'up',
+    state: { inBridgePost: true, bridge_entry_direction: 'south', bridge_toll_paid: false }, cooldown: true }); // south bank entry
   // Phase 1 pilot: fresh visit -- both guards back at their blocking
   // posts, stationary, original facing; any prior route state cleared.
   resetBridgeGuards();
 }
 
 function enterBridgePostFromNorth() {
-  inBridgePost           = true;
-  bridge_entry_direction = 'north';
-  bridge_toll_paid       = false;
-  activeMap              = BRIDGE_CROSSING_MAP;
-  player.x               = 7.5 * TILE;  // col 7 — bridge centre path
-  player.y               =  1.5 * TILE; // row 1 — north bank entry point
-  player.facing          = 'down';
-  combat.cooldown        = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'BRIDGE_CROSSING_MAP', x: 7.5 * TILE, y: 1.5 * TILE, facing: 'down',
+    state: { inBridgePost: true, bridge_entry_direction: 'north', bridge_toll_paid: false }, cooldown: true }); // north bank entry
   // Phase 1 pilot: fresh visit -- both guards back at their blocking
   // posts, stationary, original facing; any prior route state cleared.
   resetBridgeGuards();
 }
 
 function exitBridgeSouth() {
-  inBridgePost           = false;
-  bridge_entry_direction = null;
-  bridge_toll_paid       = false;
-  activeMap              = MAP3_N2;
-  player.x               = 12.5 * TILE; // col 12 — back on the approach path
-  player.y               =  6.5 * TILE; // row 6 — one step south of the bridge gate
-  player.facing          = 'down';
-  combat.cooldown        = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N2', x: 12.5 * TILE, y: 6.5 * TILE, facing: 'down', cooldown: true }); // approach path, one south of gate
   resetBridgeGuards(); // clear route state + restore blocking posts for the next visit
 }
 
 function exitBridgeNorth() {
-  inBridgePost           = false;
-  bridge_entry_direction = null;
-  bridge_toll_paid       = false;
-  activeMap              = MAP3_N2;
-  player.x               = 12.5 * TILE; // col 12 — north bank
-  player.y               =  4.5 * TILE; // row 4 — one step north of the bridge gate
-  player.facing          = 'up';
-  combat.cooldown        = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N2', x: 12.5 * TILE, y: 4.5 * TILE, facing: 'up', cooldown: true }); // north bank, one north of gate
   resetBridgeGuards(); // clear route state + restore blocking posts for the next visit
   // Record crossing north onto the basin road ahead of any assignment, so
   // the Calwick supervisor can note it next time the player reports in (see
@@ -380,68 +436,37 @@ function exitBridgeNorth() {
 
 // ─── Smugglers' Fort (MAP3_N1 row 9 col 13) ──────────────────────────────────
 function enterSmugglerFort() {
-  inSmugglerFort  = true;
-  activeMap       = SMUGGLER_FORT_MAP;
-  player.x        = 7.5 * TILE;  // col 7 — centre aisle
-  player.y        = 10.5 * TILE; // row 10 — just inside the door
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SMUGGLER_FORT_MAP', x: 7.5 * TILE, y: 10.5 * TILE, facing: 'up',
+    state: { inSmugglerFort: true }, cooldown: true }); // col 7 centre aisle, just inside door
 }
 
 function exitSmugglerFort() {
-  inSmugglerFort  = false;
-  activeMap       = MAP3_N1;
-  player.x        = 14.5 * TILE; // col 14 — east of the fort tile
-  player.y        =  9.5 * TILE; // row 9
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N1', x: 14.5 * TILE, y: 9.5 * TILE, facing: 'down', cooldown: true }); // east of the fort tile
 }
 
 // ─── Mirethyst's Vault (MAP3_N1 row 3 col 1) ─────────────────────────────────
 function enterMireVault() {
-  inMireVault     = true;
-  activeMap       = MIRE_VAULT_MAP;
-  player.x        = 7.5 * TILE;  // col 7 — entry hall
-  player.y        = 12.5 * TILE; // row 12 — just above MIRE_EXIT
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MIRE_VAULT_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inMireVault: true }, cooldown: true }); // entry hall, just above MIRE_EXIT
 }
 
 function exitMireVault() {
-  inMireVault     = false;
-  activeMap       = MAP3_N1;
-  player.x        =  1.5 * TILE; // col 1 — back on/beside the MIRE_ENTRANCE
-  player.y        =  4.5 * TILE; // row 4 — one step south of the entrance
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N1', x: 1.5 * TILE, y: 4.5 * TILE, facing: 'down', cooldown: true }); // beside MIRE_ENTRANCE, one south
 }
 
 function enterTakomo() {
-  inTakomo        = true;
-  activeMap       = TAKOMO_MAP;
-  player.x        = 2.5 * TILE; // col 2 — just inside the passage mouth
-  player.y        = 7.5 * TILE; // row 7 — aligned with the exit tile
-  player.facing   = 'right';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'TAKOMO_MAP', x: 2.5 * TILE, y: 7.5 * TILE, facing: 'right',
+    state: { inTakomo: true }, cooldown: true }); // just inside the passage mouth, aligned with the exit tile
 }
 
 function exitTakomo() {
-  inTakomo        = false;
-  activeMap       = DRENWICK_WATERFRONT_MAP;
-  player.x        = 1.5 * TILE; // col 1 — one step east of the gate on the quay
-  player.y        = 3.5 * TILE; // row 3 — quay level
-  player.facing   = 'right';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'DRENWICK_WATERFRONT_MAP', x: 1.5 * TILE, y: 3.5 * TILE, facing: 'right', cooldown: true }); // one east of the gate on the quay
 }
 
 // ─── Fen Brewery (MAP3_N1 row 4 col 13) ──────────────────────────────────────
 function enterFenBrewery() {
-  inFenBrewery    = true;
-  activeMap       = FEN_BREWERY_MAP;
-  player.x        = 3.5 * TILE;  // col 3 — just inside the south door
-  player.y        = 12.5 * TILE; // row 12 — one step north of INTERIOR_EXIT
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'FEN_BREWERY_MAP', x: 3.5 * TILE, y: 12.5 * TILE, facing: 'up',
+    state: { inFenBrewery: true }, cooldown: true }); // just inside the south door, one north of INTERIOR_EXIT
 }
 
 function exitFenBrewery() {
@@ -449,12 +474,7 @@ function exitFenBrewery() {
   // per-frame ensureAutoPatrols() also enforces this, but do it explicitly on
   // exit, mirroring resetBridgeGuards() at the bridge exits).
   if (typeof resetAllPatrols === 'function') resetAllPatrols();
-  inFenBrewery    = false;
-  activeMap       = MAP3_N1;
-  player.x        = 13.5 * TILE; // col 13 — just south of the FARM_HOUSE tile
-  player.y        =  5.5 * TILE; // row 5  — one step south of the house
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N1', x: 13.5 * TILE, y: 5.5 * TILE, facing: 'down', cooldown: true }); // just south of the FARM_HOUSE tile
 }
 
 // ─── Falls Hamlet Interior ────────────────────────────────────────────────────
@@ -462,134 +482,71 @@ function exitFenBrewery() {
 // Entry positions: room A → col 2 row 12, room B → col 7 row 12, room C → col 12 row 12.
 // Exit: player's x when stepping on INTERIOR_EXIT determines which house to return to.
 function enterHamletInterior(room) {
-  inHamletInterior = true;
-  activeMap        = HAMLET_INTERIOR_MAP;
-  player.facing    = 'up';
-  combat.cooldown  = ENCOUNTER_COOLDOWN;
-  if (room === 'A') {
-    player.x = 2.5 * TILE;   // room A — Corvel (cols 1-4)
-    player.y = 12.5 * TILE;
-  } else if (room === 'B') {
-    player.x = 7.5 * TILE;   // room B — Gridd (cols 6-9)
-    player.y = 12.5 * TILE;
-  } else {
-    player.x = 12.5 * TILE;  // room C — Mabel + Imber (cols 11-14)
-    player.y = 12.5 * TILE;
-  }
+  // Entry column depends on which house (A/B/C) was entered; all land row 12.
+  const x = (room === 'A' ? 2.5 : room === 'B' ? 7.5 : 12.5) * TILE;
+  transitionToLocation({ mapId: 'HAMLET_INTERIOR_MAP', x, y: 12.5 * TILE, facing: 'up',
+    state: { inHamletInterior: true }, cooldown: true });
 }
 
 function exitHamletInterior() {
-  inHamletInterior = false;
-  activeMap        = MAP3_N1;
-  player.facing    = 'down';
-  combat.cooldown  = ENCOUNTER_COOLDOWN;
-  // Determine return position from which room the exit tile was in
-  if (player.x < 5 * TILE) {
-    // Room A exit (col 2) → south of house at row 10 col 1
-    player.x = 1.5 * TILE;
-    player.y = 11.5 * TILE;
-  } else if (player.x < 11 * TILE) {
-    // Room B exit (col 7) → south of house at row 11 col 2
-    player.x = 2.5 * TILE;
-    player.y = 12.5 * TILE;
-  } else {
-    // Room C exit (col 12) → south of house at row 12 col 1
-    player.x = 1.5 * TILE;
-    player.y = 13.5 * TILE;
-  }
+  // Return position depends on which room the exit tile was in — read the
+  // CURRENT player.x before the transition moves the player.
+  let rx, ry;
+  if (player.x < 5 * TILE)        { rx = 1.5 * TILE; ry = 11.5 * TILE; } // Room A exit (col 2)
+  else if (player.x < 11 * TILE)  { rx = 2.5 * TILE; ry = 12.5 * TILE; } // Room B exit (col 7)
+  else                            { rx = 1.5 * TILE; ry = 13.5 * TILE; } // Room C exit (col 12)
+  transitionToLocation({ mapId: 'MAP3_N1', x: rx, y: ry, facing: 'down', cooldown: true });
 }
 
 // ─── Town transitions ─────────────────────────────────────────────────────────
 function enterMap2() {
-  activeMap   = MAP2;
-  player.x    = 1.5 * TILE;  // col 1 — just inside MAP2's left edge
-  // player.y preserved — row stays the same (row 4)
-  player.facing = 'right';
+  // player.y preserved — the crossing row stays the same.
+  transitionToLocation({ mapId: 'MAP2', x: 1.5 * TILE, y: player.y, facing: 'right' });
 }
 
 function exitMap2() {
-  activeMap   = MAP;
-  player.x    = 14.5 * TILE; // col 14 — one step before the MAP2_EXIT tile
-  // player.y preserved
-  player.facing = 'left';
+  transitionToLocation({ mapId: 'MAP', x: 14.5 * TILE, y: player.y, facing: 'left' });
 }
 
 function enterMap3() {
-  activeMap   = MAP3;
-  player.x    = 1.5 * TILE;  // col 1 — just inside MAP3's left edge
-  // player.y preserved — row 11 lines up with MAP3_ENTRANCE
-  player.facing = 'right';
+  transitionToLocation({ mapId: 'MAP3', x: 1.5 * TILE, y: player.y, facing: 'right' });
 }
 
 function exitMap3() {
-  activeMap   = MAP2;
-  player.x    = 14.5 * TILE; // col 14 — one step before the MAP3_EXIT tile
-  // player.y preserved
-  player.facing = 'left';
+  transitionToLocation({ mapId: 'MAP2', x: 14.5 * TILE, y: player.y, facing: 'left' });
 }
 
 function enterMap4() {
-  activeMap   = MAP4;
-  player.x    = 1.5 * TILE;  // col 1 — just inside MAP4's west edge
-  // player.y preserved — row 6 lines up with MAP4_EXIT
-  player.facing = 'right';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP4', x: 1.5 * TILE, y: player.y, facing: 'right', cooldown: true });
 }
 
 function exitMap4() {
-  activeMap   = MAP3;
-  player.x    = 14.5 * TILE; // col 14 — one step before MAP4_EXIT tile
-  // player.y preserved
-  player.facing = 'left';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3', x: 14.5 * TILE, y: player.y, facing: 'left', cooldown: true });
 }
 
 function enterMap5() {
-  activeMap   = MAP5;
-  player.x    = 1.5 * TILE;  // col 1 — just inside MAP5's west edge
-  // player.y preserved — row 6 lines up with MAP5_EXIT
-  player.facing = 'right';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP5', x: 1.5 * TILE, y: player.y, facing: 'right', cooldown: true });
 }
 
 function exitMap5() {
-  activeMap   = MAP4;
-  player.x    = 14.5 * TILE; // col 14 — one step before MAP5_EXIT tile
-  // player.y preserved
-  player.facing = 'left';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP4', x: 14.5 * TILE, y: player.y, facing: 'left', cooldown: true });
 }
 
 function enterMap3N1() {
-  activeMap   = MAP3_N1;
-  player.y    = 13.5 * TILE; // row 13 — just inside MAP3_N1's south edge
-  // player.x preserved — col 8 lines up with FEN_N_EXIT
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  // player.x preserved — col lines up with FEN_N_EXIT.
+  transitionToLocation({ mapId: 'MAP3_N1', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true });
 }
 
 function exitMap3N1() {
-  activeMap   = MAP3;
-  player.y    = 1.5 * TILE;  // row 1 — just inside MAP3's north edge
-  // player.x preserved
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true });
 }
 
 function enterMap3N2() {
-  activeMap   = MAP3_N2;
-  player.y    = 13.5 * TILE; // row 13 — just inside MAP3_N2's south edge
-  // player.x preserved — col 8
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N2', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true });
 }
 
 function exitMap3N2() {
-  activeMap   = MAP3_N1;
-  player.y    = 1.5 * TILE;  // row 1 — just inside MAP3_N1's north edge
-  // player.x preserved
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N1', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true });
 }
 
 // ─── The North Basin — south approach (skeleton) ─────────────────────────────
@@ -597,19 +554,11 @@ function exitMap3N2() {
 // NORTH_BASIN_ENTRANCE (row 14 col 12). Same preserved-x, fixed-y pattern as
 // every other north/south overworld crossing (enterMap3N1/exitMap3N1, etc).
 function enterNorthBasinS() {
-  activeMap   = NORTH_BASIN_S_MAP;
-  player.y    = 13.5 * TILE; // row 13 — just inside the basin map's south edge
-  // player.x preserved — col 12
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'NORTH_BASIN_S_MAP', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true }); // player.x preserved (col 12)
 }
 
 function exitNorthBasinS() {
-  activeMap   = MAP3_N2;
-  player.y    = 1.5 * TILE;  // row 1 — just inside MAP3_N2's north edge (on the causeway)
-  // player.x preserved — col 12
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP3_N2', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true }); // player.x preserved (col 12)
 }
 
 // North Basin south approach <-> centre reservoir, and south approach <->
@@ -625,19 +574,11 @@ function exitNorthBasinS() {
 // meadow's south tree border. The exit lands one tile BELOW the hidden tile
 // (row 2), not on it, so leaving the meadow doesn't immediately re-enter it.
 function enterMeadow() {
-  activeMap   = MEADOW_MAP;
-  player.x    = 7.5 * TILE;   // just inside the south gap
-  player.y    = 13.5 * TILE;
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MEADOW_MAP', x: 7.5 * TILE, y: 13.5 * TILE, facing: 'up', cooldown: true }); // just inside the south gap
 }
 
 function exitMeadow() {
-  activeMap   = MAP;
-  player.x    = 1.5 * TILE;   // col 1, row 2 — one south of the hidden entrance
-  player.y    = 2.5 * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP', x: 1.5 * TILE, y: 2.5 * TILE, facing: 'down', cooldown: true }); // one south of the hidden entrance
 }
 
 // Silt Flats <-> West Shore (north-south crossing).
@@ -649,51 +590,27 @@ function exitMeadow() {
 // (not torn out) to keep this conservative pass off the movement/transition
 // machinery. Safe to delete whenever tiles 90/91 are formally retired.
 function enterNorthBasinW() {
-  activeMap   = NORTH_BASIN_W_MAP;
-  player.y    = 13.5 * TILE; // row 13 — just inside the Badlands' south edge
-  // player.x preserved — col 4
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'NORTH_BASIN_W_MAP', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true }); // player.x preserved (col 4)
 }
 
 function exitNorthBasinW() {
-  activeMap   = NORTH_BASIN_SW_MAP;
-  player.y    = 1.5 * TILE;  // row 1 — just inside the Silt Flats' north edge
-  // player.x preserved — col 4
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'NORTH_BASIN_SW_MAP', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true }); // player.x preserved (col 4)
 }
 
 function enterMapN1() {
-  activeMap   = MAP_N1;
-  player.y    = 13.5 * TILE; // row 13 — just inside MAP_N1's south edge
-  // player.x preserved — col 7 lines up with NORTH_EXIT
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP_N1', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true }); // player.x preserved, aligns with NORTH_EXIT
 }
 
 function exitMapN1() {
-  activeMap   = MAP;
-  player.y    = 1.5 * TILE;  // row 1 — just inside MAP's north edge
-  // player.x preserved
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true }); // player.x preserved
 }
 
 function enterMapN2() {
-  activeMap   = MAP_N2;
-  player.y    = 13.5 * TILE; // row 13 — just inside MAP_N2's south edge
-  // player.x preserved — col 7
-  player.facing = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP_N2', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true }); // player.x preserved (col 7)
 }
 
 function exitMapN2() {
-  activeMap   = MAP_N1;
-  player.y    = 1.5 * TILE;  // row 1 — just inside MAP_N1's north edge
-  // player.x preserved
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP_N1', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true }); // player.x preserved
 }
 
 // ─── Town entry registry ──────────────────────────────────────────────────────
@@ -730,14 +647,8 @@ function enterTownAt(townId, entryPoint) {
     console.warn('No town entry configured for:', townId, entryPoint);
     return;
   }
-  inTown           = true;
-  currentTownId    = townId;
-  townBuilding     = entry.townBuilding || null;
-  activeMap        = entry.map;
-  player.x         = entry.x;
-  player.y         = entry.y;
-  player.facing    = entry.facing;
-  combat.cooldown  = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: mapRegistryId(entry.map), x: entry.x, y: entry.y, facing: entry.facing,
+    state: { inTown: true, currentTownId: townId, townBuilding: entry.townBuilding || null }, cooldown: true });
   travellerPresent = Math.random() < 1 / 3;
 }
 
@@ -754,356 +665,198 @@ function entryPointFromFacing(facing) {
 }
 
 function moveToDrenwichDistrict(map, x, y, facing) {
-  activeMap       = map;
-  player.x        = x * TILE;
-  player.y        = y * TILE;
-  player.facing   = facing;
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  // Intra-Drenwick district move: stays in town; townBuilding carried forward
+  // (null on a district) — enumerated deliberately, not a blanket preserve-all.
+  transitionToLocation({ mapId: mapRegistryId(map), x: x * TILE, y: y * TILE, facing,
+    state: { inTown: true, currentTownId: 'drenwick', townBuilding: townBuilding }, cooldown: true });
 }
 
 function exitTown() {
+  // Every branch leaves town entirely (all location state → neutral); compute
+  // the landing map/spot per branch, then transition once.
   if (currentTownId === 'drenwick') {
     if (activeMap === DRENWICK_MARKET_MAP) {
       // Exiting east from Market — land just east of the Drenwick gate on MAP3_N2
-      activeMap     = MAP3_N2;
-      player.x      = 9.5 * TILE;  // col 9, one tile east of TOWN_ENTRANCE at col 8
-      player.y      = 6.5 * TILE;  // row 6, same latitude as the gate
-      player.facing = 'right';
+      transitionToLocation({ mapId: 'MAP3_N2', x: 9.5 * TILE, y: 6.5 * TILE, facing: 'right', cooldown: true });
     } else if (activeMap === DRENWICK_EAST_OUTSKIRTS_MAP) {
-      activeMap = MAP3_N2;
       if (player.facing === 'right') {
         // East exit (col 15 row 7) — land one tile east of the town gate
-        player.x      = 9.5 * TILE;  // col 9, just east of TOWN_ENTRANCE at col 8
-        player.y      = 6.5 * TILE;  // row 6, same latitude as the gate
-        player.facing = 'right';
+        transitionToLocation({ mapId: 'MAP3_N2', x: 9.5 * TILE, y: 6.5 * TILE, facing: 'right', cooldown: true });
       } else {
         // South exit (row 14 col 7) — land south-east of town
-        player.x      = 9.5 * TILE;
-        player.y      = 7.5 * TILE;
-        player.facing = 'down';
+        transitionToLocation({ mapId: 'MAP3_N2', x: 9.5 * TILE, y: 7.5 * TILE, facing: 'down', cooldown: true });
       }
     } else {
       // Default Drenwick exit — Civic south to MAP3_N2
-      activeMap     = MAP3_N2;
-      player.x      = 8.5 * TILE;  // col 8 — one step south of TOWN_ENTRANCE
-      player.y      = 7.5 * TILE;  // row 7
-      player.facing = 'down';
+      transitionToLocation({ mapId: 'MAP3_N2', x: 8.5 * TILE, y: 7.5 * TILE, facing: 'down', cooldown: true });
     }
-    inTown        = false;
-    townBuilding  = null;
-    currentTownId = null;
-    combat.cooldown = ENCOUNTER_COOLDOWN;
     return;
   }
 
   // Calwick (and any future non-Drenwick towns)
-  inTown        = false;
-  townBuilding  = null;
-  activeMap     = MAP;
-  player.x      = 5.5 * TILE;
-  player.y      = 2.5 * TILE;
-  player.facing = 'down';
-  currentTownId   = null;
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'MAP', x: 5.5 * TILE, y: 2.5 * TILE, facing: 'down', cooldown: true });
 }
 
 function enterBuilding(building) {
-  townBuilding = building;
-
-  // Drenwick uses its own interior maps
+  // Entering a building keeps the player in town (inTown + currentTownId carried
+  // forward); only townBuilding + the interior map/landing change. No cooldown.
+  let mapId, y;
+  const x = 7.5 * TILE;
   if (currentTownId === 'drenwick') {
-    if (building === 'inn') {
-      activeMap = DRENWICK_INN_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 12.5 * TILE;
-    } else if (building === 'office') {
-      activeMap = DRENWICK_OFFICE_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 10.5 * TILE;
-    } else if (building === 'harbormaster') {
-      activeMap = DRENWICK_HARBORMASTER_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 11.5 * TILE;
-    } else if (building === 'wash_house') {
-      activeMap = DRENWICK_WASH_HOUSE_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 11.5 * TILE;
-    } else if (building === 'provision_store') {
-      activeMap = DRENWICK_PROVISION_STORE_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 11.5 * TILE;
-    } else if (building === 'guild_hall') {
-      activeMap = DRENWICK_GUILD_HALL_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 11.5 * TILE;
-    } else if (building === 'tavern') {
-      activeMap = DRENWICK_TAVERN_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 12.5 * TILE;
-    } else if (building === 'school') {
-      activeMap = DRENWICK_SCHOOL_GROUND_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 11.5 * TILE;
-    } else if (building.startsWith('drenwick_apt_')) {
-      // All 6 east outskirts corridors reuse APARTMENT_CORRIDOR_MAP; townBuilding distinguishes them
-      activeMap = APARTMENT_CORRIDOR_MAP;
-      player.x  = 7.5 * TILE;
-      player.y  = 8.5 * TILE;
-    }
-    player.facing = 'up';
-    return;
+    // Drenwick uses its own interior maps
+    if (building === 'inn')                        { mapId = 'DRENWICK_INN_MAP';             y = 12.5 * TILE; }
+    else if (building === 'office')                { mapId = 'DRENWICK_OFFICE_MAP';          y = 10.5 * TILE; }
+    else if (building === 'harbormaster')          { mapId = 'DRENWICK_HARBORMASTER_MAP';    y = 11.5 * TILE; }
+    else if (building === 'wash_house')            { mapId = 'DRENWICK_WASH_HOUSE_MAP';      y = 11.5 * TILE; }
+    else if (building === 'provision_store')       { mapId = 'DRENWICK_PROVISION_STORE_MAP'; y = 11.5 * TILE; }
+    else if (building === 'guild_hall')            { mapId = 'DRENWICK_GUILD_HALL_MAP';      y = 11.5 * TILE; }
+    else if (building === 'tavern')                { mapId = 'DRENWICK_TAVERN_MAP';          y = 12.5 * TILE; }
+    else if (building === 'school')                { mapId = 'DRENWICK_SCHOOL_GROUND_MAP';   y = 11.5 * TILE; }
+    else if (building.startsWith('drenwick_apt_')) { mapId = 'APARTMENT_CORRIDOR_MAP';       y =  8.5 * TILE; } // 6 corridors reuse this map; townBuilding distinguishes
+    else return; // unknown Drenwick building — no-op, as before (nothing was set)
+  } else {
+    // Calwick interiors
+    if (building === 'inn')         { mapId = 'INN_MAP';    y = 12.5 * TILE; }
+    else if (building === 'school') { mapId = 'SCHOOL_MAP'; y = 11.5 * TILE; }
+    else if (building === 'apt')    { mapId = 'APARTMENT_CORRIDOR_MAP'; y = 8.5 * TILE; }
+    else                            { mapId = 'OFFICE_MAP'; y =  9.5 * TILE; }
   }
-
-  // Calwick interiors — existing logic unchanged below
-  if (building === 'inn')         activeMap = INN_MAP;
-  else if (building === 'school') activeMap = SCHOOL_MAP;
-  else if (building === 'apt')    activeMap = APARTMENT_CORRIDOR_MAP;
-  else                            activeMap = OFFICE_MAP;
-  player.x     = 7.5 * TILE;
-  if (building === 'inn')         player.y = 12.5 * TILE;
-  else if (building === 'school') player.y = 11.5 * TILE;
-  else if (building === 'apt')    player.y =  8.5 * TILE;
-  else                            player.y =  9.5 * TILE;
-  player.facing = 'up';
+  transitionToLocation({ mapId, x, y, facing: 'up',
+    state: { inTown: true, currentTownId: currentTownId, townBuilding: building } });
 }
 
 function enterHouse(houseId) {
-  currentHouseId      = houseId;
-  houseSourceMap      = activeMap;
-  houseSourceBuilding = townBuilding;
-  const _door = HOUSE_DOORS.find(d => d.houseId === houseId);
-  houseReturnPos = _door
+  // Compute the return context from the CURRENT location (which map/building the
+  // player came from, and where to land on exit) BEFORE the transition. These
+  // are passed as explicit state so the helper carries them into the house.
+  const _door = HOUSE_DOORS.find((d) => d.houseId === houseId);
+  const returnPos = _door
     ? { x: (_door.col + 0.5) * TILE, y: (_door.row + 1.5) * TILE }
     : { x: player.x, y: player.y + TILE };
   const isApt = houseId.startsWith('apt_') || houseId.startsWith('drenwick_apt_');
-  townBuilding        = 'house';
-  activeMap           = isApt ? SMALL_APARTMENT_MAP : HOUSE_INTERIOR_MAP;
-  player.x            = 7.5 * TILE;
-  player.y            = isApt ? 8.5 * TILE : 9.5 * TILE;
-  player.facing       = 'up';
+  transitionToLocation({
+    mapId: isApt ? 'SMALL_APARTMENT_MAP' : 'HOUSE_INTERIOR_MAP',
+    x: 7.5 * TILE, y: (isApt ? 8.5 : 9.5) * TILE, facing: 'up',
+    state: {
+      inTown: true, currentTownId: currentTownId, townBuilding: 'house', currentHouseId: houseId,
+      houseSourceMap: activeMap, houseSourceBuilding: townBuilding, houseReturnPos: returnPos,
+    },
+  });
 }
 
 function exitBuilding() {
   const prev = townBuilding;
 
-  // Drenwick interior exits
-  if (currentTownId === 'drenwick') {
-    // House exits — restore to the map and position the player entered from
-    if (prev === 'house') {
-      activeMap           = houseSourceMap;
-      townBuilding        = houseSourceBuilding;
-      player.x            = houseReturnPos.x;
-      player.y            = houseReturnPos.y;
-      currentHouseId      = null;
-      houseSourceMap      = null;
-      houseSourceBuilding = null;
-      player.facing       = 'down';
-      return;
-    }
-    // East outskirts apartment corridor exits — return to the exterior door position
-    if (prev.startsWith('drenwick_apt_')) {
-      const aptExits = {
-        'drenwick_apt_a1': { x: 2, y:  4 },
-        'drenwick_apt_a2': { x: 4, y:  4 },
-        'drenwick_apt_b1': { x: 2, y:  8 },
-        'drenwick_apt_b2': { x: 4, y:  8 },
-        'drenwick_apt_c1': { x: 2, y: 12 },
-        'drenwick_apt_c2': { x: 4, y: 12 },
-      };
-      const pos     = aptExits[prev] || { x: 2, y: 4 };
-      townBuilding  = null;
-      activeMap     = DRENWICK_EAST_OUTSKIRTS_MAP;
-      player.x      = (pos.x + 0.5) * TILE;
-      player.y      = (pos.y + 0.5) * TILE;
-      player.facing = 'down';
-      return;
-    }
-    // Canal/Docks buildings exit to dock road (row 7) one tile south of their door (row 6)
-    if (prev === 'harbormaster' || prev === 'wash_house' || prev === 'provision_store') {
-      townBuilding  = null;
-      activeMap     = DRENWICK_CANAL_DOCKS_MAP;
-      // x = door column; y = row 7 (dock road, one south of door row 6)
-      if (prev === 'harbormaster')       player.x = 2.5  * TILE;  // door col 2
-      else if (prev === 'wash_house')    player.x = 7.5  * TILE;  // door col 7
-      else                               player.x = 11.5 * TILE;  // door col 11 (provision store)
-      player.y      = 7.5 * TILE;
-      player.facing = 'down';
-      return;
-    }
-    // Tavern exits to Waterfront map, one south of the INN_DOOR (row 9 col 3 → row 10 col 3)
-    if (prev === 'tavern') {
-      townBuilding  = null;
-      activeMap     = DRENWICK_WATERFRONT_MAP;
-      player.x      = 3.5 * TILE;   // INN_DOOR col 3
-      player.y      = 10.5 * TILE;  // one tile south of row 9 door
-      player.facing = 'down';
-      return;
-    }
-    // Infirmary exits to the Waterfront, in front of its door (OFFICE_DOOR
-    // row 9 col 10 → row 10 col 10). The door itself can't be re-entered — on
-    // the waterfront it gives the pay-per-HP healing dialogue (movement.js).
-    if (prev === 'infirmary') {
-      townBuilding  = null;
-      activeMap     = DRENWICK_WATERFRONT_MAP;
-      player.x      = 10.5 * TILE;  // infirmary door col 10
-      player.y      = 10.5 * TILE;  // one tile south of row 9 door
-      player.facing = 'down';
-      return;
-    }
-    // School exits to West Residential, one south of SCHOOL_DOOR (row 3 col 3 → row 4 col 3)
-    if (prev === 'school') {
-      townBuilding  = null;
-      activeMap     = DRENWICK_WEST_RESIDENTIAL_MAP;
-      player.x      = 3.5 * TILE;   // SCHOOL_DOOR col 3
-      player.y      = 4.5 * TILE;   // one tile south of door row 3
-      player.facing = 'down';
-      return;
-    }
-    // Guild Hall exits to Market map, one south of the door (row 2 col 5 → row 3 col 5)
-    if (prev === 'guild_hall') {
-      townBuilding  = null;
-      activeMap     = DRENWICK_MARKET_MAP;
-      player.x      = 5.5 * TILE;
-      player.y      = 3.5 * TILE;
-      player.facing = 'down';
-      return;
-    }
-    // Civic buildings (inn, office) return to Civic map at the correct door position
-    townBuilding  = null;
-    activeMap     = DRENWICK_CIVIC_MAP;
-    player.x      = (prev === 'inn' ? 3.5 : 11.5) * TILE;
-    player.y      = 4.5 * TILE;  // row 4 — main street, one south of door row
-    player.facing = 'down';
+  // House exits (both towns are identical): restore to the map/position the
+  // player entered from. The return context (houseSourceMap/houseSourceBuilding/
+  // houseReturnPos) is read here — before the helper resets those fields.
+  if (prev === 'house') {
+    transitionToLocation({
+      mapId: mapRegistryId(houseSourceMap), x: houseReturnPos.x, y: houseReturnPos.y, facing: 'down',
+      state: { inTown: true, currentTownId: currentTownId, townBuilding: houseSourceBuilding },
+    });
     return;
   }
 
-  if (prev === 'house') {
-    activeMap           = houseSourceMap;
-    townBuilding        = houseSourceBuilding;
-    player.x            = houseReturnPos.x;
-    player.y            = houseReturnPos.y;
-    currentHouseId      = null;
-    houseSourceMap      = null;
-    houseSourceBuilding = null;
-  } else if (prev === 'school') {
-    townBuilding = 'west';
-    activeMap    = WEST_TOWN_MAP;
-    player.x     = 6.5 * TILE;   // col 6 — school door column
-    player.y     = 4.5 * TILE;   // row 4 — school courtyard (grass)
-  } else if (prev === 'apt') {
-    townBuilding = 'east';
-    activeMap    = EAST_TOWN_MAP;
-    player.x     = 5.5 * TILE;   // col 5 — apt door column
-    player.y     = 9.5 * TILE;   // row 9 — south street
-  } else {
-    townBuilding = null;
-    activeMap    = TOWN_MAP;
-    // Spawn just south of the building door on main street
-    player.x     = (prev === 'inn' ? 3.5 : 12.5) * TILE;
-    player.y     = 5.5 * TILE;
+  // All remaining exits stay in town (inTown + currentTownId carried forward);
+  // only townBuilding + the map/landing change. Compute per branch, then move.
+  if (currentTownId === 'drenwick') {
+    let mapId, x, y;
+    if (prev.startsWith('drenwick_apt_')) {
+      // East outskirts apartment corridor exits — return to the exterior door position
+      const aptExits = {
+        'drenwick_apt_a1': { x: 2, y:  4 }, 'drenwick_apt_a2': { x: 4, y:  4 },
+        'drenwick_apt_b1': { x: 2, y:  8 }, 'drenwick_apt_b2': { x: 4, y:  8 },
+        'drenwick_apt_c1': { x: 2, y: 12 }, 'drenwick_apt_c2': { x: 4, y: 12 },
+      };
+      const pos = aptExits[prev] || { x: 2, y: 4 };
+      mapId = 'DRENWICK_EAST_OUTSKIRTS_MAP'; x = (pos.x + 0.5) * TILE; y = (pos.y + 0.5) * TILE;
+    } else if (prev === 'harbormaster' || prev === 'wash_house' || prev === 'provision_store') {
+      // Canal/Docks buildings exit to dock road (row 7), one south of their door (row 6)
+      mapId = 'DRENWICK_CANAL_DOCKS_MAP'; y = 7.5 * TILE;
+      x = (prev === 'harbormaster' ? 2.5 : prev === 'wash_house' ? 7.5 : 11.5) * TILE;
+    } else if (prev === 'tavern') {
+      mapId = 'DRENWICK_WATERFRONT_MAP'; x = 3.5 * TILE; y = 10.5 * TILE;   // one south of INN_DOOR row 9 col 3
+    } else if (prev === 'infirmary') {
+      mapId = 'DRENWICK_WATERFRONT_MAP'; x = 10.5 * TILE; y = 10.5 * TILE;  // one south of OFFICE_DOOR row 9 col 10
+    } else if (prev === 'school') {
+      mapId = 'DRENWICK_WEST_RESIDENTIAL_MAP'; x = 3.5 * TILE; y = 4.5 * TILE; // one south of SCHOOL_DOOR row 3 col 3
+    } else if (prev === 'guild_hall') {
+      mapId = 'DRENWICK_MARKET_MAP'; x = 5.5 * TILE; y = 3.5 * TILE;       // one south of door row 2 col 5
+    } else {
+      // Civic buildings (inn, office) return to Civic map at the correct door position
+      mapId = 'DRENWICK_CIVIC_MAP'; x = (prev === 'inn' ? 3.5 : 11.5) * TILE; y = 4.5 * TILE;
+    }
+    transitionToLocation({ mapId, x, y, facing: 'down',
+      state: { inTown: true, currentTownId: currentTownId, townBuilding: null } });
+    return;
   }
-  player.facing = 'down';
+
+  // Calwick non-house exits
+  let mapId, x, y, tb;
+  if (prev === 'school')   { tb = 'west'; mapId = 'WEST_TOWN_MAP'; x = 6.5 * TILE; y = 4.5 * TILE; } // school courtyard
+  else if (prev === 'apt') { tb = 'east'; mapId = 'EAST_TOWN_MAP'; x = 5.5 * TILE; y = 9.5 * TILE; } // south street
+  else                     { tb = null;   mapId = 'TOWN_MAP'; x = (prev === 'inn' ? 3.5 : 12.5) * TILE; y = 5.5 * TILE; } // main street south of door
+  transitionToLocation({ mapId, x, y, facing: 'down',
+    state: { inTown: true, currentTownId: currentTownId, townBuilding: tb } });
 }
 
 function enterEastTown() {
-  townBuilding  = 'east';
-  activeMap     = EAST_TOWN_MAP;
-  player.x      = 1.5 * TILE;   // col 1 — one step inside the east alley
-  player.facing = 'right';
-  // player.y is preserved; rows 5 and 9 align with EAST_EXIT tiles
+  // Intra-Calwick district: stays in town, player.y preserved (aligns with EAST_EXIT rows).
+  transitionToLocation({ mapId: 'EAST_TOWN_MAP', x: 1.5 * TILE, y: player.y, facing: 'right',
+    state: { inTown: true, currentTownId: currentTownId, townBuilding: 'east' } });
 }
 
 function exitEastTown() {
-  townBuilding  = null;
-  activeMap     = TOWN_MAP;
-  player.x      = 14.5 * TILE;  // col 14 — just inside main town, left of east entrance
-  player.facing = 'left';
-  // player.y preserved
+  transitionToLocation({ mapId: 'TOWN_MAP', x: 14.5 * TILE, y: player.y, facing: 'left',
+    state: { inTown: true, currentTownId: currentTownId, townBuilding: null } }); // player.y preserved
 }
 
 function exitEastTownToWorld() {
-  inTown        = false;
-  townBuilding  = null;
-  activeMap     = MAP;
-  player.x      =  7.5 * TILE;  // col 7 — two tiles east of the town entrance
-  player.y      =  1.5 * TILE;  // row 1
-  player.facing = 'right';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  // Leaves town entirely → all location state neutral.
+  transitionToLocation({ mapId: 'MAP', x: 7.5 * TILE, y: 1.5 * TILE, facing: 'right', cooldown: true }); // two tiles east of the town entrance
 }
 
 function enterWestTown() {
-  townBuilding  = 'west';
-  activeMap     = WEST_TOWN_MAP;
-  player.x      = 13.5 * TILE;  // col 13 — one step inside, left of west exit
-  player.facing = 'left';
-  // player.y preserved; rows 5 and 9 align with WEST_EXIT tiles
+  // Intra-Calwick district: stays in town, player.y preserved (aligns with WEST_EXIT rows).
+  transitionToLocation({ mapId: 'WEST_TOWN_MAP', x: 13.5 * TILE, y: player.y, facing: 'left',
+    state: { inTown: true, currentTownId: currentTownId, townBuilding: 'west' } });
 }
 
 function exitWestTown() {
-  townBuilding  = null;
-  activeMap     = TOWN_MAP;
-  player.x      = 1.5 * TILE;   // col 1 — one step inside main town, right of west entrance
-  player.facing = 'right';
-  // player.y preserved
+  transitionToLocation({ mapId: 'TOWN_MAP', x: 1.5 * TILE, y: player.y, facing: 'right',
+    state: { inTown: true, currentTownId: currentTownId, townBuilding: null } }); // player.y preserved
 }
 
 function enterSluice() {
-  inSluice        = true;
-  inTown          = false;
-  townBuilding    = null;
-  sluiceFloor     = 1;
-  activeMap       = SLUICE_MAP;
-  player.x        = 7.5 * TILE;   // col 7 — top of access shaft
-  player.y        = 3.5 * TILE;   // row 3 — north corridor, two steps below ladder
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SLUICE_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inSluice: true, sluiceFloor: 1 }, cooldown: true }); // top of access shaft, north corridor
 }
 
 function exitSluice() {
-  inSluice        = false;
-  inTown          = true;
-  townBuilding    = 'east';
-  activeMap       = EAST_TOWN_MAP;
-  player.x        = 12.5 * TILE;  // col 12 — just south of the hatch in east Calwick
-  player.y        =  5.5 * TILE;  // row 5 — main east street
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  // Exits back into east Calwick — restore the town context the sluice cleared.
+  transitionToLocation({ mapId: 'EAST_TOWN_MAP', x: 12.5 * TILE, y: 5.5 * TILE, facing: 'down',
+    state: { inTown: true, currentTownId: 'calwick', townBuilding: 'east' }, cooldown: true }); // just south of the hatch
 }
 
 function descendToSluice2() {
-  sluiceFloor     = 2;
-  activeMap       = SLUICE_LEVEL2_MAP;
-  player.x        = 8.5 * TILE;   // col 8 — one step south of ladder-up tile (r5 c8)
-  player.y        = 6.5 * TILE;   // row 6 — east corridor
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SLUICE_LEVEL2_MAP', x: 8.5 * TILE, y: 6.5 * TILE, facing: 'down',
+    state: { inSluice: true, sluiceFloor: 2 }, cooldown: true }); // one south of ladder-up tile
 }
 
 function ascendToSluice1() {
-  sluiceFloor     = 1;
-  activeMap       = SLUICE_MAP;
-  player.x        = 8.5 * TILE;   // col 8 — inspection nook, one step north of stairs-down
-  player.y        = 11.5 * TILE;  // row 11 — south corridor
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SLUICE_MAP', x: 8.5 * TILE, y: 11.5 * TILE, facing: 'up',
+    state: { inSluice: true, sluiceFloor: 1 }, cooldown: true }); // inspection nook, south corridor
 }
 
 function descendToSluice3() {
-  sluiceFloor     = 3;
-  activeMap       = SLUICE_LEVEL3_MAP;
-  player.x        = 7.5 * TILE;   // col 7 — entry shaft, one south of stairs-up (r3 c7)
-  player.y        = 4.5 * TILE;   // row 4
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SLUICE_LEVEL3_MAP', x: 7.5 * TILE, y: 4.5 * TILE, facing: 'down',
+    state: { inSluice: true, sluiceFloor: 3 }, cooldown: true }); // entry shaft, one south of stairs-up
 }
 
 function ascendToSluice2() {
-  sluiceFloor     = 2;
-  activeMap       = SLUICE_LEVEL2_MAP;
-  player.x        = 12.5 * TILE;  // col 12 — secret area, one east of the stairs tile (r10 c12)
-  player.y        =  9.5 * TILE;  // row 9 — secret corridor above stairs
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SLUICE_LEVEL2_MAP', x: 12.5 * TILE, y: 9.5 * TILE, facing: 'up',
+    state: { inSluice: true, sluiceFloor: 2 }, cooldown: true }); // secret corridor above stairs
 }
 
 // The Deep Works sealed room (SLUICE_SECRET_MAP) — reached by stepping onto
@@ -1112,21 +865,13 @@ function ascendToSluice2() {
 // machinery keeps working, and every sluiceFloor branch elsewhere already
 // checks floors 1-3 explicitly.
 function enterSluiceSecret() {
-  sluiceFloor     = 4;
-  activeMap       = SLUICE_SECRET_MAP;
-  player.x        = 7.5 * TILE;   // col 7 — entry corridor, one south of the exit tile (r2 c7)
-  player.y        = 3.5 * TILE;   // row 3
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SLUICE_SECRET_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inSluice: true, sluiceFloor: 4 }, cooldown: true }); // entry corridor, one south of exit tile
 }
 
 function exitSluiceSecret() {
-  sluiceFloor     = 3;
-  activeMap       = SLUICE_LEVEL3_MAP;
-  player.x        = 11.5 * TILE;  // col 11 — east pocket floor, just west of the false walls
-  player.y        =  7.5 * TILE;  // row 7
-  player.facing   = 'left';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SLUICE_LEVEL3_MAP', x: 11.5 * TILE, y: 7.5 * TILE, facing: 'left',
+    state: { inSluice: true, sluiceFloor: 3 }, cooldown: true }); // east pocket floor, just west of false walls
 }
 
 // ─── The Upper Reach: the unmarked chamber + the Sunken Gallery ──────────────
@@ -1136,12 +881,8 @@ function exitSluiceSecret() {
 // triggers.
 
 function enterBasinChamber() {
-  inBasinChamber  = true;
-  activeMap       = BASIN_CHAMBER_MAP;
-  player.x        = 8.5 * TILE;   // col 8 — directly inside the threshold
-  player.y        = 9.5 * TILE;   // row 9 — interior bottom row
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'BASIN_CHAMBER_MAP', x: 8.5 * TILE, y: 9.5 * TILE, facing: 'up',
+    state: { inBasinChamber: true }, cooldown: true }); // directly inside the threshold
 }
 
 function exitBasinChamber() {
@@ -1160,12 +901,7 @@ function exitBasinChamber() {
     basinChamberDreamSequence();
     return;
   }
-  inBasinChamber  = false;
-  activeMap       = NORTH_BASIN_NW_MAP;
-  player.x        = 12.5 * TILE;  // col 12 — one tile south of the doorframe
-  player.y        =  4.5 * TILE;  // row 4
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'NORTH_BASIN_NW_MAP', x: 12.5 * TILE, y: 4.5 * TILE, facing: 'down', cooldown: true }); // one tile south of the doorframe
 }
 
 // ─── The chamber's second-exit dream, and waking at Drenwick ─────────────────
@@ -1209,19 +945,12 @@ function basinChamberDreamSequence() {
 }
 
 function wakeAtDrenwickInfirmary() {
-  _dreamReturn    = null;   // discard the dream stash — not returning to the chamber
-  inBasinChamber  = false;
-  inSunkenGallery = false;
-  inDungeon       = false;
-  inSluice        = false;
-  inTown          = true;
-  townBuilding    = 'infirmary';       // wake INSIDE the infirmary interior
-  currentTownId   = 'drenwick';
-  activeMap       = DRENWICK_INFIRMARY_MAP;
-  player.x        = 7.5 * TILE;   // ward aisle, by the beds; Esla is at the bedside
-  player.y        = 8.5 * TILE;
-  player.facing   = 'up';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  _dreamReturn = null;   // discard the dream stash — not returning to the chamber
+  // Wake INSIDE the Drenwick infirmary interior. The canonical reset clears every
+  // stray location flag (the old hand-cleared list here was the same fragility
+  // this refactor removes).
+  transitionToLocation({ mapId: 'DRENWICK_INFIRMARY_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
+    state: { inTown: true, currentTownId: 'drenwick', townBuilding: 'infirmary' }, cooldown: true }); // ward aisle by the beds
   dialogue.name      = 'Esla';
   dialogue.pages     = ESLA_INFIRMARY_WAKE_PAGES;
   dialogue.callbacks = [];   // NOT null: handleInteract reads .length right after this returns
@@ -1230,21 +959,12 @@ function wakeAtDrenwickInfirmary() {
 }
 
 function descendSunkenGallery() {
-  inSunkenGallery = true;
-  activeMap       = SUNKEN_GALLERY_MAP;
-  player.x        = 2.5 * TILE;   // col 2 — foot of the stair
-  player.y        = 3.5 * TILE;   // row 3, one south of GALLERY_STAIR_UP
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'SUNKEN_GALLERY_MAP', x: 2.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inSunkenGallery: true }, cooldown: true }); // foot of the stair, one south of GALLERY_STAIR_UP
 }
 
 function ascendSunkenGallery() {
-  inSunkenGallery = false;
-  activeMap       = NORTH_BASIN_NW_MAP;
-  player.x        = 4.5 * TILE;   // col 4 — one tile south of the stairhead
-  player.y        = 10.5 * TILE;  // row 10 (EXPOSED_STONE apron, walkable)
-  player.facing   = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  transitionToLocation({ mapId: 'NORTH_BASIN_NW_MAP', x: 4.5 * TILE, y: 10.5 * TILE, facing: 'down', cooldown: true }); // one south of stairhead, EXPOSED_STONE apron
 }
 
 // ─── The Dream (DREAM_MAP) ────────────────────────────────────────────────────
@@ -1259,28 +979,25 @@ function ascendSunkenGallery() {
 let _dreamReturn = null;
 
 function enterDream() {
+  // Stash the FULL waking-world location snapshot (not just the render flags),
+  // then transition to the white space. exitDream restores the snapshot, so no
+  // location field can be lost across the dream.
   _dreamReturn = {
     map: activeMap, x: player.x, y: player.y, facing: player.facing,
-    inTown, townBuilding, currentHouseId,
+    state: snapshotLocationState(),
   };
-  inTown          = false;
-  townBuilding    = null;
-  currentHouseId  = null;
-  activeMap       = DREAM_MAP;
-  player.x        = 7.5 * TILE;   // centre of the white
-  player.y        = 7.5 * TILE;
-  player.facing   = 'down';
+  transitionToLocation({ mapId: 'DREAM_MAP', x: 7.5 * TILE, y: 7.5 * TILE, facing: 'down' }); // centre of the white
 }
 
 function exitDream() {
   if (!_dreamReturn) return; // defensive: never entered (e.g. audit calling order)
+  // A restoration (like save/load), NOT a fresh gameplay transition: reapply the
+  // stashed location state + map/position directly, with no cooldown/side effect.
+  applyLocationState(_dreamReturn.state);
   activeMap       = _dreamReturn.map;
   player.x        = _dreamReturn.x;
   player.y        = _dreamReturn.y;
   player.facing   = _dreamReturn.facing;
-  inTown          = _dreamReturn.inTown;
-  townBuilding    = _dreamReturn.townBuilding;
-  currentHouseId  = _dreamReturn.currentHouseId;
   _dreamReturn    = null;
 }
 
@@ -1514,39 +1231,22 @@ function tryEdgeTransition(direction) {
       return false;
     }
 
-    const targetMap = typeof seg.targetMap === 'string'
-      ? (MAP_REGISTRY[seg.targetMap] && MAP_REGISTRY[seg.targetMap].map)
-      : seg.targetMap;
-    if (!targetMap) return false; // misconfigured segment — fail safe, don't move
+    const targetMapId = typeof seg.targetMap === 'string' ? seg.targetMap : mapRegistryId(seg.targetMap);
+    if (!targetMapId || !(MAP_REGISTRY[targetMapId] && MAP_REGISTRY[targetMapId].map)) return false; // misconfigured segment — fail safe, don't move
 
     const [tgtMin, tgtMax] = seg.targetRange || seg.sourceRange;
     const clamped = Math.min(Math.max(along, tgtMin), tgtMax);
 
-    activeMap = targetMap;
+    // Compute the landing on the destination edge (outdoor↔outdoor, so no
+    // location-state overrides — the canonical reset leaves everything neutral).
+    let nx, ny, nf;
     switch (seg.targetEdge) {
-      case 'south':
-        player.x = (clamped + 0.5) * TILE;
-        player.y = (ROWS - 2 + 0.5) * TILE; // one tile inside the south border
-        player.facing = 'up';
-        break;
-      case 'north':
-        player.x = (clamped + 0.5) * TILE;
-        player.y = 1.5 * TILE;              // one tile inside the north border
-        player.facing = 'down';
-        break;
-      case 'west':
-        player.y = (clamped + 0.5) * TILE;
-        player.x = 1.5 * TILE;              // one tile inside the west border
-        player.facing = 'right';
-        break;
-      case 'east':
-        player.y = (clamped + 0.5) * TILE;
-        player.x = (COLS - 2 + 0.5) * TILE; // one tile inside the east border
-        player.facing = 'left';
-        break;
+      case 'south': nx = (clamped + 0.5) * TILE; ny = (ROWS - 2 + 0.5) * TILE; nf = 'up';    break; // one tile inside south border
+      case 'north': nx = (clamped + 0.5) * TILE; ny = 1.5 * TILE;              nf = 'down';  break; // one tile inside north border
+      case 'west':  ny = (clamped + 0.5) * TILE; nx = 1.5 * TILE;              nf = 'right'; break; // one tile inside west border
+      case 'east':  ny = (clamped + 0.5) * TILE; nx = (COLS - 2 + 0.5) * TILE; nf = 'left';  break; // one tile inside east border
     }
-    combat.cooldown = ENCOUNTER_COOLDOWN;
-    return true;
+    return transitionToLocation({ mapId: targetMapId, x: nx, y: ny, facing: nf, cooldown: true });
   }
   return false; // no segment covered this position
 }
@@ -1611,19 +1311,15 @@ function debugWarpToMap(mapId, col, row) {
     nudged = true;
   }
 
-  // Clean baseline: warping always resets every special location flag, then
-  // sets activeMap/position directly -- no enter*() function is called, so
-  // no quest/dialogue/combat side effect can fire as a result of a warp.
-  inDungeon = false; inDungeonEntrance = false; inTown = false; inSluice = false;
-  inMireVault = false; inTakomo = false; inFenBrewery = false; inHamletInterior = false;
-  inLorraHouse = false; inMarenPost = false; inDrenwrickPost = false; inBridgePost = false;
-  inSmugglerFort = false; inBasinChamber = false; inSunkenGallery = false;
-
-  activeMap     = targetMap;
-  player.x      = (landing.col + 0.5) * TILE;
-  player.y      = (landing.row + 0.5) * TILE;
-  player.facing = 'down';
-  combat.cooldown = ENCOUNTER_COOLDOWN;
+  // Clean baseline: warping resets ALL location state to neutral (via the same
+  // canonical registry the transition helper uses — so it can never again miss a
+  // flag like the old hand-copied list did with dungeonFloor/sluiceFloor/town/
+  // house/bridge context), then lands the player. No enter*() is called, so no
+  // quest/dialogue/combat side effect can fire from a warp. The clamp/nudge
+  // landing was computed above; the helper only validates + applies it.
+  transitionToLocation({
+    mapId, x: (landing.col + 0.5) * TILE, y: (landing.row + 0.5) * TILE, facing: 'down', cooldown: true,
+  });
 
   const displayName = meta ? meta.displayName : mapId;
   let message = 'Warped to ' + displayName + ' (col ' + landing.col + ', row ' + landing.row + ')';

@@ -211,6 +211,58 @@ separate tool, `test/transition-audit.js` (see "Testing" below) — the
 in-game validator's point-transition checks are deliberately lighter-weight
 structural sanity, not a duplicate of that audit.
 
+### The canonical transition boundary — `transitionToLocation()`
+
+However a transition is *triggered* (point tile, `EDGE_TRANSITIONS`, a scripted
+event, debug warp, defeat relocation), the actual location change goes through
+**one** boundary: `transitionToLocation(spec)` (`world-transitions.js`). It is
+the only ordinary runtime code that simultaneously changes the map, the location
+state, the player landing, and the transition cooldown.
+
+**Location-state binding registry.** `LOCATION_STATE_BINDINGS`
+(`world-transitions.js`) is the single authoritative list of the ~25 mutable
+fields that define which area/map *mode* the player is in (`inDungeon`,
+`dungeonFloor`, `inTown`, `currentTownId`, `townBuilding`, `currentHouseId` +
+house source/return context, `inSluice`, `sluiceFloor`, every standalone `inX`
+flag, `bridge_entry_direction`/`bridge_toll_paid`, …), each with a stable key,
+neutral default, and get/set closures. `resetLocationState()` returns every
+field to neutral; `snapshotLocationState()`/`applyLocationState()` capture and
+restore a complete state. **Debug warp and the transition-audit reset use this
+same registry** — there are no more hand-copied "clear every flag" lists that
+can silently forget one (which is exactly how `inBasinChamber`/`inSunkenGallery`
+were once missed). Persistent story/quest flags (e.g. `dilemma_voss`) are **not**
+location state and are never in this registry — a transition must not reset them.
+
+**The helper's contract.** `spec = { mapId, x, y, facing, state?, cooldown? }`:
+a registered `MAP_REGISTRY` id, exact destination pixel coordinates (the caller
+computes these, including any preserved coordinate such as the current
+`player.y`), a facing, an optional object of **non-neutral location-state
+overrides** (unknown keys rejected; every unspecified field defaults to neutral),
+and an optional cooldown boolean. It validates the *whole* destination — map
+resolves, coordinates finite and in-bounds, facing valid, state keys known, and
+the location invariants hold (at most one major area mode active; town/house
+context only while `inTown`; a house id needs `townBuilding: 'house'`;
+`inDungeon`/`inSluice` need a valid floor and a non-`in*` destination can't keep
+a meaningful one; bridge state can't leak off the bridge) — **before mutating
+anything**. On any failure it warns and returns `false`, leaving the map,
+position, facing, cooldown, and every location field completely untouched. On
+success it resets all location state to neutral, applies the overrides, changes
+the map, places and faces the player, and applies cooldown. **Story/quest/
+dialogue/reward/NPC-reroll side effects stay in the wrapper functions**, never in
+the generic helper. The rule is **"neutral defaults plus explicit destination
+state"**: an outdoor transition needs no manual `false` list, while a dungeon/
+sluice/town-building/house destination explicitly supplies exactly its own
+non-neutral context (deliberately enumerated, not a blanket "preserve all").
+
+**Approved direct location mutations** (everything else goes through the helper):
+the initial declarations (`state.js`), new-game bootstrap (`bootstrap.js`),
+`saveGame()`/`loadGame()` restoration (a restore is deliberately **not** a
+gameplay transition — it fires no cooldown/dialogue/reroll; `exitDream()` and
+save/load may reuse the low-level `applyLocationState()`), the helper and its
+registry setters themselves, test/audit fixtures, ordinary per-frame
+`player.facing` changes, and the single in-place `bridge_toll_paid = true` when
+the toll is paid (an on-the-bridge state change, not a location change).
+
 ## Tiles: constants, `WALKABLE`, `TILE_PROPERTIES`
 
 - **Tile-id constants** (`tiles.js`) — plain numbers, `GRASS = 0` upward,
@@ -618,8 +670,11 @@ has a sprite.
   `state.js`) — pick any `MAP_REGISTRY`-listed map, then nudge a target
   tile coordinate; `debugWarpToMap()` (`world-transitions.js`) validates
   the target, clamps out-of-bounds coordinates, nudges onto the nearest
-  walkable tile if the exact spot is blocked, resets all `inX` area flags
-  and the encounter cooldown, and (for non-`'outdoor'`-type maps) notes in
+  walkable tile if the exact spot is blocked, then lands the player through the
+  canonical `transitionToLocation()` (so ALL location state — every `inX` flag
+  plus the dungeon/sluice floor, town/house, and bridge context the old
+  hand-copied list used to miss — is reset to neutral) with the encounter
+  cooldown, and (for non-`'outdoor'`-type maps) notes in
   its return message that area-specific state like a dungeon floor number
   or town building wasn't set — warping into a town/interior/dungeon by
   map+coordinate alone is a geometry/collision testing tool, not a
@@ -646,14 +701,14 @@ has a sprite.
   checking first if a test's simulated movement mysteriously doesn't move
   the player at all.
 - **`test/run.js`** — discovers and runs every `test/cases/*.test.js` file
-  in its own fresh context; currently 52 tests, all passing.
+  in its own fresh context; currently 53 tests, all passing.
 - **`test/transition-audit.js`** — a standalone, exhaustive sweep: calls
   every real `enter*`/`exit*`/`ascend*`/`descend*` transition function live
   and checks the landing spot against the game's own collision logic
   (bounds + walkability), cross-references every `flatFns`-listed
   transition against `transitionTileNames`, and checks house doors and
   tile-constant references. Also wired into the main suite as one of the
-  52 tests (`10-transition-audit`), which additionally asserts the audit's
+  53 tests (`10-transition-audit`), which additionally asserts the audit's
   reset-state isolation self-check passes. Not the same thing as
   `validateGameData()`'s lighter-weight,
   browser-console-reachable point-transition sanity checks (see
@@ -739,7 +794,11 @@ Using the South Ruins Entrance Hall as the running example:
 
 1. **State flag** (`state.js`) — one new `let inX = false;`, declared
    alongside the other location flags (`inSluice`, `inMireVault`, ...).
-   Example: `let inDungeonEntrance = false;` (state.js).
+   Example: `let inDungeonEntrance = false;` (state.js). Then add it to
+   `LOCATION_STATE_BINDINGS` (`world-transitions.js`) with its neutral default,
+   so `resetLocationState()`/`transitionToLocation()` (and debug warp and the
+   transition-audit reset) all clear it automatically — this is what makes the
+   "don't hand-clear other flags" rule in step 8 safe.
 2. **Map definition** (`maps.js`) — a plain 16×15 tile grid constant, same
    shape as every other map. Example: `const DUNGEON_ENTRANCE_MAP = [...]`.
 3. **`MAP_REGISTRY`** (`maps.js`) — an entry mapping a string id to `{ id,
@@ -779,8 +838,16 @@ Using the South Ruins Entrance Hall as the running example:
    and one to *return* from the dangerous area back into it. Example:
    `enterDungeon()` (overworld → hall), `exitDungeon()` (hall → overworld),
    `descendToDungeon1()` (hall → real floor 1), `ascendToDungeonEntrance()`
-   (floor 1 → hall). Each just sets the relevant flags, `activeMap`, and
-   `player.x`/`y`/`facing`.
+   (floor 1 → hall). Each is a thin wrapper that calls
+   `transitionToLocation({ mapId, x, y, facing, state, cooldown })` (see "The
+   canonical transition boundary" above) — you supply **only** this area's own
+   non-neutral location state (e.g. `state: { inX: true }`, or a dungeon
+   floor). **Do NOT hand-clear the other `inX` flags** — the helper resets all
+   location state to neutral first, so a transition can no longer forget to
+   clear an incompatible flag (the class of bug this boundary exists to
+   prevent). Add the new `inX` field to `LOCATION_STATE_BINDINGS` in the same
+   file so it's part of that reset. Keep any story/quest/dialogue side effects
+   in the wrapper, around the `transitionToLocation()` call.
 9. **Movement tile triggers** (`movement.js`) — one `if` per transition
    tile, calling the matching function from step 8. Also update whichever
    tile check used to lead straight into the dangerous area so it now leads

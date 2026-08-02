@@ -69,13 +69,13 @@ function mapExprForLabel(label) {
 // reset: it can't change a transition destination, and resetting it for
 // cosmetic completeness would just add noise.)
 function resetState() {
+  // Uses the single authoritative location-state registry (world-transitions.js's
+  // resetLocationState()) — the same one the canonical transition helper and
+  // debug warp use — so this reset can never again forget a flag (that is exactly
+  // how inBasinChamber / inSunkenGallery were once missed here). activeMap and
+  // player position are not location-registry fields, so they're set explicitly.
   g.run(`
-    inDungeon=false; dungeonFloor=1; inTown=false; currentTownId=null; townBuilding=null;
-    currentHouseId=null; houseSourceMap=null; houseSourceBuilding=null;
-    inSluice=false; sluiceFloor=1; inMireVault=false; inTakomo=false; inFenBrewery=false;
-    inHamletInterior=false; inLorraHouse=false; inMarenPost=false; inDrenwrickPost=false;
-    inBridgePost=false; inSmugglerFort=false; bridge_entry_direction=null; bridge_toll_paid=false;
-    inDungeonEntrance=false; inBasinChamber=false; inSunkenGallery=false;
+    resetLocationState();
     activeMap = MAP; player.x = 8*TILE; player.y = 8*TILE; player.facing='down';
   `);
 }
@@ -228,7 +228,7 @@ const flatFns = [
   'enterDungeon', 'exitDungeon', 'descendToDungeon1', 'ascendToDungeonEntrance',
   'descendToDungeon2', 'ascendToDungeon1', 'descendToDungeon3', 'ascendToDungeon2',
   'descendToDungeon4', 'ascendToDungeon3', 'descendToDungeon5', 'ascendToDungeon4',
-  'descendToDungeon6', 'ascendToDungeon5', 'descendToDungeon7', 'ascendToDungeon6',
+  'descendToDungeon6', 'descendToDungeon7', 'ascendToDungeon6',
   'descendToDungeon8', 'ascendToDungeon7',
   'enterDungeon8West', 'exitDungeon8West', 'enterDungeon8East', 'exitDungeon8East',
   'd3_TC_to_TL', 'd3_TL_to_TC', 'd3_TC_to_TR', 'd3_TR_to_TC', 'd3_TC_to_MC', 'd3_MC_to_TC',
@@ -261,6 +261,16 @@ const flatFns = [
 for (const fn of flatFns) {
   check(fn, `${fn}()`, { group: 'flat-transitions' });
 }
+
+// ascendToDungeon5 lands the player exactly on the floor-5 boss's tile
+// (col 7, row 11 -- BOSS.x/BOSS.y). In real play you can only ascend back to
+// floor 5 having already defeated that boss (descendToDungeon6 is gated on
+// BOSS.defeated), so the boss is gone and the tile is walkable. Seed
+// BOSS.defeated=true to reflect that precondition. (Before the #5 canonical
+// transition helper, this passed only because ascendToDungeon5 accidentally
+// left inDungeon=false, which suppressed the boss's collision body; the helper
+// correctly sets inDungeon=true, so the real precondition must be modelled.)
+check('ascendToDungeon5', 'BOSS.defeated=true; ascendToDungeon5();', { group: 'flat-transitions' });
 
 // exitHamletInterior branches on player.x at call time -- check all 3 rooms.
 check('exitHamletInterior (from room A)', 'player.x = 2*TILE; exitHamletInterior();', { group: 'flat-transitions' });
@@ -331,8 +341,15 @@ for (const id of houseIds) {
   const isDrenwick = id.startsWith('drenwick_');
   const doorMapId = g.run(`HOUSE_DOORS.find(d => d.houseId === ${esc(id)}).map`);
   const srcMapExpr = resolveDoorMapExpr(doorMapId);
+  // Model the real precondition: a house is always entered from within a town +
+  // building context (inTown + the source townBuilding), so enterHouse() captures
+  // the correct houseSourceBuilding and exit restores it. The source building is
+  // the door's map context (e.g. 'apt' / 'drenwick_apt_xx' disambiguate the
+  // shared APARTMENT_CORRIDOR_MAP; 'west'/'east' the Calwick districts). Before
+  // the #5 canonical helper this wasn't needed only because enterHouse left
+  // inTown=false, which suppressed town NPC collision on the exit landing.
   check(`exitBuilding() [house: ${id}]`,
-    `${isDrenwick ? "currentTownId='drenwick';" : ''} ${srcMapExpr ? `activeMap=${srcMapExpr};` : ''} enterHouse('${id}'); exitBuilding();`,
+    `${isDrenwick ? "currentTownId='drenwick';" : ''} inTown=true; townBuilding=${esc(doorMapId)}; ${srcMapExpr ? `activeMap=${srcMapExpr};` : ''} enterHouse('${id}'); exitBuilding();`,
     { group: 'exit-building' });
 }
 

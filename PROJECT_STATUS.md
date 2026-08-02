@@ -22,7 +22,7 @@ individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
 
-- **52 tests** (`test/cases/01-…52-`), `node test/run.js` — all passing.
+- **53 tests** (`test/cases/01-…53-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile
@@ -132,12 +132,30 @@ In roughly the order built:
    previously omitted from persistence entirely, now persists like every other
    pickup. Covered by the new **test 52** (test 51 extended to the v1→v3 chain).
    See `architecture.md`'s "Save/flags" section.
+10. **Canonical location-transition boundary** (`world-transitions.js`) — one
+    authoritative `LOCATION_STATE_BINDINGS` registry of the ~25 mutable
+    location-context fields (each with a neutral default + get/set), and one
+    `transitionToLocation({ mapId, x, y, facing, state, cooldown })` helper that
+    validates the whole destination (map/coords/facing/state-keys/invariants)
+    then resets all location state to neutral, applies the destination's
+    explicit overrides, moves the map, lands the player, and sets cooldown — all
+    atomically (an invalid destination changes nothing). Every normal runtime
+    transition (dungeon floors + rooms, sluice floors + Sealed Room, Sunken
+    Gallery, towns/districts/buildings/houses/school stairs, bridge both ways,
+    edge transitions, debug warp, defeat relocation) is now a thin wrapper over
+    it that keeps only its own story side effects. **Debug warp and the
+    transition-audit reset now share the registry** — no more hand-copied
+    flag lists (the class of bug that once dropped `inBasinChamber`/
+    `inSunkenGallery`). No save-format change (still v3, no migration), no
+    player-visible change. Covered by the new **test 53**; the transition audit
+    (25-field reset isolation, 236 fixed / 20 preserved / 42 door landings) all
+    stays clean. See `architecture.md`'s "The canonical transition boundary".
 
 Each of the above shipped with its own new/updated `test/cases/*.test.js`
 file (23 through 26 cover the debug tools, tile properties, and map
 features; 51 covers the save binding registry + migration; 52 covers stable
-persistence ids) and a full
-`validateGameData()`/regression/transition-audit pass before being
+persistence ids; 53 covers the canonical location-transition boundary) and a
+full `validateGameData()`/regression/transition-audit pass before being
 considered done.
 
 ## Latest content & gameplay pass
