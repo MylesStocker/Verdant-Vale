@@ -163,7 +163,10 @@ function itemStatLabel(item) {
   if (item.sexBane === 'male')                     return 'Bane: male';
   if (item.sexBane === 'female')                   return 'Bane: female';
   if (item.curesPoison)                            return 'Cures poison';
-  if (item.curesCursed)                            return 'Cures cursed';
+  // Amethyst Dust's anti-curse property is deliberately NOT surfaced in item
+  // displays (menus, chest pickups) \u2014 a character can mention it instead. It
+  // returns no label rather than a misleading `HP +0`.
+  if (item.curesCursed)                            return '';
   if (item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
   if (item.questItem && item.type === 'potion')    return `HP  +${item.heals} \u2022 quest`;
   if (item.type === 'weapon')    return `ATK +${item.bonus}`;
@@ -172,6 +175,13 @@ function itemStatLabel(item) {
   if (item.type === 'accessory') return `SPD +${item.bonus}`;
   if (item.type === 'potion')    return `HP  +${item.heals}`;
   return '';
+}
+
+// itemStatLabel wrapped in parentheses, or '' when there is no label (so an
+// item with no displayed stat — e.g. Amethyst Dust — doesn't render empty "()").
+function itemStatParen(item) {
+  const label = itemStatLabel(item);
+  return label ? '(' + label + ')' : '';
 }
 
 // ─── Combat state ─────────────────────────────────────────────────────────────

@@ -1178,7 +1178,7 @@ function drawMenu() {
       ctx.fillText(label, CX + 14, iy);
       ctx.fillStyle = '#4aaa5a';
       ctx.font = '11px "Courier New", monospace';
-      ctx.fillText(`(${itemStatLabel(item)})`, CX + 14 + label.length * 8, iy);
+      ctx.fillText(`${itemStatParen(item)}`, CX + 14 + label.length * 8, iy);
     } else if (idx === grouped.length) {
       // ── Save Game row ───────────────────────────────────────────────────
       if (selected) {

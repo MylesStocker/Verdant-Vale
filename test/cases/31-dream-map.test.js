@@ -69,13 +69,16 @@ module.exports = {
     assert.equal(g.run('player.x'), bedX, 'player wakes where they fell asleep');
     assert.equal(g.run('player.y'), bedY);
 
-    // ── Ordinary night: no dream, no map swap ───────────────────────────────
+    // ── Ordinary night: a brief no-dream rest line, no dream map swap ────────
     g.run('day = 4;'); // rest() -> 5, and 5 % 7 !== 3
     g.press('Enter');
     g.run('choice.cursor = 0;');
     g.press('Enter'); // Rest
     assert.equal(g.run('day'), 5);
-    assert.equal(g.run('dialogue.open'), false, 'no dream text on an ordinary night');
+    assert.equal(g.run('dialogue.open'), true, 'an ordinary night shows a brief no-dream rest line');
     assert.equal(g.run('activeMap === HOUSE_INTERIOR_MAP'), true, 'no map swap on an ordinary night');
+    assert.equal(g.run('activeMap === DREAM_MAP'), false, 'an ordinary night does NOT enter the dream map');
+    const ordinaryText = JSON.stringify(g.run('dialogue.pages')).toLowerCase();
+    assert.ok(!/you wake/.test(ordinaryText), 'the ordinary-night line is not a DREAMS entry');
   },
 };

@@ -3738,7 +3738,7 @@ function drawCombat() {
         ctx.fillText(item.name, PX + PAD + 24, iy);
         ctx.fillStyle = '#4a8858';
         ctx.font = '11px "Courier New", monospace';
-        ctx.fillText(`(${itemStatLabel(item)})`, PX + PAD + 24 + item.name.length * 7 + 4, iy);
+        ctx.fillText(`${itemStatParen(item)}`, PX + PAD + 24 + item.name.length * 7 + 4, iy);
       });
     }
 

@@ -326,7 +326,7 @@ const GEAR_TIERS = {
   'T0 unequipped':                { atk: 0,  def: 0,  spd: 0, note: 'before Aldric issues the starting kit' },
   'T1 starting kit':              { atk: 4,  def: 3,  spd: 0, note: 'Iron Sword + Leather Armor (free, day 1)' },
   'T2 + Iron Shield':             { atk: 4,  def: 6,  spd: 0, note: '+ Iron Shield (merchant, 70g)' },
-  'T3 dungeon-1 chest gear':      { atk: 7,  def: 11, spd: 2, note: 'Steel Sword (chest) + Iron Targe (chest) + Swiftstone (90g)' },
+  'T3 dungeon-1 chest gear':      { atk: 7,  def: 11, spd: 2, note: 'Steel Sword (chest) + Iron Targe (chest) + Swift Bangle (90g)' },
   'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (chest) + Shadow Cloak (280g) + Iron Targe (chest) + Wraithband (200g)' },
   'T5 best traveller gear':       { atk: 12, def: 16, spd: 4, note: 'Dragon Blade (350g) + Shadow Cloak (280g) + Iron Targe (chest) + Wraithband (200g)' },
 };

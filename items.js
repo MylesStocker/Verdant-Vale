@@ -18,7 +18,7 @@ const ITEM_REGISTRY = {
   'Leather Armor': { name: 'Leather Armor', type: 'armor',     bonus: 3,  price: 60  },
   'Steel Sword':   { name: 'Steel Sword',   type: 'weapon',    bonus: 7,  price: 150 },
   'Iron Shield':   { name: 'Iron Shield',   type: 'shield',    bonus: 3,  price: 70  },
-  'Swiftstone':    { name: 'Swiftstone',    type: 'accessory', bonus: 2,  price: 90  },
+  'Swift Bangle':    { name: 'Swift Bangle',    type: 'accessory', bonus: 2,  price: 90  },
   // Travelling Salesman stock
   'Elixir':         { name: 'Elixir',         type: 'potion',    heals: 50, price: 80  },
   'Battle Axe':     { name: 'Battle Axe',     type: 'weapon',    bonus: 9,  price: 250 },

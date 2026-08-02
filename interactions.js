@@ -1817,13 +1817,13 @@ function reportBasinFindings() {
   // the top tier also carries a piece of commendation gear off the hazard line.
   let rewardGold, rewardItem;
   if (clueCount >= 6) {
-    rewardGold = 250; rewardItem = 'Swiftstone';
+    rewardGold = 250; rewardItem = 'Swift Bangle';
     pages.push(['He looks at you a moment longer than is comfortable.',
                 '\u201cYou were thorough. I asked for that and still did not quite expect it.\u201d',
                 '\u201cA good report. I only wish it frightened me less.\u201d']);
     pages.push(['\u201cTwo hundred and fifty gold \u2014 full field rate, and the hazard line on top of it.\u201d',
                 'He sets a small polished stone beside the coin. \u201cAnd this. Commendation issue, not requisition. It answers to your name now.\u201d',
-                'Swiftstone \u2014 added to items.']);
+                'Swift Bangle \u2014 added to items.']);
   } else if (clueCount >= 3) {
     rewardGold = 150; rewardItem = 'Elixir';
     pages.push(['\u201cA serviceable report,\u201d he says. \u201cThere is more down there than you brought me \u2014 there always is \u2014 but it holds together.\u201d']);
@@ -2125,7 +2125,7 @@ function interactDungeonFloor1() {
       } else {
         grantItem(it.name);
         dialogue.name  = '';
-        dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
+        dialogue.pages = [['Chest opened.', `${it.name}  ${itemStatParen(it)}  \u2014 added to items.`]];
       }
       dialogue.open  = true;
       dialogue.page  = 0;
@@ -2145,7 +2145,7 @@ function interactDungeonFloor1() {
       } else {
         grantItem(it.name);
         dialogue.name  = '';
-        dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
+        dialogue.pages = [['Chest opened.', `${it.name}  ${itemStatParen(it)}  \u2014 added to items.`]];
       }
       dialogue.open = true;
       dialogue.page = 0;
@@ -2362,7 +2362,7 @@ function interactSluiceInterior() {
         } else {
           grantItem(it.name);
           dialogue.name  = '';
-          dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  \u2014 added to items.`]];
+          dialogue.pages = [['Chest opened.', `${it.name}  ${itemStatParen(it)}  \u2014 added to items.`]];
         }
         dialogue.open  = true;
         dialogue.page  = 0;
@@ -2954,22 +2954,25 @@ function randomCabinetPages() {
 }
 
 function interactDrenwickOffice() {
-  // District Supervisor Harrow — col 7 row 4; no longer receives the letter directly
+  // District Supervisor Harrow's desk (col 7 row 4). Harrow runs the district but
+  // is not in the room — the player does business with Officer Veth in person.
+  // This used to present "Supervisor Harrow" speaking from an empty tile (no NPC
+  // body ever existed there); it's now the (empty) desk itself, so Harrow is a
+  // named offscreen authority consistent with the rest of the game (which only
+  // ever refers to "Harrow's office"), not a phantom you talk to.
   {
     const hx = player.x - 7.5 * TILE;
     const hy = player.y - 4.5 * TILE;
     if (Math.sqrt(hx * hx + hy * hy) < TALK_RADIUS) {
-      dialogue.name  = 'Supervisor Harrow';
+      dialogue.name  = 'Supervisor\u2019s Desk';
       dialogue.pages = dispatch_delivered
         ? [
-            ['\u201cLetter\u2019s been filed.',
-             'Anything else?\u201d'],
+            ['The district supervisor\u2019s desk. The nameplate reads HARROW; the chair is empty.',
+             'Your filed letter sits in the corner tray among a dozen others.'],
           ]
         : [
-            ['\u201cDrenwick district office.',
-             'If you have business here, state it.\u201d'],
-            ['\u201cCorrespondence from Calwick goes to Officer Veth.',
-             'That\u2019s his desk in the corner.\u201d'],
+            ['The district supervisor\u2019s desk. The nameplate reads HARROW; the chair is empty \u2014 Harrow is back in the district offices somewhere.'],
+            ['A placard is propped on the blotter: \u201cCorrespondence from the western postings \u2192 Officer Veth.\u201d His is the desk in the corner.'],
           ];
       dialogue.open = true;
       dialogue.page = 0;
@@ -4708,7 +4711,7 @@ function interactHouseInterior() {
       dialogue.name  = '';
       dialogue.pages = [['There is something here after all.',
                          `\u2014 ${it.name} found.`,
-                         `(${itemStatLabel(it)})  \u2014 added to items.`]];
+                         `${itemStatParen(it)}  \u2014 added to items.`]];
       dialogue.open  = true;
       dialogue.page  = 0;
       return true;
@@ -4842,6 +4845,13 @@ function interactHouseInterior() {
               dialogue.callbacks = [function() { exitDream(); }];
               dialogue.open      = true;
               dialogue.page      = 0;
+            } else {
+              // Ordinary night — no vivid dream. A quick line so resting always
+              // acknowledges itself rather than closing the menu in silence.
+              dialogue.name  = '';
+              dialogue.pages = [['You sleep through the night. No dreams you can hold onto — just the plain dark, and morning.']];
+              dialogue.open  = true;
+              dialogue.page  = 0;
             }
           },
           function leave() {},
@@ -5749,7 +5759,7 @@ function interactWildsAndOutposts() {
         const it = MEADOW_CHEST.item;
         grantItem(it.name);
         dialogue.name  = '';
-        dialogue.pages = [['Chest opened.', `${it.name}  (${itemStatLabel(it)})  — added to items.`]];
+        dialogue.pages = [['Chest opened.', `${it.name}  ${itemStatParen(it)}  — added to items.`]];
         dialogue.open  = true;
         dialogue.page  = 0;
         return true;

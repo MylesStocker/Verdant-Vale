@@ -5,7 +5,7 @@
 // these lists only choose what each shop carries. Stock entries are fresh
 // createItem() instances so display code can read prices/stats directly.
 const MERCHANT_STOCK = [
-  'Potion', 'Iron Sword', 'Leather Armor', 'Steel Sword', 'Iron Shield', 'Swiftstone',
+  'Potion', 'Iron Sword', 'Leather Armor', 'Steel Sword', 'Iron Shield', 'Swift Bangle',
 ].map(createItem);
 
 const TRAVELLER_STOCK = [
