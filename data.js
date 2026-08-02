@@ -119,6 +119,22 @@ const SLUICE_ENEMY_TEMPLATES = [
   { id: 'enemy_silt_lurker',   name: 'Silt Lurker',   hp: 22, maxHp: 22, atk: 13, def: 1, spd: 11, xp: 30, goldMin:  5, goldMax: 11 },
 ];
 
+// East Sluice TOP floor (sluiceFloor 1) — deliberately as gentle as the Verdant
+// Vale overworld, since this is likely where the player takes their first
+// fights (see currentEncounterPool() in combat.js). Sluice-appropriate
+// creatures rather than the Vale's Briar Hound: the Marsh Wisp drifts here over
+// the standing water, and the Sluice Slime — a slow, gooey nuisance — is on par
+// with the wisp for difficulty. Descending (floors 2–3) spikes to the tougher
+// SLUICE_ENEMY_TEMPLATES above. (Distinct enemy ids: this Marsh Wisp is its own
+// template record, separate from the overworld/early ones.)
+const SLUICE_TOP_ENEMY_TEMPLATES = [
+  { id: 'enemy_marsh_wisp_sluice_top', name: 'Marsh Wisp',   hp: 10, maxHp: 10, atk: 3, def: 0, spd: 6, xp: 8, goldMin: 0, goldMax: 2 },
+  // Sluice Slime — a blob of sluice muck given sluggish life; a touch tankier
+  // than the wisp but slower, so it lands about the same as a first fight.
+  { id: 'enemy_sluice_slime',          name: 'Sluice Slime', hp: 12, maxHp: 12, atk: 3, def: 1, spd: 3, xp: 8, goldMin: 0, goldMax: 3 },
+];
+window.SLUICE_TOP_ENEMY_TEMPLATES = SLUICE_TOP_ENEMY_TEMPLATES;
+
 // The North Basin's Silt Flats (NORTH_BASIN_SW_MAP) — the region's first real
 // encounter map. Deliberately gentler than FAR_ENEMY_TEMPLATES (this is meant
 // to be an easy on-ramp into the basin, not another Rotwood Troll-style
@@ -944,9 +960,9 @@ const MAP_METADATA = {
   // ── East Sluice ────────────────────────────────────────────────────────────
   SLUICE_MAP: {
     id: 'SLUICE_MAP', map: SLUICE_MAP, displayName: 'East Sluice', region: 'East Sluice',
-    type: 'dungeon', items: SLUICE_ITEMS, encounterPool: SLUICE_ENEMY_TEMPLATES,
+    type: 'dungeon', items: SLUICE_ITEMS, encounterPool: SLUICE_TOP_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true,
-    notes: 'sluiceFloor 1. Pool selection at runtime still branches on inSluice (combat.js), not this metadata entry.',
+    notes: 'sluiceFloor 1. Pool selection at runtime still branches on inSluice/sluiceFloor (combat.js), not this metadata entry; this encounterPool mirrors it for reference. The top floor deliberately draws a gentle overworld-tier pool (SLUICE_TOP_ENEMY_TEMPLATES — Marsh Wisp + Sluice Slime, as easy as the Verdant Vale) since it is likely the player’s first fights; floors 2-3 spike to SLUICE_ENEMY_TEMPLATES.',
   },
   SLUICE_LEVEL2_MAP: {
     id: 'SLUICE_LEVEL2_MAP', map: SLUICE_LEVEL2_MAP, displayName: 'East Sluice \u2014 Lower Works', region: 'East Sluice',

@@ -8,6 +8,9 @@
 // SLUICE_SECRET_ENCOUNTER_CHANCE (1/64) and draw exclusively from
 // SLUICE_SECRET_ENEMY_TEMPLATES (the Tallyman). Deep Works itself keeps its
 // original look and its normal SLUICE_ENEMY_TEMPLATES encounters everywhere.
+// Also asserts the East Sluice difficulty curve: the top floor (sluiceFloor 1)
+// draws the gentle SLUICE_TOP_ENEMY_TEMPLATES (Marsh Wisp + the easy Sluice
+// Slime, overworld-tier) while floors 2-3 use the tougher SLUICE_ENEMY_TEMPLATES.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -58,6 +61,32 @@ module.exports = {
     g.run('player.x = 10.5 * TILE; player.y = 7.5 * TILE;'); // east pocket
     assert.equal(g.run('inSluiceSealedRoom()'), false);
     assert.equal(g.run('currentEncounterPool() === SLUICE_ENEMY_TEMPLATES'), true, 'normal sluice pool on Deep Works');
+
+    // ── Difficulty curve: the TOP floor is as gentle as the overworld ───────
+    // sluiceFloor 1 draws SLUICE_TOP_ENEMY_TEMPLATES — an overworld-tier pool
+    // of sluice-appropriate creatures (Marsh Wisp + Sluice Slime, no Vale-only
+    // Briar Hound); descending spikes to the tougher sluice pool. Restores the
+    // floor-3 Deep Works state afterwards so the rest of the test is unaffected.
+    g.run('sluiceFloor = 1; activeMap = SLUICE_MAP;');
+    assert.equal(g.run('currentEncounterPool() === SLUICE_TOP_ENEMY_TEMPLATES'), true, 'top floor draws the gentle top-floor pool');
+    assert.equal(g.run('MAP_METADATA.SLUICE_MAP.encounterPool === SLUICE_TOP_ENEMY_TEMPLATES'), true, 'SLUICE_MAP metadata mirrors the runtime top-floor pool');
+    const topNames = g.run('JSON.stringify(currentEncounterPool().map(t => t.name).sort())');
+    assert.equal(topNames, JSON.stringify(['Marsh Wisp', 'Sluice Slime']), 'top floor is Marsh Wisp + Sluice Slime');
+    assert.equal(g.run("currentEncounterPool().some(t => t.name === 'Briar Hound')"), false, 'no Briar Hound in the sluice (it is a Vale creature)');
+    // The Sluice Slime is on par with the Marsh Wisp: same easy tier, distinct id.
+    const wisp  = JSON.parse(g.run("JSON.stringify(SLUICE_TOP_ENEMY_TEMPLATES.find(t => t.name === 'Marsh Wisp'))"));
+    const slime = JSON.parse(g.run("JSON.stringify(SLUICE_TOP_ENEMY_TEMPLATES.find(t => t.name === 'Sluice Slime'))"));
+    assert.ok(slime, 'Sluice Slime exists in the top-floor pool');
+    assert.equal(slime.id, 'enemy_sluice_slime', 'Sluice Slime has its stable id');
+    assert.notEqual(wisp.id, slime.id, 'the two top-floor enemies have distinct ids');
+    assert.equal(slime.atk, wisp.atk, 'Sluice Slime hits as softly as the Marsh Wisp');
+    assert.ok(Math.abs(slime.hp - wisp.hp) <= 4, 'Sluice Slime HP is within a first-fight margin of the Marsh Wisp');
+    assert.ok(slime.hp <= 16, 'Sluice Slime is low-HP (easy tier)');
+    assert.equal(g.run("BATTLE_SPRITE_NAMES.has('Sluice Slime')"), true, 'Sluice Slime has a dedicated battle sprite');
+    assert.equal(g.run("window.ENEMY_TEMPLATE_REGISTRY['enemy_sluice_slime'] === SLUICE_TOP_ENEMY_TEMPLATES[1]"), true, 'Sluice Slime is in the enemy registry');
+    g.run('sluiceFloor = 2; activeMap = SLUICE_LEVEL2_MAP;');
+    assert.equal(g.run('currentEncounterPool() === SLUICE_ENEMY_TEMPLATES'), true, 'Lower Works (floor 2) spikes to the tough sluice pool');
+    g.run('sluiceFloor = 3; activeMap = SLUICE_LEVEL3_MAP; player.x = 10.5 * TILE; player.y = 7.5 * TILE;'); // restore Deep Works
 
     // ── Registration: the secret map is a real, first-class map ────────────
     assert.equal(g.run("MAP_REGISTRY.SLUICE_SECRET_MAP.map === SLUICE_SECRET_MAP"), true);

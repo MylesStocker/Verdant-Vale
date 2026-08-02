@@ -30,7 +30,7 @@ rooms were added to the registry.)
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 3 warnings**, all intentional
   (see below), across 101 maps, 101 metadata entries, 24,240 tile cells, 94
-  edge transitions, 171 NPCs, 112 item placements, 101 enemy templates, 596
+  edge transitions, 171 NPCs, 112 item placements, 105 enemy templates, 596
   dialogue/text entries, 172 save-flag checks, 63 map features, 72 pickup ids,
   18 chest ids.
 
@@ -112,7 +112,7 @@ In roughly the order built:
    the new **test 51**. See `architecture.md`'s "Save/flags" section.
 9. **Stable identity for pickups, chests, and enemies + version-3 save**
    (`data.js`/`maps.js`/`combat.js`/`save.js`) — every persistent placed pickup
-   (47), openable chest (9) and enemy template (51 = 38 pooled + 12 scripted + 1
+   (47), openable chest (9) and enemy template (53 = 40 pooled + 12 scripted + 1
    inline "23") now carries an authored, immutable id (`pickup_`/`chest_`/`enemy_`
    `<snake>`). Runtime registries: `PICKUP_REGISTRY` (discovered from
    `MAP_METADATA.items`), `CHEST_REGISTRY` (from `OPENABLE_CHESTS`), and

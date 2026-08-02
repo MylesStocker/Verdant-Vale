@@ -1006,6 +1006,7 @@ function validateEnemies() {
     ['FAR_ENEMY_TEMPLATES',           typeof FAR_ENEMY_TEMPLATES           !== 'undefined' ? FAR_ENEMY_TEMPLATES           : undefined],
     ['THORNMERE_ENEMY_TEMPLATES',     typeof THORNMERE_ENEMY_TEMPLATES     !== 'undefined' ? THORNMERE_ENEMY_TEMPLATES     : undefined],
     ['SLUICE_ENEMY_TEMPLATES',        typeof SLUICE_ENEMY_TEMPLATES        !== 'undefined' ? SLUICE_ENEMY_TEMPLATES        : undefined],
+    ['SLUICE_TOP_ENEMY_TEMPLATES',    typeof SLUICE_TOP_ENEMY_TEMPLATES    !== 'undefined' ? SLUICE_TOP_ENEMY_TEMPLATES    : undefined],
     ['SLUICE_SECRET_ENEMY_TEMPLATES', typeof SLUICE_SECRET_ENEMY_TEMPLATES !== 'undefined' ? SLUICE_SECRET_ENEMY_TEMPLATES : undefined],
     ['NORTH_BASIN_ENEMY_TEMPLATES',   typeof NORTH_BASIN_ENEMY_TEMPLATES   !== 'undefined' ? NORTH_BASIN_ENEMY_TEMPLATES   : undefined],
     ['SUNKEN_GALLERY_ENEMY_TEMPLATES', typeof SUNKEN_GALLERY_ENEMY_TEMPLATES !== 'undefined' ? SUNKEN_GALLERY_ENEMY_TEMPLATES : undefined],

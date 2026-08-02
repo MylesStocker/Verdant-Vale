@@ -59,7 +59,7 @@ const ENEMY_TEMPLATE_POOLS = [
   ENEMY_TEMPLATES, EARLY_ENEMY_TEMPLATES, DUNGEON_ENEMY_TEMPLATES,
   DUNGEON2_ENEMY_TEMPLATES, DUNGEON6_ENEMY_TEMPLATES, DUNGEON8_ENEMY_TEMPLATES,
   DUNGEON_HORROR_ENEMY_TEMPLATES, FAR_ENEMY_TEMPLATES, THORNMERE_ENEMY_TEMPLATES,
-  SLUICE_ENEMY_TEMPLATES, SLUICE_SECRET_ENEMY_TEMPLATES, NORTH_BASIN_ENEMY_TEMPLATES,
+  SLUICE_ENEMY_TEMPLATES, SLUICE_TOP_ENEMY_TEMPLATES, SLUICE_SECRET_ENEMY_TEMPLATES, NORTH_BASIN_ENEMY_TEMPLATES,
   SUNKEN_GALLERY_ENEMY_TEMPLATES, UPPER_REACH_ENEMY_TEMPLATES, MIRE_VAULT_ENEMY_TEMPLATES,
 ];
 const ENEMY_SCRIPTED_TEMPLATES = [
@@ -218,9 +218,19 @@ let sailor_brawl_fight_day = -1;
 // second, driftable copy of it. Does NOT cover the Pale Sentry special case
 // in startCombat() (a scripted contract fight, not a pool roll) — see the
 // comment there.
+//
+// East Sluice difficulty curve: the TOP floor (sluiceFloor 1) is as gentle as
+// the Verdant Vale overworld (SLUICE_TOP_ENEMY_TEMPLATES — Marsh Wisp / Sluice
+// Slime), because it's likely where the player takes their very first fights.
+// Descending is the difficulty spike: floors 2–3 jump to the tougher
+// SLUICE_ENEMY_TEMPLATES (Reed Grappler / Silt Lurker) to discourage wandering
+// deeper before the player is ready, and the Sealed Room keeps its own
+// SLUICE_SECRET pool.
 function currentEncounterPool() {
   return inMireVault ? MIRE_VAULT_ENEMY_TEMPLATES
-    : inSluice             ? (inSluiceSealedRoom() ? SLUICE_SECRET_ENEMY_TEMPLATES : SLUICE_ENEMY_TEMPLATES)
+    : inSluice             ? (inSluiceSealedRoom() ? SLUICE_SECRET_ENEMY_TEMPLATES :
+                             sluiceFloor === 1     ? SLUICE_TOP_ENEMY_TEMPLATES :
+                                                     SLUICE_ENEMY_TEMPLATES)
     : inDungeon            ? (dungeonFloor === 1                    ? DUNGEON_ENEMY_TEMPLATES :
                              dungeonFloor === 2 || dungeonFloor === 3 ? DUNGEON2_ENEMY_TEMPLATES :
                              dungeonFloor === 4 || dungeonFloor === 5 ? DUNGEON2_ENEMY_TEMPLATES :
@@ -805,6 +815,11 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['The slime it leaves is technically a byproduct, not a weapon.', 'The distinction matters less when you can\u2019t stand straight.'] },
   ],
   // ── East Sluice ────────────────────────────────────────────────────────────
+  'Sluice Slime': [
+    { lines: ['A slow, gooey blob. Low HP, light attack.', 'Its slime soaks up a hit or two, but it can barely keep pace.', 'Nothing a first fight can’t handle.'] },
+    { lines: ['It’s the sluice muck itself, more or less — silt, algae, and canal runoff that started moving.', 'Common on the top level, where the water sits still and warm.'] },
+    { lines: ['It leaves a clean streak on the stone where it’s passed.', 'Whatever it takes up, it takes up completely.'] },
+  ],
   'Reed Grappler': [
     { lines: ['Armored shell. Moderate attack. Average speed.', 'It occasionally braces \u2014 don\u2019t waste a heavy hit during that.'] },
     { lines: ['Freshwater crustacean. Canal-native, not fen-native.', 'It followed the drainage channels in and hasn\u2019t left.'] },

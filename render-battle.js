@@ -104,6 +104,72 @@ function drawBattleWisp(cx, cy) {
   ctx.fillRect(cx -  2, ey + 1,  3,  3);
 }
 
+// Sluice Slime — a slow, gooey blob of sluice muck given sluggish life. A wet
+// olive-green mound that wobbles and breathes (squash/stretch on `tick`), drips
+// off its lower edge, and carries a glossy sheen on top. Deliberately soft and
+// harmless-looking: it's an easy, first-fight enemy of the East Sluice top
+// floor. Drawn resting its base near `cy`, body rising above it.
+function drawBattleSluiceSlime(cx, cy) {
+  // Slow breathing wobble: widen/flatten and lean very slightly.
+  const breath = Math.sin(tick * 0.06);
+  const sx     = 1 + breath * 0.05;        // horizontal squash/stretch
+  const sway   = Math.round(Math.sin(tick * 0.045) * 3);
+  const W = (w) => Math.round(w * sx);     // apply squash to a width
+
+  // Cast puddle-shadow.
+  ctx.fillStyle = 'rgba(0,0,0,0.34)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 4, 48, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // A little pooled slime it's oozing across the stone.
+  ctx.fillStyle = 'rgba(90,140,60,0.28)';
+  ctx.beginPath();
+  ctx.ellipse(cx + 2, cy + 5, 42, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Drips hanging off the lower rim (rounded tips).
+  ctx.fillStyle = '#4a6f33';
+  ctx.fillRect(cx - 30, cy - 6, 6, 12); ctx.fillRect(cx - 30, cy + 6, 6, 4);
+  ctx.fillRect(cx + 22, cy - 4, 5, 14); ctx.fillRect(cx + 22, cy + 10, 5, 4);
+
+  // Body mound — layered horizontal slabs, widest at the base, doming up.
+  [
+    { dy:  -2, w: 84, h: 10, c: '#3c5a2a' },
+    { dy: -12, w: 88, h: 12, c: '#4a6f33' },
+    { dy: -24, w: 82, h: 12, c: '#5a8a3e' },
+    { dy: -36, w: 70, h: 12, c: '#6aa04a' },
+    { dy: -47, w: 54, h: 11, c: '#78b455' },
+    { dy: -57, w: 36, h: 11, c: '#84c05e' },
+    { dy: -66, w: 20, h: 10, c: '#8ecb66' },
+  ].forEach(({ dy, w, h, c }) => {
+    const ww = W(w);
+    const lean = Math.round(sway * (-dy) / 66); // top leans more than base
+    ctx.fillStyle = c;
+    ctx.fillRect(cx - ww / 2 + lean, cy + dy, ww, h);
+  });
+
+  // Glossy sheen (upper-left) and a couple of specular blips — the "wet" read.
+  ctx.fillStyle = 'rgba(210,240,180,0.45)';
+  ctx.fillRect(cx - 18 + sway, cy - 60, 14, 8);
+  ctx.fillStyle = 'rgba(230,250,210,0.75)';
+  ctx.fillRect(cx - 15 + sway, cy - 58, 6, 4);
+  ctx.fillRect(cx + 6  + sway, cy - 50, 4, 3);
+
+  // Eyes — two simple dark globs set in the goo, with bright glints.
+  const eyeX = 12, eyeY = cy - 40, ex = Math.round(sway * 0.6);
+  ctx.fillStyle = '#10240c';
+  ctx.fillRect(cx - eyeX - 4 + ex, eyeY, 9, 11);
+  ctx.fillRect(cx + eyeX - 4 + ex, eyeY, 9, 11);
+  ctx.fillStyle = '#eafce0';
+  ctx.fillRect(cx - eyeX - 2 + ex, eyeY + 2, 4, 4);
+  ctx.fillRect(cx + eyeX - 2 + ex, eyeY + 2, 4, 4);
+
+  // Faint mouth line.
+  ctx.fillStyle = '#2c451f';
+  ctx.fillRect(cx - 7 + ex, cy - 26, 14, 3);
+}
+
 // Stone Crawler — heavy rock beetle; wide carapace, pincer claws, beady eyes
 function drawBattleStoneCrawler(cx, cy) {
   ctx.fillStyle = 'rgba(0,0,0,0.42)';
@@ -3216,7 +3282,7 @@ const BATTLE_SPRITE_NAMES = new Set([
   'Crypt Revenant', 'Wall Tendril', 'Dripping Maw', 'The Seep',
   'Pale Drowned', 'Silt Hag', 'Pale Sentry', 'Smuggler Guard', 'Polwick',
   'Essa', 'Rainfish', 'Tallyman', 'Basin Gull', 'Dust-Drowned', 'Marrow Hulk', 'Swamp Donkey',
-  'Mire Toad',
+  'Mire Toad', 'Sluice Slime',
 ]);
 window.BATTLE_SPRITE_NAMES = BATTLE_SPRITE_NAMES;
 
@@ -3245,6 +3311,7 @@ function drawBattleEnemy(cx, cy) {
   if (!combat.enemy) return;
   const n = combat.enemy.name;
   if      (n === 'Marsh Wisp')    drawBattleWisp(cx, cy);
+  else if (n === 'Sluice Slime')  drawBattleSluiceSlime(cx, cy + 58);
   else if (n === 'Stone Crawler') drawBattleStoneCrawler(cx, cy + 62);
   else if (n === 'Briar Hound')   drawBattleBriarHound(cx, cy + 58);
   else if (n === 'Bone Guard')    drawBattleBoneGuard(cx, cy + 62);
