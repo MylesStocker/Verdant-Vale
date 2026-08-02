@@ -1109,12 +1109,12 @@ function validateDialogue() {
 }
 
 // ─── 9. Save/flag references ────────────────────────────────────────────────
-// Extends the existing QUEST_FLAG_SCHEMA cross-check (unchanged from
-// before) with a lightweight duplicate-like-typo scan across every flag
-// name this file can see referenced (schema keys, NPC flag_required/
-// flag_sets values). Never touches the save schema itself -- see the note
-// on why the forward/reverse schema check stays a maintained cross-check
-// list rather than something auto-derived.
+// Validates the quest-flag binding registry (save.js's QUEST_FLAG_BINDINGS,
+// the single source of truth): unique keys, callable getters/setters, declared
+// defaults, and that QUEST_FLAG_SCHEMA is derived from it. Also checks the save
+// migration registry has no gaps up to SAVE_VERSION, and runs a lightweight
+// duplicate-like-typo scan across flag names (schema keys + NPC flag_required/
+// flag_sets). Never mutates the save schema or writes storage.
 function validateSaveFlags() {
   const GROUP = 'Save/Flags';
   let checked = 0;
@@ -1122,42 +1122,44 @@ function validateSaveFlags() {
   if (typeof window.QUEST_FLAG_SCHEMA !== 'undefined' && typeof syncQuestFlagsToWindow === 'function') {
     syncQuestFlagsToWindow();
     const schema = window.QUEST_FLAG_SCHEMA;
-    const schemaSet = new Set(schema);
 
     for (const key of schema) {
       checked++;
       if (window[key] === undefined) addValidationError(GROUP, 'schema flag "' + key + '" not set by syncQuestFlagsToWindow -- saveGame() would write undefined for this flag');
     }
 
-    // Cross-check copy of syncQuestFlagsToWindow's keys (quests.js) -- NOT a
-    // second source of truth; when quests.js adds a flag there, add it to
-    // QUEST_FLAG_SCHEMA first, then update this list to match.
-    const syncedByQuestFlagsToWindow = [
-      'cabinetCaseFlag',
-      'sluice_job_started', 'sluice_fixed', 'sluice_pay_ticket_ready', 'sluice_reward_given',
-      'MainQuest', 'letter_quest_stage', 'cat_quest_stage',
-      'warden_quest_started', 'warden_quest_defeated', 'warden_quest_rewarded',
-      'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
-      'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready',
-      'smugglers_dead', 'smugglers_execution_day',
-      'fort_report_filed', 'mq4_available_day', 'reservoir_quest_started',
-      'supervisor_greet_day', 'esla_greet_day', 'esla_said_basin',
-      'north_bridge_crossed_early', 'north_bridge_scolded', 'supervisor_said_flood',
-      'fourteenth_file_stage', 'fourteenth_file_offer_day', 'fourteenth_file_offered', 'fourteenth_file_outcome',
-      'ff_clue_skiff', 'ff_clue_ledger', 'ff_clue_dedication',
-      'schilling_quest_started', 'schilling_returned',
-      'drama_stage', 'weight_quest_stage', 'weight_note_signed',
-      'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded', 'pale_sentry_hp',
-      'sickle_quest_stage', 'gridd_rainfish_warned', 'rainfish_woken',
-      'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
-      'netto_letter_received',
-      // Window-native MAP_FEATURES onceFlags -- sync only normalizes these
-      // (undefined -> false), it never assigns from a let-binding.
-      'upper_reach_seen', 'basin_chamber_seen', 'sunken_gallery_seen',
-    ];
-    for (const key of syncedByQuestFlagsToWindow) {
-      checked++;
-      if (!schemaSet.has(key)) addValidationError(GROUP, '"' + key + '" is synced to window by syncQuestFlagsToWindow but absent from QUEST_FLAG_SCHEMA -- would not be saved');
+    // The quest-flag binding registry (save.js) is the single source of truth
+    // for persistent flags; validate its structure and that QUEST_FLAG_SCHEMA is
+    // derived from it -- rather than cross-checking a second hand-maintained key
+    // list (that list has been removed).
+    const bindings = (typeof window.QUEST_FLAG_BINDINGS !== 'undefined') ? window.QUEST_FLAG_BINDINGS : null;
+    if (!Array.isArray(bindings)) {
+      addValidationError(GROUP, 'QUEST_FLAG_BINDINGS registry is missing -- QUEST_FLAG_SCHEMA can no longer be derived (check save.js load order)');
+    } else {
+      const seenKeys = new Set();
+      for (const b of bindings) {
+        checked++;
+        if (!b || typeof b.key !== 'string' || !b.key) { addValidationError(GROUP, 'a quest-flag binding has a missing/invalid key'); continue; }
+        if (seenKeys.has(b.key)) addValidationError(GROUP, 'duplicate quest-flag binding key "' + b.key + '"'); else seenKeys.add(b.key);
+        if (!('default' in b)) addValidationError(GROUP, 'quest-flag binding "' + b.key + '" declares no default');
+        if (typeof b.get !== 'function') addValidationError(GROUP, 'quest-flag binding "' + b.key + '" has no callable getter');
+        else { try { b.get(); } catch (e) { addValidationError(GROUP, 'quest-flag binding "' + b.key + '" getter threw: ' + (e && e.message || e)); } }
+        if (typeof b.set !== 'function') addValidationError(GROUP, 'quest-flag binding "' + b.key + '" has no callable setter');
+      }
+      // QUEST_FLAG_SCHEMA must be exactly the binding-key list, in order.
+      const bindingKeys = bindings.map((b) => b && b.key);
+      if (schema.length !== bindingKeys.length || schema.some((k, i) => k !== bindingKeys[i])) {
+        addValidationError(GROUP, 'QUEST_FLAG_SCHEMA does not match the binding-registry key list -- it must be derived from QUEST_FLAG_BINDINGS');
+      }
+    }
+    // The migration registry must cover every step from version 1 up to
+    // SAVE_VERSION (no gap that would make an old save unmigratable).
+    if (typeof window.SAVE_VERSION === 'number' && window.SAVE_MIGRATIONS) {
+      for (let v = 1; v < window.SAVE_VERSION; v++) {
+        checked++;
+        if (typeof window.SAVE_MIGRATIONS[v] !== 'function')
+          addValidationError(GROUP, 'no save migration registered for version ' + v + ' -> ' + (v + 1) + ' (gap up to SAVE_VERSION ' + window.SAVE_VERSION + ')');
+      }
     }
 
     // Case-insensitive near-duplicate scan across every flag name visible

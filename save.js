@@ -2,70 +2,201 @@
 
 // save.js — save-file schema and the saveGame()/loadGame() implementations.
 
-// Increment when the save format changes in a breaking way; loadGame() will
-// discard any save that doesn't match and start a new game instead.
-const SAVE_VERSION = 1;
+// Bumped when the on-disk save format changes. loadGame() MIGRATES older saves
+// forward (SAVE_MIGRATIONS / migrateSave, below) rather than discarding them; a
+// save it genuinely cannot understand is left untouched on disk, never deleted.
+const SAVE_VERSION = 2;
 
-// ─── Canonical list of scalar quest/world flags that go through the simple
-// ─── save-key === variable-name pattern. These are the flags exposed by
-// ─── syncQuestFlagsToWindow() in quests.js. Adding a new quest flag means
-// ─── updating this list, syncQuestFlagsToWindow(), and a manual load line
-// ─── in loadGame() (let-bindings cannot be written via window[key]).
-// ─── Exposed on window so validateGameData() in validation.js can reference it.
-const QUEST_FLAG_SCHEMA = [
-  'cabinetCaseFlag',
-  'sluice_job_started', 'sluice_fixed', 'sluice_pay_ticket_ready', 'sluice_reward_given',
-  'MainQuest', 'equipment_ticket_ready',
-  'letter_quest_stage', 'cat_quest_stage',
-  'warden_quest_started', 'warden_quest_defeated', 'warden_quest_rewarded',
-  'schilling_quest_started', 'schilling_returned',
-  'drama_stage', 'weight_quest_stage', 'weight_note_signed',
-  'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded', 'pale_sentry_hp',
-  'sickle_quest_stage', 'gridd_rainfish_warned', 'rainfish_woken',
-  'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
-  'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
-  'smugglers_dead', 'smugglers_execution_day',
-  'fort_report_filed',      // player filed an honest fen post report (vs "found nothing")
-  'mq4_available_day', 'reservoir_quest_started',  // post-MQ3 rest week + reservoir bed assignment
-  'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
-  'netto_letter_received',  // was absent from saveGame() before; now included
-  'dessa_met',              // rapport gate: must meet Dessa once before quest offer
-  'rareborn_rhyme_heard',   // player has heard the rareborn spotting-rhyme (Calwick school)
-  'vale_tutorial_seen',     // Ms. Vale has given the one-time field-kit tutorial (window-native)
-  'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet',   // Esla one-shot commentary
-  'esla_said_polwick_pending', 'esla_said_polwick_dead', 'esla_said_basin',
-  'supervisor_greet_day', 'esla_greet_day',  // once-per-day office "good morning" greetings
-  'north_bridge_crossed_early', 'north_bridge_scolded',  // pre-MQ4 north-bridge crossing + one-time supervisor admonishment
-  'supervisor_said_flood',  // one-time supervisor flood-evacuation backstory (post reservoir assignment)
-  'wine_quest_started', 'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
-  // Upper Reach / chamber / gallery first-entry narrations — the first
-  // MAP_FEATURES onceFlags to be persisted. These are window-native flags
-  // (MAP_FEATURES sets window[name] directly), NOT quests.js let-bindings:
-  // syncQuestFlagsToWindow() only normalizes undefined -> false for them,
-  // never overwrites a true. See quests.js.
-  'upper_reach_seen', 'basin_chamber_seen', 'sunken_gallery_seen',
-  'basin_chamber_exits',       // window-native counter (chamber exits)
-  'basin_chamber_dream_done',   // window-native flag: the one-time dream+infirmary sequence has fired
-  // Sunken Gallery investigation — window-native flags for the two interactive
-  // features (interactions.js). The gallery is allowSave:false, so these only
-  // ever persist a resolution made on one descent into a save written later
-  // (after climbing back out), keeping the recess un-relootable and the freed/
-  // slain Pale Drowned decision permanent.
-  'sunken_gallery_recess_opened', 'sunken_gallery_drowned_freed', 'sunken_gallery_drowned_slain',
-  'sunken_gallery_gift_taken',  // window-native: took the freed Pale Drowned's post-MQ4 gift
-  // Sunken Gallery observer-clue investigation flags (window-native, set by the
-  // MAP_FEATURES `flag` field when each clue is inspected) + the let-binding for
-  // whether the player has reported the findings to the Calwick supervisor.
-  'gallery_clue_silt', 'gallery_clue_satchel', 'gallery_clue_survey', 'gallery_clue_gauge',
-  'gallery_clue_reliefs', 'gallery_clue_visitor', 'gallery_clue_notebook', 'gallery_clue_stair',
-  'gallery_body_found',  // found the second observer (Dreyfuss)'s body in the gallery
-  'reservoir_report_filed',
-  // The Fourteenth File side quest: let-binding progression + the once-per-Dayoff
-  // 1/3 availability roll, plus three window-native MAP_FEATURES clue flags.
-  'fourteenth_file_stage', 'fourteenth_file_offer_day', 'fourteenth_file_offered', 'fourteenth_file_outcome',
-  'ff_clue_skiff', 'ff_clue_ledger', 'ff_clue_dedication',
+// ─── Authoritative quest/world-flag binding registry ─────────────────────────
+// ONE source of truth for every persistent quest/world flag. Each binding owns:
+//   key     — the stable, flat, top-level save-object key
+//   default — the exact runtime default (used to seed a missing field on load,
+//             and by the v1→v2 migration; a FRESH copy is taken each time)
+//   get()   — returns the authoritative runtime value
+//   set(v)  — writes the authoritative runtime value
+//   kind    — 'lexical' (a quests.js/state.js `let`; get/set close over it) or
+//             'window' (a window[key] property; get/set are generic)
+// `QUEST_FLAG_SCHEMA` is DERIVED from these keys, so saveGame()/loadGame() and
+// validation stay in agreement automatically. Adding a persistent flag is a
+// single binding entry here (plus, for a lexical flag, its owning `let`
+// declaration and its syncQuestFlagsToWindow() mirror in quests.js) — there is
+// NO separate manual load assignment to maintain any more.
+function lex(key, def, get, set) { return { key: key, default: def, get: get, set: set, kind: 'lexical' }; }
+function win(key, def) {
+  return { key: key, default: def, kind: 'window',
+           get: function () { return window[key]; },
+           set: function (v) { window[key] = v; } };
+}
+// A fresh copy of a declared default — defensive against shared mutable
+// object/array defaults. Every current default is a primitive or null, so this
+// is a pass-through for them; it deep-copies only if an object/array default is
+// ever introduced.
+function cloneDefaultValue(v) {
+  if (Array.isArray(v)) return v.slice();
+  if (v && typeof v === 'object') return JSON.parse(JSON.stringify(v));
+  return v;
+}
+
+const QUEST_FLAG_BINDINGS = [
+  // ── Lexical (quests.js / state.js `let` bindings) ──────────────────────────
+  lex('cabinetCaseFlag', false, () => cabinetCaseFlag, (v) => { cabinetCaseFlag = v; }),
+  lex('sluice_job_started', false, () => sluice_job_started, (v) => { sluice_job_started = v; }),
+  lex('sluice_fixed', false, () => sluice_fixed, (v) => { sluice_fixed = v; }),
+  lex('sluice_pay_ticket_ready', false, () => sluice_pay_ticket_ready, (v) => { sluice_pay_ticket_ready = v; }),
+  lex('sluice_reward_given', false, () => sluice_reward_given, (v) => { sluice_reward_given = v; }),
+  lex('MainQuest', 0, () => MainQuest, (v) => { MainQuest = v; }),
+  lex('equipment_ticket_ready', false, () => equipment_ticket_ready, (v) => { equipment_ticket_ready = v; }),
+  lex('letter_quest_stage', 0, () => letter_quest_stage, (v) => { letter_quest_stage = v; }),
+  lex('cat_quest_stage', 0, () => cat_quest_stage, (v) => { cat_quest_stage = v; }),
+  lex('warden_quest_started', false, () => warden_quest_started, (v) => { warden_quest_started = v; }),
+  lex('warden_quest_defeated', false, () => warden_quest_defeated, (v) => { warden_quest_defeated = v; }),
+  lex('warden_quest_rewarded', false, () => warden_quest_rewarded, (v) => { warden_quest_rewarded = v; }),
+  lex('schilling_quest_started', false, () => schilling_quest_started, (v) => { schilling_quest_started = v; }),
+  lex('schilling_returned', false, () => schilling_returned, (v) => { schilling_returned = v; }),
+  lex('drama_stage', 0, () => drama_stage, (v) => { drama_stage = v; }),
+  lex('weight_quest_stage', 0, () => weight_quest_stage, (v) => { weight_quest_stage = v; }),
+  lex('weight_note_signed', false, () => weight_note_signed, (v) => { weight_note_signed = v; }),
+  lex('sentry_quest_started', false, () => sentry_quest_started, (v) => { sentry_quest_started = v; }),
+  lex('sentry_quest_done', false, () => sentry_quest_done, (v) => { sentry_quest_done = v; }),
+  lex('sentry_quest_rewarded', false, () => sentry_quest_rewarded, (v) => { sentry_quest_rewarded = v; }),
+  lex('pale_sentry_hp', 500, () => pale_sentry_hp, (v) => { pale_sentry_hp = v; }),
+  lex('sickle_quest_stage', 0, () => sickle_quest_stage, (v) => { sickle_quest_stage = v; }),
+  lex('gridd_rainfish_warned', false, () => gridd_rainfish_warned, (v) => { gridd_rainfish_warned = v; }),
+  lex('rainfish_woken', false, () => rainfish_woken, (v) => { rainfish_woken = v; }),
+  lex('dispatch_quest_started', false, () => dispatch_quest_started, (v) => { dispatch_quest_started = v; }),
+  lex('dispatch_delivered', false, () => dispatch_delivered, (v) => { dispatch_delivered = v; }),
+  lex('dispatch_pay_ticket_ready', false, () => dispatch_pay_ticket_ready, (v) => { dispatch_pay_ticket_ready = v; }),
+  lex('dispatch_rewarded', false, () => dispatch_rewarded, (v) => { dispatch_rewarded = v; }),
+  lex('fort_quest_started', false, () => fort_quest_started, (v) => { fort_quest_started = v; }),
+  lex('fort_quest_stage', 0, () => fort_quest_stage, (v) => { fort_quest_stage = v; }),
+  lex('fort_pay_ticket_ready', false, () => fort_pay_ticket_ready, (v) => { fort_pay_ticket_ready = v; }),
+  lex('fort_pay_ticket_reduced', false, () => fort_pay_ticket_reduced, (v) => { fort_pay_ticket_reduced = v; }),
+  lex('smugglers_dead', false, () => smugglers_dead, (v) => { smugglers_dead = v; }),
+  lex('smugglers_execution_day', 0, () => smugglers_execution_day, (v) => { smugglers_execution_day = v; }),
+  lex('fort_report_filed', false, () => fort_report_filed, (v) => { fort_report_filed = v; }),
+  lex('mq4_available_day', 0, () => mq4_available_day, (v) => { mq4_available_day = v; }),
+  lex('reservoir_quest_started', false, () => reservoir_quest_started, (v) => { reservoir_quest_started = v; }),
+  lex('den_wraith_quest_started', false, () => den_wraith_quest_started, (v) => { den_wraith_quest_started = v; }),
+  lex('den_wraith_defeated', false, () => den_wraith_defeated, (v) => { den_wraith_defeated = v; }),
+  lex('den_wraith_rewarded', false, () => den_wraith_rewarded, (v) => { den_wraith_rewarded = v; }),
+  lex('netto_letter_received', false, () => netto_letter_received, (v) => { netto_letter_received = v; }),
+  lex('dessa_met', false, () => dessa_met, (v) => { dessa_met = v; }),
+  lex('rareborn_rhyme_heard', false, () => rareborn_rhyme_heard, (v) => { rareborn_rhyme_heard = v; }),
+  win('vale_tutorial_seen', false),   // Ms. Vale's one-time field-kit tutorial (window-native)
+  lex('esla_said_sluice', false, () => esla_said_sluice, (v) => { esla_said_sluice = v; }),
+  lex('esla_said_dispatch', false, () => esla_said_dispatch, (v) => { esla_said_dispatch = v; }),
+  lex('esla_said_cabinet', false, () => esla_said_cabinet, (v) => { esla_said_cabinet = v; }),
+  lex('esla_said_polwick_pending', false, () => esla_said_polwick_pending, (v) => { esla_said_polwick_pending = v; }),
+  lex('esla_said_polwick_dead', false, () => esla_said_polwick_dead, (v) => { esla_said_polwick_dead = v; }),
+  lex('esla_said_basin', false, () => esla_said_basin, (v) => { esla_said_basin = v; }),
+  lex('supervisor_greet_day', 0, () => supervisor_greet_day, (v) => { supervisor_greet_day = v; }),
+  lex('esla_greet_day', 0, () => esla_greet_day, (v) => { esla_greet_day = v; }),
+  lex('north_bridge_crossed_early', false, () => north_bridge_crossed_early, (v) => { north_bridge_crossed_early = v; }),
+  lex('north_bridge_scolded', false, () => north_bridge_scolded, (v) => { north_bridge_scolded = v; }),
+  lex('supervisor_said_flood', false, () => supervisor_said_flood, (v) => { supervisor_said_flood = v; }),
+  lex('wine_quest_started', false, () => wine_quest_started, (v) => { wine_quest_started = v; }),
+  lex('wine_quest_gift', null, () => wine_quest_gift, (v) => { wine_quest_gift = v; }),  // nullable
+  lex('wine_quest_delivered', false, () => wine_quest_delivered, (v) => { wine_quest_delivered = v; }),
+  lex('wine_quest_rewarded', false, () => wine_quest_rewarded, (v) => { wine_quest_rewarded = v; }),
+  // ── Window-native (interactions.js / MAP_FEATURES set window[key] directly) ─
+  // syncQuestFlagsToWindow() only NORMALIZES these (undefined → default); it
+  // never assigns from a let-binding, so a flag the player just earned is safe.
+  win('upper_reach_seen', false),
+  win('basin_chamber_seen', false),
+  win('sunken_gallery_seen', false),
+  win('basin_chamber_exits', 0),          // window-native COUNTER (not a boolean)
+  win('basin_chamber_dream_done', false),
+  win('sunken_gallery_recess_opened', false),
+  win('sunken_gallery_drowned_freed', false),
+  win('sunken_gallery_drowned_slain', false),
+  win('sunken_gallery_gift_taken', false),
+  win('gallery_clue_silt', false),
+  win('gallery_clue_satchel', false),
+  win('gallery_clue_survey', false),
+  win('gallery_clue_gauge', false),
+  win('gallery_clue_reliefs', false),
+  win('gallery_clue_visitor', false),
+  win('gallery_clue_notebook', false),
+  win('gallery_clue_stair', false),
+  win('gallery_body_found', false),
+  // ── Back to lexical (the Sunken Gallery report + Fourteenth File progression) ─
+  lex('reservoir_report_filed', false, () => reservoir_report_filed, (v) => { reservoir_report_filed = v; }),
+  lex('fourteenth_file_stage', 0, () => fourteenth_file_stage, (v) => { fourteenth_file_stage = v; }),
+  lex('fourteenth_file_offer_day', 0, () => fourteenth_file_offer_day, (v) => { fourteenth_file_offer_day = v; }),
+  lex('fourteenth_file_offered', false, () => fourteenth_file_offered, (v) => { fourteenth_file_offered = v; }),
+  lex('fourteenth_file_outcome', 0, () => fourteenth_file_outcome, (v) => { fourteenth_file_outcome = v; }),
+  win('ff_clue_skiff', false),
+  win('ff_clue_ledger', false),
+  win('ff_clue_dedication', false),
 ];
-window.QUEST_FLAG_SCHEMA = QUEST_FLAG_SCHEMA;
+
+// QUEST_FLAG_SCHEMA is DERIVED from the binding keys — no longer a second
+// hand-maintained list. Still exposed on window for existing consumers
+// (validation.js, tests, MAP_FEATURES onceFlag persistence checks).
+const QUEST_FLAG_SCHEMA   = QUEST_FLAG_BINDINGS.map((b) => b.key);
+window.QUEST_FLAG_SCHEMA   = QUEST_FLAG_SCHEMA;
+window.QUEST_FLAG_BINDINGS = QUEST_FLAG_BINDINGS;  // read-only registry access for validation/tests
+
+// ─── Versioned save migrations ────────────────────────────────────────────────
+// SAVE_MIGRATIONS[v] transforms a version-v payload into a version-(v+1) one.
+// migrateSave() applies them sequentially until the payload reaches
+// SAVE_VERSION. This is intentionally a per-step registry, NOT one growing
+// conditional: the next format bump adds SAVE_MIGRATIONS[N] and nothing else.
+const SAVE_MIGRATIONS = {
+  // v1 → v2: same flat on-disk layout. Normalises an old payload to the current
+  // declared flag schema — clones the parsed object (never mutates it
+  // destructively), preserves every existing field and flag value, and seeds
+  // any flag the old save lacked (e.g. `vale_tutorial_seen`) with that binding's
+  // declared default. No gameplay or balance change.
+  1: function migrateV1toV2(old) {
+    const next = JSON.parse(JSON.stringify(old));
+    for (const b of QUEST_FLAG_BINDINGS) {
+      if (!(b.key in next)) next[b.key] = cloneDefaultValue(b.default);
+    }
+    next.version = 2;
+    return next;
+  },
+};
+window.SAVE_MIGRATIONS = SAVE_MIGRATIONS;
+window.SAVE_VERSION    = SAVE_VERSION;
+
+// Migration coordinator. Validates the parsed payload and applies each required
+// migration in order, WITHOUT touching localStorage (the caller persists only
+// after a full, successful load). Returns:
+//   { ok: true,  data, migratedFrom }  — migratedFrom = the original version if
+//     a migration actually ran (original < SAVE_VERSION), else null.
+//   { ok: false, reason }              — malformed / unsupported / future /
+//     missing-step / migration-error; the caller must leave the save untouched.
+function migrateSave(parsed) {
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return { ok: false, reason: 'save payload is not an object' };
+  }
+  const originalVersion = parsed.version;
+  if (typeof originalVersion !== 'number' || !Number.isFinite(originalVersion) || originalVersion < 1) {
+    return { ok: false, reason: 'save has no supported version (' + JSON.stringify(originalVersion) + ')' };
+  }
+  if (originalVersion > SAVE_VERSION) {
+    return { ok: false, reason: 'save is from a future version (' + originalVersion + '); this game understands up to version ' + SAVE_VERSION };
+  }
+  let data = parsed;
+  let v = originalVersion;
+  while (v < SAVE_VERSION) {
+    const step = SAVE_MIGRATIONS[v];
+    if (typeof step !== 'function') {
+      return { ok: false, reason: 'no migration registered for version ' + v + ' → ' + (v + 1) };
+    }
+    let migrated;
+    try { migrated = step(data); }
+    catch (e) { return { ok: false, reason: 'migration ' + v + ' → ' + (v + 1) + ' threw: ' + (e && e.message || e) }; }
+    if (!migrated || typeof migrated !== 'object' || migrated.version !== v + 1) {
+      return { ok: false, reason: 'migration ' + v + ' → ' + (v + 1) + ' produced an invalid payload' };
+    }
+    data = migrated;
+    v = data.version;
+  }
+  return { ok: true, data: data, migratedFrom: originalVersion < SAVE_VERSION ? originalVersion : null };
+}
+window.migrateSave = migrateSave;
 
 // Warns (console.warn only — no throws, no gameplay impact) if:
 //   • a schema flag is absent from save data (old save missing a newer flag)
@@ -146,11 +277,14 @@ function saveGame() {
     return null;
   }
 
-  // Sync quest flags to window.* so we can read them by name from QUEST_FLAG_SCHEMA.
-  // This is a read-only sync (no game state changes); result used only for this save.
+  // Quest flags: built generically from the binding registry (one getter each),
+  // NOT from a separate key list. syncQuestFlagsToWindow() still runs first so
+  // window-native flags are normalized (undefined → default) before their
+  // getters read window[key], and so runtime window mirrors stay current for
+  // any consumer — but serialization no longer depends on that mirror step.
   syncQuestFlagsToWindow();
   const questFlagData = {};
-  for (const key of QUEST_FLAG_SCHEMA) questFlagData[key] = window[key];
+  for (const b of QUEST_FLAG_BINDINGS) questFlagData[b.key] = b.get();
 
   const data = {
     version: SAVE_VERSION,
@@ -263,15 +397,27 @@ function saveGame() {
 function loadGame() {
   const raw = localStorage.getItem('verdantVale_save');
   if (!raw) return false;
-  let data;
-  try { data = JSON.parse(raw); } catch (e) { return false; }
-
-  // Discard saves from before the unified save/load system.
-  // Removes the stale entry so it doesn't block future saves.
-  if (data.version !== SAVE_VERSION) {
-    localStorage.removeItem('verdantVale_save');
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    // Malformed JSON: leave the stored text exactly as-is — never delete it,
+    // never start a new game over it.
+    console.warn('[loadGame] save is not valid JSON — leaving it untouched, not loading.');
     return false;
   }
+
+  // Migrate the parsed payload forward to SAVE_VERSION. migrateSave() never
+  // touches localStorage; on ANY failure (malformed shape, unsupported old
+  // version, future version, missing migration step, migration error) we warn
+  // and return false with the original save left intact on disk. A save is
+  // never silently deleted merely because its version differs.
+  const migration = migrateSave(parsed);
+  if (!migration.ok) {
+    console.warn('[loadGame] cannot load save: ' + migration.reason + ' — the existing save is left untouched on disk.');
+    return false;
+  }
+  const data = migration.data;
 
   // Warn-only schema validation — no gameplay impact.
   validateSaveSchema(data);
@@ -336,93 +482,23 @@ function loadGame() {
   if (data.day              !== undefined) day              = data.day;
   if (data.travellerPresent !== undefined) travellerPresent = data.travellerPresent;
 
-  // ── Quest flags ─────────────────────────────────────────────────────────
-  // ── Quest flags (manual — let-bindings cannot be written via window[key]) ──
-  if (data.cabinetCaseFlag          !== undefined) cabinetCaseFlag          = data.cabinetCaseFlag;
-  if (data.sluice_job_started       !== undefined) sluice_job_started       = data.sluice_job_started;
-  if (data.sluice_fixed             !== undefined) sluice_fixed             = data.sluice_fixed;
-  if (data.sluice_pay_ticket_ready  !== undefined) sluice_pay_ticket_ready  = data.sluice_pay_ticket_ready;
-  if (data.sluice_reward_given      !== undefined) sluice_reward_given      = data.sluice_reward_given;
-  if (data.MainQuest                !== undefined) MainQuest                = data.MainQuest;
-  if (data.equipment_ticket_ready   !== undefined) equipment_ticket_ready   = data.equipment_ticket_ready;
-  if (data.letter_quest_stage       !== undefined) letter_quest_stage       = data.letter_quest_stage;
-  if (data.cat_quest_stage          !== undefined) cat_quest_stage          = data.cat_quest_stage;
-  if (data.warden_quest_started     !== undefined) warden_quest_started     = data.warden_quest_started;
-  if (data.warden_quest_defeated    !== undefined) warden_quest_defeated    = data.warden_quest_defeated;
-  if (data.warden_quest_rewarded    !== undefined) warden_quest_rewarded    = data.warden_quest_rewarded;
-  if (data.schilling_quest_started  !== undefined) schilling_quest_started  = data.schilling_quest_started;
-  if (data.schilling_returned       !== undefined) schilling_returned       = data.schilling_returned;
-  if (data.drama_stage              !== undefined) drama_stage              = data.drama_stage;
-  if (data.weight_quest_stage       !== undefined) weight_quest_stage       = data.weight_quest_stage;
-  if (data.weight_note_signed       !== undefined) weight_note_signed       = data.weight_note_signed;
-  if (data.sentry_quest_started     !== undefined) sentry_quest_started     = data.sentry_quest_started;
-  if (data.sentry_quest_done        !== undefined) sentry_quest_done        = data.sentry_quest_done;
-  if (data.sentry_quest_rewarded    !== undefined) sentry_quest_rewarded    = data.sentry_quest_rewarded;
-  if (data.pale_sentry_hp           !== undefined) pale_sentry_hp           = data.pale_sentry_hp;
-  if (data.sickle_quest_stage       !== undefined) sickle_quest_stage       = data.sickle_quest_stage;
-  if (data.gridd_rainfish_warned    !== undefined) gridd_rainfish_warned    = data.gridd_rainfish_warned;
-  if (data.rainfish_woken           !== undefined) rainfish_woken           = data.rainfish_woken;
-  if (data.dispatch_quest_started   !== undefined) dispatch_quest_started   = data.dispatch_quest_started;
-  if (data.dispatch_delivered       !== undefined) dispatch_delivered       = data.dispatch_delivered;
-  if (data.dispatch_pay_ticket_ready !== undefined) dispatch_pay_ticket_ready = data.dispatch_pay_ticket_ready;
-  if (data.dispatch_rewarded        !== undefined) dispatch_rewarded        = data.dispatch_rewarded;
-  if (data.fort_quest_started       !== undefined) fort_quest_started       = data.fort_quest_started;
-  if (data.fort_quest_stage         !== undefined) fort_quest_stage         = data.fort_quest_stage;
-  if (data.fort_pay_ticket_ready    !== undefined) fort_pay_ticket_ready    = data.fort_pay_ticket_ready;
-  if (data.fort_pay_ticket_reduced  !== undefined) fort_pay_ticket_reduced  = data.fort_pay_ticket_reduced;
-  if (data.smugglers_dead           !== undefined) smugglers_dead           = data.smugglers_dead;
-  if (data.smugglers_execution_day  !== undefined) smugglers_execution_day  = data.smugglers_execution_day;
-  if (data.fort_report_filed        !== undefined) fort_report_filed        = data.fort_report_filed;
-  if (data.mq4_available_day        !== undefined) mq4_available_day        = data.mq4_available_day;
-  if (data.reservoir_quest_started  !== undefined) reservoir_quest_started  = data.reservoir_quest_started;
-  if (data.reservoir_report_filed   !== undefined) reservoir_report_filed   = data.reservoir_report_filed;
-  if (data.den_wraith_quest_started !== undefined) den_wraith_quest_started = data.den_wraith_quest_started;
-  if (data.den_wraith_defeated      !== undefined) den_wraith_defeated      = data.den_wraith_defeated;
-  if (data.den_wraith_rewarded      !== undefined) den_wraith_rewarded      = data.den_wraith_rewarded;
-  if (data.netto_letter_received    !== undefined) netto_letter_received    = data.netto_letter_received;
-  if (data.dessa_met                !== undefined) dessa_met                = data.dessa_met;
-  if (data.rareborn_rhyme_heard     !== undefined) rareborn_rhyme_heard     = data.rareborn_rhyme_heard;
-  // Window-native MAP_FEATURES onceFlags (no let-binding to restore into --
-  // window[name] IS the runtime state; see quests.js's normalization note).
-  if (data.upper_reach_seen     !== undefined) window.upper_reach_seen     = data.upper_reach_seen;
-  if (data.basin_chamber_seen   !== undefined) window.basin_chamber_seen   = data.basin_chamber_seen;
-  if (data.sunken_gallery_seen  !== undefined) window.sunken_gallery_seen  = data.sunken_gallery_seen;
-  if (data.basin_chamber_exits  !== undefined) window.basin_chamber_exits  = data.basin_chamber_exits;
-  if (data.basin_chamber_dream_done !== undefined) window.basin_chamber_dream_done = data.basin_chamber_dream_done;
-  if (data.sunken_gallery_recess_opened !== undefined) window.sunken_gallery_recess_opened = data.sunken_gallery_recess_opened;
-  if (data.sunken_gallery_drowned_freed !== undefined) window.sunken_gallery_drowned_freed = data.sunken_gallery_drowned_freed;
-  if (data.sunken_gallery_drowned_slain !== undefined) window.sunken_gallery_drowned_slain = data.sunken_gallery_drowned_slain;
-  if (data.sunken_gallery_gift_taken    !== undefined) window.sunken_gallery_gift_taken    = data.sunken_gallery_gift_taken;
-  for (const k of ['gallery_clue_silt','gallery_clue_satchel','gallery_clue_survey','gallery_clue_gauge',
-                   'gallery_clue_reliefs','gallery_clue_visitor','gallery_clue_notebook','gallery_clue_stair',
-                   'gallery_body_found',
-                   'ff_clue_skiff','ff_clue_ledger','ff_clue_dedication'])
-    if (data[k] !== undefined) window[k] = data[k];
-  // vale_tutorial_seen is window-native (in QUEST_FLAG_SCHEMA, saved by
-  // saveGame()). Restore it explicitly, and — unlike the flags just above —
-  // default a MISSING field to false rather than inheriting the current runtime
-  // session's value, so an older save that predates the flag loads as unseen.
-  window.vale_tutorial_seen = data.vale_tutorial_seen !== undefined ? !!data.vale_tutorial_seen : false;
-  if (data.esla_said_sluice          !== undefined) esla_said_sluice          = data.esla_said_sluice;
-  if (data.esla_said_dispatch        !== undefined) esla_said_dispatch        = data.esla_said_dispatch;
-  if (data.esla_said_cabinet         !== undefined) esla_said_cabinet         = data.esla_said_cabinet;
-  if (data.esla_said_polwick_pending !== undefined) esla_said_polwick_pending = data.esla_said_polwick_pending;
-  if (data.esla_said_polwick_dead    !== undefined) esla_said_polwick_dead    = data.esla_said_polwick_dead;
-  if (data.esla_said_basin           !== undefined) esla_said_basin           = data.esla_said_basin;
-  if (data.supervisor_greet_day      !== undefined) supervisor_greet_day      = data.supervisor_greet_day;
-  if (data.esla_greet_day            !== undefined) esla_greet_day            = data.esla_greet_day;
-  if (data.north_bridge_crossed_early !== undefined) north_bridge_crossed_early = data.north_bridge_crossed_early;
-  if (data.north_bridge_scolded      !== undefined) north_bridge_scolded      = data.north_bridge_scolded;
-  if (data.supervisor_said_flood     !== undefined) supervisor_said_flood     = data.supervisor_said_flood;
-  if (data.fourteenth_file_stage     !== undefined) fourteenth_file_stage     = data.fourteenth_file_stage;
-  if (data.fourteenth_file_offer_day !== undefined) fourteenth_file_offer_day = data.fourteenth_file_offer_day;
-  if (data.fourteenth_file_offered   !== undefined) fourteenth_file_offered   = data.fourteenth_file_offered;
-  if (data.fourteenth_file_outcome   !== undefined) fourteenth_file_outcome   = data.fourteenth_file_outcome;
-  if (data.wine_quest_started       !== undefined) wine_quest_started       = data.wine_quest_started;
-  if (data.wine_quest_gift          !== undefined) wine_quest_gift          = data.wine_quest_gift;
-  if (data.wine_quest_delivered     !== undefined) wine_quest_delivered     = data.wine_quest_delivered;
-  if (data.wine_quest_rewarded      !== undefined) wine_quest_rewarded      = data.wine_quest_rewarded;
-  // dilemma_voss: main.js var, not in syncQuestFlagsToWindow — remains in location block below
+  // ── Quest flags (registry-driven) ───────────────────────────────────────
+  // Every persistent quest/world flag is restored from the ONE binding
+  // registry: a key present in the (migrated) payload passes through its
+  // setter (lexical → the `let`; window → window[key]); a key absent falls
+  // back to a FRESH copy of the binding's declared default — never the current
+  // in-memory value. After migration every binding key is present, so the
+  // default branch is belt-and-suspenders. No `!!` coercion, so numeric stages,
+  // counters, HP, and nullable values keep their real types.
+  for (const b of QUEST_FLAG_BINDINGS) {
+    b.set((b.key in data) ? data[b.key] : cloneDefaultValue(b.default));
+  }
+  // Mirror restored LEXICAL flags to their public window.* copies (read by NPC
+  // conditions, validation, and other window consumers) and normalize the
+  // window-native flags. Must run AFTER the restore above so the mirrors
+  // reflect the loaded values rather than pre-load state.
+  syncQuestFlagsToWindow();
+  // dilemma_voss: a main.js var, not a registry flag — restored in the location block below.
   refreshJobBoard();
 
   // ── Location state ──────────────────────────────────────────────────────
@@ -651,6 +727,20 @@ function loadGame() {
   // from the start position on the next frame. Loading elsewhere leaves it
   // parked at home, off the active map, so it never initialises or renders.
   if (typeof resetAllPatrols === 'function') resetAllPatrols();
+
+  // ── Migration persistence + versioned backup ───────────────────────────────
+  // Only after a FULL, successful load: if this save needed migrating, preserve
+  // the ORIGINAL raw payload under a versioned backup key (written once — never
+  // overwritten on a later load) and rewrite the migrated payload to the normal
+  // key. Done with direct localStorage writes, NOT saveGame(), so save-location
+  // restrictions (canSaveHere()) and menu side effects can't interfere with
+  // migration persistence. A normal same-version load does neither (no
+  // migratedFrom), so it creates no backup and rewrites nothing.
+  if (migration.migratedFrom !== null) {
+    const backupKey = 'verdantVale_save_backup_v' + migration.migratedFrom;
+    if (localStorage.getItem(backupKey) === null) localStorage.setItem(backupKey, raw);
+    localStorage.setItem('verdantVale_save', JSON.stringify(data));
+  }
 
   return true;
 }

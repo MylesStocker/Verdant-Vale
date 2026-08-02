@@ -22,7 +22,7 @@ individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
 
-- **50 tests** (`test/cases/01-…50-`), `node test/run.js` — all passing.
+- **51 tests** (`test/cases/01-…51-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile
@@ -31,7 +31,7 @@ rooms were added to the registry.)
   menu's "Validate Data" row) — **0 errors, 2 warnings**, both intentional
   (see below), across 101 maps, 101 metadata entries, 24,240 tile cells, 94
   edge transitions, 171 NPCs, 112 item placements, 39 enemy templates, 596
-  dialogue/text entries, 140 save-flag checks, 63 map features.
+  dialogue/text entries, 171 save-flag checks, 63 map features.
 
 ## The 2 current warnings, and why neither needs fixing
 
@@ -90,11 +90,27 @@ In roughly the order built:
    content-authoring system (conditional text, once-only flags, debug
    inspector integration, full validation coverage). See `architecture.md`'s
    "Interactions" section for the complete design.
+8. **Quest-flag save binding registry + versioned migration** (`save.js`) —
+   replaced the hand-maintained `QUEST_FLAG_SCHEMA` string list and the
+   ~85-line manual `loadGame()` restore block with a single authoritative
+   `QUEST_FLAG_BINDINGS` registry (key / default / get / set / lexical-vs-
+   window kind per flag). `QUEST_FLAG_SCHEMA` is now *derived* from it, and
+   `saveGame()`/`loadGame()` read/write the registry generically (missing
+   fields fall back to declared defaults, never to current-session state).
+   Added a real `SAVE_VERSION`=2 layer: a per-step `SAVE_MIGRATIONS` registry
+   and `migrateSave()` coordinator that upgrades an old (v1) save forward,
+   backs the original up under `verdantVale_save_backup_v1` (never
+   overwritten) and rewrites the normal key to v2 — while **never** deleting a
+   save it can't understand (malformed / future / unversioned / missing-step
+   all return false and leave the file on disk untouched). `validateSaveFlags()`
+   now checks the registry structurally instead of a copied list. Covered by
+   the new **test 51**. See `architecture.md`'s "Save/flags" section.
 
 Each of the above shipped with its own new/updated `test/cases/*.test.js`
 file (23 through 26 cover the debug tools, tile properties, and map
-features specifically) and a full `validateGameData()`/regression/
-transition-audit pass before being considered done.
+features; 51 covers the save binding registry + migration) and a full
+`validateGameData()`/regression/transition-audit pass before being
+considered done.
 
 ## Latest content & gameplay pass
 

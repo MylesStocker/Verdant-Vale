@@ -543,6 +543,21 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   Imperial primers; the note opens in the parchment reader with a non-primer
   heading and the defensible facts, while the primers keep their heading.
   Runtime.
+- `51-save-binding-registry-migration` — the quest-flag save binding registry
+  and the versioned migration layer (`save.js`). Asserts the binding-registry
+  contract (unique keys, a stable 85-key ordered snapshot, `QUEST_FLAG_SCHEMA`
+  derived from it, every binding has a default + callable get/set, both
+  lexical and window kinds present), a complete round-trip of *all* 85 flags
+  plus their window mirrors, missing-field fallback to declared defaults (never
+  the dirtied session value, `vale_tutorial_seen` included), the v1→v2 migration
+  (existing values + non-flag fields survive, absent flags default, normal key
+  rewritten to v2, original text backed up under `verdantVale_save_backup_v1`
+  and never overwritten, a v2 load re-migrates/rewrites nothing), and that a
+  save it can't understand (malformed / future / unversioned / missing-step) is
+  refused *and left untouched on disk* rather than deleted. Includes a
+  load-bearing section that breaks a binding setter, the v1→v2 registration, and
+  the future-version guard in turn — confirming each check fails, then restoring
+  in a `finally`. Runtime.
 
 ## Known simplifications (see comments at the top of each affected test)
 
@@ -570,10 +585,12 @@ fresh, isolated game (no state leaks between tests), then drives it with:
 
 ## Not covered yet
 
-- Save-file schema drift / old-save-format handling — a `SAVE_VERSION`
-  mismatch discarding a stale save, and the warn-only legacy-fallback path in
-  `loadGame()`. (Save/load *round-trips* are well covered — `06`, `09`, `49` —
-  and `46` exercises one corrupted-save repair.)
+- The warn-only legacy-fallback restore path in `loadGame()` (an old save with
+  no `activeMapId`, where `activeMap` is derived from the stored `inX` flags).
+  (Save-file schema drift and version handling are now covered by `51` — the
+  binding-registry round-trip, v1→v2 migration + backup, and the never-delete
+  guarantees for malformed/future/unversioned/missing-step saves; save/load
+  *round-trips* also in `06`, `09`, `49`, and one corrupted-save repair in `46`.)
 - Shop buy/sell gold flows, equip/unequip, and the notebook/inventory menu
   screen. (The Aldric requisition *exchange* is covered in `11`, and reading
   panels in `42`/`50`, but no test drives a gold buy/sell or the equip UI.)

@@ -79,7 +79,7 @@ The rule this codebase actually follows:
 | File | Owns | Don't edit here |
 |---|---|---|
 | `state.js` | All core mutable game state: world/location flags, status effects, `stats`, `menu`/`debugMenu`/`debugInspector`/`warpMenu`, `dialogue`/`continentMap`/`accordPanel`, the `tick` counter, and tiny state-only helpers (`toggleMenu`, `checkLevelUp`, `toggleDebugMenu`, `toggleDebugInspector`, etc). | Combat state (`combat`, `choice`, `shop`) lives in `combat.js`. Furniture/NPC position consts live in `render-interiors.js` / `render-entities.js`, not here. |
-| `save.js` | `QUEST_FLAG_SCHEMA`, `saveGame()`, `loadGame()`, `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then wire them into `saveGame`/`loadGame`/`QUEST_FLAG_SCHEMA` here. See "Save/flags" below — this is the single most common thing new content gets wrong. |
+| `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION`/`SAVE_MIGRATIONS`/`migrateSave()`, `saveGame()`, `loadGame()`, `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here (`saveGame`/`loadGame` read the registry generically — there's no per-flag load assignment to write). See "Save/flags" below — this is the single most common thing new content gets wrong. |
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
@@ -403,36 +403,81 @@ const MAP_FEATURES = {
   `menu.open`/`shop.open`/`choice.open`/`debugMenu.open`/`warpMenu.open` so
   they never interrupt or compete with other modal UI.
 
-## Save/flags — `QUEST_FLAG_SCHEMA` is the actual save gate
+## Save/flags — `QUEST_FLAG_BINDINGS` is the single source of truth
 
-**`saveGame()` persists an explicit list, not a blanket dump of every
-global.** `QUEST_FLAG_SCHEMA` (`save.js`) is that list; `saveGame()` only
-writes `window[key]` for each `key` in the schema. This is the single
-easiest thing to get wrong when adding new persistent state: setting a bare
-`window[myNewFlag] = true` (or a plain `let myNewFlag = true;`) does
-**not** make it survive a save/load round-trip — it has to also be added to
-`QUEST_FLAG_SCHEMA`, or it silently resets next session.
+**`saveGame()` persists an explicit registry, not a blanket dump of every
+global.** `QUEST_FLAG_BINDINGS` (`save.js`) is that registry: one entry per
+persistent quest/world flag, each owning
 
+- `key` — the stable, flat, top-level save-object key,
+- `default` — the exact runtime default (used to seed a missing field on
+  load and by the v1→v2 migration; a *fresh* copy is taken each time via
+  `cloneDefaultValue`),
+- `get()` / `set(v)` — read/write the authoritative runtime value,
+- `kind` — `'lexical'` (a `quests.js`/`state.js` `let`; `get`/`set` close
+  over it, built with `lex(key, def, get, set)`) or `'window'` (a
+  `window[key]` property; `get`/`set` are generic, built with `win(key, def)`).
+
+`QUEST_FLAG_SCHEMA` is **derived** from the registry
+(`QUEST_FLAG_BINDINGS.map(b => b.key)`) and is still exposed on `window` for
+existing consumers (validation, `MAP_FEATURES` `onceFlag` cross-checks, tests).
+There is no second hand-maintained key list to keep in sync.
+
+`saveGame()` and `loadGame()` are **generic**: `saveGame()` runs
+`syncQuestFlagsToWindow()` and then writes `b.get()` for every binding;
+`loadGame()` writes each binding via `b.set(key in data ? data[key] :
+cloneDefaultValue(b.default))`, then runs `syncQuestFlagsToWindow()` so
+restored *lexical* values are mirrored to `window` and *window-native* flags
+are normalized without being clobbered by a stale lexical default. A field
+missing from the save takes that binding's declared default — never the
+current session's (possibly dirtied) value.
+
+Because `set(...)` handles a missing field with the declared default, setting
+a bare `window[myNewFlag] = true` (or a plain `let myNewFlag = true;`) still
+does **not** survive a save/load round-trip until it has a binding entry.
 This directly affects `MAP_FEATURES`' `onceFlag`: it *is* a plain
-`window[name]` boolean and *does* correctly prevent re-showing within the
-current session (that part needs no schema change), but it will **not**
-survive save/load unless its name is also added to `QUEST_FLAG_SCHEMA`.
-Rather than auto-registering flags into the schema at runtime (a real save-
-schema change, with its own risk), `validateGameData()`'s `validateMapFeatures()`
-warns instead, whenever a feature's `onceFlag` isn't in `QUEST_FLAG_SCHEMA` —
-so an unpersisted once-only flag is a visible warning, not a silent surprise,
-until/unless someone decides persistence is actually wanted for that
-specific feature.
+`window[name]` boolean and correctly prevents re-showing within the current
+session, but it will **not** survive save/load unless its name has a
+`win(name, false)` binding. Rather than auto-registering flags at runtime (a
+real save-schema change, with its own risk), `validateGameData()`'s
+`validateMapFeatures()` warns whenever a feature's `onceFlag` isn't in
+`QUEST_FLAG_SCHEMA` — a visible warning, not a silent surprise.
 
-`validateSaveFlags()` (`validation.js`) also cross-checks the *reverse*
-direction: every key `syncQuestFlagsToWindow()` (`quests.js`) writes should
-also be in `QUEST_FLAG_SCHEMA`, or it would be silently dropped from saves.
-That reverse-direction list is a maintained cross-check copy inside
-`validation.js`, not derived automatically (there's no way to introspect a
-function body's assignments from outside it) — when `quests.js` adds a new
-synced flag, `QUEST_FLAG_SCHEMA` needs it first, then that cross-check list
-in `validation.js` needs updating to match, or `validateGameData()` will
-report a spurious error.
+`validateSaveFlags()` (`validation.js`) checks the registry itself rather
+than a hand-copied list: binding keys are unique, `QUEST_FLAG_SCHEMA` equals
+`bindings.map(b => b.key)` in order, every binding has a `default` and
+callable `get`/`set`, no getter throws, and every `v` in `1 …
+SAVE_VERSION-1` has a registered `SAVE_MIGRATIONS[v]`. There is no longer a
+maintained reverse-direction copy of the synced-flag list to keep in step.
+
+### Versioned migration — old saves are upgraded, never deleted
+
+`SAVE_VERSION` is the on-disk format number (currently **2**).
+`SAVE_MIGRATIONS[v]` is a per-step function transforming a version-`v`
+payload into a version-`(v+1)` one — a registry, deliberately *not* one
+growing conditional, so the next format bump adds `SAVE_MIGRATIONS[N]` and
+nothing else. `SAVE_MIGRATIONS[1]` (v1→v2) *clones* the parsed object (never
+mutates it), preserves every existing field and flag value, seeds any binding
+key the old save lacked with that binding's declared default, and sets
+`version = 2`.
+
+`migrateSave(parsed)` is the coordinator. It validates the payload
+(object-like, numeric `version ≥ 1`, not from a future version) and applies
+each required step in order **without touching `localStorage`**, returning
+`{ ok: true, data, migratedFrom }` (`migratedFrom` = the original version if a
+migration ran, else `null`) or `{ ok: false, reason }`. `loadGame()` calls it
+and, on `ok: false`, **warns and returns `false`, leaving the save on disk
+untouched** — malformed JSON, an unsupported/unversioned save, a future
+version, a missing migration step, and a migration that throws are *all*
+non-destructive. A save is never silently deleted.
+
+Only after a *successful* migrating load does `loadGame()` persist the
+upgrade: it backs the original raw text up under
+`verdantVale_save_backup_v<from>` (**only if that key doesn't already
+exist** — a backup is never overwritten) and writes the migrated v2 object to
+the normal key via direct `localStorage.setItem` (**not** `saveGame()`, so no
+current-session state leaks into the rewrite). A normal (already-current) v2
+load creates no backup and rewrites nothing.
 
 ## Validation: `validateGameData()` as a content linter
 
@@ -522,14 +567,14 @@ has a sprite.
   checking first if a test's simulated movement mysteriously doesn't move
   the player at all.
 - **`test/run.js`** — discovers and runs every `test/cases/*.test.js` file
-  in its own fresh context; currently 50 tests, all passing.
+  in its own fresh context; currently 51 tests, all passing.
 - **`test/transition-audit.js`** — a standalone, exhaustive sweep: calls
   every real `enter*`/`exit*`/`ascend*`/`descend*` transition function live
   and checks the landing spot against the game's own collision logic
   (bounds + walkability), cross-references every `flatFns`-listed
   transition against `transitionTileNames`, and checks house doors and
   tile-constant references. Also wired into the main suite as one of the
-  50 tests (`10-transition-audit`), which additionally asserts the audit's
+  51 tests (`10-transition-audit`), which additionally asserts the audit's
   reset-state isolation self-check passes. Not the same thing as
   `validateGameData()`'s lighter-weight,
   browser-console-reachable point-transition sanity checks (see
@@ -552,16 +597,20 @@ has a sprite.
 - **Don't reorder `index.html`'s script tags** without rechecking the two
   ordering rules at the top of this doc.
 - **Don't change existing tile ids, `MAP_REGISTRY`/`MAP_METADATA` keys, or
-  quest-flag names** — saves, map arrays, and `QUEST_FLAG_SCHEMA` all
-  reference them by exact value/name, with no migration layer.
+  quest-flag names** — saves, map arrays, and the `QUEST_FLAG_BINDINGS` keys
+  all reference them by exact value/name. The save *format* has a
+  version-migration layer (`SAVE_MIGRATIONS`, see "Save/flags"), but that
+  upgrades payload shape forward — it does **not** rename existing keys/ids,
+  so a rename still silently breaks old saves.
   `WALKABLE[]`/`TILE_PROPERTIES` grow by adding entries at new indices, not
   by renumbering.
 - **Don't make `isTileWalkable()`/`TILE_PROPERTIES.walkable` the source of
   truth for collision** — `WALKABLE[]` is, on purpose, so a documentation
   mistake can never become a collision bug (see "Tiles" above).
-- **Don't add a new persistent flag without also adding it to
-  `QUEST_FLAG_SCHEMA`** — see "Save/flags" above; this is the most common
-  way new content silently fails to survive save/load.
+- **Don't add a new persistent flag without also adding a
+  `QUEST_FLAG_BINDINGS` entry** — see "Save/flags" above; the registry is the
+  save gate, and this is the most common way new content silently fails to
+  survive save/load.
 - **Don't assume `MAP_FEATURES`/`INTERACTION_REGISTRY` interchangeably** —
   `INTERACTION_REGISTRY` no longer exists in this codebase. If you find a
   reference to it anywhere (an old comment, an old doc), it's stale.
