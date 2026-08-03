@@ -145,5 +145,35 @@ module.exports = {
     assert.equal(g.run("SIMPLE_NPCS.find(n => n.id === 'drenwick_teacher_upper').map"), 'drenwick_school_upper');
     assert.ok(/calwick posting/.test(staffLine('district_officer')), 'Veth: office lines return on workdays');
     assert.ok(/district tier/.test(staffLine('drenwick_teacher_upper')), 'Farne: school lines return on workdays');
+
+    // ── Wash house: baths moved from the centre into private walled stalls ──
+    g.run(`
+      inTown = true; currentTownId = 'drenwick'; townBuilding = 'wash_house';
+      inDungeon = false; inSluice = false;
+      activeMap = DRENWICK_WASH_HOUSE_MAP;
+      dialogue.open = false; choice.open = false; day = 11; stats.gold = 5;
+    `);
+    // Two stall tubs at col 12 rows 6 & 8 (east corner); no central bath anymore.
+    assert.deepEqual([g.run('WASH_BASIN.x / TILE'),   g.run('WASH_BASIN.y / TILE')],   [12.5, 6.5], 'bath stall A tub at col 12 row 6');
+    assert.deepEqual([g.run('WASH_BASIN_2.x / TILE'), g.run('WASH_BASIN_2.y / TILE')], [12.5, 8.5], 'bath stall B tub at col 12 row 8');
+    // Each tub tile is walkable (the bather stands in it); the partitions around
+    // each stall are impassable INTERIOR_WALL tiles giving privacy on three sides.
+    assert.equal(g.run('DRENWICK_WASH_HOUSE_MAP[6][12]'), g.run('INTERIOR_FLOOR'), 'stall A tub tile is walkable');
+    assert.equal(g.run('DRENWICK_WASH_HOUSE_MAP[8][12]'), g.run('INTERIOR_FLOOR'), 'stall B tub tile is walkable');
+    for (const rc of [[6,13],[8,13],[5,12],[7,12],[9,12]]) {
+      assert.equal(g.run(`DRENWICK_WASH_HOUSE_MAP[${rc[0]}][${rc[1]}]`), g.run('INTERIOR_WALL'),
+        `stall partition at row ${rc[0]} col ${rc[1]} must be an impassable wall`);
+    }
+    // Standing in either tub opens the wash choice; the former central spot does not.
+    function washChoiceAt(x, y) {
+      g.run(`dialogue.open=false; choice.open=false; player.x=${x}*TILE; player.y=${y}*TILE;`);
+      g.press('Enter');
+      const opt = g.run('choice.open') ? g.run('choice.options[0]') : null;
+      g.run('dialogue.open=false; choice.open=false;');
+      return opt;
+    }
+    assert.equal(washChoiceAt(12.5, 6.5), 'Wash  (2g)', 'stall A opens the wash choice');
+    assert.equal(washChoiceAt(12.5, 8.5), 'Wash  (2g)', 'stall B opens the wash choice');
+    assert.equal(washChoiceAt(7.5, 8.5), null, 'the former central wash spot no longer opens a wash choice');
   },
 };

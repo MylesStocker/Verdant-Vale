@@ -1,20 +1,20 @@
 'use strict';
-// Covers: the flag-dependent dialogue pass -- seven previously-static NPCs
-// (Maren, Rhen, Edda, Cres, Orren, Kest, Foss) converted to the established
+// Covers: the flag-dependent dialogue pass -- previously-static NPCs
+// (Maren, Rhen, Edda, Orren, Kest, Foss) converted to the established
 // `get dialogue()` pattern (base pages verbatim, flag-gated pages appended).
 //
 // Conventions under test, not just page counts:
 //   - Maren keys on fort_report_filed (what was FILED), never smugglers_dead
 //     alone -- same rule as the rest-week inn reactions.
-//   - Rhen/Kest/Cres react to Upper Reach evidence via PLAUSIBLE physical
-//     cues (mud on boots, river-bottom smell, the player's own unasked
-//     question), all window-native (see save.js/quests.js). Cres keys on
-//     the PERMANENT basin_chamber_seen discovery flag (a memory/decision,
-//     not perishable evidence). Rhen/Kest key on the TEMPORARY same-day
-//     upper_reach_visit_day/sunken_gallery_visit_day markers (movement.js)
-//     instead -- physical evidence that expires the moment a day passes or
-//     the game is loaded; see test 38 for that expiry behavior in detail.
-//     This file only proves the reaction fires while the marker is set.
+//   - Rhen/Kest react to Upper Reach / Sunken Gallery evidence via PLAUSIBLE
+//     physical cues (mud on boots, river-bottom smell), window-native (see
+//     save.js/quests.js). They key on the TEMPORARY same-day
+//     upper_reach_visit_day/sunken_gallery_visit_day markers (movement.js) --
+//     physical evidence that expires the moment a day passes or the game is
+//     loaded; see test 38 for that expiry behavior in detail. This file only
+//     proves the reaction fires while the marker is set. (Cres was formerly
+//     part of this pass, keyed on the permanent basin_chamber_seen flag; her
+//     dialogue has since been rewritten to fixed pages with no flag branch.)
 //   - Edda/Orren/Foss key on reservoir_quest_started (the MQ4 assignment).
 //   - Base dialogue is unchanged when no flags are set.
 //   - One real keypress interaction (Maren) shows the flag page in-game.
@@ -27,7 +27,7 @@ function npc(g, id) {
 }
 
 module.exports = {
-  name: 'flag-dependent dialogue: 7 NPCs react to filed reports, the basin assignment, and Upper Reach evidence',
+  name: 'flag-dependent dialogue: 6 NPCs react to filed reports, the basin assignment, and Upper Reach evidence',
   run() {
     const g = createContext();
     g.press('Enter');
@@ -39,7 +39,10 @@ module.exports = {
       ['maren',                 2, 'reservoir_quest_started = true;',      'basin road'],
       ['rhen',                  2, 'window.upper_reach_visit_day = day;',      'pale mud on your boots'],
       ['edda',                  2, 'reservoir_quest_started = true;',      'even reached the board'],
-      ['cres',                 10, 'window.basin_chamber_seen = true;',    'no record at all'],
+      // NOTE: Cres was previously flag-dependent here (keyed on the permanent
+      // basin_chamber_seen discovery flag). Her dialogue has since been rewritten
+      // to a fixed set of pages with no flag branch (see npcs.js), so she is no
+      // longer part of this flag-dependent contract and is intentionally omitted.
       ['drenwick_inn_1',        2, 'reservoir_quest_started = true;',      'reports stopped coming'],
       ['harbormaster_assistant', 4, 'window.sunken_gallery_visit_day = day;', 'bottom of a channel'],
       ['guild_registrar',       3, 'reservoir_quest_started = true;',      'documentation class three'],

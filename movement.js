@@ -664,7 +664,7 @@ function update() {
         if (missing <= 0) {
           dialogue.name  = 'Infirmary';
           dialogue.pages = [
-            ['\u201cOpen for anyone who needs it.\u201d',
+            ['\u201cWe mend by the coin here, a point a coin.\u201d',
              '\u201cBut you\u2019re sound enough \u2014 nothing here to mend today.\u201d'],
           ];
           dialogue.open = true;
@@ -673,7 +673,7 @@ function update() {
         }
         dialogue.name  = 'Infirmary';
         dialogue.pages = [
-          ['\u201cOpen for anyone who needs it.\u201d',
+          ['\u201cWe will see to you, for the usual fee.\u201d',
            '\u201cWe charge by the mending \u2014 one coin a point. The serious cases want a proper ward; we do what we can here.\u201d'],
         ];
         dialogue.callbacks = [function() {

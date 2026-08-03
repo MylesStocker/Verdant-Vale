@@ -954,8 +954,10 @@ function drawHarbormasterFurniture() {
 }
 
 // ─── Drenwick Wash House Furniture ────────────────────────────────────────────
-// Drawn over the tile pass: north basins (row 3 cols 3-9), supply shelf (col 2
-// rows 4-5), stone benches (row 10 cols 3-5 and 9-11), wash area centre.
+// Drawn over the tile pass: communal north basins (row 3 cols 3-9), supply
+// shelf (col 2 rows 4-5), stone benches (row 10 cols 3-5 and 9-11), and two
+// private bath stalls in the east corner (tubs at col 12 rows 6 & 8, behind
+// INTERIOR_WALL partitions, open only to the west aisle).
 function drawWashHouseFurniture() {
   if (!inTown || townBuilding !== 'wash_house') return;
 
@@ -1038,17 +1040,37 @@ function drawWashHouseFurniture() {
     ctx.fillRect(bx + 3 * TILE - 7, by + 13, 5, 8);
   }
 
-  // ── Steam wisps near wash area (animated) ─────────────────────────────────
-  {
-    const wbx = Math.round(WASH_BASIN.x), wby = Math.round(WASH_BASIN.y);
+  // ── Private bath stalls (tubs at col 12 rows 6 & 8, behind wall partitions) ─
+  for (const bath of [WASH_BASIN, WASH_BASIN_2]) {
+    const tx = Math.round(bath.x - TILE / 2), ty = Math.round(bath.y - TILE / 2); // tile origin
+    // Stone tub surround
+    ctx.fillStyle = '#7a736a';
+    ctx.fillRect(tx + 2, ty + 3, TILE - 4, TILE - 5);
+    ctx.fillStyle = '#6a6260';
+    ctx.fillRect(tx + 2, ty + 3, TILE - 4, 2);
+    // Water
+    ctx.fillStyle = '#9ab8c8';
+    ctx.fillRect(tx + 4, ty + 6, TILE - 8, TILE - 11);
+    // Rim highlight
+    ctx.fillStyle = '#a8c8d8';
+    ctx.fillRect(tx + 4, ty + 6, TILE - 8, 2);
+    // Ripple (animated)
+    if ((tick >> 5) & 1) {
+      ctx.fillStyle = 'rgba(200,230,240,0.4)';
+      ctx.fillRect(tx + 6, ty + 11, TILE - 12, 1);
+    }
+    // Privacy curtain across the west opening (aisle side), hanging partway down
+    ctx.fillStyle = '#5a6a78';
+    ctx.fillRect(tx - 1, ty + 1, 3, TILE - 3);       // curtain rail on the opening edge
+    ctx.fillStyle = 'rgba(120,140,155,0.85)';
+    ctx.fillRect(tx - 1, ty + 1, 2, Math.round(TILE / 2)); // cloth, half-drawn
+    // Steam wisps rising from the tub (animated)
     const t = tick >> 3;
     ctx.fillStyle = 'rgba(200,220,230,0.18)';
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 3; i++) {
       const phase = (t + i * 7) % 24;
-      const sx2   = wbx - 20 + i * 14;
-      const sy2   = wby - 8 - phase;
       const w2    = 4 - Math.floor(phase / 8);
-      if (w2 > 0) ctx.fillRect(sx2, sy2, w2, 6);
+      if (w2 > 0) ctx.fillRect(tx + 6 + i * 7, ty - phase + 4, w2, 6);
     }
   }
 
@@ -1056,6 +1078,7 @@ function drawWashHouseFurniture() {
   if (!dialogue.open && !choice.open && !shop.open) {
     const hints = [
       { pos: WASH_BASIN,   lx: WASH_BASIN.x,   ly: WASH_BASIN.y - 14 },
+      { pos: WASH_BASIN_2, lx: WASH_BASIN_2.x, ly: WASH_BASIN_2.y - 14 },
       { pos: WASH_NOTICE,  lx: 10.5 * TILE,     ly: 3 * TILE - 4 },
     ];
     ctx.fillStyle = '#d8c878';

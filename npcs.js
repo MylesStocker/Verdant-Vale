@@ -5324,7 +5324,11 @@ const GUILD_HALL_BOARD = { x: 13.5 * TILE, y: 3.5 * TILE };
 
 // ─── Wash House Basin ─────────────────────────────────────────────────────────
 // Center-south of DRENWICK_WASH_HOUSE_MAP — the communal wash basins.
-const WASH_BASIN = { x: 7.5 * TILE, y: 8.5 * TILE };
+// Private bath stalls, walled off in the east corner of the wash house (see
+// DRENWICK_WASH_HOUSE_MAP). Each is a tub tile the bather stands in, enclosed by
+// INTERIOR_WALL partitions on three sides and open only to the west aisle.
+const WASH_BASIN   = { x: 12.5 * TILE, y: 6.5 * TILE }; // bath stall A (col 12 row 6)
+const WASH_BASIN_2 = { x: 12.5 * TILE, y: 8.5 * TILE }; // bath stall B (col 12 row 8)
 
 // ─── Innkeeper ────────────────────────────────────────────────────────────────
 const INNKEEPER = { x: 7.5 * TILE, y: 3.5 * TILE }; // col 7, row 3 in INN_MAP
@@ -5753,6 +5757,7 @@ window.DRENWICK_MARKET_NOTICE_BOARD_X = DRENWICK_MARKET_NOTICE_BOARD_X;
 window.DRENWICK_MARKET_NOTICE_BOARD_Y = DRENWICK_MARKET_NOTICE_BOARD_Y;
 window.GUILD_HALL_BOARD   = GUILD_HALL_BOARD;
 window.WASH_BASIN         = WASH_BASIN;
+window.WASH_BASIN_2       = WASH_BASIN_2;
 window.INNKEEPER          = INNKEEPER;
 window.DRENWICK_INNKEEPER = DRENWICK_INNKEEPER;
 window.SUPERVISOR         = SUPERVISOR;

@@ -22,9 +22,9 @@
 //   5. A fresh visit after a day advance (or after a load) makes the
 //      reaction available again -- this is temporary, not permanently
 //      disabled.
-//   6. Other flag-dependent dialogue (Maren, Edda, Cres, Orren, Foss, and
-//      the permanent upper_reach_seen/basin_chamber_seen/sunken_gallery_seen
-//      flags themselves) is unaffected by this change.
+//   6. Other flag-dependent dialogue (Maren, Edda, Orren, Foss, and the
+//      permanent upper_reach_seen/sunken_gallery_seen flags themselves) is
+//      unaffected by this change.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -103,15 +103,14 @@ module.exports = {
     assert.ok(!kestText(g).includes('bottom of a channel'), 'Kest must not react immediately after any load');
 
     // ── 6. Other flag-dependent dialogue is unaffected ──────────────────────
+    // (Cres was formerly checked here as a permanent-flag exemplar; her dialogue
+    // has since been rewritten to fixed pages with no flag branch, so Maren --
+    // still flag-dependent -- stands in for the "unrelated dialogue untouched"
+    // check.)
     g.run(`
       fort_report_filed = false; reservoir_quest_started = true;
-      window.basin_chamber_seen = false;
     `);
     const maren = g.run(`SIMPLE_NPCS.find(n => n.id === 'maren').dialogue.flat().join(' ')`);
     assert.ok(maren.includes('basin road'), 'Maren\'s reservoir_quest_started reaction must be untouched by this fix');
-    g.run('window.basin_chamber_seen = true;');
-    const cres = g.run(`SIMPLE_NPCS.find(n => n.id === 'cres').dialogue.flat().join(' ')`);
-    assert.ok(cres.includes('no record at all'),
-      'Cres\'s permanent basin_chamber_seen reaction must remain permanent -- only Rhen/Kest\'s physical-evidence lines were fixed');
   },
 };

@@ -1173,18 +1173,20 @@ const DRENWICK_HARBORMASTER_MAP = [
 
 // ─── Drenwick Wash House Interior  (16 × 15) ─────────────────────────────────
 // Small public bathhouse — a civic amenity, slightly steamy, stone benches,
-// washing basins along the walls. Exit: col 7 row 12.
+// communal wash basins along the north wall, and two private bath stalls
+// walled off in the east corner (col 12, rows 6 & 8) for a little privacy.
+// Exit: col 7 row 12.
 const DRENWICK_WASH_HOUSE_MAP = [
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  1
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  2
-  [ 19, 19, 18, 33, 33, 33, 33, 33, 33, 33, 18, 18, 18, 18, 19, 19],  //  3  cols 3-9 = wash basins (north wall), col 10 = notice area
+  [ 19, 19, 18, 33, 33, 33, 33, 33, 33, 33, 18, 18, 18, 18, 19, 19],  //  3  cols 3-9 = communal wash basins (north wall), col 10 = notice area
   [ 19, 19, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  4  col 2 = supply/linen shelf
-  [ 19, 19, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  5  col 2 = supply shelf
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  6
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  7
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  8  WASH_BASIN at col 7 row 8
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  9
+  [ 19, 19, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  5  col 2 = supply shelf; cols 12-13 = bath-stall wall (top)
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19],  //  6  bath stall A: tub col 12 (WASH_BASIN), east partition col 13
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  7  cols 12-13 = bath-stall divider
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19],  //  8  bath stall B: tub col 12 (WASH_BASIN_2), east partition col 13
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  9  cols 12-13 = bath-stall wall (bottom)
   [ 19, 19, 18, 33, 33, 33, 18, 18, 18, 33, 33, 33, 18, 18, 19, 19],  // 10  cols 3-5 and 9-11 = stone benches
   [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  // 11
   [ 19, 19, 19, 19, 19, 19, 19, 20, 19, 19, 19, 19, 19, 19, 19, 19],  // 12  INTERIOR_EXIT col 7

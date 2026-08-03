@@ -4531,10 +4531,12 @@ function interactWashHouse() {
     dialogue.page  = 0;
     return true;
   }
-  // Communal wash basins — wash area center of the room
-  const wbx = player.x - WASH_BASIN.x;
-  const wby = player.y - WASH_BASIN.y;
-  if (Math.sqrt(wbx * wbx + wby * wby) < TALK_RADIUS) {
+  // Private bath stalls (east corner) — standing in either tub opens the wash choice
+  const nearBath = [WASH_BASIN, WASH_BASIN_2].some(function(b) {
+    const dx = player.x - b.x, dy = player.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS;
+  });
+  if (nearBath) {
     choice.title     = 'Wash House';
     choice.options   = ['Wash  (2g)', 'Leave'];
     choice.cursor    = 0;
