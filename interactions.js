@@ -3633,16 +3633,16 @@ function interactDrenwickInn() {
     dialogue.name  = 'Innkeeper';
     dialogue.pages = [
       ['\u201cRoom for the night?\u201d',
-       '\u201cTwenty gold. Same as always.\u201d'],
+       '\u201c' + DRENWICK_INN_PRICE + ' gold. Same as always.\u201d'],
     ];
     dialogue.callbacks = [function() {
       choice.title     = 'Innkeeper';
-      choice.options   = ['Rest  (20g)', 'Leave'];
+      choice.options   = ['Rest  (' + DRENWICK_INN_PRICE + 'g)', 'Leave'];
       choice.cursor    = 0;
       choice.callbacks = [
         function rest() {
-          if (stats.gold >= 20) {
-            stats.gold -= 20;
+          if (stats.gold >= DRENWICK_INN_PRICE) {
+            stats.gold -= DRENWICK_INN_PRICE;
             stats.hp    = stats.maxHp;
             if (hasStatusEffect('poison'))  removeStatusEffect('poison');
             if (hasStatusEffect('muddied')) removeStatusEffect('muddied');
@@ -4129,10 +4129,12 @@ function interactCalwickInn() {
 }
 
 function interactDrenwickSchool() {
-  // Ground floor: student desk with ancient textbook
+  // Ground floor: bookshelf on the west wall holding the Ancient Textbook.
+  // (Moved off the student desk at col 5 row 6, which is drenwick_gs_2's tile —
+  // that student's ordinary dialogue now reaches via interactSimpleNPCs below.)
   if (activeMap === DRENWICK_SCHOOL_GROUND_MAP) {
-    const dkx = player.x - DRENWICK_SCHOOL_DESK.x;
-    const dky = player.y - DRENWICK_SCHOOL_DESK.y;
+    const dkx = player.x - DRENWICK_SCHOOL_GROUND_SHELF.x;
+    const dky = player.y - DRENWICK_SCHOOL_GROUND_SHELF.y;
     if (Math.sqrt(dkx * dkx + dky * dky) < TALK_RADIUS) {
       dialogue.name  = 'Ancient Textbook';
       dialogue.pages = [
@@ -4599,15 +4601,15 @@ function interactDrenwickInfirmary() {
 }
 
 function interactProvisionStore() {
-  // Allocation manifest on east shelving
-  const mnx = player.x - DRENWICK_PROVISION_MANIFEST.x;
-  const mny = player.y - DRENWICK_PROVISION_MANIFEST.y;
+  // Order ledger on east shelving
+  const mnx = player.x - DRENWICK_PROVISION_LEDGER.x;
+  const mny = player.y - DRENWICK_PROVISION_LEDGER.y;
   if (Math.sqrt(mnx * mnx + mny * mny) < TALK_RADIUS) {
-    dialogue.name  = 'Allocation Manifest';
+    dialogue.name  = 'Order Ledger';
     dialogue.pages = [
-      ['IMPERIAL CIVIC PROVISIONS \u2014 CURRENT CYCLE',
-       'Dry rations: allocated. Salted catch: allocated. Preserved roots: partial allocation, next delivery cycle 4.',
-       'Reed oil: awaiting delivery. Preserved fruit: out of stock.'],
+      ['IMPERIAL CIVIC PROVISIONS \u2014 ORDER LEDGER, CURRENT CYCLE',
+       'Dry rations: in stock. Salted catch: in stock. Preserved roots: low stock, restock next delivery, cycle 4.',
+       'Reed oil: on order, awaiting delivery. Preserved fruit: out of stock \u2014 orderable for the next barge.'],
       ['At the bottom, a handwritten amendment: \u2018Reed oil delivery delayed pending route inspection north of Thornmere. No revised date confirmed.\u2019',
        'The amendment is signed with an initial and an official stamp \u2014 the ink slightly smeared.'],
     ];
@@ -5598,7 +5600,7 @@ function interactHouseInterior() {
              '\u201cMy neighbor told me, and asked me to keep quiet.\u201d',
              '\u201cI have. But it\u2019s been three months.\u201d'],
             ['\u201cI work in the provision store.\u201d',
-             '\u201cI process allocations. I know what the Imperial register does.\u201d',
+             '\u201cI process the household orders. I know what the Imperial register does.\u201d',
              '\u201cIf she\u2019s not in the system, she\u2019s not counted.\u201d',
              '\u201cIf she\u2019s not counted, she doesn\u2019t officially exist.\u201d'],
             ['\u201cReporting it means the district office gets involved.\u201d',

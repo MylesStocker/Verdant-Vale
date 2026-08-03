@@ -1239,7 +1239,7 @@ const DRENWICK_PROVISION_STORE_MAP = [
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  2
   [ 19, 19, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 18, 18, 19, 19],  //  3  cols 2-11 = deep shelving (north wall)
   [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  4  col 12 = east shelving
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  5  col 12 = east shelving (allocation manifest nearby)
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  5  col 12 = east shelving (order ledger nearby)
   [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  6  col 12 = east shelving
   [ 19, 19, 18, 33, 33, 33, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  7  cols 3-5 = stock crates, col 12 = east shelf
   [ 19, 19, 18, 33, 33, 33, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  8  cols 3-5 = stock crates, col 12 = east shelf

@@ -606,6 +606,22 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   that a future/temporary `curesX` property routes through the same
   `applyStatusCure()` path automatically (no new branch); and that an
   unregistered `curesX` property is a `validateGameData()` error. Runtime.
+- `55-drenwick-content-pass` — the bounded Drenwick content-correction pass.
+  Asserts all eight contracts of that pass: Holt's early office dialogue names
+  both absent field investigators without pre-revealing the later
+  reservoir-gated Garrick/Dreyfuss material; Sera resolves to the formerly-vacant
+  `house:drenwick_apt_b2_u3` at a valid, non-overlapping tile (and is gone from
+  the civic square, with no "just out" Dayoff line); Ossel's rareborn-captain and
+  watered-down-drink lines are gone; the Drenwick inn charges `DRENWICK_INN_PRICE`
+  (30g) across spoken price, label, affordability check and deduction while
+  Calwick stays 20g (30g succeeds/deducts 30, 29g refused/deducts nothing,
+  HP/status/day behaviour intact); the Ancient Textbook is reachable at the
+  ground-floor bookshelf and the old desk tile now reaches its student; the
+  fountain line is replaced by the canal-lock line with no Drenwick fountain
+  claims remaining; exactly one Harbormaster Renn is active on a workday
+  (interior) and on a Dayoff (exterior); and the provision store reads as paid
+  commerce (renamed "Order Ledger", Oda's purchase/account/billing language, no
+  free-allocation entitlement wording). Runtime.
 
 ## Known simplifications (see comments at the top of each affected test)
 

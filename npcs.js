@@ -1459,6 +1459,15 @@ const SIMPLE_NPCS = [
         ['\u201cIf the countersignature arrives after the period closes, it doesn\u2019t retroactively close the period.\u201d',
          '\u201cI\u2019ve explained this. I\u2019ll explain it again.\u201d'],
       ];
+      // Ordinary office context before the reservoir assignment: both of the
+      // district office's field investigators happen to be away at the same
+      // time. Deliberately ambient -- no quest flag, and no foreshadowing of
+      // what actually became of Garrick and Dreyfuss (that is the later,
+      // reservoir_quest_started-gated material below).
+      if (!reservoir_quest_started) pages.push(
+        ['\u201cBoth our field investigators are out at once this week \u2014 field assignments, the far side of the district.\u201d',
+         '\u201cSo it\u2019s the officer and me minding the desks. Come to see a field man and you\u2019ve come on the wrong week.\u201d']
+      );
       if (reservoir_quest_started && window.gallery_body_found) pages.push(
         ['\u201cDreyfuss I can nearly close now. Cause of cessation: deceased, recovered \u2014 the register keeps a box for it. A small box, for a whole man.\u201d',
          '\u201cGarrick stays open. Overdue past any schedule I could defend, and I have defended schedules no reasonable person would.\u201d'],
@@ -1508,12 +1517,15 @@ const SIMPLE_NPCS = [
     action:        null,
   },
 
-  // Drenwick Civic — market square NPC 2 (Sera)
+  // Drenwick East Apartments, Corridor B2 Unit 3 — Sera (waiting for a visitor)
+  // Relocated out of the civic square into the formerly-vacant B2/U3 apartment
+  // (see HOUSE_DATA drenwick_apt_b2_u3). Present every day; on Dayoff she is
+  // indoors and still waiting, not "just out". Stable id kept (drenwick_market_2).
   {
     id:         'drenwick_market_2',
     name:       'Sera',
-    map:        'drenwick_civic',
-    x:           9.5 * TILE,
+    map:        'house:drenwick_apt_b2_u3',
+    x:           7.5 * TILE,
     y:           6.5 * TILE,
     solid:      true,
     facing:     'down',
@@ -1521,7 +1533,8 @@ const SIMPLE_NPCS = [
     get dialogue() {
       return day % 5 === 0
         ? [
-            ['\u201cNot waiting for anyone today.\u201d', '\u201cJust out.\u201d'],
+            ['\u201cStill no sign of him \u2014 and on the day off, of all days.\u201d',
+             '\u201cHe said he\u2019d come before midday. I\u2019ll wait in where it\u2019s warm and pretend that isn\u2019t what I\u2019m doing.\u201d'],
           ]
         : [
             ['\u201cHe said he\u2019d be here before midday.\u201d', '\u201cThat was yesterday.\u201d'],
@@ -1608,14 +1621,17 @@ const SIMPLE_NPCS = [
 
   // ── Drenwick Canal/Docks and Waterfront NPCs ─────────────────────────────────
 
-  // Drenwick Canal/Docks — Harbormaster Renn
-  // Regular post: quay (row 3) in front of harbormaster office (cols 10-11).
-  // Dayoff: still on the quay, center (col 7) — the canal does not take days off.
+  // Drenwick Canal/Docks — Harbormaster Renn (exterior post, Dayoff only)
+  // Workdays he is inside the harbormaster's office (see harbormaster_interior),
+  // which is where the whole Weight Discrepancy quest is handled — so on work
+  // days this exterior post is empty (map null). On Dayoff the office is shut,
+  // and he stands on the quay (center, col 7) checking the water levels.
+  // The two Renn NPCs are mutually exclusive: exactly one is active on any day.
   {
     id:         'harbormaster',
     name:       'Harbormaster Renn',
-    map:        'drenwick_canal_docks',
-    get x()     { return day % 5 === 0 ?  7.5 * TILE : 10.5 * TILE; },
+    get map()   { return day % 5 === 0 ? 'drenwick_canal_docks' : null; },
+    x:           7.5 * TILE,
     y:           3.5 * TILE,
     solid:      true,
     facing:     'down',
@@ -2130,7 +2146,7 @@ const SIMPLE_NPCS = [
 
   // Provision store — Oda, store clerk (col 7 row 5)
   // Imperial civic provisions: dry goods, salted catch, preserved roots.
-  // Absent on dayoff: store formally closed, allocation records updated overnight.
+  // Absent on dayoff: store formally closed, the accounts reconciled overnight.
   {
     id:         'provision_clerk',
     name:       'Oda',
@@ -2141,12 +2157,12 @@ const SIMPLE_NPCS = [
     facing:     'down',
     spriteType: 'clerk',
     dialogue: [
-      ['\u201cDry rations, salted catch, preserved roots. Standard civic allocation.\u201d',
-       '\u201cYou\u2019ll need your district registry card to draw against a household account.\u201d'],
-      ['\u201cBarge delivery is second and fourth day of each cycle.\u201d',
-       '\u201cIf something\u2019s showing as out of stock, it may come in on the next run. I\u2019ll note the request.\u201d'],
-      ['\u201cThe allocation system runs off the household registry.\u201d',
-       '\u201cIf your name\u2019s not in the district register, there\u2019s no account to draw against. That\u2019s not a rule I made.\u201d'],
+      ['\u201cDry rations, salted catch, preserved roots. All priced on the board.\u201d',
+       '\u201cPay cash at the counter and it\u2019s yours. Simple as that.\u201d'],
+      ['\u201cA registered household can run a larger order on account instead of settling coin every visit.\u201d',
+       '\u201cYour district registry card just tells me which household and which billing address. That\u2019s all it does \u2014 it\u2019s not a claim on free goods.\u201d'],
+      ['\u201cBarge delivery is the second and fourth day of each cycle.\u201d',
+       '\u201cIf something\u2019s out of stock, I\u2019ll put it on the order for the next run. Cash or account, your choice when it lands.\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -2201,7 +2217,7 @@ const SIMPLE_NPCS = [
     action:        null,
   },
 
-  // Provision store — Tallin, district allocation inspector (col 8 row 5)
+  // Provision store — Tallin, district provisioning inspector (col 8 row 5)
   // Visits on inspection days only (day%5 === 3), absent otherwise.
   {
     id:         'provision_inspector',
@@ -2213,11 +2229,11 @@ const SIMPLE_NPCS = [
     facing:     'down',
     spriteType: 'clerk',
     dialogue: [
-      ['\u201cTallin. District Allocation Inspector, Provisioning Subdirectorate, Drenwick seat.\u201d',
-       '\u201cMy office is the reconciliation of allocation manifests against the district household registry. Precise work. Not, I am given to understand, interesting work. I reject the premise entirely.\u201d'],
+      ['\u201cTallin. District Provisioning Inspector, Provisioning Subdirectorate, Drenwick seat.\u201d',
+       '\u201cMy office is the reconciliation of the order ledgers against the district household registry \u2014 which households owe, which have settled. Precise work. Not, I am given to understand, interesting work. I reject the premise entirely.\u201d'],
       ['\u201cThe clerk Oda maintains records of a commendable cleanliness. My own function is chiefly one of ratification \u2014 the affixing of the seal, the conferral of official countenance.\u201d',
        '\u201c\u2018A stamp,\u2019 says the layman. A stamp. As though the sun merely rises.\u201d'],
-      ['\u201cI will note, for the record, that the reed-oil allocation stands delayed three cycles consecutive.\u201d',
+      ['\u201cI will note, for the record, that the reed-oil order stands delayed three cycles consecutive.\u201d',
        '\u201cI have filed the requisite memorandum. In the fullness of bureaucratic time, a superior office shall deign to act upon it. Or shall not. Both outcomes are, procedurally, complete.\u201d'],
     ],
     flag_required: null,
@@ -3359,8 +3375,8 @@ const SIMPLE_NPCS = [
     facing:     'up',
     spriteType: 'child',
     dialogue: [
-      ['\u201cMr. Oben said water always goes downhill.\u201d',
-       '\u201cSo why does it go up in the fountain in the civic square?\u201d'],
+      ['\u201cMr. Oben says water always goes downhill.\u201d',
+       '\u201cSo how does a canal lock lift a barge?\u201d'],
     ],
     flag_required: null,
     flag_sets:     null,
@@ -5335,6 +5351,11 @@ const INNKEEPER = { x: 7.5 * TILE, y: 3.5 * TILE }; // col 7, row 3 in INN_MAP
 
 // ─── Drenwick Innkeeper ───────────────────────────────────────────────────────
 const DRENWICK_INNKEEPER = { x: 7.5 * TILE, y: 2.5 * TILE }; // col 7 row 2 in DRENWICK_INN_MAP
+// Authoritative price of a night at the Drenwick inn (The Reed and Rope).
+// interactDrenwickInn() uses this for the spoken price, the choice-menu label,
+// the affordability check, and the gold deduction — one source of truth so they
+// can't drift. Calwick's inn is separately a flat 20g (interactCalwickInn).
+const DRENWICK_INN_PRICE = 30;
 
 // ─── Supervisor ───────────────────────────────────────────────────────────────
 // Seated behind the wider desk (cols 11–12, row 2) in the office interior.
@@ -5635,7 +5656,8 @@ const HOUSE_DATA = {
   },
   // ── Drenwick East Apartments — Corridor B2 ─────────────────────────────────
   // u1: Sael (mushroom wine philosopher), u2: Pip (district messenger),
-  // u3: vacant, u4: Aldren (elderly, remembers Millennial Accord)
+  // u3: Sera (relocated here from the civic square; waiting for a visitor),
+  // u4: Aldren (elderly, remembers Millennial Accord)
   drenwick_apt_b2_u1: {
     bed:    { x: 5.5 * TILE, y: 8.5 * TILE, canRest: false, inspect: 'Unmade. A mushroom wine bottle on its side at the foot, empty.' },
     stove:  { x: 9.5 * TILE, y: 5.5 * TILE },
@@ -5647,7 +5669,7 @@ const HOUSE_DATA = {
     chair:  { x: 8.5 * TILE, y: 7.5 * TILE },
   },
   drenwick_apt_b2_u3: {
-    bed:    { x: 5.5 * TILE, y: 5.5 * TILE, canRest: false, inspect: 'Stripped bare. The previous tenant left quickly, by the look of it.' },
+    bed:    { x: 5.5 * TILE, y: 5.5 * TILE, canRest: false, inspect: 'Plainly made up, and recently. Whoever moved in has not brought much with them yet.' },
     stove:  { x: 9.5 * TILE, y: 8.5 * TILE },
   },
   drenwick_apt_b2_u4: {
@@ -5760,6 +5782,7 @@ window.WASH_BASIN         = WASH_BASIN;
 window.WASH_BASIN_2       = WASH_BASIN_2;
 window.INNKEEPER          = INNKEEPER;
 window.DRENWICK_INNKEEPER = DRENWICK_INNKEEPER;
+window.DRENWICK_INN_PRICE = DRENWICK_INN_PRICE;
 window.SUPERVISOR         = SUPERVISOR;
 window.FILING_CABINET     = FILING_CABINET;
 window.ESLA_CABINET       = ESLA_CABINET;

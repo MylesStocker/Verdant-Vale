@@ -1389,7 +1389,7 @@ function drawProvisionStoreFurniture() {
     for (let r = 0; r <= 7; r++) {
       ctx.fillRect(ex + 1, ey + r * TILE, TILE - 2, 3);
     }
-    // Allocation manifest ledger (at rows 5-6 = manifest area)
+    // Order ledger (at rows 5-6 = ledger area)
     ctx.fillStyle = '#283058';
     ctx.fillRect(ex + 4, ey + TILE + 4, TILE - 8, TILE - 8);
     ctx.fillStyle = '#c8b888';
@@ -1443,7 +1443,7 @@ function drawProvisionStoreFurniture() {
   // ── SPACE hints ───────────────────────────────────────────────────────────
   if (!dialogue.open && !choice.open && !shop.open) {
     const hints = [
-      { pos: DRENWICK_PROVISION_MANIFEST, lx: 12 * TILE + 8, ly: 5 * TILE },
+      { pos: DRENWICK_PROVISION_LEDGER, lx: 12 * TILE + 8, ly: 5 * TILE },
       { pos: PROVISION_STOCK_CRATE,       lx: 4.5 * TILE,    ly: 7 * TILE - 2 },
     ];
     ctx.fillStyle = '#d8c878';
@@ -1477,7 +1477,12 @@ const DRENWICK_TAVERN_TABLES = [
 ];
 
 // Drenwick school ground floor interactable objects.
-const DRENWICK_SCHOOL_DESK    = { x:  5.5 * TILE, y: 6.5 * TILE }; // student desk, ground floor col 5 row 6 (ancient textbook)
+// The Ancient Textbook lives on a bookshelf against the west wall (col 2, rows
+// 4-5), NOT on a student desk. It used to sit at col 5 row 6, the exact tile
+// where student drenwick_gs_2 stands, so inspecting it shadowed that student's
+// own dialogue; moving it to the shelf frees the student and gives the textbook
+// a sensible home.
+const DRENWICK_SCHOOL_GROUND_SHELF = { x: 2.5 * TILE, y: 4.5 * TILE }; // bookshelf, ground floor col 2 rows 4-5 (ancient textbook)
 
 // Drenwick school upper floor interactable objects.
 const DRENWICK_SCHOOL_CABINET   = { x:  2.5 * TILE, y: 3.5 * TILE }; // document cabinet, upper floor col 2 row 3
@@ -1501,7 +1506,7 @@ const HARBOR_MOORING_LOG = { x: 12 * TILE,   y: 7.5 * TILE }; // mooring/traffic
 const WASH_NOTICE        = { x: 10.5 * TILE, y: 3.5 * TILE }; // posted hours/rules notice (col 10 row 3 = floor)
 
 // Drenwick provision store interior objects.
-const DRENWICK_PROVISION_MANIFEST  = { x: 11.5 * TILE, y: 5.5 * TILE }; // allocation manifest, col 11 row 5
+const DRENWICK_PROVISION_LEDGER    = { x: 11.5 * TILE, y: 5.5 * TILE }; // order ledger, col 11 row 5
 const PROVISION_STOCK_CRATE = { x: 6 * TILE, y: 7.5 * TILE }; // stock crate inspection (approach from east face of crates)
 
 
@@ -2077,6 +2082,51 @@ function drawDrenwichSchoolFurniture() {
       ctx.fillRect(tx + 3, ty + 5, 26, 3);
       ctx.fillStyle = '#f0ecdc';
       ctx.fillRect(tx + 5, ty + 7, 8, 6);
+    }
+
+    // ── Bookshelf (west wall, col 2, rows 4-5) — holds the Ancient Textbook ───
+    // Interaction hotspot is DRENWICK_SCHOOL_GROUND_SHELF (col 2 row 4-5); the
+    // player reads it from the adjacent floor. Replaces the old student-desk
+    // placement that shadowed drenwick_gs_2.
+    {
+      const bx = 2 * TILE, by = 4 * TILE, bw = TILE, bh = 2 * TILE;
+      // Case back
+      ctx.fillStyle = '#3a2412';
+      ctx.fillRect(bx + 1, by + 2, bw - 2, bh - 2);
+      // Shelf boards (top, middle, bottom)
+      ctx.fillStyle = '#5a3a1e';
+      ctx.fillRect(bx + 1, by + 2,      bw - 2, 3);
+      ctx.fillRect(bx + 1, by + TILE,   bw - 2, 3);
+      ctx.fillRect(bx + 1, by + bh - 4, bw - 2, 3);
+      // Upright books on the two shelves
+      const shelfBooks = ['#7a2c20', '#2a4a6a', '#5a4a1a', '#3a5a30', '#602a4a'];
+      for (let shelf = 0; shelf < 2; shelf++) {
+        let xo = 4, i = shelf;
+        while (xo < bw - 6) {
+          const w = 4 + (i % 3);
+          ctx.fillStyle = shelfBooks[i % shelfBooks.length];
+          ctx.fillRect(bx + xo, by + 7 + shelf * TILE, w, TILE - 12);
+          xo += w + 2; i++;
+        }
+      }
+      // The open Ancient Textbook, lying flat on the lower shelf, edges darkened
+      ctx.fillStyle = '#d8c8a0';
+      ctx.fillRect(bx + 6, by + bh - 9, bw - 12, 4);
+      ctx.fillStyle = '#8a6a3a';
+      ctx.fillRect(bx + 6, by + bh - 9, bw - 12, 1);
+    }
+
+    // ── SPACE hint for the bookshelf ──────────────────────────────────────────
+    if (!dialogue.open && !choice.open && !shop.open) {
+      const dxh = player.x - DRENWICK_SCHOOL_GROUND_SHELF.x;
+      const dyh = player.y - DRENWICK_SCHOOL_GROUND_SHELF.y;
+      if (Math.sqrt(dxh * dxh + dyh * dyh) < TALK_RADIUS && (tick >> 4) & 1) {
+        ctx.fillStyle = '#d8c878';
+        ctx.font = 'bold 11px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('SPACE', Math.round(DRENWICK_SCHOOL_GROUND_SHELF.x), Math.round(3.5 * TILE));
+        ctx.textAlign = 'left';
+      }
     }
 
   } else if (activeMap === DRENWICK_SCHOOL_UPPER_MAP) {
