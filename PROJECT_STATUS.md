@@ -22,7 +22,7 @@ individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
 
-- **53 tests** (`test/cases/01-…53-`), `node test/run.js` — all passing.
+- **54 tests** (`test/cases/01-…54-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile

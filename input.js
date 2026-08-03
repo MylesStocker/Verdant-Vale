@@ -108,12 +108,11 @@ window.addEventListener('keydown', e => {
             const grouped = groupItems();
             if (menu.itemCursor < grouped.length) {
               const { name, item: it } = grouped[menu.itemCursor];
-              if (it.curesPoison) {
-                removeStatusEffect('poison');
-                const idx = stats.items.findIndex(i => i.name === name);
-                if (idx !== -1) stats.items.splice(idx, 1);
-              } else if (it.curesCursed) {
-                removeStatusEffect('cursed');
+              if (isStatusCureItem(it)) {
+                // Same shared status-cure path as combat: clears an active
+                // matching status (if any), else nothing happens. Either way the
+                // item is consumed (the field menu shows no message).
+                applyStatusCure(it);
                 const idx = stats.items.findIndex(i => i.name === name);
                 if (idx !== -1) stats.items.splice(idx, 1);
               } else if (it.type === 'potion') {

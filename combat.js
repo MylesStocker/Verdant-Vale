@@ -158,15 +158,63 @@ const choice = { open: false, cursor: 0, title: '', options: [], callbacks: [] }
 // ─── Shop state ───────────────────────────────────────────────────────────────
 const shop = { open: false, screen: 'main', cursor: 0, title: 'MERCHANT', stock: MERCHANT_STOCK };
 
+// \u2500\u2500\u2500 Status-cure contract (one authoritative path) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Maps each status-cure item PROPERTY to the runtime status id it clears and its
+// existing successful-use confirmation. Every status-restoring item MUST have its
+// `curesX` property registered here \u2014 validateGameData() (validation.js) flags an
+// unregistered one, and any future cure item routes through this shared path
+// automatically (no per-item combat/menu branch). Item DISPLAYS never surface the
+// cured status (itemStatLabel returns '' for these); only this contract knows the
+// mapping. Characters/authored dialogue may still hint at an item's purpose.
+const STATUS_CURE_PROPERTIES = {
+  curesPoison: { status: 'poison', success: (name) => `Used ${name} \u2014 poison cured!` },
+  curesCursed: { status: 'cursed', success: (name) => `Used ${name} \u2014 the curse lifts!` },
+};
+if (typeof window !== 'undefined') window.STATUS_CURE_PROPERTIES = STATUS_CURE_PROPERTIES;
+
+// The status ids this item can cure (from its registered curesX properties).
+function itemCuredStatuses(item) {
+  const out = [];
+  if (item) for (const prop of Object.keys(STATUS_CURE_PROPERTIES)) {
+    if (item[prop]) out.push(STATUS_CURE_PROPERTIES[prop].status);
+  }
+  return out;
+}
+// True if the item cures any status at all.
+function isStatusCureItem(item) { return itemCuredStatuses(item).length > 0; }
+
+// The one place a status-cure item is resolved when USED. Removes any currently
+// active statuses the item cures; if at least one was active, reports success
+// with the item's existing confirmation message, otherwise returns the generic
+// "nothing happens" result. Never touches HP, the item stack, the turn, or any
+// unrelated status \u2014 the caller consumes the item and spends the turn as usual.
+function applyStatusCure(item) {
+  let successMessage = null;
+  for (const prop of Object.keys(STATUS_CURE_PROPERTIES)) {
+    if (!item[prop]) continue;
+    const spec = STATUS_CURE_PROPERTIES[prop];
+    if (hasStatusEffect(spec.status)) {
+      removeStatusEffect(spec.status);
+      if (!successMessage) successMessage = spec.success(item.name);
+    }
+  }
+  return successMessage
+    ? { cured: true, message: successMessage }
+    : { cured: false, message: `Used ${item.name} \u2014 nothing happens.` };
+}
+if (typeof window !== 'undefined') {
+  window.itemCuredStatuses = itemCuredStatuses;
+  window.isStatusCureItem  = isStatusCureItem;
+  window.applyStatusCure   = applyStatusCure;
+}
+
 // Returns the short stat label shown next to an item in menus
 function itemStatLabel(item) {
   if (item.sexBane === 'male')                     return 'Bane: male';
   if (item.sexBane === 'female')                   return 'Bane: female';
-  if (item.curesPoison)                            return 'Cures poison';
-  // Amethyst Dust's anti-curse property is deliberately NOT surfaced in item
-  // displays (menus, chest pickups) \u2014 a character can mention it instead. It
-  // returns no label rather than a misleading `HP +0`.
-  if (item.curesCursed)                            return '';
+  // Status-cure items deliberately show NO stat label \u2014 a display must never
+  // reveal which status an item cures (a character can mention it instead).
+  if (isStatusCureItem(item))                      return '';
   if (item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
   if (item.questItem && item.type === 'potion')    return `HP  +${item.heals} \u2022 quest`;
   if (item.type === 'weapon')    return `ATK +${item.bonus}`;
@@ -1250,16 +1298,15 @@ function handleCombatAction() {
         msgs.push(`Used ${item.name} \u2014 it does nothing to the ${combat.enemy.name}. Wasted on this one.`);
       }
     } else if (item.type === 'potion') {
-      if (item.curesPoison) {
-        removeStatusEffect('poison');
+      if (isStatusCureItem(item)) {
+        // One shared path for every status-cure item: cures an active matching
+        // status (with its confirmation), else "\u2026nothing happens." \u2014 but the
+        // item is still consumed and the turn still spent (the enemy still acts
+        // below, via enemyActs). Never heals HP or touches an unrelated status.
+        const res = applyStatusCure(item);
         stats.items.splice(stats.items.indexOf(item), 1);
         combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
-        msgs.push(`Used ${item.name} \u2014 poison cured!`);
-      } else if (item.curesCursed) {
-        removeStatusEffect('cursed');
-        stats.items.splice(stats.items.indexOf(item), 1);
-        combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
-        msgs.push(`Used ${item.name} \u2014 the curse lifts!`);
+        msgs.push(res.message);
       } else {
         const healed = Math.min(item.heals || 0, stats.maxHp - stats.hp);
         stats.hp += healed;

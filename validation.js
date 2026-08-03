@@ -853,6 +853,16 @@ function validateItems() {
         if (field in item && !_isFiniteNumber(item[field]))
           addValidationError(GROUP, lbl + ': ' + field + ' is not a valid number (' + item[field] + ')');
       }
+      // Every status-cure property (curesX) must be registered in the shared
+      // STATUS_CURE_PROPERTIES contract (combat.js), so it routes through the one
+      // status-cure resolution path and never leaks the cured status into item
+      // displays. An unregistered curesX is a silent one-off waiting to happen.
+      const cureContract = (typeof window !== 'undefined') ? window.STATUS_CURE_PROPERTIES : null;
+      for (const prop of Object.keys(item)) {
+        if (!/^cures[A-Z]/.test(prop) || !item[prop]) continue;
+        if (!cureContract) addValidationWarning(GROUP, lbl + ': has "' + prop + '" but STATUS_CURE_PROPERTIES is unavailable to verify registration');
+        else if (!(prop in cureContract)) addValidationError(GROUP, lbl + ': status-cure property "' + prop + '" is not registered in STATUS_CURE_PROPERTIES (combat.js) -- register it so it uses the shared cure path and stays out of item displays');
+      }
     }
   } else {
     addValidationWarning(GROUP, 'ITEM_REGISTRY not available -- item registry checks skipped');

@@ -596,6 +596,16 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   location WITHOUT running a transition (cooldown untouched). Load-bearing
   section breaks reset coverage, a special-flag application, and rejects a
   contradictory destination, restoring in `finally`. Runtime.
+- `54-status-cure-contract` — the shared status-cure contract (`combat.js`).
+  Asserts status-restoring items (Reed Remedy, Amethyst Dust) show a BLANK
+  `itemStatLabel()`/`itemStatParen()` (no cured-status leak, no empty `()`),
+  while ordinary heal/equipment labels are unchanged; that in real combat a cure
+  removes an active matching status with its existing confirmation, or reports
+  the exact "Used <item> — nothing happens." while still consuming the item and
+  the turn (the enemy still acts); that a cure removes ONLY its matching status;
+  that a future/temporary `curesX` property routes through the same
+  `applyStatusCure()` path automatically (no new branch); and that an
+  unregistered `curesX` property is a `validateGameData()` error. Runtime.
 
 ## Known simplifications (see comments at the top of each affected test)
 
