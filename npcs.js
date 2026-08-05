@@ -3303,22 +3303,46 @@ const SIMPLE_NPCS = [
     action:        null,
   },
 
-  // Drenwick Market — Post Relay counter clerk (col 14, row 8, east lane)
-  // Not present on dayoff (null map). No interior — counter only.
+  // Fenmark Post Company office (drenwick_post_office) — the relay clerk, now
+  // indoors behind the parcels desk instead of standing in the market lane.
   {
     id:         'post_relay_clerk',
     name:       'Relay Clerk',
-    get map()   { return day % 5 === 0 ? null : 'drenwick_market'; },
-    x:          14.5 * TILE,
-    y:           8.5 * TILE,
+    map:        'drenwick_post_office',
+    x:          10.5 * TILE,   // behind the east (parcels) desk, staff row 3
+    y:           3.5 * TILE,
     solid:      true,
     facing:     'down',
     spriteType: 'clerk',
     dialogue: [
-      ['\u201cPost Relay. Parcels, sealed letters, priority packet.\u201d',
-       '\u201cStandard transit is three to four days east. Faster if you pay the courier rate.\u201d'],
-      ['\u201cAnything going north needs to clear the Drenwick staging post first.\u201d',
-       '\u201cIt comes back through here on return. If it hasn\u2019t arrived, it hasn\u2019t left the staging post yet.\u201d'],
+      ['“Post Relay counter. Parcels, sealed letters, priority packet.”',
+       '“Standard transit is three to four days east. Faster if you pay the courier rate.”'],
+      ['“Anything going north clears our own staging post first — not the Imperial one.”',
+       '“It comes back through here on return. If it hasn’t arrived, it hasn’t left our staging post yet.”'],
+    ],
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
+
+  // Fenmark Post Company office — the proprietor who runs the private house.
+  // Her lines make plain this is a licensed private carrier, not Empire dispatch.
+  {
+    id:         'post_office_proprietor',
+    name:       'Merrin',
+    map:        'drenwick_post_office',
+    x:           4.5 * TILE,   // behind the west (dispatch) desk, staff row 3
+    y:           3.5 * TILE,
+    solid:      true,
+    facing:     'down',
+    spriteType: 'clerk',
+    dialogue: [
+      ['“Fenmark Post Company. We’re a private house — not the Empire’s dispatch.”',
+       '“The district office runs Imperial mail through official channels. We run everything else, faster, and to places the sanctioned routes don’t bother with.”'],
+      ['“We’re licensed to carry, not to inspect. What you seal, we don’t open.”',
+       '“That’s most of the appeal, if you ask the people who use us.”'],
+      ['“The couriers are our own — bonded, paid by the run. The Empire has no hand in them.”',
+       '“Which is exactly why the district office would rather you forgot we were here.”'],
     ],
     flag_required: null,
     flag_sets:     null,

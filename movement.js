@@ -67,6 +67,7 @@ function locationName() {
   if (inTown && townBuilding === 'infirmary'        && currentTownId === 'drenwick') return 'Drenwick \u2014 Infirmary';
   if (inTown && townBuilding === 'provision_store'  && currentTownId === 'drenwick') return 'Drenwick \u2014 Provision Store';
   if (inTown && townBuilding === 'guild_hall'        && currentTownId === 'drenwick') return 'Drenwick \u2014 Guild Hall';
+  if (inTown && townBuilding === 'post_office'       && currentTownId === 'drenwick') return 'Drenwick \u2014 Fenmark Post Co.';
   if (activeMap === DRENWICK_TAVERN_MAP)  return 'Drenwick \u2014 Dockworkers\u2019 Tavern';
   if (inTown && townBuilding === 'east')   return 'Calwick East Side';
   if (inTown && townBuilding === 'west')   return 'Calwick West Side';
@@ -138,6 +139,7 @@ function currentMapId() {
   if (inTown && townBuilding === 'infirmary'       && currentTownId === 'drenwick') return 'drenwick_infirmary';
   if (inTown && townBuilding === 'provision_store' && currentTownId === 'drenwick') return 'drenwick_provision_store';
   if (inTown && townBuilding === 'guild_hall'      && currentTownId === 'drenwick') return 'drenwick_guild_hall';
+  if (inTown && townBuilding === 'post_office'     && currentTownId === 'drenwick') return 'drenwick_post_office';
   if (activeMap === DRENWICK_TAVERN_MAP)        return 'drenwick_tavern';
   if (activeMap === DRENWICK_SCHOOL_GROUND_MAP)   return 'drenwick_school_ground';
   if (activeMap === DRENWICK_SCHOOL_UPPER_MAP)    return 'drenwick_school_upper';
@@ -711,11 +713,11 @@ function update() {
       }
     }
     if (inTown && !townBuilding && curTile === INN_DOOR)        { enterBuilding('inn');    return; }
-    // Market: Guild Hall door (col 5 row 3) and Post Relay counter (col 14 row 10, no interior)
+    // Market: Guild Hall door (col 5 row 2) and Fenmark Post Company office (col 14 row 10)
     if (inTown && !townBuilding && currentTownId === 'drenwick' && activeMap === DRENWICK_MARKET_MAP && curTile === OFFICE_DOOR) {
-      if (ttx === 5 && tty === 2) { enterBuilding('guild_hall'); return; }
-      // Post Relay has no interior — consume event
-      return;
+      if (ttx === 5  && tty === 2)  { enterBuilding('guild_hall'); return; }
+      if (ttx === 14 && tty === 10) { enterBuilding('post_office'); return; }
+      return; // unknown market door — consume event without crashing
     }
     // Canal/Docks: three OFFICE_DOOR tiles routing to different buildings by position
     if (inTown && !townBuilding && currentTownId === 'drenwick' && activeMap === DRENWICK_CANAL_DOCKS_MAP && curTile === OFFICE_DOOR) {

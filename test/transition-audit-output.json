@@ -25,6 +25,7 @@
     "DRENWICK_CANAL_DOCKS_MAP",
     "DRENWICK_EAST_OUTSKIRTS_MAP",
     "DRENWICK_MARKET_MAP",
+    "DRENWICK_POST_OFFICE_MAP",
     "DRENWICK_WATERFRONT_MAP",
     "DRENWICK_INN_MAP",
     "DRENWICK_OFFICE_MAP",
@@ -249,6 +250,12 @@
     },
     {
       "id": "DRENWICK_MARKET_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DRENWICK_POST_OFFICE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -3676,6 +3683,35 @@
       "verdict": "OK"
     },
     {
+      "name": "enterBuilding('post_office') [drenwick]",
+      "group": "enter-building",
+      "setupCode": "currentTownId='drenwick'; enterBuilding('post_office')",
+      "error": null,
+      "destMap": "DRENWICK_POST_OFFICE_MAP",
+      "px": 240,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
       "name": "enterBuilding('tavern') [drenwick]",
       "group": "enter-building",
       "setupCode": "currentTownId='drenwick'; enterBuilding('tavern')",
@@ -5498,6 +5534,35 @@
         "down": true,
         "left": true,
         "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitBuilding() [drenwick, from post_office]",
+      "group": "exit-building",
+      "setupCode": "currentTownId='drenwick'; townBuilding=\"post_office\"; exitBuilding();",
+      "error": null,
+      "destMap": "DRENWICK_MARKET_MAP",
+      "px": 464,
+      "py": 304,
+      "facing": "down",
+      "tileCol": 14,
+      "tileRow": 9,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -8039,7 +8104,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 21,
+      "mapsUsingIt": 22,
       "handledInMovement": true
     },
     {

@@ -550,7 +550,7 @@ function validateNPCs() {
     'drenwick_tavern', 'drenwick_school_ground', 'drenwick_school_upper',
     'drenwick_school_basement',
     'drenwick_west_residential', 'drenwick_canal_docks',
-    'drenwick_east_outskirts', 'drenwick_market',
+    'drenwick_east_outskirts', 'drenwick_market', 'drenwick_post_office',
     'drenwick_waterfront', 'drenwick_civic',
   ]);
   const VALID_SPRITE_TYPES = new Set(['clerk', 'patron', 'child', 'worker', 'traveler']);

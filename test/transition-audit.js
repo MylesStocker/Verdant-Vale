@@ -295,7 +295,7 @@ const calwickBuildings = ['inn', 'office', 'school', 'apt'];
 for (const b of calwickBuildings) {
   check(`enterBuilding('${b}') [calwick]`, `currentTownId=null; enterBuilding('${b}')`, { group: 'enter-building' });
 }
-const drenwickBuildings = ['inn', 'office', 'harbormaster', 'wash_house', 'provision_store', 'guild_hall', 'tavern', 'school',
+const drenwickBuildings = ['inn', 'office', 'harbormaster', 'wash_house', 'provision_store', 'guild_hall', 'post_office', 'tavern', 'school',
   'drenwick_apt_a1', 'drenwick_apt_a2', 'drenwick_apt_b1', 'drenwick_apt_b2', 'drenwick_apt_c1', 'drenwick_apt_c2'];
 for (const b of drenwickBuildings) {
   check(`enterBuilding('${b}') [drenwick]`, `currentTownId='drenwick'; enterBuilding('${b}')`, { group: 'enter-building' });
@@ -315,7 +315,7 @@ for (const prev of calwickExitPriors) {
     `currentTownId=null; townBuilding=${prev === null ? 'null' : esc(prev)}; exitBuilding();`,
     { group: 'exit-building' });
 }
-const drenwickExitPriors = ['inn', 'office', 'harbormaster', 'wash_house', 'provision_store', 'tavern', 'school', 'guild_hall',
+const drenwickExitPriors = ['inn', 'office', 'harbormaster', 'wash_house', 'provision_store', 'tavern', 'school', 'guild_hall', 'post_office',
   'drenwick_apt_a1', 'drenwick_apt_a2', 'drenwick_apt_b1', 'drenwick_apt_b2', 'drenwick_apt_c1', 'drenwick_apt_c2'];
 for (const prev of drenwickExitPriors) {
   check(`exitBuilding() [drenwick, from ${prev}]`,

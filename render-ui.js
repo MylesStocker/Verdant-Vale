@@ -602,10 +602,34 @@ function drawAccordPanel() {
 function drawChoice() {
   if (!choice.open) return;
 
-  const BW = 220, BH = 20 + choice.options.length * 24 + 20;
+  const PAD    = 14;
+  const lineH  = 20;   // height of a single (possibly wrapped) option line
+  const optGap = 8;    // extra gap between separate options
+  const arrow  = '\u25b6 ';
+
+  // Measure with the option font so width/height math matches what's drawn.
+  ctx.font = '13px "Courier New", monospace';
+  const measure = (s) => ctx.measureText(s).width;
+  const indent  = measure(arrow);   // continuation lines align under the option text
+
+  // Box width: fit the content, clamped to the screen. Options longer than the
+  // clamp wrap onto continuation lines instead of overflowing the box (which is
+  // what used to happen at the old fixed 220px width).
+  const MINW = 200, MAXW = 470;
+  let naturalW = measure(choice.title || '');
+  for (const o of choice.options) naturalW = Math.max(naturalW, indent + measure(o));
+  const BW    = Math.max(MINW, Math.min(MAXW, Math.ceil(naturalW) + PAD * 2));
+  const textW = BW - PAD * 2 - indent;                    // width available to wrapped text
+  const wrapped = choice.options.map((o) => wrapDialogueLine(o, textW, measure));
+
+  // Height derives from the wrapped line counts, so a two-line option grows the box.
+  const headerH = 40, bottomPad = 12;
+  let contentH = 0;
+  wrapped.forEach((w, i) => { contentH += w.length * lineH; if (i < wrapped.length - 1) contentH += optGap; });
+  const BH = headerH + contentH + bottomPad;
+
   const BX = Math.floor((512 - BW) / 2);
-  const BY = 280;
-  const PAD = 14;
+  const BY = Math.max(8, 350 - BH);   // sit just above the dialogue box, growing upward
 
   // Background
   ctx.fillStyle = '#08121e';
@@ -635,15 +659,22 @@ function drawChoice() {
 
   // Separator
   ctx.fillStyle = '#2a4e5e';
-  ctx.fillRect(BX + PAD, BY + 24, BW - PAD * 2, 1);
+  ctx.fillRect(BX + PAD, BY + 26, BW - PAD * 2, 1);
 
-  // Options
+  // Options \u2014 the cursor arrow marks only the first line of the selected option;
+  // continuation lines indent to align under the option text.
   ctx.font = '13px "Courier New", monospace';
-  choice.options.forEach((opt, i) => {
+  let y = BY + headerH + 6;
+  wrapped.forEach((lines, i) => {
     const selected = i === choice.cursor;
     ctx.fillStyle = selected ? '#f0e090' : '#aac4c4';
-    const label = (selected ? '\u25b6 ' : '  ') + opt;
-    ctx.fillText(label, BX + PAD, BY + 44 + i * 24);
+    lines.forEach((ln, j) => {
+      const prefix = j === 0 ? (selected ? arrow : '  ') : '';
+      const x      = BX + PAD + (j === 0 ? 0 : indent);
+      ctx.fillText(prefix + ln, x, y);
+      y += lineH;
+    });
+    y += optGap;
   });
 }
 

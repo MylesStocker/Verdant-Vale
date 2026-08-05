@@ -1873,6 +1873,17 @@ function drawTravellerSprite() {
 }
 
 // ─── Shop Drawing ─────────────────────────────────────────────────────────────
+// Returns the slice of a scrollable list to show, keeping `cursor` in view.
+// Used by the shop's sell screen so a large inventory scrolls inside the panel
+// instead of drawing item rows past the bottom of the box. Derived purely from
+// the cursor, so navigation stays in input.js with no separate scroll state.
+function shopVisibleWindow(listLen, cursor, maxRows) {
+  if (listLen <= maxRows) return { start: 0, count: listLen };
+  let start = cursor - Math.floor(maxRows / 2);
+  start = Math.max(0, Math.min(start, listLen - maxRows));
+  return { start, count: maxRows };
+}
+
 function drawShop() {
   if (!shop.open) return;
 
@@ -1977,35 +1988,54 @@ function drawShop() {
     ctx.fillText('SELL  (50% of value)', BX + PAD, BY + 44);
 
     const sellable = inventoryItems();
+    const topY     = BY + 60;
     if (sellable.length === 0) {
       ctx.fillStyle = '#3a5060';
       ctx.font = '12px "Courier New", monospace';
-      ctx.fillText('  No items to sell.', BX + PAD, BY + 60);
+      ctx.fillText('  No items to sell.', BX + PAD, topY);
+      // Back sits one row below the empty message.
+      const backSel0 = shop.cursor === 0;
+      ctx.fillStyle = backSel0 ? '#f0e090' : '#5a7878';
+      ctx.font = '12px "Courier New", monospace';
+      ctx.fillText((backSel0 ? '▶ ' : '  ') + '← Back', BX + PAD, topY + 22);
     } else {
-      sellable.forEach((it, i) => {
-        const sel      = i === shop.cursor;
-        const iy       = BY + 60 + i * 22;
-        const sellVal  = Math.floor((it.price || 0) / 2);
-        ctx.fillStyle  = sel ? '#f0e090' : '#aac4c4';
-        ctx.font       = '12px "Courier New", monospace';
-        ctx.fillText((sel ? '\u25b6 ' : '  ') + it.name, BX + PAD, iy);
-        ctx.fillStyle  = sel ? '#c8d898' : '#5a7868';
-        ctx.font       = '11px "Courier New", monospace';
-        ctx.fillText(itemStatLabel(it), BX + PAD + 134, iy);
-        ctx.fillStyle  = sel ? '#f0d050' : '#a08020';
-        ctx.textAlign  = 'right';
-        ctx.fillText(`${sellVal} g`, BX + BW - PAD, iy);
-        ctx.textAlign  = 'left';
-      });
+      // Items + a trailing Back form one scrollable list; a large inventory
+      // scrolls inside the panel instead of spilling past the bottom of the box.
+      const listLen  = sellable.length + 1;   // + Back
+      const MAX_ROWS = 9;
+      const win      = shopVisibleWindow(listLen, shop.cursor, MAX_ROWS);
+      for (let r = 0; r < win.count; r++) {
+        const idx = win.start + r;
+        const iy  = topY + r * 22;
+        const sel = idx === shop.cursor;
+        if (idx < sellable.length) {
+          const it      = sellable[idx];
+          const sellVal = Math.floor((it.price || 0) / 2);
+          ctx.fillStyle = sel ? '#f0e090' : '#aac4c4';
+          ctx.font      = '12px "Courier New", monospace';
+          ctx.fillText((sel ? '\u25b6 ' : '  ') + it.name, BX + PAD, iy);
+          ctx.fillStyle = sel ? '#c8d898' : '#5a7868';
+          ctx.font      = '11px "Courier New", monospace';
+          ctx.fillText(itemStatLabel(it), BX + PAD + 134, iy);
+          ctx.fillStyle = sel ? '#f0d050' : '#a08020';
+          ctx.textAlign = 'right';
+          ctx.fillText(`${sellVal} g`, BX + BW - PAD, iy);
+          ctx.textAlign = 'left';
+        } else {
+          // Trailing Back row (part of the same scrollable list).
+          ctx.fillStyle = sel ? '#f0e090' : '#5a7878';
+          ctx.font      = '12px "Courier New", monospace';
+          ctx.fillText((sel ? '\u25b6 ' : '  ') + '\u2190 Back', BX + PAD, iy);
+        }
+      }
+      // More-above / more-below indicators.
+      ctx.fillStyle = '#5a7878';
+      ctx.font      = '10px "Courier New", monospace';
+      ctx.textAlign = 'right';
+      if (win.start > 0)                    ctx.fillText('\u25b2 more', BX + BW - PAD, topY - 10);
+      if (win.start + win.count < listLen)  ctx.fillText('\u25bc more', BX + BW - PAD, topY + win.count * 22 + 2);
+      ctx.textAlign = 'left';
     }
-
-    // Back option — placed at least one row below the item list (or empty message)
-    const backI   = sellable.length;
-    const backSel = shop.cursor === backI;
-    const backY   = BY + 60 + Math.max(backI, 1) * 22;
-    ctx.fillStyle = backSel ? '#f0e090' : '#5a7878';
-    ctx.font = '12px "Courier New", monospace';
-    ctx.fillText((backSel ? '\u25b6 ' : '  ') + '\u2190 Back', BX + PAD, backY);
 
     // Footer hint
     ctx.fillStyle = '#3a5060';

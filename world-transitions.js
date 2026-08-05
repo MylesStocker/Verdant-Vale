@@ -710,6 +710,7 @@ function enterBuilding(building) {
     else if (building === 'wash_house')            { mapId = 'DRENWICK_WASH_HOUSE_MAP';      y = 11.5 * TILE; }
     else if (building === 'provision_store')       { mapId = 'DRENWICK_PROVISION_STORE_MAP'; y = 11.5 * TILE; }
     else if (building === 'guild_hall')            { mapId = 'DRENWICK_GUILD_HALL_MAP';      y = 11.5 * TILE; }
+    else if (building === 'post_office')           { mapId = 'DRENWICK_POST_OFFICE_MAP';     y = 11.5 * TILE; }
     else if (building === 'tavern')                { mapId = 'DRENWICK_TAVERN_MAP';          y = 12.5 * TILE; }
     else if (building === 'school')                { mapId = 'DRENWICK_SCHOOL_GROUND_MAP';   y = 11.5 * TILE; }
     else if (building.startsWith('drenwick_apt_')) { mapId = 'APARTMENT_CORRIDOR_MAP';       y =  8.5 * TILE; } // 6 corridors reuse this map; townBuilding distinguishes
@@ -783,6 +784,8 @@ function exitBuilding() {
       mapId = 'DRENWICK_WEST_RESIDENTIAL_MAP'; x = 3.5 * TILE; y = 4.5 * TILE; // one south of SCHOOL_DOOR row 3 col 3
     } else if (prev === 'guild_hall') {
       mapId = 'DRENWICK_MARKET_MAP'; x = 5.5 * TILE; y = 3.5 * TILE;       // one south of door row 2 col 5
+    } else if (prev === 'post_office') {
+      mapId = 'DRENWICK_MARKET_MAP'; x = 14.5 * TILE; y = 9.5 * TILE;      // east lane, one north of the office door (row 10 col 14)
     } else {
       // Civic buildings (inn, office) return to Civic map at the correct door position
       mapId = 'DRENWICK_CIVIC_MAP'; x = (prev === 'inn' ? 3.5 : 11.5) * TILE; y = 4.5 * TILE;

@@ -5590,10 +5590,13 @@ function interactHouseInterior() {
              '\u201cSomething I can\u2019t ask anyone who lives here.\u201d'],
             ['\u201cMy neighbor \u2014 the one next door, unit two \u2014 she\u2019s been sheltering someone.\u201d',
              '\u201cHer mother. Came up from the fen country a few months back.\u201d',
-             '\u201cThe woman\u2019s old. Been sick since she arrived.\u201d'],
+             '\u201cThe woman\u2019s old. Been sick since she arrived.\u201d',
+             (day % 5 === 0)
+               ? '\u201cClodagh\u2019s home today \u2014 it\u2019s the dayoff. Her mother keeps to that back room; she never comes out.\u201d'
+               : '\u201cClodagh\u2019s out \u2014 she only keeps to the building on the dayoff. Her mother\u2019s still in there, though. She never leaves that room. Can\u2019t.\u201d'],
             ['\u201cShe\u2019s not registered.\u201d',
              '\u201cNo Imperial papers. Nothing.\u201d',
-             '\u201cShe was born before the Integration Accords.\u201d',
+             '\u201cBorn out in the deep fen, before the register ever reached that far.\u201d',
              '\u201cLived off-grid her whole life.\u201d',
              '\u201cShe doesn\u2019t know what a registration office is.\u201d'],
             ['\u201cI know because I can hear her coughing through the wall at night.\u201d',

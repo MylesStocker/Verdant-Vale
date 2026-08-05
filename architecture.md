@@ -686,10 +686,10 @@ warningList }` — `errorList`/`warningList` are arrays of `{ group, message }`,
 which is what tests and the debug menu read rather than re-parsing console
 text.
 
-As of the last full pass: **0 errors, 2 warnings** across 69 maps, 16,560
-tile cells, 159 NPCs, 98 item placements, 29 enemy templates, 17 map
-features, and the rest — see `PROJECT_STATUS.md` for what those 2 warnings
-actually are (both intentional, nothing newly introduced).
+As of the last full pass: **0 errors, 4 warnings** across 101 maps, 24,240
+tile cells, 171 NPCs, 112 item placements, 53 enemy templates, 63 map
+features, and the rest — see `PROJECT_STATUS.md` for what those 4 warnings
+actually are (all intentional, nothing newly introduced).
 
 **Battle-sprite coverage is now fully checked by id** (previously an accepted
 gap). `validateEnemies()` iterates the whole `ENEMY_TEMPLATE_REGISTRY` — which

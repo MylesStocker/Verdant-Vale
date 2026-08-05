@@ -749,6 +749,12 @@ const MAP_METADATA = {
     type: 'interior', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
   },
+  DRENWICK_POST_OFFICE_MAP: {
+    id: 'DRENWICK_POST_OFFICE_MAP', map: DRENWICK_POST_OFFICE_MAP, displayName: 'Drenwick \u2014 Fenmark Post Co.', region: 'Drenwick',
+    type: 'interior', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'Small private mail-carrier office off the market east lane. Entered via DRENWICK_MARKET_MAP OFFICE_DOOR (row 10 col 14); INTERIOR_EXIT (col 7) returns to the market lane. Staffed by the Fenmark proprietor and the relay clerk (SIMPLE_NPCS, map drenwick_post_office).',
+  },
   DRENWICK_HARBORMASTER_MAP: {
     id: 'DRENWICK_HARBORMASTER_MAP', map: DRENWICK_HARBORMASTER_MAP, displayName: 'Drenwick \u2014 Harbormaster\u2019s Office', region: 'Drenwick',
     type: 'interior', items: [], encounterPool: null,
