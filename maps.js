@@ -1286,23 +1286,24 @@ const DRENWICK_GUILD_HALL_MAP = [
 // desks (dispatch on the west, parcels on the east), and waiting benches by the
 // side walls. The proprietor and the relay clerk both work behind the desks but
 // stand on open floor so the counter never blocks a customer from reaching them
-// (TALK_RADIUS is < 1 tile). Entrance: DRENWICK_MARKET_MAP OFFICE_DOOR row 10
-// col 14. Exit: col 7 row 12.
+// (TALK_RADIUS is < 1 tile). The market door (DRENWICK_MARKET_MAP OFFICE_DOOR
+// row 10 col 14) is approached from the north, so the interior INTERIOR_EXIT is
+// on the TOP wall (col 7 row 1): you enter walking south and land just inside.
 const DRENWICK_POST_OFFICE_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0  top wall
-  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  1  top wall
-  [ 19, 19, 33, 33, 33, 33, 33, 18, 18, 33, 33, 33, 33, 33, 19, 19],  //  2  mail-sorting pigeonholes (c2-6, c9-13); back aisle c7-8
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  3  staff floor: Proprietor c4, Relay Clerk c10
-  [ 19, 19, 18, 33, 33, 18, 18, 18, 18, 18, 33, 33, 18, 18, 19, 19],  //  4  dispatch desk (c3-4); parcels desk (c10-11)
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  5  customer floor
-  [ 19, 19, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  6  waiting benches c2, c12
-  [ 19, 19, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  7  waiting benches c2, c12
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  8
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  9
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  // 10
-  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  // 11
-  [ 19, 19, 19, 19, 19, 19, 19, 20, 19, 19, 19, 19, 19, 19, 19, 19],  // 12  INTERIOR_EXIT col 7
+  [ 19, 19, 19, 19, 19, 19, 19, 20, 19, 19, 19, 19, 19, 19, 19, 19],  //  1  INTERIOR_EXIT c7 -- entrance in the TOP wall (you enter walking south from the market lane)
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  2  entry / customer floor (landing at c7)
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  3  customer floor
+  [ 19, 19, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  4  waiting benches c2, c12
+  [ 19, 19, 33, 18, 18, 18, 18, 18, 18, 18, 18, 18, 33, 18, 19, 19],  //  5  waiting benches c2, c12
+  [ 19, 19, 18, 33, 33, 18, 18, 18, 18, 18, 33, 33, 18, 18, 19, 19],  //  6  dispatch desk (c3-4); parcels desk (c10-11)
+  [ 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19],  //  7  staff floor: Proprietor c4, Relay Clerk c10 stand here
+  [ 19, 19, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 19, 19],  //  8  mail-sorting pigeonholes -- the back wall
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  9  bottom wall
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 10
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 11
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 12
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 13
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14
 ];

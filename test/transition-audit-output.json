@@ -3689,10 +3689,10 @@
       "error": null,
       "destMap": "DRENWICK_POST_OFFICE_MAP",
       "px": 240,
-      "py": 368,
-      "facing": "up",
+      "py": 80,
+      "facing": "down",
       "tileCol": 7,
-      "tileRow": 11,
+      "tileRow": 2,
       "actualDims": {
         "rows": 15,
         "cols": 16

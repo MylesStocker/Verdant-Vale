@@ -702,6 +702,11 @@ function enterBuilding(building) {
   // forward); only townBuilding + the interior map/landing change. No cooldown.
   let mapId, y;
   const x = 7.5 * TILE;
+  // Almost every interior has its exit on the BOTTOM wall, so the player lands
+  // near the bottom facing 'up' (into the room). The post office is the
+  // exception: its market door is approached from the north, so its exit is on
+  // the TOP wall and the player lands near the top facing 'down'.
+  let facing = 'up';
   if (currentTownId === 'drenwick') {
     // Drenwick uses its own interior maps
     if (building === 'inn')                        { mapId = 'DRENWICK_INN_MAP';             y = 12.5 * TILE; }
@@ -710,7 +715,7 @@ function enterBuilding(building) {
     else if (building === 'wash_house')            { mapId = 'DRENWICK_WASH_HOUSE_MAP';      y = 11.5 * TILE; }
     else if (building === 'provision_store')       { mapId = 'DRENWICK_PROVISION_STORE_MAP'; y = 11.5 * TILE; }
     else if (building === 'guild_hall')            { mapId = 'DRENWICK_GUILD_HALL_MAP';      y = 11.5 * TILE; }
-    else if (building === 'post_office')           { mapId = 'DRENWICK_POST_OFFICE_MAP';     y = 11.5 * TILE; }
+    else if (building === 'post_office')           { mapId = 'DRENWICK_POST_OFFICE_MAP';     y =  2.5 * TILE; facing = 'down'; }
     else if (building === 'tavern')                { mapId = 'DRENWICK_TAVERN_MAP';          y = 12.5 * TILE; }
     else if (building === 'school')                { mapId = 'DRENWICK_SCHOOL_GROUND_MAP';   y = 11.5 * TILE; }
     else if (building.startsWith('drenwick_apt_')) { mapId = 'APARTMENT_CORRIDOR_MAP';       y =  8.5 * TILE; } // 6 corridors reuse this map; townBuilding distinguishes
@@ -722,7 +727,7 @@ function enterBuilding(building) {
     else if (building === 'apt')    { mapId = 'APARTMENT_CORRIDOR_MAP'; y = 8.5 * TILE; }
     else                            { mapId = 'OFFICE_MAP'; y =  9.5 * TILE; }
   }
-  transitionToLocation({ mapId, x, y, facing: 'up',
+  transitionToLocation({ mapId, x, y, facing,
     state: { inTown: true, currentTownId: currentTownId, townBuilding: building } });
 }
 

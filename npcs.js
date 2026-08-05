@@ -3308,10 +3308,10 @@ const SIMPLE_NPCS = [
     id:         'post_relay_clerk',
     name:       'Relay Clerk',
     map:        'drenwick_post_office',
-    x:          10.5 * TILE,   // behind the east (parcels) desk, staff row 3
-    y:           3.5 * TILE,
+    x:          10.5 * TILE,   // behind the east (parcels) desk, staff row 7
+    y:           7.5 * TILE,
     solid:      true,
-    facing:     'down',
+    facing:     'up',          // faces the customers who enter from the top
     spriteType: 'clerk',
     dialogue: [
       ['“Post Relay counter. Parcels, sealed letters, priority packet.”',
@@ -3330,10 +3330,10 @@ const SIMPLE_NPCS = [
     id:         'post_office_proprietor',
     name:       'Merrin',
     map:        'drenwick_post_office',
-    x:           4.5 * TILE,   // behind the west (dispatch) desk, staff row 3
-    y:           3.5 * TILE,
+    x:           4.5 * TILE,   // behind the west (dispatch) desk, staff row 7
+    y:           7.5 * TILE,
     solid:      true,
-    facing:     'down',
+    facing:     'up',          // faces the customers who enter from the top
     spriteType: 'clerk',
     dialogue: [
       ['“Fenmark Post Company. We’re a private house — not the Empire’s dispatch.”',
