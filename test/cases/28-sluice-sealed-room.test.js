@@ -82,7 +82,7 @@ module.exports = {
     assert.equal(slime.atk, wisp.atk, 'Sluice Slime hits as softly as the Marsh Wisp');
     assert.ok(Math.abs(slime.hp - wisp.hp) <= 4, 'Sluice Slime HP is within a first-fight margin of the Marsh Wisp');
     assert.ok(slime.hp <= 16, 'Sluice Slime is low-HP (easy tier)');
-    assert.equal(g.run("BATTLE_SPRITE_NAMES.has('Sluice Slime')"), true, 'Sluice Slime has a dedicated battle sprite');
+    assert.equal(g.run("!!ENEMY_SPRITE_DISPATCH['enemy_sluice_slime']"), true, 'Sluice Slime has a dedicated battle sprite (id-keyed)');
     assert.equal(g.run("window.ENEMY_TEMPLATE_REGISTRY['enemy_sluice_slime'] === SLUICE_TOP_ENEMY_TEMPLATES[1]"), true, 'Sluice Slime is in the enemy registry');
     g.run('sluiceFloor = 2; activeMap = SLUICE_LEVEL2_MAP;');
     assert.equal(g.run('currentEncounterPool() === SLUICE_ENEMY_TEMPLATES'), true, 'Lower Works (floor 2) spikes to the tough sluice pool');
@@ -116,7 +116,7 @@ module.exports = {
     assert.equal(g.run('SLUICE_SECRET_ENEMY_TEMPLATES.length'), 1);
     assert.equal(g.run('SLUICE_SECRET_ENEMY_TEMPLATES[0].name'), 'Tallyman');
     assert.ok(g.run('SLUICE_SECRET_ENEMY_TEMPLATES[0].atk') > 50, 'the Tallyman should out-hit everything in the sluice');
-    assert.equal(g.run("BATTLE_SPRITE_NAMES.has('Tallyman')"), true, 'Tallyman has a dedicated battle sprite');
+    assert.equal(g.run("!!ENEMY_SPRITE_DISPATCH[SLUICE_SECRET_ENEMY_TEMPLATES[0].id]"), true, 'Tallyman has a dedicated battle sprite (id-keyed)');
     // A rolled encounter here is the Tallyman (Math.random stubbed above the
     // 1/256 "23" override threshold so the roll stays deterministic).
     g.run('const _rand = Math.random; Math.random = () => 0.5; startCombat(); Math.random = _rand;');

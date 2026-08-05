@@ -193,7 +193,8 @@ module.exports = {
     const enemyName = g.run('combat.enemy.name');
     assert.ok(['Pale Drowned', 'Silt Hag'].includes(enemyName),
       `a gallery encounter must draw from the gallery pool, got ${enemyName}`);
-    assert.equal(g.run(`BATTLE_SPRITE_NAMES.has('${enemyName}')`), true);
+    assert.equal(g.run(`!!ENEMY_SPRITE_DISPATCH[combat.enemy.id]`), true,
+      `${enemyName} (${g.run('combat.enemy.id')}) must resolve to an id-keyed battle sprite`);
     assert.doesNotThrow(() => g.renderFrame(), 'a combat render frame in the gallery must not throw');
     g.run('endCombat(); combat.active = false; dialogue.open = false;');
 

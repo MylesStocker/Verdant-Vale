@@ -342,9 +342,9 @@ function startCombat() {
   combat.phase          = 'choose';
   combat.cursor         = 0;
   combat.messageQueue   = [];
-  combat.message        = combat.enemy.name === 'Tallyman'
+  combat.message        = combat.enemy.id === 'enemy_tallyman'
     ? 'Something unfolds from the corner of the room.'
-    : combat.enemy.name === 'Swamp Donkey'
+    : combat.enemy.id === 'enemy_swamp_donkey'
     ? 'The reeds crash apart — a Swamp Donkey barrels out, all muscle and bad temper.'
     : `A ${combat.enemy.name} appeared!`;
   combat.pendingVictory = false;
@@ -673,15 +673,15 @@ function applyEnemyHitEffects() {
     addStatusEffect('muddied');
     combat.messageQueue.unshift('The Warden\u2019s blow leaves you fouled with marsh muck. Muddied! (DEF\u22121, SPD\u22122)');
   }
-  if (combat.enemy && combat.enemy.name === 'Corpse Slug' && !hasStatusEffect('slither') && Math.random() < 0.30) {
+  if (combat.enemy && combat.enemy.id === 'enemy_corpse_slug' && !hasStatusEffect('slither') && Math.random() < 0.30) {
     triggerSlither();
     combat.messageQueue.unshift('The slug\u2019s slime soaks in. Slithered! (SPD randomized each turn)');
   }
-  if (combat.enemy && combat.enemy.name === 'Shade Wraith' && !hasStatusEffect('slither') && Math.random() < 0.25) {
+  if (combat.enemy && combat.enemy.id === 'enemy_shade_wraith' && !hasStatusEffect('slither') && Math.random() < 0.25) {
     triggerSlither();
     combat.messageQueue.unshift('The wraith\u2019s touch scrambles your footing. Slithered! (SPD randomized each turn)');
   }
-  if (combat.enemy && combat.enemy.name === 'Fen Witch' && !hasStatusEffect('poison') && Math.random() < 0.25) {
+  if (combat.enemy && combat.enemy.id === 'enemy_fen_witch' && !hasStatusEffect('poison') && Math.random() < 0.25) {
     triggerPoison();
     combat.messageQueue.unshift('The hag\u2019s curse seeps in. Poisoned! (lose HP each rest)');
   }
@@ -710,7 +710,7 @@ function applyEnemyHitEffects() {
   // skinned Mire Toad. The Fen Witch keeps its own by-name poison above.
   if (combat.enemy && combat.enemy.poisonChance && !hasStatusEffect('poison') && Math.random() < combat.enemy.poisonChance) {
     triggerPoison();
-    const pMsg = combat.enemy.name === 'Mire Toad'
+    const pMsg = (combat.enemy.id === 'enemy_mire_toad_male' || combat.enemy.id === 'enemy_mire_toad_female')
       ? 'The toad’s skin weeps a bitter slime where it struck. Poisoned! (lose HP each rest)'
       : 'Venom works into the wound. Poisoned! (lose HP each rest)';
     combat.messageQueue.unshift(pMsg);
@@ -720,7 +720,7 @@ function applyEnemyHitEffects() {
       combat.messageQueue.unshift('The amethyst bangle flares faintly. The curse doesn\u2019t take.');
     } else {
       triggerCursed();
-      const curseMsg = combat.enemy.name === 'Den Wraith'
+      const curseMsg = combat.enemy.id === 'enemy_den_wraith'
         ? 'The Den Wraith\u2019s wail settles into your bones. Cursed!'
         : 'Something unravels. Cursed!';
       combat.messageQueue.unshift(curseMsg);
@@ -798,214 +798,239 @@ function applyKillRewards(msgs) {
   combat.pendingVictory = true;
 }
 
-// Custom observation text keyed by enemy name. Each entry is an array of
-// { lines: string[] } objects ordered by observation count (0 = first).
+// Custom observation text keyed by STABLE ENEMY TEMPLATE ID (enemy.id), not
+// by display name -- Observe/lore is identity-dispatched, so renaming an
+// enemy's player-facing `name` never changes its lore. Each entry is an array
+// of { lines: string[] } objects ordered by observation count (0 = first).
 // First entry: practical tactical info. Later entries: behavior, ecology, lore.
+// Templates that share one display identity (e.g. the three Marsh Wisp variant
+// ids) share a single entry via the alias block below the literal.
 const ENEMY_OBSERVATIONS = {
   // ── Overworld enemies ───────────────────────────────────────────────────────
-  'Marsh Wisp': [
+  enemy_marsh_wisp: [
     { lines: ['It pulses between visible and not-visible.', 'Low HP. Light attack. Moderate speed.', 'Should go down quickly.'] },
     { lines: ['It doesn\u2019t breathe. It doesn\u2019t blink.', 'Something in the marsh is animating it — the wisp itself seems incidental.'] },
     { lines: ['It keeps its distance unless it senses the attack window.', 'Lore holds that marsh wisps are navigation lights gone wrong.', 'Nobody believes that anymore.'] },
   ],
-  'Stone Crawler': [
+  enemy_stone_crawler: [
     { lines: ['High defense. Low attack. Very slow.', 'It sometimes braces, halving the damage it takes.', 'Patience works. High burst less so.'] },
     { lines: ['It moves like something that has learned patience by necessity.', 'The shell is not decorative. It uses it deliberately.'] },
     { lines: ['You can see the seams in the plating now.', 'They don\u2019t look like weak points. They look like they were designed not to be.'] },
   ],
-  'Briar Hound': [
+  enemy_briar_hound: [
     { lines: ['Fast. Hits harder than expected.', 'Light armor — won\u2019t hold together long.', 'It wants you reactive. Stay ahead of it.'] },
     { lines: ['Pack hunter, but alone right now.', 'That should bother it. It doesn\u2019t seem to.'] },
     { lines: ['The briar in its coat isn\u2019t parasitic. It grows from the hound itself.', 'Fen phenomenon. Nobody\u2019s explained it satisfactorily.'] },
   ],
   // ── Dungeon floor 1 ────────────────────────────────────────────────────────
-  'Bone Guard': [
+  enemy_bone_guard: [
     { lines: ['Heavily armored. Slow. Occasionally braces.', 'High defense means you\u2019ll be chipping. Plan for a long fight.'] },
     { lines: ['It was stationed here. Not summoned \u2014 stationed.', 'Whatever authority put it here stopped existing centuries ago.', 'It hasn\u2019t been informed.'] },
     { lines: ['The armor is integrated. Not worn.', 'You\u2019re not sure there is anything underneath it.'] },
   ],
-  'Shade Wraith': [
+  enemy_shade_wraith: [
     { lines: ['Very fast. Hits hard. Fragile.', 'It will almost always strike first.', 'A quick kill is your best option.'] },
     { lines: ['It doesn\u2019t have a fixed form. It\u2019s using the shape because it\u2019s useful.', 'It notices you watching.'] },
     { lines: ['The slithering effect it triggers isn\u2019t a weapon in the usual sense.', 'It\u2019s closer to contamination.', 'The footing problem lingers after it\u2019s gone.'] },
   ],
   // ── Dungeon floors 2–5 ─────────────────────────────────────────────────────
-  'Crypt Fiend': [
+  enemy_crypt_fiend: [
     { lines: ['Massive HP. High defense. Slow. Hits very hard.', 'It\u2019s going to outlast most approaches.', 'You\u2019ll need either strong offense or strong healing.'] },
     { lines: ['The rot isn\u2019t damage to it. It\u2019s part of the structure.', 'It is not decaying. It was built this way.'] },
     { lines: ['It swings like it\u2019s compensating for something missing.', 'A full arm, maybe. Or the understanding that you\u2019re smaller than the threat register says.'] },
   ],
-  'Void Walker': [
+  enemy_void_walker: [
     { lines: ['Devastating attack. Light armor.', 'Has a chance to curse you each time it lands a hit.', 'Kill it before it kills you.'] },
     { lines: ['It doesn\u2019t leave footprints.', 'You\u2019ve been watching and you can\u2019t explain why.'] },
     { lines: ['The void-touch comes from whatever passes for its hands.', 'The curse isn\u2019t hostile, exactly. It\u2019s just what it carries.'] },
   ],
   // ── Far map enemies (MAP3 / MAP_N1 / MAP_N2) ───────────────────────────────
-  'Fen Lurker': [
+  enemy_fen_lurker: [
     { lines: ['High speed. Solid attack. Moderate HP.', 'Ambush predator \u2014 it will strike first almost every time.', 'Keep your guard up early.'] },
     { lines: ['It\u2019s been watching you since you entered this tile.', 'The movement you thought was reeds was it.'] },
     { lines: ['It hunts by stillness first, then speed.', 'You interrupted the stillness phase.', 'That\u2019s why it\u2019s irritated.'] },
   ],
-  'Rotwood Troll': [
+  enemy_rotwood_troll: [
     { lines: ['Very high HP. High defense. Very slow. Hits hard.', 'A war of attrition. It will win a short fight.', 'You need to outlast it \u2014 or overwhelm it fast.'] },
     { lines: ['The rot in the wood is what holds it together, not what\u2019s breaking it down.', 'Old fen biology. It\u2019s been here longer than the surveying commission.'] },
     { lines: ['It regenerates if you let it rest.', 'Not quickly. But noticeably.', 'Don\u2019t let it rest.'] },
   ],
-  'Thornback': [
+  enemy_thornback: [
     { lines: ['Very high defense. Moderate attack. Slow.', 'It may brace. Your attacks are going to bounce.', 'Sustained pressure over speed.'] },
     { lines: ['The spines on the dorsal ridge are not for display.', 'They\u2019ve been used. Frequently.'] },
     { lines: ['It has no particular interest in you. This isn\u2019t personal.', 'That doesn\u2019t make it less dangerous.'] },
   ],
-  'Fen Witch': [
+  enemy_fen_witch: [
     { lines: ['Devastating attack. Very fragile. Moderate speed.', 'She will poison you if she hits. Avoid letting her land shots.', 'Glass cannon. End it quickly.'] },
     { lines: ['The curse she carries isn\u2019t from a ritual. It\u2019s older than that.', 'The fen gave it to her. She\u2019s been augmenting it since.'] },
     { lines: ['She\u2019s been out here long enough that the boundary between her and the marsh is approximate.', 'She doesn\u2019t seem to notice.'] },
   ],
-  'Bog Serpent': [
+  enemy_bog_serpent: [
     { lines: ['High HP. Moderate attack. Good speed.', 'It can strike before you can.', 'Durable. Don\u2019t expect a quick win.'] },
     { lines: ['It surfaces specifically to attack. Between combats it stays under.', 'The mud here is warm where it\u2019s been resting.'] },
     { lines: ['Bog serpents in this range can go weeks without eating.', 'It\u2019s not hungry.', 'It\u2019s territorial.'] },
   ],
   // ── Thornmere ──────────────────────────────────────────────────────────────
-  'Corpse Slug': [
+  enemy_corpse_slug: [
     { lines: ['Massive HP. High defense. Extremely slow.', 'Its slime scrambles your footing when it hits.', 'Kill it before the movement penalty accumulates.'] },
     { lines: ['It\u2019s been here longer than the trail markers.', 'The pale colour isn\u2019t disease \u2014 nothing photosensitive survives this far into the shallows.'] },
     { lines: ['The slime it leaves is technically a byproduct, not a weapon.', 'The distinction matters less when you can\u2019t stand straight.'] },
   ],
   // ── East Sluice ────────────────────────────────────────────────────────────
-  'Sluice Slime': [
+  enemy_sluice_slime: [
     { lines: ['A slow, gooey blob. Low HP, light attack.', 'Its slime soaks up a hit or two, but it can barely keep pace.', 'Nothing a first fight can’t handle.'] },
     { lines: ['It’s the sluice muck itself, more or less — silt, algae, and canal runoff that started moving.', 'Common on the top level, where the water sits still and warm.'] },
     { lines: ['It leaves a clean streak on the stone where it’s passed.', 'Whatever it takes up, it takes up completely.'] },
   ],
-  'Reed Grappler': [
+  enemy_reed_grappler: [
     { lines: ['Armored shell. Moderate attack. Average speed.', 'It occasionally braces \u2014 don\u2019t waste a heavy hit during that.'] },
     { lines: ['Freshwater crustacean. Canal-native, not fen-native.', 'It followed the drainage channels in and hasn\u2019t left.'] },
     { lines: ['The shell is thickest on the dorsal and flank plates.', 'The joint gaps are less protected.', 'You already knew that, instinctively.'] },
   ],
-  'Silt Lurker': [
+  enemy_silt_lurker: [
     { lines: ['Very fast. High attack. Extremely fragile.', 'It erupts from canal mud \u2014 almost always strikes first.', 'Don\u2019t give it a second shot.'] },
     { lines: ['It doesn\u2019t pursue. One ambush, then it resets.', 'If you survive the first strike, the balance shifts.'] },
     { lines: ['The silt it comes from is cold.', 'It\u2019s been waiting in it for something roughly your size.', 'You qualify.'] },
   ],
   // ── The North Basin — Silt Flats ───────────────────────────────────────────
-  'Silt Crab': [
+  enemy_silt_crab: [
     { lines: ['Slow. Shelled. Occasionally braces.', 'Not dangerous on its own \u2014 the shell just means it takes longer than it should.'] },
     { lines: ['It was probably living here when there was still enough water to hide in.', 'It didn\u2019t relocate. It just got shallower.'] },
     { lines: ['The stranding doesn\u2019t seem to bother it.', 'It\u2019s had time to get used to worse.'] },
   ],
-  'Mudflat Strider': [
+  enemy_mudflat_strider: [
     { lines: ['Fast. Fragile.', 'Not much of a threat once it\u2019s hit.', 'It\u2019s not built for a fight. It\u2019s built for not needing one.'] },
     { lines: ['Long-legged, built for walking mud without sinking.', 'The exposed flats haven\u2019t hurt it. If anything, there\u2019s more ground to work now.'] },
     { lines: ['It probes for things buried just under the surface.', 'You\u2019re not what it\u2019s looking for.', 'It\u2019s still going to try.'] },
   ],
   // ── Dungeon floors 6–7 ─────────────────────────────────────────────────────
-  'Hollow': [
+  enemy_hollow: [
     { lines: ['Very high defense. Heavy attack. Moderate speed.', 'It braces occasionally.', 'It will outlast a reactive strategy. You need to push first.'] },
     { lines: ['The shell is not empty. Something minimal is animating it.', 'The original occupant is not in evidence.'] },
     { lines: ['It doesn\u2019t seem to notice damage unless the threshold is significant.', 'Below that threshold, it just keeps moving.'] },
   ],
-  'Fen Shade': [
+  enemy_fen_shade: [
     { lines: ['Very high attack. Light armor. Good speed.', 'Spectral remnant \u2014 fast and devastating.', 'First-strike risk is high. Hit hard and early.'] },
     { lines: ['It seeped down from the wetlands above through the drainage cracks.', 'The dungeon environment has not improved its temperament.'] },
     { lines: ['The form it\u2019s holding isn\u2019t its original one.', 'Whatever it looked like before is gone.', 'This is what the fen left behind.'] },
   ],
   // ── Dungeon floor 8 ────────────────────────────────────────────────────────
-  'Tomb Sentry': [
+  enemy_tomb_sentry: [
     { lines: ['Enormous HP. Extreme defense. Very slow.', 'Braces frequently.', 'This is going to take a long time. Prepare for sustained attrition.'] },
     { lines: ['It was petrified and then reanimated. In that order.', 'The original internment was voluntary.', 'The reanimation was not.'] },
     { lines: ['The brace is not a response to threat assessment.', 'It\u2019s a fixed-interval behaviour. You can predict it if you pay attention.'] },
   ],
-  'Crypt Revenant': [
+  enemy_crypt_revenant: [
     { lines: ['Very high attack. Moderate defense. High speed.', 'Fast and savage. It strikes first.', 'Offensive pressure is the only viable strategy.'] },
     { lines: ['Buried twice, based on the markings. The second burial didn\u2019t take either.', 'The stonework on these walls is notably recent compared to the surrounding chambers.'] },
     { lines: ['It isn\u2019t angry. It doesn\u2019t have enough coherence left for anger.', 'It\u2019s just motion and damage, continuously.'] },
   ],
   // ── Horror branches ────────────────────────────────────────────────────────
-  'Wall Tendril': [
+  enemy_wall_tendril: [
     { lines: ['Extreme attack. Very fragile. Very fast.', 'It will almost always go first and hit catastrophically.', 'You need to kill it in one or two hits, or this will go badly.'] },
     { lines: ['It grows from the wall itself. There is no discrete body to target.', 'You\u2019re damaging a part of something larger and being targeted by a different part.'] },
     { lines: ['It doesn\u2019t bleed. The fluid it exudes when struck is not blood.', 'You don\u2019t want to think too hard about what it is.'] },
   ],
-  'Dripping Maw': [
+  enemy_dripping_maw: [
     { lines: ['Massive HP. Heavy attack. Slow.', 'It forms in the ceiling and drops acid.', 'You have time between strikes. Use it.'] },
     { lines: ['It\u2019s not a separate creature. It is a feature of this branch.', 'The ceiling is part of whatever this place has become.'] },
     { lines: ['The acid isn\u2019t random. It\u2019s targeted.', 'Something with a mouth has preferences.', 'You are currently one of them.'] },
   ],
-  'The Seep': [
+  enemy_the_seep: [
     { lines: ['Catastrophic attack. No defense. Extreme speed.', 'No armor whatsoever.', 'It hits first. It hits very hard. Kill it before it kills you.'] },
     { lines: ['It doesn\u2019t have a fixed form. It\u2019s using mass instead of structure.', 'The floor in here is wet from something that is neither water nor blood.'] },
     { lines: ['It doesn\u2019t strategize. It maximizes contact.', 'You are currently something it wants to maximize contact with.', 'Keep moving.'] },
   ],
   // ── Mirethyst\u2019s Vault ────────────────────────────────────────────────────────
-  'Pale Drowned': [
+  enemy_pale_drowned_gallery: [
     { lines: ['Fast. Light armor. Fragile.', 'Spectral fen victim \u2014 it will strike first.', 'Should collapse quickly if you go offensive.'] },
     { lines: ['The fen took someone and left this.', 'It doesn\u2019t remember what happened. It just knows this place.'] },
     { lines: ['The pale colouring is fen-water saturation. The shape is what\u2019s left of what it was.', 'It doesn\u2019t seem to recognise what it\u2019s becoming.'] },
   ],
-  'Silt Hag': [
+  enemy_silt_hag_gallery: [
     { lines: ['High attack. Moderate defense. Very slow.', 'Bog-curse made solid. Heavy hits but easy to dodge with speed.', 'Stay ahead of its turn order.'] },
     { lines: ['It condenses from the silt where the vault floor meets the water.', 'This is apparently where it\u2019s supposed to be.'] },
     { lines: ['It doesn\u2019t decompose between encounters.', 'It disperses into the silt and reforms.', 'You\u2019re not sure which state is the real one.'] },
   ],
   // ── Rainfish ───────────────────────────────────────────────────────────────
-  'Rainfish': [
+  enemy_rainfish: [
     { lines: ['Extremely fast. Fragile.', 'You can\u2019t run \u2014 the school is all around you.', 'Hit hard and fast. Every one you leave standing is another problem.'] },
     { lines: ['They\u2019re not attacking out of hunger. You\u2019re in their space.', 'The disturbance at the bank triggered this.'] },
     { lines: ['Rainfish school defensively, not offensively.', 'They\u2019ve decided you\u2019re a threat to the school and the school agrees.', 'No negotiating that.'] },
   ],
   // ── Special encounters ─────────────────────────────────────────────────────
-  'Kolm': [
+  enemy_kolm: [
     { lines: ['Strong. Well-rested. He fights for fun.', 'Solid defense. Moderate speed.', 'He\u2019s not going to make a mistake. You\u2019ll have to make him.'] },
     { lines: ['He\u2019s done this enough times that he\u2019s stopped counting the fights.', 'That\u2019s either a good sign or a very bad one.'] },
     { lines: ['He adjusts between exchanges. He\u2019s watching you the same way you\u2019re watching him.', 'He nods slightly when he notices you observing.', 'Professional courtesy.'] },
   ],
-  'Smuggler Guard': [
+  enemy_smuggler_guard: [
     { lines: ['Trained. Moderate attack and defense.', 'This is a job to them, not a conviction.', 'They\u2019ll fight hard but they\u2019re not going to die for Polwick.'] },
     { lines: ['They didn\u2019t choose this posting. You can see it in how they stand.', 'That doesn\u2019t change the blade in their hand.'] },
     { lines: ['They\u2019re watching for you to hesitate.', 'Don\u2019t give them the window.'] },
   ],
-  'Polwick': [
+  enemy_polwick: [
     { lines: ['Fast. Strong. He\u2019s been waiting for this.', 'Better than the guard. He\u2019s fought his way into this position.', 'Firelit \u2014 he\u2019ll set you alight if he gets a hand on you. Watch for the burn.'] },
     { lines: ['He runs the fort through intimidation and performance.', 'This is both.', 'He needs you to lose visibly.'] },
     { lines: ['His form is good. He trained somewhere.', 'The fire is rareborn, not trained \u2014 firelit, like the fen brewers warn about.', 'He\u2019s also been drinking, which complicates reading him.'] },
   ],
-  'Essa': [
+  enemy_essa: [
     { lines: ['Fast. Fragile. Desperate.', 'She has nothing left to lose here.', 'Desperate fighters are unpredictable. End it cleanly.'] },
     { lines: ['Whatever she was doing at the fort, she believed in it.', 'That\u2019s enough to make someone dangerous even when they\u2019re losing.'] },
     { lines: ['She\u2019s not fighting to win. She\u2019s fighting because stopping feels worse.', 'You understand that.', 'End it before either of you has to think about it further.'] },
   ],
-  'Briar Warden': [
+  enemy_briar_warden: [
     { lines: ['Durable. Strong. Moderate speed.', 'It will Muddy you if it connects \u2014 that penalty stacks badly.', 'Avoid taking hits. Easier said.'] },
     { lines: ['It grew out of the fen ecology, not into it.', 'The briars are structural. It doesn\u2019t stop growing.'] },
     { lines: ['It doesn\u2019t consider this a conflict.', 'You are an obstacle in its territory.', 'It is responding to an obstacle.'] },
   ],
-  'Pale Sentry': [
+  enemy_pale_sentry: [
     { lines: ['Extraordinary HP. Very high defense. Slow.', 'This fight will not end today.', 'Hit it, get out, come back. Chip it down.'] },
     { lines: ['It rose from the fen grass and has not left.', 'The contract from the board doesn\u2019t say what made it.', 'Whatever did, they were not modest about it.'] },
     { lines: ['It takes damage. You\u2019ve confirmed that.', 'It doesn\u2019t react to damage.', 'Those are different things.'] },
   ],
-  'Den Wraith': [
+  enemy_den_wraith: [
     { lines: ['Moderate HP. High speed. Curse risk every time it hits you.', 'Do not let it land multiple hits.', 'It waits in corners. It doesn\u2019t patrol.'] },
     { lines: ['The house absorbed something and didn\u2019t let go.', 'Whatever the den wraith was before it settled here has been replaced by what the house made it into.'] },
     { lines: ['The curse it carries is not deliberate.', 'It just carries it.', 'The distinction doesn\u2019t help with the symptoms.'] },
   ],
-  'Mulholland': [
+  enemy_mulholland: [
     { lines: ['Wrong proportions. Heavy attack. High defense. Slow.', 'It registers you as a threat at threshold distance.', 'That threshold is shorter than expected for this size.'] },
     { lines: ['The angles on it are wrong. Not injured \u2014 wrong.', 'Assembled from several separate things. Not carefully.'] },
     { lines: ['It doesn\u2019t move the way a large creature should.', 'The joints are approximate.', 'It\u2019s compensating and you can\u2019t tell what for.'] },
   ],
-  'Wrongteeth': [
+  enemy_wrongteeth: [
     { lines: ['Boss. High HP. Heavy attack. Moderate defense and speed.', 'There are others like it ahead, according to what it said.', 'It fights seriously. So should you.'] },
     { lines: ['It\u2019s been down here a long time.', 'One eye large, one eye small.', 'Neither is entirely human.'] },
     { lines: ['It doesn\u2019t want to be here either.', 'You\u2019re both stuck in this.', 'That doesn\u2019t make it easier.'] },
   ],
-  'Takomo': [
+  enemy_takomo: [
     { lines: ['High attack. Moderate defense. Moderate speed.', 'The heat in here is worse when he\u2019s focusing.', 'He\u2019s focused.'] },
     { lines: ['He came here voluntarily. That makes him different from most of what\u2019s in the dungeon.', 'Whatever he was looking for in this chamber, he found it. Then he stayed.'] },
     { lines: ['He fights like someone who has practiced this specific fight for years.', 'Possibly because he has.', 'He doesn\u2019t look like he needs to win. Just to see how far you get.'] },
   ],
 };
+
+// Several distinct template ids share one display identity (e.g. the three
+// Marsh Wisp variants, the gallery/vault Pale Drowned). Observe lore is per
+// identity, so alias the sibling ids onto the base id's entry -- keeping the
+// lookup purely id-keyed without duplicating the authored text. Each row is
+// [baseId, ...siblingIds]; validateEnemies() confirms every id here is a
+// registered template. (Mire Toad ids are intentionally NOT aliased here --
+// they use the sex-based Observe branch in getObservationText().)
+(function aliasSharedObservations() {
+  const groups = [
+    ['enemy_marsh_wisp', 'enemy_marsh_wisp_early', 'enemy_marsh_wisp_sluice_top'],
+    ['enemy_briar_hound', 'enemy_briar_hound_early'],
+    ['enemy_silt_crab', 'enemy_silt_crab_upper'],
+    ['enemy_silt_hag_gallery', 'enemy_silt_hag_vault'],
+    ['enemy_pale_drowned_gallery', 'enemy_pale_drowned_vault'],
+  ];
+  for (const [base, ...siblings] of groups) {
+    if (!ENEMY_OBSERVATIONS[base]) continue;
+    for (const id of siblings) ENEMY_OBSERVATIONS[id] = ENEMY_OBSERVATIONS[base];
+  }
+})();
 
 // Returns observation text for the current enemy and observe count.
 // Falls back to stat-derived traits on first look, then to a generic line.
@@ -1032,7 +1057,7 @@ function getObservationText(enemy, count) {
     if (count === 0) return reveal;
     return later[Math.min(count - 1, later.length - 1)];
   }
-  const entries = ENEMY_OBSERVATIONS[enemy.name];
+  const entries = ENEMY_OBSERVATIONS[enemy.id];
   if (entries && count < entries.length) return entries[count].lines;
   if (count === 0) {
     // Stat-derived fallback for enemies without a custom entry.

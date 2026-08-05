@@ -959,18 +959,20 @@ function validateItems() {
 
 // ─── 7. Enemies / combat data ───────────────────────────────────────────────
 // Validates every enemy-template pool (the random-encounter pools plus the
-// scripted boss templates like PALE_SENTRY_TEMPLATE), and cross-checks
-// every template against render-battle.js's BATTLE_SPRITE_NAMES so a
-// template with no battle sprite mapping is caught here rather than
-// discovered as a blank enemy in a real fight -- see render-battle.js's
-// comment on why that Set exists and how drawBattleEnemy()'s fallback
-// works.
+// scripted boss templates like PALE_SENTRY_TEMPLATE), the id-keyed enemy
+// registry, and the id-keyed presentation dispatch: every registered template
+// must resolve to a battle sprite by STABLE ID (render-battle.js's
+// ENEMY_SPRITE_DISPATCH) -- or be explicitly opted into the generic silhouette
+// (ENEMY_GENERIC_SPRITE_IDS) -- so a template with no art is caught here
+// rather than discovered as a blank enemy in a real fight, and Observe/lore
+// (ENEMY_OBSERVATIONS) must likewise be keyed by id, not display name. See
+// render-battle.js's dispatch comment for how drawBattleEnemy() resolves and
+// falls back.
 function validateEnemies() {
   const GROUP = 'Enemies';
   let checked = 0;
 
   const NUMERIC_FIELDS = ['hp', 'maxHp', 'atk', 'def', 'spd', 'xp', 'goldMin', 'goldMax'];
-  const spriteNames = (typeof BATTLE_SPRITE_NAMES !== 'undefined') ? BATTLE_SPRITE_NAMES : null;
 
   function checkTemplate(t, lbl) {
     checked++;
@@ -996,9 +998,11 @@ function validateEnemies() {
     // (per the brief: don't change balance, just flag it).
     if (_isFiniteNumber(t.atk) && t.atk > 60) addValidationWarning(GROUP, lbl + ' (' + t.name + '): atk=' + t.atk + ' is unusually high -- confirm this isn\'t a typo (see BALANCE_REPORT.md for the game\'s existing tier ranges)');
     if (_isFiniteNumber(t.spd) && t.spd > 30) addValidationWarning(GROUP, lbl + ' (' + t.name + '): spd=' + t.spd + ' is unusually high');
-
-    if (t.name && spriteNames && !spriteNames.has(t.name))
-      addValidationWarning(GROUP, lbl + ' (' + t.name + '): no battle sprite mapping in render-battle.js\'s drawBattleEnemy() -- falls back to the generic sprite (see drawBattleGenericEnemy()); add a dedicated one if this enemy deserves its own look');
+    // Battle-sprite coverage is validated by STABLE ID against
+    // ENEMY_SPRITE_DISPATCH in the registry section below, not by name here --
+    // that's the whole point of the id-authority refactor. (A pooled template
+    // is reached via its registry entry, so per-template name checks would
+    // also double-warn on the several ids that share one display name.)
   }
 
   // Same window[name]-doesn't-work caveat as validateItems() -- these are
@@ -1071,6 +1075,53 @@ function validateEnemies() {
       idCounts[t.id] = (idCounts[t.id] || 0) + 1;
     }
     for (const id of Object.keys(idCounts)) if (idCounts[id] > 1) addValidationError(GROUP, 'duplicate enemy template id "' + id + '" (two distinct template records)');
+
+    // ── Id-keyed presentation dispatch: battle sprite + Observe/lore ─────────
+    // Enemy identity is the stable template id (enemy.id), so both the battle
+    // sprite and the Observe/lore text are dispatched by id -- never by the
+    // player-facing name. These checks are the structural guarantee behind
+    // that: (a) every registered template resolves to a sprite by id (or is
+    // explicitly opted into the generic silhouette), and (b) every id-keyed
+    // sprite/generic/Observe entry points at a real registered template. This
+    // catches a new template shipped with no art, a dispatch entry with a
+    // typo'd/renamed id, and Observe text keyed by name creeping back in.
+    const spriteDispatch = (typeof ENEMY_SPRITE_DISPATCH !== 'undefined') ? ENEMY_SPRITE_DISPATCH : (window && window.ENEMY_SPRITE_DISPATCH);
+    const genericIds     = (typeof ENEMY_GENERIC_SPRITE_IDS !== 'undefined') ? ENEMY_GENERIC_SPRITE_IDS : (window && window.ENEMY_GENERIC_SPRITE_IDS);
+    if (spriteDispatch && typeof spriteDispatch === 'object') {
+      for (const id of Object.keys(enemyReg)) {
+        const inSprite  = Object.prototype.hasOwnProperty.call(spriteDispatch, id);
+        const inGeneric = !!(genericIds && typeof genericIds.has === 'function' && genericIds.has(id));
+        const nm = (enemyReg[id] && enemyReg[id].name) || '?';
+        if (inSprite && inGeneric)
+          addValidationError(GROUP, 'enemy "' + id + '" (' + nm + ') is in BOTH ENEMY_SPRITE_DISPATCH and ENEMY_GENERIC_SPRITE_IDS -- an id must be in exactly one');
+        else if (!inSprite && inGeneric)
+          // Intentional generic-art enemy (e.g. Takomo): still WARN so the
+          // standing "deserves its own look" note is preserved, but don't error.
+          addValidationWarning(GROUP, id + ' (' + nm + '): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look');
+        else if (!inSprite && !inGeneric)
+          addValidationError(GROUP, 'enemy "' + id + '" (' + nm + ') has no ENEMY_SPRITE_DISPATCH entry and is not in ENEMY_GENERIC_SPRITE_IDS -- it would render an unmarked/blank enemy; give it a sprite or opt it into the generic silhouette');
+      }
+      // Reverse direction: no sprite/generic entry may reference a dead id.
+      for (const id of Object.keys(spriteDispatch))
+        if (!enemyReg[id]) addValidationError(GROUP, 'ENEMY_SPRITE_DISPATCH entry "' + id + '" does not resolve to a registered enemy template');
+      if (genericIds && typeof genericIds.forEach === 'function')
+        genericIds.forEach((id) => { if (!enemyReg[id]) addValidationError(GROUP, 'ENEMY_GENERIC_SPRITE_IDS entry "' + id + '" does not resolve to a registered enemy template'); });
+    } else {
+      addValidationWarning(GROUP, 'ENEMY_SPRITE_DISPATCH unavailable — id-keyed battle-sprite checks skipped (script load order)');
+    }
+
+    // Observe/lore must be keyed by stable id, not name: every ENEMY_OBSERVATIONS
+    // key has to resolve to a registered template.
+    const observeById = (typeof ENEMY_OBSERVATIONS !== 'undefined') ? ENEMY_OBSERVATIONS : (window && window.ENEMY_OBSERVATIONS);
+    if (observeById && typeof observeById === 'object') {
+      for (const id of Object.keys(observeById))
+        if (!enemyReg[id]) addValidationError(GROUP, 'ENEMY_OBSERVATIONS key "' + id + '" is not a registered enemy template id -- Observe/lore must be keyed by stable enemy id, not display name');
+    }
+
+    // Guard against name-based battle-sprite dispatch being reintroduced: the
+    // name-keyed BATTLE_SPRITE_NAMES Set was replaced by id-keyed dispatch.
+    if (typeof window !== 'undefined' && window.BATTLE_SPRITE_NAMES)
+      addValidationError(GROUP, 'BATTLE_SPRITE_NAMES is defined again -- battle-sprite dispatch must be id-keyed (ENEMY_SPRITE_DISPATCH), not name-keyed');
   } else {
     addValidationWarning(GROUP, 'ENEMY_TEMPLATE_REGISTRY unavailable — enemy identity checks skipped (script load order)');
   }

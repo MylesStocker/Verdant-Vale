@@ -30,7 +30,7 @@ has loaded):
 `validateGameData()` (`validation.js`) is a notable *exception* to "load
 order barely matters": it's defined early (right after `quests.js`) but its
 function bodies reference things defined much later (`MAP_FEATURES`,
-`TILE_PROPERTIES`, `RENDERABLE_TILE_IDS`, `BATTLE_SPRITE_NAMES`, `EDGE_TRANSITIONS`,
+`TILE_PROPERTIES`, `RENDERABLE_TILE_IDS`, `ENEMY_SPRITE_DISPATCH`, `EDGE_TRANSITIONS`,
 `mapRegistryId`). That's fine — it's never *called* until the whole page has
 loaded (browser console, the debug menu's "Validate Data" row, or a test
 harness that loads every script first) — but it means you can't sanity-check
@@ -90,7 +90,7 @@ The rule this codebase actually follows:
 | `input.js` | The `keys` table and the `keydown`/`keyup` listeners; routes a keypress to whichever screen is active (combat, menu, choice, shop, debug menu, debug warp menu, overlay panels, overworld). | No game logic beyond routing — it calls into `movement.js`/`combat.js`/`interactions.js`/etc rather than mutating game state directly (aside from cursor/screen UI state). |
 | `movement.js` | `player`, `locationName()`, `currentMapId()`, `tileAt()`, `canWalk()` (collision), `isEncounterEligibleTile()`, and `update()` — the per-frame advance of movement/cooldowns/encounter checks/`MAP_FEATURES` trigger-zone checks. | No drawing code. |
 | `combat.js` | Equip helpers (`effectiveAtk`/etc), enemy stat templates, `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
-| `render-battle.js` | Battle-screen sprite drawing for the player and every enemy type, `drawBattleGenericEnemy()` (the fallback for any enemy name with no dedicated sprite), the `BATTLE_SPRITE_NAMES` Set (debug/validation-only — mirrors which names *do* have a dedicated `case`), and `drawCombat()` (the action menu / item subscreen / message / victory / defeat UI). | Combat *logic* (damage, turn order, state transitions) lives in `combat.js` — this file only reads `combat` state and draws it. |
+| `render-battle.js` | Battle-screen sprite drawing for the player and every enemy type, `drawBattleGenericEnemy()` (the fallback silhouette for ids opted into `ENEMY_GENERIC_SPRITE_IDS`), the id-keyed `ENEMY_SPRITE_DISPATCH` table (`enemy.id → { draw, dy }`) that `drawBattleEnemy()` dispatches on, and `drawCombat()` (the action menu / item subscreen / message / victory / defeat UI). | Combat *logic* (damage, turn order, state transitions) lives in `combat.js` — this file only reads `combat` state and draws it. |
 | `bootstrap.js` | The one-time new-game startup state (starting map/position, intro dialogue). | Must stay the last file loaded before `interactions.js` — see ordering rules above. Don't add anything here beyond one-time startup values. |
 | `interactions.js` | `handleInteract()` (the interact-key dispatcher — a priority orchestrator over named location handlers, see below), `interactSimpleNPCs()`, and the `MAP_FEATURES` content-authoring registry (`tryMapFeatures()`, `checkMapFeatureTriggers()`, `evaluateMapFeatureCondition()`, `resolveMapFeaturePages()`, `debugMapFeatureInfo()`). Loaded last since `update()`/`handleInteract()` are called at runtime, by which point every script has finished loading. | See "Interactions" below for the full priority story. This is by far the largest file in the codebase. The *dispatch* is now a clean priority orchestrator (`INTERACT_HANDLERS` / `OVERWORLD_INTERACT_HANDLERS`, first-match-wins with explicit consumption), but the per-location behaviour it routes to — chests, quest triggers, boss encounters, town-specific dialogue branches — is still large, hand-written and one-off, so the physical file remains a maintainability hotspot despite the improved dispatch. `MAP_FEATURES` doesn't replace those handlers — it's the lowest-priority generic fallback, checked only if nothing consumed the press. |
 
@@ -311,7 +311,8 @@ switch (that would require parsing this file's own source, which isn't
 possible from a running browser). It exists solely so
 `validateGameData()`'s `validateTiles()` can flag a tile used in a real map
 that has no render `case` (it would render as nothing) — the same pattern
-`render-battle.js`'s `BATTLE_SPRITE_NAMES` uses for enemy sprites. **Adding a
+`render-battle.js`'s `ENEMY_SPRITE_DISPATCH` uses for enemy sprites (keyed by
+stable enemy id). **Adding a
 new tile id means adding both the `case` in `drawTile()` and the id to
 `RENDERABLE_TILE_IDS`** — nothing enforces they stay in sync except running
 `validateGameData()` and reading its output.
@@ -566,8 +567,8 @@ enemy one, which is in `combat.js` because scripted templates live there):
   random stats). Combat clones a template with `{ ...t }`, which carries `id`
   through to `combat.enemy`, so two identically-named records (the male/female
   Mire Toads, and several cross-pool duplicates like Silt Crab) stay
-  distinguishable. 51 templates. **This pass adds identity + validation only** —
-  combat/render/observe/status dispatch still key on `enemy.name`, unchanged.
+  distinguishable. 53 templates across 45 distinct display names. **The stable
+  `id` is the sole runtime identity of an enemy** — see the next section.
 
 **v3 save shape.** `saveGame()` writes `collectedPickupIds` (ids whose pickup is
 `picked`) and `openedChestIds` (ids whose chest is `opened`) — sorted,
@@ -590,6 +591,52 @@ snapshot's known length is a meaningful value with no mapping — the migration
 than silently discarding it. After conversion the obsolete positional/per-chest
 fields are removed from the v3 payload.
 
+### Enemy identity is the stable id — sprite, Observe, and behaviour dispatch
+
+**`enemy.id` is the sole runtime identity of an enemy; `enemy.name` is
+presentation only.** Renaming a template's player-facing `name` never changes
+its battle sprite, its Observe/combat lore, its special combat behaviour, its
+scripted-encounter behaviour, or any victory/defeat/reward/quest handling. Every
+enemy that enters combat carries a registered stable id: pool rolls, scripted
+setups, and the Pale Sentry all clone via `{ ...TEMPLATE }` (which copies `id`),
+and the runtime-inline "23" sets `id: 'enemy_23'` explicitly.
+
+All identity-dependent dispatch keys on the id:
+
+- **Battle sprite** — `render-battle.js`'s `ENEMY_SPRITE_DISPATCH` maps each
+  template id to `{ draw, dy }` (the dedicated draw function + its vertical
+  offset). `drawBattleEnemy()` looks up `combat.enemy.id`, never the name.
+  Several ids that share one look (the three Marsh Wisp variants, gallery/vault
+  Pale Drowned, male/female Mire Toad, …) map to the same entry. 52 of the 53
+  ids have a dedicated sprite; the remaining one (`enemy_takomo`) is listed in
+  **`ENEMY_GENERIC_SPRITE_IDS`** — an *explicit, id-safe* opt-in to the generic
+  silhouette (`drawBattleGenericEnemy()`). An enemy that reaches combat with a
+  missing or *unregistered* id is not silently rendered generic: it logs a
+  developer-facing `console.warn`. An id must be in **exactly one** of
+  `ENEMY_SPRITE_DISPATCH` or `ENEMY_GENERIC_SPRITE_IDS`.
+- **Observe / lore** — `combat.js`'s `ENEMY_OBSERVATIONS` is keyed by id;
+  `getObservationText()` looks up `enemy.id`. Shared-identity ids are aliased
+  onto one authored entry via a small block below the literal. (The two Mire
+  Toad ids deliberately go through the separate `enemy.sex` Observe branch — a
+  gameplay *property*, not a name.)
+- **Special combat behaviour** — the id-keyed status/message branches in
+  `combat.js` (`enemy_corpse_slug`/`enemy_shade_wraith` slither-on-hit,
+  `enemy_fen_witch` poison, the `enemy_mire_toad_*` poison flavour, the
+  `enemy_den_wraith` curse flavour, the `enemy_tallyman`/`enemy_swamp_donkey`
+  intro lines). Scripted-encounter *context* (which fight this is — boss,
+  warden, fort-Polwick, …) is still tracked by the explicit `combat.is*` flags
+  set at spawn; those are encounter state, not name-derived identity, and are
+  already id-safe.
+
+`validateGameData()` enforces the whole contract: malformed/duplicate/missing
+ids, runtime-reachable templates absent from the registry, registry entries that
+don't resolve, every registered id resolving to exactly one of sprite/generic,
+sprite/generic/Observe entries pointing only at registered ids, and a guard
+against name-keyed battle-sprite dispatch (`BATTLE_SPRITE_NAMES`) being
+reintroduced. The remaining `enemy.name` uses in combat are all presentation:
+message strings (`A … appeared!`, defeat/attack/brace lines) and the combat-UI
+name plate.
+
 ### Adding, moving, renaming, or retiring a pickup / chest / enemy
 
 - **Add a pickup**: put the object in the map's `_ITEMS` array (reachable via
@@ -598,8 +645,13 @@ fields are removed from the v3 payload.
   `LEGACY_V2_PICKUP_FIELDS` (it never existed in a v2 save).
 - **Add an openable chest**: give it an `id: 'chest_<snake>'` and list it in
   `OPENABLE_CHESTS`.
-- **Add an enemy template**: give it an `id: 'enemy_<snake>'`; it's picked up by
-  the registry automatically if it's in a pool or in `ENEMY_SCRIPTED_TEMPLATES`.
+- **Add an enemy template**: give it an immutable `id: 'enemy_<snake>'`; it's
+  picked up by the registry automatically if it's in a pool or in
+  `ENEMY_SCRIPTED_TEMPLATES`. Then wire its **id** into the presentation
+  dispatch: add a `draw` entry to `ENEMY_SPRITE_DISPATCH` (or opt into the
+  generic silhouette via `ENEMY_GENERIC_SPRITE_IDS`), and, if it has bespoke
+  lore, an `ENEMY_OBSERVATIONS[id]` entry. `validateGameData()` errors if the id
+  resolves to neither a sprite nor the generic set.
 - **Move / re-place** any of them: change coordinates freely — the id is
   unchanged, so existing saves still resolve it.
 - **Rename the display `name`**: fine — `name` is player-facing, `id` is not.
@@ -639,17 +691,15 @@ tile cells, 159 NPCs, 98 item placements, 29 enemy templates, 17 map
 features, and the rest — see `PROJECT_STATUS.md` for what those 2 warnings
 actually are (both intentional, nothing newly introduced).
 
-**Known, accepted gap**: `validateEnemies()`'s battle-sprite-coverage check
-only scans the pooled `*_ENEMY_TEMPLATES` arrays plus `PALE_SENTRY_TEMPLATE`
-— it does not see enemy stat objects hand-written directly inside
-`combat.js`'s scripted `start*Combat()` functions (`Polwick`, `Essa`,
-`Smuggler Guard`, `Rainfish`). Those four have dedicated battle sprites
-today, same as every pooled enemy, but that's despite this gap, not because
-of it — nobody was ever warned to draw them; someone checked
-`render-battle.js`'s dispatch by hand and noticed they were missing. If you
-add a new scripted-boss enemy the same unpooled way, do the same manual
-check — don't rely on a clean `validateGameData()` run to mean every enemy
-has a sprite.
+**Battle-sprite coverage is now fully checked by id** (previously an accepted
+gap). `validateEnemies()` iterates the whole `ENEMY_TEMPLATE_REGISTRY` — which
+contains scripted/boss templates and the inline "23", not just the pooled
+`*_ENEMY_TEMPLATES` arrays — and requires every registered id to resolve to
+exactly one of `ENEMY_SPRITE_DISPATCH` (bespoke art) or
+`ENEMY_GENERIC_SPRITE_IDS` (intentional generic silhouette). A new scripted-boss
+enemy added the unpooled way therefore *is* caught: if its id has no sprite and
+isn't opted into the generic set, `validateGameData()` errors. No manual
+render-battle.js check is needed anymore.
 
 ## Debug tools
 
@@ -760,12 +810,13 @@ has a sprite.
 - **Don't add code after the world-item pickup loop in `movement.js`'s
   `update()` without counting braces carefully** — see "Movement" above
   for the exact bug this caused once already.
-- **`RENDERABLE_TILE_IDS` and `BATTLE_SPRITE_NAMES` are hand-maintained,
-  not derived** — adding a tile `case` to `drawTile()` or an enemy `case`
-  to `drawBattleEnemy()` without also updating the matching Set means
-  `validateGameData()` will report a false "not renderable"/"no battle
-  sprite" finding (or, worse, miss a genuinely missing one if the Set is
-  edited to match without the underlying `case` actually existing).
+- **`RENDERABLE_TILE_IDS` and `ENEMY_SPRITE_DISPATCH` are hand-maintained,
+  not derived** — adding a tile `case` to `drawTile()` without also updating
+  the matching Set, or a new bespoke enemy sprite without adding its **id** to
+  `ENEMY_SPRITE_DISPATCH` (or `ENEMY_GENERIC_SPRITE_IDS`), means
+  `validateGameData()` will report a "not renderable" / "no battle sprite"
+  finding (an *error* for an enemy id in neither table). Dispatch is by stable
+  enemy id, never by display name.
 - **Run `validateGameData()`, the full test suite, and the transition
   audit after any content change**, not just after infrastructure changes
   — they're cheap, fast (a few seconds total), and this session's history

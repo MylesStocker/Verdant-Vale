@@ -3255,43 +3255,93 @@ function drawBattleTallyman(cx, cy) {
   }
 }
 
-// Every name drawBattleEnemy() below has a dedicated case for. Kept as an
-// explicit Set (not derived by parsing this file's source, which isn't
-// possible from the browser) so validateEnemies() (validation.js) can catch
-// an enemy template with no battle sprite mapping -- exactly the bug class
-// that used to leave enemies rendering nothing at all in combat before the
-// generic fallback (drawBattleGenericEnemy(), below) was added as a safety
-// net. Hollow/Fen Shade/Tomb Sentry/Crypt Revenant/Wall Tendril/Dripping
-// Maw/The Seep/Pale Drowned/Silt Hag/Pale Sentry/Smuggler Guard/Polwick/
-// Essa/Rainfish all got dedicated sprites after initially relying on that
-// fallback. The last four (scripted stat objects in combat.js, outside any
-// *_ENEMY_TEMPLATES pool) are structurally invisible to validateEnemies()
-// (see architecture.md's "Validation" section) -- they're covered here
-// only because someone checked render-battle.js's dispatch by hand, not
-// because the linter ever warned about them. If you add a new scripted
-// enemy the same way, do the same manual check; don't assume a clean
-// validateGameData() run means every enemy has a sprite. Keep this Set in
-// sync with the if/else chain in drawBattleEnemy() -- add a name
-// here whenever you add a dedicated `else if` case there.
-const BATTLE_SPRITE_NAMES = new Set([
-  'Marsh Wisp', 'Stone Crawler', 'Briar Hound', 'Bone Guard', 'Shade Wraith',
-  'Crypt Fiend', 'Void Walker', 'Fen Witch', 'Wrongteeth', 'Briar Warden',
-  'Reed Grappler', 'Silt Lurker', 'Mulholland', 'Corpse Slug', 'Den Wraith',
-  'Kolm', '23', 'Rotwood Troll', 'Bog Serpent', 'Fen Lurker', 'Thornback',
-  'Silt Crab', 'Mudflat Strider', 'Hollow', 'Fen Shade', 'Tomb Sentry',
-  'Crypt Revenant', 'Wall Tendril', 'Dripping Maw', 'The Seep',
-  'Pale Drowned', 'Silt Hag', 'Pale Sentry', 'Smuggler Guard', 'Polwick',
-  'Essa', 'Rainfish', 'Tallyman', 'Basin Gull', 'Dust-Drowned', 'Marrow Hulk', 'Swamp Donkey',
-  'Mire Toad', 'Sluice Slime',
-]);
-window.BATTLE_SPRITE_NAMES = BATTLE_SPRITE_NAMES;
+// ── Battle-sprite dispatch, keyed by STABLE ENEMY TEMPLATE ID ───────────────
+// drawBattleEnemy() (below) picks an enemy's sprite from combat.enemy.id --
+// never from its display name -- so renaming an enemy's player-facing `name`
+// can never change its art. Each entry is { draw, dy }: the dedicated draw
+// function plus the vertical offset that sprite has always been positioned at
+// (baked in per-sprite here instead of at each old call site). Distinct
+// template ids that share one look -- the three Marsh Wisp variants, the
+// gallery/vault Pale Drowned, the male/female Mire Toad, ... -- map to the
+// same entry.
+//
+// Built as an explicit id table (not derived by parsing this file's source,
+// impossible from the browser) so validateEnemies() (validation.js) can prove
+// every REGISTERED enemy template resolves to a sprite -- the same blank-enemy
+// bug class the old name-keyed BATTLE_SPRITE_NAMES Set guarded against, now
+// id-safe and covering the scripted stat objects that Set couldn't see. Add an
+// id here (and, above, its draw function) whenever you author a template that
+// deserves bespoke art; enemies meant to reuse the generic silhouette go in
+// ENEMY_GENERIC_SPRITE_IDS instead.
+const ENEMY_SPRITE_DISPATCH = {};
+(function buildEnemySpriteDispatch() {
+  const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
+  def(drawBattleWisp,          0,  ['enemy_marsh_wisp', 'enemy_marsh_wisp_early', 'enemy_marsh_wisp_sluice_top']);
+  def(drawBattleSluiceSlime,   58, ['enemy_sluice_slime']);
+  def(drawBattleStoneCrawler,  62, ['enemy_stone_crawler']);
+  def(drawBattleBriarHound,    58, ['enemy_briar_hound', 'enemy_briar_hound_early']);
+  def(drawBattleBoneGuard,     62, ['enemy_bone_guard']);
+  def(drawBattleShadeWraith,   30, ['enemy_shade_wraith']);
+  def(drawBattleCryptFiend,    62, ['enemy_crypt_fiend']);
+  def(drawBattleVoidWalker,    30, ['enemy_void_walker']);
+  def(drawBattleFenWitch,      40, ['enemy_fen_witch']);
+  def(drawBattleWrongteeth,    40, ['enemy_wrongteeth']);
+  def(drawBattleBriarWarden,   55, ['enemy_briar_warden']);
+  def(drawBattleReedGrappler,  62, ['enemy_reed_grappler']);
+  def(drawBattleSiltLurker,    30, ['enemy_silt_lurker']);
+  def(drawBattleMulholland,    55, ['enemy_mulholland']);
+  def(drawBattleCorpseSlug,    62, ['enemy_corpse_slug']);
+  def(drawBattleDenWraith,     30, ['enemy_den_wraith']);
+  def(drawBattleSailorBrawler, 62, ['enemy_kolm']);
+  def(drawBattle23,            0,  ['enemy_23']);
+  def(drawBattleRotwoodTroll,  60, ['enemy_rotwood_troll']);
+  def(drawBattleBogSerpent,    50, ['enemy_bog_serpent']);
+  def(drawBattleFenLurker,     40, ['enemy_fen_lurker']);
+  def(drawBattleThornback,     55, ['enemy_thornback']);
+  def(drawBattleSiltCrab,      50, ['enemy_silt_crab', 'enemy_silt_crab_upper']);
+  def(drawBattleMudflatStrider,20, ['enemy_mudflat_strider']);
+  def(drawBattleBasinGull,     55, ['enemy_basin_gull', 'enemy_basin_gull_upper']);
+  def(drawBattleHollow,        62, ['enemy_hollow']);
+  def(drawBattleFenShade,      20, ['enemy_fen_shade']);
+  def(drawBattleTombSentry,    62, ['enemy_tomb_sentry']);
+  def(drawBattleCryptRevenant, 40, ['enemy_crypt_revenant']);
+  def(drawBattleWallTendril,   20, ['enemy_wall_tendril']);
+  def(drawBattleDrippingMaw,   10, ['enemy_dripping_maw']);
+  def(drawBattleTheSeep,       30, ['enemy_the_seep']);
+  def(drawBattlePaleDrowned,   30, ['enemy_pale_drowned_gallery', 'enemy_pale_drowned_vault']);
+  def(drawBattleSiltHag,       40, ['enemy_silt_hag_gallery', 'enemy_silt_hag_vault']);
+  def(drawBattleDustDrowned,   30, ['enemy_dust_drowned']);
+  def(drawBattleMarrowHulk,    46, ['enemy_marrow_hulk']);
+  def(drawBattleSwampDonkey,   44, ['enemy_swamp_donkey']);
+  def(drawBattleMireToad,      54, ['enemy_mire_toad_male', 'enemy_mire_toad_female']);
+  def(drawBattlePaleSentry,    58, ['enemy_pale_sentry']);
+  def(drawBattleSmugglerGuard, 62, ['enemy_smuggler_guard']);
+  def(drawBattlePolwick,       58, ['enemy_polwick']);
+  def(drawBattleEssa,          55, ['enemy_essa']);
+  def(drawBattleRainfish,      20, ['enemy_rainfish']);
+  def(drawBattleTallyman,      62, ['enemy_tallyman']);
+})();
+window.ENEMY_SPRITE_DISPATCH = ENEMY_SPRITE_DISPATCH;
 
-// Generic fallback silhouette -- used for any enemy name not covered by a
-// dedicated sprite above, so an enemy is never literally invisible in
-// combat. Deliberately plain/featureless (a name-plate is still shown
-// elsewhere in the combat UI) rather than trying to look bespoke; add a
-// real sprite (and a name to BATTLE_SPRITE_NAMES) for any enemy that
-// deserves its own look instead of leaning on this long-term.
+// Enemy ids that INTENTIONALLY reuse the generic silhouette rather than having
+// bespoke art (currently just Takomo). Listed explicitly so drawBattleEnemy()
+// can tell a deliberate generic-art enemy apart from a genuine bug -- an enemy
+// that reached combat with a missing or unregistered id -- and so
+// validateEnemies() keeps emitting the standing "deserves its own look"
+// WARNING for these instead of erroring. An id must be in exactly one of
+// ENEMY_SPRITE_DISPATCH or ENEMY_GENERIC_SPRITE_IDS; validation enforces that.
+const ENEMY_GENERIC_SPRITE_IDS = new Set([
+  'enemy_takomo',
+]);
+window.ENEMY_GENERIC_SPRITE_IDS = ENEMY_GENERIC_SPRITE_IDS;
+
+// Generic fallback silhouette -- used for any enemy id explicitly opted into
+// ENEMY_GENERIC_SPRITE_IDS (and, defensively, for an enemy that reaches combat
+// with a missing/unregistered id, which also logs a warning), so an enemy is
+// never literally invisible in combat. Deliberately plain/featureless (a
+// name-plate is still shown elsewhere in the combat UI) rather than trying to
+// look bespoke; add a real sprite (and its id to ENEMY_SPRITE_DISPATCH) for any
+// enemy that deserves its own look instead of leaning on this long-term.
 function drawBattleGenericEnemy(cx, cy) {
   ctx.fillStyle = 'rgba(0,0,0,0.30)';
   ctx.beginPath();
@@ -3309,52 +3359,23 @@ function drawBattleGenericEnemy(cx, cy) {
 
 function drawBattleEnemy(cx, cy) {
   if (!combat.enemy) return;
-  const n = combat.enemy.name;
-  if      (n === 'Marsh Wisp')    drawBattleWisp(cx, cy);
-  else if (n === 'Sluice Slime')  drawBattleSluiceSlime(cx, cy + 58);
-  else if (n === 'Stone Crawler') drawBattleStoneCrawler(cx, cy + 62);
-  else if (n === 'Briar Hound')   drawBattleBriarHound(cx, cy + 58);
-  else if (n === 'Bone Guard')    drawBattleBoneGuard(cx, cy + 62);
-  else if (n === 'Shade Wraith')  drawBattleShadeWraith(cx, cy + 30);
-  else if (n === 'Crypt Fiend')   drawBattleCryptFiend(cx, cy + 62);
-  else if (n === 'Void Walker')   drawBattleVoidWalker(cx, cy + 30);
-  else if (n === 'Fen Witch')     drawBattleFenWitch(cx, cy + 40);
-  else if (n === 'Wrongteeth')    drawBattleWrongteeth(cx, cy + 40);
-  else if (n === 'Briar Warden')  drawBattleBriarWarden(cx, cy + 55);
-  else if (n === 'Reed Grappler') drawBattleReedGrappler(cx, cy + 62);
-  else if (n === 'Silt Lurker')   drawBattleSiltLurker(cx, cy + 30);
-  else if (n === 'Mulholland')    drawBattleMulholland(cx, cy + 55);
-  else if (n === 'Corpse Slug')   drawBattleCorpseSlug(cx, cy + 62);
-  else if (n === 'Den Wraith')    drawBattleDenWraith(cx, cy + 30);
-  else if (n === 'Kolm')          drawBattleSailorBrawler(cx, cy + 62);
-  else if (n === '23')            drawBattle23(cx, cy);
-  else if (n === 'Rotwood Troll') drawBattleRotwoodTroll(cx, cy + 60);
-  else if (n === 'Bog Serpent')   drawBattleBogSerpent(cx, cy + 50);
-  else if (n === 'Fen Lurker')    drawBattleFenLurker(cx, cy + 40);
-  else if (n === 'Thornback')     drawBattleThornback(cx, cy + 55);
-  else if (n === 'Silt Crab')         drawBattleSiltCrab(cx, cy + 50);
-  else if (n === 'Mudflat Strider')   drawBattleMudflatStrider(cx, cy + 20);
-  else if (n === 'Basin Gull')        drawBattleBasinGull(cx, cy + 55);
-  else if (n === 'Hollow')            drawBattleHollow(cx, cy + 62);
-  else if (n === 'Fen Shade')         drawBattleFenShade(cx, cy + 20);
-  else if (n === 'Tomb Sentry')       drawBattleTombSentry(cx, cy + 62);
-  else if (n === 'Crypt Revenant')    drawBattleCryptRevenant(cx, cy + 40);
-  else if (n === 'Wall Tendril')      drawBattleWallTendril(cx, cy + 20);
-  else if (n === 'Dripping Maw')      drawBattleDrippingMaw(cx, cy + 10);
-  else if (n === 'The Seep')          drawBattleTheSeep(cx, cy + 30);
-  else if (n === 'Pale Drowned')      drawBattlePaleDrowned(cx, cy + 30);
-  else if (n === 'Silt Hag')          drawBattleSiltHag(cx, cy + 40);
-  else if (n === 'Dust-Drowned')      drawBattleDustDrowned(cx, cy + 30);
-  else if (n === 'Marrow Hulk')       drawBattleMarrowHulk(cx, cy + 46);
-  else if (n === 'Swamp Donkey')      drawBattleSwampDonkey(cx, cy + 44);
-  else if (n === 'Mire Toad')         drawBattleMireToad(cx, cy + 54);
-  else if (n === 'Pale Sentry')       drawBattlePaleSentry(cx, cy + 58);
-  else if (n === 'Smuggler Guard')    drawBattleSmugglerGuard(cx, cy + 62);
-  else if (n === 'Polwick')           drawBattlePolwick(cx, cy + 58);
-  else if (n === 'Essa')              drawBattleEssa(cx, cy + 55);
-  else if (n === 'Rainfish')          drawBattleRainfish(cx, cy + 20);
-  else if (n === 'Tallyman')          drawBattleTallyman(cx, cy + 62);
-  else                            drawBattleGenericEnemy(cx, cy + 40);
+  const id = combat.enemy.id;
+  const entry = id ? ENEMY_SPRITE_DISPATCH[id] : null;
+  if (entry) { entry.draw(cx, cy + entry.dy); return; }
+  // No dedicated sprite for this id. Two cases, kept distinct on purpose:
+  //   1. An enemy explicitly registered to reuse the generic silhouette
+  //      (ENEMY_GENERIC_SPRITE_IDS) -- intentional, silent, id-safe.
+  //   2. Anything else -- an enemy reached combat with a missing or
+  //      unregistered id. That's a bug, so surface a developer-facing warning
+  //      rather than silently papering over it (and never fall back to
+  //      matching on combat.enemy.name).
+  if (!id || !ENEMY_GENERIC_SPRITE_IDS.has(id)) {
+    if (typeof console !== 'undefined' && console.warn) {
+      console.warn('drawBattleEnemy: enemy has no id-keyed sprite and is not a registered generic-art enemy (id=' +
+        JSON.stringify(id) + ', name=' + JSON.stringify(combat.enemy.name) + ') -- rendering generic silhouette');
+    }
+  }
+  drawBattleGenericEnemy(cx, cy + 40);
 }
 
 

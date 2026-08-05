@@ -175,13 +175,13 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   crossing/save-load/edge-border pattern as 17/18, plus two things unique to
   a combat-bearing map: repeatedly calling `startCombat()` and asserting
   every enemy name produced is one of `NORTH_BASIN_ENEMY_TEMPLATES` (never
-  the generic or FAR pool), and a static check that both new enemies
-  (Silt Crab, Mudflat Strider) have a `drawBattleEnemy()` dispatch entry in
-  `render-battle.js` — this codebase has a documented history of enemies
-  shipped without one, which leaves them invisible in combat. Verified both
-  the crossing assertion and the battle-sprite-dispatch assertion are
-  load-bearing the same way as tests 17/18 (disabled the tile trigger /
-  removed the dispatch line, confirmed the test fails, restored the fix).
+  the generic or FAR pool), and a check that both new enemies
+  (Silt Crab, Mudflat Strider) resolve to a battle sprite by **stable id** in
+  `render-battle.js`'s id-keyed `ENEMY_SPRITE_DISPATCH` — this codebase has a
+  documented history of enemies shipped without one, which leaves them invisible
+  in combat. Verified both the crossing assertion and the battle-sprite-dispatch
+  assertion are load-bearing the same way as tests 17/18 (disabled the tile
+  trigger / removed the dispatch entry, confirmed the test fails, restored it).
   (Later revised twice more: once to shrink the map's water down to a literal
   3×3 "reservoir finger" per a follow-up request, which also added a real
   north exit — `NORTH_BASIN_W_EXIT` at row 0 col 4 — so the edge-border
@@ -338,9 +338,10 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   Pale Drowned, Silt Hag, Pale Sentry) had no battle sprite mapping in
   `render-battle.js` and would have rendered as nothing at all in combat --
   fixed by adding a generic fallback sprite (`drawBattleGenericEnemy()`) and
-  a `BATTLE_SPRITE_NAMES` registry so `validateEnemies()` can flag any
-  future enemy in the same situation as a warning instead of a silent
-  blank. Also caught and fixed during development (not pre-existing bugs,
+  a sprite registry so `validateEnemies()` can flag any future enemy in the
+  same situation instead of a silent blank. (That registry was originally the
+  name-keyed `BATTLE_SPRITE_NAMES` Set; it is now the id-keyed
+  `ENEMY_SPRITE_DISPATCH` — see test 56.) Also caught and fixed during development (not pre-existing bugs,
   but bugs in the validator itself, corrected before this test file was
   finalized): a solid-NPC overlap check that collapsed every `house:`
   interior into one bucket, producing ~500 false-positive warnings between
@@ -394,8 +395,8 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   transcribe a value wrong; a script cross-check while building it
   confirmed the 89 real tile names line up 1:1 with both
   `DEBUG_TILE_NAMES` and a new `RENDERABLE_TILE_IDS` Set (`render-tiles.js`,
-  mirroring `drawTile()`'s switch cases the same way `BATTLE_SPRITE_NAMES`
-  mirrors the battle-sprite dispatcher) before any of it was wired into
+  mirroring `drawTile()`'s switch cases the same way `ENEMY_SPRITE_DISPATCH`
+  mirrors the id-keyed battle-sprite dispatcher) before any of it was wired into
   validation. Verified load-bearing by temporarily disabling the
   `WALKABLE`/`TILE_PROPERTIES.walkable` agreement check and confirming the
   test catches it, then restoring the fix.
@@ -473,8 +474,8 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   source-of-truth.
 - `34-calwick-flavor-and-basin-gull` — the Calwick flavor pass (five
   `MAP_FEATURES` inspectables across the town maps) plus the Basin Gull (the
-  third North Basin enemy) with its dedicated battle sprite registered in
-  `BATTLE_SPRITE_NAMES`. Runtime + validation.
+  third North Basin enemy) with its dedicated battle sprite registered by id in
+  `ENEMY_SPRITE_DISPATCH`. Runtime + validation.
 - `35-upper-reach-chamber-gallery` — the North Basin NW "Upper Reach" open-edge
   crossing, its map-local exposed-bed encounters (`BASIN_MUD` only, own pool),
   the unmarked chamber (save refused), and the Sunken Gallery (save refusal plus
@@ -622,6 +623,21 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   (interior) and on a Dayoff (exterior); and the provision store reads as paid
   commerce (renamed "Order Ledger", Oda's purchase/account/billing language, no
   free-allocation entitlement wording). Runtime.
+- `56-enemy-id-authority` — the architectural contract that **stable enemy
+  template ids are the sole runtime identity** and `enemy.name` is presentation
+  only. Covers a pooled roll, a spread clone, a scripted enemy (Briar Warden), a
+  boss (Wrongteeth), and the registered inline "23" all carrying a registered
+  id; id-keyed sprite dispatch (`ENEMY_SPRITE_DISPATCH`) being total over the
+  registry with exactly one of sprite/generic per id; id-keyed Observe/lore
+  (`ENEMY_OBSERVATIONS`); and an id-keyed special behaviour (Corpse Slug
+  slither-on-hit). The **load-bearing** case gives a live enemy a decoy display
+  name and proves its sprite dispatch, Observe text, and slither behaviour are
+  all unchanged. Four **break-then-restore** checks prove the validator / a
+  runtime id check fails when: a runtime enemy loses its id; a sprite-dispatch
+  entry points at an unregistered id; a scripted encounter drops its template
+  id; and an identity-sensitive branch is disconnected from its id — each
+  mutation undone in a `finally`, with a final assert that the shared context is
+  left clean. Runtime + validation.
 
 ## Known simplifications (see comments at the top of each affected test)
 

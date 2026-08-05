@@ -16,8 +16,8 @@
 //   4. Basin Gull is in NORTH_BASIN_ENEMY_TEMPLATES -- the pool
 //      MAP_METADATA points all four North Basin maps at -- with stats
 //      inside the region's existing tier (nothing boss-shaped).
-//   5. Basin Gull has a dedicated sprite: registered in
-//      BATTLE_SPRITE_NAMES, and a real combat render frame with it as the
+//   5. Basin Gull has a dedicated sprite: registered by id in
+//      ENEMY_SPRITE_DISPATCH, and a real combat render frame with it as the
 //      active enemy draws without throwing.
 //   6. validateGameData() stays clean: 0 errors, and no warning mentions
 //      the new feature ids or the new enemy.
@@ -110,8 +110,10 @@ module.exports = {
     }
 
     // ── 5. Dedicated sprite: registered, and a combat frame renders ────────
-    assert.equal(g.run(`BATTLE_SPRITE_NAMES.has('Basin Gull')`), true,
-      'Basin Gull should have a dedicated battle sprite registered');
+    const basinGullId = g.run(`(NORTH_BASIN_ENEMY_TEMPLATES.find(t => t.name === 'Basin Gull') || {}).id`);
+    assert.ok(basinGullId, 'Basin Gull must be in the North Basin pool');
+    assert.equal(g.run(`!!ENEMY_SPRITE_DISPATCH[${JSON.stringify(basinGullId)}]`), true,
+      'Basin Gull should have a dedicated battle sprite registered by id');
     g.run(`
       startCombat();
       combat.enemy = Object.assign({}, NORTH_BASIN_ENEMY_TEMPLATES.find(t => t.name === 'Basin Gull'));

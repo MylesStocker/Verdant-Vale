@@ -126,9 +126,10 @@ In roughly the order built:
    v1→v2→v3, backing up only the original source version write-once. Unknown ids
    are preserved (not erased) and never touch gameplay. New registry-driven
    pickup/chest/enemy validation (the enemy check removed the old special-enemy
-   blind spot — which is how Takomo's missing sprite finally surfaced). This pass
-   is identity + validation only: no combat/render/observe dispatch switched from
-   name to id. One incidental fix: the Roddon Way potion (`pickup_roddon_way_potion`),
+   blind spot — which is how Takomo's missing sprite finally surfaced). That pass
+   was identity + validation only; a later pass (**item 17**) makes those stable
+   ids authoritative at runtime — combat/render/Observe dispatch now key on id,
+   not name. One incidental fix: the Roddon Way potion (`pickup_roddon_way_potion`),
    previously omitted from persistence entirely, now persists like every other
    pickup. Covered by the new **test 52** (test 51 extended to the v1→v3 chain).
    See `architecture.md`'s "Save/flags" section.
@@ -326,8 +327,8 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
     north"). Plus a third North Basin enemy, the **Basin Gull** —
     scavenger gull come inland for the die-offs on the exposed bed; hp 24
     / atk 14 / spd 12, same tier as its poolmates, with its own bespoke
-    battle sprite (`drawBattleBasinGull()`, registered in
-    `BATTLE_SPRITE_NAMES`). Test 34 covers all of it end-to-end.
+    battle sprite (`drawBattleBasinGull()`, registered by id in
+    `ENEMY_SPRITE_DISPATCH`). Test 34 covers all of it end-to-end.
 
 12. **The Upper Reach, the unmarked chamber, and the Sunken Gallery** — the
     North Basin's 5th square (`NORTH_BASIN_NW_MAP`, north of the West Shore
@@ -568,36 +569,49 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
     admonishment firing and not repeating, save/load persistence, and the
     four negative cases (after assignment, already-assigned, never-crossed,
     and a southbound crossing).
+17. **Stable enemy ids made authoritative at runtime**
+    (`combat.js`/`render-battle.js`/`validation.js`) — the authored, immutable
+    `enemy_<snake>` template ids (from item 9) are now the **sole** runtime
+    identity of an enemy; `enemy.name` is presentation only. Renaming an enemy's
+    display name no longer changes its battle sprite, its Observe/lore, or its
+    special combat behaviour. Battle-sprite selection moved from a
+    `combat.enemy.name` if/else chain (and the `BATTLE_SPRITE_NAMES` name Set) to
+    an id-keyed `ENEMY_SPRITE_DISPATCH` table (`id → { draw, dy }`), with an
+    explicit `ENEMY_GENERIC_SPRITE_IDS` opt-in for the one enemy (`enemy_takomo`)
+    that intentionally reuses the generic silhouette — so a missing/unregistered
+    id is now a *diagnosable* case (`console.warn`), not a silent fallback.
+    `ENEMY_OBSERVATIONS` is re-keyed by id (shared-identity variants aliased onto
+    one entry), and the id-keyed special branches (Corpse Slug / Shade Wraith
+    slither, Fen Witch poison, Mire Toad / Den Wraith flavour, Tallyman / Swamp
+    Donkey intros) replaced their name checks. `validateEnemies()` now proves
+    every registered id resolves to exactly one of sprite/generic, that
+    sprite/generic/Observe entries only reference registered ids, and guards
+    against name-keyed dispatch returning. No enemy stats, pools, weights,
+    rewards, AI, dialogue, lore, map content, or save behaviour changed — the
+    change is architectural only. Covered by the new **test 56** (load-bearing
+    rename + break-then-restore checks); tests 19/28/34/35 migrated from
+    `BATTLE_SPRITE_NAMES` to the id-keyed table.
 
-Each item shipped with tests (27-30, 34-41), a clean `validateGameData()`
+Each item shipped with tests (27-30, 34-41, 56), a clean `validateGameData()`
 run, and a clean transition audit (all new enter/exit functions and
 transition tiles are registered in `test/transition-audit.js`).
 
 ## Known risks / caveats
 
-- **`validateEnemies()`'s battle-sprite check has a real, accepted blind
-  spot, larger than earlier notes claimed.** It structurally scans only the
-  15 named random-encounter pools (`ENEMY_TEMPLATES`, `EARLY_ENEMY_TEMPLATES`,
-  the dungeon/sluice/basin/gallery/etc. `*_ENEMY_TEMPLATES` arrays) **plus the
-  single specifically-listed special template `PALE_SENTRY_TEMPLATE`**. Every
-  *other* scripted/boss enemy is defined outside those — as its own named
-  `*_TEMPLATE` const spread into `combat.enemy` inside a `start*Combat()`
-  function (`BOSS_TEMPLATE`/Wrongteeth, `BRIAR_WARDEN_TEMPLATE`,
-  `MULHOLLAND_TEMPLATE`, `DEN_WRAITH_TEMPLATE`, `SAILOR_BRAWLER_TEMPLATE`/Kolm,
-  `TAKOMO_TEMPLATE`, `SMUGGLER_GUARD_TEMPLATE`, `POLWICK_TEMPLATE`,
-  `ESSA_TEMPLATE`, `RAINFISH_TEMPLATE`), or as a fully-inline object. The
-  validator therefore cannot see any of them — it can't warn about their stats
-  or a missing sprite. This is more than the "four" an older note listed; the
-  earlier count only mentioned the fort/rainfish bosses. What *does* keep this
-  from ever being a literal problem is `drawBattleEnemy()`'s generic fallback
-  (`drawBattleGenericEnemy()`): a name with no entry in `BATTLE_SPRITE_NAMES`
-  renders as a generic sprite, never a blank. As of this pass every current
-  enemy — pooled and scripted alike — already has a bespoke sprite (each is in
-  `BATTLE_SPRITE_NAMES`), added and checked against `render-battle.js`'s
-  dispatch by hand, not discovered via the linter. If a *future* scripted enemy
-  is added the same unscanned way, remember `validateEnemies()` still won't
-  catch a missing sprite for it — check `render-battle.js`'s dispatch by hand
-  and update `BATTLE_SPRITE_NAMES` there.
+- **`validateEnemies()`'s old battle-sprite blind spot is now closed** (item 17).
+  The sprite check no longer scans templates pool-by-pool and match-by-name (a
+  path that couldn't see the scripted/boss templates defined outside the pools).
+  It now iterates the **`ENEMY_TEMPLATE_REGISTRY`** — which already contains every
+  pooled *and* scripted/special template plus the inline "23" — and requires each
+  registered id to resolve to exactly one of `ENEMY_SPRITE_DISPATCH` (bespoke art)
+  or `ENEMY_GENERIC_SPRITE_IDS` (intentional generic silhouette). A scripted enemy
+  added without a sprite is therefore now an **error**, not an unnoticed gap.
+  `drawBattleGenericEnemy()` remains the safety net, but leaning on it silently is
+  no longer possible: a missing/unregistered id at combat time logs a
+  `console.warn`, and the only enemy on the generic silhouette by choice
+  (`enemy_takomo`) is explicitly listed and still raises the standing "deserves
+  its own look" *warning*. When you add an enemy, wire its **id** into
+  `ENEMY_SPRITE_DISPATCH` (or the generic set) — the validator enforces it.
 - **`handleInteract()` (`interactions.js`) has been refactored** from a single
   giant `if`/`else if` chain into a priority orchestrator over named location
   handlers held in two dispatch tables (`INTERACT_HANDLERS` /
@@ -623,9 +637,9 @@ transition tiles are registered in `test/transition-audit.js`).
   `QUEST_FLAG_SCHEMA` (`save.js`). `validateGameData()` warns when this is
   the case; it's not a bug, just something to check before assuming a
   once-only trigger/sign is meant to be permanent.
-- **`RENDERABLE_TILE_IDS`/`BATTLE_SPRITE_NAMES` are hand-maintained
-  parallel lists**, not derived from `drawTile()`/`drawBattleEnemy()`'s
-  actual `case` statements (can't parse a file's own source from inside a
+- **`RENDERABLE_TILE_IDS`/`ENEMY_SPRITE_DISPATCH` are hand-maintained**,
+  not derived from `drawTile()`'s actual `case` statements or (for enemies)
+  from any name (can't parse a file's own source from inside a
   running browser). They currently agree with reality; nothing but
   `validateGameData()` catches future drift.
 - **Git history is sparse** — a repo now exists, but with only a couple of
@@ -686,7 +700,7 @@ Roughly in priority order:
 ## Task difficulty guide for future coding assistants
 
 **Safe for a lighter-weight/faster model, low architectural risk:**
-- Drawing new battle sprites and adding the name to `BATTLE_SPRITE_NAMES`.
+- Drawing new battle sprites and adding the enemy's **id** to `ENEMY_SPRITE_DISPATCH`.
 - Adding new `MAP_FEATURES` `inspect` entries (signs/plaques/notices) to
   existing maps — the system is generalized, validated, and the priority
   guarantee is already proven; a new inspect-only entry can't break

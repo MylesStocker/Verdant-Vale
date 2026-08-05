@@ -2283,8 +2283,8 @@ function drawTile(id, x, y) {
 // explicit Set (not derived by parsing this file's source, which isn't
 // possible from the browser) purely so validateGameData()'s tile-property
 // validation (validation.js) can confirm every tile used in a map is
-// actually renderable, the same way BATTLE_SPRITE_NAMES (render-battle.js)
-// lets it confirm every enemy has a battle sprite. drawTile() itself is
+// actually renderable, the same way ENEMY_SPRITE_DISPATCH (render-battle.js)
+// lets it confirm every enemy id has a battle sprite. drawTile() itself is
 // unchanged -- this does not add a fallback or alter rendering in any way.
 // Keep in sync with the switch above: add a tile id here whenever you add a
 // `case` there.

@@ -173,11 +173,16 @@ module.exports = {
       g.run('combat.active = false; combat.enemy = null;');
     }
 
-    // ── 6. Both new enemies have a battle sprite dispatch entry ─────────────
-    const renderBattleSrc = require('fs').readFileSync(
-      require('path').join(__dirname, '..', '..', 'render-battle.js'), 'utf8');
-    assert.ok(/n === 'Silt Crab'/.test(renderBattleSrc), 'Silt Crab needs a drawBattleEnemy() dispatch entry or it renders invisible in combat');
-    assert.ok(/n === 'Mudflat Strider'/.test(renderBattleSrc), 'Mudflat Strider needs a drawBattleEnemy() dispatch entry or it renders invisible in combat');
+    // ── 6. Both new enemies resolve to a battle sprite by STABLE ID ─────────
+    // Battle-sprite dispatch is id-keyed (ENEMY_SPRITE_DISPATCH), so what
+    // matters is that each template's id has an entry -- renaming the display
+    // name can't blank it out.
+    for (const nm of ['Silt Crab', 'Mudflat Strider']) {
+      const id = g.run(`(NORTH_BASIN_ENEMY_TEMPLATES.find(t => t.name === ${JSON.stringify(nm)}) || {}).id`);
+      assert.ok(id, `${nm} must be present in NORTH_BASIN_ENEMY_TEMPLATES`);
+      assert.equal(g.run(`!!ENEMY_SPRITE_DISPATCH[${JSON.stringify(id)}]`), true,
+        `${nm} (${id}) needs an id-keyed battle sprite or it renders invisible in combat`);
+    }
 
     g.renderFrame();
   },
