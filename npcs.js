@@ -106,7 +106,7 @@ const SIMPLE_NPCS = [
     spriteType:    'clerk',
     get dialogue() {
       const pages = [
-        ['\u201cThe creatures carry gold. Sorted. Minted.', 'No record of where it comes from.\u201d'],
+        ['\u201cThe monsters in the wilderness carry gold. Sorted. Minted.', 'No record of where it comes from.\u201d'],
         ['\u201cI have filed three reports on the matter.', 'None has been acknowledged.\u201d'],
       ];
       if (weight_quest_stage >= 4) pages.push(
