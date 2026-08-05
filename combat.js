@@ -215,6 +215,7 @@ function itemStatLabel(item) {
   // Status-cure items deliberately show NO stat label \u2014 a display must never
   // reveal which status an item cures (a character can mention it instead).
   if (isStatusCureItem(item))                      return '';
+  if (item.type === 'buff' && item.evadeRate)      return `Evade ${Math.round(item.evadeRate * 100)}% \u00b7 ${item.evadeTurns}t`;
   if (item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
   if (item.questItem && item.type === 'potion')    return `HP  +${item.heals} \u2022 quest`;
   if (item.type === 'weapon')    return `ATK +${item.bonus}`;
@@ -262,6 +263,7 @@ const combat = {
   isTakomo:          false,
   is23:              false,
   observeCount:      0,
+  evadeTurns:        0,     // remaining turns of Bullet Time's heightened evade (0 = none)
 };
 
 // Day on which Kolm was last fought (-1 = never). Resets automatically each new Dayoff.
@@ -418,6 +420,7 @@ function endCombat() {
   combat.isTakomo          = false;
   combat.is23              = false;
   combat.observeCount      = 0;
+  combat.evadeTurns        = 0;
 }
 
 function startBossCombat() {
@@ -758,6 +761,28 @@ function burnTickEntry() {
   };
 }
 
+// ─── Bullet Time: player evade buff ─────────────────────────────────────────
+// The Bullet Time item (items.js) sets combat.evadeTurns = 3 on use. While it
+// is active, every incoming ENEMY attack is dodged at BULLET_TIME_EVADE_RATE
+// (there is no base evade otherwise). The counter ticks down once per player
+// turn via tickEvadeBuff() (called from handleCombatAction), so the buff covers
+// the turn it is used on plus the two after it. A dodged hit deals no damage
+// and lands no on-hit status effect.
+const BULLET_TIME_EVADE_RATE = 0.90;
+// Rolls whether the current incoming enemy hit is dodged. Called once per enemy
+// attack, at the moment its message is built (so the text can read "Evaded").
+function bulletTimeEvades() {
+  return combat.evadeTurns > 0 && Math.random() < BULLET_TIME_EVADE_RATE;
+}
+// Ticks the buff down by one player turn. Called once per turn the player spends.
+function tickEvadeBuff() {
+  if (combat.evadeTurns > 0) combat.evadeTurns--;
+}
+// The shared message shown when an enemy attack is dodged under Bullet Time.
+function evadeText() {
+  return `Time slows to a crawl — ${stats.name} slips aside and the ${combat.enemy.name}’s attack finds nothing. (Evaded)`;
+}
+
 // The enemy's response to a player turn that didn't itself fight the enemy
 // (currently: using an item). Same damage formula and status/defeat handling
 // as Attack's counter-attack — an item-using turn is still a turn, so the
@@ -766,9 +791,11 @@ function burnTickEntry() {
 // shape every other enemy hit in this file uses.
 function enemyTurnResponse(textFn) {
   const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
+  const dodged = bulletTimeEvades();
   return {
-    text: (crit ? 'Critical! ' : '') + textFn(eDmg),
+    text: dodged ? evadeText() : (crit ? 'Critical! ' : '') + textFn(eDmg),
     apply() {
+      if (dodged) return;   // Bullet Time: no damage, no on-hit effects
       stats.hp = Math.max(0, stats.hp - eDmg);
       applyEnemyHitEffects();
       if (stats.hp <= 0) {
@@ -1304,6 +1331,11 @@ function handleCombatAction() {
     const item = items[combat.itemCursor];
     if (!item) return;
 
+    // Using an item spends the turn, so the Bullet Time buff ticks down here.
+    // Bullet Time's own activation (below) re-sets evadeTurns afterwards, so the
+    // turn it is used on stays covered.
+    tickEvadeBuff();
+
     const msgs = [];
     let enemyActs = true; // whether the enemy still gets its turn after this
     if (item.sexBane) {
@@ -1342,6 +1374,15 @@ function handleCombatAction() {
           ? `Used ${item.name} \u2014 restored ${healed} HP. Legs feel heavy.`
           : `Used ${item.name} \u2014 restored ${healed} HP!`);
       }
+    } else if (item.type === 'buff') {
+      // Consumable combat buff (Bullet Time). Consumed on use; sets the evade
+      // buff. The turn is still spent (enemyActs stays true), but that enemy
+      // response is now rolled against the fresh evade rate.
+      if (item.evadeTurns) combat.evadeTurns = item.evadeTurns;
+      stats.items.splice(stats.items.indexOf(item), 1);
+      combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
+      const pct = Math.round((item.evadeRate || 0) * 100);
+      msgs.push(`Used ${item.name} \u2014 the world slows to a crawl. Evade up to ${pct}% for ${item.evadeTurns} turns.`);
     } else {
       equipItem(item);
       msgs.push(`Equipped ${item.name}!`);
@@ -1370,6 +1411,11 @@ function handleCombatAction() {
 
   // phase === 'choose'
   const action = combatOptions()[combat.cursor];
+  // Every turn-spending action (attack / run / observe) ticks the Bullet Time
+  // evade buff down by one. Opening the item subscreen ('item') is not itself a
+  // turn — the turn (and its tick) happens when an item is actually used, in the
+  // phase==='item' branch above.
+  if (action !== 'item') tickEvadeBuff();
   if (action === 'run') {
     // No-escape fights. Rainfish: the school is all around you in the
     // shallows. Fort arrest sequence (guard → Polwick → Essa): each opponent
@@ -1379,12 +1425,14 @@ function handleCombatAction() {
     // not available. Attempting it costs the turn: the enemy gets a free hit,
     // same as the Rainfish rule.
     if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa) {
-      const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
-      const ec = crit ? 'Critical! ' : '';
+      const roll   = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const dodged = bulletTimeEvades();
+      const eDmg   = dodged ? 0 : roll.dmg;
+      const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const noRunText =
-          combat.isRainfish     ? `${ec}Nowhere to go! Rainfish thrashes for ${eDmg}!`
+      const noRunText = dodged ? evadeText()
+        : combat.isRainfish     ? `${ec}Nowhere to go! Rainfish thrashes for ${eDmg}!`
         : combat.isFortGuard    ? `${ec}The guard holds the door! He strikes for ${eDmg}!`
         : combat.isFortPolwick  ? `${ec}Polwick stays between you and the door! He strikes for ${eDmg}!`
         :                         `${ec}Essa keeps herself between you and the door! She strikes for ${eDmg}!`;
@@ -1407,12 +1455,14 @@ function handleCombatAction() {
       combat.pendingEscape = true;
       combat.phase        = 'message';
     } else {
-      // Failed to flee — enemy gets a free hit
-      const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
-      const ec = crit ? 'Critical! ' : '';
+      // Failed to flee — enemy gets a free hit (unless Bullet Time dodges it)
+      const roll   = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const dodged = bulletTimeEvades();
+      const eDmg   = dodged ? 0 : roll.dmg;
+      const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const msgs = [`${ec}Couldn't escape! ${combat.enemy.name} attacks for ${eDmg}!`];
+      const msgs = [dodged ? `Couldn't escape! ${evadeText()}` : `${ec}Couldn't escape! ${combat.enemy.name} attacks for ${eDmg}!`];
       if (newHp <= 0) {
         msgs.push(`${stats.name} has fallen...`);
         combat.pendingDefeat = true;
@@ -1474,11 +1524,15 @@ function handleCombatAction() {
       if (combat.enemy.hp <= 0) {
         applyKillRewards(msgs);
       } else {
-        // Enemy counter-attacks — damage deferred until message is shown
+        // Enemy counter-attacks — damage deferred until message is shown.
+        // Bullet Time may dodge it entirely (no damage, no on-hit effects).
+        const dodged  = bulletTimeEvades();
+        const eDmgEff = dodged ? 0 : eDmg;
         msgs.push({
-          text: `${ec}${combat.enemy.name} strikes back for ${eDmg}!`,
+          text: dodged ? evadeText() : `${ec}${combat.enemy.name} strikes back for ${eDmgEff}!`,
           apply() {
-            stats.hp = Math.max(0, stats.hp - eDmg);
+            if (dodged) return;
+            stats.hp = Math.max(0, stats.hp - eDmgEff);
             applyEnemyHitEffects();
             if (stats.hp <= 0) {
               combat.messageQueue.push(`${stats.name} has fallen...`);
@@ -1490,14 +1544,18 @@ function handleCombatAction() {
     } else {
       // ── Enemy attacks first (higher speed) ───────────────────────────────
       // Pre-calculate outcomes so the queue can be built deterministically.
-      const newPlayerHp = Math.max(0, stats.hp - eDmg);
+      // Bullet Time may dodge the strike (no damage, no on-hit effects); the
+      // player still gets their counter, since they come through unharmed.
+      const dodged      = bulletTimeEvades();
+      const eDmgEff     = dodged ? 0 : eDmg;
+      const newPlayerHp = Math.max(0, stats.hp - eDmgEff);
       const newEnemyHp  = Math.max(0, combat.enemy.hp - pDmg);
 
       msgs.push({
-        text: `${ec}${combat.enemy.name} strikes first for ${eDmg}!`,
+        text: dodged ? evadeText() : `${ec}${combat.enemy.name} strikes first for ${eDmgEff}!`,
         apply() {
           stats.hp = newPlayerHp;
-          applyEnemyHitEffects();
+          if (!dodged) applyEnemyHitEffects();
           if (newPlayerHp <= 0) {
             combat.messageQueue.push(`${stats.name} has fallen...`);
             combat.pendingDefeat = true;
@@ -1540,13 +1598,14 @@ function handleCombatAction() {
       msgs.push('It does not close the distance.');
     } else {
       const obsRoll  = rollAttackDamage(combat.enemy.atk, effectiveDef());
-      const obsEDmg  = obsRoll.dmg;
+      const dodged   = bulletTimeEvades();
+      const obsEDmg  = dodged ? 0 : obsRoll.dmg;
       const obsNewHp = Math.max(0, stats.hp - obsEDmg);
       msgs.push({
-        text: `${obsRoll.crit ? 'Critical! ' : ''}${combat.enemy.name} strikes for ${obsEDmg}!`,
+        text: dodged ? evadeText() : `${obsRoll.crit ? 'Critical! ' : ''}${combat.enemy.name} strikes for ${obsEDmg}!`,
         apply() {
           stats.hp = obsNewHp;
-          applyEnemyHitEffects();
+          if (!dodged) applyEnemyHitEffects();
           if (obsNewHp <= 0) {
             combat.messageQueue.push(`${stats.name} has fallen...`);
             combat.pendingDefeat = true;

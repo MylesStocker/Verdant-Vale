@@ -34,6 +34,11 @@ const ITEM_REGISTRY = {
   'Cat Armor':    { name: 'Cat Armor',    type: 'armor',     bonus: 99, price:   0 },
   // Herbalist items
   'Reed Remedy':  { name: 'Reed Remedy',  type: 'potion', heals: 0, curesPoison: true, price: 50 },
+  // Combat-only consumable buff: on use in battle, raises the player's evade
+  // rate to 90% for the next 3 turns (see combat.js's item branch + the evade
+  // roll on every incoming enemy hit). type 'buff' has no equip slot, so like a
+  // reagent it does nothing outside combat; battleOnly makes that explicit.
+  'Bullet Time':  { name: 'Bullet Time',  type: 'buff', evadeRate: 0.90, evadeTurns: 3, battleOnly: true, price: 150 },
   // Hidden meadow chest (MEADOW_CHEST, data.js) — the one curse-cure item.
   // Amethyst is the established anti-curse material (cf. Amethyst Bangle).
   'Amethyst Dust': { name: 'Amethyst Dust', type: 'potion', heals: 0, curesCursed: true, price: 60 },

@@ -108,7 +108,11 @@ window.addEventListener('keydown', e => {
             const grouped = groupItems();
             if (menu.itemCursor < grouped.length) {
               const { name, item: it } = grouped[menu.itemCursor];
-              if (isStatusCureItem(it)) {
+              if (it.battleOnly) {
+                // Combat-only consumable (e.g. Bullet Time): not usable from the
+                // field menu. Do nothing — it is neither consumed nor equipped
+                // here, so it stays in the bag for the next fight.
+              } else if (isStatusCureItem(it)) {
                 // Same shared status-cure path as combat: clears an active
                 // matching status (if any), else nothing happens. Either way the
                 // item is consumed (the field menu shows no message).

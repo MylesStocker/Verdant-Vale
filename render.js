@@ -48,6 +48,7 @@ function render() {
   if (inDungeonEntrance) drawSouthRuinsEntranceDecor();
   if (inTakomo && !TAKOMO.defeated) drawTakomo();
   if (inSunkenGallery) drawSunkenGalleryFeatures();
+  if (inSunkenGallery && activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened) drawChest(SUNKEN_GALLERY_CHEST);
   if (inTown) drawSupervisorSprite();
   if (inTown) drawEslaSprite();
   drawSimpleNPCs();

@@ -456,6 +456,20 @@ const SLUICE_DEEP_CHEST = {
   item:   { name: 'Fen Mask', type: 'accessory', bonus: 5, price: 200 },
 };
 
+// ─── Sunken Gallery chest (grid room R2C4 — the sealed east pocket) ───────────
+// Holds Bullet Time, the game's one combat-only evade consumable. Like
+// MEADOW_CHEST (its own one-of-a-kind reward) it deliberately does NOT trigger
+// the cursed-fumble drop gag the dungeon/sluice chests have — Bullet Time has no
+// other source, so a curse must never lose it for good. Opened flag persists via
+// the v3 chest registry (openedChestIds), like every OPENABLE_CHESTS chest.
+const SUNKEN_GALLERY_CHEST = {
+  id:     'chest_sunken_gallery',
+  x:      12.5 * TILE,
+  y:       7.5 * TILE,
+  opened: false,
+  item:   { name: 'Bullet Time', type: 'buff', evadeRate: 0.90, evadeTurns: 3, battleOnly: true, price: 150 },
+};
+
 // ─── Takomo (secret chamber boss — Drenwick Waterfront hidden path) ──────────
 // Accessed through TAKOMO_GATE on the waterfront quay. Fire-elemental fighter,
 // heavy atk, slow spd. Drops significant gold; no loot drop (glory only).
@@ -1079,6 +1093,7 @@ const PICKUP_REGISTRY_IDS = Object.keys(PICKUP_REGISTRY).sort();
 const OPENABLE_CHESTS = [
   DUNGEON_CHEST, DUNGEON_ALCOVE_CHEST, SLUICE_CHEST, SLUICE_LEVEL2_CHEST,
   SLUICE_SECRET_CHEST, SLUICE_LEVEL3_CHEST, SLUICE_DEEP_CHEST, CAT_ARMOR_CHEST, MEADOW_CHEST,
+  SUNKEN_GALLERY_CHEST,
 ];
 const CHEST_REGISTRY = {};
 const CHEST_REGISTRY_DUP_IDS = [];

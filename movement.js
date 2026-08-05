@@ -207,6 +207,9 @@ function canWalk(cx, cy) {
     // Hidden meadow — the Warden's body (quest active) and the chest are solid
     if (warden_quest_started && !warden_quest_defeated && Math.abs(cx - BRIAR_WARDEN_SPAWN.x) < 18 && Math.abs(cy - BRIAR_WARDEN_SPAWN.y) < 18) return false;
     if (!MEADOW_CHEST.opened && Math.abs(cx - MEADOW_CHEST.x) < 18 && Math.abs(cy - MEADOW_CHEST.y) < 18) return false;
+  } else if (inSunkenGallery) {
+    // The Bullet Time chest is solid until opened (grid room R2C4 only).
+    if (activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened && Math.abs(cx - SUNKEN_GALLERY_CHEST.x) < 18 && Math.abs(cy - SUNKEN_GALLERY_CHEST.y) < 18) return false;
   } else if (inDungeon && (dungeonFloor === 2 || dungeonFloor === 3)) {
     // bland floors — no solid obstacles beyond tile walkability
   } else if (inDungeon && dungeonFloor === 4) {

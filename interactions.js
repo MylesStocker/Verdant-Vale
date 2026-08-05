@@ -6080,6 +6080,26 @@ function interactWrongteethFloor() {
 // the player isn't standing at one of the two, so handleInteract() falls
 // through to the generic inspect pass exactly as it does elsewhere.
 function interactSunkenGallery() {
+  // ── Bullet Time chest (R2C4) — silt-caked strongbox, no cursed-drop gag ────
+  if (activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened) {
+    const cx = player.x - SUNKEN_GALLERY_CHEST.x;
+    const cy = player.y - SUNKEN_GALLERY_CHEST.y;
+    if (Math.sqrt(cx * cx + cy * cy) < TALK_RADIUS) {
+      SUNKEN_GALLERY_CHEST.opened = true;
+      const it = SUNKEN_GALLERY_CHEST.item;
+      grantItem(it.name);
+      dialogue.name  = '';
+      dialogue.pages = [
+        ['A silt-caked strongbox wedged against the sealed east wall, its lock rusted to nothing.',
+         'The lid gives with a groan and a breath of cold, still air.'],
+        [`${it.name}  ${itemStatParen(it)}  — added to items.`],
+      ];
+      dialogue.open  = true;
+      dialogue.page  = 0;
+      return true;
+    }
+  }
+
   // ── Maintenance recess (R2C2) — a small environmental action, not a fight ──
   if (activeMap === SUNKEN_GALLERY_R2C2 && nearPlayer(8.5 * TILE, 8.5 * TILE, TALK_RADIUS * 1.5)) {
     if (window.sunken_gallery_recess_opened) {
