@@ -5583,40 +5583,33 @@ function interactHouseInterior() {
         if (dilemma_voss === null) {
           dialogue.name  = 'Voss';
           dialogue.pages = [
-            ['\u201cVoss.\u201d',
-             '\u201cProvision store, down by the civic quarter.\u201d',
-             '\u201cI\u2019ve been in this building three years.\u201d'],
-            ['\u201cCan I ask you something?\u201d',
-             '\u201cSomething I can\u2019t ask anyone who lives here.\u201d'],
-            ['\u201cMy neighbor \u2014 the one next door, unit two \u2014 she\u2019s been sheltering someone.\u201d',
-             '\u201cHer mother. Came up from the fen country a few months back.\u201d',
-             '\u201cThe woman\u2019s old. Been sick since she arrived.\u201d',
+            ['“Voss.”',
+             '“I work the provision store, down by the civic quarter.”',
+             '“I keep the stock. I know to the loaf what should be on those shelves.”'],
+            ['“Can I ask you something?”',
+             '“Something I can’t ask anyone who lives here.”'],
+            ['“My neighbor — the one next door, unit two — Clodagh.”',
+             '“She cut reeds on the south beds. The drought killed the beds. No reeds, no wage — same as half this building.”',
              (day % 5 === 0)
-               ? '\u201cClodagh\u2019s home today \u2014 it\u2019s the dayoff. Her mother keeps to that back room; she never comes out.\u201d'
-               : '\u201cClodagh\u2019s out \u2014 she only keeps to the building on the dayoff. Her mother\u2019s still in there, though. She never leaves that room. Can\u2019t.\u201d'],
-            ['\u201cShe\u2019s not registered.\u201d',
-             '\u201cNo Imperial papers. Nothing.\u201d',
-             '\u201cBorn out in the deep fen, before the register ever reached that far.\u201d',
-             '\u201cLived off-grid her whole life.\u201d',
-             '\u201cShe doesn\u2019t know what a registration office is.\u201d'],
-            ['\u201cI know because I can hear her coughing through the wall at night.\u201d',
-             '\u201cMy neighbor told me, and asked me to keep quiet.\u201d',
-             '\u201cI have. But it\u2019s been three months.\u201d'],
-            ['\u201cI work in the provision store.\u201d',
-             '\u201cI process the household orders. I know what the Imperial register does.\u201d',
-             '\u201cIf she\u2019s not in the system, she\u2019s not counted.\u201d',
-             '\u201cIf she\u2019s not counted, she doesn\u2019t officially exist.\u201d'],
-            ['\u201cReporting it means the district office gets involved.\u201d',
-             '\u201cNot reporting it means I\u2019m part of something I didn\u2019t choose.\u201d',
-             '\u201cI\u2019ve been sitting with that for three months.\u201d'],
-            ['\u201cWhat would you do?\u201d'],
+               ? '“She’s home today — it’s the dayoff. Which is the only reason I can say this without her hearing it through the wall.”'
+               : '“She’s out looking for work right now, so I can say this without her hearing it through the wall.”'],
+            ['“Food’s dear now. Dearer every week the rains don’t come.”',
+             '“And the shelves have been coming up short. A little at a time — bread, mostly. Dried fish.”',
+             '“It’s her. I’ve seen it. Something under the shawl, and out the door without stopping at the counter.”'],
+            ['“I know why. I’m not stupid.”',
+             '“Her man’s had no work since the beds went dry. They’re behind on the rent, hungry with it.”',
+             '“But it’s the store’s loss, and the store’s barely holding on either. The owner’s already talking about letting someone go.”'],
+            ['“If I tell the owner, she’s barred — maybe handed to the constable. Theft’s theft.”',
+             '“If I don’t, and he works it out himself, it’s my job. I’m the one who keeps the count.”',
+             '“I’ve been sitting on it three weeks.”'],
+            ['“What would you do?”'],
           ];
           dialogue.callbacks = [function() {
             choice.title     = 'Voss';
             choice.options   = [
-              'Report it. The system is how she gets help.',
-              'Don\u2019t report it. Let the woman live.',
-              'It\u2019s not your decision to make.',
+              'Tell the owner. Theft’s theft, hard times or not.',
+              'Say nothing. She’s hungry, not greedy.',
+              'It’s not your decision to make.',
             ];
             choice.cursor    = 0;
             choice.callbacks = [
@@ -5624,10 +5617,9 @@ function interactHouseInterior() {
                 dilemma_voss = 'report';
                 dialogue.name  = 'Voss';
                 dialogue.pages = [
-                  ['\u201cThe system.\u201d',
-                   '\u201cYeah. I keep telling myself the same thing.\u201d',
-                   '\u201cIf she\u2019s registered, she\u2019s real to them. They\u2019d have to account for her.\u201d'],
-                  ['\u201cI\u2019ll think about it.\u201d'],
+                  ['“Theft’s theft. Yeah.”',
+                   '“The store’s hungry too, in its way. Every loaf that walks out is one the owner paid for.”'],
+                  ['“I’ll tell him.”'],
                 ];
                 dialogue.open  = true;
                 dialogue.page  = 0;
@@ -5636,9 +5628,9 @@ function interactHouseInterior() {
                 dilemma_voss = 'protect';
                 dialogue.name  = 'Voss';
                 dialogue.pages = [
-                  ['\u201cShe\u2019s not hurting anyone.\u201d',
-                   '\u201cShe\u2019s just old and sick and here.\u201d'],
-                  ['\u201cI\u2019ll think about it.\u201d'],
+                  ['“She’s taking bread, not silver. She’s feeding two people through a drought.”',
+                   '“A few loaves won’t sink the store.”'],
+                  ['“I’ll leave it be.”'],
                 ];
                 dialogue.open  = true;
                 dialogue.page  = 0;
@@ -5647,9 +5639,9 @@ function interactHouseInterior() {
                 dilemma_voss = 'abstain';
                 dialogue.name  = 'Voss';
                 dialogue.pages = [
-                  ['\u201cNot my decision.\u201d',
-                   '\u201cBut I found out. That makes it something, even if not a decision.\u201d'],
-                  ['\u201cI\u2019ll think about it.\u201d'],
+                  ['“Not my decision.”',
+                   '“Except it’s my count, and my name on the stock book. So it’s half mine whether I want it or not.”'],
+                  ['“I’ll think about it.”'],
                 ];
                 dialogue.open  = true;
                 dialogue.page  = 0;
@@ -5662,39 +5654,38 @@ function interactHouseInterior() {
         } else if (dilemma_voss === 'report') {
           dialogue.name  = 'Voss';
           dialogue.pages = [
-            ['\u201cI left a note at the district office.\u201d',
-             '\u201cAnonymous. Just enough for them to find her.\u201d',
-             '\u201cTwo weeks ago. They haven\u2019t come yet.\u201d'],
-            ['\u201cClodagh hasn\u2019t spoken to me since.\u201d',
-             '\u201cI don\u2019t know how she found out it was me.\u201d',
-             '\u201cMaybe she just assumed.\u201d'],
-            ['\u201cI thought the answer would come once I\u2019d done it.\u201d',
-             '\u201cIt hasn\u2019t.\u201d'],
+            ['“I told the owner.”',
+             '“He’s barred her from the store. Said he’d have called the constable if it had been any more than it was.”',
+             '“Two weeks ago now.”'],
+            ['“Clodagh hasn’t spoken to me since.”',
+             '“I don’t know how she found out it was me. Maybe she just assumed.”',
+             '“Everyone knows who keeps the count.”'],
+            ['“I thought I’d feel settled once it was done.”',
+             '“I don’t.”'],
           ];
           dialogue.open  = true;
           dialogue.page  = 0;
         } else if (dilemma_voss === 'protect') {
           dialogue.name  = 'Voss';
           dialogue.pages = [
-            ['\u201cI\u2019ve been leaving bread outside their door.\u201d',
-             '\u201cExtra from the store that was going to be logged out anyway.\u201d',
-             '\u201cI tell myself it\u2019s just being neighborly.\u201d'],
-            ['\u201cI haven\u2019t told anyone.\u201d',
-             '\u201cThe old woman seems a little better. Less coughing at night.\u201d'],
-            ['\u201cI try not to think past that.\u201d'],
+            ['“I’ve been covering the shortfall myself.”',
+             '“A few coppers a week out of my own pocket to make the count come out right.”',
+             '“Cheaper than what it’d cost her if I didn’t. I tell myself it’s just being neighborly.”'],
+            ['“Her man found a half-week’s work on the locks.”',
+             '“Might be it’s starting to ease. Might not.”'],
+            ['“I try not to think past that.”'],
           ];
           dialogue.open  = true;
           dialogue.page  = 0;
         } else if (dilemma_voss === 'abstain') {
           dialogue.name  = 'Voss';
           dialogue.pages = [
-            ['\u201cI\u2019ve been turning it over.\u201d',
-             '\u201cYou said it\u2019s not my decision.\u201d',
-             '\u201cYou\u2019re probably right.\u201d'],
-            ['\u201cBut not deciding is still a kind of deciding.\u201d',
-             '\u201cEvery day I don\u2019t say anything is a day I choose not to.\u201d'],
-            ['\u201cI haven\u2019t done anything yet.\u201d',
-             '\u201cI just needed someone else to know that I know.\u201d'],
+            ['“I’ve been turning it over.”',
+             '“You said it’s not my decision. You’re probably right.”'],
+            ['“But it’s my count, my stock book. Saying nothing is still saying something.”',
+             '“Every week the shelves come up short and I write it off, I’ve made a choice.”'],
+            ['“I haven’t done anything yet.”',
+             '“I just needed someone else to know that I know.”'],
           ];
           dialogue.open  = true;
           dialogue.page  = 0;

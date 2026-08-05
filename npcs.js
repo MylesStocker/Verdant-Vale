@@ -2497,7 +2497,7 @@ const SIMPLE_NPCS = [
     flag_required: null, flag_sets: null, action: null,
   },
 
-  // Corridor B1, Unit 3 — Maeve (young mother, child identified as rareborn)
+  // Corridor B1, Unit 3 — Maeve (young mother; drought hardship, money worries)
   {
     id:         'apt_maeve',
     name:       'Maeve',
@@ -2508,19 +2508,18 @@ const SIMPLE_NPCS = [
     facing:     'left',
     spriteType: 'patron',
     dialogue: [
-      ['\u201cSorry. She\u2019s sleeping.\u201d',
-       '\u201cShe\u2019s two. She sleeps badly.\u201d',
-       '\u201cWe\u2019re managing.\u201d'],
-      ['\u201cThe registrar came last week.\u201d',
-       '\u201cWhen a child is identified, they send a registrar. It\u2019s standard Imperial procedure. There\u2019s a form.\u201d',
-       '\u201cShe\u2019s on the Lumina register now. That\u2019s not \u2014 it doesn\u2019t mean anything changes right away. But it\u2019s a record.\u201d'],
-      ['\u201cOne in three hundred.\u201d',
-       '\u201cThat\u2019s the rate. It doesn\u2019t run in families. There\u2019s no reason it was her.\u201d',
-       '\u201cShe didn\u2019t know. She knocked over a cup and it just \u2014 stayed where it was, in the air, for a moment. And then it fell.\u201d',
-       '\u201cShe laughed. She thought it was funny.\u201d'],
-      ['\u201cPeople are kind, mostly. Orla upstairs brought food.\u201d',
-       '\u201cSome people get strange. Like she\u2019s different now. She\u2019s the same child she was a month ago.\u201d',
-       '\u201cThe Empire has a process. Lumina has a process. I keep telling myself that\u2019s a good thing.\u201d'],
+      ['“Sorry. She’s sleeping.”',
+       '“She’s two. She sleeps badly — it’s the heat. No rain in months and the room won’t cool.”',
+       '“We’re managing.”'],
+      ['“It’s the money I lie awake over, not her.”',
+       '“My husband cut reeds on the south beds. The drought took the beds, and the wage with them.”',
+       '“The rent falls due the same as ever. The landlord doesn’t care that the sky’s forgotten how to rain.”'],
+      ['“Everything’s dearer now.”',
+       '“A measure of grain costs half again what it did in spring. Eggs when there are eggs.”',
+       '“I’ve taken in mending to bring a little in. It’s not enough, but it’s something.”'],
+      ['“People are kind, mostly. Orla upstairs brought food.”',
+       '“I keep telling myself the rains always come back. They have to.”',
+       '“When the canal’s full again there’ll be work. We just have to last until then.”'],
     ],
     flag_required: null, flag_sets: null, action: null,
   },
@@ -5655,7 +5654,7 @@ const HOUSE_DATA = {
   },
   // ── Drenwick East Apartments — Corridor B1 ─────────────────────────────────
   // u1: Hazel (private tutor), u2: Druck (dredger, wrestling gambler),
-  // u3: Maeve (young mother, rareborn child), u4: Corra (market broker)
+  // u3: Maeve (young mother, drought/money worries), u4: Corra (market broker)
   drenwick_apt_b1_u1: {
     bed:    { x: 9.5 * TILE, y: 5.5 * TILE, canRest: false, inspect: 'A writing slope rests on the corner of the bed. Ink stains on the blanket.' },
     stove:  { x: 5.5 * TILE, y: 8.5 * TILE },
