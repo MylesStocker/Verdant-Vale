@@ -5402,10 +5402,15 @@ const DRENWICK_INN_PRICE = 30;
 // Seated behind the wider desk (cols 11–12, row 2) in the office interior.
 const SUPERVISOR = { x: 12 * TILE, y: 2.5 * TILE };
 
-// ─── Filing Cabinet ───────────────────────────────────────────────────────────
-// Matches the drawn cabinet position: drawOfficeFurniture uses fx = 12*TILE+4,
-// fy = 6*TILE+2, body 23×27 px — centre is approx (12.5*T, 6.5*T).
+// ─── Filing Cabinets ──────────────────────────────────────────────────────────
+// Matches the drawn cabinet position: drawOfficeFurniture uses fx = col*TILE+4,
+// fy = row*TILE+2, body 23×27 px — centre is approx ((col+0.5)*T, (row+0.5)*T).
 const FILING_CABINET  = { x: 12.5 * TILE, y: 6.5 * TILE };
+// Corvin's section — the cabinet by the north-wall window (col 4, row 2). This
+// is where the Weight Discrepancy note is actually filed; FILING_CABINET and
+// ESLA_CABINET both just redirect here during that step. Drawn identically to
+// the others by drawOfficeFurniture().
+const CORVIN_CABINET  = { x: 4.5 * TILE, y: 2.5 * TILE };
 
 // ─── Esla (office NPC) ────────────────────────────────────────────────────────
 // Second filing cabinet (lower-left area, col 3, row 9); Esla stands beside it.
@@ -5826,6 +5831,7 @@ window.DRENWICK_INNKEEPER = DRENWICK_INNKEEPER;
 window.DRENWICK_INN_PRICE = DRENWICK_INN_PRICE;
 window.SUPERVISOR         = SUPERVISOR;
 window.FILING_CABINET     = FILING_CABINET;
+window.CORVIN_CABINET     = CORVIN_CABINET;
 window.ESLA_CABINET       = ESLA_CABINET;
 window.ESLA               = ESLA;
 window.SLUICE_GATE        = SLUICE_GATE;

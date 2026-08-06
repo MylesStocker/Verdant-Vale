@@ -80,9 +80,18 @@ module.exports = {
     closeDialogue(g);
     assert.equal(g.run('cabinetCaseFlag'), false, 'pushing back should not silently set the flag');
 
-    // 4. Filing Cabinet, before deciding: the special filing scene, not the generic flavor text.
+    // 3b. The other cabinets redirect: the note files at Corvin's section, the
+    // cabinet by the window (CORVIN_CABINET) — the two decoys just point there.
     g.run(`player.x = 1*TILE; player.y = 1*TILE;`);
-    g.run(`player.x = 12.5*TILE; player.y = 6.5*TILE; player.facing = 'down';`);
+    g.run(`player.x = FILING_CABINET.x; player.y = FILING_CABINET.y; player.facing = 'down';`);
+    g.press('Enter');
+    assert.match(g.run('dialogue.pages.flat().join(" ")'), /by the window/, 'the far filing cabinet should redirect to the cabinet by the window');
+    assert.equal(g.run('choice.open'), false, 'the wrong cabinet must not open the filing choice');
+    closeDialogue(g);
+
+    // 4. Corvin's cabinet (by the window), before deciding: the special filing scene, not generic flavor.
+    g.run(`player.x = 1*TILE; player.y = 1*TILE;`);
+    g.run(`player.x = 4.5*TILE; player.y = 2.5*TILE; player.facing = 'down';`);
     g.press('Enter');
     assert.equal(g.run('dialogue.open'), true);
     assert.match(g.run('dialogue.pages[0][0]'), /countersigned note/, 'cabinet should show the filing scene once the note is signed');
@@ -99,7 +108,7 @@ module.exports = {
 
     // 6. Re-approach: the cabinet must still be retriable (not a one-shot that broke itself).
     g.run(`player.x = 1*TILE; player.y = 1*TILE;`);
-    g.run(`player.x = 12.5*TILE; player.y = 6.5*TILE; player.facing = 'down';`);
+    g.run(`player.x = 4.5*TILE; player.y = 2.5*TILE; player.facing = 'down';`);
     g.press('Enter');
     assert.equal(g.run('dialogue.open'), true, 'cabinet should be re-triable after declining once');
     closeDialogue(g, 3);
@@ -111,7 +120,7 @@ module.exports = {
 
     // 7. Filing Cabinet, revisited: the original "disturbed" flavor line now fires.
     g.run(`player.x = 1*TILE; player.y = 1*TILE;`);
-    g.run(`player.x = 12.5*TILE; player.y = 6.5*TILE; player.facing = 'down';`);
+    g.run(`player.x = 4.5*TILE; player.y = 2.5*TILE; player.facing = 'down';`);
     g.press('Enter');
     assert.match(g.run('dialogue.pages[0][0]'), /disturbed/, 'cabinet should show the original "disturbed" line once cabinetCaseFlag is set');
     closeDialogue(g);

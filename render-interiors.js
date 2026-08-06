@@ -1859,6 +1859,49 @@ function drawOfficeFurniture() {
     ctx.textAlign = 'left';
   } // end calwick-only Esla cabinet
 
+  // ── North-wall window (col 4) ─────────────────────────────────────────────
+  // A small leaded window set into the north wall, left of the field manual.
+  // Corvin's filing cabinet sits directly beneath it — "the cabinet by the
+  // window" the Weight Discrepancy quest points to.
+  {
+    const wx = 4 * TILE + 16;   // window centre x (col 4)
+    const wy = TILE + 12;       // within the row-1 wall face
+    ctx.fillStyle = '#989080'; ctx.fillRect(wx - 14, wy - 13, 28, 22);  // stone surround / lintel
+    ctx.fillStyle = '#787068'; ctx.fillRect(wx - 11, wy - 10, 22, 16);  // inner reveal (shadow depth)
+    ctx.fillStyle = '#b8ccd4'; ctx.fillRect(wx - 10, wy -  9, 20, 14);  // sky through glass
+    ctx.fillStyle = '#e9d7a0'; ctx.fillRect(wx - 10, wy -  1, 20,  6);  // warm dawn glow low in the pane
+    ctx.fillStyle = '#fdf1c6'; ctx.fillRect(wx -  6, wy,      12,  4);  // bright sun catch
+    ctx.fillStyle = '#686058';
+    ctx.fillRect(wx -  1, wy -  9,  2, 14);                              // lead vertical post
+    ctx.fillRect(wx - 10, wy -  2, 20,  2);                             // lead horizontal rail
+    ctx.fillStyle = '#d8e8ee';
+    ctx.fillRect(wx -  9, wy -  8,  5,  3);                             // upper-pane sheen
+    ctx.fillRect(wx +  2, wy -  8,  5,  3);
+    ctx.fillStyle = '#b0a898'; ctx.fillRect(wx - 14, wy +  9, 28,  4);  // stone sill
+    ctx.fillStyle = '#c8beb0'; ctx.fillRect(wx - 14, wy +  9, 28,  1);  // sill top highlight
+  }
+
+  // ── Corvin's filing cabinet (col 4, row 2 — beneath the window) ───────────
+  // Drawn identically to the two filing cabinets above.
+  {
+    const fx = 4 * TILE + 4;
+    const fy = 2 * TILE + 2;
+    ctx.fillStyle = '#788898'; ctx.fillRect(fx, fy, 23, 27);   // cabinet body
+    ctx.fillStyle = '#9ab0c0'; ctx.fillRect(fx, fy, 23, 4);    // top lid / face
+    ctx.fillStyle = '#506070'; ctx.fillRect(fx + 21, fy, 2, 27); // right-side shadow
+    for (let d = 0; d < 3; d++) {
+      const dy = fy + 5 + d * 7;
+      ctx.fillStyle = '#687888'; ctx.fillRect(fx + 2, dy, 19, 5);   // drawer recess
+      ctx.fillStyle = '#c8d0d8'; ctx.fillRect(fx + 7, dy + 2, 8, 2); // handle
+      ctx.fillStyle = '#a0b0b8'; ctx.fillRect(fx + 7, dy + 3, 8, 1);
+    }
+    ctx.fillStyle = '#384858';
+    ctx.font = '5px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('FILES', fx + 11, fy + 9);   // label on top drawer
+    ctx.textAlign = 'left';
+  }
+
   // ── Imperial Rank Chart (east wall, col 13, rows 3–8) ─────────────────────
   // A framed organizational hierarchy showing the five tiers of IJC field staff.
   // Painted on linen pinned to a board — visible from across the office.

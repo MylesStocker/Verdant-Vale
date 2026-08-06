@@ -251,6 +251,7 @@ function canWalk(cx, cy) {
     if (currentTownId === 'calwick') {
       if (Math.abs(cx - SUPERVISOR.x) < 18 && Math.abs(cy - SUPERVISOR.y) < 18) return false;
       if (Math.abs(cx - FILING_CABINET.x) < 18 && Math.abs(cy - FILING_CABINET.y) < 18) return false;
+      if (Math.abs(cx - CORVIN_CABINET.x) < 18 && Math.abs(cy - CORVIN_CABINET.y) < 18) return false;
       if (Math.abs(cx - ESLA_CABINET.x) < 18 && Math.abs(cy - ESLA_CABINET.y) < 18) return false;
       if (Math.abs(cx - ESLA.x) < 18 && Math.abs(cy - ESLA.y) < 18) return false;
     }

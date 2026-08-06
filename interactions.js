@@ -3104,21 +3104,22 @@ function interactCalwickOffice() {
       interactSupervisor();
       return true;
     }
-    const fx = player.x - FILING_CABINET.x;
-    const fy = player.y - FILING_CABINET.y;
-    if (Math.sqrt(fx * fx + fy * fy) < TALK_RADIUS) {
-      // Weight Discrepancy quest: once Corvin has countersigned but the
-      // note isn't filed yet, this cabinet is the actual decision point —
-      // not Aldric's desk. See quests.js's weight_note_signed comment.
+    const kx = player.x - CORVIN_CABINET.x;
+    const ky = player.y - CORVIN_CABINET.y;
+    if (Math.sqrt(kx * kx + ky * ky) < TALK_RADIUS) {
+      // Corvin's section — the cabinet by the north-wall window. Weight
+      // Discrepancy quest: once Corvin has countersigned but the note isn't
+      // filed yet, THIS cabinet is the actual decision point (FILING_CABINET and
+      // ESLA_CABINET just redirect here). See quests.js's weight_note_signed comment.
       if (weight_note_signed && !cabinetCaseFlag) {
         dialogue.name = 'Filing Cabinet';
         dialogue.pages = [
-          ['Corvin\u2019s countersigned note, still folded in your pocket.'],
+          ['Corvin’s countersigned note, still folded in your pocket.'],
           ['The drawer marked for his section is unlocked.', 'It would take a second to slide the note in and no one would ever ask.'],
         ];
         dialogue.callbacks = [function() {
           choice.title     = 'Filing Cabinet';
-          choice.options   = ['File it with Corvin\u2019s other notes', 'Leave it on top of the stack', 'This isn\u2019t your job — find Aldric instead'];
+          choice.options   = ['File it with Corvin’s other notes', 'Leave it on top of the stack', 'This isn’t your job — find Aldric instead'];
           choice.cursor    = 0;
           choice.callbacks = [
             function fileProper() {
@@ -3142,7 +3143,7 @@ function interactCalwickOffice() {
               dialogue.name  = '';
               dialogue.pages = [
                 ['You set it on top of the stack instead.',
-                 'Someone will notice it wasn\u2019t there yesterday. That\u2019s not really your problem.'],
+                 'Someone will notice it wasn’t there yesterday. That’s not really your problem.'],
               ];
               dialogue.open  = true;
               dialogue.page  = 0;
@@ -3151,7 +3152,7 @@ function interactCalwickOffice() {
               dialogue.name  = '';
               dialogue.pages = [
                 ['You put the note away instead.',
-                 'Whatever Aldric wants done with it, it\u2019s still sitting in your pocket, unfiled.'],
+                 'Whatever Aldric wants done with it, it’s still sitting in your pocket, unfiled.'],
               ];
               dialogue.open  = true;
               dialogue.page  = 0;
@@ -3166,6 +3167,19 @@ function interactCalwickOffice() {
       dialogue.name = 'Filing Cabinet';
       dialogue.pages = cabinetCaseFlag
         ? [['The files have been disturbed.', 'Someone was looking for something.']]
+        : randomCabinetPages();
+      dialogue.open = true;
+      dialogue.page = 0;
+      return true;
+    }
+    const fx = player.x - FILING_CABINET.x;
+    const fy = player.y - FILING_CABINET.y;
+    if (Math.sqrt(fx * fx + fy * fy) < TALK_RADIUS) {
+      // Not the quest cabinet — during the filing step, point the player at
+      // Corvin’s section by the window (CORVIN_CABINET). Otherwise flavour.
+      dialogue.name = 'Filing Cabinet';
+      dialogue.pages = weight_note_signed && !cabinetCaseFlag
+        ? [['Not this drawer.', 'Corvin’s section is the cabinet by the window.']]
         : randomCabinetPages();
       dialogue.open = true;
       dialogue.page = 0;
