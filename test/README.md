@@ -638,6 +638,22 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   id; and an identity-sensitive branch is disconnected from its id — each
   mutation undone in a `finally`, with a final assert that the shared context is
   left clean. Runtime + validation.
+- `57-bullet-time` — the combat-only Bullet Time evade consumable.
+- `58-regional-content-split` — the structural contract for the regional split
+  of `maps.js` / `npcs.js` / `interactions.js` into 16 `content/*` files. Proves
+  all 16 files are in `index.html` in the correct order (regional maps before
+  `maps.js`, regional NPCs before `npcs.js`, regional interactions before
+  `interactions.js`, which loads last); the headless harness loads the same set
+  (it parses `index.html`, so there is only **one** script order — no separate
+  harness list to keep in sync); every prescribed fragment exists
+  (`CALWICK_NPCS…`, `CALWICK_MAP_FEATURES…`, `SHARED_NPCS`, `SHARED_MAP_FEATURES`,
+  `mergeMapFeatureFragments`); duplicate `MAP_FEATURES` map ownership throws;
+  representative maps/NPCs/features/handlers from every region resolve through
+  the authoritative aggregates; per-map NPC and feature order is preserved;
+  removing a regional script fails a presence check (break-then-restore); a map
+  from each region renders; and save/load restores a location from each region.
+  This is the structural distillation of a fuller before/after equivalence
+  manifest run once during the split (not committed).
 
 ## Known simplifications (see comments at the top of each affected test)
 

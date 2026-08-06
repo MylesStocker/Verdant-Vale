@@ -592,7 +592,26 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
     rename + break-then-restore checks); tests 19/28/34/35 migrated from
     `BATTLE_SPRITE_NAMES` to the id-keyed table.
 
-Each item shipped with tests (27-30, 34-41, 56), a clean `validateGameData()`
+18. **Regional content split** (`content/`) — the three largest authored files
+    were split by region into 16 thin content files, strictly code-neutral (no
+    gameplay/behaviour change): `maps.js` 2528→357, `npcs.js` 5844→2505,
+    `interactions.js` 6373→2030 lines. Region grids/NPCs/interactions now live in
+    `content/{maps,npcs,interactions}/*`, loaded before their facade in
+    `index.html`. The facades keep the authoritative aggregates: `MAP_REGISTRY`
+    (unchanged literal), `SIMPLE_NPCS`/`NPC_REGISTRY`, `MAP_FEATURES` (now built by
+    `mergeMapFeatureFragments([...])`, which throws on duplicate map ownership),
+    and the `INTERACT_HANDLERS`/`OVERWORLD_INTERACT_HANDLERS` priority tables.
+    `interactWildsAndOutposts()` was split into the four consecutively-registered
+    `interact{CalwickVale,ThornmereWilds,DrenwickApproach,NorthBasinWilds}()`
+    handlers. Proven behaviour-neutral by a before/after equivalence manifest
+    (MAP_REGISTRY, map tile hashes, per-map NPC order + NPC fingerprints,
+    `NPC_REGISTRY`, per-map `MAP_FEATURES` order, handler tables, stable-ID
+    inventories, transition audit, save version/bindings all identical). Covered
+    by **test 58**. `SAVE_VERSION` unchanged (3); the only structural delta is the
+    mandated 20→23 `OVERWORLD_INTERACT_HANDLERS` entries from the wilds split. See
+    architecture.md "Regional content files".
+
+Each item shipped with tests (27-30, 34-41, 56, 58), a clean `validateGameData()`
 run, and a clean transition audit (all new enter/exit functions and
 transition tiles are registered in `test/transition-audit.js`).
 

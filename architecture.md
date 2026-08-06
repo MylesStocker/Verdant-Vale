@@ -92,7 +92,7 @@ The rule this codebase actually follows:
 | `combat.js` | Equip helpers (`effectiveAtk`/etc), enemy stat templates, `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
 | `render-battle.js` | Battle-screen sprite drawing for the player and every enemy type, `drawBattleGenericEnemy()` (the fallback silhouette for ids opted into `ENEMY_GENERIC_SPRITE_IDS`), the id-keyed `ENEMY_SPRITE_DISPATCH` table (`enemy.id → { draw, dy }`) that `drawBattleEnemy()` dispatches on, and `drawCombat()` (the action menu / item subscreen / message / victory / defeat UI). | Combat *logic* (damage, turn order, state transitions) lives in `combat.js` — this file only reads `combat` state and draws it. |
 | `bootstrap.js` | The one-time new-game startup state (starting map/position, intro dialogue). | Must stay the last file loaded before `interactions.js` — see ordering rules above. Don't add anything here beyond one-time startup values. |
-| `interactions.js` | `handleInteract()` (the interact-key dispatcher — a priority orchestrator over named location handlers, see below), `interactSimpleNPCs()`, and the `MAP_FEATURES` content-authoring registry (`tryMapFeatures()`, `checkMapFeatureTriggers()`, `evaluateMapFeatureCondition()`, `resolveMapFeaturePages()`, `debugMapFeatureInfo()`). Loaded last since `update()`/`handleInteract()` are called at runtime, by which point every script has finished loading. | See "Interactions" below for the full priority story. This is by far the largest file in the codebase. The *dispatch* is now a clean priority orchestrator (`INTERACT_HANDLERS` / `OVERWORLD_INTERACT_HANDLERS`, first-match-wins with explicit consumption), but the per-location behaviour it routes to — chests, quest triggers, boss encounters, town-specific dialogue branches — is still large, hand-written and one-off, so the physical file remains a maintainability hotspot despite the improved dispatch. `MAP_FEATURES` doesn't replace those handlers — it's the lowest-priority generic fallback, checked only if nothing consumed the press. |
+| `interactions.js` | `handleInteract()` (the interact-key dispatcher — a priority orchestrator over named location handlers, see below), `interactSimpleNPCs()`, and the `MAP_FEATURES` content-authoring registry (`tryMapFeatures()`, `checkMapFeatureTriggers()`, `evaluateMapFeatureCondition()`, `resolveMapFeaturePages()`, `debugMapFeatureInfo()`). Loaded last since `update()`/`handleInteract()` are called at runtime, by which point every script has finished loading. | See "Interactions" below for the full priority story. This is by far the largest file in the codebase. The *dispatch* is now a clean priority orchestrator (`INTERACT_HANDLERS` / `OVERWORLD_INTERACT_HANDLERS`, first-match-wins with explicit consumption), but the per-location behaviour it routes to — chests, quest triggers, boss encounters, town-specific dialogue branches — is still large, hand-written and one-off, so the physical file remains a maintainability hotspot despite the improved dispatch. `MAP_FEATURES` doesn't replace those handlers — it's the lowest-priority generic fallback, checked only if nothing consumed the press. **Region-specific interaction functions and `MAP_FEATURES` fragments now live in `content/interactions/*` (see "Regional content files"); `interactions.js` keeps the generic engine, the merge (`mergeMapFeatureFragments`), the cross-region handlers, and the priority tables.** |
 
 ### Content / data files
 
@@ -102,13 +102,60 @@ matter just as much for where new content goes:
 | File | Owns |
 |---|---|
 | `tiles.js` | Tile pixel size (`TILE`), every numeric tile-id constant, `WALKABLE[]`, `TILE_PROPERTIES`, the tile helper functions (`getTileProperties`/`getTileName`/`isTileWalkable`/`isTileEncounterEligible`/`tileHasTag`/`isWaterTile`/`isRoadTile`/`isTransitionTile`), and the debug-only `DEBUG_TILE_NAMES`/`debugTileName()`. |
-| `maps.js` | Every 16×15 map-grid constant, `MAP_REGISTRY`, and `mapRegistryId()`. |
+| `maps.js` | The **facade** for maps: `MAP_REGISTRY` (authoritative literal + key order), every `window.*` map export, the Sunken Gallery registry loop, `mapRegistryId()`, and the shared/special maps that don't belong to one region (`MAP_N1`/`MAP_N2`, `APARTMENT_CORRIDOR_MAP`, `SMALL_APARTMENT_MAP`, `HOUSE_INTERIOR_MAP`, `DREAM_MAP`). Region-specific map grids live in `content/maps/*` (below), declared **before** `maps.js`. |
 | `data.js` | `MAP_METADATA`, the enemy-template pools (`ENEMY_TEMPLATES`, `DUNGEON_ENEMY_TEMPLATES`, etc), and most per-map `*_ITEMS` arrays. |
-| `npcs.js` | `SIMPLE_NPCS` (every data-driven NPC) and `NPC_ACTIONS`. |
+| `npcs.js` | The **facade** for NPCs: `NPC_ACTIONS`, `NPC_REGISTRY`, `HOUSE_DOORS`, `HOUSE_DATA`, the shared named-position/workstation objects, `SHARED_NPCS` (generic house/apartment residents + genuinely cross-region NPCs), and the authoritative `SIMPLE_NPCS = [...CALWICK_NPCS, ...THORNMERE_WILDS_NPCS, ...DRENWICK_TOWN_NPCS, ...DRENWICK_INTERIOR_NPCS, ...SOUTH_RUINS_NPCS, ...SHARED_NPCS]` (concatenation only — no source-order tags, no sorting). Regional NPC arrays live in `content/npcs/*`, declared **before** `npcs.js`. |
 | `items.js` | `ITEM_REGISTRY`, `createItem()`, `grantItem()`. **Rule: define item properties in `ITEM_REGISTRY` and grant items with `createItem(name)`/`grantItem(name)` — never hand-write inventory item objects at runtime.** `loadGame()` re-creates saved items from the registry by name, so a registry edit propagates to existing saves. |
 | `shops.js` | `SHOP_REGISTRY`. |
 | `quests.js` | Quest-flag variables, `syncQuestFlagsToWindow()`, and quest-progression helper functions. |
 | `validation.js` | `validateGameData()` and its ten `validate*()` category functions — see "Validation" below. |
+
+### Regional content files (`content/`)
+
+The three largest authored-content files were split by **region** so each is a
+thin facade over region files that only *declare* content. There are exactly 16
+regional files and five regions (Calwick, Thornmere Wilds, Drenwick, South
+Ruins, North Basin — Drenwick further split town vs interior for NPCs and
+interactions):
+
+```
+content/maps/{calwick,thornmere-wilds,drenwick,south-ruins,north-basin}-maps.js
+content/npcs/{calwick,thornmere-wilds,drenwick-town,drenwick-interior,south-ruins}-npcs.js
+content/interactions/{calwick,thornmere-wilds,drenwick-town,drenwick-interior,south-ruins,north-basin}-interactions.js
+```
+
+`index.html` loads them in a fixed order: the five map files **before** `maps.js`,
+the five NPC files (after `data.js`) **before** `npcs.js`, and the six interaction
+files (after `bootstrap.js`) **before** `interactions.js`. The facades reference
+the region-declared constants; because classic `<script>` tags share one global
+scope, a `const` declared by an earlier file is visible to the later facade.
+
+**Authoring rules:**
+
+- **Maps** go in the region's `*-maps.js`; `MAP_REGISTRY` is still edited in
+  `maps.js` (keep its literal + key order authoritative). Generated-room
+  builders and adjacent `*_ITEMS` arrays move with their region.
+- **NPCs** go in the region's `*-npcs.js` array (`CALWICK_NPCS`, …). `npcs.js`
+  derives `NPC_REGISTRY` and assembles `SIMPLE_NPCS` from those arrays plus
+  `SHARED_NPCS`. Within a region, keep on-map NPCs in their original relative
+  order so per-map filtering of `SIMPLE_NPCS` is byte-identical.
+- **Interaction functions and `MAP_FEATURES` entries** go in the region's
+  `*-interactions.js` (`const CALWICK_MAP_FEATURES = { … }`, …). `interactions.js`
+  keeps the generic engine, `interactHouseInterior()`, the cross-region
+  `interactTownOutdoor()`, `SHARED_MAP_FEATURES`, and builds `MAP_FEATURES` via
+  `mergeMapFeatureFragments([...])` — **which throws on duplicate map ownership**
+  rather than silently overwriting.
+- **Handler priority** stays explicitly owned by `interactions.js`:
+  `INTERACT_HANDLERS` and `OVERWORLD_INTERACT_HANDLERS` are hand-written there and
+  reference the regional functions (not flattened from arrays). The former
+  region-mixing `interactWildsAndOutposts()` was split into
+  `interactCalwickVale()` / `interactThornmereWilds()` / `interactDrenwickApproach()`
+  / `interactNorthBasinWilds()` (the last is the catch-all with the generic tail),
+  inserted consecutively at the same priority slot.
+- **Shared content stays in the facade only when it genuinely crosses regions**
+  (generic house/apartment residents and maps, cross-region NPC schedules,
+  `interactTownOutdoor`, the apartment-corridor signage). Do not add a new
+  regional bucket without an explicit architectural decision.
 
 ## Maps: the 16×15 grid, `MAP_REGISTRY`, `MAP_METADATA`
 
