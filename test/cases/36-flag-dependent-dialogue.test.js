@@ -40,9 +40,11 @@ module.exports = {
       ['rhen',                  2, 'window.upper_reach_visit_day = day;',      'pale mud on your boots'],
       ['edda',                  2, 'reservoir_quest_started = true;',      'even reached the board'],
       // NOTE: Cres was previously flag-dependent here (keyed on the permanent
-      // basin_chamber_seen discovery flag). Her dialogue has since been rewritten
-      // to a fixed set of pages with no flag branch (see npcs.js), so she is no
-      // longer part of this flag-dependent contract and is intentionally omitted.
+      // basin_chamber_seen discovery flag). Her dialogue was rewritten to fixed
+      // pages, which orphaned basin_chamber_seen (set but never read). Aldric
+      // (the Calwick office archivist) now reads it: once the player has stood
+      // in the odourless basin chamber, he alone notices and files it.
+      ['aldric',                2, 'window.basin_chamber_seen = true;',    'folio for such places'],
       ['drenwick_inn_1',        2, 'reservoir_quest_started = true;',      'reports stopped coming'],
       ['harbormaster_assistant', 4, 'window.sunken_gallery_visit_day = day;', 'bottom of a channel'],
       ['guild_registrar',       3, 'reservoir_quest_started = true;',      'documentation class three'],

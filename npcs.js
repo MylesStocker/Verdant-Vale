@@ -87,8 +87,16 @@ const SIMPLE_NPCS = [
     get dialogue() {
       if (BOSS.defeated) return [];
       return [
-        ['\u201cThree days now. Came for the garrison cache.', 'Found more than old grain down here.\u201d'],
-        ['\u201cThing in the lower vault went quiet yesterday.', 'Might be clear now.  Might just be waiting.\u201d'],
+        ['“Three days I’ve been down here. Came for the garrison cache — this was a Calwick outpost once. A frontier post, back when the border still ran south of the fens.”',
+         '“They kept a paychest and a supply store. Coin that was never spent, if the old logs run honest.”'],
+        ['“The garrison went quiet centuries ago. A company was sent down to clear the place and not all of them came back up.”',
+         '“The prefect had the passage sealed and struck it off the maps. There’s a garrison log still down here that says as much, if you get that deep.”'],
+        ['“So why’s it open now? The drought. The water’s dropped, the old drains ran dry — and a sealed door stops being sealed once the floor under it cracks.”',
+         '“Half the fen is giving up what it swallowed. This one just happens to have a strongroom at the bottom of it.”'],
+        ['“I’ve found more than old grain, mind. Marks on the walls that aren’t Imperial. Doors that were bricked over from the inside.”',
+         '“Somebody down here didn’t want out. Or didn’t want what was behind them getting out.”'],
+        ['“The thing in the lower vault went quiet yesterday. Might be it’s moved on. Might be it’s just learned to wait.”',
+         '“I’m not the one going down to find out. You look like you might be. Rather you than me.”'],
       ];
     },
     flag_required: null,
@@ -129,6 +137,16 @@ const SIMPLE_NPCS = [
          'Four supervisors have sat that desk. I\u2019ve outlasted every one, and never once wanted it.\u201d'],
         ['\u201cMy father ran the equipment stores at a road post. He taught me a wrong inventory kills as sure as a wrong blade.\u201d',
          '\u201cYou\u2019re going up to the basin. Check your kit before you do. That isn\u2019t clerk\u2019s fuss \u2014 it\u2019s the one thing I\u2019m certain of.\u201d']
+      );
+      // The basin chamber: once the player has stood inside the unmarked, odourless
+      // chamber on the reach (basin_chamber_seen), the office's exacting archivist
+      // alone notices, and files it with the other no-record places. Read via
+      // window.* — it is a window-only flag, with no lexical binding to read bare.
+      if (window.basin_chamber_seen) pages.push(
+        ['“You’ve been in that chamber out on the basin — the one the mud won’t cross into.”',
+         '“I can tell. A season on the reach and a coat never stops stinking of peat; yours has gone clean in patches. That room takes the smell off a person. Nothing natural does that.”'],
+        ['“I keep a folio for such places. No builder on record, no levy ever raised, no note of the ground ever being broken.”',
+         '“I’ll add the basin chamber to it. Then I’ll file it, and it won’t be acknowledged — they never are. But it will be written down. That is my part.”']
       );
       return pages;
     },
