@@ -2648,36 +2648,52 @@ function interactTownOutdoor() {
     const fsx = player.x - DRENWICK_FISHING_SPOT.x;
     const fsy = player.y - DRENWICK_FISHING_SPOT.y;
     if (Math.sqrt(fsx * fsx + fsy * fsy) < TALK_RADIUS) {
+      const rodPower = bestFishingPower();
+      if (rodPower === 0) {
+        // No rod — you cannot fish here at all.
+        dialogue.name  = '';
+        dialogue.pages = [
+          ['The water here looks fishable — smelt in the shallows, eel deeper down.',
+           'But your hands are empty. You would need a fishing rod.'],
+        ];
+        dialogue.open  = true;
+        dialogue.page  = 0;
+        return true;
+      }
       choice.title     = '';
       choice.options   = ['Cast line', 'Leave'];
       choice.cursor    = 0;
       choice.callbacks = [
         function cast() {
-          const roll = Math.random();
+          // Catch odds scale with the rod's power (Old Fishing Rod = 1). The rare
+          // Sealed Letter is a one-time flavour catch — if it is already in the
+          // bag, that roll comes up empty rather than handing out a duplicate.
+          let outcome = rollFishingOutcome(rodPower);
+          if (outcome === 'letter' && stats.items.some(i => i.name === 'Sealed Letter')) outcome = 'nothing';
           dialogue.name = '';
           dialogue.open = true;
           dialogue.page = 0;
-          if (roll < 0.40) {
+          if (outcome === 'nothing') {
             dialogue.pages = [['You cast the line.', 'The water sits still.', 'Nothing bites.']];
-          } else if (roll < 0.65) {
+          } else if (outcome === 'smelt') {
             grantItem('River Smelt');
             dialogue.pages = [['Something on the line.', 'River Smelt. Small, cold, indignant.', 'Added to items.']];
-          } else if (roll < 0.85) {
+          } else if (outcome === 'eel') {
             grantItem('Canal Eel');
             dialogue.pages = [['Heavy on the line.', 'Canal Eel. Long, dark, unhappy about it.', 'Added to items.']];
-          } else if (roll < 0.97) {
+          } else if (outcome === 'boot') {
             grantItem('Old Boot');
             dialogue.pages = [['Heavy on the line.', 'You pull it up.', 'Old Boot. Added to items.']];
-          } else {
+          } else { // 'letter'
             grantItem('Sealed Letter');
             dialogue.pages = [
               ['Something catches on the line.', 'You pull it up carefully.'],
               ['A sealed letter. Still mostly dry.', 'The seal is already broken.', 'You unfold it.'],
-              ['TRANSIT AUTHORIZATION \u2014 VOID',
+              ['TRANSIT AUTHORIZATION — VOID',
                'Bearer: [name removed].',
                'Route: Drenwick to [destination removed].',
                'Note: Do not proceed. Return to sender.'],
-              ['The sender\u2019s address has been cut away.', 'Added to items.'],
+              ['The sender’s address has been cut away.', 'Added to items.'],
             ];
           }
         },
@@ -4988,18 +5004,18 @@ function interactHouseInterior() {
       return true;
     }
   }
-  // ── Floor sparkle — one-time Tweezers pickup ───────────────────────────
+  // ── Floor sparkle — one-time Old Fishing Rod pickup ────────────────────
   if (hd && hd.sparkle && !hd.sparkle.taken) {
     const spdx = player.x - hd.sparkle.x;
     const spdy = player.y - hd.sparkle.y;
     if (Math.sqrt(spdx * spdx + spdy * spdy) < TALK_RADIUS) {
       hd.sparkle.taken = true;
-      grantItem('Tweezers');
+      grantItem('Old Fishing Rod');
       dialogue.name  = '';
       dialogue.pages = [
-        ['Something glints between the floorboards.',
-         'You work it loose — a small pair of steel tweezers, still bright.'],
-        ['Got Tweezers.'],
+        ['Something juts out from behind the skirting board.',
+         'You work it free — a battered old fishing rod, its line frayed but whole.'],
+        ['Got Old Fishing Rod. Worn out, but it will still cast.'],
       ];
       dialogue.open = true;
       dialogue.page = 0;

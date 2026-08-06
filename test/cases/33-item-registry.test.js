@@ -122,16 +122,28 @@ module.exports = {
       const g = createContext();
       g.press('Enter');
       g.press('Enter');
+      // Without a rod you cannot fish: the cast choice must NOT open.
       g.run(`
         inTown = true; currentTownId = 'drenwick'; activeMap = DRENWICK_WATERFRONT_MAP;
         player.x = DRENWICK_FISHING_SPOT.x; player.y = DRENWICK_FISHING_SPOT.y;
+        stats.items = stats.items.filter(i => i.type !== 'rod');
         interactTownOutdoor();
       `);
-      assert.equal(g.run('choice.open'), true, 'fishing choice should open');
-      // Pin the catch roll to the River Smelt band (0.40 <= r < 0.65), then restore.
+      assert.equal(g.run('choice.open'), false, 'fishing must not open without a rod');
+      assert.ok(g.run('dialogue.pages.flat().join(" ")').includes('fishing rod'),
+        'the no-rod message should name the missing rod');
+      g.run('dialogue.open = false; choice.open = false;');
+      // Now give the player the Old Fishing Rod and cast.
+      g.run(`
+        stats.items.push(createItem('Old Fishing Rod'));
+        interactTownOutdoor();
+      `);
+      assert.equal(g.run('choice.open'), true, 'fishing choice should open when the player holds a rod');
+      // Old Fishing Rod (power 1) bands: nothing [0,.55) boot [.55,.70)
+      // smelt [.70,.90) eel [.90,.97) letter [.97,1). Pin into the smelt band.
       g.run(`
         const realRandom = Math.random;
-        Math.random = () => 0.5;
+        Math.random = () => 0.75;
         try { choice.callbacks[0](); } finally { Math.random = realRandom; }
       `);
       const fish = JSON.parse(g.run("JSON.stringify(stats.items.find(i => i.name === 'River Smelt'))"));
@@ -214,7 +226,7 @@ module.exports = {
     {
       const g = createContext();
       const flags = g.run(`
-        ['Schilling', 'Cat-Shaped Key', 'Thank-You Note', 'Letter from Netto', 'Dispatch Letter', 'Tweezers']
+        ['Schilling', 'Cat-Shaped Key', 'Thank-You Note', 'Letter from Netto', 'Dispatch Letter', 'Old Fishing Rod']
           .every(n => ITEM_REGISTRY[n] && ITEM_REGISTRY[n].questItem === true && ITEM_REGISTRY[n].keyItem === true);
       `);
       assert.equal(flags, true, 'all six protected items must carry questItem + keyItem in the registry');

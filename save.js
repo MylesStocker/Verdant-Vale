@@ -474,7 +474,7 @@ function saveGame() {
     openedChestIds:     openedChestIdsForSave(),
     // ── Home chest stored gold — a value container, NOT an openable chest ────
     homeChestGold:           HOUSE_DATA.player_house.chest.gold,
-    // Abandoned Drenwick apartment (c1_u4) — searchable dresser + Tweezers sparkle
+    // Abandoned Drenwick apartment (c1_u4) — searchable dresser + Old Fishing Rod sparkle
     abandonedAptDresserLooted: HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted,
     abandonedAptSparkleTaken:  HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken,
     // ── Status effects ────────────────────────────────────────────────────

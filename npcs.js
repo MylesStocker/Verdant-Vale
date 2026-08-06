@@ -3040,7 +3040,7 @@ const SIMPLE_NPCS = [
   // Corridor C1, Unit 4 — abandoned (no resident). This unit was always the
   // block’s odd one out (originally sketched as storage) and is now dressed as
   // a moved-out apartment: a searchable dresser and a glint on the floor that
-  // yields the Tweezers key item. See HOUSE_DATA.drenwick_apt_c1_u4 for the
+  // yields the Old Fishing Rod. See HOUSE_DATA.drenwick_apt_c1_u4 for the
   // furniture and interactions.js for the dresser / sparkle handlers.
 
   // Corridor C2, Unit 4 — Yoren (with Josse; opposite temperament)
@@ -5739,7 +5739,7 @@ const HOUSE_DATA = {
   },
   // Abandoned unit — the tenant moved out and little was left behind: a stripped
   // cot, a cold stove, a dresser still worth searching, and a glint on the boards
-  // (the Tweezers key item). looted/taken are one-shot flags, persisted in save.js.
+  // (the Old Fishing Rod). looted/taken are one-shot flags, persisted in save.js.
   drenwick_apt_c1_u4: {
     bed:     { x: 5.5 * TILE, y: 5.5 * TILE, canRest: false, inspect: 'A stripped cot — no bedding left. A pale rectangle on the wall above it, where a picture used to hang.' },
     stove:   { x: 9.5 * TILE, y: 8.5 * TILE },
