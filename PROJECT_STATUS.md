@@ -22,13 +22,13 @@ individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
 
-- **54 tests** (`test/cases/01-…54-`), `node test/run.js` — all passing.
+- **59 tests** (`test/cases/01-…59-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
-  menu's "Validate Data" row) — **0 errors, 3 warnings**, all intentional
+  menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
   (see below), across 101 maps, 101 metadata entries, 24,240 tile cells, 94
   edge transitions, 171 NPCs, 112 item placements, 105 enemy templates, 596
   dialogue/text entries, 172 save-flag checks, 63 map features, 72 pickup ids,
@@ -610,8 +610,29 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
     by **test 58**. `SAVE_VERSION` unchanged (3); the only structural delta is the
     mandated 20→23 `OVERWORLD_INTERACT_HANDLERS` entries from the wilds split. See
     architecture.md "Regional content files".
+19. **Enemy validation + balance report unified on the pool registries** —
+    strictly code-neutral tooling/validation refactor (no enemy, encounter, map,
+    combat, reward, or balance change). `ENEMY_TEMPLATE_POOLS` (combat.js) became
+    the **sole** encounter-pool inventory, an array of `{ id, label, templates }`
+    with stable authored `pool_<snake>` ids (16 pools). Both consumers now read it
+    directly: `validateEnemies()` dropped its hand-maintained `*_ENEMY_TEMPLATES`
+    list and iterates the live registry (adding pool-id/one-array-per-id/empty/
+    reachability checks against `MAP_METADATA` both ways), and
+    `test/balance-report.js` deleted its parallel `POOLS`/`SPECIALS` tables,
+    deriving pools + scripted enemies from the registries and referencing them in
+    scenarios by **id** (validated before simulation; unknown id → non-zero exit).
+    Every registered pool/scripted enemy now appears automatically — curated
+    scenario or a default auto-coverage run — which newly surfaced the 5
+    previously-uncovered pools (Sluice top/sealed, North Basin, Sunken Gallery,
+    Upper Reach) and Swamp Donkey; **all pre-existing balance numbers are
+    byte-identical**. The report is now importable (helpers exported; CLI guarded
+    by `require.main`). Also fixed a latent duplicate-id check so a template
+    repeated for spawn weight / shared across pools is no longer miscounted.
+    Covered by **test 59** (9 contract points + 6 break-then-restore checks).
+    `SAVE_VERSION` unchanged (3). See architecture.md "Stable identity …" and
+    "Validation".
 
-Each item shipped with tests (27-30, 34-41, 56, 58), a clean `validateGameData()`
+Each item shipped with tests (27-30, 34-41, 56, 58, 59), a clean `validateGameData()`
 run, and a clean transition audit (all new enter/exit functions and
 transition tiles are registered in `test/transition-audit.js`).
 

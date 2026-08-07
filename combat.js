@@ -55,12 +55,41 @@ const PALE_SENTRY_TEMPLATE = {
 // above live in this file while the random pools live in data.js — both are in
 // scope by now. IDs are authored, immutable, and lowercase `enemy_<snake>`; once
 // shipped, an id must never be renamed or reused for a different creature.
+//
+// ENEMY_TEMPLATE_POOLS is the SOLE authoritative inventory of every random
+// encounter pool. Each entry is { id, label, templates }:
+//   • `id`    — a stable, authored `pool_<snake_case>` handle. It is written by
+//               hand here and never derived at runtime from the label, the
+//               source variable name, MAP_METADATA, array order, or the enemies
+//               inside. Once shipped it must never be renamed or reused for a
+//               different pool. It is the handle that validation.js and
+//               test/balance-report.js reference a pool by.
+//   • `label` — a developer-readable name; free to reword, purely descriptive.
+//   • `templates` — the ACTUAL pool array (same object reference used by
+//               currentEncounterPool() / MAP_METADATA.encounterPool). Order and
+//               repetition are preserved exactly; a template repeated for higher
+//               spawn weight stays repeated. One distinct array == one entry
+//               (pools sharing an array would share a single id).
+// To add a pool: register its array here with a new immutable id. It is then
+// automatically picked up by validateEnemies() and the balance report — no
+// second list to maintain anywhere.
 const ENEMY_TEMPLATE_POOLS = [
-  ENEMY_TEMPLATES, EARLY_ENEMY_TEMPLATES, DUNGEON_ENEMY_TEMPLATES,
-  DUNGEON2_ENEMY_TEMPLATES, DUNGEON6_ENEMY_TEMPLATES, DUNGEON8_ENEMY_TEMPLATES,
-  DUNGEON_HORROR_ENEMY_TEMPLATES, FAR_ENEMY_TEMPLATES, THORNMERE_ENEMY_TEMPLATES,
-  SLUICE_ENEMY_TEMPLATES, SLUICE_TOP_ENEMY_TEMPLATES, SLUICE_SECRET_ENEMY_TEMPLATES, NORTH_BASIN_ENEMY_TEMPLATES,
-  SUNKEN_GALLERY_ENEMY_TEMPLATES, UPPER_REACH_ENEMY_TEMPLATES, MIRE_VAULT_ENEMY_TEMPLATES,
+  { id: 'pool_overworld_core',    label: 'Overworld — post-start (MAP2)',      templates: ENEMY_TEMPLATES },
+  { id: 'pool_overworld_early',   label: 'Overworld — starting area (MAP)',    templates: EARLY_ENEMY_TEMPLATES },
+  { id: 'pool_dungeon_f1',        label: 'Dungeon — floor 1',                  templates: DUNGEON_ENEMY_TEMPLATES },
+  { id: 'pool_dungeon_f2_5',      label: 'Dungeon — floors 2–5',               templates: DUNGEON2_ENEMY_TEMPLATES },
+  { id: 'pool_dungeon_f6_7',      label: 'Dungeon — floors 6–7',               templates: DUNGEON6_ENEMY_TEMPLATES },
+  { id: 'pool_dungeon_f8',        label: 'Dungeon — floor 8',                  templates: DUNGEON8_ENEMY_TEMPLATES },
+  { id: 'pool_dungeon_horror',    label: 'Dungeon — floors 9–10 (horror)',     templates: DUNGEON_HORROR_ENEMY_TEMPLATES },
+  { id: 'pool_far_overworld',     label: 'Far overworld (MAP3 / N-tier)',      templates: FAR_ENEMY_TEMPLATES },
+  { id: 'pool_thornmere',         label: 'Thornmere (MAP4 / MAP5)',            templates: THORNMERE_ENEMY_TEMPLATES },
+  { id: 'pool_east_sluice',       label: 'East Sluice — main floors',          templates: SLUICE_ENEMY_TEMPLATES },
+  { id: 'pool_east_sluice_top',   label: 'East Sluice — top floor',            templates: SLUICE_TOP_ENEMY_TEMPLATES },
+  { id: 'pool_east_sluice_secret', label: 'East Sluice — sealed room',         templates: SLUICE_SECRET_ENEMY_TEMPLATES },
+  { id: 'pool_north_basin',       label: 'North Basin',                        templates: NORTH_BASIN_ENEMY_TEMPLATES },
+  { id: 'pool_sunken_gallery',    label: 'Sunken Gallery',                     templates: SUNKEN_GALLERY_ENEMY_TEMPLATES },
+  { id: 'pool_upper_reach',       label: 'Upper Reach',                        templates: UPPER_REACH_ENEMY_TEMPLATES },
+  { id: 'pool_mire_vault',        label: "Mirethyst's Vault",                  templates: MIRE_VAULT_ENEMY_TEMPLATES },
 ];
 const ENEMY_SCRIPTED_TEMPLATES = [
   BRIAR_WARDEN_TEMPLATE, SMUGGLER_GUARD_TEMPLATE, POLWICK_TEMPLATE, ESSA_TEMPLATE,
@@ -75,7 +104,7 @@ const SECRET_23_TEMPLATE = { id: 'enemy_23', name: '23', inline: true };
 const ENEMY_TEMPLATE_REGISTRY = {};
 (function buildEnemyTemplateRegistry() {
   const add = (t) => { if (t && typeof t.id === 'string') ENEMY_TEMPLATE_REGISTRY[t.id] = t; };
-  ENEMY_TEMPLATE_POOLS.forEach((pool) => pool.forEach(add));
+  ENEMY_TEMPLATE_POOLS.forEach((pool) => pool.templates.forEach(add));
   ENEMY_SCRIPTED_TEMPLATES.forEach(add);
   add(SECRET_23_TEMPLATE);
 })();

@@ -53,34 +53,59 @@ const STARTING_STATS = pull('stats'); // level 1, no gear
 const ENCOUNTER_CHANCE   = pull('ENCOUNTER_CHANCE');
 const ENCOUNTER_COOLDOWN = pull('ENCOUNTER_COOLDOWN');
 
-const POOLS = {
-  'MAP (start overworld)':            pull('EARLY_ENEMY_TEMPLATES'),
-  'MAP2 (overworld, post-start)':     pull('ENEMY_TEMPLATES'),
-  'MAP3 / MAP_N1 / MAP_N2 / MAP3_N1 / MAP3_N2 (far overworld)': pull('FAR_ENEMY_TEMPLATES'),
-  'MAP4 / MAP5 (Thornmere)':          pull('THORNMERE_ENEMY_TEMPLATES'),
-  'East Sluice':                      pull('SLUICE_ENEMY_TEMPLATES'),
-  "Mirethyst's Vault":                pull('MIRE_VAULT_ENEMY_TEMPLATES'),
-  'Dungeon floor 1':                  pull('DUNGEON_ENEMY_TEMPLATES'),
-  'Dungeon floors 2-3':               pull('DUNGEON2_ENEMY_TEMPLATES'),
-  'Dungeon floors 4-5':               pull('DUNGEON2_ENEMY_TEMPLATES'), // combat.js: same pool as 2-3
-  'Dungeon floors 6-7':               pull('DUNGEON6_ENEMY_TEMPLATES'),
-  'Dungeon floor 8':                  pull('DUNGEON8_ENEMY_TEMPLATES'),
-  'Dungeon floors 9-10 (horror)':     pull('DUNGEON_HORROR_ENEMY_TEMPLATES'),
-};
+// ── Enemy inventory: pulled from the game's SOLE authoritative registries ───
+// This report no longer hand-maintains its own pool/special enemy lists. It
+// reads combat.js's ENEMY_TEMPLATE_POOLS (the {id,label,templates} pool
+// registry) and ENEMY_TEMPLATE_REGISTRY (every template, id-keyed) and derives
+// everything from them, so a pool or scripted enemy added to the game shows up
+// here automatically. The BALANCE_* scenarios below carry only the *simulation
+// context* (which player level/gear to test a pool or enemy at) and reference
+// pools/enemies by their stable ids -- never by re-listing enemy data.
+const ENEMY_TEMPLATE_POOLS  = pull('ENEMY_TEMPLATE_POOLS');   // [{ id, label, templates:[...] }]
+const ENEMY_TEMPLATE_REGISTRY = pull('ENEMY_TEMPLATE_REGISTRY'); // { id: template }
 
-const SPECIALS = {
-  'Briar Warden':      pull('BRIAR_WARDEN_TEMPLATE'),
-  'Smuggler Guard':    pull('SMUGGLER_GUARD_TEMPLATE'),
-  'Polwick':           pull('POLWICK_TEMPLATE'),
-  'Essa':              pull('ESSA_TEMPLATE'),
-  'Pale Sentry':       pull('PALE_SENTRY_TEMPLATE'),
-  'Mulholland':        pull('MULHOLLAND_TEMPLATE'),
-  'Den Wraith':        pull('DEN_WRAITH_TEMPLATE'),
-  'Kolm (sailor brawl)': pull('SAILOR_BRAWLER_TEMPLATE'),
-  'Takomo':            pull('TAKOMO_TEMPLATE'),
-  'Wrongteeth (boss)': pull('BOSS_TEMPLATE'),
-  'Rainfish (x3 chain, per-fish)': pull('RAINFISH_TEMPLATE'),
-};
+// Pure derivations (exported for test/cases/59 so the sole-inventory contract
+// can be exercised without running the CLI report).
+
+// Map pool id -> { id, label, templates }. Rejects a malformed/duplicate id so
+// a broken registry fails the report rather than silently dropping a pool.
+function poolInventoryById(poolRegistry) {
+  const byId = new Map();
+  poolRegistry.forEach((p, i) => {
+    if (!p || typeof p.id !== 'string' || !p.id) throw new Error(`ENEMY_TEMPLATE_POOLS[${i}] has no pool id`);
+    if (!Array.isArray(p.templates)) throw new Error(`enemy pool "${p.id}" has no templates array`);
+    if (byId.has(p.id)) throw new Error(`duplicate enemy pool id "${p.id}"`);
+    byId.set(p.id, p);
+  });
+  return byId;
+}
+
+// Scripted/special enemies = every registry template that is NOT a member of a
+// random pool and is not the runtime-inline "23" (which has no static stats to
+// simulate). Order follows registry insertion order (pools first, then scripted).
+function scriptedIdsFromRegistry(enemyRegistry, poolRegistry) {
+  const pooled = new Set();
+  poolRegistry.forEach((p) => (p.templates || []).forEach((t) => { if (t && t.id) pooled.add(t.id); }));
+  return Object.keys(enemyRegistry).filter((id) => {
+    const t = enemyRegistry[id];
+    return t && !t.inline && !pooled.has(id);
+  });
+}
+
+// Fail loudly BEFORE any simulation if a scenario points at a pool/enemy id the
+// registry doesn't contain -- a renamed or deleted id must break the report,
+// not silently skip coverage.
+function validatePoolScenarios(scenarios, poolById) {
+  scenarios.forEach((s) => {
+    if (!poolById.has(s.poolId)) throw new Error(`balance scenario references unknown pool id "${s.poolId}" (heading: ${s.heading})`);
+  });
+}
+function validateSpecialScenarios(scenarios, enemyRegistry, scriptedIdSet) {
+  scenarios.forEach((s) => {
+    if (!enemyRegistry[s.enemyId]) throw new Error(`balance scenario references unknown enemy id "${s.enemyId}" (heading: ${s.heading})`);
+    if (!scriptedIdSet.has(s.enemyId)) throw new Error(`balance scenario "${s.heading}" references "${s.enemyId}", which is not a scripted (non-pool) enemy`);
+  });
+}
 
 const MERCHANT_STOCK  = pull('MERCHANT_STOCK');
 const TRAVELLER_STOCK = pull('TRAVELLER_STOCK');
@@ -183,12 +208,14 @@ function effSpd(p, statuses, rng) {
   return Math.max(1, p.spd - (statuses.muddied ? 2 : 0));
 }
 
-// Faithful port of applyEnemyHitEffects() (combat.js) — enemy-name-keyed and
-// curseChance-keyed status application on every landed enemy hit.
+// Faithful port of applyEnemyHitEffects() (combat.js) — status application on
+// every landed enemy hit. Identity-sensitive effects are keyed by the STABLE
+// enemy id (enemy.id), exactly as combat.js dispatches them — never by display
+// name (several ids share a name). curseChance stays property-driven.
 function applyEnemyHitEffects(enemyTemplate, statuses, rng) {
-  if (enemyTemplate.name === 'Briar Warden' && !statuses.muddied && rng() < 0.30) statuses.muddied = true;
-  if (enemyTemplate.name === 'Corpse Slug' && !statuses.slither && rng() < 0.30) statuses.slither = true;
-  if (enemyTemplate.name === 'Shade Wraith' && !statuses.slither && rng() < 0.25) statuses.slither = true;
+  if (enemyTemplate.id === 'enemy_briar_warden' && !statuses.muddied && rng() < 0.30) statuses.muddied = true;
+  if (enemyTemplate.id === 'enemy_corpse_slug' && !statuses.slither && rng() < 0.30) statuses.slither = true;
+  if (enemyTemplate.id === 'enemy_shade_wraith' && !statuses.slither && rng() < 0.25) statuses.slither = true;
   // Fen Witch's poison only ticks on overworld movement, not in combat — no in-fight effect.
   if (enemyTemplate.curseChance && !statuses.cursed && rng() < enemyTemplate.curseChance) statuses.cursed = true;
 }
@@ -338,8 +365,63 @@ function playerAt(level, tierName) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// PRINT — level curve
+// SCENARIOS — simulation *context* only (which player state to test at). Each
+// references a pool/enemy by its stable id; it carries NO enemy stat data. A
+// pool or scripted enemy with no curated scenario still gets covered via the
+// default scenario in the auto-coverage pass at the end of the report, so a
+// newly-registered pool/enemy can never silently disappear from the report.
 // ─────────────────────────────────────────────────────────────────────────
+const DEFAULT_POOL_SCENARIO    = { level: 4, tier: 'T3 dungeon-1 chest gear' };
+const DEFAULT_SPECIAL_SCENARIO = { level: 4, tier: 'T3 dungeon-1 chest gear', note: 'auto-coverage default (no curated scenario)' };
+
+// Order here is the report's print order for the "ENEMY POOLS BY AREA" section;
+// levels are an editorial assignment based on the geography ordering in
+// TRANSITION_AUDIT.md's overworld chain. One pool (pool_dungeon_f2_5) is tested
+// at two progression points — two scenarios, one pool id.
+const POOL_SCENARIOS = [
+  { poolId: 'pool_overworld_early', heading: 'MAP (start overworld)',        level: 1, tier: 'T0 unequipped' },
+  { poolId: 'pool_overworld_core',  heading: 'MAP2 (overworld, post-start)', level: 1, tier: 'T1 starting kit' },
+  { poolId: 'pool_far_overworld',   heading: 'MAP3 / MAP_N1 / MAP_N2 / MAP3_N1 / MAP3_N2 (far overworld)', level: 2, tier: 'T2 + Iron Shield' },
+  { poolId: 'pool_thornmere',       heading: 'MAP4 / MAP5 (Thornmere)',      level: 3, tier: 'T3 dungeon-1 chest gear' },
+  { poolId: 'pool_east_sluice',     heading: 'East Sluice',                  level: 1, tier: 'T1 starting kit' },
+  { poolId: 'pool_mire_vault',      heading: "Mirethyst's Vault",            level: 2, tier: 'T2 + Iron Shield' },
+  { poolId: 'pool_dungeon_f1',      heading: 'Dungeon floor 1',              level: 2, tier: 'T2 + Iron Shield' },
+  { poolId: 'pool_dungeon_f2_5',    heading: 'Dungeon floors 2-3',           level: 3, tier: 'T3 dungeon-1 chest gear' },
+  { poolId: 'pool_dungeon_f2_5',    heading: 'Dungeon floors 4-5',           level: 4, tier: 'T3 dungeon-1 chest gear' },
+  { poolId: 'pool_dungeon_f6_7',    heading: 'Dungeon floors 6-7',           level: 5, tier: 'T4 sluice/traveller gear' },
+  { poolId: 'pool_dungeon_f8',      heading: 'Dungeon floor 8',              level: 6, tier: 'T4 sluice/traveller gear' },
+  { poolId: 'pool_dungeon_horror',  heading: 'Dungeon floors 9-10 (horror)', level: 7, tier: 'T5 best traveller gear' },
+];
+
+// Boss/special (non-pool scripted) enemies, referenced by stable enemy id.
+// Player state per the quest-gate found in QUEST_TRACE.md / combat.js comments.
+const SPECIAL_SCENARIOS = [
+  { enemyId: 'enemy_briar_warden',   heading: 'Briar Warden',        level: 2, tier: 'T1 starting kit',        note: 'gated on sluice_reward_given — reachable very early' },
+  { enemyId: 'enemy_smuggler_guard', heading: 'Smuggler Guard',      level: 3, tier: 'T2 + Iron Shield',       note: 'gated on dispatch_rewarded (MainQuest 2)' },
+  { enemyId: 'enemy_polwick',        heading: 'Polwick',             level: 3, tier: 'T2 + Iron Shield',       note: 'fought immediately after the guard, same visit' },
+  { enemyId: 'enemy_essa',           heading: 'Essa',                level: 3, tier: 'T2 + Iron Shield',       note: 'fought immediately after Polwick, same visit' },
+  { enemyId: 'enemy_pale_sentry',    heading: 'Pale Sentry',         level: 4, tier: 'T3 dungeon-1 chest gear', note: '500 HP persists across encounters — chip-away by design' },
+  { enemyId: 'enemy_mulholland',     heading: 'Mulholland',          level: 5, tier: 'T3 dungeon-1 chest gear', note: 'guards dungeon floor 4->5 stairs' },
+  { enemyId: 'enemy_den_wraith',     heading: 'Den Wraith',          level: 4, tier: 'T3 dungeon-1 chest gear', note: 'available day>=11' },
+  { enemyId: 'enemy_kolm',           heading: 'Kolm (sailor brawl)', level: 3, tier: 'T2 + Iron Shield',       note: 'optional inn brawl, Dayoff only' },
+  { enemyId: 'enemy_takomo',         heading: 'Takomo',              level: 6, tier: 'T4 sluice/traveller gear', note: 'secret Drenwick Waterfront chamber' },
+  { enemyId: 'enemy_wrongteeth',     heading: 'Wrongteeth (boss)',   level: 5, tier: 'T3 dungeon-1 chest gear', note: 'dungeon floor 5, gates floor 5->6' },
+  { enemyId: 'enemy_rainfish',       heading: 'Rainfish (x3 chain, per-fish)', level: 2, tier: 'T1 starting kit', note: 'forced 3-fight chain, cannot flee' },
+];
+
+// ─────────────────────────────────────────────────────────────────────────
+// PRINT — the full report. Wrapped in a function (and guarded by require.main
+// below) so importing this module for its inventory/validation helpers does
+// NOT run the self-check or thousands of Monte-Carlo trials.
+// ─────────────────────────────────────────────────────────────────────────
+function runReport() {
+  // Build the pool inventory and validate every scenario id BEFORE simulating.
+  const poolById = poolInventoryById(ENEMY_TEMPLATE_POOLS);
+  const scriptedIds = scriptedIdsFromRegistry(ENEMY_TEMPLATE_REGISTRY, ENEMY_TEMPLATE_POOLS);
+  const scriptedIdSet = new Set(scriptedIds);
+  validatePoolScenarios(POOL_SCENARIOS, poolById);
+  validateSpecialScenarios(SPECIAL_SCENARIOS, ENEMY_TEMPLATE_REGISTRY, scriptedIdSet);
+
 console.log('='.repeat(78));
 console.log('BALANCE SIMULATION — empire-game');
 console.log('='.repeat(78) + '\n');
@@ -361,34 +443,21 @@ for (const [name, g2] of Object.entries(GEAR_TIERS)) {
 
 // ─────────────────────────────────────────────────────────────────────────
 // PRINT — enemy pools + per-pool average XP/gold + danger vs a "typical"
-// player for that pool (levels are an editorial assignment based on
-// geography ordering established in TRANSITION_AUDIT.md's overworld chain).
+// player for that pool. Pools/enemies come from the registries; the levels
+// are the editorial assignment in POOL_SCENARIOS above.
 // ─────────────────────────────────────────────────────────────────────────
-const POOL_BENCHMARK = {
-  'MAP (start overworld)':            { level: 1, tier: 'T0 unequipped' },
-  'MAP2 (overworld, post-start)':     { level: 1, tier: 'T1 starting kit' },
-  'MAP3 / MAP_N1 / MAP_N2 / MAP3_N1 / MAP3_N2 (far overworld)': { level: 2, tier: 'T2 + Iron Shield' },
-  'MAP4 / MAP5 (Thornmere)':          { level: 3, tier: 'T3 dungeon-1 chest gear' },
-  'East Sluice':                      { level: 1, tier: 'T1 starting kit' },
-  "Mirethyst's Vault":                { level: 2, tier: 'T2 + Iron Shield' },
-  'Dungeon floor 1':                  { level: 2, tier: 'T2 + Iron Shield' },
-  'Dungeon floors 2-3':               { level: 3, tier: 'T3 dungeon-1 chest gear' },
-  'Dungeon floors 4-5':               { level: 4, tier: 'T3 dungeon-1 chest gear' },
-  'Dungeon floors 6-7':               { level: 5, tier: 'T4 sluice/traveller gear' },
-  'Dungeon floor 8':                  { level: 6, tier: 'T4 sluice/traveller gear' },
-  'Dungeon floors 9-10 (horror)':     { level: 7, tier: 'T5 best traveller gear' },
-};
-
 console.log('\n' + '='.repeat(78));
 console.log('ENEMY POOLS BY AREA');
 console.log('='.repeat(78));
 
 let seedCounter = 1000;
 const poolResults = {};
-for (const [poolName, templates] of Object.entries(POOLS)) {
-  const bench = POOL_BENCHMARK[poolName];
-  const player = playerAt(bench.level, bench.tier);
-  console.log(`\n--- ${poolName} --- (benchmark: Lv.${bench.level}, ${bench.tier} => ATK${player.atk}/DEF${player.def}/SPD${player.spd}/HP${player.maxHp})`);
+// Shared per-scenario simulation + printer, reused by the auto-coverage pass.
+function runPoolScenario(scenario) {
+  const pool = poolById.get(scenario.poolId);
+  const templates = pool.templates;
+  const player = playerAt(scenario.level, scenario.tier);
+  console.log(`\n--- ${scenario.heading} --- (benchmark: Lv.${scenario.level}, ${scenario.tier} => ATK${player.atk}/DEF${player.def}/SPD${player.spd}/HP${player.maxHp})`);
   console.log('Enemy            HP  ATK DEF SPD | XP  Gold(avg) | WinRate DeathRate AvgTurns HP%@Win | Danger');
   const rows = [];
   for (const t of templates) {
@@ -404,9 +473,10 @@ for (const [poolName, templates] of Object.entries(POOLS)) {
   }
   const avgXP = templates.reduce((s, t) => s + t.xp, 0) / templates.length;
   const avgGold = templates.reduce((s, t) => s + (t.goldMin + t.goldMax) / 2, 0) / templates.length;
-  poolResults[poolName] = { rows, avgXP, avgGold, bench, player };
+  poolResults[scenario.heading] = { rows, avgXP, avgGold, bench: scenario, player };
   console.log(`Pool average: ${avgXP.toFixed(1)} XP/fight, ${avgGold.toFixed(1)} gold/fight`);
 }
+for (const scenario of POOL_SCENARIOS) runPoolScenario(scenario);
 
 // ─────────────────────────────────────────────────────────────────────────
 // PRINT — fights needed per level, assuming the player fights exclusively
@@ -471,35 +541,22 @@ console.log('\n' + '='.repeat(78));
 console.log('BOSS / SPECIAL ENCOUNTERS');
 console.log('='.repeat(78));
 
-// Plausible player state at first-availability, per quest-gate found in QUEST_TRACE.md / combat.js comments.
-const SPECIAL_BENCHMARK = {
-  'Briar Warden':        { level: 2, tier: 'T1 starting kit', note: 'gated on sluice_reward_given — reachable very early' },
-  'Smuggler Guard':      { level: 3, tier: 'T2 + Iron Shield', note: 'gated on dispatch_rewarded (MainQuest 2)' },
-  'Polwick':             { level: 3, tier: 'T2 + Iron Shield', note: 'fought immediately after the guard, same visit' },
-  'Essa':                { level: 3, tier: 'T2 + Iron Shield', note: 'fought immediately after Polwick, same visit' },
-  'Pale Sentry':         { level: 4, tier: 'T3 dungeon-1 chest gear', note: '500 HP persists across encounters — chip-away by design' },
-  'Mulholland':          { level: 5, tier: 'T3 dungeon-1 chest gear', note: 'guards dungeon floor 4->5 stairs' },
-  'Den Wraith':          { level: 4, tier: 'T3 dungeon-1 chest gear', note: 'available day>=11' },
-  'Kolm (sailor brawl)': { level: 3, tier: 'T2 + Iron Shield', note: 'optional inn brawl, Dayoff only' },
-  'Takomo':              { level: 6, tier: 'T4 sluice/traveller gear', note: 'secret Drenwick Waterfront chamber' },
-  'Wrongteeth (boss)':   { level: 5, tier: 'T3 dungeon-1 chest gear', note: 'dungeon floor 5, gates floor 5->6' },
-  'Rainfish (x3 chain, per-fish)': { level: 2, tier: 'T1 starting kit', note: 'forced 3-fight chain, cannot flee' },
-};
-
 console.log('\nEnemy                  HP   ATK DEF SPD | Benchmark player          | No-potion: Win% Death% AvgTurns HP%@Win Danger | +3 potions: Win% Death%');
-for (const [name, template] of Object.entries(SPECIALS)) {
-  const bench = SPECIAL_BENCHMARK[name];
-  const player = playerAt(bench.level, bench.tier);
+// Shared per-special simulation + printer, reused by the auto-coverage pass.
+function runSpecialScenario(scenario) {
+  const template = ENEMY_TEMPLATE_REGISTRY[scenario.enemyId];
+  const player = playerAt(scenario.level, scenario.tier);
   const noPotion = monteCarlo(player, template, seedCounter++, 4000, { potions: 0 });
   const withPotion = monteCarlo(player, template, seedCounter++, 4000, { potions: 3, potionHeal: 20, healThreshold: 0.35 });
   console.log(
-    `${name.padEnd(22)} ${String(template.hp).padStart(4)} ${String(template.atk).padStart(3)} ${String(template.def).padStart(3)} ${String(template.spd).padStart(3)} | ` +
-    `Lv.${bench.level} ${bench.tier.padEnd(22)} | ` +
+    `${scenario.heading.padEnd(22)} ${String(template.hp).padStart(4)} ${String(template.atk).padStart(3)} ${String(template.def).padStart(3)} ${String(template.spd).padStart(3)} | ` +
+    `Lv.${scenario.level} ${scenario.tier.padEnd(22)} | ` +
     `${(noPotion.winRate * 100).toFixed(1).padStart(5)}% ${(noPotion.deathRate * 100).toFixed(1).padStart(6)}% ${noPotion.avgTurns.toFixed(1).padStart(8)} ${(noPotion.avgHpFracAtWin * 100).toFixed(0).padStart(6)}%  ${dangerRating(noPotion).padEnd(9)} | ` +
     `${(withPotion.winRate * 100).toFixed(1).padStart(5)}% ${(withPotion.deathRate * 100).toFixed(1).padStart(6)}%`
   );
-  console.log(`   note: ${bench.note}`);
+  console.log(`   note: ${scenario.note}`);
 }
+for (const scenario of SPECIAL_SCENARIOS) runSpecialScenario(scenario);
 
 // ─────────────────────────────────────────────────────────────────────────
 // PRINT — Observe's effect on expected incoming damage vs Attack
@@ -511,10 +568,9 @@ console.log('Compares one "Observe" action against one "Attack" action, same mat
 console.log('Enemy            Player(Lv/tier)              | AvgEnemyDmg | P(hit)Observe P(hit)Attack | E[dmg]Observe E[dmg]Attack');
 {
   const rngCheck = mulberry32(99);
-  for (const [poolName, templates] of Object.entries(POOLS)) {
-    const bench = POOL_BENCHMARK[poolName];
-    const player = playerAt(bench.level, bench.tier);
-    for (const t of templates) {
+  for (const scenario of POOL_SCENARIOS) {
+    const player = playerAt(scenario.level, scenario.tier);
+    for (const t of poolById.get(scenario.poolId).templates) {
       const def = effDef(player, { muddied: false });
       // Average eDmg magnitude when a hit lands (atk multiplier averages to 1.0 over [0.8,1.2])
       const avgEDmg = Math.max(1, Math.round(t.atk * 1.0 - def));
@@ -530,7 +586,7 @@ console.log('Enemy            Player(Lv/tier)              | AvgEnemyDmg | P(hit
       const eObserve = observeHitChance * avgEDmg;
       const eAttack = attackHitChance * avgEDmg;
       console.log(
-        `${t.name.padEnd(16)} Lv.${bench.level} ${bench.tier.padEnd(22)} | ${String(avgEDmg).padStart(4)}       | ` +
+        `${t.name.padEnd(16)} Lv.${scenario.level} ${scenario.tier.padEnd(22)} | ${String(avgEDmg).padStart(4)}       | ` +
         `${(observeHitChance * 100).toFixed(0).padStart(6)}%       ${(attackHitChance * 100).toFixed(0).padStart(6)}%     | ` +
         `${eObserve.toFixed(2).padStart(6)}       ${eAttack.toFixed(2)}`
       );
@@ -551,4 +607,47 @@ console.log(`Expected tiles between encounter rolls succeeding: ${(1 / ENCOUNTER
 console.log(`Expected total tiles walked per encounter (roll gap + mandatory cooldown gap): ~${(1 / ENCOUNTER_CHANCE + ENCOUNTER_COOLDOWN / 16).toFixed(1)} tiles.`);
 console.log('(Continuous-movement-on-encounter-terrain estimate; real routes mix in non-grass tiles, town, and menus, so actual fights/minute in play will be lower than this ceiling.)');
 
+// ─────────────────────────────────────────────────────────────────────────
+// PRINT — auto-coverage: any registered pool / scripted enemy WITHOUT a
+// curated scenario above still gets a default-benchmark run, so a
+// newly-registered pool or scripted enemy can never silently vanish from the
+// report. These run LAST, after every curated scenario, so they never perturb
+// the seed sequence — and therefore the numbers — of the sections above.
+// ─────────────────────────────────────────────────────────────────────────
+const coveredPoolIds = new Set(POOL_SCENARIOS.map((s) => s.poolId));
+const autoPools = ENEMY_TEMPLATE_POOLS.filter((p) => !coveredPoolIds.has(p.id));
+const coveredEnemyIds = new Set(SPECIAL_SCENARIOS.map((s) => s.enemyId));
+const autoScripted = scriptedIds.filter((id) => !coveredEnemyIds.has(id));
+if (autoPools.length || autoScripted.length) {
+  console.log('\n' + '='.repeat(78));
+  console.log('AUTO-COVERAGE — REGISTERED POOLS/ENEMIES WITH NO CURATED SCENARIO');
+  console.log('='.repeat(78));
+  console.log(`(Auto-discovered from the registries at default benchmark Lv.${DEFAULT_POOL_SCENARIO.level} ${DEFAULT_POOL_SCENARIO.tier}. Add a curated scenario above to tune the player state a pool/enemy is measured against.)`);
+  for (const p of autoPools)
+    runPoolScenario({ poolId: p.id, heading: p.label, level: DEFAULT_POOL_SCENARIO.level, tier: DEFAULT_POOL_SCENARIO.tier });
+  if (autoScripted.length) {
+    console.log('\nEnemy                  HP   ATK DEF SPD | Benchmark player          | No-potion: Win% Death% AvgTurns HP%@Win Danger | +3 potions: Win% Death%');
+    for (const id of autoScripted)
+      runSpecialScenario({ enemyId: id, heading: ENEMY_TEMPLATE_REGISTRY[id].name, level: DEFAULT_SPECIAL_SCENARIO.level, tier: DEFAULT_SPECIAL_SCENARIO.tier, note: DEFAULT_SPECIAL_SCENARIO.note });
+  }
+}
+
 console.log('\nDone.');
+}  // end runReport()
+
+// Run the full report only when invoked directly (node test/balance-report.js).
+// When required as a module (e.g. by test/cases/59) nothing runs automatically,
+// so the inventory/validation helpers can be exercised in isolation.
+if (require.main === module) runReport();
+
+module.exports = {
+  poolInventoryById,
+  scriptedIdsFromRegistry,
+  validatePoolScenarios,
+  validateSpecialScenarios,
+  POOL_SCENARIOS,
+  SPECIAL_SCENARIOS,
+  DEFAULT_POOL_SCENARIO,
+  DEFAULT_SPECIAL_SCENARIO,
+  runReport,
+};

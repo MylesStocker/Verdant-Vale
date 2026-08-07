@@ -616,6 +616,24 @@ enemy one, which is in `combat.js` because scripted templates live there):
   Mire Toads, and several cross-pool duplicates like Silt Crab) stay
   distinguishable. 53 templates across 45 distinct display names. **The stable
   `id` is the sole runtime identity of an enemy** — see the next section.
+- **`ENEMY_TEMPLATE_POOLS`** (combat.js) — the **sole authoritative inventory of
+  random encounter pools**, an array of `{ id, label, templates }`. Each `id` is
+  a stable, authored `pool_<snake>` handle (never derived at runtime from the
+  label, source variable, `MAP_METADATA`, array order, or the enemies inside);
+  `templates` is the actual pool array that `currentEncounterPool()` /
+  `MAP_METADATA.encounterPool` hand out, order and spawn-weight repetition
+  preserved; one distinct array is one entry. This registry is the *single* pool
+  list in the codebase: both `validateEnemies()` and `test/balance-report.js`
+  read it directly (id-referenced), so **a pool registered here is picked up by
+  validation and the balance report automatically — there is no second list to
+  keep in sync.** `validateEnemies()` cross-checks it against
+  `MAP_METADATA.encounterPool` both ways (a live map spawning from an
+  unregistered pool errors; a registered pool no map routes to warns as
+  unreachable), and the balance report gives every registered pool a scenario —
+  curated or a default auto-coverage run — so a new pool can never silently
+  vanish from either tool. A repeated template (same object, for spawn weight or
+  shared across pools) is **not** a duplicate-id error; only two *distinct*
+  records claiming one id is.
 
 **v3 save shape.** `saveGame()` writes `collectedPickupIds` (ids whose pickup is
 `picked`) and `openedChestIds` (ids whose chest is `opened`) — sorted,
@@ -698,7 +716,18 @@ name plate.
   dispatch: add a `draw` entry to `ENEMY_SPRITE_DISPATCH` (or opt into the
   generic silhouette via `ENEMY_GENERIC_SPRITE_IDS`), and, if it has bespoke
   lore, an `ENEMY_OBSERVATIONS[id]` entry. `validateGameData()` errors if the id
-  resolves to neither a sprite nor the generic set.
+  resolves to neither a sprite nor the generic set. A scripted (unpooled)
+  template also lands in the balance report automatically — the report derives
+  its scripted-enemy set from registry templates that aren't pool members, so no
+  balance-report edit is needed to cover it.
+- **Add a random encounter pool**: register the array in `ENEMY_TEMPLATE_POOLS`
+  (combat.js) as `{ id: 'pool_<snake>', label, templates }` with a fresh
+  immutable id, and route a map/floor to that same array via
+  `MAP_METADATA.encounterPool`. Both `validateEnemies()` and the balance report
+  then pick it up with no further edits. To measure a pool at a specific player
+  state, add a scenario (referencing its `pool_<snake>` id, never the array) to
+  `POOL_SCENARIOS` in `test/balance-report.js`; otherwise it gets a default
+  auto-coverage run. **Never** rename or reuse a shipped `pool_<snake>` id.
 - **Move / re-place** any of them: change coordinates freely — the id is
   unchanged, so existing saves still resolve it.
 - **Rename the display `name`**: fine — `name` is player-facing, `id` is not.
@@ -747,6 +776,14 @@ exactly one of `ENEMY_SPRITE_DISPATCH` (bespoke art) or
 enemy added the unpooled way therefore *is* caught: if its id has no sprite and
 isn't opted into the generic set, `validateGameData()` errors. No manual
 render-battle.js check is needed anymore.
+
+`validateEnemies()` also owns the **enemy-pool registry** as its sole pool
+inventory: it iterates `ENEMY_TEMPLATE_POOLS` (`{ id, label, templates }`)
+directly — no hand-maintained list of `*_ENEMY_TEMPLATES` names anymore — and
+checks pool-id format/uniqueness, one-array-per-id, non-empty pools, member
+registration, and the `MAP_METADATA` reachability cross-check both ways. This is
+the same registry `test/balance-report.js` consumes, so the linter and the
+balance report can never disagree about which pools exist.
 
 ## Debug tools
 

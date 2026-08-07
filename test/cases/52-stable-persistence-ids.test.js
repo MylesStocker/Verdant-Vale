@@ -72,7 +72,7 @@ module.exports = {
     // all pooled + scripted templates represented
     const enemyGaps = J(`JSON.stringify((function(){
       var reg=window.ENEMY_TEMPLATE_REGISTRY, out=[];
-      window.ENEMY_TEMPLATE_POOLS.forEach(function(p){p.forEach(function(t){if(reg[t.id]!==t)out.push(t.name);});});
+      window.ENEMY_TEMPLATE_POOLS.forEach(function(p){p.templates.forEach(function(t){if(reg[t.id]!==t)out.push(t.name);});});
       window.ENEMY_SCRIPTED_TEMPLATES.forEach(function(t){if(reg[t.id]!==t)out.push(t.name);});
       if(reg[window.SECRET_23_TEMPLATE.id]!==window.SECRET_23_TEMPLATE)out.push('23');
       return out;

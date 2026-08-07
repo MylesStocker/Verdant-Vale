@@ -1009,31 +1009,64 @@ function validateEnemies() {
   // top-level `const`s in data.js, not window properties, so each is
   // resolved via a real `typeof X !== 'undefined'` identifier check rather
   // than a string-keyed lookup.
-  const POOLS = [
-    ['ENEMY_TEMPLATES',               typeof ENEMY_TEMPLATES               !== 'undefined' ? ENEMY_TEMPLATES               : undefined],
-    ['EARLY_ENEMY_TEMPLATES',         typeof EARLY_ENEMY_TEMPLATES         !== 'undefined' ? EARLY_ENEMY_TEMPLATES         : undefined],
-    ['DUNGEON_ENEMY_TEMPLATES',       typeof DUNGEON_ENEMY_TEMPLATES       !== 'undefined' ? DUNGEON_ENEMY_TEMPLATES       : undefined],
-    ['DUNGEON2_ENEMY_TEMPLATES',      typeof DUNGEON2_ENEMY_TEMPLATES      !== 'undefined' ? DUNGEON2_ENEMY_TEMPLATES      : undefined],
-    ['DUNGEON6_ENEMY_TEMPLATES',      typeof DUNGEON6_ENEMY_TEMPLATES      !== 'undefined' ? DUNGEON6_ENEMY_TEMPLATES      : undefined],
-    ['DUNGEON8_ENEMY_TEMPLATES',      typeof DUNGEON8_ENEMY_TEMPLATES      !== 'undefined' ? DUNGEON8_ENEMY_TEMPLATES      : undefined],
-    ['DUNGEON_HORROR_ENEMY_TEMPLATES', typeof DUNGEON_HORROR_ENEMY_TEMPLATES !== 'undefined' ? DUNGEON_HORROR_ENEMY_TEMPLATES : undefined],
-    ['FAR_ENEMY_TEMPLATES',           typeof FAR_ENEMY_TEMPLATES           !== 'undefined' ? FAR_ENEMY_TEMPLATES           : undefined],
-    ['THORNMERE_ENEMY_TEMPLATES',     typeof THORNMERE_ENEMY_TEMPLATES     !== 'undefined' ? THORNMERE_ENEMY_TEMPLATES     : undefined],
-    ['SLUICE_ENEMY_TEMPLATES',        typeof SLUICE_ENEMY_TEMPLATES        !== 'undefined' ? SLUICE_ENEMY_TEMPLATES        : undefined],
-    ['SLUICE_TOP_ENEMY_TEMPLATES',    typeof SLUICE_TOP_ENEMY_TEMPLATES    !== 'undefined' ? SLUICE_TOP_ENEMY_TEMPLATES    : undefined],
-    ['SLUICE_SECRET_ENEMY_TEMPLATES', typeof SLUICE_SECRET_ENEMY_TEMPLATES !== 'undefined' ? SLUICE_SECRET_ENEMY_TEMPLATES : undefined],
-    ['NORTH_BASIN_ENEMY_TEMPLATES',   typeof NORTH_BASIN_ENEMY_TEMPLATES   !== 'undefined' ? NORTH_BASIN_ENEMY_TEMPLATES   : undefined],
-    ['SUNKEN_GALLERY_ENEMY_TEMPLATES', typeof SUNKEN_GALLERY_ENEMY_TEMPLATES !== 'undefined' ? SUNKEN_GALLERY_ENEMY_TEMPLATES : undefined],
-    ['UPPER_REACH_ENEMY_TEMPLATES',   typeof UPPER_REACH_ENEMY_TEMPLATES   !== 'undefined' ? UPPER_REACH_ENEMY_TEMPLATES   : undefined],
-    ['MIRE_VAULT_ENEMY_TEMPLATES',    typeof MIRE_VAULT_ENEMY_TEMPLATES    !== 'undefined' ? MIRE_VAULT_ENEMY_TEMPLATES    : undefined],
-  ];
+  //
+  // ── Enemy-pool registry: the SOLE inventory of random encounter pools ──────
+  // combat.js owns ENEMY_TEMPLATE_POOLS as an array of { id, label, templates }.
+  // There is no second hand-maintained pool list here anymore -- this iterates
+  // the live registry directly, so a pool added in combat.js is validated
+  // automatically. Each entry's `id` is a stable authored `pool_<snake>` handle
+  // (the same handle test/balance-report.js references pools by); the checks
+  // below guarantee those ids are well-formed, unique, one-array-per-id, and
+  // structurally sound before anything downstream trusts them.
+  const POOL_ID_RE = /^pool_[a-z0-9_]+$/;
+  const poolRegistry = window.ENEMY_TEMPLATE_POOLS;
+  // reference identity -> id, so we can (a) reject the same array registered
+  // under two ids and (b) map a MAP_METADATA/runtime pool back to its id below.
+  const poolIdByArray = new Map();
+  const registeredPoolIds = new Set();
   let anyPoolFound = false;
-  for (const [poolName, pool] of POOLS) {
-    if (!_isPlainArray(pool)) continue;
-    anyPoolFound = true;
-    pool.forEach((t, i) => checkTemplate(t, poolName + '[' + i + ']'));
+  if (_isPlainArray(poolRegistry)) {
+    const poolIdCounts = {};
+    poolRegistry.forEach((entry, idx) => {
+      if (!entry || typeof entry !== 'object' || _isPlainArray(entry)) {
+        addValidationError(GROUP, 'ENEMY_TEMPLATE_POOLS[' + idx + '] is not a { id, label, templates } object');
+        return;
+      }
+      const id = entry.id;
+      if (typeof id !== 'string' || !id) {
+        addValidationError(GROUP, 'ENEMY_TEMPLATE_POOLS[' + idx + '] has a missing/blank pool id');
+      } else {
+        if (!POOL_ID_RE.test(id)) addValidationError(GROUP, 'enemy pool id "' + id + '" is not lowercase pool_<snake> format');
+        poolIdCounts[id] = (poolIdCounts[id] || 0) + 1;
+        registeredPoolIds.add(id);
+      }
+      if (typeof entry.label !== 'string' || !entry.label)
+        addValidationError(GROUP, 'enemy pool "' + (id || '[' + idx + ']') + '" has no developer-readable label');
+      if (!_isPlainArray(entry.templates)) {
+        addValidationError(GROUP, 'enemy pool "' + (id || '[' + idx + ']') + '" has no templates array');
+        return;
+      }
+      // Empty pool: currentEncounterPool() would pick from nothing. There is no
+      // documented intentional-empty pool in this game, so flag it.
+      if (entry.templates.length === 0)
+        addValidationError(GROUP, 'enemy pool "' + (id || '[' + idx + ']') + '" is empty -- an encounter pool must contain at least one template (remove it or add members)');
+      // Same array object registered under two different ids -> ambiguous identity.
+      if (poolIdByArray.has(entry.templates)) {
+        addValidationError(GROUP, 'enemy pool array is registered under two ids: "' + poolIdByArray.get(entry.templates) + '" and "' + (id || '[' + idx + ']') + '" -- one distinct pool array must map to exactly one id');
+      } else if (typeof id === 'string' && id) {
+        poolIdByArray.set(entry.templates, id);
+      }
+      anyPoolFound = true;
+      // Repetition inside a pool (a template listed twice for higher spawn
+      // weight) is intentional and NOT flagged -- checkTemplate just re-checks it.
+      entry.templates.forEach((t, i) => checkTemplate(t, (id || 'pool[' + idx + ']') + '[' + i + ']'));
+    });
+    for (const id of Object.keys(poolIdCounts))
+      if (poolIdCounts[id] > 1) addValidationError(GROUP, 'duplicate enemy pool id "' + id + '" (registered ' + poolIdCounts[id] + ' times) -- pool ids must be unique');
+  } else {
+    addValidationError(GROUP, 'ENEMY_TEMPLATE_POOLS is missing or not an array -- the enemy-pool registry is the sole inventory of encounter pools');
   }
-  if (!anyPoolFound) addValidationWarning(GROUP, 'no enemy-template pools found -- check script load order (data.js)');
+  if (!anyPoolFound) addValidationWarning(GROUP, 'no enemy-template pools found -- check script load order (data.js / combat.js)');
 
   // Scripted/special templates (boss-style, not part of a random pool).
   if (typeof PALE_SENTRY_TEMPLATE !== 'undefined') checkTemplate(PALE_SENTRY_TEMPLATE, 'PALE_SENTRY_TEMPLATE');
@@ -1065,16 +1098,22 @@ function validateEnemies() {
     // Completeness + duplicate-id across every static template (pooled + scripted
     // + the inline "23"): each must be present in the registry under its own id.
     const statics = [];
-    if (_isPlainArray(window.ENEMY_TEMPLATE_POOLS)) window.ENEMY_TEMPLATE_POOLS.forEach((p) => { if (_isPlainArray(p)) p.forEach((t) => statics.push(t)); });
+    if (_isPlainArray(window.ENEMY_TEMPLATE_POOLS)) window.ENEMY_TEMPLATE_POOLS.forEach((p) => { if (p && _isPlainArray(p.templates)) p.templates.forEach((t) => statics.push(t)); });
     if (_isPlainArray(scripted)) scripted.forEach((t) => statics.push(t));
     if (window.SECRET_23_TEMPLATE) statics.push(window.SECRET_23_TEMPLATE);
-    const idCounts = {};
+    // A duplicate id means two DISTINCT template records claim the same id --
+    // an identity collision. The SAME record appearing more than once is fine
+    // and intentional: a template can be listed twice in a pool for higher spawn
+    // weight, or shared across pools. So track the set of distinct objects per
+    // id and only flag when one id owns more than one of them.
+    const idObjects = new Map();
     for (const t of statics) {
       if (!t || typeof t.id !== 'string' || !t.id) { addValidationError(GROUP, 'an enemy template has a missing/invalid id'); continue; }
       if (enemyReg[t.id] !== t) addValidationError(GROUP, 'enemy template "' + t.name + '" (' + t.id + ') is not registered in ENEMY_TEMPLATE_REGISTRY');
-      idCounts[t.id] = (idCounts[t.id] || 0) + 1;
+      if (!idObjects.has(t.id)) idObjects.set(t.id, new Set());
+      idObjects.get(t.id).add(t);
     }
-    for (const id of Object.keys(idCounts)) if (idCounts[id] > 1) addValidationError(GROUP, 'duplicate enemy template id "' + id + '" (two distinct template records)');
+    for (const [id, objs] of idObjects) if (objs.size > 1) addValidationError(GROUP, 'duplicate enemy template id "' + id + '" (two distinct template records)');
 
     // ── Id-keyed presentation dispatch: battle sprite + Observe/lore ─────────
     // Enemy identity is the stable template id (enemy.id), so both the battle
@@ -1126,18 +1165,30 @@ function validateEnemies() {
     addValidationWarning(GROUP, 'ENEMY_TEMPLATE_REGISTRY unavailable — enemy identity checks skipped (script load order)');
   }
 
-  // Cross-check MAP_METADATA.encounterPool references a real, known pool
-  // (by reference, not by re-validating contents again -- that already
-  // happened above).
-  if (typeof MAP_METADATA !== 'undefined') {
-    const knownPools = POOLS.map(([, pool]) => pool).filter(_isPlainArray);
-    const poolNameList = POOLS.map(([name]) => name).join('/');
+  // ── Reachability cross-check: pool registry <-> live encounter routing ─────
+  // MAP_METADATA.encounterPool is the declarative routing table -- every
+  // location/floor that spawns random encounters names its pool array here (the
+  // floor-based dispatch in currentEncounterPool() returns these same array
+  // objects). So it is the authority on which registered pools are actually
+  // reachable. Two directions are checked:
+  //   (a) a live map that spawns encounters from an array NOT in the registry
+  //       -- that pool would be invisible to validation and the balance report;
+  //   (b) a registered pool that no live map ever routes to -- a dead pool that
+  //       silently ships and drifts out of sync.
+  if (typeof MAP_METADATA !== 'undefined' && _isPlainArray(poolRegistry)) {
+    const reachablePoolIds = new Set();
     for (const [mapKey, m] of Object.entries(MAP_METADATA)) {
       if (m.encounterPool === null) continue;
       if (!_isPlainArray(m.encounterPool)) continue; // already flagged by validateMapMetadata()
-      if (!knownPools.includes(m.encounterPool))
-        addValidationWarning(GROUP, 'MAP_METADATA[' + mapKey + ']: encounterPool is an array but not one of the recognised named pools (' + poolNameList + ') -- confirm it\'s intentional, e.g. a new pool not yet added to this list');
+      const id = poolIdByArray.get(m.encounterPool);
+      if (!id)
+        addValidationError(GROUP, 'MAP_METADATA[' + mapKey + ']: encounterPool array is not a registered pool in ENEMY_TEMPLATE_POOLS -- a live map is spawning encounters from a pool that validation and the balance report cannot see; register it (with a stable pool_<snake> id) in combat.js');
+      else
+        reachablePoolIds.add(id);
     }
+    for (const id of registeredPoolIds)
+      if (!reachablePoolIds.has(id))
+        addValidationWarning(GROUP, 'enemy pool "' + id + '" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)');
   }
 
   return checked;

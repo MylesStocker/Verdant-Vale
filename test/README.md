@@ -654,6 +654,22 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   from each region renders; and save/load restores a location from each region.
   This is the structural distillation of a fuller before/after equivalence
   manifest run once during the split (not committed).
+- `59-enemy-pool-registry-consumers` — the sole-inventory contract: both
+  `validateEnemies()` and `test/balance-report.js` consume `ENEMY_TEMPLATE_POOLS`
+  + `ENEMY_TEMPLATE_REGISTRY` directly, with no parallel pool/enemy lists. Proves
+  the `{ id, label, templates }` pool registry has well-formed unique
+  `pool_<snake>` ids (one array per id), every pool member is registered, every
+  pool is reachable via `MAP_METADATA`, the balance report auto-discovers every
+  pool + scripted enemy (curated or default coverage), the curated scenarios all
+  resolve, and identity-sensitive balance logic keys on registered ids. Then six
+  break-then-restore checks (each undone in a `finally`): a valid new pool is
+  auto-discovered by validator + balance; a malformed pool member fails
+  validation; a de-registered but still-routed pool fails validation; a new
+  scripted template appears in balance coverage without editing the report; a
+  pool member disconnected from the registry fails validation; and an unknown
+  balance-scenario pool/enemy id is rejected before any simulation. Imports the
+  balance report as a module (its CLI is guarded by `require.main`, so importing
+  it runs no simulation). Runtime + validation.
 
 ## Known simplifications (see comments at the top of each affected test)
 
