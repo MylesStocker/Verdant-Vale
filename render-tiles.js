@@ -2190,7 +2190,7 @@ function drawTile(id, x, y) {
     case EAST_EXIT:           drawEastExit(x, y);         break;
     case WEST_ENTRANCE:       drawWestEntrance(x, y);     break;
     case WEST_EXIT:           drawWestExit(x, y);         break;
-    case TABLE:               drawTable(x, y);             break;
+    case TABLE:               drawInteriorFloor(x, y); drawTable(x, y); break;
     case SLUICE_ENTRANCE:     drawSluiceEntrance(x, y);   break;
     case SLUICE_FLOOR:        drawSluiceFloor(x, y);      break;
     case SLUICE_WALL:         drawSluiceWall(x, y);       break;
