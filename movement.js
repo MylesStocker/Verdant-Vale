@@ -385,7 +385,7 @@ function update() {
     return;
   }
 
-  if (dialogue.open || menu.open || choice.open || shop.open) return;
+  if (dialogue.open || menu.open || choice.open || shop.open || debugMenu.open || warpMenu.open) return;
 
   let dx = 0, dy = 0;
   if (keys['ArrowLeft']  || keys['a']) { dx = -SPEED; player.facing = 'left';  }
