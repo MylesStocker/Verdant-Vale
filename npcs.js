@@ -1410,6 +1410,34 @@ const SHARED_NPCS = [
     action:        null,
   },
 
+  // ── Drenwick North A — Marla, the guildmaster's wife (flavour) ───────────────
+  // Wife of the Canal Engineers' Guild master. Packing to leave for the capital,
+  // cheerfully oblivious to the fen town's water-worries that rule everyone
+  // else's life. Warm and not unkind — just self-absorbed and a little naive.
+  {
+    id:         'marla',
+    name:       'Marla',
+    map:        'house:drenwick_north_a',
+    x:           8.5 * TILE,
+    y:           5.5 * TILE,
+    solid:      true,
+    facing:     'down',
+    spriteType: 'patron',
+    dialogue: [
+      ['“Oh — a visitor! Mind the boxes, dear, half the house is packed already.”',
+       '“We’re for the capital, you know. My husband runs the Guild here — the Canal Engineers’ — and a man of his standing is simply wasted on a fen town. Everyone says so.”'],
+      ['“The very first thing I shall do is buy a proper dress. One with some swoosh to it — the kind that go whum when you turn on your heel.”',
+       '“You can’t buy swoosh here. You can buy sensible. I have had quite enough of sensible.”'],
+      ['“They say the capital keeps gardens green the whole year round. Imagine! Here it’s forever the water — too much, too little, the levels, the levels.”',
+       '“I’ve never once looked at that canal and thought about levels. I look at it and think: well, that’s grey, isn’t it.”'],
+      ['“I mean to enjoy myself, and I can’t think why anyone should mind. Life’s short and the fen is damp.”',
+       '“You must come and visit us, once we’re settled! Bring — oh, whatever it is you do. It’ll be perfectly lovely.”'],
+    ],
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
+
   // ── Calwick Apt 1 — Orwen (letter quest) ─────────────────────────────────────
   // Former imperial records clerk. Left service four years ago.
   // Processed rareborn transfers for eighteen years, including Yael's.
