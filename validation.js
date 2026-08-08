@@ -553,7 +553,7 @@ function validateNPCs() {
     'drenwick_east_outskirts', 'drenwick_market', 'drenwick_post_office',
     'drenwick_waterfront', 'drenwick_civic',
   ]);
-  const VALID_SPRITE_TYPES = new Set(['clerk', 'patron', 'child', 'worker', 'traveler']);
+  const VALID_SPRITE_TYPES = new Set(['clerk', 'patron', 'child', 'worker', 'traveler', 'cat']);
   const houseIds = (typeof HOUSE_DATA !== 'undefined') ? new Set(Object.keys(HOUSE_DATA)) : null;
   const actionsKnown = (typeof NPC_ACTIONS !== 'undefined');
 
@@ -670,7 +670,7 @@ function validateNPCs() {
       // the looping waypoint route (optionally autoStart, per-waypoint dwell)
       // used by Tobb Wend; 'boundedWander' is the intermittent random wander
       // within an authored tile region used by Tomas.
-      const MOVEMENT_TYPES = new Set(['patrol', 'scriptedRoute', 'boundedWander']);
+      const MOVEMENT_TYPES = new Set(['patrol', 'scriptedRoute', 'boundedWander', 'flee']);
       if (mv === null || typeof mv !== 'object' || Array.isArray(mv)) {
         addValidationError(GROUP, lbl + ': movement must be a plain object (see architecture.md movement contract)');
       } else {
@@ -685,13 +685,14 @@ function validateNPCs() {
         if (mv.autoStart === true && mv.type !== 'patrol')
           addValidationError(GROUP, lbl + ': movement.autoStart is only meaningful for a patrol (scriptedRoutes start explicitly)');
 
-        if (mv.type === 'boundedWander') {
-          // A wanderer roams a region, not a route: waypoints are incompatible.
+        if (mv.type === 'boundedWander' || mv.type === 'flee') {
+          // Region-bounded movers (a wanderer, or the feral cat's flee) roam a
+          // region, not a route: waypoints are incompatible; bounds are required.
           if (mv.waypoints !== undefined)
-            addValidationError(GROUP, lbl + ': a boundedWander must not have waypoints (it roams within bounds, not along a route)');
+            addValidationError(GROUP, lbl + ': a ' + mv.type + ' must not have waypoints (it moves within bounds, not along a route)');
           const b = mv.bounds;
           if (b === null || typeof b !== 'object' || Array.isArray(b)) {
-            addValidationError(GROUP, lbl + ': boundedWander requires a bounds object { minCol, maxCol, minRow, maxRow } (tile units)');
+            addValidationError(GROUP, lbl + ': ' + mv.type + ' requires a bounds object { minCol, maxCol, minRow, maxRow } (tile units)');
           } else {
             const bkeys = ['minCol', 'maxCol', 'minRow', 'maxRow'];
             bkeys.forEach(k => { if (!_isFiniteNumber(b[k])) addValidationError(GROUP, lbl + ': movement.bounds.' + k + ' must be a finite number (tile units)'); });

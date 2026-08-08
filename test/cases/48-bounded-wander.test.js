@@ -45,10 +45,11 @@ module.exports = {
     g.press('Enter');
     g.run('debugMode = true;');
 
-    // ── 1. Tomas is the only boundedWander NPC ──────────────────────────────
+    // ── 1. The boundedWander NPCs are Tomas + Marla's two house cats ─────────
+    // (This test exercises Tomas specifically; the cats reuse the same engine.)
     assert.equal(
-      g.run("JSON.stringify(SIMPLE_NPCS.filter(n => n.movement && n.movement.type === 'boundedWander').map(n => n.id))"),
-      JSON.stringify(['tomas']), 'exactly one boundedWander NPC, and it is Tomas');
+      g.run("JSON.stringify(SIMPLE_NPCS.filter(n => n.movement && n.movement.type === 'boundedWander').map(n => n.id).sort())"),
+      JSON.stringify(['north_a_cat_ginger', 'north_a_cat_grey', 'tomas']), 'Tomas + the two house cats are the boundedWander NPCs');
 
     g.run("enterHouse('esla_house');");
     assert.equal(g.run('currentMapId()'), 'house:esla_house', 'inside Esla\'s house');

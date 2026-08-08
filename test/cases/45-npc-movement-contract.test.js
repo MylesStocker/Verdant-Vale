@@ -214,28 +214,35 @@ module.exports = {
     g.run('SIMPLE_NPCS.pop();');
     assert.equal(after, before, 'validateGameData() must not mutate an NPC definition (movement included)');
 
-    // ── 5. Exactly the four approved Phase 1 pilots have movement ───────────
+    // ── 5. Exactly the approved movers have movement ────────────────────────
     // (The two bridge guards use one-way scriptedRoutes; Tobb Wend uses an
-    // auto-starting patrol; Tomas uses a bounded wander.) Any additional NPC
-    // gaining movement must be a deliberate, reviewed decision updating this list.
-    const APPROVED_PILOTS = ['bridge_soldier_south', 'bridge_soldier_north', 'tobb_wend', 'tomas'];
+    // auto-starting patrol; Tomas and Marla's two house cats use bounded
+    // wanders; the black feral cat uses a flee.) Any additional NPC gaining
+    // movement must be a deliberate, reviewed decision updating this list.
+    const APPROVED_PILOTS = ['bridge_soldier_south', 'bridge_soldier_north', 'tobb_wend', 'tomas',
+      'north_a_cat_grey', 'north_a_cat_ginger', 'apt_c1_u4_feral_cat'];
     const withMovement = g.run('SIMPLE_NPCS.filter(n => n.movement !== undefined).map(n => n.id)');
     assert.equal(JSON.stringify(Array.from(withMovement).sort()), JSON.stringify(APPROVED_PILOTS.slice().sort()),
-      'exactly the four approved pilots may have movement; found: ' + JSON.stringify(withMovement));
-    // The guards use scriptedRoute; Tobb patrol; Tomas boundedWander — no other type.
+      'exactly the approved movers may have movement; found: ' + JSON.stringify(withMovement));
+    // The guards use scriptedRoute; Tobb patrol; Tomas + house cats boundedWander; feral cat flee.
     const typeById = g.run('JSON.stringify(SIMPLE_NPCS.filter(n => n.movement !== undefined).map(n => n.id + ":" + n.movement.type).sort())');
     assert.equal(typeById, JSON.stringify([
+      'apt_c1_u4_feral_cat:flee',
       'bridge_soldier_north:scriptedRoute',
       'bridge_soldier_south:scriptedRoute',
+      'north_a_cat_ginger:boundedWander',
+      'north_a_cat_grey:boundedWander',
       'tobb_wend:patrol',
       'tomas:boundedWander',
-    ]), 'guards scriptedRoute, Tobb patrol, Tomas boundedWander: ' + typeById);
+    ]), 'guards scriptedRoute, Tobb patrol, Tomas + cats boundedWander, feral cat flee: ' + typeById);
     // Tobb's patrol auto-starts and loops.
     assert.equal(g.run("SIMPLE_NPCS.find(n => n.id === 'tobb_wend').movement.autoStart"), true, 'Tobb autoStart');
     assert.equal(g.run("SIMPLE_NPCS.find(n => n.id === 'tobb_wend').movement.loop"), true, 'Tobb loops');
-    // Tomas is the only boundedWander.
-    assert.equal(g.run("JSON.stringify(SIMPLE_NPCS.filter(n => n.movement && n.movement.type === 'boundedWander').map(n => n.id))"),
-      JSON.stringify(['tomas']), 'Tomas is the only boundedWander NPC');
+    // The boundedWander NPCs are Tomas + the two house cats; the feral cat is the only flee.
+    assert.equal(g.run("JSON.stringify(SIMPLE_NPCS.filter(n => n.movement && n.movement.type === 'boundedWander').map(n => n.id).sort())"),
+      JSON.stringify(['north_a_cat_ginger', 'north_a_cat_grey', 'tomas']), 'Tomas + the two house cats are the boundedWander NPCs');
+    assert.equal(g.run("JSON.stringify(SIMPLE_NPCS.filter(n => n.movement && n.movement.type === 'flee').map(n => n.id))"),
+      JSON.stringify(['apt_c1_u4_feral_cat']), 'the feral cat is the only flee NPC');
 
     // The validator state is clean again after all fixtures were removed.
     const finalCheck = runValidation(g);

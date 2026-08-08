@@ -1009,7 +1009,7 @@ window.NPC_ROUTES = NPC_ROUTES;
 const MOVEMENT_HOMES = {};
 for (const _mvNpc of SIMPLE_NPCS) {
   const _mv = _mvNpc.movement;
-  if (_mv && (_mv.type === 'patrol' || _mv.type === 'boundedWander')) {
+  if (_mv && (_mv.type === 'patrol' || _mv.type === 'boundedWander' || _mv.type === 'flee')) {
     MOVEMENT_HOMES[_mvNpc.id] = { x: _mvNpc.x, y: _mvNpc.y, facing: _mvNpc.facing };
   }
 }
@@ -1052,7 +1052,7 @@ function ensureAutoMovers() {
   for (const npc of SIMPLE_NPCS) {
     const mv = npc.movement;
     if (!mv) continue;
-    const auto = mv.type === 'boundedWander' || (mv.type === 'patrol' && mv.autoStart === true);
+    const auto = mv.type === 'boundedWander' || mv.type === 'flee' || (mv.type === 'patrol' && mv.autoStart === true);
     if (!auto) continue;
     if (npc.map === mapId) {
       if (!NPC_ROUTES[npc.id]) startNpcRoute(npc.id);
@@ -1166,6 +1166,27 @@ function chooseWanderTarget(rt, npc) {
   return null;
 }
 
+// Choose the next one-tile step for a `flee` NPC (the black feral cat): the
+// in-bounds, occupiable orthogonal neighbour that puts the MOST distance between
+// the NPC and the player. Returns null when no legal neighbour actually
+// increases that distance — i.e. the NPC is cornered — so it holds still and the
+// player can finally reach it. npcRouteCanOccupy already forbids any tile within
+// 18px of the player, so a flee step can never close on or trap the player.
+function chooseFleeTarget(rt, npc) {
+  const b = rt.bounds;
+  const curDist = Math.hypot(npc.x - player.x, npc.y - player.y);
+  let best = null, bestDist = curDist;
+  for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const nx = npc.x + dc * TILE, ny = npc.y + dr * TILE;
+    const col = Math.floor(nx / TILE), row = Math.floor(ny / TILE);
+    if (col < b.minCol || col > b.maxCol || row < b.minRow || row > b.maxRow) continue;
+    if (!npcRouteCanOccupy(npc, nx, ny)) continue;
+    const d = Math.hypot(nx - player.x, ny - player.y);
+    if (d > bestDist) { bestDist = d; best = { x: nx, y: ny }; }
+  }
+  return best; // null unless some legal neighbour is strictly farther from the player
+}
+
 // Starts an authored route (scriptedRoute, patrol, or boundedWander) for the
 // given NPC id. Returns true if the route was started. No-ops (returns false)
 // when: the NPC has no route movement config, the route is already running, or
@@ -1196,6 +1217,24 @@ function startNpcRoute(id) {
     };
     rt.pauseLeft = wanderPauseFrames(rt);
     NPC_ROUTES[id] = rt;
+    return true;
+  }
+
+  if (mv.type === 'flee') {
+    // Skittish: keeps its distance from the player, stepping one tile away at a
+    // time at the given speed while the player is within fleeRange, and holding
+    // still (so the player can reach it) once cornered. No pauses — it re-decides
+    // every tile. Bounds are authored intent; occupancy is authority.
+    NPC_ROUTES[id] = {
+      npc,
+      type: 'flee',
+      bounds: mv.bounds,
+      speed: mv.speed || SPEED,       // default: exactly the player's walking speed
+      fleeRange: mv.fleeRange || 192,  // px; only flees while the player is this near
+      target: null, step: 0,
+      moving: true, done: false, frozen: false, resumeDelay: 0,
+      facing: npc.facing,
+    };
     return true;
   }
 
@@ -1277,6 +1316,40 @@ function updateNpcRoutes() {
       const target = chooseWanderTarget(rt, npc);
       if (target) rt.target = target;
       else rt.pauseLeft = wanderPauseFrames(rt);
+      continue;
+    }
+
+    // ── Flee (the black feral cat) ──────────────────────────────────────────
+    // Same one-tile-at-a-time stepping as the wander, but the target is always
+    // the neighbour farthest from the player, chosen fresh every tile (no pause),
+    // and only while the player is close. Cornered (chooseFleeTarget → null) or
+    // player far → hold still.
+    if (rt.type === 'flee') {
+      if (rt.target) {
+        const dx = rt.target.x - npc.x, dy = rt.target.y - npc.y;
+        let sx = 0, sy = 0;
+        if (dx !== 0) sx = Math.sign(dx); else if (dy !== 0) sy = Math.sign(dy);
+        if (sx !== 0)      rt.facing = sx > 0 ? 'right' : 'left';
+        else if (sy !== 0) rt.facing = sy > 0 ? 'down' : 'up';
+        npc.facing = rt.facing;
+        const remaining = sx !== 0 ? Math.abs(dx) : Math.abs(dy);
+        if (remaining <= rt.speed) {
+          if (!npcRouteCanOccupy(npc, rt.target.x, rt.target.y)) { rt.target = null; continue; }
+          npc.x = rt.target.x; npc.y = rt.target.y;
+          rt.target = null;
+          continue;
+        }
+        const nx = npc.x + sx * rt.speed, ny = npc.y + sy * rt.speed;
+        if (npcRouteCanOccupy(npc, nx, ny)) { npc.x = nx; npc.y = ny; rt.step++; }
+        else rt.target = null; // player stepped into the path — abort, re-decide next frame
+        continue;
+      }
+      // Decision point: bolt one tile away only if the player is close AND a
+      // farther-from-player legal tile exists; otherwise stay put.
+      if (Math.hypot(npc.x - player.x, npc.y - player.y) <= rt.fleeRange) {
+        const target = chooseFleeTarget(rt, npc);
+        if (target) rt.target = target;
+      }
       continue;
     }
 

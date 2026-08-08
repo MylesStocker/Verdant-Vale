@@ -939,6 +939,53 @@ function drawWalkingPatron(npc, facing, step, moving) {
 }
 
 // Iterates SIMPLE_NPCS, draws those on the current map.
+// A small side-profile house/feral cat. Colour is data-driven (npc.catColor /
+// catShade / catEye) so the same drawer renders Marla's tabbies and the black
+// feral cat. Faces left or right (head toward npc.facing); a live wander/flee
+// step drives a subtle two-frame leg shuffle.
+function drawCat(npc, rt) {
+  const px = Math.round(npc.x), py = Math.round(npc.y);
+  const dir   = npc.facing === 'left' ? -1 : 1;
+  const body  = npc.catColor || '#8a8078';
+  const shade = npc.catShade || '#615a52';
+  const eyeCol = npc.catEye || '#e6c84a';
+  const stepping = !!(rt && !rt.done && rt.target != null);
+  const legShift = (stepping && ((rt.step >> 2) & 1)) ? 1 : 0;
+
+  // ground shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.16)';
+  ctx.beginPath(); ctx.ellipse(px, py + 1, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
+
+  // tail — rises from the rear (opposite the head) and hooks up
+  ctx.fillStyle = body;
+  ctx.fillRect(px - dir * 9, py - 8, 3, 6);
+  ctx.fillRect(px - dir * 9, py - 11, 5, 3);
+
+  // legs (little two-frame shuffle when moving)
+  ctx.fillStyle = shade;
+  ctx.fillRect(px - 5, py - 4 + legShift, 2, 4);
+  ctx.fillRect(px - 1, py - 4 - legShift, 2, 4);
+  ctx.fillRect(px + 3, py - 4 + legShift, 2, 4);
+
+  // body
+  ctx.fillStyle = body;
+  ctx.fillRect(px - 7, py - 10, 14, 6);
+  ctx.fillRect(px + dir * 1, py - 12, 6, 3);      // haunch/shoulder rise toward the head
+
+  // head at the front + ears
+  const hx = px + dir * 5;
+  ctx.fillRect(hx - 3, py - 15, 7, 6);
+  ctx.fillStyle = shade;
+  ctx.fillRect(hx - 3, py - 17, 2, 3);
+  ctx.fillRect(hx + 2, py - 17, 2, 3);
+  // eye
+  ctx.fillStyle = eyeCol;
+  ctx.fillRect(hx + (dir > 0 ? 1 : -1), py - 13, 1, 2);
+
+  // interactable like any NPC — show the SPACE hint when the player is close
+  drawNPCSpaceHint(npc, px, py);
+}
+
 function drawSimpleNPCs() {
   const mapId = currentMapId();
   for (const npc of SIMPLE_NPCS) {
@@ -951,6 +998,9 @@ function drawSimpleNPCs() {
     // renders through the exact pre-existing stationary path, so every unrelated
     // NPC and every stationary/paused frame is pixel-identical.
     const rt = (typeof NPC_ROUTES !== 'undefined') ? NPC_ROUTES[npc.id] : undefined;
+    // Cats aren't humanoids — they never take the walking-humanoid path; drawCat
+    // handles both the still and moving (wander/flee) poses itself.
+    if (npc.spriteType === 'cat') { drawCat(npc, rt); continue; }
     if (rt) {
       const style  = npc.spriteType || 'clerk';
       const walkFn = style === 'worker' ? drawWalkingWorker

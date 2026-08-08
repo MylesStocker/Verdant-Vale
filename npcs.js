@@ -1438,6 +1438,88 @@ const SHARED_NPCS = [
     action:        null,
   },
 
+  // ── Marla's two house cats — slow domestic wander, no quest/items ────────────
+  // They saunter Marla's front room (boundedWander, slow speed + long pauses).
+  // Petting (interact) gets a random purr or a supremely indifferent shrug.
+  {
+    id:         'north_a_cat_grey',
+    name:       'Cat',
+    map:        'house:drenwick_north_a',
+    x:           5.5 * TILE,
+    y:           5.5 * TILE,
+    solid:      true,
+    facing:     'right',
+    spriteType: 'cat',
+    catColor:   '#8a8078', catShade: '#5f584f', catEye: '#e6c84a',
+    movement:   { type: 'boundedWander', bounds: { minCol: 4, maxCol: 11, minRow: 2, maxRow: 9 }, speed: 0.5, minPauseFrames: 150, maxPauseFrames: 360 },
+    action: function () {
+      const purr = Math.random() < 0.5;
+      dialogue.name  = '';
+      dialogue.pages = purr
+        ? [['The grey cat leans into your hand and purrs — a warm, rattling little engine.']]
+        : [['The grey cat tolerates your hand for a breath, then steps out from under it, entirely unbothered.']];
+      dialogue.open  = true;
+      dialogue.page  = 0;
+    },
+    flag_required: null,
+    flag_sets:     null,
+  },
+  {
+    id:         'north_a_cat_ginger',
+    name:       'Cat',
+    map:        'house:drenwick_north_a',
+    x:           9.5 * TILE,
+    y:           6.5 * TILE,
+    solid:      true,
+    facing:     'left',
+    spriteType: 'cat',
+    catColor:   '#b5773f', catShade: '#8a5528', catEye: '#7bc85a',
+    movement:   { type: 'boundedWander', bounds: { minCol: 4, maxCol: 11, minRow: 2, maxRow: 9 }, speed: 0.5, minPauseFrames: 180, maxPauseFrames: 420 },
+    action: function () {
+      const purr = Math.random() < 0.5;
+      dialogue.name  = '';
+      dialogue.pages = purr
+        ? [['The ginger cat rolls half over and purrs, paws curling at nothing.']]
+        : [['The ginger cat blinks at you slowly, decides you are not food, and closes its eyes again.']];
+      dialogue.open  = true;
+      dialogue.page  = 0;
+    },
+    flag_required: null,
+    flag_sets:     null,
+  },
+
+  // ── Black feral cat — the empty fishing-rod apartment (drenwick_apt_c1_u4) ────
+  // Keeps its distance at the player's own walking pace (movement: flee). If you
+  // corner it and interact, it growls the first time; every time after that it
+  // scratches for 2 (out-of-combat, floored at 1 HP like the poison/curse ticks).
+  {
+    id:         'apt_c1_u4_feral_cat',
+    name:       'Cat',
+    map:        'house:drenwick_apt_c1_u4',
+    x:           7.5 * TILE,
+    y:           5.5 * TILE,
+    solid:      true,
+    facing:     'left',
+    spriteType: 'cat',
+    catColor:   '#1c1c22', catShade: '#0c0c10', catEye: '#8fd96b',
+    movement:   { type: 'flee', bounds: { minCol: 5, maxCol: 9, minRow: 5, maxRow: 8 }, speed: 2, fleeRange: 200 },
+    action: function (npc) {
+      if (!npc._hasGrowled) {
+        npc._hasGrowled = true;
+        dialogue.name  = '';
+        dialogue.pages = [['The black cat presses into the corner, flattens its ears, and gives a low, unbroken growl. Best leave it be.']];
+      } else {
+        stats.hp = Math.max(1, stats.hp - 2);
+        dialogue.name  = '';
+        dialogue.pages = [['You reach for the black cat anyway. It lashes out — a hot line of pain rakes the back of your hand. (−2 HP)']];
+      }
+      dialogue.open  = true;
+      dialogue.page  = 0;
+    },
+    flag_required: null,
+    flag_sets:     null,
+  },
+
   // ── Calwick Apt 1 — Orwen (letter quest) ─────────────────────────────────────
   // Former imperial records clerk. Left service four years ago.
   // Processed rareborn transfers for eighteen years, including Yael's.

@@ -850,6 +850,81 @@ function randomCabinetPages() {
   return OFFICE_CABINET_FLAVOR[Math.floor(Math.random() * OFFICE_CABINET_FLAVOR.length)];
 }
 
+// The player's house cat interaction (the fixed hd.cat furniture in
+// player_house): the cat_quest coin/corner stages, and a plain pet otherwise.
+// Called from interactHouseInterior()'s hd.cat proximity check.
+function interactPlayerCat() {
+  // ── Stage 1: cat drops a coin (first visit after first rest) ────────
+  if (cat_quest_stage === 1) {
+    dialogue.name  = '';
+    dialogue.pages = [
+      ['The cat sets something at your feet and backs away, watching.'],
+      ['A small tarnished disc.',
+       'Old currency \u2014 pre-Empire, from the markings.',
+       'Worn smooth. Not worth anything now.'],
+      ['You have no idea where it found this.'],
+    ];
+    dialogue.callbacks = [function() {
+      cat_quest_stage = 2;
+      syncQuestFlagsToWindow();
+    }];
+    dialogue.open  = true;
+    dialogue.page  = 0;
+    return true;
+  }
+  // ── Stage 2: player can look in the corner ──────────────────────────
+  if (cat_quest_stage === 2) {
+    choice.title     = '';
+    choice.options   = ['Look in the corner', 'Pet', 'Leave'];
+    choice.cursor    = 0;
+    choice.callbacks = [
+      function look() {
+        dialogue.name  = '';
+        dialogue.pages = [
+          ['Under the table, in the far corner.'],
+          ['Three more coins. A glass button.',
+           'A folded scrap of paper, water-damaged, unreadable.',
+           'A small iron key \u2014 slightly bent \u2014 that fits nothing you own.'],
+          ['The cat watches you from the doorway.',
+           'It doesn\u2019t seem concerned.'],
+          ['You scratch it behind the ears on your way past.',
+           'It tolerates this.'],
+        ];
+        dialogue.callbacks = [function() {
+          cat_quest_stage = 3;
+          syncQuestFlagsToWindow();
+        }];
+        dialogue.open  = true;
+        dialogue.page  = 0;
+      },
+      function pet() {
+        dialogue.name  = '';
+        dialogue.pages = [catPetResponse()];
+        dialogue.open  = true;
+        dialogue.page  = 0;
+      },
+      function leave() {},
+    ];
+    choice.open = true;
+    return true;
+  }
+  // ── Default: normal pet interaction ─────────────────────────────────
+  choice.title     = '';
+  choice.options   = ['Pet', 'Leave'];
+  choice.cursor    = 0;
+  choice.callbacks = [
+    function pet() {
+      dialogue.name  = '';
+      dialogue.pages = [catPetResponse()];
+      dialogue.open  = true;
+      dialogue.page  = 0;
+    },
+    function leave() {},
+  ];
+  choice.open = true;
+  return true;
+}
+
 function interactHouseInterior() {
   // ── Den Wraith encounter (west_i, Dayoff only, quest active) ─────────────
   if (currentHouseId === 'west_i' && den_wraith_quest_started && !den_wraith_defeated) {
@@ -898,77 +973,7 @@ function interactHouseInterior() {
   if (hd && hd.cat) {
     const cdx = player.x - hd.cat.x;
     const cdy = player.y - hd.cat.y;
-    if (Math.sqrt(cdx * cdx + cdy * cdy) < TALK_RADIUS) {
-      // ── Stage 1: cat drops a coin (first visit after first rest) ────────
-      if (cat_quest_stage === 1) {
-        dialogue.name  = '';
-        dialogue.pages = [
-          ['The cat sets something at your feet and backs away, watching.'],
-          ['A small tarnished disc.',
-           'Old currency \u2014 pre-Empire, from the markings.',
-           'Worn smooth. Not worth anything now.'],
-          ['You have no idea where it found this.'],
-        ];
-        dialogue.callbacks = [function() {
-          cat_quest_stage = 2;
-          syncQuestFlagsToWindow();
-        }];
-        dialogue.open  = true;
-        dialogue.page  = 0;
-        return true;
-      }
-      // ── Stage 2: player can look in the corner ──────────────────────────
-      if (cat_quest_stage === 2) {
-        choice.title     = '';
-        choice.options   = ['Look in the corner', 'Pet', 'Leave'];
-        choice.cursor    = 0;
-        choice.callbacks = [
-          function look() {
-            dialogue.name  = '';
-            dialogue.pages = [
-              ['Under the table, in the far corner.'],
-              ['Three more coins. A glass button.',
-               'A folded scrap of paper, water-damaged, unreadable.',
-               'A small iron key \u2014 slightly bent \u2014 that fits nothing you own.'],
-              ['The cat watches you from the doorway.',
-               'It doesn\u2019t seem concerned.'],
-              ['You scratch it behind the ears on your way past.',
-               'It tolerates this.'],
-            ];
-            dialogue.callbacks = [function() {
-              cat_quest_stage = 3;
-              syncQuestFlagsToWindow();
-            }];
-            dialogue.open  = true;
-            dialogue.page  = 0;
-          },
-          function pet() {
-            dialogue.name  = '';
-            dialogue.pages = [catPetResponse()];
-            dialogue.open  = true;
-            dialogue.page  = 0;
-          },
-          function leave() {},
-        ];
-        choice.open = true;
-        return true;
-      }
-      // ── Default: normal pet interaction ─────────────────────────────────
-      choice.title     = '';
-      choice.options   = ['Pet', 'Leave'];
-      choice.cursor    = 0;
-      choice.callbacks = [
-        function pet() {
-          dialogue.name  = '';
-          dialogue.pages = [catPetResponse()];
-          dialogue.open  = true;
-          dialogue.page  = 0;
-        },
-        function leave() {},
-      ];
-      choice.open = true;
-      return true;
-    }
+    if (Math.sqrt(cdx * cdx + cdy * cdy) < TALK_RADIUS) return interactPlayerCat();
   }
   if (hd && hd.stove) {
     const sdx = player.x - hd.stove.x;

@@ -277,12 +277,14 @@ module.exports = {
     const othersAfter = g.run(`SIMPLE_NPCS.filter(n => !n.id.startsWith('bridge_soldier')).slice(0, 40).map(n => n.id + ':' + n.x + ',' + n.y).join('|')`);
     assert.equal(othersAfter, othersBefore, 'loading elsewhere leaves unrelated NPC positions untouched');
 
-    // ── 19. Exactly the four approved NPCs carry movement configuration ─────
-    // (the two bridge guards + the fen-brewery patrol Tobb + the house wanderer Tomas)
+    // ── 19. Exactly the approved NPCs carry movement configuration ──────────
+    // (the two bridge guards + the fen-brewery patrol Tobb + the house wanderer
+    // Tomas + Marla's two house cats + the black feral cat)
     const movers = g.run('SIMPLE_NPCS.filter(n => n.movement !== undefined).map(n => n.id)');
     assert.equal(JSON.stringify(Array.from(movers).sort()),
-      JSON.stringify(['bridge_soldier_north', 'bridge_soldier_south', 'tobb_wend', 'tomas']),
-      'only the two bridge guards + Tobb + Tomas have movement configs');
+      JSON.stringify(['apt_c1_u4_feral_cat', 'bridge_soldier_north', 'bridge_soldier_south',
+        'north_a_cat_ginger', 'north_a_cat_grey', 'tobb_wend', 'tomas'].sort()),
+      'only the bridge guards + Tobb + Tomas + the three cats have movement configs');
 
     // ── Render: stationary identity, walk frames, facing, stop, isolation ───
     // Record fillRect calls through the ctx stub (its Proxy allows property
