@@ -341,13 +341,29 @@ const DREAMS = [
   ],
 ];
 
-// ─── Encounter handlers (pilot) ───────────────────────────────────────────────
-// Maps dialogue.triggerEncounter.id → the function that starts that combat.
-// Each handler must call the same start* function used by the legacy trigger path.
-// Add entries here as fights are migrated away from individual trigger flags.
+// ─── Encounter dispatch ───────────────────────────────────────────────────────
+// Single mapping from an encounter id → the function that starts that combat.
+// A dialogue that should end in a fight calls queueDialogueEncounter(id); when
+// its final page closes, finishDialogue() dispatches exactly one handler here.
+// Handlers wrap the start* calls so the lookup happens at dispatch time (no
+// load-order dependency on combat.js).
 const ENCOUNTER_HANDLERS = {
+  boss:         function() { startBossCombat(); },
+  warden:       function() { startWardenCombat(); },
+  fort_guard:   function() { startFortGuardCombat(); },
+  fort_polwick: function() { startFortPolwickCombat(); },
+  fort_essa:    function() { startFortEssaCombat(); },
+  mulholland:   function() { startMulhollandCombat(); },
+  den_wraith:   function() { startDenWraithCombat(); },
+  takomo:       function() { startTakomoCombat(); },
   kolm_brawler: function() { startSailorBrawlCombat(); },
 };
+
+// Queue an encounter to begin when the current dialogue's last page closes.
+// Replaces the former per-fight trigger* booleans on `dialogue`.
+function queueDialogueEncounter(id) {
+  dialogue.triggerEncounterId = id;
+}
 
 // ─── Main interaction handler ─────────────────────────────────────────────────
 // ─── Interact-press orchestration ────────────────────────────────────────────
@@ -935,7 +951,7 @@ function interactHouseInterior() {
       dialogue.pages = [
         ['Something shifts in the corner.', 'It turns toward you.'],
       ];
-      dialogue.triggerDenWraithCombat = true;
+      queueDialogueEncounter('den_wraith');
       dialogue.open  = true;
       dialogue.page  = 0;
       return true;
@@ -1959,59 +1975,35 @@ const INTERACT_HANDLERS = [
   { name: 'dungeon-floor-5', match: () => inDungeon && dungeonFloor === 5, run: interactWrongteethFloor },
 ];
 
+// Finalize a dialogue when its last page closes. Order matters and is preserved
+// from the old inline logic:
+//   1. Close the dialogue and reset its page.
+//   2. Run the next queued callback (it may reopen dialogue / requeue itself).
+//   3. Dispatch at most one queued encounter — clearing the id BEFORE starting
+//      combat so a repeated interact press can't launch the same fight twice.
+function finishDialogue() {
+  dialogue.open = false;
+  dialogue.page = 0;
+  if (dialogue.callbacks) {
+    const cb = dialogue.callbacks.shift();
+    if (cb) cb();
+    if (dialogue.callbacks.length === 0) dialogue.callbacks = null;
+  }
+  if (dialogue.triggerEncounterId) {
+    const id = dialogue.triggerEncounterId;
+    dialogue.triggerEncounterId = null;
+    const handler = ENCOUNTER_HANDLERS[id];
+    if (handler) handler();
+    else console.warn('[encounter] no handler for id "' + id + '"');
+  }
+}
+
 function handleInteract() {
   if (menu.open || shop.open) return;
   if (dialogue.open) {
     dialogue.page++;
     if (dialogue.page >= dialogue.pages.length) {
-      dialogue.open = false;
-      dialogue.page = 0;
-      if (dialogue.callbacks) {
-        const cb = dialogue.callbacks.shift();
-        if (cb) cb();
-        if (dialogue.callbacks.length === 0) dialogue.callbacks = null;
-      }
-      if (dialogue.triggerBossCombat) {
-        dialogue.triggerBossCombat = false;
-        startBossCombat();
-      }
-      if (dialogue.triggerWardenCombat) {
-        dialogue.triggerWardenCombat = false;
-        startWardenCombat();
-      }
-      if (dialogue.triggerFortGuardCombat) {
-        dialogue.triggerFortGuardCombat = false;
-        startFortGuardCombat();
-      }
-      if (dialogue.triggerFortPolwickCombat) {
-        dialogue.triggerFortPolwickCombat = false;
-        startFortPolwickCombat();
-      }
-      if (dialogue.triggerFortEssaCombat) {
-        dialogue.triggerFortEssaCombat = false;
-        startFortEssaCombat();
-      }
-      if (dialogue.triggerMulhollandCombat) {
-        dialogue.triggerMulhollandCombat = false;
-        startMulhollandCombat();
-      }
-      if (dialogue.triggerDenWraithCombat) {
-        dialogue.triggerDenWraithCombat = false;
-        startDenWraithCombat();
-      }
-      if (dialogue.triggerEncounter) {
-        const enc = dialogue.triggerEncounter;
-        dialogue.triggerEncounter = null;
-        if (ENCOUNTER_HANDLERS[enc.id]) {
-          ENCOUNTER_HANDLERS[enc.id]();
-        } else {
-          console.warn('[triggerEncounter] no handler for id "' + enc.id + '"');
-        }
-      }
-      if (dialogue.triggerTakomoCombat) {
-        dialogue.triggerTakomoCombat = false;
-        startTakomoCombat();
-      }
+      finishDialogue();
     }
     return;
   }

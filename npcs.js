@@ -361,7 +361,7 @@ const SHARED_NPCS = [
         ['\u201cSit down if you\u2019re going to stand there.\u201d', '\u201cThere isn\u2019t a chair, but that\u2019s the spirit of the thing.\u201d'],
       ];
       if (warden_quest_rewarded) pages.push(
-        ['\u201cSomeone cleared that creature from the dungeon passage.\u201d',
+        ['\u201cSomeone cleared that creature out of the old spring meadow, up in the vale\u2019s northwest corner.\u201d',
          '\u201cI heard about it from Senne.\u201d'],
         ['\u201cThese buildings have thin walls.\u201d', '\u201cBut my hearing is fine.\u201d']
       );
@@ -1561,7 +1561,7 @@ const SHARED_NPCS = [
     get dialogue() {
       // Full interaction handled in interactions.js; this is a fallback only.
       if (!warden_quest_started) return [['Mault. District Infrastructure.']];
-      if (warden_quest_rewarded) return [['\u201cPassage is clear. Appreciate the work.\u201d']];
+      if (warden_quest_rewarded) return [['\u201cMeadow\u2019s clear. Appreciate the work.\u201d']];
       if (warden_quest_defeated) return [['\u201cGood. Report back and we\u2019ll settle up.\u201d']];
       return [['\u201cIt\u2019s in the spring meadow \u2014 northwest corner of the vale. Come back when it\u2019s done.\u201d']];
     },
@@ -2101,7 +2101,7 @@ NPC_ACTIONS.kolmBrawler = function(npc) {
            '\u201cRight then.\u201d',
            'The other sailors clear some space without being asked.'],
         ];
-        dialogue.triggerEncounter = { id: 'kolm_brawler' };
+        queueDialogueEncounter('kolm_brawler');
         dialogue.open = true;
         dialogue.page = 0;
       },

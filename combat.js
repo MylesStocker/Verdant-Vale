@@ -1260,7 +1260,7 @@ function handleCombatAction() {
         '\u201cYou\u2019re tougher than you look.\u201d',
         'He comes at you himself.',
       ]];
-      dialogue.triggerFortPolwickCombat = true;
+      queueDialogueEncounter('fort_polwick');
       dialogue.open = true; dialogue.page = 0;
       return;
     }
@@ -1274,7 +1274,7 @@ function handleCombatAction() {
         'You\u2019re between her and the door.',
         'She raises her fists.',
       ]];
-      dialogue.triggerFortEssaCombat = true;
+      queueDialogueEncounter('fort_essa');
       dialogue.open = true; dialogue.page = 0;
       return;
     }

@@ -246,7 +246,7 @@ function toggleDebugInspector() {
 }
 
 // ─── Dialogue state ───────────────────────────────────────────────────────────
-const dialogue = { open: false, page: 0, pages: [], name: '', triggerBossCombat: false, triggerWardenCombat: false, triggerFortGuardCombat: false, triggerFortPolwickCombat: false, triggerFortEssaCombat: false, triggerMulhollandCombat: false, triggerDenWraithCombat: false, triggerTakomoCombat: false, triggerEncounter: null, callbacks: null };
+const dialogue = { open: false, page: 0, pages: [], name: '', triggerEncounterId: null, callbacks: null };
 
 // ─── Continent map overlay state ──────────────────────────────────────────────
 // Full-screen inspection panel for the wall map in the Calwick Empire office.

@@ -154,7 +154,6 @@ function interactDrenwickInn() {
     return true;
   }
   interactSimpleNPCs();
-  return true;
   return interactionUiOpened();
 }
 
@@ -714,7 +713,6 @@ function interactDrenwickTavern() {
     return true;
   }
   interactSimpleNPCs();
-  return true;
   return interactionUiOpened();
 }
 

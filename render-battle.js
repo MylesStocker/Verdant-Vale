@@ -3739,13 +3739,30 @@ function drawCombat() {
     ctx.fillRect(PX + PAD + 8, PY + 94 + shift, PW - PAD * 2 - 16, 1);
 
     const battleItems = inventoryItems();
+    const ROW_H       = 22;
+    const listTop     = PY + 110 + shift;
+    const listBottom  = PY + PH - 14;           // bottom edge of the item box
+    const maxVisible  = Math.max(1, Math.floor((listBottom - 5 - listTop) / ROW_H) + 1);
+    const total       = battleItems.length + 1; // items + [ Back ]
+
+    // Cursor-following window. Back is the last entry (index battleItems.length);
+    // centering the cursor keeps the selected row \u2014 items or [ Back ] \u2014 visible
+    // without needing persistent scroll state.
+    let winStart = 0;
+    if (total > maxVisible) {
+      winStart = combat.itemCursor - Math.floor(maxVisible / 2);
+      winStart = Math.max(0, Math.min(winStart, total - maxVisible));
+    }
+    const winEnd = Math.min(total, winStart + maxVisible);
+
     if (battleItems.length === 0) {
       ctx.fillStyle = '#2a4848';
       ctx.font = '12px "Courier New", monospace';
-      ctx.fillText('no items', PX + PAD + 24, PY + 110 + shift);
+      ctx.fillText('no items', PX + PAD + 24, listTop);
     } else {
-      battleItems.forEach((item, i) => {
-        const iy       = PY + 110 + shift + i * 22;
+      for (let i = winStart; i < winEnd && i < battleItems.length; i++) {
+        const item     = battleItems[i];
+        const iy       = listTop + (i - winStart) * ROW_H;
         const selected = i === combat.itemCursor;
         if (selected) {
           ctx.fillStyle = '#0e2434';
@@ -3760,22 +3777,33 @@ function drawCombat() {
         ctx.fillStyle = '#4a8858';
         ctx.font = '11px "Courier New", monospace';
         ctx.fillText(`${itemStatParen(item)}`, PX + PAD + 24 + item.name.length * 7 + 4, iy);
-      });
+      }
     }
 
-    // [ Back ] entry at bottom of list
-    const backIY    = PY + 110 + shift + battleItems.length * 22;
-    const backSel   = combat.itemCursor === battleItems.length;
-    if (backSel) {
-      ctx.fillStyle = '#0e2434';
-      ctx.fillRect(PX + PAD + 6, backIY - 13, PW - PAD * 2 - 12, 18);
-      ctx.fillStyle = '#8ac8d8';
-      ctx.font = 'bold 12px "Courier New", monospace';
-      ctx.fillText('\u25b6', PX + PAD + 10, backIY);
+    // [ Back ] entry \u2014 last in the list; drawn only when inside the window.
+    const backIndex = battleItems.length;
+    if (backIndex >= winStart && backIndex < winEnd) {
+      const backIY  = listTop + (backIndex - winStart) * ROW_H;
+      const backSel = combat.itemCursor === backIndex;
+      if (backSel) {
+        ctx.fillStyle = '#0e2434';
+        ctx.fillRect(PX + PAD + 6, backIY - 13, PW - PAD * 2 - 12, 18);
+        ctx.fillStyle = '#8ac8d8';
+        ctx.font = 'bold 12px "Courier New", monospace';
+        ctx.fillText('\u25b6', PX + PAD + 10, backIY);
+      }
+      ctx.fillStyle = backSel ? '#e0f0e8' : '#4a7888';
+      ctx.font      = backSel ? 'bold 12px "Courier New", monospace' : '12px "Courier New", monospace';
+      ctx.fillText('[ Back ]', PX + PAD + 24, backIY);
     }
-    ctx.fillStyle = backSel ? '#e0f0e8' : '#4a7888';
-    ctx.font      = backSel ? 'bold 12px "Courier New", monospace' : '12px "Courier New", monospace';
-    ctx.fillText('[ Back ]', PX + PAD + 24, backIY);
+
+    // Overflow indicators when the list scrolls beyond the visible window.
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.fillStyle = '#5a8898';
+    ctx.textAlign = 'center';
+    if (winStart > 0)     ctx.fillText('\u25b2', PX + PW / 2, listTop - 4);
+    if (winEnd < total)   ctx.fillText('\u25bc', PX + PW / 2, listBottom - 2);
+    ctx.textAlign = 'left';
 
     ctx.fillStyle = '#2a4858';
     ctx.font = 'bold 10px "Courier New", monospace';

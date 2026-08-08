@@ -2039,7 +2039,7 @@ function interactCalwickVale() {
         dialogue.pages = [
           ['The Briar Warden turns toward you.', 'It does not back down.'],
         ];
-        dialogue.triggerWardenCombat = true;
+        queueDialogueEncounter('warden');
         dialogue.open  = true;
         dialogue.page  = 0;
         return true;

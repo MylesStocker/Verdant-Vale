@@ -50,7 +50,7 @@ module.exports = {
     // Choose "Make an arrest" (cursor defaults to 0).
     g.press('Enter');
     assert.equal(g.run('fort_quest_stage'), 1, 'accepting the arrest should set stage 1');
-    assert.equal(g.run('dialogue.triggerFortGuardCombat'), true);
+    assert.equal(g.run('dialogue.triggerEncounterId'), 'fort_guard');
 
     // Close the "Guard." dialogue -- this is what starts the fight.
     g.press('Enter');
@@ -74,7 +74,7 @@ module.exports = {
     `);
     g.press('Enter');
 
-    const retriggered = g.run('dialogue.triggerFortGuardCombat === true || combat.active === true');
+    const retriggered = g.run("dialogue.triggerEncounterId === 'fort_guard' || combat.active === true");
     assert.equal(
       retriggered, true,
       'the guard fight should be retriggerable after being abandoned once -- it currently is not (QUEST_TRACE Issue #1)'
@@ -82,7 +82,7 @@ module.exports = {
 
     // If we got a fresh trigger, actually resolve the fight this time and
     // confirm the whole quest chain remains completable end-to-end from here.
-    if (g.run('dialogue.triggerFortGuardCombat') === true) {
+    if (g.run("dialogue.triggerEncounterId === 'fort_guard'")) {
       g.press('Enter'); // close whatever line accompanies the retrigger, starts combat
     }
     assert.equal(g.run('combat.active'), true, 'guard fight should be running again');

@@ -221,9 +221,9 @@ const CALWICK_NPCS = [
         ['\u201cThey should log it properly.\u201d', '\u201cThey usually don\u2019t.\u201d']
       );
       if (warden_quest_rewarded) pages.push(
-        ['\u201cHeard they cleared that warden from the dungeon passage east of town.\u201d',
-         '\u201cOne of the infrastructure men was in here talking about getting back in.\u201d'],
-        ['\u201cI always give those passages a wide berth myself.\u201d', '\u201cWarden or no warden.\u201d']
+        ['\u201cHeard they cleared that warden out of the old spring meadow, far northwest corner of the vale.\u201d',
+         '\u201cOne of the infrastructure men was in here saying that ground\u2019s safe to walk again.\u201d'],
+        ['\u201cI always gave that overgrown corner a wide berth myself.\u201d', '\u201cWarden or no warden.\u201d']
       );
       return pages;
     },

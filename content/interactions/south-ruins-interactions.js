@@ -5,7 +5,7 @@
 // Loaded BEFORE interactions.js, which keeps the generic engine, MAP_FEATURES merge,
 // and the INTERACT_HANDLERS / OVERWORLD_INTERACT_HANDLERS tables that reference these.
 
-// ── Dungeon floor 1 — chests, Briar Warden, floor NPCs ───────────────────────
+// ── Dungeon floor 1 — chests and floor NPCs (the Briar Warden no longer dens here) ─
 function interactDungeonFloor1() {
   // Chest: open it if adjacent and not yet opened
   if (!DUNGEON_CHEST.opened) {
@@ -69,7 +69,7 @@ function interactMulhollandFloor() {
       dialogue.pages = MULHOLLAND_DIALOGUE;
       dialogue.open  = true;
       dialogue.page  = 0;
-      dialogue.triggerMulhollandCombat = true;
+      queueDialogueEncounter('mulholland');
     }
   }
   return interactionUiOpened();
@@ -169,7 +169,7 @@ function interactWrongteethFloor() {
       dialogue.pages             = BOSS_DIALOGUE;
       dialogue.open              = true;
       dialogue.page              = 0;
-      dialogue.triggerBossCombat = true;
+      queueDialogueEncounter('boss');
     }
   }
   return interactionUiOpened();

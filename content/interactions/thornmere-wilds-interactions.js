@@ -36,7 +36,7 @@ function interactSmugglerFort() {
                '\u201cI thought you might be.\u201d'],
               ['\u201cGuard.\u201d'],
             ];
-            dialogue.triggerFortGuardCombat = true;
+            queueDialogueEncounter('fort_guard');
             dialogue.open = true;
             dialogue.page = 0;
           },
@@ -70,7 +70,7 @@ function interactSmugglerFort() {
     if (Math.sqrt(gx * gx + gy * gy) < TALK_RADIUS) {
       dialogue.name  = '';
       dialogue.pages = [['The guard hasn\u2019t moved from the door.', 'He doesn\u2019t look inclined to let this go.']];
-      dialogue.triggerFortGuardCombat = true;
+      queueDialogueEncounter('fort_guard');
       dialogue.open  = true;
       dialogue.page  = 0;
       return;
@@ -81,7 +81,7 @@ function interactSmugglerFort() {
     if (Math.sqrt(px * px + py * py) < TALK_RADIUS) {
       dialogue.name  = '';
       dialogue.pages = [['Polwick is still on his feet.', 'He doesn\u2019t look like a man who considers this settled.']];
-      dialogue.triggerFortPolwickCombat = true;
+      queueDialogueEncounter('fort_polwick');
       dialogue.open  = true;
       dialogue.page  = 0;
       return;
@@ -92,7 +92,7 @@ function interactSmugglerFort() {
     if (Math.sqrt(ex * ex + ey * ey) < TALK_RADIUS) {
       dialogue.name  = '';
       dialogue.pages = [['Essa is still between you and the door.', 'She\u2019s not going to ask twice.']];
-      dialogue.triggerFortEssaCombat = true;
+      queueDialogueEncounter('fort_essa');
       dialogue.open  = true;
       dialogue.page  = 0;
       return;
@@ -386,7 +386,7 @@ function interactTakomoChamber() {
       ];
       dialogue.open  = true;
       dialogue.page  = 0;
-      dialogue.triggerTakomoCombat = true;
+      queueDialogueEncounter('takomo');
     }
   } else {
     // Post-defeat: the chamber is quiet except for the two remaining cultists

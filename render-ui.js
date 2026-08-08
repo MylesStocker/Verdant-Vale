@@ -863,117 +863,61 @@ function drawMenu() {
     sectionLabel('NOTEBOOK', BY + 26);
     rule(BY + 31);
 
-    // Build active quest notes from quest flags
-    const notes = [];
-    // Dispatch quest
-    if (dispatch_quest_started && !dispatch_delivered) {
-      notes.push({ title: "Supervisor's Errand", body: "Deliver the Dispatch Letter to Officer Veth at the Drenwick district office." });
-    } else if (dispatch_delivered && !dispatch_pay_ticket_ready && !dispatch_rewarded) {
-      notes.push({ title: "Supervisor's Errand", body: "Return to your supervisor in Calwick — the letter reached Drenwick." });
-    } else if (dispatch_pay_ticket_ready && !dispatch_rewarded) {
-      notes.push({ title: "Supervisor's Errand", body: "Take the pay chit to Petra at the Calwick market." });
-    }
-    // Sluice job
-    if (sluice_job_started && !sluice_fixed) {
-      notes.push({ title: 'Sluice Repair', body: "Fix the flow valve in the East Sluice beneath Calwick." });
-    } else if (sluice_fixed && !sluice_pay_ticket_ready && !sluice_reward_given) {
-      notes.push({ title: 'Sluice Repair', body: "Report back — the East Sluice valve is repaired." });
-    } else if (sluice_pay_ticket_ready && !sluice_reward_given) {
-      notes.push({ title: 'Sluice Repair', body: "Take the work chit to Petra at the Calwick market." });
-    }
-    // Briar Warden contract
-    if (warden_quest_started && !warden_quest_defeated) {
-      notes.push({ title: 'Warden Contract', body: "Defeat the Briar Warden in the Calwick dungeon (floor 1)." });
-    } else if (warden_quest_defeated && !warden_quest_rewarded) {
-      notes.push({ title: 'Warden Contract', body: "Return to Mault — the Briar Warden is dead." });
-    }
-    // Fort investigation
-    if (fort_quest_started && fort_quest_stage < 4 && fort_quest_stage !== 5) {
-      notes.push({ title: 'Fort Investigation', body: "Investigate the old fort south of Drenwick in the western fen." });
-    } else if (fort_quest_stage === 4 || fort_quest_stage === 5) {
-      notes.push({ title: 'Fort Investigation', body: "Report your findings to your supervisor in Calwick." });
-    } else if (fort_quest_stage === 6 && fort_pay_ticket_ready) {
-      notes.push({ title: 'Fort Investigation', body: "Take the pay ticket to Petra at the Calwick market." });
-    }
-    // Rest week after the fen post case, then the reservoir bed assignment
-    if (mq4_available_day > 0 && day < mq4_available_day) {
-      notes.push({ title: 'Stood Down', body: "The fen post matter is closed. The supervisor has taken you off the roster — rest until after Dayoff." });
-    } else if (mq4_available_day > 0 && !reservoir_quest_started) {
-      notes.push({ title: 'Stood Down', body: "The rest week is over. Report to the supervisor at the Calwick office for the next assignment." });
-    }
-    if (reservoir_quest_started) {
-      notes.push({ title: 'Reservoir Bed', body: "The drought has uncovered old stonework in the reservoir bed north of Drenwick. Investigate it — in daylight. A basin observer already went out and did not come back." });
-    }
-    // Schilling
-    if (schilling_quest_started && !schilling_returned) {
-      notes.push({ title: 'Missing Person', body: "Find Schilling and bring him back." });
-    }
-    // Pale Sentry
-    if (sentry_quest_started && !sentry_quest_done) {
-      notes.push({ title: 'Pale Sentry', body: "Defeat the Pale Sentry blocking the fen road near Drenwick." });
-    } else if (sentry_quest_done && !sentry_quest_rewarded) {
-      notes.push({ title: 'Pale Sentry', body: "Collect the bounty from Constable Tarvec at the Drenwick guard post." });
-    }
-    // Mabel's sickle
-    if (sickle_quest_stage === 1) {
-      notes.push({ title: "Mabel's Sickle", body: "Find the lost fen sickle near the north bank of the bog." });
-    }
-    // Den Wraith
-    if (den_wraith_quest_started && !den_wraith_defeated) {
-      notes.push({ title: 'Den Wraith', body: "Defeat the Den Wraith." });
-    } else if (den_wraith_defeated && !den_wraith_rewarded) {
-      notes.push({ title: 'Den Wraith', body: "Return to claim the wraith bounty." });
-    }
-    // A Bottle for Her Father
-    if (wine_quest_started && !wine_quest_delivered) {
-      notes.push({ title: "Fenna's Father", body: "Buy mushroom wine at Wend's brewery in the fen and bring it to Sael, Fenna's father, in Drenwick." });
-    } else if (wine_quest_delivered && !wine_quest_rewarded) {
-      notes.push({ title: "Fenna's Father", body: "Bring Sael's note back to Fenna in Calwick." });
-    }
+    // Quest-domain logic lives in getActiveQuestNotes() (quests.js); the
+    // renderer only lays out / scrolls the returned entries.
+    const notes = getActiveQuestNotes();
 
-    // Special Items — quest-flagged items (stats.items with questItem: true)
-    // get their own section here so they don't just blend into the regular
-    // ITEMS list above with everything else being carried.
-    const specialItemNotes = {
-      'Letter from Netto':  'A letter from home.',
-      'Dispatch Letter':    "Routine correspondence for the Drenwick district office.",
-      'Sealed Letter':      'A redacted transit authorization, fished from the canal. Sender unknown.',
-      'Mushroom Wine':      "Wend's brew, from the fen settlements.",
-      'Schilling':          "Pip's teddy bear. He's waiting for it back.",
-      'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
-      'Old Fishing Rod':    'A battered rod found in an abandoned Drenwick apartment. The worst rod there is — but it casts. Needed to fish the Drenwick waterfront.',
-      'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
-      'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
-      'Thank-You Note':          "From Sael. Fenna will want to see this.",
-    };
-    const seenSpecial = new Set();
-    const specialItems = stats.items.filter(it => it.questItem && !seenSpecial.has(it.name) && seenSpecial.add(it.name));
-    if (specialItems.length > 0) {
-      notes.push({ header: 'SPECIAL ITEMS' });
-      specialItems.forEach(it => {
-        notes.push({ title: it.name, body: specialItemNotes[it.name] || 'A quest item.' });
-      });
-    }
-
-    const NOTE_H   = 42;  // px per note entry (title + body + gap)
     const NOTES_Y0 = BY + 50;
     const PANEL_H  = BH - 70;
-    const visCount = Math.floor(PANEL_H / NOTE_H);
+    const NOTES_Y_END = NOTES_Y0 + PANEL_H;
 
-    // Clamp scroll
-    menu.notebookOffset = Math.max(0, Math.min(menu.notebookOffset, Math.max(0, notes.length - visCount)));
+    // Wrap a note body the same way it is rendered (\u224852 chars per line).
+    function wrapNoteBody(body) {
+      const words = body.split(' ');
+      let line = '', lines = [];
+      for (const w of words) {
+        if ((line + (line ? ' ' : '') + w).length > 52) { lines.push(line); line = w; }
+        else { line = line ? line + ' ' + w : w; }
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+    // Height a note occupies: headers are a compact divider; regular entries
+    // grow with their wrapped line count so 3+ line bodies never overlap the
+    // following entry.
+    function noteHeight(note) {
+      if (note.header) return 24;
+      const n = wrapNoteBody(note.body).length;
+      return 26 + Math.max(0, n - 1) * 13 + 12;
+    }
+
+    // Clamp scroll so the offset can never strand the tail off-screen. Walk
+    // from the end accumulating heights; the earliest index whose entries all
+    // still fit is the largest usable offset.
+    let maxOffset = 0;
+    {
+      let acc = 0;
+      for (let i = notes.length - 1; i >= 0; i--) {
+        acc += noteHeight(notes[i]);
+        if (acc > PANEL_H) { maxOffset = i + 1; break; }
+      }
+    }
+    menu.notebookOffset = Math.max(0, Math.min(menu.notebookOffset, maxOffset));
 
     if (notes.length === 0) {
       ctx.fillStyle = '#2a4848';
       ctx.font = '13px "Courier New", monospace';
       ctx.fillText('No active quests.', CX, NOTES_Y0 + 20);
     } else {
-      for (let ni = 0; ni < visCount; ni++) {
-        const i = menu.notebookOffset + ni;
-        if (i >= notes.length) break;
-        const ny = NOTES_Y0 + ni * NOTE_H;
+      let ny = NOTES_Y0;
+      let rendered = 0;
+      let lastIdx = menu.notebookOffset - 1;
+      for (let i = menu.notebookOffset; i < notes.length; i++) {
+        const h = noteHeight(notes[i]);
+        // Only draw entries that fully fit; always draw at least the first.
+        if (rendered > 0 && ny + h > NOTES_Y_END) break;
         // Separator
-        if (ni > 0) {
+        if (rendered > 0) {
           ctx.fillStyle = '#1a2e3e';
           ctx.fillRect(CX, ny - 6, BW - PAD * 2, 1);
         }
@@ -982,24 +926,19 @@ function drawMenu() {
           ctx.fillStyle = '#4a8898';
           ctx.font = 'bold 11px "Courier New", monospace';
           ctx.fillText(notes[i].header, CX, ny + 12);
-          continue;
+        } else {
+          // Title
+          ctx.fillStyle = '#7ab8c8';
+          ctx.font = 'bold 12px "Courier New", monospace';
+          ctx.fillText('\u25aa ' + notes[i].title, CX, ny + 12);
+          // Body
+          ctx.fillStyle = '#c8d8c8';
+          ctx.font = '12px "Courier New", monospace';
+          wrapNoteBody(notes[i].body).forEach((l, li) => ctx.fillText(l, CX + 10, ny + 26 + li * 13));
         }
-        // Title
-        ctx.fillStyle = '#7ab8c8';
-        ctx.font = 'bold 12px "Courier New", monospace';
-        ctx.fillText('\u25aa ' + notes[i].title, CX, ny + 12);
-        // Body
-        ctx.fillStyle = '#c8d8c8';
-        ctx.font = '12px "Courier New", monospace';
-        // Wrap body at ~52 chars
-        const words = notes[i].body.split(' ');
-        let line = '', lines = [];
-        for (const w of words) {
-          if ((line + (line ? ' ' : '') + w).length > 52) { lines.push(line); line = w; }
-          else { line = line ? line + ' ' + w : w; }
-        }
-        if (line) lines.push(line);
-        lines.forEach((l, li) => ctx.fillText(l, CX + 10, ny + 26 + li * 13));
+        ny += h;
+        rendered++;
+        lastIdx = i;
       }
       // Scroll indicators
       if (menu.notebookOffset > 0) {
@@ -1008,10 +947,10 @@ function drawMenu() {
         ctx.fillText('\u25b2 more', BX + BW - PAD, NOTES_Y0 + 2);
         ctx.textAlign = 'left';
       }
-      if (menu.notebookOffset + visCount < notes.length) {
+      if (lastIdx < notes.length - 1) {
         ctx.fillStyle = '#4a8898'; ctx.font = '10px "Courier New", monospace';
         ctx.textAlign = 'right';
-        ctx.fillText('\u25bc more', BX + BW - PAD, NOTES_Y0 + visCount * NOTE_H - 4);
+        ctx.fillText('\u25bc more', BX + BW - PAD, NOTES_Y_END - 4);
         ctx.textAlign = 'left';
       }
     }

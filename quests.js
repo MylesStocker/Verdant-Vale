@@ -39,7 +39,7 @@ let cat_quest_stage = 0;
 
 // ─── Side quest: Removal Contract (Briar Warden) ─────────────────────────────
 let warden_quest_started  = false; // player accepted contract from Mault
-let warden_quest_defeated = false; // Briar Warden defeated in dungeon floor 1
+let warden_quest_defeated = false; // Briar Warden defeated in the hidden spring meadow (NW corner of the vale)
 let warden_quest_rewarded = false; // Mault has paid the 120g reward
 
 // ─── Quest: Dispatch Letter ────────────────────────────────────────────────────
@@ -366,5 +366,110 @@ function syncQuestFlagsToWindow() {
   window.ff_clue_dedication    = !!window.ff_clue_dedication;
 }
 window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
+
+// ── Notebook content ─────────────────────────────────────────────────────────
+// Read-only source of truth for the quest journal. Returns a fresh array of
+// notebook entries in display order:
+//   { title, body }  — a quest note
+//   { header }       — a section divider
+// The renderer (drawMenu(), render-ui.js) owns only layout/scrolling; all
+// quest-state conditions, objective text, and the special-item description
+// table live here so rendering doesn't reach into quest-domain logic.
+// Pure: reads quest flags / stats.items / day but mutates nothing.
+function getActiveQuestNotes() {
+  const notes = [];
+  // Dispatch quest
+  if (dispatch_quest_started && !dispatch_delivered) {
+    notes.push({ title: "Supervisor's Errand", body: "Deliver the Dispatch Letter to Officer Veth at the Drenwick district office." });
+  } else if (dispatch_delivered && !dispatch_pay_ticket_ready && !dispatch_rewarded) {
+    notes.push({ title: "Supervisor's Errand", body: "Return to your supervisor in Calwick — the letter reached Drenwick." });
+  } else if (dispatch_pay_ticket_ready && !dispatch_rewarded) {
+    notes.push({ title: "Supervisor's Errand", body: "Take the pay chit to Petra at the Calwick market." });
+  }
+  // Sluice job
+  if (sluice_job_started && !sluice_fixed) {
+    notes.push({ title: 'Sluice Repair', body: "Fix the flow valve in the East Sluice beneath Calwick." });
+  } else if (sluice_fixed && !sluice_pay_ticket_ready && !sluice_reward_given) {
+    notes.push({ title: 'Sluice Repair', body: "Report back — the East Sluice valve is repaired." });
+  } else if (sluice_pay_ticket_ready && !sluice_reward_given) {
+    notes.push({ title: 'Sluice Repair', body: "Take the work chit to Petra at the Calwick market." });
+  }
+  // Briar Warden contract
+  if (warden_quest_started && !warden_quest_defeated) {
+    notes.push({ title: 'Warden Contract', body: "Defeat the Briar Warden. It dens in the hidden spring meadow at the vale's far northwest corner — push through the overgrown tree/grass nook to reach it." });
+  } else if (warden_quest_defeated && !warden_quest_rewarded) {
+    notes.push({ title: 'Warden Contract', body: "Return to Mault — the Briar Warden is dead." });
+  }
+  // Fort investigation
+  if (fort_quest_started && fort_quest_stage < 4 && fort_quest_stage !== 5) {
+    notes.push({ title: 'Fort Investigation', body: "Investigate the old fort south of Drenwick in the western fen." });
+  } else if (fort_quest_stage === 4 || fort_quest_stage === 5) {
+    notes.push({ title: 'Fort Investigation', body: "Report your findings to your supervisor in Calwick." });
+  } else if (fort_quest_stage === 6 && fort_pay_ticket_ready) {
+    notes.push({ title: 'Fort Investigation', body: "Take the pay ticket to Petra at the Calwick market." });
+  }
+  // Rest week after the fen post case, then the reservoir bed assignment
+  if (mq4_available_day > 0 && day < mq4_available_day) {
+    notes.push({ title: 'Stood Down', body: "The fen post matter is closed. The supervisor has taken you off the roster — rest until after Dayoff." });
+  } else if (mq4_available_day > 0 && !reservoir_quest_started) {
+    notes.push({ title: 'Stood Down', body: "The rest week is over. Report to the supervisor at the Calwick office for the next assignment." });
+  }
+  if (reservoir_quest_started) {
+    notes.push({ title: 'Reservoir Bed', body: "The drought has uncovered old stonework in the reservoir bed north of Drenwick. Investigate it — in daylight. A basin observer already went out and did not come back." });
+  }
+  // Schilling
+  if (schilling_quest_started && !schilling_returned) {
+    notes.push({ title: 'Missing Person', body: "Find Schilling and bring him back." });
+  }
+  // Pale Sentry
+  if (sentry_quest_started && !sentry_quest_done) {
+    notes.push({ title: 'Pale Sentry', body: "Defeat the Pale Sentry blocking the fen road near Drenwick." });
+  } else if (sentry_quest_done && !sentry_quest_rewarded) {
+    notes.push({ title: 'Pale Sentry', body: "Collect the bounty from Constable Tarvec at the Drenwick guard post." });
+  }
+  // Mabel's sickle
+  if (sickle_quest_stage === 1) {
+    notes.push({ title: "Mabel's Sickle", body: "Find the lost fen sickle near the north bank of the bog." });
+  }
+  // Den Wraith
+  if (den_wraith_quest_started && !den_wraith_defeated) {
+    notes.push({ title: 'Den Wraith', body: "Defeat the Den Wraith." });
+  } else if (den_wraith_defeated && !den_wraith_rewarded) {
+    notes.push({ title: 'Den Wraith', body: "Return to claim the wraith bounty." });
+  }
+  // A Bottle for Her Father
+  if (wine_quest_started && !wine_quest_delivered) {
+    notes.push({ title: "Fenna's Father", body: "Buy mushroom wine at Wend's brewery in the fen and bring it to Sael, Fenna's father, in Drenwick." });
+  } else if (wine_quest_delivered && !wine_quest_rewarded) {
+    notes.push({ title: "Fenna's Father", body: "Bring Sael's note back to Fenna in Calwick." });
+  }
+
+  // Special Items — quest-flagged items (stats.items with questItem: true)
+  // get their own section here so they don't just blend into the regular
+  // ITEMS list above with everything else being carried.
+  const specialItemNotes = {
+    'Letter from Netto':  'A letter from home.',
+    'Dispatch Letter':    "Routine correspondence for the Drenwick district office.",
+    'Sealed Letter':      'A redacted transit authorization, fished from the canal. Sender unknown.',
+    'Mushroom Wine':      "Wend's brew, from the fen settlements.",
+    'Schilling':          "Pip's teddy bear. He's waiting for it back.",
+    'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
+    'Old Fishing Rod':    'A battered rod found in an abandoned Drenwick apartment. The worst rod there is — but it casts. Needed to fish the Drenwick waterfront.',
+    'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
+    'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
+    'Thank-You Note':          "From Sael. Fenna will want to see this.",
+  };
+  const seenSpecial = new Set();
+  const specialItems = stats.items.filter(it => it.questItem && !seenSpecial.has(it.name) && seenSpecial.add(it.name));
+  if (specialItems.length > 0) {
+    notes.push({ header: 'SPECIAL ITEMS' });
+    specialItems.forEach(it => {
+      notes.push({ title: it.name, body: specialItemNotes[it.name] || 'A quest item.' });
+    });
+  }
+
+  return notes;
+}
+window.getActiveQuestNotes = getActiveQuestNotes;
 
 syncQuestFlagsToWindow();

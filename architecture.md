@@ -401,9 +401,14 @@ runs on a map with an *empty* item list, not just one with items on it.
 `interactions.js`'s `handleInteract()` (called when the interact key is
 pressed) is checked in this priority order:
 
-1. **Dialogue continuation** — if `dialogue.open`, advance/close it (and
-   run any queued combat/callback triggers) and return; nothing else in
-   this list runs on the same press.
+1. **Dialogue continuation** — if `dialogue.open`, advance it; when the last
+   page closes, `finishDialogue()` runs the next queued callback and then
+   dispatches at most one queued encounter, and we return; nothing else in this
+   list runs on the same press. Fights are queued generically with
+   `queueDialogueEncounter(id)` (sets `dialogue.triggerEncounterId`); a single
+   `ENCOUNTER_HANDLERS` table maps each id to its `start*Combat()` function, and
+   the id is cleared before combat starts so a repeated press can't re-fire it.
+   (There are no per-fight `trigger*Combat` booleans — that was the old model.)
 2. **Named location handlers.** `handleInteract()` is a priority orchestrator
    over two dispatch tables — `INTERACT_HANDLERS` (top-level) and
    `OVERWORLD_INTERACT_HANDLERS`. The **first** entry whose `match()` returns
