@@ -164,6 +164,21 @@ const CALWICK_NPCS = [
         ? [['\u201cYou know what I\u2019m not thinking about today?', 'The form.\u201d'],
            ['\u201cI\u2019m thinking about it anyway.\u201d']]
         : [['\u201cThe form requires a countersignature.', 'The countersignatory requires the form.\u201d']];
+      // The Struck Entry (side quest). Once he's asked the player to recover his
+      // father's canal tally, he checks for it every time -- the required
+      // work-day change -- until it's done; nothing sets corvin_favor_done yet,
+      // so the resolved line is dormant until that quest is built (quests.js).
+      if (corvin_favor_started && !corvin_favor_done) pages.push(
+        ['\u201cYou\u2019ve been out to Drenwick since.\u201d',
+         'He doesn\u2019t look up, but he asks it every time now.',
+         '\u201cThe old canal office. My father\u2019s tally. Anything?\u201d']
+      );
+      if (corvin_favor_done) pages.push(
+        ['\u201cHis name\u2019s back on the keeper\u2019s roll.\u201d',
+         '\u201cThirty years struck, and a stranger set it right in a season.\u201d'],
+        ['\u201cI\u2019ve countersigned a great many corrections.\u201d',
+         '\u201cThat\u2019s the only one that was ever mine.\u201d']
+      );
       if (weight_quest_stage >= 4) pages.push(
         ['\u201cThe batch is closed.\u201d',
          '\u201cThree-month variance. I\u2019ve been staring at that entry every week.\u201d'],

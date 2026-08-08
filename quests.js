@@ -235,6 +235,28 @@ let wine_quest_gift      = null;  // 'bottle' | 'case' — set once Sael receive
 let wine_quest_delivered = false; // Sael has the wine and gave the player a note for Fenna
 let wine_quest_rewarded  = false; // Fenna has paid out for the returned note
 
+// ─── Side quest: The Struck Entry ─────────────────────────────────────────────
+// Corvin — district ledger clerk, canal family from past Drenwick — carries one
+// record he is forbidden to fix: his father kept the third lock on the old
+// Drenwick canal, and a clerk struck the name from the keeper's roll when the
+// canals were wound down. Corvin reconciles the district's numbers for a living
+// but cannot touch this one (his hand on it voids the correction — the same
+// neutral-party principle the Weight Discrepancy runs on), so he asks the player
+// to recover the original towpath tally that still carries his father's mark.
+// Offered off the clock at the Calwick inn on a Dayoff, at a 1/3 chance each
+// Dayoff (rolled once per Dayoff and remembered, so re-talking the same day — or
+// a save/load — is stable), mirroring the Fourteenth File's availability roll.
+//
+// NOTE: the resolution (where the tally is, retrieving it, the payoff) is NOT
+// built yet — nothing currently sets corvin_favor_done. That is deliberate: it
+// also means the Weight Discrepancy cannot yet reach its clean finish, because
+// Corvin will only countersign Aldric's correction once this favour is done
+// (see interactCalwickOffice). Both resolutions are future work.
+let corvin_favor_started   = false; // Corvin asked the player, off the clock at the inn
+let corvin_favor_done      = false; // player restored the struck entry (no path sets this yet)
+let corvin_favor_offer_day = 0;     // day the once-per-Dayoff 1/3 availability roll last ran
+let corvin_favor_offered   = false; // result of that roll (persisted so re-talk/save-load is stable)
+
 // ─── Window sync ─────────────────────────────────────────────────────────────
 // window.* values are for debugging and console inspection only — gameplay code
 // uses the let bindings directly. Call syncQuestFlagsToWindow() after any
@@ -303,6 +325,10 @@ function syncQuestFlagsToWindow() {
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;
   window.wine_quest_rewarded  = wine_quest_rewarded;
+  window.corvin_favor_started   = corvin_favor_started;
+  window.corvin_favor_done      = corvin_favor_done;
+  window.corvin_favor_offer_day = corvin_favor_offer_day;
+  window.corvin_favor_offered   = corvin_favor_offered;
   // Window-native MAP_FEATURES onceFlags (Upper Reach pass) -- window[name]
   // is the source of truth (interactions.js sets it directly), so these
   // lines only normalize undefined -> false. They must NEVER assign from a

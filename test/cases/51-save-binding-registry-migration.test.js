@@ -6,7 +6,7 @@
 //     ordered key set, and QUEST_FLAG_SCHEMA is DERIVED from it (not a second
 //     hand-maintained list).
 //   • saveGame()/loadGame() read/write every binding generically, so a complete
-//     round-trip restores all 85 flags — lexical, window-native, numeric,
+//     round-trip restores all 89 flags — lexical, window-native, numeric,
 //     nullable — plus their window mirrors.
 //   • A save missing a field falls back to that binding's declared default and
 //     never inherits the current (possibly dirtied) runtime value.
@@ -24,7 +24,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // The complete, ordered set of persistent flag keys as of this test's authoring
-// (63 lexical + 22 window-native = 85). A binding added or removed without
+// (67 lexical + 22 window-native = 89). A binding added or removed without
 // updating this snapshot fails section A — the point is that growing the save
 // schema is a deliberate, reviewed act.
 const EXPECTED_KEYS = [
@@ -42,7 +42,9 @@ const EXPECTED_KEYS = [
   'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet', 'esla_said_polwick_pending',
   'esla_said_polwick_dead', 'esla_said_basin', 'supervisor_greet_day', 'esla_greet_day',
   'north_bridge_crossed_early', 'north_bridge_scolded', 'supervisor_said_flood', 'wine_quest_started',
-  'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded', 'upper_reach_seen',
+  'wine_quest_gift', 'wine_quest_delivered', 'wine_quest_rewarded',
+  'corvin_favor_started', 'corvin_favor_done', 'corvin_favor_offer_day', 'corvin_favor_offered',
+  'upper_reach_seen',
   'basin_chamber_seen', 'sunken_gallery_seen', 'basin_chamber_exits', 'basin_chamber_dream_done',
   'sunken_gallery_recess_opened', 'sunken_gallery_drowned_freed', 'sunken_gallery_drowned_slain', 'sunken_gallery_gift_taken',
   'gallery_clue_silt', 'gallery_clue_satchel', 'gallery_clue_survey', 'gallery_clue_gauge',
@@ -104,10 +106,10 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 63, '63 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 67, '67 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 22, '22 window bindings');
 
-    // ── B. Complete flag round-trip (all 85 bindings, generically) ──────────
+    // ── B. Complete flag round-trip (all 89 bindings, generically) ──────────
     // Assign each binding a value distinct from its default, save, reset every
     // binding to its default, load, and confirm each restored to the saved
     // value. `__rt` stashes the expected value on the binding for comparison.

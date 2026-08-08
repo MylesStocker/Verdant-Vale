@@ -45,6 +45,7 @@ module.exports = {
       weight_quest_stage = 2;
       weight_note_signed = false;
       cabinetCaseFlag = false;
+      corvin_favor_done = true; // Corvin only countersigns once his own favour is done (see test 60)
     `);
 
     // 1. Aldric, pre-signing: the original waiting line, no branching choice.

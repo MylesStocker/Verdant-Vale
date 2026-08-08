@@ -22,7 +22,7 @@ individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
 
-- **59 tests** (`test/cases/01-…59-`), `node test/run.js` — all passing.
+- **60 tests** (`test/cases/01-…60-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile
@@ -631,8 +631,28 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
     Covered by **test 59** (9 contract points + 6 break-then-restore checks).
     `SAVE_VERSION` unchanged (3). See architecture.md "Stable identity …" and
     "Validation".
+20. **"The Struck Entry" — Corvin's favour (side quest, partial)** — Corvin, the
+    district ledger clerk (canal family from past Drenwick), carries one record
+    he's barred from fixing himself: his father's name was struck from the old
+    Drenwick canal keeper's roll, and correcting a record he has a personal stake
+    in would void it (the same neutral-party rule the Weight Discrepancy runs on).
+    He asks the player, off the clock at the Calwick inn on a Dayoff, to recover
+    the original towpath tally — offered at a **1/3 chance rolled once per Dayoff
+    and remembered** (mirroring the Fourteenth File availability roll). New flags
+    (quests.js, saved + window-synced): `corvin_favor_started` / `corvin_favor_done`
+    / `corvin_favor_offer_day` / `corvin_favor_offered`. **Crucially cross-wired
+    into Aldric's Weight Discrepancy**: Corvin now only countersigns the correction
+    once `corvin_favor_done` — before that he deflects (pointing the player to the
+    inn), so Aldric's quest can't reach its clean finish. His work-day office
+    dialogue gains an in-progress line once the favour is given, plus a dormant
+    resolved line and a reciprocity beat at the signature. **Intentionally partial:
+    the resolution isn't built — nothing sets `corvin_favor_done` yet**, so
+    Corvin's quest has no completion and the Weight Discrepancy's best ending is
+    gated pending future work. Covered by **test 60** (offer roll, accept/decline,
+    the signature gate, flag round-trip); tests 14 and 51 updated for the new
+    precondition and flag snapshot. `SAVE_VERSION` unchanged (3).
 
-Each item shipped with tests (27-30, 34-41, 56, 58, 59), a clean `validateGameData()`
+Each item shipped with tests (27-30, 34-41, 56, 58, 59, 60), a clean `validateGameData()`
 run, and a clean transition audit (all new enter/exit functions and
 transition tiles are registered in `test/transition-audit.js`).
 

@@ -1310,17 +1310,18 @@ function interactCalwickOffice() {
         const cdx = player.x - corvin.x;
         const cdy = player.y - corvin.y;
         if (Math.sqrt(cdx * cdx + cdy * cdy) < TALK_RADIUS) {
-          if (!weight_note_signed) {
+          if (!weight_note_signed && corvin_favor_done) {
+            // Favour repaid \u2014 he countersigns readily, and says why.
             dialogue.name  = 'Corvin';
             dialogue.pages = [
-              ['\u201cRenn\u2019s weight discrepancy.\u201d',
-               'He doesn\u2019t look up from the ledger.',
-               '\u201cI\u2019ve been expecting this query for two months.\u201d'],
+              ['\u201cYou put my father\u2019s name back on the keeper\u2019s roll.\u201d',
+               'He sets the ledger aside \u2014 something you have not once seen him do.',
+               '\u201cI don\u2019t leave accounts open. Renn\u2019s discrepancy. Give it here.\u201d'],
               ['\u201cThe 304 figure was a copy error on my part.\u201d',
                '\u201cI transposed two digits. 304 should read 340, and the declared weight is 312.\u201d',
                '\u201cStill a variance, but within acceptable tolerance.\u201d'],
-              ['\u201cI\u2019ll countersign the correction.\u201d',
-               'He signs the note without further comment and slides it back.',
+              ['\u201cThere. Countersigned.\u201d',
+               'He signs the note and slides it back.',
                '\u201cTell Renn I\u2019ve filed a correction notice on my side as well.\u201d',
                '\u201cAldric can point you to where the note itself goes.\u201d'],
             ];
@@ -1328,6 +1329,33 @@ function interactCalwickOffice() {
               weight_note_signed = true;
               syncQuestFlagsToWindow();
             }];
+            dialogue.open  = true;
+            dialogue.page  = 0;
+          } else if (!weight_note_signed && corvin_favor_started) {
+            // Favour under way but unfinished \u2014 he won't sign until it's settled.
+            dialogue.name  = 'Corvin';
+            dialogue.pages = [
+              ['\u201cMy father\u2019s roll.\u201d',
+               'He looks up from the ledger, briefly.',
+               '\u201cYou\u2019ve not found the tally yet \u2014 I\u2019d know it from your face. I read ledgers for a living.\u201d'],
+              ['\u201cSettle that, and Renn\u2019s correction signs itself the same afternoon. You have my word, and my word is a matter of record.\u201d',
+               '\u201cNot before.\u201d'],
+            ];
+            dialogue.open  = true;
+            dialogue.page  = 0;
+          } else if (!weight_note_signed) {
+            // Not yet asked / hasn't taken it on \u2014 he acknowledges the query but
+            // is in no hurry to do the district a courtesy, and points the player
+            // to where he can be asked why.
+            dialogue.name  = 'Corvin';
+            dialogue.pages = [
+              ['\u201cRenn\u2019s weight discrepancy. I know the entry.\u201d',
+               'He doesn\u2019t look up from the ledger.',
+               '\u201cI\u2019ll countersign it. When I\u2019ve a reason to hurry \u2014 and just now I haven\u2019t.\u201d'],
+              ['\u201cI keep my own reckoning before the district\u2019s.\u201d',
+               'A pause, the pen still moving.',
+               '\u201cIf you want to know what I mean by that, I\u2019m at the inn on the Dayoff. Ask me there. Not here.\u201d'],
+            ];
             dialogue.open  = true;
             dialogue.page  = 0;
           } else {
@@ -1782,6 +1810,77 @@ function interactCalwickInn() {
       dialogue.open = true;
       dialogue.page = 0;
       return true;
+    }
+    // ── The Struck Entry (side quest) — offered by Corvin, off the clock ─────
+    // Corvin only asks at the inn, on a Dayoff, and only for one thing: the
+    // canal record he's barred from fixing himself (see quests.js). Offered at a
+    // 1/3 chance each Dayoff once the player is established and not during the
+    // fen-post rest week; the roll is stored per Dayoff (corvin_favor_offer_day/
+    // offered) so re-talking — or a save/load — the same day is stable. Once he's
+    // asked (corvin_favor_started) or it's done, this steps aside and his normal
+    // SIMPLE_NPCS dialogue plays. The resolution isn't built yet — accepting only
+    // records that he asked; nothing sets corvin_favor_done.
+    {
+      const corvin = SIMPLE_NPCS.find(n => n.id === 'corvin');
+      if (corvin && corvin.map === currentMapId() &&
+          !corvin_favor_started && !corvin_favor_done &&
+          MainQuest >= 1 && !(mq4_available_day > 0 && !reservoir_quest_started)) {
+        const cdx = player.x - corvin.x, cdy = player.y - corvin.y;
+        if (Math.sqrt(cdx * cdx + cdy * cdy) < TALK_RADIUS) {
+          if (corvin_favor_offer_day !== day) {
+            corvin_favor_offer_day = day;
+            corvin_favor_offered   = Math.random() < (1 / 3);
+            syncQuestFlagsToWindow();
+          }
+          if (corvin_favor_offered) {
+            dialogue.name  = 'Corvin';
+            dialogue.pages = [
+              ['He’s turned his chair a little away from the room. The cup in front of him is untouched.',
+               '“You go to Drenwick and back, and nobody signs you in or out. I’ve been watching you do it for weeks.”'],
+              ['“I have a thing I can’t do myself. Not won’t — can’t.”',
+               '“My father kept the third lock on the old Drenwick canal. Thirty years, in weather that’d take the paint off you.”'],
+              ['“When they wound the canals down, a clerk struck his name from the keeper’s roll. One pen stroke. As though the lock had kept itself.”',
+               'He says it flat, the way he says everything, which is how you know it isn’t flat at all.'],
+              ['“I reconcile records for the district. His is the one I’m barred from touching — my hand on it and the correction’s void. I taught that rule. I won’t be the man who breaks it.”',
+               '“But the original towpath tally still carries his mark, if it survived. It’d be in Drenwick — the old canal office, or whatever swallowed its papers when it shut.”'],
+            ];
+            dialogue.callbacks = [function () {
+              choice.title   = 'Corvin';
+              choice.options = ['Find the tally', 'Not now'];
+              choice.cursor  = 0;
+              choice.callbacks = [
+                function take() {
+                  corvin_favor_started = true;
+                  syncQuestFlagsToWindow();
+                  dialogue.name  = 'Corvin';
+                  dialogue.pages = [
+                    ['He nods once, and turns his chair back to the table.',
+                     '“Good. His name goes back where it was, and that’s the whole of it.”'],
+                    ['“I keep accounts better than anyone in this district.”',
+                     'He picks up the cup at last.',
+                     '“Do this, and I’ll not have yours standing open.”'],
+                  ];
+                  dialogue.callbacks = null;
+                  dialogue.open  = true;
+                  dialogue.page  = 0;
+                },
+                function notNow() {
+                  dialogue.name  = 'Corvin';
+                  dialogue.pages = [['“No.” He turns the cup a quarter-turn and lets it sit.',
+                                     '“It’s waited thirty years. It’ll keep. Ask me again if the mood takes you.”']];
+                  dialogue.callbacks = null;
+                  dialogue.open  = true;
+                  dialogue.page  = 0;
+                },
+              ];
+              choice.open = true;
+            }];
+            dialogue.open = true;
+            dialogue.page = 0;
+            return true;
+          }
+        }
+      }
     }
     // Petra and Corvin caught by interactSimpleNPCs (their map getter returns 'inn')
     interactSimpleNPCs();

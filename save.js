@@ -98,6 +98,10 @@ const QUEST_FLAG_BINDINGS = [
   lex('wine_quest_gift', null, () => wine_quest_gift, (v) => { wine_quest_gift = v; }),  // nullable
   lex('wine_quest_delivered', false, () => wine_quest_delivered, (v) => { wine_quest_delivered = v; }),
   lex('wine_quest_rewarded', false, () => wine_quest_rewarded, (v) => { wine_quest_rewarded = v; }),
+  lex('corvin_favor_started', false, () => corvin_favor_started, (v) => { corvin_favor_started = v; }),
+  lex('corvin_favor_done', false, () => corvin_favor_done, (v) => { corvin_favor_done = v; }),
+  lex('corvin_favor_offer_day', 0, () => corvin_favor_offer_day, (v) => { corvin_favor_offer_day = v; }),
+  lex('corvin_favor_offered', false, () => corvin_favor_offered, (v) => { corvin_favor_offered = v; }),
   // ── Window-native (interactions.js / MAP_FEATURES set window[key] directly) ─
   // syncQuestFlagsToWindow() only NORMALIZES these (undefined → default); it
   // never assigns from a let-binding, so a flag the player just earned is safe.
