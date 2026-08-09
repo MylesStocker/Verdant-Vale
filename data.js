@@ -1096,6 +1096,145 @@ window.mapRefForId  = mapRefForId;
 function mapRegistryId(mapRef) { return mapIdForRef(mapRef); }
 window.mapRegistryId = mapRegistryId;
 
+// ─── REGIONAL_LAYOUT: continuous-overworld chunk placement (prework) ──────────
+// Behaviour-neutral prework for a FUTURE *continuous* overworld. It changes no
+// runtime behaviour today: nothing here is consulted by rendering, movement,
+// saves, encounters, or transitions -- it only DESCRIBES where the principal
+// wilderness maps sit relative to one another, so later work (and the seam-
+// readiness audit) has one authoritative place to read that layout from.
+//
+// This is a SEPARATE authority from MAP_CATALOG, and does not overlap it:
+//   • MAP_CATALOG owns map IDENTITY  -- which physical maps exist, their arrays,
+//     display names, types, encounter pools. It stays the sole such authority.
+//   • REGIONAL_LAYOUT owns map GEOMETRY -- where each principal wilderness map
+//     sits on a single continuous integer chunk grid. It references MAP_CATALOG
+//     ids; it never redefines a map.
+// It is ALSO distinct from the logical content-location-key namespace
+// (currentContentLocationKey(), movement.js): those keys ('west', 'house:<id>',
+// 'drenwick_civic', …) label shared physical grids for gameplay, and are not
+// physical map ids or chunk coordinates. The three namespaces stay separate.
+//
+// One region, 'overworld', holds the principal connected wilderness. Its chunk
+// coordinates were DERIVED from the game's own current transitions -- the broad
+// EDGE_TRANSITIONS crossings (world-transitions.js) plus the single-tile world
+// crossings in movement.js -- not invented. East is +chunkX, south is +chunkY
+// (matching the game's tile axes), and every one of the 16 outdoor↔outdoor
+// adjacencies the game currently defines places CONSISTENTLY on this grid with
+// no contradiction (a strong signal the topology is right; the seam audit
+// re-derives and reports it). Each chunk is exactly COLS×ROWS tiles (16×15) --
+// verified against every placed map's array in validateRegionalLayout()
+// (validation.js), not assumed here.
+//
+// Region-world coordinates are per-region tile coordinates:
+//   worldX = chunkX*COLS + localX,  worldY = chunkY*ROWS + localY.
+//
+// Deliberately EXCLUDED, kept OFF the continuous grid (per the prework brief):
+// the hidden Briar Warden meadow (MEADOW_MAP) and every other pocket/special
+// map, plus all town, interior, bridge, and dungeon maps. Those remain separate
+// maps reached by point/gate transitions; the seam audit reports any wilderness
+// edge that leads to one as "outside the region / pocket".
+const REGIONAL_LAYOUT = {
+  overworld: {
+    id: 'overworld',
+    displayName: 'Verdant Vale Overworld',
+    // Each placement occupies one COLS×ROWS chunk. Chunk (0,0) is the NW corner
+    // of the region's bounding box; gaps (unplaced chunks inside the box) are a
+    // real, tested case -- tileAtWorld() reads them as REGION_VOID_TILE.
+    placements: [
+      // Verdant Vale core + the eastern-reach road chain (MAP→MAP2→…→MAP5, due east).
+      { mapId: 'MAP',                chunkX: 0, chunkY: 5 },
+      { mapId: 'MAP2',               chunkX: 1, chunkY: 5 },
+      { mapId: 'MAP3',               chunkX: 2, chunkY: 5 },
+      { mapId: 'MAP4',               chunkX: 3, chunkY: 5 },
+      { mapId: 'MAP5',               chunkX: 4, chunkY: 5 },
+      // Northern road off Verdant Vale (MAP→MAP_N1→MAP_N2, due north).
+      { mapId: 'MAP_N1',             chunkX: 0, chunkY: 4 },
+      { mapId: 'MAP_N2',             chunkX: 0, chunkY: 3 },
+      // Thornmere fen shelf north of the eastern road, plus the Roddon Way ridge.
+      { mapId: 'RODDON_WAY_MAP',     chunkX: 1, chunkY: 4 },
+      { mapId: 'MAP3_N1',            chunkX: 2, chunkY: 4 },
+      { mapId: 'MAP3_N2',            chunkX: 2, chunkY: 3 },
+      // The North Basin -- continuous via EDGE_TRANSITIONS -- climbing north/west.
+      { mapId: 'NORTH_BASIN_S_MAP',  chunkX: 2, chunkY: 2 },
+      { mapId: 'NORTH_BASIN_C_MAP',  chunkX: 2, chunkY: 1 },
+      { mapId: 'NORTH_BASIN_SW_MAP', chunkX: 1, chunkY: 2 },
+      { mapId: 'NORTH_BASIN_W_MAP',  chunkX: 1, chunkY: 1 },
+      { mapId: 'NORTH_BASIN_NW_MAP', chunkX: 1, chunkY: 0 },
+    ],
+  },
+};
+window.REGIONAL_LAYOUT = REGIONAL_LAYOUT;
+
+// Documented void result for tileAtWorld(): any region-world coordinate that is
+// out of range, negative, or inside the region's bounding box but on an UNPLACED
+// chunk reads as this sentinel. It is never a real tile id (every real tile id is
+// a non-negative integer), so callers can test `=== REGION_VOID_TILE` safely.
+const REGION_VOID_TILE = -1;
+window.REGION_VOID_TILE = REGION_VOID_TILE;
+
+// Derived reverse indexes -- built ONCE from REGIONAL_LAYOUT, never authored
+// independently (mirroring how MAP_REGISTRY / _MAP_REF_TO_ID derive from
+// MAP_CATALOG, so they cannot drift): one maps a physical map id to its
+// placement; the other maps a region+chunk coordinate to the map id there.
+const _MAP_ID_TO_PLACEMENT = new Map(); // mapId -> { region, mapId, chunkX, chunkY }
+const _CHUNK_TO_MAP_ID     = new Map(); // 'region:cx,cy' -> mapId
+function _chunkKey(region, cx, cy) { return region + ':' + cx + ',' + cy; }
+for (const _regionId of Object.keys(REGIONAL_LAYOUT)) {
+  for (const _p of REGIONAL_LAYOUT[_regionId].placements) {
+    const _placement = { region: _regionId, mapId: _p.mapId, chunkX: _p.chunkX, chunkY: _p.chunkY };
+    _MAP_ID_TO_PLACEMENT.set(_p.mapId, _placement);
+    _CHUNK_TO_MAP_ID.set(_chunkKey(_regionId, _p.chunkX, _p.chunkY), _p.mapId);
+  }
+}
+
+// ── Side-effect-free layout helpers ──────────────────────────────────────────
+// Pure lookups / coordinate math over the derived indexes; none read or write
+// player/activeMap/runtime state. Unknown ids/coords return null (never a silent
+// fallback) -- the same contract as mapEntryForId()/mapIdForRef(). COLS/ROWS are
+// read at call time (defined in state.js, which loads after this file).
+
+// map id -> its placement { region, mapId, chunkX, chunkY }, or null.
+function regionPlacementForMapId(mapId) {
+  return _MAP_ID_TO_PLACEMENT.has(mapId) ? _MAP_ID_TO_PLACEMENT.get(mapId) : null;
+}
+// region + chunk coordinate -> the physical map id there, or null if unplaced.
+function mapIdForChunk(region, chunkX, chunkY) {
+  const k = _chunkKey(region, chunkX, chunkY);
+  return _CHUNK_TO_MAP_ID.has(k) ? _CHUNK_TO_MAP_ID.get(k) : null;
+}
+// map-local (tile) coordinate -> region-world (tile) coordinate.
+// { region, worldX, worldY }, or null if the map isn't placed in any region.
+function localToWorld(mapId, localX, localY) {
+  const p = regionPlacementForMapId(mapId);
+  if (!p) return null;
+  return { region: p.region, worldX: p.chunkX * COLS + localX, worldY: p.chunkY * ROWS + localY };
+}
+// region-world (tile) coordinate -> the map id + local coordinate there.
+// { mapId, chunkX, chunkY, localX, localY }, or null if no chunk is placed there
+// (unknown region, negative, out of range, or a gap in the bounding box).
+function worldToLocal(region, worldX, worldY) {
+  if (!REGIONAL_LAYOUT[region]) return null;
+  if (worldX < 0 || worldY < 0) return null; // negatives fall onto no chunk
+  const chunkX = Math.floor(worldX / COLS), chunkY = Math.floor(worldY / ROWS);
+  const mapId = mapIdForChunk(region, chunkX, chunkY);
+  if (!mapId) return null;
+  return { mapId, chunkX, chunkY, localX: worldX - chunkX * COLS, localY: worldY - chunkY * ROWS };
+}
+// Reads the tile id at a region-world coordinate. Missing chunk / out of range /
+// negative -> REGION_VOID_TILE (documented void), never a throw or a wrong tile.
+function tileAtWorld(region, worldX, worldY) {
+  const loc = worldToLocal(region, worldX, worldY);
+  if (!loc) return REGION_VOID_TILE;
+  const map = mapRefForId(loc.mapId);
+  if (!map || !map[loc.localY] || map[loc.localY][loc.localX] === undefined) return REGION_VOID_TILE;
+  return map[loc.localY][loc.localX];
+}
+window.regionPlacementForMapId = regionPlacementForMapId;
+window.mapIdForChunk        = mapIdForChunk;
+window.localToWorld         = localToWorld;
+window.worldToLocal         = worldToLocal;
+window.tileAtWorld          = tileAtWorld;
+
 // ─── Stable-ID registries (#4): world pickups + openable chests ──────────────
 // Immutable-ID policy: every persistent placed pickup and every openable chest
 // carries an authored, immutable `id` (`pickup_<snake>` / `chest_<snake>`, lower

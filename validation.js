@@ -175,6 +175,75 @@ function validateMapMetadata() {
   return checked;
 }
 
+// ─── 2b. Regional layout (continuous-overworld chunk placement) ─────────────
+// REGIONAL_LAYOUT (data.js) is the additive authority for map GEOMETRY on the
+// future continuous overworld -- separate from MAP_CATALOG's map IDENTITY. This
+// validates that authority and its DERIVED indexes (the same soundness checks
+// the layout test asserts, but reachable from the browser console):
+//   • every placed map id is a real, OUTDOOR MAP_CATALOG map of the right dims
+//     (COLS×ROWS -- verified, not assumed);
+//   • integer chunk coordinates; no two maps on the same chunk within a region;
+//     no map placed twice across regions;
+//   • the derived reverse indexes (regionPlacementForMapId / mapIdForChunk) agree
+//     with the authored placements, in both directions (cannot have drifted).
+function validateRegionalLayout() {
+  const GROUP = 'Regional layout';
+  let checked = 0;
+  if (typeof REGIONAL_LAYOUT === 'undefined') {
+    addValidationError(GROUP, 'REGIONAL_LAYOUT is undefined -- check script load order (data.js)');
+    return checked;
+  }
+  const catalog = (typeof MAP_CATALOG !== 'undefined') ? MAP_CATALOG : {};
+  const rows = _validationRows(), cols = _validationCols();
+  const seenMapIds = new Map(); // mapId -> region it was first placed in (no map placed twice)
+
+  for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+    const region = REGIONAL_LAYOUT[regionId];
+    const rlbl = 'REGIONAL_LAYOUT[' + regionId + ']';
+    if (!region || !_isPlainArray(region.placements)) {
+      addValidationError(GROUP, rlbl + ': missing placements array');
+      continue;
+    }
+    const seenChunks = new Map(); // 'cx,cy' -> mapId (unique chunk positions per region)
+    for (const p of region.placements) {
+      const plbl = rlbl + ' placement "' + (p && p.mapId) + '"';
+      if (!p || typeof p.mapId !== 'string') { addValidationError(GROUP, rlbl + ': a placement has no string mapId'); continue; }
+      checked++;
+
+      const entry = catalog[p.mapId];
+      if (!entry) {
+        addValidationError(GROUP, plbl + ': not a known MAP_CATALOG map id');
+      } else {
+        if (entry.type !== 'outdoor') addValidationError(GROUP, plbl + ': type "' + entry.type + '" is not outdoor -- the continuous grid holds wilderness maps only');
+        if (_isPlainArray(entry.map)) {
+          if (entry.map.length !== rows || !_isPlainArray(entry.map[0]) || entry.map[0].length !== cols)
+            addValidationError(GROUP, plbl + ': map is ' + entry.map.length + '×' + (_isPlainArray(entry.map[0]) ? entry.map[0].length : '?') + ', expected ' + rows + '×' + cols + ' -- chunks must be uniform');
+        }
+      }
+
+      if (!Number.isInteger(p.chunkX) || !Number.isInteger(p.chunkY))
+        addValidationError(GROUP, plbl + ': chunkX/chunkY must be integers (got ' + p.chunkX + ',' + p.chunkY + ')');
+
+      const ckey = p.chunkX + ',' + p.chunkY;
+      if (seenChunks.has(ckey)) addValidationError(GROUP, plbl + ': chunk (' + ckey + ') already occupied by "' + seenChunks.get(ckey) + '" -- two maps cannot share a chunk');
+      else seenChunks.set(ckey, p.mapId);
+
+      if (seenMapIds.has(p.mapId)) addValidationError(GROUP, plbl + ': also placed in region "' + seenMapIds.get(p.mapId) + '" -- a map must be placed at most once');
+      else seenMapIds.set(p.mapId, regionId);
+
+      // Derived-index consistency (both directions).
+      if (typeof regionPlacementForMapId === 'function') {
+        const back = regionPlacementForMapId(p.mapId);
+        if (!back || back.region !== regionId || back.chunkX !== p.chunkX || back.chunkY !== p.chunkY)
+          addValidationError(GROUP, plbl + ': regionPlacementForMapId() disagrees with the authored placement (derived index drift)');
+      }
+      if (typeof mapIdForChunk === 'function' && mapIdForChunk(regionId, p.chunkX, p.chunkY) !== p.mapId)
+        addValidationError(GROUP, plbl + ': mapIdForChunk(' + regionId + ',' + ckey + ') does not resolve back to this map (derived index drift)');
+    }
+  }
+  return checked;
+}
+
 // ─── 3. Tiles (and point/special transition tiles) ─────────────────────────
 // Scans every tile actually used across every MAP_METADATA-registered map.
 // "Known tile" is decided via tiles.js's DEBUG_TILE_NAMES list (the same
@@ -1586,6 +1655,7 @@ function validateGameData() {
   const counts = {
     'Maps':            validateMaps(),
     'Map metadata':    validateMapMetadata(),
+    'Regional layout': validateRegionalLayout(),
     'Tiles':           validateTiles(),
     'EDGE_TRANSITIONS': validateEdgeTransitions(),
     'NPCs':            validateNPCs(),
@@ -1602,6 +1672,7 @@ function validateGameData() {
   const LABELS = {
     'Maps':             'maps checked',
     'Map metadata':     'metadata entries checked',
+    'Regional layout':  'layout placements checked',
     'Tiles':            'tiles checked',
     'EDGE_TRANSITIONS': 'edge transitions checked',
     'NPCs':             'NPCs checked',
@@ -1651,6 +1722,7 @@ function validateGameData() {
 
 window.validateMaps             = validateMaps;
 window.validateMapMetadata      = validateMapMetadata;
+window.validateRegionalLayout   = validateRegionalLayout;
 window.validateTiles            = validateTiles;
 window.validateEdgeTransitions  = validateEdgeTransitions;
 window.validateNPCs             = validateNPCs;

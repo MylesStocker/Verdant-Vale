@@ -594,12 +594,109 @@ const edgeLandingResults = JSON.parse(g.run(`(function(){
   return JSON.stringify(out);
 })()`));
 
+// ── 14. Continuous seam-readiness report (READ-ONLY) ──────────────────────
+// For a future *continuous* overworld, every placed wilderness map has 4 edges.
+// This report classifies each edge of each REGIONAL_LAYOUT placement by how its
+// CURRENT transition relates to the neighbouring placed chunk -- WITHOUT changing
+// any transition to make it pass. Classes:
+//   ALIGNS         a broad EDGE_TRANSITIONS crossing to the chunk placed at the
+//                  adjacent coordinate (already continuous-ready).
+//   NEEDS_REMAP    a single-tile world crossing to the adjacent placed chunk --
+//                  correct destination, but a point transition that would need
+//                  clamping/remapping to become a full continuous seam.
+//   BLOCKED        a placed neighbour exists at the adjacent chunk but NO
+//                  transition crosses this edge (intentional wall / water gap).
+//   OUTSIDE_REGION a transition on this edge leads to a map NOT in the layout
+//                  (a town / dungeon / pocket).
+//   CONFLICT       a transition leads to a map that IS placed, but NOT at the
+//                  adjacent chunk -- the current geometry disagrees with the
+//                  layout. (Reported loudly; the layout is NOT edited to hide it.)
+//   BORDER         no neighbour placed and no transition -- an open region edge
+//                  (not an incompatibility; reported for completeness).
+//
+// Current outdoor↔outdoor transitions are read from two sources: EDGE_TRANSITIONS
+// (broad, resolved live) and the single-tile world crossings dispatched in
+// movement.js. The latter are declared here (the same set, and by the same
+// facing=exit-edge convention, the preserved-coordinate table in section 10
+// already models) because they are not in a single machine-readable table in the
+// game source.
+const POINT_WORLD_CROSSINGS = [
+  ['MAP', 'east', 'MAP2'], ['MAP2', 'west', 'MAP'],
+  ['MAP2', 'east', 'MAP3'], ['MAP3', 'west', 'MAP2'],
+  ['MAP3', 'east', 'MAP4'], ['MAP4', 'west', 'MAP3'],
+  ['MAP4', 'east', 'MAP5'], ['MAP5', 'west', 'MAP4'],
+  ['MAP', 'north', 'MAP_N1'], ['MAP_N1', 'south', 'MAP'],
+  ['MAP_N1', 'north', 'MAP_N2'], ['MAP_N2', 'south', 'MAP_N1'],
+  ['MAP3', 'north', 'MAP3_N1'], ['MAP3_N1', 'south', 'MAP3'],
+  ['MAP3_N2', 'north', 'NORTH_BASIN_S_MAP'], ['NORTH_BASIN_S_MAP', 'south', 'MAP3_N2'],
+];
+
+const seamReadiness = (function () {
+  const layoutDefined = g.run('typeof REGIONAL_LAYOUT !== "undefined"');
+  if (!layoutDefined) return { available: false, region: null, edges: [], totals: {} };
+
+  // Build the current outdoor-edge transition table: edge (srcId,dir) -> [{target,type}].
+  const edgeXn = {}; // key 'src|dir' -> array of { target, type }
+  const addXn = (src, dir, target, type) => {
+    const k = src + '|' + dir;
+    (edgeXn[k] || (edgeXn[k] = [])).push({ target, type });
+  };
+  // (a) broad EDGE_TRANSITIONS -> live resolution of each segment's target id.
+  const broad = JSON.parse(g.run(`(function(){
+    var out=[];
+    if (typeof EDGE_TRANSITIONS==='undefined') return JSON.stringify(out);
+    for (var src in EDGE_TRANSITIONS){ var dirs=EDGE_TRANSITIONS[src];
+      for (var dir in dirs){ var segs=dirs[dir]; if(!Array.isArray(segs)) continue;
+        for (var i=0;i<segs.length;i++){ var t=segs[i].targetMap;
+          var id = (typeof t==='string')?t:mapIdForRef(t);
+          out.push({ src:src, dir:dir, target:id });
+        } } }
+    return JSON.stringify(out);
+  })()`));
+  for (const e of broad) addXn(e.src, e.dir, e.target, 'broad');
+  // (b) single-tile world crossings (declared above).
+  for (const [src, dir, target] of POINT_WORLD_CROSSINGS) addXn(src, dir, target, 'point');
+
+  const region = 'overworld';
+  const placements = g.run(`REGIONAL_LAYOUT['${region}'].placements.map(function(p){return [p.mapId,p.chunkX,p.chunkY];})`);
+  const DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
+  const edges = [];
+  for (const [mapId, cx, cy] of placements) {
+    for (const dir of ['north', 'south', 'east', 'west']) {
+      const [dx, dy] = DELTA[dir];
+      const neighbor = g.run(`mapIdForChunk('${region}', ${cx + dx}, ${cy + dy})`);
+      const xns = edgeXn[mapId + '|' + dir] || [];
+      let verdict, target = null, type = null;
+      if (xns.length === 0) {
+        verdict = neighbor ? 'BLOCKED' : 'BORDER';
+      } else {
+        // If more than one transition shares an edge, the worst (most incompatible) wins.
+        const rank = { CONFLICT: 5, OUTSIDE_REGION: 4, NEEDS_REMAP: 3, ALIGNS: 2 };
+        let best = null;
+        for (const x of xns) {
+          const placed = g.run(`regionPlacementForMapId(${JSON.stringify(x.target)}) !== null`);
+          let v;
+          if (!placed) v = 'OUTSIDE_REGION';
+          else if (x.target === neighbor) v = (x.type === 'broad') ? 'ALIGNS' : 'NEEDS_REMAP';
+          else v = 'CONFLICT';
+          if (!best || rank[v] > rank[best.verdict]) best = { verdict: v, target: x.target, type: x.type };
+        }
+        verdict = best.verdict; target = best.target; type = best.type;
+      }
+      edges.push({ mapId, chunkX: cx, chunkY: cy, dir, neighbor, target, type, verdict });
+    }
+  }
+  const totals = {};
+  for (const e of edges) totals[e.verdict] = (totals[e.verdict] || 0) + 1;
+  return { available: true, region, edges, totals };
+})();
+
 // ── Exports (for test/cases/*.test.js to assert on) ───────────────────────
 // All the checking above already ran as a side effect of loading this
 // module -- both `node test/transition-audit.js` (standalone CLI) and
 // `require('../transition-audit.js')` (from a regression test case) get the
 // exact same results. Only the human-readable report below is CLI-only.
-const auditData = { registryIds, dimReport, basementInRegistry, resetIsolation, results, preservedResults, tileUsage, houseDoorResults, edgeLandingResults };
+const auditData = { registryIds, dimReport, basementInRegistry, resetIsolation, results, preservedResults, tileUsage, houseDoorResults, edgeLandingResults, seamReadiness };
 module.exports = auditData;
 
 // ── Report (standalone CLI use only; skipped when required as a module) ──
@@ -663,6 +760,30 @@ console.log('EDGE-TRANSITION per-coordinate landings:', edgeLandingResults.lengt
 for (const e of badEdges) {
   console.log(`  BAD   ${e.srcMap} ${e.direction} [${e.segment}] range [${e.sourceRange}] -> ${e.targetMap} (${e.targetEdge})`);
   for (const b of e.bad) console.log(`          src along=${b.along} -> ${b.reason}${b.landing ? ' at (col ' + b.landing.col + ', row ' + b.landing.row + ')' : ''}`);
+}
+
+console.log('='.repeat(80));
+if (!seamReadiness.available) {
+  console.log('CONTINUOUS SEAM READINESS: REGIONAL_LAYOUT unavailable -- skipped');
+} else {
+  console.log('CONTINUOUS SEAM READINESS (region "' + seamReadiness.region + '"):',
+    seamReadiness.edges.length, 'placed edges ->', JSON.stringify(seamReadiness.totals));
+  const ORDER = ['CONFLICT', 'OUTSIDE_REGION', 'NEEDS_REMAP', 'BLOCKED', 'ALIGNS', 'BORDER'];
+  for (const cls of ORDER) {
+    const rows = seamReadiness.edges.filter(e => e.verdict === cls);
+    if (!rows.length) continue;
+    // ALIGNS and BORDER are the healthy/expected cases -- summarise; list the rest.
+    if (cls === 'ALIGNS' || cls === 'BORDER') { console.log('  ' + cls + ': ' + rows.length + ' edge(s)'); continue; }
+    for (const e of rows) {
+      console.log(`  [${e.verdict}] ${e.mapId} (${e.chunkX},${e.chunkY}) ${e.dir} edge`
+        + ` -> neighbour ${e.neighbor || '(none)'}`
+        + (e.target ? `, current transition -> ${e.target}${e.type ? ' [' + e.type + ']' : ''}` : ''));
+    }
+  }
+  const incompat = seamReadiness.edges.filter(e => ['CONFLICT', 'OUTSIDE_REGION'].includes(e.verdict)).length;
+  console.log('  -> ' + incompat + ' hard incompatibilit(y/ies) (CONFLICT/OUTSIDE_REGION); '
+    + (seamReadiness.totals.NEEDS_REMAP || 0) + ' seam(s) need point->broad remap; '
+    + (seamReadiness.totals.BLOCKED || 0) + ' placed-neighbour seam(s) intentionally blocked.');
 }
 
 console.log('='.repeat(80));

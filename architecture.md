@@ -233,6 +233,63 @@ replace that branching. Those maps still get a full `MAP_METADATA` entry
 (populated to match what the state-flag logic already produces) purely for
 validation/documentation.
 
+### `REGIONAL_LAYOUT`: regions, chunks, and world coordinates (continuous-overworld prework)
+
+The two namespaces above are about **identity** (which map, which logical
+location). Layout adds a third, orthogonal concept about **geometry** — where the
+principal wilderness maps sit relative to one another on a single continuous
+grid. It is behaviour-neutral prework for a *future* continuous overworld:
+nothing in rendering, movement, saves, encounters, or transitions consults it
+yet, and `SAVE_VERSION` is unchanged. Keep the five terms distinct:
+
+| Term | What it is | Example |
+| --- | --- | --- |
+| **Physical map id** | canonical `MAP_CATALOG` key; one physical grid = one id | `MAP`, `NORTH_BASIN_S_MAP` |
+| **Content-location key** | logical `currentContentLocationKey()` label; a shared grid can back many keys | `'west'`, `'house:esla_house'` |
+| **Region** | a `REGIONAL_LAYOUT` key: one continuous chunk grid | `'overworld'` |
+| **Chunk** | one map-sized cell in a region, at integer `(chunkX, chunkY)`; **east = +X, south = +Y** | `MAP` at `(0, 5)` |
+| **Local coordinate** | a tile `(x, y)` **within** one map, `0 ≤ x < COLS`, `0 ≤ y < ROWS` | `(8, 8)` on `MAP` |
+| **World coordinate** | a tile coordinate in a **region's** continuous space: `worldX = chunkX*COLS + localX`, `worldY = chunkY*ROWS + localY` | `MAP (8,8)` → world `(8, 83)` |
+
+**`REGIONAL_LAYOUT`** (`data.js`) is the authoritative — and **separate from
+`MAP_CATALOG`** — authority for this geometry. `MAP_CATALOG` owns map *identity*;
+`REGIONAL_LAYOUT` owns map *placement* and only references catalog ids, never
+redefines a map. Today it holds one region, `'overworld'`, containing the 15
+principal connected wilderness maps. Their chunk coordinates were **derived from
+the game's own current transitions** (the broad `EDGE_TRANSITIONS` crossings plus
+the single-tile world crossings in `movement.js`), not invented — and all 16
+current outdoor↔outdoor adjacencies place consistently on the grid with no
+contradiction. Each chunk is exactly `COLS×ROWS` (16×15), verified against every
+placed map array by `validateRegionalLayout()`.
+
+**Deliberately excluded** (kept off the continuous grid): the hidden Briar Warden
+meadow (`MEADOW_MAP`) and every other pocket/special map, plus all town,
+interior, bridge, and dungeon maps. They remain separate maps reached by
+point/gate transitions.
+
+**Derived indexes + side-effect-free helpers** (`data.js`, mirroring the
+`MAP_CATALOG` helper contract — unknown inputs return `null`, never a silent
+fallback):
+
+- `regionPlacementForMapId(mapId)` → `{ region, mapId, chunkX, chunkY }` or `null`.
+- `mapIdForChunk(region, chunkX, chunkY)` → physical map id or `null`.
+- `localToWorld(mapId, localX, localY)` → `{ region, worldX, worldY }` or `null`.
+- `worldToLocal(region, worldX, worldY)` → `{ mapId, chunkX, chunkY, localX,
+  localY }` or `null` (unknown region, negative, out of range, or an unplaced gap
+  chunk inside the bounding box).
+- `tileAtWorld(region, worldX, worldY)` → the tile id, or **`REGION_VOID_TILE`**
+  (`-1`, a documented void that is never a real tile id) for any missing chunk /
+  out-of-range / negative coordinate.
+
+`validateRegionalLayout()` (in `validateGameData()`) checks the authority and its
+derived indexes: every placed id is a real *outdoor* catalog map of the right
+dimensions, integer chunk coords, unique chunk positions, no map placed twice,
+and both reverse indexes agree with the authored placements. The extended
+**continuous seam-readiness report** in `test/transition-audit.js` classifies each
+placed edge (`ALIGNS` / `NEEDS_REMAP` / `BLOCKED` / `OUTSIDE_REGION` / `CONFLICT`
+/ `BORDER`) — read-only; it reports incompatibilities rather than editing
+content to hide them.
+
 ## Transitions: point transitions vs `EDGE_TRANSITIONS`
 
 **Two systems coexist, deliberately, and neither replaced the other.**

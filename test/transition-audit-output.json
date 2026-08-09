@@ -10149,5 +10149,617 @@
       "bad": [],
       "allOk": true
     }
-  ]
+  ],
+  "seamReadiness": {
+    "available": true,
+    "region": "overworld",
+    "edges": [
+      {
+        "mapId": "MAP",
+        "chunkX": 0,
+        "chunkY": 5,
+        "dir": "north",
+        "neighbor": "MAP_N1",
+        "target": "MAP_N1",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP",
+        "chunkX": 0,
+        "chunkY": 5,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP",
+        "chunkX": 0,
+        "chunkY": 5,
+        "dir": "east",
+        "neighbor": "MAP2",
+        "target": "MAP2",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP",
+        "chunkX": 0,
+        "chunkY": 5,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP2",
+        "chunkX": 1,
+        "chunkY": 5,
+        "dir": "north",
+        "neighbor": "RODDON_WAY_MAP",
+        "target": "RODDON_WAY_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "MAP2",
+        "chunkX": 1,
+        "chunkY": 5,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP2",
+        "chunkX": 1,
+        "chunkY": 5,
+        "dir": "east",
+        "neighbor": "MAP3",
+        "target": "MAP3",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP2",
+        "chunkX": 1,
+        "chunkY": 5,
+        "dir": "west",
+        "neighbor": "MAP",
+        "target": "MAP",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP3",
+        "chunkX": 2,
+        "chunkY": 5,
+        "dir": "north",
+        "neighbor": "MAP3_N1",
+        "target": "MAP3_N1",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP3",
+        "chunkX": 2,
+        "chunkY": 5,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP3",
+        "chunkX": 2,
+        "chunkY": 5,
+        "dir": "east",
+        "neighbor": "MAP4",
+        "target": "MAP4",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP3",
+        "chunkX": 2,
+        "chunkY": 5,
+        "dir": "west",
+        "neighbor": "MAP2",
+        "target": "MAP2",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP4",
+        "chunkX": 3,
+        "chunkY": 5,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP4",
+        "chunkX": 3,
+        "chunkY": 5,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP4",
+        "chunkX": 3,
+        "chunkY": 5,
+        "dir": "east",
+        "neighbor": "MAP5",
+        "target": "MAP5",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP4",
+        "chunkX": 3,
+        "chunkY": 5,
+        "dir": "west",
+        "neighbor": "MAP3",
+        "target": "MAP3",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP5",
+        "chunkX": 4,
+        "chunkY": 5,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP5",
+        "chunkX": 4,
+        "chunkY": 5,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP5",
+        "chunkX": 4,
+        "chunkY": 5,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP5",
+        "chunkX": 4,
+        "chunkY": 5,
+        "dir": "west",
+        "neighbor": "MAP4",
+        "target": "MAP4",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP_N1",
+        "chunkX": 0,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": "MAP_N2",
+        "target": "MAP_N2",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP_N1",
+        "chunkX": 0,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": "MAP",
+        "target": "MAP",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP_N1",
+        "chunkX": 0,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": "RODDON_WAY_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAP_N1",
+        "chunkX": 0,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP_N2",
+        "chunkX": 0,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP_N2",
+        "chunkX": 0,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": "MAP_N1",
+        "target": "MAP_N1",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP_N2",
+        "chunkX": 0,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP_N2",
+        "chunkX": 0,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "RODDON_WAY_MAP",
+        "chunkX": 1,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "RODDON_WAY_MAP",
+        "chunkX": 1,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": "MAP2",
+        "target": "MAP2",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "RODDON_WAY_MAP",
+        "chunkX": 1,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": "MAP3_N1",
+        "target": "MAP3_N1",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "RODDON_WAY_MAP",
+        "chunkX": 1,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": "MAP_N1",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAP3_N1",
+        "chunkX": 2,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": "MAP3_N2",
+        "target": "MAP3_N2",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "MAP3_N1",
+        "chunkX": 2,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": "MAP3",
+        "target": "MAP3",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP3_N1",
+        "chunkX": 2,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP3_N1",
+        "chunkX": 2,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": "RODDON_WAY_MAP",
+        "target": "RODDON_WAY_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "MAP3_N2",
+        "chunkX": 2,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_S_MAP",
+        "target": "NORTH_BASIN_S_MAP",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "MAP3_N2",
+        "chunkX": 2,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": "MAP3_N1",
+        "target": "MAP3_N1",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "MAP3_N2",
+        "chunkX": 2,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAP3_N2",
+        "chunkX": 2,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_S_MAP",
+        "chunkX": 2,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_C_MAP",
+        "target": "NORTH_BASIN_C_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_S_MAP",
+        "chunkX": 2,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": "MAP3_N2",
+        "target": "MAP3_N2",
+        "type": "point",
+        "verdict": "NEEDS_REMAP"
+      },
+      {
+        "mapId": "NORTH_BASIN_S_MAP",
+        "chunkX": 2,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_S_MAP",
+        "chunkX": 2,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "NORTH_BASIN_SW_MAP",
+        "target": "NORTH_BASIN_SW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_C_MAP",
+        "chunkX": 2,
+        "chunkY": 1,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_C_MAP",
+        "chunkX": 2,
+        "chunkY": 1,
+        "dir": "south",
+        "neighbor": "NORTH_BASIN_S_MAP",
+        "target": "NORTH_BASIN_S_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_C_MAP",
+        "chunkX": 2,
+        "chunkY": 1,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_C_MAP",
+        "chunkX": 2,
+        "chunkY": 1,
+        "dir": "west",
+        "neighbor": "NORTH_BASIN_W_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "NORTH_BASIN_SW_MAP",
+        "chunkX": 1,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_W_MAP",
+        "target": "NORTH_BASIN_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_SW_MAP",
+        "chunkX": 1,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_SW_MAP",
+        "chunkX": 1,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "NORTH_BASIN_S_MAP",
+        "target": "NORTH_BASIN_S_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_SW_MAP",
+        "chunkX": 1,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_W_MAP",
+        "chunkX": 1,
+        "chunkY": 1,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_NW_MAP",
+        "target": "NORTH_BASIN_NW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_W_MAP",
+        "chunkX": 1,
+        "chunkY": 1,
+        "dir": "south",
+        "neighbor": "NORTH_BASIN_SW_MAP",
+        "target": "NORTH_BASIN_SW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_W_MAP",
+        "chunkX": 1,
+        "chunkY": 1,
+        "dir": "east",
+        "neighbor": "NORTH_BASIN_C_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "NORTH_BASIN_W_MAP",
+        "chunkX": 1,
+        "chunkY": 1,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_NW_MAP",
+        "chunkX": 1,
+        "chunkY": 0,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_NW_MAP",
+        "chunkX": 1,
+        "chunkY": 0,
+        "dir": "south",
+        "neighbor": "NORTH_BASIN_W_MAP",
+        "target": "NORTH_BASIN_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_NW_MAP",
+        "chunkX": 1,
+        "chunkY": 0,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_NW_MAP",
+        "chunkX": 1,
+        "chunkY": 0,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      }
+    ],
+    "totals": {
+      "NEEDS_REMAP": 16,
+      "BORDER": 26,
+      "ALIGNS": 14,
+      "BLOCKED": 4
+    }
+  }
 }
