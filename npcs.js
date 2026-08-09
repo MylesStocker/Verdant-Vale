@@ -1859,12 +1859,15 @@ NPC_ACTIONS.lorraShop = function(npc) {
   dialogue.name  = npc.name;
   dialogue.pages = isPoisoned
     ? [
-        ['\u201cYou\u2019ve been in the reed beds.\u201d', '\u201cI can see it. Come here.\u201d'],
-        ['\u201cReed Remedy. Fifty gold.\u201d', '\u201cTakes the poison right out.\u201d'],
+        ['\u201cHello there. You\u2019ve been in the reed beds \u2014 I can see it on you.\u201d'],
+        ['\u201cReed Remedy. It draws the marsh poison back out before it settles in.\u201d',
+         '\u201cFifty gold. Come here, then.\u201d'],
       ]
     : [
-        ['\u201cRemedies, mostly. Wetland complaints.\u201d', '\u201cThe reeds out here will get into you if you\u2019re not careful.\u201d'],
-        ['\u201cReed Remedy, if you need it. Fifty gold.\u201d', '\u201cWorth having before you need it.\u201d'],
+        ['\u201cHello. Remedies, mostly \u2014 wetland complaints.\u201d',
+         '\u201cThe reeds out here will get into you if you\u2019re not careful.\u201d'],
+        ['\u201cReed Remedy cures marsh poison \u2014 clears it right out, and it keeps until you need it.\u201d',
+         '\u201cFifty gold.\u201d'],
       ];
   dialogue.callbacks = [function() {
     choice.title   = npc.name;

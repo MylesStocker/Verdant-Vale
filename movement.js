@@ -895,6 +895,10 @@ function update() {
       if (wi.type === 'quest_item') {
         // Quest items control their own picked state and open narrative dialogue.
         if (wi.name === 'Fen Sickle') {
+          // The sickle is not present on the map until the recovery quest is
+          // accepted (sickle_quest_stage 1); before that there is nothing to
+          // find or examine here. Rendering is gated the same way (drawWorldItems).
+          if (sickle_quest_stage < 1) continue;
           if (sickle_quest_stage !== 1) {
             // Quest not active — player examines the sickle but doesn't take it.
             // wi.picked can't gate this (that would block ever picking it up

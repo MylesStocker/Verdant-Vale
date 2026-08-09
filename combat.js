@@ -163,6 +163,12 @@ function speedWinChance(own, other) {
 // Never below 1. Returns { dmg, crit } so callers can flag a critical.
 const CRIT_CHANCE = 0.10;
 const CRIT_MULT   = 1.5;
+// A counter-attack — the retaliation by whoever acts SECOND in an Attack
+// exchange — is NOT automatic. It lands only COUNTER_CHANCE of the time (per-
+// enemy override via enemy.counterChance), so initiative matters: usually only
+// the fighter who wins the speed roll lands a blow, and the counter is an
+// occasional bonus rather than a guaranteed second hit every turn.
+const COUNTER_CHANCE = 0.20;
 function rollAttackDamage(atk, def) {
   const variance = 0.8 + Math.random() * 0.4;   // 0.8 .. 1.2
   const crit = Math.random() < CRIT_CHANCE;
@@ -1100,13 +1106,13 @@ function getObservationText(enemy, count) {
     // study — nuptial pads and a vocal-sac throat on the male; the larger, egg-
     // heavy body and smooth fingers of the female — not by intuition.
     const reveal = enemy.sex === 'male'
-      ? ['Lélý leans in close, reading the animal instead of the fight.',
-         'Dark, roughened pads on the inner fingers; a loose, dusky throat that swells and sinks — the nuptial pads and calling-sac of a male. A jack. A Jackbane Vial would end it in one.']
-      : ['Lélý leans in close, reading the animal instead of the fight.',
-         'Bigger than a jack, and low and round through the belly with the weight of eggs; the throat pale and tight, the fingers smooth — a female. A hen. A Henbane Sprig would end it in one.'];
+      ? ['Lélý reads the animal, not the fight.',
+         'Rough nuptial pads, a swelling throat-sac — a male. A jack. A Jackbane Vial ends it in one.']
+      : ['Lélý reads the animal, not the fight.',
+         'Egg-heavy and round, throat pale, fingers smooth — a female. A hen. A Henbane Sprig ends it in one.'];
     const later = [
-      ['Jack or hen, they’re one animal to a glance — you have to know the tells. The fen-wives in Drenwick sell a sprig for the one and a vial for the other.',
-       'The wrong one only wastes your hand. The right one does the whole job at once.'],
+      ['Jack and hen look identical — only the tells differ.',
+       'Drenwick fen-wives sell a sprig for the hen, a vial for the jack. The wrong one just wastes your hand.'],
       ['It watches you back now, toad-patient. It has all the time the fen has.',
        'Which is all of it.'],
     ];
@@ -1522,6 +1528,7 @@ function handleCombatAction() {
 
     // Enemy defend — armoured enemies occasionally brace, halving incoming damage and skipping counter
     const enemyDefending = !!(combat.enemy.defendChance && Math.random() < combat.enemy.defendChance);
+    const counterChance  = (combat.enemy.counterChance != null) ? combat.enemy.counterChance : COUNTER_CHANCE;
     const pRoll = rollAttackDamage(effectiveAtk(), combat.enemy.def);
     // Cursed fumble — 25% chance of a wild swing dealing only 1 damage
     const cursedFumble = !enemyDefending && hasStatusEffect('cursed') && Math.random() < 0.25;
@@ -1552,9 +1559,9 @@ function handleCombatAction() {
 
       if (combat.enemy.hp <= 0) {
         applyKillRewards(msgs);
-      } else {
-        // Enemy counter-attacks — damage deferred until message is shown.
-        // Bullet Time may dodge it entirely (no damage, no on-hit effects).
+      } else if (Math.random() < counterChance) {
+        // Enemy counter-attacks (only counterChance of the time) — damage
+        // deferred until message is shown. Bullet Time may dodge it entirely.
         const dodged  = bulletTimeEvades();
         const eDmgEff = dodged ? 0 : eDmg;
         msgs.push({
@@ -1573,8 +1580,8 @@ function handleCombatAction() {
     } else {
       // ── Enemy attacks first (higher speed) ───────────────────────────────
       // Pre-calculate outcomes so the queue can be built deterministically.
-      // Bullet Time may dodge the strike (no damage, no on-hit effects); the
-      // player still gets their counter, since they come through unharmed.
+      // Bullet Time may dodge the strike (no damage, no on-hit effects). The
+      // player only counters counterChance of the time (see below).
       const dodged      = bulletTimeEvades();
       const eDmgEff     = dodged ? 0 : eDmg;
       const newPlayerHp = Math.max(0, stats.hp - eDmgEff);
@@ -1592,8 +1599,9 @@ function handleCombatAction() {
         },
       });
 
-      if (newPlayerHp > 0) {
-        // Player counter-attacks; enemy HP update deferred to match message
+      if (newPlayerHp > 0 && Math.random() < counterChance) {
+        // Player counter-attacks (only counterChance of the time); enemy HP
+        // update deferred to match message.
         const counterText = cursedFumble
           ? `Cursed fumble! ${stats.name} swings wildly for ${pDmg}!`
           : `${pc}${stats.name} counter-attacks for ${pDmg}!`;

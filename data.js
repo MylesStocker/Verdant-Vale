@@ -19,7 +19,7 @@ const ENEMY_TEMPLATES = [
   // Ethereal wisp — fragile but eerie; low HP and defense, moderate attack
   { id: 'enemy_marsh_wisp',    name: 'Marsh Wisp',    hp: 14, maxHp: 14, atk: 5, def: 1, spd:  9, xp: 12, goldMin: 1, goldMax:  3 },
   // Rocky tank — extremely tough shell, slow attack
-  { id: 'enemy_stone_crawler', name: 'Stone Crawler', hp: 36, maxHp: 36, atk: 5, def: 6, spd:  3, xp: 20, goldMin: 3, goldMax:  8, defendChance: 0.20 },
+  { id: 'enemy_stone_crawler', name: 'Stone Crawler', hp: 36, maxHp: 36, atk: 13, def: 6, spd:  3, xp: 20, goldMin: 3, goldMax:  8, defendChance: 0.20 },
   // Predatory hound — aggressive, hits hard, lightly armored
   { id: 'enemy_briar_hound',   name: 'Briar Hound',   hp: 25, maxHp: 25, atk: 10, def: 2, spd:  8, xp: 16, goldMin: 3, goldMax:  8 },
 ];
@@ -341,6 +341,13 @@ const DUNGEON8_EAST_ITEMS = [
 // Floor items inside the East Sluice. Same structure as DUNGEON_ITEMS.
 const SLUICE_ITEMS = [
   { id: 'pickup_sluice1_potion', name: 'Potion', type: 'potion', heals: 20, price: 30, x: 2.5 * TILE, y: 9.5 * TILE, picked: false },
+];
+
+// Early-game exploration reward — an Elixir tucked in a back corner of the
+// Calwick schoolroom (SCHOOL_MAP), rewarding a player who wanders in and pokes
+// around rather than heading straight out.
+const SCHOOL_ITEMS = [
+  { id: 'pickup_school_elixir', name: 'Elixir', type: 'potion', heals: 50, price: 80, x: 12.5 * TILE, y: 10.5 * TILE, picked: false },
 ];
 
 // ─── Sluice chest ─────────────────────────────────────────────────────────────
@@ -950,7 +957,7 @@ const MAP_CATALOG = {
   },
   SCHOOL_MAP: {
     id: 'SCHOOL_MAP', map: SCHOOL_MAP, displayName: 'West Calwick School', region: 'Calwick',
-    type: 'interior', items: [], encounterPool: null,
+    type: 'interior', items: SCHOOL_ITEMS, encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
   },
   APARTMENT_CORRIDOR_MAP: {

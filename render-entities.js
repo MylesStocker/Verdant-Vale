@@ -1629,6 +1629,8 @@ function drawWorldItems() {
   const list = currentItemList();
   for (const wi of list) {
     if (wi.picked) continue;
+    // The Fen Sickle only appears once its recovery quest is accepted.
+    if (wi.name === 'Fen Sickle' && sickle_quest_stage < 1) continue;
     const px = Math.round(wi.x);
     const py = Math.round(wi.y);
     // Gentle float
