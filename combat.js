@@ -656,8 +656,8 @@ function refreshJobBoard() {
   if (!sentry_quest_done) {
     DRENWICK_JOB_BOARD_NOTICES.push(
       sentry_quest_started
-        ? 'REMOVAL NOTICE \u2014 IN PROGRESS. Pale creature, fen road northeast of Drenwick. Report to Constable Tarvec, Drenwick Guard Post, on confirmed removal.'
-        : 'REMOVAL NOTICE \u2014 A large pale creature has been sighted on the fen road northeast of Drenwick, near the blocked crossing. Contract fee offered for confirmed removal. Report to Constable Tarvec, Drenwick Guard Post.'
+        ? 'REMOVAL NOTICE \u2014 IN PROGRESS. Pale creature, the old blocked pass north of Drenwick. Report to Constable Tarvec, Drenwick Guard Post, on confirmed removal.'
+        : 'REMOVAL NOTICE \u2014 A large pale creature has been sighted at the old blocked pass, up the north road from Drenwick, where the way is grown over. Contract fee offered for confirmed removal. Report to Constable Tarvec, Drenwick Guard Post.'
     );
   }
   // Still Water — sickle quest (stage 0: posting visible; stage 1-3: in progress; stage 4: done, hidden)

@@ -188,6 +188,9 @@ function supervisorDialogueBody() {
       ['\u201cBefore you head out \u2014 you\u2019ll need a kit.\u201d',
        'He writes something on a chit and holds it out.',
        '\u201cRequisition slip. Aldric handles issue. Get it from him before you go.\u201d'],
+      ['\u201cAnd \u2014 mind yourself out there.\u201d',
+       '\u201cMonsters have been worse than usual lately. More of them, and bolder with it.\u201d',
+       '\u201cBeware the local fauna.\u201d'],
     ];
     dialogue.callbacks = [function() {
       sluice_job_started      = true;
@@ -1002,6 +1005,27 @@ function interactCalwickOffice() {
           ['“Ask for that promotion', 'before you leave tonight.'],
           ['“They’re always most receptive', 'on the eve of Accord Day.”'],
         ];
+      } else if (day % 5 === 0) {
+        // ── Dayoff at the inn ────────────────────────────────────────────────
+        // Off the clock, a drink with colleagues — NOT work hints. Her canon:
+        // Bloommarked, Alecton then the Academy, asked to be posted "somewhere
+        // quiet," reads the fen (and a room) more easily than people, lives with
+        // Tomas (see LORE.md). Two variants, rotating per five-day week.
+        const eslaDayoff = [
+          [
+            ['“Off the clock, and I’m still cataloguing the room — who’s in, who’s avoiding whom. Old habit.”',
+             '“Noticing kept me alive once, a long way from here. It doesn’t switch off for a Dayoff.”'],
+            ['“Tomas will have the pot on. He times it to the minute — he thinks I haven’t noticed.”',
+             '“I find the fen easier to read than most people. Present company occasionally excepted.”'],
+          ],
+          [
+            ['“One cup and I’m the most agreeable officer in the district. Ask Petra.”',
+             '“Two, and I start listing the forms I’d abolish. Nobody wants the two-cup version.”'],
+            ['“I asked the Academy to post me somewhere quiet. They heard modest; I meant it as a request.”',
+             '“The fen answered in fungi and reed-rot, none of which have ever lied to me. I’ve made my peace with that.”'],
+          ],
+        ];
+        dialogue.pages = eslaDayoff[Math.floor(day / 5) % eslaDayoff.length];
       } else {
         // ── Daily rotation (day % 10) ────────────────────────────────────────
         // Helpful, dry, and hard to impress. Practical hints (rest, the job

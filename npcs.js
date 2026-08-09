@@ -165,13 +165,14 @@ const SHARED_NPCS = [
     action:        null,
   },
   // ── West Calwick unoccupied houses ───────────────────────────────────────────
-  // Home H (west_h) — school caretaker, home on dayoff
+  // Bram — schoolhouse maintenance; lodges in Apt 3 on Dayoff (a working
+  // caretaker fits an apartment, not one of the nicer west houses).
   {
     id:            'bram',
     name:          'Bram',
-    get map()      { return day % 5 === 0 ? 'house:west_h' : null; },
-    x:              8.5 * TILE,
-    y:              6.5 * TILE,
+    get map()      { return day % 5 === 0 ? 'house:apt_3' : null; },
+    x:              7.5 * TILE,
+    y:              7.5 * TILE,
     solid:         true,
     facing:        'down',
     spriteType:    'worker',
@@ -205,13 +206,42 @@ const SHARED_NPCS = [
     flag_sets:     null,
     action:        null,
   },
-  // Home E (west_e) — recent arrival, not quite settled
+  // Home E (west_e) — the district supervisor's home; his wife is in on Dayoff.
+  // (A mid-tier civic official's house fits the supervisor; the wife gives at
+  // least one west house a real occupant. His own name stays unspoken, per his
+  // lore — hers does not.)
   {
-    id:            'farida',
-    name:          'Farida',
+    id:            'supervisor_wife',
+    name:          'Della',
     get map()      { return day % 5 === 0 ? 'house:west_e' : null; },
     x:              7.5 * TILE,
     y:              5.5 * TILE,
+    solid:         true,
+    facing:        'down',
+    spriteType:    'patron',
+    get dialogue() {
+      return [
+        ['“So you’re the one he sends out.”',
+         'She looks you over, not unkindly.',
+         '“He doesn’t bring the work home. He brings the quiet that comes after it.”'],
+        ['“Fourteen years he’s kept that desk. Fourteen years I’ve kept a plate warm past dark.”',
+         '“I stopped asking what the files say. He stopped being able to tell me. It works, mostly.”'],
+        ['“He won’t say it, so I will — be careful out there.”',
+         '“He signs the reports. I’m the one who notices when he can’t sleep after.”'],
+      ];
+    },
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
+  // Farida — recent arrival, now lodging in Apt 1 on Dayoff (her unsettled,
+  // might-not-stay transfer-clerk story fits a rented apartment, not a family home).
+  {
+    id:            'farida',
+    name:          'Farida',
+    get map()      { return day % 5 === 0 ? 'house:apt_1' : null; },
+    x:              8.5 * TILE,
+    y:              6.5 * TILE,
     solid:         true,
     facing:        'down',
     spriteType:    'patron',
@@ -250,7 +280,9 @@ const SHARED_NPCS = [
     flag_sets:     null,
     action:        null,
   },
-  // Home I (west_i) — Pek, visits a neighbour on dayoff
+  // Home I (west_i) — Pek, a reclusive resident, home on Dayoff. Absent while
+  // the Den Wraith infests his ground (see mordenDenWraith); his dialogue keys
+  // off den_wraith_rewarded once it is cleared.
   {
     id:            'pek',
     name:          'Pek',
@@ -260,13 +292,19 @@ const SHARED_NPCS = [
     solid:         true,
     facing:        'down',
     spriteType:    'patron',
-    dialogue: [
-      ['\u201cI\u2019m just here for the soup.\u201d'],
-      ['\u201cWe grew up on the same street. Two streets over.',
-       'Back before they rezoned the whole eastern quarter.\u201d',
-       '\u201cNow that street is a loading dock.\u201d'],
-      ['\u201cI don\u2019t think about it.\u201d'],
-    ],
+    get dialogue() {
+      const pages = [
+        ['“Quiet street, this one. I keep it that way.”'],
+        ['“I mend what needs mending and I don’t go looking for company.”',
+         '“No offence. You knocked, I answered — that’s more than most get out of me.”'],
+      ];
+      if (den_wraith_rewarded) pages.push(
+        ['“Heard the district cleared that thing off my ground.”',
+         '“A man likes to know his own patch is his own again.”',
+         '“I won’t make a fuss of it. But I noticed.”']
+      );
+      return pages;
+    },
     flag_required: null,
     flag_sets:     null,
     action:        null,
@@ -1660,7 +1698,7 @@ const SHARED_NPCS = [
       // dialogue getter.)
       return [
         ['She doesn’t stop counting crates.',
-         '“Pol does the talking. Table with the ledgers.”'],
+         '“Pol does the talking. Him — over by the crates. Not me.”'],
       ];
     },
     flag_required: null,
@@ -2190,7 +2228,7 @@ const ESLA         = { x: 4.5 * TILE, y: 9.5 * TILE };
 
 // ─── Sluice Gate (interactable object, East Sluice) ──────────────────────────
 // West gate alcove (cols 2–3, rows 4–6); interaction point at col 2, row 5.
-const SLUICE_GATE      = { x: 2.5 * TILE, y: 5.5 * TILE };
+const SLUICE_GATE      = { x: 2.5 * TILE, y: 11.5 * TILE };  // bottom-left of East Sluice L1 — the player must cross the level (and fight) to reach it
 const THORNMERE_STONE  = { x: 7.5 * TILE, y: 6.5 * TILE };  // MAP4 lake centre island (cols 7-8, rows 6-7) — inaccessible without boat
 
 // ─── Dayoff NPC positions (inn, around RESERVED_TABLE at 8.5T, 7.5T) ─────────

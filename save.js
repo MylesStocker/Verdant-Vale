@@ -56,6 +56,7 @@ const QUEST_FLAG_BINDINGS = [
   lex('drama_stage', 0, () => drama_stage, (v) => { drama_stage = v; }),
   lex('weight_quest_stage', 0, () => weight_quest_stage, (v) => { weight_quest_stage = v; }),
   lex('weight_note_signed', false, () => weight_note_signed, (v) => { weight_note_signed = v; }),
+  lex('sentry_seen_on_board', false, () => sentry_seen_on_board, (v) => { sentry_seen_on_board = v; }),
   lex('sentry_quest_started', false, () => sentry_quest_started, (v) => { sentry_quest_started = v; }),
   lex('sentry_quest_done', false, () => sentry_quest_done, (v) => { sentry_quest_done = v; }),
   lex('sentry_quest_rewarded', false, () => sentry_quest_rewarded, (v) => { sentry_quest_rewarded = v; }),

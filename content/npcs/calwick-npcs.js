@@ -114,7 +114,9 @@ const CALWICK_NPCS = [
         ? [['\u201cI told myself I wouldn\u2019t think about the ledger.\u201d',
             '\u201cI thought about the ledger.\u201d']]
         : [['\u201cToday I am updating the ledger.', 'Yesterday I was also updating the ledger.\u201d']];
-      pages.unshift(['\u201cMorning, ' + stats.name + '.\u201d', '\u201cMind the wet ink.\u201d']);
+      pages.unshift(day % 5 === 0
+        ? ['\u201cMorning, ' + stats.name + '.\u201d', '\u201cOff the clock, for once. Pull up a chair.\u201d']
+        : ['\u201cMorning, ' + stats.name + '.\u201d', '\u201cMind the wet ink.\u201d']);
       if (sluice_reward_given && dispatch_rewarded && MainQuest >= 3) pages.push(
         ['\u201cYou\u2019ve been bringing in a lot of pay tickets.\u201d',
          '\u201cNot complaining.',
@@ -535,8 +537,9 @@ const CALWICK_NPCS = [
             '\u201cThen I have to go home for supper.\u201d',
             '\u201cMy mother will be there.\u201d',
             '\u201cShe doesn\u2019t say come home but she means it.\u201d']]
-        : [['\u201cMy grandmother says before the Accord, they didn\u2019t even let some children grow up if they were born with the wrong hair colour.\u201d',
-            '\u201cYou could see it. They could see it. And they still chose to.\u201d']];
+        : [['\u201cI drew the map on the wall. The big one, with all the sea.\u201d',
+            '\u201cWell \u2014 Ms. Vale did the outlines. But I coloured it, and I made sure none of the little towns got left off.\u201d',
+            '\u201cEveryone should be somewhere on the map.\u201d']];
     },
     flag_required: null, flag_sets: null, action: null,
   },

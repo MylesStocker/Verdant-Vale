@@ -6,7 +6,7 @@
 //     ordered key set, and QUEST_FLAG_SCHEMA is DERIVED from it (not a second
 //     hand-maintained list).
 //   • saveGame()/loadGame() read/write every binding generically, so a complete
-//     round-trip restores all 89 flags — lexical, window-native, numeric,
+//     round-trip restores all 90 flags — lexical, window-native, numeric,
 //     nullable — plus their window mirrors.
 //   • A save missing a field falls back to that binding's declared default and
 //     never inherits the current (possibly dirtied) runtime value.
@@ -24,7 +24,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // The complete, ordered set of persistent flag keys as of this test's authoring
-// (67 lexical + 22 window-native = 89). A binding added or removed without
+// (68 lexical + 22 window-native = 90). A binding added or removed without
 // updating this snapshot fails section A — the point is that growing the save
 // schema is a deliberate, reviewed act.
 const EXPECTED_KEYS = [
@@ -32,7 +32,7 @@ const EXPECTED_KEYS = [
   'sluice_reward_given', 'MainQuest', 'equipment_ticket_ready', 'letter_quest_stage',
   'cat_quest_stage', 'warden_quest_started', 'warden_quest_defeated', 'warden_quest_rewarded',
   'schilling_quest_started', 'schilling_returned', 'drama_stage', 'weight_quest_stage',
-  'weight_note_signed', 'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded',
+  'weight_note_signed', 'sentry_seen_on_board', 'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded',
   'pale_sentry_hp', 'sickle_quest_stage', 'gridd_rainfish_warned', 'rainfish_woken',
   'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
   'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
@@ -106,10 +106,10 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 67, '67 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 68, '68 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 22, '22 window bindings');
 
-    // ── B. Complete flag round-trip (all 89 bindings, generically) ──────────
+    // ── B. Complete flag round-trip (all 90 bindings, generically) ──────────
     // Assign each binding a value distinct from its default, save, reset every
     // binding to its default, load, and confirm each restored to the saved
     // value. `__rt` stashes the expected value on the binding for comparison.

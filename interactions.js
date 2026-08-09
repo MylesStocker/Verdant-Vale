@@ -412,10 +412,14 @@ function interactTownOutdoor() {
         : [['The job board is empty.']];
       dialogue.name  = 'Notice Board';
       dialogue.pages = pages;
-      // If Drenwick board and sickle quest not yet started, start it on close
-      if (isDrenwichMarket && sickle_quest_stage === 0) {
+      // Reading the Drenwick board is how the player learns of its posted
+      // notices: it marks the Pale Sentry notice as seen (so Constable Tarvec
+      // will hand out that contract — see drenwick-town-interactions.js) and,
+      // if the sickle posting is up, starts that quest on close.
+      if (isDrenwichMarket) {
         dialogue.callbacks = [function() {
-          sickle_quest_stage = 1;
+          if (!sentry_quest_done) sentry_seen_on_board = true;
+          if (sickle_quest_stage === 0) sickle_quest_stage = 1;
           syncQuestFlagsToWindow();
           refreshJobBoard();
         }];

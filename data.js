@@ -128,10 +128,12 @@ const SLUICE_ENEMY_TEMPLATES = [
 // SLUICE_ENEMY_TEMPLATES above. (Distinct enemy ids: this Marsh Wisp is its own
 // template record, separate from the overworld/early ones.)
 const SLUICE_TOP_ENEMY_TEMPLATES = [
-  { id: 'enemy_marsh_wisp_sluice_top', name: 'Marsh Wisp',   hp: 10, maxHp: 10, atk: 3, def: 0, spd: 6, xp: 8, goldMin: 0, goldMax: 2 },
+  { id: 'enemy_marsh_wisp_sluice_top', name: 'Marsh Wisp',   hp: 10, maxHp: 10, atk: 8, def: 0, spd: 6, xp: 8, goldMin: 0, goldMax: 2 },
   // Sluice Slime — a blob of sluice muck given sluggish life; a touch tankier
   // than the wisp but slower, so it lands about the same as a first fight.
-  { id: 'enemy_sluice_slime',          name: 'Sluice Slime', hp: 12, maxHp: 12, atk: 3, def: 1, spd: 3, xp: 8, goldMin: 0, goldMax: 3 },
+  // atk 8: against the issued Leather Armor (def 2 base + 3) this deals ~1-5 a
+  // hit instead of a flat 1, so the first dungeon actually threatens.
+  { id: 'enemy_sluice_slime',          name: 'Sluice Slime', hp: 12, maxHp: 12, atk: 8, def: 1, spd: 3, xp: 8, goldMin: 0, goldMax: 3 },
 ];
 window.SLUICE_TOP_ENEMY_TEMPLATES = SLUICE_TOP_ENEMY_TEMPLATES;
 
@@ -202,6 +204,12 @@ window.SWAMP_DONKEY_TEMPLATE = SWAMP_DONKEY_TEMPLATE;
 
 const ENCOUNTER_CHANCE   = 1 / 6;
 const ENCOUNTER_COOLDOWN = 120;
+// The East Sluice is the player's first dungeon; we want encounters to be a
+// near-certainty there. Same every-16th-step cadence as ENCOUNTER_CHANCE, but
+// at a higher rate on every sluice floor (the sealed room stays at its own rare
+// SLUICE_SECRET_ENCOUNTER_CHANCE below).
+const SLUICE_ENCOUNTER_CHANCE = 1 / 3;
+window.SLUICE_ENCOUNTER_CHANCE = SLUICE_ENCOUNTER_CHANCE;
 
 // ─── East Sluice Deep Works — sealed room (behind the L3 false walls) ─────────
 // The room's encounter roll replaces ENCOUNTER_CHANCE, not the roll cadence:

@@ -113,9 +113,12 @@ let weight_note_signed = false;
 let drama_stage = 0;
 
 // ─── Side quest: The Pale Sentry ──────────────────────────────────────────────
-// A large pale creature has been reported on the fen road northeast of Drenwick.
-// Constable Tarvec offers a contract. The creature appears on MAP_N2 once accepted,
-// with 500 HP that persists across encounters until it is killed.
+// A large pale creature has been reported at the old blocked pass north of
+// Drenwick. Constable Tarvec only hands out the contract once the player has
+// seen the removal notice on the Drenwick board (sentry_seen_on_board). The
+// creature appears on MAP_N2 once accepted, with 500 HP that persists across
+// encounters until it is killed.
+let sentry_seen_on_board  = false;
 let sentry_quest_started  = false;
 let sentry_quest_done     = false;
 let sentry_quest_rewarded = false;
@@ -293,6 +296,7 @@ function syncQuestFlagsToWindow() {
   window.drama_stage             = drama_stage;
   window.weight_quest_stage      = weight_quest_stage;
   window.weight_note_signed      = weight_note_signed;
+  window.sentry_seen_on_board    = sentry_seen_on_board;
   window.sentry_quest_started    = sentry_quest_started;
   window.sentry_quest_done       = sentry_quest_done;
   window.sentry_quest_rewarded   = sentry_quest_rewarded;

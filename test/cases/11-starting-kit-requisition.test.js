@@ -26,15 +26,16 @@ module.exports = {
     `);
     g.press('Enter'); // opens (page 0 of 4)
     assert.equal(g.run('dialogue.name'), 'Supervisor');
-    // 4 pages: the once-per-day "good morning" greeting (this IS the first
-    // conversation of the day) + the 3 assignment pages (sluice job +
-    // requisition slip).
-    assert.equal(g.run('dialogue.pages.length'), 4, 'first conversation: greeting + 3 assignment pages');
+    // 5 pages: the once-per-day "good morning" greeting (this IS the first
+    // conversation of the day) + the 4 assignment pages (sluice job +
+    // requisition slip + the road-danger warning).
+    assert.equal(g.run('dialogue.pages.length'), 5, 'first conversation: greeting + 4 assignment pages');
     assert.ok(JSON.stringify(g.run('dialogue.pages[0]')).includes('Good morning'), 'first page of the day is the greeting');
     g.press('Enter');
     g.press('Enter');
     g.press('Enter');
-    g.press('Enter'); // advance through all 4 pages -> closes, runs callback
+    g.press('Enter');
+    g.press('Enter'); // advance through all 5 pages -> closes, runs callback
 
     assert.equal(g.run('sluice_job_started'), true);
     assert.equal(g.run('equipment_ticket_ready'), true, 'Supervisor should issue the requisition ticket alongside the job');

@@ -117,7 +117,17 @@ function interactDrenwickApproach() {
       const tdx = player.x - tarvec.x;
       const tdy = player.y - tarvec.y;
       if (Math.sqrt(tdx * tdx + tdy * tdy) < TALK_RADIUS) {
-        if (!sentry_quest_started) {
+        if (!sentry_quest_started && !sentry_seen_on_board) {
+          // The contract is only handed out once the player has read the
+          // posted removal notice on the Drenwick board.
+          dialogue.name  = 'Constable Tarvec';
+          dialogue.pages = [
+            ['\u201cThere\u2019s a removal notice posted \u2014 the board over by the Drenwick market.\u201d',
+             '\u201cRead it first. Then come to me if you want the contract.\u201d'],
+          ];
+          dialogue.open  = true;
+          dialogue.page  = 0;
+        } else if (!sentry_quest_started) {
           dialogue.name  = 'Constable Tarvec';
           dialogue.pages = [
             ['\u201cSomething\u2019s been moving on the fen road.\u201d',
@@ -139,7 +149,7 @@ function interactDrenwickApproach() {
                 syncQuestFlagsToWindow();
                 dialogue.name  = 'Constable Tarvec';
                 dialogue.pages = [
-                  ['\u201cThe road northeast, past the old crossing marker.\u201d',
+                  ['\u201cHead up the north road, to the old blocked pass \u2014 where the way\u2019s grown over.\u201d',
                    '\u201cThat\u2019s where they\u2019ve all seen it.\u201d',
                    '\u201cCome back when it\u2019s done.\u201d'],
                 ];

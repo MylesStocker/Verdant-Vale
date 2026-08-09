@@ -878,7 +878,9 @@ function update() {
     // Random encounters: overworld grass, dungeon floors, and East Sluice floor
     if (player.step % 16 === 0 && combat.cooldown === 0) {
       const onEncounterTile = isEncounterEligibleTile(curTile);
-      const encounterChance = inSluiceSealedRoom() ? SLUICE_SECRET_ENCOUNTER_CHANCE : ENCOUNTER_CHANCE;
+      const encounterChance = inSluiceSealedRoom() ? SLUICE_SECRET_ENCOUNTER_CHANCE
+                            : inSluice              ? SLUICE_ENCOUNTER_CHANCE
+                            :                         ENCOUNTER_CHANCE;
       if (!debugMode && onEncounterTile && Math.random() < encounterChance) startCombat();
     }
   }
