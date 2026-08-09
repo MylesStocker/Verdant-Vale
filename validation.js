@@ -195,7 +195,7 @@ function validateRegionalLayout() {
   }
   const catalog = (typeof MAP_CATALOG !== 'undefined') ? MAP_CATALOG : {};
   const rows = _validationRows(), cols = _validationCols();
-  const seenMapIds = new Map(); // mapId -> region it was first placed in (no map placed twice)
+  const seenMapIds = new Map(); // mapId -> regionId it was first placed in (no map placed twice)
 
   for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
     const region = REGIONAL_LAYOUT[regionId];
@@ -234,7 +234,7 @@ function validateRegionalLayout() {
       // Derived-index consistency (both directions).
       if (typeof regionPlacementForMapId === 'function') {
         const back = regionPlacementForMapId(p.mapId);
-        if (!back || back.region !== regionId || back.chunkX !== p.chunkX || back.chunkY !== p.chunkY)
+        if (!back || back.regionId !== regionId || back.chunkX !== p.chunkX || back.chunkY !== p.chunkY)
           addValidationError(GROUP, plbl + ': regionPlacementForMapId() disagrees with the authored placement (derived index drift)');
       }
       if (typeof mapIdForChunk === 'function' && mapIdForChunk(regionId, p.chunkX, p.chunkY) !== p.mapId)

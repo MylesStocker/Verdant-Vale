@@ -10152,7 +10152,7 @@
   ],
   "seamReadiness": {
     "available": true,
-    "region": "overworld",
+    "regionId": "overworld",
     "edges": [
       {
         "mapId": "MAP",

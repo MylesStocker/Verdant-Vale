@@ -1176,12 +1176,12 @@ window.REGION_VOID_TILE = REGION_VOID_TILE;
 // independently (mirroring how MAP_REGISTRY / _MAP_REF_TO_ID derive from
 // MAP_CATALOG, so they cannot drift): one maps a physical map id to its
 // placement; the other maps a region+chunk coordinate to the map id there.
-const _MAP_ID_TO_PLACEMENT = new Map(); // mapId -> { region, mapId, chunkX, chunkY }
-const _CHUNK_TO_MAP_ID     = new Map(); // 'region:cx,cy' -> mapId
-function _chunkKey(region, cx, cy) { return region + ':' + cx + ',' + cy; }
+const _MAP_ID_TO_PLACEMENT = new Map(); // mapId -> { regionId, mapId, chunkX, chunkY }
+const _CHUNK_TO_MAP_ID     = new Map(); // 'regionId:cx,cy' -> mapId
+function _chunkKey(regionId, cx, cy) { return regionId + ':' + cx + ',' + cy; }
 for (const _regionId of Object.keys(REGIONAL_LAYOUT)) {
   for (const _p of REGIONAL_LAYOUT[_regionId].placements) {
-    const _placement = { region: _regionId, mapId: _p.mapId, chunkX: _p.chunkX, chunkY: _p.chunkY };
+    const _placement = { regionId: _regionId, mapId: _p.mapId, chunkX: _p.chunkX, chunkY: _p.chunkY };
     _MAP_ID_TO_PLACEMENT.set(_p.mapId, _placement);
     _CHUNK_TO_MAP_ID.set(_chunkKey(_regionId, _p.chunkX, _p.chunkY), _p.mapId);
   }
@@ -1193,37 +1193,37 @@ for (const _regionId of Object.keys(REGIONAL_LAYOUT)) {
 // fallback) -- the same contract as mapEntryForId()/mapIdForRef(). COLS/ROWS are
 // read at call time (defined in state.js, which loads after this file).
 
-// map id -> its placement { region, mapId, chunkX, chunkY }, or null.
+// map id -> its placement { regionId, mapId, chunkX, chunkY }, or null.
 function regionPlacementForMapId(mapId) {
   return _MAP_ID_TO_PLACEMENT.has(mapId) ? _MAP_ID_TO_PLACEMENT.get(mapId) : null;
 }
-// region + chunk coordinate -> the physical map id there, or null if unplaced.
-function mapIdForChunk(region, chunkX, chunkY) {
-  const k = _chunkKey(region, chunkX, chunkY);
+// regionId + chunk coordinate -> the physical map id there, or null if unplaced.
+function mapIdForChunk(regionId, chunkX, chunkY) {
+  const k = _chunkKey(regionId, chunkX, chunkY);
   return _CHUNK_TO_MAP_ID.has(k) ? _CHUNK_TO_MAP_ID.get(k) : null;
 }
 // map-local (tile) coordinate -> region-world (tile) coordinate.
-// { region, worldX, worldY }, or null if the map isn't placed in any region.
+// { regionId, worldX, worldY }, or null if the map isn't placed in any region.
 function localToWorld(mapId, localX, localY) {
   const p = regionPlacementForMapId(mapId);
   if (!p) return null;
-  return { region: p.region, worldX: p.chunkX * COLS + localX, worldY: p.chunkY * ROWS + localY };
+  return { regionId: p.regionId, worldX: p.chunkX * COLS + localX, worldY: p.chunkY * ROWS + localY };
 }
 // region-world (tile) coordinate -> the map id + local coordinate there.
 // { mapId, chunkX, chunkY, localX, localY }, or null if no chunk is placed there
-// (unknown region, negative, out of range, or a gap in the bounding box).
-function worldToLocal(region, worldX, worldY) {
-  if (!REGIONAL_LAYOUT[region]) return null;
+// (unknown regionId, negative, out of range, or a gap in the bounding box).
+function worldToLocal(regionId, worldX, worldY) {
+  if (!REGIONAL_LAYOUT[regionId]) return null;
   if (worldX < 0 || worldY < 0) return null; // negatives fall onto no chunk
   const chunkX = Math.floor(worldX / COLS), chunkY = Math.floor(worldY / ROWS);
-  const mapId = mapIdForChunk(region, chunkX, chunkY);
+  const mapId = mapIdForChunk(regionId, chunkX, chunkY);
   if (!mapId) return null;
   return { mapId, chunkX, chunkY, localX: worldX - chunkX * COLS, localY: worldY - chunkY * ROWS };
 }
 // Reads the tile id at a region-world coordinate. Missing chunk / out of range /
 // negative -> REGION_VOID_TILE (documented void), never a throw or a wrong tile.
-function tileAtWorld(region, worldX, worldY) {
-  const loc = worldToLocal(region, worldX, worldY);
+function tileAtWorld(regionId, worldX, worldY) {
+  const loc = worldToLocal(regionId, worldX, worldY);
   if (!loc) return REGION_VOID_TILE;
   const map = mapRefForId(loc.mapId);
   if (!map || !map[loc.localY] || map[loc.localY][loc.localX] === undefined) return REGION_VOID_TILE;

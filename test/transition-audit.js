@@ -633,7 +633,7 @@ const POINT_WORLD_CROSSINGS = [
 
 const seamReadiness = (function () {
   const layoutDefined = g.run('typeof REGIONAL_LAYOUT !== "undefined"');
-  if (!layoutDefined) return { available: false, region: null, edges: [], totals: {} };
+  if (!layoutDefined) return { available: false, regionId: null, edges: [], totals: {} };
 
   // Build the current outdoor-edge transition table: edge (srcId,dir) -> [{target,type}].
   const edgeXn = {}; // key 'src|dir' -> array of { target, type }
@@ -657,14 +657,14 @@ const seamReadiness = (function () {
   // (b) single-tile world crossings (declared above).
   for (const [src, dir, target] of POINT_WORLD_CROSSINGS) addXn(src, dir, target, 'point');
 
-  const region = 'overworld';
-  const placements = g.run(`REGIONAL_LAYOUT['${region}'].placements.map(function(p){return [p.mapId,p.chunkX,p.chunkY];})`);
+  const regionId = 'overworld';
+  const placements = g.run(`REGIONAL_LAYOUT['${regionId}'].placements.map(function(p){return [p.mapId,p.chunkX,p.chunkY];})`);
   const DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
   const edges = [];
   for (const [mapId, cx, cy] of placements) {
     for (const dir of ['north', 'south', 'east', 'west']) {
       const [dx, dy] = DELTA[dir];
-      const neighbor = g.run(`mapIdForChunk('${region}', ${cx + dx}, ${cy + dy})`);
+      const neighbor = g.run(`mapIdForChunk('${regionId}', ${cx + dx}, ${cy + dy})`);
       const xns = edgeXn[mapId + '|' + dir] || [];
       let verdict, target = null, type = null;
       if (xns.length === 0) {
@@ -688,7 +688,7 @@ const seamReadiness = (function () {
   }
   const totals = {};
   for (const e of edges) totals[e.verdict] = (totals[e.verdict] || 0) + 1;
-  return { available: true, region, edges, totals };
+  return { available: true, regionId, edges, totals };
 })();
 
 // ── Exports (for test/cases/*.test.js to assert on) ───────────────────────
@@ -766,7 +766,7 @@ console.log('='.repeat(80));
 if (!seamReadiness.available) {
   console.log('CONTINUOUS SEAM READINESS: REGIONAL_LAYOUT unavailable -- skipped');
 } else {
-  console.log('CONTINUOUS SEAM READINESS (region "' + seamReadiness.region + '"):',
+  console.log('CONTINUOUS SEAM READINESS (region "' + seamReadiness.regionId + '"):',
     seamReadiness.edges.length, 'placed edges ->', JSON.stringify(seamReadiness.totals));
   const ORDER = ['CONFLICT', 'OUTSIDE_REGION', 'NEEDS_REMAP', 'BLOCKED', 'ALIGNS', 'BORDER'];
   for (const cls of ORDER) {

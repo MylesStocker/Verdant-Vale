@@ -272,15 +272,21 @@ point/gate transitions.
 `MAP_CATALOG` helper contract — unknown inputs return `null`, never a silent
 fallback):
 
-- `regionPlacementForMapId(mapId)` → `{ region, mapId, chunkX, chunkY }` or `null`.
-- `mapIdForChunk(region, chunkX, chunkY)` → physical map id or `null`.
-- `localToWorld(mapId, localX, localY)` → `{ region, worldX, worldY }` or `null`.
-- `worldToLocal(region, worldX, worldY)` → `{ mapId, chunkX, chunkY, localX,
-  localY }` or `null` (unknown region, negative, out of range, or an unplaced gap
+- `regionPlacementForMapId(mapId)` → `{ regionId, mapId, chunkX, chunkY }` or
+  `null`. (`regionId` is the string `REGIONAL_LAYOUT` key, e.g. `'overworld'` —
+  distinct from `MAP_CATALOG`'s geographic `region` field like `'North Basin'`.)
+- `mapIdForChunk(regionId, chunkX, chunkY)` → physical map id or `null`.
+- `localToWorld(mapId, localX, localY)` → `{ regionId, worldX, worldY }` or `null`.
+- `worldToLocal(regionId, worldX, worldY)` → `{ mapId, chunkX, chunkY, localX,
+  localY }` or `null` (unknown regionId, negative, out of range, or an unplaced gap
   chunk inside the bounding box).
-- `tileAtWorld(region, worldX, worldY)` → the tile id, or **`REGION_VOID_TILE`**
+- `tileAtWorld(regionId, worldX, worldY)` → the tile id, or **`REGION_VOID_TILE`**
   (`-1`, a documented void that is never a real tile id) for any missing chunk /
   out-of-range / negative coordinate.
+
+Both this layout API and the `world-view.js` camera API use `regionId` for that
+string key; `MAP_CATALOG`'s `region` (a human/geographic grouping) is a different
+field and is left as `region`.
 
 `validateRegionalLayout()` (in `validateGameData()`) checks the authority and its
 derived indexes: every placed id is a real *outdoor* catalog map of the right
