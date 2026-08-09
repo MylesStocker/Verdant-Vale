@@ -2217,7 +2217,7 @@ const RESERVED_TABLE  = { x: 8.5 * TILE, y: 7.5 * TILE };
 
 // ─── House Doors ──────────────────────────────────────────────────────────────
 // Each entry maps a HOUSE_DOOR tile on a specific map to a unique house ID.
-// map: value from currentMapId() ('town', 'west', 'east', etc.)
+// map: value from currentContentLocationKey() ('town', 'west', 'east', etc.)
 // col/row: tile coordinates of the door in that map.
 // houseId: key into HOUSE_DATA and prefix for SIMPLE_NPCS map field ('house:west_a').
 const HOUSE_DOORS = [

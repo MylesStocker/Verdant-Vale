@@ -1,6 +1,7 @@
 {
   "registryIds": [
     "MAP",
+    "MEADOW_MAP",
     "MAP2",
     "LORRA_HOUSE_MAP",
     "MAREN_POST_MAP",
@@ -25,10 +26,10 @@
     "DRENWICK_CANAL_DOCKS_MAP",
     "DRENWICK_EAST_OUTSKIRTS_MAP",
     "DRENWICK_MARKET_MAP",
-    "DRENWICK_POST_OFFICE_MAP",
     "DRENWICK_WATERFRONT_MAP",
     "DRENWICK_INN_MAP",
     "DRENWICK_OFFICE_MAP",
+    "DRENWICK_POST_OFFICE_MAP",
     "DRENWICK_HARBORMASTER_MAP",
     "DRENWICK_WASH_HOUSE_MAP",
     "DRENWICK_INFIRMARY_MAP",
@@ -67,7 +68,6 @@
     "SMALL_APARTMENT_MAP",
     "EAST_TOWN_MAP",
     "WEST_TOWN_MAP",
-    "MEADOW_MAP",
     "HOUSE_INTERIOR_MAP",
     "SLUICE_MAP",
     "SLUICE_LEVEL2_MAP",
@@ -106,6 +106,12 @@
   "dimReport": [
     {
       "id": "MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MEADOW_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -255,12 +261,6 @@
       "ok": true
     },
     {
-      "id": "DRENWICK_POST_OFFICE_MAP",
-      "rows": 15,
-      "cols": 16,
-      "ok": true
-    },
-    {
       "id": "DRENWICK_WATERFRONT_MAP",
       "rows": 15,
       "cols": 16,
@@ -274,6 +274,12 @@
     },
     {
       "id": "DRENWICK_OFFICE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DRENWICK_POST_OFFICE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -502,12 +508,6 @@
     },
     {
       "id": "WEST_TOWN_MAP",
-      "rows": 15,
-      "cols": 16,
-      "ok": true
-    },
-    {
-      "id": "MEADOW_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true

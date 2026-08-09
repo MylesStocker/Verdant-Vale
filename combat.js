@@ -1322,8 +1322,8 @@ function handleCombatAction() {
     if (defeatWakeAtHome) {
       // Someone carried you home: wake beside your own bed in the Calwick
       // player house, wherever the defeat happened. EVERY location flag
-      // currentMapId() consults must be cleared here — a stuck flag (e.g.
-      // inBridgePost after dying at the toll bridge) makes currentMapId()
+      // currentContentLocationKey() consults must be cleared here — a stuck flag (e.g.
+      // inBridgePost after dying at the toll bridge) makes currentContentLocationKey()
       // report that location on every map, so its NPCs render everywhere.
       // Toggleable from the debug menu ("Home on Defeat").
       // The canonical transition resets EVERY location flag (the old hand-cleared

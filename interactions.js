@@ -21,7 +21,7 @@ function catPetResponse() {
 // Checks SIMPLE_NPCS on the current map; opens dialogue (or calls action) for
 // the first one within TALK_RADIUS. Returns true if an NPC was triggered.
 function interactSimpleNPCs() {
-  const mapId = currentMapId();
+  const mapId = currentContentLocationKey();
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId) continue;
     if (npc.flag_required !== null) {

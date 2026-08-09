@@ -46,25 +46,20 @@ const ROWS = g.run('ROWS');
 
 function esc(s) { return JSON.stringify(s); }
 
-// Resolves a live `activeMap` array reference back to its MAP_REGISTRY id.
-// MAP_REGISTRY is the sole source of truth: a transition that lands on a map
-// with no registry entry returns null here and is reported as an UNRESOLVED_MAP
-// finding (a missing registry entry) rather than being silently rescued through
-// a hand-maintained fallback list. (DRENWICK_SCHOOL_BASEMENT_MAP once needed
-// exactly such a rescue; it is now registered -- positively confirmed by the
-// basementInRegistry assertion below -- so the fallback has been removed.)
+// Resolves a live `activeMap` array reference back to its canonical map id via
+// the catalog's reverse index (mapIdForRef). MAP_CATALOG is the sole source of
+// truth: a transition that lands on a map with no catalog entry returns null
+// here and is reported as an UNRESOLVED_MAP finding rather than being silently
+// rescued through a hand-maintained fallback list. (DRENWICK_SCHOOL_BASEMENT_MAP
+// once needed exactly such a rescue; it is now catalogued -- positively confirmed
+// by the basementInRegistry assertion below -- so the fallback has been removed.)
 function mapLabel() {
-  return g.run(`(() => {
-    for (const [id, entry] of Object.entries(MAP_REGISTRY)) {
-      if (entry.map === activeMap) return id;
-    }
-    return null;
-  })()`);
+  return g.run('mapIdForRef(activeMap)');
 }
-// Given a label from mapLabel(), returns a JS expression (valid inside
+// Given a canonical id from mapLabel(), returns a JS expression (valid inside
 // g.run()) that evaluates to that map's array.
 function mapExprForLabel(label) {
-  return `MAP_REGISTRY['${label}'].map`;
+  return `mapRefForId('${label}')`;
 }
 
 // Restore a clean baseline between checks (each transition function is
@@ -219,16 +214,16 @@ function check(name, setupCode, opts) {
   return record;
 }
 
-// ── 1. MAP_REGISTRY dimension sweep ─────────────────────────────────────
-const registryIds = g.run('Object.keys(MAP_REGISTRY)');
+// ── 1. MAP_CATALOG dimension sweep ─────────────────────────────────────
+const registryIds = g.run('Object.keys(MAP_CATALOG)');
 const dimReport = [];
 for (const id of registryIds) {
-  const dims = g.run(`(() => { const m = MAP_REGISTRY['${id}'].map; return { rows: m.length, cols: m[0]?m[0].length:0 }; })()`);
+  const dims = g.run(`(() => { const m = mapRefForId('${id}'); return { rows: m.length, cols: m[0]?m[0].length:0 }; })()`);
   dimReport.push({ id, rows: dims.rows, cols: dims.cols, ok: dims.rows === ROWS && dims.cols === COLS });
 }
-// (No separate unregistered-map sweep: MAP_REGISTRY is the source of truth and
-// the dimension loop above covers every registered map -- the Drenwick school
-// basement included, now that it is registered.)
+// (No separate uncatalogued-map sweep: MAP_CATALOG is the source of truth and
+// the dimension loop above covers every catalogued map -- the Drenwick school
+// basement included, now that it is catalogued.)
 
 // ── 2. Simple flat transition functions (no args, no branches) ─────────
 const flatFns = [
@@ -521,8 +516,8 @@ const tileUsage = [];
 for (const name of transitionTileNames) {
   const usageCount = g.run(`(() => {
     let n = 0;
-    for (const id of Object.keys(MAP_REGISTRY)) {
-      const m = MAP_REGISTRY[id].map;
+    for (const id of Object.keys(MAP_CATALOG)) {
+      const m = MAP_CATALOG[id].map;
       for (const row of m) if (row.includes(${name})) { n++; break; }
     }
     return n;
@@ -561,13 +556,13 @@ const edgeLandingResults = JSON.parse(g.run(`(function(){
   var out = [];
   if (typeof EDGE_TRANSITIONS === 'undefined' || typeof edgeTransitionLanding !== 'function') return JSON.stringify(out);
   function resolveMap(t){
-    if (typeof t === 'string') return { id: t, map: (MAP_METADATA[t]&&MAP_METADATA[t].map)||(MAP_REGISTRY[t]&&MAP_REGISTRY[t].map)||null };
-    if (Array.isArray(t)) return { id: mapRegistryId(t), map: t };
+    if (typeof t === 'string') return { id: t, map: mapRefForId(t) };
+    if (Array.isArray(t)) return { id: mapIdForRef(t), map: t };
     return { id: null, map: null };
   }
   for (var srcId in EDGE_TRANSITIONS) {
     var dirs = EDGE_TRANSITIONS[srcId];
-    var srcMap = (MAP_METADATA[srcId]&&MAP_METADATA[srcId].map)||(MAP_REGISTRY[srcId]&&MAP_REGISTRY[srcId].map)||null;
+    var srcMap = mapRefForId(srcId);
     for (var dir in dirs) {
       var segs = dirs[dir];
       if (!Array.isArray(segs)) continue;

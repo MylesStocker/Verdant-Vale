@@ -85,17 +85,20 @@ module.exports = {
     );
     g.run(`MAP_REGISTRY['MAP2'].map = window.__savedMap2Rows; delete window.__savedMap2Rows;`); // restore
 
-    // ── 3. Missing metadata entry fails ──────────────────────────────────────
+    // ── 3. A catalog id that doesn't equal its key fails ──────────────────────
+    // (Replaces the old MAP_REGISTRY↔MAP_METADATA cross-check, removed with the
+    // MAP_CATALOG consolidation — both tables are now derived from the catalog,
+    // so id===key is the invariant that actually matters.)
     g.run(`
-      window.__savedMap2Meta = MAP_METADATA['MAP2'];
-      delete MAP_METADATA['MAP2'];
+      window.__savedMap2Id = MAP_CATALOG['MAP2'].id;
+      MAP_CATALOG['MAP2'].id = 'wrong_id';
     `);
-    const missingMeta = runValidation(g);
+    const badId = runValidation(g);
     assert.ok(
-      missingMeta.errorList.some(e => e.message.includes('MAP_REGISTRY[MAP2]') && e.message.includes('no matching MAP_METADATA entry')),
-      'a MAP_REGISTRY entry with no MAP_METADATA counterpart should be an error'
+      badId.errorList.some(e => e.message.includes('MAP_CATALOG[MAP2]') && e.message.includes('does not equal its property key')),
+      'a catalog entry whose id does not equal its property key should be an error'
     );
-    g.run(`MAP_METADATA['MAP2'] = window.__savedMap2Meta; delete window.__savedMap2Meta;`); // restore
+    g.run(`MAP_CATALOG['MAP2'].id = window.__savedMap2Id; delete window.__savedMap2Id;`); // restore
 
     // ── 4. Unknown tile ID fails ─────────────────────────────────────────────
     g.run(`

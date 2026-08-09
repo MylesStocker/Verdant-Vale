@@ -238,7 +238,9 @@ window.addEventListener('keydown', e => {
             warpMenu.mode         = 'list';
             warpMenu.cursor       = 0;
             warpMenu.scrollOffset = 0;
-            warpMenu.mapIds       = Object.keys(MAP_REGISTRY);
+            // Sorted by canonical id (a documented, stable rule) so the debug
+            // warp list order never depends on catalog object-literal order.
+            warpMenu.mapIds       = Object.keys(MAP_REGISTRY).sort();
           } else if (debugMenu.cursor === 7) {
             // Validate Data — runs the content linter (validation.js) and
             // surfaces just the summary here; the full grouped report

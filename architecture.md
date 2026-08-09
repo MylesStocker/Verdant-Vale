@@ -88,7 +88,7 @@ The rule this codebase actually follows:
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
 | `render.js` | The single `render()` orchestrator — the canonical draw-call order (layering) for a frame — plus the pre-computed vignette. | Don't put actual drawing logic here, only calls into the `render-*.js` files. If draw order/layering looks wrong, this is the file to fix. |
 | `input.js` | The `keys` table and the `keydown`/`keyup` listeners; routes a keypress to whichever screen is active (combat, menu, choice, shop, debug menu, debug warp menu, overlay panels, overworld). | No game logic beyond routing — it calls into `movement.js`/`combat.js`/`interactions.js`/etc rather than mutating game state directly (aside from cursor/screen UI state). |
-| `movement.js` | `player`, `locationName()`, `currentMapId()`, `tileAt()`, `canWalk()` (collision), `isEncounterEligibleTile()`, and `update()` — the per-frame advance of movement/cooldowns/encounter checks/`MAP_FEATURES` trigger-zone checks. | No drawing code. |
+| `movement.js` | `player`, `locationName()`, `currentContentLocationKey()` (logical content-location key; `currentMapId()` is a deprecated alias), `tileAt()`, `canWalk()` (collision), `isEncounterEligibleTile()`, and `update()` — the per-frame advance of movement/cooldowns/encounter checks/`MAP_FEATURES` trigger-zone checks. | No drawing code. |
 | `combat.js` | Equip helpers (`effectiveAtk`/etc), enemy stat templates, `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
 | `render-battle.js` | Battle-screen sprite drawing for the player and every enemy type, `drawBattleGenericEnemy()` (the fallback silhouette for ids opted into `ENEMY_GENERIC_SPRITE_IDS`), the id-keyed `ENEMY_SPRITE_DISPATCH` table (`enemy.id → { draw, dy }`) that `drawBattleEnemy()` dispatches on, and `drawCombat()` (the action menu / item subscreen / message / victory / defeat UI). | Combat *logic* (damage, turn order, state transitions) lives in `combat.js` — this file only reads `combat` state and draws it. |
 | `bootstrap.js` | The one-time new-game startup state (starting map/position, intro dialogue). | Must stay the last file loaded before `interactions.js` — see ordering rules above. Don't add anything here beyond one-time startup values. |
@@ -102,8 +102,8 @@ matter just as much for where new content goes:
 | File | Owns |
 |---|---|
 | `tiles.js` | Tile pixel size (`TILE`), every numeric tile-id constant, `WALKABLE[]`, `TILE_PROPERTIES`, the tile helper functions (`getTileProperties`/`getTileName`/`isTileWalkable`/`isTileEncounterEligible`/`tileHasTag`/`isWaterTile`/`isRoadTile`/`isTransitionTile`), and the debug-only `DEBUG_TILE_NAMES`/`debugTileName()`. |
-| `maps.js` | The **facade** for maps: `MAP_REGISTRY` (authoritative literal + key order), every `window.*` map export, the Sunken Gallery registry loop, `mapRegistryId()`, and the shared/special maps that don't belong to one region (`MAP_N1`/`MAP_N2`, `APARTMENT_CORRIDOR_MAP`, `SMALL_APARTMENT_MAP`, `HOUSE_INTERIOR_MAP`, `DREAM_MAP`). Region-specific map grids live in `content/maps/*` (below), declared **before** `maps.js`. |
-| `data.js` | `MAP_METADATA`, the enemy-template pools (`ENEMY_TEMPLATES`, `DUNGEON_ENEMY_TEMPLATES`, etc), and most per-map `*_ITEMS` arrays. |
+| `maps.js` | The **facade** for map *arrays*: every `window.*` map export, the Sunken Gallery grid-room arrays, and the shared/special maps that don't belong to one region (`MAP_N1`/`MAP_N2`, `APARTMENT_CORRIDOR_MAP`, `SMALL_APARTMENT_MAP`, `HOUSE_INTERIOR_MAP`, `DREAM_MAP`). Region-specific map grids live in `content/maps/*` (below), declared **before** `maps.js`. The map *catalog* + registry/metadata views + helpers are built in `data.js` (not here), since they need the enemy pools/item arrays it defines. |
+| `data.js` | `MAP_CATALOG` (the authoritative per-map catalog) plus its derived `MAP_METADATA` alias, generated `MAP_REGISTRY`, and canonical helpers (`mapIdForRef`/`mapEntryForId`/`mapRefForId`, deprecated `mapRegistryId`); the enemy-template pools (`ENEMY_TEMPLATES`, `DUNGEON_ENEMY_TEMPLATES`, etc); and most per-map `*_ITEMS` arrays. |
 | `npcs.js` | The **facade** for NPCs: `NPC_ACTIONS`, `NPC_REGISTRY`, `HOUSE_DOORS`, `HOUSE_DATA`, the shared named-position/workstation objects, `SHARED_NPCS` (generic house/apartment residents + genuinely cross-region NPCs), and the authoritative `SIMPLE_NPCS = [...CALWICK_NPCS, ...THORNMERE_WILDS_NPCS, ...DRENWICK_TOWN_NPCS, ...DRENWICK_INTERIOR_NPCS, ...SOUTH_RUINS_NPCS, ...SHARED_NPCS]` (concatenation only — no source-order tags, no sorting). Regional NPC arrays live in `content/npcs/*`, declared **before** `npcs.js`. |
 | `items.js` | `ITEM_REGISTRY`, `createItem()`, `grantItem()`. **Rule: define item properties in `ITEM_REGISTRY` and grant items with `createItem(name)`/`grantItem(name)` — never hand-write inventory item objects at runtime.** `loadGame()` re-creates saved items from the registry by name, so a registry edit propagates to existing saves. |
 | `shops.js` | `SHOP_REGISTRY`. |
@@ -132,9 +132,13 @@ scope, a `const` declared by an earlier file is visible to the later facade.
 
 **Authoring rules:**
 
-- **Maps** go in the region's `*-maps.js`; `MAP_REGISTRY` is still edited in
-  `maps.js` (keep its literal + key order authoritative). Generated-room
-  builders and adjacent `*_ITEMS` arrays move with their region.
+- **Maps**: the map *array* goes in the region's `*-maps.js`; add its ONE
+  `MAP_CATALOG` entry in `data.js` (keyed by the canonical id, `id` === key).
+  `MAP_REGISTRY`/`MAP_METADATA` are derived from the catalog — never author them
+  directly. Generated-room builders and adjacent `*_ITEMS` arrays move with their
+  region. (A new *content-location key* — a new NPC-schedulable location — is a
+  separate concern: add it to `currentContentLocationKey()` and
+  `VALID_CONTENT_LOCATION_KEYS`, not the catalog.)
 - **NPCs** go in the region's `*-npcs.js` array (`CALWICK_NPCS`, …). `npcs.js`
   derives `NPC_REGISTRY` and assembles `SIMPLE_NPCS` from those arrays plus
   `SHARED_NPCS`. Within a region, keep on-map NPCs in their original relative
@@ -157,7 +161,7 @@ scope, a `const` declared by an earlier file is visible to the later facade.
   `interactTownOutdoor`, the apartment-corridor signage). Do not add a new
   regional bucket without an explicit architectural decision.
 
-## Maps: the 16×15 grid, `MAP_REGISTRY`, `MAP_METADATA`
+## Maps: the 16×15 grid, `MAP_CATALOG`, and the two identity namespaces
 
 Every map is a plain array-of-arrays tile grid: **`ROWS = 15` rows of
 `COLS = 16` tile-id numbers each** (`state.js`). This is a hard, unchecked-at-
@@ -168,28 +172,48 @@ isn't), and `movement.js`'s `tileAt()` returns a hardcoded solid tile
 (`TREE`/`DUNGEON_WALL`/`SLUICE_WALL`/`TOWN_BUILDING`, by context) for any
 out-of-range coordinate rather than checking a per-map size.
 
-Every registered map needs two, sometimes three, entries:
+**Two distinct identity namespaces — do not conflate them:**
 
-- **`MAP_REGISTRY`** (`maps.js`) — `{ id, label, map }`, keyed by a string
-  (conventionally identical to the map constant's own name, e.g.
-  `MAP2: { id: 'MAP2', label: '...', map: MAP2 }`). This is what the canonical
-  `mapRegistryId()` (`maps.js`) — used by `saveGame()`/`loadGame()` and the
-  location-state serializer — resolves `activeMap` against; skipping this entry
-  for a real map is a real, previously-hit bug (the
-  Drenwick school basement was a working map missing from `MAP_REGISTRY`,
-  which silently broke save/load specifically there).
-- **`MAP_METADATA`** (`data.js`) — the newer, richer table: `{ id, map,
-  displayName, region, type, items, encounterPool, allowRandomEncounters,
-  allowSave, notes? }`, keyed *identically* to `MAP_REGISTRY` (same property
-  names) so `mapRegistryId(activeMap)` resolves either table. `type` is one
-  of `'outdoor' | 'town' | 'interior' | 'dungeon' | 'bridge' | 'special'`.
-  `MAP_REGISTRY` and `MAP_METADATA` are two independently-maintained tables,
-  **not** one derived from the other — `MAP_REGISTRY` lives in `maps.js`,
-  which loads *before* `data.js`, and `MAP_METADATA.encounterPool` needs the
-  `*_ENEMY_TEMPLATES` pools that only exist once `data.js` has loaded.
-  `validateGameData()`'s `validateMapMetadata()` cross-checks the two tables
-  agree (every `MAP_REGISTRY` key has a metadata entry and vice versa,
-  errors if not) instead.
+1. **Canonical physical map id** — a stable string like `MAP`,
+   `HOUSE_INTERIOR_MAP`, `DRENWICK_CIVIC_MAP`. This is what save/transition code
+   uses. One physical grid = one id.
+2. **Logical content-location key** — what `currentContentLocationKey()`
+   (`movement.js`) returns: `'west'`, `'house:<houseId>'`, `'drenwick_civic'`,
+   per-apartment keys, etc. A *shared* physical grid stands in for many
+   houses/apartments, and NPC `.map` values / `HOUSE_DOORS` / schedules key off
+   these — so this is deliberately NOT the physical id. `validateNPCs()` checks
+   `npc.map` against `VALID_CONTENT_LOCATION_KEYS`, a hand-maintained allowlist
+   of these keys (not derived from the catalog).
+
+**`MAP_CATALOG`** (`data.js`) is the ONE authoritative catalog of physical maps.
+It is keyed by the canonical physical id (its `id` field MUST equal its key —
+`validateGameData()` errors otherwise), and each entry carries
+`{ id, map, displayName, region, type, items, encounterPool,
+allowRandomEncounters, allowSave, notes? }`. `type` is one of `'outdoor' |
+'town' | 'interior' | 'dungeon' | 'bridge' | 'special'`. It lives in `data.js`
+because it needs the `*_ENEMY_TEMPLATES` pools and `*_ITEMS` arrays defined
+there; the map arrays themselves come from `maps.js` / `content/maps/*` (loaded
+first). The 24 Sunken Gallery grid rooms are added to the catalog in a loop
+before the views below are derived, so they are ordinary catalog entries.
+
+**Derived compatibility views (never authored independently):**
+
+- **`MAP_METADATA`** is an *alias* of `MAP_CATALOG` (same objects) — existing
+  metadata consumers read it unchanged.
+- **`MAP_REGISTRY`** is *generated* from the catalog as `{ id, label:
+  displayName, map }` — its label is always the canonical `displayName`, its id
+  always the canonical key (the old competing lowercase Drenwick ids are gone).
+- **Canonical helpers** (`data.js`): `mapIdForRef(mapRef)` (reverse map-array→id
+  lookup, O(1) via a prebuilt index), `mapEntryForId(id)`, `mapRefForId(id)` —
+  all return `null` for unknowns, never a silent fallback. `mapRegistryId()` is a
+  **deprecated alias** of `mapIdForRef()` kept for console tooling.
+
+`validateGameData()`'s `validateMapMetadata()` validates the catalog directly:
+id===key, 15×16 dimensions, every required field, and that **no map array is
+registered under two ids**. (The old MAP_REGISTRY↔MAP_METADATA cross-check is
+gone — with one authored table and two derived views, there is nothing to
+cross-check.)
+
 - **`MAP_FEATURES`** (`interactions.js`, optional) — see "Interactions"
   below; only needed if the map has inspectable signage or discovery
   triggers.
@@ -197,8 +221,8 @@ Every registered map needs two, sometimes three, entries:
 For a **plain outdoor map** with no new state flag (just another
 `MAP2`/`MAP3`-style overworld square, the common case), `locationName()` and
 `currentItemList()` need **no new lines** — both read
-`MAP_METADATA[mapRegistryId(activeMap)]` directly for any map whose
-`type === 'outdoor'`. For every **other** map type (town buildings, dungeon
+`mapEntryForId(mapIdForRef(activeMap))` (via `MAP_METADATA`) directly for any map
+whose `type === 'outdoor'`. For every **other** map type (town buildings, dungeon
 floors, sluice floors, the vault), those two functions and `combat.js`'s
 `currentEncounterPool()` still branch on existing state flags
 (`inTown`+`townBuilding`, `inDungeon`+`dungeonFloor`, `inSluice`+`sluiceFloor`,
@@ -437,7 +461,7 @@ pressed) is checked in this priority order:
    handler is the hand-written behaviour for one map/building — chests,
    quest-object encounters, boss triggers, town-specific scripted dialogue, and
    (inside the relevant handler) `interactSimpleNPCs()` (which checks every
-   `SIMPLE_NPCS` entry whose `.map` matches `currentMapId()`, opening either a
+   `SIMPLE_NPCS` entry whose `.map` matches `currentContentLocationKey()`, opening either a
    plain `.dialogue` array or a custom `.action(npc)` callback for the nearest
    one in `TALK_RADIUS`). A handler returns **`true` when it CONSUMED the
    press** — opened dialogue/choice/shop/a reading panel, or otherwise handled
@@ -1041,7 +1065,7 @@ Using the South Ruins Entrance Hall as the running example:
     worth the one line: it makes the no-encounters guarantee a visible,
     intentional statement instead of an accident of omission that a future
     edit could silently break.
-11. **`currentMapId()` / `locationName()`** (`movement.js`) — one line each,
+11. **`currentContentLocationKey()` / `locationName()`** (`movement.js`) — one line each,
     same `if (inX) return '...'` shape as every other area (skip
     `locationName()` if the area is a plain outdoor map — `MAP_METADATA`
     owns that case, see "Maps" above).
@@ -1053,7 +1077,7 @@ Using the South Ruins Entrance Hall as the running example:
     one `else if (inX) { interactSimpleNPCs(); }` branch (or more, if the
     area has chests/environmental text). NPCs themselves are ordinary
     `SIMPLE_NPCS` entries (`npcs.js`) with `map: 'x'` matching whatever
-    string `currentMapId()` returns for the area — no special-casing needed
+    string `currentContentLocationKey()` returns for the area — no special-casing needed
     there. **(Optional)** a `MAP_FEATURES` entry for inspectable
     signage/plaques or discovery-trigger narration in the new area — see
     "Interactions" above; this is purely additive and needs no wiring
@@ -1116,7 +1140,7 @@ Using the South Ruins Entrance Hall as the running example:
       straight into the dangerous area
 - [ ] Encounter-exclusion entry in `movement.js`'s `isEncounterEligibleTile()`
       (both the exclusion list *and* the explicit branch)
-- [ ] `currentMapId()` and `locationName()` lines in `movement.js` (skip
+- [ ] `currentContentLocationKey()` and `locationName()` lines in `movement.js` (skip
       `locationName()` for a plain outdoor map)
 - [ ] `currentItemList()` line in `render-entities.js` (same skip)
 - [ ] `interactSimpleNPCs()` wiring in `interactions.js`, plus any NPCs in
@@ -1169,7 +1193,7 @@ Key invariants (all enforced and tested):
 
 - **Auto-movers update only on their resolved active map.** `ensureAutoMovers()`
   starts an auto-managed mover (a `boundedWander`, or a `patrol` with
-  `autoStart: true`) the frame its NPC's `map` equals `currentMapId()`, and
+  `autoStart: true`) the frame its NPC's `map` equals `currentContentLocationKey()`, and
   suspends it (dropping the route, homing the NPC) the frame it doesn't — the
   same map-local filter `updateNpcRoutes()` and `drawSimpleNPCs()` already
   apply. This shared invariant keeps a mover off every other screen (the
@@ -1296,7 +1320,7 @@ bounds (0..COLS, 0..ROWS). Do not mix conventions inside `movement`.
 - **Opt-in only.** No `movement` property → the NPC never moves, turns,
   animates, or blocks differently than today.
 - **Active map only.** Only NPCs whose resolved `map` equals
-  `currentMapId()` update. Off-map NPCs never accumulate route progress.
+  `currentContentLocationKey()` update. Off-map NPCs never accumulate route progress.
 - **Orthogonal authored routes.** NPCs walk axis-aligned segments between
   authored waypoints (waypoint pairs should share an x or a y; L-shapes are
   authored as explicit corner waypoints). No pathfinding.

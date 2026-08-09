@@ -234,116 +234,15 @@ window.SLUICE_LEVEL3_MAP    = SLUICE_LEVEL3_MAP;
 window.SLUICE_SECRET_MAP    = SLUICE_SECRET_MAP;
 window.DREAM_MAP            = DREAM_MAP;
 
-// ─── Map registry ─────────────────────────────────────────────────────────────
-// Additive/reference-only: gameplay code has not yet been migrated to use this.
-// Each entry: { id, label, map }
-// Labels match locationName() in main.js where applicable.
-const MAP_REGISTRY = {
-  MAP:                   { id: 'MAP',                   label: 'Verdant Vale',              map: MAP                   },
-  MAP2:                  { id: 'MAP2',                  label: 'Eastern Reaches',            map: MAP2                  },
-  LORRA_HOUSE_MAP:       { id: 'LORRA_HOUSE_MAP',       label: "Lorra's Farmhouse",          map: LORRA_HOUSE_MAP       },
-  MAREN_POST_MAP:        { id: 'MAREN_POST_MAP',        label: 'Guard Post',                  map: MAREN_POST_MAP        },
-  MAP3:                  { id: 'MAP3',                  label: 'Thornmere Fen',              map: MAP3                  },
-  MAP4:                  { id: 'MAP4',                  label: 'Thornmere',                  map: MAP4                  },
-  MAP5:                  { id: 'MAP5',                  label: 'Thornmere Shallows',         map: MAP5                  },
-  MAP3_N1:               { id: 'MAP3_N1',               label: 'Northern Fen',               map: MAP3_N1               },
-  RODDON_WAY_MAP:        { id: 'RODDON_WAY_MAP',        label: 'Roddon Way',                 map: RODDON_WAY_MAP        },
-  MAP3_N2:               { id: 'MAP3_N2',               label: 'Drenwick',                   map: MAP3_N2               },
-  NORTH_BASIN_S_MAP:     { id: 'NORTH_BASIN_S_MAP',     label: 'North Basin',                map: NORTH_BASIN_S_MAP     },
-  NORTH_BASIN_C_MAP:     { id: 'NORTH_BASIN_C_MAP',     label: 'North Basin \u2014 Reservoir', map: NORTH_BASIN_C_MAP     },
-  NORTH_BASIN_SW_MAP:    { id: 'NORTH_BASIN_SW_MAP',    label: 'North Basin \u2014 Silt Flats', map: NORTH_BASIN_SW_MAP    },
-  NORTH_BASIN_W_MAP:     { id: 'NORTH_BASIN_W_MAP',     label: 'North Basin \u2014 West Shore', map: NORTH_BASIN_W_MAP    },
-  NORTH_BASIN_NW_MAP:    { id: 'NORTH_BASIN_NW_MAP',    label: 'North Basin \u2014 Upper Reach', map: NORTH_BASIN_NW_MAP  },
-  BASIN_CHAMBER_MAP:     { id: 'BASIN_CHAMBER_MAP',     label: 'No Recorded Location',      map: BASIN_CHAMBER_MAP    },
-  SUNKEN_GALLERY_MAP:    { id: 'SUNKEN_GALLERY_MAP',    label: 'Sunken Gallery',            map: SUNKEN_GALLERY_MAP   },
-  DRENWICK_POST_MAP:     { id: 'DRENWICK_POST_MAP',     label: 'Guard Post',                 map: DRENWICK_POST_MAP     },
-  BRIDGE_CROSSING_MAP:   { id: 'BRIDGE_CROSSING_MAP',   label: 'Imperial Bridge \u2014 Toll Gate', map: BRIDGE_CROSSING_MAP   },
-  SMUGGLER_FORT_MAP:     { id: 'SMUGGLER_FORT_MAP',     label: 'Guard Post',                 map: SMUGGLER_FORT_MAP     },
-  DRENWICK_CIVIC_MAP:             { id: 'drenwick_civic',             label: 'Drenwick',          map: DRENWICK_CIVIC_MAP             },
-  DRENWICK_WEST_RESIDENTIAL_MAP:  { id: 'drenwick_west_residential',  label: 'Drenwick West Side',   map: DRENWICK_WEST_RESIDENTIAL_MAP  },
-  DRENWICK_CANAL_DOCKS_MAP:       { id: 'drenwick_canal_docks',       label: 'Drenwick Canal Docks',  map: DRENWICK_CANAL_DOCKS_MAP       },
-  DRENWICK_EAST_OUTSKIRTS_MAP:    { id: 'drenwick_east_outskirts',    label: 'Drenwick East Side',    map: DRENWICK_EAST_OUTSKIRTS_MAP    },
-  DRENWICK_MARKET_MAP:            { id: 'drenwick_market',            label: 'Drenwick Market',       map: DRENWICK_MARKET_MAP            },
-  DRENWICK_POST_OFFICE_MAP:       { id: 'drenwick_post_office',       label: 'Drenwick — Fenmark Post Co.', map: DRENWICK_POST_OFFICE_MAP  },
-  DRENWICK_WATERFRONT_MAP:        { id: 'drenwick_waterfront',        label: 'Drenwick Waterfront',   map: DRENWICK_WATERFRONT_MAP        },
-  DRENWICK_INN_MAP:               { id: 'drenwick_inn',               label: 'Drenwick \u2014 Inn',                map: DRENWICK_INN_MAP               },
-  DRENWICK_OFFICE_MAP:            { id: 'drenwick_office',            label: 'Drenwick \u2014 Office',             map: DRENWICK_OFFICE_MAP            },
-  DRENWICK_HARBORMASTER_MAP:      { id: 'drenwick_harbormaster',      label: 'Drenwick \u2014 Harbormaster',       map: DRENWICK_HARBORMASTER_MAP      },
-  DRENWICK_WASH_HOUSE_MAP:        { id: 'drenwick_wash_house',        label: 'Drenwick \u2014 Wash House',         map: DRENWICK_WASH_HOUSE_MAP        },
-  DRENWICK_INFIRMARY_MAP:         { id: 'drenwick_infirmary',         label: 'Drenwick \u2014 Infirmary',          map: DRENWICK_INFIRMARY_MAP         },
-  DRENWICK_PROVISION_STORE_MAP:   { id: 'drenwick_provision_store',   label: 'Drenwick \u2014 Provision Store',    map: DRENWICK_PROVISION_STORE_MAP   },
-  DRENWICK_GUILD_HALL_MAP:        { id: 'drenwick_guild_hall',        label: 'Drenwick \u2014 Guild Hall',               map: DRENWICK_GUILD_HALL_MAP        },
-  DRENWICK_TAVERN_MAP:            { id: 'drenwick_tavern',            label: 'Drenwick \u2014 Dockworkers\u2019 Tavern',  map: DRENWICK_TAVERN_MAP            },
-  DRENWICK_SCHOOL_GROUND_MAP:     { id: 'drenwick_school_ground',     label: 'Drenwick \u2014 School',                   map: DRENWICK_SCHOOL_GROUND_MAP     },
-  DRENWICK_SCHOOL_UPPER_MAP:      { id: 'drenwick_school_upper',      label: 'Drenwick \u2014 School (Upper Floor)',      map: DRENWICK_SCHOOL_UPPER_MAP      },
-  DRENWICK_SCHOOL_BASEMENT_MAP:   { id: 'drenwick_school_basement',   label: 'Drenwick \u2014 School (Archive)',          map: DRENWICK_SCHOOL_BASEMENT_MAP   },
-  MAP_N1:                { id: 'MAP_N1',                label: 'Northern Road',              map: MAP_N1                },
-  MAP_N2:                { id: 'MAP_N2',                label: 'Blocked Path',               map: MAP_N2                },
-  DUNGEON_ENTRANCE_MAP:  { id: 'DUNGEON_ENTRANCE_MAP',  label: 'South Ruins \u2014 Entrance',       map: DUNGEON_ENTRANCE_MAP  },
-  DUNGEON_MAP:           { id: 'DUNGEON_MAP',           label: 'South Ruins',                      map: DUNGEON_MAP           },
-  DUNGEON2_MAP:          { id: 'DUNGEON2_MAP',          label: 'South Ruins \u2014 Lower',          map: DUNGEON2_MAP          },
-  DUNGEON3_MAP:          { id: 'DUNGEON3_MAP',          label: 'South Ruins \u2014 Deep',                    map: DUNGEON3_MAP          },
-  DUNGEON3_TL_MAP:       { id: 'DUNGEON3_TL_MAP',       label: 'South Ruins \u2014 Deep, West Wing',          map: DUNGEON3_TL_MAP       },
-  DUNGEON3_TR_MAP:       { id: 'DUNGEON3_TR_MAP',       label: 'South Ruins \u2014 Deep, East Wing',          map: DUNGEON3_TR_MAP       },
-  DUNGEON3_ML_MAP:       { id: 'DUNGEON3_ML_MAP',       label: 'South Ruins \u2014 Deep, Left Gallery',       map: DUNGEON3_ML_MAP       },
-  DUNGEON3_MC_MAP:       { id: 'DUNGEON3_MC_MAP',       label: 'South Ruins \u2014 Deep, Crossing',           map: DUNGEON3_MC_MAP       },
-  DUNGEON3_MR_MAP:       { id: 'DUNGEON3_MR_MAP',       label: 'South Ruins \u2014 Deep, Right Gallery',      map: DUNGEON3_MR_MAP       },
-  DUNGEON3_BL_MAP:       { id: 'DUNGEON3_BL_MAP',       label: 'South Ruins \u2014 Deep, Lower West',         map: DUNGEON3_BL_MAP       },
-  DUNGEON3_BC_MAP:       { id: 'DUNGEON3_BC_MAP',       label: 'South Ruins \u2014 Deep, Lower Hall',         map: DUNGEON3_BC_MAP       },
-  DUNGEON3_BR_MAP:       { id: 'DUNGEON3_BR_MAP',       label: 'South Ruins \u2014 Deep, Descent Chamber',    map: DUNGEON3_BR_MAP       },
-  DUNGEON4_MAP:          { id: 'DUNGEON4_MAP',          label: 'South Ruins \u2014 Deeper',         map: DUNGEON4_MAP          },
-  DUNGEON5_MAP:          { id: 'DUNGEON5_MAP',          label: 'South Ruins \u2014 Lowest',         map: DUNGEON5_MAP          },
-  DUNGEON6_MAP:          { id: 'DUNGEON6_MAP',          label: 'South Ruins \u2014 The Deep',        map: DUNGEON6_MAP          },
-  DUNGEON7_MAP:          { id: 'DUNGEON7_MAP',          label: 'South Ruins \u2014 Catacombs',       map: DUNGEON7_MAP          },
-  DUNGEON8_MAP:          { id: 'DUNGEON8_MAP',          label: 'South Ruins \u2014 The Drowned Chamber', map: DUNGEON8_MAP      },
-  DUNGEON8_WEST_MAP:     { id: 'DUNGEON8_WEST_MAP',     label: 'South Ruins \u2014 West Passage',    map: DUNGEON8_WEST_MAP     },
-  DUNGEON8_EAST_MAP:     { id: 'DUNGEON8_EAST_MAP',     label: 'South Ruins \u2014 East Passage',    map: DUNGEON8_EAST_MAP     },
-  TOWN_MAP:              { id: 'TOWN_MAP',              label: 'Calwick',                    map: TOWN_MAP              },
-  INN_MAP:               { id: 'INN_MAP',              label: 'Inn',                        map: INN_MAP               },
-  OFFICE_MAP:            { id: 'OFFICE_MAP',            label: 'Office',                     map: OFFICE_MAP            },
-  SCHOOL_MAP:            { id: 'SCHOOL_MAP',            label: 'West Calwick School',        map: SCHOOL_MAP            },
-  APARTMENT_CORRIDOR_MAP:{ id: 'APARTMENT_CORRIDOR_MAP',label: 'East Calwick Apartments',   map: APARTMENT_CORRIDOR_MAP},
-  SMALL_APARTMENT_MAP:   { id: 'SMALL_APARTMENT_MAP',   label: 'Apartment',                  map: SMALL_APARTMENT_MAP   },
-  EAST_TOWN_MAP:         { id: 'EAST_TOWN_MAP',         label: 'Calwick East Side',          map: EAST_TOWN_MAP         },
-  WEST_TOWN_MAP:         { id: 'WEST_TOWN_MAP',         label: 'Calwick West Side',          map: WEST_TOWN_MAP         },
-  MEADOW_MAP:            { id: 'MEADOW_MAP',            label: 'Hidden Meadow',              map: MEADOW_MAP            },
-  HOUSE_INTERIOR_MAP:    { id: 'HOUSE_INTERIOR_MAP',    label: 'House',                      map: HOUSE_INTERIOR_MAP    },
-  SLUICE_MAP:            { id: 'SLUICE_MAP',            label: 'East Sluice',                map: SLUICE_MAP            },
-  SLUICE_LEVEL2_MAP:     { id: 'SLUICE_LEVEL2_MAP',     label: 'East Sluice \u2014 Lower Works', map: SLUICE_LEVEL2_MAP },
-  SLUICE_LEVEL3_MAP:     { id: 'SLUICE_LEVEL3_MAP',     label: 'East Sluice \u2014 Deep Works',  map: SLUICE_LEVEL3_MAP },
-  SLUICE_SECRET_MAP:     { id: 'SLUICE_SECRET_MAP',     label: 'East Sluice \u2014 Sealed Room', map: SLUICE_SECRET_MAP },
-  DREAM_MAP:             { id: 'DREAM_MAP',             label: '???',                       map: DREAM_MAP         },
-  MIRE_VAULT_MAP:        { id: 'MIRE_VAULT_MAP',        label: "Mirethyst\u2019s Vault",         map: MIRE_VAULT_MAP    },
-  TAKOMO_MAP:            { id: 'TAKOMO_MAP',            label: "Takomo\u2019s Chamber",          map: TAKOMO_MAP        },
-  HAMLET_INTERIOR_MAP:   { id: 'HAMLET_INTERIOR_MAP',   label: 'The Falls',                      map: HAMLET_INTERIOR_MAP },
-  FEN_BREWERY_MAP:       { id: 'FEN_BREWERY_MAP',       label: 'Wend Brewery',                   map: FEN_BREWERY_MAP   },
-};
-
-// The 24 additional Sunken Gallery grid rooms (galleryRoom() above). Registered
-// in a loop rather than as 24 near-identical literals; each shares the plain
-// 'Sunken Gallery' label (locationName() keys off inSunkenGallery, not the map).
-for (const cell of SUNKEN_GALLERY_GRID_CELLS) {
-  const id = 'SUNKEN_GALLERY_' + cell;
-  MAP_REGISTRY[id] = { id: id, label: 'Sunken Gallery', map: window[id] };
-}
-
-window.MAP_REGISTRY = MAP_REGISTRY;
-
-// Resolves a map grid reference back to its MAP_REGISTRY key — the reverse
-// of MAP_REGISTRY[id].map. save.js's saveGame()/loadGame() each keep a
-// private copy of this same lookup (mapToId/mapFromId) for serialisation;
-// this global version exists so other systems (currently: world-transitions.js's
-// edge-transition system) can resolve "which map is this, as a stable string
-// id" without re-implementing the same loop or reaching into save.js's
-// function-local scope, which isn't accessible from outside it.
-function mapRegistryId(mapRef) {
-  if (!mapRef) return null;
-  for (const [id, entry] of Object.entries(MAP_REGISTRY)) {
-    if (entry.map === mapRef) return id;
-  }
-  return null;
-}
-window.mapRegistryId = mapRegistryId;
+// ─── Map registry / catalog ─────────────────────────────────────────────────
+// The authoritative per-map catalog (MAP_CATALOG), the derived MAP_REGISTRY /
+// MAP_METADATA compatibility views, the reverse map-ref→id index, and the
+// canonical helpers (mapIdForRef / mapEntryForId / mapRefForId, plus the
+// deprecated mapRegistryId alias) all live in data.js now — the catalog needs the
+// *_ENEMY_TEMPLATES pools and *_ITEMS arrays data.js defines, so it is built
+// there, after this file's map arrays (and the Sunken Gallery grid arrays above)
+// already exist as globals. maps.js no longer authors a separate MAP_REGISTRY
+// literal; nothing here consults it at load time.
 
 // ─── Map validation ───────────────────────────────────────────────────────────
 // The standalone dimension/WALKABLE check that used to live here (a plain

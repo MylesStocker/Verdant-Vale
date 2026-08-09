@@ -98,8 +98,13 @@ function locationName() {
   return 'Verdant Vale';
 }
 
-// Returns a string key for the current map, used to filter SIMPLE_NPCS by location.
-function currentMapId() {
+// Returns the LOGICAL content-location key for the player's current position —
+// used to filter SIMPLE_NPCS, match HOUSE_DOORS, and drive schedules. These are
+// deliberately NOT canonical physical map ids (MAP_CATALOG keys): a shared
+// physical grid stands in for many houses/apartments, so the keys here include
+// 'house:<houseId>', per-apartment keys, and town-building/state distinctions
+// ('west', 'drenwick_civic', …). See MAP_CATALOG (data.js) for physical map ids.
+function currentContentLocationKey() {
   if (inLorraHouse)                  return 'lorra_house';
   if (inMarenPost)                   return 'maren_post';
   if (inDrenwrickPost)               return 'drenwick_post';
@@ -166,6 +171,12 @@ function currentMapId() {
   if (inTown) return 'town';
   return 'overworld';
 }
+
+// Deprecated alias for the former name. Its return values were never physical
+// map ids (see currentContentLocationKey's header); the rename removed that
+// confusion. Kept so external/console tooling that still calls currentContentLocationKey()
+// keeps working — new code should call currentContentLocationKey().
+function currentMapId() { return currentContentLocationKey(); }
 
 // ─── Collision ────────────────────────────────────────────────────────────────
 function tileAt(px, py) {
@@ -278,7 +289,7 @@ function canWalk(cx, cy) {
     }
   }
   // Simple NPC solid bodies
-  const mapId = currentMapId();
+  const mapId = currentContentLocationKey();
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId || !npc.solid) continue;
     if (Math.abs(cx - npc.x) < 18 && Math.abs(cy - npc.y) < 18) return false;
@@ -752,7 +763,7 @@ function update() {
       return;
     }
     if (inTown && townBuilding !== 'inn' && townBuilding !== 'office' && townBuilding !== 'house' && townBuilding !== 'school' && curTile === HOUSE_DOOR) {
-      const door = HOUSE_DOORS.find(d => d.map === currentMapId() && d.col === ttx && d.row === tty);
+      const door = HOUSE_DOORS.find(d => d.map === currentContentLocationKey() && d.col === ttx && d.row === tty);
       if (door) {
         if (door.houseId === 'west_i' && den_wraith_quest_started && !den_wraith_defeated && day % 5 !== 0) {
           dialogue.name  = 'Property Door';
@@ -1048,7 +1059,7 @@ window.resetAllPatrols  = resetAllMovers;
 // explicit start). Called from update()'s tail under the same freeze guard as
 // updateNpcRoutes().
 function ensureAutoMovers() {
-  const mapId = currentMapId();
+  const mapId = currentContentLocationKey();
   for (const npc of SIMPLE_NPCS) {
     const mv = npc.movement;
     if (!mv) continue;
@@ -1105,7 +1116,7 @@ function npcRouteCanOccupy(npc, nx, ny) {
     if (props && props.isTransition) return false; // never enter exits/doorways
   }
   if (Math.abs(nx - player.x) < 18 && Math.abs(ny - player.y) < 18) return false; // never push/trap the player
-  const mapId = currentMapId();
+  const mapId = currentContentLocationKey();
   for (const other of SIMPLE_NPCS) {
     if (other === npc || other.map !== mapId || !other.solid) continue;
     if (Math.abs(nx - other.x) < 18 && Math.abs(ny - other.y) < 18) return false;
@@ -1272,7 +1283,7 @@ window.startNpcRoute = startNpcRoute;
 // and never enter transition tiles (npcRouteCanOccupy) — nothing here touches
 // any of those systems.
 function updateNpcRoutes() {
-  const mapId = currentMapId();
+  const mapId = currentContentLocationKey();
   for (const id in NPC_ROUTES) {
     const rt = NPC_ROUTES[id];
     if (rt.done || !rt.moving) continue;

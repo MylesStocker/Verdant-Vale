@@ -106,14 +106,15 @@ function validateMaps() {
   return checked;
 }
 
-// ─── 2. Map metadata ────────────────────────────────────────────────────────
-// MAP_METADATA (data.js) is the single source of truth for per-map
-// bookkeeping (display name, region, type, item list, encounter pool,
-// encounter/save permissions). This checks the table is internally sound
-// AND agrees with MAP_REGISTRY -- kept as two independently-defined tables
-// (not one derived from the other) because MAP_REGISTRY lives in maps.js,
-// which loads before data.js, and MAP_METADATA needs the *_ENEMY_TEMPLATES
-// pools/​*_ITEMS arrays data.js itself defines.
+// ─── 2. Map catalog ─────────────────────────────────────────────────────────
+// MAP_CATALOG (data.js) is the ONE authoritative catalog of every physical map:
+// canonical id (=== its property key), map-array reference, display name, region,
+// type, item list, encounter pool, and encounter/save permissions. MAP_METADATA
+// is an alias of it and MAP_REGISTRY is derived from it, so the old
+// "do the two independently-authored tables agree?" cross-checks are gone --
+// there is only one table to keep sound now. This validates it directly:
+// id===key (mandatory), valid map dimensions, no map array shared by two ids
+// (a duplicate canonical identity), and the required metadata fields.
 //
 // Deliberately does NOT force every map type to look the same: a dungeon
 // floor's encounterPool is expected to be non-null, a town square's is
@@ -122,33 +123,22 @@ function validateMaps() {
 function validateMapMetadata() {
   const GROUP = 'Map metadata';
   let checked = 0;
-  if (typeof MAP_METADATA === 'undefined') {
-    addValidationError(GROUP, 'MAP_METADATA is undefined -- check script load order (data.js)');
+  const catalog = (typeof MAP_CATALOG !== 'undefined') ? MAP_CATALOG
+                : (typeof MAP_METADATA !== 'undefined') ? MAP_METADATA : undefined;
+  if (typeof catalog === 'undefined') {
+    addValidationError(GROUP, 'MAP_CATALOG is undefined -- check script load order (data.js)');
     return checked;
   }
 
   const VALID_TYPES = new Set(['outdoor', 'town', 'interior', 'dungeon', 'bridge', 'special']);
-  const registryKeys = (typeof MAP_REGISTRY !== 'undefined') ? new Set(Object.keys(MAP_REGISTRY)) : null;
-  const metadataKeys = new Set(Object.keys(MAP_METADATA));
-
-  if (registryKeys) {
-    for (const key of registryKeys) {
-      if (!metadataKeys.has(key)) addValidationError(GROUP, 'MAP_REGISTRY[' + key + ']: no matching MAP_METADATA entry -- locationName()/currentItemList()/encounter pool lookups will silently fall back for this map');
-    }
-    for (const key of metadataKeys) {
-      if (!registryKeys.has(key)) addValidationWarning(GROUP, 'MAP_METADATA[' + key + ']: no matching MAP_REGISTRY entry -- registered map missing from debug/audit tooling that reads MAP_REGISTRY');
-    }
-  } else {
-    addValidationWarning(GROUP, 'MAP_REGISTRY not available -- cross-validation with MAP_METADATA skipped');
-  }
-
   const rows = _validationRows(), cols = _validationCols();
-  for (const [key, m] of Object.entries(MAP_METADATA)) {
-    const lbl = 'MAP_METADATA[' + key + ']';
+  const seenRefs = new Map(); // map array reference -> first id that used it
+  for (const [key, m] of Object.entries(catalog)) {
+    const lbl = 'MAP_CATALOG[' + key + ']';
     if (!m || typeof m !== 'object') { addValidationError(GROUP, lbl + ': not an object'); continue; }
     checked++;
 
-    if (m.id !== key) addValidationWarning(GROUP, lbl + ': id "' + m.id + '" does not match its own property key (cosmetic -- nothing looks this field up, but it invites confusion)');
+    if (m.id !== key) addValidationError(GROUP, lbl + ': id "' + m.id + '" does not equal its property key -- the canonical id MUST be the key (no competing id namespace)');
 
     if (!_isPlainArray(m.map)) {
       addValidationError(GROUP, lbl + ': map is not an array -- points to a missing/undefined constant');
@@ -158,8 +148,9 @@ function validateMapMetadata() {
         if (!_isPlainArray(row) || row.length !== cols)
           addValidationError(GROUP, lbl + ' row ' + r + ': has ' + (_isPlainArray(row) ? row.length : 'non-array') + ' cols (expected ' + cols + ')');
       });
-      if (registryKeys && registryKeys.has(key) && MAP_REGISTRY[key].map !== m.map)
-        addValidationError(GROUP, lbl + ': map array reference does not match MAP_REGISTRY[' + key + '].map (two different arrays for the same id)');
+      if (seenRefs.has(m.map))
+        addValidationError(GROUP, lbl + ': map array is already registered under id "' + seenRefs.get(m.map) + '" -- one physical map must not have two canonical ids');
+      else seenRefs.set(m.map, key);
     }
 
     if (typeof m.displayName !== 'string' || !m.displayName) addValidationError(GROUP, lbl + ': missing displayName -- breaks the on-screen location banner for this map');
@@ -535,13 +526,11 @@ function validateNPCs() {
     return checked;
   }
 
-  // Same string-id scheme currentMapId() returns -- the only valid values
-  // for npc.map. Kept here (not derived from MAP_METADATA, which uses a
-  // different, MAP_REGISTRY-style id scheme) because that's genuinely a
-  // separate namespace -- see movement.js's currentMapId() and the note in
-  // maps.js about mapRegistryId() being a different lookup for a different
-  // purpose.
-  const VALID_MAP_IDS = new Set([
+  // The logical content-location keys currentContentLocationKey() returns --
+  // the only valid values for npc.map. Kept here (not derived from MAP_CATALOG,
+  // whose keys are canonical PHYSICAL map ids) because this is a genuinely
+  // separate namespace -- see movement.js's currentContentLocationKey().
+  const VALID_CONTENT_LOCATION_KEYS = new Set([
     'overworld',
     'map2', 'map3', 'map_n1', 'map_n2', 'map4', 'map3_n1', 'map3_n2',
     'north_basin_s', 'north_basin_c', 'north_basin_sw', 'north_basin_w',
@@ -600,8 +589,8 @@ function validateNPCs() {
       if (base === 'house') {
         const houseId = mapVal.slice(6);
         if (houseIds && !houseIds.has(houseId)) addValidationError(GROUP, lbl + ': map "' + mapVal + '" -- house id "' + houseId + '" not in HOUSE_DATA');
-      } else if (!VALID_MAP_IDS.has(base)) {
-        addValidationWarning(GROUP, lbl + ': map id "' + mapVal + '" is not in the known currentMapId() list -- confirm it\'s a real, reachable map id (this list is a maintained cross-check, not derived automatically, so a genuinely new area can trip this once until the list is updated)');
+      } else if (!VALID_CONTENT_LOCATION_KEYS.has(base)) {
+        addValidationWarning(GROUP, lbl + ': content-location key "' + mapVal + '" is not in the known currentContentLocationKey() list -- confirm it\'s a real, reachable location key (this list is a maintained cross-check, not derived automatically, so a genuinely new area can trip this once until the list is updated)');
       }
 
       // In-bounds + walkability, only meaningful once we know which real

@@ -987,7 +987,7 @@ function drawCat(npc, rt) {
 }
 
 function drawSimpleNPCs() {
-  const mapId = currentMapId();
+  const mapId = currentContentLocationKey();
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId) continue;
     // Route-driven rendering (Phase 1 pilots: the bridge guards run

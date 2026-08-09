@@ -376,7 +376,7 @@ function rehydrateItem(saved) {
 }
 
 // ─── The single authoritative answer to "can the player save right now?" ───
-// Based on MAP_METADATA[mapRegistryId(activeMap)].allowSave -- defaults to
+// Based on MAP_METADATA[mapIdForRef(activeMap)].allowSave -- defaults to
 // true if the active map has no metadata entry at all (so an unregistered
 // map, which shouldn't happen, doesn't silently block saving). Two
 // independent call sites consult this exact function, not two copies of
@@ -389,7 +389,7 @@ function rehydrateItem(saved) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
-  const meta = MAP_METADATA[mapRegistryId(activeMap)];
+  const meta = MAP_METADATA[mapIdForRef(activeMap)];
   return !meta || meta.allowSave !== false;
 }
 window.canSaveHere = canSaveHere;
@@ -436,10 +436,10 @@ function saveGame() {
     // ── Location state ────────────────────────────────────────────────────
     // activeMap is NOT a location-state binding (it is derived from the mode
     // flags on load), so it is serialized separately via the canonical
-    // mapRegistryId(). Every other location-context field flattens through the
+    // mapIdForRef(). Every other location-context field flattens through the
     // ONE binding registry (serializeLocationState(), world-transitions.js) —
     // there is no second hand-maintained list here any more.
-    activeMapId:        mapRegistryId(activeMap),
+    activeMapId:        mapIdForRef(activeMap),
     ...serializeLocationState(),
     // dilemma_voss is a main.js story var, NOT location context — kept separate.
     dilemma_voss,
@@ -526,7 +526,7 @@ function _legacyLoadLocation(data, candidate) {
              :                  TOWN_MAP;
     }
   }
-  return { mapId: mapRegistryId(mapRef), player: plr };
+  return { mapId: mapIdForRef(mapRef), player: plr };
 }
 
 // Preflight the complete location restore from a migrated payload WITHOUT
@@ -557,7 +557,7 @@ function resolveLoadLocation(data) {
   // with inBridgePost=true on a non-bridge map (old defeat-respawn bug) would
   // make the bridge guards render everywhere. Clear the bridge context so the
   // candidate satisfies the invariants below.
-  const bridgeMapId = mapRegistryId(BRIDGE_CROSSING_MAP);
+  const bridgeMapId = mapIdForRef(BRIDGE_CROSSING_MAP);
   if (candidate.inBridgePost && mapId !== bridgeMapId) {
     candidate.inBridgePost = false; candidate.bridge_entry_direction = null; candidate.bridge_toll_paid = false;
   }

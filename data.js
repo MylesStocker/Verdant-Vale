@@ -566,44 +566,38 @@ const MIRE_VAULT_ITEMS = [
 // held for a future secret crypt entrance. Mirethyst gives the Fen Cowl through
 // her own dialogue now (npcs.js), as thanks for the player keeping her company.
 
-// ─── MAP_METADATA ───────────────────────────────────────────────────────────
-// The single source of truth for per-map bookkeeping. Adding a new map should
-// mean: define its map array (+ _ITEMS array, even if empty) in maps.js, then
-// add ONE entry here -- not touching locationName(), currentItemList(), the
-// combat.js pool ladder, and MAP_REGISTRY separately, the way every map
-// before this table required.
+// ─── MAP_CATALOG ──────────────────────────────────────────────────────────────
+// The ONE authoritative catalog of every physical map: its canonical stable ID,
+// map-array reference, canonical display name, and per-map metadata. Adding a new
+// map means: define its map array (+ _ITEMS array, even if empty) in maps.js,
+// then add ONE entry here -- not touching locationName(), currentItemList(), the
+// combat.js pool ladder, and a separate registry the way maps before this
+// required.
 //
-// Keyed EXACTLY like MAP_REGISTRY (maps.js) -- same property names, same
-// set of keys -- so the two can be cross-validated (see
-// validateGameData()'s new "MAP_METADATA" section) and so
-// mapRegistryId(activeMap) (maps.js), which returns a MAP_REGISTRY property
-// key, can be used directly as MAP_METADATA[mapRegistryId(activeMap)].
+// KEYS ARE THE CANONICAL PHYSICAL MAP IDS -- exactly the strings save/transition
+// code uses (e.g. 'MAP', 'HOUSE_INTERIOR_MAP', 'DRENWICK_CIVIC_MAP'). Each
+// entry's `id` MUST equal its property key (enforced by validateGameData()).
+// These are NOT the logical content-location keys currentContentLocationKey()
+// (movement.js) returns -- those ('west', 'house:<id>', 'drenwick_civic', …) are
+// a deliberately separate namespace for which shared physical grids stand in for
+// different houses/apartments. Do not conflate the two.
 //
-// Field `id` is normalised to match the property key exactly (e.g.
-// DRENWICK_CIVIC_MAP.id === 'DRENWICK_CIVIC_MAP'), which is NOT always true
-// of MAP_REGISTRY's own `.id` field (a handful of older Drenwick entries use
-// a separate lowercase id there, e.g. 'drenwick_civic') -- that field is
-// only ever read by validation.js for presence/duplicate checks, never for
-// lookup, so normalising it here is a safe cleanup, not a behaviour change.
+// The old MAP_REGISTRY / MAP_METADATA split -- two independently-authored tables
+// that had to be cross-validated, with MAP_REGISTRY carrying stale `.label`s and
+// a competing lowercase `.id` for some Drenwick entries -- is gone. Both are now
+// DERIVED from this catalog right after it is built (see below): MAP_METADATA is
+// an alias of the catalog, and MAP_REGISTRY is generated as
+// { id, label: displayName, map }. Canonical lookups use mapIdForRef() /
+// mapEntryForId() / mapRefForId(); mapRegistryId() remains a deprecated alias.
 //
-// `displayName` is the CANONICAL name -- what locationName() actually shows
-// the player -- which for a handful of entries differs from MAP_REGISTRY's
-// older `.label` (e.g. NORTH_BASIN_S_MAP's label is the stale "North Basin";
-// DRENWICK_OFFICE_MAP's label is "Drenwick — Office" but the player has
-// always seen "Drenwick — IJC District Office"). MAP_REGISTRY.label is left
-// untouched (nothing reads it for display -- see the report), so this isn't
-// a behaviour change either, just a second source finally agreeing with the
-// first.
-//
+// `displayName` is the CANONICAL name locationName() shows the player.
 // `encounterPool`/`allowRandomEncounters` are populated for EVERY map, for
-// documentation and validation, even though combat.js's actual pool
-// selection still branches on inDungeon/dungeonFloor/inSluice/inMireVault
-// state for dungeon floors, sluice floors, and the vault -- see combat.js's
-// comment at the top of startCombat() for why that state-flag branching
-// stays in place rather than being replaced by a metadata read. Only the
-// plain-activeMap tail of that ladder (farMap/thornmereMap/northBasinMap/
-// the MAP-vs-default split) was migrated to read MAP_METADATA directly.
-const MAP_METADATA = {
+// documentation and validation, even though combat.js's actual pool selection
+// still branches on inDungeon/dungeonFloor/inSluice/inMireVault state for
+// dungeon floors, sluice floors, and the vault -- see combat.js's comment at the
+// top of startCombat(). Only the plain-activeMap tail of that ladder
+// (farMap/thornmereMap/northBasinMap/the MAP-vs-default split) reads metadata directly.
+const MAP_CATALOG = {
   // ── Overworld (Verdant Vale / Eastern Reaches / Thornmere fen) ────────────
   MAP: {
     id: 'MAP', map: MAP, displayName: 'Verdant Vale', region: 'Verdant Vale',
@@ -1036,19 +1030,56 @@ const MAP_METADATA = {
 // The 24 additional Sunken Gallery rooms (maps.js's 5×5 grid) all share the
 // entrance hall's profile: a dungeon-type map in the North Basin region, the
 // same Pale Drowned / Silt Hag encounter pool, no items, and no saving. Added
-// in a loop rather than as 24 near-identical literals. window[id] is the same
-// array MAP_REGISTRY holds, so the two tables agree by reference (validation
-// requires MAP_METADATA[id].map === MAP_REGISTRY[id].map).
+// as ordinary catalog entries in a loop (rather than 24 near-identical literals)
+// BEFORE the compatibility views are derived, so they appear in MAP_REGISTRY /
+// MAP_METADATA and the reverse index exactly like any authored map.
 for (const cell of window.SUNKEN_GALLERY_GRID_CELLS) {
   const id = 'SUNKEN_GALLERY_' + cell;
-  MAP_METADATA[id] = {
+  MAP_CATALOG[id] = {
     id: id, map: window[id], displayName: 'Sunken Gallery', region: 'North Basin',
     type: 'dungeon', items: [], encounterPool: SUNKEN_GALLERY_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: false,
     notes: 'One of the 24 blank rooms of the Sunken Gallery 5×5 grid (maps.js). GALLERY_FLOOR/GALLERY_WALL only, no other elements yet. Joined to its neighbours by EDGE_TRANSITIONS; shares the entrance hall’s encounter pool and allowSave: false.',
   };
 }
+window.MAP_CATALOG = MAP_CATALOG;
+
+// ─── Derived compatibility views + canonical helpers ─────────────────────────
+// MAP_CATALOG (above) is the sole authored source. The two legacy tables are now
+// GENERATED from it (never authored independently), so they cannot drift:
+//   • MAP_METADATA is an ALIAS of the catalog (same objects) — existing metadata
+//     consumers keep working unchanged during the incremental migration.
+//   • MAP_REGISTRY is generated as { id, label: displayName, map } — its label is
+//     now always the canonical displayName, and its id is always the canonical
+//     key (no more competing lowercase Drenwick ids).
+const MAP_METADATA = MAP_CATALOG;
 window.MAP_METADATA = MAP_METADATA;
+
+const MAP_REGISTRY = {};
+for (const _id of Object.keys(MAP_CATALOG)) {
+  const _e = MAP_CATALOG[_id];
+  MAP_REGISTRY[_id] = { id: _id, label: _e.displayName, map: _e.map };
+}
+window.MAP_REGISTRY = MAP_REGISTRY;
+
+// Reverse index (map array reference → canonical id), built once so lookups are
+// O(1) rather than scanning the catalog on every call.
+const _MAP_REF_TO_ID = new Map();
+for (const _id of Object.keys(MAP_CATALOG)) _MAP_REF_TO_ID.set(MAP_CATALOG[_id].map, _id);
+
+// Canonical helpers. Unknown ids/refs return null (never a silent fallback).
+function mapIdForRef(mapRef)  { return (mapRef && _MAP_REF_TO_ID.has(mapRef)) ? _MAP_REF_TO_ID.get(mapRef) : null; }
+function mapEntryForId(mapId) { return (typeof mapId === 'string' && Object.prototype.hasOwnProperty.call(MAP_CATALOG, mapId)) ? MAP_CATALOG[mapId] : null; }
+function mapRefForId(mapId)   { const e = mapEntryForId(mapId); return e ? e.map : null; }
+window.mapIdForRef  = mapIdForRef;
+window.mapEntryForId = mapEntryForId;
+window.mapRefForId  = mapRefForId;
+
+// Deprecated compatibility alias for the old resolver name (returns the canonical
+// id for a map-array reference). Retained for console tooling / not-yet-migrated
+// callers; new code should use mapIdForRef().
+function mapRegistryId(mapRef) { return mapIdForRef(mapRef); }
+window.mapRegistryId = mapRegistryId;
 
 // ─── Stable-ID registries (#4): world pickups + openable chests ──────────────
 // Immutable-ID policy: every persistent placed pickup and every openable chest

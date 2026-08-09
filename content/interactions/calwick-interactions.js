@@ -1194,7 +1194,7 @@ function interactCalwickOffice() {
   // (including the weight-quest branch below) on every later visit.
   if (equipment_ticket_ready) {
     const aldricGear = SIMPLE_NPCS.find(n => n.id === 'aldric');
-    if (aldricGear && aldricGear.map === currentMapId()) {
+    if (aldricGear && aldricGear.map === currentContentLocationKey()) {
       const agx = player.x - aldricGear.x;
       const agy = player.y - aldricGear.y;
       if (Math.sqrt(agx * agx + agy * agy) < TALK_RADIUS) {
@@ -1220,7 +1220,7 @@ function interactCalwickOffice() {
   // Weight Discrepancy quest — Aldric (stage 1 → 2) and Corvin (stage 2 → 3)
   if (weight_quest_stage === 1 || weight_quest_stage === 2) {
     const aldric = SIMPLE_NPCS.find(n => n.id === 'aldric');
-    if (aldric && aldric.map === currentMapId()) {
+    if (aldric && aldric.map === currentContentLocationKey()) {
       const adx = player.x - aldric.x;
       const ady = player.y - aldric.y;
       if (Math.sqrt(adx * adx + ady * ady) < TALK_RADIUS) {
@@ -1306,7 +1306,7 @@ function interactCalwickOffice() {
     }
     if (weight_quest_stage === 2) {
       const corvin = SIMPLE_NPCS.find(n => n.id === 'corvin');
-      if (corvin && corvin.map === currentMapId()) {
+      if (corvin && corvin.map === currentContentLocationKey()) {
         const cdx = player.x - corvin.x;
         const cdy = player.y - corvin.y;
         if (Math.sqrt(cdx * cdx + cdy * cdy) < TALK_RADIUS) {
@@ -1822,7 +1822,7 @@ function interactCalwickInn() {
     // records that he asked; nothing sets corvin_favor_done.
     {
       const corvin = SIMPLE_NPCS.find(n => n.id === 'corvin');
-      if (corvin && corvin.map === currentMapId() &&
+      if (corvin && corvin.map === currentContentLocationKey() &&
           !corvin_favor_started && !corvin_favor_done &&
           MainQuest >= 1 && !(mq4_available_day > 0 && !reservoir_quest_started)) {
         const cdx = player.x - corvin.x, cdy = player.y - corvin.y;

@@ -146,7 +146,7 @@ function serializeLocationState() {
   for (const b of LOCATION_STATE_BINDINGS) {
     const kind = _locationSaveKind(b);
     const v = b.get();
-    if (kind === 'mapRef')   out[_locationSaveKey(b)] = (typeof mapRegistryId === 'function') ? mapRegistryId(v) : null;
+    if (kind === 'mapRef')   out[_locationSaveKey(b)] = (typeof mapIdForRef === 'function') ? mapIdForRef(v) : null;
     else if (kind === 'pos') out[_locationSaveKey(b)] = v ? { x: v.x, y: v.y } : { x: 0, y: 0 };
     else                     out[_locationSaveKey(b)] = v;
   }
@@ -173,7 +173,7 @@ function deserializeLocationState(data) {
       if (id === undefined || id === null) {
         state[b.key] = null; // neutral: not in a house
       } else {
-        const ref = (typeof MAP_REGISTRY !== 'undefined' && MAP_REGISTRY[id]) ? MAP_REGISTRY[id].map : null;
+        const ref = (typeof mapRefForId === 'function') ? mapRefForId(id) : null;
         if (!ref) { errors.push('unknown ' + saveKey + ' "' + id + '"'); state[b.key] = null; }
         else state[b.key] = ref;
       }
@@ -196,8 +196,7 @@ function deserializeLocationState(data) {
 function validatePlacement(spec) {
   const errors = [];
   const mapId = spec && spec.mapId;
-  const entry = (typeof MAP_REGISTRY !== 'undefined') ? MAP_REGISTRY[mapId] : undefined;
-  const map = entry && entry.map;
+  const map = (typeof mapRefForId === 'function') ? mapRefForId(mapId) : null;
   if (!Array.isArray(map) || !Array.isArray(map[0])) {
     return { ok: false, map: null, errors: ['unknown/invalid map id "' + mapId + '"'] };
   }
@@ -724,7 +723,7 @@ function enterTownAt(townId, entryPoint) {
     console.warn('No town entry configured for:', townId, entryPoint);
     return;
   }
-  transitionToLocation({ mapId: mapRegistryId(entry.map), x: entry.x, y: entry.y, facing: entry.facing,
+  transitionToLocation({ mapId: mapIdForRef(entry.map), x: entry.x, y: entry.y, facing: entry.facing,
     state: { inTown: true, currentTownId: townId, townBuilding: entry.townBuilding || null }, cooldown: true });
   travellerPresent = Math.random() < 1 / 3;
 }
@@ -744,7 +743,7 @@ function entryPointFromFacing(facing) {
 function moveToDrenwichDistrict(map, x, y, facing) {
   // Intra-Drenwick district move: stays in town; townBuilding carried forward
   // (null on a district) — enumerated deliberately, not a blanket preserve-all.
-  transitionToLocation({ mapId: mapRegistryId(map), x: x * TILE, y: y * TILE, facing,
+  transitionToLocation({ mapId: mapIdForRef(map), x: x * TILE, y: y * TILE, facing,
     state: { inTown: true, currentTownId: 'drenwick', townBuilding: townBuilding }, cooldown: true });
 }
 
@@ -835,7 +834,7 @@ function exitBuilding() {
   // houseReturnPos) is read here — before the helper resets those fields.
   if (prev === 'house') {
     transitionToLocation({
-      mapId: mapRegistryId(houseSourceMap), x: houseReturnPos.x, y: houseReturnPos.y, facing: 'down',
+      mapId: mapIdForRef(houseSourceMap), x: houseReturnPos.x, y: houseReturnPos.y, facing: 'down',
       state: { inTown: true, currentTownId: currentTownId, townBuilding: houseSourceBuilding },
     });
     return;
@@ -1317,7 +1316,7 @@ function edgeTransitionLanding(seg, along) {
 if (typeof window !== 'undefined') window.edgeTransitionLanding = edgeTransitionLanding;
 
 function tryEdgeTransition(direction) {
-  const mapId = mapRegistryId(activeMap);
+  const mapId = mapIdForRef(activeMap);
   if (!mapId) return false;
   const segments = EDGE_TRANSITIONS[mapId] && EDGE_TRANSITIONS[mapId][direction];
   if (!segments) return false;
@@ -1337,8 +1336,8 @@ function tryEdgeTransition(direction) {
       return false;
     }
 
-    const targetMapId = typeof seg.targetMap === 'string' ? seg.targetMap : mapRegistryId(seg.targetMap);
-    if (!targetMapId || !(MAP_REGISTRY[targetMapId] && MAP_REGISTRY[targetMapId].map)) return false; // misconfigured segment — fail safe, don't move
+    const targetMapId = typeof seg.targetMap === 'string' ? seg.targetMap : mapIdForRef(seg.targetMap);
+    if (!targetMapId || !mapRefForId(targetMapId)) return false; // misconfigured segment — fail safe, don't move
 
     // Landing on the destination edge (outdoor↔outdoor, so no location-state
     // overrides — the canonical reset leaves everything neutral). transitionTo-
@@ -1384,14 +1383,12 @@ function debugFindNearestWalkableTile(map, col, row) {
 }
 
 // Warps the player to (col, row) on the map registered under mapId (checked
-// against MAP_METADATA first, MAP_REGISTRY as a fallback so this keeps
-// working even for a map that hasn't been given a metadata entry yet).
+// via the canonical catalog entry (mapEntryForId); every registered map has one.
 // Returns { success, message, col, row } — never throws, never leaves the
 // player out of bounds or on an unwalkable tile.
 function debugWarpToMap(mapId, col, row) {
-  const meta          = (typeof MAP_METADATA !== 'undefined') ? MAP_METADATA[mapId] : undefined;
-  const registryEntry = (typeof MAP_REGISTRY  !== 'undefined') ? MAP_REGISTRY[mapId]  : undefined;
-  const targetMap = meta ? meta.map : (registryEntry ? registryEntry.map : undefined);
+  const meta      = (typeof mapEntryForId === 'function') ? mapEntryForId(mapId) : null;
+  const targetMap = meta ? meta.map : undefined;
 
   if (!Array.isArray(targetMap)) {
     return { success: false, message: 'Warp failed: unknown map id "' + mapId + '"' };
@@ -1449,7 +1446,7 @@ function debugEdgeTransitionSummary(mapId) {
     const segments = entries ? entries[dir] : undefined;
     if (!segments || segments.length === 0) { out[dir] = null; continue; }
     out[dir] = segments.map(seg => {
-      const targetMapId = typeof seg.targetMap === 'string' ? seg.targetMap : mapRegistryId(seg.targetMap);
+      const targetMapId = typeof seg.targetMap === 'string' ? seg.targetMap : mapIdForRef(seg.targetMap);
       const targetMeta = (typeof MAP_METADATA !== 'undefined' && targetMapId) ? MAP_METADATA[targetMapId] : undefined;
       return {
         sourceRange:       seg.sourceRange,
@@ -1472,7 +1469,7 @@ window.debugEdgeTransitionSummary = debugEdgeTransitionSummary;
 // never gameplay logic — the real transitions are still driven entirely by
 // movement.js's curTile checks and the edge-transition interception there.
 function debugNearbyTransitionInfo() {
-  const mapId = mapRegistryId(activeMap);
+  const mapId = mapIdForRef(activeMap);
   const col = Math.floor(player.x / TILE), row = Math.floor(player.y / TILE);
   const tile = activeMap[row] ? activeMap[row][col] : undefined;
   const tileName = (typeof debugTileName === 'function' && tile !== undefined) ? debugTileName(tile) : null;

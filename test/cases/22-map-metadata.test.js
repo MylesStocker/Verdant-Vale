@@ -89,39 +89,42 @@ module.exports = {
     assert.doesNotThrow(() => { unregisteredResult = g.run('currentItemList()'); }, 'must not throw for a map with no MAP_METADATA entry');
     assert.ok(Array.isArray(unregisteredResult), 'should still return an array (falls back to WORLD_ITEMS), never undefined');
 
-    // ── 4. Missing metadata entry is caught by validateGameData() ──────────
+    // ── 4. A catalog id that doesn't equal its key is caught ────────────────
+    // Replaces the old two-table cross-check (removed with the MAP_CATALOG
+    // consolidation): the catalog is now validated directly, and id===key is a
+    // hard invariant (no competing lowercase id namespace).
     g.run(`
       debugMode = true;
-      window.__savedMap2Meta = MAP_METADATA['MAP2'];
-      delete MAP_METADATA['MAP2'];
+      window.__savedMap2Id = MAP_CATALOG['MAP2'].id;
+      MAP_CATALOG['MAP2'].id = 'wrong_id';
     `);
     let warnings = collectValidationWarnings(g);
     assert.ok(
-      warnings.some(w => w.includes('MAP_REGISTRY[MAP2]') && w.includes('no matching MAP_METADATA entry')),
-      'deleting MAP2\'s metadata entry should produce a specific warning, not pass silently'
+      warnings.some(w => w.includes('MAP_CATALOG[MAP2]') && w.includes('does not equal its property key')),
+      'a catalog entry whose id !== its property key should be an error, not pass silently'
     );
-    g.run(`MAP_METADATA['MAP2'] = window.__savedMap2Meta; delete window.__savedMap2Meta;`); // restore
+    g.run(`MAP_CATALOG['MAP2'].id = window.__savedMap2Id; delete window.__savedMap2Id;`); // restore
 
-    // ── 5. Metadata pointing to a missing map is caught ─────────────────────
+    // ── 5. A catalog entry pointing to a missing map is caught ──────────────
     g.run(`
-      MAP_METADATA['_TEST_GHOST_MAP'] = {
+      MAP_CATALOG['_TEST_GHOST_MAP'] = {
         id: '_TEST_GHOST_MAP', map: undefined, displayName: 'Ghost',
         region: 'Nowhere', type: 'outdoor', items: [], encounterPool: null,
         allowRandomEncounters: false, allowSave: true,
       };
     `);
     let warnings2;
-    assert.doesNotThrow(() => { warnings2 = collectValidationWarnings(g); }, 'validateGameData() must not throw when a metadata entry points to an undefined map');
+    assert.doesNotThrow(() => { warnings2 = collectValidationWarnings(g); }, 'validateGameData() must not throw when a catalog entry points to an undefined map');
     assert.ok(
-      warnings2.some(w => w.includes('MAP_METADATA[_TEST_GHOST_MAP]') && w.includes('map is not an array')),
-      'a metadata entry with an undefined/missing map constant should produce a specific warning'
+      warnings2.some(w => w.includes('MAP_CATALOG[_TEST_GHOST_MAP]') && w.includes('map is not an array')),
+      'a catalog entry with an undefined/missing map constant should produce a specific error'
     );
-    g.run(`delete MAP_METADATA['_TEST_GHOST_MAP'];`); // clean up
+    g.run(`delete MAP_CATALOG['_TEST_GHOST_MAP'];`); // clean up
 
     // Confirm validation is clean again after both temporary breakages are undone.
     const warningsAfterCleanup = collectValidationWarnings(g);
-    const metadataRelated = warningsAfterCleanup.filter(w => w.includes('MAP_METADATA') || w.includes('MAP_REGISTRY'));
-    assert.equal(metadataRelated.length, 0, 'no MAP_METADATA/MAP_REGISTRY warnings should remain after restoring both temporary breakages: ' + JSON.stringify(metadataRelated));
+    const metadataRelated = warningsAfterCleanup.filter(w => w.includes('MAP_CATALOG') || w.includes('MAP_METADATA') || w.includes('MAP_REGISTRY'));
+    assert.equal(metadataRelated.length, 0, 'no catalog/metadata/registry warnings should remain after restoring both temporary breakages: ' + JSON.stringify(metadataRelated));
 
     // ── 6a. Existing special-tile transition still works (MAP <-> MAP2) ────
     g.run(`
