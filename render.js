@@ -23,11 +23,9 @@ function render() {
   }
 
   // ── World (overworld or dungeon) ───────────────────────────────────────────
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      drawTile(activeMap[r][c], c * TILE, r * TILE);
-    }
-  }
+  // Default origin (0,0), full map range, no camera transform — pixel-identical
+  // to the former inline `for r,c: drawTile(activeMap[r][c], c*TILE, r*TILE)`.
+  drawMapTiles(activeMap);
 
   drawWorldItems();
   if (inTown && townBuilding === 'office' && currentTownId === 'calwick')  drawOfficeFurniture();

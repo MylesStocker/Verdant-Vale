@@ -2153,6 +2153,50 @@ function drawAptNotice(x, y) {
   ctx.fillRect(x + 12, y + 11, 8, 6);
 }
 
+// Draws a rectangular tile map by dispatching each tile through drawTile(), in
+// row-major order (top-to-bottom, left-to-right) — the extracted, parameterized
+// form of render()'s former inline activeMap loop.
+//
+//   map           the tile grid to draw (array of equal-length rows). Dimensions
+//                 are read FROM this map, never from activeMap — a caller can pass
+//                 any map. Its own row/col lengths bound the draw.
+//   originPxX/Y   pixel position at which the map's LOCAL (0,0) tile is drawn;
+//                 defaults to (0,0). This is the map's STABLE drawing-space /
+//                 region-world origin, NOT a camera-relative texture phase:
+//                 drawTile() keys procedural patterns (e.g. animated water) off
+//                 the absolute pixel coords it receives, so a future continuous
+//                 renderer must apply the camera as a SEPARATE transform (e.g.
+//                 ctx.translate) — passing a camera-shifted origin here would make
+//                 those patterns crawl as the camera moves. Passing a chunk's
+//                 stable world-pixel origin keeps them locked to the world.
+//   range         optional { startCol, endCol, startRow, endRow } half-open LOCAL
+//                 TILE ranges, so a caller can draw only a visible slice. Omitted
+//                 => the whole map. Clamped to the map's actual bounds.
+//
+// With the default origin (0,0) and no range this is byte-for-byte equivalent to
+// the old `for r,c: drawTile(activeMap[r][c], c*TILE, r*TILE)` loop — same tile
+// ids, coordinates, order, and animation. It draws ONLY tiles; entities,
+// furniture, overlays, the player, etc. remain the caller's responsibility.
+function drawMapTiles(map, originPxX, originPxY, range) {
+  if (originPxX === undefined) originPxX = 0;
+  if (originPxY === undefined) originPxY = 0;
+  const rows = map.length;
+  const cols = rows > 0 && map[0] ? map[0].length : 0;
+  let startRow = 0, endRow = rows, startCol = 0, endCol = cols;
+  if (range) {
+    if (range.startRow !== undefined) startRow = Math.max(0, range.startRow);
+    if (range.endRow   !== undefined) endRow   = Math.min(rows, range.endRow);
+    if (range.startCol !== undefined) startCol = Math.max(0, range.startCol);
+    if (range.endCol   !== undefined) endCol   = Math.min(cols, range.endCol);
+  }
+  for (let r = startRow; r < endRow; r++) {
+    const row = map[r];
+    for (let c = startCol; c < endCol; c++) {
+      drawTile(row[c], originPxX + c * TILE, originPxY + r * TILE);
+    }
+  }
+}
+
 function drawTile(id, x, y) {
   switch (id) {
     case GRASS:               drawGrass(x, y);            break;

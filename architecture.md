@@ -82,7 +82,8 @@ The rule this codebase actually follows:
 | `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION`/`SAVE_MIGRATIONS`/`migrateSave()`, `saveGame()`, `loadGame()`, `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here (`saveGame`/`loadGame` read the registry generically — there's no per-flag load assignment to write). See "Save/flags" below — this is the single most common thing new content gets wrong. |
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
-| `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
+| `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
+| `world-view.js` | **PURE** camera / chunk-visibility calculations for the future continuous overworld (prework — no runtime consumer yet): `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`. Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and the `COLS`/`ROWS`/`TILE` constants. | No DOM/canvas, no state mutation, no duplicated layout data. Do NOT wire these into `render()` yet — activating scrolling/continuous rendering is a later increment. |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
@@ -464,6 +465,22 @@ stable enemy id). **Adding a
 new tile id means adding both the `case` in `drawTile()` and the id to
 `RENDERABLE_TILE_IDS`** — nothing enforces they stay in sync except running
 `validateGameData()` and reading its output.
+
+**`drawMapTiles(map, originPxX?, originPxY?, range?)`** (same file) is the
+extracted, parameterized form of `render()`'s former inline
+`for r,c: drawTile(activeMap[r][c], c*TILE, r*TILE)` loop. It reads its
+dimensions from the supplied `map` (never `activeMap`), draws row-major, defaults
+to origin `(0,0)` and the whole map, and accepts an optional half-open LOCAL TILE
+`range` so a future caller can draw only a visible slice. `render()` now calls
+`drawMapTiles(activeMap)` — with the default origin/range this is pixel-identical
+to the old loop. **The `originPx` is the map's stable drawing-space/world origin,
+not a camera-relative texture phase**: `drawTile()` keys procedural patterns
+(animated water, etc.) off the absolute pixel coords it receives, so a future
+continuous renderer must apply the camera as a *separate* transform (e.g.
+`ctx.translate`) and pass each chunk its stable world-pixel origin — feeding a
+camera-shifted origin here would make those patterns crawl as the camera moves.
+The pure geometry that decides *which* chunks/slices to draw lives in
+`world-view.js` (see the layout section); it has no runtime consumer yet.
 
 ## Movement, collision, encounters
 
