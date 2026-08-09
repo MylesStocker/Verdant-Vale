@@ -329,11 +329,12 @@ function validateTiles() {
 // If EDGE_TRANSITIONS (world-transitions.js) exists, validates every segment
 // against the same rules tryEdgeTransition() relies on at runtime: real
 // source/target maps, a real direction/edge, a well-formed and in-bounds
-// range, at least one walkable coordinate on both the source edge and the
-// computed target landing row/col, a condition function that can safely be
-// called without throwing, and (as a warning, not an error, since one-way
-// links are a real, supported pattern) a reciprocal link back from the
-// target map.
+// range, and — for EVERY walkable source-edge coordinate — that its exact
+// clamped landing (via the shared edgeTransitionLanding() helper) is in-bounds
+// and base-walkable, so no reachable crossing can strand the player on a
+// blocked tile. Also: a condition function that can safely be called without
+// throwing, and (as a warning, not an error, since one-way links are a real,
+// supported pattern) a reciprocal link back from the target map.
 function validateEdgeTransitions() {
   const GROUP = 'EDGE_TRANSITIONS';
   let checked = 0;
@@ -366,16 +367,9 @@ function validateEdgeTransitions() {
     return null;
   }
 
-  // Computes the landing (row, col) tryEdgeTransition() would use for a
-  // given targetEdge + along-value, WITHOUT clamping -- clamping is checked
-  // separately as its own rule ("target range/clamping is valid").
-  function landingCoord(targetEdge, along) {
-    if (targetEdge === 'south') return { row: rows - 2, col: along };
-    if (targetEdge === 'north') return { row: 1, col: along };
-    if (targetEdge === 'west')  return { row: along, col: 1 };
-    if (targetEdge === 'east')  return { row: along, col: cols - 2 };
-    return null;
-  }
+  // Landing coordinates are computed by the shared edgeTransitionLanding()
+  // helper (world-transitions.js) — the SAME clamp + edge-mapping tryEdge-
+  // Transition() applies at runtime — so validation can't drift from behavior.
 
   // A reverse index of every segment seen, for the reciprocal-link check
   // below: key = sourceMapId + '|' + targetMapId, value = set of
@@ -444,32 +438,45 @@ function validateEdgeTransitions() {
           }
         }
 
-        // At least one source-edge coordinate in range must be walkable, or
-        // the transition can never actually be triggered.
+        // Per-source-coordinate landing check (strengthened). For EVERY walkable
+        // source-edge coordinate the transition can actually be triggered from,
+        // apply the exact clamp + edge-mapping formula tryEdgeTransition() uses
+        // (via the shared edgeTransitionLanding() helper) and require the SPECIFIC
+        // computed landing to be in-bounds and base-walkable. The old aggregate
+        // "at least one walkable source and at least one walkable target" check
+        // could pass a segment where some walkable source coordinates still
+        // clamp onto a blocked landing; this catches each such coordinate.
         const sourceEdgeRow = (direction === 'north') ? 0 : (direction === 'south') ? rows - 1 : null;
         const sourceEdgeCol = (direction === 'west') ? 0 : (direction === 'east') ? cols - 1 : null;
-        let anySourceWalkable = false;
+        const tRows = target.map.length, tCols = target.map[0] ? target.map[0].length : 0;
+        let walkableSourceCount = 0;
         for (let along = Math.max(0, srcMin); along <= Math.min(srcMax, srcMaxVal); along++) {
           const r = sourceEdgeRow !== null ? sourceEdgeRow : along;
           const c = sourceEdgeCol !== null ? sourceEdgeCol : along;
-          const row = sourceMeta.map[r];
-          if (row && WALKABLE[row[c]]) { anySourceWalkable = true; break; }
-        }
-        if (!anySourceWalkable)
-          addValidationError(GROUP, targetLbl + ': no walkable tile anywhere in sourceRange [' + srcMin + ', ' + srcMaxVal + '] on the ' + direction + ' edge -- this transition can never be triggered');
+          const srow = sourceMeta.map[r];
+          if (!srow || !WALKABLE[srow[c]]) continue; // blocked source tile: can't stand there, can't trigger
+          walkableSourceCount++;
 
-        // At least one target landing coordinate (across the full
-        // clamp-target range) must be walkable, or every possible crossing
-        // strands the player on a blocked tile.
-        let anyTargetWalkable = false;
-        for (let along = Math.max(0, tgtMin); along <= Math.min(tgtMax, tgtMaxVal); along++) {
-          const landing = landingCoord(seg.targetEdge, along);
-          if (!landing) continue;
-          const row = target.map[landing.row];
-          if (row && WALKABLE[row[landing.col]]) { anyTargetWalkable = true; break; }
+          const landing = (typeof edgeTransitionLanding === 'function')
+            ? edgeTransitionLanding(seg, along)
+            : null;
+          if (!landing) {
+            addValidationError(GROUP, targetLbl + ': cannot compute a landing for source ' + (sourceEdgeRow !== null ? 'col' : 'row') + ' ' + along + ' (targetEdge "' + seg.targetEdge + '")');
+            continue;
+          }
+          const detail = ' [' + i + '] src ' + (sourceEdgeRow !== null ? 'col' : 'row') + ' ' + along
+            + ' → ' + (target.mapId || '?') + ' landing (col ' + landing.col + ', row ' + landing.row + ')';
+          if (landing.row < 0 || landing.row >= tRows || landing.col < 0 || landing.col >= tCols) {
+            addValidationError(GROUP, targetLbl + detail + ': computed landing is OUT OF BOUNDS on the target map');
+            continue;
+          }
+          const trow = target.map[landing.row];
+          if (!trow || !WALKABLE[trow[landing.col]]) {
+            addValidationError(GROUP, targetLbl + detail + ': computed landing is NOT base-walkable -- a crossing from this source coordinate would strand the player on a blocked tile');
+          }
         }
-        if (!anyTargetWalkable)
-          addValidationError(GROUP, targetLbl + ': no walkable landing tile anywhere in the target range -- every possible crossing would strand the player on a blocked tile');
+        if (walkableSourceCount === 0)
+          addValidationError(GROUP, targetLbl + ': no walkable tile anywhere in sourceRange [' + srcMin + ', ' + srcMaxVal + '] on the ' + direction + ' edge -- this transition can never be triggered');
 
         // Condition function safety: must be callable without throwing.
         if (seg.condition !== undefined) {

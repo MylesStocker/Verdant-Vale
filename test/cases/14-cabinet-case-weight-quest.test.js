@@ -38,6 +38,7 @@ module.exports = {
     g.press('Enter'); // close intro dialogue
 
     g.run(`
+      resetLocationState();   // clean location slate (boot starts in a house)
       currentTownId = 'calwick';
       inTown = true;
       townBuilding = 'office';

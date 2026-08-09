@@ -19,6 +19,7 @@ module.exports = {
 
     // ── Place the player in the basement, then save ─────────────────────────
     g.run(`
+      resetLocationState();   // clean location slate (boot starts in a house)
       inTown = true;
       currentTownId = 'drenwick';
       townBuilding = 'school';

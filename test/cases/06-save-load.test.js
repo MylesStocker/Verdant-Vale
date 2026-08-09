@@ -24,6 +24,7 @@ module.exports = {
       stats.xp   = 555;
       day        = 5;
       MainQuest  = 3;
+      resetLocationState();   // clean location slate (boot starts in a house)
       activeMap  = MAP2;
       inTown     = false;
       townBuilding = null;

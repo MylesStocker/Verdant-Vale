@@ -34,9 +34,9 @@ const LOCATION_STATE_BINDINGS = [
   { key: 'currentTownId',       neutral: null,  get: () => currentTownId,       set: (v) => { currentTownId = v; } },
   { key: 'townBuilding',        neutral: null,  get: () => townBuilding,        set: (v) => { townBuilding = v; } },
   { key: 'currentHouseId',      neutral: null,  get: () => currentHouseId,      set: (v) => { currentHouseId = v; } },
-  { key: 'houseSourceMap',      neutral: null,  get: () => houseSourceMap,      set: (v) => { houseSourceMap = v; } },
+  { key: 'houseSourceMap',      neutral: null,  get: () => houseSourceMap,      set: (v) => { houseSourceMap = v; }, persist: { saveKey: 'houseSourceMapId', kind: 'mapRef' } },
   { key: 'houseSourceBuilding', neutral: null,  get: () => houseSourceBuilding, set: (v) => { houseSourceBuilding = v; } },
-  { key: 'houseReturnPos',      neutral: null,  get: () => houseReturnPos,      set: (v) => { houseReturnPos = v; }, isPos: true },
+  { key: 'houseReturnPos',      neutral: null,  get: () => houseReturnPos,      set: (v) => { houseReturnPos = v; }, isPos: true, persist: { kind: 'pos' } },
   { key: 'inSluice',            neutral: false, get: () => inSluice,            set: (v) => { inSluice = v; } },
   { key: 'sluiceFloor',         neutral: 1,     get: () => sluiceFloor,         set: (v) => { sluiceFloor = v; } },
   { key: 'inMireVault',         neutral: false, get: () => inMireVault,         set: (v) => { inMireVault = v; } },
@@ -127,6 +127,97 @@ function applyLocationState(state) {
   for (const b of LOCATION_STATE_BINDINGS) b.set(state[b.key]);
 }
 
+// ─── Registry-driven save serialization (#5) ─────────────────────────────────
+// The binding registry — not a second hand-maintained list in save.js — is the
+// sole current-schema inventory of persisted location-context fields. Each
+// binding's persistence metadata (optional `persist`) says how it flattens into
+// the save payload:
+//   • default            → save key === binding.key, value stored verbatim
+//   • persist.saveKey    → override the flat save key (e.g. houseSourceMapId)
+//   • persist.kind:'mapRef' → store a map grid ref as its MAP_REGISTRY id
+//   • persist.kind:'pos' (or isPos) → store a {x,y} position (deep-copied)
+function _locationSaveKey(b)  { return (b.persist && b.persist.saveKey) || b.key; }
+function _locationSaveKind(b) { return (b.persist && b.persist.kind) || (b.isPos ? 'pos' : 'value'); }
+
+// Serialize the complete live location state into the existing FLAT save-payload
+// shape (the exact top-level keys saveGame() has always written). Pure read.
+function serializeLocationState() {
+  const out = {};
+  for (const b of LOCATION_STATE_BINDINGS) {
+    const kind = _locationSaveKind(b);
+    const v = b.get();
+    if (kind === 'mapRef')   out[_locationSaveKey(b)] = (typeof mapRegistryId === 'function') ? mapRegistryId(v) : null;
+    else if (kind === 'pos') out[_locationSaveKey(b)] = v ? { x: v.x, y: v.y } : { x: 0, y: 0 };
+    else                     out[_locationSaveKey(b)] = v;
+  }
+  return out;
+}
+
+// Deserialize a migrated flat payload into a COMPLETE candidate location state
+// (every binding key present) WITHOUT mutating any globals. Absent fields take
+// their neutral value (current migration behavior permits this: a v3 save always
+// writes them all; only genuinely partial/legacy payloads hit the neutral path).
+// A 'mapRef' id that is present but non-null and unknown is a hard failure
+// (errors non-empty) so restoration can fail safely rather than silently drop
+// the player's house-return map. Position fields are validated and deep-copied,
+// never retained by reference. Returns { ok, state, errors }.
+function deserializeLocationState(data) {
+  const errors = [];
+  const state = {};
+  const src = (data && typeof data === 'object') ? data : {};
+  for (const b of LOCATION_STATE_BINDINGS) {
+    const kind = _locationSaveKind(b);
+    const saveKey = _locationSaveKey(b);
+    if (kind === 'mapRef') {
+      const id = src[saveKey];
+      if (id === undefined || id === null) {
+        state[b.key] = null; // neutral: not in a house
+      } else {
+        const ref = (typeof MAP_REGISTRY !== 'undefined' && MAP_REGISTRY[id]) ? MAP_REGISTRY[id].map : null;
+        if (!ref) { errors.push('unknown ' + saveKey + ' "' + id + '"'); state[b.key] = null; }
+        else state[b.key] = ref;
+      }
+    } else if (kind === 'pos') {
+      const v = src[saveKey];
+      state[b.key] = (v && Number.isFinite(v.x) && Number.isFinite(v.y)) ? { x: v.x, y: v.y } : { x: 0, y: 0 };
+    } else {
+      state[b.key] = (saveKey in src) ? src[saveKey] : _neutralValueFor(b);
+    }
+  }
+  return { ok: errors.length === 0, state, errors };
+}
+
+// ─── Pure placement preflight (#Phase 2, reused by save restore) ──────────────
+// Resolves a MAP_REGISTRY id and validates a landing WITHOUT mutating anything:
+// finite coordinates, in-bounds, a base-walkable destination tile, and — when a
+// facing is supplied — a valid facing. Returns { ok, map, errors:[...] }. The
+// "base tile" is WALKABLE[map[row][col]] — the static tile table only, ignoring
+// NPCs/furniture/dynamic solids (those are runtime concerns, not placement).
+function validatePlacement(spec) {
+  const errors = [];
+  const mapId = spec && spec.mapId;
+  const entry = (typeof MAP_REGISTRY !== 'undefined') ? MAP_REGISTRY[mapId] : undefined;
+  const map = entry && entry.map;
+  if (!Array.isArray(map) || !Array.isArray(map[0])) {
+    return { ok: false, map: null, errors: ['unknown/invalid map id "' + mapId + '"'] };
+  }
+  const rows = map.length, cols = map[0].length;
+  if (!Number.isFinite(spec.x) || !Number.isFinite(spec.y)) {
+    errors.push('non-finite coordinates (' + spec.x + ',' + spec.y + ')');
+  } else {
+    const txf = spec.x / TILE, tyf = spec.y / TILE;
+    if (txf < 0 || txf >= cols || tyf < 0 || tyf >= rows) {
+      errors.push('coordinates out of bounds for "' + mapId + '" (' + spec.x + ',' + spec.y + ')');
+    } else if (!(typeof WALKABLE !== 'undefined' && WALKABLE[map[Math.floor(tyf)][Math.floor(txf)]])) {
+      errors.push('destination base tile not walkable on "' + mapId + '" (col ' + Math.floor(txf) + ', row ' + Math.floor(tyf) + ')');
+    }
+  }
+  if (spec.facing !== undefined && !['up', 'down', 'left', 'right'].includes(spec.facing)) {
+    errors.push('invalid facing "' + spec.facing + '"');
+  }
+  return { ok: errors.length === 0, map, errors };
+}
+
 // ─── The one canonical location-transition boundary (#5) ─────────────────────
 // spec = {
 //   mapId:   registered MAP_REGISTRY id (string) — preferred over raw refs;
@@ -148,29 +239,12 @@ function applyLocationState(state) {
 // functions, NOT here.
 function transitionToLocation(spec) {
   if (!spec || typeof spec !== 'object') { console.warn('transitionToLocation: no spec'); return false; }
-  // Resolve + validate the destination map (registry ids only).
-  const entry = (typeof MAP_REGISTRY !== 'undefined') ? MAP_REGISTRY[spec.mapId] : undefined;
-  const destMap = entry && entry.map;
-  if (!Array.isArray(destMap) || !Array.isArray(destMap[0])) {
-    console.warn('transitionToLocation: unknown/invalid map id "' + spec.mapId + '"');
-    return false;
-  }
-  // Validate coordinates: finite and inside the destination map.
-  const rows = destMap.length, cols = destMap[0].length;
-  if (!Number.isFinite(spec.x) || !Number.isFinite(spec.y)) {
-    console.warn('transitionToLocation: non-finite coordinates', spec.x, spec.y);
-    return false;
-  }
-  const tx = spec.x / TILE, ty = spec.y / TILE;
-  if (tx < 0 || tx >= cols || ty < 0 || ty >= rows) {
-    console.warn('transitionToLocation: coordinates out of bounds for "' + spec.mapId + '" (' + spec.x + ',' + spec.y + ')');
-    return false;
-  }
-  // Validate facing.
-  if (!['up', 'down', 'left', 'right'].includes(spec.facing)) {
-    console.warn('transitionToLocation: invalid facing "' + spec.facing + '"');
-    return false;
-  }
+  // Resolve + validate the whole placement through the ONE shared preflight:
+  // map resolves, coordinates finite + in-bounds, destination base tile
+  // walkable, and facing valid. An in-bounds but BLOCKED destination fails here
+  // (no auto-nudge, no temporary mutate/rollback) — nothing is touched.
+  const place = validatePlacement({ mapId: spec.mapId, x: spec.x, y: spec.y, facing: spec.facing });
+  if (!place.ok) { console.warn('transitionToLocation: ' + place.errors.join('; ')); return false; }
   // Build the complete proposed state = neutral defaults + explicit overrides.
   const overrides = spec.state || {};
   for (const k of Object.keys(overrides)) {
@@ -183,7 +257,7 @@ function transitionToLocation(spec) {
 
   // ── All validated. Mutate atomically. ──
   applyLocationState(proposed);
-  activeMap     = destMap;
+  activeMap     = place.map;
   player.x      = spec.x;
   player.y      = spec.y;
   player.facing = spec.facing;
@@ -197,6 +271,9 @@ if (typeof window !== 'undefined') {
   window.resetLocationState      = resetLocationState;
   window.applyLocationState      = applyLocationState;
   window.validateLocationState   = validateLocationState;
+  window.serializeLocationState  = serializeLocationState;
+  window.deserializeLocationState = deserializeLocationState;
+  window.validatePlacement       = validatePlacement;
   window.transitionToLocation    = transitionToLocation;
 }
 
@@ -977,7 +1054,7 @@ function ascendSunkenGallery() {
 
 // ─── The Dream (DREAM_MAP) ────────────────────────────────────────────────────
 // Entered when the weekly strange dream plays (resting in the player's own
-// bed, day % 7 === 3) and left when the dream dialogue closes. Unlike every
+// bed, day % 5 === 3 on the five-day week) and left when the dream dialogue closes. Unlike every
 // other transition here, the return point isn't a fixed coordinate — it's
 // wherever the player fell asleep — so enterDream() stashes the waking world
 // (map, position, and the three flags render.js keys its house/town overlays
@@ -1218,6 +1295,27 @@ window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 // simply not move the player further in that direction, exactly as if a
 // solid border tile had stopped them — this function never moves the
 // player out of bounds and never throws.
+// Pure: the destination LANDING tile + facing for an edge-transition segment
+// given a source along-coordinate (column for N/S edges, row for E/W edges).
+// Applies the exact clamp + edge-mapping formula tryEdgeTransition() uses at
+// runtime, so save restore, edge validation, and the transition audit can all
+// reason about the SAME landing a real crossing would produce — without
+// duplicating the arithmetic. Every map is COLS×ROWS, so the fixed one-tile-
+// inside-border rows/cols come from the global grid. Returns { col, row, facing }
+// or null for an unrecognised targetEdge.
+function edgeTransitionLanding(seg, along) {
+  const [tgtMin, tgtMax] = seg.targetRange || seg.sourceRange;
+  const clamped = Math.min(Math.max(along, tgtMin), tgtMax);
+  switch (seg.targetEdge) {
+    case 'south': return { col: clamped,   row: ROWS - 2, facing: 'up' };    // one tile inside south border
+    case 'north': return { col: clamped,   row: 1,        facing: 'down' };  // one tile inside north border
+    case 'west':  return { col: 1,         row: clamped,  facing: 'right' }; // one tile inside west border
+    case 'east':  return { col: COLS - 2,  row: clamped,  facing: 'left' };  // one tile inside east border
+  }
+  return null;
+}
+if (typeof window !== 'undefined') window.edgeTransitionLanding = edgeTransitionLanding;
+
 function tryEdgeTransition(direction) {
   const mapId = mapRegistryId(activeMap);
   if (!mapId) return false;
@@ -1242,19 +1340,15 @@ function tryEdgeTransition(direction) {
     const targetMapId = typeof seg.targetMap === 'string' ? seg.targetMap : mapRegistryId(seg.targetMap);
     if (!targetMapId || !(MAP_REGISTRY[targetMapId] && MAP_REGISTRY[targetMapId].map)) return false; // misconfigured segment — fail safe, don't move
 
-    const [tgtMin, tgtMax] = seg.targetRange || seg.sourceRange;
-    const clamped = Math.min(Math.max(along, tgtMin), tgtMax);
-
-    // Compute the landing on the destination edge (outdoor↔outdoor, so no
-    // location-state overrides — the canonical reset leaves everything neutral).
-    let nx, ny, nf;
-    switch (seg.targetEdge) {
-      case 'south': nx = (clamped + 0.5) * TILE; ny = (ROWS - 2 + 0.5) * TILE; nf = 'up';    break; // one tile inside south border
-      case 'north': nx = (clamped + 0.5) * TILE; ny = 1.5 * TILE;              nf = 'down';  break; // one tile inside north border
-      case 'west':  ny = (clamped + 0.5) * TILE; nx = 1.5 * TILE;              nf = 'right'; break; // one tile inside west border
-      case 'east':  ny = (clamped + 0.5) * TILE; nx = (COLS - 2 + 0.5) * TILE; nf = 'left';  break; // one tile inside east border
-    }
-    return transitionToLocation({ mapId: targetMapId, x: nx, y: ny, facing: nf, cooldown: true });
+    // Landing on the destination edge (outdoor↔outdoor, so no location-state
+    // overrides — the canonical reset leaves everything neutral). transitionTo-
+    // Location() enforces the base-walkability of this landing before moving.
+    const landing = edgeTransitionLanding(seg, along);
+    if (!landing) return false;
+    return transitionToLocation({
+      mapId: targetMapId, x: (landing.col + 0.5) * TILE, y: (landing.row + 0.5) * TILE,
+      facing: landing.facing, cooldown: true,
+    });
   }
   return false; // no segment covered this position
 }

@@ -125,6 +125,7 @@ module.exports = {
     //       favour is done. weight_note_signed stays false; he deflects. ──────
     function approachCorvinInOffice() {
       g.run(`
+        resetLocationState();   // clean location slate (boot starts in a house)
         currentTownId = 'calwick'; inTown = true; townBuilding = 'office'; activeMap = OFFICE_MAP;
         day = 1; weight_quest_stage = 2; weight_note_signed = false; cabinetCaseFlag = false;
         syncQuestFlagsToWindow();

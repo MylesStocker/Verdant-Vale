@@ -298,8 +298,9 @@ function debugMapFeatureInfo() {
 
 
 // ─── Dreams ───────────────────────────────────────────────────────────────────
-// Shown after resting in the player's own bed when day % 7 === 3.
-// Rotates by Math.floor(day / 7) % DREAMS.length — one new dream per week.
+// Shown after resting in the player's own bed on the recurring dream night of
+// the five-day week (day % 5 === 3 — a mid-week eve, never Dayoff at day % 5 === 0).
+// Rotates by Math.floor(day / 5) % DREAMS.length — one new dream per five-day week.
 const DREAMS = [
   [
     ['You are standing in a field.', 'The grass is very tall.'],
@@ -1020,12 +1021,12 @@ function interactHouseInterior() {
             day++;
             console.log('[day] now day', day, '\u2014 isDayOff:', isDayOff());
             if (cat_quest_stage === 0) { cat_quest_stage = 1; syncQuestFlagsToWindow(); }
-            if (day % 7 === 3) {
+            if (day % 5 === 3) {
               // The strange dream plays with the player standing in the
               // all-white DREAM_MAP; the waking world (bed, house, town
               // flags) is stashed by enterDream() and restored when the
               // last dream page closes.
-              const dreamIdx = Math.floor(day / 7) % DREAMS.length;
+              const dreamIdx = Math.floor(day / 5) % DREAMS.length;
               enterDream();
               dialogue.name      = '';
               dialogue.pages     = DREAMS[dreamIdx];

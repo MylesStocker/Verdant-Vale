@@ -99,7 +99,7 @@ module.exports = {
     // overrides, and confirm the drawn enemy carries a real pool-template id.
     G('window.__rnd = Math.random; Math.random = function(){ return 0.5; };');
     try {
-      G('inTown=false; inDungeon=true; dungeonFloor=1; inSluice=false; inMireVault=false; sentry_quest_started=false;');
+      G('resetLocationState(); inTown=false; inDungeon=true; dungeonFloor=1; activeMap=DUNGEON_MAP; inSluice=false; inMireVault=false; sentry_quest_started=false;');
       G('startCombat();');
       assert.equal(G("DUNGEON_ENEMY_TEMPLATES.some(function(t){return t.id===combat.enemy.id;})"), true, 'random encounter enemy has a real pool-template id');
       assert.equal(G('/^enemy_[a-z0-9_]+$/.test(combat.enemy.id)'), true, 'random encounter enemy id is valid format');

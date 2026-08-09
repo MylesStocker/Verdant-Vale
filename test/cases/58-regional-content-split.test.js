@@ -131,7 +131,11 @@ module.exports = {
       { setup: "inSluice=false; inSunkenGallery=false; inTown=false; inDungeon=false; activeMap=NORTH_BASIN_S_MAP;", check: 'activeMap === NORTH_BASIN_S_MAP' },
     ];
     for (const { setup, check } of locs) {
-      g.run(setup + " player.x = 7.5*TILE; player.y = 7.5*TILE;");
+      // resetLocationState() clears boot's in-house context so each setup is a
+      // consistent, saveable location; snap the player to a walkable tile so
+      // the strengthened load preflight accepts the placement on every map.
+      g.run('resetLocationState(); ' + setup +
+            " var _w = debugFindNearestWalkableTile(activeMap, 7, 7); player.x = (_w.col + 0.5) * TILE; player.y = (_w.row + 0.5) * TILE;");
       g.run('saveGame();');
       g.run("activeMap = MAP; inTown=false; inDungeon=false; inSluice=false; inSunkenGallery=false;");
       g.run('loadGame();');

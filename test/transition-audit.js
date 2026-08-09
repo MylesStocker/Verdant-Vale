@@ -18,6 +18,13 @@
 //   - whether the player can step away in at least one of the 4 cardinal
 //     directions from the landing spot (not sealed into a 1-tile pocket)
 //
+// It also runs a per-coordinate EDGE_TRANSITIONS landing sweep: for every
+// walkable source-edge coordinate of every segment, it applies the shared
+// edgeTransitionLanding() helper (the exact clamp + edge-mapping tryEdge-
+// Transition() uses at runtime) and records whether that specific landing is
+// in-bounds and base-walkable — stronger than "some source + some target is
+// walkable". Results are exposed as auditData.edgeLandingResults.
+//
 // Run: node test/transition-audit.js
 //
 // This does not mutate game/runtime source or any persistent gameplay state:
@@ -542,12 +549,62 @@ for (const d of houseDoors) {
   houseDoorResults.push({ ...d, mapExpr, rx, ry, tileId, walkableByTable });
 }
 
+// ── 13. Edge-transition per-coordinate landing sweep ──────────────────────
+// For every EDGE_TRANSITIONS segment, and every WALKABLE source-edge coordinate
+// it can actually be triggered from, compute the SPECIFIC landing tile the
+// runtime would produce (via the shared edgeTransitionLanding() helper — the
+// same clamp + edge-mapping tryEdgeTransition() applies) and record whether it
+// is in-bounds and base-walkable. This is stronger than the old aggregate
+// "some source + some target is walkable" check: it exposes any single source
+// coordinate whose clamped landing would strand the player on a blocked tile.
+const edgeLandingResults = JSON.parse(g.run(`(function(){
+  var out = [];
+  if (typeof EDGE_TRANSITIONS === 'undefined' || typeof edgeTransitionLanding !== 'function') return JSON.stringify(out);
+  function resolveMap(t){
+    if (typeof t === 'string') return { id: t, map: (MAP_METADATA[t]&&MAP_METADATA[t].map)||(MAP_REGISTRY[t]&&MAP_REGISTRY[t].map)||null };
+    if (Array.isArray(t)) return { id: mapRegistryId(t), map: t };
+    return { id: null, map: null };
+  }
+  for (var srcId in EDGE_TRANSITIONS) {
+    var dirs = EDGE_TRANSITIONS[srcId];
+    var srcMap = (MAP_METADATA[srcId]&&MAP_METADATA[srcId].map)||(MAP_REGISTRY[srcId]&&MAP_REGISTRY[srcId].map)||null;
+    for (var dir in dirs) {
+      var segs = dirs[dir];
+      if (!Array.isArray(segs)) continue;
+      for (var i=0;i<segs.length;i++){
+        var seg = segs[i];
+        var tgt = resolveMap(seg.targetMap);
+        var srcRange = seg.sourceRange || [0,0];
+        var sMin = Math.max(0, srcRange[0]), sMax = srcRange[1];
+        var sEdgeRow = dir==='north'?0:dir==='south'?ROWS-1:null;
+        var sEdgeCol = dir==='west'?0:dir==='east'?COLS-1:null;
+        var checked=0, bad=[];
+        for (var along=sMin; along<=sMax; along++){
+          var r = sEdgeRow!==null?sEdgeRow:along;
+          var c = sEdgeCol!==null?sEdgeCol:along;
+          var srow = srcMap && srcMap[r];
+          if (!srow || !WALKABLE[srow[c]]) continue; // blocked source tile: can't trigger from here
+          checked++;
+          var landing = edgeTransitionLanding(seg, along);
+          if (!landing) { bad.push({ along: along, reason: 'no-landing' }); continue; }
+          var tRows = tgt.map?tgt.map.length:0, tCols = (tgt.map&&tgt.map[0])?tgt.map[0].length:0;
+          if (landing.row<0||landing.row>=tRows||landing.col<0||landing.col>=tCols){ bad.push({ along: along, landing: landing, reason: 'out-of-bounds' }); continue; }
+          var trow = tgt.map[landing.row];
+          if (!trow || !WALKABLE[trow[landing.col]]) bad.push({ along: along, landing: landing, reason: 'blocked' });
+        }
+        out.push({ srcMap: srcId, direction: dir, segment: i, sourceRange: srcRange, targetMap: tgt.id, targetEdge: seg.targetEdge, walkableSources: checked, bad: bad, allOk: bad.length===0 });
+      }
+    }
+  }
+  return JSON.stringify(out);
+})()`));
+
 // ── Exports (for test/cases/*.test.js to assert on) ───────────────────────
 // All the checking above already ran as a side effect of loading this
 // module -- both `node test/transition-audit.js` (standalone CLI) and
 // `require('../transition-audit.js')` (from a regression test case) get the
 // exact same results. Only the human-readable report below is CLI-only.
-const auditData = { registryIds, dimReport, basementInRegistry, resetIsolation, results, preservedResults, tileUsage, houseDoorResults };
+const auditData = { registryIds, dimReport, basementInRegistry, resetIsolation, results, preservedResults, tileUsage, houseDoorResults, edgeLandingResults };
 module.exports = auditData;
 
 // ── Report (standalone CLI use only; skipped when required as a module) ──
@@ -604,11 +661,22 @@ for (const d of badDoors) {
 }
 
 console.log('='.repeat(80));
+const badEdges = edgeLandingResults.filter(e => !e.allOk);
+const edgeCoordCount = edgeLandingResults.reduce((n, e) => n + e.walkableSources, 0);
+console.log('EDGE-TRANSITION per-coordinate landings:', edgeLandingResults.length, 'segments,',
+  edgeCoordCount, 'walkable source coords checked,', badEdges.length, 'segment(s) with a bad landing');
+for (const e of badEdges) {
+  console.log(`  BAD   ${e.srcMap} ${e.direction} [${e.segment}] range [${e.sourceRange}] -> ${e.targetMap} (${e.targetEdge})`);
+  for (const b of e.bad) console.log(`          src along=${b.along} -> ${b.reason}${b.landing ? ' at (col ' + b.landing.col + ', row ' + b.landing.row + ')' : ''}`);
+}
+
+console.log('='.repeat(80));
 console.log('SUMMARY');
 console.log('  reset-state isolation:', resetIsolation.passed ? 'pass' : ('FAIL (' + resetIsolation.failures.map(f => f.field).join(', ') + ')'));
 console.log('  maps checked:', registryIds.length);
 console.log('  fixed-destination transitions checked:', results.length);
 console.log('  preserved-coordinate transitions checked:', preservedResults.length);
+console.log('  edge-transition segments (per-coordinate landings) checked:', edgeLandingResults.length);
 console.log('  house doors checked:', houseDoorResults.length);
 console.log('  tile constants cross-referenced:', tileUsage.length);
 

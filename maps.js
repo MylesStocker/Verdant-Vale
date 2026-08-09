@@ -112,8 +112,9 @@ const HOUSE_INTERIOR_MAP = [
 ];
 
 // ─── The Dream  (16 × 15) ─────────────────────────────────────────────────────
-// Where the player stands during the weekly strange dreams (day % 7 === 3
-// after resting in their own bed) — a featureless, pure-white space. The
+// Where the player stands during the weekly strange dreams (day % 5 === 3 on
+// the five-day week, after resting in their own bed) — a featureless, pure-white
+// space. The
 // border ring is DREAM_EDGE (102, blocks) and the interior DREAM_FLOOR
 // (101, walkable); both render identical white, so the boundary is
 // invisible. Entered/left only via enterDream()/exitDream()

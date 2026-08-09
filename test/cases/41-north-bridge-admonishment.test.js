@@ -94,6 +94,7 @@ module.exports = {
     // admonishment stays delivered (can't re-fire) and the crossing stays on
     // record (can't be dodged by reloading before reporting in).
     g.run(`
+      resetLocationState();   // clean location slate (boot starts in a house)
       activeMap = MAP; player.x = 5.5*TILE; player.y = 5.5*TILE; inTown = false;
       saveGame();
       north_bridge_crossed_early = false; north_bridge_scolded = false; syncQuestFlagsToWindow();

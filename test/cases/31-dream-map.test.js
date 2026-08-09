@@ -1,5 +1,6 @@
 'use strict';
-// The weekly strange dream (rest in own bed, day % 7 === 3) now plays with
+// The recurring strange dream (rest in own bed, day % 5 === 3 on the five-day
+// week) now plays with
 // the player standing in DREAM_MAP — a real, registered, all-white map
 // (walkable DREAM_FLOOR interior, invisible blocking DREAM_EDGE ring) —
 // entered via enterDream() and left via exitDream() when the dream dialogue
@@ -29,12 +30,12 @@ module.exports = {
     assert.equal(g.run('WALKABLE[DREAM_EDGE]'), false);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(DREAM_FLOOR) && RENDERABLE_TILE_IDS.has(DREAM_EDGE)'), true);
 
-    // ── Dream night: rest in the player's own bed on a day % 7 === 3 eve ────
+    // ── Dream night: rest in the player's own bed on a day % 5 === 3 eve ────
     g.run(`
       inTown = true;
       currentTownId = 'calwick';
       enterHouse('player_house');
-      day = 2; // rest() increments to 3, and 3 % 7 === 3 -> dream night
+      day = 2; // rest() increments to 3, and 3 % 5 === 3 -> dream night
       const bed = HOUSE_DATA.player_house.bed;
       player.x = bed.x;
       player.y = bed.y;
@@ -70,7 +71,7 @@ module.exports = {
     assert.equal(g.run('player.y'), bedY);
 
     // ── Ordinary night: a brief no-dream rest line, no dream map swap ────────
-    g.run('day = 4;'); // rest() -> 5, and 5 % 7 !== 3
+    g.run('day = 4;'); // rest() -> 5, and 5 % 5 === 0 (Dayoff, not the dream night)
     g.press('Enter');
     g.run('choice.cursor = 0;');
     g.press('Enter'); // Rest

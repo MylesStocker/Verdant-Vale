@@ -8831,5 +8831,1323 @@
       "tileId": 18,
       "walkableByTable": true
     }
+  ],
+  "edgeLandingResults": [
+    {
+      "srcMap": "NORTH_BASIN_S_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "NORTH_BASIN_C_MAP",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_S_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "NORTH_BASIN_SW_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_C_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "NORTH_BASIN_S_MAP",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_SW_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "NORTH_BASIN_S_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_SW_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        10
+      ],
+      "targetMap": "NORTH_BASIN_W_MAP",
+      "targetEdge": "south",
+      "walkableSources": 10,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_W_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        10
+      ],
+      "targetMap": "NORTH_BASIN_SW_MAP",
+      "targetEdge": "north",
+      "walkableSources": 10,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_W_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        10
+      ],
+      "targetMap": "NORTH_BASIN_NW_MAP",
+      "targetEdge": "south",
+      "walkableSources": 10,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_NW_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        10
+      ],
+      "targetMap": "NORTH_BASIN_W_MAP",
+      "targetEdge": "north",
+      "walkableSources": 10,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP3_N1",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        9
+      ],
+      "targetMap": "RODDON_WAY_MAP",
+      "targetEdge": "east",
+      "walkableSources": 6,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP3_N1",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        3,
+        13
+      ],
+      "targetMap": "MAP3_N2",
+      "targetEdge": "south",
+      "walkableSources": 11,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP3_N2",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        3,
+        13
+      ],
+      "targetMap": "MAP3_N1",
+      "targetEdge": "north",
+      "walkableSources": 11,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "RODDON_WAY_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        9
+      ],
+      "targetMap": "MAP3_N1",
+      "targetEdge": "west",
+      "walkableSources": 6,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "RODDON_WAY_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        12,
+        14
+      ],
+      "targetMap": "MAP2",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP2",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        12,
+        14
+      ],
+      "targetMap": "RODDON_WAY_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C0",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C1",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C0",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C0",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C1",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C0",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C1",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C2",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C1",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C1",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C0",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C0",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C0",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C1",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C0",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C0",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C2",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C1",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C2",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C3",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C2",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C2",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C1",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C1",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C1",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C0",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C1",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C2",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C1",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C1",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C3",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C2",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C3",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C4",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C3",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C3",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C2",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C2",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C2",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C1",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C2",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C3",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C2",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C2",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C4",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C3",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R0C4",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C4",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C3",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C3",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C3",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C2",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C3",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C4",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C3",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C3",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C4",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R0C4",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C4",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C3",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R1C4",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C4",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C0",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C0",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C0",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C1",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C0",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C0",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C1",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C1",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C1",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C0",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C1",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C2",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C1",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C1",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C2",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C2",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C2",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C1",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C2",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C3",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C2",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C2",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C3",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C3",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C3",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C2",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C3",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C4",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C3",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C3",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C4",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R1C4",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C4",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C3",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R2C4",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C4",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C0",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C0",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C0",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C1",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C0",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_MAP",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C1",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C1",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C1",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C0",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C1",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C2",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C1",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C1",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C2",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C2",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C2",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C1",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C2",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C3",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C2",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C2",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C3",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C3",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C3",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C2",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C3",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C4",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C3",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C3",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C4",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R2C4",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C4",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C3",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R3C4",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C4",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C1",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C1",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C1",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C2",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C1",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_MAP",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C2",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C2",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C2",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C1",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C2",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C3",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C3",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C3",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C3",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C2",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C3",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C4",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C4",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C4",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_R4C4",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C3",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        6
+      ],
+      "targetMap": "SUNKEN_GALLERY_R3C0",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "SUNKEN_GALLERY_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        3,
+        5
+      ],
+      "targetMap": "SUNKEN_GALLERY_R4C1",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    }
   ]
 }

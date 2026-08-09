@@ -21,9 +21,10 @@
 //   4.  An unknown numeric tile ID placed in a map fails.
 //   5.  An EDGE_TRANSITIONS segment pointing at a nonexistent map fails.
 //   6.  An EDGE_TRANSITIONS segment with an out-of-range sourceRange fails.
-//   7.  An EDGE_TRANSITIONS segment whose entire target range lands on
-//       blocked tiles fails (this codebase's chosen severity: error, since
-//       it means the crossing can never land the player anywhere walkable).
+//   7.  An EDGE_TRANSITIONS segment with a reachable (walkable) source
+//       coordinate whose exact clamped landing is blocked fails (per-coordinate
+//       rule: error, since that crossing would strand the player on a blocked
+//       tile even if some other landing in the range happens to be walkable).
 //   8.  An NPC with an out-of-bounds coordinate fails.
 //   9.  A structurally invalid enemy template (maxHp < hp) fails.
 //   10. An excessively long dialogue line produces a warning, not an error,
@@ -136,28 +137,29 @@ module.exports = {
     );
     g.run(`delete EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'];`); // restore
 
-    // ── 7. Edge transition landing entirely on blocked tiles fails ──────────
-    // NORTH_BASIN_C_MAP row 0 (its north edge) is open reservoir water --
-    // pointing a transition's "south" targetEdge there lands one row inside
-    // the SOUTH edge (row rows-2), not the north edge, so instead this
-    // constructs a transition landing on row 1 (one tile inside the north
-    // edge) at a column range confirmed entirely blocked, to exercise the
-    // "no walkable landing tile anywhere in target range" rule directly.
+    // ── 7. A reachable source coordinate whose landing is blocked fails ─────
+    // Strengthened, per-coordinate rule: make one source-edge tile WALKABLE (so
+    // the crossing is actually reachable) and block the exact landing it clamps
+    // to. targetEdge 'north' lands one row inside the north edge (row 1); source
+    // south-edge col 3 → landing col 3. Confirms the specific computed landing is
+    // checked, not just "some landing somewhere is walkable".
     g.run(`
-      window.__savedRow1 = NORTH_BASIN_C_MAP[1].slice();
-      for (let c = 0; c < COLS; c++) NORTH_BASIN_C_MAP[1][c] = WATER;
+      window.__savedSrc = NORTH_BASIN_S_MAP[ROWS-1][3];
+      NORTH_BASIN_S_MAP[ROWS-1][3] = GRASS;                        // a walkable, reachable source-edge tile
+      window.__savedLanding = NORTH_BASIN_C_MAP[1][3];
+      NORTH_BASIN_C_MAP[1][3] = WATER;                             // block that source's clamped landing
       EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'] = [
-        { targetMap: 'NORTH_BASIN_C_MAP', targetEdge: 'north', sourceRange: [0, 5] }
+        { targetMap: 'NORTH_BASIN_C_MAP', targetEdge: 'north', sourceRange: [3, 3] }
       ];
     `);
     const blockedLanding = runValidation(g);
     assert.ok(
-      blockedLanding.errorList.some(e => e.group === 'EDGE_TRANSITIONS' && e.message.includes('no walkable landing tile')),
-      'a target range that lands entirely on blocked tiles should be an error: ' + JSON.stringify(blockedLanding.errorList.filter(e => e.group === 'EDGE_TRANSITIONS'))
+      blockedLanding.errorList.some(e => e.group === 'EDGE_TRANSITIONS' && /not base-walkable|strand the player/.test(e.message)),
+      'a reachable source coordinate whose computed landing is blocked should be an error: ' + JSON.stringify(blockedLanding.errorList.filter(e => e.group === 'EDGE_TRANSITIONS'))
     );
     g.run(`
-      for (let c = 0; c < COLS; c++) NORTH_BASIN_C_MAP[1][c] = window.__savedRow1[c];
-      delete window.__savedRow1;
+      NORTH_BASIN_S_MAP[ROWS-1][3] = window.__savedSrc; delete window.__savedSrc;
+      NORTH_BASIN_C_MAP[1][3] = window.__savedLanding; delete window.__savedLanding;
       delete EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'];
     `); // restore
 

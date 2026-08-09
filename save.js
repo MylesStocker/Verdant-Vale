@@ -404,15 +404,6 @@ function saveGame() {
   // all) is responsible for showing the "won't hold" banner.
   if (!canSaveHere()) return false;
 
-  // Resolve a map grid reference to its MAP_REGISTRY key for serialisation
-  function mapToId(mapRef) {
-    if (!mapRef) return null;
-    for (const [id, entry] of Object.entries(MAP_REGISTRY)) {
-      if (entry.map === mapRef) return id;
-    }
-    return null;
-  }
-
   // Quest flags: built generically from the binding registry (one getter each),
   // NOT from a separate key list. syncQuestFlagsToWindow() still runs first so
   // window-native flags are normalized (undefined → default) before their
@@ -443,33 +434,15 @@ function saveGame() {
     // ── Quest flags (schema-driven; see QUEST_FLAG_SCHEMA) ────────────────
     ...questFlagData,
     // ── Location state ────────────────────────────────────────────────────
-    activeMapId:        mapToId(activeMap),
-    inDungeon,
-    dungeonFloor,
-    inTown,
-    currentTownId,
-    townBuilding,
-    inSluice,
-    sluiceFloor,
-    inMireVault,
-    inTakomo,
-    inFenBrewery,
-    inHamletInterior,
-    inDungeonEntrance,
-    inBasinChamber,
-    inSunkenGallery,
-    inLorraHouse,
-    inMarenPost,
-    inDrenwrickPost,
-    inBridgePost,
-    bridge_entry_direction,
-    bridge_toll_paid,
-    inSmugglerFort,
+    // activeMap is NOT a location-state binding (it is derived from the mode
+    // flags on load), so it is serialized separately via the canonical
+    // mapRegistryId(). Every other location-context field flattens through the
+    // ONE binding registry (serializeLocationState(), world-transitions.js) —
+    // there is no second hand-maintained list here any more.
+    activeMapId:        mapRegistryId(activeMap),
+    ...serializeLocationState(),
+    // dilemma_voss is a main.js story var, NOT location context — kept separate.
     dilemma_voss,
-    currentHouseId,
-    houseSourceMapId:   mapToId(houseSourceMap),
-    houseSourceBuilding,
-    houseReturnPos:     { x: houseReturnPos.x, y: houseReturnPos.y },
     // ── Floor pickups + openable chests (v3: stable ids, never array positions) ─
     // collectedPickupIds / openedChestIds are the ONLY pickup/chest persistence
     // now. Built from the id registries (data.js), plus any unresolved ids
@@ -501,6 +474,102 @@ function saveGame() {
   return true;
 }
 
+// Resolve the player x/y/facing a payload restores to, falling back to the
+// live value for any field the save omits (matches the historical "leave
+// unchanged if absent" behavior). Pure read.
+function _resolvePlayerFromData(data) {
+  const p = (data && data.player) || {};
+  return {
+    x:      p.x      !== undefined ? p.x      : player.x,
+    y:      p.y      !== undefined ? p.y      : player.y,
+    facing: p.facing !== undefined ? p.facing : player.facing,
+  };
+}
+
+// Legacy (pre-activeMapId) saves: derive the active map from the stored mode
+// flags, adjusting the candidate + player as the historical else-branch did.
+// Operates on the passed candidate object (never globals). Returns { mapId, player }.
+function _legacyLoadLocation(data, candidate) {
+  let mapRef = MAP; // overworld default — all mode flags false
+  let plr    = _resolvePlayerFromData(data);
+  if (data.inDungeon) {
+    const floor = data.dungeonFloor || 1;
+    candidate.inDungeon = true; candidate.dungeonFloor = floor;
+    mapRef = floor === 2 ? DUNGEON2_MAP : floor === 3 ? DUNGEON3_MAP
+           : floor === 4 ? DUNGEON4_MAP : floor === 5 ? DUNGEON5_MAP : DUNGEON_MAP;
+  } else if (data.inSluice) {
+    const floor = data.sluiceFloor || 1;
+    candidate.inSluice = true; candidate.sluiceFloor = floor;
+    mapRef = floor === 3 ? SLUICE_LEVEL3_MAP : floor === 2 ? SLUICE_LEVEL2_MAP : SLUICE_MAP;
+  } else if (data.inMireVault)      { candidate.inMireVault = true;      mapRef = MIRE_VAULT_MAP; }
+  else if (data.inTakomo)           { candidate.inTakomo = true;         mapRef = TAKOMO_MAP; }
+  else if (data.inFenBrewery)       { candidate.inFenBrewery = true;     mapRef = FEN_BREWERY_MAP; }
+  else if (data.inHamletInterior)   { candidate.inHamletInterior = true; mapRef = HAMLET_INTERIOR_MAP; }
+  else if (data.inTown) {
+    candidate.inTown = true;
+    const b = data.townBuilding;
+    candidate.townBuilding = data.townBuilding || null;
+    if (b === 'house') {
+      // houseSourceMap/houseReturnPos didn't exist in old saves; back out to
+      // the town map safely rather than into an unrestorable house.
+      candidate.townBuilding = null;
+      candidate.currentHouseId = null; candidate.houseSourceMap = null; candidate.houseSourceBuilding = null;
+      mapRef = TOWN_MAP;
+      plr = { x: 7.5 * TILE, y: 7.5 * TILE, facing: 'down' };
+    } else {
+      mapRef = b === 'inn'    ? INN_MAP
+             : b === 'school' ? SCHOOL_MAP
+             : b === 'apt'    ? APARTMENT_CORRIDOR_MAP
+             : b === 'office' ? OFFICE_MAP
+             : b === 'east'   ? EAST_TOWN_MAP
+             : b === 'west'   ? WEST_TOWN_MAP
+             :                  TOWN_MAP;
+    }
+  }
+  return { mapId: mapRegistryId(mapRef), player: plr };
+}
+
+// Preflight the complete location restore from a migrated payload WITHOUT
+// mutating any globals. Produces a resolved map ref, the player placement, and
+// a complete, invariant-checked candidate location state; on any failure it
+// returns ok:false with human-readable errors so loadGame() can bail before
+// touching the running game or the stored save. Combines: registry-driven
+// deserialization (incl. houseSourceMapId resolution), legacy map derivation,
+// stranded-bridge repair on the candidate, placement validation (map/coords/
+// bounds/base-walkable/facing) and the location-state invariants.
+function resolveLoadLocation(data) {
+  const errors = [];
+  const des = deserializeLocationState(data);   // world-transitions.js
+  const candidate = des.state;
+  for (const e of des.errors) errors.push(e);
+
+  let mapId, plr;
+  if (data.activeMapId !== undefined) {
+    mapId = data.activeMapId;                    // current schema
+    plr   = _resolvePlayerFromData(data);
+  } else {
+    const legacy = _legacyLoadLocation(data, candidate); // legacy migration behavior
+    mapId = legacy.mapId;
+    plr   = legacy.player;
+  }
+
+  // Compatibility repair on the CANDIDATE (never live globals): a save stranded
+  // with inBridgePost=true on a non-bridge map (old defeat-respawn bug) would
+  // make the bridge guards render everywhere. Clear the bridge context so the
+  // candidate satisfies the invariants below.
+  const bridgeMapId = mapRegistryId(BRIDGE_CROSSING_MAP);
+  if (candidate.inBridgePost && mapId !== bridgeMapId) {
+    candidate.inBridgePost = false; candidate.bridge_entry_direction = null; candidate.bridge_toll_paid = false;
+  }
+
+  const place = validatePlacement({ mapId, x: plr.x, y: plr.y, facing: plr.facing });
+  for (const e of place.errors) errors.push(e);
+  const inv = validateLocationState(candidate);
+  for (const e of inv.errors) errors.push(e);
+
+  return { ok: errors.length === 0, errors, map: place.map, player: plr, locationState: candidate };
+}
+
 function loadGame() {
   const raw = localStorage.getItem('verdantVale_save');
   if (!raw) return false;
@@ -529,29 +598,35 @@ function loadGame() {
   // Warn-only schema validation — no gameplay impact.
   validateSaveSchema(data);
 
+  // ── PREFLIGHT (no mutation) ───────────────────────────────────────────────
+  // Resolve and validate the active map, player placement, and the complete
+  // location candidate BEFORE mutating any runtime state (stats, quests, session
+  // markers, or location globals). On any failure, warn and return false with
+  // BOTH the running game and the stored save left completely untouched.
+  const loc = resolveLoadLocation(data);
+  if (!loc.ok) {
+    console.warn('[loadGame] refusing to load — invalid saved location/placement: ' + loc.errors.join('; ') + ' — the running game and the stored save are left untouched.');
+    return false;
+  }
+
+  // ── COMMIT (everything below mutates runtime state) ───────────────────────
   // Clear the Upper Reach / Sunken Gallery "visited today" markers
-  // (movement.js) unconditionally, before anything else restores. They are
-  // deliberately session-only (not part of the save schema — see
-  // movement.js's comment), so without this a same-day load from an older
-  // save could otherwise leak this session's leftover "visited today" state
-  // into a timeline where the visit never happened, letting Rhen/Kest's
-  // physical-evidence lines (npcs.js) incorrectly reappear. The very next
-  // frame re-sets either flag correctly if the loaded state actually has
-  // the player standing on the relevant map.
+  // (movement.js) unconditionally on a committed load. They are deliberately
+  // session-only (not part of the save schema — see movement.js's comment), so
+  // without this a same-day load from an older save could otherwise leak this
+  // session's leftover "visited today" state into a timeline where the visit
+  // never happened, letting Rhen/Kest's physical-evidence lines (npcs.js)
+  // incorrectly reappear. The very next frame re-sets either flag correctly if
+  // the loaded state actually has the player standing on the relevant map.
   window.upper_reach_visit_day    = undefined;
   window.sunken_gallery_visit_day = undefined;
 
-  // Resolve a MAP_REGISTRY key back to a map grid reference; returns null if not found
-  function mapFromId(id) {
-    return (id && MAP_REGISTRY[id] && MAP_REGISTRY[id].map) || null;
-  }
-
   // ── Player ──────────────────────────────────────────────────────────────
-  if (data.player) {
-    if (data.player.x      !== undefined) player.x      = data.player.x;
-    if (data.player.y      !== undefined) player.y      = data.player.y;
-    if (data.player.facing !== undefined) player.facing = data.player.facing;
-  }
+  // Placement was validated in the preflight; commit the resolved values (which
+  // fold in any legacy house-exit fallback).
+  player.x      = loc.player.x;
+  player.y      = loc.player.y;
+  player.facing = loc.player.facing;
 
   // ── Stats / inventory ───────────────────────────────────────────────────
   if (data.stats) {
@@ -608,96 +683,15 @@ function loadGame() {
   // dilemma_voss: a main.js var, not a registry flag — restored in the location block below.
   refreshJobBoard();
 
-  // ── Location state ──────────────────────────────────────────────────────
-  if (data.activeMapId !== undefined) {
-    // New save format: activeMapId present — restore map reference and all flags directly.
-    const resolved = mapFromId(data.activeMapId);
-    if (resolved) activeMap = resolved;
-    if (data.inDungeon    !== undefined) inDungeon    = data.inDungeon;
-    if (data.dungeonFloor !== undefined) dungeonFloor = data.dungeonFloor;
-    if (data.inTown       !== undefined) inTown       = data.inTown;
-    if (data.currentTownId !== undefined) currentTownId = data.currentTownId;
-    if (data.townBuilding !== undefined) townBuilding = data.townBuilding;
-    if (data.inSluice     !== undefined) inSluice     = data.inSluice;
-    if (data.sluiceFloor  !== undefined) sluiceFloor  = data.sluiceFloor;
-    if (data.inMireVault  !== undefined) inMireVault  = data.inMireVault;
-    if (data.inTakomo     !== undefined) inTakomo     = data.inTakomo;
-    if (data.inFenBrewery    !== undefined) inFenBrewery    = data.inFenBrewery;
-    if (data.inHamletInterior !== undefined) inHamletInterior = data.inHamletInterior;
-    if (data.inDungeonEntrance !== undefined) inDungeonEntrance = data.inDungeonEntrance;
-    if (data.inBasinChamber  !== undefined) inBasinChamber  = data.inBasinChamber;
-    if (data.inSunkenGallery !== undefined) inSunkenGallery = data.inSunkenGallery;
-    if (data.inLorraHouse    !== undefined) inLorraHouse    = data.inLorraHouse;
-    if (data.inMarenPost     !== undefined) inMarenPost     = data.inMarenPost;
-    if (data.inDrenwrickPost !== undefined) inDrenwrickPost = data.inDrenwrickPost;
-    if (data.inBridgePost          !== undefined) inBridgePost          = data.inBridgePost;
-    if (data.bridge_entry_direction !== undefined) bridge_entry_direction = data.bridge_entry_direction;
-    if (data.bridge_toll_paid       !== undefined) bridge_toll_paid       = data.bridge_toll_paid;
-    if (data.inSmugglerFort  !== undefined) inSmugglerFort  = data.inSmugglerFort;
-    if (data.dilemma_voss    !== undefined) dilemma_voss    = data.dilemma_voss;
-    if (data.currentHouseId      !== undefined) currentHouseId      = data.currentHouseId;
-    if (data.houseSourceBuilding !== undefined) houseSourceBuilding = data.houseSourceBuilding;
-    if (data.houseSourceMapId !== undefined) {
-      houseSourceMap = mapFromId(data.houseSourceMapId);  // null is valid (not in a house)
-    }
-    if (data.houseReturnPos) {
-      if (data.houseReturnPos.x !== undefined) houseReturnPos.x = data.houseReturnPos.x;
-      if (data.houseReturnPos.y !== undefined) houseReturnPos.y = data.houseReturnPos.y;
-    }
-  } else {
-    // Old save format: no activeMapId — derive activeMap from stored flags so that
-    // the map reference and location booleans stay consistent. Without this, flags
-    // like inDungeon=true would combine with the default activeMap=MAP and cause
-    // dungeon/town NPCs and items to render on the overworld at wrong positions.
-    if (data.inDungeon) {
-      const floor  = data.dungeonFloor || 1;
-      inDungeon    = true;
-      dungeonFloor = floor;
-      activeMap    = floor === 2 ? DUNGEON2_MAP
-                  : floor === 3 ? DUNGEON3_MAP
-                  : floor === 4 ? DUNGEON4_MAP
-                  : floor === 5 ? DUNGEON5_MAP
-                  : DUNGEON_MAP;
-    } else if (data.inSluice) {
-      const floor = data.sluiceFloor || 1;
-      inSluice    = true;
-      sluiceFloor = floor;
-      activeMap   = floor === 3 ? SLUICE_LEVEL3_MAP
-                  : floor === 2 ? SLUICE_LEVEL2_MAP
-                  :               SLUICE_MAP;
-    } else if (data.inMireVault) {
-      inMireVault = true;
-      activeMap   = MIRE_VAULT_MAP;
-    } else if (data.inTakomo) {
-      inTakomo  = true;
-      activeMap = TAKOMO_MAP;
-    } else if (data.inFenBrewery) {
-      inFenBrewery = true;
-      activeMap    = FEN_BREWERY_MAP;
-    } else if (data.inHamletInterior) {
-      inHamletInterior = true;
-      activeMap        = HAMLET_INTERIOR_MAP;
-    } else if (data.inTown) {
-      inTown       = true;
-      townBuilding = data.townBuilding || null;
-      const b = data.townBuilding;
-      if (b === 'house') {
-        // houseSourceMap/houseReturnPos not in old saves; back out to town map safely.
-        townBuilding = null;
-        activeMap    = TOWN_MAP;
-        player.x = 7.5 * TILE; player.y = 7.5 * TILE; player.facing = 'down';
-      } else {
-        activeMap = b === 'inn'    ? INN_MAP
-                  : b === 'school' ? SCHOOL_MAP
-                  : b === 'apt'    ? APARTMENT_CORRIDOR_MAP
-                  : b === 'office' ? OFFICE_MAP
-                  : b === 'east'   ? EAST_TOWN_MAP
-                  : b === 'west'   ? WEST_TOWN_MAP
-                  :                  TOWN_MAP;
-      }
-    }
-    // else: overworld — activeMap stays MAP (default), all flags stay false ✓
-  }
+  // ── Location state (registry-driven, committed atomically) ────────────────
+  // The whole location portion was resolved + validated in the preflight above.
+  // Commit it together: the complete candidate via applyLocationState() (the ONE
+  // binding registry — no per-field assignment here), plus the resolved active
+  // map. Player placement was already committed above. dilemma_voss is a main.js
+  // story var (not location context) and is restored separately below.
+  applyLocationState(loc.locationState);
+  activeMap = loc.map;
+  if (data.dilemma_voss !== undefined) dilemma_voss = data.dilemma_voss;
 
   // ── Floor pickups + openable chests (v3: applied by stable id) ────────────
   // Reset every registered pickup/chest to its default (uncollected / closed),
@@ -731,14 +725,10 @@ function loadGame() {
   if (data.mirethystRewarded !== undefined) window.mirethyst_rewarded = !!data.mirethystRewarded;
 
   // ── Bridge-guard placement (Phase 1 NPC-movement pilot) ────────────────
-  // Repair: saves written while the defeat-respawn bug left inBridgePost
-  // stranded (died at the bridge, carried home, flag never cleared) carry
-  // inBridgePost=true with a non-bridge activeMap. Loading that unrepaired
-  // would make currentMapId() report 'bridge_post' everywhere — the guards
-  // would render on every screen. Clear the inconsistent state instead.
-  if (inBridgePost && activeMap !== BRIDGE_CROSSING_MAP) {
-    inBridgePost = false; bridge_entry_direction = null; bridge_toll_paid = false;
-  }
+  // The stranded-inBridgePost repair (old defeat-respawn bug: died at the
+  // bridge, carried home, flag never cleared) now runs on the candidate in
+  // resolveLoadLocation() BEFORE commit, so the committed flags are already
+  // consistent here. Guard placement is DERIVED from those flags.
   // Nothing incidental is saved (no coordinates, no animation frames): guard
   // placement is DERIVED from the flags just restored. Loading inside the
   // bridge with the toll already paid puts both guards fully aside at their

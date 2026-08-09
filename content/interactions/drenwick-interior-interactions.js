@@ -106,6 +106,32 @@ function interactDrenwickOffice() {
     dialogue.page  = 0;
     return true;
   }
+  // Reference cabinet (west wall, col 2 rows 7-9) — holds the district's posted
+  // guidance on how the IJC classifies dangerous creatures.
+  const rcx = player.x - 2.5 * TILE;
+  const rcy = player.y - 8.5 * TILE;
+  if (Math.sqrt(rcx * rcx + rcy * rcy) < TALK_RADIUS * 1.5) {
+    dialogue.name  = 'Reference Cabinet';
+    dialogue.pages = [
+      ['The Administrative Classification of Monsters',
+       '“Monster” is an ordinary word, not a precise scholarly category.',
+       'Imperial offices classify dangerous creatures according to observable behaviour and the response they require, without claiming to understand their ultimate origin.'],
+      ['Ordinary fauna includes wolves, bears, serpents and other natural animals, even when they threaten people.',
+       'They fall under hunting, livestock or pest law rather than monster-removal procedure.'],
+      ['Altered fauna are living creatures with recognizable needs and life cycles but abnormal anatomy, resilience or behaviour. Many fen creatures fall into this category.',
+       'They eat, breed, defend territory and can sometimes be managed like dangerous wildlife, although their forms may descend from ecological damage left by the Century War.'],
+      ['Remnant entities are associated with ruins, persistent resonant conditions or places where ordinary ecology does not explain them.',
+       'They may appear not to breed, survive impossible injuries, return after apparent destruction or remain confined to a particular structure.',
+       'The Empire calls them remnants without asserting what they are remnants of.'],
+      ['An incident is designated unresolved when the evidence does not fit any established classification.',
+       'Speech, deliberate tool use, coordinated behaviour, possession of sorted or minted currency, reappearance after verified destruction, or effects described locally as curses generally require this designation and an IJC investigation.'],
+      ['Classification determines the response: hunting permission, a local bounty, a site-specific removal contract, quarantine or a formal investigation.',
+       'It is always provisional. A creature may be reclassified when a field report establishes facts the original notice did not contain — which is why an investigator is expected to observe before deciding what they have encountered.'],
+    ];
+    dialogue.open = true;
+    dialogue.page = 0;
+    return true;
+  }
   // Holt and any other office NPCs caught by interactSimpleNPCs
   interactSimpleNPCs();
   return true;

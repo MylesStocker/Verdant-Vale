@@ -82,7 +82,7 @@ module.exports = {
     `);
     g.frames(1);
     assert.ok(rhenText(g).includes('pale mud'), 'a fresh visit after a day advance should re-arm the reaction');
-    g.run('activeMap=MAP;');
+    g.run('resetLocationState(); activeMap=MAP;');  // clean, consistent overworld state for the save below
 
     // ── 4. loadGame() clears the marker, even for a same-"day" older save ───
     // Save now (marker armed, today's day number N)...

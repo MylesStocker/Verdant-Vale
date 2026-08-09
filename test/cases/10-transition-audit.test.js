@@ -61,5 +61,13 @@ module.exports = {
       badDoors.length, 0,
       `HOUSE_DOORS entry/entries with an unwalkable return position: ${badDoors.map(d => d.houseId || JSON.stringify(d)).join(', ')}`
     );
+
+    // Per-coordinate edge-transition landings: every walkable source-edge
+    // coordinate must clamp+map to an in-bounds, base-walkable landing.
+    const badEdges = audit.edgeLandingResults.filter(e => !e.allOk);
+    assert.equal(
+      badEdges.length, 0,
+      `edge transition(s) with an out-of-bounds/blocked computed landing: ${badEdges.map(e => `${e.srcMap} ${e.direction}[${e.segment}] -> ${e.targetMap}`).join(', ')}`
+    );
   },
 };

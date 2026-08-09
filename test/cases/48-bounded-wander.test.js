@@ -51,6 +51,11 @@ module.exports = {
       g.run("JSON.stringify(SIMPLE_NPCS.filter(n => n.movement && n.movement.type === 'boundedWander').map(n => n.id).sort())"),
       JSON.stringify(['north_a_cat_ginger', 'north_a_cat_grey', 'tomas']), 'Tomas + the two house cats are the boundedWander NPCs');
 
+    // Enter from esla_house's real town origin (WEST_TOWN_MAP) so the house
+    // return-context resolves to a walkable town tile — boot starts the player
+    // inside their own house, and entering from there would set an unwalkable
+    // return position that the strengthened load preflight rejects.
+    g.run("resetLocationState(); inTown = true; currentTownId = 'calwick'; townBuilding = 'west'; activeMap = WEST_TOWN_MAP; player.x = 2.5 * TILE; player.y = 8.5 * TILE;");
     g.run("enterHouse('esla_house');");
     assert.equal(g.run('currentMapId()'), 'house:esla_house', 'inside Esla\'s house');
     let p = tomas(g);

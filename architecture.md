@@ -172,9 +172,10 @@ Every registered map needs two, sometimes three, entries:
 
 - **`MAP_REGISTRY`** (`maps.js`) — `{ id, label, map }`, keyed by a string
   (conventionally identical to the map constant's own name, e.g.
-  `MAP2: { id: 'MAP2', label: '...', map: MAP2 }`). This is what
-  `save.js`'s `mapToId()`/`mapFromId()` use to serialize `activeMap` —
-  skipping this entry for a real map is a real, previously-hit bug (the
+  `MAP2: { id: 'MAP2', label: '...', map: MAP2 }`). This is what the canonical
+  `mapRegistryId()` (`maps.js`) — used by `saveGame()`/`loadGame()` and the
+  location-state serializer — resolves `activeMap` against; skipping this entry
+  for a real map is a real, previously-hit bug (the
   Drenwick school basement was a working map missing from `MAP_REGISTRY`,
   which silently broke save/load specifically there).
 - **`MAP_METADATA`** (`data.js`) — the newer, richer table: `{ id, map,
@@ -274,11 +275,18 @@ house source/return context, `inSluice`, `sluiceFloor`, every standalone `inX`
 flag, `bridge_entry_direction`/`bridge_toll_paid`, …), each with a stable key,
 neutral default, and get/set closures. `resetLocationState()` returns every
 field to neutral; `snapshotLocationState()`/`applyLocationState()` capture and
-restore a complete state. **Debug warp and the transition-audit reset use this
-same registry** — there are no more hand-copied "clear every flag" lists that
-can silently forget one (which is exactly how `inBasinChamber`/`inSunkenGallery`
-were once missed). Persistent story/quest flags (e.g. `dilemma_voss`) are **not**
-location state and are never in this registry — a transition must not reset them.
+restore a complete state. **Debug warp, the transition-audit reset, AND
+save/load all use this same registry** — there are no more hand-copied lists
+(neither a "clear every flag" list nor a per-field save/restore list) that can
+silently forget one (which is exactly how `inBasinChamber`/`inSunkenGallery` were
+once missed). Each binding also carries optional persistence metadata, so
+`serializeLocationState()` flattens the live state into the save payload and
+`deserializeLocationState()` rebuilds a complete candidate from a payload (map
+refs ↔ registry ids via `mapRegistryId()`; `houseReturnPos` deep-copied; a
+non-null unknown `houseSourceMapId` fails safely) — `saveGame()`/`loadGame()` no
+longer maintain their own location field list. Persistent story/quest flags (e.g.
+`dilemma_voss`) are **not** location state and are never in this registry — a
+transition must not reset them, and they are serialized separately.
 
 **The helper's contract.** `spec = { mapId, x, y, facing, state?, cooldown? }`:
 a registered `MAP_REGISTRY` id, exact destination pixel coordinates (the caller
@@ -286,15 +294,27 @@ computes these, including any preserved coordinate such as the current
 `player.y`), a facing, an optional object of **non-neutral location-state
 overrides** (unknown keys rejected; every unspecified field defaults to neutral),
 and an optional cooldown boolean. It validates the *whole* destination — map
-resolves, coordinates finite and in-bounds, facing valid, state keys known, and
-the location invariants hold (at most one major area mode active; town/house
-context only while `inTown`; a house id needs `townBuilding: 'house'`;
-`inDungeon`/`inSluice` need a valid floor and a non-`in*` destination can't keep
-a meaningful one; bridge state can't leak off the bridge) — **before mutating
-anything**. On any failure it warns and returns `false`, leaving the map,
-position, facing, cooldown, and every location field completely untouched. On
-success it resets all location state to neutral, applies the overrides, changes
-the map, places and faces the player, and applies cooldown. **Story/quest/
+resolves, coordinates finite and in-bounds, **the destination base tile is
+walkable**, facing valid, state keys known, and the location invariants hold (at
+most one major area mode active; town/house context only while `inTown`; a house
+id needs `townBuilding: 'house'`; `inDungeon`/`inSluice` need a valid floor and a
+non-`in*` destination can't keep a meaningful one; bridge state can't leak off
+the bridge) — **before mutating anything**. The map/coordinate/bounds/walkable/
+facing part is a shared pure helper, `validatePlacement({mapId,x,y,facing})`
+(`world-transitions.js`), reused by save restoration. An in-bounds but **blocked**
+destination is rejected — there is no auto-nudge and no temporary mutate/rollback.
+On any failure it warns and returns `false`, leaving the map, position, facing,
+cooldown, and every location field completely untouched. On success it resets all
+location state to neutral, applies the overrides, changes the map, places and
+faces the player, and applies cooldown.
+
+**Edge-transition landings.** `tryEdgeTransition()` computes its destination
+landing tile through the pure `edgeTransitionLanding(seg, along)` helper (the
+exact clamp + one-tile-inside-border mapping); edge validation and the transition
+audit call the *same* helper, so validation can't drift from runtime. Edge
+validation now checks, for **every** walkable source-edge coordinate, that its
+specific clamped landing is in-bounds and base-walkable (stronger than the old
+"some source + some target is walkable" aggregate). **Story/quest/
 dialogue/reward/NPC-reroll side effects stay in the wrapper functions**, never in
 the generic helper. The rule is **"neutral defaults plus explicit destination
 state"**: an outdoor transition needs no manual `false` list, while a dungeon/
@@ -536,6 +556,24 @@ restored *lexical* values are mirrored to `window` and *window-native* flags
 are normalized without being clobbered by a stale lexical default. A field
 missing from the save takes that binding's declared default — never the
 current session's (possibly dirtied) value.
+
+**Location context is a *second* registry, not a hand-list in `save.js`.** The
+map-`mode` fields (`inDungeon`, `inTown`, house/bridge/sluice context, …) are
+owned by `LOCATION_STATE_BINDINGS` (`world-transitions.js`; see "The canonical
+transition boundary"). `saveGame()` writes them via `serializeLocationState()`
+(plus `activeMapId` — the active map is not a binding — via `mapRegistryId()`,
+and `dilemma_voss` separately, as non-location data). `loadGame()` **preflights
+the entire location restore before mutating any runtime state** (not just
+location — also stats, quests, and session markers): `deserializeLocationState()`
+rebuilds a complete candidate, legacy pre-`activeMapId` saves derive their map
+from the mode flags, any compatibility repair (e.g. clearing stranded
+`inBridgePost`) runs on the *candidate*, then `validatePlacement()` (map/coords/
+bounds/base-walkable/facing) and `validateLocationState()` (the invariants) must
+both pass. Unknown `activeMapId`, malformed/out-of-bounds/blocked player
+placement, an invalid `houseSourceMapId`, or a broken invariant make the load
+**return `false` with the running game and the stored save both untouched**. Only
+once valid does it commit the location atomically via `applyLocationState()` — no
+per-field restore assignments remain.
 
 Because `set(...)` handles a missing field with the declared default, setting
 a bare `window[myNewFlag] = true` (or a plain `let myNewFlag = true;`) still
