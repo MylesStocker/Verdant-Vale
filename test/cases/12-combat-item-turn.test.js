@@ -40,7 +40,12 @@ module.exports = {
     assert.equal(g.run('combat.itemCursor'), 0);
 
     const hpBeforeUse = g.run('stats.hp');
+    // Pin RNG for the item turn: 0.5 means the player doesn't evade the enemy's
+    // response (above the ~30% base-evade cap), no crit, and a clean mid-roll
+    // 20 damage — so the enemy-response assertions below are deterministic.
+    g.run('window.__r12 = Math.random; Math.random = function(){ return 0.5; };');
     g.press('Enter'); // use the potion (itemCursor 0)
+    g.run('Math.random = window.__r12; delete window.__r12;');
 
     assert.equal(g.run('combat.phase'), 'message', 'using the item should move into the message phase');
     assert.match(g.run('combat.message'), /restored/, 'first message should be the heal result');

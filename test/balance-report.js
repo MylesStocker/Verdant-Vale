@@ -203,6 +203,12 @@ function selfCheck() {
 // ─────────────────────────────────────────────────────────────────────────
 function effAtk(p) { return p.atk; } // gear already folded into p.atk by caller
 function effDef(p, statuses) { return Math.max(0, p.def - (statuses.muddied ? 1 : 0)); }
+// Speed-based evasion — mirrors combat.js's central evadeChance(): the defender
+// dodges based on the speed gap, clamped 2%..30%. (The sim doesn't model Bullet
+// Time — it's a consumable, not part of steady-state balance.)
+function evaded(attackerSpd, defenderSpd, rng) {
+  return rng() < Math.min(0.30, Math.max(0.02, 0.08 + 0.015 * (defenderSpd - attackerSpd)));
+}
 function effSpd(p, statuses, rng) {
   if (statuses.slither) return Math.floor(rng() * 20) + 1;
   return Math.max(1, p.spd - (statuses.muddied ? 2 : 0));
@@ -243,25 +249,27 @@ function simulateFight(playerIn, enemyTemplateIn, rng, opts) {
   while (player.hp > 0 && enemy.hp > 0 && turns < MAX_TURNS) {
     turns++;
 
-    // Healing consumes the turn (combat.js fix: the item phase now runs
-    // enemyTurnResponse(), the same atk/effectiveDef formula used everywhere
-    // else, right after the item's effect resolves). No turn-order check
-    // here — like Observe and a failed Run, the enemy's response to an item
-    // turn isn't gated on relative SPD, it always fires.
+    const playerSpd = effSpd(player, statuses, rng);
+    const enemySpd  = enemyTemplateIn.spd;
+
+    // Healing consumes the turn (combat.js: the item phase runs enemyTurn-
+    // Response(), the same atk/effectiveDef formula used everywhere else, right
+    // after the item's effect resolves). The player may evade that response by
+    // speed, exactly like any other incoming enemy blow.
     if (potionsLeft > 0 && player.hp / player.maxHp <= healThreshold) {
       const healed = Math.min(potionHeal, player.maxHp - player.hp);
       player.hp = Math.min(player.maxHp, player.hp + healed);
       potionsLeft--; potionsUsed++;
-      const atkRoll = enemyTemplateIn.atk * (0.8 + rng() * 0.4);
-      const eDmg = Math.max(1, Math.round(atkRoll - effDef(player, statuses)));
-      player.hp = Math.max(0, player.hp - eDmg);
-      damageTaken += eDmg;
-      if (player.hp > 0) applyEnemyHitEffects(enemyTemplateIn, statuses, rng);
+      if (!evaded(enemySpd, playerSpd, rng)) {
+        const atkRoll = enemyTemplateIn.atk * (0.8 + rng() * 0.4);
+        const eDmg = Math.max(1, Math.round(atkRoll - effDef(player, statuses)));
+        player.hp = Math.max(0, player.hp - eDmg);
+        damageTaken += eDmg;
+        if (player.hp > 0) applyEnemyHitEffects(enemyTemplateIn, statuses, rng);
+      }
       continue;
     }
 
-    const playerSpd = effSpd(player, statuses, rng);
-    const enemySpd  = enemyTemplateIn.spd;
     const playerFirst = playerSpd > enemySpd || (playerSpd === enemySpd && rng() < 0.5);
 
     const enemyDefending = !!(enemyTemplateIn.defendChance && rng() < enemyTemplateIn.defendChance);
@@ -271,20 +279,25 @@ function simulateFight(playerIn, enemyTemplateIn, rng, opts) {
     const atkRoll = enemyTemplateIn.atk * (0.8 + rng() * 0.4);
     const eDmg = Math.max(1, Math.round(atkRoll - effDef(player, statuses)));
 
+    // Every attack is an ATTEMPT: the defender may evade by speed (mirrors
+    // combat.js). A braced enemy blocks for half rather than dodging. An evaded
+    // hit deals no damage and lands no on-hit effect.
     if (enemyDefending) {
       enemy.hp = Math.max(0, enemy.hp - pDmg);
     } else if (playerFirst) {
-      enemy.hp = Math.max(0, enemy.hp - pDmg);
-      if (enemy.hp > 0) {
+      if (!evaded(playerSpd, enemySpd, rng)) enemy.hp = Math.max(0, enemy.hp - pDmg);
+      if (enemy.hp > 0 && !evaded(enemySpd, playerSpd, rng)) {
         player.hp = Math.max(0, player.hp - eDmg);
         damageTaken += eDmg;
         if (player.hp > 0) applyEnemyHitEffects(enemyTemplateIn, statuses, rng);
       }
     } else {
-      player.hp = Math.max(0, player.hp - eDmg);
-      damageTaken += eDmg;
-      if (player.hp > 0) {
-        applyEnemyHitEffects(enemyTemplateIn, statuses, rng);
+      if (!evaded(enemySpd, playerSpd, rng)) {
+        player.hp = Math.max(0, player.hp - eDmg);
+        damageTaken += eDmg;
+        if (player.hp > 0) applyEnemyHitEffects(enemyTemplateIn, statuses, rng);
+      }
+      if (player.hp > 0 && !evaded(playerSpd, enemySpd, rng)) {
         enemy.hp = Math.max(0, enemy.hp - pDmg);
       }
     }

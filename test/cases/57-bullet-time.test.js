@@ -46,7 +46,7 @@ module.exports = {
         var consumed   = !stats.items.some(function(i){ return i.name === 'Bullet Time'; });
         // Apply the deferred enemy-response entry (normally applied on message advance).
         combat.messageQueue.forEach(function(m){ if (m && typeof m !== 'string' && m.apply) m.apply(); });
-        var dodgeShown = (combat.message + JSON.stringify(combat.messageQueue)).indexOf('Evaded') >= 0;
+        var dodgeShown = (combat.message + JSON.stringify(combat.messageQueue)).indexOf('evades') >= 0;
         return JSON.stringify({ evadeTurns: evadeTurns, consumed: consumed, hp: stats.hp, dodgeShown: dodgeShown });
       } finally { Math.random = _r; }
     })()`));
@@ -69,21 +69,30 @@ module.exports = {
         return JSON.stringify({ hp: stats.hp });
       } finally { Math.random = _r; }
     })()`));
-    assert.ok(control.hp < 100, 'with no buff active the enemy hit deals damage (evade is not a base ability)');
+    assert.ok(control.hp < 100, 'with no buff active a 0.5 roll (above the ~30% base speed-evade cap) lands the enemy hit');
 
-    // ── 4. Evade roll respects the rate and the counter. ────────────────────
+    // ── 4. Evade chance: Bullet Time takes precedence, then falls back to base. ─
+    // (There IS now a speed-based base evade; Bullet Time raises it to 90% while
+    // active and drops back to the base once it expires.)
     const rolls = JSON.parse(g.run(`(function(){
       var _r = Math.random;
+      combat.enemy = { name: 'Dummy', spd: 5 }; stats.spd = 5;   // equal speed => 8% base evade
       try {
-        combat.evadeTurns = 2; Math.random = function(){ return 0.95; }; var high = bulletTimeEvades();   // above 0.90 → miss
-        Math.random = function(){ return 0.10; }; var low  = bulletTimeEvades();                          // below 0.90 → dodge
-        combat.evadeTurns = 0; Math.random = function(){ return 0; }; var expired = bulletTimeEvades();    // counter spent → never
-        return JSON.stringify({ high: high, low: low, expired: expired });
+        combat.evadeTurns = 2;
+        var chanceActive = evadeChance(5, 5, true);                                    // Bullet Time wins: 0.90
+        Math.random = function(){ return 0.95; }; var high = attackEvaded(5, 5, true); // above 0.90 -> miss
+        Math.random = function(){ return 0.10; }; var low  = attackEvaded(5, 5, true); // below 0.90 -> dodge
+        combat.evadeTurns = 0;
+        var chanceExpired = evadeChance(5, 5, true);                                    // back to the base speed evade
+        Math.random = function(){ return 0.95; }; var expired = attackEvaded(5, 5, true); // above the base -> miss
+        return JSON.stringify({ chanceActive: chanceActive, high: high, low: low, chanceExpired: chanceExpired, expired: expired });
       } finally { Math.random = _r; }
     })()`));
-    assert.equal(rolls.high, false, 'a roll above 90% is not a dodge');
+    assert.equal(rolls.chanceActive, 0.90, 'Bullet Time raises the evade chance to 90% (precedence over the base)');
+    assert.equal(rolls.high, false, 'a roll above 90% is not a dodge while active');
     assert.equal(rolls.low, true, 'a roll below 90% is a dodge while active');
-    assert.equal(rolls.expired, false, 'no dodge once the buff has expired');
+    assert.ok(rolls.chanceExpired > 0 && rolls.chanceExpired < 0.90, 'once expired it falls back to the base speed evade, not 90%');
+    assert.equal(rolls.expired, false, 'a roll above the base evade is not a dodge once the buff is gone');
 
     // ── 5. Ticks down once per turn: 3 → 2 → 1 → 0. ─────────────────────────
     const seq = JSON.parse(g.run(`(function(){

@@ -162,9 +162,10 @@ module.exports = {
         combat.cursor = 0;
       `);
       g.frames(10); // let flashTimer run out so input is accepted
-      // Pin Math.random to 0 for the killing blow so droppedPotion (< 0.12) is
-      // guaranteed; restore immediately after the action resolves.
-      g.run('window.__realRandom = Math.random; Math.random = () => 0;');
+      // Pin Math.random to 0.05 for the killing blow: below the drop threshold
+      // (< 0.12, so the Potion drops) but at/above the enemy's 2% evade floor
+      // (so the slow Test Dummy can't dodge the lethal hit). Restore right after.
+      g.run('window.__realRandom = Math.random; Math.random = () => 0.05;');
       g.press('Enter'); // attack — lethal, victory messages built here
       g.run('Math.random = window.__realRandom; delete window.__realRandom;');
       const drop = JSON.parse(g.run("JSON.stringify(stats.items.find(i => i.name === 'Potion') || null)"));

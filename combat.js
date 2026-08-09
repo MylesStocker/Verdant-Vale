@@ -792,26 +792,39 @@ function burnTickEntry() {
   };
 }
 
-// ─── Bullet Time: player evade buff ─────────────────────────────────────────
-// The Bullet Time item (items.js) sets combat.evadeTurns = 3 on use. While it
-// is active, every incoming ENEMY attack is dodged at BULLET_TIME_EVADE_RATE
-// (there is no base evade otherwise). The counter ticks down once per player
-// turn via tickEvadeBuff() (called from handleCombatAction), so the buff covers
-// the turn it is used on plus the two after it. A dodged hit deals no damage
-// and lands no on-hit status effect.
+// ─── Speed-based evasion (the single hit-or-evade decision) ──────────────────
+// EVERY attack in combat is an ATTEMPT: the DEFENDER may evade it. The chance is
+// derived from the speed gap between defender and attacker, clamped so nobody is
+// un-hittable and even a slow fighter occasionally slips a blow:
+//     clamp(EVADE_BASE + EVADE_PER_SPD * (defenderSpd - attackerSpd), MIN, MAX)
+// Bullet Time (the player-only evade buff item — combat.evadeTurns) takes
+// precedence while active (its rate is higher than any speed roll). This is the
+// ONE place the decision is made; every combat branch (Attack trade, item-turn
+// response, blocked/failed Run, Observe) routes through it, player and enemy
+// alike — no divergent per-branch rolls. A dodged hit deals no damage and lands
+// no on-hit status effect: the deferred apply()s below skip both when `dodged`,
+// so evading also prevents Polwick's fire, poison, curse, etc.
 const BULLET_TIME_EVADE_RATE = 0.90;
-// Rolls whether the current incoming enemy hit is dodged. Called once per enemy
-// attack, at the moment its message is built (so the text can read "Evaded").
-function bulletTimeEvades() {
-  return combat.evadeTurns > 0 && Math.random() < BULLET_TIME_EVADE_RATE;
+const EVADE_BASE = 0.08, EVADE_PER_SPD = 0.015, EVADE_MIN = 0.02, EVADE_MAX = 0.30;
+function evadeChance(attackerSpd, defenderSpd, defenderIsPlayer) {
+  let c = Math.min(EVADE_MAX, Math.max(EVADE_MIN, EVADE_BASE + EVADE_PER_SPD * (defenderSpd - attackerSpd)));
+  if (defenderIsPlayer && combat.evadeTurns > 0) c = Math.max(c, BULLET_TIME_EVADE_RATE);
+  return c;
 }
-// Ticks the buff down by one player turn. Called once per turn the player spends.
+function attackEvaded(attackerSpd, defenderSpd, defenderIsPlayer) {
+  return Math.random() < evadeChance(attackerSpd, defenderSpd, defenderIsPlayer);
+}
+// Direction wrappers: the player defends an enemy blow / the enemy defends the
+// player's blow. Speeds go through effectiveSpd() so slither etc. are respected.
+function playerEvades() { return attackEvaded(combat.enemy.spd, effectiveSpd(), true); }
+function enemyEvades()  { return attackEvaded(effectiveSpd(), combat.enemy.spd, false); }
+// Ticks the Bullet Time buff down by one player turn. Called once per turn spent.
 function tickEvadeBuff() {
   if (combat.evadeTurns > 0) combat.evadeTurns--;
 }
-// The shared message shown when an enemy attack is dodged under Bullet Time.
-function evadeText() {
-  return `Time slows to a crawl — ${stats.name} slips aside and the ${combat.enemy.name}’s attack finds nothing. (Evaded)`;
+// Generic evade line: "Lély evades!" / "The Marsh Wisp evades!"
+function evadeText(defenderIsPlayer) {
+  return defenderIsPlayer ? `${stats.name} evades!` : `The ${combat.enemy.name} evades!`;
 }
 
 // The enemy's response to a player turn that didn't itself fight the enemy
@@ -822,9 +835,9 @@ function evadeText() {
 // shape every other enemy hit in this file uses.
 function enemyTurnResponse(textFn) {
   const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
-  const dodged = bulletTimeEvades();
+  const dodged = playerEvades();
   return {
-    text: dodged ? evadeText() : (crit ? 'Critical! ' : '') + textFn(eDmg),
+    text: dodged ? evadeText(true) : (crit ? 'Critical! ' : '') + textFn(eDmg),
     apply() {
       if (dodged) return;   // Bullet Time: no damage, no on-hit effects
       stats.hp = Math.max(0, stats.hp - eDmg);
@@ -1457,12 +1470,12 @@ function handleCombatAction() {
     // same as the Rainfish rule.
     if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa) {
       const roll   = rollAttackDamage(combat.enemy.atk, effectiveDef());
-      const dodged = bulletTimeEvades();
+      const dodged = playerEvades();
       const eDmg   = dodged ? 0 : roll.dmg;
       const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const noRunText = dodged ? evadeText()
+      const noRunText = dodged ? evadeText(true)
         : combat.isRainfish     ? `${ec}Nowhere to go! Rainfish thrashes for ${eDmg}!`
         : combat.isFortGuard    ? `${ec}The guard holds the door! He strikes for ${eDmg}!`
         : combat.isFortPolwick  ? `${ec}Polwick stays between you and the door! He strikes for ${eDmg}!`
@@ -1488,12 +1501,12 @@ function handleCombatAction() {
     } else {
       // Failed to flee — enemy gets a free hit (unless Bullet Time dodges it)
       const roll   = rollAttackDamage(combat.enemy.atk, effectiveDef());
-      const dodged = bulletTimeEvades();
+      const dodged = playerEvades();
       const eDmg   = dodged ? 0 : roll.dmg;
       const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const msgs = [dodged ? `Couldn't escape! ${evadeText()}` : `${ec}Couldn't escape! ${combat.enemy.name} attacks for ${eDmg}!`];
+      const msgs = [dodged ? `Couldn't escape! ${evadeText(true)}` : `${ec}Couldn't escape! ${combat.enemy.name} attacks for ${eDmg}!`];
       if (newHp <= 0) {
         msgs.push(`${stats.name} has fallen...`);
         combat.pendingDefeat = true;
@@ -1545,11 +1558,13 @@ function handleCombatAction() {
 
     } else if (playerFirst) {
       // ── Player attacks first ──────────────────────────────────────────────
-      combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
-      if (cursedFumble) {
-        msgs.push(`Cursed fumble! ${stats.name} swings wildly for ${pDmg} damage.`);
+      if (enemyEvades()) {
+        msgs.push(evadeText(false));
       } else {
-        msgs.push(`${pc}${stats.name} attacks for ${pDmg} damage!`);
+        combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
+        msgs.push(cursedFumble
+          ? `Cursed fumble! ${stats.name} swings wildly for ${pDmg} damage.`
+          : `${pc}${stats.name} attacks for ${pDmg} damage!`);
       }
 
       if (combat.enemy.hp <= 0) {
@@ -1557,11 +1572,11 @@ function handleCombatAction() {
       } else {
         // The enemy still takes its own swing the same turn — a full trade, so
         // the player never re-selects Attack. Damage is deferred until the
-        // message is shown. Bullet Time may dodge it entirely.
-        const dodged  = bulletTimeEvades();
+        // message is shown; a speed-based evade (incl. Bullet Time) may dodge it.
+        const dodged  = playerEvades();
         const eDmgEff = dodged ? 0 : eDmg;
         msgs.push({
-          text: dodged ? evadeText() : `${ec}${combat.enemy.name} strikes for ${eDmgEff}!`,
+          text: dodged ? evadeText(true) : `${ec}${combat.enemy.name} strikes for ${eDmgEff}!`,
           apply() {
             if (dodged) return;
             stats.hp = Math.max(0, stats.hp - eDmgEff);
@@ -1576,15 +1591,17 @@ function handleCombatAction() {
     } else {
       // ── Enemy attacks first (higher speed) ───────────────────────────────
       // Pre-calculate outcomes so the queue can be built deterministically.
-      // Bullet Time may dodge the strike (no damage, no on-hit effects); the
-      // player still lands their own attack the same turn (a full trade).
-      const dodged      = bulletTimeEvades();
+      // The player may evade the enemy's strike (incl. Bullet Time); the player
+      // still lands their own attack the same turn (a full trade), which the
+      // enemy may in turn evade.
+      const dodged      = playerEvades();
       const eDmgEff     = dodged ? 0 : eDmg;
       const newPlayerHp = Math.max(0, stats.hp - eDmgEff);
-      const newEnemyHp  = Math.max(0, combat.enemy.hp - pDmg);
+      const enemyDodged = enemyEvades();
+      const newEnemyHp  = enemyDodged ? combat.enemy.hp : Math.max(0, combat.enemy.hp - pDmg);
 
       msgs.push({
-        text: dodged ? evadeText() : `${ec}${combat.enemy.name} strikes first for ${eDmgEff}!`,
+        text: dodged ? evadeText(true) : `${ec}${combat.enemy.name} strikes first for ${eDmgEff}!`,
         apply() {
           stats.hp = newPlayerHp;
           if (!dodged) applyEnemyHitEffects();
@@ -1595,7 +1612,10 @@ function handleCombatAction() {
         },
       });
 
-      if (newPlayerHp > 0) {
+      if (newPlayerHp > 0 && enemyDodged) {
+        // The player still swings, but the enemy slips it.
+        msgs.push(evadeText(false));
+      } else if (newPlayerHp > 0) {
         // The player still lands their own attack the same turn; the enemy HP
         // update is deferred to match the message.
         const answerText = cursedFumble
@@ -1631,11 +1651,11 @@ function handleCombatAction() {
       msgs.push('It does not close the distance.');
     } else {
       const obsRoll  = rollAttackDamage(combat.enemy.atk, effectiveDef());
-      const dodged   = bulletTimeEvades();
+      const dodged   = playerEvades();
       const obsEDmg  = dodged ? 0 : obsRoll.dmg;
       const obsNewHp = Math.max(0, stats.hp - obsEDmg);
       msgs.push({
-        text: dodged ? evadeText() : `${obsRoll.crit ? 'Critical! ' : ''}${combat.enemy.name} strikes for ${obsEDmg}!`,
+        text: dodged ? evadeText(true) : `${obsRoll.crit ? 'Critical! ' : ''}${combat.enemy.name} strikes for ${obsEDmg}!`,
         apply() {
           stats.hp = obsNewHp;
           if (!dodged) applyEnemyHitEffects();
