@@ -163,12 +163,6 @@ function speedWinChance(own, other) {
 // Never below 1. Returns { dmg, crit } so callers can flag a critical.
 const CRIT_CHANCE = 0.10;
 const CRIT_MULT   = 1.5;
-// A counter-attack — the retaliation by whoever acts SECOND in an Attack
-// exchange — is NOT automatic. It lands only COUNTER_CHANCE of the time (per-
-// enemy override via enemy.counterChance), so initiative matters: usually only
-// the fighter who wins the speed roll lands a blow, and the counter is an
-// occasional bonus rather than a guaranteed second hit every turn.
-const COUNTER_CHANCE = 0.20;
 function rollAttackDamage(atk, def) {
   const variance = 0.8 + Math.random() * 0.4;   // 0.8 .. 1.2
   const crit = Math.random() < CRIT_CHANCE;
@@ -822,8 +816,8 @@ function evadeText() {
 
 // The enemy's response to a player turn that didn't itself fight the enemy
 // (currently: using an item). Same damage formula and status/defeat handling
-// as Attack's counter-attack — an item-using turn is still a turn, so the
-// enemy still gets to act. textFn receives the rolled damage and returns the
+// as the enemy's blow in an Attack trade — an item-using turn is still a turn,
+// so the enemy still gets to act. textFn receives the rolled damage and returns the
 // message line; returns a deferred { text, apply() } queue entry, the same
 // shape every other enemy hit in this file uses.
 function enemyTurnResponse(textFn) {
@@ -1385,7 +1379,7 @@ function handleCombatAction() {
         combat.enemy.hp = 0;
         msgs.push(`Used ${item.name} \u2014 the ${combat.enemy.name} stiffens, shudders once, and goes still. The right sort.`);
         applyKillRewards(msgs);
-        enemyActs = false; // it's dead; no counter-attack
+        enemyActs = false; // it's dead; it doesn't strike back
       } else if (combat.enemy.sex) {
         msgs.push(`Used ${item.name} \u2014 the ${combat.enemy.name} shakes it off. Wrong sort entirely.`);
       } else {
@@ -1528,9 +1522,8 @@ function handleCombatAction() {
     const enemySpd   = combat.enemy.spd;
     const playerFirst = Math.random() < speedWinChance(playerSpd, enemySpd);
 
-    // Enemy defend — armoured enemies occasionally brace, halving incoming damage and skipping counter
+    // Enemy defend — armoured enemies occasionally brace, halving incoming damage and not striking back
     const enemyDefending = !!(combat.enemy.defendChance && Math.random() < combat.enemy.defendChance);
-    const counterChance  = (combat.enemy.counterChance != null) ? combat.enemy.counterChance : COUNTER_CHANCE;
     const pRoll = rollAttackDamage(effectiveAtk(), combat.enemy.def);
     // Cursed fumble — 25% chance of a wild swing dealing only 1 damage
     const cursedFumble = !enemyDefending && hasStatusEffect('cursed') && Math.random() < 0.25;
@@ -1545,7 +1538,7 @@ function handleCombatAction() {
 
 
     if (enemyDefending) {
-      // ── Enemy bracing: player deals half damage, enemy skips counter ──────
+      // ── Enemy bracing: player deals half damage, enemy does not strike back ──
       combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
       msgs.push(`${combat.enemy.name} braces! ${stats.name} deals only ${pDmg} damage.`);
       if (combat.enemy.hp <= 0) applyKillRewards(msgs);
@@ -1561,13 +1554,14 @@ function handleCombatAction() {
 
       if (combat.enemy.hp <= 0) {
         applyKillRewards(msgs);
-      } else if (Math.random() < counterChance) {
-        // Enemy counter-attacks (only counterChance of the time) — damage
-        // deferred until message is shown. Bullet Time may dodge it entirely.
+      } else {
+        // The enemy still takes its own swing the same turn — a full trade, so
+        // the player never re-selects Attack. Damage is deferred until the
+        // message is shown. Bullet Time may dodge it entirely.
         const dodged  = bulletTimeEvades();
         const eDmgEff = dodged ? 0 : eDmg;
         msgs.push({
-          text: dodged ? evadeText() : `${ec}${combat.enemy.name} strikes back for ${eDmgEff}!`,
+          text: dodged ? evadeText() : `${ec}${combat.enemy.name} strikes for ${eDmgEff}!`,
           apply() {
             if (dodged) return;
             stats.hp = Math.max(0, stats.hp - eDmgEff);
@@ -1582,8 +1576,8 @@ function handleCombatAction() {
     } else {
       // ── Enemy attacks first (higher speed) ───────────────────────────────
       // Pre-calculate outcomes so the queue can be built deterministically.
-      // Bullet Time may dodge the strike (no damage, no on-hit effects). The
-      // player only counters counterChance of the time (see below).
+      // Bullet Time may dodge the strike (no damage, no on-hit effects); the
+      // player still lands their own attack the same turn (a full trade).
       const dodged      = bulletTimeEvades();
       const eDmgEff     = dodged ? 0 : eDmg;
       const newPlayerHp = Math.max(0, stats.hp - eDmgEff);
@@ -1601,14 +1595,14 @@ function handleCombatAction() {
         },
       });
 
-      if (newPlayerHp > 0 && Math.random() < counterChance) {
-        // Player counter-attacks (only counterChance of the time); enemy HP
-        // update deferred to match message.
-        const counterText = cursedFumble
+      if (newPlayerHp > 0) {
+        // The player still lands their own attack the same turn; the enemy HP
+        // update is deferred to match the message.
+        const answerText = cursedFumble
           ? `Cursed fumble! ${stats.name} swings wildly for ${pDmg}!`
-          : `${pc}${stats.name} counter-attacks for ${pDmg}!`;
+          : `${pc}${stats.name} attacks for ${pDmg} damage!`;
         msgs.push({
-          text: counterText,
+          text: answerText,
           apply() { combat.enemy.hp = newEnemyHp; },
         });
 
