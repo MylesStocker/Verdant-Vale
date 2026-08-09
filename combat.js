@@ -245,8 +245,10 @@ if (typeof window !== 'undefined') {
 
 // Returns the short stat label shown next to an item in menus
 function itemStatLabel(item) {
-  if (item.sexBane === 'male')                     return 'Bane: male';
-  if (item.sexBane === 'female')                   return 'Bane: female';
+  // Sex-bane reagents (the toad-banes) deliberately show NO stat label \u2014 the
+  // display must never reveal what the item does. The knowledge (which bane
+  // matches which toad, and to run otherwise) comes from an NPC, not the UI.
+  if (item.sexBane)                                return '';
   // Status-cure items deliberately show NO stat label \u2014 a display must never
   // reveal which status an item cures (a character can mention it instead).
   if (isStatusCureItem(item))                      return '';
@@ -1107,12 +1109,12 @@ function getObservationText(enemy, count) {
     // heavy body and smooth fingers of the female — not by intuition.
     const reveal = enemy.sex === 'male'
       ? ['Lélý reads the animal, not the fight.',
-         'Rough nuptial pads, a swelling throat-sac — a male. A jack. A Jackbane Vial ends it in one.']
+         'Rough nuptial pads, a swelling throat-sac — this one is a male. A jack.']
       : ['Lélý reads the animal, not the fight.',
-         'Egg-heavy and round, throat pale, fingers smooth — a female. A hen. A Henbane Sprig ends it in one.'];
+         'Egg-heavy and round, throat pale, fingers smooth — this one is a female. A hen.'];
     const later = [
-      ['Jack and hen look identical — only the tells differ.',
-       'Drenwick fen-wives sell a sprig for the hen, a vial for the jack. The wrong one just wastes your hand.'],
+      ['Jack and hen look identical — only the tells give it away.',
+       'Now you know which this is. What to do about it is another matter.'],
       ['It watches you back now, toad-patient. It has all the time the fen has.',
        'Which is all of it.'],
     ];

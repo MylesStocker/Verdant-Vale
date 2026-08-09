@@ -247,9 +247,13 @@ const CALWICK_NPCS = [
         ['\u201cEast channel\u2019s running shallow.', 'Don\u2019t know if it\u2019s the sluice or something further in.\u201d'],
         ['\u201cUsed to get twice the catch this time of year.', 'Reeds have shifted. Changes the run.\u201d'],
         ['\u201cWater\u2019s lower than I\u2019ve ever worked it. You can see old stonework off the east bank now \u2014 walls, a doorway.\u201d',
-         '\u201cSome say there were whole towns out here before the Empire. Whoever they were, the water had them long before we did.\u201d'],
+         '“Some say there were whole towns out here before the Empire. Whoever they were, the water had them long before we did.”'],
+        ['“Bit of advice, since you go out in the reeds. The mire toads — jack and hen, they look the same to a glance, and they’ll poison you soon as look at you.”',
+         '“So you look close first. Really close — the tells are in the throat and the belly. Once you know which you’ve got, you throw the bane that matches it: the jack takes the one, the hen the other.”'],
+        ['“Get the match wrong and you’ve wasted your hand and only made it cross. Can’t tell, or haven’t the right one on you?”',
+         '“Then you run. No shame in it. A toad’s not worth dying stubborn over.”'],
       ];
-      pages.unshift(['\u201c' + stats.name + '. Sit \u2014 you\u2019re in my light.\u201d']);
+      pages.unshift(['“' + stats.name + '. Sit — you’re in my light.”']);
       if (sluice_reward_given) pages.push(
         ['\u201cEast channel\u2019s running better these days.\u201d',
          '\u201cFlow\u2019s more consistent. You notice it in the catch \u2014 more even across the week than it was in spring.\u201d'],

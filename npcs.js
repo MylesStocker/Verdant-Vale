@@ -1903,10 +1903,9 @@ NPC_ACTIONS.lorraShop = function(npc) {
 NPC_ACTIONS.noraReagentShop = function(npc) {
   dialogue.name  = npc.name;
   dialogue.pages = [
-    ['“Fen remedies, love! Dried marsh herb, pickled root — and the two you’ll really want out in the reeds.”',
-     '“Toad-bane. There’s jack-toads and hen-toads, see — same to the eye as two peas in a pod. But a Jackbane drops the one, a Henbane the other. Eight gold each, cheap at twice it.”'],
-    ['“Use the wrong one and you’ve wasted your hand and only made the toad cross. Use the right one and it’s over before it’s begun.”',
-     '“Can’t tell jack from hen by looking? No one can, pet. You look close — really close — before you throw. That’s the whole trick, and the only bit I give free.”'],
+    ['“Local herbs and remedies, love — dried marsh herb, pickled root, and a few things you’ll not find dry-side.”',
+     '“Henbane sprig and Jackbane vial, if you’re after those. Eight gold each.”'],
+    ['“What they’re good for, you likely know better than me. I only gather and sell.”'],
   ];
   dialogue.callbacks = [function() {
     choice.title   = npc.name;
@@ -1916,14 +1915,14 @@ NPC_ACTIONS.noraReagentShop = function(npc) {
       function buyHen() {
         dialogue.name = npc.name;
         if (stats.gold >= 8) { stats.gold -= 8; grantItem('Henbane Sprig');
-          dialogue.pages = [['“There you are. For the hen, mind — look close before you throw.”']]; }
+          dialogue.pages = [['“There you are. Mind how you use it.”']]; }
         else { dialogue.pages = [['“Eight gold, love. Come back when you’ve got it.”']]; }
         dialogue.open = true; dialogue.page = 0;
       },
       function buyJack() {
         dialogue.name = npc.name;
         if (stats.gold >= 8) { stats.gold -= 8; grantItem('Jackbane Vial');
-          dialogue.pages = [['“Good pick. For the jack — and match it to the toad, or you’ve thrown coin in the reeds.”']]; }
+          dialogue.pages = [['“Good pick. Keep it dry till you need it.”']]; }
         else { dialogue.pages = [['“Eight gold, love. Come back when you’ve got it.”']]; }
         dialogue.open = true; dialogue.page = 0;
       },
