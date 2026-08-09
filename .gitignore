@@ -17,3 +17,6 @@ node_modules/
 dist/
 build/
 coverage/
+
+# Claude local git worktrees (never publish)
+.claude/worktrees/
