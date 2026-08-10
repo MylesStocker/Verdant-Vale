@@ -232,15 +232,16 @@ window.addEventListener('keydown', e => {
             // combat.js's defeat penalty); no other state is tied to it.
             day++;
           } else if (debugMenu.cursor === 6) {
-            // Warp to Map... — hand off to the warp menu.
+            // Warp to... — hand off to the warp menu, populated from the logical
+            // destination catalog (debug-warp.js): outdoor-first, deterministic
+            // order. Each entry is a coherent logical destination, not a bare
+            // map id.
             debugMenu.open       = false;
             warpMenu.open         = true;
             warpMenu.mode         = 'list';
             warpMenu.cursor       = 0;
             warpMenu.scrollOffset = 0;
-            // Sorted by canonical id (a documented, stable rule) so the debug
-            // warp list order never depends on catalog object-literal order.
-            warpMenu.mapIds       = Object.keys(MAP_REGISTRY).sort();
+            warpMenu.destinations = getDebugWarpDestinations();
           } else if (debugMenu.cursor === 7) {
             // Validate Data — runs the content linter (validation.js) and
             // surfaces just the summary here; the full grouped report
@@ -265,35 +266,43 @@ window.addEventListener('keydown', e => {
         // ── Debug warp menu navigation ──────────────────────────────────────
         e.preventDefault();
         if (warpMenu.mode === 'list') {
-          const last = warpMenu.mapIds.length - 1;
+          const last = warpMenu.destinations.length - 1;
           if (e.key === 'ArrowUp'   || e.key === 'w') warpMenu.cursor = Math.max(0, warpMenu.cursor - 1);
           if (e.key === 'ArrowDown' || e.key === 's') warpMenu.cursor = Math.min(last, warpMenu.cursor + 1);
           if (warpMenu.cursor < warpMenu.scrollOffset) warpMenu.scrollOffset = warpMenu.cursor;
           if (warpMenu.cursor >= warpMenu.scrollOffset + WARP_MENU_VISIBLE_ROWS) warpMenu.scrollOffset = warpMenu.cursor - WARP_MENU_VISIBLE_ROWS + 1;
           if (e.key === ' ' || e.key === 'Enter') {
-            const mapId = warpMenu.mapIds[warpMenu.cursor];
-            const meta  = (typeof MAP_METADATA !== 'undefined') ? MAP_METADATA[mapId] : undefined;
-            const targetMap = meta ? meta.map : MAP_REGISTRY[mapId].map;
-            // Sensible default coordinate: nearest walkable tile to the
-            // map's centre (requirement: "a sensible default coordinate if
-            // no coordinate is specified").
-            const centre = debugFindNearestWalkableTile(targetMap, Math.floor(COLS / 2), Math.floor(ROWS / 2));
-            warpMenu.targetMapId = mapId;
-            warpMenu.targetCol   = centre ? centre.col : Math.floor(COLS / 2);
-            warpMenu.targetRow   = centre ? centre.row : Math.floor(ROWS / 2);
-            warpMenu.mode        = 'coord';
+            const dest = warpMenu.destinations[warpMenu.cursor];
+            if (dest && !dest.disabled) {
+              // Default coordinate: the destination's own known-walkable landing,
+              // nudged to the nearest walkable tile on ITS map if needed.
+              const targetMap = (typeof mapRefForId === 'function') ? mapRefForId(dest.mapId) : null;
+              const centre = targetMap ? debugFindNearestWalkableTile(targetMap, dest.defaultCol, dest.defaultRow) : null;
+              warpMenu.targetDestId = dest.id;
+              warpMenu.targetCol    = centre ? centre.col : dest.defaultCol;
+              warpMenu.targetRow    = centre ? centre.row : dest.defaultRow;
+              warpMenu.mode         = 'coord';
+            } else if (dest && dest.disabled) {
+              showWorldToast('Disabled: ' + (dest.disabledReason || 'unsupported location'));
+            }
           }
           if (e.key === 'Escape' || e.key === '`') { warpMenu.open = false; }
         } else {
-          // 'coord' mode
+          // 'coord' mode — clamp arrow movement using the DESTINATION's own map
+          // dimensions, not global ROWS/COLS (interiors/dungeons can differ, and
+          // conceptually a destination's map is its own coordinate space).
+          const dest = (typeof debugDestinationById === 'function') ? debugDestinationById(warpMenu.targetDestId) : null;
+          const targetMap = (dest && typeof mapRefForId === 'function') ? mapRefForId(dest.mapId) : null;
+          const dRows = (targetMap && targetMap.length) ? targetMap.length : ROWS;
+          const dCols = (targetMap && targetMap[0]) ? targetMap[0].length : COLS;
           if (e.key === 'ArrowUp'    || e.key === 'w') warpMenu.targetRow = Math.max(0, warpMenu.targetRow - 1);
-          if (e.key === 'ArrowDown'  || e.key === 's') warpMenu.targetRow = Math.min(ROWS - 1, warpMenu.targetRow + 1);
+          if (e.key === 'ArrowDown'  || e.key === 's') warpMenu.targetRow = Math.min(dRows - 1, warpMenu.targetRow + 1);
           if (e.key === 'ArrowLeft'  || e.key === 'a') warpMenu.targetCol = Math.max(0, warpMenu.targetCol - 1);
-          if (e.key === 'ArrowRight' || e.key === 'd') warpMenu.targetCol = Math.min(COLS - 1, warpMenu.targetCol + 1);
+          if (e.key === 'ArrowRight' || e.key === 'd') warpMenu.targetCol = Math.min(dCols - 1, warpMenu.targetCol + 1);
           if (e.key === ' ' || e.key === 'Enter') {
-            const result = debugWarpToMap(warpMenu.targetMapId, warpMenu.targetCol, warpMenu.targetRow);
+            const result = debugWarpToDestination(warpMenu.targetDestId, warpMenu.targetCol, warpMenu.targetRow);
             showWorldToast(result.message);
-            if (result.success) warpMenu.open = false;
+            if (result.success) warpMenu.open = false; // close ONLY on success
           }
           if (e.key === 'Escape') { warpMenu.mode = 'list'; }
           if (e.key === '`') { warpMenu.open = false; }

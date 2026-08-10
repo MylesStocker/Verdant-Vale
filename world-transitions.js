@@ -1382,16 +1382,27 @@ function debugFindNearestWalkableTile(map, col, row) {
   return null;
 }
 
-// Warps the player to (col, row) on the map registered under mapId (checked
-// via the canonical catalog entry (mapEntryForId); every registered map has one.
-// Returns { success, message, col, row } — never throws, never leaves the
-// player out of bounds or on an unwalkable tile.
+// Map-only warp — RESTRICTED to unambiguous OUTDOOR maps, whose neutral location
+// state is complete and correct. Every non-outdoor map (town/dungeon/sluice/
+// house/special) needs a specific runtime mode that a bare map id can't supply,
+// so this NEVER guesses that context: it fails and points the caller at the
+// logical destination catalog (debug-warp.js's debugWarpToDestination(), the
+// path the warp menu now uses). This removes the old "successful but incomplete"
+// non-outdoor warp (which reset state, changed only the map, warned that context
+// was missing, and still returned success).
+//
+// Returns { success, message, col, row } — never throws, never leaves the player
+// out of bounds or on an unwalkable tile. On failure nothing is mutated (it only
+// commits through transitionToLocation(), which is atomic).
 function debugWarpToMap(mapId, col, row) {
   const meta      = (typeof mapEntryForId === 'function') ? mapEntryForId(mapId) : null;
   const targetMap = meta ? meta.map : undefined;
 
   if (!Array.isArray(targetMap)) {
     return { success: false, message: 'Warp failed: unknown map id "' + mapId + '"' };
+  }
+  if (meta.type !== 'outdoor') {
+    return { success: false, message: 'Warp failed: "' + mapId + '" is a "' + meta.type + '"-type map that needs logical context (town building, dungeon floor, etc). Use the warp menu / debugWarpToDestination() instead of a map-only warp.' };
   }
 
   const rows = targetMap.length, cols = targetMap[0].length;
@@ -1410,23 +1421,17 @@ function debugWarpToMap(mapId, col, row) {
     nudged = true;
   }
 
-  // Clean baseline: warping resets ALL location state to neutral (via the same
-  // canonical registry the transition helper uses — so it can never again miss a
-  // flag like the old hand-copied list did with dungeonFloor/sluiceFloor/town/
-  // house/bridge context), then lands the player. No enter*() is called, so no
-  // quest/dialogue/combat side effect can fire from a warp. The clamp/nudge
-  // landing was computed above; the helper only validates + applies it.
-  transitionToLocation({
+  // Outdoor maps take neutral location state (no overrides). The canonical
+  // boundary validates + applies atomically; no enter*() is called, so no
+  // quest/dialogue/combat side effect can fire from a warp.
+  const ok = transitionToLocation({
     mapId, x: (landing.col + 0.5) * TILE, y: (landing.row + 0.5) * TILE, facing: 'down', cooldown: true,
   });
+  if (!ok) return { success: false, message: 'Warp failed: transition rejected for "' + mapId + '"' };
 
-  const displayName = meta ? meta.displayName : mapId;
-  let message = 'Warped to ' + displayName + ' (col ' + landing.col + ', row ' + landing.row + ')';
+  let message = 'Warped to ' + meta.displayName + ' (col ' + landing.col + ', row ' + landing.row + ')';
   if (clamped) message += ' — target coordinate was out of bounds, clamped';
   if (nudged)  message += ' — nearest walkable tile used (original spot was blocked)';
-  if (meta && meta.type !== 'outdoor') {
-    message += '. Note: "' + meta.type + '"-type maps need extra state (town building, dungeon floor, etc) that this tool does not set — location name/items/encounters may not fully match normal play here.';
-  }
   return { success: true, message, col: landing.col, row: landing.row };
 }
 window.debugFindNearestWalkableTile = debugFindNearestWalkableTile;

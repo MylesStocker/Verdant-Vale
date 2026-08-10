@@ -1424,11 +1424,13 @@ function drawDebugMenu() {
 }
 
 // ─── Debug Warp Menu ────────────────────────────────────────────────────────
-// Reached from the debug menu's "Warp to Map..." row (never from the normal
-// player menu -- see requirement in the task this was built for). Two
-// modes: 'list' (pick any MAP_REGISTRY-listed map, scrollable) then 'coord'
-// (nudge the landing tile before confirming). All list/selection state
-// lives in warpMenu (state.js); navigation is handled in input.js.
+// Reached from the debug menu's "Warp to..." row (never from the normal player
+// menu). Two modes: 'list' (pick a LOGICAL destination from debug-warp.js's
+// catalog — outdoor-first, each a coherent { label, category, mapId, state }
+// entry, NOT a bare map id) then 'coord' (nudge the landing tile, clamped to the
+// destination's own map, before confirming). All list/selection state lives in
+// warpMenu (state.js); navigation is in input.js; the commit is
+// debugWarpToDestination() (debug-warp.js).
 const WARP_MENU_VISIBLE_ROWS = 11;
 
 function drawWarpMenu() {
@@ -1451,39 +1453,38 @@ function drawWarpMenu() {
   ctx.fillStyle = '#e8a030';
   ctx.font = 'bold 11px "Courier New", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(warpMenu.mode === 'coord' ? 'WARP \u2014 TARGET' : 'WARP \u2014 SELECT MAP', PX + Math.floor(PW / 2), PY + 18);
+  ctx.fillText(warpMenu.mode === 'coord' ? 'WARP \u2014 TARGET' : 'WARP \u2014 SELECT DESTINATION', PX + Math.floor(PW / 2), PY + 18);
   ctx.textAlign = 'left';
 
   if (warpMenu.mode === 'list') {
-    const visible = warpMenu.mapIds.slice(warpMenu.scrollOffset, warpMenu.scrollOffset + WARP_MENU_VISIBLE_ROWS);
-    visible.forEach((mapId, i) => {
+    const visible = warpMenu.destinations.slice(warpMenu.scrollOffset, warpMenu.scrollOffset + WARP_MENU_VISIBLE_ROWS);
+    visible.forEach((dest, i) => {
       const idx = warpMenu.scrollOffset + i;
-      const meta = (typeof MAP_METADATA !== 'undefined') ? MAP_METADATA[mapId] : undefined;
-      const label = meta ? meta.displayName : (MAP_REGISTRY[mapId] ? MAP_REGISTRY[mapId].label : mapId);
-      const tag = meta ? ' [' + meta.type + ']' : '';
+      const label = dest.label;
+      const tag = dest.category ? ' [' + dest.category + ']' : '';
       const ry  = PY + 34 + i * 20;
       const sel = warpMenu.cursor === idx;
       if (sel) {
         ctx.fillStyle = '#0a1e2e';
         ctx.fillRect(PX + 8, ry - 13, PW - 16, 18);
       }
-      ctx.fillStyle = sel ? '#8ac8d8' : '#4a7888';
+      ctx.fillStyle = dest.disabled ? '#5a4a4a' : (sel ? '#8ac8d8' : '#4a7888');
       ctx.font = sel ? 'bold 11px "Courier New", monospace' : '11px "Courier New", monospace';
-      const line = (sel ? '\u25b6 ' : '  ') + label + tag;
+      const line = (sel ? '\u25b6 ' : '  ') + label + tag + (dest.disabled ? ' (disabled)' : '');
       ctx.fillText(line.length > 42 ? line.slice(0, 39) + '...' : line, PX + 12, ry);
     });
     ctx.fillStyle = '#3a6050';
     ctx.font = '9px "Courier New", monospace';
     ctx.textAlign = 'center';
     ctx.fillText(
-      (warpMenu.cursor + 1) + ' / ' + warpMenu.mapIds.length + '   [ \u2191\u2193 ] move   [ Enter ] select   [ Esc/\u0060 ] cancel',
+      (warpMenu.cursor + 1) + ' / ' + warpMenu.destinations.length + '   [ \u2191\u2193 ] move   [ Enter ] select   [ Esc/\u0060 ] cancel',
       PX + Math.floor(PW / 2), PY + PH - 10
     );
     ctx.textAlign = 'left';
   } else {
     // 'coord' mode
-    const meta = (typeof MAP_METADATA !== 'undefined') ? MAP_METADATA[warpMenu.targetMapId] : undefined;
-    const label = meta ? meta.displayName : warpMenu.targetMapId;
+    const dest = (typeof debugDestinationById === 'function') ? debugDestinationById(warpMenu.targetDestId) : null;
+    const label = dest ? dest.label : warpMenu.targetDestId;
     ctx.fillStyle = '#8ac8d8';
     ctx.font = '12px "Courier New", monospace';
     ctx.textAlign = 'center';
@@ -1493,7 +1494,7 @@ function drawWarpMenu() {
     ctx.font = 'bold 16px "Courier New", monospace';
     ctx.fillText('col ' + warpMenu.targetCol + ' , row ' + warpMenu.targetRow, PX + Math.floor(PW / 2), PY + 90);
 
-    const targetMap = meta ? meta.map : (MAP_REGISTRY[warpMenu.targetMapId] ? MAP_REGISTRY[warpMenu.targetMapId].map : null);
+    const targetMap = (dest && typeof mapRefForId === 'function') ? mapRefForId(dest.mapId) : null;
     if (targetMap) {
       const tile = targetMap[warpMenu.targetRow] ? targetMap[warpMenu.targetRow][warpMenu.targetCol] : undefined;
       const walkable = tile !== undefined && WALKABLE[tile];

@@ -84,6 +84,7 @@ The rule this codebase actually follows:
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
 | `world-view.js` | **PURE** camera / chunk-visibility calculations for the future continuous overworld (prework — no runtime consumer yet): `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`. Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and the `COLS`/`ROWS`/`TILE` constants. | No DOM/canvas, no state mutation, no duplicated layout data. Do NOT wire these into `render()` yet — activating scrolling/continuous rendering is a later increment. |
+| `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
@@ -937,7 +938,7 @@ balance report can never disagree about which pools exist.
 - **Debug menu** (backtick key, `debugMenu` in `state.js`, always reachable
   regardless of `debugMode`'s value, drawn by `render-ui.js`'s
   `drawDebugMenu()`) — 8 rows: No Enemies / Poison / Muddied / Slither
-  (toggles), Heal Full / Day +1 (actions), Warp to Map... (opens the warp
+  (toggles), Heal Full / Day +1 (actions), Warp to... (opens the warp
   menu), Validate Data (runs `validateGameData()`, shows a toast summary,
   full report to console).
 - **Debug map inspector** (`I` key, `debugInspector` in `state.js`, a
@@ -947,19 +948,41 @@ balance report can never disagree about which pools exist.
   category/tags/flags (from `TILE_PROPERTIES`), current encounter pool,
   nearby point/edge transition info, and `MAP_FEATURES` info (feature count
   on the map, nearby inspectable, active trigger zone).
-- **Debug warp menu** (reached from the debug menu, `warpMenu` in
-  `state.js`) — pick any `MAP_REGISTRY`-listed map, then nudge a target
-  tile coordinate; `debugWarpToMap()` (`world-transitions.js`) validates
-  the target, clamps out-of-bounds coordinates, nudges onto the nearest
-  walkable tile if the exact spot is blocked, then lands the player through the
-  canonical `transitionToLocation()` (so ALL location state — every `inX` flag
-  plus the dungeon/sluice floor, town/house, and bridge context the old
-  hand-copied list used to miss — is reset to neutral) with the encounter
-  cooldown, and (for non-`'outdoor'`-type maps) notes in
-  its return message that area-specific state like a dungeon floor number
-  or town building wasn't set — warping into a town/interior/dungeon by
-  map+coordinate alone is a geometry/collision testing tool, not a
-  substitute for actually entering that area's state normally.
+- **Debug warp menu** (reached from the debug menu, `warpMenu` in `state.js`) —
+  pick a **logical destination** from the catalog in `debug-warp.js`, then nudge a
+  target tile coordinate; `debugWarpToDestination()` clamps out-of-bounds
+  coordinates, nudges onto the nearest walkable tile if the exact spot is blocked,
+  preflights placement + location-state invariants, then commits through the
+  canonical `transitionToLocation()`. Key points, and the reason this file exists:
+  - **A physical map id is not always a complete logical destination.** A shared
+    grid backs many logical places (`HOUSE_INTERIOR_MAP` = every house,
+    `SMALL_APARTMENT_MAP` = every apartment unit, `APARTMENT_CORRIDOR_MAP` = the
+    Calwick + six Drenwick apartment corridors), and most non-outdoor maps need a
+    specific runtime *mode* (`inDungeon`+`dungeonFloor`, `inTown`+`townBuilding`,
+    `inSluice`+`sluiceFloor`, `inBridgePost`+…). So each destination carries the
+    exact location-state overrides its canonical `enter*()` wrapper establishes —
+    the **authoritative source is runtime behaviour, not `MAP_CATALOG.type` or the
+    display label** (e.g. the tavern's furniture gate needs `townBuilding: 'tavern'`
+    even though its name/key key off `activeMap`).
+  - **Outdoor destinations are derived** from `MAP_CATALOG` (`type === 'outdoor'`)
+    with neutral state; every non-outdoor destination is authored. **Reusable
+    physical maps have multiple destinations** (distinct `currentHouseId` + return
+    context). The list is **outdoor-first**, then town / interior / dungeon /
+    special, sorted by label then id.
+  - **All warps preflight and commit through `transitionToLocation()`** — no
+    location flag is ever assigned directly, and the `enter*()` wrappers'
+    story/NPC side effects (guard resets, `travellerPresent`, quest flags, patrol
+    resets) are deliberately NOT run. A warp performs no quest/dialogue/reward/
+    combat/inventory/day side effect.
+  - **Unsupported locations are never entered partially.** There is no
+    "successful but incomplete" warp: an unknown/disabled/malformed/invalid/
+    unwalkable destination returns failure and leaves `activeMap`, the player,
+    the encounter cooldown, and every location field untouched (the menu stays
+    open). If a physical map can't be represented safely it is omitted or shown
+    disabled with a reason, never guessed.
+  - The old map-only `debugWarpToMap()` (`world-transitions.js`) is retained but
+    **restricted to unambiguous outdoor maps** (neutral state); it refuses any
+    non-outdoor map id and points the caller at `debugWarpToDestination()`.
 - `debugMode` (`state.js`) — suppresses random encounters; this **is** the
   "toggle random encounters" feature (the debug menu's "No Enemies" row),
   not a separate mechanism.

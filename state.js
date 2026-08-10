@@ -176,18 +176,20 @@ const debugInspector = {
 };
 
 // ─── Debug warp menu state ─────────────────────────────────────────────────────
-// A modal screen (reached via the debug menu's "Warp to Map..." row) for
-// jumping straight to any registered map. Two modes: 'list' (pick a map,
-// scrollable) then 'coord' (nudge the target tile with arrow keys before
-// confirming). See render-ui.js's drawWarpMenu(), input.js's warpMenu
-// handling, and world-transitions.js's debugWarpToMap().
+// A modal screen (reached via the debug menu's "Warp to..." row) for jumping
+// straight to any LOGICAL destination (not a bare map id: a shared grid backs
+// many houses/apartments, and non-outdoor maps need a runtime mode). Two modes:
+// 'list' (pick a destination, scrollable, outdoor-first) then 'coord' (nudge the
+// target tile with arrow keys before confirming). See render-ui.js's
+// drawWarpMenu(), input.js's warpMenu handling, and debug-warp.js's logical
+// destination catalog + debugWarpToDestination().
 const warpMenu = {
   open:         false,
   mode:         'list', // 'list' | 'coord'
   cursor:       0,
   scrollOffset: 0,
-  mapIds:       [],     // populated from MAP_REGISTRY when opened
-  targetMapId:  null,   // set once a map is chosen, for 'coord' mode
+  destinations: [],     // populated from getDebugWarpDestinations() when opened
+  targetDestId: null,   // set once a destination is chosen, for 'coord' mode
   targetCol:    8,
   targetRow:    7,
 };
