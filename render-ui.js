@@ -1365,7 +1365,7 @@ function drawDebugMenu() {
   if (!debugMenu.open) return;
 
   const W = 512, H = 480;
-  const PW = 200, PH = 268;
+  const PW = 200, PH = 292;
   const PX = Math.floor((W - PW) / 2);
   const PY = Math.floor((H - PH) / 2);
 
@@ -1396,6 +1396,7 @@ function drawDebugMenu() {
     { type: 'action', label: '[ Warp to Map... ]' },
     { type: 'action', label: '[ Validate Data ]' },
     { type: 'toggle', label: '[ Home on Defeat ]', value: defeatWakeAtHome,      onColor: '#78e888', offColor: '#3a5858' },
+    { type: 'toggle', label: '[ Continuous View ]', value: continuousWorldViewEnabled, onColor: '#78e888', offColor: '#3a5858' },
   ];
 
   rows.forEach((row, i) => {
@@ -1583,6 +1584,17 @@ function drawDebugInspector() {
           (featureInfo.activeTrigger.onceFlag ? ' (seen: ' + (featureInfo.activeTrigger.seen ? 'yes' : 'no') + ')' : '')
         : ''),
   ];
+
+  // Continuous-view diagnostics (only when the debug prototype is actually
+  // active on this map) — camera px, player world px, visible chunk count/ids.
+  if (typeof continuousWorldViewActive === 'function' && continuousWorldViewActive()) {
+    const plan = buildContinuousWorldPlan('overworld', mapId, player.x, player.y, 512, 480);
+    if (plan) {
+      lines.push('CONT-VIEW: cam (' + plan.camPxX + ',' + plan.camPxY + ')  pWorld (' +
+        plan.playerWorldPxX + ',' + plan.playerWorldPxY + ')  chunks ' + plan.visibleChunks.length +
+        ' [' + plan.visibleChunks.map(c => c.mapId).join(',') + ']');
+    }
+  }
 
   const PX = 4, PY = 4;
   const lineHeight = 12;

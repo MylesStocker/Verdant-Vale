@@ -83,12 +83,12 @@ The rule this codebase actually follows:
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
-| `world-view.js` | **PURE** camera / chunk-visibility calculations for the future continuous overworld (prework — no runtime consumer yet): `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`. Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and the `COLS`/`ROWS`/`TILE` constants. | No DOM/canvas, no state mutation, no duplicated layout data. Do NOT wire these into `render()` yet — activating scrolling/continuous rendering is a later increment. |
+| `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, `mapLocalPxToWorldPx()`, and `buildContinuousWorldPlan()` (the per-frame render plan). Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. Its only consumer is the DEBUG continuous-view prototype in `render.js`. |
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
-| `render.js` | The single `render()` orchestrator — the canonical draw-call order (layering) for a frame — plus the pre-computed vignette. | Don't put actual drawing logic here, only calls into the `render-*.js` files. If draw order/layering looks wrong, this is the file to fix. |
+| `render.js` | The single `render()` orchestrator — the canonical draw-call order (layering) for a frame — plus the pre-computed vignette, the extracted `drawActiveMapContent()` current-map content block, and the DEBUG continuous-view path (`continuousWorldViewActive()` / `drawContinuousWorld()`; see "Continuous-view prototype" below). | Don't put actual drawing logic here beyond the terrain/camera orchestration — call into the `render-*.js` files. If draw order/layering looks wrong, this is the file to fix. |
 | `input.js` | The `keys` table and the `keydown`/`keyup` listeners; routes a keypress to whichever screen is active (combat, menu, choice, shop, debug menu, debug warp menu, overlay panels, overworld). | No game logic beyond routing — it calls into `movement.js`/`combat.js`/`interactions.js`/etc rather than mutating game state directly (aside from cursor/screen UI state). |
 | `movement.js` | `player`, `locationName()`, `currentContentLocationKey()` (logical content-location key; `currentMapId()` is a deprecated alias), `tileAt()`, `canWalk()` (collision), `isEncounterEligibleTile()`, and `update()` — the per-frame advance of movement/cooldowns/encounter checks/`MAP_FEATURES` trigger-zone checks. | No drawing code. |
 | `combat.js` | Equip helpers (`effectiveAtk`/etc), enemy stat templates, `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
@@ -487,7 +487,51 @@ continuous renderer must apply the camera as a *separate* transform (e.g.
 `ctx.translate`) and pass each chunk its stable world-pixel origin — feeding a
 camera-shifted origin here would make those patterns crawl as the camera moves.
 The pure geometry that decides *which* chunks/slices to draw lives in
-`world-view.js` (see the layout section); it has no runtime consumer yet.
+`world-view.js` (see the layout section); its first consumer is the debug
+continuous-view prototype below.
+
+### Continuous-view prototype (DEBUG-only, `render.js`)
+
+A visual prototype of a scrolling-camera overworld that draws terrain from
+neighbouring chunks. It is **off by default and never saved** (`continuousWorldViewEnabled`,
+state.js; a debug-menu toggle `[ Continuous View ]`). When off — or on a map with
+no `REGIONAL_LAYOUT` placement under `regionId 'overworld'` (towns, interiors,
+dungeons, bridge, special maps, the hidden meadow) — `render()` uses the **legacy
+path** (`drawMapTiles(activeMap)` + `drawActiveMapContent()`), pixel-identical to
+before. `continuousWorldViewActive()` gates this; combat is unaffected (`render()`
+returns before the world section when `combat.active`).
+
+`render()`'s former inline current-map content block (items → furniture → NPCs →
+special entities → landmarks → hints → player) is extracted verbatim, in the same
+order, into **`drawActiveMapContent()`** — used by both paths.
+
+The pure plan comes from **`buildContinuousWorldPlan(regionId, activeMapId,
+playerLocalPxX, playerLocalPxY, viewportPxW, viewportPxH)`** (world-view.js). It
+returns `null` off a placed map, else `{ regionId, activeMapId, activePlacement,
+playerWorldPxX, playerWorldPxY, camPxX, camPxY, visibleChunks }`. Player world
+pixels come from the authoritative placement (`chunkX*COLS*TILE + playerLocalPx`,
+via `mapLocalPxToWorldPx`) — **note `localToWorld()` (data.js) is TILE-unit; player
+pixels must never be passed to it.** The camera uses `cameraOriginForTarget()`
+(integer, pixel-aligned, clamped to region bounds) and `visibleChunks()`.
+
+`drawContinuousWorld()` then: (1) fills the 512×480 viewport with a stable void
+colour; (2) `ctx.save()` + `ctx.translate(-camPxX, -camPxY)` — the camera is a
+**separate transform, never subtracted from tile coords**; (3) draws each visible
+placed chunk's terrain **once** via `drawMapTiles(chunkMap, ch.worldPxX,
+ch.worldPxY, range)` at its stable world-pixel origin with the exact half-open
+local range; (4) `ctx.save()` + translate to the active chunk's world origin,
+`drawActiveMapContent()`, `ctx.restore()`; (5) `ctx.restore()` back to screen
+space. All screen-space layers (vignette, dialogue, menus, panels, toasts, hints,
+inspector, combat UI) are drawn **after** the restore, outside any transform.
+
+**Intentional prototype limitations (not bugs):** edge transitions still drive
+movement; crossing a seam can visibly jump because destinations still use
+inset/remapped landing coords; NEEDS_REMAP seams are untouched; **only the active
+map's entities/content render — neighbouring chunks show terrain only** (chunk-
+aware entities are a later phase); no save-schema/world-position migration; no
+terrain cache. Approx work per frame: ≤4 visible chunks, ≤ one 512×480 viewport of
+`drawTile` calls (~ 16×15 = 240 tiles, plus partial edge tiles), same order of
+magnitude as the legacy single-map draw.
 
 ## Movement, collision, encounters
 

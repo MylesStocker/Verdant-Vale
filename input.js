@@ -207,8 +207,8 @@ window.addEventListener('keydown', e => {
         // ── Debug menu navigation ─────────────────────────────────────────
         // Row order must match drawDebugMenu() (render-ui.js) and
         // DEBUG_MENU_ROW_COUNT (state.js): 0 No Enemies, 1 Poison,
-        // 2 Muddied, 3 Slither, 4 Heal Full, 5 Day +1, 6 Warp to Map...,
-        // 7 Validate Data, 8 Home on Defeat
+        // 2 Muddied, 3 Slither, 4 Heal Full, 5 Day +1, 6 Warp to...,
+        // 7 Validate Data, 8 Home on Defeat, 9 Continuous View
         e.preventDefault();
         if (e.key === 'ArrowUp'   || e.key === 'w') debugMenu.cursor = Math.max(0, debugMenu.cursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') debugMenu.cursor = Math.min(DEBUG_MENU_ROW_COUNT - 1, debugMenu.cursor + 1);
@@ -259,6 +259,11 @@ window.addEventListener('keydown', e => {
             // bed in the Calwick player house (default ON); off = the old
             // behavior of waking on the spot where they fell.
             defeatWakeAtHome = !defeatWakeAtHome;
+          } else if (debugMenu.cursor === 9) {
+            // Continuous View — DEBUG scrolling-camera terrain prototype on
+            // placed 'overworld' maps only (render.js). Session-only, never
+            // saved; no effect on movement/collision/transitions/content.
+            continuousWorldViewEnabled = !continuousWorldViewEnabled;
           }
         }
         if (e.key === 'Escape' || e.key === '`') { debugMenu.open = false; }

@@ -129,9 +129,52 @@ function visibleChunks(regionId, camPxX, camPxY, viewportPxW, viewportPxH) {
   return out;
 }
 
+// Converts a map-LOCAL pixel coordinate (a pixel WITHIN one map, e.g. player.x)
+// to a region-WORLD pixel coordinate, using the authoritative regional placement
+// (regionPlacementForMapId) + chunk pixel dimensions. Returns { regionId,
+// worldPxX, worldPxY } or null if the map isn't placed. NOTE: this takes PIXELS,
+// unlike localToWorld() (data.js), which takes TILE units — do not confuse them.
+function mapLocalPxToWorldPx(mapId, localPxX, localPxY) {
+  const p = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mapId) : null;
+  if (!p) return null;
+  return { regionId: p.regionId, worldPxX: p.chunkX * _chunkWidthPx() + localPxX, worldPxY: p.chunkY * _chunkHeightPx() + localPxY };
+}
+
+// Builds the complete, side-effect-free render plan for ONE continuous-view frame.
+// Inputs are all PIXELS except regionId/activeMapId:
+//   regionId        the region key (e.g. 'overworld')
+//   activeMapId     the current physical map id (mapIdForRef(activeMap))
+//   playerLocalPxX/Y the player's pixel position WITHIN the active map (player.x/.y)
+//   viewportPxW/H   the on-screen viewport size in pixels (512×480 today)
+// Returns null when the active map is not placed in `regionId` (caller must then
+// use the legacy renderer). Otherwise:
+//   { regionId, activeMapId, activePlacement,
+//     playerWorldPxX, playerWorldPxY,   // player position in region-world pixels
+//     camPxX, camPxY,                   // integer, pixel-aligned camera origin
+//     visibleChunks }                   // placed chunks intersecting the viewport
+// Pure: reads REGIONAL_LAYOUT / helpers only; mutates nothing (no player,
+// activeMap, regional data, or camera state).
+function buildContinuousWorldPlan(regionId, activeMapId, playerLocalPxX, playerLocalPxY, viewportPxW, viewportPxH) {
+  const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(activeMapId) : null;
+  if (!placement || placement.regionId !== regionId) return null;
+  const world = mapLocalPxToWorldPx(activeMapId, playerLocalPxX, playerLocalPxY);
+  if (!world) return null;
+  const cam = cameraOriginForTarget(regionId, world.worldPxX, world.worldPxY, viewportPxW, viewportPxH);
+  if (!cam) return null;
+  const chunks = visibleChunks(regionId, cam.camPxX, cam.camPxY, viewportPxW, viewportPxH);
+  return {
+    regionId, activeMapId, activePlacement: placement,
+    playerWorldPxX: world.worldPxX, playerWorldPxY: world.worldPxY,
+    camPxX: cam.camPxX, camPxY: cam.camPxY,
+    visibleChunks: chunks,
+  };
+}
+
 if (typeof window !== 'undefined') {
-  window.regionPixelBounds      = regionPixelBounds;
-  window.cameraOriginForTarget  = cameraOriginForTarget;
-  window.chunkVisibleTileRange  = chunkVisibleTileRange;
-  window.visibleChunks          = visibleChunks;
+  window.regionPixelBounds       = regionPixelBounds;
+  window.cameraOriginForTarget   = cameraOriginForTarget;
+  window.chunkVisibleTileRange   = chunkVisibleTileRange;
+  window.visibleChunks           = visibleChunks;
+  window.mapLocalPxToWorldPx     = mapLocalPxToWorldPx;
+  window.buildContinuousWorldPlan = buildContinuousWorldPlan;
 }

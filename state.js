@@ -59,6 +59,12 @@ let debugMode            = false; // when true, random encounters are suppressed
 // in the Calwick player house ("someone carried you home") instead of waking
 // them on the spot where they fell. Toggleable from the debug menu.
 let defeatWakeAtHome     = true;
+// DEBUG-ONLY visual prototype toggle (never saved): when true, a placed
+// 'overworld' map (REGIONAL_LAYOUT) renders through the continuous scrolling-
+// camera terrain path (render.js) instead of the legacy single-map draw. Has no
+// effect off a placed overworld map, and never touches movement/collision/
+// transitions/saves/content. Session-only, like debugMode/defeatWakeAtHome.
+let continuousWorldViewEnabled = false;
 let dilemma_voss         = null; // null | 'report' | 'protect' | 'abstain'
 
 // ─── Status effects ───────────────────────────────────────────────────────────
@@ -157,14 +163,15 @@ const menu = {
 
 // ─── Debug menu state ─────────────────────────────────────────────────────────
 // Rows: 0 No Enemies, 1 Poison, 2 Muddied, 3 Slither, 4 Heal Full (action),
-// 5 Advance Day +1 (action), 6 Warp to Map... (opens warpMenu), 7 Validate
-// Data (action, runs validateGameData()). See render-ui.js's drawDebugMenu()
-// for the row list and input.js for handling.
+// 5 Advance Day +1 (action), 6 Warp to... (opens warpMenu), 7 Validate Data
+// (action, runs validateGameData()), 8 Home on Defeat (toggle), 9 Continuous
+// View (toggle). See render-ui.js's drawDebugMenu() for the row list and
+// input.js for handling.
 const debugMenu = {
   open:   false,
   cursor: 0,
 };
-const DEBUG_MENU_ROW_COUNT = 9;
+const DEBUG_MENU_ROW_COUNT = 10;
 
 // ─── Debug map inspector state ─────────────────────────────────────────────────
 // A lightweight, always-updating HUD overlay (not a modal menu — doesn't

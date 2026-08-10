@@ -11,22 +11,34 @@ const vignette = (function() {
   return g;
 })();
 
-// ─── Render ───────────────────────────────────────────────────────────────────
-function render() {
-  titleEl.textContent = locationName();
+// Stable debug void colour behind the continuous terrain. Camera clamping keeps
+// the viewport inside the region's rectangular pixel bounds, so this shows through
+// only at SPARSE UNPLACED cells within that envelope (gaps in the sparse grid) —
+// not "beyond the region": the clamp makes outside-the-rectangle unreachable for
+// any region larger than the 512×480 viewport (the overworld is 2560×2880).
+const CONTINUOUS_VOID_COLOR = '#0a0a12';
 
-  if (combat.active) {
-    // Combat screen replaces the world entirely
-    drawCombat();
-    tick++;
-    return;
-  }
+// Is the DEBUG continuous-view path active RIGHT NOW? Only when the toggle is on
+// AND the current physical map is placed in REGIONAL_LAYOUT under regionId
+// 'overworld'. Every non-placed map (towns, interiors, dungeons, bridge, special
+// maps, the hidden meadow) returns false and uses the legacy renderer even with
+// the flag on. Never consulted in combat (render() returns before the world
+// section when combat.active).
+function continuousWorldViewActive() {
+  if (!continuousWorldViewEnabled) return false;
+  const id = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
+  if (!id) return false;
+  const p = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(id) : null;
+  return !!(p && p.regionId === 'overworld');
+}
 
-  // ── World (overworld or dungeon) ───────────────────────────────────────────
-  // Default origin (0,0), full map range, no camera transform — pixel-identical
-  // to the former inline `for r,c: drawTile(activeMap[r][c], c*TILE, r*TILE)`.
-  drawMapTiles(activeMap);
-
+// The current active map's existing world content, in its EXACT legacy draw order
+// (items, furniture, NPCs, special entities, landmarks, hints, then the player).
+// Drawn using the active map's own LOCAL coordinates — unchanged. In legacy mode
+// it is called with no transform (pixel-identical to before); in continuous mode
+// the caller translates into the active chunk's world origin first. This helper
+// is a pure extraction of render()'s former inline block — same calls, same order.
+function drawActiveMapContent() {
   drawWorldItems();
   if (inTown && townBuilding === 'office' && currentTownId === 'calwick')  drawOfficeFurniture();
   if (inTown && townBuilding === 'office' && currentTownId === 'drenwick') drawDrenwickOfficeFurniture();
@@ -80,7 +92,62 @@ function render() {
   if (activeMap === MAP4) drawThornmereStone();
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
   drawPlayer();
+}
 
+// Continuous-view world render (DEBUG prototype): fill the void, then draw every
+// visible placed chunk's terrain ONCE at its stable region-world pixel origin
+// under a single camera transform, then the active map's content at its chunk
+// origin, then restore before any screen-space layer. The camera is applied ONLY
+// as ctx.translate — never subtracted from tile coordinates — so procedural tile
+// patterns receive stable world coords and don't crawl as the camera moves.
+// Neighbouring chunks render TERRAIN ONLY this increment (their entities/items/
+// furniture come in a later chunk-aware content phase).
+function drawContinuousWorld() {
+  ctx.fillStyle = CONTINUOUS_VOID_COLOR;
+  ctx.fillRect(0, 0, 512, 480);
+
+  const plan = buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480);
+  if (!plan) { drawMapTiles(activeMap); drawActiveMapContent(); return; } // defensive; active map is placed
+
+  ctx.save();
+  ctx.translate(-plan.camPxX, -plan.camPxY);          // camera as a SEPARATE transform
+  for (const ch of plan.visibleChunks) {              // each placed chunk's terrain, once
+    const chunkMap = mapRefForId(ch.mapId);
+    if (!chunkMap) continue;
+    drawMapTiles(chunkMap, ch.worldPxX, ch.worldPxY,  // stable world-pixel origin; NOT camera-relative
+      { startCol: ch.startCol, endCol: ch.endCol, startRow: ch.startRow, endRow: ch.endRow });
+  }
+  // Active map's existing content + player, at the active chunk's world origin.
+  ctx.save();
+  ctx.translate(plan.activePlacement.chunkX * COLS * TILE, plan.activePlacement.chunkY * ROWS * TILE);
+  drawActiveMapContent();
+  ctx.restore();
+  ctx.restore();                                        // back to screen space before UI
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  titleEl.textContent = locationName();
+
+  if (combat.active) {
+    // Combat screen replaces the world entirely
+    drawCombat();
+    tick++;
+    return;
+  }
+
+  // ── World (overworld or dungeon) ───────────────────────────────────────────
+  if (continuousWorldViewActive()) {
+    // DEBUG continuous scrolling camera (placed overworld maps only).
+    drawContinuousWorld();
+  } else {
+    // Legacy path — pixel-identical to before: full-map terrain at origin (0,0),
+    // no camera transform, then the active map's content in its exact order.
+    drawMapTiles(activeMap);
+    drawActiveMapContent();
+  }
+
+  // ── Screen-space layers (fixed to the viewport, OUTSIDE any camera transform) ──
   // No vignette in the dream — the white is meant to be total. Same in the
   // unmarked chamber — flat light with no darkened corners is part of the
   // room's wrongness (see BASIN_CHAMBER_MAP, maps.js).
