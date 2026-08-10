@@ -1593,6 +1593,13 @@ function drawDebugInspector() {
       lines.push('CONT-VIEW: cam (' + plan.camPxX + ',' + plan.camPxY + ')  pWorld (' +
         plan.playerWorldPxX + ',' + plan.playerWorldPxY + ')  chunks ' + plan.visibleChunks.length +
         ' [' + plan.visibleChunks.map(c => c.mapId).join(',') + ']');
+      // Seam pilot diagnostic: is this a pilot map, and is the world-aware seam
+      // path currently engaged (footprint overlapping the approved seam)?
+      if (typeof pilotSeamMapActive === 'function' && pilotSeamMapActive()) {
+        const eng = (typeof pilotSeamEngaged === 'function') ? pilotSeamEngaged() : null;
+        lines.push('PILOT SEAM: map on pilot; world-move ' +
+          (eng ? 'ENGAGED (footprint overlaps seam)' : 'inactive (walk to the seam edge)'));
+      }
     }
   }
 

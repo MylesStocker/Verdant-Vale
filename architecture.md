@@ -533,6 +533,57 @@ terrain cache. Approx work per frame: ≤4 visible chunks, ≤ one 512×480 view
 `drawTile` calls (~ 16×15 = 240 tiles, plus partial edge tiles), same order of
 magnitude as the legacy single-map draw.
 
+### Seamless-movement pilot (DEBUG-only, `continuous-pilot.js`)
+
+A deliberately narrow pilot that lets the player *walk* across exactly ONE
+reciprocal ALIGNS outdoor seam — `NORTH_BASIN_S_MAP` ↔ `NORTH_BASIN_C_MAP` — as
+though the two 16×15 maps were one, but ONLY while Continuous View is on.
+
+- **Canonical model is unchanged.** `activeMap` is still the current physical map;
+  `player.x/.y` are still LOCAL pixels; saves still store the active map + local
+  placement; `SAVE_VERSION` stays 3. **World coordinates are computed transiently**
+  (from `regionPlacementForMapId` / `mapIdForChunk` / `tileAtWorld`) purely for
+  cross-seam collision and the handoff — never persisted.
+- **Authority + eligibility gate (footprint-overlap, direction-agnostic).**
+  `CONTINUOUS_PILOT_SEAMS` holds exactly one reciprocal pair. `pilotSeamEngaged()`
+  returns an engagement whenever `continuousWorldViewActive()` is true, the active
+  map is one of the seam's two maps, and the player's collision footprint
+  **overlaps the shared seam line** (within one `TILE` — comfortably more than
+  `r(9)+SPEED(2)`, so it covers the current *and* candidate footprint). It is
+  **not** gated on the outward border or on direction. `update()` consults it
+  *before* the legacy `tryEdgeTransition`; when it returns null (flag off, other
+  map, or footprint a full tile clear of the seam) the **legacy edge transition
+  runs unchanged**. Gating on footprint *overlap* is essential: right after a
+  handoff the radius-9 footprint still straddles the seam on the arrival side (its
+  far corner is in the other map, out of *this* map's bounds), where map-local
+  `canWalk()` would reject every move — a border-only gate soft-locked there.
+- **Collision** reuses `canWalk()`'s exact footprint (four radius-9 corners) but
+  in world space (`pilotWorldWalkable(regionId, worldPxX, worldPxY)` — pixels): a
+  corner over a missing chunk / `REGION_VOID_TILE` / out-of-region / blocked tile
+  is non-walkable, and solid pilot-map NPCs (converted to world px) still block. A
+  per-axis "approved-chunk" guard stops a diagonal/corner attempt drifting into
+  any unapproved neighbour or the void. This seam relies on a **clear boundary
+  safety band** — both maps have zero NPCs (validated in test 72).
+- **Atomic handoff.** When the standing point crosses into the destination chunk,
+  `pilotSeamStep` switches `activeMap` and converts the same world-pixel position
+  to destination-local pixels — preserving fractional/sub-tile progress and
+  facing. It does NOT inset/nudge/clamp, toast, touch cooldown, reset location
+  state, or call `transitionToLocation()`. It is ordinary walking: `update()`
+  does not return early, so step/status/point-transition/encounter/NPC
+  housekeeping all run, and the destination map is authoritative immediately
+  (content-location key, encounter pool, items, interactions, location name).
+- **Legacy fallback / rollback.** Turning Continuous View off immediately restores
+  the seam's legacy inset transition (and its cooldown), and cannot strand the
+  player: even from a mid-crossing position only reachable via the pilot, the
+  legacy south edge transition still lets them walk back off the seam. Every other
+  seam (including other ALIGNS seams), NEEDS_REMAP/BLOCKED/BORDER seams, and all
+  point/gate transitions are untouched; the transition audit totals are unchanged.
+- **Future generalization (out of scope here).** Enabling more seams requires:
+  per-seam validation of matching walkable bands and NPC safety (or real
+  cross-map NPC collision), chunk-aware entity/content rendering (neighbours are
+  terrain-only today), handling NEEDS_REMAP seams (they still inset), and — only
+  if world position becomes canonical — a save migration and `SAVE_VERSION` bump.
+
 ## Movement, collision, encounters
 
 `movement.js`'s `update()` (called once per frame from `game-loop.js`):

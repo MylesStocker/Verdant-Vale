@@ -422,19 +422,38 @@ function update() {
     // off col 0/col COLS-1/row 0/row ROWS-1 entirely.
     const curCol = Math.floor(player.x / TILE);
     const curRow = Math.floor(player.y / TILE);
-    let edgeTransitioned = false;
 
-    if      (dx < 0 && curCol <= 0)          edgeTransitioned = tryEdgeTransition('west');
-    else if (dx > 0 && curCol >= COLS - 1)    edgeTransitioned = tryEdgeTransition('east');
-    else if (canWalk(player.x + dx, player.y)) player.x += dx;
+    // DEBUG continuous-view SEAM PILOT: whenever the player's collision footprint
+    // OVERLAPS the one approved reciprocal ALIGNS seam (from EITHER map, ANY
+    // direction) while Continuous View is on, walk in world space across the seam
+    // instead of the legacy inset edge transition. This is ordinary walking (NO
+    // early return) — it falls through to the normal step/status/point-transition/
+    // encounter/NPC housekeeping below. It engages ONLY inside the seam-overlap
+    // band on the two approved maps (pilotSeamEngaged() returns null otherwise),
+    // so every other edge/map/position — and this seam with the flag off — uses
+    // the legacy path. Gating on footprint OVERLAP (not the outward border) is
+    // what lets the player keep moving on the arrival side until the radius-9
+    // footprint fully clears the seam.
+    const pilotEngaged = (typeof pilotSeamEngaged === 'function') ? pilotSeamEngaged() : null;
 
-    if (!edgeTransitioned) {
-      if      (dy < 0 && curRow <= 0)         edgeTransitioned = tryEdgeTransition('north');
-      else if (dy > 0 && curRow >= ROWS - 1)  edgeTransitioned = tryEdgeTransition('south');
-      else if (canWalk(player.x, player.y + dy)) player.y += dy;
+    if (pilotEngaged) {
+      pilotSeamStep(pilotEngaged, dx, dy);   // both axes once, in world space; may hand off activeMap atomically
+      // fall through to normal walking housekeeping — do NOT return
+    } else {
+      let edgeTransitioned = false;
+
+      if      (dx < 0 && curCol <= 0)          edgeTransitioned = tryEdgeTransition('west');
+      else if (dx > 0 && curCol >= COLS - 1)    edgeTransitioned = tryEdgeTransition('east');
+      else if (canWalk(player.x + dx, player.y)) player.x += dx;
+
+      if (!edgeTransitioned) {
+        if      (dy < 0 && curRow <= 0)         edgeTransitioned = tryEdgeTransition('north');
+        else if (dy > 0 && curRow >= ROWS - 1)  edgeTransitioned = tryEdgeTransition('south');
+        else if (canWalk(player.x, player.y + dy)) player.y += dy;
+      }
+
+      if (edgeTransitioned) return; // activeMap/player position fully replaced; skip the rest of this frame, same as any other map transition
     }
-
-    if (edgeTransitioned) return; // activeMap/player position fully replaced; skip the rest of this frame, same as any other map transition
 
     player.step++;
     if (hasStatusEffect('poison') && player.step % 60 === 0)
