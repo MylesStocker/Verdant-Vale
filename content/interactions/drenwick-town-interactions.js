@@ -7,19 +7,19 @@
 
 // ── MAP_N2 — sealed Drenwick north gate (prefix check, may not consume) ──────
 function interactMapN2Gate() {
-  // ── MAP_N2: north approach to Drenwick — gate sealed, road a dead end ───
-  // The bridge crosses from MAP_N1 into MAP_N2, but there is no gate into
-  // Drenwick from this side yet. Pressing Space near the wall explains why.
+  // MAP_N2 ("Blocked Path"): the northern road dead-ends at an old sealed gate.
+  // This is NOT Drenwick's gate (Drenwick lies to the east) — it's just where
+  // this road stops. Pressing Space near the gate explains why.
   if (activeMap === MAP_N2) {
-    if (nearPlayer(7.5 * TILE, 8.5 * TILE, TALK_RADIUS * 2)) {  // row 8 — the city wall face
+    if (nearPlayer(7.5 * TILE, 8.5 * TILE, TALK_RADIUS * 2)) {  // row 8 — the gate/wall face
       openDialogue('', [
-        ['The north gate of Drenwick is sealed.',
+        ['The gate across the road is sealed.',
          'Heavy timber doors, chain threaded through the handles, padlocked.',
          'The lock is not a new one.',
          'The chain has rusted to the wood in places.'],
         ['A notice is tacked above the handles, printed on district stationery.',
-         'NORTH GATE \u2014 SUSPENDED.',
-         'This approach is not in service.',
+         'NORTHERN ROAD \u2014 CLOSED.',
+         'This passage is not in service.',
          'For transit enquiries, see the district office.'],
         ['Underneath, in cramped handwriting:',
          '\u201cRoad runs north from the bridge for about two miles then stops.',
