@@ -100,24 +100,41 @@ function drawActiveMapContent() {
 // origin, then restore before any screen-space layer. The camera is applied ONLY
 // as ctx.translate — never subtracted from tile coordinates — so procedural tile
 // patterns receive stable world coords and don't crawl as the camera moves.
-// Neighbouring chunks render TERRAIN ONLY this increment (their entities/items/
-// furniture come in a later chunk-aware content phase).
+// Draw order under the camera transform: (1) all visible terrain, row-major; (2)
+// each NEIGHBOUR chunk's READ-ONLY outdoor content (items/NPCs/landmarks), row-
+// major; (3) the ACTIVE chunk's full content + player LAST, at its world origin,
+// so the active layering (and player-on-top) is preserved exactly. Neighbour
+// content is read-only — no updates/interactions/collection/triggers; activeMap
+// remains the behaviour authority (see continuous-content.js).
 function drawContinuousWorld() {
   ctx.fillStyle = CONTINUOUS_VOID_COLOR;
   ctx.fillRect(0, 0, 512, 480);
 
   const plan = buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480);
   if (!plan) { drawMapTiles(activeMap); drawActiveMapContent(); return; } // defensive; active map is placed
+  const activeId = plan.activeMapId;
 
   ctx.save();
   ctx.translate(-plan.camPxX, -plan.camPxY);          // camera as a SEPARATE transform
-  for (const ch of plan.visibleChunks) {              // each placed chunk's terrain, once
+  // (1) terrain — each placed chunk once, row-major.
+  for (const ch of plan.visibleChunks) {
     const chunkMap = mapRefForId(ch.mapId);
     if (!chunkMap) continue;
     drawMapTiles(chunkMap, ch.worldPxX, ch.worldPxY,  // stable world-pixel origin; NOT camera-relative
       { startCol: ch.startCol, endCol: ch.endCol, startRow: ch.startRow, endRow: ch.endRow });
   }
-  // Active map's existing content + player, at the active chunk's world origin.
+  // (2) neighbour outdoor content — each NON-active placed chunk once, row-major,
+  //     at its stable world origin (read-only; no player, no active-only hints).
+  if (typeof drawNeighbourOutdoorContent === 'function') {
+    for (const ch of plan.visibleChunks) {
+      if (ch.mapId === activeId) continue;
+      ctx.save();
+      ctx.translate(ch.worldPxX, ch.worldPxY);
+      drawNeighbourOutdoorContent(outdoorChunkContentContext(ch.mapId, false));
+      ctx.restore();
+    }
+  }
+  // (3) active map's full content + player LAST, at the active chunk's world origin.
   ctx.save();
   ctx.translate(plan.activePlacement.chunkX * COLS * TILE, plan.activePlacement.chunkY * ROWS * TILE);
   drawActiveMapContent();

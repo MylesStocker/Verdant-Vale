@@ -317,11 +317,59 @@ function validateContinuousSeams() {
     }
     // no solid NPC on an eligible seam map (the safety band the cross-seam
     // collision relies on) -- if this ever fires, reconsider the seam's eligibility.
-    if (typeof SIMPLE_NPCS !== 'undefined' && typeof currentContentLocationKey === 'function' && typeof activeMap !== 'undefined') {
-      const ref = mapRefForId(e.from); const saved = activeMap;
-      let key = null; try { /* eslint-disable no-global-assign */ activeMap = ref; key = currentContentLocationKey(); } finally { activeMap = saved; }
+    // Uses the PURE outdoorContentKeyForMapId() authority (no activeMap probe).
+    if (typeof SIMPLE_NPCS !== 'undefined' && typeof outdoorContentKeyForMapId === 'function') {
+      const key = outdoorContentKeyForMapId(e.from);
       if (key && SIMPLE_NPCS.some((n) => n.map === key && n.solid))
         addValidationWarning(GROUP, lbl + ': "' + e.from + '" has a solid NPC on it -- cross-seam NPC collision applies, but confirm the seam is still safe to make seamless');
+    }
+  }
+  return checked;
+}
+
+// ─── 2d. Continuous outdoor content-key authority (neighbouring-content render) ─
+// Validates the declarative OUTDOOR_CONTENT_KEYS authority (data.js), which
+// currentContentLocationKey() also consumes: it must bind EXACTLY the region-placed
+// outdoor maps (no missing, no stray non-outdoor id), and any map that actually
+// OWNS NPC content must have an UNAMBIGUOUS key (one placed outdoor map per key) so
+// neighbouring NPCs can be attributed to the right chunk. A shared/fallback key
+// (e.g. 'overworld') with no NPCs is fine (NPC rendering is simply skipped for it);
+// a shared key WITH NPCs is an error. Pure — no runtime probing.
+function validateContinuousContent() {
+  const GROUP = 'Continuous content';
+  let checked = 0;
+  if (typeof outdoorContentKeyEntries !== 'function' || typeof OUTDOOR_CONTENT_KEYS === 'undefined') return checked;
+  const entries = outdoorContentKeyEntries();
+  const boundIds = new Set(entries.map((e) => e.mapId));
+  const hasNpcs = (key) => (typeof SIMPLE_NPCS !== 'undefined') && SIMPLE_NPCS.some((n) => n.map === key);
+
+  // Coverage: every region-placed OUTDOOR map is bound exactly once.
+  if (typeof REGIONAL_LAYOUT !== 'undefined' && typeof mapEntryForId === 'function') {
+    for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+      const region = REGIONAL_LAYOUT[regionId];
+      if (!region || !_isPlainArray(region.placements)) continue;
+      for (const p of region.placements) {
+        const e = mapEntryForId(p.mapId);
+        if (e && e.type === 'outdoor' && !boundIds.has(p.mapId))
+          addValidationError(GROUP, 'placed outdoor map "' + p.mapId + '" is missing from OUTDOOR_CONTENT_KEYS');
+      }
+    }
+  }
+  for (const e of entries) {
+    checked++;
+    if (!e.key) { addValidationError(GROUP, 'outdoor map "' + e.mapId + '" has no content-location key'); continue; }
+    // No stray bindings for non-placed-outdoor maps.
+    const cat = (typeof mapEntryForId === 'function') ? mapEntryForId(e.mapId) : null;
+    if (!cat || cat.type !== 'outdoor') addValidationError(GROUP, 'OUTDOOR_CONTENT_KEYS binds "' + e.mapId + '" which is not a placed outdoor map');
+    else if (typeof regionPlacementForMapId === 'function' && !regionPlacementForMapId(e.mapId))
+      addValidationError(GROUP, 'OUTDOOR_CONTENT_KEYS binds "' + e.mapId + '" which is not region-placed');
+    if (!e.unambiguous && hasNpcs(e.key))
+      addValidationError(GROUP, 'placed outdoor map "' + e.mapId + '" owns NPC content under an AMBIGUOUS content key "' + e.key + '" (shared by multiple outdoor maps) -- cannot attribute neighbouring NPCs unambiguously');
+  }
+  // Decoration-registry keys must be real placed outdoor maps.
+  if (typeof OUTDOOR_MAP_DECOR !== 'undefined') {
+    for (const id of Object.keys(OUTDOOR_MAP_DECOR)) {
+      if (!boundIds.has(id)) addValidationError(GROUP, 'OUTDOOR_MAP_DECOR key "' + id + '" is not a region-placed outdoor map');
     }
   }
   return checked;
@@ -1740,6 +1788,7 @@ function validateGameData() {
     'Map metadata':    validateMapMetadata(),
     'Regional layout': validateRegionalLayout(),
     'Continuous seams': validateContinuousSeams(),
+    'Continuous content': validateContinuousContent(),
     'Tiles':           validateTiles(),
     'EDGE_TRANSITIONS': validateEdgeTransitions(),
     'NPCs':            validateNPCs(),
@@ -1758,6 +1807,7 @@ function validateGameData() {
     'Map metadata':     'metadata entries checked',
     'Regional layout':  'layout placements checked',
     'Continuous seams': 'eligible seams checked',
+    'Continuous content': 'outdoor content maps checked',
     'Tiles':            'tiles checked',
     'EDGE_TRANSITIONS': 'edge transitions checked',
     'NPCs':             'NPCs checked',

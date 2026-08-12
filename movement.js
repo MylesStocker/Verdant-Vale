@@ -110,18 +110,13 @@ function currentContentLocationKey() {
   if (inDrenwrickPost)               return 'drenwick_post';
   if (inBridgePost)                  return 'bridge_post';
   if (inSmugglerFort)                return 'smuggler_fort';
-  if (activeMap === MAP2)            return 'map2';
-  if (activeMap === MAP3)            return 'map3';
-  if (activeMap === MAP_N1)          return 'map_n1';
-  if (activeMap === MAP_N2)          return 'map_n2';
-  if (activeMap === MAP4)            return 'map4';
-  if (activeMap === MAP3_N1)         return 'map3_n1';
-  if (activeMap === MAP3_N2)         return 'map3_n2';
-  if (activeMap === NORTH_BASIN_S_MAP) return 'north_basin_s';
-  if (activeMap === NORTH_BASIN_C_MAP) return 'north_basin_c';
-  if (activeMap === NORTH_BASIN_SW_MAP) return 'north_basin_sw';
-  if (activeMap === NORTH_BASIN_W_MAP) return 'north_basin_w';
-  if (activeMap === NORTH_BASIN_NW_MAP) return 'north_basin_nw';
+  // Region-placed OUTDOOR maps consume the single OUTDOOR_CONTENT_KEYS authority
+  // (data.js) — not a second per-map list here. Reached only in neutral outdoor
+  // state (the special-interior flags above have already returned for their
+  // maps), so this returns the map's logical key; MAP/MAP5/RODDON_WAY_MAP map to
+  // the shared 'overworld' key (identical to the former fall-through).
+  const _outdoorKey = (typeof outdoorContentKeyForMapId === 'function') ? outdoorContentKeyForMapId(mapIdForRef(activeMap)) : null;
+  if (_outdoorKey) return _outdoorKey;
   if (inBasinChamber)                 return 'basin_chamber';
   if (inSunkenGallery)                return 'sunken_gallery';
   if (inTakomo)                       return 'takomo_chamber';

@@ -1235,6 +1235,42 @@ window.localToWorld         = localToWorld;
 window.worldToLocal         = worldToLocal;
 window.tileAtWorld          = tileAtWorld;
 
+// ─── Outdoor content-location-key authority (physical map id -> logical key) ──
+// The SINGLE declarative source of the logical content-location key for each of
+// the 15 region-placed OUTDOOR maps. currentContentLocationKey() (movement.js)
+// CONSUMES this for neutral outdoor locations, so there is no second,
+// independently-maintained mapping. Physical map ids and content-location keys
+// are DISTINCT namespaces — do not assume equality. MAP / MAP5 / RODDON_WAY_MAP
+// intentionally SHARE the 'overworld' key (they have no distinct per-map key
+// today); a shared key is "ambiguous" for neighbouring-NPC attribution (grouped
+// in continuous-content.js). This is pure data + a pure lookup: nothing here (or
+// its consumers) ever assigns activeMap/player/location state to resolve a key.
+const OUTDOOR_CONTENT_KEYS = {
+  MAP:                 'overworld',
+  MAP2:                'map2',
+  MAP3:                'map3',
+  MAP4:                'map4',
+  MAP5:                'overworld',
+  MAP_N1:              'map_n1',
+  MAP_N2:              'map_n2',
+  RODDON_WAY_MAP:      'overworld',
+  MAP3_N1:             'map3_n1',
+  MAP3_N2:             'map3_n2',
+  NORTH_BASIN_S_MAP:   'north_basin_s',
+  NORTH_BASIN_C_MAP:   'north_basin_c',
+  NORTH_BASIN_SW_MAP:  'north_basin_sw',
+  NORTH_BASIN_W_MAP:   'north_basin_w',
+  NORTH_BASIN_NW_MAP:  'north_basin_nw',
+};
+// Physical outdoor map id -> its logical content-location key, or null if the id
+// is not a bound outdoor map. Pure O(1) lookup — never probes runtime state.
+function outdoorContentKeyForMapId(mapId) {
+  return (typeof mapId === 'string' && Object.prototype.hasOwnProperty.call(OUTDOOR_CONTENT_KEYS, mapId))
+    ? OUTDOOR_CONTENT_KEYS[mapId] : null;
+}
+window.OUTDOOR_CONTENT_KEYS      = OUTDOOR_CONTENT_KEYS;
+window.outdoorContentKeyForMapId = outdoorContentKeyForMapId;
+
 // ─── Stable-ID registries (#4): world pickups + openable chests ──────────────
 // Immutable-ID policy: every persistent placed pickup and every openable chest
 // carries an authored, immutable `id` (`pickup_<snake>` / `chest_<snake>`, lower

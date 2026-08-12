@@ -85,7 +85,8 @@ The rule this codebase actually follows:
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
 | `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, `mapLocalPxToWorldPx()`, and `buildContinuousWorldPlan()` (the per-frame render plan). Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. Its only consumer is the DEBUG continuous-view prototype in `render.js`. |
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
-| `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
+| `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
+| `continuous-content.js` | **DEBUG-ONLY**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
@@ -604,9 +605,58 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   BORDER/void stays blocked; point transitions, towns, interiors, dungeons, houses,
   bridge, meadow, and special maps stay legacy. Toggling off near a seam can't
   strand the player. The transition audit totals are unchanged.
-- **Out of scope / future.** Neighbouring chunks are terrain-only (no neighbour
-  entities/interactions); NEEDS_REMAP seams still inset; no world-position save
+- **Out of scope / future.** NEEDS_REMAP seams still inset; no world-position save
   migration (would require a `SAVE_VERSION` bump); no caching.
+
+### Neighbouring outdoor content, READ-ONLY (`continuous-content.js`)
+
+Under Continuous View, every VISIBLE placed outdoor chunk renders its authored
+world content (items, NPCs, procedural landmarks) at its stable world origin —
+not just terrain. This is purely VISUAL: neighbouring content never updates,
+interacts, is collected, triggers, or controls encounters. **`activeMap` remains
+the sole behaviour authority**; only the active chunk gets the player and
+active-only prompts/hints. Behaviour ownership still switches at the standing-
+point handoff (see "Continuous seams"); this only removes visual pop-in.
+
+- **Explicit render context.** `render()`'s `drawContinuousWorld()` draws, under
+  the camera transform: (1) all terrain row-major; (2) each NON-active chunk's
+  content via `drawNeighbourOutdoorContent(outdoorChunkContentContext(mapId,
+  false))` at that chunk's world origin, row-major; (3) the active chunk's full
+  `drawActiveMapContent()` (+ player, + active-only hints) LAST, so active
+  layering and player-on-top are preserved exactly. A map renders at the SAME
+  world origin whether active or neighbour, so nothing jumps on handoff. The
+  context is `{ mapId, map, contentLocationKey, isActiveChunk }`.
+- **Physical map id → outdoor content-location key: ONE declarative authority.**
+  The two namespaces stay distinct (physical ids identify chunks/`MAP_CATALOG`;
+  content-location keys identify NPC/content ownership) and are NOT one-to-one —
+  `MAP`/`MAP5`/`RODDON_WAY_MAP` share the `'overworld'` key. **`OUTDOOR_CONTENT_KEYS`
+  (data.js)** is the single declarative binding of each of the 15 region-placed
+  outdoor maps to its logical key; **`currentContentLocationKey()` (movement.js)
+  CONSUMES it** for neutral outdoor locations, so there is not a second,
+  independently-maintained mapping (and no drift). `outdoorContentKeyForMapId(mapId)`
+  → `key | null` is a **pure O(1) lookup** — it never probes/assigns `activeMap` or
+  location state. Ambiguity is derived PURELY by grouping the object
+  (`outdoorContentKeyEntries()`/`outdoorContentKeyInfo()` in continuous-content.js):
+  a key owned by one map is unambiguous (its neighbouring NPCs are attributed to
+  that chunk); a shared key is ambiguous (neighbour NPC rendering skipped; items +
+  decorations unaffected). It covers ONLY the 15 outdoor maps — never
+  towns/houses/interiors/dungeons. `validateContinuousContent()` checks the binding
+  covers exactly the placed outdoor maps (no missing/stray) and errors if a map
+  owns NPC content under an ambiguous key. **Nothing in the resolver, ambiguity
+  derivation, or render path assigns `activeMap`/player/location state — zero
+  transient mutation, not merely net-zero.**
+- **Parameterized, read-only draws.** `drawWorldItems()`/`drawSimpleNPCs()` gained
+  explicit-input twins `drawMapWorldItems(list)` / `drawContentNPCs(contentKey)`
+  (used for neighbours). Items respect each entry's collected `.picked` state; NPCs
+  render at their existing runtime/schedule positions with no advance, dialogue, or
+  player-relative prompt. Procedural landmarks are split into a static body
+  (`drawThornmereStoneBody`, `drawDrenwichNorthGateBody`) drawn on neighbours via
+  the sole `OUTDOOR_MAP_DECOR` registry, and an active-only SPACE hint that stays
+  in the active draw function. Nothing here reads/spoofs/mutates `activeMap`,
+  `player`, location flags, NPC state, or item state.
+- **Still out of scope.** Neighbour content does not update/interact/collect/
+  trigger; encounters, schedules, collision, and pickups are unchanged; NEEDS_REMAP
+  seams still inset; no save/world-position migration; no caching.
 
 ## Movement, collision, encounters
 

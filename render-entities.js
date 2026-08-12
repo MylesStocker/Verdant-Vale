@@ -82,24 +82,16 @@ function drawSluiceGateHint() {
 // Shows a SPACE prompt when the player is close to the sealed north gate of
 // Drenwick on MAP_N2. The gate itself is rendered as TOWN_BUILDING tiles; this
 // draws the hint overlay and a small chain/lock detail so it reads as a gate.
+// The sealed Blocked-Path gate. The STATIC body (drawDrenwichNorthGateBody) draws
+// the chain/lock at LOCAL coordinates and is neighbour-safe; drawDrenwichNorthGate-
+// Hint() adds the active-only SPACE hint.
 function drawDrenwichNorthGateHint() {
   if (activeMap !== MAP_N2 || dialogue.open) return;
+  drawDrenwichNorthGateBody();
   const gx = Math.round(7.5 * TILE);
   const gy = Math.round(8.5 * TILE);
-  const dx = player.x - gx;
-  const dy = player.y - gy;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-
-  // Draw chain across the gate gap regardless of distance
-  ctx.fillStyle = '#7a6840';
-  ctx.fillRect(gx - 10, gy - 2, 20, 4);  // chain bar
-  ctx.fillStyle = '#504428';
-  ctx.fillRect(gx - 2,  gy - 4, 4,  8);  // padlock body
-  ctx.fillStyle = '#6a5830';
-  ctx.fillRect(gx - 1,  gy - 7, 2,  4);  // shackle
-
-  // SPACE hint when close enough
-  if (dist < TALK_RADIUS * 2 && (tick >> 4) & 1) {
+  const dist = Math.sqrt((player.x - gx) * (player.x - gx) + (player.y - gy) * (player.y - gy));
+  if (dist < TALK_RADIUS * 2 && (tick >> 4) & 1) {   // SPACE hint (ACTIVE chunk only)
     ctx.fillStyle = '#d8c878';
     ctx.font = 'bold 11px "Courier New", monospace';
     ctx.textAlign = 'center';
@@ -107,10 +99,40 @@ function drawDrenwichNorthGateHint() {
     ctx.textAlign = 'left';
   }
 }
+function drawDrenwichNorthGateBody() {
+  const gx = Math.round(7.5 * TILE);
+  const gy = Math.round(8.5 * TILE);
+  ctx.fillStyle = '#7a6840';
+  ctx.fillRect(gx - 10, gy - 2, 20, 4);  // chain bar
+  ctx.fillStyle = '#504428';
+  ctx.fillRect(gx - 2,  gy - 4, 4,  8);  // padlock body
+  ctx.fillStyle = '#6a5830';
+  ctx.fillRect(gx - 1,  gy - 7, 2,  4);  // shackle
+}
 
 // ─── Thornmere Standing Stone ─────────────────────────────────────────────────
+// The Thornmere standing stone. The STATIC body (drawThornmereStoneBody) draws at
+// the stone's LOCAL coordinates and is neighbour-safe (no activeMap read, no
+// player-relative hint); drawThornmereStone() adds the active-only SPACE hint.
 function drawThornmereStone() {
   if (activeMap !== MAP4) return;
+  drawThornmereStoneBody();
+  // SPACE hint when nearby (ACTIVE chunk only)
+  const sx = Math.round(THORNMERE_STONE.x);
+  const sy = Math.round(THORNMERE_STONE.y);
+  if (!dialogue.open && !choice.open) {
+    const dx = player.x - THORNMERE_STONE.x;
+    const dy = player.y - THORNMERE_STONE.y;
+    if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS && (tick >> 4) & 1) {
+      ctx.fillStyle = '#d8c878';
+      ctx.font = 'bold 11px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SPACE', sx, sy - 22);
+      ctx.textAlign = 'left';
+    }
+  }
+}
+function drawThornmereStoneBody() {
   const sx = Math.round(THORNMERE_STONE.x);
   const sy = Math.round(THORNMERE_STONE.y);
 
@@ -141,19 +163,6 @@ function drawThornmereStone() {
   // Stone base
   ctx.fillStyle = '#5a5a58';
   ctx.fillRect(sx - 9, sy + 8, 18, 4);
-
-  // SPACE hint when nearby
-  if (!dialogue.open && !choice.open) {
-    const dx = player.x - THORNMERE_STONE.x;
-    const dy = player.y - THORNMERE_STONE.y;
-    if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS && (tick >> 4) & 1) {
-      ctx.fillStyle = '#d8c878';
-      ctx.font = 'bold 11px "Courier New", monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('SPACE', sx, sy - 22);
-      ctx.textAlign = 'left';
-    }
-  }
 }
 
 // ─── Player Drawing ───────────────────────────────────────────────────────────
@@ -986,8 +995,16 @@ function drawCat(npc, rt) {
   drawNPCSpaceHint(npc, px, py);
 }
 
+// Active-map NPCs (unchanged wrapper). drawContentNPCs() below takes an EXPLICIT
+// content-location key so a neighbouring outdoor chunk can render the NPCs that
+// belong to it read-only (continuous view) — same runtime/schedule positions, no
+// movement/schedule advance, no dialogue, no player-relative prompts (there are
+// none in this path). Only the active-map update() loop advances NPC behaviour.
 function drawSimpleNPCs() {
-  const mapId = currentContentLocationKey();
+  drawContentNPCs(currentContentLocationKey());
+}
+function drawContentNPCs(contentKey) {
+  const mapId = contentKey;
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId) continue;
     // Route-driven rendering (Phase 1 pilots: the bridge guards run
@@ -1625,8 +1642,13 @@ function drawInvisibleChest(chest) {
 }
 
 // ─── World Items Drawing ──────────────────────────────────────────────────────
+// Active-map world items (unchanged wrapper). drawMapWorldItems() below takes an
+// EXPLICIT item list so a neighbouring outdoor chunk can render its own canonical
+// items read-only (continuous view) without touching activeMap/currentItemList().
 function drawWorldItems() {
-  const list = currentItemList();
+  drawMapWorldItems(currentItemList());
+}
+function drawMapWorldItems(list) {
   for (const wi of list) {
     if (wi.picked) continue;
     // The Fen Sickle only appears once its recovery quest is accepted.

@@ -170,9 +170,11 @@ module.exports = {
     // 13. camera applied via transform, not subtracted from tile coords
     assert.deepEqual(cont.translates[0], [-plan.camPxX, -plan.camPxY], 'first transform is the camera translate');
     assert.ok(cont.tileCoords.some(([x]) => x >= CW), 'tile coords are WORLD pixels (a neighbour chunk >= one chunk width), not camera-relative');
-    // 14. active-map content/player gets the active chunk transform
-    assert.deepEqual(cont.translates[1], [plan.activePlacement.chunkX * CW, plan.activePlacement.chunkY * CH],
-      'second transform is the active chunk world origin');
+    // 14. active-map content/player gets the active chunk transform. The active
+    //     content pass is drawn LAST (after any neighbour-content passes), so the
+    //     active chunk world origin is the final translate.
+    assert.deepEqual(cont.translates[cont.translates.length - 1], [plan.activePlacement.chunkX * CW, plan.activePlacement.chunkY * CH],
+      'the last transform is the active chunk world origin (active content + player drawn last)');
     assert.equal(cont.playerDrawn, true, 'player drawn in continuous mode');
 
     // ── 12. Procedural tile coords identical for the same world tile under two
@@ -191,7 +193,7 @@ module.exports = {
     warp('outdoor:MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE;');
     const frame = spyRender(g);
     assert.equal(frame.saves, frame.restores, 'save/restore balanced');
-    assert.equal(frame.saves, 2, 'exactly the camera + active-chunk save/restore pair');
+    assert.ok(frame.saves >= 2, 'at least the camera + active-chunk save/restore pair (plus one per neighbour content pass)');
     const lastRestore = frame.events.lastIndexOf('restore');
     const vignetteFill = frame.events.indexOf('vignette');
     assert.ok(lastRestore >= 0 && vignetteFill > lastRestore,
