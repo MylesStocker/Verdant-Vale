@@ -87,6 +87,7 @@ The rule this codebase actually follows:
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
 | `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
 | `continuous-content.js` | **DEBUG-ONLY**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
+| `world-point-content.js` | **DEBUG-ONLY** world-aware STATIC content across seams (see "World-aware static content across seams" below): the PURE world-point resolver (`worldPointContentContext`), cross-seam authorization compose (`crossSeamNeighbourFor`, over `continuousSeamCrossingAt` in continuous-seams.js), the EXPLICIT capability authorities (`CROSS_SEAM_NPC_CAPABILITIES`/`crossSeamNpcCapabilityRecognized`, `crossSeamCollectibleItem`), the once-per-frame cross-seam item-pickup driver (`crossSeamStaticPickup`, calling `collectWorldItemNear` in movement.js), the opted-in neighbour-NPC interaction resolver/dispatch (`resolveCrossSeamInteractTarget`/`tryCrossSeamNeighbourInteract`), and the single prompt authority (`crossSeamInteractPromptTarget`) that drives both the press and `drawCrossSeamInteractPrompt` (render-entities.js). | Only active under Continuous View. **Assigns nothing** — no `activeMap`/player/coordinate/content-key/NPC-position write; canonical effects only (item `.picked`/grant/dialogue, NPC dialogue + authored `flag_sets`). FAIL-CLOSED: one directly-adjacent eligible-seam neighbour; unambiguous key for NPC ownership; NPCs must OPT IN via `crossSeamInteraction:'simple_dialogue'` and pickups via `crossSeamPickup:'registry_grant'` (both explicit allowlist capabilities, validated in validation.js); nothing crosses by default. |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
@@ -657,6 +658,112 @@ point handoff (see "Continuous seams"); this only removes visual pop-in.
 - **Still out of scope.** Neighbour content does not update/interact/collect/
   trigger; encounters, schedules, collision, and pickups are unchanged; NEEDS_REMAP
   seams still inset; no save/world-position migration; no caching.
+
+### World-aware static content across seams (`world-point-content.js`)
+
+A narrow, opt-in extension of the read-only neighbour rendering above: under
+Continuous View, a NARROW, explicitly-safe set of nearby STATIC outdoor content
+may also RESOLVE across ONE directly adjacent eligible seam — (a) automatic
+world-item pickups, and (b) safe stationary simple-dialogue NPC interaction
+targets. Nothing else crosses. **Neighbouring NPC movement/schedules/wandering/AI
+and encounters are NOT changed**; `activeMap` remains the sole authority for
+those. Behaviour ownership still switches only at the standing-point handoff — this
+merely lets an in-reach item or a stationary NPC one tile across the seam be
+collected/talked-to before that handoff, instead of being untouchable until it
+happens.
+
+- **PURE world-point resolver.** `worldPointContentContext(regionId, worldPxX,
+  worldPxY)` → `{ regionId, mapId, map, localPxX, localPxY, contentKey,
+  contentKeyUnambiguous } | null`. Units are PIXELS. A missing chunk / documented
+  void / off-region / negative / non-finite point returns `null` (never invents a
+  chunk). `contentKey`/`contentKeyUnambiguous` come straight from the
+  `OUTDOOR_CONTENT_KEYS` authority + its grouped ambiguity — the same single
+  source the renderer and `currentContentLocationKey()` use. It **assigns nothing**
+  (no `activeMap`/player/coordinate/content-key/NPC write; no probe, no
+  snapshot/restore) — zero transient mutation, not merely net-zero.
+- **FAIL-CLOSED authorization reuses the movement gate.** `continuousSeamCrossingAt(
+  activeMapId, targetWorldPxX, targetWorldPxY)` (continuous-seams.js) is a PUBLIC,
+  read-only wrapper over the exact `_csCrossingSeam` predicate the collision path
+  uses: it returns the single eligible seam a standing observer on the active chunk
+  would cross to REACH a target point, or `null`. All of these must hold, or it is
+  `null`: Continuous View on; active map placed; the target chunk **directly
+  cardinally adjacent** (diagonal never counts); a **reciprocal** eligible seam
+  between them; the crossing coordinate **inside the seam's approved range**; the
+  target in a placed (non-void) chunk. `crossSeamNeighbourFor()` composes this gate
+  with the pure resolver and cross-checks that the seam's declared neighbour matches
+  the map the point physically lands on. `TALK_RADIUS`/pickup-radius reach is an
+  additional AND on top.
+- **Cross-seam item pickup, with an EXPLICIT item-capability classifier.**
+  `update()`'s pickup was parameterized into `collectWorldItemNear(wi, atX, atY,
+  {crossSeam})` — the active loop calls it with `player.x/player.y`;
+  `crossSeamStaticPickup()` (run once/frame, AFTER the active sweep so the active
+  map keeps deterministic priority) calls it for each eligible-seam neighbour's
+  items with the player expressed in that neighbour's LOCAL frame, so the 20 px
+  radius test measures the true world distance either way. The item's SHARED object
+  is mutated in place (canonical `.picked`/grant/dialogue), so it disappears
+  immediately and can **never re-grant** on a later handoff; it persists through the
+  existing stable-id pickup registry (`PICKUP_REGISTRY`, save.js) unchanged.
+  Crossing is **fail-closed by an EXPLICIT per-pickup capability ALLOWLIST**
+  (`crossSeamItemCapability`/`crossSeamCollectibleItem`) — NOT a "not
+  quest_item/inscription" denylist. A placed pickup crosses a seam ONLY if it opts
+  in with `crossSeamPickup: 'registry_grant'` (the sole recognized capability,
+  authority `CROSS_SEAM_ITEM_CAPABILITIES`) **and** satisfies that capability's
+  contract in full: a stable `pickup_<snake>` id; a `name` resolving in
+  `ITEM_REGISTRY`; both the pickup's `type` and the registry definition's `type` in
+  the ordinary allowlist `CROSS_SEAM_ORDINARY_ITEM_TYPES` (`potion`/`weapon`/`armor`/
+  `shield`/`accessory` — the plain grant types; `rod`/`buff`/`reagent` and any
+  unknown type are excluded); neither the pickup nor the registry definition marks
+  `questItem`/`keyItem`; and **no unknown behaviour-bearing property** — every
+  pickup key must be a structural field (`id/name/type/x/y/picked/crossSeamPickup`)
+  or an ordinary item-value field mirrored on the registry definition
+  (`heals`/`price`/`bonus`). Absence of the opt-in, an unrecognized capability, a
+  `quest_item`/`inscription` pickup type, a quest/key item, an unknown registry
+  type, or any `scriptedPickup`/`onCollect`/`callback`/invented property all fail
+  closed. A registry-backed non-special item is therefore **NOT** automatically
+  eligible — it must explicitly opt in. To extend the contract, add a new capability
+  to `CROSS_SEAM_ITEM_CAPABILITIES` with its own explicit schema (never widen the
+  denylist). The active-map pickup path ignores `crossSeamPickup` entirely, so
+  authored items keep unchanged on-map behaviour. `validateGameData()` errors on any
+  pickup that declares `crossSeamPickup` but violates the contract.
+- **Cross-seam interaction requires EXPLICIT NPC opt-in (no absence-based
+  eligibility).** `tryCrossSeamNeighbourInteract()` is the LOWEST-priority fallback
+  in `handleInteract()`, tried only when the active map (all handlers +
+  `MAP_FEATURES`) resolved nothing this press, so active-map behaviour is unchanged
+  and it can never fire beneath open UI or duplicate an active prompt. A neighbour
+  NPC is cross-seam-interactable ONLY if it **opts in** with a recognized capability
+  — `crossSeamInteraction: 'simple_dialogue'` (the sole capability today; the
+  authority is `CROSS_SEAM_NPC_CAPABILITIES`). Absence or any unknown value fails
+  closed — eligibility is **never** inferred from missing action/route metadata, so
+  future behaviour cannot silently become safe. An opt-in additionally requires the
+  neighbour's **UNAMBIGUOUS** content key, within `TALK_RADIUS` in world pixels,
+  authorized across the seam; the dispatch opens ONLY simple dialogue at the NPC's
+  canonical runtime position (no clone/move/schedule-advance, no scripted
+  fight/cutscene) and applies the NPC's authored `flag_sets`. `validateGameData()`
+  is the primary guard: an opted-in NPC that also carries an action / movement route
+  / ambiguous ownership / no dialogue, or declares an unrecognized capability, is a
+  hard **error**; the runtime gate (`_crossSeamSimpleDialogueNpc`) re-checks the same
+  structure as defence-in-depth.
+- **Cross-seam interaction PROMPT (same authority as the press).**
+  `crossSeamInteractPromptTarget()` is the single pure authority that decides BOTH
+  what a press dispatches to and whether a prompt renders: it returns the opted-in
+  neighbour NPC `resolveCrossSeamInteractTarget()` selects, unless a higher-priority
+  ACTIVE-map simple-NPC target is present (which would win the press), in which case
+  it returns `null` and suppresses the prompt. `drawContinuousWorld()` calls
+  `drawCrossSeamInteractPrompt()` inside the camera transform, after active content:
+  it renders **exactly one** SPACE hint above that NPC's world-pixel position, or
+  none. After a handoff the former neighbour is the ACTIVE map, so it is no longer a
+  cross-seam neighbour and the authority returns `null` — the prompt cannot
+  duplicate. Prompt selection and rendering mutate nothing.
+- **No authored targets today; synthetic-fixture tested.** There are ZERO authored
+  outdoor NPCs on any seam-eligible content key, and none of the three authored
+  world items sits within pickup radius of an eligible seam — so this path is
+  exercised only by synthetic fixtures (test 74). No gameplay content was added or
+  moved to enable it; the mechanism is general and validated for when such content
+  is authored.
+- **Still out of scope.** Neighbouring NPC movement/schedules/wandering/AI,
+  encounters (the active map stays the sole pool authority; pickup/interaction
+  queries never roll), scripted fights/cutscenes, and any non-cardinal or
+  more-than-one-neighbour ownership all stay legacy/active-only.
 
 ## Movement, collision, encounters
 

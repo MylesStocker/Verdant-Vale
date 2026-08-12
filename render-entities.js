@@ -99,6 +99,43 @@ function drawDrenwichNorthGateHint() {
     ctx.textAlign = 'left';
   }
 }
+// Cross-seam interaction prompt (Continuous View only). Renders EXACTLY ONE SPACE
+// hint above the neighbour NPC the interact press would target across an eligible
+// seam — driven by the SAME pure authority (crossSeamInteractPromptTarget) as the
+// press, so what is prompted is exactly what a press dispatches to. It draws at
+// the NPC's stable WORLD-pixel position; drawContinuousWorld() calls it inside the
+// camera transform (world coords map to screen), after active content. Suppressed
+// when a higher-priority active target is present or no safe neighbour is reachable
+// (both handled inside the authority). READ-ONLY: draws only, mutates nothing.
+function drawCrossSeamInteractPrompt() {
+  if (dialogue.open) return;
+  if (typeof crossSeamInteractPromptTarget !== 'function') return;
+  const npc = crossSeamInteractPromptTarget();
+  if (!npc) return;
+  const placement = _promptNpcPlacement(npc);
+  if (!placement) return;
+  const wx = Math.round(placement.chunkX * COLS * TILE + npc.x);
+  const wy = Math.round(placement.chunkY * ROWS * TILE + npc.y);
+  if ((tick >> 4) & 1) {                                 // same blink cadence as active SPACE hints
+    ctx.fillStyle = '#d8c878';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('SPACE', wx, wy - 26);
+    ctx.textAlign = 'left';
+  }
+}
+// The placement of the physical map that OWNS a cross-seam prompt NPC (via its
+// unambiguous content key). Read-only; null if not resolvable.
+function _promptNpcPlacement(npc) {
+  const mapId = _promptNpcMapId(npc);
+  return (mapId && typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mapId) : null;
+}
+function _promptNpcMapId(npc) {
+  if (!npc || typeof outdoorContentKeyEntries !== 'function') return null;
+  for (const e of outdoorContentKeyEntries()) if (e.unambiguous && e.key === npc.map) return e.mapId;
+  return null;
+}
+
 function drawDrenwichNorthGateBody() {
   const gx = Math.round(7.5 * TILE);
   const gy = Math.round(8.5 * TILE);

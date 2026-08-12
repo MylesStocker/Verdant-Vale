@@ -913,21 +913,73 @@ function update() {
     }
   }
 
-  // World item pickup — collect if within 20 px of center (no items in town)
+  // World item pickup — collect if within 20 px of center (no items in town).
+  // The active map keeps deterministic priority: its own list is swept first,
+  // then (Continuous View only) any eligible-seam neighbour's items in reach.
   const currentItems = currentItemList();
-  for (const wi of currentItems) {
-    if (wi.picked) continue;
-    const ddx = player.x - wi.x;
-    const ddy = player.y - wi.y;
-    if (Math.sqrt(ddx * ddx + ddy * ddy) < 20) {
-      if (wi.type === 'quest_item') {
-        // Quest items control their own picked state and open narrative dialogue.
-        if (wi.name === 'Fen Sickle') {
-          // The sickle is not present on the map until the recovery quest is
-          // accepted (sickle_quest_stage 1); before that there is nothing to
-          // find or examine here. Rendering is gated the same way (drawWorldItems).
-          if (sickle_quest_stage < 1) continue;
-          if (sickle_quest_stage !== 1) {
+  for (const wi of currentItems) collectWorldItemNear(wi, player.x, player.y, { crossSeam: false });
+  if (typeof crossSeamStaticPickup === 'function') crossSeamStaticPickup();
+
+  // MAP_FEATURES trigger zones (interactions.js) -- checked once per frame
+  // (not gated by player.moving -- same as the item-pickup loop just
+  // above, both run unconditionally once update() gets past its early-
+  // return guards), and only if nothing above (encounter roll, item
+  // pickup, an edge/point transition earlier in this function would
+  // already have returned) has put the game into a state a trigger
+  // shouldn't interrupt. checkMapFeatureTriggers() itself only fires on
+  // the outside -> inside transition for a zone (not every frame spent
+  // standing in one), but this guard additionally covers "don't compete
+  // with something that just started this same frame" the same way
+  // handleInteract()'s trailing tryMapFeatures() call does.
+  if (!dialogue.open && !combat.active && !menu.open && !shop.open && !choice.open && !debugMenu.open && !warpMenu.open)
+    checkMapFeatureTriggers();
+
+  // NPC movement runtime (Phase 1 pilots: the two bridge toll guards run
+  // one-way scriptedRoutes; Tobb Wend runs an auto-starting looping patrol in
+  // the fen brewery; Tomas runs a bounded random wander in Esla's house).
+  // Placed at the very tail of update() so every existing freeze is inherited
+  // for free: the combat/dialogue/menu/choice/shop early-returns above already
+  // bailed out, and any map transition this frame `return`ed before reaching
+  // here. The same started-this-frame guard as checkMapFeatureTriggers() keeps
+  // NPCs from stepping during a dialogue that opened this frame.
+  // ensureAutoMovers() runs first so an auto-mover that just became present
+  // (map entry, load) begins the same frame, and one that just left is
+  // suspended cleanly.
+  if (!dialogue.open && !combat.active && !menu.open && !shop.open && !choice.open && !debugMenu.open && !warpMenu.open) {
+    ensureAutoMovers();
+    updateNpcRoutes();
+  }
+}
+
+// Collect a single world item when the given position (in the ITEM's own local
+// pixel frame) is within the 20 px pickup radius of its center. `atX,atY` is the
+// player's position for the ACTIVE map (player.x/player.y); for a cross-seam
+// neighbour it is the player expressed in that neighbour's local frame, so the
+// radius test measures the true world distance either way. Extracted verbatim
+// from update()'s former inline loop; the only addition is the crossSeam gate,
+// which fails contextual quest_item pickups closed (they depend on active-map-
+// only state — sickle_quest_stage / rainfish_woken — and are never granted
+// across a seam). All mutations are canonical (mark picked / grant / open
+// dialogue) on the item's own shared object.
+function collectWorldItemNear(wi, atX, atY, opts) {
+  if (wi.picked) return;
+  const ddx = atX - wi.x;
+  const ddy = atY - wi.y;
+  if (Math.sqrt(ddx * ddx + ddy * ddy) >= 20) return;
+  const crossSeam = !!(opts && opts.crossSeam);
+  // Cross-seam pickups are fail-closed by explicit item CAPABILITY: only ordinary
+  // registry-backed grant items cross a seam. quest_item (contextual), inscription
+  // (active-map-only), and any unknown/special type stay active-map-only. The
+  // active-map path is unaffected.
+  if (crossSeam && !(typeof crossSeamCollectibleItem === 'function' && crossSeamCollectibleItem(wi))) return;
+  if (wi.type === 'quest_item') {
+    // Quest items control their own picked state and open narrative dialogue.
+    if (wi.name === 'Fen Sickle') {
+      // The sickle is not present on the map until the recovery quest is
+      // accepted (sickle_quest_stage 1); before that there is nothing to
+      // find or examine here. Rendering is gated the same way (drawWorldItems).
+      if (sickle_quest_stage < 1) return;
+      if (sickle_quest_stage !== 1) {
             // Quest not active — player examines the sickle but doesn't take it.
             // wi.picked can't gate this (that would block ever picking it up
             // once the quest starts), so a separate one-shot flag stops this
@@ -985,38 +1037,6 @@ function update() {
           grantItem(wi.name);
         }
       }
-    }
-  }
-
-  // MAP_FEATURES trigger zones (interactions.js) -- checked once per frame
-  // (not gated by player.moving -- same as the item-pickup loop just
-  // above, both run unconditionally once update() gets past its early-
-  // return guards), and only if nothing above (encounter roll, item
-  // pickup, an edge/point transition earlier in this function would
-  // already have returned) has put the game into a state a trigger
-  // shouldn't interrupt. checkMapFeatureTriggers() itself only fires on
-  // the outside -> inside transition for a zone (not every frame spent
-  // standing in one), but this guard additionally covers "don't compete
-  // with something that just started this same frame" the same way
-  // handleInteract()'s trailing tryMapFeatures() call does.
-  if (!dialogue.open && !combat.active && !menu.open && !shop.open && !choice.open && !debugMenu.open && !warpMenu.open)
-    checkMapFeatureTriggers();
-
-  // NPC movement runtime (Phase 1 pilots: the two bridge toll guards run
-  // one-way scriptedRoutes; Tobb Wend runs an auto-starting looping patrol in
-  // the fen brewery; Tomas runs a bounded random wander in Esla's house).
-  // Placed at the very tail of update() so every existing freeze is inherited
-  // for free: the combat/dialogue/menu/choice/shop early-returns above already
-  // bailed out, and any map transition this frame `return`ed before reaching
-  // here. The same started-this-frame guard as checkMapFeatureTriggers() keeps
-  // NPCs from stepping during a dialogue that opened this frame.
-  // ensureAutoMovers() runs first so an auto-mover that just became present
-  // (map entry, load) begins the same frame, and one that just left is
-  // suspended cleanly.
-  if (!dialogue.open && !combat.active && !menu.open && !shop.open && !choice.open && !debugMenu.open && !warpMenu.open) {
-    ensureAutoMovers();
-    updateNpcRoutes();
-  }
 }
 
 // ─── Opt-in NPC movement runtime (Phase 1) ───────────────────────────────────

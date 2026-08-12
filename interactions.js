@@ -2029,4 +2029,12 @@ function handleInteract() {
   // and unlike the old `!dialogue.open` check, choice menus / shops /
   // reading panels count too.
   if (!interactionUiOpened()) tryMapFeatures();
+
+  // Cross-seam neighbour interaction — the LOWEST priority, tried only when the
+  // active map (handlers + MAP_FEATURES) resolved nothing this press. In
+  // Continuous View, a safe stationary simple-dialogue NPC on a directly
+  // adjacent eligible-seam neighbour, within reach and authorized, may be talked
+  // to; everything else fails closed. Active-map behaviour is unchanged, and this
+  // can never fire beneath already-open UI or duplicate an active-map prompt.
+  if (!interactionUiOpened() && typeof tryCrossSeamNeighbourInteract === 'function') tryCrossSeamNeighbourInteract();
 }

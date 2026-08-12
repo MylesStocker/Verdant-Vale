@@ -967,6 +967,37 @@ function validateNPCs() {
           addValidationWarning(GROUP, lbl + ': movement on an NPC with a dynamic map getter — needs Phase 1 "route only while resolved to this map" handling; confirm intentional');
       }
     }
+
+    // ── Cross-seam interaction capability (EXPLICIT, fail-closed opt-in) ────
+    // A neighbour NPC may be talked to across an eligible seam ONLY if it opts in
+    // with `crossSeamInteraction`. Eligibility is never inferred from absent
+    // action/route metadata. No authored NPC opts in today; this guards future
+    // content so an opt-in can never silently coexist with active-map-only
+    // behaviour or ambiguous ownership. See world-point-content.js.
+    if (npc.crossSeamInteraction !== undefined && npc.crossSeamInteraction !== null) {
+      const cap = npc.crossSeamInteraction;
+      const recognized = (typeof CROSS_SEAM_NPC_CAPABILITIES !== 'undefined' && CROSS_SEAM_NPC_CAPABILITIES)
+        ? Object.prototype.hasOwnProperty.call(CROSS_SEAM_NPC_CAPABILITIES, cap)
+        : (cap === 'simple_dialogue');
+      if (!recognized) {
+        addValidationError(GROUP, lbl + ': crossSeamInteraction "' + cap + '" is not a recognized capability (only \'simple_dialogue\' is supported) — unknown capabilities fail closed');
+      } else {
+        // simple_dialogue contract: unambiguous outdoor content ownership, a
+        // nonempty authored dialogue, and NONE of the active-map-only machinery.
+        let owned = false;
+        if (typeof outdoorContentKeyEntries === 'function') {
+          for (const e of outdoorContentKeyEntries()) if (e.unambiguous && e.key === mapVal) { owned = true; break; }
+        }
+        if (!owned)
+          addValidationError(GROUP, lbl + ': crossSeamInteraction requires UNAMBIGUOUS outdoor content ownership — map "' + mapVal + '" is not a single placed outdoor map\'s content key');
+        if (!_isPlainArray(npc.dialogue) || npc.dialogue.length === 0)
+          addValidationError(GROUP, lbl + ': crossSeamInteraction \'simple_dialogue\' requires a nonempty authored dialogue array');
+        if (npc.action !== undefined && npc.action !== null)
+          addValidationError(GROUP, lbl + ': crossSeamInteraction is incompatible with an action (scripted combat/cutscene/transition behaviour is active-map-only)');
+        if (npc.movement !== undefined)
+          addValidationError(GROUP, lbl + ': crossSeamInteraction is incompatible with movement (a mover is not a stationary simple-dialogue NPC)');
+      }
+    }
   }
 
   // Overlap detection: two solid NPCs within canWalk()'s own 18px collision
@@ -1717,6 +1748,20 @@ function validatePickups() {
     if (p.id !== id) addValidationError(GROUP, 'pickup registry key "' + id + '" != object id "' + p.id + '"');
     if (!('picked' in p)) addValidationError(GROUP, 'pickup "' + id + '" has no boolean `picked` — likely an accidental non-placement registration');
     if (typeof p.name !== 'string') addValidationError(GROUP, 'pickup "' + id + '" has no name — likely not a placed pickup');
+
+    // Cross-seam pickup CAPABILITY (EXPLICIT, allowlist, fail-closed). A pickup
+    // that opts into crossing an eligible seam must satisfy the ordinary
+    // 'registry_grant' contract exactly (recognized capability, registered
+    // ordinary-type name, no quest/key marker, no unknown behaviour-bearing
+    // property). No authored pickup opts in today; this guards future content so a
+    // special/quest/key item, an unknown type/capability, or a callback-bearing
+    // pickup can never silently become cross-seam collectible. See
+    // world-point-content.js's crossSeamItemCapability().
+    if (p && p.crossSeamPickup !== undefined && typeof crossSeamItemCapability === 'function') {
+      const cap = crossSeamItemCapability(p);
+      if (!cap.ok)
+        addValidationError(GROUP, 'pickup "' + id + '" declares crossSeamPickup but is not a valid cross-seam item: ' + cap.reason);
+    }
   }
   // Every placed pickup reachable via MAP_METADATA.items must be registered.
   for (const key of Object.keys(MAP_METADATA)) {

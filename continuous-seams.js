@@ -301,6 +301,26 @@ function continuousSeamSuppressLegacyEdge(dir) {
   return along >= seam.range[0] && along <= seam.range[1];
 }
 
+// PUBLIC cross-seam authorization primitive (world PIXELS). Given the active
+// physical map id and a TARGET world-pixel point, returns the single eligible
+// seam that a standing observer on the active chunk would cross to REACH that
+// point — or null when the crossing is not authorized. This is the exact same
+// fail-closed gate the movement collision path uses (_csCrossingSeam): the
+// target must lie in a chunk that is DIRECTLY CARDINALLY adjacent to the active
+// chunk, reached via a reciprocal eligible seam, with the crossing coordinate
+// inside that seam's approved range; diagonal / non-adjacent / ineligible /
+// out-of-range / void / off-region all return null. It is READ-ONLY: it never
+// assigns activeMap, player, coordinates, content keys, or NPC state, so static
+// cross-seam content (item pickups, safe stationary NPC dialogue) can authorize
+// a neighbouring target without any transient context impersonation.
+function continuousSeamCrossingAt(activeMapId, targetWorldPxX, targetWorldPxY) {
+  if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return null;
+  const p = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(activeMapId) : null;
+  if (!p) return null;
+  const stand = { chunkX: p.chunkX, chunkY: p.chunkY, mapId: activeMapId };
+  return _csCrossingSeam(p.regionId, stand, targetWorldPxX, targetWorldPxY);
+}
+
 // Debug-inspector diagnostic: does the active map participate in an eligible
 // seam, and (if engaged) which pair/direction is currently engaged?
 function continuousSeamDiagnostic() {
@@ -330,5 +350,6 @@ if (typeof window !== 'undefined') {
   window.continuousSeamEngaged       = continuousSeamEngaged;
   window.continuousSeamMove          = continuousSeamMove;
   window.continuousSeamSuppressLegacyEdge = continuousSeamSuppressLegacyEdge;
+  window.continuousSeamCrossingAt    = continuousSeamCrossingAt;
   window.continuousSeamDiagnostic    = continuousSeamDiagnostic;
 }

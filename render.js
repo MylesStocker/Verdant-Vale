@@ -139,6 +139,10 @@ function drawContinuousWorld() {
   ctx.translate(plan.activePlacement.chunkX * COLS * TILE, plan.activePlacement.chunkY * ROWS * TILE);
   drawActiveMapContent();
   ctx.restore();
+  // (4) cross-seam interaction prompt — at most ONE SPACE hint above the neighbour
+  //     NPC the interact press would target, still inside the camera transform so
+  //     the NPC's world-pixel position maps to screen. Read-only.
+  if (typeof drawCrossSeamInteractPrompt === 'function') drawCrossSeamInteractPrompt();
   ctx.restore();                                        // back to screen space before UI
 }
 
