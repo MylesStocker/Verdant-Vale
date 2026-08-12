@@ -244,6 +244,89 @@ function validateRegionalLayout() {
   return checked;
 }
 
+// ─── 2c. Continuous seams (DEBUG seamless-movement eligible ALIGNS seams) ───
+// Cross-checks the DERIVED eligible-seam index (continuous-seams.js) against the
+// authoritative REGIONAL_LAYOUT / EDGE_TRANSITIONS / placement + collision data.
+// Any discrepancy is an ERROR (do not change authored data to silence it). This
+// validation lives in production and does NOT depend on test/transition-audit.js.
+function validateContinuousSeams() {
+  const GROUP = 'Continuous seams';
+  let checked = 0;
+  if (typeof continuousSeamEntries !== 'function') { return checked; } // module absent -> nothing to check
+  const entries = continuousSeamEntries();
+  const INV = { north: 'south', south: 'north', east: 'west', west: 'east' };
+  const DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
+  const seenDirected = new Set();
+  const catalog = (typeof MAP_CATALOG !== 'undefined') ? MAP_CATALOG : {};
+
+  for (const e of entries) {
+    checked++;
+    const lbl = 'seam ' + e.from + '|' + e.dir + '->' + e.to;
+    // known map ids, outdoor
+    for (const id of [e.from, e.to]) {
+      if (!catalog[id]) addValidationError(GROUP, lbl + ': "' + id + '" is not a MAP_CATALOG map');
+      else if (catalog[id].type !== 'outdoor') addValidationError(GROUP, lbl + ': "' + id + '" is not outdoor');
+    }
+    // no duplicate directed entry
+    const dk = e.from + '|' + e.dir;
+    if (seenDirected.has(dk)) addValidationError(GROUP, lbl + ': duplicate directed entry');
+    seenDirected.add(dk);
+    // matching regionId + physical adjacency
+    const pf = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(e.from) : null;
+    const pt = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(e.to) : null;
+    if (!pf || !pt) { addValidationError(GROUP, lbl + ': placement missing'); continue; }
+    if (pf.regionId !== e.regionId || pt.regionId !== e.regionId) addValidationError(GROUP, lbl + ': regionId mismatch');
+    const d = DELTA[e.dir];
+    if (!d || pf.chunkX + d[0] !== pt.chunkX || pf.chunkY + d[1] !== pt.chunkY) addValidationError(GROUP, lbl + ': not physically adjacent in "' + e.dir + '"');
+    // reciprocal exists with inverse direction + identical range; agreement with lookup
+    const recip = (typeof eligibleContinuousSeam === 'function') ? eligibleContinuousSeam(e.to, INV[e.dir]) : null;
+    if (!recip || recip.to !== e.from) addValidationError(GROUP, lbl + ': missing reciprocal ' + e.to + '|' + INV[e.dir]);
+    else if (recip.range[0] !== e.range[0] || recip.range[1] !== e.range[1]) addValidationError(GROUP, lbl + ': reciprocal range differs (remap/clamp) ' + JSON.stringify(e.range) + ' vs ' + JSON.stringify(recip.range));
+    // indexed lookup agreement
+    const looked = (typeof eligibleContinuousSeam === 'function') ? eligibleContinuousSeam(e.from, e.dir) : null;
+    if (looked !== e) addValidationError(GROUP, lbl + ': indexed lookup does not return this entry');
+    // The underlying EDGE_TRANSITIONS segment must pass the FAIL-CLOSED structural
+    // classifier (only recognized structural properties; no condition/blockedText/
+    // callback/effect/unknown; targetRange absent or identical to sourceRange).
+    const segs = (typeof EDGE_TRANSITIONS !== 'undefined' && EDGE_TRANSITIONS[e.from]) ? EDGE_TRANSITIONS[e.from][e.dir] : null;
+    if (!Array.isArray(segs) || segs.length !== 1) addValidationError(GROUP, lbl + ': underlying edge is not a single broad segment');
+    else {
+      const s = segs[0];
+      if (typeof classifyContinuousSegment === 'function') {
+        const c = classifyContinuousSegment(s);
+        if (!c.ok) addValidationError(GROUP, lbl + ': underlying segment is not structurally seamless-eligible -- ' + c.reason);
+      }
+      if (s.targetEdge !== INV[e.dir]) addValidationError(GROUP, lbl + ': targetEdge is not the inverse of the direction');
+      if (!Array.isArray(s.sourceRange) || s.sourceRange[0] !== e.range[0] || s.sourceRange[1] !== e.range[1]) addValidationError(GROUP, lbl + ': derived range disagrees with EDGE_TRANSITIONS sourceRange');
+    }
+    // base-walkable source + landing coordinates across the whole range, both edges
+    if (typeof mapRefForId === 'function' && typeof isTileWalkable === 'function') {
+      const fromRef = mapRefForId(e.from), toRef = mapRefForId(e.to);
+      const rows = _validationRows(), cols = _validationCols();
+      const edgeTile = (ref, edge, along) => {
+        if (!Array.isArray(ref)) return undefined;
+        if (edge === 'north') return ref[0] ? ref[0][along] : undefined;
+        if (edge === 'south') return ref[rows - 1] ? ref[rows - 1][along] : undefined;
+        if (edge === 'west')  return ref[along] ? ref[along][0] : undefined;
+        return ref[along] ? ref[along][cols - 1] : undefined; // east
+      };
+      for (let along = e.range[0]; along <= e.range[1]; along++) {
+        if (!isTileWalkable(edgeTile(fromRef, e.dir, along))) { addValidationError(GROUP, lbl + ': source edge not walkable at ' + along); break; }
+        if (!isTileWalkable(edgeTile(toRef, INV[e.dir], along))) { addValidationError(GROUP, lbl + ': landing edge not walkable at ' + along); break; }
+      }
+    }
+    // no solid NPC on an eligible seam map (the safety band the cross-seam
+    // collision relies on) -- if this ever fires, reconsider the seam's eligibility.
+    if (typeof SIMPLE_NPCS !== 'undefined' && typeof currentContentLocationKey === 'function' && typeof activeMap !== 'undefined') {
+      const ref = mapRefForId(e.from); const saved = activeMap;
+      let key = null; try { /* eslint-disable no-global-assign */ activeMap = ref; key = currentContentLocationKey(); } finally { activeMap = saved; }
+      if (key && SIMPLE_NPCS.some((n) => n.map === key && n.solid))
+        addValidationWarning(GROUP, lbl + ': "' + e.from + '" has a solid NPC on it -- cross-seam NPC collision applies, but confirm the seam is still safe to make seamless');
+    }
+  }
+  return checked;
+}
+
 // ─── 3. Tiles (and point/special transition tiles) ─────────────────────────
 // Scans every tile actually used across every MAP_METADATA-registered map.
 // "Known tile" is decided via tiles.js's DEBUG_TILE_NAMES list (the same
@@ -1656,6 +1739,7 @@ function validateGameData() {
     'Maps':            validateMaps(),
     'Map metadata':    validateMapMetadata(),
     'Regional layout': validateRegionalLayout(),
+    'Continuous seams': validateContinuousSeams(),
     'Tiles':           validateTiles(),
     'EDGE_TRANSITIONS': validateEdgeTransitions(),
     'NPCs':            validateNPCs(),
@@ -1673,6 +1757,7 @@ function validateGameData() {
     'Maps':             'maps checked',
     'Map metadata':     'metadata entries checked',
     'Regional layout':  'layout placements checked',
+    'Continuous seams': 'eligible seams checked',
     'Tiles':            'tiles checked',
     'EDGE_TRANSITIONS': 'edge transitions checked',
     'NPCs':             'NPCs checked',
@@ -1723,6 +1808,7 @@ function validateGameData() {
 window.validateMaps             = validateMaps;
 window.validateMapMetadata      = validateMapMetadata;
 window.validateRegionalLayout   = validateRegionalLayout;
+window.validateContinuousSeams  = validateContinuousSeams;
 window.validateTiles            = validateTiles;
 window.validateEdgeTransitions  = validateEdgeTransitions;
 window.validateNPCs             = validateNPCs;

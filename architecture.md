@@ -85,6 +85,7 @@ The rule this codebase actually follows:
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
 | `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, `mapLocalPxToWorldPx()`, and `buildContinuousWorldPlan()` (the per-frame render plan). Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. Its only consumer is the DEBUG continuous-view prototype in `render.js`. |
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
+| `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
@@ -533,56 +534,79 @@ terrain cache. Approx work per frame: ≤4 visible chunks, ≤ one 512×480 view
 `drawTile` calls (~ 16×15 = 240 tiles, plus partial edge tiles), same order of
 magnitude as the legacy single-map draw.
 
-### Seamless-movement pilot (DEBUG-only, `continuous-pilot.js`)
+### Continuous seams: generalized seamless movement (DEBUG-only, `continuous-seams.js`)
 
-A deliberately narrow pilot that lets the player *walk* across exactly ONE
-reciprocal ALIGNS outdoor seam — `NORTH_BASIN_S_MAP` ↔ `NORTH_BASIN_C_MAP` — as
-though the two 16×15 maps were one, but ONLY while Continuous View is on.
+Lets the player *walk* across EVERY currently-safe reciprocal ALIGNS outdoor seam
+— as though the adjacent 16×15 maps were one — but ONLY while Continuous View is
+on. (Today that is the 7 pairs / 14 directed seams of the North Basin and the
+Thornmere fen shelf; the set is derived, not hand-listed.)
 
 - **Canonical model is unchanged.** `activeMap` is still the current physical map;
   `player.x/.y` are still LOCAL pixels; saves still store the active map + local
   placement; `SAVE_VERSION` stays 3. **World coordinates are computed transiently**
   (from `regionPlacementForMapId` / `mapIdForChunk` / `tileAtWorld`) purely for
   cross-seam collision and the handoff — never persisted.
-- **Authority + eligibility gate (footprint-overlap, direction-agnostic).**
-  `CONTINUOUS_PILOT_SEAMS` holds exactly one reciprocal pair. `pilotSeamEngaged()`
-  returns an engagement whenever `continuousWorldViewActive()` is true, the active
-  map is one of the seam's two maps, and the player's collision footprint
-  **overlaps the shared seam line** (within one `TILE` — comfortably more than
-  `r(9)+SPEED(2)`, so it covers the current *and* candidate footprint). It is
-  **not** gated on the outward border or on direction. `update()` consults it
-  *before* the legacy `tryEdgeTransition`; when it returns null (flag off, other
-  map, or footprint a full tile clear of the seam) the **legacy edge transition
-  runs unchanged**. Gating on footprint *overlap* is essential: right after a
-  handoff the radius-9 footprint still straddles the seam on the arrival side (its
-  far corner is in the other map, out of *this* map's bounds), where map-local
-  `canWalk()` would reject every move — a border-only gate soft-locked there.
-- **Collision** reuses `canWalk()`'s exact footprint (four radius-9 corners) but
-  in world space (`pilotWorldWalkable(regionId, worldPxX, worldPxY)` — pixels): a
-  corner over a missing chunk / `REGION_VOID_TILE` / out-of-region / blocked tile
-  is non-walkable, and solid pilot-map NPCs (converted to world px) still block. A
-  per-axis "approved-chunk" guard stops a diagonal/corner attempt drifting into
-  any unapproved neighbour or the void. This seam relies on a **clear boundary
-  safety band** — both maps have zero NPCs (validated in test 72).
-- **Atomic handoff.** When the standing point crosses into the destination chunk,
-  `pilotSeamStep` switches `activeMap` and converts the same world-pixel position
-  to destination-local pixels — preserving fractional/sub-tile progress and
-  facing. It does NOT inset/nudge/clamp, toast, touch cooldown, reset location
-  state, or call `transitionToLocation()`. It is ordinary walking: `update()`
-  does not return early, so step/status/point-transition/encounter/NPC
-  housekeeping all run, and the destination map is authoritative immediately
-  (content-location key, encounter pool, items, interactions, location name).
-- **Legacy fallback / rollback.** Turning Continuous View off immediately restores
-  the seam's legacy inset transition (and its cooldown), and cannot strand the
-  player: even from a mid-crossing position only reachable via the pilot, the
-  legacy south edge transition still lets them walk back off the seam. Every other
-  seam (including other ALIGNS seams), NEEDS_REMAP/BLOCKED/BORDER seams, and all
-  point/gate transitions are untouched; the transition audit totals are unchanged.
-- **Future generalization (out of scope here).** Enabling more seams requires:
-  per-seam validation of matching walkable bands and NPC safety (or real
-  cross-map NPC collision), chunk-aware entity/content rendering (neighbours are
-  terrain-only today), handling NEEDS_REMAP seams (they still inset), and — only
-  if world position becomes canonical — a save migration and `SAVE_VERSION` bump.
+- **Derived eligible-seam authority (no hand-maintained list), FAIL-CLOSED.** A
+  directed edge `mapId|dir` is eligible iff, from `REGIONAL_LAYOUT` +
+  `EDGE_TRANSITIONS` + placement: from/to are both placed in the same `regionId`,
+  physically adjacent in `dir`, it is the only segment on that edge, the segment
+  passes the pure structural classifier, its `targetEdge` is the inverse of `dir`,
+  and the reciprocal directed edge exists with an identical range.
+  **`classifyContinuousSegment(seg)` is an ALLOWLIST, not a denylist:** the only
+  recognized structural properties are `targetMap`, `targetEdge`, `sourceRange`,
+  and `targetRange` (`CONTINUOUS_STRUCTURAL_PROPS`). Any other own property — the
+  known behaviour-bearing `condition`/`blockedText`, or ANY future/unknown one
+  (`callback`, `onTransition`, `onEnter`, `effect`, `stateChange`, `message`,
+  `cost`, …) — makes the segment **ineligible with a surfaced reason** ("fail
+  closed"), so a new behaviour-bearing property can never be silently walked
+  through. A `targetRange` is eligible only when **identical** to `sourceRange`
+  (non-remapping — treated exactly as if omitted); any differing `targetRange` is a
+  remap and is ineligible. `continuousSegmentDiagnostics()` exposes the per-edge
+  classification + reason (read-only), and `validateContinuousSeams()`
+  cross-checks the derived index against the classifier (plus regionId, adjacency,
+  reciprocal inverse, identical ranges, no duplicates, base-walkable source +
+  landing, index agreement); nothing depends on `test/transition-audit.js`.
+  **Physical adjacency alone never authorizes seamless travel** — a placed-adjacent
+  BLOCKED pair (e.g. `NB_C`↔`NB_W`) is not eligible.
+- **Exact-footprint engagement (no fixed corridor).** `continuousSeamEngaged(dx,dy)`
+  is true iff Continuous View is on, the active map participates in an eligible
+  seam, and the CURRENT footprint already touches an eligible seam, OR the CANDIDATE
+  footprint (after this frame's `dx,dy`) would, OR the candidate standing point
+  crosses one — using the shared `footprintCorners()` (radius `COLLISION_RADIUS`),
+  each resolved to its chunk. Merely being within a tile of a seam with the
+  footprint fully inside one map does NOT engage. So the approach doesn't inset:
+  while Continuous View is on, `update()` SUPPRESSES its legacy inset edge
+  transition for an eligible in-range seam (`continuousSeamSuppressLegacyEdge`),
+  letting `canWalk()` walk the player up to the edge until footprint contact
+  engages the seamless path.
+- **World-aware collision** reuses `canWalk()`'s exact footprint (same
+  `footprintCorners`) in world pixels (`continuousFootprintWalkable(regionId,
+  worldPxX, worldPxY)`): a corner in the standing chunk uses ordinary tile
+  walkability; a corner in a DIFFERENT chunk is allowed ONLY across an eligible
+  seam, in range, direction matching, with a walkable destination tile —
+  otherwise impassable (missing chunk / `REGION_VOID_TILE` / out-of-region /
+  out-of-range / ineligible neighbour / blocked tile / **diagonal** all block).
+  Solid NPCs on eligible seam maps block, center-based, exactly like `canWalk()`.
+- **Movement + atomic handoff.** `continuousSeamMove` resolves X then Y (Y from the
+  possibly-handed-off map/position), each axis once, wall-sliding preserved. When
+  the STANDING POINT crosses into an eligible neighbour chunk, `activeMap` switches
+  atomically and the same world-pixel position converts to destination-local
+  pixels — preserving sub-tile progress, facing, step, cooldown, and location
+  state. No inset/nudge/clamp/toast/`transitionToLocation`; no double legacy
+  dispatch. At most one handoff per axis (two in a diagonal frame only if each
+  axis independently crosses a real eligible seam; no such corner exists in the
+  current layout). `update()` does not return early, so step/status/point-
+  transition/encounter/NPC housekeeping all run once, and the destination map is
+  authoritative immediately.
+- **Legacy fallback by classification.** Continuous View off → all transitions
+  legacy. On: eligible reciprocal ALIGNS seams are seamless; NEEDS_REMAP seams stay
+  discrete/remapped; BLOCKED/conditioned transitions keep their behaviour/messages;
+  BORDER/void stays blocked; point transitions, towns, interiors, dungeons, houses,
+  bridge, meadow, and special maps stay legacy. Toggling off near a seam can't
+  strand the player. The transition audit totals are unchanged.
+- **Out of scope / future.** Neighbouring chunks are terrain-only (no neighbour
+  entities/interactions); NEEDS_REMAP seams still inset; no world-position save
+  migration (would require a `SAVE_VERSION` bump); no caching.
 
 ## Movement, collision, encounters
 

@@ -191,17 +191,26 @@ function tileAt(px, py) {
   return activeMap[ty][tx];
 }
 
-// Square hitbox of radius 9 px centered on (cx, cy)
+// The collision footprint: a square hitbox of radius COLLISION_RADIUS px centered
+// on a point. footprintCorners() returns its four corner points so the exact
+// radius/corner contract is defined in ONE place — canWalk() (below) and the
+// continuous-seam world-aware collision (continuous-seams.js) both use it, rather
+// than each hardcoding `r = 9` and four corner offsets.
+const COLLISION_RADIUS = 9;
+function footprintCorners(cx, cy) {
+  const r = COLLISION_RADIUS;
+  return [[cx - r, cy - r], [cx + r, cy - r], [cx - r, cy + r], [cx + r, cy + r]];
+}
+
+// Square hitbox of radius COLLISION_RADIUS px centered on (cx, cy).
 // Reads walkability through isTileWalkable() (tiles.js) rather than
 // WALKABLE[] directly -- isTileWalkable() still just wraps WALKABLE[]
 // (see its comment), so this is purely an indirection, not a behavior
 // change: same four-corner check, same array, same result for every tile.
 function canWalk(cx, cy) {
-  const r = 9;
-  if (!isTileWalkable(tileAt(cx - r, cy - r))) return false;
-  if (!isTileWalkable(tileAt(cx + r, cy - r))) return false;
-  if (!isTileWalkable(tileAt(cx - r, cy + r))) return false;
-  if (!isTileWalkable(tileAt(cx + r, cy + r))) return false;
+  for (const [px, py] of footprintCorners(cx, cy)) {
+    if (!isTileWalkable(tileAt(px, py))) return false;
+  }
   // Custom-code solid objects (not in SIMPLE_NPCS)
   if (inSluice) {
     if (sluiceFloor === 1 && !SLUICE_CHEST.opened && Math.abs(cx - SLUICE_CHEST.x) < 18 && Math.abs(cy - SLUICE_CHEST.y) < 18) return false;
@@ -423,33 +432,38 @@ function update() {
     const curCol = Math.floor(player.x / TILE);
     const curRow = Math.floor(player.y / TILE);
 
-    // DEBUG continuous-view SEAM PILOT: whenever the player's collision footprint
-    // OVERLAPS the one approved reciprocal ALIGNS seam (from EITHER map, ANY
-    // direction) while Continuous View is on, walk in world space across the seam
-    // instead of the legacy inset edge transition. This is ordinary walking (NO
-    // early return) — it falls through to the normal step/status/point-transition/
-    // encounter/NPC housekeeping below. It engages ONLY inside the seam-overlap
-    // band on the two approved maps (pilotSeamEngaged() returns null otherwise),
-    // so every other edge/map/position — and this seam with the flag off — uses
-    // the legacy path. Gating on footprint OVERLAP (not the outward border) is
-    // what lets the player keep moving on the arrival side until the radius-9
-    // footprint fully clears the seam.
-    const pilotEngaged = (typeof pilotSeamEngaged === 'function') ? pilotSeamEngaged() : null;
+    // DEBUG continuous-view CONTINUOUS SEAMS: whenever this frame's collision
+    // footprint (current OR candidate) touches an eligible reciprocal ALIGNS seam
+    // while Continuous View is on, walk in world space across the seam instead of
+    // the legacy inset edge transition. Ordinary walking (NO early return) — it
+    // falls through to the normal step/status/point-transition/encounter/NPC
+    // housekeeping below. It engages ONLY when the footprint actually reaches an
+    // eligible seam (continuousSeamEngaged() is false otherwise — no fixed
+    // corridor), so every non-eligible edge/point transition, every other map,
+    // and the flag-off case use the legacy path unchanged.
+    const seamEngaged = (typeof continuousSeamEngaged === 'function') && continuousSeamEngaged(dx, dy);
 
-    if (pilotEngaged) {
-      pilotSeamStep(pilotEngaged, dx, dy);   // both axes once, in world space; may hand off activeMap atomically
+    if (seamEngaged) {
+      continuousSeamMove(dx, dy);   // world-aware X-then-Y; each axis once; atomic handoff on standing-point crossing
       // fall through to normal walking housekeeping — do NOT return
     } else {
+      // Legacy movement. While Continuous View is on, the legacy inset edge
+      // transition is SUPPRESSED for an eligible in-range continuous seam
+      // (continuousSeamSuppressLegacyEdge) so the player walks up to the seam via
+      // canWalk() and the seamless path engages on footprint contact — no inset,
+      // no engagement corridor. Every non-eligible edge (and the flag-off case)
+      // keeps its exact legacy transition.
       let edgeTransitioned = false;
+      const _sup = (dir) => (typeof continuousSeamSuppressLegacyEdge === 'function') && continuousSeamSuppressLegacyEdge(dir);
 
-      if      (dx < 0 && curCol <= 0)          edgeTransitioned = tryEdgeTransition('west');
-      else if (dx > 0 && curCol >= COLS - 1)    edgeTransitioned = tryEdgeTransition('east');
-      else if (canWalk(player.x + dx, player.y)) player.x += dx;
+      if      (dx < 0 && curCol <= 0 && !_sup('west'))       edgeTransitioned = tryEdgeTransition('west');
+      else if (dx > 0 && curCol >= COLS - 1 && !_sup('east')) edgeTransitioned = tryEdgeTransition('east');
+      else if (canWalk(player.x + dx, player.y))              player.x += dx;
 
       if (!edgeTransitioned) {
-        if      (dy < 0 && curRow <= 0)         edgeTransitioned = tryEdgeTransition('north');
-        else if (dy > 0 && curRow >= ROWS - 1)  edgeTransitioned = tryEdgeTransition('south');
-        else if (canWalk(player.x, player.y + dy)) player.y += dy;
+        if      (dy < 0 && curRow <= 0 && !_sup('north'))      edgeTransitioned = tryEdgeTransition('north');
+        else if (dy > 0 && curRow >= ROWS - 1 && !_sup('south')) edgeTransitioned = tryEdgeTransition('south');
+        else if (canWalk(player.x, player.y + dy))             player.y += dy;
       }
 
       if (edgeTransitioned) return; // activeMap/player position fully replaced; skip the rest of this frame, same as any other map transition

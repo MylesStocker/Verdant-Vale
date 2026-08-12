@@ -1,169 +1,334 @@
 'use strict';
 
-// continuous-pilot.js — DEBUG-ONLY seamless-movement pilot for exactly ONE
-// reciprocal ALIGNS outdoor seam, active only while Continuous View is on.
+// continuous-seams.js — DEBUG-ONLY generalized seamless movement across every
+// currently-SAFE reciprocal ALIGNS outdoor seam, active only while Continuous
+// View is on.
 //
-// Canonical gameplay model is UNCHANGED: activeMap is the current physical map,
+// Canonical gameplay model is UNCHANGED: activeMap is the physical-map authority,
 // player.x/.y are LOCAL pixels, saves store the active map + local placement,
-// SAVE_VERSION stays 3. World-PIXEL coordinates are computed TRANSIENTLY here
-// (from the regional-layout helpers) only for cross-seam collision and the atomic
-// map handoff — never persisted.
+// SAVE_VERSION stays 3. World-PIXEL coordinates are computed TRANSIENTLY here for
+// cross-seam collision and the atomic map handoff — never persisted.
 //
-// The pilot lets the player walk smoothly across the NORTH_BASIN_S_MAP (south
-// chunk) <-> NORTH_BASIN_C_MAP (north chunk) seam as though the two 16×15 maps
-// were one. Chosen because it is the simplest, safest reciprocal ALIGNS seam:
-//   • broad EDGE_TRANSITIONS both ways, identical ranges [1,14], NO targetRange
-//     remap (no clamping), NO condition/blockedText/callback;
-//   • matching walkable terrain along the ENTIRE useful edge (both sides: cols
-//     1-14 walkable at the seam row) — verified by the transition audit;
-//   • ZERO NPCs on either map — a clear boundary safety band, so nothing can be
-//     walked through at the crossing (validated in test 72);
-//   • no quest/day/toll/cutscene/story/special-state gate.
-//
-// ── SEAM-OVERLAP MODEL (the fix for the arrival-side soft-lock) ──────────────
-// Eligibility is NOT gated on the player being at a map's outward border. That
-// left the player stuck right after a handoff: on the ARRIVAL side the radius-9
-// footprint still straddles the seam (its far corner sits in the OTHER map, out
-// of THIS map's bounds), and the legacy map-local canWalk() — which can't see
-// across the seam — rejects every move, while the old border-only gate no longer
-// engaged. Instead, the world-aware path engages whenever the player's collision
-// footprint OVERLAPS the approved seam (within one tile of the shared seam line),
-// from EITHER map and for ANY direction — toward it, across it, away from it
-// after the handoff, sideways while straddling, or immediately reversing. Once
-// the footprint is a full tile clear of the seam, ordinary legacy movement
-// resumes (so every other edge, point transition, and the flag-off case are
-// untouched). One tile (TILE=32px) comfortably exceeds r(9)+SPEED(2), so both the
-// current AND the candidate footprint are covered.
+// ── DERIVED ELIGIBLE-SEAM AUTHORITY (no hand-maintained seam list) ──────────
+// The eligible seam set is DERIVED at runtime from production authorities:
+// REGIONAL_LAYOUT + placement (adjacency), EDGE_TRANSITIONS (the crossing),
+// and the map-identity helpers. A directed edge mapId|dir is eligible iff:
+//   • from & to are both placed in the same regionId;
+//   • they are physically adjacent in `dir` (chunk delta matches);
+//   • the segment's targetEdge is the inverse of `dir`;
+//   • it is the ONLY segment on that edge (a single broad crossing);
+//   • it has no condition / blockedText (no toll/cutscene/state gate);
+//   • it has no targetRange (no clamping/remap);
+//   • the reciprocal directed edge exists with an IDENTICAL range.
+// Results are stored in a deterministic Map indexed by 'mapId|dir' (O(1) lookup;
+// the frame path never scans all seams). validateContinuousSeams() (validation.js)
+// cross-checks this derived index; nothing here depends on test/transition-audit.js.
 
-// The one approved reciprocal pair. `a` is the SOUTH chunk, `b` the NORTH chunk
-// (a's north edge <-> b's south edge). `key` is each map's content-location key
-// (for the NPC safety-band check). Exactly one entry: this is a deliberately
-// narrow pilot, NOT "all ALIGNS seams".
-const CONTINUOUS_PILOT_SEAMS = [
-  {
-    regionId: 'overworld',
-    axis: 'ns',
-    a: { mapId: 'NORTH_BASIN_S_MAP', key: 'north_basin_s' }, // south chunk
-    b: { mapId: 'NORTH_BASIN_C_MAP', key: 'north_basin_c' }, // north chunk
-    sourceRange: [1, 14], // matches the reciprocal EDGE_TRANSITIONS on both sides
-  },
-];
+const _CS_DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
+const _CS_INV   = { north: 'south', south: 'north', east: 'west', west: 'east' };
 
-// Returns the pilot seam whose shared boundary the player's collision footprint
-// currently OVERLAPS (within TILE of the seam line), while Continuous View is
-// active and the active map is one of that seam's two maps. Direction-agnostic —
-// this is the single gate for the world-aware movement path. Returns
-// { seam, regionId, boundaryPxY? } or null.
-function pilotSeamEngaged() {
-  if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return null;
-  const id = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  if (!id) return null;
-  const CW = COLS * TILE, CH = ROWS * TILE;
-  for (const seam of CONTINUOUS_PILOT_SEAMS) {
-    if (id !== seam.a.mapId && id !== seam.b.mapId) continue;
-    const p = regionPlacementForMapId(id);
-    if (!p) continue;
-    if (seam.axis === 'ns') {
-      const worldPxY = p.chunkY * CH + player.y;
-      const boundaryPxY = regionPlacementForMapId(seam.a.mapId).chunkY * CH; // south chunk top = north chunk bottom
-      if (Math.abs(worldPxY - boundaryPxY) <= TILE) return { seam, regionId: seam.regionId, boundaryPxY };
+let _CS_INDEX = null;   // Map 'mapId|dir' -> { regionId, from, to, dir, axis:'ns'|'ew', range:[min,max] }
+let _CS_MAPS  = null;   // Set of mapIds participating in >= 1 eligible seam
+let _CS_OFFSETS = null;  // Map contentKey -> { offX, offY } for eligible maps (for NPC world placement)
+
+// The ONLY EDGE_TRANSITIONS segment properties a seamless crossing understands.
+// Everything else -- the known behavior-bearing `condition`/`blockedText`, AND any
+// future/unknown property (`callback`, `onTransition`, `onEnter`, `effect`,
+// `stateChange`, `message`, `cost`, …) -- makes the segment ineligible. This is an
+// ALLOWLIST, so the classifier FAILS CLOSED: an unrecognized own property can
+// never be silently accepted as seamless.
+const CONTINUOUS_STRUCTURAL_PROPS = new Set(['targetMap', 'targetEdge', 'sourceRange', 'targetRange']);
+
+// PURE structural classifier for a single EDGE_TRANSITIONS segment. Returns
+// { ok, reason }. Checks ONLY the segment's own shape (not adjacency/reciprocity/
+// walkability -- those are layered on in the index build). A seamless-eligible
+// segment must: carry EXCLUSIVELY recognized structural properties (fail closed on
+// anything else); have targetMap + a string targetEdge + an array sourceRange; and
+// either omit targetRange OR carry a targetRange IDENTICAL to sourceRange (the
+// documented contract: an identical targetRange is non-remapping, so it is treated
+// exactly as if omitted; any DIFFERING targetRange is a remap and is ineligible).
+function classifyContinuousSegment(seg) {
+  if (!seg || typeof seg !== 'object') return { ok: false, reason: 'segment is not an object' };
+  for (const k of Object.keys(seg)) {
+    if (!CONTINUOUS_STRUCTURAL_PROPS.has(k)) return { ok: false, reason: 'unrecognized property "' + k + '" (fail closed)' };
+  }
+  if (typeof seg.targetMap === 'undefined' || seg.targetMap === null) return { ok: false, reason: 'missing targetMap' };
+  if (typeof seg.targetEdge !== 'string') return { ok: false, reason: 'missing/invalid targetEdge' };
+  if (!Array.isArray(seg.sourceRange) || seg.sourceRange.length !== 2) return { ok: false, reason: 'missing/invalid sourceRange' };
+  if (typeof seg.targetRange !== 'undefined') {
+    if (!Array.isArray(seg.targetRange) || seg.targetRange.length !== 2 ||
+        seg.targetRange[0] !== seg.sourceRange[0] || seg.targetRange[1] !== seg.sourceRange[1]) {
+      return { ok: false, reason: 'targetRange remaps (not identical to sourceRange)' };
     }
-    // (An E/W pilot seam would compare worldPxX to the shared column boundary here.)
   }
-  return null;
+  return { ok: true, reason: null };
 }
 
-// True iff the current activeMap is one of the pilot maps and the pilot is armed
-// (Continuous View active). Used only for the debug inspector diagnostic.
-function pilotSeamMapActive() {
-  if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return false;
-  const id = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  return CONTINUOUS_PILOT_SEAMS.some((s) => s.a.mapId === id || s.b.mapId === id);
-}
+function _buildContinuousSeamIndex() {
+  const index = new Map(), maps = new Set();
+  _CS_INDEX = index; _CS_MAPS = maps;
+  if (typeof REGIONAL_LAYOUT === 'undefined' || typeof EDGE_TRANSITIONS === 'undefined') return;
 
-// World-coordinate collision, preserving canWalk()'s exact footprint: the same
-// four radius-9 hitbox corners, read across the seam via the regional-layout
-// helpers. A corner that resolves to a missing chunk / REGION_VOID_TILE / out-of-
-// region / blocked tile is non-walkable. Also honours pilot-map solid NPCs
-// (converted to world pixels) so a crossing can never walk through one — the
-// pilot maps have none today (safety band), but this stays correct if that
-// changes. worldPxX/worldPxY are region-world PIXELS.
-function pilotWorldWalkable(regionId, worldPxX, worldPxY) {
-  const r = 9;
-  const corners = [[-r, -r], [r, -r], [-r, r], [r, r]];
-  for (const [ox, oy] of corners) {
-    const t = tileAtWorld(regionId, Math.floor((worldPxX + ox) / TILE), Math.floor((worldPxY + oy) / TILE));
-    if (!isTileWalkable(t)) return false;
-  }
-  // Solid NPC bodies on the pilot maps, converted local->world (same |Δ|<18 as canWalk()).
-  const CW = COLS * TILE, CH = ROWS * TILE;
-  for (const seam of CONTINUOUS_PILOT_SEAMS) {
-    for (const m of [seam.a, seam.b]) {
-      const p = regionPlacementForMapId(m.mapId);
-      if (!p) continue;
-      const offX = p.chunkX * CW, offY = p.chunkY * CH;
-      for (const npc of SIMPLE_NPCS) {
-        if (npc.map !== m.key || !npc.solid) continue;
-        if (Math.abs(worldPxX - (offX + npc.x)) < 18 && Math.abs(worldPxY - (offY + npc.y)) < 18) return false;
+  const directed = []; // candidate eligible directed edges (pre-reciprocal-check)
+  for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+    const region = REGIONAL_LAYOUT[regionId];
+    if (!region || !Array.isArray(region.placements)) continue;
+    const placed = new Map(region.placements.map((p) => [p.mapId, p]));
+    for (const srcId of Object.keys(EDGE_TRANSITIONS)) {
+      if (!placed.has(srcId)) continue;
+      const dirs = EDGE_TRANSITIONS[srcId];
+      for (const dir of ['north', 'south', 'east', 'west']) {
+        const segs = dirs[dir];
+        if (!Array.isArray(segs) || segs.length !== 1) continue; // single broad crossing only
+        const s = segs[0];
+        if (!classifyContinuousSegment(s).ok) continue;          // FAIL CLOSED on any non-structural property
+        const tid = (typeof s.targetMap === 'string') ? s.targetMap
+                  : (typeof mapIdForRef === 'function' ? mapIdForRef(s.targetMap) : null);
+        if (!tid || !placed.has(tid)) continue;
+        if (s.targetEdge !== _CS_INV[dir]) continue;
+        const ps = placed.get(srcId), pt = placed.get(tid), d = _CS_DELTA[dir];
+        if (ps.chunkX + d[0] !== pt.chunkX || ps.chunkY + d[1] !== pt.chunkY) continue; // not adjacent in dir
+        directed.push({ regionId, from: srcId, to: tid, dir, axis: (dir === 'north' || dir === 'south') ? 'ns' : 'ew', range: [s.sourceRange[0], s.sourceRange[1]] });
       }
     }
+  }
+  for (const e of directed) {
+    const recip = directed.find((x) => x.from === e.to && x.to === e.from && x.dir === _CS_INV[e.dir]);
+    if (!recip) continue;                                             // one-way -> exclude
+    if (e.range[0] !== recip.range[0] || e.range[1] !== recip.range[1]) continue; // range mismatch -> exclude
+    index.set(e.from + '|' + e.dir, e);
+    maps.add(e.from);
+  }
+}
+function _csIndex() { if (!_CS_INDEX) _buildContinuousSeamIndex(); return _CS_INDEX; }
+
+// Public derived-authority accessors (also used by validation).
+function eligibleContinuousSeam(mapId, dir) { const i = _csIndex(); return i.has(mapId + '|' + dir) ? i.get(mapId + '|' + dir) : null; }
+function continuousSeamMapEligible(mapId) { _csIndex(); return _CS_MAPS.has(mapId); }
+function continuousSeamEntries() { return Array.from(_csIndex().values()); }
+
+// PURE read-only diagnostic: the structural classification of EVERY single-segment
+// EDGE_TRANSITIONS edge on a region-placed map. Surfaces WHY each edge is or isn't
+// structurally seamless-eligible (the fail-closed reason), so validation/audit and
+// the console can explain exclusions. Does not touch runtime state.
+function continuousSegmentDiagnostics() {
+  const out = [];
+  if (typeof REGIONAL_LAYOUT === 'undefined' || typeof EDGE_TRANSITIONS === 'undefined') return out;
+  const placed = new Set();
+  for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+    const region = REGIONAL_LAYOUT[regionId];
+    if (region && Array.isArray(region.placements)) region.placements.forEach((p) => placed.add(p.mapId));
+  }
+  for (const srcId of Object.keys(EDGE_TRANSITIONS)) {
+    if (!placed.has(srcId)) continue;
+    const dirs = EDGE_TRANSITIONS[srcId];
+    for (const dir of ['north', 'south', 'east', 'west']) {
+      const segs = dirs[dir];
+      if (!Array.isArray(segs) || segs.length === 0) continue;
+      if (segs.length !== 1) { out.push({ from: srcId, dir, structural: false, reason: 'multiple segments on one edge' }); continue; }
+      const c = classifyContinuousSegment(segs[0]);
+      out.push({ from: srcId, dir, structural: c.ok, reason: c.reason });
+    }
+  }
+  return out;
+}
+
+// Lazily-built content-key -> world-offset map for the eligible seam maps, so a
+// solid NPC on any of them can be placed in world pixels for collision. The
+// content key is derived via a SAFE, restored probe of currentContentLocationKey()
+// (activeMap set + immediately reset within one synchronous call).
+function _contentKeyForMapId(mapId) {
+  const ref = (typeof mapRefForId === 'function') ? mapRefForId(mapId) : null;
+  if (!ref || typeof currentContentLocationKey !== 'function') return null;
+  const saved = activeMap;
+  try { activeMap = ref; return currentContentLocationKey(); } finally { activeMap = saved; }
+}
+function _csOffsets() {
+  if (_CS_OFFSETS) return _CS_OFFSETS;
+  _CS_OFFSETS = new Map();
+  const CW = COLS * TILE, CH = ROWS * TILE;
+  _csIndex();
+  for (const mapId of _CS_MAPS) {
+    const key = _contentKeyForMapId(mapId);
+    const p = regionPlacementForMapId(mapId);
+    if (key && p) _CS_OFFSETS.set(key, { offX: p.chunkX * CW, offY: p.chunkY * CH });
+  }
+  return _CS_OFFSETS;
+}
+
+// ── Geometry helpers (world PIXELS) ─────────────────────────────────────────
+function _csChunkAt(regionId, worldPxX, worldPxY) {
+  const CW = COLS * TILE, CH = ROWS * TILE;
+  const chunkX = Math.floor(worldPxX / CW), chunkY = Math.floor(worldPxY / CH);
+  return { chunkX, chunkY, mapId: mapIdForChunk(regionId, chunkX, chunkY) };
+}
+// Direction from chunk `a` to ORTHOGONALLY adjacent chunk `b`; null for same
+// chunk OR diagonal (diagonally-touching chunks are never treated as adjacent).
+function _csDir(a, b) {
+  const dx = b.chunkX - a.chunkX, dy = b.chunkY - a.chunkY;
+  if (dx === 0 && dy === -1) return 'north';
+  if (dx === 0 && dy === 1)  return 'south';
+  if (dx === 1 && dy === 0)  return 'east';
+  if (dx === -1 && dy === 0) return 'west';
+  return null;
+}
+// The eligible seam a footprint sample may cross from `standChunk` to reach the
+// chunk containing (worldPxX,worldPxY), or null if that crossing is not allowed
+// (same chunk handled by caller; diagonal / non-adjacent / ineligible / out-of-
+// range all -> null).
+function _csCrossingSeam(regionId, standChunk, worldPxX, worldPxY) {
+  const c = _csChunkAt(regionId, worldPxX, worldPxY);
+  if (!c.mapId) return null;                                  // void / out-of-region / missing chunk
+  const dir = _csDir(standChunk, c);
+  if (!dir) return null;                                      // diagonal or non-adjacent
+  const seam = eligibleContinuousSeam(standChunk.mapId, dir);
+  if (!seam || seam.to !== c.mapId) return null;              // ineligible neighbour
+  const along = (seam.axis === 'ns') ? (Math.floor(worldPxX / TILE) - standChunk.chunkX * COLS)
+                                     : (Math.floor(worldPxY / TILE) - standChunk.chunkY * ROWS);
+  if (along < seam.range[0] || along > seam.range[1]) return null; // outside the approved range
+  return seam;
+}
+
+// World-aware collision, preserving canWalk()'s exact footprint (shared
+// footprintCorners) and NPC semantics. Each of the four corners must be walkable
+// on its chunk; a corner in a DIFFERENT chunk than the standing point is allowed
+// ONLY across an eligible seam, in range, direction matching, with a walkable
+// destination tile (missing chunk / void / out-of-range / ineligible neighbour /
+// blocked tile / diagonal are impassable). Solid NPCs on any eligible seam map
+// block, center-based, exactly like canWalk().
+function continuousFootprintWalkable(regionId, standChunk, worldPxX, worldPxY) {
+  for (const [wx, wy] of footprintCorners(worldPxX, worldPxY)) {
+    const c = _csChunkAt(regionId, wx, wy);
+    const sameChunk = (c.chunkX === standChunk.chunkX && c.chunkY === standChunk.chunkY);
+    if (!sameChunk && !_csCrossingSeam(regionId, standChunk, wx, wy)) return false;
+    const t = tileAtWorld(regionId, Math.floor(wx / TILE), Math.floor(wy / TILE));
+    if (!isTileWalkable(t)) return false;
+  }
+  const offs = _csOffsets();
+  for (const npc of SIMPLE_NPCS) {
+    if (!npc.solid) continue;
+    const o = offs.get(npc.map);
+    if (!o) continue;
+    if (Math.abs(worldPxX - (o.offX + npc.x)) < 18 && Math.abs(worldPxY - (o.offY + npc.y)) < 18) return false;
   }
   return true;
 }
 
-// Is the standing point (world px) inside one of the seam's two approved chunks?
-// Guards against a diagonal/corner attempt drifting into any other (unapproved)
-// neighbour or into the void.
-function pilotInApprovedChunk(regionId, worldPxX, worldPxY, approvedMapIds) {
-  const CW = COLS * TILE, CH = ROWS * TILE;
-  const id = mapIdForChunk(regionId, Math.floor(worldPxX / CW), Math.floor(worldPxY / CH));
-  return approvedMapIds.indexOf(id) !== -1;
+// ── Engagement (exact current/candidate footprint contact; NO fixed corridor) ─
+// Returns true iff Continuous View is on, the active map participates in an
+// eligible seam, and the CURRENT footprint already touches an eligible seam, OR
+// the CANDIDATE footprint (after this frame's dx,dy) would, OR the candidate
+// standing point would cross one. Being merely near a seam without footprint
+// contact (footprint fully inside one map) does NOT engage — the old one-tile
+// corridor is gone.
+function _csFootprintTouches(regionId, standChunk, worldPxX, worldPxY) {
+  for (const [wx, wy] of footprintCorners(worldPxX, worldPxY)) {
+    const c = _csChunkAt(regionId, wx, wy);
+    if (c.chunkX === standChunk.chunkX && c.chunkY === standChunk.chunkY) continue;
+    if (_csCrossingSeam(regionId, standChunk, wx, wy)) return true;
+  }
+  return false;
+}
+function continuousSeamEngaged(dx, dy) {
+  if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return false;
+  const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
+  if (!mapId || !continuousSeamMapEligible(mapId)) return false;
+  const p = regionPlacementForMapId(mapId);
+  if (!p) return false;
+  const regionId = p.regionId, CW = COLS * TILE, CH = ROWS * TILE;
+  const stand = { chunkX: p.chunkX, chunkY: p.chunkY, mapId };
+  const wx = p.chunkX * CW + player.x, wy = p.chunkY * CH + player.y;
+  if (_csFootprintTouches(regionId, stand, wx, wy)) return true;          // current footprint straddles
+  if (_csFootprintTouches(regionId, stand, wx + dx, wy + dy)) return true; // candidate footprint straddles
+  const cc = _csChunkAt(regionId, wx + dx, wy + dy);                       // candidate standing crossing
+  if (cc.mapId && (cc.chunkX !== stand.chunkX || cc.chunkY !== stand.chunkY)) {
+    if (_csCrossingSeam(regionId, stand, wx + dx, wy + dy)) return true;
+  }
+  return false;
 }
 
-// Performs one frame of seamless walking near an approved seam. Mirrors update()'s
-// axis-separated X-then-Y movement and canWalk() footprint, but in world PIXELS,
-// and hands the active map over atomically when the STANDING POINT crosses into
-// the other approved chunk. Preserves fractional/sub-tile progress and facing
-// (facing was already set by update() from dx/dy; step/animation run after).
-// Applies each axis exactly once. Does NOT: inset/nudge/clamp-to-centre, show a
-// toast, touch cooldown, reset location state, or call transitionToLocation().
-// At most ONE handoff per frame.
-function pilotSeamStep(engaged, dx, dy) {
-  const regionId = engaged.regionId;
-  const seam = engaged.seam;
-  const approved = [seam.a.mapId, seam.b.mapId];
-  const CW = COLS * TILE, CH = ROWS * TILE;
-  const from = regionPlacementForMapId(mapIdForRef(activeMap));
-  let worldPxX = from.chunkX * CW + player.x;
-  let worldPxY = from.chunkY * CH + player.y;
-
-  // Axis-separated (wall-sliding preserved); each axis moves only if the new
-  // world footprint is walkable AND the standing point stays within the two
-  // approved chunks. Each axis is applied exactly once.
-  if (dx !== 0) {
-    const nx = worldPxX + dx;
-    if (pilotWorldWalkable(regionId, nx, worldPxY) && pilotInApprovedChunk(regionId, nx, worldPxY, approved)) worldPxX = nx;
+// ── World-aware movement + atomic handoff ───────────────────────────────────
+// One axis, in world pixels: move only if the resulting footprint is walkable;
+// then, if the STANDING POINT crossed into an eligible neighbour chunk, switch
+// activeMap atomically and convert the (unchanged) world position to destination-
+// local pixels — preserving sub-tile progress and facing, without inset/nudge/
+// clamp/toast/cooldown/transitionToLocation. At most one handoff per axis; a
+// blocked axis simply doesn't move (wall sliding preserved).
+function _csMoveAxis(dx, dy) {
+  if (dx === 0 && dy === 0) return;
+  const mapId = mapIdForRef(activeMap);
+  const p = regionPlacementForMapId(mapId);
+  const regionId = p.regionId, CW = COLS * TILE, CH = ROWS * TILE;
+  const stand = { chunkX: p.chunkX, chunkY: p.chunkY, mapId };
+  const nwx = p.chunkX * CW + player.x + dx;
+  const nwy = p.chunkY * CH + player.y + dy;
+  if (!continuousFootprintWalkable(regionId, stand, nwx, nwy)) return; // blocked this axis
+  const nc = _csChunkAt(regionId, nwx, nwy);
+  if (nc.chunkX !== stand.chunkX || nc.chunkY !== stand.chunkY) {
+    // Standing point crossed — allow ONLY across an eligible seam (never guess).
+    if (!_csCrossingSeam(regionId, stand, nwx, nwy)) return; // ambiguous/ineligible: block, don't move
+    const dp = regionPlacementForMapId(nc.mapId);
+    activeMap = mapRefForId(nc.mapId);
+    player.x = nwx - dp.chunkX * CW;
+    player.y = nwy - dp.chunkY * CH;
+  } else {
+    player.x = nwx - p.chunkX * CW;
+    player.y = nwy - p.chunkY * CH;
   }
-  if (dy !== 0) {
-    const ny = worldPxY + dy;
-    if (pilotWorldWalkable(regionId, worldPxX, ny) && pilotInApprovedChunk(regionId, worldPxX, ny, approved)) worldPxY = ny;
-  }
+}
+// X before Y (Y resolved from the possibly-handed-off map/position). Each axis
+// applied at most once; two handoffs in one diagonal frame only if each axis
+// independently crosses a real eligible seam.
+function continuousSeamMove(dx, dy) {
+  if (dx !== 0) _csMoveAxis(dx, 0);
+  if (dy !== 0) _csMoveAxis(0, dy);
+}
 
-  // Atomic handoff: the standing point's chunk (always one of the two approved
-  // chunks, per the guard above) is the authoritative map.
-  const standId = mapIdForChunk(regionId, Math.floor(worldPxX / CW), Math.floor(worldPxY / CH));
-  const destId = (approved.indexOf(standId) !== -1) ? standId : mapIdForRef(activeMap);
-  const dp = regionPlacementForMapId(destId);
-  activeMap = mapRefForId(destId);            // no-op when the standing point stayed in the current chunk
-  player.x = worldPxX - dp.chunkX * CW;       // world -> destination-local, fractional progress intact
-  player.y = worldPxY - dp.chunkY * CH;
+// Should update() SUPPRESS its legacy inset edge transition on `dir` this frame?
+// True only when Continuous View is on, the active map has an eligible seam on
+// `dir`, and the player's current along-edge coordinate is inside that seam's
+// range. Suppressing lets ordinary canWalk() walk the player up to the seam edge
+// (no inset), where exact footprint-contact engagement then takes over — so the
+// approach is seamless WITHOUT a fixed engagement corridor. For a non-eligible
+// edge or an out-of-range position this returns false and the legacy transition
+// runs exactly as before.
+function continuousSeamSuppressLegacyEdge(dir) {
+  if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return false;
+  const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
+  const seam = mapId ? eligibleContinuousSeam(mapId, dir) : null;
+  if (!seam) return false;
+  const along = (seam.axis === 'ns') ? Math.floor(player.x / TILE) : Math.floor(player.y / TILE);
+  return along >= seam.range[0] && along <= seam.range[1];
+}
+
+// Debug-inspector diagnostic: does the active map participate in an eligible
+// seam, and (if engaged) which pair/direction is currently engaged?
+function continuousSeamDiagnostic() {
+  const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
+  if (!mapId || !continuousSeamMapEligible(mapId)) return null;
+  const p = regionPlacementForMapId(mapId);
+  const regionId = p.regionId, CW = COLS * TILE, CH = ROWS * TILE;
+  const stand = { chunkX: p.chunkX, chunkY: p.chunkY, mapId };
+  const wx = p.chunkX * CW + player.x, wy = p.chunkY * CH + player.y;
+  let engaged = null;
+  for (const [ox, oy] of footprintCorners(wx, wy)) {
+    const c = _csChunkAt(regionId, ox, oy);
+    if (c.chunkX === stand.chunkX && c.chunkY === stand.chunkY) continue;
+    const seam = _csCrossingSeam(regionId, stand, ox, oy);
+    if (seam) { engaged = seam.from + '->' + seam.to + ' (' + seam.dir + ')'; break; }
+  }
+  return { participates: true, engaged };
 }
 
 if (typeof window !== 'undefined') {
-  window.CONTINUOUS_PILOT_SEAMS = CONTINUOUS_PILOT_SEAMS;
-  window.pilotSeamEngaged    = pilotSeamEngaged;
-  window.pilotSeamMapActive  = pilotSeamMapActive;
-  window.pilotWorldWalkable  = pilotWorldWalkable;
-  window.pilotInApprovedChunk = pilotInApprovedChunk;
-  window.pilotSeamStep       = pilotSeamStep;
+  window.classifyContinuousSegment   = classifyContinuousSegment;
+  window.continuousSegmentDiagnostics = continuousSegmentDiagnostics;
+  window.eligibleContinuousSeam      = eligibleContinuousSeam;
+  window.continuousSeamMapEligible   = continuousSeamMapEligible;
+  window.continuousSeamEntries       = continuousSeamEntries;
+  window.continuousFootprintWalkable = continuousFootprintWalkable;
+  window.continuousSeamEngaged       = continuousSeamEngaged;
+  window.continuousSeamMove          = continuousSeamMove;
+  window.continuousSeamSuppressLegacyEdge = continuousSeamSuppressLegacyEdge;
+  window.continuousSeamDiagnostic    = continuousSeamDiagnostic;
 }

@@ -1,14 +1,9 @@
 'use strict';
-// DEBUG continuous-view SEAMLESS-MOVEMENT pilot (continuous-pilot.js +
-// movement.js update()). Exactly ONE reciprocal ALIGNS outdoor seam
-// (NORTH_BASIN_S_MAP <-> NORTH_BASIN_C_MAP) becomes walkable-across while
-// Continuous View is on; everything else (the flag off, other seams, other
-// maps, point/gate transitions) keeps its exact legacy behavior.
-//
-// Regression focus (post-fix): the world-aware path stays engaged as long as the
-// radius-9 footprint OVERLAPS the seam — so SUSTAINED input keeps moving on the
-// ARRIVAL side too (the old border-only gate soft-locked there). Tests simulate
-// held input across many frames, not just the handoff frame.
+// DEBUG continuous-view GENERALIZED seamless movement (continuous-seams.js +
+// movement.js update()). Every currently-safe reciprocal ALIGNS outdoor seam
+// (derived at runtime from REGIONAL_LAYOUT + EDGE_TRANSITIONS + placement) is
+// walkable-across while Continuous View is on; everything else keeps exact legacy
+// behavior. Engagement is exact-footprint (no fixed one-tile corridor).
 //
 // Deterministic: debugMode ON during movement scenarios (no encounter RNG).
 
@@ -16,248 +11,276 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 module.exports = {
-  name: 'continuous seam pilot: seam-overlap world movement (sustained, reversible, legacy-safe)',
+  name: 'continuous seams: generalized seamless movement across every safe reciprocal ALIGNS seam',
   run() {
     const g = createContext();
     g.press('Enter'); g.press('Enter');
     const J = (e) => JSON.parse(g.run(e));
     const TILE = g.run('TILE'), ROWS = g.run('ROWS'), COLS = g.run('COLS'), SPEED = g.run('SPEED');
     const CH = ROWS * TILE, CW = COLS * TILE;
-    const warp = (id) => g.run(`debugWarpToDestination('outdoor:${id}')`);
-    const setKeys = (obj) => g.run('(function(o){for(var k in keys)delete keys[k];for(var k in o)keys[k]=o[k];})(' + JSON.stringify(obj) + ')');
+    // warp + clear any overlay a prior crossing may have opened (a North Basin
+    // feature/evidence trigger can open dialogue, which freezes update()).
+    const warp = (id) => g.run(`debugWarpToDestination('outdoor:${id}'); dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;`);
+    const setKeys = (o) => g.run('(function(o){for(var k in keys)delete keys[k];for(var k in o)keys[k]=o[k];})(' + JSON.stringify(o) + ')');
     const clearKeys = () => g.run('for(var k in keys)delete keys[k];');
     const mapId = () => g.run('mapIdForRef(activeMap)');
     const place = () => J('JSON.stringify(regionPlacementForMapId(mapIdForRef(activeMap)))');
-    const worldY = () => place().chunkY * CH + g.run('player.y');
     const worldX = () => place().chunkX * CW + g.run('player.x');
-    const planY = () => { const pl = J("JSON.stringify(buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480))"); return pl ? { w: pl.playerWorldPxY, cam: pl.camPxY } : null; };
+    const worldY = () => place().chunkY * CH + g.run('player.y');
+    const camY = () => { const pl = J("JSON.stringify(buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480))"); return pl ? pl.camPxY : 0; };
+    const camX = () => { const pl = J("JSON.stringify(buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480))"); return pl ? pl.camPxX : 0; };
     g.run('debugMode = true;');
 
-    // Hold a direction for n frames, recording per-frame world deltas + handoff frames.
     const drive = (keyObj, n) => {
       setKeys(keyObj);
-      const rec = { deltas: [], camDeltas: [], handoffs: 0, zero: 0 };
-      let pw = worldY(), px = worldX(), pcam = planY() ? planY().cam : 0, pmap = mapId();
+      const rec = { zero: 0, maxWorldD: 0, maxCamD: 0, handoffs: 0 };
+      let pw = { x: worldX(), y: worldY() }, pc = { x: camX(), y: camY() }, pm = mapId();
       for (let i = 0; i < n; i++) {
         g.frames(1);
-        const w = worldY(), x = worldX(), cam = planY() ? planY().cam : pcam, m = mapId();
-        const dTot = Math.hypot(w - pw, x - px);
-        rec.deltas.push(dTot);
-        rec.camDeltas.push(Math.abs(cam - pcam));
-        if (dTot < 1e-9) rec.zero++;
-        if (m !== pmap) rec.handoffs++;
-        pw = w; px = x; pcam = cam; pmap = m;
+        const w = { x: worldX(), y: worldY() }, c = { x: camX(), y: camY() }, m = mapId();
+        const dW = Math.hypot(w.x - pw.x, w.y - pw.y);
+        rec.maxWorldD = Math.max(rec.maxWorldD, dW);
+        rec.maxCamD = Math.max(rec.maxCamD, Math.hypot(c.x - pc.x, c.y - pc.y));
+        if (dW < 1e-9) rec.zero++;
+        if (m !== pm) rec.handoffs++;
+        pw = w; pc = c; pm = m;
       }
       clearKeys();
       return rec;
     };
 
-    // ── 1. Registry: exactly one reciprocal pair ────────────────────────────
-    const seams = J('JSON.stringify(CONTINUOUS_PILOT_SEAMS)');
-    assert.equal(seams.length, 1, 'exactly one pilot seam pair');
-    assert.deepEqual([seams[0].a.mapId, seams[0].b.mapId], ['NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP']);
-    assert.deepEqual(seams[0].sourceRange, [1, 14]);
-
-    // ── 2. Seam + range match the transition audit (reciprocal ALIGNS) ──────
+    // ── 1. Runtime eligibility == safe reciprocal ALIGNS (from the audit) ────
+    const entries = J("JSON.stringify(continuousSeamEntries().map(e=>({from:e.from,dir:e.dir,to:e.to,range:e.range})))");
+    assert.equal(entries.length, 14, '14 eligible directed seams (7 reciprocal pairs)');
     const audit = require('../transition-audit.js');
-    const edges = audit.seamReadiness.edges;
-    const ns = edges.find(e => e.mapId === 'NORTH_BASIN_S_MAP' && e.dir === 'north');
-    const sn = edges.find(e => e.mapId === 'NORTH_BASIN_C_MAP' && e.dir === 'south');
-    assert.equal(ns.verdict, 'ALIGNS'); assert.equal(ns.neighbor, 'NORTH_BASIN_C_MAP');
-    assert.equal(sn.verdict, 'ALIGNS'); assert.equal(sn.neighbor, 'NORTH_BASIN_S_MAP');
-    const seg = J("JSON.stringify(EDGE_TRANSITIONS.NORTH_BASIN_S_MAP.north[0])");
-    assert.deepEqual(seg.sourceRange, [1, 14]); assert.equal(seg.targetRange, undefined); assert.equal(seg.condition, undefined);
-
-    // ── 3. Continuous OFF: original legacy inset transition + cooldown ──────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = false; combat.cooldown = 0; player.x = 8.5*TILE; player.y = 0.4*TILE;');
-    assert.equal(g.run('pilotSeamEngaged()'), null, 'flag off -> pilot disengaged');
-    setKeys({ ArrowUp: true }); g.frames(1); clearKeys();
-    assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'legacy: crosses to NB_C');
-    assert.equal(g.run('player.y'), (ROWS - 2 + 0.5) * TILE, 'legacy: inset landing at row 13.5');
-    assert.equal(g.run('combat.cooldown'), g.run('ENCOUNTER_COOLDOWN'), 'legacy: cooldown reset');
-
-    // ── 4. SUSTAINED NORTH: keep holding until the WHOLE footprint is inside
-    //       NB_C. No stuck frame; every unobstructed frame moves exactly SPEED;
-    //       exactly one handoff; world + camera continuity. ──────────────────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; combat.cooldown = 0; player.x = 8.5*TILE; player.y = 0.5*TILE; player.facing = "up";');
-    const stepBefore = g.run('player.step');
-    const north = drive({ ArrowUp: true }, 30);
-    assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'sustained north: on NB_C');
-    assert.ok(g.run('player.y') + 9 < ROWS * TILE, 'radius-9 footprint fully INSIDE NB_C (bottom corner not out of bounds)');
-    assert.ok(g.run('player.y') < (ROWS - 1) * TILE, 'walked past the seam row 14 (footprint cleared the seam)');
-    assert.equal(north.zero, 0, 'NO stuck frame during a sustained crossing (the soft-lock is gone)');
-    assert.equal(north.handoffs, 1, 'exactly one handoff during the crossing');
-    for (const d of north.deltas) assert.ok(Math.abs(d - SPEED) < 1e-9, 'every unobstructed frame moves exactly SPEED (no stall, no double-apply)');
-    for (const cd of north.camDeltas) assert.ok(cd <= SPEED + 1e-9, 'camera moves at most SPEED per frame (continuous, no jump)');
-    assert.equal(g.run('player.facing'), 'up', 'facing preserved');
-    assert.ok(g.run('player.step') > stepBefore, 'player.step housekeeping ran (not skipped)');
-    assert.equal(g.run('combat.cooldown'), 0, 'no cooldown reset on the seamless crossing');
-    // fractional/sub-tile progress preserved somewhere during the crossing
-    assert.ok(g.run('player.y') % TILE !== 0, 'sub-tile fractional progress preserved (not clamped to a tile centre)');
-    // destination authoritative immediately
-    assert.equal(g.run('currentContentLocationKey()'), 'north_basin_c');
-    assert.equal(g.run('locationName()'), 'North Basin — Reservoir');
-
-    // ── 5. SUSTAINED SOUTH (reciprocal), same guarantees ────────────────────
-    warp('NORTH_BASIN_C_MAP');
-    g.run('continuousWorldViewEnabled = true; combat.cooldown = 0; player.x = 8.5*TILE; player.y = 14.5*TILE; player.facing = "down";');
-    const south = drive({ ArrowDown: true }, 30);
-    assert.equal(mapId(), 'NORTH_BASIN_S_MAP', 'sustained south: on NB_S');
-    assert.ok(g.run('player.y') - 9 >= 0, 'footprint fully inside NB_S (top corner not out of bounds)');
-    assert.ok(g.run('player.y') > TILE, 'walked well past the seam row');
-    assert.equal(south.zero, 0, 'no stuck frame on the reciprocal crossing');
-    assert.equal(south.handoffs, 1, 'exactly one handoff');
-    for (const d of south.deltas) assert.ok(Math.abs(d - SPEED) < 1e-9, 'south: every frame moves exactly SPEED');
-
-    // ── 6. activeMap switches ONLY when the standing point crosses ──────────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;');
-    setKeys({ ArrowUp: true });
-    let switchedWhileSouthOfBoundary = false, everSwitched = false;
-    for (let i = 0; i < 20; i++) {
-      const before = mapId();
-      g.frames(1);
-      const after = mapId(), w = worldY();
-      if (before === 'NORTH_BASIN_S_MAP' && after === 'NORTH_BASIN_C_MAP') {
-        everSwitched = true;
-        // standing point must have crossed the boundary (worldY < 960) on the switch frame
-        if (w >= 2 * CH) switchedWhileSouthOfBoundary = true;
-      }
+    const alignsSet = new Set(audit.seamReadiness.edges.filter(e => e.verdict === 'ALIGNS').map(e => e.mapId + '|' + e.dir + '|' + e.neighbor));
+    for (const e of entries) assert.ok(alignsSet.has(e.from + '|' + e.dir + '|' + e.to), `${e.from} ${e.dir} -> ${e.to} is an audit ALIGNS edge`);
+    assert.equal(entries.length, alignsSet.size, 'eligibility set equals the ALIGNS set exactly (no extra/missing)');
+    // reciprocal + identical range for every entry
+    const byKey = {}; entries.forEach(e => { byKey[e.from + '|' + e.dir] = e; });
+    const INV = { north: 'south', south: 'north', east: 'west', west: 'east' };
+    for (const e of entries) {
+      const r = byKey[e.to + '|' + INV[e.dir]];
+      assert.ok(r && r.to === e.from, `reciprocal exists for ${e.from} ${e.dir}`);
+      assert.deepEqual(r.range, e.range, 'reciprocal range identical (no remap)');
     }
-    clearKeys();
-    assert.ok(everSwitched, 'crossing occurred');
-    assert.equal(switchedWhileSouthOfBoundary, false, 'activeMap switches only once the standing point crosses the seam line');
 
-    // ── 7. Immediate REVERSAL before the footprint clears ───────────────────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.3*TILE;');
-    drive({ ArrowUp: true }, 6);
-    assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'reversal: crossed to NB_C');
-    const rev = drive({ ArrowDown: true }, 6);
-    assert.equal(mapId(), 'NORTH_BASIN_S_MAP', 'reversal: immediately walked back to NB_S (no stall)');
-    assert.equal(rev.zero, 0, 'reversal has no stuck frame');
+    // ── 1b. FAIL-CLOSED structural classifier (pure; synthetic segments) ────
+    const classify = (seg) => J(`JSON.stringify(classifyContinuousSegment(${JSON.stringify(seg)}))`);
+    const baseSeg = { targetMap: 'X', targetEdge: 'south', sourceRange: [1, 14] };
+    assert.equal(classify(baseSeg).ok, true, 'a recognized structural segment is eligible');
+    assert.equal(classify({ ...baseSeg, targetRange: [1, 14] }).ok, true, 'an identical targetRange is eligible (non-remapping, treated as omitted)');
+    assert.equal(classify({ ...baseSeg, targetRange: [2, 13] }).ok, false, 'a differing targetRange is ineligible (remap)');
+    for (const bad of ['condition', 'blockedText', 'callback', 'onTransition', 'onEnter', 'effect', 'stateChange', 'cost', 'futureBehavior']) {
+      const seg = { ...baseSeg }; seg[bad] = 1;
+      const c = classify(seg);
+      assert.equal(c.ok, false, `a segment with "${bad}" fails closed`);
+      assert.match(c.reason, new RegExp(bad), `the reason names the offending property "${bad}"`);
+    }
+    assert.equal(classify({ targetMap: 'X', targetEdge: 'south' }).ok, false, 'a segment missing sourceRange is ineligible');
+    // the fail-closed reason is surfaced through the read-only diagnostic
+    const diags = J('JSON.stringify(continuousSegmentDiagnostics())');
+    assert.ok(diags.length > 0 && diags.every(d => typeof d.structural === 'boolean'), 'segment diagnostics surface structural eligibility + reason');
+    // every DERIVED-eligible seam classifies structurally ok (index agrees with the pure classifier)
+    for (const e of entries) {
+      const seg = J(`JSON.stringify(EDGE_TRANSITIONS[${JSON.stringify(e.from)}][${JSON.stringify(e.dir)}][0])`);
+      assert.equal(classify(seg).ok, true, `${e.from}|${e.dir} underlying segment is structurally eligible`);
+    }
 
-    // ── 8. SIDEWAYS while the footprint straddles the seam ──────────────────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.2*TILE;'); // straddling
-    assert.ok(g.run('pilotSeamEngaged()') !== null, 'engaged while straddling the seam');
-    const sideBeforeX = g.run('player.x');
-    const side = drive({ ArrowLeft: true }, 5);
-    assert.ok(g.run('player.x') < sideBeforeX, 'sideways movement works while straddling (not stuck)');
-    assert.equal(side.zero, 0, 'no stuck frame moving sideways at the seam');
+    // ── 2 + 3. Every eligible directed seam crosses at a range midpoint ─────
+    const crossDirected = (from, dir, to, range, frames) => {
+      warp(from); g.run('continuousWorldViewEnabled = true;');
+      const mid = Math.floor((range[0] + range[1]) / 2);
+      if (dir === 'north')      g.run(`player.x = ${(mid + 0.5)} * TILE; player.y = 0.5 * TILE;`);
+      else if (dir === 'south') g.run(`player.x = ${(mid + 0.5)} * TILE; player.y = ${(ROWS - 0.5)} * TILE;`);
+      else if (dir === 'west')  g.run(`player.x = 0.5 * TILE; player.y = ${(mid + 0.5)} * TILE;`);
+      else                       g.run(`player.x = ${(COLS - 0.5)} * TILE; player.y = ${(mid + 0.5)} * TILE;`);
+      const kmap = { north: 'ArrowUp', south: 'ArrowDown', west: 'ArrowLeft', east: 'ArrowRight' };
+      const rec = drive({ [kmap[dir]]: true }, frames || 14);
+      return { map: mapId(), zero: rec.zero };
+    };
+    for (const e of entries) {
+      const r = crossDirected(e.from, e.dir, e.to, e.range, 16);
+      assert.equal(r.map, e.to, `crossed ${e.from} ${e.dir} -> ${e.to} at range midpoint`);
+    }
 
-    // ── 9. DIAGONAL during and immediately after handoff (no drift/void) ────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;');
-    const beforeChunkX = place().chunkX;
+    // ── 4. Sustained vertical + horizontal, no stuck frames, footprint clears ─
+    const v = crossDirected('NORTH_BASIN_S_MAP', 'north', 'NORTH_BASIN_C_MAP', [1, 14], 40);
+    assert.equal(v.map, 'NORTH_BASIN_C_MAP');
+    assert.equal(v.zero, 0, 'sustained vertical: no stuck frames');
+    assert.ok(g.run('player.y') + 9 < CH, 'vertical: footprint fully inside destination');
+    const h = crossDirected('MAP3_N1', 'west', 'RODDON_WAY_MAP', [4, 9], 40);
+    assert.equal(h.map, 'RODDON_WAY_MAP');
+    assert.equal(h.zero, 0, 'sustained horizontal: no stuck frames');
+    assert.ok(g.run('player.x') + 9 < CW, 'horizontal: footprint fully inside destination');
+
+    // ── 5. Reversal + parallel movement, both orientations ──────────────────
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.3*TILE;');
+    drive({ ArrowUp: true }, 6); assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'v reversal: crossed up');
+    const rv = drive({ ArrowDown: true }, 6); assert.equal(mapId(), 'NORTH_BASIN_S_MAP', 'v reversal: back down'); assert.equal(rv.zero, 0);
+    // parallel (sideways) while straddling the vertical seam
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.2*TILE;');
+    const bx = g.run('player.x'); const par = drive({ ArrowLeft: true }, 5);
+    assert.ok(g.run('player.x') < bx && par.zero === 0, 'parallel movement along a vertical seam works');
+    // horizontal reversal + parallel
+    warp('MAP3_N1'); g.run('continuousWorldViewEnabled = true; player.x = 0.3*TILE; player.y = 6.5*TILE;');
+    drive({ ArrowLeft: true }, 6); assert.equal(mapId(), 'RODDON_WAY_MAP', 'h reversal: crossed left');
+    const rh = drive({ ArrowRight: true }, 6); assert.equal(mapId(), 'MAP3_N1', 'h reversal: back right'); assert.equal(rh.zero, 0);
+
+    // ── 6. Diagonal X-then-Y + wall sliding ─────────────────────────────────
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;');
+    const bcx = place().chunkX;
     drive({ ArrowUp: true, ArrowLeft: true }, 12);
-    assert.ok(mapId() === 'NORTH_BASIN_C_MAP' || mapId() === 'NORTH_BASIN_S_MAP', 'diagonal stays within the approved pair');
-    assert.equal(place().chunkX, beforeChunkX, 'diagonal never drifts chunkX into an unapproved neighbour/void');
+    assert.ok(mapId() === 'NORTH_BASIN_C_MAP' || mapId() === 'NORTH_BASIN_S_MAP', 'diagonal stays in the vertical pair');
+    assert.equal(place().chunkX, bcx, 'diagonal never drifts chunkX (X blocked out-of-range while Y crosses)');
 
-    // ── 10. No frame applies movement twice (deltas never exceed SPEED) ─────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;');
+    // ── 7. Each axis moves at most once (world delta per frame <= SPEED*sqrt2)
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;');
     const dd = drive({ ArrowUp: true }, 20);
-    assert.ok(Math.max(...dd.deltas) <= SPEED + 1e-9, 'no single frame moves more than SPEED (movement applied once per axis)');
+    assert.ok(dd.maxWorldD <= SPEED + 1e-9, 'pure-axis: no frame moves more than SPEED (one application per axis)');
 
-    // ── 11. Endpoint columns / void / other chunk are impassable ────────────
-    assert.equal(g.run("pilotWorldWalkable('overworld', 8, 8)"), false, 'void/unplaced chunk -> non-walkable');
-    assert.equal(g.run("pilotWorldWalkable('overworld', -5, 2*15*32+240)"), false, 'out-of-region -> non-walkable');
-    assert.equal(g.run(`pilotWorldWalkable('overworld', ${2 * CW + 0.5 * TILE}, ${2 * CH + 0.5 * TILE})`), false, 'col 0 border wall -> non-walkable');
-    assert.equal(g.run(`pilotWorldWalkable('overworld', ${2 * CW + 15.5 * TILE}, ${2 * CH + 0.5 * TILE})`), false, 'col 15 border wall -> non-walkable');
-    // A blocked corresponding destination tile stops the crossing atomically.
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.4*TILE;');
-    const blocked = J(`(function(){
-      var m = mapRefForId('NORTH_BASIN_C_MAP'); var saved = m[14][7]; m[14][7] = WATER;
-      for(var k in keys)delete keys[k]; keys.ArrowUp=true; for (var i=0;i<10;i++) update(); for(var k in keys)delete keys[k];
-      var res = mapIdForRef(activeMap); m[14][7] = saved; return JSON.stringify({ map: res });
-    })()`);
-    assert.equal(blocked.map, 'NORTH_BASIN_S_MAP', 'a blocked destination seam tile keeps the player on the source map (atomic)');
+    // ── 8. activeMap switches only when the standing point crosses ──────────
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;');
+    setKeys({ ArrowUp: true });
+    let switchedEarly = false, switched = false;
+    for (let i = 0; i < 20; i++) { const b = mapId(); g.frames(1); if (b === 'NORTH_BASIN_S_MAP' && mapId() === 'NORTH_BASIN_C_MAP') { switched = true; if (worldY() >= 2 * CH) switchedEarly = true; } }
+    clearKeys();
+    assert.ok(switched && !switchedEarly, 'activeMap changes exactly when the standing point crosses the seam line');
 
-    // ── 12. Destination NPC collision is not bypassed; safety band verified ──
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.4*TILE;');
-    const npcBlock = J(`(function(){
-      var fake = { id:'__pilot_npc', map:'north_basin_c', x:7.5*TILE, y:14.5*TILE, solid:true };
-      SIMPLE_NPCS.push(fake);
-      for(var k in keys)delete keys[k]; keys.ArrowUp=true; for (var i=0;i<10;i++) update(); for(var k in keys)delete keys[k];
-      var res = mapIdForRef(activeMap); SIMPLE_NPCS.splice(SIMPLE_NPCS.indexOf(fake),1); return JSON.stringify({ map: res });
-    })()`);
-    assert.equal(npcBlock.map, 'NORTH_BASIN_S_MAP', 'a solid destination NPC at the crossing blocks the step (not walked through)');
-    assert.equal(g.run("SIMPLE_NPCS.filter(n=>(n.map==='north_basin_s'||n.map==='north_basin_c')&&n.solid).length"), 0, 'pilot maps have no solid NPCs (clear boundary safety band)');
+    // ── 9 + 10 + 11. World delta == movement; camera bounded; fractional+facing
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.6*TILE; player.facing="up";');
+    const cont = drive({ ArrowUp: true }, 20);
+    assert.ok(Math.abs(cont.maxWorldD - SPEED) < 1e-9, 'every open frame world-delta equals applied movement (SPEED)');
+    assert.ok(cont.maxCamD <= SPEED + 1e-9, 'camera delta bounded by movement (region-edge clamp only reduces it)');
+    assert.equal(g.run('player.facing'), 'up', 'facing preserved across handoff');
+    assert.ok(g.run('player.y') % TILE !== 0, 'fractional/sub-tile position preserved');
 
-    // ── 13. Other ALIGNS seams + non-pilot maps stay legacy ─────────────────
-    warp('NORTH_BASIN_SW_MAP'); // NB_SW east <-> NB_S is ALIGNS but NOT the pilot
-    g.run('continuousWorldViewEnabled = true; combat.cooldown = 0; player.x = 15.5*TILE; player.y = 10.5*TILE;');
-    assert.equal(g.run('pilotSeamEngaged()'), null, 'a different ALIGNS seam is never pilot-engaged');
-    setKeys({ ArrowRight: true }); g.frames(1); clearKeys();
-    assert.equal(mapId(), 'NORTH_BASIN_S_MAP', 'other ALIGNS seam crossed via legacy');
-    assert.equal(g.run('combat.cooldown'), g.run('ENCOUNTER_COOLDOWN'), 'other ALIGNS seam used the legacy inset transition (cooldown set)');
-    warp('MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 8.5*TILE;');
-    assert.equal(g.run('pilotSeamEngaged()'), null, 'a non-pilot overworld map is never pilot-engaged');
+    // ── 12 + 13. Exact-footprint engagement; TILE corridor gone ─────────────
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.9*TILE;'); // within a tile of seam, footprint fully inside
+    assert.equal(g.run('continuousSeamEngaged(0,-2)'), false, 'inside the old one-tile corridor but footprint fully inside a map -> NOT engaged (corridor gone)');
+    g.run('player.y = 0.3*TILE;'); // candidate footprint would cross
+    assert.equal(g.run('continuousSeamEngaged(0,-2)'), true, 'candidate footprint touching the seam -> engaged');
+    g.run('player.y = 0.2*TILE;'); // already straddling
+    assert.equal(g.run('continuousSeamEngaged(0,0)'), true, 'current footprint straddling -> engaged even with no input delta');
 
-    // ── 14. Encounters / steps / status housekeeping happen exactly once ────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('debugMode = false; continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.4*TILE;');
-    const enc = J(`(function(){
-      var rolls = 0; var _r = Math.random; Math.random = function(){ rolls++; return 0.999; };
-      var s0 = player.step;
-      for(var k in keys)delete keys[k]; keys.ArrowUp=true; update(); for(var k in keys)delete keys[k];
-      var res = { map: mapIdForRef(activeMap), combat: combat.active, stepDelta: player.step - s0, poolOK: (currentEncounterPool()||[]).length>0 };
-      Math.random = _r; return JSON.stringify(res);
-    })()`);
-    assert.equal(enc.combat, false, 'crossing does not force/duplicate an encounter');
-    assert.equal(enc.stepDelta, 1, 'exactly one step increment per frame (housekeeping ran once, not twice)');
-    assert.equal(enc.poolOK, true, 'destination encounter pool is active');
-    g.run('debugMode = true;');
+    // ── 14. Range endpoints cross where walkable; just outside does not ─────
+    // MAP3_N1 north range is cols 3-13. Col 3 (endpoint) crosses; col 2 (outside) does not.
+    warp('MAP3_N1'); g.run('continuousWorldViewEnabled = true; player.x = 3.5*TILE; player.y = 0.5*TILE;');
+    drive({ ArrowUp: true }, 10);
+    assert.equal(mapId(), 'MAP3_N2', 'range endpoint (col 3) crosses');
+    warp('MAP3_N1'); g.run('continuousWorldViewEnabled = true; player.x = 2.5*TILE; player.y = 0.5*TILE;'); // col 2 is a border wall (outside range)
+    const outRes = drive({ ArrowUp: true }, 10);
+    assert.equal(mapId(), 'MAP3_N1', 'just outside the range does not cross');
 
-    // ── 15. Unrelated state unchanged ───────────────────────────────────────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.4*TILE;');
-    const snap0 = J('JSON.stringify({ day: day, gold: stats.gold, hp: stats.hp, items: stats.items.length, inTown: inTown, inDungeon: inDungeon, inSluice: inSluice, dungeonFloor: dungeonFloor, currentTownId: currentTownId })');
-    drive({ ArrowUp: true }, 12);
-    const snap1 = J('JSON.stringify({ day: day, gold: stats.gold, hp: stats.hp, items: stats.items.length, inTown: inTown, inDungeon: inDungeon, inSluice: inSluice, dungeonFloor: dungeonFloor, currentTownId: currentTownId })');
-    assert.deepEqual(snap0, snap1, 'no location-flag/quest/day/inventory/HP change from a seamless crossing');
+    // ── 15. Blocked / missing / void reject atomically ─────────────────────
+    assert.equal(g.run("continuousFootprintWalkable('overworld', {chunkX:2,chunkY:2,mapId:'NORTH_BASIN_S_MAP'}, 8, 8)"), false, 'void world coord -> non-walkable');
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.4*TILE;');
+    const blk = J(`(function(){ var m=mapRefForId('NORTH_BASIN_C_MAP'); var s=m[14][7]; m[14][7]=WATER;
+      for(var k in keys)delete keys[k]; keys.ArrowUp=true; for(var i=0;i<10;i++)update(); for(var k in keys)delete keys[k];
+      var r=mapIdForRef(activeMap); m[14][7]=s; return JSON.stringify({map:r}); })()`);
+    assert.equal(blk.map, 'NORTH_BASIN_S_MAP', 'a blocked destination tile stops the crossing atomically');
 
-    // ── 16. Save/load on both sides; SAVE_VERSION 3; flag not saved ─────────
-    assert.equal(mapId(), 'NORTH_BASIN_C_MAP');
-    g.run('saveGame();');
-    const raw = g.run("localStorage.getItem('verdantVale_save')");
-    assert.equal(JSON.parse(raw).version, 3, 'SAVE_VERSION stays 3');
-    assert.ok(!/continuousWorldView/i.test(raw), 'debug flag absent from the save payload');
-    const sx = g.run('player.x'), sy = g.run('player.y');
-    g.run('activeMap = MAP; player.x = 0; player.y = 0; loadGame();');
-    assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'load restores the active map after crossing');
-    assert.equal(g.run('player.x'), sx); assert.equal(g.run('player.y'), sy);
-    warp('NORTH_BASIN_S_MAP'); g.run('player.x = 5.5*TILE; player.y = 8.5*TILE; saveGame(); activeMap=MAP; loadGame();');
-    assert.equal(mapId(), 'NORTH_BASIN_S_MAP', 'load restores NB_S');
+    // ── 16. No diagonal-only chunk entry ────────────────────────────────────
+    // NB_S NW area: up crosses to NB_C (col in range), left blocked (row 0 not in west range 9-11);
+    // the diagonal chunk NB_W(1,1) must never be entered.
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 1.5*TILE; player.y = 0.4*TILE;');
+    drive({ ArrowUp: true, ArrowLeft: true }, 12);
+    assert.ok(['NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP'].includes(mapId()), 'diagonal near a chunk corner never enters the diagonally-adjacent chunk');
 
-    // ── 17. Towns / interiors / meadow bypass the pilot ─────────────────────
-    g.run("debugWarpToDestination('town:calwick_south'); continuousWorldViewEnabled = true;");
-    assert.equal(g.run('pilotSeamEngaged()'), null, 'town is never pilot-engaged');
-    g.run('enterMeadow(); continuousWorldViewEnabled = true;');
-    assert.equal(g.run('pilotSeamEngaged()'), null, 'the hidden meadow is not region-placed -> never engaged');
-    assert.equal(g.run('pilotSeamMapActive()'), false, 'meadow is not a pilot map');
+    // ── 17 + 18. Corner determinism + blocked-second-axis wall slide ────────
+    // At NB_S row 0 col 8 pushing up+left: X (left) moves within NB_S; Y (up) crosses to NB_C. Deterministic.
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.4*TILE;');
+    const bxc = worldX();
+    drive({ ArrowUp: true, ArrowLeft: true }, 16); // diagonal is 0.707x speed
+    assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'corner: Y axis crossed deterministically');
+    assert.ok(worldX() < bxc, 'corner: X axis (wall slide) also moved where valid');
 
-    // ── 18. Toggle-off near the seam cannot strand the player ───────────────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.4*TILE;');
-    drive({ ArrowUp: true }, 8); // cross to NB_C, footprint still near the seam (deep row 14)
-    assert.equal(mapId(), 'NORTH_BASIN_C_MAP');
-    g.run('continuousWorldViewEnabled = false;'); // toggle OFF while near the seam
-    assert.equal(g.run('pilotSeamEngaged()'), null, 'flag off -> pilot immediately disengaged');
-    const escape = drive({ ArrowDown: true }, 30); // must be able to move again (legacy)
-    assert.ok(escape.zero < 30, 'toggling Continuous View off near the seam does not strand the player (can still move)');
-    assert.ok(mapId() === 'NORTH_BASIN_S_MAP' || mapId() === 'NORTH_BASIN_C_MAP', 'still on a real North Basin map after escaping');
+    // ── 19. NEEDS_REMAP seam remains discrete/remapped (MAP -> MAP2 point tile)
+    warp('MAP'); g.run('continuousWorldViewEnabled = true;');
+    assert.equal(g.run('continuousSeamMapEligible("MAP")'), false, 'MAP is not a continuous-seam map');
+    g.run('combat.cooldown = 0; player.x = 14.5*TILE; player.y = 7.5*TILE; player.facing="right";');
+    g.run('for(var k in keys)delete keys[k]; keys.ArrowRight=true; for(var i=0;i<3;i++)update(); for(var k in keys)delete keys[k];');
+    // MAP2_EXIT point transition still fires (legacy enterMap2, discrete)
+    // (position may or may not have hit the tile; just assert no seamless engagement)
+    assert.equal(g.run('continuousSeamEngaged(2,0)'), false, 'NEEDS_REMAP point-tile edge never engages continuous seams');
 
-    // ── 19. Flag off on the seam immediately restores legacy inset ──────────
-    warp('NORTH_BASIN_S_MAP');
-    g.run('continuousWorldViewEnabled = false; combat.cooldown = 0; player.x = 8.5*TILE; player.y = 0.4*TILE;');
+    // ── 20. BLOCKED / conditioned transition retains behavior (bridge toll) ─
+    g.run("debugWarpToDestination('special:bridge'); continuousWorldViewEnabled = true;");
+    assert.equal(g.run('continuousSeamMapEligible(mapIdForRef(activeMap))'), false, 'the bridge is not a continuous-seam map (conditioned transition untouched)');
+
+    // ── 21. Noneligible PLACED adjacency does not become seamless ───────────
+    // NB_C <-> NB_W are placed & adjacent but BLOCKED (no EDGE_TRANSITIONS) -> ineligible.
+    assert.equal(g.run('eligibleContinuousSeam("NORTH_BASIN_C_MAP","west")'), null, 'a BLOCKED placed adjacency is not eligible');
+    warp('NORTH_BASIN_C_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 0.4*TILE; player.y = 7.5*TILE;');
+    const blkAdj = drive({ ArrowLeft: true }, 8);
+    assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'physical adjacency alone never authorizes seamless travel');
+
+    // ── 22. Flag OFF -> legacy inset transition ─────────────────────────────
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = false; combat.cooldown = 0; player.x = 8.5*TILE; player.y = 0.4*TILE;');
+    assert.equal(g.run('continuousSeamEngaged(0,-2)'), false, 'flag off -> never engaged');
     setKeys({ ArrowUp: true }); g.frames(1); clearKeys();
-    assert.equal(g.run('player.y'), (ROWS - 2 + 0.5) * TILE, 'flag off -> immediate legacy inset landing again');
-    assert.equal(g.run('combat.cooldown'), g.run('ENCOUNTER_COOLDOWN'), 'flag off -> legacy cooldown again');
+    assert.equal(g.run('player.y'), (ROWS - 2 + 0.5) * TILE, 'flag off -> legacy inset landing');
+    assert.equal(g.run('combat.cooldown'), g.run('ENCOUNTER_COOLDOWN'), 'flag off -> legacy cooldown');
+
+    // ── 23. Toggle off near a seam cannot strand the player ─────────────────
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.4*TILE;');
+    drive({ ArrowUp: true }, 8); assert.equal(mapId(), 'NORTH_BASIN_C_MAP');
+    g.run('continuousWorldViewEnabled = false;');
+    const esc = drive({ ArrowDown: true }, 30);
+    assert.ok(esc.zero < 30, 'toggling off near a seam does not strand the player (can still move)');
+
+    // ── 24 + 25. No side effects; steps/status/encounter run exactly once ───
+    warp('NORTH_BASIN_S_MAP'); g.run('debugMode=false; continuousWorldViewEnabled = true; combat.cooldown = 0; player.x = 7.5*TILE; player.y = 0.4*TILE;');
+    const once = J(`(function(){ var _r=Math.random; Math.random=function(){return 0.999;};
+      var s0=player.step;
+      for(var k in keys)delete keys[k]; keys.ArrowUp=true; update(); for(var k in keys)delete keys[k];
+      var res={combat:combat.active, stepDelta:player.step-s0, poolOK:(currentEncounterPool()||[]).length>0};
+      Math.random=_r; return JSON.stringify(res); })()`);
+    assert.equal(once.stepDelta, 1, 'exactly one step increment per frame');
+    assert.equal(once.combat, false, 'crossing does not force an encounter');
+    // Cross the seam over several frames; cooldown must NEVER be reset to
+    // ENCOUNTER_COOLDOWN by the seamless crossing (it only ticks down 1/frame).
+    g.run('debugMode=true; combat.cooldown = 0;');
+    const cd = drive({ ArrowUp: true }, 12);
+    assert.equal(mapId(), 'NORTH_BASIN_C_MAP', 'crossed during the cooldown check');
+    assert.equal(g.run('combat.cooldown'), 0, 'a seamless crossing never resets the encounter cooldown');
+    const s0 = J('JSON.stringify({ day:day, gold:stats.gold, hp:stats.hp, items:stats.items.length, inTown:inTown, inDungeon:inDungeon, dungeonFloor:dungeonFloor })');
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.4*TILE;');
+    drive({ ArrowUp: true }, 10);
+    const s1 = J('JSON.stringify({ day:day, gold:stats.gold, hp:stats.hp, items:stats.items.length, inTown:inTown, inDungeon:inDungeon, dungeonFloor:dungeonFloor })');
+    assert.deepEqual(s0, s1, 'no location-flag/quest/day/HP/inventory change');
+
+    // ── 26. Destination content key + encounter pool authoritative ──────────
+    assert.equal(g.run('currentContentLocationKey()'), 'north_basin_c', 'destination content-location key authoritative');
+    assert.equal(g.run('locationName()'), 'North Basin — Reservoir');
+    assert.ok(g.run('(currentEncounterPool()||[]).length > 0'), 'destination encounter pool active');
+
+    // ── 27 + 28. Save/load after vertical + horizontal crossings; version 3 ─
+    // (currently on NB_C after a vertical crossing)
+    g.run('saveGame();'); const raw = g.run("localStorage.getItem('verdantVale_save')");
+    assert.equal(JSON.parse(raw).version, 3, 'SAVE_VERSION 3');
+    assert.ok(!/continuousWorldView/i.test(raw), 'Continuous View flag is session-only (absent from save)');
+    const vx = g.run('player.x'), vy = g.run('player.y');
+    g.run('activeMap = MAP; player.x=0; player.y=0; loadGame();');
+    assert.equal(mapId(), 'NORTH_BASIN_C_MAP'); assert.equal(g.run('player.x'), vx); assert.equal(g.run('player.y'), vy);
+    // horizontal side
+    crossDirected('MAP3_N1', 'west', 'RODDON_WAY_MAP', [4, 9], 20);
+    assert.equal(mapId(), 'RODDON_WAY_MAP');
+    g.run('saveGame(); var hx=player.x, hy=player.y; activeMap=MAP; loadGame();');
+    assert.equal(mapId(), 'RODDON_WAY_MAP', 'load restores after a horizontal crossing');
+
+    // ── 29. Nonregional maps + combat unaffected ────────────────────────────
+    g.run("debugWarpToDestination('town:calwick_south'); continuousWorldViewEnabled = true;");
+    assert.equal(g.run('continuousSeamEngaged(0,-2)'), false, 'a town never engages continuous seams');
+    g.run('enterMeadow(); continuousWorldViewEnabled = true;');
+    assert.equal(g.run('continuousSeamEngaged(0,-2)'), false, 'the hidden meadow never engages');
+    g.run('startCombat(); combat.enemy = { id:"d", name:"Dummy", hp:10, maxHp:10, atk:1, def:0, spd:1, xp:0, goldMin:0, goldMax:0 };');
+    assert.equal(g.run('continuousSeamEngaged(0,-2)'), false, 'combat bypasses continuous seams');
+    g.run('combat.active=false; combat.enemy=null;');
+
+    // ── 30. Legacy canWalk away from eligible seams equivalent to parent ────
+    warp('MAP'); g.run('continuousWorldViewEnabled = false; player.x = 8.5*TILE; player.y = 8.5*TILE;');
+    assert.equal(g.run('canWalk(8.5*TILE, 8.5*TILE)'), true, 'canWalk on open MAP tile unchanged');
+    assert.equal(g.run('canWalk(0.5*TILE, 0.5*TILE)'), false, 'canWalk on MAP border wall unchanged');
   },
 };

@@ -1593,12 +1593,12 @@ function drawDebugInspector() {
       lines.push('CONT-VIEW: cam (' + plan.camPxX + ',' + plan.camPxY + ')  pWorld (' +
         plan.playerWorldPxX + ',' + plan.playerWorldPxY + ')  chunks ' + plan.visibleChunks.length +
         ' [' + plan.visibleChunks.map(c => c.mapId).join(',') + ']');
-      // Seam pilot diagnostic: is this a pilot map, and is the world-aware seam
-      // path currently engaged (footprint overlapping the approved seam)?
-      if (typeof pilotSeamMapActive === 'function' && pilotSeamMapActive()) {
-        const eng = (typeof pilotSeamEngaged === 'function') ? pilotSeamEngaged() : null;
-        lines.push('PILOT SEAM: map on pilot; world-move ' +
-          (eng ? 'ENGAGED (footprint overlaps seam)' : 'inactive (walk to the seam edge)'));
+      // Continuous-seam diagnostic: does the active map participate in an
+      // eligible reciprocal ALIGNS seam, and is one currently engaged (footprint
+      // touching it)?
+      const diag = (typeof continuousSeamDiagnostic === 'function') ? continuousSeamDiagnostic() : null;
+      if (diag && diag.participates) {
+        lines.push('CONT-SEAM: eligible; ' + (diag.engaged ? 'ENGAGED ' + diag.engaged : 'inactive (walk to a seam edge)'));
       }
     }
   }
