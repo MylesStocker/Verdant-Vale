@@ -968,34 +968,58 @@ function validateNPCs() {
       }
     }
 
+    // ── Regional PHYSICAL ownership (npc.map stays the LOGICAL key) ─────────
+    // A regional outdoor NPC may declare an explicit physicalMapId. It must be a
+    // placed outdoor map whose OUTDOOR_CONTENT_KEYS key AGREES with npc.map. When
+    // the logical key is ambiguous ('overworld' -> MAP/MAP5/RODDON_WAY_MAP), a
+    // regional MOVER must declare physicalMapId. See regional-npc-runtime.js.
+    let outdoorOwners = 0;
+    if (typeof outdoorContentKeyEntries === 'function' && typeof mapVal === 'string') {
+      for (const e of outdoorContentKeyEntries()) if (e.key === mapVal) outdoorOwners++;
+    }
+    const ambiguousOutdoorKey = outdoorOwners > 1;
+    if (npc.physicalMapId !== undefined && npc.physicalMapId !== null) {
+      const mid = npc.physicalMapId;
+      const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mid) : null;
+      const ck = (typeof outdoorContentKeyForMapId === 'function') ? outdoorContentKeyForMapId(mid) : null;
+      if (typeof mid !== 'string' || !placement)
+        addValidationError(GROUP, lbl + ': physicalMapId "' + mid + '" is not a known placed outdoor map');
+      else if (!ck)
+        addValidationError(GROUP, lbl + ': physicalMapId "' + mid + '" is not an outdoor content map');
+      else if (ck !== mapVal)
+        addValidationError(GROUP, lbl + ': physicalMapId "' + mid + '" content key "' + ck + '" disagrees with npc.map "' + mapVal + '"');
+    }
+    if (npc.movement !== undefined && ambiguousOutdoorKey && (npc.physicalMapId === undefined || npc.physicalMapId === null))
+      addValidationError(GROUP, lbl + ': a regional mover on the ambiguous key "' + mapVal + '" must declare an explicit physicalMapId (ambiguous physical ownership)');
+
     // ── Cross-seam interaction capability (EXPLICIT, fail-closed opt-in) ────
     // A neighbour NPC may be talked to across an eligible seam ONLY if it opts in
     // with `crossSeamInteraction`. Eligibility is never inferred from absent
     // action/route metadata. No authored NPC opts in today; this guards future
     // content so an opt-in can never silently coexist with active-map-only
-    // behaviour or ambiguous ownership. See world-point-content.js.
+    // behaviour or unresolved ownership. See world-point-content.js.
     if (npc.crossSeamInteraction !== undefined && npc.crossSeamInteraction !== null) {
       const cap = npc.crossSeamInteraction;
       const recognized = (typeof CROSS_SEAM_NPC_CAPABILITIES !== 'undefined' && CROSS_SEAM_NPC_CAPABILITIES)
         ? Object.prototype.hasOwnProperty.call(CROSS_SEAM_NPC_CAPABILITIES, cap)
-        : (cap === 'simple_dialogue');
+        : (cap === 'simple_dialogue' || cap === 'moving_simple_dialogue');
       if (!recognized) {
-        addValidationError(GROUP, lbl + ': crossSeamInteraction "' + cap + '" is not a recognized capability (only \'simple_dialogue\' is supported) — unknown capabilities fail closed');
+        addValidationError(GROUP, lbl + ': crossSeamInteraction "' + cap + '" is not a recognized capability (\'simple_dialogue\' | \'moving_simple_dialogue\') — unknown capabilities fail closed');
       } else {
-        // simple_dialogue contract: unambiguous outdoor content ownership, a
-        // nonempty authored dialogue, and NONE of the active-map-only machinery.
-        let owned = false;
-        if (typeof outdoorContentKeyEntries === 'function') {
-          for (const e of outdoorContentKeyEntries()) if (e.unambiguous && e.key === mapVal) { owned = true; break; }
-        }
-        if (!owned)
-          addValidationError(GROUP, lbl + ': crossSeamInteraction requires UNAMBIGUOUS outdoor content ownership — map "' + mapVal + '" is not a single placed outdoor map\'s content key');
+        // Physical ownership must RESOLVE (derived unambiguous, or explicit+agreeing).
+        const owns = (typeof physicalMapIdForNpc === 'function') ? physicalMapIdForNpc(npc) : null;
+        if (!owns)
+          addValidationError(GROUP, lbl + ': crossSeamInteraction requires resolvable physical ownership (an unambiguous outdoor key, or a valid physicalMapId agreeing with npc.map)');
         if (!_isPlainArray(npc.dialogue) || npc.dialogue.length === 0)
-          addValidationError(GROUP, lbl + ': crossSeamInteraction \'simple_dialogue\' requires a nonempty authored dialogue array');
+          addValidationError(GROUP, lbl + ': crossSeamInteraction requires a nonempty authored dialogue array');
         if (npc.action !== undefined && npc.action !== null)
           addValidationError(GROUP, lbl + ': crossSeamInteraction is incompatible with an action (scripted combat/cutscene/transition behaviour is active-map-only)');
-        if (npc.movement !== undefined)
-          addValidationError(GROUP, lbl + ': crossSeamInteraction is incompatible with movement (a mover is not a stationary simple-dialogue NPC)');
+        if (cap === 'simple_dialogue' && npc.movement !== undefined)
+          addValidationError(GROUP, lbl + ': crossSeamInteraction \'simple_dialogue\' is incompatible with movement — use \'moving_simple_dialogue\' for a mover');
+        if (cap === 'moving_simple_dialogue' && npc.movement === undefined)
+          addValidationError(GROUP, lbl + ': crossSeamInteraction \'moving_simple_dialogue\' requires movement (a mover)');
+        if (cap === 'moving_simple_dialogue' && (npc.physicalMapId === undefined || npc.physicalMapId === null))
+          addValidationError(GROUP, lbl + ': crossSeamInteraction \'moving_simple_dialogue\' requires an explicit physicalMapId');
       }
     }
   }

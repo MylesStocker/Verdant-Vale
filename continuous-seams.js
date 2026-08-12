@@ -29,7 +29,6 @@ const _CS_INV   = { north: 'south', south: 'north', east: 'west', west: 'east' }
 
 let _CS_INDEX = null;   // Map 'mapId|dir' -> { regionId, from, to, dir, axis:'ns'|'ew', range:[min,max] }
 let _CS_MAPS  = null;   // Set of mapIds participating in >= 1 eligible seam
-let _CS_OFFSETS = null;  // Map contentKey -> { offX, offY } for eligible maps (for NPC world placement)
 
 // The ONLY EDGE_TRANSITIONS segment properties a seamless crossing understands.
 // Everything else -- the known behavior-bearing `condition`/`blockedText`, AND any
@@ -133,28 +132,9 @@ function continuousSegmentDiagnostics() {
   return out;
 }
 
-// Lazily-built content-key -> world-offset map for the eligible seam maps, so a
-// solid NPC on any of them can be placed in world pixels for collision. The
-// content key is derived via a SAFE, restored probe of currentContentLocationKey()
-// (activeMap set + immediately reset within one synchronous call).
-function _contentKeyForMapId(mapId) {
-  const ref = (typeof mapRefForId === 'function') ? mapRefForId(mapId) : null;
-  if (!ref || typeof currentContentLocationKey !== 'function') return null;
-  const saved = activeMap;
-  try { activeMap = ref; return currentContentLocationKey(); } finally { activeMap = saved; }
-}
-function _csOffsets() {
-  if (_CS_OFFSETS) return _CS_OFFSETS;
-  _CS_OFFSETS = new Map();
-  const CW = COLS * TILE, CH = ROWS * TILE;
-  _csIndex();
-  for (const mapId of _CS_MAPS) {
-    const key = _contentKeyForMapId(mapId);
-    const p = regionPlacementForMapId(mapId);
-    if (key && p) _CS_OFFSETS.set(key, { offX: p.chunkX * CW, offY: p.chunkY * CH });
-  }
-  return _CS_OFFSETS;
-}
+// (Solid-NPC world placement for player collision now comes from the shared
+// read-only regionalNpcPose() authority — see continuousFootprintWalkable(). The
+// former content-key→offset probe was removed with it.)
 
 // ── Geometry helpers (world PIXELS) ─────────────────────────────────────────
 function _csChunkAt(regionId, worldPxX, worldPxY) {
@@ -204,12 +184,18 @@ function continuousFootprintWalkable(regionId, standChunk, worldPxX, worldPxY) {
     const t = tileAtWorld(regionId, Math.floor(wx / TILE), Math.floor(wy / TILE));
     if (!isTileWalkable(t)) return false;
   }
-  const offs = _csOffsets();
-  for (const npc of SIMPLE_NPCS) {
-    if (!npc.solid) continue;
-    const o = offs.get(npc.map);
-    if (!o) continue;
-    if (Math.abs(worldPxX - (o.offX + npc.x)) < 18 && Math.abs(worldPxY - (o.offY + npc.y)) < 18) return false;
+  // Solid regional NPCs block the player, center-based, exactly like canWalk() —
+  // compared in regional WORLD pixels via the shared read-only pose authority
+  // (regional-npc-runtime.js), so a solid neighbour NPC across an eligible seam is
+  // honoured and ambiguous/explicit ownership resolves correctly. No probe, no
+  // transient activeMap assignment.
+  if (typeof regionalNpcPose === 'function') {
+    for (const npc of SIMPLE_NPCS) {
+      if (!npc.solid) continue;
+      const op = regionalNpcPose(npc);
+      if (!op) continue;
+      if (Math.abs(worldPxX - op.worldPxX) < 18 && Math.abs(worldPxY - op.worldPxY) < 18) return false;
+    }
   }
   return true;
 }

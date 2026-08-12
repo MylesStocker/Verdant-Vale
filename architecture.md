@@ -88,6 +88,7 @@ The rule this codebase actually follows:
 | `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
 | `continuous-content.js` | **DEBUG-ONLY**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
 | `world-point-content.js` | **DEBUG-ONLY** world-aware STATIC content across seams (see "World-aware static content across seams" below): the PURE world-point resolver (`worldPointContentContext`), cross-seam authorization compose (`crossSeamNeighbourFor`, over `continuousSeamCrossingAt` in continuous-seams.js), the EXPLICIT capability authorities (`CROSS_SEAM_NPC_CAPABILITIES`/`crossSeamNpcCapabilityRecognized`, `crossSeamCollectibleItem`), the once-per-frame cross-seam item-pickup driver (`crossSeamStaticPickup`, calling `collectWorldItemNear` in movement.js), the opted-in neighbour-NPC interaction resolver/dispatch (`resolveCrossSeamInteractTarget`/`tryCrossSeamNeighbourInteract`), and the single prompt authority (`crossSeamInteractPromptTarget`) that drives both the press and `drawCrossSeamInteractPrompt` (render-entities.js). | Only active under Continuous View. **Assigns nothing** — no `activeMap`/player/coordinate/content-key/NPC-position write; canonical effects only (item `.picked`/grant/dialogue, NPC dialogue + authored `flag_sets`). FAIL-CLOSED: one directly-adjacent eligible-seam neighbour; unambiguous key for NPC ownership; NPCs must OPT IN via `crossSeamInteraction:'simple_dialogue'` and pickups via `crossSeamPickup:'registry_grant'` (both explicit allowlist capabilities, validated in validation.js); nothing crosses by default. |
+| `regional-npc-runtime.js` | **DEBUG-ONLY** chunk-aware regional NPC ownership + pose + simulation (see "Chunk-aware regional NPC runtime" below): `physicalMapIdForNpc` (logical key → physical outdoor map, fail-closed), `regionalNpcPose` (read-only live pixel pose), `nearbySimulationMapSet` (deterministic 3×3), `npcShouldSimulate` (lifecycle gate), `regionalNpcRouteCanOccupy` (world-aware, owner-chunk-confined occupancy). | Only active under Continuous View. **Assigns nothing** — no `activeMap`/player/location/NPC-ownership write. `npc.map` stays the logical key; physical ownership is distinct + explicit (`npc.physicalMapId` for ambiguous `'overworld'`). NPCs confined to one owner chunk (no cross-chunk routes yet). |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
@@ -741,7 +742,7 @@ happens.
   fight/cutscene) and applies the NPC's authored `flag_sets`. `validateGameData()`
   is the primary guard: an opted-in NPC that also carries an action / movement route
   / ambiguous ownership / no dialogue, or declares an unrecognized capability, is a
-  hard **error**; the runtime gate (`_crossSeamSimpleDialogueNpc`) re-checks the same
+  hard **error**; the runtime gate (`_crossSeamDialogueNpc`) re-checks the same
   structure as defence-in-depth.
 - **Cross-seam interaction PROMPT (same authority as the press).**
   `crossSeamInteractPromptTarget()` is the single pure authority that decides BOTH
@@ -760,10 +761,100 @@ happens.
   exercised only by synthetic fixtures (test 74). No gameplay content was added or
   moved to enable it; the mechanism is general and validated for when such content
   is authored.
-- **Still out of scope.** Neighbouring NPC movement/schedules/wandering/AI,
-  encounters (the active map stays the sole pool authority; pickup/interaction
-  queries never roll), scripted fights/cutscenes, and any non-cardinal or
-  more-than-one-neighbour ownership all stay legacy/active-only.
+- **Still out of scope.** Encounters (the active map stays the sole pool
+  authority; pickup/interaction queries never roll), scripted fights/cutscenes,
+  and any non-cardinal or more-than-one-neighbour ownership all stay
+  legacy/active-only. (Nearby regional NPC *movement* is now chunk-aware — see the
+  next section.)
+
+### Chunk-aware regional NPC runtime (`regional-npc-runtime.js`)
+
+Regional outdoor NPCs on NEARBY chunks get explicit physical-map ownership and keep
+updating / rendering / colliding / prompting / interacting consistently while
+visible from another chunk. Crossing the player's active-map boundary does not
+reset, duplicate, freeze, teleport, or redraw a nearby NPC. No authored outdoor NPC
+exercises this yet — it is built and validated with synthetic fixtures (test 75);
+no gameplay content was added or moved.
+
+- **Logical key vs PHYSICAL ownership.** `npc.map` stays the LOGICAL
+  content-location key (`currentContentLocationKey()`), NOT a physical map id.
+  `physicalMapIdForNpc(npc)` is the ONE authority for a regional NPC's placed
+  outdoor physical map: derived when the logical key is UNAMBIGUOUS, or declared via
+  `npc.physicalMapId` when the key is AMBIGUOUS (`'overworld'` → MAP / MAP5 /
+  RODDON_WAY_MAP). An explicit `physicalMapId` must be a placed outdoor map whose
+  `OUTDOOR_CONTENT_KEYS` key AGREES with `npc.map`. Unknown / unplaced / nonoutdoor /
+  disagreeing / ambiguous-without-declaration all **fail closed** (null). Towns,
+  interiors, dungeons, bridge, meadow, houses, and special maps are nonregional
+  (null) and keep their exact legacy content-key lifecycle.
+- **Runtime pose authority (read-only).** `regionalNpcPose(npc)` → `{ npc, mapId,
+  contentKey, localPxX, localPxY, worldPxX, worldPxY, facing, route } | null` is the
+  ONE pose every consumer (rendering, collision, prompt, interaction) reads. World
+  position = the owner chunk's placement origin + the NPC's CURRENT LIVE local
+  position (its route writes `npc.x/npc.y`). It never copies the NPC or mutates
+  state.
+- **Nearby simulation set (physical proximity, not draw calls).**
+  `nearbySimulationMapSet()` returns the active chunk plus every placed chunk within
+  one chunk on either axis (a max **3×3** neighbourhood), deterministic **row-major**,
+  sparse chunks omitted; `null` when Continuous View is off or the active map is
+  nonregional (legacy). An NPC keeps animating in its OWN chunk without needing an
+  eligible seam; seam eligibility still gates CROSS-boundary player collision /
+  interaction. Simulation is based on physical proximity, so it never fluctuates
+  with a one-pixel visibility change.
+- **Lifecycle.** `ensureAutoMovers()` / `updateNpcRoutes()` now gate on
+  `npcShouldSimulate(npc)`: regional NPCs use nearby-set membership; nonregional NPCs
+  and legacy mode use the exact old active-content-key gate. A regional NPC KEEPS its
+  live position / waypoint / pause / facing / animation step across the player's
+  active-map handoff (its chunk stays in the set — no restart, no reset, no jump);
+  once its chunk LEAVES the set it suspends via the established home contract
+  (`resetMovementNpc` → authored `MOVEMENT_HOMES`) and restarts from home when
+  simulated again. Each NPC updates exactly once per eligible frame, and every
+  existing global freeze (dialogue / combat / menu / choice / shop / debug / warp)
+  freezes it exactly as before. Route state stays session-only; `SAVE_VERSION`
+  remains 3; load and defeat still restore authored homes (`resetAllMovers`).
+- **World-aware occupancy.** `regionalNpcRouteCanOccupy(npc, localNx, localNy)`
+  resolves a route step against the NPC's OWN physical map: terrain + transition
+  tiles read via `tileAtWorld` from that map, the full `COLLISION_RADIUS` footprint
+  confined to the OWNER CHUNK (this is how "an NPC cannot leave its map" is enforced
+  this increment), the player in regional world pixels, and every OTHER solid
+  regional NPC via `regionalNpcPose` (so two NPCs in different local frames can't
+  overlap and distant NPCs never collide). `npcRouteCanOccupy()` dispatches here for
+  a regional NPC in scope; nonregional NPCs keep the legacy active-map path. The
+  player's own cross-seam collision (`continuousFootprintWalkable`) now blocks on
+  solid regional NPC poses too (the old content-key→offset probe was removed).
+- **Rendering.** Neighbouring chunks render NPCs by PHYSICAL-map ownership
+  (`drawContentNPCsForPhysicalMap(mapId)`), so an unambiguous derived owner AND an
+  explicit-`physicalMapId` owner (a mover on the ambiguous `'overworld'` key) both
+  render at their own chunk from the same LIVE pose the active map uses — a neighbour
+  mover visibly advances instead of appearing frozen. Each NPC renders exactly once
+  (active chunk via `drawSimpleNPCs`; neighbours via their own chunk's pass, with a
+  guard so an explicit-owner NPC is never also drawn at the active-local frame).
+  Handoff produces no duplicate / disappearance / jump / reset. Active-only generic
+  prompts stay suppressed for neighbours except through the shared cross-seam prompt
+  selector.
+- **Moving cross-seam interaction (explicit, fail-closed).** A new recognized NPC
+  capability `crossSeamInteraction: 'moving_simple_dialogue'` lets a MOVING neighbour
+  (has `movement` + an explicit `physicalMapId`) open ordinary dialogue + `flag_sets`.
+  Interacting FREEZES its live route at its current position and turns it toward the
+  player using WORLD-coordinate deltas; it resumes the same route after the dialogue
+  closes (the existing `resumeDelay` thaw) — never restarted or teleported home. The
+  interaction target and the prompt use the same live pose; exactly one prompt / one
+  interaction. Absence, unknown capability, an action / scripted behaviour, or
+  unresolved (ambiguous) ownership all fail closed; active-map target priority is
+  unchanged. `validateGameData()` errors on a mismatched / unplaced `physicalMapId`,
+  an ambiguous-key mover without a declaration, `simple_dialogue` on a mover,
+  `moving_simple_dialogue` without movement / `physicalMapId`, or an opted-in NPC
+  carrying an action.
+- **Schedules.** No authored schedule (day/flag-based `npc.map` getter) currently
+  enters a regional outdoor logical key — every scheduled/dynamic NPC resolves to a
+  town/house/interior key — so schedule schemas are unchanged. A future scheduled NPC
+  that could occupy a regional outdoor key must resolve `physicalMapId` explicitly for
+  each such location (ambiguity fails validation); the physical map is never inferred
+  from `activeMap`.
+- **LIMITATION — no cross-chunk NPC routes yet.** A regional NPC is confined to its
+  ONE owner chunk: occupancy blocks any step leaving the chunk, landing on a
+  transition tile, or leaving the map. Seamless PLAYER transitions do not authorize
+  NPC travel. Cross-chunk NPC movement is future work — it will require an explicit
+  movement capability and a world-space route schema.
 
 ## Movement, collision, encounters
 

@@ -296,6 +296,7 @@ function canWalk(cx, cy) {
   const mapId = currentContentLocationKey();
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId || !npc.solid) continue;
+    if (typeof npcExplicitOwnershipMismatchesActive === 'function' && npcExplicitOwnershipMismatchesActive(npc)) continue; // explicit owner != active chunk
     if (Math.abs(cx - npc.x) < 18 && Math.abs(cy - npc.y) < 18) return false;
   }
   return true;
@@ -1113,13 +1114,21 @@ window.resetAllPatrols  = resetAllMovers;
 // explicit start). Called from update()'s tail under the same freeze guard as
 // updateNpcRoutes().
 function ensureAutoMovers() {
-  const mapId = currentContentLocationKey();
   for (const npc of SIMPLE_NPCS) {
     const mv = npc.movement;
     if (!mv) continue;
     const auto = mv.type === 'boundedWander' || mv.type === 'flee' || (mv.type === 'patrol' && mv.autoStart === true);
     if (!auto) continue;
-    if (npc.map === mapId) {
+    // Chunk-aware for regional NPCs (nearby 3×3 simulation set under Continuous
+    // View); exact legacy active-content-key gate for nonregional NPCs and legacy
+    // mode. A regional NPC in the set keeps its route across the player's active-
+    // map handoff (its chunk stays in the set); once its chunk leaves the set it
+    // suspends/resets via the established home contract, and restarts from home
+    // when simulated again. See npcShouldSimulate() (regional-npc-runtime.js).
+    const simulate = (typeof npcShouldSimulate === 'function')
+      ? npcShouldSimulate(npc)
+      : (npc.map === currentContentLocationKey());
+    if (simulate) {
       if (!NPC_ROUTES[npc.id]) startNpcRoute(npc.id);
     } else if (NPC_ROUTES[npc.id]) {
       resetMovementNpc(npc.id);
@@ -1161,6 +1170,14 @@ window.patrolNpcTalk = patrolNpcTalk;
 // npcRouteCustomSolidBlocks()). The bridge checkpoint and the brewery have no
 // such fixed solids; a house wanderer (Tomas) does, so those are honoured too.
 function npcRouteCanOccupy(npc, nx, ny) {
+  // Regional NPC in the nearby simulation set: resolve occupancy against its OWN
+  // physical map in regional world pixels (terrain, transition tiles, owner-chunk
+  // confinement, the player, and other solid regional NPC poses) — never activeMap
+  // or the player's local frame. Nonregional NPCs keep the legacy active-map path.
+  if (typeof regionalNpcInSimulationScope === 'function' && regionalNpcInSimulationScope(npc)
+      && typeof regionalNpcRouteCanOccupy === 'function') {
+    return regionalNpcRouteCanOccupy(npc, nx, ny);
+  }
   const r = 9; // same hitbox radius as the player's canWalk()
   const corners = [[nx - r, ny - r], [nx + r, ny - r], [nx - r, ny + r], [nx + r, ny + r]];
   for (const [px, py] of corners) {
@@ -1173,6 +1190,7 @@ function npcRouteCanOccupy(npc, nx, ny) {
   const mapId = currentContentLocationKey();
   for (const other of SIMPLE_NPCS) {
     if (other === npc || other.map !== mapId || !other.solid) continue;
+    if (typeof npcExplicitOwnershipMismatchesActive === 'function' && npcExplicitOwnershipMismatchesActive(other)) continue; // explicit owner != active chunk
     if (Math.abs(nx - other.x) < 18 && Math.abs(ny - other.y) < 18) return false;
   }
   if (npcRouteCustomSolidBlocks(nx, ny)) return false;
@@ -1337,12 +1355,15 @@ window.startNpcRoute = startNpcRoute;
 // and never enter transition tiles (npcRouteCanOccupy) — nothing here touches
 // any of those systems.
 function updateNpcRoutes() {
-  const mapId = currentContentLocationKey();
   for (const id in NPC_ROUTES) {
     const rt = NPC_ROUTES[id];
     if (rt.done || !rt.moving) continue;
     const npc = rt.npc;
-    if (npc.map !== mapId) continue; // only NPCs on the active map update
+    // Regional NPCs simulate while their owner chunk is in the nearby set (so a
+    // neighbour mover keeps advancing across the player's handoff, not just the
+    // active chunk); nonregional NPCs and legacy mode keep the active-key gate.
+    // Exactly one update per eligible frame (this loop runs once per update()).
+    if (typeof npcShouldSimulate === 'function' ? !npcShouldSimulate(npc) : (npc.map !== currentContentLocationKey())) continue;
     // Frozen by an interaction (patrolNpcTalk): the first frame after the
     // dialogue closes (this updater only runs when dialogue is shut), thaw and
     // wait a beat before resuming — never a restart, never a teleport. For a

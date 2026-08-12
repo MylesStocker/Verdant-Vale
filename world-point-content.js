@@ -96,7 +96,14 @@ function crossSeamNeighbourFor(activeMapId, targetWorldPxX, targetWorldPxY) {
 // NPC also carries incompatible behaviour (action / route / scripted combat /
 // cutscene / transition) or lacks unambiguous content ownership — so an opt-in
 // can never coexist with active-map-only machinery.
-const CROSS_SEAM_NPC_CAPABILITIES = Object.freeze({ simple_dialogue: true });
+// 'simple_dialogue'        — a STATIONARY neighbour NPC opens its authored dialogue.
+// 'moving_simple_dialogue' — a MOVING neighbour NPC (has movement + EXPLICIT
+//                            physicalMapId) opens ordinary dialogue; interacting
+//                            freezes its live route at its current position and
+//                            faces the player, resuming afterwards. Both allow only
+//                            dialogue + flag_sets; actions/scripted behaviour stay
+//                            blocked. Absence/unknown value fail closed.
+const CROSS_SEAM_NPC_CAPABILITIES = Object.freeze({ simple_dialogue: true, moving_simple_dialogue: true });
 function crossSeamNpcCapabilityRecognized(cap) {
   return typeof cap === 'string' && Object.prototype.hasOwnProperty.call(CROSS_SEAM_NPC_CAPABILITIES, cap);
 }
@@ -210,35 +217,29 @@ function crossSeamStaticPickup() {
 // plain stationary dialogue NPC: authored `dialogue`, and none of the active-map-
 // only machinery (no action / NPC_ACTIONS key / movement route / NPC_ROUTES). This
 // mirrors the plain-dialogue branch of interactSimpleNPCs() — no clone/move/advance.
-function _crossSeamSimpleDialogueNpc(npc) {
+function _crossSeamDialogueNpc(npc) {
   if (!npc) return false;
-  if (!crossSeamNpcCapabilityRecognized(npc.crossSeamInteraction)) return false; // explicit opt-in only; unknown -> closed
-  if (npc.crossSeamInteraction !== 'simple_dialogue') return false;              // only capability supported today
+  const cap = npc.crossSeamInteraction;
+  if (!crossSeamNpcCapabilityRecognized(cap)) return false;       // absence/unknown -> closed
   if (!Array.isArray(npc.dialogue) || !npc.dialogue.length) return false;
   if (typeof npc.action === 'function') return false;
   if (npc.action && typeof NPC_ACTIONS !== 'undefined' && NPC_ACTIONS[npc.action]) return false;
   if (npc.action) return false;                                   // unknown action string -> fail closed
-  if (npc.movement) return false;                                 // authored mover -> not stationary
-  if (typeof NPC_ROUTES !== 'undefined' && NPC_ROUTES[npc.id]) return false; // live route -> not stationary
-  return true;
-}
-
-// Reverse the OUTDOOR_CONTENT_KEYS authority to the single physical map that owns
-// an UNAMBIGUOUS content key. Ambiguous keys (shared by several maps) return null:
-// their NPC content cannot be attributed to a chunk, so it forfeits cross-seam
-// ownership. Built lazily from the pure entries; cached.
-let _WPC_KEY_TO_MAP = null;
-function _unambiguousMapForContentKey(key) {
-  if (!_WPC_KEY_TO_MAP) {
-    _WPC_KEY_TO_MAP = new Map();
-    if (typeof outdoorContentKeyEntries === 'function') {
-      for (const e of outdoorContentKeyEntries()) {
-        if (e.unambiguous && e.key) _WPC_KEY_TO_MAP.set(e.key, e.mapId);
-      }
-    }
+  const isMover = !!npc.movement || !!(typeof NPC_ROUTES !== 'undefined' && NPC_ROUTES[npc.id]);
+  if (cap === 'simple_dialogue') {
+    return !isMover;                                              // stationary-only capability
   }
-  return _WPC_KEY_TO_MAP.has(key) ? _WPC_KEY_TO_MAP.get(key) : null;
+  if (cap === 'moving_simple_dialogue') {
+    if (!npc.movement) return false;                             // must be an authored mover
+    if (!npc.physicalMapId) return false;                        // moving neighbours need EXPLICIT ownership
+    if (typeof physicalMapIdForNpc === 'function' && !physicalMapIdForNpc(npc)) return false; // ownership must resolve
+    return true;
+  }
+  return false;
 }
+// (Physical-map ownership for a neighbour NPC now comes from the shared
+// physicalMapIdForNpc() authority in regional-npc-runtime.js — it handles both an
+// unambiguous derived owner and an explicit physicalMapId on an ambiguous key.)
 
 // Resolve the safe stationary neighbour NPC the player's interaction press should
 // target across a seam, or null. It considers ONLY the eligible-seam neighbours of
@@ -252,7 +253,7 @@ function resolveCrossSeamInteractTarget() {
   const pw = activePlayerWorldPoint();
   if (!pw) return null;
   if (typeof SIMPLE_NPCS === 'undefined' || typeof continuousSeamEntries !== 'function') return null;
-  const CW = COLS * TILE, CH = ROWS * TILE;
+  if (typeof physicalMapIdForNpc !== 'function' || typeof regionalNpcPose !== 'function') return null;
   const radius = (typeof TALK_RADIUS !== 'undefined') ? TALK_RADIUS : 20;
   const seen = new Set();
   for (const seam of continuousSeamEntries()) {
@@ -260,23 +261,18 @@ function resolveCrossSeamInteractTarget() {
     const neighbourId = seam.to;
     if (seen.has(neighbourId)) continue;
     seen.add(neighbourId);
-    const key = (typeof outdoorContentKeyForMapId === 'function') ? outdoorContentKeyForMapId(neighbourId) : null;
-    if (!key) continue;
-    if (_unambiguousMapForContentKey(key) !== neighbourId) continue; // ambiguous key -> forfeit NPC ownership
-    const np = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(neighbourId) : null;
-    if (!np || np.regionId !== pw.regionId) continue;
-    const originX = np.chunkX * CW, originY = np.chunkY * CH;
     for (const npc of SIMPLE_NPCS) {
-      if (npc.map !== key) continue;
-      if (!_crossSeamSimpleDialogueNpc(npc)) continue;
+      if (physicalMapIdForNpc(npc) !== neighbourId) continue;    // PHYSICAL ownership (derived or explicit)
+      if (!_crossSeamDialogueNpc(npc)) continue;                 // recognized capability, dialogue-safe
       if (npc.flag_required !== null && npc.flag_required !== undefined) {
         if (window[npc.flag_required.flag] !== npc.flag_required.value) continue;
       }
-      const npcWorldPxX = originX + npc.x, npcWorldPxY = originY + npc.y;
-      const dPxX = pw.worldPxX - npcWorldPxX, dPxY = pw.worldPxY - npcWorldPxY;
+      const pose = regionalNpcPose(npc);                         // shared LIVE pose (world pixels)
+      if (!pose) continue;
+      const dPxX = pw.worldPxX - pose.worldPxX, dPxY = pw.worldPxY - pose.worldPxY;
       if (Math.sqrt(dPxX * dPxX + dPxY * dPxY) >= radius) continue;
-      const auth = crossSeamNeighbourFor(pw.activeMapId, npcWorldPxX, npcWorldPxY);
-      if (!auth || auth.ctx.mapId !== neighbourId) continue;      // fail closed: not reachable across the seam
+      const auth = crossSeamNeighbourFor(pw.activeMapId, pose.worldPxX, pose.worldPxY);
+      if (!auth || auth.ctx.mapId !== neighbourId) continue;     // fail closed: not reachable across the seam
       return npc;
     }
   }
@@ -294,6 +290,20 @@ function resolveCrossSeamInteractTarget() {
 function tryCrossSeamNeighbourInteract() {
   const npc = resolveCrossSeamInteractTarget();
   if (!npc) return false;
+  // Face the player using WORLD-coordinate deltas (the player and a neighbour NPC
+  // live in different local frames), and FREEZE a live route at its current
+  // position — never restarted or teleported home. updateNpcRoutes()'s frozen
+  // branch thaws it a beat after the dialogue closes and it resumes the same route
+  // (the NPC keeps simulating because its chunk is in the nearby set). Setting
+  // npc.facing is the same canonical interaction effect patrolNpcTalk() applies.
+  const pose = (typeof regionalNpcPose === 'function') ? regionalNpcPose(npc) : null;
+  const pw = (typeof activePlayerWorldPoint === 'function') ? activePlayerWorldPoint() : null;
+  if (pose && pw) {
+    const dx = pw.worldPxX - pose.worldPxX, dy = pw.worldPxY - pose.worldPxY;
+    npc.facing = Math.abs(dx) >= Math.abs(dy) ? (dx >= 0 ? 'right' : 'left') : (dy >= 0 ? 'down' : 'up');
+    const rt = (typeof NPC_ROUTES !== 'undefined') ? NPC_ROUTES[npc.id] : null;
+    if (rt) { rt.frozen = true; rt.facing = npc.facing; rt.resumeDelay = 30; }
+  }
   dialogue.name  = npc.name;
   dialogue.pages = npc.dialogue;
   dialogue.open  = true;

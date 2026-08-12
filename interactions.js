@@ -24,6 +24,9 @@ function interactSimpleNPCs() {
   const mapId = currentContentLocationKey();
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId) continue;
+    // An explicit-physicalMapId NPC on the shared 'overworld' key belongs to its own
+    // physical chunk — never a different active chunk that merely shares the key.
+    if (typeof npcExplicitOwnershipMismatchesActive === 'function' && npcExplicitOwnershipMismatchesActive(npc)) continue;
     if (npc.flag_required !== null) {
       if (window[npc.flag_required.flag] !== npc.flag_required.value) continue;
     }

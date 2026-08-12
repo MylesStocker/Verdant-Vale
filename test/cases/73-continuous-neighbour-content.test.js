@@ -158,18 +158,20 @@ module.exports = {
     // ── 10 + 11 + 12. Neighbour NPCs: existing positions, read-only, no hint ─
     // Synthetic NPC fixture on an UNAMBIGUOUS neighbour key ('north_basin_c').
     warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;'); // NB_C visible north
+    // Neighbour NPCs now render by PHYSICAL-map ownership (drawContentNPCsForPhysicalMap),
+    // resolved from the unambiguous key ('north_basin_c' -> NORTH_BASIN_C_MAP).
     const npcRes = J(`(function(){
       var fake = { id:'__cc_npc', map:'north_basin_c', x:5.5*TILE, y:5.5*TILE, spriteType:'clerk' };
       SIMPLE_NPCS.push(fake);
       var beforeX = fake.x, beforeY = fake.y;
-      var _np = drawContentNPCs, keys=[]; drawContentNPCs=function(k){ keys.push(k); return _np(k); };
+      var _np = drawContentNPCsForPhysicalMap, ids=[]; drawContentNPCsForPhysicalMap=function(m){ ids.push(m); return _np(m); };
       render();
-      drawContentNPCs = _np;
-      var res = { keys: keys, npcMoved: (fake.x!==beforeX || fake.y!==beforeY) };
+      drawContentNPCsForPhysicalMap = _np;
+      var res = { ids: ids, npcMoved: (fake.x!==beforeX || fake.y!==beforeY) };
       SIMPLE_NPCS.splice(SIMPLE_NPCS.indexOf(fake),1);
       return JSON.stringify(res);
     })()`);
-    assert.ok(npcRes.keys.includes('north_basin_c'), 'the neighbour NB_C NPC key is rendered (unambiguous key)');
+    assert.ok(npcRes.ids.includes('NORTH_BASIN_C_MAP'), 'the neighbour NB_C NPC is rendered by its physical map (derived from the unambiguous key)');
     assert.equal(npcRes.npcMoved, false, 'rendering a neighbour NPC does not advance/mutate its position');
 
     // ── 14 + 15 + 16. Neighbour items: uncollected render, collected absent,

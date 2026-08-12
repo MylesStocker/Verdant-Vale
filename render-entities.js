@@ -124,16 +124,12 @@ function drawCrossSeamInteractPrompt() {
     ctx.textAlign = 'left';
   }
 }
-// The placement of the physical map that OWNS a cross-seam prompt NPC (via its
-// unambiguous content key). Read-only; null if not resolvable.
+// The placement of the physical map that OWNS a cross-seam prompt NPC. Uses the
+// shared physical-ownership authority so an explicit-physicalMapId owner (e.g. a
+// mover on the ambiguous 'overworld' key) resolves too. Read-only; null otherwise.
 function _promptNpcPlacement(npc) {
-  const mapId = _promptNpcMapId(npc);
+  const mapId = (typeof physicalMapIdForNpc === 'function') ? physicalMapIdForNpc(npc) : null;
   return (mapId && typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mapId) : null;
-}
-function _promptNpcMapId(npc) {
-  if (!npc || typeof outdoorContentKeyEntries !== 'function') return null;
-  for (const e of outdoorContentKeyEntries()) if (e.unambiguous && e.key === npc.map) return e.mapId;
-  return null;
 }
 
 function drawDrenwichNorthGateBody() {
@@ -1044,6 +1040,29 @@ function drawContentNPCs(contentKey) {
   const mapId = contentKey;
   for (const npc of SIMPLE_NPCS) {
     if (npc.map !== mapId) continue;
+    // An NPC that declares an EXPLICIT physicalMapId belonging to a DIFFERENT
+    // chunk than the active one is drawn by that chunk's own neighbour pass
+    // (drawContentNPCsForPhysicalMap) — never here at the active-local frame.
+    // Only affects NPCs that opt into explicit ownership (none authored today);
+    // ambiguous-key NPCs without a declaration are unaffected.
+    if (npc.physicalMapId != null && typeof physicalMapIdForNpc === 'function'
+        && typeof mapIdForRef === 'function' && physicalMapIdForNpc(npc) !== mapIdForRef(activeMap)) continue;
+    drawOneContentNPC(npc);
+  }
+}
+// Draw every NPC OWNED (physical map) by `mapId` — used by neighbouring-chunk
+// rendering so an unambiguous derived owner OR an explicit physicalMapId owner
+// (e.g. a mover on the ambiguous 'overworld' key) both render at their own chunk,
+// from the same live pose the active map uses. Read-only.
+function drawContentNPCsForPhysicalMap(mapId) {
+  if (typeof physicalMapIdForNpc !== 'function') return;
+  for (const npc of SIMPLE_NPCS) {
+    if (physicalMapIdForNpc(npc) !== mapId) continue;
+    drawOneContentNPC(npc);
+  }
+}
+// The per-NPC draw body shared by drawContentNPCs()/drawContentNPCsForPhysicalMap().
+function drawOneContentNPC(npc) {
     // Route-driven rendering (Phase 1 pilots: the bridge guards run
     // scriptedRoutes; Tobb Wend an auto-patrol; Tomas a bounded wander). A
     // frozen route (interaction in progress) draws a still, player-facing pose;
@@ -1054,7 +1073,7 @@ function drawContentNPCs(contentKey) {
     const rt = (typeof NPC_ROUTES !== 'undefined') ? NPC_ROUTES[npc.id] : undefined;
     // Cats aren't humanoids — they never take the walking-humanoid path; drawCat
     // handles both the still and moving (wander/flee) poses itself.
-    if (npc.spriteType === 'cat') { drawCat(npc, rt); continue; }
+    if (npc.spriteType === 'cat') { drawCat(npc, rt); return; }
     if (rt) {
       const style  = npc.spriteType || 'clerk';
       const walkFn = style === 'worker' ? drawWalkingWorker
@@ -1066,15 +1085,14 @@ function drawContentNPCs(contentKey) {
         ? rt.target != null
         : (rt.moving && rt.pauseLeft === 0));
       if (rt.frozen) {
-        if (walkFn) { walkFn(npc, rt.facing, 0, false); continue; }
+        if (walkFn) { walkFn(npc, rt.facing, 0, false); return; }
       } else if (stepping) {
-        if (walkFn) { walkFn(npc, rt.facing, rt.step, true); continue; }
-        drawWalkingGenericNPC(npc, rt); continue;
+        if (walkFn) { walkFn(npc, rt.facing, rt.step, true); return; }
+        drawWalkingGenericNPC(npc, rt); return;
       }
     }
     const fn = NPC_DRAW_FNS[npc.id];
     if (fn) fn(npc); else drawGenericNPC(npc);
-  }
 }
 
 // ─── Innkeeper Drawing (inside inn) ──────────────────────────────────────────

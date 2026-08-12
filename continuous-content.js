@@ -81,9 +81,14 @@ function drawNeighbourOutdoorContent(cx) {
   if (entry && Array.isArray(entry.items) && entry.items.length && typeof drawMapWorldItems === 'function') {
     drawMapWorldItems(entry.items);                         // respects wi.picked (collected state)
   }
-  const info = (typeof outdoorContentKeyInfo === 'function') ? outdoorContentKeyInfo(cx.mapId) : null;
-  if (info && info.unambiguous && info.key && typeof drawContentNPCs === 'function') {
-    drawContentNPCs(info.key);                              // read-only; no advance/dialogue/prompt
+  // Neighbour NPCs are drawn by PHYSICAL-map ownership (physicalMapIdForNpc), so
+  // both an unambiguous derived owner and an explicit physicalMapId owner (a mover
+  // on the ambiguous 'overworld' key) render at THIS chunk, from the same live pose
+  // the active map uses. Read-only: rendering never advances routes/dialogue — the
+  // nearby simulation set (update()) advances a neighbour mover, so it animates
+  // rather than appearing frozen.
+  if (typeof drawContentNPCsForPhysicalMap === 'function') {
+    drawContentNPCsForPhysicalMap(cx.mapId);
   }
   const decor = OUTDOOR_MAP_DECOR[cx.mapId];
   if (typeof decor === 'function') decor();                 // static landmark body (no active hint)
