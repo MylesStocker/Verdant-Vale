@@ -546,9 +546,11 @@ function update() {
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP4   && curTile === MAP4_ENTRANCE)    { exitMap4();    return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP4   && curTile === MAP5_EXIT)        { enterMap5();   return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP5   && curTile === MAP5_ENTRANCE)    { exitMap5();    return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP3   && curTile === FEN_N_EXIT)       { enterMap3N1(); return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N1 && curTile === FEN_N_ENTRANCE)  { exitMap3N1();  return; }
-    // MAP3_N1 <-> MAP3_N2 (Drenwick) is now an open EDGE_TRANSITIONS crossing
+    // MAP3 <-> MAP3_N1 (Northern Fen) is now a structural EDGE_TRANSITIONS seam
+    // (the single col-8 PATH, sourceRange [8,8]) — seamless under Continuous View,
+    // discrete via tryEdgeTransition() above with View off. The former FEN_N_EXIT/
+    // FEN_N_ENTRANCE point tiles + enterMap3N1()/exitMap3N1() were retired.
+    // MAP3_N1 <-> MAP3_N2 (Drenwick) is likewise an open EDGE_TRANSITIONS crossing
     // (fen row 3-13, road at col 8), not a single FEN_N2_EXIT/ENTRANCE tile —
     // handled by tryEdgeTransition() above. (enterMap3N2()/exitMap3N2() in
     // world-transitions.js are now unused, like the retired point-tiles.)

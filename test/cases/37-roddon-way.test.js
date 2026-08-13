@@ -28,8 +28,9 @@
 //   9.  RODDON_SILT is registered: WALKABLE, TILE_PROPERTIES (walkable,
 //       non-encounter-eligible), RENDERABLE_TILE_IDS, and a real render
 //       frame with it on screen does not throw.
-//   10. Existing MAP3_N1 transitions (FEN_N_EXIT/ENTRANCE to MAP3) still
-//       work unchanged -- the new west opening didn't interfere.
+//   10. The MAP3 <-> MAP3_N1 crossing (now the col-8 EDGE_TRANSITIONS seam,
+//       former FEN_N_EXIT/ENTRANCE point tiles) still works -- the west opening
+//       didn't interfere.
 //   11. validateGameData() reports 0 errors and no warning mentions Roddon
 //       Way or RODDON_SILT.
 
@@ -216,16 +217,19 @@ module.exports = {
     g.run('player.x = 6.5*TILE; player.y = 6.5*TILE;'); // standing on ridge
     assert.doesNotThrow(() => g.renderFrame(), 'rendering a frame with RODDON_SILT on screen must not throw');
 
-    // ── 10. Existing MAP3_N1 transitions still work ──────────────────────────
+    // ── 10. MAP3 <-> MAP3_N1 crossing still works ────────────────────────────
+    // Converted from a FEN_N_EXIT point-tile to a structural EDGE_TRANSITIONS seam
+    // (col-8 PATH, sourceRange [8,8]). With Continuous View OFF (default) the walk
+    // must still cross via the legacy broad-edge path.
     g.run(`
-      inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3;
+      inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3; continuousWorldViewEnabled=false;
       player.x=8.5*TILE; player.y=1.5*TILE; player.facing='up'; combat.cooldown=0;
     `);
     g.hold('ArrowUp');
     let toFen = false;
     for (let i = 0; i < 40 && !toFen; i++) { g.frames(1); toFen = g.run('activeMap === MAP3_N1'); }
     g.release('ArrowUp');
-    assert.ok(toFen, 'the pre-existing MAP3 <-> MAP3_N1 point-transition (FEN_N_EXIT) must still work');
+    assert.ok(toFen, 'the MAP3 <-> MAP3_N1 crossing (now the col-8 EDGE_TRANSITIONS seam) must still work with Continuous View off');
     assert.equal(g.run('canWalk(player.x, player.y)'), true);
 
     // ── 11. validateGameData() clean ─────────────────────────────────────────

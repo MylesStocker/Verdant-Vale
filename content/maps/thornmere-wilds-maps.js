@@ -56,10 +56,11 @@ const LORRA_HOUSE_MAP = [
 // Heavy wetland character: large northern lake (rows 1-3), mid-pond (rows 5-7),
 // southern marsh (rows 12-13), reeds throughout.
 // Road enters from the west (col 0 row 11), heads east to col 8, bends north to
-// row 0 (FEN_N_EXIT). Also branches east at row 6: road runs col 8→15 (MAP4_EXIT).
+// row 0, where the col-8 PATH is now the seamless MAP3↔MAP3_N1 crossing (former
+// FEN_N_EXIT point tile). Also branches east at row 6: road runs col 8→15 (MAP4_EXIT).
 const MAP3 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  1,  1,  1,  1,  1,  1,  1,  1, 47,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = FEN_N_EXIT; N lake continues off-map W of the road
+  [  1,  1,  1,  1,  1,  1,  1,  1,  2,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = PATH seam to MAP3_N1; N lake continues off-map W of the road
   [  1, 23, 23,  1,  1,  1,  1, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  1  N lake + reeds; road at col 8; water W edge
   [  1, 23,  1,  1,  1,  1,  1,  1,  2,  0,  0,  0,  0,  3,  3,  3],  //  2  N lake + reeds; road at col 8; water W edge
   [  3,  0,  1,  1,  1, 23, 23,  0,  2,  0,  0,  0,  0,  3,  0,  3],  //  3  N lake edge; road at col 8
@@ -132,7 +133,9 @@ const MAP5 = [
 const MAP5_ITEMS = [];
 
 // ─── Northern Fen — MAP3_N1  (16 × 15) ───────────────────────────────────────
-// Connected south to MAP3 via FEN_N_EXIT at MAP3 row 0 col 8 / FEN_N_ENTRANCE at row 14 col 8.
+// Connected south to MAP3 by the seamless col-8 PATH crossing (EDGE_TRANSITIONS
+// MAP3_N1.south ↔ MAP3.north, sourceRange [8,8]) — the former FEN_N_EXIT/ENTRANCE
+// point tiles at MAP3 row 0 col 8 / MAP3_N1 row 14 col 8, now ordinary road.
 // Connected north to MAP3_N2 (Drenwick) via an open EDGE_TRANSITIONS crossing:
 // row 0, cols 3-13 (open fen, with the road at col 8 running through the
 // middle) — see EDGE_TRANSITIONS['MAP3_N1'].north. Replaced the old single
@@ -163,7 +166,7 @@ const MAP3_N1 = [
   [  3,  0, 54, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3,  3,  0,  3],  // 11  FARM_HOUSE c2 (hamlet middle)
   [  3, 54,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 12  FARM_HOUSE c1 (hamlet south)
   [  3,  0,  0,  0,  0, 23, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  reeds near south
-  [  3,  3,  3,  3,  3,  3,  3,  3, 48,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 8 = FEN_N_ENTRANCE
+  [  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 8 = PATH seam to MAP3 (former FEN_N_ENTRANCE point tile)
 ];
 
 const MAP3_N1_ITEMS = [

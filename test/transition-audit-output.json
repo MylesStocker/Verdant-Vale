@@ -7789,46 +7789,6 @@
       ]
     },
     {
-      "name": "enterMap3N1",
-      "srcMap": "MAP3",
-      "srcTile": "FEN_N_EXIT",
-      "destMap": "MAP3_N1",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 8,
-          "px": 272,
-          "py": 432,
-          "tileId": 2,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
-      "name": "exitMap3N1",
-      "srcMap": "MAP3_N1",
-      "srcTile": "FEN_N_ENTRANCE",
-      "destMap": "MAP3",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 8,
-          "px": 272,
-          "py": 48,
-          "tileId": 2,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
       "name": "enterMapN1",
       "srcMap": "MAP",
       "srcTile": "NORTH_EXIT",
@@ -8194,16 +8154,6 @@
     },
     {
       "name": "NORTH2_ENTRANCE",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "FEN_N_EXIT",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "FEN_N_ENTRANCE",
       "mapsUsingIt": 1,
       "handledInMovement": true
     },
@@ -8946,6 +8896,20 @@
       "allOk": true
     },
     {
+      "srcMap": "MAP3",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        8,
+        8
+      ],
+      "targetMap": "MAP3_N1",
+      "targetEdge": "south",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "MAP3_N1",
       "direction": "west",
       "segment": 0,
@@ -8970,6 +8934,20 @@
       "targetMap": "MAP3_N2",
       "targetEdge": "south",
       "walkableSources": 11,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP3_N1",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        8,
+        8
+      ],
+      "targetMap": "MAP3",
+      "targetEdge": "north",
+      "walkableSources": 1,
       "bad": [],
       "allOk": true
     },
@@ -10241,8 +10219,8 @@
         "dir": "north",
         "neighbor": "MAP3_N1",
         "target": "MAP3_N1",
-        "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP3",
@@ -10491,8 +10469,8 @@
         "dir": "south",
         "neighbor": "MAP3",
         "target": "MAP3",
-        "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP3_N1",
@@ -10756,9 +10734,9 @@
       }
     ],
     "totals": {
-      "NEEDS_REMAP": 16,
+      "NEEDS_REMAP": 14,
       "BORDER": 26,
-      "ALIGNS": 14,
+      "ALIGNS": 16,
       "BLOCKED": 4
     }
   }

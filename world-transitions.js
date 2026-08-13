@@ -608,14 +608,10 @@ function exitMap5() {
   transitionToLocation({ mapId: 'MAP4', x: 14.5 * TILE, y: player.y, facing: 'left', cooldown: true });
 }
 
-function enterMap3N1() {
-  // player.x preserved — col lines up with FEN_N_EXIT.
-  transitionToLocation({ mapId: 'MAP3_N1', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true });
-}
-
-function exitMap3N1() {
-  transitionToLocation({ mapId: 'MAP3', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true });
-}
+// MAP3 <-> MAP3_N1 (Northern Fen) was a preserved-x point crossing
+// (enterMap3N1/exitMap3N1 on FEN_N_EXIT/FEN_N_ENTRANCE). It is now a structural
+// EDGE_TRANSITIONS seam (MAP3.north <-> MAP3_N1.south, the single col-8 PATH,
+// sourceRange [8,8]); those two wrappers and their point tiles were retired.
 
 function enterMap3N2() {
   transitionToLocation({ mapId: 'MAP3_N2', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true });
@@ -628,7 +624,7 @@ function exitMap3N2() {
 // ─── The North Basin — south approach (skeleton) ─────────────────────────────
 // MAP3_N2's NORTH_BASIN_EXIT (row 0 col 12) <-> NORTH_BASIN_S_MAP's
 // NORTH_BASIN_ENTRANCE (row 14 col 12). Same preserved-x, fixed-y pattern as
-// every other north/south overworld crossing (enterMap3N1/exitMap3N1, etc).
+// every other north/south overworld point crossing (enterMapN1/exitMapN1, etc).
 function enterNorthBasinS() {
   transitionToLocation({ mapId: 'NORTH_BASIN_S_MAP', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true }); // player.x preserved (col 12)
 }
@@ -1191,6 +1187,16 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'north', sourceRange: [1, 10] },
     ],
   },
+  // North edge: the single col-8 PATH up into the Northern Fen (MAP3_N1). MAP3's
+  // north edge is open lake except this one road tile, so the seam is deliberately
+  // ONE tile wide (sourceRange [8,8]). This is the pilot conversion of the former
+  // FEN_N_EXIT/FEN_N_ENTRANCE point crossing to a structural seam; reciprocal of
+  // MAP3_N1.south. The one-tile corridor is authored geography (unchanged).
+  MAP3: {
+    north: [
+      { targetMap: 'MAP3_N1', targetEdge: 'south', sourceRange: [8, 8] },
+    ],
+  },
   // West edge: rows 4-9 into Roddon Way's east edge -- the roddon ridge
   // crossing the map boundary. Deliberately clear of the Mire Entrance
   // (col 1, row 3) and the hamlet farmhouses (col 1, rows 10-12) on the
@@ -1203,10 +1209,16 @@ const EDGE_TRANSITIONS = {
     // North edge: cols 3-13 up into MAP3_N2 (Drenwick)'s south fen approach.
     // Was the single FEN_N2_EXIT road tile at col 8; now the whole fen edge is
     // open, with that road running through the middle of the crossing. Ranges
-    // match exactly, so crossings never clamp. (South stays the FEN_N road
-    // point-tile — MAP3's north edge is open lake, so it can't be an edge.)
+    // match exactly, so crossings never clamp.
     north: [
       { targetMap: 'MAP3_N2', targetEdge: 'south', sourceRange: [3, 13] },
+    ],
+    // South edge: the single col-8 PATH into MAP3 (Thornmere Fen). MAP3's north
+    // edge is open lake except this one road tile, so the seam is deliberately
+    // ONE tile wide (sourceRange [8,8]) — the first converted former point
+    // crossing (was FEN_N_ENTRANCE/FEN_N_EXIT). Reciprocal of MAP3.north.
+    south: [
+      { targetMap: 'MAP3', targetEdge: 'north', sourceRange: [8, 8] },
     ],
   },
   // South edge: the reciprocal of MAP3_N1's north — cols 3-13 down into the

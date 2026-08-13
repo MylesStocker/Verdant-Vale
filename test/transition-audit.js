@@ -429,8 +429,9 @@ const preservedTransitions = [
   { name: 'exitMap4', srcMap: 'MAP4', srcTile: 'MAP4_ENTRANCE', destMap: 'MAP3', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
   { name: 'enterMap5', srcMap: 'MAP4', srcTile: 'MAP5_EXIT', destMap: 'MAP5', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
   { name: 'exitMap5', srcMap: 'MAP5', srcTile: 'MAP5_ENTRANCE', destMap: 'MAP4', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
-  { name: 'enterMap3N1', srcMap: 'MAP3', srcTile: 'FEN_N_EXIT', destMap: 'MAP3_N1', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
-  { name: 'exitMap3N1', srcMap: 'MAP3_N1', srcTile: 'FEN_N_ENTRANCE', destMap: 'MAP3', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
+  // MAP3 <-> MAP3_N1 (FEN_N_EXIT/ENTRANCE, enterMap3N1/exitMap3N1) retired — now a
+  // structural EDGE_TRANSITIONS seam (col-8 PATH, sourceRange [8,8]), checked by the
+  // continuous-seam edge tests instead of this preserved-coordinate sweep.
   // MAP3_N1 <-> MAP3_N2 (FEN_N2_EXIT/ENTRANCE) retired — now an open
   // EDGE_TRANSITIONS fen crossing, checked by the North-Basin-style edge tests.
   { name: 'enterMapN1', srcMap: 'MAP', srcTile: 'NORTH_EXIT', destMap: 'MAP_N1', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
@@ -493,7 +494,6 @@ const transitionTileNames = [
   'WEST_ENTRANCE', 'WEST_EXIT', 'HOUSE_DOOR', 'SCHOOL_DOOR', 'APT_DOOR', 'APT_INTERIOR_DOOR',
   'MAP2_EXIT', 'MAP2_ENTRANCE', 'MAP3_EXIT', 'MAP3_ENTRANCE',
   'NORTH_EXIT', 'NORTH_ENTRANCE', 'NORTH2_EXIT', 'NORTH2_ENTRANCE',
-  'FEN_N_EXIT', 'FEN_N_ENTRANCE',
   'MAP4_EXIT', 'MAP4_ENTRANCE', 'GUARD_POST', 'FARM_HOUSE',
   'MIRE_ENTRANCE', 'MIRE_EXIT', 'BRIDGE_GATE', 'BRIDGE_EXIT',
   'MAP5_EXIT', 'MAP5_ENTRANCE', 'DUNGEON8_WEST_DOOR', 'DUNGEON8_WEST_RET',
@@ -511,6 +511,8 @@ const transitionTileNames = [
   // test/cases/10-transition-audit.test.js would flag them otherwise).
   // FEN_N2_EXIT/ENTRANCE (49/50) retired the same way: MAP3_N1 <-> MAP3_N2
   // (Drenwick) is now an open EDGE_TRANSITIONS fen crossing (row edge, cols 3-13).
+  // FEN_N_EXIT/ENTRANCE (47/48) retired the same way: MAP3 <-> MAP3_N1 (Northern
+  // Fen) is now a structural EDGE_TRANSITIONS seam (col-8 PATH, sourceRange [8,8]).
 ];
 const tileUsage = [];
 for (const name of transitionTileNames) {
@@ -627,7 +629,8 @@ const POINT_WORLD_CROSSINGS = [
   ['MAP4', 'east', 'MAP5'], ['MAP5', 'west', 'MAP4'],
   ['MAP', 'north', 'MAP_N1'], ['MAP_N1', 'south', 'MAP'],
   ['MAP_N1', 'north', 'MAP_N2'], ['MAP_N2', 'south', 'MAP_N1'],
-  ['MAP3', 'north', 'MAP3_N1'], ['MAP3_N1', 'south', 'MAP3'],
+  // MAP3 <-> MAP3_N1 retired: converted to a structural EDGE_TRANSITIONS seam
+  // (MAP3.north <-> MAP3_N1.south, sourceRange [8,8]) — now classified ALIGNS.
   ['MAP3_N2', 'north', 'NORTH_BASIN_S_MAP'], ['NORTH_BASIN_S_MAP', 'south', 'MAP3_N2'],
 ];
 

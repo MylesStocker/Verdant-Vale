@@ -608,8 +608,32 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   BORDER/void stays blocked; point transitions, towns, interiors, dungeons, houses,
   bridge, meadow, and special maps stay legacy. Toggling off near a seam can't
   strand the player. The transition audit totals are unchanged.
-- **Out of scope / future.** NEEDS_REMAP seams still inset; no world-position save
-  migration (would require a `SAVE_VERSION` bump); no caching.
+- **First converted former point crossing (pilot): Thornmere Fen ↔ Northern Fen.**
+  `MAP3.north ↔ MAP3_N1.south` was a `FEN_N_EXIT`/`FEN_N_ENTRANCE` point-tile warp
+  (`enterMap3N1`/`exitMap3N1`); it is now a structural `EDGE_TRANSITIONS` seam — the
+  single **col-8 `PATH`**, `sourceRange [8, 8]`, reciprocal, no `targetRange`. MAP3's
+  north edge is otherwise open lake, so the seam is deliberately **one tile wide**;
+  that one-tile road corridor is **authored geography, unchanged** (only the two
+  former transition tiles at `MAP3[0][8]`/`MAP3_N1[14][8]` became ordinary `PATH`).
+  With **Continuous View on** it is walked seamlessly (world-aware footprint
+  collision keeps the crossing to the col-8 corridor; the standing-point handoff
+  swaps `activeMap` as the centre passes the chunk boundary). With **Continuous View
+  off** the same connection works through the legacy broad-edge path
+  (`tryEdgeTransition`), landing one tile inside the destination edge (row 13 / row
+  1) with the encounter cooldown applied — matching the retired point transition.
+  Both maps stay `FAR_ENEMY_TEMPLATES` on each side (geographic ownership).
+- **Continuous seam crossings do NOT reset the encounter cooldown.** The seamless
+  handoff (`continuousSeamMove`) only swaps `activeMap` + local coordinates; it never
+  calls `transitionToLocation`, so `combat.cooldown` is untouched (it just keeps
+  ticking). Only the legacy edge/point path applies a fresh cooldown.
+- **Seam edge base-walkability validation.** `continuousSeamEdgeWalkability()`
+  (validation.js, pure) confirms — for every coordinate of a seam's identical
+  reciprocal range — that BOTH the source border tile and its reciprocal landing
+  border tile are base-walkable; `validateContinuousSeams()` errors otherwise. This
+  is the general guard that a converted point crossing (or any future one) cannot
+  strand/soft-lock the seamless footprint on a blocked border cell.
+- **Out of scope / future.** The remaining NEEDS_REMAP seams still inset; no
+  world-position save migration (would require a `SAVE_VERSION` bump); no caching.
 
 ### Neighbouring outdoor content, READ-ONLY (`continuous-content.js`)
 

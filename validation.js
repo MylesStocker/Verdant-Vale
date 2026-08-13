@@ -249,6 +249,30 @@ function validateRegionalLayout() {
 // authoritative REGIONAL_LAYOUT / EDGE_TRANSITIONS / placement + collision data.
 // Any discrepancy is an ERROR (do not change authored data to silence it). This
 // validation lives in production and does NOT depend on test/transition-audit.js.
+// PURE, read-only: for a continuous seam (from-edge `fromEdge`, reciprocal
+// to-edge `toEdge`, identical `range`), confirm EVERY coordinate's source border
+// tile AND its reciprocal landing border tile are base-walkable. Returns
+// { ok:true } or { ok:false, along, side:'source'|'landing' } for the first
+// offending coordinate. Reads only the passed map arrays + isTileWalkable — no
+// runtime-state read/write — so validateContinuousSeams() and a synthetic
+// blocked-edge test both use exactly this logic.
+function continuousSeamEdgeWalkability(fromRef, fromEdge, toRef, toEdge, range) {
+  if (typeof isTileWalkable !== 'function' || !Array.isArray(range)) return { ok: true };
+  const rows = _validationRows(), cols = _validationCols();
+  const cell = (ref, edge, along) => {
+    if (!Array.isArray(ref)) return undefined;
+    if (edge === 'north') return ref[0] ? ref[0][along] : undefined;
+    if (edge === 'south') return ref[rows - 1] ? ref[rows - 1][along] : undefined;
+    if (edge === 'west')  return ref[along] ? ref[along][0] : undefined;
+    return ref[along] ? ref[along][cols - 1] : undefined; // east
+  };
+  for (let along = range[0]; along <= range[1]; along++) {
+    if (!isTileWalkable(cell(fromRef, fromEdge, along))) return { ok: false, along, side: 'source' };
+    if (!isTileWalkable(cell(toRef, toEdge, along)))    return { ok: false, along, side: 'landing' };
+  }
+  return { ok: true };
+}
+
 function validateContinuousSeams() {
   const GROUP = 'Continuous seams';
   let checked = 0;
@@ -299,21 +323,15 @@ function validateContinuousSeams() {
       if (s.targetEdge !== INV[e.dir]) addValidationError(GROUP, lbl + ': targetEdge is not the inverse of the direction');
       if (!Array.isArray(s.sourceRange) || s.sourceRange[0] !== e.range[0] || s.sourceRange[1] !== e.range[1]) addValidationError(GROUP, lbl + ': derived range disagrees with EDGE_TRANSITIONS sourceRange');
     }
-    // base-walkable source + landing coordinates across the whole range, both edges
-    if (typeof mapRefForId === 'function' && typeof isTileWalkable === 'function') {
-      const fromRef = mapRefForId(e.from), toRef = mapRefForId(e.to);
-      const rows = _validationRows(), cols = _validationCols();
-      const edgeTile = (ref, edge, along) => {
-        if (!Array.isArray(ref)) return undefined;
-        if (edge === 'north') return ref[0] ? ref[0][along] : undefined;
-        if (edge === 'south') return ref[rows - 1] ? ref[rows - 1][along] : undefined;
-        if (edge === 'west')  return ref[along] ? ref[along][0] : undefined;
-        return ref[along] ? ref[along][cols - 1] : undefined; // east
-      };
-      for (let along = e.range[0]; along <= e.range[1]; along++) {
-        if (!isTileWalkable(edgeTile(fromRef, e.dir, along))) { addValidationError(GROUP, lbl + ': source edge not walkable at ' + along); break; }
-        if (!isTileWalkable(edgeTile(toRef, INV[e.dir], along))) { addValidationError(GROUP, lbl + ': landing edge not walkable at ' + along); break; }
-      }
+    // Base-walkable source + reciprocal-landing edge cells across the WHOLE range
+    // (both edges). This is the general terrain-walkability guard for continuous
+    // seams — a converted point crossing (or any future one) must have both border
+    // tiles base-walkable at every seam coordinate, or the seamless footprint would
+    // strand/soft-lock the player. Extracted to continuousSeamEdgeWalkability() so
+    // the same pure check is testable with a synthetic (blocked-edge) seam.
+    if (typeof mapRefForId === 'function') {
+      const r = continuousSeamEdgeWalkability(mapRefForId(e.from), e.dir, mapRefForId(e.to), INV[e.dir], e.range);
+      if (!r.ok) addValidationError(GROUP, lbl + ': ' + r.side + ' edge not base-walkable at ' + r.along);
     }
     // no solid NPC on an eligible seam map (the safety band the cross-seam
     // collision relies on) -- if this ever fires, reconsider the seam's eligibility.
@@ -1976,6 +1994,7 @@ window.validateMaps             = validateMaps;
 window.validateMapMetadata      = validateMapMetadata;
 window.validateRegionalLayout   = validateRegionalLayout;
 window.validateContinuousSeams  = validateContinuousSeams;
+window.continuousSeamEdgeWalkability = continuousSeamEdgeWalkability;
 window.validateEncounterGeography = validateEncounterGeography;
 window.validateTiles            = validateTiles;
 window.validateEdgeTransitions  = validateEdgeTransitions;
