@@ -375,6 +375,52 @@ function validateContinuousContent() {
   return checked;
 }
 
+// ─── Geographic encounter resolver (encounter-geography.js) ──────────────────
+// Every placed regional map resolves, from a representative world point, back to
+// its OWN physical map id, and its resolved encounter pool is EXACTLY the canonical
+// MAP_CATALOG reference (empty/absent pools stay legal — never invented). Maps that
+// share a logical key (MAP / MAP5 / RODDON_WAY_MAP → 'overworld') resolve
+// independently by physical id. Void / sparse / unknown-region / invalid coordinates
+// fail closed. PURE: does not touch runtime location/state.
+function validateEncounterGeography() {
+  const GROUP = 'Encounter geography';
+  let checked = 0;
+  if (typeof geographicEncounterContext !== 'function' || typeof REGIONAL_LAYOUT === 'undefined'
+      || typeof mapEntryForId !== 'function') return checked;
+  const CW = COLS * TILE, CH = ROWS * TILE;
+  for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+    const region = REGIONAL_LAYOUT[regionId];
+    if (!region || !_isPlainArray(region.placements)) continue;
+    for (const p of region.placements) {
+      checked++;
+      // Representative point: the chunk centre in region world pixels.
+      const wx = p.chunkX * CW + Math.floor(CW / 2);
+      const wy = p.chunkY * CH + Math.floor(CH / 2);
+      const ctx = geographicEncounterContext(regionId, wx, wy);
+      if (!ctx) { addValidationError(GROUP, 'placed map "' + p.mapId + '" does not resolve from its own chunk centre'); continue; }
+      if (ctx.mapId !== p.mapId)
+        addValidationError(GROUP, 'chunk centre of "' + p.mapId + '" resolves to the wrong physical map "' + ctx.mapId + '"');
+      const entry = mapEntryForId(p.mapId);
+      const canonical = entry && entry.encounterPool !== undefined ? entry.encounterPool : null;
+      if (ctx.encounterPool !== canonical)
+        addValidationError(GROUP, 'resolved encounter pool for "' + p.mapId + '" is not the canonical MAP_CATALOG reference');
+    }
+    // Fail-closed cases (per region): a sparse/void chunk, negatives, non-finite.
+    const bx = _regionMaxChunkX(region), by = _regionMaxChunkY(region);
+    if (geographicEncounterContext(regionId, (bx + 2) * CW + 1, (by + 2) * CH + 1) !== null)
+      addValidationError(GROUP, 'a point far outside every placed chunk did not fail closed (region "' + regionId + '")');
+    if (geographicEncounterContext(regionId, -1, 10) !== null)
+      addValidationError(GROUP, 'a negative world point did not fail closed (region "' + regionId + '")');
+    if (geographicEncounterContext(regionId, NaN, 10) !== null)
+      addValidationError(GROUP, 'a non-finite world point did not fail closed (region "' + regionId + '")');
+  }
+  if (geographicEncounterContext('__no_such_region__', 10, 10) !== null)
+    addValidationError(GROUP, 'an unknown region did not fail closed');
+  return checked;
+}
+function _regionMaxChunkX(region) { let m = 0; for (const p of region.placements) if (p.chunkX > m) m = p.chunkX; return m; }
+function _regionMaxChunkY(region) { let m = 0; for (const p of region.placements) if (p.chunkY > m) m = p.chunkY; return m; }
+
 // ─── 3. Tiles (and point/special transition tiles) ─────────────────────────
 // Scans every tile actually used across every MAP_METADATA-registered map.
 // "Known tile" is decided via tiles.js's DEBUG_TILE_NAMES list (the same
@@ -1858,6 +1904,7 @@ function validateGameData() {
     'Regional layout': validateRegionalLayout(),
     'Continuous seams': validateContinuousSeams(),
     'Continuous content': validateContinuousContent(),
+    'Encounter geography': validateEncounterGeography(),
     'Tiles':           validateTiles(),
     'EDGE_TRANSITIONS': validateEdgeTransitions(),
     'NPCs':            validateNPCs(),
@@ -1877,6 +1924,7 @@ function validateGameData() {
     'Regional layout':  'layout placements checked',
     'Continuous seams': 'eligible seams checked',
     'Continuous content': 'outdoor content maps checked',
+    'Encounter geography': 'encounter-geography placements checked',
     'Tiles':            'tiles checked',
     'EDGE_TRANSITIONS': 'edge transitions checked',
     'NPCs':             'NPCs checked',
@@ -1928,6 +1976,7 @@ window.validateMaps             = validateMaps;
 window.validateMapMetadata      = validateMapMetadata;
 window.validateRegionalLayout   = validateRegionalLayout;
 window.validateContinuousSeams  = validateContinuousSeams;
+window.validateEncounterGeography = validateEncounterGeography;
 window.validateTiles            = validateTiles;
 window.validateEdgeTransitions  = validateEdgeTransitions;
 window.validateNPCs             = validateNPCs;

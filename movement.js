@@ -904,13 +904,20 @@ function update() {
       return;
     }
 
-    // Random encounters: overworld grass, dungeon floors, and East Sluice floor
+    // Random encounters: overworld grass, dungeon floors, and East Sluice floor.
+    // The roll stays at this single update() choke point, at the same step cadence.
+    // encounterGeographyOk() is the geographic authority gate: on a placed regional
+    // outdoor map the pool is owned by the physical chunk under the player's standing
+    // point and must agree with the active-map handoff, else FAIL CLOSED (no
+    // encounter); nonregional maps (dungeon/sluice/…) return true and roll as before.
+    // It consumes no randomness, so the Math.random() cadence is unchanged.
     if (player.step % 16 === 0 && combat.cooldown === 0) {
       const onEncounterTile = isEncounterEligibleTile(curTile);
+      const geoOk = (typeof encounterGeographyOk === 'function') ? encounterGeographyOk() : true;
       const encounterChance = inSluiceSealedRoom() ? SLUICE_SECRET_ENCOUNTER_CHANCE
                             : inSluice              ? SLUICE_ENCOUNTER_CHANCE
                             :                         ENCOUNTER_CHANCE;
-      if (!debugMode && onEncounterTile && Math.random() < encounterChance) startCombat();
+      if (!debugMode && onEncounterTile && geoOk && Math.random() < encounterChance) startCombat();
     }
   }
 

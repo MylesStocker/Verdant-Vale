@@ -89,6 +89,7 @@ The rule this codebase actually follows:
 | `continuous-content.js` | **DEBUG-ONLY**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
 | `world-point-content.js` | **DEBUG-ONLY** world-aware STATIC content across seams (see "World-aware static content across seams" below): the PURE world-point resolver (`worldPointContentContext`), cross-seam authorization compose (`crossSeamNeighbourFor`, over `continuousSeamCrossingAt` in continuous-seams.js), the EXPLICIT capability authorities (`CROSS_SEAM_NPC_CAPABILITIES`/`crossSeamNpcCapabilityRecognized`, `crossSeamCollectibleItem`), the once-per-frame cross-seam item-pickup driver (`crossSeamStaticPickup`, calling `collectWorldItemNear` in movement.js), the opted-in neighbour-NPC interaction resolver/dispatch (`resolveCrossSeamInteractTarget`/`tryCrossSeamNeighbourInteract`), and the single prompt authority (`crossSeamInteractPromptTarget`) that drives both the press and `drawCrossSeamInteractPrompt` (render-entities.js). | Only active under Continuous View. **Assigns nothing** — no `activeMap`/player/coordinate/content-key/NPC-position write; canonical effects only (item `.picked`/grant/dialogue, NPC dialogue + authored `flag_sets`). FAIL-CLOSED: one directly-adjacent eligible-seam neighbour; unambiguous key for NPC ownership; NPCs must OPT IN via `crossSeamInteraction:'simple_dialogue'` and pickups via `crossSeamPickup:'registry_grant'` (both explicit allowlist capabilities, validated in validation.js); nothing crosses by default. |
 | `regional-npc-runtime.js` | **DEBUG-ONLY** chunk-aware regional NPC ownership + pose + simulation (see "Chunk-aware regional NPC runtime" below): `physicalMapIdForNpc` (logical key → physical outdoor map, fail-closed), `regionalNpcPose` (read-only live pixel pose), `nearbySimulationMapSet` (deterministic 3×3), `npcShouldSimulate` (lifecycle gate), `regionalNpcRouteCanOccupy` (world-aware, owner-chunk-confined occupancy). | Only active under Continuous View. **Assigns nothing** — no `activeMap`/player/location/NPC-ownership write. `npc.map` stays the logical key; physical ownership is distinct + explicit (`npc.physicalMapId` for ambiguous `'overworld'`). NPCs confined to one owner chunk (no cross-chunk routes yet). |
+| `encounter-geography.js` | **PURE** geographic random-encounter authority (see "Geographic random-encounter authority" below): `geographicEncounterContext(regionId, worldPxX, worldPxY)` (physical chunk → `MAP_CATALOG` pool, fail-closed) + the read-only runtime selectors `playerStandingWorldPoint` / `regionalStandingEncounterContext` / `encounterGeographyOk`. | No randomness, no state mutation; composes `REGIONAL_LAYOUT`+`mapIdForChunk`+`MAP_CATALOG` (no new table). Physical map id is the pool authority — never a logical/`'overworld'` key. Independent of Continuous View. Consumed by `currentEncounterPool()` (combat.js) and the roll gate (movement.js). |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
@@ -887,6 +888,65 @@ silently because a quick manual test happened to run on a map with pending
 items). If you add code after this loop, verify with `node --check
 movement.js` **and** a direct, targeted test that the new code actually
 runs on a map with an *empty* item list, not just one with items on it.
+
+### Geographic random-encounter authority (`encounter-geography.js`)
+
+For the placed regional wilderness, the random-encounter pool is owned by the
+**physical chunk beneath the player's STANDING POINT in world space** — never a
+logical content key, the shared `'overworld'` key, visible/neighbour chunks, the
+3×3 NPC simulation set, camera position, or an assumed single active screen. This
+is architectural preparation for a continuous/chunked overworld; it is
+**behaviour-neutral** with the current maps (the standing point is always on the
+active chunk, so the resolved pool equals the active map's own `MAP_CATALOG` pool —
+and `MAP_METADATA === MAP_CATALOG`, so the reference is identical).
+
+- **Pure resolver, PIXEL units.** `geographicEncounterContext(regionId, worldPxX,
+  worldPxY)` → `{ regionId, mapId, encounterPool } | null`. It composes existing
+  authorities only (`REGIONAL_LAYOUT` placement + `mapIdForChunk` + `MAP_CATALOG`
+  via `mapEntryForId`) — it adds no encounter table, consumes NO randomness, and
+  mutates NO runtime state. The pool comes straight from the canonical catalog entry
+  (may be `null` where a placed map legitimately has none — never invented). Missing
+  chunk / documented void / sparse hole / off-region / negative / non-finite point →
+  `null` (**fail closed**). Physical map id is the authority; `OUTDOOR_CONTENT_KEYS`
+  / `npc.map` / `'overworld'` are never consulted, so `MAP`, `MAP5`, and
+  `RODDON_WAY_MAP` resolve independently despite sharing the `'overworld'` key.
+- **Runtime selectors + ONE shared authority.** `playerStandingWorldPoint()` converts
+  the player's centre (`player.x/player.y`) to region world pixels — the STANDING
+  POINT, not footprint corners/camera/visible chunks. `regionalStandingEncounterContext()`
+  is the resolver at that point. **Both are independent of Continuous View — the debug
+  toggle must not determine encounter geography.** `regionalEncounterResolution()` is
+  the single shared authority both the roll gate AND pool selection consult (never two
+  competing copies): it returns `{ regional, ok, pool }` — nonregional (legacy);
+  placed + resolved + agrees with the active map; or placed + unresolved/void/
+  inconsistent. **Fail-closed protection lives in BOTH the eligibility gate and the
+  pool selection, not only at the roll gate.** `currentEncounterPool()` (combat.js, the
+  stable caller-facing API) keeps its special dungeon/sluice/vault branches exactly;
+  for a placed regional map it returns the geographic pool when `ok` (behaviour-neutral,
+  with the legacy `null → ENEMY_TEMPLATES` fallback), and the established empty no-pool
+  result **`EMPTY_ENCOUNTER_POOL`** (a frozen empty array) when NOT `ok` — **never the
+  stale `activeMap` pool**. Nonregional/unplaced maps keep the unchanged legacy
+  `MAP_METADATA` fall-through. `startCombat()` treats an empty pool as "no encounter":
+  it returns before selecting an enemy, so combat never activates and no enemy-selection
+  randomness is consumed — so even a future *direct* `startCombat()` caller fails closed,
+  not just the one roll site.
+- **Only the standing-point chunk owns the roll.** The random-encounter roll stays
+  at its single `update()` choke point at the same step cadence and `startCombat()`
+  path. `encounterGeographyOk()` is an added AND-gate before `Math.random()`: on a
+  placed regional map the standing-point chunk must resolve and agree with the
+  active-map handoff invariant, else **fail closed (no encounter)** rather than
+  rolling the wrong pool; nonregional maps (dungeon/sluice/vault/town/interior/
+  meadow/bridge/special) return `true` and roll exactly as before. It consumes no
+  randomness, so the `Math.random()` cadence is unchanged. There is no additional
+  roll at a seamless handoff (`continuousSeamMove` rolls nothing), none from
+  neighbour/visible chunks, none from the NPC simulation set, and none renderer-
+  driven — the debug inspector (`render-ui.js`) only *reads* `currentEncounterPool()`.
+  Crossing a seam changes the applicable pool only when the standing point belongs to
+  the destination chunk and the normal physical handoff swaps `activeMap`.
+- **Validation.** `validateEncounterGeography()` (pure) checks every placed map
+  resolves from its own chunk centre back to itself with the exact canonical pool
+  reference, and that void/sparse/unknown-region/invalid coordinates fail closed.
+- **Limitation.** Encounter geography is per **physical chunk**; there are no
+  sub-chunk encounter zones and no cross-seam pool blending yet.
 
 ## Interactions: `handleInteract()`, `SIMPLE_NPCS`, `MAP_FEATURES`
 

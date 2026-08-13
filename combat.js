@@ -318,18 +318,38 @@ let sailor_brawl_fight_day = -1;
 // deeper before the player is ready, and the Sealed Room keeps its own
 // SLUICE_SECRET pool.
 function currentEncounterPool() {
-  return inMireVault ? MIRE_VAULT_ENEMY_TEMPLATES
-    : inSluice             ? (inSluiceSealedRoom() ? SLUICE_SECRET_ENEMY_TEMPLATES :
-                             sluiceFloor === 1     ? SLUICE_TOP_ENEMY_TEMPLATES :
-                                                     SLUICE_ENEMY_TEMPLATES)
-    : inDungeon            ? (dungeonFloor === 1                    ? DUNGEON_ENEMY_TEMPLATES :
-                             dungeonFloor === 2 || dungeonFloor === 3 ? DUNGEON2_ENEMY_TEMPLATES :
-                             dungeonFloor === 4 || dungeonFloor === 5 ? DUNGEON2_ENEMY_TEMPLATES :
-                             dungeonFloor === 6 || dungeonFloor === 7 ? DUNGEON6_ENEMY_TEMPLATES :
-                             dungeonFloor === 8                       ? DUNGEON8_ENEMY_TEMPLATES :
-                             DUNGEON_HORROR_ENEMY_TEMPLATES)
-    : (MAP_METADATA[mapRegistryId(activeMap)] && MAP_METADATA[mapRegistryId(activeMap)].encounterPool) || ENEMY_TEMPLATES;
+  // Special, floor-stepped, non-geographic areas keep their exact legacy selection.
+  if (inMireVault) return MIRE_VAULT_ENEMY_TEMPLATES;
+  if (inSluice) return inSluiceSealedRoom() ? SLUICE_SECRET_ENEMY_TEMPLATES
+              : sluiceFloor === 1           ? SLUICE_TOP_ENEMY_TEMPLATES
+              :                               SLUICE_ENEMY_TEMPLATES;
+  if (inDungeon) return dungeonFloor === 1                    ? DUNGEON_ENEMY_TEMPLATES
+               : dungeonFloor === 2 || dungeonFloor === 3     ? DUNGEON2_ENEMY_TEMPLATES
+               : dungeonFloor === 4 || dungeonFloor === 5     ? DUNGEON2_ENEMY_TEMPLATES
+               : dungeonFloor === 6 || dungeonFloor === 7     ? DUNGEON6_ENEMY_TEMPLATES
+               : dungeonFloor === 8                           ? DUNGEON8_ENEMY_TEMPLATES
+               :                                                DUNGEON_HORROR_ENEMY_TEMPLATES;
+  // Placed regional overworld: the pool is owned by the physical chunk beneath the
+  // player's STANDING POINT in world space — the SAME shared authority the roll gate
+  // (encounterGeographyOk) uses, so eligibility and pool selection can never
+  // disagree. FAIL CLOSED: on a placed regional map with unresolved / void /
+  // inconsistent geography, return the empty no-pool result (EMPTY_ENCOUNTER_POOL) —
+  // NEVER the stale activeMap pool. Behaviour-neutral: when the standing point is on
+  // the active chunk (always, today) this is exactly the active map's catalog pool
+  // (with the legacy null -> ENEMY_TEMPLATES fallback for a placed pool-less map).
+  const activeMapId = mapRegistryId(activeMap);
+  if (typeof regionalEncounterResolution === 'function') {
+    const r = regionalEncounterResolution();
+    if (r.regional) return r.ok ? (r.pool || ENEMY_TEMPLATES) : EMPTY_ENCOUNTER_POOL;
+  }
+  // Nonregional / unplaced -> the unchanged legacy MAP_METADATA fall-through.
+  return (MAP_METADATA[activeMapId] && MAP_METADATA[activeMapId].encounterPool) || ENEMY_TEMPLATES;
 }
+// The established empty / no-pool result: a frozen empty pool. currentEncounterPool()
+// returns it when placed-regional geography fails closed; startCombat() treats an
+// empty pool as "no encounter" (returns without activating combat or rolling).
+const EMPTY_ENCOUNTER_POOL = Object.freeze([]);
+if (typeof window !== 'undefined') window.EMPTY_ENCOUNTER_POOL = EMPTY_ENCOUNTER_POOL;
 
 function startCombat() {
   // Pale Sentry: appears on MAP_N2 once the contract is accepted, until it is killed.
@@ -361,6 +381,12 @@ function startCombat() {
   // comes from MAP_METADATA.encounterPool instead -- a new outdoor map with
   // encounters needs zero changes here, just a metadata entry.
   const pool = currentEncounterPool();
+  // Empty / no-pool contract (e.g. placed-regional geography failed closed): no
+  // encounter. Return BEFORE selecting an enemy, so combat never activates and no
+  // enemy-selection randomness is consumed. Unreachable via the normal roll (the
+  // encounterGeographyOk() gate already prevents the roll), but this makes a direct
+  // startCombat() caller fail closed too.
+  if (!Array.isArray(pool) || pool.length === 0) return;
   let t = pool[Math.floor(Math.random() * pool.length)];
   // North Basin outdoor squares: ~1 fight in 16 is a Swamp Donkey instead of a
   // normal pool draw — uncommon, and a real spike (mostly its attack). Keyed
