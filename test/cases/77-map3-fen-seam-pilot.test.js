@@ -64,10 +64,10 @@ module.exports = {
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
-    assert.equal(audit.seamReadiness.totals.ALIGNS, 18, 'ALIGNS 18 (incl. the MAP3<->MAP3_N1 pilot and the MAP2<->MAP3 seam)');
+    assert.equal(audit.seamReadiness.totals.ALIGNS, 20, 'ALIGNS 20 (incl. the MAP3<->MAP3_N1 pilot, MAP2<->MAP3, and MAP3<->MAP4 seams)');
     assert.equal(audit.seamReadiness.totals.BLOCKED, 4, 'BLOCKED 4 unchanged');
     assert.equal(audit.seamReadiness.totals.BORDER, 26, 'BORDER 26 unchanged');
-    assert.equal(g.run('continuousSeamEntries().length'), 18, '18 eligible directed seams');
+    assert.equal(g.run('continuousSeamEntries().length'), 20, '20 eligible directed seams');
     // the new pair derives as two eligible directed seams
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3','north')"), 'MAP3|north is an eligible seam');
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3_N1','south')"), 'MAP3_N1|south is an eligible seam');
@@ -243,7 +243,7 @@ module.exports = {
     for (const [m, d] of otherPairs) assert.ok(g.run(`!!eligibleContinuousSeam('${m}','${d}')`), `${m}|${d} still eligible`);
     assert.equal(V['MAP_N1|east'], 'BLOCKED', 'MAP_N1|east still BLOCKED');
     assert.equal(V['NORTH_BASIN_C_MAP|west'], 'BLOCKED', 'NB_C|west still BLOCKED');
-    assert.equal(V['MAP3|east'], 'NEEDS_REMAP', 'MAP3|east still NEEDS_REMAP (MAP3<->MAP4 point crossing untouched)');
+    assert.equal(V['MAP4|east'], 'NEEDS_REMAP', 'MAP4|east still NEEDS_REMAP (MAP4<->MAP5 point crossing untouched)');
 
     // ── 18. Synthetic blocked-edge validation fails (general terrain guard) ──
     // build a ROWS x COLS grid of GRASS(0), block one border cell, and confirm the

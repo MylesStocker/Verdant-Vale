@@ -318,7 +318,7 @@ placed at a specific cell in a map's grid. `movement.js`'s `update()` checks
 conditions. Each one is exactly one tile wide/tall — the player has to walk
 onto that exact cell. This is still how the overwhelming majority of
 transitions in the game work: town doors, dungeon stairs, house doors,
-bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `MAP4_EXIT`,
+bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `MAP5_EXIT`,
 `NORTH_EXIT`, etc).
 
 **`EDGE_TRANSITIONS`** (`world-transitions.js`, newer, additive) — for a
@@ -712,6 +712,21 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   behaviour rather than special-casing the seam, so with **Continuous View off** this
   crossing now applies a cooldown where the old point transition did not — a
   fallback-mode-only difference (Continuous View on is still cooldown-neutral).
+- **Third converted former point crossing: Thornmere Fen ↔ Thornmere.**
+  `MAP3.east ↔ MAP4.west` was a `MAP4_EXIT`/`MAP4_ENTRANCE` point-tile warp
+  (`enterMap4`/`exitMap4`); it is now a structural `EDGE_TRANSITIONS` seam — the single
+  **row-6** crossing, `sourceRange [6, 6]`, reciprocal, no `targetRange`. The
+  replacement terrain is **asymmetric**: the MAP3 side continues as `PATH`
+  (`MAP3[6][15]`), the MAP4 side begins as ordinary `GRASS` shore (`MAP4[6][0]`);
+  `continuousSeamEdgeWalkability()` only requires both border cells be base-walkable,
+  not identical. Pools differ — `MAP3` = `FAR_ENEMY_TEMPLATES`, `MAP4` =
+  `THORNMERE_ENEMY_TEMPLATES` — flipping at the standing-point handoff. **Cooldown
+  parity:** both retired wrappers applied `cooldown: true` and the generic legacy edge
+  path does too, so behaviour is identical in both modes (Continuous View on never
+  resets it; off applies it, exactly as `enterMap4`/`exitMap4` did). The Thornmere
+  Standing Stone (MAP4 lake island, col 7) is unaffected: its body draws world-locked
+  via the `OUTDOOR_MAP_DECOR.MAP4` neighbour authority (single instance, no `activeMap`
+  read) while the SPACE hint and interaction stay gated on `activeMap === MAP4`.
 - **Continuous seam crossings do NOT reset the encounter cooldown.** The seamless
   handoff (`continuousSeamMove`) only swaps `activeMap` + local coordinates; it never
   calls `transitionToLocation`, so `combat.cooldown` is untouched (it just keeps

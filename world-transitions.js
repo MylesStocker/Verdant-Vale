@@ -584,14 +584,6 @@ function exitMap2() {
   transitionToLocation({ mapId: 'MAP', x: 14.5 * TILE, y: player.y, facing: 'left' });
 }
 
-function enterMap4() {
-  transitionToLocation({ mapId: 'MAP4', x: 1.5 * TILE, y: player.y, facing: 'right', cooldown: true });
-}
-
-function exitMap4() {
-  transitionToLocation({ mapId: 'MAP3', x: 14.5 * TILE, y: player.y, facing: 'left', cooldown: true });
-}
-
 function enterMap5() {
   transitionToLocation({ mapId: 'MAP5', x: 1.5 * TILE, y: player.y, facing: 'right', cooldown: true });
 }
@@ -1195,6 +1187,13 @@ const EDGE_TRANSITIONS = {
     west: [
       { targetMap: 'MAP2', targetEdge: 'east', sourceRange: [11, 11] },
     ],
+    // East edge: the single row-6 PATH into MAP4 (Thornmere). MAP3's east edge is
+    // otherwise closed, so the seam is ONE tile wide (sourceRange [6,6]) — the former
+    // MAP4_EXIT/MAP4_ENTRANCE point crossing. Reciprocal of MAP4.west. Rows match
+    // exactly, so crossings never clamp.
+    east: [
+      { targetMap: 'MAP4', targetEdge: 'west', sourceRange: [6, 6] },
+    ],
   },
   // West edge: rows 4-9 into Roddon Way's east edge -- the roddon ridge
   // crossing the map boundary. Deliberately clear of the Mire Entrance
@@ -1254,6 +1253,16 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'MAP3', targetEdge: 'west', sourceRange: [11, 11] },
     ],
   },
+  // West edge: the single row-6 GRASS shore into MAP3 (Thornmere Fen). MAP4's west
+  // edge is otherwise lake/border, so the seam is ONE tile wide (sourceRange [6,6]) —
+  // the former MAP4_ENTRANCE/MAP4_EXIT point crossing. Reciprocal of MAP3.east; the
+  // MAP4 side begins as ordinary GRASS shore, the MAP3 side as PATH. Rows match
+  // exactly, so crossings never clamp.
+  MAP4: {
+    west: [
+      { targetMap: 'MAP3', targetEdge: 'east', sourceRange: [6, 6] },
+    ],
+  },
 };
 window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 
@@ -1269,8 +1278,6 @@ window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 const REGIONAL_POINT_CROSSINGS = [
   { from: 'MAP',   dir: 'east',  to: 'MAP2',   tile: MAP2_EXIT },
   { from: 'MAP2',  dir: 'west',  to: 'MAP',    tile: MAP2_ENTRANCE },
-  { from: 'MAP3',  dir: 'east',  to: 'MAP4',   tile: MAP4_EXIT },
-  { from: 'MAP4',  dir: 'west',  to: 'MAP3',   tile: MAP4_ENTRANCE },
   { from: 'MAP4',  dir: 'east',  to: 'MAP5',   tile: MAP5_EXIT },
   { from: 'MAP5',  dir: 'west',  to: 'MAP4',   tile: MAP5_ENTRANCE },
   { from: 'MAP',   dir: 'north', to: 'MAP_N1', tile: NORTH_EXIT },

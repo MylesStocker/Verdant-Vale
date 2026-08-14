@@ -426,8 +426,10 @@ const preservedTransitions = [
   // MAP2 <-> MAP3 (MAP3_EXIT/MAP3_ENTRANCE, enterMap3/exitMap3) retired — now a
   // structural EDGE_TRANSITIONS seam (row-11 PATH, sourceRange [11,11]), checked by
   // the continuous-seam edge tests instead of this preserved-coordinate sweep.
-  { name: 'enterMap4', srcMap: 'MAP3', srcTile: 'MAP4_EXIT', destMap: 'MAP4', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
-  { name: 'exitMap4', srcMap: 'MAP4', srcTile: 'MAP4_ENTRANCE', destMap: 'MAP3', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
+  // MAP3 <-> MAP4 (MAP4_EXIT/MAP4_ENTRANCE, enterMap4/exitMap4) retired — now a
+  // structural EDGE_TRANSITIONS seam (row-6, sourceRange [6,6]; PATH on the MAP3 side,
+  // GRASS on the MAP4 shore), checked by the continuous-seam edge tests instead of
+  // this preserved-coordinate sweep.
   { name: 'enterMap5', srcMap: 'MAP4', srcTile: 'MAP5_EXIT', destMap: 'MAP5', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
   { name: 'exitMap5', srcMap: 'MAP5', srcTile: 'MAP5_ENTRANCE', destMap: 'MAP4', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
   // MAP3 <-> MAP3_N1 (FEN_N_EXIT/ENTRANCE, enterMap3N1/exitMap3N1) retired — now a
@@ -495,7 +497,7 @@ const transitionTileNames = [
   'WEST_ENTRANCE', 'WEST_EXIT', 'HOUSE_DOOR', 'SCHOOL_DOOR', 'APT_DOOR', 'APT_INTERIOR_DOOR',
   'MAP2_EXIT', 'MAP2_ENTRANCE',
   'NORTH_EXIT', 'NORTH_ENTRANCE', 'NORTH2_EXIT', 'NORTH2_ENTRANCE',
-  'MAP4_EXIT', 'MAP4_ENTRANCE', 'GUARD_POST', 'FARM_HOUSE',
+  'GUARD_POST', 'FARM_HOUSE',
   'MIRE_ENTRANCE', 'MIRE_EXIT', 'BRIDGE_GATE', 'BRIDGE_EXIT',
   'MAP5_EXIT', 'MAP5_ENTRANCE', 'DUNGEON8_WEST_DOOR', 'DUNGEON8_WEST_RET',
   'DUNGEON8_EAST_DOOR', 'DUNGEON8_EAST_RET', 'D3_EAST_PASSAGE', 'D3_WEST_PASSAGE',
@@ -517,6 +519,9 @@ const transitionTileNames = [
   // MAP3_EXIT/MAP3_ENTRANCE (41/42) retired the same way: MAP2 <-> MAP3 (Eastern
   // Reaches <-> Thornmere Fen) is now a structural EDGE_TRANSITIONS seam (row-11
   // PATH, sourceRange [11,11]).
+  // MAP4_EXIT/MAP4_ENTRANCE (51/52) retired the same way: MAP3 <-> MAP4 (Thornmere
+  // Fen <-> Thornmere) is now a structural EDGE_TRANSITIONS seam (row-6, sourceRange
+  // [6,6]; PATH on the MAP3 side, GRASS on the MAP4 shore).
 ];
 const tileUsage = [];
 for (const name of transitionTileNames) {

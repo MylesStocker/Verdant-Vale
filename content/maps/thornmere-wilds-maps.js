@@ -57,7 +57,8 @@ const LORRA_HOUSE_MAP = [
 // southern marsh (rows 12-13), reeds throughout.
 // Road enters from the west (col 0 row 11), heads east to col 8, bends north to
 // row 0, where the col-8 PATH is now the seamless MAP3↔MAP3_N1 crossing (former
-// FEN_N_EXIT point tile). Also branches east at row 6: road runs col 8→15 (MAP4_EXIT).
+// FEN_N_EXIT point tile). Also branches east at row 6: road runs col 8→15, where the
+// col-15 PATH is now the continuous MAP3.east ↔ MAP4.west seam (former MAP4_EXIT).
 const MAP3 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [  1,  1,  1,  1,  1,  1,  1,  1,  2,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = PATH seam to MAP3_N1; N lake continues off-map W of the road
@@ -66,7 +67,7 @@ const MAP3 = [
   [  3,  0,  1,  1,  1, 23, 23,  0,  2,  0,  0,  0,  0,  3,  0,  3],  //  3  N lake edge; road at col 8
   [  3,  0, 23, 23, 23,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  4  reeds band; road at col 8
   [  3,  0,  0, 23,  1,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  5  mid-pond; road at col 8
-  [  3,  0,  0, 23,  1,  1,  1, 23,  2,  2,  2,  2,  2,  2,  2, 51],  //  6  mid-pond + road east to MAP4_EXIT
+  [  3,  0,  0, 23,  1,  1,  1, 23,  2,  2,  2,  2,  2,  2,  2,  2],  //  6  mid-pond + road east; col 15 seam → MAP4.west (continuous)
   [  3,  0,  0,  0, 23,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  7  reeds + road N/S
   [  3,  0,  0,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds + road
   [  3,  0, 23,  0,  0,  0, 23, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  9  reeds + road
@@ -93,7 +94,7 @@ const MAP4 = [
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  3  lake deepens
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  4
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  5  reeds on E shore mid
-  [ 52,  0,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0, 60],  //  6  ← island NW/NE (cols 7-8); col 0 = entrance; col 15 = MAP5_EXIT
+  [  0,  0,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0, 60],  //  6  ← island NW/NE (cols 7-8); col 0 = west seam → MAP3.east (continuous, GRASS shore); col 15 = MAP5_EXIT
   [  1, 23,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  3],  //  7  ← island SW/SE (cols 7-8); reeds at W shore; water W edge
   [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  8  E shore ends here (bottom of П); water W edge
   [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  9  E grass (path gone), open lake; water W edge

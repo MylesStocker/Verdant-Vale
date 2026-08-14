@@ -186,12 +186,12 @@ module.exports = {
     const audit = require('../transition-audit.js');
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     for (const k of ['MAP|east', 'MAP|north', 'MAP2|west', 'MAP_N1|south']) assert.equal(V[k], 'INTENTIONAL_DISCRETE', `${k} is INTENTIONAL_DISCRETE`);
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 18, NEEDS_REMAP: 8, BLOCKED: 4 }, 'totals: ALIGNS 18 / NEEDS_REMAP 8 / INTENTIONAL_DISCRETE 4 / BLOCKED 4 / BORDER 26');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 20, NEEDS_REMAP: 6, BLOCKED: 4 }, 'totals: ALIGNS 20 / NEEDS_REMAP 6 / INTENTIONAL_DISCRETE 4 / BLOCKED 4 / BORDER 26');
     assert.equal(audit.seamReadiness.edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
     // remaining unique NEEDS_REMAP pairs
     const nr = new Set(audit.seamReadiness.edges.filter((e) => e.verdict === 'NEEDS_REMAP').map((e) => [e.mapId, e.neighbor].sort().join('<->')));
-    assert.deepEqual([...nr].sort(), ['MAP3<->MAP4', 'MAP4<->MAP5', 'MAP3_N2<->NORTH_BASIN_S_MAP', 'MAP_N1<->MAP_N2'].sort(), 'the 4 remaining NEEDS_REMAP pairs are exactly as expected');
-    assert.equal(g.run('continuousSeamEntries().length'), 18, '18 eligible directed seams (9 pairs)');
+    assert.deepEqual([...nr].sort(), ['MAP4<->MAP5', 'MAP3_N2<->NORTH_BASIN_S_MAP', 'MAP_N1<->MAP_N2'].sort(), 'the 3 remaining NEEDS_REMAP pairs are exactly as expected');
+    assert.equal(g.run('continuousSeamEntries().length'), 20, '20 eligible directed seams (10 pairs)');
 
     // ── 18. Geographic encounter pools correct on MAP / MAP2 / MAP_N1 ───────
     assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6*TILE; player.y=6*TILE; return currentEncounterPool()===EARLY_ENEMY_TEMPLATES;})()"), true, 'MAP pool is EARLY_ENEMY_TEMPLATES (geography unaffected by presentation)');
@@ -269,7 +269,7 @@ module.exports = {
     // ── 22. HARDENING 2: reciprocal legacy-boundary point crossing is an invariant ─
     // Shared REGIONAL_POINT_CROSSINGS authority (world-transitions.js), consumed by
     // both the audit and validateGameData()/legacyBoundaryCrossingErrors().
-    assert.ok(g.run("typeof REGIONAL_POINT_CROSSINGS !== 'undefined' && REGIONAL_POINT_CROSSINGS.length === 12"), 'REGIONAL_POINT_CROSSINGS is the shared production authority (12 directed regional crossings)');
+    assert.ok(g.run("typeof REGIONAL_POINT_CROSSINGS !== 'undefined' && REGIONAL_POINT_CROSSINGS.length === 10"), 'REGIONAL_POINT_CROSSINGS is the shared production authority (10 directed regional crossings)');
     // (1) current MAP<->MAP2 and MAP<->MAP_N1 pass; whole-game validation is clean
     assert.deepEqual(g.run("JSON.stringify(legacyBoundaryCrossingErrors('overworld'))"), '[]', 'the two Verdant Vale boundaries validate clean');
     assert.equal(g.run("validateGameData().errorList.length"), 0, 'validateGameData reports 0 errors with the boundary invariant');
@@ -318,7 +318,7 @@ module.exports = {
     assert.equal(V2['NORTH_BASIN_C_MAP|west'], 'BLOCKED', 'NB_C|west BLOCKED pair unaffected');
     assert.equal(g.run("validateGameData().errorList.length"), 0, 'BLOCKED pairs cause no legacy-boundary error');
     // (9) validation + restoration mutated no persistent authored/runtime state
-    assert.equal(g.run("REGIONAL_POINT_CROSSINGS.length"), 12, 'REGIONAL_POINT_CROSSINGS intact after all negative fixtures');
+    assert.equal(g.run("REGIONAL_POINT_CROSSINGS.length"), 10, 'REGIONAL_POINT_CROSSINGS intact after all negative fixtures');
     assert.equal(g.run("EDGE_TRANSITIONS.MAP === undefined"), true, 'no stray EDGE_TRANSITIONS.MAP left behind');
     assert.deepEqual(g.run("JSON.stringify(legacyBoundaryCrossingErrors('overworld'))"), '[]', 'boundary invariant clean again after all fixtures restored');
   },
