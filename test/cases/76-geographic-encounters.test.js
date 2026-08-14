@@ -204,9 +204,9 @@ module.exports = {
     // ── 14. SAVE_VERSION stays 3; no geographic/debug encounter state saved ──
     {
       const gg = ctx();
-      gg.run("resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; saveGame();");
+      gg.run("resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); saveGame();");
       const saved = JSON.parse(gg.run("localStorage.getItem('verdantVale_save')"));
-      assert.equal(saved.version, 3, 'SAVE_VERSION stays 3');
+      assert.equal(saved.version, 4, 'SAVE_VERSION stays 4');
       const keys = Object.keys(saved).join(',');
       assert.ok(!/encounterGeo|geographic|standingChunk|encounterChunk/i.test(keys), 'no geographic/debug encounter state enters the save');
     }

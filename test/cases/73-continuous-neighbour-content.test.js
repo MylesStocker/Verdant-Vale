@@ -110,7 +110,7 @@ module.exports = {
     // ── 8c. The FIRST continuous frame (which renders neighbour content) performs
     //        NO state writes — no resetLocationState/applyLocationState, no
     //        activeMap/content-key change (not merely net-zero). ────────────────
-    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE;');
+    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();');
     const frameNoWrite = J(`(function(){
       var reset=0, apply=0; var _r=resetLocationState, _a=applyLocationState;
       resetLocationState=function(){reset++;return _r.apply(null,arguments);};
@@ -127,7 +127,7 @@ module.exports = {
 
     // ── 1 + 3 + 5 + 7 + 4 + 6. Visible chunks get contexts, at world origins,
     //     row-major, once each; active content + player once ─────────────────
-    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE;'); // NE corner -> MAP4 + MAP3_N1 neighbours
+    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // NE corner -> MAP4 + MAP3_N1 neighbours
     const plan = J("JSON.stringify(buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480))");
     const activeId = plan.activeMapId;
     const neighbours = plan.visibleChunks.filter(c => c.mapId !== activeId);
@@ -150,14 +150,14 @@ module.exports = {
     assert.equal(f.stoneBody, 1, 'the Thornmere Stone body renders on the MAP4 neighbour chunk');
     assert.equal(f.spaceHints, 0, 'no SPACE hint is emitted for a neighbour landmark (active-only)');
     // MAP_N2 gate as a neighbour of MAP_N1
-    warp('MAP_N1'); g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.5*TILE;'); // north edge -> MAP_N2 neighbour
+    warp('MAP_N1'); g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // north edge -> MAP_N2 neighbour
     const fg = spyFrame(g);
     assert.equal(fg.gateBody, 1, 'the sealed-gate body renders on the MAP_N2 neighbour chunk');
     assert.equal(fg.spaceHints, 0, 'no SPACE hint for the neighbour gate');
 
     // ── 10 + 11 + 12. Neighbour NPCs: existing positions, read-only, no hint ─
     // Synthetic NPC fixture on an UNAMBIGUOUS neighbour key ('north_basin_c').
-    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE;'); // NB_C visible north
+    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // NB_C visible north
     // Neighbour NPCs now render by PHYSICAL-map ownership (drawContentNPCsForPhysicalMap),
     // resolved from the unambiguous key ('north_basin_c' -> NORTH_BASIN_C_MAP).
     const npcRes = J(`(function(){
@@ -249,15 +249,17 @@ module.exports = {
     assert.equal(meadow.neighbourCtx.length, 0, 'the hidden meadow uses the legacy path');
 
     // ── 19. No spoofing/mutation across all the above frames (spot re-check) ─
-    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE;');
+    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();');
     const before = J('JSON.stringify({ map: mapIdForRef(activeMap), x: player.x, y: player.y, key: currentContentLocationKey() })');
     spyFrame(g);
     const after = J('JSON.stringify({ map: mapIdForRef(activeMap), x: player.x, y: player.y, key: currentContentLocationKey() })');
     assert.deepEqual(before, after, 'rendering neighbour content spoofs/mutates nothing (activeMap/player/key unchanged)');
 
-    // ── 25. SAVE_VERSION 3; no render/debug state in saves ──────────────────
-    g.run('saveGame();'); const raw = g.run("localStorage.getItem('verdantVale_save')");
-    assert.equal(JSON.parse(raw).version, 3, 'SAVE_VERSION 3');
-    assert.ok(!/continuousWorldView|neighbour|worldPx|camPx/i.test(raw), 'no continuous-view/render/debug state enters the save');
+    // ── 25. SAVE_VERSION 4; no render/debug state in saves ──────────────────
+    // (worldPxX/worldPxY ARE legitimate v4 save data — the canonical regional
+    // position — so they are not excluded here; camera/render transients are.)
+    g.run('__reconcileCanonicalForTest(); saveGame();'); const raw = g.run("localStorage.getItem('verdantVale_save')");
+    assert.equal(JSON.parse(raw).version, 4, 'SAVE_VERSION stays 4');
+    assert.ok(!/continuousWorldView|camPx|visibleChunks/i.test(raw), 'no continuous-view/render/debug transient state enters the save');
   },
 };

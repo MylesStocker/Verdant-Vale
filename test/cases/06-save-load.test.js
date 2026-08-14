@@ -31,6 +31,7 @@ module.exports = {
       player.x = 4.5 * TILE;
       player.y = 6.5 * TILE;
       player.facing = 'left';
+      __reconcileCanonicalForTest();   // fixture bypassed the gateway; sync canonical (regional MAP2)
     `);
     g.run('saveGame()');
 

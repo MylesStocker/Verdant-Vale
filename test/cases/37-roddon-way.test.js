@@ -174,7 +174,7 @@ module.exports = {
     // ── 7. Normal saving (contrast with an allowSave:false area) ────────────
     assert.equal(g.run('MAP_METADATA.RODDON_WAY_MAP.allowSave'), true);
     g.run(`
-      activeMap = RODDON_WAY_MAP; dialogue.open = false;
+      activeMap = RODDON_WAY_MAP; __reconcileCanonicalForTest(); dialogue.open = false;
       menu.open = true; menu.screen = 'saveConfirm'; menu.saveCursor = 0;
       menu.saveMessage = 0; menu.saveBlockedMessage = 0;
     `);

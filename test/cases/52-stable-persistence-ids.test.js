@@ -50,7 +50,7 @@ module.exports = {
     };
 
     // ── A. Registry contracts ───────────────────────────────────────────────
-    assert.equal(G('SAVE_VERSION'), 3, 'SAVE_VERSION is 3');
+    assert.equal(G('SAVE_VERSION'), 4, 'SAVE_VERSION is 4');
 
     // Pickups: one valid unique id each; keys === object ids; count snapshot.
     const pickIds = J('JSON.stringify(window.PICKUP_REGISTRY_IDS)');
@@ -165,37 +165,18 @@ module.exports = {
       G('window.CHEST_REGISTRY_IDS.reverse();');
     }
 
-    // ── D. v2 → v3 migration (realistic legacy payload) ─────────────────────
-    G('localStorage.clear(); stats.gold = 999; day = 7; saveGame();');
-    G(`(function(){
-        var d = JSON.parse(localStorage.getItem('verdantVale_save'));
-        d.version = 2; delete d.collectedPickupIds; delete d.openedChestIds;
-        d.dungeon7Items = [false, false, true, false]; // pickup_dungeon7_burial_record collected
-        d.sluiceLevel2Items = [true, false, false, false]; // pickup_sluice2_a collected
-        d.meadowChestOpened = true; d.sluiceDeepChestOpened = true; d.chestOpened = false;
-        localStorage.setItem('verdantVale_save', JSON.stringify(d));
-      })();`);
+    // ── D. v4 clean break: an older-version save is rejected, not migrated ──
+    G("localStorage.clear(); stats.gold = 999; day = 7; resetLocationState(); activeMap = MAP; player.x = 7.5*TILE; player.y = 9.5*TILE; __reconcileCanonicalForTest(); saveGame();");
+    const rawCur = G("localStorage.getItem('verdantVale_save')");
+    assert.equal(JSON.parse(rawCur).version, G("SAVE_VERSION"), "a fresh save is the current version");
+    // Downgrade to v2 (legacy positional fields) — v4 has no migration, so it is rejected.
+    G("(function(){ var d = JSON.parse(localStorage.getItem('verdantVale_save')); d.version = 2; delete d.collectedPickupIds; delete d.openedChestIds; d.dungeon7Items = [false,false,true,false]; localStorage.setItem('verdantVale_save', JSON.stringify(d)); })();");
     const rawV2 = G("localStorage.getItem('verdantVale_save')");
-    G('window.PICKUP_REGISTRY_IDS.forEach(function(id){ window.PICKUP_REGISTRY[id].picked=false; }); window.CHEST_REGISTRY_IDS.forEach(function(id){ window.CHEST_REGISTRY[id].opened=false; }); stats.gold=1; day=1;');
-    assert.equal(G('loadGame()'), true, 'v2 save migrates + loads');
-    assert.equal(G("window.PICKUP_REGISTRY['pickup_dungeon7_burial_record'].picked"), true, 'positional pickup boolean maps to the correct stable id');
-    assert.equal(G("window.PICKUP_REGISTRY['pickup_sluice2_a'].picked"), true, 'second positional pickup maps correctly');
-    assert.equal(G("window.PICKUP_REGISTRY['pickup_dungeon7_a'].picked"), false, 'an uncollected slot stays uncollected');
-    assert.equal(G("window.CHEST_REGISTRY['chest_meadow'].opened"), true, 'per-chest field maps to the correct stable id');
-    assert.equal(G("window.CHEST_REGISTRY['chest_sluice_deep'].opened"), true, 'second chest field maps correctly');
-    assert.equal(G("window.CHEST_REGISTRY['chest_dungeon_main'].opened"), false, 'a false chest field stays closed');
-    assert.equal(G('stats.gold'), 999, 'unrelated state (gold) survives migration');
-    assert.equal(G('day'), 7, 'unrelated state (day) survives migration');
-    const v3 = JSON.parse(G("localStorage.getItem('verdantVale_save')"));
-    assert.equal(v3.version, 3, 'disk rewritten to v3');
-    assert.equal(v3.dungeon7Items, undefined, 'legacy positional field removed from canonical v3 payload');
-    assert.equal(v3.meadowChestOpened, undefined, 'legacy per-chest field removed from canonical v3 payload');
-    assert.ok(v3.collectedPickupIds.indexOf('pickup_dungeon7_burial_record') !== -1, 'v3 payload records pickup by id');
-    assert.ok(v3.openedChestIds.indexOf('chest_meadow') !== -1, 'v3 payload records chest by id');
-    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v2')"), rawV2, 'backup_v2 equals the original v2 text, verbatim');
-    // Reloading the migrated save must not migrate again / touch the backup.
-    G('loadGame();');
-    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v2')"), rawV2, 'backup_v2 unchanged after a second load (no re-migration)');
+    G("stats.gold=1; day=1;");
+    assert.equal(G("loadGame()"), false, "a v2 save is rejected cleanly — there is no migration path");
+    assert.equal(G("stats.gold"), 1, "a rejected load mutates no runtime state");
+    assert.equal(G("localStorage.getItem('verdantVale_save')"), rawV2, "the rejected v2 save is left untouched on disk");
+    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v2')"), null, "a rejected save creates no backup");
 
     // ── E. Unknown ids: warn, no throw, no gameplay, preserved, deduped ─────
     G('localStorage.clear(); saveGame();');
@@ -253,16 +234,11 @@ module.exports = {
     }
     assert.equal(cleanErrors(), 0, 'validation is clean again once the enemy entry is restored');
 
-    // G4. Break the v2→v3 migration registration → a v2 save must fail to load.
-    G('localStorage.clear(); saveGame();');
-    G(`(function(){ var d=JSON.parse(localStorage.getItem('verdantVale_save')); d.version=2; delete d.collectedPickupIds; delete d.openedChestIds; localStorage.setItem('verdantVale_save', JSON.stringify(d)); })();`);
-    G('window.__m2 = window.SAVE_MIGRATIONS[2]; delete window.SAVE_MIGRATIONS[2];');
-    try {
-      expectAssertFails(() => { assert.equal(G('loadGame()'), true, 'v2 should load'); }, 'removing SAVE_MIGRATIONS[2] must make a v2 save unloadable');
-    } finally {
-      G('window.SAVE_MIGRATIONS[2] = window.__m2; delete window.__m2;');
-    }
-    assert.equal(G('loadGame()'), true, 'a v2 save loads again once the v2→v3 migration is re-registered');
+    // G4. v4 clean break: a v2 (or any non-current) save is always rejected — the
+    // retired SAVE_MIGRATIONS registry no longer participates in loading.
+    G('localStorage.clear(); resetLocationState(); activeMap=MAP; player.x=7.5*TILE; player.y=9.5*TILE; __reconcileCanonicalForTest(); saveGame();');
+    G(`(function(){ var d=JSON.parse(localStorage.getItem('verdantVale_save')); d.version=2; localStorage.setItem('verdantVale_save', JSON.stringify(d)); })();`);
+    assert.equal(G('loadGame()'), false, 'a v2 save is rejected — v4 has no migration path');
 
     // G5. Break id-based application (no-op) → the array-order round-trip fails.
     G('localStorage.clear(); window.PICKUP_REGISTRY_IDS.forEach(function(id){ window.PICKUP_REGISTRY[id].picked=false; });');

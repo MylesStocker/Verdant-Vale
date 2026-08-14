@@ -87,7 +87,7 @@ module.exports = {
     // ── 4. loadGame() clears the marker, even for a same-"day" older save ───
     // Save now (marker armed, today's day number N)...
     const dayNow = g.run('day');
-    g.run('saveGame();'); // this save captures the CURRENT (armed) state
+    g.run('__reconcileCanonicalForTest(); saveGame();'); // this save captures the CURRENT (armed) state
     // ...then scramble to a state that mimics loading a DIFFERENT, older
     // save that happens to report the same day number but never had the
     // visit -- i.e. exactly the leak scenario the explicit reset guards.

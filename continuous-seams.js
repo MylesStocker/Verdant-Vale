@@ -253,14 +253,12 @@ function _csMoveAxis(dx, dy) {
   if (nc.chunkX !== stand.chunkX || nc.chunkY !== stand.chunkY) {
     // Standing point crossed — allow ONLY across an eligible seam (never guess).
     if (!_csCrossingSeam(regionId, stand, nwx, nwy)) return; // ambiguous/ineligible: block, don't move
-    const dp = regionPlacementForMapId(nc.mapId);
-    activeMap = mapRefForId(nc.mapId);
-    player.x = nwx - dp.chunkX * CW;
-    player.y = nwy - dp.chunkY * CH;
-  } else {
-    player.x = nwx - p.chunkX * CW;
-    player.y = nwy - p.chunkY * CH;
   }
+  // ONE canonical commit of the (validated) world-pixel point: it derives the
+  // destination map + local projection (a handoff when the standing point crossed,
+  // otherwise the same chunk), preserving sub-tile progress. The next axis re-reads
+  // activeMap, so an X handoff is visible to the Y step.
+  commitRegionalWorldPosition(regionId, nwx, nwy);
 }
 // X before Y (Y resolved from the possibly-handed-off map/position). Each axis
 // applied at most once; two handoffs in one diagonal frame only if each axis

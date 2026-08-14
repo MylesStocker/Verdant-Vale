@@ -256,9 +256,11 @@ function transitionToLocation(spec) {
 
   // ── All validated. Mutate atomically. ──
   applyLocationState(proposed);
-  activeMap     = place.map;
-  player.x      = spec.x;
-  player.y      = spec.y;
+  // Position through the ONE canonical authority (regional-position.js): a
+  // regional destination commits the canonical world point and DERIVES
+  // activeMap/player.x/player.y; a discrete destination sets the physical
+  // map/local and clears canonical. Callers never assign those separately.
+  placeAtLocation(spec.mapId, spec.x, spec.y);
   player.facing = spec.facing;
   if (spec.cooldown) combat.cooldown = ENCOUNTER_COOLDOWN;
   return true;
@@ -1036,9 +1038,10 @@ function exitDream() {
   // A restoration (like save/load), NOT a fresh gameplay transition: reapply the
   // stashed location state + map/position directly, with no cooldown/side effect.
   applyLocationState(_dreamReturn.state);
-  activeMap       = _dreamReturn.map;
-  player.x        = _dreamReturn.x;
-  player.y        = _dreamReturn.y;
+  // Restoration (like save/load): reconstruct position through the canonical
+  // authority from the stashed placement — regional restores commit canonical,
+  // discrete restores clear it. mapIdForRef() turns the stashed ref into its id.
+  placeAtLocation(mapIdForRef(_dreamReturn.map), _dreamReturn.x, _dreamReturn.y);
   player.facing   = _dreamReturn.facing;
   _dreamReturn    = null;
 }

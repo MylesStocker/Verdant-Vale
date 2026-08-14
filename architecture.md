@@ -79,11 +79,12 @@ The rule this codebase actually follows:
 | File | Owns | Don't edit here |
 |---|---|---|
 | `state.js` | All core mutable game state: world/location flags, status effects, `stats`, `menu`/`debugMenu`/`debugInspector`/`warpMenu`, `dialogue`/`continentMap`/`accordPanel`, the `tick` counter, and tiny state-only helpers (`toggleMenu`, `checkLevelUp`, `toggleDebugMenu`, `toggleDebugInspector`, etc). | Combat state (`combat`, `choice`, `shop`) lives in `combat.js`. Furniture/NPC position consts live in `render-interiors.js` / `render-entities.js`, not here. |
-| `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION`/`SAVE_MIGRATIONS`/`migrateSave()`, `saveGame()`, `loadGame()`, `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here (`saveGame`/`loadGame` read the registry generically — there's no per-flag load assignment to write). See "Save/flags" below — this is the single most common thing new content gets wrong. |
+| `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION` (**4**), `migrateSave()` (v4 accepts ONLY the current version — no migration/fallback; `SAVE_MIGRATIONS` is retired/unused), `saveGame()`, `loadGame()`, `resolveLoadLocation()` (the v4 discriminated-location preflight), `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here. `saveGame()` refuses to write when `regionalInvariantErrors()` is non-empty; `loadGame()` commits position via `placeAtLocation()` (regional-position.js), never by assigning `activeMap`/`player.x`/`player.y`. See "Save/flags" and "Canonical regional world position" below. |
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
-| `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, `mapLocalPxToWorldPx()`, and `buildContinuousWorldPlan()` (the per-frame render plan). Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. Its only consumer is the DEBUG continuous-view prototype in `render.js`. |
+| `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, `mapLocalPxToWorldPx()`, `buildContinuousWorldPlanFromWorld()` (the CANONICAL entry — plan from a region-world pixel point), and `buildContinuousWorldPlan()` (a TEMPORARY map-id+local compat overload for Part 2 readers/tests). Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. The runtime camera consumes `buildContinuousWorldPlanFromWorld()` (fed the canonical position); the compat overload is temporary. |
+| `regional-position.js` | **THE canonical regional-position authority** (Canonical Regional World Position, Part 1): the private canonical state `{ regionId, worldPxX, worldPxY }`; conversions `mapLocalPxToRegionWorldPx()` / `regionWorldPxToLocal()`; read-only `regionalWorldPosition()` / `regionalDerivedLocation()`; atomic writers `commitRegionalWorldPosition()` (derives `activeMap`/`player.x`/`player.y`), `enterRegionalMapFromLocal()`, `clearRegionalPosition()`, `placeAtLocation()` (the regional/discrete router used by every location gateway), the movement-step write `regionalCommitFromActiveLocal()`, and the read-only `regionalInvariantErrors()`. | Canonical state is not externally mutable and is `null` on every discrete location. Callers NEVER assign `activeMap`/`player.x`/`player.y` for a regional map — they go through this module. It never repairs state; `regionalInvariantErrors()` only reports. |
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
 | `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
 | `continuous-content.js` | **DEBUG-ONLY**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
@@ -245,9 +246,10 @@ validation/documentation.
 The two namespaces above are about **identity** (which map, which logical
 location). Layout adds a third, orthogonal concept about **geometry** — where the
 principal wilderness maps sit relative to one another on a single continuous
-grid. It is behaviour-neutral prework for a *future* continuous overworld:
-nothing in rendering, movement, saves, encounters, or transitions consults it
-yet, and `SAVE_VERSION` is unchanged. Keep the five terms distinct:
+grid. Originally behaviour-neutral prework; as of **Canonical regional world
+position (Part 1)** it is the authority `regional-position.js` derives the runtime
+canonical `{ regionId, worldPxX, worldPxY }` from, and v4 regional saves persist that
+world point (`SAVE_VERSION` is now **4**). Keep the five terms distinct:
 
 | Term | What it is | Example |
 | --- | --- | --- |
@@ -622,11 +624,12 @@ Lets the player *walk* across EVERY currently-safe reciprocal ALIGNS outdoor sea
 on. (Today that is the 7 pairs / 14 directed seams of the North Basin and the
 Thornmere fen shelf; the set is derived, not hand-listed.)
 
-- **Canonical model is unchanged.** `activeMap` is still the current physical map;
-  `player.x/.y` are still LOCAL pixels; saves still store the active map + local
-  placement; `SAVE_VERSION` stays 3. **World coordinates are computed transiently**
-  (from `regionPlacementForMapId` / `mapIdForChunk` / `tileAtWorld`) purely for
-  cross-seam collision and the handoff — never persisted.
+- **Canonical model (Part 1).** The canonical runtime position of a placed map is now
+  the region-world pixel point in `regional-position.js`; `activeMap` and `player.x/.y`
+  are DERIVED projections, and v4 saves store the regional world point (see "Canonical
+  regional world position" below). `continuousSeamMove()` still resolves cross-seam
+  collision/handoff in world pixels, but now commits the result through the canonical
+  authority (one `commitRegionalWorldPosition`) rather than assigning map/local directly.
 - **Derived eligible-seam authority (no hand-maintained list), FAIL-CLOSED.** A
   directed edge `mapId|dir` is eligible iff, from `REGIONAL_LAYOUT` +
   `EDGE_TRANSITIONS` + placement: from/to are both placed in the same `regionId`,
@@ -783,8 +786,64 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   border tile are base-walkable; `validateContinuousSeams()` errors otherwise. This
   is the general guard that a converted point crossing (or any future one) cannot
   strand/soft-lock the seamless footprint on a blocked border cell.
-- **Out of scope / future.** The remaining NEEDS_REMAP seams still inset; no
-  world-position save migration (would require a `SAVE_VERSION` bump); no caching.
+- **Out of scope / future.** No caching; the regional CONSUMERS (encounters, NPC
+  sim, items, interactions, neighbour rendering, debug reads) still derive position
+  from `activeMap`+local — Part 2 moves them onto the canonical context below.
+
+### Canonical regional world position (Part 1 of 2, `regional-position.js`)
+
+The runtime position of a placed wilderness map is now a **canonical region-world
+PIXEL point** — `{ regionId, worldPxX, worldPxY }` — held privately in
+`regional-position.js`. `activeMap`, `player.x`, `player.y` are **temporary
+compatibility PROJECTIONS derived from it**, not a second authority. Keep these
+distinct:
+
+- **Canonical regional world position** — `{ regionId, worldPxX, worldPxY }`; the
+  ONE authority for a placed map (incl. Verdant Vale's `legacy_screen` MAP —
+  geographic position is independent of presentation mode, so MAP is canonical
+  regional even while its continuous rendering is suppressed).
+- **Derived physical chunk / local projection** — `activeMap` + `player.x/player.y`,
+  computed from the canonical point by `commitRegionalWorldPosition()`. Callers never
+  assign them for a regional map. `player.facing` is NOT part of the position.
+- **Discrete-map local position** — towns/interiors/dungeons/houses/bridges/dream/
+  special maps keep the physical `activeMap` + local `player.x/y` model; canonical
+  regional state is **`null`** there.
+
+**Writers routed through the authority.** Location gateways —
+`transitionToLocation()`, dream restore (`exitDream()`), bootstrap, debug warp
+(via `transitionToLocation()`), defeat/reset (via `transitionToLocation()`) and
+`loadGame()` — commit position through `placeAtLocation(mapId, localPxX, localPxY)`
+(regional → commit canonical + derive projections; discrete → set physical map/local
++ clear canonical). Movement: `continuousSeamMove()` validates a candidate world
+point and performs ONE `commitRegionalWorldPosition()` (the destination map + local
+are derived, not independently assigned); every accepted regional step (incl. legacy
+in-chunk) records via `regionalCommitFromActiveLocal()`. No ordinary runtime path
+reconstructs canonical from a conflicting projection, and there is no "repair from
+activeMap/local" loop — `regionalInvariantErrors()` only REPORTS
+(missing/stale/disagreeing projections), never repairs.
+
+**Camera.** `render.js`'s continuous path reads `regionalWorldPosition()` and feeds
+`buildContinuousWorldPlanFromWorld()` — the camera consumes the canonical world point
+directly and never re-derives it from `activeMap`+local. Rendering stays read-only.
+
+**Save v4 (`SAVE_VERSION = 4`, clean break — no migration).** Location is a
+discriminated union: `{ kind:'regional', regionId, worldPxX, worldPxY }` or
+`{ kind:'discrete', mapId, localPxX, localPxY }`. A regional save stores the canonical
+region/world position only (no `activeMapId`/local as a second authority); a discrete
+save stores the physical map id + local pixels. `player` carries facing only. Other
+save data and location-state MODE flags (inTown, dungeonFloor, houseSourceMapId, …)
+are unchanged. `saveGame()` refuses to write (leaving any existing save intact) if the
+canonical invariant is broken; `loadGame()` accepts only version 4 and rejects any
+other version / unknown kind / malformed coords / void point / blocked placement /
+inconsistent state atomically (running state + stored save untouched). Regional load
+derives the chunk/local projection from the world point; discrete load uses the
+existing map-local path.
+
+**Part 2 (deferred).** The regional CONSUMERS still read `activeMap`+local and will be
+moved onto the canonical context (removing redundant derivations): geographic
+encounters, regional NPC simulation/collision, world-aware items/pickups, interactions
+& prompts, neighbour content rendering, the debug inspector/read APIs, remaining compat
+position reads, and final invariant enforcement + compat-overload cleanup.
 
 ### Neighbouring outdoor content, READ-ONLY (`continuous-content.js`)
 
@@ -1296,42 +1355,26 @@ real save-schema change, with its own risk), `validateGameData()`'s
 `validateSaveFlags()` (`validation.js`) checks the registry itself rather
 than a hand-copied list: binding keys are unique, `QUEST_FLAG_SCHEMA` equals
 `bindings.map(b => b.key)` in order, every binding has a `default` and
-callable `get`/`set`, no getter throws, and every `v` in `1 …
-SAVE_VERSION-1` has a registered `SAVE_MIGRATIONS[v]`. There is no longer a
-maintained reverse-direction copy of the synced-flag list to keep in step.
+callable `get`/`set`, and no getter throws. (The old migration-coverage check is
+gone — v4 has no migration path.) There is no longer a maintained reverse-direction
+copy of the synced-flag list to keep in step.
 
-### Versioned migration — old saves are upgraded, never deleted
+### Save version 4 — a clean break, no migration, never deleted
 
-`SAVE_VERSION` is the on-disk format number (currently **3**).
-`SAVE_MIGRATIONS[v]` is a per-step function transforming a version-`v`
-payload into a version-`(v+1)` one — a registry, deliberately *not* one
-growing conditional, so the next format bump adds `SAVE_MIGRATIONS[N]` and
-nothing else. `SAVE_MIGRATIONS[1]` (v1→v2) *clones* the parsed object (never
-mutates it), preserves every existing field and flag value, seeds any binding
-key the old save lacked with that binding's declared default, and sets
-`version = 2`. `SAVE_MIGRATIONS[2]` (v2→v3) replaces the positional pickup
-arrays and per-chest fields with stable-id sets (see "Stable identity" below).
-An old v1 save runs the whole chain **v1→v2→v3** in order.
+`SAVE_VERSION` is the on-disk format number (currently **4**). v4 introduced the
+discriminated location representation (see "Canonical regional world position"
+above) and is a deliberate **clean break**: there are no pre-v4 saves in the wild,
+so there is **no migration path and no backward compatibility**. The
+`SAVE_MIGRATIONS` registry is retired (kept only as historical reference; nothing
+consults it) and `migrateSave(parsed)` now accepts **only** the current version —
+it validates the payload is object-like with `version === SAVE_VERSION` and returns
+`{ ok: true, data, migratedFrom: null }`, else `{ ok: false, reason }`.
 
-`migrateSave(parsed)` is the coordinator. It validates the payload
-(object-like, numeric `version ≥ 1`, not from a future version) and applies
-each required step in order **without touching `localStorage`**, returning
-`{ ok: true, data, migratedFrom }` (`migratedFrom` = the original version if a
-migration ran, else `null`) or `{ ok: false, reason }`. `loadGame()` calls it
-and, on `ok: false`, **warns and returns `false`, leaving the save on disk
-untouched** — malformed JSON, an unsupported/unversioned save, a future
-version, a missing migration step, and a migration that throws are *all*
-non-destructive. A save is never silently deleted.
-
-Only after a *successful* migrating load does `loadGame()` persist the
-upgrade: it backs the original raw text up under
-`verdantVale_save_backup_v<from>` where `<from>` is the **original source
-version** (**only if that key doesn't already exist** — a backup is never
-overwritten) and writes the migrated object to the normal key via direct
-`localStorage.setItem` (**not** `saveGame()`, so no current-session state leaks
-into the rewrite). So a v1→v3 migration writes only `..._backup_v1` (it never
-fabricates a `_backup_v2`); a v2→v3 writes only `..._backup_v2`. A normal
-(already-current) v3 load creates no backup and rewrites nothing.
+`loadGame()` calls it and, on `ok: false`, **warns and returns `false`, leaving the
+save on disk untouched** — malformed JSON, an unversioned save, and *any* non-current
+version (older v1/v2/v3 or a future version) are all rejected cleanly and
+non-destructively. A save is never silently deleted, and no versioned backup files
+are written (that path only ran on a successful migration, which no longer happens).
 
 ### Stable identity — pickups, chests, and enemy templates (v3)
 

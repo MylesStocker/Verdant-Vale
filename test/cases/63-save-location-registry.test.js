@@ -39,7 +39,9 @@ module.exports = {
     `);
     const saved = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
     assert.equal(saved.version, SAVE_VERSION, 'save version unchanged');
-    assert.equal(saved.activeMapId, 'HOUSE_INTERIOR_MAP', 'activeMapId serialized via mapRegistryId');
+    assert.equal(saved.location.kind, 'discrete', 'a house interior save is a discrete location');
+    assert.equal(saved.location.mapId, 'HOUSE_INTERIOR_MAP', 'discrete location.mapId serialized via mapRegistryId');
+    assert.ok(!('activeMapId' in saved), 'v4 no longer stores a separate activeMapId (superseded by the location discriminator)');
     assert.equal(saved.houseSourceMapId, 'WEST_TOWN_MAP', 'houseSourceMap serialized as flat houseSourceMapId (registry id)');
     assert.ok(!('houseSourceMap' in saved), 'the raw map-ref key is never written to the save');
     assert.deepEqual(saved.houseReturnPos, { x: 80, y: 272 }, 'houseReturnPos serialized as a flat {x,y}');
@@ -101,23 +103,21 @@ module.exports = {
       assert.equal(okRoundTrip, true, 'mode "' + mode + '" round-trips through the location registry');
     }
 
-    // ── Current + migrated saves both load and restore location ──────────────
+    // ── Current save loads; any OTHER version is rejected (v4 clean break) ────
     g.run(`resetLocationState(); inDungeon=true; dungeonFloor=1; activeMap=DUNGEON_MAP; player.x=7.5*TILE; player.y=9.5*TILE; player.facing='down'; day=4; stats.gold=42; saveGame();`);
-    const v3 = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
+    const cur = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
+    assert.equal(cur.version, SAVE_VERSION, 'a fresh save is the current version');
     assert.equal(g.run('loadGame()'), true, 'current-version save loads');
-    // Downgrade to a v1 payload (pre stable-id pickups) and confirm migration + load.
-    const v1 = Object.assign({}, v3, { version: 1 });
-    delete v1.collectedPickupIds; delete v1.openedChestIds;
-    g.run(`resetLocationState(); activeMap=MAP; player.x=7.5*TILE; player.y=9.5*TILE; inDungeon=false; dungeonFloor=1; day=1; stats.gold=0;`);
-    g.run("localStorage.setItem('verdantVale_save', " + JSON.stringify(JSON.stringify(v1)) + ");");
-    assert.equal(g.run('loadGame()'), true, 'migrated (v1→v3) save loads');
-    assert.equal(g.run('inDungeon'), true, 'migrated save restores inDungeon');
-    assert.equal(g.run('mapRegistryId(activeMap)'), 'DUNGEON_MAP', 'migrated save restores the active map');
-    assert.equal(g.run('day'), 4, 'migrated save restores non-location data too');
+    // A downgraded (older-version) payload is rejected cleanly — there is NO migration.
+    const older = Object.assign({}, cur, { version: 3 });
+    g.run(`resetLocationState(); activeMap=MAP; player.x=7.5*TILE; player.y=9.5*TILE; inDungeon=false; dungeonFloor=1; day=1; stats.gold=0; __reconcileCanonicalForTest();`);
+    g.run("localStorage.setItem('verdantVale_save', " + JSON.stringify(JSON.stringify(older)) + ");");
+    assert.equal(g.run('loadGame()'), false, 'a version-3 (or any non-current) save is rejected — no migration path');
+    assert.equal(g.run("JSON.parse(localStorage.getItem('verdantVale_save')).version"), 3, 'the rejected older save is left untouched on disk');
 
     // ── Every reject path: false + no mutation + save preserved ──────────────
     // Baseline valid save to tweak one field at a time.
-    g.run(`resetLocationState(); activeMap=MAP; inTown=false; player.x=7.5*TILE; player.y=9.5*TILE; player.facing='down'; day=9; stats.gold=500; saveGame();`);
+    g.run(`resetLocationState(); activeMap=MAP; inTown=false; player.x=7.5*TILE; player.y=9.5*TILE; player.facing='down'; day=9; stats.gold=500; __reconcileCanonicalForTest(); saveGame();`);
     const base = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
 
     function reject(name, overrides) {
@@ -133,11 +133,13 @@ module.exports = {
       assert.equal(g.run("localStorage.getItem('verdantVale_save')"), badJson, name + ': the stored (invalid) save must be preserved intact');
     }
 
-    reject('unknown activeMapId',        { activeMapId: 'NO_SUCH_MAP' });
+    reject('unknown discrete map',       { location: { kind: 'discrete', mapId: 'NO_SUCH_MAP', localPxX: 7.5 * TILE, localPxY: 7.5 * TILE } });
     reject('unknown houseSourceMapId',   { houseSourceMapId: 'NO_SUCH_MAP' });
     reject('invalid invariant',          { inTown: false, currentHouseId: 'player_house' });
-    reject('non-finite coordinates',     { player: { x: null, y: 100, facing: 'down' } });
-    reject('out-of-bounds placement',    { player: { x: 100000, y: 100, facing: 'down' } });
-    reject('blocked base placement',     { activeMapId: 'SLUICE_MAP', player: { x: 7.5 * TILE, y: 7.5 * TILE, facing: 'down' } });
+    reject('non-finite coordinates',     { location: { kind: 'discrete', mapId: 'MAP', localPxX: null, localPxY: 100 } });
+    reject('out-of-bounds placement',    { location: { kind: 'discrete', mapId: 'MAP', localPxX: 100000, localPxY: 100 } });
+    reject('blocked base placement',     { location: { kind: 'discrete', mapId: 'SLUICE_MAP', localPxX: 7.5 * TILE, localPxY: 7.5 * TILE } });
+    reject('void regional point',        { location: { kind: 'regional', regionId: 'overworld', worldPxX: 99 * 512, worldPxY: 99 * 480 } });
+    reject('unknown location kind',      { location: { kind: 'nonsense' } });
   },
 };

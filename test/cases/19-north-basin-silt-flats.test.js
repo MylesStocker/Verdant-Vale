@@ -109,7 +109,7 @@ module.exports = {
     g.run(`
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_SW_MAP;
       player.x = 7.5*TILE; player.y = 5.5*TILE; player.facing = 'down';
-      saveGame();
+      __reconcileCanonicalForTest(); saveGame();
     `);
     g.run(`
       activeMap = MAP; player.x = 1*TILE; player.y = 1*TILE;

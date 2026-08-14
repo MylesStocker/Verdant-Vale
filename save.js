@@ -2,10 +2,13 @@
 
 // save.js — save-file schema and the saveGame()/loadGame() implementations.
 
-// Bumped when the on-disk save format changes. loadGame() MIGRATES older saves
-// forward (SAVE_MIGRATIONS / migrateSave, below) rather than discarding them; a
-// save it genuinely cannot understand is left untouched on disk, never deleted.
-const SAVE_VERSION = 3;
+// Bumped when the on-disk save format changes. v4 introduces the canonical
+// discriminated location representation (regional world-pixel position vs
+// discrete map + local pixels — see saveGame()/resolveLoadLocation()). There are
+// no pre-v4 saves in the wild, so loadGame() accepts ONLY the current version and
+// rejects anything else cleanly (no migration, no fallback); a save it cannot
+// read is left untouched on disk, never deleted.
+const SAVE_VERSION = 4;
 
 // ─── Authoritative quest/world-flag binding registry ─────────────────────────
 // ONE source of truth for every persistent quest/world flag. Each binding owns:
@@ -308,30 +311,13 @@ function migrateSave(parsed) {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     return { ok: false, reason: 'save payload is not an object' };
   }
-  const originalVersion = parsed.version;
-  if (typeof originalVersion !== 'number' || !Number.isFinite(originalVersion) || originalVersion < 1) {
-    return { ok: false, reason: 'save has no supported version (' + JSON.stringify(originalVersion) + ')' };
+  // v4 is a clean break: no old saves exist, so there is deliberately NO migration
+  // path. Accept ONLY the current version; reject every other version cleanly. The
+  // SAVE_MIGRATIONS registry is retired (kept only as historical reference).
+  if (parsed.version !== SAVE_VERSION) {
+    return { ok: false, reason: 'unsupported save version (' + JSON.stringify(parsed.version) + '); this build reads only version ' + SAVE_VERSION + ' and does not migrate older or future saves' };
   }
-  if (originalVersion > SAVE_VERSION) {
-    return { ok: false, reason: 'save is from a future version (' + originalVersion + '); this game understands up to version ' + SAVE_VERSION };
-  }
-  let data = parsed;
-  let v = originalVersion;
-  while (v < SAVE_VERSION) {
-    const step = SAVE_MIGRATIONS[v];
-    if (typeof step !== 'function') {
-      return { ok: false, reason: 'no migration registered for version ' + v + ' → ' + (v + 1) };
-    }
-    let migrated;
-    try { migrated = step(data); }
-    catch (e) { return { ok: false, reason: 'migration ' + v + ' → ' + (v + 1) + ' threw: ' + (e && e.message || e) }; }
-    if (!migrated || typeof migrated !== 'object' || migrated.version !== v + 1) {
-      return { ok: false, reason: 'migration ' + v + ' → ' + (v + 1) + ' produced an invalid payload' };
-    }
-    data = migrated;
-    v = data.version;
-  }
-  return { ok: true, data: data, migratedFrom: originalVersion < SAVE_VERSION ? originalVersion : null };
+  return { ok: true, data: parsed, migratedFrom: null };
 }
 window.migrateSave = migrateSave;
 
@@ -405,6 +391,15 @@ function saveGame() {
   // all) is responsible for showing the "won't hold" banner.
   if (!canSaveHere()) return false;
 
+  // Canonical-position guard: never persist a save whose canonical regional
+  // position disagrees with its compatibility projections (or is missing on a
+  // regional map). Returns BEFORE touching localStorage, so a broken invariant
+  // never overwrites an existing valid save.
+  if (typeof regionalInvariantErrors === 'function') {
+    const invErrs = regionalInvariantErrors();
+    if (invErrs.length) { console.warn('[saveGame] refusing to write — canonical position invariant broken: ' + invErrs.join('; ') + ' — the existing save is left untouched.'); return false; }
+  }
+
   // Quest flags: built generically from the binding registry (one getter each),
   // NOT from a separate key list. syncQuestFlagsToWindow() still runs first so
   // window-native flags are normalized (undefined → default) before their
@@ -414,10 +409,20 @@ function saveGame() {
   const questFlagData = {};
   for (const b of QUEST_FLAG_BINDINGS) questFlagData[b.key] = b.get();
 
+  // ── Location (v4 discriminated) ───────────────────────────────────────────
+  // Regional: the CANONICAL region + world-pixel position (no activeMapId/local as
+  // a second authority). Discrete: the physical map id + local pixels. player.x/y
+  // are only compatibility projections on a regional map, so they are NOT stored;
+  // for a discrete map the local pixels ARE the authority and live in `location`.
+  const _canon = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+  const location = _canon
+    ? { kind: 'regional', regionId: _canon.regionId, worldPxX: _canon.worldPxX, worldPxY: _canon.worldPxY }
+    : { kind: 'discrete', mapId: mapIdForRef(activeMap), localPxX: player.x, localPxY: player.y };
+
   const data = {
     version: SAVE_VERSION,
-    // ── Player ────────────────────────────────────────────────────────────
-    player:     { x: player.x, y: player.y, facing: player.facing },
+    // ── Player (facing only; position lives in `location`) ────────────────
+    player:     { facing: player.facing },
     // ── Stats / inventory ─────────────────────────────────────────────────
     stats:      {
       hp: stats.hp, maxHp: stats.maxHp,
@@ -434,13 +439,13 @@ function saveGame() {
     travellerPresent,
     // ── Quest flags (schema-driven; see QUEST_FLAG_SCHEMA) ────────────────
     ...questFlagData,
-    // ── Location state ────────────────────────────────────────────────────
-    // activeMap is NOT a location-state binding (it is derived from the mode
-    // flags on load), so it is serialized separately via the canonical
-    // mapIdForRef(). Every other location-context field flattens through the
-    // ONE binding registry (serializeLocationState(), world-transitions.js) —
-    // there is no second hand-maintained list here any more.
-    activeMapId:        mapIdForRef(activeMap),
+    // ── Location ──────────────────────────────────────────────────────────
+    // The v4 discriminated position (see above). The physical map is no longer
+    // stored as a separate `activeMapId`: a regional save derives it from the
+    // canonical world point on load; a discrete save carries its own mapId in
+    // `location`. Location-context MODE flags (inTown, dungeonFloor,
+    // houseSourceMapId, …) still flatten through the ONE binding registry.
+    location,
     ...serializeLocationState(),
     // dilemma_voss is a main.js story var, NOT location context — kept separate.
     dilemma_voss,
@@ -475,100 +480,66 @@ function saveGame() {
   return true;
 }
 
-// Resolve the player x/y/facing a payload restores to, falling back to the
-// live value for any field the save omits (matches the historical "leave
-// unchanged if absent" behavior). Pure read.
-function _resolvePlayerFromData(data) {
-  const p = (data && data.player) || {};
-  return {
-    x:      p.x      !== undefined ? p.x      : player.x,
-    y:      p.y      !== undefined ? p.y      : player.y,
-    facing: p.facing !== undefined ? p.facing : player.facing,
-  };
-}
-
-// Legacy (pre-activeMapId) saves: derive the active map from the stored mode
-// flags, adjusting the candidate + player as the historical else-branch did.
-// Operates on the passed candidate object (never globals). Returns { mapId, player }.
-function _legacyLoadLocation(data, candidate) {
-  let mapRef = MAP; // overworld default — all mode flags false
-  let plr    = _resolvePlayerFromData(data);
-  if (data.inDungeon) {
-    const floor = data.dungeonFloor || 1;
-    candidate.inDungeon = true; candidate.dungeonFloor = floor;
-    mapRef = floor === 2 ? DUNGEON2_MAP : floor === 3 ? DUNGEON3_MAP
-           : floor === 4 ? DUNGEON4_MAP : floor === 5 ? DUNGEON5_MAP : DUNGEON_MAP;
-  } else if (data.inSluice) {
-    const floor = data.sluiceFloor || 1;
-    candidate.inSluice = true; candidate.sluiceFloor = floor;
-    mapRef = floor === 3 ? SLUICE_LEVEL3_MAP : floor === 2 ? SLUICE_LEVEL2_MAP : SLUICE_MAP;
-  } else if (data.inMireVault)      { candidate.inMireVault = true;      mapRef = MIRE_VAULT_MAP; }
-  else if (data.inTakomo)           { candidate.inTakomo = true;         mapRef = TAKOMO_MAP; }
-  else if (data.inFenBrewery)       { candidate.inFenBrewery = true;     mapRef = FEN_BREWERY_MAP; }
-  else if (data.inHamletInterior)   { candidate.inHamletInterior = true; mapRef = HAMLET_INTERIOR_MAP; }
-  else if (data.inTown) {
-    candidate.inTown = true;
-    const b = data.townBuilding;
-    candidate.townBuilding = data.townBuilding || null;
-    if (b === 'house') {
-      // houseSourceMap/houseReturnPos didn't exist in old saves; back out to
-      // the town map safely rather than into an unrestorable house.
-      candidate.townBuilding = null;
-      candidate.currentHouseId = null; candidate.houseSourceMap = null; candidate.houseSourceBuilding = null;
-      mapRef = TOWN_MAP;
-      plr = { x: 7.5 * TILE, y: 7.5 * TILE, facing: 'down' };
-    } else {
-      mapRef = b === 'inn'    ? INN_MAP
-             : b === 'school' ? SCHOOL_MAP
-             : b === 'apt'    ? APARTMENT_CORRIDOR_MAP
-             : b === 'office' ? OFFICE_MAP
-             : b === 'east'   ? EAST_TOWN_MAP
-             : b === 'west'   ? WEST_TOWN_MAP
-             :                  TOWN_MAP;
-    }
-  }
-  return { mapId: mapIdForRef(mapRef), player: plr };
-}
-
-// Preflight the complete location restore from a migrated payload WITHOUT
-// mutating any globals. Produces a resolved map ref, the player placement, and
-// a complete, invariant-checked candidate location state; on any failure it
-// returns ok:false with human-readable errors so loadGame() can bail before
-// touching the running game or the stored save. Combines: registry-driven
-// deserialization (incl. houseSourceMapId resolution), legacy map derivation,
-// stranded-bridge repair on the candidate, placement validation (map/coords/
-// bounds/base-walkable/facing) and the location-state invariants.
+// Preflight the complete v4 location restore from a payload WITHOUT mutating any
+// globals. Reads the discriminated `location`: a regional entry derives its
+// physical map + local pixels from the canonical world point; a discrete entry
+// carries its own map id + local pixels. Produces a resolved map ref, the player
+// placement, the (optional) canonical regional point, and a complete,
+// invariant-checked candidate location state. On any failure — unknown/absent
+// kind, void/blocked/out-of-bounds point, invalid map, malformed coordinates or
+// inconsistent location state — it returns ok:false with errors so loadGame() can
+// bail before touching the running game or the stored save.
 function resolveLoadLocation(data) {
   const errors = [];
   const des = deserializeLocationState(data);   // world-transitions.js
   const candidate = des.state;
   for (const e of des.errors) errors.push(e);
 
-  let mapId, plr;
-  if (data.activeMapId !== undefined) {
-    mapId = data.activeMapId;                    // current schema
-    plr   = _resolvePlayerFromData(data);
+  const facing = (data.player && data.player.facing !== undefined) ? data.player.facing : player.facing;
+  const loc = data.location;
+  let mapId, plr, regional = null;
+  if (!loc || typeof loc !== 'object') {
+    errors.push('save has no v4 location discriminator');
+  } else if (loc.kind === 'regional') {
+    // Canonical world point -> physical map + local projection. Rejects
+    // non-finite / negative / void points atomically (null).
+    const derived = (typeof regionWorldPxToLocal === 'function') ? regionWorldPxToLocal(loc.regionId, loc.worldPxX, loc.worldPxY) : null;
+    if (!derived) {
+      errors.push('regional save location does not resolve to a placed chunk (region "' + (loc && loc.regionId) + '", world ' + (loc && loc.worldPxX) + ',' + (loc && loc.worldPxY) + ')');
+    } else {
+      mapId = derived.mapId;
+      plr = { x: derived.localPxX, y: derived.localPxY, facing };
+      regional = { regionId: loc.regionId, worldPxX: loc.worldPxX, worldPxY: loc.worldPxY };
+    }
+  } else if (loc.kind === 'discrete') {
+    if (typeof loc.mapId !== 'string') errors.push('discrete save location has no map id');
+    else { mapId = loc.mapId; plr = { x: loc.localPxX, y: loc.localPxY, facing }; }
   } else {
-    const legacy = _legacyLoadLocation(data, candidate); // legacy migration behavior
-    mapId = legacy.mapId;
-    plr   = legacy.player;
+    errors.push('unknown save location kind "' + (loc && loc.kind) + '"');
   }
 
   // Compatibility repair on the CANDIDATE (never live globals): a save stranded
-  // with inBridgePost=true on a non-bridge map (old defeat-respawn bug) would
-  // make the bridge guards render everywhere. Clear the bridge context so the
-  // candidate satisfies the invariants below.
-  const bridgeMapId = mapIdForRef(BRIDGE_CROSSING_MAP);
-  if (candidate.inBridgePost && mapId !== bridgeMapId) {
-    candidate.inBridgePost = false; candidate.bridge_entry_direction = null; candidate.bridge_toll_paid = false;
+  // with inBridgePost=true on a non-bridge map would make the bridge guards render
+  // everywhere. Clear the bridge context so the candidate satisfies the invariants.
+  if (mapId !== undefined) {
+    const bridgeMapId = mapIdForRef(BRIDGE_CROSSING_MAP);
+    if (candidate.inBridgePost && mapId !== bridgeMapId) {
+      candidate.inBridgePost = false; candidate.bridge_entry_direction = null; candidate.bridge_toll_paid = false;
+    }
   }
 
-  const place = validatePlacement({ mapId, x: plr.x, y: plr.y, facing: plr.facing });
-  for (const e of place.errors) errors.push(e);
+  let map = null;
+  if (mapId !== undefined) {
+    // Full placement validation (bounds / base-walkable / facing) — a resolved but
+    // BLOCKED regional or discrete point fails here.
+    const place = validatePlacement({ mapId, x: plr.x, y: plr.y, facing: plr.facing });
+    for (const e of place.errors) errors.push(e);
+    map = place.map;
+  }
   const inv = validateLocationState(candidate);
   for (const e of inv.errors) errors.push(e);
 
-  return { ok: errors.length === 0, errors, map: place.map, player: plr, locationState: candidate };
+  return { ok: errors.length === 0, errors, mapId, map, player: plr, locationState: candidate, regional };
 }
 
 function loadGame() {
@@ -622,11 +593,10 @@ function loadGame() {
   window.upper_reach_visit_day    = undefined;
   window.sunken_gallery_visit_day = undefined;
 
-  // ── Player ──────────────────────────────────────────────────────────────
-  // Placement was validated in the preflight; commit the resolved values (which
-  // fold in any legacy house-exit fallback).
-  player.x      = loc.player.x;
-  player.y      = loc.player.y;
+  // ── Player facing ─────────────────────────────────────────────────────────
+  // Position itself is committed at the location block below (via placeAtLocation,
+  // the canonical authority); only facing — which is not part of the position — is
+  // restored here.
   player.facing = loc.player.facing;
 
   // ── Stats / inventory ───────────────────────────────────────────────────
@@ -684,14 +654,16 @@ function loadGame() {
   // dilemma_voss: a main.js var, not a registry flag — restored in the location block below.
   refreshJobBoard();
 
-  // ── Location state (registry-driven, committed atomically) ────────────────
+  // ── Location state + canonical position (committed atomically) ────────────
   // The whole location portion was resolved + validated in the preflight above.
-  // Commit it together: the complete candidate via applyLocationState() (the ONE
-  // binding registry — no per-field assignment here), plus the resolved active
-  // map. Player placement was already committed above. dilemma_voss is a main.js
-  // story var (not location context) and is restored separately below.
+  // Commit the mode flags via applyLocationState() (the ONE binding registry),
+  // then the POSITION via placeAtLocation() (the canonical authority): a regional
+  // save reconstructs the canonical world point and derives activeMap/player.x/y;
+  // a discrete save sets the physical map + local and clears canonical. This is
+  // the "construct canonical from the validated return placement" restore path —
+  // not a runtime repair. dilemma_voss is restored separately below.
   applyLocationState(loc.locationState);
-  activeMap = loc.map;
+  placeAtLocation(loc.mapId, loc.player.x, loc.player.y);
   if (data.dilemma_voss !== undefined) dilemma_voss = data.dilemma_voss;
 
   // ── Floor pickups + openable chests (v3: applied by stable id) ────────────

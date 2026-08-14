@@ -204,19 +204,16 @@ function mapLocalPxToWorldPx(mapId, localPxX, localPxY) {
 //     visibleChunks }                   // placed chunks intersecting the viewport
 // Pure: reads REGIONAL_LAYOUT / helpers only; mutates nothing (no player,
 // activeMap, regional data, or camera state).
-function buildContinuousWorldPlan(regionId, activeMapId, playerLocalPxX, playerLocalPxY, viewportPxW, viewportPxH) {
-  const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(activeMapId) : null;
-  if (!placement || placement.regionId !== regionId) return null;
-  const world = mapLocalPxToWorldPx(activeMapId, playerLocalPxX, playerLocalPxY);
-  if (!world) return null;
+// Shared plan core, keyed on the region-world PIXEL target (the canonical unit).
+function _continuousPlanCore(regionId, activeMapId, placement, worldPxX, worldPxY, viewportPxW, viewportPxH) {
   // Camera keeps the viewport out of every OTHER legacy_screen chunk rect (so MAP is
   // never revealed as a neighbour and no void hole appears in its place). The active
   // map's own rect is excluded from the constraint — a legacy map viewed on its own
   // (toggle on, effective suppressed) must still frame normally for any direct
-  // buildContinuousWorldPlan() caller; its continuous path is never rendered.
+  // caller; its continuous path is never rendered.
   const excluded = (typeof legacyScreenChunkRects === 'function')
     ? legacyScreenChunkRects(regionId).filter((r) => r.mapId !== activeMapId) : [];
-  const cam = continuousCameraOrigin(regionId, world.worldPxX, world.worldPxY, viewportPxW, viewportPxH, excluded);
+  const cam = continuousCameraOrigin(regionId, worldPxX, worldPxY, viewportPxW, viewportPxH, excluded);
   if (!cam) return null;
   let chunks = visibleChunks(regionId, cam.camPxX, cam.camPxY, viewportPxW, viewportPxH);
   // Belt-and-suspenders: a legacy_screen chunk other than the active map is never a
@@ -224,10 +221,33 @@ function buildContinuousWorldPlan(regionId, activeMapId, playerLocalPxX, playerL
   if (typeof isLegacyScreenMap === 'function') chunks = chunks.filter((c) => c.mapId === activeMapId || !isLegacyScreenMap(c.mapId));
   return {
     regionId, activeMapId, activePlacement: placement,
-    playerWorldPxX: world.worldPxX, playerWorldPxY: world.worldPxY,
+    playerWorldPxX: worldPxX, playerWorldPxY: worldPxY,
     camPxX: cam.camPxX, camPxY: cam.camPxY,
     visibleChunks: chunks,
   };
+}
+
+// CANONICAL entry point: build the plan straight from a region-world pixel
+// position (the runtime camera consumes this so targeting never independently
+// re-derives world position from activeMap + local). Derives the active chunk /
+// local projection FROM the canonical point; they must agree with it.
+function buildContinuousWorldPlanFromWorld(regionId, worldPxX, worldPxY, viewportPxW, viewportPxH) {
+  const loc = (typeof regionWorldPxToLocal === 'function') ? regionWorldPxToLocal(regionId, worldPxX, worldPxY) : null;
+  if (!loc) return null;
+  const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(loc.mapId) : null;
+  if (!placement || placement.regionId !== regionId) return null;
+  return _continuousPlanCore(regionId, loc.mapId, placement, worldPxX, worldPxY, viewportPxW, viewportPxH);
+}
+
+// COMPATIBILITY overload (map id + local pixels). TEMPORARY: retained for Part 2
+// consumers/tests that still address the world by activeMap + local; Part 2 moves
+// them onto the canonical position. Internally converts to the world pixel target.
+function buildContinuousWorldPlan(regionId, activeMapId, playerLocalPxX, playerLocalPxY, viewportPxW, viewportPxH) {
+  const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(activeMapId) : null;
+  if (!placement || placement.regionId !== regionId) return null;
+  const world = mapLocalPxToWorldPx(activeMapId, playerLocalPxX, playerLocalPxY);
+  if (!world) return null;
+  return _continuousPlanCore(regionId, activeMapId, placement, world.worldPxX, world.worldPxY, viewportPxW, viewportPxH);
 }
 
 if (typeof window !== 'undefined') {
@@ -239,4 +259,5 @@ if (typeof window !== 'undefined') {
   window.visibleChunks           = visibleChunks;
   window.mapLocalPxToWorldPx     = mapLocalPxToWorldPx;
   window.buildContinuousWorldPlan = buildContinuousWorldPlan;
+  window.buildContinuousWorldPlanFromWorld = buildContinuousWorldPlanFromWorld;
 }

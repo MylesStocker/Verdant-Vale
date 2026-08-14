@@ -228,7 +228,7 @@ module.exports = {
       assert.equal(mapId(g2), 'MAP3_N1', 'crossed before saving');
       const px = g2.run('player.x'), py = g2.run('player.y');
       g2.run('saveGame();');
-      assert.equal(JSON.parse(g2.run("localStorage.getItem('verdantVale_save')")).version, 3, 'SAVE_VERSION stays 3');
+      assert.equal(JSON.parse(g2.run("localStorage.getItem('verdantVale_save')")).version, 4, 'SAVE_VERSION stays 4');
       g2.run("activeMap = mapRefForId('MAP'); player.x=1; player.y=1;"); // scramble
       g2.run('loadGame();');
       assert.equal(g2.run('mapIdForRef(activeMap)'), 'MAP3_N1', 'load restores the correct physical map');

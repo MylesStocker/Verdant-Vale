@@ -19,6 +19,9 @@ activeMap           = HOUSE_INTERIOR_MAP;
 player.x            = 7.5 * TILE;
 player.y            = 9.5 * TILE;
 player.facing       = 'up';
+// New-game boot is a DISCRETE location (the player's house): canonical regional
+// position is null. Explicit for gateway hygiene (regional-position.js).
+if (typeof clearRegionalPosition === 'function') clearRegionalPosition();
 // Opening — atmospheric start; does not imply a new posting (player has lived
 // in Calwick for several years). Gives brief gameplay reminder only.
 dialogue.name  = '';

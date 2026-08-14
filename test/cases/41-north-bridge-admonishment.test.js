@@ -96,7 +96,7 @@ module.exports = {
     g.run(`
       resetLocationState();   // clean location slate (boot starts in a house)
       activeMap = MAP; player.x = 5.5*TILE; player.y = 5.5*TILE; inTown = false;
-      saveGame();
+      __reconcileCanonicalForTest(); saveGame();
       north_bridge_crossed_early = false; north_bridge_scolded = false; syncQuestFlagsToWindow();
       loadGame();
     `);

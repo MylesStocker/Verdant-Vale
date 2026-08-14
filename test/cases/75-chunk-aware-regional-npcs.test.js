@@ -214,7 +214,7 @@ module.exports = {
       g.frames(8);
       const home = JSON.parse(g.run("JSON.stringify(MOVEMENT_HOMES['synth_save'])"));
       g.run("saveGame();");
-      assert.equal(JSON.parse(g.run("localStorage.getItem('verdantVale_save')")).version, 3, 'SAVE_VERSION stays 3');
+      assert.equal(JSON.parse(g.run("localStorage.getItem('verdantVale_save')")).version, 4, 'SAVE_VERSION stays 4');
       g.run("loadGame();");
       assert.equal(g.run("!!NPC_ROUTES['synth_save']"), false, 'load resets the mover (route dropped)');
       assert.equal(g.run("SIMPLE_NPCS.find(function(x){return x.id==='synth_save';}).x"), home.x, 'load restores the authored home');

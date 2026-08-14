@@ -119,7 +119,14 @@ function drawContinuousWorld() {
   ctx.fillStyle = CONTINUOUS_VOID_COLOR;
   ctx.fillRect(0, 0, 512, 480);
 
-  const plan = buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480);
+  // Camera consumes the CANONICAL regional world position directly (read-only);
+  // it never re-derives world position from activeMap + local. drawContinuousWorld
+  // only runs while Continuous View is effectively active — i.e. on a placed
+  // regional map — so canonical is non-null here; the compat overload is a defence.
+  const canon = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+  const plan = canon
+    ? buildContinuousWorldPlanFromWorld(canon.regionId, canon.worldPxX, canon.worldPxY, 512, 480)
+    : buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480);
   if (!plan) { drawMapTiles(activeMap); drawActiveMapContent(); return; } // defensive; active map is placed
   const activeId = plan.activeMapId;
 

@@ -33,9 +33,10 @@ module.exports = {
     const raw = g.run("localStorage.getItem('verdantVale_save')");
     assert.ok(raw, 'saveGame() should have written something to localStorage');
     const saved = JSON.parse(raw);
+    assert.equal(saved.location.kind, 'discrete', 'a basement (interior) save is a discrete location');
     assert.equal(
-      saved.activeMapId, 'DRENWICK_SCHOOL_BASEMENT_MAP',
-      'saved activeMapId should resolve to the registry key, not null'
+      saved.location.mapId, 'DRENWICK_SCHOOL_BASEMENT_MAP',
+      'discrete save location.mapId should resolve to the registry key, not null'
     );
 
     // ── Mutate away to a completely different map ───────────────────────────

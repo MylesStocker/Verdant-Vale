@@ -249,7 +249,7 @@ module.exports = {
     assert.equal(g.run("typeof OUTDOOR_MAP_DECOR.MAP_N2"), 'function', 'MAP_N2 has a world-locked static-decor body (the sealed gate)');
     {
       onMapN1(g, true);
-      g.run(`player.x=${COL7}; player.y=0.5*TILE;`); // MAP_N2 visible as the north neighbour
+      g.run(`player.x=${COL7}; player.y=0.5*TILE; __reconcileCanonicalForTest();`); // MAP_N2 visible as the north neighbour
       const s = JSON.parse(g.run(`(function(){
         var n=0,_d=OUTDOOR_MAP_DECOR.MAP_N2; OUTDOOR_MAP_DECOR.MAP_N2=function(){ n++; return _d.apply(null,arguments); };
         var hint=false,_ft=ctx.fillText; ctx.fillText=function(t){ if(t==='SPACE') hint=true; return _ft&&_ft.apply(ctx,arguments); };
@@ -274,7 +274,7 @@ module.exports = {
       assert.equal(mapId(g2), 'MAP_N2', 'crossed before saving');
       const px = g2.run('player.x'), py = g2.run('player.y');
       g2.run('saveGame();');
-      assert.equal(JSON.parse(g2.run("localStorage.getItem('verdantVale_save')")).version, 3, 'SAVE_VERSION stays 3');
+      assert.equal(JSON.parse(g2.run("localStorage.getItem('verdantVale_save')")).version, 4, 'SAVE_VERSION stays 4');
       g2.run("activeMap = mapRefForId('MAP'); player.x=1; player.y=1;");
       g2.run('loadGame();');
       assert.equal(g2.run('mapIdForRef(activeMap)'), 'MAP_N2', 'load restores the correct physical map');

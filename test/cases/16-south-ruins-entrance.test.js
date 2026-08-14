@@ -128,7 +128,7 @@ module.exports = {
       dialogue.open = false;
       inDungeonEntrance = true; inDungeon = false; activeMap = DUNGEON_ENTRANCE_MAP;
       player.x = 7.5*TILE; player.y = 12.5*TILE; player.facing = 'up';
-      saveGame();
+      __reconcileCanonicalForTest(); saveGame();
     `);
     g.run(`
       inDungeonEntrance = false; activeMap = MAP;

@@ -147,7 +147,7 @@ module.exports = {
     assert.deepEqual(J("JSON.stringify(visibleChunks('overworld', 0, 0, 512, 480))"), [], 'gap chunk -> no terrain');
 
     // ── 10-14. Continuous frame on a placed overworld map ───────────────────
-    warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE;');
+    warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');
     const plan = J("JSON.stringify(buildContinuousWorldPlan('overworld', 'MAP2', player.x, player.y, 512, 480))");
     const cont = spyRender(g);
     assert.equal(cont.mutated, false, 'continuous: no mutation of player/activeMap/location');
@@ -191,7 +191,7 @@ module.exports = {
 
     // ── 15 + 16. Screen-space UI after the camera is restored; balanced ──────
     // (MAP is now a legacy_screen home — use MAP2 for the continuous-render frame.)
-    warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE;');
+    warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');
     const frame = spyRender(g);
     assert.equal(frame.saves, frame.restores, 'save/restore balanced');
     assert.ok(frame.saves >= 2, 'at least the camera + active-chunk save/restore pair (plus one per neighbour content pass)');

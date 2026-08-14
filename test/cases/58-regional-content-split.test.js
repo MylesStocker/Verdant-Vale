@@ -136,7 +136,7 @@ module.exports = {
       // the strengthened load preflight accepts the placement on every map.
       g.run('resetLocationState(); ' + setup +
             " var _w = debugFindNearestWalkableTile(activeMap, 7, 7); player.x = (_w.col + 0.5) * TILE; player.y = (_w.row + 0.5) * TILE;");
-      g.run('saveGame();');
+      g.run('__reconcileCanonicalForTest(); saveGame();');
       g.run("activeMap = MAP; inTown=false; inDungeon=false; inSluice=false; inSunkenGallery=false;");
       g.run('loadGame();');
       assert.equal(g.run(check), true, 'save/load restores location: ' + check);

@@ -79,8 +79,9 @@ module.exports = {
       g.run(setup + ' var _w=debugFindNearestWalkableTile(activeMap,7,7); player.x=(_w.col+0.5)*TILE; player.y=(_w.row+0.5)*TILE; player.facing="down";');
       assert.equal(g.run('saveGame()'), true, 'save succeeds for ' + expectId);
       const saved = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
-      assert.equal(saved.activeMapId, expectId, 'serializes the canonical id ' + expectId);
-      assert.equal(saved.version, SAVE_VERSION, 'save version unchanged (no bump)');
+      assert.equal(saved.location.kind, 'discrete', expectId + ' is a discrete location');
+      assert.equal(saved.location.mapId, expectId, 'serializes the canonical id ' + expectId);
+      assert.equal(saved.version, SAVE_VERSION, 'save version is the current version');
       g.run('resetLocationState(); activeMap = MAP; player.x = 7.5*TILE; player.y = 9.5*TILE;');
       assert.equal(g.run('loadGame()'), true, 'load succeeds for ' + expectId);
       assert.equal(g.run(checkExpr), true, 'restores ' + expectId + ' unchanged');
@@ -93,9 +94,10 @@ module.exports = {
       'DRENWICK_OFFICE_MAP', "mapIdForRef(activeMap)==='DRENWICK_OFFICE_MAP'");
 
     // ── 9. A current-version save loads with no migration / version change ───
-    g.run('resetLocationState(); activeMap=MAP; inTown=false; player.x=7.5*TILE; player.y=9.5*TILE; day=6; stats.gold=88; saveGame();');
+    g.run('resetLocationState(); activeMap=MAP; inTown=false; player.x=7.5*TILE; player.y=9.5*TILE; day=6; stats.gold=88; __reconcileCanonicalForTest(); saveGame();');
     const raw = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
-    assert.equal(raw.version, 3, 'SAVE_VERSION is still 3 — no format bump');
+    assert.equal(raw.version, SAVE_VERSION, 'save is the current version');
+    assert.equal(raw.location.kind, 'regional', 'a save on MAP (Verdant Vale) is a regional location');
     // migrateSave reports migratedFrom null for a current save (no migration ran).
     assert.equal(g.run("migrateSave(JSON.parse(localStorage.getItem('verdantVale_save'))).migratedFrom"), null, 'current save needs no migration');
     assert.equal(g.run('loadGame()'), true, 'current save loads');

@@ -72,7 +72,7 @@ module.exports = {
 
     // ── A. Binding-registry contract ────────────────────────────────────────
     assert.equal(G('typeof SAVE_VERSION'), 'number');
-    assert.equal(G('SAVE_VERSION'), 3, 'SAVE_VERSION is 3');
+    assert.equal(G('SAVE_VERSION'), 4, 'SAVE_VERSION is 4');
     assert.equal(G('Array.isArray(window.QUEST_FLAG_BINDINGS)'), true, 'registry is exposed as an array');
 
     const keys = JSON.parse(G('JSON.stringify(window.QUEST_FLAG_BINDINGS.map(function(b){return b.key;}))'));
@@ -161,71 +161,23 @@ module.exports = {
     assert.equal(G('wine_quest_gift'), null, 'missing nullable flag defaults to null, not the dirtied string');
     assert.equal(G('window.vale_tutorial_seen'), false, 'missing window-native flag defaults to false, not the dirtied true');
 
-    // ── D. v1 → v2 → v3 sequential migration, backup, no double-migration ───
-    // Build a realistic v1 payload: a full current save downgraded to version 1,
-    // stripped of two newer flags, and — critically — carrying the v1/v2 LEGACY
-    // pickup arrays + per-chest fields (not the v3 id sets), so the migration has
-    // real legacy pickup/chest state to preserve through BOTH steps.
-    G('localStorage.clear();');
-    G(`stats.gold = 4242; day = 9; MainQuest = 4; player.facing = 'up';`);
-    G('window.vale_tutorial_seen = false;');
-    G('saveGame();');
-    G(`(function(){
-        var d = JSON.parse(localStorage.getItem('verdantVale_save'));
-        d.version = 1;
-        delete d.vale_tutorial_seen;  // an older save simply lacked this flag
-        delete d.ff_clue_dedication;  // ...and this one
-        delete d.collectedPickupIds;  // v1 had no id sets...
-        delete d.openedChestIds;
-        d.dungeonItems = [false, true, false]; // ...it had positional arrays: pickup_dungeon1_b collected
-        d.meadowChestOpened = true;            // ...and per-chest fields: chest_meadow opened
-        localStorage.setItem('verdantVale_save', JSON.stringify(d));
-      })();`);
-    const rawV1 = G("localStorage.getItem('verdantVale_save')");
-    // Dirty the runtime so we can tell restored-from-disk from left-over state.
-    G('MainQuest = 99; stats.gold = 1; window.vale_tutorial_seen = true; window.ff_clue_dedication = true;');
-    G('DUNGEON_ITEMS[1].picked = false; MEADOW_CHEST.opened = false;');
-
-    assert.equal(G('loadGame()'), true, 'a v1 save loads (via v1→v2→v3 migration)');
-    // Existing values survive both migration steps...
-    assert.equal(G('MainQuest'), 4, 'existing flag value survives the chain');
-    assert.equal(G('stats.gold'), 4242, 'non-flag field (gold) survives the chain');
-    assert.equal(G('day'), 9, 'non-flag field (day) survives the chain');
-    assert.equal(G('player.facing'), 'up', 'player field survives the chain');
-    // ...flags absent from the old save take their declared defaults (v1→v2)...
-    assert.equal(G('window.vale_tutorial_seen'), false, 'flag absent from v1 save defaults on migration');
-    assert.equal(G('window.ff_clue_dedication'), false, 'second absent flag defaults on migration');
-    // ...and legacy positional pickup / per-chest state maps to stable ids (v2→v3).
-    assert.equal(G('DUNGEON_ITEMS[1].picked'), true, 'legacy positional pickup survives v1→v2→v3 as its stable id');
-    assert.equal(G('DUNGEON_ITEMS[0].picked'), false, 'a neighbouring uncollected pickup stays uncollected');
-    assert.equal(G('MEADOW_CHEST.opened'), true, 'legacy per-chest opened field survives v1→v2→v3 as its stable id');
-    // The normal key is now v3, ONLY a v1 backup exists (no fabricated v2 backup).
-    assert.equal(G("JSON.parse(localStorage.getItem('verdantVale_save')).version"), 3, 'normal key upgraded to v3 after load');
-    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v1')"), rawV1, 'original v1 text preserved under backup_v1, verbatim');
-    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v2')"), null, 'a v1→v3 migration does not fabricate a v2 backup');
-    // Legacy fields are gone from the rewritten v3 payload.
-    const v3after = JSON.parse(G("localStorage.getItem('verdantVale_save')"));
-    assert.equal(v3after.dungeonItems, undefined, 'legacy positional field removed from the v3 payload');
-    assert.equal(v3after.meadowChestOpened, undefined, 'legacy per-chest field removed from the v3 payload');
-    assert.ok(v3after.collectedPickupIds.indexOf('pickup_dungeon1_b') !== -1, 'v3 payload records the pickup by id');
-    assert.ok(v3after.openedChestIds.indexOf('chest_meadow') !== -1, 'v3 payload records the chest by id');
-
-    // A pre-existing backup must never be overwritten by a later migration.
-    G("localStorage.setItem('verdantVale_save_backup_v1', 'PRE-EXISTING');");
-    G(`(function(){
-        var d = JSON.parse(localStorage.getItem('verdantVale_save'));
-        d.version = 1; localStorage.setItem('verdantVale_save', JSON.stringify(d));
-      })();`);
-    assert.equal(G('loadGame()'), true, 'a second v1 save still loads');
-    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v1')"), 'PRE-EXISTING', 'existing backup is never overwritten');
-
-    // A normal (current v3) load neither re-migrates nor rewrites/backs-up.
-    G("localStorage.clear(); saveGame();");
-    const rawV3 = G("localStorage.getItem('verdantVale_save')");
-    assert.equal(JSON.parse(rawV3).version, 3, 'a fresh save is v3');
-    assert.equal(G('loadGame()'), true, 'a v3 save loads');
-    assert.equal(G("localStorage.getItem('verdantVale_save')"), rawV3, 'a v3 load does not rewrite the save');
-    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v2')"), null, 'a v3 load creates no backup');
+    // ── D. v4 clean break: NO migration, NO backup; older/other versions rejected ─
+    G("localStorage.clear();");
+    G("stats.gold = 4242; day = 9; MainQuest = 4; player.facing = 'up'; resetLocationState(); activeMap = MAP; player.x = 7.5*TILE; player.y = 9.5*TILE; __reconcileCanonicalForTest();");
+    G("saveGame();");
+    const rawCur = G("localStorage.getItem('verdantVale_save')");
+    assert.equal(JSON.parse(rawCur).version, G("SAVE_VERSION"), "a fresh save is the current version");
+    // A current-version save loads and is NOT rewritten or backed up.
+    assert.equal(G("loadGame()"), true, "a current-version save loads");
+    assert.equal(G("localStorage.getItem('verdantVale_save')"), rawCur, "a current-version load does not rewrite the save");
+    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v3')"), null, "no migration backup is ever created");
+    assert.equal(G("migrateSave(JSON.parse(localStorage.getItem('verdantVale_save'))).migratedFrom"), null, "a current save needs no migration");
+    // A downgraded (older-version) payload is rejected cleanly and left untouched.
+    G("(function(){ var d = JSON.parse(localStorage.getItem('verdantVale_save')); d.version = 3; localStorage.setItem('verdantVale_save', JSON.stringify(d)); })();");
+    const rawOld = G("localStorage.getItem('verdantVale_save')");
+    assert.equal(G("loadGame()"), false, "a version-3 (or any non-current) save is rejected — there is no migration path");
+    assert.equal(G("localStorage.getItem('verdantVale_save')"), rawOld, "the rejected older save is left untouched on disk");
+    assert.equal(G("localStorage.getItem('verdantVale_save_backup_v3')"), null, "a rejected older save creates no backup");
 
     // ── E. Never silently delete a save it cannot understand ────────────────
     const preserves = (label, corrupt) => {
@@ -242,19 +194,8 @@ module.exports = {
       `(function(){var d=JSON.parse(localStorage.getItem('verdantVale_save')); d.version=SAVE_VERSION+1; localStorage.setItem('verdantVale_save', JSON.stringify(d));})();`);
     preserves('no/invalid version',
       `(function(){var d=JSON.parse(localStorage.getItem('verdantVale_save')); delete d.version; localStorage.setItem('verdantVale_save', JSON.stringify(d));})();`);
-    // Missing migration step: a v1 save with SAVE_MIGRATIONS[1] removed cannot
-    // reach v2, so it must be refused (not partially loaded / deleted).
-    G('localStorage.clear(); saveGame();');
-    G(`(function(){var d=JSON.parse(localStorage.getItem('verdantVale_save')); d.version=1; localStorage.setItem('verdantVale_save', JSON.stringify(d));})();`);
-    const savedStep = G('(function(){ window.__step1 = window.SAVE_MIGRATIONS[1]; delete window.SAVE_MIGRATIONS[1]; return true; })()');
-    try {
-      const beforeGap = G("localStorage.getItem('verdantVale_save')");
-      assert.equal(G('loadGame()'), false, 'missing migration step: loadGame() returns false');
-      assert.equal(G("localStorage.getItem('verdantVale_save')"), beforeGap, 'missing migration step: save left untouched');
-    } finally {
-      G('window.SAVE_MIGRATIONS[1] = window.__step1; delete window.__step1;');
-    }
-    assert.equal(G('loadGame()'), true, 'the v1 save loads again once the migration step is restored');
+    preserves('older version (v3, no migration path)',
+      `(function(){var d=JSON.parse(localStorage.getItem('verdantVale_save')); d.version=3; localStorage.setItem('verdantVale_save', JSON.stringify(d));})();`);
 
     // ── F. Load-bearing verification (break → confirm failure → restore) ────
     // F1. Break a binding's setter: the round-trip restore must then fail.
@@ -272,18 +213,6 @@ module.exports = {
     }
     G('loadGame()');
     assert.equal(G('MainQuest'), 5, 'round-trip restore works again once the setter is restored');
-
-    // F2. Break the v1→v2 registration: a v1 save must then fail to load.
-    G(`(function(){var d=JSON.parse(localStorage.getItem('verdantVale_save')); d.version=1; localStorage.setItem('verdantVale_save', JSON.stringify(d));})();`);
-    G('window.__m1 = window.SAVE_MIGRATIONS[1]; delete window.SAVE_MIGRATIONS[1];');
-    try {
-      expectAssertFails(() => {
-        assert.equal(G('loadGame()'), true, 'v1 save should load');
-      }, 'removing SAVE_MIGRATIONS[1] must make a v1 save unloadable');
-    } finally {
-      G('window.SAVE_MIGRATIONS[1] = window.__m1; delete window.__m1;');
-    }
-    assert.equal(G('loadGame()'), true, 'v1 save loads again once the migration is re-registered');
 
     // F3. Break the future-version guard: with migrateSave stubbed to accept any
     // version, a future save would (wrongly) load — proving the "returns false"

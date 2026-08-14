@@ -1737,15 +1737,9 @@ function validateSaveFlags() {
         addValidationError(GROUP, 'QUEST_FLAG_SCHEMA does not match the binding-registry key list -- it must be derived from QUEST_FLAG_BINDINGS');
       }
     }
-    // The migration registry must cover every step from version 1 up to
-    // SAVE_VERSION (no gap that would make an old save unmigratable).
-    if (typeof window.SAVE_VERSION === 'number' && window.SAVE_MIGRATIONS) {
-      for (let v = 1; v < window.SAVE_VERSION; v++) {
-        checked++;
-        if (typeof window.SAVE_MIGRATIONS[v] !== 'function')
-          addValidationError(GROUP, 'no save migration registered for version ' + v + ' -> ' + (v + 1) + ' (gap up to SAVE_VERSION ' + window.SAVE_VERSION + ')');
-      }
-    }
+    // v4 is a clean break with NO migration path (there are no pre-v4 saves), so
+    // there is deliberately no migration-coverage invariant to check here — loadGame
+    // accepts only the current version and rejects every other one cleanly.
 
     // Case-insensitive near-duplicate scan across every flag name visible
     // here (schema + NPC flag_required/flag_sets) -- cheap, catches the

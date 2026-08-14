@@ -220,7 +220,7 @@ module.exports = {
     // direct call is proven to refuse in the two interiors).
     g.run(`
       dialogue.open = false;
-      player.x = 4.5*TILE; player.y = 13.5*TILE;
+      player.x = 4.5*TILE; player.y = 13.5*TILE; __reconcileCanonicalForTest();
     `);
     const saveOk = g.run('saveGame()');
     assert.equal(saveOk, true, 'saveGame() must succeed on the Upper Reach');
@@ -291,7 +291,7 @@ module.exports = {
 
     // ...and saving still works somewhere ordinary, unrelated to this area.
     g.run(`
-      activeMap = MAP;
+      activeMap = MAP; __reconcileCanonicalForTest();
       menu.open = true; menu.screen = 'saveConfirm'; menu.saveCursor = 0; menu.saveMessage = 0; menu.saveBlockedMessage = 0;
     `);
     g.press('Enter');

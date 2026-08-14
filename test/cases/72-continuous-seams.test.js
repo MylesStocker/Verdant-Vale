@@ -258,7 +258,7 @@ module.exports = {
     // ── 27 + 28. Save/load after vertical + horizontal crossings; version 3 ─
     // (currently on NB_C after a vertical crossing)
     g.run('saveGame();'); const raw = g.run("localStorage.getItem('verdantVale_save')");
-    assert.equal(JSON.parse(raw).version, 3, 'SAVE_VERSION 3');
+    assert.equal(JSON.parse(raw).version, 4, 'SAVE_VERSION stays 4');
     assert.ok(!/continuousWorldView/i.test(raw), 'Continuous View flag is session-only (absent from save)');
     const vx = g.run('player.x'), vy = g.run('player.y');
     g.run('activeMap = MAP; player.x=0; player.y=0; loadGame();');

@@ -465,6 +465,13 @@ function update() {
       if (edgeTransitioned) return; // activeMap/player position fully replaced; skip the rest of this frame, same as any other map transition
     }
 
+    // Canonical write for this accepted regional step: on a placed regional map,
+    // record the resulting world-pixel position (seamless handoffs already
+    // committed inside continuousSeamMove — this is exact/idempotent for them; a
+    // legacy within-chunk step commits here). No-ops on discrete maps, so town/
+    // dungeon/interior movement keeps its physical-map-only model untouched.
+    if (typeof regionalCommitFromActiveLocal === 'function') regionalCommitFromActiveLocal();
+
     player.step++;
     if (hasStatusEffect('poison') && player.step % 60 === 0)
       stats.hp = Math.max(1, stats.hp - 1);

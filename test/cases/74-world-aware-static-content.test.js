@@ -370,7 +370,7 @@ module.exports = {
       g.frames(1);
       assert.equal(g.run("PICKUP_REGISTRY['synth_persist'].picked"), true, 'granted once & marked picked across the seam');
       assert.equal(g.run("stats.items.length"), before + 1, 'granted exactly once');
-      g.run("saveGame();");
+      g.run("__reconcileCanonicalForTest(); saveGame();");
       // Saved id set contains it; simulate a fresh session then load.
       assert.ok(JSON.parse(g.run("localStorage.getItem('verdantVale_save')")).collectedPickupIds.indexOf('synth_persist') >= 0, 'the collected id is written to the save');
       g.run("PICKUP_REGISTRY['synth_persist'].picked = false;");   // pretend uncollected in a new runtime
