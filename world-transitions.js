@@ -1251,6 +1251,33 @@ const EDGE_TRANSITIONS = {
 };
 window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 
+// ─── Regional single-tile ("point") world crossings — shared declarative authority ─
+// The overworld's discrete point crossings (the "NEEDS_REMAP"/"INTENTIONAL_DISCRETE"
+// class): each is a single EXIT tile on the source map's edge that warps to the
+// physically adjacent target map. This declarative inventory is the ONE authority
+// consumed by BOTH validateGameData() (the legacy/continuous boundary reciprocity
+// invariant) AND test/transition-audit.js's seam-readiness classification, so the
+// two never drift. It DESCRIBES the runtime dispatch (movement.js + world-transitions.js
+// enter*/exit*) — it does not replace it; the four MAP transitions are unchanged.
+// Every entry is reciprocal: for each { from, dir, to } there is a { to, INV(dir), from }.
+const REGIONAL_POINT_CROSSINGS = [
+  { from: 'MAP',   dir: 'east',  to: 'MAP2',   tile: MAP2_EXIT },
+  { from: 'MAP2',  dir: 'west',  to: 'MAP',    tile: MAP2_ENTRANCE },
+  { from: 'MAP2',  dir: 'east',  to: 'MAP3',   tile: MAP3_EXIT },
+  { from: 'MAP3',  dir: 'west',  to: 'MAP2',   tile: MAP3_ENTRANCE },
+  { from: 'MAP3',  dir: 'east',  to: 'MAP4',   tile: MAP4_EXIT },
+  { from: 'MAP4',  dir: 'west',  to: 'MAP3',   tile: MAP4_ENTRANCE },
+  { from: 'MAP4',  dir: 'east',  to: 'MAP5',   tile: MAP5_EXIT },
+  { from: 'MAP5',  dir: 'west',  to: 'MAP4',   tile: MAP5_ENTRANCE },
+  { from: 'MAP',   dir: 'north', to: 'MAP_N1', tile: NORTH_EXIT },
+  { from: 'MAP_N1', dir: 'south', to: 'MAP',    tile: NORTH_ENTRANCE },
+  { from: 'MAP_N1', dir: 'north', to: 'MAP_N2', tile: NORTH2_EXIT },
+  { from: 'MAP_N2', dir: 'south', to: 'MAP_N1', tile: NORTH2_ENTRANCE },
+  { from: 'MAP3_N2', dir: 'north', to: 'NORTH_BASIN_S_MAP', tile: NORTH_BASIN_EXIT },
+  { from: 'NORTH_BASIN_S_MAP', dir: 'south', to: 'MAP3_N2', tile: NORTH_BASIN_ENTRANCE },
+];
+window.REGIONAL_POINT_CROSSINGS = REGIONAL_POINT_CROSSINGS;
+
 // ─── Sunken Gallery 5×5 grid links ────────────────────────────────────────────
 // The gallery grid (maps.js) is wired here rather than as 25 more hand-written
 // EDGE_TRANSITIONS literals: every interior room joins its orthogonal neighbours

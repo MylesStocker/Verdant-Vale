@@ -190,7 +190,8 @@ module.exports = {
       'the same world tile is drawn at identical world coords under two camera positions (no phase crawl)');
 
     // ── 15 + 16. Screen-space UI after the camera is restored; balanced ──────
-    warp('outdoor:MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE;');
+    // (MAP is now a legacy_screen home — use MAP2 for the continuous-render frame.)
+    warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE;');
     const frame = spyRender(g);
     assert.equal(frame.saves, frame.restores, 'save/restore balanced');
     assert.ok(frame.saves >= 2, 'at least the camera + active-chunk save/restore pair (plus one per neighbour content pass)');

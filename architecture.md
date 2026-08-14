@@ -538,6 +538,82 @@ terrain cache. Approx work per frame: ≤4 visible chunks, ≤ one 512×480 view
 `drawTile` calls (~ 16×15 = 240 tiles, plus partial edge tiles), same order of
 magnitude as the legacy single-map draw.
 
+### Regional presentation modes: the Verdant Vale fixed-screen home
+
+A placed regional outdoor map presents either in the scrolling **continuous** world
+or as a fixed **`legacy_screen`** (single, non-scrolling map) *even while the session
+Continuous View toggle is on*. The MAP_CATALOG entry's optional
+`regionalPresentation` is the SOLE authority (default `'continuous'` for a placed
+regional outdoor map); `regionalPresentationForMapId()`/`isLegacyScreenMap()` (data.js)
+resolve it. There is no second authored list of legacy maps and no scattered
+`mapId === 'MAP'` presentation checks. Only **`MAP` (Verdant Vale)** is
+`legacy_screen` today — the intentional small, self-contained *home*: leaving it east
+(→ MAP2) or north (→ MAP_N1) reveals the larger scrolling world; returning restores
+the fixed original-map presentation.
+
+- **Toggle vs EFFECTIVE mode.** The session toggle `continuousWorldViewEnabled` is
+  never mutated by entering/leaving home. `continuousWorldViewActive()` is the single
+  choke point for the EFFECTIVE mode and now also returns `false` on a `legacy_screen`
+  active map — so on MAP the legacy render path, legacy movement (no seamless
+  handling), and NO regional NPC simulation / cross-boundary pickup/interaction/prompt
+  all follow from that one predicate, with the toggle still logically on. The debug
+  inspector shows "toggle ON, effective SUPPRESSED (legacy_screen map)". Leaving home
+  re-enables the effective continuous mode automatically on the first destination
+  frame — no menu reopen.
+- **Continuous-side camera exclusion (pure, general).** From another continuous map
+  the camera must never reveal a `legacy_screen` chunk OR a void hole in its place.
+  `continuousCameraOrigin()` (world-view.js) starts from the region-clamped
+  player-centred camera, then for each excluded `legacy_screen` chunk rect
+  (`legacyScreenChunkRects()`) the viewport still intersects, slides the camera to
+  that rect's nearest edge along the axis that (a) keeps the player/target visible and
+  (b) is the smaller correction. Only candidates with the target on the far side of
+  the rect are considered, so the player is always kept in frame and a rect CONTAINING
+  the target (the active legacy map itself) yields no candidate. This handles **direct**
+  edge exposure (MAP2's west edge → single valid axis → monotone clamp to camX=512;
+  MAP_N1's south edge → camY=1920) and **diagonal** corner exposure (RODDON_WAY_MAP's
+  SW → two valid axes → least correction; the viewport ends up framing RODDON + MAP2,
+  never MAP or void). `buildContinuousWorldPlan()` applies it (excluding the active
+  map's own rect) and, belt-and-suspenders, filters any `legacy_screen` neighbour from
+  the visible-chunk list. `visibleChunks()` itself stays pure geometry. The excluded
+  area is never filled with invented terrain or a duplicated neighbour.
+- **Continuous-side NPC simulation excludes legacy_screen chunks.** `nearbySimulationMapSet()`
+  (regional-npc-runtime.js) omits every `legacy_screen` chunk from the nearby 3×3
+  simulation set (via `isLegacyScreenMap`, not a hardcoded id), so a MAP-owned NPC does
+  not initialise/update a route, move, face, collide, prompt, or interact while a nearby
+  continuous map (MAP2 / MAP_N1 / RODDON) is active — the home stays hidden behind its
+  border. This is the ONE shared simulation-scope filter; every consumer
+  (`npcShouldSimulate`, `regionalNpcInSimulationScope`, route start/update, occupancy)
+  inherits it. When the legacy map itself is active the effective mode is already false,
+  so regional nearby simulation is off anyway; legacy town/interior/dungeon NPC behaviour
+  is unchanged.
+- **`INTENTIONAL_DISCRETE` vs `NEEDS_REMAP`.** The four directed edges of
+  `MAP ↔ MAP2` and `MAP ↔ MAP_N1` are deliberately-kept discrete point crossings, not
+  unresolved remaps. The transition audit derives a fifth seam-readiness class,
+  **`INTENTIONAL_DISCRETE`** — a point crossing to the correct placed neighbour whose
+  adjacency crosses a `legacy_screen` presentation boundary (derived from catalog
+  presentation metadata + placement + the existing point-transition model, not
+  hardcoded edge names). It is audit/presentation policy only: these edges are NOT
+  eligible continuous seams, the fail-closed segment classifier is unchanged, and the
+  four point transitions (tiles, dispatch, wrappers, inset landing, cooldown) are
+  untouched. Post-increment totals: ALIGNS 16 / NEEDS_REMAP 10 / INTENTIONAL_DISCRETE 4
+  / BLOCKED 4 / BORDER 26. `validateRegionalPresentation()` checks recognized values on
+  placed outdoor maps, that no eligible continuous seam crosses a legacy_screen
+  boundary, and that a legacy_screen map stays available to geographic encounters and
+  save/placement (MAP is never removed from `REGIONAL_LAYOUT`/`MAP_CATALOG`/geography/
+  saves/debug warp).
+- **Reciprocal legacy-boundary crossings are a validation invariant.** EVERY placed
+  adjacency between a `legacy_screen` and a `continuous` regional map must have a correct
+  reciprocal INTENTIONAL_DISCRETE point crossing: both directed crossings exist, each
+  targets the physically adjacent map, they use reciprocal inverse edges, their EXIT
+  tiles sit base-walkable on the correct borders, and no broad eligible seam crosses the
+  boundary. `validateGameData()` enforces this (`legacyBoundaryCrossingErrors()`),
+  naming the maps + edge on failure. An **exterior/unplaced** legacy-screen edge (no
+  placed neighbouring chunk) stays an ordinary `BORDER` and requires no exit. The
+  transition audit and validation share ONE point-crossing description authority —
+  **`REGIONAL_POINT_CROSSINGS`** (world-transitions.js), a declarative
+  `{ from, dir, to, tile }` inventory describing (not replacing) the runtime dispatch;
+  the audit derives its `POINT_WORLD_CROSSINGS` from it so the two never drift.
+
 ### Continuous seams: generalized seamless movement (DEBUG-only, `continuous-seams.js`)
 
 Lets the player *walk* across EVERY currently-safe reciprocal ALIGNS outdoor seam

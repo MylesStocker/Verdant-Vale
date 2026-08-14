@@ -24,12 +24,21 @@ const CONTINUOUS_VOID_COLOR = '#0a0a12';
 // maps, the hidden meadow) returns false and uses the legacy renderer even with
 // the flag on. Never consulted in combat (render() returns before the world
 // section when combat.active).
+// Whether continuous presentation is EFFECTIVE right now — the single choke point
+// gating continuous rendering, seamless movement, regional NPC simulation, and the
+// cross-boundary pickup/interaction/prompt paths. It stays distinct from the
+// session TOGGLE `continuousWorldViewEnabled` (which is never mutated here): a
+// 'legacy_screen' map (Verdant Vale / MAP) suppresses the effective mode even with
+// the toggle on, so entering home restores the fixed single-map presentation
+// without turning the toggle off. Leaving home re-enables it automatically.
 function continuousWorldViewActive() {
   if (!continuousWorldViewEnabled) return false;
   const id = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
   if (!id) return false;
   const p = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(id) : null;
-  return !!(p && p.regionId === 'overworld');
+  if (!(p && p.regionId === 'overworld')) return false;
+  if (typeof isLegacyScreenMap === 'function' && isLegacyScreenMap(id)) return false; // fixed-screen home
+  return true;
 }
 
 // The current active map's existing world content, in its EXACT legacy draw order

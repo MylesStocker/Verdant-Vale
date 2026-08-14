@@ -10140,7 +10140,7 @@
         "neighbor": "MAP_N1",
         "target": "MAP_N1",
         "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "verdict": "INTENTIONAL_DISCRETE"
       },
       {
         "mapId": "MAP",
@@ -10160,7 +10160,7 @@
         "neighbor": "MAP2",
         "target": "MAP2",
         "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "verdict": "INTENTIONAL_DISCRETE"
       },
       {
         "mapId": "MAP",
@@ -10210,7 +10210,7 @@
         "neighbor": "MAP",
         "target": "MAP",
         "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "verdict": "INTENTIONAL_DISCRETE"
       },
       {
         "mapId": "MAP3",
@@ -10350,7 +10350,7 @@
         "neighbor": "MAP",
         "target": "MAP",
         "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "verdict": "INTENTIONAL_DISCRETE"
       },
       {
         "mapId": "MAP_N1",
@@ -10734,9 +10734,10 @@
       }
     ],
     "totals": {
-      "NEEDS_REMAP": 14,
+      "INTENTIONAL_DISCRETE": 4,
       "BORDER": 26,
       "ALIGNS": 16,
+      "NEEDS_REMAP": 10,
       "BLOCKED": 4
     }
   }

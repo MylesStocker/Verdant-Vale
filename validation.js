@@ -439,6 +439,121 @@ function validateEncounterGeography() {
 function _regionMaxChunkX(region) { let m = 0; for (const p of region.placements) if (p.chunkX > m) m = p.chunkX; return m; }
 function _regionMaxChunkY(region) { let m = 0; for (const p of region.placements) if (p.chunkY > m) m = p.chunkY; return m; }
 
+// PURE, read-only invariant: EVERY placed adjacency between a legacy_screen regional
+// outdoor map and a continuous one must have a correct reciprocal INTENTIONAL_DISCRETE
+// point crossing — both directed crossings exist in the shared REGIONAL_POINT_CROSSINGS
+// authority, each targets the physically adjacent map, they use reciprocal inverse
+// edges, their EXIT tiles are placed base-walkable on the correct borders, and NO broad
+// eligible continuous seam crosses the boundary. Absent neighbouring chunks stay
+// ordinary BORDER edges and require nothing. Returns an array of error strings naming
+// the maps + edge. Reusable by validateGameData() and negative fixture tests.
+function legacyBoundaryCrossingErrors(regionId) {
+  const errs = [];
+  if (typeof REGIONAL_LAYOUT === 'undefined' || !REGIONAL_LAYOUT[regionId]
+      || typeof isLegacyScreenMap !== 'function' || typeof mapIdForChunk !== 'function') return errs;
+  const crossings = (typeof REGIONAL_POINT_CROSSINGS !== 'undefined') ? REGIONAL_POINT_CROSSINGS : [];
+  const INV = { north: 'south', south: 'north', east: 'west', west: 'east' };
+  const DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
+  const find = (from, dir) => crossings.find((c) => c.from === from && c.dir === dir) || null;
+  const edgeHasWalkableTile = (mapId, edge, tileVal) => {
+    if (tileVal === undefined || typeof isTileWalkable !== 'function' || !isTileWalkable(tileVal)) return false;
+    const m = (typeof mapRefForId === 'function') ? mapRefForId(mapId) : null;
+    if (!_isPlainArray(m)) return false;
+    const rows = m.length, cols = m[0].length;
+    if (edge === 'north') return m[0].indexOf(tileVal) !== -1;
+    if (edge === 'south') return m[rows - 1].indexOf(tileVal) !== -1;
+    for (let r = 0; r < rows; r++) if (m[r][edge === 'west' ? 0 : cols - 1] === tileVal) return true;
+    return false;
+  };
+  const hasBroadSeg = (mapId, dir, target) => {
+    const segs = (typeof EDGE_TRANSITIONS !== 'undefined' && EDGE_TRANSITIONS[mapId]) ? EDGE_TRANSITIONS[mapId][dir] : null;
+    if (!_isPlainArray(segs)) return false;
+    return segs.some((s) => { const t = (typeof s.targetMap === 'string') ? s.targetMap : (typeof mapIdForRef === 'function' ? mapIdForRef(s.targetMap) : null); return t === target; });
+  };
+  for (const p of REGIONAL_LAYOUT[regionId].placements) {
+    const L = p.mapId;
+    if (!isLegacyScreenMap(L)) continue;
+    for (const dir of ['north', 'south', 'east', 'west']) {
+      const nb = mapIdForChunk(regionId, p.chunkX + DELTA[dir][0], p.chunkY + DELTA[dir][1]);
+      if (!nb) continue;                      // no placed neighbour -> ordinary BORDER, no requirement
+      if (isLegacyScreenMap(nb)) continue;    // legacy<->legacy (none today): not this invariant
+      const lbl = L + '.' + dir + ' <-> ' + nb + '.' + INV[dir];
+      const fwd = find(L, dir), rev = find(nb, INV[dir]);
+      if (!fwd || fwd.to !== nb)
+        errs.push('legacy boundary ' + lbl + ': missing/wrong point crossing ' + L + '.' + dir + ' -> ' + (fwd ? fwd.to : '(none)') + ' (expected ' + nb + ')');
+      if (!rev || rev.to !== L)
+        errs.push('legacy boundary ' + lbl + ': missing/wrong reciprocal point crossing ' + nb + '.' + INV[dir] + ' -> ' + (rev ? rev.to : '(none)') + ' (expected ' + L + ')');
+      if (fwd && fwd.to === nb && !edgeHasWalkableTile(L, dir, fwd.tile))
+        errs.push('legacy boundary ' + lbl + ': the exit tile of ' + L + '.' + dir + ' is not placed base-walkable on that border');
+      if (rev && rev.to === L && !edgeHasWalkableTile(nb, INV[dir], rev.tile))
+        errs.push('legacy boundary ' + lbl + ': the exit tile of ' + nb + '.' + INV[dir] + ' is not placed base-walkable on that border');
+      if (hasBroadSeg(L, dir, nb) || hasBroadSeg(nb, INV[dir], L))
+        errs.push('legacy boundary ' + lbl + ': a broad EDGE_TRANSITIONS segment crosses this legacy_screen boundary (must stay a discrete point crossing)');
+    }
+  }
+  return errs;
+}
+
+// ─── Regional presentation modes (catalog-driven) ────────────────────────────
+// The MAP_CATALOG `regionalPresentation` authority: recognized values only, only on
+// placed regional outdoor maps; no eligible continuous seam may cross a legacy_screen
+// boundary; every placed legacy/continuous adjacency has a reciprocal
+// INTENTIONAL_DISCRETE point crossing (legacyBoundaryCrossingErrors, sharing the
+// REGIONAL_POINT_CROSSINGS authority with the transition audit); and a legacy_screen
+// map stays fully available to geographic encounter resolution + save/placement. Pure.
+function validateRegionalPresentation() {
+  const GROUP = 'Regional presentation';
+  let checked = 0;
+  if (typeof MAP_CATALOG === 'undefined' || typeof regionPlacementForMapId !== 'function') return checked;
+  const recognized = (typeof REGIONAL_PRESENTATION_MODES !== 'undefined') ? REGIONAL_PRESENTATION_MODES : { continuous: true, legacy_screen: true };
+  // (1) Every authored regionalPresentation is a recognized value on a placed outdoor map.
+  for (const id of Object.keys(MAP_CATALOG)) {
+    const e = MAP_CATALOG[id];
+    if (!e || e.regionalPresentation === undefined) continue;
+    checked++;
+    if (!Object.prototype.hasOwnProperty.call(recognized, e.regionalPresentation))
+      addValidationError(GROUP, '"' + id + '": regionalPresentation "' + e.regionalPresentation + '" is not a recognized mode (continuous | legacy_screen)');
+    if (!regionPlacementForMapId(id))
+      addValidationError(GROUP, '"' + id + '": regionalPresentation is set but the map is not region-placed');
+    else if (!e.type || e.type !== 'outdoor')
+      addValidationError(GROUP, '"' + id + '": regionalPresentation is only valid for a placed outdoor map (type is "' + e.type + '")');
+  }
+  // (2) No eligible continuous seam may cross a legacy_screen boundary.
+  if (typeof continuousSeamEntries === 'function' && typeof isLegacyScreenMap === 'function') {
+    for (const s of continuousSeamEntries()) {
+      if (isLegacyScreenMap(s.from) || isLegacyScreenMap(s.to))
+        addValidationError(GROUP, 'seam ' + s.from + '|' + s.dir + '->' + s.to + ' crosses a legacy_screen boundary — legacy screens must stay discrete point crossings');
+    }
+  }
+  // (3) Every legacy_screen map remains fully available to geography + placement/save.
+  if (typeof isLegacyScreenMap === 'function' && typeof REGIONAL_LAYOUT !== 'undefined') {
+    const CW = COLS * TILE, CH = ROWS * TILE;
+    for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+      const region = REGIONAL_LAYOUT[regionId];
+      if (!region || !_isPlainArray(region.placements)) continue;
+      for (const p of region.placements) {
+        if (!isLegacyScreenMap(p.mapId)) continue;
+        checked++;
+        if (typeof mapEntryForId === 'function' && !mapEntryForId(p.mapId))
+          addValidationError(GROUP, 'legacy_screen "' + p.mapId + '" is not in MAP_CATALOG (needed for save/placement)');
+        if (typeof geographicEncounterContext === 'function') {
+          const ctx = geographicEncounterContext(regionId, p.chunkX * CW + Math.floor(CW / 2), p.chunkY * CH + Math.floor(CH / 2));
+          if (!ctx || ctx.mapId !== p.mapId)
+            addValidationError(GROUP, 'legacy_screen "' + p.mapId + '" no longer resolves for geographic encounters — it must stay in regional geography');
+        }
+      }
+    }
+  }
+  // (4) Every placed legacy/continuous adjacency has a reciprocal INTENTIONAL_DISCRETE
+  //     point crossing (shared REGIONAL_POINT_CROSSINGS authority).
+  if (typeof REGIONAL_LAYOUT !== 'undefined') {
+    for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+      for (const msg of legacyBoundaryCrossingErrors(regionId)) { checked++; addValidationError(GROUP, msg); }
+    }
+  }
+  return checked;
+}
+
 // ─── 3. Tiles (and point/special transition tiles) ─────────────────────────
 // Scans every tile actually used across every MAP_METADATA-registered map.
 // "Known tile" is decided via tiles.js's DEBUG_TILE_NAMES list (the same
@@ -1923,6 +2038,7 @@ function validateGameData() {
     'Continuous seams': validateContinuousSeams(),
     'Continuous content': validateContinuousContent(),
     'Encounter geography': validateEncounterGeography(),
+    'Regional presentation': validateRegionalPresentation(),
     'Tiles':           validateTiles(),
     'EDGE_TRANSITIONS': validateEdgeTransitions(),
     'NPCs':            validateNPCs(),
@@ -1943,6 +2059,7 @@ function validateGameData() {
     'Continuous seams': 'eligible seams checked',
     'Continuous content': 'outdoor content maps checked',
     'Encounter geography': 'encounter-geography placements checked',
+    'Regional presentation': 'regional presentation entries checked',
     'Tiles':            'tiles checked',
     'EDGE_TRANSITIONS': 'edge transitions checked',
     'NPCs':             'NPCs checked',
@@ -1996,6 +2113,8 @@ window.validateRegionalLayout   = validateRegionalLayout;
 window.validateContinuousSeams  = validateContinuousSeams;
 window.continuousSeamEdgeWalkability = continuousSeamEdgeWalkability;
 window.validateEncounterGeography = validateEncounterGeography;
+window.validateRegionalPresentation = validateRegionalPresentation;
+window.legacyBoundaryCrossingErrors = legacyBoundaryCrossingErrors;
 window.validateTiles            = validateTiles;
 window.validateEdgeTransitions  = validateEdgeTransitions;
 window.validateNPCs             = validateNPCs;

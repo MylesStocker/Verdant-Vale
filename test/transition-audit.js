@@ -622,17 +622,13 @@ const edgeLandingResults = JSON.parse(g.run(`(function(){
 // facing=exit-edge convention, the preserved-coordinate table in section 10
 // already models) because they are not in a single machine-readable table in the
 // game source.
-const POINT_WORLD_CROSSINGS = [
-  ['MAP', 'east', 'MAP2'], ['MAP2', 'west', 'MAP'],
-  ['MAP2', 'east', 'MAP3'], ['MAP3', 'west', 'MAP2'],
-  ['MAP3', 'east', 'MAP4'], ['MAP4', 'west', 'MAP3'],
-  ['MAP4', 'east', 'MAP5'], ['MAP5', 'west', 'MAP4'],
-  ['MAP', 'north', 'MAP_N1'], ['MAP_N1', 'south', 'MAP'],
-  ['MAP_N1', 'north', 'MAP_N2'], ['MAP_N2', 'south', 'MAP_N1'],
-  // MAP3 <-> MAP3_N1 retired: converted to a structural EDGE_TRANSITIONS seam
-  // (MAP3.north <-> MAP3_N1.south, sourceRange [8,8]) — now classified ALIGNS.
-  ['MAP3_N2', 'north', 'NORTH_BASIN_S_MAP'], ['NORTH_BASIN_S_MAP', 'south', 'MAP3_N2'],
-];
+// Derived from the SHARED production authority REGIONAL_POINT_CROSSINGS
+// (world-transitions.js) so the audit and validateGameData() classify the same
+// crossings. (MAP3 <-> MAP3_N1 is absent — it was converted to a structural
+// EDGE_TRANSITIONS seam and now classifies ALIGNS.)
+const POINT_WORLD_CROSSINGS = JSON.parse(g.run(
+  'JSON.stringify((typeof REGIONAL_POINT_CROSSINGS!=="undefined"?REGIONAL_POINT_CROSSINGS:[]).map(function(c){return [c.from,c.dir,c.to];}))'
+));
 
 const seamReadiness = (function () {
   const layoutDefined = g.run('typeof REGIONAL_LAYOUT !== "undefined"');
@@ -662,6 +658,12 @@ const seamReadiness = (function () {
 
   const regionId = 'overworld';
   const placements = g.run(`REGIONAL_LAYOUT['${regionId}'].placements.map(function(p){return [p.mapId,p.chunkX,p.chunkY];})`);
+  // Presentation authority (derived, not a hardcoded edge list): the placed
+  // 'legacy_screen' maps in this region. A point crossing to the correct placed
+  // neighbour that crosses a legacy_screen boundary is INTENTIONAL_DISCRETE (an
+  // intentionally-retained discrete point transition), not an unresolved NEEDS_REMAP.
+  const legacyMaps = new Set(JSON.parse(g.run(`JSON.stringify(REGIONAL_LAYOUT['${regionId}'].placements.filter(function(p){return typeof isLegacyScreenMap==='function' && isLegacyScreenMap(p.mapId);}).map(function(p){return p.mapId;}))`)));
+  const crossesLegacyBoundary = (a, b) => legacyMaps.has(a) || legacyMaps.has(b);
   const DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
   const edges = [];
   for (const [mapId, cx, cy] of placements) {
@@ -674,13 +676,17 @@ const seamReadiness = (function () {
         verdict = neighbor ? 'BLOCKED' : 'BORDER';
       } else {
         // If more than one transition shares an edge, the worst (most incompatible) wins.
-        const rank = { CONFLICT: 5, OUTSIDE_REGION: 4, NEEDS_REMAP: 3, ALIGNS: 2 };
+        // INTENTIONAL_DISCRETE and ALIGNS are both "resolved" (rank 2); a real CONFLICT
+        // or unresolved NEEDS_REMAP still wins so problems are never masked.
+        const rank = { CONFLICT: 5, OUTSIDE_REGION: 4, NEEDS_REMAP: 3, INTENTIONAL_DISCRETE: 2, ALIGNS: 2 };
         let best = null;
         for (const x of xns) {
           const placed = g.run(`regionPlacementForMapId(${JSON.stringify(x.target)}) !== null`);
           let v;
           if (!placed) v = 'OUTSIDE_REGION';
-          else if (x.target === neighbor) v = (x.type === 'broad') ? 'ALIGNS' : 'NEEDS_REMAP';
+          else if (x.target === neighbor) v = (x.type === 'broad') ? 'ALIGNS'
+                                            : crossesLegacyBoundary(mapId, x.target) ? 'INTENTIONAL_DISCRETE'
+                                            : 'NEEDS_REMAP';
           else v = 'CONFLICT';
           if (!best || rank[v] > rank[best.verdict]) best = { verdict: v, target: x.target, type: x.type };
         }
@@ -771,7 +777,7 @@ if (!seamReadiness.available) {
 } else {
   console.log('CONTINUOUS SEAM READINESS (region "' + seamReadiness.regionId + '"):',
     seamReadiness.edges.length, 'placed edges ->', JSON.stringify(seamReadiness.totals));
-  const ORDER = ['CONFLICT', 'OUTSIDE_REGION', 'NEEDS_REMAP', 'BLOCKED', 'ALIGNS', 'BORDER'];
+  const ORDER = ['CONFLICT', 'OUTSIDE_REGION', 'NEEDS_REMAP', 'INTENTIONAL_DISCRETE', 'BLOCKED', 'ALIGNS', 'BORDER'];
   for (const cls of ORDER) {
     const rows = seamReadiness.edges.filter(e => e.verdict === cls);
     if (!rows.length) continue;

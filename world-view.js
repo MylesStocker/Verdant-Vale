@@ -68,6 +68,56 @@ function cameraOriginForTarget(regionId, targetWorldPxX, targetWorldPxY, viewpor
   };
 }
 
+// 2b. The pixel rectangles of every placed 'legacy_screen' chunk in a region —
+//     the presentation-excluded rectangles the continuous camera must never reveal.
+//     Derived purely from REGIONAL_LAYOUT placement + the catalog presentation
+//     authority (isLegacyScreenMap). Half-open [left,right)×[top,bottom).
+function legacyScreenChunkRects(regionId) {
+  const entry = (typeof REGIONAL_LAYOUT !== 'undefined') ? REGIONAL_LAYOUT[regionId] : undefined;
+  if (!entry || !Array.isArray(entry.placements) || typeof isLegacyScreenMap !== 'function') return [];
+  const cw = _chunkWidthPx(), ch = _chunkHeightPx();
+  const out = [];
+  for (const p of entry.placements) {
+    if (!isLegacyScreenMap(p.mapId)) continue;
+    out.push({ mapId: p.mapId, leftPx: p.chunkX * cw, topPx: p.chunkY * ch, rightPx: (p.chunkX + 1) * cw, bottomPx: (p.chunkY + 1) * ch });
+  }
+  return out;
+}
+
+// 2c. Camera origin that additionally keeps the viewport OUT of every excluded
+//     (legacy_screen) chunk rectangle — a pure, general presentation constraint, not
+//     a MAP-specific render patch. Starts from the region-clamped player-centred
+//     camera, then for each excluded rect the viewport still intersects, slides the
+//     camera to the excluded rect's nearest edge along the axis that (a) keeps the
+//     player/target inside the viewport and (b) is the smaller correction. Because
+//     the correction candidates are only those with the target on the far side of
+//     the excluded rect, the player is always kept visible; a rect that CONTAINS the
+//     target (e.g. the active legacy map itself) yields no candidate and is ignored.
+//     This handles direct edge exposure (one valid axis -> monotone clamp) and
+//     diagonal corner exposure (two valid axes -> least correction). Deterministic
+//     and pure. `excludedRects` from legacyScreenChunkRects().
+function continuousCameraOrigin(regionId, targetWorldPxX, targetWorldPxY, viewportPxW, viewportPxH, excludedRects) {
+  const base = cameraOriginForTarget(regionId, targetWorldPxX, targetWorldPxY, viewportPxW, viewportPxH);
+  if (!base) return base;
+  let camPxX = base.camPxX, camPxY = base.camPxY;
+  const rects = Array.isArray(excludedRects) ? excludedRects : [];
+  for (const E of rects) {
+    const overlapsX = camPxX < E.rightPx && camPxX + viewportPxW > E.leftPx;
+    const overlapsY = camPxY < E.bottomPx && camPxY + viewportPxH > E.topPx;
+    if (!overlapsX || !overlapsY) continue;               // viewport clear of this rect
+    const opts = [];
+    if (targetWorldPxX >= E.rightPx) opts.push({ ax: 'x', v: E.rightPx,                 cost: E.rightPx - camPxX });          // slide right to rect's right edge
+    if (targetWorldPxX <= E.leftPx)  opts.push({ ax: 'x', v: E.leftPx - viewportPxW,    cost: camPxX - (E.leftPx - viewportPxW) }); // slide left
+    if (targetWorldPxY >= E.bottomPx) opts.push({ ax: 'y', v: E.bottomPx,               cost: E.bottomPx - camPxY });         // slide down
+    if (targetWorldPxY <= E.topPx)    opts.push({ ax: 'y', v: E.topPx - viewportPxH,     cost: camPxY - (E.topPx - viewportPxH) }); // slide up
+    if (opts.length === 0) continue;                      // target inside the rect (e.g. active legacy map) -> ignore
+    opts.sort((a, b) => a.cost - b.cost);
+    const pick = opts[0];
+    if (pick.ax === 'x') camPxX = pick.v; else camPxY = pick.v;
+  }
+  return { camPxX: Math.round(camPxX), camPxY: Math.round(camPxY) };
+}
+
 // 4. The half-open LOCAL TILE range of one chunk that intersects a camera
 //    viewport, or null if the chunk does not intersect at all. Pure geometry —
 //    it needs no layout lookup, only the chunk's coordinate. A tile straddling
@@ -159,9 +209,19 @@ function buildContinuousWorldPlan(regionId, activeMapId, playerLocalPxX, playerL
   if (!placement || placement.regionId !== regionId) return null;
   const world = mapLocalPxToWorldPx(activeMapId, playerLocalPxX, playerLocalPxY);
   if (!world) return null;
-  const cam = cameraOriginForTarget(regionId, world.worldPxX, world.worldPxY, viewportPxW, viewportPxH);
+  // Camera keeps the viewport out of every OTHER legacy_screen chunk rect (so MAP is
+  // never revealed as a neighbour and no void hole appears in its place). The active
+  // map's own rect is excluded from the constraint — a legacy map viewed on its own
+  // (toggle on, effective suppressed) must still frame normally for any direct
+  // buildContinuousWorldPlan() caller; its continuous path is never rendered.
+  const excluded = (typeof legacyScreenChunkRects === 'function')
+    ? legacyScreenChunkRects(regionId).filter((r) => r.mapId !== activeMapId) : [];
+  const cam = continuousCameraOrigin(regionId, world.worldPxX, world.worldPxY, viewportPxW, viewportPxH, excluded);
   if (!cam) return null;
-  const chunks = visibleChunks(regionId, cam.camPxX, cam.camPxY, viewportPxW, viewportPxH);
+  let chunks = visibleChunks(regionId, cam.camPxX, cam.camPxY, viewportPxW, viewportPxH);
+  // Belt-and-suspenders: a legacy_screen chunk other than the active map is never a
+  // continuous neighbour (the camera already avoids its area; this guarantees it).
+  if (typeof isLegacyScreenMap === 'function') chunks = chunks.filter((c) => c.mapId === activeMapId || !isLegacyScreenMap(c.mapId));
   return {
     regionId, activeMapId, activePlacement: placement,
     playerWorldPxX: world.worldPxX, playerWorldPxY: world.worldPxY,
@@ -173,6 +233,8 @@ function buildContinuousWorldPlan(regionId, activeMapId, playerLocalPxX, playerL
 if (typeof window !== 'undefined') {
   window.regionPixelBounds       = regionPixelBounds;
   window.cameraOriginForTarget   = cameraOriginForTarget;
+  window.legacyScreenChunkRects  = legacyScreenChunkRects;
+  window.continuousCameraOrigin  = continuousCameraOrigin;
   window.chunkVisibleTileRange   = chunkVisibleTileRange;
   window.visibleChunks           = visibleChunks;
   window.mapLocalPxToWorldPx     = mapLocalPxToWorldPx;

@@ -618,6 +618,11 @@ const MAP_CATALOG = {
     id: 'MAP', map: MAP, displayName: 'Verdant Vale', region: 'Verdant Vale',
     type: 'outdoor', items: WORLD_ITEMS, encounterPool: EARLY_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true,
+    // Verdant Vale is the intentional fixed-screen home: it keeps the original
+    // single-map presentation even when Continuous View is toggled on. Leaving it
+    // (east to MAP2 / north to MAP_N1) reveals the scrolling world. See
+    // regionalPresentationForMapId() and continuousWorldViewActive().
+    regionalPresentation: 'legacy_screen',
   },
   MEADOW_MAP: {
     id: 'MEADOW_MAP', map: MEADOW_MAP, displayName: 'Hidden Meadow', region: 'Verdant Vale',
@@ -1270,6 +1275,30 @@ function outdoorContentKeyForMapId(mapId) {
 }
 window.OUTDOOR_CONTENT_KEYS      = OUTDOOR_CONTENT_KEYS;
 window.outdoorContentKeyForMapId = outdoorContentKeyForMapId;
+
+// ─── Regional presentation mode (declarative, catalog-driven) ────────────────
+// A placed regional outdoor map presents either in the scrolling CONTINUOUS world
+// or as a fixed 'legacy_screen' (single-map, non-scrolling) even while the session
+// Continuous View toggle is on. The MAP_CATALOG entry's optional
+// `regionalPresentation` is the SOLE authority; the default for a placed regional
+// outdoor map is 'continuous'. There is no second authored list of legacy maps and
+// no scattered `mapId === 'MAP'` presentation checks — every consumer reads this
+// resolver. Unrecognized authored values are caught by validateGameData().
+const REGIONAL_PRESENTATION_MODES = Object.freeze({ continuous: true, legacy_screen: true });
+function regionalPresentationForMapId(mapId) {
+  const p = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mapId) : null;
+  if (!p) return null;                                  // not a placed regional map -> no presentation mode
+  const e = (typeof mapEntryForId === 'function') ? mapEntryForId(mapId) : null;
+  const mode = e ? e.regionalPresentation : undefined;
+  if (mode === undefined || mode === null) return 'continuous';   // default
+  return mode;                                          // authored value (validation ensures it is recognized)
+}
+// Strict runtime predicate: true ONLY for a placed regional map authored exactly
+// 'legacy_screen'. Any other/unknown value is NOT treated as legacy at runtime.
+function isLegacyScreenMap(mapId) { return regionalPresentationForMapId(mapId) === 'legacy_screen'; }
+window.REGIONAL_PRESENTATION_MODES = REGIONAL_PRESENTATION_MODES;
+window.regionalPresentationForMapId = regionalPresentationForMapId;
+window.isLegacyScreenMap           = isLegacyScreenMap;
 
 // ─── Stable-ID registries (#4): world pickups + openable chests ──────────────
 // Immutable-ID policy: every persistent placed pickup and every openable chest

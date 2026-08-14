@@ -87,9 +87,9 @@ module.exports = {
 
     // ── C. Nearby simulation set ────────────────────────────────────────────
     const set = JSON.parse(g0.run("JSON.stringify(nearbySimulationMapSet().mapIds)"));
-    // RODDON (1,4) 3x3, row-major, sparse (1,3) omitted.
-    assert.deepEqual(set, ['MAP_N2', 'MAP3_N2', 'MAP_N1', 'RODDON_WAY_MAP', 'MAP3_N1', 'MAP', 'MAP2', 'MAP3'],
-      'nearby set = active + placed 3x3 in deterministic row-major order, sparse omitted');
+    // RODDON (1,4) 3x3, row-major, sparse (1,3) omitted, legacy_screen MAP (0,5) excluded.
+    assert.deepEqual(set, ['MAP_N2', 'MAP3_N2', 'MAP_N1', 'RODDON_WAY_MAP', 'MAP3_N1', 'MAP2', 'MAP3'],
+      'nearby set = active + placed 3x3 (row-major), sparse omitted, legacy_screen MAP excluded');
     assert.ok(set.indexOf('RODDON_WAY_MAP') !== -1 && set.indexOf('MAP3_N1') !== -1, 'active + east neighbour both present');
     // Continuous View off -> legacy (null set).
     assert.equal(g0.run("(function(){continuousWorldViewEnabled=false; var s=nearbySimulationMapSet(); continuousWorldViewEnabled=true; return s;})()"), null,

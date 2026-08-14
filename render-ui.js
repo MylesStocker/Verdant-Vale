@@ -1585,8 +1585,13 @@ function drawDebugInspector() {
         : ''),
   ];
 
-  // Continuous-view diagnostics (only when the debug prototype is actually
-  // active on this map) — camera px, player world px, visible chunk count/ids.
+  // Continuous-view diagnostics. Distinguish the session TOGGLE from the EFFECTIVE
+  // presentation: on a 'legacy_screen' map the toggle can be on while continuous
+  // presentation is suppressed (fixed-screen home).
+  if (typeof continuousWorldViewEnabled !== 'undefined' && continuousWorldViewEnabled
+      && typeof isLegacyScreenMap === 'function' && mapId && isLegacyScreenMap(mapId)) {
+    lines.push('CONT-VIEW: toggle ON, effective SUPPRESSED (legacy_screen map)');
+  }
   if (typeof continuousWorldViewActive === 'function' && continuousWorldViewActive()) {
     const plan = buildContinuousWorldPlan('overworld', mapId, player.x, player.y, 512, 480);
     if (plan) {

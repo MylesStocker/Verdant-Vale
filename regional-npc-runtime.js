@@ -76,11 +76,16 @@ function regionalNpcPose(npc) {
 // The deterministic set of placed physical maps that should keep simulating: the
 // active chunk plus every placed chunk within one chunk on either axis (a max 3×3
 // neighbourhood). Row-major order (top row first, left-to-right). Sparse/unplaced
-// chunks are omitted. Returns { regionId, activeMapId, mapIds:[…], has(id) } or
-// null when Continuous View is off or the active map is NONregional (legacy mode).
-// Based on physical proximity so simulation never fluctuates with a one-pixel
-// visibility change; an NPC keeps animating in its OWN chunk without needing an
-// eligible seam (seam eligibility still gates CROSS-boundary collision/interaction).
+// chunks are omitted, and so is every 'legacy_screen' chunk — a fixed-screen home
+// (e.g. Verdant Vale / MAP) is deliberately hidden behind its presentation border,
+// so its NPCs must not keep simulating while a nearby continuous map is active.
+// The exclusion uses the declarative presentation resolver (isLegacyScreenMap), not
+// a hardcoded id, and lives HERE (the one shared simulation-scope authority) so
+// every consumer (npcShouldSimulate, regionalNpcInSimulationScope and thus route
+// start/update, occupancy) inherits it without a second presentation check.
+// Returns { regionId, activeMapId, mapIds:[…], has(id) } or null when Continuous
+// View is off or the active map is NONregional (legacy mode). Based on physical
+// proximity so simulation never fluctuates with a one-pixel visibility change.
 function nearbySimulationMapSet() {
   if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return null;
   const activeMapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
@@ -90,7 +95,9 @@ function nearbySimulationMapSet() {
   for (let dr = -1; dr <= 1; dr++) {             // row-major: rows outer
     for (let dc = -1; dc <= 1; dc++) {           // cols inner (left -> right)
       const mid = (typeof mapIdForChunk === 'function') ? mapIdForChunk(p.regionId, p.chunkX + dc, p.chunkY + dr) : null;
-      if (mid) ids.push(mid);                    // omit sparse/unplaced chunks
+      if (!mid) continue;                        // omit sparse/unplaced chunks
+      if (typeof isLegacyScreenMap === 'function' && isLegacyScreenMap(mid)) continue; // omit legacy_screen homes (hidden behind their border)
+      ids.push(mid);
     }
   }
   return { regionId: p.regionId, activeMapId, mapIds: ids, has: (id) => ids.indexOf(id) !== -1 };
