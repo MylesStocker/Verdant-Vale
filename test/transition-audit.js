@@ -440,8 +440,9 @@ const preservedTransitions = [
   // EDGE_TRANSITIONS fen crossing, checked by the North-Basin-style edge tests.
   { name: 'enterMapN1', srcMap: 'MAP', srcTile: 'NORTH_EXIT', destMap: 'MAP_N1', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
   { name: 'exitMapN1', srcMap: 'MAP_N1', srcTile: 'NORTH_ENTRANCE', destMap: 'MAP', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
-  { name: 'enterMapN2', srcMap: 'MAP_N1', srcTile: 'NORTH2_EXIT', destMap: 'MAP_N2', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
-  { name: 'exitMapN2', srcMap: 'MAP_N2', srcTile: 'NORTH2_ENTRANCE', destMap: 'MAP_N1', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
+  // MAP_N1 <-> MAP_N2 (NORTH2_EXIT/NORTH2_ENTRANCE, enterMapN2/exitMapN2) retired — now
+  // a structural EDGE_TRANSITIONS seam (col-7 PATH, sourceRange [7,7]), checked by the
+  // continuous-seam edge tests instead of this preserved-coordinate sweep.
   { name: 'enterNorthBasinS', srcMap: 'MAP3_N2', srcTile: 'NORTH_BASIN_EXIT', destMap: 'NORTH_BASIN_S_MAP', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
   { name: 'exitNorthBasinS', srcMap: 'NORTH_BASIN_S_MAP', srcTile: 'NORTH_BASIN_ENTRANCE', destMap: 'MAP3_N2', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
   // South approach <-> Reservoir, south approach <-> Silt Flats, AND Silt
@@ -497,7 +498,7 @@ const transitionTileNames = [
   'EAST_ENTRANCE', 'EAST_EXIT', 'SLUICE_ENTRANCE', 'SLUICE_EXIT',
   'WEST_ENTRANCE', 'WEST_EXIT', 'HOUSE_DOOR', 'SCHOOL_DOOR', 'APT_DOOR', 'APT_INTERIOR_DOOR',
   'MAP2_EXIT', 'MAP2_ENTRANCE',
-  'NORTH_EXIT', 'NORTH_ENTRANCE', 'NORTH2_EXIT', 'NORTH2_ENTRANCE',
+  'NORTH_EXIT', 'NORTH_ENTRANCE',
   'GUARD_POST', 'FARM_HOUSE',
   'MIRE_ENTRANCE', 'MIRE_EXIT', 'BRIDGE_GATE', 'BRIDGE_EXIT',
   'DUNGEON8_WEST_DOOR', 'DUNGEON8_WEST_RET',
@@ -526,6 +527,9 @@ const transitionTileNames = [
   // MAP5_EXIT/MAP5_ENTRANCE (60/61) retired the same way: MAP4 <-> MAP5 (Thornmere
   // <-> Thornmere Shallows) is now a structural EDGE_TRANSITIONS seam (row-6,
   // sourceRange [6,6]; GRASS on both shores).
+  // NORTH2_EXIT/NORTH2_ENTRANCE (45/46) retired the same way: MAP_N1 <-> MAP_N2
+  // (Northern Road <-> Drenwick Approach) is now a structural EDGE_TRANSITIONS seam
+  // (col-7 PATH, sourceRange [7,7]).
 ];
 const tileUsage = [];
 for (const name of transitionTileNames) {

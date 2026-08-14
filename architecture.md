@@ -319,7 +319,7 @@ conditions. Each one is exactly one tile wide/tall — the player has to walk
 onto that exact cell. This is still how the overwhelming majority of
 transitions in the game work: town doors, dungeon stairs, house doors,
 bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `NORTH_EXIT`,
-`NORTH2_EXIT`, etc).
+`NORTH_BASIN_EXIT`, etc).
 
 **`EDGE_TRANSITIONS`** (`world-transitions.js`, newer, additive) — for a
 *broad, open* border between two adjacent maps (a wide field boundary, a
@@ -738,6 +738,20 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   MAP5 carries the ambiguous `overworld` content key but owns no items/NPCs/decor, so it
   contributes nothing when rendered as a neighbour (neighbour content is keyed by
   physical-map ownership, never the shared key) — no leakage or duplication.
+- **Fifth converted former point crossing: Northern Road ↔ Drenwick Approach.**
+  `MAP_N1.north ↔ MAP_N2.south` was a `NORTH2_EXIT`/`NORTH2_ENTRANCE` point-tile warp
+  (`enterMapN2`/`exitMapN2`); it is now a structural `EDGE_TRANSITIONS` seam — the single
+  **col-7** PATH, `sourceRange [7, 7]`, reciprocal, no `targetRange` (a vertical seam,
+  mirror of the MAP3↔MAP3_N1 pilot). Both shores are the col-7 road (`MAP_N1[0][7]` /
+  `MAP_N2[14][7]` → PATH); the rest of each edge is forest wall, so only column 7
+  crosses. Both maps share `FAR_ENEMY_TEMPLATES` (no pool change), and cooldown parity
+  holds (both retired wrappers and the generic edge path apply `cooldown: true`). Two
+  MAP_N2 specials are unaffected and stay active-map-gated: the **Pale Sentry** scripted
+  encounter (`startCombat()` checks `activeMap === MAP_N2 && sentry_quest_started &&
+  !sentry_quest_done`, so it only applies after the standing-point handoff onto MAP_N2),
+  and the **sealed Drenwick gate** (body world-locked via `OUTDOOR_MAP_DECOR.MAP_N2`,
+  SPACE hint gated on `activeMap === MAP_N2`). The `MAP ↔ MAP_N1` legacy boundary on
+  MAP_N1's *south* edge (`NORTH_ENTRANCE`) is untouched and stays INTENTIONAL_DISCRETE.
 - **Continuous seam crossings do NOT reset the encounter cooldown.** The seamless
   handoff (`continuousSeamMove`) only swaps `activeMap` + local coordinates; it never
   calls `transitionToLocation`, so `combat.cooldown` is untouched (it just keeps

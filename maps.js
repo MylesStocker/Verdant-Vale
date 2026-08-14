@@ -2,12 +2,12 @@
 
 // ─── Northern World Map — Northern Road  (16 × 15) ───────────────────────────
 // Connected to MAP via NORTH_EXIT at MAP row 0 col 7 / NORTH_ENTRANCE at row 14 col 7.
-// Connected to MAP_N2 via NORTH2_EXIT at row 0 col 7 / NORTH2_ENTRANCE at row 14 col 7.
+// Connected to MAP_N2 via a continuous seam at col 7 (MAP_N1.north ↔ MAP_N2.south).
 // Road runs north-south at col 7. River crossing at rows 6-7.
 // Forest clusters at rows 2-3 (cols 1-3, 12-14) and rows 10-11 (cols 10-13).
 const MAP_N1 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3, 45,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 7 = NORTH2_EXIT
+  [  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 7 = north seam → MAP_N2.south (continuous)
   [  3,  0,  0,  3,  3,  0,  0,  2,  0,  0,  3,  3,  3,  0,  0,  3],  //  1  road + forest flanks
   [  3,  0,  3,  3,  0,  0,  0,  2,  0,  0,  0,  3,  3,  3,  0,  3],  //  2  dense forest NW + NE
   [  3,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  3,  3,  3],  //  3  forest breaks
@@ -27,9 +27,9 @@ const MAP_N1 = [
 const MAP_N1_ITEMS = [];
 
 // ─── Northern World Map 2 — Drenwick Approach  (16 × 15) ─────────────────────
-// Connected to MAP_N1 via NORTH2_EXIT at MAP_N1 row 0 col 7 / NORTH2_ENTRANCE at row 14 col 7.
+// Connected to MAP_N1 via a continuous seam at col 7 (MAP_N1.north ↔ MAP_N2.south).
 // Drenwick: large city, ~3× Calwick's footprint — TOWN_BUILDING block rows 1-8, cols 2-13.
-// Not enterable yet. Road runs south at col 7 rows 9-13, NORTH2_ENTRANCE at row 14 col 7.
+// Not enterable yet. Road runs south at col 7 rows 9-13, continuous seam at row 14 col 7.
 const MAP_N2 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north wall
@@ -46,7 +46,7 @@ const MAP_N2 = [
   [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 11
   [  3,  0, 23, 23,  0,  0,  0,  2,  0,  0,  0, 23, 23,  0,  0,  3],  // 12  reeds flanking road
   [  3,  0,  0, 23,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0,  3],  // 13  straggling reeds
-  [  3,  3,  3,  3,  3,  3,  3, 46,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = NORTH2_ENTRANCE
+  [  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = south seam → MAP_N1.north (continuous)
 ];
 
 const MAP_N2_ITEMS = [];

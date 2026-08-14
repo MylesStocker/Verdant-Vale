@@ -603,8 +603,6 @@ function update() {
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N2 && curTile === TOWN_ENTRANCE)   { enterTownAt('drenwick', entryPointFromFacing(player.facing)); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP  && curTile === NORTH_EXIT)    { enterMapN1(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP_N1 && curTile === NORTH_ENTRANCE)  { exitMapN1();  return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP_N1 && curTile === NORTH2_EXIT)     { enterMapN2(); return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP_N2 && curTile === NORTH2_ENTRANCE) { exitMapN2();  return; }
     // Drenwick school staircases — guarded with inTown to avoid dungeon/sluice false positives.
     // Ground floor: col 2 = DUNGEON_STAIRS_DOWN (basement), col 13 = DUNGEON2_STAIRS_UP (upper).
     // Tiles are visually distinct — stairs-down vs stairs-up — so the direction is clear.

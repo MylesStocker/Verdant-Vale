@@ -653,14 +653,6 @@ function exitMapN1() {
   transitionToLocation({ mapId: 'MAP', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true }); // player.x preserved
 }
 
-function enterMapN2() {
-  transitionToLocation({ mapId: 'MAP_N2', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true }); // player.x preserved (col 7)
-}
-
-function exitMapN2() {
-  transitionToLocation({ mapId: 'MAP_N1', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true }); // player.x preserved
-}
-
 // ─── Town entry registry ──────────────────────────────────────────────────────
 // Keyed by town id, then by entry direction ('south', 'east', 'north', 'west').
 // Add new towns here; enterTownAt() is generic and does not reference any town by name.
@@ -1271,6 +1263,25 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'MAP4', targetEdge: 'east', sourceRange: [6, 6] },
     ],
   },
+  // North edge: the single col-7 PATH into MAP_N2 (Drenwick Approach). MAP_N1's north
+  // edge is otherwise forest wall, so the seam is ONE tile wide (sourceRange [7,7]) —
+  // the former NORTH2_EXIT/NORTH2_ENTRANCE point crossing. Reciprocal of MAP_N2.south.
+  // Columns match exactly, so crossings never clamp. (The col-7 NORTH_ENTRANCE on the
+  // SOUTH edge, the Verdant Vale legacy boundary, is untouched.)
+  MAP_N1: {
+    north: [
+      { targetMap: 'MAP_N2', targetEdge: 'south', sourceRange: [7, 7] },
+    ],
+  },
+  // South edge: the single col-7 PATH into MAP_N1 (Northern Road). MAP_N2's south edge
+  // is otherwise forest wall, so the seam is ONE tile wide (sourceRange [7,7]).
+  // Reciprocal of MAP_N1.north; both sides are the col-7 road. (The sealed Drenwick
+  // gate sits well inside MAP_N2 at row 8 — clear of this edge.)
+  MAP_N2: {
+    south: [
+      { targetMap: 'MAP_N1', targetEdge: 'north', sourceRange: [7, 7] },
+    ],
+  },
 };
 window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 
@@ -1288,8 +1299,6 @@ const REGIONAL_POINT_CROSSINGS = [
   { from: 'MAP2',  dir: 'west',  to: 'MAP',    tile: MAP2_ENTRANCE },
   { from: 'MAP',   dir: 'north', to: 'MAP_N1', tile: NORTH_EXIT },
   { from: 'MAP_N1', dir: 'south', to: 'MAP',    tile: NORTH_ENTRANCE },
-  { from: 'MAP_N1', dir: 'north', to: 'MAP_N2', tile: NORTH2_EXIT },
-  { from: 'MAP_N2', dir: 'south', to: 'MAP_N1', tile: NORTH2_ENTRANCE },
   { from: 'MAP3_N2', dir: 'north', to: 'NORTH_BASIN_S_MAP', tile: NORTH_BASIN_EXIT },
   { from: 'NORTH_BASIN_S_MAP', dir: 'south', to: 'MAP3_N2', tile: NORTH_BASIN_ENTRANCE },
 ];
