@@ -584,14 +584,6 @@ function exitMap2() {
   transitionToLocation({ mapId: 'MAP', x: 14.5 * TILE, y: player.y, facing: 'left' });
 }
 
-function enterMap5() {
-  transitionToLocation({ mapId: 'MAP5', x: 1.5 * TILE, y: player.y, facing: 'right', cooldown: true });
-}
-
-function exitMap5() {
-  transitionToLocation({ mapId: 'MAP4', x: 14.5 * TILE, y: player.y, facing: 'left', cooldown: true });
-}
-
 // MAP3 <-> MAP3_N1 (Northern Fen) was a preserved-x point crossing
 // (enterMap3N1/exitMap3N1 on FEN_N_EXIT/FEN_N_ENTRANCE). It is now a structural
 // EDGE_TRANSITIONS seam (MAP3.north <-> MAP3_N1.south, the single col-8 PATH,
@@ -1262,6 +1254,22 @@ const EDGE_TRANSITIONS = {
     west: [
       { targetMap: 'MAP3', targetEdge: 'east', sourceRange: [6, 6] },
     ],
+    // East edge: the single row-6 GRASS spit into MAP5 (Thornmere Shallows). MAP4's
+    // east edge is otherwise tree/water, so the seam is ONE tile wide (sourceRange
+    // [6,6]) — the former MAP5_EXIT/MAP5_ENTRANCE point crossing. Reciprocal of
+    // MAP5.west. Rows match exactly, so crossings never clamp.
+    east: [
+      { targetMap: 'MAP5', targetEdge: 'west', sourceRange: [6, 6] },
+    ],
+  },
+  // West edge: the single row-6 GRASS spit into MAP4 (Thornmere). MAP5's west edge is
+  // otherwise open water, so the seam is ONE tile wide (sourceRange [6,6]) — the former
+  // MAP5_ENTRANCE/MAP5_EXIT point crossing. Reciprocal of MAP4.east; both sides are
+  // ordinary GRASS shore. Rows match exactly, so crossings never clamp.
+  MAP5: {
+    west: [
+      { targetMap: 'MAP4', targetEdge: 'east', sourceRange: [6, 6] },
+    ],
   },
 };
 window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
@@ -1278,8 +1286,6 @@ window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 const REGIONAL_POINT_CROSSINGS = [
   { from: 'MAP',   dir: 'east',  to: 'MAP2',   tile: MAP2_EXIT },
   { from: 'MAP2',  dir: 'west',  to: 'MAP',    tile: MAP2_ENTRANCE },
-  { from: 'MAP4',  dir: 'east',  to: 'MAP5',   tile: MAP5_EXIT },
-  { from: 'MAP5',  dir: 'west',  to: 'MAP4',   tile: MAP5_ENTRANCE },
   { from: 'MAP',   dir: 'north', to: 'MAP_N1', tile: NORTH_EXIT },
   { from: 'MAP_N1', dir: 'south', to: 'MAP',    tile: NORTH_ENTRANCE },
   { from: 'MAP_N1', dir: 'north', to: 'MAP_N2', tile: NORTH2_EXIT },

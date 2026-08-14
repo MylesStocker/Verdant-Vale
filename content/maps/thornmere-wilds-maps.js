@@ -94,7 +94,7 @@ const MAP4 = [
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  3  lake deepens
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  4
   [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  5  reeds on E shore mid
-  [  0,  0,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0, 60],  //  6  ← island NW/NE (cols 7-8); col 0 = west seam → MAP3.east (continuous, GRASS shore); col 15 = MAP5_EXIT
+  [  0,  0,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  0],  //  6  ← island NW/NE (cols 7-8); col 0 = west seam → MAP3.east; col 15 = east seam → MAP5.west (continuous, GRASS shore)
   [  1, 23,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  3],  //  7  ← island SW/SE (cols 7-8); reeds at W shore; water W edge
   [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  8  E shore ends here (bottom of П); water W edge
   [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  9  E grass (path gone), open lake; water W edge
@@ -108,7 +108,7 @@ const MAP4 = [
 const MAP4_ITEMS = [];
 
 // ─── Thornmere Shallows — MAP5  (16 × 15) ────────────────────────────────────
-// Connected west to MAP4 via MAP5_EXIT at MAP4 row 6 col 15 / MAP5_ENTRANCE at col 0.
+// Connected west to MAP4 via a continuous seam at row 6 (MAP4.east ↔ MAP5.west).
 // A sand spit protrudes east into open water from the entrance. The spit tapers
 // from ~4 tiles wide at the base (rows 5-8 near col 1) to a single-tile tip at
 // col 9 (row 7), then reeds mark the dissolution into water. No eastern exit.
@@ -120,7 +120,7 @@ const MAP5 = [
   [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open water, open to W and E edges
   [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  spit north shoulder; water W and E edges
   [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  5  spit north edge, cols 2-7; water W and E edges
-  [ 61,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1],  //  6  ← col 0 = entrance; spit body; water E edge
+  [  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1],  //  6  ← col 0 = west seam → MAP4.east (continuous, GRASS shore); spit body; water E edge
   [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  7  spit widest / tip extends to col 9; lone shore tree by the landing (col 0)
   [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  8  spit south edge, mirrors row 5; water W and E edges
   [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  spit south shoulder, mirrors row 4

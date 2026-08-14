@@ -540,8 +540,6 @@ function update() {
       return;
     }
     if (inSmugglerFort && curTile === INTERIOR_EXIT) { exitSmugglerFort(); return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP4   && curTile === MAP5_EXIT)        { enterMap5();   return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP5   && curTile === MAP5_ENTRANCE)    { exitMap5();    return; }
     // MAP3 <-> MAP3_N1 (Northern Fen) is now a structural EDGE_TRANSITIONS seam
     // (the single col-8 PATH, sourceRange [8,8]) — seamless under Continuous View,
     // discrete via tryEdgeTransition() above with View off. The former FEN_N_EXIT/

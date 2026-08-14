@@ -318,8 +318,8 @@ placed at a specific cell in a map's grid. `movement.js`'s `update()` checks
 conditions. Each one is exactly one tile wide/tall — the player has to walk
 onto that exact cell. This is still how the overwhelming majority of
 transitions in the game work: town doors, dungeon stairs, house doors,
-bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `MAP5_EXIT`,
-`NORTH_EXIT`, etc).
+bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `NORTH_EXIT`,
+`NORTH2_EXIT`, etc).
 
 **`EDGE_TRANSITIONS`** (`world-transitions.js`, newer, additive) — for a
 *broad, open* border between two adjacent maps (a wide field boundary, a
@@ -727,6 +727,17 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   Standing Stone (MAP4 lake island, col 7) is unaffected: its body draws world-locked
   via the `OUTDOOR_MAP_DECOR.MAP4` neighbour authority (single instance, no `activeMap`
   read) while the SPACE hint and interaction stay gated on `activeMap === MAP4`.
+- **Fourth converted former point crossing: Thornmere ↔ Thornmere Shallows.**
+  `MAP4.east ↔ MAP5.west` was a `MAP5_EXIT`/`MAP5_ENTRANCE` point-tile warp
+  (`enterMap5`/`exitMap5`); it is now a structural `EDGE_TRANSITIONS` seam — the single
+  **row-6** GRASS spit, `sourceRange [6, 6]`, reciprocal, no `targetRange`. Replacement
+  terrain is **symmetric `GRASS`** on both shores (`MAP4[6][15]`/`MAP5[6][0]`); the
+  surrounding tree/water edge stays blocked, so only row 6 crosses. Both maps share the
+  `THORNMERE_ENEMY_TEMPLATES` pool, so the crossing causes **no pool change**. Cooldown
+  parity holds (both retired wrappers and the generic edge path apply `cooldown: true`).
+  MAP5 carries the ambiguous `overworld` content key but owns no items/NPCs/decor, so it
+  contributes nothing when rendered as a neighbour (neighbour content is keyed by
+  physical-map ownership, never the shared key) — no leakage or duplication.
 - **Continuous seam crossings do NOT reset the encounter cooldown.** The seamless
   handoff (`continuousSeamMove`) only swaps `activeMap` + local coordinates; it never
   calls `transitionToLocation`, so `combat.cooldown` is untouched (it just keeps

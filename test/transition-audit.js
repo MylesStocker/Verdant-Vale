@@ -430,8 +430,9 @@ const preservedTransitions = [
   // structural EDGE_TRANSITIONS seam (row-6, sourceRange [6,6]; PATH on the MAP3 side,
   // GRASS on the MAP4 shore), checked by the continuous-seam edge tests instead of
   // this preserved-coordinate sweep.
-  { name: 'enterMap5', srcMap: 'MAP4', srcTile: 'MAP5_EXIT', destMap: 'MAP5', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
-  { name: 'exitMap5', srcMap: 'MAP5', srcTile: 'MAP5_ENTRANCE', destMap: 'MAP4', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
+  // MAP4 <-> MAP5 (MAP5_EXIT/MAP5_ENTRANCE, enterMap5/exitMap5) retired — now a
+  // structural EDGE_TRANSITIONS seam (row-6, sourceRange [6,6]; GRASS on both shores),
+  // checked by the continuous-seam edge tests instead of this preserved-coordinate sweep.
   // MAP3 <-> MAP3_N1 (FEN_N_EXIT/ENTRANCE, enterMap3N1/exitMap3N1) retired — now a
   // structural EDGE_TRANSITIONS seam (col-8 PATH, sourceRange [8,8]), checked by the
   // continuous-seam edge tests instead of this preserved-coordinate sweep.
@@ -499,7 +500,7 @@ const transitionTileNames = [
   'NORTH_EXIT', 'NORTH_ENTRANCE', 'NORTH2_EXIT', 'NORTH2_ENTRANCE',
   'GUARD_POST', 'FARM_HOUSE',
   'MIRE_ENTRANCE', 'MIRE_EXIT', 'BRIDGE_GATE', 'BRIDGE_EXIT',
-  'MAP5_EXIT', 'MAP5_ENTRANCE', 'DUNGEON8_WEST_DOOR', 'DUNGEON8_WEST_RET',
+  'DUNGEON8_WEST_DOOR', 'DUNGEON8_WEST_RET',
   'DUNGEON8_EAST_DOOR', 'DUNGEON8_EAST_RET', 'D3_EAST_PASSAGE', 'D3_WEST_PASSAGE',
   'D3_SOUTH_PASSAGE', 'D3_NORTH_PASSAGE', 'TAKOMO_GATE', 'TAKOMO_EXIT',
   'RUIN_STAIRS_DOWN', 'RUIN_EXIT',
@@ -522,6 +523,9 @@ const transitionTileNames = [
   // MAP4_EXIT/MAP4_ENTRANCE (51/52) retired the same way: MAP3 <-> MAP4 (Thornmere
   // Fen <-> Thornmere) is now a structural EDGE_TRANSITIONS seam (row-6, sourceRange
   // [6,6]; PATH on the MAP3 side, GRASS on the MAP4 shore).
+  // MAP5_EXIT/MAP5_ENTRANCE (60/61) retired the same way: MAP4 <-> MAP5 (Thornmere
+  // <-> Thornmere Shallows) is now a structural EDGE_TRANSITIONS seam (row-6,
+  // sourceRange [6,6]; GRASS on both shores).
 ];
 const tileUsage = [];
 for (const name of transitionTileNames) {
