@@ -423,8 +423,9 @@ function scanTileOccurrences(mapName, tileConst) {
 const preservedTransitions = [
   { name: 'enterMap2', srcMap: 'MAP', srcTile: 'MAP2_EXIT', destMap: 'MAP2', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
   { name: 'exitMap2', srcMap: 'MAP2', srcTile: 'MAP2_ENTRANCE', destMap: 'MAP', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
-  { name: 'enterMap3', srcMap: 'MAP2', srcTile: 'MAP3_EXIT', destMap: 'MAP3', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
-  { name: 'exitMap3', srcMap: 'MAP3', srcTile: 'MAP3_ENTRANCE', destMap: 'MAP2', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
+  // MAP2 <-> MAP3 (MAP3_EXIT/MAP3_ENTRANCE, enterMap3/exitMap3) retired — now a
+  // structural EDGE_TRANSITIONS seam (row-11 PATH, sourceRange [11,11]), checked by
+  // the continuous-seam edge tests instead of this preserved-coordinate sweep.
   { name: 'enterMap4', srcMap: 'MAP3', srcTile: 'MAP4_EXIT', destMap: 'MAP4', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
   { name: 'exitMap4', srcMap: 'MAP4', srcTile: 'MAP4_ENTRANCE', destMap: 'MAP3', fixedAxis: 'x', fixedVal: 14.5, facing: 'left' },
   { name: 'enterMap5', srcMap: 'MAP4', srcTile: 'MAP5_EXIT', destMap: 'MAP5', fixedAxis: 'x', fixedVal: 1.5, facing: 'right' },
@@ -492,7 +493,7 @@ const transitionTileNames = [
   'TOWN_ENTRANCE', 'TOWN_EXIT', 'INN_DOOR', 'OFFICE_DOOR', 'INTERIOR_EXIT',
   'EAST_ENTRANCE', 'EAST_EXIT', 'SLUICE_ENTRANCE', 'SLUICE_EXIT',
   'WEST_ENTRANCE', 'WEST_EXIT', 'HOUSE_DOOR', 'SCHOOL_DOOR', 'APT_DOOR', 'APT_INTERIOR_DOOR',
-  'MAP2_EXIT', 'MAP2_ENTRANCE', 'MAP3_EXIT', 'MAP3_ENTRANCE',
+  'MAP2_EXIT', 'MAP2_ENTRANCE',
   'NORTH_EXIT', 'NORTH_ENTRANCE', 'NORTH2_EXIT', 'NORTH2_ENTRANCE',
   'MAP4_EXIT', 'MAP4_ENTRANCE', 'GUARD_POST', 'FARM_HOUSE',
   'MIRE_ENTRANCE', 'MIRE_EXIT', 'BRIDGE_GATE', 'BRIDGE_EXIT',
@@ -513,6 +514,9 @@ const transitionTileNames = [
   // (Drenwick) is now an open EDGE_TRANSITIONS fen crossing (row edge, cols 3-13).
   // FEN_N_EXIT/ENTRANCE (47/48) retired the same way: MAP3 <-> MAP3_N1 (Northern
   // Fen) is now a structural EDGE_TRANSITIONS seam (col-8 PATH, sourceRange [8,8]).
+  // MAP3_EXIT/MAP3_ENTRANCE (41/42) retired the same way: MAP2 <-> MAP3 (Eastern
+  // Reaches <-> Thornmere Fen) is now a structural EDGE_TRANSITIONS seam (row-11
+  // PATH, sourceRange [11,11]).
 ];
 const tileUsage = [];
 for (const name of transitionTileNames) {

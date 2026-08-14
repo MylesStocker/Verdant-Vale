@@ -318,7 +318,7 @@ placed at a specific cell in a map's grid. `movement.js`'s `update()` checks
 conditions. Each one is exactly one tile wide/tall — the player has to walk
 onto that exact cell. This is still how the overwhelming majority of
 transitions in the game work: town doors, dungeon stairs, house doors,
-bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `MAP3_EXIT`,
+bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `MAP4_EXIT`,
 `NORTH_EXIT`, etc).
 
 **`EDGE_TRANSITIONS`** (`world-transitions.js`, newer, additive) — for a
@@ -698,6 +698,20 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   (`tryEdgeTransition`), landing one tile inside the destination edge (row 13 / row
   1) with the encounter cooldown applied — matching the retired point transition.
   Both maps stay `FAR_ENEMY_TEMPLATES` on each side (geographic ownership).
+- **Second converted former point crossing: Eastern Reaches ↔ Thornmere Fen.**
+  `MAP2.east ↔ MAP3.west` was a `MAP3_EXIT`/`MAP3_ENTRANCE` point-tile warp
+  (`enterMap3`/`exitMap3`); it is now a structural `EDGE_TRANSITIONS` seam — the
+  single **row-11 `PATH`**, `sourceRange [11, 11]`, reciprocal, no `targetRange`.
+  Both maps' shared edge is otherwise closed, so the seam is one tile wide; the
+  corridor is authored geography, unchanged (only `MAP2[11][15]`/`MAP3[11][0]` became
+  ordinary `PATH`). Unlike the pilot, the two sides own **different** pools —
+  `MAP2` = `ENEMY_TEMPLATES`, `MAP3` = `FAR_ENEMY_TEMPLATES` — so pool ownership flips
+  exactly at the standing-point handoff. **Cooldown nuance:** the retired
+  `enterMap3`/`exitMap3` did *not* apply an encounter cooldown, but the generic legacy
+  broad-edge path (`tryEdgeTransition`) does. We keep that established generic
+  behaviour rather than special-casing the seam, so with **Continuous View off** this
+  crossing now applies a cooldown where the old point transition did not — a
+  fallback-mode-only difference (Continuous View on is still cooldown-neutral).
 - **Continuous seam crossings do NOT reset the encounter cooldown.** The seamless
   handoff (`continuousSeamMove`) only swaps `activeMap` + local coordinates; it never
   calls `transitionToLocation`, so `combat.cooldown` is untouched (it just keeps

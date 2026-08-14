@@ -540,8 +540,6 @@ function update() {
       return;
     }
     if (inSmugglerFort && curTile === INTERIOR_EXIT) { exitSmugglerFort(); return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP2 && curTile === MAP3_EXIT)      { enterMap3();  return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP3 && curTile === MAP3_ENTRANCE) { exitMap3();   return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP3   && curTile === MAP4_EXIT)        { enterMap4();   return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP4   && curTile === MAP4_ENTRANCE)    { exitMap4();    return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP4   && curTile === MAP5_EXIT)        { enterMap5();   return; }

@@ -21,7 +21,7 @@ const MAP2 = [
   [  3,  0,  3,  0,  0,  1,  1,  0,  0,  0,  0,  2,  0,  0,  0,  3],  //  8  lake + road
   [  3,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  2,  0,  0,  0,  3],  //  9  lake + road
   [  3,  0,  0,  0, 23,  0,  1,  0,  0,  0,  0,  2,  0,  0,  0,  3],  // 10  reeds west of lake + road
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2, 41],  // 11  east exit c15
+  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2],  // 11  east seam c15 → MAP3.west (continuous)
   [  3,  0, 54,  3,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  // 12  FARM_HOUSE c2; tree c3 (original)
   [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 13  approach
   [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14
@@ -52,7 +52,7 @@ const LORRA_HOUSE_MAP = [
 ];
 
 // ─── Far-Eastern World Map — Thornmere Fen  (16 × 15) ────────────────────────
-// Connected to MAP2 via MAP3_EXIT at MAP2 row 11 col 15 / MAP3_ENTRANCE at col 0.
+// Connected to MAP2 via a continuous seam at row 11 (MAP2.east ↔ MAP3.west).
 // Heavy wetland character: large northern lake (rows 1-3), mid-pond (rows 5-7),
 // southern marsh (rows 12-13), reeds throughout.
 // Road enters from the west (col 0 row 11), heads east to col 8, bends north to
@@ -71,7 +71,7 @@ const MAP3 = [
   [  3,  0,  0,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds + road
   [  3,  0, 23,  0,  0,  0, 23, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  9  reeds + road
   [  3,  0, 23,  1,  0,  0,  0, 23,  2,  0,  0,  0,  0,  0,  0,  3],  // 10  water + reeds + road
-  [ 42,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  // 11  ← col 0 = entrance from MAP2
+  [  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  // 11  ← col 0 = west seam → MAP2.east (continuous)
   [  3,  0,  0, 23, 23,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  3],  // 12  S marsh
   [  3,  0,  0,  0, 23,  1,  1,  0, 23,  0,  0,  0,  0,  0,  0,  3],  // 13  S marsh + reeds
   [  3,  3,  3,  3,  1,  1,  1,  3,  1,  3,  3,  3,  3,  3,  3,  3],  // 14  S marsh drains off-map (cols 4-6, 8)
