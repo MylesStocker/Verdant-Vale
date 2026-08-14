@@ -548,8 +548,6 @@ function update() {
     // (fen row 3-13, road at col 8), not a single FEN_N2_EXIT/ENTRANCE tile —
     // handled by tryEdgeTransition() above. (enterMap3N2()/exitMap3N2() in
     // world-transitions.js are now unused, like the retired point-tiles.)
-    if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N2 && curTile === NORTH_BASIN_EXIT) { enterNorthBasinS(); return; }
-    if (!inDungeon && !inTown && !inSluice && activeMap === NORTH_BASIN_S_MAP && curTile === NORTH_BASIN_ENTRANCE) { exitNorthBasinS(); return; }
     // South approach <-> Reservoir (north/south) and south approach <->
     // Silt Flats (east/west) used to be point-tile checks here; both are
     // now handled generically by the edge-transition interception in the

@@ -21,7 +21,7 @@
 // rows 2-3 col 12 (now paved as part of the same through-road).
 const MAP3_N2 = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  1,  3,  3,  3,  3,  3,  1, 82,  1,  1,  1],  //  0  border ← col 12 = NORTH_BASIN_EXIT; marsh gaps (cols 5, 11) + bog pond E off-map (cols 13-15), causeway crossing it
+  [  3,  3,  3,  3,  3,  1,  3,  3,  3,  3,  3,  1,  2,  1,  1,  1],  //  0  border ← col 12 = north seam → NORTH_BASIN_S_MAP.south (continuous causeway); marsh gaps (cols 5, 11) + bog pond E off-map (cols 13-15)
   [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23,  1],  //  1  N marsh: bog pond E; col 12 = causeway path; water E edge
   [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23,  1],  //  2  bog pond W + bog pond E; col 12 = path; water E edge
   [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  2, 23,  0,  3],  //  3  reeds, clearing; col 12 = path

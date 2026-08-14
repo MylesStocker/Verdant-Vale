@@ -51,7 +51,7 @@ module.exports = {
 
     // ── 1. Runtime eligibility == safe reciprocal ALIGNS (from the audit) ────
     const entries = J("JSON.stringify(continuousSeamEntries().map(e=>({from:e.from,dir:e.dir,to:e.to,range:e.range})))");
-    assert.equal(entries.length, 24, '24 eligible directed seams (12 reciprocal pairs; incl. the MAP3<->MAP3_N1 pilot, MAP2<->MAP3, MAP3<->MAP4, MAP4<->MAP5, and MAP_N1<->MAP_N2 seams)');
+    assert.equal(entries.length, 26, '26 eligible directed seams (13 reciprocal pairs; every convertible overworld point crossing is now a continuous seam)');
     const audit = require('../transition-audit.js');
     const alignsSet = new Set(audit.seamReadiness.edges.filter(e => e.verdict === 'ALIGNS').map(e => e.mapId + '|' + e.dir + '|' + e.neighbor));
     for (const e of entries) assert.ok(alignsSet.has(e.from + '|' + e.dir + '|' + e.to), `${e.from} ${e.dir} -> ${e.to} is an audit ALIGNS edge`);

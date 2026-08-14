@@ -188,7 +188,10 @@ module.exports = {
     assert.ok(summary.north && summary.north.length === 1, 'North Basin South Approach should have one north segment');
     assert.equal(summary.north[0].targetMapId, 'NORTH_BASIN_C_MAP');
     assert.equal(summary.north[0].unlocked, true);
-    assert.equal(summary.south, null, 'south has no configured segment on this map');
+    // south is now the continuous causeway seam to MAP3_N2 (former point crossing)
+    assert.ok(summary.south && summary.south.length === 1, 'North Basin South Approach now has one south segment (the causeway seam)');
+    assert.equal(summary.south[0].targetMapId, 'MAP3_N2');
+    assert.equal(summary.east, null, 'east has no configured segment on this map (future SE neighbour)');
 
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap = NORTH_BASIN_S_MAP;

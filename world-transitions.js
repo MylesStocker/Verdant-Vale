@@ -597,17 +597,11 @@ function exitMap3N2() {
   transitionToLocation({ mapId: 'MAP3_N1', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true });
 }
 
-// ─── The North Basin — south approach (skeleton) ─────────────────────────────
-// MAP3_N2's NORTH_BASIN_EXIT (row 0 col 12) <-> NORTH_BASIN_S_MAP's
-// NORTH_BASIN_ENTRANCE (row 14 col 12). Same preserved-x, fixed-y pattern as
-// every other north/south overworld point crossing (enterMapN1/exitMapN1, etc).
-function enterNorthBasinS() {
-  transitionToLocation({ mapId: 'NORTH_BASIN_S_MAP', x: player.x, y: 13.5 * TILE, facing: 'up', cooldown: true }); // player.x preserved (col 12)
-}
-
-function exitNorthBasinS() {
-  transitionToLocation({ mapId: 'MAP3_N2', x: player.x, y: 1.5 * TILE, facing: 'down', cooldown: true }); // player.x preserved (col 12)
-}
+// The North Basin south approach <-> Drenwick's north fen (MAP3_N2's NORTH_BASIN_EXIT
+// row 0 col 12 <-> NORTH_BASIN_S_MAP's NORTH_BASIN_ENTRANCE row 14 col 12) USED TO be a
+// point-tile transition here (enterNorthBasinS/exitNorthBasinS); it is now a structural
+// col-12 PATH-causeway EDGE_TRANSITIONS seam further down this file, so those two
+// functions and the placement of their tile IDs no longer exist.
 
 // North Basin south approach <-> centre reservoir, and south approach <->
 // Silt Flats, USED TO be point-tile transitions here (enterNorthBasinC/
@@ -1057,8 +1051,8 @@ function exitDream() {
 // should be crossable — not just one door. It is a SEPARATE, additive
 // system: every point/special-tile transition elsewhere in this file (town
 // entrances, dungeon entrances, the bridge gate, building/interior exits,
-// stairs, secret passages, and the other North Basin links like
-// enterNorthBasinS/exitNorthBasinS and enterNorthBasinW/exitNorthBasinW)
+// stairs, secret passages, and the Verdant Vale legacy-home crossings like
+// enterMap2/exitMap2 and enterMapN1/exitMapN1)
 // is untouched and keeps working exactly as before, via its own tile ID and
 // movement.js curTile check. Not "world-only" — a dungeon/ruin map can use
 // this too, as long as it has a stable MAP_REGISTRY id like everything else.
@@ -1117,6 +1111,13 @@ const EDGE_TRANSITIONS = {
     // exactly here too.
     west: [
       { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'east', sourceRange: [9, 11] },
+    ],
+    // South edge: the single col-12 PATH causeway into MAP3_N2 (Drenwick's north fen).
+    // The rest of the south edge is wall, so the seam is ONE tile wide (sourceRange
+    // [12,12]) — the former NORTH_BASIN_ENTRANCE/NORTH_BASIN_EXIT point crossing.
+    // Reciprocal of MAP3_N2.north; both sides are the col-12 causeway road.
+    south: [
+      { targetMap: 'MAP3_N2', targetEdge: 'north', sourceRange: [12, 12] },
     ],
   },
   NORTH_BASIN_C_MAP: {
@@ -1210,6 +1211,14 @@ const EDGE_TRANSITIONS = {
     south: [
       { targetMap: 'MAP3_N1', targetEdge: 'north', sourceRange: [3, 13] },
     ],
+    // North edge: the single col-12 PATH causeway into NORTH_BASIN_S_MAP (South
+    // Approach). MAP3_N2's north edge is otherwise marsh/bog water, so the seam is ONE
+    // tile wide (sourceRange [12,12]) — the former NORTH_BASIN_EXIT/NORTH_BASIN_ENTRANCE
+    // point crossing. Reciprocal of NORTH_BASIN_S_MAP.south. Columns match exactly, so
+    // crossings never clamp. (The BRIDGE_GATE at row 5 col 12 is a separate crossing.)
+    north: [
+      { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'south', sourceRange: [12, 12] },
+    ],
   },
   RODDON_WAY_MAP: {
     east: [
@@ -1299,8 +1308,6 @@ const REGIONAL_POINT_CROSSINGS = [
   { from: 'MAP2',  dir: 'west',  to: 'MAP',    tile: MAP2_ENTRANCE },
   { from: 'MAP',   dir: 'north', to: 'MAP_N1', tile: NORTH_EXIT },
   { from: 'MAP_N1', dir: 'south', to: 'MAP',    tile: NORTH_ENTRANCE },
-  { from: 'MAP3_N2', dir: 'north', to: 'NORTH_BASIN_S_MAP', tile: NORTH_BASIN_EXIT },
-  { from: 'NORTH_BASIN_S_MAP', dir: 'south', to: 'MAP3_N2', tile: NORTH_BASIN_ENTRANCE },
 ];
 window.REGIONAL_POINT_CROSSINGS = REGIONAL_POINT_CROSSINGS;
 

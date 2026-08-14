@@ -114,7 +114,9 @@ module.exports = {
 
     // ── 5. Bad edge transition target fails ──────────────────────────────────
     g.run(`
-      window.__hadNorth = !!(EDGE_TRANSITIONS['NORTH_BASIN_S_MAP'] && EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south']);
+      // NORTH_BASIN_S_MAP.south is now a REAL seam (col-12 causeway to MAP3_N2), so we
+      // save the original segment and restore it (not delete) after each scratch edit.
+      window.__origSouth = (EDGE_TRANSITIONS['NORTH_BASIN_S_MAP'] || {})['south'];
       if (!EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']) EDGE_TRANSITIONS['NORTH_BASIN_S_MAP'] = {};
       EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'] = [
         { targetMap: 'NOT_A_REAL_MAP_ID', targetEdge: 'south', sourceRange: [0, 5] }
@@ -125,7 +127,7 @@ module.exports = {
       badTarget.errorList.some(e => e.group === 'EDGE_TRANSITIONS' && e.message.includes('NOT_A_REAL_MAP_ID') && e.message.includes('does not exist')),
       'an EDGE_TRANSITIONS segment pointing at a nonexistent map should be an error: ' + JSON.stringify(badTarget.errorList.filter(e => e.group === 'EDGE_TRANSITIONS'))
     );
-    g.run(`delete EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'];`); // restore
+    g.run(`EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'] = window.__origSouth;`); // restore
 
     // ── 6. Edge transition with out-of-range sourceRange fails ───────────────
     g.run(`
@@ -138,7 +140,7 @@ module.exports = {
       badRange.errorList.some(e => e.group === 'EDGE_TRANSITIONS' && e.message.includes('out of bounds')),
       'an out-of-range sourceRange should be an error: ' + JSON.stringify(badRange.errorList.filter(e => e.group === 'EDGE_TRANSITIONS'))
     );
-    g.run(`delete EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'];`); // restore
+    g.run(`EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'] = window.__origSouth;`); // restore
 
     // ── 7. A reachable source coordinate whose landing is blocked fails ─────
     // Strengthened, per-coordinate rule: make one source-edge tile WALKABLE (so
@@ -163,7 +165,7 @@ module.exports = {
     g.run(`
       NORTH_BASIN_S_MAP[ROWS-1][3] = window.__savedSrc; delete window.__savedSrc;
       NORTH_BASIN_C_MAP[1][3] = window.__savedLanding; delete window.__savedLanding;
-      delete EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'];
+      EDGE_TRANSITIONS['NORTH_BASIN_S_MAP']['south'] = window.__origSouth; delete window.__origSouth;
     `); // restore
 
     // ── 8. NPC with an out-of-bounds coordinate fails ───────────────────────

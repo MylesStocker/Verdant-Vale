@@ -318,8 +318,9 @@ placed at a specific cell in a map's grid. `movement.js`'s `update()` checks
 conditions. Each one is exactly one tile wide/tall — the player has to walk
 onto that exact cell. This is still how the overwhelming majority of
 transitions in the game work: town doors, dungeon stairs, house doors,
-bridge gates, the world-map square-to-square exits (`MAP2_EXIT`, `NORTH_EXIT`,
-`NORTH_BASIN_EXIT`, etc).
+bridge gates, and the two Verdant Vale legacy-home square-to-square exits
+(`MAP2_EXIT`, `NORTH_EXIT`) — the only overworld point crossings left, now that
+every convertible one has become a continuous EDGE_TRANSITIONS seam.
 
 **`EDGE_TRANSITIONS`** (`world-transitions.js`, newer, additive) — for a
 *broad, open* border between two adjacent maps (a wide field boundary, a
@@ -752,6 +753,26 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   and the **sealed Drenwick gate** (body world-locked via `OUTDOOR_MAP_DECOR.MAP_N2`,
   SPACE hint gated on `activeMap === MAP_N2`). The `MAP ↔ MAP_N1` legacy boundary on
   MAP_N1's *south* edge (`NORTH_ENTRANCE`) is untouched and stays INTENTIONAL_DISCRETE.
+- **Sixth (final) converted former point crossing: Drenwick's north fen ↔ North Basin
+  South Approach.** `MAP3_N2.north ↔ NORTH_BASIN_S_MAP.south` was a
+  `NORTH_BASIN_EXIT`/`NORTH_BASIN_ENTRANCE` point-tile warp
+  (`enterNorthBasinS`/`exitNorthBasinS`); it is now a structural `EDGE_TRANSITIONS` seam —
+  the single **col-12** PATH causeway, `sourceRange [12, 12]`, reciprocal, no
+  `targetRange`. Pools change `FAR_ENEMY_TEMPLATES ↔ NORTH_BASIN_ENEMY_TEMPLATES` at the
+  handoff; the causeway PATH is encounter-safe while the basin reeds keep their behaviour;
+  cooldown parity holds. The North Basin road sign (`MAP_FEATURES`, active-map-gated via
+  `currentMapFeatures()`) is not inspectable from MAP3_N2 before the handoff. The
+  BRIDGE_GATE at MAP3_N2 row 5 col 12 is a separate crossing and is untouched.
+- **Closure.** With this conversion the regional audit reaches **zero `NEEDS_REMAP`**:
+  all 60 directed overworld edges classify as `ALIGNS` (26), `INTENTIONAL_DISCRETE` (4),
+  `BLOCKED` (4), or `BORDER` (26); every `ALIGNS` edge is backed by the fail-closed
+  `continuousSeamEntries()` authority; and `REGIONAL_POINT_CROSSINGS` is reduced to
+  exactly the four Verdant Vale legacy-home directed crossings. The continuous-seam graph
+  is deliberately split into three components — the legacy home (isolated), the Northern
+  Road branch (`MAP_N1`/`MAP_N2`), and the southern/basin cluster — which the two
+  INTENTIONAL_DISCRETE home crossings reconnect into one traversable 15-map graph: the
+  Northern branch rejoins the world *through* the Verdant Vale legacy presentation, by
+  design, rather than through a blocked wall.
 - **Continuous seam crossings do NOT reset the encounter cooldown.** The seamless
   handoff (`continuousSeamMove`) only swaps `activeMap` + local coordinates; it never
   calls `transitionToLocation`, so `combat.cooldown` is untouched (it just keeps

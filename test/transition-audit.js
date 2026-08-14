@@ -443,8 +443,11 @@ const preservedTransitions = [
   // MAP_N1 <-> MAP_N2 (NORTH2_EXIT/NORTH2_ENTRANCE, enterMapN2/exitMapN2) retired — now
   // a structural EDGE_TRANSITIONS seam (col-7 PATH, sourceRange [7,7]), checked by the
   // continuous-seam edge tests instead of this preserved-coordinate sweep.
-  { name: 'enterNorthBasinS', srcMap: 'MAP3_N2', srcTile: 'NORTH_BASIN_EXIT', destMap: 'NORTH_BASIN_S_MAP', fixedAxis: 'y', fixedVal: 13.5, facing: 'up' },
-  { name: 'exitNorthBasinS', srcMap: 'NORTH_BASIN_S_MAP', srcTile: 'NORTH_BASIN_ENTRANCE', destMap: 'MAP3_N2', fixedAxis: 'y', fixedVal: 1.5, facing: 'down' },
+  // MAP3_N2 <-> NORTH_BASIN_S_MAP (NORTH_BASIN_EXIT/NORTH_BASIN_ENTRANCE,
+  // enterNorthBasinS/exitNorthBasinS) retired — now a structural EDGE_TRANSITIONS seam
+  // (col-12 PATH causeway, sourceRange [12,12]), checked by the continuous-seam edge
+  // tests instead of this preserved-coordinate sweep. This was the last NEEDS_REMAP
+  // point crossing; the regional audit now has zero remaining.
   // South approach <-> Reservoir, south approach <-> Silt Flats, AND Silt
   // Flats <-> West Shore used to be point-tile entries here (enterNorthBasinC/
   // exitNorthBasinC/enterNorthBasinSW/exitNorthBasinSW, and
@@ -505,7 +508,6 @@ const transitionTileNames = [
   'DUNGEON8_EAST_DOOR', 'DUNGEON8_EAST_RET', 'D3_EAST_PASSAGE', 'D3_WEST_PASSAGE',
   'D3_SOUTH_PASSAGE', 'D3_NORTH_PASSAGE', 'TAKOMO_GATE', 'TAKOMO_EXIT',
   'RUIN_STAIRS_DOWN', 'RUIN_EXIT',
-  'NORTH_BASIN_EXIT', 'NORTH_BASIN_ENTRANCE',
   'MEADOW_HIDDEN_ENTRANCE', 'MEADOW_EXIT',
   'SLUICE_SECRET_ENTRANCE', 'SLUICE_SECRET_EXIT',
   'CHAMBER_DOOR', 'CHAMBER_EXIT', 'SUNKEN_STAIR', 'GALLERY_STAIR_UP',
@@ -530,6 +532,10 @@ const transitionTileNames = [
   // NORTH2_EXIT/NORTH2_ENTRANCE (45/46) retired the same way: MAP_N1 <-> MAP_N2
   // (Northern Road <-> Drenwick Approach) is now a structural EDGE_TRANSITIONS seam
   // (col-7 PATH, sourceRange [7,7]).
+  // NORTH_BASIN_EXIT/NORTH_BASIN_ENTRANCE (82/83) retired the same way: MAP3_N2 <->
+  // NORTH_BASIN_S_MAP (Drenwick's north fen <-> the South Approach) is now a structural
+  // EDGE_TRANSITIONS seam (col-12 PATH causeway, sourceRange [12,12]) — the final
+  // NEEDS_REMAP conversion.
 ];
 const tileUsage = [];
 for (const name of transitionTileNames) {

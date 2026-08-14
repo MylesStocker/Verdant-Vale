@@ -7709,46 +7709,6 @@
       ]
     },
     {
-      "name": "enterNorthBasinS",
-      "srcMap": "MAP3_N2",
-      "srcTile": "NORTH_BASIN_EXIT",
-      "destMap": "NORTH_BASIN_S_MAP",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 12,
-          "px": 400,
-          "py": 432,
-          "tileId": 2,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
-      "name": "exitNorthBasinS",
-      "srcMap": "NORTH_BASIN_S_MAP",
-      "srcTile": "NORTH_BASIN_ENTRANCE",
-      "destMap": "MAP3_N2",
-      "occurrenceCount": 1,
-      "candidateCount": 1,
-      "bad": [],
-      "allOk": true,
-      "perCandidate": [
-        {
-          "idx": 12,
-          "px": 400,
-          "py": 48,
-          "tileId": 2,
-          "walkableByTable": true,
-          "canWalkHere": true
-        }
-      ]
-    },
-    {
       "name": "enterEastTown",
       "srcMap": "TOWN_MAP",
       "srcTile": "EAST_ENTRANCE",
@@ -8064,16 +8024,6 @@
     },
     {
       "name": "RUIN_EXIT",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "NORTH_BASIN_EXIT",
-      "mapsUsingIt": 1,
-      "handledInMovement": true
-    },
-    {
-      "name": "NORTH_BASIN_ENTRANCE",
       "mapsUsingIt": 1,
       "handledInMovement": true
     },
@@ -8612,6 +8562,20 @@
       "allOk": true
     },
     {
+      "srcMap": "NORTH_BASIN_S_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        12,
+        12
+      ],
+      "targetMap": "MAP3_N2",
+      "targetEdge": "north",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "NORTH_BASIN_C_MAP",
       "direction": "south",
       "segment": 0,
@@ -8790,6 +8754,20 @@
       "targetMap": "MAP3_N1",
       "targetEdge": "north",
       "walkableSources": 11,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP3_N2",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        12,
+        12
+      ],
+      "targetMap": "NORTH_BASIN_S_MAP",
+      "targetEdge": "south",
+      "walkableSources": 1,
       "bad": [],
       "allOk": true
     },
@@ -10411,8 +10389,8 @@
         "dir": "north",
         "neighbor": "NORTH_BASIN_S_MAP",
         "target": "NORTH_BASIN_S_MAP",
-        "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP3_N2",
@@ -10461,8 +10439,8 @@
         "dir": "south",
         "neighbor": "MAP3_N2",
         "target": "MAP3_N2",
-        "type": "point",
-        "verdict": "NEEDS_REMAP"
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "NORTH_BASIN_S_MAP",
@@ -10648,9 +10626,8 @@
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
       "BORDER": 26,
-      "ALIGNS": 24,
-      "BLOCKED": 4,
-      "NEEDS_REMAP": 2
+      "ALIGNS": 26,
+      "BLOCKED": 4
     }
   }
 }

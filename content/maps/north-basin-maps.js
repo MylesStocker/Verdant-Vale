@@ -52,7 +52,7 @@ const NORTH_BASIN_S_MAP = [
   [ 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  // 11  open edge, row 11 → EDGE_TRANSITIONS west
   [  3, 23, 23, 23,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 12
   [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 13  open approach to the entrance
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, 83,  3,  3,  3],  // 14  ← col 12 = NORTH_BASIN_ENTRANCE
+  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3],  // 14  ← col 12 = south seam → MAP3_N2.north (continuous causeway)
 ];
 
 const NORTH_BASIN_S_ITEMS = [];

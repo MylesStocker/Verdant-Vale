@@ -126,8 +126,9 @@ module.exports = {
     assert.ok(!('region' in seam), `seam-readiness must NOT expose a legacy 'region' property`);
     assert.equal(seam.totals.CONFLICT || 0, 0, 'no edge conflicts with the layout');
     assert.equal(seam.totals.OUTSIDE_REGION || 0, 0, 'no wilderness edge leaks outside the region');
-    assert.ok((seam.totals.ALIGNS || 0) > 0 && (seam.totals.NEEDS_REMAP || 0) > 0,
-      'the report distinguishes already-continuous seams from point seams needing remap');
+    assert.ok((seam.totals.ALIGNS || 0) > 0 && (seam.totals.INTENTIONAL_DISCRETE || 0) > 0,
+      'the report distinguishes already-continuous seams (ALIGNS) from intentionally-discrete legacy-home seams; every convertible point crossing is now ALIGNS, so NEEDS_REMAP is 0');
+    assert.equal(seam.totals.NEEDS_REMAP || 0, 0, 'closure: no NEEDS_REMAP seams remain');
     for (const e of seam.edges) {
       if (e.verdict === 'ALIGNS') assert.equal(e.type, 'broad', `${e.mapId} ${e.dir} ALIGNS via a broad edge`);
       if (e.verdict === 'BLOCKED') assert.ok(e.neighbor, `${e.mapId} ${e.dir} BLOCKED has a placed neighbour`);

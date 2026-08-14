@@ -134,12 +134,16 @@ module.exports = {
       }
       assert.equal(map[r][15], TREE, 'east edge (future SE neighbour) should be plain impassable border');
     }
+    // South edge: now a real EDGE_TRANSITIONS connection to MAP3_N2 (the former
+    // NORTH_BASIN_ENTRANCE point tile is now the col-12 PATH causeway seam), so it
+    // follows the same walkable-within-sourceRange / TREE-elsewhere pattern.
+    const [southMin, southMax] = edges.south[0].sourceRange;
     const southRow = map[14];
     for (let c = 0; c < southRow.length; c++) {
-      if (c === 12) {
-        assert.equal(southRow[c], g.run('NORTH_BASIN_ENTRANCE'), 'the one real exit (south, col 12) should be the entrance tile');
+      if (c >= southMin && c <= southMax) {
+        assert.ok(WALKABLE[southRow[c]], `south edge col ${c} is inside the EDGE_TRANSITIONS range and should be walkable`);
       } else {
-        assert.equal(southRow[c], TREE, `south edge col ${c} (not the real entrance) should be plain impassable border`);
+        assert.equal(southRow[c], TREE, `south edge col ${c} (outside the EDGE_TRANSITIONS range) should be plain impassable border`);
       }
     }
 
