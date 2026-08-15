@@ -286,7 +286,10 @@ module.exports = {
     assert.ok(crossed, 'the existing MAP2_EXIT point-tile transition should still work');
 
     // ── 12. Existing EDGE_TRANSITIONS crossing still works, validates clean ─
+    // Exercises the LEGACY discrete inset crossing (asserts the inset landing x=7.5*TILE
+    // below); the production default is continuous, so force the legacy fallback here.
     g.run(`
+      forceLegacyRegionalView = true;
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;
