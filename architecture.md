@@ -111,7 +111,7 @@ matter just as much for where new content goes:
 |---|---|
 | `tiles.js` | Tile pixel size (`TILE`), every numeric tile-id constant, `WALKABLE[]`, `TILE_PROPERTIES`, the tile helper functions (`getTileProperties`/`getTileName`/`isTileWalkable`/`isTileEncounterEligible`/`tileHasTag`/`isWaterTile`/`isRoadTile`/`isTransitionTile`), and the debug-only `DEBUG_TILE_NAMES`/`debugTileName()`. |
 | `maps.js` | The **facade** for map *arrays*: every `window.*` map export, the Sunken Gallery grid-room arrays, and the shared/special maps that don't belong to one region (`MAP_N1`/`MAP_N2`, `APARTMENT_CORRIDOR_MAP`, `SMALL_APARTMENT_MAP`, `HOUSE_INTERIOR_MAP`, `DREAM_MAP`). Region-specific map grids live in `content/maps/*` (below), declared **before** `maps.js`. The map *catalog* + registry/metadata views + helpers are built in `data.js` (not here), since they need the enemy pools/item arrays it defines. |
-| `data.js` | `MAP_CATALOG` (the authoritative per-map catalog) plus its derived `MAP_METADATA` alias, generated `MAP_REGISTRY`, and canonical helpers (`mapIdForRef`/`mapEntryForId`/`mapRefForId`, deprecated `mapRegistryId`); the enemy-template pools (`ENEMY_TEMPLATES`, `DUNGEON_ENEMY_TEMPLATES`, etc); and most per-map `*_ITEMS` arrays. |
+| `data.js` | `REGIONAL_CHUNK_CATALOG` (**the resolved runtime catalog** for placed regional chunks — assembled from the distributed `*_REGIONAL_CHUNK_DEFINITIONS` fragments in the geographic map files and resolved through `_ENCOUNTER_PROFILES`/`_REGIONAL_ITEM_SETS`; the regional slice of `MAP_CATALOG` + `REGIONAL_LAYOUT` + `OUTDOOR_CONTENT_KEYS` derive from it — see "Regional chunk authoring"); `MAP_CATALOG` (per-map catalog: discrete maps authored inline, regional entries derived) plus its `MAP_METADATA` alias, generated `MAP_REGISTRY`, and canonical helpers (`mapIdForRef`/`mapEntryForId`/`mapRefForId`, deprecated `mapRegistryId`); the enemy-template pools; and most per-map `*_ITEMS` arrays. |
 | `npcs.js` | The **facade** for NPCs: `NPC_ACTIONS`, `NPC_REGISTRY`, `HOUSE_DOORS`, `HOUSE_DATA`, the shared named-position/workstation objects, `SHARED_NPCS` (generic house/apartment residents + genuinely cross-region NPCs), and the authoritative `SIMPLE_NPCS = [...CALWICK_NPCS, ...THORNMERE_WILDS_NPCS, ...DRENWICK_TOWN_NPCS, ...DRENWICK_INTERIOR_NPCS, ...SOUTH_RUINS_NPCS, ...SHARED_NPCS]` (concatenation only — no source-order tags, no sorting). Regional NPC arrays live in `content/npcs/*`, declared **before** `npcs.js`. |
 | `items.js` | `ITEM_REGISTRY`, `createItem()`, `grantItem()`. **Rule: define item properties in `ITEM_REGISTRY` and grant items with `createItem(name)`/`grantItem(name)` — never hand-write inventory item objects at runtime.** `loadGame()` re-creates saved items from the registry by name, so a registry edit propagates to existing saves. |
 | `shops.js` | `SHOP_REGISTRY`. |
@@ -198,7 +198,11 @@ It is keyed by the canonical physical id (its `id` field MUST equal its key —
 `validateGameData()` errors otherwise), and each entry carries
 `{ id, map, displayName, region, type, items, encounterPool,
 allowRandomEncounters, allowSave, notes? }`. `type` is one of `'outdoor' |
-'town' | 'interior' | 'dungeon' | 'bridge' | 'special'`. It lives in `data.js`
+'town' | 'interior' | 'dungeon' | 'bridge' | 'special'`. **Discrete** maps (towns,
+interiors, dungeons, bridge, special) are authored directly here; the **15 regional
+outdoor chunks are DERIVED** from `REGIONAL_CHUNK_CATALOG` via
+`_regionalChunkCatalogEntry()` (see "Regional chunk authoring" below) — their entry
+is `MAP2: _regionalChunkCatalogEntry('MAP2')`, not a hand-authored copy. It lives in `data.js`
 because it needs the `*_ENEMY_TEMPLATES` pools and `*_ITEMS` arrays defined
 there; the map arrays themselves come from `maps.js` / `content/maps/*` (loaded
 first). The 24 Sunken Gallery grid rooms are added to the catalog in a loop
@@ -260,16 +264,120 @@ world point (`SAVE_VERSION` is now **4**). Keep the five terms distinct:
 | **Local coordinate** | a tile `(x, y)` **within** one map, `0 ≤ x < COLS`, `0 ≤ y < ROWS` | `(8, 8)` on `MAP` |
 | **World coordinate** | a tile coordinate in a **region's** continuous space: `worldX = chunkX*COLS + localX`, `worldY = chunkY*ROWS + localY` | `MAP (8,8)` → world `(8, 83)` |
 
-**`REGIONAL_LAYOUT`** (`data.js`) is the authoritative — and **separate from
-`MAP_CATALOG`** — authority for this geometry. `MAP_CATALOG` owns map *identity*;
-`REGIONAL_LAYOUT` owns map *placement* and only references catalog ids, never
-redefines a map. Today it holds one region, `'overworld'`, containing the 15
-principal connected wilderness maps. Their chunk coordinates were **derived from
-the game's own current transitions** (the broad `EDGE_TRANSITIONS` crossings plus
-the single-tile world crossings in `movement.js`), not invented — and all 16
-current outdoor↔outdoor adjacencies place consistently on the grid with no
-contradiction. Each chunk is exactly `COLS×ROWS` (16×15), verified against every
-placed map array by `validateRegionalLayout()`.
+**`REGIONAL_LAYOUT`** (`data.js`) is the geometry view. Its `placements` are now
+**DERIVED from `REGIONAL_CHUNK_CATALOG`** (the single authority — see below), in the
+records' authored order; a small `_REGION_META` table supplies region-level `id`/
+`displayName`. It holds one region, `'overworld'`, containing the 15 principal
+connected wilderness maps. Their chunk coordinates were derived from the game's own
+transitions (the broad `EDGE_TRANSITIONS` crossings plus the single-tile world
+crossings in `movement.js`), not invented. Each chunk is exactly `COLS×ROWS` (16×15),
+verified by `validateRegionalLayout()` / `validateRegionalChunkCatalog()`.
+
+### Regional chunk authoring: distributed definitions → resolved catalog
+
+A placed regional outdoor chunk is authored in **two clearly separated layers**:
+
+1. **Authored chunk-definition fragments** — the sole human-edited authority,
+   distributed across the geographic `content/maps/*.js` files (and `maps.js`).
+2. **The resolved runtime catalog** (`REGIONAL_CHUNK_CATALOG`, `data.js`) — generated
+   from those fragments and consumed by existing systems. It is the resolved view,
+   **not** a second authority.
+
+This keeps terrain grids **out of `data.js`**: they live in the geographic map files,
+so `data.js` (which every map file loads before) never grows a grid literal per chunk.
+
+**Authored fragments.** Each geographic file that owns regional grids declares one
+`*_REGIONAL_CHUNK_DEFINITIONS` array. Today:
+
+| Fragment | File | Chunks |
+|---|---|---|
+| `CALWICK_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/calwick-maps.js` | `MAP` |
+| `THORNMERE_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/thornmere-wilds-maps.js` | `MAP2`,`MAP3`,`MAP4`,`MAP5`,`RODDON_WAY_MAP`,`MAP3_N1` |
+| `DRENWICK_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/drenwick-maps.js` | `MAP3_N2` |
+| `NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS` | `maps.js` | `MAP_N1`,`MAP_N2` |
+| `NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/north-basin-maps.js` | the 5 `NORTH_BASIN_*_MAP` |
+
+A fragment is placed where its grids are defined (a `map:` reference must resolve at
+fragment-eval time). Collectively the fragments author **exactly one definition per
+placed regional map** (15 total). An authored definition OWNS:
+
+```js
+{
+  mapId, regionId, chunkX, chunkY,   // identity + placement (integers)
+  map,                               // the 15×16 tile grid (inline, or a legacy grid var — see below)
+  displayName, region,               // catalog display metadata
+  contentKey,                        // logical content-location key
+  presentation,                      // 'continuous' | 'legacy_screen'
+  encounterProfileId,                // STABLE id → an encounter pool (resolved in data.js)
+  itemSetId?,                        // STABLE id → an items array (resolved in data.js); omit for an item-less chunk
+  allowRandomEncounters, allowSave,
+  notes?,
+}
+```
+
+The definition holds **stable ids, not runtime references**, for the two things that
+would otherwise force a load-order dependency: the encounter pools live in `data.js`
+(loaded *after* the map files), so a fragment names a stable `encounterProfileId`
+instead of the pool array; item content stays authored once (in the map files /
+`WORLD_ITEMS`) and is named by a stable `itemSetId` rather than duplicated into the
+record.
+
+**Runtime assembly (`data.js`).** In load order after the fragments:
+
+- `_ENCOUNTER_PROFILES` — the one registry mapping `encounterProfileId` → pool array.
+- `_REGIONAL_ITEM_SETS` — the one registry mapping `itemSetId` → items array.
+- `_REGIONAL_CHUNK_DEFINITIONS` — the fragments merged deterministically (fixed
+  fragment order; no consumer depends on placement/content-key list order).
+- `REGIONAL_CHUNK_CATALOG` — built by resolving each definition: it exposes the actual
+  `encounterPool`/`items` arrays consumers expect (same references as before), keyed
+  by `mapId`. Pure construction — no gameplay-state mutation, no circular deps, no
+  dynamically-invented `window` authority.
+
+Everything downstream is a **generated compatibility view** derived from the resolved
+catalog, so no placement / content key / presentation / encounter / identity value is
+authored twice:
+
+- the **regional slice of `MAP_CATALOG`** — each entry is `_regionalChunkCatalogEntry(mapId)`;
+- **`REGIONAL_LAYOUT`** placements (region/chunk);
+- **`OUTDOOR_CONTENT_KEYS`** (mapId → contentKey);
+- `regionalPresentationForMapId()` (from the record's `presentation`);
+- the reverse map-ref→id and chunk-coordinate indexes.
+
+`validateRegionalChunkCatalog()` enforces the contract across BOTH layers: the
+resolved records (unique non-empty ids, known region, integer/unique coords, 15×16
+grid of valid tiles, unique physical grid refs, recognized presentation, resolved
+pool/items arrays) AND the authored definitions (all 15 present exactly once, no
+mapId/coordinate in two fragments, **known** `encounterProfileId`/`itemSetId` with a
+useful message on an unknown id, every definition resolves into the catalog and every
+catalog record traces back to a definition). It **fails closed** on an unrecognized
+authored field (an unknown key could imply unsupported behaviour silently ignored).
+
+**Add-a-regional-chunk workflow (going forward):** author ONE definition in the
+appropriate geographic `*_REGIONAL_CHUNK_DEFINITIONS` fragment — its grid inline, plus
+metadata and a stable `encounterProfileId`/`itemSetId` (add a new registry entry only
+if you need a genuinely new pool or item set). That's it for the map itself; add
+separate NPC/item/interaction content only if the chunk has any. You do **not**
+hand-edit `MAP_CATALOG`, `REGIONAL_LAYOUT`, `OUTDOOR_CONTENT_KEYS`, or presentation
+metadata — they derive. A future item-less, NPC-less chunk is still just one
+definition (its grid + metadata). New regional grids should be authored **inline in
+the fragment record**, never as a bare `const MAP… = [...]` variable.
+
+**Pilot + migration status.** **MAP5 / Thornmere Shallows** is the first chunk on the
+final format: its grid literal is authored **inline in its record** inside
+`THORNMERE_REGIONAL_CHUNK_DEFINITIONS` (`content/maps/thornmere-wilds-maps.js`) — the
+repository's sole MAP5 grid. `data.js` holds no MAP5 grid; it keeps only a TEMPORARY
+derived alias `const MAP5 = REGIONAL_CHUNK_CATALOG.MAP5.map` (+ `window.MAP5`, a
+derived compat export) for existing bare-`MAP5` consumers. The other **14 definitions
+still `map:` their existing standalone `const MAP…` grid variables** — TEMPORARY; the
+next mechanical increment inlines each grid into its fragment record and removes the
+variable, exactly like the MAP5 pilot. No terrain is changed by that migration.
+
+**Regional chunks vs discrete maps.** Only the 15 placed wilderness chunks are
+authored through this system. Discrete town / interior / dungeon / bridge / special
+maps are NOT regional chunks: they stay authored directly in `MAP_CATALOG`, carry no
+chunk definition and no `REGIONAL_LAYOUT` placement, and keep the physical `mapId` +
+local-coordinate model (no canonical regional position). This increment does not
+touch them.
 
 **Deliberately excluded** (kept off the continuous grid): the hidden Briar Warden
 meadow (`MEADOW_MAP`) and every other pocket/special map, plus all town,

@@ -210,3 +210,15 @@ const MEADOW_MAP = [
   [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 13
   [  3,  3,  3,  3,  3,  3,  3, 94,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = MEADOW_EXIT (gap in the trees, back to MAP)
 ];
+
+// ── Regional chunk definitions (Calwick / Verdant Vale) ──────────────────────
+// Authored authority for this file's placed regional chunks. data.js merges the
+// per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and resolves encounterProfileId /
+// itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
+const CALWICK_REGIONAL_CHUNK_DEFINITIONS = [
+  { mapId: 'MAP', regionId: 'overworld', chunkX: 0, chunkY: 5, map: MAP,
+    displayName: 'Verdant Vale', region: 'Verdant Vale', contentKey: 'overworld',
+    presentation: 'legacy_screen', encounterProfileId: 'early', itemSetId: 'world',
+    allowRandomEncounters: true, allowSave: true },
+];
+window.CALWICK_REGIONAL_CHUNK_DEFINITIONS = CALWICK_REGIONAL_CHUNK_DEFINITIONS;

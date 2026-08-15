@@ -501,3 +501,35 @@ const SUNKEN_GALLERY_R4C4 = window.SUNKEN_GALLERY_R4C4 = galleryRoom('nw');
   fill(SUNKEN_GALLERY_R0C3, 5, 4, 9, 11, SH); fill(SUNKEN_GALLERY_R0C3, 6, 6, 8, 9, DP); fill(SUNKEN_GALLERY_R0C3, 3, 4, 3, 11, C);
   fill(SUNKEN_GALLERY_R0C4, 4, 4, 10, 11, SH); fill(SUNKEN_GALLERY_R0C4, 6, 6, 8, 9, DP); put(SUNKEN_GALLERY_R0C4, 9, 7, F); // (feature) submerged stair pool
 })();
+
+// ── Regional chunk definitions (North Basin) ─────────────────────────────────
+// Authored authority for this file's placed regional chunks. data.js merges the
+// per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and resolves encounterProfileId /
+// itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
+const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
+  { mapId: 'NORTH_BASIN_S_MAP', regionId: 'overworld', chunkX: 2, chunkY: 2, map: NORTH_BASIN_S_MAP,
+    displayName: 'North Basin — South Approach', region: 'North Basin', contentKey: 'north_basin_s',
+    presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_s',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'The basin entry. It has no GRASS, but its REEDS are encounter-eligible all the same (see tiles.js TILE_PROPERTIES), so it does roll random encounters — now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES, the same gentle creatures as the Silt Flats) instead of the generic ENEMY_TEMPLATES fallback it used when this was left encounterPool: null. The maintained road (PATH, col 12) and the water stay safe; you meet things by cutting through the reeds.' },
+  { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: NORTH_BASIN_C_MAP,
+    displayName: 'North Basin — Reservoir', region: 'North Basin', contentKey: 'north_basin_c',
+    presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_c',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'The receding reservoir. Like the South Approach it has no GRASS but its REEDS are encounter-eligible, so it rolls random encounters — now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES) instead of the generic ENEMY_TEMPLATES fallback. Open water and the exposed BASIN_MUD bed stay safe; encounters lurk in the reed fringe of the receding shoreline.' },
+  { mapId: 'NORTH_BASIN_SW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 2, map: NORTH_BASIN_SW_MAP,
+    displayName: 'North Basin — Silt Flats', region: 'North Basin', contentKey: 'north_basin_sw',
+    presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_sw',
+    allowRandomEncounters: true, allowSave: true },
+  { mapId: 'NORTH_BASIN_W_MAP', regionId: 'overworld', chunkX: 1, chunkY: 1, map: NORTH_BASIN_W_MAP,
+    displayName: 'North Basin — West Shore', region: 'North Basin', contentKey: 'north_basin_w',
+    presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats’ enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; north edge is now an open crossing (cols 1-10) to the Upper Reach; west is impassable border until that neighbour is built.' },
+  { mapId: 'NORTH_BASIN_NW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 0, map: NORTH_BASIN_NW_MAP,
+    displayName: 'North Basin — Upper Reach', region: 'North Basin', contentKey: 'north_basin_nw',
+    presentation: 'continuous', encounterProfileId: 'upper_reach', itemSetId: 'north_basin_nw',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'The drained NW arm — exposed bed border to border. Once deliberately silent; now the oldest-exposed ground has its own encounters (UPPER_REACH_ENEMY_TEMPLATES): two stranded basin creatures shared with the Silt Flats, and two new tough ones (Dust-Drowned, Marrow Hulk) reflecting how long this arm has been dry and wrong. Only BASIN_MUD rolls (isEncounterEligibleTile special-cases this map so other maps’ mud stays safe). No NPCs. "No safe haven" means no town, bed, healing, or shelter -- allowSave is still true like any ordinary outdoor map (see canSaveHere(), save.js); only the two interiors it leads to block saving. Holds the standing doorframe (CHAMBER_DOOR → BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR → SUNKEN_GALLERY_MAP).' },
+];
+window.NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS;

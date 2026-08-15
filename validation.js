@@ -244,6 +244,145 @@ function validateRegionalLayout() {
   return checked;
 }
 
+// ─── REGIONAL_CHUNK_CATALOG authoring contract (data.js) ──────────────────────
+// The single authority for placed regional chunks. Validates the record contract
+// AND that every generated compatibility view (MAP_CATALOG regional entry,
+// REGIONAL_LAYOUT placement, OUTDOOR_CONTENT_KEYS, presentation resolution) agrees
+// with it. Fails CLOSED on an unrecognized record field (an unknown key could imply
+// unsupported future behaviour authored but silently ignored).
+function validateRegionalChunkCatalog() {
+  const GROUP = 'Regional chunks';
+  let checked = 0;
+  if (typeof REGIONAL_CHUNK_CATALOG === 'undefined') {
+    addValidationError(GROUP, 'REGIONAL_CHUNK_CATALOG is undefined -- check script load order (data.js)');
+    return checked;
+  }
+  const ROWS_EXP = 15, COLS_EXP = 16;
+  const ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterPool', 'items', 'allowRandomEncounters', 'allowSave', 'notes']);
+  const PRESENTATIONS = new Set(['continuous', 'legacy_screen']);
+  const knownRegions = (typeof REGIONAL_LAYOUT !== 'undefined') ? new Set(Object.keys(REGIONAL_LAYOUT)) : new Set();
+  const seenIds = new Set(), seenRefs = new Map(), seenCoord = new Set();
+
+  for (const key of Object.keys(REGIONAL_CHUNK_CATALOG)) {
+    const r = REGIONAL_CHUNK_CATALOG[key];
+    const lbl = 'REGIONAL_CHUNK_CATALOG.' + key;
+    checked++;
+    if (!r || typeof r !== 'object') { addValidationError(GROUP, lbl + ': not an object'); continue; }
+    for (const k of Object.keys(r)) if (!ALLOWED.has(k)) addValidationError(GROUP, lbl + ': unrecognized field "' + k + '" (fail-closed: an unknown field may imply unsupported behaviour)');
+    if (typeof r.mapId !== 'string' || !r.mapId) addValidationError(GROUP, lbl + ': mapId is missing/empty');
+    else {
+      if (r.mapId !== key) addValidationError(GROUP, lbl + ': mapId "' + r.mapId + '" does not equal its property key');
+      if (seenIds.has(r.mapId)) addValidationError(GROUP, lbl + ': duplicate mapId "' + r.mapId + '" (a regional map must appear once)');
+      seenIds.add(r.mapId);
+    }
+    if (typeof r.regionId !== 'string' || !r.regionId) addValidationError(GROUP, lbl + ': regionId is missing/empty');
+    else if (knownRegions.size && !knownRegions.has(r.regionId)) addValidationError(GROUP, lbl + ': regionId "' + r.regionId + '" is not a known region');
+    if (!Number.isInteger(r.chunkX) || !Number.isInteger(r.chunkY)) addValidationError(GROUP, lbl + ': chunkX/chunkY must be integers (' + r.chunkX + ',' + r.chunkY + ')');
+    else {
+      const ck = r.regionId + ':' + r.chunkX + ',' + r.chunkY;
+      if (seenCoord.has(ck)) addValidationError(GROUP, lbl + ': duplicate chunk coordinate ' + ck);
+      seenCoord.add(ck);
+    }
+    if (!_isPlainArray(r.map)) addValidationError(GROUP, lbl + ': map is not an array');
+    else {
+      if (r.map.length !== ROWS_EXP) addValidationError(GROUP, lbl + ': map has ' + r.map.length + ' rows (expected ' + ROWS_EXP + ')');
+      for (let row = 0; row < r.map.length; row++) {
+        const cells = r.map[row];
+        if (!_isPlainArray(cells)) { addValidationError(GROUP, lbl + ' row ' + row + ': not an array'); continue; }
+        if (cells.length !== COLS_EXP) addValidationError(GROUP, lbl + ' row ' + row + ': has ' + cells.length + ' cols (expected ' + COLS_EXP + ')');
+        for (let c = 0; c < cells.length; c++) {
+          const t = cells[c];
+          if (typeof WALKABLE !== 'undefined' && WALKABLE[t] === undefined) addValidationError(GROUP, lbl + ' [' + row + '][' + c + ']: unknown tile id ' + t);
+        }
+      }
+      if (seenRefs.has(r.map)) addValidationError(GROUP, lbl + ': map array is already the grid for "' + seenRefs.get(r.map) + '" (one physical grid must not have two chunk records)');
+      seenRefs.set(r.map, r.mapId);
+    }
+    if (!PRESENTATIONS.has(r.presentation)) addValidationError(GROUP, lbl + ': presentation "' + r.presentation + '" is not a recognized mode (continuous | legacy_screen)');
+    if (typeof r.contentKey !== 'string' || !r.contentKey) addValidationError(GROUP, lbl + ': contentKey is missing/empty');
+    if (!_isPlainArray(r.encounterPool)) addValidationError(GROUP, lbl + ': encounterPool must resolve to a pool array');
+    if (!_isPlainArray(r.items)) addValidationError(GROUP, lbl + ': items is missing or not an array (use [] if the chunk has no pickups)');
+    if (typeof r.displayName !== 'string' || !r.displayName) addValidationError(GROUP, lbl + ': missing displayName');
+
+    // Generated compatibility views must AGREE with the authority.
+    const entry = (typeof mapEntryForId === 'function') ? mapEntryForId(r.mapId) : null;
+    if (!entry) addValidationError(GROUP, lbl + ': no derived MAP_CATALOG entry');
+    else {
+      if (entry.map !== r.map) addValidationError(GROUP, lbl + ': MAP_CATALOG.map ref disagrees with the chunk grid');
+      if (entry.encounterPool !== r.encounterPool) addValidationError(GROUP, lbl + ': MAP_CATALOG.encounterPool disagrees with the authority');
+      if (entry.items !== r.items) addValidationError(GROUP, lbl + ': MAP_CATALOG.items disagrees with the authority');
+      if (entry.displayName !== r.displayName) addValidationError(GROUP, lbl + ': MAP_CATALOG.displayName disagrees with the authority');
+    }
+    if (typeof OUTDOOR_CONTENT_KEYS !== 'undefined' && OUTDOOR_CONTENT_KEYS[r.mapId] !== r.contentKey)
+      addValidationError(GROUP, lbl + ': OUTDOOR_CONTENT_KEYS disagrees with the authored contentKey');
+    if (typeof regionalPresentationForMapId === 'function' && regionalPresentationForMapId(r.mapId) !== r.presentation)
+      addValidationError(GROUP, lbl + ': regionalPresentationForMapId() disagrees with the authored presentation');
+    if (typeof regionPlacementForMapId === 'function') {
+      const p = regionPlacementForMapId(r.mapId);
+      if (!p || p.chunkX !== r.chunkX || p.chunkY !== r.chunkY || p.regionId !== r.regionId)
+        addValidationError(GROUP, lbl + ': REGIONAL_LAYOUT placement disagrees with the authored region/chunk');
+    }
+  }
+
+  if (typeof REGIONAL_LAYOUT !== 'undefined') {
+    for (const rid of Object.keys(REGIONAL_LAYOUT)) {
+      for (const p of (REGIONAL_LAYOUT[rid].placements || [])) {
+        if (!seenIds.has(p.mapId)) addValidationError(GROUP, 'REGIONAL_LAYOUT placement "' + p.mapId + '" has no REGIONAL_CHUNK_CATALOG record (views must derive from the authority)');
+      }
+    }
+  }
+
+  // ── Authored-definitions layer ─────────────────────────────────────────────
+  // The distributed *_REGIONAL_CHUNK_DEFINITIONS fragments are the AUTHORITY; the
+  // catalog above is their resolved runtime view. Validate the raw definitions,
+  // the profile/item id resolution, cross-fragment uniqueness, and round-trip
+  // agreement (every definition resolves into the catalog and vice versa).
+  if (typeof _REGIONAL_CHUNK_DEFINITIONS === 'undefined') {
+    addValidationError(GROUP, '_REGIONAL_CHUNK_DEFINITIONS is undefined -- regional chunk fragments did not load (check content/maps/*.js + maps.js load order before data.js)');
+  } else {
+    const DEF_ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterProfileId', 'itemSetId', 'allowRandomEncounters', 'allowSave', 'notes']);
+    const profiles = (typeof _ENCOUNTER_PROFILES !== 'undefined') ? _ENCOUNTER_PROFILES : {};
+    const itemSets = (typeof _REGIONAL_ITEM_SETS !== 'undefined') ? _REGIONAL_ITEM_SETS : {};
+    const defIds = new Set(), defCoords = new Set();
+    for (let i = 0; i < _REGIONAL_CHUNK_DEFINITIONS.length; i++) {
+      const d = _REGIONAL_CHUNK_DEFINITIONS[i];
+      const lbl = 'chunk definition [' + i + ']' + (d && d.mapId ? ' (' + d.mapId + ')' : '');
+      if (!d || typeof d !== 'object') { addValidationError(GROUP, lbl + ': not an object'); continue; }
+      for (const k of Object.keys(d)) if (!DEF_ALLOWED.has(k)) addValidationError(GROUP, lbl + ': unrecognized authored field "' + k + '" (fail-closed: an unknown field may imply unsupported behaviour)');
+      if (typeof d.mapId === 'string' && d.mapId) {
+        if (defIds.has(d.mapId)) addValidationError(GROUP, lbl + ': mapId "' + d.mapId + '" is defined in more than one fragment');
+        defIds.add(d.mapId);
+      }
+      if (Number.isInteger(d.chunkX) && Number.isInteger(d.chunkY)) {
+        const ck = d.regionId + ':' + d.chunkX + ',' + d.chunkY;
+        if (defCoords.has(ck)) addValidationError(GROUP, lbl + ': chunk coordinate ' + ck + ' is defined in more than one fragment');
+        defCoords.add(ck);
+      }
+      // Encounter-profile resolution (fail closed on unknown id, with a useful list).
+      if (typeof d.encounterProfileId !== 'string' || !d.encounterProfileId) addValidationError(GROUP, lbl + ': encounterProfileId is missing/empty');
+      else if (!(d.encounterProfileId in profiles)) addValidationError(GROUP, lbl + ': unknown encounterProfileId "' + d.encounterProfileId + '" (known: ' + Object.keys(profiles).join(', ') + ')');
+      else {
+        const rec = REGIONAL_CHUNK_CATALOG[d.mapId];
+        if (rec && rec.encounterPool !== profiles[d.encounterProfileId]) addValidationError(GROUP, lbl + ': resolved encounterPool is not the array for profile "' + d.encounterProfileId + '"');
+      }
+      // Item-set resolution (itemSetId optional; unknown id fails closed).
+      if (d.itemSetId !== undefined) {
+        if (typeof d.itemSetId !== 'string' || !d.itemSetId) addValidationError(GROUP, lbl + ': itemSetId must be a non-empty string when present');
+        else if (!(d.itemSetId in itemSets)) addValidationError(GROUP, lbl + ': unknown itemSetId "' + d.itemSetId + '" (known: ' + Object.keys(itemSets).join(', ') + ')');
+        else {
+          const rec = REGIONAL_CHUNK_CATALOG[d.mapId];
+          if (rec && rec.items !== itemSets[d.itemSetId]) addValidationError(GROUP, lbl + ': resolved items is not the array for itemSet "' + d.itemSetId + '"');
+        }
+      }
+      if (typeof d.mapId === 'string' && d.mapId && !REGIONAL_CHUNK_CATALOG[d.mapId]) addValidationError(GROUP, lbl + ': definition did not resolve into REGIONAL_CHUNK_CATALOG');
+    }
+    for (const id of Object.keys(REGIONAL_CHUNK_CATALOG)) {
+      if (!defIds.has(id)) addValidationError(GROUP, 'REGIONAL_CHUNK_CATALOG.' + id + ': resolved record has no authored definition (catalog must derive only from fragments)');
+    }
+  }
+  return checked;
+}
+
 // ─── 2c. Continuous seams (DEBUG seamless-movement eligible ALIGNS seams) ───
 // Cross-checks the DERIVED eligible-seam index (continuous-seams.js) against the
 // authoritative REGIONAL_LAYOUT / EDGE_TRANSITIONS / placement + collision data.
@@ -2029,6 +2168,7 @@ function validateGameData() {
     'Maps':            validateMaps(),
     'Map metadata':    validateMapMetadata(),
     'Regional layout': validateRegionalLayout(),
+    'Regional chunks':  validateRegionalChunkCatalog(),
     'Continuous seams': validateContinuousSeams(),
     'Continuous content': validateContinuousContent(),
     'Encounter geography': validateEncounterGeography(),
@@ -2050,6 +2190,7 @@ function validateGameData() {
     'Maps':             'maps checked',
     'Map metadata':     'metadata entries checked',
     'Regional layout':  'layout placements checked',
+    'Regional chunks':   'regional chunk records checked',
     'Continuous seams': 'eligible seams checked',
     'Continuous content': 'outdoor content maps checked',
     'Encounter geography': 'encounter-geography placements checked',

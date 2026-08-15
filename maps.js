@@ -150,7 +150,6 @@ window.MAP3                 = MAP3;
 window.MAP3_ITEMS           = MAP3_ITEMS;
 window.MAP4                 = MAP4;
 window.MAP4_ITEMS           = MAP4_ITEMS;
-window.MAP5                 = MAP5;
 window.MAP5_ITEMS           = MAP5_ITEMS;
 window.MAP3_N1              = MAP3_N1;
 window.MAP3_N1_ITEMS        = MAP3_N1_ITEMS;
@@ -255,3 +254,21 @@ window.DREAM_MAP            = DREAM_MAP;
 // code) since validation.js's function of the same name is defined later in
 // load order and would otherwise silently replace this one on `window`
 // anyway -- keeping both would just be confusing, unreachable duplication.
+
+// ── Regional chunk definitions (Northern Road — the Drenwick approach) ────────
+// MAP_N1/MAP_N2's grids live in this file, so their chunk definitions are authored
+// here. data.js merges the per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and
+// resolves encounterProfileId / itemSetId into the runtime REGIONAL_CHUNK_CATALOG
+// (see data.js for the contract).
+const NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS = [
+  { mapId: 'MAP_N1', regionId: 'overworld', chunkX: 0, chunkY: 4, map: MAP_N1,
+    displayName: 'Northern Road', region: 'Thornmere', contentKey: 'map_n1',
+    presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map_n1',
+    allowRandomEncounters: true, allowSave: true },
+  { mapId: 'MAP_N2', regionId: 'overworld', chunkX: 0, chunkY: 3, map: MAP_N2,
+    displayName: 'Blocked Path', region: 'Thornmere', contentKey: 'map_n2',
+    presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map_n2',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'The Pale Sentry contract fight (a specific scripted encounter, checked before any pool selection in startCombat()) also lives on this map while active -- not represented in encounterPool, which only covers the random-roll fallback.' },
+];
+window.NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS = NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS;

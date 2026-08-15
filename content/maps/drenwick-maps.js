@@ -583,3 +583,16 @@ const DRENWICK_SCHOOL_BASEMENT_MAP = [
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 13
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14
 ];
+
+// ── Regional chunk definitions (Drenwick) ────────────────────────────────────
+// Authored authority for this file's placed regional chunks. data.js merges the
+// per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and resolves encounterProfileId /
+// itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
+const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
+  { mapId: 'MAP3_N2', regionId: 'overworld', chunkX: 2, chunkY: 3, map: MAP3_N2,
+    displayName: 'Drenwick', region: 'Drenwick', contentKey: 'map3_n2',
+    presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3_n2',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'Outdoor approach to Drenwick, distinct from DRENWICK_CIVIC_MAP (the town square) -- both are called "Drenwick" to the player, matching pre-existing locationName() behaviour, not introduced here.' },
+];
+window.DRENWICK_REGIONAL_CHUNK_DEFINITIONS = DRENWICK_REGIONAL_CHUNK_DEFINITIONS;

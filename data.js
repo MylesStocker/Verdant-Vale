@@ -612,29 +612,130 @@ const MIRE_VAULT_ITEMS = [
 // dungeon floors, sluice floors, and the vault -- see combat.js's comment at the
 // top of startCombat(). Only the plain-activeMap tail of that ladder
 // (farMap/thornmereMap/northBasinMap/the MAP-vs-default split) reads metadata directly.
+// ─── Regional chunk authoring: distributed definitions → resolved catalog ─────
+// Placed regional outdoor chunks are AUTHORED as declarative definition fragments
+// in their geographic content/maps/*.js files (CALWICK_/THORNMERE_/DRENWICK_/
+// NORTHERN_ROAD_/NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS) — the sole human-edited
+// authority. Each definition OWNS: the stable physical mapId, regionId, integer
+// chunkX/chunkY, the 15×16 tile grid, display/catalog metadata, the logical
+// contentKey, the presentation mode, a stable encounterProfileId, and a stable
+// itemSetId. data.js (here) merges those fragments and RESOLVES the profile/item
+// ids into the runtime REGIONAL_CHUNK_CATALOG, from which the regional slice of
+// MAP_CATALOG, REGIONAL_LAYOUT, and OUTDOOR_CONTENT_KEYS are all derived. The
+// catalog is the resolved/generated runtime view, NOT a second authority — no
+// placement / content key / presentation / encounter / identity value is authored
+// twice. This keeps terrain grids out of data.js: they live in the geographic map
+// files, so data.js does not grow with every future chunk.
+//
+// Why the indirection: the encounter pools are defined below in data.js (after the
+// map files load), so an early-loaded fragment cannot name a pool array directly —
+// it names a stable encounterProfileId that resolves here. itemSetId likewise keeps
+// item content authored once (in the map files / WORLD_ITEMS) without duplicating
+// it into the definition. Both resolve to the SAME array references consumers used
+// before, so encounter/item reference identity is preserved.
+
+// Encounter-profile registry: stable id → the actual pool array. The sole place a
+// profile id resolves to a pool.
+const _ENCOUNTER_PROFILES = {
+  early:       EARLY_ENEMY_TEMPLATES,
+  reaches:     ENEMY_TEMPLATES,
+  far:         FAR_ENEMY_TEMPLATES,
+  thornmere:   THORNMERE_ENEMY_TEMPLATES,
+  north_basin: NORTH_BASIN_ENEMY_TEMPLATES,
+  upper_reach: UPPER_REACH_ENEMY_TEMPLATES,
+};
+window._ENCOUNTER_PROFILES = _ENCOUNTER_PROFILES;
+
+// Item-set registry: stable id → the actual items array. The sole place an item-set
+// id resolves to an array. Item content itself stays authored in the map files.
+const _REGIONAL_ITEM_SETS = {
+  world:          WORLD_ITEMS,
+  map2:           MAP2_ITEMS,
+  map3:           MAP3_ITEMS,
+  map4:           MAP4_ITEMS,
+  map5:           MAP5_ITEMS,
+  map_n1:         MAP_N1_ITEMS,
+  map_n2:         MAP_N2_ITEMS,
+  roddon_way:     RODDON_WAY_ITEMS,
+  map3_n1:        MAP3_N1_ITEMS,
+  map3_n2:        MAP3_N2_ITEMS,
+  north_basin_s:  NORTH_BASIN_S_ITEMS,
+  north_basin_c:  NORTH_BASIN_C_ITEMS,
+  north_basin_sw: NORTH_BASIN_SW_ITEMS,
+  north_basin_w:  NORTH_BASIN_W_ITEMS,
+  north_basin_nw: NORTH_BASIN_NW_ITEMS,
+};
+window._REGIONAL_ITEM_SETS = _REGIONAL_ITEM_SETS;
+
+// Merge the distributed authored fragments deterministically (fixed fragment order).
+// The merge order is incidental — no consumer depends on placement/content-key list
+// order (they key by mapId or iterate) — but it is stable across loads.
+const _REGIONAL_CHUNK_DEFINITIONS = [].concat(
+  CALWICK_REGIONAL_CHUNK_DEFINITIONS,
+  THORNMERE_REGIONAL_CHUNK_DEFINITIONS,
+  DRENWICK_REGIONAL_CHUNK_DEFINITIONS,
+  NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS,
+  NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS,
+);
+window._REGIONAL_CHUNK_DEFINITIONS = _REGIONAL_CHUNK_DEFINITIONS;
+
+// Resolve definitions → runtime catalog. Pure construction (no gameplay-state
+// mutation): each record exposes the actual encounterPool/items arrays consumers
+// expect, keyed by mapId. Unknown profile/item ids resolve to undefined and are
+// caught by validateRegionalChunkCatalog() (fail-closed), never silently defaulted;
+// a definition with no itemSetId is a legitimately item-less chunk (fresh []).
+const REGIONAL_CHUNK_CATALOG = (function () {
+  const out = {};
+  for (const def of _REGIONAL_CHUNK_DEFINITIONS) {
+    const rec = {
+      mapId: def.mapId, regionId: def.regionId, chunkX: def.chunkX, chunkY: def.chunkY,
+      map: def.map, displayName: def.displayName, region: def.region,
+      contentKey: def.contentKey, presentation: def.presentation,
+      encounterPool: _ENCOUNTER_PROFILES[def.encounterProfileId],
+      items: (def.itemSetId === undefined) ? [] : _REGIONAL_ITEM_SETS[def.itemSetId],
+      allowRandomEncounters: def.allowRandomEncounters, allowSave: def.allowSave,
+    };
+    if (def.notes !== undefined) rec.notes = def.notes;
+    out[def.mapId] = rec;
+  }
+  return out;
+})();
+window.REGIONAL_CHUNK_CATALOG = REGIONAL_CHUNK_CATALOG;
+
+// The regional MAP_CATALOG entry DERIVED from a chunk record (id/map/display/
+// region/items/encounter/save + regionalPresentation only for legacy_screen, and
+// notes when authored) — the single generator the catalog uses for placed chunks.
+function _regionalChunkCatalogEntry(mapId) {
+  const r = REGIONAL_CHUNK_CATALOG[mapId];
+  const e = {
+    id: r.mapId, map: r.map, displayName: r.displayName, region: r.region,
+    type: 'outdoor', items: r.items, encounterPool: r.encounterPool,
+    allowRandomEncounters: r.allowRandomEncounters, allowSave: r.allowSave,
+  };
+  if (r.presentation === 'legacy_screen') e.regionalPresentation = 'legacy_screen';
+  if (r.notes !== undefined) e.notes = r.notes;
+  return e;
+}
+
+// TEMPORARY compat alias for the pilot: a DERIVED reference to the catalog grid
+// (not a second grid). Existing bare-`MAP5` consumers + window.MAP5 keep working;
+// new code should use mapRefForId('MAP5') / the catalog helpers instead.
+const MAP5 = REGIONAL_CHUNK_CATALOG.MAP5.map;
+window.MAP5 = MAP5;
+
 const MAP_CATALOG = {
   // ── Overworld (Verdant Vale / Eastern Reaches / Thornmere fen) ────────────
-  MAP: {
-    id: 'MAP', map: MAP, displayName: 'Verdant Vale', region: 'Verdant Vale',
-    type: 'outdoor', items: WORLD_ITEMS, encounterPool: EARLY_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    // Verdant Vale is the intentional fixed-screen home: it keeps the original
-    // single-map presentation even when Continuous View is toggled on. Leaving it
-    // (east to MAP2 / north to MAP_N1) reveals the scrolling world. See
-    // regionalPresentationForMapId() and continuousWorldViewActive().
-    regionalPresentation: 'legacy_screen',
-  },
+  // Regional chunks (MAP, MAP2…MAP5, MAP_N1/2, RODDON, MAP3_N*, North Basin) are
+  // DERIVED from REGIONAL_CHUNK_CATALOG via _regionalChunkCatalogEntry() — their
+  // metadata is authored there, not here. Discrete maps below stay authored inline.
+  MAP: _regionalChunkCatalogEntry('MAP'),
   MEADOW_MAP: {
     id: 'MEADOW_MAP', map: MEADOW_MAP, displayName: 'Hidden Meadow', region: 'Verdant Vale',
     type: 'outdoor', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
     notes: 'Secret clearing behind the vale’s NW tree nook. Deliberately encounter-free (hard gate in isEncounterEligibleTile, movement.js) — the relocated Briar Warden is its only danger.',
   },
-  MAP2: {
-    id: 'MAP2', map: MAP2, displayName: 'Eastern Reaches', region: 'Eastern Reaches',
-    type: 'outdoor', items: MAP2_ITEMS, encounterPool: ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-  },
+  MAP2: _regionalChunkCatalogEntry('MAP2'),
   LORRA_HOUSE_MAP: {
     id: 'LORRA_HOUSE_MAP', map: LORRA_HOUSE_MAP, displayName: "Lorra's Farmhouse", region: 'Thornmere',
     type: 'interior', items: [], encounterPool: null,
@@ -645,69 +746,19 @@ const MAP_CATALOG = {
     type: 'interior', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
   },
-  MAP3: {
-    id: 'MAP3', map: MAP3, displayName: 'Thornmere Fen', region: 'Thornmere',
-    type: 'outdoor', items: MAP3_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-  },
-  MAP4: {
-    id: 'MAP4', map: MAP4, displayName: 'Thornmere', region: 'Thornmere',
-    type: 'outdoor', items: MAP4_ITEMS, encounterPool: THORNMERE_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-  },
-  MAP5: {
-    id: 'MAP5', map: MAP5, displayName: 'Thornmere Shallows', region: 'Thornmere',
-    type: 'outdoor', items: MAP5_ITEMS, encounterPool: THORNMERE_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-  },
-  MAP3_N1: {
-    id: 'MAP3_N1', map: MAP3_N1, displayName: 'Northern Fen', region: 'Thornmere',
-    type: 'outdoor', items: MAP3_N1_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-  },
-  RODDON_WAY_MAP: {
-    id: 'RODDON_WAY_MAP', map: RODDON_WAY_MAP, displayName: 'Roddon Way', region: 'Thornmere',
-    type: 'outdoor', items: RODDON_WAY_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'A single dead-end fen map off MAP3_N1’s west edge (an old creek-bed ridge, RODDON_SILT) -- no other neighbours. Reuses MAP3_N1’s own encounter pool; no new enemies. Ordinary regional geography, not connected to the North Basin drought story.',
-  },
-  MAP3_N2: {
-    id: 'MAP3_N2', map: MAP3_N2, displayName: 'Drenwick', region: 'Drenwick',
-    type: 'outdoor', items: MAP3_N2_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'Outdoor approach to Drenwick, distinct from DRENWICK_CIVIC_MAP (the town square) -- both are called "Drenwick" to the player, matching pre-existing locationName() behaviour, not introduced here.',
-  },
+  MAP3: _regionalChunkCatalogEntry('MAP3'),
+  MAP4: _regionalChunkCatalogEntry('MAP4'),
+  MAP5: _regionalChunkCatalogEntry('MAP5'),
+  MAP3_N1: _regionalChunkCatalogEntry('MAP3_N1'),
+  RODDON_WAY_MAP: _regionalChunkCatalogEntry('RODDON_WAY_MAP'),
+  MAP3_N2: _regionalChunkCatalogEntry('MAP3_N2'),
 
-  // ── The North Basin ────────────────────────────────────────────────────────
-  NORTH_BASIN_S_MAP: {
-    id: 'NORTH_BASIN_S_MAP', map: NORTH_BASIN_S_MAP, displayName: 'North Basin \u2014 South Approach', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_S_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'The basin entry. It has no GRASS, but its REEDS are encounter-eligible all the same (see tiles.js TILE_PROPERTIES), so it does roll random encounters \u2014 now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES, the same gentle creatures as the Silt Flats) instead of the generic ENEMY_TEMPLATES fallback it used when this was left encounterPool: null. The maintained road (PATH, col 12) and the water stay safe; you meet things by cutting through the reeds.',
-  },
-  NORTH_BASIN_C_MAP: {
-    id: 'NORTH_BASIN_C_MAP', map: NORTH_BASIN_C_MAP, displayName: 'North Basin \u2014 Reservoir', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_C_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'The receding reservoir. Like the South Approach it has no GRASS but its REEDS are encounter-eligible, so it rolls random encounters \u2014 now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES) instead of the generic ENEMY_TEMPLATES fallback. Open water and the exposed BASIN_MUD bed stay safe; encounters lurk in the reed fringe of the receding shoreline.',
-  },
-  NORTH_BASIN_SW_MAP: {
-    id: 'NORTH_BASIN_SW_MAP', map: NORTH_BASIN_SW_MAP, displayName: 'North Basin \u2014 Silt Flats', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_SW_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-  },
-  NORTH_BASIN_W_MAP: {
-    id: 'NORTH_BASIN_W_MAP', map: NORTH_BASIN_W_MAP, displayName: 'North Basin \u2014 West Shore', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_W_ITEMS, encounterPool: NORTH_BASIN_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats\u2019 enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; north edge is now an open crossing (cols 1-10) to the Upper Reach; west is impassable border until that neighbour is built.',
-  },
-  NORTH_BASIN_NW_MAP: {
-    id: 'NORTH_BASIN_NW_MAP', map: NORTH_BASIN_NW_MAP, displayName: 'North Basin \u2014 Upper Reach', region: 'North Basin',
-    type: 'outdoor', items: NORTH_BASIN_NW_ITEMS, encounterPool: UPPER_REACH_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'The drained NW arm \u2014 exposed bed border to border. Once deliberately silent; now the oldest-exposed ground has its own encounters (UPPER_REACH_ENEMY_TEMPLATES): two stranded basin creatures shared with the Silt Flats, and two new tough ones (Dust-Drowned, Marrow Hulk) reflecting how long this arm has been dry and wrong. Only BASIN_MUD rolls (isEncounterEligibleTile special-cases this map so other maps\u2019 mud stays safe). No NPCs. "No safe haven" means no town, bed, healing, or shelter -- allowSave is still true like any ordinary outdoor map (see canSaveHere(), save.js); only the two interiors it leads to block saving. Holds the standing doorframe (CHAMBER_DOOR \u2192 BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR \u2192 SUNKEN_GALLERY_MAP).',
-  },
+  // ── The North Basin (regional chunks — derived from REGIONAL_CHUNK_CATALOG) ──
+  NORTH_BASIN_S_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_S_MAP'),
+  NORTH_BASIN_C_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_C_MAP'),
+  NORTH_BASIN_SW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SW_MAP'),
+  NORTH_BASIN_W_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W_MAP'),
+  NORTH_BASIN_NW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NW_MAP'),
   BASIN_CHAMBER_MAP: {
     id: 'BASIN_CHAMBER_MAP', map: BASIN_CHAMBER_MAP, displayName: 'No Recorded Location', region: 'North Basin',
     type: 'special', items: BASIN_CHAMBER_ITEMS, encounterPool: null,
@@ -830,18 +881,9 @@ const MAP_CATALOG = {
     allowRandomEncounters: false, allowSave: true,
   },
 
-  // ── Northern road (Pale Sentry contract territory) ────────────────────────
-  MAP_N1: {
-    id: 'MAP_N1', map: MAP_N1, displayName: 'Northern Road', region: 'Thornmere',
-    type: 'outdoor', items: MAP_N1_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-  },
-  MAP_N2: {
-    id: 'MAP_N2', map: MAP_N2, displayName: 'Blocked Path', region: 'Thornmere',
-    type: 'outdoor', items: MAP_N2_ITEMS, encounterPool: FAR_ENEMY_TEMPLATES,
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'The Pale Sentry contract fight (a specific scripted encounter, checked before any pool selection in startCombat()) also lives on this map while active -- not represented in encounterPool, which only covers the random-roll fallback.',
-  },
+  // ── Northern road (Pale Sentry contract territory) — regional chunks derived ─
+  MAP_N1: _regionalChunkCatalogEntry('MAP_N1'),
+  MAP_N2: _regionalChunkCatalogEntry('MAP_N2'),
 
   // ── South Ruins ────────────────────────────────────────────────────────────
   DUNGEON_ENTRANCE_MAP: {
@@ -1138,36 +1180,23 @@ window.mapRegistryId = mapRegistryId;
 // map, plus all town, interior, bridge, and dungeon maps. Those remain separate
 // maps reached by point/gate transitions; the seam audit reports any wilderness
 // edge that leads to one as "outside the region / pocket".
-const REGIONAL_LAYOUT = {
-  overworld: {
-    id: 'overworld',
-    displayName: 'Verdant Vale Overworld',
-    // Each placement occupies one COLS×ROWS chunk. Chunk (0,0) is the NW corner
-    // of the region's bounding box; gaps (unplaced chunks inside the box) are a
-    // real, tested case -- tileAtWorld() reads them as REGION_VOID_TILE.
-    placements: [
-      // Verdant Vale core + the eastern-reach road chain (MAP→MAP2→…→MAP5, due east).
-      { mapId: 'MAP',                chunkX: 0, chunkY: 5 },
-      { mapId: 'MAP2',               chunkX: 1, chunkY: 5 },
-      { mapId: 'MAP3',               chunkX: 2, chunkY: 5 },
-      { mapId: 'MAP4',               chunkX: 3, chunkY: 5 },
-      { mapId: 'MAP5',               chunkX: 4, chunkY: 5 },
-      // Northern road off Verdant Vale (MAP→MAP_N1→MAP_N2, due north).
-      { mapId: 'MAP_N1',             chunkX: 0, chunkY: 4 },
-      { mapId: 'MAP_N2',             chunkX: 0, chunkY: 3 },
-      // Thornmere fen shelf north of the eastern road, plus the Roddon Way ridge.
-      { mapId: 'RODDON_WAY_MAP',     chunkX: 1, chunkY: 4 },
-      { mapId: 'MAP3_N1',            chunkX: 2, chunkY: 4 },
-      { mapId: 'MAP3_N2',            chunkX: 2, chunkY: 3 },
-      // The North Basin -- continuous via EDGE_TRANSITIONS -- climbing north/west.
-      { mapId: 'NORTH_BASIN_S_MAP',  chunkX: 2, chunkY: 2 },
-      { mapId: 'NORTH_BASIN_C_MAP',  chunkX: 2, chunkY: 1 },
-      { mapId: 'NORTH_BASIN_SW_MAP', chunkX: 1, chunkY: 2 },
-      { mapId: 'NORTH_BASIN_W_MAP',  chunkX: 1, chunkY: 1 },
-      { mapId: 'NORTH_BASIN_NW_MAP', chunkX: 1, chunkY: 0 },
-    ],
-  },
+// Region-level metadata (id + display name). Chunk placements are DERIVED from
+// REGIONAL_CHUNK_CATALOG (the single authority), in its authored order — there is
+// no second authored placement list. A placement occupies one COLS×ROWS chunk;
+// gaps (unplaced chunks inside a region's bounding box) are a real, tested case —
+// tileAtWorld() reads them as REGION_VOID_TILE.
+const _REGION_META = {
+  overworld: { id: 'overworld', displayName: 'Verdant Vale Overworld' },
 };
+const REGIONAL_LAYOUT = (function () {
+  const out = {};
+  for (const rid of Object.keys(_REGION_META)) out[rid] = { id: _REGION_META[rid].id, displayName: _REGION_META[rid].displayName, placements: [] };
+  for (const r of Object.values(REGIONAL_CHUNK_CATALOG)) {
+    if (!out[r.regionId]) out[r.regionId] = { id: r.regionId, displayName: r.regionId, placements: [] };
+    out[r.regionId].placements.push({ mapId: r.mapId, chunkX: r.chunkX, chunkY: r.chunkY });
+  }
+  return out;
+})();
 window.REGIONAL_LAYOUT = REGIONAL_LAYOUT;
 
 // Documented void result for tileAtWorld(): any region-world coordinate that is
@@ -1250,23 +1279,12 @@ window.tileAtWorld          = tileAtWorld;
 // today); a shared key is "ambiguous" for neighbouring-NPC attribution (grouped
 // in continuous-content.js). This is pure data + a pure lookup: nothing here (or
 // its consumers) ever assigns activeMap/player/location state to resolve a key.
-const OUTDOOR_CONTENT_KEYS = {
-  MAP:                 'overworld',
-  MAP2:                'map2',
-  MAP3:                'map3',
-  MAP4:                'map4',
-  MAP5:                'overworld',
-  MAP_N1:              'map_n1',
-  MAP_N2:              'map_n2',
-  RODDON_WAY_MAP:      'overworld',
-  MAP3_N1:             'map3_n1',
-  MAP3_N2:             'map3_n2',
-  NORTH_BASIN_S_MAP:   'north_basin_s',
-  NORTH_BASIN_C_MAP:   'north_basin_c',
-  NORTH_BASIN_SW_MAP:  'north_basin_sw',
-  NORTH_BASIN_W_MAP:   'north_basin_w',
-  NORTH_BASIN_NW_MAP:  'north_basin_nw',
-};
+// DERIVED from REGIONAL_CHUNK_CATALOG (each record's contentKey), in authored
+// order — no second authored content-key table. (MAP / MAP5 / RODDON_WAY_MAP
+// intentionally share 'overworld'; distinct namespaces from the physical mapId.)
+const OUTDOOR_CONTENT_KEYS = Object.fromEntries(
+  Object.values(REGIONAL_CHUNK_CATALOG).map((r) => [r.mapId, r.contentKey])
+);
 // Physical outdoor map id -> its logical content-location key, or null if the id
 // is not a bound outdoor map. Pure O(1) lookup — never probes runtime state.
 function outdoorContentKeyForMapId(mapId) {

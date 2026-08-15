@@ -1,0 +1,235 @@
+'use strict';
+// Regional chunk authoring — Part 1 (corrected): distributed authored definition
+// fragments in the geographic content/maps/*.js files are the AUTHORITY; data.js
+// merges them and RESOLVES encounterProfileId/itemSetId into the runtime
+// REGIONAL_CHUNK_CATALOG, from which MAP_CATALOG's regional slice, REGIONAL_LAYOUT,
+// and OUTDOOR_CONTENT_KEYS derive. MAP5/Thornmere Shallows is the grid-in-record
+// pilot; the other 14 records still reference their temporary legacy grid variables.
+
+const assert = require('assert/strict');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
+const { createContext } = require('../harness');
+const GRID_FP = require('../fixtures/regional-grid-fingerprints');
+const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
+
+const EXPECTED = ['MAP', 'MAP2', 'MAP3', 'MAP4', 'MAP5', 'MAP_N1', 'MAP_N2', 'RODDON_WAY_MAP',
+  'MAP3_N1', 'MAP3_N2', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP', 'NORTH_BASIN_SW_MAP',
+  'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP'];
+
+// Which fragment (and therefore which geographic file) authors each chunk.
+const FRAGMENTS = {
+  CALWICK_REGIONAL_CHUNK_DEFINITIONS: ['MAP'],
+  THORNMERE_REGIONAL_CHUNK_DEFINITIONS: ['MAP2', 'MAP3', 'MAP4', 'MAP5', 'RODDON_WAY_MAP', 'MAP3_N1'],
+  DRENWICK_REGIONAL_CHUNK_DEFINITIONS: ['MAP3_N2'],
+  NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS: ['MAP_N1', 'MAP_N2'],
+  NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS: ['NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP',
+    'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP'],
+};
+
+// The 14 maps whose grid literal is still a standalone `const` var (MAP5 is inline).
+const LEGACY_GRID_MAPS = EXPECTED.filter((id) => id !== 'MAP5');
+
+module.exports = {
+  name: 'Regional chunk authoring: distributed fragments → resolved catalog + MAP5 grid pilot',
+  run() {
+    const g = createContext();
+    g.press('Enter'); g.press('Enter');
+    const J = (e) => JSON.parse(g.run(e));
+
+    // ── 1. Authored fragments collectively contain all 15 maps exactly once ───
+    const seenAcross = new Map(); // mapId -> fragment
+    for (const [frag, ids] of Object.entries(FRAGMENTS)) {
+      assert.equal(g.run(`Array.isArray(${frag})`), true, `${frag} is an authored array`);
+      const fragIds = J(`JSON.stringify(${frag}.map(function(d){return d.mapId;}))`);
+      assert.deepEqual(fragIds, ids, `${frag} authors exactly ${ids.join(', ')}`);
+      for (const id of fragIds) {
+        // ── 2. No map id appears in more than one fragment ──────────────────
+        assert.ok(!seenAcross.has(id), `${id} is authored in only one fragment (also in ${seenAcross.get(id)})`);
+        seenAcross.set(id, frag);
+      }
+    }
+    assert.deepEqual([...seenAcross.keys()].sort(), [...EXPECTED].sort(), 'the fragments collectively author exactly the 15 placed maps');
+    // merged definition list = the union, deduped, and coordinates unique
+    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.length'), 15, 'the merged _REGIONAL_CHUNK_DEFINITIONS has 15 definitions');
+    const defCoords = J("JSON.stringify(_REGIONAL_CHUNK_DEFINITIONS.map(function(d){return d.regionId+':'+d.chunkX+','+d.chunkY;}))");
+    assert.equal(new Set(defCoords).size, 15, 'no chunk coordinate is authored in more than one fragment');
+
+    // ── 3. The resolved runtime catalog has exactly the same 15 entries ───────
+    const ids = J('JSON.stringify(Object.keys(REGIONAL_CHUNK_CATALOG))');
+    assert.equal(ids.length, 15, 'exactly 15 resolved chunk records');
+    assert.deepEqual([...ids].sort(), [...EXPECTED].sort(), 'the resolved catalog is exactly the placed regional maps');
+    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).every(function(k){return REGIONAL_CHUNK_CATALOG[k].mapId===k;})'), true, 'each record.mapId equals its key');
+    assert.equal(g.run('Object.values(REGIONAL_CHUNK_CATALOG).every(function(r){return r.map.length===15 && r.map.every(function(row){return row.length===16;});})'), true, 'every chunk grid is 15×16');
+    assert.equal(g.run('Object.values(REGIONAL_CHUNK_CATALOG).every(function(r){return r.map.every(function(row){return row.every(function(t){return WALKABLE[t]!==undefined;});});})'), true, 'every grid tile id is known');
+    assert.equal(g.run('(function(){var s=new Set(); for(var k in REGIONAL_CHUNK_CATALOG){var m=REGIONAL_CHUNK_CATALOG[k].map; if(s.has(m))return false; s.add(m);} return true;})()'), true, 'physical grid refs are unique (no shared grids)');
+
+    // ── 4. Every resolved value agrees with its authored definition + views ───
+    for (const id of EXPECTED) {
+      const rec = J(`JSON.stringify({dn:REGIONAL_CHUNK_CATALOG['${id}'].displayName, ck:REGIONAL_CHUNK_CATALOG['${id}'].contentKey, pres:REGIONAL_CHUNK_CATALOG['${id}'].presentation, cx:REGIONAL_CHUNK_CATALOG['${id}'].chunkX, cy:REGIONAL_CHUNK_CATALOG['${id}'].chunkY, rid:REGIONAL_CHUNK_CATALOG['${id}'].regionId})`);
+      // resolved record matches its authored definition
+      assert.equal(g.run(`(function(){var d=_REGIONAL_CHUNK_DEFINITIONS.find(function(x){return x.mapId==='${id}';}); var r=REGIONAL_CHUNK_CATALOG['${id}']; return d.contentKey===r.contentKey && d.presentation===r.presentation && d.chunkX===r.chunkX && d.chunkY===r.chunkY && d.regionId===r.regionId && d.displayName===r.displayName;})()`), true, `${id}: resolved record matches its authored definition`);
+      // generated views derive from the resolved authority
+      assert.equal(g.run(`mapEntryForId('${id}').map===REGIONAL_CHUNK_CATALOG['${id}'].map`), true, `${id}: MAP_CATALOG.map derives`);
+      assert.equal(g.run(`mapEntryForId('${id}').encounterPool===REGIONAL_CHUNK_CATALOG['${id}'].encounterPool`), true, `${id}: MAP_CATALOG.encounterPool derives`);
+      assert.equal(g.run(`mapEntryForId('${id}').items===REGIONAL_CHUNK_CATALOG['${id}'].items`), true, `${id}: MAP_CATALOG.items derives`);
+      assert.equal(g.run(`mapEntryForId('${id}').displayName`), rec.dn, `${id}: display name`);
+      assert.equal(g.run(`OUTDOOR_CONTENT_KEYS['${id}']`), rec.ck, `${id}: OUTDOOR_CONTENT_KEYS derives contentKey`);
+      assert.equal(g.run(`regionalPresentationForMapId('${id}')`), rec.pres, `${id}: presentation derives`);
+      const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
+      assert.deepEqual([p.chunkX, p.chunkY, p.regionId], [rec.cx, rec.cy, rec.rid], `${id}: REGIONAL_LAYOUT placement derives`);
+    }
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 15, 'REGIONAL_LAYOUT has 15 placements');
+    assert.equal(g.run('Object.keys(OUTDOOR_CONTENT_KEYS).length'), 15, 'OUTDOOR_CONTENT_KEYS has 15 entries');
+
+    // ── 5. Reverse map-ref → id and chunk-coordinate lookups remain correct ───
+    for (const id of EXPECTED) {
+      assert.equal(g.run(`mapIdForRef(REGIONAL_CHUNK_CATALOG['${id}'].map)`), id, `${id}: mapIdForRef(grid) round-trips`);
+      const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
+      assert.equal(g.run(`mapIdForChunk('${p.regionId}', ${p.chunkX}, ${p.chunkY})`), id, `${id}: mapIdForChunk resolves back`);
+    }
+
+    // ── 6 (7+8 of spec). Encounter-profile + item resolution preserve the exact
+    //     existing pool-/item-array references ──────────────────────────────
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP5.encounterPool===THORNMERE_ENEMY_TEMPLATES"), true, "MAP5's 'thornmere' profile resolves to the THORNMERE_ENEMY_TEMPLATES reference");
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP2.encounterPool===ENEMY_TEMPLATES"), true, "MAP2's 'reaches' profile resolves to ENEMY_TEMPLATES");
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG.NORTH_BASIN_NW_MAP.encounterPool===UPPER_REACH_ENEMY_TEMPLATES"), true, "NB_NW's 'upper_reach' profile resolves to UPPER_REACH_ENEMY_TEMPLATES");
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP5.items===MAP5_ITEMS"), true, "MAP5's 'map5' itemSet resolves to the MAP5_ITEMS reference");
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP.items===WORLD_ITEMS"), true, "MAP's 'world' itemSet resolves to WORLD_ITEMS");
+    // every resolved pool/items IS the registry array named by the definition
+    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return REGIONAL_CHUNK_CATALOG[d.mapId].encounterPool===_ENCOUNTER_PROFILES[d.encounterProfileId];})'), true, 'every resolved encounterPool is the array named by its encounterProfileId');
+    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return d.itemSetId===undefined || REGIONAL_CHUNK_CATALOG[d.mapId].items===_REGIONAL_ITEM_SETS[d.itemSetId];})'), true, 'every resolved items array is the array named by its itemSetId');
+
+    // ── 9 + 10. MAP5's SOLE grid literal is in the Thornmere fragment; data.js
+    //            contains no MAP5 terrain grid; the const MAP5 alias is derived ─
+    const curThorn = fs.readFileSync(path.join(__dirname, '../../content/maps/thornmere-wilds-maps.js'), 'utf8');
+    const curData = fs.readFileSync(path.join(__dirname, '../../data.js'), 'utf8');
+    assert.ok(!/^const MAP5 = \[/m.test(curThorn), 'no standalone `const MAP5 = [` grid variable remains');
+    assert.ok(/mapId:\s*'MAP5'[\s\S]{0,600}?map:\s*\[/.test(curThorn), "MAP5's grid literal is authored inline in its Thornmere fragment record");
+    assert.ok(!/mapId:\s*'MAP5'/.test(curData), 'data.js authors no MAP5 chunk definition (grid lives in the Thornmere fragment)');
+    assert.ok(/const MAP5 = REGIONAL_CHUNK_CATALOG\.MAP5\.map/.test(curData), 'data.js keeps only the derived `const MAP5` compat alias');
+    assert.equal(g.run('MAP5===REGIONAL_CHUNK_CATALOG.MAP5.map'), true, 'the const MAP5 alias is a derived reference to the catalog grid (not a second grid)');
+    assert.equal(g.run("mapRefForId('MAP5')===MAP5"), true, 'mapRefForId(MAP5) is the catalog grid');
+
+    // ── 11. Every grid matches its stable, repository-owned fingerprint (no
+    //        tile-number changes) — evidence is a SHA-256 fixture, NOT Git history.
+    assert.equal(GRID_FP.serialization, 'sha256hex(JSON.stringify(map))', 'fixture documents its canonical serialization');
+    const fpVals = Object.values(GRID_FP.fingerprints);
+    assert.equal(new Set(fpVals).size, fpVals.length, 'all stored grid fingerprints are unique (no two grids are byte-identical)');
+    assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the 15 placed regional grids');
+    for (const id of EXPECTED) {
+      const got = sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`));
+      assert.equal(got, GRID_FP.fingerprints[id], `${id}: grid matches its stable pre-migration fingerprint (no tile-number changes)`);
+    }
+
+    // ── 12. The other 14 grids are still temporary references, not duplicated ─
+    for (const id of LEGACY_GRID_MAPS) {
+      // each record's map IS the same global `const` grid var (a reference, not a copy)
+      assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${id}'].map===${id}`), true, `${id}: record references the existing legacy grid variable (not a duplicate)`);
+    }
+
+    // ── 13. MAP5 collision / debug warp / MAP4↔MAP5 travel unchanged ──────────
+    g.run("debugWarpToDestination('outdoor:MAP5');");
+    assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'debug warp to MAP5 lands on MAP5');
+    assert.equal(g.run('canWalk(0.5*TILE, 6.5*TILE)'), true, 'MAP5 seam shore (col 0 row 6) is walkable (collision intact)');
+    assert.equal(g.run("isTileWalkable(mapRefForId('MAP5')[0][0])"), false, 'MAP5 open water (row 0) stays non-walkable');
+    g.run("debugWarpToDestination('outdoor:MAP4'); continuousWorldViewEnabled=true; placeAtLocation('MAP4', 14.5*TILE, 6.5*TILE); for(var k in keys)delete keys[k];");
+    g.hold('ArrowRight'); for (let i = 0; i < 40 && g.run("mapIdForRef(activeMap)") !== 'MAP5'; i++) g.frames(1); g.release('ArrowRight');
+    assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'MAP4→MAP5 continuous seam travel still works');
+
+    // MAP5 keeps the Thornmere pool despite the shared 'overworld' logical key
+    assert.equal(g.run('REGIONAL_CHUNK_CATALOG.MAP5.contentKey'), 'overworld', 'MAP5 shares the ambiguous overworld content key');
+    assert.equal(g.run("(function(){ placeAtLocation('MAP5', 4*TILE, 6*TILE); return currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES; })()"), true, 'MAP5 encounter pool is THORNMERE despite the shared overworld key');
+
+    // Canonical position + v4 save/load resolve MAP5
+    g.run("placeAtLocation('MAP5', 3.25*TILE, 6.5*TILE); player.facing='left';");
+    assert.equal(J('JSON.stringify(regionalDerivedLocation())').mapId, 'MAP5', 'canonical position resolves MAP5');
+    const saved = J("(saveGame(), localStorage.getItem('verdantVale_save'))");
+    assert.equal(saved.location.kind, 'regional', 'MAP5 save is a regional v4 location');
+    g.run("placeAtLocation('MAP', 1*TILE, 1*TILE); loadGame();");
+    assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'v4 regional load restores MAP5');
+
+    // ── 5 of spec. Unknown authored fields, and malformed resolved records,
+    //    fail closed (catalog layer). ─────────────────────────────────────────
+    const withBadRecord = (mutate, regex, label) => {
+      const errs = J(`(function(){
+        var base = { mapId:'__BAD__', regionId:'overworld', chunkX:9, chunkY:9,
+          map: Array.from({length:15},function(){return Array(16).fill(0);}),
+          displayName:'Bad', region:'Test', contentKey:'bad', presentation:'continuous',
+          encounterPool: THORNMERE_ENEMY_TEMPLATES, items: [], allowRandomEncounters:true, allowSave:true };
+        (${mutate})(base);
+        REGIONAL_CHUNK_CATALOG['__BAD__'] = base;
+        var v = validateGameData();
+        delete REGIONAL_CHUNK_CATALOG['__BAD__'];
+        return JSON.stringify((v.errorList||[]).filter(function(e){return e.group==='Regional chunks';}).map(function(e){return e.message;}));
+      })()`);
+      assert.ok(errs.some((m) => regex.test(m)), label + ' -> a Regional chunks error matching ' + regex);
+    };
+    withBadRecord("function(b){ b.mapId='MAP5'; }", /duplicate mapId/, 'duplicate resolved id');
+    withBadRecord("function(b){ b.chunkX=4; b.chunkY=5; }", /duplicate chunk coordinate/, 'duplicate resolved coordinate');
+    withBadRecord("function(b){ b.map=Array.from({length:14},function(){return Array(16).fill(0);}); }", /rows \(expected 15\)/, 'bad dimensions');
+    withBadRecord("function(b){ b.map[0][0]=999999; }", /unknown tile id 999999/, 'invalid tile');
+    withBadRecord("function(b){ b.presentation='bogus'; }", /not a recognized mode/, 'unknown presentation');
+    withBadRecord("function(b){ b.contentKey=''; }", /contentKey is missing/, 'invalid content ownership');
+    withBadRecord("function(b){ b.encounterPool={}; }", /encounterPool must resolve/, 'invalid encounter ownership');
+    withBadRecord("function(b){ b.somethingNew=1; }", /unrecognized field/, 'unknown resolved field (fail-closed)');
+
+    // ── 6 of spec. Unknown encounter-profile and item-set ids fail validation
+    //    with useful messages (definitions layer). ─────────────────────────────
+    const withBadDefinition = (mutate, regex, label) => {
+      const errs = J(`(function(){
+        var base = { mapId:'__BADDEF__', regionId:'overworld', chunkX:9, chunkY:9,
+          map: Array.from({length:15},function(){return Array(16).fill(0);}),
+          displayName:'Bad', region:'Test', contentKey:'baddef', presentation:'continuous',
+          encounterProfileId:'far', itemSetId:'map2', allowRandomEncounters:true, allowSave:true };
+        (${mutate})(base);
+        _REGIONAL_CHUNK_DEFINITIONS.push(base);
+        var v = validateGameData();
+        _REGIONAL_CHUNK_DEFINITIONS.pop();
+        return JSON.stringify((v.errorList||[]).filter(function(e){return e.group==='Regional chunks';}).map(function(e){return e.message;}));
+      })()`);
+      assert.ok(errs.some((m) => regex.test(m)), label + ' -> a Regional chunks error matching ' + regex);
+    };
+    withBadDefinition("function(b){ b.encounterProfileId='nope'; }", /unknown encounterProfileId "nope" \(known:/, 'unknown encounter-profile id (useful message)');
+    withBadDefinition("function(b){ b.itemSetId='nope'; }", /unknown itemSetId "nope" \(known:/, 'unknown item-set id (useful message)');
+    withBadDefinition("function(b){ b.mapId='MAP5'; }", /mapId "MAP5" is defined in more than one fragment/, 'duplicate mapId across fragments');
+    withBadDefinition("function(b){ b.chunkX=4; b.chunkY=5; }", /coordinate overworld:4,5 is defined in more than one fragment/, 'duplicate coordinate across fragments');
+    withBadDefinition("function(b){ b.mystery=1; }", /unrecognized authored field "mystery"/, 'unknown authored field (fail-closed)');
+
+    // ── 16 of spec. One clean fragment definition suffices — the profile/item
+    //    registries resolve it with no second registry edit. (Mirrors the data.js
+    //    builder's resolution step to prove a single authored input is enough.) ─
+    const single = J(`(function(){
+      var def = { mapId:'__SYN__', regionId:'overworld', chunkX:7, chunkY:7,
+        map: Array.from({length:15},function(){return Array(16).fill(0);}),
+        displayName:'Synthetic', region:'Test', contentKey:'syn', presentation:'continuous',
+        encounterProfileId:'north_basin', itemSetId:'map3', allowRandomEncounters:true, allowSave:true };
+      var pool = _ENCOUNTER_PROFILES[def.encounterProfileId];
+      var items = (def.itemSetId===undefined) ? [] : _REGIONAL_ITEM_SETS[def.itemSetId];
+      return JSON.stringify({ poolOk: pool===NORTH_BASIN_ENEMY_TEMPLATES, itemsOk: items===MAP3_ITEMS });
+    })()`);
+    assert.ok(single.poolOk && single.itemsOk, 'a single fragment definition resolves its pool + items through the registries (no second registry edit)');
+
+    // ── 13 of spec. Construction / reading mutates no gameplay state ──────────
+    const noMut = J(`(function(){
+      var before = mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+inTown+'|'+inDungeon;
+      Object.keys(REGIONAL_CHUNK_CATALOG).forEach(function(k){ var r=REGIONAL_CHUNK_CATALOG[k]; void r.map; void r.encounterPool; });
+      outdoorContentKeyForMapId('MAP5'); regionPlacementForMapId('MAP5'); mapEntryForId('MAP5');
+      var after = mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+inTown+'|'+inDungeon;
+      return JSON.stringify({ same: before===after });
+    })()`);
+    assert.ok(noMut.same, 'reading the chunk catalog / derived views mutates no runtime state');
+
+    // ── 15 of spec. Discrete maps stay OUTSIDE the regional chunk authoring ───
+    for (const d of ['HOUSE_INTERIOR_MAP', 'TOWN_MAP', 'DUNGEON_MAP', 'BRIDGE_CROSSING_MAP']) {
+      assert.equal(g.run(`typeof REGIONAL_CHUNK_CATALOG['${d}']`), 'undefined', `${d} is not a regional chunk record`);
+      assert.equal(g.run(`_REGIONAL_CHUNK_DEFINITIONS.some(function(x){return x.mapId==='${d}';})`), false, `${d} has no chunk definition`);
+      assert.equal(g.run(`!!mapEntryForId('${d}')`), true, `${d} still has a discrete MAP_CATALOG entry`);
+      assert.equal(g.run(`regionPlacementForMapId('${d}')`), null, `${d} has no regional placement`);
+    }
+    g.run("debugWarpToDestination('dungeon:f8_east');");
+    assert.equal(g.run('regionalWorldPosition()'), null, 'a discrete dungeon has no canonical regional position (unchanged)');
+  },
+};

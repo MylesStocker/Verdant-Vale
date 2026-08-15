@@ -108,29 +108,13 @@ const MAP4 = [
 const MAP4_ITEMS = [];
 
 // ─── Thornmere Shallows — MAP5  (16 × 15) ────────────────────────────────────
-// Connected west to MAP4 via a continuous seam at row 6 (MAP4.east ↔ MAP5.west).
-// A sand spit protrudes east into open water from the entrance. The spit tapers
-// from ~4 tiles wide at the base (rows 5-8 near col 1) to a single-tile tip at
-// col 9 (row 7), then reeds mark the dissolution into water. No eastern exit.
-const MAP5 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  open water — the shallows continue off-map north
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open water, open to W and E edges
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open water, open to W and E edges
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open water, open to W and E edges
-  [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  spit north shoulder; water W and E edges
-  [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  5  spit north edge, cols 2-7; water W and E edges
-  [  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1],  //  6  ← col 0 = west seam → MAP4.east (continuous, GRASS shore); spit body; water E edge
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  7  spit widest / tip extends to col 9; lone shore tree by the landing (col 0)
-  [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  8  spit south edge, mirrors row 5; water W and E edges
-  [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  spit south shoulder, mirrors row 4
-  [  1,  1,  1, 23,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  spit inner tip
-  [  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  last reed marking spit end
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  open water
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open water
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  open water — the shallows continue off-map south
-];
-
+// PILOT: MAP5's tile grid is authored directly inside its chunk definition in
+// THORNMERE_REGIONAL_CHUNK_DEFINITIONS (bottom of this file) — the first regional
+// chunk on the declarative chunk format, with its grid living in its record rather
+// than as a standalone `const MAP5 = [...]` variable. data.js exposes a derived
+// compat alias (`const MAP5 = REGIONAL_CHUNK_CATALOG.MAP5.map`) for bare-MAP5
+// consumers. MAP5_ITEMS (its item ownership) stays here as ordinary content,
+// referenced from the record by the stable itemSetId 'map5'.
 const MAP5_ITEMS = [];
 
 // ─── Northern Fen — MAP3_N1  (16 × 15) ───────────────────────────────────────
@@ -482,3 +466,56 @@ const FEN_BREWERY_MAP = [
   [ 19, 18, 18, 20, 18, 18, 19, 18, 18, 18, 18, 18, 18, 18, 18, 19],  // 13  INTERIOR_EXIT col 3
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14  south wall
 ];
+
+// ── Regional chunk definitions (Thornmere) ───────────────────────────────────
+// Authored authority for this file's placed regional chunks. data.js merges the
+// per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and resolves encounterProfileId /
+// itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
+// MAP5 is the pilot: its grid is authored inline here, not as a `const MAP5` var.
+const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
+  { mapId: 'MAP2', regionId: 'overworld', chunkX: 1, chunkY: 5, map: MAP2,
+    displayName: 'Eastern Reaches', region: 'Eastern Reaches', contentKey: 'map2',
+    presentation: 'continuous', encounterProfileId: 'reaches', itemSetId: 'map2',
+    allowRandomEncounters: true, allowSave: true },
+  { mapId: 'MAP3', regionId: 'overworld', chunkX: 2, chunkY: 5, map: MAP3,
+    displayName: 'Thornmere Fen', region: 'Thornmere', contentKey: 'map3',
+    presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3',
+    allowRandomEncounters: true, allowSave: true },
+  { mapId: 'MAP4', regionId: 'overworld', chunkX: 3, chunkY: 5, map: MAP4,
+    displayName: 'Thornmere', region: 'Thornmere', contentKey: 'map4',
+    presentation: 'continuous', encounterProfileId: 'thornmere', itemSetId: 'map4',
+    allowRandomEncounters: true, allowSave: true },
+  // ── MAP5 / Thornmere Shallows — PILOT: grid authored directly in this record ──
+  { mapId: 'MAP5', regionId: 'overworld', chunkX: 4, chunkY: 5,
+    displayName: 'Thornmere Shallows', region: 'Thornmere', contentKey: 'overworld',
+    presentation: 'continuous', encounterProfileId: 'thornmere', itemSetId: 'map5',
+    allowRandomEncounters: true, allowSave: true,
+    map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  open water — the shallows continue off-map north
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open water, open to W and E edges
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open water, open to W and E edges
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open water, open to W and E edges
+      [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  spit north shoulder; water W and E edges
+      [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  5  spit north edge, cols 2-7; water W and E edges
+      [  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1],  //  6  ← col 0 = west seam → MAP4.east (continuous, GRASS shore); spit body; water E edge
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  7  spit widest / tip extends to col 9; lone shore tree by the landing (col 0)
+      [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  8  spit south edge, mirrors row 5; water W and E edges
+      [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  spit south shoulder, mirrors row 4
+      [  1,  1,  1, 23,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  spit inner tip
+      [  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  last reed marking spit end
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  open water
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open water
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  open water — the shallows continue off-map south
+    ] },
+  { mapId: 'RODDON_WAY_MAP', regionId: 'overworld', chunkX: 1, chunkY: 4, map: RODDON_WAY_MAP,
+    displayName: 'Roddon Way', region: 'Thornmere', contentKey: 'overworld',
+    presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'roddon_way',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'A single dead-end fen map off MAP3_N1’s west edge (an old creek-bed ridge, RODDON_SILT) -- no other neighbours. Reuses MAP3_N1’s own encounter pool; no new enemies. Ordinary regional geography, not connected to the North Basin drought story.' },
+  { mapId: 'MAP3_N1', regionId: 'overworld', chunkX: 2, chunkY: 4, map: MAP3_N1,
+    displayName: 'Northern Fen', region: 'Thornmere', contentKey: 'map3_n1',
+    presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3_n1',
+    allowRandomEncounters: true, allowSave: true },
+];
+window.THORNMERE_REGIONAL_CHUNK_DEFINITIONS = THORNMERE_REGIONAL_CHUNK_DEFINITIONS;
