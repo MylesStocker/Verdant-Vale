@@ -717,11 +717,27 @@ function _regionalChunkCatalogEntry(mapId) {
   return e;
 }
 
-// TEMPORARY compat alias for the pilot: a DERIVED reference to the catalog grid
-// (not a second grid). Existing bare-`MAP5` consumers + window.MAP5 keep working;
-// new code should use mapRefForId('MAP5') / the catalog helpers instead.
-const MAP5 = REGIONAL_CHUNK_CATALOG.MAP5.map;
-window.MAP5 = MAP5;
+// Compatibility aliases: each is a DERIVED reference to the catalog grid (never a
+// second grid). The 15 regional grids are now authored inline in their chunk
+// definition records; existing bare-`MAP…` consumers (state.js's initial activeMap,
+// movement.js's `activeMap === MAP…` checks, render/audit/tests, and the harness's
+// window.* reads) keep working through these. New code should use mapRefForId(id) /
+// the catalog helpers instead — a new regional chunk never needs an alias here.
+const MAP              = REGIONAL_CHUNK_CATALOG.MAP.map;                window.MAP              = MAP;
+const MAP2             = REGIONAL_CHUNK_CATALOG.MAP2.map;               window.MAP2             = MAP2;
+const MAP3             = REGIONAL_CHUNK_CATALOG.MAP3.map;               window.MAP3             = MAP3;
+const MAP4             = REGIONAL_CHUNK_CATALOG.MAP4.map;               window.MAP4             = MAP4;
+const MAP5             = REGIONAL_CHUNK_CATALOG.MAP5.map;               window.MAP5             = MAP5;
+const MAP_N1           = REGIONAL_CHUNK_CATALOG.MAP_N1.map;             window.MAP_N1           = MAP_N1;
+const MAP_N2           = REGIONAL_CHUNK_CATALOG.MAP_N2.map;             window.MAP_N2           = MAP_N2;
+const RODDON_WAY_MAP   = REGIONAL_CHUNK_CATALOG.RODDON_WAY_MAP.map;     window.RODDON_WAY_MAP   = RODDON_WAY_MAP;
+const MAP3_N1          = REGIONAL_CHUNK_CATALOG.MAP3_N1.map;            window.MAP3_N1          = MAP3_N1;
+const MAP3_N2          = REGIONAL_CHUNK_CATALOG.MAP3_N2.map;            window.MAP3_N2          = MAP3_N2;
+const NORTH_BASIN_S_MAP  = REGIONAL_CHUNK_CATALOG.NORTH_BASIN_S_MAP.map;  window.NORTH_BASIN_S_MAP  = NORTH_BASIN_S_MAP;
+const NORTH_BASIN_C_MAP  = REGIONAL_CHUNK_CATALOG.NORTH_BASIN_C_MAP.map;  window.NORTH_BASIN_C_MAP  = NORTH_BASIN_C_MAP;
+const NORTH_BASIN_SW_MAP = REGIONAL_CHUNK_CATALOG.NORTH_BASIN_SW_MAP.map; window.NORTH_BASIN_SW_MAP = NORTH_BASIN_SW_MAP;
+const NORTH_BASIN_W_MAP  = REGIONAL_CHUNK_CATALOG.NORTH_BASIN_W_MAP.map;  window.NORTH_BASIN_W_MAP  = NORTH_BASIN_W_MAP;
+const NORTH_BASIN_NW_MAP = REGIONAL_CHUNK_CATALOG.NORTH_BASIN_NW_MAP.map; window.NORTH_BASIN_NW_MAP = NORTH_BASIN_NW_MAP;
 
 const MAP_CATALOG = {
   // ── Overworld (Verdant Vale / Eastern Reaches / Thornmere fen) ────────────

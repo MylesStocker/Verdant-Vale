@@ -304,7 +304,7 @@ placed regional map** (15 total). An authored definition OWNS:
 ```js
 {
   mapId, regionId, chunkX, chunkY,   // identity + placement (integers)
-  map,                               // the 15×16 tile grid (inline, or a legacy grid var — see below)
+  map,                               // the 15×16 tile grid, authored INLINE in the record
   displayName, region,               // catalog display metadata
   contentKey,                        // logical content-location key
   presentation,                      // 'continuous' | 'legacy_screen'
@@ -362,15 +362,23 @@ metadata — they derive. A future item-less, NPC-less chunk is still just one
 definition (its grid + metadata). New regional grids should be authored **inline in
 the fragment record**, never as a bare `const MAP… = [...]` variable.
 
-**Pilot + migration status.** **MAP5 / Thornmere Shallows** is the first chunk on the
-final format: its grid literal is authored **inline in its record** inside
-`THORNMERE_REGIONAL_CHUNK_DEFINITIONS` (`content/maps/thornmere-wilds-maps.js`) — the
-repository's sole MAP5 grid. `data.js` holds no MAP5 grid; it keeps only a TEMPORARY
-derived alias `const MAP5 = REGIONAL_CHUNK_CATALOG.MAP5.map` (+ `window.MAP5`, a
-derived compat export) for existing bare-`MAP5` consumers. The other **14 definitions
-still `map:` their existing standalone `const MAP…` grid variables** — TEMPORARY; the
-next mechanical increment inlines each grid into its fragment record and removes the
-variable, exactly like the MAP5 pilot. No terrain is changed by that migration.
+**All 15 grids are authored inline.** Every placed regional grid now lives **inside its
+chunk definition record** (`map: [ …15×16… ]`) in the owning geographic fragment — there
+are no standalone `const MAP… = [...]` grid variables and no `map: MAP…` references to
+them. `data.js` holds no terrain grids at all; it only assembles and resolves the
+fragments.
+
+**Compatibility aliases.** A number of pre-existing consumers still reference a regional
+map by its bare identifier — `state.js`'s initial `let activeMap = MAP`, `movement.js`'s
+`activeMap === MAP…` transition checks, render/audit code, and the tests + harness's
+`window.*` reads. So after building the catalog, `data.js` declares one **derived alias
+per map** — `const MAP… = REGIONAL_CHUNK_CATALOG.MAP….map` (+ a derived `window.MAP…`).
+These are references to the catalog grid, **never a second grid or authority**, and are
+the sole `const MAP…` / `window.MAP…` declarations in the codebase (the former exports in
+`maps.js` were removed). They exist only to avoid a large, unrelated consumer refactor; a
+**new** regional chunk never needs one (new code uses `mapRefForId(id)` / the catalog
+helpers). Migrating those consumers off the bare identifiers, and dropping the aliases, is
+a possible later cleanup — out of scope here.
 
 **Regional chunks vs discrete maps.** Only the 15 placed wilderness chunks are
 authored through this system. Discrete town / interior / dungeon / bridge / special

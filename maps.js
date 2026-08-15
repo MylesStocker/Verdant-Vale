@@ -5,24 +5,7 @@
 // Connected to MAP_N2 via a continuous seam at col 7 (MAP_N1.north ↔ MAP_N2.south).
 // Road runs north-south at col 7. River crossing at rows 6-7.
 // Forest clusters at rows 2-3 (cols 1-3, 12-14) and rows 10-11 (cols 10-13).
-const MAP_N1 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 7 = north seam → MAP_N2.south (continuous)
-  [  3,  0,  0,  3,  3,  0,  0,  2,  0,  0,  3,  3,  3,  0,  0,  3],  //  1  road + forest flanks
-  [  3,  0,  3,  3,  0,  0,  0,  2,  0,  0,  0,  3,  3,  3,  0,  3],  //  2  dense forest NW + NE
-  [  3,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  3,  3,  3],  //  3  forest breaks
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  4  open country
-  [  3,  0,  0, 23,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0,  3],  //  5  reeds each side
-  [  3,  0, 23,  1,  1, 23,  0,  2,  0, 23,  1,  1, 23,  0,  0,  3],  //  6  river (WATER) crossing
-  [  3,  0, 23,  1,  1,  0,  0,  2,  0,  0,  1,  1, 23,  0,  0,  3],  //  7  river continued
-  [  3,  0,  0, 23,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0,  3],  //  8  reeds, clearing
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  open
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3,  3,  3,  0,  0,  3],  // 10  SE forest begins
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3,  3,  3,  3,  0,  3],  // 11  SE forest dense
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  3,  0,  0,  0,  3],  // 12  thinning
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 13  approach to MAP
-  [  3,  3,  3,  3,  3,  3,  3, 44,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = NORTH_ENTRANCE
-];
+// MAP_N1’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const MAP_N1_ITEMS = [];
 
@@ -30,24 +13,7 @@ const MAP_N1_ITEMS = [];
 // Connected to MAP_N1 via a continuous seam at col 7 (MAP_N1.north ↔ MAP_N2.south).
 // Drenwick: large city, ~3× Calwick's footprint — TOWN_BUILDING block rows 1-8, cols 2-13.
 // Not enterable yet. Road runs south at col 7 rows 9-13, continuous seam at row 14 col 7.
-const MAP_N2 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north wall
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  1  Drenwick N wall
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  2
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  3
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  4
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  5
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  6
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  7
-  [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  8  Drenwick S wall
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  road approaches city
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 10
-  [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 11
-  [  3,  0, 23, 23,  0,  0,  0,  2,  0,  0,  0, 23, 23,  0,  0,  3],  // 12  reeds flanking road
-  [  3,  0,  0, 23,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0,  3],  // 13  straggling reeds
-  [  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = south seam → MAP_N1.north (continuous)
-];
+// MAP_N2’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const MAP_N2_ITEMS = [];
 
@@ -141,35 +107,23 @@ const DREAM_MAP = [
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
-window.MAP                  = MAP;
-window.MAP2                 = MAP2;
 window.MAP2_ITEMS           = MAP2_ITEMS;
 window.LORRA_HOUSE_MAP      = LORRA_HOUSE_MAP;
 window.MAREN_POST_MAP       = MAREN_POST_MAP;
-window.MAP3                 = MAP3;
 window.MAP3_ITEMS           = MAP3_ITEMS;
-window.MAP4                 = MAP4;
 window.MAP4_ITEMS           = MAP4_ITEMS;
 window.MAP5_ITEMS           = MAP5_ITEMS;
-window.MAP3_N1              = MAP3_N1;
 window.MAP3_N1_ITEMS        = MAP3_N1_ITEMS;
-window.RODDON_WAY_MAP       = RODDON_WAY_MAP;
 window.RODDON_WAY_ITEMS     = RODDON_WAY_ITEMS;
 window.MIRE_VAULT_MAP       = MIRE_VAULT_MAP;
 window.TAKOMO_MAP           = TAKOMO_MAP;
 window.HAMLET_INTERIOR_MAP  = HAMLET_INTERIOR_MAP;
 window.FEN_BREWERY_MAP      = FEN_BREWERY_MAP;
-window.MAP3_N2              = MAP3_N2;
 window.MAP3_N2_ITEMS        = MAP3_N2_ITEMS;
-window.NORTH_BASIN_S_MAP    = NORTH_BASIN_S_MAP;
 window.NORTH_BASIN_S_ITEMS  = NORTH_BASIN_S_ITEMS;
-window.NORTH_BASIN_C_MAP    = NORTH_BASIN_C_MAP;
 window.NORTH_BASIN_C_ITEMS  = NORTH_BASIN_C_ITEMS;
-window.NORTH_BASIN_SW_MAP   = NORTH_BASIN_SW_MAP;
 window.NORTH_BASIN_SW_ITEMS = NORTH_BASIN_SW_ITEMS;
-window.NORTH_BASIN_W_MAP    = NORTH_BASIN_W_MAP;
 window.NORTH_BASIN_W_ITEMS  = NORTH_BASIN_W_ITEMS;
-window.NORTH_BASIN_NW_MAP   = NORTH_BASIN_NW_MAP;
 window.NORTH_BASIN_NW_ITEMS = NORTH_BASIN_NW_ITEMS;
 window.BASIN_CHAMBER_MAP    = BASIN_CHAMBER_MAP;
 window.BASIN_CHAMBER_ITEMS  = BASIN_CHAMBER_ITEMS;
@@ -193,9 +147,7 @@ window.DRENWICK_GUILD_HALL_MAP         = DRENWICK_GUILD_HALL_MAP;
 window.DRENWICK_TAVERN_MAP             = DRENWICK_TAVERN_MAP;
 window.DRENWICK_SCHOOL_GROUND_MAP      = DRENWICK_SCHOOL_GROUND_MAP;
 window.DRENWICK_SCHOOL_UPPER_MAP       = DRENWICK_SCHOOL_UPPER_MAP;
-window.MAP_N1               = MAP_N1;
 window.MAP_N1_ITEMS         = MAP_N1_ITEMS;
-window.MAP_N2               = MAP_N2;
 window.MAP_N2_ITEMS         = MAP_N2_ITEMS;
 window.DUNGEON_ENTRANCE_MAP   = DUNGEON_ENTRANCE_MAP;
 window.DUNGEON_ENTRANCE_ITEMS = DUNGEON_ENTRANCE_ITEMS;
@@ -261,11 +213,45 @@ window.DREAM_MAP            = DREAM_MAP;
 // resolves encounterProfileId / itemSetId into the runtime REGIONAL_CHUNK_CATALOG
 // (see data.js for the contract).
 const NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS = [
-  { mapId: 'MAP_N1', regionId: 'overworld', chunkX: 0, chunkY: 4, map: MAP_N1,
+  { mapId: 'MAP_N1', regionId: 'overworld', chunkX: 0, chunkY: 4, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 7 = north seam → MAP_N2.south (continuous)
+      [  3,  0,  0,  3,  3,  0,  0,  2,  0,  0,  3,  3,  3,  0,  0,  3],  //  1  road + forest flanks
+      [  3,  0,  3,  3,  0,  0,  0,  2,  0,  0,  0,  3,  3,  3,  0,  3],  //  2  dense forest NW + NE
+      [  3,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  3,  3,  3],  //  3  forest breaks
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  4  open country
+      [  3,  0,  0, 23,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0,  3],  //  5  reeds each side
+      [  3,  0, 23,  1,  1, 23,  0,  2,  0, 23,  1,  1, 23,  0,  0,  3],  //  6  river (WATER) crossing
+      [  3,  0, 23,  1,  1,  0,  0,  2,  0,  0,  1,  1, 23,  0,  0,  3],  //  7  river continued
+      [  3,  0,  0, 23,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0,  3],  //  8  reeds, clearing
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  open
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3,  3,  3,  0,  0,  3],  // 10  SE forest begins
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3,  3,  3,  3,  0,  3],  // 11  SE forest dense
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  3,  0,  0,  0,  3],  // 12  thinning
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 13  approach to MAP
+      [  3,  3,  3,  3,  3,  3,  3, 44,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = NORTH_ENTRANCE
+    ],
     displayName: 'Northern Road', region: 'Thornmere', contentKey: 'map_n1',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map_n1',
     allowRandomEncounters: true, allowSave: true },
-  { mapId: 'MAP_N2', regionId: 'overworld', chunkX: 0, chunkY: 3, map: MAP_N2,
+  { mapId: 'MAP_N2', regionId: 'overworld', chunkX: 0, chunkY: 3, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north wall
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  1  Drenwick N wall
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  2
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  3
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  4
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  5
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  6
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  7
+      [  3,  3, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,  3,  3],  //  8  Drenwick S wall
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  road approaches city
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 10
+      [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  // 11
+      [  3,  0, 23, 23,  0,  0,  0,  2,  0,  0,  0, 23, 23,  0,  0,  3],  // 12  reeds flanking road
+      [  3,  0,  0, 23,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0,  3],  // 13  straggling reeds
+      [  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 7 = south seam → MAP_N1.north (continuous)
+    ],
     displayName: 'Blocked Path', region: 'Thornmere', contentKey: 'map_n2',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map_n2',
     allowRandomEncounters: true, allowSave: true,

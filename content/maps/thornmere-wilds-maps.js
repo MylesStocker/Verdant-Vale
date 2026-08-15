@@ -8,24 +8,7 @@
 // Connected to MAP3 via MAP3_EXIT at row 11 col 15 / MAP3_ENTRANCE at col 0.
 // Road enters from the west (col 0 row 4), winds south and east, exits east (row 11 col 15).
 // Small lake at rows 8-10, cols 5-7.  Reeds at rows 7,10.  Forest clusters rows 2-3 and 7-8.
-const MAP2 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, 23, 23, 23,  3],  //  0  ← cols 12-14 = open-fen crossing → EDGE_TRANSITIONS north to Roddon Way (roadless: cut NE across the fen)
-  [  3,  0,  0,  0,  0,  0,  3,  3,  0,  0,  0,  0,  0,  0,  0,  3],  //  1
-  [  3,  0,  0,  3,  0,  0,  0,  0,  0,  0,  3,  3,  0,  0,  0,  3],  //  2
-  [  3,  0,  0,  3,  3,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0,  3],  //  3
-  [ 40,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  //  4  ← col 0 = entrance from MAP
-  [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  5
-  [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  3],  //  6
-  [  3,  0,  3,  3,  0, 23, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3],  //  7  reeds north of lake
-  [  3,  0,  3,  0,  0,  1,  1,  0,  0,  0,  0,  2,  0,  0,  0,  3],  //  8  lake + road
-  [  3,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  2,  0,  0,  0,  3],  //  9  lake + road
-  [  3,  0,  0,  0, 23,  0,  1,  0,  0,  0,  0,  2,  0,  0,  0,  3],  // 10  reeds west of lake + road
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2],  // 11  east seam c15 → MAP3.west (continuous)
-  [  3,  0, 54,  3,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  // 12  FARM_HOUSE c2; tree c3 (original)
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 13  approach
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14
-];
+// MAP2’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const MAP2_ITEMS = [];
 
@@ -59,24 +42,7 @@ const LORRA_HOUSE_MAP = [
 // row 0, where the col-8 PATH is now the seamless MAP3↔MAP3_N1 crossing (former
 // FEN_N_EXIT point tile). Also branches east at row 6: road runs col 8→15, where the
 // col-15 PATH is now the continuous MAP3.east ↔ MAP4.west seam (former MAP4_EXIT).
-const MAP3 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  1,  1,  1,  1,  1,  1,  1,  1,  2,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = PATH seam to MAP3_N1; N lake continues off-map W of the road
-  [  1, 23, 23,  1,  1,  1,  1, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  1  N lake + reeds; road at col 8; water W edge
-  [  1, 23,  1,  1,  1,  1,  1,  1,  2,  0,  0,  0,  0,  3,  3,  3],  //  2  N lake + reeds; road at col 8; water W edge
-  [  3,  0,  1,  1,  1, 23, 23,  0,  2,  0,  0,  0,  0,  3,  0,  3],  //  3  N lake edge; road at col 8
-  [  3,  0, 23, 23, 23,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  4  reeds band; road at col 8
-  [  3,  0,  0, 23,  1,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  5  mid-pond; road at col 8
-  [  3,  0,  0, 23,  1,  1,  1, 23,  2,  2,  2,  2,  2,  2,  2,  2],  //  6  mid-pond + road east; col 15 seam → MAP4.west (continuous)
-  [  3,  0,  0,  0, 23,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  7  reeds + road N/S
-  [  3,  0,  0,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds + road
-  [  3,  0, 23,  0,  0,  0, 23, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  9  reeds + road
-  [  3,  0, 23,  1,  0,  0,  0, 23,  2,  0,  0,  0,  0,  0,  0,  3],  // 10  water + reeds + road
-  [  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  // 11  ← col 0 = west seam → MAP2.east (continuous)
-  [  3,  0,  0, 23, 23,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  3],  // 12  S marsh
-  [  3,  0,  0,  0, 23,  1,  1,  0, 23,  0,  0,  0,  0,  0,  0,  3],  // 13  S marsh + reeds
-  [  3,  3,  3,  3,  1,  1,  1,  3,  1,  3,  3,  3,  3,  3,  3,  3],  // 14  S marsh drains off-map (cols 4-6, 8)
-];
+// MAP3’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const MAP3_ITEMS = [];
 
@@ -86,24 +52,7 @@ const MAP3_ITEMS = [];
 // A narrow path (1 tile) enters from the west at row 6, climbs the west shore to row 1,
 // crosses the north bank, then descends the east shore to row 8 — a П-shaped walkway
 // around the top of the lake. No path on the south half; just water and scattered reeds.
-const MAP4 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  border
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  1  north shore (top of П) — was PATH (safe road); now GRASS so it's a normal encounter zone like any other wilderness path
-  [  3,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  2  W+E shore, reeds at water's edge
-  [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  3  lake deepens
-  [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  4
-  [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  5  reeds on E shore mid
-  [  0,  0,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  0],  //  6  ← island NW/NE (cols 7-8); col 0 = west seam → MAP3.east; col 15 = east seam → MAP5.west (continuous, GRASS shore)
-  [  1, 23,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  3],  //  7  ← island SW/SE (cols 7-8); reeds at W shore; water W edge
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  8  E shore ends here (bottom of П); water W edge
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  9  E grass (path gone), open lake; water W edge
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  full lake, open to W and E edges
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  full lake, open to W and E edges
-  [  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  reeds on SW shore; water W and E edges
-  [  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  reeds trailing SW; water W and E edges
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  the Thornmere continues off-map south
-];
+// MAP4’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const MAP4_ITEMS = [];
 
@@ -135,24 +84,7 @@ const MAP5_ITEMS = [];
 // continuous feature crossing the map boundary, not two coincidentally
 // similar landforms.
 // Continuation of fen theme: boggy grassland, scattered water, reeds, sparse trees.
-const MAP3_N1 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  //  0  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS north to MAP3_N2 (Drenwick)
-  [  3,  0,  0, 23,  0,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  3],  //  1
-  [  3,  0,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  2  NW trees
-  [  3, 55,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  3  col 1 = MIRE_ENTRANCE
-  [111,  0,  0,  0, 23,  1,  1, 23,  2,  2,  2,  2,  2, 54,  0,  3],  //  4  ← col 0 = roddon crossing (top); W bog pond; cols 9-12=path to brewery; col 13=FARM_HOUSE (fen brewery)
-  [111,  0,  0, 23,  1,  1,  1, 23,  2, 23,  0,  0,  0,  0,  0,  3],  //  5  ← col 0 = roddon crossing; bog pond + E reeds
-  [111,  0,  0,  0, 23,  1, 23,  0,  2,  0, 23,  1, 23,  0,  0,  3],  //  6  ← col 0 = roddon crossing; bog + E pond
-  [111,  0,  0,  0,  0, 23,  0,  0,  2,  0, 23,  1,  1, 23,  0,  3],  //  7  ← col 0 = roddon crossing; reeds + E pond
-  [111,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 23,  0,  0,  0,  3],  //  8  ← col 0 = roddon crossing; clearing
-  [111,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0, 53,  0,  3],  //  9  ← col 0 = roddon crossing (bottom); GUARD_POST c13 (smugglers' fort)
-  [  3, 54, 23,  1, 23,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 10  FARM_HOUSE c1 (hamlet north); SW marsh; tree c13 screens fort
-  [  3,  0, 54, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3,  3,  0,  3],  // 11  FARM_HOUSE c2 (hamlet middle)
-  [  3, 54,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 12  FARM_HOUSE c1 (hamlet south)
-  [  3,  0,  0,  0,  0, 23, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  reeds near south
-  [  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 8 = PATH seam to MAP3 (former FEN_N_ENTRANCE point tile)
-];
+// MAP3_N1’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const MAP3_N1_ITEMS = [
   // Mabel's fen sickle — lost at the north bank overhang (quest: Still Water).
@@ -200,24 +132,7 @@ const MAP3_N1_ITEMS = [
 // Encounters: FAR_ENEMY_TEMPLATES, the same pool MAP3_N1 already uses —
 // no new enemies. GRASS/REEDS roll as usual; RODDON_SILT (like PATH) does
 // not, so the ridge is the safe route through, matching the brief.
-const RODDON_WAY_MAP = [
-  //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
-  [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3],  //  0  border
-  [   3,   0, 111, 111,   0,   0,   0,   0,   0,  23,  23,   1,   1,   0,   0,   3],  //  1  terminus knob; N pool c11-12
-  [   3, 111, 111, 111, 111,   0, 111,   0,  23,  23,  23,   0,   0,   0,   0,   3],  //  2  terminus curve; viewpoint bulge c6; reed hollow c8-10
-  [   3,   0, 111, 111, 111, 111, 111, 111, 111,   0,   0,   0,   0,   0,   0,   3],  //  3  bend 2 into the middle leg
-  [   3,   0,   0,   0,   0, 111, 111, 111, 111,   0,   0,   0,   0, 111, 111, 111],  //  4  middle leg; bend 1 begins c8; entry flare c13-15 → mouth (col 15) opens to MAP3_N1
-  [   3,   0,   3,   0,   0,   0,   0,   0, 111, 111,   0,   0,   0, 111, 111, 111],  //  5  scrub c2; bend 1 continues; entry flare c13-15
-  [   3,   0,   0,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111, 111, 111, 111],  //  6  entry band, full width from c9 → mouth
-  [   3,   0,   0,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111, 111, 111, 111],  //  7  entry band → mouth
-  [   3,   0,  23,   0,   0,   3,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111],  //  8  old channel edge c2; scrub c5; entry taper → mouth
-  [   3,   0,  23,  23,   0,   0,   0,   0,   0,   0,  23,  23,   0, 111, 111, 111],  //  9  entry taper → mouth (col 15, bottom of the crossing)
-  [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,  23,  23,  23,   0,   0,   3],  // 10  SE reed patch
-  [   3,   0,   0,  23,  23,   0,   0,   1,   1,   0,   0,  23,   0,   0,   0,   3],  // 11  SW reed patch; S pool c7-8 (eel stakes at c6)
-  [   3,   0,   0,  23,  23,  23,   0,   1,   0,   0,   3,   0,   0,   0,   0,   3],  // 12  SW reed patch continues; S pool; SE scrub c10
-  [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3],  // 13  open lower fen; the SE stretch (c12-14) runs down to the MAP2 crossing
-  [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,  23,  23,  23,   3],  // 14  cols 12-14 = open-fen crossing → EDGE_TRANSITIONS south to MAP2 (Eastern Reaches); no road
-];
+// RODDON_WAY_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const RODDON_WAY_ITEMS = [
   // A small find at the end of the ridge — reaching the terminus/viewpoint
@@ -473,15 +388,66 @@ const FEN_BREWERY_MAP = [
 // itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
 // MAP5 is the pilot: its grid is authored inline here, not as a `const MAP5` var.
 const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
-  { mapId: 'MAP2', regionId: 'overworld', chunkX: 1, chunkY: 5, map: MAP2,
+  { mapId: 'MAP2', regionId: 'overworld', chunkX: 1, chunkY: 5, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, 23, 23, 23,  3],  //  0  ← cols 12-14 = open-fen crossing → EDGE_TRANSITIONS north to Roddon Way (roadless: cut NE across the fen)
+      [  3,  0,  0,  0,  0,  0,  3,  3,  0,  0,  0,  0,  0,  0,  0,  3],  //  1
+      [  3,  0,  0,  3,  0,  0,  0,  0,  0,  0,  3,  3,  0,  0,  0,  3],  //  2
+      [  3,  0,  0,  3,  3,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0,  3],  //  3
+      [ 40,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  //  4  ← col 0 = entrance from MAP
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  5
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  3],  //  6
+      [  3,  0,  3,  3,  0, 23, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3],  //  7  reeds north of lake
+      [  3,  0,  3,  0,  0,  1,  1,  0,  0,  0,  0,  2,  0,  0,  0,  3],  //  8  lake + road
+      [  3,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  2,  0,  0,  0,  3],  //  9  lake + road
+      [  3,  0,  0,  0, 23,  0,  1,  0,  0,  0,  0,  2,  0,  0,  0,  3],  // 10  reeds west of lake + road
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2],  // 11  east seam c15 → MAP3.west (continuous)
+      [  3,  0, 54,  3,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  // 12  FARM_HOUSE c2; tree c3 (original)
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 13  approach
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14
+    ],
     displayName: 'Eastern Reaches', region: 'Eastern Reaches', contentKey: 'map2',
     presentation: 'continuous', encounterProfileId: 'reaches', itemSetId: 'map2',
     allowRandomEncounters: true, allowSave: true },
-  { mapId: 'MAP3', regionId: 'overworld', chunkX: 2, chunkY: 5, map: MAP3,
+  { mapId: 'MAP3', regionId: 'overworld', chunkX: 2, chunkY: 5, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  1,  1,  1,  1,  1,  1,  1,  1,  2,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = PATH seam to MAP3_N1; N lake continues off-map W of the road
+      [  1, 23, 23,  1,  1,  1,  1, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  1  N lake + reeds; road at col 8; water W edge
+      [  1, 23,  1,  1,  1,  1,  1,  1,  2,  0,  0,  0,  0,  3,  3,  3],  //  2  N lake + reeds; road at col 8; water W edge
+      [  3,  0,  1,  1,  1, 23, 23,  0,  2,  0,  0,  0,  0,  3,  0,  3],  //  3  N lake edge; road at col 8
+      [  3,  0, 23, 23, 23,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  4  reeds band; road at col 8
+      [  3,  0,  0, 23,  1,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  5  mid-pond; road at col 8
+      [  3,  0,  0, 23,  1,  1,  1, 23,  2,  2,  2,  2,  2,  2,  2,  2],  //  6  mid-pond + road east; col 15 seam → MAP4.west (continuous)
+      [  3,  0,  0,  0, 23,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  7  reeds + road N/S
+      [  3,  0,  0,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds + road
+      [  3,  0, 23,  0,  0,  0, 23, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  9  reeds + road
+      [  3,  0, 23,  1,  0,  0,  0, 23,  2,  0,  0,  0,  0,  0,  0,  3],  // 10  water + reeds + road
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  // 11  ← col 0 = west seam → MAP2.east (continuous)
+      [  3,  0,  0, 23, 23,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  3],  // 12  S marsh
+      [  3,  0,  0,  0, 23,  1,  1,  0, 23,  0,  0,  0,  0,  0,  0,  3],  // 13  S marsh + reeds
+      [  3,  3,  3,  3,  1,  1,  1,  3,  1,  3,  3,  3,  3,  3,  3,  3],  // 14  S marsh drains off-map (cols 4-6, 8)
+    ],
     displayName: 'Thornmere Fen', region: 'Thornmere', contentKey: 'map3',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3',
     allowRandomEncounters: true, allowSave: true },
-  { mapId: 'MAP4', regionId: 'overworld', chunkX: 3, chunkY: 5, map: MAP4,
+  { mapId: 'MAP4', regionId: 'overworld', chunkX: 3, chunkY: 5, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  border
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  1  north shore (top of П) — was PATH (safe road); now GRASS so it's a normal encounter zone like any other wilderness path
+      [  3,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  2  W+E shore, reeds at water's edge
+      [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  3  lake deepens
+      [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  4
+      [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  5  reeds on E shore mid
+      [  0,  0,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  0],  //  6  ← island NW/NE (cols 7-8); col 0 = west seam → MAP3.east; col 15 = east seam → MAP5.west (continuous, GRASS shore)
+      [  1, 23,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  0,  3],  //  7  ← island SW/SE (cols 7-8); reeds at W shore; water W edge
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  8  E shore ends here (bottom of П); water W edge
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  9  E grass (path gone), open lake; water W edge
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  full lake, open to W and E edges
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  full lake, open to W and E edges
+      [  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  reeds on SW shore; water W and E edges
+      [  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  reeds trailing SW; water W and E edges
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  the Thornmere continues off-map south
+    ],
     displayName: 'Thornmere', region: 'Thornmere', contentKey: 'map4',
     presentation: 'continuous', encounterProfileId: 'thornmere', itemSetId: 'map4',
     allowRandomEncounters: true, allowSave: true },
@@ -508,12 +474,46 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open water
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  open water — the shallows continue off-map south
     ] },
-  { mapId: 'RODDON_WAY_MAP', regionId: 'overworld', chunkX: 1, chunkY: 4, map: RODDON_WAY_MAP,
+  { mapId: 'RODDON_WAY_MAP', regionId: 'overworld', chunkX: 1, chunkY: 4, map: [
+      //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+      [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3],  //  0  border
+      [   3,   0, 111, 111,   0,   0,   0,   0,   0,  23,  23,   1,   1,   0,   0,   3],  //  1  terminus knob; N pool c11-12
+      [   3, 111, 111, 111, 111,   0, 111,   0,  23,  23,  23,   0,   0,   0,   0,   3],  //  2  terminus curve; viewpoint bulge c6; reed hollow c8-10
+      [   3,   0, 111, 111, 111, 111, 111, 111, 111,   0,   0,   0,   0,   0,   0,   3],  //  3  bend 2 into the middle leg
+      [   3,   0,   0,   0,   0, 111, 111, 111, 111,   0,   0,   0,   0, 111, 111, 111],  //  4  middle leg; bend 1 begins c8; entry flare c13-15 → mouth (col 15) opens to MAP3_N1
+      [   3,   0,   3,   0,   0,   0,   0,   0, 111, 111,   0,   0,   0, 111, 111, 111],  //  5  scrub c2; bend 1 continues; entry flare c13-15
+      [   3,   0,   0,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111, 111, 111, 111],  //  6  entry band, full width from c9 → mouth
+      [   3,   0,   0,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111, 111, 111, 111],  //  7  entry band → mouth
+      [   3,   0,  23,   0,   0,   3,   0,   0,   0,   0,   0,   0, 111, 111, 111, 111],  //  8  old channel edge c2; scrub c5; entry taper → mouth
+      [   3,   0,  23,  23,   0,   0,   0,   0,   0,   0,  23,  23,   0, 111, 111, 111],  //  9  entry taper → mouth (col 15, bottom of the crossing)
+      [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,  23,  23,  23,   0,   0,   3],  // 10  SE reed patch
+      [   3,   0,   0,  23,  23,   0,   0,   1,   1,   0,   0,  23,   0,   0,   0,   3],  // 11  SW reed patch; S pool c7-8 (eel stakes at c6)
+      [   3,   0,   0,  23,  23,  23,   0,   1,   0,   0,   3,   0,   0,   0,   0,   3],  // 12  SW reed patch continues; S pool; SE scrub c10
+      [   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3],  // 13  open lower fen; the SE stretch (c12-14) runs down to the MAP2 crossing
+      [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,  23,  23,  23,   3],  // 14  cols 12-14 = open-fen crossing → EDGE_TRANSITIONS south to MAP2 (Eastern Reaches); no road
+    ],
     displayName: 'Roddon Way', region: 'Thornmere', contentKey: 'overworld',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'roddon_way',
     allowRandomEncounters: true, allowSave: true,
     notes: 'A single dead-end fen map off MAP3_N1’s west edge (an old creek-bed ridge, RODDON_SILT) -- no other neighbours. Reuses MAP3_N1’s own encounter pool; no new enemies. Ordinary regional geography, not connected to the North Basin drought story.' },
-  { mapId: 'MAP3_N1', regionId: 'overworld', chunkX: 2, chunkY: 4, map: MAP3_N1,
+  { mapId: 'MAP3_N1', regionId: 'overworld', chunkX: 2, chunkY: 4, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  //  0  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS north to MAP3_N2 (Drenwick)
+      [  3,  0,  0, 23,  0,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  3],  //  1
+      [  3,  0,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  2  NW trees
+      [  3, 55,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  3  col 1 = MIRE_ENTRANCE
+      [111,  0,  0,  0, 23,  1,  1, 23,  2,  2,  2,  2,  2, 54,  0,  3],  //  4  ← col 0 = roddon crossing (top); W bog pond; cols 9-12=path to brewery; col 13=FARM_HOUSE (fen brewery)
+      [111,  0,  0, 23,  1,  1,  1, 23,  2, 23,  0,  0,  0,  0,  0,  3],  //  5  ← col 0 = roddon crossing; bog pond + E reeds
+      [111,  0,  0,  0, 23,  1, 23,  0,  2,  0, 23,  1, 23,  0,  0,  3],  //  6  ← col 0 = roddon crossing; bog + E pond
+      [111,  0,  0,  0,  0, 23,  0,  0,  2,  0, 23,  1,  1, 23,  0,  3],  //  7  ← col 0 = roddon crossing; reeds + E pond
+      [111,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 23,  0,  0,  0,  3],  //  8  ← col 0 = roddon crossing; clearing
+      [111,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0, 53,  0,  3],  //  9  ← col 0 = roddon crossing (bottom); GUARD_POST c13 (smugglers' fort)
+      [  3, 54, 23,  1, 23,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 10  FARM_HOUSE c1 (hamlet north); SW marsh; tree c13 screens fort
+      [  3,  0, 54, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3,  3,  0,  3],  // 11  FARM_HOUSE c2 (hamlet middle)
+      [  3, 54,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 12  FARM_HOUSE c1 (hamlet south)
+      [  3,  0,  0,  0,  0, 23, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  reeds near south
+      [  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 8 = PATH seam to MAP3 (former FEN_N_ENTRANCE point tile)
+    ],
     displayName: 'Northern Fen', region: 'Thornmere', contentKey: 'map3_n1',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3_n1',
     allowRandomEncounters: true, allowSave: true },

@@ -5,23 +5,7 @@
 // Loaded BEFORE maps.js, which keeps MAP_REGISTRY, window.* exports, and mapRegistryId().
 // ─── Map  (16 columns × 15 rows) ─────────────────────────────────────────────
 // 0=grass 1=water 2=path 3=tree 6=dungeon entrance 14=town entrance
-const MAP = [
-  [3,3,3,3,3,3,3,43,3,3,3,3,3,3,3,3],  //  0  ← col 7 = NORTH_EXIT
-  [3,93,0,0,0,14,0,2,0,0,3,0,0,0,0,3], //  1  ← col 1 = MEADOW_HIDDEN_ENTRANCE (draws as grass — secret), col 5 = town entrance, col 7 = path (north road)
-  [3,0,0,3,3,2,0,2,0,0,3,3,0,0,0,3],   //  2  ← col 5 = path, col 7 = path (north road)
-  [3,0,0,3,3,2,0,2,0,0,3,0,0,0,0,3],   //  3  ← col 5 = path, col 7 = path (north road)
-  [3,0,0,0,0,2,2,2,2,2,2,2,2,2,2,39],  //  4  ← col 15 = east world exit, col 7 = crossroads
-  [3,0,0,0,0,2,0,0,0,0,0,0,3,53,0,3],  //  5  ← col 13 = GUARD_POST (Maren's post)
-  [3,0,1,1,0,2,0,0,0,0,0,0,0,0,0,3],  //  6
-  [3,0,1,1,1,2,2,0,0,0,0,0,0,0,0,3],  //  7
-  [3,0,0,1,0,0,2,2,2,2,0,0,0,0,0,3],  //  8
-  [3,0,0,0,0,0,0,0,2,0,0,0,0,0,0,3],  //  9
-  [3,0,0,0,0,0,0,0,2,0,0,3,3,0,0,3],  // 10
-  [3,0,3,0,0,0,0,0,2,0,0,3,0,0,0,3],  // 11
-  [3,0,0,0,0,0,0,0,2,2,2,6,0,0,0,3],  // 12  ← col 11 = dungeon entrance
-  [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],  // 13
-  [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],  // 14
-];
+// MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 // ─── Maren's Guard Post Interior  (16 × 15) ──────────────────────────────────
 // Tiny imperial checkpoint on MAP row 5 col 13 (GUARD_POST tile).
@@ -216,7 +200,23 @@ const MEADOW_MAP = [
 // per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and resolves encounterProfileId /
 // itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
 const CALWICK_REGIONAL_CHUNK_DEFINITIONS = [
-  { mapId: 'MAP', regionId: 'overworld', chunkX: 0, chunkY: 5, map: MAP,
+  { mapId: 'MAP', regionId: 'overworld', chunkX: 0, chunkY: 5, map: [
+      [3,3,3,3,3,3,3,43,3,3,3,3,3,3,3,3],  //  0  ← col 7 = NORTH_EXIT
+      [3,93,0,0,0,14,0,2,0,0,3,0,0,0,0,3], //  1  ← col 1 = MEADOW_HIDDEN_ENTRANCE (draws as grass — secret), col 5 = town entrance, col 7 = path (north road)
+      [3,0,0,3,3,2,0,2,0,0,3,3,0,0,0,3],   //  2  ← col 5 = path, col 7 = path (north road)
+      [3,0,0,3,3,2,0,2,0,0,3,0,0,0,0,3],   //  3  ← col 5 = path, col 7 = path (north road)
+      [3,0,0,0,0,2,2,2,2,2,2,2,2,2,2,39],  //  4  ← col 15 = east world exit, col 7 = crossroads
+      [3,0,0,0,0,2,0,0,0,0,0,0,3,53,0,3],  //  5  ← col 13 = GUARD_POST (Maren's post)
+      [3,0,1,1,0,2,0,0,0,0,0,0,0,0,0,3],  //  6
+      [3,0,1,1,1,2,2,0,0,0,0,0,0,0,0,3],  //  7
+      [3,0,0,1,0,0,2,2,2,2,0,0,0,0,0,3],  //  8
+      [3,0,0,0,0,0,0,0,2,0,0,0,0,0,0,3],  //  9
+      [3,0,0,0,0,0,0,0,2,0,0,3,3,0,0,3],  // 10
+      [3,0,3,0,0,0,0,0,2,0,0,3,0,0,0,3],  // 11
+      [3,0,0,0,0,0,0,0,2,2,2,6,0,0,0,3],  // 12  ← col 11 = dungeon entrance
+      [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],  // 13
+      [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],  // 14
+    ],
     displayName: 'Verdant Vale', region: 'Verdant Vale', contentKey: 'overworld',
     presentation: 'legacy_screen', encounterProfileId: 'early', itemSetId: 'world',
     allowRandomEncounters: true, allowSave: true },

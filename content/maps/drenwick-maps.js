@@ -19,24 +19,7 @@
 // the North Basin road. This replaced what used to be the corner of the bog
 // pond at row 1 col 12 (a one-tile causeway across it) plus reeds/grass at
 // rows 2-3 col 12 (now paved as part of the same through-road).
-const MAP3_N2 = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  3,  3,  3,  3,  1,  3,  3,  3,  3,  3,  1,  2,  1,  1,  1],  //  0  border ← col 12 = north seam → NORTH_BASIN_S_MAP.south (continuous causeway); marsh gaps (cols 5, 11) + bog pond E off-map (cols 13-15)
-  [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23,  1],  //  1  N marsh: bog pond E; col 12 = causeway path; water E edge
-  [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23,  1],  //  2  bog pond W + bog pond E; col 12 = path; water E edge
-  [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  2, 23,  0,  3],  //  3  reeds, clearing; col 12 = path
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  //  4  open, N canal bank; col 12 = path (bridge north landing)
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 57,  1,  1,  1],  //  5  canal WATER, flowing off-map both W and E; BRIDGE_GATE col 12
-  [  3,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  3],  //  6  Drenwick south gate col 8; approach path col 12
-  [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  0,  0,  3],  //  7  road col 8; E-W spur cols 9-12 to bridge approach
-  [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds W
-  [  3,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  9  bog W + reeds E
-  [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23,  1],  // 10  bog E, draining off-map east
-  [  3,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  3],  // 11  reeds + bog E
-  [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 53, 23,  0,  0,  3],  // 12  GUARD_POST c11; reeds c12
-  [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  open approach
-  [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  // 14  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS south to MAP3_N1 (Northern Fen)
-];
+// MAP3_N2’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 // ─── Drenwick Guard Post Interior  (16 × 15) ─────────────────────────────────
 // Imperial checkpoint on MAP3_N1 row 9 col 13 (GUARD_POST tile).
@@ -589,7 +572,24 @@ const DRENWICK_SCHOOL_BASEMENT_MAP = [
 // per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and resolves encounterProfileId /
 // itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
 const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
-  { mapId: 'MAP3_N2', regionId: 'overworld', chunkX: 2, chunkY: 3, map: MAP3_N2,
+  { mapId: 'MAP3_N2', regionId: 'overworld', chunkX: 2, chunkY: 3, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  3,  3,  1,  3,  3,  3,  3,  3,  1,  2,  1,  1,  1],  //  0  border ← col 12 = north seam → NORTH_BASIN_S_MAP.south (continuous causeway); marsh gaps (cols 5, 11) + bog pond E off-map (cols 13-15)
+      [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23,  1],  //  1  N marsh: bog pond E; col 12 = causeway path; water E edge
+      [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23,  1],  //  2  bog pond W + bog pond E; col 12 = path; water E edge
+      [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  2, 23,  0,  3],  //  3  reeds, clearing; col 12 = path
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  //  4  open, N canal bank; col 12 = path (bridge north landing)
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 57,  1,  1,  1],  //  5  canal WATER, flowing off-map both W and E; BRIDGE_GATE col 12
+      [  3,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  3],  //  6  Drenwick south gate col 8; approach path col 12
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  0,  0,  3],  //  7  road col 8; E-W spur cols 9-12 to bridge approach
+      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds W
+      [  3,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  9  bog W + reeds E
+      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23,  1],  // 10  bog E, draining off-map east
+      [  3,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  3],  // 11  reeds + bog E
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 53, 23,  0,  0,  3],  // 12  GUARD_POST c11; reeds c12
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  open approach
+      [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  // 14  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS south to MAP3_N1 (Northern Fen)
+    ],
     displayName: 'Drenwick', region: 'Drenwick', contentKey: 'map3_n2',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3_n2',
     allowRandomEncounters: true, allowSave: true,

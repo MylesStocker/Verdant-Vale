@@ -29,11 +29,8 @@ const FRAGMENTS = {
     'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP'],
 };
 
-// The 14 maps whose grid literal is still a standalone `const` var (MAP5 is inline).
-const LEGACY_GRID_MAPS = EXPECTED.filter((id) => id !== 'MAP5');
-
 module.exports = {
-  name: 'Regional chunk authoring: distributed fragments → resolved catalog + MAP5 grid pilot',
+  name: 'Regional chunk authoring: distributed fragments → resolved catalog, all 15 grids inline',
   run() {
     const g = createContext();
     g.press('Enter'); g.press('Enter');
@@ -102,16 +99,38 @@ module.exports = {
     assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return REGIONAL_CHUNK_CATALOG[d.mapId].encounterPool===_ENCOUNTER_PROFILES[d.encounterProfileId];})'), true, 'every resolved encounterPool is the array named by its encounterProfileId');
     assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return d.itemSetId===undefined || REGIONAL_CHUNK_CATALOG[d.mapId].items===_REGIONAL_ITEM_SETS[d.itemSetId];})'), true, 'every resolved items array is the array named by its itemSetId');
 
-    // ── 9 + 10. MAP5's SOLE grid literal is in the Thornmere fragment; data.js
-    //            contains no MAP5 terrain grid; the const MAP5 alias is derived ─
-    const curThorn = fs.readFileSync(path.join(__dirname, '../../content/maps/thornmere-wilds-maps.js'), 'utf8');
-    const curData = fs.readFileSync(path.join(__dirname, '../../data.js'), 'utf8');
-    assert.ok(!/^const MAP5 = \[/m.test(curThorn), 'no standalone `const MAP5 = [` grid variable remains');
-    assert.ok(/mapId:\s*'MAP5'[\s\S]{0,600}?map:\s*\[/.test(curThorn), "MAP5's grid literal is authored inline in its Thornmere fragment record");
-    assert.ok(!/mapId:\s*'MAP5'/.test(curData), 'data.js authors no MAP5 chunk definition (grid lives in the Thornmere fragment)');
-    assert.ok(/const MAP5 = REGIONAL_CHUNK_CATALOG\.MAP5\.map/.test(curData), 'data.js keeps only the derived `const MAP5` compat alias');
-    assert.equal(g.run('MAP5===REGIONAL_CHUNK_CATALOG.MAP5.map'), true, 'the const MAP5 alias is a derived reference to the catalog grid (not a second grid)');
-    assert.equal(g.run("mapRefForId('MAP5')===MAP5"), true, 'mapRefForId(MAP5) is the catalog grid');
+    // ── 9-of-spec (1-4,7). Completed migration: ALL 15 grids authored inline in
+    //     their fragment records; no standalone grid var, no `map: MAP_ID` ref, no
+    //     legacy window export; data.js holds only derived aliases + no terrain rows.
+    const SRC = {
+      MAP: 'content/maps/calwick-maps.js',
+      MAP2: 'content/maps/thornmere-wilds-maps.js', MAP3: 'content/maps/thornmere-wilds-maps.js',
+      MAP4: 'content/maps/thornmere-wilds-maps.js', MAP5: 'content/maps/thornmere-wilds-maps.js',
+      RODDON_WAY_MAP: 'content/maps/thornmere-wilds-maps.js', MAP3_N1: 'content/maps/thornmere-wilds-maps.js',
+      MAP3_N2: 'content/maps/drenwick-maps.js',
+      MAP_N1: 'maps.js', MAP_N2: 'maps.js',
+      NORTH_BASIN_S_MAP: 'content/maps/north-basin-maps.js', NORTH_BASIN_C_MAP: 'content/maps/north-basin-maps.js',
+      NORTH_BASIN_SW_MAP: 'content/maps/north-basin-maps.js', NORTH_BASIN_W_MAP: 'content/maps/north-basin-maps.js',
+      NORTH_BASIN_NW_MAP: 'content/maps/north-basin-maps.js',
+    };
+    const readSrc = (rel) => fs.readFileSync(path.join(__dirname, '../../', rel), 'utf8');
+    const curData = readSrc('data.js');
+    const fileCache = {};
+    for (const id of EXPECTED) {
+      const file = SRC[id];
+      const src = fileCache[file] || (fileCache[file] = readSrc(file));
+      assert.ok(new RegExp("mapId:\\s*'" + id + "'[\\s\\S]{0,800}?map:\\s*\\[").test(src), id + ': grid authored inline in its chunk definition record (' + file + ')');
+      assert.ok(!new RegExp('map:\\s*' + id + '\\s*,').test(src), id + ': no map:' + id + ' legacy grid-variable reference remains');
+      assert.ok(!new RegExp('(^|\\n)const ' + id + '\\s*=\\s*\\[').test(src), id + ': no standalone const ' + id + ' = [ grid literal remains');
+      assert.ok(new RegExp('const ' + id + '\\s*=\\s*REGIONAL_CHUNK_CATALOG\\.' + id + '\\.map').test(curData), id + ': data.js declares the derived compat alias');
+      assert.ok(new RegExp('window\\.' + id + '\\s*=\\s*' + id + '\\b').test(curData), id + ': data.js provides the derived window export');
+      assert.ok(!new RegExp('window\\.' + id + '\\s*=\\s*' + id + '\\b').test(src), id + ': the former independent window.' + id + ' export is gone from ' + file);
+    }
+    assert.ok(!/\n\s*\[\s*\d+,\s*\d+,/.test(curData), 'data.js contains no terrain grid rows');
+    // each catalog grid, its const alias, mapRefForId(), and MAP_CATALOG.map are ONE array object
+    for (const id of EXPECTED) {
+      assert.equal(g.run("REGIONAL_CHUNK_CATALOG['" + id + "'].map===" + id + " && " + id + "===mapRefForId('" + id + "') && " + id + "===mapEntryForId('" + id + "').map"), true, id + ': catalog grid, const alias, mapRefForId(), and MAP_CATALOG.map are the same array object');
+    }
 
     // ── 11. Every grid matches its stable, repository-owned fingerprint (no
     //        tile-number changes) — evidence is a SHA-256 fixture, NOT Git history.
@@ -122,12 +141,6 @@ module.exports = {
     for (const id of EXPECTED) {
       const got = sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`));
       assert.equal(got, GRID_FP.fingerprints[id], `${id}: grid matches its stable pre-migration fingerprint (no tile-number changes)`);
-    }
-
-    // ── 12. The other 14 grids are still temporary references, not duplicated ─
-    for (const id of LEGACY_GRID_MAPS) {
-      // each record's map IS the same global `const` grid var (a reference, not a copy)
-      assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${id}'].map===${id}`), true, `${id}: record references the existing legacy grid variable (not a duplicate)`);
     }
 
     // ── 13. MAP5 collision / debug warp / MAP4↔MAP5 travel unchanged ──────────
@@ -150,6 +163,27 @@ module.exports = {
     assert.equal(saved.location.kind, 'regional', 'MAP5 save is a regional v4 location');
     g.run("placeAtLocation('MAP', 1*TILE, 1*TILE); loadGame();");
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'v4 regional load restores MAP5');
+
+    // ── 9,11,13 of spec. Behaviour parity across ALL 15 migrated maps ─────────
+    assert.equal(g.run('continuousSeamEntries().length'), 26, '26 eligible directed seams unchanged after migration');
+    for (const id of EXPECTED) {
+      g.run(`debugWarpToDestination('outdoor:${id}');`);
+      assert.equal(g.run('mapIdForRef(activeMap)'), id, `${id}: debug warp resolves the migrated map`);
+      // geographic (physical-chunk) encounter pool equals the resolved catalog pool
+      const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
+      const ctxPool = g.run(`(function(){ var c=geographicEncounterContext('${p.regionId}', (${p.chunkX}*COLS+8)*TILE, (${p.chunkY}*ROWS+7)*TILE); return c && c.encounterPool===REGIONAL_CHUNK_CATALOG['${id}'].encounterPool; })()`);
+      assert.equal(ctxPool, true, `${id}: geographic encounter context resolves the same pool as the catalog`);
+    }
+
+    // ── 12 of spec. Canonical + v4 save/load round-trips on a representative map
+    //    from EVERY geographic fragment (calwick/thornmere/drenwick/northern-road/basin).
+    for (const id of ['MAP', 'MAP3', 'MAP3_N2', 'MAP_N1', 'NORTH_BASIN_SW_MAP']) {
+      g.run(`debugWarpToDestination('outdoor:${id}'); placeAtLocation('${id}', 8*TILE, 7*TILE); player.facing='down';`);
+      assert.equal(J('JSON.stringify(regionalDerivedLocation())').mapId, id, `${id}: canonical position resolves`);
+      g.run('saveGame();');
+      g.run("placeAtLocation('MAP5', 3*TILE, 6*TILE); loadGame();");
+      assert.equal(g.run('mapIdForRef(activeMap)'), id, `${id}: v4 regional save/load round-trips`);
+    }
 
     // ── 5 of spec. Unknown authored fields, and malformed resolved records,
     //    fail closed (catalog layer). ─────────────────────────────────────────

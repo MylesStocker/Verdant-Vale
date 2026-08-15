@@ -36,24 +36,7 @@
 // encounters. Its pool is NORTH_BASIN_ENEMY_TEMPLATES (MAP_METADATA) — the
 // same gentle basin creatures as the Silt Flats; the maintained road (PATH)
 // and the water stay safe, so you meet things in the reeds.
-const NORTH_BASIN_S_MAP = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3],  //  0  open edge, cols 1-14 → EDGE_TRANSITIONS north to NORTH_BASIN_C_MAP
-  [  3, 23, 23, 23, 23, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23,  3],  //  1  unmaintained beyond Marker 4; drying mud band c6-9 (no water on this row -- it's the EDGE_TRANSITIONS landing row)
-  [  3, 23, 23, 23,  1, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23,  3],  //  2  unmaintained beyond Marker 4
-  [  3, 23,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  3  ← Marker 4: road resumes south of here (col 12)
-  [  3,  1,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  4
-  [  3, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  5  Water Authority survey stakes nearby (c10)
-  [  3, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  6
-  [  3, 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23,  2,  2, 23,  3],  //  7  east spur begins (c12-13)
-  [  3,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2,  2,  2,  3],  //  8  east spur reaches c14 — tidegate closure sign just past it
-  [ 23, 23,  1, 81, 81, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  9  open edge, row 9 → EDGE_TRANSITIONS west to NORTH_BASIN_SW_MAP
-  [ 23, 23,  1,  1,  1,  1, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 10  open edge, row 10 → EDGE_TRANSITIONS west
-  [ 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  // 11  open edge, row 11 → EDGE_TRANSITIONS west
-  [  3, 23, 23, 23,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 12
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 13  open approach to the entrance
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3],  // 14  ← col 12 = south seam → MAP3_N2.north (continuous causeway)
-];
+// NORTH_BASIN_S_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const NORTH_BASIN_S_ITEMS = [];
 
@@ -92,24 +75,7 @@ const NORTH_BASIN_S_ITEMS = [];
 // Encounters: NORTH_BASIN_ENEMY_TEMPLATES (combat.js), gentler than
 // FAR_ENEMY_TEMPLATES on purpose — this is meant to be the basin's on-ramp,
 // not another spike (see BALANCE_REPORT.md re: FAR pool's Rotwood Troll).
-const NORTH_BASIN_SW_MAP = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1,  1,  1,  3,  3],  //  0  open edge, cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_W_MAP (cols 11-13 = the reservoir finger continuing off-map as WATER; col 14 stays TREE border)
-  [  3,  0, 23,  0,  0,  0, 23,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  1  3×3 reservoir finger begins (cols 11-13)
-  [  3, 23,  0,  0, 88,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  2  reservoir finger
-  [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  3  reservoir finger ends; reed fringe around it
-  [  3,  0, 23,  0, 88,  0,  0, 23, 23,  0,  0, 88,  0, 23,  0,  3],  //  4  marsh field begins
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  5  open field
-  [  3,  0,  0, 89,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0,  3],  //  6  old fence posts, half-swallowed by silt
-  [  3,  0, 88, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  3],  //  7  exposed lakebed stone
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  8  open field
-  [  3, 81, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81, 81, 23],  //  9  drying mud patches; open edge, col 15 → EDGE_TRANSITIONS east
-  [  3,  0,  0,  0, 89,  0,  0,  0,  0,  0,  0, 23, 23, 23, 23, 23],  // 10  open edge, col 15 → EDGE_TRANSITIONS east to NORTH_BASIN_S_MAP
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23],  // 11  open edge, col 15 → EDGE_TRANSITIONS east (matches South Approach's west edge exactly -- no clamping in normal play)
-  [  3, 81, 81,  0,  0, 89,  0,  0,  0,  0,  0,  0,  0, 81, 81,  3],  // 12  drying mud patches
-  [  3,  0,  0,  0,  0,  0, 88, 88,  0,  0,  0,  0,  0,  0,  0,  3],  // 13  exposed lakebed stone
-  [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  border (true south edge of the region — SW is a corner)
-];
+// NORTH_BASIN_SW_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const NORTH_BASIN_SW_ITEMS = [];
 
@@ -147,24 +113,7 @@ const NORTH_BASIN_SW_ITEMS = [];
 // Encounters: NORTH_BASIN_ENEMY_TEMPLATES, same pool as the Silt Flats
 // (combat.js) — the user asked to keep the same enemies rather than
 // introduce a second, harsher tier for this map.
-const NORTH_BASIN_W_MAP = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  //  0  open edge cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_NW_MAP (the Upper Reach) — the "one-line change later" this border was reserved for
-  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  1  reservoir shore begins (uneven): reeds at c12, water c13-14
-  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  2  water reaches in to c12
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  1],  //  3  ← c9 stranded waterline stake
-  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  4  inlet: water reaches in to c11
-  [  3,  0,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  5  drying mud patch (safer ground)
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 92,  0, 23,  1,  1,  1],  //  6  ← c10 = fisher's hut (TRAPPER_HUT tile)
-  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  7
-  [  3,  0,  0,  0,  0,  0, 89,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  8  ← c6 old fishing gear (stranded stake)
-  [  3,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  9  inlet: water reaches in to c11
-  [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 10
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 11
-  [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 12
-  [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 13
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  // 14  open edge, cols 1-10 → EDGE_TRANSITIONS south to NORTH_BASIN_SW_MAP
-];
+// NORTH_BASIN_W_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const NORTH_BASIN_W_ITEMS = [];
 
@@ -199,24 +148,7 @@ const NORTH_BASIN_W_ITEMS = [];
 // encounter-eligible, so it rolls random encounters from the basin pool
 // (NORTH_BASIN_ENEMY_TEMPLATES, MAP_METADATA). Open water and the exposed mud
 // bed stay safe; encounters lurk in the reed fringe.
-const NORTH_BASIN_C_MAP = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open reservoir
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open reservoir
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open reservoir
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  open reservoir
-  [  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1],  //  5  shoreline starts to ripple
-  [  1,  1, 23, 23, 81,  1,  1,  1,  1,  1,  1, 81, 23, 23,  1,  1],  //  6  mud creeping in at the edges
-  [  3, 23, 81, 81, 81, 23,  1,  1,  1,  1, 23, 81, 81, 81, 23,  3],  //  7  ← water authority gauge (c4)
-  [  3, 81, 81, 81, 23, 23,  1,  1,  1,  1, 23, 23, 81, 81, 81,  3],  //  8  receding inlet reaches down at c6-9
-  [  3, 81, 81, 23, 23,  1,  1, 23, 23,  1,  1, 23, 23, 81, 81,  3],  //  9  last residual pools
-  [  3, 81, 81, 81, 23, 23, 81, 81, 81, 81, 23, 23, 81, 81, 81,  3],  // 10  ← stranded mooring post (c10)
-  [  3, 81, 81, 81, 81, 23, 81, 81, 81, 81, 23, 81, 81, 81, 81,  3],  // 11  exposed bed
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 12  exposed bed
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 13  exposed bed, approach to the entrance — road has fully ended
-  [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3],  // 14  open edge, cols 1-14 → EDGE_TRANSITIONS south to NORTH_BASIN_S_MAP (matches its north edge exactly -- no clamping in normal play)
-];
+// NORTH_BASIN_C_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const NORTH_BASIN_C_ITEMS = [];
 
@@ -253,24 +185,7 @@ const NORTH_BASIN_C_ITEMS = [];
 // The straight FENCE_POST line at r6 c2-c9 blocks — pass around it at c1 or
 // c10+. Both entrances and the south edge stay mutually reachable either
 // way (checked by the transition audit's escapability sweep).
-const NORTH_BASIN_NW_MAP = [
-  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-  [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge: open reservoir WATER (the flooded arm continues off-map; impassable)
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  1  open bed
-  [  3, 81, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81, 88, 81, 81,  1],  //  2  north pool begins (c7-8)
-  [  3, 81, 81, 81, 81, 81,  1,  1,  1,  1, 81, 88,103, 88, 81,  1],  //  3  pool c6-9; THE DOORFRAME at c12, stone flanks c11/c13
-  [  3, 81, 81, 81, 81, 81, 81,  1,  1, 81, 81, 81, 81, 81, 81,  1],  //  4  pool tapers
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  5
-  [  3, 81, 89, 89, 89, 89, 89, 89, 89, 89, 81, 81, 81, 81, 81,  1],  //  6  the fence line (c2-c9) — dead straight, in what was open water
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 88, 81, 81,  1],  //  7
-  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  8  stonework apron begins (c3-5)
-  [  3, 81, 81, 88,107, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  9  THE STAIRHEAD at c4
-  [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81,  1],  // 10  apron ends; south residual pool c10-11
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 11
-  [  3, 81, 81, 81, 81, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 12
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 13  north-crossing landing row (cols 1-10 all walkable)
-  [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3,  3,  3,  3,  1],  // 14  open edge cols 1-10 (BASIN_MUD, walkable) → EDGE_TRANSITIONS south to NORTH_BASIN_W_MAP
-];
+// NORTH_BASIN_NW_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const NORTH_BASIN_NW_ITEMS = [];
 
@@ -507,26 +422,111 @@ const SUNKEN_GALLERY_R4C4 = window.SUNKEN_GALLERY_R4C4 = galleryRoom('nw');
 // per-file *_REGIONAL_CHUNK_DEFINITIONS fragments and resolves encounterProfileId /
 // itemSetId into the runtime REGIONAL_CHUNK_CATALOG (see data.js for the contract).
 const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
-  { mapId: 'NORTH_BASIN_S_MAP', regionId: 'overworld', chunkX: 2, chunkY: 2, map: NORTH_BASIN_S_MAP,
+  { mapId: 'NORTH_BASIN_S_MAP', regionId: 'overworld', chunkX: 2, chunkY: 2, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3],  //  0  open edge, cols 1-14 → EDGE_TRANSITIONS north to NORTH_BASIN_C_MAP
+      [  3, 23, 23, 23, 23, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23,  3],  //  1  unmaintained beyond Marker 4; drying mud band c6-9 (no water on this row -- it's the EDGE_TRANSITIONS landing row)
+      [  3, 23, 23, 23,  1, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23,  3],  //  2  unmaintained beyond Marker 4
+      [  3, 23,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  3  ← Marker 4: road resumes south of here (col 12)
+      [  3,  1,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  4
+      [  3, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  5  Water Authority survey stakes nearby (c10)
+      [  3, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  6
+      [  3, 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23,  2,  2, 23,  3],  //  7  east spur begins (c12-13)
+      [  3,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2,  2,  2,  3],  //  8  east spur reaches c14 — tidegate closure sign just past it
+      [ 23, 23,  1, 81, 81, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  9  open edge, row 9 → EDGE_TRANSITIONS west to NORTH_BASIN_SW_MAP
+      [ 23, 23,  1,  1,  1,  1, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 10  open edge, row 10 → EDGE_TRANSITIONS west
+      [ 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  // 11  open edge, row 11 → EDGE_TRANSITIONS west
+      [  3, 23, 23, 23,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 12
+      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 13  open approach to the entrance
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3],  // 14  ← col 12 = south seam → MAP3_N2.north (continuous causeway)
+    ],
     displayName: 'North Basin — South Approach', region: 'North Basin', contentKey: 'north_basin_s',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_s',
     allowRandomEncounters: true, allowSave: true,
     notes: 'The basin entry. It has no GRASS, but its REEDS are encounter-eligible all the same (see tiles.js TILE_PROPERTIES), so it does roll random encounters — now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES, the same gentle creatures as the Silt Flats) instead of the generic ENEMY_TEMPLATES fallback it used when this was left encounterPool: null. The maintained road (PATH, col 12) and the water stay safe; you meet things by cutting through the reeds.' },
-  { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: NORTH_BASIN_C_MAP,
+  { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  open reservoir
+      [  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1],  //  5  shoreline starts to ripple
+      [  1,  1, 23, 23, 81,  1,  1,  1,  1,  1,  1, 81, 23, 23,  1,  1],  //  6  mud creeping in at the edges
+      [  3, 23, 81, 81, 81, 23,  1,  1,  1,  1, 23, 81, 81, 81, 23,  3],  //  7  ← water authority gauge (c4)
+      [  3, 81, 81, 81, 23, 23,  1,  1,  1,  1, 23, 23, 81, 81, 81,  3],  //  8  receding inlet reaches down at c6-9
+      [  3, 81, 81, 23, 23,  1,  1, 23, 23,  1,  1, 23, 23, 81, 81,  3],  //  9  last residual pools
+      [  3, 81, 81, 81, 23, 23, 81, 81, 81, 81, 23, 23, 81, 81, 81,  3],  // 10  ← stranded mooring post (c10)
+      [  3, 81, 81, 81, 81, 23, 81, 81, 81, 81, 23, 81, 81, 81, 81,  3],  // 11  exposed bed
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 12  exposed bed
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3],  // 13  exposed bed, approach to the entrance — road has fully ended
+      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3],  // 14  open edge, cols 1-14 → EDGE_TRANSITIONS south to NORTH_BASIN_S_MAP (matches its north edge exactly -- no clamping in normal play)
+    ],
     displayName: 'North Basin — Reservoir', region: 'North Basin', contentKey: 'north_basin_c',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_c',
     allowRandomEncounters: true, allowSave: true,
     notes: 'The receding reservoir. Like the South Approach it has no GRASS but its REEDS are encounter-eligible, so it rolls random encounters — now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES) instead of the generic ENEMY_TEMPLATES fallback. Open water and the exposed BASIN_MUD bed stay safe; encounters lurk in the reed fringe of the receding shoreline.' },
-  { mapId: 'NORTH_BASIN_SW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 2, map: NORTH_BASIN_SW_MAP,
+  { mapId: 'NORTH_BASIN_SW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 2, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1,  1,  1,  3,  3],  //  0  open edge, cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_W_MAP (cols 11-13 = the reservoir finger continuing off-map as WATER; col 14 stays TREE border)
+      [  3,  0, 23,  0,  0,  0, 23,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  1  3×3 reservoir finger begins (cols 11-13)
+      [  3, 23,  0,  0, 88,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  2  reservoir finger
+      [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  3  reservoir finger ends; reed fringe around it
+      [  3,  0, 23,  0, 88,  0,  0, 23, 23,  0,  0, 88,  0, 23,  0,  3],  //  4  marsh field begins
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  5  open field
+      [  3,  0,  0, 89,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0,  3],  //  6  old fence posts, half-swallowed by silt
+      [  3,  0, 88, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  3],  //  7  exposed lakebed stone
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  8  open field
+      [  3, 81, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81, 81, 23],  //  9  drying mud patches; open edge, col 15 → EDGE_TRANSITIONS east
+      [  3,  0,  0,  0, 89,  0,  0,  0,  0,  0,  0, 23, 23, 23, 23, 23],  // 10  open edge, col 15 → EDGE_TRANSITIONS east to NORTH_BASIN_S_MAP
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23],  // 11  open edge, col 15 → EDGE_TRANSITIONS east (matches South Approach's west edge exactly -- no clamping in normal play)
+      [  3, 81, 81,  0,  0, 89,  0,  0,  0,  0,  0,  0,  0, 81, 81,  3],  // 12  drying mud patches
+      [  3,  0,  0,  0,  0,  0, 88, 88,  0,  0,  0,  0,  0,  0,  0,  3],  // 13  exposed lakebed stone
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  border (true south edge of the region — SW is a corner)
+    ],
     displayName: 'North Basin — Silt Flats', region: 'North Basin', contentKey: 'north_basin_sw',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_sw',
     allowRandomEncounters: true, allowSave: true },
-  { mapId: 'NORTH_BASIN_W_MAP', regionId: 'overworld', chunkX: 1, chunkY: 1, map: NORTH_BASIN_W_MAP,
+  { mapId: 'NORTH_BASIN_W_MAP', regionId: 'overworld', chunkX: 1, chunkY: 1, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  //  0  open edge cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_NW_MAP (the Upper Reach) — the "one-line change later" this border was reserved for
+      [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  1  reservoir shore begins (uneven): reeds at c12, water c13-14
+      [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  2  water reaches in to c12
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  1],  //  3  ← c9 stranded waterline stake
+      [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  4  inlet: water reaches in to c11
+      [  3,  0,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  5  drying mud patch (safer ground)
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 92,  0, 23,  1,  1,  1],  //  6  ← c10 = fisher's hut (TRAPPER_HUT tile)
+      [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  7
+      [  3,  0,  0,  0,  0,  0, 89,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  8  ← c6 old fishing gear (stranded stake)
+      [  3,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  9  inlet: water reaches in to c11
+      [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 10
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 11
+      [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 12
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 13
+      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  // 14  open edge, cols 1-10 → EDGE_TRANSITIONS south to NORTH_BASIN_SW_MAP
+    ],
     displayName: 'North Basin — West Shore', region: 'North Basin', contentKey: 'north_basin_w',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w',
     allowRandomEncounters: true, allowSave: true,
     notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats’ enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; north edge is now an open crossing (cols 1-10) to the Upper Reach; west is impassable border until that neighbour is built.' },
-  { mapId: 'NORTH_BASIN_NW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 0, map: NORTH_BASIN_NW_MAP,
+  { mapId: 'NORTH_BASIN_NW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 0, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge: open reservoir WATER (the flooded arm continues off-map; impassable)
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  1  open bed
+      [  3, 81, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81, 88, 81, 81,  1],  //  2  north pool begins (c7-8)
+      [  3, 81, 81, 81, 81, 81,  1,  1,  1,  1, 81, 88,103, 88, 81,  1],  //  3  pool c6-9; THE DOORFRAME at c12, stone flanks c11/c13
+      [  3, 81, 81, 81, 81, 81, 81,  1,  1, 81, 81, 81, 81, 81, 81,  1],  //  4  pool tapers
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  5
+      [  3, 81, 89, 89, 89, 89, 89, 89, 89, 89, 81, 81, 81, 81, 81,  1],  //  6  the fence line (c2-c9) — dead straight, in what was open water
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 88, 81, 81,  1],  //  7
+      [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  8  stonework apron begins (c3-5)
+      [  3, 81, 81, 88,107, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  9  THE STAIRHEAD at c4
+      [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81,  1],  // 10  apron ends; south residual pool c10-11
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 11
+      [  3, 81, 81, 81, 81, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 12
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 13  north-crossing landing row (cols 1-10 all walkable)
+      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3,  3,  3,  3,  1],  // 14  open edge cols 1-10 (BASIN_MUD, walkable) → EDGE_TRANSITIONS south to NORTH_BASIN_W_MAP
+    ],
     displayName: 'North Basin — Upper Reach', region: 'North Basin', contentKey: 'north_basin_nw',
     presentation: 'continuous', encounterProfileId: 'upper_reach', itemSetId: 'north_basin_nw',
     allowRandomEncounters: true, allowSave: true,
