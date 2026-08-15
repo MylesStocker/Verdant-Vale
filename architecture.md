@@ -784,12 +784,13 @@ the fixed original-map presentation.
   `{ from, dir, to, tile }` inventory describing (not replacing) the runtime dispatch;
   the audit derives its `POINT_WORLD_CROSSINGS` from it so the two never drift.
 
-### Continuous seams: generalized seamless movement (DEBUG-only, `continuous-seams.js`)
+### Continuous seams: generalized seamless movement (`continuous-seams.js`)
 
 Lets the player *walk* across EVERY currently-safe reciprocal ALIGNS outdoor seam
-— as though the adjacent 16×15 maps were one — but ONLY while Continuous View is
-on. (Today that is the 7 pairs / 14 directed seams of the North Basin and the
-Thornmere fen shelf; the set is derived, not hand-listed.)
+— as though the adjacent 16×15 maps were one — whenever continuous presentation is
+active (the production default; suppressed only by the `forceLegacyRegionalView`
+debug fallback or on a `legacy_screen`/discrete map). (Today the eligible set is the
+26 directed seams / 13 reciprocal pairs; it is derived, not hand-listed.)
 
 - **Canonical model (Part 1).** The canonical runtime position of a placed map is now
   the region-world pixel point in `regional-position.js`; `activeMap` and `player.x/.y`
