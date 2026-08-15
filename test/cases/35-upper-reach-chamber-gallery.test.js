@@ -71,7 +71,7 @@ module.exports = {
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_W_MAP;
       player.x = 3.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0; debugMode = true;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     let crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -102,10 +102,10 @@ module.exports = {
     assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), false,
       'only BASIN_MUD rolls on the Upper Reach; the stonework apron stays quiet');
     // The override is map-local: the same tile stays safe elsewhere in the basin.
-    g.run('activeMap = NORTH_BASIN_SW_MAP;');
+    g.run('activeMap = NORTH_BASIN_SW_MAP;; __reconcileCanonicalForTest();');
     assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), false,
       'BASIN_MUD must stay safe on the Silt Flats — the Upper Reach override is map-local');
-    g.run('activeMap = NORTH_BASIN_NW_MAP;');
+    g.run('activeMap = NORTH_BASIN_NW_MAP;; __reconcileCanonicalForTest();');
     // Its pool: two creatures shared with the Silt Flats + two new tough ones.
     assert.equal(
       g.run('JSON.stringify(currentEncounterPool().map(t => t.name).sort())'),
@@ -114,15 +114,15 @@ module.exports = {
     );
 
     // Leaving and re-entering the trigger zone must NOT re-fire (onceFlag).
-    g.run('player.x = 3.5*TILE; player.y = 10.5*TILE;'); // outside the zone (rows 12-13)
+    g.run('player.x = 3.5*TILE; player.y = 10.5*TILE;; __reconcileCanonicalForTest();'); // outside the zone (rows 12-13)
     g.frames(2);
-    g.run('player.x = 3.5*TILE; player.y = 12.5*TILE;'); // back inside
+    g.run('player.x = 3.5*TILE; player.y = 12.5*TILE;; __reconcileCanonicalForTest();'); // back inside
     g.frames(2);
-    assert.equal(g.run('dialogue.open'), false, 'the once-flagged arrival narration must not re-fire');
+    assert.equal(g.run('dialogue.open'), false, 'the once-flagged arrival narration must not re-fire; __reconcileCanonicalForTest();');
 
     // ── 4. Through the doorframe ────────────────────────────────────────────
     g.run('debugMode = false;'); // chamber must be safe WITHOUT debug suppression
-    g.run('player.x = 12.5*TILE; player.y = 4.5*TILE; player.facing = "up";'); // one south of the door
+    g.run('player.x = 12.5*TILE; player.y = 4.5*TILE; player.facing = "up";; __reconcileCanonicalForTest();'); // one south of the door
     g.hold('ArrowUp');
     let entered = false;
     for (let i = 0; i < 40 && !entered; i++) {
@@ -144,7 +144,7 @@ module.exports = {
     g.run(`
       window.__realRandom = Math.random; Math.random = () => 0;
       combat.cooldown = 0; player.x = 8.5*TILE; player.y = 6.5*TILE;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowLeft');
     g.frames(30);
     g.release('ArrowLeft');
@@ -153,7 +153,7 @@ module.exports = {
     assert.doesNotThrow(() => g.renderFrame(), 'a full render frame inside the chamber must not throw');
 
     // ── 6. Back out through the threshold ───────────────────────────────────
-    g.run('player.x = 8.5*TILE; player.y = 9.5*TILE; player.facing = "down";');
+    g.run('player.x = 8.5*TILE; player.y = 9.5*TILE; player.facing = "down";; __reconcileCanonicalForTest();');
     g.hold('ArrowDown');
     let left = false;
     for (let i = 0; i < 40 && !left; i++) {
@@ -167,7 +167,7 @@ module.exports = {
     assert.equal(g.run('player.y'), 4.5 * 32);
 
     // ── 7. Down the drought-exposed stair ───────────────────────────────────
-    g.run('dialogue.open = false; player.x = 4.5*TILE; player.y = 8.5*TILE; player.facing = "down"; combat.cooldown = 999;');
+    g.run('dialogue.open = false; player.x = 4.5*TILE; player.y = 8.5*TILE; player.facing = "down"; combat.cooldown = 999;; __reconcileCanonicalForTest();');
     g.hold('ArrowDown');
     let descended = false;
     for (let i = 0; i < 40 && !descended; i++) {
@@ -199,7 +199,7 @@ module.exports = {
     g.run('endCombat(); combat.active = false; dialogue.open = false;');
 
     // ── 8. Back up the stair ────────────────────────────────────────────────
-    g.run('player.x = 2.5*TILE; player.y = 3.5*TILE; player.facing = "up"; combat.cooldown = 999; dialogue.open = false;');
+    g.run('player.x = 2.5*TILE; player.y = 3.5*TILE; player.facing = "up"; combat.cooldown = 999; dialogue.open = false;; __reconcileCanonicalForTest();');
     g.hold('ArrowUp');
     let ascended = false;
     for (let i = 0; i < 40 && !ascended; i++) {
@@ -229,7 +229,7 @@ module.exports = {
       activeMap = MAP; player.x = 1.5*TILE; player.y = 1.5*TILE;
       window.upper_reach_seen = false; window.basin_chamber_seen = false; window.sunken_gallery_seen = false;
       loadGame();
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('activeMap === NORTH_BASIN_NW_MAP'), true, 'activeMap should restore to the Upper Reach');
     assert.equal(g.run('player.x'), 4.5 * 32);
     assert.equal(g.run('player.y'), 13.5 * 32);
@@ -256,7 +256,7 @@ module.exports = {
       ['SUNKEN_GALLERY_MAP', 'inBasinChamber = false; inSunkenGallery = true;'],
     ]) {
       // Direct saveGame() call: must refuse and leave the stored save untouched.
-      g.run(`${setup} activeMap = ${mapGlobal}; dialogue.open = false;`);
+      g.run(`${setup} activeMap = ${mapGlobal}; dialogue.open = false;; __reconcileCanonicalForTest();`);
       assert.equal(g.run('canSaveHere()'), false, `canSaveHere() should be false on ${mapGlobal}`);
       const directResult = g.run('saveGame()');
       assert.equal(directResult, false, `a direct saveGame() call must refuse on ${mapGlobal}`);
@@ -282,7 +282,7 @@ module.exports = {
     g.run(`
       inBasinChamber = false; inSunkenGallery = false; activeMap = NORTH_BASIN_NW_MAP;
       menu.screen = 'saveConfirm'; menu.saveCursor = 0; menu.saveMessage = 0; menu.saveBlockedMessage = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('canSaveHere()'), true, 'canSaveHere() should be true on the outdoor Upper Reach');
     g.press('Enter');
     assert.equal(g.run('menu.saveMessage > 0'), true, 'saving on the Upper Reach must succeed via the menu');

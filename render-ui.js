@@ -1520,11 +1520,18 @@ function drawWarpMenu() {
 function drawDebugInspector() {
   if (!debugInspector.open) return;
 
-  const mapId = (typeof mapRegistryId === 'function') ? mapRegistryId(activeMap) : null;
+  // Report the CANONICAL current chunk + derived local (regional) or the physical
+  // map + local (discrete). regionalContext() returns null on a broken invariant —
+  // then fall back to the raw projection so the inspector still shows the diverged
+  // state for debugging (read-only; it never repairs).
+  const _rc = (typeof regionalContext === 'function') ? regionalContext() : null;
+  const mapId = _rc ? _rc.mapId : ((typeof mapRegistryId === 'function') ? mapRegistryId(activeMap) : null);
   const meta  = (mapId && typeof MAP_METADATA !== 'undefined') ? MAP_METADATA[mapId] : undefined;
 
-  const col = Math.floor(player.x / TILE), row = Math.floor(player.y / TILE);
-  const tile = activeMap[row] ? activeMap[row][col] : undefined;
+  const _map = _rc ? _rc.map : activeMap;
+  const _lx  = _rc ? _rc.localPxX : player.x, _ly = _rc ? _rc.localPxY : player.y;
+  const col = Math.floor(_lx / TILE), row = Math.floor(_ly / TILE);
+  const tile = (_map && _map[row]) ? _map[row][col] : undefined;
   const tileProps = (tile !== undefined && typeof getTileProperties === 'function') ? getTileProperties(tile) : null;
   const tileName = (tile !== undefined && typeof getTileName === 'function') ? getTileName(tile) : null;
   const walkable = tile !== undefined && typeof isTileWalkable === 'function' && isTileWalkable(tile);
@@ -1593,7 +1600,8 @@ function drawDebugInspector() {
     lines.push('CONT-VIEW: toggle ON, effective SUPPRESSED (legacy_screen map)');
   }
   if (typeof continuousWorldViewActive === 'function' && continuousWorldViewActive()) {
-    const plan = buildContinuousWorldPlan('overworld', mapId, player.x, player.y, 512, 480);
+    const _canon = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+    const plan = _canon ? buildContinuousWorldPlanFromWorld(_canon.regionId, _canon.worldPxX, _canon.worldPxY, 512, 480) : null;
     if (plan) {
       lines.push('CONT-VIEW: cam (' + plan.camPxX + ',' + plan.camPxY + ')  pWorld (' +
         plan.playerWorldPxX + ',' + plan.playerWorldPxY + ')  chunks ' + plan.visibleChunks.length +

@@ -83,8 +83,8 @@ The rule this codebase actually follows:
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
-| `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, `mapLocalPxToWorldPx()`, `buildContinuousWorldPlanFromWorld()` (the CANONICAL entry — plan from a region-world pixel point), and `buildContinuousWorldPlan()` (a TEMPORARY map-id+local compat overload for Part 2 readers/tests). Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. The runtime camera consumes `buildContinuousWorldPlanFromWorld()` (fed the canonical position); the compat overload is temporary. |
-| `regional-position.js` | **THE canonical regional-position authority** (Canonical Regional World Position, Part 1): the private canonical state `{ regionId, worldPxX, worldPxY }`; conversions `mapLocalPxToRegionWorldPx()` / `regionWorldPxToLocal()`; read-only `regionalWorldPosition()` / `regionalDerivedLocation()`; atomic writers `commitRegionalWorldPosition()` (derives `activeMap`/`player.x`/`player.y`), `enterRegionalMapFromLocal()`, `clearRegionalPosition()`, `placeAtLocation()` (the regional/discrete router used by every location gateway), the movement-step write `regionalCommitFromActiveLocal()`, and the read-only `regionalInvariantErrors()`. | Canonical state is not externally mutable and is `null` on every discrete location. Callers NEVER assign `activeMap`/`player.x`/`player.y` for a regional map — they go through this module. It never repairs state; `regionalInvariantErrors()` only reports. |
+| `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, and `buildContinuousWorldPlanFromWorld()` — the ONE plan entry, keyed on a region-world PIXEL point. Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. The runtime camera feeds it the CANONICAL regional world position; there is no map-id+local plan overload (removed) and no player-local→world adapter here. |
+| `regional-position.js` | **THE canonical regional-position authority**: the private canonical state `{ regionId, worldPxX, worldPxY }`; conversions `mapLocalPxToRegionWorldPx()` / `regionWorldPxToLocal()`; the derived read-model `regionalContext()` + accessors `regionalWorldPosition()` / `regionalDerivedLocation()` / `regionalActiveMapId()` / `regionalPlayerWorldPoint()`; atomic writers `commitRegionalWorldPosition()` (derives `activeMap`/`player.x`/`player.y`), `enterRegionalMapFromLocal()`, `clearRegionalPosition()`, `placeAtLocation()` (the regional/discrete router used by every location gateway); and read-only `regionalInvariantErrors()` / `regionalInvariantsHold()`. | Canonical state is not externally mutable and is `null` on every discrete location. Callers NEVER assign `activeMap`/`player.x`/`player.y` for a regional map — they go through this module. It never repairs state; the read model fails closed (returns null) on a broken invariant and `regionalInvariantErrors()` only reports. |
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
 | `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
 | `continuous-content.js` | **DEBUG-ONLY**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
@@ -513,11 +513,12 @@ returns before the world section when `combat.active`).
 special entities → landmarks → hints → player) is extracted verbatim, in the same
 order, into **`drawActiveMapContent()`** — used by both paths.
 
-The pure plan comes from **`buildContinuousWorldPlan(regionId, activeMapId,
-playerLocalPxX, playerLocalPxY, viewportPxW, viewportPxH)`** (world-view.js). It
-returns `null` off a placed map, else `{ regionId, activeMapId, activePlacement,
-playerWorldPxX, playerWorldPxY, camPxX, camPxY, visibleChunks }`. Player world
-pixels come from the authoritative placement (`chunkX*COLS*TILE + playerLocalPx`,
+The pure plan comes from **`buildContinuousWorldPlanFromWorld(regionId, worldPxX,
+worldPxY, viewportPxW, viewportPxH)`** (world-view.js), fed the CANONICAL regional
+world position (`regionalWorldPosition()`). It returns `null` off a placed point,
+else `{ regionId, activeMapId, activePlacement, playerWorldPxX, playerWorldPxY,
+camPxX, camPxY, visibleChunks }` — the active map + local are DERIVED from the world
+point, never re-read off `activeMap`. Player world pixels are the canonical point (not
 via `mapLocalPxToWorldPx`) — **note `localToWorld()` (data.js) is TILE-unit; player
 pixels must never be passed to it.** The camera uses `cameraOriginForTarget()`
 (integer, pixel-aligned, clamped to region bounds) and `visibleChunks()`.
@@ -575,8 +576,8 @@ the fixed original-map presentation.
   edge exposure (MAP2's west edge → single valid axis → monotone clamp to camX=512;
   MAP_N1's south edge → camY=1920) and **diagonal** corner exposure (RODDON_WAY_MAP's
   SW → two valid axes → least correction; the viewport ends up framing RODDON + MAP2,
-  never MAP or void). `buildContinuousWorldPlan()` applies it (excluding the active
-  map's own rect) and, belt-and-suspenders, filters any `legacy_screen` neighbour from
+  never MAP or void). `buildContinuousWorldPlanFromWorld()` applies it (excluding the
+  active map's own rect) and, belt-and-suspenders, filters any `legacy_screen` neighbour from
   the visible-chunk list. `visibleChunks()` itself stays pure geometry. The excluded
   area is never filled with invented terrain or a duplicated neighbour.
 - **Continuous-side NPC simulation excludes legacy_screen chunks.** `nearbySimulationMapSet()`
@@ -786,11 +787,10 @@ Thornmere fen shelf; the set is derived, not hand-listed.)
   border tile are base-walkable; `validateContinuousSeams()` errors otherwise. This
   is the general guard that a converted point crossing (or any future one) cannot
   strand/soft-lock the seamless footprint on a blocked border cell.
-- **Out of scope / future.** No caching; the regional CONSUMERS (encounters, NPC
-  sim, items, interactions, neighbour rendering, debug reads) still derive position
-  from `activeMap`+local — Part 2 moves them onto the canonical context below.
+- **Out of scope / future.** No caching. (Regional consumers now all read the
+  canonical context — see below.)
 
-### Canonical regional world position (Part 1 of 2, `regional-position.js`)
+### Canonical regional world position (`regional-position.js`)
 
 The runtime position of a placed wilderness map is now a **canonical region-world
 PIXEL point** — `{ regionId, worldPxX, worldPxY }` — held privately in
@@ -814,13 +814,15 @@ distinct:
 (via `transitionToLocation()`), defeat/reset (via `transitionToLocation()`) and
 `loadGame()` — commit position through `placeAtLocation(mapId, localPxX, localPxY)`
 (regional → commit canonical + derive projections; discrete → set physical map/local
-+ clear canonical). Movement: `continuousSeamMove()` validates a candidate world
-point and performs ONE `commitRegionalWorldPosition()` (the destination map + local
-are derived, not independently assigned); every accepted regional step (incl. legacy
-in-chunk) records via `regionalCommitFromActiveLocal()`. No ordinary runtime path
-reconstructs canonical from a conflicting projection, and there is no "repair from
-activeMap/local" loop — `regionalInvariantErrors()` only REPORTS
-(missing/stale/disagreeing projections), never repairs.
++ clear canonical). Movement is CANONICAL-FIRST: an accepted regional step is
+calculated from the canonical world point (`regionalWorldPosition()`), runs the same
+X-then-Y `canWalk()` collision, and commits the accepted world candidate via ONE
+`commitRegionalWorldPosition()` — which DERIVES the destination map + local (a handoff
+when the standing point crosses an eligible seam, else the same chunk). `player.x +=`
+remains only on discrete maps. There is no reverse local→canonical sync (the old
+`regionalCommitFromActiveLocal()` is gone), no runtime path reconstructs canonical from
+a conflicting projection, and there is no "repair from activeMap/local" loop —
+`regionalInvariantErrors()` only REPORTS (missing/stale/disagreeing projections).
 
 **Camera.** `render.js`'s continuous path reads `regionalWorldPosition()` and feeds
 `buildContinuousWorldPlanFromWorld()` — the camera consumes the canonical world point
@@ -839,11 +841,20 @@ inconsistent state atomically (running state + stored save untouched). Regional 
 derives the chunk/local projection from the world point; discrete load uses the
 existing map-local path.
 
-**Part 2 (deferred).** The regional CONSUMERS still read `activeMap`+local and will be
-moved onto the canonical context (removing redundant derivations): geographic
-encounters, regional NPC simulation/collision, world-aware items/pickups, interactions
-& prompts, neighbour content rendering, the debug inspector/read APIs, remaining compat
-position reads, and final invariant enforcement + compat-overload cleanup.
+**Consumers (all migrated).** Every regional runtime consumer reads the canonical
+context, never `activeMap`+local: geographic encounters (`playerStandingWorldPoint()`
+→ `regionalPlayerWorldPoint()`, so pool ownership + the Pale Sentry's MAP_N2 branch
+follow the canonical current chunk); regional NPC simulation/collision
+(`nearbySimulationMapSet()`, player-vs-NPC collision → `regionalPlayerWorldPoint()`);
+world-aware items/pickups (`activePlayerWorldPoint()` → canonical); interactions &
+map-features (`currentMapFeatures()` → `regionalActiveMapId()`); the seam movement
+helpers (`continuousSeamEngaged`/`_csMoveAxis`/diagnostic read `regionalWorldPosition()`);
+rendering (camera `buildContinuousWorldPlanFromWorld()`, `continuousWorldViewActive()`,
+`currentContentLocationKey()`/`locationName()`/`currentItemList()`/debug inspector →
+`regionalActiveMapId()`/`regionalContext()`). Each fails closed (does nothing / empty
+result) on a broken invariant rather than acting on a stale position. `activeMap`,
+`player.x`, `player.y` remain as READ-ONLY compatibility projections, never consulted
+as an independent geographic authority.
 
 ### Neighbouring outdoor content, READ-ONLY (`continuous-content.js`)
 

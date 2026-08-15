@@ -165,7 +165,9 @@ function resolveMapFeaturePages(pages, featureId) {
 // map wired into that registry, not just the maps it happens to list today.
 function currentMapFeatures() {
   if (typeof MAP_FEATURES === 'undefined' || typeof mapRegistryId !== 'function') return null;
-  const mapId = mapRegistryId(activeMap);
+  // Map identity from the CANONICAL context (regional) / active map (discrete), so
+  // map-feature (inspect/trigger) selection follows the canonical current chunk.
+  const mapId = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapRegistryId(activeMap);
   return mapId ? (MAP_FEATURES[mapId] || null) : null;
 }
 

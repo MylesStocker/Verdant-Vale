@@ -90,7 +90,7 @@ module.exports = {
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap = MAP;
       player.x = 5*TILE; player.y = 5*TILE; player.facing = 'down';
-    `);
+    ; __reconcileCanonicalForTest();`);
     // Wall off north with WATER, leave east as GRASS -- confirms canWalk()
     // (now reading isTileWalkable() instead of WALKABLE[] directly) still
     // blocks on water and still allows grass, i.e. the swap didn't change
@@ -106,7 +106,7 @@ module.exports = {
     assert.equal(g.run('player.y'), yBefore, 'player must not cross a WATER row after the isTileWalkable() migration');
     g.run(`for (let c = 0; c < COLS; c++) MAP[4][c] = window.__savedRow4[c]; delete window.__savedRow4;`);
 
-    g.run(`player.x = 5*TILE; player.y = 5*TILE; player.facing = 'right';`);
+    g.run(`player.x = 5*TILE; player.y = 5*TILE; player.facing = 'right';; __reconcileCanonicalForTest();`);
     const xBefore = g.run('player.x');
     g.hold('ArrowRight');
     g.frames(20);
@@ -150,7 +150,7 @@ module.exports = {
     g.run(`
       activeMap = MAP; player.x = 2.5*TILE; player.y = 2.5*TILE;
       debugInspector.open = true;
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.doesNotThrow(() => g.renderFrame(), 'a full render() with the inspector open (now showing tile category/tags) must not throw');
     g.run('debugInspector.open = false;');
 
@@ -198,7 +198,7 @@ module.exports = {
       inDungeon=false; inTown=false; inSluice=false; activeMap = MAP;
       player.x = 14.5*TILE; player.y = 4.5*TILE; player.facing = 'right';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     let crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -213,7 +213,7 @@ module.exports = {
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {

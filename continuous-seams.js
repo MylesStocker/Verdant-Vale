@@ -221,9 +221,13 @@ function continuousSeamEngaged(dx, dy) {
   if (!mapId || !continuousSeamMapEligible(mapId)) return false;
   const p = regionPlacementForMapId(mapId);
   if (!p) return false;
-  const regionId = p.regionId, CW = COLS * TILE, CH = ROWS * TILE;
+  const regionId = p.regionId;
   const stand = { chunkX: p.chunkX, chunkY: p.chunkY, mapId };
-  const wx = p.chunkX * CW + player.x, wy = p.chunkY * CH + player.y;
+  // Player world point from the CANONICAL authority (continuousWorldViewActive() has
+  // already established we are on a placed regional map, so this is non-null).
+  const c = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+  if (!c) return false;
+  const wx = c.worldPxX, wy = c.worldPxY;
   if (_csFootprintTouches(regionId, stand, wx, wy)) return true;          // current footprint straddles
   if (_csFootprintTouches(regionId, stand, wx + dx, wy + dy)) return true; // candidate footprint straddles
   const cc = _csChunkAt(regionId, wx + dx, wy + dy);                       // candidate standing crossing
@@ -244,10 +248,15 @@ function _csMoveAxis(dx, dy) {
   if (dx === 0 && dy === 0) return;
   const mapId = mapIdForRef(activeMap);
   const p = regionPlacementForMapId(mapId);
-  const regionId = p.regionId, CW = COLS * TILE, CH = ROWS * TILE;
+  const regionId = p.regionId;
   const stand = { chunkX: p.chunkX, chunkY: p.chunkY, mapId };
-  const nwx = p.chunkX * CW + player.x + dx;
-  const nwy = p.chunkY * CH + player.y + dy;
+  // The candidate world point is CALCULATED from the canonical world position (not
+  // chunkX*CW + player.x). After an X-axis handoff the Y call re-reads the updated
+  // canonical, so the second axis sees the first axis's commit.
+  const c = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+  if (!c) return;
+  const nwx = c.worldPxX + dx;
+  const nwy = c.worldPxY + dy;
   if (!continuousFootprintWalkable(regionId, stand, nwx, nwy)) return; // blocked this axis
   const nc = _csChunkAt(regionId, nwx, nwy);
   if (nc.chunkX !== stand.chunkX || nc.chunkY !== stand.chunkY) {
@@ -311,9 +320,12 @@ function continuousSeamDiagnostic() {
   const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
   if (!mapId || !continuousSeamMapEligible(mapId)) return null;
   const p = regionPlacementForMapId(mapId);
-  const regionId = p.regionId, CW = COLS * TILE, CH = ROWS * TILE;
+  const regionId = p.regionId;
   const stand = { chunkX: p.chunkX, chunkY: p.chunkY, mapId };
-  const wx = p.chunkX * CW + player.x, wy = p.chunkY * CH + player.y;
+  // Player world point from the canonical authority (fail-closed on a broken invariant).
+  const cp = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+  if (!cp) return null;
+  const wx = cp.worldPxX, wy = cp.worldPxY;
   let engaged = null;
   for (const [ox, oy] of footprintCorners(wx, wy)) {
     const c = _csChunkAt(regionId, ox, oy);

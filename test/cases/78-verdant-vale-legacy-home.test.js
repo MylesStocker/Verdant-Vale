@@ -29,7 +29,7 @@ function spyRender(g) {
       mutated:(mapIdForRef(activeMap)!==am||player.x!==px||player.y!==py) });
   })()`));
 }
-const plan = (g, mid, px, py) => JSON.parse(g.run(`JSON.stringify(buildContinuousWorldPlan('overworld','${mid}',${px},${py},512,480))`));
+const plan = (g, mid, px, py) => JSON.parse(g.run(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('${mid}',${px},${py});return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`));
 const rectHitsMAP = (camX, camY) => camX < MAP_RECT.r && camX + CW > MAP_RECT.l && camY < MAP_RECT.b && camY + CH > MAP_RECT.t;
 
 module.exports = {
@@ -58,15 +58,15 @@ module.exports = {
     assert.equal(g.run("validateGameData().errorList.length"), 0, 'baseline validateGameData has 0 errors');
 
     // ── 3. Toggle on + MAP active -> effective continuous suppressed ────────
-    g.run("resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true;");
+    g.run("resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true;; __reconcileCanonicalForTest();");
     assert.equal(g.run('continuousWorldViewEnabled'), true, 'session toggle stays ON');
     assert.equal(g.run('continuousWorldViewActive()'), false, 'effective continuous is SUPPRESSED on the legacy_screen home');
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP2'); return continuousWorldViewActive();})()"), true, 'effective continuous is ON for MAP2');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP2'); __reconcileCanonicalForTest(); return continuousWorldViewActive();})()"), true, 'effective continuous is ON for MAP2');
 
     // ── 4. Fixed camera + legacy rendering on MAP (toggle on) ───────────────
     {
       const gg = ctx();
-      gg.run("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true; player.x=8*TILE; player.y=7*TILE;");
+      gg.run("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true; player.x=8*TILE; player.y=7*TILE; __reconcileCanonicalForTest();");
       const f = spyRender(gg);
       assert.equal(f.voidFilled, false, 'MAP renders via the legacy path (no continuous void fill)');
       assert.equal(f.translates, 0, 'MAP legacy render applies no camera translate (fixed screen, origin 0,0)');
@@ -81,7 +81,7 @@ module.exports = {
     // ── 6. Leaving EAST to MAP2: discrete landing/cooldown + auto-continuous ─
     {
       const gg = ctx();
-      gg.run("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true; combat.cooldown=0; player.x=14.5*TILE; player.y=4.5*TILE; player.facing='right';");
+      gg.run("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true; combat.cooldown=0; player.x=14.5*TILE; player.y=4.5*TILE; player.facing='right'; __reconcileCanonicalForTest();");
       gg.hold('ArrowRight'); let out=false; for (let i=0;i<20&&!out;i++){ gg.frames(1); out=gg.run("mapIdForRef(activeMap)==='MAP2'"); } gg.release('ArrowRight');
       assert.ok(out, 'walked east onto MAP2 via the existing point crossing');
       assert.equal(gg.run('player.x'), gg.run('1.5*TILE'), 'discrete inset landing preserved (MAP2 x=1.5*TILE)');
@@ -93,7 +93,7 @@ module.exports = {
     // ── 7. Leaving NORTH to MAP_N1: discrete landing/cooldown + auto-continuous ─
     {
       const gg = ctx();
-      gg.run("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true; combat.cooldown=0; player.x=7.5*TILE; player.y=1.5*TILE; player.facing='up';");
+      gg.run("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); continuousWorldViewEnabled=true; combat.cooldown=0; player.x=7.5*TILE; player.y=1.5*TILE; player.facing='up'; __reconcileCanonicalForTest();");
       gg.hold('ArrowUp'); let out=false; for (let i=0;i<20&&!out;i++){ gg.frames(1); out=gg.run("mapIdForRef(activeMap)==='MAP_N1'"); } gg.release('ArrowUp');
       assert.ok(out, 'walked north onto MAP_N1 via the existing point crossing');
       assert.equal(gg.run('player.y'), gg.run('13.5*TILE'), 'discrete inset landing preserved (MAP_N1 y=13.5*TILE)');
@@ -105,13 +105,13 @@ module.exports = {
     {
       const gg = ctx();
       // from MAP2 west back into MAP
-      gg.run("debugWarpToDestination('outdoor:MAP2'); resetLocationState(); activeMap=mapRefForId('MAP2'); continuousWorldViewEnabled=true; player.x=1.5*TILE; player.y=4.5*TILE; player.facing='left';");
+      gg.run("debugWarpToDestination('outdoor:MAP2'); resetLocationState(); activeMap=mapRefForId('MAP2'); continuousWorldViewEnabled=true; player.x=1.5*TILE; player.y=4.5*TILE; player.facing='left'; __reconcileCanonicalForTest();");
       gg.hold('ArrowLeft'); let home=false; for (let i=0;i<20&&!home;i++){ gg.frames(1); home=gg.run("mapIdForRef(activeMap)==='MAP'"); } gg.release('ArrowLeft');
       assert.ok(home, 'returned west into MAP');
       assert.equal(gg.run('continuousWorldViewEnabled'), true, 'toggle still ON after returning home');
       assert.equal(gg.run('continuousWorldViewActive()'), false, 'first home frame is the fixed legacy presentation');
       // from MAP_N1 south back into MAP
-      gg.run("debugWarpToDestination('outdoor:MAP_N1'); resetLocationState(); activeMap=mapRefForId('MAP_N1'); continuousWorldViewEnabled=true; player.x=7.5*TILE; player.y=13.5*TILE; player.facing='down';");
+      gg.run("debugWarpToDestination('outdoor:MAP_N1'); resetLocationState(); activeMap=mapRefForId('MAP_N1'); continuousWorldViewEnabled=true; player.x=7.5*TILE; player.y=13.5*TILE; player.facing='down'; __reconcileCanonicalForTest();");
       gg.hold('ArrowDown'); let home2=false; for (let i=0;i<20&&!home2;i++){ gg.frames(1); home2=gg.run("mapIdForRef(activeMap)==='MAP'"); } gg.release('ArrowDown');
       assert.ok(home2, 'returned south into MAP');
       assert.equal(gg.run('continuousWorldViewActive()'), false, 'home is fixed again');
@@ -126,10 +126,10 @@ module.exports = {
         gg.hold(key); let done=false; for (let i=0;i<24&&!done;i++){ gg.frames(1); done=gg.run(`mapIdForRef(activeMap)==='${toMap}'`); } gg.release(key);
         return done;
       };
-      assert.ok(legacyCross('MAP','MAP',"player.x=14.5*TILE; player.y=4.5*TILE; player.facing='right';",'ArrowRight','MAP2'), 'toggle off: MAP->MAP2');
-      assert.ok(legacyCross('MAP2','MAP2',"player.x=1.5*TILE; player.y=4.5*TILE; player.facing='left';",'ArrowLeft','MAP'), 'toggle off: MAP2->MAP');
-      assert.ok(legacyCross('MAP','MAP',"player.x=7.5*TILE; player.y=1.5*TILE; player.facing='up';",'ArrowUp','MAP_N1'), 'toggle off: MAP->MAP_N1');
-      assert.ok(legacyCross('MAP_N1','MAP_N1',"player.x=7.5*TILE; player.y=13.5*TILE; player.facing='down';",'ArrowDown','MAP'), 'toggle off: MAP_N1->MAP');
+      assert.ok(legacyCross('MAP','MAP',"player.x=14.5*TILE; player.y=4.5*TILE; player.facing='right'; __reconcileCanonicalForTest();",'ArrowRight','MAP2'), 'toggle off: MAP->MAP2');
+      assert.ok(legacyCross('MAP2','MAP2',"player.x=1.5*TILE; player.y=4.5*TILE; player.facing='left'; __reconcileCanonicalForTest();",'ArrowLeft','MAP'), 'toggle off: MAP2->MAP');
+      assert.ok(legacyCross('MAP','MAP',"player.x=7.5*TILE; player.y=1.5*TILE; player.facing='up'; __reconcileCanonicalForTest();",'ArrowUp','MAP_N1'), 'toggle off: MAP->MAP_N1');
+      assert.ok(legacyCross('MAP_N1','MAP_N1',"player.x=7.5*TILE; player.y=13.5*TILE; player.facing='down'; __reconcileCanonicalForTest();",'ArrowDown','MAP'), 'toggle off: MAP_N1->MAP');
     }
 
     // ── 10 + 11. Render plans from MAP2 / MAP_N1 / RODDON never contain MAP ──
@@ -169,7 +169,7 @@ module.exports = {
     assert.equal(g.run("!!eligibleContinuousSeam('MAP','east')"), false, 'MAP has no eligible continuous seam east');
     assert.equal(g.run("!!eligibleContinuousSeam('MAP2','west')"), false, 'MAP2 has no eligible continuous seam west (into MAP)');
     assert.equal(g.run("continuousSeamCrossingAt('MAP2', 0*512+8*32, 5*480+7*32)"), null, 'a cross-seam query from MAP2 into MAP resolves to no eligible seam');
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP2'); player.x=1*TILE; player.y=7*TILE; return crossSeamNeighbourFor('MAP2', 0*512+8*32, 5*480+7*32);})()"), null, 'no cross-seam neighbour resolves into the legacy home');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP2'); player.x=1*TILE; player.y=7*TILE; __reconcileCanonicalForTest(); return crossSeamNeighbourFor('MAP2', 0*512+8*32, 5*480+7*32);})()"), null, 'no cross-seam neighbour resolves into the legacy home');
 
     // ── 14. Other continuous chunks still behave normally ───────────────────
     assert.ok(g.run("!!eligibleContinuousSeam('MAP2','north')"), 'MAP2<->RODDON seam still eligible');
@@ -194,32 +194,32 @@ module.exports = {
     assert.equal(g.run('continuousSeamEntries().length'), 26, '26 eligible directed seams (13 pairs)');
 
     // ── 18. Geographic encounter pools correct on MAP / MAP2 / MAP_N1 ───────
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6*TILE; player.y=6*TILE; return currentEncounterPool()===EARLY_ENEMY_TEMPLATES;})()"), true, 'MAP pool is EARLY_ENEMY_TEMPLATES (geography unaffected by presentation)');
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP2'); player.x=6*TILE; player.y=6*TILE; return currentEncounterPool()===mapEntryForId('MAP2').encounterPool;})()"), true, 'MAP2 pool correct');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6*TILE; player.y=6*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===EARLY_ENEMY_TEMPLATES;})()"), true, 'MAP pool is EARLY_ENEMY_TEMPLATES (geography unaffected by presentation)');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP2'); player.x=6*TILE; player.y=6*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===mapEntryForId('MAP2').encounterPool;})()"), true, 'MAP2 pool correct');
     assert.equal(g.run("geographicEncounterContext('overworld', 0*512+256, 5*480+240).mapId"), 'MAP', 'MAP still resolves for geographic encounters');
 
     // ── 19. Save/load on MAP; SAVE_VERSION 3; no presentation/debug state saved ─
     {
       const gg = ctx();
-      gg.run("resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6.5*TILE; player.y=6.5*TILE; continuousWorldViewEnabled=true; __reconcileCanonicalForTest(); saveGame();");
+      gg.run("resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6.5*TILE; player.y=6.5*TILE; __reconcileCanonicalForTest(); continuousWorldViewEnabled=true; __reconcileCanonicalForTest(); saveGame();");
       const saved = JSON.parse(gg.run("localStorage.getItem('verdantVale_save')"));
       assert.equal(saved.version, 4, 'SAVE_VERSION stays 4');
       assert.ok(!/regionalPresentation|continuousWorldView|legacy_screen|presentation/i.test(Object.keys(saved).join(',') + JSON.stringify(saved.locationState || {})), 'no presentation/debug-toggle state enters the save');
-      gg.run("activeMap=mapRefForId('MAP2'); player.x=1; player.y=1; loadGame();");
+      gg.run("activeMap=mapRefForId('MAP2'); player.x=1; player.y=1; __reconcileCanonicalForTest(); loadGame();");
       assert.equal(gg.run("mapIdForRef(activeMap)"), 'MAP', 'load restores MAP');
       assert.ok(Math.abs(gg.run('player.x') - 6.5 * 32) < 1, 'load restores position on MAP');
     }
 
     // ── 20. Pure helpers: no randomness, no runtime mutation ────────────────
     {
-      g.run("resetLocationState(); activeMap=mapRefForId('MAP2'); player.x=100; player.y=120;");
+      g.run("resetLocationState(); activeMap=mapRefForId('MAP2'); player.x=100; player.y=120; __reconcileCanonicalForTest();; __reconcileCanonicalForTest();");
       const before = g.run("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+continuousWorldViewEnabled");
       const rc = g.run(`(function(){
         var n=0,_r=Math.random; Math.random=function(){n++; return _r();};
         regionalPresentationForMapId('MAP'); isLegacyScreenMap('MAP');
         legacyScreenChunkRects('overworld');
         continuousCameraOrigin('overworld', 300, 2500, 512, 480, legacyScreenChunkRects('overworld'));
-        buildContinuousWorldPlan('overworld','MAP2',100,120,512,480);
+        (function(){var _w=mapLocalPxToRegionWorldPx('MAP2',100,120);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})();
         Math.random=_r; return n;
       })()`);
       assert.equal(rc, 0, 'presentation/camera helpers consume no randomness');
@@ -234,7 +234,7 @@ module.exports = {
     const CTRL_NPC = "{id:'h1_ctrl', name:'Ctrl', map:'map3_n1', spriteType:'clerk', x:5.5*TILE, y:5.5*TILE, facing:'right', movement:{type:'patrol', autoStart:true, speed:2, waypoints:[{x:5.5,y:5.5},{x:6.5,y:5.5}]}}";
     for (const [activeMapId, warpId] of [['MAP2', 'MAP2'], ['MAP_N1', 'MAP_N1'], ['RODDON_WAY_MAP', 'RODDON_WAY_MAP']]) {
       const gg = ctx();
-      gg.run(`debugWarpToDestination('outdoor:${warpId}'); resetLocationState(); activeMap=mapRefForId('${activeMapId}'); continuousWorldViewEnabled=true; debugMode=true; for (var k in keys) delete keys[k]; player.x=8*TILE; player.y=7*TILE; player.moving=false;`);
+      gg.run(`debugWarpToDestination('outdoor:${warpId}'); resetLocationState(); activeMap=mapRefForId('${activeMapId}'); continuousWorldViewEnabled=true; debugMode=true; for (var k in keys) delete keys[k]; player.x=8*TILE; player.y=7*TILE; player.moving=false; __reconcileCanonicalForTest();`);
       gg.run(`SIMPLE_NPCS.push(${MAP_NPC}); MOVEMENT_HOMES['h1_map']={x:6.5*TILE,y:6.5*TILE,facing:'down'};`);
       // (1) MAP absent from the nearby simulation set
       assert.equal(gg.run("nearbySimulationMapSet().has('MAP')"), false, `${activeMapId} active: MAP excluded from nearbySimulationMapSet()`);
@@ -251,7 +251,7 @@ module.exports = {
     // (6) a second NPC on a nearby continuous chunk still simulates normally
     {
       const gg = ctx();
-      gg.run("debugWarpToDestination('outdoor:MAP2'); resetLocationState(); activeMap=mapRefForId('MAP2'); continuousWorldViewEnabled=true; debugMode=true; for (var k in keys) delete keys[k]; player.x=8*TILE; player.y=7*TILE;");
+      gg.run("debugWarpToDestination('outdoor:MAP2'); resetLocationState(); activeMap=mapRefForId('MAP2'); continuousWorldViewEnabled=true; debugMode=true; for (var k in keys) delete keys[k]; player.x=8*TILE; player.y=7*TILE; __reconcileCanonicalForTest();");
       gg.run(`SIMPLE_NPCS.push(${CTRL_NPC}); MOVEMENT_HOMES['h1_ctrl']={x:5.5*TILE,y:5.5*TILE,facing:'right'};`);
       assert.equal(gg.run("nearbySimulationMapSet().has('MAP3_N1')"), true, 'a nearby CONTINUOUS chunk (MAP3_N1) stays in the simulation set');
       gg.frames(2);
@@ -260,7 +260,7 @@ module.exports = {
     // (7) the simulation helper is pure — no runtime/authored/toggle mutation
     {
       const gg = ctx();
-      gg.run("resetLocationState(); activeMap=mapRefForId('MAP2'); continuousWorldViewEnabled=true; player.x=50; player.y=60;");
+      gg.run("resetLocationState(); activeMap=mapRefForId('MAP2'); continuousWorldViewEnabled=true; player.x=50; player.y=60; __reconcileCanonicalForTest();");
       const before = gg.run("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+continuousWorldViewEnabled+'|'+regionalPresentationForMapId('MAP')");
       gg.run("nearbySimulationMapSet(); npcShouldSimulate({map:'overworld', physicalMapId:'MAP', x:0, y:0}); regionalNpcInSimulationScope({map:'overworld', physicalMapId:'MAP', x:0, y:0});");
       assert.equal(gg.run("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+continuousWorldViewEnabled+'|'+regionalPresentationForMapId('MAP')"), before, 'simulation-scope helpers mutate no activeMap/player/location/presentation/toggle state');

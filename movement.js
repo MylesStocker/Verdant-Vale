@@ -27,7 +27,10 @@ function locationName() {
   // sluiceFloor) that a flat per-map displayName can't express, and their
   // existing state-gated checks below still own that logic -- see the
   // comment at the top of MAP_METADATA (data.js) for why that split exists.
-  const meta = MAP_METADATA[mapRegistryId(activeMap)];
+  // Physical map identity comes from the CANONICAL context for a regional map
+  // (regionalActiveMapId); a discrete map resolves to its own active map id.
+  const _locId = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapRegistryId(activeMap);
+  const meta = MAP_METADATA[_locId];
   if (meta && meta.type === 'outdoor') return meta.displayName;
 
   if (inBasinChamber)                      return 'No Recorded Location';
@@ -115,7 +118,10 @@ function currentContentLocationKey() {
   // state (the special-interior flags above have already returned for their
   // maps), so this returns the map's logical key; MAP/MAP5/RODDON_WAY_MAP map to
   // the shared 'overworld' key (identical to the former fall-through).
-  const _outdoorKey = (typeof outdoorContentKeyForMapId === 'function') ? outdoorContentKeyForMapId(mapIdForRef(activeMap)) : null;
+  // Physical map identity for the region-placed outdoor case comes from the
+  // CANONICAL context (regionalActiveMapId), not the activeMap projection.
+  const _activeId = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapIdForRef(activeMap);
+  const _outdoorKey = (typeof outdoorContentKeyForMapId === 'function') ? outdoorContentKeyForMapId(_activeId) : null;
   if (_outdoorKey) return _outdoorKey;
   if (inBasinChamber)                 return 'basin_chamber';
   if (inSunkenGallery)                return 'sunken_gallery';
@@ -451,26 +457,32 @@ function update() {
       // keeps its exact legacy transition.
       let edgeTransitioned = false;
       const _sup = (dir) => (typeof continuousSeamSuppressLegacyEdge === 'function') && continuousSeamSuppressLegacyEdge(dir);
+      // On a placed regional map the canonical world position is the authority: an
+      // accepted in-chunk step is CALCULATED from canonical world coords, collision-
+      // checked with the same X-then-Y canWalk() gates, then committed as the world
+      // candidate (which DERIVES the local projection). On a discrete map canonical
+      // is null and the physical local model is written directly, exactly as before.
+      const _canonStep = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
 
       if      (dx < 0 && curCol <= 0 && !_sup('west'))       edgeTransitioned = tryEdgeTransition('west');
       else if (dx > 0 && curCol >= COLS - 1 && !_sup('east')) edgeTransitioned = tryEdgeTransition('east');
-      else if (canWalk(player.x + dx, player.y))              player.x += dx;
+      else if (canWalk(player.x + dx, player.y)) {
+        if (_canonStep) commitRegionalWorldPosition(_canonStep.regionId, _canonStep.worldPxX + dx, _canonStep.worldPxY);
+        else            player.x += dx;
+      }
 
       if (!edgeTransitioned) {
+        const _canonY = _canonStep ? regionalWorldPosition() : null; // reflects the X step's commit
         if      (dy < 0 && curRow <= 0 && !_sup('north'))      edgeTransitioned = tryEdgeTransition('north');
         else if (dy > 0 && curRow >= ROWS - 1 && !_sup('south')) edgeTransitioned = tryEdgeTransition('south');
-        else if (canWalk(player.x, player.y + dy))             player.y += dy;
+        else if (canWalk(player.x, player.y + dy)) {
+          if (_canonY) commitRegionalWorldPosition(_canonY.regionId, _canonY.worldPxX, _canonY.worldPxY + dy);
+          else         player.y += dy;
+        }
       }
 
       if (edgeTransitioned) return; // activeMap/player position fully replaced; skip the rest of this frame, same as any other map transition
     }
-
-    // Canonical write for this accepted regional step: on a placed regional map,
-    // record the resulting world-pixel position (seamless handoffs already
-    // committed inside continuousSeamMove — this is exact/idempotent for them; a
-    // legacy within-chunk step commits here). No-ops on discrete maps, so town/
-    // dungeon/interior movement keeps its physical-map-only model untouched.
-    if (typeof regionalCommitFromActiveLocal === 'function') regionalCommitFromActiveLocal();
 
     player.step++;
     if (hasStatusEffect('poison') && player.step % 60 === 0)

@@ -1626,7 +1626,12 @@ function currentItemList() {
        // (shouldn't happen for a registered map -- see validateGameData()'s
        // MAP_METADATA section -- but this keeps the function from ever
        // returning undefined).
-       : (MAP_METADATA[mapRegistryId(activeMap)] ? MAP_METADATA[mapRegistryId(activeMap)].items : WORLD_ITEMS);
+       // Physical map identity for the outdoor/registered-map fall-through comes
+       // from the CANONICAL context (regional maps) or the active map id (discrete).
+       : (function () {
+           const _id = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapRegistryId(activeMap);
+           return (_id && MAP_METADATA[_id]) ? MAP_METADATA[_id].items : WORLD_ITEMS;
+         })();
 }
 
 // ─── Chest Drawing Helper ─────────────────────────────────────────────────────

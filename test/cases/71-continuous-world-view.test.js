@@ -1,6 +1,6 @@
 'use strict';
 // DEBUG continuous terrain + camera renderer (render.js drawContinuousWorld,
-// world-view.js buildContinuousWorldPlan). Visual prototype only — legacy
+// world-view.js buildContinuousWorldPlanFromWorld). Visual prototype only — legacy
 // movement/collision/transitions/saves/content are untouched, and default
 // gameplay is pixel-identical when the flag is off.
 //
@@ -110,7 +110,7 @@ module.exports = {
     const cases = [['MAP', 0, 5], ['MAP2', 1, 5], ['NORTH_BASIN_NW_MAP', 1, 0]];
     for (const [id, cx, cy] of cases) {
       const plan = J(`(function(){ activeMap = mapRefForId(${JSON.stringify(id)}); player.x = 100; player.y = 60;
-        return JSON.stringify(buildContinuousWorldPlan('overworld', ${JSON.stringify(id)}, player.x, player.y, 512, 480)); })()`);
+        return JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx(${JSON.stringify(id)},player.x,player.y);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})()); })()`);
       assert.equal(plan.playerWorldPxX, cx * CW + 100, `${id}: player world px X`);
       assert.equal(plan.playerWorldPxY, cy * CH + 60, `${id}: player world px Y`);
       assert.ok(Number.isInteger(plan.camPxX) && Number.isInteger(plan.camPxY), `${id}: integer camera`);
@@ -118,20 +118,20 @@ module.exports = {
 
     // ── 6. Camera follows the player away from region edges ──────────────────
     // MAP3 (2,5) is interior on the X axis; a mid-map player is far from left/right/bottom.
-    const follow = J(`JSON.stringify(buildContinuousWorldPlan('overworld', 'MAP3', 8*${TILE}, 7*${TILE}, 512, 480))`);
+    const follow = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP3',8*${TILE},7*${TILE});return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(follow.camPxX, follow.playerWorldPxX - 256, 'camera X centres on the player mid-region');
     // (Y is at the region's bottom row so it clamps; X centring proves following.)
 
     // ── 7. Camera clamps at all four region bounds ──────────────────────────
     const bounds = J("JSON.stringify(regionPixelBounds('overworld'))");
     // MAP (0,5) local (0, bottom): true left + bottom corner -> clamps both.
-    const bl = J(`JSON.stringify(buildContinuousWorldPlan('overworld', 'MAP', 0, ${(ROWS - 1) * TILE}, 512, 480))`);
+    const bl = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP',0,${(ROWS - 1) * TILE});return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(bl.camPxX, bounds.leftPx, 'clamp left edge');
     assert.equal(bl.camPxY, bounds.bottomPx - 480, 'clamp bottom edge');
     // MAP5 (4,5) far-right column -> right clamp; NB_NW (1,0) top row -> top clamp.
-    const tr = J(`JSON.stringify(buildContinuousWorldPlan('overworld', 'MAP5', ${(COLS - 1) * TILE}, 0, 512, 480))`);
+    const tr = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP5',${(COLS - 1) * TILE},0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(tr.camPxX, bounds.rightPx - 512, 'clamp right edge');
-    const top = J(`JSON.stringify(buildContinuousWorldPlan('overworld', 'NORTH_BASIN_NW_MAP', 0, 0, 512, 480))`);
+    const top = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('NORTH_BASIN_NW_MAP',0,0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(top.camPxY, bounds.topPx, 'clamp top edge');
 
     // ── 8. Viewport resolves one, two, and four visible chunks ──────────────
@@ -148,7 +148,7 @@ module.exports = {
 
     // ── 10-14. Continuous frame on a placed overworld map ───────────────────
     warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');
-    const plan = J("JSON.stringify(buildContinuousWorldPlan('overworld', 'MAP2', player.x, player.y, 512, 480))");
+    const plan = J("JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP2',player.x,player.y);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())");
     const cont = spyRender(g);
     assert.equal(cont.mutated, false, 'continuous: no mutation of player/activeMap/location');
     assert.equal(cont.voidFilled, true, 'continuous: void filled');
@@ -180,7 +180,7 @@ module.exports = {
     // ── 12. Procedural tile coords identical for the same world tile under two
     //        different camera positions ─────────────────────────────────────
     const coordsAt = (px) => {
-      g.run(`player.x = ${px}; player.y = 7*TILE;`);
+      g.run(`player.x = ${px}; player.y = 7*TILE; __reconcileCanonicalForTest();`);
       return spyRender(g).tileCoords.map(c => c.join(','));
     };
     const camA = coordsAt(6 * TILE), camB = coordsAt(9 * TILE);

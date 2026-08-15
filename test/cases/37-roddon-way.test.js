@@ -85,7 +85,7 @@ module.exports = {
       inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3_N1;
       player.x=1.5*TILE; player.y=6.5*TILE; player.facing='left';
       combat.cooldown=0; debugMode=true;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowLeft');
     let crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) { g.frames(1); crossed = g.run('activeMap === RODDON_WAY_MAP'); }
@@ -196,7 +196,7 @@ module.exports = {
       g.run(`
         inDungeon=false; inTown=false; inSluice=false; activeMap=RODDON_WAY_MAP;
         player.x=${x}*TILE; player.y=${y}*TILE; player.facing='down'; dialogue.open=false;
-      `);
+      ; __reconcileCanonicalForTest();`);
       assert.equal(g.run('dialogue.open'), false, `precondition: no dialogue open before ${id}`);
       g.press('Enter');
       assert.equal(g.run('dialogue.open'), true, `${id} should open dialogue via a real interact press`);
@@ -214,8 +214,8 @@ module.exports = {
     assert.equal(g.run('TILE_PROPERTIES[RODDON_SILT].walkable'), true);
     assert.equal(g.run('TILE_PROPERTIES[RODDON_SILT].encounterEligible'), false);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(RODDON_SILT)'), true);
-    g.run('player.x = 6.5*TILE; player.y = 6.5*TILE;'); // standing on ridge
-    assert.doesNotThrow(() => g.renderFrame(), 'rendering a frame with RODDON_SILT on screen must not throw');
+    g.run('player.x = 6.5*TILE; player.y = 6.5*TILE;; __reconcileCanonicalForTest();'); // standing on ridge
+    assert.doesNotThrow(() => g.renderFrame(), 'rendering a frame with RODDON_SILT on screen must not throw; __reconcileCanonicalForTest();');
 
     // ── 10. MAP3 <-> MAP3_N1 crossing still works ────────────────────────────
     // Converted from a FEN_N_EXIT point-tile to a structural EDGE_TRANSITIONS seam
@@ -224,7 +224,7 @@ module.exports = {
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3; continuousWorldViewEnabled=false;
       player.x=8.5*TILE; player.y=1.5*TILE; player.facing='up'; combat.cooldown=0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     let toFen = false;
     for (let i = 0; i < 40 && !toFen; i++) { g.frames(1); toFen = g.run('activeMap === MAP3_N1'); }

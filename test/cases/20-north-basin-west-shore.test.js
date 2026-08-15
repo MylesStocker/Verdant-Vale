@@ -52,7 +52,7 @@ module.exports = {
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_SW_MAP;
       player.x = ${crossCol}.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('activeMap === NORTH_BASIN_SW_MAP'), true, 'precondition');
     g.hold('ArrowUp');
     let crossed = false;
@@ -73,7 +73,7 @@ module.exports = {
     g.run(`
       player.x = ${crossCol}.5*TILE; player.y = 13.5*TILE; player.facing = 'down';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowDown');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -92,7 +92,7 @@ module.exports = {
         inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_SW_MAP;
         player.x = ${col}.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
         combat.cooldown = 0;
-      `);
+      ; __reconcileCanonicalForTest();`);
       g.hold('ArrowUp');
       crossed = false;
       for (let i = 0; i < 40 && !crossed; i++) {
@@ -114,7 +114,7 @@ module.exports = {
     g.run(`
       activeMap = MAP; player.x = 1*TILE; player.y = 1*TILE;
       loadGame();
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('activeMap === NORTH_BASIN_W_MAP'), true, 'activeMap should restore to NORTH_BASIN_W_MAP');
     assert.equal(g.run('player.x'), 5.5 * 32);
     assert.equal(g.run('player.y'), 9.5 * 32);
@@ -159,7 +159,7 @@ module.exports = {
     g.run(`
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_W_MAP;
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     for (let i = 0; i < 30; i++) {
       g.run('startCombat();');
       const name = g.run('combat.enemy ? combat.enemy.name : null');

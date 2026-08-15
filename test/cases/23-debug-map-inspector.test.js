@@ -52,7 +52,7 @@ module.exports = {
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap = NORTH_BASIN_SW_MAP;
       player.x = 7.5*TILE; player.y = 5.5*TILE; player.facing = 'down';
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('mapRegistryId(activeMap)'), 'NORTH_BASIN_SW_MAP');
     assert.equal(g.run('Math.floor(player.x/TILE)'), 7);
     assert.equal(g.run('Math.floor(player.y/TILE)'), 5);
@@ -69,7 +69,7 @@ module.exports = {
     g.run(`
       inDungeon = true; dungeonFloor = 3; inTown = false;
       activeMap = MAP; player.x = 1*TILE; player.y = 1*TILE;
-    `);
+    ; __reconcileCanonicalForTest();`);
     const before = g.run('stats.hp'); // sanity: warp must not touch unrelated state
     // col 7, row 12 is confirmed walkable BASIN_MUD on this map (row 7
     // there is open reservoir water) -- picked deliberately so this case
@@ -102,7 +102,7 @@ module.exports = {
       inBasinChamber = true; inSunkenGallery = true;
       inSluice = true; inMireVault = true; inDungeon = true; inFenBrewery = true;
       activeMap = MAP2; player.x = 3*TILE; player.y = 3*TILE; player.facing = 'up';
-    `);
+    ; __reconcileCanonicalForTest();`);
     const warp2b = g.run("debugWarpToMap('MAP', 5, 7)");
     assert.equal(warp2b.success, true, 'warp to ordinary MAP succeeds');
     assert.equal(g.run('activeMap === MAP'), true, 'activeMap is the ordinary destination');
@@ -117,7 +117,7 @@ module.exports = {
     assert.doesNotThrow(() => g.renderFrame(), 'a render() once after the warp must not throw');
 
     // ── 3. Warp to an invalid map is rejected safely ────────────────────────
-    g.run(`activeMap = MAP2; player.x = 3*TILE; player.y = 3*TILE;`);
+    g.run(`activeMap = MAP2; player.x = 3*TILE; player.y = 3*TILE;; __reconcileCanonicalForTest();`);
     const mapBefore = g.run('mapRegistryId(activeMap)');
     const xBefore = g.run('player.x'), yBefore = g.run('player.y');
     let invalidResult;
@@ -151,7 +151,7 @@ module.exports = {
       player.x = 7.5*TILE; player.y = 7.5*TILE; player.facing = 'down';
       debugInspector.open = false; warpMenu.open = false; debugMenu.open = false;
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     const yBeforeMove = g.run('player.y');
     g.hold('ArrowDown');
     g.frames(20);
@@ -173,7 +173,7 @@ module.exports = {
       inDungeon=false; inTown=false; inSluice=false; activeMap = MAP;
       player.x = 14.5*TILE; player.y = 4.5*TILE; player.facing = 'right';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     let crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -197,7 +197,7 @@ module.exports = {
       inDungeon=false; inTown=false; inSluice=false; activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {

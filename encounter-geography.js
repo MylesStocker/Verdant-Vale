@@ -41,13 +41,13 @@ function geographicEncounterContext(regionId, worldPxX, worldPxY) {
 // placed in a region. Independent of Continuous View: the debug toggle must NOT
 // determine encounter geography.
 function playerStandingWorldPoint() {
-  const activeMapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  if (!activeMapId) return null;
-  const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(activeMapId) : null;
-  if (!placement) return null;
-  const w = (typeof mapLocalPxToWorldPx === 'function') ? mapLocalPxToWorldPx(activeMapId, player.x, player.y) : null;
-  if (!w) return null;
-  return { regionId: placement.regionId, worldPxX: w.worldPxX, worldPxY: w.worldPxY, activeMapId };
+  // Consume the CANONICAL regional position (regional-position.js) — never derived
+  // from activeMap + player.x/y. Independent of Continuous View (canonical is), and
+  // FAIL-CLOSED: regionalPlayerWorldPoint() returns null on a discrete map OR a broken
+  // invariant, so a stale/void position never reaches encounter selection.
+  const p = (typeof regionalPlayerWorldPoint === 'function') ? regionalPlayerWorldPoint() : null;
+  if (!p) return null;
+  return { regionId: p.regionId, worldPxX: p.worldPxX, worldPxY: p.worldPxY, activeMapId: p.mapId };
 }
 
 // The geographic encounter context at the player's standing point, or null when the

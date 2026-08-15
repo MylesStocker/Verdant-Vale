@@ -54,22 +54,22 @@ module.exports = {
       inFenBrewery=false; inHamletInterior=false; inDungeonEntrance=false;
       inLorraHouse=false; inMarenPost=false; inDrenwrickPost=false; inBridgePost=false; inSmugglerFort=false;
       activeMap = NORTH_BASIN_SW_MAP;
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('locationName()'), 'North Basin — Silt Flats');
     assert.equal(g.run('locationName()'), g.run("MAP_METADATA['NORTH_BASIN_SW_MAP'].displayName"));
 
-    g.run('activeMap = MAP2;');
+    g.run('activeMap = MAP2;; __reconcileCanonicalForTest();');
     assert.equal(g.run('locationName()'), 'Eastern Reaches');
 
     // ── 2. currentItemList() for a map with real items ──────────────────────
-    g.run('activeMap = MAP3_N1;');
+    g.run('activeMap = MAP3_N1;; __reconcileCanonicalForTest();');
     const map3n1Items = g.run('currentItemList()');
     assert.equal(map3n1Items, g.run('MAP3_N1_ITEMS'), 'should be the exact MAP3_N1_ITEMS array, not a copy or a different fallback');
     assert.ok(map3n1Items.length > 0, 'MAP3_N1 has a real pickup (the Fen Sickle) -- this must not come back empty');
     assert.equal(map3n1Items[0].name, 'Fen Sickle');
 
     // ── 3a. currentItemList() for a map with an explicit empty item list ───
-    g.run('activeMap = NORTH_BASIN_C_MAP;');
+    g.run('activeMap = NORTH_BASIN_C_MAP;; __reconcileCanonicalForTest();');
     const emptyItems = g.run('currentItemList()');
     assert.ok(Array.isArray(emptyItems), 'should return an array, never undefined');
     assert.equal(emptyItems.length, 0);
@@ -84,7 +84,7 @@ module.exports = {
       var _unregisteredMap = [];
       for (var i = 0; i < 15; i++) { var row = []; for (var j = 0; j < 16; j++) row.push(0); _unregisteredMap.push(row); }
       activeMap = _unregisteredMap;
-    `);
+    ; __reconcileCanonicalForTest();`);
     let unregisteredResult;
     assert.doesNotThrow(() => { unregisteredResult = g.run('currentItemList()'); }, 'must not throw for a map with no MAP_METADATA entry');
     assert.ok(Array.isArray(unregisteredResult), 'should still return an array (falls back to WORLD_ITEMS), never undefined');
@@ -131,7 +131,7 @@ module.exports = {
       inDungeon=false; inTown=false; inSluice=false; activeMap = MAP;
       player.x = 14.5*TILE; player.y = 4.5*TILE; player.facing = 'right';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     let crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -146,7 +146,7 @@ module.exports = {
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {

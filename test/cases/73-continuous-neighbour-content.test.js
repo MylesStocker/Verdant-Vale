@@ -128,7 +128,7 @@ module.exports = {
     // ── 1 + 3 + 5 + 7 + 4 + 6. Visible chunks get contexts, at world origins,
     //     row-major, once each; active content + player once ─────────────────
     warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // NE corner -> MAP4 + MAP3_N1 neighbours
-    const plan = J("JSON.stringify(buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480))");
+    const plan = J("JSON.stringify((function(){var c=regionalWorldPosition();return c?buildContinuousWorldPlanFromWorld(c.regionId,c.worldPxX,c.worldPxY,512,480):null;})())");
     const activeId = plan.activeMapId;
     const neighbours = plan.visibleChunks.filter(c => c.mapId !== activeId);
     assert.ok(neighbours.length >= 1, 'the frame has at least one visible neighbour');
@@ -210,7 +210,7 @@ module.exports = {
       drawThornmereStoneBody=function(){ // capture the first fillRect coord it emits, in the current (translated) space is hard;
         return _sb(); };
       // Instead compare the neighbour translate for MAP4 (its stable world origin) — camera-independent.
-      var plan = buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480);
+      var plan = (function(){var c=regionalWorldPosition();return c?buildContinuousWorldPlanFromWorld(c.regionId,c.worldPxX,c.worldPxY,512,480):null;})();
       var m4 = (plan.visibleChunks.filter(function(c){return c.mapId==='MAP4';})[0])||null;
       drawThornmereStoneBody=_sb;
       return JSON.stringify(m4 ? [m4.worldPxX, m4.worldPxY] : null);

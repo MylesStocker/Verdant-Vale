@@ -71,7 +71,7 @@ module.exports = {
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('activeMap === NORTH_BASIN_S_MAP'), true, 'precondition');
     g.hold('ArrowUp');
     let crossed = false;
@@ -93,7 +93,7 @@ module.exports = {
     g.run(`
       player.x = 7.5*TILE; player.y = 13.5*TILE; player.facing = 'down';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowDown');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -118,7 +118,7 @@ module.exports = {
         inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_S_MAP;
         player.x = ${col}.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
         combat.cooldown = 0;
-      `);
+      ; __reconcileCanonicalForTest();`);
       g.hold('ArrowUp');
       crossed = false;
       for (let i = 0; i < 40 && !crossed; i++) {
@@ -137,7 +137,7 @@ module.exports = {
         activeMap = NORTH_BASIN_S_MAP;
         player.x = ${col}.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
         combat.cooldown = 0;
-      `);
+      ; __reconcileCanonicalForTest();`);
       g.hold('ArrowUp');
       crossed = false;
       for (let i = 0; i < 40 && !crossed; i++) {
@@ -160,7 +160,7 @@ module.exports = {
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_S_MAP;
       player.x = 0.5*TILE; player.y = 9.5*TILE; player.facing = 'left';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowLeft');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -181,7 +181,7 @@ module.exports = {
     g.run(`
       player.x = 14.5*TILE; player.y = 9.5*TILE; player.facing = 'right';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -204,7 +204,7 @@ module.exports = {
         activeMap = NORTH_BASIN_S_MAP;
         player.x = 0.5*TILE; player.y = ${row}.5*TILE; player.facing = 'left';
         combat.cooldown = 0;
-      `);
+      ; __reconcileCanonicalForTest();`);
       g.hold('ArrowLeft');
       crossed = false;
       for (let i = 0; i < 40 && !crossed; i++) {
@@ -227,7 +227,7 @@ module.exports = {
     g.run(`
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 5.5*TILE;
-    `);
+    ; __reconcileCanonicalForTest();`);
     const xBefore = g.run('player.x'), yBefore = g.run('player.y');
     const eastHandled = g.run("tryEdgeTransition('east')");
     assert.equal(eastHandled, false, 'a direction with no EDGE_TRANSITIONS entry should report "not transitioned"');
@@ -241,7 +241,7 @@ module.exports = {
     // wall-blocking is still exactly what stops them, with or without this
     // new system, and that walking at the border for a while doesn't crash
     // or push the player out of bounds.
-    g.run(`player.x = 14.5*TILE; player.y = 5.5*TILE; player.facing = 'right'; combat.cooldown = 0;`);
+    g.run(`player.x = 14.5*TILE; player.y = 5.5*TILE; player.facing = 'right'; combat.cooldown = 0;; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     for (let i = 0; i < 60; i++) g.frames(1);
     g.release('ArrowRight');
@@ -267,7 +267,7 @@ module.exports = {
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE;
       worldToast = ''; worldToastTimer = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     const handled = g.run("tryEdgeTransition('north')");
     assert.equal(handled, false, 'a segment whose condition fails should report "not transitioned"');
     assert.equal(g.run('activeMap === NORTH_BASIN_S_MAP'), true, 'blocked transition must not change the map');
@@ -289,7 +289,7 @@ module.exports = {
     g.run(`
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 1.5*TILE; player.y = 1.5*TILE;
-    `);
+    ; __reconcileCanonicalForTest();`);
     const clampHandled = g.run("tryEdgeTransition('north')");
     assert.equal(clampHandled, true, 'a segment with a narrower target range should still transition (clamped, not blocked)');
     assert.equal(g.run('activeMap === NORTH_BASIN_C_MAP'), true);
@@ -299,7 +299,7 @@ module.exports = {
     g.run(`
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 14.5*TILE; player.y = 1.5*TILE;
-    `);
+    ; __reconcileCanonicalForTest();`);
     const clampHandled2 = g.run("tryEdgeTransition('north')");
     assert.equal(clampHandled2, true);
     assert.equal(g.run('player.x'), 8.5 * 32, 'col 14 (above the target range) should clamp down to the target range\'s maximum, col 8');
@@ -319,7 +319,7 @@ module.exports = {
       inDungeon = false; inTown = false; inSluice = false; activeMap = MAP;
       player.x = 14.5*TILE; player.y = 4.5*TILE; player.facing = 'right';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {

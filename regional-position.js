@@ -77,6 +77,47 @@ function regionalDerivedLocation() {
 function isRegionalMapId(mapId) {
   return !!(typeof regionPlacementForMapId === 'function' && regionPlacementForMapId(mapId));
 }
+// True iff the canonical/projection invariants currently hold (fast boolean form
+// of regionalInvariantErrors().length === 0). Consumers gate on this to FAIL CLOSED.
+function regionalInvariantsHold() {
+  return regionalInvariantErrors().length === 0;
+}
+
+// ── THE derived read-context model (a read model, NOT a second state store) ──
+// The single object regional CONSUMERS read instead of deriving geography from
+// activeMap + player.x/player.y. Regional: the canonical world point + its derived
+// physical map + local projection. Discrete: the physical map + local position.
+// Returns null when a regional map's invariants are broken (fail-closed: callers
+// then do nothing rather than act on a stale/void position). Fresh object; the
+// `map` field is the shared (read-only) map array, as elsewhere.
+function regionalContext() {
+  if (_regionalPosition) {
+    if (!regionalInvariantsHold()) return null; // fail closed on a broken invariant
+    const loc = regionWorldPxToLocal(_regionalPosition.regionId, _regionalPosition.worldPxX, _regionalPosition.worldPxY);
+    if (!loc) return null;
+    return {
+      kind: 'regional', regionId: loc.regionId, mapId: loc.mapId, map: loc.map,
+      worldPxX: _regionalPosition.worldPxX, worldPxY: _regionalPosition.worldPxY,
+      localPxX: loc.localPxX, localPxY: loc.localPxY,
+    };
+  }
+  const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
+  return { kind: 'discrete', regionId: null, mapId, map: activeMap, worldPxX: null, worldPxY: null, localPxX: player.x, localPxY: player.y };
+}
+// The canonical map identity of the CURRENT location: for a regional map it is
+// derived from the canonical world point (not read off the activeMap projection);
+// for a discrete map it is the physical active map id. null only if unresolved.
+function regionalActiveMapId() {
+  const ctx = regionalContext();
+  return ctx ? ctx.mapId : null;
+}
+// The current player world point in region pixels, or null on a discrete map / a
+// broken invariant. The single accessor regional consumers use for "where is the
+// player in the world" — never `chunkX*CW + player.x`.
+function regionalPlayerWorldPoint() {
+  const ctx = regionalContext();
+  return (ctx && ctx.kind === 'regional') ? { regionId: ctx.regionId, worldPxX: ctx.worldPxX, worldPxY: ctx.worldPxY, mapId: ctx.mapId } : null;
+}
 
 // ── Atomic writers (the ONLY sanctioned canonical mutations) ─────────────────
 // Commit a region-world pixel point as the canonical position, then derive the
@@ -120,20 +161,6 @@ function placeAtLocation(mapId, localPxX, localPxY) {
   clearRegionalPosition();
   return true;
 }
-// The regional MOVEMENT step's canonical write: after an accepted in-chunk
-// regional step has updated the local projection, record it into canonical. Only
-// acts while the active map is a placed regional map (so discrete movement is
-// untouched and never gains a canonical position). This is a move-frame write,
-// NOT a per-frame reconciler: it runs solely on the frame a regional step was
-// applied. Returns true if it committed. Seamless handoffs already commit inside
-// continuousSeamMove(); calling this afterwards is exact and idempotent.
-function regionalCommitFromActiveLocal() {
-  const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  const p = mapId && (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mapId) : null;
-  if (!p) return false;
-  return commitRegionalWorldPosition(p.regionId, p.chunkX * _rpChunkW() + player.x, p.chunkY * _rpChunkH() + player.y);
-}
-
 // ── Invariant reporting (read-only; NEVER repairs) ───────────────────────────
 // Returns a (possibly empty) array of human-readable disagreements between the
 // canonical position and its compatibility projections. Never mutates or repairs
@@ -162,22 +189,9 @@ function regionalInvariantErrors() {
   return errs;
 }
 
-// ── Test-only fixture gateway ────────────────────────────────────────────────
-// Tests that historically poked activeMap/player.x/player.y directly must go
-// through here (or a location gateway) so canonical state stays coherent. This
-// is NOT a production reconciler — it exists only for deterministic test setup.
-function __setRegionalPositionForTest(regionId, worldPxX, worldPxY) {
-  return commitRegionalWorldPosition(regionId, worldPxX, worldPxY);
-}
-function __clearRegionalPositionForTest() { clearRegionalPosition(); }
-// Reconcile canonical state to match a fixture that assigned activeMap/player.x/y
-// directly (bypassing the gateways): commit canonical on a regional map, clear it
-// on a discrete one. This is the sanctioned way to prepare a hand-built location
-// fixture for save/render — NOT a production reconciler.
-function __reconcileCanonicalForTest() {
-  const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  if (mapId) placeAtLocation(mapId, player.x, player.y);
-}
+// Test-only fixture helpers (__reconcileCanonicalForTest, __set/__clear…) are NOT
+// defined here: they must not exist in the production global/window API. The test
+// harness injects them into its vm context after loading (see test/harness.js).
 
 if (typeof window !== 'undefined') {
   window.mapLocalPxToRegionWorldPx   = mapLocalPxToRegionWorldPx;
@@ -189,9 +203,10 @@ if (typeof window !== 'undefined') {
   window.enterRegionalMapFromLocal   = enterRegionalMapFromLocal;
   window.clearRegionalPosition       = clearRegionalPosition;
   window.placeAtLocation             = placeAtLocation;
-  window.regionalCommitFromActiveLocal = regionalCommitFromActiveLocal;
+  window.regionalContext             = regionalContext;
+  window.regionalActiveMapId         = regionalActiveMapId;
+  window.regionalPlayerWorldPoint    = regionalPlayerWorldPoint;
+  window.isRegionalMapId             = isRegionalMapId;
+  window.regionalInvariantsHold      = regionalInvariantsHold;
   window.regionalInvariantErrors     = regionalInvariantErrors;
-  window.__setRegionalPositionForTest = __setRegionalPositionForTest;
-  window.__clearRegionalPositionForTest = __clearRegionalPositionForTest;
-  window.__reconcileCanonicalForTest = __reconcileCanonicalForTest;
 }

@@ -167,8 +167,9 @@ function regionalNpcRouteCanOccupy(npc, localNx, localNy) {
     const props = (typeof TILE_PROPERTIES !== 'undefined') ? TILE_PROPERTIES[t] : null;
     if (props && props.isTransition) return false;                                        // never enter exits/doorways
   }
-  // Never push/trap the player (measured in regional world pixels).
-  const pw = (typeof mapLocalPxToWorldPx === 'function') ? mapLocalPxToWorldPx(mapIdForRef(activeMap), player.x, player.y) : null;
+  // Never push/trap the player (measured in regional world pixels) — the player's
+  // world point comes from the canonical authority, not activeMap + player.x/y.
+  const pw = (typeof regionalPlayerWorldPoint === 'function') ? regionalPlayerWorldPoint() : null;
   if (pw && Math.abs(worldNx - pw.worldPxX) < 18 && Math.abs(worldNy - pw.worldPxY) < 18) return false;
   // Never overlap another SOLID regional NPC — compared in world pixels, so two
   // NPCs in different local frames can't overlap and distant NPCs never collide.

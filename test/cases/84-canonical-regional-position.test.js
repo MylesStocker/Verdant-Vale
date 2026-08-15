@@ -64,7 +64,7 @@ module.exports = {
     // ── 4 + 5. Within-chunk movement changes canonical by exactly the move;
     //           projections equal the canonical-derived map/local ─────────────
     warp(g, 'outdoor:MAP2', true);
-    g.run("player.x = 2.5*TILE; player.y = 1.5*TILE; player.facing='right'; regionalCommitFromActiveLocal();"); // grass run cols 1-5
+    g.run("player.x = 2.5*TILE; player.y = 1.5*TILE; player.facing='right'; __reconcileCanonicalForTest();"); // grass run cols 1-5
     assert.equal(g.run('canWalk(player.x + SPEED, player.y)'), true, 'the in-chunk test spot has room to move right');
     const before = J(g, "JSON.stringify(regionalWorldPosition())");
     g.hold('ArrowRight'); g.frames(1); g.release('ArrowRight'); // SPEED=2 px, stays in chunk
@@ -82,7 +82,7 @@ module.exports = {
     //           at the standing-point boundary; sustained, reversal, no double ─
     // Horizontal: MAP3.east -> MAP4.west at row 6 (boundary worldX = 3*CW).
     warp(g, 'outdoor:MAP3', true);
-    g.run(`player.x=14.5*TILE; player.y=6.5*TILE; player.facing='left'; regionalCommitFromActiveLocal();`);
+    g.run(`player.x=14.5*TILE; player.y=6.5*TILE; player.facing='left'; __reconcileCanonicalForTest();`);
     let handoffs = 0, maxD = 0, pm = mapId(g), pw = J(g, "JSON.stringify(regionalWorldPosition())").worldPxX;
     g.hold('ArrowRight');
     for (let i = 0; i < 40; i++) {
@@ -105,7 +105,7 @@ module.exports = {
     assert.equal(g.run('canWalk(player.x, player.y)'), true, 'no soft-lock after reversal (once clear of the seam edge)');
     // Vertical: MAP_N1.north -> MAP_N2.south at col 7 (boundary worldY = 4*CH).
     warp(g, 'outdoor:MAP_N1', true);
-    g.run(`player.x=7.5*TILE; player.y=1.5*TILE; player.facing='down'; regionalCommitFromActiveLocal();`);
+    g.run(`player.x=7.5*TILE; player.y=1.5*TILE; player.facing='down'; __reconcileCanonicalForTest();`);
     let vh = 0; pm = mapId(g);
     g.hold('ArrowUp'); for (let i = 0; i < 40; i++) { g.frames(1); if (mapId(g) !== pm) vh++; pm = mapId(g); if (mapId(g) === 'MAP_N2') break; } g.release('ArrowUp');
     assert.equal(mapId(g), 'MAP_N2', 'vertical seam crossing lands in MAP_N2');
@@ -113,7 +113,7 @@ module.exports = {
 
     // ── 8. Toggle-off inset transition establishes the correct canonical dest ─
     warp(g, 'outdoor:MAP3', false); // continuous OFF
-    g.run(`player.x=14.5*TILE; player.y=6.5*TILE; player.facing='right'; regionalCommitFromActiveLocal();`);
+    g.run(`player.x=14.5*TILE; player.y=6.5*TILE; player.facing='right'; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight'); for (let i = 0; i < 40 && mapId(g) !== 'MAP4'; i++) g.frames(1); g.release('ArrowRight');
     assert.equal(mapId(g), 'MAP4', 'toggle-off: legacy edge transition reaches MAP4');
     assert.equal(g.run('player.x'), g.run('1.5*TILE'), 'toggle-off inset landing (col 1)');
@@ -124,7 +124,7 @@ module.exports = {
 
     // ── 9. Verdant Vale INTENTIONAL_DISCRETE departure/return (teleport) ─────
     warp(g, 'outdoor:MAP', true);
-    g.run(`player.x=14.5*TILE; player.y=4.5*TILE; player.facing='right'; regionalCommitFromActiveLocal();`);
+    g.run(`player.x=14.5*TILE; player.y=4.5*TILE; player.facing='right'; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight'); for (let i = 0; i < 20 && mapId(g) !== 'MAP2'; i++) g.frames(1); g.release('ArrowRight');
     assert.equal(mapId(g), 'MAP2', 'MAP->MAP2 discrete crossing');
     assert.equal(J(g, "JSON.stringify(regionalDerivedLocation())").mapId, 'MAP2', 'canonical now derives MAP2 (a teleport between canonical points)');
@@ -145,7 +145,7 @@ module.exports = {
 
     // ── 12 + 14 + 20. v4 REGIONAL save/load round-trip + payload shape ──────
     warp(g, 'outdoor:MAP3', true);
-    g.run(`player.x=6.25*TILE; player.y=7.75*TILE; player.facing='up'; regionalCommitFromActiveLocal();`);
+    g.run(`player.x=6.25*TILE; player.y=7.75*TILE; player.facing='up'; __reconcileCanonicalForTest();`);
     const savedRegional = J(g, "(saveGame(), localStorage.getItem('verdantVale_save'))");
     assert.equal(savedRegional.version, 4, 'SAVE_VERSION is 4');
     assert.equal(savedRegional.location.kind, 'regional', 'a regional save is kind:regional');
@@ -176,7 +176,7 @@ module.exports = {
 
     // ── 15. Atomic rejections on load (version / kind / void / blocked) ─────
     const rejects = (label, mutate) => {
-      warp(g, 'outdoor:MAP2', true); g.run("player.x=4.5*TILE; player.y=6.5*TILE; regionalCommitFromActiveLocal(); saveGame();");
+      warp(g, 'outdoor:MAP2', true); g.run("player.x=4.5*TILE; player.y=6.5*TILE; __reconcileCanonicalForTest(); saveGame();");
       g.run(`(function(){ var d=JSON.parse(localStorage.getItem('verdantVale_save')); (${mutate})(d); localStorage.setItem('verdantVale_save', JSON.stringify(d)); })();`);
       const disk = g.run("localStorage.getItem('verdantVale_save')");
       const beforeMap = mapId(g), bx = g.run('player.x');
@@ -191,7 +191,7 @@ module.exports = {
     rejects('blocked placement',  "function(d){ d.location = { kind:'discrete', mapId:'SLUICE_MAP', localPxX:7.5*32, localPxY:7.5*32 }; }");
 
     // ── 16. A failed save does not overwrite an existing valid save ─────────
-    warp(g, 'outdoor:MAP3', true); g.run("player.x=6.5*TILE; player.y=6.5*TILE; regionalCommitFromActiveLocal(); saveGame();");
+    warp(g, 'outdoor:MAP3', true); g.run("player.x=6.5*TILE; player.y=6.5*TILE; __reconcileCanonicalForTest(); saveGame();");
     const goodSave = g.run("localStorage.getItem('verdantVale_save')");
     // break the invariant: move the projection out from under canonical
     g.run("player.x = player.x + 40;"); // player.x now disagrees with canonical
@@ -201,7 +201,7 @@ module.exports = {
 
     // ── 17. Camera plan consumes canonical world position and mutates nothing ─
     warp(g, 'outdoor:MAP3', true);
-    g.run("player.x=8*TILE; player.y=8*TILE; regionalCommitFromActiveLocal();");
+    g.run("player.x=8*TILE; player.y=8*TILE; __reconcileCanonicalForTest();");
     const cam = J(g, `(function(){
       var c = regionalWorldPosition();
       var before = mapIdForRef(activeMap)+'|'+player.x+'|'+player.y;
@@ -214,7 +214,7 @@ module.exports = {
     assert.equal(cam.mutated, false, 'building the camera plan mutates no runtime state');
 
     // ── 18. Invariant detection catches stale/disagreeing projections; no repair ─
-    warp(g, 'outdoor:MAP3', true); g.run("player.x=6.5*TILE; player.y=6.5*TILE; regionalCommitFromActiveLocal();");
+    warp(g, 'outdoor:MAP3', true); g.run("player.x=6.5*TILE; player.y=6.5*TILE; __reconcileCanonicalForTest();");
     const canonPre = J(g, "JSON.stringify(regionalWorldPosition())");
     g.run("player.y = player.y - 24;"); // diverge projection
     const errs = J(g, "JSON.stringify(regionalInvariantErrors())");

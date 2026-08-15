@@ -41,7 +41,7 @@ module.exports = {
       inDungeon = false; inDungeonEntrance = false; activeMap = MAP;
       player.x = 11.5*TILE; player.y = 12.5*TILE; player.facing = 'up';
       enterDungeon();
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('inDungeonEntrance'), true, 'enterDungeon() should set inDungeonEntrance');
     assert.equal(g.run('inDungeon'), false, 'enterDungeon() should NOT set inDungeon -- kept separate on purpose so no combat pool is ever selected here');
     assert.equal(g.run('activeMap === DUNGEON_ENTRANCE_MAP'), true, 'enterDungeon() should land in the entrance hall, not straight into floor 1');
@@ -69,7 +69,7 @@ module.exports = {
         inDungeonEntrance = true; inDungeon = false; activeMap = DUNGEON_ENTRANCE_MAP;
         combat.cooldown = 0;
         player.x = 7.5*TILE; player.y = 10.5*TILE; player.facing = 'left';
-      `);
+      ; __reconcileCanonicalForTest();`);
       assert.equal(g.run('combat.active'), false, 'precondition: not already in combat');
       g.hold('ArrowLeft');
       g.frames(200); // far more than the 16-frame encounter-check interval, repeatedly
@@ -94,7 +94,7 @@ module.exports = {
       inDungeonEntrance = true; inDungeon = false; activeMap = DUNGEON_ENTRANCE_MAP;
       combat.cooldown = ENCOUNTER_COOLDOWN;
       player.x = 9.5*TILE; player.y = 10.5*TILE; player.facing = 'up';
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     g.frames(200); // 10.5 -> ~2 (col 9 narrows to wall at row 1) is 272px at 2px/frame = 136 frames; generous margin
     g.release('ArrowUp');
@@ -107,7 +107,7 @@ module.exports = {
     g.run(`
       inDungeonEntrance = true; inDungeon = false; activeMap = DUNGEON_ENTRANCE_MAP;
       player.x = 5.5*TILE; player.y = 10.5*TILE; player.facing = 'down'; // Rovan's position
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('dialogue.open'), false, 'precondition: no dialogue open yet');
     g.press('Enter');
     assert.equal(g.run('dialogue.open'), true, 'interacting near Rovan should open dialogue');
@@ -117,7 +117,7 @@ module.exports = {
 
     g.run(`
       player.x = 12.5*TILE; player.y = 7.5*TILE; player.facing = 'down'; // Perrin's (moved) position
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.press('Enter');
     assert.equal(g.run('dialogue.open'), true, 'interacting near Perrin should open dialogue');
     assert.equal(g.run('dialogue.name'), 'Perrin');
@@ -134,7 +134,7 @@ module.exports = {
       inDungeonEntrance = false; activeMap = MAP;
       player.x = 1*TILE; player.y = 1*TILE;
       loadGame();
-    `);
+    ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('inDungeonEntrance'), true, 'inDungeonEntrance should round-trip through save/load');
     assert.equal(g.run('activeMap === DUNGEON_ENTRANCE_MAP'), true, 'activeMap should restore to the entrance hall');
     assert.equal(g.run('player.x'), 7.5 * 32);

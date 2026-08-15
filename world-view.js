@@ -1,9 +1,11 @@
 'use strict';
 
-// world-view.js — PURE camera / chunk-visibility calculations for a FUTURE
-// continuous overworld. Prework only: nothing here touches the DOM/canvas,
-// mutates gameplay state, or is wired into runtime rendering yet. Every function
-// is a side-effect-free calculation.
+// world-view.js — PURE camera / chunk-visibility calculations for the continuous
+// overworld. Nothing here touches the DOM/canvas or mutates gameplay state; every
+// function is a side-effect-free calculation. The runtime camera consumes
+// buildContinuousWorldPlanFromWorld() — fed the CANONICAL regional world position
+// (regional-position.js) — so the plan is keyed on the world-pixel point, never
+// re-derived from activeMap + local.
 //
 // It derives all layout from REGIONAL_LAYOUT and its existing indexes/helpers
 // (mapIdForChunk) in data.js — it does NOT duplicate placement data — and reads
@@ -182,13 +184,6 @@ function visibleChunks(regionId, camPxX, camPxY, viewportPxW, viewportPxH) {
 // Converts a map-LOCAL pixel coordinate (a pixel WITHIN one map, e.g. player.x)
 // to a region-WORLD pixel coordinate, using the authoritative regional placement
 // (regionPlacementForMapId) + chunk pixel dimensions. Returns { regionId,
-// worldPxX, worldPxY } or null if the map isn't placed. NOTE: this takes PIXELS,
-// unlike localToWorld() (data.js), which takes TILE units — do not confuse them.
-function mapLocalPxToWorldPx(mapId, localPxX, localPxY) {
-  const p = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mapId) : null;
-  if (!p) return null;
-  return { regionId: p.regionId, worldPxX: p.chunkX * _chunkWidthPx() + localPxX, worldPxY: p.chunkY * _chunkHeightPx() + localPxY };
-}
 
 // Builds the complete, side-effect-free render plan for ONE continuous-view frame.
 // Inputs are all PIXELS except regionId/activeMapId:
@@ -239,16 +234,6 @@ function buildContinuousWorldPlanFromWorld(regionId, worldPxX, worldPxY, viewpor
   return _continuousPlanCore(regionId, loc.mapId, placement, worldPxX, worldPxY, viewportPxW, viewportPxH);
 }
 
-// COMPATIBILITY overload (map id + local pixels). TEMPORARY: retained for Part 2
-// consumers/tests that still address the world by activeMap + local; Part 2 moves
-// them onto the canonical position. Internally converts to the world pixel target.
-function buildContinuousWorldPlan(regionId, activeMapId, playerLocalPxX, playerLocalPxY, viewportPxW, viewportPxH) {
-  const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(activeMapId) : null;
-  if (!placement || placement.regionId !== regionId) return null;
-  const world = mapLocalPxToWorldPx(activeMapId, playerLocalPxX, playerLocalPxY);
-  if (!world) return null;
-  return _continuousPlanCore(regionId, activeMapId, placement, world.worldPxX, world.worldPxY, viewportPxW, viewportPxH);
-}
 
 if (typeof window !== 'undefined') {
   window.regionPixelBounds       = regionPixelBounds;
@@ -257,7 +242,5 @@ if (typeof window !== 'undefined') {
   window.continuousCameraOrigin  = continuousCameraOrigin;
   window.chunkVisibleTileRange   = chunkVisibleTileRange;
   window.visibleChunks           = visibleChunks;
-  window.mapLocalPxToWorldPx     = mapLocalPxToWorldPx;
-  window.buildContinuousWorldPlan = buildContinuousWorldPlan;
   window.buildContinuousWorldPlanFromWorld = buildContinuousWorldPlanFromWorld;
 }

@@ -71,7 +71,7 @@ module.exports = {
     // read currentEncounterPool() (the exact selector the real roll uses).
     const poolOn = (mapId, cont) => g.run(`(function(){
       resetLocationState(); activeMap=mapRefForId('${mapId}'); continuousWorldViewEnabled=${cont};
-      player.x=8.5*TILE; player.y=7.5*TILE;
+      player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest();
       return currentEncounterPool()===mapEntryForId('${mapId}').encounterPool;
     })()`);
     assert.equal(poolOn('NORTH_BASIN_W_MAP', false), true, 'before handoff: the source (W) chunk owns the pool');
@@ -84,7 +84,7 @@ module.exports = {
       const h = g.run(`(function(){
         debugWarpToDestination('outdoor:RODDON_WAY_MAP'); resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP');
         continuousWorldViewEnabled=true; debugMode=false; combat.active=false;
-        player.x=15.5*TILE; player.y=6.5*TILE; player.step=0; combat.cooldown=0;
+        player.x=15.5*TILE; player.y=6.5*TILE; player.step=0; combat.cooldown=0; __reconcileCanonicalForTest();
         for (var k in keys) delete keys[k];
         player.moving=true;
         var sc=0,_sc=startCombat; startCombat=function(){sc++;};
@@ -125,10 +125,10 @@ module.exports = {
     // ── 7/8. Neighbour visibility + NPC simulation do not influence the pool ─
     // Continuous View on (all neighbours visible + simulated) vs off must give the
     // SAME pool for the SAME physical position.
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; continuousWorldViewEnabled=false; var a=currentEncounterPool(); continuousWorldViewEnabled=true; var b=currentEncounterPool(); return a===b && a===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); continuousWorldViewEnabled=false; var a=currentEncounterPool(); continuousWorldViewEnabled=true; var b=currentEncounterPool(); return a===b && a===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
       'neighbour visibility / NPC simulation / Continuous View toggle never change the pool for a fixed physical position');
     // A neighbouring NPC being simulated does not shift the pool.
-    assert.equal(g.run("(function(){ SIMPLE_NPCS.push({id:'geo_npc', map:'map3_n1', x:5*TILE, y:5*TILE, movement:{type:'patrol',autoStart:true,speed:2,waypoints:[{x:5,y:5},{x:6,y:5}]}}); MOVEMENT_HOMES['geo_npc']={x:5*TILE,y:5*TILE,facing:'right'}; resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; continuousWorldViewEnabled=true; var p=currentEncounterPool(); SIMPLE_NPCS.pop(); delete MOVEMENT_HOMES['geo_npc']; return p===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
+    assert.equal(g.run("(function(){ SIMPLE_NPCS.push({id:'geo_npc', map:'map3_n1', x:5*TILE, y:5*TILE, movement:{type:'patrol',autoStart:true,speed:2,waypoints:[{x:5,y:5},{x:6,y:5}]}}); MOVEMENT_HOMES['geo_npc']={x:5*TILE,y:5*TILE,facing:'right'}; resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); continuousWorldViewEnabled=true; var p=currentEncounterPool(); SIMPLE_NPCS.pop(); delete MOVEMENT_HOMES['geo_npc']; return p===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
       'a simulated neighbour NPC does not influence the encounter pool');
 
     // ── 10. MAP / MAP5 / RODDON_WAY_MAP remain physically distinct ('overworld') ─
@@ -148,29 +148,35 @@ module.exports = {
     assert.equal(g.run("geographicEncounterContext('nope', 100, 100)"), null, 'an unknown region fails closed');
     // Inconsistent placement: active map RODDON but the standing point is off-chunk
     // -> encounterGeographyOk() fails closed (no random encounter).
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE; return encounterGeographyOk();})()"), false, 'an off-chunk standing point fails closed (no roll)');
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=8.5*TILE; player.y=7.5*TILE; return encounterGeographyOk();})()"), true, 'a normal standing point on a placed map passes');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE; __reconcileCanonicalForTest(); return encounterGeographyOk();})()"), false, 'an off-chunk standing point fails closed (no roll)');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); return encounterGeographyOk();})()"), true, 'a normal standing point on a placed map passes');
 
     // ── 15. POOL SELECTION itself fails closed (shared authority, not just gate) ─
     // (1) Valid placed regional state -> the canonical geographic pool.
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; return currentEncounterPool()===mapEntryForId('MAP3_N1').encounterPool;})()"), true, 'valid placed regional: currentEncounterPool() returns the canonical geographic pool');
-    // (2) INCONSISTENT: activeMap=RODDON but the standing world point resolves to
-    // MAP3_N1 -> empty/no-pool, NEVER the stale active-map pool.
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===mapEntryForId('MAP3_N1').encounterPool;})()"), true, 'valid placed regional: currentEncounterPool() returns the canonical geographic pool');
+    // (2) INCONSISTENT: a valid canonical position with a CORRUPTED projection
+    // (player.x diverged) is a broken invariant -> fail-closed: NO standing
+    // geography, the empty/no-pool result, NEVER the stale active-map pool. (In the
+    // canonical model geography can't silently disagree with a valid position; the
+    // only inconsistency is a broken canonical/projection invariant.)
     const inc = JSON.parse(g.run(`(function(){
-      resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=520; player.y=6.5*TILE;
+      resetLocationState(); placeAtLocation('RODDON_WAY_MAP', 8.5*TILE, 6.5*TILE); // valid canonical
+      player.x = 999999; // corrupt the compatibility projection -> canonical/projection disagree
       var p=currentEncounterPool();
-      return JSON.stringify({ geoMap:(regionalStandingEncounterContext()||{}).mapId,
+      return JSON.stringify({ geoMap:((regionalStandingEncounterContext()||{}).mapId)||null,
+        hasInvErr: regionalInvariantErrors().length>0,
         empty:(p===EMPTY_ENCOUNTER_POOL)||(Array.isArray(p)&&p.length===0),
         stale:(p===mapEntryForId('RODDON_WAY_MAP').encounterPool) });
     })()`));
-    assert.equal(inc.geoMap, 'MAP3_N1', 'the inconsistent standing point resolves to a DIFFERENT placed chunk');
-    assert.ok(inc.empty, 'inconsistent regional geography -> the empty/no-pool result');
-    assert.equal(inc.stale, false, 'inconsistent regional geography NEVER returns the stale activeMap pool');
+    assert.ok(inc.hasInvErr, 'a corrupted projection is a broken canonical invariant');
+    assert.equal(inc.geoMap, null, 'a broken invariant yields NO standing geography (fail-closed, not a stale/derived map)');
+    assert.ok(inc.empty, 'broken invariant -> the empty/no-pool result');
+    assert.equal(inc.stale, false, 'broken invariant NEVER returns the stale activeMap pool');
     // (3) Unresolved / void standing geography -> the same empty result.
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE; var p=currentEncounterPool(); return Array.isArray(p)&&p.length===0;})()"), true, 'unresolved/void regional geography -> empty/no-pool result');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE; __reconcileCanonicalForTest(); var p=currentEncounterPool(); return Array.isArray(p)&&p.length===0;})()"), true, 'unresolved/void regional geography -> empty/no-pool result');
     // (4) startCombat() in the invalid state: no combat, no enemy, no randomness.
     const sc = JSON.parse(g.run(`(function(){
-      resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE;
+      resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE; __reconcileCanonicalForTest();
       combat.active=false; combat.enemy=null;
       var rc=0,_r=Math.random; Math.random=function(){rc++; return _r();};
       startCombat();
@@ -181,9 +187,10 @@ module.exports = {
     assert.equal(sc.enemy, false, 'no enemy is selected');
     assert.equal(sc.rc, 0, 'no enemy-selection randomness is consumed');
     // (5) The roll gate stays false in that state.
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE; return encounterGeographyOk();})()"), false, 'encounterGeographyOk() remains false before the encounter-chance roll');
-    // (6) BOTH APIs derive from the one shared authority.
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=520; player.y=6.5*TILE; var r=regionalEncounterResolution(); return r.regional && r.ok===false;})()"), true, 'currentEncounterPool() + encounterGeographyOk() share regionalEncounterResolution()');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); player.x=999999; player.y=7.5*TILE; __reconcileCanonicalForTest(); return encounterGeographyOk();})()"), false, 'encounterGeographyOk() remains false before the encounter-chance roll');
+    // (6) BOTH APIs derive from the one shared authority — and a broken canonical
+    // invariant (corrupted projection) makes it fail closed (regional but not ok).
+    assert.equal(g.run("(function(){resetLocationState(); placeAtLocation('RODDON_WAY_MAP', 8.5*TILE, 6.5*TILE); player.x=999999; var r=regionalEncounterResolution(); return r.regional && r.ok===false;})()"), true, 'currentEncounterPool() + encounterGeographyOk() share regionalEncounterResolution()');
 
     // ── 12. Legacy selection/exclusion preserved for nonregional contexts ────
     assert.equal(g.run("(function(){resetLocationState(); inDungeon=true; dungeonFloor=1; return currentEncounterPool()===DUNGEON_ENEMY_TEMPLATES;})()"), true, 'dungeon floor 1 keeps its legacy pool');
@@ -194,7 +201,7 @@ module.exports = {
 
     // ── 13. No randomness in the resolver / selection ───────────────────────
     assert.equal(g.run(`(function(){
-      resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE;
+      resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest();
       var rc=0,_r=Math.random; Math.random=function(){rc++; return _r();};
       geographicEncounterContext('overworld', 2*512+100, 4*480+100);
       regionalStandingEncounterContext(); encounterGeographyOk(); currentEncounterPool();

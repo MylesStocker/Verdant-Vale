@@ -30,7 +30,7 @@ function onN2(g, cont) {
 }
 const mapId = (g) => g.run('mapIdForRef(activeMap)');
 const worldY = (g) => g.run(`(function(){var p=regionPlacementForMapId(mapIdForRef(activeMap)); return p.chunkY*${CH}+player.y;})()`);
-const camY = (g) => { const pl = g.run("JSON.stringify(buildContinuousWorldPlan('overworld', mapIdForRef(activeMap), player.x, player.y, 512, 480))"); const o = JSON.parse(pl); return o ? o.camPxY : null; };
+const camY = (g) => { const pl = g.run("JSON.stringify((function(){var c=regionalWorldPosition();return c?buildContinuousWorldPlanFromWorld(c.regionId,c.worldPxX,c.worldPxY,512,480):null;})())"); const o = JSON.parse(pl); return o ? o.camPxY : null; };
 const pool = (g) => g.run('(currentEncounterPool()===FAR_ENEMY_TEMPLATES?"FAR":currentEncounterPool()===NORTH_BASIN_ENEMY_TEMPLATES?"NBASIN":"OTHER")');
 
 module.exports = {
@@ -75,7 +75,7 @@ module.exports = {
     // ── 4-9. Continuous northbound sustained crossing (pool flips FAR->NBASIN) ─
     {
       onN2(g, true);
-      g.run(`player.x=${COL12}; player.y=1.5*TILE; player.facing='down'; player.moving=false; combat.cooldown=200;`);
+      g.run(`player.x=${COL12}; player.y=1.5*TILE; player.facing='down'; player.moving=false; combat.cooldown=200;; __reconcileCanonicalForTest();`);
       assert.equal(mapId(g), 'MAP3_N2', 'start on MAP3_N2 (Drenwick north fen)');
       assert.equal(pool(g), 'FAR', 'MAP3_N2 side owns FAR before the crossing');
       const startStep = g.run('player.step');
@@ -112,7 +112,7 @@ module.exports = {
     // ── 7. Standing-point handoff timing (centre crosses the chunk boundary) ─
     {
       onN2(g, true);
-      g.run(`player.x=${COL12}; player.y=0.5*TILE; player.facing='up';`);
+      g.run(`player.x=${COL12}; player.y=0.5*TILE; player.facing='up';; __reconcileCanonicalForTest();`);
       g.hold('ArrowUp');
       let beforeMap = mapId(g);
       for (let i = 0; i < 20; i++) { g.frames(1); if (mapId(g) !== beforeMap) break; }
@@ -125,7 +125,7 @@ module.exports = {
     // ── 6/8. Continuous southbound crossing back (pool flips NBASIN->FAR) ───
     {
       onN2(g, true);
-      g.run(`activeMap = mapRefForId('NORTH_BASIN_S_MAP'); player.x=${COL12}; player.y=13.5*TILE; player.facing='down';`);
+      g.run(`activeMap = mapRefForId('NORTH_BASIN_S_MAP'); player.x=${COL12}; player.y=13.5*TILE; player.facing='down';; __reconcileCanonicalForTest();`);
       assert.equal(pool(g), 'NBASIN', 'North Basin side owns NBASIN before southbound crossing');
       g.hold('ArrowDown');
       let handoffs = 0, pm = mapId(g), maxD = 0, pw = worldY(g);
@@ -140,27 +140,27 @@ module.exports = {
     // ── 10-11. Reversal, parallel, and diagonal movement at the seam ────────
     {
       onN2(g, true);
-      g.run(`player.x=${COL12}; player.y=0.2*TILE; player.facing='up';`);
+      g.run(`player.x=${COL12}; player.y=0.2*TILE; player.facing='up';; __reconcileCanonicalForTest();`);
       g.hold('ArrowUp'); g.frames(1); g.release('ArrowUp');
       g.hold('ArrowDown'); for (let i = 0; i < 12; i++) g.frames(1); g.release('ArrowDown');
       assert.equal(g.run('canWalk(player.x, player.y)'), true, 'reversal leaves the player on a walkable footprint (no soft-lock)');
       assert.ok(['MAP3_N2', 'NORTH_BASIN_S_MAP'].includes(mapId(g)), 'still on one of the two seam maps after reversal');
       // parallel (horizontal) motion while straddling: cols 11 & 13 at the edge are water/blocked
       onN2(g, true);
-      g.run(`player.x=${COL12}; player.y=0.4*TILE; player.facing='up';`);
+      g.run(`player.x=${COL12}; player.y=0.4*TILE; player.facing='up';; __reconcileCanonicalForTest();`);
       const bm = mapId(g);
       g.hold('ArrowLeft'); for (let i = 0; i < 3; i++) g.frames(1); g.release('ArrowLeft');
       assert.equal(mapId(g), bm, 'parallel motion while straddling does not trigger a handoff');
       assert.equal(g.run('canWalk(player.x, player.y)'), true, 'footprint stays valid straddling the seam');
       // diagonal (up+left) decenters off the one-tile causeway — slides, does not squeeze through
       onN2(g, true);
-      g.run(`player.x=${COL12}; player.y=1.5*TILE; player.facing='up';`);
+      g.run(`player.x=${COL12}; player.y=1.5*TILE; player.facing='up';; __reconcileCanonicalForTest();`);
       g.hold('ArrowUp'); g.hold('ArrowLeft'); for (let i = 0; i < 10; i++) g.frames(1); g.release('ArrowUp'); g.release('ArrowLeft');
       assert.equal(mapId(g), 'MAP3_N2', 'diagonal off the corridor centre does not squeeze through the one-tile causeway');
       assert.equal(g.run('canWalk(player.x, player.y)'), true, 'diagonal movement leaves a valid footprint (no soft-lock)');
       assert.notEqual(g.run('player.x'), COL12, 'the horizontal component moved the player off the corridor centre');
       // recentred on col 12, pure north crosses cleanly with one handoff
-      g.run(`player.x=${COL12}; player.y=1.5*TILE;`);
+      g.run(`player.x=${COL12}; player.y=1.5*TILE;; __reconcileCanonicalForTest();`);
       let dh = 0, dpm = mapId(g);
       g.hold('ArrowUp'); for (let i = 0; i < 30; i++) { g.frames(1); if (mapId(g) !== dpm) dh++; dpm = mapId(g); if (mapId(g) === 'NORTH_BASIN_S_MAP') break; } g.release('ArrowUp');
       assert.equal(mapId(g), 'NORTH_BASIN_S_MAP', 'recentred on col 12, pure north crosses cleanly');
@@ -168,22 +168,22 @@ module.exports = {
     }
 
     // ── 12. One-tile causeway: only column 12 has an eligible crossing ─────
-    assert.equal(g.run("(function(){activeMap=mapRefForId('MAP3_N2'); return canWalk(12.5*TILE, 0.5*TILE);})()"), true, 'MAP3_N2 col 12 row 0 (causeway) is walkable');
+    assert.equal(g.run("(function(){activeMap=mapRefForId('MAP3_N2'); __reconcileCanonicalForTest(); return canWalk(12.5*TILE, 0.5*TILE);})()"), true, 'MAP3_N2 col 12 row 0 (causeway) is walkable');
     assert.equal(g.run("canWalk(11.5*TILE, 0.5*TILE)"), false, 'MAP3_N2 col 11 row 0 is blocked (water)');
     assert.equal(g.run("canWalk(13.5*TILE, 0.5*TILE)"), false, 'MAP3_N2 col 13 row 0 is blocked (water)');
-    assert.equal(g.run("(function(){activeMap=mapRefForId('NORTH_BASIN_S_MAP'); return canWalk(12.5*TILE, 13.5*TILE);})()"), true, 'NORTH_BASIN_S_MAP col 12 row 14 (causeway) is walkable');
+    assert.equal(g.run("(function(){activeMap=mapRefForId('NORTH_BASIN_S_MAP'); __reconcileCanonicalForTest(); return canWalk(12.5*TILE, 13.5*TILE);})()"), true, 'NORTH_BASIN_S_MAP col 12 row 14 (causeway) is walkable');
     assert.equal(g.run(`continuousSeamCrossingAt('MAP3_N2', 2*512+11.5*TILE, 3*480-1)`), null, 'no eligible crossing at col 11 (outside the [12,12] seam)');
     assert.ok(g.run(`!!continuousSeamCrossingAt('MAP3_N2', 2*512+12.5*TILE, 3*480-1)`), 'eligible crossing exists at col 12');
 
     // ── 13. Continuous View OFF: reciprocal legacy travel + inset + COOLDOWN PARITY ─
     {
       onN2(g, false);
-      g.run(`player.x=${COL12}; player.y=1.5*TILE; player.facing='up'; combat.cooldown=0;`);
+      g.run(`player.x=${COL12}; player.y=1.5*TILE; player.facing='up'; combat.cooldown=0;; __reconcileCanonicalForTest();`);
       g.hold('ArrowUp'); let north = false; for (let i = 0; i < 40 && !north; i++) { g.frames(1); north = mapId(g) === 'NORTH_BASIN_S_MAP'; } g.release('ArrowUp');
       assert.ok(north, 'View off: northbound reaches the South Approach via the legacy broad-edge path');
       assert.equal(g.run('player.y'), g.run('13.5*TILE'), 'legacy inset landing = row 13 (same coords as the old enterNorthBasinS)');
       assert.ok(g.run('combat.cooldown') > 0, 'legacy edge transition applies the encounter cooldown (parity with the retired enterNorthBasinS)');
-      g.run(`combat.cooldown=0; player.x=${COL12}; player.y=13.5*TILE; player.facing='down';`);
+      g.run(`combat.cooldown=0; player.x=${COL12}; player.y=13.5*TILE; player.facing='down';; __reconcileCanonicalForTest();`);
       g.hold('ArrowDown'); let south = false; for (let i = 0; i < 40 && !south; i++) { g.frames(1); south = mapId(g) === 'MAP3_N2'; } g.release('ArrowDown');
       assert.ok(south, 'View off: southbound reaches MAP3_N2 via the legacy broad-edge path');
       assert.equal(g.run('player.y'), g.run('1.5*TILE'), 'legacy inset landing = row 1 (same coords as the old exitNorthBasinS)');
@@ -192,13 +192,13 @@ module.exports = {
     }
 
     // ── 14. Distinct canonical pools on each side ──────────────────────────
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N2'); player.x=8*TILE; player.y=8*TILE; return currentEncounterPool()===FAR_ENEMY_TEMPLATES && currentEncounterPool()===mapEntryForId('MAP3_N2').encounterPool;})()"), true, 'MAP3_N2 pool is FAR_ENEMY_TEMPLATES');
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('NORTH_BASIN_S_MAP'); player.x=8*TILE; player.y=6*TILE; return currentEncounterPool()===NORTH_BASIN_ENEMY_TEMPLATES && currentEncounterPool()===mapEntryForId('NORTH_BASIN_S_MAP').encounterPool;})()"), true, 'NORTH_BASIN_S_MAP pool is NORTH_BASIN_ENEMY_TEMPLATES');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N2'); player.x=8*TILE; player.y=8*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===FAR_ENEMY_TEMPLATES && currentEncounterPool()===mapEntryForId('MAP3_N2').encounterPool;})()"), true, 'MAP3_N2 pool is FAR_ENEMY_TEMPLATES');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('NORTH_BASIN_S_MAP'); player.x=8*TILE; player.y=6*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===NORTH_BASIN_ENEMY_TEMPLATES && currentEncounterPool()===mapEntryForId('NORTH_BASIN_S_MAP').encounterPool;})()"), true, 'NORTH_BASIN_S_MAP pool is NORTH_BASIN_ENEMY_TEMPLATES');
 
     // ── 15. No extra Math.random / combat start caused by the handoff ───────
     {
       onN2(g, true);
-      g.run(`player.x=${COL12}; player.y=0.5*TILE; player.facing='up';`);
+      g.run(`player.x=${COL12}; player.y=0.5*TILE; player.facing='up';; __reconcileCanonicalForTest();`);
       const res = g.run(`(function(){
         var rc=0,_r=Math.random; Math.random=function(){rc++; return _r();};
         var sc=0,_sc=startCombat; startCombat=function(){sc++;};
@@ -216,20 +216,20 @@ module.exports = {
     }
 
     // ── 16. North Basin road sign is active-map-only (currentMapFeatures gate) ─
-    assert.equal(g.run(`(function(){ resetLocationState(); activeMap=mapRefForId('MAP3_N2'); dialogue.open=false; player.x=13.5*TILE; player.y=12.5*TILE; var r=tryMapFeatures(); return r || dialogue.open; })()`), false, 'road sign cannot be inspected from MAP3_N2 before the handoff (belongs to NORTH_BASIN_S_MAP)');
-    assert.equal(g.run(`(function(){ resetLocationState(); activeMap=mapRefForId('NORTH_BASIN_S_MAP'); dialogue.open=false; player.x=13.5*TILE; player.y=12.5*TILE; tryMapFeatures(); return dialogue.open; })()`), true, 'road sign inspects normally once active on NORTH_BASIN_S_MAP (after the handoff)');
+    assert.equal(g.run(`(function(){ resetLocationState(); activeMap=mapRefForId('MAP3_N2'); dialogue.open=false; player.x=13.5*TILE; player.y=12.5*TILE; __reconcileCanonicalForTest(); var r=tryMapFeatures(); return r || dialogue.open; })()`), false, 'road sign cannot be inspected from MAP3_N2 before the handoff (belongs to NORTH_BASIN_S_MAP)');
+    assert.equal(g.run(`(function(){ resetLocationState(); activeMap=mapRefForId('NORTH_BASIN_S_MAP'); dialogue.open=false; player.x=13.5*TILE; player.y=12.5*TILE; __reconcileCanonicalForTest(); tryMapFeatures(); return dialogue.open; })()`), true, 'road sign inspects normally once active on NORTH_BASIN_S_MAP (after the handoff)');
 
     // ── 17. Save/load after crossing restores physical map + local position ─
     {
       const g2 = ctx();
       onN2(g2, true);
-      g2.run(`player.x=${COL12}; player.y=0.5*TILE; player.facing='up';`);
+      g2.run(`player.x=${COL12}; player.y=0.5*TILE; player.facing='up';; __reconcileCanonicalForTest();`);
       g2.hold('ArrowUp'); for (let i = 0; i < 20 && mapId(g2) !== 'NORTH_BASIN_S_MAP'; i++) g2.frames(1); g2.release('ArrowUp');
       assert.equal(mapId(g2), 'NORTH_BASIN_S_MAP', 'crossed before saving');
       const px = g2.run('player.x'), py = g2.run('player.y');
       g2.run('saveGame();');
       assert.equal(JSON.parse(g2.run("localStorage.getItem('verdantVale_save')")).version, 4, 'SAVE_VERSION stays 4');
-      g2.run("activeMap = mapRefForId('MAP'); player.x=1; player.y=1;");
+      g2.run("activeMap = mapRefForId('MAP'); player.x=1; player.y=1;; __reconcileCanonicalForTest();");
       g2.run('loadGame();');
       assert.equal(g2.run('mapIdForRef(activeMap)'), 'NORTH_BASIN_S_MAP', 'load restores the correct physical map');
       assert.ok(Math.abs(g2.run('player.x') - px) < 1 && Math.abs(g2.run('player.y') - py) < 1, 'load restores the local position');

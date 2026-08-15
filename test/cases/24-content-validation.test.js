@@ -275,7 +275,7 @@ module.exports = {
       inDungeon=false; inTown=false; inSluice=false; activeMap = MAP;
       player.x = 14.5*TILE; player.y = 4.5*TILE; player.facing = 'right';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     let crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {
@@ -290,7 +290,7 @@ module.exports = {
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;
-    `);
+    ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     crossed = false;
     for (let i = 0; i < 40 && !crossed; i++) {

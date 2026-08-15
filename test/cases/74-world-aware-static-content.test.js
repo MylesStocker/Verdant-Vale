@@ -28,7 +28,7 @@ function onRoddon() {
          dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
          debugMode = true; continuousWorldViewEnabled = true;
          for (var k in keys) delete keys[k];
-         player.x = 498; player.y = 208; player.moving = false; player.facing = 'right';`);
+         player.x = 498; player.y = 208; player.moving = false; player.facing = 'right';; __reconcileCanonicalForTest();`);
   return g;
 }
 // A synthetic opted-in stationary simple-dialogue NPC literal (map3_n1 owner).
@@ -235,7 +235,7 @@ module.exports = {
              dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
              debugMode = true; continuousWorldViewEnabled = true;
              for (var k in keys) delete keys[k];
-             player.x = 14; player.y = 208; player.moving = false; player.facing='left';`);
+             player.x = 14; player.y = 208; player.moving = false; player.facing='left';; __reconcileCanonicalForTest();`);
       g.run("SIMPLE_NPCS.push({id:'synth_amb', name:'Ambiguous', map:'overworld', x:500, y:208, facing:'down', dialogue:[['.']], flag_required:null, flag_sets:null, action:null, crossSeamInteraction:'simple_dialogue'});");
       g.run("handleInteract();");
       assert.equal(g.run("dialogue.open"), false, 'an opted-in ambiguous-key neighbour NPC is never cross-seam-targeted');
@@ -351,7 +351,7 @@ module.exports = {
       assert.equal(promptCount(g), 1, 'before handoff: one neighbour prompt');
       g.run(`debugWarpToDestination('outdoor:MAP3_N1');
              dialogue.open=false; continuousWorldViewEnabled=true; debugMode=true;
-             for (var k in keys) delete keys[k]; player.x = 12; player.y = 208;`);
+             for (var k in keys) delete keys[k]; player.x = 12; player.y = 208;; __reconcileCanonicalForTest();`);
       assert.equal(g.run("crossSeamInteractPromptTarget()"), null, 'after handoff the former neighbour is active -> no cross-seam prompt');
       assert.equal(promptCount(g), 0, 'after handoff: the prompt does not persist/duplicate');
     }
@@ -377,7 +377,7 @@ module.exports = {
       g.run("loadGame();");
       assert.equal(g.run("PICKUP_REGISTRY['synth_persist'].picked"), true, 'the item survives save/load as picked');
       // After load, standing on RODDON again, it stays absent and cannot re-grant.
-      g.run(`for (var k in keys) delete keys[k]; player.x=498; player.y=208; dialogue.open=false;`);
+      g.run(`for (var k in keys) delete keys[k]; player.x=498; player.y=208; dialogue.open=false;; __reconcileCanonicalForTest();`);
       const afterLoadItems = g.run("stats.items.filter(function(i){return i.name==='Potion';}).length");
       g.frames(1);
       assert.equal(g.run("stats.items.filter(function(i){return i.name==='Potion';}).length"), afterLoadItems, 'a picked item cannot be re-granted after loading + handoff');

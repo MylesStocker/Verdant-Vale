@@ -24,7 +24,7 @@ function ctxRoddon() {
          dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
          combat.active=false; debugMode=true; continuousWorldViewEnabled=true;
          for (var k in keys) delete keys[k];
-         player.x=8.5*TILE; player.y=7.5*TILE; player.moving=false;`);
+         player.x=8.5*TILE; player.y=7.5*TILE; player.moving=false;; __reconcileCanonicalForTest();`);
   return g;
 }
 // Discover MAP3_N1 (chunk 2,4) tiles once; static map data.
@@ -105,7 +105,7 @@ module.exports = {
       // MAP5 (4,5); NPC local (2.5,2.5) = a walkable MAP tile too, so the interact/
       // collide checks below share the same local coordinate.
       g.run("SIMPLE_NPCS.push({id:'ow_map5', name:'FiveWalker', map:'overworld', physicalMapId:'MAP5', spriteType:'clerk', x:2.5*TILE, y:2.5*TILE, facing:'down', solid:true, dialogue:[['From map five.']], flag_required:null, flag_sets:null, action:null, movement:{type:'patrol', autoStart:true, speed:2, waypoints:[{x:2.5,y:2.5},{x:3.5,y:2.5}]}}); MOVEMENT_HOMES['ow_map5']={x:2.5*TILE,y:2.5*TILE,facing:'down'};");
-      const setActive = (mapId, cont) => g.run(`resetLocationState(); activeMap = mapRefForId('${mapId}'); continuousWorldViewEnabled=${cont}; debugMode=true; dialogue.open=false; combat.active=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false; for (var k in keys) delete keys[k];`);
+      const setActive = (mapId, cont) => g.run(`resetLocationState(); activeMap = mapRefForId('${mapId}'); continuousWorldViewEnabled=${cont}; debugMode=true; dialogue.open=false; combat.active=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false; for (var k in keys) delete keys[k]; __reconcileCanonicalForTest();`);
       const sim = () => g.run("npcShouldSimulate(SIMPLE_NPCS.find(function(x){return x.id==='ow_map5';}))");
       const renderCount = () => g.run(`(function(){ var n=0, _g=drawGenericNPC, _w=drawWalkingGenericNPC;
         drawGenericNPC=function(npc){ if(npc&&npc.id==='ow_map5')n++; return _g.apply(null,arguments); };
@@ -119,7 +119,7 @@ module.exports = {
       g.frames(2);
       assert.equal(g.run("!!NPC_ROUTES['ow_map5']"), false, 'no route starts/updates on MAP (off)');
       assert.equal(renderCount(), 0, 'not rendered on MAP (off)');
-      g.run("player.x=2.5*TILE; player.y=2.5*TILE; player.moving=false;");
+      g.run("player.x=2.5*TILE; player.y=2.5*TILE; player.moving=false;; __reconcileCanonicalForTest();");
       g.run("handleInteract();");
       assert.equal(g.run("dialogue.open"), false, 'not interactable on MAP (off) — physical ownership, not logical key');
       assert.equal(g.run("crossSeamInteractPromptTarget()"), null, 'no cross-seam prompt on MAP (off)');
@@ -171,7 +171,7 @@ module.exports = {
       // continuousSeamMove does): no reset, no jump.
       const beforeX = g.run("SIMPLE_NPCS.find(function(x){return x.id==='synth_patrol';}).x");
       const beforeRoute = g.run("!!NPC_ROUTES['synth_patrol']");
-      g.run("activeMap = mapRefForId('MAP3_N1'); dialogue.open=false; player.x=8.5*TILE; player.y=12.5*TILE; player.moving=false; for (var k in keys) delete keys[k];");
+      g.run("activeMap = mapRefForId('MAP3_N1'); dialogue.open=false; player.x=8.5*TILE; player.y=12.5*TILE; player.moving=false; for (var k in keys) delete keys[k];; __reconcileCanonicalForTest();");
       g.frames(1);
       assert.equal(g.run("!!NPC_ROUTES['synth_patrol']"), beforeRoute, 'handoff into the NPC chunk does NOT drop its route');
       const afterX = g.run("SIMPLE_NPCS.find(function(x){return x.id==='synth_patrol';}).x");
@@ -199,7 +199,7 @@ module.exports = {
       assert.ok(g.run("!!NPC_ROUTES['synth_leave']"), 'route running while in the nearby set');
       const home = JSON.parse(g.run("JSON.stringify(MOVEMENT_HOMES['synth_leave'])"));
       // Move 2+ chunks away (MAP5 at (4,5)); MAP3_N1 (2,4) leaves the 3x3.
-      g.run("activeMap = mapRefForId('MAP5'); dialogue.open=false; player.x=8.5*TILE; player.y=7.5*TILE; for (var k in keys) delete keys[k];");
+      g.run("activeMap = mapRefForId('MAP5'); dialogue.open=false; player.x=8.5*TILE; player.y=7.5*TILE; for (var k in keys) delete keys[k];; __reconcileCanonicalForTest();");
       g.frames(1);
       assert.equal(g.run("!!NPC_ROUTES['synth_leave']"), false, 'the route is SUSPENDED once its chunk leaves the neighbourhood');
       const n = JSON.parse(g.run("JSON.stringify({x:SIMPLE_NPCS.find(function(x){return x.id==='synth_leave';}).x, y:SIMPLE_NPCS.find(function(x){return x.id==='synth_leave';}).y})"));
@@ -268,7 +268,7 @@ module.exports = {
              dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
              combat.active=false; debugMode=true; continuousWorldViewEnabled=true;
              for (var k in keys) delete keys[k];
-             player.x=498; player.y=208; player.moving=false;`);
+             player.x=498; player.y=208; player.moving=false;; __reconcileCanonicalForTest();`);
       return g;
     }
     // A MAP3_N1 mover (unambiguous key 'map3_n1'); moving_simple_dialogue still
@@ -276,7 +276,7 @@ module.exports = {
     const movingNpc = (id, extra) => `{id:'${id}', name:'Rambler', map:'map3_n1', physicalMapId:'MAP3_N1', spriteType:'clerk', x:12, y:208, facing:'right', dialogue:[['On the move.']], flag_required:null, flag_sets:null, action:null, movement:{type:'patrol', autoStart:true, speed:2, waypoints:[{x:0.5,y:6.5},{x:1.5,y:6.5}]}, crossSeamInteraction:'moving_simple_dialogue'${extra || ''}}`;
     {
       const g = ctxRoddonSeam();
-      g.run("SIMPLE_NPCS.push(" + movingNpc('synth_mover') + "); MOVEMENT_HOMES['synth_mover']={x:12,y:208,facing:'right'};");
+      g.run("SIMPLE_NPCS.push(" + movingNpc('synth_mover') + "); MOVEMENT_HOMES['synth_mover']={x:12,y:208,facing:'right'};; __reconcileCanonicalForTest();");
       g.run("startNpcRoute('synth_mover');"); // establish a live route at the current position (no movement)
       // exactly one prompt at the live pose
       const promptN = g.run(`(function(){ var n=0,_ft=ctx.fillText; ctx.fillText=function(t){if(t==='SPACE')n++; return _ft&&_ft.apply(ctx,arguments);}; tick=16; drawCrossSeamInteractPrompt(); ctx.fillText=_ft; return n; })()`);

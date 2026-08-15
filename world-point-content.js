@@ -59,11 +59,11 @@ function worldPointContentContext(regionId, worldPxX, worldPxY) {
 // not placed / Continuous View is off. READ-ONLY.
 function activePlayerWorldPoint() {
   if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return null;
-  const activeMapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  if (!activeMapId) return null;
-  const pw = (typeof mapLocalPxToWorldPx === 'function') ? mapLocalPxToWorldPx(activeMapId, player.x, player.y) : null;
+  // Canonical world point (fail-closed on discrete / broken invariant) — never
+  // derived from activeMap + player.x/y.
+  const pw = (typeof regionalPlayerWorldPoint === 'function') ? regionalPlayerWorldPoint() : null;
   if (!pw) return null;
-  return { activeMapId, regionId: pw.regionId, worldPxX: pw.worldPxX, worldPxY: pw.worldPxY };
+  return { activeMapId: pw.mapId, regionId: pw.regionId, worldPxX: pw.worldPxX, worldPxY: pw.worldPxY };
 }
 
 // Given the active physical map id and a TARGET world-pixel point, return

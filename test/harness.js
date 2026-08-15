@@ -113,6 +113,19 @@ function createContext() {
     vm.runInContext(code, vmContext, { filename: file });
   }
 
+  // TEST-ONLY fixture helpers, injected as vm globals AFTER production loads — they
+  // deliberately do NOT exist in production (regional-position.js). They let a test
+  // that hand-assigns activeMap/player.x/y reconcile the canonical position, and are
+  // reachable only inside the harness context, never through gameplay/debug/API.
+  vm.runInContext(`
+    function __setRegionalPositionForTest(regionId, worldPxX, worldPxY) { return commitRegionalWorldPosition(regionId, worldPxX, worldPxY); }
+    function __clearRegionalPositionForTest() { clearRegionalPosition(); }
+    function __reconcileCanonicalForTest() {
+      var mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
+      if (mapId) placeAtLocation(mapId, player.x, player.y);
+    }
+  `, vmContext, { filename: 'harness-test-fixtures' });
+
   return {
     /** Evaluate an expression/statement inside the game's global scope and return its value. */
     run(code) {
