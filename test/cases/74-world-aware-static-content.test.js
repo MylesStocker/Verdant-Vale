@@ -26,7 +26,7 @@ function onRoddon() {
   g.press('Enter'); g.press('Enter');
   g.run(`debugWarpToDestination('outdoor:RODDON_WAY_MAP');
          dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
-         debugMode = true; continuousWorldViewEnabled = true;
+         debugMode = true; forceLegacyRegionalView = false;
          for (var k in keys) delete keys[k];
          player.x = 498; player.y = 208; player.moving = false; player.facing = 'right';; __reconcileCanonicalForTest();`);
   return g;
@@ -77,9 +77,9 @@ module.exports = {
     assert.equal(cross('RODDON_WAY_MAP', 1030, 1450), null, 'diagonal chunk -> not authorized');
     assert.equal(cross('RODDON_WAY_MAP', 1028, 2000), null, 'out-of-range crossing -> not authorized');
     assert.equal(cross('RODDON_WAY_MAP', 1600, 2128), null, 'void/unplaced target chunk -> not authorized');
-    g0.run('continuousWorldViewEnabled = false;');
+    g0.run('forceLegacyRegionalView = true;');
     assert.equal(cross('RODDON_WAY_MAP', 1028, 2128), null, 'Continuous View off -> no cross-seam authorization');
-    g0.run('continuousWorldViewEnabled = true;');
+    g0.run('forceLegacyRegionalView = false;');
     const nb = J("JSON.stringify(crossSeamNeighbourFor('RODDON_WAY_MAP', 1028, 2128))");
     assert.equal(nb.ctx.mapId, 'MAP3_N1', 'crossSeamNeighbourFor resolves the neighbour context');
     assert.equal(nb.seam.to, 'MAP3_N1', 'crossSeamNeighbourFor returns the crossed seam');
@@ -167,7 +167,7 @@ module.exports = {
     // (6) Continuous View OFF -> no cross-seam pickup.
     {
       const g = onRoddon();
-      g.run("continuousWorldViewEnabled = false; MAP3_N1_ITEMS.push(" + ordinaryPickup('pickup_off') + ");");
+      g.run("forceLegacyRegionalView = true; MAP3_N1_ITEMS.push(" + ordinaryPickup('pickup_off') + ");");
       g.frames(1);
       assert.equal(g.run("MAP3_N1_ITEMS.find(function(i){return i.id==='pickup_off';}).picked"), false, 'no cross-seam pickup when Continuous View is off');
     }
@@ -233,7 +233,7 @@ module.exports = {
       g.press('Enter'); g.press('Enter');
       g.run(`debugWarpToDestination('outdoor:MAP3_N1');
              dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
-             debugMode = true; continuousWorldViewEnabled = true;
+             debugMode = true; forceLegacyRegionalView = false;
              for (var k in keys) delete keys[k];
              player.x = 14; player.y = 208; player.moving = false; player.facing='left';; __reconcileCanonicalForTest();`);
       g.run("SIMPLE_NPCS.push({id:'synth_amb', name:'Ambiguous', map:'overworld', x:500, y:208, facing:'down', dialogue:[['.']], flag_required:null, flag_sets:null, action:null, crossSeamInteraction:'simple_dialogue'});");
@@ -250,7 +250,7 @@ module.exports = {
     // (9) Continuous View OFF -> no cross-seam interaction.
     {
       const g = onRoddon();
-      g.run("continuousWorldViewEnabled = false; SIMPLE_NPCS.push(" + optedInNpc('synth_off_npc', 'Off', 12) + ");");
+      g.run("forceLegacyRegionalView = true; SIMPLE_NPCS.push(" + optedInNpc('synth_off_npc', 'Off', 12) + ");");
       g.run("handleInteract();");
       assert.equal(g.run("dialogue.open"), false, 'no cross-seam interaction when Continuous View is off');
     }
@@ -350,7 +350,7 @@ module.exports = {
       g.run("SIMPLE_NPCS.push(" + optedInNpc('synth_handoff', 'Handoff', 12) + ");");
       assert.equal(promptCount(g), 1, 'before handoff: one neighbour prompt');
       g.run(`debugWarpToDestination('outdoor:MAP3_N1');
-             dialogue.open=false; continuousWorldViewEnabled=true; debugMode=true;
+             dialogue.open=false; forceLegacyRegionalView = false; debugMode=true;
              for (var k in keys) delete keys[k]; player.x = 12; player.y = 208;; __reconcileCanonicalForTest();`);
       assert.equal(g.run("crossSeamInteractPromptTarget()"), null, 'after handoff the former neighbour is active -> no cross-seam prompt');
       assert.equal(promptCount(g), 0, 'after handoff: the prompt does not persist/duplicate');
@@ -389,7 +389,7 @@ module.exports = {
     {
       const g = createContext();
       g.press('Enter'); g.press('Enter');
-      g.run("debugWarpToDestination('outdoor:NORTH_BASIN_W_MAP'); debugMode=true; continuousWorldViewEnabled=true;");
+      g.run("debugWarpToDestination('outdoor:NORTH_BASIN_W_MAP'); debugMode=true; forceLegacyRegionalView = false;");
       assert.equal(g.run("currentEncounterPool() === MAP_METADATA['NORTH_BASIN_W_MAP'].encounterPool"), true, 'the source map owns its encounter pool before handoff');
       g.run("debugWarpToDestination('outdoor:NORTH_BASIN_NW_MAP');");
       assert.equal(g.run("currentEncounterPool() === MAP_METADATA['NORTH_BASIN_NW_MAP'].encounterPool"), true, 'the destination map owns its encounter pool after handoff');

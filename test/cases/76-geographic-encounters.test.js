@@ -70,7 +70,7 @@ module.exports = {
     // North Basin W(1,1) pool != NW(1,0) pool. Set the standing point on each and
     // read currentEncounterPool() (the exact selector the real roll uses).
     const poolOn = (mapId, cont) => g.run(`(function(){
-      resetLocationState(); activeMap=mapRefForId('${mapId}'); continuousWorldViewEnabled=${cont};
+      resetLocationState(); activeMap=mapRefForId('${mapId}'); forceLegacyRegionalView=${!cont};
       player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest();
       return currentEncounterPool()===mapEntryForId('${mapId}').encounterPool;
     })()`);
@@ -83,7 +83,7 @@ module.exports = {
     {
       const h = g.run(`(function(){
         debugWarpToDestination('outdoor:RODDON_WAY_MAP'); resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP');
-        continuousWorldViewEnabled=true; debugMode=false; combat.active=false;
+        forceLegacyRegionalView = false; debugMode=false; combat.active=false;
         player.x=15.5*TILE; player.y=6.5*TILE; player.step=0; combat.cooldown=0; __reconcileCanonicalForTest();
         for (var k in keys) delete keys[k];
         player.moving=true;
@@ -110,7 +110,7 @@ module.exports = {
       assert.ok(eligible, 'a RODDON encounter-eligible tile exists for the roll test');
       const [ec, er] = eligible;
       const n = g.run(`(function(){
-        resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); continuousWorldViewEnabled=false; debugMode=false;
+        resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); forceLegacyRegionalView = true; debugMode=false;
         combat.active=false; combat.cooldown=0; player.x=${ec + 0.5}*TILE; player.y=${er + 0.5}*TILE; player.step=15;
         for (var k in keys) delete keys[k]; keys['ArrowRight']=true;
         var sc=0,_sc=startCombat; startCombat=function(){sc++; combat.active=true;};
@@ -125,10 +125,10 @@ module.exports = {
     // ── 7/8. Neighbour visibility + NPC simulation do not influence the pool ─
     // Continuous View on (all neighbours visible + simulated) vs off must give the
     // SAME pool for the SAME physical position.
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); continuousWorldViewEnabled=false; var a=currentEncounterPool(); continuousWorldViewEnabled=true; var b=currentEncounterPool(); return a===b && a===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); forceLegacyRegionalView = true; var a=currentEncounterPool(); forceLegacyRegionalView = false; var b=currentEncounterPool(); return a===b && a===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
       'neighbour visibility / NPC simulation / Continuous View toggle never change the pool for a fixed physical position');
     // A neighbouring NPC being simulated does not shift the pool.
-    assert.equal(g.run("(function(){ SIMPLE_NPCS.push({id:'geo_npc', map:'map3_n1', x:5*TILE, y:5*TILE, movement:{type:'patrol',autoStart:true,speed:2,waypoints:[{x:5,y:5},{x:6,y:5}]}}); MOVEMENT_HOMES['geo_npc']={x:5*TILE,y:5*TILE,facing:'right'}; resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); continuousWorldViewEnabled=true; var p=currentEncounterPool(); SIMPLE_NPCS.pop(); delete MOVEMENT_HOMES['geo_npc']; return p===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
+    assert.equal(g.run("(function(){ SIMPLE_NPCS.push({id:'geo_npc', map:'map3_n1', x:5*TILE, y:5*TILE, movement:{type:'patrol',autoStart:true,speed:2,waypoints:[{x:5,y:5},{x:6,y:5}]}}); MOVEMENT_HOMES['geo_npc']={x:5*TILE,y:5*TILE,facing:'right'}; resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); forceLegacyRegionalView = false; var p=currentEncounterPool(); SIMPLE_NPCS.pop(); delete MOVEMENT_HOMES['geo_npc']; return p===mapEntryForId('MAP3_N1').encounterPool;})()"), true,
       'a simulated neighbour NPC does not influence the encounter pool');
 
     // ── 10. MAP / MAP5 / RODDON_WAY_MAP remain physically distinct ('overworld') ─

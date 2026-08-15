@@ -86,15 +86,15 @@ The rule this codebase actually follows:
 | `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, and `buildContinuousWorldPlanFromWorld()` — the ONE plan entry, keyed on a region-world PIXEL point. Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. The runtime camera feeds it the CANONICAL regional world position; there is no map-id+local plan overload (removed) and no player-local→world adapter here. |
 | `regional-position.js` | **THE canonical regional-position authority**: the private canonical state `{ regionId, worldPxX, worldPxY }`; conversions `mapLocalPxToRegionWorldPx()` / `regionWorldPxToLocal()`; the derived read-model `regionalContext()` + accessors `regionalWorldPosition()` / `regionalDerivedLocation()` / `regionalActiveMapId()` / `regionalPlayerWorldPoint()`; atomic writers `commitRegionalWorldPosition()` (derives `activeMap`/`player.x`/`player.y`), `enterRegionalMapFromLocal()`, `clearRegionalPosition()`, `placeAtLocation()` (the regional/discrete router used by every location gateway); and read-only `regionalInvariantErrors()` / `regionalInvariantsHold()`. | Canonical state is not externally mutable and is `null` on every discrete location. Callers NEVER assign `activeMap`/`player.x`/`player.y` for a regional map — they go through this module. It never repairs state; the read model fails closed (returns null) on a broken invariant and `regionalInvariantErrors()` only reports. |
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
-| `continuous-seams.js` | **DEBUG-ONLY** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Only active under Continuous View; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
-| `continuous-content.js` | **DEBUG-ONLY**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
-| `world-point-content.js` | **DEBUG-ONLY** world-aware STATIC content across seams (see "World-aware static content across seams" below): the PURE world-point resolver (`worldPointContentContext`), cross-seam authorization compose (`crossSeamNeighbourFor`, over `continuousSeamCrossingAt` in continuous-seams.js), the EXPLICIT capability authorities (`CROSS_SEAM_NPC_CAPABILITIES`/`crossSeamNpcCapabilityRecognized`, `crossSeamCollectibleItem`), the once-per-frame cross-seam item-pickup driver (`crossSeamStaticPickup`, calling `collectWorldItemNear` in movement.js), the opted-in neighbour-NPC interaction resolver/dispatch (`resolveCrossSeamInteractTarget`/`tryCrossSeamNeighbourInteract`), and the single prompt authority (`crossSeamInteractPromptTarget`) that drives both the press and `drawCrossSeamInteractPrompt` (render-entities.js). | Only active under Continuous View. **Assigns nothing** — no `activeMap`/player/coordinate/content-key/NPC-position write; canonical effects only (item `.picked`/grant/dialogue, NPC dialogue + authored `flag_sets`). FAIL-CLOSED: one directly-adjacent eligible-seam neighbour; unambiguous key for NPC ownership; NPCs must OPT IN via `crossSeamInteraction:'simple_dialogue'` and pickups via `crossSeamPickup:'registry_grant'` (both explicit allowlist capabilities, validated in validation.js); nothing crosses by default. |
-| `regional-npc-runtime.js` | **DEBUG-ONLY** chunk-aware regional NPC ownership + pose + simulation (see "Chunk-aware regional NPC runtime" below): `physicalMapIdForNpc` (logical key → physical outdoor map, fail-closed), `regionalNpcPose` (read-only live pixel pose), `nearbySimulationMapSet` (deterministic 3×3), `npcShouldSimulate` (lifecycle gate), `regionalNpcRouteCanOccupy` (world-aware, owner-chunk-confined occupancy). | Only active under Continuous View. **Assigns nothing** — no `activeMap`/player/location/NPC-ownership write. `npc.map` stays the logical key; physical ownership is distinct + explicit (`npc.physicalMapId` for ambiguous `'overworld'`). NPCs confined to one owner chunk (no cross-chunk routes yet). |
+| `continuous-seams.js` | **PRODUCTION** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Active under continuous presentation (the production default), one shared choke point; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
+| `continuous-content.js` | **PRODUCTION**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 15 placed outdoor maps. Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
+| `world-point-content.js` | **PRODUCTION** world-aware STATIC content across seams (see "World-aware static content across seams" below): the PURE world-point resolver (`worldPointContentContext`), cross-seam authorization compose (`crossSeamNeighbourFor`, over `continuousSeamCrossingAt` in continuous-seams.js), the EXPLICIT capability authorities (`CROSS_SEAM_NPC_CAPABILITIES`/`crossSeamNpcCapabilityRecognized`, `crossSeamCollectibleItem`), the once-per-frame cross-seam item-pickup driver (`crossSeamStaticPickup`, calling `collectWorldItemNear` in movement.js), the opted-in neighbour-NPC interaction resolver/dispatch (`resolveCrossSeamInteractTarget`/`tryCrossSeamNeighbourInteract`), and the single prompt authority (`crossSeamInteractPromptTarget`) that drives both the press and `drawCrossSeamInteractPrompt` (render-entities.js). | Active under continuous presentation (the production default; only the `forceLegacyRegionalView` debug fallback disables it). **Assigns nothing** — no `activeMap`/player/coordinate/content-key/NPC-position write; canonical effects only (item `.picked`/grant/dialogue, NPC dialogue + authored `flag_sets`). FAIL-CLOSED: one directly-adjacent eligible-seam neighbour; unambiguous key for NPC ownership; NPCs must OPT IN via `crossSeamInteraction:'simple_dialogue'` and pickups via `crossSeamPickup:'registry_grant'` (both explicit allowlist capabilities, validated in validation.js); nothing crosses by default. |
+| `regional-npc-runtime.js` | **PRODUCTION** chunk-aware regional NPC ownership + pose + simulation (see "Chunk-aware regional NPC runtime" below): `physicalMapIdForNpc` (logical key → physical outdoor map, fail-closed), `regionalNpcPose` (read-only live pixel pose), `nearbySimulationMapSet` (deterministic 3×3), `npcShouldSimulate` (lifecycle gate), `regionalNpcRouteCanOccupy` (world-aware, owner-chunk-confined occupancy). | Active under continuous presentation (the production default; only the `forceLegacyRegionalView` debug fallback disables it). **Assigns nothing** — no `activeMap`/player/location/NPC-ownership write. `npc.map` stays the logical key; physical ownership is distinct + explicit (`npc.physicalMapId` for ambiguous `'overworld'`). NPCs confined to one owner chunk (no cross-chunk routes yet). |
 | `encounter-geography.js` | **PURE** geographic random-encounter authority (see "Geographic random-encounter authority" below): `geographicEncounterContext(regionId, worldPxX, worldPxY)` (physical chunk → `MAP_CATALOG` pool, fail-closed) + the read-only runtime selectors `playerStandingWorldPoint` / `regionalStandingEncounterContext` / `encounterGeographyOk`. | No randomness, no state mutation; composes `REGIONAL_LAYOUT`+`mapIdForChunk`+`MAP_CATALOG` (no new table). Physical map id is the pool authority — never a logical/`'overworld'` key. Independent of Continuous View. Consumed by `currentEncounterPool()` (combat.js) and the roll gate (movement.js). |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
 | `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
-| `render.js` | The single `render()` orchestrator — the canonical draw-call order (layering) for a frame — plus the pre-computed vignette, the extracted `drawActiveMapContent()` current-map content block, and the DEBUG continuous-view path (`continuousWorldViewActive()` / `drawContinuousWorld()`; see "Continuous-view prototype" below). | Don't put actual drawing logic here beyond the terrain/camera orchestration — call into the `render-*.js` files. If draw order/layering looks wrong, this is the file to fix. |
+| `render.js` | The single `render()` orchestrator — the canonical draw-call order (layering) for a frame — plus the pre-computed vignette, the extracted `drawActiveMapContent()` current-map content block, and the production continuous-view path (`continuousWorldViewActive()` / `drawContinuousWorld()`; see "Continuous regional overworld" below). | Don't put actual drawing logic here beyond the terrain/camera orchestration — call into the `render-*.js` files. If draw order/layering looks wrong, this is the file to fix. |
 | `input.js` | The `keys` table and the `keydown`/`keyup` listeners; routes a keypress to whichever screen is active (combat, menu, choice, shop, debug menu, debug warp menu, overlay panels, overworld). | No game logic beyond routing — it calls into `movement.js`/`combat.js`/`interactions.js`/etc rather than mutating game state directly (aside from cursor/screen UI state). |
 | `movement.js` | `player`, `locationName()`, `currentContentLocationKey()` (logical content-location key; `currentMapId()` is a deprecated alias), `tileAt()`, `canWalk()` (collision), `isEncounterEligibleTile()`, and `update()` — the per-frame advance of movement/cooldowns/encounter checks/`MAP_FEATURES` trigger-zone checks. | No drawing code. |
 | `combat.js` | Equip helpers (`effectiveAtk`/etc), enemy stat templates, `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
@@ -613,18 +613,31 @@ continuous renderer must apply the camera as a *separate* transform (e.g.
 camera-shifted origin here would make those patterns crawl as the camera moves.
 The pure geometry that decides *which* chunks/slices to draw lives in
 `world-view.js` (see the layout section); its first consumer is the debug
-continuous-view prototype below.
+the continuous regional overworld section below.
 
-### Continuous-view prototype (DEBUG-only, `render.js`)
+### Continuous regional overworld (PRODUCTION DEFAULT, `render.js`)
 
-A visual prototype of a scrolling-camera overworld that draws terrain from
-neighbouring chunks. It is **off by default and never saved** (`continuousWorldViewEnabled`,
-state.js; a debug-menu toggle `[ Continuous View ]`). When off — or on a map with
-no `REGIONAL_LAYOUT` placement under `regionId 'overworld'` (towns, interiors,
-dungeons, bridge, special maps, the hidden meadow) — `render()` uses the **legacy
-path** (`drawMapTiles(activeMap)` + `drawActiveMapContent()`), pixel-identical to
-before. `continuousWorldViewActive()` gates this; combat is unaffected (`render()`
-returns before the world section when `combat.active`).
+The scrolling-camera regional overworld — continuous terrain from neighbouring chunks
+plus seamless eligible-edge movement — is the **normal production presentation** for
+placed `'continuous'` regional chunks. It needs **no debug mode and no opt-in flag**:
+`continuousWorldViewActive()` returns true whenever the canonical invariants hold, the
+active canonical location is a placed regional chunk, and its authored presentation is
+`'continuous'`. Presentation is thus selected by **canonical location + chunk metadata**,
+not a session toggle.
+
+The **only** opt-out is a session-only debug fallback, **`forceLegacyRegionalView`**
+(state.js; default OFF; debug-menu row `[ Legacy Regional Fallback ]`, `input.js`). ON,
+it forces coherent legacy single-screen regional behaviour for comparison/recovery;
+it is never saved/restored and changes canonical position / encounter ownership /
+grids / content in no way. On a `legacy_screen` map, a discrete/nonregional context
+(towns, interiors, dungeons, bridge, special maps, the hidden meadow), or a broken
+canonical invariant, `render()` uses the **legacy path** (`drawMapTiles(activeMap)` +
+`drawActiveMapContent()`), pixel-identical to before. `continuousWorldViewActive()` is
+the ONE shared choke point every continuous consumer reads (render, seam movement,
+regional NPC simulation, cross-seam content, inspector), so they follow the default —
+and the fallback — together. Combat is unaffected (`render()` returns before the world
+section when `combat.active`); geographic encounters and canonical position do **not**
+depend on presentation mode.
 
 `render()`'s former inline current-map content block (items → furniture → NPCs →
 special entities → landmarks → hints → player) is extracted verbatim, in the same
@@ -650,20 +663,26 @@ local range; (4) `ctx.save()` + translate to the active chunk's world origin,
 space. All screen-space layers (vignette, dialogue, menus, panels, toasts, hints,
 inspector, combat UI) are drawn **after** the restore, outside any transform.
 
-**Intentional prototype limitations (not bugs):** edge transitions still drive
-movement; crossing a seam can visibly jump because destinations still use
-inset/remapped landing coords; NEEDS_REMAP seams are untouched; **only the active
-map's entities/content render — neighbouring chunks show terrain only** (chunk-
-aware entities are a later phase); no save-schema/world-position migration; no
-terrain cache. Approx work per frame: ≤4 visible chunks, ≤ one 512×480 viewport of
-`drawTile` calls (~ 16×15 = 240 tiles, plus partial edge tiles), same order of
-magnitude as the legacy single-map draw.
+**Verified render-work bound (static evidence).** Per frame the plan draws **≤ 4
+visible chunks** and **only the viewport's tiles plus the unavoidable partial edge
+row/column** — a hard bound of `(ceil(512/32)+1) × (ceil(480/32)+1) = 17 × 16 = 272`
+`drawTile` calls, **not** `visibleChunks × 240`. Measured from `buildContinuousWorldPlanFromWorld`
+at representative positions: chunk middle 2 chunks / 256 tiles; two-chunk seam 3 / 249;
+four-chunk corner 2 / 240 — no world tile coordinate is drawn twice in a pass, and
+neighbour content is drawn once per visible non-active chunk. Visible-chunk lookup is
+the O(1) `_CHUNK_TO_MAP_ID` index (never a full-region scan); camera/catalog/visibility
+resolution mutates no gameplay state and rebuilds no authority (catalog, seam
+classifier, encounter registry, content ownership) per frame. This bound is enforced by
+test 88. **Pending browser profiling** (not yet measured): real frame-time at a chunk
+middle, a two-chunk seam, the MAP/MAP2/Roddon legacy-home corner, a four-chunk corner,
+animated water, and a neighbouring-content view — see the manual checklist. No terrain
+cache or offscreen canvas is used; none is warranted by the static evidence.
 
 ### Regional presentation modes: the Verdant Vale fixed-screen home
 
 A placed regional outdoor map presents either in the scrolling **continuous** world
-or as a fixed **`legacy_screen`** (single, non-scrolling map) *even while the session
-Continuous View toggle is on*. The MAP_CATALOG entry's optional
+or as a fixed **`legacy_screen`** (single, non-scrolling map) *even though continuous is
+the production default*. The MAP_CATALOG entry's optional
 `regionalPresentation` is the SOLE authority (default `'continuous'` for a placed
 regional outdoor map); `regionalPresentationForMapId()`/`isLegacyScreenMap()` (data.js)
 resolve it. There is no second authored list of legacy maps and no scattered
@@ -672,15 +691,17 @@ resolve it. There is no second authored list of legacy maps and no scattered
 (→ MAP2) or north (→ MAP_N1) reveals the larger scrolling world; returning restores
 the fixed original-map presentation.
 
-- **Toggle vs EFFECTIVE mode.** The session toggle `continuousWorldViewEnabled` is
-  never mutated by entering/leaving home. `continuousWorldViewActive()` is the single
-  choke point for the EFFECTIVE mode and now also returns `false` on a `legacy_screen`
-  active map — so on MAP the legacy render path, legacy movement (no seamless
+- **Metadata selects the mode.** `continuousWorldViewActive()` is the single choke point
+  for the EFFECTIVE mode; it returns `false` on a `legacy_screen` active map regardless
+  of anything else — so on MAP the legacy render path, legacy movement (no seamless
   handling), and NO regional NPC simulation / cross-boundary pickup/interaction/prompt
-  all follow from that one predicate, with the toggle still logically on. The debug
-  inspector shows "toggle ON, effective SUPPRESSED (legacy_screen map)". Leaving home
-  re-enables the effective continuous mode automatically on the first destination
-  frame — no menu reopen.
+  all follow from that one predicate. The debug inspector shows `PRESENTATION: fixed
+  legacy_screen home (MAP)`. Leaving home enters the continuous mode automatically on the
+  first destination frame; there is no toggle to set. (The one manual control is the
+  session-only `forceLegacyRegionalView` debug fallback, which forces legacy everywhere
+  for comparison — see "Continuous regional overworld" above. The inspector distinguishes
+  five states: production continuous / legacy_screen home / debug fallback / discrete-
+  nonregional / canonical-invariant failure.)
 - **Continuous-side camera exclusion (declarative, stable-side).** From another
   continuous map the camera must never reveal a `legacy_screen` chunk OR a void hole in
   its place — and it must do so **without switching which side of the home it hugs as

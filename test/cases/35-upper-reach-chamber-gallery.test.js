@@ -70,7 +70,7 @@ module.exports = {
     g.run(`
       inDungeon = false; inTown = false; inSluice = false; activeMap = NORTH_BASIN_W_MAP;
       player.x = 3.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
-      combat.cooldown = 0; debugMode = true;
+      combat.cooldown = 0; debugMode = true; forceLegacyRegionalView = true; /* legacy inset-crossing tests */
     ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');
     let crossed = false;

@@ -64,7 +64,7 @@ module.exports = {
     // unlucky Math.random() roll during any of the held-key multi-frame
     // walks below could start real combat mid-crossing and fail the
     // "should still transition within 40 frames" assertions nondeterministically.
-    g.run('debugMode = true;');
+    g.run('debugMode = true; forceLegacyRegionalView = true; /* legacy inset-crossing tests */');
 
     // ── 1 & 3a. North edge: South Approach -> Reservoir, position preserved ─
     g.run(`

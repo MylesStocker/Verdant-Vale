@@ -18,7 +18,7 @@ const mapId = (g) => g.run('mapIdForRef(activeMap)');
 function warp(g, dest, cont) {
   g.run(`debugWarpToDestination('${dest}');
     dialogue.open=false; menu.open=false; choice.open=false; combat.active=false; combat.cooldown=0;
-    debugMode=true; continuousWorldViewEnabled=${cont === undefined ? false : cont}; for (var k in keys) delete keys[k];`);
+    debugMode=true; forceLegacyRegionalView=${cont === undefined ? true : !cont}; for (var k in keys) delete keys[k];`);
 }
 
 module.exports = {

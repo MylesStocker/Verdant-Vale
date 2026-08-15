@@ -14,7 +14,7 @@ const J = (g, e) => JSON.parse(g.run(e));
 const mid = (g) => g.run('mapIdForRef(activeMap)');
 function warp(g, dest, cont) {
   g.run(`debugWarpToDestination('${dest}'); dialogue.open=false; menu.open=false; choice.open=false; shop.open=false;
-    combat.active=false; combat.cooldown=0; debugMode=true; continuousWorldViewEnabled=${cont === undefined ? true : cont}; for (var k in keys) delete keys[k];`);
+    combat.active=false; combat.cooldown=0; debugMode=true; forceLegacyRegionalView=${cont === undefined ? false : !cont}; for (var k in keys) delete keys[k];`);
 }
 
 module.exports = {
@@ -56,7 +56,7 @@ module.exports = {
     //           same ownership under Continuous View on and off. ──────────────
     const poolName = (g2) => g2.run('(currentEncounterPool()===FAR_ENEMY_TEMPLATES?"FAR":currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES?"THORN":"OTHER")');
     for (const cont of [true, false]) {
-      g.run(`placeAtLocation('MAP3', 8*TILE, 8*TILE); continuousWorldViewEnabled=${cont};`);
+      g.run(`placeAtLocation('MAP3', 8*TILE, 8*TILE); forceLegacyRegionalView=${!cont};`);
       assert.equal(poolName(g), 'FAR', `MAP3 pool is FAR (Continuous View ${cont})`);
       g.run("placeAtLocation('MAP4', 8*TILE, 2*TILE);");
       assert.equal(poolName(g), 'THORN', `MAP4 pool is THORNMERE (Continuous View ${cont})`);
@@ -131,7 +131,7 @@ module.exports = {
 
     // ── 9. Neighbour + player rendering read canonical local and mutate nothing. ─
     const rmut = J(g, `(function(){
-      placeAtLocation('MAP3', 14*TILE, 6.5*TILE); continuousWorldViewEnabled=true;
+      placeAtLocation('MAP3', 14*TILE, 6.5*TILE); forceLegacyRegionalView = false;
       var before = mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+JSON.stringify(regionalWorldPosition());
       render();
       var after = mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+JSON.stringify(regionalWorldPosition());
@@ -140,7 +140,7 @@ module.exports = {
     assert.equal(rmut.mutated, false, 'a continuous render mutates no activeMap/player/canonical state');
 
     // ── 11. Verdant Vale stays fixed-screen yet is geographically canonical. ──
-    g.run("placeAtLocation('MAP', 8*TILE, 7*TILE); continuousWorldViewEnabled=true;");
+    g.run("placeAtLocation('MAP', 8*TILE, 7*TILE); forceLegacyRegionalView = false;");
     assert.equal(g.run("continuousWorldViewActive()"), false, 'MAP suppresses continuous presentation (legacy_screen)');
     assert.equal(J(g, "JSON.stringify(regionalDerivedLocation())").mapId, 'MAP', 'MAP is still canonical regional geography while presentation is suppressed');
 

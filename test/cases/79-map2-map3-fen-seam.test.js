@@ -29,7 +29,7 @@ function ctx() {
 function onMap2(g, cont) {
   g.run(`debugWarpToDestination('outdoor:MAP2');
          dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
-         combat.active=false; combat.cooldown=0; debugMode=true; continuousWorldViewEnabled=${cont};
+         combat.active=false; combat.cooldown=0; debugMode=true; forceLegacyRegionalView=${!cont};
          for (var k in keys) delete keys[k];`);
 }
 const mapId = (g) => g.run('mapIdForRef(activeMap)');

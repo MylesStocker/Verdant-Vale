@@ -42,7 +42,7 @@ module.exports = {
     // test, and the crossing paths are REEDS/GRASS (encounter-eligible), so
     // without this an unlucky roll during a held-key walk could start combat
     // mid-crossing and fail nondeterministically.
-    g.run('debugMode = true;');
+    g.run('debugMode = true; forceLegacyRegionalView = true; /* legacy inset-crossing tests */');
 
     const [southMin, southMax] = g.run("EDGE_TRANSITIONS['NORTH_BASIN_W_MAP']").south[0].sourceRange;
     const crossCol = southMin; // any column in the open range works; use the first

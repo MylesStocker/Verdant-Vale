@@ -1396,7 +1396,7 @@ function drawDebugMenu() {
     { type: 'action', label: '[ Warp to Map... ]' },
     { type: 'action', label: '[ Validate Data ]' },
     { type: 'toggle', label: '[ Home on Defeat ]', value: defeatWakeAtHome,      onColor: '#78e888', offColor: '#3a5858' },
-    { type: 'toggle', label: '[ Continuous View ]', value: continuousWorldViewEnabled, onColor: '#78e888', offColor: '#3a5858' },
+    { type: 'toggle', label: '[ Legacy Regional Fallback ]', value: forceLegacyRegionalView, onColor: '#e8a878', offColor: '#3a5858' },
   ];
 
   rows.forEach((row, i) => {
@@ -1592,12 +1592,28 @@ function drawDebugInspector() {
         : ''),
   ];
 
-  // Continuous-view diagnostics. Distinguish the session TOGGLE from the EFFECTIVE
-  // presentation: on a 'legacy_screen' map the toggle can be on while continuous
-  // presentation is suppressed (fixed-screen home).
-  if (typeof continuousWorldViewEnabled !== 'undefined' && continuousWorldViewEnabled
-      && typeof isLegacyScreenMap === 'function' && mapId && isLegacyScreenMap(mapId)) {
-    lines.push('CONT-VIEW: toggle ON, effective SUPPRESSED (legacy_screen map)');
+  // Regional-presentation diagnostics — distinguish the FIVE states the shared choke
+  // point can be in: production continuous / legacy_screen metadata / debug legacy
+  // fallback / discrete-nonregional / canonical-invariant failure.
+  {
+    // A canonical regional position is the "am I on a placed regional chunk" signal that
+    // survives a broken projection (regionalActiveMapId() goes null then; the canonical
+    // position does not), so invariant-failure stays distinct from discrete/nonregional.
+    const _canon = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+    const _invOk = (typeof regionalInvariantsHold !== 'function') || regionalInvariantsHold();
+    const _rid = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : null;
+    const _isLegacyHome = !!(_rid && typeof isLegacyScreenMap === 'function' && isLegacyScreenMap(_rid));
+    if (typeof continuousWorldViewActive === 'function' && continuousWorldViewActive()) {
+      lines.push('PRESENTATION: continuous (production default)');
+    } else if (_canon && !_invOk) {
+      lines.push('PRESENTATION: legacy (FAIL-CLOSED: canonical invariants broken)');
+    } else if (_isLegacyHome) {
+      lines.push('PRESENTATION: fixed legacy_screen home (' + _rid + ')');
+    } else if (_canon && forceLegacyRegionalView) {
+      lines.push('PRESENTATION: legacy (DEBUG fallback ON -- [Legacy Regional Fallback])');
+    } else {
+      lines.push('PRESENTATION: discrete / nonregional');
+    }
   }
   if (typeof continuousWorldViewActive === 'function' && continuousWorldViewActive()) {
     const _canon = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;

@@ -22,7 +22,7 @@ function ctxRoddon() {
   g.press('Enter'); g.press('Enter');
   g.run(`debugWarpToDestination('outdoor:RODDON_WAY_MAP');
          dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
-         combat.active=false; debugMode=true; continuousWorldViewEnabled=true;
+         combat.active=false; debugMode=true; forceLegacyRegionalView = false;
          for (var k in keys) delete keys[k];
          player.x=8.5*TILE; player.y=7.5*TILE; player.moving=false;; __reconcileCanonicalForTest();`);
   return g;
@@ -92,7 +92,7 @@ module.exports = {
       'nearby set = active + placed 3x3 (row-major), sparse omitted, legacy_screen MAP excluded');
     assert.ok(set.indexOf('RODDON_WAY_MAP') !== -1 && set.indexOf('MAP3_N1') !== -1, 'active + east neighbour both present');
     // Continuous View off -> legacy (null set).
-    assert.equal(g0.run("(function(){continuousWorldViewEnabled=false; var s=nearbySimulationMapSet(); continuousWorldViewEnabled=true; return s;})()"), null,
+    assert.equal(g0.run("(function(){forceLegacyRegionalView = true; var s=nearbySimulationMapSet(); forceLegacyRegionalView = false; return s;})()"), null,
       'Continuous View off -> null (legacy active-only lifecycle)');
 
     // ── C2. Shared 'overworld' key: PHYSICAL ownership protects MAP/MAP5/RODDON ─
@@ -105,7 +105,7 @@ module.exports = {
       // MAP5 (4,5); NPC local (2.5,2.5) = a walkable MAP tile too, so the interact/
       // collide checks below share the same local coordinate.
       g.run("SIMPLE_NPCS.push({id:'ow_map5', name:'FiveWalker', map:'overworld', physicalMapId:'MAP5', spriteType:'clerk', x:2.5*TILE, y:2.5*TILE, facing:'down', solid:true, dialogue:[['From map five.']], flag_required:null, flag_sets:null, action:null, movement:{type:'patrol', autoStart:true, speed:2, waypoints:[{x:2.5,y:2.5},{x:3.5,y:2.5}]}}); MOVEMENT_HOMES['ow_map5']={x:2.5*TILE,y:2.5*TILE,facing:'down'};");
-      const setActive = (mapId, cont) => g.run(`resetLocationState(); activeMap = mapRefForId('${mapId}'); continuousWorldViewEnabled=${cont}; debugMode=true; dialogue.open=false; combat.active=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false; for (var k in keys) delete keys[k]; __reconcileCanonicalForTest();`);
+      const setActive = (mapId, cont) => g.run(`resetLocationState(); activeMap = mapRefForId('${mapId}'); forceLegacyRegionalView=${!cont}; debugMode=true; dialogue.open=false; combat.active=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false; for (var k in keys) delete keys[k]; __reconcileCanonicalForTest();`);
       const sim = () => g.run("npcShouldSimulate(SIMPLE_NPCS.find(function(x){return x.id==='ow_map5';}))");
       const renderCount = () => g.run(`(function(){ var n=0, _g=drawGenericNPC, _w=drawWalkingGenericNPC;
         drawGenericNPC=function(npc){ if(npc&&npc.id==='ow_map5')n++; return _g.apply(null,arguments); };
@@ -266,7 +266,7 @@ module.exports = {
       g.press('Enter'); g.press('Enter');
       g.run(`debugWarpToDestination('outdoor:RODDON_WAY_MAP');
              dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;
-             combat.active=false; debugMode=true; continuousWorldViewEnabled=true;
+             combat.active=false; debugMode=true; forceLegacyRegionalView = false;
              for (var k in keys) delete keys[k];
              player.x=498; player.y=208; player.moving=false;; __reconcileCanonicalForTest();`);
       return g;

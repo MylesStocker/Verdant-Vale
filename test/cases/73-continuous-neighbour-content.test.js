@@ -110,7 +110,7 @@ module.exports = {
     // ── 8c. The FIRST continuous frame (which renders neighbour content) performs
     //        NO state writes — no resetLocationState/applyLocationState, no
     //        activeMap/content-key change (not merely net-zero). ────────────────
-    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();');
+    warp('MAP3'); g.run('forceLegacyRegionalView = false; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();');
     const frameNoWrite = J(`(function(){
       var reset=0, apply=0; var _r=resetLocationState, _a=applyLocationState;
       resetLocationState=function(){reset++;return _r.apply(null,arguments);};
@@ -127,7 +127,7 @@ module.exports = {
 
     // ── 1 + 3 + 5 + 7 + 4 + 6. Visible chunks get contexts, at world origins,
     //     row-major, once each; active content + player once ─────────────────
-    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // NE corner -> MAP4 + MAP3_N1 neighbours
+    warp('MAP3'); g.run('forceLegacyRegionalView = false; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // NE corner -> MAP4 + MAP3_N1 neighbours
     const plan = J("JSON.stringify((function(){var c=regionalWorldPosition();return c?buildContinuousWorldPlanFromWorld(c.regionId,c.worldPxX,c.worldPxY,512,480):null;})())");
     const activeId = plan.activeMapId;
     const neighbours = plan.visibleChunks.filter(c => c.mapId !== activeId);
@@ -150,14 +150,14 @@ module.exports = {
     assert.equal(f.stoneBody, 1, 'the Thornmere Stone body renders on the MAP4 neighbour chunk');
     assert.equal(f.spaceHints, 0, 'no SPACE hint is emitted for a neighbour landmark (active-only)');
     // MAP_N2 gate as a neighbour of MAP_N1
-    warp('MAP_N1'); g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // north edge -> MAP_N2 neighbour
+    warp('MAP_N1'); g.run('forceLegacyRegionalView = false; player.x = 7.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // north edge -> MAP_N2 neighbour
     const fg = spyFrame(g);
     assert.equal(fg.gateBody, 1, 'the sealed-gate body renders on the MAP_N2 neighbour chunk');
     assert.equal(fg.spaceHints, 0, 'no SPACE hint for the neighbour gate');
 
     // ── 10 + 11 + 12. Neighbour NPCs: existing positions, read-only, no hint ─
     // Synthetic NPC fixture on an UNAMBIGUOUS neighbour key ('north_basin_c').
-    warp('NORTH_BASIN_S_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // NB_C visible north
+    warp('NORTH_BASIN_S_MAP'); g.run('forceLegacyRegionalView = false; player.x = 8.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();'); // NB_C visible north
     // Neighbour NPCs now render by PHYSICAL-map ownership (drawContentNPCsForPhysicalMap),
     // resolved from the unambiguous key ('north_basin_c' -> NORTH_BASIN_C_MAP).
     const npcRes = J(`(function(){
@@ -177,7 +177,7 @@ module.exports = {
     // ── 14 + 15 + 16. Neighbour items: uncollected render, collected absent,
     //     no pickup/mutation ───────────────────────────────────────────────────
     // MAP3_N1 has an authored world item; view it as a neighbour of MAP3_N2.
-    warp('MAP3_N2'); g.run('continuousWorldViewEnabled = true; player.x = 7.5*TILE; player.y = 14.5*TILE;'); // south edge -> MAP3_N1 neighbour
+    warp('MAP3_N2'); g.run('forceLegacyRegionalView = false; player.x = 7.5*TILE; player.y = 14.5*TILE;'); // south edge -> MAP3_N1 neighbour
     const itemRes = J(`(function(){
       var items = mapEntryForId('MAP3_N1').items || [];
       var drawn = [];
@@ -203,7 +203,7 @@ module.exports = {
 
     // ── 20. Camera motion changes only screen placement, not world content ──
     // The MAP4 stone body draws at the SAME world coords under two camera positions.
-    warp('MAP3'); g.run('continuousWorldViewEnabled = true;');
+    warp('MAP3'); g.run('forceLegacyRegionalView = false;');
     const stoneWorldAt = (px) => J(`(function(){
       player.x = ${px}; player.y = 0.5*TILE;
       var coords=null; var _sb=drawThornmereStoneBody, _fr=ctx.fillRect, cur=null;
@@ -229,7 +229,7 @@ module.exports = {
 
     // ── 2. Sparse/unplaced chunks receive no content ────────────────────────
     // A viewport over an unplaced gap chunk yields no neighbour contexts.
-    warp('NORTH_BASIN_NW_MAP'); g.run('continuousWorldViewEnabled = true; player.x = 8.5*TILE; player.y = 8.5*TILE;');
+    warp('NORTH_BASIN_NW_MAP'); g.run('forceLegacyRegionalView = false; player.x = 8.5*TILE; player.y = 8.5*TILE;');
     const sparse = spyFrame(g);
     for (const c of sparse.neighbourCtx) {
       assert.ok(g.run(`mapIdForChunk('overworld', regionPlacementForMapId(${JSON.stringify(c.mapId)}).chunkX, regionPlacementForMapId(${JSON.stringify(c.mapId)}).chunkY)`),
@@ -237,19 +237,19 @@ module.exports = {
     }
 
     // ── 22 + 23. Continuous View OFF, and non-region maps, use the legacy path ─
-    warp('MAP3'); g.run('continuousWorldViewEnabled = false; player.x = 14.5*TILE; player.y = 0.5*TILE;');
+    warp('MAP3'); g.run('forceLegacyRegionalView = true; player.x = 14.5*TILE; player.y = 0.5*TILE;');
     const legacy = spyFrame(g);
     assert.equal(legacy.neighbourCtx.length, 0, 'flag off: no neighbour content (legacy path)');
     assert.equal(legacy.activeContent, 1, 'flag off: active content once (legacy)');
-    g.run("debugWarpToDestination('town:calwick_south'); continuousWorldViewEnabled = true;");
+    g.run("debugWarpToDestination('town:calwick_south'); forceLegacyRegionalView = false;");
     const town = spyFrame(g);
     assert.equal(town.neighbourCtx.length, 0, 'a town uses the legacy path (no neighbour content)');
-    g.run('enterMeadow(); continuousWorldViewEnabled = true;');
+    g.run('enterMeadow(); forceLegacyRegionalView = false;');
     const meadow = spyFrame(g);
     assert.equal(meadow.neighbourCtx.length, 0, 'the hidden meadow uses the legacy path');
 
     // ── 19. No spoofing/mutation across all the above frames (spot re-check) ─
-    warp('MAP3'); g.run('continuousWorldViewEnabled = true; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();');
+    warp('MAP3'); g.run('forceLegacyRegionalView = false; player.x = 14.5*TILE; player.y = 0.5*TILE; __reconcileCanonicalForTest();');
     const before = J('JSON.stringify({ map: mapIdForRef(activeMap), x: player.x, y: player.y, key: currentContentLocationKey() })');
     spyFrame(g);
     const after = J('JSON.stringify({ map: mapIdForRef(activeMap), x: player.x, y: player.y, key: currentContentLocationKey() })');

@@ -148,7 +148,7 @@ module.exports = {
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'debug warp to MAP5 lands on MAP5');
     assert.equal(g.run('canWalk(0.5*TILE, 6.5*TILE)'), true, 'MAP5 seam shore (col 0 row 6) is walkable (collision intact)');
     assert.equal(g.run("isTileWalkable(mapRefForId('MAP5')[0][0])"), false, 'MAP5 open water (row 0) stays non-walkable');
-    g.run("debugWarpToDestination('outdoor:MAP4'); continuousWorldViewEnabled=true; placeAtLocation('MAP4', 14.5*TILE, 6.5*TILE); for(var k in keys)delete keys[k];");
+    g.run("debugWarpToDestination('outdoor:MAP4'); forceLegacyRegionalView = false; placeAtLocation('MAP4', 14.5*TILE, 6.5*TILE); for(var k in keys)delete keys[k];");
     g.hold('ArrowRight'); for (let i = 0; i < 40 && g.run("mapIdForRef(activeMap)") !== 'MAP5'; i++) g.frames(1); g.release('ArrowRight');
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'MAP4→MAP5 continuous seam travel still works');
 

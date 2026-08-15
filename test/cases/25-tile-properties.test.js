@@ -208,8 +208,9 @@ module.exports = {
     g.release('ArrowRight');
     assert.ok(crossed, 'the existing MAP2_EXIT point-tile transition should still work');
 
-    // ── 10. Existing EDGE_TRANSITIONS crossing still works ──────────────────
+    // ── 10. Existing EDGE_TRANSITIONS crossing still works (legacy discrete path) ─
     g.run(`
+      forceLegacyRegionalView = true;   // this exercises the legacy inset crossing
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;

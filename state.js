@@ -64,7 +64,12 @@ let defeatWakeAtHome     = true;
 // camera terrain path (render.js) instead of the legacy single-map draw. Has no
 // effect off a placed overworld map, and never touches movement/collision/
 // transitions/saves/content. Session-only, like debugMode/defeatWakeAtHome.
-let continuousWorldViewEnabled = false;
+//
+// Continuous regional presentation is the PRODUCTION DEFAULT (no debug/toggle needed).
+// This is the one session-only EMERGENCY/DEBUG fallback: ON forces coherent legacy
+// single-screen regional behaviour (for comparison/recovery); OFF (default) is the
+// production continuous overworld. Never saved/restored; see continuousWorldViewActive().
+let forceLegacyRegionalView = false;
 let dilemma_voss         = null; // null | 'report' | 'protect' | 'abstain'
 
 // ─── Status effects ───────────────────────────────────────────────────────────

@@ -26,22 +26,25 @@ const CONTINUOUS_VOID_COLOR = '#0a0a12';
 // section when combat.active).
 // Whether continuous presentation is EFFECTIVE right now — the single choke point
 // gating continuous rendering, seamless movement, regional NPC simulation, and the
-// cross-boundary pickup/interaction/prompt paths. It stays distinct from the
-// session TOGGLE `continuousWorldViewEnabled` (which is never mutated here): a
-// 'legacy_screen' map (Verdant Vale / MAP) suppresses the effective mode even with
-// the toggle on, so entering home restores the fixed single-map presentation
-// without turning the toggle off. Leaving home re-enables it automatically.
+// cross-boundary pickup/interaction/prompt paths. Continuous regional presentation is
+// the PRODUCTION DEFAULT: this returns true for a placed 'continuous' regional chunk
+// whenever the canonical invariants hold — with NO dependency on debugMode and no
+// opt-in flag. The only opt-out is the session-only DEBUG fallback
+// `forceLegacyRegionalView` (default off). A 'legacy_screen' map (Verdant Vale / MAP)
+// is always fixed-screen; a discrete/nonregional context is always legacy; broken
+// invariants fail closed to legacy. This is the ONE shared choke point every
+// continuous consumer (render, seam movement, regional NPC sim, cross-seam content,
+// inspector) reads, so they all follow the default — and the fallback — together.
 function continuousWorldViewActive() {
-  if (!continuousWorldViewEnabled) return false;
-  // Active map identity comes from the CANONICAL context (regional) / active map
-  // (discrete). Fail-closed: a broken invariant yields null -> legacy render.
-  const id = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId()
-           : (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  if (!id) return false;
+  if (forceLegacyRegionalView) return false;                                   // debug legacy fallback ON
+  if (typeof regionalInvariantsHold === 'function' && !regionalInvariantsHold()) return false; // fail-closed
+  // Active map identity comes from the CANONICAL regional context (null when discrete).
+  const id = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : null;
+  if (!id) return false;                                                       // discrete / nonregional
   const p = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(id) : null;
   if (!(p && p.regionId === 'overworld')) return false;
-  if (typeof isLegacyScreenMap === 'function' && isLegacyScreenMap(id)) return false; // fixed-screen home
-  return true;
+  const pres = (typeof regionalPresentationForMapId === 'function') ? regionalPresentationForMapId(id) : null;
+  return pres === 'continuous';                                               // fixed-screen home / unknown mode -> false
 }
 
 // The current active map's existing world content, in its EXACT legacy draw order

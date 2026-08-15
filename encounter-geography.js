@@ -38,7 +38,7 @@ function geographicEncounterContext(regionId, worldPxX, worldPxY) {
 // The player's STANDING POINT (centre, player.x/player.y) in region world pixels —
 // NOT footprint corners, camera, visible chunks, or NPC simulation chunks. Returns
 // { regionId, worldPxX, worldPxY, activeMapId } or null when the active map is not
-// placed in a region. Independent of Continuous View: the debug toggle must NOT
+// placed in a region. Independent of presentation mode: continuous vs legacy must NOT
 // determine encounter geography.
 function playerStandingWorldPoint() {
   // Consume the CANONICAL regional position (regional-position.js) — never derived

@@ -59,7 +59,7 @@ module.exports = {
     // outdoor context, same as GRASS -- see tiles.js's TILE_PROPERTIES),
     // so without this an unlucky roll during a held-key multi-frame walk
     // could start real combat mid-crossing and fail nondeterministically.
-    g.run('debugMode = true;');
+    g.run('debugMode = true; forceLegacyRegionalView = true; /* legacy inset-crossing test */');
 
     // ── 1. Real movement west across NORTH_BASIN_S_MAP's row 10 col 0 ──────
     // Start on the reed tile directly adjacent to the exit (row 10 col 1) --

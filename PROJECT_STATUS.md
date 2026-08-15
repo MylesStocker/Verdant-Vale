@@ -22,7 +22,21 @@ individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
 
-- **60 tests** (`test/cases/01-…60-`), `node test/run.js` — all passing.
+- **Continuous regional overworld is the production default.** The scrolling
+  camera, seamless eligible-edge movement, neighbouring-chunk content, regional
+  NPC simulation, geographic encounters, and world-aware cross-seam interactions
+  are the normal behaviour on placed `'continuous'` regional chunks — with **no
+  debug mode and no toggle**. Presentation is chosen by canonical location + chunk
+  metadata (`continuousWorldViewActive()`, the single shared choke point): a
+  `legacy_screen` chunk (only **Verdant Vale / MAP**, deliberately fixed-screen), a
+  discrete/nonregional map, or a broken canonical invariant falls back to the legacy
+  single-screen path. The one manual control is a session-only debug fallback,
+  `[ Legacy Regional Fallback ]` (`forceLegacyRegionalView`, default OFF, never
+  saved), which forces coherent legacy behaviour for comparison/recovery. Geographic
+  encounters and canonical position do not depend on presentation mode. Verified
+  render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
+  (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
+- **88 tests** (`test/cases/01-…88-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile

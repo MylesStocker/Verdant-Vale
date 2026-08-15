@@ -260,10 +260,12 @@ window.addEventListener('keydown', e => {
             // behavior of waking on the spot where they fell.
             defeatWakeAtHome = !defeatWakeAtHome;
           } else if (debugMenu.cursor === 9) {
-            // Continuous View — DEBUG scrolling-camera terrain prototype on
-            // placed 'overworld' maps only (render.js). Session-only, never
-            // saved; no effect on movement/collision/transitions/content.
-            continuousWorldViewEnabled = !continuousWorldViewEnabled;
+            // Legacy Regional Fallback — DEBUG emergency/comparison switch. Continuous
+            // regional presentation is the production default (render.js); ON forces
+            // coherent legacy single-screen regional behaviour for the whole shared
+            // choke point. Session-only, never saved; no effect on movement/collision/
+            // transitions/content/canonical position/encounter ownership.
+            forceLegacyRegionalView = !forceLegacyRegionalView;
           }
         }
         if (e.key === 'Escape' || e.key === '`') { debugMenu.open = false; }

@@ -84,7 +84,7 @@ module.exports = {
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3_N1;
       player.x=1.5*TILE; player.y=6.5*TILE; player.facing='left';
-      combat.cooldown=0; debugMode=true;
+      combat.cooldown=0; debugMode=true; forceLegacyRegionalView=true; /* legacy inset-crossing tests */
     ; __reconcileCanonicalForTest();`);
     g.hold('ArrowLeft');
     let crossed = false;
@@ -222,7 +222,7 @@ module.exports = {
     // (col-8 PATH, sourceRange [8,8]). With Continuous View OFF (default) the walk
     // must still cross via the legacy broad-edge path.
     g.run(`
-      inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3; continuousWorldViewEnabled=false;
+      inDungeon=false; inTown=false; inSluice=false; activeMap=MAP3; forceLegacyRegionalView = true;
       player.x=8.5*TILE; player.y=1.5*TILE; player.facing='up'; combat.cooldown=0;
     ; __reconcileCanonicalForTest();`);
     g.hold('ArrowUp');

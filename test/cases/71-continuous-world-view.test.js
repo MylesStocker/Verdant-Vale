@@ -61,7 +61,7 @@ function spyRender(g) {
 }
 
 module.exports = {
-  name: 'continuous world view: DEBUG scrolling-camera terrain prototype (off by default, legacy-safe)',
+  name: 'continuous regional view: production default; legacy behaviour only via the debug fallback',
   run() {
     const g = createContext();
     g.press('Enter'); g.press('Enter');
@@ -70,18 +70,20 @@ module.exports = {
     const COLS = g.run('COLS'), ROWS = g.run('ROWS'), TILE = g.run('TILE');
     const CW = COLS * TILE, CH = ROWS * TILE;
 
-    // ── 1. Flag defaults false; never serialized into the save ───────────────
-    assert.equal(g.run('continuousWorldViewEnabled'), false, 'flag defaults false');
-    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 10, 'debug menu grew by one row');
-    g.run('continuousWorldViewEnabled = true; saveGame();');
+    // ── 1. Debug fallback defaults OFF (continuous is default); never serialized ─
+    assert.equal(g.run('forceLegacyRegionalView'), false, 'legacy fallback defaults OFF -> continuous is the production default');
+    assert.equal(g.run("typeof continuousWorldViewEnabled"), 'undefined', 'the old opt-in flag is gone');
+    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 10, 'debug menu still has its rows');
+    g.run('forceLegacyRegionalView = true; saveGame();');
     const rawSave = g.run("localStorage.getItem('verdantVale_save')");
-    assert.ok(!/continuousWorldView/i.test(rawSave), 'flag is not written into the save payload');
-    // loadGame must not set it either (it is session-only).
-    g.run('continuousWorldViewEnabled = false; loadGame();');
-    assert.equal(g.run('continuousWorldViewEnabled'), false, 'load does not restore the flag');
+    assert.ok(!/continuousWorldView|forceLegacyRegionalView|legacyRegional/i.test(rawSave), 'the fallback is not written into the save payload');
+    // loadGame must not set/restore it either (it is session-only).
+    g.run('loadGame();');
+    assert.equal(g.run('forceLegacyRegionalView'), true, 'load does not touch the session-only fallback (still whatever the session set)');
+    g.run('forceLegacyRegionalView = false;');
 
-    // ── 2. Legacy render path unchanged when the flag is OFF ─────────────────
-    warp('outdoor:MAP'); g.run('continuousWorldViewEnabled = false;');
+    // ── 2. Legacy single-screen render path when the DEBUG fallback is ON ─────
+    warp('outdoor:MAP'); g.run('forceLegacyRegionalView = true;');
     const legacy = spyRender(g);
     assert.equal(legacy.translates.length, 0, 'legacy: no camera transform');
     assert.equal(legacy.voidFilled, false, 'legacy: no void fill');
@@ -94,7 +96,7 @@ module.exports = {
     assert.equal(legacy.mutated, false, 'legacy: no mutation');
 
     // ── 3. Non-region maps always legacy (even with the flag ON) ─────────────
-    warp('town:calwick_south'); g.run('continuousWorldViewEnabled = true;');
+    warp('town:calwick_south'); g.run('forceLegacyRegionalView = false;');
     assert.equal(g.run('continuousWorldViewActive()'), false, 'town is not region-placed -> legacy');
     const town = spyRender(g);
     assert.equal(town.translates.length, 0, 'town: no camera transform');
@@ -147,7 +149,7 @@ module.exports = {
     assert.deepEqual(J("JSON.stringify(visibleChunks('overworld', 0, 0, 512, 480))"), [], 'gap chunk -> no terrain');
 
     // ── 10-14. Continuous frame on a placed overworld map ───────────────────
-    warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');
+    warp('outdoor:MAP2'); g.run('forceLegacyRegionalView = false; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');
     const plan = J("JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP2',player.x,player.y);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())");
     const cont = spyRender(g);
     assert.equal(cont.mutated, false, 'continuous: no mutation of player/activeMap/location');
@@ -191,7 +193,7 @@ module.exports = {
 
     // ── 15 + 16. Screen-space UI after the camera is restored; balanced ──────
     // (MAP is now a legacy_screen home — use MAP2 for the continuous-render frame.)
-    warp('outdoor:MAP2'); g.run('continuousWorldViewEnabled = true; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');
+    warp('outdoor:MAP2'); g.run('forceLegacyRegionalView = false; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');
     const frame = spyRender(g);
     assert.equal(frame.saves, frame.restores, 'save/restore balanced');
     assert.ok(frame.saves >= 2, 'at least the camera + active-chunk save/restore pair (plus one per neighbour content pass)');
@@ -207,7 +209,7 @@ module.exports = {
 
     // ── 18. Combat bypasses the continuous world path entirely ──────────────
     g.run(`
-      continuousWorldViewEnabled = true;
+      forceLegacyRegionalView = false;
       startCombat();
       combat.enemy = { id:'d', name:'Dummy', hp:10, maxHp:10, atk:1, def:0, spd:1, xp:0, goldMin:0, goldMax:0 };
     `);
@@ -217,14 +219,14 @@ module.exports = {
     assert.equal(cbt.mapTileCalls.length, 0, 'combat: no world terrain drawn');
     g.run('combat.active = false; combat.enemy = null;');
 
-    // ── 19. Debug-menu toggle behaviour + cursor bounds ─────────────────────
-    g.run('continuousWorldViewEnabled = false; debugMenu.open = true; debugMenu.cursor = 0; dialogue.open=false; menu.open=false; choice.open=false; shop.open=false;');
+    // ── 19. Debug-menu fallback toggle behaviour + cursor bounds ────────────
+    g.run('forceLegacyRegionalView = false; debugMenu.open = true; debugMenu.cursor = 0; dialogue.open=false; menu.open=false; choice.open=false; shop.open=false;');
     for (let i = 0; i < 20; i++) g.press('ArrowDown'); // over-scroll
-    assert.equal(g.run('debugMenu.cursor'), 9, 'cursor clamps at the last row (Continuous View)');
+    assert.equal(g.run('debugMenu.cursor'), 9, 'cursor clamps at the last row ([ Legacy Regional Fallback ])');
     g.press('Enter');
-    assert.equal(g.run('continuousWorldViewEnabled'), true, 'Enter on row 9 toggles Continuous View on');
+    assert.equal(g.run('forceLegacyRegionalView'), true, 'Enter on row 9 turns the legacy fallback ON');
     g.press('Enter');
-    assert.equal(g.run('continuousWorldViewEnabled'), false, 'Enter again toggles it off');
-    g.run('debugMenu.open = false;');
+    assert.equal(g.run('forceLegacyRegionalView'), false, 'Enter again turns it OFF (back to continuous default)');
+    g.run('debugMenu.open = false; forceLegacyRegionalView = false;');
   },
 };

@@ -128,7 +128,7 @@ module.exports = {
 
     // ── 12. MAP stays fixed-screen (never uses the continuous render path). ────
     assert.equal(R("isLegacyScreenMap('MAP')"), true, 'MAP is legacy_screen');
-    R("debugWarpToDestination('outdoor:MAP'); continuousWorldViewEnabled=true;");
+    R("debugWarpToDestination('outdoor:MAP'); forceLegacyRegionalView = false;");
     assert.equal(R("mapIdForRef(activeMap)"), 'MAP', 'warped onto MAP');
     assert.equal(R("continuousWorldViewActive()"), false, 'MAP suppresses continuous view even with the toggle on (fixed-screen home)');
 
@@ -145,8 +145,8 @@ module.exports = {
 
     // ── 14. Continuous View OFF leaves RODDON on the legacy render path. ───────
     R("debugWarpToDestination('outdoor:RODDON_WAY_MAP');");
-    assert.equal(R("(function(){continuousWorldViewEnabled=true; return continuousWorldViewActive();})()"), true, 'RODDON: continuous active with toggle ON');
-    assert.equal(R("(function(){continuousWorldViewEnabled=false; var r=continuousWorldViewActive(); continuousWorldViewEnabled=true; return r;})()"), false, 'RODDON: toggle OFF -> legacy renderer (unchanged)');
+    assert.equal(R("(function(){forceLegacyRegionalView = false; return continuousWorldViewActive();})()"), true, 'RODDON: continuous active with toggle ON');
+    assert.equal(R("(function(){forceLegacyRegionalView = true; var r=continuousWorldViewActive(); forceLegacyRegionalView = false; return r;})()"), false, 'RODDON: toggle OFF -> legacy renderer (unchanged)');
 
     // ── 15. Towns / interiors / dungeons / bridge / meadow are discrete (no
     //        regional placement -> legacy/discrete path), outside the chunk system.
@@ -156,10 +156,10 @@ module.exports = {
     }
 
     // ── 16. Camera planning + validation mutate nothing. ──────────────────────
-    R("debugWarpToDestination('outdoor:RODDON_WAY_MAP'); continuousWorldViewEnabled=true; debugMode=true; placeAtLocation('RODDON_WAY_MAP', 6*32+16, 9*32); player.facing='left';");
-    const before = R("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+player.facing+'|'+inTown+'|'+inDungeon+'|'+continuousWorldViewEnabled+'|'+debugMode+'|'+JSON.stringify(regionalWorldPosition())");
+    R("debugWarpToDestination('outdoor:RODDON_WAY_MAP'); forceLegacyRegionalView = false; debugMode=true; placeAtLocation('RODDON_WAY_MAP', 6*32+16, 9*32); player.facing='left';");
+    const before = R("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+player.facing+'|'+inTown+'|'+inDungeon+'|'+forceLegacyRegionalView+'|'+debugMode+'|'+JSON.stringify(regionalWorldPosition())");
     R(`(function(){for(var i=0;i<20;i++){var w=mapLocalPxToRegionWorldPx('RODDON_WAY_MAP',5*32+i,9*32);buildContinuousWorldPlanFromWorld('overworld',w.worldPxX,w.worldPxY,${VW},${VH});} resolveLegacyCameraExclusion('overworld','RODDON_WAY_MAP'); validateGameData(); })()`);
-    const after = R("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+player.facing+'|'+inTown+'|'+inDungeon+'|'+continuousWorldViewEnabled+'|'+debugMode+'|'+JSON.stringify(regionalWorldPosition())");
+    const after = R("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+player.facing+'|'+inTown+'|'+inDungeon+'|'+forceLegacyRegionalView+'|'+debugMode+'|'+JSON.stringify(regionalWorldPosition())");
     assert.equal(after, before, 'camera planning + validation mutate no canonical position / projection / flags / debug state');
 
     // ── 17. All 15 grid fingerprints unchanged. ───────────────────────────────
@@ -168,7 +168,7 @@ module.exports = {
     }
 
     // ── 18. Save stays v4; no camera state persisted. ─────────────────────────
-    R("placeAtLocation('RODDON_WAY_MAP', 6*32, 9*32); continuousWorldViewEnabled=true; saveGame();");
+    R("placeAtLocation('RODDON_WAY_MAP', 6*32, 9*32); forceLegacyRegionalView = false; saveGame();");
     const saved = J("localStorage.getItem('verdantVale_save')");
     assert.equal(saved.version, 4, 'SAVE_VERSION stays 4');
     assert.ok(!/cam|camera|viewport|exclusion|continuousWorldView/i.test(JSON.stringify(saved)), 'no camera/exclusion/toggle state enters the save');
