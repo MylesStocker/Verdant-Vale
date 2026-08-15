@@ -86,38 +86,46 @@ function legacyScreenChunkRects(regionId) {
   return out;
 }
 
-// 2c. Camera origin that additionally keeps the viewport OUT of every excluded
-//     (legacy_screen) chunk rectangle — a pure, general presentation constraint, not
-//     a MAP-specific render patch. Starts from the region-clamped player-centred
-//     camera, then for each excluded rect the viewport still intersects, slides the
-//     camera to the excluded rect's nearest edge along the axis that (a) keeps the
-//     player/target inside the viewport and (b) is the smaller correction. Because
-//     the correction candidates are only those with the target on the far side of
-//     the excluded rect, the player is always kept visible; a rect that CONTAINS the
-//     target (e.g. the active legacy map itself) yields no candidate and is ignored.
-//     This handles direct edge exposure (one valid axis -> monotone clamp) and
-//     diagonal corner exposure (two valid axes -> least correction). Deterministic
-//     and pure. `excludedRects` from legacyScreenChunkRects().
-function continuousCameraOrigin(regionId, targetWorldPxX, targetWorldPxY, viewportPxW, viewportPxH, excludedRects) {
+// 2c. Camera origin that keeps the viewport on the AUTHORED SIDE of a single excluded
+//     (legacy_screen) chunk — a pure, monotone, single-axis presentation constraint.
+//     `exclusion` is { rect:{leftPx,topPx,rightPx,bottomPx}, side:'north'|'south'|
+//     'east'|'west' } (from the active map's declarative legacyCameraExclusion policy)
+//     or null/absent for no constraint. Starts from the region-clamped player-centred
+//     camera, then clamps ONE axis so the whole viewport stays on `side` of the rect:
+//       east  -> camX >= rect.right     west  -> camX <= rect.left - viewportW
+//       south -> camY >= rect.bottom    north -> camY <= rect.top  - viewportH
+//     The clamp is monotone in the player's world position and never compares the
+//     horizontal vs vertical correction magnitudes, so — unlike the old least-
+//     correction rule — it CANNOT switch axes at a diagonal legacy-screen corner
+//     (the cause of the Roddon Way camera jump). Because the policy names the side on
+//     which the source chunk actually lies (validated), the clamp keeps the target/
+//     player visible. Deterministic and pure.
+function continuousCameraOrigin(regionId, targetWorldPxX, targetWorldPxY, viewportPxW, viewportPxH, exclusion) {
   const base = cameraOriginForTarget(regionId, targetWorldPxX, targetWorldPxY, viewportPxW, viewportPxH);
   if (!base) return base;
   let camPxX = base.camPxX, camPxY = base.camPxY;
-  const rects = Array.isArray(excludedRects) ? excludedRects : [];
-  for (const E of rects) {
-    const overlapsX = camPxX < E.rightPx && camPxX + viewportPxW > E.leftPx;
-    const overlapsY = camPxY < E.bottomPx && camPxY + viewportPxH > E.topPx;
-    if (!overlapsX || !overlapsY) continue;               // viewport clear of this rect
-    const opts = [];
-    if (targetWorldPxX >= E.rightPx) opts.push({ ax: 'x', v: E.rightPx,                 cost: E.rightPx - camPxX });          // slide right to rect's right edge
-    if (targetWorldPxX <= E.leftPx)  opts.push({ ax: 'x', v: E.leftPx - viewportPxW,    cost: camPxX - (E.leftPx - viewportPxW) }); // slide left
-    if (targetWorldPxY >= E.bottomPx) opts.push({ ax: 'y', v: E.bottomPx,               cost: E.bottomPx - camPxY });         // slide down
-    if (targetWorldPxY <= E.topPx)    opts.push({ ax: 'y', v: E.topPx - viewportPxH,     cost: camPxY - (E.topPx - viewportPxH) }); // slide up
-    if (opts.length === 0) continue;                      // target inside the rect (e.g. active legacy map) -> ignore
-    opts.sort((a, b) => a.cost - b.cost);
-    const pick = opts[0];
-    if (pick.ax === 'x') camPxX = pick.v; else camPxY = pick.v;
+  if (exclusion && exclusion.rect && exclusion.side) {
+    const E = exclusion.rect;
+    switch (exclusion.side) {
+      case 'east':  camPxX = Math.max(camPxX, E.rightPx); break;
+      case 'west':  camPxX = Math.min(camPxX, E.leftPx - viewportPxW); break;
+      case 'south': camPxY = Math.max(camPxY, E.bottomPx); break;
+      case 'north': camPxY = Math.min(camPxY, E.topPx - viewportPxH); break;
+    }
   }
   return { camPxX: Math.round(camPxX), camPxY: Math.round(camPxY) };
+}
+
+// Resolve the active map's declarative camera-exclusion policy into the concrete
+// { rect, side } the pure camera consumes: look up its legacyCameraExclusion policy
+// and pair the named legacy_screen chunk with its region-world pixel rect. Returns
+// null when the active map has no policy. The ONE place policy meets geometry.
+function resolveLegacyCameraExclusion(regionId, activeMapId) {
+  const policy = (typeof legacyCameraExclusionForMapId === 'function') ? legacyCameraExclusionForMapId(activeMapId) : null;
+  if (!policy) return null;
+  const rects = (typeof legacyScreenChunkRects === 'function') ? legacyScreenChunkRects(regionId) : [];
+  const rect = rects.find((r) => r.mapId === policy.mapId);
+  return rect ? { rect, side: policy.side } : null;
 }
 
 // 4. The half-open LOCAL TILE range of one chunk that intersects a camera
@@ -201,14 +209,13 @@ function visibleChunks(regionId, camPxX, camPxY, viewportPxW, viewportPxH) {
 // activeMap, regional data, or camera state).
 // Shared plan core, keyed on the region-world PIXEL target (the canonical unit).
 function _continuousPlanCore(regionId, activeMapId, placement, worldPxX, worldPxY, viewportPxW, viewportPxH) {
-  // Camera keeps the viewport out of every OTHER legacy_screen chunk rect (so MAP is
-  // never revealed as a neighbour and no void hole appears in its place). The active
-  // map's own rect is excluded from the constraint — a legacy map viewed on its own
-  // (toggle on, effective suppressed) must still frame normally for any direct
-  // caller; its continuous path is never rendered.
-  const excluded = (typeof legacyScreenChunkRects === 'function')
-    ? legacyScreenChunkRects(regionId).filter((r) => r.mapId !== activeMapId) : [];
-  const cam = continuousCameraOrigin(regionId, worldPxX, worldPxY, viewportPxW, viewportPxH, excluded);
+  // Camera keeps MAP (the legacy_screen home) off-screen by the active map's declarative
+  // side policy (legacyCameraExclusion, resolved from REGIONAL_CHUNK_CATALOG) — a stable
+  // single-axis constraint, never a MAP-specific render patch and never an axis-switching
+  // least-correction. A map with no policy is unconstrained. The belt-and-suspenders
+  // chunk filter below still drops any stray legacy chunk so no void hole can appear.
+  const exclusion = resolveLegacyCameraExclusion(regionId, activeMapId);
+  const cam = continuousCameraOrigin(regionId, worldPxX, worldPxY, viewportPxW, viewportPxH, exclusion);
   if (!cam) return null;
   let chunks = visibleChunks(regionId, cam.camPxX, cam.camPxY, viewportPxW, viewportPxH);
   // Belt-and-suspenders: a legacy_screen chunk other than the active map is never a
@@ -240,6 +247,7 @@ if (typeof window !== 'undefined') {
   window.cameraOriginForTarget   = cameraOriginForTarget;
   window.legacyScreenChunkRects  = legacyScreenChunkRects;
   window.continuousCameraOrigin  = continuousCameraOrigin;
+  window.resolveLegacyCameraExclusion = resolveLegacyCameraExclusion;
   window.chunkVisibleTileRange   = chunkVisibleTileRange;
   window.visibleChunks           = visibleChunks;
   window.buildContinuousWorldPlanFromWorld = buildContinuousWorldPlanFromWorld;

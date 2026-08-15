@@ -311,6 +311,7 @@ placed regional map** (15 total). An authored definition OWNS:
   encounterProfileId,                // STABLE id → an encounter pool (resolved in data.js)
   itemSetId?,                        // STABLE id → an items array (resolved in data.js); omit for an item-less chunk
   allowRandomEncounters, allowSave,
+  legacyCameraExclusion?,            // { mapId, side } continuous-camera policy — see "Continuous-side camera exclusion"
   notes?,
 }
 ```
@@ -680,22 +681,50 @@ the fixed original-map presentation.
   inspector shows "toggle ON, effective SUPPRESSED (legacy_screen map)". Leaving home
   re-enables the effective continuous mode automatically on the first destination
   frame — no menu reopen.
-- **Continuous-side camera exclusion (pure, general).** From another continuous map
-  the camera must never reveal a `legacy_screen` chunk OR a void hole in its place.
-  `continuousCameraOrigin()` (world-view.js) starts from the region-clamped
-  player-centred camera, then for each excluded `legacy_screen` chunk rect
-  (`legacyScreenChunkRects()`) the viewport still intersects, slides the camera to
-  that rect's nearest edge along the axis that (a) keeps the player/target visible and
-  (b) is the smaller correction. Only candidates with the target on the far side of
-  the rect are considered, so the player is always kept in frame and a rect CONTAINING
-  the target (the active legacy map itself) yields no candidate. This handles **direct**
-  edge exposure (MAP2's west edge → single valid axis → monotone clamp to camX=512;
-  MAP_N1's south edge → camY=1920) and **diagonal** corner exposure (RODDON_WAY_MAP's
-  SW → two valid axes → least correction; the viewport ends up framing RODDON + MAP2,
-  never MAP or void). `buildContinuousWorldPlanFromWorld()` applies it (excluding the
-  active map's own rect) and, belt-and-suspenders, filters any `legacy_screen` neighbour from
-  the visible-chunk list. `visibleChunks()` itself stays pure geometry. The excluded
-  area is never filled with invented terrain or a duplicated neighbour.
+- **Continuous-side camera exclusion (declarative, stable-side).** From another
+  continuous map the camera must never reveal a `legacy_screen` chunk OR a void hole in
+  its place — and it must do so **without switching which side of the home it hugs as
+  the player moves within one continuous area**.
+  - *Why the old rule jumped.* The original `continuousCameraOrigin()` slid the camera
+    to the excluded rect's nearest edge along whichever axis was the **smaller**
+    correction. At MAP's **NE diagonal corner** two corrections are both valid — keep
+    the viewport east of MAP, or keep it north — and the least-correction pick **flips
+    axes across the diagonal line** `worldX + worldY = MAP.rightPx + (MAP.topPx − VH)`.
+    MAP2 never showed the bug because it shares MAP's row (the Y-overlap is always on, so
+    east always wins); **RODDON_WAY_MAP sits one row north**, so the Y-overlap is
+    conditional and the camera jumped (~48–82 px in a single 2 px step) crossing that
+    line — visibly around Roddon's col 6 rows 8↔9 and cols 5↔6 in the lower half.
+  - *The fix — a declarative side policy.* Each chunk definition may carry an optional
+    `legacyCameraExclusion: { mapId, side }` (schema field; resolved onto
+    `REGIONAL_CHUNK_CATALOG`, read via `legacyCameraExclusionForMapId()`). It names the
+    `legacy_screen` chunk to hide and the **fixed side** the whole viewport stays on.
+    Current assignments: **MAP2 → east**, **RODDON_WAY_MAP → east** (both the
+    southern/eastern approach), **MAP_N1 → north**. `resolveLegacyCameraExclusion()`
+    pairs the policy with the excluded chunk's pixel rect; `continuousCameraOrigin()`
+    then applies a **single-axis monotone clamp** — `east → camX ≥ rect.right`,
+    `west → camX ≤ rect.left − VW`, `south → camY ≥ rect.bottom`,
+    `north → camY ≤ rect.top − VH` — and **never compares horizontal vs vertical
+    magnitudes**, so it cannot change axes at a corner. The clamp is pure, integer,
+    pixel-aligned, and preserves half-open rectangle semantics; because the policy names
+    the side the source chunk actually lies on (validated), the player stays in frame.
+  - *No camera history.* The camera remains a pure function of the current canonical
+    position — no smoothing, easing, interpolation, or retained mutable camera state
+    (any of which could mask the jump or momentarily expose MAP/void). A continuous map
+    with **no** policy is unconstrained (its viewport can't reach the home).
+    `buildContinuousWorldPlanFromWorld()` applies the resolved policy and,
+    belt-and-suspenders, still filters any `legacy_screen` neighbour from the
+    visible-chunk list; `visibleChunks()` stays pure geometry; excluded area is never
+    filled with invented terrain.
+  - *Validation for future legacy-screen boundaries.* `validateLegacyCameraExclusion()`
+    fails closed: recognized keys only; `side ∈ {north,south,east,west}`; the excluded
+    map exists in the same region and **is** `legacy_screen`; the source map is **not**
+    `legacy_screen`; the source chunk's coordinates are consistent with the chosen side;
+    the clamp is feasible (hides the rect **and** keeps the player visible); and — the
+    completeness rule — **every** continuous chunk whose reachable player-centred
+    viewport can intersect a `legacy_screen` rect must carry an unambiguous policy for
+    it. Unknown / malformed / contradictory policies are hard errors. There is no
+    Roddon-specific camera conditional and no second camera-policy table in
+    `world-view.js`; the declarative policy is the single source.
 - **Continuous-side NPC simulation excludes legacy_screen chunks.** `nearbySimulationMapSet()`
   (regional-npc-runtime.js) omits every `legacy_screen` chunk from the nearby 3×3
   simulation set (via `isLegacyScreenMap`, not a hardcoded id), so a MAP-owned NPC does

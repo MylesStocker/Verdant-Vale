@@ -408,6 +408,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Eastern Reaches', region: 'Eastern Reaches', contentKey: 'map2',
     presentation: 'continuous', encounterProfileId: 'reaches', itemSetId: 'map2',
+    legacyCameraExclusion: { mapId: 'MAP', side: 'east' },
     allowRandomEncounters: true, allowSave: true },
   { mapId: 'MAP3', regionId: 'overworld', chunkX: 2, chunkY: 5, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
@@ -494,6 +495,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Roddon Way', region: 'Thornmere', contentKey: 'overworld',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'roddon_way',
+    legacyCameraExclusion: { mapId: 'MAP', side: 'east' },
     allowRandomEncounters: true, allowSave: true,
     notes: 'A single dead-end fen map off MAP3_N1’s west edge (an old creek-bed ridge, RODDON_SILT) -- no other neighbours. Reuses MAP3_N1’s own encounter pool; no new enemies. Ordinary regional geography, not connected to the North Basin drought story.' },
   { mapId: 'MAP3_N1', regionId: 'overworld', chunkX: 2, chunkY: 4, map: [

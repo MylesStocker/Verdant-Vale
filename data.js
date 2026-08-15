@@ -696,6 +696,7 @@ const REGIONAL_CHUNK_CATALOG = (function () {
       allowRandomEncounters: def.allowRandomEncounters, allowSave: def.allowSave,
     };
     if (def.notes !== undefined) rec.notes = def.notes;
+    if (def.legacyCameraExclusion !== undefined) rec.legacyCameraExclusion = def.legacyCameraExclusion;
     out[def.mapId] = rec;
   }
   return out;
@@ -1330,6 +1331,15 @@ function regionalPresentationForMapId(mapId) {
 // Strict runtime predicate: true ONLY for a placed regional map authored exactly
 // 'legacy_screen'. Any other/unknown value is NOT treated as legacy at runtime.
 function isLegacyScreenMap(mapId) { return regionalPresentationForMapId(mapId) === 'legacy_screen'; }
+// Declarative continuous-camera policy for a placed regional map: the legacy_screen
+// chunk it must keep off-screen and the SIDE the viewport stays on. Authored on the
+// chunk definition (legacyCameraExclusion), resolved here from REGIONAL_CHUNK_CATALOG.
+// Returns { mapId, side } or null. The one place the camera reads its exclusion policy.
+function legacyCameraExclusionForMapId(mapId) {
+  const r = (typeof REGIONAL_CHUNK_CATALOG !== 'undefined') ? REGIONAL_CHUNK_CATALOG[mapId] : undefined;
+  return (r && r.legacyCameraExclusion) ? r.legacyCameraExclusion : null;
+}
+window.legacyCameraExclusionForMapId = legacyCameraExclusionForMapId;
 window.REGIONAL_PRESENTATION_MODES = REGIONAL_PRESENTATION_MODES;
 window.regionalPresentationForMapId = regionalPresentationForMapId;
 window.isLegacyScreenMap           = isLegacyScreenMap;

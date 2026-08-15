@@ -233,6 +233,7 @@ const NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Northern Road', region: 'Thornmere', contentKey: 'map_n1',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map_n1',
+    legacyCameraExclusion: { mapId: 'MAP', side: 'north' },
     allowRandomEncounters: true, allowSave: true },
   { mapId: 'MAP_N2', regionId: 'overworld', chunkX: 0, chunkY: 3, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15

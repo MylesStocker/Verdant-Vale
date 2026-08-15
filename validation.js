@@ -258,7 +258,7 @@ function validateRegionalChunkCatalog() {
     return checked;
   }
   const ROWS_EXP = 15, COLS_EXP = 16;
-  const ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterPool', 'items', 'allowRandomEncounters', 'allowSave', 'notes']);
+  const ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterPool', 'items', 'allowRandomEncounters', 'allowSave', 'notes', 'legacyCameraExclusion']);
   const PRESENTATIONS = new Set(['continuous', 'legacy_screen']);
   const knownRegions = (typeof REGIONAL_LAYOUT !== 'undefined') ? new Set(Object.keys(REGIONAL_LAYOUT)) : new Set();
   const seenIds = new Set(), seenRefs = new Map(), seenCoord = new Set();
@@ -340,7 +340,7 @@ function validateRegionalChunkCatalog() {
   if (typeof _REGIONAL_CHUNK_DEFINITIONS === 'undefined') {
     addValidationError(GROUP, '_REGIONAL_CHUNK_DEFINITIONS is undefined -- regional chunk fragments did not load (check content/maps/*.js + maps.js load order before data.js)');
   } else {
-    const DEF_ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterProfileId', 'itemSetId', 'allowRandomEncounters', 'allowSave', 'notes']);
+    const DEF_ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterProfileId', 'itemSetId', 'allowRandomEncounters', 'allowSave', 'notes', 'legacyCameraExclusion']);
     const profiles = (typeof _ENCOUNTER_PROFILES !== 'undefined') ? _ENCOUNTER_PROFILES : {};
     const itemSets = (typeof _REGIONAL_ITEM_SETS !== 'undefined') ? _REGIONAL_ITEM_SETS : {};
     const defIds = new Set(), defCoords = new Set();
@@ -378,6 +378,90 @@ function validateRegionalChunkCatalog() {
     }
     for (const id of Object.keys(REGIONAL_CHUNK_CATALOG)) {
       if (!defIds.has(id)) addValidationError(GROUP, 'REGIONAL_CHUNK_CATALOG.' + id + ': resolved record has no authored definition (catalog must derive only from fragments)');
+    }
+  }
+  return checked;
+}
+
+// ─── 2b-bis. Legacy-screen continuous-camera exclusion policies ─────────────
+// Validates the declarative legacyCameraExclusion policy authored on regional chunk
+// records (resolved via REGIONAL_CHUNK_CATALOG): well-formed keys, a valid side, the
+// excluded map exists in the same region and is legacy_screen, the source map is NOT
+// legacy_screen, the source chunk actually lies on the named side, and the resulting
+// clamp both hides the excluded rect and keeps the player visible. Also enforces
+// COMPLETENESS: every continuous chunk whose reachable (player-centred) camera viewport
+// can intersect a legacy_screen rect MUST carry an unambiguous policy naming that map —
+// otherwise the camera would have no stable rule there. Pure/read-only (world-view
+// geometry only); fail-closed. Unknown/malformed/contradictory policies are ERRORS.
+function validateLegacyCameraExclusion() {
+  const GROUP = 'Regional chunks';
+  let checked = 0;
+  if (typeof REGIONAL_CHUNK_CATALOG === 'undefined' || typeof REGIONAL_LAYOUT === 'undefined') return checked;
+  if (typeof regionPixelBounds !== 'function' || typeof cameraOriginForTarget !== 'function'
+      || typeof continuousCameraOrigin !== 'function' || typeof legacyScreenChunkRects !== 'function'
+      || typeof COLS === 'undefined' || typeof ROWS === 'undefined' || typeof TILE === 'undefined') return checked;
+  const SIDES = new Set(['north', 'south', 'east', 'west']);
+  const VW = COLS * TILE, VH = ROWS * TILE;
+  const isLegacy = (id) => (typeof isLegacyScreenMap === 'function') && isLegacyScreenMap(id);
+  const policyOf = (mapId) => { const r = REGIONAL_CHUNK_CATALOG[mapId]; return (r && r.legacyCameraExclusion) ? r.legacyCameraExclusion : null; };
+
+  for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
+    const placements = (REGIONAL_LAYOUT[regionId].placements) || [];
+    const legacyRects = legacyScreenChunkRects(regionId);
+    const rectFor = (mapId) => legacyRects.find((r) => r.mapId === mapId) || null;
+
+    for (const p of placements) {
+      const srcId = p.mapId;
+      const pol = policyOf(srcId);
+
+      // (a) any authored policy must be well-formed, consistent, and feasible.
+      if (pol) {
+        checked++;
+        const lbl = 'legacyCameraExclusion on ' + srcId;
+        if (typeof pol !== 'object') { addValidationError(GROUP, lbl + ': must be an object'); continue; }
+        for (const k of Object.keys(pol)) if (k !== 'mapId' && k !== 'side') addValidationError(GROUP, lbl + ': unrecognized key "' + k + '" (fail-closed)');
+        if (!SIDES.has(pol.side)) addValidationError(GROUP, lbl + ': side "' + pol.side + '" must be one of north|south|east|west');
+        if (isLegacy(srcId)) addValidationError(GROUP, lbl + ': the source map is itself legacy_screen (only continuous maps carry a policy)');
+        const exc = REGIONAL_CHUNK_CATALOG[pol.mapId];
+        if (!exc) { addValidationError(GROUP, lbl + ': excluded map "' + pol.mapId + '" is not a regional chunk'); continue; }
+        if (exc.regionId !== regionId) addValidationError(GROUP, lbl + ': excluded map "' + pol.mapId + '" is in a different region');
+        if (!isLegacy(pol.mapId)) addValidationError(GROUP, lbl + ': excluded map "' + pol.mapId + '" is not legacy_screen');
+        const L = rectFor(pol.mapId);
+        const sp = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(pol.mapId) : null;
+        if (L && sp && SIDES.has(pol.side)) {
+          const okGeom = (pol.side === 'east' && p.chunkX > sp.chunkX)
+                      || (pol.side === 'west' && p.chunkX < sp.chunkX)
+                      || (pol.side === 'south' && p.chunkY > sp.chunkY)
+                      || (pol.side === 'north' && p.chunkY < sp.chunkY);
+          if (!okGeom) addValidationError(GROUP, lbl + ': source chunk (' + p.chunkX + ',' + p.chunkY + ') is not on the "' + pol.side + '" side of excluded ' + pol.mapId + ' (' + sp.chunkX + ',' + sp.chunkY + ')');
+          const wx = p.chunkX * VW + Math.floor(VW / 2), wy = p.chunkY * VH + Math.floor(VH / 2);
+          const cam = continuousCameraOrigin(regionId, wx, wy, VW, VH, { rect: L, side: pol.side });
+          if (cam) {
+            const clearsL = !(cam.camPxX < L.rightPx && cam.camPxX + VW > L.leftPx && cam.camPxY < L.bottomPx && cam.camPxY + VH > L.topPx);
+            const seesPlayer = wx >= cam.camPxX && wx <= cam.camPxX + VW && wy >= cam.camPxY && wy <= cam.camPxY + VH;
+            if (!clearsL) addValidationError(GROUP, lbl + ': the policy does not keep the viewport off ' + pol.mapId + ' (infeasible geometry)');
+            if (!seesPlayer) addValidationError(GROUP, lbl + ': the policy pushes the player out of the viewport (infeasible)');
+          }
+        }
+      }
+
+      // (b) COMPLETENESS: a continuous chunk whose reachable viewport can touch a
+      //     legacy rect must carry a policy naming that map (else ambiguous camera).
+      if (!isLegacy(srcId) && legacyRects.length) {
+        const camA = cameraOriginForTarget(regionId, p.chunkX * VW, p.chunkY * VH, VW, VH);
+        const camB = cameraOriginForTarget(regionId, (p.chunkX + 1) * VW, (p.chunkY + 1) * VH, VW, VH);
+        if (camA && camB) {
+          const ux0 = Math.min(camA.camPxX, camB.camPxX), ux1 = Math.max(camA.camPxX, camB.camPxX) + VW;
+          const uy0 = Math.min(camA.camPxY, camB.camPxY), uy1 = Math.max(camA.camPxY, camB.camPxY) + VH;
+          for (const L of legacyRects) {
+            const touches = ux0 < L.rightPx && ux1 > L.leftPx && uy0 < L.bottomPx && uy1 > L.topPx;
+            if (touches && (!pol || pol.mapId !== L.mapId)) {
+              checked++;
+              addValidationError(GROUP, srcId + ': continuous chunk can reveal legacy map ' + L.mapId + ' but has no legacyCameraExclusion policy for it (missing/ambiguous -> hard error)');
+            }
+          }
+        }
+      }
     }
   }
   return checked;
@@ -2169,6 +2253,7 @@ function validateGameData() {
     'Map metadata':    validateMapMetadata(),
     'Regional layout': validateRegionalLayout(),
     'Regional chunks':  validateRegionalChunkCatalog(),
+    'Camera exclusion': validateLegacyCameraExclusion(),
     'Continuous seams': validateContinuousSeams(),
     'Continuous content': validateContinuousContent(),
     'Encounter geography': validateEncounterGeography(),
@@ -2191,6 +2276,7 @@ function validateGameData() {
     'Map metadata':     'metadata entries checked',
     'Regional layout':  'layout placements checked',
     'Regional chunks':   'regional chunk records checked',
+    'Camera exclusion': 'legacy camera exclusion policies checked',
     'Continuous seams': 'eligible seams checked',
     'Continuous content': 'outdoor content maps checked',
     'Encounter geography': 'encounter-geography placements checked',

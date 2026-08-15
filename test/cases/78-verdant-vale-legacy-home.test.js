@@ -218,7 +218,7 @@ module.exports = {
         var n=0,_r=Math.random; Math.random=function(){n++; return _r();};
         regionalPresentationForMapId('MAP'); isLegacyScreenMap('MAP');
         legacyScreenChunkRects('overworld');
-        continuousCameraOrigin('overworld', 300, 2500, 512, 480, legacyScreenChunkRects('overworld'));
+        continuousCameraOrigin('overworld', 300, 2500, 512, 480, resolveLegacyCameraExclusion('overworld', 'MAP2'));
         (function(){var _w=mapLocalPxToRegionWorldPx('MAP2',100,120);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})();
         Math.random=_r; return n;
       })()`);
