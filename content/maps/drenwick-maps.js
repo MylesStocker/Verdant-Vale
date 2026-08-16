@@ -8,7 +8,9 @@
 // cols 3-13 (open fen, road at col 8 through the middle) — see
 // EDGE_TRANSITIONS['MAP3_N2'].south. Replaced the old single FEN_N2_ENTRANCE tile.
 // Drenwick south gate: single TOWN_ENTRANCE tile at row 6 col 8.
-// Canal runs east-west at row 5 (north of the gate).
+// Canal runs east-west at row 5 (north of the gate). It reaches this map's WEST
+// edge as WATER and continues into DRENWICK_WEST_OUTFALL_MAP (chunk 1,3), where it
+// enters a buried culvert beneath the western ridge — see that chunk's definition.
 // Imperial toll bridge (BRIDGE_GATE) at row 5 col 12; northeast of Drenwick gate.
 // Approach spur: PATH at row 7 cols 9-12 (branches east off main road), row 6 col 12 (north to bridge).
 // Moving north onto BRIDGE_GATE enters the toll checkpoint; crossing south is free.
@@ -594,5 +596,64 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3_n2',
     allowRandomEncounters: true, allowSave: true,
     notes: 'Outdoor approach to Drenwick, distinct from DRENWICK_CIVIC_MAP (the town square) -- both are called "Drenwick" to the player, matching pre-existing locationName() behaviour, not introduced here.' },
+
+  // ─── Drenwick West Outfall — DRENWICK_WEST_OUTFALL_MAP  (16 × 15) ─────────────
+  // Regional chunk (1,3): the void cell one column WEST of MAP3_N2 (2,3), between
+  // NORTH_BASIN_SW_MAP (north, 1,2), MAP3_N2 (east, 2,3), RODDON_WAY_MAP (south,
+  // 1,4) and MAP_N2 / the Blocked Path (west, 0,3).
+  //
+  // INACCESSIBLE SCENERY ONLY (`playerAccessible: false`). The four placed
+  // adjacencies are all structural BLOCKED boundaries: no EDGE_TRANSITIONS entry,
+  // no continuous seam, no point transition, no walkable border coordinate. The
+  // chunk is drawn as neighbour terrain/decor by Continuous View but the player can
+  // never stand on it (fail-closed at the shared placement authority — see
+  // mapPlayerAccessible()/validatePlacement()/commitRegionalWorldPosition()).
+  //
+  // Canal geography (the canonical decision this chunk records):
+  //   • The Drenwick canal runs east-west across MAP3_N2 at row 5 and reaches that
+  //     map's WEST edge as WATER (MAP3_N2 col 0 row 5).
+  //   • Here it enters from the EAST at row 5 (east edge col 15 = WATER, matching
+  //     MAP3_N2's west-edge canal) and crosses into an old drought-exposed settling
+  //     ground: an irregular basin of shallow WATER, REEDS, drying BASIN_MUD and
+  //     EXPOSED_STONE spreading around rows 4-7 in the central/eastern portion.
+  //   • West of the basin the channel narrows to a one-tile throat (cols ~4-7,
+  //     row 5) and terminates at a masonry CULVERT MOUTH embedded in the wooded /
+  //     rocky western ridge (~col 3-4, row 5; the surface water's westernmost cell
+  //     is col 4 — it never reaches col 0). The culvert is drawn by a static
+  //     OUTDOOR_MAP_DECOR decoration (drawWestOutfallCulvertBody), NOT a tile.
+  //   • Beyond the culvert the canal continues UNDERGROUND, beneath/behind the
+  //     Blocked Path, westward toward the coast. If land west of the Blocked Path is
+  //     ever authored the canal may re-emerge there; that is future scope.
+  //
+  // Border contract (agrees with all four neighbours; none of their grids change):
+  //   north row 0  = all TREE (matches NORTH_BASIN_SW_MAP south edge, all TREE)
+  //   south row 14 = all TREE (matches RODDON_WAY_MAP north edge, all TREE)
+  //   west  col 0  = all TREE (matches MAP_N2 east edge, all TREE)
+  //   east  col 15 = all TREE except row 5 = WATER (matches MAP3_N2 west edge)
+  // TREE (3) and WATER (1) are both non-walkable, so there is no walkable border
+  // cell and no path in — the interior walkable terrain is scenery the player can
+  // see across the seams but never reach.
+  { mapId: 'DRENWICK_WEST_OUTFALL_MAP', regionId: 'overworld', chunkX: 1, chunkY: 3, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north border → NORTH_BASIN_SW_MAP.south (all blocked TREE)
+      [  3,  3,  3,  0,  0,  3,  0,  0, 88,  0,  0,  3,  0,  3,  3,  3],  //  1  wooded north band; exposed rock c8
+      [  3,  0,  0,  3,  0,  0,  0,  0,  0, 88,  0,  0,  3,  0,  3,  3],  //  2  trees + rocky ground
+      [  3,  0, 88,  0,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3,  3],  //  3  reed fringe where the basin begins
+      [  3,  3,  0,  0,  3, 23,  0,  0,  1,  1,  1,  1, 23,  0,  3,  3],  //  4  settling basin north lobe (WATER c8-11)
+      [  3,  3,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  canal line: culvert mouth c4 (rock bank c3) → throat → basin → east seam WATER c15
+      [  3,  0,  0,  0, 23, 81,  0,  0,  1,  1,  1,  1,  1, 23,  3,  3],  //  6  settling basin south lobe; drying mud c5
+      [  3,  0,  0, 88,  0,  0, 23, 81, 81, 23,  1,  1, 23,  0,  3,  3],  //  7  mud + reeds fringe; basin tail (WATER c10-11)
+      [  3,  0,  3,  0,  0,  0,  0, 23, 81, 23,  0, 88,  0,  0,  3,  3],  //  8  drought-exposed silt below the basin
+      [  3,  0,  0,  0,  3,  0, 88,  0,  0,  0,  0,  0,  3,  0,  3,  3],  //  9  wooded south band
+      [  3,  3,  0,  0,  0,  3,  0,  0, 88,  0,  0,  0,  0,  3,  3,  3],  // 10  trees + rock
+      [  3,  0,  0, 88,  0,  0,  3,  0,  0,  3,  0,  0,  0,  0,  3,  3],  // 11  rocky ground
+      [  3,  0,  3,  0,  0,  0,  0,  0, 88,  0,  3,  0,  3,  0,  3,  3],  // 12  trees + rock
+      [  3,  0,  0,  0,  3,  0,  0,  3,  0,  0,  0,  3,  0,  0,  3,  3],  // 13  wooded south band
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  south border → RODDON_WAY_MAP.north (all blocked TREE)
+    ],
+    displayName: 'West Outfall', region: 'Drenwick Fens', contentKey: 'drenwick_west_outfall',
+    presentation: 'continuous', encounterProfileId: 'far',
+    allowRandomEncounters: false, allowSave: false, playerAccessible: false,
+    notes: 'Scenery-only canal settling ground; the canal enters a buried culvert beneath the western ridge and continues underground toward the coast. Inaccessible: no seam/border/transition, fail-closed at the shared placement authority. No items, NPCs, encounters, or interactions.' },
 ];
 window.DRENWICK_REGIONAL_CHUNK_DEFINITIONS = DRENWICK_REGIONAL_CHUNK_DEFINITIONS;

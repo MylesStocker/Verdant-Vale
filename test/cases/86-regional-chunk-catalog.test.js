@@ -16,21 +16,30 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 const EXPECTED = ['MAP', 'MAP2', 'MAP3', 'MAP4', 'MAP5', 'MAP_N1', 'MAP_N2', 'RODDON_WAY_MAP',
-  'MAP3_N1', 'MAP3_N2', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP', 'NORTH_BASIN_SW_MAP',
-  'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP'];
+  'MAP3_N1', 'MAP3_N2', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP',
+  'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP', 'NORTH_BASIN_N_MAP',
+  'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_E_MAP'];
+
+// The 15 ORIGINAL placed maps carry a derived compat alias (const/window) in data.js
+// (legacy consumers). The two scenery-only chunks — DRENWICK_WEST_OUTFALL_MAP (1,3) and
+// NORTH_BASIN_N_MAP (2,0) — were added AFTER that pattern and deliberately have NO
+// alias/standalone var/window export (new code uses mapRefForId()/the catalog helpers).
+// Alias-specific checks use ALIASED.
+const SCENERY_ONLY = ['DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_E_MAP'];
+const ALIASED = EXPECTED.filter((id) => !SCENERY_ONLY.includes(id));
 
 // Which fragment (and therefore which geographic file) authors each chunk.
 const FRAGMENTS = {
   CALWICK_REGIONAL_CHUNK_DEFINITIONS: ['MAP'],
   THORNMERE_REGIONAL_CHUNK_DEFINITIONS: ['MAP2', 'MAP3', 'MAP4', 'MAP5', 'RODDON_WAY_MAP', 'MAP3_N1'],
-  DRENWICK_REGIONAL_CHUNK_DEFINITIONS: ['MAP3_N2'],
+  DRENWICK_REGIONAL_CHUNK_DEFINITIONS: ['MAP3_N2', 'DRENWICK_WEST_OUTFALL_MAP'],
   NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS: ['MAP_N1', 'MAP_N2'],
   NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS: ['NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP',
-    'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP'],
+    'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_E_MAP'],
 };
 
 module.exports = {
-  name: 'Regional chunk authoring: distributed fragments → resolved catalog, all 15 grids inline',
+  name: 'Regional chunk authoring: distributed fragments → resolved catalog, all 19 grids inline',
   run() {
     const g = createContext();
     g.press('Enter'); g.press('Enter');
@@ -48,15 +57,15 @@ module.exports = {
         seenAcross.set(id, frag);
       }
     }
-    assert.deepEqual([...seenAcross.keys()].sort(), [...EXPECTED].sort(), 'the fragments collectively author exactly the 15 placed maps');
+    assert.deepEqual([...seenAcross.keys()].sort(), [...EXPECTED].sort(), 'the fragments collectively author exactly the 19 placed maps');
     // merged definition list = the union, deduped, and coordinates unique
-    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.length'), 15, 'the merged _REGIONAL_CHUNK_DEFINITIONS has 15 definitions');
+    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.length'), 19, 'the merged _REGIONAL_CHUNK_DEFINITIONS has 19 definitions');
     const defCoords = J("JSON.stringify(_REGIONAL_CHUNK_DEFINITIONS.map(function(d){return d.regionId+':'+d.chunkX+','+d.chunkY;}))");
-    assert.equal(new Set(defCoords).size, 15, 'no chunk coordinate is authored in more than one fragment');
+    assert.equal(new Set(defCoords).size, 19, 'no chunk coordinate is authored in more than one fragment');
 
-    // ── 3. The resolved runtime catalog has exactly the same 15 entries ───────
+    // ── 3. The resolved runtime catalog has exactly the same 19 entries ───────
     const ids = J('JSON.stringify(Object.keys(REGIONAL_CHUNK_CATALOG))');
-    assert.equal(ids.length, 15, 'exactly 15 resolved chunk records');
+    assert.equal(ids.length, 19, 'exactly 19 resolved chunk records');
     assert.deepEqual([...ids].sort(), [...EXPECTED].sort(), 'the resolved catalog is exactly the placed regional maps');
     assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).every(function(k){return REGIONAL_CHUNK_CATALOG[k].mapId===k;})'), true, 'each record.mapId equals its key');
     assert.equal(g.run('Object.values(REGIONAL_CHUNK_CATALOG).every(function(r){return r.map.length===15 && r.map.every(function(row){return row.length===16;});})'), true, 'every chunk grid is 15×16');
@@ -78,8 +87,8 @@ module.exports = {
       const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
       assert.deepEqual([p.chunkX, p.chunkY, p.regionId], [rec.cx, rec.cy, rec.rid], `${id}: REGIONAL_LAYOUT placement derives`);
     }
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 15, 'REGIONAL_LAYOUT has 15 placements');
-    assert.equal(g.run('Object.keys(OUTDOOR_CONTENT_KEYS).length'), 15, 'OUTDOOR_CONTENT_KEYS has 15 entries');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 19, 'REGIONAL_LAYOUT has 19 placements');
+    assert.equal(g.run('Object.keys(OUTDOOR_CONTENT_KEYS).length'), 19, 'OUTDOOR_CONTENT_KEYS has 19 entries');
 
     // ── 5. Reverse map-ref → id and chunk-coordinate lookups remain correct ───
     for (const id of EXPECTED) {
@@ -99,15 +108,20 @@ module.exports = {
     assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return REGIONAL_CHUNK_CATALOG[d.mapId].encounterPool===_ENCOUNTER_PROFILES[d.encounterProfileId];})'), true, 'every resolved encounterPool is the array named by its encounterProfileId');
     assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return d.itemSetId===undefined || REGIONAL_CHUNK_CATALOG[d.mapId].items===_REGIONAL_ITEM_SETS[d.itemSetId];})'), true, 'every resolved items array is the array named by its itemSetId');
 
-    // ── 9-of-spec (1-4,7). Completed migration: ALL 15 grids authored inline in
+    // ── 9-of-spec (1-4,7). Completed migration: ALL 16 grids authored inline in
     //     their fragment records; no standalone grid var, no `map: MAP_ID` ref, no
-    //     legacy window export; data.js holds only derived aliases + no terrain rows.
+    //     legacy window export; data.js holds derived aliases (for the 15 original
+    //     maps only) + no terrain rows. The scenery-only West Outfall has NO alias.
     const SRC = {
       MAP: 'content/maps/calwick-maps.js',
       MAP2: 'content/maps/thornmere-wilds-maps.js', MAP3: 'content/maps/thornmere-wilds-maps.js',
       MAP4: 'content/maps/thornmere-wilds-maps.js', MAP5: 'content/maps/thornmere-wilds-maps.js',
       RODDON_WAY_MAP: 'content/maps/thornmere-wilds-maps.js', MAP3_N1: 'content/maps/thornmere-wilds-maps.js',
       MAP3_N2: 'content/maps/drenwick-maps.js',
+      DRENWICK_WEST_OUTFALL_MAP: 'content/maps/drenwick-maps.js',
+      NORTH_BASIN_N_MAP: 'content/maps/north-basin-maps.js',
+      NORTH_BASIN_NE_MAP: 'content/maps/north-basin-maps.js',
+      NORTH_BASIN_E_MAP: 'content/maps/north-basin-maps.js',
       MAP_N1: 'maps.js', MAP_N2: 'maps.js',
       NORTH_BASIN_S_MAP: 'content/maps/north-basin-maps.js', NORTH_BASIN_C_MAP: 'content/maps/north-basin-maps.js',
       NORTH_BASIN_SW_MAP: 'content/maps/north-basin-maps.js', NORTH_BASIN_W_MAP: 'content/maps/north-basin-maps.js',
@@ -122,22 +136,30 @@ module.exports = {
       assert.ok(new RegExp("mapId:\\s*'" + id + "'[\\s\\S]{0,800}?map:\\s*\\[").test(src), id + ': grid authored inline in its chunk definition record (' + file + ')');
       assert.ok(!new RegExp('map:\\s*' + id + '\\s*,').test(src), id + ': no map:' + id + ' legacy grid-variable reference remains');
       assert.ok(!new RegExp('(^|\\n)const ' + id + '\\s*=\\s*\\[').test(src), id + ': no standalone const ' + id + ' = [ grid literal remains');
-      assert.ok(new RegExp('const ' + id + '\\s*=\\s*REGIONAL_CHUNK_CATALOG\\.' + id + '\\.map').test(curData), id + ': data.js declares the derived compat alias');
-      assert.ok(new RegExp('window\\.' + id + '\\s*=\\s*' + id + '\\b').test(curData), id + ': data.js provides the derived window export');
       assert.ok(!new RegExp('window\\.' + id + '\\s*=\\s*' + id + '\\b').test(src), id + ': the former independent window.' + id + ' export is gone from ' + file);
+      if (ALIASED.includes(id)) {
+        assert.ok(new RegExp('const ' + id + '\\s*=\\s*REGIONAL_CHUNK_CATALOG\\.' + id + '\\.map').test(curData), id + ': data.js declares the derived compat alias');
+        assert.ok(new RegExp('window\\.' + id + '\\s*=\\s*' + id + '\\b').test(curData), id + ': data.js provides the derived window export');
+      } else {
+        // Scenery-only West Outfall: no compat alias / standalone var / window export.
+        assert.ok(!new RegExp('const ' + id + '\\s*=').test(curData), id + ': data.js declares NO compat alias (new chunk needs none)');
+        assert.ok(!new RegExp('window\\.' + id + '\\s*=').test(curData), id + ': data.js declares NO window export');
+      }
     }
     assert.ok(!/\n\s*\[\s*\d+,\s*\d+,/.test(curData), 'data.js contains no terrain grid rows');
     // each catalog grid, its const alias, mapRefForId(), and MAP_CATALOG.map are ONE array object
-    for (const id of EXPECTED) {
+    for (const id of ALIASED) {
       assert.equal(g.run("REGIONAL_CHUNK_CATALOG['" + id + "'].map===" + id + " && " + id + "===mapRefForId('" + id + "') && " + id + "===mapEntryForId('" + id + "').map"), true, id + ': catalog grid, const alias, mapRefForId(), and MAP_CATALOG.map are the same array object');
     }
+    // the alias-less West Outfall still resolves through the catalog helpers
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG['DRENWICK_WEST_OUTFALL_MAP'].map===mapRefForId('DRENWICK_WEST_OUTFALL_MAP') && mapRefForId('DRENWICK_WEST_OUTFALL_MAP')===mapEntryForId('DRENWICK_WEST_OUTFALL_MAP').map"), true, 'West Outfall: catalog grid, mapRefForId(), and MAP_CATALOG.map are the same array object (no bare const needed)');
 
     // ── 11. Every grid matches its stable, repository-owned fingerprint (no
     //        tile-number changes) — evidence is a SHA-256 fixture, NOT Git history.
     assert.equal(GRID_FP.serialization, 'sha256hex(JSON.stringify(map))', 'fixture documents its canonical serialization');
     const fpVals = Object.values(GRID_FP.fingerprints);
     assert.equal(new Set(fpVals).size, fpVals.length, 'all stored grid fingerprints are unique (no two grids are byte-identical)');
-    assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the 15 placed regional grids');
+    assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the 19 placed regional grids');
     for (const id of EXPECTED) {
       const got = sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`));
       assert.equal(got, GRID_FP.fingerprints[id], `${id}: grid matches its stable pre-migration fingerprint (no tile-number changes)`);
@@ -164,11 +186,15 @@ module.exports = {
     g.run("placeAtLocation('MAP', 1*TILE, 1*TILE); loadGame();");
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'v4 regional load restores MAP5');
 
-    // ── 9,11,13 of spec. Behaviour parity across ALL 15 migrated maps ─────────
+    // ── 9,11,13 of spec. Behaviour parity across the migrated maps ────────────
     assert.equal(g.run('continuousSeamEntries().length'), 26, '26 eligible directed seams unchanged after migration');
     for (const id of EXPECTED) {
-      g.run(`debugWarpToDestination('outdoor:${id}');`);
-      assert.equal(g.run('mapIdForRef(activeMap)'), id, `${id}: debug warp resolves the migrated map`);
+      // The scenery-only West Outfall is a DISABLED debug destination (no player
+      // access), so it can't be warped to — its geographic pool still resolves below.
+      if (ALIASED.includes(id)) {
+        g.run(`debugWarpToDestination('outdoor:${id}');`);
+        assert.equal(g.run('mapIdForRef(activeMap)'), id, `${id}: debug warp resolves the migrated map`);
+      }
       // geographic (physical-chunk) encounter pool equals the resolved catalog pool
       const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
       const ctxPool = g.run(`(function(){ var c=geographicEncounterContext('${p.regionId}', (${p.chunkX}*COLS+8)*TILE, (${p.chunkY}*ROWS+7)*TILE); return c && c.encounterPool===REGIONAL_CHUNK_CATALOG['${id}'].encounterPool; })()`);

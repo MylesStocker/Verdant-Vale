@@ -200,6 +200,13 @@ function validatePlacement(spec) {
   if (!Array.isArray(map) || !Array.isArray(map[0])) {
     return { ok: false, map: null, errors: ['unknown/invalid map id "' + mapId + '"'] };
   }
+  // Declarative player-placement capability: a scenery-only chunk can never host the
+  // player. This is the shared placement authority, so transitionToLocation(),
+  // resolveLoadLocation() (save-load) and the debug-warp preflight all fail closed
+  // here — no scenery-only map id is hardcoded anywhere.
+  if (typeof mapPlayerAccessible === 'function' && !mapPlayerAccessible(mapId)) {
+    return { ok: false, map: null, errors: ['map "' + mapId + '" is scenery-only; no player access'] };
+  }
   const rows = map.length, cols = map[0].length;
   if (!Number.isFinite(spec.x) || !Number.isFinite(spec.y)) {
     errors.push('non-finite coordinates (' + spec.x + ',' + spec.y + ')');

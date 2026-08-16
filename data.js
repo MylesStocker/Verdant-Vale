@@ -694,6 +694,10 @@ const REGIONAL_CHUNK_CATALOG = (function () {
       encounterPool: _ENCOUNTER_PROFILES[def.encounterProfileId],
       items: (def.itemSetId === undefined) ? [] : _REGIONAL_ITEM_SETS[def.itemSetId],
       allowRandomEncounters: def.allowRandomEncounters, allowSave: def.allowSave,
+      // Declarative player-placement capability. Default true; a scenery-only chunk
+      // authors `playerAccessible: false`. Resolved onto EVERY record so consumers
+      // read one field, never a hardcoded id (see mapPlayerAccessible()).
+      playerAccessible: def.playerAccessible === false ? false : true,
     };
     if (def.notes !== undefined) rec.notes = def.notes;
     if (def.legacyCameraExclusion !== undefined) rec.legacyCameraExclusion = def.legacyCameraExclusion;
@@ -702,6 +706,20 @@ const REGIONAL_CHUNK_CATALOG = (function () {
   return out;
 })();
 window.REGIONAL_CHUNK_CATALOG = REGIONAL_CHUNK_CATALOG;
+
+// THE single declarative player-placement authority. Returns false ONLY for a placed
+// regional chunk that opted out with `playerAccessible: false` (scenery-only); every
+// other regional chunk and every discrete map returns true. Every placement path
+// consults this one predicate — validatePlacement() (so transitionToLocation,
+// resolveLoadLocation and debug-warp preflight all fail closed), the canonical writer
+// commitRegionalWorldPosition() (so seam movement / direct canonical placement fail
+// closed), debug-warp destination derivation (shown disabled), and the regional NPC
+// simulation scope — so no consumer hardcodes a scenery-only map id.
+function mapPlayerAccessible(mapId) {
+  const r = (typeof mapId === 'string') ? REGIONAL_CHUNK_CATALOG[mapId] : null;
+  return !(r && r.playerAccessible === false);
+}
+window.mapPlayerAccessible = mapPlayerAccessible;
 
 // The regional MAP_CATALOG entry DERIVED from a chunk record (id/map/display/
 // region/items/encounter/save + regionalPresentation only for legacy_screen, and
@@ -769,6 +787,10 @@ const MAP_CATALOG = {
   MAP3_N1: _regionalChunkCatalogEntry('MAP3_N1'),
   RODDON_WAY_MAP: _regionalChunkCatalogEntry('RODDON_WAY_MAP'),
   MAP3_N2: _regionalChunkCatalogEntry('MAP3_N2'),
+  // Scenery-only chunk (1,3): derived like any placed regional chunk. It is a real
+  // outdoor MAP_CATALOG entry (so it resolves for rendering, layout, content keys and
+  // geography) but its `playerAccessible: false` capability keeps the player out.
+  DRENWICK_WEST_OUTFALL_MAP: _regionalChunkCatalogEntry('DRENWICK_WEST_OUTFALL_MAP'),
 
   // ── The North Basin (regional chunks — derived from REGIONAL_CHUNK_CATALOG) ──
   NORTH_BASIN_S_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_S_MAP'),
@@ -776,6 +798,13 @@ const MAP_CATALOG = {
   NORTH_BASIN_SW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SW_MAP'),
   NORTH_BASIN_W_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W_MAP'),
   NORTH_BASIN_NW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NW_MAP'),
+  // Scenery-only open water north of the reservoir (chunk 2,0) and its eastward
+  // continuation (chunk 3,0). Derived like any placed regional chunk; `playerAccessible:
+  // false` keeps the player out (see West Outfall).
+  NORTH_BASIN_N_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_N_MAP'),
+  NORTH_BASIN_NE_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NE_MAP'),
+  // Scenery-only water-over-forest chunk (3,1), south of the Open Reservoir East.
+  NORTH_BASIN_E_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_E_MAP'),
   BASIN_CHAMBER_MAP: {
     id: 'BASIN_CHAMBER_MAP', map: BASIN_CHAMBER_MAP, displayName: 'No Recorded Location', region: 'North Basin',
     type: 'special', items: BASIN_CHAMBER_ITEMS, encounterPool: null,

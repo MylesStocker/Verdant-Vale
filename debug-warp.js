@@ -219,10 +219,18 @@ function _deriveOutdoorDebugDestinations() {
   for (const id of Object.keys(MAP_CATALOG)) {
     const e = MAP_CATALOG[id];
     if (!e || e.type !== 'outdoor' || !Array.isArray(e.map) || !Array.isArray(e.map[0])) continue;
-    out.push({
+    const dest = {
       id: 'outdoor:' + id, label: e.displayName || id, category: 'outdoor', mapId: id,
       state: {}, defaultCol: Math.floor(e.map[0].length / 2), defaultRow: Math.floor(e.map.length / 2), facing: 'down',
-    });
+    };
+    // A scenery-only chunk is LISTED (so it's visible/discoverable) but DISABLED:
+    // the player can never be placed there. Uses the shared placement capability, not
+    // a hardcoded id. debugWarpToDestination() rejects `disabled` before any commit.
+    if (typeof mapPlayerAccessible === 'function' && !mapPlayerAccessible(id)) {
+      dest.disabled = true;
+      dest.disabledReason = 'Scenery-only; no player access';
+    }
+    out.push(dest);
   }
   return out;
 }

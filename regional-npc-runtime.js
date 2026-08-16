@@ -97,6 +97,7 @@ function nearbySimulationMapSet() {
       const mid = (typeof mapIdForChunk === 'function') ? mapIdForChunk(p.regionId, p.chunkX + dc, p.chunkY + dr) : null;
       if (!mid) continue;                        // omit sparse/unplaced chunks
       if (typeof isLegacyScreenMap === 'function' && isLegacyScreenMap(mid)) continue; // omit legacy_screen homes (hidden behind their border)
+      if (typeof mapPlayerAccessible === 'function' && !mapPlayerAccessible(mid)) continue; // omit scenery-only chunks (no NPCs simulate there)
       ids.push(mid);
     }
   }

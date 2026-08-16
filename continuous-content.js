@@ -56,6 +56,9 @@ function outdoorContentKeyInfo(mapId) {
 const OUTDOOR_MAP_DECOR = {
   MAP4:   function () { if (typeof drawThornmereStoneBody === 'function')  drawThornmereStoneBody(); },
   MAP_N2: function () { if (typeof drawDrenwichNorthGateBody === 'function') drawDrenwichNorthGateBody(); },
+  // Scenery-only West Outfall culvert. The chunk is never the active map, so this is
+  // its only draw path (once per frame, as a visible neighbour) — see render-entities.js.
+  DRENWICK_WEST_OUTFALL_MAP: function () { if (typeof drawWestOutfallCulvertBody === 'function') drawWestOutfallCulvertBody(); },
 };
 
 // Explicit render context for a chunk's outdoor content. contentLocationKey comes

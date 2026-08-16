@@ -36,7 +36,29 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **88 tests** (`test/cases/01-…88-`), `node test/run.js` — all passing.
+- **19 regional chunks** now occupy the `'overworld'` 5×6 envelope (11 sparse void
+  cells remain). Four of them are **inaccessible scenery only** (`playerAccessible: false`):
+  they render as neighbour terrain but no seam/border/transition lets the player in, and the
+  shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
+  `commitRegionalWorldPosition()`) fail-closes every warp/transition/save/canonical
+  placement; none owns items/NPCs/encounters:
+  - **Drenwick West Outfall** (`DRENWICK_WEST_OUTFALL_MAP`, chunk (1,3)) — a drought-exposed
+    canal settling ground with a static culvert decoration; the surface water enters a buried
+    culvert beneath the western ridge, continuing underground toward the coast.
+  - **North Basin Open Reservoir** (`NORTH_BASIN_N_MAP`, chunk (2,0)) — the deep open water
+    NORTH of the receding reservoir (`NORTH_BASIN_C_MAP`), ~94% WATER with two small
+    BASIN_MUD/TREE islets; only existing terrain types.
+  - **North Basin Open Reservoir (East)** (`NORTH_BASIN_NE_MAP`, chunk (3,0)) — the reservoir
+    continuing east of `NORTH_BASIN_N_MAP`, same style; its west edge exactly mirrors
+    `NORTH_BASIN_N_MAP`'s east edge; north/south/east stay open-water borders.
+  - **North Basin Eastern Woods** (`NORTH_BASIN_E_MAP`, chunk (3,1)) — south of the Open
+    Reservoir East: top half almost all WATER, bottom half almost all forest (TREE). Its north
+    edge mirrors `NORTH_BASIN_NE_MAP`'s south edge and its west edge mirrors
+    `NORTH_BASIN_C_MAP`'s east edge; south/east stay open borders for later expansion.
+
+  Audit: 76 directed edges → ALIGNS 26 / BORDER 24 / BLOCKED 22 / INTENTIONAL_DISCRETE 4;
+  still 26 eligible seams / 13 pairs. See architecture.md "Scenery-only (inaccessible) chunks".
+- **92 tests** (`test/cases/01-…92-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 101 maps, 236 fixed-destination transitions, 20
   preserved-coordinate transitions, 42 house doors (0 problems), 61 tile

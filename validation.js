@@ -258,7 +258,7 @@ function validateRegionalChunkCatalog() {
     return checked;
   }
   const ROWS_EXP = 15, COLS_EXP = 16;
-  const ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterPool', 'items', 'allowRandomEncounters', 'allowSave', 'notes', 'legacyCameraExclusion']);
+  const ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterPool', 'items', 'allowRandomEncounters', 'allowSave', 'playerAccessible', 'notes', 'legacyCameraExclusion']);
   const PRESENTATIONS = new Set(['continuous', 'legacy_screen']);
   const knownRegions = (typeof REGIONAL_LAYOUT !== 'undefined') ? new Set(Object.keys(REGIONAL_LAYOUT)) : new Set();
   const seenIds = new Set(), seenRefs = new Map(), seenCoord = new Set();
@@ -303,6 +303,7 @@ function validateRegionalChunkCatalog() {
     if (!_isPlainArray(r.encounterPool)) addValidationError(GROUP, lbl + ': encounterPool must resolve to a pool array');
     if (!_isPlainArray(r.items)) addValidationError(GROUP, lbl + ': items is missing or not an array (use [] if the chunk has no pickups)');
     if (typeof r.displayName !== 'string' || !r.displayName) addValidationError(GROUP, lbl + ': missing displayName');
+    if (typeof r.playerAccessible !== 'boolean') addValidationError(GROUP, lbl + ': playerAccessible must resolve to a boolean');
 
     // Generated compatibility views must AGREE with the authority.
     const entry = (typeof mapEntryForId === 'function') ? mapEntryForId(r.mapId) : null;
@@ -340,7 +341,7 @@ function validateRegionalChunkCatalog() {
   if (typeof _REGIONAL_CHUNK_DEFINITIONS === 'undefined') {
     addValidationError(GROUP, '_REGIONAL_CHUNK_DEFINITIONS is undefined -- regional chunk fragments did not load (check content/maps/*.js + maps.js load order before data.js)');
   } else {
-    const DEF_ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterProfileId', 'itemSetId', 'allowRandomEncounters', 'allowSave', 'notes', 'legacyCameraExclusion']);
+    const DEF_ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterProfileId', 'itemSetId', 'allowRandomEncounters', 'allowSave', 'playerAccessible', 'notes', 'legacyCameraExclusion']);
     const profiles = (typeof _ENCOUNTER_PROFILES !== 'undefined') ? _ENCOUNTER_PROFILES : {};
     const itemSets = (typeof _REGIONAL_ITEM_SETS !== 'undefined') ? _REGIONAL_ITEM_SETS : {};
     const defIds = new Set(), defCoords = new Set();
@@ -374,6 +375,7 @@ function validateRegionalChunkCatalog() {
           if (rec && rec.items !== itemSets[d.itemSetId]) addValidationError(GROUP, lbl + ': resolved items is not the array for itemSet "' + d.itemSetId + '"');
         }
       }
+      if (d.playerAccessible !== undefined && typeof d.playerAccessible !== 'boolean') addValidationError(GROUP, lbl + ': playerAccessible must be a boolean when present');
       if (typeof d.mapId === 'string' && d.mapId && !REGIONAL_CHUNK_CATALOG[d.mapId]) addValidationError(GROUP, lbl + ': definition did not resolve into REGIONAL_CHUNK_CATALOG');
     }
     for (const id of Object.keys(REGIONAL_CHUNK_CATALOG)) {

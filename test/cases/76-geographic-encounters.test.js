@@ -39,7 +39,7 @@ module.exports = {
       }
       return JSON.stringify(out);
     })()`);
-    assert.equal(all.length, 15, 'all 15 placed regional maps considered');
+    assert.equal(all.length, 19, 'all 19 placed regional maps considered');
     for (const r of all) {
       assert.ok(r.ok && r.right, `${r.mapId} resolves from its own chunk centre to itself`);
       assert.ok(r.poolMatch, `${r.mapId} resolves to the exact canonical MAP_CATALOG encounter pool (incl. empty/absent)`);
@@ -142,7 +142,7 @@ module.exports = {
     assert.ok(ow.MAP.own && ow.MAP5.own && ow.ROD.own, "each shared-'overworld' map keeps its OWN physical pool");
 
     // ── 11. Void / sparse / unknown region / invalid coords / inconsistency ──
-    assert.equal(g.run("geographicEncounterContext('overworld', 1*512+100, 3*480+100)"), null, 'a sparse/void chunk (1,3) fails closed');
+    assert.equal(g.run("geographicEncounterContext('overworld', 4*512+100, 2*480+100)"), null, 'a sparse/void chunk (4,2) fails closed');
     assert.equal(g.run("geographicEncounterContext('overworld', -1, 100)"), null, 'a negative coordinate fails closed');
     assert.equal(g.run("geographicEncounterContext('overworld', NaN, 100)"), null, 'a non-finite coordinate fails closed');
     assert.equal(g.run("geographicEncounterContext('nope', 100, 100)"), null, 'an unknown region fails closed');

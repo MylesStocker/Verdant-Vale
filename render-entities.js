@@ -198,6 +198,49 @@ function drawThornmereStoneBody() {
   ctx.fillRect(sx - 9, sy + 8, 18, 4);
 }
 
+// ─── Drenwick West Outfall culvert ────────────────────────────────────────────
+// The buried-canal culvert on DRENWICK_WEST_OUTFALL_MAP (scenery-only chunk 1,3):
+// a low masonry arch set into the wooded/rocky western bank at local col 3-4, row 5,
+// where the surface canal narrows and disappears underground toward the coast. It is
+// registered in OUTDOOR_MAP_DECOR (continuous-content.js), so it draws EXACTLY ONCE
+// per frame, at the chunk's stable world origin, whenever the West Outfall is a
+// visible neighbouring chunk (it is never the active map — the chunk is inaccessible).
+// Static scenery ONLY: no hint, prompt, interaction, NPC, item, animation, or
+// activeMap/player read (the water's own shimmer is the shared tile animation). Draws
+// at LOCAL chunk coordinates; the caller has already translated to the world origin.
+// Deliberately a low, barred arch — not a tall, enterable dungeon door.
+function drawWestOutfallCulvertBody() {
+  const cx = Math.round(3.9 * TILE);   // mouth centre x (col 3/4 boundary, into the water)
+  const cy = Math.round(5.5 * TILE);   // row 5 centre y
+  // Masonry headwall set into the rocky bank
+  ctx.fillStyle = '#8a8580'; ctx.fillRect(cx - 19, cy - 12, 38, 19);
+  ctx.fillStyle = '#a39d96'; ctx.fillRect(cx - 19, cy - 12, 38, 2);   // top highlight course
+  ctx.fillStyle = '#6f6b66'; ctx.fillRect(cx - 19, cy + 5, 38, 2);    // base shadow course
+  // Masonry joints (blocky coursing)
+  ctx.fillStyle = '#736f6a';
+  ctx.fillRect(cx - 19, cy - 4, 38, 1);
+  ctx.fillRect(cx - 8, cy - 12, 1, 19);
+  ctx.fillRect(cx + 7, cy - 12, 1, 19);
+  // Dark culvert opening — stepped "arch" (three stacked rects, narrowing upward)
+  ctx.fillStyle = '#171410';
+  ctx.fillRect(cx - 10, cy - 1, 21, 8);   // mouth body
+  ctx.fillRect(cx - 8, cy - 5, 17, 5);    // arch mid
+  ctx.fillRect(cx - 5, cy - 8, 11, 4);    // arch crown
+  // Light stone arch ring around the crown
+  ctx.fillStyle = '#b7b1a9';
+  ctx.fillRect(cx - 7, cy - 9, 15, 1);
+  ctx.fillRect(cx - 11, cy - 5, 2, 6);
+  ctx.fillRect(cx + 10, cy - 5, 2, 6);
+  // A few iron bars across the mouth
+  ctx.fillStyle = '#33302b';
+  ctx.fillRect(cx - 5, cy - 5, 1, 11);
+  ctx.fillRect(cx,     cy - 7, 1, 13);
+  ctx.fillRect(cx + 4, cy - 5, 1, 11);
+  // Dark water sill where the canal slips underground
+  ctx.fillStyle = '#10203c';
+  ctx.fillRect(cx - 9, cy + 6, 19, 2);
+}
+
 // ─── Player Drawing ───────────────────────────────────────────────────────────
 function drawPlayer() {
   const px = Math.round(player.x);

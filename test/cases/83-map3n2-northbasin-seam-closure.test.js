@@ -239,11 +239,11 @@ module.exports = {
     // ── C1. Zero NEEDS_REMAP; every directed edge classified; no CONFLICT/OUTSIDE ─
     const edges = audit.seamReadiness.edges;
     assert.equal(edges.filter((e) => e.verdict === 'NEEDS_REMAP').length, 0, 'NEEDS_REMAP === 0 (no unconverted point crossings remain)');
-    assert.equal(edges.length, 60, '60 directed regional edges total (unchanged)');
+    assert.equal(edges.length, 76, '76 directed regional edges total (19 placed maps x 4 sides)');
     const CLASSES = new Set(['ALIGNS', 'INTENTIONAL_DISCRETE', 'BLOCKED', 'BORDER']);
     assert.ok(edges.every((e) => CLASSES.has(e.verdict)), 'every directed edge is ALIGNS / INTENTIONAL_DISCRETE / BLOCKED / BORDER');
     assert.equal(edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 26, BLOCKED: 4 }, 'closure totals: ALIGNS 26 / INTENTIONAL_DISCRETE 4 / BLOCKED 4 / BORDER 26');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 26, BLOCKED: 22 }, 'closure totals: ALIGNS 26 / INTENTIONAL_DISCRETE 4 / BLOCKED 22 / BORDER 24 (West Outfall + 3 North Basin scenery chunks)');
 
     // ── C2. Every ALIGNS edge is represented by the fail-closed eligible-seam authority ─
     const alignsEdges = edges.filter((e) => e.verdict === 'ALIGNS').map((e) => e.mapId + '|' + e.dir);
@@ -256,9 +256,18 @@ module.exports = {
     assert.deepEqual(rpc, ['MAP2>west>MAP', 'MAP>east>MAP2', 'MAP>north>MAP_N1', 'MAP_N1>south>MAP'].sort(), 'REGIONAL_POINT_CROSSINGS is exactly the 4 Verdant Vale legacy-home directed crossings — no ordinary continuous-world crossing remains');
 
     // ── C4. Graph connectivity: continuous-only graph is split around the legacy home; ─
-    //        adding the intentional-discrete home crossings reconnects all 15 maps.
-    const nodes = J("JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(function(p){return p.mapId;}))");
-    assert.equal(nodes.length, 15, '15 placed regional maps');
+    //        adding the intentional-discrete home crossings reconnects all 15 ACCESSIBLE
+    //        maps. The 16th placement (scenery-only DRENWICK_WEST_OUTFALL_MAP) is
+    //        deliberately unreachable — placed but isolated (no seam of any kind), so
+    //        the traversable-graph assertions run over the accessible nodes only.
+    const allNodes = J("JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(function(p){return p.mapId;}))");
+    assert.equal(allNodes.length, 19, '19 placed regional maps (15 accessible + 4 scenery-only)');
+    const nodes = allNodes.filter((n) => g.run('mapPlayerAccessible(' + JSON.stringify(n) + ')'));
+    assert.equal(nodes.length, 15, '15 accessible regional maps form the traversable world');
+    assert.ok(allNodes.includes('DRENWICK_WEST_OUTFALL_MAP') && !nodes.includes('DRENWICK_WEST_OUTFALL_MAP'),
+      'the West Outfall is placed but not player-accessible');
+    assert.equal(g.run("continuousSeamEntries().filter(function(e){return e.from==='DRENWICK_WEST_OUTFALL_MAP'||e.to==='DRENWICK_WEST_OUTFALL_MAP';}).length"), 0,
+      'the West Outfall participates in NO continuous seam (isolated scenery)');
     const contPairs = J("JSON.stringify(continuousSeamEntries().map(function(e){return [e.from,e.to];}))");
     const homePairs = J("JSON.stringify(REGIONAL_POINT_CROSSINGS.map(function(c){return [c.from,c.to];}))");
     function components(nodeList, pairs) {

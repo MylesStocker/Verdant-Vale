@@ -127,6 +127,11 @@ function regionalPlayerWorldPoint() {
 function commitRegionalWorldPosition(regionId, worldPxX, worldPxY) {
   const loc = regionWorldPxToLocal(regionId, worldPxX, worldPxY);
   if (!loc) return false; // invalid — leave canonical + projections untouched
+  // Fail-closed backstop for the canonical writer: a scenery-only chunk
+  // (playerAccessible:false) can never become the player's canonical position, so
+  // seam movement / direct canonical placement / a hand-edited save all reject
+  // atomically here even though the point resolves to a real (drawable) chunk.
+  if (typeof mapPlayerAccessible === 'function' && !mapPlayerAccessible(loc.mapId)) return false;
   _regionalPosition = { regionId, worldPxX, worldPxY };
   activeMap = loc.map;         // derived projection — callers do NOT assign these
   player.x  = loc.localPxX;

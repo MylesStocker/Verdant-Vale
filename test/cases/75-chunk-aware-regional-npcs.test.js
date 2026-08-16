@@ -87,9 +87,11 @@ module.exports = {
 
     // ── C. Nearby simulation set ────────────────────────────────────────────
     const set = JSON.parse(g0.run("JSON.stringify(nearbySimulationMapSet().mapIds)"));
-    // RODDON (1,4) 3x3, row-major, sparse (1,3) omitted, legacy_screen MAP (0,5) excluded.
+    // RODDON (1,4) 3x3, row-major. (1,3) is now the scenery-only DRENWICK_WEST_OUTFALL_MAP
+    // (playerAccessible:false) and is excluded like a legacy_screen home; legacy_screen
+    // MAP (0,5) excluded too. The set is byte-identical to when (1,3) was a void.
     assert.deepEqual(set, ['MAP_N2', 'MAP3_N2', 'MAP_N1', 'RODDON_WAY_MAP', 'MAP3_N1', 'MAP2', 'MAP3'],
-      'nearby set = active + placed 3x3 (row-major), sparse omitted, legacy_screen MAP excluded');
+      'nearby set = active + placed 3x3 (row-major), scenery-only + legacy_screen excluded');
     assert.ok(set.indexOf('RODDON_WAY_MAP') !== -1 && set.indexOf('MAP3_N1') !== -1, 'active + east neighbour both present');
     // Continuous View off -> legacy (null set).
     assert.equal(g0.run("(function(){forceLegacyRegionalView = true; var s=nearbySimulationMapSet(); forceLegacyRegionalView = false; return s;})()"), null,
