@@ -65,7 +65,7 @@ module.exports = {
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
     assert.equal(audit.seamReadiness.totals.ALIGNS, 26, 'ALIGNS 26 (every convertible overworld point crossing is now a continuous seam)');
-    assert.equal(audit.seamReadiness.totals.BLOCKED, 24, 'BLOCKED 24 (West Outfall + 4 North Basin scenery chunks)');
+    assert.equal(audit.seamReadiness.totals.BLOCKED, 28, 'BLOCKED 28 (West Outfall + 5 North Basin scenery chunks)');
     assert.equal(audit.seamReadiness.totals.BORDER, 26, 'BORDER 26 (Far East reservoir adds three open borders, converts one)');
     assert.equal(g.run('continuousSeamEntries().length'), 26, '26 eligible directed seams');
     // the new pair derives as two eligible directed seams

@@ -20,6 +20,7 @@
     "NORTH_BASIN_N_MAP",
     "NORTH_BASIN_NE_MAP",
     "NORTH_BASIN_NE2_MAP",
+    "NORTH_BASIN_E2_MAP",
     "NORTH_BASIN_E_MAP",
     "BASIN_CHAMBER_MAP",
     "SUNKEN_GALLERY_MAP",
@@ -225,6 +226,12 @@
     },
     {
       "id": "NORTH_BASIN_NE2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "NORTH_BASIN_E2_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -10792,10 +10799,10 @@
         "chunkX": 4,
         "chunkY": 0,
         "dir": "south",
-        "neighbor": null,
+        "neighbor": "NORTH_BASIN_E2_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "NORTH_BASIN_NE2_MAP",
@@ -10813,6 +10820,46 @@
         "chunkY": 0,
         "dir": "west",
         "neighbor": "NORTH_BASIN_NE_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "NORTH_BASIN_E2_MAP",
+        "chunkX": 4,
+        "chunkY": 1,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_NE2_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "NORTH_BASIN_E2_MAP",
+        "chunkX": 4,
+        "chunkY": 1,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_E2_MAP",
+        "chunkX": 4,
+        "chunkY": 1,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_E2_MAP",
+        "chunkX": 4,
+        "chunkY": 1,
+        "dir": "west",
+        "neighbor": "NORTH_BASIN_E_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -10842,10 +10889,10 @@
         "chunkX": 3,
         "chunkY": 1,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "NORTH_BASIN_E2_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "NORTH_BASIN_E_MAP",
@@ -10862,7 +10909,7 @@
       "INTENTIONAL_DISCRETE": 4,
       "BORDER": 26,
       "ALIGNS": 26,
-      "BLOCKED": 24
+      "BLOCKED": 28
     }
   }
 }

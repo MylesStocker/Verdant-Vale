@@ -28,7 +28,7 @@ module.exports = {
 
     // ── 1. Pure round-trips for all 15 placed maps (fractional + boundaries) ─
     const placed = J(g, "JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(p=>p.mapId))");
-    assert.equal(placed.length, 20, '20 placed regional maps');
+    assert.equal(placed.length, 21, '21 placed regional maps');
     for (const m of placed) {
       // a fractional interior point and a chunk-boundary point
       for (const [lx, ly] of [[3.25 * TILEPX, 4.75 * TILEPX], [0, 0], [CW - 0.5, CH - 0.5]]) {

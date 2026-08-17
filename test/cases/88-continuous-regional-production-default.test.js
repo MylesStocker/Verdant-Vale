@@ -101,7 +101,7 @@ module.exports = {
 
     // ── 10. BLOCKED / BORDER edges remain impassable (derived audit totals) ────
     const audit = require('../transition-audit.js').seamReadiness.totals;
-    assert.equal(audit.BLOCKED, 24, 'BLOCKED edges (West Outfall + 4 North Basin scenery chunks)');
+    assert.equal(audit.BLOCKED, 28, 'BLOCKED edges (West Outfall + 5 North Basin scenery chunks)');
     assert.equal(audit.BORDER, 26, 'BORDER edges');
     assert.equal(audit.ALIGNS, 26, 'ALIGNS unchanged');
     assert.equal(audit.INTENTIONAL_DISCRETE, 4, "MAP's four intentional-discrete crossings unchanged");
@@ -239,9 +239,9 @@ module.exports = {
     const catRef = R('REGIONAL_CHUNK_CATALOG'); void catRef;
     R("(function(){var w=mapLocalPxToRegionWorldPx('MAP3',8*TILE,7*TILE); for(var i=0;i<10;i++) buildContinuousWorldPlanFromWorld('overworld',w.worldPxX+i,w.worldPxY,512,480); })()");
     assert.equal(R("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+JSON.stringify(regionalWorldPosition())"), preplan, 'camera/visibility planning mutates no gameplay state');
-    assert.equal(R("REGIONAL_CHUNK_CATALOG===window.REGIONAL_CHUNK_CATALOG && _REGIONAL_CHUNK_DEFINITIONS.length===20"), true, 'no per-frame rebuild of the chunk catalog');
+    assert.equal(R("REGIONAL_CHUNK_CATALOG===window.REGIONAL_CHUNK_CATALOG && _REGIONAL_CHUNK_DEFINITIONS.length===21"), true, 'no per-frame rebuild of the chunk catalog');
 
-    // ── 22. All 20 regional grid fingerprints unchanged ───────────────────────
+    // ── 22. All 21 regional grid fingerprints unchanged ───────────────────────
     for (const id of Object.keys(GRID_FP.fingerprints)) {
       assert.equal(sha256(R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], `${id}: grid fingerprint unchanged`);
     }

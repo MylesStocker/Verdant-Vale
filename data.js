@@ -804,6 +804,7 @@ const MAP_CATALOG = {
   NORTH_BASIN_N_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_N_MAP'),
   NORTH_BASIN_NE_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NE_MAP'),
   NORTH_BASIN_NE2_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NE2_MAP'),
+  NORTH_BASIN_E2_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_E2_MAP'),
   // Scenery-only water-over-forest chunk (3,1), south of the Open Reservoir East.
   NORTH_BASIN_E_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_E_MAP'),
   BASIN_CHAMBER_MAP: {

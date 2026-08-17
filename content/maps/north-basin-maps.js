@@ -629,12 +629,40 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  3, 81,  1,  1,  1,  1],  // 11  lone tree on the islet
       [  1,  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1],  // 12  open reservoir
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open reservoir
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  south border: open water for a future (4,1) reservoir chunk
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  south edge mirrors NORTH_BASIN_E2_MAP.north
     ],
     displayName: 'North Basin — Open Reservoir (Far East)', region: 'North Basin', contentKey: 'north_basin_ne2',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open water east of NORTH_BASIN_NE_MAP. West edge mirrors NORTH_BASIN_NE_MAP.east exactly; north/east/south stay open-water borders for later reservoir expansion. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+    notes: 'Scenery-only open water east of NORTH_BASIN_NE_MAP. West edge mirrors NORTH_BASIN_NE_MAP.east exactly; north/east stay open-water borders, while south matches NORTH_BASIN_E2_MAP. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+
+  // ─── North Basin — Open Reservoir (East Shore) — NORTH_BASIN_E2_MAP (16 × 15) ─
+  // Regional chunk (4,1): south of NORTH_BASIN_NE2_MAP and east of the Eastern Woods.
+  // Its north and west edges exactly mirror those existing non-walkable neighbours.
+  // The remaining boundary stays reservoir scenery, preserving a nonwalkable south edge
+  // for a later (4,2) road chunk to match without authoring that road layout here.
+  { mapId: 'NORTH_BASIN_E2_MAP', regionId: 'overworld', chunkX: 4, chunkY: 1, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge mirrors NORTH_BASIN_NE2_MAP.south
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open reservoir
+      [  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  small silt islet
+      [  1,  1,  1,  1, 81, 81,  3, 81,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  lone tree on the islet
+      [  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  6  open reservoir
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  7  west TREE mirrors NORTH_BASIN_E_MAP.east
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  8  open water beyond the woods
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1],  //  9  second small silt islet
+      [  3,  1,  1,  1,  1,  1,  1,  1, 81, 81,  3, 81,  1,  1,  1,  1],  // 10  lone tree on the islet
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1],  // 11  open reservoir
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  shoreline texture stays at the west edge
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open reservoir
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  nonwalkable south edge reserved for a later (4,2) match
+    ],
+    displayName: 'North Basin — Open Reservoir (East Shore)', region: 'North Basin', contentKey: 'north_basin_e2',
+    presentation: 'continuous', encounterProfileId: 'north_basin',
+    allowRandomEncounters: false, allowSave: false, playerAccessible: false,
+    notes: 'Scenery-only open water south of NORTH_BASIN_NE2_MAP and east of NORTH_BASIN_E_MAP. North and west edges exactly mirror their non-walkable neighbours; east and south remain nonwalkable reservoir scenery for later expansion. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
 
   // ─── North Basin — Eastern Woods — NORTH_BASIN_E_MAP  (16 × 15) ───────────────
   // Regional chunk (3,1): south of NORTH_BASIN_NE_MAP (3,0) and east of the reservoir

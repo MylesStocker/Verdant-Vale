@@ -57,7 +57,7 @@ module.exports = {
       assert.ok(GRID_FP.fingerprints[id], id + ': original fingerprint still present in the fixture');
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], id + ': original grid unchanged');
     }
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 20, 'fixture now has 20 fingerprints');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 21, 'fixture now has 21 fingerprints');
 
     // ── 7 + 8. Border contract: agrees with all four neighbours, all non-walkable ─
     const outfall = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`);
@@ -97,9 +97,9 @@ module.exports = {
     }
 
     // ── 11. Audit totals match the verified new layout ────────────────────────
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 26, BLOCKED: 24 },
-      'audit totals: 80 edges -> ALIGNS 26 / BORDER 26 / BLOCKED 24 / INTENTIONAL_DISCRETE 4');
-    assert.equal(audit.seamReadiness.edges.length, 80, '80 directed placed-map edges (20 x 4)');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 26, BLOCKED: 28 },
+      'audit totals: 84 edges -> ALIGNS 26 / BORDER 26 / BLOCKED 28 / INTENTIONAL_DISCRETE 4');
+    assert.equal(audit.seamReadiness.edges.length, 84, '84 directed placed-map edges (21 x 4)');
     assert.ok(!audit.seamReadiness.totals.CONFLICT && !audit.seamReadiness.totals.OUTSIDE_REGION && !audit.seamReadiness.totals.NEEDS_REMAP,
       'no CONFLICT / OUTSIDE_REGION / NEEDS_REMAP');
 
@@ -108,8 +108,8 @@ module.exports = {
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) {
       if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++; else voids++;
     }
-    assert.equal(placed, 20, '20 placed chunks in the 5x6 envelope');
-    assert.equal(voids, 10, '10 remaining sparse void cells');
+    assert.equal(placed, 21, '21 placed chunks in the 5x6 envelope');
+    assert.equal(voids, 9, '9 remaining sparse void cells');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 4, 0, 5], 'region chunk extent unchanged (0..4 x 0..5)');
     assert.equal(b.widthPx, 5 * 16 * 32, 'region pixel width unchanged (5 chunks)');
