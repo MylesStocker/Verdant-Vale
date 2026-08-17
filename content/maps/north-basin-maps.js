@@ -468,12 +468,12 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  3, 23,  0,  0, 23, 23,  0, 23,  0,  0,  0, 23,  0, 23, 23,  3],  // 11  broken fen bands
       [  3,  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0, 23,  3],  // 12  drought-exposed fen
       [  3, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  // 13  no southbound path
-      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  blocked south edge; future northern-bank neighbour absent
+      [  3, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  // 14  broad c1-14 seam to Eastern Canal Banks; mirrors inward row 13
     ],
     displayName: 'North Basin — South Reservoir Road', region: 'North Basin', contentKey: 'north_basin_se',
     presentation: 'continuous', encounterProfileId: 'upper_reach',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Playable eastbound reservoir road. The west entrance has a REEDS shoulder above the single-tile PATH road; PATH is the only meaningful encounter-free route, while surrounding irregular GRASS/REEDS patches roll the harder UPPER_REACH_ENEMY_TEMPLATES pool. There is no southbound road. North is blocked against inaccessible reservoir scenery; east and south remain TREE borders until their future neighbours are authored. No items, NPCs, interactions, decorations, landmarks, or quest content.' },
+    notes: 'Playable eastbound reservoir road. The west entrance has a REEDS shoulder above the single-tile PATH road; PATH is the only meaningful encounter-free route, while surrounding irregular GRASS/REEDS patches roll the harder UPPER_REACH_ENEMY_TEMPLATES pool. There is no southbound road. North and east remain blocked; the broad south edge now opens onto the northern bank of Eastern Canal Banks. No items, NPCs, interactions, decorations, landmarks, or quest content.' },
   { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)

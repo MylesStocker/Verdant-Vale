@@ -64,10 +64,10 @@ module.exports = {
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
-    assert.equal(audit.seamReadiness.totals.ALIGNS, 28, 'ALIGNS 28 after the South Reservoir Road seam');
+    assert.equal(audit.seamReadiness.totals.ALIGNS, 32, 'ALIGNS 32 after Eastern Canal Banks');
     assert.equal(audit.seamReadiness.totals.BLOCKED, 30, 'BLOCKED 30 after placing the South Reservoir Road below inaccessible scenery');
     assert.equal(audit.seamReadiness.totals.BORDER, 26, 'BORDER 26 (Far East reservoir adds three open borders, converts one)');
-    assert.equal(g.run('continuousSeamEntries().length'), 28, '28 eligible directed seams');
+    assert.equal(g.run('continuousSeamEntries().length'), 34, '34 eligible directed segment entries');
     // the new pair derives as two eligible directed seams
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3','north')"), 'MAP3|north is an eligible seam');
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3_N1','south')"), 'MAP3_N1|south is an eligible seam');

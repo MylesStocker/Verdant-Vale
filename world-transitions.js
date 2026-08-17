@@ -1137,9 +1137,25 @@ const EDGE_TRANSITIONS = {
   },
   NORTH_BASIN_SE_MAP: {
     // West edge: reciprocal two-tile entrance (REEDS shoulder + row-8 PATH road)
-    // back to the South Approach. East and south remain absent/blocked.
+    // back to the South Approach. East remains absent/blocked.
     west: [
       { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'east', sourceRange: [7, 8] },
+    ],
+    // South edge: broad fen entrance to the northern bank of Eastern Canal Banks.
+    south: [
+      { targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'north', sourceRange: [1, 14] },
+    ],
+  },
+  DRENWICK_EAST_CANAL_MAP: {
+    north: [
+      { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'south', sourceRange: [1, 14] },
+    ],
+    // The unbroken WATER canal at row 5 separates these two structural west
+    // ranges. Continuous View selects either range independently; the gap stays
+    // ordinary collision and is never transition-authorized.
+    west: [
+      { targetMap: 'MAP3_N2', targetEdge: 'east', sourceRange: [1, 4] },
+      { targetMap: 'MAP3_N2', targetEdge: 'east', sourceRange: [6, 13] },
     ],
   },
   NORTH_BASIN_C_MAP: {
@@ -1240,6 +1256,12 @@ const EDGE_TRANSITIONS = {
     // crossings never clamp. (The BRIDGE_GATE at row 5 col 12 is a separate crossing.)
     north: [
       { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'south', sourceRange: [12, 12] },
+    ],
+    // East edge: two separate Drenwick fen-bank openings around the WATER canal
+    // at row 5. Both are structural-only and reciprocal without remapping.
+    east: [
+      { targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'west', sourceRange: [1, 4] },
+      { targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'west', sourceRange: [6, 13] },
     ],
   },
   RODDON_WAY_MAP: {

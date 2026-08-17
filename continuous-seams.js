@@ -1,12 +1,12 @@
 'use strict';
 
-// continuous-seams.js — DEBUG-ONLY generalized seamless movement across every
-// currently-SAFE reciprocal ALIGNS outdoor seam, active only while Continuous
+// continuous-seams.js — production generalized seamless movement across every
+// currently-safe reciprocal ALIGNS outdoor seam, active only while Continuous
 // View is on.
 //
 // Canonical gameplay model is UNCHANGED: activeMap is the physical-map authority,
 // player.x/.y are LOCAL pixels, saves store the active map + local placement,
-// SAVE_VERSION stays 3. World-PIXEL coordinates are computed TRANSIENTLY here for
+// SAVE_VERSION stays 4. World-PIXEL coordinates are computed TRANSIENTLY here for
 // cross-seam collision and the atomic map handoff — never persisted.
 //
 // ── DERIVED ELIGIBLE-SEAM AUTHORITY (no hand-maintained seam list) ──────────
@@ -16,18 +16,19 @@
 //   • from & to are both placed in the same regionId;
 //   • they are physically adjacent in `dir` (chunk delta matches);
 //   • the segment's targetEdge is the inverse of `dir`;
-//   • it is the ONLY segment on that edge (a single broad crossing);
-//   • it has no condition / blockedText (no toll/cutscene/state gate);
-//   • it has no targetRange (no clamping/remap);
-//   • the reciprocal directed edge exists with an IDENTICAL range.
-// Results are stored in a deterministic Map indexed by 'mapId|dir' (O(1) lookup;
-// the frame path never scans all seams). validateContinuousSeams() (validation.js)
-// cross-checks this derived index; nothing here depends on test/transition-audit.js.
+//   • every segment on the edge is structural-only and has an ordered integer range;
+//   • ranges are deterministically sorted, unique, and non-overlapping;
+//   • every source + reciprocal landing cell is base-walkable;
+//   • the reciprocal directed edge has the exact same complete range set.
+// Results are stored in a deterministic Map indexed by 'mapId|dir' (O(1) edge
+// lookup) whose value holds a small sorted segment list. The frame path only scans
+// that one list. If ANY segment on an edge is malformed, ambiguous, behavior-
+// bearing, nonreciprocal, or nonwalkable, the WHOLE edge fails closed.
 
 const _CS_DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
 const _CS_INV   = { north: 'south', south: 'north', east: 'west', west: 'east' };
 
-let _CS_INDEX = null;   // Map 'mapId|dir' -> { regionId, from, to, dir, axis:'ns'|'ew', range:[min,max] }
+let _CS_INDEX = null;   // Map 'mapId|dir' -> { regionId, from, to, dir, axis, segments:[entry,...] }
 let _CS_MAPS  = null;   // Set of mapIds participating in >= 1 eligible seam
 
 // The ONLY EDGE_TRANSITIONS segment properties a seamless crossing understands.
@@ -54,6 +55,9 @@ function classifyContinuousSegment(seg) {
   if (typeof seg.targetMap === 'undefined' || seg.targetMap === null) return { ok: false, reason: 'missing targetMap' };
   if (typeof seg.targetEdge !== 'string') return { ok: false, reason: 'missing/invalid targetEdge' };
   if (!Array.isArray(seg.sourceRange) || seg.sourceRange.length !== 2) return { ok: false, reason: 'missing/invalid sourceRange' };
+  if (!Number.isInteger(seg.sourceRange[0]) || !Number.isInteger(seg.sourceRange[1]) || seg.sourceRange[0] > seg.sourceRange[1]) {
+    return { ok: false, reason: 'sourceRange must be ordered integers' };
+  }
   if (typeof seg.targetRange !== 'undefined') {
     if (!Array.isArray(seg.targetRange) || seg.targetRange.length !== 2 ||
         seg.targetRange[0] !== seg.sourceRange[0] || seg.targetRange[1] !== seg.sourceRange[1]) {
@@ -63,12 +67,73 @@ function classifyContinuousSegment(seg) {
   return { ok: true, reason: null };
 }
 
+function _csTargetMapId(targetMap) {
+  return (typeof targetMap === 'string') ? targetMap
+       : (typeof mapIdForRef === 'function' ? mapIdForRef(targetMap) : null);
+}
+
+// Structural edge-set classifier. Sorting a copy makes lookup deterministic
+// without mutating EDGE_TRANSITIONS authoring order. Duplicate or overlapping
+// ranges invalidate the whole edge; no convenient subset is ever returned.
+function _classifyContinuousEdgeSegments(segs) {
+  if (!Array.isArray(segs) || segs.length === 0) return { ok: false, reason: 'missing/empty segment list' };
+  const parsed = [];
+  for (let i = 0; i < segs.length; i++) {
+    const c = classifyContinuousSegment(segs[i]);
+    if (!c.ok) return { ok: false, reason: 'segment ' + i + ': ' + c.reason };
+    const targetMapId = _csTargetMapId(segs[i].targetMap);
+    if (!targetMapId) return { ok: false, reason: 'segment ' + i + ': unresolved targetMap' };
+    parsed.push({ source: segs[i], targetMapId, targetEdge: segs[i].targetEdge, range: [segs[i].sourceRange[0], segs[i].sourceRange[1]] });
+  }
+  parsed.sort((a, b) => a.range[0] - b.range[0] || a.range[1] - b.range[1]);
+  const targetMapId = parsed[0].targetMapId, targetEdge = parsed[0].targetEdge;
+  for (let i = 0; i < parsed.length; i++) {
+    const p = parsed[i];
+    if (p.targetMapId !== targetMapId || p.targetEdge !== targetEdge) {
+      return { ok: false, reason: 'segments on one edge must share one target map and target edge' };
+    }
+    if (i > 0 && p.range[0] <= parsed[i - 1].range[1]) {
+      return { ok: false, reason: 'duplicate/overlapping sourceRange values' };
+    }
+  }
+  return { ok: true, reason: null, targetMapId, targetEdge, segments: parsed };
+}
+
+function _csEdgeCell(map, edge, along) {
+  if (!Array.isArray(map)) return undefined;
+  if (edge === 'north') return map[0] ? map[0][along] : undefined;
+  if (edge === 'south') return map[ROWS - 1] ? map[ROWS - 1][along] : undefined;
+  if (edge === 'west') return map[along] ? map[along][0] : undefined;
+  if (edge === 'east') return map[along] ? map[along][COLS - 1] : undefined;
+  return undefined;
+}
+
+function _csRangeBaseWalkable(fromMap, fromEdge, toMap, toEdge, range) {
+  if (typeof isTileWalkable !== 'function') return false;
+  const limit = (fromEdge === 'north' || fromEdge === 'south') ? COLS : ROWS;
+  if (range[0] < 0 || range[1] >= limit) return false;
+  for (let along = range[0]; along <= range[1]; along++) {
+    if (!isTileWalkable(_csEdgeCell(fromMap, fromEdge, along)) ||
+        !isTileWalkable(_csEdgeCell(toMap, toEdge, along))) return false;
+  }
+  return true;
+}
+
+function _csSameRanges(a, b) {
+  if (!a || !b || a.parsedSegments.length !== b.parsedSegments.length) return false;
+  for (let i = 0; i < a.parsedSegments.length; i++) {
+    if (a.parsedSegments[i].range[0] !== b.parsedSegments[i].range[0] ||
+        a.parsedSegments[i].range[1] !== b.parsedSegments[i].range[1]) return false;
+  }
+  return true;
+}
+
 function _buildContinuousSeamIndex() {
   const index = new Map(), maps = new Set();
   _CS_INDEX = index; _CS_MAPS = maps;
   if (typeof REGIONAL_LAYOUT === 'undefined' || typeof EDGE_TRANSITIONS === 'undefined') return;
 
-  const directed = []; // candidate eligible directed edges (pre-reciprocal-check)
+  const directed = new Map(); // structurally complete directed edge groups, pre-reciprocal-check
   for (const regionId of Object.keys(REGIONAL_LAYOUT)) {
     const region = REGIONAL_LAYOUT[regionId];
     if (!region || !Array.isArray(region.placements)) continue;
@@ -78,35 +143,60 @@ function _buildContinuousSeamIndex() {
       const dirs = EDGE_TRANSITIONS[srcId];
       for (const dir of ['north', 'south', 'east', 'west']) {
         const segs = dirs[dir];
-        if (!Array.isArray(segs) || segs.length !== 1) continue; // single broad crossing only
-        const s = segs[0];
-        if (!classifyContinuousSegment(s).ok) continue;          // FAIL CLOSED on any non-structural property
-        const tid = (typeof s.targetMap === 'string') ? s.targetMap
-                  : (typeof mapIdForRef === 'function' ? mapIdForRef(s.targetMap) : null);
+        const c = _classifyContinuousEdgeSegments(segs);
+        if (!c.ok) continue;
+        const tid = c.targetMapId;
         if (!tid || !placed.has(tid)) continue;
-        if (s.targetEdge !== _CS_INV[dir]) continue;
+        if (c.targetEdge !== _CS_INV[dir]) continue;
         const ps = placed.get(srcId), pt = placed.get(tid), d = _CS_DELTA[dir];
         if (ps.chunkX + d[0] !== pt.chunkX || ps.chunkY + d[1] !== pt.chunkY) continue; // not adjacent in dir
-        directed.push({ regionId, from: srcId, to: tid, dir, axis: (dir === 'north' || dir === 'south') ? 'ns' : 'ew', range: [s.sourceRange[0], s.sourceRange[1]] });
+        const fromMap = (typeof mapRefForId === 'function') ? mapRefForId(srcId) : null;
+        const toMap = (typeof mapRefForId === 'function') ? mapRefForId(tid) : null;
+        if (!c.segments.every((s) => _csRangeBaseWalkable(fromMap, dir, toMap, c.targetEdge, s.range))) continue;
+        directed.set(srcId + '|' + dir, {
+          regionId, from: srcId, to: tid, dir,
+          axis: (dir === 'north' || dir === 'south') ? 'ns' : 'ew',
+          parsedSegments: c.segments,
+        });
       }
     }
   }
-  for (const e of directed) {
-    const recip = directed.find((x) => x.from === e.to && x.to === e.from && x.dir === _CS_INV[e.dir]);
-    if (!recip) continue;                                             // one-way -> exclude
-    if (e.range[0] !== recip.range[0] || e.range[1] !== recip.range[1]) continue; // range mismatch -> exclude
-    index.set(e.from + '|' + e.dir, e);
+  for (const e of directed.values()) {
+    const recip = directed.get(e.to + '|' + _CS_INV[e.dir]);
+    if (!recip || recip.to !== e.from || !_csSameRanges(e, recip)) continue; // whole edge fails closed
+    const segments = e.parsedSegments.map((s) => ({
+      regionId: e.regionId, from: e.from, to: e.to, dir: e.dir, axis: e.axis,
+      range: [s.range[0], s.range[1]],
+    }));
+    index.set(e.from + '|' + e.dir, {
+      regionId: e.regionId, from: e.from, to: e.to, dir: e.dir, axis: e.axis,
+      range: segments.length === 1 ? segments[0].range : undefined,
+      segments,
+    });
     maps.add(e.from);
   }
 }
 function _csIndex() { if (!_CS_INDEX) _buildContinuousSeamIndex(); return _CS_INDEX; }
 
 // Public derived-authority accessors (also used by validation).
-function eligibleContinuousSeam(mapId, dir) { const i = _csIndex(); return i.has(mapId + '|' + dir) ? i.get(mapId + '|' + dir) : null; }
+function eligibleContinuousSeam(mapId, dir, along) {
+  const group = _csIndex().get(mapId + '|' + dir) || null;
+  if (!group || typeof along === 'undefined') return group;
+  if (!Number.isFinite(along)) return null;
+  for (const segment of group.segments) {
+    if (along >= segment.range[0] && along <= segment.range[1]) return segment;
+    if (along < segment.range[0]) break;
+  }
+  return null;
+}
 function continuousSeamMapEligible(mapId) { _csIndex(); return _CS_MAPS.has(mapId); }
-function continuousSeamEntries() { return Array.from(_csIndex().values()); }
+function continuousSeamEntries() {
+  const out = [];
+  for (const group of _csIndex().values()) out.push(...group.segments);
+  return out;
+}
 
-// PURE read-only diagnostic: the structural classification of EVERY single-segment
+// PURE read-only diagnostic: the structural classification of EVERY segmented
 // EDGE_TRANSITIONS edge on a region-placed map. Surfaces WHY each edge is or isn't
 // structurally seamless-eligible (the fail-closed reason), so validation/audit and
 // the console can explain exclusions. Does not touch runtime state.
@@ -124,9 +214,12 @@ function continuousSegmentDiagnostics() {
     for (const dir of ['north', 'south', 'east', 'west']) {
       const segs = dirs[dir];
       if (!Array.isArray(segs) || segs.length === 0) continue;
-      if (segs.length !== 1) { out.push({ from: srcId, dir, structural: false, reason: 'multiple segments on one edge' }); continue; }
-      const c = classifyContinuousSegment(segs[0]);
-      out.push({ from: srcId, dir, structural: c.ok, reason: c.reason });
+      const c = _classifyContinuousEdgeSegments(segs);
+      out.push({
+        from: srcId, dir, structural: c.ok, reason: c.reason,
+        segmentCount: segs.length,
+        ranges: c.ok ? c.segments.map((s) => s.range.slice()) : [],
+      });
     }
   }
   return out;
@@ -161,11 +254,11 @@ function _csCrossingSeam(regionId, standChunk, worldPxX, worldPxY) {
   if (!c.mapId) return null;                                  // void / out-of-region / missing chunk
   const dir = _csDir(standChunk, c);
   if (!dir) return null;                                      // diagonal or non-adjacent
-  const seam = eligibleContinuousSeam(standChunk.mapId, dir);
+  const axis = (dir === 'north' || dir === 'south') ? 'ns' : 'ew';
+  const along = (axis === 'ns') ? (Math.floor(worldPxX / TILE) - standChunk.chunkX * COLS)
+                                : (Math.floor(worldPxY / TILE) - standChunk.chunkY * ROWS);
+  const seam = eligibleContinuousSeam(standChunk.mapId, dir, along);
   if (!seam || seam.to !== c.mapId) return null;              // ineligible neighbour
-  const along = (seam.axis === 'ns') ? (Math.floor(worldPxX / TILE) - standChunk.chunkX * COLS)
-                                     : (Math.floor(worldPxY / TILE) - standChunk.chunkY * ROWS);
-  if (along < seam.range[0] || along > seam.range[1]) return null; // outside the approved range
   return seam;
 }
 
@@ -288,10 +381,10 @@ function continuousSeamMove(dx, dy) {
 function continuousSeamSuppressLegacyEdge(dir) {
   if (typeof continuousWorldViewActive !== 'function' || !continuousWorldViewActive()) return false;
   const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
-  const seam = mapId ? eligibleContinuousSeam(mapId, dir) : null;
-  if (!seam) return false;
-  const along = (seam.axis === 'ns') ? Math.floor(player.x / TILE) : Math.floor(player.y / TILE);
-  return along >= seam.range[0] && along <= seam.range[1];
+  const group = mapId ? eligibleContinuousSeam(mapId, dir) : null;
+  if (!group) return false;
+  const along = (group.axis === 'ns') ? Math.floor(player.x / TILE) : Math.floor(player.y / TILE);
+  return !!eligibleContinuousSeam(mapId, dir, along);
 }
 
 // PUBLIC cross-seam authorization primitive (world PIXELS). Given the active
@@ -331,7 +424,7 @@ function continuousSeamDiagnostic() {
     const c = _csChunkAt(regionId, ox, oy);
     if (c.chunkX === stand.chunkX && c.chunkY === stand.chunkY) continue;
     const seam = _csCrossingSeam(regionId, stand, ox, oy);
-    if (seam) { engaged = seam.from + '->' + seam.to + ' (' + seam.dir + ')'; break; }
+    if (seam) { engaged = seam.from + '->' + seam.to + ' (' + seam.dir + ' ' + seam.range[0] + '-' + seam.range[1] + ')'; break; }
   }
   return { participates: true, engaged };
 }

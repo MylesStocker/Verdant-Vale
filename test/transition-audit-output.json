@@ -11,6 +11,7 @@
     "MAP3_N1",
     "RODDON_WAY_MAP",
     "MAP3_N2",
+    "DRENWICK_EAST_CANAL_MAP",
     "DRENWICK_WEST_OUTFALL_MAP",
     "NORTH_BASIN_S_MAP",
     "NORTH_BASIN_SE_MAP",
@@ -173,6 +174,12 @@
     },
     {
       "id": "MAP3_N2",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DRENWICK_EAST_CANAL_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -8653,6 +8660,62 @@
       "allOk": true
     },
     {
+      "srcMap": "NORTH_BASIN_SE_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "DRENWICK_EAST_CANAL_MAP",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "DRENWICK_EAST_CANAL_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "NORTH_BASIN_SE_MAP",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "DRENWICK_EAST_CANAL_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        4
+      ],
+      "targetMap": "MAP3_N2",
+      "targetEdge": "east",
+      "walkableSources": 4,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "DRENWICK_EAST_CANAL_MAP",
+      "direction": "west",
+      "segment": 1,
+      "sourceRange": [
+        6,
+        13
+      ],
+      "targetMap": "MAP3_N2",
+      "targetEdge": "east",
+      "walkableSources": 8,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "NORTH_BASIN_C_MAP",
       "direction": "south",
       "segment": 0,
@@ -8845,6 +8908,34 @@
       "targetMap": "NORTH_BASIN_S_MAP",
       "targetEdge": "south",
       "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP3_N2",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        4
+      ],
+      "targetMap": "DRENWICK_EAST_CANAL_MAP",
+      "targetEdge": "west",
+      "walkableSources": 4,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP3_N2",
+      "direction": "east",
+      "segment": 1,
+      "sourceRange": [
+        6,
+        13
+      ],
+      "targetMap": "DRENWICK_EAST_CANAL_MAP",
+      "targetEdge": "west",
+      "walkableSources": 8,
       "bad": [],
       "allOk": true
     },
@@ -10404,10 +10495,10 @@
         "chunkX": 2,
         "chunkY": 3,
         "dir": "east",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "DRENWICK_EAST_CANAL_MAP",
+        "target": "DRENWICK_EAST_CANAL_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP3_N2",
@@ -10418,6 +10509,46 @@
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "DRENWICK_EAST_CANAL_MAP",
+        "chunkX": 3,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_SE_MAP",
+        "target": "NORTH_BASIN_SE_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "DRENWICK_EAST_CANAL_MAP",
+        "chunkX": 3,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "DRENWICK_EAST_CANAL_MAP",
+        "chunkX": 3,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "DRENWICK_EAST_CANAL_MAP",
+        "chunkX": 3,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": "MAP3_N2",
+        "target": "MAP3_N2",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "DRENWICK_WEST_OUTFALL_MAP",
@@ -10594,10 +10725,10 @@
         "chunkX": 3,
         "chunkY": 2,
         "dir": "south",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "DRENWICK_EAST_CANAL_MAP",
+        "target": "DRENWICK_EAST_CANAL_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "NORTH_BASIN_SE_MAP",
@@ -10983,7 +11114,7 @@
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
       "BORDER": 26,
-      "ALIGNS": 28,
+      "ALIGNS": 32,
       "BLOCKED": 30
     }
   }

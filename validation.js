@@ -505,7 +505,8 @@ function validateContinuousSeams() {
   const entries = continuousSeamEntries();
   const INV = { north: 'south', south: 'north', east: 'west', west: 'east' };
   const DELTA = { north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
-  const seenDirected = new Set();
+  const seenDirectedRanges = new Set();
+  const checkedEdges = new Set();
   const catalog = (typeof MAP_CATALOG !== 'undefined') ? MAP_CATALOG : {};
 
   for (const e of entries) {
@@ -516,10 +517,11 @@ function validateContinuousSeams() {
       if (!catalog[id]) addValidationError(GROUP, lbl + ': "' + id + '" is not a MAP_CATALOG map');
       else if (catalog[id].type !== 'outdoor') addValidationError(GROUP, lbl + ': "' + id + '" is not outdoor');
     }
-    // no duplicate directed entry
-    const dk = e.from + '|' + e.dir;
-    if (seenDirected.has(dk)) addValidationError(GROUP, lbl + ': duplicate directed entry');
-    seenDirected.add(dk);
+    // no duplicate directed range; multiple disjoint ranges on one edge are valid
+    const edgeKey = e.from + '|' + e.dir;
+    const dk = edgeKey + '|' + e.range[0] + '-' + e.range[1];
+    if (seenDirectedRanges.has(dk)) addValidationError(GROUP, lbl + ': duplicate directed range');
+    seenDirectedRanges.add(dk);
     // matching regionId + physical adjacency
     const pf = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(e.from) : null;
     const pt = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(e.to) : null;
@@ -528,25 +530,46 @@ function validateContinuousSeams() {
     const d = DELTA[e.dir];
     if (!d || pf.chunkX + d[0] !== pt.chunkX || pf.chunkY + d[1] !== pt.chunkY) addValidationError(GROUP, lbl + ': not physically adjacent in "' + e.dir + '"');
     // reciprocal exists with inverse direction + identical range; agreement with lookup
-    const recip = (typeof eligibleContinuousSeam === 'function') ? eligibleContinuousSeam(e.to, INV[e.dir]) : null;
+    const recip = (typeof eligibleContinuousSeam === 'function') ? eligibleContinuousSeam(e.to, INV[e.dir], e.range[0]) : null;
     if (!recip || recip.to !== e.from) addValidationError(GROUP, lbl + ': missing reciprocal ' + e.to + '|' + INV[e.dir]);
     else if (recip.range[0] !== e.range[0] || recip.range[1] !== e.range[1]) addValidationError(GROUP, lbl + ': reciprocal range differs (remap/clamp) ' + JSON.stringify(e.range) + ' vs ' + JSON.stringify(recip.range));
     // indexed lookup agreement
-    const looked = (typeof eligibleContinuousSeam === 'function') ? eligibleContinuousSeam(e.from, e.dir) : null;
+    const looked = (typeof eligibleContinuousSeam === 'function') ? eligibleContinuousSeam(e.from, e.dir, e.range[0]) : null;
     if (looked !== e) addValidationError(GROUP, lbl + ': indexed lookup does not return this entry');
     // The underlying EDGE_TRANSITIONS segment must pass the FAIL-CLOSED structural
     // classifier (only recognized structural properties; no condition/blockedText/
     // callback/effect/unknown; targetRange absent or identical to sourceRange).
     const segs = (typeof EDGE_TRANSITIONS !== 'undefined' && EDGE_TRANSITIONS[e.from]) ? EDGE_TRANSITIONS[e.from][e.dir] : null;
-    if (!Array.isArray(segs) || segs.length !== 1) addValidationError(GROUP, lbl + ': underlying edge is not a single broad segment');
+    if (!Array.isArray(segs) || segs.length === 0) addValidationError(GROUP, lbl + ': underlying edge has no structural segments');
     else {
-      const s = segs[0];
+      const s = segs.find((seg) => Array.isArray(seg.sourceRange) &&
+        seg.sourceRange[0] === e.range[0] && seg.sourceRange[1] === e.range[1]);
+      if (!s) {
+        addValidationError(GROUP, lbl + ': derived range has no matching EDGE_TRANSITIONS segment');
+        continue;
+      }
       if (typeof classifyContinuousSegment === 'function') {
         const c = classifyContinuousSegment(s);
         if (!c.ok) addValidationError(GROUP, lbl + ': underlying segment is not structurally seamless-eligible -- ' + c.reason);
       }
       if (s.targetEdge !== INV[e.dir]) addValidationError(GROUP, lbl + ': targetEdge is not the inverse of the direction');
       if (!Array.isArray(s.sourceRange) || s.sourceRange[0] !== e.range[0] || s.sourceRange[1] !== e.range[1]) addValidationError(GROUP, lbl + ': derived range disagrees with EDGE_TRANSITIONS sourceRange');
+    }
+    // The edge-level lookup must expose the complete deterministic range set,
+    // with no duplicates or overlap. This is checked once per directed edge.
+    if (!checkedEdges.has(edgeKey) && typeof eligibleContinuousSeam === 'function') {
+      checkedEdges.add(edgeKey);
+      const group = eligibleContinuousSeam(e.from, e.dir);
+      if (!group || !Array.isArray(group.segments) || group.segments.length === 0) {
+        addValidationError(GROUP, lbl + ': indexed edge group is missing/empty');
+      } else {
+        for (let i = 0; i < group.segments.length; i++) {
+          const cur = group.segments[i];
+          if (i > 0 && cur.range[0] <= group.segments[i - 1].range[1]) {
+            addValidationError(GROUP, lbl + ': indexed ranges overlap or are not deterministically ordered');
+          }
+        }
+      }
     }
     // Base-walkable source + reciprocal-landing edge cells across the WHOLE range
     // (both edges). This is the general terrain-walkability guard for continuous

@@ -787,6 +787,7 @@ const MAP_CATALOG = {
   MAP3_N1: _regionalChunkCatalogEntry('MAP3_N1'),
   RODDON_WAY_MAP: _regionalChunkCatalogEntry('RODDON_WAY_MAP'),
   MAP3_N2: _regionalChunkCatalogEntry('MAP3_N2'),
+  DRENWICK_EAST_CANAL_MAP: _regionalChunkCatalogEntry('DRENWICK_EAST_CANAL_MAP'),
   // Scenery-only chunk (1,3): derived like any placed regional chunk. It is a real
   // outdoor MAP_CATALOG entry (so it resolves for rendering, layout, content keys and
   // geography) but its `playerAccessible: false` capability keeps the player out.

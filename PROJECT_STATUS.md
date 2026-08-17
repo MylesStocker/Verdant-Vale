@@ -36,7 +36,7 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **22 regional chunks** now occupy the `'overworld'` 5×6 envelope (8 sparse void
+- **23 regional chunks** now occupy the `'overworld'` 5×6 envelope (7 sparse void
   cells remain). Six of them are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
@@ -69,19 +69,30 @@ rooms were added to the registry.)
   chunk (3,2)) continues the South Approach road east through a reciprocal rows 7–8
   continuous seam: a REEDS shoulder widens the entrance while the PATH road remains
   one tile wide on row 8. The irregular GRASS/REEDS fen uses the harder `upper_reach`
-  encounter profile, and there is no southbound road. Its north, east, and south
-  boundaries remain blocked, with the east road stopping one tile short of TREE.
+  encounter profile, and there is no southbound road. Its north and east boundaries
+  remain blocked, with the east road stopping one tile short of TREE; its broad
+  south edge now enters only the northern bank of Eastern Canal Banks.
 
-  Audit: 88 directed edges → ALIGNS 28 / BORDER 26 / BLOCKED 30 / INTENTIONAL_DISCRETE 4;
-  28 eligible seams / 14 pairs. See architecture.md "Scenery-only (inaccessible) chunks".
-- **95 tests** (`test/cases/01-…95-`), `node test/run.js` — all passing.
+  The accessible **Eastern Canal Banks** (`DRENWICK_EAST_CANAL_MAP`, chunk (3,3))
+  continues the Drenwick canal straight east with uninterrupted WATER across row 5.
+  Its GRASS/REEDS fen has exactly two disconnected walkable components. The broad
+  north seam is `[1,14]`; the west edge has independently seamless north-bank
+  `[1,4]` and south-bank `[6,13]` ranges, leaving canal row 5 blocked. It uses the
+  existing `far` profile / exact `FAR_ENEMY_TEMPLATES` reference on both banks. No
+  PATH, bridge, NPC, item, quest, interaction, landmark, or decoration is authored.
+
+  Audit: 92 directed physical edges → ALIGNS 32 / BORDER 26 / BLOCKED 30 /
+  INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
+  34 directed entries / 17 reciprocal segment pairs. See architecture.md
+  "Scenery-only (inaccessible) chunks" and "Continuous seams".
+- **96 tests** (`test/cases/01-…96-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 109 maps, 238 fixed-destination transitions, 8
+  isolation pass, 110 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 109 maps, 109 metadata entries, 26,160 tile cells, 108
+  (see below), across 110 maps, 110 metadata entries, 26,400 tile cells, 114
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
   dialogue/text entries, 180 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.

@@ -166,6 +166,6 @@ module.exports = {
 
     // ── 19. Seam audit unchanged. ────────────────────────────────────────────
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 28, BLOCKED: 30 }, 'seam audit: 28 ALIGNS / 0 NEEDS_REMAP / 4 INTENTIONAL_DISCRETE / 30 BLOCKED / 26 BORDER');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 32, BLOCKED: 30 }, 'seam audit: 32 ALIGNS / 0 NEEDS_REMAP / 4 INTENTIONAL_DISCRETE / 30 BLOCKED / 26 BORDER');
   },
 };

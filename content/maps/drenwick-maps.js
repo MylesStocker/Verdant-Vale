@@ -577,25 +577,55 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'MAP3_N2', regionId: 'overworld', chunkX: 2, chunkY: 3, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  3,  3,  1,  3,  3,  3,  3,  3,  1,  2,  1,  1,  1],  //  0  border ← col 12 = north seam → NORTH_BASIN_S_MAP.south (continuous causeway); marsh gaps (cols 5, 11) + bog pond E off-map (cols 13-15)
-      [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23,  1],  //  1  N marsh: bog pond E; col 12 = causeway path; water E edge
-      [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23,  1],  //  2  bog pond W + bog pond E; col 12 = path; water E edge
-      [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  2, 23,  0,  3],  //  3  reeds, clearing; col 12 = path
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  //  4  open, N canal bank; col 12 = path (bridge north landing)
+      [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23, 23],  //  1  N marsh: east edge now opens into Eastern Canal Banks' north bank
+      [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23, 23],  //  2  bog pond W + bog pond E; east seam remains reeds
+      [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  2, 23,  0,  0],  //  3  north-bank east seam opens on grass
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0],  //  4  open north canal bank through east seam
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 57,  1,  1,  1],  //  5  canal WATER, flowing off-map both W and E; BRIDGE_GATE col 12
-      [  3,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  3],  //  6  Drenwick south gate col 8; approach path col 12
-      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  0,  0,  3],  //  7  road col 8; E-W spur cols 9-12 to bridge approach
-      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds W
-      [  3,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  9  bog W + reeds E
-      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23,  1],  // 10  bog E, draining off-map east
-      [  3,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  3],  // 11  reeds + bog E
-      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 53, 23,  0,  0,  3],  // 12  GUARD_POST c11; reeds c12
-      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  open approach
+      [  3,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  0],  //  6  south-bank east seam opens beyond the gate approach
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  0,  0, 23],  //  7  road spur; east seam lands on reeds
+      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  //  8  south-bank east seam grass
+      [  3,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0, 23],  //  9  bog W + reeds east seam
+      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23, 23],  // 10  former east pond edge becomes walkable reeds
+      [  3,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  0],  // 11  reeds + bog E; grass seam
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 53, 23,  0,  0, 23],  // 12  GUARD_POST c11; reeds continue east
+      [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  // 13  broad south-bank east seam
       [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  // 14  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS south to MAP3_N1 (Northern Fen)
     ],
     displayName: 'Drenwick', region: 'Drenwick', contentKey: 'map3_n2',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3_n2',
     allowRandomEncounters: true, allowSave: true,
     notes: 'Outdoor approach to Drenwick, distinct from DRENWICK_CIVIC_MAP (the town square) -- both are called "Drenwick" to the player, matching pre-existing locationName() behaviour, not introduced here.' },
+
+  // ─── Eastern Canal Banks — DRENWICK_EAST_CANAL_MAP (16 × 15) ────────────
+  // Accessible regional chunk (3,3), directly east of MAP3_N2 and south of the
+  // South Reservoir Road. WATER row 5 continues MAP3_N2's canal without any
+  // crossing, dividing the irregular GRASS/REEDS fen into exactly two walkable
+  // bank components. The north edge opens broadly to NORTH_BASIN_SE_MAP; the west
+  // edge has separate north- and south-bank ranges. East/south remain fail-closed
+  // borders until their neighbours are authored.
+  { mapId: 'DRENWICK_EAST_CANAL_MAP', regionId: 'overworld', chunkX: 3, chunkY: 3, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  1, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  //  0  broad north-bank seam c1-14; NW water preserves MAP3_N2 corner
+      [ 23,  0, 23, 23,  0,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  3],  //  1  north bank
+      [ 23, 23,  0, 23,  0,  3,  3,  0, 23, 23,  0, 23,  0,  0, 23,  3],  //  2  irregular tree clump
+      [  0,  0, 23,  0, 23, 23,  0,  0, 23,  3,  3, 23, 23,  0, 23,  3],  //  3  northern fen
+      [  0, 23,  3,  3, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23,  0,  3],  //  4  north canal bank
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  uninterrupted canal; no crossing
+      [  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0,  3,  3, 23,  0,  3],  //  6  south canal bank
+      [ 23,  0,  0, 23,  3,  3, 23,  0,  0, 23, 23,  0,  0, 23,  0,  3],  //  7  southern fen
+      [  0, 23,  0,  0, 23, 23,  0,  0, 23,  3,  3, 23,  0,  0, 23,  3],  //  8  broken reed clumps
+      [ 23,  0,  3,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23,  3],  //  9  scattered trees
+      [ 23, 23,  0,  0, 23,  0,  0, 23,  0, 23,  0,  0, 23,  3,  0,  3],  // 10  damp southern fen
+      [  0, 23,  0, 23, 23,  3,  3, 23,  0,  0, 23,  0, 23, 23,  0,  3],  // 11  irregular tree clump
+      [ 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  3, 23,  0,  0, 23,  3],  // 12  southern fen
+      [  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  // 13  future broad south-bank landing row
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  blocked south edge
+    ],
+    displayName: 'Eastern Canal Banks', region: 'Drenwick', contentKey: 'drenwick_east_canal',
+    presentation: 'continuous', encounterProfileId: 'far',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'Two disconnected Drenwick fen banks divided by the unbroken east-west canal. All walkable GRASS/REEDS terrain uses FAR_ENEMY_TEMPLATES; no PATH, bridge, items, NPCs, interactions, landmarks, decoration, or quest content is authored. East and south remain blocked until future neighbours exist.' },
 
   // ─── Drenwick West Outfall — DRENWICK_WEST_OUTFALL_MAP  (16 × 15) ─────────────
   // Regional chunk (1,3): the void cell one column WEST of MAP3_N2 (2,3), between

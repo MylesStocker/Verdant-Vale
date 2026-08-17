@@ -87,7 +87,7 @@ The rule this codebase actually follows:
 | `regional-position.js` | **THE canonical regional-position authority**: the private canonical state `{ regionId, worldPxX, worldPxY }`; conversions `mapLocalPxToRegionWorldPx()` / `regionWorldPxToLocal()`; the derived read-model `regionalContext()` + accessors `regionalWorldPosition()` / `regionalDerivedLocation()` / `regionalActiveMapId()` / `regionalPlayerWorldPoint()`; atomic writers `commitRegionalWorldPosition()` (derives `activeMap`/`player.x`/`player.y`), `enterRegionalMapFromLocal()`, `clearRegionalPosition()`, `placeAtLocation()` (the regional/discrete router used by every location gateway); and read-only `regionalInvariantErrors()` / `regionalInvariantsHold()`. | Canonical state is not externally mutable and is `null` on every discrete location. Callers NEVER assign `activeMap`/`player.x`/`player.y` for a regional map — they go through this module. It never repairs state; the read model fails closed (returns null) on a broken invariant and `regionalInvariantErrors()` only reports. |
 | `debug-warp.js` | **DEBUG-ONLY** logical warp destination catalog + resolver: `DEBUG_WARP_DESTINATIONS_AUTHORED`, derived outdoor destinations, `getDebugWarpDestinations()` (outdoor-first, deterministic), `debugDestinationById()`, and `debugWarpToDestination()`. Pairs each destination with the exact location-state its canonical `enter*()` wrapper sets; commits only through `transitionToLocation()`. | Reads production data (`MAP_CATALOG`, location bindings) but production never depends on it. Don't assign location flags directly here; don't run the `enter*()` wrappers' story/NPC side effects. |
 | `continuous-seams.js` | **PRODUCTION** generalized seamless movement across eligible reciprocal ALIGNS seams (see "Continuous seams" below): the fail-closed structural classifier (`classifyContinuousSegment`/`continuousSegmentDiagnostics`), the derived eligible-seam index (`eligibleContinuousSeam`/`continuousSeamMapEligible`/`continuousSeamEntries`), exact-footprint engagement (`continuousSeamEngaged`), world-aware collision (`continuousFootprintWalkable`), per-axis movement + atomic handoff (`continuousSeamMove`), legacy-inset suppression (`continuousSeamSuppressLegacyEdge`), and the inspector diagnostic. | Active under continuous presentation (the production default), one shared choke point; derives its authority from `REGIONAL_LAYOUT`+`EDGE_TRANSITIONS` (never a hand-list, never `test/`). Uses `footprintCorners()` (movement.js) so the collision footprint isn't duplicated. |
-| `continuous-content.js` | **PRODUCTION**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 22 placed outdoor maps (16 accessible + six scenery-only chunks: the West Outfall and five North Basin water/woods chunks). Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
+| `continuous-content.js` | **PRODUCTION**, read-only neighbouring outdoor-content rendering under Continuous View (see "Neighbouring outdoor content" below): content-key AMBIGUITY derivation (`outdoorContentKeyEntries`/`outdoorContentKeyInfo`, grouped PURELY from `OUTDOOR_CONTENT_KEYS`), the `OUTDOOR_MAP_DECOR` decoration registry, the render context (`outdoorChunkContentContext`), and `drawNeighbourOutdoorContent()`. | Read-only: **never** assigns/spoofs `activeMap`/player/location/NPC/item state (no probe). The physical→logical key authority itself is `OUTDOOR_CONTENT_KEYS`/`outdoorContentKeyForMapId` in **data.js**. Covers only the 23 placed outdoor maps (17 accessible + six scenery-only chunks: the West Outfall and five North Basin water/woods chunks). Uses parameterized `drawMapWorldItems`/`drawContentNPCs` + landmark bodies (render-entities.js). |
 | `world-point-content.js` | **PRODUCTION** world-aware STATIC content across seams (see "World-aware static content across seams" below): the PURE world-point resolver (`worldPointContentContext`), cross-seam authorization compose (`crossSeamNeighbourFor`, over `continuousSeamCrossingAt` in continuous-seams.js), the EXPLICIT capability authorities (`CROSS_SEAM_NPC_CAPABILITIES`/`crossSeamNpcCapabilityRecognized`, `crossSeamCollectibleItem`), the once-per-frame cross-seam item-pickup driver (`crossSeamStaticPickup`, calling `collectWorldItemNear` in movement.js), the opted-in neighbour-NPC interaction resolver/dispatch (`resolveCrossSeamInteractTarget`/`tryCrossSeamNeighbourInteract`), and the single prompt authority (`crossSeamInteractPromptTarget`) that drives both the press and `drawCrossSeamInteractPrompt` (render-entities.js). | Active under continuous presentation (the production default; only the `forceLegacyRegionalView` debug fallback disables it). **Assigns nothing** — no `activeMap`/player/coordinate/content-key/NPC-position write; canonical effects only (item `.picked`/grant/dialogue, NPC dialogue + authored `flag_sets`). FAIL-CLOSED: one directly-adjacent eligible-seam neighbour; unambiguous key for NPC ownership; NPCs must OPT IN via `crossSeamInteraction:'simple_dialogue'` and pickups via `crossSeamPickup:'registry_grant'` (both explicit allowlist capabilities, validated in validation.js); nothing crosses by default. |
 | `regional-npc-runtime.js` | **PRODUCTION** chunk-aware regional NPC ownership + pose + simulation (see "Chunk-aware regional NPC runtime" below): `physicalMapIdForNpc` (logical key → physical outdoor map, fail-closed), `regionalNpcPose` (read-only live pixel pose), `nearbySimulationMapSet` (deterministic 3×3), `npcShouldSimulate` (lifecycle gate), `regionalNpcRouteCanOccupy` (world-aware, owner-chunk-confined occupancy). | Active under continuous presentation (the production default; only the `forceLegacyRegionalView` debug fallback disables it). **Assigns nothing** — no `activeMap`/player/location/NPC-ownership write. `npc.map` stays the logical key; physical ownership is distinct + explicit (`npc.physicalMapId` for ambiguous `'overworld'`). NPCs confined to one owner chunk (no cross-chunk routes yet). |
 | `encounter-geography.js` | **PURE** geographic random-encounter authority (see "Geographic random-encounter authority" below): `geographicEncounterContext(regionId, worldPxX, worldPxY)` (physical chunk → `MAP_CATALOG` pool, fail-closed) + the read-only runtime selectors `playerStandingWorldPoint` / `regionalStandingEncounterContext` / `encounterGeographyOk`. | No randomness, no state mutation; composes `REGIONAL_LAYOUT`+`mapIdForChunk`+`MAP_CATALOG` (no new table). Physical map id is the pool authority — never a logical/`'overworld'` key. Independent of Continuous View. Consumed by `currentEncounterPool()` (combat.js) and the roll gate (movement.js). |
@@ -267,8 +267,8 @@ world point (`SAVE_VERSION` is now **4**). Keep the five terms distinct:
 **`REGIONAL_LAYOUT`** (`data.js`) is the geometry view. Its `placements` are now
 **DERIVED from `REGIONAL_CHUNK_CATALOG`** (the single authority — see below), in the
 records' authored order; a small `_REGION_META` table supplies region-level `id`/
-`displayName`. It holds one region, `'overworld'`, containing the 16 accessible
-wilderness maps plus six scenery-only chunks (22 placed total). Their chunk coordinates were derived from the game's own
+`displayName`. It holds one region, `'overworld'`, containing the 17 accessible
+wilderness maps plus six scenery-only chunks (23 placed total). Their chunk coordinates were derived from the game's own
 transitions (the broad `EDGE_TRANSITIONS` crossings plus the single-tile world
 crossings in `movement.js`), not invented. Each chunk is exactly `COLS×ROWS` (16×15),
 verified by `validateRegionalLayout()` / `validateRegionalChunkCatalog()`.
@@ -293,13 +293,13 @@ so `data.js` (which every map file loads before) never grows a grid literal per 
 |---|---|---|
 | `CALWICK_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/calwick-maps.js` | `MAP` |
 | `THORNMERE_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/thornmere-wilds-maps.js` | `MAP2`,`MAP3`,`MAP4`,`MAP5`,`RODDON_WAY_MAP`,`MAP3_N1` |
-| `DRENWICK_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/drenwick-maps.js` | `MAP3_N2`,`DRENWICK_WEST_OUTFALL_MAP` |
+| `DRENWICK_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/drenwick-maps.js` | `MAP3_N2`,`DRENWICK_EAST_CANAL_MAP`,`DRENWICK_WEST_OUTFALL_MAP` |
 | `NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS` | `maps.js` | `MAP_N1`,`MAP_N2` |
 | `NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS` | `content/maps/north-basin-maps.js` | the 11 `NORTH_BASIN_*_MAP` (incl. five scenery-only water/woods chunks) |
 
 A fragment is placed where its grids are defined (a `map:` reference must resolve at
 fragment-eval time). Collectively the fragments author **exactly one definition per
-placed regional map** (22 total — 16 accessible wilderness chunks + six scenery-only chunks: the West Outfall and five North Basin water/woods chunks). An authored definition OWNS:
+placed regional map** (23 total — 17 accessible wilderness chunks + six scenery-only chunks: the West Outfall and five North Basin water/woods chunks). An authored definition OWNS:
 
 ```js
 {
@@ -401,7 +401,7 @@ metadata — they derive. A future item-less, NPC-less chunk is still just one
 definition (its grid + metadata). New regional grids should be authored **inline in
 the fragment record**, never as a bare `const MAP… = [...]` variable.
 
-**All 22 grids are authored inline.** Every placed regional grid now lives **inside its
+**All 23 grids are authored inline.** Every placed regional grid now lives **inside its
 chunk definition record** (`map: [ …15×16… ]`) in the owning geographic fragment — there
 are no standalone `const MAP… = [...]` grid variables and no `map: MAP…` references to
 them. `data.js` holds no terrain grids at all; it only assembles and resolves the
@@ -419,7 +419,7 @@ the sole `const MAP…` / `window.MAP…` declarations in the codebase (the form
 helpers). Migrating those consumers off the bare identifiers, and dropping the aliases, is
 a possible later cleanup — out of scope here.
 
-**Regional chunks vs discrete maps.** Only the 22 placed regional chunks (16 accessible wilderness chunks + six scenery-only chunks: the West Outfall and five North Basin water/woods chunks) are
+**Regional chunks vs discrete maps.** Only the 23 placed regional chunks (17 accessible wilderness chunks + six scenery-only chunks: the West Outfall and five North Basin water/woods chunks) are
 authored through this system. Discrete town / interior / dungeon / bridge / special
 maps are NOT regional chunks: they stay authored directly in `MAP_CATALOG`, carry no
 chunk definition and no `REGIONAL_LAYOUT` placement, and keep the physical `mapId` +
@@ -827,8 +827,10 @@ the fixed original-map presentation.
 Lets the player *walk* across EVERY currently-safe reciprocal ALIGNS outdoor seam
 — as though the adjacent 16×15 maps were one — whenever continuous presentation is
 active (the production default; suppressed only by the `forceLegacyRegionalView`
-debug fallback or on a `legacy_screen`/discrete map). (Today the eligible set is the
-28 directed seams / 14 reciprocal pairs; it is derived, not hand-listed.)
+debug fallback or on a `legacy_screen`/discrete map). Today the eligible authority
+contains **34 directed segment entries / 17 reciprocal segment pairs** across 32
+physical `ALIGNS` edges; segment entries and physical audit edges are deliberately
+different units. The set is derived, not hand-listed.
 
 - **Canonical model (Part 1).** The canonical runtime position of a placed map is now
   the region-world pixel point in `regional-position.js`; `activeMap` and `player.x/.y`
@@ -839,9 +841,15 @@ debug fallback or on a `legacy_screen`/discrete map). (Today the eligible set is
 - **Derived eligible-seam authority (no hand-maintained list), FAIL-CLOSED.** A
   directed edge `mapId|dir` is eligible iff, from `REGIONAL_LAYOUT` +
   `EDGE_TRANSITIONS` + placement: from/to are both placed in the same `regionId`,
-  physically adjacent in `dir`, it is the only segment on that edge, the segment
-  passes the pure structural classifier, its `targetEdge` is the inverse of `dir`,
-  and the reciprocal directed edge exists with an identical range.
+  physically adjacent in `dir`, every segment passes the pure structural classifier,
+  every `targetEdge` is the inverse of `dir`, ranges are ordered integers and form a
+  deterministic sorted, duplicate-free, non-overlapping set, every source and
+  reciprocal landing cell is base-walkable, and the reciprocal directed edge exists
+  with the exact same complete range set. The O(1) `mapId|dir` index stores one small
+  sorted list; the player’s orthogonal edge coordinate selects a single segment.
+  A gap selects nothing and retains ordinary collision. If any member of an edge set
+  is malformed, overlapping, behavior-bearing, nonreciprocal, or nonwalkable, the
+  **whole edge** is omitted—no convenient subset is partially authorized.
   **`classifyContinuousSegment(seg)` is an ALLOWLIST, not a denylist:** the only
   recognized structural properties are `targetMap`, `targetEdge`, `sourceRange`,
   and `targetRange` (`CONTINUOUS_STRUCTURAL_PROPS`). Any other own property — the
@@ -854,7 +862,7 @@ debug fallback or on a `legacy_screen`/discrete map). (Today the eligible set is
   remap and is ineligible. `continuousSegmentDiagnostics()` exposes the per-edge
   classification + reason (read-only), and `validateContinuousSeams()`
   cross-checks the derived index against the classifier (plus regionId, adjacency,
-  reciprocal inverse, identical ranges, no duplicates, base-walkable source +
+  reciprocal inverse, identical complete range sets, no duplicates/overlaps, base-walkable source +
   landing, index agreement); nothing depends on `test/transition-audit.js`.
   **Physical adjacency alone never authorizes seamless travel** — a placed-adjacent
   BLOCKED pair (e.g. `NB_C`↔`NB_W`) is not eligible.
@@ -972,14 +980,25 @@ debug fallback or on a `legacy_screen`/discrete map). (Today the eligible set is
   cooldown parity holds. The North Basin road sign (`MAP_FEATURES`, active-map-gated via
   `currentMapFeatures()`) is not inspectable from MAP3_N2 before the handoff. The
   BRIDGE_GATE at MAP3_N2 row 5 col 12 is a separate crossing and is untouched.
+- **First split-range seamless edge: Eastern Canal Banks.** The accessible
+  `DRENWICK_EAST_CANAL_MAP` at `(3,3)` is divided into two disconnected fen banks
+  by uninterrupted WATER across row 5. Its north edge joins
+  `NORTH_BASIN_SE_MAP.south` broadly at `[1,14]`. Its west edge joins
+  `MAP3_N2.east` through two separately indexed reciprocal structural ranges:
+  north bank `[1,4]` and south bank `[6,13]`. Row 5 is absent from both sets, so
+  it never suppresses collision or authorizes a crossing. Both banks use the
+  existing `far` profile / exact `FAR_ENEMY_TEMPLATES` reference, and every
+  walkable tile is GRASS or REEDS (encounter-eligible); no PATH or crossing tile
+  exists. The only way to switch banks remains MAP3_N2's existing bridge.
 - **Closure.** With this conversion the regional audit reaches **zero `NEEDS_REMAP`**:
-  all 88 directed overworld edges classify as `ALIGNS` (28), `INTENTIONAL_DISCRETE` (4),
+  all 92 directed overworld edges classify as `ALIGNS` (32), `INTENTIONAL_DISCRETE` (4),
   `BLOCKED` (30), or `BORDER` (26); every `ALIGNS` edge is backed by the fail-closed
-  `continuousSeamEntries()` authority; and `REGIONAL_POINT_CROSSINGS` is reduced to
+  `continuousSeamEntries()` authority (34 directed segment entries because the
+  two west-bank ranges share each physical directed edge); and `REGIONAL_POINT_CROSSINGS` is reduced to
   exactly the four Verdant Vale legacy-home directed crossings. The continuous-seam graph
   is deliberately split into three components — the legacy home (isolated), the Northern
   Road branch (`MAP_N1`/`MAP_N2`), and the southern/basin cluster — which the two
-  INTENTIONAL_DISCRETE home crossings reconnect into one traversable 16-map graph: the
+  INTENTIONAL_DISCRETE home crossings reconnect into one traversable 17-map graph: the
   Northern branch rejoins the world *through* the Verdant Vale legacy presentation, by
   design, rather than through a blocked wall.
 - **Continuous seam crossings do NOT reset the encounter cooldown.** The seamless
@@ -987,7 +1006,7 @@ debug fallback or on a `legacy_screen`/discrete map). (Today the eligible set is
   calls `transitionToLocation`, so `combat.cooldown` is untouched (it just keeps
   ticking). Only the legacy edge/point path applies a fresh cooldown.
 - **Seam edge base-walkability validation.** `continuousSeamEdgeWalkability()`
-  (validation.js, pure) confirms — for every coordinate of a seam's identical
+  (validation.js, pure) confirms — for every coordinate of every seam's identical
   reciprocal range — that BOTH the source border tile and its reciprocal landing
   border tile are base-walkable; `validateContinuousSeams()` errors otherwise. This
   is the general guard that a converted point crossing (or any future one) cannot
@@ -1083,7 +1102,7 @@ point handoff (see "Continuous seams"); this only removes visual pop-in.
   The two namespaces stay distinct (physical ids identify chunks/`MAP_CATALOG`;
   content-location keys identify NPC/content ownership) and are NOT one-to-one —
   `MAP`/`MAP5`/`RODDON_WAY_MAP` share the `'overworld'` key. **`OUTDOOR_CONTENT_KEYS`
-  (data.js)** is the single declarative binding of each of the 22 region-placed
+  (data.js)** is the single declarative binding of each of the 23 region-placed
   outdoor maps to its logical key; **`currentContentLocationKey()` (movement.js)
   CONSUMES it** for neutral outdoor locations, so there is not a second,
   independently-maintained mapping (and no drift). `outdoorContentKeyForMapId(mapId)`
@@ -1092,7 +1111,7 @@ point handoff (see "Continuous seams"); this only removes visual pop-in.
   (`outdoorContentKeyEntries()`/`outdoorContentKeyInfo()` in continuous-content.js):
   a key owned by one map is unambiguous (its neighbouring NPCs are attributed to
   that chunk); a shared key is ambiguous (neighbour NPC rendering skipped; items +
-  decorations unaffected). It covers ONLY the 22 placed outdoor maps — never
+  decorations unaffected). It covers ONLY the 23 placed outdoor maps — never
   towns/houses/interiors/dungeons. `validateContinuousContent()` checks the binding
   covers exactly the placed outdoor maps (no missing/stray) and errors if a map
   owns NPC content under an ambiguous key. **Nothing in the resolver, ambiguity

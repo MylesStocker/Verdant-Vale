@@ -51,16 +51,17 @@ module.exports = {
 
     // ── 1. Runtime eligibility == safe reciprocal ALIGNS (from the audit) ────
     const entries = J("JSON.stringify(continuousSeamEntries().map(e=>({from:e.from,dir:e.dir,to:e.to,range:e.range})))");
-    assert.equal(entries.length, 28, '28 eligible directed seams (14 reciprocal pairs)');
+    assert.equal(entries.length, 34, '34 eligible directed segment entries (17 reciprocal segment pairs)');
     const audit = require('../transition-audit.js');
     const alignsSet = new Set(audit.seamReadiness.edges.filter(e => e.verdict === 'ALIGNS').map(e => e.mapId + '|' + e.dir + '|' + e.neighbor));
     for (const e of entries) assert.ok(alignsSet.has(e.from + '|' + e.dir + '|' + e.to), `${e.from} ${e.dir} -> ${e.to} is an audit ALIGNS edge`);
-    assert.equal(entries.length, alignsSet.size, 'eligibility set equals the ALIGNS set exactly (no extra/missing)');
+    const eligibleEdgeSet = new Set(entries.map((e) => e.from + '|' + e.dir + '|' + e.to));
+    assert.equal(eligibleEdgeSet.size, alignsSet.size, 'eligible physical-edge set equals the ALIGNS set exactly');
     // reciprocal + identical range for every entry
-    const byKey = {}; entries.forEach(e => { byKey[e.from + '|' + e.dir] = e; });
+    const byKey = {}; entries.forEach(e => { byKey[e.from + '|' + e.dir + '|' + e.range.join('-')] = e; });
     const INV = { north: 'south', south: 'north', east: 'west', west: 'east' };
     for (const e of entries) {
-      const r = byKey[e.to + '|' + INV[e.dir]];
+      const r = byKey[e.to + '|' + INV[e.dir] + '|' + e.range.join('-')];
       assert.ok(r && r.to === e.from, `reciprocal exists for ${e.from} ${e.dir}`);
       assert.deepEqual(r.range, e.range, 'reciprocal range identical (no remap)');
     }
@@ -83,7 +84,7 @@ module.exports = {
     assert.ok(diags.length > 0 && diags.every(d => typeof d.structural === 'boolean'), 'segment diagnostics surface structural eligibility + reason');
     // every DERIVED-eligible seam classifies structurally ok (index agrees with the pure classifier)
     for (const e of entries) {
-      const seg = J(`JSON.stringify(EDGE_TRANSITIONS[${JSON.stringify(e.from)}][${JSON.stringify(e.dir)}][0])`);
+      const seg = J(`JSON.stringify(EDGE_TRANSITIONS[${JSON.stringify(e.from)}][${JSON.stringify(e.dir)}].find(function(s){return s.sourceRange[0]===${e.range[0]}&&s.sourceRange[1]===${e.range[1]};}))`);
       assert.equal(classify(seg).ok, true, `${e.from}|${e.dir} underlying segment is structurally eligible`);
     }
 
@@ -283,5 +284,135 @@ module.exports = {
     warp('MAP'); g.run('forceLegacyRegionalView = true; player.x = 8.5*TILE; player.y = 8.5*TILE; __reconcileCanonicalForTest();');
     assert.equal(g.run('canWalk(8.5*TILE, 8.5*TILE)'), true, 'canWalk on open MAP tile unchanged');
     assert.equal(g.run('canWalk(0.5*TILE, 0.5*TILE)'), false, 'canWalk on MAP border wall unchanged');
+
+    // ── 31. Multiple disjoint structural ranges on one physical edge ───────
+    // Temporarily split the existing NB_S.north <-> NB_C.south seam around a
+    // nonwalkable WATER gap. This exercises production movement without adding
+    // fixture-only maps or a second seam implementation.
+    g.run(`window.__multiOldA=EDGE_TRANSITIONS.NORTH_BASIN_S_MAP.north;
+      window.__multiOldB=EDGE_TRANSITIONS.NORTH_BASIN_C_MAP.south;
+      window.__multiOldATile=NORTH_BASIN_S_MAP[0][5];
+      window.__multiOldBTile=NORTH_BASIN_C_MAP[ROWS-1][5];
+      NORTH_BASIN_S_MAP[0][5]=WATER; NORTH_BASIN_C_MAP[ROWS-1][5]=WATER;
+      EDGE_TRANSITIONS.NORTH_BASIN_S_MAP.north=[
+        {targetMap:'NORTH_BASIN_C_MAP',targetEdge:'south',sourceRange:[6,13]},
+        {targetMap:'NORTH_BASIN_C_MAP',targetEdge:'south',sourceRange:[1,4]}];
+      EDGE_TRANSITIONS.NORTH_BASIN_C_MAP.south=[
+        {targetMap:'NORTH_BASIN_S_MAP',targetEdge:'north',sourceRange:[1,4]},
+        {targetMap:'NORTH_BASIN_S_MAP',targetEdge:'north',sourceRange:[6,13]}];
+      _CS_INDEX=null;_CS_MAPS=null;`);
+    let split = J("JSON.stringify(eligibleContinuousSeam('NORTH_BASIN_S_MAP','north').segments.map(function(s){return s.range;}))");
+    assert.deepEqual(split, [[1, 4], [6, 13]], 'multi-segment index sorts disjoint ranges deterministically');
+    assert.deepEqual(J("JSON.stringify(eligibleContinuousSeam('NORTH_BASIN_C_MAP','south').segments.map(function(s){return s.range;}))"), [[1, 4], [6, 13]], 'reciprocal range set indexed');
+    assert.equal(g.run("eligibleContinuousSeam('NORTH_BASIN_S_MAP','north',5)"), null, 'gap has no selected segment');
+    assert.deepEqual(J("JSON.stringify(eligibleContinuousSeam('NORTH_BASIN_S_MAP','north',2).range)"), [1, 4]);
+    assert.deepEqual(J("JSON.stringify(eligibleContinuousSeam('NORTH_BASIN_S_MAP','north',9).range)"), [6, 13]);
+
+    // Both ranges cross in both directions with one handoff and immediate reversal.
+    for (const col of [2, 9]) {
+      warp('NORTH_BASIN_S_MAP');
+      g.run(`forceLegacyRegionalView=false;player.x=${col + 0.5}*TILE;player.y=0.3*TILE;player.facing='up';__reconcileCanonicalForTest();`);
+      let rec = drive({ ArrowUp: true }, 8);
+      assert.equal(mapId(), 'NORTH_BASIN_C_MAP', `range at col ${col} crosses north`);
+      assert.equal(rec.handoffs, 1, `range at col ${col} hands off once northbound`);
+      assert.ok(rec.maxWorldD <= SPEED + 1e-9, 'no movement is applied twice');
+      rec = drive({ ArrowDown: true }, 8);
+      assert.equal(mapId(), 'NORTH_BASIN_S_MAP', `range at col ${col} reverses immediately`);
+      assert.equal(rec.handoffs, 1, `range at col ${col} hands off once southbound`);
+      assert.equal(g.run('player.facing'), 'down', 'facing follows reversal normally');
+
+      warp('NORTH_BASIN_C_MAP');
+      g.run(`forceLegacyRegionalView=false;player.x=${col + 0.5}*TILE;player.y=(ROWS-0.3)*TILE;__reconcileCanonicalForTest();`);
+      rec = drive({ ArrowDown: true }, 8);
+      assert.equal(mapId(), 'NORTH_BASIN_S_MAP', `reciprocal range at col ${col} crosses south`);
+      assert.equal(rec.handoffs, 1);
+    }
+
+    // Gap collision remains ordinary and is never suppressed or authorized.
+    warp('NORTH_BASIN_S_MAP');
+    g.run('forceLegacyRegionalView=false;player.x=5.5*TILE;player.y=0.4*TILE;__reconcileCanonicalForTest();');
+    assert.equal(g.run("continuousSeamSuppressLegacyEdge('north')"), false, 'gap does not suppress normal edge collision');
+    assert.equal(g.run('continuousSeamEngaged(0,-2)'), false, 'gap does not engage seamless movement');
+    const gapStart = worldY(); const gapMove = drive({ ArrowUp: true }, 12);
+    assert.equal(mapId(), 'NORTH_BASIN_S_MAP');
+    assert.equal(worldY(), gapStart, 'nonwalkable gap remains blocked');
+    assert.equal(gapMove.handoffs, 0);
+
+    // Parallel and diagonal movement is deterministic at all four endpoints.
+    for (const endpoint of [1, 4, 6, 13]) {
+      const inward = endpoint === 1 || endpoint === 6 ? 'ArrowRight' : 'ArrowLeft';
+      warp('NORTH_BASIN_S_MAP');
+      g.run(`forceLegacyRegionalView=false;player.x=${endpoint + 0.5}*TILE;player.y=0.3*TILE;__reconcileCanonicalForTest();`);
+      const px = worldX(); const parRec = drive({ [inward]: true }, 2);
+      assert.notEqual(worldX(), px, `parallel movement works at endpoint ${endpoint}`);
+      assert.equal(parRec.handoffs, 0);
+      warp('NORTH_BASIN_S_MAP');
+      g.run(`forceLegacyRegionalView=false;player.x=${endpoint + 0.5}*TILE;player.y=0.3*TILE;__reconcileCanonicalForTest();`);
+      const diagRec = drive({ ArrowUp: true, [inward]: true }, 10);
+      assert.equal(mapId(), 'NORTH_BASIN_C_MAP', `diagonal inward crossing works at endpoint ${endpoint}`);
+      assert.equal(diagRec.handoffs, 1);
+      assert.ok(diagRec.maxWorldD <= SPEED * Math.SQRT2 + 1e-9, 'X-then-Y applies each axis at most once');
+    }
+
+    // Legacy fallback still selects either range and uses its established inset
+    // landing + cooldown; the gap finds no segment.
+    for (const col of [2, 9]) {
+      warp('NORTH_BASIN_S_MAP');
+      g.run(`forceLegacyRegionalView=true;combat.cooldown=0;player.x=${col + 0.5}*TILE;player.y=0.5*TILE;__reconcileCanonicalForTest();`);
+      assert.equal(g.run("tryEdgeTransition('north')"), true, `legacy crosses range at col ${col}`);
+      assert.equal(mapId(), 'NORTH_BASIN_C_MAP');
+      assert.equal(g.run('player.y'), (ROWS - 2 + 0.5) * TILE);
+      assert.equal(g.run('combat.cooldown'), g.run('ENCOUNTER_COOLDOWN'));
+      g.run(`combat.cooldown=0;player.x=${col + 0.5}*TILE;player.y=(ROWS-0.5)*TILE;__reconcileCanonicalForTest();`);
+      assert.equal(g.run("tryEdgeTransition('south')"), true, `legacy reciprocates at col ${col}`);
+      assert.equal(mapId(), 'NORTH_BASIN_S_MAP');
+    }
+    warp('NORTH_BASIN_S_MAP');
+    g.run('forceLegacyRegionalView=true;player.x=5.5*TILE;player.y=0.5*TILE;__reconcileCanonicalForTest();');
+    assert.equal(g.run("tryEdgeTransition('north')"), false, 'legacy gap remains blocked');
+
+    // Every malformed edge-set fails as one unit: never authorize only its valid
+    // first segment. The reciprocal is deliberately kept clean except in the
+    // explicit nonreciprocal case.
+    const cleanA = [
+      { targetMap: 'NORTH_BASIN_C_MAP', targetEdge: 'south', sourceRange: [1, 4] },
+      { targetMap: 'NORTH_BASIN_C_MAP', targetEdge: 'south', sourceRange: [6, 13] },
+    ];
+    const cleanB = [
+      { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'north', sourceRange: [1, 4] },
+      { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'north', sourceRange: [6, 13] },
+    ];
+    const edgeResult = (a, b) => J(`(function(){
+      EDGE_TRANSITIONS.NORTH_BASIN_S_MAP.north=${JSON.stringify(a)};
+      EDGE_TRANSITIONS.NORTH_BASIN_C_MAP.south=${JSON.stringify(b)};
+      _CS_INDEX=null;_CS_MAPS=null;
+      var group=eligibleContinuousSeam('NORTH_BASIN_S_MAP','north');
+      var d=continuousSegmentDiagnostics().find(function(x){return x.from==='NORTH_BASIN_S_MAP'&&x.dir==='north';});
+      return JSON.stringify({authorized:!!group,count:continuousSeamEntries().filter(function(e){return e.from==='NORTH_BASIN_S_MAP'&&e.dir==='north';}).length,diag:d});})()`);
+    const malformed = [
+      ['overlap', [cleanA[0], { ...cleanA[1], sourceRange: [4, 13] }], cleanB],
+      ['duplicate', [cleanA[0], { ...cleanA[0] }], cleanB],
+      ['fractional', [cleanA[0], { ...cleanA[1], sourceRange: [6.5, 13] }], cleanB],
+      ['reversed', [cleanA[0], { ...cleanA[1], sourceRange: [13, 6] }], cleanB],
+      ['remapped', [cleanA[0], { ...cleanA[1], targetRange: [7, 13] }], cleanB],
+      ['behavior', [cleanA[0], { ...cleanA[1], callback: true }], cleanB],
+      ['nonreciprocal', cleanA, [cleanB[0]]],
+    ];
+    for (const [label, a, b] of malformed) {
+      const result = edgeResult(a, b);
+      assert.equal(result.authorized, false, `${label}: whole edge fails closed`);
+      assert.equal(result.count, 0, `${label}: no valid subset is partially authorized`);
+    }
+
+    // Restore the production seam and terrain exactly, then rebuild the index so
+    // subsequent consumers see the unchanged single-segment authorities.
+    g.run(`EDGE_TRANSITIONS.NORTH_BASIN_S_MAP.north=window.__multiOldA;
+      EDGE_TRANSITIONS.NORTH_BASIN_C_MAP.south=window.__multiOldB;
+      NORTH_BASIN_S_MAP[0][5]=window.__multiOldATile;
+      NORTH_BASIN_C_MAP[ROWS-1][5]=window.__multiOldBTile;
+      delete window.__multiOldA;delete window.__multiOldB;
+      delete window.__multiOldATile;delete window.__multiOldBTile;
+      _CS_INDEX=null;_CS_MAPS=null;`);
+    assert.equal(g.run('continuousSeamEntries().length'), 34, 'all production seam segments restore unchanged');
   },
 };
