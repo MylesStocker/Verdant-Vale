@@ -1160,6 +1160,18 @@ const EDGE_TRANSITIONS = {
     south: [
       { targetMap: 'THORNMERE_NORTH_FEN_MAP', targetEdge: 'north', sourceRange: [1, 14] },
     ],
+    // The canal WATER at row 5 separates two short shoreline entrances into
+    // Thornmere's Canal Head. Both ranges are structural-only and reciprocal.
+    east: [
+      { targetMap: 'THORNMERE_CANAL_HEAD_MAP', targetEdge: 'west', sourceRange: [2, 4] },
+      { targetMap: 'THORNMERE_CANAL_HEAD_MAP', targetEdge: 'west', sourceRange: [6, 8] },
+    ],
+  },
+  THORNMERE_CANAL_HEAD_MAP: {
+    west: [
+      { targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'east', sourceRange: [2, 4] },
+      { targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'east', sourceRange: [6, 8] },
+    ],
   },
   THORNMERE_NORTH_FEN_MAP: {
     north: [

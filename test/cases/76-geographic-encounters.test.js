@@ -39,7 +39,7 @@ module.exports = {
       }
       return JSON.stringify(out);
     })()`);
-    assert.equal(all.length, 25, 'all 25 placed regional maps considered');
+    assert.equal(all.length, 26, 'all 26 placed regional maps considered');
     for (const r of all) {
       assert.ok(r.ok && r.right, `${r.mapId} resolves from its own chunk centre to itself`);
       assert.ok(r.poolMatch, `${r.mapId} resolves to the exact canonical MAP_CATALOG encounter pool (incl. empty/absent)`);

@@ -78,7 +78,7 @@ module.exports = {
     // 6. Representative map from all five map regions resolves through MAP_REGISTRY.
     const mapReg = { MAP: 'calwick', SLUICE_MAP: 'thornmere', DRENWICK_MARKET_MAP: 'drenwick', DUNGEON_MAP: 'south-ruins', SUNKEN_GALLERY_R2C2: 'north-basin' };
     for (const m of Object.keys(mapReg)) assert.equal(g.run('MAP_REGISTRY[mapRegistryId(' + m + ')].map === ' + m), true, m + ' resolves through MAP_REGISTRY');
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 112);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 113);
 
     // 7. Representative NPC from all five NPC files resolves through SIMPLE_NPCS + NPC_REGISTRY.
     const npcReg = { aldric: 'CALWICK_NPCS', gorrit_wend: 'THORNMERE_WILDS_NPCS', tarvec: 'DRENWICK_TOWN_NPCS', harbormaster_interior: 'DRENWICK_INTERIOR_NPCS', wen: 'SOUTH_RUINS_NPCS' };

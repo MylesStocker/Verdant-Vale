@@ -13,6 +13,7 @@
     "MAP3_N2",
     "DRENWICK_EAST_CANAL_MAP",
     "THORNMERE_NORTH_FEN_MAP",
+    "THORNMERE_CANAL_HEAD_MAP",
     "THORNMERE_UPPER_SHALLOWS_MAP",
     "DRENWICK_WEST_OUTFALL_MAP",
     "NORTH_BASIN_S_MAP",
@@ -188,6 +189,12 @@
     },
     {
       "id": "THORNMERE_NORTH_FEN_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THORNMERE_CANAL_HEAD_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -8744,6 +8751,62 @@
       "allOk": true
     },
     {
+      "srcMap": "DRENWICK_EAST_CANAL_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "THORNMERE_CANAL_HEAD_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "DRENWICK_EAST_CANAL_MAP",
+      "direction": "east",
+      "segment": 1,
+      "sourceRange": [
+        6,
+        8
+      ],
+      "targetMap": "THORNMERE_CANAL_HEAD_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "THORNMERE_CANAL_HEAD_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "DRENWICK_EAST_CANAL_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "THORNMERE_CANAL_HEAD_MAP",
+      "direction": "west",
+      "segment": 1,
+      "sourceRange": [
+        6,
+        8
+      ],
+      "targetMap": "DRENWICK_EAST_CANAL_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "THORNMERE_NORTH_FEN_MAP",
       "direction": "north",
       "segment": 0,
@@ -10517,14 +10580,54 @@
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "THORNMERE_UPPER_SHALLOWS_MAP",
+        "mapId": "THORNMERE_CANAL_HEAD_MAP",
         "chunkX": 4,
-        "chunkY": 4,
+        "chunkY": 3,
         "dir": "north",
         "neighbor": null,
         "target": null,
         "type": null,
         "verdict": "BORDER"
+      },
+      {
+        "mapId": "THORNMERE_CANAL_HEAD_MAP",
+        "chunkX": 4,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": "THORNMERE_UPPER_SHALLOWS_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "THORNMERE_CANAL_HEAD_MAP",
+        "chunkX": 4,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "THORNMERE_CANAL_HEAD_MAP",
+        "chunkX": 4,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": "DRENWICK_EAST_CANAL_MAP",
+        "target": "DRENWICK_EAST_CANAL_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "THORNMERE_UPPER_SHALLOWS_MAP",
+        "chunkX": 4,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": "THORNMERE_CANAL_HEAD_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "THORNMERE_UPPER_SHALLOWS_MAP",
@@ -10741,10 +10844,10 @@
         "chunkX": 3,
         "chunkY": 3,
         "dir": "east",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "THORNMERE_CANAL_HEAD_MAP",
+        "target": "THORNMERE_CANAL_HEAD_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "DRENWICK_EAST_CANAL_MAP",
@@ -11320,8 +11423,8 @@
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
       "BORDER": 24,
-      "ALIGNS": 38,
-      "BLOCKED": 34
+      "ALIGNS": 40,
+      "BLOCKED": 36
     }
   }
 }

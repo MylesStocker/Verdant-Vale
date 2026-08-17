@@ -14,7 +14,7 @@ const NORTH_ID = 'DRENWICK_EAST_CANAL_MAP';
 const WEST_ID = 'MAP3_N1';
 const SOUTH_ID = 'MAP4';
 const FP = '959c67546ae56ca6a05dc3973f930495d5574c359d0cb64d714c5235f63bcae8';
-const NORTH_FP = '51ac08da0d044f8c5e6a9199f36c1a323604c2905f5ee546f18c4cc10f1ab40b';
+const NORTH_FP = '2e74d8cd14fa6e022cba316f1d18d4409a2d5b886ed6c5e2df9392933f5ecad6';
 const WEST_FP = '7a7f6def4fbae9ef32f036fb9932e1288171d90c0da68f9e5eaed186b8d5a923';
 const SOUTH_FP = '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9';
 const OLD_NORTH_FP = 'eab38f6b548bbd1201900dd65914f742f3b100c5db6a56e9f13d82466e3ebc14';
@@ -288,13 +288,15 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(north)), NORTH_FP); assert.equal(GRID_FP.fingerprints[NORTH_ID], NORTH_FP);
     assert.equal(sha256(JSON.stringify(west)), WEST_FP); assert.equal(GRID_FP.fingerprints[WEST_ID], WEST_FP);
     assert.equal(sha256(JSON.stringify(south)), SOUTH_FP); assert.equal(GRID_FP.fingerprints[SOUTH_ID], SOUTH_FP);
-    const oldNorth = north.map((row) => row.slice()); for (let c = 1; c <= 14; c++) oldNorth[14][c] = TREE;
+    const oldNorth = north.map((row) => row.slice());
+    for (let r = 0; r < 15; r++) oldNorth[r][15] = r === 5 ? WATER : TREE;
+    for (let c = 1; c <= 14; c++) oldNorth[14][c] = TREE;
     assert.equal(sha256(JSON.stringify(oldNorth)), OLD_NORTH_FP);
     const oldWest = west.map((row) => row.slice()); for (let r = 1; r <= 13; r++) oldWest[r][15] = TREE;
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP);
     const oldSouth = south.map((row) => row.slice()); for (const c of [1, 2, 13, 14]) oldSouth[0][c] = TREE;
     assert.equal(sha256(JSON.stringify(oldSouth)), OLD_SOUTH_FP);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 25);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 26);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint matches`);
     }
@@ -308,10 +310,10 @@ module.exports = {
     assert.equal(g.run('typeof enterSmugglerFort'), 'function'); assert.equal(g.run('typeof enterFenBrewery'), 'function');
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 34 });
-    assert.equal(audit.seamReadiness.edges.length, 100);
-    assert.equal(g.run('continuousSeamEntries().length'), 42); assert.equal(g.run('continuousSeamEntries().length/2'), 21);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 25);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 18);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 40, BLOCKED: 36 });
+    assert.equal(audit.seamReadiness.edges.length, 104);
+    assert.equal(g.run('continuousSeamEntries().length'), 46); assert.equal(g.run('continuousSeamEntries().length/2'), 23);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 26);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 19);
   },
 };

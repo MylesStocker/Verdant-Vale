@@ -789,6 +789,7 @@ const MAP_CATALOG = {
   MAP3_N2: _regionalChunkCatalogEntry('MAP3_N2'),
   DRENWICK_EAST_CANAL_MAP: _regionalChunkCatalogEntry('DRENWICK_EAST_CANAL_MAP'),
   THORNMERE_NORTH_FEN_MAP: _regionalChunkCatalogEntry('THORNMERE_NORTH_FEN_MAP'),
+  THORNMERE_CANAL_HEAD_MAP: _regionalChunkCatalogEntry('THORNMERE_CANAL_HEAD_MAP'),
   THORNMERE_UPPER_SHALLOWS_MAP: _regionalChunkCatalogEntry('THORNMERE_UPPER_SHALLOWS_MAP'),
   // Scenery-only chunk (1,3): derived like any placed regional chunk. It is a real
   // outdoor MAP_CATALOG entry (so it resolves for rendering, layout, content keys and

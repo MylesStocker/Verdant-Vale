@@ -36,7 +36,7 @@ module.exports = {
 
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'new grid fingerprint');
     assert.equal(GRID_FP.fingerprints[ID], FP, 'fingerprint fixture records it');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 25, 'all 25 grids are fingerprinted');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 26, 'all 26 grids are fingerprinted');
 
     const audit = require('../transition-audit.js');
     const verdicts = Object.fromEntries(audit.seamReadiness.edges.map((e) => [e.mapId + '|' + e.dir, e.verdict]));

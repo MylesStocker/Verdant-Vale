@@ -15,9 +15,9 @@ Flats, West Shore, and the Upper Reach — plus the unmarked chamber and the
 Sunken Gallery hanging off the Upper Reach, see the newest pass below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-112 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 112 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 88 are the
+113 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 113 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 89 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -36,7 +36,7 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **25 regional chunks** now occupy the `'overworld'` 5×6 envelope (5 sparse void
+- **26 regional chunks** now occupy the `'overworld'` 5×6 envelope (4 sparse void
   cells remain). Seven of them are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
@@ -85,6 +85,15 @@ rooms were added to the registry.)
   `[1,4]` and south-bank `[6,13]` ranges, leaving canal row 5 blocked. It uses the
   existing `far` profile / exact `FAR_ENEMY_TEMPLATES` reference on both banks. No
   PATH, bridge, NPC, item, quest, interaction, landmark, or decoration is authored.
+  Its corrected east shoreline is `T W R R R W R R R W T W T W T`; reciprocal
+  `[2,4]` and `[6,8]` REEDS openings now enter Canal Head without joining its banks.
+
+  The accessible **Thornmere — Canal Head** (`THORNMERE_CANAL_HEAD_MAP`, chunk
+  (4,3)) is a broad-water lake outlet where the uninterrupted row-5 canal widens
+  directly east into Thornmere. Its two disconnected 10-cell REEDS shoreline
+  shelves occupy only columns 0–3, use the existing `thornmere` profile / exact
+  `THORNMERE_ENEMY_TEMPLATES` reference, and leave north/east/south nonwalkable.
+  The south edge matches Upper Shallows exactly; no transition enters that scenery.
 
   The accessible **Northern Thornmere Fen** (`THORNMERE_NORTH_FEN_MAP`, chunk
   (3,4)) extends the south bank into a one-component rough fen loop joining
@@ -95,18 +104,18 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 100 directed physical edges → ALIGNS 38 / BORDER 24 / BLOCKED 34 /
+  Audit: 104 directed physical edges → ALIGNS 40 / BORDER 24 / BLOCKED 36 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  42 directed entries / 21 reciprocal segment pairs. See architecture.md
+  46 directed entries / 23 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **98 tests** (`test/cases/01-…98-`), `node test/run.js` — all passing.
+- **99 tests** (`test/cases/01-…99-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 112 maps, 238 fixed-destination transitions, 8
+  isolation pass, 113 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 112 maps, 112 metadata entries, 26,880 tile cells, 122
+  (see below), across 113 maps, 113 metadata entries, 27,120 tile cells, 126
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
   dialogue/text entries, 180 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.

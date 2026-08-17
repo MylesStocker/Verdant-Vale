@@ -32,7 +32,7 @@ module.exports = {
       { mapId: ID, regionId: 'overworld', chunkX: 4, chunkY: 4 });
     assert.equal(g.run("mapIdForChunk('overworld',3,4)"), WEST_ID);
     assert.equal(g.run("mapIdForChunk('overworld',4,5)"), SOUTH_ID);
-    assert.equal(g.run("mapIdForChunk('overworld',4,3)"), null, 'north remains void');
+    assert.equal(g.run("mapIdForChunk('overworld',4,3)"), 'THORNMERE_CANAL_HEAD_MAP', 'Canal Head is now the placed north neighbour');
     assert.equal(g.run("mapIdForChunk('overworld',5,4)"), null, 'east lies beyond the placed envelope');
     const meta = J(`JSON.stringify((function(){var d=REGIONAL_CHUNK_CATALOG['${ID}'];var m=mapEntryForId('${ID}');
       var def=THORNMERE_REGIONAL_CHUNK_DEFINITIONS.find(function(x){return x.mapId==='${ID}';});return {
@@ -152,7 +152,7 @@ module.exports = {
 
     // 12–15. Fingerprints, audit, totals, and save schema remain stable.
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 25);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 26);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint stable`);
     }
@@ -160,13 +160,13 @@ module.exports = {
     const verdict = Object.fromEntries(audit.seamReadiness.edges.map((e) => [e.mapId + '|' + e.dir, e.verdict]));
     assert.equal(verdict[`${ID}|west`], 'BLOCKED'); assert.equal(verdict[`${WEST_ID}|east`], 'BLOCKED');
     assert.equal(verdict[`${ID}|south`], 'BLOCKED'); assert.equal(verdict[`${SOUTH_ID}|north`], 'BLOCKED');
-    assert.equal(verdict[`${ID}|north`], 'BORDER'); assert.equal(verdict[`${ID}|east`], 'BORDER');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 34 });
-    assert.equal(audit.seamReadiness.edges.length, 100);
-    assert.equal(g.run('continuousSeamEntries().length'), 42);
+    assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'BORDER');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 40, BLOCKED: 36 });
+    assert.equal(audit.seamReadiness.edges.length, 104);
+    assert.equal(g.run('continuousSeamEntries().length'), 46);
     let placed = 0; for (let y = 0; y <= 5; y++) for (let x = 0; x <= 4; x++) if (g.run(`mapIdForChunk('overworld',${x},${y})`)) placed++;
-    assert.equal(placed, 25); assert.equal(30 - placed, 5);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 112);
+    assert.equal(placed, 26); assert.equal(30 - placed, 4);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 113);
     assert.equal(g.run('SAVE_VERSION'), 4);
   },
 };

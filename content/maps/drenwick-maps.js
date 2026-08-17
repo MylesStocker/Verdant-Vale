@@ -602,30 +602,31 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
   // South Reservoir Road. WATER row 5 continues MAP3_N2's canal without any
   // crossing, dividing the irregular GRASS/REEDS fen into exactly two walkable
   // bank components. The north edge opens broadly to NORTH_BASIN_SE_MAP; the west
-  // edge has separate north- and south-bank ranges. East/south remain fail-closed
-  // borders until their neighbours are authored.
+  // edge has separate north- and south-bank ranges. East now opens through two
+  // short REEDS shoreline shelves into Thornmere's Canal Head; south opens broadly
+  // into Northern Thornmere Fen.
   { mapId: 'DRENWICK_EAST_CANAL_MAP', regionId: 'overworld', chunkX: 3, chunkY: 3, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-      [  1, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  //  0  broad north-bank seam c1-14; NW water preserves MAP3_N2 corner
-      [ 23,  0, 23, 23,  0,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  3],  //  1  north bank
-      [ 23, 23,  0, 23,  0,  3,  3,  0, 23, 23,  0, 23,  0,  0, 23,  3],  //  2  irregular tree clump
-      [  0,  0, 23,  0, 23, 23,  0,  0, 23,  3,  3, 23, 23,  0, 23,  3],  //  3  northern fen
-      [  0, 23,  3,  3, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23,  0,  3],  //  4  north canal bank
+      [  1, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  //  0  broad north-bank seam c1-14; NE corner remains blocked
+      [ 23,  0, 23, 23,  0,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  1],  //  1  north bank reaches open shoreline water
+      [ 23, 23,  0, 23,  0,  3,  3,  0, 23, 23,  0, 23,  0,  0, 23, 23],  //  2  north-bank REEDS entrance begins
+      [  0,  0, 23,  0, 23, 23,  0,  0, 23,  3,  3, 23, 23,  0, 23, 23],  //  3  northern shoreline shelf
+      [  0, 23,  3,  3, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23,  0, 23],  //  4  north-bank REEDS entrance ends
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  uninterrupted canal; no crossing
-      [  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0,  3,  3, 23,  0,  3],  //  6  south canal bank
-      [ 23,  0,  0, 23,  3,  3, 23,  0,  0, 23, 23,  0,  0, 23,  0,  3],  //  7  southern fen
-      [  0, 23,  0,  0, 23, 23,  0,  0, 23,  3,  3, 23,  0,  0, 23,  3],  //  8  broken reed clumps
-      [ 23,  0,  3,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23,  3],  //  9  scattered trees
+      [  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0,  3,  3, 23,  0, 23],  //  6  south-bank REEDS entrance begins
+      [ 23,  0,  0, 23,  3,  3, 23,  0,  0, 23, 23,  0,  0, 23,  0, 23],  //  7  southern shoreline shelf
+      [  0, 23,  0,  0, 23, 23,  0,  0, 23,  3,  3, 23,  0,  0, 23, 23],  //  8  south-bank REEDS entrance ends
+      [ 23,  0,  3,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23,  1],  //  9  shoreline water below the entrance
       [ 23, 23,  0,  0, 23,  0,  0, 23,  0, 23,  0,  0, 23,  3,  0,  3],  // 10  damp southern fen
-      [  0, 23,  0, 23, 23,  3,  3, 23,  0,  0, 23,  0, 23, 23,  0,  3],  // 11  irregular tree clump
+      [  0, 23,  0, 23, 23,  3,  3, 23,  0,  0, 23,  0, 23, 23,  0,  1],  // 11  irregular tree clump reaches shoreline water
       [ 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  3, 23,  0,  0, 23,  3],  // 12  southern fen
-      [  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  // 13  future broad south-bank landing row
+      [  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  1],  // 13  broad south-bank landing reaches shoreline water
       [  3, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  // 14  broad c1-14 fen seam south; irregular GRASS/REEDS matches Northern Thornmere Fen
     ],
     displayName: 'Eastern Canal Banks', region: 'Drenwick', contentKey: 'drenwick_east_canal',
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Two disconnected Drenwick fen banks divided by the unbroken east-west canal. All walkable GRASS/REEDS terrain uses FAR_ENEMY_TEMPLATES; no PATH, bridge, items, NPCs, interactions, landmarks, decoration, or quest content is authored. East remains blocked; the broad south edge now opens from the south bank into Northern Thornmere Fen.' },
+    notes: 'Two disconnected Drenwick fen banks divided by the unbroken east-west canal. All walkable GRASS/REEDS terrain uses FAR_ENEMY_TEMPLATES; no PATH, bridge, items, NPCs, interactions, landmarks, decoration, or quest content is authored. Two short REEDS ranges open east into Thornmere Canal Head while the broad south edge opens into Northern Thornmere Fen.' },
 
   // ─── Drenwick West Outfall — DRENWICK_WEST_OUTFALL_MAP  (16 × 15) ─────────────
   // Regional chunk (1,3): the void cell one column WEST of MAP3_N2 (2,3), between

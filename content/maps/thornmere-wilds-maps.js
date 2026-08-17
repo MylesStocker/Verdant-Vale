@@ -480,6 +480,33 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'thornmere',
     allowRandomEncounters: true, allowSave: true,
     notes: 'One connected irregular GRASS/REEDS fen bordered east by the broad nonwalkable Upper Shallows inlet. Uses THORNMERE_ENEMY_TEMPLATES; no PATH, items, NPCs, quests, interactions, buildings, landmarks, decorations, special encounters, or compatibility alias.' },
+  // ─── Thornmere — Canal Head — THORNMERE_CANAL_HEAD_MAP (16 × 15) ─────────
+  // Accessible regional chunk (4,3): the straight Drenwick canal opens rapidly
+  // into Thornmere's broad lake. Two small REEDS shelves on opposite banks permit
+  // entry from Eastern Canal Banks without creating a crossing; all other terrain
+  // is nonwalkable WATER/TREE, and no walkable cell extends east of column 3.
+  { mapId: 'THORNMERE_CANAL_HEAD_MAP', regionId: 'overworld', chunkX: 4, chunkY: 3, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  open northern lake beyond blocked NW corner
+      [  1,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  submerged tree shapes the north shelf
+      [ 23, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  north-bank REEDS entrance
+      [ 23, 23, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  north shelf reaches its maximum depth
+      [ 23, 23, 23,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  north shelf narrows at canal bank
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  uninterrupted straight canal opens into lake
+      [ 23, 23, 23,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  6  south shelf narrows at canal bank
+      [ 23, 23, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  7  south shelf reaches its maximum depth
+      [ 23, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  8  south-bank REEDS entrance
+      [  1,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  submerged tree shapes the south shelf
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  wooded shoreline remnant
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  open lake
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  isolated western tree remnant
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open lake
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  matches Upper Shallows north edge exactly
+    ],
+    displayName: 'Thornmere — Canal Head', region: 'Thornmere', contentKey: 'thornmere_canal_head',
+    presentation: 'continuous', encounterProfileId: 'thornmere',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'Accessible lake outlet with two disconnected REEDS shoreline shelves divided by uninterrupted canal WATER. Uses THORNMERE_ENEMY_TEMPLATES; no grass, path, bridge, items, NPCs, interactions, decorations, landmarks, quests, special encounters, or compatibility alias.' },
   // ─── Thornmere — Upper Shallows — THORNMERE_UPPER_SHALLOWS_MAP (16 × 15) ─
   // Regional chunk (4,4): inaccessible open-water scenery east of Northern
   // Thornmere Fen and north of Thornmere Shallows. The sparse reed/tree remnants
