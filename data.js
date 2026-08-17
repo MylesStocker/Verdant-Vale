@@ -799,6 +799,7 @@ const MAP_CATALOG = {
   // ── The North Basin (regional chunks — derived from REGIONAL_CHUNK_CATALOG) ──
   NORTH_BASIN_S_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_S_MAP'),
   NORTH_BASIN_SE_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SE_MAP'),
+  EAST_CAUSEWAY_MAP: _regionalChunkCatalogEntry('EAST_CAUSEWAY_MAP'),
   NORTH_BASIN_C_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_C_MAP'),
   NORTH_BASIN_SW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SW_MAP'),
   NORTH_BASIN_W_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W_MAP'),

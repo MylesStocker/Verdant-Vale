@@ -56,9 +56,9 @@ module.exports = {
     R("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); __reconcileCanonicalForTest();");
     assert.equal(R('continuousWorldViewActive()'), false, 'returning to MAP suppresses continuous automatically');
 
-    // ── 7. All 46 eligible directed segment entries operate under the default ──
-    assert.equal(R('continuousSeamEntries().length'), 46, '46 eligible directed segment entries');
-    assert.equal(R('continuousSeamEntries().length/2'), 23, '23 reciprocal segment pairs');
+    // ── 7. All 48 eligible directed segment entries operate under the default ──
+    assert.equal(R('continuousSeamEntries().length'), 48, '48 eligible directed segment entries');
+    assert.equal(R('continuousSeamEntries().length/2'), 24, '24 reciprocal segment pairs');
     // every seam endpoint is a continuous map that is active-by-default
     assert.equal(R("continuousSeamEntries().every(function(e){return continuousSeamMapEligible(e.from);})"), true, 'every seam map is continuous-eligible under the default');
 
@@ -101,9 +101,9 @@ module.exports = {
 
     // ── 10. BLOCKED / BORDER edges remain impassable (derived audit totals) ────
     const audit = require('../transition-audit.js').seamReadiness.totals;
-    assert.equal(audit.BLOCKED, 36, 'BLOCKED edges');
-    assert.equal(audit.BORDER, 24, 'BORDER edges');
-    assert.equal(audit.ALIGNS, 40, 'ALIGNS physical edges');
+    assert.equal(audit.BLOCKED, 40, 'BLOCKED edges');
+    assert.equal(audit.BORDER, 22, 'BORDER edges');
+    assert.equal(audit.ALIGNS, 42, 'ALIGNS physical edges');
     assert.equal(audit.INTENTIONAL_DISCRETE, 4, "MAP's four intentional-discrete crossings unchanged");
 
     // ── 11. Nonregional / discrete contexts stay legacy under the default ─────
@@ -239,9 +239,9 @@ module.exports = {
     const catRef = R('REGIONAL_CHUNK_CATALOG'); void catRef;
     R("(function(){var w=mapLocalPxToRegionWorldPx('MAP3',8*TILE,7*TILE); for(var i=0;i<10;i++) buildContinuousWorldPlanFromWorld('overworld',w.worldPxX+i,w.worldPxY,512,480); })()");
     assert.equal(R("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+JSON.stringify(regionalWorldPosition())"), preplan, 'camera/visibility planning mutates no gameplay state');
-    assert.equal(R("REGIONAL_CHUNK_CATALOG===window.REGIONAL_CHUNK_CATALOG && _REGIONAL_CHUNK_DEFINITIONS.length===26"), true, 'no per-frame rebuild of the chunk catalog');
+    assert.equal(R("REGIONAL_CHUNK_CATALOG===window.REGIONAL_CHUNK_CATALOG && _REGIONAL_CHUNK_DEFINITIONS.length===27"), true, 'no per-frame rebuild of the chunk catalog');
 
-    // ── 22. All 26 regional grid fingerprints match the reviewed fixture ──────
+    // ── 22. All 27 regional grid fingerprints match the reviewed fixture ──────
     for (const id of Object.keys(GRID_FP.fingerprints)) {
       assert.equal(sha256(R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], `${id}: grid fingerprint unchanged`);
     }

@@ -1,5 +1,5 @@
 'use strict';
-// Stable, repository-owned fingerprints of the 26 placed regional chunk grids.
+// Stable, repository-owned fingerprints of the 27 placed regional chunk grids.
 //
 // Canonical serialization: `sha256hex(JSON.stringify(map))`, where `map` is the
 // 15×16 row-major tile-id array read from `REGIONAL_CHUNK_CATALOG[mapId].map`.
@@ -33,7 +33,8 @@ module.exports = {
     THORNMERE_UPPER_SHALLOWS_MAP: 'fe6eaa3e73a470e8a1cf4a959d285dd26a34214f814373d0518cd4bc156fb7d5',
     DRENWICK_WEST_OUTFALL_MAP: '0c133a70a426ca8015a3a5204815063a5ef65bf073d3ad40d2b093de0ba813df',
     NORTH_BASIN_S_MAP:  '4cfdbe21cea85198a47cf98368fd9304fa49cf05c2f95edcde614a12889d416a',
-    NORTH_BASIN_SE_MAP: '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00',
+    NORTH_BASIN_SE_MAP: 'b5935b2818eb503e86d1adc86668d8b2ddb2e5699e2c10e298547fcede193931',
+    EAST_CAUSEWAY_MAP: '4ce6d248fbf6fa13b02fccd81785d0a44923ac6c9a0f9c37b4e9d0df851e1f16',
     NORTH_BASIN_C_MAP:  '562b1d6e9b79fcc2a2b1b3092538094ec31ff280733acc326ec8c2f90b257668',
     NORTH_BASIN_SW_MAP: '38e09a579a5e76b8539b02698235e01b2c5d664fa6fc9cfa11dd08804575d4c1',
     NORTH_BASIN_W_MAP:  '5973d3f2a56180686d9c4f75d0cc038730057abb7ba5cea88c042664aa13a21f',

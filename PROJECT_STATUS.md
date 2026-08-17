@@ -15,9 +15,9 @@ Flats, West Shore, and the Upper Reach — plus the unmarked chamber and the
 Sunken Gallery hanging off the Upper Reach, see the newest pass below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-113 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 113 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 89 are the
+114 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 114 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 90 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -36,7 +36,7 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **26 regional chunks** now occupy the `'overworld'` 5×6 envelope (4 sparse void
+- **27 regional chunks** now occupy the `'overworld'` 5×6 envelope (3 sparse void
   cells remain). Seven of them are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
@@ -62,8 +62,8 @@ rooms were added to the registry.)
     playable South Reservoir Road.
   - **North Basin Open Reservoir (East Shore)** (`NORTH_BASIN_E2_MAP`, chunk (4,1)) — south
     of the Far East reservoir and east of the Eastern Woods; its north/west edges exactly
-    mirror those nonwalkable neighbours, while east/south remain reservoir scenery for later
-    expansion.
+    mirror those nonwalkable neighbours; east remains reservoir scenery and south is a
+    blocked exact match against East Causeway.
   - **Thornmere — Upper Shallows** (`THORNMERE_UPPER_SHALLOWS_MAP`, chunk (4,4)) —
     90% open WATER scenery east of Northern Thornmere Fen and north of Thornmere
     Shallows. Three sparse REEDS/TREE remnants break up the water; the explicitly
@@ -74,9 +74,17 @@ rooms were added to the registry.)
   chunk (3,2)) continues the South Approach road east through a reciprocal rows 7–8
   continuous seam: a REEDS shoulder widens the entrance while the PATH road remains
   one tile wide on row 8. The irregular GRASS/REEDS fen uses the harder `upper_reach`
-  encounter profile, and there is no southbound road. Its north and east boundaries
-  remain blocked, with the east road stopping one tile short of TREE; its broad
-  south edge now enters only the northern bank of Eastern Canal Banks.
+  encounter profile, and there is no southbound road. Its north boundary remains
+  blocked; a new reciprocal `[6,10]` east seam carries the one-tile row-8 PATH and
+  four REEDS shoulders into East Causeway. Its broad south edge enters only the
+  northern bank of Eastern Canal Banks.
+
+  The accessible **East Causeway** (`EAST_CAUSEWAY_MAP`, chunk (4,2)) continues
+  that road into the Eastern Reaches through a broad five-tile fen opening. Its
+  western 73 walkable cells form one component, while ordinary mud/stone subsidence
+  and WATER completely interrupt the road from column 11 eastward. The present
+  blockage is deliberately terrain-only: reopening it later requires only terrain
+  replacement and an east seam, with no quest flag, save state, or movement rule.
 
   The accessible **Eastern Canal Banks** (`DRENWICK_EAST_CANAL_MAP`, chunk (3,3))
   continues the Drenwick canal straight east with uninterrupted WATER across row 5.
@@ -104,18 +112,18 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 104 directed physical edges → ALIGNS 40 / BORDER 24 / BLOCKED 36 /
+  Audit: 108 directed physical edges → ALIGNS 42 / BORDER 22 / BLOCKED 40 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  46 directed entries / 23 reciprocal segment pairs. See architecture.md
+  48 directed entries / 24 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **99 tests** (`test/cases/01-…99-`), `node test/run.js` — all passing.
+- **100 tests** (`test/cases/01-…100-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 113 maps, 238 fixed-destination transitions, 8
+  isolation pass, 114 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 113 maps, 113 metadata entries, 27,120 tile cells, 126
+  (see below), across 114 maps, 114 metadata entries, 27,360 tile cells, 128
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
   dialogue/text entries, 180 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.

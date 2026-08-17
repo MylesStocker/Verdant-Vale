@@ -11,7 +11,8 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 
 const ID = 'NORTH_BASIN_SE_MAP';
 const S_ID = 'NORTH_BASIN_S_MAP';
-const FP = '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00';
+const FP = 'b5935b2818eb503e86d1adc86668d8b2ddb2e5699e2c10e298547fcede193931';
+const OLD_FP = '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00';
 const S_FP = '4cfdbe21cea85198a47cf98368fd9304fa49cf05c2f95edcde614a12889d416a';
 const OLD_S_FP = 'd8497eab4cee320947641a41241f6107857980a5e4b2520bdb737845c7022975';
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
@@ -78,11 +79,11 @@ module.exports = {
     assert.deepEqual(m[0], north[14], 'north edge exactly mirrors NORTH_BASIN_E_MAP.south');
     assert.ok(m[0].every((t) => t === TREE), 'north is TREE×16 and nonwalkable');
     for (let row = 0; row < 15; row++) assert.equal(m[row][0], row === 7 ? REEDS : row === 8 ? PATH : TREE, `west edge row ${row}`);
-    for (let row = 0; row < 15; row++) assert.equal(m[row][15], TREE, `east edge row ${row} blocked`);
+    for (let row = 0; row < 15; row++) assert.equal(m[row][15], row === 8 ? PATH : [6,7,9,10].includes(row) ? REEDS : TREE, `east edge row ${row}`);
     assert.deepEqual(m[14], [TREE, REEDS, REEDS, GRASS, REEDS, GRASS, GRASS, REEDS, REEDS, GRASS, REEDS, GRASS, GRASS, REEDS, GRASS, TREE], 'later broad south-bank seam preserves blocked corners');
     for (let col = 0; col <= 14; col++) assert.equal(m[8][col], PATH, `main road r8c${col}`);
     for (let row = 0; row < 15; row++) for (let col = 0; col < 16; col++) if (row !== 8) assert.notEqual(m[row][col], PATH, `no southbound/secondary PATH at r${row}c${col}`);
-    assert.equal(m[8][15], TREE, 'east road stops one tile short');
+    assert.equal(m[8][15], PATH, 'east road now reaches East Causeway');
     assert.ok(m[14].every((t) => t !== PATH), 'south opening adds no road/path stub');
     assert.equal(s[7][14], REEDS); assert.equal(s[7][15], REEDS, 'South Approach reed shoulder reaches the seam');
     assert.equal(s[8][14], PATH); assert.equal(s[8][15], PATH, 'South Approach road reaches the seam');
@@ -90,15 +91,15 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(reconstructed)), OLD_S_FP, 'restoring only r7c15/r8c15 recreates the reviewed pre-change fingerprint');
     assert.equal(sha256(JSON.stringify(s)), S_FP, 'current South Approach fingerprint is the reviewed two-cell entrance revision');
 
-    // 6. Original reciprocal west seam remains structural; east stays fail-closed,
-    // while the later broad south seam is also structural.
+    // 6. Original reciprocal west seam remains structural; the later broad
+    // south seam and East Causeway seam are structural too.
     const se = J(g, "JSON.stringify(EDGE_TRANSITIONS.NORTH_BASIN_S_MAP.east)");
     const ws = J(g, `JSON.stringify(EDGE_TRANSITIONS['${ID}'].west)`);
     assert.deepEqual(se, [{ targetMap: ID, targetEdge: 'west', sourceRange: [7, 8] }]);
     assert.deepEqual(ws, [{ targetMap: S_ID, targetEdge: 'east', sourceRange: [7, 8] }]);
     assert.deepEqual(Object.keys(se[0]).sort(), ['sourceRange', 'targetEdge', 'targetMap']);
     assert.deepEqual(Object.keys(ws[0]).sort(), ['sourceRange', 'targetEdge', 'targetMap']);
-    assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}'].east`), 'undefined');
+    assert.deepEqual(J(g, `JSON.stringify(EDGE_TRANSITIONS['${ID}'].east)`), [{ targetMap: 'EAST_CAUSEWAY_MAP', targetEdge: 'west', sourceRange: [6, 10] }]);
     assert.deepEqual(J(g, `JSON.stringify(EDGE_TRANSITIONS['${ID}'].south)`), [{ targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'north', sourceRange: [1, 14] }]);
     assert.deepEqual(J(g, `JSON.stringify(classifyContinuousSegment(EDGE_TRANSITIONS['${ID}'].west[0]))`), { ok: true, reason: null });
     assert.deepEqual(J(g, `JSON.stringify(continuousSeamEdgeWalkability(mapRefForId('${ID}'),'west',mapRefForId('${S_ID}'),'east',[7,8]))`), { ok: true });
@@ -107,9 +108,8 @@ module.exports = {
     const audit = require('../transition-audit.js');
     const verdict = Object.fromEntries(audit.seamReadiness.edges.map((e) => [e.mapId + '|' + e.dir, e.verdict]));
     assert.equal(verdict[`${S_ID}|east`], 'ALIGNS'); assert.equal(verdict[`${ID}|west`], 'ALIGNS');
-    assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'BORDER'); assert.equal(verdict[`${ID}|south`], 'ALIGNS');
-    assert.equal(g.run("mapIdForChunk('overworld',4,2)"), null); assert.equal(g.run("mapIdForChunk('overworld',3,3)"), 'DRENWICK_EAST_CANAL_MAP');
-    assert.equal(g.run(`continuousFootprintWalkable('overworld',{chunkX:3,chunkY:2,mapId:'${ID}'},4*COLS*TILE+1,2*ROWS*TILE+8.5*TILE)`), false, 'east void is fail-closed');
+    assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'ALIGNS'); assert.equal(verdict[`${ID}|south`], 'ALIGNS');
+    assert.equal(g.run("mapIdForChunk('overworld',4,2)"), 'EAST_CAUSEWAY_MAP'); assert.equal(g.run("mapIdForChunk('overworld',3,3)"), 'DRENWICK_EAST_CANAL_MAP');
 
     // 7 + 9 + 13. Continuous eastbound crossing: smooth atomic handoff and pool flip.
     g.run(`forceLegacyRegionalView=false;debugMode=false;combat.active=false;combat.cooldown=0;placeAtLocation('${S_ID}',14.25*TILE+0.5,8.5*TILE);for(var k in keys)delete keys[k];`);
@@ -171,7 +171,7 @@ module.exports = {
     assert.equal(g.run('isEncounterEligibleTile(PATH)'), false);
     assert.equal(g.run('isEncounterEligibleTile(GRASS)'), true); assert.equal(g.run('isEncounterEligibleTile(REEDS)'), true);
     const counts = {}; for (const row of m) for (const tile of row) counts[tile] = (counts[tile] || 0) + 1;
-    assert.equal(counts[PATH], 15); assert.equal(counts[GRASS], 62); assert.equal(counts[REEDS], 66);
+    assert.equal(counts[PATH], 16); assert.equal(counts[GRASS], 62); assert.equal(counts[REEDS], 70);
     assert.equal(counts[MUD] + counts[STONE], 4, 'four cosmetic safe tiles maximum');
     const cosmetics = [];
     for (let y = 0; y < 15; y++) for (let x = 0; x < 16; x++) if (m[y][x] === MUD || m[y][x] === STONE) cosmetics.push([x, y]);
@@ -181,9 +181,9 @@ module.exports = {
     assert.equal(g.run(`placeAtLocation('${ID}',12.5*TILE,3.5*TILE)`), true, 'normal placement on eligible GRASS succeeds');
     assert.equal(g.run('isEncounterEligibleTile(activeMap[3][12])'), true); assert.equal(poolName(g), 'UPPER_REACH');
 
-    // Deferred east road endpoint remains physically blocked with no movement into void.
+    // The reviewed successor now owns the eastward obstruction.
     g.run(`forceLegacyRegionalView=false;debugMode=true;placeAtLocation('${ID}',14.5*TILE,8.5*TILE);for(var k in keys)delete keys[k];`);
-    g.hold('ArrowRight'); g.frames(80); g.release('ArrowRight'); assert.equal(mapId(g), ID); assert.ok(g.run('player.x') < g.run('15*TILE'));
+    g.hold('ArrowRight'); for (let i = 0; i < 40 && mapId(g) !== 'EAST_CAUSEWAY_MAP'; i++) g.frames(1); g.release('ArrowRight'); assert.equal(mapId(g), 'EAST_CAUSEWAY_MAP');
 
     // 14-15. Every accessible placement path plus v4 save/load succeeds atomically.
     assert.equal(g.run(`placeAtLocation('${ID}',8.5*TILE,9.5*TILE)`), true, 'normal placement');
@@ -200,13 +200,15 @@ module.exports = {
 
     // 16. New/authorized fingerprints plus every other reviewed prior grid.
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);
-    assert.equal(GRID_FP.fingerprints[S_ID], S_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length, 26);
+    const old = m.map((row) => row.slice()); for (const row of [6,7,8,9,10]) old[row][15] = TREE;
+    assert.equal(sha256(JSON.stringify(old)), OLD_FP, 'restoring only the five authorized east-edge cells recreates the reviewed predecessor');
+    assert.equal(GRID_FP.fingerprints[S_ID], S_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length, 27);
     for (const [id, fp] of Object.entries(PRIOR_FPS)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: prior fingerprint unchanged`);
     }
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 40, BLOCKED: 36 });
-    assert.equal(audit.seamReadiness.edges.length, 104);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 26);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 19);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 });
+    assert.equal(audit.seamReadiness.edges.length, 108);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 27);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 20);
   },
 };

@@ -16,7 +16,7 @@ const EAST_ID = 'THORNMERE_CANAL_HEAD_MAP';
 const FP = '2e74d8cd14fa6e022cba316f1d18d4409a2d5b886ed6c5e2df9392933f5ecad6';
 const OLD_FP = '51ac08da0d044f8c5e6a9199f36c1a323604c2905f5ee546f18c4cc10f1ab40b';
 const WEST_FP = '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c';
-const NORTH_FP = '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00';
+const NORTH_FP = 'b5935b2818eb503e86d1adc86668d8b2ddb2e5699e2c10e298547fcede193931';
 const OLD_WEST_FP = 'e295dd572e02dc442f410fe4fe0d3aff1ac790bd4a40302527fb6c208130b315';
 const OLD_NORTH_FP = 'c9a5c71ad15b9e2c6a9caf33a32660a7423cb044e7cb5cbac867b26248b1169b';
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
@@ -298,20 +298,22 @@ module.exports = {
     const oldEastValues = { 1: WATER, 2: WATER, 3: TREE, 4: TREE, 6: TREE, 7: TREE, 8: TREE, 9: TREE, 10: WATER, 11: TREE, 12: TREE, 13: TREE };
     for (const [row, tile] of Object.entries(oldEastValues)) oldWest[Number(row)][15] = tile;
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP, 'restoring exactly twelve east-edge cells recreates prior MAP3_N2');
-    const oldNorth = north.map((row) => row.slice()); for (let c = 1; c <= 14; c++) oldNorth[14][c] = TREE;
+    const oldNorth = north.map((row) => row.slice());
+    for (let c = 1; c <= 14; c++) oldNorth[14][c] = TREE;
+    for (const row of [6, 7, 8, 9, 10]) oldNorth[row][15] = TREE;
     assert.equal(sha256(JSON.stringify(oldNorth)), OLD_NORTH_FP, 'restoring exactly fourteen south-edge cells recreates prior South Reservoir Road');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 26);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 27);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       if ([ID, WEST_ID, NORTH_ID].includes(id)) continue;
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: established fingerprint unchanged`);
     }
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 40, BLOCKED: 36 });
-    assert.equal(audit.seamReadiness.edges.length, 104);
-    assert.equal(g.run('continuousSeamEntries().length'), 46, '46 directed segment entries');
-    assert.equal(g.run('continuousSeamEntries().length/2'), 23, '23 reciprocal segment pairs');
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 26);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 19);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 });
+    assert.equal(audit.seamReadiness.edges.length, 108);
+    assert.equal(g.run('continuousSeamEntries().length'), 48, '48 directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length/2'), 24, '24 reciprocal segment pairs');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 27);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 20);
   },
 };

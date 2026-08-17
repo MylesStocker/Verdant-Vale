@@ -446,10 +446,10 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   // Playable regional chunk (3,2), east of NORTH_BASIN_S_MAP and south of the
   // inaccessible NORTH_BASIN_E_MAP. The row-8 PATH is the eastbound road: it
   // enters through the reciprocal west seam at c0, stays encounter-safe through
-  // c14, and stops one tile short of the still-blocked east border. A REEDS shoulder
-  // at row 7 makes the physical entrance two tiles wide without widening the road.
-  // North exactly mirrors NORTH_BASIN_E_MAP.south (TREE×16); east/south remain
-  // TREE borders until their future neighbours are authored. Off-road GRASS and
+  // c14, then continues through a broad five-tile fen opening into EAST_CAUSEWAY_MAP.
+  // The road remains one tile wide at row 8, with REEDS shoulders at rows 6, 7, 9,
+  // and 10. North exactly mirrors NORTH_BASIN_E_MAP.south (TREE×16); south opens
+  // broadly into Eastern Canal Banks. Off-road GRASS and
   // REEDS are encounter-eligible and use the upper_reach profile; four isolated
   // BASIN_MUD/EXPOSED_STONE cells add texture without creating a safe route.
   { mapId: 'NORTH_BASIN_SE_MAP', regionId: 'overworld', chunkX: 3, chunkY: 2, map: [
@@ -460,11 +460,11 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23, 23,  0, 23,  3],  //  3  first irregular dry shoreline tongue
       [  3,  1,  1,  1,  1,  1,  1,  1, 23,  0,  0, 23, 23,  0, 23,  3],  //  4  broken reed fringe
       [  3,  1,  1,  1,  1, 23, 23,  0, 81,  0, 23, 23,  0,  0, 23,  3],  //  5  isolated mud at c8
-      [  3,  1,  1, 23,  0,  0, 23, 23,  0,  0, 88, 23,  0, 23, 23,  3],  //  6  isolated exposed stone at c10
-      [ 23, 23,  0,  0, 81,  0, 23, 23, 23,  0,  0, 23, 88,  0, 23,  3],  //  7  reed entrance shoulder and dry fen
-      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  3],  //  8  west seam c0; eastbound safe road stops at c14
-      [  3, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  3],  //  9  irregular reed clumps south of the road
-      [  3,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0,  3],  // 10  dry grass pockets
+      [  3,  1,  1, 23,  0,  0, 23, 23,  0,  0, 88, 23,  0, 23, 23, 23],  //  6  REEDS shoulder begins the broad east entrance
+      [ 23, 23,  0,  0, 81,  0, 23, 23, 23,  0,  0, 23, 88,  0, 23, 23],  //  7  REEDS shoulder and dry fen
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2],  //  8  one-tile PATH continues through the east seam
+      [  3, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23, 23],  //  9  REEDS shoulder south of the road
+      [  3,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23],  // 10  REEDS shoulder ends the broad east entrance
       [  3, 23,  0,  0, 23, 23,  0, 23,  0,  0,  0, 23,  0, 23, 23,  3],  // 11  broken fen bands
       [  3,  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0, 23,  3],  // 12  drought-exposed fen
       [  3, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  // 13  no southbound path
@@ -473,7 +473,35 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — South Reservoir Road', region: 'North Basin', contentKey: 'north_basin_se',
     presentation: 'continuous', encounterProfileId: 'upper_reach',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Playable eastbound reservoir road. The west entrance has a REEDS shoulder above the single-tile PATH road; PATH is the only meaningful encounter-free route, while surrounding irregular GRASS/REEDS patches roll the harder UPPER_REACH_ENEMY_TEMPLATES pool. There is no southbound road. North and east remain blocked; the broad south edge now opens onto the northern bank of Eastern Canal Banks. No items, NPCs, interactions, decorations, landmarks, or quest content.' },
+    notes: 'Playable eastbound reservoir road. The west entrance has a REEDS shoulder above the single-tile PATH road; its east edge now opens broadly into East Causeway while the PATH remains one tile wide. Surrounding irregular GRASS/REEDS patches roll the harder UPPER_REACH_ENEMY_TEMPLATES pool. There is no southbound road; the broad south edge opens onto the northern bank of Eastern Canal Banks. No items, NPCs, interactions, decorations, landmarks, or quest content.' },
+
+  // ─── Eastern Reaches — East Causeway — EAST_CAUSEWAY_MAP (16 × 15) ───────
+  // Accessible regional chunk (4,2): a narrow maintained road crosses drought-
+  // exposed fen, then deteriorates through mud and broken stone before open water
+  // interrupts it. The current obstruction is terrain-only and can later be
+  // reopened by replacing those cells and adding an east seam.
+  { mapId: 'EAST_CAUSEWAY_MAP', regionId: 'overworld', chunkX: 4, chunkY: 2, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  exactly mirrors NORTH_BASIN_E2_MAP.south
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open reservoir continuity
+      [  1,  1, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  first reed fringe
+      [  1, 23, 23,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  exposed fen begins
+      [  1, 23,  0,  0, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  irregular reed shoulder
+      [  1,  0, 23,  0,  0, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  dry western approach
+      [ 23,  0,  0, 23,  0,  0, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1],  //  6  north entrance shoulder
+      [ 23, 23,  0,  0, 23,  0,  0, 23, 23, 81, 88,  1,  1,  1,  1,  1],  //  7  saturated ground reaches the road
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2, 81, 88,  1,  1,  1,  1,  1],  //  8  PATH subsides into mud/stone, then open water
+      [ 23,  0,  0, 23,  0, 23,  0,  0, 23, 81, 88,  1,  1,  1,  1,  1],  //  9  south entrance shoulder
+      [ 23, 23,  0,  0, 23,  0, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  fen narrows toward the lake
+      [  1, 23, 23,  0, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  broken southern reed fringe
+      [  1,  1, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  fen gives way to open water
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open lake
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  exactly mirrors THORNMERE_CANAL_HEAD_MAP.north
+    ],
+    displayName: 'East Causeway', region: 'Eastern Reaches', contentKey: 'east_causeway',
+    presentation: 'continuous', encounterProfileId: 'upper_reach',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'Terrain-only eastbound causeway. A one-tile PATH crosses the western fen, then ordinary BASIN_MUD/EXPOSED_STONE subsidence and WATER interrupt it. All GRASS/REEDS use UPPER_REACH_ENEMY_TEMPLATES; no items, NPCs, interactions, landmarks, decorations, quests, persistent state, compatibility alias, or special transition machinery.' },
   { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
@@ -669,8 +697,8 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   // ─── North Basin — Open Reservoir (East Shore) — NORTH_BASIN_E2_MAP (16 × 15) ─
   // Regional chunk (4,1): south of NORTH_BASIN_NE2_MAP and east of the Eastern Woods.
   // Its north and west edges exactly mirror those existing non-walkable neighbours.
-  // The remaining boundary stays reservoir scenery, preserving a nonwalkable south edge
-  // for a later (4,2) road chunk to match without authoring that road layout here.
+  // The remaining boundary stays reservoir scenery; its nonwalkable south edge now
+  // matches East Causeway without permitting player access into this scenery chunk.
   { mapId: 'NORTH_BASIN_E2_MAP', regionId: 'overworld', chunkX: 4, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge mirrors NORTH_BASIN_NE2_MAP.south
@@ -687,12 +715,12 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  3,  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1],  // 11  open reservoir
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  shoreline texture stays at the west edge
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open reservoir
-      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  nonwalkable south edge reserved for a later (4,2) match
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  nonwalkable south edge exactly matches East Causeway north
     ],
     displayName: 'North Basin — Open Reservoir (East Shore)', region: 'North Basin', contentKey: 'north_basin_e2',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open water south of NORTH_BASIN_NE2_MAP and east of NORTH_BASIN_E_MAP. North and west edges exactly mirror their non-walkable neighbours; east and south remain nonwalkable reservoir scenery for later expansion. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+    notes: 'Scenery-only open water south of NORTH_BASIN_NE2_MAP and east of NORTH_BASIN_E_MAP. North and west edges exactly mirror their non-walkable neighbours; east stays reservoir scenery and south exactly matches the blocked north edge of East Causeway. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
 
   // ─── North Basin — Eastern Woods — NORTH_BASIN_E_MAP  (16 × 15) ───────────────
   // Regional chunk (3,1): south of NORTH_BASIN_NE_MAP (3,0) and east of the reservoir

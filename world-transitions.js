@@ -1145,6 +1145,15 @@ const EDGE_TRANSITIONS = {
     south: [
       { targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'north', sourceRange: [1, 14] },
     ],
+    // Broad fen shoulders surround the one-tile eastbound road.
+    east: [
+      { targetMap: 'EAST_CAUSEWAY_MAP', targetEdge: 'west', sourceRange: [6, 10] },
+    ],
+  },
+  EAST_CAUSEWAY_MAP: {
+    west: [
+      { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'east', sourceRange: [6, 10] },
+    ],
   },
   DRENWICK_EAST_CANAL_MAP: {
     north: [
