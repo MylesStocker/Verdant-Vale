@@ -15,9 +15,9 @@ Flats, West Shore, and the Upper Reach — plus the unmarked chamber and the
 Sunken Gallery hanging off the Upper Reach, see the newest pass below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-101 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 101 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 77 are the
+112 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 112 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 88 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -36,8 +36,8 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **24 regional chunks** now occupy the `'overworld'` 5×6 envelope (6 sparse void
-  cells remain). Six of them are **inaccessible scenery only** (`playerAccessible: false`):
+- **25 regional chunks** now occupy the `'overworld'` 5×6 envelope (5 sparse void
+  cells remain). Seven of them are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
   `commitRegionalWorldPosition()`) fail-closes every warp/transition/save/canonical
@@ -64,6 +64,11 @@ rooms were added to the registry.)
     of the Far East reservoir and east of the Eastern Woods; its north/west edges exactly
     mirror those nonwalkable neighbours, while east/south remain reservoir scenery for later
     expansion.
+  - **Thornmere — Upper Shallows** (`THORNMERE_UPPER_SHALLOWS_MAP`, chunk (4,4)) —
+    90% open WATER scenery east of Northern Thornmere Fen and north of Thornmere
+    Shallows. Three sparse REEDS/TREE remnants break up the water; the explicitly
+    agreed southwest REEDS corner is the sole mismatch against both neighbouring
+    edge sequences. No transition or content enters the chunk.
 
   The new accessible **North Basin — South Reservoir Road** (`NORTH_BASIN_SE_MAP`,
   chunk (3,2)) continues the South Approach road east through a reciprocal rows 7–8
@@ -86,22 +91,22 @@ rooms were added to the registry.)
   Northern Fen and Thornmere. It uses the existing `thornmere` profile and has
   broad north `[1,14]` and west `[1,13]` seams plus split Thornmere shoreline
   ranges `[1,2]` and `[13,14]`. A broad irregular WATER inlet penetrates from
-  the east to represent the future inaccessible Upper Shallows; its WATER/TREE
+  the east into the now-authored inaccessible Upper Shallows; its WATER/TREE
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 96 directed physical edges → ALIGNS 38 / BORDER 24 / BLOCKED 30 /
+  Audit: 100 directed physical edges → ALIGNS 38 / BORDER 24 / BLOCKED 34 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
   42 directed entries / 21 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **97 tests** (`test/cases/01-…97-`), `node test/run.js` — all passing.
+- **98 tests** (`test/cases/01-…98-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 111 maps, 238 fixed-destination transitions, 8
+  isolation pass, 112 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 111 maps, 111 metadata entries, 26,640 tile cells, 122
+  (see below), across 112 maps, 112 metadata entries, 26,880 tile cells, 122
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
   dialogue/text entries, 180 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.

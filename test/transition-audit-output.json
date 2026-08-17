@@ -13,6 +13,7 @@
     "MAP3_N2",
     "DRENWICK_EAST_CANAL_MAP",
     "THORNMERE_NORTH_FEN_MAP",
+    "THORNMERE_UPPER_SHALLOWS_MAP",
     "DRENWICK_WEST_OUTFALL_MAP",
     "NORTH_BASIN_S_MAP",
     "NORTH_BASIN_SE_MAP",
@@ -187,6 +188,12 @@
     },
     {
       "id": "THORNMERE_NORTH_FEN_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THORNMERE_UPPER_SHALLOWS_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -10494,10 +10501,10 @@
         "chunkX": 3,
         "chunkY": 4,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "THORNMERE_UPPER_SHALLOWS_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "THORNMERE_NORTH_FEN_MAP",
@@ -10510,14 +10517,54 @@
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "MAP5",
+        "mapId": "THORNMERE_UPPER_SHALLOWS_MAP",
         "chunkX": 4,
-        "chunkY": 5,
+        "chunkY": 4,
         "dir": "north",
         "neighbor": null,
         "target": null,
         "type": null,
         "verdict": "BORDER"
+      },
+      {
+        "mapId": "THORNMERE_UPPER_SHALLOWS_MAP",
+        "chunkX": 4,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": "MAP5",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "THORNMERE_UPPER_SHALLOWS_MAP",
+        "chunkX": 4,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "THORNMERE_UPPER_SHALLOWS_MAP",
+        "chunkX": 4,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": "THORNMERE_NORTH_FEN_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAP5",
+        "chunkX": 4,
+        "chunkY": 5,
+        "dir": "north",
+        "neighbor": "THORNMERE_UPPER_SHALLOWS_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAP5",
@@ -11274,7 +11321,7 @@
       "INTENTIONAL_DISCRETE": 4,
       "BORDER": 24,
       "ALIGNS": 38,
-      "BLOCKED": 30
+      "BLOCKED": 34
     }
   }
 }

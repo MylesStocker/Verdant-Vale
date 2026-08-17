@@ -42,7 +42,8 @@ module.exports = {
     for (let i = 1; i < dests.length; i++) {
       const a = dests[i - 1], b = dests[i];
       const ca = CATS.indexOf(a.category), cb = CATS.indexOf(b.category);
-      const ordered = ca < cb || (ca === cb && (a.label < b.label || (a.label === b.label && a.id <= b.id)));
+      const labelOrder = String(a.label).localeCompare(String(b.label));
+      const ordered = ca < cb || (ca === cb && (labelOrder < 0 || (labelOrder === 0 && String(a.id).localeCompare(String(b.id)) <= 0)));
       assert.ok(ordered, `deterministic order at ${a.id} -> ${b.id}`);
     }
 

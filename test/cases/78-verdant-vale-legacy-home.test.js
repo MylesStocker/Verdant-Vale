@@ -186,7 +186,7 @@ module.exports = {
     const audit = require('../transition-audit.js');
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     for (const k of ['MAP|east', 'MAP|north', 'MAP2|west', 'MAP_N1|south']) assert.equal(V[k], 'INTENTIONAL_DISCRETE', `${k} is INTENTIONAL_DISCRETE`);
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 30 }, 'totals: ALIGNS 38 / NEEDS_REMAP 0 / INTENTIONAL_DISCRETE 4 / BLOCKED 30 / BORDER 24');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 34 }, 'totals: ALIGNS 38 / NEEDS_REMAP 0 / INTENTIONAL_DISCRETE 4 / BLOCKED 34 / BORDER 24');
     assert.equal(audit.seamReadiness.edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
     // remaining unique NEEDS_REMAP pairs
     const nr = new Set(audit.seamReadiness.edges.filter((e) => e.verdict === 'NEEDS_REMAP').map((e) => [e.mapId, e.neighbor].sort().join('<->')));

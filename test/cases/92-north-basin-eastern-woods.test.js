@@ -62,7 +62,7 @@ module.exports = {
     // ── 4. Fingerprint recorded; every prior grid unchanged ───────────────────
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'grid matches its computed SHA-256');
     assert.equal(GRID_FP.fingerprints[ID], FP, 'the fixture records the fingerprint');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 24, 'fixture now has 24 fingerprints');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 25, 'fixture now has 25 fingerprints');
 
     // ── 5. No seam/transition; all four placed-neighbour edges are BLOCKED; ───
     assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}']`), 'undefined', 'no EDGE_TRANSITIONS source entry');
@@ -75,7 +75,7 @@ module.exports = {
     assert.equal(V[`${ID}|east`], 'BLOCKED', 'east is now BLOCKED (NORTH_BASIN_E2_MAP placed at 4,1)');
     assert.equal(V['NORTH_BASIN_NE_MAP|south'], 'BLOCKED', "NORTH_BASIN_NE_MAP's south edge is now BLOCKED (neighbour placed)");
     assert.equal(V['NORTH_BASIN_C_MAP|east'], 'BLOCKED', "the reservoir's east edge is now BLOCKED (neighbour placed)");
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 30 }, 'audit totals: 96 edges -> ALIGNS 38 / BORDER 24 / BLOCKED 30 / INTENTIONAL_DISCRETE 4');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 34 }, 'audit totals: 100 edges -> ALIGNS 38 / BORDER 24 / BLOCKED 34 / INTENTIONAL_DISCRETE 4');
 
     // ── 6. Inaccessible scenery: fail-closed against every placement path ──────
     assert.equal(g.run(`mapPlayerAccessible('${ID}')`), false, 'not player-accessible (scenery only)');
@@ -108,7 +108,7 @@ module.exports = {
     // ── 9. Void count now 8; region bounds unchanged; SAVE_VERSION 4 ──────────
     let placed = 0;
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++;
-    assert.equal(placed, 24, '24 placed chunks in the 5x6 envelope (6 sparse voids remain)');
+    assert.equal(placed, 25, '25 placed chunks in the 5x6 envelope (5 sparse voids remain)');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 4, 0, 5], 'region chunk extent unchanged');
     assert.equal(g.run('SAVE_VERSION'), 4, 'SAVE_VERSION === 4');

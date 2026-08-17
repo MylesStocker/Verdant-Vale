@@ -65,7 +65,7 @@ module.exports = {
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
     assert.equal(audit.seamReadiness.totals.ALIGNS, 38, 'ALIGNS 38 after Northern Thornmere Fen');
-    assert.equal(audit.seamReadiness.totals.BLOCKED, 30, 'BLOCKED 30 after placing the South Reservoir Road below inaccessible scenery');
+    assert.equal(audit.seamReadiness.totals.BLOCKED, 34, 'BLOCKED 34 after adding Upper Shallows scenery beside two inaccessible boundaries');
     assert.equal(audit.seamReadiness.totals.BORDER, 24, 'BORDER 24 after three former void-facing edges become seams');
     assert.equal(g.run('continuousSeamEntries().length'), 42, '42 eligible directed segment entries');
     // the new pair derives as two eligible directed seams

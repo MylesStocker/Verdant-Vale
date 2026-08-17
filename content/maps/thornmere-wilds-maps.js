@@ -480,6 +480,34 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'thornmere',
     allowRandomEncounters: true, allowSave: true,
     notes: 'One connected irregular GRASS/REEDS fen bordered east by the broad nonwalkable Upper Shallows inlet. Uses THORNMERE_ENEMY_TEMPLATES; no PATH, items, NPCs, quests, interactions, buildings, landmarks, decorations, special encounters, or compatibility alias.' },
+  // ─── Thornmere — Upper Shallows — THORNMERE_UPPER_SHALLOWS_MAP (16 × 15) ─
+  // Regional chunk (4,4): inaccessible open-water scenery east of Northern
+  // Thornmere Fen and north of Thornmere Shallows. The sparse reed/tree remnants
+  // remain visual texture only; shared playerAccessible:false placement authority
+  // prevents entry even though isolated REEDS tiles retain their normal terrain
+  // properties. The agreed southwest REEDS corner is the sole edge mismatch.
+  { mapId: 'THORNMERE_UPPER_SHALLOWS_MAP', regionId: 'overworld', chunkX: 4, chunkY: 4, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north border: open water beyond the west TREE corner
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open shallows
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open shallows
+      [  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  first reeds above the northwest remnant
+      [  3, 23,  3, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  small wooded shoreline remnant
+      [  1, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  remnant trails into open water
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  6  open shallows
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  7  open shallows
+      [  1,  1,  1,  1,  1,  1,  1,  1, 23, 23,  1,  1,  1,  1,  1,  1],  //  8  isolated central reed shoal
+      [  1,  1,  1,  1,  1,  1,  1, 23,  3, 23, 23,  1,  1,  1,  1,  1],  //  9  lone tree in the shoal
+      [  1,  1, 23,  1,  1,  1,  1,  1, 23, 23,  1,  1,  1,  1,  1,  1],  // 10  shoal recedes; lower remnant begins
+      [  3, 23,  3, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  second wooded shoreline remnant
+      [  1, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  sparse reeds below the remnant
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open shallows
+      [ 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  agreed REEDS corner; remaining south edge matches MAP5.north
+    ],
+    displayName: 'Thornmere — Upper Shallows', region: 'Thornmere', contentKey: 'thornmere_upper_shallows',
+    presentation: 'continuous', encounterProfileId: 'thornmere',
+    allowRandomEncounters: false, allowSave: false, playerAccessible: false,
+    notes: 'Scenery-only; no player access. Ninety-percent open WATER with three small irregular REEDS/TREE shoreline remnants. West and south match their neighbours except for the agreed southwest REEDS corner; north/east remain open-water borders. No content, transitions, decoration, encounters, or compatibility alias.' },
   // ── MAP5 / Thornmere Shallows — PILOT: grid authored directly in this record ──
   { mapId: 'MAP5', regionId: 'overworld', chunkX: 4, chunkY: 5,
     displayName: 'Thornmere Shallows', region: 'Thornmere', contentKey: 'overworld',

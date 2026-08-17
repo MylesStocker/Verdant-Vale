@@ -232,13 +232,13 @@ module.exports = {
     }
     for (const row of [0, 1, 4, 7, 11, 13, 14]) {
       placeEdge(ID, 'east', row); const before = worldPos(); drive('ArrowRight', 30);
-      assert.equal(mapId(), ID); assert.deepEqual(worldPos(), before, `Upper Shallows edge row ${row} blocks void`);
+      assert.equal(mapId(), ID); assert.deepEqual(worldPos(), before, `Upper Shallows edge row ${row} blocks scenery entry`);
     }
     for (const [row, vertical] of [[0, 'ArrowDown'], [14, 'ArrowUp']]) {
       placeEdge(ID, 'east', row); clearKeys(); g.hold('ArrowRight'); g.hold(vertical); g.frames(20); g.release('ArrowRight'); g.release(vertical); clearKeys();
-      assert.equal(mapId(), ID, `east corner diagonal row ${row} cannot enter void`);
+      assert.equal(mapId(), ID, `east corner diagonal row ${row} cannot enter inaccessible scenery`);
     }
-    assert.equal(g.run("mapIdForChunk('overworld',4,4)"), null);
+    assert.equal(g.run("mapIdForChunk('overworld',4,4)"), 'THORNMERE_UPPER_SHALLOWS_MAP');
 
     // 7. Geographic ownership changes from FAR on north/west neighbours to the
     // exact Thornmere pool here, then stays Thornmere across either MAP4 shore.
@@ -294,7 +294,7 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP);
     const oldSouth = south.map((row) => row.slice()); for (const c of [1, 2, 13, 14]) oldSouth[0][c] = TREE;
     assert.equal(sha256(JSON.stringify(oldSouth)), OLD_SOUTH_FP);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 24);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 25);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint matches`);
     }
@@ -308,10 +308,10 @@ module.exports = {
     assert.equal(g.run('typeof enterSmugglerFort'), 'function'); assert.equal(g.run('typeof enterFenBrewery'), 'function');
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 30 });
-    assert.equal(audit.seamReadiness.edges.length, 96);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 34 });
+    assert.equal(audit.seamReadiness.edges.length, 100);
     assert.equal(g.run('continuousSeamEntries().length'), 42); assert.equal(g.run('continuousSeamEntries().length/2'), 21);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 24);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 25);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 18);
   },
 };
