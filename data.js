@@ -799,10 +799,11 @@ const MAP_CATALOG = {
   NORTH_BASIN_W_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W_MAP'),
   NORTH_BASIN_NW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NW_MAP'),
   // Scenery-only open water north of the reservoir (chunk 2,0) and its eastward
-  // continuation (chunk 3,0). Derived like any placed regional chunk; `playerAccessible:
+  // continuations (chunks 3,0 and 4,0). Derived like any placed regional chunk; `playerAccessible:
   // false` keeps the player out (see West Outfall).
   NORTH_BASIN_N_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_N_MAP'),
   NORTH_BASIN_NE_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NE_MAP'),
+  NORTH_BASIN_NE2_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NE2_MAP'),
   // Scenery-only water-over-forest chunk (3,1), south of the Open Reservoir East.
   NORTH_BASIN_E_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_E_MAP'),
   BASIN_CHAMBER_MAP: {

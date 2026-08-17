@@ -608,6 +608,34 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only open water east of NORTH_BASIN_N_MAP; the reservoir continues off-map. West edge mirrors NORTH_BASIN_N_MAP.east exactly; north/south/east stay open-water borders for later expansion. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
 
+  // ─── North Basin — Open Reservoir (Far East) — NORTH_BASIN_NE2_MAP (16 × 15) ─
+  // Regional chunk (4,0): the open reservoir continuing EAST of NORTH_BASIN_NE_MAP
+  // (3,0). It remains scenery-only deep water: its west edge exactly mirrors the
+  // existing east edge, while north/east/south remain open WATER for later reservoir
+  // expansion. No new terrain, content, transition, or player access is introduced.
+  { mapId: 'NORTH_BASIN_NE2_MAP', regionId: 'overworld', chunkX: 4, chunkY: 0, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north border: open reservoir water
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open reservoir
+      [  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  small silt islet
+      [  1,  1,  1, 81, 81,  3, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  lone tree on the islet
+      [  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  6  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  7  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  8  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1],  // 10  second small silt islet
+      [  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  3, 81,  1,  1,  1,  1],  // 11  lone tree on the islet
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1],  // 12  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open reservoir
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  south border: open water for a future (4,1) reservoir chunk
+    ],
+    displayName: 'North Basin — Open Reservoir (Far East)', region: 'North Basin', contentKey: 'north_basin_ne2',
+    presentation: 'continuous', encounterProfileId: 'north_basin',
+    allowRandomEncounters: false, allowSave: false, playerAccessible: false,
+    notes: 'Scenery-only open water east of NORTH_BASIN_NE_MAP. West edge mirrors NORTH_BASIN_NE_MAP.east exactly; north/east/south stay open-water borders for later reservoir expansion. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+
   // ─── North Basin — Eastern Woods — NORTH_BASIN_E_MAP  (16 × 15) ───────────────
   // Regional chunk (3,1): south of NORTH_BASIN_NE_MAP (3,0) and east of the reservoir
   // NORTH_BASIN_C_MAP (2,1). The reservoir's open water gives way to woodland here:
