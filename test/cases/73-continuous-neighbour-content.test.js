@@ -57,12 +57,12 @@ module.exports = {
 
     // ── 8 + 9. DECLARATIVE physical-map -> content-key authority (pure) ──────
     const ents = J('JSON.stringify(outdoorContentKeyEntries())');
-    assert.equal(ents.length, 23, 'all 23 placed outdoor maps are bound');
+    assert.equal(ents.length, 24, 'all 24 placed outdoor maps are bound');
     const byId = {}; ents.forEach(e => { byId[e.mapId] = e; });
     // full binding table matches the established currentContentLocationKey() mapping
     const expected = { MAP:'overworld', MAP2:'map2', MAP3:'map3', MAP4:'map4', MAP5:'overworld',
       MAP_N1:'map_n1', MAP_N2:'map_n2', RODDON_WAY_MAP:'overworld', MAP3_N1:'map3_n1', MAP3_N2:'map3_n2',
-      DRENWICK_EAST_CANAL_MAP:'drenwick_east_canal',
+      DRENWICK_EAST_CANAL_MAP:'drenwick_east_canal', THORNMERE_NORTH_FEN_MAP:'thornmere_north_fen',
       NORTH_BASIN_S_MAP:'north_basin_s', NORTH_BASIN_SE_MAP:'north_basin_se', NORTH_BASIN_C_MAP:'north_basin_c', NORTH_BASIN_SW_MAP:'north_basin_sw',
       NORTH_BASIN_W_MAP:'north_basin_w', NORTH_BASIN_NW_MAP:'north_basin_nw',
       DRENWICK_WEST_OUTFALL_MAP:'drenwick_west_outfall', NORTH_BASIN_N_MAP:'north_basin_n', NORTH_BASIN_NE_MAP:'north_basin_ne', NORTH_BASIN_NE2_MAP:'north_basin_ne2', NORTH_BASIN_E2_MAP:'north_basin_e2', NORTH_BASIN_E_MAP:'north_basin_e' };
@@ -73,7 +73,7 @@ module.exports = {
     // ambiguity: MAP/MAP5/RODDON share 'overworld' (ambiguous); all others unique
     const ambiguous = ents.filter(e => !e.unambiguous).map(e => e.mapId).sort();
     assert.deepEqual(ambiguous, ['MAP', 'MAP5', 'RODDON_WAY_MAP'], 'exactly MAP/MAP5/RODDON_WAY_MAP are ambiguous');
-    assert.equal(ents.filter(e => e.unambiguous).length, 20, 'the other 20 bindings are unique');
+    assert.equal(ents.filter(e => e.unambiguous).length, 21, 'the other 21 bindings are unique');
     // namespace distinction: id !== key; non-outdoor ids resolve to null
     assert.notEqual('MAP2', byId['MAP2'].key);
     assert.equal(g.run("outdoorContentKeyForMapId('DRENWICK_INN_MAP')"), null, 'a non-outdoor map id is not bound');

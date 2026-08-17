@@ -12,6 +12,7 @@
     "RODDON_WAY_MAP",
     "MAP3_N2",
     "DRENWICK_EAST_CANAL_MAP",
+    "THORNMERE_NORTH_FEN_MAP",
     "DRENWICK_WEST_OUTFALL_MAP",
     "NORTH_BASIN_S_MAP",
     "NORTH_BASIN_SE_MAP",
@@ -180,6 +181,12 @@
     },
     {
       "id": "DRENWICK_EAST_CANAL_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THORNMERE_NORTH_FEN_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -2428,7 +2435,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": false
+        "right": true
       },
       "canEscape": true,
       "verdict": "OK"
@@ -8716,6 +8723,76 @@
       "allOk": true
     },
     {
+      "srcMap": "DRENWICK_EAST_CANAL_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "THORNMERE_NORTH_FEN_MAP",
+      "targetEdge": "north",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "THORNMERE_NORTH_FEN_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        14
+      ],
+      "targetMap": "DRENWICK_EAST_CANAL_MAP",
+      "targetEdge": "south",
+      "walkableSources": 14,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "THORNMERE_NORTH_FEN_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "MAP3_N1",
+      "targetEdge": "east",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "THORNMERE_NORTH_FEN_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        2
+      ],
+      "targetMap": "MAP4",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "THORNMERE_NORTH_FEN_MAP",
+      "direction": "south",
+      "segment": 1,
+      "sourceRange": [
+        13,
+        14
+      ],
+      "targetMap": "MAP4",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "NORTH_BASIN_C_MAP",
       "direction": "south",
       "segment": 0,
@@ -8884,6 +8961,20 @@
       "allOk": true
     },
     {
+      "srcMap": "MAP3_N1",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        13
+      ],
+      "targetMap": "THORNMERE_NORTH_FEN_MAP",
+      "targetEdge": "west",
+      "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "MAP3_N2",
       "direction": "south",
       "segment": 0,
@@ -8992,6 +9083,34 @@
       "targetMap": "MAP3",
       "targetEdge": "west",
       "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP4",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        2
+      ],
+      "targetMap": "THORNMERE_NORTH_FEN_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP4",
+      "direction": "north",
+      "segment": 1,
+      "sourceRange": [
+        13,
+        14
+      ],
+      "targetMap": "THORNMERE_NORTH_FEN_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -10315,10 +10434,10 @@
         "chunkX": 3,
         "chunkY": 5,
         "dir": "north",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "THORNMERE_NORTH_FEN_MAP",
+        "target": "THORNMERE_NORTH_FEN_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP4",
@@ -10347,6 +10466,46 @@
         "dir": "west",
         "neighbor": "MAP3",
         "target": "MAP3",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "THORNMERE_NORTH_FEN_MAP",
+        "chunkX": 3,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": "DRENWICK_EAST_CANAL_MAP",
+        "target": "DRENWICK_EAST_CANAL_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "THORNMERE_NORTH_FEN_MAP",
+        "chunkX": 3,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": "MAP4",
+        "target": "MAP4",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "THORNMERE_NORTH_FEN_MAP",
+        "chunkX": 3,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "THORNMERE_NORTH_FEN_MAP",
+        "chunkX": 3,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": "MAP3_N1",
+        "target": "MAP3_N1",
         "type": "broad",
         "verdict": "ALIGNS"
       },
@@ -10455,10 +10614,10 @@
         "chunkX": 2,
         "chunkY": 4,
         "dir": "east",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "THORNMERE_NORTH_FEN_MAP",
+        "target": "THORNMERE_NORTH_FEN_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP3_N1",
@@ -10525,10 +10684,10 @@
         "chunkX": 3,
         "chunkY": 3,
         "dir": "south",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "THORNMERE_NORTH_FEN_MAP",
+        "target": "THORNMERE_NORTH_FEN_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "DRENWICK_EAST_CANAL_MAP",
@@ -11113,8 +11272,8 @@
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BORDER": 26,
-      "ALIGNS": 32,
+      "BORDER": 24,
+      "ALIGNS": 38,
       "BLOCKED": 30
     }
   }

@@ -11,7 +11,8 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 const ID = 'DRENWICK_EAST_CANAL_MAP';
 const WEST_ID = 'MAP3_N2';
 const NORTH_ID = 'NORTH_BASIN_SE_MAP';
-const FP = 'eab38f6b548bbd1201900dd65914f742f3b100c5db6a56e9f13d82466e3ebc14';
+const SOUTH_ID = 'THORNMERE_NORTH_FEN_MAP';
+const FP = '51ac08da0d044f8c5e6a9199f36c1a323604c2905f5ee546f18c4cc10f1ab40b';
 const WEST_FP = '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c';
 const NORTH_FP = '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00';
 const OLD_WEST_FP = 'e295dd572e02dc442f410fe4fe0d3aff1ac790bd4a40302527fb6c208130b315';
@@ -34,6 +35,7 @@ module.exports = {
     const m = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`);
     const west = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${WEST_ID}'].map)`);
     const north = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${NORTH_ID}'].map)`);
+    const south = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${SOUTH_ID}'].map)`);
     const GRASS = g.run('GRASS'), WATER = g.run('WATER'), TREE = g.run('TREE'), REEDS = g.run('REEDS');
     const mapId = () => g.run('mapIdForRef(activeMap)');
     const worldPos = () => J('JSON.stringify(regionalWorldPosition())');
@@ -113,13 +115,14 @@ module.exports = {
     components.sort((a, b) => Math.min(...a.map((p) => p[1])) - Math.min(...b.map((p) => p[1])));
     assert.ok(components[0].every((p) => p[1] <= 4), 'north component stays north of canal');
     assert.ok(components[1].every((p) => p[1] >= 6), 'south component stays south of canal');
-    assert.deepEqual(components.map((c) => c.length), [68, 109], 'reviewed schematic component sizes');
+    assert.deepEqual(components.map((c) => c.length), [68, 123], 'south-bank opening adds fourteen cells without joining canal banks');
     const northCells = new Set(components[0].map((p) => p.join(',')));
     const southCells = new Set(components[1].map((p) => p.join(',')));
     for (let x = 1; x <= 14; x++) assert.ok(northCells.has(`${x},0`), `north seam col ${x} reaches only north bank`);
     for (let y = 1; y <= 4; y++) assert.ok(northCells.has(`0,${y}`), `west north segment row ${y} reaches north bank`);
     for (let y = 6; y <= 13; y++) assert.ok(southCells.has(`0,${y}`), `west south segment row ${y} reaches south bank`);
-    assert.ok(m[14].every((tile) => tile === TREE), 'south edge blocked');
+    assert.deepEqual(m[14], south[0], 'south edge now matches Northern Thornmere Fen north edge');
+    for (let x = 1; x <= 14; x++) assert.ok(southCells.has(`${x},14`), `south seam col ${x} belongs only to south bank`);
     for (let row = 0; row < 15; row++) assert.equal(m[row][15], row === 5 ? WATER : TREE, `east edge row ${row} blocked/visual canal only`);
     assert.ok(m[13].slice(1, 15).every(walkable), 'south inward row supports a future broad landing');
 
@@ -155,7 +158,7 @@ module.exports = {
     assert.deepEqual(J(`JSON.stringify(eligibleContinuousSeam('${ID}','west').segments.map(function(s){return s.range;}))`), [[1, 4], [6, 13]]);
     assert.equal(g.run(`eligibleContinuousSeam('${WEST_ID}','east',5)`), null, 'canal gap not authorized');
     assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}'].east`), 'undefined');
-    assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}'].south`), 'undefined');
+    assert.deepEqual(J(`JSON.stringify(EDGE_TRANSITIONS['${ID}'].south)`), [{ targetMap: SOUTH_ID, targetEdge: 'north', sourceRange: [1, 14] }]);
 
     // 5. Production continuous crossing through the broad north seam and both
     // west ranges: one standing-point handoff, bounded camera/world movement,
@@ -201,8 +204,7 @@ module.exports = {
       assert.equal(handoffs, 1); assert.ok(maxDelta <= SPEED * Math.SQRT2 + 1e-9, 'X then Y, no double movement');
     }
 
-    // Canal gap and excluded corners remain blocked, and absent east/south chunks
-    // cannot be entered.
+    // Canal gap, excluded corners, and the absent east chunk remain blocked.
     placeEdge(WEST_ID, 'east', 5);
     const gapX = worldPos().worldPxX; const gap = drive('ArrowRight', 30);
     assert.equal(mapId(), WEST_ID); assert.equal(worldPos().worldPxX, gapX); assert.equal(gap.handoffs, 0);
@@ -210,8 +212,8 @@ module.exports = {
       placeEdge(WEST_ID, 'east', row); drive('ArrowRight', 20); assert.equal(mapId(), WEST_ID, `excluded west corner row ${row} blocked`);
     }
     g.run(`placeAtLocation('${ID}',14.5*TILE,7.5*TILE);forceLegacyRegionalView=false;`); drive('ArrowRight', 60); assert.equal(mapId(), ID, 'east void blocked');
-    g.run(`placeAtLocation('${ID}',8.5*TILE,13.5*TILE);forceLegacyRegionalView=false;`); drive('ArrowDown', 60); assert.equal(mapId(), ID, 'south void blocked');
-    assert.equal(g.run("mapIdForChunk('overworld',4,3)"), null); assert.equal(g.run("mapIdForChunk('overworld',3,4)"), null);
+    g.run(`placeAtLocation('${ID}',8.5*TILE,13.5*TILE);forceLegacyRegionalView=false;`); drive('ArrowDown', 60, SOUTH_ID); assert.equal(mapId(), SOUTH_ID, 'south bank now opens into Northern Thornmere Fen');
+    assert.equal(g.run("mapIdForChunk('overworld',4,3)"), null); assert.equal(g.run("mapIdForChunk('overworld',3,4)"), SOUTH_ID);
 
     // 6. Legacy fallback retains normal inset/cooldown behavior for all three
     // reciprocal pairs, including both segments on the west edge.
@@ -283,18 +285,18 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP, 'restoring exactly twelve east-edge cells recreates prior MAP3_N2');
     const oldNorth = north.map((row) => row.slice()); for (let c = 1; c <= 14; c++) oldNorth[14][c] = TREE;
     assert.equal(sha256(JSON.stringify(oldNorth)), OLD_NORTH_FP, 'restoring exactly fourteen south-edge cells recreates prior South Reservoir Road');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 23);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 24);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       if ([ID, WEST_ID, NORTH_ID].includes(id)) continue;
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: established fingerprint unchanged`);
     }
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 32, BLOCKED: 30 });
-    assert.equal(audit.seamReadiness.edges.length, 92);
-    assert.equal(g.run('continuousSeamEntries().length'), 34, '34 directed segment entries');
-    assert.equal(g.run('continuousSeamEntries().length/2'), 17, '17 reciprocal segment pairs');
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 23);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 17);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 38, BLOCKED: 30 });
+    assert.equal(audit.seamReadiness.edges.length, 96);
+    assert.equal(g.run('continuousSeamEntries().length'), 42, '42 directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length/2'), 21, '21 reciprocal segment pairs');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 24);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 18);
   },
 };

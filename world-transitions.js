@@ -1157,6 +1157,23 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'MAP3_N2', targetEdge: 'east', sourceRange: [1, 4] },
       { targetMap: 'MAP3_N2', targetEdge: 'east', sourceRange: [6, 13] },
     ],
+    south: [
+      { targetMap: 'THORNMERE_NORTH_FEN_MAP', targetEdge: 'north', sourceRange: [1, 14] },
+    ],
+  },
+  THORNMERE_NORTH_FEN_MAP: {
+    north: [
+      { targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'south', sourceRange: [1, 14] },
+    ],
+    west: [
+      { targetMap: 'MAP3_N1', targetEdge: 'east', sourceRange: [1, 13] },
+    ],
+    // Thornmere's lake blocks the middle of this edge. The two independently
+    // selected structural ranges land on its west and east north-shore arms.
+    south: [
+      { targetMap: 'MAP4', targetEdge: 'north', sourceRange: [1, 2] },
+      { targetMap: 'MAP4', targetEdge: 'north', sourceRange: [13, 14] },
+    ],
   },
   NORTH_BASIN_C_MAP: {
     south: [
@@ -1241,6 +1258,9 @@ const EDGE_TRANSITIONS = {
     south: [
       { targetMap: 'MAP3', targetEdge: 'north', sourceRange: [8, 8] },
     ],
+    east: [
+      { targetMap: 'THORNMERE_NORTH_FEN_MAP', targetEdge: 'west', sourceRange: [1, 13] },
+    ],
   },
   // South edge: the reciprocal of MAP3_N1's north — cols 3-13 down into the
   // Northern Fen, road at col 8 through the middle. (The other MAP3_N2 edges
@@ -1296,6 +1316,10 @@ const EDGE_TRANSITIONS = {
   // MAP4 side begins as ordinary GRASS shore, the MAP3 side as PATH. Rows match
   // exactly, so crossings never clamp.
   MAP4: {
+    north: [
+      { targetMap: 'THORNMERE_NORTH_FEN_MAP', targetEdge: 'south', sourceRange: [1, 2] },
+      { targetMap: 'THORNMERE_NORTH_FEN_MAP', targetEdge: 'south', sourceRange: [13, 14] },
+    ],
     west: [
       { targetMap: 'MAP3', targetEdge: 'east', sourceRange: [6, 6] },
     ],

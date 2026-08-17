@@ -1,5 +1,5 @@
 'use strict';
-// Stable, repository-owned fingerprints of the 23 placed regional chunk grids.
+// Stable, repository-owned fingerprints of the 24 placed regional chunk grids.
 //
 // Canonical serialization: `sha256hex(JSON.stringify(map))`, where `map` is the
 // 15×16 row-major tile-id array read from `REGIONAL_CHUNK_CATALOG[mapId].map`.
@@ -11,7 +11,7 @@
 // so they run correctly from any future commit, clone, branch, or archive.
 //
 // Regenerate ONLY on an intentional, reviewed terrain edit (recompute the affected
-// map's sha256 from its current grid). All 23 are currently unique — a collision here
+// map's sha256 from its current grid). All 24 are currently unique — a collision here
 // would mean two grids are genuinely byte-identical, which must be reported, not
 // silenced by weakening the check.
 module.exports = {
@@ -20,14 +20,15 @@ module.exports = {
     MAP:                'fc772998da4db584a1d59d7125c4d52237b99bbda734ba2cb99ea723f8aaea7f',
     MAP2:               '269bef01f6bd885e1c8770b26c5b53152b4b16e18a387f8c2d7a8949bef726dc',
     MAP3:               '8ae214585fd47100a4005494086e190503bf3958db0457434eb20bc23d9e2b59',
-    MAP4:               '3759195c2982151ae6636f4daf29f5cbb175d4a48ada0a276c1ab7b1520e7644',
+    MAP4:               '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9',
     MAP5:               '93073d85311e659147f2af889d5aab2d6d3dbe76c632e4b2ab1e77f042349e1f',
     MAP_N1:             '871d5dacd91e1421557554d830e8d64108a5d1d920165ff1bc2094cca090e770',
     MAP_N2:             '39f4bcce6707c439384674c021ef18acf552221ef9e1c57f7435413aeaaeb963',
     RODDON_WAY_MAP:     'c61585db96af5cb44b2d8d7c5a2dc7283affdb078c6ba246fc137cb3a8235a63',
-    MAP3_N1:            '490ecb2044576d7b1410448456121762e0b9ca01954daf1216f3dc6e3922e9a1',
+    MAP3_N1:            '7a7f6def4fbae9ef32f036fb9932e1288171d90c0da68f9e5eaed186b8d5a923',
     MAP3_N2:            '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c',
-    DRENWICK_EAST_CANAL_MAP: 'eab38f6b548bbd1201900dd65914f742f3b100c5db6a56e9f13d82466e3ebc14',
+    DRENWICK_EAST_CANAL_MAP: '51ac08da0d044f8c5e6a9199f36c1a323604c2905f5ee546f18c4cc10f1ab40b',
+    THORNMERE_NORTH_FEN_MAP: '959c67546ae56ca6a05dc3973f930495d5574c359d0cb64d714c5235f63bcae8',
     DRENWICK_WEST_OUTFALL_MAP: '0c133a70a426ca8015a3a5204815063a5ef65bf073d3ad40d2b093de0ba813df',
     NORTH_BASIN_S_MAP:  '4cfdbe21cea85198a47cf98368fd9304fa49cf05c2f95edcde614a12889d416a',
     NORTH_BASIN_SE_MAP: '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00',

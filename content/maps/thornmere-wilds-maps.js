@@ -433,7 +433,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     allowRandomEncounters: true, allowSave: true },
   { mapId: 'MAP4', regionId: 'overworld', chunkX: 3, chunkY: 5, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  border
+      [  3,  0,  0,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  0,  0,  3],  //  0  split north-shore seams c1-2 / c13-14 to Northern Thornmere Fen
       [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  1  north shore (top of П) — was PATH (safe road); now GRASS so it's a normal encounter zone like any other wilderness path
       [  3,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  3],  //  2  W+E shore, reeds at water's edge
       [  3,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  3],  //  3  lake deepens
@@ -452,6 +452,34 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'Thornmere', region: 'Thornmere', contentKey: 'map4',
     presentation: 'continuous', encounterProfileId: 'thornmere', itemSetId: 'map4',
     allowRandomEncounters: true, allowSave: true },
+  // ─── Northern Thornmere Fen — THORNMERE_NORTH_FEN_MAP (16 × 15) ────────
+  // A single connected tract of rough fen between Eastern Canal Banks, Northern
+  // Fen, and Thornmere's two north-shore approaches. The broad Upper Shallows
+  // inlet occupies the east side but never divides the walkable land. Its WATER/
+  // TREE boundary is deliberately impassable until the future scenery-only chunk
+  // at (4,4) is authored. No PATH or authored content exists here.
+  { mapId: 'THORNMERE_NORTH_FEN_MAP', regionId: 'overworld', chunkX: 3, chunkY: 4, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  //  0  broad north seam c1-14 to Eastern Canal Banks' south bank
+      [  0,  0, 23,  0,  0, 23, 23,  0,  0, 23, 23,  0, 23, 23, 23,  1],  //  1  west fen opens; reed landing c14 keeps the broad north seam inset walkable
+      [ 23,  0,  0, 23,  3,  0, 23,  0,  0, 23, 23, 23,  1,  1,  1,  1],  //  2  shoreline pushes west to c12
+      [  0, 23,  0,  0,  3,  3, 23,  0, 23,  0,  0,  1,  1,  1,  1,  1],  //  3  broad northern bay; carr clump c4-5
+      [  0, 23,  0,  0,  3,  0, 23, 23,  0,  0, 23,  1,  1,  1,  1,  3],  //  4  reed-lined projection; east-edge tree interruption
+      [ 23,  0, 23,  0,  0, 23,  3,  0,  0, 23,  1,  1,  1,  1,  1,  1],  //  5  inlet reaches c10
+      [  0,  0, 23,  0,  1,  1, 23,  0,  0, 23, 23,  1,  1,  1,  1,  1],  //  6  shallow western bay and broad eastern water
+      [ 23,  0,  3,  0,  1,  1, 23,  0,  0,  0, 23, 23,  1,  1,  1,  1],  //  7  safe default warp at c8; shoreline recedes to c12
+      [  0, 23,  0,  0, 23,  1,  1,  0,  0, 23,  3, 23, 23,  1,  1,  1],  //  8  broken reed margin around a shallow pool
+      [  0,  0, 23,  3,  0, 23,  1,  1,  0,  0, 23,  0, 23, 23,  1,  1],  //  9  shoreline withdraws eastward
+      [ 23,  0, 23,  0,  0, 23,  0,  1,  1,  0, 23, 23,  0, 23,  1,  1],  // 10  rough central fen; eastern shallows remain broad
+      [  0, 23,  0,  0,  3, 23,  0,  0,  1,  1, 23,  0,  0, 23,  1,  3],  // 11  southern bay with an east-edge tree interruption
+      [ 23,  0, 23,  3,  0,  0, 23,  0,  0,  1,  1, 23,  0,  0,  1,  1],  // 12  reed-lined shallows c9-10 and c14-15
+      [  0,  0,  0, 23,  0,  3,  0, 23,  0,  0, 23,  1, 23,  0,  0,  1],  // 13  connected approach behind both Thornmere shore openings
+      [  3,  0,  0,  3,  1,  1,  3,  1,  1,  1,  3,  1,  3,  0,  0,  3],  // 14  split c1-2 / c13-14 seams; irregular blocked lake shore between
+    ],
+    displayName: 'Northern Thornmere Fen', region: 'Thornmere', contentKey: 'thornmere_north_fen',
+    presentation: 'continuous', encounterProfileId: 'thornmere',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'One connected irregular GRASS/REEDS fen bordered east by the broad nonwalkable Upper Shallows inlet. Uses THORNMERE_ENEMY_TEMPLATES; no PATH, items, NPCs, quests, interactions, buildings, landmarks, decorations, special encounters, or compatibility alias.' },
   // ── MAP5 / Thornmere Shallows — PILOT: grid authored directly in this record ──
   { mapId: 'MAP5', regionId: 'overworld', chunkX: 4, chunkY: 5,
     displayName: 'Thornmere Shallows', region: 'Thornmere', contentKey: 'overworld',
@@ -501,23 +529,24 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'MAP3_N1', regionId: 'overworld', chunkX: 2, chunkY: 4, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  //  0  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS north to MAP3_N2 (Drenwick)
-      [  3,  0,  0, 23,  0,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  3],  //  1
-      [  3,  0,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0,  3],  //  2  NW trees
-      [  3, 55,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  3  col 1 = MIRE_ENTRANCE
-      [111,  0,  0,  0, 23,  1,  1, 23,  2,  2,  2,  2,  2, 54,  0,  3],  //  4  ← col 0 = roddon crossing (top); W bog pond; cols 9-12=path to brewery; col 13=FARM_HOUSE (fen brewery)
-      [111,  0,  0, 23,  1,  1,  1, 23,  2, 23,  0,  0,  0,  0,  0,  3],  //  5  ← col 0 = roddon crossing; bog pond + E reeds
-      [111,  0,  0,  0, 23,  1, 23,  0,  2,  0, 23,  1, 23,  0,  0,  3],  //  6  ← col 0 = roddon crossing; bog + E pond
-      [111,  0,  0,  0,  0, 23,  0,  0,  2,  0, 23,  1,  1, 23,  0,  3],  //  7  ← col 0 = roddon crossing; reeds + E pond
-      [111,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 23,  0,  0,  0,  3],  //  8  ← col 0 = roddon crossing; clearing
-      [111,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0, 53,  0,  3],  //  9  ← col 0 = roddon crossing (bottom); GUARD_POST c13 (smugglers' fort)
-      [  3, 54, 23,  1, 23,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 10  FARM_HOUSE c1 (hamlet north); SW marsh; tree c13 screens fort
-      [  3,  0, 54, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3,  3,  0,  3],  // 11  FARM_HOUSE c2 (hamlet middle)
-      [  3, 54,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0,  3],  // 12  FARM_HOUSE c1 (hamlet south)
-      [  3,  0,  0,  0,  0, 23, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  // 13  reeds near south
+      [  3,  0,  0, 23,  0,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0],  //  1  east seam begins on GRASS
+      [  3,  0,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0, 23],  //  2  NW trees; east seam REEDS
+      [  3, 55,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  //  3  col 1 = MIRE_ENTRANCE; east seam GRASS
+      [111,  0,  0,  0, 23,  1,  1, 23,  2,  2,  2,  2,  2, 54,  0,  0],  //  4  roddon crossing; brewery c13 remains buffered by GRASS c14-15
+      [111,  0,  0, 23,  1,  1,  1, 23,  2, 23,  0,  0,  0,  0,  0, 23],  //  5  bog pond + irregular REEDS east seam
+      [111,  0,  0,  0, 23,  1, 23,  0,  2,  0, 23,  1, 23,  0,  0,  0],  //  6  bog + east seam GRASS
+      [111,  0,  0,  0,  0, 23,  0,  0,  2,  0, 23,  1,  1, 23,  0, 23],  //  7  reeds + east pond; east seam REEDS
+      [111,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 23,  0,  0,  0,  0],  //  8  clearing; east seam GRASS
+      [111,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0, 53,  0,  0],  //  9  GUARD_POST c13 remains buffered by GRASS c14-15
+      [  3, 54, 23,  1, 23,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0, 23],  // 10  hamlet north; east seam REEDS
+      [  3,  0, 54, 23,  0,  0,  0,  0,  2,  0,  0,  0,  3,  3,  0,  0],  // 11  hamlet middle; east seam GRASS
+      [  3, 54,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  0, 23],  // 12  hamlet south; east seam REEDS
+      [  3,  0,  0,  0,  0, 23, 23,  0,  2,  0,  0,  0,  0,  0,  0,  0],  // 13  reeds near south; east seam GRASS
       [  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3],  // 14  ← col 8 = PATH seam to MAP3 (former FEN_N_ENTRANCE point tile)
     ],
     displayName: 'Northern Fen', region: 'Thornmere', contentKey: 'map3_n1',
     presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3_n1',
-    allowRandomEncounters: true, allowSave: true },
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'Northern Fen now opens broadly east across an irregular GRASS/REEDS edge into Northern Thornmere Fen. The ordinary GRASS buffer at column 14 remains intact beside the Fen Brewery and Smugglers\' Fort; all existing quest, item, rainfish, building, and gate content is unchanged.' },
 ];
 window.THORNMERE_REGIONAL_CHUNK_DEFINITIONS = THORNMERE_REGIONAL_CHUNK_DEFINITIONS;

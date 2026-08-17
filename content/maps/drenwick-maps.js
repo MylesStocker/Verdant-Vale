@@ -620,12 +620,12 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
       [  0, 23,  0, 23, 23,  3,  3, 23,  0,  0, 23,  0, 23, 23,  0,  3],  // 11  irregular tree clump
       [ 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  3, 23,  0,  0, 23,  3],  // 12  southern fen
       [  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  // 13  future broad south-bank landing row
-      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  blocked south edge
+      [  3, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  // 14  broad c1-14 fen seam south; irregular GRASS/REEDS matches Northern Thornmere Fen
     ],
     displayName: 'Eastern Canal Banks', region: 'Drenwick', contentKey: 'drenwick_east_canal',
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Two disconnected Drenwick fen banks divided by the unbroken east-west canal. All walkable GRASS/REEDS terrain uses FAR_ENEMY_TEMPLATES; no PATH, bridge, items, NPCs, interactions, landmarks, decoration, or quest content is authored. East and south remain blocked until future neighbours exist.' },
+    notes: 'Two disconnected Drenwick fen banks divided by the unbroken east-west canal. All walkable GRASS/REEDS terrain uses FAR_ENEMY_TEMPLATES; no PATH, bridge, items, NPCs, interactions, landmarks, decoration, or quest content is authored. East remains blocked; the broad south edge now opens from the south bank into Northern Thornmere Fen.' },
 
   // ─── Drenwick West Outfall — DRENWICK_WEST_OUTFALL_MAP  (16 × 15) ─────────────
   // Regional chunk (1,3): the void cell one column WEST of MAP3_N2 (2,3), between

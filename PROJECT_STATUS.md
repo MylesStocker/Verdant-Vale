@@ -36,7 +36,7 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **23 regional chunks** now occupy the `'overworld'` 5×6 envelope (7 sparse void
+- **24 regional chunks** now occupy the `'overworld'` 5×6 envelope (6 sparse void
   cells remain). Six of them are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
@@ -81,18 +81,27 @@ rooms were added to the registry.)
   existing `far` profile / exact `FAR_ENEMY_TEMPLATES` reference on both banks. No
   PATH, bridge, NPC, item, quest, interaction, landmark, or decoration is authored.
 
-  Audit: 92 directed physical edges → ALIGNS 32 / BORDER 26 / BLOCKED 30 /
+  The accessible **Northern Thornmere Fen** (`THORNMERE_NORTH_FEN_MAP`, chunk
+  (3,4)) extends the south bank into a one-component rough fen loop joining
+  Northern Fen and Thornmere. It uses the existing `thornmere` profile and has
+  broad north `[1,14]` and west `[1,13]` seams plus split Thornmere shoreline
+  ranges `[1,2]` and `[13,14]`. A broad irregular WATER inlet penetrates from
+  the east to represent the future inaccessible Upper Shallows; its WATER/TREE
+  boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
+  building, landmark, decoration, point crossing, or compatibility alias exists.
+
+  Audit: 96 directed physical edges → ALIGNS 38 / BORDER 24 / BLOCKED 30 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  34 directed entries / 17 reciprocal segment pairs. See architecture.md
+  42 directed entries / 21 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **96 tests** (`test/cases/01-…96-`), `node test/run.js` — all passing.
+- **97 tests** (`test/cases/01-…97-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 110 maps, 238 fixed-destination transitions, 8
+  isolation pass, 111 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 110 maps, 110 metadata entries, 26,400 tile cells, 114
+  (see below), across 111 maps, 111 metadata entries, 26,640 tile cells, 122
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
   dialogue/text entries, 180 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.
