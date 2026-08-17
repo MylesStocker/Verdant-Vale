@@ -17,8 +17,10 @@ const S_FP = '4cfdbe21cea85198a47cf98368fd9304fa49cf05c2f95edcde614a12889d416a';
 const OLD_S_FP = 'd8497eab4cee320947641a41241f6107857980a5e4b2520bdb737845c7022975';
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
-// Reviewed fingerprints at eefca3f. NORTH_BASIN_S_MAP is handled separately by
-// reconstructing its one authorized pre-change cell; the new map did not yet exist.
+// Reviewed fingerprints retained by this road regression. NORTH_BASIN_S_MAP is
+// handled separately by reconstructing its authorized pre-change cells; later
+// intentional terrain revisions update only their own entry and prove isolation
+// in their next-numbered focused test.
 const PRIOR_FPS = {
   MAP: 'fc772998da4db584a1d59d7125c4d52237b99bbda734ba2cb99ea723f8aaea7f',
   MAP2: '269bef01f6bd885e1c8770b26c5b53152b4b16e18a387f8c2d7a8949bef726dc',
@@ -30,7 +32,7 @@ const PRIOR_FPS = {
   RODDON_WAY_MAP: 'c61585db96af5cb44b2d8d7c5a2dc7283affdb078c6ba246fc137cb3a8235a63',
   MAP3_N1: '7a7f6def4fbae9ef32f036fb9932e1288171d90c0da68f9e5eaed186b8d5a923',
   MAP3_N2: '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c',
-  DRENWICK_WEST_OUTFALL_MAP: '0c133a70a426ca8015a3a5204815063a5ef65bf073d3ad40d2b093de0ba813df',
+  DRENWICK_WEST_OUTFALL_MAP: '9e23d171769fa8ddcf26682823f503090a3af6c80e12bac1947b7fc1c930f04a',
   NORTH_BASIN_C_MAP: '562b1d6e9b79fcc2a2b1b3092538094ec31ff280733acc326ec8c2f90b257668',
   NORTH_BASIN_SW_MAP: '38e09a579a5e76b8539b02698235e01b2c5d664fa6fc9cfa11dd08804575d4c1',
   NORTH_BASIN_W_MAP: '5973d3f2a56180686d9c4f75d0cc038730057abb7ba5cea88c042664aa13a21f',

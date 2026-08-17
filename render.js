@@ -104,6 +104,9 @@ function drawActiveMapContent() {
   if (inTown && townBuilding === 'provision_store')   drawProvisionStoreFurniture();
   if (inTown && townBuilding === 'guild_hall')        drawGuildHallFurniture();
   if (inSluice) drawSluiceGateHint();
+  // Static outdoor bodies share OUTDOOR_MAP_DECOR with neighbour rendering;
+  // active-only wrappers below add prompts without drawing those bodies twice.
+  if (typeof drawActiveOutdoorDecoration === 'function') drawActiveOutdoorDecoration(mapIdForRef(activeMap));
   if (activeMap === MAP4) drawThornmereStone();
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
   drawPlayer();
@@ -237,4 +240,3 @@ function render() {
 
   tick++;
 }
-

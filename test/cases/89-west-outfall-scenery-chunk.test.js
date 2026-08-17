@@ -1,7 +1,7 @@
 'use strict';
 // Drenwick West Outfall (DRENWICK_WEST_OUTFALL_MAP) — the inaccessible, scenery-only
 // regional chunk that fills the sparse void at (1,3). It renders as neighbour terrain
-// + a static culvert decoration but is FAIL-CLOSED against every player-placement
+// + a static boat-scale canal-tunnel decoration but is FAIL-CLOSED against every player-placement
 // path (movement has no seam, and validatePlacement/commitRegionalWorldPosition reject
 // it via the shared `playerAccessible` capability). Covers the full task contract.
 
@@ -12,14 +12,14 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 const ID = 'DRENWICK_WEST_OUTFALL_MAP';
-const OUTFALL_FP = '0c133a70a426ca8015a3a5204815063a5ef65bf073d3ad40d2b093de0ba813df';
+const OUTFALL_FP = '9e23d171769fa8ddcf26682823f503090a3af6c80e12bac1947b7fc1c930f04a';
 // The 15 ORIGINAL placed grids (their fingerprints must not change).
 const ORIGINAL_15 = ['MAP', 'MAP2', 'MAP3', 'MAP4', 'MAP5', 'MAP_N1', 'MAP_N2', 'RODDON_WAY_MAP',
   'MAP3_N1', 'MAP3_N2', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP', 'NORTH_BASIN_SW_MAP',
   'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW_MAP'];
 
 module.exports = {
-  name: 'Drenwick West Outfall: inaccessible scenery chunk (1,3), fail-closed placement, neighbour render',
+  name: 'Drenwick West Outfall: inaccessible canal-tunnel scenery, fail-closed placement, neighbour render',
   run() {
     const g = createContext();
     g.press('Enter'); g.press('Enter');
@@ -46,9 +46,9 @@ module.exports = {
     assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].map.length`), 15, '15 rows');
     assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].map.every(function(r){return r.length===16;})`), true, '16 cols per row');
     assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].map.every(function(r){return r.every(function(t){return WALKABLE[t]!==undefined;});})`), true, 'every tile id is a known existing tile');
-    // No NEW tile id was added for this chunk (only pre-existing outdoor tiles used).
+    // The outfall revision adds only the reviewed HILLS terrain to its previous palette.
     const used = new Set(J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map.reduce(function(a,r){return a.concat(r);},[]))`));
-    for (const t of used) assert.ok(t <= 116, 'uses only pre-existing tile ids (no new tile id for this chunk): ' + t);
+    for (const t of used) assert.ok([g.run('GRASS'), g.run('WATER'), g.run('TREE'), g.run('REEDS'), g.run('BASIN_MUD'), g.run('EXPOSED_STONE'), g.run('HILLS')].includes(t), 'uses only the reviewed outdoor palette: ' + t);
 
     // ── 5 + 6. Fingerprint in fixture; all 15 originals still present/unchanged ─
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), OUTFALL_FP, 'grid matches its computed SHA-256');
@@ -135,13 +135,13 @@ module.exports = {
       assert.equal(hits[0].worldPxY, 3 * 15 * 32, `${nbId}: outfall drawn at its stable world origin Y`);
     }
 
-    // ── 14. Terrain + culvert decoration draw exactly once, at stable coords ───
+    // ── 14. Terrain + canal-tunnel decoration draw once, at stable coords ──
     assert.equal(g.run(`typeof OUTDOOR_MAP_DECOR['${ID}']`), 'function', 'a static decoration is registered');
     g.run("placeAtLocation('MAP3_N2', 0.5*TILE, 5.5*TILE); forceLegacyRegionalView = false;");
-    g.run('var __culvertCalls = 0; var __origCulvert = drawWestOutfallCulvertBody; drawWestOutfallCulvertBody = function(){ __culvertCalls++; return __origCulvert.apply(this, arguments); };');
+    g.run('var __tunnelCalls = 0; var __origTunnel = drawWestOutfallCanalTunnelBody; drawWestOutfallCanalTunnelBody = function(){ __tunnelCalls++; return __origTunnel.apply(this, arguments); };');
     g.renderFrame();
-    assert.equal(g.run('__culvertCalls'), 1, 'culvert decoration drawn exactly once per frame (as a neighbour)');
-    g.run('drawWestOutfallCulvertBody = __origCulvert;');
+    assert.equal(g.run('__tunnelCalls'), 1, 'canal-tunnel decoration drawn exactly once per frame (as a neighbour)');
+    g.run('drawWestOutfallCanalTunnelBody = __origTunnel;');
 
     // ── 15 + 16. No content, NPC, item, or encounter ownership ────────────────
     assert.equal(g.run(`mapEntryForId('${ID}').items.length`), 0, 'no item set');

@@ -43,8 +43,9 @@ rooms were added to the registry.)
   `commitRegionalWorldPosition()`) fail-closes every warp/transition/save/canonical
   placement; none owns items/NPCs/encounters:
   - **Drenwick West Outfall** (`DRENWICK_WEST_OUTFALL_MAP`, chunk (1,3)) — a drought-exposed
-    canal settling ground with a static culvert decoration; the surface water enters a buried
-    culvert beneath the western ridge, continuing underground toward the coast.
+    canal settling ground with a static, boat-scale canal-tunnel portal; the surface water
+    enters a wooded rocky hill ridge and continues underground toward the coast. The ridge
+    uses blocking `HILLS` terrain (tile 119), rendered as contiguous coordinate-locked strata.
   - **North Basin Open Reservoir** (`NORTH_BASIN_N_MAP`, chunk (2,0)) — the deep open water
     NORTH of the receding reservoir (`NORTH_BASIN_C_MAP`), ~94% WATER with two small
     BASIN_MUD/TREE islets; only existing terrain types.
@@ -116,7 +117,7 @@ rooms were added to the registry.)
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
   48 directed entries / 24 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **100 tests** (`test/cases/01-…100-`), `node test/run.js` — all passing.
+- **101 tests** (`test/cases/01-…101-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass, 114 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile

@@ -140,6 +140,42 @@ function drawTree(x, y) {
   ctx.fillRect(x +  8, y +  4, 3, 7);
 }
 
+// Contiguous scrub-covered rocky high ground. Edge-to-edge strata and shadow
+// bands make adjacent cells merge into a ridge; small coordinate-derived accents
+// avoid an obvious stamp without using render-time randomness. drawMapTiles()
+// supplies stable region-world coordinates in Continuous View, so the pattern is
+// world-locked as the camera moves and identical for active/neighbour rendering.
+function drawHills(x, y) {
+  const tx = Math.floor(x / TILE);
+  const ty = Math.floor(y / TILE);
+  const variant = ((tx * 17 + ty * 31) % 3 + 3) % 3;
+
+  ctx.fillStyle = '#565044';
+  ctx.fillRect(x, y, TILE, TILE);
+  // Broad rock shelves continue across tile boundaries.
+  ctx.fillStyle = '#706858';
+  ctx.fillRect(x, y + 3 + variant, TILE, 9);
+  ctx.fillStyle = '#817867';
+  ctx.fillRect(x, y + 3 + variant, TILE, 2);
+  ctx.fillStyle = '#3d3a32';
+  ctx.fillRect(x, y + 12 + variant, TILE, 4);
+  ctx.fillStyle = '#625b4e';
+  ctx.fillRect(x, y + 16 + variant, TILE, 11);
+  ctx.fillStyle = '#34332d';
+  ctx.fillRect(x, y + 27 + variant, TILE, TILE - 27 - variant);
+
+  // Broken faces and sparse scrub, placed deterministically from world coords.
+  const ox = [4, 14, 22][variant];
+  ctx.fillStyle = '#958a75';
+  ctx.fillRect(x + ox, y + 6 + variant, 7, 2);
+  ctx.fillRect(x + ((ox + 13) % 25), y + 19, 6, 2);
+  ctx.fillStyle = '#34442a';
+  ctx.fillRect(x + 3 + variant * 8, y + 1, 8, 4);
+  ctx.fillRect(x + 5 + variant * 8, y, 3, 7);
+  ctx.fillStyle = '#50613b';
+  ctx.fillRect(x + 4 + variant * 8, y + 1, 4, 2);
+}
+
 function drawDungeonFloor(x, y) {
   // Base stone — slightly varied per tile position
   const alt = ((Math.floor(x / TILE) ^ Math.floor(y / TILE)) & 1);
@@ -2203,6 +2239,7 @@ function drawTile(id, x, y) {
     case WATER:               drawWater(x, y);            break;
     case PATH:                drawPath(x, y);             break;
     case TREE:                drawTree(x, y);             break;
+    case HILLS:               drawHills(x, y);            break;
     case DUNGEON_FLOOR:       drawDungeonFloor(x, y);     break;
     case DUNGEON_WALL:        drawDungeonWall(x, y);      break;
     case DUNGEON_ENTRANCE:    drawEntranceTile(x, y);     break;
@@ -2354,7 +2391,6 @@ const RENDERABLE_TILE_IDS = new Set([
   SLUICE_SECRET_ENTRANCE, SLUICE_SECRET_EXIT, DREAM_FLOOR, DREAM_EDGE,
   CHAMBER_DOOR, CHAMBER_FLOOR, CHAMBER_WALL, CHAMBER_EXIT,
   SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, TEMPLE_SHALLOWS, TEMPLE_CARVING, RODDON_SILT,
-  CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE,
+  CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE, HILLS,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;
-

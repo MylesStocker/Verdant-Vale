@@ -10,7 +10,7 @@
 // Drenwick south gate: single TOWN_ENTRANCE tile at row 6 col 8.
 // Canal runs east-west at row 5 (north of the gate). It reaches this map's WEST
 // edge as WATER and continues into DRENWICK_WEST_OUTFALL_MAP (chunk 1,3), where it
-// enters a buried culvert beneath the western ridge — see that chunk's definition.
+// enters a boat-scale canal tunnel through the western ridge — see that chunk's definition.
 // Imperial toll bridge (BRIDGE_GATE) at row 5 col 12; northeast of Drenwick gate.
 // Approach spur: PATH at row 7 cols 9-12 (branches east off main road), row 6 col 12 (north to bridge).
 // Moving north onto BRIDGE_GATE enters the toll checkpoint; crossing south is free.
@@ -647,12 +647,12 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
   //     MAP3_N2's west-edge canal) and crosses into an old drought-exposed settling
   //     ground: an irregular basin of shallow WATER, REEDS, drying BASIN_MUD and
   //     EXPOSED_STONE spreading around rows 4-7 in the central/eastern portion.
-  //   • West of the basin the channel narrows to a one-tile throat (cols ~4-7,
-  //     row 5) and terminates at a masonry CULVERT MOUTH embedded in the wooded /
-  //     rocky western ridge (~col 3-4, row 5; the surface water's westernmost cell
-  //     is col 4 — it never reaches col 0). The culvert is drawn by a static
-  //     OUTDOOR_MAP_DECOR decoration (drawWestOutfallCulvertBody), NOT a tile.
-  //   • Beyond the culvert the canal continues UNDERGROUND, beneath/behind the
+  //   • West of the basin the channel narrows to a one-tile canal (cols 4-7,
+  //     row 5) and enters a broad masonry CANAL-TUNNEL PORTAL in an irregular,
+  //     contiguous HILLS ridge at the col 3/4 face. The surface water's westernmost
+  //     cell is col 4; the static OUTDOOR_MAP_DECOR body
+  //     (drawWestOutfallCanalTunnelBody) shows that water continuing into darkness.
+  //   • Beyond the tunnel portal the canal continues UNDERGROUND, beneath/behind the
   //     Blocked Path, westward toward the coast. If land west of the Blocked Path is
   //     ever authored the canal may re-emerge there; that is future scope.
   //
@@ -668,12 +668,12 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north border → NORTH_BASIN_SW_MAP.south (all blocked TREE)
       [  3,  3,  3,  0,  0,  3,  0,  0, 88,  0,  0,  3,  0,  3,  3,  3],  //  1  wooded north band; exposed rock c8
-      [  3,  0,  0,  3,  0,  0,  0,  0,  0, 88,  0,  0,  3,  0,  3,  3],  //  2  trees + rocky ground
-      [  3,  0, 88,  0,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3,  3],  //  3  reed fringe where the basin begins
-      [  3,  3,  0,  0,  3, 23,  0,  0,  1,  1,  1,  1, 23,  0,  3,  3],  //  4  settling basin north lobe (WATER c8-11)
-      [  3,  3,  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  canal line: culvert mouth c4 (rock bank c3) → throat → basin → east seam WATER c15
-      [  3,  0,  0,  0, 23, 81,  0,  0,  1,  1,  1,  1,  1, 23,  3,  3],  //  6  settling basin south lobe; drying mud c5
-      [  3,  0,  0, 88,  0,  0, 23, 81, 81, 23,  1,  1, 23,  0,  3,  3],  //  7  mud + reeds fringe; basin tail (WATER c10-11)
+      [  3,  0,119,119,  0,  0,  0,  0,  0, 88,  0,  0,  3,  0,  3,  3],  //  2  wooded hill crown above the portal
+      [  3,119,119,119,119,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3,  3],  //  3  irregular rocky ridge; reed fringe begins east
+      [  3,  3,119,119,119, 23,  0,  0,  1,  1,  1,  1, 23,  0,  3,  3],  //  4  hill shoulder above the tunnel; settling basin c8-11
+      [  3,  3,  3,119,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  straight canal: tunnel water c4 → throat → basin → east seam c15
+      [  3,  0,119,119,119, 81,  0,  0,  1,  1,  1,  1,  1, 23,  3,  3],  //  6  hill shoulder below the tunnel; drying mud c5
+      [  3,  0,119,119,  0,  0, 23, 81, 81, 23,  1,  1, 23,  0,  3,  3],  //  7  lower ridge toe; mud + reeds fringe and basin tail
       [  3,  0,  3,  0,  0,  0,  0, 23, 81, 23,  0, 88,  0,  0,  3,  3],  //  8  drought-exposed silt below the basin
       [  3,  0,  0,  0,  3,  0, 88,  0,  0,  0,  0,  0,  3,  0,  3,  3],  //  9  wooded south band
       [  3,  3,  0,  0,  0,  3,  0,  0, 88,  0,  0,  0,  0,  3,  3,  3],  // 10  trees + rock
@@ -685,6 +685,6 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'West Outfall', region: 'Drenwick Fens', contentKey: 'drenwick_west_outfall',
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only canal settling ground; the canal enters a buried culvert beneath the western ridge and continues underground toward the coast. Inaccessible: no seam/border/transition, fail-closed at the shared placement authority. No items, NPCs, encounters, or interactions.' },
+    notes: 'Scenery-only canal settling ground; the canal enters a boat-scale tunnel through the western hill ridge and continues underground toward the coast. Inaccessible: no seam/border/transition, fail-closed at the shared placement authority. No items, NPCs, encounters, or interactions.' },
 ];
 window.DRENWICK_REGIONAL_CHUNK_DEFINITIONS = DRENWICK_REGIONAL_CHUNK_DEFINITIONS;

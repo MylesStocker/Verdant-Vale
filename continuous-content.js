@@ -56,10 +56,18 @@ function outdoorContentKeyInfo(mapId) {
 const OUTDOOR_MAP_DECOR = {
   MAP4:   function () { if (typeof drawThornmereStoneBody === 'function')  drawThornmereStoneBody(); },
   MAP_N2: function () { if (typeof drawDrenwichNorthGateBody === 'function') drawDrenwichNorthGateBody(); },
-  // Scenery-only West Outfall culvert. The chunk is never the active map, so this is
-  // its only draw path (once per frame, as a visible neighbour) — see render-entities.js.
-  DRENWICK_WEST_OUTFALL_MAP: function () { if (typeof drawWestOutfallCulvertBody === 'function') drawWestOutfallCulvertBody(); },
+  // Scenery-only West Outfall canal tunnel. This is its production draw path,
+  // exactly once per frame whenever the inaccessible chunk is a visible neighbour.
+  DRENWICK_WEST_OUTFALL_MAP: function () { if (typeof drawWestOutfallCanalTunnelBody === 'function') drawWestOutfallCanalTunnelBody(); },
 };
+
+// Active counterpart to drawNeighbourOutdoorContent()'s decoration dispatch.
+// Both paths use the same registry, so a static body is authored once and drawn
+// once regardless of whether its physical chunk is active or neighbouring.
+function drawActiveOutdoorDecoration(mapId) {
+  const decor = OUTDOOR_MAP_DECOR[mapId];
+  if (typeof decor === 'function') decor();
+}
 
 // Explicit render context for a chunk's outdoor content. contentLocationKey comes
 // straight from the pure OUTDOOR_CONTENT_KEYS authority (data.js) — no probing.
@@ -103,6 +111,7 @@ if (typeof window !== 'undefined') {
   window.outdoorContentKeyEntries    = outdoorContentKeyEntries;
   window.outdoorContentKeyInfo       = outdoorContentKeyInfo;
   window.OUTDOOR_MAP_DECOR           = OUTDOOR_MAP_DECOR;
+  window.drawActiveOutdoorDecoration = drawActiveOutdoorDecoration;
   window.outdoorChunkContentContext  = outdoorChunkContentContext;
   window.drawNeighbourOutdoorContent = drawNeighbourOutdoorContent;
 }

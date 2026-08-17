@@ -175,6 +175,11 @@ const WATER_GAUGE   = 114; // reed-bed measuring stave (EAST_TOWN_MAP)
 const REED_RACK     = 115; // reed-drying rack (EAST_TOWN_MAP)
 const APT_NOTICE    = 116; // framed corridor tenant notice (APARTMENT_CORRIDOR_MAP)
 
+// ─── Wooded rocky high ground ───────────────────────────────────────
+// Added after the later-reserved Sunken Gallery ids 117-118. Never fill those
+// historical gaps or renumber older tiles: save/debug data relies on stable ids.
+const HILLS         = 119; // contiguous scrub-covered rocky ridge; blocking terrain
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -296,6 +301,7 @@ const WALKABLE = [
   /* 116 APT_NOTICE            */ true,
   /* 117 TEMPLE_SHALLOWS       */ true,
   /* 118 TEMPLE_CARVING        */ false,
+  /* 119 HILLS                 */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -415,6 +421,7 @@ window.CISTERN                = CISTERN;
 window.WATER_GAUGE            = WATER_GAUGE;
 window.REED_RACK              = REED_RACK;
 window.APT_NOTICE             = APT_NOTICE;
+window.HILLS                  = HILLS;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -437,7 +444,7 @@ const DEBUG_TILE_NAMES = [
   'DREAM_EDGE',  'DREAM_FLOOR',
   'CHAMBER_DOOR',  'CHAMBER_FLOOR',  'CHAMBER_WALL',  'CHAMBER_EXIT',
   'SUNKEN_STAIR',  'GALLERY_FLOOR',  'GALLERY_WALL',  'GALLERY_STAIR_UP',  'TEMPLE_SHALLOWS',  'TEMPLE_CARVING',  'RODDON_SILT',
-  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',
+  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',  'HILLS',
   'DUNGEON8_WEST_RET',  'EAST_ENTRANCE',  'EAST_EXIT',  'EXPOSED_STONE',  'FALSE_WALL',  'FARM_HOUSE',
   'FEN_N_ENTRANCE',  'FEN_N_EXIT',  'FEN_N2_ENTRANCE',  'FEN_N2_EXIT',  'FENCE_POST',  'GRASS',
   'GUARD_POST',  'HOUSE_DOOR',  'INN_DOOR',  'INTERIOR_EXIT',  'INTERIOR_FALSE_WALL',  'INTERIOR_FLOOR',
@@ -516,6 +523,11 @@ const TILE_PROPERTIES = {
          + 'context (isEncounterEligibleTile()\'s only branch that reads this flag); still '
          + 'excluded everywhere else (town/dungeon/sluice/etc) by that function\'s own '
          + 'state-flag gating, same as GRASS is.',
+  },
+  [HILLS]: {
+    id: HILLS, name: 'Hills', debugName: 'HILLS', walkable: WALKABLE[HILLS],
+    category: 'natural_blocker', tags: ['outdoor', 'hill', 'rock', 'vegetation', 'blocker'], encounterEligible: false,
+    notes: 'Tile 119. Contiguous brown-grey rocky high ground with sparse scrub; blocking terrain, not a transition or interaction.',
   },
 
   // ── Dungeon (floor 1/3/5/7 stone, floor 2/4/6/8 stone, horror-branch 9/10) ─

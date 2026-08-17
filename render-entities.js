@@ -84,10 +84,9 @@ function drawSluiceGateHint() {
 // draws the hint overlay and a small chain/lock detail so it reads as a gate.
 // The sealed Blocked-Path gate. The STATIC body (drawDrenwichNorthGateBody) draws
 // the chain/lock at LOCAL coordinates and is neighbour-safe; drawDrenwichNorthGate-
-// Hint() adds the active-only SPACE hint.
+// Hint() adds only the active SPACE hint; OUTDOOR_MAP_DECOR draws the body.
 function drawDrenwichNorthGateHint() {
   if (activeMap !== MAP_N2 || dialogue.open) return;
-  drawDrenwichNorthGateBody();
   const gx = Math.round(7.5 * TILE);
   const gy = Math.round(8.5 * TILE);
   const dist = Math.sqrt((player.x - gx) * (player.x - gx) + (player.y - gy) * (player.y - gy));
@@ -146,10 +145,9 @@ function drawDrenwichNorthGateBody() {
 // ─── Thornmere Standing Stone ─────────────────────────────────────────────────
 // The Thornmere standing stone. The STATIC body (drawThornmereStoneBody) draws at
 // the stone's LOCAL coordinates and is neighbour-safe (no activeMap read, no
-// player-relative hint); drawThornmereStone() adds the active-only SPACE hint.
+// player-relative hint); drawThornmereStone() adds only the active SPACE hint.
 function drawThornmereStone() {
   if (activeMap !== MAP4) return;
-  drawThornmereStoneBody();
   // SPACE hint when nearby (ACTIVE chunk only)
   const sx = Math.round(THORNMERE_STONE.x);
   const sy = Math.round(THORNMERE_STONE.y);
@@ -198,47 +196,66 @@ function drawThornmereStoneBody() {
   ctx.fillRect(sx - 9, sy + 8, 18, 4);
 }
 
-// ─── Drenwick West Outfall culvert ────────────────────────────────────────────
-// The buried-canal culvert on DRENWICK_WEST_OUTFALL_MAP (scenery-only chunk 1,3):
-// a low masonry arch set into the wooded/rocky western bank at local col 3-4, row 5,
-// where the surface canal narrows and disappears underground toward the coast. It is
-// registered in OUTDOOR_MAP_DECOR (continuous-content.js), so it draws EXACTLY ONCE
-// per frame, at the chunk's stable world origin, whenever the West Outfall is a
-// visible neighbouring chunk (it is never the active map — the chunk is inaccessible).
-// Static scenery ONLY: no hint, prompt, interaction, NPC, item, animation, or
-// activeMap/player read (the water's own shimmer is the shared tile animation). Draws
-// at LOCAL chunk coordinates; the caller has already translated to the world origin.
-// Deliberately a low, barred arch — not a tall, enterable dungeon door.
-function drawWestOutfallCulvertBody() {
-  const cx = Math.round(3.9 * TILE);   // mouth centre x (col 3/4 boundary, into the water)
-  const cy = Math.round(5.5 * TILE);   // row 5 centre y
-  // Masonry headwall set into the rocky bank
-  ctx.fillStyle = '#8a8580'; ctx.fillRect(cx - 19, cy - 12, 38, 19);
-  ctx.fillStyle = '#a39d96'; ctx.fillRect(cx - 19, cy - 12, 38, 2);   // top highlight course
-  ctx.fillStyle = '#6f6b66'; ctx.fillRect(cx - 19, cy + 5, 38, 2);    // base shadow course
-  // Masonry joints (blocky coursing)
-  ctx.fillStyle = '#736f6a';
-  ctx.fillRect(cx - 19, cy - 4, 38, 1);
-  ctx.fillRect(cx - 8, cy - 12, 1, 19);
-  ctx.fillRect(cx + 7, cy - 12, 1, 19);
-  // Dark culvert opening — stepped "arch" (three stacked rects, narrowing upward)
-  ctx.fillStyle = '#171410';
-  ctx.fillRect(cx - 10, cy - 1, 21, 8);   // mouth body
-  ctx.fillRect(cx - 8, cy - 5, 17, 5);    // arch mid
-  ctx.fillRect(cx - 5, cy - 8, 11, 4);    // arch crown
-  // Light stone arch ring around the crown
-  ctx.fillStyle = '#b7b1a9';
-  ctx.fillRect(cx - 7, cy - 9, 15, 1);
-  ctx.fillRect(cx - 11, cy - 5, 2, 6);
-  ctx.fillRect(cx + 10, cy - 5, 2, 6);
-  // A few iron bars across the mouth
-  ctx.fillStyle = '#33302b';
-  ctx.fillRect(cx - 5, cy - 5, 1, 11);
-  ctx.fillRect(cx,     cy - 7, 1, 13);
-  ctx.fillRect(cx + 4, cy - 5, 1, 11);
-  // Dark water sill where the canal slips underground
-  ctx.fillStyle = '#10203c';
-  ctx.fillRect(cx - 9, cy + 6, 19, 2);
+// ─── Drenwick West Outfall canal tunnel ─────────────────────────────────────
+// Deliberately exaggerated boat-scale portal on the east-facing side of the HILLS
+// ridge at local col 3/4. Its 92px facade spans almost three tile rows (rows 4-6),
+// with engineered retaining shoulders around a broad recessed opening. Registered
+// in OUTDOOR_MAP_DECOR, it draws exactly once at the chunk's stable world origin as
+// visible neighbouring scenery. Static only: no prompt, interaction, transition,
+// state read, or private animation. The water band uses drawWater()'s shared tick
+// frame and palette, keeping the shimmer synchronized with the surface canal.
+function drawWestOutfallCanalTunnelBody() {
+  const faceX = 4 * TILE;             // east face of the western ridge
+  const cy = Math.round(5.5 * TILE);  // exact centre of the row-5 canal
+  const top = 4 * TILE + 2;
+  const bottom = 7 * TILE - 2;
+
+  // Deep ridge shadow behind the engineered stonework.
+  ctx.fillStyle = '#24221d';
+  ctx.fillRect(faceX - 27, top, 35, bottom - top);
+
+  // Three-row-scale retaining facade. Unequal courses keep it embedded in rock,
+  // while the long shoulders above/below the water communicate civil scale.
+  ctx.fillStyle = '#777064';
+  ctx.fillRect(faceX - 22, top + 3, 34, bottom - top - 6);
+  ctx.fillStyle = '#958b7a';
+  ctx.fillRect(faceX - 22, top + 3, 34, 3);
+  ctx.fillRect(faceX - 22, cy - 31, 34, 3);
+  ctx.fillRect(faceX - 22, cy + 28, 34, 3);
+  ctx.fillStyle = '#514c44';
+  ctx.fillRect(faceX - 22, top + 24, 34, 3);
+  ctx.fillRect(faceX - 22, bottom - 8, 34, 3);
+  ctx.fillRect(faceX - 8, top + 3, 2, 28);
+  ctx.fillRect(faceX - 8, cy + 31, 2, bottom - cy - 36);
+
+  // Broad, black interior depth: rectangular body plus a high stepped crown.
+  // It occupies the full water band and leaves visible overhead boat clearance.
+  ctx.fillStyle = '#100f0e';
+  ctx.fillRect(faceX - 19, cy - 24, 33, 49);
+  ctx.fillRect(faceX - 15, cy - 31, 29, 8);
+  ctx.fillRect(faceX - 9,  cy - 36, 23, 6);
+
+  // Heavy stone arch/frame and projecting retaining shoulders.
+  ctx.fillStyle = '#aaa08d';
+  ctx.fillRect(faceX - 19, cy - 27, 33, 4);
+  ctx.fillRect(faceX - 15, cy - 34, 29, 4);
+  ctx.fillRect(faceX - 9,  cy - 39, 23, 4);
+  ctx.fillRect(faceX - 23, cy - 24, 5, 49);
+  ctx.fillRect(faceX + 14, cy - 24, 5, 49);
+  ctx.fillStyle = '#625b50';
+  ctx.fillRect(faceX - 23, cy + 25, 42, 5);
+  ctx.fillRect(faceX - 25, top + 36, 5, 20);
+  ctx.fillRect(faceX - 25, bottom - 56, 5, 20);
+
+  // Row-5 water continues beneath the arch and disappears into black depth.
+  // This reuses the shared water timer/palette: no separate animation or random.
+  const waterFrame = (tick >> 3) & 3;
+  ctx.fillStyle = (waterFrame & 1) ? '#2e4860' : '#324f68';
+  ctx.fillRect(faceX - 18, cy + 7, 37, 16);
+  ctx.fillStyle = (waterFrame & 1) ? '#3a5878' : '#3e5c7c';
+  ctx.fillRect(faceX - 14, cy + 11 + [0, 1, 1, 0][waterFrame], 24, 2);
+  ctx.fillStyle = '#101722';
+  ctx.fillRect(faceX - 18, cy + 21, 37, 3);
 }
 
 // ─── Player Drawing ───────────────────────────────────────────────────────────
@@ -3048,4 +3065,3 @@ function drawBriarWarden() {
     }
   }
 }
-
