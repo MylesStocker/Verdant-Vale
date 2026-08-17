@@ -4,22 +4,21 @@
 // Region content moved verbatim from maps.js by the regional-content-split.
 // Loaded BEFORE maps.js, which keeps MAP_REGISTRY, window.* exports, and mapRegistryId().
 // ─── The North Basin — South Approach  (16 × 15) ─────────────────────────────
-// SKELETON PASS: this is the south-center entry map of a future 3×3 North
-// Basin grid, north of Drenwick/MAP3_N2. Three of nine maps exist so far
-// (this one, NORTH_BASIN_C_MAP directly north of it, and NORTH_BASIN_SW_MAP
-// directly west of it) — the other six (N, NE, E, SE, W, NW) are not built:
+// This is the south-center entry map of the North Basin grid, north of
+// Drenwick/MAP3_N2. Its east road now continues into NORTH_BASIN_SE_MAP; the
+// other established crossings remain unchanged:
 //
 //   [NW future]        [N future]           [NE future]
 //   [W future]         [NORTH_BASIN_C_MAP]  [E future]
-//   [NORTH_BASIN_SW_MAP] [NORTH_BASIN_S_MAP]  [SE future]
+//   [NORTH_BASIN_SW_MAP] [NORTH_BASIN_S_MAP]  [NORTH_BASIN_SE_MAP]
 //
 // Entered from MAP3_N2's row 0 col 12 (NORTH_BASIN_ENTRANCE at this map's
 // row 14 col 12 returns south — still a point-tile transition). The basin
 // road (col 12) runs the length of the map, "maintained" (PATH) only from
 // the entrance up to row 3 — beyond that (rows 1-2) it reverts to
 // unmaintained reeds, matching the "maintained only to Marker 4" sign posted
-// near there. An east spur (row 7-8) heads toward the sea-lock/tidegate
-// road, dead-ending at col 14 before the border with a closure sign.
+// near there. An east spur (rows 7-8) now reaches the two-tile structural seam
+// into NORTH_BASIN_SE_MAP and the South Reservoir Road.
 //
 // North and west are both OPEN EDGES using the new generic EDGE_TRANSITIONS
 // system (world-transitions.js), not point-tiles: row 0 (cols 1-14) is
@@ -28,8 +27,7 @@
 // walking off either simply requires standing in that open range and
 // pressing further outward, anywhere along it, not hitting one specific
 // tile. See EDGE_TRANSITIONS['NORTH_BASIN_S_MAP'] for the exact ranges. The
-// east border remains plain impassable TREE, so it's still not traversable
-// into the not-yet-built SE/E neighbours.
+// east border is otherwise impassable TREE; row 8 alone carries the road seam.
 //
 // No GRASS on this map, but its REEDS are encounter-eligible all the same
 // (same as GRASS — see tiles.js's TILE_PROPERTIES), so it DOES roll random
@@ -431,8 +429,8 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  3,  1,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  4
       [  3, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  5  Water Authority survey stakes nearby (c10)
       [  3, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  6
-      [  3, 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23,  2,  2, 23,  3],  //  7  east spur begins (c12-13)
-      [  3,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2,  2,  2,  3],  //  8  east spur reaches c14 — tidegate closure sign just past it
+      [  3, 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23,  2,  2, 23, 23],  //  7  reed shoulder widens the east entrance above the one-tile road
+      [  3,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2,  2,  2,  2],  //  8  one-tile road reaches c15 inside the [7,8] entrance
       [ 23, 23,  1, 81, 81, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  9  open edge, row 9 → EDGE_TRANSITIONS west to NORTH_BASIN_SW_MAP
       [ 23, 23,  1,  1,  1,  1, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 10  open edge, row 10 → EDGE_TRANSITIONS west
       [ 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  // 11  open edge, row 11 → EDGE_TRANSITIONS west
@@ -444,6 +442,38 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_s',
     allowRandomEncounters: true, allowSave: true,
     notes: 'The basin entry. It has no GRASS, but its REEDS are encounter-eligible all the same (see tiles.js TILE_PROPERTIES), so it does roll random encounters — now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES, the same gentle creatures as the Silt Flats) instead of the generic ENEMY_TEMPLATES fallback it used when this was left encounterPool: null. The maintained road (PATH, col 12) and the water stay safe; you meet things by cutting through the reeds.' },
+  // ─── North Basin — South Reservoir Road — NORTH_BASIN_SE_MAP (16 × 15) ─────
+  // Playable regional chunk (3,2), east of NORTH_BASIN_S_MAP and south of the
+  // inaccessible NORTH_BASIN_E_MAP. The row-8 PATH is the eastbound road: it
+  // enters through the reciprocal west seam at c0, stays encounter-safe through
+  // c14, and stops one tile short of the still-blocked east border. A REEDS shoulder
+  // at row 7 makes the physical entrance two tiles wide without widening the road.
+  // North exactly mirrors NORTH_BASIN_E_MAP.south (TREE×16); east/south remain
+  // TREE borders until their future neighbours are authored. Off-road GRASS and
+  // REEDS are encounter-eligible and use the upper_reach profile; four isolated
+  // BASIN_MUD/EXPOSED_STONE cells add texture without creating a safe route.
+  { mapId: 'NORTH_BASIN_SE_MAP', regionId: 'overworld', chunkX: 3, chunkY: 2, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  blocked north edge exactly mirrors NORTH_BASIN_E_MAP.south
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  1  open reservoir behind the shoreline
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  2  open reservoir
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23, 23,  0, 23,  3],  //  3  first irregular dry shoreline tongue
+      [  3,  1,  1,  1,  1,  1,  1,  1, 23,  0,  0, 23, 23,  0, 23,  3],  //  4  broken reed fringe
+      [  3,  1,  1,  1,  1, 23, 23,  0, 81,  0, 23, 23,  0,  0, 23,  3],  //  5  isolated mud at c8
+      [  3,  1,  1, 23,  0,  0, 23, 23,  0,  0, 88, 23,  0, 23, 23,  3],  //  6  isolated exposed stone at c10
+      [ 23, 23,  0,  0, 81,  0, 23, 23, 23,  0,  0, 23, 88,  0, 23,  3],  //  7  reed entrance shoulder and dry fen
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  3],  //  8  west seam c0; eastbound safe road stops at c14
+      [  3, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  3],  //  9  irregular reed clumps south of the road
+      [  3,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0,  3],  // 10  dry grass pockets
+      [  3, 23,  0,  0, 23, 23,  0, 23,  0,  0,  0, 23,  0, 23, 23,  3],  // 11  broken fen bands
+      [  3,  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0, 23,  3],  // 12  drought-exposed fen
+      [  3, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  // 13  no southbound path
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  blocked south edge; future northern-bank neighbour absent
+    ],
+    displayName: 'North Basin — South Reservoir Road', region: 'North Basin', contentKey: 'north_basin_se',
+    presentation: 'continuous', encounterProfileId: 'upper_reach',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'Playable eastbound reservoir road. The west entrance has a REEDS shoulder above the single-tile PATH road; PATH is the only meaningful encounter-free route, while surrounding irregular GRASS/REEDS patches roll the harder UPPER_REACH_ENEMY_TEMPLATES pool. There is no southbound road. North is blocked against inaccessible reservoir scenery; east and south remain TREE borders until their future neighbours are authored. No items, NPCs, interactions, decorations, landmarks, or quest content.' },
   { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
@@ -676,9 +706,10 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   //   • west col 0 EXACTLY mirrors NORTH_BASIN_C_MAP's east edge
   //     ([TREE, WATER×6, TREE×8]) — which is itself water over forest, matching the
   //     top-water / bottom-forest split.
-  // The south (void 3,2) and east (void 4,1) edges stay open borders — WATER on the
-  // top rows, TREE on the bottom — ready for later expansion. Only existing terrain
-  // types (WATER / TREE / a few BASIN_MUD islets); no items/NPCs/encounters.
+  // The south edge is TREE×16 and exactly mirrors the blocked north edge of the
+  // playable South Reservoir Road at (3,2). The east edge likewise remains
+  // non-walkable against the East Shore scenery. Only existing terrain types
+  // (WATER / TREE / a few BASIN_MUD islets); no items/NPCs/encounters.
   { mapId: 'NORTH_BASIN_E_MAP', regionId: 'overworld', chunkX: 3, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north border mirrors NORTH_BASIN_NE_MAP.south ([TREE, WATER×15])
@@ -695,11 +726,11 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  3,  3,  3,  3,  3,  3,  3,  1,  1,  3,  3,  3,  3,  3,  3,  3],  // 11  pool continues
       [  3,  3,  3,  3, 81,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 12  forest with a mud patch
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 13  forest
-      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  south border: forest (open for expansion)
+      [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  south border: forest, mirrored by NORTH_BASIN_SE_MAP.north
     ],
     displayName: 'North Basin — Eastern Woods', region: 'North Basin', contentKey: 'north_basin_e',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only: the reservoir’s open water (top half) gives way to forest (bottom half). Kept inaccessible by matching its edges to two non-walkable placed neighbours (north = NORTH_BASIN_NE.south; west = NORTH_BASIN_C.east); south/east stay open borders for later expansion. Fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+    notes: 'Scenery-only: the reservoir’s open water (top half) gives way to forest (bottom half). Kept inaccessible by matching its edges to non-walkable placed neighbours (north = NORTH_BASIN_NE.south; west = NORTH_BASIN_C.east; south = NORTH_BASIN_SE.north); east remains non-walkable against NORTH_BASIN_E2. Fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
 ];
 window.NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS;

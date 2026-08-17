@@ -1122,12 +1122,24 @@ const EDGE_TRANSITIONS = {
     west: [
       { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'east', sourceRange: [9, 11] },
     ],
+    // East edge: a row-7 REEDS shoulder widens the entrance above the single
+    // row-8 PATH road. Structural reciprocal; no remap or behaviour.
+    east: [
+      { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'west', sourceRange: [7, 8] },
+    ],
     // South edge: the single col-12 PATH causeway into MAP3_N2 (Drenwick's north fen).
     // The rest of the south edge is wall, so the seam is ONE tile wide (sourceRange
     // [12,12]) — the former NORTH_BASIN_ENTRANCE/NORTH_BASIN_EXIT point crossing.
     // Reciprocal of MAP3_N2.north; both sides are the col-12 causeway road.
     south: [
       { targetMap: 'MAP3_N2', targetEdge: 'north', sourceRange: [12, 12] },
+    ],
+  },
+  NORTH_BASIN_SE_MAP: {
+    // West edge: reciprocal two-tile entrance (REEDS shoulder + row-8 PATH road)
+    // back to the South Approach. East and south remain absent/blocked.
+    west: [
+      { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'east', sourceRange: [7, 8] },
     ],
   },
   NORTH_BASIN_C_MAP: {
@@ -1583,4 +1595,3 @@ function debugNearbyTransitionInfo() {
   return 'none nearby';
 }
 window.debugNearbyTransitionInfo = debugNearbyTransitionInfo;
-

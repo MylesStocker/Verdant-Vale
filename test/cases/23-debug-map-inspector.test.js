@@ -191,7 +191,10 @@ module.exports = {
     // south is now the continuous causeway seam to MAP3_N2 (former point crossing)
     assert.ok(summary.south && summary.south.length === 1, 'North Basin South Approach now has one south segment (the causeway seam)');
     assert.equal(summary.south[0].targetMapId, 'MAP3_N2');
-    assert.equal(summary.east, null, 'east has no configured segment on this map (future SE neighbour)');
+    assert.ok(summary.east && summary.east.length === 1, 'South Approach has one east road segment');
+    assert.equal(summary.east[0].targetMapId, 'NORTH_BASIN_SE_MAP');
+    assert.equal(JSON.stringify(summary.east[0].sourceRange), '[7,8]');
+    assert.equal(summary.east[0].unlocked, true);
 
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; activeMap = NORTH_BASIN_S_MAP;

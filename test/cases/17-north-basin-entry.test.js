@@ -124,15 +124,18 @@ module.exports = {
         assert.equal(northRow[c], TREE, `north edge col ${c} (outside the EDGE_TRANSITIONS range) should be plain impassable border`);
       }
     }
-    // West edge: same idea, row-based; east remains fully unimplemented.
+    // West edge: same idea, row-based. East has a two-tile entrance whose road
+    // remains the single row-8 PATH beneath a row-7 REEDS shoulder.
     const [westMin, westMax] = edges.west[0].sourceRange;
+    const [eastMin, eastMax] = edges.east[0].sourceRange;
     for (let r = 0; r < map.length; r++) {
       if (r >= westMin && r <= westMax) {
         assert.ok(WALKABLE[map[r][0]], `west edge row ${r} is inside the EDGE_TRANSITIONS range and should be walkable`);
       } else {
         assert.equal(map[r][0], TREE, `west edge row ${r} (outside the EDGE_TRANSITIONS range) should be plain impassable border`);
       }
-      assert.equal(map[r][15], TREE, 'east edge (future SE neighbour) should be plain impassable border');
+      if (r >= eastMin && r <= eastMax) assert.equal(map[r][15], r === 8 ? g.run('PATH') : g.run('REEDS'), `east edge row ${r} carries the South Reservoir Road entrance`);
+      else assert.equal(map[r][15], TREE, `east edge row ${r} outside the seam remains TREE`);
     }
     // South edge: now a real EDGE_TRANSITIONS connection to MAP3_N2 (the former
     // NORTH_BASIN_ENTRANCE point tile is now the col-12 PATH causeway seam), so it

@@ -13,6 +13,7 @@
     "MAP3_N2",
     "DRENWICK_WEST_OUTFALL_MAP",
     "NORTH_BASIN_S_MAP",
+    "NORTH_BASIN_SE_MAP",
     "NORTH_BASIN_C_MAP",
     "NORTH_BASIN_SW_MAP",
     "NORTH_BASIN_W_MAP",
@@ -184,6 +185,12 @@
     },
     {
       "id": "NORTH_BASIN_S_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "NORTH_BASIN_SE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -8605,6 +8612,20 @@
     },
     {
       "srcMap": "NORTH_BASIN_S_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        8
+      ],
+      "targetMap": "NORTH_BASIN_SE_MAP",
+      "targetEdge": "west",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_S_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
@@ -8614,6 +8635,20 @@
       "targetMap": "MAP3_N2",
       "targetEdge": "north",
       "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_SE_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        8
+      ],
+      "targetMap": "NORTH_BASIN_S_MAP",
+      "targetEdge": "east",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -10529,10 +10564,10 @@
         "chunkX": 2,
         "chunkY": 2,
         "dir": "east",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "NORTH_BASIN_SE_MAP",
+        "target": "NORTH_BASIN_SE_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "NORTH_BASIN_S_MAP",
@@ -10541,6 +10576,46 @@
         "dir": "west",
         "neighbor": "NORTH_BASIN_SW_MAP",
         "target": "NORTH_BASIN_SW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_SE_MAP",
+        "chunkX": 3,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_E_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "NORTH_BASIN_SE_MAP",
+        "chunkX": 3,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_SE_MAP",
+        "chunkX": 3,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "NORTH_BASIN_SE_MAP",
+        "chunkX": 3,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "NORTH_BASIN_S_MAP",
+        "target": "NORTH_BASIN_S_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
@@ -10879,10 +10954,10 @@
         "chunkX": 3,
         "chunkY": 1,
         "dir": "south",
-        "neighbor": null,
+        "neighbor": "NORTH_BASIN_SE_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "NORTH_BASIN_E_MAP",
@@ -10908,8 +10983,8 @@
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
       "BORDER": 26,
-      "ALIGNS": 26,
-      "BLOCKED": 28
+      "ALIGNS": 28,
+      "BLOCKED": 30
     }
   }
 }

@@ -36,7 +36,7 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **21 regional chunks** now occupy the `'overworld'` 5×6 envelope (9 sparse void
+- **22 regional chunks** now occupy the `'overworld'` 5×6 envelope (8 sparse void
   cells remain). Six of them are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
@@ -58,27 +58,35 @@ rooms were added to the registry.)
   - **North Basin Eastern Woods** (`NORTH_BASIN_E_MAP`, chunk (3,1)) — south of the Open
     Reservoir East: top half almost all WATER, bottom half almost all forest (TREE). Its north
     edge mirrors `NORTH_BASIN_NE_MAP`'s south edge and its west edge mirrors
-    `NORTH_BASIN_C_MAP`'s east edge; south stays an open border for later expansion.
+    `NORTH_BASIN_C_MAP`'s east edge; its forested south edge is blocked against the
+    playable South Reservoir Road.
   - **North Basin Open Reservoir (East Shore)** (`NORTH_BASIN_E2_MAP`, chunk (4,1)) — south
     of the Far East reservoir and east of the Eastern Woods; its north/west edges exactly
     mirror those nonwalkable neighbours, while east/south remain reservoir scenery for later
     expansion.
 
-  Audit: 84 directed edges → ALIGNS 26 / BORDER 26 / BLOCKED 28 / INTENTIONAL_DISCRETE 4;
-  still 26 eligible seams / 13 pairs. See architecture.md "Scenery-only (inaccessible) chunks".
-- **94 tests** (`test/cases/01-…94-`), `node test/run.js` — all passing.
+  The new accessible **North Basin — South Reservoir Road** (`NORTH_BASIN_SE_MAP`,
+  chunk (3,2)) continues the South Approach road east through a reciprocal rows 7–8
+  continuous seam: a REEDS shoulder widens the entrance while the PATH road remains
+  one tile wide on row 8. The irregular GRASS/REEDS fen uses the harder `upper_reach`
+  encounter profile, and there is no southbound road. Its north, east, and south
+  boundaries remain blocked, with the east road stopping one tile short of TREE.
+
+  Audit: 88 directed edges → ALIGNS 28 / BORDER 26 / BLOCKED 30 / INTENTIONAL_DISCRETE 4;
+  28 eligible seams / 14 pairs. See architecture.md "Scenery-only (inaccessible) chunks".
+- **95 tests** (`test/cases/01-…95-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 101 maps, 236 fixed-destination transitions, 20
-  preserved-coordinate transitions, 42 house doors (0 problems), 61 tile
+  isolation pass, 109 maps, 238 fixed-destination transitions, 8
+  preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 101 maps, 101 metadata entries, 24,240 tile cells, 94
-  edge transitions, 171 NPCs, 112 item placements, 105 enemy templates, 596
-  dialogue/text entries, 172 save-flag checks, 63 map features, 72 pickup ids,
-  18 chest ids.
+  (see below), across 109 maps, 109 metadata entries, 26,160 tile cells, 108
+  edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
+  dialogue/text entries, 180 save-flag checks, 63 map features, 73 pickup ids,
+  19 chest ids.
 
-## The 3 current warnings, and why none needs fixing
+## The 4 current warnings, and why none needs fixing
 
 1. **`NOTICE_BOARD` is `isDecorative` and walkable** (`Tile Properties`
    group) — intentional, documented in `TILE_PROPERTIES`'s own `notes`
@@ -96,6 +104,9 @@ rooms were added to the registry.)
    group) — the renderer word-wraps it fine; flagged only because it's a
    genuine outlier against the rest of the game's dialogue (median ~57
    chars). Cosmetic, not broken.
+4. **One apartment description line (`npc.apt_desca`) is 346 characters**
+   (`Dialogue` group) — it likewise word-wraps correctly and is only flagged
+   for being longer than the validator's review threshold.
 
 (The ten pooled enemy templates that once warned for missing sprites — Hollow,
 Fen Shade, Tomb Sentry, Crypt Revenant, Wall Tendril, Dripping Maw, The Seep,

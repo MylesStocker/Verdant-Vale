@@ -166,6 +166,6 @@ module.exports = {
 
     // ── 19. Seam audit unchanged. ────────────────────────────────────────────
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 26, BLOCKED: 28 }, 'seam audit: 26 ALIGNS / 0 NEEDS_REMAP / 4 INTENTIONAL_DISCRETE / 28 BLOCKED / 26 BORDER (West Outfall + 5 North Basin scenery chunks)');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 28, BLOCKED: 30 }, 'seam audit: 28 ALIGNS / 0 NEEDS_REMAP / 4 INTENTIONAL_DISCRETE / 30 BLOCKED / 26 BORDER');
   },
 };

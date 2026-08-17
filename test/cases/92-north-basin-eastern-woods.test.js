@@ -3,7 +3,8 @@
 // (3,1): south of the Open Reservoir East (3,0) and east of the reservoir (2,1). The TOP
 // half is almost all WATER, the BOTTOM half almost all forest (TREE). Kept inaccessible by
 // MATCHING its edges to its two non-walkable placed neighbours (north = NORTH_BASIN_NE.south,
-// west = NORTH_BASIN_C.east); south/east stay open borders. Only existing terrain types.
+// west = NORTH_BASIN_C.east); its south edge is now blocked by the playable
+// NORTH_BASIN_SE_MAP while east remains blocked by NORTH_BASIN_E2_MAP.
 
 const assert = require('assert/strict');
 const crypto = require('crypto');
@@ -53,29 +54,28 @@ module.exports = {
     // every border cell is non-walkable (no walkable seam anywhere on the perimeter)
     for (let col = 0; col < 16; col++) { assert.equal(g.run(`isTileWalkable(${m[0][col]})`), false, `north row0 col${col} non-walkable`); assert.equal(g.run(`isTileWalkable(${m[14][col]})`), false, `south row14 col${col} non-walkable`); }
     for (let row = 0; row < 15; row++) { assert.equal(g.run(`isTileWalkable(${m[row][0]})`), false, `west col0 row${row} non-walkable`); assert.equal(g.run(`isTileWalkable(${m[row][15]})`), false, `east col15 row${row} non-walkable`); }
-    // south + east stay open borders (top water, bottom forest) for later expansion
-    assert.equal(m[14][8], TREE, 'south border is forest (open for later expansion)');
+    // south is blocked against NORTH_BASIN_SE; east remains nonwalkable scenery
+    assert.equal(m[14][8], TREE, 'south border is forest, mirrored by NORTH_BASIN_SE north');
     assert.equal(m[3][15], WATER, 'east border top is open water');
     assert.equal(m[12][15], TREE, 'east border bottom is forest');
 
     // ── 4. Fingerprint recorded; every prior grid unchanged ───────────────────
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'grid matches its computed SHA-256');
     assert.equal(GRID_FP.fingerprints[ID], FP, 'the fixture records the fingerprint');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 21, 'fixture now has 21 fingerprints');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 22, 'fixture now has 22 fingerprints');
 
-    // ── 5. No seam/transition; audit: north+west BLOCKED, south+east BORDER; ──
-    //      the two neighbour edges convert BORDER -> BLOCKED.
+    // ── 5. No seam/transition; all four placed-neighbour edges are BLOCKED; ───
     assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}']`), 'undefined', 'no EDGE_TRANSITIONS source entry');
     assert.equal(g.run(`continuousSeamEntries().filter(function(e){return e.from==='${ID}'||e.to==='${ID}';}).length`), 0, 'no eligible continuous seam touches it');
     const audit = require('../transition-audit.js');
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     assert.equal(V[`${ID}|north`], 'BLOCKED', 'north (to NORTH_BASIN_NE_MAP) is a structural BLOCKED boundary');
     assert.equal(V[`${ID}|west`], 'BLOCKED', 'west (to the reservoir NORTH_BASIN_C_MAP) is a structural BLOCKED boundary');
-    assert.equal(V[`${ID}|south`], 'BORDER', 'south is an open region border (void beyond, for later expansion)');
+    assert.equal(V[`${ID}|south`], 'BLOCKED', 'south is blocked by NORTH_BASIN_SE_MAP with matching TREE edges');
     assert.equal(V[`${ID}|east`], 'BLOCKED', 'east is now BLOCKED (NORTH_BASIN_E2_MAP placed at 4,1)');
     assert.equal(V['NORTH_BASIN_NE_MAP|south'], 'BLOCKED', "NORTH_BASIN_NE_MAP's south edge is now BLOCKED (neighbour placed)");
     assert.equal(V['NORTH_BASIN_C_MAP|east'], 'BLOCKED', "the reservoir's east edge is now BLOCKED (neighbour placed)");
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 26, BLOCKED: 28 }, 'audit totals: 84 edges -> ALIGNS 26 / BORDER 26 / BLOCKED 28 / INTENTIONAL_DISCRETE 4');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 26, ALIGNS: 28, BLOCKED: 30 }, 'audit totals: 88 edges -> ALIGNS 28 / BORDER 26 / BLOCKED 30 / INTENTIONAL_DISCRETE 4');
 
     // ── 6. Inaccessible scenery: fail-closed against every placement path ──────
     assert.equal(g.run(`mapPlayerAccessible('${ID}')`), false, 'not player-accessible (scenery only)');
@@ -105,10 +105,10 @@ module.exports = {
     assert.equal(hits[0].worldPxX, 3 * 16 * 32, 'drawn at its stable world origin X');
     assert.equal(hits[0].worldPxY, 1 * 15 * 32, 'drawn at its stable world origin Y');
 
-    // ── 9. Void count now 11; region bounds unchanged; SAVE_VERSION 4 ─────────
+    // ── 9. Void count now 8; region bounds unchanged; SAVE_VERSION 4 ──────────
     let placed = 0;
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++;
-    assert.equal(placed, 21, '21 placed chunks in the 5x6 envelope (9 sparse voids remain)');
+    assert.equal(placed, 22, '22 placed chunks in the 5x6 envelope (8 sparse voids remain)');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 4, 0, 5], 'region chunk extent unchanged');
     assert.equal(g.run('SAVE_VERSION'), 4, 'SAVE_VERSION === 4');
