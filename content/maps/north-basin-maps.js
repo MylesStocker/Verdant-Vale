@@ -115,6 +115,21 @@ const NORTH_BASIN_SW_ITEMS = [];
 
 const NORTH_BASIN_W_ITEMS = [];
 
+// West Mire (NORTH_BASIN_W2_MAP) — a single examine-only find. `examine: true`
+// means it is NOT auto-collected by walking over it; it renders as a floor
+// sparkle and is taken with the interact key (see drawMapWorldItems / the world-
+// item interact path). Ordinary registry-backed pickup otherwise, so its taken
+// state persists through PICKUP_REGISTRY like any world item.
+const NORTH_BASIN_W2_ITEMS = [
+  { id: 'pickup_mire_reed_remedy', name: 'Reed Remedy', type: 'potion', heals: 0, curesPoison: true, price: 50,
+    x: 4.5 * TILE, y: 10.5 * TILE, picked: false, examine: true,
+    examinePages: [
+      ['Something pale juts from the mud beside a sunken fence post.',
+       'You work it free — a bundle of dried reed-stems, bound and waxed into a poultice. Someone left it out here to cure, long ago, and never came back for it.'],
+      ['Got Reed Remedy.'],
+    ] },
+];
+
 // ─── The North Basin — Centre Reservoir  (16 × 15) ───────────────────────────
 // SKELETON PASS: the centre map of the future 3×3 North Basin grid, directly
 // north of NORTH_BASIN_S_MAP. The maintained road ends entirely before this
@@ -550,15 +565,15 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  //  0  open edge cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_NW_MAP (the Upper Reach) — the "one-line change later" this border was reserved for
       [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  1  reservoir shore begins (uneven): reeds at c12, water c13-14
       [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  2  water reaches in to c12
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  1],  //  3  ← c9 stranded waterline stake
-      [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  4  inlet: water reaches in to c11
-      [  3,  0,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  5  drying mud patch (safer ground)
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 92,  0, 23,  1,  1,  1],  //  6  ← c10 = fisher's hut (TRAPPER_HUT tile)
-      [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  7
-      [  3,  0,  0,  0,  0,  0, 89,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  8  ← c6 old fishing gear (stranded stake)
-      [  3,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  9  inlet: water reaches in to c11
-      [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 10
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 11
+      [ 23,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0, 23,  1,  1,  1],  //  3  ← c9 stranded waterline stake; c0 opens west to the West Mire
+      [ 23,  0,  0, 88,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  4  inlet: water reaches in to c11; c0 west crossing
+      [ 23,  0,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  5  drying mud patch (safer ground); c0 west crossing
+      [ 23,  0,  0,  0,  0,  0,  0,  0,  0,  0, 92,  0, 23,  1,  1,  1],  //  6  ← c10 = fisher's hut (TRAPPER_HUT tile); c0 west crossing
+      [  3,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  //  7  c0 stays TREE (scrubby hummock splits the two west crossings)
+      [  3,  0,  0,  0,  0,  0, 89,  0,  0,  0,  0,  0, 23,  1,  1,  1],  //  8  ← c6 old fishing gear (stranded stake); c0 TREE
+      [ 23,  0,  0,  0, 81, 81,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  9  inlet: water reaches in to c11; c0 west crossing
+      [ 23,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 10  c0 west crossing
+      [ 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 11  c0 west crossing to the West Mire
       [  3,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1],  // 12
       [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1],  // 13
       [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3,  3,  1,  1,  3],  // 14  open edge, cols 1-10 → EDGE_TRANSITIONS south to NORTH_BASIN_SW_MAP
@@ -566,7 +581,41 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — West Shore', region: 'North Basin', contentKey: 'north_basin_w',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats’ enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; north edge is now an open crossing (cols 1-10) to the Upper Reach; west is impassable border until that neighbour is built.' },
+    notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats’ enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; north edge is an open crossing (cols 1-10) to the Upper Reach; the west edge (col 0) now opens onto the West Mire across two marsh crossings (rows 3-6 and 9-11), with a scrubby TREE hummock at rows 7-8 between them.' },
+  // ─── The North Basin — West Mire  (16 × 15) ──────────────────────────────────
+  // The far-west chunk (0,1), west of the West Shore. A cold, boggy backwater of
+  // the drained basin: nobody lives here. Marsh (REEDS) and drought-cracked
+  // BASIN_MUD border to border, threaded with small WATER pools, firmer
+  // EXPOSED_STONE lakebed patches, and a few sunken FENCE_POSTs from an old
+  // pasture the reservoir long ago swallowed. TREE scrub rings the three void
+  // borders (west/north/south); the east edge opens to the West Shore across two
+  // marsh crossings (rows 3-6 and 9-11 — the reciprocal of NORTH_BASIN_W_MAP.west).
+  // The only find is an examine-only sparkle (a bundled reed poultice, Reed
+  // Remedy) half-buried by an old fence post at c4 r10. No NPCs, no buildings,
+  // no enterables. Shares the gentle basin pool (north_basin) with its neighbours;
+  // REEDS roll encounters, BASIN_MUD/EXPOSED_STONE/WATER stay safe.
+  { mapId: 'NORTH_BASIN_W2_MAP', regionId: 'overworld', chunkX: 0, chunkY: 1, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  3,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1 ],  //  0  north void border (TREE + flooded pools, impassable)
+      [  3, 23, 23, 81,  0, 23, 23, 23, 23, 23, 81, 81, 23,  0, 23,  3 ],  //  1  marsh
+      [  3, 23, 23, 23, 81, 23, 81, 88, 81, 81,  0,  0, 81, 23, 23,  3 ],  //  2  reeds + drying mud; stone patch c7
+      [  3, 23, 81, 81, 81, 23,  1, 81, 23, 23, 81, 23, 81, 23, 23, 23 ],  //  3  ← c15 opens east to the West Shore (crossing rows 3-6)
+      [  3, 23,  1, 23, 88, 23, 23, 81, 81, 81, 23, 81, 81, 89, 23, 23 ],  //  4  water pool c2; fence post c13
+      [  3, 23, 23, 23, 23, 81, 23, 23, 23, 23, 81, 88, 23, 23, 23, 23 ],  //  5
+      [  3, 88, 89, 81, 23, 23, 23, 23, 23, 23, 23, 23,  1, 81, 23, 23 ],  //  6  sunken fence post c2 (old pasture line)
+      [  3, 23, 81, 81,  0, 23, 23, 23, 81, 81,  0, 81, 81, 23, 23,  3 ],  //  7  c15 back to TREE border (rows 7-8 closed)
+      [  3, 23, 81, 81, 23, 23, 81, 81, 81, 23,  1, 23, 81, 23, 23,  3 ],  //  8
+      [  3, 23, 23, 23,  0, 81,  0, 23, 81, 81, 23, 81, 23, 81, 23, 23 ],  //  9  ← c15 opens east again (crossing rows 9-11)
+      [  3, 23, 23, 89, 81, 23, 23, 81, 23, 81, 88, 23, 81, 23, 81, 23 ],  // 10  fence post c3; Reed Remedy sparkle at c4 (examine)
+      [  3, 81, 23, 23,  1, 23, 81, 23, 88, 81, 23, 23, 23, 81, 23, 23 ],  // 11  water pool c4
+      [  3, 23, 81,  0, 81, 23, 23, 81,  1, 81, 81, 81,  0, 23, 23,  3 ],  // 12  c15 TREE border
+      [  3,  0, 23, 81, 81, 23, 23, 23, 81, 81, 23, 23,  0, 23, 81,  3 ],  // 13
+      [  3,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1 ],  // 14  south void border (impassable)
+    ],
+    displayName: 'North Basin — West Mire', region: 'North Basin', contentKey: 'north_basin_w2',
+    presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w2',
+    allowRandomEncounters: true, allowSave: true,
+    notes: 'Cold boggy backwater at chunk (0,1), west of the West Shore. Marsh/mud border to border with small water pools, dry lakebed stone, and sunken fence posts — nobody lives here. Only the east edge connects (two marsh crossings to the West Shore, rows 3-6 and 9-11); north/south/west are impassable void borders. One examine-only sparkle find (Reed Remedy) at c4 r10. No NPCs, buildings, or enterables. Uses the gentle north_basin pool; REEDS roll, BASIN_MUD/EXPOSED_STONE/WATER stay safe.' },
   { mapId: 'NORTH_BASIN_NW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 0, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge: open reservoir WATER (the flooded arm continues off-map; impassable)

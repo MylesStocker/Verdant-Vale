@@ -1775,6 +1775,36 @@ function drawMapWorldItems(list) {
     if (wi.name === 'Fen Sickle' && sickle_quest_stage < 1) continue;
     const px = Math.round(wi.x);
     const py = Math.round(wi.y);
+
+    // Examine-only pickups render as a floor sparkle (no item sprite/label); they
+    // are taken with the interact key (tryExamineWorldItem), never by walking over.
+    if (wi.examine) {
+      const sx = px, sy = py;
+      const a  = 0.55 + 0.35 * Math.sin(tick * 0.2);
+      const r  = ((tick >> 2) % 8) < 4 ? 5 : 3;   // twinkle
+      ctx.fillStyle = 'rgba(255,248,200,' + a.toFixed(3) + ')';
+      ctx.fillRect(sx - 1, sy - r, 2, r * 2);
+      ctx.fillRect(sx - r, sy - 1, r * 2, 2);
+      ctx.fillStyle = 'rgba(255,240,180,' + (a * 0.5).toFixed(3) + ')';
+      ctx.fillRect(sx - 3, sy - 3, 2, 2);
+      ctx.fillRect(sx + 1, sy + 1, 2, 2);
+      ctx.fillRect(sx - 3, sy + 1, 2, 2);
+      ctx.fillRect(sx + 1, sy - 3, 2, 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(sx - 1, sy - 1, 2, 2);
+      if (!dialogue.open && !choice.open && !shop.open) {
+        const pdx = player.x - wi.x, pdy = player.y - wi.y;
+        if (Math.sqrt(pdx * pdx + pdy * pdy) < TALK_RADIUS && (tick >> 4) & 1) {
+          ctx.fillStyle = '#d8c878';
+          ctx.font = 'bold 11px "Courier New", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('SPACE', sx, sy - 12);
+          ctx.textAlign = 'left';
+        }
+      }
+      continue;
+    }
+
     // Gentle float
     const bob = Math.round(Math.sin(tick * 0.07) * 2);
     const iy = py + bob - 8;

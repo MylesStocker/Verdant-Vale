@@ -983,6 +983,9 @@ function update() {
 // dialogue) on the item's own shared object.
 function collectWorldItemNear(wi, atX, atY, opts) {
   if (wi.picked) return;
+  // Examine-only pickups (floor sparkles) are never auto-collected by proximity;
+  // they are taken through the interact (SPACE) path -- see tryExamineWorldItem().
+  if (wi.examine) return;
   const ddx = atX - wi.x;
   const ddy = atY - wi.y;
   if (Math.sqrt(ddx * ddx + ddy * ddy) >= 20) return;

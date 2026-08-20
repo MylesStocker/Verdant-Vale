@@ -135,11 +135,17 @@ module.exports = {
         assert.ok(map[0][c] === TREE || map[0][c] === WATER, `north edge col ${c} (outside the range) should be impassable border (TREE, or WATER at the NE reservoir corner)`);
       }
     }
-    for (const row of map) {
+    const westSegs = g.run("EDGE_TRANSITIONS['NORTH_BASIN_W_MAP']").west;
+    const inWestSeam = (r) => westSegs.some((seg) => r >= seg.sourceRange[0] && r <= seg.sourceRange[1]);
+    for (let r = 0; r < map.length; r++) {
+      const row = map[r];
       // East edge IS the reservoir — now drawn as impassable WATER rather than a
       // TREE line (rows 1-13); the N/S corners of the column stay TREE.
       assert.ok(row[15] === TREE || row[15] === WATER, 'east edge (the reservoir itself) should be impassable border (WATER, or TREE at the corners)');
-      assert.equal(row[0], TREE, 'west edge (future W neighbour) should be plain impassable border');
+      // West edge now opens onto the West Mire across two marsh crossings (rows
+      // 3-6 and 9-11): walkable there, plain TREE border everywhere else.
+      if (inWestSeam(r)) assert.ok(WALKABLE[row[0]], `west edge row ${r} (in a West Mire crossing) is walkable`);
+      else assert.equal(row[0], TREE, `west edge row ${r} (outside the crossings) is plain TREE border`);
     }
     // South edge: walkable within the EDGE_TRANSITIONS range, border elsewhere.
     for (let c = 0; c < map[14].length; c++) {

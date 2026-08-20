@@ -179,6 +179,26 @@ function currentMapFeatures() {
 // no interaction UI is open (interactionUiOpened() -- dialogue, choice,
 // shop, or a reading panel). See the orchestration comment above
 // interactionUiOpened() for the full priority contract.
+// Examine-only world items: a floor sparkle on the active map that grants its
+// item when the player presses interact within range (once). The pickup object is
+// an ordinary world item flagged `examine: true`, so its taken state persists
+// through PICKUP_REGISTRY like any other; it is simply never auto-collected by
+// proximity (collectWorldItemNear skips it) and never renders as an item sprite
+// (drawMapWorldItems draws a sparkle instead). Returns true if one was taken.
+function tryExamineWorldItem() {
+  const items = (typeof currentItemList === 'function') ? currentItemList() : null;
+  if (!Array.isArray(items)) return false;
+  for (const wi of items) {
+    if (!wi || !wi.examine || wi.picked) continue;
+    if (!nearPlayer(wi.x, wi.y, TALK_RADIUS)) continue;
+    wi.picked = true;
+    grantItem(wi.name);
+    openDialogue('', wi.examinePages || [['Got ' + wi.name + '.']]);
+    return true;
+  }
+  return false;
+}
+
 function tryMapFeatures() {
   const features = currentMapFeatures();
   if (!features) return false;
@@ -2025,6 +2045,11 @@ function handleInteract() {
                            // location handler may run (old else-if semantics);
                            // fall through to the MAP_FEATURES fallback.
   }
+
+  // Examine-only world-item sparkles — a floor glint on the ACTIVE map that is
+  // taken with the interact key rather than by walking over it. Tried before the
+  // generic MAP_FEATURES fallback; only when no location handler consumed the press.
+  if (!interactionUiOpened() && tryExamineWorldItem()) return;
 
   // Generic MAP_FEATURES inspectables — lowest priority. Runs only when no
   // handler consumed the press. The interactionUiOpened() guard is belt and

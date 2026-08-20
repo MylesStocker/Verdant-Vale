@@ -578,16 +578,16 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  3,  3,  1,  3,  3,  3,  3,  3,  1,  2,  1,  1,  1],  //  0  border ← col 12 = north seam → NORTH_BASIN_S_MAP.south (continuous causeway); marsh gaps (cols 5, 11) + bog pond E off-map (cols 13-15)
       [  3,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0, 23,  2,  1, 23, 23],  //  1  N marsh: east edge now opens into Eastern Canal Banks' north bank
-      [  3,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23, 23],  //  2  bog pond W + bog pond E; east seam remains reeds
+      [  1,  0, 23,  1, 23,  0,  0,  0,  0,  0,  0,  0,  2,  1, 23, 23],  //  2  bog pond W + bog pond E; east seam remains reeds; west canal-bank water pocket at c0
       [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  2, 23,  0,  0],  //  3  north-bank east seam opens on grass
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0],  //  4  open north canal bank through east seam
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0],  //  4  open north canal bank through east seam; west canal-bank water at c0
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 57,  1,  1,  1],  //  5  canal WATER, flowing off-map both W and E; BRIDGE_GATE col 12
-      [  3,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  0],  //  6  south-bank east seam opens beyond the gate approach
+      [  1,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  0],  //  6  south-bank east seam opens beyond the gate approach; west canal-bank water at c0
       [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  0,  0, 23],  //  7  road spur; east seam lands on reeds
       [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  //  8  south-bank east seam grass
-      [  3,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0, 23],  //  9  bog W + reeds east seam
+      [  1,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0, 23],  //  9  bog W + reeds east seam; west bank water pocket at c0
       [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23, 23],  // 10  former east pond edge becomes walkable reeds
-      [  3,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  0],  // 11  reeds + bog E; grass seam
+      [  1,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  0],  // 11  reeds + bog E; grass seam; west bank water pocket at c0
       [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0, 53, 23,  0,  0, 23],  // 12  GUARD_POST c11; reeds continue east
       [  3,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  // 13  broad south-bank east seam
       [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  // 14  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS south to MAP3_N1 (Northern Fen)
@@ -660,7 +660,11 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
   //   north row 0  = all TREE (matches NORTH_BASIN_SW_MAP south edge, all TREE)
   //   south row 14 = all TREE (matches RODDON_WAY_MAP north edge, all TREE)
   //   west  col 0  = all TREE (matches MAP_N2 east edge, all TREE)
-  //   east  col 15 = all TREE except row 5 = WATER (matches MAP3_N2 west edge)
+  //   east  col 15 = irregular non-walkable canal bank (matches MAP3_N2 west edge
+  //                  byte-for-byte): WATER at row 5 (the canal) plus scattered
+  //                  bank water pockets at rows 2, 4, 6, 9, 11; TREE elsewhere.
+  //                  The row-0/row-14 corners stay TREE with the N/S borders. No
+  //                  HILLS here — the tunnel ridge stays on the west face.
   // TREE (3) and WATER (1) are both non-walkable, so there is no walkable border
   // cell and no path in — the interior walkable terrain is scenery the player can
   // see across the seams but never reach.
@@ -668,16 +672,16 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  north border → NORTH_BASIN_SW_MAP.south (all blocked TREE)
       [  3,  3,  3,  0,  0,  3,  0,  0, 88,  0,  0,  3,  0,  3,  3,  3],  //  1  wooded north band; exposed rock c8
-      [  3,  0,119,119,  0,  0,  0,  0,  0, 88,  0,  0,  3,  0,  3,  3],  //  2  wooded hill crown above the portal
+      [  3,  0,119,119,  0,  0,  0,  0,  0, 88,  0,  0,  3,  0,  3,  1],  //  2  wooded hill crown above the portal; north-bank water pocket at the c15 seam
       [  3,119,119,119,119,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3,  3],  //  3  irregular rocky ridge; reed fringe begins east
-      [  3,  3,119,119,119, 23,  0,  0,  1,  1,  1,  1, 23,  0,  3,  3],  //  4  hill shoulder above the tunnel; settling basin c8-11
+      [  3,  3,119,119,119, 23,  0,  0,  1,  1,  1,  1, 23,  0,  3,  1],  //  4  hill shoulder above the tunnel; settling basin c8-11; canal-bank water at c15
       [  3,  3,  3,119,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  5  straight canal: tunnel water c4 → throat → basin → east seam c15
-      [  3,  0,119,119,119, 81,  0,  0,  1,  1,  1,  1,  1, 23,  3,  3],  //  6  hill shoulder below the tunnel; drying mud c5
+      [  3,  0,119,119,119, 81,  0,  0,  1,  1,  1,  1,  1, 23,  3,  1],  //  6  hill shoulder below the tunnel; drying mud c5; canal-bank water at c15
       [  3,  0,119,119,  0,  0, 23, 81, 81, 23,  1,  1, 23,  0,  3,  3],  //  7  lower ridge toe; mud + reeds fringe and basin tail
       [  3,  0,  3,  0,  0,  0,  0, 23, 81, 23,  0, 88,  0,  0,  3,  3],  //  8  drought-exposed silt below the basin
-      [  3,  0,  0,  0,  3,  0, 88,  0,  0,  0,  0,  0,  3,  0,  3,  3],  //  9  wooded south band
+      [  3,  0,  0,  0,  3,  0, 88,  0,  0,  0,  0,  0,  3,  0,  3,  1],  //  9  wooded south band; south-bank water pocket at the c15 seam
       [  3,  3,  0,  0,  0,  3,  0,  0, 88,  0,  0,  0,  0,  3,  3,  3],  // 10  trees + rock
-      [  3,  0,  0, 88,  0,  0,  3,  0,  0,  3,  0,  0,  0,  0,  3,  3],  // 11  rocky ground
+      [  3,  0,  0, 88,  0,  0,  3,  0,  0,  3,  0,  0,  0,  0,  3,  1],  // 11  rocky ground; south-bank water pocket at the c15 seam
       [  3,  0,  3,  0,  0,  0,  0,  0, 88,  0,  3,  0,  3,  0,  3,  3],  // 12  trees + rock
       [  3,  0,  0,  0,  3,  0,  0,  3,  0,  0,  0,  3,  0,  0,  3,  3],  // 13  wooded south band
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  south border → RODDON_WAY_MAP.north (all blocked TREE)

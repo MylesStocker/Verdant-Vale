@@ -239,11 +239,11 @@ module.exports = {
     // ── C1. Zero NEEDS_REMAP; every directed edge classified; no CONFLICT/OUTSIDE ─
     const edges = audit.seamReadiness.edges;
     assert.equal(edges.filter((e) => e.verdict === 'NEEDS_REMAP').length, 0, 'NEEDS_REMAP === 0 (no unconverted point crossings remain)');
-    assert.equal(edges.length, 108, '108 directed regional edges total (27 placed maps x 4 sides)');
+    assert.equal(edges.length, 112, '112 directed regional edges total (28 placed maps x 4 sides)');
     const CLASSES = new Set(['ALIGNS', 'INTENTIONAL_DISCRETE', 'BLOCKED', 'BORDER']);
     assert.ok(edges.every((e) => CLASSES.has(e.verdict)), 'every directed edge is ALIGNS / INTENTIONAL_DISCRETE / BLOCKED / BORDER');
     assert.equal(edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 }, 'closure totals: ALIGNS 42 / INTENTIONAL_DISCRETE 4 / BLOCKED 40 / BORDER 22');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 44, BLOCKED: 40 }, 'closure totals: ALIGNS 44 / INTENTIONAL_DISCRETE 4 / BLOCKED 40 / BORDER 24');
 
     // ── C2. Every ALIGNS edge is represented by the fail-closed eligible-seam authority ─
     const alignsEdges = edges.filter((e) => e.verdict === 'ALIGNS').map((e) => e.mapId + '|' + e.dir);
@@ -260,9 +260,9 @@ module.exports = {
     //        maps. Seven scenery-only placements are deliberately unreachable, so
     //        the traversable-graph assertions run over the accessible nodes only.
     const allNodes = J("JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(function(p){return p.mapId;}))");
-    assert.equal(allNodes.length, 27, '27 placed regional maps (20 accessible + 7 scenery-only)');
+    assert.equal(allNodes.length, 28, '28 placed regional maps (21 accessible + 7 scenery-only)');
     const nodes = allNodes.filter((n) => g.run('mapPlayerAccessible(' + JSON.stringify(n) + ')'));
-    assert.equal(nodes.length, 20, '20 accessible regional maps form the traversable world');
+    assert.equal(nodes.length, 21, '21 accessible regional maps form the traversable world');
     assert.ok(allNodes.includes('DRENWICK_WEST_OUTFALL_MAP') && !nodes.includes('DRENWICK_WEST_OUTFALL_MAP'),
       'the West Outfall is placed but not player-accessible');
     assert.equal(g.run("continuousSeamEntries().filter(function(e){return e.from==='DRENWICK_WEST_OUTFALL_MAP'||e.to==='DRENWICK_WEST_OUTFALL_MAP';}).length"), 0,

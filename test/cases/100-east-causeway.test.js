@@ -168,11 +168,11 @@ module.exports = {
     assert.equal(g.run(`typeof ${ID}`),'undefined'); assert.equal(g.run(`typeof window['${ID}']`),'undefined'); assert.equal(g.run(`REGIONAL_POINT_CROSSINGS.some(function(c){return c.from==='${ID}'||c.to==='${ID}';})`),false);
     const runtimeFiles=['movement.js','continuous-seams.js','regional-position.js','save.js','debug-warp.js'];
     const runtime=runtimeFiles.map((file)=>fs.readFileSync(path.join(__dirname,'..','..',file),'utf8')).join('\n'); assert.doesNotMatch(runtime,/EAST_CAUSEWAY_MAP/,'no map-ID movement/save/warp exception');
-    assert.equal(sha256(JSON.stringify(m)),FP); assert.equal(GRID_FP.fingerprints[ID],FP); assert.equal(GRID_FP.fingerprints[WEST_ID],WEST_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length,27);
+    assert.equal(sha256(JSON.stringify(m)),FP); assert.equal(GRID_FP.fingerprints[ID],FP); assert.equal(GRID_FP.fingerprints[WEST_ID],WEST_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length,28);
     for(const [id,fp] of Object.entries(GRID_FP.fingerprints)) assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)),fp,`${id}: fingerprint stable`);
     const audit=require('../transition-audit.js'); const verdict=Object.fromEntries(audit.seamReadiness.edges.map((e)=>[e.mapId+'|'+e.dir,e.verdict]));
     assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BORDER');
-    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:42,BLOCKED:40}); assert.equal(audit.seamReadiness.edges.length,108);
-    assert.equal(g.run('continuousSeamEntries().length'),56); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),27); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),114); assert.equal(g.run('SAVE_VERSION'),4);
+    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:24,ALIGNS:44,BLOCKED:40}); assert.equal(audit.seamReadiness.edges.length,112);
+    assert.equal(g.run('continuousSeamEntries().length'),60); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),28); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),115); assert.equal(g.run('SAVE_VERSION'),4);
   },
 };

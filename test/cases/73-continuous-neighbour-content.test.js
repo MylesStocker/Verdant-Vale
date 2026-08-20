@@ -57,7 +57,7 @@ module.exports = {
 
     // ── 8 + 9. DECLARATIVE physical-map -> content-key authority (pure) ──────
     const ents = J('JSON.stringify(outdoorContentKeyEntries())');
-    assert.equal(ents.length, 27, 'all 27 placed outdoor maps are bound');
+    assert.equal(ents.length, 28, 'all 28 placed outdoor maps are bound');
     const byId = {}; ents.forEach(e => { byId[e.mapId] = e; });
     // full binding table matches the established currentContentLocationKey() mapping
     const expected = { MAP:'overworld', MAP2:'map2', MAP3:'map3', MAP4:'map4', MAP5:'overworld',
@@ -73,7 +73,7 @@ module.exports = {
     // ambiguity: MAP/MAP5/RODDON share 'overworld' (ambiguous); all others unique
     const ambiguous = ents.filter(e => !e.unambiguous).map(e => e.mapId).sort();
     assert.deepEqual(ambiguous, ['MAP', 'MAP5', 'RODDON_WAY_MAP'], 'exactly MAP/MAP5/RODDON_WAY_MAP are ambiguous');
-    assert.equal(ents.filter(e => e.unambiguous).length, 24, 'the other 24 bindings are unique');
+    assert.equal(ents.filter(e => e.unambiguous).length, 25, 'the other 25 bindings are unique');
     // namespace distinction: id !== key; non-outdoor ids resolve to null
     assert.notEqual('MAP2', byId['MAP2'].key);
     assert.equal(g.run("outdoorContentKeyForMapId('DRENWICK_INN_MAP')"), null, 'a non-outdoor map id is not bound');

@@ -12,7 +12,7 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 const ID = 'DRENWICK_WEST_OUTFALL_MAP';
-const OUTFALL_FP = '9e23d171769fa8ddcf26682823f503090a3af6c80e12bac1947b7fc1c930f04a';
+const OUTFALL_FP = 'ba1ab2ab813db74a65a342d6b89232f17a43ec092b12096d06124d9172ab6334';
 // The 15 ORIGINAL placed grids (their fingerprints must not change).
 const ORIGINAL_15 = ['MAP', 'MAP2', 'MAP3', 'MAP4', 'MAP5', 'MAP_N1', 'MAP_N2', 'RODDON_WAY_MAP',
   'MAP3_N1', 'MAP3_N2', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_C_MAP', 'NORTH_BASIN_SW_MAP',
@@ -57,7 +57,7 @@ module.exports = {
       assert.ok(GRID_FP.fingerprints[id], id + ': original fingerprint still present in the fixture');
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], id + ': original grid unchanged');
     }
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 27, 'fixture now has 27 fingerprints');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 28, 'fixture now has 28 fingerprints');
 
     // ── 7 + 8. Border contract: agrees with all four neighbours, all non-walkable ─
     const outfall = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`);
@@ -97,9 +97,9 @@ module.exports = {
     }
 
     // ── 11. Audit totals match the verified new layout ────────────────────────
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 },
-      'audit totals: 108 edges -> ALIGNS 42 / BORDER 22 / BLOCKED 40 / INTENTIONAL_DISCRETE 4');
-    assert.equal(audit.seamReadiness.edges.length, 108, '108 directed placed-map edges (27 x 4)');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 44, BLOCKED: 40 },
+      'audit totals: 112 edges -> ALIGNS 44 / BORDER 24 / BLOCKED 40 / INTENTIONAL_DISCRETE 4');
+    assert.equal(audit.seamReadiness.edges.length, 112, '112 directed placed-map edges (28 x 4)');
     assert.ok(!audit.seamReadiness.totals.CONFLICT && !audit.seamReadiness.totals.OUTSIDE_REGION && !audit.seamReadiness.totals.NEEDS_REMAP,
       'no CONFLICT / OUTSIDE_REGION / NEEDS_REMAP');
 
@@ -108,8 +108,8 @@ module.exports = {
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) {
       if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++; else voids++;
     }
-    assert.equal(placed, 27, '27 placed chunks in the 5x6 envelope');
-    assert.equal(voids, 3, '3 remaining sparse void cells');
+    assert.equal(placed, 28, '28 placed chunks in the 5x6 envelope');
+    assert.equal(voids, 2, '2 remaining sparse void cells');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 4, 0, 5], 'region chunk extent unchanged (0..4 x 0..5)');
     assert.equal(b.widthPx, 5 * 16 * 32, 'region pixel width unchanged (5 chunks)');

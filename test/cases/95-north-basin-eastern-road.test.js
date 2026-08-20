@@ -30,11 +30,11 @@ const PRIOR_FPS = {
   MAP_N2: '39f4bcce6707c439384674c021ef18acf552221ef9e1c57f7435413aeaaeb963',
   RODDON_WAY_MAP: '835e3050e45a3bcd74454fc411f006ea0556b08c9fea6d7e31795a4908eba2bc',
   MAP3_N1: '7a7f6def4fbae9ef32f036fb9932e1288171d90c0da68f9e5eaed186b8d5a923',
-  MAP3_N2: '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c',
-  DRENWICK_WEST_OUTFALL_MAP: '9e23d171769fa8ddcf26682823f503090a3af6c80e12bac1947b7fc1c930f04a',
+  MAP3_N2: '06664d7a4ef0485e2a605a71932fd15364029fa59def6cb75acf206288568039',
+  DRENWICK_WEST_OUTFALL_MAP: 'ba1ab2ab813db74a65a342d6b89232f17a43ec092b12096d06124d9172ab6334',
   NORTH_BASIN_C_MAP: '562b1d6e9b79fcc2a2b1b3092538094ec31ff280733acc326ec8c2f90b257668',
   NORTH_BASIN_SW_MAP: '38e09a579a5e76b8539b02698235e01b2c5d664fa6fc9cfa11dd08804575d4c1',
-  NORTH_BASIN_W_MAP: '5973d3f2a56180686d9c4f75d0cc038730057abb7ba5cea88c042664aa13a21f',
+  NORTH_BASIN_W_MAP: 'df88364722dc6e4cd77a3c95182165c3ecff777d9c37e290b4810c6d2da3a1f3',
   NORTH_BASIN_NW_MAP: '0105619e109e8dcc3c941724437dd7fd0b6b2208e3507d498046841f6b53d28d',
   NORTH_BASIN_N_MAP: 'e59e5fa33fbc7e6388e707d1ef4a96282c446c6aead0f2cc24e935426e960bc7',
   NORTH_BASIN_NE_MAP: '97af356c23d758f6d396afb57e1fd152c4b0701dd6f66839248cf7350b6d0954',
@@ -220,13 +220,13 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);
     const old = m.map((row) => row.slice()); for (const row of [6,7,8,9,10]) old[row][15] = TREE;
     assert.equal(sha256(JSON.stringify(old)), OLD_FP, 'restoring only the five authorized east-edge cells recreates the reviewed predecessor');
-    assert.equal(GRID_FP.fingerprints[S_ID], S_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length, 27);
+    assert.equal(GRID_FP.fingerprints[S_ID], S_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length, 28);
     for (const [id, fp] of Object.entries(PRIOR_FPS)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: prior fingerprint unchanged`);
     }
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 });
-    assert.equal(audit.seamReadiness.edges.length, 108);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 27);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 20);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 44, BLOCKED: 40 });
+    assert.equal(audit.seamReadiness.edges.length, 112);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 28);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 21);
   },
 };

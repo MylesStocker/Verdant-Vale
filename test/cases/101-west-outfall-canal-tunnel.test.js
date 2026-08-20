@@ -11,8 +11,8 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'DRENWICK_WEST_OUTFALL_MAP';
-const OLD_FP = '0c133a70a426ca8015a3a5204815063a5ef65bf073d3ad40d2b093de0ba813df';
-const FP = '9e23d171769fa8ddcf26682823f503090a3af6c80e12bac1947b7fc1c930f04a';
+const OLD_FP = 'bf9292a99442a4dedd583a1cc07544aabeed663efd97055a848935bcd451be9d';
+const FP = 'ba1ab2ab813db74a65a342d6b89232f17a43ec092b12096d06124d9172ab6334';
 const OLD_TILE_ID_HASH = 'e0700e295c651ac771e3bcd999db359afbb01609251f3617265a85647e74058e';
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
@@ -28,7 +28,7 @@ const BASELINE_26 = {
   MAP_N2: '39f4bcce6707c439384674c021ef18acf552221ef9e1c57f7435413aeaaeb963',
   RODDON_WAY_MAP: '835e3050e45a3bcd74454fc411f006ea0556b08c9fea6d7e31795a4908eba2bc',
   MAP3_N1: '7a7f6def4fbae9ef32f036fb9932e1288171d90c0da68f9e5eaed186b8d5a923',
-  MAP3_N2: '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c',
+  MAP3_N2: '06664d7a4ef0485e2a605a71932fd15364029fa59def6cb75acf206288568039',
   DRENWICK_EAST_CANAL_MAP: '2e74d8cd14fa6e022cba316f1d18d4409a2d5b886ed6c5e2df9392933f5ecad6',
   THORNMERE_NORTH_FEN_MAP: '959c67546ae56ca6a05dc3973f930495d5574c359d0cb64d714c5235f63bcae8',
   THORNMERE_CANAL_HEAD_MAP: '924d982ac990944db3808a749533fd1ce2fd713ca3899ed1d77252ec14151cf0',
@@ -38,7 +38,7 @@ const BASELINE_26 = {
   EAST_CAUSEWAY_MAP: '4ce6d248fbf6fa13b02fccd81785d0a44923ac6c9a0f9c37b4e9d0df851e1f16',
   NORTH_BASIN_C_MAP: '562b1d6e9b79fcc2a2b1b3092538094ec31ff280733acc326ec8c2f90b257668',
   NORTH_BASIN_SW_MAP: '38e09a579a5e76b8539b02698235e01b2c5d664fa6fc9cfa11dd08804575d4c1',
-  NORTH_BASIN_W_MAP: '5973d3f2a56180686d9c4f75d0cc038730057abb7ba5cea88c042664aa13a21f',
+  NORTH_BASIN_W_MAP: 'df88364722dc6e4cd77a3c95182165c3ecff777d9c37e290b4810c6d2da3a1f3',
   NORTH_BASIN_NW_MAP: '0105619e109e8dcc3c941724437dd7fd0b6b2208e3507d498046841f6b53d28d',
   NORTH_BASIN_N_MAP: 'e59e5fa33fbc7e6388e707d1ef4a96282c446c6aead0f2cc24e935426e960bc7',
   NORTH_BASIN_NE_MAP: '97af356c23d758f6d396afb57e1fd152c4b0701dd6f66839248cf7350b6d0954',
@@ -110,7 +110,9 @@ module.exports = {
     assert.deepEqual(map[0], Array(16).fill(TREE), 'north border byte-identical TREE x16');
     assert.deepEqual(map[14], Array(16).fill(TREE), 'south border byte-identical TREE x16');
     assert.deepEqual(map.map(r=>r[0]), Array(15).fill(TREE), 'west border byte-identical TREE x15');
-    assert.deepEqual(map.map(r=>r[15]), Array.from({length:15},(_,r)=>r===5?WATER:TREE), 'east border byte-identical');
+    const eastWaterRows = new Set([2, 4, 5, 6, 9, 11]); // canal at row 5 + irregular bank pockets
+    assert.deepEqual(map.map(r=>r[15]), Array.from({length:15},(_,r)=>eastWaterRows.has(r)?WATER:TREE), 'east border: irregular non-walkable canal bank (WATER rows 2,4,5,6,9,11; TREE elsewhere)');
+    assert.ok(map.map(r=>r[15]).every((t)=>t===WATER||t===TREE), 'east bank is only WATER/TREE (no HILLS, no walkable)');
     const eastNeighbour = J("JSON.stringify(REGIONAL_CHUNK_CATALOG.MAP3_N2.map.map(function(r){return r[0];}))");
     assert.deepEqual(map.map(r=>r[15]), eastNeighbour, 'east-edge canal still matches MAP3_N2 exactly');
     for(let c=4;c<16;c++) assert.equal(map[5][c], WATER, `surface canal uninterrupted at row5 col${c}`);
@@ -192,10 +194,10 @@ module.exports = {
 
     // Aggregate invariants remain unchanged except the test count and tile type.
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:42,BLOCKED:40});
-    assert.equal(audit.seamReadiness.edges.length,108);
-    assert.equal(g.run('Object.keys(MAP_METADATA).length'),114);
-    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),27);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length,27);
+    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:24,ALIGNS:44,BLOCKED:40});
+    assert.equal(audit.seamReadiness.edges.length,112);
+    assert.equal(g.run('Object.keys(MAP_METADATA).length'),115);
+    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),28);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length,28);
   },
 };

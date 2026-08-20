@@ -152,7 +152,7 @@ module.exports = {
 
     // 12–15. Fingerprints, audit, totals, and save schema remain stable.
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 27);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 28);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint stable`);
     }
@@ -161,12 +161,12 @@ module.exports = {
     assert.equal(verdict[`${ID}|west`], 'BLOCKED'); assert.equal(verdict[`${WEST_ID}|east`], 'BLOCKED');
     assert.equal(verdict[`${ID}|south`], 'BLOCKED'); assert.equal(verdict[`${SOUTH_ID}|north`], 'BLOCKED');
     assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'BORDER');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 });
-    assert.equal(audit.seamReadiness.edges.length, 108);
-    assert.equal(g.run('continuousSeamEntries().length'), 56);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 44, BLOCKED: 40 });
+    assert.equal(audit.seamReadiness.edges.length, 112);
+    assert.equal(g.run('continuousSeamEntries().length'), 60);
     let placed = 0; for (let y = 0; y <= 5; y++) for (let x = 0; x <= 4; x++) if (g.run(`mapIdForChunk('overworld',${x},${y})`)) placed++;
-    assert.equal(placed, 27); assert.equal(30 - placed, 3);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 114);
+    assert.equal(placed, 28); assert.equal(30 - placed, 2);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 115);
     assert.equal(g.run('SAVE_VERSION'), 4);
   },
 };

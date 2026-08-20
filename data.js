@@ -663,6 +663,7 @@ const _REGIONAL_ITEM_SETS = {
   north_basin_c:  NORTH_BASIN_C_ITEMS,
   north_basin_sw: NORTH_BASIN_SW_ITEMS,
   north_basin_w:  NORTH_BASIN_W_ITEMS,
+  north_basin_w2: NORTH_BASIN_W2_ITEMS,
   north_basin_nw: NORTH_BASIN_NW_ITEMS,
 };
 window._REGIONAL_ITEM_SETS = _REGIONAL_ITEM_SETS;
@@ -803,6 +804,7 @@ const MAP_CATALOG = {
   NORTH_BASIN_C_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_C_MAP'),
   NORTH_BASIN_SW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SW_MAP'),
   NORTH_BASIN_W_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W_MAP'),
+  NORTH_BASIN_W2_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W2_MAP'),
   NORTH_BASIN_NW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NW_MAP'),
   // Scenery-only open water north of the reservoir (chunk 2,0) and its eastward
   // continuations (chunks 3,0 and 4,0). Derived like any placed regional chunk; `playerAccessible:

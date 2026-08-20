@@ -1228,6 +1228,13 @@ const EDGE_TRANSITIONS = {
     south: [
       { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'north', sourceRange: [1, 10] },
     ],
+    // West edge: two marsh crossings into the West Mire (NORTH_BASIN_W2_MAP) — rows
+    // 3-6 and 9-11, where the reed shore is walkable on both sides. A scrubby TREE
+    // hummock (rows 7-8) and the corners stay closed. Reciprocal of W2.east.
+    west: [
+      { targetMap: 'NORTH_BASIN_W2_MAP', targetEdge: 'east', sourceRange: [3, 6] },
+      { targetMap: 'NORTH_BASIN_W2_MAP', targetEdge: 'east', sourceRange: [9, 11] },
+    ],
     // North edge: cols 1-10 into the Upper Reach (the drained NW arm). Same
     // width as the south edge and both maps' open borders match exactly, so
     // crossings never clamp. The east end (c11+) stays border on both sides:
@@ -1239,6 +1246,14 @@ const EDGE_TRANSITIONS = {
   NORTH_BASIN_NW_MAP: {
     south: [
       { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'north', sourceRange: [1, 10] },
+    ],
+  },
+  // West Mire — only the east edge connects (back to the West Shore); north, south,
+  // and west are impassable void borders. Reciprocal of NORTH_BASIN_W_MAP.west.
+  NORTH_BASIN_W2_MAP: {
+    east: [
+      { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'west', sourceRange: [3, 6] },
+      { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'west', sourceRange: [9, 11] },
     ],
   },
   // North edge: the single col-8 PATH up into the Northern Fen (MAP3_N1). MAP3's
