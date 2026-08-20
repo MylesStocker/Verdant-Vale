@@ -512,7 +512,8 @@ function update() {
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP && curTile === TOWN_ENTRANCE) { enterTownAt('calwick', entryPointFromFacing(player.facing)); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP  && curTile === MAP2_EXIT)     { enterMap2(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP2 && curTile === MAP2_ENTRANCE) { exitMap2();  return; }
-    if (!inDungeon && !inTown && !inSluice && !inLorraHouse && activeMap === MAP2 && curTile === FARM_HOUSE) { enterLorraHouse(); return; }
+    // player.x gate: only Lorra's house (col 2) is enterable; the decorative FARM_HOUSE at col 12 is not wired yet.
+    if (!inDungeon && !inTown && !inSluice && !inLorraHouse && activeMap === MAP2 && curTile === FARM_HOUSE && player.x <= 10 * TILE) { enterLorraHouse(); return; }
     if (inLorraHouse && curTile === INTERIOR_EXIT)  { exitLorraHouse(); return; }
     if (!inDungeon && !inTown && !inSluice && !inMarenPost && activeMap === MAP && curTile === GUARD_POST) { enterMarenPost(); return; }
     if (inMarenPost && curTile === INTERIOR_EXIT)   { exitMarenPost();  return; }

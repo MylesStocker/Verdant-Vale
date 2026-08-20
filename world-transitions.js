@@ -1122,10 +1122,16 @@ const EDGE_TRANSITIONS = {
     west: [
       { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'east', sourceRange: [9, 11] },
     ],
-    // East edge: a row-7 REEDS shoulder widens the entrance above the single
-    // row-8 PATH road. Structural reciprocal; no remap or behaviour.
+    // East edge: an open fen boundary with the South Reservoir Road (SE). The
+    // shared shore is now broken fen — reed marsh (this side) meeting reservoir
+    // water/reeds (SE) — so the player crosses wherever BOTH sides are permeable:
+    // the rows 7-10 reed/road run and the rows 12-13 reed run. Reservoir water and
+    // the lone framing trees (rows 3, 6, 11) between them stay closed. Each segment
+    // is fully walkable on both sides (continuous-seams fails an edge closed
+    // otherwise). Structural reciprocal of NORTH_BASIN_SE_MAP.west; no remap.
     east: [
-      { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'west', sourceRange: [7, 8] },
+      { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'west', sourceRange: [7, 10] },
+      { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'west', sourceRange: [12, 13] },
     ],
     // South edge: the single col-12 PATH causeway into MAP3_N2 (Drenwick's north fen).
     // The rest of the south edge is wall, so the seam is ONE tile wide (sourceRange
@@ -1136,10 +1142,13 @@ const EDGE_TRANSITIONS = {
     ],
   },
   NORTH_BASIN_SE_MAP: {
-    // West edge: reciprocal two-tile entrance (REEDS shoulder + row-8 PATH road)
-    // back to the South Approach. East remains absent/blocked.
+    // West edge: reciprocal of NORTH_BASIN_S_MAP.east — an open fen boundary
+    // crossable wherever both shores are permeable (the rows 7-10 reed/road run
+    // and the rows 12-13 reed run); reservoir water and the framing trees between
+    // them stay closed.
     west: [
-      { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'east', sourceRange: [7, 8] },
+      { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'east', sourceRange: [7, 10] },
+      { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'east', sourceRange: [12, 13] },
     ],
     // South edge: broad fen entrance to the northern bank of Eastern Canal Banks.
     south: [
@@ -1241,11 +1250,16 @@ const EDGE_TRANSITIONS = {
     north: [
       { targetMap: 'MAP3_N1', targetEdge: 'south', sourceRange: [8, 8] },
     ],
-    // West edge: the single row-11 PATH into MAP2 (Eastern Reaches). MAP3's west
-    // edge is closed except this one road tile, so the seam is ONE tile wide
-    // (sourceRange [11,11]) — the former MAP3_ENTRANCE/MAP3_EXIT point crossing.
-    // Reciprocal of MAP2.east. Rows match exactly, so crossings never clamp.
+    // West edge: an open fen boundary with MAP2 (Eastern Reaches). The player may
+    // cross wherever the terrain on BOTH sides is permeable, so the crossing spans
+    // every walkable run of the shared shore — rows 3-5 and 8-9 (grass/reeds), plus
+    // the row-11 road. The tree/water rows between stay closed. Each segment must be
+    // fully walkable on both sides (continuous-seams fails an edge closed otherwise),
+    // so the permeable runs are listed separately. Reciprocal of MAP2.east; rows
+    // match exactly, so crossings never clamp.
     west: [
+      { targetMap: 'MAP2', targetEdge: 'east', sourceRange: [3, 5] },
+      { targetMap: 'MAP2', targetEdge: 'east', sourceRange: [8, 9] },
       { targetMap: 'MAP2', targetEdge: 'east', sourceRange: [11, 11] },
     ],
     // East edge: the single row-6 PATH into MAP4 (Thornmere). MAP3's east edge is
@@ -1309,25 +1323,33 @@ const EDGE_TRANSITIONS = {
     east: [
       { targetMap: 'MAP3_N1', targetEdge: 'west', sourceRange: [4, 9] },
     ],
-    // South edge: cols 12-14 down into the Eastern Reaches (MAP2)'s north
-    // edge. Deliberately roadless — you leave the ridge and cut across open
+    // South edge: two open crossings down into the Eastern Reaches (MAP2)'s
+    // north edge — a single-tile gap at col 5 and the wider cols 12-14 fen gap.
+    // Both are deliberately roadless — you leave the ridge and cut across open
     // fen. Source and target ranges match exactly, so crossings never clamp.
     south: [
+      { targetMap: 'MAP2', targetEdge: 'north', sourceRange: [5, 5] },
       { targetMap: 'MAP2', targetEdge: 'north', sourceRange: [12, 14] },
     ],
   },
-  // North edge: cols 12-14 up into Roddon Way's south edge — the reciprocal of
-  // the link above. Also roadless: reach it by leaving the MAP2 road and
-  // cutting north-east across the open fen.
+  // North edge: two crossings up into Roddon Way's south edge — the reciprocals
+  // of the links above (col 5 and cols 12-14). Also roadless: reach them by
+  // leaving the MAP2 road and cutting north across the open fen.
   MAP2: {
     north: [
+      { targetMap: 'RODDON_WAY_MAP', targetEdge: 'south', sourceRange: [5, 5] },
       { targetMap: 'RODDON_WAY_MAP', targetEdge: 'south', sourceRange: [12, 14] },
     ],
-    // East edge: the single row-11 PATH into MAP3 (Thornmere Fen). MAP2's east
-    // edge is closed except this one road tile, so the seam is ONE tile wide
-    // (sourceRange [11,11]) — the former MAP3_EXIT/MAP3_ENTRANCE point crossing.
-    // Reciprocal of MAP3.west. Rows match exactly, so crossings never clamp.
+    // East edge: an open fen boundary with MAP3 (Thornmere Fen). The player may
+    // cross wherever the terrain on BOTH sides is permeable, so the crossing spans
+    // every walkable run of the shared shore — rows 3-5 and 8-9 (grass/reeds), plus
+    // the row-11 road. The tree/water rows between stay closed. Each segment must be
+    // fully walkable on both sides (continuous-seams fails an edge closed otherwise),
+    // so the permeable runs are listed separately. Reciprocal of MAP3.west; rows
+    // match exactly, so crossings never clamp.
     east: [
+      { targetMap: 'MAP3', targetEdge: 'west', sourceRange: [3, 5] },
+      { targetMap: 'MAP3', targetEdge: 'west', sourceRange: [8, 9] },
       { targetMap: 'MAP3', targetEdge: 'west', sourceRange: [11, 11] },
     ],
   },

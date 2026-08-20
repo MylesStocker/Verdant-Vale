@@ -339,6 +339,7 @@ function syncQuestFlagsToWindow() {
   // let-binding: that would clobber a flag the player just earned before
   // saveGame() reads it.
   window.vale_tutorial_seen   = !!window.vale_tutorial_seen;
+  window.tev_elixir_given     = !!window.tev_elixir_given;
   window.upper_reach_seen     = !!window.upper_reach_seen;
   window.basin_chamber_seen   = !!window.basin_chamber_seen;
   window.sunken_gallery_seen  = !!window.sunken_gallery_seen;

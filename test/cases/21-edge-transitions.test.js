@@ -235,18 +235,17 @@ module.exports = {
     assert.equal(g.run('player.x'), xBefore, 'player position must be untouched');
     assert.equal(g.run('player.y'), yBefore, 'player position must be untouched');
 
-    // Same idea end-to-end with real held-key movement: since the border
-    // (col 15) is plain TREE on this edge, the player physically can't ever
-    // reach it to begin with -- confirming that the normal canWalk()-gated
-    // wall-blocking is still exactly what stops them, with or without this
-    // new system, and that walking at the border for a while doesn't crash
-    // or push the player out of bounds.
+    // Same idea end-to-end with real held-key movement. At row 5 the S east edge
+    // (col 15) is now walkable reed marsh, but the SE shore across from it is
+    // reservoir water and row 5 lies outside every crossing segment -- so the
+    // player can walk right up to the edge yet cannot cross, and canWalk()'s
+    // out-of-bounds guard still keeps them on the map (no crash, no transition).
     g.run(`player.x = 14.5*TILE; player.y = 5.5*TILE; player.facing = 'right'; combat.cooldown = 0;; __reconcileCanonicalForTest();`);
     g.hold('ArrowRight');
     for (let i = 0; i < 60; i++) g.frames(1);
     g.release('ArrowRight');
     assert.equal(g.run('activeMap === NORTH_BASIN_S_MAP'), true, 'no transition should have happened -- still on the same map');
-    assert.ok(g.run('player.x') < 15 * 32, 'player should not have been pushed out of bounds');
+    assert.ok(g.run('player.x') < 16 * 32, 'player should stay on the map, not be pushed out of bounds');
     assert.ok(g.run('player.x') >= 0, 'player x should never go negative');
 
     // ── 7b. Blocked edge: entry exists but its condition fails ──────────────

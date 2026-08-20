@@ -25,7 +25,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // Frozen expectation snapshots (production stays registry-driven).
-const EXPECTED_PICKUP_COUNT = 48;  // +1: pickup_school_elixir (Calwick school exploration reward)
+const EXPECTED_PICKUP_COUNT = 47;  // pickup_school_elixir removed — the school Elixir is now Tev's one-time gift
 const EXPECTED_CHEST_COUNT  = 10;
 const EXPECTED_ENEMY_COUNT  = 53;
 const CHEST_IDS = [

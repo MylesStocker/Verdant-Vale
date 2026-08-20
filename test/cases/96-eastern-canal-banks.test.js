@@ -16,9 +16,9 @@ const EAST_ID = 'THORNMERE_CANAL_HEAD_MAP';
 const FP = '2e74d8cd14fa6e022cba316f1d18d4409a2d5b886ed6c5e2df9392933f5ecad6';
 const OLD_FP = '51ac08da0d044f8c5e6a9199f36c1a323604c2905f5ee546f18c4cc10f1ab40b';
 const WEST_FP = '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c';
-const NORTH_FP = 'b5935b2818eb503e86d1adc86668d8b2ddb2e5699e2c10e298547fcede193931';
+const NORTH_FP = '96ac86bdc402728eab845a9cd6250609787d4ed0994affe294fce8f3d578a2b3';
 const OLD_WEST_FP = 'e295dd572e02dc442f410fe4fe0d3aff1ac790bd4a40302527fb6c208130b315';
-const OLD_NORTH_FP = 'c9a5c71ad15b9e2c6a9caf33a32660a7423cb044e7cb5cbac867b26248b1169b';
+const OLD_NORTH_FP = 'd158de0f094ab9880226d3de01e8b6284e15fb2cf63a0f7468abaa3ac187d1b4';
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 function ctx() {
@@ -311,8 +311,8 @@ module.exports = {
     const audit = require('../transition-audit.js');
     assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 });
     assert.equal(audit.seamReadiness.edges.length, 108);
-    assert.equal(g.run('continuousSeamEntries().length'), 48, '48 directed segment entries');
-    assert.equal(g.run('continuousSeamEntries().length/2'), 24, '24 reciprocal segment pairs');
+    assert.equal(g.run('continuousSeamEntries().length'), 56, '56 directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length/2'), 28, '28 reciprocal segment pairs');
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 27);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 20);
   },

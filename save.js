@@ -87,6 +87,7 @@ const QUEST_FLAG_BINDINGS = [
   lex('dessa_met', false, () => dessa_met, (v) => { dessa_met = v; }),
   lex('rareborn_rhyme_heard', false, () => rareborn_rhyme_heard, (v) => { rareborn_rhyme_heard = v; }),
   win('vale_tutorial_seen', false),   // Ms. Vale's one-time field-kit tutorial (window-native)
+  win('tev_elixir_given', false),     // Tev's one-time Elixir gift (window-native)
   lex('esla_said_sluice', false, () => esla_said_sluice, (v) => { esla_said_sluice = v; }),
   lex('esla_said_dispatch', false, () => esla_said_dispatch, (v) => { esla_said_dispatch = v; }),
   lex('esla_said_cabinet', false, () => esla_said_cabinet, (v) => { esla_said_cabinet = v; }),

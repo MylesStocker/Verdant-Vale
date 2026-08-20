@@ -1,9 +1,10 @@
 'use strict';
-// Eastern Reaches (MAP2, chunk 1,5) <-> Thornmere Fen (MAP3, chunk 2,5) crossing
-// converted from a MAP3_EXIT/MAP3_ENTRANCE point transition to a structural
-// EDGE_TRANSITIONS seam: MAP2.east <-> MAP3.west, the single row-11 PATH,
-// sourceRange [11,11]. Seamless under Continuous View; discrete broad-edge with it
-// off. The one-tile corridor is authored geography (unchanged).
+// Eastern Reaches (MAP2, chunk 1,5) <-> Thornmere Fen (MAP3, chunk 2,5) crossing:
+// a structural EDGE_TRANSITIONS seam, MAP2.east <-> MAP3.west. It is an OPEN fen
+// boundary — the player may cross wherever the shared shore is permeable, so the
+// crossing spans every walkable run of the seam (rows 3-5 and 8-9 grass/reeds, plus
+// the row-11 road); the tree/water rows between stay closed. Seamless under
+// Continuous View; discrete broad-edge with it off.
 //
 // Two things distinguish this seam from the MAP3<->MAP3_N1 pilot (test 77):
 //   • The two maps own DIFFERENT encounter pools — MAP2 = ENEMY_TEMPLATES,
@@ -43,17 +44,50 @@ module.exports = {
     const g = ctx();
     const J = (e) => JSON.parse(g.run(e));
 
-    // ── 1. Exact reciprocal segment definitions + [11,11] ranges ────────────
+    // ── 1. Reciprocal segment definitions — an OPEN fen boundary, crossable
+    //       wherever the shared shore is permeable: rows 3-5 and 8-9 (grass/reeds)
+    //       plus the row-11 road. Tree/water rows between stay closed. ───────────
     const e2 = J("JSON.stringify(EDGE_TRANSITIONS['MAP2'].east)");
     const w3 = J("JSON.stringify(EDGE_TRANSITIONS['MAP3'].west)");
-    assert.equal(e2.length, 1, 'MAP2.east is a single segment');
-    assert.deepEqual({ t: e2[0].targetMap, e: e2[0].targetEdge, r: e2[0].sourceRange }, { t: 'MAP3', e: 'west', r: [11, 11] }, 'MAP2.east -> MAP3.west [11,11]');
-    assert.deepEqual({ t: w3[0].targetMap, e: w3[0].targetEdge, r: w3[0].sourceRange }, { t: 'MAP2', e: 'east', r: [11, 11] }, 'MAP3.west -> MAP2.east [11,11]');
-    assert.equal(e2[0].targetRange, undefined, 'no targetRange on MAP2.east (non-remapping)');
-    assert.equal(w3[0].targetRange, undefined, 'no targetRange on MAP3.west');
-    // no behaviour-bearing keys (no condition/message/callback/effect/cost/cooldown)
-    assert.deepEqual(Object.keys(e2[0]).sort(), ['sourceRange', 'targetEdge', 'targetMap'], 'MAP2.east seg has only structural keys');
-    assert.deepEqual(Object.keys(w3[0]).sort(), ['sourceRange', 'targetEdge', 'targetMap'], 'MAP3.west seg has only structural keys');
+    const PERMEABLE_RUNS = [[3, 5], [8, 9], [11, 11]];
+    assert.deepEqual(e2.map((s) => s.sourceRange), PERMEABLE_RUNS, 'MAP2.east spans every permeable run of the shore');
+    assert.deepEqual(w3.map((s) => s.sourceRange), PERMEABLE_RUNS, 'MAP3.west spans every permeable run of the shore');
+    for (const s of e2) {
+      assert.equal(s.targetMap, 'MAP3'); assert.equal(s.targetEdge, 'west');
+      assert.equal(s.targetRange, undefined, 'no targetRange on MAP2.east (non-remapping)');
+      // no behaviour-bearing keys (no condition/message/callback/effect/cost/cooldown)
+      assert.deepEqual(Object.keys(s).sort(), ['sourceRange', 'targetEdge', 'targetMap'], 'MAP2.east seg has only structural keys');
+    }
+    for (const s of w3) {
+      assert.equal(s.targetMap, 'MAP2'); assert.equal(s.targetEdge, 'east');
+      assert.equal(s.targetRange, undefined, 'no targetRange on MAP3.west (non-remapping)');
+      assert.deepEqual(Object.keys(s).sort(), ['sourceRange', 'targetEdge', 'targetMap'], 'MAP3.west seg has only structural keys');
+    }
+
+    // ── 1b. The open boundary is crossable at a permeable non-road row (real
+    //        movement), and the lone-tree rows between the runs stay closed. ─────
+    {
+      // eastbound at row 4 (reed/grass shore, newly opened by the fen-shore fix)
+      g.run(`inDungeon=false;inTown=false;inSluice=false;activeMap=mapRefForId('MAP2');player.x=14.5*TILE;player.y=4.5*TILE;player.facing='right';combat.cooldown=0;debugMode=true;forceLegacyRegionalView=true;__reconcileCanonicalForTest();`);
+      g.hold('ArrowRight');
+      let east4 = false;
+      for (let i = 0; i < 80 && !east4; i++) { g.frames(1); east4 = mapId(g) === 'MAP3'; }
+      g.release('ArrowRight');
+      assert.equal(mapId(g), 'MAP3', 'row 4 (permeable reed/grass shore) crosses east into MAP3');
+
+      // westbound at row 9 (also newly opened)
+      g.run(`activeMap=mapRefForId('MAP3');player.x=1.5*TILE;player.y=9.5*TILE;player.facing='left';forceLegacyRegionalView=true;__reconcileCanonicalForTest();`);
+      g.hold('ArrowLeft');
+      let west9 = false;
+      for (let i = 0; i < 80 && !west9; i++) { g.frames(1); west9 = mapId(g) === 'MAP2'; }
+      g.release('ArrowLeft');
+      assert.equal(mapId(g), 'MAP2', 'row 9 crosses back west into MAP2');
+
+      // the lone-tree rows between the permeable runs are NOT crossings
+      assert.equal(g.run("eligibleContinuousSeam('MAP2','east',6) === null"), true, 'row 6 (tree on the MAP2 shore) stays closed');
+      assert.equal(g.run("eligibleContinuousSeam('MAP2','east',7) === null"), true, 'row 7 (tree on the MAP3 shore) stays closed');
+      assert.ok(!!g.run("eligibleContinuousSeam('MAP2','east',4)"), 'row 4 IS a crossing');
+    }
 
     // ── 2. Both edge cells are ordinary base-walkable road/PATH tiles ───────
     assert.equal(g.run("mapRefForId('MAP2')[11][15]"), g.run('PATH'), 'MAP2[11][15] is PATH');

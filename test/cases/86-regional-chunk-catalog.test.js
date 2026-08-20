@@ -192,7 +192,7 @@ module.exports = {
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'v4 regional load restores MAP5');
 
     // ── 9,11,13 of spec. Behaviour parity across the migrated maps ────────────
-    assert.equal(g.run('continuousSeamEntries().length'), 48, '48 eligible directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length'), 56, '56 eligible directed segment entries');
     for (const id of EXPECTED) {
       // The scenery-only West Outfall is a DISABLED debug destination (no player
       // access), so it can't be warped to — its geographic pool still resolves below.

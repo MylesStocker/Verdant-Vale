@@ -67,7 +67,7 @@ module.exports = {
     assert.equal(audit.seamReadiness.totals.ALIGNS, 42, 'ALIGNS 42 after East Causeway opens its west edge');
     assert.equal(audit.seamReadiness.totals.BLOCKED, 40, 'BLOCKED 40 with East Causeway lake/scenery boundaries');
     assert.equal(audit.seamReadiness.totals.BORDER, 22, 'BORDER 22 after another former void-facing edge becomes a seam');
-    assert.equal(g.run('continuousSeamEntries().length'), 48, '48 eligible directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length'), 56, '56 eligible directed segment entries');
     // the new pair derives as two eligible directed seams
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3','north')"), 'MAP3|north is an eligible seam');
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3_N1','south')"), 'MAP3_N1|south is an eligible seam');

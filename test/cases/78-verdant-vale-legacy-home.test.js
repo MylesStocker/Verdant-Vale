@@ -191,7 +191,7 @@ module.exports = {
     // remaining unique NEEDS_REMAP pairs
     const nr = new Set(audit.seamReadiness.edges.filter((e) => e.verdict === 'NEEDS_REMAP').map((e) => [e.mapId, e.neighbor].sort().join('<->')));
     assert.deepEqual([...nr].sort(), [], 'no NEEDS_REMAP pairs remain');
-    assert.equal(g.run('continuousSeamEntries().length'), 48, '48 eligible directed segment entries (24 pairs)');
+    assert.equal(g.run('continuousSeamEntries().length'), 56, '56 eligible directed segment entries (28 pairs)');
 
     // ── 18. Geographic encounter pools correct on MAP / MAP2 / MAP_N1 ───────
     assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6*TILE; player.y=6*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===EARLY_ENEMY_TEMPLATES;})()"), true, 'MAP pool is EARLY_ENEMY_TEMPLATES (geography unaffected by presentation)');

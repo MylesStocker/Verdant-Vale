@@ -423,19 +423,19 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'NORTH_BASIN_S_MAP', regionId: 'overworld', chunkX: 2, chunkY: 2, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  3],  //  0  open edge, cols 1-14 → EDGE_TRANSITIONS north to NORTH_BASIN_C_MAP
-      [  3, 23, 23, 23, 23, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23,  3],  //  1  unmaintained beyond Marker 4; drying mud band c6-9 (no water on this row -- it's the EDGE_TRANSITIONS landing row)
-      [  3, 23, 23, 23,  1, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23,  3],  //  2  unmaintained beyond Marker 4
-      [  3, 23,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  3  ← Marker 4: road resumes south of here (col 12)
-      [  3,  1,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  4
-      [  3, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  //  5  Water Authority survey stakes nearby (c10)
-      [  3, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  6
-      [  3, 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23,  2,  2, 23, 23],  //  7  reed shoulder widens the east entrance above the one-tile road
-      [  3,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2,  2,  2,  2],  //  8  one-tile road reaches c15 inside the [7,8] entrance
-      [ 23, 23,  1, 81, 81, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  9  open edge, row 9 → EDGE_TRANSITIONS west to NORTH_BASIN_SW_MAP
-      [ 23, 23,  1,  1,  1,  1, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 10  open edge, row 10 → EDGE_TRANSITIONS west
-      [ 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  // 11  open edge, row 11 → EDGE_TRANSITIONS west
-      [  3, 23, 23, 23,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 12
-      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23,  3],  // 13  open approach to the entrance
+      [  3, 23, 23, 23, 23, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23, 23],  //  1  unmaintained beyond Marker 4; drying mud band c6-9; c15 = broken reed-marsh seam shore (no road/grass here, not a tree wall)
+      [  3, 23, 23, 23,  1, 23, 81, 81, 81, 81, 23, 23, 23, 23, 23, 23],  //  2  unmaintained beyond Marker 4; c15 reeds
+      [  3, 23,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  3  ← Marker 4: road resumes south of here (col 12); c15 lone tree
+      [  3,  1,  1, 23, 23, 81, 81, 23, 23, 23, 23, 23,  2, 23, 23, 23],  //  4  c15 reeds
+      [  3, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23, 23],  //  5  Water Authority survey stakes nearby (c10); c15 reeds
+      [  3, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  //  6  c15 lone tree
+      [  3, 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23,  2,  2, 23, 23],  //  7  reed shoulder; c15 REEDS — part of the open [7,10] fen crossing to NORTH_BASIN_SE_MAP
+      [  3,  1,  1, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2,  2,  2,  2],  //  8  the maintained road reaches c15 (PATH), inside the [7,10] crossing
+      [ 23, 23,  1, 81, 81, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23, 23],  //  9  open edge, row 9 → EDGE_TRANSITIONS west to NORTH_BASIN_SW_MAP; c14-15 REEDS so the row-9 seam crossing lands on walkable ground
+      [ 23, 23,  1,  1,  1,  1, 23, 23, 23, 23, 23, 23,  2, 23, 23, 23],  // 10  open edge, row 10 → EDGE_TRANSITIONS west; c15 REEDS (crossing)
+      [ 23, 23, 23,  1,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23,  1,  3],  // 11  open edge, row 11 → EDGE_TRANSITIONS west; c15 tree splits the [7,10] and [12,13] crossings
+      [  3, 23, 23, 23,  1, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23, 23],  // 12  c15 REEDS — part of the open [12,13] fen crossing
+      [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  2, 23, 23, 23],  // 13  open approach to the entrance; c15 REEDS (crossing)
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3],  // 14  ← col 12 = south seam → MAP3_N2.north (continuous causeway)
     ],
     displayName: 'North Basin — South Approach', region: 'North Basin', contentKey: 'north_basin_s',
@@ -455,19 +455,19 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'NORTH_BASIN_SE_MAP', regionId: 'overworld', chunkX: 3, chunkY: 2, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  blocked north edge exactly mirrors NORTH_BASIN_E_MAP.south
-      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  1  open reservoir behind the shoreline
-      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  2  open reservoir
-      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23, 23,  0, 23,  3],  //  3  first irregular dry shoreline tongue
-      [  3,  1,  1,  1,  1,  1,  1,  1, 23,  0,  0, 23, 23,  0, 23,  3],  //  4  broken reed fringe
-      [  3,  1,  1,  1,  1, 23, 23,  0, 81,  0, 23, 23,  0,  0, 23,  3],  //  5  isolated mud at c8
-      [  3,  1,  1, 23,  0,  0, 23, 23,  0,  0, 88, 23,  0, 23, 23, 23],  //  6  REEDS shoulder begins the broad east entrance
-      [ 23, 23,  0,  0, 81,  0, 23, 23, 23,  0,  0, 23, 88,  0, 23, 23],  //  7  REEDS shoulder and dry fen
-      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2],  //  8  one-tile PATH continues through the east seam
-      [  3, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23, 23],  //  9  REEDS shoulder south of the road
-      [  3,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23],  // 10  REEDS shoulder ends the broad east entrance
-      [  3, 23,  0,  0, 23, 23,  0, 23,  0,  0,  0, 23,  0, 23, 23,  3],  // 11  broken fen bands
-      [  3,  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0, 23,  3],  // 12  drought-exposed fen
-      [  3, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  // 13  no southbound path
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  1  open reservoir behind the shoreline; c0 = reservoir water (broken seam shore, no road/grass, not a tree wall)
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  2  open reservoir; c0 water
+      [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23, 23,  0, 23,  3],  //  3  first irregular dry shoreline tongue; c0 lone tree
+      [  1,  1,  1,  1,  1,  1,  1,  1, 23,  0,  0, 23, 23,  0, 23,  3],  //  4  broken reed fringe; c0 water
+      [  1,  1,  1,  1,  1, 23, 23,  0, 81,  0, 23, 23,  0,  0, 23,  3],  //  5  isolated mud at c8; c0 water
+      [  3,  1,  1, 23,  0,  0, 23, 23,  0,  0, 88, 23,  0, 23, 23, 23],  //  6  REEDS shoulder begins the broad east entrance; c0 lone tree
+      [ 23, 23,  0,  0, 81,  0, 23, 23, 23,  0,  0, 23, 88,  0, 23, 23],  //  7  REEDS shoulder; c0 REEDS — part of the open [7,10] fen crossing to NORTH_BASIN_S_MAP
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2],  //  8  one-tile PATH continues through the west seam (inside the [7,10] crossing)
+      [ 23, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23, 23],  //  9  REEDS shoulder south of the road; c0 REEDS (crossing)
+      [ 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0,  0, 23, 23,  0, 23],  // 10  REEDS shoulder; c0 REEDS (crossing)
+      [  3, 23,  0,  0, 23, 23,  0, 23,  0,  0,  0, 23,  0, 23, 23,  3],  // 11  broken fen bands; c0 tree splits the [7,10] and [12,13] crossings
+      [ 23,  0, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23,  0, 23,  3],  // 12  drought-exposed fen; c0 REEDS — part of the open [12,13] fen crossing
+      [ 23, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  // 13  no southbound path; c0 REEDS (crossing)
       [  3, 23, 23,  0, 23,  0,  0, 23, 23,  0, 23,  0,  0, 23,  0,  3],  // 14  broad c1-14 seam to Eastern Canal Banks; mirrors inward row 13
     ],
     displayName: 'North Basin — South Reservoir Road', region: 'North Basin', contentKey: 'north_basin_se',

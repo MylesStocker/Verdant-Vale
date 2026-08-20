@@ -951,7 +951,31 @@ const CALWICK_NPCS = [
     },
     flag_required: null,
     flag_sets:     null,
-    action:        null,
+    // First time you talk to Tev he thanks you and hands over the Elixir he has
+    // no use for (he isn't going anywhere for years). One-time, persisted via the
+    // window-native `tev_elixir_given` flag; afterwards he reverts to his normal
+    // drama_stage dialogue.
+    action: function (npc) {
+      if (!window.tev_elixir_given) {
+        window.tev_elixir_given = true;
+        grantItem('Elixir');
+        dialogue.name  = npc.name;
+        dialogue.pages = [
+          ['“You actually stopped to talk to me. Most of the big people just walk past.”',
+           '“Here — you should have this. Mum keeps it for emergencies.”'],
+          ['“I’m not going on any adventures. Not for years and years and years.”',
+           '“You look like you already are. So you need the good potion more than me.”'],
+          ['Tev presses a small stoppered vial into your hand.', 'Got Elixir.'],
+        ];
+        dialogue.open = true;
+        dialogue.page = 0;
+        return;
+      }
+      dialogue.name  = npc.name;
+      dialogue.pages = npc.dialogue;
+      dialogue.open  = true;
+      dialogue.page  = 0;
+    },
   },
 
   // ─── Calwick inn — barge crew passing through (Stet) ─────────────────────────

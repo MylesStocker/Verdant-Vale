@@ -56,9 +56,9 @@ module.exports = {
     R("debugWarpToDestination('outdoor:MAP'); resetLocationState(); activeMap=mapRefForId('MAP'); __reconcileCanonicalForTest();");
     assert.equal(R('continuousWorldViewActive()'), false, 'returning to MAP suppresses continuous automatically');
 
-    // ── 7. All 48 eligible directed segment entries operate under the default ──
-    assert.equal(R('continuousSeamEntries().length'), 48, '48 eligible directed segment entries');
-    assert.equal(R('continuousSeamEntries().length/2'), 24, '24 reciprocal segment pairs');
+    // ── 7. All 56 eligible directed segment entries operate under the default ──
+    assert.equal(R('continuousSeamEntries().length'), 56, '56 eligible directed segment entries');
+    assert.equal(R('continuousSeamEntries().length/2'), 28, '28 reciprocal segment pairs');
     // every seam endpoint is a continuous map that is active-by-default
     assert.equal(R("continuousSeamEntries().every(function(e){return continuousSeamMapEligible(e.from);})"), true, 'every seam map is continuous-eligible under the default');
 

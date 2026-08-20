@@ -343,12 +343,12 @@ const SLUICE_ITEMS = [
   { id: 'pickup_sluice1_potion', name: 'Potion', type: 'potion', heals: 20, price: 30, x: 2.5 * TILE, y: 9.5 * TILE, picked: false },
 ];
 
-// Early-game exploration reward — an Elixir tucked in a back corner of the
-// Calwick schoolroom (SCHOOL_MAP), rewarding a player who wanders in and pokes
-// around rather than heading straight out.
-const SCHOOL_ITEMS = [
-  { id: 'pickup_school_elixir', name: 'Elixir', type: 'potion', heals: 50, price: 80, x: 12.5 * TILE, y: 10.5 * TILE, picked: false },
-];
+// The Calwick schoolroom has no floor pickup. The early-game Elixir is now a
+// one-time gift from Tev (see calwick-npcs.js), gated by the window-native
+// `tev_elixir_given` flag and lampshaded in his dialogue. (The generic floor
+// sparkle still exists as a mechanism — see HOUSE_DATA.*.sparkle — it just
+// isn't used here anymore.)
+const SCHOOL_ITEMS = [];
 
 // ─── Sluice chest ─────────────────────────────────────────────────────────────
 // Placed in the lower-right east nook (col 14, row 9). Opened by pressing

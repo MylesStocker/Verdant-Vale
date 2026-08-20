@@ -11,10 +11,9 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 
 const ID = 'NORTH_BASIN_SE_MAP';
 const S_ID = 'NORTH_BASIN_S_MAP';
-const FP = 'b5935b2818eb503e86d1adc86668d8b2ddb2e5699e2c10e298547fcede193931';
-const OLD_FP = '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00';
-const S_FP = '4cfdbe21cea85198a47cf98368fd9304fa49cf05c2f95edcde614a12889d416a';
-const OLD_S_FP = 'd8497eab4cee320947641a41241f6107857980a5e4b2520bdb737845c7022975';
+const FP = '96ac86bdc402728eab845a9cd6250609787d4ed0994affe294fce8f3d578a2b3';
+const OLD_FP = '04f4d719559a39ed231a147fd6e3604a48611c7628e3c5aa20e196e82077bcd7';
+const S_FP = '41d3b38d9932ad5ed3fea54ed787aece91375e88e7cc7c4e0a69cb9bed36b240';
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 // Reviewed fingerprints retained by this road regression. NORTH_BASIN_S_MAP is
@@ -23,13 +22,13 @@ const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 // in their next-numbered focused test.
 const PRIOR_FPS = {
   MAP: 'fc772998da4db584a1d59d7125c4d52237b99bbda734ba2cb99ea723f8aaea7f',
-  MAP2: '269bef01f6bd885e1c8770b26c5b53152b4b16e18a387f8c2d7a8949bef726dc',
-  MAP3: '8ae214585fd47100a4005494086e190503bf3958db0457434eb20bc23d9e2b59',
+  MAP2: '879a6f9ea7fe373b2dc1a026c7374c1b2743288a533edac74bbcce263a571d5b',
+  MAP3: '14cb9111d171454cba60c986e8bd06974ab3023652ce036017bb0c4f13abca17',
   MAP4: '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9',
   MAP5: '93073d85311e659147f2af889d5aab2d6d3dbe76c632e4b2ab1e77f042349e1f',
   MAP_N1: '871d5dacd91e1421557554d830e8d64108a5d1d920165ff1bc2094cca090e770',
   MAP_N2: '39f4bcce6707c439384674c021ef18acf552221ef9e1c57f7435413aeaaeb963',
-  RODDON_WAY_MAP: 'c61585db96af5cb44b2d8d7c5a2dc7283affdb078c6ba246fc137cb3a8235a63',
+  RODDON_WAY_MAP: '835e3050e45a3bcd74454fc411f006ea0556b08c9fea6d7e31795a4908eba2bc',
   MAP3_N1: '7a7f6def4fbae9ef32f036fb9932e1288171d90c0da68f9e5eaed186b8d5a923',
   MAP3_N2: '9f3d4030bacb74e8e68845d9831ce93debb50a802302394246153aeec79a4f0c',
   DRENWICK_WEST_OUTFALL_MAP: '9e23d171769fa8ddcf26682823f503090a3af6c80e12bac1947b7fc1c930f04a',
@@ -77,34 +76,51 @@ module.exports = {
     assert.equal(g.run(`typeof ${ID}`), 'undefined', 'no compatibility grid alias');
     assert.equal(g.run(`typeof window['${ID}']`), 'undefined', 'no window alias');
 
-    // 2-5. Exact borders, the reviewed two-cell prior-grid delta, and road topology.
+    // 2-5. Exact borders, the broken fen seam (open wherever permeable), road topology.
     assert.deepEqual(m[0], north[14], 'north edge exactly mirrors NORTH_BASIN_E_MAP.south');
     assert.ok(m[0].every((t) => t === TREE), 'north is TREE×16 and nonwalkable');
-    for (let row = 0; row < 15; row++) assert.equal(m[row][0], row === 7 ? REEDS : row === 8 ? PATH : TREE, `west edge row ${row}`);
+    // SE west edge (col 0) and S east edge (col 15) are a broken fen seam: reed
+    // marsh / reservoir water with lone framing trees — no GRASS, and no PATH
+    // except the single row-8 road; not a straight tree wall.
+    for (const col of [m.map((r) => r[0]), s.map((r) => r[15])]) {
+      assert.equal(col.filter((t) => t === GRASS).length, 0, 'no GRASS on the seam column');
+      assert.equal(col.filter((t) => t === PATH).length, 1, 'exactly one PATH (the row-8 road) on the seam column');
+      assert.equal(col[8], PATH, 'the one road tile is at row 8');
+      assert.ok(col.filter((t) => t === TREE).length <= 6, 'not a straight wall of trees');
+      assert.ok(col.filter((t) => t === REEDS).length >= 4, 'has walkable reed openings');
+    }
+    // The seam is crossable EXACTLY where both shores are permeable (walkable),
+    // and closed everywhere else — the user-visible guarantee.
+    for (let row = 0; row < 15; row++) {
+      const permeable = g.run(`isTileWalkable(mapRefForId('${S_ID}')[${row}][15]) && isTileWalkable(mapRefForId('${ID}')[${row}][0])`);
+      const crossable = !!g.run(`eligibleContinuousSeam('${S_ID}','east',${row})`);
+      assert.equal(crossable, permeable, `seam row ${row}: crossable iff permeable`);
+    }
     for (let row = 0; row < 15; row++) assert.equal(m[row][15], row === 8 ? PATH : [6,7,9,10].includes(row) ? REEDS : TREE, `east edge row ${row}`);
     assert.deepEqual(m[14], [TREE, REEDS, REEDS, GRASS, REEDS, GRASS, GRASS, REEDS, REEDS, GRASS, REEDS, GRASS, GRASS, REEDS, GRASS, TREE], 'later broad south-bank seam preserves blocked corners');
     for (let col = 0; col <= 14; col++) assert.equal(m[8][col], PATH, `main road r8c${col}`);
     for (let row = 0; row < 15; row++) for (let col = 0; col < 16; col++) if (row !== 8) assert.notEqual(m[row][col], PATH, `no southbound/secondary PATH at r${row}c${col}`);
     assert.equal(m[8][15], PATH, 'east road now reaches East Causeway');
     assert.ok(m[14].every((t) => t !== PATH), 'south opening adds no road/path stub');
-    assert.equal(s[7][14], REEDS); assert.equal(s[7][15], REEDS, 'South Approach reed shoulder reaches the seam');
-    assert.equal(s[8][14], PATH); assert.equal(s[8][15], PATH, 'South Approach road reaches the seam');
-    const reconstructed = s.map((row) => row.slice()); reconstructed[7][15] = TREE; reconstructed[8][15] = TREE;
-    assert.equal(sha256(JSON.stringify(reconstructed)), OLD_S_FP, 'restoring only r7c15/r8c15 recreates the reviewed pre-change fingerprint');
-    assert.equal(sha256(JSON.stringify(s)), S_FP, 'current South Approach fingerprint is the reviewed two-cell entrance revision');
+    assert.equal(s[7][15], REEDS, 'South Approach reed shoulder reaches the seam');
+    assert.equal(s[8][15], PATH, 'South Approach road reaches the seam');
+    assert.equal(sha256(JSON.stringify(s)), S_FP, 'current South Approach fingerprint');
 
     // 6. Original reciprocal west seam remains structural; the later broad
     // south seam and East Causeway seam are structural too.
     const se = J(g, "JSON.stringify(EDGE_TRANSITIONS.NORTH_BASIN_S_MAP.east)");
     const ws = J(g, `JSON.stringify(EDGE_TRANSITIONS['${ID}'].west)`);
-    assert.deepEqual(se, [{ targetMap: ID, targetEdge: 'west', sourceRange: [7, 8] }]);
-    assert.deepEqual(ws, [{ targetMap: S_ID, targetEdge: 'east', sourceRange: [7, 8] }]);
+    assert.deepEqual(se.map((x) => x.sourceRange), [[7, 10], [12, 13]], 'S.east crosses every permeable run of the shore');
+    assert.deepEqual(ws.map((x) => x.sourceRange), [[7, 10], [12, 13]], 'SE.west mirrors it');
+    for (const seg of se) { assert.equal(seg.targetMap, ID); assert.equal(seg.targetEdge, 'west'); }
+    for (const seg of ws) { assert.equal(seg.targetMap, S_ID); assert.equal(seg.targetEdge, 'east'); }
     assert.deepEqual(Object.keys(se[0]).sort(), ['sourceRange', 'targetEdge', 'targetMap']);
     assert.deepEqual(Object.keys(ws[0]).sort(), ['sourceRange', 'targetEdge', 'targetMap']);
     assert.deepEqual(J(g, `JSON.stringify(EDGE_TRANSITIONS['${ID}'].east)`), [{ targetMap: 'EAST_CAUSEWAY_MAP', targetEdge: 'west', sourceRange: [6, 10] }]);
     assert.deepEqual(J(g, `JSON.stringify(EDGE_TRANSITIONS['${ID}'].south)`), [{ targetMap: 'DRENWICK_EAST_CANAL_MAP', targetEdge: 'north', sourceRange: [1, 14] }]);
     assert.deepEqual(J(g, `JSON.stringify(classifyContinuousSegment(EDGE_TRANSITIONS['${ID}'].west[0]))`), { ok: true, reason: null });
-    assert.deepEqual(J(g, `JSON.stringify(continuousSeamEdgeWalkability(mapRefForId('${ID}'),'west',mapRefForId('${S_ID}'),'east',[7,8]))`), { ok: true });
+    assert.deepEqual(J(g, `JSON.stringify(continuousSeamEdgeWalkability(mapRefForId('${ID}'),'west',mapRefForId('${S_ID}'),'east',[7,10]))`), { ok: true });
+    assert.deepEqual(J(g, `JSON.stringify(continuousSeamEdgeWalkability(mapRefForId('${ID}'),'west',mapRefForId('${S_ID}'),'east',[12,13]))`), { ok: true });
     assert.equal(g.run(`eligibleContinuousSeam('${S_ID}','east').to`), ID);
     assert.equal(g.run(`eligibleContinuousSeam('${ID}','west').to`), S_ID);
     const audit = require('../transition-audit.js');
@@ -173,7 +189,7 @@ module.exports = {
     assert.equal(g.run('isEncounterEligibleTile(PATH)'), false);
     assert.equal(g.run('isEncounterEligibleTile(GRASS)'), true); assert.equal(g.run('isEncounterEligibleTile(REEDS)'), true);
     const counts = {}; for (const row of m) for (const tile of row) counts[tile] = (counts[tile] || 0) + 1;
-    assert.equal(counts[PATH], 16); assert.equal(counts[GRASS], 62); assert.equal(counts[REEDS], 70);
+    assert.equal(counts[PATH], 16); assert.equal(counts[GRASS], 62); assert.equal(counts[REEDS], 74);
     assert.equal(counts[MUD] + counts[STONE], 4, 'four cosmetic safe tiles maximum');
     const cosmetics = [];
     for (let y = 0; y < 15; y++) for (let x = 0; x < 16; x++) if (m[y][x] === MUD || m[y][x] === STONE) cosmetics.push([x, y]);

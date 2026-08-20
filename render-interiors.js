@@ -540,7 +540,7 @@ function drawHouseFurniture() {
   }
   if (hd.window) {
     const wx = Math.round(hd.window.x);
-    const wy = Math.round(hd.window.y);
+    const wy = Math.round(hd.window.y) - 34;   // raised onto the wall face (matches northWindow) — was drawing flat on the floor square below
     // Stone window surround / lintel
     ctx.fillStyle = '#989080';
     ctx.fillRect(wx - 14, wy - 13, 28, 22);

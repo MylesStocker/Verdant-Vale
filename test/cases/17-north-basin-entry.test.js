@@ -124,19 +124,27 @@ module.exports = {
         assert.equal(northRow[c], TREE, `north edge col ${c} (outside the EDGE_TRANSITIONS range) should be plain impassable border`);
       }
     }
-    // West edge: same idea, row-based. East has a two-tile entrance whose road
-    // remains the single row-8 PATH beneath a row-7 REEDS shoulder.
+    // West edge: same idea, row-based. The EAST edge is now an open fen boundary
+    // with the South Reservoir Road (SE): a broken shore of reed marsh / trees,
+    // crossable across several segments rather than one contiguous entrance. Every
+    // row inside a crossing segment is walkable, and the road is still the single
+    // row-8 PATH; rows outside every segment are non-walkable border (TREE/water).
     const [westMin, westMax] = edges.west[0].sourceRange;
-    const [eastMin, eastMax] = edges.east[0].sourceRange;
+    const inEastSeam = (r) => edges.east.some((seg) => r >= seg.sourceRange[0] && r <= seg.sourceRange[1]);
     for (let r = 0; r < map.length; r++) {
       if (r >= westMin && r <= westMax) {
         assert.ok(WALKABLE[map[r][0]], `west edge row ${r} is inside the EDGE_TRANSITIONS range and should be walkable`);
       } else {
         assert.equal(map[r][0], TREE, `west edge row ${r} (outside the EDGE_TRANSITIONS range) should be plain impassable border`);
       }
-      if (r >= eastMin && r <= eastMax) assert.equal(map[r][15], r === 8 ? g.run('PATH') : g.run('REEDS'), `east edge row ${r} carries the South Reservoir Road entrance`);
-      else assert.equal(map[r][15], TREE, `east edge row ${r} outside the seam remains TREE`);
+      if (inEastSeam(r)) assert.ok(WALKABLE[map[r][15]], `east edge row ${r} (in a crossing segment) is walkable`);
+      // Rows outside a crossing segment may be reed marsh (walkable, but the SE
+      // shore across from them is reservoir water, so no crossing) or framing
+      // trees -- either way never GRASS, and never PATH except the row-8 road.
+      assert.notEqual(map[r][15], g.run('GRASS'), `east edge row ${r} carries no grass`);
+      if (r !== 8) assert.notEqual(map[r][15], g.run('PATH'), `east edge row ${r} carries no road (only row 8 does)`);
     }
+    assert.equal(map[8][15], g.run('PATH'), 'the maintained road still crosses the east seam at row 8');
     // South edge: now a real EDGE_TRANSITIONS connection to MAP3_N2 (the former
     // NORTH_BASIN_ENTRANCE point tile is now the col-12 PATH causeway seam), so it
     // follows the same walkable-within-sourceRange / TREE-elsewhere pattern.

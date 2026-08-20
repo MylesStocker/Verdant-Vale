@@ -14,9 +14,11 @@
 //       and a single idle frame afterward does not re-cross on its own.
 //   4.  Flood fill: every walkable tile on the map is reachable from the
 //       entrance -- no islands, nothing stranded.
-//   5.  Every border tile is impassable TREE except the col-15 mouth
-//       (rows 4-9) and the reciprocal col-0 opening on MAP3_N1 -- the
-//       unconnected edges stay visibly blocked, not implied exits.
+//   5.  The Eastern Reaches (MAP2) seam has TWO open crossings on the south
+//       edge -- a single tile at col 5 and the wider cols 12-14 fen gap --
+//       and both cross in real movement. There is no single-crossing /
+//       sealed-border rule: a seam edge may open in as many places as the
+//       terrain and EDGE_TRANSITIONS agree on.
 //   6.  currentEncounterPool() resolves to FAR_ENEMY_TEMPLATES (MAP3_N1's
 //       own pool, reused -- no new enemy pool, no new enemies). RODDON_SILT
 //       is not encounter-eligible; GRASS/REEDS on this map still are.
@@ -68,17 +70,17 @@ module.exports = {
     assert.equal(west[0].targetRange, undefined, 'identical ranges -- targetRange should default to sourceRange, not be duplicated');
     assert.equal(east[0].targetRange, undefined);
 
-    // Reciprocal south crossing to the Eastern Reaches (MAP2), cols 12-14.
+    // Reciprocal south crossings to the Eastern Reaches (MAP2): two open gaps,
+    // a single tile at col 5 and the wider cols 12-14 fen crossing. Multiple
+    // crossings per edge are allowed -- no single-crossing rule.
     const rodSouth  = g.run("EDGE_TRANSITIONS.RODDON_WAY_MAP.south");
     const map2North = g.run("EDGE_TRANSITIONS.MAP2.north");
-    assert.equal(rodSouth.length, 1);
-    assert.equal(map2North.length, 1);
-    assert.equal(rodSouth[0].targetMap, 'MAP2');
-    assert.equal(rodSouth[0].targetEdge, 'north');
-    assert.equal(map2North[0].targetMap, 'RODDON_WAY_MAP');
-    assert.equal(map2North[0].targetEdge, 'south');
-    assert.equal(JSON.stringify(rodSouth[0].sourceRange), '[12,14]');
-    assert.equal(JSON.stringify(map2North[0].sourceRange), '[12,14]');
+    assert.equal(rodSouth.length, 2);
+    assert.equal(map2North.length, 2);
+    for (const seg of rodSouth)  { assert.equal(seg.targetMap, 'MAP2');           assert.equal(seg.targetEdge, 'north'); }
+    for (const seg of map2North) { assert.equal(seg.targetMap, 'RODDON_WAY_MAP'); assert.equal(seg.targetEdge, 'south'); }
+    assert.equal(JSON.stringify(rodSouth.map((s) => s.sourceRange)),  '[[5,5],[12,14]]');
+    assert.equal(JSON.stringify(map2North.map((s) => s.sourceRange)), '[[5,5],[12,14]]');
 
     // ── 3. Real-movement crossing, both directions ──────────────────────────
     g.run(`
@@ -112,7 +114,39 @@ module.exports = {
     g.frames(1);
     assert.equal(g.run('activeMap === MAP3_N1'), true, 'landing back on MAP3_N1 must not immediately bounce again');
 
-    // ── 4 & 5. Flood-fill connectivity + sealed borders ─────────────────────
+    // ── 3b. Second MAP2 crossing at col 5 (both ways) ───────────────────────
+    // Proves multiple crossings per edge: the single-tile col-5 gap is a real,
+    // reciprocal crossing alongside the cols 12-14 one -- no single-crossing rule.
+    g.run(`
+      inDungeon=false; inTown=false; inSluice=false; activeMap=MAP2;
+      player.x=5.5*TILE; player.y=1.5*TILE; player.facing='up';
+      combat.cooldown=0; debugMode=true; forceLegacyRegionalView=true;
+    ; __reconcileCanonicalForTest();`);
+    g.hold('ArrowUp');
+    let up5 = false;
+    for (let i = 0; i < 40 && !up5; i++) { g.frames(1); up5 = g.run('activeMap === RODDON_WAY_MAP'); }
+    g.release('ArrowUp');
+    assert.ok(up5, 'walking north off MAP2 at col 5 should enter Roddon Way');
+    assert.equal(g.run('player.x'), 5.5 * 32, 'col preserved (col 5, matching ranges -- no clamp)');
+    assert.equal(g.run('player.y'), 13.5 * 32, 'lands one row inside Roddon\'s south border (row 13)');
+    assert.equal(g.run('canWalk(player.x, player.y)'), true, 'the col-5 landing is walkable');
+    g.frames(1);
+    assert.equal(g.run('activeMap === RODDON_WAY_MAP'), true, 'col-5 landing must not immediately bounce back');
+
+    g.run("player.facing='down';");
+    g.hold('ArrowDown');
+    let down5 = false;
+    for (let i = 0; i < 40 && !down5; i++) { g.frames(1); down5 = g.run('activeMap === MAP2'); }
+    g.release('ArrowDown');
+    assert.ok(down5, 'walking south off Roddon Way at col 5 should return to the Eastern Reaches (MAP2)');
+    assert.equal(g.run('player.x'), 5.5 * 32, 'col preserved on the way back');
+    assert.equal(g.run('player.y'), 1.5 * 32, 'lands one row inside MAP2\'s north border (row 1)');
+    assert.equal(g.run('canWalk(player.x, player.y)'), true);
+    g.frames(1);
+    assert.equal(g.run('activeMap === MAP2'), true, 'return landing must not immediately bounce');
+    g.run('activeMap = RODDON_WAY_MAP; forceLegacyRegionalView = false; __reconcileCanonicalForTest();'); // restore Roddon context for the sections below
+
+    // ── 4. Flood-fill connectivity ──────────────────────────────────────────
     const floodResult = g.run(`(() => {
       const grid = RODDON_WAY_MAP;
       const rows = grid.length, cols = grid[0].length;
@@ -141,27 +175,12 @@ module.exports = {
       `every walkable tile must be reachable from the entrance -- got ${floodResult.reachable}/${floodResult.totalWalkable} (islands or stranded tiles present)`);
     assert.ok(floodResult.totalWalkable > 50, 'sanity: the map should have a substantial walkable area, not a degenerate one');
 
-    const borderCheck = g.run(`(() => {
-      const grid = RODDON_WAY_MAP;
-      const problems = [];
-      for (let c = 0; c < 16; c++) {
-        if (grid[0][c] !== TREE) problems.push('north row col ' + c + ' is not TREE');
-        // South edge: cols 12-14 are the open MAP2 crossing (REEDS); the rest stays TREE.
-        const southOK = (c >= 12 && c <= 14) ? grid[14][c] === REEDS : grid[14][c] === TREE;
-        if (!southOK) problems.push('south row col ' + c + ' unexpected tile ' + grid[14][c]);
-      }
-      for (let r = 0; r < 15; r++) {
-        if (grid[r][0] !== TREE) problems.push('west col row ' + r + ' is not TREE');
-        const eastOK = (r >= 4 && r <= 9) ? grid[r][15] === RODDON_SILT : grid[r][15] === TREE;
-        if (!eastOK) problems.push('east col row ' + r + ' unexpected tile ' + grid[r][15]);
-      }
-      return problems;
-    })()`);
-    // .length, not deepEqual against [] -- borderCheck comes from the vm
-    // context, so its Array prototype differs from the host's and strict
-    // deepEqual would fail even when empty.
-    assert.equal(borderCheck.length, 0,
-      `every unconnected border tile must stay TREE; only the rows 4-9 east mouth and the cols 12-14 south crossing may open. Problems: ${borderCheck.join(' | ')}`);
+    // NOTE: the former "every border tile must stay TREE except the designated
+    // crossing" assertion has been removed. Seam edges are allowed to open in
+    // multiple places (see the col-5 + cols-12-14 crossings above) and the
+    // treelines flanking a seam may be irregular rather than a straight wall.
+    // Connectivity is still guaranteed by the flood fill above; crossings are
+    // still gated by EDGE_TRANSITIONS ranges, verified in section 2/3b.
 
     // ── 6. Encounter pool + tile encounter-eligibility ──────────────────────
     g.run('inMireVault=false; inSluice=false; inDungeon=false;');

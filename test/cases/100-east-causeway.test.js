@@ -15,8 +15,8 @@ const WEST_ID = 'NORTH_BASIN_SE_MAP';
 const NORTH_ID = 'NORTH_BASIN_E2_MAP';
 const SOUTH_ID = 'THORNMERE_CANAL_HEAD_MAP';
 const FP = '4ce6d248fbf6fa13b02fccd81785d0a44923ac6c9a0f9c37b4e9d0df851e1f16';
-const WEST_FP = 'b5935b2818eb503e86d1adc86668d8b2ddb2e5699e2c10e298547fcede193931';
-const OLD_WEST_FP = '89e3d5c7eea04d8421e229f7dcf934389bab9fde97a3778bb112066a74e48c00';
+const WEST_FP = '96ac86bdc402728eab845a9cd6250609787d4ed0994affe294fce8f3d578a2b3';
+const OLD_WEST_FP = '04f4d719559a39ed231a147fd6e3604a48611c7628e3c5aa20e196e82077bcd7';
 const NORTH_FP = '74353043788878bfd753cc5e3382a6e758e7e652ce3452e222a196d3279c96ff';
 const SOUTH_FP = '924d982ac990944db3808a749533fd1ce2fd713ca3899ed1d77252ec14151cf0';
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
@@ -173,6 +173,6 @@ module.exports = {
     const audit=require('../transition-audit.js'); const verdict=Object.fromEntries(audit.seamReadiness.edges.map((e)=>[e.mapId+'|'+e.dir,e.verdict]));
     assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BORDER');
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:42,BLOCKED:40}); assert.equal(audit.seamReadiness.edges.length,108);
-    assert.equal(g.run('continuousSeamEntries().length'),48); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),27); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),114); assert.equal(g.run('SAVE_VERSION'),4);
+    assert.equal(g.run('continuousSeamEntries().length'),56); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),27); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),114); assert.equal(g.run('SAVE_VERSION'),4);
   },
 };

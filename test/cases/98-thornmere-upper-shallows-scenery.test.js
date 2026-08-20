@@ -163,7 +163,7 @@ module.exports = {
     assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'BORDER');
     assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 42, BLOCKED: 40 });
     assert.equal(audit.seamReadiness.edges.length, 108);
-    assert.equal(g.run('continuousSeamEntries().length'), 48);
+    assert.equal(g.run('continuousSeamEntries().length'), 56);
     let placed = 0; for (let y = 0; y <= 5; y++) for (let x = 0; x <= 4; x++) if (g.run(`mapIdForChunk('overworld',${x},${y})`)) placed++;
     assert.equal(placed, 27); assert.equal(30 - placed, 3);
     assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 114);
