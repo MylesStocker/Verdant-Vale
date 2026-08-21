@@ -10,14 +10,14 @@ Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass
 below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
-the newer North Basin region (13 placed chunks: eight accessible and five
+the newer North Basin region (14 placed chunks: nine accessible and five
 scenery-only, plus the unmarked chamber and the Sunken Gallery hanging off
 the Upper Reach; see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-115 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 115 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 91 are the
+116 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 116 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 92 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -36,8 +36,18 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **28 regional chunks** now occupy the `'overworld'` 5×6 envelope (2 sparse void
-  cells remain). Seven of them are **inaccessible scenery only** (`playerAccessible: false`):
+- **29 regional chunks** now occupy the `'overworld'` 5×6 envelope (one sparse void,
+  `(0,2)`, remains). The new accessible **North Basin — Flooded Rim**
+  (`NORTH_BASIN_NW2_MAP`, chunk (0,0)) is a 49.6%-WATER drowned woodland of
+  encounter-eligible BASIN_MUD, REEDS, and three EXPOSED_STONE remnants. Six
+  blocking `TREE_IN_WATER` tiles (stable tile 120) use the ordinary tile-property,
+  collision, validation, and procedural renderer paths. Its north/west outer rim
+  and its east adjacency to Upper Reach stay blocked. Upper Reach's former solid
+  west TREE wall now replaces exactly seven of fourteen trees with clustered
+  WATER, BASIN_MUD, and TREE_IN_WATER cells while remaining seam-free. Two reciprocal structural
+  south ranges, `[3,6]` and `[9,12]`, join West Mire. West Mire's west regional
+  boundary remains fully blocked but now alternates TREE/WATER instead of a solid
+  tree wall. Seven chunks are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
   `commitRegionalWorldPosition()`) fail-closes every warp/transition/save/canonical
@@ -113,18 +123,18 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 112 directed physical edges → ALIGNS 44 / BORDER 24 / BLOCKED 40 /
+  Audit: 116 directed physical edges → ALIGNS 46 / BORDER 24 / BLOCKED 42 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  60 directed entries / 30 reciprocal segment pairs. See architecture.md
+  64 directed entries / 32 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **101 tests** (`test/cases/01-…101-`), `node test/run.js` — all passing.
+- **102 tests** (`test/cases/01-…102-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 115 maps, 238 fixed-destination transitions, 8
+  isolation pass, 116 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 115 maps, 115 metadata entries, 27,600 tile cells, 140
+  (see below), across 116 maps, 116 metadata entries, 27,840 tile cells, 144
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
   dialogue/text entries, 182 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.

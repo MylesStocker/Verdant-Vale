@@ -140,6 +140,38 @@ function drawTree(x, y) {
   ctx.fillRect(x +  8, y +  4, 3, 7);
 }
 
+// Drowned woodland: animated standing water under a dead, water-darkened tree.
+// This is terrain, not a decorative overlay; its tile property is impassable.
+function drawTreeInWater(x, y) {
+  drawWater(x, y);
+
+  // Submerged root shadow and waterline.
+  ctx.fillStyle = 'rgba(18, 30, 34, 0.58)';
+  ctx.fillRect(x + 8, y + 25, 17, 5);
+  ctx.fillStyle = '#26302a';
+  ctx.fillRect(x + 13, y + 12, 7, 17);
+  ctx.fillStyle = '#39423a';
+  ctx.fillRect(x + 14, y + 11, 2, 16);
+  ctx.fillStyle = '#18221e';
+  ctx.fillRect(x + 18, y + 13, 2, 16);
+
+  // Bare, broken branches: sparse enough to read as drowned rather than a
+  // normal TREE canopy, but broad enough to remain obvious blocking cover.
+  ctx.fillStyle = '#26332b';
+  ctx.fillRect(x + 5,  y + 10, 12, 4);
+  ctx.fillRect(x + 4,  y +  7,  4, 6);
+  ctx.fillRect(x + 18, y +  6, 10, 4);
+  ctx.fillRect(x + 25, y +  3,  4, 7);
+  ctx.fillRect(x + 9,  y +  3,  5, 9);
+  ctx.fillStyle = '#34443a';
+  ctx.fillRect(x + 6,  y +  9,  8, 2);
+  ctx.fillRect(x + 19, y +  7,  7, 2);
+
+  // A pale ripple across the trunk fixes the waterline visually.
+  ctx.fillStyle = 'rgba(90, 120, 144, 0.72)';
+  ctx.fillRect(x + 10, y + 25, 13, 1);
+}
+
 // Contiguous scrub-covered rocky high ground. Edge-to-edge strata and shadow
 // bands make adjacent cells merge into a ridge; small coordinate-derived accents
 // avoid an obvious stamp without using render-time randomness. drawMapTiles()
@@ -1563,8 +1595,8 @@ function drawReeds(x, y) {
 }
 
 // Drought-cracked wetland mud — marsh floor that used to be underwater and
-// isn't anymore. Deliberately not GRASS (walkable, but not encounter-eligible
-// — see movement.js's encounter check, which only rolls on GRASS).
+// isn't anymore. Deliberately not GRASS, but still ordinary walkable,
+// encounter-eligible wilderness terrain (see TILE_PROPERTIES in tiles.js).
 function drawBasinMud(x, y) {
   ctx.fillStyle = '#6a5c40';
   ctx.fillRect(x, y, TILE, TILE);
@@ -1588,7 +1620,7 @@ function drawBasinMud(x, y) {
   ctx.fillRect(x +  2, y + 18, 1, 7);
 }
 
-// Exposed, dried lakebed rock — walkable, not grass (no encounters on it),
+// Exposed, dried lakebed rock — walkable encounter terrain despite not being grass,
 // distinct from BASIN_MUD (this is bare stone, not cracked silt).
 function drawExposedStone(x, y) {
   ctx.fillStyle = '#8c8678';
@@ -2239,6 +2271,7 @@ function drawTile(id, x, y) {
     case WATER:               drawWater(x, y);            break;
     case PATH:                drawPath(x, y);             break;
     case TREE:                drawTree(x, y);             break;
+    case TREE_IN_WATER:       drawTreeInWater(x, y);      break;
     case HILLS:               drawHills(x, y);            break;
     case DUNGEON_FLOOR:       drawDungeonFloor(x, y);     break;
     case DUNGEON_WALL:        drawDungeonWall(x, y);      break;
@@ -2391,6 +2424,6 @@ const RENDERABLE_TILE_IDS = new Set([
   SLUICE_SECRET_ENTRANCE, SLUICE_SECRET_EXIT, DREAM_FLOOR, DREAM_EDGE,
   CHAMBER_DOOR, CHAMBER_FLOOR, CHAMBER_WALL, CHAMBER_EXIT,
   SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, TEMPLE_SHALLOWS, TEMPLE_CARVING, RODDON_SILT,
-  CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE, HILLS,
+  CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE, HILLS, TREE_IN_WATER,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;

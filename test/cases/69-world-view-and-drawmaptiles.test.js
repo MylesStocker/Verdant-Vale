@@ -160,10 +160,10 @@ module.exports = {
 
     // ── Sparse holes and out-of-region camera rectangles ────────────────────
     {
-      assert.deepEqual(vis(0, 0, 512, 480), [], 'a viewport over an unplaced gap chunk returns nothing (renderer must clear/fill)');
+      assert.deepEqual(vis(0, 0, 512, 480).map(c => c.mapId), ['NORTH_BASIN_NW2_MAP'], 'the newly placed Flooded Rim fills chunk (0,0)');
       assert.deepEqual(vis(999999, 999999, 512, 480), [], 'far out-of-regionId camera -> no chunks');
       assert.deepEqual(vis(-512, -480, 512, 480), [], 'negative/out-of-regionId camera -> no chunks');
-      // A viewport spanning a gap (chunkY 2, at col 0) and a placed map (MAP_N2 at 0,3)
+      // A viewport spanning the final gap (chunkY 2, at col 0) and a placed map (MAP_N2 at 0,3)
       // returns ONLY the placed one — the hole is omitted, not invented.
       const straddle = vis(0, 3 * CH - 224, 512, 480); // 7 tiles up from MAP_N2 into the (0,2) gap
       assert.deepEqual(straddle.map(c => c.mapId), ['MAP_N2'], 'gap omitted; only the placed chunk returned');

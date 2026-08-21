@@ -1248,9 +1248,21 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'north', sourceRange: [1, 10] },
     ],
   },
-  // West Mire — only the east edge connects (back to the West Shore); north, south,
-  // and west are impassable void borders. Reciprocal of NORTH_BASIN_W_MAP.west.
+  // Flooded Rim — two broken marsh ranges descend into the West Mire. North
+  // and west are true regional borders; east remains blocked against Upper Reach.
+  NORTH_BASIN_NW2_MAP: {
+    south: [
+      { targetMap: 'NORTH_BASIN_W2_MAP', targetEdge: 'north', sourceRange: [3, 6] },
+      { targetMap: 'NORTH_BASIN_W2_MAP', targetEdge: 'north', sourceRange: [9, 12] },
+    ],
+  },
+  // West Mire — east connects to the West Shore and north now opens into the
+  // Flooded Rim across two marsh ranges. West/south remain regional borders.
   NORTH_BASIN_W2_MAP: {
+    north: [
+      { targetMap: 'NORTH_BASIN_NW2_MAP', targetEdge: 'south', sourceRange: [3, 6] },
+      { targetMap: 'NORTH_BASIN_NW2_MAP', targetEdge: 'south', sourceRange: [9, 12] },
+    ],
     east: [
       { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'west', sourceRange: [3, 6] },
       { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'west', sourceRange: [9, 11] },

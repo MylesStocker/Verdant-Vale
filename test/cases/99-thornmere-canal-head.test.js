@@ -234,17 +234,17 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(south)), SOUTH_FP); assert.equal(GRID_FP.fingerprints[SOUTH_ID], SOUTH_FP, 'Upper Shallows byte-identical');
     const oldWest = west.map((row) => row.slice()); for (let row = 0; row < 15; row++) oldWest[row][15] = row === 5 ? WATER : TREE;
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP, 'restoring exactly the authorized edge recreates reviewed Eastern Canal Banks');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 28);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 29);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint stable`);
 
     const production = ['movement.js','continuous-seams.js','regional-position.js','save.js','debug-warp.js'].map((file) => fs.readFileSync(path.join(__dirname,'..','..',file),'utf8')).join('\n');
     assert.doesNotMatch(production, /THORNMERE_CANAL_HEAD_MAP/, 'no map-ID movement/save/warp special case');
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 44, BLOCKED: 40 });
-    assert.equal(audit.seamReadiness.edges.length, 112);
-    assert.equal(g.run('continuousSeamEntries().length'), 60); assert.equal(g.run('continuousSeamEntries().length/2'), 30);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 28);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 21);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 115);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 46, BLOCKED: 42 });
+    assert.equal(audit.seamReadiness.edges.length, 116);
+    assert.equal(g.run('continuousSeamEntries().length'), 64); assert.equal(g.run('continuousSeamEntries().length/2'), 32);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 29);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 22);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 116);
   },
 };

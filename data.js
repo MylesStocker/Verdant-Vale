@@ -805,6 +805,7 @@ const MAP_CATALOG = {
   NORTH_BASIN_C_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_C_MAP'),
   NORTH_BASIN_SW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SW_MAP'),
   NORTH_BASIN_W_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W_MAP'),
+  NORTH_BASIN_NW2_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NW2_MAP'),
   NORTH_BASIN_W2_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_W2_MAP'),
   NORTH_BASIN_NW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_NW_MAP'),
   // Scenery-only open water north of the reservoir (chunk 2,0) and its eastward

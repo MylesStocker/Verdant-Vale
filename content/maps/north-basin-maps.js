@@ -579,54 +579,76 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w',
     allowRandomEncounters: true, allowSave: true,
     notes: 'West bank of the reservoir, north of the Silt Flats. Shares the Silt Flats’ enemy pool by design (user request), not a separate harsher tier. South edge is an open EDGE_TRANSITIONS crossing (cols 1-10) to the Silt Flats; north edge is an open crossing (cols 1-10) to the Upper Reach; the west edge (col 0) now opens onto the West Mire across two marsh crossings (rows 3-6 and 9-11), with a scrubby TREE hummock at rows 7-8 between them.' },
-  // ─── The North Basin — West Mire  (16 × 15) ──────────────────────────────────
-  // The far-west chunk (0,1), west of the West Shore. A cold, boggy backwater of
-  // the drained basin: nobody lives here. Marsh (REEDS) and drought-cracked
-  // BASIN_MUD border to border, threaded with small WATER pools, firmer
-  // EXPOSED_STONE lakebed patches, and a few sunken FENCE_POSTs from an old
-  // pasture the reservoir long ago swallowed. TREE scrub rings the three void
-  // borders (west/north/south); the east edge opens to the West Shore across two
-  // marsh crossings (rows 3-6 and 9-11 — the reciprocal of NORTH_BASIN_W_MAP.west).
-  // The only find is an examine-only sparkle (a bundled reed poultice, Reed
-  // Remedy) half-buried by an old fence post at c4 r10. No NPCs, no buildings,
-  // no enterables. Shares the gentle basin pool (north_basin) with its neighbours;
-  // REEDS, BASIN_MUD, and EXPOSED_STONE roll encounters; WATER stays safe.
+  // ─── The North Basin — Flooded Rim  (16 × 15) ─────────────────────────────
+  // Accessible northwest basin-rim chunk (0,0), blocked against the Upper
+  // Reach east and joined to West Mire south across cols 3-6 and 9-12. Cold
+  // standing WATER covers just under half the grid. Six TREE_IN_WATER blockers
+  // carry the drowned woodland through the outer rim; the remaining walkable
+  // ground is almost entirely BASIN_MUD and REEDS, with three small
+  // EXPOSED_STONE remnants. North and west are true regional borders and use
+  // only WATER/TREE/TREE_IN_WATER. No hills, road, props, items, NPCs,
+  // interactions, decoration, landmarks, quests, or enterables.
+  { mapId: 'NORTH_BASIN_NW2_MAP', regionId: 'overworld', chunkX: 0, chunkY: 0, map: [
+      //   0    1   2   3   4   5    6   7   8   9  10  11   12  13  14  15
+      [   3, 120,  1,  1,  3,  1,   1,  1,  1,  3,  1,  1,   3,  1,  3,  1 ],  //  0  true north rim: irregular water and tree cover, all impassable
+      [ 120,   1,  1,  3,  1,  1,   1,  1,  1,  1,  1,  1,   1, 23, 81,  1 ],  //  1  cold standing water under the northwest tree line
+      [   1,   1,  3,  1,  1,120,   1,  1,  1,  1,  1,  1,  81, 88, 81,  1 ],  //  2  drowned interior tree and first stone remnant
+      [   3,   1,  1,  1,120,  1,   1,  1, 81,  1,  1, 81,  81, 81, 23,  1 ],  //  3  flooded woodland gives way to broken exposed ground
+      [   1,   1,  1,  3,  1,  1,   1,  1, 81, 23, 23,  1,   1, 23, 81,  3 ],  //  4  eastern blocked tree meets the Upper Reach edge
+      [   3,   1,  1,  1,  1,  1,   1, 81,  1,  1, 81, 81,  23, 81, 23,  1 ],  //  5  mud tongue through floodwater
+      [   1,   1,  3,  1,  1,  1,  81, 81, 23, 23,  1,  1,  81, 23, 81,120 ],  //  6  drowned tree on the eastern flooded boundary
+      [   1,   1,  1,  1,  1, 81,  81,  1,  1, 23, 81, 81,   1,  1, 81,  1 ],  //  7  flooded pockets divide the reed/mud shelf
+      [   3,   1,  1,  1, 81, 81,   1,  1,  1, 23, 23,  1,   1, 81, 23,  3 ],  //  8  eastern blocked tree cover
+      [   1,   1,  1,  1, 81,  1,   1,  1, 23,  1,  1, 81,  88, 81, 23,  1 ],  //  9  second stone remnant
+      [   1,   1,  1, 81, 81, 23,   1,  1, 23, 81, 81, 88,  81, 23, 81,120 ],  // 10  third stone remnant; drowned tree seals east edge
+      [   1,   1, 23, 81, 23,  1,   1, 23, 81, 81, 23, 23,  81, 23, 81,  1 ],  // 11  flooded pockets continue toward West Mire
+      [   3,   1,  1, 23, 23, 81,  23, 23, 81, 81, 81, 23,  23, 81, 23,  1 ],  // 12
+      [   1,   1, 23, 23, 81, 81,  23,  1,  1, 23, 81, 81,  23, 23,  1,  1 ],  // 13  reciprocal landing ground above both south crossings
+      [   1,   1,  3, 23, 81, 81,  23,  1,  3, 23, 81, 81,  23,  1,  3,  1 ],  // 14  two broken marsh crossings south to West Mire
+    ],
+    displayName: 'North Basin — Flooded Rim', region: 'North Basin', contentKey: 'north_basin_nw2',
+    presentation: 'continuous', encounterProfileId: 'north_basin',
+    playerAccessible: true, allowRandomEncounters: true, allowSave: true,
+    notes: 'Accessible flooded woodland at chunk (0,0). WATER covers 119 cells (49.6%); six impassable TREE_IN_WATER tiles carry drowned cover through the standing-water masses. Almost all walkable ground is encounter-eligible BASIN_MUD/REEDS with three EXPOSED_STONE remnants. East remains blocked against Upper Reach; south opens to West Mire in two ranges (cols 3-6 and 9-12). North/west are blocked regional borders. Uses the existing north_basin pool. No authored content or special terrain beyond TREE_IN_WATER.' },
+  // ─── The North Basin — West Mire  (16 × 15) ─────────────────────────────────────────────────────────────────────
+  // Cold bog at (0,1). North now opens to the Flooded Rim; east retains its
+  // two West Shore crossings. The south and west sides remain regional borders.
   { mapId: 'NORTH_BASIN_W2_MAP', regionId: 'overworld', chunkX: 0, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-      [  3,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1 ],  //  0  north void border (TREE + flooded pools, impassable)
+      [  3,  3,  3, 23, 81, 81, 23,  3,  3, 23, 81, 81, 23,  3,  3,  1 ],  //  0  two marsh crossings north to the Flooded Rim; blocked elsewhere
       [  3, 23, 23, 81,  0, 23, 23, 23, 23, 23, 81, 81, 23,  0, 23,  3 ],  //  1  marsh
-      [  3, 23, 23, 23, 81, 23, 81, 88, 81, 81,  0,  0, 81, 23, 23,  3 ],  //  2  reeds + drying mud; stone patch c7
+      [  1, 23, 23, 23, 81, 23, 81, 88, 81, 81,  0,  0, 81, 23, 23,  3 ],  //  2  west boundary WATER; reeds + drying mud; stone patch c7
       [  3, 23, 81, 81, 81, 23,  1, 81, 23, 23, 81, 23, 81, 23, 23, 23 ],  //  3  ← c15 opens east to the West Shore (crossing rows 3-6)
       [  3, 23,  1, 23, 88, 23, 23, 81, 81, 81, 23, 81, 81, 89, 23, 23 ],  //  4  water pool c2; fence post c13
-      [  3, 23, 23, 23, 23, 81, 23, 23, 23, 23, 81, 88, 23, 23, 23, 23 ],  //  5
+      [  1, 23, 23, 23, 23, 81, 23, 23, 23, 23, 81, 88, 23, 23, 23, 23 ],  //  5  west boundary WATER
       [  3, 88, 89, 81, 23, 23, 23, 23, 23, 23, 23, 23,  1, 81, 23, 23 ],  //  6  sunken fence post c2 (old pasture line)
       [  3, 23, 81, 81,  0, 23, 23, 23, 81, 81,  0, 81, 81, 23, 23,  3 ],  //  7  c15 back to TREE border (rows 7-8 closed)
-      [  3, 23, 81, 81, 23, 23, 81, 81, 81, 23,  1, 23, 81, 23, 23,  3 ],  //  8
+      [  1, 23, 81, 81, 23, 23, 81, 81, 81, 23,  1, 23, 81, 23, 23,  3 ],  //  8  west boundary WATER
       [  3, 23, 23, 23,  0, 81,  0, 23, 81, 81, 23, 81, 23, 81, 23, 23 ],  //  9  ← c15 opens east again (crossing rows 9-11)
       [  3, 23, 23, 89, 81, 23, 23, 81, 23, 81, 88, 23, 81, 23, 81, 23 ],  // 10  fence post c3; Reed Remedy sparkle at c4 (examine)
-      [  3, 81, 23, 23,  1, 23, 81, 23, 88, 81, 23, 23, 23, 81, 23, 23 ],  // 11  water pool c4
+      [  1, 81, 23, 23,  1, 23, 81, 23, 88, 81, 23, 23, 23, 81, 23, 23 ],  // 11  west boundary WATER; water pool c4
       [  3, 23, 81,  0, 81, 23, 23, 81,  1, 81, 81, 81,  0, 23, 23,  3 ],  // 12  c15 TREE border
-      [  3,  0, 23, 81, 81, 23, 23, 23, 81, 81, 23, 23,  0, 23, 81,  3 ],  // 13
+      [  1,  0, 23, 81, 81, 23, 23, 23, 81, 81, 23, 23,  0, 23, 81,  3 ],  // 13  west boundary WATER
       [  3,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1 ],  // 14  south void border (impassable)
     ],
     displayName: 'North Basin — West Mire', region: 'North Basin', contentKey: 'north_basin_w2',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w2',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Cold boggy backwater at chunk (0,1), west of the West Shore. Marsh/mud border to border with small water pools, dry lakebed stone, and sunken fence posts — nobody lives here. Only the east edge connects (two marsh crossings to the West Shore, rows 3-6 and 9-11); north/south/west are impassable void borders. One examine-only sparkle find (Reed Remedy) at c4 r10. No NPCs, buildings, or enterables. Uses the gentle north_basin pool; REEDS, BASIN_MUD, and EXPOSED_STONE roll, while WATER stays safe.' },
+    notes: 'Cold boggy backwater at chunk (0,1), west of the West Shore. Marsh/mud border to border with small water pools, dry lakebed stone, and sunken fence posts — nobody lives here. East opens to the West Shore (rows 3-6 and 9-11); north opens to the Flooded Rim (cols 3-6 and 9-12); south remains blocked. The west outer boundary remains fully impassable but alternates TREE/WATER rather than a solid tree wall. One examine-only sparkle find (Reed Remedy) at c4 r10. No NPCs, buildings, or enterables. Uses the gentle north_basin pool; REEDS, BASIN_MUD, and EXPOSED_STONE roll, while WATER stays safe.' },
   { mapId: 'NORTH_BASIN_NW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 0, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge: open reservoir WATER (the flooded arm continues off-map; impassable)
-      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  1  open bed
-      [  3, 81, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81, 88, 81, 81,  1],  //  2  north pool begins (c7-8)
-      [  3, 81, 81, 81, 81, 81,  1,  1,  1,  1, 81, 88,103, 88, 81,  1],  //  3  pool c6-9; THE DOORFRAME at c12, stone flanks c11/c13
+      [  1, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  1  flooded west-edge pocket beside the open bed
+      [  1, 81, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81, 88, 81, 81,  1],  //  2  west floodwater and north pool c7-8
+      [120, 81, 81, 81, 81, 81,  1,  1,  1,  1, 81, 88,103, 88, 81,  1],  //  3  drowned west-edge tree; THE DOORFRAME at c12
       [  3, 81, 81, 81, 81, 81, 81,  1,  1, 81, 81, 81, 81, 81, 81,  1],  //  4  pool tapers
       [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  5
-      [  3, 81, 89, 89, 89, 89, 89, 89, 89, 89, 81, 81, 81, 81, 81,  1],  //  6  the fence line (c2-c9) — dead straight, in what was open water
-      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 88, 81, 81,  1],  //  7
-      [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  8  stonework apron begins (c3-5)
+      [ 81, 81, 89, 89, 89, 89, 89, 89, 89, 89, 81, 81, 81, 81, 81,  1],  //  6  mud reaches the west edge beside the stranded fence line
+      [  1, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 88, 81, 81,  1],  //  7  second flooded west-edge pocket
+      [120, 81, 81, 88, 88, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  8  drowned tree; stonework apron begins c3-5
       [  3, 81, 81, 88,107, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  //  9  THE STAIRHEAD at c4
       [  3, 81, 81, 88, 88, 88, 81, 81, 81, 81,  1,  1, 81, 81, 81,  1],  // 10  apron ends; south residual pool c10-11
-      [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 11
+      [ 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 11  exposed mud breaks the remaining west tree line
       [  3, 81, 81, 81, 81, 88, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 12
       [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1],  // 13  north-crossing landing row (cols 1-10 all walkable)
       [  3, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  3,  3,  3,  3,  1],  // 14  open edge cols 1-10 (BASIN_MUD, walkable) → EDGE_TRANSITIONS south to NORTH_BASIN_W_MAP
@@ -634,7 +656,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Upper Reach', region: 'North Basin', contentKey: 'north_basin_nw',
     presentation: 'continuous', encounterProfileId: 'upper_reach', itemSetId: 'north_basin_nw',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'The drained NW arm — exposed bed border to border. Its encounter-enabled wilderness terrain uses UPPER_REACH_ENEMY_TEMPLATES: two stranded basin creatures shared with the Silt Flats, and two new tough ones (Dust-Drowned, Marrow Hulk) reflecting how long this arm has been dry and wrong. BASIN_MUD and EXPOSED_STONE follow their normal global terrain eligibility; no map-specific override. No NPCs. "No safe haven" means no town, bed, healing, or shelter -- allowSave is still true like any ordinary outdoor map (see canSaveHere(), save.js); only the two interiors it leads to block saving. Holds the standing doorframe (CHAMBER_DOOR → BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR → SUNKEN_GALLERY_MAP).' },
+    notes: 'The drained NW arm — exposed bed border to border. Its west edge is no longer a solid TREE wall: seven of the fourteen former tree cells are now clustered WATER, BASIN_MUD, or TREE_IN_WATER remnants, while the seam-free adjacency to Flooded Rim remains blocked. Its encounter-enabled wilderness terrain uses UPPER_REACH_ENEMY_TEMPLATES: two stranded basin creatures shared with the Silt Flats, and two new tough ones (Dust-Drowned, Marrow Hulk) reflecting how long this arm has been dry and wrong. BASIN_MUD and EXPOSED_STONE follow their normal global terrain eligibility; no map-specific override. No NPCs. "No safe haven" means no town, bed, healing, or shelter -- allowSave is still true like any ordinary outdoor map (see canSaveHere(), save.js); only the two interiors it leads to block saving. Holds the standing doorframe (CHAMBER_DOOR → BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR → SUNKEN_GALLERY_MAP).' },
 
   // ─── North Basin — Open Reservoir — NORTH_BASIN_N_MAP  (16 × 15) ──────────────
   // Regional chunk (2,0): the open reservoir NORTH of the basin. It fills the void

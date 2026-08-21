@@ -180,6 +180,9 @@ const APT_NOTICE    = 116; // framed corridor tenant notice (APARTMENT_CORRIDOR_
 // historical gaps or renumber older tiles: save/debug data relies on stable ids.
 const HILLS         = 119; // contiguous scrub-covered rocky ridge; blocking terrain
 
+// ─── Flooded woodland ───────────────────────────────────────────
+const TREE_IN_WATER = 120; // drowned tree rooted in standing water; blocking terrain
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -302,6 +305,7 @@ const WALKABLE = [
   /* 117 TEMPLE_SHALLOWS       */ true,
   /* 118 TEMPLE_CARVING        */ false,
   /* 119 HILLS                 */ false,
+  /* 120 TREE_IN_WATER         */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -422,6 +426,7 @@ window.WATER_GAUGE            = WATER_GAUGE;
 window.REED_RACK              = REED_RACK;
 window.APT_NOTICE             = APT_NOTICE;
 window.HILLS                  = HILLS;
+window.TREE_IN_WATER          = TREE_IN_WATER;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -444,7 +449,7 @@ const DEBUG_TILE_NAMES = [
   'DREAM_EDGE',  'DREAM_FLOOR',
   'CHAMBER_DOOR',  'CHAMBER_FLOOR',  'CHAMBER_WALL',  'CHAMBER_EXIT',
   'SUNKEN_STAIR',  'GALLERY_FLOOR',  'GALLERY_WALL',  'GALLERY_STAIR_UP',  'TEMPLE_SHALLOWS',  'TEMPLE_CARVING',  'RODDON_SILT',
-  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',  'HILLS',
+  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',  'HILLS',  'TREE_IN_WATER',
   'DUNGEON8_WEST_RET',  'EAST_ENTRANCE',  'EAST_EXIT',  'EXPOSED_STONE',  'FALSE_WALL',  'FARM_HOUSE',
   'FEN_N_ENTRANCE',  'FEN_N_EXIT',  'FEN_N2_ENTRANCE',  'FEN_N2_EXIT',  'FENCE_POST',  'GRASS',
   'GUARD_POST',  'HOUSE_DOOR',  'INN_DOOR',  'INTERIOR_EXIT',  'INTERIOR_FALSE_WALL',  'INTERIOR_FLOOR',
@@ -512,6 +517,11 @@ const TILE_PROPERTIES = {
   [TREE]: {
     id: TREE, name: 'Tree', debugName: 'TREE', walkable: WALKABLE[TREE],
     category: 'natural_blocker', tags: ['outdoor', 'tree', 'blocker'], encounterEligible: false,
+  },
+  [TREE_IN_WATER]: {
+    id: TREE_IN_WATER, name: 'Tree in Water', debugName: 'TREE_IN_WATER', walkable: WALKABLE[TREE_IN_WATER],
+    category: 'natural_blocker', tags: ['outdoor', 'water', 'tree', 'blocker'], encounterEligible: false, isWater: true,
+    notes: 'Tile 120. A drowned tree rooted in cold standing water; impassable water terrain, not an interaction or transition.',
   },
   [REEDS]: {
     id: REEDS, name: 'Reeds', debugName: 'REEDS', walkable: WALKABLE[REEDS],

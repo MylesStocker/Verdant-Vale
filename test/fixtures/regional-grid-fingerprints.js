@@ -1,5 +1,5 @@
 'use strict';
-// Stable, repository-owned fingerprints of the 28 placed regional chunk grids.
+// Stable, repository-owned fingerprints of the 29 placed regional chunk grids.
 //
 // Canonical serialization: `sha256hex(JSON.stringify(map))`, where `map` is the
 // 15×16 row-major tile-id array read from `REGIONAL_CHUNK_CATALOG[mapId].map`.
@@ -11,7 +11,7 @@
 // so they run correctly from any future commit, clone, branch, or archive.
 //
 // Regenerate ONLY on an intentional, reviewed terrain edit (recompute the affected
-// map's sha256 from its current grid). All 28 are currently unique — a collision here
+// map's sha256 from its current grid). All 29 are currently unique — a collision here
 // would mean two grids are genuinely byte-identical, which must be reported, not
 // silenced by weakening the check.
 module.exports = {
@@ -38,8 +38,9 @@ module.exports = {
     NORTH_BASIN_C_MAP:  '562b1d6e9b79fcc2a2b1b3092538094ec31ff280733acc326ec8c2f90b257668',
     NORTH_BASIN_SW_MAP: '38e09a579a5e76b8539b02698235e01b2c5d664fa6fc9cfa11dd08804575d4c1',
     NORTH_BASIN_W_MAP:  'df88364722dc6e4cd77a3c95182165c3ecff777d9c37e290b4810c6d2da3a1f3',
-    NORTH_BASIN_W2_MAP: 'c2812528c12a2fcf7f45819f4320ee85f9b78446e4b3f9826fbb968448a72c31',
-    NORTH_BASIN_NW_MAP: '0105619e109e8dcc3c941724437dd7fd0b6b2208e3507d498046841f6b53d28d',
+    NORTH_BASIN_NW2_MAP: '6bbc842c7e7efdd14cf9f6c23f27312bace33049745672eba636ff1d61b4578a',
+    NORTH_BASIN_W2_MAP: '301000cbf265d3f1bc1efdaf1a0996733be0d0a4d04318518bccf34cb038ed6b',
+    NORTH_BASIN_NW_MAP: 'cb2c59ab15d4b87c2ce758025b2f6bfd85fe8abae5c34cc1438131c8605edfe8',
     NORTH_BASIN_N_MAP:  'e59e5fa33fbc7e6388e707d1ef4a96282c446c6aead0f2cc24e935426e960bc7',
     NORTH_BASIN_NE_MAP: '97af356c23d758f6d396afb57e1fd152c4b0701dd6f66839248cf7350b6d0954',
     NORTH_BASIN_NE2_MAP: '3e6f5754052438f40b9f560db8d6321e9e0ab72aeaf94f2b7874cff149021417',

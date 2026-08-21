@@ -104,11 +104,10 @@ module.exports = {
     assert.equal(g.run(`tileAtWorld('${regionId}', 0, -5)`), VOID, 'negative worldY -> void');
     // out of range (beyond the bounding box)
     assert.equal(g.run(`tileAtWorld('${regionId}', 99999, 99999)`), VOID, 'far out-of-range -> void');
-    // missing chunk INSIDE the bounding box: chunk (0,0) is a documented gap
-    // (MAP_N2 is the northernmost col-0 map, at chunkY 3).
-    assert.equal(g.run(`mapIdForChunk('${regionId}', 0, 0)`), null, 'chunk (0,0) is an unplaced gap');
-    assert.equal(g.run(`worldToLocal('${regionId}', 5, 5)`), null, 'a gap chunk -> null local');
-    assert.equal(g.run(`tileAtWorld('${regionId}', 5, 5)`), VOID, 'a gap chunk reads as void');
+    // missing chunk INSIDE the bounding box: chunk (0,2) is the final gap.
+    assert.equal(g.run(`mapIdForChunk('${regionId}', 0, 2)`), null, 'chunk (0,2) is an unplaced gap');
+    assert.equal(g.run(`worldToLocal('${regionId}', 5, ${2 * ROWS * 32 + 5})`), null, 'a gap chunk -> null local');
+    assert.equal(g.run(`tileAtWorld('${regionId}', 5, ${2 * ROWS * 32 + 5})`), VOID, 'a gap chunk reads as void');
     // unknown region
     assert.equal(g.run(`worldToLocal('nope', 0, 0)`), null, 'unknown region -> null');
     assert.equal(g.run(`tileAtWorld('nope', 0, 0)`), VOID, 'unknown region -> void');

@@ -32,7 +32,7 @@ module.exports = {
     for (let col = 0; col < 16; col++) assert.equal(g.run(`isTileWalkable(${m[14][col]})`), false, `south border col${col} nonwalkable`);
 
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'new grid fingerprint');
-    assert.equal(GRID_FP.fingerprints[ID], FP, 'fixture records it'); assert.equal(Object.keys(GRID_FP.fingerprints).length, 28, 'all regional grids fingerprinted');
+    assert.equal(GRID_FP.fingerprints[ID], FP, 'fixture records it'); assert.equal(Object.keys(GRID_FP.fingerprints).length, 29, 'all regional grids fingerprinted');
     const audit = require('../transition-audit.js'), v = Object.fromEntries(audit.seamReadiness.edges.map((e) => [e.mapId + '|' + e.dir, e.verdict]));
     assert.equal(v[`${ID}|north`], 'BLOCKED'); assert.equal(v[`${ID}|west`], 'BLOCKED'); assert.equal(v[`${ID}|east`], 'BORDER'); assert.equal(v[`${ID}|south`], 'BLOCKED');
     assert.equal(v['NORTH_BASIN_NE2_MAP|south'], 'BLOCKED'); assert.equal(v['NORTH_BASIN_E_MAP|east'], 'BLOCKED'); assert.equal(v['EAST_CAUSEWAY_MAP|north'], 'BLOCKED');

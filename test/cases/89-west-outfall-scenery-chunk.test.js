@@ -57,7 +57,7 @@ module.exports = {
       assert.ok(GRID_FP.fingerprints[id], id + ': original fingerprint still present in the fixture');
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], id + ': original grid unchanged');
     }
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 28, 'fixture now has 28 fingerprints');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 29, 'fixture now has 29 fingerprints');
 
     // ── 7 + 8. Border contract: agrees with all four neighbours, all non-walkable ─
     const outfall = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`);
@@ -97,19 +97,19 @@ module.exports = {
     }
 
     // ── 11. Audit totals match the verified new layout ────────────────────────
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 44, BLOCKED: 40 },
-      'audit totals: 112 edges -> ALIGNS 44 / BORDER 24 / BLOCKED 40 / INTENTIONAL_DISCRETE 4');
-    assert.equal(audit.seamReadiness.edges.length, 112, '112 directed placed-map edges (28 x 4)');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 46, BLOCKED: 42 },
+      'audit totals: 116 edges -> ALIGNS 46 / BORDER 24 / BLOCKED 42 / INTENTIONAL_DISCRETE 4');
+    assert.equal(audit.seamReadiness.edges.length, 116, '116 directed placed-map edges (29 x 4)');
     assert.ok(!audit.seamReadiness.totals.CONFLICT && !audit.seamReadiness.totals.OUTSIDE_REGION && !audit.seamReadiness.totals.NEEDS_REMAP,
       'no CONFLICT / OUTSIDE_REGION / NEEDS_REMAP');
 
-    // ── 12. Void count is 8; region pixel bounds unchanged ────────────────────
+    // ── 12. Void count is 1; region pixel bounds unchanged ────────────────────
     let placed = 0, voids = 0;
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) {
       if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++; else voids++;
     }
-    assert.equal(placed, 28, '28 placed chunks in the 5x6 envelope');
-    assert.equal(voids, 2, '2 remaining sparse void cells');
+    assert.equal(placed, 29, '29 placed chunks in the 5x6 envelope');
+    assert.equal(voids, 1, '1 remaining sparse void cell');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 4, 0, 5], 'region chunk extent unchanged (0..4 x 0..5)');
     assert.equal(b.widthPx, 5 * 16 * 32, 'region pixel width unchanged (5 chunks)');
@@ -191,9 +191,9 @@ module.exports = {
     assert.equal(g.run("(placeAtLocation('MAP3_N2', 8*TILE, 7*TILE), saveGame())"), true, 'accessible MAP3_N2 still saves');
 
     // ── 20. A true remaining sparse coordinate still returns void ─────────────
-    assert.equal(g.run("mapIdForChunk('overworld', 0, 0)"), null, '(0,0) is still a genuine void');
-    assert.equal(g.run("tileAtWorld('overworld', 8, 7)"), g.run('REGION_VOID_TILE'), '(0,0) reads as REGION_VOID_TILE');
-    assert.equal(g.run("worldToLocal('overworld', 8, 7)"), null, '(0,0) worldToLocal is null (void)');
+    assert.equal(g.run("mapIdForChunk('overworld', 0, 2)"), null, '(0,2) is still a genuine void');
+    assert.equal(g.run("tileAtWorld('overworld', 8, 2*ROWS*TILE+7)"), g.run('REGION_VOID_TILE'), '(0,2) reads as REGION_VOID_TILE');
+    assert.equal(g.run("worldToLocal('overworld', 8, 2*ROWS*TILE+7)"), null, '(0,2) worldToLocal is null (void)');
 
     // ── 21. Catalog read / render / validation mutate no gameplay state ────────
     g.run("placeAtLocation('MAP3_N2', 8*TILE, 7*TILE); player.facing='down';");
