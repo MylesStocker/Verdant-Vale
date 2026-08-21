@@ -13,9 +13,9 @@ const ID = 'THORNMERE_NORTH_FEN_MAP';
 const NORTH_ID = 'DRENWICK_EAST_CANAL_MAP';
 const WEST_ID = 'MAP3_N1';
 const SOUTH_ID = 'MAP4';
-const FP = '959c67546ae56ca6a05dc3973f930495d5574c359d0cb64d714c5235f63bcae8';
+const FP = '0f1fc88a9c3ddfffb6116e59bd4420e332eb84f9b0133062eb2f4c3bc5d3862c';
 const NORTH_FP = '2e74d8cd14fa6e022cba316f1d18d4409a2d5b886ed6c5e2df9392933f5ecad6';
-const WEST_FP = '7a7f6def4fbae9ef32f036fb9932e1288171d90c0da68f9e5eaed186b8d5a923';
+const WEST_FP = '0a0c5f3751b0b4a50653a3af58e992781a1b6ffdadfc37e7d61a8bc38b9b3290';
 const SOUTH_FP = '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9';
 const OLD_NORTH_FP = 'eab38f6b548bbd1201900dd65914f742f3b100c5db6a56e9f13d82466e3ebc14';
 const OLD_WEST_FP = '490ecb2044576d7b1410448456121762e0b9ca01954daf1216f3dc6e3922e9a1';
@@ -79,8 +79,13 @@ module.exports = {
     assert.equal(g.run(`THORNMERE_REGIONAL_CHUNK_DEFINITIONS.filter(function(d){return d.mapId==='${ID}';}).length`), 1);
     assert.deepEqual(J(`JSON.stringify(regionPlacementForMapId('${ID}'))`), { mapId: ID, regionId: 'overworld', chunkX: 3, chunkY: 4 });
     assert.equal(m.length, 15); assert.ok(m.every((row) => row.length === 16), '16×15 grid');
-    const allowed = new Set([GRASS, REEDS, TREE, WATER]);
+    // Natural fen palette, plus the single MIRE_ENTRANCE tile that relocated
+    // Mirethyst's Vault into this out-of-the-way fen (row 1 col 13).
+    const MIRE_ENTRANCE = g.run('MIRE_ENTRANCE');
+    const allowed = new Set([GRASS, REEDS, TREE, WATER, MIRE_ENTRANCE]);
     for (const row of m) for (const tile of row) assert.ok(allowed.has(tile), `tile ${tile} belongs to approved outdoor palette`);
+    assert.equal(m.flat().filter((t) => t === MIRE_ENTRANCE).length, 1, 'exactly one vault entrance');
+    assert.equal(m[1][13], MIRE_ENTRANCE, 'vault entrance at row 1 col 13');
     const meta = J(`JSON.stringify((function(){var d=THORNMERE_REGIONAL_CHUNK_DEFINITIONS.find(function(x){return x.mapId==='${ID}';});var r=REGIONAL_CHUNK_CATALOG['${ID}'];return {mapId:r.mapId,regionId:r.regionId,chunkX:r.chunkX,chunkY:r.chunkY,displayName:r.displayName,region:r.region,contentKey:r.contentKey,presentation:r.presentation,profile:d.encounterProfileId,itemSetAuthored:Object.prototype.hasOwnProperty.call(d,'itemSetId'),playerAccessibleAuthored:Object.prototype.hasOwnProperty.call(d,'playerAccessible'),playerAccessible:r.playerAccessible,enc:r.allowRandomEncounters,save:r.allowSave};})())`);
     assert.deepEqual(meta, { mapId: ID, regionId: 'overworld', chunkX: 3, chunkY: 4, displayName: 'Northern Thornmere Fen', region: 'Thornmere', contentKey: 'thornmere_north_fen', presentation: 'continuous', profile: 'thornmere', itemSetAuthored: false, playerAccessibleAuthored: false, playerAccessible: true, enc: true, save: true });
     assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===THORNMERE_ENEMY_TEMPLATES`), true);
@@ -103,7 +108,7 @@ module.exports = {
       else if (tile === TREE) counts.TREE++;
       else if (tile === WATER) counts.WATER++;
     }
-    assert.deepEqual(counts, { GRASS: 90, REEDS: 68, TREE: 21, WATER: 61 });
+    assert.deepEqual(counts, { GRASS: 90, REEDS: 67, TREE: 21, WATER: 61 }); // one REEDS became the MIRE_ENTRANCE (row 1 col 13)
     const edges = { north: m[0], south: m[14], west: m.map((r) => r[0]), east: m.map((r) => r[15]) };
     for (const [name, edge] of Object.entries(edges)) assert.ok(new Set(edge).size > 1, `${name} edge is irregular, not a uniform stripe`);
     assert.equal(edges.east.filter((t) => t === WATER).length, 11, 'east edge predominantly WATER');
@@ -132,14 +137,16 @@ module.exports = {
       }
       components.push(cells);
     }
-    assert.deepEqual(components.map((c) => c.length), [158], 'one connected 158-cell landmass');
+    assert.deepEqual(components.map((c) => c.length), [157], 'one connected 157-cell landmass (the MIRE_ENTRANCE tile is a separate transition cell)');
     const component = new Set(components[0].map((p) => p.join(',')));
     for (let x = 1; x <= 14; x++) assert.ok(component.has(`${x},0`), `north seam col ${x} joins component`);
     for (let y = 1; y <= 13; y++) assert.ok(component.has(`0,${y}`), `west seam row ${y} joins component`);
     for (const x of [1, 2, 13, 14]) assert.ok(component.has(`${x},14`), `south shore col ${x} joins component`);
     assert.equal(m[7][8], GRASS, 'default warp cell is ordinary walkable ground');
     g.run(`placeAtLocation('${ID}',8.5*TILE,7.5*TILE);resetLocationState();`);
-    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].map.flat().filter(function(t){return isTileWalkable(t)&&!isEncounterEligibleTile(t);}).length`), 0, 'all walkable terrain encounter eligible');
+    // All walkable natural terrain is encounter-eligible; the MIRE_ENTRANCE is a
+    // transition tile (you are moved into the vault on contact, never standing on it).
+    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].map.flat().filter(function(t){return isTileWalkable(t)&&!isEncounterEligibleTile(t)&&t!==MIRE_ENTRANCE;}).length`), 0, 'all walkable terrain encounter eligible (bar the vault entrance)');
 
     // 4. Exact authorized neighbour deltas, matching edges, and immutable
     // interaction/quest cells.
@@ -292,7 +299,10 @@ module.exports = {
     for (let r = 0; r < 15; r++) oldNorth[r][15] = r === 5 ? WATER : TREE;
     for (let c = 1; c <= 14; c++) oldNorth[14][c] = TREE;
     assert.equal(sha256(JSON.stringify(oldNorth)), OLD_NORTH_FP);
+    // Former MAP3_N1: close the east edge (col 15) AND restore the MIRE_ENTRANCE
+    // at (3,1) that later moved out to this fen when the vault was relocated.
     const oldWest = west.map((row) => row.slice()); for (let r = 1; r <= 13; r++) oldWest[r][15] = TREE;
+    oldWest[3][1] = MIRE_ENTRANCE;
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP);
     const oldSouth = south.map((row) => row.slice()); for (const c of [1, 2, 13, 14]) oldSouth[0][c] = TREE;
     assert.equal(sha256(JSON.stringify(oldSouth)), OLD_SOUTH_FP);

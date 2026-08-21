@@ -597,7 +597,7 @@ function update() {
     if (!inDungeon && !inTown && !inSluice && activeMap === NORTH_BASIN_W_MAP && curTile === NORTH_BASIN_W_ENTRANCE) { exitNorthBasinW(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP && curTile === MEADOW_HIDDEN_ENTRANCE) { enterMeadow(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MEADOW_MAP && curTile === MEADOW_EXIT) { exitMeadow(); return; }
-    if (!inDungeon && !inTown && !inSluice && !inMireVault && activeMap === MAP3_N1 && curTile === MIRE_ENTRANCE) { enterMireVault(); return; }
+    if (!inDungeon && !inTown && !inSluice && !inMireVault && mapIdForRef(activeMap) === 'THORNMERE_NORTH_FEN_MAP' && curTile === MIRE_ENTRANCE) { enterMireVault(); return; }
     if (inMireVault && curTile === MIRE_EXIT)                                                        { exitMireVault();  return; }
     // Falls hamlet houses (MAP3_N1 rows 10-12 cols 1-2) — three houses share one interior map
     // player.y discriminates which of the 3 houses was entered (A=row10, B=row11, C=row12)

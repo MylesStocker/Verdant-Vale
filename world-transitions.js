@@ -570,7 +570,7 @@ function enterMireVault() {
 }
 
 function exitMireVault() {
-  transitionToLocation({ mapId: 'MAP3_N1', x: 1.5 * TILE, y: 4.5 * TILE, facing: 'down', cooldown: true }); // beside MIRE_ENTRANCE, one south
+  transitionToLocation({ mapId: 'THORNMERE_NORTH_FEN_MAP', x: 12.5 * TILE, y: 1.5 * TILE, facing: 'down', cooldown: true }); // fen reeds one tile west of MIRE_ENTRANCE (13,1)
 }
 
 function enterTakomo() {

@@ -168,8 +168,8 @@ const RODDON_WAY_ITEMS = [
 
 // ─── Mirethyst's Vault  (16 × 15) ────────────────────────────────────────────
 // Ancient pre-Empire rareborn council chamber, now sunk into the northern fen.
-// Entered via MIRE_ENTRANCE at MAP3_N1 row 3 col 1.
-// Exit: MIRE_EXIT at row 13 col 7 → returns player to MAP3_N1 near entrance.
+// Entered via MIRE_ENTRANCE at THORNMERE_NORTH_FEN_MAP row 1 col 13.
+// Exit: MIRE_EXIT at row 13 col 7 → returns player to the fen beside the entrance.
 // Floor: DUNGEON2_FLOOR (8). Walls: DUNGEON2_WALL (9). Flooded sections: WATER (1).
 // Mirethyst's sanctum: rows 1-4. Mid-hall: rows 6-8. Entry hall: row 12.
 const MIRE_VAULT_MAP = [
@@ -485,7 +485,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'THORNMERE_NORTH_FEN_MAP', regionId: 'overworld', chunkX: 3, chunkY: 4, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  //  0  broad north seam c1-14 to Eastern Canal Banks' south bank
-      [  0,  0, 23,  0,  0, 23, 23,  0,  0, 23, 23,  0, 23, 23, 23,  1],  //  1  west fen opens; reed landing c14 keeps the broad north seam inset walkable
+      [  0,  0, 23,  0,  0, 23, 23,  0,  0, 23, 23,  0, 23, 55, 23,  1],  //  1  west fen opens; col 13 = MIRE_ENTRANCE (Mirethyst's Vault, tucked in the NE reeds); reed landing c14 keeps the broad north seam inset walkable
       [ 23,  0,  0, 23,  3,  0, 23,  0,  0, 23, 23, 23,  1,  1,  1,  1],  //  2  shoreline pushes west to c12
       [  0, 23,  0,  0,  3,  3, 23,  0, 23,  0,  0,  1,  1,  1,  1,  1],  //  3  broad northern bay; carr clump c4-5
       [  0, 23,  0,  0,  3,  0, 23, 23,  0,  0, 23,  1,  1,  1,  1,  3],  //  4  reed-lined projection; east-edge tree interruption
@@ -610,7 +610,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
       [  3,  3,  3, 23, 23, 23, 23, 23,  2, 23, 23, 23, 23, 23,  3,  3],  //  0  open-fen crossing cols 3-13 (road at col 8) → EDGE_TRANSITIONS north to MAP3_N2 (Drenwick)
       [  3,  0,  0, 23,  0,  0,  0,  0,  2,  0,  0,  0, 23,  0,  0,  0],  //  1  east seam begins on GRASS
       [  3,  0,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0, 23],  //  2  NW trees; east seam REEDS
-      [  3, 55,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  //  3  col 1 = MIRE_ENTRANCE; east seam GRASS
+      [  3,  0,  3,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  //  3  NW grass corridor between trees (former MIRE_ENTRANCE — vault moved to Northern Thornmere Fen); east seam GRASS
       [111,  0,  0,  0, 23,  1,  1, 23,  2,  2,  2,  2,  2, 54,  0,  0],  //  4  roddon crossing; brewery c13 remains buffered by GRASS c14-15
       [111,  0,  0, 23,  1,  1,  1, 23,  2, 23,  0,  0,  0,  0,  0, 23],  //  5  bog pond + irregular REEDS east seam
       [111,  0,  0,  0, 23,  1, 23,  0,  2,  0, 23,  1, 23,  0,  0,  0],  //  6  bog + east seam GRASS
