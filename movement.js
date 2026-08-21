@@ -316,13 +316,10 @@ function canWalk(cx, cy) {
 // the exact same logic the real encounter roll uses, rather than a second,
 // driftable copy of it.
 // Tile-property migration (see tiles.js's TILE_PROPERTIES / encounterEligible
-// comment): only the first branch below -- plain outdoor, no special-area
-// flag active -- was migrated to isTileEncounterEligible(). That's the one
-// "straightforward" case: GRASS is the only tile with encounterEligible:true
-// that can ever appear on a map reached with every inX flag false (dungeon-
-// floor and sluice-floor tiles only appear on maps that set inDungeon/
-// inSluice), so swapping `tile === GRASS` for the tile-property lookup here
-// is behaviorally identical, not just similar.
+// comment): the first branch below -- plain outdoor, no special-area flag active --
+// reads the general tile-property authority. GRASS, REEDS, BASIN_MUD, and
+// EXPOSED_STONE are ordinary wilderness encounter terrain; whether the CURRENT
+// physical location permits random encounters is a separate gate below.
 //
 // Every other branch is intentionally left as a literal `tile === CONSTANT`
 // check, NOT migrated to a generic per-tile lookup, because eligibility
@@ -341,11 +338,6 @@ function isEncounterEligibleTile(tile) {
   if (activeMap === MEADOW_MAP) return false; // hidden meadow — deliberately encounter-free (the Warden is its only danger)
   if (inBridgePost) return false; // Imperial toll checkpoint — manned, encounter-free (its GRASS banks previously fell through to the generic outdoor roll, contradicting the map's allowRandomEncounters: false metadata; dying here also used to strand inBridgePost through the defeat respawn)
   if (inBasinChamber) return false; // the unmarked chamber — deliberately encounter-free (redundant with CHAMBER_FLOOR's encounterEligible: false, kept as a visible guarantee per the entrance-area rule)
-  // The Upper Reach's drought-exposed bed now rolls encounters, but only its
-  // BASIN_MUD, and only HERE — the same tile stays safe on the other basin maps
-  // (Centre, Silt Flats, West Shore). Its pool is UPPER_REACH_ENEMY_TEMPLATES
-  // (MAP_METADATA.encounterPool). The stonework apron / residual pools stay quiet.
-  if (activeMap === NORTH_BASIN_NW_MAP) return tile === BASIN_MUD;
   // (inSunkenGallery deliberately has NO branch here: it falls through to the
   // TILE_PROPERTIES check below, where GALLERY_FLOOR is encounter-eligible —
   // the pool comes from MAP_METADATA.encounterPool, see combat.js.)
@@ -364,6 +356,20 @@ function isEncounterEligibleTile(tile) {
   if (inSluice)    return tile === SLUICE_FLOOR || tile === SLUICE_BLOOD_FLOOR || tile === SLUICE_JOURNAL_FLOOR;
   if (inMireVault) return tile === DUNGEON2_FLOOR;
   return false;
+}
+
+// The current PHYSICAL map decides whether random encounters are permitted.
+// Tile eligibility is deliberately independent: normal wilderness terrain may be
+// encounter-eligible even when placed synthetically in a town, safe interior, or
+// scenery-only chunk. Unknown maps and inaccessible regional scenery fail closed.
+// No map-id allow/deny list lives here; MAP_CATALOG metadata + the shared placement
+// capability are the authorities.
+function currentLocationAllowsRandomEncounters() {
+  const mapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;
+  const entry = (mapId && typeof mapEntryForId === 'function') ? mapEntryForId(mapId) : null;
+  if (!entry || entry.allowRandomEncounters !== true) return false;
+  if (typeof mapPlayerAccessible === 'function' && !mapPlayerAccessible(mapId)) return false;
+  return true;
 }
 
 // True while the player is inside the Deep Works sealed room map
@@ -916,7 +922,7 @@ function update() {
       return;
     }
 
-    // Random encounters: overworld grass, dungeon floors, and East Sluice floor.
+    // Random encounters: permitted location AND eligible standing tile.
     // The roll stays at this single update() choke point, at the same step cadence.
     // encounterGeographyOk() is the geographic authority gate: on a placed regional
     // outdoor map the pool is owned by the physical chunk under the player's standing
@@ -924,12 +930,13 @@ function update() {
     // encounter); nonregional maps (dungeon/sluice/…) return true and roll as before.
     // It consumes no randomness, so the Math.random() cadence is unchanged.
     if (player.step % 16 === 0 && combat.cooldown === 0) {
+      const locationAllowsEncounters = currentLocationAllowsRandomEncounters();
       const onEncounterTile = isEncounterEligibleTile(curTile);
       const geoOk = (typeof encounterGeographyOk === 'function') ? encounterGeographyOk() : true;
       const encounterChance = inSluiceSealedRoom() ? SLUICE_SECRET_ENCOUNTER_CHANCE
                             : inSluice              ? SLUICE_ENCOUNTER_CHANCE
                             :                         ENCOUNTER_CHANCE;
-      if (!debugMode && onEncounterTile && geoOk && Math.random() < encounterChance) startCombat();
+      if (!debugMode && locationAllowsEncounters && onEncounterTile && geoOk && Math.random() < encounterChance) startCombat();
     }
   }
 
@@ -1537,4 +1544,3 @@ function placeBridgeGuardsAside() {
   }
 }
 window.placeBridgeGuardsAside = placeBridgeGuardsAside;
-

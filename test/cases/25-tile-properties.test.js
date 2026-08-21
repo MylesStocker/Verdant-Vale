@@ -14,17 +14,15 @@
 // unchanged and is still what isTileWalkable() ultimately reads (see its
 // comment in tiles.js for why TILE_PROPERTIES.walkable isn't the source of
 // truth for real collision), map layouts are unchanged, drawTile() is
-// unchanged, and encounter rates/pools/which-maps-have-encounters are
-// unchanged.
+// unchanged, and encounter rates/pools/cadence are unchanged.
 //
 //   1.  WALKABLE behavior is preserved for representative tiles across
 //       every major context (outdoor, interior, dungeon, North Basin).
 //   2.  Movement collision still blocks a non-walkable tile (WATER).
 //   3.  Movement still allows a walkable tile (GRASS).
-//   4.  Encounter eligibility is unchanged for representative contexts:
-//       outdoor GRASS eligible, outdoor PATH not, a real dungeon floor
-//       tile eligible in its own dungeon-floor context, and a North Basin
-//       tile (BASIN_MUD) not eligible even though walkable.
+//   4.  Encounter eligibility follows tile properties for ordinary outdoor
+//       terrain: GRASS, REEDS, BASIN_MUD, and EXPOSED_STONE are eligible;
+//       PATH remains safe; context-specific branches remain authoritative.
 //   5.  The debug inspector can display tile name/category without
 //       crashing, with the overlay open on a real map.
 //   6.  Validation fails for a map using an unknown tile ID (same rule as
@@ -76,9 +74,10 @@ module.exports = {
     assert.equal(g.run('isTileWalkable(DUNGEON_FLOOR)'), true);
     assert.equal(g.run('isTileWalkable(DUNGEON_WALL)'), false);
     assert.equal(g.run('isTileWalkable(BASIN_MUD)'), true, 'North Basin ground tile should remain walkable');
+    assert.equal(g.run('isTileWalkable(EXPOSED_STONE)'), true, 'exposed lakebed stone should remain walkable');
     // Every one of these must also match the raw WALKABLE[] array exactly --
     // isTileWalkable() must not be a second, driftable source of truth.
-    for (const t of ['GRASS', 'WATER', 'PATH', 'TREE', 'INTERIOR_FLOOR', 'INTERIOR_WALL', 'DUNGEON_FLOOR', 'DUNGEON_WALL', 'BASIN_MUD']) {
+    for (const t of ['GRASS', 'WATER', 'PATH', 'TREE', 'INTERIOR_FLOOR', 'INTERIOR_WALL', 'DUNGEON_FLOOR', 'DUNGEON_WALL', 'BASIN_MUD', 'EXPOSED_STONE']) {
       assert.equal(g.run(`isTileWalkable(${t})`), g.run(`WALKABLE[${t}]`), `isTileWalkable(${t}) must match WALKABLE[${t}]`);
     }
     // Unknown tile id: must not throw, must report not-walkable (matching
@@ -114,18 +113,23 @@ module.exports = {
     assert.ok(g.run('player.x') > xBefore, 'player must still be able to walk across ordinary walkable ground (GRASS/PATH)');
 
     // ── 4. Encounter eligibility for representative contexts ───────────────
-    // REEDS is the one tile here whose eligibility has legitimately changed
-    // since this test was first written (TILE_PROPERTIES[REEDS].encounterEligible
-    // flipped true -> outdoor REEDS now produces encounters same as GRASS,
-    // via this same isEncounterEligibleTile()/isTileEncounterEligible()
-    // path, not a new hardcoded tile === REEDS check anywhere) -- everything
-    // else here is still unchanged.
+    // Ordinary wilderness terrain reads the TILE_PROPERTIES authority. Safe
+    // locations are tested at the separate location gate in test 76.
     g.run('inDungeon=false; inTown=false; inSluice=false; inMireVault=false; inTakomo=false; inFenBrewery=false; inHamletInterior=false; inDungeonEntrance=false;');
     assert.equal(g.run('isEncounterEligibleTile(GRASS)'), true, 'outdoor GRASS should remain encounter-eligible');
     assert.equal(g.run('isEncounterEligibleTile(PATH)'), false, 'outdoor PATH should remain non-encounter');
-    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), false, 'North Basin ground should not accidentally gain encounters');
+    assert.equal(g.run('TILE_PROPERTIES[BASIN_MUD].encounterEligible'), true, 'BASIN_MUD property is encounter-eligible');
+    assert.equal(g.run('TILE_PROPERTIES[EXPOSED_STONE].encounterEligible'), true, 'EXPOSED_STONE property is encounter-eligible');
+    assert.equal(g.run('isTileEncounterEligible(BASIN_MUD)'), true, 'BASIN_MUD helper reads the property authority');
+    assert.equal(g.run('isTileEncounterEligible(EXPOSED_STONE)'), true, 'EXPOSED_STONE helper reads the property authority');
+    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), true, 'outdoor BASIN_MUD is encounter-eligible');
+    assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), true, 'outdoor EXPOSED_STONE is encounter-eligible');
     assert.equal(g.run('isEncounterEligibleTile(REEDS)'), true, 'outdoor REEDS should now be encounter-eligible, same as GRASS');
     assert.equal(g.run('tileHasTag(REEDS, "wetland")'), true, 'REEDS should still be tagged wetland regardless of its encounter eligibility');
+
+    const outdoorEligibilitySource = g.run('isEncounterEligibleTile.toString()');
+    assert.doesNotMatch(outdoorEligibilitySource, /NORTH_BASIN_NW_MAP/, 'no Upper Reach map-id eligibility override remains');
+    assert.doesNotMatch(outdoorEligibilitySource, /BASIN_MUD|EXPOSED_STONE/, 'mud/stone eligibility is not hardcoded in movement policy');
 
     // REEDS must still be excluded everywhere isEncounterEligibleTile()'s
     // other, context-specific branches apply -- the outdoor branch is the

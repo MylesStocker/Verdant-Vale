@@ -6,9 +6,8 @@
 //
 //   1.  Real-movement open-edge crossing West Shore -> Upper Reach (cols
 //       1-10, x preserved) and back.
-//   2.  The Upper Reach is silent: no tile anywhere on it is
-//       encounter-eligible (the liminal no-encounters guarantee, checked
-//       tile-by-tile, not by RNG luck).
+//   2.  Its ordinary exposed-bed terrain is encounter-eligible and uses the
+//       Upper Reach pool without a map-specific tile override.
 //   3.  The first-entry trigger narration fires once (onceFlag
 //       upper_reach_seen -- the first persisted MAP_FEATURES flag), and
 //       does not re-fire after leaving and re-entering the zone.
@@ -49,7 +48,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 module.exports = {
-  name: 'Upper Reach: open edge, exposed-bed encounters (map-local), the unmarked chamber, the Sunken Gallery (save refusal + round trip)',
+  name: 'Upper Reach: open edge, exposed-bed encounters, the unmarked chamber, the Sunken Gallery (save refusal + round trip)',
   run() {
     const g = createContext();
     g.press('Enter');
@@ -95,16 +94,19 @@ module.exports = {
     assert.equal(g.run('window.upper_reach_seen'), true, 'onceFlag should be set');
     g.run('dialogue.open = false;');
 
-    // ── 2. The exposed bed now rolls its own encounters — but only BASIN_MUD,
-    //       and only on THIS map (other basin maps keep their mud safe). ────────
+    // ── 2. Ordinary exposed-bed terrain is globally eligible; the physical
+    //       chunk supplies the Upper Reach encounter pool. ────────────────────
     assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), true,
-      'the Upper Reach BASIN_MUD is now encounter-eligible (the drought-exposed arm has its own dangers)');
-    assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), false,
-      'only BASIN_MUD rolls on the Upper Reach; the stonework apron stays quiet');
-    // The override is map-local: the same tile stays safe elsewhere in the basin.
+      'Upper Reach BASIN_MUD is ordinary encounter-eligible wilderness terrain');
+    assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), true,
+      'Upper Reach EXPOSED_STONE is ordinary encounter-eligible wilderness terrain');
+    // The tile rule is global; changing physical chunks changes the canonical pool,
+    // not terrain eligibility.
     g.run('activeMap = NORTH_BASIN_SW_MAP;; __reconcileCanonicalForTest();');
-    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), false,
-      'BASIN_MUD must stay safe on the Silt Flats — the Upper Reach override is map-local');
+    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), true,
+      'BASIN_MUD remains eligible on the Silt Flats without a map-specific override');
+    assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), true,
+      'EXPOSED_STONE remains eligible on the Silt Flats without a map-specific override');
     g.run('activeMap = NORTH_BASIN_NW_MAP;; __reconcileCanonicalForTest();');
     // Its pool: two creatures shared with the Silt Flats + two new tough ones.
     assert.equal(
@@ -187,8 +189,8 @@ module.exports = {
       'the gallery pool must resolve via MAP_METADATA.encounterPool');
     assert.equal(g.run('isEncounterEligibleTile(GALLERY_FLOOR)'), true,
       'GALLERY_FLOOR must be encounter-eligible (TILE_PROPERTIES path)');
-    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), false,
-      'the silt drifts must not be eligible');
+    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), true,
+      'gallery silt keeps the terrain property; gallery encounter permission comes from its location metadata');
     g.run('startCombat();');
     const enemyName = g.run('combat.enemy.name');
     assert.ok(['Pale Drowned', 'Silt Hag'].includes(enemyName),

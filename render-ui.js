@@ -1538,9 +1538,10 @@ function drawDebugInspector() {
   const encounterEligible = (typeof isEncounterEligibleTile === 'function') ? isEncounterEligibleTile(tile) : false;
 
   const encountersOn = !debugMode;
-  const mapAllowsEncounters = meta ? meta.allowRandomEncounters : null;
+  const mapAllowsEncounters = currentLocationAllowsRandomEncounters();
   let poolLine;
   if (!encountersOn) poolLine = 'none (No Enemies debug toggle is ON)';
+  else if (!mapAllowsEncounters) poolLine = 'none (current location disallows random encounters)';
   else if (!encounterEligible) poolLine = 'none (not on encounter-eligible tile)';
   else {
     const pool = (typeof currentEncounterPool === 'function') ? currentEncounterPool() : null;
@@ -1648,5 +1649,3 @@ function drawDebugInspector() {
     ctx.fillText(line, PX + 6, PY + 12 + i * lineHeight);
   });
 }
-
-

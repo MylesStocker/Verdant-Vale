@@ -135,7 +135,7 @@ module.exports = {
     // boundaries, one connected western component, and no bypass through water.
     g.run(`forceLegacyRegionalView=false;placeAtLocation('${ID}',3.5*TILE,7.5*TILE);resetLocationState();`);
     assert.equal(g.run('isTileWalkable(BASIN_MUD)&&isTileWalkable(EXPOSED_STONE)'), true);
-    assert.equal(g.run('isEncounterEligibleTile(PATH)'), false); assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), false); assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), false);
+    assert.equal(g.run('isEncounterEligibleTile(PATH)'), false); assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), true); assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), true);
     assert.equal(g.run('isEncounterEligibleTile(GRASS)'), true); assert.equal(g.run('isEncounterEligibleTile(REEDS)'), true);
     assert.equal(g.run('currentEncounterPool()===UPPER_REACH_ENEMY_TEMPLATES'), true);
     const handoff = J(`(function(){placeAtLocation('${WEST_ID}',15.7*TILE,8.5*TILE);forceLegacyRegionalView=false;debugMode=false;combat.active=false;var calls=0,_r=Math.random;Math.random=function(){calls++;return 0;};var before={map:mapIdForRef(activeMap),upper:currentEncounterPool()===UPPER_REACH_ENEMY_TEMPLATES};var first=null;for(var i=0;i<20;i++){var old=mapIdForRef(activeMap);continuousSeamMove(2,0);if(old!==mapIdForRef(activeMap)){first={map:mapIdForRef(activeMap),upper:currentEncounterPool()===UPPER_REACH_ENEMY_TEMPLATES};break;}}Math.random=_r;return JSON.stringify({before:before,first:first,calls:calls,combat:combat.active});})()`);

@@ -90,7 +90,8 @@ module.exports = {
     assert.equal(g.run(`mapEntryForId('${ID}').items.length`), 0, 'no items');
     assert.equal(g.run(`mapEntryForId('${ID}').allowRandomEncounters`), false, 'random encounters disabled');
     assert.equal(g.run(`SIMPLE_NPCS.filter(function(n){return n.map==='${ID}' || n.physicalMapId==='${ID}';}).length`), 0, 'no NPC owns the reservoir');
-    assert.ok(m.every((r) => r.every((t) => !g.run(`!!(TILE_PROPERTIES[${t}] && TILE_PROPERTIES[${t}].encounterEligible)`))), 'no encounter-eligible tile exists in the chunk');
+    assert.equal(g.run('isTileEncounterEligible(BASIN_MUD)'), true, 'mud islets retain ordinary terrain eligibility');
+    assert.equal(g.run(`mapPlayerAccessible('${ID}')`), false, 'scenery capability, not mud safety, prevents encounter use');
     // From the reservoir (2,1) the nearby simulation set excludes the scenery chunk.
     g.run("placeAtLocation('NORTH_BASIN_C_MAP', 8*TILE, 8*TILE); forceLegacyRegionalView=false;");
     assert.equal(g.run(`nearbySimulationMapSet().has('${ID}')`), false, 'the scenery reservoir is excluded from NPC simulation');

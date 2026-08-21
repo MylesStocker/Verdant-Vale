@@ -176,8 +176,9 @@ window.SUNKEN_GALLERY_ENEMY_TEMPLATES = SUNKEN_GALLERY_ENEMY_TEMPLATES;
 // up onto the oldest-exposed ground (not a new tier); two are new and much
 // tougher — the long-stranded, dried, wrong things the retreating water left
 // behind first. The surface counterpart to the Sunken Gallery's drowned dead
-// directly below it. Only BASIN_MUD rolls here (see isEncounterEligibleTile,
-// movement.js); the stonework apron and the pools stay quiet.
+// directly below it. Ordinary exposed terrain (BASIN_MUD and EXPOSED_STONE)
+// is encounter-eligible here; the physical map supplies this pool, while WATER
+// and deliberately safe travel terrain remain quiet.
 const UPPER_REACH_ENEMY_TEMPLATES = [
   // Same creatures as the Silt Flats / West Shore pool, stranded up here too.
   { id: 'enemy_silt_crab_upper',  name: 'Silt Crab',    hp: 28, maxHp: 28, atk: 12, def: 5, spd:  4, xp: 18, goldMin:  4, goldMax:  9, defendChance: 0.20 },

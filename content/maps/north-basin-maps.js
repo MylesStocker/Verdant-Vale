@@ -58,10 +58,8 @@ const NORTH_BASIN_S_ITEMS = [];
 // Only a literal 3×3 block of water (rows 1-3, cols 11-13) — the SW finger
 // of the central reservoir, poking down toward this corner of the basin,
 // not a wide open-water band the way the Centre map is. Everything else here
-// is the flats proper: GRASS-dominant (this is deliberately the *first* map
-// in the region with GRASS — see movement.js's encounter check, which only
-// rolls on GRASS — everything else in the North Basin so far has been kept
-// safe on purpose; this one isn't), scattered with reed clumps, drying
+// is the flats proper: GRASS-dominant and encounter-enabled wilderness,
+// scattered with reed clumps, drying
 // BASIN_MUD patches, bare EXPOSED_STONE where the old lakebed shows through,
 // and a handful of FENCE_POST tiles — the last remains of a farm/pasture
 // boundary the encroaching marsh swallowed long before the drought started
@@ -98,8 +96,8 @@ const NORTH_BASIN_SW_ITEMS = [];
 // tile — a weathered shack; no fisher-specific tile added for one prop) leans
 // near the eastern shore at row 6 col 10, exterior-only (no interior in this
 // pass; MAP_FEATURES gives it flavor text). GRASS is the dominant walkable
-// ground (so this map is dangerous — GRASS/REEDS are encounter-eligible),
-// broken up by safer BASIN_MUD and EXPOSED_STONE patches.
+// ground. GRASS, REEDS, BASIN_MUD, and EXPOSED_STONE are all ordinary
+// encounter-eligible wilderness terrain here.
 //
 // WEST (col 0) and NORTH (row 0) are plain impassable TREE border FOR NOW —
 // their neighbours in the 3×3 grid aren't built yet. TODO: when the west and
@@ -157,10 +155,9 @@ const NORTH_BASIN_W2_ITEMS = [
 // neighbours aren't built yet — see NORTH_BASIN_S_MAP's header for the full
 // 3×3 layout). South is the one real, working edge.
 //
-// No GRASS on this map either, but (like the South Approach) its REEDS are
+// No GRASS on this map either, but its REEDS and exposed BASIN_MUD are
 // encounter-eligible, so it rolls random encounters from the basin pool
-// (NORTH_BASIN_ENEMY_TEMPLATES, MAP_METADATA). Open water and the exposed mud
-// bed stay safe; encounters lurk in the reed fringe.
+// (NORTH_BASIN_ENEMY_TEMPLATES, MAP_METADATA). Open water stays safe.
 // NORTH_BASIN_C_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const NORTH_BASIN_C_ITEMS = [];
@@ -172,8 +169,8 @@ const NORTH_BASIN_C_ITEMS = [];
 // square is exposed bed (BASIN_MUD) from border to border, with only two
 // residual pools the drought hasn't taken yet. Deliberately liminal and
 // wrong: no NPCs, no towns. It was long silent, but the oldest-exposed ground
-// now carries its own random encounters — its BASIN_MUD rolls (this map only;
-// see isEncounterEligibleTile in movement.js) against UPPER_REACH_ENEMY_TEMPLATES:
+// now carries its own random encounters. Its ordinary BASIN_MUD/EXPOSED_STONE
+// terrain rolls against the physical chunk's UPPER_REACH_ENEMY_TEMPLATES:
 // two stranded basin creatures shared with the Silt Flats, and two new tough
 // ones (Dust-Drowned, Marrow Hulk) that reflect how long and how wrong this
 // arm has been dry. Ordinary outdoor saving still applies (allowSave: true;
@@ -465,8 +462,8 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   // The road remains one tile wide at row 8, with REEDS shoulders at rows 6, 7, 9,
   // and 10. North exactly mirrors NORTH_BASIN_E_MAP.south (TREE×16); south opens
   // broadly into Eastern Canal Banks. Off-road GRASS and
-  // REEDS are encounter-eligible and use the upper_reach profile; four isolated
-  // BASIN_MUD/EXPOSED_STONE cells add texture without creating a safe route.
+  // REEDS, BASIN_MUD, and EXPOSED_STONE are encounter-eligible and use the
+  // upper_reach profile; four isolated mud/stone cells add texture.
   { mapId: 'NORTH_BASIN_SE_MAP', regionId: 'overworld', chunkX: 3, chunkY: 2, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  blocked north edge exactly mirrors NORTH_BASIN_E_MAP.south
@@ -516,7 +513,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'East Causeway', region: 'Eastern Reaches', contentKey: 'east_causeway',
     presentation: 'continuous', encounterProfileId: 'upper_reach',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Terrain-only eastbound causeway. A one-tile PATH crosses the western fen, then ordinary BASIN_MUD/EXPOSED_STONE subsidence and WATER interrupt it. All GRASS/REEDS use UPPER_REACH_ENEMY_TEMPLATES; no items, NPCs, interactions, landmarks, decorations, quests, persistent state, compatibility alias, or special transition machinery.' },
+    notes: 'Terrain-only eastbound causeway. A one-tile PATH crosses the western fen, then ordinary BASIN_MUD/EXPOSED_STONE subsidence and WATER interrupt it. All eligible wilderness terrain uses UPPER_REACH_ENEMY_TEMPLATES; PATH and WATER stay encounter-safe. No items, NPCs, interactions, landmarks, decorations, quests, persistent state, compatibility alias, or special transition machinery.' },
   { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
@@ -538,7 +535,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Reservoir', region: 'North Basin', contentKey: 'north_basin_c',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_c',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'The receding reservoir. Like the South Approach it has no GRASS but its REEDS are encounter-eligible, so it rolls random encounters — now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES) instead of the generic ENEMY_TEMPLATES fallback. Open water and the exposed BASIN_MUD bed stay safe; encounters lurk in the reed fringe of the receding shoreline.' },
+    notes: 'The receding reservoir. Like the South Approach it has no GRASS, but its REEDS and exposed BASIN_MUD are encounter-eligible, so it rolls random encounters from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES). Open water stays safe.' },
   { mapId: 'NORTH_BASIN_SW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 2, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1,  1,  1,  3,  3],  //  0  open edge, cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_W_MAP (cols 11-13 = the reservoir finger continuing off-map as WATER; col 14 stays TREE border)
@@ -593,7 +590,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   // The only find is an examine-only sparkle (a bundled reed poultice, Reed
   // Remedy) half-buried by an old fence post at c4 r10. No NPCs, no buildings,
   // no enterables. Shares the gentle basin pool (north_basin) with its neighbours;
-  // REEDS roll encounters, BASIN_MUD/EXPOSED_STONE/WATER stay safe.
+  // REEDS, BASIN_MUD, and EXPOSED_STONE roll encounters; WATER stays safe.
   { mapId: 'NORTH_BASIN_W2_MAP', regionId: 'overworld', chunkX: 0, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1,  3,  3,  1 ],  //  0  north void border (TREE + flooded pools, impassable)
@@ -615,7 +612,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — West Mire', region: 'North Basin', contentKey: 'north_basin_w2',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w2',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Cold boggy backwater at chunk (0,1), west of the West Shore. Marsh/mud border to border with small water pools, dry lakebed stone, and sunken fence posts — nobody lives here. Only the east edge connects (two marsh crossings to the West Shore, rows 3-6 and 9-11); north/south/west are impassable void borders. One examine-only sparkle find (Reed Remedy) at c4 r10. No NPCs, buildings, or enterables. Uses the gentle north_basin pool; REEDS roll, BASIN_MUD/EXPOSED_STONE/WATER stay safe.' },
+    notes: 'Cold boggy backwater at chunk (0,1), west of the West Shore. Marsh/mud border to border with small water pools, dry lakebed stone, and sunken fence posts — nobody lives here. Only the east edge connects (two marsh crossings to the West Shore, rows 3-6 and 9-11); north/south/west are impassable void borders. One examine-only sparkle find (Reed Remedy) at c4 r10. No NPCs, buildings, or enterables. Uses the gentle north_basin pool; REEDS, BASIN_MUD, and EXPOSED_STONE roll, while WATER stays safe.' },
   { mapId: 'NORTH_BASIN_NW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 0, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge: open reservoir WATER (the flooded arm continues off-map; impassable)
@@ -637,7 +634,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Upper Reach', region: 'North Basin', contentKey: 'north_basin_nw',
     presentation: 'continuous', encounterProfileId: 'upper_reach', itemSetId: 'north_basin_nw',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'The drained NW arm — exposed bed border to border. Once deliberately silent; now the oldest-exposed ground has its own encounters (UPPER_REACH_ENEMY_TEMPLATES): two stranded basin creatures shared with the Silt Flats, and two new tough ones (Dust-Drowned, Marrow Hulk) reflecting how long this arm has been dry and wrong. Only BASIN_MUD rolls (isEncounterEligibleTile special-cases this map so other maps’ mud stays safe). No NPCs. "No safe haven" means no town, bed, healing, or shelter -- allowSave is still true like any ordinary outdoor map (see canSaveHere(), save.js); only the two interiors it leads to block saving. Holds the standing doorframe (CHAMBER_DOOR → BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR → SUNKEN_GALLERY_MAP).' },
+    notes: 'The drained NW arm — exposed bed border to border. Its encounter-enabled wilderness terrain uses UPPER_REACH_ENEMY_TEMPLATES: two stranded basin creatures shared with the Silt Flats, and two new tough ones (Dust-Drowned, Marrow Hulk) reflecting how long this arm has been dry and wrong. BASIN_MUD and EXPOSED_STONE follow their normal global terrain eligibility; no map-specific override. No NPCs. "No safe haven" means no town, bed, healing, or shelter -- allowSave is still true like any ordinary outdoor map (see canSaveHere(), save.js); only the two interiors it leads to block saving. Holds the standing doorframe (CHAMBER_DOOR → BASIN_CHAMBER_MAP) and the drought-exposed stairhead (SUNKEN_STAIR → SUNKEN_GALLERY_MAP).' },
 
   // ─── North Basin — Open Reservoir — NORTH_BASIN_N_MAP  (16 × 15) ──────────────
   // Regional chunk (2,0): the open reservoir NORTH of the basin. It fills the void
@@ -652,7 +649,8 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   // View draws it as neighbour terrain; the shared placement authority
   // (mapPlayerAccessible → validatePlacement / commitRegionalWorldPosition) fail-closes
   // every placement path. ~94% WATER with two small BASIN_MUD/TREE islets for variety;
-  // only existing terrain types, no items/NPCs/encounters (no encounter-eligible tile).
+  // only existing terrain types, no items/NPCs/encounters. The BASIN_MUD islets
+  // retain normal terrain eligibility, but scenery metadata/access forbid rolls.
   //
   // Border continuity (neighbour grids unchanged): south row 14 mirrors NORTH_BASIN_C's
   // north edge ([TREE, WATER×14, TREE]); the west/north/east edges are open WATER,
@@ -678,7 +676,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Open Reservoir', region: 'North Basin', contentKey: 'north_basin_n',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open water north of the receding reservoir — the deep body the exposed southern bed drained from. Inaccessible (all-water borders, no seam/transition); fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile). Only existing terrain types (WATER, with two small BASIN_MUD/TREE islets).' },
+    notes: 'Scenery-only open water north of the receding reservoir — the deep body the exposed southern bed drained from. Inaccessible (all-water borders, no seam/transition); fail-closed at the shared placement authority. No items, NPCs, or encounters: allowRandomEncounters is false and playerAccessible is false even though the BASIN_MUD islets retain normal terrain eligibility. Only existing terrain types (WATER, BASIN_MUD, TREE).' },
 
   // ─── North Basin — Open Reservoir (East) — NORTH_BASIN_NE_MAP  (16 × 15) ──────
   // Regional chunk (3,0): the open reservoir continuing EAST of NORTH_BASIN_N_MAP
@@ -713,7 +711,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Open Reservoir (East)', region: 'North Basin', contentKey: 'north_basin_ne',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open water east of NORTH_BASIN_N_MAP; the reservoir continues off-map. West edge mirrors NORTH_BASIN_N_MAP.east exactly; north/south/east stay open-water borders for later expansion. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+    notes: 'Scenery-only open water east of NORTH_BASIN_N_MAP; the reservoir continues off-map. West edge mirrors NORTH_BASIN_N_MAP.east exactly; north/south/east stay open-water borders for later expansion. Inaccessible (no seam/transition), fail-closed at the shared placement authority; allowRandomEncounters is false. No items, NPCs, or encounters; only existing terrain types.' },
 
   // ─── North Basin — Open Reservoir (Far East) — NORTH_BASIN_NE2_MAP (16 × 15) ─
   // Regional chunk (4,0): the open reservoir continuing EAST of NORTH_BASIN_NE_MAP
@@ -741,7 +739,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Open Reservoir (Far East)', region: 'North Basin', contentKey: 'north_basin_ne2',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open water east of NORTH_BASIN_NE_MAP. West edge mirrors NORTH_BASIN_NE_MAP.east exactly; north/east stay open-water borders, while south matches NORTH_BASIN_E2_MAP. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+    notes: 'Scenery-only open water east of NORTH_BASIN_NE_MAP. West edge mirrors NORTH_BASIN_NE_MAP.east exactly; north/east stay open-water borders, while south matches NORTH_BASIN_E2_MAP. Inaccessible (no seam/transition), fail-closed at the shared placement authority; allowRandomEncounters is false. No items, NPCs, or encounters; only existing terrain types.' },
 
   // ─── North Basin — Open Reservoir (East Shore) — NORTH_BASIN_E2_MAP (16 × 15) ─
   // Regional chunk (4,1): south of NORTH_BASIN_NE2_MAP and east of the Eastern Woods.
@@ -769,7 +767,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Open Reservoir (East Shore)', region: 'North Basin', contentKey: 'north_basin_e2',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open water south of NORTH_BASIN_NE2_MAP and east of NORTH_BASIN_E_MAP. North and west edges exactly mirror their non-walkable neighbours; east stays reservoir scenery and south exactly matches the blocked north edge of East Causeway. Inaccessible (no seam/transition), fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+    notes: 'Scenery-only open water south of NORTH_BASIN_NE2_MAP and east of NORTH_BASIN_E_MAP. North and west edges exactly mirror their non-walkable neighbours; east stays reservoir scenery and south exactly matches the blocked north edge of East Causeway. Inaccessible (no seam/transition), fail-closed at the shared placement authority; allowRandomEncounters is false. No items, NPCs, or encounters; only existing terrain types.' },
 
   // ─── North Basin — Eastern Woods — NORTH_BASIN_E_MAP  (16 × 15) ───────────────
   // Regional chunk (3,1): south of NORTH_BASIN_NE_MAP (3,0) and east of the reservoir
@@ -808,6 +806,6 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — Eastern Woods', region: 'North Basin', contentKey: 'north_basin_e',
     presentation: 'continuous', encounterProfileId: 'north_basin',
     allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only: the reservoir’s open water (top half) gives way to forest (bottom half). Kept inaccessible by matching its edges to non-walkable placed neighbours (north = NORTH_BASIN_NE.south; west = NORTH_BASIN_C.east; south = NORTH_BASIN_SE.north); east remains non-walkable against NORTH_BASIN_E2. Fail-closed at the shared placement authority. No items, NPCs, or encounters (no encounter-eligible tile); only existing terrain types.' },
+    notes: 'Scenery-only: the reservoir’s open water (top half) gives way to forest (bottom half). Kept inaccessible by matching its edges to non-walkable placed neighbours (north = NORTH_BASIN_NE.south; west = NORTH_BASIN_C.east; south = NORTH_BASIN_SE.north); east remains non-walkable against NORTH_BASIN_E2. Fail-closed at the shared placement authority; allowRandomEncounters is false, so its BASIN_MUD islets cannot roll despite normal terrain eligibility. No items, NPCs, or encounters; only existing terrain types.' },
 ];
 window.NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS;

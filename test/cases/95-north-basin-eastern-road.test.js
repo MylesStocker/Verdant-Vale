@@ -183,18 +183,19 @@ module.exports = {
     assert.equal(g.run('player.x'), g.run('14.5*TILE')); assert.equal(g.run('player.y'), g.run('8.5*TILE'));
     assert.equal(g.run('player.facing'), 'left'); assert.equal(g.run('combat.cooldown'), g.run('ENCOUNTER_COOLDOWN'));
 
-    // 10-12. PATH is safe; all substantial off-road terrain is eligible; four
-    // cosmetic safe cells are isolated and cannot form a secondary safe corridor.
+    // 10-12. PATH is safe; all off-road terrain, including the four isolated
+    // mud/stone texture cells, is encounter-eligible.
     g.run(`forceLegacyRegionalView=false;placeAtLocation('${ID}',8.5*TILE,9.5*TILE);resetLocationState();`);
     assert.equal(g.run('isEncounterEligibleTile(PATH)'), false);
     assert.equal(g.run('isEncounterEligibleTile(GRASS)'), true); assert.equal(g.run('isEncounterEligibleTile(REEDS)'), true);
+    assert.equal(g.run('isEncounterEligibleTile(BASIN_MUD)'), true); assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), true);
     const counts = {}; for (const row of m) for (const tile of row) counts[tile] = (counts[tile] || 0) + 1;
     assert.equal(counts[PATH], 16); assert.equal(counts[GRASS], 62); assert.equal(counts[REEDS], 74);
-    assert.equal(counts[MUD] + counts[STONE], 4, 'four cosmetic safe tiles maximum');
+    assert.equal(counts[MUD] + counts[STONE], 4, 'four isolated mud/stone texture cells');
     const cosmetics = [];
     for (let y = 0; y < 15; y++) for (let x = 0; x < 16; x++) if (m[y][x] === MUD || m[y][x] === STONE) cosmetics.push([x, y]);
     for (let i = 0; i < cosmetics.length; i++) for (let j = i + 1; j < cosmetics.length; j++) {
-      assert.ok(Math.max(Math.abs(cosmetics[i][0] - cosmetics[j][0]), Math.abs(cosmetics[i][1] - cosmetics[j][1])) > 1, 'safe cosmetic cells do not touch, even diagonally');
+      assert.ok(Math.max(Math.abs(cosmetics[i][0] - cosmetics[j][0]), Math.abs(cosmetics[i][1] - cosmetics[j][1])) > 1, 'mud/stone texture cells do not touch, even diagonally');
     }
     assert.equal(g.run(`placeAtLocation('${ID}',12.5*TILE,3.5*TILE)`), true, 'normal placement on eligible GRASS succeeds');
     assert.equal(g.run('isEncounterEligibleTile(activeMap[3][12])'), true); assert.equal(poolName(g), 'UPPER_REACH');

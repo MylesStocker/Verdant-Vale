@@ -10,14 +10,14 @@ Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass
 below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
-the newer North Basin region (now 5 maps: South Approach, Reservoir, Silt
-Flats, West Shore, and the Upper Reach — plus the unmarked chamber and the
-Sunken Gallery hanging off the Upper Reach, see the newest pass below).
+the newer North Basin region (13 placed chunks: eight accessible and five
+scenery-only, plus the unmarked chamber and the Sunken Gallery hanging off
+the Upper Reach; see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-114 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 114 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 90 are the
+115 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 115 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 91 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -36,7 +36,7 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **27 regional chunks** now occupy the `'overworld'` 5×6 envelope (3 sparse void
+- **28 regional chunks** now occupy the `'overworld'` 5×6 envelope (2 sparse void
   cells remain). Seven of them are **inaccessible scenery only** (`playerAccessible: false`):
   they render as neighbour terrain but no seam/border/transition lets the player in, and the
   shared placement authority (`mapPlayerAccessible()` via `validatePlacement()` +
@@ -113,20 +113,20 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 108 directed physical edges → ALIGNS 42 / BORDER 22 / BLOCKED 40 /
+  Audit: 112 directed physical edges → ALIGNS 44 / BORDER 24 / BLOCKED 40 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  48 directed entries / 24 reciprocal segment pairs. See architecture.md
+  60 directed entries / 30 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
 - **101 tests** (`test/cases/01-…101-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 114 maps, 238 fixed-destination transitions, 8
+  isolation pass, 115 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 114 maps, 114 metadata entries, 27,360 tile cells, 128
+  (see below), across 115 maps, 115 metadata entries, 27,600 tile cells, 140
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
-  dialogue/text entries, 180 save-flag checks, 63 map features, 73 pickup ids,
+  dialogue/text entries, 182 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.
 
 ## The 4 current warnings, and why none needs fixing
@@ -435,10 +435,9 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
     hanging off it, both built on the full safe-entrance-area pattern (own
     flags `inBasinChamber`/`inSunkenGallery`, 8 new tiles 103–110):
     - **The Upper Reach** — the drained NW arm, exposed bed border to
-      border, deliberately liminal: no NPCs, no encounters (structurally —
-      note that REEDS are encounter-eligible game-wide, so the map uses
-      BASIN_MUD everywhere including its open edge; a reeds border would
-      have rolled generic-pool encounters). Saving IS allowed here
+      border, deliberately liminal: no NPCs, with normal wilderness
+      encounters on BASIN_MUD and EXPOSED_STONE using its physical chunk's
+      `UPPER_REACH_ENEMY_TEMPLATES` pool. Saving IS allowed here
       (`allowSave: true` — see the audit-pass note below for why). 6
       `MAP_FEATURES` entries carry the wrongness (fence line across open
       water, a too-high waterline, a pool that won't ripple, first-entry

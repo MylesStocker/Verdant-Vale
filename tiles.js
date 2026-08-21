@@ -90,7 +90,7 @@ const RUIN_STAIRS_DOWN = 79; // entrance hall → South Ruins floor 1 (DUNGEON_M
 const RUIN_EXIT        = 80; // entrance hall → overworld (MAP)
 
 // ─── The North Basin — south approach (skeleton: 1 of a future 3×3 grid) ─────
-const BASIN_MUD           = 81; // drought-cracked wetland mud — walkable, NOT grass (deliberately outside the encounter check)
+const BASIN_MUD           = 81; // drought-cracked wetland mud — walkable wilderness encounter terrain
 const NORTH_BASIN_EXIT     = 82; // top edge of MAP3_N2 → North Basin south approach (NORTH_BASIN_S_MAP)
 const NORTH_BASIN_ENTRANCE = 83; // bottom edge of NORTH_BASIN_S_MAP → return to MAP3_N2
 
@@ -103,7 +103,7 @@ const NORTH_BASIN_ENTRANCE = 83; // bottom edge of NORTH_BASIN_S_MAP → return 
 // renumbering every tile ID after them.
 
 // ─── The North Basin — Silt Flats (3 of the future 3×3 grid; first real encounter map) ──
-const EXPOSED_STONE           = 88; // dried-out rocky lakebed patches — walkable, not grass (no encounters on it)
+const EXPOSED_STONE           = 88; // dried-out rocky lakebed patches — walkable wilderness encounter terrain
 const FENCE_POST              = 89; // old farm/pasture fence post, half-swallowed by silt — impassable, decorative
 
 // ─── The North Basin — Badlands (4 of the future 3×3 grid; "W", north of the Silt Flats) ──
@@ -489,15 +489,12 @@ window.debugTileName = debugTileName;
 // that breaks this invariant (e.g. someone typing `walkable: true` by
 // hand instead of `WALKABLE[X]`).
 //
-// `encounterEligible` describes whether a tile is EVER the "on it, random
-// encounters can fire" tile in any of its real contexts -- it is NOT a
-// statement that encounters fire on this tile in every map/state it
-// appears in. The actual decision is still made by movement.js's
-// isEncounterEligibleTile(), which is context-sensitive (current dungeon
-// floor, whether you're in a sluice, etc) in ways a single per-tile boolean
-// can't capture -- see that function's comment for exactly which branches
-// were migrated to read this flag and which remain hand-written dungeon-
-// floor-number checks, and why.
+// `encounterEligible` describes terrain eligibility, not location permission:
+// an eligible tile still cannot roll in a town, safe interior, scenery-only
+// chunk, or any map whose current-location authority disallows random encounters.
+// The actual decision is the conjunction in movement.js: location permission,
+// isEncounterEligibleTile() (including context-sensitive dungeon-floor rules),
+// and regional geographic consistency.
 const TILE_PROPERTIES = {
   // ── Outdoor / natural ──────────────────────────────────────────────────
   [GRASS]: {
@@ -953,8 +950,8 @@ const TILE_PROPERTIES = {
   // ── North Basin (South Approach / Reservoir / Silt Flats / Badlands) ────
   [BASIN_MUD]: {
     id: BASIN_MUD, name: 'Basin Mud', debugName: 'BASIN_MUD', walkable: WALKABLE[BASIN_MUD],
-    category: 'natural', tags: ['outdoor', 'wetland', 'mud'], encounterEligible: false,
-    notes: 'Drought-cracked wetland mud -- walkable, deliberately outside the encounter check (not GRASS).',
+    category: 'natural', tags: ['outdoor', 'wetland', 'mud'], encounterEligible: true,
+    notes: 'Drought-cracked wetland mud -- normal walkable wilderness encounter terrain. Safe locations suppress encounters through their location metadata/context, not this tile.',
   },
   [NORTH_BASIN_EXIT]: {
     id: NORTH_BASIN_EXIT, name: 'North Basin Exit', debugName: 'NORTH_BASIN_EXIT', walkable: WALKABLE[NORTH_BASIN_EXIT],
@@ -966,8 +963,8 @@ const TILE_PROPERTIES = {
   },
   [EXPOSED_STONE]: {
     id: EXPOSED_STONE, name: 'Exposed Stone', debugName: 'EXPOSED_STONE', walkable: WALKABLE[EXPOSED_STONE],
-    category: 'natural', tags: ['outdoor', 'rock'], encounterEligible: false,
-    notes: 'Dried-out rocky lakebed patches -- walkable, not GRASS, no encounters.',
+    category: 'natural', tags: ['outdoor', 'rock'], encounterEligible: true,
+    notes: 'Dried-out rocky lakebed patches -- normal walkable wilderness encounter terrain. Safe locations suppress encounters through their location metadata/context, not this tile.',
   },
   [FENCE_POST]: {
     id: FENCE_POST, name: 'Fence Post', debugName: 'FENCE_POST', walkable: WALKABLE[FENCE_POST],

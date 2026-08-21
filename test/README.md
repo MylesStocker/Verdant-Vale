@@ -365,7 +365,7 @@ fresh, isolated game (no state leaks between tests), then drives it with:
 - `25-tile-properties` — the new `TILE_PROPERTIES` terrain-metadata
   registry (`tiles.js`): name/category/tags/encounterEligible plus flags
   (`isWater`/`isRoad`/`isWall`/`isInterior`/`isDungeon`/`isTransition`/
-  `isDecorative`/`isSecret`/`deprecated`) for all 89 real tile constants
+  `isDecorative`/`isSecret`/`deprecated`) for every current tile constant
   plus the 4 retired-but-still-present numeric ids, its helper functions
   (`getTileProperties`/`getTileName`/`isTileWalkable`/
   `isTileEncounterEligible`/`tileHasTag`/`isWaterTile`/`isRoadTile`/
@@ -377,9 +377,9 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   interior, dungeon, North Basin) and for an unknown tile id; movement
   still blocks on a temporarily-water-walled row and still crosses ordinary
   ground after the `canWalk()` migration; encounter eligibility is
-  unchanged for outdoor GRASS (eligible), outdoor PATH (not), a real
-  dungeon-floor tile in its own floor context (eligible), and North
-  Basin's BASIN_MUD (not, despite being walkable); a full render() with the
+  explicit for outdoor GRASS/REEDS/BASIN_MUD/EXPOSED_STONE (eligible),
+  outdoor PATH (not), and a real dungeon-floor tile in its own context;
+  also proves no map-id-specific mud/stone override remains; a full render() with the
   debug inspector open (now showing tile category/tags) doesn't throw; an
   unknown tile id, a tile with no `TILE_PROPERTIES` entry despite having a
   `WALKABLE` entry, and a deliberately-mismatched `WALKABLE`/
@@ -477,7 +477,7 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   third North Basin enemy) with its dedicated battle sprite registered by id in
   `ENEMY_SPRITE_DISPATCH`. Runtime + validation.
 - `35-upper-reach-chamber-gallery` — the North Basin NW "Upper Reach" open-edge
-  crossing, its map-local exposed-bed encounters (`BASIN_MUD` only, own pool),
+  crossing, its ordinary exposed-bed encounters (mud + stone, physical-map pool),
   the unmarked chamber (save refused), and the Sunken Gallery (save refusal plus
   a full save/load round trip after climbing back out). Runtime.
 - `36-flag-dependent-dialogue` — seven NPCs converted to the `get dialogue()`

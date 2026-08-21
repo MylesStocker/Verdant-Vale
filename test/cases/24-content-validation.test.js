@@ -290,6 +290,7 @@ module.exports = {
     // below); the production default is continuous, so force the legacy fallback here.
     g.run(`
       forceLegacyRegionalView = true;
+      debugMode = true; // transition smoke test: isolate from eligible wilderness terrain RNG
       activeMap = NORTH_BASIN_S_MAP;
       player.x = 7.5*TILE; player.y = 1.5*TILE; player.facing = 'up';
       combat.cooldown = 0;

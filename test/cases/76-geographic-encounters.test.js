@@ -87,17 +87,19 @@ module.exports = {
         player.x=15.5*TILE; player.y=6.5*TILE; player.step=0; combat.cooldown=0; __reconcileCanonicalForTest();
         for (var k in keys) delete keys[k];
         player.moving=true;
-        var sc=0,_sc=startCombat; startCombat=function(){sc++;};
+        var sc=0,rc=0,_sc=startCombat,_r=Math.random; startCombat=function(){sc++;};
+        Math.random=function(){rc++;return 0;};
         var before=mapIdForRef(activeMap), crossed=false;
         for (var i=0;i<14;i++){ continuousSeamMove(2,0); if(mapIdForRef(activeMap)!==before){crossed=true; continuousSeamMove(2,0); break;} }
-        startCombat=_sc;
-        return JSON.stringify({sc:sc, handoff: crossed});
+        Math.random=_r; startCombat=_sc;
+        return JSON.stringify({sc:sc, rc:rc, handoff: crossed});
       })()`);
       const hh = JSON.parse(h);
       assert.equal(hh.sc, 0, 'a seamless handoff (continuousSeamMove) starts no combat');
+      assert.equal(hh.rc, 0, 'a seamless handoff consumes no encounter randomness');
       assert.ok(hh.handoff, 'the walk did cross the seam (activeMap changed)');
     }
-    // (b) A single moving update() frame fires the roll AT MOST once.
+    // (b) A single moving update() frame fires the chance roll at most once.
     {
       const eligible = J(`(function(){
         // find a RODDON interior tile that is encounter-eligible + walkable
@@ -109,18 +111,75 @@ module.exports = {
       })()`);
       assert.ok(eligible, 'a RODDON encounter-eligible tile exists for the roll test');
       const [ec, er] = eligible;
-      const n = g.run(`(function(){
+      const roll = J(`(function(){
         resetLocationState(); activeMap=mapRefForId('RODDON_WAY_MAP'); forceLegacyRegionalView = true; debugMode=false;
         combat.active=false; combat.cooldown=0; player.x=${ec + 0.5}*TILE; player.y=${er + 0.5}*TILE; player.step=15;
         for (var k in keys) delete keys[k]; keys['ArrowRight']=true;
         var sc=0,_sc=startCombat; startCombat=function(){sc++; combat.active=true;};
-        var _r=Math.random; Math.random=function(){return 0;}; // always below the chance
+        var rc=0,_r=Math.random; Math.random=function(){rc++;return 0;}; // always below the chance
         update();
         Math.random=_r; startCombat=_sc; for (var k in keys) delete keys[k];
-        return sc;
+        return JSON.stringify({sc:sc,rc:rc});
       })()`);
-      assert.ok(n <= 1, 'the roll fires at most once on a single moving frame (no double roll)');
+      assert.ok(roll.sc <= 1 && roll.rc <= 1, 'one moving frame never consumes or dispatches more than one encounter roll');
     }
+
+    // (c) BASIN_MUD and EXPOSED_STONE both reach that same roll in an
+    // encounter-enabled wilderness chunk, and combat sees that PHYSICAL
+    // chunk's canonical pool. The one cell is changed only inside this VM and
+    // restored immediately; no authored grid/fingerprint is changed.
+    const terrainRoll = (tileName) => J(`(function(){
+      resetLocationState(); forceLegacyRegionalView=true; debugMode=false; combat.active=false; combat.cooldown=0;
+      placeAtLocation('NORTH_BASIN_SW_MAP',8.5*TILE,8.5*TILE);
+      var m=mapRefForId('NORTH_BASIN_SW_MAP'), old=m[8][8]; m[8][8]=${tileName};
+      player.step=15; for(var k in keys)delete keys[k]; keys['ArrowRight']=true;
+      var sc=0,rc=0,poolOwn=false,_sc=startCombat,_r=Math.random;
+      startCombat=function(){sc++;poolOwn=currentEncounterPool()===mapEntryForId('NORTH_BASIN_SW_MAP').encounterPool;combat.active=true;};
+      Math.random=function(){rc++;return 0;};
+      var allowed=currentLocationAllowsRandomEncounters(), eligible=isEncounterEligibleTile(${tileName});
+      update();
+      Math.random=_r;startCombat=_sc;m[8][8]=old;for(var k in keys)delete keys[k];
+      return JSON.stringify({allowed:allowed,eligible:eligible,sc:sc,rc:rc,poolOwn:poolOwn});
+    })()`);
+    for (const tileName of ['BASIN_MUD', 'EXPOSED_STONE']) {
+      assert.deepEqual(terrainRoll(tileName), { allowed: true, eligible: true, sc: 1, rc: 1, poolOwn: true },
+        `${tileName} in the Silt Flats reaches one normal roll and uses the physical chunk's canonical pool`);
+    }
+
+    // (d) Location authority wins over a synthetic eligible tile. A town and
+    // an inaccessible scenery-only regional chunk both consume zero encounter
+    // randomness and start no combat for either terrain.
+    const safeTerrainFrame = (mapId, tileName, contextSetup) => J(`(function(){
+      resetLocationState();__clearRegionalPositionForTest();forceLegacyRegionalView=true;debugMode=false;combat.active=false;combat.cooldown=0;
+      activeMap=mapRefForId('${mapId}');${contextSetup}
+      var m=mapRefForId('${mapId}'),saved=[];
+      for(var r=7;r<=9;r++)for(var c=7;c<=9;c++){saved.push([r,c,m[r][c]]);m[r][c]=${tileName};}
+      player.x=8.5*TILE;player.y=8.5*TILE;player.step=15;
+      for(var k in keys)delete keys[k];keys['ArrowRight']=true;
+      var sc=0,rc=0,_sc=startCombat,_r=Math.random;startCombat=function(){sc++;};Math.random=function(){rc++;return 0;};
+      var propertyEligible=isTileEncounterEligible(${tileName}),allowed=currentLocationAllowsRandomEncounters();
+      update();
+      Math.random=_r;startCombat=_sc;for(var i=0;i<saved.length;i++)m[saved[i][0]][saved[i][1]]=saved[i][2];for(var k in keys)delete keys[k];
+      return JSON.stringify({propertyEligible:propertyEligible,allowed:allowed,sc:sc,rc:rc});
+    })()`);
+    for (const tileName of ['BASIN_MUD', 'EXPOSED_STONE']) {
+      assert.deepEqual(safeTerrainFrame('TOWN_MAP', tileName, "inTown=true;currentTownId='calwick';"),
+        { propertyEligible: true, allowed: false, sc: 0, rc: 0 },
+        `safe town on synthetic ${tileName} consumes no encounter randomness`);
+      assert.deepEqual(safeTerrainFrame('NORTH_BASIN_N_MAP', tileName, ''),
+        { propertyEligible: true, allowed: false, sc: 0, rc: 0 },
+        `scenery-only regional chunk on synthetic ${tileName} consumes no encounter randomness`);
+    }
+    assert.deepEqual(safeTerrainFrame('HAMLET_INTERIOR_MAP', 'BASIN_MUD', 'inHamletInterior=true;'),
+      { propertyEligible: true, allowed: false, sc: 0, rc: 0 },
+      'safe interior on synthetic BASIN_MUD consumes no encounter randomness');
+    assert.deepEqual(safeTerrainFrame('MEADOW_MAP', 'EXPOSED_STONE', ''),
+      { propertyEligible: true, allowed: false, sc: 0, rc: 0 },
+      'safe special map on synthetic EXPOSED_STONE consumes no encounter randomness');
+    assert.equal(g.run("mapEntryForId('TOWN_MAP').allowRandomEncounters"), false, 'town safety is authored in location metadata');
+    assert.equal(g.run("mapEntryForId('NORTH_BASIN_N_MAP').allowRandomEncounters"), false, 'scenery-only chunk disallows random encounters');
+    assert.equal(g.run("mapPlayerAccessible('NORTH_BASIN_N_MAP')"), false, 'scenery-only chunk is not player-accessible');
+    assert.equal(g.run('isTileEncounterEligible(PATH)'), false, 'PATH remains encounter-safe in tile properties');
 
     // ── 7/8. Neighbour visibility + NPC simulation do not influence the pool ─
     // Continuous View on (all neighbours visible + simulated) vs off must give the
@@ -208,7 +267,7 @@ module.exports = {
       Math.random=_r; return rc;
     })()`), 0, 'the geographic resolver and selection consume no randomness');
 
-    // ── 14. SAVE_VERSION stays 3; no geographic/debug encounter state saved ──
+    // ── 14. SAVE_VERSION stays 4; no geographic/debug encounter state saved ──
     {
       const gg = ctx();
       gg.run("resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); saveGame();");
