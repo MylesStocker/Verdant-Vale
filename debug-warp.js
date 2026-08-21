@@ -109,6 +109,10 @@ const DEBUG_WARP_DESTINATIONS_AUTHORED = [
     state: { inLorraHouse: true }, defaultCol: 7, defaultRow: 11, facing: 'up' },
   { id: 'interior:abandoned_farmhouse', label: 'Abandoned Farmhouse', category: 'interior', mapId: 'ABANDONED_FARMHOUSE_MAP',
     state: { inAbandonedFarmhouse: true }, defaultCol: 7, defaultRow: 11, facing: 'up' },
+  { id: 'interior:hollis_farmhouse', label: 'Hollis Farmstead', category: 'interior', mapId: 'HOLLIS_FARMHOUSE_MAP',
+    state: { inHollisFarmhouse: true }, defaultCol: 7, defaultRow: 11, facing: 'up' },
+  { id: 'interior:wrenna_cottage', label: "Wrenna's Cottage", category: 'interior', mapId: 'WRENNA_COTTAGE_MAP',
+    state: { inWrennaCottage: true }, defaultCol: 7, defaultRow: 11, facing: 'up' },
   { id: 'interior:hamlet',      label: 'The Falls (Hamlet Interior)', category: 'interior', mapId: 'HAMLET_INTERIOR_MAP',
     state: { inHamletInterior: true }, defaultCol: 7, defaultRow: 12, facing: 'up' },
 

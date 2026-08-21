@@ -45,6 +45,8 @@ const LOCATION_STATE_BINDINGS = [
   { key: 'inHamletInterior',    neutral: false, get: () => inHamletInterior,    set: (v) => { inHamletInterior = v; } },
   { key: 'inLorraHouse',        neutral: false, get: () => inLorraHouse,        set: (v) => { inLorraHouse = v; } },
   { key: 'inAbandonedFarmhouse', neutral: false, get: () => inAbandonedFarmhouse, set: (v) => { inAbandonedFarmhouse = v; } },
+  { key: 'inHollisFarmhouse',   neutral: false, get: () => inHollisFarmhouse,   set: (v) => { inHollisFarmhouse = v; } },
+  { key: 'inWrennaCottage',     neutral: false, get: () => inWrennaCottage,     set: (v) => { inWrennaCottage = v; } },
   { key: 'inMarenPost',         neutral: false, get: () => inMarenPost,         set: (v) => { inMarenPost = v; } },
   { key: 'inDrenwrickPost',     neutral: false, get: () => inDrenwrickPost,     set: (v) => { inDrenwrickPost = v; } },
   { key: 'inBridgePost',        neutral: false, get: () => inBridgePost,        set: (v) => { inBridgePost = v; } },
@@ -59,7 +61,7 @@ const LOCATION_STATE_KEY_SET = new Set(LOCATION_STATE_BINDINGS.map((b) => b.key)
 // townBuilding='house', so it is the inTown mode, not a separate flag).
 const LOCATION_MAJOR_MODE_KEYS = [
   'inDungeon', 'inDungeonEntrance', 'inTown', 'inSluice', 'inMireVault', 'inTakomo',
-  'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inAbandonedFarmhouse', 'inMarenPost', 'inDrenwrickPost',
+  'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inAbandonedFarmhouse', 'inHollisFarmhouse', 'inWrennaCottage', 'inMarenPost', 'inDrenwrickPost',
   'inBridgePost', 'inSmugglerFort', 'inBasinChamber', 'inSunkenGallery',
 ];
 
@@ -475,6 +477,26 @@ function exitAbandonedFarmhouse() {
   // The farmhouse occupies MAP2 row 13, immediately above its blocked south
   // edge, so its safe exterior doorstep is the path directly north at r12.
   transitionToLocation({ mapId: 'MAP2', x: 12.5 * TILE, y: 12.5 * TILE, facing: 'down', cooldown: true });
+}
+
+function enterHollisFarmhouse() {
+  transitionToLocation({ mapId: 'HOLLIS_FARMHOUSE_MAP', x: 7.5 * TILE, y: 11.5 * TILE, facing: 'up',
+    state: { inHollisFarmhouse: true }, cooldown: true }); // centre aisle, just inside the door
+}
+
+function exitHollisFarmhouse() {
+  // Hollis's house is MAP row 9 col 3; its lane doorstep is directly south at r10.
+  transitionToLocation({ mapId: 'MAP', x: 3.5 * TILE, y: 10.5 * TILE, facing: 'down', cooldown: true });
+}
+
+function enterWrennaCottage() {
+  transitionToLocation({ mapId: 'WRENNA_COTTAGE_MAP', x: 7.5 * TILE, y: 11.5 * TILE, facing: 'up',
+    state: { inWrennaCottage: true }, cooldown: true });
+}
+
+function exitWrennaCottage() {
+  // Wrenna's cottage is MAP row 12 col 2; its lane doorstep is directly east at c3.
+  transitionToLocation({ mapId: 'MAP', x: 3.5 * TILE, y: 12.5 * TILE, facing: 'down', cooldown: true });
 }
 
 function enterMarenPost() {

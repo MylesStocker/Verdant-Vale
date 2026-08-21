@@ -95,6 +95,8 @@ function locationName() {
   if (inTown)                                 return 'Calwick';
   if (inLorraHouse)                           return "Lorra's Farmhouse";
   if (inAbandonedFarmhouse)                   return 'Abandoned Farmhouse';
+  if (inHollisFarmhouse)                      return 'Hollis Farmstead';
+  if (inWrennaCottage)                        return "Wrenna's Cottage";
   if (inMarenPost)                            return 'Guard Post';
   if (inDrenwrickPost)                        return 'Guard Post';
   if (inBridgePost)                           return 'Imperial Bridge \u2014 Toll Gate';
@@ -111,6 +113,8 @@ function locationName() {
 function currentContentLocationKey() {
   if (inLorraHouse)                  return 'lorra_house';
   if (inAbandonedFarmhouse)          return 'abandoned_farmhouse';
+  if (inHollisFarmhouse)             return 'hollis_farmhouse';
+  if (inWrennaCottage)               return 'wrenna_cottage';
   if (inMarenPost)                   return 'maren_post';
   if (inDrenwrickPost)               return 'drenwick_post';
   if (inBridgePost)                  return 'bridge_post';
@@ -526,6 +530,12 @@ function update() {
     if (!inDungeon && !inTown && !inSluice && !inLorraHouse && !inAbandonedFarmhouse && activeMap === MAP2 && curTile === FARM_HOUSE && ttx === 12) { enterAbandonedFarmhouse(); return; }
     if (inLorraHouse && curTile === INTERIOR_EXIT)  { exitLorraHouse(); return; }
     if (inAbandonedFarmhouse && curTile === INTERIOR_EXIT) { exitAbandonedFarmhouse(); return; }
+    // MAP's two overworld farmhouses share the FARM_HOUSE tile id; their stable
+    // columns select Hollis's farmstead (c3) or Wrenna's cottage (c2).
+    if (!inDungeon && !inTown && !inSluice && !inHollisFarmhouse && !inWrennaCottage && activeMap === MAP && curTile === FARM_HOUSE && ttx === 3) { enterHollisFarmhouse(); return; }
+    if (!inDungeon && !inTown && !inSluice && !inHollisFarmhouse && !inWrennaCottage && activeMap === MAP && curTile === FARM_HOUSE && ttx === 2) { enterWrennaCottage(); return; }
+    if (inHollisFarmhouse && curTile === INTERIOR_EXIT) { exitHollisFarmhouse(); return; }
+    if (inWrennaCottage   && curTile === INTERIOR_EXIT) { exitWrennaCottage();   return; }
     if (!inDungeon && !inTown && !inSluice && !inMarenPost && activeMap === MAP && curTile === GUARD_POST) { enterMarenPost(); return; }
     if (inMarenPost && curTile === INTERIOR_EXIT)   { exitMarenPost();  return; }
     // Drenwick guard post (MAP3_N2, row 12 col 11)

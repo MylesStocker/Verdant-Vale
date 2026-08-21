@@ -1165,7 +1165,7 @@ function validateNPCs() {
     'dungeon_entrance',
     'sluice', 'sluice2', 'sluice3',
     'town', 'inn', 'office', 'school', 'apt', 'east', 'west',
-    'lorra_house', 'maren_post', 'drenwick_post', 'bridge_post',
+    'lorra_house', 'hollis_farmhouse', 'wrenna_cottage', 'maren_post', 'drenwick_post', 'bridge_post',
     'smuggler_fort', 'takomo_chamber', 'mire_vault', 'hamlet_interior',
     'fen_brewery',
     'drenwick_inn', 'drenwick_office', 'drenwick_harbormaster',

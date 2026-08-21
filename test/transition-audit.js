@@ -238,6 +238,7 @@ const flatFns = [
   'd3_MC_to_MR', 'd3_MR_to_MC', 'd3_ML_to_BL', 'd3_BL_to_ML', 'd3_MC_to_BC', 'd3_BC_to_MC',
   'd3_MR_to_BR', 'd3_BR_to_MR', 'd3_BL_to_BC', 'd3_BC_to_BL', 'd3_BC_to_BR', 'd3_BR_to_BC',
   'enterLorraHouse', 'exitLorraHouse', 'enterAbandonedFarmhouse', 'exitAbandonedFarmhouse',
+  'enterHollisFarmhouse', 'exitHollisFarmhouse', 'enterWrennaCottage', 'exitWrennaCottage',
   'enterMarenPost', 'exitMarenPost',
   'enterDrenwrickPost', 'exitDrenwrickPost',
   'enterBridgePostFromSouth', 'enterBridgePostFromNorth', 'exitBridgeSouth', 'exitBridgeNorth',

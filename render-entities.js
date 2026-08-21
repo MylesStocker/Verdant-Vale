@@ -1669,6 +1669,8 @@ function currentItemList() {
        : inTown       ? []
        : inLorraHouse    ? []
        : inAbandonedFarmhouse ? []
+       : inHollisFarmhouse ? []
+       : inWrennaCottage ? []
        : inMarenPost     ? []
        : inDrenwrickPost ? []
        : inBridgePost    ? []

@@ -2613,3 +2613,102 @@ function drawAbandonedFarmhouseFurniture() {
     ctx.fillRect(x + 22, y + 9,          4, 2);
   }
 }
+
+// ── Hollis Farmstead (occupied overworld farmhouse, MAP r9 c3) ────
+// A lived-in one-room farmhouse: warm hearth on the top wall, a plank table
+// with two stools, and a made bed against the east wall. Purely decorative
+// overlays on the ordinary interior floor; Hollis (SIMPLE_NPCS) stands at c7 r5.
+function drawHollisFarmhouseFurniture() {
+  if (!inHollisFarmhouse || activeMap !== HOLLIS_FARMHOUSE_MAP) return;
+
+  // Stone hearth with a low fire, tucked against the top wall (r2 c10).
+  {
+    const x = 10 * TILE, y = 2 * TILE;
+    ctx.fillStyle = '#786f62'; ctx.fillRect(x + 2, y + 4, 27, 24);
+    ctx.fillStyle = '#948a79'; ctx.fillRect(x + 1, y + 3, 29, 5);
+    ctx.fillStyle = '#2a231d'; ctx.fillRect(x + 7, y + 12, 17, 14);
+    const flick = (tick >> 3) & 1;
+    ctx.fillStyle = '#c9591f'; ctx.fillRect(x + 11, y + 18 - flick, 9, 8);
+    ctx.fillStyle = '#e8a13a'; ctx.fillRect(x + 13, y + 20 - flick, 5, 6);
+    ctx.fillStyle = '#f6dd7a'; ctx.fillRect(x + 15, y + 22, 2, 3);
+  }
+
+  // Plank table with two stools (r7 c4-5).
+  {
+    const x = 4 * TILE, y = 7 * TILE;
+    ctx.fillStyle = '#8a5a2f'; ctx.fillRect(x + 6, y + 8, 40, 16);
+    ctx.fillStyle = '#6f4622'; ctx.fillRect(x + 6, y + 8, 40, 4);
+    ctx.fillStyle = '#5c3a1c'; ctx.fillRect(x + 9, y + 24, 4, 8);
+    ctx.fillRect(x + 39, y + 24, 4, 8);
+    // stools left and right
+    ctx.fillStyle = '#7a5128'; ctx.fillRect(x - 8, y + 14, 11, 9);
+    ctx.fillRect(x + 50, y + 14, 11, 9);
+    // a plate and mug on the board
+    ctx.fillStyle = '#cfc3a4'; ctx.fillRect(x + 14, y + 13, 9, 6);
+    ctx.fillStyle = '#9a8b6c'; ctx.fillRect(x + 30, y + 12, 6, 7);
+  }
+
+  // Made bed against the east wall (r9-10 c10).
+  {
+    const x = 10 * TILE, y = 9 * TILE;
+    ctx.fillStyle = '#5c3a1c'; ctx.fillRect(x + 4, y + 2, 22, 56);
+    ctx.fillStyle = '#8f5b2c'; ctx.fillRect(x + 4, y + 2, 22, 6);
+    ctx.fillStyle = '#7c8a6a'; ctx.fillRect(x + 6, y + 12, 18, 42);
+    ctx.fillStyle = '#e6dcc4'; ctx.fillRect(x + 6, y + 4, 18, 12); // pillow
+  }
+}
+
+// ── Wrenna's Cottage (occupied overworld cottage, MAP r12 c2) ─────
+// A herb-keeper's snug: hearth on the top wall, drying bundles hung along the
+// upper wall, a work table crowded with jars, and a small bed. Decorative
+// overlays only; Wrenna (SIMPLE_NPCS) stands at c7 r6.
+function drawWrennaCottageFurniture() {
+  if (!inWrennaCottage || activeMap !== WRENNA_COTTAGE_MAP) return;
+
+  // Hearth with a small pot hook (r3 c9).
+  {
+    const x = 9 * TILE, y = 3 * TILE;
+    ctx.fillStyle = '#786f62'; ctx.fillRect(x + 2, y + 3, 26, 24);
+    ctx.fillStyle = '#948a79'; ctx.fillRect(x + 1, y + 2, 28, 5);
+    ctx.fillStyle = '#2a231d'; ctx.fillRect(x + 7, y + 11, 15, 14);
+    const flick = (tick >> 3) & 1;
+    ctx.fillStyle = '#c9591f'; ctx.fillRect(x + 10, y + 17 - flick, 8, 8);
+    ctx.fillStyle = '#e8a13a'; ctx.fillRect(x + 12, y + 19 - flick, 4, 6);
+    ctx.fillStyle = '#3b342c'; ctx.fillRect(x + 11, y + 12, 10, 6); // hanging pot
+  }
+
+  // Herb bundles drying along the top wall (r3, cols 4-7).
+  {
+    const y = 3 * TILE + 1;
+    const sway = (tick >> 4) & 1;
+    for (let i = 0; i < 4; i++) {
+      const x = (4 + i) * TILE + 12;
+      ctx.fillStyle = '#7a5b34'; ctx.fillRect(x, y, 2, 5); // twine
+      ctx.fillStyle = (i % 2) ? '#5d7a3f' : '#6f8a4a';
+      ctx.fillRect(x - 4, y + 5 + sway, 10, 12);
+      ctx.fillStyle = '#3f5a2a'; ctx.fillRect(x - 2, y + 9 + sway, 6, 6);
+    }
+  }
+
+  // Work table crowded with jars (r8 c5).
+  {
+    const x = 5 * TILE, y = 8 * TILE;
+    ctx.fillStyle = '#8a5a2f'; ctx.fillRect(x + 4, y + 8, 34, 15);
+    ctx.fillStyle = '#6f4622'; ctx.fillRect(x + 4, y + 8, 34, 4);
+    ctx.fillStyle = '#5c3a1c'; ctx.fillRect(x + 7, y + 23, 4, 8);
+    ctx.fillRect(x + 31, y + 23, 4, 8);
+    // little jars
+    ctx.fillStyle = '#9ab0c0'; ctx.fillRect(x + 9,  y + 3, 6, 8);
+    ctx.fillStyle = '#b7a35f'; ctx.fillRect(x + 18, y + 4, 6, 7);
+    ctx.fillStyle = '#8f6fa0'; ctx.fillRect(x + 27, y + 3, 6, 8);
+  }
+
+  // Small bed against the east wall (r9-10 c9).
+  {
+    const x = 9 * TILE, y = 9 * TILE;
+    ctx.fillStyle = '#5c3a1c'; ctx.fillRect(x + 3, y + 2, 20, 46);
+    ctx.fillStyle = '#8f5b2c'; ctx.fillRect(x + 3, y + 2, 20, 6);
+    ctx.fillStyle = '#8a6f86'; ctx.fillRect(x + 5, y + 12, 16, 32);
+    ctx.fillStyle = '#e6dcc4'; ctx.fillRect(x + 5, y + 4, 16, 10); // pillow
+  }
+}

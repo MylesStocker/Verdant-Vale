@@ -99,6 +99,8 @@ function drawActiveMapContent() {
   if (inHamletInterior)                              drawHamletInteriorFurniture();
   if (inFenBrewery)                                  drawFenBreweryFurniture();
   if (inAbandonedFarmhouse)                          drawAbandonedFarmhouseFurniture();
+  if (inHollisFarmhouse)                             drawHollisFarmhouseFurniture();
+  if (inWrennaCottage)                               drawWrennaCottageFurniture();
   if (inTown && townBuilding === 'harbormaster')      drawHarbormasterFurniture();
   if (inTown && townBuilding === 'wash_house')        drawWashHouseFurniture();
   if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();

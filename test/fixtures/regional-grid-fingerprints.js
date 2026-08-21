@@ -17,7 +17,7 @@
 module.exports = {
   serialization: 'sha256hex(JSON.stringify(map))',
   fingerprints: {
-    MAP:                'fc772998da4db584a1d59d7125c4d52237b99bbda734ba2cb99ea723f8aaea7f',
+    MAP:                'f9078c4716256a2b879a905a5aa8bb0bc90ce9a80b8704ba8cb12980d9bc93f6',
     MAP2:               'f7c253c495451b51adab13a9a884064f0aab96298376749010d6e506043de46d',
     MAP3:               '14cb9111d171454cba60c986e8bd06974ab3023652ce036017bb0c4f13abca17',
     MAP4:               '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9',

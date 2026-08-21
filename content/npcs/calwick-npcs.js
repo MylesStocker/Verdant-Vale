@@ -34,6 +34,102 @@ const CALWICK_NPCS = [
     flag_sets:     null,
     action:        null,
   },
+  // ── Hollis — old neighbour and farmer, Hollis Farmstead (overworld MAP r9 c3) ──
+  // Knows Lély well after three-odd years in the Vale; greets a familiar face
+  // come out to the farm, and worries over the fieldwork that keeps sending them
+  // into the wilds. Hints: the South Ruins outclass Lély for now, and the danger
+  // rises the farther from Calwick they range.
+  {
+    id:            'hollis',
+    name:          'Hollis',
+    map:           'hollis_farmhouse',
+    x:              7.5 * TILE,
+    y:              5.5 * TILE,
+    solid:         true,
+    facing:        'down',
+    spriteType:    'worker',
+    get dialogue() {
+      return [
+        [`“${stats.name}! Walked the whole lane out to see us — well, that’s a good day made.”`,
+         '“Three winters you’ve been in the Vale now, and you still find the time. Merta’ll be glad; she’s got the pot on.”'],
+        ['“They’ve got you ranging out past the crossroads these days, I hear. Just — not the South Ruins. Not yet.”',
+         '“I know you can handle yourself. But whatever’s nested down in that dark is a deal stronger than you are right now. Get some harder fights behind you first, aye? For an old man’s peace of mind.”'],
+        ['“And you know how the country goes as well as I do. Gentle here close to home — field mice and mud.”',
+         '“It’s the farther roads that turn mean. The deeper into the fens you push, the less anything out there thinks to run from you. Mind your step out past the marches.”'],
+      ];
+    },
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
+  // ── Merta — Hollis's wife; offers Lély a hot bowl (heals) ─────────────────
+  {
+    id:            'merta',
+    name:          'Merta',
+    map:           'hollis_farmhouse',
+    x:              4.5 * TILE,
+    y:              5.5 * TILE,
+    solid:         true,
+    facing:        'right',
+    spriteType:    'patron',
+    dialogue:      [],  // routed through action (soup offer)
+    flag_required: null,
+    flag_sets:     null,
+    action: function(npc) {
+      const hurt = stats.hp < stats.maxHp
+        || (typeof hasStatusEffect === 'function'
+            && (hasStatusEffect('poison') || hasStatusEffect('muddied')));
+      choice.title     = 'Merta';
+      choice.options   = ['Have a bowl', 'Not just now'];
+      choice.cursor    = 0;
+      choice.callbacks = [
+        function haveSoup() {
+          stats.hp = stats.maxHp;
+          if (typeof hasStatusEffect === 'function') {
+            if (hasStatusEffect('poison'))  removeStatusEffect('poison');
+            if (hasStatusEffect('muddied')) removeStatusEffect('muddied');
+          }
+          openDialogue('Merta', hurt
+            ? [[`“There now — you finish that, ${stats.name}. Barley and marsh-hen, same as always.”`,
+                '“You came in looking half-wrung-out. Better? Good. I’ll not have a friend of ours going hungry into the reeds.”']]
+            : [['“Nothing like a hot bowl even when you’re hale. Sit a moment before you’re off again.”',
+                '“Go on — the reeds will keep.”']]);
+        },
+        function decline() {
+          openDialogue('Merta',
+            [[`“Off already? You’re as bad as Hollis, ${stats.name}.”`,
+              '“The pot stays warm. Come back through when your feet ache and there’ll be a bowl waiting.”']]);
+        },
+      ];
+      choice.open = true;
+    },
+  },
+  // ── Wrenna — old neighbour and herb-keeper, Wrenna's Cottage (MAP r12 c2) ──
+  // Also a familiar face of years' standing. Hints: marsh things leave you
+  // poisoned or cursed, and the right items set it right; plus quiet-Vale fluff.
+  {
+    id:            'wrenna',
+    name:          'Wrenna',
+    map:           'wrenna_cottage',
+    x:              7.5 * TILE,
+    y:              6.5 * TILE,
+    solid:         true,
+    facing:        'down',
+    spriteType:    'patron',
+    get dialogue() {
+      return [
+        [`“${stats.name}, come in out of the wind — it’s been an age since you came down our lane.”`,
+         '“Sit where it’s warm. However long you’ve been in the Vale, you’re always let in here.”'],
+        ['“Back into the marsh, is it? Then you’ll take my usual fussing with you.”',
+         '“A Reed Remedy for when something poisons you, and a pinch of Amethyst Dust to lift a curse — the older things out there still deal them. Keep a few on you and no swamp can keep you down. I’ll not have you back green and shaking like last spring.”'],
+        ['“Quiet as ever out this way, thank the fields. No aetherrail din, no crowds — just the Vale, same as it’s always been.”',
+         '“Suits the both of us, that. Go careful, and come back and tell me you did.”'],
+      ];
+    },
+    flag_required: null,
+    flag_sets:     null,
+    action:        null,
+  },
   {
     id:            'aldric',
     name:          'Aldric',

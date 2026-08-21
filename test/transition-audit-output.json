@@ -6,6 +6,8 @@
     "LORRA_HOUSE_MAP",
     "ABANDONED_FARMHOUSE_MAP",
     "MAREN_POST_MAP",
+    "HOLLIS_FARMHOUSE_MAP",
+    "WRENNA_COTTAGE_MAP",
     "MAP3",
     "MAP4",
     "MAP5",
@@ -152,6 +154,18 @@
     },
     {
       "id": "MAREN_POST_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "HOLLIS_FARMHOUSE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "WRENNA_COTTAGE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -2238,6 +2252,122 @@
       "py": 400,
       "facing": "down",
       "tileCol": 12,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterHollisFarmhouse",
+      "group": "flat-transitions",
+      "setupCode": "enterHollisFarmhouse()",
+      "error": null,
+      "destMap": "HOLLIS_FARMHOUSE_MAP",
+      "px": 240,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitHollisFarmhouse",
+      "group": "flat-transitions",
+      "setupCode": "exitHollisFarmhouse()",
+      "error": null,
+      "destMap": "MAP",
+      "px": 112,
+      "py": 336,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 10,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterWrennaCottage",
+      "group": "flat-transitions",
+      "setupCode": "enterWrennaCottage()",
+      "error": null,
+      "destMap": "WRENNA_COTTAGE_MAP",
+      "px": 240,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitWrennaCottage",
+      "group": "flat-transitions",
+      "setupCode": "exitWrennaCottage()",
+      "error": null,
+      "destMap": "MAP",
+      "px": 112,
+      "py": 400,
+      "facing": "down",
+      "tileCol": 3,
       "tileRow": 12,
       "actualDims": {
         "rows": 15,
@@ -8034,7 +8164,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 23,
+      "mapsUsingIt": 25,
       "handledInMovement": true
     },
     {
@@ -8114,7 +8244,7 @@
     },
     {
       "name": "FARM_HOUSE",
-      "mapsUsingIt": 2,
+      "mapsUsingIt": 3,
       "handledInMovement": true
     },
     {

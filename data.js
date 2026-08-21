@@ -794,6 +794,18 @@ const MAP_CATALOG = {
     type: 'interior', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
   },
+  HOLLIS_FARMHOUSE_MAP: {
+    id: 'HOLLIS_FARMHOUSE_MAP', map: HOLLIS_FARMHOUSE_MAP, displayName: 'Hollis Farmstead', region: 'Verdant Vale',
+    type: 'interior', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'Occupied farmhouse on the overworld (row 9 col 3). Home of Hollis, a friendly farmer NPC.',
+  },
+  WRENNA_COTTAGE_MAP: {
+    id: 'WRENNA_COTTAGE_MAP', map: WRENNA_COTTAGE_MAP, displayName: "Wrenna's Cottage", region: 'Verdant Vale',
+    type: 'interior', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'Occupied cottage on the overworld (row 12 col 2). Home of Wrenna, a friendly herb-keeper NPC.',
+  },
   MAP3: _regionalChunkCatalogEntry('MAP3'),
   MAP4: _regionalChunkCatalogEntry('MAP4'),
   MAP5: _regionalChunkCatalogEntry('MAP5'),
