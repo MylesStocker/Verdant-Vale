@@ -144,9 +144,8 @@ module.exports = {
     const four = J(`JSON.stringify(visibleChunks('overworld', ${CW / 2}, ${5 * CH - 224}, 512, 480).map(c=>c.mapId))`);
     assert.equal(four.length, 4, 'four-chunk viewport (corner)');
 
-    // ── 9. Sparse missing chunks stay void (omitted) ────────────────────────
-    // chunk (0,2) is the final unplaced gap; a viewport there yields no chunks.
-    assert.deepEqual(J(`JSON.stringify(visibleChunks('overworld', 0, ${2 * CH}, 512, 480))`), [], 'gap chunk -> no terrain');
+    // ── 9. The completed regional envelope includes Mirewood at (0,2) ───────
+    assert.deepEqual(J(`JSON.stringify(visibleChunks('overworld', 0, ${2 * CH}, 512, 480).map(function(c){return c.mapId;}))`), ['NORTH_BASIN_MIREWOOD_MAP'], 'Mirewood viewport resolves terrain');
 
     // ── 10-14. Continuous frame on a placed overworld map ───────────────────
     warp('outdoor:MAP2'); g.run('forceLegacyRegionalView = false; player.x = 8*TILE; player.y = 7*TILE; __reconcileCanonicalForTest();');

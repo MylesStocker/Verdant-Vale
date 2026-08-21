@@ -536,18 +536,47 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_c',
     allowRandomEncounters: true, allowSave: true,
     notes: 'The receding reservoir. Like the South Approach it has no GRASS, but its REEDS and exposed BASIN_MUD are encounter-eligible, so it rolls random encounters from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES). Open water stays safe.' },
+  // ─── North Basin — Mirewood  (16 × 15) ───────────────────────────────────
+  // Final regional chunk at (0,2): a cold flooded woodland reached only from
+  // the Silt Flats east edge through two separated marsh ranges. The upper two
+  // thirds hold one connected encounter-enabled mud/reed shelf threaded through
+  // standing water and drowned trees. Rows 10-14 are entirely blocked flooded
+  // woodland, keeping West Mire north, Blocked Path south, and the western
+  // regional boundary unreachable without an artificial wall or special rule.
+  { mapId: 'NORTH_BASIN_MIREWOOD_MAP', regionId: 'overworld', chunkX: 0, chunkY: 2, map: [
+      //   0    1    2    3   4   5   6   7   8   9   10  11  12  13  14  15
+      [   3,   1,   1, 120,  1,  3,  1,  1,  3,  1, 120,  1,  3,  1,  1,  3 ],  //  0  flooded/choked north boundary below West Mire
+      [   1,   1, 120,   1,  3,  1, 23, 23, 81, 81,  23,  1, 23, 81, 23, 23 ],  //  1  north reed shelf; east seam begins
+      [ 120,   1,   1,   3,  1, 23, 23, 81, 81,  1,   1, 23, 23, 81, 81, 23 ],  //  2  drowned-tree pocket and mud tongue
+      [   3,   1,   3,   1, 23, 23, 81, 81, 23, 23,  81, 81, 23, 23, 81, 81 ],  //  3  broad connected mire shelf
+      [   1,   1, 120,   1, 23, 81,  1,  1, 23, 81,  81, 23, 23,  1, 81, 88 ],  //  4  sparse stone remnant at the first entrance
+      [   3,   1,   1, 120,  1, 23, 23, 81, 81,  1,  23, 23, 81, 23,  1,  3 ],  //  5  flooded gap between east seam ranges
+      [   1,   1,   3,   1, 23, 23, 81,  1, 23, 23,  81, 81,  1, 23, 81, 23 ],  //  6  southern entrance shelf begins
+      [ 120,   1,   1,   3,  1, 23, 81, 81, 23,  1,   1, 23, 23, 81, 81, 81 ],  //  7  drowned western cluster, connected eastern mud flat
+      [   3,   1, 120,   1, 23, 23,  1, 23, 81, 81,  23, 23, 81,  1, 23, 23 ],  //  8  broken reed margins around standing water
+      [   1,   1,   3,   1,  1, 23, 23, 81, 81, 23,   1,  1, 23, 23, 81, 81 ],  //  9  last walkable shelf before the drowned bottom third
+      [   3,   1,   1,   1,120,  1,  3,  3,  1,  1, 120,  1,  1,  3,  1,120 ],  // 10  impassable floodwater and drowned cover
+      [   1,   1, 120,   1,  1,  3,  3,  1,  1,120,   1,  1,  3,  3,  1,  1 ],  // 11  tree-choked flooded mass
+      [ 120,   1,   1,   3,  3,  1,  1,  1,120,  1,   1,  3,  3,  1,  1,120 ],  // 12  no walkable approach toward Blocked Path
+      [   1,   1,   3,   3,  1,  1,120,  1,  1,  1,   3,  3,  1,  1,120,  1 ],  // 13  deep drowned woodland
+      [   3,   1,   1, 120,  1,  3,  3,  1,  1,120,   1,  3,  3,  1,  1,  3 ],  // 14  blocked south edge above Blocked Path
+    ],
+    displayName: 'North Basin — Mirewood', region: 'North Basin', contentKey: 'north_basin_mirewood',
+    presentation: 'continuous', encounterProfileId: 'north_basin',
+    playerAccessible: true, allowRandomEncounters: true, allowSave: true,
+    notes: 'Quiet flooded wilderness at chunk (0,2). Its 85 walkable REEDS/BASIN_MUD/EXPOSED_STONE cells form one connected component reached only through reciprocal east ranges [1,4] and [6,9] to the Silt Flats. North/west are flooded borders; rows 10-14 are wholly impassable WATER/TREE/TREE_IN_WATER, blocking the south adjacency to MAP_N2. Uses the exact north_basin encounter profile and owns no content, aliases, point transitions, or special runtime behavior.' },
   { mapId: 'NORTH_BASIN_SW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 2, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1,  1,  1,  3,  3],  //  0  open edge, cols 1-10 → EDGE_TRANSITIONS north to NORTH_BASIN_W_MAP (cols 11-13 = the reservoir finger continuing off-map as WATER; col 14 stays TREE border)
-      [  3,  0, 23,  0,  0,  0, 23,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  1  3×3 reservoir finger begins (cols 11-13)
-      [  3, 23,  0,  0, 88,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  2  reservoir finger
-      [  3,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  3  reservoir finger ends; reed fringe around it
-      [  3,  0, 23,  0, 88,  0,  0, 23, 23,  0,  0, 88,  0, 23,  0,  3],  //  4  marsh field begins
+      [ 23,  0, 23,  0,  0,  0, 23,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  1  west REEDS opening to Mirewood; reservoir finger begins
+      [ 23, 23,  0,  0, 88,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  2  west REEDS opening; reservoir finger
+      [ 81,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1, 23,  3],  //  3  west MUD opening; reservoir finger ends
+      [ 88,  0, 23,  0, 88,  0,  0, 23, 23,  0,  0, 88,  0, 23,  0,  3],  //  4  west STONE opening; marsh field begins
       [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  5  open field
-      [  3,  0,  0, 89,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0,  3],  //  6  old fence posts, half-swallowed by silt
-      [  3,  0, 88, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  3],  //  7  exposed lakebed stone
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  8  open field
-      [  3, 81, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81, 81, 23],  //  9  drying mud patches; open edge, col 15 → EDGE_TRANSITIONS east
+      [ 23,  0,  0, 89,  0,  0,  0,  0,  0,  0,  0,  0, 89,  0,  0,  3],  //  6  west REEDS opening; old fence posts in silt
+      [ 81,  0, 88, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  3],  //  7  west MUD opening; exposed lakebed stone
+      [ 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  8  west REEDS opening into open field
+      [ 81, 81, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81, 81, 23],  //  9  west MUD opening; drying patches; east seam unchanged
       [  3,  0,  0,  0, 89,  0,  0,  0,  0,  0,  0, 23, 23, 23, 23, 23],  // 10  open edge, col 15 → EDGE_TRANSITIONS east to NORTH_BASIN_S_MAP
       [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23],  // 11  open edge, col 15 → EDGE_TRANSITIONS east (matches South Approach's west edge exactly -- no clamping in normal play)
       [  3, 81, 81,  0,  0, 89,  0,  0,  0,  0,  0,  0,  0, 81, 81,  3],  // 12  drying mud patches

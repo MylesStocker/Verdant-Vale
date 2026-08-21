@@ -10,14 +10,14 @@ Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass
 below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
-the newer North Basin region (14 placed chunks: nine accessible and five
+the newer North Basin region (15 placed chunks: ten accessible and five
 scenery-only, plus the unmarked chamber and the Sunken Gallery hanging off
 the Upper Reach; see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-116 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 116 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 92 are the
+117 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 117 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 93 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -36,8 +36,8 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **29 regional chunks** now occupy the `'overworld'` 5×6 envelope (one sparse void,
-  `(0,2)`, remains). The new accessible **North Basin — Flooded Rim**
+- **30 regional chunks** now fill the `'overworld'` 5×6 envelope (no sparse voids
+  remain). The accessible **North Basin — Flooded Rim**
   (`NORTH_BASIN_NW2_MAP`, chunk (0,0)) is a 49.6%-WATER drowned woodland of
   encounter-eligible BASIN_MUD, REEDS, and three EXPOSED_STONE remnants. Six
   blocking `TREE_IN_WATER` tiles (stable tile 120) use the ordinary tile-property,
@@ -81,6 +81,15 @@ rooms were added to the registry.)
     agreed southwest REEDS corner is the sole mismatch against both neighbouring
     edge sequences. No transition or content enters the chunk.
 
+  The final accessible **North Basin — Mirewood**
+  (`NORTH_BASIN_MIREWOOD_MAP`, chunk (0,2)) is a quiet flooded woodland using
+  the existing `north_basin` encounter profile. Its one 85-cell connected
+  walkable mass occupies only rows 1–9 and consists of REEDS, BASIN_MUD, and one
+  EXPOSED_STONE remnant; WATER, TREE, and 20 TREE_IN_WATER tiles block the north,
+  west, and entire bottom third. Two reciprocal structural east ranges, `[1,4]`
+  and `[6,9]`, join Silt Flats. It has no content, alias, point transition, or
+  map-specific runtime handling.
+
   The new accessible **North Basin — South Reservoir Road** (`NORTH_BASIN_SE_MAP`,
   chunk (3,2)) continues the South Approach road east through a reciprocal rows 7–8
   continuous seam: a REEDS shoulder widens the entrance while the PATH road remains
@@ -123,18 +132,18 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 116 directed physical edges → ALIGNS 46 / BORDER 24 / BLOCKED 42 /
+  Audit: 120 directed physical edges → ALIGNS 48 / BORDER 22 / BLOCKED 46 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  64 directed entries / 32 reciprocal segment pairs. See architecture.md
+  68 directed entries / 34 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **102 tests** (`test/cases/01-…102-`), `node test/run.js` — all passing.
+- **103 tests** (`test/cases/01-…103-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 116 maps, 238 fixed-destination transitions, 8
+  isolation pass, 117 maps, 238 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 116 maps, 116 metadata entries, 27,840 tile cells, 144
+  (see below), across 117 maps, 117 metadata entries, 28,080 tile cells, 148
   edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
   dialogue/text entries, 182 save-flag checks, 63 map features, 73 pickup ids,
   19 chest ids.

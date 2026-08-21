@@ -20,6 +20,7 @@
     "NORTH_BASIN_SE_MAP",
     "EAST_CAUSEWAY_MAP",
     "NORTH_BASIN_C_MAP",
+    "NORTH_BASIN_MIREWOOD_MAP",
     "NORTH_BASIN_SW_MAP",
     "NORTH_BASIN_W_MAP",
     "NORTH_BASIN_NW2_MAP",
@@ -234,6 +235,12 @@
     },
     {
       "id": "NORTH_BASIN_C_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "NORTH_BASIN_MIREWOOD_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -8954,6 +8961,34 @@
       "allOk": true
     },
     {
+      "srcMap": "NORTH_BASIN_MIREWOOD_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        4
+      ],
+      "targetMap": "NORTH_BASIN_SW_MAP",
+      "targetEdge": "west",
+      "walkableSources": 4,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_MIREWOOD_MAP",
+      "direction": "east",
+      "segment": 1,
+      "sourceRange": [
+        6,
+        9
+      ],
+      "targetMap": "NORTH_BASIN_SW_MAP",
+      "targetEdge": "west",
+      "walkableSources": 4,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "NORTH_BASIN_SW_MAP",
       "direction": "east",
       "segment": 0,
@@ -8978,6 +9013,34 @@
       "targetMap": "NORTH_BASIN_W_MAP",
       "targetEdge": "south",
       "walkableSources": 10,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_SW_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        4
+      ],
+      "targetMap": "NORTH_BASIN_MIREWOOD_MAP",
+      "targetEdge": "east",
+      "walkableSources": 4,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "NORTH_BASIN_SW_MAP",
+      "direction": "west",
+      "segment": 1,
+      "sourceRange": [
+        6,
+        9
+      ],
+      "targetMap": "NORTH_BASIN_MIREWOOD_MAP",
+      "targetEdge": "east",
+      "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
@@ -11217,10 +11280,10 @@
         "chunkX": 0,
         "chunkY": 3,
         "dir": "north",
-        "neighbor": null,
+        "neighbor": "NORTH_BASIN_MIREWOOD_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAP_N2",
@@ -11413,6 +11476,46 @@
         "verdict": "BLOCKED"
       },
       {
+        "mapId": "NORTH_BASIN_MIREWOOD_MAP",
+        "chunkX": 0,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": "NORTH_BASIN_W2_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "NORTH_BASIN_MIREWOOD_MAP",
+        "chunkX": 0,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": "MAP_N2",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "NORTH_BASIN_MIREWOOD_MAP",
+        "chunkX": 0,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "NORTH_BASIN_SW_MAP",
+        "target": "NORTH_BASIN_SW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "NORTH_BASIN_MIREWOOD_MAP",
+        "chunkX": 0,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
         "mapId": "NORTH_BASIN_SW_MAP",
         "chunkX": 1,
         "chunkY": 2,
@@ -11447,10 +11550,10 @@
         "chunkX": 1,
         "chunkY": 2,
         "dir": "west",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "NORTH_BASIN_MIREWOOD_MAP",
+        "target": "NORTH_BASIN_MIREWOOD_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "NORTH_BASIN_W_MAP",
@@ -11547,10 +11650,10 @@
         "chunkX": 0,
         "chunkY": 1,
         "dir": "south",
-        "neighbor": null,
+        "neighbor": "NORTH_BASIN_MIREWOOD_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "NORTH_BASIN_W2_MAP",
@@ -11815,9 +11918,9 @@
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BORDER": 24,
-      "ALIGNS": 46,
-      "BLOCKED": 42
+      "BORDER": 22,
+      "ALIGNS": 48,
+      "BLOCKED": 46
     }
   }
 }

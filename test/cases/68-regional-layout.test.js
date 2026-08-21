@@ -95,7 +95,7 @@ module.exports = {
     })()`));
     assert.equal(sample.world, sample.direct, 'tileAtWorld equals the direct map tile at that world coord');
 
-    // ── 6. Negative / out-of-range / missing-chunk => documented void ───────
+    // ── 6. Negative / out-of-range coordinates => documented void ──────────
     const VOID = g.run('REGION_VOID_TILE');
     assert.ok(VOID < 0, 'REGION_VOID_TILE is not a real (non-negative) tile id');
     // negative
@@ -104,10 +104,9 @@ module.exports = {
     assert.equal(g.run(`tileAtWorld('${regionId}', 0, -5)`), VOID, 'negative worldY -> void');
     // out of range (beyond the bounding box)
     assert.equal(g.run(`tileAtWorld('${regionId}', 99999, 99999)`), VOID, 'far out-of-range -> void');
-    // missing chunk INSIDE the bounding box: chunk (0,2) is the final gap.
-    assert.equal(g.run(`mapIdForChunk('${regionId}', 0, 2)`), null, 'chunk (0,2) is an unplaced gap');
-    assert.equal(g.run(`worldToLocal('${regionId}', 5, ${2 * ROWS * 32 + 5})`), null, 'a gap chunk -> null local');
-    assert.equal(g.run(`tileAtWorld('${regionId}', 5, ${2 * ROWS * 32 + 5})`), VOID, 'a gap chunk reads as void');
+    // The final in-envelope gap is now Mirewood; the 5×6 envelope is complete.
+    assert.equal(g.run(`mapIdForChunk('${regionId}', 0, 2)`), 'NORTH_BASIN_MIREWOOD_MAP', 'chunk (0,2) resolves to Mirewood');
+    assert.equal(g.run(`worldToLocal('${regionId}', 5, ${2 * ROWS + 5}).mapId`), 'NORTH_BASIN_MIREWOOD_MAP', 'Mirewood world coordinates resolve locally');
     // unknown region
     assert.equal(g.run(`worldToLocal('nope', 0, 0)`), null, 'unknown region -> null');
     assert.equal(g.run(`tileAtWorld('nope', 0, 0)`), VOID, 'unknown region -> void');

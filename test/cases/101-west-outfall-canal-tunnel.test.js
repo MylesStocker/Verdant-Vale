@@ -37,7 +37,7 @@ const BASELINE_26 = {
   NORTH_BASIN_SE_MAP: '96ac86bdc402728eab845a9cd6250609787d4ed0994affe294fce8f3d578a2b3',
   EAST_CAUSEWAY_MAP: '4ce6d248fbf6fa13b02fccd81785d0a44923ac6c9a0f9c37b4e9d0df851e1f16',
   NORTH_BASIN_C_MAP: '562b1d6e9b79fcc2a2b1b3092538094ec31ff280733acc326ec8c2f90b257668',
-  NORTH_BASIN_SW_MAP: '38e09a579a5e76b8539b02698235e01b2c5d664fa6fc9cfa11dd08804575d4c1',
+  NORTH_BASIN_SW_MAP: 'e7e1f2217d674e6219c82764ce283be3fca272a7996a48a63a10aaa2b428d251',
   NORTH_BASIN_W_MAP: 'df88364722dc6e4cd77a3c95182165c3ecff777d9c37e290b4810c6d2da3a1f3',
   NORTH_BASIN_NW_MAP: 'cb2c59ab15d4b87c2ce758025b2f6bfd85fe8abae5c34cc1438131c8605edfe8',
   NORTH_BASIN_N_MAP: 'e59e5fa33fbc7e6388e707d1ef4a96282c446c6aead0f2cc24e935426e960bc7',
@@ -194,10 +194,10 @@ module.exports = {
 
     // Aggregate invariants remain unchanged except the test count and tile type.
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:24,ALIGNS:46,BLOCKED:42});
-    assert.equal(audit.seamReadiness.edges.length,116);
-    assert.equal(g.run('Object.keys(MAP_METADATA).length'),116);
-    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),29);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length,29);
+    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:48,BLOCKED:46});
+    assert.equal(audit.seamReadiness.edges.length,120);
+    assert.equal(g.run('Object.keys(MAP_METADATA).length'),117);
+    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),30);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length,30);
   },
 };

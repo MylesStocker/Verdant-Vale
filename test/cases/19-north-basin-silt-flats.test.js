@@ -119,7 +119,7 @@ module.exports = {
     assert.equal(g.run('player.x'), 7.5 * 32);
     assert.equal(g.run('player.y'), 5.5 * 32);
 
-    // ── 4. Edges: east and north are real open edges; south/west are the true region edge ─
+    // ── 4. Edges: north/east/west have authored seams; south is blocked ─────
     const map = g.run('NORTH_BASIN_SW_MAP');
     const TREE = g.run('TREE');
     const WATER = g.run('WATER');
@@ -138,8 +138,12 @@ module.exports = {
       }
     }
     assert.ok(map[14].every(t => t === TREE), 'south edge should be plain impassable border (true edge of the region)');
+    const westRanges = JSON.parse(g.run("JSON.stringify(EDGE_TRANSITIONS['NORTH_BASIN_SW_MAP'].west.map(function(s){return s.sourceRange;}))"));
+    assert.deepEqual(westRanges, [[1,4],[6,9]], 'west edge exposes only the two Mirewood seam ranges');
+    const westTiles = [TREE, g.run('REEDS'), g.run('REEDS'), g.run('BASIN_MUD'), g.run('EXPOSED_STONE'), TREE, g.run('REEDS'), g.run('BASIN_MUD'), g.run('REEDS'), g.run('BASIN_MUD')];
     for (let r = 0; r < map.length; r++) {
-      assert.equal(map[r][0], TREE, `west edge row ${r} should be plain impassable border (true edge of the region -- the west crossing's exit tile lives on NORTH_BASIN_S_MAP, not here)`);
+      const expected = r <= 9 ? westTiles[r] : TREE;
+      assert.equal(map[r][0], expected, `west edge row ${r} matches the reviewed Mirewood interface`);
     }
     // East edge: walkable within the configured EDGE_TRANSITIONS range,
     // plain impassable border everywhere else along it.

@@ -1210,6 +1210,14 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'north', sourceRange: [1, 14] },
     ],
   },
+  // Mirewood — two separated flooded-marsh openings into the Silt Flats. All
+  // other sides are blocked terrain/border; the row-5 gap remains impassable.
+  NORTH_BASIN_MIREWOOD_MAP: {
+    east: [
+      { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'west', sourceRange: [1, 4] },
+      { targetMap: 'NORTH_BASIN_SW_MAP', targetEdge: 'west', sourceRange: [6, 9] },
+    ],
+  },
   NORTH_BASIN_SW_MAP: {
     east: [
       { targetMap: 'NORTH_BASIN_S_MAP', targetEdge: 'west', sourceRange: [9, 11] },
@@ -1222,6 +1230,10 @@ const EDGE_TRANSITIONS = {
     // the old NORTH_BASIN_W_EXIT/ENTRANCE point-tile, retired like 84-87.)
     north: [
       { targetMap: 'NORTH_BASIN_W_MAP', targetEdge: 'south', sourceRange: [1, 10] },
+    ],
+    west: [
+      { targetMap: 'NORTH_BASIN_MIREWOOD_MAP', targetEdge: 'east', sourceRange: [1, 4] },
+      { targetMap: 'NORTH_BASIN_MIREWOOD_MAP', targetEdge: 'east', sourceRange: [6, 9] },
     ],
   },
   NORTH_BASIN_W_MAP: {

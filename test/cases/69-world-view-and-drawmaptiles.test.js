@@ -158,17 +158,18 @@ module.exports = {
       assertValid(chunks, 'boundary');
     }
 
-    // ── Sparse holes and out-of-region camera rectangles ────────────────────
+    // ── Completed envelope and out-of-region camera rectangles ─────────────
     {
       assert.deepEqual(vis(0, 0, 512, 480).map(c => c.mapId), ['NORTH_BASIN_NW2_MAP'], 'the newly placed Flooded Rim fills chunk (0,0)');
       assert.deepEqual(vis(999999, 999999, 512, 480), [], 'far out-of-regionId camera -> no chunks');
       assert.deepEqual(vis(-512, -480, 512, 480), [], 'negative/out-of-regionId camera -> no chunks');
-      // A viewport spanning the final gap (chunkY 2, at col 0) and a placed map (MAP_N2 at 0,3)
-      // returns ONLY the placed one — the hole is omitted, not invented.
-      const straddle = vis(0, 3 * CH - 224, 512, 480); // 7 tiles up from MAP_N2 into the (0,2) gap
-      assert.deepEqual(straddle.map(c => c.mapId), ['MAP_N2'], 'gap omitted; only the placed chunk returned');
-      assert.deepEqual([straddle[0].startRow, straddle[0].endRow], [0, 8], 'placed chunk shows its intersecting rows');
-      assertValid(straddle, 'straddle-gap');
+      // A viewport spanning Mirewood (0,2) and MAP_N2 (0,3) resolves both
+      // occupied chunks with complementary half-open row ranges.
+      const straddle = vis(0, 3 * CH - 224, 512, 480);
+      assert.deepEqual(straddle.map(c => c.mapId), ['NORTH_BASIN_MIREWOOD_MAP', 'MAP_N2'], 'Mirewood and MAP_N2 are both visible');
+      assert.deepEqual([straddle[0].startRow, straddle[0].endRow], [8, 15], 'Mirewood contributes its intersecting bottom rows');
+      assert.deepEqual([straddle[1].startRow, straddle[1].endRow], [0, 8], 'MAP_N2 contributes its intersecting top rows');
+      assertValid(straddle, 'straddle-mirewood');
     }
 
     assert.equal(g.run(`JSON.stringify(visibleChunks('nope', 0, 0, 512, 480))`), '[]', 'unknown regionId -> []');
