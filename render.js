@@ -98,6 +98,7 @@ function drawActiveMapContent() {
   if (inTown && townBuilding === 'house' && currentHouseId === 'player_house' && day >= 2 && !CAT_ARMOR_CHEST.opened) drawInvisibleChest(CAT_ARMOR_CHEST);
   if (inHamletInterior)                              drawHamletInteriorFurniture();
   if (inFenBrewery)                                  drawFenBreweryFurniture();
+  if (inAbandonedFarmhouse)                          drawAbandonedFarmhouseFurniture();
   if (inTown && townBuilding === 'harbormaster')      drawHarbormasterFurniture();
   if (inTown && townBuilding === 'wash_house')        drawWashHouseFurniture();
   if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();

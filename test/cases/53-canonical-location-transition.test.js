@@ -24,7 +24,7 @@ const { createContext } = require('../harness');
 const EXPECTED_LOCATION_KEYS = [
   'inDungeon', 'dungeonFloor', 'inDungeonEntrance', 'inTown', 'currentTownId', 'townBuilding',
   'currentHouseId', 'houseSourceMap', 'houseSourceBuilding', 'houseReturnPos', 'inSluice', 'sluiceFloor',
-  'inMireVault', 'inTakomo', 'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inMarenPost',
+  'inMireVault', 'inTakomo', 'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inAbandonedFarmhouse', 'inMarenPost',
   'inDrenwrickPost', 'inBridgePost', 'inSmugglerFort', 'inBasinChamber', 'inSunkenGallery',
   'bridge_entry_direction', 'bridge_toll_paid',
 ];
@@ -53,7 +53,7 @@ module.exports = {
     G(`inDungeon=true; dungeonFloor=9; inDungeonEntrance=true; inTown=true; currentTownId='drenwick';
        townBuilding='house'; currentHouseId='esla_house'; houseSourceMap=MAP2; houseSourceBuilding='west';
        houseReturnPos={x:5*TILE,y:5*TILE}; inSluice=true; sluiceFloor=3; inMireVault=true; inTakomo=true;
-       inFenBrewery=true; inHamletInterior=true; inLorraHouse=true; inMarenPost=true; inDrenwrickPost=true;
+       inFenBrewery=true; inHamletInterior=true; inLorraHouse=true; inAbandonedFarmhouse=true; inMarenPost=true; inDrenwrickPost=true;
        inBridgePost=true; inSmugglerFort=true; inBasinChamber=true; inSunkenGallery=true;
        bridge_entry_direction='south'; bridge_toll_paid=true;`);
     assert.equal(G("transitionToLocation({mapId:'MAP', x:8*TILE, y:8*TILE, facing:'down'})"), true, 'neutral outdoor transition succeeds');

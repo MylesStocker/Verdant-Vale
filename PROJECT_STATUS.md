@@ -15,9 +15,9 @@ scenery-only, plus the unmarked chamber and the Sunken Gallery hanging off
 the Upper Reach; see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-117 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 117 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 93 are the
+118 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 118 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 94 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -136,16 +136,29 @@ rooms were added to the registry.)
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
   68 directed entries / 34 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
-- **103 tests** (`test/cases/01-…103-`), `node test/run.js` — all passing.
+
+- **Eastern Reaches’ second farmhouse is enterable.** The dedicated safe
+  `ABANDONED_FARMHOUSE_MAP` is a quiet, saveable interior with no NPCs, items,
+  encounters, quest hook, or supernatural framing. Four repeatable inspectables
+  show children’s clothes left in a crate, a swept cold hearth, an ordinary farm
+  tally ending with cart hire, and reeds forcing their way through bowed
+  floorboards. Seven GRASS cells immediately around the MAP2 farmhouse are now
+  REEDS; no regional edge, seam, or other established terrain changed.
+- **Small usability/content polish.** The debug menu is wide enough for its
+  Legacy Regional Fallback row; Verdant Vale's field potion is now represented
+  by the established inspectable sparkle and described as dropped in the grass;
+  Aldric now explains carried-gold loss, home-chest storage, and the absurdly
+  profitable monster economy.
+- **105 tests** (`test/cases/01-…105-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass, 117 maps, 238 fixed-destination transitions, 8
+  isolation pass (26 fields including the active-map check), 118 maps, 240 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 117 maps, 117 metadata entries, 28,080 tile cells, 148
-  edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 610
-  dialogue/text entries, 182 save-flag checks, 63 map features, 73 pickup ids,
+  (see below), across 118 maps, 118 metadata entries, 28,320 tile cells, 148
+  edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 618
+  dialogue/text entries, 182 save-flag checks, 67 map features, 73 pickup ids,
   19 chest ids.
 
 ## The 4 current warnings, and why none needs fixing

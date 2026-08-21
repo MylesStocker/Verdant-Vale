@@ -4,6 +4,7 @@
     "MEADOW_MAP",
     "MAP2",
     "LORRA_HOUSE_MAP",
+    "ABANDONED_FARMHOUSE_MAP",
     "MAREN_POST_MAP",
     "MAP3",
     "MAP4",
@@ -139,6 +140,12 @@
     },
     {
       "id": "LORRA_HOUSE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "ABANDONED_FARMHOUSE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -825,7 +832,7 @@
   "basementInRegistry": true,
   "resetIsolation": {
     "passed": true,
-    "checkedFields": 25,
+    "checkedFields": 26,
     "failures": []
   },
   "results": [
@@ -2186,6 +2193,64 @@
       "escapes": {
         "up": true,
         "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterAbandonedFarmhouse",
+      "group": "flat-transitions",
+      "setupCode": "enterAbandonedFarmhouse()",
+      "error": null,
+      "destMap": "ABANDONED_FARMHOUSE_MAP",
+      "px": 240,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitAbandonedFarmhouse",
+      "group": "flat-transitions",
+      "setupCode": "exitAbandonedFarmhouse()",
+      "error": null,
+      "destMap": "MAP2",
+      "px": 400,
+      "py": 400,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
         "left": true,
         "right": true
       },
@@ -7969,7 +8034,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 22,
+      "mapsUsingIt": 23,
       "handledInMovement": true
     },
     {

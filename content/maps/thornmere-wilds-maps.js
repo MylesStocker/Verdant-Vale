@@ -34,6 +34,30 @@ const LORRA_HOUSE_MAP = [
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14  bottom wall
 ];
 
+// ── Abandoned Farmhouse Interior  (16 × 15) ───────────────────────────────────
+// The second FARM_HOUSE on MAP2, at row 13 col 12. Its remaining household
+// traces are MAP_FEATURES inspectables; the broken-floor reed patch and the
+// abandoned furnishings are procedural interior overlays. Exit: c7 r12; the
+// exterior landing is on the path immediately north of the farmhouse.
+const ABANDONED_FARMHOUSE_MAP = [
+  //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  1
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  2
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 33, 19, 19, 19, 19],  //  3  cold hearth c11
+  [ 19, 19, 19, 18, 33, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  4  clothes crate c4
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  5
+  [ 19, 19, 19, 18, 18, 33, 33, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  6  farm table c5-6
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  7
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  8
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  //  9  broken floor/reeds overlay c10
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  // 10
+  [ 19, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19],  // 11
+  [ 19, 19, 19, 19, 19, 19, 19, 20, 19, 19, 19, 19, 19, 19, 19, 19],  // 12  INTERIOR_EXIT c7
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 13
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14
+];
+
 // ─── Far-Eastern World Map — Thornmere Fen  (16 × 15) ────────────────────────
 // Connected to MAP2 via a continuous seam at row 11 (MAP2.east ↔ MAP3.west).
 // Heavy wetland character: large northern lake (rows 1-3), mid-pond (rows 5-7),
@@ -402,8 +426,8 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
       [  3,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  2,  0,  0,  0,  0],  //  9  lake + road; east seam c15 = grass shore
       [  3,  0,  0,  0, 23,  0,  1,  0,  0,  0,  0,  2,  0,  0,  0,  3],  // 10  reeds west of lake + road; east seam c15 = tree framing the road crossing
       [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2],  // 11  east seam c15 → MAP3.west (continuous); the one-square road crossing, framed by trees at rows 10 & 12
-      [  3,  0, 54,  3,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  3],  // 12  FARM_HOUSE c2 (Lorra); tree c3 (original)
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 54,  0,  0,  3],  // 13  approach; FARM_HOUSE c12 (decorative — not yet enterable)
+      [  3,  0, 54,  3,  0,  0,  0,  0,  0,  0, 23, 23,  2, 23, 23,  3],  // 12  Lorra c2; reeds close around the eastern farmhouse approach
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23, 23, 54, 23,  0,  3],  // 13  abandoned FARM_HOUSE c12; irregular reed growth in the yard
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14
     ],
     displayName: 'Eastern Reaches', region: 'Eastern Reaches', contentKey: 'map2',

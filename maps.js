@@ -109,6 +109,7 @@ const DREAM_MAP = [
 // ─── Expose to global scope ───────────────────────────────────────────────────
 window.MAP2_ITEMS           = MAP2_ITEMS;
 window.LORRA_HOUSE_MAP      = LORRA_HOUSE_MAP;
+window.ABANDONED_FARMHOUSE_MAP = ABANDONED_FARMHOUSE_MAP;
 window.MAREN_POST_MAP       = MAREN_POST_MAP;
 window.MAP3_ITEMS           = MAP3_ITEMS;
 window.MAP4_ITEMS           = MAP4_ITEMS;

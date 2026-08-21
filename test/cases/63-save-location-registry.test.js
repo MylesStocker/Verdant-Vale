@@ -91,7 +91,7 @@ module.exports = {
     // the guard that caught inBasinChamber/inSunkenGallery being dropped from the
     // old hand-copied flag list.
     const singleModes = ['inMireVault', 'inTakomo', 'inFenBrewery', 'inHamletInterior',
-      'inLorraHouse', 'inMarenPost', 'inDrenwrickPost', 'inSmugglerFort',
+      'inLorraHouse', 'inAbandonedFarmhouse', 'inMarenPost', 'inDrenwrickPost', 'inSmugglerFort',
       'inBasinChamber', 'inSunkenGallery', 'inDungeonEntrance'];
     for (const mode of singleModes) {
       const okRoundTrip = g.run(`(function(){

@@ -45,8 +45,11 @@ const CALWICK_NPCS = [
     spriteType:    'clerk',
     get dialogue() {
       const pages = [
-        ['\u201cThe monsters in the wilderness carry gold. Sorted. Minted.', 'No record of where it comes from.\u201d'],
-        ['\u201cI have filed three reports on the matter.', 'None has been acknowledged.\u201d'],
+        ['\u201cThe monsters in the wilderness carry gold. Sorted. Minted. Apparently they take it from people they defeat.\u201d',
+         '\u201cThat includes you. Lose a fight, and whatever coin you were carrying goes with them.\u201d',
+         '\u201cKeep anything you cannot afford to lose in the chest at home before you leave town. Monsters have not, so far, learned burglary.\u201d'],
+        ['\u201cAnd the stronger the monster, the more gold it tends to have. What is this monster economy, and why does it exist?\u201d',
+         '\u201cI have filed four reports on the matter. None has been acknowledged.\u201d'],
       ];
       if (weight_quest_stage >= 4) pages.push(
         ['\u201cRenn\u2019s discrepancy is closed.\u201d',

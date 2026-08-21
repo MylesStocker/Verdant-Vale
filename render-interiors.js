@@ -2548,3 +2548,68 @@ function drawGuildHallFurniture() {
     ctx.fillRect(tx + 52, ty + 18, 6, 7);
   }
 }
+
+// ── Eastern Reaches abandoned farmhouse ──────────────────────────
+// Static, deterministic overlays on the ordinary interior grid. The broken
+// floor keeps INTERIOR_FLOOR as its collision tile, then draws the dark gap,
+// displaced boards, and reed stalks over it so the growth unmistakably comes
+// through the house rather than reading as an outdoor REEDS tile indoors.
+function drawAbandonedFarmhouseFurniture() {
+  if (!inAbandonedFarmhouse || activeMap !== ABANDONED_FARMHOUSE_MAP) return;
+
+  // Cold stone hearth and empty hook bar (r3 c11).
+  {
+    const x = 11 * TILE, y = 3 * TILE;
+    ctx.fillStyle = '#786f62'; ctx.fillRect(x + 3, y + 3, 26, 25);
+    ctx.fillStyle = '#948a79'; ctx.fillRect(x + 2, y + 2, 28, 5);
+    ctx.fillStyle = '#29231d'; ctx.fillRect(x + 8, y + 10, 16, 15);
+    ctx.fillStyle = '#4a433a'; ctx.fillRect(x + 10, y + 21, 12, 3);
+    ctx.fillStyle = '#36291c'; ctx.fillRect(x - 7, y + 5, 8, 2);
+    ctx.fillRect(x - 5, y + 7, 2, 7);
+  }
+
+  // Shallow crate with small folded garments (r4 c4).
+  {
+    const x = 4 * TILE, y = 4 * TILE;
+    ctx.fillStyle = '#4b2d16'; ctx.fillRect(x + 4, y + 6, 24, 21);
+    ctx.fillStyle = '#73502b'; ctx.fillRect(x + 6, y + 8, 20, 3);
+    ctx.fillStyle = '#9b8364'; ctx.fillRect(x + 7, y + 12, 14, 6);
+    ctx.fillStyle = '#6d7880'; ctx.fillRect(x + 10, y + 18, 15, 5);
+    ctx.fillStyle = '#b4aa8f'; ctx.fillRect(x + 7, y + 23, 7, 2);
+    ctx.fillRect(x + 17, y + 24, 6, 2);
+  }
+
+  // Ledger and chipped cup on the two-tile farm table (r6 c5-6).
+  {
+    const x = 5 * TILE, y = 6 * TILE;
+    ctx.fillStyle = '#d7caa6'; ctx.fillRect(x + 8, y + 8, 18, 13);
+    ctx.fillStyle = '#6f6550'; ctx.fillRect(x + 17, y + 8, 1, 13);
+    ctx.fillRect(x + 10, y + 12, 6, 1); ctx.fillRect(x + 19, y + 12, 5, 1);
+    ctx.fillRect(x + 10, y + 16, 5, 1); ctx.fillRect(x + 19, y + 16, 6, 1);
+    ctx.fillStyle = '#827866'; ctx.fillRect(x + 43, y + 10, 7, 7);
+    ctx.fillRect(x + 50, y + 12, 3, 3);
+    ctx.fillStyle = '#332a20'; ctx.fillRect(x + 45, y + 10, 3, 2);
+  }
+
+  // Bowed floorboards and reeds pushing up through the wet gap (r9 c10).
+  {
+    const x = 10 * TILE, y = 9 * TILE;
+    ctx.fillStyle = '#211d18'; ctx.fillRect(x + 4, y + 8, 24, 15);
+    ctx.fillStyle = '#314538'; ctx.fillRect(x + 6, y + 18, 20, 5);
+    ctx.fillStyle = '#76522e'; ctx.fillRect(x + 2, y + 4, 5, 24);
+    ctx.fillRect(x + 25, y + 3, 5, 25);
+    ctx.fillStyle = '#9a6d3e'; ctx.fillRect(x + 3, y + 4, 3, 23);
+    ctx.fillRect(x + 26, y + 3, 3, 24);
+    const sway = (tick >> 4) & 1;
+    ctx.fillStyle = '#577142';
+    ctx.fillRect(x + 9,  y + 7 + sway, 2, 16);
+    ctx.fillRect(x + 14, y + 3,        2, 20);
+    ctx.fillRect(x + 20, y + 8 - sway, 2, 15);
+    ctx.fillRect(x + 24, y + 5,        2, 18);
+    ctx.fillStyle = '#789052';
+    ctx.fillRect(x + 7,  y + 11 + sway, 5, 2);
+    ctx.fillRect(x + 14, y + 8,          5, 2);
+    ctx.fillRect(x + 18, y + 13 - sway,  4, 2);
+    ctx.fillRect(x + 22, y + 9,          4, 2);
+  }
+}

@@ -93,7 +93,7 @@ function resetIsolationCheck() {
     inDungeon: false, dungeonFloor: 1, inTown: false, currentTownId: null, townBuilding: null,
     currentHouseId: null, houseSourceMap: null, houseSourceBuilding: null,
     inSluice: false, sluiceFloor: 1, inMireVault: false, inTakomo: false, inFenBrewery: false,
-    inHamletInterior: false, inLorraHouse: false, inMarenPost: false, inDrenwrickPost: false,
+    inHamletInterior: false, inLorraHouse: false, inAbandonedFarmhouse: false, inMarenPost: false, inDrenwrickPost: false,
     inBridgePost: false, inSmugglerFort: false, inDungeonEntrance: false,
     inBasinChamber: false, inSunkenGallery: false,
     bridge_entry_direction: null, bridge_toll_paid: false,
@@ -103,7 +103,7 @@ function resetIsolationCheck() {
     inDungeon=true; dungeonFloor=9; inTown=true; currentTownId='drenwick'; townBuilding='house';
     currentHouseId='esla_house'; houseSourceMap=MAP2; houseSourceBuilding='west';
     inSluice=true; sluiceFloor=3; inMireVault=true; inTakomo=true; inFenBrewery=true;
-    inHamletInterior=true; inLorraHouse=true; inMarenPost=true; inDrenwrickPost=true;
+    inHamletInterior=true; inLorraHouse=true; inAbandonedFarmhouse=true; inMarenPost=true; inDrenwrickPost=true;
     inBridgePost=true; inSmugglerFort=true; inDungeonEntrance=true;
     inBasinChamber=true; inSunkenGallery=true;
     bridge_entry_direction='south'; bridge_toll_paid=true;
@@ -237,7 +237,7 @@ const flatFns = [
   'd3_TL_to_ML', 'd3_ML_to_TL', 'd3_TR_to_MR', 'd3_MR_to_TR', 'd3_ML_to_MC', 'd3_MC_to_ML',
   'd3_MC_to_MR', 'd3_MR_to_MC', 'd3_ML_to_BL', 'd3_BL_to_ML', 'd3_MC_to_BC', 'd3_BC_to_MC',
   'd3_MR_to_BR', 'd3_BR_to_MR', 'd3_BL_to_BC', 'd3_BC_to_BL', 'd3_BC_to_BR', 'd3_BR_to_BC',
-  'enterLorraHouse', 'exitLorraHouse',
+  'enterLorraHouse', 'exitLorraHouse', 'enterAbandonedFarmhouse', 'exitAbandonedFarmhouse',
   'enterMarenPost', 'exitMarenPost',
   'enterDrenwrickPost', 'exitDrenwrickPost',
   'enterBridgePostFromSouth', 'enterBridgePostFromNorth', 'exitBridgeSouth', 'exitBridgeNorth',

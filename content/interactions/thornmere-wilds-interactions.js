@@ -597,6 +597,47 @@ const THORNMERE_WILDS_MAP_FEATURES = {
     },
   ],
 
+  // ── Eastern Reaches — abandoned eastern farmhouse ────────────────
+  // Repeatable, non-quest observations. Together they establish an ordinary
+  // farm household that packed up and left without assigning a definitive
+  // cause; there are deliberately no fantastical implications.
+  ABANDONED_FARMHOUSE_MAP: [
+    {
+      id: 'abandoned_farmhouse_child_clothes', type: 'inspect', x: 4.5, y: 4.5, radius: 40, allowUnwalkable: true, label: 'Children’s clothes', name: 'Children’s clothes',
+      pages: [
+        ['A shallow crate holds children’s clothes: two small linen shirts, patched trousers, and wool stockings gone stiff with damp.',
+         'Every piece has been mended more than once. They were useful clothes, kept useful for as long as they could be.'],
+        ['Most of the household was packed or sold. These were left behind.',
+         'There is no note to say whether the family meant to come back for them.'],
+      ],
+    },
+    {
+      id: 'abandoned_farmhouse_cold_hearth', type: 'inspect', x: 11.5, y: 3.5, radius: 40, allowUnwalkable: true, label: 'Cold hearth', name: 'Cold hearth',
+      pages: [
+        ['The hearth is cold and swept. The kettle is gone; so are the good iron hooks.',
+         'A cracked crock and a little cooking salt remain in the cupboard beside it.'],
+        ['They did not flee in the middle of supper. Someone chose what was worth carrying and cleaned up before they shut the door.'],
+      ],
+    },
+    {
+      id: 'abandoned_farmhouse_tally', type: 'inspect', x: 5.5, y: 6.5, radius: 40, allowUnwalkable: true, label: 'Farm tally', name: 'Farm tally',
+      pages: [
+        ['A farm tally lies pinned beneath a chipped cup. Seed, lamp oil, boot leather, the cooper’s work — ordinary costs marked down and crossed through.',
+         'The figures get tighter toward the bottom of the page, but every settled account is carefully struck.'],
+        ['The final lines list a cart, two days’ hire, and six miles east.',
+         'No reason is written beside them.'],
+      ],
+    },
+    {
+      id: 'abandoned_farmhouse_floor_reeds', type: 'inspect', x: 10.5, y: 9.5, label: 'Reeds through the floor', name: 'Reeds through the floor',
+      pages: [
+        ['Three floorboards have bowed apart beneath the window. Black soil shows in the gap, wet enough for a thick patch of reeds.',
+         'Their newest shoots are pale in the dim room; last year’s dry stalks already reach the sill.'],
+        ['Outside, reeds press close around the yard. In here they are taking the house back one board at a time.'],
+      ],
+    },
+  ],
+
 };
 
 // Split out of the former interactWildsAndOutposts() by the regional-content-split;

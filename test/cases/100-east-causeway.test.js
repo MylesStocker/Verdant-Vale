@@ -173,6 +173,6 @@ module.exports = {
     const audit=require('../transition-audit.js'); const verdict=Object.fromEntries(audit.seamReadiness.edges.map((e)=>[e.mapId+'|'+e.dir,e.verdict]));
     assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BORDER');
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:48,BLOCKED:46}); assert.equal(audit.seamReadiness.edges.length,120);
-    assert.equal(g.run('continuousSeamEntries().length'),68); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),30); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),117); assert.equal(g.run('SAVE_VERSION'),4);
+    assert.equal(g.run('continuousSeamEntries().length'),68); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),30); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),118); assert.equal(g.run('SAVE_VERSION'),4);
   },
 };

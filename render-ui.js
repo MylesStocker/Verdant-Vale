@@ -1361,11 +1361,13 @@ function drawMenu() {
 // 'action' (shows a plain arrow-cue, fires once on Enter/Space -- see
 // input.js). Row count/order here must match DEBUG_MENU_ROW_COUNT (state.js)
 // and input.js's debugMenu.cursor handling.
+// Wide enough for the longest label plus its separate ON/OFF pill.
+const DEBUG_MENU_PANEL_WIDTH = 300;
 function drawDebugMenu() {
   if (!debugMenu.open) return;
 
   const W = 512, H = 480;
-  const PW = 200, PH = 292;
+  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 292;
   const PX = Math.floor((W - PW) / 2);
   const PY = Math.floor((H - PH) / 2);
 

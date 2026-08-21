@@ -40,6 +40,7 @@ function isClosedToday(building) {
 let travellerPresent = false; // re-rolled each time the player enters town
 let inSluice             = false; // true when inside East Sluice
 let inLorraHouse         = false; // true when inside Lorra's farmhouse on MAP2
+let inAbandonedFarmhouse = false; // true inside the vacant eastern farmhouse on MAP2
 let inMarenPost          = false; // true when inside Maren's guard post on MAP
 let inDrenwrickPost      = false; // true when inside the Drenwick approach guard post (MAP3_N2)
 let inBridgePost         = false; // true when inside the imperial toll bridge checkpoint (MAP3_N2)

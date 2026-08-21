@@ -227,7 +227,12 @@ const SLUICE_SECRET_ENEMY_TEMPLATES = [
 // ── World pick-up items ───────────────────────────────────────────────────────
 // Iron Sword and Leather Armor moved to starting inventory (issued by Empire office).
 const WORLD_ITEMS = [
-  { id: 'pickup_world_potion', name: 'Potion', type: 'potion', heals: 20, price: 30, x: 6.5 * TILE, y: 11.5 * TILE, picked: false },
+  { id: 'pickup_world_potion', name: 'Potion', type: 'potion', heals: 20, price: 30,
+    x: 6.5 * TILE, y: 11.5 * TILE, picked: false, examine: true,
+    examinePages: [
+      ['Someone must have dropped a potion in the grass!'],
+      ['Got Potion.'],
+    ] },
 ];
 
 const DUNGEON_ITEMS = [
@@ -777,6 +782,12 @@ const MAP_CATALOG = {
     id: 'LORRA_HOUSE_MAP', map: LORRA_HOUSE_MAP, displayName: "Lorra's Farmhouse", region: 'Thornmere',
     type: 'interior', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
+  },
+  ABANDONED_FARMHOUSE_MAP: {
+    id: 'ABANDONED_FARMHOUSE_MAP', map: ABANDONED_FARMHOUSE_MAP, displayName: 'Abandoned Farmhouse', region: 'Eastern Reaches',
+    type: 'interior', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'The vacated eastern farmhouse on MAP2. Grounded household inspectables only; no NPCs, pickups, or scripted encounters.',
   },
   MAREN_POST_MAP: {
     id: 'MAREN_POST_MAP', map: MAREN_POST_MAP, displayName: 'Guard Post', region: 'Thornmere',

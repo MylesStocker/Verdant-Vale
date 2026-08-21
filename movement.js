@@ -94,6 +94,7 @@ function locationName() {
   }
   if (inTown)                                 return 'Calwick';
   if (inLorraHouse)                           return "Lorra's Farmhouse";
+  if (inAbandonedFarmhouse)                   return 'Abandoned Farmhouse';
   if (inMarenPost)                            return 'Guard Post';
   if (inDrenwrickPost)                        return 'Guard Post';
   if (inBridgePost)                           return 'Imperial Bridge \u2014 Toll Gate';
@@ -109,6 +110,7 @@ function locationName() {
 // ('west', 'drenwick_civic', …). See MAP_CATALOG (data.js) for physical map ids.
 function currentContentLocationKey() {
   if (inLorraHouse)                  return 'lorra_house';
+  if (inAbandonedFarmhouse)          return 'abandoned_farmhouse';
   if (inMarenPost)                   return 'maren_post';
   if (inDrenwrickPost)               return 'drenwick_post';
   if (inBridgePost)                  return 'bridge_post';
@@ -518,9 +520,12 @@ function update() {
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP && curTile === TOWN_ENTRANCE) { enterTownAt('calwick', entryPointFromFacing(player.facing)); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP  && curTile === MAP2_EXIT)     { enterMap2(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP2 && curTile === MAP2_ENTRANCE) { exitMap2();  return; }
-    // player.x gate: only Lorra's house (col 2) is enterable; the decorative FARM_HOUSE at col 12 is not wired yet.
-    if (!inDungeon && !inTown && !inSluice && !inLorraHouse && activeMap === MAP2 && curTile === FARM_HOUSE && player.x <= 10 * TILE) { enterLorraHouse(); return; }
+    // MAP2's two farmhouses share a tile id; their stable columns select the
+    // occupied Lorra house (c2) or the abandoned eastern house (c12).
+    if (!inDungeon && !inTown && !inSluice && !inLorraHouse && !inAbandonedFarmhouse && activeMap === MAP2 && curTile === FARM_HOUSE && ttx === 2) { enterLorraHouse(); return; }
+    if (!inDungeon && !inTown && !inSluice && !inLorraHouse && !inAbandonedFarmhouse && activeMap === MAP2 && curTile === FARM_HOUSE && ttx === 12) { enterAbandonedFarmhouse(); return; }
     if (inLorraHouse && curTile === INTERIOR_EXIT)  { exitLorraHouse(); return; }
+    if (inAbandonedFarmhouse && curTile === INTERIOR_EXIT) { exitAbandonedFarmhouse(); return; }
     if (!inDungeon && !inTown && !inSluice && !inMarenPost && activeMap === MAP && curTile === GUARD_POST) { enterMarenPost(); return; }
     if (inMarenPost && curTile === INTERIOR_EXIT)   { exitMarenPost();  return; }
     // Drenwick guard post (MAP3_N2, row 12 col 11)

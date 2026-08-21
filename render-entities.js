@@ -1668,6 +1668,7 @@ function currentItemList() {
        : inMireVault  ? MIRE_VAULT_ITEMS
        : inTown       ? []
        : inLorraHouse    ? []
+       : inAbandonedFarmhouse ? []
        : inMarenPost     ? []
        : inDrenwrickPost ? []
        : inBridgePost    ? []

@@ -52,7 +52,7 @@ module.exports = {
     g.run(`
       inDungeon=false; inTown=false; inSluice=false; inMireVault=false; inTakomo=false;
       inFenBrewery=false; inHamletInterior=false; inDungeonEntrance=false;
-      inLorraHouse=false; inMarenPost=false; inDrenwrickPost=false; inBridgePost=false; inSmugglerFort=false;
+      inLorraHouse=false; inAbandonedFarmhouse=false; inMarenPost=false; inDrenwrickPost=false; inBridgePost=false; inSmugglerFort=false;
       activeMap = NORTH_BASIN_SW_MAP;
     ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('locationName()'), 'North Basin — Silt Flats');

@@ -44,6 +44,7 @@ const LOCATION_STATE_BINDINGS = [
   { key: 'inFenBrewery',        neutral: false, get: () => inFenBrewery,        set: (v) => { inFenBrewery = v; } },
   { key: 'inHamletInterior',    neutral: false, get: () => inHamletInterior,    set: (v) => { inHamletInterior = v; } },
   { key: 'inLorraHouse',        neutral: false, get: () => inLorraHouse,        set: (v) => { inLorraHouse = v; } },
+  { key: 'inAbandonedFarmhouse', neutral: false, get: () => inAbandonedFarmhouse, set: (v) => { inAbandonedFarmhouse = v; } },
   { key: 'inMarenPost',         neutral: false, get: () => inMarenPost,         set: (v) => { inMarenPost = v; } },
   { key: 'inDrenwrickPost',     neutral: false, get: () => inDrenwrickPost,     set: (v) => { inDrenwrickPost = v; } },
   { key: 'inBridgePost',        neutral: false, get: () => inBridgePost,        set: (v) => { inBridgePost = v; } },
@@ -58,7 +59,7 @@ const LOCATION_STATE_KEY_SET = new Set(LOCATION_STATE_BINDINGS.map((b) => b.key)
 // townBuilding='house', so it is the inTown mode, not a separate flag).
 const LOCATION_MAJOR_MODE_KEYS = [
   'inDungeon', 'inDungeonEntrance', 'inTown', 'inSluice', 'inMireVault', 'inTakomo',
-  'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inMarenPost', 'inDrenwrickPost',
+  'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inAbandonedFarmhouse', 'inMarenPost', 'inDrenwrickPost',
   'inBridgePost', 'inSmugglerFort', 'inBasinChamber', 'inSunkenGallery',
 ];
 
@@ -463,6 +464,17 @@ function enterLorraHouse() {
 
 function exitLorraHouse() {
   transitionToLocation({ mapId: 'MAP2', x: 2.5 * TILE, y: 13.5 * TILE, facing: 'down', cooldown: true }); // one step south of HOUSE_DOOR
+}
+
+function enterAbandonedFarmhouse() {
+  transitionToLocation({ mapId: 'ABANDONED_FARMHOUSE_MAP', x: 7.5 * TILE, y: 11.5 * TILE, facing: 'up',
+    state: { inAbandonedFarmhouse: true }, cooldown: true });
+}
+
+function exitAbandonedFarmhouse() {
+  // The farmhouse occupies MAP2 row 13, immediately above its blocked south
+  // edge, so its safe exterior doorstep is the path directly north at r12.
+  transitionToLocation({ mapId: 'MAP2', x: 12.5 * TILE, y: 12.5 * TILE, facing: 'down', cooldown: true });
 }
 
 function enterMarenPost() {

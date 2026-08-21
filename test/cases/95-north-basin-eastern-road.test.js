@@ -22,7 +22,7 @@ const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 // in their next-numbered focused test.
 const PRIOR_FPS = {
   MAP: 'fc772998da4db584a1d59d7125c4d52237b99bbda734ba2cb99ea723f8aaea7f',
-  MAP2: '879a6f9ea7fe373b2dc1a026c7374c1b2743288a533edac74bbcce263a571d5b',
+  MAP2: 'f7c253c495451b51adab13a9a884064f0aab96298376749010d6e506043de46d',
   MAP3: '14cb9111d171454cba60c986e8bd06974ab3023652ce036017bb0c4f13abca17',
   MAP4: '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9',
   MAP5: '93073d85311e659147f2af889d5aab2d6d3dbe76c632e4b2ab1e77f042349e1f',

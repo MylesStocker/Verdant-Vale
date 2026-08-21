@@ -107,6 +107,8 @@ const DEBUG_WARP_DESTINATIONS_AUTHORED = [
   // ── Interiors: other residences (own-flag interiors) ──────────────────────
   { id: 'interior:lorra_house', label: 'Lorra’s Farmhouse', category: 'interior', mapId: 'LORRA_HOUSE_MAP',
     state: { inLorraHouse: true }, defaultCol: 7, defaultRow: 11, facing: 'up' },
+  { id: 'interior:abandoned_farmhouse', label: 'Abandoned Farmhouse', category: 'interior', mapId: 'ABANDONED_FARMHOUSE_MAP',
+    state: { inAbandonedFarmhouse: true }, defaultCol: 7, defaultRow: 11, facing: 'up' },
   { id: 'interior:hamlet',      label: 'The Falls (Hamlet Interior)', category: 'interior', mapId: 'HAMLET_INTERIOR_MAP',
     state: { inHamletInterior: true }, defaultCol: 7, defaultRow: 12, facing: 'up' },
 

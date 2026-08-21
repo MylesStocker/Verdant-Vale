@@ -1871,8 +1871,8 @@ warningList }` — `errorList`/`warningList` are arrays of `{ group, message }`,
 which is what tests and the debug menu read rather than re-parsing console
 text.
 
-As of the last full pass: **0 errors, 4 warnings** across 115 maps, 27,600
-tile cells, 177 NPCs, 114 item placements, 105 enemy templates, 63 map
+As of the last full pass: **0 errors, 4 warnings** across 118 maps, 28,320
+tile cells, 177 NPCs, 114 item placements, 105 enemy templates, 67 map
 features, and the rest — see `PROJECT_STATUS.md` for what those 4 warnings
 actually are (all intentional, nothing newly introduced).
 

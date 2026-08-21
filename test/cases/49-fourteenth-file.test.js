@@ -46,7 +46,7 @@ function inspectClue(g, key) {
   g.run(`dialogue.open = false; choice.open = false;
          inTown = false; inDungeon = false; inSluice = false; inMireVault = false; inTakomo = false;
          inFenBrewery = false; inHamletInterior = false; inDungeonEntrance = false; inBridgePost = false;
-         inSmugglerFort = false; inBasinChamber = false; inSunkenGallery = false; inLorraHouse = false;
+         inSmugglerFort = false; inBasinChamber = false; inSunkenGallery = false; inLorraHouse = false; inAbandonedFarmhouse = false;
          inMarenPost = false; inDrenwrickPost = false; townBuilding = null;
          activeMap = ${c.map}; player.x = ${c.x} * TILE; player.y = ${c.y} * TILE; player.facing = 'down';`);
   g.run('handleInteract();');
