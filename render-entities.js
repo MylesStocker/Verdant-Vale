@@ -1644,6 +1644,20 @@ function drawDrenwichInnkeeper() {
 }
 
 
+// Active-map prompt for the lighthouse's landward door. The building body is
+// the LIGHTHOUSE terrain tile; this draws only the blinking interaction hint.
+function drawLighthouseEntranceHint() {
+  if (inLighthouse || activeMap !== MAP5 || player.facing !== 'right' || player.x >= 9 * TILE ||
+      !nearPlayer(9.5 * TILE, 7.5 * TILE, TALK_RADIUS * 1.5) || interactionUiOpened()) return;
+  if ((tick >> 4) & 1) {
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('SPACE', 9.5 * TILE, 7.5 * TILE - 28);
+    ctx.textAlign = 'left';
+  }
+}
+
 // ─── Item list helper ─────────────────────────────────────────────────────────
 function currentItemList() {
   return inDungeon    ? (dungeonFloor === 1  ? DUNGEON_ITEMS :
@@ -1676,6 +1690,7 @@ function currentItemList() {
        : inBridgePost    ? []
        : inSmugglerFort  ? []
        : inFenBrewery      ? []
+       : inLighthouse      ? []
        : inHamletInterior  ? []
        : inDungeonEntrance ? DUNGEON_ENTRANCE_ITEMS
        // Plain overworld maps (MAP2, MAP3, the North Basin maps, etc.) --

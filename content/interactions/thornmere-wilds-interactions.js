@@ -5,6 +5,91 @@
 // Loaded BEFORE interactions.js, which keeps the generic engine, MAP_FEATURES merge,
 // and the INTERACT_HANDLERS / OVERWORLD_INTERACT_HANDLERS tables that reference these.
 
+// Polwick's lighthouse side quest reuses his established spared-state fort NPC
+// and action path. The shared quest authority owns MQ4/outcome/exclusion logic;
+// this function owns only Polwick's dialogue and physical-availability fact.
+function polwickLighthouseDialogue(npc) {
+  if (lighthouseQuestInvariantErrors().length) return false;
+
+  // 1. Valid objective turn-in.
+  if (canTurnInLighthouseQuest('polwick')) {
+    dialogue.name = 'Polwick';
+    dialogue.pages = [
+      ['Polwick takes the gem and holds it toward the nearest slit of daylight.',
+       '“Still clean. Better than I expected from that place.”'],
+      ['“I know who’ll move it.” He pockets the stone.',
+       '“Four hundred. Your share of the proceeds, paid early because you took the risk.”'],
+      ['He counts the coin into your hand.',
+       '“Pleasure doing business with someone who understands quiet work.”'],
+    ];
+    dialogue.callbacks = [function () { completeLighthouseQuest('polwick'); }];
+    dialogue.open = true;
+    dialogue.page = 0;
+    return true;
+  }
+
+  // 2. Accepted quest reminder.
+  if (lighthouseQuestRoute() === 'polwick' &&
+      lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.POLWICK_ACCEPTED) {
+    dialogue.name = 'Polwick';
+    dialogue.pages = [
+      ['“The gem’s in the abandoned lighthouse in Thornmere Shallows.”',
+       '“Find the loose stone behind the old lens frame. The recess should still be sound, assuming the things from the shallows haven’t torn the inside apart.”'],
+      ['“Bring it here. I sell it, you get four hundred as your share. Simple arrangement.”'],
+    ];
+    dialogue.callbacks = null;
+    dialogue.open = true;
+    dialogue.page = 0;
+    return true;
+  }
+
+  // 3. Eligible offer. No day/time condition: availability is exactly the
+  // existing allied NPC path at the old fort.
+  const offerContext = {
+    giver: 'polwick',
+    polwickAlliedAvailable: !!npc && inSmugglerFort && activeMap === SMUGGLER_FORT_MAP &&
+      npc.map === 'smuggler_fort',
+  };
+  if (getLighthouseQuestOfferRoute(offerContext) === 'polwick') {
+    dialogue.name = 'Polwick';
+    dialogue.pages = [
+      ['Polwick glances past you toward the door before lowering his voice.',
+       '“There’s an old account we could still close profitably.”'],
+      ['“A gem from a smuggling run. We stashed it in the lighthouse out in Thornmere Shallows when the road got watched too closely.”',
+       '“The lighthouse is abandoned now. There’s a loose stone behind the old lens frame; the recess behind it should still hold the gem.”'],
+      ['“Problem is, unpleasant creatures have come out of the shallows and made the place theirs.”',
+       '“You recover the gem. I find the buyer.”'],
+      ['“Four hundred gold to you — your share of the profits.”',
+       '“Enough for the risk, and enough that neither of us needs to discuss who owned it first.”'],
+    ];
+    dialogue.callbacks = [function () {
+      choice.title = "The Smuggler's Share";
+      choice.options = ['Recover the gem', 'Leave it buried'];
+      choice.cursor = 0;
+      choice.callbacks = [
+        function acceptGemQuest() {
+          if (!acceptLighthouseQuest('polwick', offerContext)) return;
+          dialogue.name = 'Polwick';
+          dialogue.pages = [
+            ['“Good. Abandoned lighthouse, Thornmere Shallows. Loose stone behind the old lens frame. Find the stashed gem and bring it back here.”'],
+            ['“I handle the sale. Four hundred is your share. Whatever is living inside the lighthouse is your part of the arrangement.”'],
+          ];
+          dialogue.callbacks = null;
+          dialogue.open = true;
+          dialogue.page = 0;
+        },
+        function declineGemQuest() {},
+      ];
+      choice.open = true;
+    }];
+    dialogue.open = true;
+    dialogue.page = 0;
+    return true;
+  }
+
+  return false;
+}
+
 // ─── Smuggler fort interaction ────────────────────────────────────────────────
 function interactSmugglerFort() {
   if (fort_quest_stage === 0) {
@@ -640,9 +725,124 @@ const THORNMERE_WILDS_MAP_FEATURES = {
 
 };
 
+// ─── Abandoned Lighthouse ────────────────────────────────────────────────────
+// The exterior landmark remains a blocking regional tile. SPACE from its only
+// safe landward approach (west, facing the visible door) uses the ordinary
+// discrete-location transition authority; the lighthouse is enterable without
+// accepting either quest.
+function interactLighthouseExterior() {
+  if (inLighthouse || activeMap !== MAP5 || player.facing !== 'right' ||
+      player.x >= 9 * TILE || !nearPlayer(9.5 * TILE, 7.5 * TILE, TALK_RADIUS * 1.5)) return false;
+  enterLighthouse();
+  return true;
+}
+
+function openLighthouseDialogue(name, pages) {
+  dialogue.name = name;
+  dialogue.pages = pages;
+  dialogue.callbacks = null;
+  dialogue.open = true;
+  dialogue.page = 0;
+}
+
+function interactLighthouseLens() {
+  if (!nearPlayer(LIGHTHOUSE_LENS.x, LIGHTHOUSE_LENS.y, TALK_RADIUS * 1.5)) return false;
+
+  const objective = getActiveLighthouseObjective();
+  if (objective === 'Old Engagement Ring') {
+    const held = stats.items.some(function (item) { return item && item.name === objective; });
+    if (!held) {
+      grantItem(objective);
+      openLighthouseDialogue('Broken Lens', [
+        ['The great lens is cracked and clouded, its frame furred with salt. It could no longer throw a proper beam.'],
+        ['You work your fingers behind the lower mounting plate of the old lens.',
+         'A small ring comes free from the dust and corroded brass.'],
+        ['Found: Old Engagement Ring.'],
+      ]);
+    } else {
+      openLighthouseDialogue('Broken Lens', [
+        ['The lower mounting plate hangs loose where you searched it.',
+         'There is nothing else hidden behind it.'],
+      ]);
+    }
+    return true;
+  }
+
+  if (objective === 'Stashed Gem') {
+    const held = stats.items.some(function (item) { return item && item.name === objective; });
+    if (!held) {
+      grantItem(objective);
+      openLighthouseDialogue('Broken Lens', [
+        ['The great lens is cracked and clouded, its frame furred with salt. It could no longer throw a proper beam.'],
+        ['Behind the old lens frame, the loose stone shifts under your hand. A narrow recess opens beyond it.',
+         'The wrapped gem is still inside.'],
+        ['Found: Stashed Gem.'],
+      ]);
+    } else {
+      openLighthouseDialogue('Broken Lens', [
+        ['The loose stone behind the old lens frame sits open over an empty recess.',
+         'There is nothing else hidden there.'],
+      ]);
+    }
+    return true;
+  }
+
+  // NONE, completed, and malformed lighthouse state all fail closed through
+  // getActiveLighthouseObjective(): atmosphere only, with no route or item hint.
+  openLighthouseDialogue('Broken Lens', [
+    ['The great lens is cracked and clouded, its frame seized with salt.',
+     'It could no longer gather the light well enough to throw a proper beam across the shallows.'],
+  ]);
+  return true;
+}
+
+function interactLighthouseInterior() {
+  if (!inLighthouse) return false;
+
+  if (activeMap === LIGHTHOUSE_GROUND_MAP) {
+    if (nearPlayer(LIGHTHOUSE_TABLE.x, LIGHTHOUSE_TABLE.y, TALK_RADIUS * 1.5)) {
+      openLighthouseDialogue('Lightkeeper\u2019s Table', [
+        ['A salt-bleached table stands against the wall. Damp logbook pages have swollen together into a single unreadable block.'],
+      ]);
+      return true;
+    }
+    if (nearPlayer(LIGHTHOUSE_CABINET.x, LIGHTHOUSE_CABINET.y, TALK_RADIUS * 1.5)) {
+      if (!lighthouse_cabinet_looted) {
+        lighthouse_cabinet_looted = true;
+        grantItem('Elixir');
+        grantItem('Reed Remedy');
+        syncQuestFlagsToWindow();
+        openLighthouseDialogue('Lightkeeper\u2019s Cabinet', [
+          ['The cabinet doors drag against the warped frame. Behind mouldered cloth, two sealed supplies remain from the last lightkeeper.'],
+          ['Found: Elixir, Reed Remedy.'],
+        ]);
+      } else {
+        openLighthouseDialogue('Lightkeeper\u2019s Cabinet', [
+          ['The warped cabinet stands open. Nothing useful remains inside.'],
+        ]);
+      }
+      return true;
+    }
+  }
+
+  if (activeMap === LIGHTHOUSE_LANTERN_MAP) {
+    if (nearPlayer(LIGHTHOUSE_BED.x, LIGHTHOUSE_BED.y, TALK_RADIUS * 1.5)) {
+      openLighthouseDialogue('Old Bed', [
+        ['The narrow bed has sagged nearly to the floor. Its blanket is stiff with salt and age.'],
+      ]);
+      return true;
+    }
+    return interactLighthouseLens();
+  }
+
+  return false;
+}
+
 // Split out of the former interactWildsAndOutposts() by the regional-content-split;
 // original branch order preserved. Reached as an OVERWORLD_INTERACT_HANDLERS entry.
 function interactThornmereWilds() {
+  if (inLighthouse) return interactLighthouseInterior();
+  if (activeMap === MAP5 && interactLighthouseExterior()) return true;
   // Smuggler fort — all interaction routed through interactSmugglerFort
   if (activeMap === SMUGGLER_FORT_MAP) { interactSmugglerFort(); return true; }
   // Fen Brewery \u2014 Gorrit sells freshly made mushroom wine by the bottle or case

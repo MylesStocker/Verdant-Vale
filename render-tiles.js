@@ -242,9 +242,9 @@ function drawRocksInWater(x, y) {
   ctx.fillRect(x + 3, y + 26, 24, 1);
 }
 
-// A lighthouse standing on the shallows headland. Impassable landmark with no
-// interior (unenterable): terrain, not an interaction or transition. Static
-// pixel art — no randomness — over a plain GRASS footing so it reads as land.
+// A lighthouse standing on the shallows headland. The landmark remains a
+// blocking terrain tile; its landward door is entered with SPACE from the west.
+// Static pixel art — no randomness — over a plain GRASS footing.
 function drawLighthouse(x, y) {
   drawGrass(x, y);
 
@@ -265,6 +265,12 @@ function drawLighthouse(x, y) {
   ctx.fillRect(x + 19, y + 21, 2, 6);
   ctx.fillStyle = '#f0f0e8';             // lit left edge
   ctx.fillRect(x + 12, y + 10, 2, 17);
+
+  // Dark landward doorway, visible on the tower's lower-left face.
+  ctx.fillStyle = '#302820';
+  ctx.fillRect(x + 11, y + 22, 4, 5);
+  ctx.fillStyle = '#6b5840';
+  ctx.fillRect(x + 14, y + 23, 1, 1);
 
   // Red daymark bands.
   ctx.fillStyle = '#b23a2e';

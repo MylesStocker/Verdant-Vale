@@ -74,7 +74,7 @@ module.exports = {
     // ── 4. Outdoor warp => neutral location state ───────────────────────────
     warp('outdoor:MAP2');
     for (const flag of ['inDungeon', 'inTown', 'inSluice', 'inMireVault', 'inBridgePost',
-                        'inSunkenGallery', 'inBasinChamber', 'inDungeonEntrance', 'inHamletInterior']) {
+                        'inSunkenGallery', 'inBasinChamber', 'inDungeonEntrance', 'inHamletInterior', 'inLighthouse']) {
       assert.equal(g.run(flag), false, `outdoor warp leaves ${flag} neutral`);
     }
     assert.equal(g.run('currentTownId'), null, 'outdoor warp: currentTownId neutral');

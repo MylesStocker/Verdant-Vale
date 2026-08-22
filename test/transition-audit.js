@@ -246,6 +246,11 @@ const flatFns = [
   'enterMireVault', 'exitMireVault',
   'enterTakomo', 'exitTakomo',
   'enterFenBrewery', 'exitFenBrewery',
+  'enterLighthouse', 'exitLighthouse',
+  'ascendLighthouseGround', 'descendLighthouseLanding1',
+  'ascendLighthouseLanding1', 'descendLighthouseLanding2',
+  'ascendLighthouseLanding2', 'descendLighthouseLanding3',
+  'ascendLighthouseLanding3', 'descendLighthouseLantern',
   'exitHamletInterior', // room-dependent branch handled by pre-seeding player.x below
   'enterSluice', 'exitSluice',
   'descendToSluice2', 'ascendToSluice1', 'descendToSluice3', 'ascendToSluice2',

@@ -39,6 +39,7 @@ function locationName() {
   if (inMireVault)                         return 'Mirethyst\u2019s Vault';
   if (inHamletInterior)                    return 'The Falls';
   if (inFenBrewery)                        return 'Wend Brewery';
+  if (inLighthouse)                        return 'Abandoned Lighthouse';
   if (inSluice && sluiceFloor === 1)       return 'East Sluice';
   if (inSluice && sluiceFloor === 2)       return 'East Sluice \u2014 Lower Works';
   if (inSluice && sluiceFloor === 3)       return 'East Sluice \u2014 Deep Works';
@@ -135,6 +136,7 @@ function currentContentLocationKey() {
   if (inMireVault)                    return 'mire_vault';
   if (inHamletInterior)               return 'hamlet_interior';
   if (inFenBrewery)                   return 'fen_brewery';
+  if (inLighthouse)                   return 'lighthouse';
   if (inSluice && sluiceFloor === 1) return 'sluice';
   if (inSluice && sluiceFloor === 2) return 'sluice2';
   if (inSluice && sluiceFloor === 3) return 'sluice3';
@@ -237,6 +239,15 @@ function canWalk(cx, cy) {
   } else if (inSunkenGallery) {
     // The Bullet Time chest is solid until opened (grid room R2C4 only).
     if (activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened && Math.abs(cx - SUNKEN_GALLERY_CHEST.x) < 18 && Math.abs(cy - SUNKEN_GALLERY_CHEST.y) < 18) return false;
+  } else if (inLighthouse) {
+    const furniture = activeMap === LIGHTHOUSE_GROUND_MAP
+      ? [LIGHTHOUSE_TABLE, LIGHTHOUSE_CABINET]
+      : activeMap === LIGHTHOUSE_LANTERN_MAP
+        ? [LIGHTHOUSE_LENS, LIGHTHOUSE_BED]
+        : [];
+    for (const anchor of furniture) {
+      if (Math.abs(cx - anchor.x) < 18 && Math.abs(cy - anchor.y) < 18) return false;
+    }
   } else if (inDungeon && (dungeonFloor === 2 || dungeonFloor === 3)) {
     // bland floors — no solid obstacles beyond tile walkability
   } else if (inDungeon && dungeonFloor === 4) {
@@ -344,6 +355,7 @@ function isEncounterEligibleTile(tile) {
   if (activeMap === MEADOW_MAP) return false; // hidden meadow — deliberately encounter-free (the Warden is its only danger)
   if (inBridgePost) return false; // Imperial toll checkpoint — manned, encounter-free (its GRASS banks previously fell through to the generic outdoor roll, contradicting the map's allowRandomEncounters: false metadata; dying here also used to strand inBridgePost through the defeat respawn)
   if (inBasinChamber) return false; // the unmarked chamber — deliberately encounter-free (redundant with CHAMBER_FLOOR's encounterEligible: false, kept as a visible guarantee per the entrance-area rule)
+  if (inLighthouse) return false; // all five lighthouse floors are deliberately encounter-free
   // (inSunkenGallery deliberately has NO branch here: it falls through to the
   // TILE_PROPERTIES check below, where GALLERY_FLOOR is encounter-eligible —
   // the pool comes from MAP_METADATA.encounterPool, see combat.js.)
@@ -518,6 +530,15 @@ function update() {
     const ttx = Math.floor(player.x / TILE);
     const tty = Math.floor(player.y / TILE);
     const curTile = activeMap[tty] ? activeMap[tty][ttx] : -1;
+    if (inLighthouse && activeMap === LIGHTHOUSE_GROUND_MAP && curTile === INTERIOR_EXIT) { exitLighthouse(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_GROUND_MAP && curTile === DUNGEON2_STAIRS_UP) { ascendLighthouseGround(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_LANDING_1_MAP && curTile === DUNGEON_STAIRS_DOWN) { descendLighthouseLanding1(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_LANDING_1_MAP && curTile === DUNGEON2_STAIRS_UP) { ascendLighthouseLanding1(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_LANDING_2_MAP && curTile === DUNGEON_STAIRS_DOWN) { descendLighthouseLanding2(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_LANDING_2_MAP && curTile === DUNGEON2_STAIRS_UP) { ascendLighthouseLanding2(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_LANDING_3_MAP && curTile === DUNGEON_STAIRS_DOWN) { descendLighthouseLanding3(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_LANDING_3_MAP && curTile === DUNGEON2_STAIRS_UP) { ascendLighthouseLanding3(); return; }
+    if (inLighthouse && activeMap === LIGHTHOUSE_LANTERN_MAP && curTile === DUNGEON_STAIRS_DOWN) { descendLighthouseLantern(); return; }
     if (!inDungeon && !inDungeonEntrance && !inTown && !inSluice && curTile === DUNGEON_ENTRANCE) { enterDungeon(); return; }
     if (inDungeonEntrance && curTile === RUIN_STAIRS_DOWN) { descendToDungeon1(); return; }
     if (inDungeonEntrance && curTile === RUIN_EXIT)        { exitDungeon();       return; }

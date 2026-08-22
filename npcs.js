@@ -2061,6 +2061,7 @@ NPC_ACTIONS.fortGuardBlock = function() {
 // the generic dialogue path after the action check; so we need no action for that.
 // For stage 0, interactSmugglerFort() intercepts before interactSimpleNPCs().
 NPC_ACTIONS.polwickConfront = function(npc) {
+  if (typeof polwickLighthouseDialogue === 'function' && polwickLighthouseDialogue(npc)) return;
   // Fallback: show whatever dialogue the getter returns (spared state).
   dialogue.name  = npc.name;
   dialogue.pages = npc.dialogue;

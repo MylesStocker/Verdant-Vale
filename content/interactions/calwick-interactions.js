@@ -11,8 +11,102 @@
 // (supervisor_greet_day tracks the last day he greeted). Prepending after the
 // body runs is safe: dialogue.callbacks fire when the LAST page closes, so an
 // extra page up front never disturbs a branch's callback.
+function supervisorLighthouseDialogue(allowOffer) {
+  if (lighthouseQuestInvariantErrors().length) return false;
+
+  // 1. Valid objective turn-in.
+  if (canTurnInLighthouseQuest('supervisor')) {
+    dialogue.name = 'Supervisor';
+    dialogue.pages = [
+      ['He recognizes the ring before you set it down.',
+       'For once, he has no ledger open and no official phrase ready.'],
+      ['“Yes. That’s it.”',
+       'He turns it once between finger and thumb, then closes his hand around it.',
+       '“I had persuaded myself it mattered less than it does.”'],
+      ['He counts out one hundred and fifty gold.',
+       '“Mine, as promised. Not the office’s.”',
+       '“Thank you, Investigator. I mean that personally.”'],
+    ];
+    dialogue.callbacks = [function () { completeLighthouseQuest('supervisor'); }];
+    dialogue.open = true;
+    dialogue.page = 0;
+    return true;
+  }
+
+  // 2. Accepted quest reminder. This is valid at the office as well as at his
+  // Dayoff table, so returning the ring never requires waiting another week.
+  if (lighthouseQuestRoute() === 'supervisor' &&
+      lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_ACCEPTED) {
+    dialogue.name = 'Supervisor';
+    dialogue.pages = [
+      ['“The old lighthouse in Thornmere Shallows.”',
+       'He says it quietly, as though the office walls have no business hearing.'],
+      ['“The engagement ring should still be inside. If the things that came out of the shallows have left anything undisturbed.”',
+       '“Look behind the lower mounting plate of the old lens. Then bring it back to me. Carefully.”'],
+    ];
+    dialogue.callbacks = null;
+    dialogue.open = true;
+    dialogue.page = 0;
+    return true;
+  }
+
+  // 3. Eligible offer. `allowOffer` is true only from the existing drinking /
+  // Dayoff inn interaction below; the shared quest authority still receives
+  // that scene fact explicitly and fails closed everywhere else.
+  const offerContext = {
+    giver: 'supervisor',
+    supervisorDrinkingAtDayoffInn: allowOffer === true && inTown &&
+      currentTownId === 'calwick' && townBuilding === 'inn' && isDayOff(),
+  };
+  if (getLighthouseQuestOfferRoute(offerContext) === 'supervisor') {
+    dialogue.name = 'Supervisor';
+    dialogue.pages = [
+      ['He is at his usual Dayoff table, drinking slowly enough that the second glass has made him less guarded, not less precise.',
+       '“There is something I have never put in an office file.”'],
+      ['“Years ago I left an engagement ring in the lighthouse out in Thornmere Shallows. Lost it, left it — the distinction seemed useful at the time.”',
+       'He looks into his drink. “It still matters to me. More than I prefer admitting.”'],
+      ['“The lighthouse is abandoned now. Unpleasant creatures have come out of the shallows and taken up residence inside.”',
+       '“The ring is behind the lower mounting plate of the old lens. I would like it returned. Nothing else from there concerns me.”'],
+      ['“I can offer one hundred and fifty gold.”',
+       'He raises a hand before you answer. “My own money. Not the office’s. I am embarrassed enough without charging the district for it.”'],
+    ];
+    dialogue.callbacks = [function () {
+      choice.title = 'A Ring in the Shallows';
+      choice.options = ['Recover the ring', 'Not now'];
+      choice.cursor = 0;
+      choice.callbacks = [
+        function acceptRingQuest() {
+          if (!acceptLighthouseQuest('supervisor', offerContext)) return;
+          dialogue.name = 'Supervisor';
+          dialogue.pages = [
+            ['He nods once, relief arriving before he can school it out of his face.',
+             '“The abandoned lighthouse in Thornmere Shallows. Behind the lower mounting plate of the old lens — and no unnecessary heroics with whatever has moved in.”'],
+            ['“Bring it to me here or at the office. One hundred and fifty, from me.”'],
+          ];
+          dialogue.callbacks = null;
+          dialogue.open = true;
+          dialogue.page = 0;
+        },
+        function declineRingQuest() {},
+      ];
+      choice.open = true;
+    }];
+    dialogue.open = true;
+    dialogue.page = 0;
+    return true;
+  }
+
+  return false;
+}
+
 function interactSupervisor() {
-  supervisorDialogueBody();
+  // Unfinished main-story assignment/report beats retain priority. Once MQ4 is
+  // assigned, an accepted lighthouse reminder/turn-in may use the office unless
+  // the player has a basin report ready; that report remains first.
+  const criticalStoryPending = (day > 6 && !netto_letter_received) ||
+    !reservoir_quest_started ||
+    (reservoir_quest_started && !reservoir_report_filed && !!window.sunken_gallery_seen);
+  if (criticalStoryPending || !supervisorLighthouseDialogue(false)) supervisorDialogueBody();
   // One-time light admonishment: if the player crossed the bridge north of
   // Drenwick before the reservoir assignment existed (recorded in
   // exitBridgeNorth(), world-transitions.js), the supervisor notes it the next
@@ -1484,6 +1578,10 @@ function interactCalwickInn() {
         dialogue.page = 0;
         return true;
       }
+      // An already-active Fourteenth File remains first at this established
+      // report location. Otherwise the lighthouse quest (turn-in, reminder,
+      // then offer) precedes a fresh randomized Fourteenth File offer.
+      if (supervisorLighthouseDialogue(true)) return true;
       if (fourteenth_file_stage === 0 && MainQuest >= 1 && !(mq4_available_day > 0 && !reservoir_quest_started)) {
         if (fourteenth_file_offer_day !== day) {
           fourteenth_file_offer_day = day;

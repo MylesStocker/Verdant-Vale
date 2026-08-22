@@ -1982,7 +1982,7 @@ const OVERWORLD_INTERACT_HANDLERS = [
   { name: "house-interior"      , match: () => inTown && townBuilding === 'house'                                    , run: interactHouseInterior },
   { name: "sunken-gallery"      , match: () => inSunkenGallery                                                       , run: interactSunkenGallery },
   { name: "calwick-vale"        , match: () => activeMap === MEADOW_MAP || activeMap === MAREN_POST_MAP               , run: interactCalwickVale },
-  { name: "thornmere-wilds"     , match: () => activeMap === SMUGGLER_FORT_MAP || inFenBrewery                        , run: interactThornmereWilds },
+  { name: "thornmere-wilds"     , match: () => activeMap === MAP5 || activeMap === SMUGGLER_FORT_MAP || inFenBrewery || inLighthouse, run: interactThornmereWilds },
   { name: "drenwick-approach"   , match: () => inDrenwrickPost                                                        , run: interactDrenwickApproach },
   { name: "north-basin-wilds"   , match: () => true                                                                  , run: interactNorthBasinWilds },
 ];

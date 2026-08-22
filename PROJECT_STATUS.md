@@ -15,9 +15,9 @@ scenery-only, plus the unmarked chamber and the Sunken Gallery hanging off
 the Upper Reach; see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-118 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 118 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 94 are the
+125 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 125 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 101 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -144,21 +144,31 @@ rooms were added to the registry.)
   tally ending with cart hire, and reeds forcing their way through bowed
   floorboards. Seven GRASS cells immediately around the MAP2 farmhouse are now
   REEDS; no regional edge, seam, or other established terrain changed.
+- **The abandoned Thornmere lighthouse is enterable.** Its existing MAP5
+  landmark at c9 r7 now opens from the safe west-side approach into five
+  saveable, encounter-free discrete floors: a 5×5 ground room, three cramped
+  3×3 stair landings, and a 4×4 lantern room. The lightkeeper’s cabinet grants
+  one Elixir and one Reed Remedy through the persisted default-false
+  `lighthouse_cabinet_looted` binding. The broken lens consults only
+  `getActiveLighthouseObjective()`, granting the accepted route’s ring or gem
+  at most one at a time and nothing before acceptance, after completion, or in
+  malformed state. No regional grid or fingerprint changed; enemies remain
+  deferred.
 - **Small usability/content polish.** The debug menu is wide enough for its
   Legacy Regional Fallback row; Verdant Vale's field potion is now represented
   by the established inspectable sparkle and described as dropped in the grass;
   Aldric now explains carried-gold loss, home-chest storage, and the absurdly
   profitable monster economy.
-- **105 tests** (`test/cases/01-…105-`), `node test/run.js` — all passing.
+- **107 tests** (`test/cases/01-…107-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
-  isolation pass (26 fields including the active-map check), 118 maps, 240 fixed-destination transitions, 8
+  isolation pass (26 fields including the active-map check), 125 maps, 254 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
   constants cross-referenced — clean, no findings.
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
-  (see below), across 118 maps, 118 metadata entries, 28,320 tile cells, 148
-  edge transitions, 177 NPCs, 114 item placements, 105 enemy templates, 618
-  dialogue/text entries, 182 save-flag checks, 67 map features, 73 pickup ids,
+  (see below), across 125 maps, 125 metadata entries, 30,000 tile cells, 148
+  edge transitions, 180 NPCs, 116 item placements, 105 enemy templates, 624
+  dialogue/text entries, 187 save-flag checks, 67 map features, 73 pickup ids,
   19 chest ids.
 
 ## The 4 current warnings, and why none needs fixing

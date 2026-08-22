@@ -11,6 +11,11 @@
     "MAP3",
     "MAP4",
     "MAP5",
+    "LIGHTHOUSE_GROUND_MAP",
+    "LIGHTHOUSE_LANDING_1_MAP",
+    "LIGHTHOUSE_LANDING_2_MAP",
+    "LIGHTHOUSE_LANDING_3_MAP",
+    "LIGHTHOUSE_LANTERN_MAP",
     "MAP3_N1",
     "RODDON_WAY_MAP",
     "MAP3_N2",
@@ -184,6 +189,36 @@
     },
     {
       "id": "MAP5",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LIGHTHOUSE_GROUND_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LIGHTHOUSE_LANDING_1_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LIGHTHOUSE_LANDING_2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LIGHTHOUSE_LANDING_3_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LIGHTHOUSE_LANTERN_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -2845,6 +2880,296 @@
       "escapes": {
         "up": true,
         "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterLighthouse",
+      "group": "flat-transitions",
+      "setupCode": "enterLighthouse()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_GROUND_MAP",
+      "px": 240,
+      "py": 304,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 9,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitLighthouse",
+      "group": "flat-transitions",
+      "setupCode": "exitLighthouse()",
+      "error": null,
+      "destMap": "MAP5",
+      "px": 272,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 8,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "ascendLighthouseGround",
+      "group": "flat-transitions",
+      "setupCode": "ascendLighthouseGround()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_LANDING_1_MAP",
+      "px": 240,
+      "py": 272,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 8,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "descendLighthouseLanding1",
+      "group": "flat-transitions",
+      "setupCode": "descendLighthouseLanding1()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_GROUND_MAP",
+      "px": 304,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 9,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "ascendLighthouseLanding1",
+      "group": "flat-transitions",
+      "setupCode": "ascendLighthouseLanding1()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_LANDING_2_MAP",
+      "px": 240,
+      "py": 272,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 8,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "descendLighthouseLanding2",
+      "group": "flat-transitions",
+      "setupCode": "descendLighthouseLanding2()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_LANDING_1_MAP",
+      "px": 240,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "ascendLighthouseLanding2",
+      "group": "flat-transitions",
+      "setupCode": "ascendLighthouseLanding2()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_LANDING_3_MAP",
+      "px": 240,
+      "py": 272,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 8,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "descendLighthouseLanding3",
+      "group": "flat-transitions",
+      "setupCode": "descendLighthouseLanding3()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_LANDING_2_MAP",
+      "px": 240,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "ascendLighthouseLanding3",
+      "group": "flat-transitions",
+      "setupCode": "ascendLighthouseLanding3()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_LANTERN_MAP",
+      "px": 208,
+      "py": 240,
+      "facing": "up",
+      "tileCol": 6,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "descendLighthouseLantern",
+      "group": "flat-transitions",
+      "setupCode": "descendLighthouseLantern()",
+      "error": null,
+      "destMap": "LIGHTHOUSE_LANDING_3_MAP",
+      "px": 240,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -8134,12 +8459,12 @@
     },
     {
       "name": "DUNGEON_STAIRS_DOWN",
-      "mapsUsingIt": 11,
+      "mapsUsingIt": 15,
       "handledInMovement": true
     },
     {
       "name": "DUNGEON2_STAIRS_UP",
-      "mapsUsingIt": 10,
+      "mapsUsingIt": 14,
       "handledInMovement": true
     },
     {
@@ -8164,7 +8489,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 25,
+      "mapsUsingIt": 26,
       "handledInMovement": true
     },
     {

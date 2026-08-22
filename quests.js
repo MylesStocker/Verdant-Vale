@@ -260,6 +260,152 @@ let corvin_favor_done      = false; // player restored the struck entry (no path
 let corvin_favor_offer_day = 0;     // day the once-per-Dayoff 1/3 availability roll last ran
 let corvin_favor_offered   = false; // result of that roll (persisted so re-talk/save-load is stable)
 
+// ─── Side quests: Thornmere lighthouse (mutually exclusive routes) ─────
+// One stage value is the complete route + progress authority. It cannot encode
+// both routes at once:
+//   0 = neither accepted, 1 = Supervisor accepted, 2 = Supervisor completed,
+//   3 = Polwick accepted,  4 = Polwick completed.
+// The lighthouse interior must consult getActiveLighthouseObjective()
+// rather than reading this stage or the Polwick outcome flags independently.
+const LIGHTHOUSE_QUEST_STAGE = Object.freeze({
+  NONE: 0,
+  SUPERVISOR_ACCEPTED: 1,
+  SUPERVISOR_COMPLETED: 2,
+  POLWICK_ACCEPTED: 3,
+  POLWICK_COMPLETED: 4,
+});
+const LIGHTHOUSE_OBJECTIVE_BY_ROUTE = Object.freeze({
+  supervisor: 'Old Engagement Ring',
+  polwick: 'Stashed Gem',
+});
+let lighthouse_quest_stage = LIGHTHOUSE_QUEST_STAGE.NONE;
+let lighthouse_cabinet_looted = false;
+
+function lighthouseSourceValue(source, key, liveValue, defaultValue) {
+  if (!source) return liveValue;
+  return Object.prototype.hasOwnProperty.call(source, key) ? source[key] : defaultValue;
+}
+
+// Pure classification of the established Polwick outcome authorities. The
+// allied outcome is the terminal spared-and-concealed state that keeps Polwick
+// available at the fort; killed and truthfully reported is a valid killed
+// state, not a contradiction. Impossible mixtures return 'invalid'.
+function polwickLighthouseOutcome(source) {
+  const stage = lighthouseSourceValue(source, 'fort_quest_stage', fort_quest_stage, 0);
+  const dead = lighthouseSourceValue(source, 'smugglers_dead', smugglers_dead, false);
+  const reported = lighthouseSourceValue(source, 'fort_report_filed', fort_report_filed, false);
+  const executionDay = lighthouseSourceValue(source, 'smugglers_execution_day', smugglers_execution_day, 0);
+
+  if (!Number.isInteger(stage) || stage < 0 || stage > 6 ||
+      typeof dead !== 'boolean' || typeof reported !== 'boolean' ||
+      !Number.isInteger(executionDay) || executionDay < 0) return 'invalid';
+
+  if (stage < 4) return (!dead && !reported && executionDay === 0) ? 'unresolved' : 'invalid';
+  if (stage === 4) return (dead && !reported && executionDay === 0) ? 'unresolved' : 'invalid';
+  if (stage === 5) return (!dead && !reported && executionDay === 0) ? 'unresolved' : 'invalid';
+
+  // stage 6 is the only terminal state from which MQ4 can be assigned.
+  if (dead) return executionDay === 0 ? 'killed' : 'invalid';
+  if (reported) return executionDay > 0 ? 'reported' : 'invalid';
+  return executionDay === 0 ? 'allied' : 'invalid';
+}
+
+// Pure invariant used by runtime eligibility, validation, and save preflight.
+// A source object is a candidate save payload; absent new fields receive their
+// declared old-save defaults without mutating the payload or live state.
+function lighthouseQuestInvariantErrors(source) {
+  const errors = [];
+  const stage = lighthouseSourceValue(source, 'lighthouse_quest_stage', lighthouse_quest_stage, LIGHTHOUSE_QUEST_STAGE.NONE);
+  const mq4Assigned = lighthouseSourceValue(source, 'reservoir_quest_started', reservoir_quest_started, false);
+  const outcome = polwickLighthouseOutcome(source);
+
+  if (!Number.isInteger(stage) || stage < LIGHTHOUSE_QUEST_STAGE.NONE || stage > LIGHTHOUSE_QUEST_STAGE.POLWICK_COMPLETED) {
+    errors.push('lighthouse_quest_stage must be an integer from 0 through 4');
+    return errors;
+  }
+  if (outcome === 'invalid') errors.push('Polwick outcome flags are mutually incompatible');
+  if (stage !== LIGHTHOUSE_QUEST_STAGE.NONE && mq4Assigned !== true) {
+    errors.push('a lighthouse route exists before the MQ4 assignment');
+  }
+  if ((stage === LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_ACCEPTED || stage === LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_COMPLETED) &&
+      outcome !== 'killed' && outcome !== 'reported') {
+    errors.push('the Supervisor lighthouse route conflicts with the Polwick outcome');
+  }
+  if ((stage === LIGHTHOUSE_QUEST_STAGE.POLWICK_ACCEPTED || stage === LIGHTHOUSE_QUEST_STAGE.POLWICK_COMPLETED) &&
+      outcome !== 'allied') {
+    errors.push('the Polwick lighthouse route conflicts with the Polwick outcome');
+  }
+  return errors;
+}
+
+function lighthouseQuestRoute() {
+  if (lighthouseQuestInvariantErrors().length) return null;
+  if (lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_ACCEPTED ||
+      lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_COMPLETED) return 'supervisor';
+  if (lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.POLWICK_ACCEPTED ||
+      lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.POLWICK_COMPLETED) return 'polwick';
+  return null;
+}
+
+// The one offer authority for both givers. Callers supply only facts owned by
+// their existing physical interaction scene; this function owns every shared
+// MQ4/outcome/mutual-exclusion decision.
+function getLighthouseQuestOfferRoute(context) {
+  if (!context || lighthouseQuestInvariantErrors().length ||
+      lighthouse_quest_stage !== LIGHTHOUSE_QUEST_STAGE.NONE || !reservoir_quest_started) return null;
+  const outcome = polwickLighthouseOutcome();
+  if (context.giver === 'supervisor' && context.supervisorDrinkingAtDayoffInn === true &&
+      (outcome === 'killed' || outcome === 'reported')) return 'supervisor';
+  if (context.giver === 'polwick' && context.polwickAlliedAvailable === true && outcome === 'allied') return 'polwick';
+  return null;
+}
+
+function acceptLighthouseQuest(route, context) {
+  if (getLighthouseQuestOfferRoute(context) !== route) return false;
+  lighthouse_quest_stage = route === 'supervisor'
+    ? LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_ACCEPTED
+    : LIGHTHOUSE_QUEST_STAGE.POLWICK_ACCEPTED;
+  syncQuestFlagsToWindow();
+  return true;
+}
+
+// Pure interior contract: exactly one name while an accepted route is
+// active; never before acceptance, after completion, or in invalid state.
+function getActiveLighthouseObjective() {
+  if (lighthouseQuestInvariantErrors().length) return null;
+  if (lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_ACCEPTED)
+    return LIGHTHOUSE_OBJECTIVE_BY_ROUTE.supervisor;
+  if (lighthouse_quest_stage === LIGHTHOUSE_QUEST_STAGE.POLWICK_ACCEPTED)
+    return LIGHTHOUSE_OBJECTIVE_BY_ROUTE.polwick;
+  return null;
+}
+
+function canTurnInLighthouseQuest(giver) {
+  const objective = getActiveLighthouseObjective();
+  return lighthouseQuestRoute() === giver && objective !== null &&
+    stats.items.some(function (item) { return item && item.name === objective; });
+}
+
+// Single reward authority for both routes. Revalidates at callback time,
+// removes one matching item, completes first, and pays once. A second copy may
+// remain in a synthetic inventory, but the completed stage makes every later
+// call inert.
+function completeLighthouseQuest(giver) {
+  if (!canTurnInLighthouseQuest(giver)) return null;
+  const objective = getActiveLighthouseObjective();
+  const itemIndex = stats.items.findIndex(function (item) { return item && item.name === objective; });
+  if (itemIndex < 0) return null;
+
+  const reward = giver === 'supervisor' ? 150 : 400;
+  lighthouse_quest_stage = giver === 'supervisor'
+    ? LIGHTHOUSE_QUEST_STAGE.SUPERVISOR_COMPLETED
+    : LIGHTHOUSE_QUEST_STAGE.POLWICK_COMPLETED;
+  stats.items.splice(itemIndex, 1);
+  stats.gold += reward;
+  syncQuestFlagsToWindow();
+  return { route: giver, objective: objective, reward: reward };
+}
+
 // ─── Window sync ─────────────────────────────────────────────────────────────
 // window.* values are for debugging and console inspection only — gameplay code
 // uses the let bindings directly. Call syncQuestFlagsToWindow() after any
@@ -333,6 +479,8 @@ function syncQuestFlagsToWindow() {
   window.corvin_favor_done      = corvin_favor_done;
   window.corvin_favor_offer_day = corvin_favor_offer_day;
   window.corvin_favor_offered   = corvin_favor_offered;
+  window.lighthouse_quest_stage = lighthouse_quest_stage;
+  window.lighthouse_cabinet_looted = lighthouse_cabinet_looted;
   // Window-native MAP_FEATURES onceFlags (Upper Reach pass) -- window[name]
   // is the source of truth (interactions.js sets it directly), so these
   // lines only normalize undefined -> false. They must NEVER assign from a
@@ -442,6 +590,25 @@ function getActiveQuestNotes() {
   } else if (den_wraith_defeated && !den_wraith_rewarded) {
     notes.push({ title: 'Den Wraith', body: "Return to claim the wraith bounty." });
   }
+  // Mutually exclusive Thornmere lighthouse route
+  const lighthouseObjective = getActiveLighthouseObjective();
+  if (lighthouseObjective === LIGHTHOUSE_OBJECTIVE_BY_ROUTE.supervisor) {
+    const hasRing = stats.items.some(function (item) { return item && item.name === lighthouseObjective; });
+    notes.push({
+      title: 'A Ring in the Shallows',
+      body: hasRing
+        ? 'Return the Old Engagement Ring to the Supervisor.'
+        : 'Recover the Old Engagement Ring from the abandoned lighthouse in Thornmere Shallows. Creatures from the shallows have reportedly taken up residence inside.',
+    });
+  } else if (lighthouseObjective === LIGHTHOUSE_OBJECTIVE_BY_ROUTE.polwick) {
+    const hasGem = stats.items.some(function (item) { return item && item.name === lighthouseObjective; });
+    notes.push({
+      title: "The Smuggler's Share",
+      body: hasGem
+        ? 'Return the Stashed Gem to Polwick at the old fen post.'
+        : 'Recover the Stashed Gem from the abandoned lighthouse in Thornmere Shallows. Creatures from the shallows have taken up residence inside.',
+    });
+  }
   // A Bottle for Her Father
   if (wine_quest_started && !wine_quest_delivered) {
     notes.push({ title: "Fenna's Father", body: "Buy mushroom wine at Wend's brewery in the fen and bring it to Sael, Fenna's father, in Drenwick." });
@@ -463,9 +630,19 @@ function getActiveQuestNotes() {
     'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
     'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
     'Thank-You Note':          "From Sael. Fenna will want to see this.",
+    'Old Engagement Ring':     'The Supervisor asked for this back for personal reasons.',
+    'Stashed Gem':             "Polwick's share from an old smuggling job.",
   };
   const seenSpecial = new Set();
-  const specialItems = stats.items.filter(it => it.questItem && !seenSpecial.has(it.name) && seenSpecial.add(it.name));
+  const lighthouseItemNames = new Set(Object.values(LIGHTHOUSE_OBJECTIVE_BY_ROUTE));
+  const specialItems = stats.items.filter(function (it) {
+    if (!it.questItem || seenSpecial.has(it.name)) return false;
+    // Synthetic/wrong-route lighthouse items must not leak the excluded route
+    // into the journal. Only the currently active objective may be listed.
+    if (lighthouseItemNames.has(it.name) && it.name !== lighthouseObjective) return false;
+    seenSpecial.add(it.name);
+    return true;
+  });
   if (specialItems.length > 0) {
     notes.push({ header: 'SPECIAL ITEMS' });
     specialItems.forEach(it => {
@@ -476,5 +653,15 @@ function getActiveQuestNotes() {
   return notes;
 }
 window.getActiveQuestNotes = getActiveQuestNotes;
+window.LIGHTHOUSE_QUEST_STAGE = LIGHTHOUSE_QUEST_STAGE;
+window.LIGHTHOUSE_OBJECTIVE_BY_ROUTE = LIGHTHOUSE_OBJECTIVE_BY_ROUTE;
+window.polwickLighthouseOutcome = polwickLighthouseOutcome;
+window.lighthouseQuestInvariantErrors = lighthouseQuestInvariantErrors;
+window.lighthouseQuestRoute = lighthouseQuestRoute;
+window.getLighthouseQuestOfferRoute = getLighthouseQuestOfferRoute;
+window.acceptLighthouseQuest = acceptLighthouseQuest;
+window.getActiveLighthouseObjective = getActiveLighthouseObjective;
+window.canTurnInLighthouseQuest = canTurnInLighthouseQuest;
+window.completeLighthouseQuest = completeLighthouseQuest;
 
 syncQuestFlagsToWindow();

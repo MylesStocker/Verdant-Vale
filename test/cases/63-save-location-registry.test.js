@@ -90,7 +90,7 @@ module.exports = {
     // save-blocked, so this exercises the registry without saveGame()). This is
     // the guard that caught inBasinChamber/inSunkenGallery being dropped from the
     // old hand-copied flag list.
-    const singleModes = ['inMireVault', 'inTakomo', 'inFenBrewery', 'inHamletInterior',
+    const singleModes = ['inMireVault', 'inTakomo', 'inFenBrewery', 'inHamletInterior', 'inLighthouse',
       'inLorraHouse', 'inAbandonedFarmhouse', 'inMarenPost', 'inDrenwrickPost', 'inSmugglerFort',
       'inBasinChamber', 'inSunkenGallery', 'inDungeonEntrance'];
     for (const mode of singleModes) {

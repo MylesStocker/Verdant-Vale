@@ -84,6 +84,10 @@ const ITEM_REGISTRY = {
   'Dispatch Letter':   { name: 'Dispatch Letter',   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   "Doctor's Letter":   { name: "Doctor's Letter",   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },  // picked from the Drenwick infirmary counter
   "The Drowned's Gift": { name: "The Drowned's Gift", type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true }, // left at the freed Pale Drowned's pool, post-MQ4 (Sunken Gallery R1C2)
+  // Thornmere lighthouse objectives. Registry-only in this increment: the
+  // future interior will place exactly one through the active-route authority.
+  'Old Engagement Ring': { name: 'Old Engagement Ring', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Stashed Gem':         { name: 'Stashed Gem',         type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
 };
 
 // Returns a fresh instance of the named item. Never hands out (or mutates)

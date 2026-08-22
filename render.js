@@ -98,6 +98,7 @@ function drawActiveMapContent() {
   if (inTown && townBuilding === 'house' && currentHouseId === 'player_house' && day >= 2 && !CAT_ARMOR_CHEST.opened) drawInvisibleChest(CAT_ARMOR_CHEST);
   if (inHamletInterior)                              drawHamletInteriorFurniture();
   if (inFenBrewery)                                  drawFenBreweryFurniture();
+  if (inLighthouse)                                  drawLighthouseInteriorFurniture();
   if (inAbandonedFarmhouse)                          drawAbandonedFarmhouseFurniture();
   if (inHollisFarmhouse)                             drawHollisFarmhouseFurniture();
   if (inWrennaCottage)                               drawWrennaCottageFurniture();
@@ -111,6 +112,7 @@ function drawActiveMapContent() {
   // active-only wrappers below add prompts without drawing those bodies twice.
   if (typeof drawActiveOutdoorDecoration === 'function') drawActiveOutdoorDecoration(mapIdForRef(activeMap));
   if (activeMap === MAP4) drawThornmereStone();
+  if (activeMap === MAP5) drawLighthouseEntranceHint();
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
   drawPlayer();
 }

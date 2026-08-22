@@ -187,7 +187,7 @@ const TREE_IN_WATER = 120; // drowned tree rooted in standing water; blocking te
 const ROCKS_IN_WATER = 121; // rocky outcrop breaking the water surface; blocking terrain
 
 // ─── Coastal landmark ───────────────────────────────────────────
-const LIGHTHOUSE = 122; // Thornmere Shallows lighthouse on the headland — impassable landmark, no interior (unenterable)
+const LIGHTHOUSE = 122; // Thornmere Shallows lighthouse on the headland — blocking landmark, entered from its west-side door with SPACE
 
 // true = player can walk on it
 const WALKABLE = [
@@ -541,7 +541,7 @@ const TILE_PROPERTIES = {
   [LIGHTHOUSE]: {
     id: LIGHTHOUSE, name: 'Lighthouse', debugName: 'LIGHTHOUSE', walkable: WALKABLE[LIGHTHOUSE],
     category: 'decorative_blocker', tags: ['outdoor', 'building', 'landmark', 'blocker'], encounterEligible: false, isDecorative: true,
-    notes: 'Tile 122. A lighthouse standing on the Thornmere Shallows headland; impassable landmark with no interior (unenterable for now), not a transition.',
+    notes: 'Tile 122. A blocking lighthouse landmark on the Thornmere Shallows headland. Its west-side door enters a discrete interior through the interaction dispatcher; the regional tile itself is not a transition.',
   },
   [REEDS]: {
     id: REEDS, name: 'Reeds', debugName: 'REEDS', walkable: WALKABLE[REEDS],

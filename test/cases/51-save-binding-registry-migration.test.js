@@ -6,7 +6,7 @@
 //     ordered key set, and QUEST_FLAG_SCHEMA is DERIVED from it (not a second
 //     hand-maintained list).
 //   • saveGame()/loadGame() read/write every binding generically, so a complete
-//     round-trip restores all 90 flags — lexical, window-native, numeric,
+//     round-trip restores all registered flags — lexical, window-native, numeric,
 //     nullable — plus their window mirrors.
 //   • A save missing a field falls back to that binding's declared default and
 //     never inherits the current (possibly dirtied) runtime value.
@@ -24,7 +24,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // The complete, ordered set of persistent flag keys as of this test's authoring
-// (68 lexical + 22 window-native = 90). A binding added or removed without
+// A binding added or removed without
 // updating this snapshot fails section A — the point is that growing the save
 // schema is a deliberate, reviewed act.
 const EXPECTED_KEYS = [
@@ -37,7 +37,7 @@ const EXPECTED_KEYS = [
   'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
   'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
   'smugglers_dead', 'smugglers_execution_day', 'fort_report_filed', 'mq4_available_day',
-  'reservoir_quest_started', 'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
+  'reservoir_quest_started', 'lighthouse_quest_stage', 'lighthouse_cabinet_looted', 'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
   'netto_letter_received', 'dessa_met', 'rareborn_rhyme_heard', 'vale_tutorial_seen', 'tev_elixir_given',
   'esla_said_sluice', 'esla_said_dispatch', 'esla_said_cabinet', 'esla_said_polwick_pending',
   'esla_said_polwick_dead', 'esla_said_basin', 'supervisor_greet_day', 'esla_greet_day',
@@ -106,10 +106,10 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 68, '68 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 70, '70 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
 
-    // ── B. Complete flag round-trip (all 90 bindings, generically) ──────────
+    // ── B. Complete flag round-trip (all bindings, generically) ─────────────
     // Assign each binding a value distinct from its default, save, reset every
     // binding to its default, load, and confirm each restored to the saved
     // value. `__rt` stashes the expected value on the binding for comparison.
@@ -120,6 +120,14 @@ module.exports = {
         else if (b.default === null) v = '<<rt-sentinel>>';          // nullable -> string
         else v = b.default;
         b.__rt = v; b.set(v);
+      });
+      // Keep the deliberately non-default snapshot coherent with the shared
+      // lighthouse/Polwick invariant so saveGame() is authorized to persist it.
+      fort_quest_stage = 6; smugglers_dead = true; fort_report_filed = true;
+      smugglers_execution_day = 0; reservoir_quest_started = true; lighthouse_quest_stage = 1;
+      ['fort_quest_stage','smugglers_dead','fort_report_filed','smugglers_execution_day',
+       'reservoir_quest_started','lighthouse_quest_stage'].forEach(function(k){
+        var b = window.QUEST_FLAG_BINDINGS.find(function(x){return x.key===k;}); b.__rt = b.get();
       });`);
     G('saveGame();');
     // Reset everything to defaults so a stale value can't masquerade as restored.

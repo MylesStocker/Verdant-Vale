@@ -192,11 +192,12 @@ module.exports = {
     assert.equal(/drawWestOutfallCulvertBody/.test(prod), false, 'former symbol removed');
     assert.ok(/drawWestOutfallCanalTunnelBody/.test(prod), 'new portal symbol is production-registered');
 
-    // Aggregate invariants remain unchanged except the test count and tile type.
+    // Regional aggregates remain unchanged; five new discrete lighthouse maps
+    // legitimately increase only the global map-metadata total.
     const audit = require('../transition-audit.js');
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:48,BLOCKED:46});
     assert.equal(audit.seamReadiness.edges.length,120);
-    assert.equal(g.run('Object.keys(MAP_METADATA).length'),120);
+    assert.equal(g.run('Object.keys(MAP_METADATA).length'),125);
     assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),30);
     assert.equal(Object.keys(GRID_FP.fingerprints).length,30);
   },

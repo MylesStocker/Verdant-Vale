@@ -43,6 +43,7 @@ const LOCATION_STATE_BINDINGS = [
   { key: 'inTakomo',            neutral: false, get: () => inTakomo,            set: (v) => { inTakomo = v; } },
   { key: 'inFenBrewery',        neutral: false, get: () => inFenBrewery,        set: (v) => { inFenBrewery = v; } },
   { key: 'inHamletInterior',    neutral: false, get: () => inHamletInterior,    set: (v) => { inHamletInterior = v; } },
+  { key: 'inLighthouse',        neutral: false, get: () => inLighthouse,        set: (v) => { inLighthouse = v; } },
   { key: 'inLorraHouse',        neutral: false, get: () => inLorraHouse,        set: (v) => { inLorraHouse = v; } },
   { key: 'inAbandonedFarmhouse', neutral: false, get: () => inAbandonedFarmhouse, set: (v) => { inAbandonedFarmhouse = v; } },
   { key: 'inHollisFarmhouse',   neutral: false, get: () => inHollisFarmhouse,   set: (v) => { inHollisFarmhouse = v; } },
@@ -61,7 +62,7 @@ const LOCATION_STATE_KEY_SET = new Set(LOCATION_STATE_BINDINGS.map((b) => b.key)
 // townBuilding='house', so it is the inTown mode, not a separate flag).
 const LOCATION_MAJOR_MODE_KEYS = [
   'inDungeon', 'inDungeonEntrance', 'inTown', 'inSluice', 'inMireVault', 'inTakomo',
-  'inFenBrewery', 'inHamletInterior', 'inLorraHouse', 'inAbandonedFarmhouse', 'inHollisFarmhouse', 'inWrennaCottage', 'inMarenPost', 'inDrenwrickPost',
+  'inFenBrewery', 'inHamletInterior', 'inLighthouse', 'inLorraHouse', 'inAbandonedFarmhouse', 'inHollisFarmhouse', 'inWrennaCottage', 'inMarenPost', 'inDrenwrickPost',
   'inBridgePost', 'inSmugglerFort', 'inBasinChamber', 'inSunkenGallery',
 ];
 
@@ -594,6 +595,58 @@ function exitFenBrewery() {
   // exit, mirroring resetBridgeGuards() at the bridge exits).
   if (typeof resetAllPatrols === 'function') resetAllPatrols();
   transitionToLocation({ mapId: 'MAP3_N1', x: 13.5 * TILE, y: 5.5 * TILE, facing: 'down', cooldown: true }); // just south of the FARM_HOUSE tile
+}
+
+// ─── Abandoned Lighthouse (MAP5 row 7 col 9) ────────────────────────────────
+// Each landing is deliberately adjacent to, never on, its return trigger so a
+// transition cannot immediately bounce the player back.
+function enterLighthouse() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_GROUND_MAP', x: 7.5 * TILE, y: 9.5 * TILE, facing: 'up',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function exitLighthouse() {
+  transitionToLocation({ mapId: 'MAP5', x: 8.5 * TILE, y: 7.5 * TILE, facing: 'left', cooldown: true });
+}
+
+function ascendLighthouseGround() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_1_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function descendLighthouseLanding1() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_GROUND_MAP', x: 9.5 * TILE, y: 6.5 * TILE, facing: 'down',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function ascendLighthouseLanding1() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_2_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function descendLighthouseLanding2() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_1_MAP', x: 7.5 * TILE, y: 6.5 * TILE, facing: 'down',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function ascendLighthouseLanding2() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_3_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function descendLighthouseLanding3() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_2_MAP', x: 7.5 * TILE, y: 6.5 * TILE, facing: 'down',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function ascendLighthouseLanding3() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_LANTERN_MAP', x: 6.5 * TILE, y: 7.5 * TILE, facing: 'up',
+    state: { inLighthouse: true }, cooldown: true });
+}
+
+function descendLighthouseLantern() {
+  transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_3_MAP', x: 7.5 * TILE, y: 6.5 * TILE, facing: 'down',
+    state: { inLighthouse: true }, cooldown: true });
 }
 
 // ─── Falls Hamlet Interior ────────────────────────────────────────────────────

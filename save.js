@@ -80,6 +80,8 @@ const QUEST_FLAG_BINDINGS = [
   lex('fort_report_filed', false, () => fort_report_filed, (v) => { fort_report_filed = v; }),
   lex('mq4_available_day', 0, () => mq4_available_day, (v) => { mq4_available_day = v; }),
   lex('reservoir_quest_started', false, () => reservoir_quest_started, (v) => { reservoir_quest_started = v; }),
+  lex('lighthouse_quest_stage', 0, () => lighthouse_quest_stage, (v) => { lighthouse_quest_stage = v; }),
+  lex('lighthouse_cabinet_looted', false, () => lighthouse_cabinet_looted, (v) => { lighthouse_cabinet_looted = v; }),
   lex('den_wraith_quest_started', false, () => den_wraith_quest_started, (v) => { den_wraith_quest_started = v; }),
   lex('den_wraith_defeated', false, () => den_wraith_defeated, (v) => { den_wraith_defeated = v; }),
   lex('den_wraith_rewarded', false, () => den_wraith_rewarded, (v) => { den_wraith_rewarded = v; }),
@@ -401,6 +403,15 @@ function saveGame() {
     if (invErrs.length) { console.warn('[saveGame] refusing to write — canonical position invariant broken: ' + invErrs.join('; ') + ' — the existing save is left untouched.'); return false; }
   }
 
+  // Quest-route guard: never persist a contradictory lighthouse/Polwick state.
+  // The same pure invariant is used by offer/objective/reward eligibility,
+  // load preflight, and validateGameData().
+  const lighthouseErrors = lighthouseQuestInvariantErrors();
+  if (lighthouseErrors.length) {
+    console.warn('[saveGame] refusing to write — lighthouse quest invariant broken: ' + lighthouseErrors.join('; ') + ' — the existing save is left untouched.');
+    return false;
+  }
+
   // Quest flags: built generically from the binding registry (one getter each),
   // NOT from a separate key list. syncQuestFlagsToWindow() still runs first so
   // window-native flags are normalized (undefined → default) before their
@@ -567,6 +578,15 @@ function loadGame() {
     return false;
   }
   const data = migration.data;
+
+  // Candidate-only quest preflight. Missing lighthouse_quest_stage is the
+  // pre-feature default (0), preserving older current-version saves. Invalid
+  // route/outcome mixtures reject atomically before any runtime mutation.
+  const lighthouseErrors = lighthouseQuestInvariantErrors(data);
+  if (lighthouseErrors.length) {
+    console.warn('[loadGame] refusing to load — invalid lighthouse quest state: ' + lighthouseErrors.join('; ') + ' — the running game and the stored save are left untouched.');
+    return false;
+  }
 
   // Warn-only schema validation — no gameplay impact.
   validateSaveSchema(data);
@@ -737,4 +757,3 @@ function loadGame() {
 
   return true;
 }
-

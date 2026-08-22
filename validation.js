@@ -1167,7 +1167,7 @@ function validateNPCs() {
     'town', 'inn', 'office', 'school', 'apt', 'east', 'west',
     'lorra_house', 'hollis_farmhouse', 'wrenna_cottage', 'maren_post', 'drenwick_post', 'bridge_post',
     'smuggler_fort', 'takomo_chamber', 'mire_vault', 'hamlet_interior',
-    'fen_brewery',
+    'fen_brewery', 'lighthouse',
     'drenwick_inn', 'drenwick_office', 'drenwick_harbormaster',
     'drenwick_wash_house', 'drenwick_provision_store', 'drenwick_guild_hall', 'drenwick_infirmary',
     'drenwick_tavern', 'drenwick_school_ground', 'drenwick_school_upper',
@@ -1983,6 +1983,16 @@ function validateSaveFlags() {
       const bindingKeys = bindings.map((b) => b && b.key);
       if (schema.length !== bindingKeys.length || schema.some((k, i) => k !== bindingKeys[i])) {
         addValidationError(GROUP, 'QUEST_FLAG_SCHEMA does not match the binding-registry key list -- it must be derived from QUEST_FLAG_BINDINGS');
+      }
+    }
+    // Cross-flag quest invariant: the one lighthouse stage must agree with the
+    // established MQ4 and Polwick outcome authorities. Runtime eligibility
+    // fails closed on the same helper, while loadGame rejects a bad candidate
+    // before mutating live state.
+    if (typeof lighthouseQuestInvariantErrors === 'function') {
+      checked++;
+      for (const message of lighthouseQuestInvariantErrors()) {
+        addValidationError(GROUP, 'lighthouse quest: ' + message);
       }
     }
     // v4 is a clean break with NO migration path (there are no pre-v4 saves), so

@@ -2712,3 +2712,60 @@ function drawWrennaCottageFurniture() {
     ctx.fillStyle = '#e6dcc4'; ctx.fillRect(x + 5, y + 4, 16, 10); // pillow
   }
 }
+
+// ─── Abandoned Lighthouse furniture ─────────────────────────────────────────
+// Fixed-pixel overlays only. Collision and interaction use the same anchors
+// authored beside the five lighthouse grids in thornmere-wilds-maps.js.
+function drawLighthouseInteriorFurniture() {
+  if (!inLighthouse) return;
+  const promptAnchors = [];
+
+  if (activeMap === LIGHTHOUSE_GROUND_MAP) {
+    drawTable(LIGHTHOUSE_TABLE.x - 16, LIGHTHOUSE_TABLE.y - 16);
+    promptAnchors.push(LIGHTHOUSE_TABLE);
+
+    const cx = LIGHTHOUSE_CABINET.x - 14;
+    const cy = LIGHTHOUSE_CABINET.y - 15;
+    ctx.fillStyle = '#49311e'; ctx.fillRect(cx, cy, 28, 30);
+    ctx.fillStyle = '#745033'; ctx.fillRect(cx + 2, cy + 2, 24, 5);
+    ctx.fillStyle = '#5b3d26'; ctx.fillRect(cx + 3, cy + 9, 22, 8);
+    ctx.fillRect(cx + 3, cy + 19, 22, 8);
+    ctx.fillStyle = '#b09a68';
+    ctx.fillRect(cx + 13, cy + 12, 2, 2);
+    ctx.fillRect(cx + 13, cy + 22, 2, 2);
+    promptAnchors.push(LIGHTHOUSE_CABINET);
+  }
+
+  if (activeMap === LIGHTHOUSE_LANTERN_MAP) {
+    const lx = LIGHTHOUSE_LENS.x;
+    const ly = LIGHTHOUSE_LENS.y;
+    ctx.strokeStyle = '#605c52'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(lx, ly, 14, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = 'rgba(150, 176, 178, 0.55)';
+    ctx.beginPath(); ctx.arc(lx, ly, 11, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#3d3b38'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(lx - 7, ly - 9); ctx.lineTo(lx + 5, ly + 10); ctx.stroke();
+    ctx.fillStyle = '#736b58'; ctx.fillRect(lx - 12, ly + 13, 24, 5);
+    promptAnchors.push(LIGHTHOUSE_LENS);
+
+    const bx = LIGHTHOUSE_BED.x - 14;
+    const by = LIGHTHOUSE_BED.y - 15;
+    ctx.fillStyle = '#4b3321'; ctx.fillRect(bx, by, 28, 30);
+    ctx.fillStyle = '#77746b'; ctx.fillRect(bx + 3, by + 4, 22, 23);
+    ctx.fillStyle = '#aaa69b'; ctx.fillRect(bx + 3, by + 4, 22, 7);
+    ctx.fillStyle = '#5e5a54'; ctx.fillRect(bx + 5, by + 13, 18, 12);
+    promptAnchors.push(LIGHTHOUSE_BED);
+  }
+
+  if (!interactionUiOpened() && ((tick >> 4) & 1)) {
+    for (const anchor of promptAnchors) {
+      if (!nearPlayer(anchor.x, anchor.y, TALK_RADIUS * 1.5)) continue;
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 11px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SPACE', anchor.x, anchor.y - 24);
+      ctx.textAlign = 'left';
+      break;
+    }
+  }
+}

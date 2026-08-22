@@ -4,8 +4,8 @@
 //    assignment not yet given), the office staff at the Calwick inn react to
 //    the Polwick outcome: Supervisor/Petra/Corvin key on the filed report
 //    (fort_report_filed), Esla keys on smugglers_dead itself (registry).
-//    Found-nothing playthroughs and post-assignment dayoffs get the ordinary
-//    lines.
+//    Found-nothing playthroughs get the ordinary lines. Post-assignment
+//    killed/reported routes now receive the lighthouse offer (test 106).
 // 2. Drenwick's shop (the Provision Store) and school are closed on Dayoff;
 //    walking into the store door on a Dayoff shows a closed notice instead
 //    of entering.
@@ -77,9 +77,14 @@ module.exports = {
     assert.ok(/thought about the ledger/.test(
       JSON.stringify(g.run("SIMPLE_NPCS.find(n => n.id === 'petra').dialogue")).toLowerCase()), 'Petra: base Dayoff line');
 
-    // ── Window closes once the reservoir assignment is given ────────────────
+    // ── After MQ4 assignment, this exact scene owns the lighthouse offer ────
     g.run('smugglers_dead = true; fort_report_filed = true; reservoir_quest_started = true; syncQuestFlagsToWindow();');
-    assert.ok(/fourteen years/.test(talkThrough(g, 'Supervisor')), 'supervisor: back to base after the assignment');
+    assert.ok(/engagement ring/.test(talkThrough(g, 'Supervisor')), 'supervisor: eligible lighthouse offer after the assignment');
+    assert.equal(g.run('choice.open'), true);
+    g.run('choice.cursor = 1;'); g.press('Enter'); // decline; viewing is not a lock
+    assert.equal(g.run('lighthouse_quest_stage'), 0);
+    g.run('smugglers_dead = false; fort_report_filed = false; smugglers_execution_day = 0; syncQuestFlagsToWindow();');
+    assert.ok(/fourteen years/.test(talkThrough(g, 'Supervisor')), 'supervisor: allied route keeps the ordinary Dayoff line');
 
     // ── Drenwick Dayoff closures ────────────────────────────────────────────
     assert.equal(g.run("isClosedToday('provision_store')"), true, 'store closed on Dayoff');

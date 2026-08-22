@@ -245,6 +245,6 @@ module.exports = {
     assert.equal(g.run('continuousSeamEntries().length'), 68); assert.equal(g.run('continuousSeamEntries().length/2'), 34);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 30);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 23);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 120);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 125);
   },
 };
