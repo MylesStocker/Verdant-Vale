@@ -23,7 +23,7 @@ const BASELINE_26 = {
   MAP2: 'f7c253c495451b51adab13a9a884064f0aab96298376749010d6e506043de46d',
   MAP3: '14cb9111d171454cba60c986e8bd06974ab3023652ce036017bb0c4f13abca17',
   MAP4: '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9',
-  MAP5: '93073d85311e659147f2af889d5aab2d6d3dbe76c632e4b2ab1e77f042349e1f',
+  MAP5: '230b3da3362be36d5f026d684809879ab96aabcc1ce19c16fed064773d63ec19',
   MAP_N1: '871d5dacd91e1421557554d830e8d64108a5d1d920165ff1bc2094cca090e770',
   MAP_N2: '39f4bcce6707c439384674c021ef18acf552221ef9e1c57f7435413aeaaeb963',
   RODDON_WAY_MAP: '835e3050e45a3bcd74454fc411f006ea0556b08c9fea6d7e31795a4908eba2bc',
@@ -68,7 +68,7 @@ module.exports = {
     assert.equal(g.run('DEBUG_TILE_NAMES.includes("HILLS")'), true);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(HILLS)'), true);
     assert.equal(g.run('DEBUG_TILE_NAMES.length'), g.run('new Set(DEBUG_TILE_NAMES.map(function(n){return window[n];})).size'), 'all exported tile ids remain unique');
-    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
+    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER'&&n!=='ROCKS_IN_WATER'&&n!=='LIGHTHOUSE';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
     assert.equal(sha256(oldIds), OLD_TILE_ID_HASH, 'every pre-HILLS tile constant retains its reviewed numeric id');
     const hillRender = J(`(function(){
       var oldFill=ctx.fillRect, oldRandom=Math.random, randomCalls=0;

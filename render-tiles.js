@@ -172,6 +172,127 @@ function drawTreeInWater(x, y) {
   ctx.fillRect(x + 10, y + 25, 13, 1);
 }
 
+// Rocky outcrop breaking the water surface: animated standing water with a
+// cluster of grey boulders and a waterline ripple. Terrain, not a decorative
+// overlay; its tile property is impassable.
+function drawRocksInWater(x, y) {
+  drawWater(x, y);
+
+  // Dark water pooling / cast shadow hugging the base of the cluster.
+  ctx.fillStyle = 'rgba(14, 24, 30, 0.55)';
+  ctx.fillRect(x + 4, y + 22, 25, 7);
+
+  const rock = '#5c5e63';   // mid stone
+  const lit  = '#83858c';   // top-left sunlit facet
+  const hi   = '#9a9ca3';   // brightest crest glint
+  const shad = '#37383d';   // shadow side / underside
+  const dark = '#26272b';   // deepest crevice
+
+  // ── Main boulder: a stepped silhouette so the outline reads as a rounded
+  //    rock rather than a box, with three shaded facets and a crack. ──
+  ctx.fillStyle = rock;
+  ctx.fillRect(x + 12, y +  6,  8, 3);   // rounded crown
+  ctx.fillRect(x + 10, y +  9, 13, 3);
+  ctx.fillRect(x +  8, y + 12, 17, 4);
+  ctx.fillRect(x +  7, y + 16, 19, 5);   // widest belly
+  ctx.fillRect(x +  8, y + 21, 17, 3);   // base tucks back in
+
+  // Sunlit top-left facet
+  ctx.fillStyle = lit;
+  ctx.fillRect(x + 12, y +  6, 5, 3);
+  ctx.fillRect(x + 10, y +  9, 6, 3);
+  ctx.fillRect(x +  8, y + 12, 6, 4);
+  ctx.fillStyle = hi;
+  ctx.fillRect(x + 13, y +  6, 3, 2);    // crest glint
+
+  // Shadowed right / underside facet
+  ctx.fillStyle = shad;
+  ctx.fillRect(x + 20, y + 10,  3, 2);
+  ctx.fillRect(x + 21, y + 12,  4, 4);
+  ctx.fillRect(x + 20, y + 16,  6, 5);
+  ctx.fillRect(x + 19, y + 21,  6, 3);
+
+  // Crevice cracks for stone texture
+  ctx.fillStyle = dark;
+  ctx.fillRect(x + 15, y + 12, 1, 8);
+  ctx.fillRect(x + 15, y + 15, 5, 1);
+
+  // ── Smaller pointed rock, front-left ──
+  ctx.fillStyle = rock;
+  ctx.fillRect(x + 3, y + 18, 7, 6);
+  ctx.fillRect(x + 4, y + 16, 4, 2);     // pointed tip
+  ctx.fillStyle = lit;
+  ctx.fillRect(x + 3, y + 18, 3, 3);
+  ctx.fillRect(x + 4, y + 16, 2, 2);
+  ctx.fillStyle = shad;
+  ctx.fillRect(x + 7, y + 20, 3, 4);
+
+  // ── Small rock, front-right ──
+  ctx.fillStyle = rock;
+  ctx.fillRect(x + 24, y + 19, 6, 5);
+  ctx.fillStyle = lit;
+  ctx.fillRect(x + 24, y + 19, 3, 2);
+  ctx.fillStyle = shad;
+  ctx.fillRect(x + 27, y + 21, 3, 3);
+
+  // Pale foam ripples where the rocks break the surface.
+  ctx.fillStyle = 'rgba(150, 178, 198, 0.75)';
+  ctx.fillRect(x + 6, y + 24, 18, 1);
+  ctx.fillStyle = 'rgba(90, 120, 144, 0.65)';
+  ctx.fillRect(x + 3, y + 26, 24, 1);
+}
+
+// A lighthouse standing on the shallows headland. Impassable landmark with no
+// interior (unenterable): terrain, not an interaction or transition. Static
+// pixel art — no randomness — over a plain GRASS footing so it reads as land.
+function drawLighthouse(x, y) {
+  drawGrass(x, y);
+
+  // Rocky footing at the base of the tower.
+  ctx.fillStyle = '#6a6c70';
+  ctx.fillRect(x + 7, y + 26, 18, 5);
+  ctx.fillStyle = '#4c4e52';
+  ctx.fillRect(x + 7, y + 29, 18, 2);
+  ctx.fillStyle = '#83858a';
+  ctx.fillRect(x + 9, y + 26,  5, 2);
+
+  // Tower shaft — tapered white, flared at the base.
+  ctx.fillStyle = '#d8d8d0';
+  ctx.fillRect(x + 12, y + 10, 8, 17);   // shaft
+  ctx.fillRect(x + 11, y + 21, 10, 6);   // flared base
+  ctx.fillStyle = '#a9a9a2';             // shaded right side (roundness)
+  ctx.fillRect(x + 18, y + 10, 2, 17);
+  ctx.fillRect(x + 19, y + 21, 2, 6);
+  ctx.fillStyle = '#f0f0e8';             // lit left edge
+  ctx.fillRect(x + 12, y + 10, 2, 17);
+
+  // Red daymark bands.
+  ctx.fillStyle = '#b23a2e';
+  ctx.fillRect(x + 12, y + 13, 8, 3);
+  ctx.fillRect(x + 12, y + 20, 9, 3);
+  ctx.fillStyle = '#8f2c22';             // band shade on the right
+  ctx.fillRect(x + 18, y + 13, 2, 3);
+  ctx.fillRect(x + 19, y + 20, 2, 3);
+
+  // Gallery deck beneath the lantern.
+  ctx.fillStyle = '#5a5a56';
+  ctx.fillRect(x + 10, y +  8, 12, 2);
+
+  // Lantern room — glass with a warm glow.
+  ctx.fillStyle = '#f6e29a';
+  ctx.fillRect(x + 13, y +  3, 6, 5);
+  ctx.fillStyle = '#fff6c8';             // bright core
+  ctx.fillRect(x + 14, y +  4, 3, 3);
+  ctx.fillStyle = '#7a6a3a';             // astragal bar
+  ctx.fillRect(x + 15, y +  3, 1, 5);
+
+  // Cupola cap and finial.
+  ctx.fillStyle = '#2c2c30';
+  ctx.fillRect(x + 12, y +  1, 8, 2);
+  ctx.fillStyle = '#55555a';
+  ctx.fillRect(x + 15, y,      2, 2);
+}
+
 // Contiguous scrub-covered rocky high ground. Edge-to-edge strata and shadow
 // bands make adjacent cells merge into a ridge; small coordinate-derived accents
 // avoid an obvious stamp without using render-time randomness. drawMapTiles()
@@ -2272,6 +2393,8 @@ function drawTile(id, x, y) {
     case PATH:                drawPath(x, y);             break;
     case TREE:                drawTree(x, y);             break;
     case TREE_IN_WATER:       drawTreeInWater(x, y);      break;
+    case ROCKS_IN_WATER:      drawRocksInWater(x, y);     break;
+    case LIGHTHOUSE:          drawLighthouse(x, y);       break;
     case HILLS:               drawHills(x, y);            break;
     case DUNGEON_FLOOR:       drawDungeonFloor(x, y);     break;
     case DUNGEON_WALL:        drawDungeonWall(x, y);      break;
@@ -2425,5 +2548,6 @@ const RENDERABLE_TILE_IDS = new Set([
   CHAMBER_DOOR, CHAMBER_FLOOR, CHAMBER_WALL, CHAMBER_EXIT,
   SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, TEMPLE_SHALLOWS, TEMPLE_CARVING, RODDON_SILT,
   CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE, HILLS, TREE_IN_WATER,
+  ROCKS_IN_WATER, LIGHTHOUSE,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;

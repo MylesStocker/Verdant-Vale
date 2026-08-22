@@ -568,16 +568,16 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  open water — the shallows continue off-map north
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  1  open water, open to W and E edges
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  2  open water, open to W and E edges
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1],  //  2  open water; lone rocks-in-water far offshore (c12)
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  3  open water, open to W and E edges
-      [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  spit north shoulder; water W and E edges
-      [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  5  spit north edge, cols 2-7; water W and E edges
+      [  1,  1, 23,  0,  0,  0, 23,121,  1,  1,  1,  1,  1,  1,  1,  1],  //  4  spit north shoulder; rocks-in-water off the NE shoulder (c7)
+      [  1, 23,  0,  0,  0,  0,  0,  0, 23,121,  1,  1,  1,  1,  1,  1],  //  5  spit north edge, cols 2-7; rocks-in-water just E of the edge (c9)
       [  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1],  //  6  ← col 0 = west seam → MAP4.east (continuous, GRASS shore); spit body; water E edge
-      [  3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1],  //  7  spit widest / tip extends to col 9; lone shore tree by the landing (col 0)
-      [  1, 23,  0,  0,  0,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1],  //  8  spit south edge, mirrors row 5; water W and E edges
-      [  1,  1, 23,  0,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  spit south shoulder, mirrors row 4
-      [  1,  1,  1, 23,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  spit inner tip
-      [  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  last reed marking spit end
+      [  3,  0,  0,  0,  0,  0,  0,  0,  0,122, 23,  1,  1,  1,  1,  1],  //  7  spit widest / tip extends to col 9; lighthouse on the headland tip (c9); lone shore tree by the landing (col 0)
+      [  1, 23,  0,  0,  0,  0,  0,  0, 23,121,  1,  1,  1,  1,  1,  1],  //  8  spit south edge, mirrors row 5; rocks-in-water just E of the edge (c9)
+      [  1,  1, 23,  0,  0,  0, 23,121,  1,  1,  1,  1,  1,  1,  1,  1],  //  9  spit south shoulder, mirrors row 4; rocks-in-water off the SE shoulder (c7)
+      [  1,  1,  1, 23,  0, 23,121,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 10  spit inner tip; rocks-in-water off the tip (c6)
+      [  1,  1,  1,121, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 11  last reed marking spit end; rocks-in-water at the SW inner shore (c3)
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 12  open water
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 13  open water
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  // 14  open water — the shallows continue off-map south

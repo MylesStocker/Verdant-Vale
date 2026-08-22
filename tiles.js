@@ -183,6 +183,12 @@ const HILLS         = 119; // contiguous scrub-covered rocky ridge; blocking ter
 // ─── Flooded woodland ───────────────────────────────────────────
 const TREE_IN_WATER = 120; // drowned tree rooted in standing water; blocking terrain
 
+// ─── Rocks in water ─────────────────────────────────────────────
+const ROCKS_IN_WATER = 121; // rocky outcrop breaking the water surface; blocking terrain
+
+// ─── Coastal landmark ───────────────────────────────────────────
+const LIGHTHOUSE = 122; // Thornmere Shallows lighthouse on the headland — impassable landmark, no interior (unenterable)
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -306,6 +312,8 @@ const WALKABLE = [
   /* 118 TEMPLE_CARVING        */ false,
   /* 119 HILLS                 */ false,
   /* 120 TREE_IN_WATER         */ false,
+  /* 121 ROCKS_IN_WATER        */ false,
+  /* 122 LIGHTHOUSE            */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -427,6 +435,8 @@ window.REED_RACK              = REED_RACK;
 window.APT_NOTICE             = APT_NOTICE;
 window.HILLS                  = HILLS;
 window.TREE_IN_WATER          = TREE_IN_WATER;
+window.ROCKS_IN_WATER         = ROCKS_IN_WATER;
+window.LIGHTHOUSE             = LIGHTHOUSE;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -449,7 +459,7 @@ const DEBUG_TILE_NAMES = [
   'DREAM_EDGE',  'DREAM_FLOOR',
   'CHAMBER_DOOR',  'CHAMBER_FLOOR',  'CHAMBER_WALL',  'CHAMBER_EXIT',
   'SUNKEN_STAIR',  'GALLERY_FLOOR',  'GALLERY_WALL',  'GALLERY_STAIR_UP',  'TEMPLE_SHALLOWS',  'TEMPLE_CARVING',  'RODDON_SILT',
-  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',  'HILLS',  'TREE_IN_WATER',
+  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',  'HILLS',  'TREE_IN_WATER',  'ROCKS_IN_WATER',  'LIGHTHOUSE',
   'DUNGEON8_WEST_RET',  'EAST_ENTRANCE',  'EAST_EXIT',  'EXPOSED_STONE',  'FALSE_WALL',  'FARM_HOUSE',
   'FEN_N_ENTRANCE',  'FEN_N_EXIT',  'FEN_N2_ENTRANCE',  'FEN_N2_EXIT',  'FENCE_POST',  'GRASS',
   'GUARD_POST',  'HOUSE_DOOR',  'INN_DOOR',  'INTERIOR_EXIT',  'INTERIOR_FALSE_WALL',  'INTERIOR_FLOOR',
@@ -522,6 +532,16 @@ const TILE_PROPERTIES = {
     id: TREE_IN_WATER, name: 'Tree in Water', debugName: 'TREE_IN_WATER', walkable: WALKABLE[TREE_IN_WATER],
     category: 'natural_blocker', tags: ['outdoor', 'water', 'tree', 'blocker'], encounterEligible: false, isWater: true,
     notes: 'Tile 120. A drowned tree rooted in cold standing water; impassable water terrain, not an interaction or transition.',
+  },
+  [ROCKS_IN_WATER]: {
+    id: ROCKS_IN_WATER, name: 'Rocks in Water', debugName: 'ROCKS_IN_WATER', walkable: WALKABLE[ROCKS_IN_WATER],
+    category: 'natural_blocker', tags: ['outdoor', 'water', 'rock', 'blocker'], encounterEligible: false, isWater: true,
+    notes: 'Tile 121. A rocky outcrop breaking the water surface; impassable water terrain, not an interaction or transition.',
+  },
+  [LIGHTHOUSE]: {
+    id: LIGHTHOUSE, name: 'Lighthouse', debugName: 'LIGHTHOUSE', walkable: WALKABLE[LIGHTHOUSE],
+    category: 'decorative_blocker', tags: ['outdoor', 'building', 'landmark', 'blocker'], encounterEligible: false, isDecorative: true,
+    notes: 'Tile 122. A lighthouse standing on the Thornmere Shallows headland; impassable landmark with no interior (unenterable for now), not a transition.',
   },
   [REEDS]: {
     id: REEDS, name: 'Reeds', debugName: 'REEDS', walkable: WALKABLE[REEDS],
