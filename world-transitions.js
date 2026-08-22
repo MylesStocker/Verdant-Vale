@@ -609,44 +609,54 @@ function exitLighthouse() {
   transitionToLocation({ mapId: 'MAP5', x: 8.5 * TILE, y: 7.5 * TILE, facing: 'left', cooldown: true });
 }
 
+// The eight INTER-FLOOR moves deliberately DON'T set an arrival cooldown: each
+// floor's walkable footprint is tiny (a landing is a five-cell spiral around the
+// masonry core), so a full ENCOUNTER_COOLDOWN grace would let a player cross to
+// the next stair before a single roll could land, leaving whole floors fight-free.
+// Dropping it lets the per-step roll begin immediately on the arriving floor. The
+// post-combat cooldown set in endCombat() still prevents same-floor encounter
+// spam, and the landings' geometry (return trigger adjacent, never underfoot)
+// still prevents an immediate bounce — the cooldown was never what stopped that.
+// enterLighthouse()/exitLighthouse() keep their cooldown (arrival from / return to
+// the overworld follows the ordinary overworld-transition convention).
 function ascendLighthouseGround() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_1_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 function descendLighthouseLanding1() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_GROUND_MAP', x: 9.5 * TILE, y: 6.5 * TILE, facing: 'down',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 function ascendLighthouseLanding1() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_2_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 function descendLighthouseLanding2() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_1_MAP', x: 7.5 * TILE, y: 6.5 * TILE, facing: 'down',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 function ascendLighthouseLanding2() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_3_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 function descendLighthouseLanding3() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_2_MAP', x: 7.5 * TILE, y: 6.5 * TILE, facing: 'down',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 function ascendLighthouseLanding3() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_LANTERN_MAP', x: 6.5 * TILE, y: 7.5 * TILE, facing: 'up',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 function descendLighthouseLantern() {
   transitionToLocation({ mapId: 'LIGHTHOUSE_LANDING_3_MAP', x: 7.5 * TILE, y: 6.5 * TILE, facing: 'down',
-    state: { inLighthouse: true }, cooldown: true });
+    state: { inLighthouse: true } });
 }
 
 // ─── Falls Hamlet Interior ────────────────────────────────────────────────────

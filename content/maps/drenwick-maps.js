@@ -624,9 +624,9 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
       [  3, 23, 23,  0,  0, 23,  0, 23, 23,  0,  0, 23, 23,  0,  0,  3],  // 14  broad c1-14 fen seam south; irregular GRASS/REEDS matches Northern Thornmere Fen
     ],
     displayName: 'Eastern Canal Banks', region: 'Drenwick', contentKey: 'drenwick_east_canal',
-    presentation: 'continuous', encounterProfileId: 'far',
+    presentation: 'continuous', encounterProfileId: 'canal_banks',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Two disconnected Drenwick fen banks divided by the unbroken east-west canal. All walkable GRASS/REEDS terrain uses FAR_ENEMY_TEMPLATES; no PATH, bridge, items, NPCs, interactions, landmarks, decoration, or quest content is authored. Two short REEDS ranges open east into Thornmere Canal Head while the broad south edge opens into Northern Thornmere Fen.' },
+    notes: 'Two disconnected Drenwick fen banks divided by the unbroken east-west canal. All walkable GRASS/REEDS terrain uses CANAL_BANKS_ENEMY_TEMPLATES (FAR pool + the lighthouse vermin: Marsh Rat / Shallows Skitter); no PATH, bridge, items, NPCs, interactions, landmarks, decoration, or quest content is authored. Two short REEDS ranges open east into Thornmere Canal Head while the broad south edge opens into Northern Thornmere Fen.' },
 
   // ─── Drenwick West Outfall — DRENWICK_WEST_OUTFALL_MAP  (16 × 15) ─────────────
   // Regional chunk (1,3): the void cell one column WEST of MAP3_N2 (2,3), between

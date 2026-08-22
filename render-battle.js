@@ -170,15 +170,39 @@ function drawBattleSluiceSlime(cx, cy) {
   ctx.fillRect(cx - 7 + ex, cy - 26, 14, 3);
 }
 
-// Stone Crawler — heavy rock beetle; wide carapace, pincer claws, beady eyes
-function drawBattleStoneCrawler(cx, cy) {
+// Palette for the heavy shelled crawler silhouette. drawBattleStoneCrawler()
+// takes one of these so the identical geometry can be re-skinned; the Shallows
+// Skitter (lighthouse) is a wet, salt-bleached palette swap of the Stone Crawler.
+// `bands` is the six carapace rows, dark rim -> lit crown.
+const STONE_CRAWLER_PALETTE = {
+  legs: '#5e5650',
+  bands: ['#505048', '#606058', '#6c6860', '#78746e', '#706c66', '#605e58'],
+  crack: '#484040', ridge: '#9c9690',
+  bellyBack: '#6c6860', bellyFront: '#888480',
+  pincer: '#565050',
+  eyeDark: '#0a0a08', eyeIris: '#d0c030', eyeGlint: '#ffff90',
+};
+// Wet, salt-crusted, cold-toned crab/isopod: blue-grey shell, salt-white ridges,
+// pale teal eyeshine.
+const SHALLOWS_SKITTER_PALETTE = {
+  legs: '#495a56',
+  bands: ['#3a4e4c', '#46605c', '#54726c', '#688079', '#5c726b', '#48605a'],
+  crack: '#2a3a37', ridge: '#cde0d8',
+  bellyBack: '#54726c', bellyFront: '#84a49a',
+  pincer: '#455853',
+  eyeDark: '#08100e', eyeIris: '#48c0ac', eyeGlint: '#c8fff2',
+};
+
+// Stone Crawler — heavy rock beetle; wide carapace, pincer claws, beady eyes.
+// Geometry is shared with the Shallows Skitter palette swap; only `pal` differs.
+function drawBattleStoneCrawler(cx, cy, pal = STONE_CRAWLER_PALETTE) {
   ctx.fillStyle = 'rgba(0,0,0,0.42)';
   ctx.beginPath();
   ctx.ellipse(cx, cy + 6, 55, 10, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Legs (3 per side, stubby)
-  ctx.fillStyle = '#5e5650';
+  ctx.fillStyle = pal.legs;
   ctx.fillRect(cx - 52, cy - 22, 18, 8);   ctx.fillRect(cx - 54, cy - 14, 8, 12);
   ctx.fillRect(cx - 50, cy -  8, 18, 8);   ctx.fillRect(cx - 52, cy,      8, 10);
   ctx.fillRect(cx - 46, cy +  4, 16, 8);
@@ -188,53 +212,357 @@ function drawBattleStoneCrawler(cx, cy) {
 
   // Shell carapace
   [
-    { dy: -52, w: 28,  c: '#505048' },
-    { dy: -42, w: 56,  c: '#606058' },
-    { dy: -32, w: 78,  c: '#6c6860' },
-    { dy: -22, w: 86,  c: '#78746e' },
-    { dy: -12, w: 82,  c: '#706c66' },
-    { dy:  -2, w: 66,  c: '#605e58' },
+    { dy: -52, w: 28,  c: pal.bands[0] },
+    { dy: -42, w: 56,  c: pal.bands[1] },
+    { dy: -32, w: 78,  c: pal.bands[2] },
+    { dy: -22, w: 86,  c: pal.bands[3] },
+    { dy: -12, w: 82,  c: pal.bands[4] },
+    { dy:  -2, w: 66,  c: pal.bands[5] },
   ].forEach(({ dy, w, c }) => {
     ctx.fillStyle = c;
     ctx.fillRect(cx - w / 2, cy + dy, w, 10);
   });
 
   // Shell crack lines
-  ctx.fillStyle = '#484040';
+  ctx.fillStyle = pal.crack;
   ctx.fillRect(cx - 12, cy - 48, 4, 24);
   ctx.fillRect(cx +  8, cy - 44, 4, 20);
   ctx.fillRect(cx - 28, cy - 34, 4, 16);
   ctx.fillRect(cx + 24, cy - 34, 4, 14);
 
   // Shell highlight ridges
-  ctx.fillStyle = '#9c9690';
+  ctx.fillStyle = pal.ridge;
   ctx.fillRect(cx - 22, cy - 46, 16, 4);
   ctx.fillRect(cx +  6, cy - 46, 16, 4);
   ctx.fillRect(cx - 36, cy - 36, 12, 4);
 
   // Front face / underbelly
-  ctx.fillStyle = '#6c6860';
+  ctx.fillStyle = pal.bellyBack;
   ctx.fillRect(cx - 34, cy - 20, 68, 22);
-  ctx.fillStyle = '#888480';
+  ctx.fillStyle = pal.bellyFront;
   ctx.fillRect(cx - 28, cy - 14, 56, 14);
 
   // Pincers
-  ctx.fillStyle = '#565050';
+  ctx.fillStyle = pal.pincer;
   ctx.fillRect(cx - 58, cy - 16, 26, 10);
   ctx.fillRect(cx - 64, cy - 24, 12, 10);
   ctx.fillRect(cx + 32, cy - 16, 26, 10);
   ctx.fillRect(cx + 52, cy - 24, 12, 10);
 
   // Eyes
-  ctx.fillStyle = '#0a0a08';
+  ctx.fillStyle = pal.eyeDark;
   ctx.fillRect(cx - 18, cy - 26, 10, 10);
   ctx.fillRect(cx +  8, cy - 26, 10, 10);
-  ctx.fillStyle = '#d0c030';
+  ctx.fillStyle = pal.eyeIris;
   ctx.fillRect(cx - 16, cy - 24,  6,  6);
   ctx.fillRect(cx + 10, cy - 24,  6,  6);
-  ctx.fillStyle = '#ffff90';
+  ctx.fillStyle = pal.eyeGlint;
   ctx.fillRect(cx - 15, cy - 23,  3,  3);
   ctx.fillRect(cx + 11, cy - 23,  3,  3);
+}
+
+// Shallows Skitter — oversized crab/isopod up through the lighthouse drainage
+// cracks; a wet, salt-bleached palette swap of the Stone Crawler.
+function drawBattleShallowsSkitter(cx, cy) {
+  drawBattleStoneCrawler(cx, cy, SHALLOWS_SKITTER_PALETTE);
+}
+
+// Marsh Rat — large, salt-crusted lighthouse-supply rat; long body, pointed
+// snout, thick tail, beady red eye. Fast and fragile, so it reads lean and
+// twitchy: a restless weight-shift and a flicking tail keyed off `tick`.
+function drawBattleMarshRat(cx, cy) {
+  const twitch = Math.round(Math.sin(tick * 0.12) * 2);
+  const tailFlick = Math.round(Math.sin(tick * 0.09) * 4);
+
+  ctx.fillStyle = 'rgba(0,0,0,0.34)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 6, 46, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tail — thick at the root, tapering to the right, ending in a flick
+  ctx.strokeStyle = '#7a6a5e';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(cx + 30, cy - 6);
+  ctx.quadraticCurveTo(cx + 58, cy - 10, cx + 64, cy - 22 + tailFlick);
+  ctx.stroke();
+  ctx.lineWidth = 1;
+
+  // Hind foot
+  ctx.fillStyle = '#5e5048';
+  ctx.fillRect(cx + 18, cy + 2, 16, 7);
+  ctx.fillRect(cx + 30, cy + 4, 8, 5);
+
+  // Body — long low ellipse, grizzled marsh-grey fur
+  ctx.fillStyle = '#6f6154';
+  ctx.beginPath();
+  ctx.ellipse(cx + 4, cy - 12 + twitch, 34, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Belly shading
+  ctx.fillStyle = '#5c4f44';
+  ctx.beginPath();
+  ctx.ellipse(cx + 6, cy - 4 + twitch, 28, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Salt crust — pale flecks caked along the back
+  ctx.fillStyle = 'rgba(212,206,190,0.85)';
+  ctx.fillRect(cx - 14, cy - 26 + twitch, 5, 4);
+  ctx.fillRect(cx -  2, cy - 28 + twitch, 4, 3);
+  ctx.fillRect(cx + 12, cy - 24 + twitch, 5, 4);
+  ctx.fillRect(cx + 24, cy - 20 + twitch, 3, 3);
+  ctx.fillRect(cx +  4, cy - 22 + twitch, 3, 3);
+
+  // Fore leg
+  ctx.fillStyle = '#5e5048';
+  ctx.fillRect(cx - 14, cy + 2, 8, 7);
+  ctx.fillRect(cx -  6, cy + 4, 7, 5);
+
+  // Head — pointed snout to the left
+  ctx.fillStyle = '#6f6154';
+  ctx.beginPath();
+  ctx.moveTo(cx - 24, cy - 20 + twitch);
+  ctx.lineTo(cx - 50, cy - 8 + twitch);
+  ctx.lineTo(cx - 24, cy + 2 + twitch);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(cx - 22, cy - 10 + twitch, 16, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ears — thin round, faint pink inner
+  ctx.fillStyle = '#5c4f44';
+  ctx.beginPath(); ctx.arc(cx - 18, cy - 26 + twitch, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx - 30, cy - 24 + twitch, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#8a5f5a';
+  ctx.beginPath(); ctx.arc(cx - 18, cy - 26 + twitch, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx - 30, cy - 24 + twitch, 3, 0, Math.PI * 2); ctx.fill();
+
+  // Nose
+  ctx.fillStyle = '#c88f88';
+  ctx.fillRect(cx - 50, cy - 9 + twitch, 5, 5);
+
+  // Whiskers
+  ctx.strokeStyle = 'rgba(220,214,200,0.7)';
+  ctx.beginPath();
+  ctx.moveTo(cx - 44, cy - 6 + twitch); ctx.lineTo(cx - 60, cy - 2 + twitch);
+  ctx.moveTo(cx - 44, cy - 8 + twitch); ctx.lineTo(cx - 60, cy - 10 + twitch);
+  ctx.moveTo(cx - 44, cy - 4 + twitch); ctx.lineTo(cx - 58, cy + 4 + twitch);
+  ctx.stroke();
+
+  // Eye — beady red, single visible on this profile
+  ctx.fillStyle = '#1a0e0c';
+  ctx.beginPath(); ctx.arc(cx - 26, cy - 14 + twitch, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#c83028';
+  ctx.beginPath(); ctx.arc(cx - 26, cy - 14 + twitch, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ff988c';
+  ctx.fillRect(cx - 27, cy - 16 + twitch, 2, 2);
+
+  // A hint of incisor
+  ctx.fillStyle = '#e8dcc0';
+  ctx.fillRect(cx - 46, cy - 2 + twitch, 3, 4);
+}
+
+// Lantern Moth — quick, fragile, drawn to the dead lens; dusty patterned wings,
+// furred body, feathered antennae, faint eyeshine. Wings beat off `tick`, and a
+// few motes of scale-dust drift below (the source of its Dazzling attack).
+function drawBattleLanternMoth(cx, cy) {
+  const beat = Math.sin(tick * 0.22);
+  const wingLift = Math.round(beat * 5);
+  const bob = Math.round(Math.sin(tick * 0.11) * 2);
+  const y = cy + bob;
+
+  // Faint shadow (airborne — small and soft)
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 26, 26, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Wings ── dusty tan membrane, darker margin, pale eyespots. Drawn as two
+  // pairs; the beat lifts the tips.
+  const drawWingPair = (sign) => {
+    const s = sign; // -1 left, +1 right
+    // Hindwing (lower, broader)
+    ctx.fillStyle = '#8a7a5c';
+    ctx.beginPath();
+    ctx.ellipse(cx + s * 26, y + 12, 22, 14, s * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Forewing (upper, larger, lifts with the beat)
+    ctx.fillStyle = '#a89370';
+    ctx.beginPath();
+    ctx.ellipse(cx + s * 30, y - 10 - wingLift, 30, 18, s * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+    // Dark wing margin
+    ctx.fillStyle = '#5e5038';
+    ctx.beginPath();
+    ctx.ellipse(cx + s * 44, y - 16 - wingLift, 10, 9, s * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+    // Pale dust band
+    ctx.fillStyle = 'rgba(226,216,188,0.75)';
+    ctx.beginPath();
+    ctx.ellipse(cx + s * 30, y - 8 - wingLift, 12, 5, s * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+    // Eyespot
+    ctx.fillStyle = '#3a2e20';
+    ctx.beginPath(); ctx.arc(cx + s * 30, y - 12 - wingLift, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#d8c48c';
+    ctx.beginPath(); ctx.arc(cx + s * 30, y - 12 - wingLift, 2, 0, Math.PI * 2); ctx.fill();
+  };
+  drawWingPair(-1);
+  drawWingPair(1);
+
+  // ── Body ── furred thorax + segmented abdomen
+  ctx.fillStyle = '#6a5a44';
+  ctx.beginPath();
+  ctx.ellipse(cx, y + 6, 7, 20, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Fur highlight on the thorax
+  ctx.fillStyle = '#8a7656';
+  ctx.beginPath();
+  ctx.ellipse(cx, y - 6, 6, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Abdomen segment lines
+  ctx.fillStyle = '#4c3f30';
+  ctx.fillRect(cx - 5, y + 6, 10, 2);
+  ctx.fillRect(cx - 4, y + 12, 8, 2);
+  ctx.fillRect(cx - 3, y + 18, 6, 2);
+
+  // ── Head + eyes ──
+  ctx.fillStyle = '#5a4c39';
+  ctx.beginPath(); ctx.arc(cx, y - 16, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#141008';
+  ctx.beginPath(); ctx.arc(cx - 3, y - 17, 2.4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 3, y - 17, 2.4, 0, Math.PI * 2); ctx.fill();
+  // Faint lens-drawn eyeshine
+  ctx.fillStyle = 'rgba(232,216,120,0.9)';
+  ctx.fillRect(cx - 4, y - 18, 1.4, 1.4);
+  ctx.fillRect(cx + 2.6, y - 18, 1.4, 1.4);
+
+  // ── Feathered antennae ──
+  ctx.strokeStyle = '#4c3f30';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - 2, y - 20); ctx.quadraticCurveTo(cx - 14, y - 30, cx - 20, y - 40);
+  ctx.moveTo(cx + 2, y - 20); ctx.quadraticCurveTo(cx + 14, y - 30, cx + 20, y - 40);
+  ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(76,63,48,0.7)';
+  ctx.beginPath();
+  for (let i = 1; i <= 4; i++) {
+    const t = i / 5;
+    const lx = cx - 2 + (-18) * t, ly = y - 20 + (-20) * t;
+    const rx = cx + 2 + (18) * t,  ry = y - 20 + (-20) * t;
+    ctx.moveTo(lx, ly); ctx.lineTo(lx - 4, ly - 3);
+    ctx.moveTo(lx, ly); ctx.lineTo(lx - 4, ly + 2);
+    ctx.moveTo(rx, ry); ctx.lineTo(rx + 4, ry - 3);
+    ctx.moveTo(rx, ry); ctx.lineTo(rx + 4, ry + 2);
+  }
+  ctx.stroke();
+
+  // ── Scale-dust motes drifting below (its Dazzling attack, at rest) ──
+  ctx.fillStyle = 'rgba(230,220,150,' + (0.35 + 0.25 * (beat * 0.5 + 0.5)) + ')';
+  const drift = (tick * 0.4) % 24;
+  ctx.fillRect(cx - 16, y + 18 + drift * 0.4, 2, 2);
+  ctx.fillRect(cx + 12, y + 22 + ((drift + 8) % 24) * 0.4, 2, 2);
+  ctx.fillRect(cx - 4,  y + 26 + ((drift + 16) % 24) * 0.4, 2, 2);
+}
+
+// Lensweb Spider — large lighthouse spider on a felt of old webbing around the
+// dead lens: bulbous abdomen, low cephalothorax, eight jointed legs, a cluster
+// of pale eyes and a pair of fangs. Deterministic: a slow tick-driven leg-flex
+// and abdomen bob, no randomness.
+function drawBattleLenswebSpider(cx, cy) {
+  const flex = Math.sin(tick * 0.06);
+  const legShift = Math.round(flex * 2);
+  const bob = Math.round(Math.sin(tick * 0.045) * 1);
+  const y = cy + bob;
+
+  // Webbing behind the spider — pale radial strands anchored to the frame.
+  ctx.strokeStyle = 'rgba(206,212,214,0.28)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const a of [-1.15, -0.75, -0.35, 0.35, 0.75, 1.15]) {
+    ctx.moveTo(cx, y - 6);
+    ctx.lineTo(cx + Math.cos(a - Math.PI / 2) * 70, (y - 6) + Math.sin(a - Math.PI / 2) * 60);
+  }
+  // A couple of connecting arcs across the strands.
+  ctx.moveTo(cx - 40, y - 34); ctx.quadraticCurveTo(cx, y - 20, cx + 40, y - 34);
+  ctx.moveTo(cx - 30, y - 52); ctx.quadraticCurveTo(cx, y - 40, cx + 30, y - 52);
+  ctx.stroke();
+
+  // Ground shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.34)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 20, 52, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Legs ── four per side, jointed (femur out, tibia down to a foot). The
+  // near/far pairs shift in opposite phase for a slow scuttle-in-place.
+  const legColor = '#2a2420', legDark = '#181410';
+  const drawLeg = (sign, i) => {
+    const s = sign;
+    const ph = (i % 2 === 0) ? legShift : -legShift;
+    const rootX = cx + s * 12, rootY = y - 4 + i * 6 - 6;
+    const kneeX = cx + s * (34 + i * 3), kneeY = y - 20 + i * 7 + ph;
+    const footX = cx + s * (46 + i * 4), footY = y + 8 + i * 6 + ph;
+    ctx.strokeStyle = legColor; ctx.lineWidth = 5 - (i > 1 ? 1 : 0);
+    ctx.beginPath();
+    ctx.moveTo(rootX, rootY); ctx.lineTo(kneeX, kneeY); ctx.lineTo(footX, footY);
+    ctx.stroke();
+    // Dark tip
+    ctx.strokeStyle = legDark; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(kneeX, kneeY); ctx.lineTo(footX, footY); ctx.stroke();
+  };
+  for (let i = 0; i < 4; i++) { drawLeg(-1, i); drawLeg(1, i); }
+
+  // ── Abdomen ── bulbous, mottled, with a pale lens-scar marking
+  ctx.fillStyle = '#37302a';
+  ctx.beginPath();
+  ctx.ellipse(cx, y + 2, 30, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#2a231e';
+  ctx.beginPath();
+  ctx.ellipse(cx + 2, y + 8, 22, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Pale dorsal markings (like cracks in a lens)
+  ctx.fillStyle = 'rgba(198,190,168,0.75)';
+  ctx.fillRect(cx - 2, y - 16, 4, 22);
+  ctx.fillRect(cx - 12, y - 6, 10, 3);
+  ctx.fillRect(cx + 4, y - 2, 10, 3);
+  ctx.fillRect(cx - 8, y + 8, 7, 3);
+
+  // ── Cephalothorax ── smaller front body
+  ctx.fillStyle = '#3d352e';
+  ctx.beginPath();
+  ctx.ellipse(cx, y - 22, 17, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#4a4038';
+  ctx.beginPath();
+  ctx.ellipse(cx, y - 24, 11, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Eyes ── a cluster of small pale eyes catching the dead light
+  ctx.fillStyle = '#e8e0a8';
+  ctx.fillRect(cx - 8, y - 30, 3, 3);
+  ctx.fillRect(cx + 5, y - 30, 3, 3);
+  ctx.fillRect(cx - 4, y - 32, 2, 2);
+  ctx.fillRect(cx + 2, y - 32, 2, 2);
+  ctx.fillStyle = '#b8302a';
+  ctx.fillRect(cx - 7, y - 29, 1, 1);
+  ctx.fillRect(cx + 6, y - 29, 1, 1);
+
+  // ── Chelicerae / fangs ── the bite that poisons
+  ctx.fillStyle = '#2a2420';
+  ctx.fillRect(cx - 6, y - 20, 4, 7);
+  ctx.fillRect(cx + 2, y - 20, 4, 7);
+  ctx.fillStyle = '#0f0c0a';
+  ctx.beginPath();
+  ctx.moveTo(cx - 6, y - 13); ctx.lineTo(cx - 3, y - 13); ctx.lineTo(cx - 5, y - 7); ctx.closePath();
+  ctx.moveTo(cx + 6, y - 13); ctx.lineTo(cx + 3, y - 13); ctx.lineTo(cx + 5, y - 7); ctx.closePath();
+  ctx.fill();
+  // A wet highlight on the fangs
+  ctx.fillStyle = 'rgba(150,200,120,0.5)';
+  ctx.fillRect(cx - 5, y - 12, 1, 2);
+  ctx.fillRect(cx + 4, y - 12, 1, 2);
 }
 
 // Briar Hound — thorned wolf; four legs, spine thorns, amber eyes, fangs
@@ -3279,6 +3607,10 @@ const ENEMY_SPRITE_DISPATCH = {};
   def(drawBattleWisp,          0,  ['enemy_marsh_wisp', 'enemy_marsh_wisp_early', 'enemy_marsh_wisp_sluice_top']);
   def(drawBattleSluiceSlime,   58, ['enemy_sluice_slime']);
   def(drawBattleStoneCrawler,  62, ['enemy_stone_crawler']);
+  def(drawBattleShallowsSkitter, 62, ['enemy_shallows_skitter']);
+  def(drawBattleMarshRat,      52, ['enemy_marsh_rat']);
+  def(drawBattleLanternMoth,   30, ['enemy_lantern_moth']);
+  def(drawBattleLenswebSpider, 40, ['enemy_lensweb_spider']);
   def(drawBattleBriarHound,    58, ['enemy_briar_hound', 'enemy_briar_hound_early']);
   def(drawBattleBoneGuard,     62, ['enemy_bone_guard']);
   def(drawBattleShadeWraith,   30, ['enemy_shade_wraith']);
@@ -3650,11 +3982,13 @@ function drawCombat() {
   const pMuddied   = hasStatusEffect('muddied');
   const pSlithered = hasStatusEffect('slither');
   const pBurning   = hasStatusEffect('burn');
+  const pDazzled   = hasStatusEffect('dazzled');
   const pFillColor = pFilled <= 3 ? '#a06820'
                    : pBurning      ? '#c85028'
                    : pPoisoned     ? '#7a9820'
                    : pMuddied      ? '#9a8430'
                    : pSlithered    ? '#4a9aaa'
+                   : pDazzled      ? '#c8b850'
                    :                 '#4a9a62';
   for (let i = 0; i < pSegs; i++) {
     ctx.fillStyle = i < pFilled ? pFillColor : '#112820';
@@ -3687,6 +4021,12 @@ function drawCombat() {
     ctx.fillStyle = ((tick >> 3) & 1) ? '#f08028' : '#f0b040';
     ctx.font = 'bold 10px "Courier New", monospace';
     ctx.fillText('BRN', PX + PAD + 54, pStatusY);
+    pStatusY += 11;
+  }
+  if (pDazzled) {
+    ctx.fillStyle = '#e8d860';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.fillText('DAZ', PX + PAD + 54, pStatusY);
   }
 
   // Rule

@@ -383,6 +383,7 @@ const ENCOUNTER_HANDLERS = {
   den_wraith:   function() { startDenWraithCombat(); },
   takomo:       function() { startTakomoCombat(); },
   kolm_brawler: function() { startSailorBrawlCombat(); },
+  lensweb_spider: function() { startLenswebSpiderCombat(); },
 };
 
 // Queue an encounter to begin when the current dialogue's last page closes.

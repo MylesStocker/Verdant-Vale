@@ -745,54 +745,98 @@ function openLighthouseDialogue(name, pages) {
   dialogue.page = 0;
 }
 
+// The lens is now guarded by the scripted Lensweb Spider event. This function is
+// the interaction FRONT for that event; the battle lifecycle, the pending item,
+// and the persistent lighthouse_spider_resolved flag all live in combat.js.
+// getActiveLighthouseObjective() remains the SINGLE route/item authority — this
+// never reads the quest stage or Polwick outcome directly, and it never grants
+// the route item during the unresolved-spider path (victory/escape do that).
 function interactLighthouseLens() {
   if (!nearPlayer(LIGHTHOUSE_LENS.x, LIGHTHOUSE_LENS.y, TALK_RADIUS * 1.5)) return false;
 
   const objective = getActiveLighthouseObjective();
-  if (objective === 'Old Engagement Ring') {
-    const held = stats.items.some(function (item) { return item && item.name === objective; });
-    if (!held) {
-      grantItem(objective);
-      openLighthouseDialogue('Broken Lens', [
-        ['The great lens is cracked and clouded, its frame furred with salt. It could no longer throw a proper beam.'],
-        ['You work your fingers behind the lower mounting plate of the old lens.',
-         'A small ring comes free from the dust and corroded brass.'],
-        ['Found: Old Engagement Ring.'],
-      ]);
-    } else {
-      openLighthouseDialogue('Broken Lens', [
-        ['The lower mounting plate hangs loose where you searched it.',
-         'There is nothing else hidden behind it.'],
-      ]);
-    }
+
+  // No accepted route, completed route, or malformed state → atmosphere only.
+  // May hint at the webbing and a suggestion of movement, but offers no choice,
+  // no item, and starts no battle.
+  if (!objective) {
+    openLighthouseDialogue('Broken Lens', [
+      ['The great lens is cracked and clouded, its frame seized with salt.',
+       'It could no longer gather the light well enough to throw a proper beam across the shallows.'],
+      ['Thick grey webbing has grown over the mounting. Something behind it shifts once, then goes still.'],
+    ]);
     return true;
   }
 
-  if (objective === 'Stashed Gem') {
-    const held = stats.items.some(function (item) { return item && item.name === objective; });
-    if (!held) {
-      grantItem(objective);
-      openLighthouseDialogue('Broken Lens', [
-        ['The great lens is cracked and clouded, its frame furred with salt. It could no longer throw a proper beam.'],
-        ['Behind the old lens frame, the loose stone shifts under your hand. A narrow recess opens beyond it.',
-         'The wrapped gem is still inside.'],
-        ['Found: Stashed Gem.'],
-      ]);
-    } else {
-      openLighthouseDialogue('Broken Lens', [
-        ['The loose stone behind the old lens frame sits open over an empty recess.',
-         'There is nothing else hidden there.'],
-      ]);
-    }
+  const held = stats.items.some(function (item) { return item && item.name === objective; });
+
+  // Accepted route with the matching item already held → grant nothing, start no
+  // battle, and preserve the existing already-searched response (route-specific).
+  if (held) {
+    openLighthouseDialogue('Broken Lens', objective === 'Old Engagement Ring'
+      ? [['The lower mounting plate hangs loose where you searched it.',
+          'There is nothing else hidden behind it.']]
+      : [['The loose stone behind the old lens frame sits open over an empty recess.',
+          'There is nothing else hidden there.']]);
     return true;
   }
 
-  // NONE, completed, and malformed lighthouse state all fail closed through
-  // getActiveLighthouseObjective(): atmosphere only, with no route or item hint.
-  openLighthouseDialogue('Broken Lens', [
-    ['The great lens is cracked and clouded, its frame seized with salt.',
-     'It could no longer gather the light well enough to throw a proper beam across the shallows.'],
-  ]);
+  // Spider already resolved, route still active, item somehow absent → restore
+  // exactly one matching objective with no poison and no battle (anti-soft-lock
+  // replacement). The disturbed web is empty; the spider has withdrawn.
+  if (lighthouse_spider_resolved) {
+    grantItem(objective);
+    openLighthouseDialogue('Broken Lens', objective === 'Old Engagement Ring'
+      ? [['The web over the lens hangs torn and empty. Whatever guarded it has drawn back into cracks in the assembly you can’t reach.'],
+         ['You retrieve the ring from behind the lower mounting plate.', 'Found: Old Engagement Ring.']]
+      : [['The web over the lens hangs torn and empty. Whatever guarded it has drawn back into cracks in the assembly you can’t reach.'],
+         ['You retrieve the wrapped gem from the recess behind the loose stone.', 'Found: Stashed Gem.']]);
+    return true;
+  }
+
+  // Accepted route, item absent, spider unresolved → describe the route-specific
+  // objective and the spider behind the web, then ask to reach through.
+  const sightPage = objective === 'Old Engagement Ring'
+    ? ['Behind a thick grey web, a small ring rests near the lower mounting plate of the old lens.',
+       'A large spider is crouched inside the web, close over the ring. It watches your hand and does not move. It looks angry.']
+    : ['Behind a thick grey web, the wrapped gem sits in a recess behind a loose stone in the lens frame.',
+       'A large spider is crouched inside the web, close over the recess. It watches your hand and does not move. It looks angry.'];
+  dialogue.name = 'Broken Lens';
+  dialogue.pages = [
+    ['The great lens is cracked and clouded, its frame furred with salt and hung with old webbing.'],
+    sightPage,
+  ];
+  dialogue.callbacks = [function openReachChoice() {
+    choice.title   = 'Reach through the web?';
+    choice.options = ['Reach through the web', 'Leave it'];
+    choice.cursor  = 0;
+    choice.callbacks = [
+      function reachThrough() {
+        // Player-facing: snatch the objective, get bitten, combat begins Poisoned.
+        // The item is NOT granted here — it is snapshotted battle-local at combat
+        // start (startLenswebSpiderCombat) and finalized only on victory or a
+        // successful Observe-gated escape, so a defeat can't become an item exploit.
+        dialogue.name = 'Broken Lens';
+        dialogue.pages = [
+          objective === 'Old Engagement Ring'
+            ? ['You push your hand through the web and close your fingers around the ring.']
+            : ['You push your hand through the web and close your fingers around the wrapped gem.'],
+          ['The spider strikes — fangs sink into the back of your hand. A cold sting spreads up your wrist.'],
+        ];
+        dialogue.callbacks = null;
+        queueDialogueEncounter('lensweb_spider');
+        dialogue.open = true;
+        dialogue.page = 0;
+      },
+      function leaveIt() {
+        // Decline: no item, no poison, no combat, no state change. The lens can be
+        // examined and the choice made again later.
+      },
+    ];
+    choice.open = true;
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
   return true;
 }
 

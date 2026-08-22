@@ -82,7 +82,11 @@ const ENEMY_TEMPLATE_POOLS = [
   { id: 'pool_dungeon_f8',        label: 'Dungeon — floor 8',                  templates: DUNGEON8_ENEMY_TEMPLATES },
   { id: 'pool_dungeon_horror',    label: 'Dungeon — floors 9–10 (horror)',     templates: DUNGEON_HORROR_ENEMY_TEMPLATES },
   { id: 'pool_far_overworld',     label: 'Far overworld (MAP3 / N-tier)',      templates: FAR_ENEMY_TEMPLATES },
-  { id: 'pool_thornmere',         label: 'Thornmere (MAP4 / MAP5)',            templates: THORNMERE_ENEMY_TEMPLATES },
+  { id: 'pool_thornmere',         label: 'Thornmere (MAP4)',                   templates: THORNMERE_ENEMY_TEMPLATES },
+  { id: 'pool_lighthouse',        label: 'Abandoned Lighthouse — lower floors', templates: LIGHTHOUSE_ENEMY_TEMPLATES },
+  { id: 'pool_lighthouse_top',    label: 'Abandoned Lighthouse — lantern room', templates: LIGHTHOUSE_TOP_ENEMY_TEMPLATES },
+  { id: 'pool_thornmere_shore',   label: 'Thornmere shore (Shallows / N. Fen)', templates: THORNMERE_SHORE_ENEMY_TEMPLATES },
+  { id: 'pool_canal_banks',       label: 'Eastern Canal Banks',                templates: CANAL_BANKS_ENEMY_TEMPLATES },
   { id: 'pool_east_sluice',       label: 'East Sluice — main floors',          templates: SLUICE_ENEMY_TEMPLATES },
   { id: 'pool_east_sluice_top',   label: 'East Sluice — top floor',            templates: SLUICE_TOP_ENEMY_TEMPLATES },
   { id: 'pool_east_sluice_secret', label: 'East Sluice — sealed room',         templates: SLUICE_SECRET_ENEMY_TEMPLATES },
@@ -95,6 +99,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
   BRIAR_WARDEN_TEMPLATE, SMUGGLER_GUARD_TEMPLATE, POLWICK_TEMPLATE, ESSA_TEMPLATE,
   PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,
   MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
+  LENSWEB_SPIDER_TEMPLATE,
 ];
 // The 1/256 secret "23" enemy is generated fresh each encounter with random
 // stats (startCombat, below), so it has no static stat block — only a stable id.
@@ -293,6 +298,14 @@ const combat = {
   isSailorBrawl:     false,
   isTakomo:          false,
   is23:              false,
+  isLenswebSpider:   false, // the Abandoned Lighthouse lens boss (scripted event)
+  // Battle/event-local ONLY — never serialized (the combat object is not part of
+  // the save payload). The route quest item the player grabbed through the web,
+  // held pending until victory or a successful Observe-gated escape finalizes it.
+  pendingLighthouseObjective: null,
+  // Battle-local escape unlock set by Observe on a `runLock:'observe_gated'` enemy.
+  // Makes Run a guaranteed success for the rest of THIS battle; cleared on endCombat.
+  escapeUnlocked:    false,
   observeCount:      0,
   evadeTurns:        0,     // remaining turns of Bullet Time's heightened evade (0 = none)
 };
@@ -462,7 +475,8 @@ function endCombat() {
   combat.cooldown    = ENCOUNTER_COOLDOWN;
   combat.fireCastTimer = 0;
   combat.polwickHasCast = false;
-  removeStatusEffect('burn');   // Burn is combat-only — it wears off when the fight ends.
+  removeStatusEffect('burn');     // Burn is combat-only — it wears off when the fight ends.
+  removeStatusEffect('dazzled');  // Dazzled (dust) is likewise combat-only — the eyes clear when the fight ends.
   combat.isBoss        = false;
   combat.isWarden      = false;
   combat.isFortGuard   = false;
@@ -476,6 +490,13 @@ function endCombat() {
   combat.isSailorBrawl     = false;
   combat.isTakomo          = false;
   combat.is23              = false;
+  // Discard any pending lighthouse boss-event state on EVERY combat exit
+  // (victory finalizes and grants BEFORE reaching here; defeat, flight without
+  // the Observe unlock, and any abnormal cancellation all reach here having
+  // granted nothing and left lighthouse_spider_resolved untouched).
+  combat.isLenswebSpider           = false;
+  combat.pendingLighthouseObjective = null;
+  combat.escapeUnlocked            = false;
   combat.observeCount      = 0;
   combat.evadeTurns        = 0;
 }
@@ -616,6 +637,57 @@ function startTakomoCombat() {
   combat.observeCount   = 0;
 }
 
+// Abandoned Lighthouse lens event. Dispatched from the reach-through-the-web
+// dialogue (interactions.js ENCOUNTER_HANDLERS['lensweb_spider']) once its last
+// page closes. Snapshots the validated route objective from the SINGLE quest
+// authority at start time and holds it as battle-local pending reward — the item
+// is NOT in inventory yet, so a defeat here can't become an item exploit. Poison
+// (from the bite) is applied AFTER the combat fields are set up, so nothing in the
+// normal battle setup erases it; addStatusEffect is idempotent and applies no
+// immediate damage tick. Fails atomically: if the objective is missing/malformed
+// or the spider is already resolved, no combat starts and nothing is left pending.
+function startLenswebSpiderCombat() {
+  if (lighthouse_spider_resolved) return;             // never re-run the event
+  const objective = getActiveLighthouseObjective();   // the one route/item authority
+  if (!objective) return;                             // malformed/none: fail closed, no combat
+
+  combat.enemy          = { ...LENSWEB_SPIDER_TEMPLATE };
+  combat.active         = true;
+  combat.phase          = 'choose';
+  combat.cursor         = 0;
+  combat.messageQueue   = [];
+  combat.message        = 'The web shudders. The spider rushes down its threads at you!';
+  combat.pendingVictory = false;
+  combat.pendingDefeat  = false;
+  combat.pendingEscape  = false;
+  combat.flashTimer     = 8;
+  combat.isLenswebSpider = true;
+  combat.pendingLighthouseObjective = objective;
+  combat.escapeUnlocked  = false;
+  combat.observeCount    = 0;
+
+  // Poison from the bite — applied only now, after setup. Existing status; no
+  // lighthouse-specific variant, and no extra out-of-cadence damage tick.
+  addStatusEffect('poison');
+}
+
+// The ONE idempotent finalization authority for the lens event, shared by victory
+// and successful Observe-gated escape. Grants exactly one pending route item and
+// flips the persistent resolved flag, at most once. Returns the granted objective
+// name (for aftermath text), or null if there was nothing to finalize (already
+// resolved, or no pending objective — e.g. a repeat outcome callback). It does NOT
+// touch XP/gold (victory's applyKillRewards owns those) and does NOT clear the
+// pending state — endCombat() does that on the way out.
+function finalizeLenswebSpiderEvent() {
+  if (lighthouse_spider_resolved) return null;
+  const objective = combat.pendingLighthouseObjective;
+  if (!objective) return null;
+  grantItem(objective);
+  lighthouse_spider_resolved = true;
+  syncQuestFlagsToWindow();
+  return objective;
+}
+
 // The Sunken Gallery's trapped Pale Drowned, when the player chooses to put it
 // down rather than free it (interactions.js). An ordinary Pale Drowned fight
 // (SUNKEN_GALLERY_ENEMY_TEMPLATES[0]) with its own opening line — victory,
@@ -711,11 +783,39 @@ function advanceCombatMessage() {
   }
   // Resolve phase once the last message has been acknowledged
   if (combat.messageQueue.length === 0) {
-    if (combat.pendingEscape)      endCombat();
+    if (combat.pendingEscape) {
+      // A successful Observe-gated escape from the lens spider is a real event
+      // outcome, not an ordinary flight: finalize (grant item + resolve) through
+      // the shared idempotent authority, then show the aftermath. All other
+      // escapes end combat exactly as before.
+      if (combat.isLenswebSpider) resolveLenswebSpiderEscape();
+      else                        endCombat();
+    }
     else if (combat.pendingVictory) combat.phase = 'victory';
     else if (combat.pendingDefeat) combat.phase = 'defeat';
     else                           combat.phase = 'choose';
   }
+}
+
+// Successful escape from the Lensweb Spider after Observe. Grants the pending
+// route item and flips the resolved flag once (shared finalizer), ends combat
+// (which clears the transient event state), then plays the aftermath: the player
+// pulls free with the item and the territorial spider withdraws into the lens.
+function resolveLenswebSpiderEscape() {
+  const objective = finalizeLenswebSpiderEvent();
+  endCombat();
+  dialogue.name  = '';
+  dialogue.pages = [
+    objective
+      ? [`You pull your hand back through the web, the ${objective} closed in your fist.`,
+         'The spider retreats back behind the frame of the old lens and refuses to pursue.',
+         'It settles over the ruined mechanism and holds there, past the reach of the web.']
+      : ['You pull back through the web.',
+         'The spider retreats back behind the frame of the old lens and refuses to pursue.',
+         'It settles over the ruined mechanism and holds there, past the reach of the web.'],
+  ];
+  dialogue.open  = true;
+  dialogue.page  = 0;
 }
 
 // ─── Observe: combat action helpers ──────────────────────────────────────────
@@ -786,6 +886,15 @@ function applyEnemyHitEffects() {
       combat.messageQueue.unshift(curseMsg);
     }
   }
+  // Generic dust/dazzle-on-hit (template `dazzleChance`) \u2014 currently the Lantern
+  // Moth. Dazzled is a combat-only accuracy debuff: while it lasts, the player's
+  // OWN attacks are more likely to miss (enemyEvades() docks the swing's effective
+  // speed by DAZZLE_ACC_PENALTY). It touches nothing else \u2014 not turn order, not the
+  // player's own evasion, not defense \u2014 and clears when the fight ends (endCombat).
+  if (combat.enemy && combat.enemy.dazzleChance && !hasStatusEffect('dazzled') && Math.random() < combat.enemy.dazzleChance) {
+    addStatusEffect('dazzled');
+    combat.messageQueue.unshift('A burst of glittering scale-dust stings your eyes. Dazzled! (your attacks go wide)');
+  }
 }
 
 // How long Polwick's fire-cast animation plays, in frames (~0.75s at 60fps).
@@ -843,7 +952,15 @@ function attackEvaded(attackerSpd, defenderSpd, defenderIsPlayer) {
 // Direction wrappers: the player defends an enemy blow / the enemy defends the
 // player's blow. Speeds go through effectiveSpd() so slither etc. are respected.
 function playerEvades() { return attackEvaded(combat.enemy.spd, effectiveSpd(), true); }
-function enemyEvades()  { return attackEvaded(effectiveSpd(), combat.enemy.spd, false); }
+// Dazzled (dust in the eyes) reduces ONLY the player's accuracy: it docks the
+// effective speed of the player's own swing here, so the enemy evades it more
+// often (a higher speed gap in the defender's favour). effectiveSpd() itself is
+// untouched, so turn order and the player's own evasion (playerEvades) stay put.
+const DAZZLE_ACC_PENALTY = 8;
+function enemyEvades()  {
+  const atkSpd = effectiveSpd() - (hasStatusEffect('dazzled') ? DAZZLE_ACC_PENALTY : 0);
+  return attackEvaded(atkSpd, combat.enemy.spd, false);
+}
 // Ticks the Bullet Time buff down by one player turn. Called once per turn spent.
 function tickEvadeBuff() {
   if (combat.evadeTurns > 0) combat.evadeTurns--;
@@ -1106,6 +1223,18 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['He came here voluntarily. That makes him different from most of what\u2019s in the dungeon.', 'Whatever he was looking for in this chamber, he found it. Then he stayed.'] },
     { lines: ['He fights like someone who has practiced this specific fight for years.', 'Possibly because he has.', 'He doesn\u2019t look like he needs to win. Just to see how far you get.'] },
   ],
+  // First Observe both READS as the solution and UNLOCKS escape for this fight
+  // (combat.js Run/Observe handlers key off the enemy's `runLock` capability).
+  enemy_lensweb_spider: [
+    { lines: ['It guards the lens fiercely, but it makes no move to leave the web.',
+              'It is territorial, not a hunter \u2014 back away and it will not follow.',
+              'You could retreat safely now, objective in hand.'] },
+    { lines: ['Generations of webbing have grown over the dead lens, thick as felt.',
+              'The spider has had the run of the lantern room since the light went out.'] },
+    { lines: ['It does not pursue past the frame of its own web.',
+              'Everything it needs is here, in the ruin of the mechanism.',
+              'Beyond that, it has no interest in you at all.'] },
+  ],
 };
 
 // Several distinct template ids share one display identity (e.g. the three
@@ -1166,6 +1295,7 @@ function getObservationText(enemy, count) {
     if (enemy.atk  >= 20)                             traits.push('Hits hard.');
     if (enemy.defendChance)                           traits.push('May brace.');
     if (enemy.curseChance)                            traits.push('Curse risk.');
+    if (enemy.dazzleChance)                           traits.push('Blinding dust.');
     const line2 = traits.length > 0 ? traits.join(' ') : 'Nothing obvious stands out.';
     return ['L\u00e9l\u00fd watches carefully.', line2];
   }
@@ -1286,6 +1416,24 @@ function handleCombatAction() {
         ['He stays down.',
          'You stand in the dark for a moment, unsure what to do with that.',
          'Then you leave.'],
+      ];
+      dialogue.open = true; dialogue.page = 0;
+      return;
+    }
+    if (combat.isLenswebSpider) {
+      // XP/gold/potion were already awarded once by applyKillRewards when the
+      // spider fell. Finalize the event (grant the pending route item + resolve)
+      // through the shared idempotent authority; a repeat callback is inert.
+      const objective = finalizeLenswebSpiderEvent();
+      endCombat();
+      dialogue.name  = '';
+      dialogue.pages = [
+        ['The spider shudders and folds its legs beneath it.',
+         'It sinks back into the felted web over the dead lens and goes still.'],
+        objective
+          ? [`The ${objective} is yours, freed from the web at last.`,
+             'The lantern room is quiet again.']
+          : ['The lantern room is quiet again.'],
       ];
       dialogue.open = true; dialogue.page = 0;
       return;
@@ -1487,14 +1635,28 @@ function handleCombatAction() {
   // phase==='item' branch above.
   if (action !== 'item') tickEvadeBuff();
   if (action === 'run') {
+    // Observe-gated escape (Lensweb Spider): once Observe has revealed the safe
+    // retreat, Run is a GUARANTEED success — resolved deterministically with no
+    // Math.random() (escapeUnlocked can only ever be set on a runLock enemy).
+    // The event finalizer (grant item + resolve) fires when this escape settles;
+    // see advanceCombatMessage().
+    if (combat.escapeUnlocked) {
+      combat.message      = 'You back away along the web. The spider holds its ground.';
+      combat.messageQueue = [];
+      combat.pendingEscape = true;
+      combat.phase        = 'message';
+      return;
+    }
     // No-escape fights. Rainfish: the school is all around you in the
     // shallows. Fort arrest sequence (guard → Polwick → Essa): each opponent
     // stands between the player and the fort's only door — and fleeing
     // mid-sequence left the quest in odd half-states (opponents vanishing at
     // off-stages, the chain resumable in the wrong order), so Run is simply
-    // not available. Attempting it costs the turn: the enemy gets a free hit,
-    // same as the Rainfish rule.
-    if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa) {
+    // not available. An UN-observed observe-gated enemy (the Lensweb Spider before
+    // Observe) is likewise a guaranteed 0% — same deterministic free-hit path, no
+    // Math.random(). Attempting it costs the turn: the enemy gets a free hit.
+    if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa ||
+        combat.enemy.runLock === 'observe_gated') {
       const roll   = rollAttackDamage(combat.enemy.atk, effectiveDef());
       const dodged = playerEvades();
       const eDmg   = dodged ? 0 : roll.dmg;
@@ -1505,7 +1667,8 @@ function handleCombatAction() {
         : combat.isRainfish     ? `${ec}Nowhere to go! Rainfish thrashes for ${eDmg}!`
         : combat.isFortGuard    ? `${ec}The guard holds the door! He strikes for ${eDmg}!`
         : combat.isFortPolwick  ? `${ec}Polwick stays between you and the door! He strikes for ${eDmg}!`
-        :                         `${ec}Essa keeps herself between you and the door! She strikes for ${eDmg}!`;
+        : combat.isFortEssa     ? `${ec}Essa keeps herself between you and the door! She strikes for ${eDmg}!`
+        :                         `${ec}You can't tell where its web ends! The ${combat.enemy.name} bites for ${eDmg}!`;
       const msgs = [noRunText];
       if (newHp <= 0) { msgs.push(`${stats.name} has fallen...`); combat.pendingDefeat = true; }
       // A blocked run still spends the turn — Burn ticks, same as a failed run.
@@ -1666,12 +1829,20 @@ function handleCombatAction() {
     const obsLines = getObservationText(combat.enemy, combat.observeCount - 1);
     obsLines.forEach(l => msgs.push(l));
 
+    // Observe-gated escape unlock (Lensweb Spider): the first look reveals it
+    // won't pursue, and every look after is idempotent — a boolean can't stack or
+    // exceed 100%, and it creates no persistent state (cleared on endCombat).
+    if (combat.enemy.runLock === 'observe_gated') combat.escapeUnlocked = true;
+
     // Roll whether the enemy closes in this turn.
     // Bosses/specials are more relentless: 25% skip chance vs 50% for normal.
+    // Any observe-gated boss (the spider) counts as special via its data capability,
+    // so no new scattered flag is needed and existing enemies are unaffected.
     const isSpecial = combat.isBoss || combat.isWarden || combat.isFortGuard ||
                       combat.isFortPolwick || combat.isFortEssa || combat.isMulholland ||
                       combat.isPaleSentry || combat.isDenWraith || combat.isSailorBrawl ||
-                      combat.isTakomo || combat.isRainfish || combat.is23;
+                      combat.isTakomo || combat.isRainfish || combat.is23 ||
+                      !!combat.enemy.runLock;
     const skipChance = isSpecial ? 0.25 : 0.50;
     if (Math.random() < skipChance) {
       msgs.push('It does not close the distance.');

@@ -27,7 +27,7 @@ const { createContext } = require('../harness');
 // Frozen expectation snapshots (production stays registry-driven).
 const EXPECTED_PICKUP_COUNT = 48;  // pickup_school_elixir removed — the school Elixir is now Tev's one-time gift
 const EXPECTED_CHEST_COUNT  = 10;
-const EXPECTED_ENEMY_COUNT  = 53;
+const EXPECTED_ENEMY_COUNT  = 57;  // +3: lighthouse Marsh Rat, Shallows Skitter, Lantern Moth; +1: Lensweb Spider boss
 const CHEST_IDS = [
   'chest_cat_armor', 'chest_dungeon_alcove', 'chest_dungeon_main', 'chest_meadow',
   'chest_sluice1', 'chest_sluice2', 'chest_sluice3', 'chest_sluice_deep', 'chest_sluice_secret',

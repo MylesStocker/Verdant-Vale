@@ -87,9 +87,12 @@ module.exports = {
     assert.equal(m.flat().filter((t) => t === MIRE_ENTRANCE).length, 1, 'exactly one vault entrance');
     assert.equal(m[1][13], MIRE_ENTRANCE, 'vault entrance at row 1 col 13');
     const meta = J(`JSON.stringify((function(){var d=THORNMERE_REGIONAL_CHUNK_DEFINITIONS.find(function(x){return x.mapId==='${ID}';});var r=REGIONAL_CHUNK_CATALOG['${ID}'];return {mapId:r.mapId,regionId:r.regionId,chunkX:r.chunkX,chunkY:r.chunkY,displayName:r.displayName,region:r.region,contentKey:r.contentKey,presentation:r.presentation,profile:d.encounterProfileId,itemSetAuthored:Object.prototype.hasOwnProperty.call(d,'itemSetId'),playerAccessibleAuthored:Object.prototype.hasOwnProperty.call(d,'playerAccessible'),playerAccessible:r.playerAccessible,enc:r.allowRandomEncounters,save:r.allowSave};})())`);
-    assert.deepEqual(meta, { mapId: ID, regionId: 'overworld', chunkX: 3, chunkY: 4, displayName: 'Northern Thornmere Fen', region: 'Thornmere', contentKey: 'thornmere_north_fen', presentation: 'continuous', profile: 'thornmere', itemSetAuthored: false, playerAccessibleAuthored: false, playerAccessible: true, enc: true, save: true });
-    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===THORNMERE_ENEMY_TEMPLATES`), true);
-    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===REGIONAL_CHUNK_CATALOG.MAP4.encounterPool&&REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===REGIONAL_CHUNK_CATALOG.MAP5.encounterPool`), true, 'exact same Thornmere pool reference');
+    assert.deepEqual(meta, { mapId: ID, regionId: 'overworld', chunkX: 3, chunkY: 4, displayName: 'Northern Thornmere Fen', region: 'Thornmere', contentKey: 'thornmere_north_fen', presentation: 'continuous', profile: 'thornmere_shore', itemSetAuthored: false, playerAccessibleAuthored: false, playerAccessible: true, enc: true, save: true });
+    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===THORNMERE_SHORE_ENEMY_TEMPLATES`), true);
+    // The shore pool (Thornmere pool + lighthouse vermin) is shared with MAP5 (Thornmere
+    // Shallows) but is a DIFFERENT reference from MAP4's base THORNMERE pool.
+    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===REGIONAL_CHUNK_CATALOG.MAP5.encounterPool`), true, 'exact same Thornmere shore pool reference as MAP5');
+    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool!==REGIONAL_CHUNK_CATALOG.MAP4.encounterPool`), true, 'MAP4 keeps the base Thornmere pool (no vermin)');
     assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].items.length`), 0);
     assert.equal(g.run(`SIMPLE_NPCS.filter(function(n){return n.map==='thornmere_north_fen'||n.physicalMapId==='${ID}';}).length`), 0);
     assert.equal(g.run(`Object.prototype.hasOwnProperty.call(MAP_FEATURES,'${ID}')`), false);
@@ -247,18 +250,20 @@ module.exports = {
     }
     assert.equal(g.run("mapIdForChunk('overworld',4,4)"), 'THORNMERE_UPPER_SHALLOWS_MAP');
 
-    // 7. Geographic ownership changes from FAR on north/west neighbours to the
-    // exact Thornmere pool here, then stays Thornmere across either MAP4 shore.
-    for (const from of [NORTH_ID, WEST_ID]) {
-      g.run(`placeAtLocation('${from}',8.5*TILE,7.5*TILE);resetLocationState();`);
-      assert.equal(g.run('currentEncounterPool()===FAR_ENEMY_TEMPLATES'), true, `${from} owns FAR`);
-    }
+    // 7. Geographic ownership: the west neighbour (MAP3_N1) owns FAR and the north
+    // neighbour (Eastern Canal Banks) owns the canal-banks pool (FAR + lighthouse
+    // vermin); here it is the Thornmere shore pool, and MAP4 to the south keeps the
+    // base Thornmere pool (no vermin).
+    g.run(`placeAtLocation('${WEST_ID}',8.5*TILE,7.5*TILE);resetLocationState();`);
+    assert.equal(g.run('currentEncounterPool()===FAR_ENEMY_TEMPLATES'), true, `${WEST_ID} owns FAR`);
+    g.run(`placeAtLocation('${NORTH_ID}',8.5*TILE,7.5*TILE);resetLocationState();`);
+    assert.equal(g.run('currentEncounterPool()===CANAL_BANKS_ENEMY_TEMPLATES'), true, `${NORTH_ID} owns the Eastern Canal Banks pool`);
     g.run(`placeAtLocation('${ID}',8.5*TILE,7.5*TILE);resetLocationState();`);
-    assert.equal(g.run('currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES'), true);
-    assert.equal(g.run(`geographicEncounterContext('overworld',3*COLS*TILE+8.5*TILE,4*ROWS*TILE+7.5*TILE).encounterPool===THORNMERE_ENEMY_TEMPLATES`), true);
+    assert.equal(g.run('currentEncounterPool()===THORNMERE_SHORE_ENEMY_TEMPLATES'), true);
+    assert.equal(g.run(`geographicEncounterContext('overworld',3*COLS*TILE+8.5*TILE,4*ROWS*TILE+7.5*TILE).encounterPool===THORNMERE_SHORE_ENEMY_TEMPLATES`), true);
     g.run(`placeAtLocation('${SOUTH_ID}',1.5*TILE,1.5*TILE);resetLocationState();`);
-    assert.equal(g.run('currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES'), true, 'MAP4 retains same ownership');
-    const noRoll = J(`(function(){debugMode=false;combat.active=false;placeAtLocation('${NORTH_ID}',8.5*TILE,14.7*TILE);forceLegacyRegionalView=false;var calls=0,_r=Math.random;Math.random=function(){calls++;return 0;};var before=mapIdForRef(activeMap);for(var i=0;i<12&&mapIdForRef(activeMap)===before;i++)continuousSeamMove(0,2);Math.random=_r;return JSON.stringify({calls:calls,map:mapIdForRef(activeMap),combat:combat.active,pool:currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES});})()`);
+    assert.equal(g.run('currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES'), true, 'MAP4 keeps the base Thornmere pool');
+    const noRoll = J(`(function(){debugMode=false;combat.active=false;placeAtLocation('${NORTH_ID}',8.5*TILE,14.7*TILE);forceLegacyRegionalView=false;var calls=0,_r=Math.random;Math.random=function(){calls++;return 0;};var before=mapIdForRef(activeMap);for(var i=0;i<12&&mapIdForRef(activeMap)===before;i++)continuousSeamMove(0,2);Math.random=_r;return JSON.stringify({calls:calls,map:mapIdForRef(activeMap),combat:combat.active,pool:currentEncounterPool()===THORNMERE_SHORE_ENEMY_TEMPLATES});})()`);
     assert.deepEqual(noRoll, { calls: 0, map: ID, combat: false, pool: true }, 'crossing consumes no encounter roll');
 
     // 8. Normal/canonical placement, exact default warp, v4 save/load, and

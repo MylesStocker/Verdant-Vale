@@ -10,8 +10,10 @@
 //     blocked, so ONLY row 6 crosses.
 //   • COOLDOWN PARITY — the retired enterMap5/exitMap5 BOTH applied cooldown:true, and
 //     the generic legacy edge path also applies it (identical in both modes).
-//   • SAME pool on both sides — THORNMERE_ENEMY_TEMPLATES — so the crossing causes NO
-//     pool change (and no extra roll / combat).
+//   • DIFFERENT pools per side — MAP4 owns THORNMERE_ENEMY_TEMPLATES, MAP5 (Thornmere
+//     Shallows) owns THORNMERE_SHORE_ENEMY_TEMPLATES (Thornmere pool + the lighthouse
+//     vermin). The structural seam still crosses cleanly; the pool simply flips ONCE at
+//     the standing-point handoff (no extra roll / combat is triggered by the flip itself).
 //   • MAP5's shared ambiguous 'overworld' content key leaks/duplicates nothing (no
 //     items, no owned NPCs, no static decor) when it is a neighbour chunk.
 //   • The MAP4 Standing Stone stays world-locked (single instance) when MAP4 is visible
@@ -37,10 +39,10 @@ function onMap4(g, cont) {
 const mapId = (g) => g.run('mapIdForRef(activeMap)');
 const worldX = (g) => g.run(`(function(){var p=regionPlacementForMapId(mapIdForRef(activeMap)); return p.chunkX*${CW}+player.x;})()`);
 const camX = (g) => { const pl = g.run("JSON.stringify((function(){var c=regionalWorldPosition();return c?buildContinuousWorldPlanFromWorld(c.regionId,c.worldPxX,c.worldPxY,512,480):null;})())"); const o = JSON.parse(pl); return o ? o.camPxX : null; };
-const pool = (g) => g.run('(currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES?"THORN":"OTHER")');
+const pool = (g) => g.run('(currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES?"THORN":currentEncounterPool()===THORNMERE_SHORE_ENEMY_TEMPLATES?"SHORE":"OTHER")');
 
 module.exports = {
-  name: 'MAP4<->MAP5 Shallows seam: symmetric GRASS, cooldown parity, same-pool crossing, no content leakage',
+  name: 'MAP4<->MAP5 Shallows seam: symmetric GRASS, cooldown parity, per-side pool ownership, no content leakage',
   run() {
     const g = ctx();
     const J = (e) => JSON.parse(g.run(e));
@@ -79,7 +81,7 @@ module.exports = {
     assert.equal(g.run('typeof exitMap5'), 'undefined', 'exitMap5 wrapper removed');
     assert.equal(g.run("REGIONAL_POINT_CROSSINGS.filter(function(c){return (c.from==='MAP4'&&c.to==='MAP5')||(c.from==='MAP5'&&c.to==='MAP4');}).length"), 0, 'MAP4<->MAP5 removed from REGIONAL_POINT_CROSSINGS');
 
-    // ── 4-9. Continuous eastbound sustained crossing (SAME pool, cooldown ticks) ─
+    // ── 4-9. Continuous eastbound sustained crossing (pool flips THORNMERE -> shore, cooldown ticks) ─
     {
       onMap4(g, true);
       g.run(`player.x=14.5*TILE; player.y=${ROW6}; player.facing='left'; player.moving=false; combat.cooldown=200;; __reconcileCanonicalForTest();`);
@@ -103,8 +105,8 @@ module.exports = {
       g.release('ArrowRight');
       assert.equal(mapId(g), 'MAP5', 'eastbound crossing lands in MAP5 (Thornmere Shallows)'); // (4)
       assert.equal(handoffs, 1, 'exactly ONE activeMap handoff for the crossing');              // (6)
-      assert.equal(poolFlips, 0, 'pool never changes — THORNMERE on both sides');
-      assert.equal(pool(g), 'THORN', 'MAP5 side still owns THORNMERE after the crossing');
+      assert.equal(poolFlips, 1, 'pool flips exactly once at the handoff (THORNMERE -> Thornmere shore)');
+      assert.equal(pool(g), 'SHORE', 'MAP5 side owns the Thornmere shore pool after the crossing');
       assert.ok(maxWorldD <= 2 + 1e-9, 'player advances at most SPEED per frame (no double movement)'); // (6)
       assert.equal(zero, 0, 'no stuck frames while entering/clearing the seam');                 // (5)
       assert.ok(maxCamD <= maxWorldD + 1e-9, 'camera delta never exceeds movement delta');       // (9)
@@ -128,18 +130,18 @@ module.exports = {
       assert.ok(worldX(g) >= 4 * CW && worldX(g) < 4 * CW + 4, 'handoff occurs as the centre crosses the chunk boundary (worldX ~2048)');
     }
 
-    // ── 6/8. Continuous westbound crossing back (still SAME pool) ───────────
+    // ── 6/8. Continuous westbound crossing back (pool flips shore -> THORNMERE) ───────────
     {
       onMap4(g, true);
       g.run(`activeMap = mapRefForId('MAP5'); player.x=1.5*TILE; player.y=${ROW6}; player.facing='right';; __reconcileCanonicalForTest();`);
-      assert.equal(pool(g), 'THORN', 'MAP5 side owns THORNMERE before westbound crossing');
+      assert.equal(pool(g), 'SHORE', 'MAP5 side owns the Thornmere shore pool before westbound crossing');
       g.hold('ArrowLeft');
       let handoffs = 0, pm = mapId(g), maxD = 0, pw = worldX(g);
       for (let i = 0; i < 30; i++) { g.frames(1); const w = worldX(g), m = mapId(g); maxD = Math.max(maxD, Math.abs(w - pw)); if (m !== pm) handoffs++; pm = m; pw = w; if (m === 'MAP4') break; }
       g.release('ArrowLeft');
       assert.equal(mapId(g), 'MAP4', 'westbound crossing lands back in MAP4');
       assert.equal(handoffs, 1, 'exactly one handoff westbound');
-      assert.equal(pool(g), 'THORN', 'MAP4 side still owns THORNMERE after westbound crossing');
+      assert.equal(pool(g), 'THORN', 'MAP4 side owns THORNMERE after westbound crossing');
       assert.ok(maxD <= 2 + 1e-9, 'westbound advances at most SPEED per frame');
     }
 
@@ -195,7 +197,7 @@ module.exports = {
 
     // ── 14. Same canonical pool on both sides ───────────────────────────────
     assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP4'); player.x=6*TILE; player.y=2*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES && currentEncounterPool()===mapEntryForId('MAP4').encounterPool;})()"), true, 'MAP4 pool is THORNMERE_ENEMY_TEMPLATES');
-    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP5'); player.x=4*TILE; player.y=6*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES && currentEncounterPool()===mapEntryForId('MAP5').encounterPool;})()"), true, 'MAP5 pool is THORNMERE_ENEMY_TEMPLATES');
+    assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP5'); player.x=4*TILE; player.y=6*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===THORNMERE_SHORE_ENEMY_TEMPLATES && currentEncounterPool()===mapEntryForId('MAP5').encounterPool;})()"), true, 'MAP5 pool is THORNMERE_SHORE_ENEMY_TEMPLATES');
 
     // ── 15. No extra Math.random / combat start caused by the handoff ───────
     {

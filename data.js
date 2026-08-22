@@ -111,6 +111,50 @@ const THORNMERE_ENEMY_TEMPLATES = [
 ];
 window.THORNMERE_ENEMY_TEMPLATES = THORNMERE_ENEMY_TEMPLATES;
 
+// ─── The Abandoned Lighthouse (Thornmere Shallows headland) ──────────────────
+// The tower's five floors, infested since it was abandoned. Tuned to sit a notch
+// BELOW the Sunken Gallery (Pale Drowned / Silt Hag): the same "fast-fragile +
+// slow-armoured" pairing, everything a little softer. Selected per floor via
+// MAP_METADATA.encounterPool (currentEncounterPool()'s fall-through) — no
+// inDungeon/dungeonFloor, same shape as the Sunken Gallery. LIGHTHOUSE_ENEMY_TEMPLATES
+// is every floor's base pool; the Lantern Room (top floor) uses the extended pool
+// below, which adds the moth and nothing else.
+const LIGHTHOUSE_ENEMY_TEMPLATES = [
+  // Marsh Rat — large, salt-crusted rats nesting among the abandoned supplies;
+  // fast and fragile, a straightforward physical biter.
+  { id: 'enemy_marsh_rat',        name: 'Marsh Rat',        hp: 22, maxHp: 22, atk:  9, def: 1, spd: 13, xp: 24, goldMin: 4, goldMax:  9 },
+  // Shallows Skitter — an oversized crab/isopod that climbed in through the
+  // drainage cracks; slow and armoured, the floor's basic defensive wall. Reuses
+  // the Stone Crawler silhouette as a wet, salt-bleached palette swap (render-battle.js).
+  { id: 'enemy_shallows_skitter', name: 'Shallows Skitter', hp: 42, maxHp: 42, atk: 12, def: 7, spd:  2, xp: 36, goldMin: 8, goldMax: 16, defendChance: 0.22 },
+];
+window.LIGHTHOUSE_ENEMY_TEMPLATES = LIGHTHOUSE_ENEMY_TEMPLATES;
+
+// Lantern Room (top floor) pool — the two lower-floor enemies PLUS the moth,
+// which appears on no other floor. Shares the same template objects for the two
+// carried-over enemies (ENEMY_TEMPLATE_REGISTRY dedupes by id).
+const LIGHTHOUSE_TOP_ENEMY_TEMPLATES = [
+  LIGHTHOUSE_ENEMY_TEMPLATES[0], // Marsh Rat
+  LIGHTHOUSE_ENEMY_TEMPLATES[1], // Shallows Skitter
+  // Lantern Moth — quick and fragile, drawn to the dead lens. Its dust burst can
+  // leave the player Dazzled (accuracy down for a few turns) via the generic
+  // `dazzleChance` on-hit hook (combat.js). Top floor only.
+  { id: 'enemy_lantern_moth',     name: 'Lantern Moth',     hp: 18, maxHp: 18, atk:  8, def: 1, spd: 14, xp: 30, goldMin: 5, goldMax: 12, dazzleChance: 0.30 },
+];
+window.LIGHTHOUSE_TOP_ENEMY_TEMPLATES = LIGHTHOUSE_TOP_ENEMY_TEMPLATES;
+
+// The lighthouse vermin have spread off the headland into the neighbouring shore
+// areas. These two pools are an existing base pool PLUS the lighthouse's two
+// lower-floor enemies (Marsh Rat + Shallows Skitter == LIGHTHOUSE_ENEMY_TEMPLATES),
+// scoped to just the requested chunks so the shared 'thornmere'/'far' pools (and
+// every OTHER map that uses them) stay unchanged.
+//   • thornmere_shore — Thornmere Shallows (MAP5) + Northern Thornmere Fen.
+//   • canal_banks     — Eastern Canal Banks (DRENWICK_EAST_CANAL_MAP).
+const THORNMERE_SHORE_ENEMY_TEMPLATES = [...THORNMERE_ENEMY_TEMPLATES, ...LIGHTHOUSE_ENEMY_TEMPLATES];
+window.THORNMERE_SHORE_ENEMY_TEMPLATES = THORNMERE_SHORE_ENEMY_TEMPLATES;
+const CANAL_BANKS_ENEMY_TEMPLATES = [...FAR_ENEMY_TEMPLATES, ...LIGHTHOUSE_ENEMY_TEMPLATES];
+window.CANAL_BANKS_ENEMY_TEMPLATES = CANAL_BANKS_ENEMY_TEMPLATES;
+
 // Enemies specific to the East Sluice — aquatic/canal-dwelling, mid-tier difficulty
 const SLUICE_ENEMY_TEMPLATES = [
   // Reed Grappler — armoured freshwater crustacean; tanky shell, slow but strong claws
@@ -211,6 +255,13 @@ const ENCOUNTER_COOLDOWN = 120;
 // SLUICE_SECRET_ENCOUNTER_CHANCE below).
 const SLUICE_ENCOUNTER_CHANCE = 1 / 3;
 window.SLUICE_ENCOUNTER_CHANCE = SLUICE_ENCOUNTER_CHANCE;
+
+// The abandoned lighthouse: five deliberately small floors, infested. A high
+// per-step rate (well above the overworld's 1/6, above even the sluice's 1/3) so
+// the player reliably meets something on each floor despite the tiny walkable
+// footprints. Same every-16th-step cadence as ENCOUNTER_CHANCE.
+const LIGHTHOUSE_ENCOUNTER_CHANCE = 1 / 2;
+window.LIGHTHOUSE_ENCOUNTER_CHANCE = LIGHTHOUSE_ENCOUNTER_CHANCE;
 
 // ─── East Sluice Deep Works — sealed room (behind the L3 false walls) ─────────
 // The room's encounter roll replaces ENCOUNTER_CHANCE, not the roll cadence:
@@ -524,6 +575,28 @@ const MULHOLLAND_TEMPLATE = {
 const DEN_WRAITH_TEMPLATE = { id: 'enemy_den_wraith', name: 'Den Wraith', hp: 42, maxHp: 42, atk: 19, def: 2, spd: 13, xp: 70, goldMin: 0, goldMax: 0, curseChance: 0.30 };
 window.DEN_WRAITH_TEMPLATE = DEN_WRAITH_TEMPLATE;
 
+// ─── Lensweb Spider (Abandoned Lighthouse lantern room — scripted lens event) ──
+// A large spider nesting in the old webbing around the broken lens. Reached by
+// choosing to reach through the web for the route objective; the player starts
+// the fight Poisoned from its bite (applied at combat start, see combat.js).
+// Tuned as a modest Thornmere/MQ4-area boss — beatable while poisoned, and
+// deliberately NOT scaled to Polwick's 400g reward, since the Supervisor route
+// reaches the same fight for 150g. Between the Den Wraith (42) and Corpse Slug
+// (62) in HP; softer ATK than the Den Wraith so the poison handicap stays fair.
+// `runLock: 'observe_gated'` is a narrow, validated Run/Observe capability
+// (combat.js): Run is a guaranteed 0% until Observe reveals the safe retreat,
+// then a guaranteed 100% for the rest of that battle — no Math.random either way.
+// The route quest item is NEVER enemy loot: victory/escape grant it through the
+// event finalizer. Modest normal XP/gold; the 12% universal potion drop is the
+// only ordinary loot.
+const LENSWEB_SPIDER_TEMPLATE = {
+  id: 'enemy_lensweb_spider',
+  name: 'Lensweb Spider', hp: 58, maxHp: 58, atk: 15, def: 4, spd: 8,
+  xp: 60, goldMin: 14, goldMax: 26,
+  runLock: 'observe_gated',
+};
+window.LENSWEB_SPIDER_TEMPLATE = LENSWEB_SPIDER_TEMPLATE;
+
 // ─── Sailor Brawler (Kolm — Drenwick Inn, Dayoff only) ───────────────────────
 // Heavy-hitting brawler; high ATK, moderate HP; no gold drop (prize is the stake).
 const SAILOR_BRAWLER_TEMPLATE = { id: 'enemy_kolm', name: 'Kolm', hp: 55, maxHp: 55, atk: 26, def: 4, spd: 7, xp: 45, goldMin: 0, goldMax: 0 };
@@ -647,6 +720,8 @@ const _ENCOUNTER_PROFILES = {
   reaches:     ENEMY_TEMPLATES,
   far:         FAR_ENEMY_TEMPLATES,
   thornmere:   THORNMERE_ENEMY_TEMPLATES,
+  thornmere_shore: THORNMERE_SHORE_ENEMY_TEMPLATES,
+  canal_banks:     CANAL_BANKS_ENEMY_TEMPLATES,
   north_basin: NORTH_BASIN_ENEMY_TEMPLATES,
   upper_reach: UPPER_REACH_ENEMY_TEMPLATES,
 };
@@ -812,32 +887,32 @@ const MAP_CATALOG = {
   LIGHTHOUSE_GROUND_MAP: {
     id: 'LIGHTHOUSE_GROUND_MAP', map: LIGHTHOUSE_GROUND_MAP,
     displayName: 'Abandoned Lighthouse — Ground Floor', region: 'Thornmere',
-    type: 'interior', items: [], encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
+    type: 'interior', items: [], encounterPool: LIGHTHOUSE_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
   },
   LIGHTHOUSE_LANDING_1_MAP: {
     id: 'LIGHTHOUSE_LANDING_1_MAP', map: LIGHTHOUSE_LANDING_1_MAP,
     displayName: 'Abandoned Lighthouse — First Landing', region: 'Thornmere',
-    type: 'interior', items: [], encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
+    type: 'interior', items: [], encounterPool: LIGHTHOUSE_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
   },
   LIGHTHOUSE_LANDING_2_MAP: {
     id: 'LIGHTHOUSE_LANDING_2_MAP', map: LIGHTHOUSE_LANDING_2_MAP,
     displayName: 'Abandoned Lighthouse — Second Landing', region: 'Thornmere',
-    type: 'interior', items: [], encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
+    type: 'interior', items: [], encounterPool: LIGHTHOUSE_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
   },
   LIGHTHOUSE_LANDING_3_MAP: {
     id: 'LIGHTHOUSE_LANDING_3_MAP', map: LIGHTHOUSE_LANDING_3_MAP,
     displayName: 'Abandoned Lighthouse — Third Landing', region: 'Thornmere',
-    type: 'interior', items: [], encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
+    type: 'interior', items: [], encounterPool: LIGHTHOUSE_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
   },
   LIGHTHOUSE_LANTERN_MAP: {
     id: 'LIGHTHOUSE_LANTERN_MAP', map: LIGHTHOUSE_LANTERN_MAP,
     displayName: 'Abandoned Lighthouse — Lantern Room', region: 'Thornmere',
-    type: 'interior', items: [], encounterPool: null,
-    allowRandomEncounters: false, allowSave: true,
+    type: 'interior', items: [], encounterPool: LIGHTHOUSE_TOP_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true,
   },
   MAP3_N1: _regionalChunkCatalogEntry('MAP3_N1'),
   RODDON_WAY_MAP: _regionalChunkCatalogEntry('RODDON_WAY_MAP'),

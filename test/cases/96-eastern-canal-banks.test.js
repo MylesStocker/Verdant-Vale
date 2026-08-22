@@ -28,7 +28,7 @@ function ctx() {
 }
 
 module.exports = {
-  name: 'Eastern Canal Banks: two disconnected far-encounter banks and split seamless west edge',
+  name: 'Eastern Canal Banks: two disconnected canal-banks-pool banks and split seamless west edge',
   run() {
     const g = ctx();
     const J = (expr) => JSON.parse(g.run(expr));
@@ -82,9 +82,11 @@ module.exports = {
     const allowed = new Set([GRASS, REEDS, TREE, WATER]);
     for (const row of m) for (const tile of row) assert.ok(allowed.has(tile), `terrain ${tile} is in the four-tile contract`);
     const meta = J(`JSON.stringify((function(){var d=DRENWICK_REGIONAL_CHUNK_DEFINITIONS.find(function(x){return x.mapId==='${ID}';});var r=REGIONAL_CHUNK_CATALOG['${ID}'];return {mapId:r.mapId,regionId:r.regionId,chunkX:r.chunkX,chunkY:r.chunkY,displayName:r.displayName,region:r.region,contentKey:r.contentKey,presentation:r.presentation,profile:d.encounterProfileId,itemSetAuthored:Object.prototype.hasOwnProperty.call(d,'itemSetId'),playerAccessibleAuthored:Object.prototype.hasOwnProperty.call(d,'playerAccessible'),playerAccessible:r.playerAccessible,enc:r.allowRandomEncounters,save:r.allowSave};})())`);
-    assert.deepEqual(meta, { mapId: ID, regionId: 'overworld', chunkX: 3, chunkY: 3, displayName: 'Eastern Canal Banks', region: 'Drenwick', contentKey: 'drenwick_east_canal', presentation: 'continuous', profile: 'far', itemSetAuthored: false, playerAccessibleAuthored: false, playerAccessible: true, enc: true, save: true });
-    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===FAR_ENEMY_TEMPLATES`), true);
-    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===REGIONAL_CHUNK_CATALOG.MAP3_N2.encounterPool`), true, 'same exact far pool reference as MAP3_N2');
+    assert.deepEqual(meta, { mapId: ID, regionId: 'overworld', chunkX: 3, chunkY: 3, displayName: 'Eastern Canal Banks', region: 'Drenwick', contentKey: 'drenwick_east_canal', presentation: 'continuous', profile: 'canal_banks', itemSetAuthored: false, playerAccessibleAuthored: false, playerAccessible: true, enc: true, save: true });
+    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool===CANAL_BANKS_ENEMY_TEMPLATES`), true);
+    // The canal-banks pool is FAR plus the lighthouse vermin, so it is a DIFFERENT
+    // reference from MAP3_N2's base FAR pool.
+    assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].encounterPool!==REGIONAL_CHUNK_CATALOG.MAP3_N2.encounterPool`), true, 'distinct from MAP3_N2 base FAR pool');
     assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${ID}'].items.length`), 0);
     assert.equal(g.run(`SIMPLE_NPCS.filter(function(n){return n.map==='drenwick_east_canal'||n.physicalMapId==='${ID}';}).length`), 0);
     assert.equal(g.run(`Object.prototype.hasOwnProperty.call(MAP_FEATURES,'${ID}')`), false);
@@ -248,12 +250,13 @@ module.exports = {
       assert.equal(g.run('combat.cooldown'), g.run('ENCOUNTER_COOLDOWN'));
     }
 
-    // 7. Geographic encounters on both banks use FAR. Every walkable terrain
-    // type is eligible; continuous movement itself consumes no encounter roll.
+    // 7. Geographic encounters on both banks use the canal-banks pool (FAR +
+    // lighthouse vermin). Every walkable terrain type is eligible; continuous
+    // movement itself consumes no encounter roll.
     for (const [x, y] of [[8, 2], [8, 7]]) {
       g.run(`placeAtLocation('${ID}',${x + 0.5}*TILE,${y + 0.5}*TILE);resetLocationState();`);
-      assert.equal(g.run('currentEncounterPool()===FAR_ENEMY_TEMPLATES'), true, `far pool on bank row ${y}`);
-      assert.equal(g.run(`geographicEncounterContext('overworld',3*COLS*TILE+${x + 0.5}*TILE,3*ROWS*TILE+${y + 0.5}*TILE).encounterPool===FAR_ENEMY_TEMPLATES`), true);
+      assert.equal(g.run('currentEncounterPool()===CANAL_BANKS_ENEMY_TEMPLATES'), true, `canal-banks pool on bank row ${y}`);
+      assert.equal(g.run(`geographicEncounterContext('overworld',3*COLS*TILE+${x + 0.5}*TILE,3*ROWS*TILE+${y + 0.5}*TILE).encounterPool===CANAL_BANKS_ENEMY_TEMPLATES`), true);
     }
     g.run(`placeAtLocation('${ID}',8.5*TILE,2.5*TILE);`);
     assert.equal(g.run('isEncounterEligibleTile(GRASS)'), true);

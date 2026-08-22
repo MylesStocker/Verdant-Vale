@@ -355,7 +355,7 @@ function isEncounterEligibleTile(tile) {
   if (activeMap === MEADOW_MAP) return false; // hidden meadow — deliberately encounter-free (the Warden is its only danger)
   if (inBridgePost) return false; // Imperial toll checkpoint — manned, encounter-free (its GRASS banks previously fell through to the generic outdoor roll, contradicting the map's allowRandomEncounters: false metadata; dying here also used to strand inBridgePost through the defeat respawn)
   if (inBasinChamber) return false; // the unmarked chamber — deliberately encounter-free (redundant with CHAMBER_FLOOR's encounterEligible: false, kept as a visible guarantee per the entrance-area rule)
-  if (inLighthouse) return false; // all five lighthouse floors are deliberately encounter-free
+  if (inLighthouse) return tile === INTERIOR_FLOOR; // the five infested lighthouse floors: only their INTERIOR_FLOOR is encounter-eligible (stairs/exit/furniture-anchor cells never are); pool comes from MAP_METADATA.encounterPool, same shape as the Sunken Gallery
   // (inSunkenGallery deliberately has NO branch here: it falls through to the
   // TILE_PROPERTIES check below, where GALLERY_FLOOR is encounter-eligible —
   // the pool comes from MAP_METADATA.encounterPool, see combat.js.)
@@ -971,6 +971,7 @@ function update() {
       const geoOk = (typeof encounterGeographyOk === 'function') ? encounterGeographyOk() : true;
       const encounterChance = inSluiceSealedRoom() ? SLUICE_SECRET_ENCOUNTER_CHANCE
                             : inSluice              ? SLUICE_ENCOUNTER_CHANCE
+                            : inLighthouse          ? LIGHTHOUSE_ENCOUNTER_CHANCE
                             :                         ENCOUNTER_CHANCE;
       if (!debugMode && locationAllowsEncounters && onEncounterTile && geoOk && Math.random() < encounterChance) startCombat();
     }

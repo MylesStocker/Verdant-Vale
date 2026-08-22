@@ -99,7 +99,7 @@ module.exports = {
 
     // ── 6 (7+8 of spec). Encounter-profile + item resolution preserve the exact
     //     existing pool-/item-array references ──────────────────────────────
-    assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP5.encounterPool===THORNMERE_ENEMY_TEMPLATES"), true, "MAP5's 'thornmere' profile resolves to the THORNMERE_ENEMY_TEMPLATES reference");
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP5.encounterPool===THORNMERE_SHORE_ENEMY_TEMPLATES"), true, "MAP5's 'thornmere_shore' profile resolves to the THORNMERE_SHORE_ENEMY_TEMPLATES reference");
     assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP2.encounterPool===ENEMY_TEMPLATES"), true, "MAP2's 'reaches' profile resolves to ENEMY_TEMPLATES");
     assert.equal(g.run("REGIONAL_CHUNK_CATALOG.NORTH_BASIN_NW_MAP.encounterPool===UPPER_REACH_ENEMY_TEMPLATES"), true, "NB_NW's 'upper_reach' profile resolves to UPPER_REACH_ENEMY_TEMPLATES");
     assert.equal(g.run("REGIONAL_CHUNK_CATALOG.MAP5.items===MAP5_ITEMS"), true, "MAP5's 'map5' itemSet resolves to the MAP5_ITEMS reference");
@@ -181,9 +181,9 @@ module.exports = {
     g.hold('ArrowRight'); for (let i = 0; i < 40 && g.run("mapIdForRef(activeMap)") !== 'MAP5'; i++) g.frames(1); g.release('ArrowRight');
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'MAP4→MAP5 continuous seam travel still works');
 
-    // MAP5 keeps the Thornmere pool despite the shared 'overworld' logical key
+    // MAP5 keeps its Thornmere shore pool despite the shared 'overworld' logical key
     assert.equal(g.run('REGIONAL_CHUNK_CATALOG.MAP5.contentKey'), 'overworld', 'MAP5 shares the ambiguous overworld content key');
-    assert.equal(g.run("(function(){ placeAtLocation('MAP5', 4*TILE, 6*TILE); return currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES; })()"), true, 'MAP5 encounter pool is THORNMERE despite the shared overworld key');
+    assert.equal(g.run("(function(){ placeAtLocation('MAP5', 4*TILE, 6*TILE); return currentEncounterPool()===THORNMERE_SHORE_ENEMY_TEMPLATES; })()"), true, 'MAP5 encounter pool is the Thornmere shore pool despite the shared overworld key');
 
     // Canonical position + v4 save/load resolve MAP5
     g.run("placeAtLocation('MAP5', 3.25*TILE, 6.5*TILE); player.facing='left';");

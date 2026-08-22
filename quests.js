@@ -280,6 +280,13 @@ const LIGHTHOUSE_OBJECTIVE_BY_ROUTE = Object.freeze({
 });
 let lighthouse_quest_stage = LIGHTHOUSE_QUEST_STAGE.NONE;
 let lighthouse_cabinet_looted = false;
+// Set true once the Lensweb Spider guarding the lens has been dealt with — by
+// defeating it, or by escaping after Observe revealed the safe retreat. Persistent
+// (save-bound, default false). It gates ONLY the boss event: it does not encode
+// whether the route item was found or the quest completed (the item can also be
+// restored once as anti-soft-lock, and synthetic tests may hold the item without
+// ever triggering the spider), so it is deliberately independent of the quest stage.
+let lighthouse_spider_resolved = false;
 
 function lighthouseSourceValue(source, key, liveValue, defaultValue) {
   if (!source) return liveValue;
@@ -318,6 +325,15 @@ function lighthouseQuestInvariantErrors(source) {
   const stage = lighthouseSourceValue(source, 'lighthouse_quest_stage', lighthouse_quest_stage, LIGHTHOUSE_QUEST_STAGE.NONE);
   const mq4Assigned = lighthouseSourceValue(source, 'reservoir_quest_started', reservoir_quest_started, false);
   const outcome = polwickLighthouseOutcome(source);
+
+  // Type-only check on the boss-event binding. It is deliberately NOT correlated
+  // with the quest stage or the item: a completed route need not have passed
+  // through the spider (the item can be restored, and synthetic turn-ins grant it
+  // directly), so requiring resolved===true for a completed route would be a false
+  // invariant. Malformed (non-boolean) fails closed so getActiveLighthouseObjective()
+  // returns null and the lens grants nothing.
+  const spiderResolved = lighthouseSourceValue(source, 'lighthouse_spider_resolved', lighthouse_spider_resolved, false);
+  if (typeof spiderResolved !== 'boolean') errors.push('lighthouse_spider_resolved must be a boolean');
 
   if (!Number.isInteger(stage) || stage < LIGHTHOUSE_QUEST_STAGE.NONE || stage > LIGHTHOUSE_QUEST_STAGE.POLWICK_COMPLETED) {
     errors.push('lighthouse_quest_stage must be an integer from 0 through 4');
@@ -481,6 +497,7 @@ function syncQuestFlagsToWindow() {
   window.corvin_favor_offered   = corvin_favor_offered;
   window.lighthouse_quest_stage = lighthouse_quest_stage;
   window.lighthouse_cabinet_looted = lighthouse_cabinet_looted;
+  window.lighthouse_spider_resolved = lighthouse_spider_resolved;
   // Window-native MAP_FEATURES onceFlags (Upper Reach pass) -- window[name]
   // is the source of truth (interactions.js sets it directly), so these
   // lines only normalize undefined -> false. They must NEVER assign from a

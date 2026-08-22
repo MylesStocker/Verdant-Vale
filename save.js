@@ -82,6 +82,7 @@ const QUEST_FLAG_BINDINGS = [
   lex('reservoir_quest_started', false, () => reservoir_quest_started, (v) => { reservoir_quest_started = v; }),
   lex('lighthouse_quest_stage', 0, () => lighthouse_quest_stage, (v) => { lighthouse_quest_stage = v; }),
   lex('lighthouse_cabinet_looted', false, () => lighthouse_cabinet_looted, (v) => { lighthouse_cabinet_looted = v; }),
+  lex('lighthouse_spider_resolved', false, () => lighthouse_spider_resolved, (v) => { lighthouse_spider_resolved = v; }),
   lex('den_wraith_quest_started', false, () => den_wraith_quest_started, (v) => { den_wraith_quest_started = v; }),
   lex('den_wraith_defeated', false, () => den_wraith_defeated, (v) => { den_wraith_defeated = v; }),
   lex('den_wraith_rewarded', false, () => den_wraith_rewarded, (v) => { den_wraith_rewarded = v; }),

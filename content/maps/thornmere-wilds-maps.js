@@ -571,9 +571,9 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
       [  3,  0,  0,  3,  1,  1,  3,  1,  1,  1,  3,  1,  3,  0,  0,  3],  // 14  split c1-2 / c13-14 seams; irregular blocked lake shore between
     ],
     displayName: 'Northern Thornmere Fen', region: 'Thornmere', contentKey: 'thornmere_north_fen',
-    presentation: 'continuous', encounterProfileId: 'thornmere',
+    presentation: 'continuous', encounterProfileId: 'thornmere_shore',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'One connected irregular GRASS/REEDS fen bordered east by the broad nonwalkable Upper Shallows inlet. Uses THORNMERE_ENEMY_TEMPLATES; no PATH, items, NPCs, quests, interactions, buildings, landmarks, decorations, special encounters, or compatibility alias.' },
+    notes: 'One connected irregular GRASS/REEDS fen bordered east by the broad nonwalkable Upper Shallows inlet. Uses THORNMERE_SHORE_ENEMY_TEMPLATES (Thornmere pool + the lighthouse vermin: Marsh Rat / Shallows Skitter); no PATH, items, NPCs, quests, interactions, buildings, landmarks, decorations, special encounters, or compatibility alias.' },
   // ─── Thornmere — Canal Head — THORNMERE_CANAL_HEAD_MAP (16 × 15) ─────────
   // Accessible regional chunk (4,3): the straight Drenwick canal opens rapidly
   // into Thornmere's broad lake. Two small REEDS shelves on opposite banks permit
@@ -632,7 +632,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
   // ── MAP5 / Thornmere Shallows — PILOT: grid authored directly in this record ──
   { mapId: 'MAP5', regionId: 'overworld', chunkX: 4, chunkY: 5,
     displayName: 'Thornmere Shallows', region: 'Thornmere', contentKey: 'overworld',
-    presentation: 'continuous', encounterProfileId: 'thornmere', itemSetId: 'map5',
+    presentation: 'continuous', encounterProfileId: 'thornmere_shore', itemSetId: 'map5',
     allowRandomEncounters: true, allowSave: true,
     map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15

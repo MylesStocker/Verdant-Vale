@@ -184,10 +184,11 @@ module.exports = {
     assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}'].south`), 'undefined');
     assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}'].east`), 'undefined');
 
-    // 9–10. Both maps retain two bank components; crossing changes FAR to
-    // THORNMERE at the standing-point handoff and does not roll an encounter.
+    // 9–10. Both maps retain two bank components; crossing changes the Eastern
+    // Canal Banks pool (FAR + lighthouse vermin) to THORNMERE at the standing-point
+    // handoff and does not roll an encounter.
     assert.ok(west[5].every((tile) => tile === WATER)); assert.ok(m[5].every((tile) => tile === WATER));
-    const handoff = J(`(function(){placeAtLocation('${WEST_ID}',15.7*TILE,3.5*TILE);forceLegacyRegionalView=false;debugMode=false;combat.active=false;var calls=0,_r=Math.random;Math.random=function(){calls++;return 0;};var before=currentEncounterPool()===FAR_ENEMY_TEMPLATES;var first=null;for(var i=0;i<20;i++){var old=mapIdForRef(activeMap);continuousSeamMove(2,0);if(old!==mapIdForRef(activeMap)){first={map:mapIdForRef(activeMap),thornmere:currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES};break;}}Math.random=_r;return JSON.stringify({before:before,first:first,calls:calls,combat:combat.active});})()`);
+    const handoff = J(`(function(){placeAtLocation('${WEST_ID}',15.7*TILE,3.5*TILE);forceLegacyRegionalView=false;debugMode=false;combat.active=false;var calls=0,_r=Math.random;Math.random=function(){calls++;return 0;};var before=currentEncounterPool()===CANAL_BANKS_ENEMY_TEMPLATES;var first=null;for(var i=0;i<20;i++){var old=mapIdForRef(activeMap);continuousSeamMove(2,0);if(old!==mapIdForRef(activeMap)){first={map:mapIdForRef(activeMap),thornmere:currentEncounterPool()===THORNMERE_ENEMY_TEMPLATES};break;}}Math.random=_r;return JSON.stringify({before:before,first:first,calls:calls,combat:combat.active});})()`);
     assert.deepEqual(handoff, { before: true, first: { map: ID, thornmere: true }, calls: 0, combat: false });
     for (const [x,y] of [[1,3],[1,7]]) {
       g.run(`placeAtLocation('${ID}',${x+0.5}*TILE,${y+0.5}*TILE);resetLocationState();`);
