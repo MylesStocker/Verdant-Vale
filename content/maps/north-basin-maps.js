@@ -252,8 +252,8 @@ const SUNKEN_GALLERY_MAP = [
   [ 109, 109, 109, 109, 108, 108, 108, 109, 109, 109, 109, 109, 109, 109, 109, 109],  //  1
   [ 109, 109, 110, 108, 108, 108, 108, 108, 108, 109, 108, 108, 108, 108, 109, 109],  //  2  stair up c2; column stub c9
   [ 109, 109, 108, 108,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 108, 108],  //  3  east doorway c14-15 → R4C1; silt c4, c12
-  [ 109, 109, 108, 108, 108, 109, 108, 108, 109, 108, 108, 108, 108, 108, 108, 108],  //  4  east doorway c14-15; column stubs c5, c8
-  [ 109, 109,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 108, 108, 108, 108],  //  5  east doorway c14-15; ← Potion at c13 (dry ledge)
+  [ 109, 109, 108, 108, 108, 109, 108, 108, 109, 108, 108, 108, 108, 108, 108, 108],  //  4  east doorway c14-15; column stubs c5, c8; ← Potion sparkle c9 (examine, dry floor)
+  [ 109, 109,  81, 108, 108, 108, 108, 108, 108, 108,  81, 108, 108, 108, 108, 108],  //  5  east doorway c14-15; ← Elixir at c13 (dry ledge)
   [ 109, 109, 108, 108, 108, 108, 109, 108, 108, 108, 108, 108, 108,  81, 109, 109],  //  6  column stub c6
   [ 109, 109,   1,   1, 108, 108, 108, 108, 108, 108, 108, 108,   1,   1, 109, 109],  //  7  water reaching in from both ends
   [ 109, 109,   1,   1,   1, 108, 108,  81, 108, 108, 108,   1,   1,   1, 109, 109],  //  8
@@ -266,8 +266,41 @@ const SUNKEN_GALLERY_MAP = [
 ];
 
 const SUNKEN_GALLERY_ITEMS = [
-  { id: 'pickup_sunken_gallery_potion', name: 'Potion', type: 'potion', heals: 20, price: 30, x: 13.5 * TILE, y: 5.5 * TILE, picked: false },
+  // The hovering find on the dry east ledge. An Elixir (not a Potion) so it doesn't
+  // duplicate the grounded potion sparkle nearby; `type: 'potion'` keeps the exact
+  // same floating red-flask graphic. Stable pickup id retained (save-facing) even
+  // though it now grants an Elixir.
+  { id: 'pickup_sunken_gallery_potion', name: 'Elixir', type: 'potion', heals: 50, price: 80, x: 13.5 * TILE, y: 5.5 * TILE, picked: false },
+  // Examine-only floor sparkle: a dropped potion on the gallery flagstones. Same
+  // shared examine pickup path as the Verdant Vale find near Calwick, but grounded
+  // ("on the ground!") rather than in grass. Sits on dry GALLERY_FLOOR (col 9, row 4).
+  { id: 'pickup_sunken_gallery_floor_potion', name: 'Potion', type: 'potion', heals: 20, price: 30,
+    x: 9.5 * TILE, y: 4.5 * TILE, picked: false, examine: true,
+    examinePages: [
+      ['Someone must have dropped a potion on the ground!'],
+      ['Got Potion.'],
+    ] },
 ];
+
+// A single TRAP "potion" sparkle for the distant, otherwise-empty far-corner room
+// (SUNKEN_GALLERY_R0C4, diagonally opposite the entrance — wired in data.js). It
+// reads like the grounded potion find above, but its second page is "It attacks
+// you!" and it carries `encounter: 'mimic_potion'`, so examining it springs the
+// scripted Mimic Potion fight (combat.js) instead of granting an item — see
+// tryExamineWorldItem's `encounter` branch (interactions.js). Registry-backed like
+// any sparkle, so its sprung state persists once triggered. Sits mid-room on floor.
+const SUNKEN_GALLERY_MIMIC_ITEMS = [
+  // On the dry GALLERY_FLOOR band south of the room's central pool (col 7, row 12),
+  // clear of the water/silt at the centre and reachable from the room's south/west
+  // openings.
+  { id: 'pickup_sunken_gallery_mimic', name: 'Potion', type: 'potion', heals: 20, price: 30,
+    x: 7.5 * TILE, y: 12.5 * TILE, picked: false, examine: true, encounter: 'mimic_potion',
+    examinePages: [
+      ['Someone must have dropped a potion on the ground!'],
+      ['It attacks you!'],
+    ] },
+];
+window.SUNKEN_GALLERY_MIMIC_ITEMS = SUNKEN_GALLERY_MIMIC_ITEMS;
 
 // ─── The Sunken Gallery — the wider complex  (5 × 5 grid of rooms) ────────────
 // The entrance hall above is only the south-west corner of a far larger drowned

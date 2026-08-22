@@ -99,7 +99,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
   BRIAR_WARDEN_TEMPLATE, SMUGGLER_GUARD_TEMPLATE, POLWICK_TEMPLATE, ESSA_TEMPLATE,
   PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,
   MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
-  LENSWEB_SPIDER_TEMPLATE,
+  LENSWEB_SPIDER_TEMPLATE, MIMIC_POTION_TEMPLATE,
 ];
 // The 1/256 secret "23" enemy is generated fresh each encounter with random
 // stats (startCombat, below), so it has no static stat block — only a stable id.
@@ -637,6 +637,25 @@ function startTakomoCombat() {
   combat.observeCount   = 0;
 }
 
+// Sunken Gallery trap. Dispatched from the far-corner "dropped potion" sparkle
+// (interactions.js ENCOUNTER_HANDLERS['mimic_potion']) once its two-page "It
+// attacks you!" dialogue closes. An ordinary scripted enemy — no special flag,
+// so victory/defeat/flee all resolve generically; its guaranteed Potion drop is
+// handled by applyKillRewards' `guaranteedDrop` path.
+function startMimicPotionCombat() {
+  combat.enemy          = { ...MIMIC_POTION_TEMPLATE };
+  combat.active         = true;
+  combat.phase          = 'choose';
+  combat.cursor         = 0;
+  combat.messageQueue   = [];
+  combat.message        = 'The potion rears up on a glistening foot — it was never a potion at all!';
+  combat.pendingVictory = false;
+  combat.pendingDefeat  = false;
+  combat.pendingEscape  = false;
+  combat.flashTimer     = 8;
+  combat.observeCount   = 0;
+}
+
 // Abandoned Lighthouse lens event. Dispatched from the reach-through-the-web
 // dialogue (interactions.js ENCOUNTER_HANDLERS['lensweb_spider']) once its last
 // page closes. Snapshots the validated route objective from the SINGLE quest
@@ -1005,10 +1024,17 @@ function applyKillRewards(msgs) {
   const goldGain = combat.enemy.goldMin +
     Math.floor(Math.random() * (combat.enemy.goldMax - combat.enemy.goldMin + 1));
   stats.gold += goldGain;
-  const droppedPotion = Math.random() < 0.12;
-  if (droppedPotion) grantItem('Potion');
+  // Guaranteed drop (data-driven `guaranteedDrop`, e.g. the Mimic Potion): granted
+  // 100% of the time and REPLACES the usual 12% bonus-potion roll so it can never
+  // double up. Ordinary enemies (no guaranteedDrop) keep the exact 12% roll, so
+  // their behaviour and randomness cadence are unchanged.
+  const guaranteed = combat.enemy.guaranteedDrop;
+  const droppedPotion = guaranteed ? false : Math.random() < 0.12;
+  if (guaranteed) grantItem(guaranteed);
+  else if (droppedPotion) grantItem('Potion');
   msgs.push(`Gained ${goldGain} gold.`);
-  if (droppedPotion) msgs.push(`Found a potion!`);
+  if (guaranteed) msgs.push(`It leaves a real ${guaranteed} behind!`);
+  else if (droppedPotion) msgs.push(`Found a potion!`);
   combat.pendingVictory = true;
 }
 
@@ -1222,6 +1248,15 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['High attack. Moderate defense. Moderate speed.', 'The heat in here is worse when he\u2019s focusing.', 'He\u2019s focused.'] },
     { lines: ['He came here voluntarily. That makes him different from most of what\u2019s in the dungeon.', 'Whatever he was looking for in this chamber, he found it. Then he stayed.'] },
     { lines: ['He fights like someone who has practiced this specific fight for years.', 'Possibly because he has.', 'He doesn\u2019t look like he needs to win. Just to see how far you get.'] },
+  ],
+  enemy_mimic_potion: [
+    { lines: ['It looks exactly like a dropped potion. It is not a dropped potion.',
+              'Almost no HP and no armour — two clean hits will burst it.',
+              'But that attack is enormous. Do not let it trade with you at low health.'] },
+    { lines: ['Something in the drowned gallery learned the shape of the thing adventurers most want to find.',
+              'It has been waiting in the far room, being a potion, very patiently.'] },
+    { lines: ['The "glass" is a shell it can drop in an instant.',
+              'Everything it has, it puts into the first blow.', 'There is not much behind it — if you survive that.'] },
   ],
   // First Observe both READS as the solution and UNLOCKS escape for this fight
   // (combat.js Run/Observe handlers key off the enemy's `runLock` capability).

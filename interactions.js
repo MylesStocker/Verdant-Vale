@@ -191,9 +191,17 @@ function tryExamineWorldItem() {
   for (const wi of items) {
     if (!wi || !wi.examine || wi.picked) continue;
     if (!nearPlayer(wi.x, wi.y, TALK_RADIUS)) continue;
-    wi.picked = true;
-    grantItem(wi.name);
-    openDialogue('', wi.examinePages || [['Got ' + wi.name + '.']]);
+    wi.picked = true;   // the sparkle is consumed on examination, win, lose, or flee
+    // A trap sparkle (`encounter`) springs a scripted fight instead of granting an
+    // item — the fight itself decides any reward (e.g. the Mimic Potion drops a real
+    // Potion only on death, via applyKillRewards). Ordinary sparkles grant their item.
+    if (wi.encounter) {
+      openDialogue('', wi.examinePages || [['It attacks you!']]);
+      queueDialogueEncounter(wi.encounter);
+    } else {
+      grantItem(wi.name);
+      openDialogue('', wi.examinePages || [['Got ' + wi.name + '.']]);
+    }
     return true;
   }
   return false;
@@ -384,6 +392,7 @@ const ENCOUNTER_HANDLERS = {
   takomo:       function() { startTakomoCombat(); },
   kolm_brawler: function() { startSailorBrawlCombat(); },
   lensweb_spider: function() { startLenswebSpiderCombat(); },
+  mimic_potion:  function() { startMimicPotionCombat(); },
 };
 
 // Queue an encounter to begin when the current dialogue's last page closes.

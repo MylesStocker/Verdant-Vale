@@ -602,6 +602,23 @@ window.LENSWEB_SPIDER_TEMPLATE = LENSWEB_SPIDER_TEMPLATE;
 const SAILOR_BRAWLER_TEMPLATE = { id: 'enemy_kolm', name: 'Kolm', hp: 55, maxHp: 55, atk: 26, def: 4, spd: 7, xp: 45, goldMin: 0, goldMax: 0 };
 window.SAILOR_BRAWLER_TEMPLATE = SAILOR_BRAWLER_TEMPLATE;
 
+// ─── Mimic Potion (Sunken Gallery far-corner room — scripted trap) ───────────
+// A trap that looks exactly like a dropped red potion (see render-battle.js — a
+// larger version of the world potion sprite, same gentle bob). Sprung by examining
+// the sparkle in the distant R0C4 room. A GLASS CANNON tuned to the Sunken Gallery
+// (roughly a level 4–5 player with mid-game gear): no armour and low HP, so the
+// player kills it in ~2 hits, but a devastating attack that can drop that player in
+// ~2 of ITS hits — a nasty surprise rewarding a healthy/careful approach. Moderate
+// speed so turn order (and the risk) genuinely swings. `guaranteedDrop: 'Potion'`
+// makes it drop a real Potion 100% of the time on death (applyKillRewards, combat.js).
+const MIMIC_POTION_TEMPLATE = {
+  id: 'enemy_mimic_potion',
+  name: 'Mimic Potion', hp: 40, maxHp: 40, atk: 60, def: 0, spd: 12,
+  xp: 30, goldMin: 5, goldMax: 12,
+  guaranteedDrop: 'Potion',
+};
+window.MIMIC_POTION_TEMPLATE = MIMIC_POTION_TEMPLATE;
+
 // ─── Den Wraith (west_i house — manifests on Dayoff when quest active) ──────────
 const DEN_WRAITH = { x: 7.5 * TILE, y: 6.5 * TILE, defeated: false };
 window.DEN_WRAITH = DEN_WRAITH;
@@ -1291,6 +1308,13 @@ for (const cell of window.SUNKEN_GALLERY_GRID_CELLS) {
     notes: 'One of the 24 blank rooms of the Sunken Gallery 5×5 grid (maps.js). GALLERY_FLOOR/GALLERY_WALL only, no other elements yet. Joined to its neighbours by EDGE_TRANSITIONS; shares the entrance hall’s encounter pool and allowSave: false.',
   };
 }
+// The far-corner room (R0C4, diagonally opposite the entrance at R4C0) is the one
+// otherwise-empty gallery room that holds a single trap-potion sparkle — examining
+// it springs the scripted Mimic Potion fight (see content/maps/north-basin-maps.js
+// and combat.js). Targeted override of the generic blank-room record above; runs
+// BEFORE the pickup registry is built below, so the sparkle registers normally.
+MAP_CATALOG['SUNKEN_GALLERY_R0C4'].items = SUNKEN_GALLERY_MIMIC_ITEMS;
+MAP_CATALOG['SUNKEN_GALLERY_R0C4'].notes = 'The distant far-corner room of the Sunken Gallery 5×5 grid (maps.js), diagonally opposite the entrance. Otherwise blank GALLERY_FLOOR/GALLERY_WALL, but holds one examine-only trap-potion sparkle (mid-room) that springs the scripted Mimic Potion fight. Shares the entrance hall’s encounter pool and allowSave: false.';
 window.MAP_CATALOG = MAP_CATALOG;
 
 // ─── Derived compatibility views + canonical helpers ─────────────────────────

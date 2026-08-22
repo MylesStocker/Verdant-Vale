@@ -77,7 +77,19 @@ const BRIDGE_CROSSING_MAP = [
   [  3,  3,  3,  3,  3,  3,  3, 59,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  BRIDGE_EXIT south col 7
 ];
 
-const MAP3_N2_ITEMS = [];
+const MAP3_N2_ITEMS = [
+  // Examine-only floor sparkle: a dropped potion in the grass near Drenwick. Same
+  // shared examine pickup path as the Verdant Vale find near Calwick (WORLD_ITEMS)
+  // — renders as a glint, is taken with the interact key (not by walking over it),
+  // and its taken state persists through PICKUP_REGISTRY. Sits on open south-bank
+  // GRASS (col 5, row 8).
+  { id: 'pickup_drenwick_grass_potion', name: 'Potion', type: 'potion', heals: 20, price: 30,
+    x: 5.5 * TILE, y: 8.5 * TILE, picked: false, examine: true,
+    examinePages: [
+      ['Someone must have dropped a potion in the grass!'],
+      ['Got Potion.'],
+    ] },
+];
 
 // ─── Drenwick Civic / Downtown  (16 × 15) ────────────────────────────────────
 // Player enters from south via MAP3_N2 TOWN_ENTRANCE. TOWN_EXIT at row 13 col 7.
@@ -584,7 +596,7 @@ const DRENWICK_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 57,  1,  1,  1],  //  5  canal WATER, flowing off-map both W and E; BRIDGE_GATE col 12
       [  1,  0,  0,  0,  0,  0,  0,  0, 14,  0,  0,  0,  2,  0,  0,  0],  //  6  south-bank east seam opens beyond the gate approach; west canal-bank water at c0
       [  3,  0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  0,  0, 23],  //  7  road spur; east seam lands on reeds
-      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  //  8  south-bank east seam grass
+      [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0],  //  8  south-bank east seam grass; Potion sparkle c5 (examine)
       [  1,  0,  1, 23,  0,  0,  0,  0,  2,  0,  0,  0,  0, 23,  0, 23],  //  9  bog W + reeds east seam; west bank water pocket at c0
       [  3,  0, 23,  0,  0,  0,  0,  0,  2,  0,  0, 23,  1,  1, 23, 23],  // 10  former east pond edge becomes walkable reeds
       [  1,  0,  0,  0, 23,  0,  0,  0,  2,  0,  0, 23,  1, 23,  0,  0],  // 11  reeds + bog E; grass seam; west bank water pocket at c0

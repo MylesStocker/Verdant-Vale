@@ -565,6 +565,47 @@ function drawBattleLenswebSpider(cx, cy) {
   ctx.fillRect(cx + 4, y - 12, 1, 2);
 }
 
+// Mimic Potion — a large version of the world red-potion flask (drawMapWorldItems'
+// `type === 'potion'` icon, scaled ~4×), with the SAME gentle bob so it "moves like"
+// an ordinary dropped potion. The whole point is the disguise, so it is drawn as a
+// faithful potion — dark-red body, brighter fill, a shine, a neck and cork, and the
+// soft red glow — deterministic (tick-driven sin only, no randomness).
+function drawBattleMimicPotion(cx, cy) {
+  const bob = Math.round(Math.sin(tick * 0.07) * 4); // same slow float as the world sprite, larger
+  const y = cy + bob;
+
+  // Ground shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.30)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 42, 30, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Soft red glow (scaled from the world sprite's rgba(200,40,60,0.18) ellipse)
+  ctx.fillStyle = 'rgba(200,40,60,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(cx, y + 16, 38, 38, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Body outline (dark red)
+  ctx.fillStyle = '#6a1428';
+  ctx.fillRect(cx - 20, y - 8, 40, 44);
+  // Body fill
+  ctx.fillStyle = '#c02848';
+  ctx.fillRect(cx - 16, y - 4, 32, 36);
+  // Shine
+  ctx.fillStyle = '#f05070';
+  ctx.fillRect(cx - 12, y, 16, 16);
+  // Neck
+  ctx.fillStyle = '#801830';
+  ctx.fillRect(cx - 8, y - 24, 16, 20);
+  // Cork
+  ctx.fillStyle = '#6a400e';
+  ctx.fillRect(cx - 8, y - 36, 16, 14);
+  // Cork highlight
+  ctx.fillStyle = '#835420';
+  ctx.fillRect(cx - 6, y - 34, 5, 10);
+}
+
 // Briar Hound — thorned wolf; four legs, spine thorns, amber eyes, fangs
 function drawBattleBriarHound(cx, cy) {
   const sway = Math.round(Math.sin(tick * 0.04) * 1);
@@ -3611,6 +3652,7 @@ const ENEMY_SPRITE_DISPATCH = {};
   def(drawBattleMarshRat,      52, ['enemy_marsh_rat']);
   def(drawBattleLanternMoth,   30, ['enemy_lantern_moth']);
   def(drawBattleLenswebSpider, 40, ['enemy_lensweb_spider']);
+  def(drawBattleMimicPotion,   40, ['enemy_mimic_potion']);
   def(drawBattleBriarHound,    58, ['enemy_briar_hound', 'enemy_briar_hound_early']);
   def(drawBattleBoneGuard,     62, ['enemy_bone_guard']);
   def(drawBattleShadeWraith,   30, ['enemy_shade_wraith']);
