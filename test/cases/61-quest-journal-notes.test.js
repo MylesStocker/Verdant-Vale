@@ -110,5 +110,66 @@ module.exports = {
       const after = g.run('JSON.stringify({ w: warden_quest_started, items: stats.items })');
       assert.equal(before, after, 'quest flags and inventory unchanged by the call');
     }
+
+    // ── The Fourteenth File: active only at stage 1, clue-driven progression ──
+    {
+      const g = createContext();
+      const ffNote = () => notesOf(g).find(n => n.title === 'The Fourteenth File') || null;
+      const ffCount = () => notesOf(g).filter(n => n.title === 'The Fourteenth File').length;
+      const setFF = (stage, sk, le, de) => g.run(
+        `${RESET}; fourteenth_file_stage=${stage};` +
+        `window.ff_clue_skiff=${sk};window.ff_clue_ledger=${le};window.ff_clue_dedication=${de};`);
+
+      // 1. No entry at stage 0 (not accepted / offered-but-declined).
+      setFF(0, false, false, false);
+      assert.equal(ffNote(), null, 'stage 0: no Fourteenth File note');
+      // 6. No entry at stage 2 (filed / done), even with all clues found.
+      setFF(2, true, true, true);
+      assert.equal(ffNote(), null, 'stage 2 (done): no Fourteenth File note');
+
+      // 2 + 3. Exactly one entry at stage 1; initial text points at the skiff.
+      setFF(1, false, false, false);
+      assert.equal(ffCount(), 1, 'stage 1: exactly one Fourteenth File note');
+      assert.match(ffNote().body, /skiff/i, 'initial: names the foundered skiff');
+      assert.match(ffNote().body, /shallows|start there/i, 'initial: directs to the Thornmere Shallows / start there');
+
+      // 4. Every partial combination reports progress accurately, never naming a
+      //    found clue as still missing.
+      setFF(1, true, false, false);  // skiff only
+      assert.match(ffNote().body, /reopened/i, 'skiff found: names the reopened case');
+      assert.match(ffNote().body, /ledger/i, 'skiff only: still needs the ledger');
+      assert.match(ffNote().body, /plaque/i, 'skiff only: still needs the plaque');
+      setFF(1, true, true, false);   // skiff + ledger
+      assert.match(ffNote().body, /plaque/i, 'skiff+ledger: still needs the plaque');
+      assert.doesNotMatch(ffNote().body, /ledger/i, 'skiff+ledger: does NOT claim the found ledger is missing');
+      setFF(1, true, false, true);   // skiff + plaque
+      assert.match(ffNote().body, /ledger/i, 'skiff+plaque: still needs the ledger');
+      assert.doesNotMatch(ffNote().body, /plaque/i, 'skiff+plaque: does NOT claim the found plaque is missing');
+      // A clue found out of the usual order (no skiff yet) still anchors on the skiff.
+      setFF(1, false, true, true);
+      assert.match(ffNote().body, /skiff/i, 'no skiff yet: still directs to the skiff first');
+
+      // 5. All three clues -> return to the Supervisor.
+      setFF(1, true, true, true);
+      assert.match(ffNote().body, /Supervisor/i, 'all three clues: return to the Supervisor');
+
+      // 7. Save/load restores the correct note from the existing stage + clue
+      //    bindings (no new flags; SAVE_VERSION unchanged).
+      setFF(1, true, true, false);
+      g.run('saveGame();');
+      assert.equal(g.run("JSON.parse(localStorage.getItem('verdantVale_save')).version"), 4, 'SAVE_VERSION is still 4');
+      g.run('fourteenth_file_stage=0;window.ff_clue_skiff=false;window.ff_clue_ledger=false;window.ff_clue_dedication=false;');
+      assert.equal(ffNote(), null, 'note gone after clearing the flags');
+      g.run('loadGame();');
+      assert.equal(g.run('fourteenth_file_stage'), 1, 'stage restored on load');
+      assert.match(ffNote().body, /plaque/i, 'restored note reflects skiff+ledger (needs plaque)');
+
+      // 8. Repeated reads do not mutate flags or duplicate the note.
+      setFF(1, true, false, false);
+      const before = g.run("JSON.stringify([fourteenth_file_stage, !!window.ff_clue_skiff, !!window.ff_clue_ledger, !!window.ff_clue_dedication])");
+      g.run('getActiveQuestNotes(); getActiveQuestNotes(); getActiveQuestNotes();');
+      assert.equal(g.run("JSON.stringify([fourteenth_file_stage, !!window.ff_clue_skiff, !!window.ff_clue_ledger, !!window.ff_clue_dedication])"), before, 'reads do not mutate FF flags');
+      assert.equal(ffCount(), 1, 'the note is never duplicated');
+    }
   },
 };

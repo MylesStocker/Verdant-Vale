@@ -48,23 +48,23 @@ const SHARED_NPCS = [
       if (cat_quest_stage >= 1) {
         pages.push([
           '\u201cYour cat has been getting into the garden again. Nights, mostly.\u201d',
-          '\u201cI\u2019ve taken to calling it Pell. Hope you don\u2019t mind.\u201d',
+          '\u201cI\u2019ve taken to calling it Buddy. Hope you don\u2019t mind.\u201d',
           '\u201cIt doesn\u2019t seem to object.\u201d',
         ]);
       }
       if (MainQuest >= 1) {
         pages.push([
-          '\u201cSo they had you down for the sluice job.\u201d',
-          '\u201cI heard you sorted it.\u201d',
-          '\u201cNot bad for someone who\u2019s barely been here a season.\u201d',
+          '\u201cSo how goes the day job?\u201d',
+          '\u201cI have one too, I work for the town administration.\u201d',
+          '\u201cNot the imperial one. I work for the real Calwick. We like you folks here, but only because you\u2019re good people, not because we need what you do here. We know you don\u2019t exactly work with the reeds like we do.\u201d',
         ]);
       }
       if (MainQuest >= 2) {
         pages.push([
-          '\u201cDrenwick.\u201d',
-          '\u201cThat\u2019s four hours on the road? Maybe more if the east cut is still soft.\u201d',
-          '\u201cI went once. Years ago now. The canal system there is something else.\u201d',
-          '\u201cYou\u2019ll have noticed.\u201d',
+          '\u201cDrenwick is a bit of a hike. Not too bad as long as you like fen scenery.\u201d',
+          '\u201cTo get to other towns you either need a boat or to cross the causeway.\u201d',
+          '\u201cThey still let you walk into folks\u2019 houses over there.\u201d',
+          '\u201cThey\u2019re still fen people.\u201d',
         ]);
       }
       if (fort_quest_stage >= 6) {
@@ -72,16 +72,16 @@ const SHARED_NPCS = [
           '\u201cI heard there was a post on the fen road that turned out to be something other than a post.\u201d',
           '\u201cNobody official has said much. But word gets around out here.\u201d',
         ], [
-          '\u201cI passed that road once.\u201d',
-          '\u201cThe guards weren\u2019t right. Something off about it.\u201d',
-          '\u201cI\u2019m glad someone looked.\u201d',
+          '\u201cI guess even you official types aren\u2019t immune to tough conditions.\u201d',
+          '\u201cThe last thing we need around here are highwaymen.\u201d',
+          '\u201cWe locals could have taken care of it though.\u201d',
         ]);
       }
       if (warden_quest_rewarded) {
         pages.push([
           '\u201cThat spring meadow up in the northwest corner has gone quiet again.\u201d',
           '\u201cThe reed crews went back last week. First time in a season.\u201d',
-          '\u201cNobody\u2019s saying thank you, but everyone means it.\u201d',
+          '\u201cMonsters have been worse since the rains stopped.\u201d',
         ]);
       }
       return pages;
@@ -419,11 +419,11 @@ const SHARED_NPCS = [
         ['\u201cShe\u2019s sharper than me. Always has been.\u201d'],
       ];
       if (sluice_reward_given) pages.push(
-        ['\u201cI heard someone cleared the east sluice blockage.\u201d',
-         '\u201cReed debris in the frame, they said.',
-         'A whole season\u2019s worth of it.\u201d'],
-        ['\u201cThe dock crews noticed the flow change before the report came through.\u201d',
-         '\u201cThat\u2019s always how it goes.\u201d']
+        ['\u201cI went a few levels down in the sluice one time.\u201d',
+         '\u201cIt gets weird down there.',
+         'Like someone\u2019s been there recently.\u201d'],
+        ['\u201cMaybe it was just me.\u201d',
+         '\u201cNot all of us are lucky enough to have empire work.\u201d']
       );
       return pages;
     },
@@ -472,11 +472,11 @@ const SHARED_NPCS = [
         ['\u201cI brought back a good reed mat. She seemed pleased.', 'More than I expected.\u201d'],
       ];
       if (sluice_reward_given) pages.push(
-        ['\u201cThe flow at the sluice gates improved a few days back.\u201d',
-         '\u201cYou notice it when the draw pressure normalises.',
-         'The gate starts responding properly again.\u201d'],
-        ['\u201cShould have been caught months ago.',
-         'But these things sit until someone\u2019s specifically sent to look.\u201d']
+        ['\u201cThe canal tunnel by Avery hill is something to see.\u201d',
+         '\u201cI used to go there as a kid.',
+         'It\u2019s tough to get one.\u201d'],
+        ['\u201cI was always too scared to try to swim through it.',
+         'Bad things can happen in the dark.\u201d']
       );
       return pages;
     },
@@ -509,8 +509,8 @@ const SHARED_NPCS = [
           ]
         : [
             ['\u201cHe said he\u2019d be here before midday.\u201d', '\u201cThat was yesterday.\u201d'],
-            ['\u201cWhen the Registry started keeping Civic-level records, they had to decide who counted as a resident.\u201d',
-             '\u201cMy grandmother\u2019s name is in there. Her thread classification. It\u2019s just in the books. I don\u2019t know how I feel about that.\u201d'],
+            ['\u201c...You know gifts don\u2019t always last, that\u2019s what I\u2019ve learned.\u201d',
+             '\u201cMy grandmother went to The Academy and everything. Her thread classification got her a good job. She made a little money. Then my father spent it all. Now here I am.\u201d'],
           ];
     },
     flag_required: null,

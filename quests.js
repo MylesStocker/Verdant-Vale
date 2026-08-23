@@ -633,6 +633,31 @@ function getActiveQuestNotes() {
     notes.push({ title: "Fenna's Father", body: "Bring Sael's note back to Fenna in Calwick." });
   }
 
+  // The Fourteenth File — the drought-exposed patrol skiff ("the boat in the
+  // shallows") reopened an old "presumed lost" case. Active ONLY at stage 1 (0 =
+  // not accepted / offered-but-declined, 2 = filed and done). Reads the three
+  // established clue flags (window.ff_clue_*) purely — no mutation — and directs
+  // the player by what is still MISSING: the skiff anchors it, then the remaining
+  // records, then back to the Supervisor once all three are in hand. Every partial
+  // combination is covered and no already-found clue is ever reported as missing.
+  if (fourteenth_file_stage === 1) {
+    const ffSkiff  = !!window.ff_clue_skiff;
+    const ffLedger = !!window.ff_clue_ledger;
+    const ffDed    = !!window.ff_clue_dedication;
+    let ffBody;
+    if (!ffSkiff) {
+      ffBody = "The drought has laid a foundered patrol skiff bare out in the Thornmere Shallows. Go and look it over — start there.";
+    } else if (ffLedger && ffDed) {
+      ffBody = "The skiff reopened an old “presumed lost” case, and you have the rest of it now — the drainage-fund ledger and Warden Callis's dedication plaque. Take it all back to the Supervisor and decide what to put on the record.";
+    } else {
+      const ffRemaining = [];
+      if (!ffLedger) ffRemaining.push('the district drainage-fund ledger');
+      if (!ffDed)    ffRemaining.push("Warden Callis's dedication plaque");
+      ffBody = "The foundered skiff reopened an old “presumed lost” case. Chase down what's left: " + ffRemaining.join(' and ') + ".";
+    }
+    notes.push({ title: 'The Fourteenth File', body: ffBody });
+  }
+
   // Special Items — quest-flagged items (stats.items with questItem: true)
   // get their own section here so they don't just blend into the regular
   // ITEMS list above with everything else being carried.

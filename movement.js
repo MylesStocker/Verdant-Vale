@@ -519,7 +519,7 @@ function update() {
       const tripMsgs = [
         'You trip over your own feet.',
         'You stub your toe on nothing in particular.',
-        'You stumble and bark your shin.',
+        'You stumble and bang your shin.',
         'You walk into a wall that wasn\u2019t there.',
         'You trip on entirely flat ground.',
       ];

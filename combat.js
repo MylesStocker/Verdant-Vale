@@ -366,7 +366,14 @@ if (typeof window !== 'undefined') window.EMPTY_ENCOUNTER_POOL = EMPTY_ENCOUNTER
 
 function startCombat() {
   // Pale Sentry: appears on MAP_N2 once the contract is accepted, until it is killed.
-  if (activeMap === MAP_N2 && sentry_quest_started && !sentry_quest_done) {
+  // Keyed off the CANONICAL physical-map id (the regional authority), not the
+  // `activeMap` compatibility projection — a placed regional chunk's identity comes
+  // from the canonical world point, and reading it off `activeMap` is exactly the
+  // anti-pattern AGENTS.md warns against. On a broken/void canonical invariant this
+  // fails closed (no id, no Sentry), the same way the encounter-geography gate that
+  // reaches this call already does.
+  const _sentryMapId = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapIdForRef(activeMap);
+  if (_sentryMapId === 'MAP_N2' && sentry_quest_started && !sentry_quest_done) {
     combat.enemy          = { ...PALE_SENTRY_TEMPLATE, hp: pale_sentry_hp };
     combat.active         = true;
     combat.phase          = 'choose';

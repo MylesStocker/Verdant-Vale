@@ -171,6 +171,19 @@ function validateMapMetadata() {
     else if (m.allowRandomEncounters && m.encounterPool === null) addValidationWarning(GROUP, lbl + ': allowRandomEncounters is true but encounterPool is null (falls back to the generic ENEMY_TEMPLATES pool at runtime -- confirm that\'s intended)');
 
     if (typeof m.allowSave !== 'boolean') addValidationError(GROUP, lbl + ': allowSave is not a boolean');
+
+    // Optional `locationMode`: the location MODE a map belongs to, so an edge seam
+    // into it can continue that mode (tryEdgeTransition, world-transitions.js). If
+    // present it must name a real LOCATION_STATE_BINDINGS flag, and it is meaningless
+    // on an outdoor map (outdoor edge destinations always land neutral).
+    if (m.locationMode !== undefined && m.locationMode !== null) {
+      const _modeKeys = (typeof LOCATION_STATE_BINDINGS !== 'undefined' && Array.isArray(LOCATION_STATE_BINDINGS))
+        ? new Set(LOCATION_STATE_BINDINGS.map((b) => b.key)) : null;
+      if (typeof m.locationMode !== 'string' || (_modeKeys && !_modeKeys.has(m.locationMode)))
+        addValidationError(GROUP, lbl + ': locationMode "' + m.locationMode + '" is not a known location-state flag (must be a LOCATION_STATE_BINDINGS key)');
+      if (m.type === 'outdoor')
+        addValidationError(GROUP, lbl + ': locationMode set on an outdoor map -- outdoor edge destinations always land neutral, so this can never take effect');
+    }
   }
   return checked;
 }

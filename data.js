@@ -973,6 +973,12 @@ const MAP_CATALOG = {
     id: 'SUNKEN_GALLERY_MAP', map: SUNKEN_GALLERY_MAP, displayName: 'Sunken Gallery', region: 'North Basin',
     type: 'dungeon', items: SUNKEN_GALLERY_ITEMS, encounterPool: SUNKEN_GALLERY_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: false,
+    // Declares the location MODE this map belongs to (a LOCATION_STATE_BINDINGS key).
+    // tryEdgeTransition() (world-transitions.js) reads this so a room\u2194room edge seam
+    // continues inSunkenGallery \u2014 and, crucially, so an edge whose DESTINATION does
+    // NOT declare this mode never inherits it. The entrance/exit stair is a point
+    // transition that owns this mode explicitly; the seams inherit it via this field.
+    locationMode: 'inSunkenGallery',
     notes: 'Drought-exposed hall below the Upper Reach, flooded along its whole south side (the water pulled back, it didn\u2019t leave -- future expansion continues under it). Encounters via encounterPool fall-through, not a dungeonFloor branch. allowSave: false is runtime-enforced by canSaveHere() (save.js), same as BASIN_CHAMBER_MAP.',
   },
 
@@ -1305,6 +1311,9 @@ for (const cell of window.SUNKEN_GALLERY_GRID_CELLS) {
     id: id, map: window[id], displayName: 'Sunken Gallery', region: 'North Basin',
     type: 'dungeon', items: [], encounterPool: SUNKEN_GALLERY_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: false,
+    // Same Gallery location MODE as the entrance hall — so the EDGE_TRANSITIONS
+    // seams joining these rooms continue inSunkenGallery (see tryEdgeTransition()).
+    locationMode: 'inSunkenGallery',
     notes: 'One of the 24 blank rooms of the Sunken Gallery 5×5 grid (maps.js). GALLERY_FLOOR/GALLERY_WALL only, no other elements yet. Joined to its neighbours by EDGE_TRANSITIONS; shares the entrance hall’s encounter pool and allowSave: false.',
   };
 }

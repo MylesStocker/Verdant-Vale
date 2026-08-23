@@ -1660,14 +1660,45 @@ function tryEdgeTransition(direction) {
     const targetMapId = typeof seg.targetMap === 'string' ? seg.targetMap : mapIdForRef(seg.targetMap);
     if (!targetMapId || !mapRefForId(targetMapId)) return false; // misconfigured segment — fail safe, don't move
 
-    // Landing on the destination edge (outdoor↔outdoor, so no location-state
-    // overrides — the canonical reset leaves everything neutral). transitionTo-
-    // Location() enforces the base-walkability of this landing before moving.
+    // Location state on the destination edge. An edge seam is a CONTINUATION of the
+    // same location, never a mode boundary — the Sunken Gallery is entered/left only
+    // by its stair (a point transition), so its room↔room seams stay inside it.
+    //
+    // The rule is DESTINATION-DECLARED (metadata-driven; no map-ID list, no runtime
+    // `if (mapId === …)`): a map that belongs to a location mode declares it via
+    // `locationMode` (a LOCATION_STATE_BINDINGS key). Only the Gallery declares one
+    // today (`inSunkenGallery`).
+    //   • Destination declares NO mode (every outdoor map, and any mode-less discrete
+    //     map): land NEUTRAL — identical to the old no-state behaviour, and it clears
+    //     any mode the source was in. An unrelated non-outdoor destination therefore
+    //     can NEVER inherit the source's mode.
+    //   • Destination declares mode M and the source is already IN M (a legitimate
+    //     intra-mode seam, e.g. Gallery→Gallery): carry the source's full validated
+    //     state across, preserving M.
+    //   • Destination declares mode M but the source is NOT in M: apply M as the
+    //     DESTINATION's authority (build the minimal state for M) — never the source's
+    //     mode. If that minimal state is not itself a valid location state (e.g. a
+    //     mode that needs a companion field), FAIL CLOSED and do not move.
+    // transitionToLocation() is atomic, so any early return leaves the player's
+    // location completely untouched; it also enforces the landing's base-walkability.
     const landing = edgeTransitionLanding(seg, along);
     if (!landing) return false;
+    const targetMeta = (typeof mapEntryForId === 'function') ? mapEntryForId(targetMapId) : null;
+    const targetMode = targetMeta ? targetMeta.locationMode : undefined;
+    let carryState; // undefined => transitionToLocation lands all-neutral
+    if (targetMode !== undefined && targetMode !== null) {
+      const cur = snapshotLocationState();
+      if (cur[targetMode] === true && validateLocationState(cur).ok) {
+        carryState = cur;                               // intra-mode seam: preserve the source mode
+      } else {
+        const declared = { [targetMode]: true };        // destination's declared mode is authoritative
+        if (!validateLocationState(declared).ok) return false; // cannot form a valid state -> fail closed
+        carryState = declared;
+      }
+    }
     return transitionToLocation({
       mapId: targetMapId, x: (landing.col + 0.5) * TILE, y: (landing.row + 0.5) * TILE,
-      facing: landing.facing, cooldown: true,
+      facing: landing.facing, cooldown: true, state: carryState,
     });
   }
   return false; // no segment covered this position
