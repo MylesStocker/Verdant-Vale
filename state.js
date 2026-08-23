@@ -109,7 +109,7 @@ function showWorldToast(text) { worldToast = text; worldToastTimer = 150; }
 // ─── Player stats ─────────────────────────────────────────────────────────────
 const stats = {
   name:   'L\u00e9ly',
-  hp:     24,
+  hp:     30,
   maxHp:  30,
   atk:    8,
   def:    2,
