@@ -19,8 +19,11 @@ module.exports = {
     assert.equal(g.run('dialogue.open'), false, 'precondition: dialogue must be closed to move');
     assert.equal(g.run('townBuilding'), 'house', 'precondition: still inside the house');
 
-    // Hold Down: the house spawn point sits directly above the door
-    // (INTERIOR_EXIT tile) at HOUSE_INTERIOR_MAP row 10, col 7.
+    // Stand directly above the door (INTERIOR_EXIT tile) at HOUSE_INTERIOR_MAP
+    // row 10, col 7, then hold Down onto it. (The new-game spawn is elsewhere in
+    // the house — col 10, row 4 — so this test positions the player at the door
+    // rather than relying on the spawn sitting above it.)
+    g.run('player.x = 7.5 * TILE; player.y = 9.5 * TILE; player.facing = "down";');
     g.hold('ArrowDown');
 
     let crossed = false;

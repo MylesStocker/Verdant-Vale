@@ -17,8 +17,9 @@ module.exports = {
     assert.equal(g.run('townBuilding'), 'house');
     assert.equal(g.run('currentHouseId'), 'player_house');
     assert.equal(g.run('activeMap === HOUSE_INTERIOR_MAP'), true);
-    assert.equal(g.run('player.x'), 7.5 * 32);
-    assert.equal(g.run('player.y'), 9.5 * 32);
+    assert.equal(g.run('player.x'), 10.5 * 32);   // col 10
+    assert.equal(g.run('player.y'), 4.5 * 32);    // row 4
+    assert.equal(g.run('player.facing'), 'down'); // facing the camera
 
     // A few frames of the real loop body should run cleanly with no throw.
     g.frames(5);

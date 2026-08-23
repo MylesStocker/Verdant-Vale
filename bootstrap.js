@@ -16,9 +16,9 @@ houseSourceMap      = WEST_TOWN_MAP;       // house door is in west town
 houseSourceBuilding = 'west';
 houseReturnPos      = { x: 2.5 * TILE, y: 12.5 * TILE }; // col 2, row 11 door exit
 activeMap           = HOUSE_INTERIOR_MAP;
-player.x            = 7.5 * TILE;
-player.y            = 9.5 * TILE;
-player.facing       = 'up';
+player.x            = 10.5 * TILE;  // col 10
+player.y            = 4.5 * TILE;   // row 4
+player.facing       = 'down';       // facing the camera
 // New-game boot is a DISCRETE location (the player's house): canonical regional
 // position is null. Explicit for gateway hygiene (regional-position.js).
 if (typeof clearRegionalPosition === 'function') clearRegionalPosition();

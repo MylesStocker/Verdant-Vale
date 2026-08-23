@@ -99,7 +99,9 @@ module.exports = {
     // overrides, and confirm the drawn enemy carries a real pool-template id.
     G('window.__rnd = Math.random; Math.random = function(){ return 0.5; };');
     try {
-      G('resetLocationState(); inTown=false; inDungeon=true; dungeonFloor=1; activeMap=DUNGEON_MAP; inSluice=false; inMireVault=false; sentry_quest_started=false;');
+      // Place on a valid walkable dungeon tile (the later save/load round-trip
+      // validates placement; the new-game spawn is a house tile, not a dungeon one).
+      G('resetLocationState(); inTown=false; inDungeon=true; dungeonFloor=1; activeMap=DUNGEON_MAP; inSluice=false; inMireVault=false; sentry_quest_started=false; player.x=7.5*TILE; player.y=9.5*TILE;');
       G('startCombat();');
       assert.equal(G("DUNGEON_ENEMY_TEMPLATES.some(function(t){return t.id===combat.enemy.id;})"), true, 'random encounter enemy has a real pool-template id');
       assert.equal(G('/^enemy_[a-z0-9_]+$/.test(combat.enemy.id)'), true, 'random encounter enemy id is valid format');
