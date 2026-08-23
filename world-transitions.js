@@ -1035,16 +1035,18 @@ function enterBasinChamber() {
 
 function exitBasinChamber() {
   // Once the player has walked out of the unmarked chamber at least twice AND
-  // the fourth main quest — the reservoir assignment — has been given, the
+  // the fourth main quest — the reservoir assignment — has been COMPLETED (the
+  // basin report filed back to the supervisor, reservoir_report_filed), the
   // world doesn't just let them step back onto the reach: the dream sequence
   // takes over (basinChamberDreamSequence), ending with them waking at the
   // Drenwick infirmary. It fires exactly once (basin_chamber_dream_done).
-  // Gating on reservoir_quest_started means the whole sequence can't happen
-  // before MQ4; using >= 2 (not === 2) means an early, pre-MQ4 second exit
-  // doesn't permanently miss the trigger — it just waits for the next exit
-  // after the assignment. Every other exit is the ordinary step to the Reach.
+  // Gating on reservoir_report_filed means the whole sequence can't happen
+  // until MQ4 is finished (not merely assigned); using >= 2 (not === 2) means an
+  // early, pre-completion second exit doesn't permanently miss the trigger — it
+  // just waits for the next exit after MQ4 is done. Every other exit is the
+  // ordinary step to the Reach.
   window.basin_chamber_exits = (window.basin_chamber_exits || 0) + 1;
-  if (window.basin_chamber_exits >= 2 && reservoir_quest_started && !window.basin_chamber_dream_done) {
+  if (window.basin_chamber_exits >= 2 && reservoir_report_filed && !window.basin_chamber_dream_done) {
     window.basin_chamber_dream_done = true;
     basinChamberDreamSequence();
     return;

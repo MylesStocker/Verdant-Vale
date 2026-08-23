@@ -48,21 +48,30 @@ module.exports = {
     g.run('loadGame();');
     assert.equal(g.run('window.basin_chamber_exits'), 1, 'the exit counter round-trips through save/load');
 
-    // ── 3. The MQ4 gate: a SECOND exit before the reservoir assignment does
-    //       NOT trigger the dream — it's an ordinary exit. ────────────────────
+    // ── 3. The MQ4 gate: exits before MQ4 is COMPLETED do NOT trigger the dream. ─
+    // (a) The reservoir assignment has not even been given.
     g.run('inBasinChamber=true; activeMap=BASIN_CHAMBER_MAP; dialogue.open=false;');
     g.run('exitBasinChamber()');
     assert.equal(g.run('window.basin_chamber_exits'), 2, 'the exit still counts');
-    assert.equal(g.run('activeMap === NORTH_BASIN_NW_MAP'), true, 'pre-MQ4, the second exit is ordinary — no dream');
-    assert.equal(g.run('dialogue.open'), false, 'pre-MQ4, no dream monologue');
+    assert.equal(g.run('activeMap === NORTH_BASIN_NW_MAP'), true, 'assignment not given: the second exit is ordinary — no dream');
+    assert.equal(g.run('dialogue.open'), false, 'no dream monologue');
     assert.equal(g.run('window.basin_chamber_dream_done'), false, 'the sequence has not fired');
 
-    // ── 4. Once MQ4 (reservoir assignment) is given, the next exit triggers
-    //       the dream — even though the count is already past two. ────────────
-    g.run('reservoir_quest_started = true; syncQuestFlagsToWindow();');
+    // (b) MQ4 STARTED (reservoir assignment given) but NOT yet completed (basin
+    //     report not filed) STILL does not trigger the dream.
+    g.run('reservoir_quest_started = true; reservoir_report_filed = false; syncQuestFlagsToWindow();');
     g.run('inBasinChamber=true; activeMap=BASIN_CHAMBER_MAP; dialogue.open=false;');
     g.run('exitBasinChamber()');
-    assert.equal(g.run('activeMap === DREAM_MAP'), true, 'post-MQ4, the exit warps into the dream, not the reach');
+    assert.equal(g.run('activeMap === NORTH_BASIN_NW_MAP'), true, 'MQ4 started but not completed: still an ordinary exit — no dream');
+    assert.equal(g.run('dialogue.open'), false, 'no dream monologue before MQ4 is completed');
+    assert.equal(g.run('window.basin_chamber_dream_done'), false, 'the sequence still has not fired');
+
+    // ── 4. Once MQ4 is COMPLETED (the basin report is filed), the next exit
+    //       triggers the dream — even though the count is already past two. ─────
+    g.run('reservoir_report_filed = true; syncQuestFlagsToWindow();');
+    g.run('inBasinChamber=true; activeMap=BASIN_CHAMBER_MAP; dialogue.open=false;');
+    g.run('exitBasinChamber()');
+    assert.equal(g.run('activeMap === DREAM_MAP'), true, 'MQ4 completed: the exit warps into the dream, not the reach');
     assert.equal(g.run('window.basin_chamber_dream_done'), true, 'the one-time flag is now set');
     assert.equal(g.run('dialogue.open'), true, 'the dream monologue opens');
     assert.equal(g.run('dialogue.name'), '', 'the monologue has no speaker name');
