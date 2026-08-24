@@ -1105,6 +1105,26 @@ function interactHouseInterior() {
       const opts = [];
       const cbs  = [];
       if (inChest > 0) {
+        opts.push('Take amount\u2026');
+        cbs.push(function takeAmount() {
+          const raw = window.prompt('Take how much? (chest holds ' + hd.chest.gold + 'g)');
+          if (raw === null) return true;
+          const amount = Math.floor(Number(raw));
+          if (!amount || amount <= 0) {
+            dialogue.name  = 'Chest';
+            dialogue.pages = [['Not a valid amount.']];
+            dialogue.open  = true;
+            dialogue.page  = 0;
+            return true;
+          }
+          const taken = Math.min(amount, hd.chest.gold);
+          stats.gold    += taken;
+          hd.chest.gold -= taken;
+          dialogue.name   = 'Chest';
+          dialogue.pages  = [['You take ' + taken + 'g from the chest.', 'Pocket: ' + stats.gold + 'g.  Chest: ' + hd.chest.gold + 'g.']];
+          dialogue.open   = true;
+          dialogue.page   = 0;
+        });
         opts.push('Take all  (' + inChest + 'g)');
         cbs.push(function takeAll() {
           const taken = hd.chest.gold;
