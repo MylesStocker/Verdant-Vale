@@ -1582,14 +1582,18 @@ function handleCombatAction() {
     return;
   }
   if (combat.phase === 'item') {
-    const items = inventoryItems();
-    if (combat.itemCursor === items.length) {
+    // Grouped view: multiples of the same item share one row (see groupItems()),
+    // exactly like the pause menu's item list. The cursor indexes groups; the
+    // action operates on the group's representative instance.
+    const groups = groupItems();
+    if (combat.itemCursor === groups.length) {
       // "Back" entry selected \u2014 return to the action menu; no turn spent, no enemy response.
       combat.phase = 'choose';
       return;
     }
-    const item = items[combat.itemCursor];
-    if (!item) return;
+    const group = groups[combat.itemCursor];
+    if (!group) return;
+    const item = group.item;
 
     // Using an item spends the turn, so the Bullet Time buff ticks down here.
     // Bullet Time's own activation (below) re-sets evadeTurns afterwards, so the
@@ -1603,7 +1607,7 @@ function handleCombatAction() {
       // A sex-matched target drops instantly (no counter); the wrong sex, or any
       // enemy without a sex, shrugs it off and the turn is wasted.
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
       if (combat.enemy.sex === item.sexBane) {
         combat.enemy.hp = 0;
         msgs.push(`Used ${item.name} \u2014 the ${combat.enemy.name} stiffens, shudders once, and goes still. The right sort.`);
@@ -1622,14 +1626,14 @@ function handleCombatAction() {
         // below, via enemyActs). Never heals HP or touches an unrelated status.
         const res = applyStatusCure(item);
         stats.items.splice(stats.items.indexOf(item), 1);
-        combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
+        combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
         msgs.push(res.message);
       } else {
         const healed = Math.min(item.heals || 0, stats.maxHp - stats.hp);
         stats.hp += healed;
         if (item.causesMuddied) addStatusEffect('muddied');
         stats.items.splice(stats.items.indexOf(item), 1);
-        combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
+        combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
         msgs.push(item.causesMuddied
           ? `Used ${item.name} \u2014 restored ${healed} HP. Legs feel heavy.`
           : `Used ${item.name} \u2014 restored ${healed} HP!`);
@@ -1640,7 +1644,7 @@ function handleCombatAction() {
       // response is now rolled against the fresh evade rate.
       if (item.evadeTurns) combat.evadeTurns = item.evadeTurns;
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, inventoryItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
       const pct = Math.round((item.evadeRate || 0) * 100);
       msgs.push(`Used ${item.name} \u2014 the world slows to a crawl. Evade up to ${pct}% for ${item.evadeTurns} turns.`);
     } else {

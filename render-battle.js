@@ -4120,7 +4120,9 @@ function drawCombat() {
     ctx.fillStyle = '#1e3040';
     ctx.fillRect(PX + PAD + 8, PY + 94 + shift, PW - PAD * 2 - 16, 1);
 
-    const battleItems = inventoryItems();
+    // Grouped view: multiples of the same item share one row (groupItems()),
+    // matching the pause menu — a count suffix stands in for repeated rows.
+    const battleItems = groupItems();
     const ROW_H       = 22;
     const listTop     = PY + 110 + shift;
     const listBottom  = PY + PH - 14;           // bottom edge of the item box
@@ -4143,7 +4145,8 @@ function drawCombat() {
       ctx.fillText('no items', PX + PAD + 24, listTop);
     } else {
       for (let i = winStart; i < winEnd && i < battleItems.length; i++) {
-        const item     = battleItems[i];
+        const { item, count } = battleItems[i];
+        const label    = count > 1 ? `${item.name} ${count}` : item.name;
         const iy       = listTop + (i - winStart) * ROW_H;
         const selected = i === combat.itemCursor;
         if (selected) {
@@ -4155,10 +4158,10 @@ function drawCombat() {
         }
         ctx.fillStyle = selected ? '#e0f0e8' : '#8aaaa0';
         ctx.font = selected ? 'bold 12px "Courier New", monospace' : '12px "Courier New", monospace';
-        ctx.fillText(item.name, PX + PAD + 24, iy);
+        ctx.fillText(label, PX + PAD + 24, iy);
         ctx.fillStyle = '#4a8858';
         ctx.font = '11px "Courier New", monospace';
-        ctx.fillText(`${itemStatParen(item)}`, PX + PAD + 24 + item.name.length * 7 + 4, iy);
+        ctx.fillText(`${itemStatParen(item)}`, PX + PAD + 24 + label.length * 7 + 4, iy);
       }
     }
 

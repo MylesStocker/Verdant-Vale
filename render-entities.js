@@ -2031,9 +2031,10 @@ function drawMerchantSprite() {
 
 // ─── Traveller Drawing ────────────────────────────────────────────────────────
 function drawTravellerSprite() {
-  if (!inTown || townBuilding || !travellerPresent || currentTownId === 'drenwick') return;
-  const px  = Math.round(TRAVELLER.x);
-  const py  = Math.round(TRAVELLER.y);
+  const spot = currentTravellerSpot();
+  if (!spot) return;
+  const px  = Math.round(spot.x);
+  const py  = Math.round(spot.y);
   const bob = Math.round(Math.sin(tick * 0.05) * 1);
 
   // Drop shadow
@@ -2102,8 +2103,8 @@ function drawTravellerSprite() {
 
   // SPACE hint when in range
   if (!dialogue.open && !choice.open && !shop.open) {
-    const dx = player.x - TRAVELLER.x;
-    const dy = player.y - TRAVELLER.y;
+    const dx = player.x - spot.x;
+    const dy = player.y - spot.y;
     if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS && (tick >> 4) & 1) {
       ctx.fillStyle = '#d8c878';
       ctx.font = 'bold 11px "Courier New", monospace';
@@ -2229,7 +2230,9 @@ function drawShop() {
     ctx.font = 'bold 11px "Courier New", monospace';
     ctx.fillText('SELL  (50% of value)', BX + PAD, BY + 44);
 
-    const sellable = inventoryItems();
+    // Grouped view: multiples of the same item share one row (groupItems()),
+    // matching the pause menu — a count suffix stands in for repeated rows.
+    const sellable = groupItems();
     const topY     = BY + 60;
     if (sellable.length === 0) {
       ctx.fillStyle = '#3a5060';
@@ -2251,11 +2254,12 @@ function drawShop() {
         const iy  = topY + r * 22;
         const sel = idx === shop.cursor;
         if (idx < sellable.length) {
-          const it      = sellable[idx];
+          const { item: it, count } = sellable[idx];
           const sellVal = Math.floor((it.price || 0) / 2);
+          const label   = count > 1 ? `${it.name} ${count}` : it.name;
           ctx.fillStyle = sel ? '#f0e090' : '#aac4c4';
           ctx.font      = '12px "Courier New", monospace';
-          ctx.fillText((sel ? '\u25b6 ' : '  ') + it.name, BX + PAD, iy);
+          ctx.fillText((sel ? '\u25b6 ' : '  ') + label, BX + PAD, iy);
           ctx.fillStyle = sel ? '#c8d898' : '#5a7868';
           ctx.font      = '11px "Courier New", monospace';
           ctx.fillText(itemStatLabel(it), BX + PAD + 134, iy);

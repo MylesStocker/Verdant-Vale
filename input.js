@@ -27,8 +27,8 @@ window.addEventListener('keydown', e => {
         if (e.key === 'ArrowRight' || e.key === 'd') combat.cursor = (combat.cursor + 1) % nOpts;
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleCombatAction(); }
       } else if (combat.phase === 'item') {
-        // cursor 0..items.length-1 = items, items.length = Back
-        const last = inventoryItems().length;
+        // cursor 0..groups.length-1 = grouped item rows, groups.length = Back
+        const last = groupItems().length;
         if (e.key === 'ArrowUp'   || e.key === 'w') combat.itemCursor = Math.max(0, combat.itemCursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') combat.itemCursor = Math.min(last, combat.itemCursor + 1);
         if (e.key === 'b' || e.key === 'B' || e.key === 'Escape') { e.preventDefault(); combat.phase = 'choose'; }
@@ -180,7 +180,10 @@ window.addEventListener('keydown', e => {
           }
           if (e.key === 'Escape' || e.key === 'b' || e.key === 'B') { shop.screen = 'main'; shop.cursor = 0; }
         } else if (shop.screen === 'sell') {
-          const sellable = inventoryItems();
+          // Grouped view: multiples of the same item share one row (groupItems()),
+          // like the pause menu. The cursor indexes groups; selling removes the
+          // group's representative instance.
+          const sellable = groupItems();
           const listLen = sellable.length + 1; // +1 for Back
           if (e.key === 'ArrowUp'   || e.key === 'w') shop.cursor = Math.max(0, shop.cursor - 1);
           if (e.key === 'ArrowDown' || e.key === 's') shop.cursor = Math.min(listLen - 1, shop.cursor + 1);
@@ -188,7 +191,7 @@ window.addEventListener('keydown', e => {
             if (shop.cursor === sellable.length) {
               shop.screen = 'main'; shop.cursor = 0;
             } else {
-              const it = sellable[shop.cursor];
+              const it = sellable[shop.cursor] && sellable[shop.cursor].item;
               if (it) {
                 stats.gold += Math.floor((it.price || 0) / 2);
                 // If selling an equipped item, clear its slot
@@ -197,7 +200,7 @@ window.addEventListener('keydown', e => {
                 if (stats.shield    === it) stats.shield    = null;
                 if (stats.accessory === it) stats.accessory = null;
                 stats.items.splice(stats.items.indexOf(it), 1);
-                shop.cursor = Math.min(shop.cursor, inventoryItems().length);
+                shop.cursor = Math.min(shop.cursor, groupItems().length);
               }
             }
           }
