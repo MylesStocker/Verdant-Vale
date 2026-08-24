@@ -2169,8 +2169,26 @@ const TALK_RADIUS = 28; // px; must be within this to open dialogue (~0.9 tiles)
 const MERCHANT = { x: 9.5 * TILE, y: 7.5 * TILE }; // col 9, row 7 in TOWN_MAP
 
 // ─── Travelling Salesman ───────────────────────────────────────────────────────
-// Present 1-in-3 town visits (decided in enterTown). col 5, row 7 in TOWN_MAP.
-const TRAVELLER = { x: 5.5 * TILE, y: 7.5 * TILE };
+// Present 1-in-3 town visits (the roll is in enterTownAt(), world-transitions.js,
+// on EVERY town entry). She sets up on the town-SQUARE map of Calwick (TOWN_MAP)
+// and in the Drenwick MARKETPLACE (DRENWICK_MARKET_MAP) — never on Drenwick's other
+// squares (Civic/Outskirts) or any building interior. Each hosting map has its own
+// stall spot; currentTravellerSpot() is the single authority the sprite, collision,
+// and shop all read for "is she here, and where".
+const TRAVELLER          = { x: 5.5 * TILE, y: 7.5 * TILE }; // Calwick main square (TOWN_MAP): col 5, row 7
+const DRENWICK_TRAVELLER = { x: 5.5 * TILE, y: 6.5 * TILE }; // Drenwick marketplace (DRENWICK_MARKET_MAP): col 5, row 6
+
+// The Traveller's stall spot on the CURRENT map, or null when she isn't present.
+// Consolidates the presence gate (in a town square, not a building, and the 1/3
+// travellerPresent roll came up) with the per-map spot lookup. The two hosting
+// maps are discrete town maps, so an activeMap identity check is exact (the same
+// shape locationName() and the collision code already use for town maps).
+function currentTravellerSpot() {
+  if (!inTown || townBuilding || !travellerPresent) return null;
+  if (activeMap === TOWN_MAP)            return TRAVELLER;
+  if (activeMap === DRENWICK_MARKET_MAP) return DRENWICK_TRAVELLER;
+  return null;
+}
 
 // ─── Job Board ────────────────────────────────────────────────────────────────
 // Populate JOB_BOARD_NOTICES with strings to add postings.
@@ -2615,6 +2633,7 @@ const NPC_REGISTRY = (() => {
   // Named custom NPCs (position-only objects without an id in SIMPLE_NPCS)
   registry['merchant']            = MERCHANT;
   registry['traveller']           = TRAVELLER;
+  registry['drenwick_traveller']  = DRENWICK_TRAVELLER;
   registry['innkeeper']           = INNKEEPER;
   registry['drenwick_innkeeper']  = DRENWICK_INNKEEPER;
   registry['supervisor']          = SUPERVISOR;
@@ -2630,6 +2649,8 @@ window.NPC_ACTIONS        = NPC_ACTIONS;
 window.TALK_RADIUS        = TALK_RADIUS;
 window.MERCHANT           = MERCHANT;
 window.TRAVELLER          = TRAVELLER;
+window.DRENWICK_TRAVELLER = DRENWICK_TRAVELLER;
+window.currentTravellerSpot = currentTravellerSpot;
 window.JOB_BOARD_NOTICES  = JOB_BOARD_NOTICES;
 window.NOTICE_BOARD_X     = NOTICE_BOARD_X;
 window.NOTICE_BOARD_Y     = NOTICE_BOARD_Y;

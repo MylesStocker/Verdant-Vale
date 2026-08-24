@@ -258,7 +258,8 @@ function canWalk(cx, cy) {
     if (currentTownId === 'drenwick' && activeMap === DRENWICK_MARKET_MAP && Math.abs(cx - DRENWICK_MARKET_NOTICE_BOARD_X) < 18 && Math.abs(cy - DRENWICK_MARKET_NOTICE_BOARD_Y) < 18) return false;
     if (currentTownId !== 'drenwick' && Math.abs(cx - NOTICE_BOARD_X) < 18 && Math.abs(cy - NOTICE_BOARD_Y) < 18) return false;
     if (currentTownId !== 'drenwick' && Math.abs(cx - MERCHANT.x) < 18 && Math.abs(cy - MERCHANT.y) < 18) return false;
-    if (travellerPresent && currentTownId !== 'drenwick' && Math.abs(cx - TRAVELLER.x) < 18 && Math.abs(cy - TRAVELLER.y) < 18) return false;
+    const travellerSpot = currentTravellerSpot();
+    if (travellerSpot && Math.abs(cx - travellerSpot.x) < 18 && Math.abs(cy - travellerSpot.y) < 18) return false;
   } else if (inTown && townBuilding === 'inn') {
     if (currentTownId !== 'drenwick' && Math.abs(cx - INNKEEPER.x) < 18 && Math.abs(cy - INNKEEPER.y) < 18) return false;
     if (currentTownId === 'drenwick' && Math.abs(cx - DRENWICK_INNKEEPER.x) < 18 && Math.abs(cy - DRENWICK_INNKEEPER.y) < 18) return false;

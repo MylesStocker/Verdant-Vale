@@ -485,10 +485,12 @@ function interactTownOutdoor() {
       return true;
     }
   }
-  // Travelling salesman (only when present, not in Drenwick)
-  if (travellerPresent && currentTownId !== 'drenwick') {
-    const tx = player.x - TRAVELLER.x;
-    const ty = player.y - TRAVELLER.y;
+  // Travelling salesman — present on the current map's stall spot (Calwick square
+  // or the Drenwick marketplace) when the 1/3 roll came up; null elsewhere.
+  const travellerSpot = currentTravellerSpot();
+  if (travellerSpot) {
+    const tx = player.x - travellerSpot.x;
+    const ty = player.y - travellerSpot.y;
     if (Math.sqrt(tx * tx + ty * ty) < TALK_RADIUS) {
       shop.title  = 'TRAVELLER';
       shop.stock  = TRAVELLER_STOCK;
