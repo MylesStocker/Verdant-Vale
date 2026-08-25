@@ -818,7 +818,10 @@ function drawMenu() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.60)';
   ctx.fillRect(0, 0, 512, 480);
 
-  const BX = 60, BY = 50, BW = 392, BH = 430;
+  // Box widened (392 → 424, kept centred in the 512px canvas) so the notebook's
+  // 52-char wrapped body lines sit inside the right border instead of spilling
+  // slightly past it. All content is laid out relative to BX/BW/CX/PAD below.
+  const BX = 44, BY = 50, BW = 424, BH = 430;
   const PAD = 18;
   const CX  = BX + PAD; // left edge of content
 
@@ -902,6 +905,23 @@ function drawMenu() {
         if (acc > PANEL_H) { maxOffset = i + 1; break; }
       }
     }
+    // A cursor selects a row; SPECIAL ITEMS rows are inspectable (ENTER reads
+    // them). Keep the cursor clamped and scroll the offset so the selected row
+    // stays visible, so quest notes above still scroll into view naturally.
+    const specialStart = notes.findIndex(n => n.header === 'SPECIAL ITEMS');
+    const rowInspectable = (i) => specialStart >= 0 && i > specialStart && !!notes[i] && !notes[i].header;
+    menu.notebookCursor = Math.max(0, Math.min(menu.notebookCursor, Math.max(0, notes.length - 1)));
+    function lastVisibleFrom(off) {
+      let acc = 0, last = off;
+      for (let i = off; i < notes.length; i++) {
+        acc += noteHeight(notes[i]);
+        if (i > off && acc > PANEL_H) break;
+        last = i;
+      }
+      return last;
+    }
+    if (menu.notebookCursor < menu.notebookOffset) menu.notebookOffset = menu.notebookCursor;
+    while (menu.notebookOffset < maxOffset && lastVisibleFrom(menu.notebookOffset) < menu.notebookCursor) menu.notebookOffset++;
     menu.notebookOffset = Math.max(0, Math.min(menu.notebookOffset, maxOffset));
 
     if (notes.length === 0) {
@@ -916,6 +936,13 @@ function drawMenu() {
         const h = noteHeight(notes[i]);
         // Only draw entries that fully fit; always draw at least the first.
         if (rendered > 0 && ny + h > NOTES_Y_END) break;
+        const selected   = (i === menu.notebookCursor);
+        const inspectable = rowInspectable(i);
+        // Selection highlight (behind the whole entry).
+        if (selected) {
+          ctx.fillStyle = '#0e2434';
+          ctx.fillRect(CX - 6, ny - 4, BW - PAD * 2 + 12, h - 8);
+        }
         // Separator
         if (rendered > 0) {
           ctx.fillStyle = '#1a2e3e';
@@ -927,10 +954,17 @@ function drawMenu() {
           ctx.font = 'bold 11px "Courier New", monospace';
           ctx.fillText(notes[i].header, CX, ny + 12);
         } else {
-          // Title
-          ctx.fillStyle = '#7ab8c8';
+          // Title (\u25b8 marker + brighter when selected; a "read" cue on inspectable rows).
+          ctx.fillStyle = selected ? '#e0f0e8' : '#7ab8c8';
           ctx.font = 'bold 12px "Courier New", monospace';
-          ctx.fillText('\u25aa ' + notes[i].title, CX, ny + 12);
+          ctx.fillText((selected ? '\u25b8 ' : '\u25aa ') + notes[i].title, CX, ny + 12);
+          if (inspectable) {
+            ctx.fillStyle = selected ? '#8ac8d8' : '#3a6878';
+            ctx.font = '10px "Courier New", monospace';
+            ctx.textAlign = 'right';
+            ctx.fillText(selected ? 'ENTER \u2192 read' : 'read', BX + BW - PAD, ny + 11);
+            ctx.textAlign = 'left';
+          }
           // Body
           ctx.fillStyle = '#c8d8c8';
           ctx.font = '12px "Courier New", monospace';
@@ -955,10 +989,13 @@ function drawMenu() {
       }
     }
 
-    // Bottom hint
+    // Bottom hint \u2014 offer "read" only when the cursor is on an inspectable item.
     ctx.fillStyle = '#3a6878';
     ctx.font = 'bold 10px "Courier New", monospace';
-    ctx.fillText('\u2191\u2193 scroll  \u00b7  B / ESC back', CX, BY + BH - 14);
+    const canRead = notes.length > 0 && rowInspectable(menu.notebookCursor);
+    ctx.fillText(canRead
+      ? '\u2191\u2193 select  \u00b7  ENTER read  \u00b7  B / ESC back'
+      : '\u2191\u2193 select  \u00b7  B / ESC back', CX, BY + BH - 14);
     return;
   }
 
@@ -1464,7 +1501,8 @@ function drawWarpMenu() {
     visible.forEach((dest, i) => {
       const idx = warpMenu.scrollOffset + i;
       const label = dest.label;
-      const tag = dest.category ? ' [' + dest.category + ']' : '';
+      // The debug [category] tag is hidden for the player's Warp Stone menu.
+      const tag = (!warpMenu.playerMode && dest.category) ? ' [' + dest.category + ']' : '';
       const ry  = PY + 34 + i * 20;
       const sel = warpMenu.cursor === idx;
       if (sel) {

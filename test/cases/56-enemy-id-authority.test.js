@@ -195,8 +195,11 @@ module.exports = {
 
           // (c) special behaviour: slither-on-hit still fires (id-keyed),
           //     forced via Math.random = 0 so the 0.30 gate always trips.
+          //     Slither is not obtainable in normal play (MUDSLITHER_INFLICTABLE
+          //     is off), so enable it just for this id-dispatch probe.
           removeStatusEffect('slither');
           combat.messageQueue = [];
+          MUDSLITHER_INFLICTABLE = true;
           Math.random = function(){ return 0; };
           applyEnemyHitEffects();
           var slithered = hasStatusEffect('slither');
@@ -209,6 +212,7 @@ module.exports = {
           entry.draw = origDraw;
           combat.enemy && (combat.enemy.name = realName);
           Math.random = _r;
+          MUDSLITHER_INFLICTABLE = false;
           removeStatusEffect('slither');
           combat.active = false; combat.enemy = null; combat.messageQueue = [];
         }
@@ -298,6 +302,7 @@ module.exports = {
         var realId = combat.enemy.id;
         try {
           Math.random = function(){ return 0; };
+          MUDSLITHER_INFLICTABLE = true;            // slither is off in normal play; enable for this id-gating probe
 
           combat.enemy.id = 'enemy_marsh_wisp';     // disconnect from the slug id
           removeStatusEffect('slither'); combat.messageQueue = [];
@@ -313,7 +318,7 @@ module.exports = {
           if (!firedWhenConnected) return 'slither did not fire under the correct id';
           return 'ok';
         } finally {
-          Math.random = _r; removeStatusEffect('slither');
+          Math.random = _r; MUDSLITHER_INFLICTABLE = false; removeStatusEffect('slither');
           combat.active = false; combat.enemy = null; combat.messageQueue = [];
         }
       })()

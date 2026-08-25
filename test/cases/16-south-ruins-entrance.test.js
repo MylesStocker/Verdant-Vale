@@ -106,13 +106,15 @@ module.exports = {
 
     g.run(`
       inDungeonEntrance = true; inDungeon = false; activeMap = DUNGEON_ENTRANCE_MAP;
-      player.x = 5.5*TILE; player.y = 10.5*TILE; player.facing = 'down'; // Rovan's position
+      player.x = 8.5*TILE; player.y = 2.5*TILE; player.facing = 'down'; // Rovan's position — now at the foot of the stairs
     ; __reconcileCanonicalForTest();`);
     assert.equal(g.run('dialogue.open'), false, 'precondition: no dialogue open yet');
     g.press('Enter');
     assert.equal(g.run('dialogue.open'), true, 'interacting near Rovan should open dialogue');
     assert.equal(g.run('dialogue.name'), 'Rovan');
-    assert.ok(g.run('dialogue.pages[0][0]').includes(playerName), `Rovan's opening line should greet the player by name (${playerName})`);
+    assert.ok(g.run('dialogue.pages[0].join(" ")').includes(playerName), `Rovan's opening exchange should greet the player by name (${playerName})`);
+    // His stairs-side dialogue is a plain "not yet, turn back" warning.
+    assert.match(g.run('JSON.stringify(dialogue.pages)'), /not yet|kill you|come back/, 'Rovan warns the player off descending unprepared');
     g.run('dialogue.open = false;');
 
     g.run(`

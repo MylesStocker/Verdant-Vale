@@ -275,6 +275,15 @@ function getDebugWarpDestinations() {
   return all;
 }
 
+// Player-facing warp destinations (the Warp Stone reward). A curated subset of
+// the full catalog: towns and outdoor/overworld only — never interiors, dungeon
+// floors, or special maps — and never the disabled scenery/water chunks the debug
+// menu greys out. Same destination objects, so debugWarpToDestination() handles
+// them unchanged.
+function getPlayerWarpDestinations() {
+  return getDebugWarpDestinations().filter((d) => (d.category === 'town' || d.category === 'outdoor') && !d.disabled);
+}
+
 function debugDestinationById(destinationId) {
   if (!_debugWarpByIdCache) getDebugWarpDestinations();
   return _debugWarpByIdCache.has(destinationId) ? _debugWarpByIdCache.get(destinationId) : null;
@@ -373,6 +382,7 @@ if (typeof window !== 'undefined') {
   window.DEBUG_WARP_CATEGORY_ORDER    = DEBUG_WARP_CATEGORY_ORDER;
   window.DEBUG_WARP_DESTINATIONS_AUTHORED = DEBUG_WARP_DESTINATIONS_AUTHORED;
   window.getDebugWarpDestinations     = getDebugWarpDestinations;
+  window.getPlayerWarpDestinations    = getPlayerWarpDestinations;
   window.debugDestinationById         = debugDestinationById;
   window.debugWarpToDestination       = debugWarpToDestination;
 }

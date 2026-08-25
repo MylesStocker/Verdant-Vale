@@ -777,9 +777,13 @@ function interactTownOutdoor() {
             ['\u201cI always forgot he could do that.\u201d',
              'She looks up.',
              '\u201cThank you. For carrying these. You didn\u2019t have to.\u201d'],
+            ['She presses two small vials into your hands before you can refuse.',
+             '\u201cElixirs. For the road \u2014 you\u2019ve carried enough of ours.\u201d',
+             'Got 2 Elixirs.'],
           ];
           dialogue.callbacks = [function() {
-            stats.gold += 25;
+            grantItem('Elixir');
+            grantItem('Elixir');
             drama_stage = 5;
             syncQuestFlagsToWindow();
           }];

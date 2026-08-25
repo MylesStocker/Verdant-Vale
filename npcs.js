@@ -62,7 +62,7 @@ const SHARED_NPCS = [
       if (MainQuest >= 2) {
         pages.push([
           '\u201cDrenwick is a bit of a hike. Not too bad as long as you like fen scenery.\u201d',
-          '\u201cTo get to other towns you either need a boat or to cross the causeway.\u201d',
+          '\u201cTo get to other towns you need a boat \u2014 or you\u2019d take the causeway, except it\u2019s out. The drought dropped its whole middle span into the lake.\u201d',
           '\u201cThey still let you walk into folks\u2019 houses over there.\u201d',
           '\u201cThey\u2019re still fen people.\u201d',
         ]);
@@ -1758,6 +1758,9 @@ const SHARED_NPCS = [
         ['\u201cThe canal will outlast all of us.\u201d',
          '\u201cThe Empire built it to last and then made sure someone was always patching it.\u201d',
          '\u201cThat\u2019s the only real trick to keeping anything running. Someone has to care enough to keep patching.\u201d'],
+        ['\u201cThe east causeway, now \u2014 that\u2019s been out since the water dropped. Whole middle span sat down into the lake.\u201d',
+         '\u201cThe canal gets patched because the Empire needs its barges. A country road east just\u2026 waits. Years, if it likes.\u201d',
+         '\u201cSo it\u2019s boats again for anyone headed that way. They\u2019ll mend the road the day it finally costs someone important a morning \u2014 not before.\u201d'],
       ];
       // Occasional: a comfortable retiree who could pay for real care — a quiet
       // reminder that in the Empire good treatment is a thing you buy.
@@ -2273,6 +2276,16 @@ const INN_TABLES = [
 
 // Separate handle for the reserved table so handleInteract can reference it.
 const RESERVED_TABLE  = { x: 8.5 * TILE, y: 7.5 * TILE };
+
+// ─── Smuggler's Fort crates ─────────────────────────────────────────────────────
+// The contraband Essa points to ("Him — over by the crates."). A short stack
+// against the west wall, right beside Polwick (col 7 row 4). Drawn as overlay
+// furniture (drawFortCrates, render-interiors.js) and made solid via canWalk()
+// like INN_TABLES — no tile changes.
+const FORT_CRATES = [
+  { x: 5.5 * TILE, y: 4.5 * TILE },  // col 5 row 4 — against the west wall
+  { x: 6.5 * TILE, y: 4.5 * TILE },  // col 6 row 4 — directly left of Polwick
+];
 
 // ─── House Doors ──────────────────────────────────────────────────────────────
 // Each entry maps a HOUSE_DOOR tile on a specific map to a unique house ID.

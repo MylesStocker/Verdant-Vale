@@ -545,6 +545,126 @@ window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 // The renderer (drawMenu(), render-ui.js) owns only layout/scrolling; all
 // quest-state conditions, objective text, and the special-item description
 // table live here so rendering doesn't reach into quest-domain logic.
+// One-line notebook descriptions for quest-flagged (questItem) inventory. Shown
+// in the SPECIAL ITEMS list AND used as the default inspect text (see
+// getSpecialItemInspectPages) for any item without richer read-content below.
+const SPECIAL_ITEM_NOTES = {
+  'Warp Stone':         'A dark, warm reservoir-stone. Inspect it to travel.',
+  'Letter from Netto':  'A letter from home. Inspect it to read it.',
+  'Dispatch Letter':    "Routine correspondence for the Drenwick district office.",
+  'Sealed Letter':      'A redacted transit authorization, fished from the canal. Sender unknown.',
+  'Mushroom Wine':      "Wend's brew, from the fen settlements.",
+  'Schilling':          "Pip's teddy bear. He's waiting for it back.",
+  'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
+  'Old Fishing Rod':    'A battered rod found in an abandoned Drenwick apartment. The worst rod there is — but it casts. Needed to fish the Drenwick waterfront.',
+  'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
+  'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
+  'Thank-You Note':          "From Sael. Fenna will want to see this.",
+  'Old Engagement Ring':     'The Supervisor asked for this back for personal reasons.',
+  'Stashed Gem':             "Polwick's share from an old smuggling job.",
+};
+
+// Rich, multi-page "read" content for special items whose whole point is their
+// text — letters especially. Inspecting one of these in the notebook reads the
+// full thing instead of showing the one-line note. Each entry is a function
+// returning an array of pages (lazy so stats.name resolves at read time); each
+// page is an array of lines (pre-wrapped for the narrow menu box).
+const SPECIAL_ITEM_READS = {
+  'Letter from Netto': () => [
+    ['You unfold the letter. A Halcyra postmark, and your brother Netto’s',
+     'careful hand.'],
+    [stats.name + ' —',
+     'Hope this reaches you. Post from the capital',
+     'has been slow — they’ve reorganised the',
+     'sorting office again. Third time this fiscal',
+     'year. Someone on the floor calls it an',
+     'efficiency measure. I don’t question those.'],
+    ['I’m doing well enough. Work is fine.',
+     'They moved me to correspondence review',
+     'last month, which means I now spend the',
+     'day reading other people’s letters and',
+     'deciding whether to forward them.',
+     'I’m aware of the irony in writing to you',
+     'to tell you this.'],
+    ['Stepdad’s knees are the same.',
+     'He says “managing.”',
+     'He has been saying “managing” since at',
+     'least the year you left, possibly longer.',
+     'I’ve started to think “managing” is just',
+     'the word knees use for themselves now.'],
+    ['He’s still going in to the depot three',
+     'days a week. They don’t technically need',
+     'him anymore but no one has said so to',
+     'his face, and he seems content.',
+     'He sends his regards. He also asks you',
+     'to eat properly. He said to include that',
+     'twice. I’ve included it once and will',
+     'exercise my editorial discretion on the second.'],
+    ['The weather here has been mild.',
+     'We had four consecutive days of light rain',
+     'last week, which people in the capital',
+     'discussed with the energy usually reserved',
+     'for festivals. I attended a gathering where',
+     'the main topic was whether this year’s rain',
+     'was heavier than last year’s rain.',
+     'No consensus was reached. We stayed anyway.'],
+    ['I’m about three quarters of the way through',
+     'The Practical Administrator’s Guide to',
+     'Maritime Grain Accounting, which I know',
+     'sounds tedious and mostly is, but chapter',
+     'four — moisture variance in coastal storage',
+     '— kept me reading past the second bell.',
+     'Twice. Chapter five is about forms.',
+     'There are eight forms.',
+     'I have not forgiven chapter five.'],
+    ['The other book everyone here is reading is',
+     'A Season in the Provinces.',
+     'It’s a novel about a man from Halcyra who',
+     'takes an administrative posting in a quiet',
+     'rural town and finds it peaceful and slightly',
+     'dull. It was a bestseller last spring.',
+     'I cannot explain why it appealed to people',
+     'in the capital. No one I’ve asked can either.'],
+    ['Joke from the office: why did the census',
+     'clerk sit outside? He wanted to count',
+     'fresh air. I told this to Henris from',
+     'Processing. He nodded once.',
+     'I’m choosing to interpret that as laughter.',
+     'Another one: what do you call a grain',
+     'inspector who also reads poetry?',
+     'Optimistic. Henris nodded at that one too.',
+     'He is a man of measured enthusiasm.'],
+    ['Write when you get a chance. Or don’t —',
+     'I know how postings go. Things get busy,',
+     'then they get quiet, and sometimes you',
+     'forget what day it is.',
+     'That’s fine.',
+     'Stay warm. Eat properly.',
+     '(That one’s from me, not stepdad.',
+     'I’ve absorbed it by now.)',
+     '— Netto'],
+  ],
+};
+
+// The pages shown when a special item is inspected in the notebook: the full
+// read for letter-like items, otherwise a single page carrying its one-line note.
+function getSpecialItemInspectPages(name) {
+  const read = SPECIAL_ITEM_READS[name];
+  if (read) return read();
+  return [[SPECIAL_ITEM_NOTES[name] || 'A quest item.']];
+}
+
+// A few special items DO something when inspected instead of just reading — e.g.
+// the Warp Stone opens the player warp menu. Maps item name -> an action id the
+// notebook input handler dispatches (input.js). Items without an action fall
+// back to getSpecialItemInspectPages().
+const SPECIAL_ITEM_INSPECT_ACTIONS = {
+  'Warp Stone': 'warp',
+};
+function getSpecialItemInspectAction(name) {
+  return SPECIAL_ITEM_INSPECT_ACTIONS[name] || null;
+}
+
 // Pure: reads quest flags / stats.items / day but mutates nothing.
 function getActiveQuestNotes() {
   const notes = [];
@@ -660,21 +780,8 @@ function getActiveQuestNotes() {
 
   // Special Items — quest-flagged items (stats.items with questItem: true)
   // get their own section here so they don't just blend into the regular
-  // ITEMS list above with everything else being carried.
-  const specialItemNotes = {
-    'Letter from Netto':  'A letter from home.',
-    'Dispatch Letter':    "Routine correspondence for the Drenwick district office.",
-    'Sealed Letter':      'A redacted transit authorization, fished from the canal. Sender unknown.',
-    'Mushroom Wine':      "Wend's brew, from the fen settlements.",
-    'Schilling':          "Pip's teddy bear. He's waiting for it back.",
-    'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
-    'Old Fishing Rod':    'A battered rod found in an abandoned Drenwick apartment. The worst rod there is — but it casts. Needed to fish the Drenwick waterfront.',
-    'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
-    'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
-    'Thank-You Note':          "From Sael. Fenna will want to see this.",
-    'Old Engagement Ring':     'The Supervisor asked for this back for personal reasons.',
-    'Stashed Gem':             "Polwick's share from an old smuggling job.",
-  };
+  // ITEMS list above with everything else being carried. Descriptions live in
+  // the module-scope SPECIAL_ITEM_NOTES table (shared with the inspect reader).
   const seenSpecial = new Set();
   const lighthouseItemNames = new Set(Object.values(LIGHTHOUSE_OBJECTIVE_BY_ROUTE));
   const specialItems = stats.items.filter(function (it) {
@@ -688,13 +795,15 @@ function getActiveQuestNotes() {
   if (specialItems.length > 0) {
     notes.push({ header: 'SPECIAL ITEMS' });
     specialItems.forEach(it => {
-      notes.push({ title: it.name, body: specialItemNotes[it.name] || 'A quest item.' });
+      notes.push({ title: it.name, body: SPECIAL_ITEM_NOTES[it.name] || 'A quest item.' });
     });
   }
 
   return notes;
 }
 window.getActiveQuestNotes = getActiveQuestNotes;
+window.getSpecialItemInspectPages = getSpecialItemInspectPages;
+window.getSpecialItemInspectAction = getSpecialItemInspectAction;
 window.LIGHTHOUSE_QUEST_STAGE = LIGHTHOUSE_QUEST_STAGE;
 window.LIGHTHOUSE_OBJECTIVE_BY_ROUTE = LIGHTHOUSE_OBJECTIVE_BY_ROUTE;
 window.polwickLighthouseOutcome = polwickLighthouseOutcome;

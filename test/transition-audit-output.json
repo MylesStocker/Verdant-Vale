@@ -996,7 +996,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"

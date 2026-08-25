@@ -1646,6 +1646,28 @@ function drawDrenwickOfficeFurniture() {
   }
 }
 
+// ─── Smuggler's Fort crates ───────────────────────────────────────────────────
+// The contraband stack beside Polwick (FORT_CRATES, npcs.js) that Essa points
+// the player to. Same crate art as the Drenwick office / provision-store stacks,
+// drawn per tile. Solidity is handled in canWalk() (movement.js).
+function drawFortCrates() {
+  if (!inSmugglerFort) return;
+  for (const c of FORT_CRATES) {
+    const bx = Math.round(c.x - TILE / 2);
+    const by = Math.round(c.y - TILE / 2);
+    ctx.fillStyle = '#7a5230';                              // crate body
+    ctx.fillRect(bx + 2, by + 4, TILE - 4, TILE - 6);
+    ctx.fillStyle = '#8a6240';                              // crate top
+    ctx.fillRect(bx + 2, by + 4, TILE - 4, 5);
+    ctx.fillStyle = '#5a3820';                              // slat lines
+    ctx.fillRect(bx + 2, by + 12, TILE - 4, 1);
+    ctx.fillRect(bx + 2, by + 20, TILE - 4, 1);
+    ctx.fillStyle = '#888';                                 // corner braces
+    ctx.fillRect(bx + 2, by + 4, 2, TILE - 6);
+    ctx.fillRect(bx + TILE - 4, by + 4, 2, TILE - 6);
+  }
+}
+
 // ─── Office Furniture Drawing ─────────────────────────────────────────────────
 function drawOfficeFurniture() {
   if (!inTown || townBuilding !== 'office' || currentTownId !== 'calwick') return;

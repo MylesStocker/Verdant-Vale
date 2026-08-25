@@ -85,8 +85,33 @@ window.addEventListener('keydown', e => {
           }
         } else if (menu.screen === 'notebook') {
           // ── Notebook navigation ─────────────────────────────────────────
-          if (e.key === 'ArrowUp'   || e.key === 'w') menu.notebookOffset = Math.max(0, menu.notebookOffset - 1);
-          if (e.key === 'ArrowDown' || e.key === 's') menu.notebookOffset++;
+          // A cursor moves over every row (so quest notes still scroll into
+          // view); rows in the SPECIAL ITEMS section are inspectable — ENTER
+          // opens the item's read (its description, or the full letter).
+          const nbNotes = (typeof getActiveQuestNotes === 'function') ? getActiveQuestNotes() : [];
+          const nbSpecialStart = nbNotes.findIndex(n => n.header === 'SPECIAL ITEMS');
+          const isInspectable = (i) => nbSpecialStart >= 0 && i > nbSpecialStart && !nbNotes[i].header;
+          if (e.key === 'ArrowUp'   || e.key === 'w') menu.notebookCursor = Math.max(0, menu.notebookCursor - 1);
+          if (e.key === 'ArrowDown' || e.key === 's') menu.notebookCursor = Math.min(Math.max(0, nbNotes.length - 1), menu.notebookCursor + 1);
+          if ((e.key === ' ' || e.key === 'Enter') && isInspectable(menu.notebookCursor)) {
+            e.preventDefault();
+            const it = nbNotes[menu.notebookCursor];
+            menu.open = false; menu.screen = 'main';
+            // Some special items DO something on inspect (e.g. the Warp Stone
+            // opens the warp menu); the rest just read (their description/letter).
+            const action = (typeof getSpecialItemInspectAction === 'function') ? getSpecialItemInspectAction(it.title) : null;
+            if (action === 'warp') {
+              warpMenu.open         = true;
+              warpMenu.mode         = 'list';
+              warpMenu.cursor       = 0;
+              warpMenu.scrollOffset = 0;
+              warpMenu.playerMode   = true;    // curated destinations, direct warp
+              warpMenu.destinations = (typeof getPlayerWarpDestinations === 'function')
+                ? getPlayerWarpDestinations() : getDebugWarpDestinations();
+            } else {
+              openDialogue(it.title, getSpecialItemInspectPages(it.title));
+            }
+          }
           if (e.key === 'Escape' || e.key === 'm' || e.key === 'M' || e.key === 'b' || e.key === 'B') {
             e.preventDefault(); menu.screen = 'main';
           }
@@ -137,7 +162,7 @@ window.addEventListener('keydown', e => {
               menu.screen = 'loadConfirm'; menu.loadCursor = 0;
             }
           }
-          if (e.key === 'n' || e.key === 'N') { e.preventDefault(); menu.screen = 'notebook'; menu.notebookOffset = 0; }
+          if (e.key === 'n' || e.key === 'N') { e.preventDefault(); menu.screen = 'notebook'; menu.notebookOffset = 0; menu.notebookCursor = 0; }
           if (e.key === 'm' || e.key === 'M' || e.key === 'Escape') { e.preventDefault(); toggleMenu(); }
         }
       } else if (choice.open) {
@@ -244,6 +269,7 @@ window.addEventListener('keydown', e => {
             warpMenu.mode         = 'list';
             warpMenu.cursor       = 0;
             warpMenu.scrollOffset = 0;
+            warpMenu.playerMode   = false;   // full debug catalog + coord picker
             warpMenu.destinations = getDebugWarpDestinations();
           } else if (debugMenu.cursor === 7) {
             // Validate Data — runs the content linter (validation.js) and
@@ -288,10 +314,19 @@ window.addEventListener('keydown', e => {
               // nudged to the nearest walkable tile on ITS map if needed.
               const targetMap = (typeof mapRefForId === 'function') ? mapRefForId(dest.mapId) : null;
               const centre = targetMap ? debugFindNearestWalkableTile(targetMap, dest.defaultCol, dest.defaultRow) : null;
-              warpMenu.targetDestId = dest.id;
-              warpMenu.targetCol    = centre ? centre.col : dest.defaultCol;
-              warpMenu.targetRow    = centre ? centre.row : dest.defaultRow;
-              warpMenu.mode         = 'coord';
+              const dCol = centre ? centre.col : dest.defaultCol;
+              const dRow = centre ? centre.row : dest.defaultRow;
+              if (warpMenu.playerMode) {
+                // Player Warp Stone: no tile-picker — warp straight to the landing.
+                const result = debugWarpToDestination(dest.id, dCol, dRow);
+                showWorldToast(result.success ? ('Warped to ' + dest.label + '.') : result.message);
+                if (result.success) warpMenu.open = false;
+              } else {
+                warpMenu.targetDestId = dest.id;
+                warpMenu.targetCol    = dCol;
+                warpMenu.targetRow    = dRow;
+                warpMenu.mode         = 'coord';
+              }
             } else if (dest && dest.disabled) {
               showWorldToast('Disabled: ' + (dest.disabledReason || 'unsupported location'));
             }

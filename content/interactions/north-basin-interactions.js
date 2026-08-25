@@ -601,6 +601,28 @@ const NORTH_BASIN_MAP_FEATURES = {
       ],
     },
   ],
+
+  // ── The broken causeway (East Causeway) ─────────────────────────────────────
+  // The eastbound road runs out where the drought heaved its middle span into the
+  // lake. One examinable at the end of the walkable stone (col 10 row 8), facing
+  // the water gap. Grounded explanation, with a wry last page that lampshades the
+  // classic RPG "broken bridge" — the one road out, conveniently impassable, that
+  // everyone assures you will be fixed later. Oswin (Calwick) and Veran (Drenwick)
+  // mention it in dialogue.
+  EAST_CAUSEWAY_MAP: [
+    {
+      id: 'east_causeway_break', type: 'inspect', x: 10.5, y: 8.5, radius: 44, allowUnwalkable: true,
+      label: 'The broken causeway',
+      pages: [
+        ['The maintained road gives out under your boots — dressed kerbstone, then heaved mud, then a few broken slabs tilting down into the water, and then only water.',
+         'The causeway picks up again on the far bank. You can see it plainly, a good bowshot off across open lake. There is no reaching it from here.'],
+        ['This was a real road once; the kerbs are still squared and set. The drought that emptied the reservoir heaved the causeway’s footings and dropped its whole middle span into the lake.',
+         'Someone drove a warning stake at the last firm slab and went home. No boat. No ferry. No repair crew. The district has not come.'],
+        ['One road east out of the valley — and it’s washed out at exactly the span you need to cross, in exactly the season you need to cross it.',
+         'You have the oddest feeling you were always going to arrive and find it like this. Come back when there’s a way over. In a place like this there always turns out to be one, given long enough.'],
+      ],
+    },
+  ],
 };
 
 // Split out of the former interactWildsAndOutposts() by the regional-content-split;

@@ -72,10 +72,15 @@ function drawActiveMapContent() {
   if (inMireVault) drawMireVaultPillars();
   if (inDungeonEntrance) drawSouthRuinsEntranceDecor();
   if (inTakomo && !TAKOMO.defeated) drawTakomo();
+  if (inSmugglerFort) drawFortCrates();
   if (inSunkenGallery) drawSunkenGalleryFeatures();
   if (inSunkenGallery && activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened) drawChest(SUNKEN_GALLERY_CHEST);
   if (inTown) drawSupervisorSprite();
   if (inTown) drawEslaSprite();
+  // The infirmary furniture opens with an opaque full-floor palette overlay, so
+  // (like the office/school furniture above) it MUST draw BEFORE the NPCs — else
+  // it paints over Merrin, Fisk, Odger and Esla and the ward reads as empty.
+  if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
   drawSimpleNPCs();
   if (inDungeon && dungeonFloor === 4 && !MULHOLLAND.defeated) drawMulholland();
   if (inDungeon && dungeonFloor === 5)   drawBoss();
@@ -104,7 +109,6 @@ function drawActiveMapContent() {
   if (inWrennaCottage)                               drawWrennaCottageFurniture();
   if (inTown && townBuilding === 'harbormaster')      drawHarbormasterFurniture();
   if (inTown && townBuilding === 'wash_house')        drawWashHouseFurniture();
-  if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
   if (inTown && townBuilding === 'provision_store')   drawProvisionStoreFurniture();
   if (inTown && townBuilding === 'guild_hall')        drawGuildHallFurniture();
   if (inSluice) drawSluiceGateHint();

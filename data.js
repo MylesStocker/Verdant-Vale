@@ -384,6 +384,17 @@ const DUNGEON7_ITEMS = [
 const DUNGEON8_ITEMS = [
   { id: 'pickup_dungeon8_a', name: 'Elixir', type: 'potion', heals: 50, price: 80, x:  2.5 * TILE, y: 6.5 * TILE, picked: false },
   { id: 'pickup_dungeon8_b', name: 'Elixir', type: 'potion', heals: 50, price: 80, x: 13.5 * TILE, y: 7.5 * TILE, picked: false },
+  // The best shield in the game, at the very bottom of the ruins: set upright in
+  // the dead-end south chamber (col 7 row 13). An examine sparkle (not an auto-
+  // pickup) so it gets its own flavour on the way into your pack.
+  { id: 'pickup_dungeon8_resonant_targe', name: 'Resonant Targe', type: 'shield', bonus: 8, price: 180,
+    x: 7.5 * TILE, y: 13.5 * TILE, picked: false, examine: true,
+    examinePages: [
+      ['Set upright against the far wall, bone-dry in all this wet: a round shield of dark metal, its face worked with a spiral that seems to turn a little whenever you look away from it.'],
+      ['It is warm under your hand. Faintly, through the palm, it hums — the same low note the deep water almost makes down here and never quite finishes.',
+       'Whoever set it down did it facing the dark, squared up, as if it were still standing watch.'],
+      ['Got Resonant Targe. The hum settles into your arm and stays there, like it has decided to keep you.'],
+    ] },
 ];
 
 const DUNGEON8_WEST_ITEMS = [
@@ -491,9 +502,10 @@ const CAT_ARMOR_CHEST = {
 };
 
 // ─── Hidden meadow chest (MEADOW_MAP col 12 row 2) ────────────────────────────
-// Holds the game's one curse-cure consumable. Deliberately NOT subject to the
-// cursed-fumble chest gag the dungeon chests have — a cursed player is exactly
-// who needs this chest. Opened flag persists via save.js (meadowChestOpened).
+// Holds a curse-cure consumable (Amethyst Dust; the floor-1 alcove chest holds
+// another). Deliberately NOT subject to the cursed-fumble chest gag the dungeon
+// chests have — a cursed player is exactly who needs this chest, and this one is
+// the reliably reachable source. Opened flag persists via save.js (meadowChestOpened).
 const MEADOW_CHEST = {
   id:     'chest_meadow',
   x:      12.5 * TILE,
@@ -514,7 +526,7 @@ const DUNGEON_ALCOVE_CHEST = {
   x:       0.5 * TILE,
   y:       7.5 * TILE,
   opened: false,
-  item:   { name: 'Iron Targe', type: 'shield', bonus: 8, price: 180 },
+  item:   { name: 'Amethyst Dust', type: 'potion', heals: 0, curesCursed: true, price: 60 },
 };
 
 // ─── Sluice level-3 deep chest ────────────────────────────────────────────────
@@ -1317,13 +1329,16 @@ for (const cell of window.SUNKEN_GALLERY_GRID_CELLS) {
     notes: 'One of the 24 blank rooms of the Sunken Gallery 5×5 grid (maps.js). GALLERY_FLOOR/GALLERY_WALL only, no other elements yet. Joined to its neighbours by EDGE_TRANSITIONS; shares the entrance hall’s encounter pool and allowSave: false.',
   };
 }
-// The far-corner room (R0C4, diagonally opposite the entrance at R4C0) is the one
-// otherwise-empty gallery room that holds a single trap-potion sparkle — examining
-// it springs the scripted Mimic Potion fight (see content/maps/north-basin-maps.js
-// and combat.js). Targeted override of the generic blank-room record above; runs
-// BEFORE the pickup registry is built below, so the sparkle registers normally.
-MAP_CATALOG['SUNKEN_GALLERY_R0C4'].items = SUNKEN_GALLERY_MIMIC_ITEMS;
-MAP_CATALOG['SUNKEN_GALLERY_R0C4'].notes = 'The distant far-corner room of the Sunken Gallery 5×5 grid (maps.js), diagonally opposite the entrance. Otherwise blank GALLERY_FLOOR/GALLERY_WALL, but holds one examine-only trap-potion sparkle (mid-room) that springs the scripted Mimic Potion fight. Shares the entrance hall’s encounter pool and allowSave: false.';
+// A blank far-corner room holds the single trap-potion sparkle — examining it
+// springs the scripted Mimic Potion fight (see content/maps/north-basin-maps.js
+// and combat.js). It lives in R0C3 (top row, one room in from the R0C4 corner):
+// R0C4 itself carries the submerged-stair inspect, and the trap must be the ONLY
+// sparkle in its room so it can't be mistaken for a real find. R0C3 is otherwise
+// blank GALLERY_FLOOR/GALLERY_WALL. Targeted override of the generic blank-room
+// record above; runs BEFORE the pickup registry is built below, so the sparkle
+// registers normally.
+MAP_CATALOG['SUNKEN_GALLERY_R0C3'].items = SUNKEN_GALLERY_MIMIC_ITEMS;
+MAP_CATALOG['SUNKEN_GALLERY_R0C3'].notes = 'A blank room near the far corner of the Sunken Gallery 5×5 grid (maps.js), top row one in from the R0C4 corner. No inspect features of its own — it holds only one examine-only trap-potion sparkle (mid-room) that springs the scripted Mimic Potion fight, deliberately the sole sparkle in the room. Shares the entrance hall’s encounter pool and allowSave: false.';
 window.MAP_CATALOG = MAP_CATALOG;
 
 // ─── Derived compatibility views + canonical helpers ─────────────────────────

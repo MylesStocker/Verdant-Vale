@@ -252,7 +252,7 @@ function itemStatLabel(item) {
   // reveal which status an item cures (a character can mention it instead).
   if (isStatusCureItem(item))                      return '';
   if (item.type === 'buff' && item.evadeRate)      return `Evade ${Math.round(item.evadeRate * 100)}% \u00b7 ${item.evadeTurns}t`;
-  if (item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
+  if (MUDSLITHER_INFLICTABLE && item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
   if (item.questItem && item.type === 'potion')    return `HP  +${item.heals} \u2022 quest`;
   if (item.type === 'weapon')    return `ATK +${item.bonus}`;
   if (item.type === 'armor')     return `DEF +${item.bonus}`;
@@ -855,15 +855,15 @@ function combatOptions() {
 // Status-effect side-effects applied whenever an enemy lands a hit.
 // Extracted from inside handleCombatAction so the Observe path can reuse it.
 function applyEnemyHitEffects() {
-  if (combat.isWarden && !hasStatusEffect('muddied') && Math.random() < 0.30) {
+  if (MUDSLITHER_INFLICTABLE && combat.isWarden && !hasStatusEffect('muddied') && Math.random() < 0.30) {
     addStatusEffect('muddied');
     combat.messageQueue.unshift('The Warden\u2019s blow leaves you fouled with marsh muck. Muddied! (DEF\u22121, SPD\u22122)');
   }
-  if (combat.enemy && combat.enemy.id === 'enemy_corpse_slug' && !hasStatusEffect('slither') && Math.random() < 0.30) {
+  if (MUDSLITHER_INFLICTABLE && combat.enemy && combat.enemy.id === 'enemy_corpse_slug' && !hasStatusEffect('slither') && Math.random() < 0.30) {
     triggerSlither();
     combat.messageQueue.unshift('The slug\u2019s slime soaks in. Slithered! (SPD randomized each turn)');
   }
-  if (combat.enemy && combat.enemy.id === 'enemy_shade_wraith' && !hasStatusEffect('slither') && Math.random() < 0.25) {
+  if (MUDSLITHER_INFLICTABLE && combat.enemy && combat.enemy.id === 'enemy_shade_wraith' && !hasStatusEffect('slither') && Math.random() < 0.25) {
     triggerSlither();
     combat.messageQueue.unshift('The wraith\u2019s touch scrambles your footing. Slithered! (SPD randomized each turn)');
   }
@@ -1078,7 +1078,7 @@ const ENEMY_OBSERVATIONS = {
   enemy_shade_wraith: [
     { lines: ['Very fast. Hits hard. Fragile.', 'It will almost always strike first.', 'A quick kill is your best option.'] },
     { lines: ['It doesn\u2019t have a fixed form. It\u2019s using the shape because it\u2019s useful.', 'It notices you watching.'] },
-    { lines: ['The slithering effect it triggers isn\u2019t a weapon in the usual sense.', 'It\u2019s closer to contamination.', 'The footing problem lingers after it\u2019s gone.'] },
+    { lines: MUDSLITHER_INFLICTABLE ? ['The slithering effect it triggers isn’t a weapon in the usual sense.', 'It’s closer to contamination.', 'The footing problem lingers after it’s gone.'] : ['Whatever it’s made of doesn’t hold still, even when it isn’t moving.', 'Look at it too long and your eyes want to slide off it.', 'It is easier to fight than to keep watching.'] },
   ],
   // ── Dungeon floors 2–5 ─────────────────────────────────────────────────────
   enemy_crypt_fiend: [
@@ -1227,7 +1227,7 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['She\u2019s not fighting to win. She\u2019s fighting because stopping feels worse.', 'You understand that.', 'End it before either of you has to think about it further.'] },
   ],
   enemy_briar_warden: [
-    { lines: ['Durable. Strong. Moderate speed.', 'It will Muddy you if it connects \u2014 that penalty stacks badly.', 'Avoid taking hits. Easier said.'] },
+    { lines: ['Durable. Strong. Moderate speed.', MUDSLITHER_INFLICTABLE ? 'It will Muddy you if it connects — that penalty stacks badly.' : 'It trades blows better than you do — you will lose an exchange of hits.', 'Avoid taking hits. Easier said.'] },
     { lines: ['It grew out of the fen ecology, not into it.', 'The briars are structural. It doesn\u2019t stop growing.'] },
     { lines: ['It doesn\u2019t consider this a conflict.', 'You are an obstacle in its territory.', 'It is responding to an obstacle.'] },
   ],
@@ -1631,10 +1631,11 @@ function handleCombatAction() {
       } else {
         const healed = Math.min(item.heals || 0, stats.maxHp - stats.hp);
         stats.hp += healed;
-        if (item.causesMuddied) addStatusEffect('muddied');
+        const muddies = MUDSLITHER_INFLICTABLE && item.causesMuddied;
+        if (muddies) addStatusEffect('muddied');
         stats.items.splice(stats.items.indexOf(item), 1);
         combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
-        msgs.push(item.causesMuddied
+        msgs.push(muddies
           ? `Used ${item.name} \u2014 restored ${healed} HP. Legs feel heavy.`
           : `Used ${item.name} \u2014 restored ${healed} HP!`);
       }

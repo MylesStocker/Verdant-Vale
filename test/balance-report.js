@@ -366,9 +366,9 @@ const GEAR_TIERS = {
   'T0 unequipped':                { atk: 0,  def: 0,  spd: 0, note: 'before Aldric issues the starting kit' },
   'T1 starting kit':              { atk: 4,  def: 3,  spd: 0, note: 'Iron Sword + Leather Armor (free, day 1)' },
   'T2 + Iron Shield':             { atk: 4,  def: 6,  spd: 0, note: '+ Iron Shield (merchant, 70g)' },
-  'T3 dungeon-1 chest gear':      { atk: 7,  def: 11, spd: 2, note: 'Steel Sword (chest) + Iron Targe (chest) + Swift Bangle (90g)' },
-  'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (chest) + Shadow Cloak (280g) + Iron Targe (chest) + Wraithband (200g)' },
-  'T5 best traveller gear':       { atk: 12, def: 16, spd: 4, note: 'Dragon Blade (350g) + Shadow Cloak (280g) + Iron Targe (chest) + Wraithband (200g)' },
+  'T3 dungeon-1 chest gear':      { atk: 7,  def: 6,  spd: 2, note: 'Steel Sword (chest) + Iron Shield (70g) + Swift Bangle (90g)  — the best shield (Resonant Targe) is no longer a floor-1 chest' },
+  'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (chest) + Shadow Cloak (280g) + Resonant Targe (floor-8 chest) + Wraithband (200g)' },
+  'T5 best traveller gear':       { atk: 12, def: 16, spd: 4, note: 'Dragon Blade (350g) + Shadow Cloak (280g) + Resonant Targe (floor-8 chest) + Wraithband (200g)' },
 };
 
 function playerAt(level, tierName) {
@@ -533,7 +533,7 @@ for (const item of [...MERCHANT_STOCK, ...TRAVELLER_STOCK]) {
 console.log('\n--- Chest/reward gear (free — for comparison against shop gold/point above) ---');
 const CHEST_GEAR = [
   { name: 'Steel Sword',     type: 'weapon',    bonus: 7, price: 150, source: 'Dungeon floor-1 chest' },
-  { name: 'Iron Targe',      type: 'shield',    bonus: 8, price: 180, source: 'Dungeon floor-1 hidden alcove chest' },
+  { name: 'Resonant Targe',  type: 'shield',    bonus: 8, price: 180, source: 'Dungeon floor 8 (The Drowned Chamber), examine sparkle in the dead-end south chamber' },
   { name: 'Warden Blade',    type: 'weapon',    bonus: 10, price: 220, source: 'Sluice secret chest (false wall)' },
   { name: 'Void Shard',      type: 'accessory', bonus: 5, price: 180, source: 'Sluice level-3 chest' },
   { name: 'Fen Mask',        type: 'accessory', bonus: 5, price: 200, source: 'Sluice level-3 deep secret chest' },

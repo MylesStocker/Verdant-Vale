@@ -179,93 +179,11 @@ function supervisorDialogueBody() {
        'He sets it on the edge of the desk.',
        '\u201cPersonal correspondence. Not my department.\u201d'],
 
-      // Letter — salutation + postal complaint
-      [stats.name + ' \u2014',
-       'Hope this reaches you. Post from the capital',
-       'has been slow \u2014 they\u2019ve reorganised the',
-       'sorting office again. Third time this fiscal',
-       'year. Someone on the floor calls it an',
-       'efficiency measure. I don\u2019t question those.'],
-
-      // Letter — Netto himself
-      ['I\u2019m doing well enough. Work is fine.',
-       'They moved me to correspondence review',
-       'last month, which means I now spend the',
-       'day reading other people\u2019s letters and',
-       'deciding whether to forward them.',
-       'I\u2019m aware of the irony in writing to you',
-       'to tell you this.'],
-
-      // Letter — stepdad's knees
-      ['Stepdad\u2019s knees are the same.',
-       'He says \u201cmanaging.\u201d',
-       'He has been saying \u201cmanaging\u201d since at',
-       'least the year you left, possibly longer.',
-       'I\u2019ve started to think \u201cmanaging\u201d is just',
-       'the word knees use for themselves now.'],
-
-      // Letter — stepdad's depot + the eat properly clause
-      ['He\u2019s still going in to the depot three',
-       'days a week. They don\u2019t technically need',
-       'him anymore but no one has said so to',
-       'his face, and he seems content.',
-       'He sends his regards. He also asks you',
-       'to eat properly. He said to include that',
-       'twice. I\u2019ve included it once and will',
-       'exercise my editorial discretion on the second.'],
-
-      // Letter — weather
-      ['The weather here has been mild.',
-       'We had four consecutive days of light rain',
-       'last week, which people in the capital',
-       'discussed with the energy usually reserved',
-       'for festivals. I attended a gathering where',
-       'the main topic was whether this year\u2019s rain',
-       'was heavier than last year\u2019s rain.',
-       'No consensus was reached. We stayed anyway.'],
-
-      // Letter — grain accounting book
-      ['I\u2019m about three quarters of the way through',
-       'The Practical Administrator\u2019s Guide to',
-       'Maritime Grain Accounting, which I know',
-       'sounds tedious and mostly is, but chapter',
-       'four \u2014 moisture variance in coastal storage',
-       '\u2014 kept me reading past the second bell.',
-       'Twice. Chapter five is about forms.',
-       'There are eight forms.',
-       'I have not forgiven chapter five.'],
-
-      // Letter — A Season in the Provinces
-      ['The other book everyone here is reading is',
-       'A Season in the Provinces.',
-       'It\u2019s a novel about a man from Halcyra who',
-       'takes an administrative posting in a quiet',
-       'rural town and finds it peaceful and slightly',
-       'dull. It was a bestseller last spring.',
-       'I cannot explain why it appealed to people',
-       'in the capital. No one I\u2019ve asked can either.'],
-
-      // Letter — jokes + Henris
-      ['Joke from the office: why did the census',
-       'clerk sit outside? He wanted to count',
-       'fresh air. I told this to Henris from',
-       'Processing. He nodded once.',
-       'I\u2019m choosing to interpret that as laughter.',
-       'Another one: what do you call a grain',
-       'inspector who also reads poetry?',
-       'Optimistic. Henris nodded at that one too.',
-       'He is a man of measured enthusiasm.'],
-
-      // Letter — sign-off
-      ['Write when you get a chance. Or don\u2019t \u2014',
-       'I know how postings go. Things get busy,',
-       'then they get quiet, and sometimes you',
-       'forget what day it is.',
-       'That\u2019s fine.',
-       'Stay warm. Eat properly.',
-       '(That one\u2019s from me, not stepdad.',
-       'I\u2019ve absorbed it by now.)',
-       '\u2014 Netto'],
+      // Taken as an item - the letter itself is read later from the Notebook
+      ['You pocket the letter, the Halcyra postmark creased soft from the road.',
+       'You can read it whenever you like: open the menu, press N for your',
+       'Notebook, select the letter, and inspect it.',
+       'Got Letter from Netto.'],
     ];
     dialogue.callbacks = [function () {
       netto_letter_received = true;
@@ -700,16 +618,18 @@ function reportBasinFindings() {
   // Four tiers, four different rewards, on the same clue-count thresholds the
   // closing assessment uses: nothing (0), thin (1-2), serviceable (3-5), and
   // thorough (6-8). The district pays field rate directly on a report this size;
-  // the top tier also carries a piece of commendation gear off the hazard line.
+  // the top tier also carries a rare commendation item (the Warp Stone) off the
+  // hazard line.
   let rewardGold, rewardItem;
   if (clueCount >= 6) {
-    rewardGold = 250; rewardItem = 'Swift Bangle';
+    rewardGold = 250; rewardItem = 'Warp Stone';
     pages.push(['He looks at you a moment longer than is comfortable.',
                 '\u201cYou were thorough. I asked for that and still did not quite expect it.\u201d',
                 '\u201cA good report. I only wish it frightened me less.\u201d']);
     pages.push(['\u201cTwo hundred and fifty gold \u2014 full field rate, and the hazard line on top of it.\u201d',
-                'He sets a small polished stone beside the coin. \u201cAnd this. Commendation issue, not requisition. It answers to your name now.\u201d',
-                'Swift Bangle \u2014 added to items.']);
+                'He sets a small dark stone beside the coin — smooth, and oddly warm to the touch. “And this. It came up out of the reservoir bed with the rest of it. The file claims the rareborn who cut these could step from one place they knew to another.”',
+                '“I put no stock in it. But it answers to your name now — inspect it in your notebook, if you’re curious.”',
+                'Warp Stone — added to items.']);
   } else if (clueCount >= 3) {
     rewardGold = 150; rewardItem = 'Elixir';
     pages.push(['\u201cA serviceable report,\u201d he says. \u201cThere is more down there than you brought me \u2014 there always is \u2014 but it holds together.\u201d']);

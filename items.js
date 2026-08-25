@@ -29,7 +29,7 @@ const ITEM_REGISTRY = {
   // Chest-only items (not sold in any shop)
   'Warden Blade': { name: 'Warden Blade', type: 'weapon',    bonus: 10, price: 220 },
   'Void Shard':   { name: 'Void Shard',   type: 'accessory', bonus:  5, price: 180 },
-  'Iron Targe':   { name: 'Iron Targe',   type: 'shield',    bonus:  8, price: 180 },
+  'Resonant Targe': { name: 'Resonant Targe', type: 'shield',  bonus:  8, price: 180 },
   'Fen Mask':     { name: 'Fen Mask',     type: 'accessory', bonus:  5, price: 200 },
   'Cat Armor':    { name: 'Cat Armor',    type: 'armor',     bonus: 99, price:   0 },
   // Herbalist items
@@ -57,6 +57,10 @@ const ITEM_REGISTRY = {
   // Pure flavor/quest artifact (a voided transit letter fished up) — keyItem so
   // it lives in the Special Items notebook only, never the equip/use list.
   'Sealed Letter': { name: 'Sealed Letter', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  // Warp Stone — the rare reward for the best outcome of the reservoir arc (MQ4).
+  // keyItem so it lives in the Special Items notebook only; inspecting it there
+  // opens the player warp menu (getSpecialItemInspectAction, quests.js).
+  'Warp Stone':    { name: 'Warp Stone',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   // Mirethyst's Vault items (the Mirestone Blade chest was removed — the
   // vault's mid-hall is reserved for a future secret crypt entrance)
   'Fen Cowl':        { name: 'Fen Cowl',        type: 'armor',  bonus: 4, price: 120 },

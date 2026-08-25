@@ -25,7 +25,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // Frozen expectation snapshots (production stays registry-driven).
-const EXPECTED_PICKUP_COUNT = 51;  // +2: examine potion sparkles near Drenwick (grass) and in the Sunken Gallery (ground); +1: Mimic Potion trap sparkle
+const EXPECTED_PICKUP_COUNT = 52;  // +2: examine potion sparkles near Drenwick (grass) and in the Sunken Gallery (ground); +1: Mimic Potion trap sparkle; +1: Resonant Targe examine pickup (dungeon floor 8)
 const EXPECTED_CHEST_COUNT  = 10;
 const EXPECTED_ENEMY_COUNT  = 58;  // +3: lighthouse Marsh Rat, Shallows Skitter, Lantern Moth; +1: Lensweb Spider boss; +1: Mimic Potion
 const CHEST_IDS = [

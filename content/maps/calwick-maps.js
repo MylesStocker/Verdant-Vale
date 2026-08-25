@@ -249,7 +249,7 @@ const MEADOW_MAP = [
 const CALWICK_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'MAP', regionId: 'overworld', chunkX: 0, chunkY: 5, map: [
       [3,3,3,3,3,3,3,43,3,3,3,3,3,3,3,3],  //  0  ← col 7 = NORTH_EXIT
-      [3,93,0,0,0,14,0,2,0,0,3,0,0,0,0,3], //  1  ← col 1 = MEADOW_HIDDEN_ENTRANCE (draws as grass — secret), col 5 = town entrance, col 7 = path (north road)
+      [3,93,0,0,3,14,0,2,0,0,3,0,0,0,0,3], //  1  ← col 1 = MEADOW_HIDDEN_ENTRANCE (draws as grass — secret), col 4 = tree (blocks the west approach so the town entrance is only reachable from the south path and the east grass), col 5 = town entrance, col 7 = path (north road)
       [3,0,0,3,3,2,0,2,0,0,3,3,0,0,0,3],   //  2  ← col 5 = path, col 7 = path (north road)
       [3,0,0,3,3,2,0,2,0,0,3,0,0,0,0,3],   //  3  ← col 5 = path, col 7 = path (north road)
       [3,0,0,0,0,2,2,2,2,2,2,2,2,2,2,39],  //  4  ← col 15 = east world exit, col 7 = crossroads

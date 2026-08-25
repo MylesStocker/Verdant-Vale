@@ -239,6 +239,11 @@ function canWalk(cx, cy) {
   } else if (inSunkenGallery) {
     // The Bullet Time chest is solid until opened (grid room R2C4 only).
     if (activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened && Math.abs(cx - SUNKEN_GALLERY_CHEST.x) < 18 && Math.abs(cy - SUNKEN_GALLERY_CHEST.y) < 18) return false;
+  } else if (inSmugglerFort) {
+    // Contraband crates stacked beside Polwick — solid overlay furniture.
+    for (const c of FORT_CRATES) {
+      if (Math.abs(cx - c.x) < 18 && Math.abs(cy - c.y) < 18) return false;
+    }
   } else if (inLighthouse) {
     const furniture = activeMap === LIGHTHOUSE_GROUND_MAP
       ? [LIGHTHOUSE_TABLE, LIGHTHOUSE_CABINET]
@@ -512,7 +517,7 @@ function update() {
     player.step++;
     if (hasStatusEffect('poison') && player.step % 60 === 0)
       stats.hp = Math.max(1, stats.hp - 1);
-    if (inSluice && !hasStatusEffect('muddied') && Math.random() < 0.003)
+    if (MUDSLITHER_INFLICTABLE && inSluice && !hasStatusEffect('muddied') && Math.random() < 0.003)
       addStatusEffect('muddied');
     if (hasStatusEffect('cursed') && player.step % 80 === 0 && Math.random() < 0.20) {
       const tripDmg = Math.floor(Math.random() * 2) + 2;

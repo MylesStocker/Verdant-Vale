@@ -35,24 +35,29 @@ const SOUTH_RUINS_NPCS = [
   // Lore-only, no quests, no combat. Four people who each know a different
   // piece of why this hall is here, why it's dry right now, and what's below.
   {
+    // Rovan stands right at the foot of the down-stairs (col 8, row 2) \u2014 the last
+    // person the player passes before descending \u2014 because the South Ruins are
+    // reachable from the very start of the game and the floors below are lethal to
+    // a beginner. His whole dialogue is now a plain "not yet, turn back" warning.
     id:         'rovan_ruins',
     name:       'Rovan',
     map:        'dungeon_entrance',
-    x:           5.5 * TILE,
-    y:          10.5 * TILE,
+    x:           8.5 * TILE,
+    y:           2.5 * TILE,
     solid:      true,
     facing:     'down',
     spriteType: 'traveler',
     get dialogue() {
       return [
-        ['\u201c' + stats.name + ', isn\u2019t it?\u201d',
-         'He looks you over once, like he\u2019s confirming something he already suspected.',
-         '\u201cSeen you around the square in Calwick. Didn\u2019t expect to see you all the way out here.\u201d'],
-        ['\u201cWhatever brought you down here, have a look around first. Don\u2019t just walk in.\u201d',
-         '\u201cThis floor\u2019s fine. Empty, mostly dry, nothing living in the walls.\u201d'],
-        ['\u201cBelow that, it\u2019s not fine.\u201d',
-         '\u201cI\u2019ve seen what comes up those stairs when something disturbs it. Big, some of it. Fast, some of it. All of it hungry.\u201d',
-         '\u201cIf you\u2019re going down there, go in ready. Don\u2019t go in curious.\u201d'],
+        ['He plants himself between you and the stairs down.',
+         '\u201cCalwick\u2019s new one. ' + stats.name + ', isn\u2019t it.\u201d',
+         '\u201cThought so. You\u2019ve the look of someone who hasn\u2019t been hit yet.\u201d'],
+        ['\u201cSo hear me before you take one more step down.\u201d',
+         '\u201cThis top floor is nothing \u2014 dry stone, empty rooms. It\u2019s the only kind floor in the whole place.\u201d'],
+        ['\u201cWhat\u2019s below would kill you as you are now, and not quickly. I\u2019ve watched it come up these stairs for people twice your size.\u201d',
+         '\u201cI\u2019m not telling you never. I\u2019m telling you not yet.\u201d'],
+        ['\u201cGo back to the fens. Take the small work, win a few real fights, put better steel on your arm.\u201d',
+         '\u201cThen come back. The ruins will wait \u2014 they\u2019re good at that. The dead down there aren\u2019t going anywhere.\u201d'],
       ];
     },
     flag_required: null,

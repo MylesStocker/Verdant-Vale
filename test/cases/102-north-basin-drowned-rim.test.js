@@ -14,7 +14,7 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 const ID = 'NORTH_BASIN_NW2_MAP';
 const EAST_ID = 'NORTH_BASIN_NW_MAP';
 const SOUTH_ID = 'NORTH_BASIN_W2_MAP';
-const FP = '6bbc842c7e7efdd14cf9f6c23f27312bace33049745672eba636ff1d61b4578a';
+const FP = '40a1205e00f6d6dba6aa1b70de285601211c63c7cb8f9087016d5e4e22ec9da6';
 const EAST_FP = 'cb2c59ab15d4b87c2ce758025b2f6bfd85fe8abae5c34cc1438131c8605edfe8';
 const OLD_EAST_FP = '0105619e109e8dcc3c941724437dd7fd0b6b2208e3507d498046841f6b53d28d';
 const SOUTH_FP = '301000cbf265d3f1bc1efdaf1a0996733be0d0a4d04318518bccf34cb038ed6b';
@@ -80,7 +80,7 @@ module.exports = {
     const counts = { water: 0, treeInWater: 0, tree: 0, reeds: 0, mud: 0, stone: 0 };
     const keys = new Map([[WATER,'water'],[TREE_WATER,'treeInWater'],[TREE,'tree'],[REEDS,'reeds'],[MUD,'mud'],[STONE,'stone']]);
     for (const tile of m.flat()) counts[keys.get(tile)]++;
-    assert.deepEqual(counts, { water: 119, treeInWater: 6, tree: 18, reeds: 42, mud: 52, stone: 3 });
+    assert.deepEqual(counts, { water: 119, treeInWater: 10, tree: 14, reeds: 42, mud: 52, stone: 3 });
     assert.ok(counts.water / 240 >= 0.45 && counts.water / 240 <= 0.55, 'WATER alone covers 49.6% of the map');
     assert.equal(counts.reeds + counts.mud, 94, 'most remaining walkable terrain is mud or reeds');
 

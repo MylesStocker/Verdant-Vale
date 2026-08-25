@@ -82,6 +82,17 @@ let statusEffects = [];  // array of string ids, e.g. ['poison']
 function hasStatusEffect(id)    { return statusEffects.includes(id); }
 function addStatusEffect(id)    { if (!hasStatusEffect(id)) statusEffects.push(id); }
 function removeStatusEffect(id) { statusEffects = statusEffects.filter(s => s !== id); }
+
+// Muddied and Slither are kept in the game — their effects, HUD, trigger
+// functions, and the debug menu all remain — but for now they are intentionally
+// NOT obtainable in normal play: no enemy, item, or terrain inflicts them, and
+// nothing player-facing mentions them, so a new player never learns they exist.
+// The debug menu (triggerMuddied/triggerSlither) still applies them for testing.
+// Flip this to true to re-enable every normal acquisition path at once. (A `let`
+// so focused tests can toggle it to exercise the gated paths; game code never
+// reassigns it, so in normal play it is effectively an off constant.)
+let MUDSLITHER_INFLICTABLE = false;
+
 function triggerPoison()        { addStatusEffect('poison'); }
 function triggerMuddied()       { addStatusEffect('muddied'); }
 // Slither — randomizes player SPD each combat turn; stored between calls so the HUD is stable.
@@ -168,6 +179,7 @@ const menu = {
   loadMessage:  0,        // frame countdown for load result banner
   loadStatus:     null,     // 'loaded' | 'nosave' — set alongside loadMessage
   notebookOffset: 0,        // scroll offset for notebook screen
+  notebookCursor: 0,        // selected row in the notebook (special-item rows are inspectable)
 };
 
 // ─── Debug menu state ─────────────────────────────────────────────────────────
@@ -208,6 +220,9 @@ const warpMenu = {
   targetDestId: null,   // set once a destination is chosen, for 'coord' mode
   targetCol:    8,
   targetRow:    7,
+  playerMode:   false,  // true when opened by the player's Warp Stone: curated
+                        // destinations, warp straight to the default landing (no
+                        // tile-coordinate picker), player-facing presentation.
 };
 
 // Returns a grouped view of stats.items — does not modify the underlying array.

@@ -282,8 +282,10 @@ const SUNKEN_GALLERY_ITEMS = [
     ] },
 ];
 
-// A single TRAP "potion" sparkle for the distant, otherwise-empty far-corner room
-// (SUNKEN_GALLERY_R0C4, diagonally opposite the entrance — wired in data.js). It
+// A single TRAP "potion" sparkle for a distant, otherwise-empty far-corner room
+// (SUNKEN_GALLERY_R0C3, one room in from the top-right corner — wired in data.js).
+// R0C3 is used rather than the R0C4 corner because R0C4 carries the submerged-stair
+// inspect sparkle, and the trap must be the only sparkle in its room. It
 // reads like the grounded potion find above, but its second page is "It attacks
 // you!" and it carries `encounter: 'mimic_potion'`, so examining it springs the
 // scripted Mimic Potion fight (combat.js) instead of granting an item — see
@@ -546,7 +548,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'East Causeway', region: 'Eastern Reaches', contentKey: 'east_causeway',
     presentation: 'continuous', encounterProfileId: 'upper_reach',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Terrain-only eastbound causeway. A one-tile PATH crosses the western fen, then ordinary BASIN_MUD/EXPOSED_STONE subsidence and WATER interrupt it. All eligible wilderness terrain uses UPPER_REACH_ENEMY_TEMPLATES; PATH and WATER stay encounter-safe. No items, NPCs, interactions, landmarks, decorations, quests, persistent state, compatibility alias, or special transition machinery.' },
+    notes: 'Eastbound causeway. A one-tile PATH crosses the western fen, then ordinary BASIN_MUD/EXPOSED_STONE subsidence and WATER interrupt it. All eligible wilderness terrain uses UPPER_REACH_ENEMY_TEMPLATES; PATH and WATER stay encounter-safe. One examinable inspect at the road’s end (east_causeway_break, MAP_FEATURES) explains the washed-out span and lampshades the broken-bridge trope; Oswin and Veran mention it in dialogue. No items, NPCs, landmarks, decorations, quests, persistent state, compatibility alias, or special transition machinery.' },
   { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
@@ -653,12 +655,12 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'NORTH_BASIN_NW2_MAP', regionId: 'overworld', chunkX: 0, chunkY: 0, map: [
       //   0    1   2   3   4   5    6   7   8   9  10  11   12  13  14  15
       [   3, 120,  1,  1,  3,  1,   1,  1,  1,  3,  1,  1,   3,  1,  3,  1 ],  //  0  true north rim: irregular water and tree cover, all impassable
-      [ 120,   1,  1,  3,  1,  1,   1,  1,  1,  1,  1,  1,   1, 23, 81,  1 ],  //  1  cold standing water under the northwest tree line
-      [   1,   1,  3,  1,  1,120,   1,  1,  1,  1,  1,  1,  81, 88, 81,  1 ],  //  2  drowned interior tree and first stone remnant
+      [ 120,   1,  1,120,  1,  1,   1,  1,  1,  1,  1,  1,   1, 23, 81,  1 ],  //  1  cold standing water under the northwest tree line
+      [   1,   1,120,  1,  1,120,   1,  1,  1,  1,  1,  1,  81, 88, 81,  1 ],  //  2  drowned interior tree and first stone remnant
       [   3,   1,  1,  1,120,  1,   1,  1, 81,  1,  1, 81,  81, 81, 23,  1 ],  //  3  flooded woodland gives way to broken exposed ground
-      [   1,   1,  1,  3,  1,  1,   1,  1, 81, 23, 23,  1,   1, 23, 81,  3 ],  //  4  eastern blocked tree meets the Upper Reach edge
+      [   1,   1,  1,120,  1,  1,   1,  1, 81, 23, 23,  1,   1, 23, 81,  3 ],  //  4  eastern blocked tree meets the Upper Reach edge
       [   3,   1,  1,  1,  1,  1,   1, 81,  1,  1, 81, 81,  23, 81, 23,  1 ],  //  5  mud tongue through floodwater
-      [   1,   1,  3,  1,  1,  1,  81, 81, 23, 23,  1,  1,  81, 23, 81,120 ],  //  6  drowned tree on the eastern flooded boundary
+      [   1,   1,120,  1,  1,  1,  81, 81, 23, 23,  1,  1,  81, 23, 81,120 ],  //  6  drowned tree on the eastern flooded boundary
       [   1,   1,  1,  1,  1, 81,  81,  1,  1, 23, 81, 81,   1,  1, 81,  1 ],  //  7  flooded pockets divide the reed/mud shelf
       [   3,   1,  1,  1, 81, 81,   1,  1,  1, 23, 23,  1,   1, 81, 23,  3 ],  //  8  eastern blocked tree cover
       [   1,   1,  1,  1, 81,  1,   1,  1, 23,  1,  1, 81,  88, 81, 23,  1 ],  //  9  second stone remnant

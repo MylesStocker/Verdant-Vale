@@ -224,12 +224,30 @@ const CALWICK_NPCS = [
          '\u201cThat\u2019s more than most post an entire year.\u201d']
       );
       // Once she trusts you a little, why a market-stall girl chose a ledger.
-      if (MainQuest >= 2) pages.push(
-        ['\u201cMy people kept a market stall. Preserved fish, grain, whatever kept.',
-         'I was counting coin before I could read a word of it.\u201d'],
-        ['\u201cThe Empire pays the same whether the fish run or not. Whether it floods, whether it doesn\u2019t.',
-         'That steadiness is the whole reason I\u2019m on this side of a counter and not behind a stall.\u201d']
-      );
+      // Two completely different accounts of the same upbringing: at the desk she
+      // frames it as a career decision about steadiness; off the clock at the inn
+      // she lets the actual memory out. Both stay in her accounting register.
+      if (MainQuest >= 2) {
+        if (day % 5 === 0) {
+          // Inn, Dayoff \u2014 reflective, personal; the part she won't say at work.
+          pages.push(
+            ['\u201cOff the clock, so \u2014 the part I don\u2019t say at the desk.\u201d',
+             '\u201cMy mother could weigh a basket of smoked fish by hand and come out right to the ounce. Every time.\u201d'],
+            ['\u201cI never had the hands for it. What I had was the arithmetic.',
+             'And I remember the week one wrong figure cost us. A whole week, over a single missed payment.\u201d'],
+            ['\u201cSo now I count it twice, before anyone has to worry over it.',
+             'It was never the fish I loved. It was the number coming out right.\u201d']
+          );
+        } else {
+          // Office, workday \u2014 brisk, framed as the sensible career choice.
+          pages.push(
+            ['\u201cMy people kept a market stall. Preserved fish, grain, whatever kept.',
+             'I was counting coin before I could read a word of it.\u201d'],
+            ['\u201cThe Empire pays the same whether the fish run or not. Flood, drought \u2014 none of it reaches my wages.',
+             'That steadiness is the whole reason I\u2019m this side of a counter and not behind a stall.\u201d']
+          );
+        }
+      }
       return pages;
     },
     flag_required: null,

@@ -1,6 +1,6 @@
 'use strict';
-// Sunken Gallery "dropped potion" trap: an examine sparkle in the distant
-// far-corner room (R0C4) that springs the scripted Mimic Potion fight instead of
+// Sunken Gallery "dropped potion" trap: an examine sparkle in a distant blank
+// far-corner room (R0C3) that springs the scripted Mimic Potion fight instead of
 // granting an item. Covers the trap flow (dialogue, queued encounter, consumed
 // sparkle, no up-front item), the glass-cannon calibration (dies in 2 player hits;
 // can drop the expected Sunken-Gallery player in 2 of its hits), the 100% Potion
@@ -23,7 +23,7 @@ function potions(g) { return g.run("stats.items.filter(function(i){return i&&i.n
 // Stand on the mimic sparkle in the distant far-corner room.
 function atSparkle(g) {
   g.run('resetLocationState();__clearRegionalPositionForTest&&__clearRegionalPositionForTest();');
-  g.run('activeMap=SUNKEN_GALLERY_R0C4;inSunkenGallery=true;player.x=7.5*TILE;player.y=12.5*TILE;stats.items=[];dialogue.open=false;');
+  g.run('activeMap=SUNKEN_GALLERY_R0C3;inSunkenGallery=true;player.x=7.5*TILE;player.y=12.5*TILE;stats.items=[];dialogue.open=false;');
 }
 
 module.exports = {
@@ -38,9 +38,12 @@ module.exports = {
     assert.equal(g.run("ENEMY_TEMPLATE_POOLS.some(function(p){return p.templates.some(function(t){return t.id==='enemy_mimic_potion';});})"), false, 'not in any random pool');
     assert.equal(g.run("!!ENEMY_SPRITE_DISPATCH['enemy_mimic_potion']"), true, 'has a battle sprite');
     assert.equal(g.run("!!PICKUP_REGISTRY['pickup_sunken_gallery_mimic']"), true, 'trap sparkle registered');
-    // R0C4 is the far corner (diagonally opposite the entrance at R4C0).
-    assert.equal(g.run("MAP_CATALOG['SUNKEN_GALLERY_R0C4'].items===SUNKEN_GALLERY_MIMIC_ITEMS"), true, 'far-corner room owns the trap item set');
-    assert.equal(g.run('isTileWalkable(SUNKEN_GALLERY_R0C4[12][7])'), true, 'sparkle sits on walkable floor');
+    // R0C3 is a blank room near the far corner; R0C4 keeps the submerged-stair
+    // inspect, so the trap lives one room over to be the ONLY sparkle in its room.
+    assert.equal(g.run("MAP_CATALOG['SUNKEN_GALLERY_R0C3'].items===SUNKEN_GALLERY_MIMIC_ITEMS"), true, 'the blank far-corner room owns the trap item set');
+    assert.equal(g.run('isTileWalkable(SUNKEN_GALLERY_R0C3[12][7])'), true, 'sparkle sits on walkable floor');
+    // The trap room has no inspect features of its own, so the sparkle is unmistakable.
+    assert.equal(g.run("(MAP_FEATURES['SUNKEN_GALLERY_R0C3']||[]).some(function(f){return f.type==='inspect';})"), false, 'trap room has no inspect sparkles');
     // Only THIS gallery room carries the trap; the other rooms stay blank.
     assert.equal(g.run("Object.keys(MAP_CATALOG).filter(function(k){return /^SUNKEN_GALLERY_R\\dC\\d$/.test(k)&&MAP_CATALOG[k].items.length>0;}).length"), 1, 'exactly one gallery room has the trap');
 
@@ -100,7 +103,7 @@ module.exports = {
     // ── 7. Persistence: the sprung sparkle stays sprung across save/load. ────
     {
       const gs = fresh();
-      gs.run('resetLocationState();activeMap=SUNKEN_GALLERY_R0C4;inSunkenGallery=true;player.x=7.5*TILE;player.y=12.5*TILE;stats.items=[];');
+      gs.run('resetLocationState();activeMap=SUNKEN_GALLERY_R0C3;inSunkenGallery=true;player.x=7.5*TILE;player.y=12.5*TILE;stats.items=[];');
       gs.run('tryExamineWorldItem();'); // spring it
       assert.equal(gs.run("PICKUP_REGISTRY['pickup_sunken_gallery_mimic'].picked"), true, 'sprung');
       // The gallery is allowSave:false, but the sprung state lives on the GLOBAL

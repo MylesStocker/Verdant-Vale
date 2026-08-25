@@ -1786,6 +1786,37 @@ function drawInvisibleChest(chest) {
 function drawWorldItems() {
   drawMapWorldItems(currentItemList());
 }
+// Shared floor-sparkle glint used for both examine-only world-item pickups and
+// the Sunken Gallery's inspectable points, so every "examine me" spot reads the
+// same. Draws the twinkle at screen (sx,sy). If (worldX,worldY) is given, it also
+// blinks a SPACE prompt when the player is within promptRadius (default
+// TALK_RADIUS) and no interaction UI is open.
+function drawExamineSparkle(sx, sy, worldX, worldY, promptRadius) {
+  const a = 0.55 + 0.35 * Math.sin(tick * 0.2);
+  const r = ((tick >> 2) % 8) < 4 ? 5 : 3;   // twinkle
+  ctx.fillStyle = 'rgba(255,248,200,' + a.toFixed(3) + ')';
+  ctx.fillRect(sx - 1, sy - r, 2, r * 2);
+  ctx.fillRect(sx - r, sy - 1, r * 2, 2);
+  ctx.fillStyle = 'rgba(255,240,180,' + (a * 0.5).toFixed(3) + ')';
+  ctx.fillRect(sx - 3, sy - 3, 2, 2);
+  ctx.fillRect(sx + 1, sy + 1, 2, 2);
+  ctx.fillRect(sx - 3, sy + 1, 2, 2);
+  ctx.fillRect(sx + 1, sy - 3, 2, 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(sx - 1, sy - 1, 2, 2);
+  if (worldX !== undefined && !dialogue.open && !choice.open && !shop.open) {
+    const pdx = player.x - worldX, pdy = player.y - worldY;
+    const rad = promptRadius !== undefined ? promptRadius : TALK_RADIUS;
+    if (Math.sqrt(pdx * pdx + pdy * pdy) < rad && (tick >> 4) & 1) {
+      ctx.fillStyle = '#d8c878';
+      ctx.font = 'bold 11px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SPACE', sx, sy - 12);
+      ctx.textAlign = 'left';
+    }
+  }
+}
+
 function drawMapWorldItems(list) {
   for (const wi of list) {
     if (wi.picked) continue;
@@ -1797,29 +1828,7 @@ function drawMapWorldItems(list) {
     // Examine-only pickups render as a floor sparkle (no item sprite/label); they
     // are taken with the interact key (tryExamineWorldItem), never by walking over.
     if (wi.examine) {
-      const sx = px, sy = py;
-      const a  = 0.55 + 0.35 * Math.sin(tick * 0.2);
-      const r  = ((tick >> 2) % 8) < 4 ? 5 : 3;   // twinkle
-      ctx.fillStyle = 'rgba(255,248,200,' + a.toFixed(3) + ')';
-      ctx.fillRect(sx - 1, sy - r, 2, r * 2);
-      ctx.fillRect(sx - r, sy - 1, r * 2, 2);
-      ctx.fillStyle = 'rgba(255,240,180,' + (a * 0.5).toFixed(3) + ')';
-      ctx.fillRect(sx - 3, sy - 3, 2, 2);
-      ctx.fillRect(sx + 1, sy + 1, 2, 2);
-      ctx.fillRect(sx - 3, sy + 1, 2, 2);
-      ctx.fillRect(sx + 1, sy - 3, 2, 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(sx - 1, sy - 1, 2, 2);
-      if (!dialogue.open && !choice.open && !shop.open) {
-        const pdx = player.x - wi.x, pdy = player.y - wi.y;
-        if (Math.sqrt(pdx * pdx + pdy * pdy) < TALK_RADIUS && (tick >> 4) & 1) {
-          ctx.fillStyle = '#d8c878';
-          ctx.font = 'bold 11px "Courier New", monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText('SPACE', sx, sy - 12);
-          ctx.textAlign = 'left';
-        }
-      }
+      drawExamineSparkle(px, py, wi.x, wi.y);
       continue;
     }
 
@@ -2654,6 +2663,26 @@ function drawTrappedDrowned() {
 // whenever inSunkenGallery. Positions match the inspect coordinates in
 // interactions.js / the tiles placed in maps.js.
 function drawSunkenGalleryFeatures() {
+  // Every inspectable point in the gallery gets a floor sparkle so the player
+  // knows to examine it. Driven by the same MAP_FEATURES 'inspect' entries the
+  // interaction reads (currentMapFeatures), so the markers can never drift from
+  // what's actually examinable — including the entrance hall's inspects, which
+  // have no found-object overlay of their own. Only points that are currently
+  // examinable (condition met, or a fallback exists) are marked, matching
+  // tryMapFeatures()'s own gating.
+  if (typeof currentMapFeatures === 'function') {
+    const features = currentMapFeatures();
+    if (features) {
+      for (const f of features) {
+        if (f.type !== 'inspect') continue;
+        if (typeof evaluateMapFeatureCondition === 'function' &&
+            !evaluateMapFeatureCondition(f) && !f.fallbackPages) continue;
+        const radius = f.radius !== undefined ? f.radius : TALK_RADIUS;
+        drawExamineSparkle(Math.round(f.x * TILE), Math.round(f.y * TILE), f.x * TILE, f.y * TILE, radius);
+      }
+    }
+  }
+
   const m = activeMap;
   if      (m === SUNKEN_GALLERY_R4C1) drawGallerySiltPatch();
   else if (m === SUNKEN_GALLERY_R3C0) drawGallerySatchel();
