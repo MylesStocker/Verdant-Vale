@@ -480,44 +480,88 @@ function drawContinentMapPanel() {
 function drawAccordPanel() {
   if (!accordPanel.open) return;
 
+  const flameTheme     = accordPanel.theme === 'flame';
+  const reclaimerTheme = accordPanel.theme === 'reclaimer';
+  const palette = reclaimerTheme
+    ? {
+        parchmentEdge: '#6f7440', parchment: '#d7cd91', outerFrame: '#172018',
+        innerFrame: '#557040', titleBar: '#213c2c', titleText: '#f0d880',
+      }
+    : flameTheme
+      ? {
+          parchmentEdge: '#9a6a38', parchment: '#d3bd78', outerFrame: '#180808',
+          innerFrame: '#8a2018', titleBar: '#3a0808', titleText: '#f0c060',
+        }
+      : {
+          parchmentEdge: '#cdbf80', parchment: '#d8cc8a', outerFrame: '#2a1408',
+          innerFrame: '#6a4010', titleBar: '#1e0c04', titleText: '#d8c070',
+        };
+
   // ── Background ──────────────────────────────────────────────────────────────
   ctx.fillStyle = 'rgba(0,0,0,0.85)';
   ctx.fillRect(0, 0, 512, 480);
 
   const PX = 18, PY = 12, PW = 476, PH = 456;
 
-  // Parchment — slightly warmer than the continent map (aged document feel)
-  ctx.fillStyle = '#cdbf80';
+  // Parchment — faction tracts use their authored palette while existing
+  // Imperial documents retain the established Accord presentation.
+  ctx.fillStyle = palette.parchmentEdge;
   ctx.fillRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#d8cc8a';
+  ctx.fillStyle = palette.parchment;
   ctx.fillRect(PX + 3, PY + 3, PW - 6, PH - 6);
 
   // Outer frame
-  ctx.strokeStyle = '#2a1408';
+  ctx.strokeStyle = palette.outerFrame;
   ctx.lineWidth   = 3;
   ctx.strokeRect(PX, PY, PW, PH);
-  ctx.strokeStyle = '#6a4010';
+  ctx.strokeStyle = palette.innerFrame;
   ctx.lineWidth   = 1;
   ctx.strokeRect(PX + 6, PY + 6, PW - 12, PH - 12);
 
   // ── Title bar ───────────────────────────────────────────────────────────────
-  ctx.fillStyle = '#1e0c04';
+  ctx.fillStyle = palette.titleBar;
   ctx.fillRect(PX + 7, PY + 7, PW - 14, 26);
-  ctx.fillStyle = '#d8c070';
+  ctx.fillStyle = palette.titleText;
   ctx.font      = 'bold 11px "Courier New", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(accordPanel.title || 'IMPERIAL INSTRUMENT NO. 7 OF YEAR 700 \u2014 ACCORD OF THREADS', 256, PY + 23);
   ctx.textAlign = 'left';
 
-  // Imperial seal — small embossed circle, top-right of title bar
-  ctx.fillStyle = '#8a1818';
-  ctx.beginPath();
-  ctx.arc(PX + PW - 20, PY + 19, 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#c03030';
-  ctx.beginPath();
-  ctx.arc(PX + PW - 20, PY + 19, 4, 0, Math.PI * 2);
-  ctx.fill();
+  if (flameTheme) {
+    // Pixel flame — the tract's visual signature, deliberately replacing the
+    // Imperial seal without defining any broader faction insignia contract.
+    const fx = PX + PW - 25, fy = PY + 11;
+    ctx.fillStyle = '#8a1818';
+    ctx.fillRect(fx + 4, fy,     4, 4);
+    ctx.fillRect(fx,     fy + 4, 12, 8);
+    ctx.fillRect(fx + 2, fy + 12, 10, 5);
+    ctx.fillStyle = '#d84818';
+    ctx.fillRect(fx + 5, fy + 4, 4, 9);
+    ctx.fillRect(fx + 3, fy + 8, 7, 6);
+    ctx.fillStyle = '#f0a020';
+    ctx.fillRect(fx + 5, fy + 9, 3, 5);
+  } else if (reclaimerTheme) {
+    // Printer's block mark: a document treatment, not a faction insignia.
+    const rx = PX + PW - 28, ry = PY + 12;
+    ctx.fillStyle = '#557040';
+    ctx.fillRect(rx,     ry,      14, 4);
+    ctx.fillRect(rx + 2, ry + 6,  12, 4);
+    ctx.fillRect(rx + 4, ry + 12, 10, 4);
+    ctx.fillStyle = '#f0d880';
+    ctx.fillRect(rx + 2, ry + 1,  3, 2);
+    ctx.fillRect(rx + 5, ry + 7,  3, 2);
+    ctx.fillRect(rx + 8, ry + 13, 3, 2);
+  } else {
+    // Imperial seal — small embossed circle, top-right of title bar
+    ctx.fillStyle = '#8a1818';
+    ctx.beginPath();
+    ctx.arc(PX + PW - 20, PY + 19, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#c03030';
+    ctx.beginPath();
+    ctx.arc(PX + PW - 20, PY + 19, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // ── Text area ───────────────────────────────────────────────────────────────
   const TX  = PX + 20;         // text left margin

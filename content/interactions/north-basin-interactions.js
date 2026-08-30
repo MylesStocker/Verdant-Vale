@@ -10,7 +10,7 @@
 // the player isn't standing at one of the two, so handleInteract() falls
 // through to the generic inspect pass exactly as it does elsewhere.
 function interactSunkenGallery() {
-  // ── Bullet Time chest (R2C4) — silt-caked strongbox, no cursed-drop gag ────
+  // ── Potion chest (R2C4) — silt-caked strongbox, no cursed-drop gag ─────────
   if (activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened) {
     const cx = player.x - SUNKEN_GALLERY_CHEST.x;
     const cy = player.y - SUNKEN_GALLERY_CHEST.y;
@@ -30,34 +30,34 @@ function interactSunkenGallery() {
     }
   }
 
-  // ── Maintenance recess (R2C2) — a small environmental action, not a fight ──
+  // ── Maintenance cupboard (R2C2) — Bullet Time, not a fight ─────────────────
   if (activeMap === SUNKEN_GALLERY_R2C2 && nearPlayer(8.5 * TILE, 8.5 * TILE, TALK_RADIUS * 1.5)) {
     if (window.sunken_gallery_recess_opened) {
       dialogue.name  = '';
-      dialogue.pages = [['The recess stands open, its fallen fragment shoved aside.',
+      dialogue.pages = [['The maintenance cupboard stands open, its fallen fragment shoved aside.',
                          'Empty now but for grit and the smell of old oil.']];
       dialogue.open  = true; dialogue.page = 0;
       return true;
     }
     dialogue.name  = '';
     dialogue.pages = [
-      ['Set into the masonry, a maintenance recess — its cover seated but not sealed, a fallen column fragment leaning across it.',
+      ['Set into the masonry, a maintenance cupboard — its cover seated but not sealed, a fallen column fragment leaning across it.',
        'No lock. Only weight, and a steady thread of cool air drawn in through the gap. Something behind it still draws breath.'],
     ];
     dialogue.callbacks = [function () {
-      choice.title     = 'Maintenance recess';
+      choice.title     = 'Maintenance cupboard';
       choice.cursor    = 0;
       choice.options   = ['Shift the fallen fragment aside', 'Leave it'];
       choice.callbacks = [
         function openIt() {
           window.sunken_gallery_recess_opened = true;
-          grantItem('Potion');
+          grantItem('Bullet Time');
           dialogue.name  = '';
           dialogue.pages = [
-            ['The fragment grinds aside. Behind it a maintenance cache, kept bone-dry by its own draught of air:',
+            ['The fragment grinds aside. Behind it a maintenance cupboard, kept bone-dry by its own draught of air:',
              'a sealed flask of lamp oil, and an old ceramic water-filter, finely made, one edge chipped away.'],
-            ['Wedged behind them, a stoppered flask that has kept its contents clean all this time.',
-             'Potion — added to items.'],
+            ['Wedged behind them, a stoppered flask whose contents shimmer when the light moves.',
+             'Bullet Time — added to items.'],
           ];
           dialogue.open  = true; dialogue.page = 0;
         },
@@ -612,7 +612,7 @@ const NORTH_BASIN_MAP_FEATURES = {
   EAST_CAUSEWAY_MAP: [
     {
       id: 'east_causeway_break', type: 'inspect', x: 10.5, y: 8.5, radius: 44, allowUnwalkable: true,
-      label: 'The broken causeway',
+      label: 'The broken causeway', sparkle: true,
       pages: [
         ['The maintained road gives out under your boots — dressed kerbstone, then heaved mud, then a few broken slabs tilting down into the water, and then only water.',
          'The causeway picks up again on the far bank. You can see it plainly, a good bowshot off across open lake. There is no reaching it from here.'],

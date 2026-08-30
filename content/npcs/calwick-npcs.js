@@ -72,7 +72,7 @@ const CALWICK_NPCS = [
     solid:         true,
     facing:        'right',
     spriteType:    'patron',
-    dialogue:      [],  // routed through action (soup offer)
+    dialogue:      [],  // routed through action (South Mushroom Soup offer)
     flag_required: null,
     flag_sets:     null,
     action: function(npc) {
@@ -80,20 +80,22 @@ const CALWICK_NPCS = [
         || (typeof hasStatusEffect === 'function'
             && (hasStatusEffect('poison') || hasStatusEffect('muddied')));
       choice.title     = 'Merta';
-      choice.options   = ['Have a bowl', 'Not just now'];
+      choice.options   = ['Have South Mushroom Soup', 'Not just now'];
       choice.cursor    = 0;
       choice.callbacks = [
         function haveSoup() {
-          stats.hp = stats.maxHp;
+          stats.hp = Math.min(stats.maxHp, stats.hp + 5);
           if (typeof hasStatusEffect === 'function') {
             if (hasStatusEffect('poison'))  removeStatusEffect('poison');
             if (hasStatusEffect('muddied')) removeStatusEffect('muddied');
           }
           openDialogue('Merta', hurt
-            ? [[`“There now — you finish that, ${stats.name}. Barley and marsh-hen, same as always.”`,
-                '“You came in looking half-wrung-out. Better? Good. I’ll not have a friend of ours going hungry into the reeds.”']]
-            : [['“Nothing like a hot bowl even when you’re hale. Sit a moment before you’re off again.”',
-                '“Go on — the reeds will keep.”']]);
+            ? [[`“There now — you finish that, ${stats.name}. South Mushroom Soup — barley and marsh-hen, same as always.”`,
+                '“You came in looking half-wrung-out. Better? Good. I’ll not have a friend of ours going hungry into the reeds.”',
+                'Healed 5 HP.']]
+            : [['“Nothing like South Mushroom Soup even when you’re hale. Sit a moment before you’re off again.”',
+                '“Go on — the reeds will keep.”',
+                'Healed 5 HP.']]);
         },
         function decline() {
           openDialogue('Merta',
@@ -847,6 +849,7 @@ const CALWICK_NPCS = [
             accordPanel.title = t.title;
             accordPanel.pages = t.pages;
             accordPanel.page  = 0;
+            accordPanel.theme = 'imperial';
             accordPanel.open  = true;
           };
         }).concat([function putBack() {}]);

@@ -16,7 +16,7 @@ function interactDungeonFloor1() {
       const it = DUNGEON_CHEST.item;
       if (hasStatusEffect('cursed')) {
         dialogue.name  = '';
-        dialogue.pages = [['You yank the latch too hard.', `The ${it.name} flies out and shatters on the stone floor.`, 'Pieces everywhere. It\u2019s ruined.']];
+        dialogue.pages = [['Cursed! You yank the latch too hard.', `The ${it.name} flies out and shatters on the stone floor.`, 'Pieces everywhere. It\u2019s ruined.']];
       } else {
         grantItem(it.name);
         dialogue.name  = '';
@@ -36,7 +36,7 @@ function interactDungeonFloor1() {
       const it = DUNGEON_ALCOVE_CHEST.item;
       if (hasStatusEffect('cursed')) {
         dialogue.name  = '';
-        dialogue.pages = [['You yank the latch too hard.', `The ${it.name} flies out and shatters on the stone floor.`, 'Pieces everywhere. It\u2019s ruined.']];
+        dialogue.pages = [['Cursed! You yank the latch too hard.', `The ${it.name} flies out and shatters on the stone floor.`, 'Pieces everywhere. It\u2019s ruined.']];
       } else {
         grantItem(it.name);
         dialogue.name  = '';

@@ -12,26 +12,28 @@
 // Inscriptions (type 'inscription') are lore text, never enter the inventory,
 // and are intentionally not registered.
 const ITEM_REGISTRY = {
+  // Starting issue (not sold by either shop)
+  'Bronze Knife':  { name: 'Bronze Knife',  type: 'weapon',    bonus: 2,  price: 80  },
   // Merchant (Calwick) stock — see SHOP_REGISTRY in shops.js for who sells what
   'Potion':        { name: 'Potion',        type: 'potion',    heals: 20, price: 30  },
-  'Iron Sword':    { name: 'Iron Sword',    type: 'weapon',    bonus: 4,  price: 80  },
-  'Leather Armor': { name: 'Leather Armor', type: 'armor',     bonus: 3,  price: 60  },
-  'Steel Sword':   { name: 'Steel Sword',   type: 'weapon',    bonus: 7,  price: 150 },
-  'Iron Shield':   { name: 'Iron Shield',   type: 'shield',    bonus: 3,  price: 70  },
-  'Swift Bangle':    { name: 'Swift Bangle',    type: 'accessory', bonus: 2,  price: 90  },
+  'Iron Sword':    { name: 'Iron Sword',    type: 'weapon',    bonus: 4,  price: 160 },
+  'Leather Armor': { name: 'Leather Armor', type: 'armor',     bonus: 3,  price: 120 },
+  'Steel Sword':   { name: 'Steel Sword',   type: 'weapon',    bonus: 7,  price: 300 },
+  'Iron Shield':   { name: 'Iron Shield',   type: 'shield',    bonus: 3,  price: 140 },
+  'Swift Bangle':  { name: 'Swift Bangle',  type: 'accessory', bonus: 2,  price: 180 },
   // Travelling Salesman stock
   'Elixir':         { name: 'Elixir',         type: 'potion',    heals: 50, price: 80  },
-  'Battle Axe':     { name: 'Battle Axe',     type: 'weapon',    bonus: 9,  price: 250 },
-  'Dragon Blade':   { name: 'Dragon Blade',   type: 'weapon',    bonus: 12, price: 350 },
-  'Shadow Cloak':   { name: 'Shadow Cloak',   type: 'armor',     bonus: 8,  price: 280 },
-  'Mithril Shield': { name: 'Mithril Shield', type: 'shield',    bonus: 6,  price: 220 },
-  'Wraithband':     { name: 'Wraithband',     type: 'accessory', bonus: 4,  price: 200 },
+  'Battle Axe':     { name: 'Battle Axe',     type: 'weapon',    bonus: 9,  price: 500 },
+  'Dragon Blade':   { name: 'Dragon Blade',   type: 'weapon',    bonus: 12, price: 700 },
+  'Shadow Cloak':   { name: 'Shadow Cloak',   type: 'armor',     bonus: 8,  price: 560 },
+  'Mithril Shield': { name: 'Mithril Shield', type: 'shield',    bonus: 6,  price: 440 },
+  'Wraithband':     { name: 'Wraithband',     type: 'accessory', bonus: 4,  price: 400 },
   // Chest-only items (not sold in any shop)
-  'Warden Blade': { name: 'Warden Blade', type: 'weapon',    bonus: 10, price: 220 },
-  'Void Shard':   { name: 'Void Shard',   type: 'accessory', bonus:  5, price: 180 },
-  'Resonant Targe': { name: 'Resonant Targe', type: 'shield',  bonus:  8, price: 180 },
-  'Fen Mask':     { name: 'Fen Mask',     type: 'accessory', bonus:  5, price: 200 },
-  'Cat Armor':    { name: 'Cat Armor',    type: 'armor',     bonus: 99, price:   0 },
+  'Warden Blade':   { name: 'Warden Blade',   type: 'weapon',    bonus: 10, price: 440 },
+  'Void Shard':     { name: 'Void Shard',     type: 'accessory', bonus:  5, price: 360 },
+  'Resonant Targe': { name: 'Resonant Targe', type: 'shield',    bonus:  8, price: 360 },
+  'Fen Mask':       { name: 'Fen Mask',       type: 'accessory', bonus:  5, price: 400 },
+  'Cat Armor':    { name: 'Cat Armor',    type: 'armor',     bonus: 99, price:   0, defenseCapBypass: true },
   // Herbalist items
   'Reed Remedy':  { name: 'Reed Remedy',  type: 'potion', heals: 0, curesPoison: true, price: 50 },
   // Combat-only consumable buff: on use in battle, raises the player's evade
@@ -63,7 +65,7 @@ const ITEM_REGISTRY = {
   'Warp Stone':    { name: 'Warp Stone',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   // Mirethyst's Vault items (the Mirestone Blade chest was removed — the
   // vault's mid-hall is reserved for a future secret crypt entrance)
-  'Fen Cowl':        { name: 'Fen Cowl',        type: 'armor',  bonus: 4, price: 120 },
+  'Fen Cowl':        { name: 'Fen Cowl',        type: 'armor',  bonus: 4, price: 240 },
   'Ember Root':      { name: 'Ember Root',       type: 'potion', heals: 15, causesMuddied: true, price: 20 },
   // Sex-specific fen reagents (folk toad-banes sold cheap in Drenwick). Used in
   // combat: a matched reagent instantly drops the target (see combat.js's item
@@ -77,7 +79,7 @@ const ITEM_REGISTRY = {
   'Case of Mushroom Wine':   { name: 'Case of Mushroom Wine',   type: 'accessory', bonus: 0, price: 132, questItem: true },
   // Fenna's reward for delivering a case rather than a bottle — real equipment,
   // not a flavor-only key item, so it isn't questItem-flagged.
-  'Amethyst Bangle': { name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 400, preventsCursed: true },
+  'Amethyst Bangle': { name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 800, preventsCursed: true },
   // One-off quest/event key items — questItem + keyItem so they live in the
   // Special Items notebook, never equippable, usable, or sold. (keyItem is
   // never inferred from questItem — the mushroom wines above stay ordinary.)

@@ -203,6 +203,11 @@ function selfCheck() {
 // ─────────────────────────────────────────────────────────────────────────
 function effAtk(p) { return p.atk; } // gear already folded into p.atk by caller
 function effDef(p, statuses) { return Math.max(0, p.def - (statuses.muddied ? 1 : 0)); }
+function incomingMitigation(p, statuses, enemyAtk) {
+  const def = effDef(p, statuses);
+  if (p.defenseCapBypass === true) return def;
+  return Math.min(def, Math.floor(enemyAtk * 0.80));
+}
 // Speed-based evasion — mirrors combat.js's central evadeChance(): the defender
 // dodges based on the speed gap, clamped 2%..30%. (The sim doesn't model Bullet
 // Time — it's a consumable, not part of steady-state balance.)
@@ -262,7 +267,7 @@ function simulateFight(playerIn, enemyTemplateIn, rng, opts) {
       potionsLeft--; potionsUsed++;
       if (!evaded(enemySpd, playerSpd, rng)) {
         const atkRoll = enemyTemplateIn.atk * (0.8 + rng() * 0.4);
-        const eDmg = Math.max(1, Math.round(atkRoll - effDef(player, statuses)));
+        const eDmg = Math.max(1, Math.round(atkRoll - incomingMitigation(player, statuses, enemyTemplateIn.atk)));
         player.hp = Math.max(0, player.hp - eDmg);
         damageTaken += eDmg;
         if (player.hp > 0) applyEnemyHitEffects(enemyTemplateIn, statuses, rng);
@@ -277,7 +282,7 @@ function simulateFight(playerIn, enemyTemplateIn, rng, opts) {
     const cursedFumble = !enemyDefending && statuses.cursed && rng() < 0.25;
     const pDmg = enemyDefending ? Math.max(1, Math.floor(rawPDmg / 2)) : (cursedFumble ? 1 : rawPDmg);
     const atkRoll = enemyTemplateIn.atk * (0.8 + rng() * 0.4);
-    const eDmg = Math.max(1, Math.round(atkRoll - effDef(player, statuses)));
+    const eDmg = Math.max(1, Math.round(atkRoll - incomingMitigation(player, statuses, enemyTemplateIn.atk)));
 
     // Every attack is an ATTEMPT: the defender may evade by speed (mirrors
     // combat.js). A braced enemy blocks for half rather than dodging. An evaded
@@ -364,11 +369,11 @@ function baseStatsAtLevel(level) {
 // for the reasoning behind each tier's contents and assumed availability.
 const GEAR_TIERS = {
   'T0 unequipped':                { atk: 0,  def: 0,  spd: 0, note: 'before Aldric issues the starting kit' },
-  'T1 starting kit':              { atk: 4,  def: 3,  spd: 0, note: 'Iron Sword + Leather Armor (free, day 1)' },
-  'T2 + Iron Shield':             { atk: 4,  def: 6,  spd: 0, note: '+ Iron Shield (merchant, 70g)' },
-  'T3 dungeon-1 chest gear':      { atk: 7,  def: 6,  spd: 2, note: 'Steel Sword (chest) + Iron Shield (70g) + Swift Bangle (90g)  — the best shield (Resonant Targe) is no longer a floor-1 chest' },
-  'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (chest) + Shadow Cloak (280g) + Resonant Targe (floor-8 chest) + Wraithband (200g)' },
-  'T5 best traveller gear':       { atk: 12, def: 16, spd: 4, note: 'Dragon Blade (350g) + Shadow Cloak (280g) + Resonant Targe (floor-8 chest) + Wraithband (200g)' },
+  'T1 starting kit':              { atk: 2,  def: 3,  spd: 0, note: 'Bronze Knife + Leather Armor (free, day 1)' },
+  'T2 + Iron Shield':             { atk: 2,  def: 6,  spd: 0, note: '+ Iron Shield (merchant, 140g)' },
+  'T3 dungeon-1 chest gear':      { atk: 7,  def: 6,  spd: 2, note: 'Steel Sword (chest) + Iron Shield (140g) + Swift Bangle (180g)  — the best shield (Resonant Targe) is no longer a floor-1 chest' },
+  'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (chest) + Shadow Cloak (560g) + Resonant Targe (floor-8 chest) + Wraithband (400g)' },
+  'T5 best traveller gear':       { atk: 12, def: 16, spd: 4, note: 'Dragon Blade (700g) + Shadow Cloak (560g) + Resonant Targe (floor-8 chest) + Wraithband (400g)' },
 };
 
 function playerAt(level, tierName) {
@@ -532,13 +537,13 @@ for (const item of [...MERCHANT_STOCK, ...TRAVELLER_STOCK]) {
 
 console.log('\n--- Chest/reward gear (free — for comparison against shop gold/point above) ---');
 const CHEST_GEAR = [
-  { name: 'Steel Sword',     type: 'weapon',    bonus: 7, price: 150, source: 'Dungeon floor-1 chest' },
-  { name: 'Resonant Targe',  type: 'shield',    bonus: 8, price: 180, source: 'Dungeon floor 8 (The Drowned Chamber), examine sparkle in the dead-end south chamber' },
-  { name: 'Warden Blade',    type: 'weapon',    bonus: 10, price: 220, source: 'Sluice secret chest (false wall)' },
-  { name: 'Void Shard',      type: 'accessory', bonus: 5, price: 180, source: 'Sluice level-3 chest' },
-  { name: 'Fen Mask',        type: 'accessory', bonus: 5, price: 200, source: 'Sluice level-3 deep secret chest' },
+  { name: 'Steel Sword',     type: 'weapon',    bonus: 7, price: 300, source: 'Dungeon floor-1 chest' },
+  { name: 'Resonant Targe',  type: 'shield',    bonus: 8, price: 360, source: 'Dungeon floor 8 (The Drowned Chamber), examine sparkle in the dead-end south chamber' },
+  { name: 'Warden Blade',    type: 'weapon',    bonus: 10, price: 440, source: 'Sluice secret chest (false wall)' },
+  { name: 'Void Shard',      type: 'accessory', bonus: 5, price: 360, source: 'Sluice level-3 chest' },
+  { name: 'Fen Mask',        type: 'accessory', bonus: 5, price: 400, source: 'Sluice level-3 deep secret chest' },
   { name: 'Mirestone Blade', type: 'weapon',    bonus: 8, price: 200, source: "Mirethyst's Vault chest" },
-  { name: 'Fen Cowl',        type: 'armor',     bonus: 4, price: 120, source: "Mirethyst's Vault NPC gift" },
+  { name: 'Fen Cowl',        type: 'armor',     bonus: 4, price: 240, source: "Mirethyst's Vault NPC gift" },
 ];
 for (const item of CHEST_GEAR) {
   console.log(`${item.name.padEnd(17)} ${item.type.padEnd(10)} ${String(item.bonus).padStart(5)}  free (${item.price}g shop-equivalent value)  ${item.source}`);
@@ -584,7 +589,7 @@ console.log('Enemy            Player(Lv/tier)              | AvgEnemyDmg | P(hit
   for (const scenario of POOL_SCENARIOS) {
     const player = playerAt(scenario.level, scenario.tier);
     for (const t of poolById.get(scenario.poolId).templates) {
-      const def = effDef(player, { muddied: false });
+      const def = incomingMitigation(player, { muddied: false }, t.atk);
       // Average eDmg magnitude when a hit lands (atk multiplier averages to 1.0 over [0.8,1.2])
       const avgEDmg = Math.max(1, Math.round(t.atk * 1.0 - def));
       const isSpecial = false; // none of the area pools are "special" fights

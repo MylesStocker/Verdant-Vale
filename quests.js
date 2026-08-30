@@ -20,7 +20,7 @@ let MainQuest            = 0;    // tracks player progress through the main stor
 // The player no longer starts with equipment already in their pack. The
 // Supervisor issues a requisition slip alongside the sluice job (the first
 // assignment); Aldric (Calwick office) exchanges it for the starting kit
-// (Iron Sword + Leather Armor) on next visit, then reverts to his normal
+// (Bronze Knife + Leather Armor) on next visit, then reverts to his normal
 // dialogue for all later visits.
 let equipment_ticket_ready = false;
 // ─── Side quest: The Long Way Round ──────────────────────────────────────────
@@ -126,10 +126,11 @@ let pale_sentry_hp        = 500;
 
 // ─── Side quest: Still Water ──────────────────────────────────────────────────
 // Mabel (hamlet elder, MAP3_N1) lost her fen sickle at the north bank of the bog
-// pond two seasons ago. She puts a notice on the Drenwick market board; the player
-// picks it up there. Gridd (eel fisher, nearby) warns the player not to wake the
-// rainfish nesting under the north bank overhang. Heeding this advice (talking to
-// Gridd before retrieving the sickle) produces a cleaner recovery and a better reward.
+// pond two seasons ago. She gives the recovery quest herself; the sickle remains
+// hidden and non-interactive until that conversation. Gridd (eel fisher,
+// nearby) warns the player not to wake the rainfish nesting under the north
+// bank overhang. Heeding this advice (talking to Gridd before retrieving the
+// sickle) produces a cleaner recovery and a better reward.
 // The quest is not about rainfish — it's about recovering a treasured personal tool.
 // 0=unstarted, 1=quest given (sickle at pond), 2=retrieved clean, 3=retrieved churned, 4=complete
 let sickle_quest_stage    = 0;
@@ -551,6 +552,7 @@ window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 const SPECIAL_ITEM_NOTES = {
   'Warp Stone':         'A dark, warm reservoir-stone. Inspect it to travel.',
   'Letter from Netto':  'A letter from home. Inspect it to read it.',
+  "Doctor's Letter":    'A former Drenwick doctor\u2019s warning about the cases the fen sends back wrong. Inspect it to read it.',
   'Dispatch Letter':    "Routine correspondence for the Drenwick district office.",
   'Sealed Letter':      'A redacted transit authorization, fished from the canal. Sender unknown.',
   'Mushroom Wine':      "Wend's brew, from the fen settlements.",
@@ -560,6 +562,7 @@ const SPECIAL_ITEM_NOTES = {
   'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
   'Case of Mushroom Wine':   "A full case from Wend's brewery. Heavy, but Sael will appreciate it.",
   'Thank-You Note':          "From Sael. Fenna will want to see this.",
+  "The Drowned's Gift":     'A hideous little thank-you, made with enormous care.',
   'Old Engagement Ring':     'The Supervisor asked for this back for personal reasons.',
   'Stashed Gem':             "Polwick's share from an old smuggling job.",
 };
@@ -570,6 +573,15 @@ const SPECIAL_ITEM_NOTES = {
 // returning an array of pages (lazy so stats.name resolves at read time); each
 // page is an array of lines (pre-wrapped for the narrow menu box).
 const SPECIAL_ITEM_READS = {
+  "Doctor's Letter": () => [
+    ['You unfold the letter. Its wax seal is already broken, and the hand is old and careful.'],
+    ['\u201cTo whoever keeps this room after me \u2014\u201d',
+     '\u201cYou will manage the cuts and the fevers and the drownings well enough. Those are honest work, and I have taught Fisk what I can.\u201d'],
+    ['\u201cIt is the other cases I cannot hand over. The ones the fen sends back wrong. A cold no stove will touch. A sleep that is not sleep. People who have been somewhere and cannot say where.\u201d'],
+    ['\u201cI mended what bodies I could. I never learned to mend what they had heard out there, and I am too old now to keep listening for it.\u201d'],
+    ['\u201cDo not go looking for the source of it. That is the one prescription I am sure of.\u201d',
+     '\u201c\u2014 Yeddin\u201d'],
+  ],
   'Letter from Netto': () => [
     ['You unfold the letter. A Halcyra postmark, and your brother Netto’s',
      'careful hand.'],
@@ -710,6 +722,20 @@ function getActiveQuestNotes() {
   // Schilling
   if (schilling_quest_started && !schilling_returned) {
     notes.push({ title: 'Missing Person', body: "Find Schilling and bring him back." });
+  }
+  // The Struck Entry
+  if (corvin_favor_started && !corvin_favor_done) {
+    notes.push({ title: 'The Struck Entry', body: "Find Corvin's father's original towpath tally in the old Drenwick canal office." });
+  }
+  // The Weight Discrepancy
+  if (weight_quest_stage === 1) {
+    notes.push({ title: 'The Weight Discrepancy', body: "Take Harbormaster Renn's cargo query to Aldric at the Calwick district office." });
+  } else if (weight_quest_stage === 2 && !weight_note_signed) {
+    notes.push({ title: 'The Weight Discrepancy', body: "Ask Corvin to countersign Renn's cargo-weight correction at the Calwick district office." });
+  } else if (weight_quest_stage === 2) {
+    notes.push({ title: 'The Weight Discrepancy', body: "File Corvin's countersigned note in his section of the cabinet by the window at the Calwick district office." });
+  } else if (weight_quest_stage === 3) {
+    notes.push({ title: 'The Weight Discrepancy', body: "Return to Harbormaster Renn at the Drenwick waterfront office with the filed correction." });
   }
   // Pale Sentry
   if (sentry_quest_started && !sentry_quest_done) {

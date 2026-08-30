@@ -365,6 +365,7 @@ function interactDrenwickSchool() {
             ];
             accordPanel.title = 'IMPERIAL INSTRUMENT NO. 7 OF YEAR 700 — ACCORD OF THREADS';
             accordPanel.page = 0;
+            accordPanel.theme = 'imperial';
             accordPanel.open = true;
           },
           function leave() {

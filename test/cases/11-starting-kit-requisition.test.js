@@ -2,7 +2,7 @@
 // Covers: the starting-kit requisition flow. The player no longer starts
 // with equipment in stats.items -- the Supervisor issues a requisition
 // ticket alongside the first assignment (the sluice job), Aldric exchanges
-// it for the Iron Sword + Leather Armor on next visit, and reverts to his
+// it for the Bronze Knife + Leather Armor on next visit, and reverts to his
 // normal dialogue on every visit after that.
 
 const assert = require('assert/strict');
@@ -49,7 +49,7 @@ module.exports = {
 
     const items = g.run('stats.items');
     assert.equal(items.length, 2, 'should have received exactly the starting kit');
-    assert.ok(items.some(it => it.name === 'Iron Sword' && it.type === 'weapon' && it.bonus === 4));
+    assert.ok(items.some(it => it.name === 'Bronze Knife' && it.type === 'weapon' && it.bonus === 2));
     assert.ok(items.some(it => it.name === 'Leather Armor' && it.type === 'armor' && it.bonus === 3));
     assert.equal(g.run('equipment_ticket_ready'), false, 'ticket should be consumed');
 
@@ -66,8 +66,8 @@ module.exports = {
     // Items are equippable exactly like before -- confirm the equip flow
     // still works with the newly-issued kit (menu equip, same as any item).
     g.press('Enter'); // close Aldric's normal dialogue
-    g.run('equipItem(stats.items.find(it => it.name === "Iron Sword"));');
-    assert.equal(g.run('stats.weapon.name'), 'Iron Sword');
+    g.run('equipItem(stats.items.find(it => it.name === "Bronze Knife"));');
+    assert.equal(g.run('stats.weapon.name'), 'Bronze Knife');
 
     g.renderFrame();
   },

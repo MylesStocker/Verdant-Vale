@@ -72,7 +72,7 @@ fresh, isolated game (no state leaks between tests), then drives it with:
 - `11-starting-kit-requisition` — the player now starts with an empty
   inventory; the Supervisor issues a requisition ticket alongside the first
   assignment (the sluice job), and Aldric exchanges it for the starting kit
-  (Iron Sword + Leather Armor) on next visit, then reverts to his normal
+  (Bronze Knife + Leather Armor) on next visit, then reverts to his normal
   dialogue on every visit after. Covers the ticket grant, the exchange, the
   ticket being consumed, and Aldric *not* repeating the exchange on a second
   visit.
@@ -121,12 +121,13 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   `ascendToDungeonEntrance()` -> `exitDungeon()`); that walking around the
   hall never triggers a random encounter even with `Math.random()` forced
   to 0 (the value that would guarantee one on every roll if the area were
-  mistakenly wired into an encounter pool); that the corridor up to the
-  stairs is actually walkable end to end (regression guard: Perrin
-  originally stood at col 9, inside the corridor's own col 6-9 span,
-  blocking it -- now checks both that exact coordinate and a real walk up
-  that column reaches the corridor); that Rovan and Perrin both greet the
-  player by name (`stats.name`), not just generically; and that
+  mistakenly wired into an encounter pool); that the north approach remains
+  navigable (regression guard: Perrin originally stood at col 9, inside the
+  corridor's own col 6-9 span, blocking it); that Rovan now stands one tile
+  east of the stairs and a real movement sequence routes around him and
+  descends; that Rovan and Perrin both greet the
+  player by name (`stats.name`), with Rovan recognizing the player's three
+  years in the fens rather than treating them as newly arrived; and that
   `inDungeonEntrance` round-trips through save/load. Verified both the
   encounter-suppression and corridor-clear checks actually guard their
   regressions (not just tautologies) by temporarily reintroducing each bug

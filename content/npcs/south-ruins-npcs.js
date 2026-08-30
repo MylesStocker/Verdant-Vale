@@ -35,23 +35,23 @@ const SOUTH_RUINS_NPCS = [
   // Lore-only, no quests, no combat. Four people who each know a different
   // piece of why this hall is here, why it's dry right now, and what's below.
   {
-    // Rovan stands right at the foot of the down-stairs (col 8, row 2) \u2014 the last
-    // person the player passes before descending \u2014 because the South Ruins are
-    // reachable from the very start of the game and the floors below are lethal to
-    // a beginner. His whole dialogue is now a plain "not yet, turn back" warning.
+    // Rovan stands one tile east of the down-stairs approach (col 9, row 2),
+    // close enough to be the last warning before the descent without blocking
+    // either stair tile. The South Ruins are reachable from the very start and
+    // the floors below are lethal to an under-equipped investigator.
     id:         'rovan_ruins',
     name:       'Rovan',
     map:        'dungeon_entrance',
-    x:           8.5 * TILE,
+    x:           9.5 * TILE,
     y:           2.5 * TILE,
     solid:      true,
     facing:     'down',
     spriteType: 'traveler',
     get dialogue() {
       return [
-        ['He plants himself between you and the stairs down.',
-         '\u201cCalwick\u2019s new one. ' + stats.name + ', isn\u2019t it.\u201d',
-         '\u201cThought so. You\u2019ve the look of someone who hasn\u2019t been hit yet.\u201d'],
+        ['He shifts one step clear of the stairs, but keeps watching them.',
+         '\u201cCalwick\u2019s investigator. ' + stats.name + ', isn\u2019t it.\u201d',
+         '\u201cThree years in the fens. Long enough to know that old and safe aren\u2019t the same word.\u201d'],
         ['\u201cSo hear me before you take one more step down.\u201d',
          '\u201cThis top floor is nothing \u2014 dry stone, empty rooms. It\u2019s the only kind floor in the whole place.\u201d'],
         ['\u201cWhat\u2019s below would kill you as you are now, and not quickly. I\u2019ve watched it come up these stairs for people twice your size.\u201d',

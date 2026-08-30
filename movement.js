@@ -529,7 +529,7 @@ function update() {
         'You walk into a wall that wasn\u2019t there.',
         'You trip on entirely flat ground.',
       ];
-      showWorldToast(tripMsgs[Math.floor(Math.random() * tripMsgs.length)] + ` (\u22122 HP)`);
+      showWorldToast('Cursed! ' + tripMsgs[Math.floor(Math.random() * tripMsgs.length)] + ` (\u22122 HP)`);
     }
 
     // Map transitions

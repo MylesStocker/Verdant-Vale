@@ -159,7 +159,41 @@ rooms were added to the registry.)
   by the established inspectable sparkle and described as dropped in the grass;
   Aldric now explains carried-gold loss, home-chest storage, and the absurdly
   profitable monster economy.
-- **107 tests** (`test/cases/01-…107-`), `node test/run.js` — all passing.
+- **Small player-facing clarity pass.** Merta's South Mushroom Soup now heals
+  5 HP with an explicit message; Schilling's notice names the South Ruins;
+  the broken causeway and the available Drowned gift sparkle; the gift has a
+  specific notebook description; the Sunken Gallery cupboard/chest rewards are
+  swapped; infirmary Esla uses her established sprite; Corvin's active favour
+  has a notebook entry; curse-caused mishaps begin with “Cursed!”; and the
+  on-screen debug-menu key hint is hidden. No grid, topology, or save change.
+- **Faction tracts.** The Unshackled Flame's “The Wrong Side Won” lies visibly
+  on Polwick's fort ledger table, while the Reclaimers' “Everything They Own Was
+  Made by Someone Else” sparkles on the Wend brewery's living table. Both open
+  repeatably in distinct treatments of the established full-page parchment
+  reader. Neither is a pickup or adds a flag, grid, topology, or save change.
+- **Bounded ordinary player-defense mitigation.** Enemy-to-player attacks now
+  cap normal mitigation at `floor(live enemy ATK * 0.80)` through one combat
+  helper used by Attack, item response, Run consequence, and Observe paths.
+  Cat Armor remains +99 DEF and is the sole declarative
+  `defenseCapBypass: true` exception, preserving its legacy uncapped behavior
+  against Takomo. That mitigation rule does not retune Takomo or existing
+  equipment bonuses; player outgoing damage and `SAVE_VERSION` 4 are unchanged.
+- **Starter weapon and equipment economy.** Aldric now issues Lély a Bronze
+  Knife (+2 ATK) with the starting Leather Armor instead of an Iron Sword. All
+  positive prices on wearable weapons, armor, shields, and accessories are
+  doubled; consumables, quest objects, and zero-value/key items are unchanged.
+  Existing saves rehydrate equipment prices from `ITEM_REGISTRY`; `SAVE_VERSION`
+  remains 4.
+- **South Ruins Rovan placement and continuity.** Rovan stands one tile east of
+  his former entrance-hall position, leaving both stair tiles clear, and now
+  recognizes Lély's three years in the fens instead of treating her as a new
+  arrival. No grid, topology, quest, or save change.
+- **Quest notebook/source polish.** The Weight Discrepancy now has a
+  stage-accurate active notebook entry; Still Water is offered only by Mabel,
+  with the Fen Sickle remaining hidden and non-interactive until that
+  conversation; and the Doctor's Letter has a specific Special Items summary
+  and can be reread there in full. No grid, topology, or save change.
+- **128 tests** (`test/cases/01-…128-`), `node test/run.js` — all passing.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass (26 fields including the active-map check), 125 maps, 254 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile
@@ -167,8 +201,8 @@ rooms were added to the registry.)
 - **`validateGameData()`** (call from the browser console or the debug
   menu's "Validate Data" row) — **0 errors, 4 warnings**, all intentional
   (see below), across 125 maps, 125 metadata entries, 30,000 tile cells, 148
-  edge transitions, 180 NPCs, 116 item placements, 105 enemy templates, 624
-  dialogue/text entries, 187 save-flag checks, 67 map features, 73 pickup ids,
+  edge transitions, 180 NPCs, 122 item placements, 129 enemy templates, 629
+  dialogue/text entries, 189 save-flag checks, 68 map features, 77 pickup ids,
   19 chest ids.
 
 ## The 4 current warnings, and why none needs fixing

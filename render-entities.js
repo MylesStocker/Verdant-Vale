@@ -692,6 +692,7 @@ const NPC_DRAW_FNS = {
   calwick_school_bookshelf: drawSchoolBookshelf,
   calwick_school_map: drawSchoolWorldMap,
   polwick: drawPolwickSprite,
+  infirmary_esla: drawInfirmaryEslaSprite,
 };
 
 // Shared SPACE prompt drawn above an NPC when the player is in range.
@@ -1817,6 +1818,21 @@ function drawExamineSparkle(sx, sy, worldX, worldY, promptRadius) {
   }
 }
 
+// Opt-in sparkle for MAP_FEATURES inspect points outside the Sunken Gallery.
+// The authored feature remains the single authority for position and range.
+function drawAuthoredMapFeatureSparkles() {
+  if (typeof currentMapFeatures !== 'function') return;
+  const features = currentMapFeatures();
+  if (!features) return;
+  for (const f of features) {
+    if (f.type !== 'inspect' || f.sparkle !== true) continue;
+    if (typeof evaluateMapFeatureCondition === 'function' &&
+        !evaluateMapFeatureCondition(f) && !f.fallbackPages) continue;
+    const radius = f.radius !== undefined ? f.radius : TALK_RADIUS;
+    drawExamineSparkle(Math.round(f.x * TILE), Math.round(f.y * TILE), f.x * TILE, f.y * TILE, radius);
+  }
+}
+
 function drawMapWorldItems(list) {
   for (const wi of list) {
     if (wi.picked) continue;
@@ -2381,6 +2397,14 @@ function drawEslaSprite() {
   const atInnDayoff = townBuilding === 'inn' && isDayOff();
   if (townBuilding !== 'office' && !atInnDayoff) return;
   const pos = atInnDayoff ? ESLA_DAYOFF : ESLA;
+  drawEslaFigure(pos);
+}
+
+function drawInfirmaryEslaSprite(npc) {
+  drawEslaFigure(npc);
+}
+
+function drawEslaFigure(pos) {
   const px = Math.round(pos.x);
   const py = Math.round(pos.y);
 
@@ -2692,6 +2716,8 @@ function drawSunkenGalleryFeatures() {
   else if (m === SUNKEN_GALLERY_R2C2) drawGalleryRecess();
   else if (m === SUNKEN_GALLERY_R1C2) {
     if (!window.sunken_gallery_drowned_freed && !window.sunken_gallery_drowned_slain) drawTrappedDrowned();
+    else if (window.sunken_gallery_drowned_freed && MainQuest >= 4 && !window.sunken_gallery_gift_taken)
+      drawExamineSparkle(Math.round(8.5 * TILE), Math.round(8.5 * TILE), 8.5 * TILE, 8.5 * TILE, TALK_RADIUS * 1.6);
   }
   else if (m === SUNKEN_GALLERY_R1C3) drawGalleryDragTrail();
   else if (m === SUNKEN_GALLERY_R0C2) drawGalleryNotebook();

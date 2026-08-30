@@ -5,6 +5,84 @@
 // Loaded BEFORE interactions.js, which keeps the generic engine, MAP_FEATURES merge,
 // and the INTERACT_HANDLERS / OVERWORLD_INTERACT_HANDLERS tables that reference these.
 
+// Contemporary Unshackled Flame propaganda found on Polwick's ledger table.
+// Its claims are faction rhetoric, not an objective statement of canon.
+const POLWICK_FLAME_TRACT_PAGES = [
+  [
+    'They teach the Century War as a warning.',
+    'They show ruined walls, fields of graves, cities emptied by hunger. They speak solemnly of reconciliation, as if the war were a sickness that passed and the Empire the physician that cured it.',
+    'They never ask what made people willing to burn a century for freedom.',
+    'The official history begins with violence because that is where the Empire requires your attention to begin. Start earlier.',
+  ],
+  [
+    'Begin with rareborn strength commanded by ordinary rulers. Begin with gifts catalogued, feared, purchased, married, and deployed. Begin with generations told that nature had placed extraordinary power in their bodies but ordinary authority above their heads.',
+    'The war was terrible. All births are terrible from inside the womb.',
+    'It was not meaningless.',
+    'Our forebears understood something their descendants have been trained to forget: coexistence under commonborn terms is submission. A people cannot be free while its children are registered by another people, its gifts interpreted by another people, and its acceptable ambitions bounded by another people\u2019s fear.',
+    'The Century War did not fail because its cause was unjust. It failed because exhaustion was renamed wisdom.',
+  ],
+  [
+    'Those who accepted peace were promised integration. What followed? Lanterns, ceremonies, Academy honours, carefully allotted offices\u2014and the register. The old chains were not destroyed. They were melted down and worked into delicate links.',
+    'Now we are encouraged to marry into forgetfulness, to treat our Threads as charming variations, to become citizens first and rareborn only in private. Dilution is praised as harmony. Surrender is praised as maturity. Every generation remembers less, until power that once understood itself becomes an ornament at an Imperial festival.',
+  ],
+  [
+    'This was not peace.',
+    'It was the slow victory of the other side.',
+    'Do not be distracted by the rareborn who prosper within the arrangement. Every conquered people produces interpreters, overseers, and decorated exceptions. Their success proves only that the Empire rewards those who make rareborn power safe for commonborn rule.',
+    'We say what they dare not:',
+    'The Eight Threads were not born to bow before dull hands. Nor were those rarest souls who shine across the Threads born to become Imperial curiosities. Power carries its own claim. A world shaped by those who can barely touch its deeper forces is a world governed by fear, waste, and mediocrity.',
+  ],
+  [
+    'We do not mourn the Century War because our ancestors resisted.',
+    'We mourn because they stopped.',
+    'The next struggle need not resemble the last. An empire has a thousand seams. Its registers depend upon compliance. Its institutions depend upon rareborn who continue serving them. Its peace depends upon our belief that we are isolated.',
+    'We are not isolated.',
+  ],
+  [
+    'Remember what integration asks you to forget. Refuse the register. Refuse the whistle. Carry knowledge outside approved halls. Recognize the obedient cage even when its door stands open.',
+    'They say the Flame threatens peace.',
+    'Yes.',
+    'Peace is the name they gave our defeat.',
+    'Let it end.',
+  ],
+];
+
+// Reclaimer literature left on the Wend family's rough living table. Like the
+// Flame tract above, this is faction rhetoric rather than objective narration.
+const BREWERY_RECLAIMER_TRACT_PAGES = [
+  [
+    'The miller owns the wheel, but did he divert the river?',
+    'The merchant owns the grain, but did she plough the field?',
+    'The lord owns the forest, though his family did not plant it. He owns the mine, though he has never descended into it. He owns the village road because an ancestor drew a line across a map. Along the aetherrail, men who have never swung a hammer own the stations while those who laid the track returned home with bent backs and empty purses.',
+    'This theft is so old that they have taught us to call it order.',
+  ],
+  [
+    'A hungry labourer who takes one loaf is dragged before a magistrate. A wealthy house that takes one coin from ten thousand labourers calls the result prosperity. The first theft is punished because it is small. The second is honoured because it is vast.',
+    'They tell you wealth is the reward for cleverness. Certainly the rich are clever. They have devised rents upon homes they did not build, tolls upon roads they do not repair, and debts that continue earning while the debtor sleeps. Their greatest cleverness was persuading working people that poverty is a personal failure rather than a public arrangement.',
+  ],
+  [
+    'Look around you. There is enough.',
+    'There is enough grain, but some grain must remain locked away until its price rises. There are enough rooms, but families sleep crowded beneath leaking roofs while upper floors stand empty. There are enough hands to mend every road in the Arc, but those hands cannot work unless someone with a seal expects a profit.',
+    'We do not suffer from scarcity alone. We suffer from permission.',
+  ],
+  [
+    'The moderate will ask for a kinder lord, an honest merchant, another elected chair in a distant chamber. These things may ease a season. They do not answer the question.',
+    'Why should anyone own what an entire community requires to live?',
+    'The Reclaimer answer is simple: they should not.',
+    'Let the mill belong to those who work it and those whom it feeds. Let the mine belong to those who descend. Let villages hold their fields, forests, and waters in common. Let workshops choose their own stewards. Let no person grow rich merely by possessing what another must use.',
+  ],
+  [
+    'They will say common ownership rewards idleness. Yet who is idle now? The washerwoman standing before dawn, or the heir collecting rents at noon? Who understands the worth of labour better: those who perform it, or those who purchase it as cheaply as fear allows?',
+    'No solitary worker can break this arrangement. That is why they teach us to face hardship alone and blame the neighbour who has one crust more.',
+    'Stand together instead.',
+  ],
+  [
+    'Share accounts. Refuse secret terms. Feed families whose wages are withheld. Let no village bargain alone and no worker be punished alone. Every act of solidarity teaches the powerful the truth they have spent centuries concealing:',
+    'They possess the titles.',
+    'We possess everything that makes those titles valuable.',
+  ],
+];
+
 // Polwick's lighthouse side quest reuses his established spared-state fort NPC
 // and action path. The shared quest authority owns MQ4/outcome/exclusion logic;
 // this function owns only Polwick's dialogue and physical-availability fact.
@@ -183,6 +261,28 @@ function interactSmugglerFort() {
       return;
     }
   }
+
+  // Folded pamphlet on the main ledger table (col 6 row 7). It is repeatable,
+  // available on every fort route, and adds no pickup or persistent state.
+  const tractDx = player.x - POLWICK_FLAME_TRACT.x;
+  const tractDy = player.y - POLWICK_FLAME_TRACT.y;
+  if (Math.sqrt(tractDx * tractDx + tractDy * tractDy) < TALK_RADIUS * 1.5) {
+    choice.title     = 'Folded pamphlet';
+    choice.options   = ['Read it', 'Leave it'];
+    choice.cursor    = 0;
+    choice.callbacks = [
+      function readFlameTract() {
+        accordPanel.title = 'THE WRONG SIDE WON';
+        accordPanel.pages = POLWICK_FLAME_TRACT_PAGES;
+        accordPanel.page  = 0;
+        accordPanel.theme = 'flame';
+        accordPanel.open  = true;
+      },
+      function leaveFlameTract() {},
+    ];
+    choice.open = true;
+    return;
+  }
   interactSimpleNPCs();
 }
 
@@ -359,7 +459,7 @@ function interactSluiceInterior() {
         const it = chest.item;
         if (hasStatusEffect('cursed')) {
           dialogue.name  = '';
-          dialogue.pages = [['You trip on the latch mechanism.', `The ${it.name} tumbles into the channel water below.`, 'A soft glug. It\u2019s gone.']];
+          dialogue.pages = [['Cursed! You trip on the latch mechanism.', `The ${it.name} tumbles into the channel water below.`, 'A soft glug. It\u2019s gone.']];
         } else {
           grantItem(it.name);
           dialogue.name  = '';
@@ -891,6 +991,25 @@ function interactThornmereWilds() {
   if (activeMap === SMUGGLER_FORT_MAP) { interactSmugglerFort(); return true; }
   // Fen Brewery \u2014 Gorrit sells freshly made mushroom wine by the bottle or case
   if (inFenBrewery) {
+    const tractDx = player.x - BREWERY_RECLAIMER_TRACT.x;
+    const tractDy = player.y - BREWERY_RECLAIMER_TRACT.y;
+    if (Math.sqrt(tractDx * tractDx + tractDy * tractDy) < TALK_RADIUS * 1.5) {
+      choice.title     = 'Printed tract';
+      choice.options   = ['Read it', 'Leave it'];
+      choice.cursor    = 0;
+      choice.callbacks = [
+        function readReclaimerTract() {
+          accordPanel.title = 'EVERYTHING THEY OWN WAS MADE BY SOMEONE ELSE';
+          accordPanel.pages = BREWERY_RECLAIMER_TRACT_PAGES;
+          accordPanel.page  = 0;
+          accordPanel.theme = 'reclaimer';
+          accordPanel.open  = true;
+        },
+        function leaveReclaimerTract() {},
+      ];
+      choice.open = true;
+      return true;
+    }
     const gorrit = SIMPLE_NPCS.find(n => n.id === 'gorrit_wend');
     if (gorrit) {
       const gwx = player.x - gorrit.x;

@@ -93,7 +93,7 @@ The rule this codebase actually follows:
 | `encounter-geography.js` | **PURE** geographic random-encounter authority (see "Geographic random-encounter authority" below): `geographicEncounterContext(regionId, worldPxX, worldPxY)` (physical chunk → `MAP_CATALOG` pool, fail-closed) + the read-only runtime selectors `playerStandingWorldPoint` / `regionalStandingEncounterContext` / `encounterGeographyOk`. | No randomness, no state mutation; composes `REGIONAL_LAYOUT`+`mapIdForChunk`+`MAP_CATALOG` (no new table). Physical map id is the pool authority — never a logical/`'overworld'` key. Independent of Continuous View. Consumed by `currentEncounterPool()` (combat.js) and the roll gate (movement.js). |
 | `render-interiors.js` | Interior furniture drawing per building (tavern, house, hamlet, brewery, harbormaster, wash house, provision store, offices, schools) and the anchor position consts those functions use. | Those anchor consts are also read by `canWalk()` in `movement.js` for collision — moving/renaming one affects collision, not just drawing. |
 | `render-entities.js` | Player sprite, all NPC sprites, world-view boss/special-enemy sprites, items/chests/world-items, merchant/traveller/shop drawing, and small world-feature hint overlays (sluice gate, Drenwick north gate, Thornmere stone). | Not base tiles or furniture (see above). |
-| `render-ui.js` | Drawing only for overlay panels: continent map, Accord panel, choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
+| `render-ui.js` | Drawing only for overlay panels: continent map, parchment document reader (the Accord's established panel, with an optional authored visual theme), choice box, dialogue box, main/pause menu, debug menu, debug warp menu, and the debug map inspector overlay. | Panel *state* (`dialogue`, `menu`, `choice`, `debugMenu`, `warpMenu`, `debugInspector`, etc) lives in `state.js`/`combat.js`; panel *input handling* lives in `input.js`. This file only reads state and draws. |
 | `render.js` | The single `render()` orchestrator — the canonical draw-call order (layering) for a frame — plus the pre-computed vignette, the extracted `drawActiveMapContent()` current-map content block, and the production continuous-view path (`continuousWorldViewActive()` / `drawContinuousWorld()`; see "Continuous regional overworld" below). | Don't put actual drawing logic here beyond the terrain/camera orchestration — call into the `render-*.js` files. If draw order/layering looks wrong, this is the file to fix. |
 | `input.js` | The `keys` table and the `keydown`/`keyup` listeners; routes a keypress to whichever screen is active (combat, menu, choice, shop, debug menu, debug warp menu, overlay panels, overworld). | No game logic beyond routing — it calls into `movement.js`/`combat.js`/`interactions.js`/etc rather than mutating game state directly (aside from cursor/screen UI state). |
 | `movement.js` | `player`, `locationName()`, `currentContentLocationKey()` (logical content-location key; `currentMapId()` is a deprecated alias), `tileAt()`, `canWalk()` (collision), `isEncounterEligibleTile()`, and `update()` — the per-frame advance of movement/cooldowns/encounter checks/`MAP_FEATURES` trigger-zone checks. | No drawing code. |
@@ -1589,6 +1589,7 @@ const MAP_FEATURES = {
       fallbackPages: [['...']],       // shown instead of pages if condition is false
       onceFlag: 'saw_road_sign',      // optional
       repeatPages: [['...']],         // shown instead of pages once onceFlag is set
+      sparkle: true,                   // optional inspect-only floor glint
       label: 'Road sign',             // debug/validation only, never shown to the player
     },
   ],
@@ -1596,7 +1597,11 @@ const MAP_FEATURES = {
 ```
 
 - **`inspect`** features are checked from `tryMapFeatures()` (proximity via
-  `nearPlayer()`, the same mechanism NPCs use).
+  `nearPlayer()`, the same mechanism NPCs use). An inspect may opt into the
+  shared floor glint with `sparkle: true`; `drawAuthoredMapFeatureSparkles()`
+  reads the same feature coordinate, condition/fallback gate, and radius, so
+  the visual marker cannot drift from the interaction. Sunken Gallery inspects
+  retain their established all-inspects-sparkle presentation.
 - **`trigger`** features (`rect: {x1,y1,x2,y2}`, tile units) are checked
   from `checkMapFeatureTriggers()`, called once per frame from the tail of
   `movement.js`'s `update()` — **not** gated on `player.moving` (it runs
@@ -1810,6 +1815,38 @@ against name-keyed battle-sprite dispatch (`BATTLE_SPRITE_NAMES`) being
 reintroduced. The remaining `enemy.name` uses in combat are all presentation:
 message strings (`A … appeared!`, defeat/attack/brace lines) and the combat-UI
 name plate.
+
+### Player-incoming defense mitigation
+
+`effectiveDef()` (`combat.js`) remains the single effective player-DEF total:
+base DEF plus equipped armor/shield, minus the existing Muddied penalty. Every
+enemy-to-player damage roll passes through one runtime adapter,
+`effectivePlayerIncomingMitigation(enemyAtk)`, which supplies the current
+effective DEF and equipped-armor capability to the pure
+`playerIncomingMitigation(enemyAtk, effectivePlayerDef, defenseCapBypass)` rule
+before calling the unchanged shared `rollAttackDamage()` function:
+
+```text
+ordinary mitigation = min(effectiveDef(), floor(enemyAtk * 0.80))
+```
+
+`enemyAtk` is the live `combat.enemy.atk` value already used by the damage roll;
+no display stat, name, map, pool, or enemy-specific branch participates. The
+helper is used by Attack exchanges, item-turn responses, blocked and failed Run
+hits, and Observe responses. Player-to-enemy calls still pass
+`combat.enemy.def` directly to `rollAttackDamage()` and are unchanged. Variance,
+critical multiplication, rounding, the minimum-one floor, evasion, status hooks,
+and turn/message ordering remain owned by their existing paths after mitigation
+is selected.
+
+An equipped armor may declaratively retain legacy uncapped effective DEF with
+the optional item capability `defenseCapBypass: true`. `ITEM_REGISTRY['Cat
+Armor']` is the sole authored user; this preserves its hidden progression-
+breaking behavior, including against Takomo. Runtime checks capability identity
+with `=== true` and never inspect the item name. `validateItems()` rejects a
+non-boolean value and rejects the capability on a non-armor. Item cloning,
+equipment, and save/load rehydration already copy registry metadata, so this
+adds no mutable state or save field and does not change `SAVE_VERSION`.
 
 ### Adding, moving, renaming, or retiring a pickup / chest / enemy
 

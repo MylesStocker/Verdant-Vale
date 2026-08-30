@@ -733,6 +733,8 @@ function drawHamletInteriorFurniture() {
 // Hearth (northwest living corner), bed, living table, and labels on the
 // fermentation vats embedded in the map tile pass (TABLE at cols 8,10,12 rows 2-3
 // and drying shelves at cols 10,12 row 7) — TABLE tiles are already non-walkable.
+const BREWERY_RECLAIMER_TRACT = { x: 2.5 * TILE, y: 9.5 * TILE };
+
 function drawFenBreweryFurniture() {
   if (!inFenBrewery) return;
 
@@ -815,6 +817,16 @@ function drawFenBreweryFurniture() {
     ctx.arc(vx, vy, 6, 0, Math.PI * 2);
     ctx.fill();
   }
+
+  // Reclaimer tract on the living table. The shared sparkle is also the exact
+  // interaction anchor, so its visual cue and readable point cannot drift.
+  drawExamineSparkle(
+    Math.round(BREWERY_RECLAIMER_TRACT.x),
+    Math.round(BREWERY_RECLAIMER_TRACT.y),
+    BREWERY_RECLAIMER_TRACT.x,
+    BREWERY_RECLAIMER_TRACT.y,
+    TALK_RADIUS * 1.5
+  );
 }
 
 // ─── Drenwick Harbormaster Office Furniture ───────────────────────────────────
@@ -1509,6 +1521,11 @@ const WASH_NOTICE        = { x: 10.5 * TILE, y: 3.5 * TILE }; // posted hours/ru
 const DRENWICK_PROVISION_LEDGER    = { x: 11.5 * TILE, y: 5.5 * TILE }; // order ledger, col 11 row 5
 const PROVISION_STOCK_CRATE = { x: 6 * TILE, y: 7.5 * TILE }; // stock crate inspection (approach from east face of crates)
 
+// Unshackled Flame tract on the main ledger table in Polwick's disguised fort.
+// Interaction/content lives in thornmere-wilds-interactions.js; this file owns
+// its furniture coordinate and deterministic in-world presentation.
+const POLWICK_FLAME_TRACT = { x: 6.5 * TILE, y: 7.5 * TILE };
+
 
 // ─── Drenwick Office Furniture Drawing ───────────────────────────────────────
 // Adds desks, a counter, shelves, and a filing cabinet to the Drenwick office.
@@ -1666,6 +1683,32 @@ function drawFortCrates() {
     ctx.fillRect(bx + 2, by + 4, 2, TILE - 6);
     ctx.fillRect(bx + TILE - 4, by + 4, 2, TILE - 6);
   }
+}
+
+// A distinctive folded pamphlet on Polwick's ledger table. The full tract uses
+// the near-full-screen parchment reader; this small graphic makes its physical
+// source visible without changing the fort grid or collision.
+function drawPolwickFlameTract() {
+  if (!inSmugglerFort) return;
+  const bx = Math.round(POLWICK_FLAME_TRACT.x - 10);
+  const by = Math.round(POLWICK_FLAME_TRACT.y - TILE / 2 + 6);
+
+  ctx.fillStyle = 'rgba(20,8,4,0.45)';
+  ctx.fillRect(bx + 2, by + 2, 20, 14);
+  ctx.fillStyle = '#d3bd78';
+  ctx.fillRect(bx, by, 20, 14);
+  ctx.fillStyle = '#3a0808';
+  ctx.fillRect(bx, by, 20, 4);
+  ctx.fillStyle = '#8a1818';
+  ctx.fillRect(bx + 3, by + 6, 3, 5);
+  ctx.fillRect(bx + 2, by + 9, 5, 3);
+  ctx.fillStyle = '#f0a020';
+  ctx.fillRect(bx + 4, by + 8, 1, 3);
+  ctx.fillStyle = '#5a3818';
+  ctx.fillRect(bx + 9, by + 7, 8, 1);
+  ctx.fillRect(bx + 9, by + 10, 6, 1);
+  ctx.fillStyle = '#9a6a38';
+  ctx.fillRect(bx + 18, by, 2, 14);
 }
 
 // ─── Office Furniture Drawing ─────────────────────────────────────────────────

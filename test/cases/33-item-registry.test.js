@@ -111,7 +111,7 @@ module.exports = {
       `);
       assert.equal(g.run('DUNGEON_CHEST.opened'), true, 'chest should open');
       const loot = JSON.parse(g.run('JSON.stringify(stats.items[stats.items.length - 1])'));
-      assert.deepEqual(loot, { name: 'Steel Sword', type: 'weapon', bonus: 7, price: 150 },
+      assert.deepEqual(loot, { name: 'Steel Sword', type: 'weapon', bonus: 7, price: 300 },
         'chest loot must carry complete canonical metadata');
       assert.equal(g.run('stats.items[stats.items.length - 1] !== DUNGEON_CHEST.item'), true,
         'chest loot must be a fresh instance, not the chest record\'s item field');
@@ -202,7 +202,7 @@ module.exports = {
       assert.equal(potion.engraving, 'to Pa', 'unknown per-instance fields must be preserved');
 
       const wpn = JSON.parse(g.run('JSON.stringify(stats.weapon)'));
-      assert.deepEqual(wpn, { name: 'Iron Sword', type: 'weapon', bonus: 4, price: 80 },
+      assert.deepEqual(wpn, { name: 'Iron Sword', type: 'weapon', bonus: 4, price: 160 },
         'equipped gear must be rehydrated from the registry');
 
       const sch = JSON.parse(g.run("JSON.stringify(stats.items.find(i => i.name === 'Schilling'))"));

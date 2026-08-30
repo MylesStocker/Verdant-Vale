@@ -142,6 +142,24 @@ function effectiveDef() {
   );
 }
 
+// Pure mitigation rule: ordinary effective DEF stops at 80% of the enemy's
+// live combat ATK. A validated armor capability may opt into legacy uncapped
+// behavior; Cat Armor is the sole authored user of that secret exception.
+function playerIncomingMitigation(enemyAtk, effectivePlayerDef, defenseCapBypass) {
+  if (defenseCapBypass === true) return effectivePlayerDef;
+  return Math.min(effectivePlayerDef, Math.floor(enemyAtk * 0.80));
+}
+
+// One runtime adapter supplies the current effective DEF and equipped-armor
+// capability to the pure rule. Every enemy-to-player attack path calls this.
+function effectivePlayerIncomingMitigation(enemyAtk) {
+  return playerIncomingMitigation(
+    enemyAtk,
+    effectiveDef(),
+    !!(stats.armor && stats.armor.defenseCapBypass === true)
+  );
+}
+
 // Accessories contribute a speed bonus; callers that need effective SPD use this.
 function effectiveSpd() {
   if (hasStatusEffect('slither')) return slitherSpd;
@@ -745,8 +763,8 @@ function refreshJobBoard() {
   if (day >= 2 && !schilling_returned) {
     JOB_BOARD_NOTICES.push(
       schilling_quest_started
-        ? 'MISSING \u2014 IN PROGRESS. Child\u2019s toy bear, Schilling. Last seen east dungeon.'
-        : 'MISSING \u2014 child\u2019s toy bear, name Schilling, believed taken into the east dungeon by a large creature. Child at the schoolhouse. Please return if recovered. \u2014 Bram, Schoolhouse, Calwick.'
+        ? 'MISSING \u2014 IN PROGRESS. Child\u2019s toy bear, Schilling. Last seen in the South Ruins.'
+        : 'MISSING \u2014 child\u2019s toy bear, name Schilling, believed taken into the South Ruins by a large creature. Child at the schoolhouse. Please return if recovered. \u2014 Bram, Schoolhouse, Calwick.'
     );
   }
   // Briar Warden removal contract — posted a few days in (day 5+), matching
@@ -784,14 +802,6 @@ function refreshJobBoard() {
       sentry_quest_started
         ? 'REMOVAL NOTICE \u2014 IN PROGRESS. Pale creature, the old blocked pass north of Drenwick. Report to Constable Tarvec, Drenwick Guard Post, on confirmed removal.'
         : 'REMOVAL NOTICE \u2014 A large pale creature has been sighted at the old blocked pass, up the north road from Drenwick, where the way is grown over. Contract fee offered for confirmed removal. Report to Constable Tarvec, Drenwick Guard Post.'
-    );
-  }
-  // Still Water — sickle quest (stage 0: posting visible; stage 1-3: in progress; stage 4: done, hidden)
-  if (sickle_quest_stage < 4) {
-    DRENWICK_JOB_BOARD_NOTICES.push(
-      sickle_quest_stage === 0
-        ? 'LOST TOOL \u2014 A fen sickle, iron-bladed, lost two seasons ago at the north bank of the bog pond near the Northern Fen hamlet. Personal value. Fee offered for recovery. Inquire at the hamlet, north fen road. \u2014 Mabel, Northern Fen Hamlet.'
-        : 'LOST TOOL \u2014 IN PROGRESS. Fen sickle, north bog pond bank.'
     );
   }
 }
@@ -1003,7 +1013,7 @@ function evadeText(defenderIsPlayer) {
 // message line; returns a deferred { text, apply() } queue entry, the same
 // shape every other enemy hit in this file uses.
 function enemyTurnResponse(textFn) {
-  const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectiveDef());
+  const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
   const dodged = playerEvades();
   return {
     text: dodged ? evadeText(true) : (crit ? 'Critical! ' : '') + textFn(eDmg),
@@ -1704,7 +1714,7 @@ function handleCombatAction() {
     // Math.random(). Attempting it costs the turn: the enemy gets a free hit.
     if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa ||
         combat.enemy.runLock === 'observe_gated') {
-      const roll   = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const roll   = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
       const dodged = playerEvades();
       const eDmg   = dodged ? 0 : roll.dmg;
       const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
@@ -1736,7 +1746,7 @@ function handleCombatAction() {
       combat.phase        = 'message';
     } else {
       // Failed to flee — enemy gets a free hit (unless Bullet Time dodges it)
-      const roll   = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const roll   = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
       const dodged = playerEvades();
       const eDmg   = dodged ? 0 : roll.dmg;
       const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
@@ -1781,7 +1791,7 @@ function handleCombatAction() {
                : pRoll.dmg;
     const pCrit = pRoll.crit && !enemyDefending && !cursedFumble; // only a clean hit reads as a crit
     const pc = pCrit ? 'Critical hit! ' : '';
-    const eRoll = rollAttackDamage(combat.enemy.atk, effectiveDef());
+    const eRoll = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
     const eDmg  = eRoll.dmg;
     const ec    = eRoll.crit ? 'Critical! ' : '';
 
@@ -1799,7 +1809,7 @@ function handleCombatAction() {
       } else {
         combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
         msgs.push(cursedFumble
-          ? `Cursed fumble! ${stats.name} swings wildly for ${pDmg} damage.`
+          ? `Cursed! ${stats.name} swings wildly for ${pDmg} damage.`
           : `${pc}${stats.name} attacks for ${pDmg} damage!`);
       }
 
@@ -1855,7 +1865,7 @@ function handleCombatAction() {
         // The player still lands their own attack the same turn; the enemy HP
         // update is deferred to match the message.
         const answerText = cursedFumble
-          ? `Cursed fumble! ${stats.name} swings wildly for ${pDmg}!`
+          ? `Cursed! ${stats.name} swings wildly for ${pDmg}!`
           : `${pc}${stats.name} attacks for ${pDmg} damage!`;
         msgs.push({
           text: answerText,
@@ -1894,7 +1904,7 @@ function handleCombatAction() {
     if (Math.random() < skipChance) {
       msgs.push('It does not close the distance.');
     } else {
-      const obsRoll  = rollAttackDamage(combat.enemy.atk, effectiveDef());
+      const obsRoll  = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
       const dodged   = playerEvades();
       const obsEDmg  = dodged ? 0 : obsRoll.dmg;
       const obsNewHp = Math.max(0, stats.hp - obsEDmg);
@@ -1932,4 +1942,3 @@ function handleCombatAction() {
     combat.phase        = 'message';
   }
 }
-

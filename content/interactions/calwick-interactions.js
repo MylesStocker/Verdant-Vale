@@ -1239,13 +1239,13 @@ function interactCalwickOffice() {
         dialogue.name  = 'Aldric';
         dialogue.pages = [
           ['\u201cRequisition slip for our Junior Investigator.\u201d', 'He glances at it, then at you.', '\u201cRisky assignment?\u201d'],
-          ['He doesn\u2019t wait for an answer.', 'Pulls a bundle from under the counter.', '\u201cSword, armor. Standard issue. Sign here.\u201d'],
+          ['He doesn\u2019t wait for an answer.', 'Pulls a bundle from under the counter.', '\u201cKnife, armor. Standard issue. Sign here.\u201d'],
           ['\u201cOpen the menu with Esc or M, go to Items, and choose Equip.\u201d',
            'He\u2019s already looking back down at his ledger.'],
         ];
         dialogue.callbacks = [function() {
           equipment_ticket_ready = false;
-          grantItem('Iron Sword');
+          grantItem('Bronze Knife');
           grantItem('Leather Armor');
           syncQuestFlagsToWindow();
         }];

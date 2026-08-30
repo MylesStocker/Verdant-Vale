@@ -276,7 +276,7 @@ const SLUICE_SECRET_ENEMY_TEMPLATES = [
 ];
 
 // ── World pick-up items ───────────────────────────────────────────────────────
-// Iron Sword and Leather Armor moved to starting inventory (issued by Empire office).
+// Bronze Knife and Leather Armor form the starting kit issued by the Empire office.
 const WORLD_ITEMS = [
   { id: 'pickup_world_potion', name: 'Potion', type: 'potion', heals: 20, price: 30,
     x: 6.5 * TILE, y: 11.5 * TILE, picked: false, examine: true,
@@ -387,7 +387,7 @@ const DUNGEON8_ITEMS = [
   // The best shield in the game, at the very bottom of the ruins: set upright in
   // the dead-end south chamber (col 7 row 13). An examine sparkle (not an auto-
   // pickup) so it gets its own flavour on the way into your pack.
-  { id: 'pickup_dungeon8_resonant_targe', name: 'Resonant Targe', type: 'shield', bonus: 8, price: 180,
+  { id: 'pickup_dungeon8_resonant_targe', name: 'Resonant Targe', type: 'shield', bonus: 8, price: 360,
     x: 7.5 * TILE, y: 13.5 * TILE, picked: false, examine: true,
     examinePages: [
       ['Set upright against the far wall, bone-dry in all this wet: a round shield of dark metal, its face worked with a spiral that seems to turn a little whenever you look away from it.'],
@@ -454,7 +454,7 @@ const SLUICE_SECRET_CHEST = {
   x:      13.5 * TILE,
   y:      10.5 * TILE,
   opened: false,
-  item:   { name: 'Warden Blade', type: 'weapon', bonus: 10, price: 220 },
+  item:   { name: 'Warden Blade', type: 'weapon', bonus: 10, price: 440 },
 };
 
 // ─── Sluice level 3 items ─────────────────────────────────────────────────────
@@ -474,7 +474,7 @@ const SLUICE_LEVEL3_CHEST = {
   x:       7.5 * TILE,
   y:      10.5 * TILE,
   opened: false,
-  item:   { name: 'Void Shard', type: 'accessory', bonus: 5, price: 180 },
+  item:   { name: 'Void Shard', type: 'accessory', bonus: 5, price: 360 },
 };
 
 // ─── Dungeon chest ────────────────────────────────────────────────────────────
@@ -485,7 +485,7 @@ const DUNGEON_CHEST = {
   x:      10.5 * TILE,
   y:       1.5 * TILE,
   opened: false,
-  item:   { name: 'Steel Sword', type: 'weapon', bonus: 7, price: 150 },
+  item:   { name: 'Steel Sword', type: 'weapon', bonus: 7, price: 300 },
 };
 
 // ─── Cat Armor chest (player_house secret pocket — Day 2 only) ───────────────
@@ -537,21 +537,20 @@ const SLUICE_DEEP_CHEST = {
   x:      11.5 * TILE,
   y:      10.5 * TILE,
   opened: false,
-  item:   { name: 'Fen Mask', type: 'accessory', bonus: 5, price: 200 },
+  item:   { name: 'Fen Mask', type: 'accessory', bonus: 5, price: 400 },
 };
 
 // ─── Sunken Gallery chest (grid room R2C4 — the sealed east pocket) ───────────
-// Holds Bullet Time, the game's one combat-only evade consumable. Like
-// MEADOW_CHEST (its own one-of-a-kind reward) it deliberately does NOT trigger
-// the cursed-fumble drop gag the dungeon/sluice chests have — Bullet Time has no
-// other source, so a curse must never lose it for good. Opened flag persists via
-// the v3 chest registry (openedChestIds), like every OPENABLE_CHESTS chest.
+// Holds the Potion formerly found in the maintenance cupboard. Like
+// MEADOW_CHEST it deliberately does NOT trigger the cursed-fumble drop gag the
+// dungeon/sluice chests have. Opened state persists through the v3 chest registry
+// (openedChestIds), like every OPENABLE_CHESTS chest.
 const SUNKEN_GALLERY_CHEST = {
   id:     'chest_sunken_gallery',
   x:      12.5 * TILE,
   y:       7.5 * TILE,
   opened: false,
-  item:   { name: 'Bullet Time', type: 'buff', evadeRate: 0.90, evadeTurns: 3, battleOnly: true, price: 150 },
+  item:   { name: 'Potion', type: 'potion', heals: 20, price: 10 },
 };
 
 // ─── Takomo (secret chamber boss — Drenwick Waterfront hidden path) ──────────

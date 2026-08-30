@@ -73,7 +73,9 @@ function drawActiveMapContent() {
   if (inDungeonEntrance) drawSouthRuinsEntranceDecor();
   if (inTakomo && !TAKOMO.defeated) drawTakomo();
   if (inSmugglerFort) drawFortCrates();
+  if (inSmugglerFort) drawPolwickFlameTract();
   if (inSunkenGallery) drawSunkenGalleryFeatures();
+  if (!inSunkenGallery) drawAuthoredMapFeatureSparkles();
   if (inSunkenGallery && activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened) drawChest(SUNKEN_GALLERY_CHEST);
   if (inTown) drawSupervisorSprite();
   if (inTown) drawEslaSprite();
@@ -233,15 +235,6 @@ function render() {
     ctx.fillText(worldToast, 256, 214);
     ctx.textAlign = 'left';
     ctx.restore();
-  }
-
-  // ── Debug menu hint (overworld only, no overlays active) ──────────────────
-  if (!menu.open && !dialogue.open && !shop.open && !choice.open && !debugMenu.open) {
-    ctx.fillStyle = 'rgba(80,120,100,0.45)';
-    ctx.font = '9px "Courier New", monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText('[ ` ] debug', 508, 476);
-    ctx.textAlign = 'left';
   }
 
   // ── Debug map inspector overlay (drawn last, on top of everything) ────────

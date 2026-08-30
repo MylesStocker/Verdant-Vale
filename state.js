@@ -290,9 +290,9 @@ const continentMap = { open: false };
 // pages: array of string[] (same shape as dialogue.pages) — set before opening.
 // page: current page index.
 // Near-full-screen parchment reading panel. Originally the Accord of Threads
-// reader; now a general imperial-document reader — set `title` before opening
-// (falls back to the Accord title if left blank, preserving old behaviour).
-const accordPanel = { open: false, page: 0, pages: [], title: '' };
+// reader; now a general document reader — set `title` and `theme` before
+// opening (both retain their Imperial defaults for existing readers).
+const accordPanel = { open: false, page: 0, pages: [], title: '', theme: 'imperial' };
 
 
 // ─── Frame counter ────────────────────────────────────────────────────────────

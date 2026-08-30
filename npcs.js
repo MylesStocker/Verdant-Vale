@@ -1996,14 +1996,16 @@ NPC_ACTIONS.griddRainfishWarn = function(npc) {
 NPC_ACTIONS.mabelSickleQuest = function(npc) {
   dialogue.name = npc.name;
   if (sickle_quest_stage === 0) {
+    sickle_quest_stage = 1;
+    syncQuestFlagsToWindow();
     dialogue.pages = [
       ['\u201cI lost my sickle at the north bank of the bog pond, two seasons past.\u201d',
-       '\u201cI put a notice at the Drenwick market board. If you\u2019re heading that way.\u201d'],
+       '\u201cIf you\u2019re heading that way, I\u2019d be grateful to have it back.\u201d'],
+      ['\u201cNorth bank \u2014 watch the reeds. Don\u2019t come in from the west side.\u201d'],
     ];
   } else if (sickle_quest_stage === 1) {
     dialogue.pages = [
-      ['\u201cYou saw the posting. Good.\u201d',
-       '\u201cNorth bank \u2014 watch the reeds. Don\u2019t come in from the west side.\u201d'],
+      ['\u201cNorth bank \u2014 watch the reeds. Don\u2019t come in from the west side.\u201d'],
     ];
   } else if (sickle_quest_stage === 2) {
     sickle_quest_stage = 4;

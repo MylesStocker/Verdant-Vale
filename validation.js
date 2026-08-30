@@ -1545,6 +1545,10 @@ function validateItems() {
         if (field in item && !_isFiniteNumber(item[field]))
           addValidationError(GROUP, lbl + ': ' + field + ' is not a valid number (' + item[field] + ')');
       }
+      if ('defenseCapBypass' in item && typeof item.defenseCapBypass !== 'boolean')
+        addValidationError(GROUP, lbl + ': defenseCapBypass must be boolean when present');
+      if ('defenseCapBypass' in item && item.type !== 'armor')
+        addValidationError(GROUP, lbl + ': defenseCapBypass is only valid on armor');
       // Every status-cure property (curesX) must be registered in the shared
       // STATUS_CURE_PROPERTIES contract (combat.js), so it routes through the one
       // status-cure resolution path and never leaks the cured status into item
@@ -2175,6 +2179,8 @@ function validateMapFeatures() {
         addValidationWarning(GROUP, lbl + ': name is present but not a string');
       if (feature.label !== undefined && typeof feature.label !== 'string')
         addValidationWarning(GROUP, lbl + ': label is present but not a string');
+      if (feature.sparkle !== undefined && typeof feature.sparkle !== 'boolean')
+        addValidationError(GROUP, lbl + ': sparkle must be boolean when present');
     });
   }
 
