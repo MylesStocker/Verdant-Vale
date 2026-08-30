@@ -35,9 +35,9 @@ window.EARLY_ENEMY_TEMPLATES = EARLY_ENEMY_TEMPLATES;
 
 const DUNGEON_ENEMY_TEMPLATES = [
   // Bone Guard — heavily armored skeleton warrior
-  { id: 'enemy_bone_guard',   name: 'Bone Guard',   hp: 36, maxHp: 36, atk: 8,  def: 6, spd:  4, xp: 28, goldMin: 8, goldMax: 15, defendChance: 0.25 },
+  { id: 'enemy_bone_guard',   name: 'Bone Guard',   hp: 46, maxHp: 46, atk: 12, def: 7, spd:  5, xp: 28, goldMin: 8, goldMax: 15, defendChance: 0.25 },
   // Shade Wraith — fast spectral assassin, fragile but hits hard
-  { id: 'enemy_shade_wraith', name: 'Shade Wraith', hp: 26, maxHp: 26, atk: 12, def: 2, spd: 12, xp: 32, goldMin: 8, goldMax: 15 },
+  { id: 'enemy_shade_wraith', name: 'Shade Wraith', hp: 36, maxHp: 36, atk: 15, def: 3, spd: 13, xp: 32, goldMin: 8, goldMax: 15 },
 ];
 
 const DUNGEON2_ENEMY_TEMPLATES = [
@@ -96,12 +96,12 @@ const FAR_ENEMY_TEMPLATES = [
   // invisible in battle (never shown in the name, message, HP or stats). Only
   // Observe reveals which is which (getObservationText), and only a sex-matched
   // reagent (Henbane Sprig / Jackbane Vial, items.js) drops it in one move.
-  // Deliberately durable (high HP + def) and unpleasant (poison-skinned): a slow
-  // slog to grind down by attacks, and it drips toxin on a hit, so paying 8 gold
-  // and an Observe to end it instantly is the better play. Both entries in the
+  // Deliberately durable (high HP + def) and unpleasant (poison-skinned): trying
+  // to grind one down by attacks is a losing proposition at this stage, so
+  // Observe plus the 8-gold matching reagent is the intended answer. Both entries in the
   // pool so each sex is ~1-in-7 of a fen fight.
-  { id: 'enemy_mire_toad_male',   name: 'Mire Toad',     hp: 72, maxHp: 72, atk: 15, def: 10, spd:  5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'male'   },
-  { id: 'enemy_mire_toad_female', name: 'Mire Toad',     hp: 72, maxHp: 72, atk: 15, def: 10, spd:  5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'female' },
+  { id: 'enemy_mire_toad_male',   name: 'Mire Toad',     hp: 150, maxHp: 150, atk: 22, def: 16, spd: 5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'male'   },
+  { id: 'enemy_mire_toad_female', name: 'Mire Toad',     hp: 150, maxHp: 150, atk: 22, def: 16, spd: 5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'female' },
 ];
 
 // Enemies specific to Thornmere (MAP4) and Thornmere Shallows (MAP5) — deeper fen, harder than the open marsh
@@ -112,9 +112,9 @@ const THORNMERE_ENEMY_TEMPLATES = [
 window.THORNMERE_ENEMY_TEMPLATES = THORNMERE_ENEMY_TEMPLATES;
 
 // ─── The Abandoned Lighthouse (Thornmere Shallows headland) ──────────────────
-// The tower's five floors, infested since it was abandoned. Tuned to sit a notch
-// BELOW the Sunken Gallery (Pale Drowned / Silt Hag): the same "fast-fragile +
-// slow-armoured" pairing, everything a little softer. Selected per floor via
+// The tower's five floors, infested since it was abandoned. This is a post-MQ3
+// dungeon: even its ordinary inhabitants are tuned to wear down a level-5 player
+// in the best equipment normally purchasable by then. Selected per floor via
 // MAP_METADATA.encounterPool (currentEncounterPool()'s fall-through) — no
 // inDungeon/dungeonFloor, same shape as the Sunken Gallery. LIGHTHOUSE_ENEMY_TEMPLATES
 // is every floor's base pool; the Lantern Room (top floor) uses the extended pool
@@ -122,11 +122,11 @@ window.THORNMERE_ENEMY_TEMPLATES = THORNMERE_ENEMY_TEMPLATES;
 const LIGHTHOUSE_ENEMY_TEMPLATES = [
   // Marsh Rat — large, salt-crusted rats nesting among the abandoned supplies;
   // fast and fragile, a straightforward physical biter.
-  { id: 'enemy_marsh_rat',        name: 'Marsh Rat',        hp: 22, maxHp: 22, atk:  9, def: 1, spd: 13, xp: 24, goldMin: 4, goldMax:  9 },
+  { id: 'enemy_marsh_rat',        name: 'Marsh Rat',        hp: 44, maxHp: 44, atk: 22, def: 4, spd: 14, xp: 24, goldMin: 4, goldMax:  9 },
   // Shallows Skitter — an oversized crab/isopod that climbed in through the
   // drainage cracks; slow and armoured, the floor's basic defensive wall. Reuses
   // the Stone Crawler silhouette as a wet, salt-bleached palette swap (render-battle.js).
-  { id: 'enemy_shallows_skitter', name: 'Shallows Skitter', hp: 42, maxHp: 42, atk: 12, def: 7, spd:  2, xp: 36, goldMin: 8, goldMax: 16, defendChance: 0.22 },
+  { id: 'enemy_shallows_skitter', name: 'Shallows Skitter', hp: 70, maxHp: 70, atk: 23, def: 10, spd: 5, xp: 36, goldMin: 8, goldMax: 16, defendChance: 0.25 },
 ];
 window.LIGHTHOUSE_ENEMY_TEMPLATES = LIGHTHOUSE_ENEMY_TEMPLATES;
 
@@ -139,7 +139,7 @@ const LIGHTHOUSE_TOP_ENEMY_TEMPLATES = [
   // Lantern Moth — quick and fragile, drawn to the dead lens. Its dust burst can
   // leave the player Dazzled (accuracy down for a few turns) via the generic
   // `dazzleChance` on-hit hook (combat.js). Top floor only.
-  { id: 'enemy_lantern_moth',     name: 'Lantern Moth',     hp: 18, maxHp: 18, atk:  8, def: 1, spd: 14, xp: 30, goldMin: 5, goldMax: 12, dazzleChance: 0.30 },
+  { id: 'enemy_lantern_moth',     name: 'Lantern Moth',     hp: 38, maxHp: 38, atk: 23, def: 3, spd: 16, xp: 30, goldMin: 5, goldMax: 12, dazzleChance: 0.40 },
 ];
 window.LIGHTHOUSE_TOP_ENEMY_TEMPLATES = LIGHTHOUSE_TOP_ENEMY_TEMPLATES;
 
@@ -200,17 +200,17 @@ const NORTH_BASIN_ENEMY_TEMPLATES = [
 window.NORTH_BASIN_ENEMY_TEMPLATES = NORTH_BASIN_ENEMY_TEMPLATES;
 
 // ─── The Sunken Gallery (under the Upper Reach) ──────────────────────────────
-// The drought-exposed structure below NORTH_BASIN_NW_MAP. Pale Drowned and
-// Silt Hag with stats IDENTICAL to their MIRE_VAULT_ENEMY_TEMPLATES entries
-// -- same creatures, newly exposed hunting ground, not a new tier. Selected
+// The drought-exposed structure below NORTH_BASIN_NW_MAP. Its ordinary fights
+// are deliberately punishing: reaching the deeper rooms should feel like a
+// sustained march through hostile ground rather than another easy item run. Selected
 // via MAP_METADATA.encounterPool (currentEncounterPool()'s fall-through),
 // zero combat.js changes -- the gallery deliberately does NOT use
 // inDungeon/dungeonFloor (see state.js's inSunkenGallery comment).
 const SUNKEN_GALLERY_ENEMY_TEMPLATES = [
-  // Pale Drowned — spectral drowning victim; the reservoir had its own
-  { id: 'enemy_pale_drowned_gallery', name: 'Pale Drowned', hp: 30, maxHp: 30, atk: 11, def: 2, spd: 10, xp: 35, goldMin:  6, goldMax: 14 },
+  // Pale Drowned — exclusive to the Gallery; quick and especially punishing
+  { id: 'enemy_pale_drowned_gallery', name: 'Pale Drowned', hp: 58, maxHp: 58, atk: 30, def: 4, spd: 13, xp: 35, goldMin:  6, goldMax: 14 },
   // Silt Hag — the silt here is deep, and it was never empty
-  { id: 'enemy_silt_hag_gallery',     name: 'Silt Hag',     hp: 45, maxHp: 45, atk: 18, def: 5, spd:  3, xp: 50, goldMin: 10, goldMax: 20 },
+  { id: 'enemy_silt_hag_gallery',     name: 'Silt Hag',     hp: 85, maxHp: 85, atk: 27, def: 9, spd:  6, xp: 50, goldMin: 10, goldMax: 20 },
 ];
 window.SUNKEN_GALLERY_ENEMY_TEMPLATES = SUNKEN_GALLERY_ENEMY_TEMPLATES;
 
@@ -590,10 +590,9 @@ window.DEN_WRAITH_TEMPLATE = DEN_WRAITH_TEMPLATE;
 // A large spider nesting in the old webbing around the broken lens. Reached by
 // choosing to reach through the web for the route objective; the player starts
 // the fight Poisoned from its bite (applied at combat start, see combat.js).
-// Tuned as a modest Thornmere/MQ4-area boss — beatable while poisoned, and
-// deliberately NOT scaled to Polwick's 400g reward, since the Supervisor route
-// reaches the same fight for 150g. Between the Den Wraith (42) and Corpse Slug
-// (62) in HP; softer ATK than the Den Wraith so the poison handicap stays fair.
+// Tuned as a post-MQ3 threat that the player is meant to read and escape from,
+// not overpower by repeating Attack. Observe reveals the territorial retreat
+// route; a player who ignores it faces boss-grade HP, attack, defense, and speed.
 // `runLock: 'observe_gated'` is a narrow, validated Run/Observe capability
 // (combat.js): Run is a guaranteed 0% until Observe reveals the safe retreat,
 // then a guaranteed 100% for the rest of that battle — no Math.random either way.
@@ -602,7 +601,7 @@ window.DEN_WRAITH_TEMPLATE = DEN_WRAITH_TEMPLATE;
 // only ordinary loot.
 const LENSWEB_SPIDER_TEMPLATE = {
   id: 'enemy_lensweb_spider',
-  name: 'Lensweb Spider', hp: 58, maxHp: 58, atk: 15, def: 4, spd: 8,
+  name: 'Lensweb Spider', hp: 180, maxHp: 180, atk: 34, def: 11, spd: 15,
   xp: 60, goldMin: 14, goldMax: 26,
   runLock: 'observe_gated',
 };
@@ -665,10 +664,8 @@ const BOSS_DIALOGUE = [
 
 // ─── Mirethyst's Vault — enemies ──────────────────────────────────────────────
 // Ancient pre-Empire rareborn chamber sunk into the northern fen. Harder than
-// the sluice; softer than the dungeon's second floor. Spectral and bog-cursed.
+// the sluice; softer than the dungeon's second floor. Bog-cursed.
 const MIRE_VAULT_ENEMY_TEMPLATES = [
-  // Pale Drowned — spectral fen victim; fast and relentless, fragile in form
-  { id: 'enemy_pale_drowned_vault', name: 'Pale Drowned', hp: 30, maxHp: 30, atk: 11, def: 2, spd: 10, xp: 35, goldMin:  6, goldMax: 14 },
   // Silt Hag — bog-curse made flesh; ponderous and devastating, hard to kill
   { id: 'enemy_silt_hag_vault',     name: 'Silt Hag',     hp: 45, maxHp: 45, atk: 18, def: 5, spd:  3, xp: 50, goldMin: 10, goldMax: 20 },
 ];

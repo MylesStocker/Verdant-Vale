@@ -9,11 +9,11 @@
 // ─── Removal Contract quest objects ───────────────────────────────────────────
 // Briar Warden — territorial fen creature denning in the hidden spring meadow
 // off the Verdant Vale's NW tree nook (MEADOW_MAP; formerly dungeon floor 1's
-// east passage). Stats sit between floor-1 and floor-2 enemies; no gold
-// (Mault pays the reward instead).
+// east passage). A level-5 player in the Steel Sword and issued armor can win,
+// but cannot safely flatten it by repeating Attack; no gold (Mault pays instead).
 const BRIAR_WARDEN_TEMPLATE = {
   id: 'enemy_briar_warden',
-  name: 'Briar Warden', hp: 75, maxHp: 75, atk: 18, def: 5, spd: 7,
+  name: 'Briar Warden', hp: 110, maxHp: 110, atk: 22, def: 8, spd: 9,
   xp: 110, goldMin: 0, goldMax: 0,
 };
 
@@ -21,17 +21,17 @@ const BRIAR_WARDEN_TEMPLATE = {
 // Intentionally hard for early-game players: fight-path is optional but punishing.
 const SMUGGLER_GUARD_TEMPLATE = {
   id: 'enemy_smuggler_guard',
-  name: 'Smuggler Guard', hp: 34, maxHp: 34, atk: 12, def: 5, spd: 7,
+  name: 'Smuggler Guard', hp: 46, maxHp: 46, atk: 17, def: 7, spd: 8,
   xp: 40, goldMin: 12, goldMax: 22,
 };
 const POLWICK_TEMPLATE = {
   id: 'enemy_polwick',
-  name: 'Polwick', hp: 42, maxHp: 42, atk: 14, def: 5, spd: 6,
+  name: 'Polwick', hp: 64, maxHp: 64, atk: 19, def: 7, spd: 9,
   xp: 52, goldMin: 20, goldMax: 35,
 };
 const ESSA_TEMPLATE = {
   id: 'enemy_essa',
-  name: 'Essa', hp: 26, maxHp: 26, atk: 11, def: 2, spd: 12,
+  name: 'Essa', hp: 36, maxHp: 36, atk: 17, def: 4, spd: 14,
   xp: 36, goldMin: 10, goldMax: 18,
 };
 
@@ -39,7 +39,7 @@ const ESSA_TEMPLATE = {
 // Spawns on MAP_N2 once sentry_quest_started. HP persists between encounters.
 const PALE_SENTRY_TEMPLATE = {
   id: 'enemy_pale_sentry',
-  name: 'Pale Sentry', hp: 500, maxHp: 500, atk: 20, def: 10, spd: 4,
+  name: 'Pale Sentry', hp: 500, maxHp: 500, atk: 32, def: 10, spd: 4,
   xp: 350, goldMin: 40, goldMax: 80,
 };
 
@@ -1198,14 +1198,14 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['It doesn\u2019t have a fixed form. It\u2019s using mass instead of structure.', 'The floor in here is wet from something that is neither water nor blood.'] },
     { lines: ['It doesn\u2019t strategize. It maximizes contact.', 'You are currently something it wants to maximize contact with.', 'Keep moving.'] },
   ],
-  // ── Mirethyst\u2019s Vault ────────────────────────────────────────────────────────
+  // ── Sunken Gallery ─────────────────────────────────────────────────────────
   enemy_pale_drowned_gallery: [
-    { lines: ['Fast. Light armor. Fragile.', 'Spectral fen victim \u2014 it will strike first.', 'Should collapse quickly if you go offensive.'] },
+    { lines: ['Fast. Hard-hitting. Light armor.', 'It will usually strike first, and every hit matters.', 'Do not settle into an exchange of blows.'] },
     { lines: ['The fen took someone and left this.', 'It doesn\u2019t remember what happened. It just knows this place.'] },
     { lines: ['The pale colouring is fen-water saturation. The shape is what\u2019s left of what it was.', 'It doesn\u2019t seem to recognise what it\u2019s becoming.'] },
   ],
   enemy_silt_hag_gallery: [
-    { lines: ['High attack. Moderate defense. Very slow.', 'Bog-curse made solid. Heavy hits but easy to dodge with speed.', 'Stay ahead of its turn order.'] },
+    { lines: ['Severe attack. High defense. Slow.', 'Bog-curse made solid. It can outlast you and hit hard enough to end the argument.', 'Stay ahead of its turn order.'] },
     { lines: ['It condenses from the silt where the vault floor meets the water.', 'This is apparently where it\u2019s supposed to be.'] },
     { lines: ['It doesn\u2019t decompose between encounters.', 'It disperses into the silt and reforms.', 'You\u2019re not sure which state is the real one.'] },
   ],
@@ -1290,7 +1290,7 @@ const ENEMY_OBSERVATIONS = {
 };
 
 // Several distinct template ids share one display identity (e.g. the three
-// Marsh Wisp variants, the gallery/vault Pale Drowned). Observe lore is per
+// Marsh Wisp variants and the two Silt Hags). Observe lore is per
 // identity, so alias the sibling ids onto the base id's entry -- keeping the
 // lookup purely id-keyed without duplicating the authored text. Each row is
 // [baseId, ...siblingIds]; validateEnemies() confirms every id here is a
@@ -1302,7 +1302,6 @@ const ENEMY_OBSERVATIONS = {
     ['enemy_briar_hound', 'enemy_briar_hound_early'],
     ['enemy_silt_crab', 'enemy_silt_crab_upper'],
     ['enemy_silt_hag_gallery', 'enemy_silt_hag_vault'],
-    ['enemy_pale_drowned_gallery', 'enemy_pale_drowned_vault'],
   ];
   for (const [base, ...siblings] of groups) {
     if (!ENEMY_OBSERVATIONS[base]) continue;
@@ -1323,12 +1322,14 @@ function getObservationText(enemy, count) {
     // heavy body and smooth fingers of the female — not by intuition.
     const reveal = enemy.sex === 'male'
       ? ['Lélý reads the animal, not the fight.',
-         'Rough nuptial pads, a swelling throat-sac — this one is a male. A jack.']
+         'Rough nuptial pads, a swelling throat-sac — this one is a male. A jack.',
+         'Jackbane is the matching reagent. It should bring this one down.']
       : ['Lélý reads the animal, not the fight.',
-         'Egg-heavy and round, throat pale, fingers smooth — this one is a female. A hen.'];
+         'Egg-heavy and round, throat pale, fingers smooth — this one is a female. A hen.',
+         'Henbane is the matching reagent. It should bring this one down.'];
     const later = [
       ['Jack and hen look identical — only the tells give it away.',
-       'Now you know which this is. What to do about it is another matter.'],
+       'Now you know which bane to use.'],
       ['It watches you back now, toad-patient. It has all the time the fen has.',
        'Which is all of it.'],
     ];

@@ -214,20 +214,24 @@ function incomingMitigation(p, statuses, enemyAtk) {
 function evaded(attackerSpd, defenderSpd, rng) {
   return rng() < Math.min(0.30, Math.max(0.02, 0.08 + 0.015 * (defenderSpd - attackerSpd)));
 }
+function speedWinChance(own, other) {
+  const a = Math.max(1, own), b = Math.max(1, other);
+  return Math.min(0.90, Math.max(0.10, a / (a + b)));
+}
+function rolledDamage(atk, def, rng) {
+  let dmg = atk * (0.8 + rng() * 0.4) - def;
+  if (rng() < 0.10) dmg *= 1.5;
+  return Math.max(1, Math.round(dmg));
+}
 function effSpd(p, statuses, rng) {
   if (statuses.slither) return Math.floor(rng() * 20) + 1;
   return Math.max(1, p.spd - (statuses.muddied ? 2 : 0));
 }
 
-// Faithful port of applyEnemyHitEffects() (combat.js) — status application on
-// every landed enemy hit. Identity-sensitive effects are keyed by the STABLE
-// enemy id (enemy.id), exactly as combat.js dispatches them — never by display
-// name (several ids share a name). curseChance stays property-driven.
+// Faithful port of the currently enabled in-combat status hooks. Muddied and
+// Slither remain debug-only while curse stays property-driven. Poison ticks
+// during travel/rest rather than battle.
 function applyEnemyHitEffects(enemyTemplate, statuses, rng) {
-  if (enemyTemplate.id === 'enemy_briar_warden' && !statuses.muddied && rng() < 0.30) statuses.muddied = true;
-  if (enemyTemplate.id === 'enemy_corpse_slug' && !statuses.slither && rng() < 0.30) statuses.slither = true;
-  if (enemyTemplate.id === 'enemy_shade_wraith' && !statuses.slither && rng() < 0.25) statuses.slither = true;
-  // Fen Witch's poison only ticks on overworld movement, not in combat — no in-fight effect.
   if (enemyTemplate.curseChance && !statuses.cursed && rng() < enemyTemplate.curseChance) statuses.cursed = true;
 }
 
@@ -265,9 +269,8 @@ function simulateFight(playerIn, enemyTemplateIn, rng, opts) {
       const healed = Math.min(potionHeal, player.maxHp - player.hp);
       player.hp = Math.min(player.maxHp, player.hp + healed);
       potionsLeft--; potionsUsed++;
+      const eDmg = rolledDamage(enemyTemplateIn.atk, incomingMitigation(player, statuses, enemyTemplateIn.atk), rng);
       if (!evaded(enemySpd, playerSpd, rng)) {
-        const atkRoll = enemyTemplateIn.atk * (0.8 + rng() * 0.4);
-        const eDmg = Math.max(1, Math.round(atkRoll - incomingMitigation(player, statuses, enemyTemplateIn.atk)));
         player.hp = Math.max(0, player.hp - eDmg);
         damageTaken += eDmg;
         if (player.hp > 0) applyEnemyHitEffects(enemyTemplateIn, statuses, rng);
@@ -275,14 +278,13 @@ function simulateFight(playerIn, enemyTemplateIn, rng, opts) {
       continue;
     }
 
-    const playerFirst = playerSpd > enemySpd || (playerSpd === enemySpd && rng() < 0.5);
+    const playerFirst = rng() < speedWinChance(playerSpd, enemySpd);
 
     const enemyDefending = !!(enemyTemplateIn.defendChance && rng() < enemyTemplateIn.defendChance);
-    const rawPDmg = Math.max(1, effAtk(player) - enemyTemplateIn.def);
+    const rawPDmg = rolledDamage(effAtk(player), enemyTemplateIn.def, rng);
     const cursedFumble = !enemyDefending && statuses.cursed && rng() < 0.25;
     const pDmg = enemyDefending ? Math.max(1, Math.floor(rawPDmg / 2)) : (cursedFumble ? 1 : rawPDmg);
-    const atkRoll = enemyTemplateIn.atk * (0.8 + rng() * 0.4);
-    const eDmg = Math.max(1, Math.round(atkRoll - incomingMitigation(player, statuses, enemyTemplateIn.atk)));
+    const eDmg = rolledDamage(enemyTemplateIn.atk, incomingMitigation(player, statuses, enemyTemplateIn.atk), rng);
 
     // Every attack is an ATTEMPT: the defender may evade by speed (mirrors
     // combat.js). A braced enemy blocks for half rather than dodging. An evaded
@@ -371,6 +373,7 @@ const GEAR_TIERS = {
   'T0 unequipped':                { atk: 0,  def: 0,  spd: 0, note: 'before Aldric issues the starting kit' },
   'T1 starting kit':              { atk: 2,  def: 3,  spd: 0, note: 'Bronze Knife + Leather Armor (free, day 1)' },
   'T2 + Iron Shield':             { atk: 2,  def: 6,  spd: 0, note: '+ Iron Shield (merchant, 140g)' },
+  'T3 Steel + Leather':           { atk: 7,  def: 3,  spd: 0, note: 'Steel Sword + issued Leather Armor, matching the lean level-5 playtest loadout' },
   'T3 dungeon-1 chest gear':      { atk: 7,  def: 6,  spd: 2, note: 'Steel Sword (chest) + Iron Shield (140g) + Swift Bangle (180g)  — the best shield (Resonant Targe) is no longer a floor-1 chest' },
   'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (chest) + Shadow Cloak (560g) + Resonant Targe (floor-8 chest) + Wraithband (400g)' },
   'T5 best traveller gear':       { atk: 12, def: 16, spd: 4, note: 'Dragon Blade (700g) + Shadow Cloak (560g) + Resonant Targe (floor-8 chest) + Wraithband (400g)' },
@@ -401,8 +404,11 @@ const POOL_SCENARIOS = [
   { poolId: 'pool_overworld_core',  heading: 'MAP2 (overworld, post-start)', level: 1, tier: 'T1 starting kit' },
   { poolId: 'pool_far_overworld',   heading: 'MAP3 / MAP_N1 / MAP_N2 / MAP3_N1 / MAP3_N2 (far overworld)', level: 2, tier: 'T2 + Iron Shield' },
   { poolId: 'pool_thornmere',       heading: 'MAP4 / MAP5 (Thornmere)',      level: 3, tier: 'T3 dungeon-1 chest gear' },
+  { poolId: 'pool_lighthouse',      heading: 'Abandoned Lighthouse — lower floors', level: 5, tier: 'T3 dungeon-1 chest gear' },
+  { poolId: 'pool_lighthouse_top',  heading: 'Abandoned Lighthouse — lantern room', level: 5, tier: 'T3 dungeon-1 chest gear' },
   { poolId: 'pool_east_sluice',     heading: 'East Sluice',                  level: 1, tier: 'T1 starting kit' },
   { poolId: 'pool_mire_vault',      heading: "Mirethyst's Vault",            level: 2, tier: 'T2 + Iron Shield' },
+  { poolId: 'pool_sunken_gallery',  heading: 'Sunken Gallery',               level: 5, tier: 'T3 dungeon-1 chest gear' },
   { poolId: 'pool_dungeon_f1',      heading: 'Dungeon floor 1',              level: 2, tier: 'T2 + Iron Shield' },
   { poolId: 'pool_dungeon_f2_5',    heading: 'Dungeon floors 2-3',           level: 3, tier: 'T3 dungeon-1 chest gear' },
   { poolId: 'pool_dungeon_f2_5',    heading: 'Dungeon floors 4-5',           level: 4, tier: 'T3 dungeon-1 chest gear' },
@@ -414,11 +420,12 @@ const POOL_SCENARIOS = [
 // Boss/special (non-pool scripted) enemies, referenced by stable enemy id.
 // Player state per the quest-gate found in QUEST_TRACE.md / combat.js comments.
 const SPECIAL_SCENARIOS = [
-  { enemyId: 'enemy_briar_warden',   heading: 'Briar Warden',        level: 2, tier: 'T1 starting kit',        note: 'gated on sluice_reward_given — reachable very early' },
-  { enemyId: 'enemy_smuggler_guard', heading: 'Smuggler Guard',      level: 3, tier: 'T2 + Iron Shield',       note: 'gated on dispatch_rewarded (MainQuest 2)' },
-  { enemyId: 'enemy_polwick',        heading: 'Polwick',             level: 3, tier: 'T2 + Iron Shield',       note: 'fought immediately after the guard, same visit' },
-  { enemyId: 'enemy_essa',           heading: 'Essa',                level: 3, tier: 'T2 + Iron Shield',       note: 'fought immediately after Polwick, same visit' },
-  { enemyId: 'enemy_pale_sentry',    heading: 'Pale Sentry',         level: 4, tier: 'T3 dungeon-1 chest gear', note: '500 HP persists across encounters — chip-away by design' },
+  { enemyId: 'enemy_briar_warden',   heading: 'Briar Warden',        level: 5, tier: 'T3 Steel + Leather',      note: 'playtest loadout: Steel Sword + issued armor, no shield' },
+  { enemyId: 'enemy_smuggler_guard', heading: 'Smuggler Guard',      level: 4, tier: 'T3 dungeon-1 chest gear', note: 'first of a forced three-fight sequence; benchmarked individually here' },
+  { enemyId: 'enemy_polwick',        heading: 'Polwick',             level: 4, tier: 'T3 dungeon-1 chest gear', note: 'second of the sequence; fire/burn makes the real chain harder than this isolated model' },
+  { enemyId: 'enemy_essa',           heading: 'Essa',                level: 4, tier: 'T3 dungeon-1 chest gear', note: 'third of the sequence, reached with HP/items carried forward' },
+  { enemyId: 'enemy_pale_sentry',    heading: 'Pale Sentry',         level: 5, tier: 'T3 Steel + Leather',      note: '500 HP persists; attack spike makes hit-and-run the intended method' },
+  { enemyId: 'enemy_lensweb_spider', heading: 'Lensweb Spider',      level: 5, tier: 'T3 dungeon-1 chest gear', note: 'post-MQ3: Observe then guaranteed escape, not an attack-spam damage race' },
   { enemyId: 'enemy_mulholland',     heading: 'Mulholland',          level: 5, tier: 'T3 dungeon-1 chest gear', note: 'guards dungeon floor 4->5 stairs' },
   { enemyId: 'enemy_den_wraith',     heading: 'Den Wraith',          level: 4, tier: 'T3 dungeon-1 chest gear', note: 'available day>=11' },
   { enemyId: 'enemy_kolm',           heading: 'Kolm (sailor brawl)', level: 3, tier: 'T2 + Iron Shield',       note: 'optional inn brawl, Dayoff only' },

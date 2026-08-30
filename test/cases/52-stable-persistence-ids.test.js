@@ -27,7 +27,7 @@ const { createContext } = require('../harness');
 // Frozen expectation snapshots (production stays registry-driven).
 const EXPECTED_PICKUP_COUNT = 52;  // +2: examine potion sparkles near Drenwick (grass) and in the Sunken Gallery (ground); +1: Mimic Potion trap sparkle; +1: Resonant Targe examine pickup (dungeon floor 8)
 const EXPECTED_CHEST_COUNT  = 10;
-const EXPECTED_ENEMY_COUNT  = 58;  // +3: lighthouse Marsh Rat, Shallows Skitter, Lantern Moth; +1: Lensweb Spider boss; +1: Mimic Potion
+const EXPECTED_ENEMY_COUNT  = 57;  // Pale Drowned is now exclusive to the Sunken Gallery; the Mire Vault duplicate is retired.
 const CHEST_IDS = [
   'chest_cat_armor', 'chest_dungeon_alcove', 'chest_dungeon_main', 'chest_meadow',
   'chest_sluice1', 'chest_sluice2', 'chest_sluice3', 'chest_sluice_deep', 'chest_sluice_secret',
@@ -204,7 +204,7 @@ module.exports = {
     assert.equal(clone.id, 'enemy_mire_toad_female', 'clone preserves the template id');
     assert.equal(clone.name, 'Mire Toad', 'clone preserves the display name');
     assert.equal(clone.sex, 'female', 'clone preserves sex-specific behaviour field');
-    assert.equal(clone.hp, 72, 'clone preserves stats');
+    assert.equal(clone.hp, 150, 'clone preserves stats');
 
     // ── G. Load-bearing verification (break → confirm failure → restore) ────
     const cleanErrors = () => G('(function(){ var r = validateGameData(); return r.errors; })()');

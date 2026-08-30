@@ -3631,7 +3631,7 @@ function drawBattleTallyman(cx, cy) {
 // function plus the vertical offset that sprite has always been positioned at
 // (baked in per-sprite here instead of at each old call site). Distinct
 // template ids that share one look -- the three Marsh Wisp variants, the
-// gallery/vault Pale Drowned, the male/female Mire Toad, ... -- map to the
+// two Silt Hags, the male/female Mire Toad, ... -- map to the
 // same entry.
 //
 // Built as an explicit id table (not derived by parsing this file's source,
@@ -3682,7 +3682,7 @@ const ENEMY_SPRITE_DISPATCH = {};
   def(drawBattleWallTendril,   20, ['enemy_wall_tendril']);
   def(drawBattleDrippingMaw,   10, ['enemy_dripping_maw']);
   def(drawBattleTheSeep,       30, ['enemy_the_seep']);
-  def(drawBattlePaleDrowned,   30, ['enemy_pale_drowned_gallery', 'enemy_pale_drowned_vault']);
+  def(drawBattlePaleDrowned,   30, ['enemy_pale_drowned_gallery']);
   def(drawBattleSiltHag,       40, ['enemy_silt_hag_gallery', 'enemy_silt_hag_vault']);
   def(drawBattleDustDrowned,   30, ['enemy_dust_drowned']);
   def(drawBattleMarrowHulk,    46, ['enemy_marrow_hulk']);
