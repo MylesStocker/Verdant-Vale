@@ -312,6 +312,8 @@ const combat = {
   isPaleSentry:      false,
   isRainfish:        false,
   rainfishRemaining: 0,     // fights left in the current rainfish chain (0 = last fight)
+  isMireToadSpawn:   false,
+  mireToadRemaining: 0,     // fights left in the spawning-site chain (0 = last fight)
   isDenWraith:       false,
   isSailorBrawl:     false,
   isTakomo:          false,
@@ -489,6 +491,34 @@ function startRainfishCombat(remaining) {
   combat.observeCount      = 0;
 }
 
+// Northern Fen spawning-site event. Each fight independently chooses one of
+// the two otherwise-identical Mire Toad templates, so the jack/hen sequence is
+// freshly randomized for every investigation rather than authored or saved.
+function startMireToadSpawnCombat(remaining) {
+  const ids = ['enemy_mire_toad_male', 'enemy_mire_toad_female'];
+  const t = ENEMY_TEMPLATE_REGISTRY[ids[Math.floor(Math.random() * ids.length)]];
+  if (!t) return; // Registry corruption: fail closed without creating combat.
+
+  const intros = [
+    'The last Mire Toad surges out of the churned reeds!',
+    'A second Mire Toad heaves itself from the spawning bed!',
+    'A Mire Toad bursts through the reed mat!',
+  ];
+  combat.enemy             = { ...t };
+  combat.active            = true;
+  combat.phase             = 'choose';
+  combat.cursor            = 0;
+  combat.messageQueue      = [];
+  combat.message           = intros[Math.min(remaining, 2)];
+  combat.pendingVictory    = false;
+  combat.pendingDefeat     = false;
+  combat.pendingEscape     = false;
+  combat.flashTimer        = 8;
+  combat.isMireToadSpawn   = true;
+  combat.mireToadRemaining = remaining;
+  combat.observeCount      = 0;
+}
+
 function endCombat() {
   // Persist Pale Sentry HP so the player can chip it down over multiple encounters.
   if (combat.isPaleSentry && combat.enemy) {
@@ -511,6 +541,8 @@ function endCombat() {
   combat.isPaleSentry      = false;
   combat.isRainfish        = false;
   combat.rainfishRemaining = 0;
+  combat.isMireToadSpawn   = false;
+  combat.mireToadRemaining = 0;
   combat.isDenWraith       = false;
   combat.isSailorBrawl     = false;
   combat.isTakomo          = false;
@@ -1358,6 +1390,38 @@ function getObservationText(enemy, count) {
 function handleCombatAction() {
   if (combat.phase === 'message') { advanceCombatMessage(); return; }
   if (combat.phase === 'victory') {
+    if (combat.isMireToadSpawn) {
+      if (combat.mireToadRemaining > 0) {
+        const nextRemaining = combat.mireToadRemaining - 1;
+        endCombat();
+        dialogue.name = '';
+        dialogue.pages = [[nextRemaining === 1
+          ? 'The first toad sinks into the mud. The spawning bed convulses again.'
+          : 'The second toad falls. One last shape churns through the reeds.']];
+        dialogue.callbacks = [function() { startMireToadSpawnCombat(nextRemaining); }];
+        dialogue.open = true;
+        dialogue.page = 0;
+      } else {
+        const site = (typeof PICKUP_REGISTRY !== 'undefined')
+          ? PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn
+          : null;
+        endCombat();
+        if (site && !site.picked) {
+          grantItem('Reed Remedy');
+          site.picked = true;
+        }
+        dialogue.name = '';
+        dialogue.pages = [
+          ['The last Mire Toad slumps into the shallow water. The spawning bed is still.'],
+          ['Among the torn reeds, a tightly bound twist of medicinal stalks has washed free of the mud.'],
+          ['Found: Reed Remedy.'],
+        ];
+        dialogue.callbacks = null;
+        dialogue.open = true;
+        dialogue.page = 0;
+      }
+      return;
+    }
     if (combat.isRainfish) {
       if (combat.rainfishRemaining > 0) {
         // Chain the next rainfish fight after a brief interstitial.
@@ -1713,7 +1777,7 @@ function handleCombatAction() {
     // not available. An UN-observed observe-gated enemy (the Lensweb Spider before
     // Observe) is likewise a guaranteed 0% — same deterministic free-hit path, no
     // Math.random(). Attempting it costs the turn: the enemy gets a free hit.
-    if (combat.isRainfish || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa ||
+    if (combat.isRainfish || combat.isMireToadSpawn || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa ||
         combat.enemy.runLock === 'observe_gated') {
       const roll   = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
       const dodged = playerEvades();
@@ -1723,6 +1787,7 @@ function handleCombatAction() {
       stats.hp = newHp;
       const noRunText = dodged ? evadeText(true)
         : combat.isRainfish     ? `${ec}Nowhere to go! Rainfish thrashes for ${eDmg}!`
+        : combat.isMireToadSpawn ? `${ec}The spawning bed is all around you! Mire Toad strikes for ${eDmg}!`
         : combat.isFortGuard    ? `${ec}The guard holds the door! He strikes for ${eDmg}!`
         : combat.isFortPolwick  ? `${ec}Polwick stays between you and the door! He strikes for ${eDmg}!`
         : combat.isFortEssa     ? `${ec}Essa keeps herself between you and the door! She strikes for ${eDmg}!`
@@ -1899,7 +1964,7 @@ function handleCombatAction() {
     const isSpecial = combat.isBoss || combat.isWarden || combat.isFortGuard ||
                       combat.isFortPolwick || combat.isFortEssa || combat.isMulholland ||
                       combat.isPaleSentry || combat.isDenWraith || combat.isSailorBrawl ||
-                      combat.isTakomo || combat.isRainfish || combat.is23 ||
+                      combat.isTakomo || combat.isRainfish || combat.isMireToadSpawn || combat.is23 ||
                       !!combat.enemy.runLock;
     const skipChance = isSpecial ? 0.25 : 0.50;
     if (Math.random() < skipChance) {

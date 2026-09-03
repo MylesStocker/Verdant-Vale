@@ -47,8 +47,8 @@ const POLWICK_FLAME_TRACT_PAGES = [
   ],
 ];
 
-// Reclaimer literature left on the Wend family's rough living table. Like the
-// Flame tract above, this is faction rhetoric rather than objective narration.
+// Reclaimer literature hidden beneath a Wend brewery vat. Like the Flame tract
+// above, this is faction rhetoric rather than objective narration.
 const BREWERY_RECLAIMER_TRACT_PAGES = [
   [
     'The miller owns the wheel, but did he divert the river?',
@@ -262,12 +262,16 @@ function interactSmugglerFort() {
     }
   }
 
-  // Folded pamphlet on the main ledger table (col 6 row 7). It is repeatable,
-  // available on every fort route, and adds no pickup or persistent state.
+  // A nearby character takes priority over the concealed crate clue. This
+  // keeps Polwick interactable from the tile beside his crate.
+  if (interactSimpleNPCs()) return;
+
+  // Folded pamphlet hidden in the crate directly left of Polwick. It is
+  // repeatable, available on every fort route, and adds no persistent state.
   const tractDx = player.x - POLWICK_FLAME_TRACT.x;
   const tractDy = player.y - POLWICK_FLAME_TRACT.y;
   if (Math.sqrt(tractDx * tractDx + tractDy * tractDy) < TALK_RADIUS * 1.5) {
-    choice.title     = 'Folded pamphlet';
+    choice.title     = 'Something in the crate';
     choice.options   = ['Read it', 'Leave it'];
     choice.cursor    = 0;
     choice.callbacks = [
@@ -283,7 +287,6 @@ function interactSmugglerFort() {
     choice.open = true;
     return;
   }
-  interactSimpleNPCs();
 }
 
 // ── MAP4 — Thornmere standing stone (prefix check, may not consume) ──────────
@@ -592,6 +595,51 @@ function interactHamletInterior() {
   // ── Falls hamlet interior — NPCs in their three rooms ───────────────────
   interactSimpleNPCs();
   return interactionUiOpened();
+}
+
+// ── Northern Fen — one-time Mire Toad spawning site ─────────────────────────
+// The stable world-item record is the single authority for position, sparkle,
+// and persisted completion. Declining consumes nothing; only the third victory
+// marks the record picked (combat.js), which removes the sparkle permanently.
+function interactMireToadSpawnSite() {
+  const mapId = (typeof regionalActiveMapId === 'function')
+    ? regionalActiveMapId()
+    : mapIdForRef(activeMap);
+  if (mapId !== 'MAP3_N1') return false;
+
+  const site = (typeof PICKUP_REGISTRY !== 'undefined')
+    ? PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn
+    : null;
+  if (!site || site.picked || !nearPlayer(site.x, site.y, TALK_RADIUS)) return false;
+
+  dialogue.name = '';
+  dialogue.pages = [
+    ['The reeds have been pressed into a damp, circular bed. The mud is stippled with webbed tracks and strings of dark spawn.'],
+    ['A Mire Toad spawning site. Something large has been moving beneath the reed mat.'],
+  ];
+  dialogue.callbacks = [function offerMireToadInvestigation() {
+    choice.title = 'Mire Toad spawning site';
+    choice.options = ['Investigate', 'Leave it alone'];
+    choice.cursor = 0;
+    choice.callbacks = [
+      function investigateMireToadSpawn() {
+        dialogue.name = '';
+        dialogue.pages = [
+          ['You ease the flattened reeds apart. The black water underneath trembles.'],
+          ['A broad, slick shape drives up through the spawning bed. Then another answers from deeper in the marsh.'],
+        ];
+        dialogue.callbacks = null;
+        dialogue.open = true;
+        dialogue.page = 0;
+        queueDialogueEncounter('mire_toad_spawn');
+      },
+      function leaveMireToadSpawn() {},
+    ];
+    choice.open = true;
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
+  return true;
 }
 
 // ── THORNMERE_WILDS_MAP_FEATURES: region-owned MAP_FEATURES entries (merged in interactions.js) ──
@@ -991,25 +1039,6 @@ function interactThornmereWilds() {
   if (activeMap === SMUGGLER_FORT_MAP) { interactSmugglerFort(); return true; }
   // Fen Brewery \u2014 Gorrit sells freshly made mushroom wine by the bottle or case
   if (inFenBrewery) {
-    const tractDx = player.x - BREWERY_RECLAIMER_TRACT.x;
-    const tractDy = player.y - BREWERY_RECLAIMER_TRACT.y;
-    if (Math.sqrt(tractDx * tractDx + tractDy * tractDy) < TALK_RADIUS * 1.5) {
-      choice.title     = 'Printed tract';
-      choice.options   = ['Read it', 'Leave it'];
-      choice.cursor    = 0;
-      choice.callbacks = [
-        function readReclaimerTract() {
-          accordPanel.title = 'EVERYTHING THEY OWN WAS MADE BY SOMEONE ELSE';
-          accordPanel.pages = BREWERY_RECLAIMER_TRACT_PAGES;
-          accordPanel.page  = 0;
-          accordPanel.theme = 'reclaimer';
-          accordPanel.open  = true;
-        },
-        function leaveReclaimerTract() {},
-      ];
-      choice.open = true;
-      return true;
-    }
     const gorrit = SIMPLE_NPCS.find(n => n.id === 'gorrit_wend');
     if (gorrit) {
       const gwx = player.x - gorrit.x;
@@ -1073,7 +1102,27 @@ function interactThornmereWilds() {
     // Toby patrols the eastern workspace; talking to him at his live position
     // (freeze/face/resume) is handled generically by interactSimpleNPCs() now
     // that it routes any moving NPC through patrolNpcTalk().
-    interactSimpleNPCs();
+    if (interactSimpleNPCs()) return true;
+
+    const tractDx = player.x - BREWERY_RECLAIMER_TRACT.x;
+    const tractDy = player.y - BREWERY_RECLAIMER_TRACT.y;
+    if (Math.sqrt(tractDx * tractDx + tractDy * tractDy) < TALK_RADIUS * 1.5) {
+      choice.title     = 'Something beneath the vat';
+      choice.options   = ['Read it', 'Leave it'];
+      choice.cursor    = 0;
+      choice.callbacks = [
+        function readReclaimerTract() {
+          accordPanel.title = 'EVERYTHING THEY OWN WAS MADE BY SOMEONE ELSE';
+          accordPanel.pages = BREWERY_RECLAIMER_TRACT_PAGES;
+          accordPanel.page  = 0;
+          accordPanel.theme = 'reclaimer';
+          accordPanel.open  = true;
+        },
+        function leaveReclaimerTract() {},
+      ];
+      choice.open = true;
+      return true;
+    }
     return true;
   }
   interactSimpleNPCs();

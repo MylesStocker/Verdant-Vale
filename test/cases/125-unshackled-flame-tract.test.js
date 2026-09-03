@@ -1,7 +1,7 @@
 'use strict';
-// The Unshackled Flame tract is a visible, repeatable document on Polwick's
-// ledger table and opens in a Flame-themed variant of the established full-page
-// Accord reader. It adds no pickup, flag, map-grid delta, or save state.
+// The Unshackled Flame tract is hidden in the crate directly beside Polwick.
+// A small sparkle reveals the repeatable interaction, which opens a Flame-themed
+// variant of the established full-page Accord reader.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -19,9 +19,22 @@ module.exports = {
       dialogue.open=false;choice.open=false;accordPanel.open=false;
     `);
 
-    // The tract sits on the authored main table; no map cell or collision changed.
-    assert.deepEqual(JSON.parse(g.run('JSON.stringify([POLWICK_FLAME_TRACT.x/TILE,POLWICK_FLAME_TRACT.y/TILE])')), [6.5, 7.5]);
-    assert.equal(g.run('SMUGGLER_FORT_MAP[7][6]'), 33, 'tract rests on the existing table tile');
+    // The tract shares the authored crate anchor directly left of Polwick; the
+    // crate remains overlay furniture, so no map cell or collision changed.
+    assert.deepEqual(JSON.parse(g.run('JSON.stringify([POLWICK_FLAME_TRACT.x/TILE,POLWICK_FLAME_TRACT.y/TILE])')), [6.5, 4.5]);
+    assert.equal(g.run('FORT_CRATES.some(function(c){return c.x===POLWICK_FLAME_TRACT.x&&c.y===POLWICK_FLAME_TRACT.y;})'), true);
+    assert.equal(g.run('SMUGGLER_FORT_MAP[4][6]'), 18, 'crate remains overlay furniture on existing floor');
+
+    const sparkle = JSON.parse(g.run(`(function(){
+      var calls=[],old=drawExamineSparkle;
+      drawExamineSparkle=function(){calls.push(Array.prototype.slice.call(arguments));};
+      try{drawPolwickFlameTract();}finally{drawExamineSparkle=old;}
+      return JSON.stringify(calls);
+    })()`));
+    assert.deepEqual(sparkle, [[
+      Math.round(6.5 * 32), Math.round(4.5 * 32), 6.5 * 32, 4.5 * 32,
+      g.run('TALK_RADIUS*1.5'),
+    ]]);
 
     g.run('interactSmugglerFort();');
     assert.equal(g.run('choice.open'), true);
@@ -43,12 +56,12 @@ module.exports = {
       'Let it end.',
     ]) assert.ok(text.includes(line), 'tract preserves requested line: ' + line);
 
-    // The in-world pamphlet and the reader's Flame mark both draw; ordinary
-    // documents explicitly reset to the established Imperial theme.
+    // The reader's Flame mark draws; ordinary documents explicitly reset to
+    // the established Imperial theme. The in-world source itself is sparkle-only.
     const flameColours = JSON.parse(g.run(`(function(){
       var seen=[],old=ctx.fillRect;
       ctx.fillRect=function(){seen.push(ctx.fillStyle);};
-      try{drawPolwickFlameTract();drawAccordPanel();}finally{ctx.fillRect=old;}
+      try{drawAccordPanel();}finally{ctx.fillRect=old;}
       return JSON.stringify(seen);
     })()`));
     for (const colour of ['#3a0808', '#8a1818', '#d84818', '#f0a020'])

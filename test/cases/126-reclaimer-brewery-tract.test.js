@@ -1,7 +1,6 @@
 'use strict';
-// Reclaimer literature sparkles on the Wend brewery's existing living table
-// and opens repeatably in a green-and-ochre document-reader treatment. It adds
-// no pickup, state flag, grid delta, or save field.
+// Reclaimer literature is hidden beneath the Wend brewery's central vat. A
+// small sparkle reveals the repeatable green-and-ochre document-reader treatment.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -20,14 +19,10 @@ module.exports = {
 
     assert.deepEqual(
       JSON.parse(g.run('JSON.stringify([BREWERY_RECLAIMER_TRACT.x/TILE,BREWERY_RECLAIMER_TRACT.y/TILE])')),
-      [2.5, 9.5]
+      [10.5, 4.5]
     );
-    assert.equal(g.run('FEN_BREWERY_MAP[9][2]'), 18, 'existing base cell remains ordinary floor');
-    assert.deepEqual(
-      JSON.parse(g.run("JSON.stringify(HOUSE_DATA.fen_brewery.tables.map(function(t){return [t.x/TILE,t.y/TILE];}))")),
-      [[2.5, 9.5]],
-      'tract rests on the existing living table'
-    );
+    assert.equal(g.run('FEN_BREWERY_MAP[3][10]'), 33, 'central vat remains on the tile above');
+    assert.equal(g.run('FEN_BREWERY_MAP[4][10]'), 18, 'sparkle sits on unchanged floor immediately beneath the vat');
 
     const sparkle = JSON.parse(g.run(`(function(){
       var calls=[],old=drawExamineSparkle;
@@ -36,7 +31,7 @@ module.exports = {
       return JSON.stringify(calls);
     })()`));
     assert.deepEqual(sparkle, [[
-      Math.round(2.5 * 32), Math.round(9.5 * 32), 2.5 * 32, 9.5 * 32,
+      Math.round(10.5 * 32), Math.round(4.5 * 32), 10.5 * 32, 4.5 * 32,
       g.run('TALK_RADIUS*1.5'),
     ]]);
 

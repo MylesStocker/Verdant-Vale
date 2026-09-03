@@ -1529,7 +1529,13 @@ pressed) is checked in this priority order:
    Ordering rule for the tables: more-specific conditions go before
    more-generic ones (e.g. the Drenwick office handler before the generic
    office handler).
-3. **`MAP_FEATURES` inspectables** (`tryMapFeatures()`) — the lowest-priority
+3. **Examine-only world items** (`tryExamineWorldItem()`) — persisted floor
+   sparkles backed by `PICKUP_REGISTRY`. Ordinary records are consumed and grant
+   their item on examination. A record with `scriptedInspect: '<encounter-id>'`
+   is skipped by the generic grant path (fail closed); its named location
+   handler owns the choice/dialogue and its combat finalizer decides when to set
+   `.picked`, while `ENCOUNTER_HANDLERS` must contain the matching id.
+4. **`MAP_FEATURES` inspectables** (`tryMapFeatures()`) — the lowest-priority
    **generic fallback**, run only when *no handler matched, or the matching
    handler did not consume the press*. "Consumed" is `interactionUiOpened()` —
    dialogue, choice, shop, reading panel (`accordPanel`), or continent map
@@ -1539,7 +1545,7 @@ pressed) is checked in this priority order:
    underneath it. This is the invariant the priority contract exists to
    protect; handler ordering and the consumed/not-consumed return value are
    both load-bearing.
-4. If nothing above fired, the press is a no-op.
+5. If nothing above fired, the press is a no-op.
 
 ### Dialogue page formatting contract
 

@@ -114,6 +114,11 @@ const MAP3_N1_ITEMS = [
   // Mabel's fen sickle — lost at the north bank overhang (quest: Still Water).
   // Col 5, row 3: REEDS tile, directly above the bog pond water at row 4 col 5.
   { id: 'pickup_map3n1_fen_sickle', name: 'Fen Sickle', type: 'quest_item', x: 5.5 * TILE, y: 3.5 * TILE, picked: false },
+  // One-time Mire Toad spawning site. It uses the stable pickup registry only
+  // for its persisted resolved state: the dedicated interaction owns the
+  // choice/fight chain, and marks it picked only after all three toads die.
+  { id: 'pickup_map3n1_mire_toad_spawn', name: 'Mire Toad spawning site', type: 'quest_item',
+    x: 6.5 * TILE, y: 6.5 * TILE, picked: false, examine: true, scriptedInspect: 'mire_toad_spawn' },
 ];
 
 // ─── Roddon Way  (16 × 15) ────────────────────────────────────────────────────

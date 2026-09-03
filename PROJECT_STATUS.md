@@ -159,18 +159,25 @@ rooms were added to the registry.)
   by the established inspectable sparkle and described as dropped in the grass;
   Aldric now explains carried-gold loss, home-chest storage, and the absurdly
   profitable monster economy.
-- **Small player-facing clarity pass.** Merta's South Mushroom Soup now heals
+- **Northern Fen Mire Toad spawning site.** A sparkle at tile (6,6) identifies
+  a spawning bed and offers a repeatable investigate/leave choice. Investigating
+  starts three consecutive Mire Toad fights, with jack/hen sex selected afresh
+  for each fight. The sparkle persists after declining or defeat; after all
+  three victories it grants one Reed Remedy and is removed through the stable
+  pickup-id save path. No terrain grid, fingerprint, or save version changed.
+- **Small player-facing clarity pass.** Merta's Sour Mushroom Soup now heals
   5 HP with an explicit message; Schilling's notice names the South Ruins;
   the broken causeway and the available Drowned gift sparkle; the gift has a
   specific notebook description; the Sunken Gallery cupboard/chest rewards are
   swapped; infirmary Esla uses her established sprite; Corvin's active favour
   has a notebook entry; curse-caused mishaps begin with “Cursed!”; and the
   on-screen debug-menu key hint is hidden. No grid, topology, or save change.
-- **Faction tracts.** The Unshackled Flame's “The Wrong Side Won” lies visibly
-  on Polwick's fort ledger table, while the Reclaimers' “Everything They Own Was
-  Made by Someone Else” sparkles on the Wend brewery's living table. Both open
-  repeatably in distinct treatments of the established full-page parchment
-  reader. Neither is a pickup or adds a flag, grid, topology, or save change.
+- **Faction tracts.** The Unshackled Flame's “The Wrong Side Won” is hidden in
+  the crate directly beside Polwick, while the Reclaimers' “Everything They Own
+  Was Made by Someone Else” is tucked beneath the Wend brewery's central vat.
+  Small inspectable sparkles reveal both locations; both tracts open repeatably
+  in distinct treatments of the established full-page parchment reader. Neither
+  is a pickup or adds a flag, grid, topology, or save change.
 - **Bounded ordinary player-defense mitigation.** Enemy-to-player attacks now
   cap normal mitigation at `floor(live enemy ATK * 0.80)` through one combat
   helper used by Attack, item response, Run consequence, and Observe paths.

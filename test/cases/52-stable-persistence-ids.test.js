@@ -25,7 +25,7 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // Frozen expectation snapshots (production stays registry-driven).
-const EXPECTED_PICKUP_COUNT = 52;  // +2: examine potion sparkles near Drenwick (grass) and in the Sunken Gallery (ground); +1: Mimic Potion trap sparkle; +1: Resonant Targe examine pickup (dungeon floor 8)
+const EXPECTED_PICKUP_COUNT = 53;  // +1: persisted Northern Fen Mire Toad spawning-site sparkle
 const EXPECTED_CHEST_COUNT  = 10;
 const EXPECTED_ENEMY_COUNT  = 57;  // Pale Drowned is now exclusive to the Sunken Gallery; the Mire Vault duplicate is retired.
 const CHEST_IDS = [

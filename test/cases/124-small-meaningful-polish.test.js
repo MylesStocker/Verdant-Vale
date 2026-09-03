@@ -18,10 +18,10 @@ module.exports = {
 
     // 1. Merta names the dish, heals exactly 5 HP (capped), and reports it.
     g.run("stats.hp=10;stats.maxHp=20;statusEffects=[];choice.open=false;dialogue.open=false;SIMPLE_NPCS.find(function(n){return n.id==='merta';}).action();");
-    assert.match(g.run('choice.options[0]'), /South Mushroom Soup/);
+    assert.match(g.run('choice.options[0]'), /Sour Mushroom Soup/);
     g.run('choice.callbacks[0]();');
     assert.equal(g.run('stats.hp'), 15);
-    assert.match(g.run("dialogue.pages.flat().join(' ')"), /South Mushroom Soup/);
+    assert.match(g.run("dialogue.pages.flat().join(' ')"), /Sour Mushroom Soup/);
     assert.match(g.run("dialogue.pages.flat().join(' ')"), /Healed 5 HP\./);
 
     // 2. Both live states of Schilling's notice use the canonical place name.

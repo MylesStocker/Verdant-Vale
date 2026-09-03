@@ -190,6 +190,11 @@ function tryExamineWorldItem() {
   if (!Array.isArray(items)) return false;
   for (const wi of items) {
     if (!wi || !wi.examine || wi.picked) continue;
+    // Multi-step scripted inspectables use the same persisted world-item and
+    // sparkle rendering path, but their regional interaction handler owns when
+    // the site is consumed and what it grants. Never fall through and treat one
+    // as an ordinary immediate pickup.
+    if (wi.scriptedInspect !== undefined) continue;
     if (!nearPlayer(wi.x, wi.y, TALK_RADIUS)) continue;
     wi.picked = true;   // the sparkle is consumed on examination, win, lose, or flee
     // A trap sparkle (`encounter`) springs a scripted fight instead of granting an
@@ -393,6 +398,7 @@ const ENCOUNTER_HANDLERS = {
   kolm_brawler: function() { startSailorBrawlCombat(); },
   lensweb_spider: function() { startLenswebSpiderCombat(); },
   mimic_potion:  function() { startMimicPotionCombat(); },
+  mire_toad_spawn: function() { startMireToadSpawnCombat(2); },
 };
 
 // Queue an encounter to begin when the current dialogue's last page closes.
@@ -2025,6 +2031,7 @@ function interactOverworld() {
   // Map-specific prefix checks (may consume the press, else fall through).
   if (interactMapN2Gate()) return true;
   if (interactThornmereStone()) return true;
+  if (interactMireToadSpawnSite()) return true;
   for (const h of OVERWORLD_INTERACT_HANDLERS) {
     if (h.match()) return h.run();   // first matching location wins (else-if semantics)
   }

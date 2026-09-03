@@ -72,7 +72,7 @@ const CALWICK_NPCS = [
     solid:         true,
     facing:        'right',
     spriteType:    'patron',
-    dialogue:      [],  // routed through action (South Mushroom Soup offer)
+    dialogue:      [],  // routed through action (Sour Mushroom Soup offer)
     flag_required: null,
     flag_sets:     null,
     action: function(npc) {
@@ -80,7 +80,7 @@ const CALWICK_NPCS = [
         || (typeof hasStatusEffect === 'function'
             && (hasStatusEffect('poison') || hasStatusEffect('muddied')));
       choice.title     = 'Merta';
-      choice.options   = ['Have South Mushroom Soup', 'Not just now'];
+      choice.options   = ['Have Sour Mushroom Soup', 'Not just now'];
       choice.cursor    = 0;
       choice.callbacks = [
         function haveSoup() {
@@ -90,10 +90,10 @@ const CALWICK_NPCS = [
             if (hasStatusEffect('muddied')) removeStatusEffect('muddied');
           }
           openDialogue('Merta', hurt
-            ? [[`“There now — you finish that, ${stats.name}. South Mushroom Soup — barley and marsh-hen, same as always.”`,
+            ? [[`“There now — you finish that, ${stats.name}. Sour Mushroom Soup — barley and marsh-hen, same as always.”`,
                 '“You came in looking half-wrung-out. Better? Good. I’ll not have a friend of ours going hungry into the reeds.”',
                 'Healed 5 HP.']]
-            : [['“Nothing like South Mushroom Soup even when you’re hale. Sit a moment before you’re off again.”',
+            : [['“Nothing like Sour Mushroom Soup even when you’re hale. Sit a moment before you’re off again.”',
                 '“Go on — the reeds will keep.”',
                 'Healed 5 HP.']]);
         },

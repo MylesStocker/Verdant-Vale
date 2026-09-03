@@ -1518,6 +1518,16 @@ function validateItems() {
     if (!item || typeof item !== 'object') { addValidationError(GROUP, lbl + ': not an object'); return; }
     if (item.x == null || item.y == null) { addValidationError(GROUP, lbl + ': missing x/y'); return; }
     if (!item.name) addValidationError(GROUP, lbl + ': missing name');
+    if (item.scriptedInspect !== undefined) {
+      if (typeof item.scriptedInspect !== 'string' || !item.scriptedInspect)
+        addValidationError(GROUP, lbl + ': scriptedInspect must be a non-empty encounter-handler id');
+      if (item.examine !== true)
+        addValidationError(GROUP, lbl + ': scriptedInspect requires examine: true');
+      if (typeof ENCOUNTER_HANDLERS !== 'undefined' &&
+          typeof item.scriptedInspect === 'string' &&
+          !ENCOUNTER_HANDLERS[item.scriptedInspect])
+        addValidationError(GROUP, lbl + ': scriptedInspect "' + item.scriptedInspect + '" has no ENCOUNTER_HANDLERS entry');
+    }
 
     const rows = _validationRows(), cols = _validationCols();
     const tx = item.x / TILE, ty = item.y / TILE;
