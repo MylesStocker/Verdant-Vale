@@ -63,8 +63,11 @@ module.exports = {
       cutaway_liora_asleep: ['assets/sprites/cutaways/sera-liora/liora-asleep-bed.png', 104, 41, 80, 21],
       cutaway_liora_sitting: ['assets/sprites/cutaways/sera-liora/liora-sitting-bed.png', 48, 57, 24, 52],
       cutaway_sera_close_standing: ['assets/sprites/cutaways/sera-liora/close/sera-standing.png', 96, 128, 48, 112],
+      cutaway_sera_close_standing_fit_v2: ['assets/sprites/cutaways/sera-liora/close/sera-standing-fit-v2.png', 112, 168, 56, 159],
       cutaway_liora_close_asleep: ['assets/sprites/cutaways/sera-liora/close/liora-asleep.png', 120, 64, 86, 46],
+      cutaway_liora_close_asleep_fit_v1: ['assets/sprites/cutaways/sera-liora/close/liora-asleep-fit-v1.png', 160, 80, 126, 45],
       cutaway_liora_close_sitting: ['assets/sprites/cutaways/sera-liora/close/liora-sitting.png', 80, 72, 40, 56],
+      cutaway_liora_close_sitting_fit_v1: ['assets/sprites/cutaways/sera-liora/close/liora-sitting-fit-v1.png', 96, 112, 48, 90],
       cutaway_sera_portrait: ['assets/portraits/cutaways/sera-liora/sera-neutral.png', 80, 96, null, null],
       cutaway_liora_portrait: ['assets/portraits/cutaways/sera-liora/liora-neutral.png', 80, 96, null, null],
     };
@@ -73,7 +76,7 @@ module.exports = {
     g.press('Enter'); g.press('Enter');
     const registry = JSON.parse(g.run('JSON.stringify(IMAGE_ASSET_REGISTRY)'));
     assert.deepEqual(Object.keys(registry).sort(), Object.keys(expected).sort());
-    assert.equal(new Set(Object.values(registry).map((entry) => entry.path)).size, 9, 'paths are unique');
+    assert.equal(new Set(Object.values(registry).map((entry) => entry.path)).size, Object.keys(expected).length, 'paths are unique');
     for (const [id, [assetPath, width, height, ax, ay]] of Object.entries(expected)) {
       const meta = registry[id];
       assert.equal(meta.path, assetPath);
@@ -84,8 +87,11 @@ module.exports = {
     assert.equal(g.run('SERA_LIORA_NORMAL_ENTRY_ENABLED'), false, 'normal entry remains held by default');
     assert.equal(g.run('Object.keys(_imageAssetCache).length'), 0, 'module import creates no Image objects/cache entries');
     assert.deepEqual(JSON.parse(g.run('JSON.stringify(IMAGE_ASSET_BUNDLES.sera_liora_opening)')), [
+      'cutaway_sera_close_standing_fit_v2',
       'cutaway_sera_close_standing',
+      'cutaway_liora_close_asleep_fit_v1',
       'cutaway_liora_close_asleep',
+      'cutaway_liora_close_sitting_fit_v1',
       'cutaway_liora_close_sitting',
       'cutaway_sera_portrait',
       'cutaway_liora_portrait',
@@ -93,7 +99,7 @@ module.exports = {
 
     installImmediateImages(g);
     g.run('debugPlaySeraLioraCutaway()');
-    assert.equal(g.run('__imageConstructions'), 5, 'the requested bundle constructs only its five close-scene images');
+    assert.equal(g.run('__imageConstructions'), 8, 'the bundle constructs three fit-test sprites, their retained fallbacks, and both portraits');
     assert.equal(g.run("IMAGE_ASSET_BUNDLES.sera_liora_opening.every(function(id){return imageAssetRuntime(id).status==='loaded';})"), true);
     assert.equal(g.run('dialogue.portraitId'), null, 'first white line has no portrait');
     assert.equal(g.run('dialogue.portraitSide'), null);
@@ -115,13 +121,15 @@ module.exports = {
     `);
     assert.deepEqual(JSON.parse(g.run('JSON.stringify(__layerOrder)')).slice(0, 4), ['bed-base', 'actors', 'blanket', 'dialogue']);
     let draws = JSON.parse(g.run('JSON.stringify(__drawImages)'));
-    assert.equal(draws.filter((args) => args[0].endsWith('/close/sera-standing.png')).length, 1);
-    assert.equal(draws.filter((args) => args[0].endsWith('/close/liora-asleep.png')).length, 1);
+    assert.equal(draws.filter((args) => args[0].endsWith('/close/sera-standing-fit-v2.png')).length, 1);
+    assert.equal(draws.some((args) => args[0].endsWith('/close/sera-standing.png')), false, 'former Sera sprite is reserved for load failure');
+    assert.equal(draws.filter((args) => args[0].endsWith('/close/liora-asleep-fit-v1.png')).length, 1);
+    assert.equal(draws.some((args) => args[0].endsWith('/close/liora-asleep.png')), false, 'former sleeping sprite is reserved for load failure');
     assert.equal(draws.some((args) => args[0].endsWith('/liora-neutral-48x64.png')), false, 'neutral Liora is not drawn in bed');
     assert.equal(draws.some((args) => args[0].endsWith('/sera-neutral-48x64.png')), false, 'general Sera field sprite is not used at close-cutaway scale');
     assert.equal(draws.some((args) => args[0].endsWith('/liora-asleep-bed.png')), false, 'small Liora bed pose is retained but not used in the close cutaway');
-    assert.deepEqual(draws.find((args) => args[0].endsWith('/close/sera-standing.png')).slice(1), [246, 223]);
-    assert.deepEqual(draws.find((args) => args[0].endsWith('/close/liora-asleep.png')).slice(1), [359, 216]);
+    assert.deepEqual(draws.find((args) => args[0].endsWith('/close/sera-standing-fit-v2.png')).slice(1), [238, 176]);
+    assert.deepEqual(draws.find((args) => args[0].endsWith('/close/liora-asleep-fit-v1.png')).slice(1), [319, 217]);
     assert.equal(draws.every((args) => args.length === 3), true, 'all sprite draws use source plus integer x/y only');
     assert.equal(g.run('ctx.imageSmoothingEnabled'), false);
 
@@ -144,8 +152,10 @@ module.exports = {
     while (g.run('seraLioraCutscene.beat') < 20) g.press(' ');
     g.run('__drawImages=[];render();');
     draws = JSON.parse(g.run('JSON.stringify(__drawImages)'));
-    assert.equal(draws.filter((args) => args[0].endsWith('/close/liora-sitting.png')).length, 1);
-    assert.deepEqual(draws.find((args) => args[0].endsWith('/close/liora-sitting.png')).slice(1), [399, 206]);
+    assert.equal(draws.filter((args) => args[0].endsWith('/close/liora-sitting-fit-v1.png')).length, 1);
+    assert.deepEqual(draws.find((args) => args[0].endsWith('/close/liora-sitting-fit-v1.png')).slice(1), [391, 172]);
+    assert.equal(draws.some((args) => args[0].endsWith('/close/liora-sitting.png')), false, 'former sitting sprite is reserved for load failure');
+    assert.equal(draws.some((args) => args[0].endsWith('/close/liora-asleep-fit-v1.png')), false);
     assert.equal(draws.some((args) => args[0].endsWith('/close/liora-asleep.png')), false);
     assert.equal(draws.some((args) => args[0].endsWith('/liora-sitting-bed.png')), false);
     assert.equal(draws.some((args) => args[0].endsWith('/liora-neutral-48x64.png')), false);
@@ -188,26 +198,38 @@ module.exports = {
     assert.equal(normal.run('dialogue.pages[0][0]'), 'Liora.');
     assert.equal(normal.run('dialogue.portraitId'), null);
 
-    // One field failure uses one code-drawn actor; one portrait failure removes
-    // only its side reservation. Both failures settle, and replay reuses cache.
+    // The new sleeping fit-test falls back to the retained former pose. A Sera
+    // field failure still uses code-drawn art, while a portrait failure removes
+    // only its side reservation. All failures settle, and replay reuses cache.
     const failed = createContext(); failed.press('Enter'); failed.press('Enter');
     installImmediateImages(failed, [
+      'assets/sprites/cutaways/sera-liora/close/sera-standing-fit-v2.png',
+      'assets/sprites/cutaways/sera-liora/close/liora-asleep-fit-v1.png',
       'assets/sprites/cutaways/sera-liora/close/sera-standing.png',
+      'assets/sprites/cutaways/sera-liora/close/liora-sitting-fit-v1.png',
       'assets/portraits/cutaways/sera-liora/liora-neutral.png',
     ]);
     failed.run('debugPlaySeraLioraCutaway()'); advanceToRoom(failed);
-    failed.run('__seraFallbacks=0;window.__oldSera=drawCutawaySera;drawCutawaySera=function(){__seraFallbacks++;return __oldSera();};render();');
+    failed.run('__seraFallbacks=0;window.__drawImages=[];ctx.drawImage=function(){window.__drawImages.push(Array.from(arguments).map(function(v){return v&&v._src?v._src:v;}));};window.__oldSera=drawCutawaySera;drawCutawaySera=function(){__seraFallbacks++;return __oldSera();};render();');
     assert.equal(failed.run('__seraFallbacks'), 1, 'failed Sera raster draws exactly one code-native fallback');
+    assert.equal(failed.run("imageAssetRuntime('cutaway_sera_close_standing_fit_v2').status"), 'error');
     assert.equal(failed.run("imageAssetRuntime('cutaway_sera_close_standing').status"), 'error');
+    assert.equal(failed.run("imageAssetRuntime('cutaway_liora_close_asleep_fit_v1').status"), 'error');
+    assert.equal(failed.run("__drawImages.filter(function(args){return args[0].endsWith('/close/liora-asleep.png');}).length"), 1,
+      'failed fit-test sprite draws the retained former sleeping pose once');
     while (failed.run('seraLioraCutscene.beat') < 10) failed.press(' ');
     assert.equal(failed.run('dialogue.portraitId'), 'cutaway_liora_portrait');
     assert.deepEqual(JSON.parse(failed.run(`JSON.stringify((function(){var x=dialoguePortraitLayout(8,358,496,114,14);return {portrait:x.portrait,textX:x.textX,textW:x.textW};})())`)),
       { portrait: null, textX: 22, textW: 468 }, 'failed portrait falls back to ordinary geometry');
+    while (failed.run('seraLioraCutscene.beat') < 20) failed.press(' ');
+    failed.run('__drawImages=[];render();');
+    assert.equal(failed.run("__drawImages.filter(function(args){return args[0].endsWith('/close/liora-sitting.png');}).length"), 1,
+      'failed sitting fit-test sprite draws the retained former sitting pose once');
     while (failed.run('seraLioraCutscene.beat') < 21) failed.press(' ');
     failed.press(' '); failed.frames(30);
     assert.equal(failed.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'asset failures do not interrupt hospital handoff');
     failed.run('debugPlaySeraLioraCutaway()');
-    assert.equal(failed.run('__imageConstructions'), 5, 'warm replay constructs no replacement images');
+    assert.equal(failed.run('__imageConstructions'), 8, 'warm replay constructs no replacement images');
     assert.equal(failed.run('seraLioraCutscene.startCount'), 2);
 
     const saveCtx = createContext(); saveCtx.press('Enter'); saveCtx.press('Enter');

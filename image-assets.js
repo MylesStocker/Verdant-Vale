@@ -30,15 +30,30 @@ const IMAGE_ASSET_REGISTRY = Object.freeze({
     use: 'close_cutaway_pose', width: 96, height: 128,
     anchor: Object.freeze({ x: 48, y: 112 }),
   }),
+  cutaway_sera_close_standing_fit_v2: Object.freeze({
+    path: 'assets/sprites/cutaways/sera-liora/close/sera-standing-fit-v2.png',
+    use: 'close_cutaway_pose_fit_test', width: 112, height: 168,
+    anchor: Object.freeze({ x: 56, y: 159 }),
+  }),
   cutaway_liora_close_asleep: Object.freeze({
     path: 'assets/sprites/cutaways/sera-liora/close/liora-asleep.png',
     use: 'close_cutaway_pose', width: 120, height: 64,
     anchor: Object.freeze({ x: 86, y: 46 }),
   }),
+  cutaway_liora_close_asleep_fit_v1: Object.freeze({
+    path: 'assets/sprites/cutaways/sera-liora/close/liora-asleep-fit-v1.png',
+    use: 'close_cutaway_pose_fit_test', width: 160, height: 80,
+    anchor: Object.freeze({ x: 126, y: 45 }),
+  }),
   cutaway_liora_close_sitting: Object.freeze({
     path: 'assets/sprites/cutaways/sera-liora/close/liora-sitting.png',
     use: 'close_cutaway_pose', width: 80, height: 72,
     anchor: Object.freeze({ x: 40, y: 56 }),
+  }),
+  cutaway_liora_close_sitting_fit_v1: Object.freeze({
+    path: 'assets/sprites/cutaways/sera-liora/close/liora-sitting-fit-v1.png',
+    use: 'close_cutaway_pose_fit_test', width: 96, height: 112,
+    anchor: Object.freeze({ x: 48, y: 90 }),
   }),
   cutaway_sera_portrait: Object.freeze({
     path: 'assets/portraits/cutaways/sera-liora/sera-neutral.png',
@@ -52,8 +67,11 @@ const IMAGE_ASSET_REGISTRY = Object.freeze({
 
 const IMAGE_ASSET_BUNDLES = Object.freeze({
   sera_liora_opening: Object.freeze([
+    'cutaway_sera_close_standing_fit_v2',
     'cutaway_sera_close_standing',
+    'cutaway_liora_close_asleep_fit_v1',
     'cutaway_liora_close_asleep',
+    'cutaway_liora_close_sitting_fit_v1',
     'cutaway_liora_close_sitting',
     'cutaway_sera_portrait',
     'cutaway_liora_portrait',

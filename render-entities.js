@@ -403,16 +403,26 @@ function drawSeraLioraCutawayActors() {
   if (!seraLioraCutscene.active || activeMap !== BETHANY_GUEST_ROOM_MAP) return;
   // The guest room uses its own close-cutaway scale. The smaller neutral field
   // sprite remains registered for later Lely-proportioned environments.
-  if (!drawRasterCharacter('cutaway_sera_close_standing', 294, 335)) drawCutawaySera();
+  let seraDrawn = drawRasterCharacter('cutaway_sera_close_standing_fit_v2', 294, 335);
+  if (!seraDrawn) seraDrawn = drawRasterCharacter('cutaway_sera_close_standing', 294, 335);
+  if (!seraDrawn) drawCutawaySera();
 
   // Liora remains in bed throughout this opening. Intermediate textual pose
   // states retain the asleep field sprite; the approved sitting asset replaces
   // it once, at the existing final persuasion beat. Her registered neutral
   // standing sprite is deliberately reserved for a later scene.
   const sitting = seraLioraCutscene.lioraPose === 'sitting';
-  const lioraAssetId = sitting ? 'cutaway_liora_close_sitting' : 'cutaway_liora_close_asleep';
   const lioraAnchor = sitting ? { x: 439, y: 262 } : { x: 445, y: 262 };
-  if (!drawRasterCharacter(lioraAssetId, lioraAnchor.x, lioraAnchor.y)) {
+  let lioraDrawn = sitting
+    ? drawRasterCharacter('cutaway_liora_close_sitting_fit_v1', lioraAnchor.x, lioraAnchor.y)
+    : drawRasterCharacter('cutaway_liora_close_asleep_fit_v1', lioraAnchor.x, lioraAnchor.y);
+  // Keep the former close poses as loaded fail-soft fallbacks while the larger,
+  // source-derived fit-test assets are being evaluated in the room.
+  if (!lioraDrawn) {
+    const fallbackId = sitting ? 'cutaway_liora_close_sitting' : 'cutaway_liora_close_asleep';
+    lioraDrawn = drawRasterCharacter(fallbackId, lioraAnchor.x, lioraAnchor.y);
+  }
+  if (!lioraDrawn) {
     drawCutawayLiora(seraLioraCutscene.lioraPose);
   }
 }
