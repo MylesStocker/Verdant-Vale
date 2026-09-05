@@ -79,9 +79,17 @@ module.exports = {
     assert.ok(/four of us took the backroads/.test(monologue), 'the authored monologue plays');
     assert.ok(/find the Truth/.test(monologue), 'the monologue ends on the beast’s line');
 
-    // ── Click through the dream → wake inside the Drenwick infirmary ────────
+    // ── Click through the dream → Drenwick infirmary ───────────────────────
+    // The authored Sera/Liora cutaway is held behind the debug menu until its
+    // normal-play release is explicitly approved.
     let woke = false;
-    for (let i = 0; i < 80 && !woke; i++) { g.press(' '); woke = g.run('activeMap === DRENWICK_INFIRMARY_MAP'); }
+    for (let i = 0; i < 240 && !woke; i++) {
+      if (g.run('dialogue.open')) g.press(' ');
+      else g.frames(1);
+      woke = g.run('activeMap === DRENWICK_INFIRMARY_MAP');
+    }
+    assert.equal(g.run('seraLioraCutscene.active'), false, 'normal play does not enter the held cutaway');
+    assert.equal(g.run('seraLioraCutscene.startCount'), 0, 'normal play never starts the debug-only cutaway');
     assert.ok(woke, 'closing the dream wakes the player inside the Drenwick infirmary interior');
     assert.equal(g.run('townBuilding'), 'infirmary', 'they wake in the infirmary building');
     assert.equal(g.run('locationName()'), 'Drenwick — Infirmary');

@@ -197,7 +197,7 @@ module.exports = {
     const audit = require('../transition-audit.js');
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:48,BLOCKED:46});
     assert.equal(audit.seamReadiness.edges.length,120);
-    assert.equal(g.run('Object.keys(MAP_METADATA).length'),125);
+    assert.equal(g.run('Object.keys(MAP_METADATA).length'),126);
     assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),30);
     assert.equal(Object.keys(GRID_FP.fingerprints).length,30);
   },

@@ -10,7 +10,7 @@ Load order:
 
 ```
 tiles.js → maps.js → data.js → npcs.js → items.js → shops.js → quests.js →
-validation.js → state.js → save.js → world-transitions.js → game-loop.js →
+validation.js → state.js → image-assets.js → save.js → world-transitions.js → game-loop.js →
 render-tiles.js → render-interiors.js → render-entities.js → render-ui.js →
 render.js → input.js → movement.js → combat.js → render-battle.js →
 bootstrap.js → interactions.js
@@ -79,6 +79,7 @@ The rule this codebase actually follows:
 | File | Owns | Don't edit here |
 |---|---|---|
 | `state.js` | All core mutable game state: world/location flags, status effects, `stats`, `menu`/`debugMenu`/`debugInspector`/`warpMenu`, `dialogue`/`continentMap`/`accordPanel`, the `tick` counter, and tiny state-only helpers (`toggleMenu`, `checkLevelUp`, `toggleDebugMenu`, `toggleDebugInspector`, etc). | Combat state (`combat`, `choice`, `shop`) lives in `combat.js`. Furniture/NPC position consts live in `render-interiors.js` / `render-entities.js`, not here. |
+| `image-assets.js` | Stable optional raster-asset metadata, lazy one-image-per-id caching, bundle preload/settlement, and loaded-image lookup. Metadata declaration performs no load; failed assets settle for fail-soft rendering. | No drawing, scene progression, persistent state, or render-loop image construction. |
 | `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION` (**4**), `migrateSave()` (v4 accepts ONLY the current version — no migration/fallback; `SAVE_MIGRATIONS` is retired/unused), `saveGame()`, `loadGame()`, `resolveLoadLocation()` (the v4 discriminated-location preflight), `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here. `saveGame()` refuses to write when `regionalInvariantErrors()` is non-empty; `loadGame()` commits position via `placeAtLocation()` (regional-position.js), never by assigning `activeMap`/`player.x`/`player.y`. See "Save/flags" and "Canonical regional world position" below. |
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |

@@ -97,6 +97,7 @@
     "SLUICE_LEVEL3_MAP",
     "SLUICE_SECRET_MAP",
     "DREAM_MAP",
+    "BETHANY_GUEST_ROOM_MAP",
     "MIRE_VAULT_MAP",
     "TAKOMO_MAP",
     "HAMLET_INTERIOR_MAP",
@@ -710,6 +711,12 @@
       "ok": true
     },
     {
+      "id": "BETHANY_GUEST_ROOM_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
       "id": "MIRE_VAULT_MAP",
       "rows": 15,
       "cols": 16,
@@ -996,7 +1003,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": false
+        "right": true
       },
       "canEscape": true,
       "verdict": "OK"

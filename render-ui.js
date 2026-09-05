@@ -774,57 +774,143 @@ function paginateDialoguePages(pages, maxW, maxVisLines, measure) {
 window.wrapDialogueLine = wrapDialogueLine;
 window.paginateDialoguePages = paginateDialoguePages;
 
+// Optional per-dialogue appearance. The default record is the existing UI
+// verbatim; authored entries opt into another record by id. No speaker-name
+// inference is involved, so names can change without silently changing style.
+const DIALOGUE_TEXT_STYLES = Object.freeze({
+  default: Object.freeze({
+    bodyFont: '14px "Courier New", monospace',
+    nameFont: 'bold 13px "Courier New", monospace',
+    promptFont: 'bold 12px "Courier New", monospace',
+    bodyColor: '#ccd8cc', nameColor: '#8ac8d8', promptColor: '#8ac8d8',
+    boxColor: '#08121e', outerBorderColor: '#5a8a9a',
+    innerBorderColor: '#2a4e5e', cornerColor: '#8ac8d8', lineHeight: 22,
+  }),
+  [SERA_DIALOGUE_STYLE_ID]: Object.freeze({
+    bodyFont: 'italic 17px Georgia, "Times New Roman", serif',
+    nameFont: 'bold italic 15px Georgia, "Times New Roman", serif',
+    promptFont: 'italic 13px Georgia, "Times New Roman", serif',
+    bodyColor: '#40243f', nameColor: '#6f3158', promptColor: '#7a3f62',
+    boxColor: '#f7ead7', outerBorderColor: '#a85f78',
+    innerBorderColor: '#d5a267', cornerColor: '#f0bd5f', lineHeight: 23,
+  }),
+});
+
+function dialogueTextStyle(styleId) {
+  return DIALOGUE_TEXT_STYLES[styleId] || DIALOGUE_TEXT_STYLES.default;
+}
+window.DIALOGUE_TEXT_STYLES = DIALOGUE_TEXT_STYLES;
+window.dialogueTextStyle = dialogueTextStyle;
+
+// Portraits are optional. A missing/failed image returns the untouched legacy
+// geometry; successful portrait pages reserve a consistent 88px side column
+// while retaining the existing box, name, prompt, and vertical measurements.
+function dialoguePortraitLayout(boxX, boxY, boxW, boxH, pad) {
+  const legacy = {
+    portrait: null,
+    portraitX: null,
+    portraitY: null,
+    textX: boxX + pad,
+    textW: boxW - pad * 2,
+  };
+  if (!dialogue.portraitId || dialogue.presentation === 'white_field') return legacy;
+  const meta = IMAGE_ASSET_REGISTRY[dialogue.portraitId];
+  const image = loadedImageAsset(dialogue.portraitId);
+  const side = dialogue.portraitSide;
+  if (!meta || meta.use !== 'dialogue_portrait' || !image || (side !== 'left' && side !== 'right')) return legacy;
+
+  const reserve = 88;
+  return {
+    portrait: image,
+    portraitX: side === 'left' ? boxX + pad : boxX + boxW - pad - meta.width,
+    portraitY: boxY + Math.round((boxH - meta.height) / 2),
+    textX: side === 'left' ? boxX + pad + reserve : boxX + pad,
+    textW: boxW - pad * 2 - reserve,
+  };
+}
+window.dialoguePortraitLayout = dialoguePortraitLayout;
+
 // ─── Dialogue Box Drawing ─────────────────────────────────────────────────────
 function drawDialogue() {
   if (!dialogue.open) return;
 
   const BX = 8, BY = 358, BW = 496, BH = 114;
   const PAD = 14;
+  const style = dialogueTextStyle(dialogue.styleId);
+
+  // The cutaway's first two lines sit directly on the already-white dream
+  // field. They still use ordinary dialogue pages/advance behavior; only their
+  // scoped drawing treatment differs.
+  if (dialogue.presentation === 'white_field') {
+    ctx.font = style.bodyFont;
+    const maxLineW = 420;
+    if (dialogue._preprocessedFor !== dialogue.pages) {
+      const measure = (s) => ctx.measureText(s).width;
+      dialogue.pages = paginateDialoguePages(dialogue.pages, maxLineW, 3, measure);
+      dialogue._preprocessedFor = dialogue.pages;
+    }
+    const lines = dialogue.pages[dialogue.page] || [];
+    const startY = 238 - ((lines.length - 1) * style.lineHeight) / 2;
+    ctx.fillStyle = style.bodyColor;
+    ctx.textAlign = 'center';
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], 256, startY + i * style.lineHeight);
+    }
+    if ((tick >> 5) & 1) {
+      ctx.fillStyle = style.promptColor;
+      ctx.font = style.promptFont;
+      ctx.fillText('[ continue ]', 256, 438);
+    }
+    ctx.textAlign = 'left';
+    return;
+  }
 
   // Background fill
-  ctx.fillStyle = '#08121e';
+  ctx.fillStyle = style.boxColor;
   ctx.fillRect(BX, BY, BW, BH);
 
   // Outer border (lighter blue-grey)
-  ctx.strokeStyle = '#5a8a9a';
+  ctx.strokeStyle = style.outerBorderColor;
   ctx.lineWidth = 2;
   ctx.strokeRect(BX + 1, BY + 1, BW - 2, BH - 2);
 
   // Inner border (dimmer, inset)
-  ctx.strokeStyle = '#2a4e5e';
+  ctx.strokeStyle = style.innerBorderColor;
   ctx.lineWidth = 1;
   ctx.strokeRect(BX + 5, BY + 5, BW - 10, BH - 10);
 
   // Corner accents — bright 2×2 squares at each corner of outer border
-  ctx.fillStyle = '#8ac8d8';
+  ctx.fillStyle = style.cornerColor;
   ctx.fillRect(BX + 1,        BY + 1,        2, 2);
   ctx.fillRect(BX + BW - 3,   BY + 1,        2, 2);
   ctx.fillRect(BX + 1,        BY + BH - 3,   2, 2);
   ctx.fillRect(BX + BW - 3,   BY + BH - 3,   2, 2);
 
+  const layout = dialoguePortraitLayout(BX, BY, BW, BH, PAD);
+  if (layout.portrait) ctx.drawImage(layout.portrait, layout.portraitX, layout.portraitY);
+
   // Name plate (omitted for system messages like chest opened)
   if (dialogue.name) {
-    ctx.fillStyle = '#8ac8d8';
-    ctx.font = 'bold 13px "Courier New", monospace';
-    ctx.fillText(dialogue.name, BX + PAD, BY + 24);
+    ctx.fillStyle = style.nameColor;
+    ctx.font = style.nameFont;
+    ctx.fillText(dialogue.name, layout.textX, BY + 24);
   }
 
   // Separator line under name
-  ctx.fillStyle = '#2a4e5e';
-  ctx.fillRect(BX + PAD, BY + 28, BW - PAD * 2, 1);
+  ctx.fillStyle = style.innerBorderColor;
+  ctx.fillRect(layout.textX, BY + 28, layout.textW, 1);
 
   // Dialogue lines
-  ctx.fillStyle = '#ccd8cc';
-  ctx.font = '14px "Courier New", monospace';
-  const maxLineW = BW - PAD * 2;
+  ctx.fillStyle = style.bodyColor;
+  ctx.font = style.bodyFont;
+  const maxLineW = layout.textW;
 
   // Lazily preprocess authored pages into height-safe visual pages via the
   // shared pure helpers (wrapDialogueLine / paginateDialoguePages), so the exact
   // layout is unit-testable. Replaces dialogue.pages in-place; the identity
   // check avoids reprocessing each frame.
   if (dialogue._preprocessedFor !== dialogue.pages) {
-    const LINE_H = 22;
-    const maxVisLines = Math.max(1, Math.floor((BH - 40) / LINE_H));
+    const maxVisLines = Math.max(1, Math.floor((BH - 40) / style.lineHeight));
     const measure = (s) => ctx.measureText(s).width;
     dialogue.pages = paginateDialoguePages(dialogue.pages, maxLineW, maxVisLines, measure);
     dialogue._preprocessedFor = dialogue.pages;
@@ -838,18 +924,18 @@ function drawDialogue() {
   const lines = dialogue.pages[dialogue.page] || [];
   let lineY = BY + 52;
   for (const subline of lines) {
-    ctx.fillText(subline, BX + PAD, lineY);
-    lineY += 22;
+    ctx.fillText(subline, layout.textX, lineY);
+    lineY += style.lineHeight;
   }
 
   // Advance / close prompt — blinks every 30 frames
   if ((tick >> 5) & 1) {
     const isLast = dialogue.page === dialogue.pages.length - 1;
-    ctx.fillStyle = '#8ac8d8';
-    ctx.font = 'bold 12px "Courier New", monospace';
+    ctx.fillStyle = style.promptColor;
+    ctx.font = style.promptFont;
     const label = isLast ? '[ close ]' : '\u25bc more';
     ctx.textAlign = 'right';
-    ctx.fillText(label, BX + BW - PAD, BY + BH - 10);
+    ctx.fillText(label, layout.textX + layout.textW, BY + BH - 10);
     ctx.textAlign = 'left';
   }
 }
@@ -1448,7 +1534,7 @@ function drawDebugMenu() {
   if (!debugMenu.open) return;
 
   const W = 512, H = 480;
-  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 292;
+  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 316;
   const PX = Math.floor((W - PW) / 2);
   const PY = Math.floor((H - PH) / 2);
 
@@ -1480,6 +1566,7 @@ function drawDebugMenu() {
     { type: 'action', label: '[ Validate Data ]' },
     { type: 'toggle', label: '[ Home on Defeat ]', value: defeatWakeAtHome,      onColor: '#78e888', offColor: '#3a5858' },
     { type: 'toggle', label: '[ Legacy Regional Fallback ]', value: forceLegacyRegionalView, onColor: '#e8a878', offColor: '#3a5858' },
+    { type: 'action', label: '[ Play Sera/Liora Cutaway ]' },
   ];
 
   rows.forEach((row, i) => {

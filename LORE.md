@@ -92,6 +92,16 @@ A pair who meet at the Academy and remain together after leaving are called **La
 
 That belonging has a shadow. Plenty of commonborn resent the rareborn and remain deeply suspicious of them — of the registration and Imperial employment that set them apart, of the thread-colour hair that announces them at a glance, of powers a neighbour cannot see coming. A pair of Lantern Lovers — two rareborn keeping their own charmed company — can draw that suspicion doubly, read as clannish, privileged, or simply other. Some commonborn, of course, are perfectly easy about all of it. But the ordinary rareborn adult, paired with their own kind or not, generally lives with a low, steady wariness from a good part of the population, and knows it.
 
+### Sera Kethrin and Liora
+
+At nineteen, recent Academy graduates **Sera Kethrin** and **Liora** travel the continent together before their “real” lives. Exceptionally close best friends, possibly in love, their relationship remains unlabelled. Both are effortlessly slim and pretty, broadly Nordic; Liora is one inch taller.
+
+Sera is a jet-black-haired voidborn daughter of one of the continent’s wealthiest families: brisk, warm, socially fluent, practical, dryly funny, and adept with schedules, money, officials, and travel logistics. She acknowledges privilege and status without fixation; habits quietly anticipate her post-trip return to Kethrin expectations. Never gothic, cold, Liora’s caretaker, or a rebellious-heiress stereotype.
+
+Prismborn Liora’s hair gleams bold, garish, unmistakably complete-spectrum rainbow—not silver, pastel, or merely iridescent. She is contemplative, searching, observant, morally serious, and quietly stubborn; deviations reflect curiosity and attention, not childish whimsy. Unavoidably conspicuous and aware of prismborn expectations, she suspects travel and contribution may be her real life. Never a bubbly magical girl, chaotic free spirit, naive chosen one, or comic foil.
+
+Sera lets Liora feel like a person, not a phenomenon; Liora does the same for Sera, not a Kethrin. After about two years, Sera returns to Halcyra, marries into another wealthy, powerful family at twenty-one, later having several children. Liora never marries or has children, travelling and using her power and stature for peace, exploration, discovery, education, and public good. They remain exceptionally close lifelong; whether Liora was Sera’s deepest love stays unresolved.
+
 ## The Rebel Factions
 
 The Reclaimers — populist, commonfolk underrepresentation - rural anger, anti-elitist and sometimes communist. The Unshackled Flame — rareborn supremacists, radical faction believes the Century War was a failed revolution and the wrong side won. These two factions - if they could band together, could threaten the empire, however because they are at loggerheads with each other, they are never able to.
@@ -105,6 +115,8 @@ A permanent resonance storm runs near the equator, north of the continent, and p
 The most popular sport among normal folk is river wrestling, where shirtless men wrestle to see whose shoulders touch the water first - it is viewed as rather barbaric by the upper classes. Rules vary considerably by region, venue, level, and appetite for violence: some circuits play simple first-shoulders-under, while others (the Drenwick circuit among them) run codified hold-and-break systems fought in moving, at-least-knee-deep current, where being taken under for long seconds is part of the show.
 
 Monsters exist — fen creatures, remnant things in old ruins, worse things below. Ordinary people call some of their lingering effects "curses," and the word is fair as folk usage; scholars pointedly do NOT classify these phenomena as resonance, and there is no ninth magic system. They are simply hazards nobody has been funded to explain.
+
+**Bethany** is a beautiful mountain town and major continental destination far from the Fens: steep terraces, bright buildings, alpine gardens, expansive views, and prosperous visitor culture. During annual **Skybloom**, high-altitude starflowers open together after sunset, releasing luminous seeds upward so the mountainside appears to send stars into night. This known natural-magical phenomenon is never prophecy, omen, rareborn manifestation, or new magic.
 
 ### The Development Grid
 
@@ -201,6 +213,10 @@ The Empire is neither good nor bad — genuinely beneficial in many ways, genuin
 Browser-based old school JRPG. Player character is a junior IJC Investigator posted to Calwick, a wetlands town of ~800 on the margin of the Thornmere, a cool, small, shallow sea-and-fen system southwest of the capitals' region. (The province is named for the Valmere, the far larger inland sea well to the east — see The World; the Valmere is not local to Calwick.) Calwick's economy: reed harvesting, fishing, agricultural drainage management, ruins documentation when structures emerge from the mud in dry years. Second town: Drenwick, population ~2000, larger and more impersonal. A canal town that will be severely economically impacted if the drought goes on for too long.
 
 As the game starts, the water situation has three distinct layers: the North Basin reservoir system has been quietly declining for years (old waterlines stranded well above the water, mooring posts on dry ground); the current dry spell has lasted three rainless months; and only now has the local office officially classified it as a drought. The cause is unknown. Nobody's dying, but people are starting to get nervous.
+
+The first Sera/Liora cutaway falls immediately after Lely’s final dream—presented with deliberately out-of-place realism—and before she wakes in the hospital. First thing that morning, Sera wakes Liora; the imagery echoes the preceding waking frame without explaining or implying connection to Lely or the dreams. Its purpose stays unknown. This is not a call to adventure: already travelling, they start their last full Bethany day with ordinary shared plans: evening Skybloom, next-morning departure.
+
+Their cutaways use a brighter, warmer, more magical perspective than Lely’s Fen story: saturated natural colours, inviting architecture, environmental movement, abundance, and ordinary life touched by magic—akin to *Animal Crossing*. Perspective, not another reality; emotionally mature, never childish or purely comedic.
 
 ## The Calwick Office
 

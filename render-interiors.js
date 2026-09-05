@@ -2823,3 +2823,167 @@ function drawLighthouseInteriorFurniture() {
     }
   }
 }
+
+// ─── Bethany guest house: finest room ──────────────────────────────────────
+// Cutscene-only, code-native interior art. The opaque palette pass gives this
+// scene its own bright alpine perspective while the registered map beneath it
+// remains the collision/location authority.
+function drawBethanyGuestRoom() {
+  if (activeMap !== BETHANY_GUEST_ROOM_MAP) return;
+
+  // Sun-warmed plaster and polished honey-coloured boards.
+  const wall = ctx.createLinearGradient(0, 0, 0, 188);
+  wall.addColorStop(0, '#fff4c8');
+  wall.addColorStop(1, '#f2c982');
+  ctx.fillStyle = wall;
+  ctx.fillRect(0, 0, 512, 190);
+  ctx.fillStyle = '#b86f38';
+  ctx.fillRect(0, 190, 512, 290);
+  for (let y = 198; y < 480; y += 16) {
+    ctx.fillStyle = (y / 16) % 2 ? '#c77d40' : '#bd7138';
+    ctx.fillRect(0, y, 512, 14);
+    ctx.fillStyle = 'rgba(255,224,154,0.22)';
+    ctx.fillRect(0, y, 512, 1);
+  }
+  ctx.fillStyle = '#754326';
+  ctx.fillRect(0, 184, 512, 7);
+  ctx.fillStyle = '#e4a85d';
+  ctx.fillRect(0, 184, 512, 2);
+
+  // Wide mountain-facing window / shallow private balcony.
+  const wx = 108, wy = 17, ww = 296, wh = 139;
+  ctx.fillStyle = '#754326';
+  ctx.fillRect(wx - 7, wy - 7, ww + 14, wh + 14);
+  ctx.fillStyle = '#d99a4c';
+  ctx.fillRect(wx - 4, wy - 4, ww + 8, wh + 8);
+  const sky = ctx.createLinearGradient(0, wy, 0, wy + wh);
+  sky.addColorStop(0, '#55bfe0');
+  sky.addColorStop(0.55, '#9ee3e4');
+  sky.addColorStop(1, '#f8e6b0');
+  ctx.fillStyle = sky;
+  ctx.fillRect(wx, wy, ww, wh);
+
+  // Far snowy ridges and Bethany's bright upper terraces.
+  ctx.fillStyle = '#6b87aa';
+  ctx.beginPath();
+  ctx.moveTo(wx, wy + 92); ctx.lineTo(wx + 54, wy + 35);
+  ctx.lineTo(wx + 92, wy + 75); ctx.lineTo(wx + 148, wy + 27);
+  ctx.lineTo(wx + 201, wy + 81); ctx.lineTo(wx + 250, wy + 42);
+  ctx.lineTo(wx + ww, wy + 83); ctx.lineTo(wx + ww, wy + wh);
+  ctx.lineTo(wx, wy + wh); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#eaf8ef';
+  ctx.beginPath();
+  ctx.moveTo(wx + 36, wy + 55); ctx.lineTo(wx + 54, wy + 35); ctx.lineTo(wx + 72, wy + 54);
+  ctx.lineTo(wx + 132, wy + 41); ctx.lineTo(wx + 148, wy + 27); ctx.lineTo(wx + 166, wy + 47);
+  ctx.lineTo(wx + 236, wy + 54); ctx.lineTo(wx + 250, wy + 42); ctx.lineTo(wx + 263, wy + 57);
+  ctx.closePath(); ctx.fill();
+  const cloudDrift = Math.round(Math.sin(tick / 48) * 4);
+  ctx.fillStyle = 'rgba(255,255,245,0.88)';
+  for (const cloud of [[wx - 9 + cloudDrift, wy + 103, 118], [wx + 91 - cloudDrift, wy + 113, 134], [wx + 222 + cloudDrift, wy + 102, 94]]) {
+    ctx.beginPath();
+    ctx.ellipse(cloud[0] + cloud[2] / 2, cloud[1] + 12, cloud[2] / 2, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#f2a85e';
+  for (const terrace of [[wx + 24, wy + 82, 72], [wx + 117, wy + 78, 76], [wx + 211, wy + 86, 60]]) {
+    ctx.fillRect(terrace[0], terrace[1], terrace[2], 7);
+    ctx.fillStyle = '#fff0b8';
+    for (let x = terrace[0] + 5; x < terrace[0] + terrace[2] - 4; x += 13) ctx.fillRect(x, terrace[1] - 8, 9, 8);
+    ctx.fillStyle = '#f2a85e';
+  }
+  // Window frame and balcony rail.
+  ctx.fillStyle = '#754326';
+  ctx.fillRect(wx + ww / 2 - 2, wy, 4, wh);
+  ctx.fillRect(wx, wy + wh - 18, ww, 5);
+  for (let x = wx + 8; x < wx + ww; x += 24) ctx.fillRect(x, wy + wh - 18, 3, 18);
+
+  // Skybloom preparations: starflower garland around the window, with a soft
+  // deterministic shimmer rather than render-time randomness.
+  const flowerColors = ['#f8f06d', '#ff87ba', '#8ff1ff', '#c69aff'];
+  for (let i = 0; i < 15; i++) {
+    const fx = wx + i * 21;
+    const fy = wy - 2 + Math.round(Math.sin((tick + i * 9) / 22) * 2);
+    ctx.fillStyle = '#5fa650';
+    ctx.fillRect(fx, fy, 2, 11);
+    ctx.fillStyle = flowerColors[i % flowerColors.length];
+    ctx.fillRect(fx - 3, fy - 2, 8, 3);
+    ctx.fillRect(fx - 1, fy - 4, 4, 7);
+  }
+
+  // Hearth and washstand: ordinary guest-house comforts, exceptionally well made.
+  ctx.fillStyle = '#8e785f';
+  ctx.fillRect(25, 106, 70, 78);
+  ctx.fillStyle = '#615247';
+  ctx.fillRect(32, 119, 56, 65);
+  ctx.fillStyle = '#2e2930';
+  ctx.fillRect(41, 137, 38, 38);
+  ctx.fillStyle = '#ffb545';
+  ctx.beginPath(); ctx.moveTo(50, 171); ctx.lineTo(59, 147); ctx.lineTo(66, 171); ctx.fill();
+  ctx.fillStyle = '#ffe06c';
+  ctx.beginPath(); ctx.moveTo(58, 171); ctx.lineTo(66, 155); ctx.lineTo(72, 171); ctx.fill();
+  ctx.fillStyle = '#67452d';
+  ctx.fillRect(420, 133, 65, 8); ctx.fillRect(427, 141, 5, 43); ctx.fillRect(473, 141, 5, 43);
+  ctx.fillStyle = '#e9f2dc';
+  ctx.beginPath(); ctx.ellipse(452, 135, 23, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#6eb5c2';
+  ctx.fillRect(445, 111, 14, 21); ctx.fillStyle = '#9bd9dc'; ctx.fillRect(448, 108, 8, 5);
+
+  // A rich woven rug, refined rather than palatial.
+  ctx.fillStyle = '#7f3560';
+  ctx.fillRect(181, 243, 145, 92);
+  ctx.fillStyle = '#d98763';
+  ctx.fillRect(187, 249, 133, 80);
+  ctx.strokeStyle = '#f4cf79'; ctx.lineWidth = 3;
+  ctx.strokeRect(194, 256, 119, 66);
+  ctx.fillStyle = '#7f3560';
+  for (let x = 203; x <= 299; x += 24) {
+    ctx.beginPath(); ctx.moveTo(x, 287); ctx.lineTo(x + 8, 275); ctx.lineTo(x + 16, 287); ctx.lineTo(x + 8, 299); ctx.closePath(); ctx.fill();
+  }
+
+  function drawGuestBed(x, y, width, rumpled, deferForeground) {
+    ctx.fillStyle = '#603d2b'; ctx.fillRect(x, y + 12, width, 76); ctx.fillRect(x - 4, y + 7, 8, 88);
+    ctx.fillStyle = '#f7efd2'; ctx.fillRect(x + 5, y + 9, width - 10, 68);
+    ctx.fillStyle = '#fff9df'; ctx.fillRect(x + width - 48, y + 14, 38, 24);
+    if (!deferForeground) {
+      ctx.fillStyle = rumpled ? '#ec8f87' : '#77b8aa'; ctx.fillRect(x + 5, y + 44, width - 10, 38);
+      ctx.fillStyle = rumpled ? '#f7b0a1' : '#98d2bd'; ctx.fillRect(x + 5, y + 44, width - 10, 5);
+      ctx.fillStyle = '#d7b96e'; ctx.fillRect(x, y + 84, width, 4);
+    }
+  }
+  drawGuestBed(37, 224, 154, false);
+  drawGuestBed(319, 218, 158, true, seraLioraCutscene.active);
+
+  // Breakfast has already arrived: tea, fruit, bread, and folded napkin.
+  ctx.fillStyle = '#72492f'; ctx.fillRect(214, 182, 84, 11); ctx.fillRect(221, 193, 5, 38); ctx.fillRect(286, 193, 5, 38);
+  ctx.fillStyle = '#e9bd62'; ctx.fillRect(220, 178, 72, 7);
+  ctx.fillStyle = '#f7e6bb'; ctx.beginPath(); ctx.ellipse(243, 179, 13, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#d76545'; ctx.fillRect(236, 174, 5, 5); ctx.fillStyle = '#edae46'; ctx.fillRect(244, 173, 6, 6);
+  ctx.fillStyle = '#547d74'; ctx.fillRect(267, 164, 13, 15); ctx.fillRect(278, 168, 6, 3);
+  ctx.fillStyle = '#fff1d0'; ctx.fillRect(225, 168, 14, 9);
+
+  // Shared travel life: one closed bag, one open and partly packed case, loose
+  // folded clothes, and a walking staff resting between them.
+  ctx.fillStyle = '#5a3b31'; ctx.fillRect(113, 303, 45, 28); ctx.fillStyle = '#d49a58'; ctx.fillRect(120, 298, 31, 7);
+  ctx.fillStyle = '#3f674f'; ctx.fillRect(214, 302, 62, 31); ctx.fillStyle = '#82a066'; ctx.fillRect(218, 306, 54, 8);
+  ctx.strokeStyle = '#6b4934'; ctx.lineWidth = 4; ctx.strokeRect(209, 294, 72, 42);
+  ctx.fillStyle = '#eaa06e'; ctx.fillRect(226, 292, 27, 9); ctx.fillStyle = '#5d86b2'; ctx.fillRect(251, 296, 22, 7);
+  ctx.fillStyle = '#76502f'; ctx.save(); ctx.translate(292, 299); ctx.rotate(-0.18); ctx.fillRect(0, -54, 4, 71); ctx.restore();
+
+  // Small local carving and potted alpine flowers complete the prosperous,
+  // inviting room without turning it into a palace suite.
+  ctx.fillStyle = '#9a5f3b'; ctx.fillRect(16, 24, 64, 58); ctx.fillStyle = '#f1c774'; ctx.fillRect(21, 29, 54, 48);
+  ctx.fillStyle = '#785d87'; ctx.beginPath(); ctx.moveTo(28, 68); ctx.lineTo(47, 38); ctx.lineTo(66, 68); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#6d4a2d'; ctx.fillRect(484, 176, 24, 9); ctx.fillStyle = '#547d43'; ctx.fillRect(488, 157, 3, 20); ctx.fillRect(499, 153, 3, 24);
+  ctx.fillStyle = '#f06fa0'; ctx.fillRect(485, 153, 10, 6); ctx.fillStyle = '#8ad9f0'; ctx.fillRect(496, 149, 10, 6);
+}
+
+// Local cutaway occlusion pass: Liora is placed after the right bed's base and
+// pillow, then this exact blanket/edge layer covers her lower body. Keeping it
+// separate prevents the pose PNGs from baking in room-specific furniture.
+function drawBethanyGuestBedForeground() {
+  if (activeMap !== BETHANY_GUEST_ROOM_MAP || !seraLioraCutscene.active) return;
+  const x = 319, y = 218, width = 158;
+  ctx.fillStyle = '#ec8f87'; ctx.fillRect(x + 5, y + 44, width - 10, 38);
+  ctx.fillStyle = '#f7b0a1'; ctx.fillRect(x + 5, y + 44, width - 10, 5);
+  ctx.fillStyle = '#d7b96e'; ctx.fillRect(x, y + 84, width, 4);
+}

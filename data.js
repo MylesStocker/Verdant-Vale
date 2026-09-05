@@ -1281,6 +1281,13 @@ const MAP_CATALOG = {
     allowRandomEncounters: false, allowSave: false,
     notes: 'The weekly strange-dream space (all white). Entered/left only via enterDream()/exitDream() while resting; unreachable by walking, no NPCs, no items. allowSave false is documentation -- the menu cannot open during the dream dialogue anyway.',
   },
+  BETHANY_GUEST_ROOM_MAP: {
+    id: 'BETHANY_GUEST_ROOM_MAP', map: BETHANY_GUEST_ROOM_MAP,
+    displayName: 'Bethany — Guest House', region: 'Bethany',
+    type: 'special', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: false,
+    notes: 'Cutscene-only finest guest-house room for Sera and Liora. It has no exit, exploration, items, NPC registry entries, or debug-warp destination; the transient opening cutaway enters and leaves it through scripted transitions only.',
+  },
 
   // ── Special vaults/chambers ────────────────────────────────────────────────
   MIRE_VAULT_MAP: {

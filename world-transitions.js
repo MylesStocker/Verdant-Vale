@@ -1054,9 +1054,11 @@ function exitBasinChamber() {
   transitionToLocation({ mapId: 'NORTH_BASIN_NW_MAP', x: 12.5 * TILE, y: 4.5 * TILE, facing: 'down', cooldown: true }); // one tile south of the doorframe
 }
 
-// ─── The chamber's second-exit dream, and waking at Drenwick ─────────────────
+// ─── The chamber's second-exit dream and Drenwick waking ────────────────────
 // The long monologue plays in the all-white DREAM_MAP (reusing enterDream's
-// setup); when its last page closes, wakeAtDrenwickInfirmary() takes over.
+// setup). Its final close proceeds directly to the existing hospital wake.
+// The authored Sera/Liora cutaway remains available as a debug-menu preview,
+// but is intentionally inactive in normal play until its release is approved.
 // enterDream()'s _dreamReturn stash is deliberately discarded on waking — the
 // player does NOT return to the chamber: Esla carried them out of the marshes.
 const BASIN_CHAMBER_DREAM_PAGES = [
@@ -1084,14 +1086,200 @@ const ESLA_INFIRMARY_WAKE_PAGES = [
   ['“Rest. You’re back now.”'],
 ];
 
+// Release gate: the cutaway remains debug-only until explicitly activated.
+// Tests may temporarily enable this session-only switch to exercise the exact
+// inherited-white normal-entry seam; it is not saved or exposed in player UI.
+let SERA_LIORA_NORMAL_ENTRY_ENABLED = false;
+
+function continueAfterBasinChamberDream() {
+  if (SERA_LIORA_NORMAL_ENTRY_ENABLED) startSeraLioraCutaway();
+  else wakeAtDrenwickInfirmary();
+}
+
 function basinChamberDreamSequence() {
   inBasinChamber = false;
   enterDream();  // warp to the white space; its _dreamReturn stash is discarded on wake
   dialogue.name      = '';
   dialogue.pages     = BASIN_CHAMBER_DREAM_PAGES;
-  dialogue.callbacks = [function () { wakeAtDrenwickInfirmary(); }];
+  dialogue.callbacks = [continueAfterBasinChamberDream];
+  dialogue.styleId   = null;
+  dialogue.presentation = 'box';
   dialogue.open      = true;
   dialogue.page      = 0;
+}
+
+// ─── Sera and Liora: first cutaway, opening increment ───────────────────────
+// Each entry explicitly owns its typography and presentation. In particular,
+// Sera's elegant style is data-driven here; the renderer never infers styling
+// from the displayed speaker name.
+const SERA_LIORA_CUTAWAY_BEATS = [
+  { character: 'Sera',  name: '',      text: 'Liora.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'white_field', stage: 'white' },
+  { character: 'Sera',  name: '',      text: 'Liora, wake up.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'white_field', stage: 'white' },
+  { character: 'Liora', name: 'Liora', text: 'I am awake.', styleId: null, presentation: 'box', stage: 'room', lioraPose: 'sleeping' },
+  { character: 'Sera',  name: 'Sera',  text: 'You said that five minutes ago.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'Was I convincing?', styleId: null, presentation: 'box', stage: 'room' },
+  { character: 'Sera',  name: 'Sera',  text: 'Not especially.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'Then let me try again.', styleId: null, presentation: 'box', stage: 'room' },
+  { character: 'Sera',  name: 'Sera',  text: 'Open your eyes.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', lioraPose: 'settled', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'Is something wrong?', styleId: null, presentation: 'box', stage: 'room', lioraPose: 'attentive' },
+  { character: 'Sera',  name: 'Sera',  text: 'Quite the opposite. The clouds have sunk below the lower roofs. The upper terraces look as though they’ve floated away.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'Have they?', styleId: null, presentation: 'box', stage: 'room', lioraPose: 'awake', portraitId: 'cutaway_liora_portrait', portraitSide: 'right' },
+  { character: 'Sera',  name: 'Sera',  text: 'Come to the window and decide.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'They’ll still be floating at noon.', styleId: null, presentation: 'box', stage: 'room', portraitId: 'cutaway_liora_portrait', portraitSide: 'right' },
+  { character: 'Sera',  name: 'Sera',  text: 'The clouds won’t. And the starflower stalls are opening.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'You saved the flowers until the end.', styleId: null, presentation: 'box', stage: 'room', portraitId: 'cutaway_liora_portrait', portraitSide: 'right' },
+  { character: 'Sera',  name: 'Sera',  text: 'I know my audience.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'Five more minutes.', styleId: null, presentation: 'box', stage: 'room', portraitId: 'cutaway_liora_portrait', portraitSide: 'right' },
+  { character: 'Sera',  name: 'Sera',  text: 'You spent them.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'I was asleep. They don’t count.', styleId: null, presentation: 'box', stage: 'room', portraitId: 'cutaway_liora_portrait', portraitSide: 'right' },
+  { character: 'Sera',  name: 'Sera',  text: 'Up.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+  { character: 'Liora', name: 'Liora', text: 'All right. But if the town is still attached to the mountain, I’m coming back.', styleId: null, presentation: 'box', stage: 'room', lioraPose: 'sitting', portraitId: 'cutaway_liora_portrait', portraitSide: 'right' },
+  { character: 'Sera',  name: 'Sera',  text: 'Agreed.', styleId: SERA_DIALOGUE_STYLE_ID, presentation: 'box', stage: 'room', portraitId: 'cutaway_sera_portrait', portraitSide: 'left' },
+];
+
+function showSeraLioraCutawayBeat(index) {
+  const beat = SERA_LIORA_CUTAWAY_BEATS[index];
+  if (!beat || !seraLioraCutscene.active) return;
+  seraLioraCutscene.beat = index;
+  seraLioraCutscene.phase = beat.stage === 'white' ? 'white_dialogue' : 'room_dialogue';
+  if (beat.lioraPose) seraLioraCutscene.lioraPose = beat.lioraPose;
+  openDialogue(beat.name, [[beat.text]], [function () {
+    advanceSeraLioraCutawayAfterBeat(index);
+  }], {
+    styleId: beat.styleId,
+    presentation: beat.presentation,
+    portraitId: beat.portraitId || null,
+    portraitSide: beat.portraitSide || null,
+  });
+}
+
+function advanceSeraLioraCutawayAfterBeat(index) {
+  if (!seraLioraCutscene.active || index !== seraLioraCutscene.beat) return;
+  if (index === 0) {
+    seraLioraCutscene.phase = 'white_pause';
+    seraLioraCutscene.waitFrames = 18;
+    return;
+  }
+  if (index === 1) {
+    if (imageAssetBundleSettled('sera_liora_opening')) revealBethanyGuestRoom();
+    else seraLioraCutscene.phase = 'asset_wait';
+    return;
+  }
+  if (index < SERA_LIORA_CUTAWAY_BEATS.length - 1) {
+    showSeraLioraCutawayBeat(index + 1);
+    return;
+  }
+  seraLioraCutscene.phase = 'final_hold';
+  seraLioraCutscene.waitFrames = 30;
+}
+
+function startSeraLioraCutaway() {
+  if (seraLioraCutscene.active) return;
+  // Close every player-mode overlay defensively. The cutaway's input route then
+  // permits only ordinary dialogue advancement until the hospital sequence.
+  menu.open = false;
+  choice.open = false;
+  shop.open = false;
+  debugMenu.open = false;
+  debugInspector.open = false;
+  warpMenu.open = false;
+  continentMap.open = false;
+  accordPanel.open = false;
+  player.moving = false;
+
+  seraLioraCutscene.active = true;
+  seraLioraCutscene.phase = 'white_dialogue';
+  seraLioraCutscene.beat = -1;
+  seraLioraCutscene.waitFrames = 0;
+  seraLioraCutscene.revealAlpha = 0;
+  seraLioraCutscene.lioraPose = 'sleeping';
+  seraLioraCutscene.startCount++;
+  const assetLoadToken = ++seraLioraCutscene.assetLoadToken;
+  preloadImageAssetBundle('sera_liora_opening').then(function() {
+    if (seraLioraCutscene.active &&
+        seraLioraCutscene.assetLoadToken === assetLoadToken &&
+        seraLioraCutscene.phase === 'asset_wait') {
+      revealBethanyGuestRoom();
+    }
+  });
+  showSeraLioraCutawayBeat(0);
+}
+
+// Debug-menu-only preview entry. It stages the same white field that the
+// eventual story handoff will inherit, then enters the ordinary cutaway flow.
+// No story flag is changed, and the room remains absent from all warp catalogs.
+function debugPlaySeraLioraCutaway() {
+  if (seraLioraCutscene.active) return false;
+  const moved = transitionToLocation({
+    mapId: 'DREAM_MAP', x: 7.5 * TILE, y: 7.5 * TILE, facing: 'down'
+  });
+  if (!moved) return false;
+
+  // A debug preview is not a sleep/dream return path. The scripted ending
+  // continues to the existing hospital awakening just like production.
+  _dreamReturn = null;
+  dialogue.open = false;
+  dialogue.page = 0;
+  dialogue.callbacks = null;
+  dialogue.triggerEncounterId = null;
+  dialogue.styleId = null;
+  dialogue.presentation = 'box';
+  dialogue.portraitId = null;
+  dialogue.portraitSide = null;
+  startSeraLioraCutaway();
+  return true;
+}
+
+function revealBethanyGuestRoom() {
+  const moved = transitionToLocation({
+    mapId: 'BETHANY_GUEST_ROOM_MAP', x: 7.5 * TILE, y: 7.5 * TILE, facing: 'up'
+  });
+  if (!moved) {
+    seraLioraCutscene.active = false;
+    wakeAtDrenwickInfirmary();
+    return;
+  }
+  seraLioraCutscene.phase = 'room_reveal';
+  seraLioraCutscene.waitFrames = 40;
+  seraLioraCutscene.revealAlpha = 1;
+}
+
+// Called by update() before normal player movement. It advances only silent,
+// timed beats; spoken beats remain in the established dialogue system.
+function updateSeraLioraCutaway() {
+  if (!seraLioraCutscene.active) return;
+  player.moving = false;
+  if (dialogue.open || seraLioraCutscene.waitFrames <= 0) return;
+
+  seraLioraCutscene.waitFrames--;
+  if (seraLioraCutscene.phase === 'room_reveal') {
+    seraLioraCutscene.revealAlpha = seraLioraCutscene.waitFrames / 40;
+  }
+  if (seraLioraCutscene.waitFrames > 0) return;
+
+  if (seraLioraCutscene.phase === 'white_pause') {
+    showSeraLioraCutawayBeat(1);
+  } else if (seraLioraCutscene.phase === 'room_reveal') {
+    seraLioraCutscene.revealAlpha = 0;
+    showSeraLioraCutawayBeat(2);
+  } else if (seraLioraCutscene.phase === 'final_hold') {
+    continueSeraLioraCutawayAfterOpening();
+  }
+}
+
+// Deliberate extension point: later increments can begin the rest of their
+// Bethany morning here, ahead of the existing hospital handoff, without
+// rewriting this opening's beats or transitions.
+function continueSeraLioraCutawayAfterOpening() {
+  endSeraLioraCutawayAtHospital();
+}
+
+function endSeraLioraCutawayAtHospital() {
+  seraLioraCutscene.active = false;
+  seraLioraCutscene.phase = 'complete';
+  seraLioraCutscene.waitFrames = 0;
+  seraLioraCutscene.revealAlpha = 0;
+  wakeAtDrenwickInfirmary();
 }
 
 function wakeAtDrenwickInfirmary() {
@@ -1104,6 +1292,10 @@ function wakeAtDrenwickInfirmary() {
   dialogue.name      = 'Esla';
   dialogue.pages     = ESLA_INFIRMARY_WAKE_PAGES;
   dialogue.callbacks = [];   // NOT null: handleInteract reads .length right after this returns
+  dialogue.styleId   = null;
+  dialogue.presentation = 'box';
+  dialogue.portraitId = null;
+  dialogue.portraitSide = null;
   dialogue.open      = true;
   dialogue.page      = 0;
 }

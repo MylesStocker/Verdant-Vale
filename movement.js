@@ -33,6 +33,8 @@ function locationName() {
   const meta = MAP_METADATA[_locId];
   if (meta && meta.type === 'outdoor') return meta.displayName;
 
+  if (activeMap === BETHANY_GUEST_ROOM_MAP) return 'Bethany — Guest House';
+
   if (inBasinChamber)                      return 'No Recorded Location';
   if (inSunkenGallery)                     return 'Sunken Gallery';
   if (inTakomo)                            return 'Takomo\u2019s Chamber';
@@ -434,6 +436,14 @@ function update() {
   if (combat.active) {
     if (combat.flashTimer > 0) combat.flashTimer--;
     if (combat.fireCastTimer > 0) combat.fireCastTimer--;
+    return;
+  }
+
+  // The Sera/Liora room is never a player mode. Its transient runner advances
+  // only silent pauses/reveal frames, then returns before movement, encounters,
+  // transitions, NPC routes, or any other overworld update can execute.
+  if (seraLioraCutscene.active) {
+    updateSeraLioraCutaway();
     return;
   }
 

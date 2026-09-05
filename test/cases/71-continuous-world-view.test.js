@@ -73,7 +73,7 @@ module.exports = {
     // ── 1. Debug fallback defaults OFF (continuous is default); never serialized ─
     assert.equal(g.run('forceLegacyRegionalView'), false, 'legacy fallback defaults OFF -> continuous is the production default');
     assert.equal(g.run("typeof continuousWorldViewEnabled"), 'undefined', 'the old opt-in flag is gone');
-    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 10, 'debug menu still has its rows');
+    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 11, 'debug menu includes the cutscene preview row');
     g.run('forceLegacyRegionalView = true; saveGame();');
     const rawSave = g.run("localStorage.getItem('verdantVale_save')");
     assert.ok(!/continuousWorldView|forceLegacyRegionalView|legacyRegional/i.test(rawSave), 'the fallback is not written into the save payload');
@@ -221,7 +221,9 @@ module.exports = {
     // ── 19. Debug-menu fallback toggle behaviour + cursor bounds ────────────
     g.run('forceLegacyRegionalView = false; debugMenu.open = true; debugMenu.cursor = 0; dialogue.open=false; menu.open=false; choice.open=false; shop.open=false;');
     for (let i = 0; i < 20; i++) g.press('ArrowDown'); // over-scroll
-    assert.equal(g.run('debugMenu.cursor'), 9, 'cursor clamps at the last row ([ Legacy Regional Fallback ])');
+    assert.equal(g.run('debugMenu.cursor'), 10, 'cursor clamps at the last row ([ Play Sera/Liora Cutaway ])');
+    g.press('ArrowUp');
+    assert.equal(g.run('debugMenu.cursor'), 9, 'legacy fallback remains on row 9');
     g.press('Enter');
     assert.equal(g.run('forceLegacyRegionalView'), true, 'Enter on row 9 turns the legacy fallback ON');
     g.press('Enter');

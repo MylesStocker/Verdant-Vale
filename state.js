@@ -185,14 +185,14 @@ const menu = {
 // ─── Debug menu state ─────────────────────────────────────────────────────────
 // Rows: 0 No Enemies, 1 Poison, 2 Muddied, 3 Slither, 4 Heal Full (action),
 // 5 Advance Day +1 (action), 6 Warp to... (opens warpMenu), 7 Validate Data
-// (action, runs validateGameData()), 8 Home on Defeat (toggle), 9 Continuous
-// View (toggle). See render-ui.js's drawDebugMenu() for the row list and
-// input.js for handling.
+// (action, runs validateGameData()), 8 Home on Defeat (toggle), 9 Legacy
+// Regional Fallback (toggle), 10 Play Sera/Liora Cutaway (action). See
+// render-ui.js's drawDebugMenu() for the row list and input.js for handling.
 const debugMenu = {
   open:   false,
   cursor: 0,
 };
-const DEBUG_MENU_ROW_COUNT = 10;
+const DEBUG_MENU_ROW_COUNT = 11;
 
 // ─── Debug map inspector state ─────────────────────────────────────────────────
 // A lightweight, always-updating HUD overlay (not a modal menu — doesn't
@@ -250,7 +250,7 @@ function groupItems() {
 }
 
 function toggleMenu() {
-  if (dialogue.open || shop.open || continentMap.open || accordPanel.open) return;
+  if (seraLioraCutscene.active || dialogue.open || shop.open || continentMap.open || accordPanel.open) return;
   menu.open = !menu.open;
   if (menu.open) {
     debugMenu.open    = false;
@@ -262,7 +262,7 @@ function toggleMenu() {
 }
 
 function toggleDebugMenu() {
-  if (dialogue.open || shop.open || choice.open || combat.active) return;
+  if (seraLioraCutscene.active || dialogue.open || shop.open || choice.open || combat.active) return;
   debugMenu.open = !debugMenu.open;
   if (debugMenu.open) {
     menu.open      = false;
@@ -275,11 +275,20 @@ function toggleDebugMenu() {
 // read-only HUD overlay, not a modal screen, so it's safe to flip on/off
 // regardless of what else is open.
 function toggleDebugInspector() {
+  if (seraLioraCutscene.active) return;
   debugInspector.open = !debugInspector.open;
 }
 
 // ─── Dialogue state ───────────────────────────────────────────────────────────
-const dialogue = { open: false, page: 0, pages: [], name: '', triggerEncounterId: null, callbacks: null };
+const dialogue = {
+  open: false, page: 0, pages: [], name: '', triggerEncounterId: null, callbacks: null,
+  // Optional, data-driven presentation overrides. Existing dialogue leaves
+  // these at their defaults and remains pixel-identical.
+  styleId: null,
+  presentation: 'box',
+  portraitId: null,
+  portraitSide: null,
+};
 
 // ─── Continent map overlay state ──────────────────────────────────────────────
 // Full-screen inspection panel for the wall map in the Calwick Empire office.
@@ -293,6 +302,26 @@ const continentMap = { open: false };
 // reader; now a general document reader — set `title` and `theme` before
 // opening (both retain their Imperial defaults for existing readers).
 const accordPanel = { open: false, page: 0, pages: [], title: '', theme: 'imperial' };
+
+// Transient orchestration state for the first Sera/Liora cutaway. It is not a
+// story flag and is intentionally absent from the save payload: the persisted
+// basin_chamber_dream_done flag and the enclosing dream dialogue already own
+// the sequence's one-time ordering.
+const SERA_LIORA_CUTAWAY_SCENE_ID = 'sera_liora_cutaway_opening';
+const SERA_LIORA_GUEST_ROOM_ID = 'bethany_guest_house_finest_room';
+const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
+const seraLioraCutscene = {
+  active: false,
+  sceneId: SERA_LIORA_CUTAWAY_SCENE_ID,
+  roomId: SERA_LIORA_GUEST_ROOM_ID,
+  phase: 'idle',
+  beat: -1,
+  waitFrames: 0,
+  revealAlpha: 0,
+  lioraPose: 'sleeping',
+  startCount: 0,
+  assetLoadToken: 0,
+};
 
 
 // ─── Frame counter ────────────────────────────────────────────────────────────

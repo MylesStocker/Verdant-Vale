@@ -64,11 +64,18 @@ function nearPlayer(x, y, radius) {
   return Math.sqrt(dx * dx + dy * dy) < radius;
 }
 
-// Opens a dialogue panel with the given name, pages, and optional callbacks.
-function openDialogue(name, pages, callbacks) {
+// Opens a dialogue panel with the given name, pages, optional callbacks, and a
+// scoped presentation override. Existing callers omit `options` and retain the
+// established box, palette, and monospace typography.
+function openDialogue(name, pages, callbacks, options) {
+  const opts = options || {};
   dialogue.name      = name;
   dialogue.pages     = pages;
   dialogue.callbacks = callbacks !== undefined ? callbacks : null;
+  dialogue.styleId   = opts.styleId || null;
+  dialogue.presentation = opts.presentation || 'box';
+  dialogue.portraitId = opts.portraitId || null;
+  dialogue.portraitSide = opts.portraitSide || null;
   dialogue.open      = true;
   dialogue.page      = 0;
 }
@@ -2055,6 +2062,10 @@ const INTERACT_HANDLERS = [
 function finishDialogue() {
   dialogue.open = false;
   dialogue.page = 0;
+  dialogue.styleId = null;
+  dialogue.presentation = 'box';
+  dialogue.portraitId = null;
+  dialogue.portraitSide = null;
   if (dialogue.callbacks) {
     const cb = dialogue.callbacks.shift();
     if (cb) cb();

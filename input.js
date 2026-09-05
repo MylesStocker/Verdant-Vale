@@ -9,7 +9,16 @@ const keys = Object.create(null);
 window.addEventListener('keydown', e => {
   if (e.key.startsWith('Arrow')) e.preventDefault();
   if (!keys[e.key]) {  // fire-once for all action keys
-    if (combat.active && combat.flashTimer === 0 && debugMode && e.key === '`') {
+    if (seraLioraCutscene.active) {
+      // Fully scripted cutaway: only the established dialogue advance action
+      // is accepted. Movement, menu/Notebook, save/load, debug inspector/menu,
+      // warp, choices, shops, inventory, and every player-mode command stay
+      // unavailable through both spoken and silent transition beats.
+      if (dialogue.open && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        handleInteract();
+      }
+    } else if (combat.active && combat.flashTimer === 0 && debugMode && e.key === '`') {
       // ── Debug-only: exit the current battle safely ────────────────────────
       // The debug menu itself can't open during combat (combat input always
       // takes priority — see the outer if/else below), so this is a direct,
@@ -236,7 +245,8 @@ window.addEventListener('keydown', e => {
         // Row order must match drawDebugMenu() (render-ui.js) and
         // DEBUG_MENU_ROW_COUNT (state.js): 0 No Enemies, 1 Poison,
         // 2 Muddied, 3 Slither, 4 Heal Full, 5 Day +1, 6 Warp to...,
-        // 7 Validate Data, 8 Home on Defeat, 9 Continuous View
+        // 7 Validate Data, 8 Home on Defeat, 9 Legacy Regional Fallback,
+        // 10 Play Sera/Liora Cutaway
         e.preventDefault();
         if (e.key === 'ArrowUp'   || e.key === 'w') debugMenu.cursor = Math.max(0, debugMenu.cursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') debugMenu.cursor = Math.min(DEBUG_MENU_ROW_COUNT - 1, debugMenu.cursor + 1);
@@ -295,6 +305,11 @@ window.addEventListener('keydown', e => {
             // choke point. Session-only, never saved; no effect on movement/collision/
             // transitions/content/canonical position/encounter ownership.
             forceLegacyRegionalView = !forceLegacyRegionalView;
+          } else if (debugMenu.cursor === 10) {
+            // Direct cutscene preview. This deliberately bypasses the warp
+            // destination catalog, so neither the debug warp list nor the
+            // player-facing Warp Stone exposes the guest room.
+            debugPlaySeraLioraCutaway();
           }
         }
         if (e.key === 'Escape' || e.key === '`') { debugMenu.open = false; }
@@ -390,4 +405,3 @@ window.addEventListener('keydown', e => {
   keys[e.key] = true;
 });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
-

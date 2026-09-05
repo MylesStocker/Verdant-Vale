@@ -106,6 +106,30 @@ const DREAM_MAP = [
   [ 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102, 102],  // 14
 ];
 
+// ─── Bethany Guest House — Finest Room  (16 × 15) ──────────────────────────
+// A cutscene-only interior for Sera and Liora's first morning in Bethany. The
+// grid supplies the ordinary registered-map/collision authority; its bright
+// alpine furnishings, window view, and scripted actors are drawn by
+// drawBethanyGuestRoom() while the cutaway is active. There is deliberately no
+// exit: the player never controls either woman or explores this room.
+const BETHANY_GUEST_ROOM_MAP = [
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  1
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  2
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  3
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  4
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  5
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  6
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  7
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  8
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  //  9
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  // 10
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  // 11
+  [ 19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19],  // 12
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 13
+  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  // 14
+];
+
 // ─── Expose to global scope ───────────────────────────────────────────────────
 window.MAP2_ITEMS           = MAP2_ITEMS;
 window.LORRA_HOUSE_MAP      = LORRA_HOUSE_MAP;
@@ -187,6 +211,7 @@ window.SLUICE_LEVEL2_MAP    = SLUICE_LEVEL2_MAP;
 window.SLUICE_LEVEL3_MAP    = SLUICE_LEVEL3_MAP;
 window.SLUICE_SECRET_MAP    = SLUICE_SECRET_MAP;
 window.DREAM_MAP            = DREAM_MAP;
+window.BETHANY_GUEST_ROOM_MAP = BETHANY_GUEST_ROOM_MAP;
 window.LIGHTHOUSE_GROUND_MAP   = LIGHTHOUSE_GROUND_MAP;
 window.LIGHTHOUSE_LANDING_1_MAP = LIGHTHOUSE_LANDING_1_MAP;
 window.LIGHTHOUSE_LANDING_2_MAP = LIGHTHOUSE_LANDING_2_MAP;

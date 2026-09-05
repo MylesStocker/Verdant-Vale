@@ -368,6 +368,126 @@ function drawPlayer() {
   }
 }
 
+// ─── Sera/Liora cutaway actors ──────────────────────────────────────────────
+// Stable appearance data is shared by the cutscene renderer and focused tests.
+// Liora's standing height is one pixel greater for later use; this opening only
+// shows her lying down and sitting up.
+const SERA_LIORA_CUTAWAY_APPEARANCE = Object.freeze({
+  Sera: Object.freeze({
+    hair: '#050509', heightPx: 42,
+    coat: '#b85f4b', waistcoat: '#e2a85f', travelSkirt: '#476f69',
+  }),
+  Liora: Object.freeze({
+    heightPx: 43,
+    hair: Object.freeze(['#f04452', '#ff8a32', '#f6df3c', '#43c46b', '#30bddd', '#4274db', '#9a4fd0']),
+    nightwear: '#6f77b7',
+  }),
+});
+window.SERA_LIORA_CUTAWAY_APPEARANCE = SERA_LIORA_CUTAWAY_APPEARANCE;
+
+// Draw one registered field sprite at its authored logical size and anchor.
+// No destination dimensions or transforms are supplied, so the browser cannot
+// stretch, mirror, rotate, or fractionally place it. A false result selects the
+// established code-drawn fallback below.
+function drawRasterCharacter(assetId, anchorX, anchorY) {
+  const meta = IMAGE_ASSET_REGISTRY[assetId];
+  const image = loadedImageAsset(assetId);
+  if (!meta || !meta.anchor || !image) return false;
+  const dx = Math.round(anchorX - meta.anchor.x);
+  const dy = Math.round(anchorY - meta.anchor.y);
+  ctx.drawImage(image, dx, dy);
+  return true;
+}
+
+function drawSeraLioraCutawayActors() {
+  if (!seraLioraCutscene.active || activeMap !== BETHANY_GUEST_ROOM_MAP) return;
+  // The guest room uses its own close-cutaway scale. The smaller neutral field
+  // sprite remains registered for later Lely-proportioned environments.
+  if (!drawRasterCharacter('cutaway_sera_close_standing', 294, 335)) drawCutawaySera();
+
+  // Liora remains in bed throughout this opening. Intermediate textual pose
+  // states retain the asleep field sprite; the approved sitting asset replaces
+  // it once, at the existing final persuasion beat. Her registered neutral
+  // standing sprite is deliberately reserved for a later scene.
+  const sitting = seraLioraCutscene.lioraPose === 'sitting';
+  const lioraAssetId = sitting ? 'cutaway_liora_close_sitting' : 'cutaway_liora_close_asleep';
+  const lioraAnchor = sitting ? { x: 439, y: 262 } : { x: 445, y: 262 };
+  if (!drawRasterCharacter(lioraAssetId, lioraAnchor.x, lioraAnchor.y)) {
+    drawCutawayLiora(seraLioraCutscene.lioraPose);
+  }
+}
+
+function drawCutawaySera() {
+  const a = SERA_LIORA_CUTAWAY_APPEARANCE.Sera;
+  const x = 294, y = 262;
+  ctx.fillStyle = 'rgba(70,45,35,0.23)';
+  ctx.beginPath(); ctx.ellipse(x, y + 23, 13, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Boots, long travel skirt, warm waistcoat and refined rust-red coat.
+  ctx.fillStyle = '#593d31'; ctx.fillRect(x - 9, y + 15, 7, 9); ctx.fillRect(x + 3, y + 15, 7, 9);
+  ctx.fillStyle = a.travelSkirt; ctx.fillRect(x - 10, y - 1, 20, 18); ctx.fillRect(x - 7, y + 14, 14, 4);
+  ctx.fillStyle = a.coat; ctx.fillRect(x - 10, y - 15, 20, 18);
+  ctx.fillStyle = a.waistcoat; ctx.fillRect(x - 4, y - 14, 8, 15);
+  ctx.fillStyle = '#f0cfae'; ctx.fillRect(x - 13, y - 12, 5, 15); ctx.fillRect(x + 8, y - 12, 5, 15);
+  // One relaxed hand rests by Liora's bed: familiar, not scolding.
+  ctx.fillRect(x + 10, y + 1, 9, 5);
+  ctx.fillStyle = '#d9bc9d'; ctx.fillRect(x - 7, y - 28, 14, 14);
+
+  // Unmistakably jet-black hair, with a cool highlight that cannot read brown.
+  ctx.fillStyle = a.hair; ctx.fillRect(x - 9, y - 32, 18, 9); ctx.fillRect(x - 10, y - 27, 5, 17); ctx.fillRect(x + 6, y - 27, 5, 15);
+  ctx.fillStyle = '#242238'; ctx.fillRect(x - 5, y - 31, 9, 2);
+  ctx.fillStyle = '#433040'; ctx.fillRect(x - 4, y - 22, 2, 2); ctx.fillRect(x + 3, y - 22, 2, 2);
+  ctx.fillStyle = '#8a4f57'; ctx.fillRect(x - 2, y - 18, 5, 1);
+}
+
+function drawCutawayLiora(pose) {
+  const a = SERA_LIORA_CUTAWAY_APPEARANCE.Liora;
+  const palette = a.hair;
+  const sitting = pose === 'sitting';
+  const awake = pose === 'awake' || sitting;
+  const attentive = pose === 'attentive';
+
+  if (sitting) {
+    const x = 431, y = 227;
+    ctx.fillStyle = 'rgba(70,45,35,0.18)';
+    ctx.beginPath(); ctx.ellipse(x, y + 39, 17, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = a.nightwear; ctx.fillRect(x - 13, y + 3, 26, 31);
+    ctx.fillStyle = '#8f98d1'; ctx.fillRect(x - 9, y + 5, 18, 4);
+    ctx.fillStyle = '#e0c2a6'; ctx.fillRect(x - 8, y - 12, 16, 17);
+    // Long, saturated spectrum hair falls in seven unmistakable bands.
+    for (let i = 0; i < palette.length; i++) {
+      ctx.fillStyle = palette[i];
+      ctx.fillRect(x - 16 + i * 5, y - 18, 5, 30 + (i % 2) * 3);
+    }
+    ctx.fillStyle = '#e0c2a6'; ctx.fillRect(x - 7, y - 9, 14, 12);
+    ctx.fillStyle = '#3d3650'; ctx.fillRect(x - 4, y - 5, 2, 2); ctx.fillRect(x + 3, y - 5, 2, 2);
+    ctx.fillStyle = '#985c6d'; ctx.fillRect(x - 2, y, 5, 1);
+    return;
+  }
+
+  // Lying across the rumpled right bed, head on the window-side pillow.
+  const lift = attentive ? 3 : awake ? 7 : (pose === 'settled' ? -2 : 0);
+  const hx = 444, hy = 251 - lift;
+  ctx.fillStyle = a.nightwear; ctx.fillRect(348, 249, 78, 19);
+  ctx.fillStyle = '#8f98d1'; ctx.fillRect(351, 250, 72, 4);
+  ctx.fillStyle = '#e0c2a6'; ctx.fillRect(hx - 13, hy - 9, 19, 17);
+  // Rainbow hair arcs around her head and spills across the pillow. Every
+  // spectrum colour gets equal saturated area, even while her eyes are shut.
+  for (let i = 0; i < palette.length; i++) {
+    ctx.fillStyle = palette[i];
+    ctx.fillRect(hx - 18 + i * 5, hy - 14, 6, 10 + (i % 3) * 3);
+    ctx.fillRect(hx - 27 + i * 7, hy + 7, 8, 7);
+  }
+  ctx.fillStyle = '#e0c2a6'; ctx.fillRect(hx - 12, hy - 7, 17, 13);
+  ctx.fillStyle = '#55415f';
+  if (awake) {
+    ctx.fillRect(hx - 8, hy - 2, 3, 2); ctx.fillRect(hx - 1, hy - 2, 3, 2);
+  } else {
+    ctx.fillRect(hx - 8, hy, 4, 1); ctx.fillRect(hx - 1, hy, 4, 1);
+  }
+  ctx.fillStyle = '#985c6d'; ctx.fillRect(hx - 4, hy + 4, 5, 1);
+}
+
 // ─── NPC Sprite Drawing ───────────────────────────────────────────────────────
 // Maren: ochre robe, silver hair — always faces south
 function drawMarenSprite(npc) {

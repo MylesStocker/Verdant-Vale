@@ -55,6 +55,7 @@ function continuousWorldViewActive() {
 // is a pure extraction of render()'s former inline block — same calls, same order.
 function drawActiveMapContent() {
   drawWorldItems();
+  if (activeMap === BETHANY_GUEST_ROOM_MAP) drawBethanyGuestRoom();
   if (inTown && townBuilding === 'office' && currentTownId === 'calwick')  drawOfficeFurniture();
   if (inTown && townBuilding === 'office' && currentTownId === 'drenwick') drawDrenwickOfficeFurniture();
   if (inTown && townBuilding === 'school' && currentTownId !== 'drenwick') drawSchoolFurniture();
@@ -120,7 +121,16 @@ function drawActiveMapContent() {
   if (activeMap === MAP4) drawThornmereStone();
   if (activeMap === MAP5) drawLighthouseEntranceHint();
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
-  drawPlayer();
+  if (seraLioraCutscene.active) {
+    if (activeMap === BETHANY_GUEST_ROOM_MAP) {
+      drawSeraLioraCutawayActors();
+      drawBethanyGuestBedForeground();
+    }
+    // No controllable/player sprite exists in either cutaway presentation,
+    // including the opening lines that continue on DREAM_MAP's white field.
+  } else {
+    drawPlayer();
+  }
 }
 
 // Continuous-view world render (DEBUG prototype): fill the void, then draw every
@@ -206,8 +216,18 @@ function render() {
   // No vignette in the dream — the white is meant to be total. Same in the
   // unmarked chamber — flat light with no darkened corners is part of the
   // room's wrongness (see BASIN_CHAMBER_MAP, maps.js).
-  if (activeMap !== DREAM_MAP && activeMap !== BASIN_CHAMBER_MAP) {
+  if (activeMap !== DREAM_MAP && activeMap !== BASIN_CHAMBER_MAP &&
+      !(activeMap === BETHANY_GUEST_ROOM_MAP && seraLioraCutscene.active)) {
     ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, 512, 480);
+  }
+
+  // The room is already present behind this overlay. Lowering the existing
+  // white field's opacity makes the reveal read as eyes opening, with no black
+  // frame, map flash, or intervening glimpse of Lely.
+  if (seraLioraCutscene.active && seraLioraCutscene.phase === 'room_reveal' &&
+      seraLioraCutscene.revealAlpha > 0) {
+    ctx.fillStyle = 'rgba(255,255,255,' + seraLioraCutscene.revealAlpha + ')';
     ctx.fillRect(0, 0, 512, 480);
   }
 
