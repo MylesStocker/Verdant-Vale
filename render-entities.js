@@ -2111,6 +2111,21 @@ function drawMapWorldItems(list) {
   if (inSluice && sluiceFloor === 3 && !SLUICE_DEEP_CHEST.opened) {
     drawChest(SLUICE_DEEP_CHEST);
   }
+
+  // ── West Deeper Chamber gold chest (floor 13, chamber bottom) ──────────────
+  if (inDungeon && dungeonFloor === 13 && !DUNGEON8_WEST_DEEP_CHEST.opened) {
+    drawChest(DUNGEON8_WEST_DEEP_CHEST);
+  }
+
+  // ── East Hidden Vault EvadeAll chest (floor 15) ───────────────────────────
+  if (inDungeon && dungeonFloor === 15 && !DUNGEON8_EAST_SECRET_CHEST.opened) {
+    drawChest(DUNGEON8_EAST_SECRET_CHEST);
+  }
+
+  // ── East Hidden Vault Bomb chest (floor 15, beside the EvadeAll chest) ─────
+  if (inDungeon && dungeonFloor === 15 && !DUNGEON8_EAST_SECRET_BOMB_CHEST.opened) {
+    drawChest(DUNGEON8_EAST_SECRET_BOMB_CHEST);
+  }
 }
 
 // ─── Merchant Drawing ────────────────────────────────────────────────────────

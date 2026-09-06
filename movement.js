@@ -66,6 +66,11 @@ function locationName() {
   if (inDungeon && dungeonFloor === 8)  return 'South Ruins \u2014 The Drowned Chamber';
   if (inDungeon && dungeonFloor === 9)  return 'South Ruins \u2014 West Passage';
   if (inDungeon && dungeonFloor === 10) return 'South Ruins \u2014 East Passage';
+  if (inDungeon && dungeonFloor === 11) return 'South Ruins \u2014 West Passage, Below';
+  if (inDungeon && dungeonFloor === 12) return 'South Ruins \u2014 East Passage, Below';
+  if (inDungeon && dungeonFloor === 13) return 'South Ruins \u2014 West Passage, Deeper';
+  if (inDungeon && dungeonFloor === 14) return 'South Ruins \u2014 East Passage, Deeper';
+  if (inDungeon && dungeonFloor === 15) return 'South Ruins \u2014 Hidden Vault';
   if (inTown && townBuilding === 'inn'              && currentTownId === 'drenwick') return 'Drenwick \u2014 Inn';
   if (inTown && townBuilding === 'office'           && currentTownId === 'drenwick') return 'Drenwick \u2014 IJC District Office';
   if (inTown && townBuilding === 'harbormaster'     && currentTownId === 'drenwick') return 'Drenwick \u2014 Harbormaster\u2019s Office';
@@ -379,6 +384,10 @@ function isEncounterEligibleTile(tile) {
   if (inDungeon && dungeonFloor === 8)  return tile === DUNGEON2_FLOOR;
   if (inDungeon && dungeonFloor === 9)  return tile === DUNGEON3_FLOOR;
   if (inDungeon && dungeonFloor === 10) return tile === DUNGEON3_FLOOR;
+  if (inDungeon && dungeonFloor === 11) return tile === DUNGEON3_FLOOR;
+  if (inDungeon && dungeonFloor === 12) return tile === DUNGEON3_FLOOR;
+  if (inDungeon && dungeonFloor === 13) return tile === DUNGEON3_FLOOR;
+  if (inDungeon && dungeonFloor === 14) return tile === DUNGEON3_FLOOR;
   if (inSluice)    return tile === SLUICE_FLOOR || tile === SLUICE_BLOOD_FLOOR || tile === SLUICE_JOURNAL_FLOOR;
   if (inMireVault) return tile === DUNGEON2_FLOOR;
   return false;
@@ -767,6 +776,16 @@ function update() {
     if (inDungeon && dungeonFloor === 8 && curTile === DUNGEON8_EAST_DOOR)  { enterDungeon8East(); return; }
     if (inDungeon && dungeonFloor === 9 && curTile === DUNGEON8_WEST_RET)   { exitDungeon8West();  return; }
     if (inDungeon && dungeonFloor === 10 && curTile === DUNGEON8_EAST_RET)  { exitDungeon8East();  return; }
+    if (inDungeon && dungeonFloor === 9 && curTile === HORROR_TENDON_DOWN)  { descendToDungeon8WestLower(); return; }
+    if (inDungeon && dungeonFloor === 11 && curTile === HORROR_TENDON_UP)   { ascendToDungeon8West();      return; }
+    if (inDungeon && dungeonFloor === 10 && curTile === HORROR_TENDON_DOWN) { descendToDungeon8EastLower(); return; }
+    if (inDungeon && dungeonFloor === 12 && curTile === HORROR_TENDON_UP)   { ascendToDungeon8East();      return; }
+    if (inDungeon && dungeonFloor === 11 && curTile === HORROR_TENDON_DOWN) { descendToDungeon8WestLower2(); return; }
+    if (inDungeon && dungeonFloor === 13 && curTile === HORROR_TENDON_UP)   { ascendToDungeon8WestLower();  return; }
+    if (inDungeon && dungeonFloor === 12 && curTile === HORROR_TENDON_DOWN) { descendToDungeon8EastLower2(); return; }
+    if (inDungeon && dungeonFloor === 14 && curTile === HORROR_TENDON_UP)   { ascendToDungeon8EastLower();  return; }
+    if (inDungeon && dungeonFloor === 14 && curTile === HORROR_SECRET_ENTRANCE) { enterDungeon8EastSecret(); return; }
+    if (inDungeon && dungeonFloor === 15 && curTile === HORROR_SECRET_EXIT)     { exitDungeon8EastSecret();  return; }
     if (inTown && !townBuilding && curTile === TOWN_EXIT)       { exitTown();              return; }
     // Waterfront: Dockworkers' Tavern (INN_DOOR) and Infirmary (OFFICE_DOOR, no interior map)
     if (inTown && !townBuilding && currentTownId === 'drenwick' && activeMap === DRENWICK_WATERFRONT_MAP) {

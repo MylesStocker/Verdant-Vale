@@ -53,6 +53,60 @@ function interactDungeonFloor1() {
   return interactionUiOpened();
 }
 
+// ── West Deeper Chamber (floor 13) — the 1000-gold chest at the chamber bottom ─
+function interactDungeon8WestDeep() {
+  if (!DUNGEON8_WEST_DEEP_CHEST.opened) {
+    const cx = player.x - DUNGEON8_WEST_DEEP_CHEST.x;
+    const cy = player.y - DUNGEON8_WEST_DEEP_CHEST.y;
+    if (Math.sqrt(cx * cx + cy * cy) < TALK_RADIUS) {
+      DUNGEON8_WEST_DEEP_CHEST.opened = true;
+      const g = DUNGEON8_WEST_DEEP_CHEST.gold;
+      stats.gold += g;
+      dialogue.name  = '';
+      dialogue.pages = [['Chest opened.', `${g}g — added to your purse.`]];
+      dialogue.open  = true;
+      dialogue.page  = 0;
+      return true;
+    }
+  }
+  interactSimpleNPCs();
+  return interactionUiOpened();
+}
+
+// ── East Hidden Vault (floor 15) — the secret EvadeAll accessory chest ─────────
+function interactDungeon8EastSecret() {
+  if (!DUNGEON8_EAST_SECRET_CHEST.opened) {
+    const cx = player.x - DUNGEON8_EAST_SECRET_CHEST.x;
+    const cy = player.y - DUNGEON8_EAST_SECRET_CHEST.y;
+    if (Math.sqrt(cx * cx + cy * cy) < TALK_RADIUS) {
+      DUNGEON8_EAST_SECRET_CHEST.opened = true;
+      const it = DUNGEON8_EAST_SECRET_CHEST.item;
+      grantItem(it.name);
+      dialogue.name  = '';
+      dialogue.pages = [['The vault chest opens.', `${it.name}  ${itemStatParen(it)}  — added to items.`]];
+      dialogue.open  = true;
+      dialogue.page  = 0;
+      return true;
+    }
+  }
+  if (!DUNGEON8_EAST_SECRET_BOMB_CHEST.opened) {
+    const bx = player.x - DUNGEON8_EAST_SECRET_BOMB_CHEST.x;
+    const by = player.y - DUNGEON8_EAST_SECRET_BOMB_CHEST.y;
+    if (Math.sqrt(bx * bx + by * by) < TALK_RADIUS) {
+      DUNGEON8_EAST_SECRET_BOMB_CHEST.opened = true;
+      const it = DUNGEON8_EAST_SECRET_BOMB_CHEST.item;
+      grantItem(it.name);
+      dialogue.name  = '';
+      dialogue.pages = [['The second vault chest opens.', `${it.name}  ${itemStatParen(it)}  — added to items.`]];
+      dialogue.open  = true;
+      dialogue.page  = 0;
+      return true;
+    }
+  }
+  interactSimpleNPCs();
+  return interactionUiOpened();
+}
+
 function interactRuinsEntranceHall() {
   // ── South Ruins Entrance Hall — lore NPCs only, no chests/quests here ───
   interactSimpleNPCs();

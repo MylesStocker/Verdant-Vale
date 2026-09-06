@@ -78,7 +78,7 @@ module.exports = {
     // 6. Representative map from all five map regions resolves through MAP_REGISTRY.
     const mapReg = { MAP: 'calwick', SLUICE_MAP: 'thornmere', DRENWICK_MARKET_MAP: 'drenwick', DUNGEON_MAP: 'south-ruins', SUNKEN_GALLERY_R2C2: 'north-basin' };
     for (const m of Object.keys(mapReg)) assert.equal(g.run('MAP_REGISTRY[mapRegistryId(' + m + ')].map === ' + m), true, m + ' resolves through MAP_REGISTRY');
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 126);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 131);
 
     // 7. Representative NPC from all five NPC files resolves through SIMPLE_NPCS + NPC_REGISTRY.
     const npcReg = { aldric: 'CALWICK_NPCS', gorrit_wend: 'THORNMERE_WILDS_NPCS', tarvec: 'DRENWICK_TOWN_NPCS', harbormaster_interior: 'DRENWICK_INTERIOR_NPCS', wen: 'SOUTH_RUINS_NPCS' };
@@ -95,7 +95,7 @@ module.exports = {
       assert.equal(g.run("typeof " + fn + " === 'function'"), true, fn + ' defined');
     for (const nm of ['calwick-vale','thornmere-wilds','drenwick-approach','north-basin-wilds','office','sunken-gallery'])
       assert.equal(g.run("OVERWORLD_INTERACT_HANDLERS.some(h => h.name === '" + nm + "')"), true, 'handler ' + nm + ' present');
-    assert.equal(g.run('INTERACT_HANDLERS.length'), 4, 'INTERACT_HANDLERS order/size unchanged');
+    assert.equal(g.run('INTERACT_HANDLERS.length'), 6, 'INTERACT_HANDLERS order/size unchanged');
 
     // 9. Per-map NPC order preserved (representative: Calwick school on a work day).
     g.run('day = 1;');

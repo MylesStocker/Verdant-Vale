@@ -68,9 +68,13 @@ const DUNGEON_HORROR_ENEMY_TEMPLATES = [
   // Wall Tendril — something that grows from the walls; fast, hard to hit, devastating
   { id: 'enemy_wall_tendril', name: 'Wall Tendril', hp:  55, maxHp:  55, atk: 38, def:  2, spd: 14, xp: 150, goldMin: 30, goldMax: 55 },
   // Dripping Maw — a mouth that forms in the ceiling; massive, drips acid, slow
-  { id: 'enemy_dripping_maw', name: 'Dripping Maw', hp: 120, maxHp: 120, atk: 35, def:  8, spd:  5, xp: 160, goldMin: 32, goldMax: 58 },
-  // The Seep — formless biological mass; no defense, but hits with everything it has
-  { id: 'enemy_the_seep',     name: 'The Seep',     hp:  40, maxHp:  40, atk: 45, def:  0, spd: 18, xp: 170, goldMin: 35, goldMax: 62 },
+  // acidChance: on a landed hit its acid eats into the player's armor, stacking a
+  // combat-only DEF loss (Corroded) — see applyEnemyHitEffects()/effectiveDef().
+  { id: 'enemy_dripping_maw', name: 'Dripping Maw', hp: 120, maxHp: 120, atk: 35, def:  8, spd:  5, xp: 160, goldMin: 32, goldMax: 58, acidChance: 0.35 },
+  // The Seep — formless biological mass; no defense, but hits with everything it has.
+  // splits: when defeated the mass divides — a smaller Seep pulls itself together and
+  // is fought immediately after (sequential-spawn chain, see startSeepSplitCombat()).
+  { id: 'enemy_the_seep',     name: 'The Seep',     hp:  40, maxHp:  40, atk: 45, def:  0, spd: 18, xp: 170, goldMin: 35, goldMax: 62, splits: true },
 ];
 
 // Rainfish — scripted encounter only (Still Water quest, MAP3_N1 bog-edge danger zone).
@@ -84,9 +88,15 @@ const FAR_ENEMY_TEMPLATES = [
   // Fen Lurker — ambush predator; high speed and attack, decent HP
   { id: 'enemy_fen_lurker',    name: 'Fen Lurker',    hp: 38, maxHp: 38, atk: 14, def: 3,  spd: 11, xp: 38, goldMin: 8,  goldMax: 18 },
   // Rotwood Troll — regenerating swamp brute; very high HP, slow but hits hard
-  { id: 'enemy_rotwood_troll', name: 'Rotwood Troll', hp: 58, maxHp: 58, atk: 16, def: 6,  spd:  3, xp: 45, goldMin: 10, goldMax: 20 },
-  // Thornback — armored bog beast; heavily armored, moderate attack
-  { id: 'enemy_thornback',     name: 'Thornback',     hp: 44, maxHp: 44, atk: 12, def: 9,  spd:  4, xp: 42, goldMin: 9,  goldMax: 18 },
+  // regenPerTurn: it knits its rot back together each turn it survives (capped at
+  // maxHp) — the first self-healing enemy; makes "don't let it rest" literal.
+  { id: 'enemy_rotwood_troll', name: 'Rotwood Troll', hp: 58, maxHp: 58, atk: 16, def: 6,  spd:  3, xp: 45, goldMin: 10, goldMax: 20, regenPerTurn: 6 },
+  // Thornback — a projectile-puzzle enemy. It curls its spined guard against
+  // anyone who closes in: `meleeArmor` makes the player's melee Attack glance off
+  // for ~1, and `counterChance` almost always lashes back. But its `def` (used by
+  // thrown weapons) and its HP are both low, so a single Throwing Knife — or any
+  // thrown weapon — bypasses the guard and drops it. Don't melee it; throw at it.
+  { id: 'enemy_thornback',     name: 'Thornback',     hp: 18, maxHp: 18, atk: 12, def: 2,  spd:  4, xp: 42, goldMin: 35, goldMax: 50, meleeArmor: 90, counterChance: 0.9 },
   // Fen Witch — cursed hag; devastating magic-like attack, fragile
   { id: 'enemy_fen_witch',     name: 'Fen Witch',     hp: 32, maxHp: 32, atk: 20, def: 2,  spd:  8, xp: 50, goldMin: 12, goldMax: 22 },
   // Bog Serpent — massive wetland snake; high HP and moderate attack, swift
@@ -195,7 +205,10 @@ const NORTH_BASIN_ENEMY_TEMPLATES = [
   // Basin Gull — scavenger gull come inland off the Thornmere, working the
   // stranded-fish die-offs on the exposed bed. Bold enough to go for the
   // eyes; quick, hits harder than it looks, folds fast when hit back.
-  { id: 'enemy_basin_gull',      name: 'Basin Gull',      hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin: 5, goldMax: 10 },
+  // stealAndFlee: on a landed hit it snatches gold, then the player gets exactly ONE
+  // turn to strike it down (killing it recovers the gold) before it escapes — see
+  // applyEnemyHitEffects()/applyKillRewards() and the flee resolver in advanceCombatMessage().
+  { id: 'enemy_basin_gull',      name: 'Basin Gull',      hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin: 5, goldMax: 10, stealAndFlee: true },
 ];
 window.NORTH_BASIN_ENEMY_TEMPLATES = NORTH_BASIN_ENEMY_TEMPLATES;
 
@@ -226,7 +239,7 @@ window.SUNKEN_GALLERY_ENEMY_TEMPLATES = SUNKEN_GALLERY_ENEMY_TEMPLATES;
 const UPPER_REACH_ENEMY_TEMPLATES = [
   // Same creatures as the Silt Flats / West Shore pool, stranded up here too.
   { id: 'enemy_silt_crab_upper',  name: 'Silt Crab',    hp: 28, maxHp: 28, atk: 12, def: 5, spd:  4, xp: 18, goldMin:  4, goldMax:  9, defendChance: 0.20 },
-  { id: 'enemy_basin_gull_upper', name: 'Basin Gull',   hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin:  5, goldMax: 10 },
+  { id: 'enemy_basin_gull_upper', name: 'Basin Gull',   hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin:  5, goldMax: 10, stealAndFlee: true },
   // New and tough: the arm the water left first, and what it left there.
   // Dust-Drowned — a reservoir drowning the drought gave up first, dried to
   // grave-leather and still walking the bed; its touch carries the cold.
@@ -488,17 +501,21 @@ const DUNGEON_CHEST = {
   item:   { name: 'Steel Sword', type: 'weapon', bonus: 7, price: 300 },
 };
 
-// ─── Cat Armor chest (player_house secret pocket — Day 2 only) ───────────────
+// ─── Player-house secret pocket chest (Day 2 only) ───────────────────────────
 // Hidden behind the INTERIOR_FALSE_WALL at row 3, col 3 (southwest of the hearth).
 // The pocket (cols 2-3, rows 3-4) looks identical to the surrounding wall.
 // Only active from Day 2 onward; opened once by pressing Space when adjacent.
+// NOTE: Cat Armor is DISABLED for now — this chest yields a Bomb instead. The
+// 'Cat Armor' ITEM_REGISTRY entry (items.js) is left intact so it can be
+// re-enabled simply by restoring the `item` below. The chest id and const name
+// stay 'chest_cat_armor' / CAT_ARMOR_CHEST for save-state stability.
 const CAT_ARMOR_CHEST = {
   id:     'chest_cat_armor',
   x:      2.5 * TILE,
   y:      4.5 * TILE,
   opened: false,
   sprite: 'invisible',
-  item:   { name: 'Cat Armor', type: 'armor', bonus: 99, price: 0 },
+  item:   { name: 'Bomb', type: 'throwable', damage: 80, fuse: 3, ignoresDef: true, price: 0 },
 };
 
 // ─── Hidden meadow chest (MEADOW_MAP col 12 row 2) ────────────────────────────
@@ -538,6 +555,39 @@ const SLUICE_DEEP_CHEST = {
   y:      10.5 * TILE,
   opened: false,
   item:   { name: 'Fen Mask', type: 'accessory', bonus: 5, price: 400 },
+};
+
+// ─── South Ruins West Deeper Chamber — gold chest ─────────────────────────────
+// At the bottom of the West Deeper Chamber (DUNGEON8_WEST_LOWER2_MAP, floor 13),
+// col 8 row 13. Grants GOLD, not an item — the floor-13 interaction reads .gold.
+const DUNGEON8_WEST_DEEP_CHEST = {
+  id:     'chest_dungeon8_west_deep',
+  x:       8.5 * TILE,
+  y:      13.5 * TILE,
+  opened: false,
+  gold:   1000,
+};
+
+// ─── South Ruins East Hidden Vault — EvadeAll chest ───────────────────────────
+// In the concealed vault (DUNGEON8_EAST_SECRET_MAP, floor 15), col 8 row 7,
+// reached only by walking through the disguised wall at the East Deeper Chamber
+// (r8 c1). Holds the deliberately broken EvadeAll accessory (items.js).
+const DUNGEON8_EAST_SECRET_CHEST = {
+  id:     'chest_dungeon8_east_secret',
+  x:       8.5 * TILE,
+  y:       7.5 * TILE,
+  opened: false,
+  item:   { name: 'EvadeAll', type: 'accessory', bonus: 0, price: 0 },
+};
+
+// Second vault chest, two tiles west of the EvadeAll chest (col 6 row 7). Holds a
+// single delayed-fuse Bomb — a test item, deliberately not sold anywhere.
+const DUNGEON8_EAST_SECRET_BOMB_CHEST = {
+  id:     'chest_dungeon8_east_bomb',
+  x:       6.5 * TILE,
+  y:       7.5 * TILE,
+  opened: false,
+  item:   { name: 'Bomb', type: 'throwable', damage: 80, fuse: 3, ignoresDef: true, price: 0 },
 };
 
 // ─── Sunken Gallery chest (grid room R2C4 — the sealed east pocket) ───────────
@@ -1203,6 +1253,31 @@ const MAP_CATALOG = {
     type: 'dungeon', items: DUNGEON8_EAST_ITEMS, encounterPool: DUNGEON_HORROR_ENEMY_TEMPLATES,
     allowRandomEncounters: true, allowSave: true, notes: 'dungeonFloor 10.',
   },
+  DUNGEON8_WEST_LOWER_MAP: {
+    id: 'DUNGEON8_WEST_LOWER_MAP', map: DUNGEON8_WEST_LOWER_MAP, displayName: 'South Ruins \u2014 West Passage, Below', region: 'South Ruins',
+    type: 'dungeon', items: [], encounterPool: DUNGEON_HORROR_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true, notes: 'dungeonFloor 11. One raw chamber below the West Horror Branch, reached by the tendon descent.',
+  },
+  DUNGEON8_EAST_LOWER_MAP: {
+    id: 'DUNGEON8_EAST_LOWER_MAP', map: DUNGEON8_EAST_LOWER_MAP, displayName: 'South Ruins \u2014 East Passage, Below', region: 'South Ruins',
+    type: 'dungeon', items: [], encounterPool: DUNGEON_HORROR_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true, notes: 'dungeonFloor 12. One raw chamber below the East Horror Branch, reached by the tendon descent.',
+  },
+  DUNGEON8_WEST_LOWER2_MAP: {
+    id: 'DUNGEON8_WEST_LOWER2_MAP', map: DUNGEON8_WEST_LOWER2_MAP, displayName: 'South Ruins \u2014 West Passage, Deeper', region: 'South Ruins',
+    type: 'dungeon', items: [], encounterPool: DUNGEON_HORROR_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true, notes: 'dungeonFloor 13. Two raw chambers below the West Horror Branch, reached by a second tendon descent.',
+  },
+  DUNGEON8_EAST_LOWER2_MAP: {
+    id: 'DUNGEON8_EAST_LOWER2_MAP', map: DUNGEON8_EAST_LOWER2_MAP, displayName: 'South Ruins \u2014 East Passage, Deeper', region: 'South Ruins',
+    type: 'dungeon', items: [], encounterPool: DUNGEON_HORROR_ENEMY_TEMPLATES,
+    allowRandomEncounters: true, allowSave: true, notes: 'dungeonFloor 14. Two raw chambers below the East Horror Branch, reached by a second tendon descent.',
+  },
+  DUNGEON8_EAST_SECRET_MAP: {
+    id: 'DUNGEON8_EAST_SECRET_MAP', map: DUNGEON8_EAST_SECRET_MAP, displayName: 'South Ruins \u2014 Hidden Vault', region: 'South Ruins',
+    type: 'dungeon', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true, notes: 'dungeonFloor 15. Concealed treasure vault reached only through the disguised wall at DUNGEON8_EAST_LOWER2_MAP (r8 c1). Deliberately encounter-free; holds the secret EvadeAll chest.',
+  },
 
   // ── Calwick ────────────────────────────────────────────────────────────────
   TOWN_MAP: {
@@ -1608,7 +1683,7 @@ const PICKUP_REGISTRY_IDS = Object.keys(PICKUP_REGISTRY).sort();
 const OPENABLE_CHESTS = [
   DUNGEON_CHEST, DUNGEON_ALCOVE_CHEST, SLUICE_CHEST, SLUICE_LEVEL2_CHEST,
   SLUICE_SECRET_CHEST, SLUICE_LEVEL3_CHEST, SLUICE_DEEP_CHEST, CAT_ARMOR_CHEST, MEADOW_CHEST,
-  SUNKEN_GALLERY_CHEST,
+  SUNKEN_GALLERY_CHEST, DUNGEON8_WEST_DEEP_CHEST, DUNGEON8_EAST_SECRET_CHEST, DUNGEON8_EAST_SECRET_BOMB_CHEST,
 ];
 const CHEST_REGISTRY = {};
 const CHEST_REGISTRY_DUP_IDS = [];

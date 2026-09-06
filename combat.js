@@ -139,6 +139,7 @@ function effectiveDef() {
     + (stats.armor  ? stats.armor.bonus  : 0)
     + (stats.shield ? stats.shield.bonus : 0)
     - (hasStatusEffect('muddied') ? 1 : 0)
+    - (combat.corrosion || 0)   // Dripping Maw acid — combat-only, cleared on endCombat
   );
 }
 
@@ -270,11 +271,13 @@ function itemStatLabel(item) {
   // reveal which status an item cures (a character can mention it instead).
   if (isStatusCureItem(item))                      return '';
   if (item.type === 'buff' && item.evadeRate)      return `Evade ${Math.round(item.evadeRate * 100)}% \u00b7 ${item.evadeTurns}t`;
+  if (item.type === 'throwable')                   return item.fuse ? `DMG ${item.damage} · ${item.fuse}t fuse` : `DMG ${item.damage}`;
   if (MUDSLITHER_INFLICTABLE && item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
   if (item.questItem && item.type === 'potion')    return `HP  +${item.heals} \u2022 quest`;
   if (item.type === 'weapon')    return `ATK +${item.bonus}`;
   if (item.type === 'armor')     return `DEF +${item.bonus}`;
   if (item.type === 'shield')    return `DEF +${item.bonus}`;
+  if (item.type === 'accessory' && item.evadeAll) return 'Evade 100%';
   if (item.type === 'accessory') return `SPD +${item.bonus}`;
   if (item.type === 'potion')    return `HP  +${item.heals}`;
   return '';
@@ -328,6 +331,16 @@ const combat = {
   escapeUnlocked:    false,
   observeCount:      0,
   evadeTurns:        0,     // remaining turns of Bullet Time's heightened evade (0 = none)
+  // ── Per-fight enemy-mechanic state (battle-local ONLY; reset by endCombat) ──
+  corrosion:         0,     // Dripping Maw acid: accumulated combat-only DEF loss (0 = none)
+  isSeepSplit:       false, // The Seep divides on defeat into a sequential follow-up
+  seepSplitRemaining: 0,    // Seep follow-up fights still to come (0 = last/only)
+  gullStole:         false, // Basin Gull grace-flee state: false | 'armed' | 'flee' | 'gone'
+  gullStolenAmount:  0,     // gold the gull snatched (returned if it is killed in time)
+  bombFuse:          0,     // Bomb: player-turns left until it detonates (0 = none armed)
+  bombDamage:        0,     // damage the armed Bomb will deal when it goes off
+  bombIgnoresDef:    false, // whether that detonation ignores the target's DEF
+  bombJustArmed:     false, // true only on the turn a Bomb is primed (that turn doesn't count)
 };
 
 // Day on which Kolm was last fought (-1 = never). Resets automatically each new Dayoff.
@@ -466,7 +479,35 @@ function startCombat() {
     combat.message = '23.';
     combat.is23    = true;
   }
+  // The Seep (template `splits`): the formless mass divides once when defeated —
+  // a smaller Seep is fought immediately after (handled in the victory phase, via
+  // startSeepSplitCombat). Not armed if the 23 override replaced the enemy above.
+  if (combat.enemy && combat.enemy.splits) {
+    combat.isSeepSplit        = true;
+    combat.seepSplitRemaining = 1;   // one follow-up (the smaller half)
+  }
   combat.observeCount = 0;
+}
+
+// The Seep's second half — a smaller mass that pulls itself together after the
+// parent is struck down. Reduced HP and only token rewards (the parent already
+// paid out); its danger is the extra round of atk-45 swings, not more loot.
+function startSeepSplitCombat(remaining) {
+  const t = ENEMY_TEMPLATE_REGISTRY.enemy_the_seep;
+  if (!t) return; // Registry corruption: fail closed without creating combat.
+  combat.enemy = { ...t, hp: 20, maxHp: 20, xp: 20, goldMin: 0, goldMax: 3 };
+  combat.active            = true;
+  combat.phase             = 'choose';
+  combat.cursor            = 0;
+  combat.messageQueue      = [];
+  combat.message           = 'The severed mass gathers itself into a smaller Seep!';
+  combat.pendingVictory    = false;
+  combat.pendingDefeat     = false;
+  combat.pendingEscape     = false;
+  combat.flashTimer        = 8;
+  combat.isSeepSplit       = true;
+  combat.seepSplitRemaining = remaining;
+  combat.observeCount      = 0;
 }
 
 function startRainfishCombat(remaining) {
@@ -556,6 +597,15 @@ function endCombat() {
   combat.escapeUnlocked            = false;
   combat.observeCount      = 0;
   combat.evadeTurns        = 0;
+  combat.corrosion         = 0;     // acid armor-melt is combat-only — cleared with the fight
+  combat.isSeepSplit       = false;
+  combat.seepSplitRemaining = 0;
+  combat.gullStole         = false;
+  combat.gullStolenAmount  = 0;
+  combat.bombFuse          = 0;     // a primed Bomb is battle-local — it does not carry between fights
+  combat.bombDamage        = 0;
+  combat.bombIgnoresDef    = false;
+  combat.bombJustArmed     = false;
 }
 
 function startBossCombat() {
@@ -861,7 +911,22 @@ function advanceCombatMessage() {
     }
     else if (combat.pendingVictory) combat.phase = 'victory';
     else if (combat.pendingDefeat) combat.phase = 'defeat';
-    else                           combat.phase = 'choose';
+    else if (combat.enemy && combat.enemy.stealAndFlee && combat.gullStole === 'flee' && combat.enemy.hp > 0) {
+      // Basin Gull: the player's one grace turn elapsed without a kill — it bolts
+      // with the gold. Show the escape line, then pendingEscape ends combat (no
+      // rewards) when it's acknowledged. 'gone' prevents any re-trigger.
+      combat.gullStole    = 'gone';
+      combat.message      = 'The Basin Gull beats its wings and vanishes over the flats with your gold!';
+      combat.messageQueue = [];
+      combat.pendingEscape = true;
+      combat.phase        = 'message';
+    }
+    else {
+      // Basin Gull: the turn it stole ends here — arm the single grace turn so the
+      // player's NEXT turn is their one chance before the flee check above fires.
+      if (combat.enemy && combat.enemy.stealAndFlee && combat.gullStole === 'armed') combat.gullStole = 'flee';
+      combat.phase = 'choose';
+    }
   }
 }
 
@@ -963,7 +1028,32 @@ function applyEnemyHitEffects() {
     addStatusEffect('dazzled');
     combat.messageQueue.unshift('A burst of glittering scale-dust stings your eyes. Dazzled! (your attacks go wide)');
   }
+  // Generic acid-on-hit (template `acidChance`) — the Dripping Maw. Each landed hit
+  // eats into the player's armor: a combat-only, STACKING DEF loss (Corroded), capped
+  // so it can't drive effective DEF absurdly negative. effectiveDef() subtracts it;
+  // endCombat() clears it. Distinct from muddied's flat, single −1.
+  if (combat.enemy && combat.enemy.acidChance && combat.corrosion < ACID_CORROSION_CAP && Math.random() < combat.enemy.acidChance) {
+    combat.corrosion = Math.min(ACID_CORROSION_CAP, combat.corrosion + 1);
+    combat.messageQueue.unshift(`Acid sizzles across your gear. Corroded! (DEF −${combat.corrosion})`);
+  }
+  // Basin Gull theft-and-flee (template `stealAndFlee`) — on its FIRST landed hit it
+  // snatches gold and arms its escape. The player then gets exactly one turn to kill
+  // it (which recovers the gold, see applyKillRewards) before it flies off with the
+  // loot (resolved in advanceCombatMessage). 'armed' grants that one grace turn.
+  if (combat.enemy && combat.enemy.stealAndFlee && !combat.gullStole) {
+    const grab  = 20 + Math.floor(Math.random() * 31);   // 20..50
+    const taken = Math.min(grab, stats.gold);
+    stats.gold -= taken;
+    combat.gullStole        = 'armed';
+    combat.gullStolenAmount = taken;
+    combat.messageQueue.unshift(taken > 0
+      ? `The Basin Gull snatches ${taken} gold and beats upward out of reach! One shot to bring it down before it's gone!`
+      : `The Basin Gull lunges for your purse — nothing to take — and beats upward out of reach!`);
+  }
 }
+
+// Cap on the Dripping Maw's cumulative acid DEF loss within one fight.
+const ACID_CORROSION_CAP = 6;
 
 // How long Polwick's fire-cast animation plays, in frames (~0.75s at 60fps).
 const FIRE_CAST_FRAMES = 45;
@@ -995,6 +1085,59 @@ function burnTickEntry() {
   };
 }
 
+// Enemy self-heal (template `regenPerTurn`) — the Rotwood Troll. Like burnTickEntry,
+// this returns a deferred entry appended at the END of a turn the enemy survives, so
+// it knits HP back after the trade resolves. Returns null when there's nothing to heal
+// (no regen field, the enemy is already dead / at full, or the player's hit this turn
+// already won — pendingVictory). The heal is capped at maxHp when applied.
+function enemyRegenEntry() {
+  const e = combat.enemy;
+  if (!e || !e.regenPerTurn || combat.pendingVictory) return null;
+  const heal = Math.min(e.regenPerTurn, e.maxHp - e.hp);
+  if (heal <= 0) return null;
+  return {
+    text: `The ${e.name} knits its rot back together (+${heal} HP).`,
+    apply() {
+      if (combat.enemy && combat.enemy.hp > 0) {
+        combat.enemy.hp = Math.min(combat.enemy.maxHp, combat.enemy.hp + heal);
+      }
+    },
+  };
+}
+
+// Bomb fuse tick — like burnTickEntry, a deferred entry appended at the end of a
+// spent player turn. The turn the Bomb is armed doesn't count (bombJustArmed); each
+// following turn burns the fuse down, and on the third it detonates for bombDamage
+// (ignoring DEF unless the item said otherwise). Returns null when no Bomb is armed.
+function bombFuseEntry() {
+  if (combat.bombFuse <= 0) return null;
+  if (combat.bombJustArmed) { combat.bombJustArmed = false; return null; } // the "use" turn
+  const remaining = combat.bombFuse - 1;
+  if (remaining > 0) {
+    return {
+      text: `The Bomb's fuse hisses down… (${remaining} turn${remaining === 1 ? '' : 's'} to go)`,
+      apply() { combat.bombFuse = remaining; },
+    };
+  }
+  // Detonation this turn. Damage is fixed at build time; only the HP subtraction
+  // (and any resulting kill) is deferred to apply, matching burnTickEntry.
+  const dmg = combat.bombIgnoresDef
+    ? combat.bombDamage
+    : Math.max(1, combat.bombDamage - (combat.enemy ? combat.enemy.def : 0));
+  const targetName = combat.enemy ? combat.enemy.name : 'enemy';
+  return {
+    text: `The Bomb goes off! The blast tears into the ${targetName} for ${dmg} damage!`,
+    apply() {
+      combat.bombFuse = 0;
+      if (!combat.enemy) return;
+      combat.enemy.hp = Math.max(0, combat.enemy.hp - dmg);
+      if (combat.enemy.hp <= 0 && !combat.pendingVictory && !combat.pendingDefeat) {
+        applyKillRewards(combat.messageQueue);
+      }
+    },
+  };
+}
+
 // ─── Speed-based evasion (the single hit-or-evade decision) ──────────────────
 // EVERY attack in combat is an ATTEMPT: the DEFENDER may evade it. The chance is
 // derived from the speed gap between defender and attacker, clamped so nobody is
@@ -1010,6 +1153,10 @@ function burnTickEntry() {
 const BULLET_TIME_EVADE_RATE = 0.90;
 const EVADE_BASE = 0.08, EVADE_PER_SPD = 0.015, EVADE_MIN = 0.02, EVADE_MAX = 0.30;
 function evadeChance(attackerSpd, defenderSpd, defenderIsPlayer) {
+  // EvadeAll (secret accessory) — while the player holds it in the accessory
+  // slot, every incoming attack is evaded. Deliberately broken; a dev/secret
+  // reward, not balanced content.
+  if (defenderIsPlayer && stats.accessory && stats.accessory.evadeAll) return 1;
   let c = Math.min(EVADE_MAX, Math.max(EVADE_MIN, EVADE_BASE + EVADE_PER_SPD * (defenderSpd - attackerSpd)));
   if (defenderIsPlayer && combat.evadeTurns > 0) c = Math.max(c, BULLET_TIME_EVADE_RATE);
   return c;
@@ -1084,6 +1231,12 @@ function applyKillRewards(msgs) {
   msgs.push(`Gained ${goldGain} gold.`);
   if (guaranteed) msgs.push(`It leaves a real ${guaranteed} behind!`);
   else if (droppedPotion) msgs.push(`Found a potion!`);
+  // Basin Gull: cut down before it could escape — its snatched gold falls back to you.
+  if (combat.enemy && combat.enemy.stealAndFlee && combat.gullStolenAmount > 0) {
+    stats.gold += combat.gullStolenAmount;
+    msgs.push(`It drops from the air — you recover the ${combat.gullStolenAmount} gold it snatched!`);
+    combat.gullStolenAmount = 0;
+  }
   combat.pendingVictory = true;
 }
 
@@ -1145,7 +1298,7 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['It regenerates if you let it rest.', 'Not quickly. But noticeably.', 'Don\u2019t let it rest.'] },
   ],
   enemy_thornback: [
-    { lines: ['Very high defense. Moderate attack. Slow.', 'It may brace. Your attacks are going to bounce.', 'Sustained pressure over speed.'] },
+    { lines: ['The moment you close in, it curls behind its spines \u2014 your melee just glances off, and it lashes straight back.', 'Don\u2019t trade blows with it. Use a projectile \u2014 a thrown weapon gets past the guard.', 'Under the spines it\u2019s soft: one good throw should finish it.'] },
     { lines: ['The spines on the dorsal ridge are not for display.', 'They\u2019ve been used. Frequently.'] },
     { lines: ['It has no particular interest in you. This isn\u2019t personal.', 'That doesn\u2019t make it less dangerous.'] },
   ],
@@ -1381,6 +1534,13 @@ function getObservationText(enemy, count) {
     if (enemy.defendChance)                           traits.push('May brace.');
     if (enemy.curseChance)                            traits.push('Curse risk.');
     if (enemy.dazzleChance)                           traits.push('Blinding dust.');
+    if (enemy.regenPerTurn)                           traits.push('Regenerates.');
+    if (enemy.thornsReflect)                          traits.push('Spines reflect damage.');
+    if (enemy.acidChance)                             traits.push('Acid — corrodes armor.');
+    if (enemy.splits)                                 traits.push('Splits when struck down.');
+    if (enemy.stealAndFlee)                           traits.push('Thief — steals gold and flees.');
+    if (enemy.meleeArmor)                             traits.push('Melee glances off — throw at it.');
+    if (enemy.counterChance)                          traits.push('Counters melee.');
     const line2 = traits.length > 0 ? traits.join(' ') : 'Nothing obvious stands out.';
     return ['L\u00e9l\u00fd watches carefully.', line2];
   }
@@ -1441,6 +1601,26 @@ function handleCombatAction() {
            'The water is completely opaque with mud.'],
           ['You can still make out the sickle handle jutting from the reeds.'],
         ];
+        dialogue.open  = true;
+        dialogue.page  = 0;
+      }
+      return;
+    }
+    if (combat.isSeepSplit) {
+      if (combat.seepSplitRemaining > 0) {
+        // The mass doesn't die — it splits. Chain the smaller half immediately.
+        const nextRemaining = combat.seepSplitRemaining - 1;
+        endCombat();
+        dialogue.name  = '';
+        dialogue.pages = [['The Seep bursts apart — but the pieces are still moving.']];
+        dialogue.callbacks = [function() { startSeepSplitCombat(nextRemaining); }];
+        dialogue.open  = true;
+        dialogue.page  = 0;
+      } else {
+        // The last remnant is destroyed.
+        endCombat();
+        dialogue.name  = '';
+        dialogue.pages = [['The last of the Seep slumps and stops moving.']];
         dialogue.open  = true;
         dialogue.page  = 0;
       }
@@ -1723,6 +1903,30 @@ function handleCombatAction() {
       combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
       const pct = Math.round((item.evadeRate || 0) * 100);
       msgs.push(`Used ${item.name} \u2014 the world slows to a crawl. Evade up to ${pct}% for ${item.evadeTurns} turns.`);
+    } else if (item.type === 'throwable' && item.fuse) {
+      // Delayed throwable (e.g. Bomb). Using it spends the turn but does nothing
+      // yet \u2014 it arms a fuse that detonates a few player-turns later (bombFuseEntry).
+      // Consumed on use; the enemy still acts this turn.
+      combat.bombFuse       = item.fuse;
+      combat.bombDamage     = item.damage;
+      combat.bombIgnoresDef = !!item.ignoresDef;
+      combat.bombJustArmed  = true;   // this turn is the "use" turn, not one of the three after
+      stats.items.splice(stats.items.indexOf(item), 1);
+      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      msgs.push(`You prime the ${item.name} and lob it at the ${combat.enemy.name}. Its fuse begins to hiss\u2026`);
+    } else if (item.type === 'throwable') {
+      // Immediate damage consumable (e.g. Sapper Charge). Always lands (no evade
+      // roll); `ignoresDef` bypasses the target's DEF entirely. Consumed on use, and
+      // \u2014 unless it kills \u2014 the turn is still spent, so the enemy still counters.
+      const dmg = item.ignoresDef ? item.damage : Math.max(1, item.damage - combat.enemy.def);
+      combat.enemy.hp = Math.max(0, combat.enemy.hp - dmg);
+      stats.items.splice(stats.items.indexOf(item), 1);
+      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      msgs.push(`Used ${item.name} \u2014 it ${item.impactVerb || 'hits'} the ${combat.enemy.name} for ${dmg} damage!`);
+      if (combat.enemy.hp <= 0) {
+        applyKillRewards(msgs);
+        enemyActs = false; // nothing left to strike back
+      }
     } else {
       equipItem(item);
       msgs.push(`Equipped ${item.name}!`);
@@ -1735,6 +1939,12 @@ function handleCombatAction() {
       // Burn ticks at the end of the turn, after the enemy's response.
       const itemBurn = burnTickEntry();
       if (itemBurn) msgs.push(itemBurn);
+      // Enemy regen (Rotwood Troll): using an item is a spent turn, so it heals too.
+      const itemRegen = enemyRegenEntry();
+      if (itemRegen) msgs.push(itemRegen);
+      // Bomb fuse: a spent turn (including arming another item) burns it down.
+      const itemBomb = bombFuseEntry();
+      if (itemBomb) msgs.push(itemBomb);
     }
 
     const first = msgs.shift();
@@ -1797,6 +2007,8 @@ function handleCombatAction() {
       // A blocked run still spends the turn — Burn ticks, same as a failed run.
       const blockedRunBurn = burnTickEntry();
       if (blockedRunBurn) msgs.push(blockedRunBurn);
+      const blockedRunBomb = bombFuseEntry();
+      if (blockedRunBomb) msgs.push(blockedRunBomb);
       combat.message = msgs.shift();
       combat.messageQueue = msgs;
       combat.phase = 'message';
@@ -1826,6 +2038,8 @@ function handleCombatAction() {
       // Burn still ticks on a failed escape — it's a turn spent in the fight.
       const runBurn = burnTickEntry();
       if (runBurn) msgs.push(runBurn);
+      const runBomb = bombFuseEntry();
+      if (runBomb) msgs.push(runBomb);
       combat.message      = msgs.shift();
       combat.messageQueue = msgs;
       combat.phase        = 'message';
@@ -1849,7 +2063,10 @@ function handleCombatAction() {
 
     // Enemy defend — armoured enemies occasionally brace, halving incoming damage and not striking back
     const enemyDefending = !!(combat.enemy.defendChance && Math.random() < combat.enemy.defendChance);
-    const pRoll = rollAttackDamage(effectiveAtk(), combat.enemy.def);
+    // `meleeArmor` (Thornback) is extra DEF that applies ONLY to the player's melee
+    // Attack — a spined guard that makes close-in strikes glance off. Thrown weapons
+    // route through the item path and use plain `def`, so they bypass it entirely.
+    const pRoll = rollAttackDamage(effectiveAtk(), combat.enemy.def + (combat.enemy.meleeArmor || 0));
     // Cursed fumble — 25% chance of a wild swing dealing only 1 damage
     const cursedFumble = !enemyDefending && hasStatusEffect('cursed') && Math.random() < 0.25;
     const pDmg = enemyDefending ? Math.max(1, Math.floor(pRoll.dmg / 2))
@@ -1860,11 +2077,15 @@ function handleCombatAction() {
     const eRoll = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
     const eDmg  = eRoll.dmg;
     const ec    = eRoll.crit ? 'Critical! ' : '';
+    // Actual melee damage the player's Attack lands this turn (0 = missed/evaded),
+    // read by the Thornback thorns-reflection block after the trade resolves.
+    let playerDamageDealt = 0;
 
 
     if (enemyDefending) {
       // ── Enemy bracing: player deals half damage, enemy does not strike back ──
       combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
+      playerDamageDealt = pDmg;
       msgs.push(`${combat.enemy.name} braces! ${stats.name} deals only ${pDmg} damage.`);
       if (combat.enemy.hp <= 0) applyKillRewards(msgs);
 
@@ -1874,6 +2095,7 @@ function handleCombatAction() {
         msgs.push(evadeText(false));
       } else {
         combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
+        playerDamageDealt = pDmg;
         msgs.push(cursedFumble
           ? `Cursed! ${stats.name} swings wildly for ${pDmg} damage.`
           : `${pc}${stats.name} attacks for ${pDmg} damage!`);
@@ -1937,9 +2159,52 @@ function handleCombatAction() {
           text: answerText,
           apply() { combat.enemy.hp = newEnemyHp; },
         });
+        playerDamageDealt = pDmg;
 
         if (newEnemyHp <= 0) applyKillRewards(msgs);
       }
+    }
+
+    // Thornback spines (template `thornsReflect`): a surviving enemy rakes back a
+    // fraction of the melee damage the player's Attack dealt this turn. Skipped when
+    // the swing missed (playerDamageDealt 0), when the hit killed it (pendingVictory),
+    // or when the player already fell to its counter this turn.
+    if (combat.enemy && combat.enemy.thornsReflect && playerDamageDealt > 0 &&
+        !combat.pendingVictory && !combat.pendingDefeat) {
+      const back = Math.max(1, Math.round(playerDamageDealt * combat.enemy.thornsReflect));
+      msgs.push({
+        text: `The ${combat.enemy.name}'s spines rake back for ${back}!`,
+        apply() {
+          if (stats.hp <= 0) return;   // player already fell this turn — don't pile on
+          stats.hp = Math.max(0, stats.hp - back);
+          if (stats.hp <= 0 && !combat.pendingDefeat) {
+            combat.messageQueue.push(`${stats.name} has fallen...`);
+            combat.pendingDefeat = true;
+          }
+        },
+      });
+    }
+
+    // Counter-attack (template `counterChance`, Thornback): closing in to melee it
+    // almost always provokes a retaliatory strike, on TOP of the normal trade — the
+    // deterrent that pairs with its melee armor. Rolled only for the player's melee
+    // Attack; the player may still evade it. Skipped if the fight already ended.
+    if (combat.enemy && combat.enemy.counterChance && !combat.pendingVictory && !combat.pendingDefeat &&
+        Math.random() < combat.enemy.counterChance) {
+      const cRoll   = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
+      const cDodged = playerEvades();
+      const cDmg    = cDodged ? 0 : cRoll.dmg;
+      msgs.push({
+        text: cDodged ? `You slip the ${combat.enemy.name}'s counter!` : `The ${combat.enemy.name} counters, striking back for ${cDmg}!`,
+        apply() {
+          if (cDodged || stats.hp <= 0) return;
+          stats.hp = Math.max(0, stats.hp - cDmg);
+          if (stats.hp <= 0 && !combat.pendingDefeat) {
+            combat.messageQueue.push(`${stats.name} has fallen...`);
+            combat.pendingDefeat = true;
+          }
+        },
+      });
     }
   } else if (action === 'item') {
     // Always open the item subscreen; it shows "[ Back ]" even when empty
@@ -1994,6 +2259,13 @@ function handleCombatAction() {
   if (msgs.length > 0 && !combat.pendingVictory) {
     const turnBurn = burnTickEntry();
     if (turnBurn) msgs.push(turnBurn);
+    // Enemy regen (Rotwood Troll) ticks at the end of a turn it survived — Attack
+    // AND Observe both reach here, so stalling with Observe lets it heal too.
+    const turnRegen = enemyRegenEntry();
+    if (turnRegen) msgs.push(turnRegen);
+    // Bomb fuse: Attack and Observe are spent turns that burn it down toward detonation.
+    const turnBomb = bombFuseEntry();
+    if (turnBomb) msgs.push(turnBomb);
   }
 
   if (msgs.length > 0) {

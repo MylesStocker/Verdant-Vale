@@ -33,6 +33,11 @@ const ITEM_REGISTRY = {
   'Void Shard':     { name: 'Void Shard',     type: 'accessory', bonus:  5, price: 360 },
   'Resonant Targe': { name: 'Resonant Targe', type: 'shield',    bonus:  8, price: 360 },
   'Fen Mask':       { name: 'Fen Mask',       type: 'accessory', bonus:  5, price: 400 },
+  // Secret dev/reward accessory — hidden in the East Deeper Chamber's concealed
+  // vault (DUNGEON8_EAST_SECRET_MAP). Deliberately broken: while equipped, the
+  // player evades EVERY incoming attack (see evadeChance() in combat.js). Not
+  // sold anywhere and price 0 so it can never enter shop economy math.
+  'EvadeAll':       { name: 'EvadeAll',       type: 'accessory', bonus:  0, price:   0, evadeAll: true },
   'Cat Armor':    { name: 'Cat Armor',    type: 'armor',     bonus: 99, price:   0, defenseCapBypass: true },
   // Herbalist items
   'Reed Remedy':  { name: 'Reed Remedy',  type: 'potion', heals: 0, curesPoison: true, price: 50 },
@@ -41,6 +46,20 @@ const ITEM_REGISTRY = {
   // roll on every incoming enemy hit). type 'buff' has no equip slot, so like a
   // reagent it does nothing outside combat; battleOnly makes that explicit.
   'Bullet Time':  { name: 'Bullet Time',  type: 'buff', evadeRate: 0.90, evadeTurns: 3, battleOnly: true, price: 150 },
+  // Combat-only throwable: an imperial sapper's demolition charge. On use in
+  // battle it detonates for a flat `damage` that IGNORES the target's DEF, then is
+  // consumed (see the 'throwable' branch in combat.js). battleOnly keeps it out of
+  // the field menu. Sold by the Travelling Salesman; one is also stashed in the
+  // warped drawer on the Abandoned Lighthouse's first floor.
+  'Sapper Charge': { name: 'Sapper Charge', type: 'throwable', damage: 50, ignoresDef: true, impactVerb: 'detonates against', battleOnly: true, price: 200 },
+  // Cheap early combat throwable sold by the Calwick merchant. A mundane thrown
+  // blade: ~30 damage REDUCED by the target's DEF (no ignoresDef), consumed on use.
+  'Throwing Knife': { name: 'Throwing Knife', type: 'throwable', damage: 30, impactVerb: 'sinks into', battleOnly: true, price: 35 },
+  // Combat-only DELAYED throwable. Using it spends the turn but does nothing yet;
+  // it detonates on the player's third turn after use for `damage`, ignoring DEF
+  // (see combat.js's fuse handling / bombFuseEntry). Not sold anywhere — a test
+  // item stashed in the East Hidden Vault beside the EvadeAll chest.
+  'Bomb':          { name: 'Bomb',          type: 'throwable', damage: 80, fuse: 3, ignoresDef: true, battleOnly: true, price: 0 },
   // Hidden meadow chest (MEADOW_CHEST, data.js) — the one curse-cure item.
   // Amethyst is the established anti-curse material (cf. Amethyst Bangle).
   'Amethyst Dust': { name: 'Amethyst Dust', type: 'potion', heals: 0, curesCursed: true, price: 60 },

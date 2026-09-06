@@ -414,6 +414,72 @@ function exitDungeon8East() {
     state: { inDungeon: true, dungeonFloor: 8 }, cooldown: true });
 }
 
+// ─── Horror-branch tendon descents ───────────────────────────────────────────
+// Each horror branch has one raw chamber below it, reached by climbing DOWN the
+// tendon (HORROR_TENDON_DOWN, r6 c8). Arrive two tiles below the tendon ascent
+// (r1 c8) on the lower map, facing down into the chamber. Same horror enemies
+// (dungeonFloor 11/12 -> combat.js's floor-8+ horror pool fall-through).
+function descendToDungeon8WestLower() {
+  transitionToLocation({ mapId: 'DUNGEON8_WEST_LOWER_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 11 }, cooldown: true });
+}
+
+function ascendToDungeon8West() {
+  // Land one tile SOUTH of the tendon descent (r6 c8), facing down, so the
+  // return does not immediately re-trigger the descent.
+  transitionToLocation({ mapId: 'DUNGEON8_WEST_MAP', x: 7.5 * TILE, y: 7.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 9 }, cooldown: true });
+}
+
+function descendToDungeon8EastLower() {
+  transitionToLocation({ mapId: 'DUNGEON8_EAST_LOWER_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 12 }, cooldown: true });
+}
+
+function ascendToDungeon8East() {
+  transitionToLocation({ mapId: 'DUNGEON8_EAST_MAP', x: 7.5 * TILE, y: 7.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 10 }, cooldown: true });
+}
+
+// Second tendon descent: the lower chambers each drop one more level (the
+// deeper chambers). Descend arrives two tiles below the ascent (r1 c8) facing
+// down; ascend lands one tile SOUTH of the lower chamber's descent (r11 c8),
+// facing down, so it does not immediately re-trigger. Same horror enemies.
+function descendToDungeon8WestLower2() {
+  transitionToLocation({ mapId: 'DUNGEON8_WEST_LOWER2_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 13 }, cooldown: true });
+}
+
+function ascendToDungeon8WestLower() {
+  transitionToLocation({ mapId: 'DUNGEON8_WEST_LOWER_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 11 }, cooldown: true });
+}
+
+function descendToDungeon8EastLower2() {
+  transitionToLocation({ mapId: 'DUNGEON8_EAST_LOWER2_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 14 }, cooldown: true });
+}
+
+function ascendToDungeon8EastLower() {
+  transitionToLocation({ mapId: 'DUNGEON8_EAST_LOWER_MAP', x: 7.5 * TILE, y: 12.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 12 }, cooldown: true });
+}
+
+// The East Deeper Chamber's concealed vault (DUNGEON8_EAST_SECRET_MAP) — reached
+// by walking into the disguised wall at DUNGEON8_EAST_LOWER2_MAP r8 c1. Arrive at
+// the entry hall (r3 c8) facing down. Encounter-free vault (dungeonFloor 15).
+function enterDungeon8EastSecret() {
+  transitionToLocation({ mapId: 'DUNGEON8_EAST_SECRET_MAP', x: 7.5 * TILE, y: 3.5 * TILE, facing: 'down',
+    state: { inDungeon: true, dungeonFloor: 15 }, cooldown: true });
+}
+
+function exitDungeon8EastSecret() {
+  // Return one tile EAST of the concealed wall (r8 c2), facing right into the
+  // chamber, so stepping out doesn't immediately re-enter the vault.
+  transitionToLocation({ mapId: 'DUNGEON8_EAST_LOWER2_MAP', x: 2.5 * TILE, y: 8.5 * TILE, facing: 'right',
+    state: { inDungeon: true, dungeonFloor: 14 }, cooldown: true });
+}
+
 // ─── Floor 3 — 3×3 sub-room navigation ───────────────────────────────────────
 // All functions keep dungeonFloor = 3. Spawn positions place the player just
 // inside the destination room, one tile away from the passage they came through.

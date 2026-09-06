@@ -281,6 +281,7 @@ const LIGHTHOUSE_OBJECTIVE_BY_ROUTE = Object.freeze({
 });
 let lighthouse_quest_stage = LIGHTHOUSE_QUEST_STAGE.NONE;
 let lighthouse_cabinet_looted = false;
+let lighthouse_drawer_looted = false;
 // Set true once the Lensweb Spider guarding the lens has been dealt with — by
 // defeating it, or by escaping after Observe revealed the safe retreat. Persistent
 // (save-bound, default false). It gates ONLY the boss event: it does not encode
@@ -498,6 +499,7 @@ function syncQuestFlagsToWindow() {
   window.corvin_favor_offered   = corvin_favor_offered;
   window.lighthouse_quest_stage = lighthouse_quest_stage;
   window.lighthouse_cabinet_looted = lighthouse_cabinet_looted;
+  window.lighthouse_drawer_looted = lighthouse_drawer_looted;
   window.lighthouse_spider_resolved = lighthouse_spider_resolved;
   // Window-native MAP_FEATURES onceFlags (Upper Reach pass) -- window[name]
   // is the source of truth (interactions.js sets it directly), so these

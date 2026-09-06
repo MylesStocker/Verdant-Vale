@@ -1642,6 +1642,9 @@ function validateItems() {
     ['SLUICE_LEVEL3_CHEST',  typeof SLUICE_LEVEL3_CHEST  !== 'undefined' ? SLUICE_LEVEL3_CHEST  : undefined],
     ['SLUICE_DEEP_CHEST',    typeof SLUICE_DEEP_CHEST    !== 'undefined' ? SLUICE_DEEP_CHEST    : undefined],
     ['CAT_ARMOR_CHEST',      typeof CAT_ARMOR_CHEST      !== 'undefined' ? CAT_ARMOR_CHEST      : undefined],
+    ['DUNGEON8_WEST_DEEP_CHEST',   typeof DUNGEON8_WEST_DEEP_CHEST   !== 'undefined' ? DUNGEON8_WEST_DEEP_CHEST   : undefined],
+    ['DUNGEON8_EAST_SECRET_CHEST', typeof DUNGEON8_EAST_SECRET_CHEST !== 'undefined' ? DUNGEON8_EAST_SECRET_CHEST : undefined],
+    ['DUNGEON8_EAST_SECRET_BOMB_CHEST', typeof DUNGEON8_EAST_SECRET_BOMB_CHEST !== 'undefined' ? DUNGEON8_EAST_SECRET_BOMB_CHEST : undefined],
   ];
   const seenChestSpots = new Map(); // "x,y" -> chest name, duplicate-coordinate check
   for (const [name, chest] of CHEST_NAMES) {

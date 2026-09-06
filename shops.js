@@ -5,11 +5,11 @@
 // these lists only choose what each shop carries. Stock entries are fresh
 // createItem() instances so display code can read prices/stats directly.
 const MERCHANT_STOCK = [
-  'Potion', 'Iron Sword', 'Leather Armor', 'Steel Sword', 'Iron Shield', 'Swift Bangle',
+  'Potion', 'Iron Sword', 'Leather Armor', 'Steel Sword', 'Iron Shield', 'Swift Bangle', 'Throwing Knife',
 ].map(createItem);
 
 const TRAVELLER_STOCK = [
-  'Elixir', 'Battle Axe', 'Dragon Blade', 'Shadow Cloak', 'Mithril Shield', 'Wraithband',
+  'Elixir', 'Battle Axe', 'Dragon Blade', 'Shadow Cloak', 'Mithril Shield', 'Wraithband', 'Sapper Charge',
 ].map(createItem);
 
 // ─── Shop registry ────────────────────────────────────────────────────────────

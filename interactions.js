@@ -2051,6 +2051,8 @@ const INTERACT_HANDLERS = [
   { name: 'overworld-town',  match: () => !inDungeon,                      run: interactOverworld },
   { name: 'dungeon-floor-4', match: () => inDungeon && dungeonFloor === 4, run: interactMulhollandFloor },
   { name: 'dungeon-floor-5', match: () => inDungeon && dungeonFloor === 5, run: interactWrongteethFloor },
+  { name: 'dungeon-floor-13', match: () => inDungeon && dungeonFloor === 13, run: interactDungeon8WestDeep },
+  { name: 'dungeon-floor-15', match: () => inDungeon && dungeonFloor === 15, run: interactDungeon8EastSecret },
 ];
 
 // Finalize a dialogue when its last page closes. Order matters and is preserved

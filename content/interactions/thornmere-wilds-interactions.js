@@ -1017,6 +1017,25 @@ function interactLighthouseInterior() {
     }
   }
 
+  if (activeMap === LIGHTHOUSE_LANDING_1_MAP) {
+    if (nearPlayer(LIGHTHOUSE_DRAWER.x, LIGHTHOUSE_DRAWER.y, TALK_RADIUS * 1.5)) {
+      if (!lighthouse_drawer_looted) {
+        lighthouse_drawer_looted = true;
+        grantItem('Sapper Charge');
+        syncQuestFlagsToWindow();
+        openLighthouseDialogue('Warped Drawer', [
+          ['The swollen drawer grinds open. Packed in oiled cloth, forgotten by whoever last held this floor: a sapper’s demolition charge.'],
+          ['Found: Sapper Charge.'],
+        ]);
+      } else {
+        openLighthouseDialogue('Warped Drawer', [
+          ['The drawer hangs open and empty.'],
+        ]);
+      }
+      return true;
+    }
+  }
+
   if (activeMap === LIGHTHOUSE_LANTERN_MAP) {
     if (nearPlayer(LIGHTHOUSE_BED.x, LIGHTHOUSE_BED.y, TALK_RADIUS * 1.5)) {
       openLighthouseDialogue('Old Bed', [

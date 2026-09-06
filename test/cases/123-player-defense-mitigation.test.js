@@ -172,14 +172,20 @@ module.exports = {
     });
     assert.deepEqual(JSON.parse(g.run("JSON.stringify({x:TAKOMO.x/TILE,y:TAKOMO.y/TILE,gate:TAKOMO_GATE,exit:TAKOMO_EXIT,map:mapIdForRef(TAKOMO_MAP)})")),
       { x: 8.5, y: 7.5, gate: 75, exit: 76, map: 'TAKOMO_MAP' });
-    assert.deepEqual(JSON.parse(g.run("JSON.stringify({bonus:CAT_ARMOR_CHEST.item.bonus,price:CAT_ARMOR_CHEST.item.price,x:CAT_ARMOR_CHEST.x/TILE,y:CAT_ARMOR_CHEST.y/TILE,id:CAT_ARMOR_CHEST.id})")),
-      { bonus: 99, price: 0, x: 2.5, y: 4.5, id: 'chest_cat_armor' });
+    // Cat Armor is disabled for now: the secret pocket chest (same id/location for
+    // save stability) yields a Bomb instead. The 'Cat Armor' item itself remains in
+    // ITEM_REGISTRY (verified via createItem above) so it can be re-enabled later.
+    assert.deepEqual(JSON.parse(g.run("JSON.stringify({name:CAT_ARMOR_CHEST.item.name,damage:CAT_ARMOR_CHEST.item.damage,price:CAT_ARMOR_CHEST.item.price,x:CAT_ARMOR_CHEST.x/TILE,y:CAT_ARMOR_CHEST.y/TILE,id:CAT_ARMOR_CHEST.id})")),
+      { name: 'Bomb', damage: 80, price: 0, x: 2.5, y: 4.5, id: 'chest_cat_armor' });
+    assert.equal(g.run("!!ITEM_REGISTRY['Cat Armor'] && ITEM_REGISTRY['Cat Armor'].defenseCapBypass"), true, 'Cat Armor item is preserved in the registry, only its chest source is disabled');
     assert.equal(g.run('SAVE_VERSION'), 4);
 
     // Static choke-point guard: every live enemy-ATK damage roll uses the one
     // mitigation helper; the formula path contains no Cat Armor/Takomo name case.
+    // (6th occurrence added by the Thornback counter-attack, which correctly routes
+    // its retaliation damage through the same mitigation helper.)
     const combatSource = fs.readFileSync(path.join(ROOT, 'combat.js'), 'utf8');
-    assert.equal((combatSource.match(/rollAttackDamage\(combat\.enemy\.atk, effectivePlayerIncomingMitigation\(combat\.enemy\.atk\)\)/g) || []).length, 5);
+    assert.equal((combatSource.match(/rollAttackDamage\(combat\.enemy\.atk, effectivePlayerIncomingMitigation\(combat\.enemy\.atk\)\)/g) || []).length, 6);
     assert.doesNotMatch(combatSource, /rollAttackDamage\(combat\.enemy\.atk, effectiveDef\(\)\)/);
     const helperBody = combatSource.slice(combatSource.indexOf('function playerIncomingMitigation'), combatSource.indexOf('// Accessories contribute'));
     assert.doesNotMatch(helperBody, /Cat Armor|Takomo|enemy_|activeMap|\.name/);

@@ -480,6 +480,9 @@ const LIGHTHOUSE_TABLE   = { x: 5.5 * TILE, y: 5.5 * TILE };
 const LIGHTHOUSE_CABINET = { x: 5.5 * TILE, y: 7.5 * TILE };
 const LIGHTHOUSE_LENS    = { x: 8.5 * TILE, y: 5.5 * TILE };
 const LIGHTHOUSE_BED     = { x: 9.5 * TILE, y: 7.5 * TILE };
+// First-floor (Landing 1) warped drawer — searchable furniture on the 3×3 landing
+// footprint (r7 c8 floor cell), holds one Sapper Charge once (lighthouse_drawer_looted).
+const LIGHTHOUSE_DRAWER  = { x: 8.5 * TILE, y: 7.5 * TILE };
 
 // ── Regional chunk definitions (Thornmere) ───────────────────────────────────
 // Authored authority for this file's placed regional chunks. data.js merges the

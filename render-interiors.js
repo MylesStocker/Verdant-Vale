@@ -2790,6 +2790,19 @@ function drawLighthouseInteriorFurniture() {
     promptAnchors.push(LIGHTHOUSE_CABINET);
   }
 
+  if (activeMap === LIGHTHOUSE_LANDING_1_MAP) {
+    // Squat two-drawer chest against the landing wall.
+    const dx = LIGHTHOUSE_DRAWER.x - 14;
+    const dy = LIGHTHOUSE_DRAWER.y - 12;
+    ctx.fillStyle = '#49311e'; ctx.fillRect(dx, dy, 28, 24);
+    ctx.fillStyle = '#5b3d26'; ctx.fillRect(dx + 3, dy + 3, 22, 8);
+    ctx.fillRect(dx + 3, dy + 13, 22, 8);
+    ctx.fillStyle = '#b09a68';
+    ctx.fillRect(dx + 13, dy + 6, 2, 2);
+    ctx.fillRect(dx + 13, dy + 16, 2, 2);
+    promptAnchors.push(LIGHTHOUSE_DRAWER);
+  }
+
   if (activeMap === LIGHTHOUSE_LANTERN_MAP) {
     const lx = LIGHTHOUSE_LENS.x;
     const ly = LIGHTHOUSE_LENS.y;

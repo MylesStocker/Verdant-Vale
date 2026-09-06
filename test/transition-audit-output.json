@@ -83,6 +83,11 @@
     "DUNGEON8_MAP",
     "DUNGEON8_WEST_MAP",
     "DUNGEON8_EAST_MAP",
+    "DUNGEON8_WEST_LOWER_MAP",
+    "DUNGEON8_EAST_LOWER_MAP",
+    "DUNGEON8_WEST_LOWER2_MAP",
+    "DUNGEON8_EAST_LOWER2_MAP",
+    "DUNGEON8_EAST_SECRET_MAP",
     "TOWN_MAP",
     "INN_MAP",
     "OFFICE_MAP",
@@ -622,6 +627,36 @@
     },
     {
       "id": "DUNGEON8_EAST_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DUNGEON8_WEST_LOWER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DUNGEON8_EAST_LOWER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DUNGEON8_WEST_LOWER2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DUNGEON8_EAST_LOWER2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "DUNGEON8_EAST_SECRET_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true

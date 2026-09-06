@@ -189,6 +189,16 @@ const ROCKS_IN_WATER = 121; // rocky outcrop breaking the water surface; blockin
 // ─── Coastal landmark ───────────────────────────────────────────
 const LIGHTHOUSE = 122; // Thornmere Shallows lighthouse on the headland — blocking landmark, entered from its west-side door with SPACE
 
+// ─── South Ruins horror-branch vertical passages ────────────────
+// Body-horror descent/ascent: a raw tendon strung down a shaft that the player
+// climbs, instead of cut stone stairs. Placed on DUNGEON3_FLOOR (organic) base.
+const HORROR_TENDON_DOWN = 123; // horror branch → the raw chamber one level below (climb down the tendon)
+const HORROR_TENDON_UP   = 124; // lower raw chamber → back up the tendon to the horror branch
+// Concealed passage in the East Deeper Chamber: renders identically to
+// DUNGEON3_WALL (63) but is walkable — stepping into it enters DUNGEON8_EAST_SECRET_MAP.
+const HORROR_SECRET_ENTRANCE = 125; // on DUNGEON8_EAST_LOWER2_MAP (r8 c1): looks like horror wall; enters the hidden vault
+const HORROR_SECRET_EXIT     = 126; // on DUNGEON8_EAST_SECRET_MAP: the way back out to the East Deeper Chamber
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -314,6 +324,10 @@ const WALKABLE = [
   /* 120 TREE_IN_WATER         */ false,
   /* 121 ROCKS_IN_WATER        */ false,
   /* 122 LIGHTHOUSE            */ false,
+  /* 123 HORROR_TENDON_DOWN    */ true,
+  /* 124 HORROR_TENDON_UP      */ true,
+  /* 125 HORROR_SECRET_ENTRANCE*/ true,
+  /* 126 HORROR_SECRET_EXIT    */ true,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -386,6 +400,10 @@ window.DUNGEON8_WEST_DOOR = DUNGEON8_WEST_DOOR;
 window.DUNGEON8_WEST_RET  = DUNGEON8_WEST_RET;
 window.DUNGEON8_EAST_DOOR = DUNGEON8_EAST_DOOR;
 window.DUNGEON8_EAST_RET  = DUNGEON8_EAST_RET;
+window.HORROR_TENDON_DOWN = HORROR_TENDON_DOWN;
+window.HORROR_TENDON_UP   = HORROR_TENDON_UP;
+window.HORROR_SECRET_ENTRANCE = HORROR_SECRET_ENTRANCE;
+window.HORROR_SECRET_EXIT     = HORROR_SECRET_EXIT;
 window.D3_EAST_PASSAGE  = D3_EAST_PASSAGE;
 window.D3_WEST_PASSAGE  = D3_WEST_PASSAGE;
 window.D3_SOUTH_PASSAGE = D3_SOUTH_PASSAGE;
@@ -471,6 +489,7 @@ const DEBUG_TILE_NAMES = [
   'SLUICE_EXIT',  'SLUICE_FLOOR',  'SLUICE_JOURNAL_FLOOR',  'SLUICE_MARK_WALL',  'SLUICE_NOTCH_WALL',  'SLUICE_SECRET_ENTRANCE',  'SLUICE_SECRET_EXIT',  'SLUICE_WALL',  'TABLE',  'TAKOMO_EXIT',  'TAKOMO_GATE',
   'TOWN_BUILDING',  'TOWN_ENTRANCE',  'TOWN_EXIT',  'TOWN_FLOOR',  'TOWN_MARKET',  'TRAPPER_HUT',
   'TREE',  'WATER',  'WEST_ENTRANCE',  'WEST_EXIT',  'WORLD_HOLLOW',
+  'HORROR_TENDON_DOWN',  'HORROR_TENDON_UP',  'HORROR_SECRET_ENTRANCE',  'HORROR_SECRET_EXIT',
 ];
 
 let _debugTileNameById = null; // lazily built on first call, after every script has loaded
@@ -939,6 +958,22 @@ const TILE_PROPERTIES = {
   },
   [DUNGEON8_EAST_RET]: {
     id: DUNGEON8_EAST_RET, name: 'East Branch Return', debugName: 'DUNGEON8_EAST_RET', walkable: WALKABLE[DUNGEON8_EAST_RET],
+    category: 'transition', tags: ['dungeon', 'transition'], encounterEligible: false, isDungeon: true, isTransition: true,
+  },
+  [HORROR_TENDON_DOWN]: {
+    id: HORROR_TENDON_DOWN, name: 'Tendon Descent', debugName: 'HORROR_TENDON_DOWN', walkable: WALKABLE[HORROR_TENDON_DOWN],
+    category: 'transition', tags: ['dungeon', 'transition'], encounterEligible: false, isDungeon: true, isTransition: true,
+  },
+  [HORROR_TENDON_UP]: {
+    id: HORROR_TENDON_UP, name: 'Tendon Ascent', debugName: 'HORROR_TENDON_UP', walkable: WALKABLE[HORROR_TENDON_UP],
+    category: 'transition', tags: ['dungeon', 'transition'], encounterEligible: false, isDungeon: true, isTransition: true,
+  },
+  [HORROR_SECRET_ENTRANCE]: {
+    id: HORROR_SECRET_ENTRANCE, name: 'Concealed Passage', debugName: 'HORROR_SECRET_ENTRANCE', walkable: WALKABLE[HORROR_SECRET_ENTRANCE],
+    category: 'transition', tags: ['dungeon', 'transition', 'secret'], encounterEligible: false, isDungeon: true, isTransition: true,
+  },
+  [HORROR_SECRET_EXIT]: {
+    id: HORROR_SECRET_EXIT, name: 'Vault Exit', debugName: 'HORROR_SECRET_EXIT', walkable: WALKABLE[HORROR_SECRET_EXIT],
     category: 'transition', tags: ['dungeon', 'transition'], encounterEligible: false, isDungeon: true, isTransition: true,
   },
   [D3_EAST_PASSAGE]: {

@@ -861,6 +861,86 @@ function drawHorrorReturn(x, y) {
   ctx.textAlign = 'left';
 }
 
+// Body-horror descent \u2014 a raw tendon strung down a fleshy shaft, disappearing
+// into a dark aperture at the bottom. The player climbs DOWN it to the raw
+// chamber below. Drawn on the organic horror floor.
+function drawHorrorTendonDown(x, y) {
+  drawDungeon3Floor(x, y);
+  // Dark aperture at the bottom the tendon vanishes into.
+  ctx.fillStyle = '#070301';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 25, 9, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Fleshy tendon cord running the height of the tile, down into the hole.
+  ctx.fillStyle = '#3a1614';                 // shadow side
+  ctx.fillRect(x + 12, y + 2, 9, 22);
+  ctx.fillStyle = '#6e3230';                 // meat body
+  ctx.fillRect(x + 13, y + 2, 6, 21);
+  ctx.fillStyle = '#9a5048';                 // lit ridge
+  ctx.fillRect(x + 15, y + 3, 2, 19);
+  // Fibrous sinew strands.
+  ctx.fillStyle = '#c08a80';
+  ctx.fillRect(x + 13, y + 5, 1, 15);
+  ctx.fillRect(x + 18, y + 4, 1, 16);
+  // Knotted swellings along the cord.
+  ctx.fillStyle = '#7a3a36';
+  ctx.fillRect(x + 11, y + 8,  10, 3);
+  ctx.fillRect(x + 11, y + 15, 10, 3);
+  // Wet sheen.
+  ctx.fillStyle = 'rgba(214, 152, 142, 0.22)';
+  ctx.fillRect(x + 16, y + 4, 1, 17);
+  // Sickly red descent glow + downward marker.
+  ctx.fillStyle = 'rgba(200, 60, 20, 0.20)';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 25, 10, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#e04020';
+  ctx.font = 'bold 7px "Courier New", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('\u25bc', x + 16, y + 30);
+  ctx.textAlign = 'left';
+}
+
+// Body-horror ascent \u2014 the same raw tendon, here rising OUT of a dark aperture
+// at the top; the player climbs UP it to the horror branch above. Cooler, paler
+// glow (matching the stairs-down-warm / stairs-up-cool convention).
+function drawHorrorTendonUp(x, y) {
+  drawDungeon3Floor(x, y);
+  // Dark aperture at the top the tendon rises out of.
+  ctx.fillStyle = '#070301';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 6, 9, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Fleshy tendon cord running the height of the tile, up into the hole.
+  ctx.fillStyle = '#3a1614';                 // shadow side
+  ctx.fillRect(x + 12, y + 8, 9, 22);
+  ctx.fillStyle = '#6e3230';                 // meat body
+  ctx.fillRect(x + 13, y + 9, 6, 21);
+  ctx.fillStyle = '#9a5048';                 // lit ridge
+  ctx.fillRect(x + 15, y + 10, 2, 19);
+  // Fibrous sinew strands.
+  ctx.fillStyle = '#c08a80';
+  ctx.fillRect(x + 13, y + 12, 1, 15);
+  ctx.fillRect(x + 18, y + 12, 1, 16);
+  // Knotted swellings along the cord.
+  ctx.fillStyle = '#7a3a36';
+  ctx.fillRect(x + 11, y + 14, 10, 3);
+  ctx.fillRect(x + 11, y + 21, 10, 3);
+  // Wet sheen.
+  ctx.fillStyle = 'rgba(214, 152, 142, 0.22)';
+  ctx.fillRect(x + 16, y + 11, 1, 17);
+  // Pale ascent glow + upward marker.
+  ctx.fillStyle = 'rgba(30, 120, 10, 0.20)';
+  ctx.beginPath();
+  ctx.ellipse(x + 16, y + 6, 10, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#3a8a20';
+  ctx.font = 'bold 7px "Courier New", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('\u25b2', x + 16, y + 5);
+  ctx.textAlign = 'left';
+}
+
 // ─── Town Tile Drawing ────────────────────────────────────────────────────────
 
 // Warm cobblestone street
@@ -2477,6 +2557,10 @@ function drawTile(id, x, y) {
     case DUNGEON8_WEST_RET:   drawHorrorReturn(x, y);     break;
     case DUNGEON8_EAST_DOOR:  drawHorrorDoor(x, y);       break;
     case DUNGEON8_EAST_RET:   drawHorrorReturn(x, y);     break;
+    case HORROR_TENDON_DOWN:  drawHorrorTendonDown(x, y); break;
+    case HORROR_TENDON_UP:    drawHorrorTendonUp(x, y);   break;
+    case HORROR_SECRET_ENTRANCE: drawDungeon3Wall(x, y);  break;  // deliberately indistinguishable from a horror wall
+    case HORROR_SECRET_EXIT:  drawHorrorReturn(x, y);     break;
     case D3_EAST_PASSAGE:     drawD3EastPassage(x, y);    break;
     case D3_WEST_PASSAGE:     drawD3WestPassage(x, y);    break;
     case D3_SOUTH_PASSAGE:    drawD3SouthPassage(x, y);   break;
@@ -2544,6 +2628,7 @@ const RENDERABLE_TILE_IDS = new Set([
   GUARD_POST, FARM_HOUSE, MIRE_ENTRANCE, MIRE_EXIT, BRIDGE_GATE, BRIDGE_DECK,
   BRIDGE_EXIT, MAP5_EXIT, MAP5_ENTRANCE, DUNGEON3_FLOOR, DUNGEON3_WALL,
   DUNGEON8_WEST_DOOR, DUNGEON8_WEST_RET, DUNGEON8_EAST_DOOR, DUNGEON8_EAST_RET,
+  HORROR_TENDON_DOWN, HORROR_TENDON_UP, HORROR_SECRET_ENTRANCE, HORROR_SECRET_EXIT,
   D3_EAST_PASSAGE, D3_WEST_PASSAGE, D3_SOUTH_PASSAGE, D3_NORTH_PASSAGE,
   DUNGEON_FALSE_WALL, WORLD_HOLLOW, INTERIOR_FALSE_WALL, TAKOMO_GATE, TAKOMO_EXIT,
   RUIN_FLOOR, RUIN_WALL, RUIN_STAIRS_DOWN, RUIN_EXIT, BASIN_MUD, NORTH_BASIN_EXIT,

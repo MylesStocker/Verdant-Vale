@@ -175,6 +175,16 @@ const DEBUG_WARP_DESTINATIONS_AUTHORED = [
     state: { inDungeon: true, dungeonFloor: 9 }, defaultCol: 13, defaultRow: 7, facing: 'left' },
   { id: 'dungeon:f8_east', label: 'South Ruins — East Passage', category: 'dungeon', mapId: 'DUNGEON8_EAST_MAP',
     state: { inDungeon: true, dungeonFloor: 10 }, defaultCol: 1, defaultRow: 7, facing: 'right' },
+  { id: 'dungeon:f8_west_lower', label: 'South Ruins — West Passage, Below', category: 'dungeon', mapId: 'DUNGEON8_WEST_LOWER_MAP',
+    state: { inDungeon: true, dungeonFloor: 11 }, defaultCol: 8, defaultRow: 3, facing: 'down' },
+  { id: 'dungeon:f8_east_lower', label: 'South Ruins — East Passage, Below', category: 'dungeon', mapId: 'DUNGEON8_EAST_LOWER_MAP',
+    state: { inDungeon: true, dungeonFloor: 12 }, defaultCol: 8, defaultRow: 3, facing: 'down' },
+  { id: 'dungeon:f8_west_lower2', label: 'South Ruins — West Passage, Deeper', category: 'dungeon', mapId: 'DUNGEON8_WEST_LOWER2_MAP',
+    state: { inDungeon: true, dungeonFloor: 13 }, defaultCol: 8, defaultRow: 3, facing: 'down' },
+  { id: 'dungeon:f8_east_lower2', label: 'South Ruins — East Passage, Deeper', category: 'dungeon', mapId: 'DUNGEON8_EAST_LOWER2_MAP',
+    state: { inDungeon: true, dungeonFloor: 14 }, defaultCol: 8, defaultRow: 3, facing: 'down' },
+  { id: 'dungeon:f8_east_secret', label: 'South Ruins — Hidden Vault', category: 'dungeon', mapId: 'DUNGEON8_EAST_SECRET_MAP',
+    state: { inDungeon: true, dungeonFloor: 15 }, defaultCol: 8, defaultRow: 3, facing: 'down' },
 
   // ── Special locations (own canonical modes) ───────────────────────────────
   { id: 'special:maren_post',     label: 'Thornmere — Guard Post (Maren)', category: 'special', mapId: 'MAREN_POST_MAP',
