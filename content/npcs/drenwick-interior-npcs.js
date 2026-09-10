@@ -658,17 +658,19 @@ const DRENWICK_INTERIOR_NPCS = [
     solid:      true,
     facing:     'down',
     spriteType: 'clerk',
+    // Authored flavor is kept here (content checks read it); NPC_ACTIONS.odaProvisionShop
+    // shows these same lines at runtime and then opens the fishing-Bait buy choice.
     dialogue: [
-      ['\u201cDry rations, salted catch, preserved roots. All priced on the board.\u201d',
-       '\u201cPay cash at the counter and it\u2019s yours. Simple as that.\u201d'],
-      ['\u201cA registered household can run a larger order on account instead of settling coin every visit.\u201d',
-       '\u201cYour district registry card just tells me which household and which billing address. That\u2019s all it does \u2014 it\u2019s not a claim on free goods.\u201d'],
-      ['\u201cBarge delivery is the second and fourth day of each cycle.\u201d',
-       '\u201cIf something\u2019s out of stock, I\u2019ll put it on the order for the next run. Cash or account, your choice when it lands.\u201d'],
+      ['“Dry rations, salted catch, preserved roots. All priced on the board.”',
+       '“Pay cash at the counter and it’s yours. Simple as that.”'],
+      ['“A registered household can run a larger order on account instead of settling coin every visit.”',
+       '“Your district registry card just tells me which household and which billing address. That’s all it does — it’s not a claim on free goods.”'],
+      ['“Barge delivery is the second and fourth day of each cycle.”',
+       '“If something’s out of stock, I’ll put it on the order for the next run. Cash or account, your choice when it lands.”'],
     ],
     flag_required: null,
     flag_sets:     null,
-    action:        null,
+    action:        'odaProvisionShop',
   },
 
   // Harbormaster office — Sela, junior records clerk (col 5 row 8)

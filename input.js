@@ -45,6 +45,12 @@ window.addEventListener('keydown', e => {
       } else {
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleCombatAction(); }
       }
+    } else if (fishing.active) {
+      // ── Fishing minigame input ─────────────────────────────────────────────
+      // Arrow keys + Space are the prompt inputs; Space/Enter/Esc dismiss the
+      // result. Consumed here so nothing falls through to world movement.
+      if (e.key === ' ') e.preventDefault();
+      handleFishingKey(e.key);
     } else if (!combat.active) {
       if (menu.open) {
         if (menu.screen === 'saveConfirm') {

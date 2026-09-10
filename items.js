@@ -72,6 +72,16 @@ const ITEM_REGISTRY = {
   // you never lose your only rod. Old Fishing Rod is the worst (power 1); higher
   // fishingPower rods can be added later without touching the fishing logic.
   'Old Fishing Rod': { name: 'Old Fishing Rod', type: 'rod', fishingPower: 1, price: 0, questItem: true, keyItem: true },
+  // Improved rods — defined for future use but NOT currently obtainable (no
+  // purchase option yet, by design). A higher fishingPower makes the fishing
+  // minigame (fishing.js) more forgiving: shorter prompt sequences and a wider
+  // timing window. Key items, so a rod can never be lost once granted.
+  "Fen Angler's Rod": { name: "Fen Angler's Rod", type: 'rod', fishingPower: 2, price: 120, questItem: true, keyItem: true },
+  'Waxwood Rod':      { name: 'Waxwood Rod',      type: 'rod', fishingPower: 3, price: 320, questItem: true, keyItem: true },
+  // Bait — the per-cast cost of fishing. One is consumed each time you cast. An
+  // ordinary stackable consumable (not a key item); sold at the Drenwick
+  // Provision Store (Oda). ~6g each.
+  'Bait':          { name: 'Bait',          type: 'bait', price: 6 },
   'River Smelt':   { name: 'River Smelt',   type: 'potion', heals:  8, price:  4 },
   'Canal Eel':     { name: 'Canal Eel',     type: 'potion', heals: 20, price: 12 },
   'Old Boot':      { name: 'Old Boot',      type: 'accessory', bonus: 0, price: 0 },
@@ -142,30 +152,12 @@ function bestFishingPower() {
   return best;
 }
 
-// Rolls one cast's outcome for a rod of the given power (Old Fishing Rod = 1).
-// A better rod means fewer empty casts and less junk, and more (and better)
-// fish. Returns one of: 'nothing' | 'boot' (junk) | 'smelt' (heal 8) |
-// 'eel' (heal 20) | 'letter' (rare flavour catch). At power 1 the odds are
-// deliberately stingy — no more fishing up an endless free heal.
-function rollFishingOutcome(power) {
-  const p     = Math.max(1, power);
-  const bonus = Math.min(0.45, (p - 1) * 0.15);   // quality bonus, 0 at power 1
-  // Cumulative boundaries in [0,1). Empty casts and junk shrink as the rod
-  // improves; the fish bands grow. The rare 'letter' keeps its ~3% top sliver.
-  const nothing = 0.55 - bonus * 0.70;
-  const boot    = nothing + (0.15 - bonus * 0.10);
-  const smelt   = boot    + (0.20 + bonus * 0.40);
-  const eel     = smelt   + (0.07 + bonus * 0.40);
-  const r = Math.random();
-  if (r < nothing) return 'nothing';
-  if (r < boot)    return 'boot';
-  if (r < smelt)   return 'smelt';
-  if (r < eel)     return 'eel';
-  return 'letter';
-}
+// (The old probability-only rollFishingOutcome was retired when fishing became
+// the real-time QTE minigame — see fishing.js. The catch is now decided by the
+// player's performance in the minigame, with rod power scaling difficulty via
+// bestFishingPower(); the outcome roll lives in resolveFishingCatch() there.)
 
 window.ITEM_REGISTRY = ITEM_REGISTRY;
 window.createItem    = createItem;
 window.grantItem     = grantItem;
 window.bestFishingPower   = bestFishingPower;
-window.rollFishingOutcome = rollFishingOutcome;

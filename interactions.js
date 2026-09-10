@@ -610,46 +610,29 @@ function interactTownOutdoor() {
         dialogue.page  = 0;
         return true;
       }
-      choice.title     = '';
-      choice.options   = ['Cast line', 'Leave'];
+      // Fishing is the real-time QTE minigame (fishing.js). Each cast costs one
+      // Bait — bought from the Drenwick Provision Store (Oda), not here. The dock
+      // itself only lets you cast (or leave); you must already hold a rod and bait.
+      const baitCount = stats.items.filter(i => i.name === 'Bait').length;
+
+      function castLine() {
+        const baitIdx = stats.items.findIndex(i => i.name === 'Bait');
+        if (baitIdx === -1) {
+          dialogue.name  = '';
+          dialogue.pages = [['You have no bait.', 'The Drenwick Provision Store sells it — come back once you’re stocked.']];
+          dialogue.open  = true;
+          dialogue.page  = 0;
+          return;
+        }
+        stats.items.splice(baitIdx, 1);          // consume one bait — the cost of a cast
+        startFishing(bestFishingPower());          // launch the minigame (replaces the screen)
+      }
+
+      choice.title     = 'The Dock  —  bait ×' + baitCount;
+      choice.options   = ['Cast line  (1 bait)', 'Leave'];
       choice.cursor    = 0;
-      choice.callbacks = [
-        function cast() {
-          // Catch odds scale with the rod's power (Old Fishing Rod = 1). The rare
-          // Sealed Letter is a one-time flavour catch — if it is already in the
-          // bag, that roll comes up empty rather than handing out a duplicate.
-          let outcome = rollFishingOutcome(rodPower);
-          if (outcome === 'letter' && stats.items.some(i => i.name === 'Sealed Letter')) outcome = 'nothing';
-          dialogue.name = '';
-          dialogue.open = true;
-          dialogue.page = 0;
-          if (outcome === 'nothing') {
-            dialogue.pages = [['You cast the line.', 'The water sits still.', 'Nothing bites.']];
-          } else if (outcome === 'smelt') {
-            grantItem('River Smelt');
-            dialogue.pages = [['Something on the line.', 'River Smelt. Small, cold, indignant.', 'Added to items.']];
-          } else if (outcome === 'eel') {
-            grantItem('Canal Eel');
-            dialogue.pages = [['Heavy on the line.', 'Canal Eel. Long, dark, unhappy about it.', 'Added to items.']];
-          } else if (outcome === 'boot') {
-            grantItem('Old Boot');
-            dialogue.pages = [['Heavy on the line.', 'You pull it up.', 'Old Boot. Added to items.']];
-          } else { // 'letter'
-            grantItem('Sealed Letter');
-            dialogue.pages = [
-              ['Something catches on the line.', 'You pull it up carefully.'],
-              ['A sealed letter. Still mostly dry.', 'The seal is already broken.', 'You unfold it.'],
-              ['TRANSIT AUTHORIZATION — VOID',
-               'Bearer: [name removed].',
-               'Route: Drenwick to [destination removed].',
-               'Note: Do not proceed. Return to sender.'],
-              ['The sender’s address has been cut away.', 'Added to items.'],
-            ];
-          }
-        },
-        function leave() {},
-      ];
-      choice.open = true;
+      choice.callbacks = [castLine, function leave() {}];
+      choice.open      = true;
       return true;
     }
   }

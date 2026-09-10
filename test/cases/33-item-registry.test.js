@@ -138,17 +138,33 @@ module.exports = {
         stats.items.push(createItem('Old Fishing Rod'));
         interactTownOutdoor();
       `);
-      assert.equal(g.run('choice.open'), true, 'fishing choice should open when the player holds a rod');
-      // Old Fishing Rod (power 1) bands: nothing [0,.55) boot [.55,.70)
-      // smelt [.70,.90) eel [.90,.97) letter [.97,1). Pin into the smelt band.
+      assert.equal(g.run('choice.open'), true, 'dock choice should open when the player holds a rod');
+      // With a rod but NO bait, casting is blocked (bait is the per-cast cost).
+      g.run('choice.callbacks[0]();');   // "Cast line"
+      assert.equal(g.run('fishing.active'), false, 'cannot cast without bait');
+      assert.ok(g.run('dialogue.pages.flat().join(" ")').toLowerCase().includes('bait'),
+        'the no-bait message should name bait');
+      g.run('dialogue.open = false; choice.open = false;');
+
+      // Give bait, reopen the dock, and cast: one bait is consumed and the
+      // minigame launches. Completing the prompt sequence lands a catch that
+      // carries complete canonical metadata (mocked RNG pins the catch to Smelt).
+      g.run("stats.items.push(createItem('Bait')); interactTownOutdoor();");
       g.run(`
-        const realRandom = Math.random;
-        Math.random = () => 0.75;
-        try { choice.callbacks[0](); } finally { Math.random = realRandom; }
+        var realRandom = Math.random;
+        Math.random = function(){ return 0.99; };  // seq -> all SPACE; catch -> River Smelt
+        try {
+          choice.callbacks[0]();                    // Cast line -> startFishing()
+          for (var i = 0; i < fishing.seq.length; i++) handleFishingKey(' ');
+        } finally { Math.random = realRandom; }
       `);
+      assert.equal(g.run("stats.items.filter(i => i.name === 'Bait').length"), 0, 'casting consumes one bait');
+      assert.equal(g.run('fishing.result && fishing.result.win'), true, 'completing the sequence lands a catch');
       const fish = JSON.parse(g.run("JSON.stringify(stats.items.find(i => i.name === 'River Smelt'))"));
       assert.deepEqual(fish, { name: 'River Smelt', type: 'potion', heals: 8, price: 4 },
         'fishing reward must carry complete canonical metadata');
+      g.run('endFishing();');
+      assert.equal(g.run('fishing.active'), false, 'result dismissal ends the minigame');
     }
 
     // ── Representative enemy drop: post-victory Potion ───────────────────────

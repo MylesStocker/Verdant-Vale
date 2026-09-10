@@ -2117,6 +2117,11 @@ function drawMapWorldItems(list) {
     drawChest(DUNGEON8_WEST_DEEP_CHEST);
   }
 
+  // ── West Deeper Chamber — the carved-poem sparkle on the west wall (floor 13) ─
+  if (inDungeon && dungeonFloor === 13 && typeof SOUTH_RUINS_POEM !== 'undefined') {
+    drawExamineSparkle(Math.round(SOUTH_RUINS_POEM.x), Math.round(SOUTH_RUINS_POEM.y), SOUTH_RUINS_POEM.x, SOUTH_RUINS_POEM.y);
+  }
+
   // ── East Hidden Vault EvadeAll chest (floor 15) ───────────────────────────
   if (inDungeon && dungeonFloor === 15 && !DUNGEON8_EAST_SECRET_CHEST.opened) {
     drawChest(DUNGEON8_EAST_SECRET_CHEST);

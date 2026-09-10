@@ -1937,6 +1937,41 @@ NPC_ACTIONS.noraReagentShop = function(npc) {
   dialogue.page = 0;
 };
 
+// Oda — Drenwick Provision Store clerk. Sells fishing Bait (the per-cast cost of
+// the fishing minigame). Same dialogue -> choice -> buy shape as the other vendors.
+NPC_ACTIONS.odaProvisionShop = function(npc) {
+  dialogue.name  = npc.name;
+  // Show her authored provision-store flavor, plus a bait line, then the buy choice.
+  const pages = (npc.dialogue && npc.dialogue.length) ? npc.dialogue.map(p => p.slice()) : [[]];
+  pages.push(['“And bait, if you’re working the dock. Six gold a piece; five for thirty.”']);
+  dialogue.pages = pages;
+  dialogue.callbacks = [function() {
+    choice.title   = npc.name;
+    choice.options = ['Buy bait ×5  (30g)', 'Buy 1 bait  (6g)', 'No thank you'];
+    choice.cursor  = 0;
+    choice.callbacks = [
+      function buyFive() {
+        dialogue.name = npc.name;
+        if (stats.gold >= 30) { stats.gold -= 30; for (let i = 0; i < 5; i++) grantItem('Bait');
+          dialogue.pages = [['“Five it is. Mind the hooks.”', 'Pocket: ' + stats.gold + 'g.']]; }
+        else { dialogue.pages = [['“Thirty gold for five, love. Come back when you’ve got it.”']]; }
+        dialogue.open = true; dialogue.page = 0;
+      },
+      function buyOne() {
+        dialogue.name = npc.name;
+        if (stats.gold >= 6) { stats.gold -= 6; grantItem('Bait');
+          dialogue.pages = [['“One bait. Off you go.”', 'Pocket: ' + stats.gold + 'g.']]; }
+        else { dialogue.pages = [['“Six gold, love. Come back when you’ve got it.”']]; }
+        dialogue.open = true; dialogue.page = 0;
+      },
+      function leave() {},
+    ];
+    choice.open = true;
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
+};
+
 // ─── Still Water quest handlers ───────────────────────────────────────────────
 
 // Gridd — eel fisher at The Falls hamlet. Gives the rainfish warning if Mabel has

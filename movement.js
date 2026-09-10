@@ -448,6 +448,9 @@ function update() {
     return;
   }
 
+  // Fishing minigame is active — advance its timers, freeze the world (mirrors combat).
+  if (fishing.active) { updateFishing(); return; }
+
   // The Sera/Liora room is never a player mode. Its transient runner advances
   // only silent pauses/reveal frames, then returns before movement, encounters,
   // transitions, NPC routes, or any other overworld update can execute.

@@ -201,6 +201,13 @@ function render() {
     return;
   }
 
+  if (fishing.active) {
+    // Fishing minigame replaces the world entirely (same as combat)
+    drawFishing();
+    tick++;
+    return;
+  }
+
   // ── World (overworld or dungeon) ───────────────────────────────────────────
   if (continuousWorldViewActive()) {
     // DEBUG continuous scrolling camera (placed overworld maps only).
