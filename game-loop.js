@@ -10,11 +10,10 @@ function loop(timestamp) {
   if (elapsed >= MS_PER_FRAME) {
     // Absorb any lag without spiraling: only advance by the frame remainder
     lastTime = timestamp - (elapsed % MS_PER_FRAME);
-    update();
+    update(elapsed / 1000);
     render();
   }
   requestAnimationFrame(loop);
 }
 
 requestAnimationFrame(loop);
-

@@ -323,6 +323,23 @@ const seraLioraCutscene = {
   assetLoadToken: 0,
 };
 
+// Session-only control state for the brief playable tail of the first
+// Sera/Liora cutaway. These room-space coordinates never replace or alias the
+// ordinary `player` object and are deliberately absent from the save payload.
+const seraLioraGuestRoomWalk = {
+  active: false,
+  inputLocked: true,
+  x: 350,
+  y: 345,
+  facing: 'down',
+  moving: false,
+  animationTime: 0,
+  animationFrame: 1,
+  lioraX: 270,
+  lioraY: 345,
+  completionCount: 0,
+};
+
 
 // ─── Frame counter ────────────────────────────────────────────────────────────
 let tick = 0; // global frame counter used for water animation

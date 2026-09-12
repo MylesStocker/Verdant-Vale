@@ -1235,14 +1235,13 @@ function advanceSeraLioraCutawayAfterBeat(index) {
     showSeraLioraCutawayBeat(index + 1);
     return;
   }
-  seraLioraCutscene.phase = 'final_hold';
-  seraLioraCutscene.waitFrames = 30;
+  continueSeraLioraCutawayAfterOpening();
 }
 
 function startSeraLioraCutaway() {
   if (seraLioraCutscene.active) return;
   // Close every player-mode overlay defensively. The cutaway's input route then
-  // permits only ordinary dialogue advancement until the hospital sequence.
+  // permits dialogue advancement followed only by its scoped room controls.
   menu.open = false;
   choice.open = false;
   shop.open = false;
@@ -1259,6 +1258,12 @@ function startSeraLioraCutaway() {
   seraLioraCutscene.waitFrames = 0;
   seraLioraCutscene.revealAlpha = 0;
   seraLioraCutscene.lioraPose = 'sleeping';
+  seraLioraGuestRoomWalk.active = false;
+  seraLioraGuestRoomWalk.inputLocked = true;
+  seraLioraGuestRoomWalk.moving = false;
+  seraLioraGuestRoomWalk.animationTime = 0;
+  seraLioraGuestRoomWalk.animationFrame = 1;
+  seraLioraGuestRoomWalk.completionCount = 0;
   seraLioraCutscene.startCount++;
   const assetLoadToken = ++seraLioraCutscene.assetLoadToken;
   preloadImageAssetBundle('sera_liora_opening').then(function() {
@@ -1328,19 +1333,48 @@ function updateSeraLioraCutaway() {
   } else if (seraLioraCutscene.phase === 'room_reveal') {
     seraLioraCutscene.revealAlpha = 0;
     showSeraLioraCutawayBeat(2);
-  } else if (seraLioraCutscene.phase === 'final_hold') {
-    continueSeraLioraCutawayAfterOpening();
   }
 }
 
-// Deliberate extension point: later increments can begin the rest of their
-// Bethany morning here, ahead of the existing hospital handoff, without
-// rewriting this opening's beats or transitions.
+function seraLioraFreeWalkAssetsReady() {
+  return seraLioraApprovedRoomReady() &&
+    !!loadedImageAsset('cutaway_sera_walk_cycle_v1') &&
+    !!loadedImageAsset('cutaway_liora_close_standing_master_v1');
+}
+
+// The opening dialogue's existing continuation point now enters a small,
+// transient room-control phase. A failed walk asset does not expose a blank or
+// malformed playable scene; it uses the established hospital handoff instead.
 function continueSeraLioraCutawayAfterOpening() {
-  endSeraLioraCutawayAtHospital();
+  if (!seraLioraCutscene.active || !seraLioraFreeWalkAssetsReady()) {
+    endSeraLioraCutawayAtHospital();
+    return false;
+  }
+  seraLioraCutscene.phase = 'free_walk';
+  seraLioraCutscene.waitFrames = 0;
+  seraLioraCutscene.revealAlpha = 0;
+  seraLioraCutscene.lioraPose = 'standing';
+  seraLioraGuestRoomWalk.active = true;
+  seraLioraGuestRoomWalk.inputLocked = false;
+  seraLioraGuestRoomWalk.x = 350;
+  seraLioraGuestRoomWalk.y = 345;
+  seraLioraGuestRoomWalk.facing = 'down';
+  seraLioraGuestRoomWalk.moving = false;
+  seraLioraGuestRoomWalk.animationTime = 0;
+  seraLioraGuestRoomWalk.animationFrame = 1;
+  seraLioraGuestRoomWalk.lioraX = 270;
+  seraLioraGuestRoomWalk.lioraY = 345;
+  // No held dialogue/menu key may leak into the first controllable frame.
+  for (const key of ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D']) keys[key] = false;
+  return true;
 }
 
 function endSeraLioraCutawayAtHospital() {
+  seraLioraGuestRoomWalk.active = false;
+  seraLioraGuestRoomWalk.inputLocked = true;
+  seraLioraGuestRoomWalk.moving = false;
+  seraLioraGuestRoomWalk.animationTime = 0;
+  seraLioraGuestRoomWalk.animationFrame = 1;
   seraLioraCutscene.active = false;
   seraLioraCutscene.phase = 'complete';
   seraLioraCutscene.waitFrames = 0;

@@ -55,7 +55,13 @@ function continuousWorldViewActive() {
 // is a pure extraction of render()'s former inline block — same calls, same order.
 function drawActiveMapContent() {
   drawWorldItems();
-  if (activeMap === BETHANY_GUEST_ROOM_MAP) drawBethanyGuestRoom();
+  if (activeMap === BETHANY_GUEST_ROOM_MAP) {
+    const guestRoomImage = seraLioraCutscene.active && seraLioraApprovedRoomReady()
+      ? loadedImageAsset('cutaway_bethany_guest_room_redraw_v1')
+      : null;
+    if (guestRoomImage) ctx.drawImage(guestRoomImage, 0, 0);
+    else drawBethanyGuestRoom();
+  }
   if (inTown && townBuilding === 'office' && currentTownId === 'calwick')  drawOfficeFurniture();
   if (inTown && townBuilding === 'office' && currentTownId === 'drenwick') drawDrenwickOfficeFurniture();
   if (inTown && townBuilding === 'school' && currentTownId !== 'drenwick') drawSchoolFurniture();
@@ -123,8 +129,11 @@ function drawActiveMapContent() {
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
   if (seraLioraCutscene.active) {
     if (activeMap === BETHANY_GUEST_ROOM_MAP) {
+      drawSeraLioraBedStatePatch();
       drawSeraLioraCutawayActors();
-      drawBethanyGuestBedForeground();
+      if (!seraLioraApprovedRoomReady()) {
+        drawBethanyGuestBedForeground();
+      }
     }
     // No controllable/player sprite exists in either cutaway presentation,
     // including the opening lines that continue on DREAM_MAP's white field.

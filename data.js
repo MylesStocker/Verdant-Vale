@@ -1361,7 +1361,7 @@ const MAP_CATALOG = {
     displayName: 'Bethany — Guest House', region: 'Bethany',
     type: 'special', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: false,
-    notes: 'Cutscene-only finest guest-house room for Sera and Liora. It has no exit, exploration, items, NPC registry entries, or debug-warp destination; the transient opening cutaway enters and leaves it through scripted transitions only.',
+    notes: 'Finest guest-house room for Sera and Liora. The opening cutaway briefly enables transient Sera-only room movement and one authored door interaction; it has no items, NPC registry entries, save access, or debug-warp destination.',
   },
 
   // ── Special vaults/chambers ────────────────────────────────────────────────

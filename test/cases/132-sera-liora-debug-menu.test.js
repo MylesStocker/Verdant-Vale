@@ -6,12 +6,20 @@
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
+function installImmediateImages(g) {
+  g.run(`
+    window.Image=function(){this.onload=null;this.onerror=null;this.naturalWidth=0;this.naturalHeight=0;this._src='';};
+    Object.defineProperty(window.Image.prototype,'src',{set:function(value){this._src=value;var id=Object.keys(IMAGE_ASSET_REGISTRY).find(function(key){return IMAGE_ASSET_REGISTRY[key].path===value;});this.naturalWidth=IMAGE_ASSET_REGISTRY[id].width;this.naturalHeight=IMAGE_ASSET_REGISTRY[id].height;this.onload();},get:function(){return this._src;}});
+  `);
+}
+
 module.exports = {
   name: 'Sera/Liora cutaway debug-menu preview: direct, progression-neutral, absent from Warp Stone',
   run() {
     const g = createContext();
     g.press('Enter');
     g.press('Enter');
+    installImmediateImages(g);
 
     assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 11);
     g.run(`
@@ -55,11 +63,19 @@ module.exports = {
     assert.equal(g.run('getDebugWarpDestinations().length'), debugWarpCount, 'debug warp catalog remains unchanged');
     assert.equal(g.run('getPlayerWarpDestinations().length'), playerWarpCount, 'Warp Stone catalog remains unchanged');
 
-    // Advance the exact same scripted route through its silent pauses/reveal
-    // and prove that the temporary endpoint remains the existing hospital wake.
+    // Advance the exact same scripted route through its silent pauses/reveal,
+    // then walk Sera around Liora to the door and use the established action.
     let guard = 0;
     while (!g.run('activeMap === DRENWICK_INFIRMARY_MAP') && guard < 300) {
       if (g.run('dialogue.open')) g.press(' ');
+      else if (g.run("seraLioraCutscene.phase==='free_walk'")) {
+        g.hold('s'); g.frames(30); g.release('s');
+        g.hold('a'); g.frames(130); g.release('a');
+        g.hold('w'); g.frames(120); g.release('w');
+        g.hold('a'); g.frames(60); g.release('a');
+        g.press('a');
+        g.press('Enter');
+      }
       else g.frames(1);
       guard++;
     }

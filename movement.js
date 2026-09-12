@@ -420,7 +420,137 @@ window.inSluiceSealedRoom = inSluiceSealedRoom;
 // ─── Update ───────────────────────────────────────────────────────────────────
 const SPEED = 2; // pixels per frame
 
-function update() {
+const SERA_LIORA_GUEST_ROOM_MOVEMENT = Object.freeze({
+  speedPxPerSecond: 90,
+  collisionRadius: 9,
+  animationFrameSeconds: 0.14,
+  walkableAreas: Object.freeze([
+    Object.freeze({ x: 55, y: 185, width: 140, height: 50 }),  // clear aisle across the door threshold
+    Object.freeze({ x: 145, y: 225, width: 235, height: 140 }), // main floor
+    Object.freeze({ x: 95, y: 345, width: 340, height: 65 }),   // lower floor
+  ]),
+  obstacles: Object.freeze([
+    Object.freeze({ id: 'breakfast_table', x: 190, y: 180, width: 155, height: 55 }),
+    Object.freeze({ id: 'left_bed', x: 95, y: 225, width: 50, height: 125 }),
+    Object.freeze({ id: 'right_bed', x: 380, y: 225, width: 55, height: 125 }),
+    Object.freeze({ id: 'left_luggage', x: 95, y: 345, width: 55, height: 50 }),
+    Object.freeze({ id: 'right_luggage', x: 390, y: 345, width: 45, height: 50 }),
+  ]),
+  lioraCollider: Object.freeze({ halfWidth: 20, halfHeight: 12 }),
+  doorZone: Object.freeze({ x: 55, y: 194, width: 32, height: 22, facing: 'left' }),
+});
+
+function seraLioraRectContainsPoint(rect, x, y) {
+  return x >= rect.x && x <= rect.x + rect.width &&
+    y >= rect.y && y <= rect.y + rect.height;
+}
+
+function seraLioraFootprintWalkable(x, y) {
+  const radius = SERA_LIORA_GUEST_ROOM_MOVEMENT.collisionRadius;
+  const corners = [
+    [x - radius, y - radius], [x + radius, y - radius],
+    [x - radius, y + radius], [x + radius, y + radius],
+  ];
+  for (const corner of corners) {
+    if (!SERA_LIORA_GUEST_ROOM_MOVEMENT.walkableAreas.some(function(area) {
+      return seraLioraRectContainsPoint(area, corner[0], corner[1]);
+    })) return false;
+  }
+  const left = x - radius, right = x + radius;
+  const top = y - radius, bottom = y + radius;
+  for (const obstacle of SERA_LIORA_GUEST_ROOM_MOVEMENT.obstacles) {
+    if (right > obstacle.x && left < obstacle.x + obstacle.width &&
+        bottom > obstacle.y && top < obstacle.y + obstacle.height) return false;
+  }
+  const liora = SERA_LIORA_GUEST_ROOM_MOVEMENT.lioraCollider;
+  if (right > seraLioraGuestRoomWalk.lioraX - liora.halfWidth &&
+      left < seraLioraGuestRoomWalk.lioraX + liora.halfWidth &&
+      bottom > seraLioraGuestRoomWalk.lioraY - liora.halfHeight &&
+      top < seraLioraGuestRoomWalk.lioraY + liora.halfHeight) return false;
+  return true;
+}
+
+function seraLioraMovementKeyDown(key) {
+  return !!keys[key] || !!keys[key.toUpperCase()];
+}
+
+function noteSeraLioraMovementKey(key) {
+  if (!seraLioraGuestRoomWalk.active || typeof key !== 'string') return;
+  const facing = ({ w: 'up', a: 'left', s: 'down', d: 'right' })[key.toLowerCase()];
+  if (!facing || facing === seraLioraGuestRoomWalk.facing) return;
+  seraLioraGuestRoomWalk.facing = facing;
+  seraLioraGuestRoomWalk.animationTime = 0;
+  seraLioraGuestRoomWalk.animationFrame = 0;
+}
+
+function updateSeraLioraGuestRoomFreeWalk(deltaSeconds) {
+  const walk = seraLioraGuestRoomWalk;
+  if (!walk.active || walk.inputLocked || dialogue.open) {
+    walk.moving = false;
+    walk.animationTime = 0;
+    walk.animationFrame = 1;
+    return;
+  }
+  const dt = Number.isFinite(deltaSeconds)
+    ? Math.max(0, Math.min(deltaSeconds, 0.05))
+    : MS_PER_FRAME / 1000;
+  let axisX = (seraLioraMovementKeyDown('d') ? 1 : 0) - (seraLioraMovementKeyDown('a') ? 1 : 0);
+  let axisY = (seraLioraMovementKeyDown('s') ? 1 : 0) - (seraLioraMovementKeyDown('w') ? 1 : 0);
+  if (axisX === 0 && axisY === 0) {
+    walk.moving = false;
+    walk.animationTime = 0;
+    walk.animationFrame = 1;
+    return;
+  }
+  if (axisX !== 0 && axisY !== 0) {
+    axisX *= Math.SQRT1_2;
+    axisY *= Math.SQRT1_2;
+  } else {
+    walk.facing = axisX < 0 ? 'left' : axisX > 0 ? 'right' : axisY < 0 ? 'up' : 'down';
+  }
+  const distance = SERA_LIORA_GUEST_ROOM_MOVEMENT.speedPxPerSecond * dt;
+  const nextX = walk.x + axisX * distance;
+  const nextY = walk.y + axisY * distance;
+  let moved = false;
+  if (axisX !== 0 && seraLioraFootprintWalkable(nextX, walk.y)) {
+    walk.x = nextX;
+    moved = true;
+  }
+  if (axisY !== 0 && seraLioraFootprintWalkable(walk.x, nextY)) {
+    walk.y = nextY;
+    moved = true;
+  }
+  walk.moving = moved;
+  if (!moved) {
+    walk.animationTime = 0;
+    walk.animationFrame = 1;
+    return;
+  }
+  walk.animationTime += dt;
+  const cycle = [0, 1, 2, 1];
+  walk.animationFrame = cycle[Math.floor(walk.animationTime /
+    SERA_LIORA_GUEST_ROOM_MOVEMENT.animationFrameSeconds) % cycle.length];
+}
+
+function seraLioraDoorInteractionAvailable() {
+  const walk = seraLioraGuestRoomWalk;
+  return seraLioraCutscene.active && seraLioraCutscene.phase === 'free_walk' &&
+    walk.active && !walk.inputLocked && walk.facing === SERA_LIORA_GUEST_ROOM_MOVEMENT.doorZone.facing &&
+    seraLioraRectContainsPoint(SERA_LIORA_GUEST_ROOM_MOVEMENT.doorZone, walk.x, walk.y);
+}
+
+function trySeraLioraGuestRoomDoor() {
+  if (!seraLioraDoorInteractionAvailable()) return false;
+  const walk = seraLioraGuestRoomWalk;
+  walk.inputLocked = true;
+  walk.active = false;
+  walk.moving = false;
+  walk.completionCount++;
+  endSeraLioraCutawayAtHospital();
+  return true;
+}
+
+function update(deltaSeconds) {
   // Cooldown ticks every frame regardless of game state
   if (combat.cooldown > 0) combat.cooldown--;
   if (worldToastTimer > 0) worldToastTimer--;
@@ -451,11 +581,11 @@ function update() {
   // Fishing minigame is active — advance its timers, freeze the world (mirrors combat).
   if (fishing.active) { updateFishing(); return; }
 
-  // The Sera/Liora room is never a player mode. Its transient runner advances
-  // only silent pauses/reveal frames, then returns before movement, encounters,
-  // transitions, NPC routes, or any other overworld update can execute.
+  // The cutaway always returns before ordinary player/world simulation. Its
+  // final room phase updates only the dedicated transient Sera actor.
   if (seraLioraCutscene.active) {
-    updateSeraLioraCutaway();
+    if (seraLioraCutscene.phase === 'free_walk') updateSeraLioraGuestRoomFreeWalk(deltaSeconds);
+    else updateSeraLioraCutaway();
     return;
   }
 

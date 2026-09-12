@@ -32,12 +32,29 @@ const EXPECTED = [
   ['Sera',  'Agreed.'],
 ];
 
+function installImmediateImages(g) {
+  g.run(`
+    window.Image = function() { this.onload=null; this.onerror=null; this.naturalWidth=0; this.naturalHeight=0; this._src=''; };
+    Object.defineProperty(window.Image.prototype, 'src', {
+      set: function(value) {
+        this._src=value;
+        var id=Object.keys(IMAGE_ASSET_REGISTRY).find(function(key){return IMAGE_ASSET_REGISTRY[key].path===value;});
+        this.naturalWidth=IMAGE_ASSET_REGISTRY[id].width;
+        this.naturalHeight=IMAGE_ASSET_REGISTRY[id].height;
+        this.onload();
+      },
+      get: function(){return this._src;}
+    });
+  `);
+}
+
 module.exports = {
   name: 'First Sera/Liora cutaway debug preview: white opening, scoped style, scripted Bethany room, hospital continuation',
   run() {
     const g = createContext();
     g.press('Enter');
     g.press('Enter');
+    installImmediateImages(g);
 
     assert.equal(g.run('SAVE_VERSION'), 4, 'save schema version remains unchanged');
     assert.equal(g.run("SERA_LIORA_CUTAWAY_SCENE_ID"), 'sera_liora_cutaway_opening');
@@ -150,11 +167,17 @@ module.exports = {
     assert.equal(g.run('activeMap === BETHANY_GUEST_ROOM_MAP'), true);
 
     g.press(' ');
-    assert.equal(g.run('seraLioraCutscene.phase'), 'final_hold');
-    g.frames(29);
-    assert.equal(g.run('activeMap === BETHANY_GUEST_ROOM_MAP'), true, 'final image holds on Liora sitting up');
-    g.frames(1);
-    assert.equal(g.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'extension point continues into existing hospital wake');
+    assert.equal(g.run('seraLioraCutscene.phase'), 'free_walk');
+    assert.equal(g.run('seraLioraCutscene.lioraPose'), 'standing');
+    assert.equal(g.run('seraLioraGuestRoomWalk.active'), true);
+    assert.equal(g.run('dialogue.open'), false);
+    assert.equal(g.run('activeMap === BETHANY_GUEST_ROOM_MAP'), true,
+      'closing the final page enters the room-control extension instead of returning automatically');
+    g.press('Enter');
+    assert.equal(g.run('activeMap === BETHANY_GUEST_ROOM_MAP'), true, 'door interaction outside its approach does nothing');
+    g.run("seraLioraGuestRoomWalk.x=70;seraLioraGuestRoomWalk.y=210;seraLioraGuestRoomWalk.facing='left';");
+    g.press('Enter');
+    assert.equal(g.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'the room door reuses the existing hospital wake');
     assert.equal(g.run('dialogue.name'), 'Esla');
     assert.equal(g.run('seraLioraCutscene.active'), false);
     assert.equal(g.run('window.basin_chamber_dream_done'), false, 'debug preview does not complete story progression');

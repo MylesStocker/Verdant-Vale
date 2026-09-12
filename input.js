@@ -10,11 +10,17 @@ window.addEventListener('keydown', e => {
   if (e.key.startsWith('Arrow')) e.preventDefault();
   if (!keys[e.key]) {  // fire-once for all action keys
     if (seraLioraCutscene.active) {
-      // Fully scripted cutaway: only the established dialogue advance action
-      // is accepted. Movement, menu/Notebook, save/load, debug inspector/menu,
-      // warp, choices, shops, inventory, and every player-mode command stay
-      // unavailable through both spoken and silent transition beats.
-      if (dialogue.open && (e.key === ' ' || e.key === 'Enter')) {
+      // The opening is fully locked until its final page closes. The brief
+      // playable tail accepts only local Sera WASD state and the established
+      // Space/Enter interaction action; ordinary player-mode commands remain
+      // unavailable throughout the cutaway.
+      if (seraLioraCutscene.phase === 'free_walk') {
+        noteSeraLioraMovementKey(e.key);
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          trySeraLioraGuestRoomDoor();
+        }
+      } else if (dialogue.open && (e.key === ' ' || e.key === 'Enter')) {
         e.preventDefault();
         handleInteract();
       }
