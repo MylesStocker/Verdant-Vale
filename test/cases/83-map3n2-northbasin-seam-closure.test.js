@@ -243,7 +243,7 @@ module.exports = {
     const CLASSES = new Set(['ALIGNS', 'INTENTIONAL_DISCRETE', 'BLOCKED', 'BORDER']);
     assert.ok(edges.every((e) => CLASSES.has(e.verdict)), 'every directed edge is ALIGNS / INTENTIONAL_DISCRETE / BLOCKED / BORDER');
     assert.equal(edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 48, BLOCKED: 46 }, 'closure totals: ALIGNS 48 / INTENTIONAL_DISCRETE 4 / BLOCKED 46 / BORDER 22');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 50, BLOCKED: 44 }, 'closure totals: ALIGNS 48 / INTENTIONAL_DISCRETE 4 / BLOCKED 46 / BORDER 22');
 
     // ── C2. Every ALIGNS edge is represented by the fail-closed eligible-seam authority ─
     const alignsEdges = edges.filter((e) => e.verdict === 'ALIGNS').map((e) => e.mapId + '|' + e.dir);
@@ -282,16 +282,17 @@ module.exports = {
       for (const [a, b] of pairs) if (a in parent && b in parent) parent[find(a)] = find(b);
       return find(target);
     };
-    // continuous-only: 3 components — the legacy home (isolated) + the Northern branch +
-    // the southern/basin cluster.
-    assert.equal(components(nodes, contPairs), 3, 'continuous-only graph has 3 components (Verdant Vale isolated; Northern branch separate from the southern/basin cluster)');
-    assert.notEqual(compClass(nodes, contPairs, 'MAP_N1'), compClass(nodes, contPairs, 'MAP3'), 'the Northern Road branch (MAP_N1) is a SEPARATE continuous component from the southern cluster (MAP3)');
+    // continuous-only: 2 components — the legacy home (isolated) + everything else. The
+    // Northern branch now joins the southern/basin cluster through the secret Roddon Way
+    // <-> Northern Road WORLD_HOLLOW seam (MAP_N1.east <-> RODDON_WAY_MAP.west, row 1).
+    assert.equal(components(nodes, contPairs), 2, 'continuous-only graph has 2 components (Verdant Vale isolated; the Northern branch now joins the southern/basin cluster via the secret Roddon Way seam)');
+    assert.equal(compClass(nodes, contPairs, 'MAP_N1'), compClass(nodes, contPairs, 'MAP3'), 'the Northern Road branch (MAP_N1) now shares a continuous component with the southern cluster (MAP3) via the secret Roddon Way seam');
     assert.equal([...new Set(nodes.map((n) => compClass(nodes, contPairs, n)))].filter((c) => nodes.filter((n) => compClass(nodes, contPairs, n) === c).length === 1 && compClass(nodes, contPairs, 'MAP') === c).length, 1, 'Verdant Vale (MAP) is an isolated continuous component');
     // full graph = continuous seams + the intentional-discrete home crossings → 1 component
     assert.equal(components(nodes, contPairs.concat(homePairs)), 1, 'adding the intentional-discrete legacy-home crossings connects all 23 accessible maps into one traversable graph');
     assert.equal(compClass(nodes, contPairs.concat(homePairs), 'MAP_N1'), compClass(nodes, contPairs.concat(homePairs), 'MAP3'), 'with the home crossings, the Northern branch and the southern cluster are in the same component');
     // the reconnection is via the legacy home presentation (INTENTIONAL_DISCRETE), NOT a blocked wall
     assert.equal(V['MAP_N1|south'], 'INTENTIONAL_DISCRETE', 'the Northern branch reconnects through the Verdant Vale legacy boundary (MAP_N1.south is INTENTIONAL_DISCRETE, not BLOCKED)');
-    assert.equal(components(nodes, contPairs.concat(homePairs.filter(([a, b]) => !(a === 'MAP_N1' || b === 'MAP_N1')))), 2, 'removing only the MAP<->MAP_N1 home crossing re-isolates the Northern branch — its sole reconnection is through the legacy home');
+    assert.equal(components(nodes, contPairs.concat(homePairs.filter(([a, b]) => !(a === 'MAP_N1' || b === 'MAP_N1')))), 1, 'removing the MAP<->MAP_N1 home crossing no longer re-isolates the Northern branch — the secret Roddon Way seam is a second reconnection, so the graph stays fully connected (MAP still joins via MAP<->MAP2)');
   },
 };

@@ -7,7 +7,16 @@
 // Forest clusters at rows 2-3 (cols 1-3, 12-14) and rows 10-11 (cols 10-13).
 // MAP_N1’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
-const MAP_N1_ITEMS = [];
+const MAP_N1_ITEMS = [
+  // Examine-only floor sparkle near the east forest wall (col 13, row 1) — a hint
+  // toward the secret WORLD_HOLLOW crossing two tiles east (col 15) into Roddon Way.
+  { id: 'pickup_map_n1_hollow_potion', name: 'Potion', type: 'potion', heals: 20, price: 30,
+    x: 13.5 * TILE, y: 1.5 * TILE, picked: false, examine: true,
+    examinePages: [
+      ['Something glints in the grass at the foot of the treeline.'],
+      ['Got Potion.'],
+    ] },
+];
 
 // ─── Northern World Map 2 — Drenwick Approach  (16 × 15) ─────────────────────
 // Connected to MAP_N1 via a continuous seam at col 7 (MAP_N1.north ↔ MAP_N2.south).
@@ -254,7 +263,7 @@ const NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'MAP_N1', regionId: 'overworld', chunkX: 0, chunkY: 4, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  3,  3,  3,  3,  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 7 = north seam → MAP_N2.south (continuous)
-      [  3,  0,  0,  3,  3,  0,  0,  2,  0,  0,  3,  3,  3,  0,  0,  3],  //  1  road + forest flanks
+      [  3,  0,  0,  3,  3,  0,  0,  2,  0,  0,  3,  3,  3,  0,  0, 73],  //  1  road + forest flanks; col 15 = WORLD_HOLLOW (renders as TREE, secretly walkable) → east seam to RODDON_WAY_MAP
       [  3,  0,  3,  3,  0,  0,  0,  2,  0,  0,  0,  3,  3,  3,  0,  3],  //  2  dense forest NW + NE
       [  3,  3,  3,  0,  0,  0,  0,  2,  0,  0,  0,  0,  3,  3,  3,  3],  //  3  forest breaks
       [  3,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,  3],  //  4  open country

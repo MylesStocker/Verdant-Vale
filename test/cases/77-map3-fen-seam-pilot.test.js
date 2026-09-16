@@ -64,10 +64,10 @@ module.exports = {
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
-    assert.equal(audit.seamReadiness.totals.ALIGNS, 48, 'ALIGNS 48 after Mirewood opens two Silt Flats ranges');
-    assert.equal(audit.seamReadiness.totals.BLOCKED, 46, 'BLOCKED 46 after the final void becomes a placed chunk');
+    assert.equal(audit.seamReadiness.totals.ALIGNS, 50, 'ALIGNS 50 (Mirewood Silt Flats ranges + the secret Roddon Way <-> Northern Road seam)');
+    assert.equal(audit.seamReadiness.totals.BLOCKED, 44, 'BLOCKED 44 (the secret Roddon Way <-> Northern Road seam opened two previously-blocked edges)');
     assert.equal(audit.seamReadiness.totals.BORDER, 22, 'BORDER 22 after the final void fills the regional envelope');
-    assert.equal(g.run('continuousSeamEntries().length'), 68, '68 eligible directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length'), 70, '68 eligible directed segment entries');
     // the new pair derives as two eligible directed seams
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3','north')"), 'MAP3|north is an eligible seam');
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3_N1','south')"), 'MAP3_N1|south is an eligible seam');
@@ -241,7 +241,7 @@ module.exports = {
       ['NORTH_BASIN_W_MAP', 'north'], ['MAP3_N1', 'north'], ['MAP3_N1', 'west'], ['RODDON_WAY_MAP', 'south'],
     ];
     for (const [m, d] of otherPairs) assert.ok(g.run(`!!eligibleContinuousSeam('${m}','${d}')`), `${m}|${d} still eligible`);
-    assert.equal(V['MAP_N1|east'], 'BLOCKED', 'MAP_N1|east still BLOCKED');
+    assert.equal(V['MAP_N1|east'], 'ALIGNS', 'MAP_N1|east is the secret WORLD_HOLLOW seam to Roddon Way (ALIGNS)');
     assert.equal(V['NORTH_BASIN_C_MAP|west'], 'BLOCKED', 'NB_C|west still BLOCKED');
     assert.ok(!audit.seamReadiness.totals.NEEDS_REMAP, 'no NEEDS_REMAP remains — every convertible point crossing has been converted');
 

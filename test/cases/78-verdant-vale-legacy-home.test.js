@@ -186,12 +186,12 @@ module.exports = {
     const audit = require('../transition-audit.js');
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     for (const k of ['MAP|east', 'MAP|north', 'MAP2|west', 'MAP_N1|south']) assert.equal(V[k], 'INTENTIONAL_DISCRETE', `${k} is INTENTIONAL_DISCRETE`);
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 48, BLOCKED: 46 }, 'totals: ALIGNS 48 / NEEDS_REMAP 0 / INTENTIONAL_DISCRETE 4 / BLOCKED 46 / BORDER 22');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 50, BLOCKED: 44 }, 'totals: ALIGNS 48 / NEEDS_REMAP 0 / INTENTIONAL_DISCRETE 4 / BLOCKED 46 / BORDER 22');
     assert.equal(audit.seamReadiness.edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
     // remaining unique NEEDS_REMAP pairs
     const nr = new Set(audit.seamReadiness.edges.filter((e) => e.verdict === 'NEEDS_REMAP').map((e) => [e.mapId, e.neighbor].sort().join('<->')));
     assert.deepEqual([...nr].sort(), [], 'no NEEDS_REMAP pairs remain');
-    assert.equal(g.run('continuousSeamEntries().length'), 68, '68 eligible directed segment entries (34 pairs)');
+    assert.equal(g.run('continuousSeamEntries().length'), 70, '68 eligible directed segment entries (34 pairs)');
 
     // ── 18. Geographic encounter pools correct on MAP / MAP2 / MAP_N1 ───────
     assert.equal(g.run("(function(){resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6*TILE; player.y=6*TILE; __reconcileCanonicalForTest(); return currentEncounterPool()===EARLY_ENEMY_TEMPLATES;})()"), true, 'MAP pool is EARLY_ENEMY_TEMPLATES (geography unaffected by presentation)');
@@ -314,7 +314,7 @@ module.exports = {
     // (8) continuous/continuous BLOCKED pairs remain legal + still BLOCKED in the audit
     const audit2 = require('../transition-audit.js');
     const V2 = {}; for (const e of audit2.seamReadiness.edges) V2[e.mapId + '|' + e.dir] = e.verdict;
-    assert.equal(V2['MAP_N1|east'], 'BLOCKED', 'MAP_N1|east continuous/continuous BLOCKED pair unaffected');
+    assert.equal(V2['MAP_N1|east'], 'ALIGNS', 'MAP_N1|east is the secret WORLD_HOLLOW seam to Roddon Way (row 1) — now ALIGNS');
     assert.equal(V2['NORTH_BASIN_C_MAP|west'], 'BLOCKED', 'NB_C|west BLOCKED pair unaffected');
     assert.equal(g.run("validateGameData().errorList.length"), 0, 'BLOCKED pairs cause no legacy-boundary error');
     // (9) validation + restoration mutated no persistent authored/runtime state

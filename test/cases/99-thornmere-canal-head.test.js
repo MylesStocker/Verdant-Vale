@@ -241,9 +241,9 @@ module.exports = {
     const production = ['movement.js','continuous-seams.js','regional-position.js','save.js','debug-warp.js'].map((file) => fs.readFileSync(path.join(__dirname,'..','..',file),'utf8')).join('\n');
     assert.doesNotMatch(production, /THORNMERE_CANAL_HEAD_MAP/, 'no map-ID movement/save/warp special case');
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 48, BLOCKED: 46 });
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 50, BLOCKED: 44 });
     assert.equal(audit.seamReadiness.edges.length, 120);
-    assert.equal(g.run('continuousSeamEntries().length'), 68); assert.equal(g.run('continuousSeamEntries().length/2'), 34);
+    assert.equal(g.run('continuousSeamEntries().length'), 70); assert.equal(g.run('continuousSeamEntries().length/2'), 35);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 30);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 23);
     assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 131);

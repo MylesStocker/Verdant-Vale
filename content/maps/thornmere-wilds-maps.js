@@ -663,7 +663,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
   { mapId: 'RODDON_WAY_MAP', regionId: 'overworld', chunkX: 1, chunkY: 4, map: [
       //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
       [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3],  //  0  border
-      [   3,   0, 111, 111,   0,   0,   0,   0,   0,  23,  23,   1,   1,   0,   0,   3],  //  1  terminus knob; N pool c11-12
+      [  73,   0, 111, 111,   0,   0,   0,   0,   0,  23,  23,   1,   1,   0,   0,   3],  //  1  terminus knob; N pool c11-12; col 0 = WORLD_HOLLOW (renders as TREE, secretly walkable) → west seam to MAP_N1
       [   3, 111, 111, 111, 111,   0, 111,   0,  23,  23,  23,   0,   0,   0,   0,   3],  //  2  terminus curve; viewpoint bulge c6; reed hollow c8-10
       [   3,   0, 111, 111, 111, 111, 111, 111, 111,   0,   0,   0,   0,   0,   0,   3],  //  3  bend 2 into the middle leg
       [   3,   0,   0,   0,   0, 111, 111, 111, 111,   0,   0,   0,   0, 111, 111, 111],  //  4  middle leg; bend 1 begins c8; entry flare c13-15 → mouth (col 15) opens to MAP3_N1

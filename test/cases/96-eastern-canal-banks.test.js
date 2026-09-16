@@ -312,10 +312,10 @@ module.exports = {
     }
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 48, BLOCKED: 46 });
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 50, BLOCKED: 44 });
     assert.equal(audit.seamReadiness.edges.length, 120);
-    assert.equal(g.run('continuousSeamEntries().length'), 68, '68 directed segment entries');
-    assert.equal(g.run('continuousSeamEntries().length/2'), 34, '34 reciprocal segment pairs');
+    assert.equal(g.run('continuousSeamEntries().length'), 70, '68 directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length/2'), 35, '34 reciprocal segment pairs');
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 30);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 23);
   },

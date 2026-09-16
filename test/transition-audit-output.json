@@ -9958,6 +9958,20 @@
     },
     {
       "srcMap": "RODDON_WAY_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        1
+      ],
+      "targetMap": "MAP_N1",
+      "targetEdge": "east",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "RODDON_WAY_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
@@ -10134,6 +10148,20 @@
       ],
       "targetMap": "MAP_N2",
       "targetEdge": "south",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAP_N1",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        1
+      ],
+      "targetMap": "RODDON_WAY_MAP",
+      "targetEdge": "west",
       "walkableSources": 1,
       "bad": [],
       "allOk": true
@@ -11633,9 +11661,9 @@
         "chunkY": 4,
         "dir": "west",
         "neighbor": "MAP_N1",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAP_N1",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP3_N1",
@@ -11823,9 +11851,9 @@
         "chunkY": 4,
         "dir": "east",
         "neighbor": "RODDON_WAY_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "RODDON_WAY_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAP_N1",
@@ -12481,8 +12509,8 @@
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
       "BORDER": 22,
-      "ALIGNS": 48,
-      "BLOCKED": 46
+      "ALIGNS": 50,
+      "BLOCKED": 44
     }
   }
 }

@@ -57,8 +57,8 @@ module.exports = {
     assert.equal(R('continuousWorldViewActive()'), false, 'returning to MAP suppresses continuous automatically');
 
     // ── 7. All 68 eligible directed segment entries operate under the default ──
-    assert.equal(R('continuousSeamEntries().length'), 68, '68 eligible directed segment entries');
-    assert.equal(R('continuousSeamEntries().length/2'), 34, '34 reciprocal segment pairs');
+    assert.equal(R('continuousSeamEntries().length'), 70, '68 eligible directed segment entries');
+    assert.equal(R('continuousSeamEntries().length/2'), 35, '34 reciprocal segment pairs');
     // every seam endpoint is a continuous map that is active-by-default
     assert.equal(R("continuousSeamEntries().every(function(e){return continuousSeamMapEligible(e.from);})"), true, 'every seam map is continuous-eligible under the default');
 
@@ -101,9 +101,9 @@ module.exports = {
 
     // ── 10. BLOCKED / BORDER edges remain impassable (derived audit totals) ────
     const audit = require('../transition-audit.js').seamReadiness.totals;
-    assert.equal(audit.BLOCKED, 46, 'BLOCKED edges');
+    assert.equal(audit.BLOCKED, 44, 'BLOCKED edges');
     assert.equal(audit.BORDER, 22, 'BORDER edges');
-    assert.equal(audit.ALIGNS, 48, 'ALIGNS physical edges');
+    assert.equal(audit.ALIGNS, 50, 'ALIGNS physical edges');
     assert.equal(audit.INTENTIONAL_DISCRETE, 4, "MAP's four intentional-discrete crossings unchanged");
 
     // ── 11. Nonregional / discrete contexts stay legacy under the default ─────

@@ -1753,6 +1753,12 @@ const EDGE_TRANSITIONS = {
     east: [
       { targetMap: 'MAP3_N1', targetEdge: 'west', sourceRange: [4, 9] },
     ],
+    // West edge: the reciprocal secret crossing at row 1 into MAP_N1 (Northern Road).
+    // RODDON col 0 / MAP_N1 col 15 are both WORLD_HOLLOW (render as the TREE border but
+    // walkable), so the passage is hidden. The rest of the west edge stays solid border.
+    west: [
+      { targetMap: 'MAP_N1', targetEdge: 'east', sourceRange: [1, 1] },
+    ],
     // South edge: two open crossings down into the Eastern Reaches (MAP2)'s
     // north edge — a single-tile gap at col 5 and the wider cols 12-14 fen gap.
     // Both are deliberately roadless — you leave the ridge and cut across open
@@ -1821,6 +1827,13 @@ const EDGE_TRANSITIONS = {
   MAP_N1: {
     north: [
       { targetMap: 'MAP_N2', targetEdge: 'south', sourceRange: [7, 7] },
+    ],
+    // East edge: a single secret crossing at row 1 into RODDON_WAY_MAP (Roddon Way).
+    // Both border cells (MAP_N1 col 15 / RODDON col 0) are WORLD_HOLLOW — they render
+    // as the surrounding TREE wall but are walkable, so the passage is hidden. The
+    // rest of the east edge stays solid forest border. Reciprocal of RODDON_WAY_MAP.west.
+    east: [
+      { targetMap: 'RODDON_WAY_MAP', targetEdge: 'west', sourceRange: [1, 1] },
     ],
   },
   // South edge: the single col-7 PATH into MAP_N1 (Northern Road). MAP_N2's south edge
