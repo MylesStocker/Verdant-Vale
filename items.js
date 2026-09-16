@@ -102,6 +102,12 @@ const ITEM_REGISTRY = {
   // and costs the turn. Henbane kills the hen (female); Jackbane the jack (male).
   'Henbane Sprig':   { name: 'Henbane Sprig',    type: 'reagent', sexBane: 'female', price: 8 },
   'Jackbane Vial':   { name: 'Jackbane Vial',    type: 'reagent', sexBane: 'male',   price: 8 },
+  // Trollbane — a cheap fen bane that seizes up a regenerating brute (the Rotwood
+  // Troll). Used in combat: it staggers the enemy for the turn (no counter) and
+  // holds its rot slack so it can't self-heal for `stunTurns` turns after (see
+  // combat.js's 'stun' item branch + enemyRegenEntry). Wasted on anything that
+  // doesn't regenerate. battleOnly keeps it out of the field-use menu.
+  'Trollbane':       { name: 'Trollbane',        type: 'stun',    stunTurns: 3, battleOnly: true, price: 15 },
   // Fen Brewery — Gorrit Wend sells freshly made mushroom wine directly (distinct
   // from the tavern's by-the-cup 'Mushroom Wine'); bought as a gift, not a heal item.
   'Bottle of Mushroom Wine': { name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12,  questItem: true },

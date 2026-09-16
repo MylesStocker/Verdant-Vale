@@ -524,9 +524,10 @@ function interactTownOutdoor() {
           dialogue.name  = 'Overseer Mault';
           dialogue.pages = [
             ['Mault. District Infrastructure.',
-             'You\u2019re the one who cleared the east sluice. I read the report.'],
+             'You\u2019re the imperial investigator posted to Calwick, yes? Then I\u2019ll ask you a favour \u2014 one office to another.'],
             ['There\u2019s a Briar Warden denning in the old spring meadow, the far northwest corner of the vale. Three weeks now.',
              'Won\u2019t leave on its own.'],
+            ['I\u2019d have thought the Empire that keeps half the world in order could turn one bramble out of one meadow. But here we are, and here you stand.'],
             ['The way in is grown over \u2014 so you will have to fit the way in yourself west of the town road. You\u2019ll find the clearing.'],
             ['We\u2019ve posted a removal contract.',
              'A hundred and twenty gold, paid on confirmed removal.',

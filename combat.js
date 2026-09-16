@@ -332,6 +332,7 @@ const combat = {
   observeCount:      0,
   evadeTurns:        0,     // remaining turns of Bullet Time's heightened evade (0 = none)
   // ── Per-fight enemy-mechanic state (battle-local ONLY; reset by endCombat) ──
+  enemyStunTurns:    0,     // Trollbane: turns the enemy's self-heal (regenPerTurn) stays suppressed (0 = none)
   corrosion:         0,     // Dripping Maw acid: accumulated combat-only DEF loss (0 = none)
   isSeepSplit:       false, // The Seep divides on defeat into a sequential follow-up
   seepSplitRemaining: 0,    // Seep follow-up fights still to come (0 = last/only)
@@ -597,6 +598,7 @@ function endCombat() {
   combat.escapeUnlocked            = false;
   combat.observeCount      = 0;
   combat.evadeTurns        = 0;
+  combat.enemyStunTurns    = 0;     // Trollbane's heal-lock is battle-local — it never carries between fights
   combat.corrosion         = 0;     // acid armor-melt is combat-only — cleared with the fight
   combat.isSeepSplit       = false;
   combat.seepSplitRemaining = 0;
@@ -1094,6 +1096,17 @@ function enemyRegenEntry() {
   const e = combat.enemy;
   if (!e || !e.regenPerTurn || combat.pendingVictory) return null;
   const heal = Math.min(e.regenPerTurn, e.maxHp - e.hp);
+  // Trollbane stun: while it holds, the enemy can't knit its rot back. Each
+  // regen-eligible turn (Attack / Observe / item — the only turns that reach
+  // here) burns one turn off the stun, whether or not it had HP to recover.
+  if (combat.enemyStunTurns > 0) {
+    combat.enemyStunTurns--;
+    if (heal <= 0) return null;
+    return {
+      text: `The ${e.name} strains to close its wounds — the Trollbane holds its rot slack.`,
+      apply() {},
+    };
+  }
   if (heal <= 0) return null;
   return {
     text: `The ${e.name} knits its rot back together (+${heal} HP).`,
@@ -1926,6 +1939,21 @@ function handleCombatAction() {
       if (combat.enemy.hp <= 0) {
         applyKillRewards(msgs);
         enemyActs = false; // nothing left to strike back
+      }
+    } else if (item.type === 'stun') {
+      // Trollbane. On a regenerating enemy (the Rotwood Troll) it seizes it up:
+      // the enemy reels this turn (no counter, enemyActs = false) and can't
+      // self-heal for the next few turns (combat.enemyStunTurns, gated in
+      // enemyRegenEntry). On anything that doesn't regenerate it does nothing and
+      // the turn is wasted, matching a mismatched reagent. Consumed either way.
+      stats.items.splice(stats.items.indexOf(item), 1);
+      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      if (combat.enemy.regenPerTurn) {
+        combat.enemyStunTurns = item.stunTurns;
+        enemyActs = false;
+        msgs.push(`Used ${item.name} — the ${combat.enemy.name} seizes up, its rot going grey and slack. It won't be mending itself for a while.`);
+      } else {
+        msgs.push(`Used ${item.name} — it does nothing to the ${combat.enemy.name}. Wasted on this one.`);
       }
     } else {
       equipItem(item);

@@ -924,7 +924,7 @@ const CALWICK_NPCS = [
         dialogue.pages = [
           ['\u201cHe\u2019s still in there.\u201d',
            'He says it quietly, without looking up.',
-           '\u201cThe east dungeon. Bram told me that\u2019s where it went.\u201d'],
+           '\u201cThe south ruins. Bram told me that\u2019s where it went.\u201d'],
         ];
       } else {
         dialogue.name  = 'Pip';
@@ -934,7 +934,7 @@ const CALWICK_NPCS = [
            '\u201cI know because of the badge.\u201d'],
           ['\u201cMy bear is missing. His name is Schilling.\u201d',
            '\u201cSomething took him. Something large.\u201d',
-           '\u201cIt went into the dungeon east of here.\u201d'],
+           '\u201cIt went into the south ruins.\u201d'],
           ['\u201cHe\u2019s a toy. He can\u2019t do anything.\u201d',
            '\u201cBut he\u2019s mine.\u201d'],
         ];

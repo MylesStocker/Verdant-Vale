@@ -1907,12 +1907,13 @@ NPC_ACTIONS.noraReagentShop = function(npc) {
   dialogue.name  = npc.name;
   dialogue.pages = [
     ['“Local herbs and remedies, love — dried marsh herb, pickled root, and a few things you’ll not find dry-side.”',
-     '“Henbane sprig and Jackbane vial, if you’re after those. Eight gold each.”'],
+     '“Henbane sprig and Jackbane vial, if you’re after those. Eight gold each.”',
+     '“And a twist of trollbane — fifteen. Good against the sort of thing that stitches itself back up faster than you can cut it.”'],
     ['“What they’re good for, you likely know better than me. I only gather and sell.”'],
   ];
   dialogue.callbacks = [function() {
     choice.title   = npc.name;
-    choice.options = ['Henbane Sprig  (8g)', 'Jackbane Vial  (8g)', 'No thank you'];
+    choice.options = ['Henbane Sprig  (8g)', 'Jackbane Vial  (8g)', 'Trollbane  (15g)', 'No thank you'];
     choice.cursor  = 0;
     choice.callbacks = [
       function buyHen() {
@@ -1927,6 +1928,13 @@ NPC_ACTIONS.noraReagentShop = function(npc) {
         if (stats.gold >= 8) { stats.gold -= 8; grantItem('Jackbane Vial');
           dialogue.pages = [['“Good pick. Keep it dry till you need it.”']]; }
         else { dialogue.pages = [['“Eight gold, love. Come back when you’ve got it.”']]; }
+        dialogue.open = true; dialogue.page = 0;
+      },
+      function buyTrollbane() {
+        dialogue.name = npc.name;
+        if (stats.gold >= 15) { stats.gold -= 15; grantItem('Trollbane');
+          dialogue.pages = [['“Toss it when the brute starts knitting itself whole. Takes the mend right out of it.”']]; }
+        else { dialogue.pages = [['“Fifteen gold, love. Come back when you’ve got it.”']]; }
         dialogue.open = true; dialogue.page = 0;
       },
       function leave() {},
