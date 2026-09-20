@@ -203,6 +203,15 @@ function drawContinuousWorld() {
 function render() {
   titleEl.textContent = locationName();
 
+  if (formationCombatLab.isActive()) {
+    const view = formationSessionController.getView();
+    if (combat.mode !== 'formation' || !view) throw new Error('Invalid formation lab presentation state');
+    drawCombat(view);
+    drawFormationLabHints();
+    tick++;
+    return;
+  }
+
   if (combat.active) {
     // Combat screen replaces the world entirely
     drawCombat();

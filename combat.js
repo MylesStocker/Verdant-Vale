@@ -187,12 +187,25 @@ function speedWinChance(own, other) {
 // Never below 1. Returns { dmg, crit } so callers can flag a critical.
 const CRIT_CHANCE = 0.10;
 const CRIT_MULT   = 1.5;
+const ATTACK_VARIANCE_MIN = 0.8;
+const ATTACK_VARIANCE_SPAN = 0.4;
+
+// Pure arithmetic shared by real rolls and formation numeric preflight. Keep
+// each operation (including critical-before-rounding) in its original order.
+// Fractional intermediates are intentional; the recorded damage is an integer.
+function attackDamageNumbers(atk, def, variance, crit) {
+  const variedAtk = atk * variance;
+  const mitigated = variedAtk - def;
+  let unroundedDamage = mitigated;
+  if (crit) unroundedDamage *= CRIT_MULT;
+  return { variedAtk, mitigated, unroundedDamage,
+    dmg: Math.max(1, Math.round(unroundedDamage)) };
+}
+
 function rollAttackDamage(atk, def) {
-  const variance = 0.8 + Math.random() * 0.4;   // 0.8 .. 1.2
+  const variance = ATTACK_VARIANCE_MIN + Math.random() * ATTACK_VARIANCE_SPAN;
   const crit = Math.random() < CRIT_CHANCE;
-  let dmg = atk * variance - def;
-  if (crit) dmg *= CRIT_MULT;
-  return { dmg: Math.max(1, Math.round(dmg)), crit };
+  return { dmg: attackDamageNumbers(atk, def, variance, crit).dmg, crit };
 }
 
 function equipItem(item) {
@@ -291,12 +304,36 @@ function itemStatParen(item) {
 }
 
 // ─── Combat state ─────────────────────────────────────────────────────────────
+// Session-only identity; template ids still own all data/sprite/behavior dispatch.
+let combatEnemyInstanceSequence = 0;
+let combatMode = null;
+let combatActive = false;
+// Provenance only, not another outcome authority. Issued after the ordinary
+// victory acknowledgement has finished all its work; never issued by an abort,
+// defeat, escape, or a scripted victory that still owns dialogue/handoffs.
+let completedSingleVictoryReceipt = null;
+
 const combat = {
-  active:         false,
+  get mode() { return combatMode; },
+  get active() { return combatActive; },
+  set active(value) {
+    if (value && combatMode === 'formation') {
+      throw new Error('Formation state cannot activate combat');
+    }
+    combatActive = value;
+  },
   phase:          'choose',  // 'choose' | 'item' | 'message' | 'victory' | 'defeat'
   cursor:         0,
   itemCursor:     0,
-  enemy:          null,
+  enemies:        Object.freeze([]), // sole enemy storage; fixed initialized membership
+  get enemy() {
+    if (combatMode === 'formation') throw new Error('Formation state has no singleton enemy');
+    if (!Array.isArray(combat.enemies) || combat.enemies.length > 1) {
+      throw new Error('Singleton combat requires zero or one enemy');
+    }
+    return combat.enemies.length === 0 ? null : combat.enemies[0];
+  },
+  set enemy(value) { setSingleCombatEnemy(value); },
   messageQueue:   [],
   message:        '',
   pendingVictory: false,
@@ -326,10 +363,24 @@ const combat = {
   // the save payload). The route quest item the player grabbed through the web,
   // held pending until victory or a successful Observe-gated escape finalizes it.
   pendingLighthouseObjective: null,
-  // Battle-local escape unlock set by Observe on a `runLock:'observe_gated'` enemy.
-  // Makes Run a guaranteed success for the rest of THIS battle; cleared on endCombat.
-  escapeUnlocked:    false,
-  observeCount:      0,
+  // Legacy test/smoke-fixture projections only; Observe and Run use their
+  // explicit enemy. No value is stored here, including while combat is empty.
+  get escapeUnlocked() {
+    const enemy = combat.enemy;
+    return enemy ? enemy.escapeUnlocked : false;
+  },
+  set escapeUnlocked(value) {
+    const enemy = combat.enemy;
+    if (enemy) enemy.escapeUnlocked = value;
+  },
+  get observeCount() {
+    const enemy = combat.enemy;
+    return enemy ? enemy.observeCount : 0;
+  },
+  set observeCount(value) {
+    const enemy = combat.enemy;
+    if (enemy) enemy.observeCount = value;
+  },
   evadeTurns:        0,     // remaining turns of Bullet Time's heightened evade (0 = none)
   // ── Per-fight enemy-mechanic state (battle-local ONLY; reset by endCombat) ──
   enemyStunTurns:    0,     // Trollbane: turns the enemy's self-heal (regenPerTurn) stays suppressed (0 = none)
@@ -341,8 +392,663 @@ const combat = {
   bombFuse:          0,     // Bomb: player-turns left until it detonates (0 = none armed)
   bombDamage:        0,     // damage the armed Bomb will deal when it goes off
   bombIgnoresDef:    false, // whether that detonation ignores the target's DEF
+  bombTargetInstanceId: null, // session-only identity of the single armed Bomb's target
   bombJustArmed:     false, // true only on the turn a Bomb is primed (that turn doesn't count)
 };
+
+// Collection-writing authority: the singleton setter and the gated state-only
+// initializer below. No encounter calls the latter. Cleanup assigns null.
+function setSingleCombatEnemy(enemy) {
+  if (enemy === null) {
+    completedSingleVictoryReceipt = null;
+    combat.enemies = Object.freeze([]);
+    combatMode = null;
+    formationSessionController.clearAfterCombatCleanup();
+    return;
+  }
+  if (combatMode === 'formation') throw new Error('Clear formation state before initializing a singleton');
+  const instance = createCombatEnemyInstance(enemy, 0);
+  completedSingleVictoryReceipt = null;
+  combat.enemies = Object.freeze([instance]);
+  combatMode = 'single';
+}
+
+// Shared runtime construction. Singleton inputs preserve their existing flat
+// authored/overridden fields; formation inputs are fully validated flat records.
+function createCombatEnemyInstance(enemy, slot) {
+  if (typeof enemy !== 'object' || Array.isArray(enemy)) {
+    throw new Error('Singleton combat enemy must be an object or null, not an array');
+  }
+  if ('instanceId' in enemy || 'slot' in enemy) {
+    throw new Error('Combat enemy input contains reserved instanceId or slot metadata');
+  }
+  if ('observeCount' in enemy || 'escapeUnlocked' in enemy) {
+    throw new Error('Combat enemy input contains reserved observation state');
+  }
+  const instance = { ...enemy };
+  Object.defineProperties(instance, {
+    // Mutable runtime-only ownership. Non-enumerable so legacy template-shaped
+    // record copies/comparisons stay unchanged; every new instance starts fresh.
+    observeCount: { value: 0, writable: true },
+    escapeUnlocked: { value: false, writable: true },
+    instanceId: { value: 'combat_enemy_' + (++combatEnemyInstanceSequence), enumerable: true },
+    slot: { value: slot, enumerable: true },
+  });
+  return instance;
+}
+
+// State-construction approval, NOT permission to run these encounters together.
+// Keep this deliberately small: new identities require an explicit contract
+// review even when their stats look ordinary (some behavior is keyed by id).
+const FORMATION_STATE_TEMPLATE_IDS = Object.freeze([
+  'enemy_marsh_wisp', 'enemy_briar_hound',
+  'enemy_marsh_wisp_early', 'enemy_briar_hound_early',
+  'enemy_reed_grappler', 'enemy_silt_lurker',
+  'enemy_marsh_wisp_sluice_top', 'enemy_sluice_slime',
+]);
+const FORMATION_STATE_DATA_FIELDS = Object.freeze([
+  'id', 'name', 'hp', 'maxHp', 'atk', 'def', 'spd', 'xp', 'goldMin', 'goldMax',
+]);
+// All current behavior-bearing template fields, plus reflection supported by
+// singleton combat. None has formation execution semantics yet.
+const FORMATION_STATE_UNSUPPORTED_FIELDS = Object.freeze([
+  'defendChance', 'curseChance', 'acidChance', 'splits', 'regenPerTurn',
+  'meleeArmor', 'counterChance', 'poisonChance', 'sex', 'dazzleChance',
+  'stealAndFlee', 'runLock', 'guaranteedDrop', 'inline', 'thornsReflect',
+]);
+
+// Internal and deliberately inactive; only the developer lab calls this.
+// Requires an empty, inactive state; does not clear a battle,
+// set flags, queue messages, calculate sprites, or grant any rewards.
+function initializeFormationState(descriptors) {
+  if (combat.active || combatMode !== null || combat.enemies.length !== 0) {
+    throw new Error('Formation state requires empty inactive combat');
+  }
+  if (!Array.isArray(descriptors) || descriptors.length < 2 || descriptors.length > 3 ||
+      Reflect.ownKeys(descriptors).length !== descriptors.length + 1) {
+    throw new Error('Formation state requires exactly two or three descriptors');
+  }
+  // Validate ALL descriptors/templates before allocating identities or touching
+  // state. Read data descriptors, never invoke authored getters. Exact slot order
+  // rejects gaps, ambiguity and reorderings rather than silently sorting them.
+  const templates = [];
+  for (let slot = 0; slot < descriptors.length; slot++) {
+    const entry = Object.getOwnPropertyDescriptor(descriptors, String(slot));
+    const descriptor = entry && entry.value;
+    if (!descriptor || typeof descriptor !== 'object' || Array.isArray(descriptor) ||
+        ![Object.getPrototypeOf({}), null].includes(Object.getPrototypeOf(descriptor))) {
+      throw new Error('Formation member must be a plain enemyId/slot descriptor');
+    }
+    const fields = Object.getOwnPropertyDescriptors(descriptor);
+    if (Reflect.ownKeys(fields).length !== 2 || !fields.enemyId || !fields.slot ||
+        !Object.hasOwn(fields.enemyId, 'value') || !Object.hasOwn(fields.slot, 'value') ||
+        fields.slot.value !== slot || typeof fields.enemyId.value !== 'string') {
+      throw new Error('Formation descriptor requires only enemyId and ordered integer slot');
+    }
+    const id = fields.enemyId.value;
+    const registered = Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY, id);
+    if (!registered || !Object.hasOwn(registered, 'value')) {
+      throw new Error('Unknown formation template: ' + id);
+    }
+    const template = registered.value;
+    if (!template || Object.getPrototypeOf(template) !== Object.getPrototypeOf({})) {
+      throw new Error('Formation template must be plain data: ' + id);
+    }
+    const data = Object.getOwnPropertyDescriptors(template);
+    const copy = {};
+    for (const key of Reflect.ownKeys(data)) {
+      if (FORMATION_STATE_UNSUPPORTED_FIELDS.includes(key)) {
+        throw new Error('Unsupported formation capability: ' + String(key));
+      }
+      if (!FORMATION_STATE_DATA_FIELDS.includes(key) || !Object.hasOwn(data[key], 'value')) {
+        throw new Error('Unknown formation template field: ' + String(key));
+      }
+      copy[key] = data[key].value;
+    }
+    if (!FORMATION_STATE_TEMPLATE_IDS.includes(id)) {
+      throw new Error('Template is not approved for formation state (singleton contract or unreviewed): ' + id);
+    }
+    if (copy.id !== id || typeof copy.name !== 'string' ||
+        FORMATION_STATE_DATA_FIELDS.slice(2).some(key => !Number.isFinite(copy[key]))) {
+      throw new Error('Invalid formation template data: ' + id);
+    }
+    templates.push(copy);
+  }
+  const members = templates.map((template, slot) => createCombatEnemyInstance(template, slot));
+  completedSingleVictoryReceipt = null;
+  combat.enemies = Object.freeze(members);
+  combatMode = 'formation';
+}
+
+// Resolve membership, not life: legacy deferred trades/rewards can still use a
+// zero-HP member. Never substitute a replacement, even with the same template id.
+function findCombatEnemy(instanceId) {
+  if (typeof instanceId !== 'string' || !Array.isArray(combat.enemies)) return null;
+  if (combatMode === 'formation') {
+    return combat.enemies.find(enemy => enemy.instanceId === instanceId) || null;
+  }
+  if (!combat.active || combatMode !== 'single' || combat.enemies.length !== 1) return null;
+  const enemy = combat.enemies[0];
+  return enemy && enemy.instanceId === instanceId ? enemy : null;
+}
+
+function isActiveCombatEnemy(enemy) {
+  return combat.active && combatMode === 'single' && !!enemy && findCombatEnemy(enemy.instanceId) === enemy;
+}
+
+// Keep the existing { text, apply } queue and its timing. Only the instance id
+// crosses the deferred boundary; stale callbacks do nothing (including no RNG).
+function bindCombatEnemyEffect(instanceId, effect) {
+  return function() {
+    const enemy = findCombatEnemy(instanceId);
+    if (isActiveCombatEnemy(enemy)) effect(enemy);
+  };
+}
+
+// Formation-only guard, never called by singleton combat. IEEE-754 operations
+// here are monotone in variance, so both endpoints cover every possible roll,
+// for both critical branches. Use the greatest representable random value < 1:
+// simply adding MIN + SPAN would round to a different upper bound in JS.
+function formationAttackNumbersAreSafe(atk, def) {
+  const maxRandom = 1 - Number.EPSILON / 2;
+  const variances = [ATTACK_VARIANCE_MIN,
+    ATTACK_VARIANCE_MIN + maxRandom * ATTACK_VARIANCE_SPAN];
+  return variances.every(variance => [false, true].every(crit => {
+    const numbers = attackDamageNumbers(atk, def, variance, crit);
+    // Do not let defence subtraction or the minimum-one floor conceal an
+    // out-of-domain intermediate. Raw fractions need bounded magnitude, not
+    // integerness; the final recorded attemptedDamage must be a safe integer.
+    return Object.values(numbers).every(value => Number.isFinite(value) &&
+      Math.abs(value) <= Number.MAX_SAFE_INTEGER) && Number.isSafeInteger(numbers.dmg);
+  }));
+}
+
+// Read-only structural/capability validation shared with the headless session.
+// Omit the action only before targeting; a supplied action must be a valid
+// basic Attack. Target-dependent numeric safety remains in resolver preflight.
+// Shared strict neutral-bookkeeping contract. Entry preparation may normalize
+// only the three receipted terminal fields, never relax this execution gate.
+const FORMATION_NEUTRAL_COMBAT_STATE = Object.freeze({
+  phase:'choose', message:'', pendingVictory:false, pendingDefeat:false, pendingEscape:false,
+  flashTimer:0, fireCastTimer:0, polwickHasCast:false,
+  isBoss:false, isWarden:false, isFortGuard:false, isFortPolwick:false, isFortEssa:false,
+  isMulholland:false, isPaleSentry:false, isRainfish:false, rainfishRemaining:0,
+  isMireToadSpawn:false, mireToadRemaining:0, isDenWraith:false, isSailorBrawl:false,
+  isTakomo:false, is23:false, isLenswebSpider:false, pendingLighthouseObjective:null,
+  evadeTurns:0, enemyStunTurns:0, corrosion:0, isSeepSplit:false, seepSplitRemaining:0,
+  gullStole:false, gullStolenAmount:0, bombFuse:0, bombDamage:0, bombIgnoresDef:false,
+  bombTargetInstanceId:null, bombJustArmed:false,
+});
+
+function completedSingleVictoryCandidate() {
+  const enemy = combat.enemy; // acknowledged singleton lifecycle boundary
+  return isActiveCombatEnemy(enemy) && enemy.hp === 0 && stats.hp > 0 &&
+    combat.pendingVictory === true && combat.pendingDefeat === false && combat.pendingEscape === false &&
+    Array.isArray(combat.messageQueue) && combat.messageQueue.length === 0 && typeof combat.message === 'string' &&
+    combat.rainfishRemaining === 0 && combat.mireToadRemaining === 0 && combat.seepSplitRemaining === 0 &&
+    combat.pendingLighthouseObjective === null && !dialogue.open && dialogue.callbacks === null &&
+    dialogue.triggerEncounterId === null
+    ? Object.freeze({message:combat.message, queue:combat.messageQueue}) : null;
+}
+
+// Explicit handoff, not ordinary cleanup and not an initializer side effect.
+// An empty queue and pendingVictory alone cannot prove finalization: require
+// the receipt issued by the real, completed ordinary-victory acknowledgement.
+// Bespoke after-dialogue/sequence exits remain unsupported rather than guessed.
+function prepareFormationEntry() {
+  const fail = () => { throw new Error('Unsupported formation entry: combat is not safely finalized'); };
+  const emptyArray = value => Array.isArray(value) && value.length === 0 &&
+    Object.getPrototypeOf(value) === Object.getPrototypeOf([]) && Reflect.ownKeys(value).length === 1;
+  if (combat.mode !== null || combat.active !== false || !emptyArray(combat.enemies) ||
+      !Object.isFrozen(combat.enemies) ||
+      formationSessionController.getView() !== null || dialogue.open !== false ||
+      dialogue.callbacks !== null || dialogue.triggerEncounterId !== null ||
+      seraLioraCutscene.active || fishing.active || menu.open || choice.open || shop.open ||
+      warpMenu.open || accordPanel.open || continentMap.open || !Number.isFinite(stats.hp) || stats.hp <= 0) fail();
+  const fields = Object.getOwnPropertyDescriptors(combat);
+  const neutral = FORMATION_NEUTRAL_COMBAT_STATE;
+  const receipt = completedSingleVictoryReceipt;
+  const terminal = fields.phase?.value === 'victory';
+  if (terminal && (!receipt || fields.message?.value !== receipt.message ||
+      fields.messageQueue?.value !== receipt.queue || fields.pendingVictory?.value !== true)) fail();
+  const expected = terminal ? {...neutral, phase:'victory', message:receipt.message, pendingVictory:true} : neutral;
+  if (Object.entries(expected).some(([key,value]) => fields[key]?.value !== value || fields[key].writable !== true) ||
+      Reflect.ownKeys(fields).some(key => ![...Object.keys(neutral), 'mode','active','enemy','enemies',
+        'observeCount','escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(key)) ||
+      !emptyArray(fields.messageQueue?.value) ||
+      ['cursor','itemCursor','cooldown'].some(key => !Number.isSafeInteger(fields[key]?.value) || fields[key].value < 0)) fail();
+  // Every rejection is above the write boundary. Preserve queue identity,
+  // cooldown, cursors, player state, flags, and the historical singleton path.
+  combat.phase = 'choose';
+  combat.message = '';
+  combat.pendingVictory = false;
+  completedSingleVictoryReceipt = null;
+}
+
+function validateFormationBasicAttackState(action) {
+  const fail = () => { throw new Error('Unsupported formation basic Attack state or action'); };
+  // Reject getters/prototype behavior before reading supplied/runtime records.
+  const dataRecord = (value, allowed) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value) ||
+        ![Object.getPrototypeOf({}), null].includes(Object.getPrototypeOf(value))) fail();
+    const fields = Object.getOwnPropertyDescriptors(value);
+    if (Reflect.ownKeys(fields).some(key => !allowed.includes(key) || !Object.hasOwn(fields[key], 'value'))) fail();
+    return fields;
+  };
+  let targetInstanceId = null;
+  if (arguments.length) {
+    const actionFields = dataRecord(action, ['type', 'targetInstanceId']);
+    if (actionFields.type?.value !== 'attack' || typeof actionFields.targetInstanceId?.value !== 'string') fail();
+    targetInstanceId = actionFields.targetInstanceId.value;
+  }
+  const members = combat.enemies;
+  if (combat.mode !== 'formation' || combat.active !== false || !Array.isArray(members) ||
+      !Object.isFrozen(members) || members.length < 2 || members.length > 3 ||
+      Reflect.ownKeys(members).length !== members.length + 1 ||
+      Object.getPrototypeOf(members) !== Object.getPrototypeOf([])) fail();
+  for (let slot = 0; slot < members.length; slot++) {
+    if (!Object.hasOwn(Object.getOwnPropertyDescriptor(members, String(slot)) || {}, 'value')) fail();
+  }
+
+  // An idle cursor/cooldown is presentation/exploration state, not a mechanic.
+  // Everything else must be neutral, including stale pending singleton work.
+  const neutral = FORMATION_NEUTRAL_COMBAT_STATE;
+  const battleFields = Object.getOwnPropertyDescriptors(combat);
+  if (Object.entries(neutral).some(([key,value]) => battleFields[key]?.value !== value) ||
+      !Array.isArray(battleFields.messageQueue?.value) || battleFields.messageQueue.value.length !== 0 ||
+      Reflect.ownKeys(battleFields).some(key => ![...Object.keys(neutral), 'mode', 'active', 'enemies',
+        'enemy', 'observeCount', 'escapeUnlocked', 'messageQueue', 'cursor', 'itemCursor', 'cooldown'].includes(key)) ||
+      !Array.isArray(statusEffects) || statusEffects.length !== 0) fail();
+
+  const numericFields = ['hp', 'maxHp', 'atk', 'def', 'spd'];
+  const validStats = value => numericFields.every(key => Number.isSafeInteger(value[key]) && value[key] >= 0) &&
+    value.maxHp > 0 && value.hp <= value.maxHp;
+  const playerFields = Object.getOwnPropertyDescriptors(stats);
+  if (numericFields.some(key => !playerFields[key] || !Object.hasOwn(playerFields[key], 'value')) ||
+      !validStats(stats) || stats.hp === 0 || playerFields.hp.writable !== true) fail();
+  for (const slot of ['weapon', 'armor', 'shield', 'accessory']) {
+    if (!playerFields[slot] || !Object.hasOwn(playerFields[slot], 'value')) fail();
+    const gear = playerFields[slot].value;
+    if (gear === null) continue;
+    const fields = dataRecord(gear, ['name', 'type', 'bonus', 'price', ...(slot === 'armor' ? ['defenseCapBypass'] : [])]);
+    if (fields.type?.value !== slot || typeof fields.name?.value !== 'string' ||
+        !Number.isSafeInteger(fields.bonus?.value) ||
+        (fields.defenseCapBypass && typeof fields.defenseCapBypass.value !== 'boolean')) fail();
+  }
+  if (![effectiveAtk(), effectiveDef(), effectiveSpd()].every(Number.isSafeInteger)) fail();
+
+  const ids = new Set();
+  members.forEach((member, slot) => {
+    const fields = dataRecord(member, [...FORMATION_STATE_DATA_FIELDS,
+      'instanceId', 'slot', 'observeCount', 'escapeUnlocked']);
+    const template = Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY, fields.id?.value)?.value;
+    dataRecord(template, FORMATION_STATE_DATA_FIELDS);
+    if (!FORMATION_STATE_TEMPLATE_IDS.includes(member.id) || template.id !== member.id ||
+        !validStats(member) || !validStats(template) || typeof member.name !== 'string' ||
+        ['xp','goldMin','goldMax'].some(key => !Number.isFinite(member[key]) || !Number.isFinite(template[key])) ||
+        fields.hp?.writable !== true || fields.observeCount?.writable !== true || fields.escapeUnlocked?.writable !== true ||
+        member.observeCount !== 0 || member.escapeUnlocked !== false || member.slot !== slot ||
+        typeof member.instanceId !== 'string' || !/^combat_enemy_[1-9]\d*$/.test(member.instanceId) ||
+        fields.slot?.writable !== false || fields.slot?.configurable !== false ||
+        fields.instanceId?.writable !== false || fields.instanceId?.configurable !== false ||
+        ids.has(member.instanceId) || findCombatEnemy(member.instanceId) !== member) fail();
+    ids.add(member.instanceId);
+  });
+  const target = targetInstanceId === null ? null : findCombatEnemy(targetInstanceId);
+  if (targetInstanceId !== null ? !target || target.hp === 0 : !members.some(member => member.hp > 0)) fail();
+  return {members, target};
+}
+
+// HEADLESS ONLY. Called only by explicit session confirmation (or tests).
+// The player identity is 'player'; enemy identities are session-local IDs.
+// All validation precedes RNG/HP writes. No singleton queue or lifecycle.
+function resolveFormationBasicAttackRound(action) {
+  const {members, target} = validateFormationBasicAttackState(action);
+  const targetInstanceId = target.instanceId;
+  const fail = () => { throw new Error('Unsupported formation basic Attack state or action'); };
+  if (!formationAttackNumbersAreSafe(effectiveAtk(), target.def) ||
+      members.some(member => member.hp > 0 &&
+        !formationAttackNumbersAreSafe(member.atk, effectivePlayerIncomingMitigation(member.atk)))) fail();
+  // Safe HP inputs and bounded integer damage also bound hpBefore - damage,
+  // clamped hpAfter and appliedDamage. Validate all possible attackers now,
+  // even an enemy that might later die before acting; never validate after RNG.
+  // HP is the terminal authority: zero player HP or no living target prevents
+  // another round. No separate terminal flag/ledger can diverge from that state.
+
+  const playerId = 'player';
+  const initiative = members.filter(member => member.hp > 0).map(member => ({
+    actorId: member.instanceId,
+    playerFirst: Math.random() < speedWinChance(effectiveSpd(), member.spd),
+  }));
+  const enemyAction = contest => ({actorType:'enemy', actorId:contest.actorId, targetId:playerId});
+  const order = [
+    ...initiative.filter(contest => !contest.playerFirst).map(enemyAction),
+    {actorType:'player', actorId:playerId, targetId:targetInstanceId},
+    ...initiative.filter(contest => contest.playerFirst).map(enemyAction),
+  ];
+  const events = [];
+  const finish = outcome => {
+    events.push({type:'outcome', outcome});
+    return {initiative, order, events, outcome};
+  };
+  // Re-resolve exact identity at execution, never template/name/slot fallback.
+  // Membership cannot normally change during this synchronous basic-only round.
+  const resolveMember = id => {
+    const member = findCombatEnemy(id);
+    return members.includes(member) ? member : null;
+  };
+  for (const planned of order) {
+    if (stats.hp <= 0) return finish('defeat');
+    const actor = planned.actorType === 'enemy' ? resolveMember(planned.actorId) : stats;
+    if (!actor || actor.hp <= 0) {
+      events.push({type:'skip', ...planned, reason:actor ? 'actor_dead' : 'actor_removed'});
+      continue;
+    }
+    const recipient = planned.actorType === 'player' ? resolveMember(targetInstanceId) : stats;
+    if (!recipient || recipient.hp <= 0) {
+      events.push({type:'cancel', ...planned, reason:recipient ? 'target_dead' : 'target_removed'});
+      continue;
+    }
+    // Existing production primitives; variance -> critical -> evasion, three
+    // RNG calls only for an executing attack. No pre-rolled damage or effects.
+    const roll = planned.actorType === 'player'
+      ? rollAttackDamage(effectiveAtk(), recipient.def)
+      : rollAttackDamage(actor.atk, effectivePlayerIncomingMitigation(actor.atk));
+    const evaded = planned.actorType === 'player' ? enemyEvades(recipient) : playerEvades(actor);
+    const hpBefore = recipient.hp;
+    recipient.hp = Math.max(0, hpBefore - (evaded ? 0 : roll.dmg));
+    events.push({type:'attack', ...planned, attemptedDamage:roll.dmg,
+      appliedDamage:hpBefore - recipient.hp, critical:roll.crit, evaded,
+      hpBefore, hpAfter:recipient.hp});
+    if (stats.hp <= 0) return finish('defeat');
+    if (members.every(member => member.hp === 0)) return finish('victory');
+  }
+  return finish('ongoing');
+}
+
+// HEADLESS historical projection only. Create immediately after resolution,
+// before another round or external HP/membership changes. No live references,
+// gameplay helpers, RNG, queues, or writes cross into this detached film reel.
+function createFormationRoundPlayback(roundResult) {
+  const fail = () => { throw new Error('Invalid formation playback history or final snapshot'); };
+  const plain = value => value && typeof value === 'object' && !Array.isArray(value) &&
+    [Object.getPrototypeOf({}), null].includes(Object.getPrototypeOf(value));
+  const record = (value, keys) => {
+    if (!plain(value)) fail();
+    const fields = Object.getOwnPropertyDescriptors(value);
+    if (Reflect.ownKeys(fields).length !== keys.length ||
+        keys.some(key => !fields[key] || !Object.hasOwn(fields[key], 'value'))) fail();
+    return Object.fromEntries(keys.map(key => [key, fields[key].value]));
+  };
+  const array = value => {
+    if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Object.getPrototypeOf([]) ||
+        Reflect.ownKeys(value).length !== value.length + 1) fail();
+    const copy = [];
+    for (let i = 0; i < value.length; i++) {
+      const field = Object.getOwnPropertyDescriptor(value, String(i));
+      if (!field || !Object.hasOwn(field, 'value')) fail();
+      copy.push(field.value);
+    }
+    return copy;
+  };
+  const snapshot = (value, keys) => {
+    if (!plain(value)) fail();
+    const fields = Object.getOwnPropertyDescriptors(value);
+    if (keys.some(key => !fields[key] || !Object.hasOwn(fields[key], 'value'))) fail();
+    return Object.fromEntries(keys.map(key => [key, fields[key].value]));
+  };
+  const validHp = (hp, maxHp) => Number.isSafeInteger(hp) && hp >= 0 && hp <= maxHp;
+  if (combat.mode !== 'formation' || combat.active !== false || !Object.isFrozen(combat.enemies)) fail();
+  const player = snapshot(stats, ['hp', 'maxHp']);
+  const enemies = array(combat.enemies).map(member => snapshot(member, ['id', 'instanceId', 'slot', 'hp', 'maxHp']));
+  if (enemies.length < 2 || enemies.length > 3) fail();
+  const participants = new Map([['player', player]]);
+  enemies.forEach((enemy, slot) => {
+    if (typeof enemy.id !== 'string' || typeof enemy.instanceId !== 'string' ||
+        !/^combat_enemy_[1-9]\d*$/.test(enemy.instanceId) || enemy.slot !== slot ||
+        participants.has(enemy.instanceId)) fail();
+    participants.set(enemy.instanceId, enemy);
+  });
+  for (const participant of participants.values()) {
+    if (!Number.isSafeInteger(participant.maxHp) || participant.maxHp <= 0 || !validHp(participant.hp, participant.maxHp)) fail();
+  }
+  const result = record(roundResult, ['initiative', 'order', 'events', 'outcome']);
+  if (!['ongoing', 'victory', 'defeat'].includes(result.outcome)) fail();
+  const initiative = array(result.initiative).map(value => Object.freeze(record(value, ['actorId', 'playerFirst'])));
+  let previousSlot = -1;
+  for (const contest of initiative) {
+    const member = participants.get(contest.actorId);
+    if (!member || contest.actorId === 'player' || member.slot <= previousSlot || typeof contest.playerFirst !== 'boolean') fail();
+    previousSlot = member.slot;
+  }
+  if (initiative.length < 1 || initiative.length > enemies.length) fail();
+  const actionKeys = ['actorType', 'actorId', 'targetId'];
+  const checkAction = action => {
+    if (action.actorType === 'player') {
+      if (action.actorId !== 'player' || action.targetId === 'player' || !participants.has(action.targetId)) fail();
+    } else if (action.actorType === 'enemy') {
+      if (action.actorId === 'player' || !participants.has(action.actorId) || action.targetId !== 'player') fail();
+    } else fail();
+  };
+  const order = array(result.order).map(value => {
+    const action = record(value, actionKeys); checkAction(action); return Object.freeze(action);
+  });
+  // Check recorded grouping, never recalculate initiative or combat decisions.
+  const expectedIds = [...initiative.filter(c => !c.playerFirst).map(c => c.actorId),
+    'player', ...initiative.filter(c => c.playerFirst).map(c => c.actorId)];
+  if (order.length !== expectedIds.length || order.some((action,i) => action.actorId !== expectedIds[i])) fail();
+  const preparedIds = new Set(initiative.map(contest => contest.actorId));
+  if (enemies.some(enemy => enemy.hp > 0 && !preparedIds.has(enemy.instanceId)) ||
+      !preparedIds.has(order.find(action => action.actorId === 'player').targetId)) fail();
+  const sourceEvents = array(result.events);
+  if (sourceEvents.length < 2 || sourceEvents.length > order.length + 1) fail();
+  const events = sourceEvents.map((value, index) => {
+    if (!plain(value)) fail();
+    const type = Object.getOwnPropertyDescriptor(value, 'type')?.value;
+    if (type === 'outcome') {
+      const event = record(value, ['type', 'outcome']);
+      if (index !== sourceEvents.length - 1 || event.outcome !== result.outcome) fail();
+      return Object.freeze(event);
+    }
+    const keys = type === 'attack'
+      ? ['attemptedDamage', 'appliedDamage', 'critical', 'evaded', 'hpBefore', 'hpAfter']
+      : (type === 'skip' || type === 'cancel') ? ['reason'] : null;
+    if (!keys || index >= order.length) fail();
+    const event = record(value, ['type', ...actionKeys, ...keys]);
+    checkAction(event);
+    if (actionKeys.some(key => event[key] !== order[index][key])) fail();
+    if (type === 'attack') {
+      const target = participants.get(event.targetId);
+      if (!validHp(event.hpBefore, target.maxHp) || event.hpBefore === 0 ||
+          !validHp(event.hpAfter, target.maxHp) || event.hpAfter > event.hpBefore ||
+          !Number.isSafeInteger(event.attemptedDamage) || event.attemptedDamage < 1 ||
+          !Number.isSafeInteger(event.appliedDamage) || event.appliedDamage !== event.hpBefore - event.hpAfter ||
+          typeof event.critical !== 'boolean' || typeof event.evaded !== 'boolean' ||
+          event.appliedDamage !== (event.evaded ? 0 : Math.min(event.hpBefore, event.attemptedDamage))) fail();
+    } else {
+      const reasons = type === 'skip' ? ['actor_dead', 'actor_removed'] : ['target_dead', 'target_removed'];
+      if (!reasons.includes(event.reason)) fail();
+    }
+    return Object.freeze(event);
+  });
+  if (events.at(-1).type !== 'outcome' ||
+      (result.outcome === 'ongoing' && events.length !== order.length + 1)) fail();
+  const actualOutcome = player.hp === 0 ? 'defeat' : enemies.every(enemy => enemy.hp === 0) ? 'victory' : 'ongoing';
+  if (result.outcome !== actualOutcome) fail();
+
+  const finalHp = new Map([...participants].map(([id,participant]) => [id, participant.hp]));
+  const projectedHp = new Map(finalHp);
+  // Reverse only recorded HP transitions in detached numeric storage. Members
+  // never targeted use their final snapshot unchanged throughout the reel.
+  for (let i = events.length - 1; i >= 0; i--) {
+    const event = events[i];
+    if (event.type !== 'attack') continue;
+    if (projectedHp.get(event.targetId) !== event.hpAfter) fail();
+    projectedHp.set(event.targetId, event.hpBefore);
+  }
+  let visibleOutcome = 'ongoing';
+  const frames = [];
+  const frame = (frameIndex, currentEvent) => Object.freeze({
+    frameIndex, eventIndex:frameIndex - 1, currentEvent,
+    player:Object.freeze({id:'player', hp:projectedHp.get('player'), maxHp:player.maxHp}),
+    enemies:Object.freeze(enemies.map(enemy => Object.freeze({...enemy, hp:projectedHp.get(enemy.instanceId)}))),
+    complete:frameIndex === events.length, outcome:visibleOutcome,
+  });
+  frames.push(frame(0, null));
+  events.forEach((event, index) => {
+    const terminalHp = projectedHp.get('player') === 0 || enemies.every(enemy => projectedHp.get(enemy.instanceId) === 0);
+    if (event.type !== 'outcome' && terminalHp) fail();
+    if (event.type === 'attack') {
+      if (projectedHp.get(event.actorId) === 0 || projectedHp.get(event.targetId) !== event.hpBefore) fail();
+      projectedHp.set(event.targetId, event.hpAfter);
+    } else if (event.type === 'skip') {
+      // Removed identities cannot be historical participants in this retained,
+      // fixed-membership contract. A live actor cannot claim a dead-actor skip.
+      if (event.reason !== 'actor_dead' || projectedHp.get(event.actorId) !== 0) fail();
+    } else if (event.type === 'cancel') {
+      // A dead actor would have been skipped first. Missing-target claims are
+      // likewise impossible for the queued, retained target already validated.
+      if (event.reason !== 'target_dead' || projectedHp.get(event.actorId) === 0 ||
+          projectedHp.get(event.targetId) !== 0) fail();
+    } else if (event.type === 'outcome') visibleOutcome = event.outcome;
+    frames.push(frame(index + 1, event));
+  });
+  if ([...finalHp].some(([id,hp]) => projectedHp.get(id) !== hp) || visibleOutcome !== result.outcome) fail();
+  return Object.freeze({eventCount:events.length, frameCount:frames.length,
+    initiative:Object.freeze(initiative), order:Object.freeze(order), frames:Object.freeze(frames)});
+}
+
+// Stateless random access. All frames already contain immutable value snapshots;
+// repeated/out-of-order reads never advance a cursor or consult live combat.
+function projectFormationPlaybackFrame(playback, frameIndex) {
+  const fields = playback && typeof playback === 'object' ? Object.getOwnPropertyDescriptors(playback) : {};
+  const keys = ['eventCount', 'frameCount', 'initiative', 'order', 'frames'];
+  if (!Object.isFrozen(playback) || Reflect.ownKeys(fields).length !== keys.length ||
+      keys.some(key => !fields[key] || !Object.hasOwn(fields[key], 'value'))) throw new Error('Invalid formation playback reel');
+  const frames = fields.frames.value, frameCount = fields.frameCount.value;
+  if (!Array.isArray(frames) || !Object.isFrozen(frames) || frameCount !== frames.length ||
+      frameCount !== fields.eventCount.value + 1) throw new Error('Invalid formation playback reel');
+  if (!Number.isInteger(frameIndex) || frameIndex < 0 || frameIndex >= frameCount) {
+    throw new RangeError('Formation playback frame index out of bounds');
+  }
+  const frame = Object.getOwnPropertyDescriptor(frames, String(frameIndex));
+  if (!frame || !Object.hasOwn(frame, 'value') || !Object.isFrozen(frame.value)) throw new Error('Invalid formation playback frame');
+  return frame.value;
+}
+
+// HEADLESS ONLY. No gameplay caller or save binding. The closure is the sole
+// session authority; members is only a membership-identity binding, never an HP
+// copy. Public views contain primitive data and immutable historical frames.
+const formationSessionController = (() => {
+  let session = null;
+  const fail = () => { throw new Error('Invalid formation session operation or stale state'); };
+  const requirePhase = phases => {
+    if (!session || !phases.includes(session.phase) || combat.mode !== 'formation' ||
+        combat.active !== false || combat.enemies !== session.members) fail();
+    return session;
+  };
+  const selectedAction = state => ({type:'attack', targetInstanceId:state.selectedTargetInstanceId});
+  const validateSelection = state => validateFormationBasicAttackState(selectedAction(state));
+  const getView = function() {
+    if (arguments.length) fail();
+    if (!session) return null;
+    const state = requirePhase(['awaiting_action', 'targeting', 'playback', 'playback_complete', 'victory', 'defeat']);
+    const frame = state.playback ? projectFormationPlaybackFrame(state.playback, state.frameIndex) : null;
+    // During playback even living-target information follows historical HP,
+    // not the resolver's already-final live HP. Targeting is unavailable then.
+    const members = frame ? frame.enemies : state.members;
+    return Object.freeze({
+      phase:state.phase,
+      // Detached presentation roster. Playback must never reveal resolved live
+      // HP ahead of its historical frame; non-playback phases snapshot live HP.
+      player:Object.freeze({id:'player', name:stats.name,
+        hp:frame ? frame.player.hp : stats.hp, maxHp:frame ? frame.player.maxHp : stats.maxHp}),
+      enemies:Object.freeze(members.map(member => Object.freeze({
+        instanceId:member.instanceId, templateId:member.id, slot:member.slot,
+        hp:member.hp, maxHp:member.maxHp,
+      }))),
+      availableActions:Object.freeze(state.phase === 'awaiting_action' ? ['attack'] : []),
+      livingTargetInstanceIds:Object.freeze(members.filter(member => member.hp > 0).map(member => member.instanceId)),
+      selectedTargetInstanceId:state.selectedTargetInstanceId,
+      playbackFrame:frame,
+      awaitingAcknowledgement:state.phase === 'playback_complete',
+      terminalOutcome:['victory', 'defeat'].includes(state.phase) ? state.phase : null,
+    });
+  };
+  return Object.freeze({
+    begin() {
+      if (arguments.length || session) fail();
+      const {members} = validateFormationBasicAttackState();
+      session = {phase:'awaiting_action', members, selectedTargetInstanceId:null, playback:null, frameIndex:null};
+      return getView();
+    },
+    beginAttack() {
+      if (arguments.length) fail();
+      const state = requirePhase(['awaiting_action']);
+      const {members} = validateFormationBasicAttackState();
+      const target = members.find(member => member.hp > 0); // validated slot order
+      state.selectedTargetInstanceId = target.instanceId;
+      state.phase = 'targeting';
+      return getView();
+    },
+    moveTarget(direction) {
+      if (arguments.length !== 1 || !['previous', 'next'].includes(direction)) fail();
+      const state = requirePhase(['targeting']);
+      const {members, target} = validateSelection(state);
+      const living = members.filter(member => member.hp > 0);
+      const next = (living.indexOf(target) + (direction === 'next' ? 1 : -1) + living.length) % living.length;
+      state.selectedTargetInstanceId = living[next].instanceId;
+      return getView();
+    },
+    cancelTargeting() {
+      if (arguments.length) fail();
+      const state = requirePhase(['targeting']);
+      validateSelection(state);
+      state.selectedTargetInstanceId = null;
+      state.phase = 'awaiting_action';
+      return getView();
+    },
+    confirmTarget() {
+      if (arguments.length) fail();
+      const state = requirePhase(['targeting']);
+      if (state.playback !== null || state.frameIndex !== null) fail();
+      // The resolver performs complete preflight, including exact target and
+      // numeric safety, before its first RNG call. No speculative resolution.
+      const result = resolveFormationBasicAttackRound(selectedAction(state));
+      const playback = createFormationRoundPlayback(result);
+      state.playback = playback;
+      state.frameIndex = 0;
+      state.selectedTargetInstanceId = null;
+      state.phase = 'playback';
+      return getView();
+    },
+    advancePlayback() {
+      if (arguments.length) fail();
+      const state = requirePhase(['playback']);
+      state.frameIndex++;
+      if (state.frameIndex === state.playback.frameCount - 1) state.phase = 'playback_complete';
+      return getView();
+    },
+    acknowledgePlayback() {
+      if (arguments.length) fail();
+      const state = requirePhase(['playback_complete']);
+      const outcome = state.playback.frames[state.frameIndex].outcome;
+      if (outcome === 'ongoing') {
+        state.playback = null;
+        state.frameIndex = null;
+        state.phase = 'awaiting_action';
+      } else state.phase = outcome; // retain the final immutable terminal frame
+      return getView();
+    },
+    getView,
+    // Lifecycle hook only. It cannot clear a battle or discard a live session;
+    // setSingleCombatEnemy(null) must have already cleared the sole authority.
+    clearAfterCombatCleanup() {
+      if (arguments.length || combat.mode !== null || combat.enemies.length !== 0) fail();
+      session = null;
+    },
+  });
+})();
 
 // Day on which Kolm was last fought (-1 = never). Resets automatically each new Dayoff.
 let sailor_brawl_fight_day = -1;
@@ -419,7 +1125,6 @@ function startCombat() {
     combat.pendingEscape  = false;
     combat.flashTimer     = 8;
     combat.isPaleSentry   = true;
-    combat.observeCount   = 0;
     return;
   }
   // Dungeon floors, the sluice, and Mirethyst's Vault keep their existing
@@ -487,7 +1192,6 @@ function startCombat() {
     combat.isSeepSplit        = true;
     combat.seepSplitRemaining = 1;   // one follow-up (the smaller half)
   }
-  combat.observeCount = 0;
 }
 
 // The Seep's second half — a smaller mass that pulls itself together after the
@@ -508,7 +1212,6 @@ function startSeepSplitCombat(remaining) {
   combat.flashTimer        = 8;
   combat.isSeepSplit       = true;
   combat.seepSplitRemaining = remaining;
-  combat.observeCount      = 0;
 }
 
 function startRainfishCombat(remaining) {
@@ -530,7 +1233,6 @@ function startRainfishCombat(remaining) {
   combat.flashTimer        = 8;
   combat.isRainfish        = true;
   combat.rainfishRemaining = remaining;
-  combat.observeCount      = 0;
 }
 
 // Northern Fen spawning-site event. Each fight independently chooses one of
@@ -558,7 +1260,6 @@ function startMireToadSpawnCombat(remaining) {
   combat.flashTimer        = 8;
   combat.isMireToadSpawn   = true;
   combat.mireToadRemaining = remaining;
-  combat.observeCount      = 0;
 }
 
 function endCombat() {
@@ -595,8 +1296,6 @@ function endCombat() {
   // granted nothing and left lighthouse_spider_resolved untouched).
   combat.isLenswebSpider           = false;
   combat.pendingLighthouseObjective = null;
-  combat.escapeUnlocked            = false;
-  combat.observeCount      = 0;
   combat.evadeTurns        = 0;
   combat.enemyStunTurns    = 0;     // Trollbane's heal-lock is battle-local — it never carries between fights
   combat.corrosion         = 0;     // acid armor-melt is combat-only — cleared with the fight
@@ -605,6 +1304,7 @@ function endCombat() {
   combat.gullStole         = false;
   combat.gullStolenAmount  = 0;
   combat.bombFuse          = 0;     // a primed Bomb is battle-local — it does not carry between fights
+  combat.bombTargetInstanceId = null;
   combat.bombDamage        = 0;
   combat.bombIgnoresDef    = false;
   combat.bombJustArmed     = false;
@@ -622,7 +1322,6 @@ function startBossCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isBoss         = true;
-  combat.observeCount   = 0;
 }
 
 function startWardenCombat() {
@@ -637,7 +1336,6 @@ function startWardenCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isWarden       = true;
-  combat.observeCount   = 0;
 }
 
 function startFortGuardCombat() {
@@ -652,7 +1350,6 @@ function startFortGuardCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isFortGuard    = true;
-  combat.observeCount   = 0;
 }
 
 function startFortPolwickCombat() {
@@ -668,7 +1365,6 @@ function startFortPolwickCombat() {
   combat.flashTimer     = 8;
   combat.isFortPolwick  = true;
   combat.polwickHasCast = false;   // first hit of the fight always casts fire
-  combat.observeCount   = 0;
 }
 
 function startFortEssaCombat() {
@@ -683,7 +1379,6 @@ function startFortEssaCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isFortEssa     = true;
-  combat.observeCount   = 0;
 }
 
 function startMulhollandCombat() {
@@ -698,7 +1393,6 @@ function startMulhollandCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isMulholland   = true;
-  combat.observeCount   = 0;
 }
 
 function startDenWraithCombat() {
@@ -713,7 +1407,6 @@ function startDenWraithCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isDenWraith    = true;
-  combat.observeCount   = 0;
 }
 
 function startSailorBrawlCombat() {
@@ -728,7 +1421,6 @@ function startSailorBrawlCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isSailorBrawl  = true;
-  combat.observeCount   = 0;
 }
 
 function startTakomoCombat() {
@@ -743,7 +1435,6 @@ function startTakomoCombat() {
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
   combat.isTakomo       = true;
-  combat.observeCount   = 0;
 }
 
 // Sunken Gallery trap. Dispatched from the far-corner "dropped potion" sparkle
@@ -762,7 +1453,6 @@ function startMimicPotionCombat() {
   combat.pendingDefeat  = false;
   combat.pendingEscape  = false;
   combat.flashTimer     = 8;
-  combat.observeCount   = 0;
 }
 
 // Abandoned Lighthouse lens event. Dispatched from the reach-through-the-web
@@ -791,8 +1481,6 @@ function startLenswebSpiderCombat() {
   combat.flashTimer     = 8;
   combat.isLenswebSpider = true;
   combat.pendingLighthouseObjective = objective;
-  combat.escapeUnlocked  = false;
-  combat.observeCount    = 0;
 
   // Poison from the bite — applied only now, after setup. Existing status; no
   // lighthouse-specific variant, and no extra out-of-cadence damage tick.
@@ -891,6 +1579,7 @@ function refreshJobBoard() {
 }
 
 function advanceCombatMessage() {
+  if (combat.mode === 'formation') throw new Error('Formation state cannot process singleton messages');
   if (combat.messageQueue.length > 0) {
     const next = combat.messageQueue.shift();
     if (typeof next === 'string') {
@@ -903,6 +1592,7 @@ function advanceCombatMessage() {
   }
   // Resolve phase once the last message has been acknowledged
   if (combat.messageQueue.length === 0) {
+    const enemy = combat.enemy; // singleton encounter-lifecycle boundary (Gull flight)
     if (combat.pendingEscape) {
       // A successful Observe-gated escape from the lens spider is a real event
       // outcome, not an ordinary flight: finalize (grant item + resolve) through
@@ -913,7 +1603,7 @@ function advanceCombatMessage() {
     }
     else if (combat.pendingVictory) combat.phase = 'victory';
     else if (combat.pendingDefeat) combat.phase = 'defeat';
-    else if (combat.enemy && combat.enemy.stealAndFlee && combat.gullStole === 'flee' && combat.enemy.hp > 0) {
+    else if (isActiveCombatEnemy(enemy) && enemy.stealAndFlee && combat.gullStole === 'flee' && enemy.hp > 0) {
       // Basin Gull: the player's one grace turn elapsed without a kill — it bolts
       // with the gold. Show the escape line, then pendingEscape ends combat (no
       // rewards) when it's acknowledged. 'gone' prevents any re-trigger.
@@ -926,7 +1616,7 @@ function advanceCombatMessage() {
     else {
       // Basin Gull: the turn it stole ends here — arm the single grace turn so the
       // player's NEXT turn is their one chance before the flee check above fires.
-      if (combat.enemy && combat.enemy.stealAndFlee && combat.gullStole === 'armed') combat.gullStole = 'flee';
+      if (isActiveCombatEnemy(enemy) && enemy.stealAndFlee && combat.gullStole === 'armed') combat.gullStole = 'flee';
       combat.phase = 'choose';
     }
   }
@@ -963,20 +1653,21 @@ function combatOptions() {
 
 // Status-effect side-effects applied whenever an enemy lands a hit.
 // Extracted from inside handleCombatAction so the Observe path can reuse it.
-function applyEnemyHitEffects() {
+function applyEnemyHitEffects(enemy) {
+  if (!isActiveCombatEnemy(enemy)) return;
   if (MUDSLITHER_INFLICTABLE && combat.isWarden && !hasStatusEffect('muddied') && Math.random() < 0.30) {
     addStatusEffect('muddied');
     combat.messageQueue.unshift('The Warden\u2019s blow leaves you fouled with marsh muck. Muddied! (DEF\u22121, SPD\u22122)');
   }
-  if (MUDSLITHER_INFLICTABLE && combat.enemy && combat.enemy.id === 'enemy_corpse_slug' && !hasStatusEffect('slither') && Math.random() < 0.30) {
+  if (MUDSLITHER_INFLICTABLE && enemy && enemy.id === 'enemy_corpse_slug' && !hasStatusEffect('slither') && Math.random() < 0.30) {
     triggerSlither();
     combat.messageQueue.unshift('The slug\u2019s slime soaks in. Slithered! (SPD randomized each turn)');
   }
-  if (MUDSLITHER_INFLICTABLE && combat.enemy && combat.enemy.id === 'enemy_shade_wraith' && !hasStatusEffect('slither') && Math.random() < 0.25) {
+  if (MUDSLITHER_INFLICTABLE && enemy && enemy.id === 'enemy_shade_wraith' && !hasStatusEffect('slither') && Math.random() < 0.25) {
     triggerSlither();
     combat.messageQueue.unshift('The wraith\u2019s touch scrambles your footing. Slithered! (SPD randomized each turn)');
   }
-  if (combat.enemy && combat.enemy.id === 'enemy_fen_witch' && !hasStatusEffect('poison') && Math.random() < 0.25) {
+  if (enemy && enemy.id === 'enemy_fen_witch' && !hasStatusEffect('poison') && Math.random() < 0.25) {
     triggerPoison();
     combat.messageQueue.unshift('The hag\u2019s curse seeps in. Poisoned! (lose HP each rest)');
   }
@@ -1003,19 +1694,19 @@ function applyEnemyHitEffects() {
   }
   // Generic poison-on-hit (template `poisonChance`) — currently the poison-
   // skinned Mire Toad. The Fen Witch keeps its own by-name poison above.
-  if (combat.enemy && combat.enemy.poisonChance && !hasStatusEffect('poison') && Math.random() < combat.enemy.poisonChance) {
+  if (enemy && enemy.poisonChance && !hasStatusEffect('poison') && Math.random() < enemy.poisonChance) {
     triggerPoison();
-    const pMsg = (combat.enemy.id === 'enemy_mire_toad_male' || combat.enemy.id === 'enemy_mire_toad_female')
+    const pMsg = (enemy.id === 'enemy_mire_toad_male' || enemy.id === 'enemy_mire_toad_female')
       ? 'The toad’s skin weeps a bitter slime where it struck. Poisoned! (lose HP each rest)'
       : 'Venom works into the wound. Poisoned! (lose HP each rest)';
     combat.messageQueue.unshift(pMsg);
   }
-  if (combat.enemy && combat.enemy.curseChance && !hasStatusEffect('cursed') && Math.random() < combat.enemy.curseChance) {
+  if (enemy && enemy.curseChance && !hasStatusEffect('cursed') && Math.random() < enemy.curseChance) {
     if (stats.accessory && stats.accessory.preventsCursed) {
       combat.messageQueue.unshift('The amethyst bangle flares faintly. The curse doesn\u2019t take.');
     } else {
       triggerCursed();
-      const curseMsg = combat.enemy.id === 'enemy_den_wraith'
+      const curseMsg = enemy.id === 'enemy_den_wraith'
         ? 'The Den Wraith\u2019s wail settles into your bones. Cursed!'
         : 'Something unravels. Cursed!';
       combat.messageQueue.unshift(curseMsg);
@@ -1026,7 +1717,7 @@ function applyEnemyHitEffects() {
   // OWN attacks are more likely to miss (enemyEvades() docks the swing's effective
   // speed by DAZZLE_ACC_PENALTY). It touches nothing else \u2014 not turn order, not the
   // player's own evasion, not defense \u2014 and clears when the fight ends (endCombat).
-  if (combat.enemy && combat.enemy.dazzleChance && !hasStatusEffect('dazzled') && Math.random() < combat.enemy.dazzleChance) {
+  if (enemy && enemy.dazzleChance && !hasStatusEffect('dazzled') && Math.random() < enemy.dazzleChance) {
     addStatusEffect('dazzled');
     combat.messageQueue.unshift('A burst of glittering scale-dust stings your eyes. Dazzled! (your attacks go wide)');
   }
@@ -1034,7 +1725,7 @@ function applyEnemyHitEffects() {
   // eats into the player's armor: a combat-only, STACKING DEF loss (Corroded), capped
   // so it can't drive effective DEF absurdly negative. effectiveDef() subtracts it;
   // endCombat() clears it. Distinct from muddied's flat, single −1.
-  if (combat.enemy && combat.enemy.acidChance && combat.corrosion < ACID_CORROSION_CAP && Math.random() < combat.enemy.acidChance) {
+  if (enemy && enemy.acidChance && combat.corrosion < ACID_CORROSION_CAP && Math.random() < enemy.acidChance) {
     combat.corrosion = Math.min(ACID_CORROSION_CAP, combat.corrosion + 1);
     combat.messageQueue.unshift(`Acid sizzles across your gear. Corroded! (DEF −${combat.corrosion})`);
   }
@@ -1042,7 +1733,7 @@ function applyEnemyHitEffects() {
   // snatches gold and arms its escape. The player then gets exactly one turn to kill
   // it (which recovers the gold, see applyKillRewards) before it flies off with the
   // loot (resolved in advanceCombatMessage). 'armed' grants that one grace turn.
-  if (combat.enemy && combat.enemy.stealAndFlee && !combat.gullStole) {
+  if (enemy && enemy.stealAndFlee && !combat.gullStole) {
     const grab  = 20 + Math.floor(Math.random() * 31);   // 20..50
     const taken = Math.min(grab, stats.gold);
     stats.gold -= taken;
@@ -1067,14 +1758,16 @@ const FIRE_CAST_FRAMES = 45;
 // message is shown. Evaluated at message-build time, so on the very turn Burn
 // is first inflicted (which happens later, inside the enemy hit's deferred
 // apply) this returns null — the first tick lands on the following turn.
-function burnTickEntry() {
+function burnTickEntry(enemy) {
+  // Burn is player-owned; the member identity scopes this tick to its battle.
+  if (!isActiveCombatEnemy(enemy)) return null;
   if (!hasStatusEffect('burn')) return null;
   const burnDmg = Math.floor(Math.random() * 21);   // 0..20 inclusive
   return {
     text: burnDmg > 0
       ? `The burn sears ${stats.name} for ${burnDmg}!`
       : 'The burn smoulders, but does no damage this turn.',
-    apply() {
+    apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
       if (stats.hp <= 0) return;   // player already fell this turn — don't double up
       if (burnDmg > 0) {
         stats.hp = Math.max(0, stats.hp - burnDmg);
@@ -1083,7 +1776,7 @@ function burnTickEntry() {
           combat.pendingDefeat = true;
         }
       }
-    },
+    }),
   };
 }
 
@@ -1092,8 +1785,9 @@ function burnTickEntry() {
 // it knits HP back after the trade resolves. Returns null when there's nothing to heal
 // (no regen field, the enemy is already dead / at full, or the player's hit this turn
 // already won — pendingVictory). The heal is capped at maxHp when applied.
-function enemyRegenEntry() {
-  const e = combat.enemy;
+function enemyRegenEntry(enemy) {
+  if (!isActiveCombatEnemy(enemy)) return null;
+  const e = enemy;
   if (!e || !e.regenPerTurn || combat.pendingVictory) return null;
   const heal = Math.min(e.regenPerTurn, e.maxHp - e.hp);
   // Trollbane stun: while it holds, the enemy can't knit its rot back. Each
@@ -1104,17 +1798,17 @@ function enemyRegenEntry() {
     if (heal <= 0) return null;
     return {
       text: `The ${e.name} strains to close its wounds — the Trollbane holds its rot slack.`,
-      apply() {},
+      apply: function() {},
     };
   }
   if (heal <= 0) return null;
   return {
     text: `The ${e.name} knits its rot back together (+${heal} HP).`,
-    apply() {
-      if (combat.enemy && combat.enemy.hp > 0) {
-        combat.enemy.hp = Math.min(combat.enemy.maxHp, combat.enemy.hp + heal);
+    apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
+      if (enemy && enemy.hp > 0) {
+        enemy.hp = Math.min(enemy.maxHp, enemy.hp + heal);
       }
-    },
+    }),
   };
 }
 
@@ -1124,30 +1818,32 @@ function enemyRegenEntry() {
 // (ignoring DEF unless the item said otherwise). Returns null when no Bomb is armed.
 function bombFuseEntry() {
   if (combat.bombFuse <= 0) return null;
+  const enemy = findCombatEnemy(combat.bombTargetInstanceId);
+  if (!isActiveCombatEnemy(enemy)) return null;
   if (combat.bombJustArmed) { combat.bombJustArmed = false; return null; } // the "use" turn
   const remaining = combat.bombFuse - 1;
   if (remaining > 0) {
     return {
       text: `The Bomb's fuse hisses down… (${remaining} turn${remaining === 1 ? '' : 's'} to go)`,
-      apply() { combat.bombFuse = remaining; },
+      apply: bindCombatEnemyEffect(enemy.instanceId, function() { combat.bombFuse = remaining; }),
     };
   }
   // Detonation this turn. Damage is fixed at build time; only the HP subtraction
   // (and any resulting kill) is deferred to apply, matching burnTickEntry.
   const dmg = combat.bombIgnoresDef
     ? combat.bombDamage
-    : Math.max(1, combat.bombDamage - (combat.enemy ? combat.enemy.def : 0));
-  const targetName = combat.enemy ? combat.enemy.name : 'enemy';
+    : Math.max(1, combat.bombDamage - (enemy ? enemy.def : 0));
+  const targetName = enemy ? enemy.name : 'enemy';
   return {
     text: `The Bomb goes off! The blast tears into the ${targetName} for ${dmg} damage!`,
-    apply() {
+    apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
       combat.bombFuse = 0;
-      if (!combat.enemy) return;
-      combat.enemy.hp = Math.max(0, combat.enemy.hp - dmg);
-      if (combat.enemy.hp <= 0 && !combat.pendingVictory && !combat.pendingDefeat) {
-        applyKillRewards(combat.messageQueue);
+      combat.bombTargetInstanceId = null;
+      enemy.hp = Math.max(0, enemy.hp - dmg);
+      if (enemy.hp <= 0 && !combat.pendingVictory && !combat.pendingDefeat) {
+        applyKillRewards(enemy, combat.messageQueue);
       }
-    },
+    }),
   };
 }
 
@@ -1179,23 +1875,23 @@ function attackEvaded(attackerSpd, defenderSpd, defenderIsPlayer) {
 }
 // Direction wrappers: the player defends an enemy blow / the enemy defends the
 // player's blow. Speeds go through effectiveSpd() so slither etc. are respected.
-function playerEvades() { return attackEvaded(combat.enemy.spd, effectiveSpd(), true); }
+function playerEvades(enemy) { return attackEvaded(enemy.spd, effectiveSpd(), true); }
 // Dazzled (dust in the eyes) reduces ONLY the player's accuracy: it docks the
 // effective speed of the player's own swing here, so the enemy evades it more
 // often (a higher speed gap in the defender's favour). effectiveSpd() itself is
 // untouched, so turn order and the player's own evasion (playerEvades) stay put.
 const DAZZLE_ACC_PENALTY = 8;
-function enemyEvades()  {
+function enemyEvades(enemy)  {
   const atkSpd = effectiveSpd() - (hasStatusEffect('dazzled') ? DAZZLE_ACC_PENALTY : 0);
-  return attackEvaded(atkSpd, combat.enemy.spd, false);
+  return attackEvaded(atkSpd, enemy.spd, false);
 }
 // Ticks the Bullet Time buff down by one player turn. Called once per turn spent.
 function tickEvadeBuff() {
   if (combat.evadeTurns > 0) combat.evadeTurns--;
 }
 // Generic evade line: "Lély evades!" / "The Marsh Wisp evades!"
-function evadeText(defenderIsPlayer) {
-  return defenderIsPlayer ? `${stats.name} evades!` : `The ${combat.enemy.name} evades!`;
+function evadeText(defenderIsPlayer, enemy) {
+  return defenderIsPlayer ? `${stats.name} evades!` : `The ${enemy.name} evades!`;
 }
 
 // The enemy's response to a player turn that didn't itself fight the enemy
@@ -1204,20 +1900,21 @@ function evadeText(defenderIsPlayer) {
 // so the enemy still gets to act. textFn receives the rolled damage and returns the
 // message line; returns a deferred { text, apply() } queue entry, the same
 // shape every other enemy hit in this file uses.
-function enemyTurnResponse(textFn) {
-  const { dmg: eDmg, crit } = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
-  const dodged = playerEvades();
+function enemyTurnResponse(enemy, textFn) {
+  if (!isActiveCombatEnemy(enemy)) return null;
+  const { dmg: eDmg, crit } = rollAttackDamage(enemy.atk, effectivePlayerIncomingMitigation(enemy.atk));
+  const dodged = playerEvades(enemy);
   return {
-    text: dodged ? evadeText(true) : (crit ? 'Critical! ' : '') + textFn(eDmg),
-    apply() {
+    text: dodged ? evadeText(true, enemy) : (crit ? 'Critical! ' : '') + textFn(eDmg),
+    apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
       if (dodged) return;   // Bullet Time: no damage, no on-hit effects
       stats.hp = Math.max(0, stats.hp - eDmg);
-      applyEnemyHitEffects();
+      applyEnemyHitEffects(enemy);
       if (stats.hp <= 0) {
         combat.messageQueue.push(`${stats.name} has fallen...`);
         combat.pendingDefeat = true;
       }
-    },
+    }),
   };
 }
 
@@ -1225,19 +1922,20 @@ function enemyTurnResponse(textFn) {
 // awards XP (with level-up), rolls gold and a 12% potion drop, and flags the
 // pending victory. Module-level so both the Attack branch and the sex-reagent
 // item branch (handleCombatAction) grant kills identically.
-function applyKillRewards(msgs) {
-  msgs.push(`${combat.enemy.name} was defeated!`);
-  stats.xp += combat.enemy.xp;
-  msgs.push(`Gained ${combat.enemy.xp} XP!  (Total: ${stats.xp})`);
+function applyKillRewards(enemy, msgs) {
+  if (!isActiveCombatEnemy(enemy)) return;
+  msgs.push(`${enemy.name} was defeated!`);
+  stats.xp += enemy.xp;
+  msgs.push(`Gained ${enemy.xp} XP!  (Total: ${stats.xp})`);
   checkLevelUp(msgs);
-  const goldGain = combat.enemy.goldMin +
-    Math.floor(Math.random() * (combat.enemy.goldMax - combat.enemy.goldMin + 1));
+  const goldGain = enemy.goldMin +
+    Math.floor(Math.random() * (enemy.goldMax - enemy.goldMin + 1));
   stats.gold += goldGain;
   // Guaranteed drop (data-driven `guaranteedDrop`, e.g. the Mimic Potion): granted
   // 100% of the time and REPLACES the usual 12% bonus-potion roll so it can never
   // double up. Ordinary enemies (no guaranteedDrop) keep the exact 12% roll, so
   // their behaviour and randomness cadence are unchanged.
-  const guaranteed = combat.enemy.guaranteedDrop;
+  const guaranteed = enemy.guaranteedDrop;
   const droppedPotion = guaranteed ? false : Math.random() < 0.12;
   if (guaranteed) grantItem(guaranteed);
   else if (droppedPotion) grantItem('Potion');
@@ -1245,7 +1943,7 @@ function applyKillRewards(msgs) {
   if (guaranteed) msgs.push(`It leaves a real ${guaranteed} behind!`);
   else if (droppedPotion) msgs.push(`Found a potion!`);
   // Basin Gull: cut down before it could escape — its snatched gold falls back to you.
-  if (combat.enemy && combat.enemy.stealAndFlee && combat.gullStolenAmount > 0) {
+  if (enemy && enemy.stealAndFlee && combat.gullStolenAmount > 0) {
     stats.gold += combat.gullStolenAmount;
     msgs.push(`It drops from the air — you recover the ${combat.gullStolenAmount} gold it snatched!`);
     combat.gullStolenAmount = 0;
@@ -1561,6 +2259,7 @@ function getObservationText(enemy, count) {
 }
 
 function handleCombatAction() {
+  if (combat.mode === 'formation') throw new Error('Formation state cannot process singleton actions');
   if (combat.phase === 'message') { advanceCombatMessage(); return; }
   if (combat.phase === 'victory') {
     if (combat.isMireToadSpawn) {
@@ -1808,7 +2507,9 @@ function handleCombatAction() {
       dialogue.open = true; dialogue.page = 0;
       return;
     }
+    const completedVictory = completedSingleVictoryCandidate();
     endCombat();
+    completedSingleVictoryReceipt = completedVictory;
     return;
   }
   if (combat.phase === 'defeat') {
@@ -1849,6 +2550,9 @@ function handleCombatAction() {
     dialogue.page  = 0;
     return;
   }
+  // Singleton action-entry boundary. Calculations use this exact instance;
+  // deferred effects below resolve its stable id without rereading the accessor.
+  const enemy = combat.enemy;
   if (combat.phase === 'item') {
     // Grouped view: multiples of the same item share one row (see groupItems()),
     // exactly like the pause menu's item list. The cursor indexes groups; the
@@ -1876,15 +2580,15 @@ function handleCombatAction() {
       // enemy without a sex, shrugs it off and the turn is wasted.
       stats.items.splice(stats.items.indexOf(item), 1);
       combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
-      if (combat.enemy.sex === item.sexBane) {
-        combat.enemy.hp = 0;
-        msgs.push(`Used ${item.name} \u2014 the ${combat.enemy.name} stiffens, shudders once, and goes still. The right sort.`);
-        applyKillRewards(msgs);
+      if (enemy.sex === item.sexBane) {
+        enemy.hp = 0;
+        msgs.push(`Used ${item.name} \u2014 the ${enemy.name} stiffens, shudders once, and goes still. The right sort.`);
+        applyKillRewards(enemy, msgs);
         enemyActs = false; // it's dead; it doesn't strike back
-      } else if (combat.enemy.sex) {
-        msgs.push(`Used ${item.name} \u2014 the ${combat.enemy.name} shakes it off. Wrong sort entirely.`);
+      } else if (enemy.sex) {
+        msgs.push(`Used ${item.name} \u2014 the ${enemy.name} shakes it off. Wrong sort entirely.`);
       } else {
-        msgs.push(`Used ${item.name} \u2014 it does nothing to the ${combat.enemy.name}. Wasted on this one.`);
+        msgs.push(`Used ${item.name} \u2014 it does nothing to the ${enemy.name}. Wasted on this one.`);
       }
     } else if (item.type === 'potion') {
       if (isStatusCureItem(item)) {
@@ -1920,24 +2624,25 @@ function handleCombatAction() {
       // Delayed throwable (e.g. Bomb). Using it spends the turn but does nothing
       // yet \u2014 it arms a fuse that detonates a few player-turns later (bombFuseEntry).
       // Consumed on use; the enemy still acts this turn.
+      combat.bombTargetInstanceId = enemy.instanceId;
       combat.bombFuse       = item.fuse;
       combat.bombDamage     = item.damage;
       combat.bombIgnoresDef = !!item.ignoresDef;
       combat.bombJustArmed  = true;   // this turn is the "use" turn, not one of the three after
       stats.items.splice(stats.items.indexOf(item), 1);
       combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
-      msgs.push(`You prime the ${item.name} and lob it at the ${combat.enemy.name}. Its fuse begins to hiss\u2026`);
+      msgs.push(`You prime the ${item.name} and lob it at the ${enemy.name}. Its fuse begins to hiss\u2026`);
     } else if (item.type === 'throwable') {
       // Immediate damage consumable (e.g. Sapper Charge). Always lands (no evade
       // roll); `ignoresDef` bypasses the target's DEF entirely. Consumed on use, and
       // \u2014 unless it kills \u2014 the turn is still spent, so the enemy still counters.
-      const dmg = item.ignoresDef ? item.damage : Math.max(1, item.damage - combat.enemy.def);
-      combat.enemy.hp = Math.max(0, combat.enemy.hp - dmg);
+      const dmg = item.ignoresDef ? item.damage : Math.max(1, item.damage - enemy.def);
+      enemy.hp = Math.max(0, enemy.hp - dmg);
       stats.items.splice(stats.items.indexOf(item), 1);
       combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
-      msgs.push(`Used ${item.name} \u2014 it ${item.impactVerb || 'hits'} the ${combat.enemy.name} for ${dmg} damage!`);
-      if (combat.enemy.hp <= 0) {
-        applyKillRewards(msgs);
+      msgs.push(`Used ${item.name} \u2014 it ${item.impactVerb || 'hits'} the ${enemy.name} for ${dmg} damage!`);
+      if (enemy.hp <= 0) {
+        applyKillRewards(enemy, msgs);
         enemyActs = false; // nothing left to strike back
       }
     } else if (item.type === 'stun') {
@@ -1948,12 +2653,12 @@ function handleCombatAction() {
       // the turn is wasted, matching a mismatched reagent. Consumed either way.
       stats.items.splice(stats.items.indexOf(item), 1);
       combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
-      if (combat.enemy.regenPerTurn) {
+      if (enemy.regenPerTurn) {
         combat.enemyStunTurns = item.stunTurns;
         enemyActs = false;
-        msgs.push(`Used ${item.name} — the ${combat.enemy.name} seizes up, its rot going grey and slack. It won't be mending itself for a while.`);
+        msgs.push(`Used ${item.name} — the ${enemy.name} seizes up, its rot going grey and slack. It won't be mending itself for a while.`);
       } else {
-        msgs.push(`Used ${item.name} — it does nothing to the ${combat.enemy.name}. Wasted on this one.`);
+        msgs.push(`Used ${item.name} — it does nothing to the ${enemy.name}. Wasted on this one.`);
       }
     } else {
       equipItem(item);
@@ -1963,12 +2668,12 @@ function handleCombatAction() {
     // Using an item consumes the turn just like Attack \u2014 the enemy still acts,
     // UNLESS a reagent just killed it (nothing left to counter).
     if (enemyActs) {
-      msgs.push(enemyTurnResponse(d => `${combat.enemy.name} attacks for ${d}!`));
+      msgs.push(enemyTurnResponse(enemy, d => `${enemy.name} attacks for ${d}!`));
       // Burn ticks at the end of the turn, after the enemy's response.
-      const itemBurn = burnTickEntry();
+      const itemBurn = burnTickEntry(enemy);
       if (itemBurn) msgs.push(itemBurn);
       // Enemy regen (Rotwood Troll): using an item is a spent turn, so it heals too.
-      const itemRegen = enemyRegenEntry();
+      const itemRegen = enemyRegenEntry(enemy);
       if (itemRegen) msgs.push(itemRegen);
       // Bomb fuse: a spent turn (including arming another item) burns it down.
       const itemBomb = bombFuseEntry();
@@ -2000,7 +2705,7 @@ function handleCombatAction() {
     // Math.random() (escapeUnlocked can only ever be set on a runLock enemy).
     // The event finalizer (grant item + resolve) fires when this escape settles;
     // see advanceCombatMessage().
-    if (combat.escapeUnlocked) {
+    if (enemy.escapeUnlocked) {
       combat.message      = 'You back away along the web. The spider holds its ground.';
       combat.messageQueue = [];
       combat.pendingEscape = true;
@@ -2016,24 +2721,24 @@ function handleCombatAction() {
     // Observe) is likewise a guaranteed 0% — same deterministic free-hit path, no
     // Math.random(). Attempting it costs the turn: the enemy gets a free hit.
     if (combat.isRainfish || combat.isMireToadSpawn || combat.isFortGuard || combat.isFortPolwick || combat.isFortEssa ||
-        combat.enemy.runLock === 'observe_gated') {
-      const roll   = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
-      const dodged = playerEvades();
+        enemy.runLock === 'observe_gated') {
+      const roll   = rollAttackDamage(enemy.atk, effectivePlayerIncomingMitigation(enemy.atk));
+      const dodged = playerEvades(enemy);
       const eDmg   = dodged ? 0 : roll.dmg;
       const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const noRunText = dodged ? evadeText(true)
+      const noRunText = dodged ? evadeText(true, enemy)
         : combat.isRainfish     ? `${ec}Nowhere to go! Rainfish thrashes for ${eDmg}!`
         : combat.isMireToadSpawn ? `${ec}The spawning bed is all around you! Mire Toad strikes for ${eDmg}!`
         : combat.isFortGuard    ? `${ec}The guard holds the door! He strikes for ${eDmg}!`
         : combat.isFortPolwick  ? `${ec}Polwick stays between you and the door! He strikes for ${eDmg}!`
         : combat.isFortEssa     ? `${ec}Essa keeps herself between you and the door! She strikes for ${eDmg}!`
-        :                         `${ec}You can't tell where its web ends! The ${combat.enemy.name} bites for ${eDmg}!`;
+        :                         `${ec}You can't tell where its web ends! The ${enemy.name} bites for ${eDmg}!`;
       const msgs = [noRunText];
       if (newHp <= 0) { msgs.push(`${stats.name} has fallen...`); combat.pendingDefeat = true; }
       // A blocked run still spends the turn — Burn ticks, same as a failed run.
-      const blockedRunBurn = burnTickEntry();
+      const blockedRunBurn = burnTickEntry(enemy);
       if (blockedRunBurn) msgs.push(blockedRunBurn);
       const blockedRunBomb = bombFuseEntry();
       if (blockedRunBomb) msgs.push(blockedRunBomb);
@@ -2044,7 +2749,7 @@ function handleCombatAction() {
     }
     // Run — same probabilistic speed contest as turn order (speedWinChance):
     // faster gets away more often, slower less, but it's never a certainty.
-    const escapeChance = speedWinChance(effectiveSpd(), combat.enemy.spd);
+    const escapeChance = speedWinChance(effectiveSpd(), enemy.spd);
     if (Math.random() < escapeChance) {
       combat.message      = 'Got away safely!';
       combat.messageQueue = [];
@@ -2052,19 +2757,19 @@ function handleCombatAction() {
       combat.phase        = 'message';
     } else {
       // Failed to flee — enemy gets a free hit (unless Bullet Time dodges it)
-      const roll   = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
-      const dodged = playerEvades();
+      const roll   = rollAttackDamage(enemy.atk, effectivePlayerIncomingMitigation(enemy.atk));
+      const dodged = playerEvades(enemy);
       const eDmg   = dodged ? 0 : roll.dmg;
       const ec     = (!dodged && roll.crit) ? 'Critical! ' : '';
       const newHp = Math.max(0, stats.hp - eDmg);
       stats.hp = newHp;
-      const msgs = [dodged ? `Couldn't escape! ${evadeText(true)}` : `${ec}Couldn't escape! ${combat.enemy.name} attacks for ${eDmg}!`];
+      const msgs = [dodged ? `Couldn't escape! ${evadeText(true, enemy)}` : `${ec}Couldn't escape! ${enemy.name} attacks for ${eDmg}!`];
       if (newHp <= 0) {
         msgs.push(`${stats.name} has fallen...`);
         combat.pendingDefeat = true;
       }
       // Burn still ticks on a failed escape — it's a turn spent in the fight.
-      const runBurn = burnTickEntry();
+      const runBurn = burnTickEntry(enemy);
       if (runBurn) msgs.push(runBurn);
       const runBomb = bombFuseEntry();
       if (runBomb) msgs.push(runBomb);
@@ -2086,15 +2791,15 @@ function handleCombatAction() {
     // never guaranteed (see speedWinChance) -- a slower fighter can still land
     // the first blow, and a faster one can still be beaten to it.
     const playerSpd  = effectiveSpd();
-    const enemySpd   = combat.enemy.spd;
+    const enemySpd   = enemy.spd;
     const playerFirst = Math.random() < speedWinChance(playerSpd, enemySpd);
 
     // Enemy defend — armoured enemies occasionally brace, halving incoming damage and not striking back
-    const enemyDefending = !!(combat.enemy.defendChance && Math.random() < combat.enemy.defendChance);
+    const enemyDefending = !!(enemy.defendChance && Math.random() < enemy.defendChance);
     // `meleeArmor` (Thornback) is extra DEF that applies ONLY to the player's melee
     // Attack — a spined guard that makes close-in strikes glance off. Thrown weapons
     // route through the item path and use plain `def`, so they bypass it entirely.
-    const pRoll = rollAttackDamage(effectiveAtk(), combat.enemy.def + (combat.enemy.meleeArmor || 0));
+    const pRoll = rollAttackDamage(effectiveAtk(), enemy.def + (enemy.meleeArmor || 0));
     // Cursed fumble — 25% chance of a wild swing dealing only 1 damage
     const cursedFumble = !enemyDefending && hasStatusEffect('cursed') && Math.random() < 0.25;
     const pDmg = enemyDefending ? Math.max(1, Math.floor(pRoll.dmg / 2))
@@ -2102,7 +2807,7 @@ function handleCombatAction() {
                : pRoll.dmg;
     const pCrit = pRoll.crit && !enemyDefending && !cursedFumble; // only a clean hit reads as a crit
     const pc = pCrit ? 'Critical hit! ' : '';
-    const eRoll = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
+    const eRoll = rollAttackDamage(enemy.atk, effectivePlayerIncomingMitigation(enemy.atk));
     const eDmg  = eRoll.dmg;
     const ec    = eRoll.crit ? 'Critical! ' : '';
     // Actual melee damage the player's Attack lands this turn (0 = missed/evaded),
@@ -2112,42 +2817,42 @@ function handleCombatAction() {
 
     if (enemyDefending) {
       // ── Enemy bracing: player deals half damage, enemy does not strike back ──
-      combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
+      enemy.hp = Math.max(0, enemy.hp - pDmg);
       playerDamageDealt = pDmg;
-      msgs.push(`${combat.enemy.name} braces! ${stats.name} deals only ${pDmg} damage.`);
-      if (combat.enemy.hp <= 0) applyKillRewards(msgs);
+      msgs.push(`${enemy.name} braces! ${stats.name} deals only ${pDmg} damage.`);
+      if (enemy.hp <= 0) applyKillRewards(enemy, msgs);
 
     } else if (playerFirst) {
       // ── Player attacks first ──────────────────────────────────────────────
-      if (enemyEvades()) {
-        msgs.push(evadeText(false));
+      if (enemyEvades(enemy)) {
+        msgs.push(evadeText(false, enemy));
       } else {
-        combat.enemy.hp = Math.max(0, combat.enemy.hp - pDmg);
+        enemy.hp = Math.max(0, enemy.hp - pDmg);
         playerDamageDealt = pDmg;
         msgs.push(cursedFumble
           ? `Cursed! ${stats.name} swings wildly for ${pDmg} damage.`
           : `${pc}${stats.name} attacks for ${pDmg} damage!`);
       }
 
-      if (combat.enemy.hp <= 0) {
-        applyKillRewards(msgs);
+      if (enemy.hp <= 0) {
+        applyKillRewards(enemy, msgs);
       } else {
         // The enemy still takes its own swing the same turn — a full trade, so
         // the player never re-selects Attack. Damage is deferred until the
         // message is shown; a speed-based evade (incl. Bullet Time) may dodge it.
-        const dodged  = playerEvades();
+        const dodged  = playerEvades(enemy);
         const eDmgEff = dodged ? 0 : eDmg;
         msgs.push({
-          text: dodged ? evadeText(true) : `${ec}${combat.enemy.name} strikes for ${eDmgEff}!`,
-          apply() {
+          text: dodged ? evadeText(true, enemy) : `${ec}${enemy.name} strikes for ${eDmgEff}!`,
+          apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
             if (dodged) return;
             stats.hp = Math.max(0, stats.hp - eDmgEff);
-            applyEnemyHitEffects();
+            applyEnemyHitEffects(enemy);
             if (stats.hp <= 0) {
               combat.messageQueue.push(`${stats.name} has fallen...`);
               combat.pendingDefeat = true;
             }
-          },
+          }),
         });
       }
     } else {
@@ -2156,27 +2861,27 @@ function handleCombatAction() {
       // The player may evade the enemy's strike (incl. Bullet Time); the player
       // still lands their own attack the same turn (a full trade), which the
       // enemy may in turn evade.
-      const dodged      = playerEvades();
+      const dodged      = playerEvades(enemy);
       const eDmgEff     = dodged ? 0 : eDmg;
       const newPlayerHp = Math.max(0, stats.hp - eDmgEff);
-      const enemyDodged = enemyEvades();
-      const newEnemyHp  = enemyDodged ? combat.enemy.hp : Math.max(0, combat.enemy.hp - pDmg);
+      const enemyDodged = enemyEvades(enemy);
+      const newEnemyHp  = enemyDodged ? enemy.hp : Math.max(0, enemy.hp - pDmg);
 
       msgs.push({
-        text: dodged ? evadeText(true) : `${ec}${combat.enemy.name} strikes first for ${eDmgEff}!`,
-        apply() {
+        text: dodged ? evadeText(true, enemy) : `${ec}${enemy.name} strikes first for ${eDmgEff}!`,
+        apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
           stats.hp = newPlayerHp;
-          if (!dodged) applyEnemyHitEffects();
+          if (!dodged) applyEnemyHitEffects(enemy);
           if (newPlayerHp <= 0) {
             combat.messageQueue.push(`${stats.name} has fallen...`);
             combat.pendingDefeat = true;
           }
-        },
+        }),
       });
 
       if (newPlayerHp > 0 && enemyDodged) {
         // The player still swings, but the enemy slips it.
-        msgs.push(evadeText(false));
+        msgs.push(evadeText(false, enemy));
       } else if (newPlayerHp > 0) {
         // The player still lands their own attack the same turn; the enemy HP
         // update is deferred to match the message.
@@ -2185,11 +2890,11 @@ function handleCombatAction() {
           : `${pc}${stats.name} attacks for ${pDmg} damage!`;
         msgs.push({
           text: answerText,
-          apply() { combat.enemy.hp = newEnemyHp; },
+          apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) { enemy.hp = newEnemyHp; }),
         });
         playerDamageDealt = pDmg;
 
-        if (newEnemyHp <= 0) applyKillRewards(msgs);
+        if (newEnemyHp <= 0) applyKillRewards(enemy, msgs);
       }
     }
 
@@ -2197,19 +2902,19 @@ function handleCombatAction() {
     // fraction of the melee damage the player's Attack dealt this turn. Skipped when
     // the swing missed (playerDamageDealt 0), when the hit killed it (pendingVictory),
     // or when the player already fell to its counter this turn.
-    if (combat.enemy && combat.enemy.thornsReflect && playerDamageDealt > 0 &&
+    if (enemy && enemy.thornsReflect && playerDamageDealt > 0 &&
         !combat.pendingVictory && !combat.pendingDefeat) {
-      const back = Math.max(1, Math.round(playerDamageDealt * combat.enemy.thornsReflect));
+      const back = Math.max(1, Math.round(playerDamageDealt * enemy.thornsReflect));
       msgs.push({
-        text: `The ${combat.enemy.name}'s spines rake back for ${back}!`,
-        apply() {
+        text: `The ${enemy.name}'s spines rake back for ${back}!`,
+        apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
           if (stats.hp <= 0) return;   // player already fell this turn — don't pile on
           stats.hp = Math.max(0, stats.hp - back);
           if (stats.hp <= 0 && !combat.pendingDefeat) {
             combat.messageQueue.push(`${stats.name} has fallen...`);
             combat.pendingDefeat = true;
           }
-        },
+        }),
       });
     }
 
@@ -2217,21 +2922,21 @@ function handleCombatAction() {
     // almost always provokes a retaliatory strike, on TOP of the normal trade — the
     // deterrent that pairs with its melee armor. Rolled only for the player's melee
     // Attack; the player may still evade it. Skipped if the fight already ended.
-    if (combat.enemy && combat.enemy.counterChance && !combat.pendingVictory && !combat.pendingDefeat &&
-        Math.random() < combat.enemy.counterChance) {
-      const cRoll   = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
-      const cDodged = playerEvades();
+    if (enemy && enemy.counterChance && !combat.pendingVictory && !combat.pendingDefeat &&
+        Math.random() < enemy.counterChance) {
+      const cRoll   = rollAttackDamage(enemy.atk, effectivePlayerIncomingMitigation(enemy.atk));
+      const cDodged = playerEvades(enemy);
       const cDmg    = cDodged ? 0 : cRoll.dmg;
       msgs.push({
-        text: cDodged ? `You slip the ${combat.enemy.name}'s counter!` : `The ${combat.enemy.name} counters, striking back for ${cDmg}!`,
-        apply() {
+        text: cDodged ? `You slip the ${enemy.name}'s counter!` : `The ${enemy.name} counters, striking back for ${cDmg}!`,
+        apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
           if (cDodged || stats.hp <= 0) return;
           stats.hp = Math.max(0, stats.hp - cDmg);
           if (stats.hp <= 0 && !combat.pendingDefeat) {
             combat.messageQueue.push(`${stats.name} has fallen...`);
             combat.pendingDefeat = true;
           }
-        },
+        }),
       });
     }
   } else if (action === 'item') {
@@ -2241,14 +2946,14 @@ function handleCombatAction() {
     return;
   } else if (action === 'observe') {
     // ── Observe ────────────────────────────────────────────────────────────
-    combat.observeCount++;
-    const obsLines = getObservationText(combat.enemy, combat.observeCount - 1);
+    enemy.observeCount++;
+    const obsLines = getObservationText(enemy, enemy.observeCount - 1);
     obsLines.forEach(l => msgs.push(l));
 
     // Observe-gated escape unlock (Lensweb Spider): the first look reveals it
     // won't pursue, and every look after is idempotent — a boolean can't stack or
     // exceed 100%, and it creates no persistent state (cleared on endCombat).
-    if (combat.enemy.runLock === 'observe_gated') combat.escapeUnlocked = true;
+    if (enemy.runLock === 'observe_gated') enemy.escapeUnlocked = true;
 
     // Roll whether the enemy closes in this turn.
     // Bosses/specials are more relentless: 25% skip chance vs 50% for normal.
@@ -2258,25 +2963,25 @@ function handleCombatAction() {
                       combat.isFortPolwick || combat.isFortEssa || combat.isMulholland ||
                       combat.isPaleSentry || combat.isDenWraith || combat.isSailorBrawl ||
                       combat.isTakomo || combat.isRainfish || combat.isMireToadSpawn || combat.is23 ||
-                      !!combat.enemy.runLock;
+                      !!enemy.runLock;
     const skipChance = isSpecial ? 0.25 : 0.50;
     if (Math.random() < skipChance) {
       msgs.push('It does not close the distance.');
     } else {
-      const obsRoll  = rollAttackDamage(combat.enemy.atk, effectivePlayerIncomingMitigation(combat.enemy.atk));
-      const dodged   = playerEvades();
+      const obsRoll  = rollAttackDamage(enemy.atk, effectivePlayerIncomingMitigation(enemy.atk));
+      const dodged   = playerEvades(enemy);
       const obsEDmg  = dodged ? 0 : obsRoll.dmg;
       const obsNewHp = Math.max(0, stats.hp - obsEDmg);
       msgs.push({
-        text: dodged ? evadeText(true) : `${obsRoll.crit ? 'Critical! ' : ''}${combat.enemy.name} strikes for ${obsEDmg}!`,
-        apply() {
+        text: dodged ? evadeText(true, enemy) : `${obsRoll.crit ? 'Critical! ' : ''}${enemy.name} strikes for ${obsEDmg}!`,
+        apply: bindCombatEnemyEffect(enemy.instanceId, function(enemy) {
           stats.hp = obsNewHp;
-          if (!dodged) applyEnemyHitEffects();
+          if (!dodged) applyEnemyHitEffects(enemy);
           if (obsNewHp <= 0) {
             combat.messageQueue.push(`${stats.name} has fallen...`);
             combat.pendingDefeat = true;
           }
-        },
+        }),
       });
     }
   }
@@ -2285,11 +2990,11 @@ function handleCombatAction() {
   // acted — but not if the enemy just died (fight's won) or the turn produced
   // no messages at all.
   if (msgs.length > 0 && !combat.pendingVictory) {
-    const turnBurn = burnTickEntry();
+    const turnBurn = burnTickEntry(enemy);
     if (turnBurn) msgs.push(turnBurn);
     // Enemy regen (Rotwood Troll) ticks at the end of a turn it survived — Attack
     // AND Observe both reach here, so stalling with Observe lets it heal too.
-    const turnRegen = enemyRegenEntry();
+    const turnRegen = enemyRegenEntry(enemy);
     if (turnRegen) msgs.push(turnRegen);
     // Bomb fuse: Attack and Observe are spent turns that burn it down toward detonation.
     const turnBomb = bombFuseEntry();

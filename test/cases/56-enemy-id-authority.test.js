@@ -201,7 +201,7 @@ module.exports = {
           combat.messageQueue = [];
           MUDSLITHER_INFLICTABLE = true;
           Math.random = function(){ return 0; };
-          applyEnemyHitEffects();
+          applyEnemyHitEffects(combat.enemy);
           var slithered = hasStatusEffect('slither');
 
           if (!spriteCalledForId) return 'sprite dispatch did not use id after rename';
@@ -306,12 +306,12 @@ module.exports = {
 
           combat.enemy.id = 'enemy_marsh_wisp';     // disconnect from the slug id
           removeStatusEffect('slither'); combat.messageQueue = [];
-          applyEnemyHitEffects();
+          applyEnemyHitEffects(combat.enemy);
           var firedWhenDisconnected = hasStatusEffect('slither');
 
           combat.enemy.id = realId;                 // reconnect
           removeStatusEffect('slither'); combat.messageQueue = [];
-          applyEnemyHitEffects();
+          applyEnemyHitEffects(combat.enemy);
           var firedWhenConnected = hasStatusEffect('slither');
 
           if (firedWhenDisconnected) return 'slither fired under the wrong id (branch is not id-gated)';

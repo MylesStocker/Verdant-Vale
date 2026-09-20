@@ -5,21 +5,14 @@
 // file. Companion to BALANCE_REPORT.md — every number in that report was
 // produced by this script, not hand-estimated.
 //
-// Method (same philosophy as test/transition-audit.js): rather than
-// hand-transcribing enemy stats/formulas from the source files and risking
-// a copy error that quietly invalidates the whole report, this script loads
-// the real game into a live `vm` context via test/harness.js and reads the
-// actual constant objects (ENEMY_TEMPLATES, XP_THRESHOLDS, MERCHANT_STOCK,
-// etc.) directly out of it. The turn-resolution formula itself (damage,
-// turn order, brace, curse-fumble, escape chance) is re-implemented here in
-// plain JS so thousands of Monte-Carlo trials run fast — but it is
-// re-implemented, not guessed: SELF-CHECK below drives one real combat turn
-// through the actual `handleCombatAction()` in the vm context with
-// `Math.random` pinned to a fixed sequence, and asserts this script's
-// reimplementation produces byte-identical damage numbers for the same
-// inputs. If the two ever disagree (e.g. someone changes combat.js and
-// forgets this file), the script exits non-zero instead of silently
-// reporting stale numbers.
+// APPROXIMATE attack/heal comparison, not a production-equivalent battle
+// engine. Data comes from production registries; this separate fast model
+// executes only a subset of mechanics. Every fight result carries scope
+// metadata and every printed scenario identifies unmodeled template fields.
+// SELF-CHECK covers three simple, fixed-input runtime examples only; it does
+// not establish authored-enemy, event, reward, or RNG-sequence parity.
+// Production handlers exercised through combat-trace.js are the compatibility
+// oracle. Never change production combat to match numbers from this report.
 //
 // Determinism: all Monte-Carlo sampling uses a seeded PRNG (mulberry32), not
 // Math.random, so `node test/balance-report.js` prints identical numbers on
@@ -29,6 +22,7 @@
 
 const assert = require('assert');
 const { createContext } = require('./harness');
+const { simulatorScope, scopeLabel } = require('./simulator-scope');
 
 // ─── Seeded PRNG (mulberry32) — deterministic Monte Carlo ───────────────────
 function mulberry32(seed) {
@@ -111,15 +105,16 @@ const MERCHANT_STOCK  = pull('MERCHANT_STOCK');
 const TRAVELLER_STOCK = pull('TRAVELLER_STOCK');
 
 // ─────────────────────────────────────────────────────────────────────────
-// STEP 2 — self-check: verify this script's formula against the real
-// handleCombatAction() with Math.random pinned. Math is shared by reference
-// between this process and the vm sandbox (see harness.js), so overriding
-// Math.random here also affects code executed inside the vm.
+// STEP 2 — simple runtime smoke checks, NOT whole-model equivalence. A fresh
+// context and detached Math object prevent shared RNG/state leaks on failure.
 // ─────────────────────────────────────────────────────────────────────────
 function selfCheck() {
-  const realRandom = Math.random;
+  const g = createContext();
+  g.run('Math = Object.create(Math);');
+  const runtimeMath = g.run('Math');
+  const realRandom = runtimeMath.random;
   try {
-    Math.random = () => 0.5; // fixed: turn order becomes deterministic, roll multiplier = 1.0, all chance checks (<0.5) are false
+    runtimeMath.random = () => 0.5;
 
     // ── Attack self-check ──────────────────────────────────────────────────
     g.run(`
@@ -191,14 +186,14 @@ function selfCheck() {
     assert.strictEqual(playerHpAfterItem, expectedHpAfterItem, `item self-check: final HP mismatch (real=${playerHpAfterItem}, expected=${expectedHpAfterItem}) — did the enemy response fire?`);
     assert.strictEqual(finalPhaseAfterItem, 'choose', 'item self-check: combat should resolve back to choose once the enemy response message drains');
 
-    console.log('[self-check] PASSED — attack, observe, and item-use formulas match the real combat.js exactly.\n');
+    console.log('[self-check] PASSED — 3 fixed-input runtime smoke checks (Attack, Observe, heal); NOT simulator-wide or RNG/event parity.\n');
   } finally {
-    Math.random = realRandom;
+    runtimeMath.random = realRandom;
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// STEP 3 — reimplemented (and now verified) combat model, driven by the
+// STEP 3 — approximate subset model, driven by the
 // seeded PRNG for deterministic Monte Carlo.
 // ─────────────────────────────────────────────────────────────────────────
 function effAtk(p) { return p.atk; } // gear already folded into p.atk by caller
@@ -228,9 +223,8 @@ function effSpd(p, statuses, rng) {
   return Math.max(1, p.spd - (statuses.muddied ? 2 : 0));
 }
 
-// Faithful port of the currently enabled in-combat status hooks. Muddied and
-// Slither remain debug-only while curse stays property-driven. Poison ticks
-// during travel/rest rather than battle.
+// Only curse application is modeled; other enabled on-hit mechanics are
+// omitted. Even this path omits curse prevention and production queue timing.
 function applyEnemyHitEffects(enemyTemplate, statuses, rng) {
   if (enemyTemplate.curseChance && !statuses.cursed && rng() < enemyTemplate.curseChance) statuses.cursed = true;
 }
@@ -311,6 +305,7 @@ function simulateFight(playerIn, enemyTemplateIn, rng, opts) {
   }
 
   return {
+    scope: simulatorScope('fast', [enemyTemplateIn]),
     win: enemy.hp <= 0 && player.hp > 0,
     timedOut: turns >= MAX_TURNS,
     turns,
@@ -332,6 +327,7 @@ function monteCarlo(player, enemyTemplate, seed, trials, opts) {
     totalDmg += r.damageTaken;
   }
   return {
+    scope: simulatorScope('fast', [enemyTemplate]),
     winRate: wins / trials,
     deathRate: deaths / trials,
     timeoutRate: timeouts / trials,
@@ -450,6 +446,8 @@ function runReport() {
 console.log('='.repeat(78));
 console.log('BALANCE SIMULATION — empire-game');
 console.log('='.repeat(78) + '\n');
+console.log('ALL combat estimates are APPROXIMATE. Production-executed trace tests are the compatibility oracle.');
+for (const limit of simulatorScope('fast', []).limits) console.log('  ' + limit);
 
 selfCheck();
 
@@ -493,13 +491,13 @@ function runPoolScenario(scenario) {
     console.log(
       `${t.name.padEnd(16)} ${String(t.hp).padStart(3)} ${String(t.atk).padStart(3)} ${String(t.def).padStart(3)} ${String(t.spd).padStart(3)} | ` +
       `${String(t.xp).padStart(3)} ${avgGold.toFixed(1).padStart(6)}      | ` +
-      `${(mc.winRate * 100).toFixed(1).padStart(6)}% ${(mc.deathRate * 100).toFixed(1).padStart(8)}% ${mc.avgTurns.toFixed(1).padStart(8)} ${(mc.avgHpFracAtWin * 100).toFixed(0).padStart(6)}%  | ${rating}`
+      `${(mc.winRate * 100).toFixed(1).padStart(6)}% ${(mc.deathRate * 100).toFixed(1).padStart(8)}% ${mc.avgTurns.toFixed(1).padStart(8)} ${(mc.avgHpFracAtWin * 100).toFixed(0).padStart(6)}%  | ${rating} | ${scopeLabel(mc.scope)}`
     );
   }
   const avgXP = templates.reduce((s, t) => s + t.xp, 0) / templates.length;
   const avgGold = templates.reduce((s, t) => s + (t.goldMin + t.goldMax) / 2, 0) / templates.length;
   poolResults[scenario.heading] = { rows, avgXP, avgGold, bench: scenario, player };
-  console.log(`Pool average: ${avgXP.toFixed(1)} XP/fight, ${avgGold.toFixed(1)} gold/fight`);
+  console.log(`Template averages (not outcome-adjusted rewards): ${avgXP.toFixed(1)} XP/fight, ${avgGold.toFixed(1)} gold/fight`);
 }
 for (const scenario of POOL_SCENARIOS) runPoolScenario(scenario);
 
@@ -577,7 +575,7 @@ function runSpecialScenario(scenario) {
     `${scenario.heading.padEnd(22)} ${String(template.hp).padStart(4)} ${String(template.atk).padStart(3)} ${String(template.def).padStart(3)} ${String(template.spd).padStart(3)} | ` +
     `Lv.${scenario.level} ${scenario.tier.padEnd(22)} | ` +
     `${(noPotion.winRate * 100).toFixed(1).padStart(5)}% ${(noPotion.deathRate * 100).toFixed(1).padStart(6)}% ${noPotion.avgTurns.toFixed(1).padStart(8)} ${(noPotion.avgHpFracAtWin * 100).toFixed(0).padStart(6)}%  ${dangerRating(noPotion).padEnd(9)} | ` +
-    `${(withPotion.winRate * 100).toFixed(1).padStart(5)}% ${(withPotion.deathRate * 100).toFixed(1).padStart(6)}%`
+    `${(withPotion.winRate * 100).toFixed(1).padStart(5)}% ${(withPotion.deathRate * 100).toFixed(1).padStart(6)}% | ${scopeLabel(noPotion.scope)}`
   );
   console.log(`   note: ${scenario.note}`);
 }
@@ -590,6 +588,7 @@ console.log('\n' + '='.repeat(78));
 console.log('OBSERVE — EFFECT ON EXPECTED INCOMING DAMAGE');
 console.log('='.repeat(78));
 console.log('Compares one "Observe" action against one "Attack" action, same matchup, no kill this turn.');
+console.log('APPROXIMATE analytical table: excludes criticals, evasion, on-hit effects, counters, statuses and event context.');
 console.log('Enemy            Player(Lv/tier)              | AvgEnemyDmg | P(hit)Observe P(hit)Attack | E[dmg]Observe E[dmg]Attack');
 {
   const rngCheck = mulberry32(99);
@@ -613,7 +612,7 @@ console.log('Enemy            Player(Lv/tier)              | AvgEnemyDmg | P(hit
       console.log(
         `${t.name.padEnd(16)} Lv.${scenario.level} ${scenario.tier.padEnd(22)} | ${String(avgEDmg).padStart(4)}       | ` +
         `${(observeHitChance * 100).toFixed(0).padStart(6)}%       ${(attackHitChance * 100).toFixed(0).padStart(6)}%     | ` +
-        `${eObserve.toFixed(2).padStart(6)}       ${eAttack.toFixed(2)}`
+        `${eObserve.toFixed(2).padStart(6)}       ${eAttack.toFixed(2)} | ${scopeLabel(simulatorScope('fast', [t]))}`
       );
     }
   }
@@ -666,6 +665,12 @@ console.log('\nDone.');
 if (require.main === module) runReport();
 
 module.exports = {
+  selfCheck,
+  simulateFight,
+  monteCarlo,
+  rolledDamage,
+  incomingMitigation,
+  speedWinChance,
   poolInventoryById,
   scriptedIdsFromRegistry,
   validatePoolScenarios,

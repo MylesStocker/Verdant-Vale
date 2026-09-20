@@ -192,7 +192,7 @@ const debugMenu = {
   open:   false,
   cursor: 0,
 };
-const DEBUG_MENU_ROW_COUNT = 11;
+const DEBUG_MENU_ROW_COUNT = 12; // final row: developer Formation Combat Lab
 
 // ─── Debug map inspector state ─────────────────────────────────────────────────
 // A lightweight, always-updating HUD overlay (not a modal menu — doesn't

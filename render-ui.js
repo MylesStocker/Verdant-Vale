@@ -1532,9 +1532,10 @@ function drawMenu() {
 const DEBUG_MENU_PANEL_WIDTH = 300;
 function drawDebugMenu() {
   if (!debugMenu.open) return;
+  if (formationCombatLab.isMenuOpen()) { drawFormationLabMenu(); return; }
 
   const W = 512, H = 480;
-  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 316;
+  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 340;
   const PX = Math.floor((W - PW) / 2);
   const PY = Math.floor((H - PH) / 2);
 
@@ -1567,6 +1568,7 @@ function drawDebugMenu() {
     { type: 'toggle', label: '[ Home on Defeat ]', value: defeatWakeAtHome,      onColor: '#78e888', offColor: '#3a5858' },
     { type: 'toggle', label: '[ Legacy Regional Fallback ]', value: forceLegacyRegionalView, onColor: '#e8a878', offColor: '#3a5858' },
     { type: 'action', label: '[ Play Sera/Liora Cutaway ]' },
+    { type: 'action', label: '[ DEV: Formation Combat Lab ]' },
   ];
 
   rows.forEach((row, i) => {
@@ -1592,6 +1594,40 @@ function drawDebugMenu() {
   ctx.textAlign = 'center';
   ctx.fillText('[ \u0060 / ESC ] close   [ I ] inspector', PX + Math.floor(PW / 2), PY + PH - 8);
   ctx.textAlign = 'left';
+}
+
+// Developer-only submenu and overlay; no input, timer, or combat mutation.
+function drawFormationLabMenu() {
+  const view = formationCombatLab.getView();
+  if (!view || view.active) return;
+  ctx.save();
+  ctx.fillStyle = '#08121e';ctx.fillRect(40,116,432,240);
+  ctx.strokeStyle = '#e8a030';ctx.lineWidth = 2;ctx.strokeRect(41,117,430,238);
+  ctx.fillStyle = '#e8a030';ctx.font = 'bold 13px "Courier New", monospace';
+  ctx.fillText('DEV: FORMATION COMBAT LAB',56,142);
+  ctx.fillStyle = '#8aaa98';ctx.font = '10px "Courier New", monospace';
+  ctx.fillText('Test scenarios only. No rewards or progression.',56,160);
+  FORMATION_LAB_SCENARIOS.forEach((scenario,i) => {
+    const y = 190 + i * 30;
+    if (i === view.cursor) {
+      ctx.fillStyle = '#173442';ctx.fillRect(52,y-15,408,24);
+    }
+    ctx.fillStyle = i === view.cursor ? '#d0e8e0' : '#6b9390';
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillText((i === view.cursor ? '▶ ' : '  ') + scenario.label,60,y);
+  });
+  ctx.font = '10px "Courier New", monospace';ctx.fillStyle = '#8aaa98';
+  ctx.fillText('↑/↓ or w/s: select · Enter/Space: start · Esc/B: back',52,282,408);
+  ctx.fillStyle = '#e8bc80';
+  wrapMonospaceText(ctx,view.error,400).slice(0,3).forEach((line,i)=>ctx.fillText(line,56,307+i*12));
+  ctx.restore();
+}
+
+function drawFormationLabHints() {
+  ctx.save();ctx.fillStyle = '#8ac8d8';ctx.font = '9px "Courier New", monospace';
+  ctx.fillText('DEV LAB · Enter/Space: confirm/advance · ←/→ or a/d: target',22,448,468);
+  ctx.fillText('Esc/B: cancel target · Esc: leave at action selection or result',22,462,468);
+  ctx.restore();
 }
 
 // ─── Debug Warp Menu ────────────────────────────────────────────────────────

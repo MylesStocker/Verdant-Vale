@@ -73,16 +73,16 @@ module.exports = {
     assert.deepEqual(damageRoll(g, 10, 8, 0.999999, 0), { dmg: 6, crit: true });
     const landed = JSON.parse(g.run(`(function(){
       stats.hp=30;stats.maxHp=30;stats.def=20;stats.armor=null;stats.shield=null;stats.spd=7;statusEffects=[];
-      combat.evadeTurns=0;combat.enemy={id:'enemy_fen_witch',name:'Anything',atk:10,def:0,spd:7};combat.messageQueue=[];
+      combat.active=true;combat.evadeTurns=0;combat.enemy={id:'enemy_fen_witch',name:'Anything',atk:10,def:0,spd:7};combat.messageQueue=[];
       var q=[0.5,0.99,0.99,0],i=0,old=Math.random;Math.random=function(){return q[i++];};
-      try{var hit=enemyTurnResponse(function(d){return 'hit '+d;});hit.apply();return JSON.stringify({hp:stats.hp,poison:hasStatusEffect('poison'),text:hit.text});}
+      try{var hit=enemyTurnResponse(combat.enemy,function(d){return 'hit '+d;});hit.apply();return JSON.stringify({hp:stats.hp,poison:hasStatusEffect('poison'),text:hit.text});}
       finally{Math.random=old;}
     })()`));
     assert.deepEqual(landed, { hp: 28, poison: true, text: 'hit 2' }, 'landed capped hit deals damage before applying the existing status hook');
     const dodged = JSON.parse(g.run(`(function(){
       stats.hp=30;statusEffects=[];combat.evadeTurns=3;combat.messageQueue=[];
       var q=[0.5,0.99,0.5],i=0,old=Math.random;Math.random=function(){return q[i++];};
-      try{var hit=enemyTurnResponse(function(d){return 'hit '+d;});hit.apply();return JSON.stringify({hp:stats.hp,poison:hasStatusEffect('poison'),text:hit.text,turns:combat.evadeTurns});}
+      try{var hit=enemyTurnResponse(combat.enemy,function(d){return 'hit '+d;});hit.apply();return JSON.stringify({hp:stats.hp,poison:hasStatusEffect('poison'),text:hit.text,turns:combat.evadeTurns});}
       finally{Math.random=old;}
     })()`));
     assert.equal(dodged.hp, 30);
@@ -185,8 +185,8 @@ module.exports = {
     // (6th occurrence added by the Thornback counter-attack, which correctly routes
     // its retaliation damage through the same mitigation helper.)
     const combatSource = fs.readFileSync(path.join(ROOT, 'combat.js'), 'utf8');
-    assert.equal((combatSource.match(/rollAttackDamage\(combat\.enemy\.atk, effectivePlayerIncomingMitigation\(combat\.enemy\.atk\)\)/g) || []).length, 6);
-    assert.doesNotMatch(combatSource, /rollAttackDamage\(combat\.enemy\.atk, effectiveDef\(\)\)/);
+    assert.equal((combatSource.match(/rollAttackDamage\(enemy\.atk, effectivePlayerIncomingMitigation\(enemy\.atk\)\)/g) || []).length, 6);
+    assert.doesNotMatch(combatSource, /rollAttackDamage\((?:combat\.)?enemy\.atk, effectiveDef\(\)\)/);
     const helperBody = combatSource.slice(combatSource.indexOf('function playerIncomingMitigation'), combatSource.indexOf('// Accessories contribute'));
     assert.doesNotMatch(helperBody, /Cat Armor|Takomo|enemy_|activeMap|\.name/);
   },

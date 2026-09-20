@@ -3850,17 +3850,155 @@ function wrapMonospaceText(ctx, text, maxWidth) {
   return lines;
 }
 
-// ─── Combat Screen ────────────────────────────────────────────────────────────
-function drawCombat() {
-  const W = 512, H = 480;
+// Formation presentation is explicitly supplied a frozen session view. These
+// conservative visual bounds cover the existing idle animation of the eight
+// state-only templates; they do not grant any template combat capabilities.
+const FORMATION_SPRITE_BOUNDS = new Map([
+  [drawBattleWisp, Object.freeze([-40, -55, 40, 65])],
+  [drawBattleBriarHound, Object.freeze([-56, -67, 44, 22])],
+  [drawBattleSluiceSlime, Object.freeze([-48, -66, 48, 15])],
+  [drawBattleReedGrappler, Object.freeze([-70, -78, 70, 13])],
+  [drawBattleSiltLurker, Object.freeze([-28, -132, 28, 15])],
+]);
 
-  // White-flash transition for the first 8 frames
-  if (combat.flashTimer > 0) {
-    ctx.fillStyle = '#dceef8';
-    ctx.fillRect(0, 0, W, H);
-    return;
+function getFormationBattleLayout(view) {
+  const fail = () => { throw new Error('Invalid formation presentation view'); };
+  const hpValid = p => p && Number.isSafeInteger(p.hp) && Number.isSafeInteger(p.maxHp) &&
+    p.maxHp > 0 && p.hp >= 0 && p.hp <= p.maxHp;
+  if (!view || !Object.isFrozen(view) ||
+      !['awaiting_action','targeting','playback','playback_complete','victory','defeat'].includes(view.phase) ||
+      !Array.isArray(view.enemies) || !Object.isFrozen(view.enemies) ||
+      ![2,3].includes(view.enemies.length) || !hpValid(view.player) ||
+      !Object.isFrozen(view.player) || view.player.id !== 'player' || typeof view.player.name !== 'string') fail();
+  const ids = new Set();
+  const templates = view.enemies.map((e, slot) => {
+    if (!Object.isFrozen(e) || !hpValid(e) || e.slot !== slot ||
+        typeof e.instanceId !== 'string' || !e.instanceId || ids.has(e.instanceId)) fail();
+    ids.add(e.instanceId);
+    const t = Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY, e.templateId)?.value;
+    const sprite = ENEMY_SPRITE_DISPATCH[e.templateId];
+    if (!t || typeof t.name !== 'string' || !sprite || !FORMATION_SPRITE_BOUNDS.has(sprite.draw)) fail();
+    return t;
+  });
+  if (view.phase === 'targeting') {
+    if (!view.enemies.some(e => e.instanceId === view.selectedTargetInstanceId && e.hp > 0)) fail();
+  } else if (view.selectedTargetInstanceId !== null) fail();
+  const playing = ['playback','playback_complete','victory','defeat'].includes(view.phase);
+  if (playing) {
+    const frame = view.playbackFrame;
+    if (!frame || !Object.isFrozen(frame) || frame.player.hp !== view.player.hp ||
+        frame.player.maxHp !== view.player.maxHp || frame.enemies.length !== view.enemies.length ||
+        frame.enemies.some((e,i) => ['instanceId','slot','hp','maxHp'].some(k => e[k] !== view.enemies[i][k]) ||
+          e.id !== view.enemies[i].templateId)) fail();
+  } else if (view.playbackFrame !== null) fail();
+  const count = view.enemies.length, width = count === 2 ? 232 : 144, step = count === 2 ? 248 : 168;
+  return Object.freeze(view.enemies.map((e, i) => {
+    const bounds = FORMATION_SPRITE_BOUNDS.get(ENEMY_SPRITE_DISPATCH[e.templateId].draw);
+    const x = 16 + e.slot * step, spriteWidth = width - 16;
+    const scale = Math.min(1, spriteWidth / (bounds[2] - bounds[0]), 136 / (bounds[3] - bounds[1]));
+    const duplicate = templates.filter(t => t.name === templates[i].name).length > 1;
+    return Object.freeze({instanceId:e.instanceId, slot:e.slot, x, width,
+      label:templates[i].name + (duplicate ? ' ' + String.fromCharCode(65 + e.slot) : ''),
+      spriteX:x + 8, spriteY:76, spriteWidth, spriteHeight:136, scale,
+      // All sprites share a visual bottom baseline, including their shadows.
+      anchorX:x + width / 2 - scale * (bounds[0] + bounds[2]) / 2,
+      anchorY:212 - scale * bounds[3],
+    });
+  }));
+}
+
+function formatFormationBattleEvent(event, playerName, labels) {
+  if (!event) return 'Attack';
+  const name = id => id === 'player' ? playerName : labels.find(e => e.instanceId === id)?.label;
+  if (event.type === 'outcome') {
+    return event.outcome === 'victory' ? 'VICTORY' : event.outcome === 'defeat' ? 'DEFEATED' : 'Round complete.';
   }
+  const actor = name(event.actorId), target = name(event.targetId);
+  if (!actor || !target) throw new Error('Invalid formation presentation event identity');
+  if (event.type === 'attack') {
+    if (event.evaded) return `${target} evades ${actor}'s attack.`;
+    return `${event.critical ? 'Critical! ' : ''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
+  }
+  if (event.type === 'skip') return `${actor} cannot act.`;
+  if (event.type === 'cancel') return `${actor}'s attack is cancelled.`;
+  throw new Error('Invalid formation presentation event');
+}
 
+function drawFormationCombat(view) {
+  // Validate/format before the first canvas call. No live combatant, controller,
+  // queue or outcome authority is read here. Historic views may be replayed.
+  const layout = getFormationBattleLayout(view);
+  const message = view.phase === 'awaiting_action' ? 'Choose an action.' :
+    view.phase === 'targeting' ? 'Attack: select a target.' :
+    view.phase === 'victory' ? 'VICTORY' : view.phase === 'defeat' ? 'DEFEATED' :
+    formatFormationBattleEvent(view.playbackFrame.currentEvent, view.player.name, layout);
+  ctx.save();
+  drawBattleBackground();
+  layout.forEach((position, i) => {
+    const e = view.enemies[i], sprite = ENEMY_SPRITE_DISPATCH[e.templateId];
+    ctx.save();
+    ctx.beginPath();ctx.rect(position.spriteX, position.spriteY, position.spriteWidth, position.spriteHeight);ctx.clip();
+    ctx.translate(position.anchorX, position.anchorY);ctx.scale(position.scale, position.scale);
+    ctx.globalAlpha = e.hp === 0 ? 0.25 : 1;
+    // Dispatch dy is a singleton placement offset, not sprite geometry. Baseline
+    // anchoring replaces that offset without changing the sprite drawing itself.
+    sprite.draw(0, 0);
+    ctx.restore();
+    ctx.fillStyle = '#08121e';ctx.fillRect(position.x, 12, position.width, 50);
+    ctx.fillStyle = '#c0dcd0';ctx.font = 'bold 12px "Courier New", monospace';
+    ctx.fillText(position.label, position.x + 4, 27, position.width - 8);
+    ctx.fillStyle = '#0a1e18';ctx.fillRect(position.x + 4, 36, position.width - 8, 7);
+    ctx.fillStyle = '#3a8a5a';ctx.fillRect(position.x + 4, 36, Math.round((position.width - 8) * e.hp / e.maxHp), 7);
+    ctx.fillStyle = '#7ab898';ctx.font = '11px "Courier New", monospace';
+    ctx.fillText(`${e.hp} / ${e.maxHp}`, position.x + 4, 57, position.width - 8);
+    if (view.phase === 'targeting' && view.selectedTargetInstanceId === e.instanceId && e.hp > 0) {
+      // A dark surround and pale solid cursor remain clear on either sky/sprite.
+      const cx = position.x + position.width / 2;
+      ctx.fillStyle = '#08121e';ctx.fillRect(cx - 9, 63, 18, 12);
+      ctx.fillStyle = '#f0e8b8';ctx.beginPath();
+      ctx.moveTo(cx - 6, 65);ctx.lineTo(cx + 6, 65);ctx.lineTo(cx, 73);ctx.closePath();ctx.fill();
+    }
+  });
+  drawBattlePlayer(108, 254);
+  ctx.fillStyle = '#08121e';ctx.fillRect(8, 297, 496, 175);
+  ctx.strokeStyle = '#5a8a9a';ctx.lineWidth = 2;ctx.strokeRect(9, 298, 494, 173);
+  ctx.strokeStyle = '#2a4e5e';ctx.lineWidth = 1;ctx.strokeRect(13, 302, 486, 165);
+  ctx.fillStyle = '#8ac8d8';
+  [[9,298],[501,298],[9,469],[501,469]].forEach(([x,y]) => ctx.fillRect(x,y,2,2));
+  ctx.fillStyle = '#ccd8cc';ctx.font = '14px "Courier New", monospace';
+  const lines = wrapMonospaceText(ctx, message, 468);
+  // Bound long names/events to the established two-line message area.
+  const shown = lines.slice(0,2);
+  if (lines.length > 2) {
+    let last = shown[1];
+    while (last && ctx.measureText(last + '…').width > 468) last = last.slice(0,-1);
+    shown[1] = last + '…';
+  }
+  shown.forEach((line,i) => ctx.fillText(line,22,325+i*16,468));
+  ctx.fillStyle = '#1e3040';ctx.fillRect(22,348,468,1);
+  ctx.fillStyle = '#d0e0d0';ctx.font = 'bold 12px "Courier New", monospace';
+  ctx.fillText(view.player.name,22,370,50);
+  ctx.fillStyle = '#5a8898';ctx.font = 'bold 11px "Courier New", monospace';ctx.fillText('HP',76,370);
+  const filled = Math.round(12 * view.player.hp / view.player.maxHp);
+  for (let i=0;i<12;i++) {
+    ctx.fillStyle = i < filled ? (filled <= 3 ? '#a06820' : '#4a9a62') : '#112820';
+    ctx.fillRect(102+i*12,359,10,8);
+  }
+  ctx.fillStyle = '#8aaa98';ctx.font = '11px "Courier New", monospace';
+  ctx.fillText(`${view.player.hp} / ${view.player.maxHp}`,251,369,239);
+  // Supported formation state has no player statuses; do not invent status UI
+  // or inspect singleton status state. Its existing renderer remains unchanged.
+  ctx.fillStyle = '#1e3040';ctx.fillRect(22,382,468,1);
+  if (view.phase === 'awaiting_action' || view.phase === 'targeting') {
+    ctx.strokeStyle = '#5a8a9a';ctx.strokeRect(22,397,112,40);
+    ctx.fillStyle = '#d0e0d0';ctx.font = 'bold 14px "Courier New", monospace';ctx.fillText('Attack',43,422);
+  }
+  ctx.restore();
+}
+
+// ─── Combat Screen ────────────────────────────────────────────────────────────
+function drawBattleBackground() {
+  const W = 512;
   // ── Battle field (y = 0..295) ──────────────────────────────────────────────
 
   // Sky — gradient bands deepening toward zenith
@@ -3929,6 +4067,22 @@ function drawCombat() {
   [[62,272],[140,284],[255,268],[338,278],[430,264],[190,290],[480,282]].forEach(([sx,sy]) => {
     ctx.fillRect(sx, sy, 3, 1);
   });
+}
+
+function drawCombat(formationView) {
+  // Explicit presentation-only entry. Normal render() still calls with no
+  // arguments; this does not activate combat or acquire a session implicitly.
+  if (arguments.length) return drawFormationCombat(formationView);
+  const W = 512, H = 480;
+
+  // White-flash transition for the first 8 frames
+  if (combat.flashTimer > 0) {
+    ctx.fillStyle = '#dceef8';
+    ctx.fillRect(0, 0, W, H);
+    return;
+  }
+
+  drawBattleBackground();
 
   // Enemy sprite — right side, elevated (floating)
   drawBattleEnemy(358, 168);

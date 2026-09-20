@@ -381,6 +381,7 @@ function rehydrateItem(saved) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (formationCombatLab.isOpen()) return false; // never persist laboratory HP
   const meta = MAP_METADATA[mapIdForRef(activeMap)];
   return !meta || meta.allowSave !== false;
 }
@@ -557,6 +558,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
   const raw = localStorage.getItem('verdantVale_save');
   if (!raw) return false;
   let parsed;

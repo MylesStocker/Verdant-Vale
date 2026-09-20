@@ -19,13 +19,13 @@ module.exports = {
 
     // ── No enemy inflicts them, even with the on-hit rolls forced to always hit. ─
     // Warden (muddied):
-    g.run("statusEffects=[]; startCombat('briar_warden'); combat.isWarden=true; combat.messageQueue=[]; var _r=Math.random; Math.random=function(){return 0;}; applyEnemyHitEffects(); Math.random=_r;");
+    g.run("statusEffects=[]; startCombat('briar_warden'); combat.isWarden=true; combat.messageQueue=[]; var _r=Math.random; Math.random=function(){return 0;}; applyEnemyHitEffects(combat.enemy); Math.random=_r;");
     assert.equal(g.run("hasStatusEffect('muddied')"), false, 'the Warden no longer muddies the player');
     assert.equal(g.run("combat.messageQueue.some(function(m){return /Muddied/.test(m);})"), false, 'no Muddied message is queued');
     g.run('endCombat();');
     // Corpse slug + shade wraith (slither):
     for (const id of ['enemy_corpse_slug', 'enemy_shade_wraith']) {
-      g.run(`statusEffects=[]; startCombat('marsh_rat'); combat.enemy.id='${id}'; combat.messageQueue=[]; var _r=Math.random; Math.random=function(){return 0;}; applyEnemyHitEffects(); Math.random=_r;`);
+      g.run(`statusEffects=[]; startCombat('marsh_rat'); combat.enemy.id='${id}'; combat.messageQueue=[]; var _r=Math.random; Math.random=function(){return 0;}; applyEnemyHitEffects(combat.enemy); Math.random=_r;`);
       assert.equal(g.run("hasStatusEffect('slither')"), false, `${id} no longer slithers the player`);
       g.run('endCombat();');
     }

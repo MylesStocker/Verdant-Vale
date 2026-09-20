@@ -5,10 +5,104 @@
 // (combat, menu, choice box, shop, debug menu, overlay panels, overworld).
 
 // ─── Input ────────────────────────────────────────────────────────────────────
-const keys = Object.create(null);
+// One physical pressed-key authority, shared by the original edge latch and
+// the movement-facing projection. Masking reads also covers keys held BEFORE a
+// diagnostic session begins; swallowing new keydowns alone would leak movement.
+const pressedKeys = Object.create(null);
+const keys = new Proxy(pressedKeys, {
+  get(pressed, key) {
+    const held = pressed[key];
+    if (held && combat.mode === 'formation' && formationSessionController.getView()) return false;
+    return held;
+  },
+});
+
+// The legacy router spells these aliases inline. Normalize them once for the
+// formation adapter without changing any existing screen's key conventions.
+function formationInputCommand(key) {
+  const commands = {ArrowLeft:'left', a:'left', ArrowRight:'right', d:'right',
+    ArrowUp:'up', w:'up', ArrowDown:'down', s:'down',
+    Enter:'confirm', ' ':'confirm', Escape:'cancel', b:'cancel', B:'cancel'};
+  return Object.hasOwn(commands, key) ? commands[key] : null;
+}
+
+function handleFormationInputCommand(command) {
+  const view = formationSessionController.getView();
+  if (!view) return false;
+  // A single branch may perform at most one controller operation. Invalid or
+  // stale state throws from the authority, without retries or gameplay fallback.
+  switch (view.phase) {
+    case 'awaiting_action':
+      if (command === 'confirm') formationSessionController.beginAttack();
+      break;
+    case 'targeting':
+      if (command === 'left') formationSessionController.moveTarget('previous');
+      else if (command === 'right') formationSessionController.moveTarget('next');
+      else if (command === 'confirm') formationSessionController.confirmTarget();
+      else if (command === 'cancel') formationSessionController.cancelTargeting();
+      break;
+    case 'playback':
+      if (command === 'confirm') formationSessionController.advancePlayback();
+      break;
+    case 'playback_complete':
+      if (command === 'confirm') formationSessionController.acknowledgePlayback();
+      break;
+    case 'victory':
+    case 'defeat':
+      break; // terminal acknowledgement/finalization is deliberately absent
+    default:
+      throw new Error('Invalid formation input phase');
+  }
+  return true; // even unsupported commands belong to this exclusive input gate
+}
+
+// Clear held movement on lab boundaries, but retain action-key latches until
+// keyup so an entry/exit press cannot operate the newly visible screen.
+function reconcileFormationLabKeys() {
+  for (const key of Object.keys(pressedKeys)) {
+    if (!['Enter',' ','Escape','b','B','`'].includes(key)) pressedKeys[key] = false;
+  }
+}
+
 window.addEventListener('keydown', e => {
   if (e.key.startsWith('Arrow')) e.preventDefault();
-  if (!keys[e.key]) {  // fire-once for all action keys
+  if (formationCombatLab.isMenuOpen()) {
+    const wasHeld = pressedKeys[e.key];
+    pressedKeys[e.key] = true;
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
+      const command = formationInputCommand(e.key);
+      if (command) e.preventDefault();
+      if (!wasHeld && !e.repeat) {
+        if (command === 'up') formationCombatLab.move('previous');
+        else if (command === 'down') formationCombatLab.move('next');
+        else if (command === 'confirm') formationCombatLab.start();
+        else if (command === 'cancel') formationCombatLab.closeMenu();
+      }
+    }
+    return;
+  }
+  // Only the developer lab creates a session; no canonical encounter does.
+  // It takes priority over every screen without activating ordinary combat.
+  if (combat.mode === 'formation' && formationSessionController.getView()) {
+    const wasHeld = pressedKeys[e.key];
+    pressedKeys[e.key] = true; // latch before dispatch, including failing calls
+    // Leave browser shortcuts, focus traversal and IME behavior alone; still
+    // consume their game routing so a modified key cannot operate another screen.
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
+      const command = formationInputCommand(e.key);
+      if (command === 'confirm' || command === 'cancel') e.preventDefault();
+      if (!wasHeld && !e.repeat) {
+        const dispatch = () => {
+          if (e.key !== 'Escape' || !formationCombatLab.exit()) return handleFormationInputCommand(command);
+          return true;
+        };
+        if (formationCombatLab.isActive()) formationCombatLab.runOperation(dispatch);
+        else dispatch(); // no catch or recovery outside the developer lab
+      }
+    }
+    return;
+  }
+  if (!pressedKeys[e.key]) {  // fire-once for all action keys
     if (seraLioraCutscene.active) {
       // The opening is fully locked until its final page closes. The brief
       // playable tail accepts only local Sera WASD state and the established
@@ -259,6 +353,7 @@ window.addEventListener('keydown', e => {
         // 2 Muddied, 3 Slither, 4 Heal Full, 5 Day +1, 6 Warp to...,
         // 7 Validate Data, 8 Home on Defeat, 9 Legacy Regional Fallback,
         // 10 Play Sera/Liora Cutaway
+        // 11 DEV: Formation Combat Lab
         e.preventDefault();
         if (e.key === 'ArrowUp'   || e.key === 'w') debugMenu.cursor = Math.max(0, debugMenu.cursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') debugMenu.cursor = Math.min(DEBUG_MENU_ROW_COUNT - 1, debugMenu.cursor + 1);
@@ -322,6 +417,8 @@ window.addEventListener('keydown', e => {
             // destination catalog, so neither the debug warp list nor the
             // player-facing Warp Stone exposes the guest room.
             debugPlaySeraLioraCutaway();
+          } else if (debugMenu.cursor === 11) {
+            formationCombatLab.open();
           }
         }
         if (e.key === 'Escape' || e.key === '`') { debugMenu.open = false; }

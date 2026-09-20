@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 'use strict';
-// Paired deterministic report for the bounded player-defense increment.
-// Each scenario runs the committed legacy formula and the corrected formula
-// with the same seed, 4,000 trials, and attack/heal policy.
+// Historical/diagnostic APPROXIMATION for the player-defense increment.
+// Compares uncapped historical DEF with the current cap using the same seed,
+// trial count, and attack/heal policy. Equal seeds do not mean equal production
+// event/RNG traces. Enemy arrays are SEQUENTIAL; rewards, quest handoffs, most
+// statuses and enemy capabilities are omitted. Production is the authority.
 
 const { createContext } = require('./harness');
+const { simulatorScope, scopeLabel } = require('./simulator-scope');
 
 const TRIALS = 4000;
 const BASE_SEED = 1000;
@@ -178,6 +181,10 @@ function simulateTrial(scenario, corrected, rng, hitDamages) {
 }
 
 function runScenario(scenario, corrected, seed) {
+  const scope = simulatorScope('defense', scenario.enemies.map(id => {
+    if (!ENEMIES[id]) throw new Error('Unknown defense scenario enemy: ' + id);
+    return ENEMIES[id];
+  }));
   const rng = mulberry32(seed);
   const hitDamages = [];
   let wins = 0, hp = 0, potions = 0, turns = 0;
@@ -191,6 +198,7 @@ function runScenario(scenario, corrected, seed) {
   const sumDamage = hitDamages.reduce((a, b) => a + b, 0);
   const floorHits = hitDamages.filter((d) => d === 1).length;
   return {
+    scope,
     winRate: wins / TRIALS * 100,
     avgHp: hp / TRIALS,
     avgPotions: potions / TRIALS,
@@ -217,22 +225,25 @@ function capSummary(scenario, player) {
 
 function runReport() {
   console.log(`# Player-defense balance increment (${TRIALS} trials; base seed ${BASE_SEED})`);
+  console.log('APPROXIMATE historical comparison. Neither column is a production-equivalent battle trace.');
+  for (const limit of simulatorScope('defense', []).limits) console.log(limit);
   console.log('');
-  console.log('| Scenario | DEF | 80% ATK cap | Active? | Formula | Enemy dmg mean (range) | Floor hits | Win | Avg HP | Avg Potions | Avg turns | Difference from baseline |');
-  console.log('|---|---:|---:|:---:|:---|---:|---:|---:|---:|---:|---:|:---|');
+  console.log('| Scenario | DEF | 80% ATK cap | Active? | Formula | Enemy dmg mean (range) | Floor hits | Win | Avg HP | Avg Potions | Avg turns | Difference from baseline | Scope |');
+  console.log('|---|---:|---:|:---:|:---|---:|---:|---:|---:|---:|---:|:---|:---|');
   SCENARIOS.forEach((scenario, index) => {
     const player = playerAt(scenario.level, GEAR[scenario.gear]);
     const caps = capSummary(scenario, player);
     const baseline = runScenario(scenario, false, BASE_SEED + index);
     const corrected = runScenario(scenario, true, BASE_SEED + index);
     const row = (formula, r, delta) =>
-      `| ${scenario.label} | ${player.def} | ${caps.cap} | ${caps.active} | ${formula} | ${fmt(r.damageMean)} (${r.damageMin}–${r.damageMax}) | ${fmt(r.floorPct)}% | ${fmt(r.winRate)}% | ${fmt(r.avgHp)} | ${fmt(r.avgPotions, 2)} | ${fmt(r.avgTurns)} | ${delta} |`;
-    console.log(row('baseline', baseline, '—'));
-    console.log(row('corrected', corrected,
+      `| ${scenario.label} | ${player.def} | ${caps.cap} | ${caps.active} | ${formula} | ${fmt(r.damageMean)} (${r.damageMin}–${r.damageMax}) | ${fmt(r.floorPct)}% | ${fmt(r.winRate)}% | ${fmt(r.avgHp)} | ${fmt(r.avgPotions, 2)} | ${fmt(r.avgTurns)} | ${delta} | ${scopeLabel(r.scope)} |`;
+    console.log(row('historical uncapped', baseline, '—'));
+    console.log(row('current cap model', corrected,
       `dmg ${signed(corrected.damageMean - baseline.damageMean)}; floor ${signed(corrected.floorPct - baseline.floorPct)}pp; win ${signed(corrected.winRate - baseline.winRate)}pp; HP ${signed(corrected.avgHp - baseline.avgHp)}; pots ${signed(corrected.avgPotions - baseline.avgPotions, 2)}; turns ${signed(corrected.avgTurns - baseline.avgTurns)}`));
   });
 }
 
 if (require.main === module) runReport();
 
-module.exports = { TRIALS, BASE_SEED, GEAR, SCENARIOS, playerAt, runScenario, runReport };
+module.exports = { TRIALS, BASE_SEED, GEAR, SCENARIOS, playerAt, runScenario, runReport,
+  damageRoll, incomingDef, speedWinChance };

@@ -551,6 +551,8 @@ function trySeraLioraGuestRoomDoor() {
 }
 
 function update(deltaSeconds) {
+  // Lab isolation includes cooldowns, NPCs, visits and automatic world triggers.
+  if (formationCombatLab.isOpen()) return;
   // Cooldown ticks every frame regardless of game state
   if (combat.cooldown > 0) combat.cooldown--;
   if (worldToastTimer > 0) worldToastTimer--;
