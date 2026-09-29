@@ -248,6 +248,7 @@ function validatePlacement(spec) {
 // Story/quest/dialogue/reward/NPC-reroll side effects belong in the wrapper
 // functions, NOT here.
 function transitionToLocation(spec) {
+  if (galleryReceiverEncounter.isLocked()) return false;
   if (!spec || typeof spec !== 'object') { console.warn('transitionToLocation: no spec'); return false; }
   // Resolve + validate the whole placement through the ONE shared preflight:
   // map resolves, coordinates finite + in-bounds, destination base tile
@@ -1406,6 +1407,7 @@ function descendSunkenGallery() {
 }
 
 function ascendSunkenGallery() {
+  if (galleryReceiverEncounter.interceptExit()) return false;
   transitionToLocation({ mapId: 'NORTH_BASIN_NW_MAP', x: 4.5 * TILE, y: 10.5 * TILE, facing: 'down', cooldown: true }); // one south of stairhead, EXPOSED_STONE apron
 }
 
@@ -2001,10 +2003,14 @@ function tryEdgeTransition(direction) {
         carryState = declared;
       }
     }
-    return transitionToLocation({
+    const arrived = transitionToLocation({
       mapId: targetMapId, x: (landing.col + 0.5) * TILE, y: (landing.row + 0.5) * TILE,
       facing: landing.facing, cooldown: true, state: carryState,
     });
+    // Real room-to-room arrival only: geometry inspection, failed crossings,
+    // rendering and development placement/warp tools do not discover clues.
+    if (arrived) galleryReceiverEncounter.noteArrival(targetMapId);
+    return arrived;
   }
   return false; // no segment covered this position
 }

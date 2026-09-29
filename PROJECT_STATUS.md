@@ -6,6 +6,35 @@ actually fits together.
 
 ## Current state
 
+### Receiver playable vertical slice
+
+The reservoir assignment now requires the three-member Receiver ambush at the
+Gallery exit. Real room arrival in R0C4 records `gallery_deeper_stair_seen`,
+independently of inspecting the stair clue. Assigned players who have seen that
+room may back away from the exit warning to prepare, but cannot leave normally
+until acknowledged victory records `gallery_receiver_defeated`.
+
+`gallery-receiver.js` owns staging, canonical activation and aftermath; the
+existing formation controller/resolver/playback/input/renderer run the battle.
+Formation battles now expose Attack, Item, Observe and Run through one shared
+round resolver, session controller and immutable playback. Existing combat items,
+equipment exchange, supported player statuses, Bullet Time and Bomb use the
+existing effect authorities. Durations advance once per round, with no decrement
+on the application round. Boss-template metadata locks formation escape for the
+entire encounter; existing singleton escape rules remain unchanged.
+
+The Receiver still uses provisional stats and programmatic sprites, grants no
+dedicated boss reward, and uses normal defeat/home recovery with fresh members
+on retry. Final observation writing, art and route-level balance remain deferred.
+The Lab remains separately inactive, adds a Receiver boss-lock test scenario,
+and restores inventory, equipment, statuses and temporary speed as well as HP
+and animation tick on exit, escape or emergency abort.
+Both flags are save-bound; live encounter/formation state is not. SAVE_VERSION
+remains 4. No map grids or existing encounter pools changed. Browser appearance
+still needs native/scaled manual inspection.
+
+### World and existing routes
+
 Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass

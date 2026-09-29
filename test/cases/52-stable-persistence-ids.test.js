@@ -27,7 +27,7 @@ const { createContext } = require('../harness');
 // Frozen expectation snapshots (production stays registry-driven).
 const EXPECTED_PICKUP_COUNT = 54;  // +1: persisted Northern Fen Mire Toad spawning-site sparkle
 const EXPECTED_CHEST_COUNT  = 13;
-const EXPECTED_ENEMY_COUNT  = 57;  // Pale Drowned is now exclusive to the Sunken Gallery; the Mire Vault duplicate is retired.
+const EXPECTED_ENEMY_COUNT  = 60;  // Includes the three canonical Receiver formation members.
 const CHEST_IDS = [
   'chest_cat_armor', 'chest_dungeon8_east_bomb', 'chest_dungeon8_east_secret', 'chest_dungeon8_west_deep',
   'chest_dungeon_alcove', 'chest_dungeon_main', 'chest_meadow',

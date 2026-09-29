@@ -102,7 +102,7 @@ test('formation state alone has no input authority until a session exists',()=>{
 });
 
 for(const key of ['Enter',' ']) test(key+' starts targeting once without resolution or RNG',()=>{
-  const g=fresh();g.run('resolveFormationBasicAttackRound=()=>{throw Error("premature resolution");};');
+  const g=fresh();g.run('resolveFormationRound=()=>{throw Error("premature resolution");};');
   inert(g,()=>g.hold(key));assert.equal(view(g).phase,'targeting');
   assert.equal(view(g).selectedTargetInstanceId,view(g).enemies[0].instanceId);
   inert(g,()=>{g.hold(key);g.hold(key);},true);assert.equal(view(g).playbackFrame,null);g.release(key);
@@ -127,8 +127,8 @@ for(const key of ['Escape','b','B']) test(key+' cancels targeting without spendi
 
 test('selected duplicate resolves exactly once with exact RNG, immediately retaining playback frame zero',()=>{
   const g=fresh(),before=hp(g);g.press('Enter');g.press('d');const target=view(g).selectedTargetInstanceId;
-  g.run(`var resolutionCalls=0,seenTarget=null,originalResolver=resolveFormationBasicAttackRound;
-    resolveFormationBasicAttackRound=action=>{resolutionCalls++;seenTarget=action.targetInstanceId;return originalResolver(action);};`);
+  g.run(`var resolutionCalls=0,seenTarget=null,originalResolver=resolveFormationRound;
+    resolveFormationRound=action=>{resolutionCalls++;seenTarget=action.targetInstanceId;return originalResolver(action);};`);
   taped(g,ROUND,()=>g.hold('Enter'));
   assert.equal(g.run('resolutionCalls'),1);assert.equal(g.run('seenTarget'),target);
   assert.equal(view(g).phase,'playback');assert.equal(view(g).playbackFrame.frameIndex,0);
@@ -167,7 +167,8 @@ for(const phase of ['awaiting_action','targeting','playback','playback_complete'
       toggleMenu=toggleDebugMenu=toggleDebugInspector=handleFishingKey=trySeraLioraGuestRoomDoor=
       function(){forbiddenInput++;throw Error('formation input leaked');};`);
     const inertKeys=['ArrowUp','ArrowDown','w','s','m','M','i','I','`','Tab','F5','r','x','A','D'];
-    if(phase!=='targeting')inertKeys.push('ArrowLeft','ArrowRight','a','d','Escape','b','B');
+    if(!['targeting','awaiting_action'].includes(phase))inertKeys.push('ArrowLeft','ArrowRight','a','d');
+    if(phase!=='targeting')inertKeys.push('Escape','b','B');
     if(phase==='victory'||phase==='defeat')inertKeys.push('Enter',' ');
     for(const key of inertKeys)inert(g,()=>g.press(key),true);
     assert.equal(g.run('forbiddenInput'),0);assert.equal(g.run('combat.active'),false);
@@ -238,9 +239,9 @@ test('input delegates only to the controller, creates no sessions or rendering r
   assert.doesNotMatch(INPUT,/formationSessionController\.(begin|clearAfterCombatCleanup)\(|initializeFormationState|drawFormationCombat|drawCombat\(/);
   for(const file of scriptOrderFromIndexHtml()) {
     const s=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js'].includes(file)?1:0,file);
+    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     if(file!=='input.js')assert.doesNotMatch(s,/handleFormationInputCommand|formationInputCommand|pressedKeys/,file);
-    if(!['combat.js','input.js','render.js','formation-lab.js'].includes(file))assert.doesNotMatch(s,/formationSessionController/,file);
+    if(!['combat.js','input.js','render.js','formation-lab.js','gallery-receiver.js'].includes(file))assert.doesNotMatch(s,/formationSessionController/,file);
     if(file==='render.js')assert.match(s,/formationCombatLab\.isActive\(\)/);
   }
   const g=fresh();g.run('var drawCalls=0;drawFormationCombat=()=>{drawCalls++;};');

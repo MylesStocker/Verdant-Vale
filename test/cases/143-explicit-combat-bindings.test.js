@@ -369,7 +369,7 @@ test('formation state is gated; no target state or unsanctioned collection write
   assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length, 1);
   for (const file of fs.readdirSync(path.join(__dirname,'../..')).filter(f=>f.endsWith('.js') && f!=='combat.js')) {
     const text = fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
-    assert.equal((text.match(/\binitializeFormationState\b/g)||[]).length, file === 'formation-lab.js' ? 1 : 0, file);
+    assert.equal((text.match(/\binitializeFormationState\b/g)||[]).length, ['formation-lab.js','gallery-receiver.js'].includes(file) ? 1 : 0, file);
   }
   t.g.run(`endCombat(); initializeFormationState([
     {enemyId:'enemy_marsh_wisp',slot:0},{enemyId:'enemy_marsh_wisp',slot:1}]);`);

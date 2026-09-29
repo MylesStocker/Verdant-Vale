@@ -504,6 +504,7 @@ function supervisorDialogueBody() {
     ];
     dialogue.callbacks = null;
   } else if (fort_quest_stage === 6 && reservoir_quest_started) {
+    if (!gallery_receiver_defeated) { receiverReportNotReady(); return; }
     // Been down into the gallery and returned \u2014 offer to make the report.
     dialogue.pages = [
       ['\u201cInvestigator.\u201d',
@@ -533,7 +534,18 @@ function supervisorDialogueBody() {
 // choice in supervisorDialogueBody once the player has descended and returned.
 // Sets reservoir_report_filed so the report is one-time; no reward/quest-stage
 // side effects (this closes the observer thread narratively, not the main quest).
+function receiverReportNotReady() {
+  dialogue.name = 'Supervisor';
+  dialogue.pages = [['“Finish investigating the Gallery before you file your report.”',
+    '“There is still ground to cover down there.”']];
+  dialogue.callbacks = null;
+  dialogue.open = true;
+  dialogue.page = 0;
+}
+
 function reportBasinFindings() {
+  if (!gallery_receiver_defeated) { receiverReportNotReady(); return; }
+  if (reservoir_report_filed) return;
   const f = (k) => !!window[k];
   const satchel  = f('gallery_clue_satchel');
   const notebook = f('gallery_clue_notebook');
@@ -654,6 +666,7 @@ function reportBasinFindings() {
   dialogue.name = 'Supervisor';
   dialogue.pages = pages;
   dialogue.callbacks = [function () {
+    if (!gallery_receiver_defeated || reservoir_report_filed) return;
     reservoir_report_filed = true;
     stats.gold += rewardGold;
     if (rewardItem) grantItem(rewardItem);

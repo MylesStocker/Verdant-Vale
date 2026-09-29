@@ -12,6 +12,7 @@ const pressedKeys = Object.create(null);
 const keys = new Proxy(pressedKeys, {
   get(pressed, key) {
     const held = pressed[key];
+    if (held && galleryReceiverEncounter.blocksWorldInput()) return false;
     if (held && combat.mode === 'formation' && formationSessionController.getView()) return false;
     return held;
   },
@@ -33,7 +34,15 @@ function handleFormationInputCommand(command) {
   // stale state throws from the authority, without retries or gameplay fallback.
   switch (view.phase) {
     case 'awaiting_action':
-      if (command === 'confirm') formationSessionController.beginAttack();
+      if (command === 'left') formationSessionController.moveCommand('previous');
+      else if (command === 'right') formationSessionController.moveCommand('next');
+      else if (command === 'confirm') formationSessionController.confirmCommand();
+      break;
+    case 'item':
+      if (command === 'up') formationSessionController.moveItem('previous');
+      else if (command === 'down') formationSessionController.moveItem('next');
+      else if (command === 'confirm') formationSessionController.confirmItem();
+      else if (command === 'cancel') formationSessionController.cancelItems();
       break;
     case 'targeting':
       if (command === 'left') formationSessionController.moveTarget('previous');
@@ -49,6 +58,7 @@ function handleFormationInputCommand(command) {
       break;
     case 'victory':
     case 'defeat':
+    case 'escape':
       break; // terminal acknowledgement/finalization is deliberately absent
     default:
       throw new Error('Invalid formation input phase');
@@ -66,6 +76,24 @@ function reconcileFormationLabKeys() {
 
 window.addEventListener('keydown', e => {
   if (e.key.startsWith('Arrow')) e.preventDefault();
+  if (galleryReceiverEncounter.blocksWorldInput()) {
+    const held = pressedKeys[e.key]; pressedKeys[e.key] = true;
+    const command = formationInputCommand(e.key);
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
+      if (command) e.preventDefault();
+      if (!held && !e.repeat) {
+        if (choice.open) {
+          if (command === 'up') choice.cursor = Math.max(0,choice.cursor-1);
+          else if (command === 'down') choice.cursor = Math.min(choice.options.length-1,choice.cursor+1);
+          else if (command === 'cancel') galleryReceiverEncounter.cancelWarning();
+          else if (command === 'confirm') {
+            const callback = choice.callbacks[choice.cursor]; choice.open=false; callback();
+          }
+        } else if (command === 'confirm' && dialogue.open) handleInteract();
+      }
+    }
+    return;
+  }
   if (formationCombatLab.isMenuOpen()) {
     const wasHeld = pressedKeys[e.key];
     pressedKeys[e.key] = true;
@@ -81,8 +109,7 @@ window.addEventListener('keydown', e => {
     }
     return;
   }
-  // Only the developer lab creates a session; no canonical encounter does.
-  // It takes priority over every screen without activating ordinary combat.
+  // Lab and the owned Receiver battle share this exclusive session adapter.
   if (combat.mode === 'formation' && formationSessionController.getView()) {
     const wasHeld = pressedKeys[e.key];
     pressedKeys[e.key] = true; // latch before dispatch, including failing calls
@@ -97,6 +124,7 @@ window.addEventListener('keydown', e => {
           return true;
         };
         if (formationCombatLab.isActive()) formationCombatLab.runOperation(dispatch);
+        else if (galleryReceiverEncounter.ownsCombat()) galleryReceiverEncounter.runOperation(dispatch);
         else dispatch(); // no catch or recovery outside the developer lab
       }
     }
@@ -442,7 +470,9 @@ window.addEventListener('keydown', e => {
               const dRow = centre ? centre.row : dest.defaultRow;
               if (warpMenu.playerMode) {
                 // Player Warp Stone: no tile-picker — warp straight to the landing.
-                const result = debugWarpToDestination(dest.id, dCol, dRow);
+                const result = galleryReceiverEncounter.blocksPlayerRetreat()
+                  ? {success:false,message:'Finish investigating the Gallery before leaving.'}
+                  : debugWarpToDestination(dest.id, dCol, dRow);
                 showWorldToast(result.success ? ('Warped to ' + dest.label + '.') : result.message);
                 if (result.success) warpMenu.open = false;
               } else {

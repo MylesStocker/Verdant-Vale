@@ -250,6 +250,7 @@ function groupItems() {
 }
 
 function toggleMenu() {
+  if (galleryReceiverEncounter.isLocked()) return;
   if (seraLioraCutscene.active || dialogue.open || shop.open || continentMap.open || accordPanel.open) return;
   menu.open = !menu.open;
   if (menu.open) {
@@ -262,6 +263,7 @@ function toggleMenu() {
 }
 
 function toggleDebugMenu() {
+  if (galleryReceiverEncounter.isLocked()) return;
   if (seraLioraCutscene.active || dialogue.open || shop.open || choice.open || combat.active) return;
   debugMenu.open = !debugMenu.open;
   if (debugMenu.open) {

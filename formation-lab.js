@@ -6,6 +6,7 @@ const FORMATION_LAB_SCENARIOS = Object.freeze([
   {label:'Two distinct enemies', ids:['enemy_marsh_wisp','enemy_briar_hound']},
   {label:'Three distinct enemies', ids:['enemy_reed_grappler','enemy_silt_lurker','enemy_sluice_slime']},
   {label:'Three duplicate enemies', ids:['enemy_marsh_wisp','enemy_marsh_wisp','enemy_marsh_wisp']},
+  {label:'Boss escape lock (Receiver test)', ids:GALLERY_RECEIVER_TEMPLATES.map(e=>e.id)},
 ].map(s => Object.freeze({label:s.label, ids:Object.freeze(s.ids)})));
 
 const formationCombatLab = (() => {
@@ -21,6 +22,14 @@ const formationCombatLab = (() => {
     setSingleCombatEnemy(null);
     stats.hp = lab.restore.hp;
     tick = lab.restore.tick;
+    // Restore only values the shared item/status resolver can change. Keep the
+    // original item/equipment objects and inventory array, not a cloned world.
+    lab.restore.inventory.splice(0,lab.restore.inventory.length,...lab.restore.items);
+    stats.items = lab.restore.inventory;
+    for (const slot of ['weapon','armor','shield','accessory']) stats[slot] = lab.restore.equipment[slot];
+    lab.restore.statuses.splice(0,lab.restore.statuses.length,...lab.restore.statusValues);
+    statusEffects = lab.restore.statuses;
+    slitherSpd = lab.restore.slitherSpd;
     lab.restore = null;
     lab.scenario = null;
     debugMenu.open = true;
@@ -42,7 +51,8 @@ const formationCombatLab = (() => {
     },
     move(direction) {
       if (!lab || active() || !['previous','next'].includes(direction)) return false;
-      lab.cursor = (lab.cursor + (direction === 'next' ? 1 : 2)) % 3;
+      const count = FORMATION_LAB_SCENARIOS.length;
+      lab.cursor = (lab.cursor + (direction === 'next' ? 1 : count-1)) % count;
       lab.error = '';
       return true;
     },
@@ -56,17 +66,19 @@ const formationCombatLab = (() => {
     start() {
       if (!lab || active() || !debugMenu.open || !stable()) return false;
       const scenario = FORMATION_LAB_SCENARIOS[lab.cursor];
-      const restore = {hp:stats.hp, tick};
+      const restore = {hp:stats.hp, tick, inventory:stats.items, items:stats.items.slice(),
+        equipment:{weapon:stats.weapon,armor:stats.armor,shield:stats.shield,accessory:stats.accessory},
+        statuses:statusEffects,statusValues:statusEffects.slice(),slitherSpd};
       // Preserve unsupported/stale mechanics rather than clearing or repairing
       // them for a demo. The real session preflight is the capability authority.
       try {
         prepareFormationEntry();
-        initializeFormationState(scenario.ids.map((enemyId, slot) => ({enemyId,slot})));
+        initializeFormationState(scenario.ids.map((enemyId, slot) => ({enemyId,slot})), {escape:'fastest_living'});
         formationSessionController.begin();
       } catch (error) {
         if (combat.mode === 'formation') setSingleCombatEnemy(null);
         if (!/Unsupported formation|Formation state|Template is not approved|Invalid formation|Unknown formation/.test(error.message)) throw error;
-        lab.error = 'Requires idle combat, positive HP, no statuses, and ordinary gear.';
+        lab.error = 'Requires idle combat, positive HP, and supported combat state.';
         return false;
       }
       lab.restore = restore;
@@ -79,7 +91,9 @@ const formationCombatLab = (() => {
     runOperation(operation) {
       if (!active() || typeof operation !== 'function') throw new Error('Formation Lab operation requires an active lab');
       try {
-        return operation();
+        const result = operation();
+        if (formationSessionController.getView()?.phase === 'escape') restoreSubmenu();
+        return result;
       } catch (error) {
         // The round may already have spent RNG and changed HP. Never retry it
         // or roll gameplay back: abandon this lab session and restore only the
@@ -93,7 +107,7 @@ const formationCombatLab = (() => {
     exit() {
       if (!active() || combat.mode !== 'formation') return false;
       const view = formationSessionController.getView();
-      if (!view || !['awaiting_action','victory','defeat'].includes(view.phase)) return false;
+      if (!view || !['awaiting_action','victory','defeat','escape'].includes(view.phase)) return false;
       // The collection cleanup authority also clears the private session. Do
       // not run singleton finalizers/endCombat: they alter cooldown/statuses.
       restoreSubmenu();

@@ -88,6 +88,8 @@ let fort_report_filed        = false;
 let mq4_available_day        = 0;     // day the reservoir assignment unlocks; 0 = rest order not yet given
 let reservoir_quest_started  = false; // supervisor gave the reservoir bed assignment
 let reservoir_report_filed   = false; // player has reported the Sunken Gallery findings back to the supervisor
+let gallery_deeper_stair_seen = false;
+let gallery_receiver_defeated = false;
 
 // ─── Side quest: The Weight Discrepancy ───────────────────────────────────────
 // A cargo weight mismatch between Drenwick harbormaster records and Calwick
@@ -455,6 +457,8 @@ function syncQuestFlagsToWindow() {
   window.mq4_available_day       = mq4_available_day;
   window.reservoir_quest_started = reservoir_quest_started;
   window.reservoir_report_filed  = reservoir_report_filed;
+  window.gallery_deeper_stair_seen = gallery_deeper_stair_seen;
+  window.gallery_receiver_defeated = gallery_receiver_defeated;
   window.schilling_quest_started = schilling_quest_started;
   window.schilling_returned      = schilling_returned;
   window.drama_stage             = drama_stage;

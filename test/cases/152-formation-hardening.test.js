@@ -183,8 +183,8 @@ test('post-resolution playback failure aborts only the lab, without retry/RNG, a
   const before=world(g);g.press('Enter');g.renderFrame();g.press('Enter');
   // Isolated instrumentation: no production fault switch. Invoke the authentic
   // resolver, then throw where playback would be constructed from its result.
-  g.run(`var resolves=0,playbacks=0,hpAtFailure=null,realResolve=resolveFormationBasicAttackRound,realPlayback=createFormationRoundPlayback;
-    resolveFormationBasicAttackRound=a=>{resolves++;return realResolve(a);};
+  g.run(`var resolves=0,playbacks=0,hpAtFailure=null,realResolve=resolveFormationRound,realPlayback=createFormationRoundPlayback;
+    resolveFormationRound=a=>{resolves++;return realResolve(a);};
     createFormationRoundPlayback=r=>{playbacks++;hpAtFailure=stats.hp;throw Error('injected post-resolution playback failure');};
     var diagnostics=[];console=Object.create(console);console.error=(...args)=>diagnostics.push(args.map(String));
     applyKillRewards=endCombat=finalizeLenswebSpiderEvent=()=>{throw Error('canonical finalizer called');};`);
@@ -243,9 +243,9 @@ test('authentic dead-actor skip stays valid and cannot borrow a living duplicate
 test('only the lab invokes preparation and its emergency wrapper; no content/save/reward caller exists',()=>{
   for(const file of scriptOrderFromIndexHtml()) {
     const source=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
-    assert.equal((source.match(/\bprepareFormationEntry\(/g)||[]).length,['combat.js','formation-lab.js'].includes(file)?1:0,file);
+    assert.equal((source.match(/\bprepareFormationEntry\(/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     assert.equal((source.match(/formationCombatLab\.runOperation\(/g)||[]).length,file==='input.js'?1:0,file);
-    assert.equal((source.match(/\binitializeFormationState\(/g)||[]).length,['combat.js','formation-lab.js'].includes(file)?1:0,file);
+    assert.equal((source.match(/\binitializeFormationState\(/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     if(/save\.js|content\/|quests|npcs|maps/.test(file))assert.doesNotMatch(source,/completedSingleVictoryReceipt|prepareFormationEntry|runOperation/);
   }
 });

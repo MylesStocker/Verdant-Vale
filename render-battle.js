@@ -3643,8 +3643,14 @@ function drawBattleTallyman(cx, cy) {
 // deserves bespoke art; enemies meant to reuse the generic silhouette go in
 // ENEMY_GENERIC_SPRITE_IDS instead.
 const ENEMY_SPRITE_DISPATCH = {};
+function drawBattleReceiver(x,y) { drawGalleryCreature('receiver',x,y,3); }
+function drawBattleCaller(x,y) { drawGalleryCreature('caller',x,y,3); }
+function drawBattleKeeper(x,y) { drawGalleryCreature('keeper',x,y,3); }
 (function buildEnemySpriteDispatch() {
   const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
+  def(drawBattleReceiver, 0, ['enemy_gallery_receiver']);
+  def(drawBattleCaller, 0, ['enemy_gallery_caller']);
+  def(drawBattleKeeper, 0, ['enemy_gallery_keeper']);
   def(drawBattleWisp,          0,  ['enemy_marsh_wisp', 'enemy_marsh_wisp_early', 'enemy_marsh_wisp_sluice_top']);
   def(drawBattleSluiceSlime,   58, ['enemy_sluice_slime']);
   def(drawBattleStoneCrawler,  62, ['enemy_stone_crawler']);
@@ -3854,6 +3860,9 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 // conservative visual bounds cover the existing idle animation of the eight
 // state-only templates; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
+  [drawBattleReceiver, Object.freeze([-48,-93,48,6])],
+  [drawBattleCaller, Object.freeze([-27,-81,33,6])],
+  [drawBattleKeeper, Object.freeze([-42,-81,42,6])],
   [drawBattleWisp, Object.freeze([-40, -55, 40, 65])],
   [drawBattleBriarHound, Object.freeze([-56, -67, 44, 22])],
   [drawBattleSluiceSlime, Object.freeze([-48, -66, 48, 15])],
@@ -3866,7 +3875,7 @@ function getFormationBattleLayout(view) {
   const hpValid = p => p && Number.isSafeInteger(p.hp) && Number.isSafeInteger(p.maxHp) &&
     p.maxHp > 0 && p.hp >= 0 && p.hp <= p.maxHp;
   if (!view || !Object.isFrozen(view) ||
-      !['awaiting_action','targeting','playback','playback_complete','victory','defeat'].includes(view.phase) ||
+      !['awaiting_action','item','targeting','playback','playback_complete','victory','defeat','escape'].includes(view.phase) ||
       !Array.isArray(view.enemies) || !Object.isFrozen(view.enemies) ||
       ![2,3].includes(view.enemies.length) || !hpValid(view.player) ||
       !Object.isFrozen(view.player) || view.player.id !== 'player' || typeof view.player.name !== 'string') fail();
@@ -3883,7 +3892,7 @@ function getFormationBattleLayout(view) {
   if (view.phase === 'targeting') {
     if (!view.enemies.some(e => e.instanceId === view.selectedTargetInstanceId && e.hp > 0)) fail();
   } else if (view.selectedTargetInstanceId !== null) fail();
-  const playing = ['playback','playback_complete','victory','defeat'].includes(view.phase);
+  const playing = ['playback','playback_complete','victory','defeat','escape'].includes(view.phase);
   if (playing) {
     const frame = view.playbackFrame;
     if (!frame || !Object.isFrozen(frame) || frame.player.hp !== view.player.hp ||
@@ -3908,11 +3917,19 @@ function getFormationBattleLayout(view) {
 }
 
 function formatFormationBattleEvent(event, playerName, labels) {
-  if (!event) return 'Attack';
+  if (!event) return 'Ready.';
   const name = id => id === 'player' ? playerName : labels.find(e => e.instanceId === id)?.label;
   if (event.type === 'outcome') {
-    return event.outcome === 'victory' ? 'VICTORY' : event.outcome === 'defeat' ? 'DEFEATED' : 'Round complete.';
+    return event.outcome === 'victory' ? 'VICTORY' : event.outcome === 'defeat' ? 'DEFEATED' :
+      event.outcome === 'escape' ? 'Escaped!' : 'Round complete.';
   }
+  if (event.type === 'speed') return `${playerName}'s SPD is now ${event.after}.`;
+  if (event.type === 'burn') return `Burn deals ${event.appliedDamage} damage to ${playerName}.`;
+  if (event.type === 'round_end') return event.effectsBefore.evadeTurns>0 && event.effectsAfter.evadeTurns===0
+    ? 'Bullet Time wears off.' : '';
+  if (event.type === 'bomb_tick') return event.attemptedDamage>0
+    ? `The Bomb hits ${name(event.targetId)} for ${event.appliedDamage} damage.`
+    : event.after.bombFuse>0 ? `Bomb: ${event.after.bombFuse} turns remaining.` : 'The Bomb is spent.';
   const actor = name(event.actorId), target = name(event.targetId);
   if (!actor || !target) throw new Error('Invalid formation presentation event identity');
   if (event.type === 'attack') {
@@ -3920,7 +3937,27 @@ function formatFormationBattleEvent(event, playerName, labels) {
     return `${event.critical ? 'Critical! ' : ''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
   }
   if (event.type === 'skip') return `${actor} cannot act.`;
-  if (event.type === 'cancel') return `${actor}'s attack is cancelled.`;
+  if (event.type === 'cancel') return `${actor}'s action is cancelled.`;
+  if (event.type === 'observe') return `${target}: ${event.lines.join(' ')}`;
+  if (event.type === 'run') return !event.allowed ? 'Cannot escape this battle!' :
+    event.success ? `${actor} escapes!` : `${actor} tries to run, but cannot get away!`;
+  if (event.type === 'item') {
+    const prefix = `${actor} uses ${event.itemId}.`;
+    if (event.effect === 'heal') return `${prefix} Restored ${event.after.player.hp-event.before.player.hp} HP.`;
+    if (event.effect === 'cure') {
+      const removed=event.before.player.statuses.filter(s=>!event.after.player.statuses.includes(s));
+      return `${prefix} ${removed.length ? 'Cured: '+removed.join(', ')+'.' : 'No effect.'}`;
+    }
+    if (event.effect === 'equip') return `${actor} equips ${event.itemId}.`;
+    if (event.effect === 'evade') return `${prefix} Evasion boosted for ${event.after.effects.evadeTurns} turns.`;
+    if (event.effect === 'bomb') return `${prefix} Bomb armed against ${target}.`;
+    if (event.effect === 'damage' || event.effect === 'reagent') {
+      const before=event.before.enemies.find(e=>e.instanceId===event.targetId);
+      const after=event.after.enemies.find(e=>e.instanceId===event.targetId);
+      return `${prefix} ${target} takes ${before.hp-after.hp} damage.`;
+    }
+    return `${prefix} No effect.`; // authored Bait / non-regenerating Trollbane result
+  }
   throw new Error('Invalid formation presentation event');
 }
 
@@ -3929,8 +3966,10 @@ function drawFormationCombat(view) {
   // queue or outcome authority is read here. Historic views may be replayed.
   const layout = getFormationBattleLayout(view);
   const message = view.phase === 'awaiting_action' ? 'Choose an action.' :
-    view.phase === 'targeting' ? 'Attack: select a target.' :
+    view.phase === 'item' ? 'Choose an item.' :
+    view.phase === 'targeting' ? `${view.selectedItemId || (view.selectedCommand === 'observe' ? 'Observe' : 'Attack')}: select a target.` :
     view.phase === 'victory' ? 'VICTORY' : view.phase === 'defeat' ? 'DEFEATED' :
+    view.phase === 'escape' ? 'Escaped!' :
     formatFormationBattleEvent(view.playbackFrame.currentEvent, view.player.name, layout);
   ctx.save();
   drawBattleBackground();
@@ -3967,14 +4006,11 @@ function drawFormationCombat(view) {
   [[9,298],[501,298],[9,469],[501,469]].forEach(([x,y]) => ctx.fillRect(x,y,2,2));
   ctx.fillStyle = '#ccd8cc';ctx.font = '14px "Courier New", monospace';
   const lines = wrapMonospaceText(ctx, message, 468);
-  // Bound long names/events to the established two-line message area.
+  // Authored observation text may continue below the HP strip while playback
+  // has no menu. Never truncate the historical observation to two lines.
   const shown = lines.slice(0,2);
-  if (lines.length > 2) {
-    let last = shown[1];
-    while (last && ctx.measureText(last + '…').width > 468) last = last.slice(0,-1);
-    shown[1] = last + '…';
-  }
   shown.forEach((line,i) => ctx.fillText(line,22,325+i*16,468));
+  if (view.playbackFrame) lines.slice(2).forEach((line,i)=>ctx.fillText(line,22,402+i*16,468));
   ctx.fillStyle = '#1e3040';ctx.fillRect(22,348,468,1);
   ctx.fillStyle = '#d0e0d0';ctx.font = 'bold 12px "Courier New", monospace';
   ctx.fillText(view.player.name,22,370,50);
@@ -3985,13 +4021,30 @@ function drawFormationCombat(view) {
     ctx.fillRect(102+i*12,359,10,8);
   }
   ctx.fillStyle = '#8aaa98';ctx.font = '11px "Courier New", monospace';
-  ctx.fillText(`${view.player.hp} / ${view.player.maxHp}`,251,369,239);
-  // Supported formation state has no player statuses; do not invent status UI
-  // or inspect singleton status state. Its existing renderer remains unchanged.
+  ctx.fillText(`${view.player.hp} / ${view.player.maxHp}`,251,369,68);
+  const statusLabels={poison:'PSN',muddied:'MUD',slither:'SLI',cursed:'CUR',burn:'BURN',dazzled:'DAZ'};
+  const badges = [...view.playerStatuses.map(s=>statusLabels[s]),
+    ...(view.evadeTurns>0 ? [`EVADE ${view.evadeTurns}`] : [])];
+  ctx.fillStyle = '#c8a868';ctx.font = '9px "Courier New", monospace';
+  ctx.fillText(badges.join(' '),323,369,167);
   ctx.fillStyle = '#1e3040';ctx.fillRect(22,382,468,1);
   if (view.phase === 'awaiting_action' || view.phase === 'targeting') {
-    ctx.strokeStyle = '#5a8a9a';ctx.strokeRect(22,397,112,40);
-    ctx.fillStyle = '#d0e0d0';ctx.font = 'bold 14px "Courier New", monospace';ctx.fillText('Attack',43,422);
+    ['Attack','Item','Observe','Run'].forEach((label,i)=>{
+      const x=22+i*117, selected=i===view.commandCursor;
+      ctx.strokeStyle=selected?'#9ac8d8':'#2a4e5e';ctx.strokeRect(x,397,111,40);
+      ctx.fillStyle=selected?'#d0e0d0':'#6b8890';ctx.font='bold 14px "Courier New", monospace';
+      ctx.fillText((selected?'▶ ':'')+label,x+7,422,99);
+    });
+  } else if (view.phase === 'item') {
+    const rows=[...view.items.map(row=>`${row.name}${row.detail ? ' '+row.detail : ''}${row.count>1 ? ' ×'+row.count : ''}`),'← Back'];
+    rows.slice(view.itemWindowStart,view.itemWindowStart+view.itemVisibleRows).forEach((label,i)=>{
+      const selected=view.itemWindowStart+i===view.itemCursor;
+      ctx.fillStyle=selected?'#d0e0d0':'#6b8890';ctx.font='bold 12px "Courier New", monospace';
+      ctx.fillText((selected?'▶ ':'  ')+label,22,404+i*22,438);
+    });
+    ctx.fillStyle='#8ac8d8';ctx.font='12px "Courier New", monospace';
+    if(view.itemWindowStart>0)ctx.fillText('↑',475,404);
+    if(view.itemWindowStart+view.itemVisibleRows<rows.length)ctx.fillText('↓',475,448);
   }
   ctx.restore();
 }

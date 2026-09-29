@@ -1687,6 +1687,8 @@ function validateEnemies() {
     checked++;
     if (!t || typeof t !== 'object') { addValidationError(GROUP, lbl + ': not an object'); return; }
     if (!t.name) addValidationError(GROUP, lbl + ': missing name');
+    if ('isBoss' in t && typeof t.isBoss !== 'boolean')
+      addValidationError(GROUP, lbl + ': isBoss must be boolean template metadata');
 
     for (const field of NUMERIC_FIELDS) {
       if (!(field in t)) addValidationError(GROUP, lbl + ' (' + (t.name || '?') + '): missing ' + field);

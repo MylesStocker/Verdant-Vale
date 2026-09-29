@@ -90,9 +90,9 @@ test('duplicate templates have independent initiative, HP and target identity',(
   assert.equal(g.run('combat.enemies[0].hp'),14);assert.equal(g.run('combat.enemies[1].hp'),7);
 });
 
-test('all eight approved basic templates resolve without unsupported behavior or extra RNG',()=>{
+test('all eleven approved basic templates resolve without unsupported behavior or extra RNG',()=>{
   const approved=J(fresh(0),'FORMATION_STATE_TEMPLATE_IDS');
-  assert.equal(approved.length,8);
+  assert.equal(approved.length,11);
   for(const id of approved) {
     const g=fresh(0);
     g.run('initializeFormationState('+JSON.stringify([{enemyId:id,slot:0},{enemyId:id,slot:1}])+');');
@@ -207,6 +207,8 @@ test('ongoing repeated rounds are deterministic and cleanup retains authority',(
   const runs=[];
   for(let i=0;i<2;i++) {
     const g=fresh();const first=round(g,[0,0,...HIT,...HIT,...HIT]);
+    g.run(`var completedReel=createFormationRoundPlayback(${JSON.stringify(first)});
+      acknowledgeFormationRound(completedReel,completedReel.frameCount-1);`);
     const second=round(g,[0,0,...HIT,...HIT]);
     assert.equal(second.outcome,'ongoing');runs.push([first,second]);
     g.run('endCombat();');assert.equal(g.run('combat.mode'),null);assert.equal(g.run('combat.enemies.length'),0);
@@ -369,7 +371,7 @@ test('accepted critical-boundary rounds create playback across both endpoints, c
 });
 
 test('all eight normal templates still create authentic playback at variance/critical endpoints',()=>{
-  const approved=J(fresh(0),'FORMATION_STATE_TEMPLATE_IDS');assert.equal(approved.length,8);
+  const approved=J(fresh(0),'FORMATION_STATE_TEMPLATE_IDS');assert.equal(approved.length,11);
   for(const id of approved) for(const variance of [0,MAX_RANDOM]) for(const critical of [0,0.99]) {
     const g=fresh(0);
     g.run('initializeFormationState('+JSON.stringify([0,1,2].map(slot=>({enemyId:id,slot})))+');stats.atk=1;');
@@ -378,15 +380,16 @@ test('all eight normal templates still create authentic playback at variance/cri
   }
 });
 
-test('formation numeric guard has only resolver callers; no new integration or singleton gate',()=>{
-  const files=execFileSync('git',['ls-files','--','*.js'],{cwd:ROOT,encoding:'utf8'}).trim().split('\n').filter(f=>!f.startsWith('test/'));
+test('formation numeric guard has only resolver and Receiver pre-entry callers; no singleton gate',()=>{
+  const files=require('../harness').scriptOrderFromIndexHtml();
   const name='formationAttackNumbersAreSafe';
   for(const file of files) {
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((source.match(new RegExp('\\b'+name+'\\b','g'))||[]).length,file==='combat.js'?3:0,file);
+    assert.equal((source.match(new RegExp('\\b'+name+'\\b','g'))||[]).length,file==='combat.js'?3:file==='gallery-receiver.js'?2:0,file);
   }
   const g=fresh();
-  assert.equal((g.run('resolveFormationBasicAttackRound.toString()').match(/formationAttackNumbersAreSafe\(/g)||[]).length,2);
+  assert.equal((g.run('validateFormationRoundCommand.toString()').match(/formationAttackNumbersAreSafe\(/g)||[]).length,2);
+  assert.match(g.run('resolveFormationBasicAttackRound.toString()'),/return resolveFormationRound\(action\)/);
   for(const fn of ['rollAttackDamage','handleCombatAction','createFormationRoundPlayback','projectFormationPlaybackFrame']) {
     assert.doesNotMatch(g.run(fn+'.toString()'),/formationAttackNumbersAreSafe/);
   }
@@ -516,16 +519,16 @@ test('no rewards, dialogue, quests or save payload changes; only HP changes',()=
   assert.deepEqual(after,before,'direct diagnostic save differs only by actual player HP');
 });
 
-test('resolver is called only by headless session confirmation, never gameplay integration',()=>{
+test('compatibility resolver has no gameplay caller; session commands share the generalized authority',()=>{
   const name='resolveFormationBasicAttackRound';
   const files=execFileSync('git',['ls-files','--','*.js'],{cwd:ROOT,encoding:'utf8'}).trim().split('\n').filter(f=>!f.startsWith('test/'));
   for(const file of files) {
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((source.match(new RegExp('\\b'+name+'\\b','g'))||[]).length,file==='combat.js'?2:0,file);
+    assert.equal((source.match(new RegExp('\\b'+name+'\\b','g'))||[]).length,file==='combat.js'?1:0,file);
   }
   const g=fresh(),source=g.run(name+'.toString()');
   for(const [method,fn] of Object.entries(g.run('formationSessionController'))) {
-    assert.equal((fn.toString().match(/\bresolveFormationBasicAttackRound\b/g)||[]).length,method==='confirmTarget'?1:0,method);
+    assert.doesNotMatch(fn.toString(),/\bresolveFormationBasicAttackRound\b/,method);
   }
   assert.doesNotMatch(source,/combat\.enemy\b|handleCombatAction|advanceCombatMessage|applyKillRewards|endCombat|grantItem|finalizeLenswebSpiderEvent|ctx\.|drawCombat|saveGame/);
   round(g,[0,0,...HIT,...HIT,...HIT]);

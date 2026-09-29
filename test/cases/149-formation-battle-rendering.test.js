@@ -90,13 +90,14 @@ function within(inner,outer) {
     JSON.stringify({inner,outer}));
 }
 
-for(const count of [2,3]) test(count+' stable non-overlapping slots, canvas bounds and only Attack',()=>{
+for(const count of [2,3]) test(count+' stable non-overlapping slots, canvas bounds and four ordinary commands',()=>{
   const g=fresh(count),positions=layout(g),calls=draw(g);
   assert.deepEqual(positions.map(p=>[p.x,p.width]),count===2?[[16,232],[264,232]]:[[16,144],[184,144],[352,144]]);
   positions.forEach((p,i)=>{if(i)assert.ok(positions[i-1].x+positions[i-1].width<p.x);});
   calls.forEach(c=>{if(c.bounds)within(c.bounds,[0,0,512,480]);});
-  assert.equal(texts(calls).filter(t=>t==='Attack').length,1);
-  for(const name of ['Item','Observe','Run','Magic','Skill'])assert.ok(!texts(calls).includes(name));
+  assert.equal(texts(calls).filter(t=>t==='▶ Attack').length,1);
+  for(const name of ['Item','Observe','Run'])assert.ok(texts(calls).includes(name));
+  for(const name of ['Magic','Skill'])assert.ok(!texts(calls).includes(name));
   assert.equal(cursors(calls).length,0);verifyHP(g,calls);
 });
 
@@ -171,13 +172,13 @@ test('pure formatter covers attacks, criticals, evasion, skips, cancellations an
   assert.match(format({...base,critical:true}),/^Critical!/);
   assert.match(format({...base,evaded:true}),/evades/);
   assert.equal(format({...base,type:'skip',reason:'actor_dead'}),'Player cannot act.');
-  assert.equal(format({...base,type:'cancel',reason:'target_unavailable'}),"Player's attack is cancelled.");
+  assert.equal(format({...base,type:'cancel',reason:'target_unavailable'}),"Player's action is cancelled.");
   for(const outcome of ['ongoing','victory','defeat'])assert.ok(format({type:'outcome',outcome}));
   assert.throws(()=>format({...base,targetId:'enemy_marsh_wisp'}),/identity/);
 });
 
 test('all eight registered sprite silhouettes fit before clipping across idle animation extrema',()=>{
-  const initial=fresh(),ids=J(initial,'FORMATION_STATE_TEMPLATE_IDS');assert.equal(ids.length,8);
+  const initial=fresh(),ids=J(initial,'FORMATION_STATE_TEMPLATE_IDS');assert.equal(ids.length,11);
   for(const id of ids) {
     const g=fresh(3,[id,id,id]);
     for(let tick=0;tick<320;tick+=7) {
@@ -206,7 +207,7 @@ test('renderer has no controller/gameplay side effects or live HP reads, and no 
   const g=fresh();playback(g);g.run('var frozenView=formationSessionController.getView();');
   const before=snapshot(g);
   g.run(`var originalProjection=projectFormationPlaybackFrame;
-    resolveFormationBasicAttackRound=createFormationRoundPlayback=projectFormationPlaybackFrame=
+    resolveFormationRound=createFormationRoundPlayback=projectFormationPlaybackFrame=
     handleCombatAction=advanceCombatMessage=applyKillRewards=endCombat=saveGame=function(){throw Error('renderer called gameplay');};`);
   draw(g,'frozenView'); // getView also calls projection; use the previously supplied view.
   g.run('projectFormationPlaybackFrame=originalProjection;');assert.equal(snapshot(g),before);
@@ -216,8 +217,8 @@ test('renderer has no controller/gameplay side effects or live HP reads, and no 
   for(const file of scriptOrderFromIndexHtml()) {
     const s=fs.readFileSync(path.join(ROOT,file),'utf8');
     if(file!=='render-battle.js')assert.doesNotMatch(s,/drawFormationCombat|getFormationBattleLayout|formatFormationBattleEvent/,file);
-    if(!['combat.js','formation-lab.js'].includes(file))assert.doesNotMatch(s,/initializeFormationState/,file);
-    if(!['combat.js','input.js','render.js','formation-lab.js'].includes(file))assert.doesNotMatch(s,/formationSessionController/,file);
+    if(!['combat.js','formation-lab.js','gallery-receiver.js'].includes(file))assert.doesNotMatch(s,/initializeFormationState/,file);
+    if(!['combat.js','input.js','render.js','formation-lab.js','gallery-receiver.js'].includes(file))assert.doesNotMatch(s,/formationSessionController/,file);
     if(file==='render.js')assert.match(s,/formationCombatLab\.isActive\(\)/);
     if(file==='input.js') {
       assert.match(s,/combat\.mode === 'formation' && formationSessionController\.getView\(\)/);
@@ -225,7 +226,7 @@ test('renderer has no controller/gameplay side effects or live HP reads, and no 
     }
   }
   const route=fresh();route.run('var formationDrawCalls=0;drawFormationCombat=()=>{formationDrawCalls++;};render();');
-  route.press('ArrowLeft');route.press('Enter');assert.equal(route.run('formationDrawCalls'),0);
+  route.press('ArrowUp');route.press('Enter');assert.equal(route.run('formationDrawCalls'),0);
   assert.equal(route.run('combat.active'),false);assert.equal(view(route).phase,'targeting');
   assert.equal(view(route).playbackFrame,null); // one accept selects, never resolves or renders
 });

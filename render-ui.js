@@ -1601,8 +1601,8 @@ function drawFormationLabMenu() {
   const view = formationCombatLab.getView();
   if (!view || view.active) return;
   ctx.save();
-  ctx.fillStyle = '#08121e';ctx.fillRect(40,116,432,240);
-  ctx.strokeStyle = '#e8a030';ctx.lineWidth = 2;ctx.strokeRect(41,117,430,238);
+  ctx.fillStyle = '#08121e';ctx.fillRect(40,116,432,292);
+  ctx.strokeStyle = '#e8a030';ctx.lineWidth = 2;ctx.strokeRect(41,117,430,290);
   ctx.fillStyle = '#e8a030';ctx.font = 'bold 13px "Courier New", monospace';
   ctx.fillText('DEV: FORMATION COMBAT LAB',56,142);
   ctx.fillStyle = '#8aaa98';ctx.font = '10px "Courier New", monospace';
@@ -1617,16 +1617,17 @@ function drawFormationLabMenu() {
     ctx.fillText((i === view.cursor ? '▶ ' : '  ') + scenario.label,60,y);
   });
   ctx.font = '10px "Courier New", monospace';ctx.fillStyle = '#8aaa98';
-  ctx.fillText('↑/↓ or w/s: select · Enter/Space: start · Esc/B: back',52,282,408);
+  ctx.fillText('↑/↓ or w/s: select · Enter/Space: start · Esc/B: back',52,312,408);
   ctx.fillStyle = '#e8bc80';
-  wrapMonospaceText(ctx,view.error,400).slice(0,3).forEach((line,i)=>ctx.fillText(line,56,307+i*12));
+  wrapMonospaceText(ctx,view.error,400).slice(0,3).forEach((line,i)=>ctx.fillText(line,56,337+i*12));
   ctx.restore();
 }
 
 function drawFormationLabHints() {
   ctx.save();ctx.fillStyle = '#8ac8d8';ctx.font = '9px "Courier New", monospace';
-  ctx.fillText('DEV LAB · Enter/Space: confirm/advance · ←/→ or a/d: target',22,448,468);
-  ctx.fillText('Esc/B: cancel target · Esc: leave at action selection or result',22,462,468);
+  ctx.fillText('DEV LAB · Enter/Space: confirm/advance',184,235,310);
+  ctx.fillText('←/→ a/d: command/target · ↑/↓ w/s: item',184,249,310);
+  ctx.fillText('Esc/B: back · Esc: leave at menu/result',184,263,310);
   ctx.restore();
 }
 

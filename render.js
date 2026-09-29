@@ -203,6 +203,12 @@ function drawContinuousWorld() {
 function render() {
   titleEl.textContent = locationName();
 
+  if (galleryReceiverEncounter.getView()?.phase === 'fault') {
+    ctx.fillStyle='#0c121c'; ctx.fillRect(0,0,512,480);
+    drawGalleryReceiverStaging();
+    return;
+  }
+
   if (formationCombatLab.isActive()) {
     const view = formationSessionController.getView();
     if (combat.mode !== 'formation' || !view) throw new Error('Invalid formation lab presentation state');
@@ -214,7 +220,9 @@ function render() {
 
   if (combat.active) {
     // Combat screen replaces the world entirely
-    drawCombat();
+    if (combat.mode === 'formation') drawCombat(formationSessionController.getView());
+    else drawCombat();
+    drawGalleryReceiverStaging();
     tick++;
     return;
   }
@@ -238,6 +246,7 @@ function render() {
   }
 
   // ── Screen-space layers (fixed to the viewport, OUTSIDE any camera transform) ──
+  drawGalleryReceiverStaging();
   // No vignette in the dream — the white is meant to be total. Same in the
   // unmarked chamber — flat light with no darkened corners is part of the
   // room's wrongness (see BASIN_CHAMBER_MAP, maps.js).

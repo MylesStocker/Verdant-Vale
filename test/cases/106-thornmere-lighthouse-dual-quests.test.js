@@ -318,7 +318,7 @@ module.exports = {
 
     // ── 9. Existing interaction priority and outcome behavior remain intact ─
     const main = fresh(); setOutcome(main, 'killed', true);
-    main.run("lighthouse_quest_stage=1;grantItem('Old Engagement Ring');window.sunken_gallery_seen=true;reservoir_report_filed=false;syncQuestFlagsToWindow();");
+    main.run("lighthouse_quest_stage=1;grantItem('Old Engagement Ring');window.sunken_gallery_seen=true;gallery_receiver_defeated=true;reservoir_report_filed=false;syncQuestFlagsToWindow();");
     atSupervisorOffice(main); main.run('handleInteract();');
     assert.match(text(main), /reservoir bed|Tell me what you found/i, 'ready MQ4 report retains priority');
     assert.doesNotMatch(text(main), /recognizes the ring|one hundred and fifty/i);

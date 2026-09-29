@@ -49,7 +49,7 @@ const EXPECTED_KEYS = [
   'sunken_gallery_recess_opened', 'sunken_gallery_drowned_freed', 'sunken_gallery_drowned_slain', 'sunken_gallery_gift_taken',
   'gallery_clue_silt', 'gallery_clue_satchel', 'gallery_clue_survey', 'gallery_clue_gauge',
   'gallery_clue_reliefs', 'gallery_clue_visitor', 'gallery_clue_notebook', 'gallery_clue_stair',
-  'gallery_body_found', 'reservoir_report_filed', 'fourteenth_file_stage', 'fourteenth_file_offer_day',
+  'gallery_body_found', 'reservoir_report_filed', 'gallery_deeper_stair_seen', 'gallery_receiver_defeated', 'fourteenth_file_stage', 'fourteenth_file_offer_day',
   'fourteenth_file_offered', 'fourteenth_file_outcome', 'ff_clue_skiff', 'ff_clue_ledger',
   'ff_clue_dedication',
 ];
@@ -106,7 +106,7 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 72, '72 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 74, '74 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
 
     // ── B. Complete flag round-trip (all bindings, generically) ─────────────

@@ -134,6 +134,8 @@ const QUEST_FLAG_BINDINGS = [
   win('gallery_body_found', false),
   // ── Back to lexical (the Sunken Gallery report + Fourteenth File progression) ─
   lex('reservoir_report_filed', false, () => reservoir_report_filed, (v) => { reservoir_report_filed = v; }),
+  lex('gallery_deeper_stair_seen', false, () => gallery_deeper_stair_seen, (v) => { gallery_deeper_stair_seen = v; }),
+  lex('gallery_receiver_defeated', false, () => gallery_receiver_defeated, (v) => { gallery_receiver_defeated = v; }),
   lex('fourteenth_file_stage', 0, () => fourteenth_file_stage, (v) => { fourteenth_file_stage = v; }),
   lex('fourteenth_file_offer_day', 0, () => fourteenth_file_offer_day, (v) => { fourteenth_file_offer_day = v; }),
   lex('fourteenth_file_offered', false, () => fourteenth_file_offered, (v) => { fourteenth_file_offered = v; }),
@@ -381,6 +383,7 @@ function rehydrateItem(saved) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // never persist laboratory HP
   const meta = MAP_METADATA[mapIdForRef(activeMap)];
   return !meta || meta.allowSave !== false;
@@ -558,6 +561,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
   const raw = localStorage.getItem('verdantVale_save');
   if (!raw) return false;

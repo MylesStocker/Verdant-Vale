@@ -43,6 +43,15 @@ const PALE_SENTRY_TEMPLATE = {
   xp: 350, goldMin: 40, goldMax: 80,
 };
 
+// Provisional Attack-only Gallery encounter. No per-member awards: completing
+// the reservoir report remains the reward for this first playable slice.
+const GALLERY_RECEIVER_TEMPLATES = [
+  {id:'enemy_gallery_receiver', name:'The Receiver', hp:54, maxHp:54, atk:10, def:4, spd:4, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_caller', name:'The Caller', hp:20, maxHp:20, atk:14, def:0, spd:12, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_keeper', name:'The Keeper', hp:32, maxHp:32, atk:9, def:2, spd:7, xp:0, goldMin:0, goldMax:0},
+];
+Object.defineProperty(GALLERY_RECEIVER_TEMPLATES[0], 'isBoss', {value:true});
+
 // ─── Enemy-template identity registry (stable IDs, #4) ───────────────────────
 // One authoritative, id-keyed registry of every enemy TEMPLATE. Combat clones a
 // template into combat.enemy with `{ ...t }`, which carries the `id` through, so
@@ -100,6 +109,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
   PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,
   MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
   LENSWEB_SPIDER_TEMPLATE, MIMIC_POTION_TEMPLATE,
+  ...GALLERY_RECEIVER_TEMPLATES,
 ];
 // The 1/256 secret "23" enemy is generated fresh each encounter with random
 // stats (startCombat, below), so it has no static stat block — only a stable id.
@@ -129,15 +139,15 @@ function slotForType(type) {
   return null;
 }
 
-function effectiveAtk() {
-  return stats.atk + (stats.weapon ? stats.weapon.bonus : 0);
+function effectiveAtk(playerStats = stats) {
+  return playerStats.atk + (playerStats.weapon ? playerStats.weapon.bonus : 0);
 }
 
-function effectiveDef() {
+function effectiveDef(playerStats = stats) {
   return Math.max(0,
-    stats.def
-    + (stats.armor  ? stats.armor.bonus  : 0)
-    + (stats.shield ? stats.shield.bonus : 0)
+    playerStats.def
+    + (playerStats.armor  ? playerStats.armor.bonus  : 0)
+    + (playerStats.shield ? playerStats.shield.bonus : 0)
     - (hasStatusEffect('muddied') ? 1 : 0)
     - (combat.corrosion || 0)   // Dripping Maw acid — combat-only, cleared on endCombat
   );
@@ -162,11 +172,11 @@ function effectivePlayerIncomingMitigation(enemyAtk) {
 }
 
 // Accessories contribute a speed bonus; callers that need effective SPD use this.
-function effectiveSpd() {
+function effectiveSpd(playerStats = stats) {
   if (hasStatusEffect('slither')) return slitherSpd;
   return Math.max(1,
-    stats.spd
-    + (stats.accessory ? stats.accessory.bonus : 0)
+    playerStats.spd
+    + (playerStats.accessory ? playerStats.accessory.bonus : 0)
     - (hasStatusEffect('muddied') ? 2 : 0)
   );
 }
@@ -215,6 +225,15 @@ function equipItem(item) {
   stats[slot] = item;
   const idx = stats.items.indexOf(item);
   if (idx !== -1) stats.items.splice(idx, 1);
+}
+
+// Arithmetic shared by singleton use and formation use. Timing/consumption is
+// owned by the caller, not by an item name or a second set of item definitions.
+function healingItemAmount(item, hp, maxHp) {
+  return Math.min(item.heals || 0, maxHp - hp);
+}
+function offensiveItemDamage(item, enemy) {
+  return item.ignoresDef ? item.damage : Math.max(1, item.damage - enemy.def);
 }
 
 // ─── Choice box ───────────────────────────────────────────────────────────────
@@ -317,7 +336,7 @@ const combat = {
   get mode() { return combatMode; },
   get active() { return combatActive; },
   set active(value) {
-    if (value && combatMode === 'formation') {
+    if (value && combatMode === 'formation' && !galleryReceiverEncounter.ownsCombat()) {
       throw new Error('Formation state cannot activate combat');
     }
     combatActive = value;
@@ -343,7 +362,7 @@ const combat = {
   fireCastTimer:  0,         // frames remaining on Polwick's fire-cast animation
   polwickHasCast: false,     // true once Polwick has cast fire this fight (first hit always casts)
   cooldown:       0,
-  isBoss:         false,
+  isBoss:         false, // legacy Wrongteeth lifecycle, not registry boss classification
   isWarden:       false,
   isFortGuard:    false,
   isFortPolwick:  false,
@@ -400,10 +419,12 @@ const combat = {
 // initializer below. No encounter calls the latter. Cleanup assigns null.
 function setSingleCombatEnemy(enemy) {
   if (enemy === null) {
+    if (combatMode === 'formation') formationRounds.clear();
     completedSingleVictoryReceipt = null;
     combat.enemies = Object.freeze([]);
     combatMode = null;
     formationSessionController.clearAfterCombatCleanup();
+    galleryReceiverEncounter.combatCleared();
     return;
   }
   if (combatMode === 'formation') throw new Error('Clear formation state before initializing a singleton');
@@ -445,6 +466,7 @@ const FORMATION_STATE_TEMPLATE_IDS = Object.freeze([
   'enemy_marsh_wisp_early', 'enemy_briar_hound_early',
   'enemy_reed_grappler', 'enemy_silt_lurker',
   'enemy_marsh_wisp_sluice_top', 'enemy_sluice_slime',
+  'enemy_gallery_receiver', 'enemy_gallery_caller', 'enemy_gallery_keeper',
 ]);
 const FORMATION_STATE_DATA_FIELDS = Object.freeze([
   'id', 'name', 'hp', 'maxHp', 'atk', 'def', 'spd', 'xp', 'goldMin', 'goldMax',
@@ -457,13 +479,24 @@ const FORMATION_STATE_UNSUPPORTED_FIELDS = Object.freeze([
   'stealAndFlee', 'runLock', 'guaranteedDrop', 'inline', 'thornsReflect',
 ]);
 
-// Internal and deliberately inactive; only the developer lab calls this.
+// State construction stays inactive. Lab and Receiver lifecycle owners call it.
 // Requires an empty, inactive state; does not clear a battle,
 // set flags, queue messages, calculate sprites, or grant any rewards.
-function initializeFormationState(descriptors) {
+function initializeFormationState(descriptors, policy = {escape:'blocked'}) {
   if (combat.active || combatMode !== null || combat.enemies.length !== 0) {
     throw new Error('Formation state requires empty inactive combat');
   }
+  const templates = validateFormationDescriptors(descriptors);
+  formationRounds.validatePolicy(policy);
+  const members = templates.map((template, slot) => createCombatEnemyInstance(template, slot));
+  completedSingleVictoryReceipt = null;
+  combat.enemies = Object.freeze(members);
+  combatMode = 'formation';
+  formationRounds.initialize(members, policy, templates.some(template => template.isBoss === true));
+}
+
+// Pure construction preflight, also used before committing encounter staging.
+function validateFormationDescriptors(descriptors) {
   if (!Array.isArray(descriptors) || descriptors.length < 2 || descriptors.length > 3 ||
       Reflect.ownKeys(descriptors).length !== descriptors.length + 1) {
     throw new Error('Formation state requires exactly two or three descriptors');
@@ -497,6 +530,10 @@ function initializeFormationState(descriptors) {
     const data = Object.getOwnPropertyDescriptors(template);
     const copy = {};
     for (const key of Reflect.ownKeys(data)) {
+      if (key === 'isBoss' && Object.hasOwn(data[key], 'value') && typeof data[key].value === 'boolean') {
+        Object.defineProperty(copy, key, {value:data[key].value});
+        continue;
+      }
       if (FORMATION_STATE_UNSUPPORTED_FIELDS.includes(key)) {
         throw new Error('Unsupported formation capability: ' + String(key));
       }
@@ -514,10 +551,7 @@ function initializeFormationState(descriptors) {
     }
     templates.push(copy);
   }
-  const members = templates.map((template, slot) => createCombatEnemyInstance(template, slot));
-  completedSingleVictoryReceipt = null;
-  combat.enemies = Object.freeze(members);
-  combatMode = 'formation';
+  return templates;
 }
 
 // Resolve membership, not life: legacy deferred trades/rewards can still use a
@@ -591,11 +625,28 @@ function completedSingleVictoryCandidate() {
     ? Object.freeze({message:combat.message, queue:combat.messageQueue}) : null;
 }
 
+// Fully processed ordinary escape/recovery also leaves benign bookkeeping.
+// Do not authorize scripted exits, fleeing Gulls, pending rewards or callbacks.
+// This receipt changes no singleton state or timing; only explicit later entry
+// preparation may consume it, after endCombat has removed the living opponent.
+function completedSingleExitCandidate(defeated = false) {
+  if (combat.mode !== 'single' || !combat.active || !combat.enemy || combat.enemy.hp <= 0 ||
+      (defeated ? stats.hp !== 0 : stats.hp <= 0) || combat.pendingVictory ||
+      combat.phase !== (defeated ? 'defeat' : 'message') ||
+      combat.pendingEscape !== !defeated || combat.pendingDefeat !== defeated ||
+      combat.messageQueue.length || typeof combat.message !== 'string' ||
+      Object.keys(FORMATION_NEUTRAL_COMBAT_STATE).some(key => key.startsWith('is') && combat[key]) ||
+      combat.rainfishRemaining || combat.mireToadRemaining || combat.seepSplitRemaining || combat.gullStole ||
+      combat.pendingLighthouseObjective !== null || dialogue.open || dialogue.callbacks !== null ||
+      dialogue.triggerEncounterId !== null) return null;
+  return Object.freeze({escape:!defeated,defeat:defeated,message:combat.message,queue:combat.messageQueue});
+}
+
 // Explicit handoff, not ordinary cleanup and not an initializer side effect.
 // An empty queue and pendingVictory alone cannot prove finalization: require
-// the receipt issued by the real, completed ordinary-victory acknowledgement.
+// the receipt issued by real ordinary victory, escape or completed recovery.
 // Bespoke after-dialogue/sequence exits remain unsupported rather than guessed.
-function prepareFormationEntry() {
+function validateFormationEntry() {
   const fail = () => { throw new Error('Unsupported formation entry: combat is not safely finalized'); };
   const emptyArray = value => Array.isArray(value) && value.length === 0 &&
     Object.getPrototypeOf(value) === Object.getPrototypeOf([]) && Reflect.ownKeys(value).length === 1;
@@ -609,23 +660,74 @@ function prepareFormationEntry() {
   const neutral = FORMATION_NEUTRAL_COMBAT_STATE;
   const receipt = completedSingleVictoryReceipt;
   const terminal = fields.phase?.value === 'victory';
+  const escaped = receipt?.escape === true && fields.phase?.value === 'message';
+  const recovered = receipt?.defeat === true && fields.phase?.value === 'defeat';
   if (terminal && (!receipt || fields.message?.value !== receipt.message ||
-      fields.messageQueue?.value !== receipt.queue || fields.pendingVictory?.value !== true)) fail();
-  const expected = terminal ? {...neutral, phase:'victory', message:receipt.message, pendingVictory:true} : neutral;
+      receipt.escape || receipt.defeat || fields.messageQueue?.value !== receipt.queue || fields.pendingVictory?.value !== true)) fail();
+  if (escaped && (fields.message?.value !== receipt.message || fields.messageQueue?.value !== receipt.queue ||
+      fields.pendingEscape?.value !== true)) fail();
+  if (recovered && (fields.message?.value !== receipt.message || fields.messageQueue?.value !== receipt.queue ||
+      fields.pendingDefeat?.value !== true)) fail();
+  const expected = terminal ? {...neutral, phase:'victory', message:receipt.message, pendingVictory:true}
+    : escaped ? {...neutral,phase:'message',message:receipt.message,pendingEscape:true}
+    : recovered ? {...neutral,phase:'defeat',message:receipt.message,pendingDefeat:true} : neutral;
   if (Object.entries(expected).some(([key,value]) => fields[key]?.value !== value || fields[key].writable !== true) ||
       Reflect.ownKeys(fields).some(key => ![...Object.keys(neutral), 'mode','active','enemy','enemies',
         'observeCount','escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(key)) ||
       !emptyArray(fields.messageQueue?.value) ||
       ['cursor','itemCursor','cooldown'].some(key => !Number.isSafeInteger(fields[key]?.value) || fields[key].value < 0)) fail();
+}
+
+function prepareFormationEntry() {
+  validateFormationEntry();
   // Every rejection is above the write boundary. Preserve queue identity,
   // cooldown, cursors, player state, flags, and the historical singleton path.
   combat.phase = 'choose';
   combat.message = '';
   combat.pendingVictory = false;
+  combat.pendingEscape = false;
+  combat.pendingDefeat = false;
   completedSingleVictoryReceipt = null;
 }
 
-function validateFormationBasicAttackState(action) {
+// The only active formation owner is the Receiver. Headless/Lab sessions keep
+// their original inactive contract; an arbitrary active formation still fails.
+function formationExecutionStateAllowed() {
+  return combat.active === false || (combat.active === true && galleryReceiverEncounter.ownsCombat());
+}
+
+function validateFormationPlayerBasicState(extended = false) {
+  const fail = () => { throw new Error('Unsupported formation basic Attack state or action'); };
+  if (!Array.isArray(statusEffects) || new Set(statusEffects).size !== statusEffects.length ||
+      statusEffects.some(id => !extended || !FORMATION_PLAYER_STATUSES.includes(id))) fail();
+  if (extended && hasStatusEffect('slither') && (!Number.isSafeInteger(slitherSpd) || slitherSpd < 1 || slitherSpd > 20)) fail();
+  const fields = Object.getOwnPropertyDescriptors(stats);
+  for (const key of ['hp','maxHp','atk','def','spd']) {
+    if (!fields[key] || !Object.hasOwn(fields[key], 'value') || !Number.isSafeInteger(fields[key].value) || fields[key].value < 0) fail();
+  }
+  if (stats.hp <= 0 || stats.hp > stats.maxHp || fields.hp.writable !== true) fail();
+  for (const slot of ['weapon','armor','shield','accessory']) {
+    if (!fields[slot] || !Object.hasOwn(fields[slot], 'value')) fail();
+    const gear = fields[slot].value;
+    if (gear === null) continue;
+    if (!gear || typeof gear !== 'object' || Array.isArray(gear) ||
+        ![Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(gear))) fail();
+    const props = Object.getOwnPropertyDescriptors(gear);
+    const allowed = ['name','type','bonus','price', ...(slot === 'armor' ? ['defenseCapBypass'] : []),
+      ...(extended ? ['evadeAll','preventsCursed','questItem'] : [])];
+    if (Reflect.ownKeys(props).some(key => !allowed.includes(key) || !Object.hasOwn(props[key], 'value')) ||
+        props.type?.value !== slot || typeof props.name?.value !== 'string' || !Number.isSafeInteger(props.bonus?.value) ||
+        ['defenseCapBypass','evadeAll','preventsCursed','questItem'].some(key => props[key] && typeof props[key].value !== 'boolean')) fail();
+  }
+  if (![effectiveAtk(),effectiveDef(),effectiveSpd()].every(Number.isSafeInteger)) fail();
+}
+
+function formationBasicStatsValid(value) {
+  return ['hp','maxHp','atk','def','spd'].every(key => Number.isSafeInteger(value[key]) && value[key] >= 0) &&
+    value.maxHp > 0 && value.hp <= value.maxHp;
+}
+
+function validateFormationBasicAttackState(action, extended = false) {
   const fail = () => { throw new Error('Unsupported formation basic Attack state or action'); };
   // Reject getters/prototype behavior before reading supplied/runtime records.
   const dataRecord = (value, allowed) => {
@@ -636,13 +738,13 @@ function validateFormationBasicAttackState(action) {
     return fields;
   };
   let targetInstanceId = null;
-  if (arguments.length) {
+  if (action !== undefined || (arguments.length && !extended)) {
     const actionFields = dataRecord(action, ['type', 'targetInstanceId']);
     if (actionFields.type?.value !== 'attack' || typeof actionFields.targetInstanceId?.value !== 'string') fail();
     targetInstanceId = actionFields.targetInstanceId.value;
   }
   const members = combat.enemies;
-  if (combat.mode !== 'formation' || combat.active !== false || !Array.isArray(members) ||
+  if (combat.mode !== 'formation' || !formationExecutionStateAllowed() || !Array.isArray(members) ||
       !Object.isFrozen(members) || members.length < 2 || members.length > 3 ||
       Reflect.ownKeys(members).length !== members.length + 1 ||
       Object.getPrototypeOf(members) !== Object.getPrototypeOf([])) fail();
@@ -654,40 +756,27 @@ function validateFormationBasicAttackState(action) {
   // Everything else must be neutral, including stale pending singleton work.
   const neutral = FORMATION_NEUTRAL_COMBAT_STATE;
   const battleFields = Object.getOwnPropertyDescriptors(combat);
-  if (Object.entries(neutral).some(([key,value]) => battleFields[key]?.value !== value) ||
+  if (Object.entries(neutral).some(([key,value]) => !(extended && FORMATION_EFFECT_FIELDS.includes(key)) && battleFields[key]?.value !== value) ||
       !Array.isArray(battleFields.messageQueue?.value) || battleFields.messageQueue.value.length !== 0 ||
       Reflect.ownKeys(battleFields).some(key => ![...Object.keys(neutral), 'mode', 'active', 'enemies',
         'enemy', 'observeCount', 'escapeUnlocked', 'messageQueue', 'cursor', 'itemCursor', 'cooldown'].includes(key)) ||
-      !Array.isArray(statusEffects) || statusEffects.length !== 0) fail();
+      !Array.isArray(statusEffects) || (!extended && statusEffects.length !== 0)) fail();
 
-  const numericFields = ['hp', 'maxHp', 'atk', 'def', 'spd'];
-  const validStats = value => numericFields.every(key => Number.isSafeInteger(value[key]) && value[key] >= 0) &&
-    value.maxHp > 0 && value.hp <= value.maxHp;
-  const playerFields = Object.getOwnPropertyDescriptors(stats);
-  if (numericFields.some(key => !playerFields[key] || !Object.hasOwn(playerFields[key], 'value')) ||
-      !validStats(stats) || stats.hp === 0 || playerFields.hp.writable !== true) fail();
-  for (const slot of ['weapon', 'armor', 'shield', 'accessory']) {
-    if (!playerFields[slot] || !Object.hasOwn(playerFields[slot], 'value')) fail();
-    const gear = playerFields[slot].value;
-    if (gear === null) continue;
-    const fields = dataRecord(gear, ['name', 'type', 'bonus', 'price', ...(slot === 'armor' ? ['defenseCapBypass'] : [])]);
-    if (fields.type?.value !== slot || typeof fields.name?.value !== 'string' ||
-        !Number.isSafeInteger(fields.bonus?.value) ||
-        (fields.defenseCapBypass && typeof fields.defenseCapBypass.value !== 'boolean')) fail();
-  }
-  if (![effectiveAtk(), effectiveDef(), effectiveSpd()].every(Number.isSafeInteger)) fail();
+  validateFormationPlayerBasicState(extended);
 
   const ids = new Set();
   members.forEach((member, slot) => {
     const fields = dataRecord(member, [...FORMATION_STATE_DATA_FIELDS,
       'instanceId', 'slot', 'observeCount', 'escapeUnlocked']);
     const template = Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY, fields.id?.value)?.value;
-    dataRecord(template, FORMATION_STATE_DATA_FIELDS);
+    dataRecord(template, [...FORMATION_STATE_DATA_FIELDS, 'isBoss']);
+    if (Object.hasOwn(template,'isBoss') && typeof template.isBoss !== 'boolean') fail();
     if (!FORMATION_STATE_TEMPLATE_IDS.includes(member.id) || template.id !== member.id ||
-        !validStats(member) || !validStats(template) || typeof member.name !== 'string' ||
+        !formationBasicStatsValid(member) || !formationBasicStatsValid(template) || typeof member.name !== 'string' ||
         ['xp','goldMin','goldMax'].some(key => !Number.isFinite(member[key]) || !Number.isFinite(template[key])) ||
         fields.hp?.writable !== true || fields.observeCount?.writable !== true || fields.escapeUnlocked?.writable !== true ||
-        member.observeCount !== 0 || member.escapeUnlocked !== false || member.slot !== slot ||
+        (!extended ? member.observeCount !== 0 : !Number.isSafeInteger(member.observeCount) || member.observeCount < 0) ||
+        member.escapeUnlocked !== false || member.slot !== slot ||
         typeof member.instanceId !== 'string' || !/^combat_enemy_[1-9]\d*$/.test(member.instanceId) ||
         fields.slot?.writable !== false || fields.slot?.configurable !== false ||
         fields.instanceId?.writable !== false || fields.instanceId?.configurable !== false ||
@@ -699,22 +788,234 @@ function validateFormationBasicAttackState(action) {
   return {members, target};
 }
 
-// HEADLESS ONLY. Called only by explicit session confirmation (or tests).
-// The player identity is 'player'; enemy identities are session-local IDs.
-// All validation precedes RNG/HP writes. No singleton queue or lifecycle.
-function resolveFormationBasicAttackRound(action) {
-  const {members, target} = validateFormationBasicAttackState(action);
-  const targetInstanceId = target.instanceId;
-  const fail = () => { throw new Error('Unsupported formation basic Attack state or action'); };
-  if (!formationAttackNumbersAreSafe(effectiveAtk(), target.def) ||
-      members.some(member => member.hp > 0 &&
-        !formationAttackNumbersAreSafe(member.atk, effectivePlayerIncomingMitigation(member.atk)))) fail();
-  // Safe HP inputs and bounded integer damage also bound hpBefore - damage,
-  // clamped hpAfter and appliedDamage. Validate all possible attackers now,
-  // even an enemy that might later die before acting; never validate after RNG.
-  // HP is the terminal authority: zero player HP or no living target prevents
-  // another round. No separate terminal flag/ledger can diverge from that state.
+const FORMATION_PLAYER_STATUSES = Object.freeze(['poison','cursed','muddied','slither','burn','dazzled']);
+const FORMATION_EFFECT_FIELDS = Object.freeze(['evadeTurns','bombFuse','bombDamage','bombIgnoresDef','bombTargetInstanceId','bombJustArmed']);
 
+// Closed data copying for commands/history. Reject accessors, functions, sparse
+// arrays and non-data objects instead of normalizing them through JSON.
+function copyFormationData(value) {
+  if (value === null || ['string','boolean'].includes(typeof value)) return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (!value || typeof value !== 'object' ||
+      ![Object.getPrototypeOf({}),Object.getPrototypeOf([]),null].includes(Object.getPrototypeOf(value)))
+    throw new Error('Invalid formation data');
+  const fields = Object.getOwnPropertyDescriptors(value);
+  if (Array.isArray(value)) {
+    if (Reflect.ownKeys(fields).length !== value.length + 1) throw new Error('Invalid formation data');
+    const out=[];
+    for (let i=0;i<value.length;i++) {
+      if (!Object.hasOwn(fields[i] || {},'value')) throw new Error('Invalid formation data');
+      out.push(copyFormationData(fields[i].value));
+    }
+    return Object.freeze(out);
+  }
+  const out = {};
+  for (const key of Reflect.ownKeys(fields)) {
+    if (typeof key !== 'string' || !Object.hasOwn(fields[key],'value')) throw new Error('Invalid formation data');
+    Object.defineProperty(out,key,{value:copyFormationData(fields[key].value),enumerable:true});
+  }
+  return Object.freeze(out);
+}
+function formationRecord(value, keys) {
+  if (!value || Array.isArray(value) || typeof value !== 'object' ||
+      ![Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(value))) throw new Error('Invalid formation command');
+  const fields = Object.getOwnPropertyDescriptors(value);
+  if (Reflect.ownKeys(fields).length !== keys.length ||
+      keys.some(key => !Object.hasOwn(fields[key] || {},'value'))) throw new Error('Invalid formation command');
+  return copyFormationData(value);
+}
+
+// One transient round authority. This is accounting/provenance, not another HP,
+// target or presentation authority. The session still owns its phase/cursor.
+const formationRounds = (() => {
+  let state = null;
+  const requireState = () => {
+    if (!state || combat.mode !== 'formation' || combat.enemies !== state.members)
+      throw new Error('Invalid formation round state');
+    return state;
+  };
+  const validatePolicy = policy => {
+    const p = formationRecord(policy,['escape']);
+    if (!['blocked','fastest_living'].includes(p.escape)) throw new Error('Invalid formation escape policy');
+    return p;
+  };
+  return Object.freeze({
+    validatePolicy,
+    initialize(members, policy, bossLocked) {
+      state = {members, policy:validatePolicy(policy), completed:0, pending:null, outcome:'ongoing',
+        bossLocked, evadeAppliedRound:0, bombAppliedRound:0};
+    },
+    clear() {
+      state = null;
+      combat.evadeTurns=0; combat.bombFuse=0; combat.bombDamage=0;
+      combat.bombIgnoresDef=false; combat.bombTargetInstanceId=null; combat.bombJustArmed=false;
+    },
+    prepare() {
+      const s = requireState();
+      const view = formationSessionController.getView();
+      if (s.pending || s.outcome !== 'ongoing' || s.completed >= Number.MAX_SAFE_INTEGER ||
+          (view && !['awaiting_action','targeting','item'].includes(view.phase)))
+        throw new Error('Formation round requires completed and acknowledged playback');
+      return Object.freeze({round:s.completed+1, escape:s.bossLocked ? 'blocked' : s.policy.escape});
+    },
+    applied(effect, round) { requireState()[effect === 'evade' ? 'evadeAppliedRound' : 'bombAppliedRound'] = round; },
+    wasApplied(effect, round) { return requireState()[effect === 'evade' ? 'evadeAppliedRound' : 'bombAppliedRound'] === round; },
+    finish(result, members) {
+      // Defensive synchronous test hooks may remove an actor. Never attach an
+      // old round to a newly initialized battle; its cancellations still return.
+      if (!state || state.members !== members) return;
+      const s = state;
+      s.completed++;
+      s.pending = copyFormationData(result);
+      s.outcome = result.outcome;
+    },
+    isPending(result) {
+      return !!state && state.members === combat.enemies &&
+        JSON.stringify(state.pending) === JSON.stringify(result);
+    },
+    acknowledge(playback, frameIndex) {
+      const s = requireState(), frame = projectFormationPlaybackFrame(playback,frameIndex);
+      const view = formationSessionController.getView();
+      if (!s.pending || frameIndex !== playback.frameCount-1 || frame.frameIndex !== frameIndex ||
+          !frame.complete || (view && view.phase !== 'playback_complete') ||
+          JSON.stringify(playback.frames.slice(1).map(f=>f.currentEvent)) !== JSON.stringify(s.pending.events) ||
+          frame.outcome !== s.outcome) throw new Error('Invalid formation round acknowledgement');
+      s.pending = null;
+    },
+    getView() {
+      return state ? Object.freeze({completedRounds:state.completed, awaitingPlayback:!!state.pending,
+        outcome:state.outcome, escapePolicy:state.bossLocked ? 'blocked' : state.policy.escape}) : null;
+    },
+  });
+})();
+
+// Headless callers explicitly present the reel's final frame before releasing
+// the next round. The session calls this only from playback_complete.
+function acknowledgeFormationRound(playback, frameIndex) { formationRounds.acknowledge(playback, frameIndex); }
+
+function formationItemDefinition(itemId) {
+  if (typeof itemId !== 'string' || !Object.hasOwn(ITEM_REGISTRY,itemId)) throw new Error('Invalid formation item');
+  const item = copyFormationData(ITEM_REGISTRY[itemId]);
+  const allowed=['name','type','price','bonus','heals','curesPoison','curesCursed','evadeTurns','evadeRate',
+    'damage','fuse','ignoresDef','impactVerb','stunTurns','sexBane','battleOnly','questItem','keyItem',
+    'causesMuddied','defenseCapBypass','evadeAll','preventsCursed'];
+  if (Object.keys(item).some(k=>!allowed.includes(k))) throw new Error('Unsupported formation item capability');
+  if (item.keyItem || item.name !== itemId) throw new Error('Invalid formation item');
+  const effect = item.sexBane ? 'reagent' : item.type === 'potion' ? (isStatusCureItem(item) ? 'cure' : 'heal') :
+    item.type === 'buff' ? 'evade' : item.type === 'throwable' ? (item.fuse ? 'bomb' : 'damage') :
+    item.type === 'stun' ? 'stun' : slotForType(item.type) ? 'equip' : item.type === 'bait' ? 'nothing' : null;
+  if (!effect) throw new Error('Unsupported formation item');
+  return {item,effect,targeted:['reagent','bomb','damage','stun'].includes(effect)};
+}
+
+function formationEffectSnapshot() {
+  return {evadeTurns:combat.evadeTurns, bombFuse:combat.bombFuse, bombDamage:combat.bombDamage,
+    bombIgnoresDef:combat.bombIgnoresDef, bombTargetInstanceId:combat.bombTargetInstanceId,
+    bombJustArmed:combat.bombJustArmed};
+}
+function formationCommandSnapshot() {
+  const equipment={};
+  for (const slot of ['weapon','armor','shield','accessory']) equipment[slot]=stats[slot] ? stats[slot].name : null;
+  return copyFormationData({player:{id:'player',hp:stats.hp,maxHp:stats.maxHp,
+      inventory:stats.items.map(item=>item.name),statuses:statusEffects.slice(),
+      equipment,
+      slitherSpd},
+    enemies:combat.enemies.map(e=>({id:e.id,instanceId:e.instanceId,slot:e.slot,hp:e.hp,maxHp:e.maxHp,
+      observeCount:e.observeCount,escapeUnlocked:e.escapeUnlocked})), effects:formationEffectSnapshot()});
+}
+
+function validateFormationRoundCommand(action) {
+  const type = Object.getOwnPropertyDescriptor(action || {},'type')?.value;
+  let spec = null;
+  if (type === 'item') spec = formationItemDefinition(Object.getOwnPropertyDescriptor(action,'itemId')?.value);
+  const targeted = ['attack','observe'].includes(type) || spec?.targeted;
+  const keys = type === 'item' ? ['type','itemId',...(targeted ? ['targetInstanceId'] : [])] :
+    ['attack','observe'].includes(type) ? ['type','targetInstanceId'] : type === 'run' ? ['type'] : null;
+  if (!keys) throw new Error('Invalid formation command');
+  const command = formationRecord(action,keys);
+  const {members,target} = validateFormationBasicAttackState(targeted ? {type:'attack',targetInstanceId:command.targetInstanceId} : undefined,true);
+  const round = formationRounds.prepare();
+  const inventoryFields = Object.getOwnPropertyDescriptors(stats.items || {});
+  if (!Array.isArray(stats.items) || !Object.isExtensible(stats.items) ||
+      inventoryFields.length?.writable !== true || Reflect.ownKeys(inventoryFields).length !== stats.items.length+1 ||
+      Object.keys(inventoryFields).some(k=>k!=='length' &&
+        (!Object.hasOwn(inventoryFields[k],'value') || !inventoryFields[k].writable || !inventoryFields[k].configurable)) || stats.items.some(item => {
+    const fields=Object.getOwnPropertyDescriptors(item || {});
+    return typeof fields.name?.value !== 'string' || !Object.hasOwn(ITEM_REGISTRY,fields.name.value);
+  })) throw new Error('Invalid formation inventory');
+  const item = spec ? stats.items.find(item=>item.name === command.itemId) : null;
+  if (spec && (!item || JSON.stringify(copyFormationData(item)) !== JSON.stringify(spec.item))) throw new Error('Invalid formation item ownership');
+  const effects = formationEffectSnapshot();
+  if (!['evadeTurns','bombFuse','bombDamage'].every(k=>Number.isSafeInteger(effects[k]) && effects[k]>=0) ||
+      typeof effects.bombIgnoresDef !== 'boolean' || typeof effects.bombJustArmed !== 'boolean' ||
+      effects.bombJustArmed || FORMATION_EFFECT_FIELDS.some(k=>Object.getOwnPropertyDescriptor(combat,k)?.writable!==true) ||
+      (effects.bombFuse > 0 ? !findCombatEnemy(effects.bombTargetInstanceId) :
+        effects.bombTargetInstanceId !== null || effects.bombDamage!==0 || effects.bombIgnoresDef))
+    throw new Error('Invalid formation duration state');
+  // Extended histories name registry equipment, not arbitrary live objects.
+  // Establish their representability before any initiative or effect RNG.
+  const extended = type !== 'attack' || statusEffects.length > 0 || effects.evadeTurns > 0 || effects.bombFuse > 0;
+  if (extended) {
+    if (!Number.isSafeInteger(slitherSpd) || slitherSpd < 1 || slitherSpd > 20) throw new Error('Invalid formation speed state');
+    for (const slot of ['weapon','armor','shield','accessory']) {
+      const gear=stats[slot];
+      if (gear && (!Object.hasOwn(ITEM_REGISTRY,gear.name) ||
+          JSON.stringify(copyFormationData(gear)) !== JSON.stringify(copyFormationData(ITEM_REGISTRY[gear.name]))))
+        throw new Error('Unsupported formation equipment');
+    }
+    formationCommandSnapshot();
+  }
+  // Validate possible incoming damage both before and after an equipment change.
+  const candidates=[stats];
+  if (spec?.effect === 'equip') {
+    const candidate={...stats,[slotForType(item.type)]:item};
+    if (!Number.isSafeInteger(item.bonus) || ![effectiveAtk(candidate),effectiveDef(candidate),effectiveSpd(candidate)].every(Number.isSafeInteger))
+      throw new Error('Unsafe formation equipment');
+    if (Object.getOwnPropertyDescriptor(stats,slotForType(item.type))?.writable!==true) throw new Error('Invalid formation equipment slot');
+    candidates.push(candidate);
+  }
+  if ((type === 'attack' && !formationAttackNumbersAreSafe(effectiveAtk(),target.def)) ||
+      members.some(e=>e.hp>0 && candidates.some(p=>!formationAttackNumbersAreSafe(e.atk,
+        playerIncomingMitigation(e.atk,effectiveDef(p),p.armor?.defenseCapBypass === true)))))
+    throw new Error('Unsupported formation basic Attack state or action');
+  if (type === 'observe' && target.observeCount >= Number.MAX_SAFE_INTEGER) throw new Error('Invalid formation observation progress');
+  if (spec) {
+    for (const key of ['heals','damage','fuse','evadeTurns','stunTurns']) {
+      if (Object.hasOwn(item,key) && (!Number.isSafeInteger(item[key]) || item[key]<0)) throw new Error('Unsafe formation item numbers');
+    }
+    if (['damage','bomb'].includes(spec.effect) && !Number.isSafeInteger(offensiveItemDamage(item,target)))
+      throw new Error('Unsafe formation item damage');
+    if (spec.effect === 'evade' && (item.evadeRate !== BULLET_TIME_EVADE_RATE || !item.evadeTurns)) throw new Error('Unsupported formation buff');
+  }
+  return {command,members,target,item,spec,...round};
+}
+
+// Compatibility API: retain its closed Attack-only schema and capability gate.
+// All execution is delegated to the single generalized round below.
+function resolveFormationBasicAttackRound(action) {
+  validateFormationBasicAttackState(action);
+  return resolveFormationRound(action);
+}
+
+// One committed player action, one initiative contest per living enemy, and
+// one completion boundary even for early victory/defeat/escape. No presentation.
+// Closed records: attack/observe + targetInstanceId; item + registry itemId
+// (and targetInstanceId only for offensive items); run with no target/policy.
+// Headless callers resolve -> create playback -> project the final frame ->
+// acknowledgeFormationRound. The session supplies one confirmed menu command.
+function resolveFormationRound(action) {
+  const {command,members,target,item,spec,round,escape} = validateFormationRoundCommand(action);
+  const targetInstanceId = target ? target.instanceId : 'player';
+  const extended = command.type !== 'attack' || statusEffects.length > 0 || combat.evadeTurns > 0 || combat.bombFuse > 0;
+  const before = extended ? formationCommandSnapshot() : null;
+  const events = [];
+  // Retain the existing command-specific Slither contract: Attack/Observe
+  // reroll before initiative, Item/Run use the current effective speed.
+  if (['attack','observe'].includes(command.type) && hasStatusEffect('slither')) {
+    const before = slitherSpd;
+    slitherSpd = rollSlitherSpd();
+    events.push({type:'speed',before,after:slitherSpd});
+  }
   const playerId = 'player';
   const initiative = members.filter(member => member.hp > 0).map(member => ({
     actorId: member.instanceId,
@@ -726,10 +1027,20 @@ function resolveFormationBasicAttackRound(action) {
     {actorType:'player', actorId:playerId, targetId:targetInstanceId},
     ...initiative.filter(contest => contest.playerFirst).map(enemyAction),
   ];
-  const events = [];
   const finish = outcome => {
+    // End effects occur once, never once per opponent or playback frame. An
+    // application round is exempt; Bullet Time covers all 3 subsequent rounds.
+    if (extended) {
+      const effectsBefore = formationEffectSnapshot();
+      if (combat.evadeTurns > 0 && !formationRounds.wasApplied('evade',round)) combat.evadeTurns--;
+      events.push({type:'round_end',roundBefore:round-1,roundAfter:round,
+        effectsBefore,effectsAfter:formationEffectSnapshot()});
+    }
     events.push({type:'outcome', outcome});
-    return {initiative, order, events, outcome};
+    const result = extended ? {initiative,order,events,outcome,command,roundBefore:round-1,roundAfter:round,
+      before,after:formationCommandSnapshot()} : {initiative, order, events, outcome};
+    formationRounds.finish(result,members);
+    return extended ? copyFormationData(result) : result;
   };
   // Re-resolve exact identity at execution, never template/name/slot fallback.
   // Membership cannot normally change during this synchronous basic-only round.
@@ -744,9 +1055,55 @@ function resolveFormationBasicAttackRound(action) {
       events.push({type:'skip', ...planned, reason:actor ? 'actor_dead' : 'actor_removed'});
       continue;
     }
-    const recipient = planned.actorType === 'player' ? resolveMember(targetInstanceId) : stats;
+    const recipient = planned.actorType === 'player' && targetInstanceId !== playerId ? resolveMember(targetInstanceId) : stats;
     if (!recipient || recipient.hp <= 0) {
       events.push({type:'cancel', ...planned, reason:recipient ? 'target_dead' : 'target_removed'});
+      continue;
+    }
+    if (planned.actorType === 'player' && command.type !== 'attack') {
+      if (command.type === 'item') {
+        if (!stats.items.includes(item)) {
+          events.push({type:'cancel',...planned,reason:'item_removed'});
+          continue;
+        }
+        const before = formationCommandSnapshot();
+        const consumes = !['equip','nothing'].includes(spec.effect);
+        if (spec.effect === 'heal') {
+          stats.hp += healingItemAmount(item,stats.hp,stats.maxHp);
+          if (MUDSLITHER_INFLICTABLE && item.causesMuddied) addStatusEffect('muddied');
+        } else if (spec.effect === 'cure') applyStatusCure(item);
+        else if (spec.effect === 'evade') {
+          combat.evadeTurns=item.evadeTurns; formationRounds.applied('evade',round);
+        } else if (spec.effect === 'damage') recipient.hp=Math.max(0,recipient.hp-offensiveItemDamage(item,recipient));
+        else if (spec.effect === 'bomb') {
+          combat.bombTargetInstanceId=recipient.instanceId; combat.bombFuse=item.fuse;
+          combat.bombDamage=item.damage; combat.bombIgnoresDef=!!item.ignoresDef;
+          combat.bombJustArmed=false; formationRounds.applied('bomb',round);
+        } else if (spec.effect === 'reagent') {
+          if (recipient.sex === item.sexBane) recipient.hp=0;
+        } else if (spec.effect === 'equip') equipItem(item);
+        // Trollbane's authored non-regenerator result and Bait's existing
+        // non-equippable no-op are retained. No enemy capabilities are added.
+        if (consumes) stats.items.splice(stats.items.indexOf(item),1);
+        events.push({type:'item',...planned,itemId:command.itemId,effect:spec.effect,consumed:consumes,
+          before,after:formationCommandSnapshot()});
+      } else if (command.type === 'observe') {
+        const count = recipient.observeCount++;
+        events.push({type:'observe',...planned,countBefore:count,countAfter:recipient.observeCount,
+          escapeBefore:recipient.escapeUnlocked,escapeAfter:recipient.escapeUnlocked,
+          lines:[...getObservationText(recipient,count)]});
+        // No member in the approved subset has observe-gated escape. Never
+        // infer a group unlock from one member's observation progress.
+      } else {
+        const fastest = members.filter(e=>e.hp>0).reduce((a,b)=>b.spd>a.spd?b:a);
+        const allowed = escape === 'fastest_living';
+        const chance = allowed ? speedWinChance(effectiveSpd(),fastest.spd) : 0;
+        const roll = allowed ? Math.random() : null;
+        const success = allowed && roll < chance;
+        events.push({type:'run',...planned,allowed,opponentId:fastest.instanceId,chance,roll,success});
+        if (success) return finish('escape');
+      }
+      if (members.every(member=>member.hp===0)) return finish('victory');
       continue;
     }
     // Existing production primitives; variance -> critical -> evasion, three
@@ -754,6 +1111,9 @@ function resolveFormationBasicAttackRound(action) {
     const roll = planned.actorType === 'player'
       ? rollAttackDamage(effectiveAtk(), recipient.def)
       : rollAttackDamage(actor.atk, effectivePlayerIncomingMitigation(actor.atk));
+    // Existing curse rule, reached only for newly supported Cursed state.
+    const fumbled = planned.actorType === 'player' && hasStatusEffect('cursed') && Math.random() < 0.25;
+    if (fumbled) { roll.dmg=1; roll.crit=false; }
     const evaded = planned.actorType === 'player' ? enemyEvades(recipient) : playerEvades(actor);
     const hpBefore = recipient.hp;
     recipient.hp = Math.max(0, hpBefore - (evaded ? 0 : roll.dmg));
@@ -763,6 +1123,27 @@ function resolveFormationBasicAttackRound(action) {
     if (stats.hp <= 0) return finish('defeat');
     if (members.every(member => member.hp === 0)) return finish('victory');
   }
+  if (hasStatusEffect('burn')) {
+    const damage = Math.floor(Math.random()*21), hpBefore = stats.hp;
+    stats.hp=Math.max(0,stats.hp-damage);
+    events.push({type:'burn',targetId:'player',attemptedDamage:damage,appliedDamage:hpBefore-stats.hp,hpBefore,hpAfter:stats.hp});
+    if (stats.hp===0) return finish('defeat');
+  }
+  if (combat.bombFuse > 0 && !formationRounds.wasApplied('bomb',round)) {
+    const before = formationEffectSnapshot();
+    combat.bombFuse--;
+    const recipient = resolveMember(combat.bombTargetInstanceId);
+    const hpBefore = recipient ? recipient.hp : null;
+    const damage = recipient && recipient.hp > 0 && combat.bombFuse===0 ? offensiveItemDamage(
+      {damage:combat.bombDamage,ignoresDef:combat.bombIgnoresDef},recipient) : 0;
+    if (recipient && damage) recipient.hp=Math.max(0,recipient.hp-damage);
+    if (combat.bombFuse===0 || !recipient || recipient.hp===0) {
+      combat.bombFuse=0;combat.bombTargetInstanceId=null;combat.bombDamage=0;combat.bombIgnoresDef=false;
+    }
+    events.push({type:'bomb_tick',targetId:before.bombTargetInstanceId,before,after:formationEffectSnapshot(),
+      attemptedDamage:damage,appliedDamage:recipient ? hpBefore-recipient.hp : 0,hpBefore,hpAfter:recipient ? recipient.hp : null});
+    if (members.every(member=>member.hp===0)) return finish('victory');
+  }
   return finish('ongoing');
 }
 
@@ -770,6 +1151,7 @@ function resolveFormationBasicAttackRound(action) {
 // before another round or external HP/membership changes. No live references,
 // gameplay helpers, RNG, queues, or writes cross into this detached film reel.
 function createFormationRoundPlayback(roundResult) {
+  if (Object.hasOwn(roundResult || {},'command')) return createFormationCommandPlayback(roundResult);
   const fail = () => { throw new Error('Invalid formation playback history or final snapshot'); };
   const plain = value => value && typeof value === 'object' && !Array.isArray(value) &&
     [Object.getPrototypeOf({}), null].includes(Object.getPrototypeOf(value));
@@ -798,7 +1180,7 @@ function createFormationRoundPlayback(roundResult) {
     return Object.fromEntries(keys.map(key => [key, fields[key].value]));
   };
   const validHp = (hp, maxHp) => Number.isSafeInteger(hp) && hp >= 0 && hp <= maxHp;
-  if (combat.mode !== 'formation' || combat.active !== false || !Object.isFrozen(combat.enemies)) fail();
+  if (combat.mode !== 'formation' || !formationExecutionStateAllowed() || !Object.isFrozen(combat.enemies)) fail();
   const player = snapshot(stats, ['hp', 'maxHp']);
   const enemies = array(combat.enemies).map(member => snapshot(member, ['id', 'instanceId', 'slot', 'hp', 'maxHp']));
   if (enemies.length < 2 || enemies.length > 3) fail();
@@ -918,6 +1300,206 @@ function createFormationRoundPlayback(roundResult) {
     initiative:Object.freeze(initiative), order:Object.freeze(order), frames:Object.freeze(frames)});
 }
 
+// New command histories extend the same immutable frame contract. Validation
+// uses detached values exclusively; it never calls an effect, combat roll,
+// duration tick, inventory writer, observation writer or finalizer.
+function createFormationCommandPlayback(source) {
+  const fail = () => { throw new Error('Invalid formation playback history or final snapshot'); };
+  let result;
+  try { result = formationRecord(source,['initiative','order','events','outcome','command','roundBefore','roundAfter','before','after']); }
+  catch (_) { fail(); }
+  // The pending round is an immutable receipt, not a second state authority.
+  // In particular, authored observation text and random escape results cannot
+  // be substituted with plausible but unauthentic history.
+  if (!formationRounds.isPending(result)) fail();
+  const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
+  const record = (v,keys) => { try { return formationRecord(v,keys); } catch (_) { fail(); } };
+  const safe = n => Number.isSafeInteger(n) && n >= 0;
+  const hp = (n,max) => safe(n) && n <= max;
+  if (combat.mode !== 'formation' || !formationExecutionStateAllowed() ||
+      !safe(result.roundBefore) || result.roundAfter !== result.roundBefore+1 ||
+      !Number.isSafeInteger(result.roundAfter) || !['ongoing','victory','defeat','escape'].includes(result.outcome) ||
+      !Array.isArray(result.events) || !Array.isArray(result.order) || !Array.isArray(result.initiative)) fail();
+  const members = combat.enemies;
+  const effects = value => {
+    record(value,FORMATION_EFFECT_FIELDS);
+    if (!['evadeTurns','bombFuse','bombDamage'].every(k=>safe(value[k])) ||
+        typeof value.bombIgnoresDef !== 'boolean' || typeof value.bombJustArmed !== 'boolean' ||
+        (value.bombFuse > 0 ? !members.some(e=>e.instanceId===value.bombTargetInstanceId) : value.bombTargetInstanceId !== null)) fail();
+  };
+  const snapshot = value => {
+    record(value,['player','enemies','effects']);
+    const p=record(value.player,['id','hp','maxHp','inventory','statuses','equipment','slitherSpd']);
+    if (p.id !== 'player' || !safe(p.maxHp) || p.maxHp===0 || !hp(p.hp,p.maxHp) ||
+        !Array.isArray(p.inventory) || p.inventory.some(id=>typeof id!=='string' || !Object.hasOwn(ITEM_REGISTRY,id)) ||
+        !Array.isArray(p.statuses) || new Set(p.statuses).size!==p.statuses.length || p.statuses.some(s=>!FORMATION_PLAYER_STATUSES.includes(s)) ||
+        !safe(p.slitherSpd) || p.slitherSpd<1 || p.slitherSpd>20) fail();
+    record(p.equipment,['weapon','armor','shield','accessory']);
+    for (const [slot,id] of Object.entries(p.equipment)) if (id!==null &&
+        (typeof id!=='string' || !Object.hasOwn(ITEM_REGISTRY,id) || ITEM_REGISTRY[id].type!==slot)) fail();
+    if (!Array.isArray(value.enemies) || value.enemies.length!==members.length) fail();
+    value.enemies.forEach((e,i)=>{
+      record(e,['id','instanceId','slot','hp','maxHp','observeCount','escapeUnlocked']);
+      if (e.id!==members[i].id || e.instanceId!==members[i].instanceId || e.slot!==i ||
+          !safe(e.maxHp) || e.maxHp===0 || !hp(e.hp,e.maxHp) || !safe(e.observeCount) || e.escapeUnlocked!==false) fail();
+    });
+    effects(value.effects);
+  };
+  snapshot(result.before); snapshot(result.after);
+  if (!equal(result.after,formationCommandSnapshot()) || result.before.player.maxHp!==result.after.player.maxHp ||
+      result.before.enemies.some((e,i)=>e.maxHp!==result.after.enemies[i].maxHp)) fail();
+  const command=result.command;
+  let spec=null;
+  try { if (command.type==='item') spec=formationItemDefinition(command.itemId); } catch (_) { fail(); }
+  const targeted=['attack','observe'].includes(command.type) || !!spec?.targeted;
+  const keys=command.type==='item' ? ['type','itemId',...(targeted?['targetInstanceId']:[])] :
+    ['attack','observe'].includes(command.type) ? ['type','targetInstanceId'] : command.type==='run' ? ['type'] : null;
+  if (!keys) fail(); record(command,keys);
+  const targetId=targeted ? command.targetInstanceId : 'player';
+  if (targeted && !result.before.enemies.some(e=>e.instanceId===targetId && e.hp>0)) fail();
+  const initialLiving=result.before.enemies.filter(e=>e.hp>0);
+  if (result.initiative.length!==initialLiving.length) fail();
+  result.initiative.forEach((c,i)=>{
+    record(c,['actorId','playerFirst']);
+    if (c.actorId!==initialLiving[i].instanceId || typeof c.playerFirst!=='boolean') fail();
+  });
+  const expected=[...result.initiative.filter(c=>!c.playerFirst).map(c=>({actorType:'enemy',actorId:c.actorId,targetId:'player'})),
+    {actorType:'player',actorId:'player',targetId},
+    ...result.initiative.filter(c=>c.playerFirst).map(c=>({actorType:'enemy',actorId:c.actorId,targetId:'player'}))];
+  if (!equal(expected,result.order)) fail();
+  const clone = v => ({player:{...v.player,inventory:[...v.player.inventory],statuses:[...v.player.statuses],equipment:{...v.player.equipment}},
+    enemies:v.enemies.map(e=>({...e})),effects:{...v.effects}});
+  let state=clone(result.before), orderIndex=0, escaped=false, ended=false, outcome='ongoing';
+  let appliedEvade=false, appliedBomb=false, sawBomb=false, sawBurn=false, sawSpeed=false;
+  const frames=[];
+  const entity=id=>id==='player' ? state.player : state.enemies.find(e=>e.instanceId===id);
+  const terminal=()=>state.player.hp===0 ? 'defeat' : state.enemies.every(e=>e.hp===0) ? 'victory' : escaped ? 'escape' : 'ongoing';
+  const frame=(index,event)=>copyFormationData({frameIndex:index,eventIndex:index-1,currentEvent:event,
+    player:state.player,enemies:state.enemies,effects:state.effects,
+    completedRounds:ended ? result.roundAfter : result.roundBefore,
+    complete:index===result.events.length,outcome});
+  frames.push(frame(0,null));
+  const checkAction=(event,extra)=>{
+    record(event,['type','actorType','actorId','targetId',...extra]);
+    const planned=expected[orderIndex++];
+    if (!planned || ['actorType','actorId','targetId'].some(k=>event[k]!==planned[k])) fail();
+  };
+  const damage=(event,allowZero=false)=>{
+    const target=entity(event.targetId);
+    if (!target || !hp(event.hpBefore,target.maxHp) || target.hp!==event.hpBefore ||
+        !hp(event.hpAfter,target.maxHp) || event.hpAfter>event.hpBefore ||
+        !safe(event.attemptedDamage) || (!allowZero && event.attemptedDamage===0) ||
+        !safe(event.appliedDamage) || event.appliedDamage!==event.hpBefore-event.hpAfter ||
+        event.appliedDamage!==(event.evaded ? 0 : Math.min(event.hpBefore,event.attemptedDamage))) fail();
+    target.hp=event.hpAfter;
+  };
+  result.events.forEach((event,index)=>{
+    if (!event || typeof event.type!=='string' || (ended && event.type!=='outcome')) fail();
+    if (!['round_end','outcome'].includes(event.type) && terminal()!=='ongoing') fail();
+    if (event.type==='speed') {
+      record(event,['type','before','after']);
+      if (index!==0 || sawSpeed || !state.player.statuses.includes('slither') || event.before!==state.player.slitherSpd ||
+          !safe(event.after) || event.after<1 || event.after>20) fail();
+      state.player.slitherSpd=event.after;sawSpeed=true;
+    } else if (event.type==='attack') {
+      checkAction(event,['attemptedDamage','appliedDamage','critical','evaded','hpBefore','hpAfter']);
+      if (entity(event.actorId)?.hp<=0 || entity(event.targetId)?.hp<=0 ||
+          (event.actorId==='player' && command.type!=='attack') || typeof event.critical!=='boolean' || typeof event.evaded!=='boolean') fail();
+      damage(event);
+    } else if (event.type==='skip' || event.type==='cancel') {
+      checkAction(event,['reason']);
+      if (event.type==='skip' ? event.reason!=='actor_dead' || entity(event.actorId)?.hp!==0 :
+          event.reason!=='target_dead' || entity(event.actorId)?.hp<=0 || entity(event.targetId)?.hp!==0) fail();
+    } else if (event.type==='item') {
+      checkAction(event,['itemId','effect','consumed','before','after']);
+      if (command.type!=='item' || event.actorId!=='player' || state.player.hp<=0 || entity(targetId)?.hp<=0 ||
+          event.itemId!==command.itemId || event.effect!==spec.effect || !equal(event.before,state)) fail();
+      snapshot(event.after);
+      const next=clone(state), p=next.player, target=targetId==='player'?p:next.enemies.find(e=>e.instanceId===targetId), item=spec.item;
+      const index=p.inventory.indexOf(command.itemId), consumes=!['equip','nothing'].includes(spec.effect);
+      if (index<0 || event.consumed!==consumes) fail();
+      if (consumes) p.inventory.splice(index,1);
+      if (spec.effect==='heal') {
+        const restored=event.after.player.hp-p.hp;
+        if (!safe(restored) || restored!==Math.min(item.heals || 0,p.maxHp-p.hp)) fail();
+        p.hp=event.after.player.hp;
+        if (MUDSLITHER_INFLICTABLE && item.causesMuddied && !p.statuses.includes('muddied')) p.statuses.push('muddied');
+      } else if (spec.effect==='cure') {
+        p.statuses=p.statuses.filter(status=>!itemCuredStatuses(item).includes(status));
+      } else if (spec.effect==='evade') {next.effects.evadeTurns=item.evadeTurns;appliedEvade=true;}
+      else if (spec.effect==='damage') {
+        const after=event.after.enemies.find(e=>e.instanceId===targetId).hp;
+        const attempted=item.ignoresDef ? item.damage : Math.max(1,item.damage-members.find(e=>e.instanceId===targetId).def);
+        if (after!==Math.max(0,target.hp-attempted)) fail();
+        target.hp=after;
+      } else if (spec.effect==='bomb') {
+        Object.assign(next.effects,{bombFuse:item.fuse,bombDamage:item.damage,bombIgnoresDef:!!item.ignoresDef,
+          bombTargetInstanceId:targetId,bombJustArmed:false});appliedBomb=true;
+      } else if (spec.effect==='equip') {
+        const slot=item.type;
+        if (p.equipment[slot]) p.inventory.push(p.equipment[slot]);
+        p.equipment[slot]=item.name;p.inventory.splice(index,1);
+      }
+      // Approved enemies have neither sex nor regeneration. Their authored
+      // mismatch result is a consumed, spent action with no enemy-state change.
+      if (!equal(next,event.after)) fail();state=next;
+    } else if (event.type==='observe') {
+      checkAction(event,['countBefore','countAfter','escapeBefore','escapeAfter','lines']);
+      const target=entity(event.targetId);
+      if (command.type!=='observe' || event.actorId!=='player' || state.player.hp<=0 || !target || target.hp<=0 ||
+          event.countBefore!==target.observeCount || event.countAfter!==event.countBefore+1 || !safe(event.countAfter) ||
+          event.escapeBefore!==target.escapeUnlocked || event.escapeAfter!==event.escapeBefore ||
+          !Array.isArray(event.lines) || !event.lines.length || event.lines.some(s=>typeof s!=='string')) fail();
+      target.observeCount=event.countAfter;
+    } else if (event.type==='run') {
+      checkAction(event,['allowed','opponentId','chance','roll','success']);
+      const living=state.enemies.filter(e=>e.hp>0);
+      const fastest=living.reduce((a,b)=>members[b.slot].spd>members[a.slot].spd?b:a);
+      const allowed=formationRounds.getView()?.escapePolicy==='fastest_living';
+      if (command.type!=='run' || event.actorId!=='player' || state.player.hp<=0 || event.allowed!==allowed ||
+          event.opponentId!==fastest.instanceId || typeof event.success!=='boolean' ||
+          (allowed ? event.chance<0.1 || event.chance>0.9 || typeof event.roll!=='number' || event.roll<0 || event.roll>=1 ||
+             event.success!==(event.roll<event.chance) : event.chance!==0 || event.roll!==null || event.success!==false)) fail();
+      escaped=event.success;
+    } else if (event.type==='burn') {
+      record(event,['type','targetId','attemptedDamage','appliedDamage','hpBefore','hpAfter']);
+      if (orderIndex!==expected.length || sawBurn || sawBomb || !state.player.statuses.includes('burn') ||
+          event.targetId!=='player' || event.attemptedDamage>20) fail();
+      damage(event,true);sawBurn=true;
+    } else if (event.type==='bomb_tick') {
+      record(event,['type','targetId','before','after','attemptedDamage','appliedDamage','hpBefore','hpAfter']);
+      if (orderIndex!==expected.length || sawBomb || appliedBomb || state.effects.bombFuse<=0 ||
+          !equal(event.before,state.effects) || event.targetId!==state.effects.bombTargetInstanceId) fail();
+      const target=entity(event.targetId);if (!target) fail();
+      const remaining=state.effects.bombFuse-1;
+      const expectedDamage=remaining===0 && target.hp>0 ? (state.effects.bombIgnoresDef ? state.effects.bombDamage :
+        Math.max(1,state.effects.bombDamage-members.find(e=>e.instanceId===target.instanceId).def)) : 0;
+      if (event.attemptedDamage!==expectedDamage) fail();damage(event,true);
+      state.effects.bombFuse=remaining;
+      if (remaining===0 || target.hp===0) Object.assign(state.effects,{bombFuse:0,bombDamage:0,bombTargetInstanceId:null,bombIgnoresDef:false});
+      if (!equal(event.after,state.effects)) fail();sawBomb=true;
+    } else if (event.type==='round_end') {
+      record(event,['type','roundBefore','roundAfter','effectsBefore','effectsAfter']);
+      if (ended || index!==result.events.length-2 || event.roundBefore!==result.roundBefore || event.roundAfter!==result.roundAfter ||
+          !equal(event.effectsBefore,state.effects) || (terminal()==='ongoing' && orderIndex!==expected.length) ||
+          (terminal()==='ongoing' && state.player.statuses.includes('burn') && !sawBurn) ||
+          (terminal()==='ongoing' && state.effects.bombFuse>0 && !appliedBomb && !sawBomb)) fail();
+      if (state.effects.evadeTurns>0 && !appliedEvade) state.effects.evadeTurns--;
+      if (!equal(event.effectsAfter,state.effects)) fail();ended=true;
+    } else if (event.type==='outcome') {
+      record(event,['type','outcome']);
+      if (!ended || index!==result.events.length-1 || event.outcome!==result.outcome || event.outcome!==terminal()) fail();
+      outcome=event.outcome;
+    } else fail();
+    frames.push(frame(index+1,event));
+  });
+  if (!ended || outcome!==result.outcome || result.events.at(-1)?.type!=='outcome' ||
+      (result.before.player.statuses.includes('slither') && ['attack','observe'].includes(command.type))!==sawSpeed ||
+      !equal(state,result.after)) fail();
+  return Object.freeze({eventCount:result.events.length,frameCount:frames.length,
+    initiative:result.initiative,order:result.order,frames:Object.freeze(frames)});
+}
+
 // Stateless random access. All frames already contain immutable value snapshots;
 // repeated/out-of-order reads never advance a cursor or consult live combat.
 function projectFormationPlaybackFrame(playback, frameIndex) {
@@ -936,7 +1518,7 @@ function projectFormationPlaybackFrame(playback, frameIndex) {
   return frame.value;
 }
 
-// HEADLESS ONLY. No gameplay caller or save binding. The closure is the sole
+// No save binding. The closure is the sole
 // session authority; members is only a membership-identity binding, never an HP
 // copy. Public views contain primitive data and immutable historical frames.
 const formationSessionController = (() => {
@@ -944,52 +1526,124 @@ const formationSessionController = (() => {
   const fail = () => { throw new Error('Invalid formation session operation or stale state'); };
   const requirePhase = phases => {
     if (!session || !phases.includes(session.phase) || combat.mode !== 'formation' ||
-        combat.active !== false || combat.enemies !== session.members) fail();
+        !formationExecutionStateAllowed() || combat.enemies !== session.members) fail();
     return session;
   };
-  const selectedAction = state => ({type:'attack', targetInstanceId:state.selectedTargetInstanceId});
-  const validateSelection = state => validateFormationBasicAttackState(selectedAction(state));
+  const selectedAction = state => ({...state.command, targetInstanceId:state.selectedTargetInstanceId});
+  const validateSelection = state => validateFormationBasicAttackState({type:'attack',targetInstanceId:state.selectedTargetInstanceId},true);
+  const itemRows = () => groupItems().map(({name,item,count}) => Object.freeze({itemId:name,name,count,
+    detail:itemStatParen(item), targetsEnemy:formationItemDefinition(name).targeted}));
+  const itemWindow = (cursor,total) => Math.max(0,Math.min(cursor-1,Math.max(0,total-3)));
+  const resolve = (state, command) => {
+    if (state.playback !== null || state.frameIndex !== null) fail();
+    const result = resolveFormationRound(command);
+    const playback = createFormationRoundPlayback(result);
+    state.playback = playback;
+    state.frameIndex = 0;
+    state.selectedTargetInstanceId = null;
+    state.command = null;
+    state.phase = 'playback';
+    return getView();
+  };
+  const targetCommand = (state, command) => {
+    const {members} = validateFormationBasicAttackState(undefined,true);
+    state.command = Object.freeze(command);
+    state.selectedTargetInstanceId = (command.type === 'item' &&
+      members.find(member=>member.hp>0 && member.instanceId===state.itemTargetInstanceId) ||
+      members.find(member=>member.hp>0)).instanceId;
+    state.phase = 'targeting';
+    return getView();
+  };
+  const chooseCommand = (state, type) => {
+    validateFormationBasicAttackState(undefined,true);
+    if (type === 'run') return resolve(state,{type});
+    if (type === 'item') {
+      const rows = itemRows();
+      state.itemCursor = Math.min(state.itemCursor,rows.length);
+      state.phase = 'item';
+      return getView();
+    }
+    return targetCommand(state,{type});
+  };
   const getView = function() {
     if (arguments.length) fail();
     if (!session) return null;
-    const state = requirePhase(['awaiting_action', 'targeting', 'playback', 'playback_complete', 'victory', 'defeat']);
+    const state = requirePhase(['awaiting_action', 'targeting', 'item', 'playback', 'playback_complete', 'victory', 'defeat', 'escape']);
     const frame = state.playback ? projectFormationPlaybackFrame(state.playback, state.frameIndex) : null;
     // During playback even living-target information follows historical HP,
     // not the resolver's already-final live HP. Targeting is unavailable then.
     const members = frame ? frame.enemies : state.members;
+    const items = state.phase === 'item' || state.command?.type === 'item' ? itemRows() : [];
     return Object.freeze({
       phase:state.phase,
       // Detached presentation roster. Playback must never reveal resolved live
       // HP ahead of its historical frame; non-playback phases snapshot live HP.
       player:Object.freeze({id:'player', name:stats.name,
         hp:frame ? frame.player.hp : stats.hp, maxHp:frame ? frame.player.maxHp : stats.maxHp}),
+      playerStatuses:Object.freeze(frame ? [...(frame.player.statuses || [])] : [...statusEffects]),
+      evadeTurns:frame ? (frame.effects?.evadeTurns || 0) : combat.evadeTurns,
       enemies:Object.freeze(members.map(member => Object.freeze({
         instanceId:member.instanceId, templateId:member.id, slot:member.slot,
         hp:member.hp, maxHp:member.maxHp,
       }))),
-      availableActions:Object.freeze(state.phase === 'awaiting_action' ? ['attack'] : []),
+      availableActions:Object.freeze(state.phase === 'awaiting_action' ? combatOptions() : []),
+      commandCursor:state.commandCursor,
+      selectedCommand:state.command?.type || combatOptions()[state.commandCursor],
+      selectedItemId:state.command?.itemId || null,
+      items:Object.freeze(items), itemCursor:state.itemCursor,
+      itemWindowStart:itemWindow(state.itemCursor,items.length+1), itemVisibleRows:3,
       livingTargetInstanceIds:Object.freeze(members.filter(member => member.hp > 0).map(member => member.instanceId)),
       selectedTargetInstanceId:state.selectedTargetInstanceId,
       playbackFrame:frame,
       awaitingAcknowledgement:state.phase === 'playback_complete',
-      terminalOutcome:['victory', 'defeat'].includes(state.phase) ? state.phase : null,
+      terminalOutcome:['victory', 'defeat', 'escape'].includes(state.phase) ? state.phase : null,
     });
   };
   return Object.freeze({
     begin() {
       if (arguments.length || session) fail();
-      const {members} = validateFormationBasicAttackState();
-      session = {phase:'awaiting_action', members, selectedTargetInstanceId:null, playback:null, frameIndex:null};
+      // Pure generalized preflight, not a speculative resolution. Also rejects
+      // malformed inventory/equipment and dangling duration state at entry.
+      const {members} = validateFormationRoundCommand({type:'run'});
+      session = {phase:'awaiting_action', members, selectedTargetInstanceId:null, playback:null, frameIndex:null,
+        commandCursor:0,itemCursor:0,itemTargetInstanceId:null,command:null};
       return getView();
+    },
+    moveCommand(direction) {
+      if (arguments.length!==1 || !['previous','next'].includes(direction)) fail();
+      const state=requirePhase(['awaiting_action']), count=combatOptions().length;
+      state.commandCursor=(state.commandCursor+(direction==='next'?1:count-1))%count;
+      return getView();
+    },
+    confirmCommand() {
+      if (arguments.length) fail();
+      const state=requirePhase(['awaiting_action']);
+      return chooseCommand(state,combatOptions()[state.commandCursor]);
     },
     beginAttack() {
       if (arguments.length) fail();
       const state = requirePhase(['awaiting_action']);
-      const {members} = validateFormationBasicAttackState();
-      const target = members.find(member => member.hp > 0); // validated slot order
-      state.selectedTargetInstanceId = target.instanceId;
-      state.phase = 'targeting';
+      return chooseCommand(state,'attack');
+    },
+    moveItem(direction) {
+      if (arguments.length!==1 || !['previous','next'].includes(direction)) fail();
+      const state=requirePhase(['item']), rows=itemRows();
+      state.itemCursor=Math.max(0,Math.min(rows.length,state.itemCursor+(direction==='next'?1:-1)));
       return getView();
+    },
+    cancelItems() {
+      if (arguments.length) fail();
+      const state=requirePhase(['item']);
+      state.command=null;state.phase='awaiting_action';
+      return getView();
+    },
+    confirmItem() {
+      if (arguments.length) fail();
+      const state=requirePhase(['item']), rows=itemRows();
+      if (state.itemCursor===rows.length) {state.phase='awaiting_action';return getView();}
+      const row=rows[state.itemCursor];if (!row || row.count<=0) fail();
+      const command={type:'item',itemId:row.itemId};
+      return row.targetsEnemy ? targetCommand(state,command) : resolve(state,command);
     },
     moveTarget(direction) {
       if (arguments.length !== 1 || !['previous', 'next'].includes(direction)) fail();
@@ -1004,23 +1658,16 @@ const formationSessionController = (() => {
       if (arguments.length) fail();
       const state = requirePhase(['targeting']);
       validateSelection(state);
+      if (state.command.type === 'item') state.itemTargetInstanceId = state.selectedTargetInstanceId;
       state.selectedTargetInstanceId = null;
-      state.phase = 'awaiting_action';
+      state.phase = state.command.type === 'item' ? 'item' : 'awaiting_action';
+      state.command = null;
       return getView();
     },
     confirmTarget() {
       if (arguments.length) fail();
       const state = requirePhase(['targeting']);
-      if (state.playback !== null || state.frameIndex !== null) fail();
-      // The resolver performs complete preflight, including exact target and
-      // numeric safety, before its first RNG call. No speculative resolution.
-      const result = resolveFormationBasicAttackRound(selectedAction(state));
-      const playback = createFormationRoundPlayback(result);
-      state.playback = playback;
-      state.frameIndex = 0;
-      state.selectedTargetInstanceId = null;
-      state.phase = 'playback';
-      return getView();
+      return resolve(state,selectedAction(state));
     },
     advancePlayback() {
       if (arguments.length) fail();
@@ -1033,6 +1680,7 @@ const formationSessionController = (() => {
       if (arguments.length) fail();
       const state = requirePhase(['playback_complete']);
       const outcome = state.playback.frames[state.frameIndex].outcome;
+      acknowledgeFormationRound(state.playback,state.frameIndex);
       if (outcome === 'ongoing') {
         state.playback = null;
         state.frameIndex = null;
@@ -1599,7 +2247,11 @@ function advanceCombatMessage() {
       // the shared idempotent authority, then show the aftermath. All other
       // escapes end combat exactly as before.
       if (combat.isLenswebSpider) resolveLenswebSpiderEscape();
-      else                        endCombat();
+      else {
+        const completedEscape = completedSingleExitCandidate();
+        endCombat();
+        completedSingleVictoryReceipt = completedEscape;
+      }
     }
     else if (combat.pendingVictory) combat.phase = 'victory';
     else if (combat.pendingDefeat) combat.phase = 'defeat';
@@ -2258,6 +2910,47 @@ function getObservationText(enemy, count) {
   return ['L\u00e9l\u00fd watches for another opening, but learns nothing new.'];
 }
 
+function recoverCombatDefeat() {
+  const completedRecovery = completedSingleExitCandidate(true);
+  stats.hp   = stats.maxHp;
+  stats.gold = 0;
+  day++;
+  ['poison', 'muddied', 'slither', 'cursed'].forEach(id => removeStatusEffect(id));
+  endCombat();
+  dialogue.name  = '';
+  if (defeatWakeAtHome) {
+    // Someone carried you home: wake beside your own bed in the Calwick
+    // player house, wherever the defeat happened. EVERY location flag
+    // currentContentLocationKey() consults must be cleared here — a stuck flag (e.g.
+    // inBridgePost after dying at the toll bridge) makes currentContentLocationKey()
+    // report that location on every map, so its NPCs render everywhere.
+    // Toggleable from the debug menu ("Home on Defeat").
+    // The canonical transition resets EVERY location flag (the old hand-cleared
+    // list here was exactly the fragility this refactor removes), then applies
+    // the player-house context. Bridge toll state can't survive being carried
+    // off the bridge: restore both guards to their blocking posts (the flags
+    // are cleared by the reset). Same map-local invariant for auto-patrols
+    // (Tobb Wend). Toggleable from the debug menu ("Home on Defeat").
+    resetBridgeGuards();
+    if (typeof resetAllPatrols === 'function') resetAllPatrols();
+    transitionToLocation({
+      mapId: 'HOUSE_INTERIOR_MAP', x: 9.5 * TILE, y: 3.5 * TILE, facing: 'down', // on the floor beside the bed
+      state: {
+        inTown: true, currentTownId: 'calwick', townBuilding: 'house', currentHouseId: 'player_house',
+        houseSourceMap: WEST_TOWN_MAP, houseSourceBuilding: 'west', houseReturnPos: { x: 2.5 * TILE, y: 12.5 * TILE },
+      },
+    });
+    dialogue.pages = [['\u2026a day later, you awaken in your own bed, without your gold.',
+                       'Someone must have carried you home.']];
+  } else {
+    dialogue.pages = [['\u2026a day later, you awaken without your gold.']];
+  }
+  dialogue.open  = true;
+  dialogue.page  = 0;
+  if (!defeatWakeAtHome || (activeMap === HOUSE_INTERIOR_MAP && currentHouseId === 'player_house'))
+    completedSingleVictoryReceipt = completedRecovery;
+}
+
 function handleCombatAction() {
   if (combat.mode === 'formation') throw new Error('Formation state cannot process singleton actions');
   if (combat.phase === 'message') { advanceCombatMessage(); return; }
@@ -2513,41 +3206,7 @@ function handleCombatAction() {
     return;
   }
   if (combat.phase === 'defeat') {
-    stats.hp   = stats.maxHp;
-    stats.gold = 0;
-    day++;
-    ['poison', 'muddied', 'slither', 'cursed'].forEach(id => removeStatusEffect(id));
-    endCombat();
-    dialogue.name  = '';
-    if (defeatWakeAtHome) {
-      // Someone carried you home: wake beside your own bed in the Calwick
-      // player house, wherever the defeat happened. EVERY location flag
-      // currentContentLocationKey() consults must be cleared here — a stuck flag (e.g.
-      // inBridgePost after dying at the toll bridge) makes currentContentLocationKey()
-      // report that location on every map, so its NPCs render everywhere.
-      // Toggleable from the debug menu ("Home on Defeat").
-      // The canonical transition resets EVERY location flag (the old hand-cleared
-      // list here was exactly the fragility this refactor removes), then applies
-      // the player-house context. Bridge toll state can't survive being carried
-      // off the bridge: restore both guards to their blocking posts (the flags
-      // are cleared by the reset). Same map-local invariant for auto-patrols
-      // (Tobb Wend). Toggleable from the debug menu ("Home on Defeat").
-      resetBridgeGuards();
-      if (typeof resetAllPatrols === 'function') resetAllPatrols();
-      transitionToLocation({
-        mapId: 'HOUSE_INTERIOR_MAP', x: 9.5 * TILE, y: 3.5 * TILE, facing: 'down', // on the floor beside the bed
-        state: {
-          inTown: true, currentTownId: 'calwick', townBuilding: 'house', currentHouseId: 'player_house',
-          houseSourceMap: WEST_TOWN_MAP, houseSourceBuilding: 'west', houseReturnPos: { x: 2.5 * TILE, y: 12.5 * TILE },
-        },
-      });
-      dialogue.pages = [['\u2026a day later, you awaken in your own bed, without your gold.',
-                         'Someone must have carried you home.']];
-    } else {
-      dialogue.pages = [['\u2026a day later, you awaken without your gold.']];
-    }
-    dialogue.open  = true;
-    dialogue.page  = 0;
+    recoverCombatDefeat();
     return;
   }
   // Singleton action-entry boundary. Calculations use this exact instance;
@@ -2601,7 +3260,7 @@ function handleCombatAction() {
         combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
         msgs.push(res.message);
       } else {
-        const healed = Math.min(item.heals || 0, stats.maxHp - stats.hp);
+        const healed = healingItemAmount(item, stats.hp, stats.maxHp);
         stats.hp += healed;
         const muddies = MUDSLITHER_INFLICTABLE && item.causesMuddied;
         if (muddies) addStatusEffect('muddied');
@@ -2636,7 +3295,7 @@ function handleCombatAction() {
       // Immediate damage consumable (e.g. Sapper Charge). Always lands (no evade
       // roll); `ignoresDef` bypasses the target's DEF entirely. Consumed on use, and
       // \u2014 unless it kills \u2014 the turn is still spent, so the enemy still counters.
-      const dmg = item.ignoresDef ? item.damage : Math.max(1, item.damage - enemy.def);
+      const dmg = offensiveItemDamage(item, enemy);
       enemy.hp = Math.max(0, enemy.hp - dmg);
       stats.items.splice(stats.items.indexOf(item), 1);
       combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);

@@ -1,5 +1,38 @@
 'use strict';
 
+// Provisional Receiver encounter art. Shared static pixel silhouettes for the
+// map staging and formation screen; no assets, animation state or randomness.
+function drawGalleryCreature(kind, x, y, scale = 1, collapsed = false) {
+  ctx.save(); ctx.translate(x,y); ctx.scale(scale,collapsed ? scale*0.3 : scale);
+  const width = kind === 'receiver' ? 28 : kind === 'keeper' ? 24 : 14;
+  const height = kind === 'receiver' ? 28 : 24;
+  ctx.fillStyle = '#151f24'; ctx.fillRect(-width/2,-height+5,width,height-5);
+  ctx.fillStyle = '#364548'; ctx.fillRect(-width/2+3,-height+1,width-6,12);
+  ctx.fillStyle = '#485b5c'; ctx.fillRect(-width/2+4,-height+4,5,7);
+  ctx.fillStyle = '#0c171d';
+  ctx.fillRect(-width/2-2,-6,7,8); ctx.fillRect(width/2-5,-5,7,7);
+  const headX = kind === 'caller' ? 5 : 0;
+  ctx.fillRect(headX-6,-height-3,12,10);
+  ctx.fillStyle = '#9a7744';
+  ctx.fillRect(headX-4,-height+5,8,2);
+  if (kind === 'receiver') ctx.fillRect(3,-height+5,2,6);
+  ctx.fillStyle = '#839899'; ctx.fillRect(headX+2,-height,2,2);
+  ctx.restore();
+}
+
+function drawGalleryReceiverStaging() {
+  const view = galleryReceiverEncounter.getView();
+  if (!view) return;
+  if (view.phase === 'fault') {
+    ctx.fillStyle='#151922'; ctx.fillRect(16,320,480,140);
+    ctx.fillStyle='#ffffff'; ctx.font='14px monospace'; ctx.textAlign='left';
+    ctx.fillText('Battle stopped unexpectedly.',32,352);
+    ctx.fillText('Reload the page, then choose Load Game.',32,380);
+    return;
+  }
+  for (const actor of view.actors) drawGalleryCreature(actor.kind,actor.x,actor.y,1,view.collapsed);
+}
+
 // render-entities.js — player sprite, NPC sprites, world-view boss/special-
 // enemy sprites, item/chest/world-item drawing, merchant/traveller/shop
 // drawing, and small world-feature hint overlays (sluice gate, Drenwick

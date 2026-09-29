@@ -394,6 +394,7 @@ const DREAMS = [
 // Handlers wrap the start* calls so the lookup happens at dispatch time (no
 // load-order dependency on combat.js).
 const ENCOUNTER_HANDLERS = {
+  gallery_receiver: function() { galleryReceiverEncounter.startBattle(); },
   boss:         function() { startBossCombat(); },
   warden:       function() { startWardenCombat(); },
   fort_guard:   function() { startFortGuardCombat(); },
@@ -2067,6 +2068,7 @@ function finishDialogue() {
 }
 
 function handleInteract() {
+  if (galleryReceiverEncounter.isLocked() && !dialogue.open) return;
   if (menu.open || shop.open) return;
   if (dialogue.open) {
     dialogue.page++;

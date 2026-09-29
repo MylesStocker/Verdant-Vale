@@ -197,6 +197,7 @@ for(const mutation of [
 
 test('another resolved round cannot change a previously constructed reel',()=>{
   const g=ordinary(),reel=create(g),before=JSON.stringify(reel);
+  g.run('acknowledgeFormationRound(playback,playback.frameCount-1);');
   resolve(g,[0,0,...HIT,...HIT]);assert.equal(JSON.stringify(reel),before);
 });
 
@@ -303,16 +304,18 @@ for(const expression of ['null','{}','[]','Object.freeze({frames:[]})',
   const g=ordinary();unchanged(g,()=>assert.throws(()=>g.run('projectFormationPlaybackFrame('+expression+',0)'),/Invalid formation playback/));
 });
 
-test('only headless session confirmation/view calls playback; no gameplay reference or combat playback state',()=>{
+test('only headless session and round acknowledgement call playback; no gameplay reference or combat playback state',()=>{
   const names=['createFormationRoundPlayback','projectFormationPlaybackFrame'];
   const files=execFileSync('git',['ls-files','--','*.js'],{cwd:ROOT,encoding:'utf8'}).trim().split('\n').filter(f=>!f.startsWith('test/'));
   for(const file of files)for(const name of names) {
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((source.match(new RegExp('\\b'+name+'\\b','g'))||[]).length,file==='combat.js'?2:0,file);
+    assert.equal((source.match(new RegExp('\\b'+name+'\\b','g'))||[]).length,file==='combat.js'?(name==='projectFormationPlaybackFrame'?3:2):0,file);
   }
   const g=ordinary();create(g);
   for(const [method,fn] of Object.entries(g.run('formationSessionController'))) for(const name of names) {
-    const owner=name==='createFormationRoundPlayback'?'confirmTarget':'getView';
+    // Creation belongs to the one private command-confirmation helper, not
+    // independent copies in the public target/item/menu confirmation methods.
+    const owner=name==='createFormationRoundPlayback'?null:'getView';
     assert.equal((fn.toString().match(new RegExp('\\b'+name+'\\b','g'))||[]).length,method===owner?1:0,method+': '+name);
   }
   for(const name of names) assert.doesNotMatch(g.run(name+'.toString()'),/Math\.random|rollAttackDamage|resolveFormationBasicAttackRound\s*\(|combat\.enemy\b|applyKillRewards|handleCombatAction|advanceCombatMessage|endCombat\s*\(|saveGame|ctx\./);

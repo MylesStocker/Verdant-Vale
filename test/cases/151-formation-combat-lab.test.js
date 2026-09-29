@@ -99,7 +99,7 @@ test('ordinary calls cannot open a lab without its debug menu and existing forma
   const members=g.run('combat.enemies');assert.equal(g.run('formationCombatLab.open()'),false);assert.equal(g.run('combat.enemies'),members);
 });
 
-for(const unsupported of ['stats.hp=0;','statusEffects=["poison"];','combat.bombFuse=1;',
+for(const unsupported of ['stats.hp=0;','statusEffects=["unknown"];','combat.bombFuse=1;',
   'combat.message="pending";','combat.pendingVictory=true;','stats.accessory={type:"accessory",name:"EvadeAll",bonus:0,evadeAll:true};']) {
   test('unsupported start is refused without changing player/world or clearing the unsupported state: '+unsupported,()=>{
     const g=fresh();open(g);g.run(unsupported);const before=state(g);g.press('Enter');
@@ -110,7 +110,7 @@ for(const unsupported of ['stats.hp=0;','statusEffects=["poison"];','combat.bomb
 
 test('input-driven round resolves exactly once and plays historical HP without additional gameplay',()=>{
   const g=fresh();start(g);record(g);
-  g.run(`var resolves=0,realResolver=resolveFormationBasicAttackRound;resolveFormationBasicAttackRound=a=>{resolves++;return realResolver(a);};
+  g.run(`var resolves=0,realResolver=resolveFormationRound;resolveFormationRound=a=>{resolves++;return realResolver(a);};
     var drawViews=[],realDrawCombat=drawCombat;drawCombat=v=>{drawViews.push(v);return realDrawCombat(v);};`);
   const beforeHP=J(g,'[stats.hp,...combat.enemies.map(e=>e.hp)]');
   g.hold('Enter');g.hold('Enter');g.release('Enter');assert.equal(view(g).phase,'targeting');assert.equal(g.run('resolves'),0);
@@ -194,14 +194,14 @@ test('only the labelled debug action opens the lab and only lab start initialize
   const files=scriptOrderFromIndexHtml();
   for(const file of files) {
     const s=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js'].includes(file)?1:0,file);
-    assert.equal((s.match(/formationSessionController\.begin\(/g)||[]).length,file==='formation-lab.js'?1:0,file);
+    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
+    assert.equal((s.match(/formationSessionController\.begin\(/g)||[]).length,['formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     assert.equal((s.match(/formationCombatLab\.open\(/g)||[]).length,file==='input.js'?1:0,file);
     if(/content\/|interactions|debug-warp|data\.js|quests|maps|npcs/.test(file))assert.doesNotMatch(s,/formationCombatLab|FORMATION_LAB_SCENARIOS/,file);
   }
   const labSource=fs.readFileSync(path.join(ROOT,'formation-lab.js'),'utf8');
   assert.doesNotMatch(labSource,/Math\.random|applyKillRewards\(|endCombat\(|saveGame\(|loadGame\(|transitionToLocation\(|combat\.active\s*=|\.gold\s*=|\.xp\s*=|selectedTarget|frameIndex|actionQueue/);
-  const g=fresh();assert.equal(g.run('FORMATION_STATE_TEMPLATE_IDS.length'),8);
+  const g=fresh();assert.equal(g.run('FORMATION_STATE_TEMPLATE_IDS.length'),11);
   g.run('startWardenCombat();');assert.equal(g.run('combat.mode'),'single');assert.equal(g.run('combat.enemies.length'),1);
 });
 

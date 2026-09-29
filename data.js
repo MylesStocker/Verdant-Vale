@@ -619,6 +619,9 @@ const TAKOMO_TEMPLATE = {
   atk: 52, def: 12, spd: 4,
   xp: 420, goldMin: 140, goldMax: 260,
 };
+// Template-only classification. Non-enumerable so legacy singleton runtime
+// spreads/projections stay exact; formation entry reads registry metadata.
+Object.defineProperty(TAKOMO_TEMPLATE, 'isBoss', {value:true});
 
 // ─── Mulholland (dungeon floor 4 boss — guards stair to floor 5) ──────────────
 const MULHOLLAND = {
@@ -632,6 +635,7 @@ const MULHOLLAND_TEMPLATE = {
   name: 'Mulholland', hp: 140, maxHp: 140, atk: 28, def: 8, spd: 4,
   xp: 180, goldMin: 30, goldMax: 60,
 };
+Object.defineProperty(MULHOLLAND_TEMPLATE, 'isBoss', {value:true});
 
 const DEN_WRAITH_TEMPLATE = { id: 'enemy_den_wraith', name: 'Den Wraith', hp: 42, maxHp: 42, atk: 19, def: 2, spd: 13, xp: 70, goldMin: 0, goldMax: 0, curseChance: 0.30 };
 window.DEN_WRAITH_TEMPLATE = DEN_WRAITH_TEMPLATE;
@@ -655,6 +659,7 @@ const LENSWEB_SPIDER_TEMPLATE = {
   xp: 60, goldMin: 14, goldMax: 26,
   runLock: 'observe_gated',
 };
+Object.defineProperty(LENSWEB_SPIDER_TEMPLATE, 'isBoss', {value:true});
 window.LENSWEB_SPIDER_TEMPLATE = LENSWEB_SPIDER_TEMPLATE;
 
 // ─── Sailor Brawler (Kolm — Drenwick Inn, Dayoff only) ───────────────────────
@@ -706,6 +711,7 @@ const BOSS_TEMPLATE = {
   name: 'Wrongteeth', hp: 300, maxHp: 300, atk: 30, def: 6, spd: 6,
   xp: 250, goldMin: 50, goldMax: 80,
 };
+Object.defineProperty(BOSS_TEMPLATE, 'isBoss', {value:true});
 
 const BOSS_DIALOGUE = [
   ['\u201cYou should not be here.', 'Neither should I.\u201d'],

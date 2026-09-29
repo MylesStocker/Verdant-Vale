@@ -42,7 +42,7 @@ function unchanged(g,work) {
 }
 function rejected(g,method,args=[]) {
   const before=view(g);
-  unchanged(g,()=>assert.throws(()=>call(g,method,args),/Invalid formation session|Unsupported formation basic Attack/));
+  unchanged(g,()=>assert.throws(()=>call(g,method,args),/Invalid formation|Unsupported formation basic Attack/));
   assert.deepEqual(view(g),before,'invalid operation does not change the private session');
 }
 function confirm(g,tape) {
@@ -79,10 +79,12 @@ function frozenTree(value) {
 
 for(const count of [2,3]) test('begin '+count+'-member session is inert and selects no target',()=>{
   const g=fresh(count);assert.equal(view(g),null);
-  g.run(`resolveFormationBasicAttackRound=createFormationRoundPlayback=function(){throw Error('premature resolution or playback');};`);
+  g.run(`resolveFormationRound=createFormationRoundPlayback=function(){throw Error('premature resolution or playback');};`);
   const result=unchanged(g,()=>call(g,'begin'));frozenTree(result);
   assert.deepEqual(view(g),{
-    phase:'awaiting_action',availableActions:['attack'],
+    phase:'awaiting_action',availableActions:['attack','item','observe','run'],
+    commandCursor:0,selectedCommand:'attack',selectedItemId:null,
+    items:[],itemCursor:0,itemWindowStart:0,itemVisibleRows:3,playerStatuses:[],evadeTurns:0,
     player:J(g,"({id:'player',name:stats.name,hp:stats.hp,maxHp:stats.maxHp})"),
     enemies:J(g,'combat.enemies.map(e=>({instanceId:e.instanceId,templateId:e.id,slot:e.slot,hp:e.hp,maxHp:e.maxHp}))'),
     livingTargetInstanceIds:Array.from({length:count},(_,i)=>'combat_enemy_'+(i+1)),
@@ -105,7 +107,7 @@ for(const setup of [
   'combat.enemies=Object.freeze([combat.enemies[0],combat.enemies[0]]);',
   'combat.enemies=Object.freeze([combat.enemies[1],combat.enemies[0]]);',
   'combat.enemies[0].hp=NaN;', 'stats.hp=0;', 'combat.enemies.forEach(e=>e.hp=0);',
-  'statusEffects=["burn"];', 'combat.messageQueue=["pending"];', 'combat.pendingVictory=true;',
+  'statusEffects=["unknown"];', 'combat.messageQueue=["pending"];', 'combat.pendingVictory=true;',
   'combat.bombFuse=1;', 'combat.isLenswebSpider=true;', 'combat.enemies[0].counterChance=0.5;',
 ]) test('invalid or terminal state rejects session start atomically: '+setup,()=>{
   const g=fresh();g.run(setup);rejected(g,'begin');assert.equal(view(g),null);
@@ -184,7 +186,7 @@ test('stale selected target cannot be moved, cancelled, confirmed or replaced by
 
 for(const setup of ['stats.hp=0;','stats.atk=Number.MAX_SAFE_INTEGER;',
   'combat.enemies[1].atk=Number.MAX_SAFE_INTEGER;','combat.enemies[1].regenPerTurn=1;',
-  'combat.pendingEscape=true;','combat.bombFuse=1;','statusEffects=["burn"];']) test('confirmation reruns complete resolver preflight: '+setup,()=>{
+  'combat.pendingEscape=true;','combat.bombFuse=1;','statusEffects=["unknown"];']) test('confirmation reruns complete resolver preflight: '+setup,()=>{
   const g=fresh();beginTargeting(g);g.run(setup);rejected(g,'confirmTarget');
   assert.equal(view(g).phase,'targeting');assert.equal(view(g).selectedTargetInstanceId,'combat_enemy_1');
 });
@@ -192,8 +194,8 @@ for(const setup of ['stats.hp=0;','stats.atk=Number.MAX_SAFE_INTEGER;',
 test('confirmation resolves exactly once for selected duplicate and immediately constructs authentic frame zero',()=>{
   const g=fresh(2,true);beginTargeting(g);call(g,'moveTarget',['next']);const beforeHp=hp(g);
   g.run(`var calls=[],resolvedResult,createdReel,committedAction;
-    var actualResolver=resolveFormationBasicAttackRound,actualPlayback=createFormationRoundPlayback;
-    resolveFormationBasicAttackRound=function(action){calls.push('resolve');committedAction={...action};
+    var actualResolver=resolveFormationRound,actualPlayback=createFormationRoundPlayback;
+    resolveFormationRound=function(action){calls.push('resolve');committedAction={...action};
       resolvedResult=actualResolver(action);return resolvedResult;};
     createFormationRoundPlayback=function(result){calls.push('create');if(result!==resolvedResult)throw Error('inauthentic result');
       createdReel=actualPlayback(result);return createdReel;};`);
@@ -313,12 +315,12 @@ test('controller callers are limited to the gated input and explicit developer l
     } else if(file==='render.js') {
       assert.match(source,/formationCombatLab\.isActive\(\)/);
       assert.doesNotMatch(source,/formationSessionController\.(begin|beginAttack|confirmTarget|advancePlayback|acknowledgePlayback)\(/);
-    // Definition, established cleanup, and the read-only formation-entry check.
-    } else if(file!=='formation-lab.js') assert.equal((source.match(/\bformationSessionController\b/g)||[]).length,file==='combat.js'?3:0,file);
-    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js'].includes(file)?1:0,file);
+    // Definition, cleanup, entry check, and the read-only round/ack phase gates.
+    } else if(!['formation-lab.js','gallery-receiver.js'].includes(file)) assert.equal((source.match(/\bformationSessionController\b/g)||[]).length,file==='combat.js'?5:0,file);
+    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
   }
   const source=fs.readFileSync(path.join(ROOT,'combat.js'),'utf8');
-  const entry=source.slice(source.indexOf('function prepareFormationEntry()'),source.indexOf('function validateFormationBasicAttackState('));
+  const entry=source.slice(source.indexOf('function validateFormationEntry()'),source.indexOf('function validateFormationBasicAttackState('));
   assert.match(entry,/formationSessionController\.getView\(\) !== null/);
   assert.doesNotMatch(entry,/formationSessionController\.(?!getView)[a-zA-Z]+\(/);
   assert.match(source,/combatMode = null;\s*formationSessionController\.clearAfterCombatCleanup\(\);/);
@@ -333,8 +335,8 @@ test('controller callers are limited to the gated input and explicit developer l
   assert.deepEqual(view(g),before); // inert direction did not consume the reel
 });
 
-test('all eight templates support headless sessions without changing pools or exposing encounters',()=>{
-  const approved=J(fresh(0),'FORMATION_STATE_TEMPLATE_IDS');assert.equal(approved.length,8);
+test('all eleven templates support headless sessions without changing pools or exposing encounters',()=>{
+  const approved=J(fresh(0),'FORMATION_STATE_TEMPLATE_IDS');assert.equal(approved.length,11);
   for(const id of approved) {
     const g=fresh(0),pools=J(g,'ENEMY_TEMPLATE_POOLS');
     g.run('initializeFormationState('+JSON.stringify([0,1].map(slot=>({enemyId:id,slot})))+');');

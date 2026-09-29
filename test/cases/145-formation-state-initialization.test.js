@@ -174,7 +174,7 @@ test('only the explicit developer lab initializes formations; no encounter conve
     .filter(file=>file && !file.startsWith('test/'));
   for(const file of [...new Set([...files,'formation-lab.js'])]) {
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js'].includes(file)?1:0,file);
+    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
   }
   const g=fresh();initialize(g);
   for(const key of ['selectedTargetId','currentActorId','currentTargetId','intent','actionQueue',

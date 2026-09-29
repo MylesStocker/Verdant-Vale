@@ -6,6 +6,44 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
+### Canonical Gallery formation ownership
+
+`gallery-receiver.js` loads after combat/rendering/the Formation Lab and before
+bootstrap. It is the sole canonical formation owner: the existing initializer
+still constructs inactive state, and `combat.active` permits a formation only
+while that owner holds the exact installed membership. Lab/headless formations
+remain inactive. `combat.enemy` remains invalid for every formation.
+
+Successful `tryEdgeTransition()` arrivals notify the encounter after placement;
+only a real arrival in R0C4 sets the save-bound seen flag. The actual Gallery
+ascent and player Warp Stone route enforce the armed exit. No map trigger or
+new grid is involved. Encounter-owned warning/staging/aftermath gates freeze
+world input and simulation; active battle uses the existing combat freeze and
+formation adapter/renderer. Temporary actors are detached read-only display data.
+
+The formation session owns every combat phase and target. Its terminal result
+is finalized once by the encounter owner: victory records the completion flag
+and shows aftermath, defeat calls the shared ordinary recovery procedure.
+Neither grants per-member rewards. `prepareFormationEntry()` requires a real
+completion receipt for singleton victory, ordinary escape, or completed ordinary
+defeat recovery; pending dialogue/queues/callbacks still reject. Unexpected
+post-resolution Receiver failures lock a diagnostic screen for page-reload
+recovery, never using the Lab's HP refund. Only the two quest flags persist;
+save/load cannot run while the canonical encounter is locked.
+
+`resolveFormationRound()` is the one Attack/Item/Observe/Run authority;
+`resolveFormationBasicAttackRound()` delegates as a compatibility entry point.
+The private round state owns completion counts, pending playback, duration
+application rounds and the encounter escape policy. The session alone owns the
+four-command cursor, item cursor, target selection and playback cursor. Input
+delegates to it and rendering consumes its immutable views, including historical
+HP and statuses. A completed reel must be acknowledged before another round.
+Registry-template `isBoss` metadata captures a lifetime formation escape lock;
+otherwise an enabled Run uses one roll against the fastest living member.
+Singleton escape rules are deliberately unchanged. Lab recovery additionally
+restores its pre-entry inventory, equipment, statuses and temporary speed;
+canonical recovery never uses that debug snapshot.
+
 Load order:
 
 ```
@@ -13,7 +51,7 @@ tiles.js → maps.js → data.js → npcs.js → items.js → shops.js → quest
 validation.js → state.js → image-assets.js → save.js → world-transitions.js → game-loop.js →
 render-tiles.js → render-interiors.js → render-entities.js → render-ui.js →
 render.js → input.js → movement.js → combat.js → render-battle.js →
-bootstrap.js → interactions.js
+formation-lab.js → gallery-receiver.js → bootstrap.js → interactions.js
 ```
 
 Only two ordering rules actually matter (everything else is free to reorder

@@ -25,7 +25,7 @@ module.exports = {
       const g2 = createContext(); g2.press('Enter'); g2.press('Enter');
       g2.run(`['gallery_clue_satchel','gallery_clue_notebook','gallery_clue_visitor','gallery_clue_survey','gallery_clue_silt','gallery_clue_gauge','gallery_clue_reliefs','gallery_clue_stair'].forEach(function(f){ window[f]=false; });`);
       g2.run(clueFlags.map(f => `window['${f}']=true;`).join(''));
-      g2.run('reservoir_report_filed=false; stats.items=[]; stats.gold=0; dialogue.open=false;');
+      g2.run('gallery_receiver_defeated=true;reservoir_report_filed=false; stats.items=[]; stats.gold=0; dialogue.open=false;');
       g2.run('reportBasinFindings();');
       for (let i = 0; i < 40; i++) g2.press('Enter');
       return g2;
