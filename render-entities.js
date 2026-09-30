@@ -1,22 +1,37 @@
 'use strict';
 
-// Provisional Receiver encounter art. Shared static pixel silhouettes for the
-// map staging and formation screen; no assets, animation state or randomness.
-function drawGalleryCreature(kind, x, y, scale = 1, collapsed = false) {
+// Hand-drawn pixel creatures. Compact map silhouettes and separate battle
+// drawings share colours, not enlarged source assets. No timing state or RNG.
+const GALLERY_CREATURE_COLOURS = Object.freeze({outline:'#0b141c',dark:'#1b2b31',body:'#344b50',
+  light:'#5e7777',wet:'#8a9e93',bronze:'#967347',eye:'#c4c8aa'});
+function drawGalleryCreature(kind, x, y, scale = 1, collapsed = false, signalling = false) {
   ctx.save(); ctx.translate(x,y); ctx.scale(scale,collapsed ? scale*0.3 : scale);
-  const width = kind === 'receiver' ? 28 : kind === 'keeper' ? 24 : 14;
-  const height = kind === 'receiver' ? 28 : 24;
-  ctx.fillStyle = '#151f24'; ctx.fillRect(-width/2,-height+5,width,height-5);
-  ctx.fillStyle = '#364548'; ctx.fillRect(-width/2+3,-height+1,width-6,12);
-  ctx.fillStyle = '#485b5c'; ctx.fillRect(-width/2+4,-height+4,5,7);
-  ctx.fillStyle = '#0c171d';
-  ctx.fillRect(-width/2-2,-6,7,8); ctx.fillRect(width/2-5,-5,7,7);
-  const headX = kind === 'caller' ? 5 : 0;
-  ctx.fillRect(headX-6,-height-3,12,10);
-  ctx.fillStyle = '#9a7744';
-  ctx.fillRect(headX-4,-height+5,8,2);
-  if (kind === 'receiver') ctx.fillRect(3,-height+5,2,6);
-  ctx.fillStyle = '#839899'; ctx.fillRect(headX+2,-height,2,2);
+  const c=GALLERY_CREATURE_COLOURS;
+  const r=(colour,x,y,w,h)=>{ctx.fillStyle=c[colour];ctx.fillRect(x,y,w,h);};
+  r('dark',-15,0,30,2);
+  if (kind==='receiver') {
+    r('outline',-14,-24,28,24);r('outline',-10,-30,18,9);
+    r('body',-11,-23,23,19);r('light',-9,-22,5,13);r('dark',2,-22,9,18);
+    r('body',-7,-28,13,9);r('dark',-5,-20,14,7);r('light',-4,-18,9,2);
+    r('body',-16,-17,5,15);r('dark',12,-16,4,16);
+    r('outline',-12,-4,8,6);r('outline',5,-4,8,6);
+    r('bronze',3,-18,3,2);r('eye',0,-26,2,1);r('wet',-8,-22,2,3);
+  } else if (kind==='caller') {
+    const lift=signalling ? -3 : 0;
+    r('outline',-6,-21,11,17);r('body',-4,-20,7,14);
+    r('outline',1,-28+lift,6,13);r('outline',3,-29+lift,10,6);
+    r('light',3,-24+lift,2,7);r('body',5,-28+lift,7,3);r('eye',10,-27+lift,1,1);
+    r('dark',-10,-15,5,12);r('body',4,-16,3,13);
+    r('outline',-7,-5,4,7);r('outline',2,-4,9,3);
+    r('bronze',2,-21+lift,2,2);
+  } else {
+    r('outline',-12,-21,24,18);r('body',-10,-20,20,15);
+    r('dark',-6,-24,13,9);r('light',-7,-19,5,8);
+    r('outline',-15,-14,8,16);r('outline',7,-14,8,16);
+    r('body',-13,-12,4,10);r('light',9,-12,3,8);
+    r('bronze',5,-20,2,2);r('eye',0,-22,2,1);
+    r('wet',-8,-18,3,2);r('dark',-5,-7,11,7);
+  }
   ctx.restore();
 }
 
@@ -30,13 +45,40 @@ function drawGalleryReceiverStaging() {
     ctx.fillText('Reload the page, then choose Load Game.',32,380);
     return;
   }
-  for (const actor of view.actors) drawGalleryCreature(actor.kind,actor.x,actor.y,1,view.collapsed);
+  for (const actor of view.actors) drawGalleryCreature(actor.kind,actor.x,actor.y,1,view.collapsed,
+    view.signalling && actor.kind==='caller');
 }
 
 // render-entities.js — player sprite, NPC sprites, world-view boss/special-
 // enemy sprites, item/chest/world-item drawing, merchant/traveller/shop
 // drawing, and small world-feature hint overlays (sluice gate, Drenwick
 // north gate, Thornmere standing stone).
+
+// A small, partly silted fitting rather than a conspicuous treasure chest.
+// Active-map only, like its interaction; no transient puzzle state is rendered.
+function drawReservoirBalanceLock() {
+  const site=RESERVOIR_BALANCE_CACHE;
+  if (regionalActiveMapId() !== site.mapId) return;
+  const x=Math.round(site.x), y=Math.round(site.y);
+  ctx.save();
+  ctx.fillStyle='#44483b';ctx.fillRect(x-13,y-9,26,19);
+  ctx.fillStyle='#77715a';ctx.fillRect(x-11,y-7,22,14);
+  ctx.fillStyle='#282f2b';
+  ctx.fillRect(x-9,y-6,6,10);ctx.fillRect(x-1,y-4,5,8);ctx.fillRect(x+6,y-2,4,6);
+  ctx.fillStyle='#516d69';
+  if (site.opened) {ctx.fillRect(x-8,y,4,3);ctx.fillRect(x,y-2,3,5);}
+  else ctx.fillRect(x-8,y-4,4,7);
+  ctx.fillStyle='#9a8052';ctx.fillRect(x-8,y+5,17,2);ctx.fillRect(x-1,y+4,2,4);
+  ctx.fillStyle=site.opened ? '#171d1a' : '#625d48';ctx.fillRect(x-8,y+8,17,3);
+  ctx.fillStyle='#55553a';ctx.fillRect(x-13,y+7,4,5);ctx.fillRect(x+10,y+4,3,7);
+  ctx.fillStyle='#687044';ctx.fillRect(x-12,y-13,2,12);ctx.fillRect(x+11,y-11,2,13);
+  if (nearPlayer(site.x,site.y,TALK_RADIUS) && !dialogue.open && !choice.open && !menu.open && !combat.active) {
+    ctx.font='10px "Courier New", monospace';ctx.textAlign='center';
+    ctx.fillStyle='#141a16';ctx.fillRect(x-20,y-29,40,13);
+    ctx.fillStyle='#e0dab8';ctx.fillText('SPACE',x,y-19);
+  }
+  ctx.restore();
+}
 
 // ─── Sluice Gate ──────────────────────────────────────────────────────────────
 // Always draws the iron sluice gate frame embedded in the west wall of the

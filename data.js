@@ -467,7 +467,16 @@ const SLUICE_SECRET_CHEST = {
   x:      13.5 * TILE,
   y:      10.5 * TILE,
   opened: false,
-  item:   { name: 'Warden Blade', type: 'weapon', bonus: 10, price: 440 },
+  gold:   55,
+};
+
+// One-time compartment in a partly buried balance mechanism on the reservoir's
+// eastern reed shore. The regional interaction owns the puzzle; only `opened`
+// persists through the ordinary stable-ID chest registry. No map cells change.
+const RESERVOIR_BALANCE_CACHE = {
+  id: 'chest_reservoir_balance', mapId: 'NORTH_BASIN_C_MAP',
+  x: 13.5 * TILE, y: 6.5 * TILE, opened: false,
+  item: { name: 'Warden Blade', type: 'weapon', bonus: 10, price: 440 },
 };
 
 // ─── Sluice level 3 items ─────────────────────────────────────────────────────
@@ -487,7 +496,7 @@ const SLUICE_LEVEL3_CHEST = {
   x:       7.5 * TILE,
   y:      10.5 * TILE,
   opened: false,
-  item:   { name: 'Void Shard', type: 'accessory', bonus: 5, price: 360 },
+  item:   { name: 'Void Shard', type: 'throwable', damage: 60, minDamage: 50, targetsAll: true, battleOnly: true, price: 360 },
 };
 
 // ─── Dungeon chest ────────────────────────────────────────────────────────────
@@ -1689,6 +1698,7 @@ const PICKUP_REGISTRY_IDS = Object.keys(PICKUP_REGISTRY).sort();
 const OPENABLE_CHESTS = [
   DUNGEON_CHEST, DUNGEON_ALCOVE_CHEST, SLUICE_CHEST, SLUICE_LEVEL2_CHEST,
   SLUICE_SECRET_CHEST, SLUICE_LEVEL3_CHEST, SLUICE_DEEP_CHEST, CAT_ARMOR_CHEST, MEADOW_CHEST,
+  RESERVOIR_BALANCE_CACHE,
   SUNKEN_GALLERY_CHEST, DUNGEON8_WEST_DEEP_CHEST, DUNGEON8_EAST_SECRET_CHEST, DUNGEON8_EAST_SECRET_BOMB_CHEST,
 ];
 const CHEST_REGISTRY = {};

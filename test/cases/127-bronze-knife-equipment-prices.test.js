@@ -29,7 +29,6 @@ module.exports = {
       'Mithril Shield': 440,
       'Wraithband': 400,
       'Warden Blade': 440,
-      'Void Shard': 360,
       'Resonant Targe': 360,
       'Fen Mask': 400,
       'Fen Cowl': 240,

@@ -30,7 +30,9 @@ const ITEM_REGISTRY = {
   'Wraithband':     { name: 'Wraithband',     type: 'accessory', bonus: 4,  price: 400 },
   // Chest-only items (not sold in any shop)
   'Warden Blade':   { name: 'Warden Blade',   type: 'weapon',    bonus: 10, price: 440 },
-  'Void Shard':     { name: 'Void Shard',     type: 'accessory', bonus:  5, price: 360 },
+  // One combat use strikes every living enemy: 60 minus DEF, floored at 50.
+  // Encounter protection still applies after that damage calculation.
+  'Void Shard':     { name: 'Void Shard', type: 'throwable', damage: 60, minDamage: 50, targetsAll: true, battleOnly: true, price: 360 },
   'Resonant Targe': { name: 'Resonant Targe', type: 'shield',    bonus:  8, price: 360 },
   'Fen Mask':       { name: 'Fen Mask',       type: 'accessory', bonus:  5, price: 400 },
   // Secret dev/reward accessory — hidden in the East Deeper Chamber's concealed

@@ -118,7 +118,7 @@ test('Escape cancels the warning choice and staging locks all ordinary operation
 });
 
 test('three staging actors are safe, visible, separated and transient',()=>{
-  const g=fresh();warning(g);g.press('Enter');const v=J(g,'galleryReceiverEncounter.getView()');
+  const g=fresh();warning(g);g.press('Enter');g.press('Enter');const v=J(g,'galleryReceiverEncounter.getView()');
   assert.equal(v.actors.length,3);assert.deepEqual(v.actors.map(a=>[a.x,a.y]),[[112,112],[80,176],[144,176]]);
   for(const a of v.actors) {
     assert.equal(g.run(`validatePlacement({mapId:'SUNKEN_GALLERY_MAP',x:${a.x},y:${a.y},facing:'up'}).ok`),true);
@@ -367,7 +367,7 @@ test('shared cleanup also clears interrupted staging actors and the queued encou
 });
 
 test('map silhouettes stay on walkable floor, inside the canvas and clear of one another',()=>{
-  const g=fresh();warning(g);g.press('Enter');
+  const g=fresh();warning(g);g.press('Enter');g.press('Enter');
   require('./149-formation-battle-rendering.test').record(g);
   const actors=J(g,'galleryReceiverEncounter.getView().actors'),boxes=[];
   for(const actor of actors) {

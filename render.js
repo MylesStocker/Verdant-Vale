@@ -83,6 +83,7 @@ function drawActiveMapContent() {
   if (inSmugglerFort) drawPolwickFlameTract();
   if (inSunkenGallery) drawSunkenGalleryFeatures();
   if (!inSunkenGallery) drawAuthoredMapFeatureSparkles();
+  drawReservoirBalanceLock();
   if (inSunkenGallery && activeMap === SUNKEN_GALLERY_R2C4 && !SUNKEN_GALLERY_CHEST.opened) drawChest(SUNKEN_GALLERY_CHEST);
   if (inTown) drawSupervisorSprite();
   if (inTown) drawEslaSprite();

@@ -246,7 +246,8 @@ test('the actual Receiver owner remains escape-blocked after repeated Observe',(
   assert.equal(g.run('galleryReceiverEncounter.ownsCombat()'),true);
   // Test the headless policy directly without invoking the canonical finalizer.
   g.run('combat.enemies.forEach(e=>e.observeCount=4);');
-  const {result}=resolve(g,{type:'run'},[0,0,0,...HIT,...HIT,...HIT],{ack:false});
+  // Caller signals instead of attacking on the opening round.
+  const {result}=resolve(g,{type:'run'},[0,0,0,...HIT,...HIT],{ack:false});
   assert.equal(result.events[0].allowed,false);assert.equal(result.outcome,'ongoing');
   assert.equal(g.run('gallery_receiver_defeated'),false);
 });
@@ -333,10 +334,10 @@ for(const mutation of [
 const inventory=JSON.parse(createContext().run('JSON.stringify(ITEM_REGISTRY)'));
 for(const [id,definition] of Object.entries(inventory).filter(([,v])=>!v.keyItem))test('registered combat item and authentic playback: '+id,()=>{
   const g=fresh();g.run('stats.hp=70;');
-  const targeted=['throwable','reagent','stun'].includes(definition.type);
+  const targeted=['throwable','reagent','stun'].includes(definition.type) && !definition.targetsAll;
   const command=item(g,id,targeted?0:null);
   const kills=definition.type==='throwable'&&!definition.fuse;
-  const {result}=resolve(g,command,[0,0,...HIT,...kills?[]:HIT]);
+  const {result}=resolve(g,command,definition.targetsAll ? [0,0] : [0,0,...HIT,...kills?[]:HIT]);
   const e=result.events[0];assert.equal(e.type,'item');assert.equal(e.itemId,id);
   assert.equal(g.run('stats.items.length'),id==='Bait'?1:0);
   assert.equal(g.run('formationRounds.getView().completedRounds'),1);

@@ -366,7 +366,15 @@ function rehydrateItem(saved) {
     console.warn('[loadGame] saved item "' + saved.name + '" is not in ITEM_REGISTRY — keeping it as saved');
     return { ...saved };
   }
-  return { ...saved, ...def };
+  const item = { ...saved, ...def };
+  // Void Shard was formerly SPD equipment. Its obsolete bonus is not a
+  // per-instance modifier on the new consumable (including inventory saves).
+  if (saved.name === 'Void Shard') {
+    delete item.bonus;
+    // Canonical key order also matters to formation inventory validation.
+    return { ...def, ...item };
+  }
+  return item;
 }
 
 // ─── The single authoritative answer to "can the player save right now?" ───
@@ -646,16 +654,21 @@ function loadGame() {
     stats.items     = Array.isArray(s.items) ? s.items.map(rehydrateItem) : [];
   }
 
-  // ── Key-item equipment normalization ────────────────────────────────────
+  // ── Key-item / former Void Shard equipment normalization ────────────────
   // Older saves predate the keyItem flag, so a one-off quest item (type
   // 'accessory') may sit in an equipment slot. Rehydration above restored
   // its keyItem flag from the registry; move it back into stats.items
   // (deduped) and clear the slot so it only surfaces in the Special Items
-  // notebook. Everything else in the equipment is left untouched.
+  // notebook. The former Void Shard equipment becomes an inventory consumable;
+  // every other equipped item is left untouched.
   for (const slot of ['weapon', 'armor', 'shield', 'accessory']) {
     const eq = stats[slot];
     if (eq && eq.keyItem) {
       if (!stats.items.some(i => i.name === eq.name)) stats.items.push(eq);
+      stats[slot] = null;
+    } else if (eq && eq.name === 'Void Shard') {
+      // Preserve every owned unit when loading its former equipped form.
+      stats.items.push(eq);
       stats[slot] = null;
     }
   }

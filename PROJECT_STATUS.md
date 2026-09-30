@@ -6,6 +6,15 @@ actually fits together.
 
 ## Current state
 
+### Reservoir balance-lock reward
+
+The Warden Blade (+10 ATK, unchanged) now comes from an optional, unmarked
+12/7/5 water-transfer puzzle in the reservoir's eastern reed pocket. Its shortest
+solution takes eleven transfers. Attempts are transient, with free reset/exit;
+only the compartment's opened chest ID persists. The old Sluice false-wall chest
+now contains 55 gold and retains its existing one-time/cursed-loot behaviour.
+No map cells, paths, quest requirements, or save version changed.
+
 ### Receiver playable vertical slice
 
 The reservoir assignment now requires the three-member Receiver ambush at the
@@ -23,9 +32,16 @@ existing effect authorities. Durations advance once per round, with no decrement
 on the application round. Boss-template metadata locks formation escape for the
 entire encounter; existing singleton escape rules remain unchanged.
 
-The Receiver still uses provisional stats and programmatic sprites, grants no
-dedicated boss reward, and uses normal defeat/home recovery with fresh members
-on retry. Final observation writing, art and route-level balance remain deferred.
+The Receiver keeps provisional base stats and no dedicated boss reward. Its
+authored trio now coordinates: Caller spends an action signalling a next-round
+double-damage strike; killing Caller breaks that pending signal. Keeper halves
+damage to Receiver while alive (rounded up), including offensive items/Bomb.
+Signals cannot re-arm on the release round. Normal defeat/home recovery creates
+fresh members on retry. Observe explains the relationships without revealing the
+aftermath. Map staging reveals Receiver first, then both helpers; separate
+programmatic battle art and historical signal/guard poses replace the placeholders.
+Route-level balance and browser playtesting remain deferred. Native/2x software
+raster previews were inspected; they are not browser gameplay verification.
 The Lab remains separately inactive, adds a Receiver boss-lock test scenario,
 and restores inventory, equipment, statuses and temporary speed as well as HP
 and animation tick on exit, escape or emergency abort.

@@ -30,7 +30,8 @@ const galleryReceiverEncounter = (() => {
     validateFormationPlayerBasicState(true);
     if (templates.some(e => !formationBasicStatsValid(e) || e.hp <= 0 ||
         !formationAttackNumbersAreSafe(effectiveAtk(),e.def) ||
-        !formationAttackNumbersAreSafe(e.atk,effectivePlayerIncomingMitigation(e.atk))))
+        !formationAttackNumbersAreSafe(e.atk,effectivePlayerIncomingMitigation(e.atk),
+          e===GALLERY_RECEIVER_TEMPLATES[0] ? RECEIVER_HEAVY_MULTIPLIER : 1)))
       throw new Error('Unsupported formation basic Attack state');
     for (const p of [anchor,...actors]) {
       if (!validatePlacement({mapId:'SUNKEN_GALLERY_MAP',x:p.x,y:p.y,facing:'up'}).ok)
@@ -62,10 +63,10 @@ const galleryReceiverEncounter = (() => {
     player.moving = false;
     reconcileFormationLabKeys();
     show([
-      ['The largest creature rises between you and the stair.'],
-      ['Two smaller shapes pull themselves from the water behind you.'],
-      ['They have not followed you here.'],
-      ['They were waiting for you to leave.'],
+      ['Something rises between you and the stair.', 'Water runs from its shoulders. It does not move aside.'],
+      ['Behind you, a narrow shape pulls itself upright.', 'Another plants its forelimbs against the stone.'],
+      ['The narrow one gives a broken call.', 'The larger creature turns.'],
+      ['They have not followed you here.', 'They were waiting for you to leave.'],
     ]);
     queueDialogueEncounter('gallery_receiver');
     return true;
@@ -166,7 +167,11 @@ const galleryReceiverEncounter = (() => {
     },
     getView() {
       if (!encounter || encounter.phase === 'warning' || encounter.phase === 'battle') return null;
-      return Object.freeze({phase:encounter.phase, actors, collapsed:encounter.phase === 'aftermath'});
+      // Dialogue advances the reveal, not rendering/timers. All three remain
+      // visible together before the final page hands control straight to combat.
+      const stage=encounter.phase==='staging' ? dialogue.page : null;
+      return Object.freeze({phase:encounter.phase, actors:stage===0 ? Object.freeze(actors.slice(0,1)) : actors,
+        signalling:stage===2, collapsed:encounter.phase === 'aftermath'});
     },
   });
 })();

@@ -628,6 +628,97 @@ const NORTH_BASIN_MAP_FEATURES = {
 // Split out of the former interactWildsAndOutposts() by the regional-content-split;
 // original branch order preserved. Reached as an OVERWORLD_INTERACT_HANDLERS entry.
 function interactNorthBasinWilds() {
+  if (interactReservoirBalanceLock()) return true;
   interactSimpleNPCs();
   return interactionUiOpened();
+}
+
+// One authored closed-water puzzle, not a general puzzle/scripting framework.
+// These are capacities, not a secret input code. The minimum solution is eleven
+// full transfers; there are no timers, penalties, or partially opened valves.
+const RESERVOIR_BALANCE_CAPACITIES = Object.freeze([12, 7, 5]);
+function transferReservoirBalanceWater(levels, from, to) {
+  const caps = RESERVOIR_BALANCE_CAPACITIES;
+  if (!Array.isArray(levels) || levels.length !== caps.length ||
+      !caps.every((cap,i) => Number.isInteger(levels[i]) && levels[i] >= 0 && levels[i] <= cap) ||
+      levels.reduce((sum,n) => sum+n,0) !== caps[0] ||
+      !Number.isInteger(from) || !Number.isInteger(to) || from < 0 || from >= caps.length ||
+      to < 0 || to >= caps.length || from === to) throw new Error('Invalid reservoir water transfer');
+  const result = levels.slice();
+  const amount = Math.min(levels[from], caps[to]-levels[to]);
+  result[from] -= amount;
+  result[to] += amount;
+  return result;
+}
+
+function interactReservoirBalanceLock() {
+  const site = RESERVOIR_BALANCE_CACHE;
+  const here = () => regionalActiveMapId() === site.mapId && nearPlayer(site.x,site.y,TALK_RADIUS) &&
+    !combat.active && !menu.open && !shop.open && !debugMenu.open && !warpMenu.open;
+  if (!here() || dialogue.open || choice.open) return false;
+  if (site.opened) {
+    openDialogue('', [['The two broad chambers stand level. The narrow one is dry.',
+      'The compartment beneath them is empty.']]);
+    return true;
+  }
+
+  // The callbacks own this attempt. Leaving/Escape discards it; the next
+  // interaction constructs fresh levels. Neither levels nor menus enter saves.
+  const caps = RESERVOIR_BALANCE_CAPACITIES;
+  let levels = [caps[0],0,0], finished = false;
+  const valid = () => !finished && !site.opened && here() && !dialogue.open;
+  const label = i => `${caps[i]}-mark chamber: ${levels[i]} / ${caps[i]}`;
+  function panel(title, entries) {
+    if (!valid()) return;
+    const callbacks = entries.map(([,act]) => () => {
+      // An old menu must not operate a later attempt or grant the reward twice.
+      if (choice.callbacks !== callbacks || !valid()) return;
+      choice.callbacks = [];
+      act();
+    });
+    Object.assign(choice,{title,cursor:0,options:entries.map(([text])=>text),callbacks,open:true});
+  }
+  function sources(title = 'Balance lock — choose a source') {
+    panel(title, [
+      ...caps.map((_,i) => [label(i), () => destinations(i)]),
+      ['Read the plate', readPlate],
+      ['Reset the mechanism', () => {levels=[caps[0],0,0];sources('Water returns to the largest chamber.');}],
+      ['Leave', () => {finished=true;}],
+    ]);
+  }
+  function destinations(from) {
+    if (levels[from] === 0) {sources('That chamber is empty.');return;}
+    panel('Pour from '+label(from), [
+      ...caps.flatMap((_,to) => to === from ? [] : [[`Into ${label(to)}`, () => {
+        if (levels[to] === caps[to]) {sources('That chamber is already full.');return;}
+        levels = transferReservoirBalanceWater(levels,from,to);
+        if (levels[0] === caps[0]/2 && levels[1] === caps[0]/2 && levels[2] === 0) {
+          // Claim and consume the one-time compartment before showing its text.
+          // No combat, curse roll, quest progression, or automatic equip occurs.
+          site.opened = true;
+          finished = true;
+          grantItem(site.item.name);
+          openDialogue('', [['The two broad chambers settle level. The narrow chamber drains dry.',
+            'A latch withdraws beneath the plate. A shallow compartment opens in the stone.'],
+            [`Inside, a blade wrapped in oiled cloth. ${site.item.name} ${itemStatParen(ITEM_REGISTRY[site.item.name])} — added to items.`]]);
+        } else sources();
+      }]]),
+      ['Back', () => sources()],
+    ]);
+  }
+  function readPlate() {
+    const callbacks = [() => {
+      if (dialogue.callbacks === callbacks && valid()) sources();
+    }];
+    openDialogue('Balance lock', [
+      ['Three linked chambers emerge from the reeds. Their capacity marks read 12, 7 and 5.',
+        'A shutter beneath them has no keyhole. A plate beside the valves is still legible.'],
+      ['"Divide the charge equally between the two broad chambers. Leave the narrow chamber dry."'],
+      ['The pipes form a closed circuit holding twelve measures of water.',
+        'Each valve runs until its source is empty or its destination is full. You cannot stop it halfway.',
+        'A return lever resets all the water into the twelve-mark chamber.'],
+    ],callbacks);
+  }
+  readPlate();
+  return true;
 }

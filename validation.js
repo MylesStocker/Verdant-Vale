@@ -1639,6 +1639,7 @@ function validateItems() {
     ['SLUICE_CHEST',         typeof SLUICE_CHEST         !== 'undefined' ? SLUICE_CHEST         : undefined],
     ['SLUICE_LEVEL2_CHEST',  typeof SLUICE_LEVEL2_CHEST  !== 'undefined' ? SLUICE_LEVEL2_CHEST  : undefined],
     ['SLUICE_SECRET_CHEST',  typeof SLUICE_SECRET_CHEST  !== 'undefined' ? SLUICE_SECRET_CHEST  : undefined],
+    ['RESERVOIR_BALANCE_CACHE', typeof RESERVOIR_BALANCE_CACHE !== 'undefined' ? RESERVOIR_BALANCE_CACHE : undefined],
     ['SLUICE_LEVEL3_CHEST',  typeof SLUICE_LEVEL3_CHEST  !== 'undefined' ? SLUICE_LEVEL3_CHEST  : undefined],
     ['SLUICE_DEEP_CHEST',    typeof SLUICE_DEEP_CHEST    !== 'undefined' ? SLUICE_DEEP_CHEST    : undefined],
     ['CAT_ARMOR_CHEST',      typeof CAT_ARMOR_CHEST      !== 'undefined' ? CAT_ARMOR_CHEST      : undefined],

@@ -460,7 +460,16 @@ function interactSluiceInterior() {
       if (Math.sqrt(cx * cx + cy * cy) < TALK_RADIUS) {
         chest.opened = true;
         const it = chest.item;
-        if (hasStatusEffect('cursed')) {
+        if (chest.gold !== undefined) {
+          dialogue.name = '';
+          if (hasStatusEffect('cursed')) {
+            dialogue.pages = [['Cursed! You trip on the latch mechanism.',
+              'The coins scatter into the channel water below.', 'A soft glug. Gone.']];
+          } else {
+            stats.gold += chest.gold;
+            dialogue.pages = [['Chest opened.', `${chest.gold} gold — added to your purse.`]];
+          }
+        } else if (hasStatusEffect('cursed')) {
           dialogue.name  = '';
           dialogue.pages = [['Cursed! You trip on the latch mechanism.', `The ${it.name} tumbles into the channel water below.`, 'A soft glug. It\u2019s gone.']];
         } else {

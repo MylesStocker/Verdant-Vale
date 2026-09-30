@@ -43,8 +43,8 @@ const PALE_SENTRY_TEMPLATE = {
   xp: 350, goldMin: 40, goldMax: 80,
 };
 
-// Provisional Attack-only Gallery encounter. No per-member awards: completing
-// the reservoir report remains the reward for this first playable slice.
+// Gallery formation base stats remain provisional. Coordination is owned by
+// formationRounds below. No per-member awards: the report remains the reward.
 const GALLERY_RECEIVER_TEMPLATES = [
   {id:'enemy_gallery_receiver', name:'The Receiver', hp:54, maxHp:54, atk:10, def:4, spd:4, xp:0, goldMin:0, goldMax:0},
   {id:'enemy_gallery_caller', name:'The Caller', hp:20, maxHp:20, atk:14, def:0, spd:12, xp:0, goldMin:0, goldMax:0},
@@ -233,6 +233,7 @@ function healingItemAmount(item, hp, maxHp) {
   return Math.min(item.heals || 0, maxHp - hp);
 }
 function offensiveItemDamage(item, enemy) {
+  if (item.minDamage !== undefined) return Math.max(item.minDamage, Math.min(item.damage, item.damage - enemy.def));
   return item.ignoresDef ? item.damage : Math.max(1, item.damage - enemy.def);
 }
 
@@ -303,7 +304,10 @@ function itemStatLabel(item) {
   // reveal which status an item cures (a character can mention it instead).
   if (isStatusCureItem(item))                      return '';
   if (item.type === 'buff' && item.evadeRate)      return `Evade ${Math.round(item.evadeRate * 100)}% \u00b7 ${item.evadeTurns}t`;
-  if (item.type === 'throwable')                   return item.fuse ? `DMG ${item.damage} · ${item.fuse}t fuse` : `DMG ${item.damage}`;
+  if (item.type === 'throwable') {
+    const damage = item.minDamage !== undefined ? `${item.minDamage}-${item.damage}` : item.damage;
+    return item.fuse ? `DMG ${damage} · ${item.fuse}t fuse` : `DMG ${damage}${item.targetsAll ? ' · all' : ''}`;
+  }
   if (MUDSLITHER_INFLICTABLE && item.causesMuddied && item.type === 'potion') return `HP  +${item.heals} \u2022 muddies`;
   if (item.questItem && item.type === 'potion')    return `HP  +${item.heals} \u2022 quest`;
   if (item.type === 'weapon')    return `ATK +${item.bonus}`;
@@ -583,7 +587,7 @@ function bindCombatEnemyEffect(instanceId, effect) {
 // here are monotone in variance, so both endpoints cover every possible roll,
 // for both critical branches. Use the greatest representable random value < 1:
 // simply adding MIN + SPAN would round to a different upper bound in JS.
-function formationAttackNumbersAreSafe(atk, def) {
+function formationAttackNumbersAreSafe(atk, def, damageMultiplier = 1) {
   const maxRandom = 1 - Number.EPSILON / 2;
   const variances = [ATTACK_VARIANCE_MIN,
     ATTACK_VARIANCE_MIN + maxRandom * ATTACK_VARIANCE_SPAN];
@@ -593,7 +597,8 @@ function formationAttackNumbersAreSafe(atk, def) {
     // out-of-domain intermediate. Raw fractions need bounded magnitude, not
     // integerness; the final recorded attemptedDamage must be a safe integer.
     return Object.values(numbers).every(value => Number.isFinite(value) &&
-      Math.abs(value) <= Number.MAX_SAFE_INTEGER) && Number.isSafeInteger(numbers.dmg);
+      Math.abs(value) <= Number.MAX_SAFE_INTEGER) && Number.isSafeInteger(numbers.dmg) &&
+      Number.isSafeInteger(numbers.dmg * damageMultiplier);
   }));
 }
 
@@ -791,6 +796,21 @@ function validateFormationBasicAttackState(action, extended = false) {
 const FORMATION_PLAYER_STATUSES = Object.freeze(['poison','cursed','muddied','slither','burn','dazzled']);
 const FORMATION_EFFECT_FIELDS = Object.freeze(['evadeTurns','bombFuse','bombDamage','bombIgnoresDef','bombTargetInstanceId','bombJustArmed']);
 
+// One authored three-member relationship, not a general enemy-special system.
+// Bind once to exact runtime identities; never infer a replacement by slot/name.
+const RECEIVER_HEAVY_MULTIPLIER = 2;
+function createReceiverCoordination(members) {
+  const ids = ['enemy_gallery_receiver','enemy_gallery_caller','enemy_gallery_keeper'];
+  if (members.length !== 3 || !ids.every(id => members.filter(e=>e.id===id).length === 1)) return null;
+  const [receiverId,callerId,keeperId] = ids.map(id=>members.find(e=>e.id===id).instanceId);
+  return {receiverId,callerId,keeperId,strikeRound:0,nextSignalRound:1};
+}
+function receiverGuardActive(coordination, members, targetId) {
+  return !!coordination && targetId === coordination.receiverId &&
+    members.some(e=>e.instanceId===coordination.keeperId && e.hp>0);
+}
+function receiverGuardedDamage(damage) { return Math.ceil(damage / 2); }
+
 // Closed data copying for commands/history. Reject accessors, functions, sparse
 // arrays and non-data objects instead of normalizing them through JSON.
 function copyFormationData(value) {
@@ -843,7 +863,7 @@ const formationRounds = (() => {
     validatePolicy,
     initialize(members, policy, bossLocked) {
       state = {members, policy:validatePolicy(policy), completed:0, pending:null, outcome:'ongoing',
-        bossLocked, evadeAppliedRound:0, bombAppliedRound:0};
+        bossLocked, coordination:createReceiverCoordination(members), evadeAppliedRound:0, bombAppliedRound:0};
     },
     clear() {
       state = null;
@@ -860,6 +880,12 @@ const formationRounds = (() => {
     },
     applied(effect, round) { requireState()[effect === 'evade' ? 'evadeAppliedRound' : 'bombAppliedRound'] = round; },
     wasApplied(effect, round) { return requireState()[effect === 'evade' ? 'evadeAppliedRound' : 'bombAppliedRound'] === round; },
+    coordination() { return state?.coordination ? copyFormationData(state.coordination) : null; },
+    signal(round) {
+      const c=requireState().coordination;
+      c.strikeRound=round+1; c.nextSignalRound=round+2;
+    },
+    releaseSignal() { requireState().coordination.strikeRound=0; },
     finish(result, members) {
       // Defensive synchronous test hooks may remove an actor. Never attach an
       // old round to a newly initialized battle; its cancellations still return.
@@ -897,12 +923,16 @@ function formationItemDefinition(itemId) {
   if (typeof itemId !== 'string' || !Object.hasOwn(ITEM_REGISTRY,itemId)) throw new Error('Invalid formation item');
   const item = copyFormationData(ITEM_REGISTRY[itemId]);
   const allowed=['name','type','price','bonus','heals','curesPoison','curesCursed','evadeTurns','evadeRate',
-    'damage','fuse','ignoresDef','impactVerb','stunTurns','sexBane','battleOnly','questItem','keyItem',
+    'damage','minDamage','targetsAll','fuse','ignoresDef','impactVerb','stunTurns','sexBane','battleOnly','questItem','keyItem',
     'causesMuddied','defenseCapBypass','evadeAll','preventsCursed'];
   if (Object.keys(item).some(k=>!allowed.includes(k))) throw new Error('Unsupported formation item capability');
   if (item.keyItem || item.name !== itemId) throw new Error('Invalid formation item');
+  if ((Object.hasOwn(item,'targetsAll') && (item.targetsAll !== true || item.type !== 'throwable' || item.fuse)) ||
+      (Object.hasOwn(item,'minDamage') && (item.type !== 'throwable' || item.fuse || item.ignoresDef ||
+        !Number.isSafeInteger(item.minDamage) || item.minDamage < 0 || item.minDamage > item.damage)))
+    throw new Error('Unsupported formation item capability');
   const effect = item.sexBane ? 'reagent' : item.type === 'potion' ? (isStatusCureItem(item) ? 'cure' : 'heal') :
-    item.type === 'buff' ? 'evade' : item.type === 'throwable' ? (item.fuse ? 'bomb' : 'damage') :
+    item.type === 'buff' ? 'evade' : item.type === 'throwable' ? (item.fuse ? 'bomb' : item.targetsAll ? 'damage_all' : 'damage') :
     item.type === 'stun' ? 'stun' : slotForType(item.type) ? 'equip' : item.type === 'bait' ? 'nothing' : null;
   if (!effect) throw new Error('Unsupported formation item');
   return {item,effect,targeted:['reagent','bomb','damage','stun'].includes(effect)};
@@ -921,7 +951,8 @@ function formationCommandSnapshot() {
       equipment,
       slitherSpd},
     enemies:combat.enemies.map(e=>({id:e.id,instanceId:e.instanceId,slot:e.slot,hp:e.hp,maxHp:e.maxHp,
-      observeCount:e.observeCount,escapeUnlocked:e.escapeUnlocked})), effects:formationEffectSnapshot()});
+      observeCount:e.observeCount,escapeUnlocked:e.escapeUnlocked})), effects:formationEffectSnapshot(),
+    ...(formationRounds.coordination() ? {coordination:formationRounds.coordination()} : {})});
 }
 
 function validateFormationRoundCommand(action) {
@@ -954,7 +985,9 @@ function validateFormationRoundCommand(action) {
     throw new Error('Invalid formation duration state');
   // Extended histories name registry equipment, not arbitrary live objects.
   // Establish their representability before any initiative or effect RNG.
-  const extended = type !== 'attack' || statusEffects.length > 0 || effects.evadeTurns > 0 || effects.bombFuse > 0;
+  const coordination=formationRounds.coordination();
+  if (coordination && round.round > Number.MAX_SAFE_INTEGER-2) throw new Error('Unsafe formation signal round');
+  const extended = !!coordination || type !== 'attack' || statusEffects.length > 0 || effects.evadeTurns > 0 || effects.bombFuse > 0;
   if (extended) {
     if (!Number.isSafeInteger(slitherSpd) || slitherSpd < 1 || slitherSpd > 20) throw new Error('Invalid formation speed state');
     for (const slot of ['weapon','armor','shield','accessory']) {
@@ -976,14 +1009,17 @@ function validateFormationRoundCommand(action) {
   }
   if ((type === 'attack' && !formationAttackNumbersAreSafe(effectiveAtk(),target.def)) ||
       members.some(e=>e.hp>0 && candidates.some(p=>!formationAttackNumbersAreSafe(e.atk,
-        playerIncomingMitigation(e.atk,effectiveDef(p),p.armor?.defenseCapBypass === true)))))
+        playerIncomingMitigation(e.atk,effectiveDef(p),p.armor?.defenseCapBypass === true),
+        e.instanceId===coordination?.receiverId ? RECEIVER_HEAVY_MULTIPLIER : 1))))
     throw new Error('Unsupported formation basic Attack state or action');
   if (type === 'observe' && target.observeCount >= Number.MAX_SAFE_INTEGER) throw new Error('Invalid formation observation progress');
   if (spec) {
-    for (const key of ['heals','damage','fuse','evadeTurns','stunTurns']) {
+    for (const key of ['heals','damage','minDamage','fuse','evadeTurns','stunTurns']) {
       if (Object.hasOwn(item,key) && (!Number.isSafeInteger(item[key]) || item[key]<0)) throw new Error('Unsafe formation item numbers');
     }
     if (['damage','bomb'].includes(spec.effect) && !Number.isSafeInteger(offensiveItemDamage(item,target)))
+      throw new Error('Unsafe formation item damage');
+    if (spec.effect === 'damage_all' && members.some(e=>e.hp>0 && !Number.isSafeInteger(offensiveItemDamage(item,e))))
       throw new Error('Unsafe formation item damage');
     if (spec.effect === 'evade' && (item.evadeRate !== BULLET_TIME_EVADE_RATE || !item.evadeTurns)) throw new Error('Unsupported formation buff');
   }
@@ -1006,7 +1042,7 @@ function resolveFormationBasicAttackRound(action) {
 function resolveFormationRound(action) {
   const {command,members,target,item,spec,round,escape} = validateFormationRoundCommand(action);
   const targetInstanceId = target ? target.instanceId : 'player';
-  const extended = command.type !== 'attack' || statusEffects.length > 0 || combat.evadeTurns > 0 || combat.bombFuse > 0;
+  const extended = !!formationRounds.coordination() || command.type !== 'attack' || statusEffects.length > 0 || combat.evadeTurns > 0 || combat.bombFuse > 0;
   const before = extended ? formationCommandSnapshot() : null;
   const events = [];
   // Retain the existing command-specific Slither contract: Attack/Observe
@@ -1048,6 +1084,16 @@ function resolveFormationRound(action) {
     const member = findCombatEnemy(id);
     return members.includes(member) ? member : null;
   };
+  const breakSignal = () => {
+    const c=formationRounds.coordination();
+    if (c?.strikeRound && [c.callerId,c.receiverId].some(id=>resolveMember(id)?.hp===0)) {
+      formationRounds.releaseSignal();
+      events.push({type:'signal_broken',callerId:c.callerId,receiverId:c.receiverId,
+        strikeRound:c.strikeRound,reason:resolveMember(c.callerId)?.hp===0 ? 'caller_dead' : 'receiver_dead'});
+    }
+  };
+  const protect = (damage, recipient) => receiverGuardActive(formationRounds.coordination(),members,recipient.instanceId)
+    ? receiverGuardedDamage(damage) : damage;
   for (const planned of order) {
     if (stats.hp <= 0) return finish('defeat');
     const actor = planned.actorType === 'enemy' ? resolveMember(planned.actorId) : stats;
@@ -1074,8 +1120,15 @@ function resolveFormationRound(action) {
         } else if (spec.effect === 'cure') applyStatusCure(item);
         else if (spec.effect === 'evade') {
           combat.evadeTurns=item.evadeTurns; formationRounds.applied('evade',round);
-        } else if (spec.effect === 'damage') recipient.hp=Math.max(0,recipient.hp-offensiveItemDamage(item,recipient));
-        else if (spec.effect === 'bomb') {
+        } else if (spec.effect === 'damage') recipient.hp=Math.max(0,recipient.hp-protect(offensiveItemDamage(item,recipient),recipient));
+        else if (spec.effect === 'damage_all') {
+          // One simultaneous impact: determine protection before changing ANY
+          // member's HP. Killing Keeper in this blast cannot expose Receiver
+          // mid-blast or make damage depend on descriptor/slot order.
+          const impacts=members.filter(e=>resolveMember(e.instanceId)===e && e.hp>0)
+            .map(e=>({enemy:e,damage:protect(offensiveItemDamage(item,e),e)}));
+          for (const {enemy,damage} of impacts) enemy.hp=Math.max(0,enemy.hp-damage);
+        } else if (spec.effect === 'bomb') {
           combat.bombTargetInstanceId=recipient.instanceId; combat.bombFuse=item.fuse;
           combat.bombDamage=item.damage; combat.bombIgnoresDef=!!item.ignoresDef;
           combat.bombJustArmed=false; formationRounds.applied('bomb',round);
@@ -1103,9 +1156,20 @@ function resolveFormationRound(action) {
         events.push({type:'run',...planned,allowed,opponentId:fastest.instanceId,chance,roll,success});
         if (success) return finish('escape');
       }
+      breakSignal();
       if (members.every(member=>member.hp===0)) return finish('victory');
       continue;
     }
+    const coordination=formationRounds.coordination();
+    if (planned.actorType==='enemy' && actor.instanceId===coordination?.callerId &&
+        resolveMember(coordination.receiverId)?.hp>0 && !coordination.strikeRound && round>=coordination.nextSignalRound) {
+      formationRounds.signal(round);
+      events.push({type:'signal',...planned,receiverId:coordination.receiverId,
+        strikeRound:round+1,nextSignalRound:round+2});
+      continue; // Signalling replaces the attack and consumes no attack RNG.
+    }
+    const heavy=planned.actorType==='enemy' && actor.instanceId===coordination?.receiverId &&
+      coordination.strikeRound>0 && coordination.strikeRound<=round && resolveMember(coordination.callerId)?.hp>0;
     // Existing production primitives; variance -> critical -> evasion, three
     // RNG calls only for an executing attack. No pre-rolled damage or effects.
     const roll = planned.actorType === 'player'
@@ -1114,12 +1178,18 @@ function resolveFormationRound(action) {
     // Existing curse rule, reached only for newly supported Cursed state.
     const fumbled = planned.actorType === 'player' && hasStatusEffect('cursed') && Math.random() < 0.25;
     if (fumbled) { roll.dmg=1; roll.crit=false; }
+    if (heavy) { roll.dmg*=RECEIVER_HEAVY_MULTIPLIER; formationRounds.releaseSignal(); }
+    const unprotectedDamage=roll.dmg;
+    const guarded=planned.actorType==='player' && receiverGuardActive(coordination,members,recipient.instanceId);
+    if (guarded) roll.dmg=receiverGuardedDamage(roll.dmg);
     const evaded = planned.actorType === 'player' ? enemyEvades(recipient) : playerEvades(actor);
     const hpBefore = recipient.hp;
     recipient.hp = Math.max(0, hpBefore - (evaded ? 0 : roll.dmg));
-    events.push({type:'attack', ...planned, attemptedDamage:roll.dmg,
+    events.push({type:heavy ? 'heavy_attack' : guarded ? 'guarded_attack' : 'attack', ...planned, attemptedDamage:roll.dmg,
+      ...(guarded ? {unprotectedDamage,keeperId:coordination.keeperId} : {}),
       appliedDamage:hpBefore - recipient.hp, critical:roll.crit, evaded,
       hpBefore, hpAfter:recipient.hp});
+    breakSignal();
     if (stats.hp <= 0) return finish('defeat');
     if (members.every(member => member.hp === 0)) return finish('victory');
   }
@@ -1134,14 +1204,15 @@ function resolveFormationRound(action) {
     combat.bombFuse--;
     const recipient = resolveMember(combat.bombTargetInstanceId);
     const hpBefore = recipient ? recipient.hp : null;
-    const damage = recipient && recipient.hp > 0 && combat.bombFuse===0 ? offensiveItemDamage(
-      {damage:combat.bombDamage,ignoresDef:combat.bombIgnoresDef},recipient) : 0;
+    const damage = recipient && recipient.hp > 0 && combat.bombFuse===0 ? protect(offensiveItemDamage(
+      {damage:combat.bombDamage,ignoresDef:combat.bombIgnoresDef},recipient),recipient) : 0;
     if (recipient && damage) recipient.hp=Math.max(0,recipient.hp-damage);
     if (combat.bombFuse===0 || !recipient || recipient.hp===0) {
       combat.bombFuse=0;combat.bombTargetInstanceId=null;combat.bombDamage=0;combat.bombIgnoresDef=false;
     }
     events.push({type:'bomb_tick',targetId:before.bombTargetInstanceId,before,after:formationEffectSnapshot(),
       attemptedDamage:damage,appliedDamage:recipient ? hpBefore-recipient.hp : 0,hpBefore,hpAfter:recipient ? recipient.hp : null});
+    breakSignal();
     if (members.every(member=>member.hp===0)) return finish('victory');
   }
   return finish('ongoing');
@@ -1327,8 +1398,16 @@ function createFormationCommandPlayback(source) {
         typeof value.bombIgnoresDef !== 'boolean' || typeof value.bombJustArmed !== 'boolean' ||
         (value.bombFuse > 0 ? !members.some(e=>e.instanceId===value.bombTargetInstanceId) : value.bombTargetInstanceId !== null)) fail();
   };
+  const binding=createReceiverCoordination(members);
+  const coordination = value => {
+    record(value,['receiverId','callerId','keeperId','strikeRound','nextSignalRound']);
+    if (!binding || ['receiverId','callerId','keeperId'].some(k=>value[k]!==binding[k]) ||
+        !safe(value.strikeRound) || !safe(value.nextSignalRound) || value.nextSignalRound<1 ||
+        (value.strikeRound>0 && value.nextSignalRound!==value.strikeRound+1)) fail();
+  };
   const snapshot = value => {
-    record(value,['player','enemies','effects']);
+    record(value,['player','enemies','effects',...(binding ? ['coordination'] : [])]);
+    if (binding) coordination(value.coordination);
     const p=record(value.player,['id','hp','maxHp','inventory','statuses','equipment','slitherSpd']);
     if (p.id !== 'player' || !safe(p.maxHp) || p.maxHp===0 || !hp(p.hp,p.maxHp) ||
         !Array.isArray(p.inventory) || p.inventory.some(id=>typeof id!=='string' || !Object.hasOwn(ITEM_REGISTRY,id)) ||
@@ -1368,7 +1447,7 @@ function createFormationCommandPlayback(source) {
     ...result.initiative.filter(c=>c.playerFirst).map(c=>({actorType:'enemy',actorId:c.actorId,targetId:'player'}))];
   if (!equal(expected,result.order)) fail();
   const clone = v => ({player:{...v.player,inventory:[...v.player.inventory],statuses:[...v.player.statuses],equipment:{...v.player.equipment}},
-    enemies:v.enemies.map(e=>({...e})),effects:{...v.effects}});
+    enemies:v.enemies.map(e=>({...e})),effects:{...v.effects},...(binding ? {coordination:{...v.coordination}} : {})});
   let state=clone(result.before), orderIndex=0, escaped=false, ended=false, outcome='ongoing';
   let appliedEvade=false, appliedBomb=false, sawBomb=false, sawBurn=false, sawSpeed=false;
   const frames=[];
@@ -1377,7 +1456,7 @@ function createFormationCommandPlayback(source) {
   const frame=(index,event)=>copyFormationData({frameIndex:index,eventIndex:index-1,currentEvent:event,
     player:state.player,enemies:state.enemies,effects:state.effects,
     completedRounds:ended ? result.roundAfter : result.roundBefore,
-    complete:index===result.events.length,outcome});
+    complete:index===result.events.length,outcome,...(binding ? {coordination:state.coordination} : {})});
   frames.push(frame(0,null));
   const checkAction=(event,extra)=>{
     record(event,['type','actorType','actorId','targetId',...extra]);
@@ -1395,17 +1474,43 @@ function createFormationCommandPlayback(source) {
   };
   result.events.forEach((event,index)=>{
     if (!event || typeof event.type!=='string' || (ended && event.type!=='outcome')) fail();
-    if (!['round_end','outcome'].includes(event.type) && terminal()!=='ongoing') fail();
+    if (!['round_end','outcome','signal_broken'].includes(event.type) && terminal()!=='ongoing') fail();
     if (event.type==='speed') {
       record(event,['type','before','after']);
       if (index!==0 || sawSpeed || !state.player.statuses.includes('slither') || event.before!==state.player.slitherSpd ||
           !safe(event.after) || event.after<1 || event.after>20) fail();
       state.player.slitherSpd=event.after;sawSpeed=true;
-    } else if (event.type==='attack') {
-      checkAction(event,['attemptedDamage','appliedDamage','critical','evaded','hpBefore','hpAfter']);
+    } else if (['attack','heavy_attack','guarded_attack'].includes(event.type)) {
+      checkAction(event,['attemptedDamage','appliedDamage','critical','evaded','hpBefore','hpAfter',
+        ...(event.type==='guarded_attack' ? ['unprotectedDamage','keeperId'] : [])]);
       if (entity(event.actorId)?.hp<=0 || entity(event.targetId)?.hp<=0 ||
           (event.actorId==='player' && command.type!=='attack') || typeof event.critical!=='boolean' || typeof event.evaded!=='boolean') fail();
+      const c=state.coordination;
+      const heavy=!!c && event.actorId===c.receiverId && c.strikeRound>0 && c.strikeRound<=result.roundAfter && entity(c.callerId)?.hp>0;
+      const guarded=event.actorId==='player' && receiverGuardActive(c,state.enemies,event.targetId);
+      if (event.type!==(heavy ? 'heavy_attack' : guarded ? 'guarded_attack' : 'attack')) fail();
+      if (guarded && (event.keeperId!==c.keeperId || !safe(event.unprotectedDamage) || event.unprotectedDamage===0 ||
+          event.attemptedDamage!==receiverGuardedDamage(event.unprotectedDamage))) fail();
+      if (heavy) {
+        if (event.attemptedDamage%RECEIVER_HEAVY_MULTIPLIER!==0) fail();
+        c.strikeRound=0;
+      }
       damage(event);
+    } else if (event.type==='signal') {
+      checkAction(event,['receiverId','strikeRound','nextSignalRound']);
+      const c=state.coordination;
+      if (!c || event.actorId!==c.callerId || event.receiverId!==c.receiverId ||
+          entity(c.callerId)?.hp<=0 || entity(c.receiverId)?.hp<=0 || c.strikeRound!==0 ||
+          result.roundAfter<c.nextSignalRound || event.strikeRound!==result.roundAfter+1 ||
+          event.nextSignalRound!==result.roundAfter+2) fail();
+      c.strikeRound=event.strikeRound;c.nextSignalRound=event.nextSignalRound;
+    } else if (event.type==='signal_broken') {
+      record(event,['type','callerId','receiverId','strikeRound','reason']);
+      const c=state.coordination;
+      if (!c || !c.strikeRound || event.strikeRound!==c.strikeRound ||
+          event.callerId!==c.callerId || event.receiverId!==c.receiverId ||
+          event.reason!==(entity(c.callerId)?.hp===0 ? 'caller_dead' : entity(c.receiverId)?.hp===0 ? 'receiver_dead' : null)) fail();
+      c.strikeRound=0;
     } else if (event.type==='skip' || event.type==='cancel') {
       checkAction(event,['reason']);
       if (event.type==='skip' ? event.reason!=='actor_dead' || entity(event.actorId)?.hp!==0 :
@@ -1429,9 +1534,18 @@ function createFormationCommandPlayback(source) {
       } else if (spec.effect==='evade') {next.effects.evadeTurns=item.evadeTurns;appliedEvade=true;}
       else if (spec.effect==='damage') {
         const after=event.after.enemies.find(e=>e.instanceId===targetId).hp;
-        const attempted=item.ignoresDef ? item.damage : Math.max(1,item.damage-members.find(e=>e.instanceId===targetId).def);
+        let attempted=offensiveItemDamage(item,members.find(e=>e.instanceId===targetId));
+        if (receiverGuardActive(state.coordination,state.enemies,targetId)) attempted=receiverGuardedDamage(attempted);
         if (after!==Math.max(0,target.hp-attempted)) fail();
         target.hp=after;
+      } else if (spec.effect==='damage_all') {
+        // Validate the copied history against pre-impact protection. Only the
+        // detached next snapshot is changed, never a live combatant.
+        for (const member of next.enemies.filter(e=>e.hp>0)) {
+          let attempted=offensiveItemDamage(item,members.find(e=>e.instanceId===member.instanceId));
+          if (receiverGuardActive(state.coordination,state.enemies,member.instanceId)) attempted=receiverGuardedDamage(attempted);
+          member.hp=Math.max(0,member.hp-attempted);
+        }
       } else if (spec.effect==='bomb') {
         Object.assign(next.effects,{bombFuse:item.fuse,bombDamage:item.damage,bombIgnoresDef:!!item.ignoresDef,
           bombTargetInstanceId:targetId,bombJustArmed:false});appliedBomb=true;
@@ -1472,8 +1586,9 @@ function createFormationCommandPlayback(source) {
           !equal(event.before,state.effects) || event.targetId!==state.effects.bombTargetInstanceId) fail();
       const target=entity(event.targetId);if (!target) fail();
       const remaining=state.effects.bombFuse-1;
-      const expectedDamage=remaining===0 && target.hp>0 ? (state.effects.bombIgnoresDef ? state.effects.bombDamage :
+      let expectedDamage=remaining===0 && target.hp>0 ? (state.effects.bombIgnoresDef ? state.effects.bombDamage :
         Math.max(1,state.effects.bombDamage-members.find(e=>e.instanceId===target.instanceId).def)) : 0;
+      if (receiverGuardActive(state.coordination,state.enemies,event.targetId)) expectedDamage=receiverGuardedDamage(expectedDamage);
       if (event.attemptedDamage!==expectedDamage) fail();damage(event,true);
       state.effects.bombFuse=remaining;
       if (remaining===0 || target.hp===0) Object.assign(state.effects,{bombFuse:0,bombDamage:0,bombTargetInstanceId:null,bombIgnoresDef:false});
@@ -1582,6 +1697,9 @@ const formationSessionController = (() => {
         hp:frame ? frame.player.hp : stats.hp, maxHp:frame ? frame.player.maxHp : stats.maxHp}),
       playerStatuses:Object.freeze(frame ? [...(frame.player.statuses || [])] : [...statusEffects]),
       evadeTurns:frame ? (frame.effects?.evadeTurns || 0) : combat.evadeTurns,
+      // The warning and guard follow the same historical frame as HP.
+      ...((frame ? frame.coordination : formationRounds.coordination())
+        ? {coordination:frame ? frame.coordination : formationRounds.coordination()} : {}),
       enemies:Object.freeze(members.map(member => Object.freeze({
         instanceId:member.instanceId, templateId:member.id, slot:member.slot,
         hp:member.hp, maxHp:member.maxHp,
@@ -2611,6 +2729,24 @@ function applyKillRewards(enemy, msgs) {
 // Templates that share one display identity (e.g. the three Marsh Wisp variant
 // ids) share a single entry via the alias block below the literal.
 const ENEMY_OBSERVATIONS = {
+  enemy_gallery_caller: [
+    {lines:['Its broken call draws the Receiver upright. The heavy blow follows next round.',
+      'Bring the Caller down before that blow and the signal breaks.']},
+    {lines:['Calling takes its whole action. Between signals, it attacks.',
+      'The warning gives you time to choose: interrupt it, or prepare for the blow.']},
+  ],
+  enemy_gallery_keeper: [
+    {lines:['It braces beside the Receiver, turning blows aside.',
+      'While the Keeper lives, the Receiver takes only half damage. The Keeper itself is exposed.']},
+    {lines:['Its protection does not extend to the Caller.',
+      'Bring the Keeper down and the Receiver loses that protection.']},
+  ],
+  enemy_gallery_receiver: [
+    {lines:['It gathers itself when the Caller signals. Its next-round strike will hit twice as hard.',
+      'The Keeper shelters it. The two smaller creatures make the larger one dangerous.']},
+    {lines:['Without the signal it uses ordinary attacks. Without the Keeper, its bulk is no shield.',
+      'It can still be hurt while protected.']},
+  ],
   // ── Overworld enemies ───────────────────────────────────────────────────────
   enemy_marsh_wisp: [
     { lines: ['It pulses between visible and not-visible.', 'Low HP. Light attack. Moderate speed.', 'Should go down quickly.'] },

@@ -44,6 +44,15 @@ Singleton escape rules are deliberately unchanged. Lab recovery additionally
 restores its pre-entry inventory, equipment, statuses and temporary speed;
 canonical recovery never uses that debug snapshot.
 
+The exact Receiver/Caller/Keeper trio binds a transient coordination record to
+its three runtime IDs inside `formationRounds`. Caller signalling replaces its
+ordinary action; Receiver's next-round heavy strike replaces its own action.
+Keeper protection uses retained living-member state at damage execution. Neither
+mechanic changes singleton formulas. Signal/protection history travels with the
+immutable command snapshots and playback frames; the renderer never consults
+final live coordination while showing an earlier frame. Cleanup discards the
+record. This is one authored relationship, not a general special-action system.
+
 Load order:
 
 ```

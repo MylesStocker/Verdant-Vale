@@ -371,7 +371,7 @@ const GEAR_TIERS = {
   'T2 + Iron Shield':             { atk: 2,  def: 6,  spd: 0, note: '+ Iron Shield (merchant, 140g)' },
   'T3 Steel + Leather':           { atk: 7,  def: 3,  spd: 0, note: 'Steel Sword + issued Leather Armor, matching the lean level-5 playtest loadout' },
   'T3 dungeon-1 chest gear':      { atk: 7,  def: 6,  spd: 2, note: 'Steel Sword (chest) + Iron Shield (140g) + Swift Bangle (180g)  — the best shield (Resonant Targe) is no longer a floor-1 chest' },
-  'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (chest) + Shadow Cloak (560g) + Resonant Targe (floor-8 chest) + Wraithband (400g)' },
+  'T4 sluice/traveller gear':     { atk: 10, def: 16, spd: 4, note: 'Warden Blade (optional reservoir puzzle, no longer Sluice loot) + Shadow Cloak (560g) + Resonant Targe (floor-8 chest) + Wraithband (400g)' },
   'T5 best traveller gear':       { atk: 12, def: 16, spd: 4, note: 'Dragon Blade (700g) + Shadow Cloak (560g) + Resonant Targe (floor-8 chest) + Wraithband (400g)' },
 };
 
@@ -544,8 +544,7 @@ console.log('\n--- Chest/reward gear (free — for comparison against shop gold/
 const CHEST_GEAR = [
   { name: 'Steel Sword',     type: 'weapon',    bonus: 7, price: 300, source: 'Dungeon floor-1 chest' },
   { name: 'Resonant Targe',  type: 'shield',    bonus: 8, price: 360, source: 'Dungeon floor 8 (The Drowned Chamber), examine sparkle in the dead-end south chamber' },
-  { name: 'Warden Blade',    type: 'weapon',    bonus: 10, price: 440, source: 'Sluice secret chest (false wall)' },
-  { name: 'Void Shard',      type: 'accessory', bonus: 5, price: 360, source: 'Sluice level-3 chest' },
+  { name: 'Warden Blade',    type: 'weapon',    bonus: 10, price: 440, source: 'Reservoir eastern-shore balance puzzle' },
   { name: 'Fen Mask',        type: 'accessory', bonus: 5, price: 400, source: 'Sluice level-3 deep secret chest' },
   { name: 'Mirestone Blade', type: 'weapon',    bonus: 8, price: 200, source: "Mirethyst's Vault chest" },
   { name: 'Fen Cowl',        type: 'armor',     bonus: 4, price: 240, source: "Mirethyst's Vault NPC gift" },

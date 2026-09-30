@@ -317,11 +317,11 @@ for(const exit of ['escape','cancel','abort'])test('Lab '+exit+' restores exact 
 
 test('canonical Receiver supports cures/Observe and metadata-blocked Run through the shared menu',()=>{
   const g=fresh(0);g.run("statusEffects=['poison'];stats.items=[createItem('Reed Remedy')];");receiver(g);instrument(g);
-  item(g,'Reed Remedy');tape(g,[0,0,0,...HIT,...HIT,...HIT],()=>g.press('Enter'));playback(g);
+  item(g,'Reed Remedy');tape(g,[0,0,0,...HIT,...HIT],()=>g.press('Enter'));playback(g);
   assert.deepEqual(J(g,'statusEffects'),[]);choose(g,'observe');g.press('ArrowRight');
   tape(g,[0,0,0,...HIT,...HIT,...HIT],()=>g.press('Enter'));playback(g);
   assert.deepEqual(J(g,'combat.enemies.map(e=>e.observeCount)'),[0,1,0]);
-  g.press('ArrowRight');tape(g,[0,0,0,...HIT,...HIT,...HIT],()=>g.press('Enter'));playback(g);
+  g.press('ArrowRight');tape(g,[0,0,0,...HIT,...HIT],()=>g.press('Enter'));playback(g);
   assert.equal(g.run('uiResult.events.find(e=>e.type==="run").allowed'),false);assert.equal(g.run('uiResolves'),3);
   assert.equal(g.run('gallery_receiver_defeated'),false);assert.equal(g.run('combat.active'),true);
 });

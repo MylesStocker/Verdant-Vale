@@ -3643,9 +3643,70 @@ function drawBattleTallyman(cx, cy) {
 // deserves bespoke art; enemies meant to reuse the generic silhouette go in
 // ENEMY_GENERIC_SPRITE_IDS instead.
 const ENEMY_SPRITE_DISPATCH = {};
-function drawBattleReceiver(x,y) { drawGalleryCreature('receiver',x,y,3); }
-function drawBattleCaller(x,y) { drawGalleryCreature('caller',x,y,3); }
-function drawBattleKeeper(x,y) { drawGalleryCreature('keeper',x,y,3); }
+function drawGalleryBattleCreature(kind,x,y,pose='idle') {
+  ctx.save();ctx.translate(x,y);
+  const c=GALLERY_CREATURE_COLOURS;
+  const r=(colour,x,y,w,h)=>{ctx.fillStyle=c[colour];ctx.fillRect(x,y,w,h);};
+  const p=(colour,points)=>{
+    ctx.fillStyle=c[colour];ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();
+  };
+  if (kind==='receiver') {
+    r('outline',-49,0,98,4);
+    // Drooping water-heavy shoulders, long forearms and splayed feet.
+    p('outline',[[-48,-16],[-52,-55],[-44,-76],[-31,-88],[-23,-108],[10,-112],[28,-99],[34,-85],[48,-73],[54,-45],[49,-9],[34,-5],[30,1],[10,1],[6,-11],[-12,-10],[-19,2],[-39,2],[-40,-6]]);
+    p('body',[[-39,-27],[-42,-60],[-32,-79],[-20,-88],[12,-88],[36,-72],[43,-44],[37,-20],[19,-13],[-20,-14]]);
+    p('light',[[-32,-69],[-27,-81],[-15,-85],[-12,-67],[-21,-54],[-22,-28],[-31,-25]]);
+    p('dark',[[12,-83],[33,-70],[37,-48],[26,-38],[27,-17],[8,-14],[1,-34],[7,-61]]);
+    r('body',-44,-55,9,41);r('light',-43,-53,3,24);r('dark',38,-48,9,39);
+    for (const xx of [-43,-37,36,42]) {r('body',xx,-12,4,11);r('wet',xx,-3,3,2);}
+    // Small sunken head over layered folds; only a glimpse of bronze.
+    const lift=pose==='charged' ? -3 : pose==='strike' ? 5 : 0;
+    p('dark',[[-19,-101+lift],[-9,-108+lift],[9,-106+lift],[21,-95+lift],[17,-77+lift],[-12,-75+lift],[-23,-87+lift]]);
+    r('body',-16,-101+lift,24,12);r('light',-14,-101+lift,8,3);
+    r('outline',-10,-95+lift,22,4);r('eye',3,-95+lift,3,2);
+    for (let i=0;i<4;i++) {r('dark',-16+i*2,-80+i*7+lift,33-i*4,5);r('light',-14+i*2,-77+i*7+lift,26-i*4,2);}
+    r('bronze',8,-73+lift,5,3);r('bronze',11,-73+lift,2,6);
+    r('wet',-27,-77,3,7);r('wet',-35,-57,2,9);r('light',27,-58,2,8);
+    r('dark',-26,-20,12,18);r('body',-35,-5,19,5);r('body',14,-5,19,5);
+    if (pose==='charged') {r('bronze',-46,-63,3,19);r('bronze',47,-56,3,16);}
+  } else if (kind==='caller') {
+    r('outline',-29,0,64,4);
+    // Bent running legs and a narrow ribbed trunk below a forward-thrust neck.
+    p('outline',[[-24,1],[-20,-23],[-8,-43],[-16,-63],[-10,-80],[3,-84],[14,-77],[12,-51],[4,-37],[16,-17],[30,-7],[33,1],[15,1],[4,-13],[-4,-24],[-11,-16],[-11,1]]);
+    p('body',[[-7,-76],[3,-79],[8,-67],[3,-42],[-4,-40],[-10,-60]]);
+    for(let i=0;i<4;i++){r('light',-7,-69+i*6,9,2);r('dark',1,-68+i*6,5,3);}
+    p('light',[[-3,-40],[2,-37],[-13,-19],[-16,-3],[-21,-3],[-17,-24]]);
+    p('dark',[[2,-38],[8,-38],[13,-19],[27,-7],[24,-3],[9,-13]]);
+    p('body',[[-10,-65],[-15,-55],[-23,-33],[-28,-27],[-31,-31],[-27,-41],[-21,-67]]);
+    p('dark',[[10,-66],[17,-55],[16,-37],[24,-28],[20,-24],[11,-34],[10,-49]]);
+    const lift=pose==='signal' ? -7 : 0;
+    p('outline',[[0,-78],[2,-97+lift],[11,-106+lift],[29,-105+lift],[37,-97+lift],[31,-89+lift],[15,-89+lift],[9,-73]]);
+    p('body',[[4,-80],[6,-96+lift],[15,-101+lift],[30,-100+lift],[32,-96+lift],[13,-94+lift],[8,-77]]);
+    r('light',6,-91+lift,3,12);r('eye',25,-99+lift,3,2);r('bronze',6,-85,3,4);
+    if(pose==='signal') {r('outline',17,-91+lift,17,5);r('wet',19,-89+lift,12,2);r('light',38,-107,3,2);r('light',43,-102,4,2);}
+  } else {
+    r('outline',-47,0,94,4);
+    // Low arched back, plate-like folds and forelimbs planted as a barricade.
+    p('outline',[[-47,-6],[-49,-32],[-38,-53],[-27,-69],[-10,-79],[18,-77],[34,-66],[42,-48],[48,-23],[45,2],[29,2],[23,-13],[-21,-13],[-30,2],[-45,2]]);
+    p('body',[[-35,-40],[-27,-62],[-9,-72],[16,-70],[32,-57],[35,-34],[21,-17],[-19,-17]]);
+    for(let i=0;i<4;i++) {
+      r('dark',-24+i*12,-62-Math.min(i,2)*2,9,28);
+      r('light',-23+i*12,-63-Math.min(i,2)*2,7,4);
+    }
+    p('dark',[[-40,-36],[-29,-42],[-23,-20],[-30,-3],[-43,-3]]);
+    p('light',[[31,-44],[39,-38],[44,-17],[39,-4],[31,-7],[26,-23]]);
+    r('body',-42,-28,7,22);r('body',32,-25,7,18);
+    r('outline',-17,-53,35,25);r('body',-12,-52,25,15);
+    r('dark',-12,-42,25,6);r('eye',-5,-46,3,2);r('eye',7,-46,3,2);
+    r('bronze',12,-52,3,5);
+    for(const xx of [-42,-36,31,37]) {r('wet',xx,-4,4,2);}
+    if(pose==='guard') {r('wet',-46,-29,2,15);r('wet',45,-26,2,15);}
+  }
+  ctx.restore();
+}
+function drawBattleReceiver(x,y,pose) { drawGalleryBattleCreature('receiver',x,y,pose); }
+function drawBattleCaller(x,y,pose) { drawGalleryBattleCreature('caller',x,y,pose); }
+function drawBattleKeeper(x,y,pose) { drawGalleryBattleCreature('keeper',x,y,pose); }
 (function buildEnemySpriteDispatch() {
   const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
   def(drawBattleReceiver, 0, ['enemy_gallery_receiver']);
@@ -3860,9 +3921,9 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 // conservative visual bounds cover the existing idle animation of the eight
 // state-only templates; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
-  [drawBattleReceiver, Object.freeze([-48,-93,48,6])],
-  [drawBattleCaller, Object.freeze([-27,-81,33,6])],
-  [drawBattleKeeper, Object.freeze([-42,-81,42,6])],
+  [drawBattleReceiver, Object.freeze([-52,-112,54,4])],
+  [drawBattleCaller, Object.freeze([-31,-113,47,4])],
+  [drawBattleKeeper, Object.freeze([-49,-79,48,4])],
   [drawBattleWisp, Object.freeze([-40, -55, 40, 65])],
   [drawBattleBriarHound, Object.freeze([-56, -67, 44, 22])],
   [drawBattleSluiceSlime, Object.freeze([-48, -66, 48, 15])],
@@ -3924,6 +3985,9 @@ function formatFormationBattleEvent(event, playerName, labels) {
       event.outcome === 'escape' ? 'Escaped!' : 'Round complete.';
   }
   if (event.type === 'speed') return `${playerName}'s SPD is now ${event.after}.`;
+  if (event.type === 'signal_broken') return event.reason==='caller_dead'
+    ? `${name(event.callerId)} falls. The signal breaks; the heavy strike is stopped.`
+    : `${name(event.receiverId)} falls. The signal dies away.`;
   if (event.type === 'burn') return `Burn deals ${event.appliedDamage} damage to ${playerName}.`;
   if (event.type === 'round_end') return event.effectsBefore.evadeTurns>0 && event.effectsAfter.evadeTurns===0
     ? 'Bullet Time wears off.' : '';
@@ -3932,9 +3996,13 @@ function formatFormationBattleEvent(event, playerName, labels) {
     : event.after.bombFuse>0 ? `Bomb: ${event.after.bombFuse} turns remaining.` : 'The Bomb is spent.';
   const actor = name(event.actorId), target = name(event.targetId);
   if (!actor || !target) throw new Error('Invalid formation presentation event identity');
-  if (event.type === 'attack') {
+  if (event.type === 'signal') return `${actor} signals! ${name(event.receiverId)} prepares a heavy strike for next round. Bring down the Caller to interrupt it.`;
+  if (event.type === 'heavy_attack') return event.evaded ? `${target} evades ${actor}'s heavy strike!` :
+    `${event.critical ? 'Critical! ' : ''}${actor}'s heavy strike hits ${target} for ${event.appliedDamage} damage.`;
+  if (event.type === 'attack' || event.type === 'guarded_attack') {
     if (event.evaded) return `${target} evades ${actor}'s attack.`;
-    return `${event.critical ? 'Critical! ' : ''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
+    return `${event.critical ? 'Critical! ' : ''}${actor} attacks ${target} for ${event.appliedDamage} damage.`+
+      (event.type==='guarded_attack' ? ` ${name(event.keeperId)} halves the blow.` : '');
   }
   if (event.type === 'skip') return `${actor} cannot act.`;
   if (event.type === 'cancel') return `${actor}'s action is cancelled.`;
@@ -3951,6 +4019,10 @@ function formatFormationBattleEvent(event, playerName, labels) {
     if (event.effect === 'equip') return `${actor} equips ${event.itemId}.`;
     if (event.effect === 'evade') return `${prefix} Evasion boosted for ${event.after.effects.evadeTurns} turns.`;
     if (event.effect === 'bomb') return `${prefix} Bomb armed against ${target}.`;
+    if (event.effect === 'damage_all') return `${prefix} `+event.before.enemies.filter(e=>e.hp>0).map(e=>{
+      const after=event.after.enemies.find(m=>m.instanceId===e.instanceId);
+      return `${name(e.instanceId)} takes ${e.hp-after.hp} damage.`;
+    }).join(' ');
     if (event.effect === 'damage' || event.effect === 'reagent') {
       const before=event.before.enemies.find(e=>e.instanceId===event.targetId);
       const after=event.after.enemies.find(e=>e.instanceId===event.targetId);
@@ -3965,6 +4037,8 @@ function drawFormationCombat(view) {
   // Validate/format before the first canvas call. No live combatant, controller,
   // queue or outcome authority is read here. Historic views may be replayed.
   const layout = getFormationBattleLayout(view);
+  const signalActive=!!view.coordination?.strikeRound &&
+    [view.coordination.callerId,view.coordination.receiverId].every(id=>view.enemies.some(e=>e.instanceId===id && e.hp>0));
   const message = view.phase === 'awaiting_action' ? 'Choose an action.' :
     view.phase === 'item' ? 'Choose an item.' :
     view.phase === 'targeting' ? `${view.selectedItemId || (view.selectedCommand === 'observe' ? 'Observe' : 'Attack')}: select a target.` :
@@ -3981,7 +4055,12 @@ function drawFormationCombat(view) {
     ctx.globalAlpha = e.hp === 0 ? 0.25 : 1;
     // Dispatch dy is a singleton placement offset, not sprite geometry. Baseline
     // anchoring replaces that offset without changing the sprite drawing itself.
-    sprite.draw(0, 0);
+    const c=view.coordination, event=view.playbackFrame?.currentEvent;
+    const pose=e.hp===0 ? 'idle' : e.instanceId===c?.receiverId
+      ? event?.type==='heavy_attack' ? 'strike' : signalActive ? 'charged' : 'idle'
+      : e.instanceId===c?.callerId && signalActive ? 'signal'
+      : e.instanceId===c?.keeperId && view.enemies.some(m=>m.instanceId===c.receiverId && m.hp>0) ? 'guard' : 'idle';
+    sprite.draw(0, 0, pose);
     ctx.restore();
     ctx.fillStyle = '#08121e';ctx.fillRect(position.x, 12, position.width, 50);
     ctx.fillStyle = '#c0dcd0';ctx.font = 'bold 12px "Courier New", monospace';
@@ -3990,6 +4069,17 @@ function drawFormationCombat(view) {
     ctx.fillStyle = '#3a8a5a';ctx.fillRect(position.x + 4, 36, Math.round((position.width - 8) * e.hp / e.maxHp), 7);
     ctx.fillStyle = '#7ab898';ctx.font = '11px "Courier New", monospace';
     ctx.fillText(`${e.hp} / ${e.maxHp}`, position.x + 4, 57, position.width - 8);
+    if (e.hp>0 && c) {
+      const guarded=receiverGuardActive(c,view.enemies,e.instanceId);
+      const label=e.instanceId===c.receiverId
+        ? [guarded ? 'GUARDED' : '',signalActive ? 'HEAVY READY' : ''].filter(Boolean).join(' / ')
+        : pose==='signal' ? 'SIGNALLING' : pose==='guard' ? 'PROTECTING' : '';
+      if (label) {
+        ctx.fillStyle='#08121e';ctx.fillRect(position.x+2,214,position.width-4,10);
+        ctx.fillStyle=signalActive ? '#f0cc88' : '#9cc4bb';ctx.font='bold 9px "Courier New", monospace';
+        ctx.fillText(label,position.x+4,222,position.width-8);
+      }
+    }
     if (view.phase === 'targeting' && view.selectedTargetInstanceId === e.instanceId && e.hp > 0) {
       // A dark surround and pale solid cursor remain clear on either sky/sprite.
       const cx = position.x + position.width / 2;
@@ -3999,6 +4089,12 @@ function drawFormationCombat(view) {
     }
   });
   drawBattlePlayer(108, 254);
+  if (signalActive) {
+    ctx.fillStyle='#08121e';ctx.fillRect(171,242,327,35);
+    ctx.fillStyle='#f0cc88';ctx.font='bold 11px "Courier New", monospace';
+    ctx.fillText('A heavy strike is prepared.',180,255,310);
+    ctx.fillText('Stop the Caller to break the signal.',180,270,310);
+  }
   ctx.fillStyle = '#08121e';ctx.fillRect(8, 297, 496, 175);
   ctx.strokeStyle = '#5a8a9a';ctx.lineWidth = 2;ctx.strokeRect(9, 298, 494, 173);
   ctx.strokeStyle = '#2a4e5e';ctx.lineWidth = 1;ctx.strokeRect(13, 302, 486, 165);
