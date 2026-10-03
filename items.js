@@ -94,9 +94,11 @@ const ITEM_REGISTRY = {
   // keyItem so it lives in the Special Items notebook only; inspecting it there
   // opens the player warp menu (getSpecialItemInspectAction, quests.js).
   'Warp Stone':    { name: 'Warp Stone',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
-  // Mirethyst's Vault items (the Mirestone Blade chest was removed — the
-  // vault's mid-hall is reserved for a future secret crypt entrance)
+  // Fenna's reward for delivering a full case to her father (A Bottle for Her
+  // Father) — her late mother's hooded fen-cowl; practical reward-tier armor.
   'Fen Cowl':        { name: 'Fen Cowl',        type: 'armor',  bonus: 4, price: 240 },
+  // Mirethyst's Vault floor pickup (the Mirestone Blade chest was removed — the
+  // vault's mid-hall is reserved for a future secret crypt entrance)
   'Ember Root':      { name: 'Ember Root',       type: 'potion', heals: 15, causesMuddied: true, price: 20 },
   // Sex-specific fen reagents (folk toad-banes sold cheap in Drenwick). Used in
   // combat: a matched reagent instantly drops the target (see combat.js's item
@@ -114,8 +116,8 @@ const ITEM_REGISTRY = {
   // from the tavern's by-the-cup 'Mushroom Wine'); bought as a gift, not a heal item.
   'Bottle of Mushroom Wine': { name: 'Bottle of Mushroom Wine', type: 'accessory', bonus: 0, price: 12,  questItem: true },
   'Case of Mushroom Wine':   { name: 'Case of Mushroom Wine',   type: 'accessory', bonus: 0, price: 132, questItem: true },
-  // Fenna's reward for delivering a case rather than a bottle — real equipment,
-  // not a flavor-only key item, so it isn't questItem-flagged.
+  // Mirethyst's gift (her late husband's amethyst, said to ward the bog-curse) —
+  // real equipment, not a flavor-only key item, so it isn't questItem-flagged.
   'Amethyst Bangle': { name: 'Amethyst Bangle', type: 'accessory', bonus: 3, price: 800, preventsCursed: true },
   // One-off quest/event key items — questItem + keyItem so they live in the
   // Special Items notebook, never equippable, usable, or sold. (keyItem is

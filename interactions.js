@@ -1775,8 +1775,8 @@ function interactHouseInterior() {
                   ['\u201cA whole case. You didn\u2019t have to do that.\u201d',
                    '\u201cHe must have been so pleased.\u201d'],
                   ['\u201cI don\u2019t have much, but \u2014 I want you to have this.\u201d',
-                   'She presses a small amethyst bangle into your hand.',
-                   '\u201cIt was my mother\u2019s. I think she\u2019d rather it went somewhere it\u2019d actually be used.\u201d'],
+                   'She presses a folded garment of oiled reed-cloth into your hands \u2014 a hooded fen-cowl, dark and supple with age.',
+                   '\u201cIt was my mother\u2019s. Kept the weather off her for years. I think she\u2019d rather it went somewhere it\u2019d actually be used.\u201d'],
                 ]
               : [
                   ['She reads the note twice before she says anything.'],
@@ -1788,7 +1788,7 @@ function interactHouseInterior() {
             dialogue.callbacks = [function() {
               stats.items = stats.items.filter(i => i.name !== 'Thank-You Note');
               if (gaveCase) {
-                grantItem('Amethyst Bangle');
+                grantItem('Fen Cowl');
               } else {
                 stats.gold += 50;
               }

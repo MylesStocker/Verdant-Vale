@@ -102,11 +102,13 @@ const THORNMERE_WILDS_NPCS = [
   // ─── Mirethyst's Vault ────────────────────────────────────────────────────────
   // Old woman, commonborn, has lived in this sunken ruin for over twenty years.
   // Lonely and delighted by any visitor -- rambly, occasionally strange, forever
-  // circling back to offering tea. She gives the Fen Cowl (which she made herself
-  // years ago) only after the player accepts her tea and hears her out, as thanks
-  // for the company -- not a reward for "finding" her (the vault isn't hidden).
-  // Flow: intro ramble -> tea choice -> on accept, more ramble + the cowl grant;
-  // on decline, a wistful line and no cowl (re-offered on the next visit).
+  // circling back to offering tea. She gives her late husband's amethyst bangle
+  // (said to ward the bog-curse -- which is why, she half-believes, nothing has
+  // touched her in twenty-three years in this cursed vault) only after the player
+  // accepts her tea and hears her out, as thanks for the company -- not a reward
+  // for "finding" her (the vault isn't hidden). Flow: intro ramble -> tea choice
+  // -> on accept, more ramble + the bangle grant; on decline, a wistful line and
+  // no bangle (re-offered on the next visit).
   {
     id:         'mirethyst',
     name:       'Mirethyst',
@@ -169,16 +171,18 @@ const THORNMERE_WILDS_NPCS = [
                '\u2018I did see a light in the water once that had no business being there. But I\u2019d had the mushroom tea, so.\u2019'],
               ['She drains her cup and sits a moment, just glad of you.',
                '\u2018That\u2019s the first cup I\u2019ve poured for anyone in \u2014 no. I\u2019ll not count it. Counting it makes it sad.\u2019',
-               'She rises, stiffly, and takes a folded garment from the shelf beside the stove.'],
-              ['\u2018I made this back when my knees still carried me past the deep reeds. Oiled reed-cloth, dark as fen-weed, light as nothing at all.\u2019',
-               '\u2018Take it. Not for anything you did \u2014 for the company. For sitting, and drinking my dreadful tea, and letting an old woman talk.\u2019',
-               '\u2018That\u2019s worth more than a cowl. But the cowl is what I have to give.\u2019'],
+               'She rises, stiffly, and takes a small dented tin down from the shelf beside the stove.'],
+              ['Inside, wrapped in a scrap of reed-cloth, is a bangle of dark amethyst.',
+               '\u2018My husband\u2019s. The old folk swore amethyst keeps the bog-curse off you, and he swore by the old folk. I never settled on whether I believed it.\u2019',
+               '\u2018But I\u2019ve had twenty-three years down here in the wet and the hum, and nothing\u2019s laid a finger on me. So perhaps they were right. Perhaps I\u2019m only stubborn.\u2019'],
+              ['\u2018Take it. Not for anything you did \u2014 for the company. For sitting, and drinking my dreadful tea, and letting an old woman talk.\u2019',
+               '\u2018It does no good shut in a tin. Better on a wrist that\u2019s going somewhere. He\u2019d have liked that better than the tin, I think.\u2019'],
             ];
             dialogue.callbacks = [function() {
               window.mirethyst_rewarded = true;
-              grantItem('Fen Cowl');
+              grantItem('Amethyst Bangle');
               dialogue.name  = 'Mirethyst';
-              dialogue.pages = [['\u2018Fen Cowl\u2019  (DEF +4)  \u2014 added to items.']];
+              dialogue.pages = [['\u2018Amethyst Bangle\u2019  (SPD +3 \u00b7 wards curses)  \u2014 added to items.']];
               dialogue.open  = true;
               dialogue.page  = 0;
             }];

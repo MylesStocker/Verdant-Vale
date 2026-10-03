@@ -547,7 +547,7 @@ const CHEST_GEAR = [
   { name: 'Warden Blade',    type: 'weapon',    bonus: 10, price: 440, source: 'Reservoir eastern-shore balance puzzle' },
   { name: 'Fen Mask',        type: 'accessory', bonus: 5, price: 400, source: 'Sluice level-3 deep secret chest' },
   { name: 'Mirestone Blade', type: 'weapon',    bonus: 8, price: 200, source: "Mirethyst's Vault chest" },
-  { name: 'Fen Cowl',        type: 'armor',     bonus: 4, price: 240, source: "Mirethyst's Vault NPC gift" },
+  { name: 'Fen Cowl',        type: 'armor',     bonus: 4, price: 240, source: "Wine quest (A Bottle for Her Father), case-path reward" },
 ];
 for (const item of CHEST_GEAR) {
   console.log(`${item.name.padEnd(17)} ${item.type.padEnd(10)} ${String(item.bonus).padStart(5)}  free (${item.price}g shop-equivalent value)  ${item.source}`);
