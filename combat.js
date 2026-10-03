@@ -314,6 +314,7 @@ function itemStatLabel(item) {
   if (item.type === 'armor')     return `DEF +${item.bonus}`;
   if (item.type === 'shield')    return `DEF +${item.bonus}`;
   if (item.type === 'accessory' && item.evadeAll) return 'Evade 100%';
+  if (item.type === 'accessory' && item.preventsCursed) return `SPD +${item.bonus} · wards curses`;
   if (item.type === 'accessory') return `SPD +${item.bonus}`;
   if (item.type === 'potion')    return `HP  +${item.heals}`;
   return '';
