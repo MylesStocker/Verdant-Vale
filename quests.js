@@ -722,8 +722,13 @@ function getActiveQuestNotes() {
   } else if (mq4_available_day > 0 && !reservoir_quest_started) {
     notes.push({ title: 'Stood Down', body: "The rest week is over. Report to the supervisor at the Calwick office for the next assignment." });
   }
-  if (reservoir_quest_started) {
-    notes.push({ title: 'Reservoir Bed', body: "The drought has uncovered old stonework in the reservoir bed north of Drenwick. Investigate it — in daylight. A basin observer already went out and did not come back." });
+  if (reservoir_quest_started && !reservoir_report_filed) {
+    notes.push({
+      title: 'Reservoir Bed',
+      body: gallery_receiver_defeated
+        ? "Report what you found in the Sunken Gallery to the supervisor at the Calwick office."
+        : "The drought has uncovered old stonework in the reservoir bed north of Drenwick. Investigate it — in daylight. A basin observer already went out and did not come back.",
+    });
   }
   // Schilling
   if (schilling_quest_started && !schilling_returned) {
