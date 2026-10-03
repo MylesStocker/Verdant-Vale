@@ -2482,6 +2482,25 @@ function applyEnemyHitEffects(enemy) {
       combat.messageQueue.unshift(curseMsg);
     }
   }
+  // Void Walker \u2014 a void-touched entity that flings splinters of raw void. On a
+  // landed hit it has a chance to also hurl a Void Shard: a burst of extra damage
+  // on top of the blow. A player carrying a Void Shard of their own is warded \u2014
+  // the two resonate and the splinter is turned aside (no extra damage). The
+  // player's shard is NOT consumed; holding one is a passive ward.
+  if (enemy && enemy.id === 'enemy_void_walker' && Math.random() < 0.35) {
+    const warded = stats.items.some(it => it && it.name === 'Void Shard');
+    if (warded) {
+      combat.messageQueue.unshift('The Void Walker hurls a splinter of void \u2014 your own Void Shard flares and turns it aside. No damage.');
+    } else {
+      const shardDmg = 8 + Math.floor(Math.random() * 7);   // 8..14 bonus void damage
+      stats.hp = Math.max(0, stats.hp - shardDmg);
+      combat.messageQueue.unshift(`The Void Walker hurls a Void Shard \u2014 it bursts against you for ${shardDmg}!`);
+      if (stats.hp <= 0 && !combat.pendingDefeat) {
+        combat.messageQueue.push(`${stats.name} has fallen...`);
+        combat.pendingDefeat = true;
+      }
+    }
+  }
   // Generic dust/dazzle-on-hit (template `dazzleChance`) \u2014 currently the Lantern
   // Moth. Dazzled is a combat-only accuracy debuff: while it lasts, the player's
   // OWN attacks are more likely to miss (enemyEvades() docks the swing's effective
@@ -2781,7 +2800,7 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['It swings like it\u2019s compensating for something missing.', 'A full arm, maybe. Or the understanding that you\u2019re smaller than the threat register says.'] },
   ],
   enemy_void_walker: [
-    { lines: ['Devastating attack. Light armor.', 'Has a chance to curse you each time it lands a hit.', 'Kill it before it kills you.'] },
+    { lines: ['Devastating attack. Light armor.', 'It hurls shards of void on top of its blows, and may curse you when it lands a hit.', 'A Void Shard of your own wards off the splinters. Kill it before it kills you.'] },
     { lines: ['It doesn\u2019t leave footprints.', 'You\u2019ve been watching and you can\u2019t explain why.'] },
     { lines: ['The void-touch comes from whatever passes for its hands.', 'The curse isn\u2019t hostile, exactly. It\u2019s just what it carries.'] },
   ],
@@ -3182,7 +3201,7 @@ function handleCombatAction() {
         ['\u2026',
          'One huge eye. One tiny eye.',
          'Both looking at you.',
-         '\u201ccan you\u2026 can you hold me.\u201d'],
+         '\u201ccan you\u2026 can you let me hold you.\u201d'],
       ];
       dialogue.open = true;
       dialogue.page = 0;

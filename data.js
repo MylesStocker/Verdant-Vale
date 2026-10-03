@@ -168,9 +168,9 @@ window.CANAL_BANKS_ENEMY_TEMPLATES = CANAL_BANKS_ENEMY_TEMPLATES;
 // Enemies specific to the East Sluice — aquatic/canal-dwelling, mid-tier difficulty
 const SLUICE_ENEMY_TEMPLATES = [
   // Reed Grappler — armoured freshwater crustacean; tanky shell, slow but strong claws
-  { id: 'enemy_reed_grappler', name: 'Reed Grappler', hp: 34, maxHp: 34, atk:  9, def: 5, spd:  5, xp: 26, goldMin:  5, goldMax: 12 },
+  { id: 'enemy_reed_grappler', name: 'Reed Grappler', hp: 44, maxHp: 44, atk: 11, def: 7, spd:  5, xp: 26, goldMin:  5, goldMax: 12 },
   // Silt Lurker — eel-like ambush predator; erupts from canal mud, fast and vicious
-  { id: 'enemy_silt_lurker',   name: 'Silt Lurker',   hp: 22, maxHp: 22, atk: 13, def: 1, spd: 11, xp: 30, goldMin:  5, goldMax: 11 },
+  { id: 'enemy_silt_lurker',   name: 'Silt Lurker',   hp: 28, maxHp: 28, atk: 16, def: 1, spd: 11, xp: 30, goldMin:  5, goldMax: 11 },
 ];
 
 // East Sluice TOP floor (sluiceFloor 1) — deliberately as gentle as the Verdant
@@ -717,7 +717,7 @@ const BOSS = {
 
 const BOSS_TEMPLATE = {
   id: 'enemy_wrongteeth',
-  name: 'Wrongteeth', hp: 300, maxHp: 300, atk: 30, def: 6, spd: 6,
+  name: 'Wrongteeth', hp: 300, maxHp: 300, atk: 38, def: 6, spd: 6,
   xp: 250, goldMin: 50, goldMax: 80,
 };
 Object.defineProperty(BOSS_TEMPLATE, 'isBoss', {value:true});
