@@ -68,7 +68,7 @@ module.exports = {
     assert.equal(g.run('DEBUG_TILE_NAMES.includes("HILLS")'), true);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(HILLS)'), true);
     assert.equal(g.run('DEBUG_TILE_NAMES.length'), g.run('new Set(DEBUG_TILE_NAMES.map(function(n){return window[n];})).size'), 'all exported tile ids remain unique');
-    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER'&&n!=='ROCKS_IN_WATER'&&n!=='LIGHTHOUSE'&&n!=='HORROR_TENDON_DOWN'&&n!=='HORROR_TENDON_UP'&&n!=='HORROR_SECRET_ENTRANCE'&&n!=='HORROR_SECRET_EXIT';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
+    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER'&&n!=='ROCKS_IN_WATER'&&n!=='LIGHTHOUSE'&&n!=='HORROR_TENDON_DOWN'&&n!=='HORROR_TENDON_UP'&&n!=='HORROR_SECRET_ENTRANCE'&&n!=='HORROR_SECRET_EXIT'&&n!=='DEEP_REEDS';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
     assert.equal(sha256(oldIds), OLD_TILE_ID_HASH, 'every pre-HILLS tile constant retains its reviewed numeric id');
     const hillRender = J(`(function(){
       var oldFill=ctx.fillRect, oldRandom=Math.random, randomCalls=0;
@@ -192,13 +192,13 @@ module.exports = {
     assert.equal(/drawWestOutfallCulvertBody/.test(prod), false, 'former symbol removed');
     assert.ok(/drawWestOutfallCanalTunnelBody/.test(prod), 'new portal symbol is production-registered');
 
-    // Regional aggregates remain unchanged; five new discrete lighthouse maps
-    // legitimately increase only the global map-metadata total.
+    // Regional aggregates include the later Eastern Fens terrain skeleton;
+    // the outfall remains scenery-only within that expanded catalogue.
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:24,ALIGNS:50,BLOCKED:46});
-    assert.equal(audit.seamReadiness.edges.length,124);
-    assert.equal(g.run('Object.keys(MAP_METADATA).length'),132);
-    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),31);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length,31);
+    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:66,ALIGNS:96,BLOCKED:50});
+    assert.equal(audit.seamReadiness.edges.length,216);
+    assert.equal(g.run('Object.keys(MAP_METADATA).length'),155);
+    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),54);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length,54);
   },
 };

@@ -2,12 +2,12 @@
 // test/cases/58-regional-content-split.test.js
 //
 // Structural contract for the regional content split: maps, NPCs, and
-// interactions were moved out of maps.js / npcs.js / interactions.js into 17
+// interactions were moved out of maps.js / npcs.js / interactions.js into 18
 // regional files under content/, while MAP_REGISTRY, SIMPLE_NPCS / NPC_REGISTRY,
 // MAP_FEATURES, and the INTERACT_HANDLERS / OVERWORLD_INTERACT_HANDLERS tables
 // stay the authoritative aggregates. This test locks that layout in.
 //
-// It proves: all 17 files are in index.html in the correct order; the harness
+// It proves: all 18 files are in index.html in the correct order; the harness
 // loads them; every prescribed fragment exists; duplicate MAP_FEATURES ownership
 // throws; representative maps/NPCs/features/handlers resolve through the
 // aggregates; per-map NPC and feature order is preserved; removing a regional
@@ -19,7 +19,7 @@ const { createContext, scriptOrderFromIndexHtml } = require('../harness');
 
 const REGIONAL_FILES = [
   'content/maps/calwick-maps.js', 'content/maps/thornmere-wilds-maps.js', 'content/maps/drenwick-maps.js',
-  'content/maps/south-ruins-maps.js', 'content/maps/north-basin-maps.js',
+  'content/maps/south-ruins-maps.js', 'content/maps/north-basin-maps.js', 'content/maps/eastern-fens-maps.js',
   'content/npcs/calwick-npcs.js', 'content/npcs/thornmere-wilds-npcs.js', 'content/npcs/drenwick-town-npcs.js',
   'content/npcs/drenwick-interior-npcs.js', 'content/npcs/south-ruins-npcs.js', 'content/npcs/north-basin-npcs.js',
   'content/interactions/calwick-interactions.js', 'content/interactions/thornmere-wilds-interactions.js',
@@ -28,38 +28,38 @@ const REGIONAL_FILES = [
 ];
 
 function idx(list, f) { return list.indexOf(f); }
-function assertAll17Present(list) {
+function assertAll18Present(list) {
   for (const f of REGIONAL_FILES) if (!list.includes(f)) throw new Error('missing regional script: ' + f);
 }
 
 module.exports = {
-  name: 'Regional content split: 17 regional files + authoritative aggregates, behaviour-neutral',
+  name: 'Regional content split: 18 regional files + authoritative aggregates, behaviour-neutral',
   run() {
     const scripts = scriptOrderFromIndexHtml();
 
-    // 1. All 17 prescribed regional files appear in index.html.
-    assertAll17Present(scripts);
-    assert.equal(REGIONAL_FILES.length, 17);
+    // 1. All 18 prescribed regional files appear in index.html.
+    assertAll18Present(scripts);
+    assert.equal(REGIONAL_FILES.length, 18);
 
     // 2. Order relative to the three facades is correct.
     const mapsI = idx(scripts, 'maps.js'), npcsI = idx(scripts, 'npcs.js'), interI = idx(scripts, 'interactions.js');
-    for (const f of REGIONAL_FILES.slice(0, 5)) assert.ok(idx(scripts, f) < mapsI, f + ' must load before maps.js');
-    for (const f of REGIONAL_FILES.slice(5, 11)) { assert.ok(idx(scripts, f) > mapsI, f + ' after maps.js'); assert.ok(idx(scripts, f) < npcsI, f + ' before npcs.js'); }
-    for (const f of REGIONAL_FILES.slice(11, 17)) { assert.ok(idx(scripts, f) > npcsI, f + ' after npcs.js'); assert.ok(idx(scripts, f) < interI, f + ' before interactions.js'); }
+    for (const f of REGIONAL_FILES.slice(0, 6)) assert.ok(idx(scripts, f) < mapsI, f + ' must load before maps.js');
+    for (const f of REGIONAL_FILES.slice(6, 12)) { assert.ok(idx(scripts, f) > mapsI, f + ' after maps.js'); assert.ok(idx(scripts, f) < npcsI, f + ' before npcs.js'); }
+    for (const f of REGIONAL_FILES.slice(12, 18)) { assert.ok(idx(scripts, f) > npcsI, f + ' after npcs.js'); assert.ok(idx(scripts, f) < interI, f + ' before interactions.js'); }
     assert.equal(interI, scripts.length - 1, 'interactions.js must load last');
     // exact regional order within each group
-    const mapOrder = REGIONAL_FILES.slice(0, 5).map(f => idx(scripts, f));
+    const mapOrder = REGIONAL_FILES.slice(0, 6).map(f => idx(scripts, f));
     assert.deepEqual(mapOrder.slice().sort((a, b) => a - b), mapOrder, 'regional map files in the prescribed order');
 
     // 11 (structural-failure guard): removing one regional script fails the check.
-    assertAll17Present(scripts); // passes with all present
+    assertAll18Present(scripts); // passes with all present
     const minusOne = scripts.filter(f => f !== 'content/npcs/south-ruins-npcs.js');
-    assert.throws(() => assertAll17Present(minusOne), /missing regional script/, 'removing a regional script must fail the presence check');
+    assert.throws(() => assertAll18Present(minusOne), /missing regional script/, 'removing a regional script must fail the presence check');
 
     const g = createContext();
     g.press('Enter'); g.press('Enter');
 
-    // 3. The headless harness loads the same 17 files (it parses this same index.html).
+    // 3. The headless harness loads the same 18 files (it parses this same index.html).
     assert.deepEqual(scriptOrderFromIndexHtml().filter(f => REGIONAL_FILES.includes(f)).sort(), REGIONAL_FILES.slice().sort());
 
     // 4. Every prescribed regional fragment exists.
@@ -75,10 +75,12 @@ module.exports = {
     assert.equal(g.run('SIMPLE_NPCS.length === CALWICK_NPCS.length + THORNMERE_WILDS_NPCS.length + DRENWICK_TOWN_NPCS.length + DRENWICK_INTERIOR_NPCS.length + SOUTH_RUINS_NPCS.length + NORTH_BASIN_NPCS.length + SHARED_NPCS.length'), true);
     assert.equal(g.run('SIMPLE_NPCS[0] === CALWICK_NPCS[0]'), true, 'SIMPLE_NPCS begins with the Calwick array');
 
-    // 6. Representative map from all five map regions resolves through MAP_REGISTRY.
+    // 6. Representative map from all six map regions resolves through MAP_REGISTRY.
     const mapReg = { MAP: 'calwick', SLUICE_MAP: 'thornmere', DRENWICK_MARKET_MAP: 'drenwick', DUNGEON_MAP: 'south-ruins', SUNKEN_GALLERY_R2C2: 'north-basin' };
     for (const m of Object.keys(mapReg)) assert.equal(g.run('MAP_REGISTRY[mapRegistryId(' + m + ')].map === ' + m), true, m + ' resolves through MAP_REGISTRY');
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 132);
+    assert.equal(g.run("MAP_REGISTRY['EASTERN_FENS_VALMERE_ROAD_TURN_MAP'].map===mapRefForId('EASTERN_FENS_VALMERE_ROAD_TURN_MAP')"), true,
+      'aliasless Eastern Fens representative resolves through MAP_REGISTRY');
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 155);
 
     // 7. Representative NPC from all six NPC files resolves through SIMPLE_NPCS + NPC_REGISTRY.
     const npcReg = { aldric: 'CALWICK_NPCS', gorrit_wend: 'THORNMERE_WILDS_NPCS', tarvec: 'DRENWICK_TOWN_NPCS', harbormaster_interior: 'DRENWICK_INTERIOR_NPCS', wen: 'SOUTH_RUINS_NPCS', causeway_ferry_operator: 'NORTH_BASIN_NPCS' };

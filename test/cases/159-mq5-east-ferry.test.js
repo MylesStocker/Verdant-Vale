@@ -11,7 +11,7 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 
 const WEST = 'EAST_CAUSEWAY_MAP';
 const EAST = 'EASTERN_BANK_MAP';
-const EAST_FP = '9a084b81eaaad06219427a2d001c2b3e681360a658220ff094bd5c30672e51a5';
+const EAST_FP = '26185a50057fb3e71f94aeb970238ee8e1b99663038e3572a81e53c51358c260';
 const sha256 = (text) => crypto.createHash('sha256').update(text).digest('hex');
 
 function context() {
@@ -175,14 +175,18 @@ module.exports = {
     assert.deepEqual(J('JSON.stringify({map:mapIdForRef(activeMap),x:player.x,y:player.y,mq:MainQuest,flag:sera_liora_opening_complete})'), beforeDecline);
 
     // Crossing uses transitionToLocation and lands on a walkable eastern-bank
-    // road cell. The fully flooded west edge provides no ordinary seam/bypass.
+    // road cell. The fully flooded west edge provides no ordinary seam/bypass;
+    // the east edge is the legitimate onward route added beyond the ferry gate.
     g.run('interactCausewayFerry();finishDialogue();');
     g.press('Enter');
     assert.equal(currentMapId(g), EAST);
     assert.equal(g.run('player.x'), 5.5 * g.run('TILE'));
     assert.equal(g.run('player.y'), 8.5 * g.run('TILE'));
     assert.equal(g.run("isTileWalkable(MAP_CATALOG['EASTERN_BANK_MAP'].map[8][5])"), true);
-    assert.equal(g.run("typeof EDGE_TRANSITIONS['EASTERN_BANK_MAP']"), 'undefined');
+    assert.equal(g.run("typeof EDGE_TRANSITIONS['EASTERN_BANK_MAP'].west"), 'undefined');
+    assert.deepEqual(J("JSON.stringify(EDGE_TRANSITIONS['EASTERN_BANK_MAP'].east)"), [
+      { targetMap: 'EASTERN_FENS_EMBANKMENT_W_MAP', targetEdge: 'west', sourceRange: [7, 9] },
+    ]);
     assert.equal(g.run("MAP_CATALOG['EASTERN_BANK_MAP'].map.every(function(row){return row[0]===WATER;})"), true);
     assert.deepEqual(J("JSON.stringify((function(){var n=SIMPLE_NPCS.find(function(x){return x.id==='causeway_ferry_operator';});return {map:n.map,physical:n.physicalMapId};})())"),
       { map: 'eastern_bank', physical: EAST });

@@ -553,8 +553,8 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
   // The first threshold beyond the broken causeway, reached only by the MQ5
   // official ferry. The causeway-facing west edge remains WATER from top to
   // bottom, so ordinary movement cannot cross the gap in either direction.
-  // A planked landing meets a maintained road that continues to the east map
-  // boundary; the absent onward chunk remains an ordinary regional BORDER.
+  // A planked landing meets a maintained road that continues through a broad
+  // three-tile seam into the eastern-fens route.
   { mapId: 'EASTERN_BANK_MAP', regionId: 'overworld', chunkX: 5, chunkY: 2, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  1,  1,  1,  1,  1,  1,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  lake edge into wooded north boundary
@@ -564,9 +564,9 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  4  broad verge
       [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  5
       [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0, 89,  0, 89,  0,  0,  3],  //  6  maintained roadside posts
-      [  1,  1,  1,  1, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  7  landing shoulder
+      [  1,  1,  1,  1, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23],  //  7  landing shoulder and east seam
       [  1,  1,  1,  1, 58,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2],  //  8  ferry landing and eastbound road
-      [  1,  1,  1,  1, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  landing shoulder
+      [  1,  1,  1,  1, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23],  //  9  landing shoulder and east seam
       [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0, 89,  0, 89,  0,  0,  3],  // 10  maintained roadside posts
       [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 11
       [  1,  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  3,  3],  // 12  shore bends back
@@ -576,7 +576,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Bank', region: 'Eastern Reaches', contentKey: 'eastern_bank',
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: false, allowSave: true,
-    notes: 'MQ5 threshold beyond the washed-out causeway. Reached and left only through the authorized cable ferry; WATER blocks the full west adjacency, while the maintained PATH visibly continues east to an ordinary unfinished regional border. No encounters, items, shops, dungeon, or onward quest content.' },
+    notes: 'MQ5 threshold beyond the washed-out causeway. Reached from the west only through the authorized cable ferry; WATER blocks the full causeway adjacency, while the maintained PATH now opens east into the long eastern-fens terrain route. No encounters, items, shops, dungeon, or additional quest progression.' },
   { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)

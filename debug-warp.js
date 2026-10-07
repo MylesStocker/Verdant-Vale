@@ -37,6 +37,19 @@
 // Deterministic category order (requirement: outdoor first).
 const DEBUG_WARP_CATEGORY_ORDER = ['outdoor', 'town', 'interior', 'dungeon', 'special'];
 
+// Outdoor destinations are normally derived directly from MAP_CATALOG. These
+// sparse overrides improve a debug destination whose useful arrival point is
+// more specific than the generic map centre, without creating a duplicate menu
+// entry or coupling production map data to debug tooling.
+const DEBUG_OUTDOOR_WARP_OVERRIDES = {
+  EASTERN_BANK_MAP: {
+    label: 'East Causeway — Eastern Bank',
+    defaultCol: 5,
+    defaultRow: 8,
+    facing: 'right',
+  },
+};
+
 // ── Authored non-outdoor destinations ────────────────────────────────────────
 // Each: { id, label, category, mapId, state, defaultCol, defaultRow, facing }.
 // `state` is the exact set of non-neutral LOCATION_STATE_BINDINGS overrides the
@@ -245,9 +258,13 @@ function _deriveOutdoorDebugDestinations() {
   for (const id of Object.keys(MAP_CATALOG)) {
     const e = MAP_CATALOG[id];
     if (!e || e.type !== 'outdoor' || !Array.isArray(e.map) || !Array.isArray(e.map[0])) continue;
+    const override = DEBUG_OUTDOOR_WARP_OVERRIDES[id] || {};
     const dest = {
-      id: 'outdoor:' + id, label: e.displayName || id, category: 'outdoor', mapId: id,
-      state: {}, defaultCol: Math.floor(e.map[0].length / 2), defaultRow: Math.floor(e.map.length / 2), facing: 'down',
+      id: 'outdoor:' + id, label: override.label || e.displayName || id, category: 'outdoor', mapId: id,
+      state: {},
+      defaultCol: Number.isInteger(override.defaultCol) ? override.defaultCol : Math.floor(e.map[0].length / 2),
+      defaultRow: Number.isInteger(override.defaultRow) ? override.defaultRow : Math.floor(e.map.length / 2),
+      facing: override.facing || 'down',
     };
     // A scenery-only chunk is LISTED (so it's visible/discoverable) but DISABLED:
     // the player can never be placed there. Uses the shared placement capability, not
@@ -390,6 +407,7 @@ function debugWarpToDestination(destinationId, col, row) {
 
 if (typeof window !== 'undefined') {
   window.DEBUG_WARP_CATEGORY_ORDER    = DEBUG_WARP_CATEGORY_ORDER;
+  window.DEBUG_OUTDOOR_WARP_OVERRIDES = DEBUG_OUTDOOR_WARP_OVERRIDES;
   window.DEBUG_WARP_DESTINATIONS_AUTHORED = DEBUG_WARP_DESTINATIONS_AUTHORED;
   window.getDebugWarpDestinations     = getDebugWarpDestinations;
   window.getPlayerWarpDestinations    = getPlayerWarpDestinations;

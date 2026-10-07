@@ -15,17 +15,29 @@ const { createContext } = require('../harness');
 const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
+const EASTERN_FENS = [
+  'EASTERN_FENS_EMBANKMENT_W_MAP', 'EASTERN_FENS_EMBANKMENT_E_MAP',
+  'EASTERN_FENS_REEDBELT_N_MAP', 'EASTERN_FENS_REEDBELT_E_MAP', 'EASTERN_FENS_REEDBELT_S_MAP',
+  'EASTERN_FENS_DRY_RISE_APPROACH_MAP', 'EASTERN_FENS_DRY_RISE_MAP',
+  'EASTERN_FENS_DRAINAGE_SW_MAP', 'EASTERN_FENS_DRAINAGE_NW_MAP',
+  'EASTERN_FENS_WORKED_REEDS_MAP', 'EASTERN_FENS_MANAGED_REEDS_MAP',
+  'EASTERN_FENS_TRAVELLERS_RISE_MAP', 'EASTERN_FENS_WIDE_WATER_MAP',
+  'EASTERN_FENS_CHANNEL_APPROACH_W_MAP', 'EASTERN_FENS_CHANNEL_APPROACH_E_MAP', 'EASTERN_FENS_VALMERE_ROAD_TURN_MAP',
+  'EASTERN_FENS_CHANNEL_ROAD_S_MAP', 'EASTERN_FENS_CHANNEL_ROAD_MID_MAP', 'EASTERN_FENS_CHANNEL_ROAD_N_MAP',
+  'EASTERN_FENS_VALMERE_REVEAL_MAP', 'EASTERN_FENS_VALMERE_SHORE_W_MAP', 'EASTERN_FENS_VALMERE_SHORE_E_MAP',
+  'EASTERN_FENS_PORT_THRESHOLD_MAP',
+];
 const EXPECTED = ['MAP', 'MAP2', 'MAP3', 'MAP4', 'MAP5', 'MAP_N1', 'MAP_N2', 'RODDON_WAY_MAP',
   'MAP3_N1', 'MAP3_N2', 'DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_C_MAP',
   'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_NW_MAP', 'NORTH_BASIN_N_MAP',
-  'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP'];
+  'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', ...EASTERN_FENS];
 
 // The 15 ORIGINAL placed maps carry a derived compat alias (const/window) in data.js
 // for legacy consumers. Newer chunks, including every scenery-only addition, were
 // added after that pattern and deliberately have NO alias/standalone var/window export
 // (new code uses mapRefForId()/the catalog helpers).
 // Alias-specific checks use ALIASED.
-const ALIASLESS = ['DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_MIREWOOD_MAP'];
+const ALIASLESS = ['DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_MIREWOOD_MAP', ...EASTERN_FENS];
 const ALIASED = EXPECTED.filter((id) => !ALIASLESS.includes(id));
 
 // Which fragment (and therefore which geographic file) authors each chunk.
@@ -36,16 +48,17 @@ const FRAGMENTS = {
   NORTHERN_ROAD_REGIONAL_CHUNK_DEFINITIONS: ['MAP_N1', 'MAP_N2'],
   NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS: ['NORTH_BASIN_S_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_C_MAP',
     'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_NW_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP'],
+  EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS: EASTERN_FENS,
 };
 
 module.exports = {
-  name: 'Regional chunk authoring: distributed fragments → resolved catalog, all 31 grids inline',
+  name: 'Regional chunk authoring: distributed fragments → resolved catalog, all 54 grids inline',
   run() {
     const g = createContext();
     g.press('Enter'); g.press('Enter');
     const J = (e) => JSON.parse(g.run(e));
 
-    // ── 1. Authored fragments collectively contain all 31 maps exactly once ───
+    // ── 1. Authored fragments collectively contain all 54 maps exactly once ───
     const seenAcross = new Map(); // mapId -> fragment
     for (const [frag, ids] of Object.entries(FRAGMENTS)) {
       assert.equal(g.run(`Array.isArray(${frag})`), true, `${frag} is an authored array`);
@@ -57,15 +70,15 @@ module.exports = {
         seenAcross.set(id, frag);
       }
     }
-    assert.deepEqual([...seenAcross.keys()].sort(), [...EXPECTED].sort(), 'the fragments collectively author exactly the 31 placed maps');
+    assert.deepEqual([...seenAcross.keys()].sort(), [...EXPECTED].sort(), 'the fragments collectively author exactly the 54 placed maps');
     // merged definition list = the union, deduped, and coordinates unique
-    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.length'), 31, 'the merged _REGIONAL_CHUNK_DEFINITIONS has 31 definitions');
+    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.length'), 54, 'the merged _REGIONAL_CHUNK_DEFINITIONS has 54 definitions');
     const defCoords = J("JSON.stringify(_REGIONAL_CHUNK_DEFINITIONS.map(function(d){return d.regionId+':'+d.chunkX+','+d.chunkY;}))");
-    assert.equal(new Set(defCoords).size, 31, 'no chunk coordinate is authored in more than one fragment');
+    assert.equal(new Set(defCoords).size, 54, 'no chunk coordinate is authored in more than one fragment');
 
-    // ── 3. The resolved runtime catalog has exactly the same 31 entries ───────
+    // ── 3. The resolved runtime catalog has exactly the same 54 entries ───────
     const ids = J('JSON.stringify(Object.keys(REGIONAL_CHUNK_CATALOG))');
-    assert.equal(ids.length, 31, 'exactly 31 resolved chunk records');
+    assert.equal(ids.length, 54, 'exactly 54 resolved chunk records');
     assert.deepEqual([...ids].sort(), [...EXPECTED].sort(), 'the resolved catalog is exactly the placed regional maps');
     assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).every(function(k){return REGIONAL_CHUNK_CATALOG[k].mapId===k;})'), true, 'each record.mapId equals its key');
     assert.equal(g.run('Object.values(REGIONAL_CHUNK_CATALOG).every(function(r){return r.map.length===15 && r.map.every(function(row){return row.length===16;});})'), true, 'every chunk grid is 15×16');
@@ -87,8 +100,8 @@ module.exports = {
       const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
       assert.deepEqual([p.chunkX, p.chunkY, p.regionId], [rec.cx, rec.cy, rec.rid], `${id}: REGIONAL_LAYOUT placement derives`);
     }
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 31, 'REGIONAL_LAYOUT has 31 placements');
-    assert.equal(g.run('Object.keys(OUTDOOR_CONTENT_KEYS).length'), 31, 'OUTDOOR_CONTENT_KEYS has 31 entries');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 54, 'REGIONAL_LAYOUT has 54 placements');
+    assert.equal(g.run('Object.keys(OUTDOOR_CONTENT_KEYS).length'), 54, 'OUTDOOR_CONTENT_KEYS has 54 entries');
 
     // ── 5. Reverse map-ref → id and chunk-coordinate lookups remain correct ───
     for (const id of EXPECTED) {
@@ -133,6 +146,7 @@ module.exports = {
       NORTH_BASIN_NW2_MAP: 'content/maps/north-basin-maps.js',
       NORTH_BASIN_W2_MAP: 'content/maps/north-basin-maps.js',
       NORTH_BASIN_NW_MAP: 'content/maps/north-basin-maps.js',
+      ...Object.fromEntries(EASTERN_FENS.map((id) => [id, 'content/maps/eastern-fens-maps.js'])),
     };
     const readSrc = (rel) => fs.readFileSync(path.join(__dirname, '../../', rel), 'utf8');
     const curData = readSrc('data.js');
@@ -166,7 +180,7 @@ module.exports = {
     assert.equal(GRID_FP.serialization, 'sha256hex(JSON.stringify(map))', 'fixture documents its canonical serialization');
     const fpVals = Object.values(GRID_FP.fingerprints);
     assert.equal(new Set(fpVals).size, fpVals.length, 'all stored grid fingerprints are unique (no two grids are byte-identical)');
-    assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the 31 placed regional grids');
+    assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the 54 placed regional grids');
     for (const id of EXPECTED) {
       const got = sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`));
       assert.equal(got, GRID_FP.fingerprints[id], `${id}: grid matches its stable pre-migration fingerprint (no tile-number changes)`);
@@ -194,7 +208,7 @@ module.exports = {
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'v4 regional load restores MAP5');
 
     // ── 9,11,13 of spec. Behaviour parity across the migrated maps ────────────
-    assert.equal(g.run('continuousSeamEntries().length'), 70, '68 eligible directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length'), 116, '116 eligible directed segment entries');
     for (const id of EXPECTED) {
       // The scenery-only West Outfall is a DISABLED debug destination (no player
       // access), so it can't be warped to — its geographic pool still resolves below.

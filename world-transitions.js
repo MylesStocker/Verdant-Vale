@@ -1585,6 +1585,106 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'east', sourceRange: [6, 10] },
     ],
   },
+  // MQ5 eastward terrain route and northbound Valmere hook. These are ordinary reciprocal structural seams;
+  // access remains gated by the ferry because East Causeway has no movement seam
+  // into Eastern Bank. Three-cell mouths give the player a safe continuous handoff
+  // while the one-tile road remains visually legible at each turn.
+  EASTERN_BANK_MAP: {
+    east: [
+      { targetMap: 'EASTERN_FENS_EMBANKMENT_W_MAP', targetEdge: 'west', sourceRange: [7, 9] },
+    ],
+  },
+  EASTERN_FENS_EMBANKMENT_W_MAP: {
+    west: [{ targetMap: 'EASTERN_BANK_MAP', targetEdge: 'east', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'EASTERN_FENS_EMBANKMENT_E_MAP', targetEdge: 'west', sourceRange: [2, 4] }],
+  },
+  EASTERN_FENS_EMBANKMENT_E_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_EMBANKMENT_W_MAP', targetEdge: 'east', sourceRange: [2, 4] }],
+    north: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'south', sourceRange: [11, 13] }],
+  },
+  EASTERN_FENS_REEDBELT_N_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_EMBANKMENT_E_MAP', targetEdge: 'north', sourceRange: [11, 13] }],
+    east: [{ targetMap: 'EASTERN_FENS_REEDBELT_E_MAP', targetEdge: 'west', sourceRange: [9, 11] }],
+  },
+  EASTERN_FENS_REEDBELT_E_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
+    south: [{ targetMap: 'EASTERN_FENS_REEDBELT_S_MAP', targetEdge: 'north', sourceRange: [3, 5] }],
+  },
+  EASTERN_FENS_REEDBELT_S_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_REEDBELT_E_MAP', targetEdge: 'south', sourceRange: [3, 5] }],
+    east: [{ targetMap: 'EASTERN_FENS_DRY_RISE_APPROACH_MAP', targetEdge: 'west', sourceRange: [5, 7] }],
+  },
+  EASTERN_FENS_DRY_RISE_APPROACH_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_REEDBELT_S_MAP', targetEdge: 'east', sourceRange: [5, 7] }],
+    south: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'north', sourceRange: [11, 13] }],
+  },
+  EASTERN_FENS_DRY_RISE_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_DRY_RISE_APPROACH_MAP', targetEdge: 'south', sourceRange: [11, 13] }],
+    east: [{ targetMap: 'EASTERN_FENS_DRAINAGE_SW_MAP', targetEdge: 'west', sourceRange: [10, 12] }],
+  },
+  EASTERN_FENS_DRAINAGE_SW_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'east', sourceRange: [10, 12] }],
+    north: [{ targetMap: 'EASTERN_FENS_DRAINAGE_NW_MAP', targetEdge: 'south', sourceRange: [2, 4] }],
+  },
+  EASTERN_FENS_DRAINAGE_NW_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_DRAINAGE_SW_MAP', targetEdge: 'north', sourceRange: [2, 4] }],
+    east: [{ targetMap: 'EASTERN_FENS_WORKED_REEDS_MAP', targetEdge: 'west', sourceRange: [10, 12] }],
+  },
+  EASTERN_FENS_WORKED_REEDS_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_DRAINAGE_NW_MAP', targetEdge: 'east', sourceRange: [10, 12] }],
+    east: [{ targetMap: 'EASTERN_FENS_MANAGED_REEDS_MAP', targetEdge: 'west', sourceRange: [1, 3] }],
+  },
+  EASTERN_FENS_MANAGED_REEDS_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_WORKED_REEDS_MAP', targetEdge: 'east', sourceRange: [1, 3] }],
+    south: [{ targetMap: 'EASTERN_FENS_TRAVELLERS_RISE_MAP', targetEdge: 'north', sourceRange: [9, 11] }],
+  },
+  EASTERN_FENS_TRAVELLERS_RISE_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_MANAGED_REEDS_MAP', targetEdge: 'south', sourceRange: [9, 11] }],
+    east: [{ targetMap: 'EASTERN_FENS_WIDE_WATER_MAP', targetEdge: 'west', sourceRange: [7, 9] }],
+  },
+  EASTERN_FENS_WIDE_WATER_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_TRAVELLERS_RISE_MAP', targetEdge: 'east', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_CHANNEL_APPROACH_W_MAP', targetEdge: 'north', sourceRange: [3, 5] }],
+  },
+  EASTERN_FENS_CHANNEL_APPROACH_W_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_WIDE_WATER_MAP', targetEdge: 'south', sourceRange: [3, 5] }],
+    east: [{ targetMap: 'EASTERN_FENS_CHANNEL_APPROACH_E_MAP', targetEdge: 'west', sourceRange: [11, 13] }],
+  },
+  EASTERN_FENS_CHANNEL_APPROACH_E_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_CHANNEL_APPROACH_W_MAP', targetEdge: 'east', sourceRange: [11, 13] }],
+    east: [{ targetMap: 'EASTERN_FENS_VALMERE_ROAD_TURN_MAP', targetEdge: 'west', sourceRange: [4, 6] }],
+  },
+  EASTERN_FENS_VALMERE_ROAD_TURN_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_CHANNEL_APPROACH_E_MAP', targetEdge: 'east', sourceRange: [4, 6] }],
+    north: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_S_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+  },
+  EASTERN_FENS_CHANNEL_ROAD_S_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_VALMERE_ROAD_TURN_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    north: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_MID_MAP', targetEdge: 'south', sourceRange: [4, 6] }],
+  },
+  EASTERN_FENS_CHANNEL_ROAD_MID_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_S_MAP', targetEdge: 'north', sourceRange: [4, 6] }],
+    north: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_N_MAP', targetEdge: 'south', sourceRange: [9, 11] }],
+  },
+  EASTERN_FENS_CHANNEL_ROAD_N_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_MID_MAP', targetEdge: 'north', sourceRange: [9, 11] }],
+    north: [{ targetMap: 'EASTERN_FENS_VALMERE_REVEAL_MAP', targetEdge: 'south', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_VALMERE_REVEAL_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_N_MAP', targetEdge: 'north', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_W_MAP', targetEdge: 'west', sourceRange: [9, 11] }],
+  },
+  EASTERN_FENS_VALMERE_SHORE_W_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_VALMERE_REVEAL_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
+    east: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_E_MAP', targetEdge: 'west', sourceRange: [9, 11] }],
+  },
+  EASTERN_FENS_VALMERE_SHORE_E_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_W_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
+    east: [{ targetMap: 'EASTERN_FENS_PORT_THRESHOLD_MAP', targetEdge: 'west', sourceRange: [9, 11] }],
+  },
+  EASTERN_FENS_PORT_THRESHOLD_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_E_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
+  },
   DRENWICK_EAST_CANAL_MAP: {
     north: [
       { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'south', sourceRange: [1, 14] },

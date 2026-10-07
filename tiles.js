@@ -199,6 +199,13 @@ const HORROR_TENDON_UP   = 124; // lower raw chamber → back up the tendon to t
 const HORROR_SECRET_ENTRANCE = 125; // on DUNGEON8_EAST_LOWER2_MAP (r8 c1): looks like horror wall; enters the hidden vault
 const HORROR_SECRET_EXIT     = 126; // on DUNGEON8_EAST_SECRET_MAP: the way back out to the East Deeper Chamber
 
+// ─── Eastern Fens ────────────────────────────────────────────────────────────
+// Dense, chest-high reed growth. Unlike ordinary REEDS this is impassable: it
+// marks the saturated, unmanaged reed mass beside the raised eastern road and
+// lets water/reed country constrain the route without pretending every barrier
+// is open water or woodland.
+const DEEP_REEDS = 127;
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -328,6 +335,7 @@ const WALKABLE = [
   /* 124 HORROR_TENDON_UP      */ true,
   /* 125 HORROR_SECRET_ENTRANCE*/ true,
   /* 126 HORROR_SECRET_EXIT    */ true,
+  /* 127 DEEP_REEDS            */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -455,6 +463,7 @@ window.HILLS                  = HILLS;
 window.TREE_IN_WATER          = TREE_IN_WATER;
 window.ROCKS_IN_WATER         = ROCKS_IN_WATER;
 window.LIGHTHOUSE             = LIGHTHOUSE;
+window.DEEP_REEDS             = DEEP_REEDS;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -477,7 +486,7 @@ const DEBUG_TILE_NAMES = [
   'DREAM_EDGE',  'DREAM_FLOOR',
   'CHAMBER_DOOR',  'CHAMBER_FLOOR',  'CHAMBER_WALL',  'CHAMBER_EXIT',
   'SUNKEN_STAIR',  'GALLERY_FLOOR',  'GALLERY_WALL',  'GALLERY_STAIR_UP',  'TEMPLE_SHALLOWS',  'TEMPLE_CARVING',  'RODDON_SILT',
-  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',  'HILLS',  'TREE_IN_WATER',  'ROCKS_IN_WATER',  'LIGHTHOUSE',
+  'CHARTER_STONE',  'CISTERN',  'WATER_GAUGE',  'REED_RACK',  'APT_NOTICE',  'HILLS',  'TREE_IN_WATER',  'ROCKS_IN_WATER',  'LIGHTHOUSE',  'DEEP_REEDS',
   'DUNGEON8_WEST_RET',  'EAST_ENTRANCE',  'EAST_EXIT',  'EXPOSED_STONE',  'FALSE_WALL',  'FARM_HOUSE',
   'FEN_N_ENTRANCE',  'FEN_N_EXIT',  'FEN_N2_ENTRANCE',  'FEN_N2_EXIT',  'FENCE_POST',  'GRASS',
   'GUARD_POST',  'HOUSE_DOOR',  'INN_DOOR',  'INTERIOR_EXIT',  'INTERIOR_FALSE_WALL',  'INTERIOR_FLOOR',
@@ -561,6 +570,11 @@ const TILE_PROPERTIES = {
     id: LIGHTHOUSE, name: 'Lighthouse', debugName: 'LIGHTHOUSE', walkable: WALKABLE[LIGHTHOUSE],
     category: 'decorative_blocker', tags: ['outdoor', 'building', 'landmark', 'blocker'], encounterEligible: false, isDecorative: true,
     notes: 'Tile 122. A blocking lighthouse landmark on the Thornmere Shallows headland. Its west-side door enters a discrete interior through the interaction dispatcher; the regional tile itself is not a transition.',
+  },
+  [DEEP_REEDS]: {
+    id: DEEP_REEDS, name: 'Deep Reeds', debugName: 'DEEP_REEDS', walkable: WALKABLE[DEEP_REEDS],
+    category: 'natural_blocker', tags: ['outdoor', 'wetland', 'vegetation', 'blocker'], encounterEligible: false,
+    notes: 'Tile 127. Dense, saturated reed growth that blocks ordinary movement; used to shape the raised eastern-fens route.',
   },
   [REEDS]: {
     id: REEDS, name: 'Reeds', debugName: 'REEDS', walkable: WALKABLE[REEDS],

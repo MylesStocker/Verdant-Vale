@@ -28,6 +28,29 @@
     "NORTH_BASIN_SE_MAP",
     "EAST_CAUSEWAY_MAP",
     "EASTERN_BANK_MAP",
+    "EASTERN_FENS_EMBANKMENT_W_MAP",
+    "EASTERN_FENS_EMBANKMENT_E_MAP",
+    "EASTERN_FENS_REEDBELT_N_MAP",
+    "EASTERN_FENS_REEDBELT_E_MAP",
+    "EASTERN_FENS_REEDBELT_S_MAP",
+    "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+    "EASTERN_FENS_DRY_RISE_MAP",
+    "EASTERN_FENS_DRAINAGE_SW_MAP",
+    "EASTERN_FENS_DRAINAGE_NW_MAP",
+    "EASTERN_FENS_WORKED_REEDS_MAP",
+    "EASTERN_FENS_MANAGED_REEDS_MAP",
+    "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+    "EASTERN_FENS_WIDE_WATER_MAP",
+    "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+    "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+    "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+    "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+    "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+    "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+    "EASTERN_FENS_VALMERE_REVEAL_MAP",
+    "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+    "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+    "EASTERN_FENS_PORT_THRESHOLD_MAP",
     "NORTH_BASIN_C_MAP",
     "NORTH_BASIN_MIREWOOD_MAP",
     "NORTH_BASIN_SW_MAP",
@@ -298,6 +321,144 @@
     },
     {
       "id": "EASTERN_BANK_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_EMBANKMENT_W_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_EMBANKMENT_E_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_REEDBELT_N_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_REEDBELT_E_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_REEDBELT_S_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_DRY_RISE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_DRAINAGE_SW_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_DRAINAGE_NW_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_WORKED_REEDS_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_MANAGED_REEDS_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_WIDE_WATER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_FENS_PORT_THRESHOLD_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -9406,6 +9567,650 @@
       "allOk": true
     },
     {
+      "srcMap": "EASTERN_BANK_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        9
+      ],
+      "targetMap": "EASTERN_FENS_EMBANKMENT_W_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_EMBANKMENT_W_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        9
+      ],
+      "targetMap": "EASTERN_BANK_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_EMBANKMENT_W_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "EASTERN_FENS_EMBANKMENT_E_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_EMBANKMENT_E_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "EASTERN_FENS_EMBANKMENT_W_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_EMBANKMENT_E_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        11,
+        13
+      ],
+      "targetMap": "EASTERN_FENS_REEDBELT_N_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_REEDBELT_N_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        11,
+        13
+      ],
+      "targetMap": "EASTERN_FENS_EMBANKMENT_E_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_REEDBELT_N_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_REEDBELT_E_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_REEDBELT_E_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_REEDBELT_N_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_REEDBELT_E_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        3,
+        5
+      ],
+      "targetMap": "EASTERN_FENS_REEDBELT_S_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_REEDBELT_S_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        3,
+        5
+      ],
+      "targetMap": "EASTERN_FENS_REEDBELT_E_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_REEDBELT_S_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        5,
+        7
+      ],
+      "targetMap": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        5,
+        7
+      ],
+      "targetMap": "EASTERN_FENS_REEDBELT_S_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        11,
+        13
+      ],
+      "targetMap": "EASTERN_FENS_DRY_RISE_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRY_RISE_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        11,
+        13
+      ],
+      "targetMap": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRY_RISE_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_DRAINAGE_SW_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRAINAGE_SW_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_DRY_RISE_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRAINAGE_SW_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "EASTERN_FENS_DRAINAGE_NW_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRAINAGE_NW_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "EASTERN_FENS_DRAINAGE_SW_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_DRAINAGE_NW_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_WORKED_REEDS_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_WORKED_REEDS_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_DRAINAGE_NW_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_WORKED_REEDS_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        3
+      ],
+      "targetMap": "EASTERN_FENS_MANAGED_REEDS_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_MANAGED_REEDS_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        3
+      ],
+      "targetMap": "EASTERN_FENS_WORKED_REEDS_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_MANAGED_REEDS_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_MANAGED_REEDS_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        9
+      ],
+      "targetMap": "EASTERN_FENS_WIDE_WATER_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_WIDE_WATER_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        9
+      ],
+      "targetMap": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_WIDE_WATER_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        3,
+        5
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        3,
+        5
+      ],
+      "targetMap": "EASTERN_FENS_WIDE_WATER_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        11,
+        13
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        11,
+        13
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        6
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        6
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        9
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        9
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        6
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        6
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        6,
+        8
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        6,
+        8
+      ],
+      "targetMap": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+      "targetEdge": "north",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "DRENWICK_EAST_CANAL_MAP",
       "direction": "north",
       "segment": 0,
@@ -12115,10 +12920,10 @@
         "chunkX": 5,
         "chunkY": 2,
         "dir": "east",
-        "neighbor": null,
-        "target": null,
-        "type": null,
-        "verdict": "BORDER"
+        "neighbor": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "target": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "EASTERN_BANK_MAP",
@@ -12609,13 +13414,933 @@
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "chunkX": 6,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "chunkX": 6,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "chunkX": 6,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "target": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "chunkX": 6,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EASTERN_BANK_MAP",
+        "target": "EASTERN_BANK_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "chunkX": 7,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_REEDBELT_N_MAP",
+        "target": "EASTERN_FENS_REEDBELT_N_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "chunkX": 7,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "chunkX": 7,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_REEDBELT_S_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "chunkX": 7,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "target": "EASTERN_FENS_EMBANKMENT_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_N_MAP",
+        "chunkX": 7,
+        "chunkY": 1,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_N_MAP",
+        "chunkX": 7,
+        "chunkY": 1,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "target": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_N_MAP",
+        "chunkX": 7,
+        "chunkY": 1,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_REEDBELT_E_MAP",
+        "target": "EASTERN_FENS_REEDBELT_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_N_MAP",
+        "chunkX": 7,
+        "chunkY": 1,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_E_MAP",
+        "chunkX": 8,
+        "chunkY": 1,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_E_MAP",
+        "chunkX": 8,
+        "chunkY": 1,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_REEDBELT_S_MAP",
+        "target": "EASTERN_FENS_REEDBELT_S_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_E_MAP",
+        "chunkX": 8,
+        "chunkY": 1,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_E_MAP",
+        "chunkX": 8,
+        "chunkY": 1,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_REEDBELT_N_MAP",
+        "target": "EASTERN_FENS_REEDBELT_N_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_S_MAP",
+        "chunkX": 8,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_REEDBELT_E_MAP",
+        "target": "EASTERN_FENS_REEDBELT_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_S_MAP",
+        "chunkX": 8,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_S_MAP",
+        "chunkX": 8,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "target": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_REEDBELT_S_MAP",
+        "chunkX": 8,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_EMBANKMENT_E_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "chunkX": 9,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "chunkX": 9,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_DRY_RISE_MAP",
+        "target": "EASTERN_FENS_DRY_RISE_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "chunkX": 9,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "chunkX": 9,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_REEDBELT_S_MAP",
+        "target": "EASTERN_FENS_REEDBELT_S_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_MAP",
+        "chunkX": 9,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "target": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_MAP",
+        "chunkX": 9,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_MAP",
+        "chunkX": 9,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "target": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRY_RISE_MAP",
+        "chunkX": 9,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "chunkX": 10,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "target": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "chunkX": 10,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "chunkX": 10,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "chunkX": 10,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_DRY_RISE_MAP",
+        "target": "EASTERN_FENS_DRY_RISE_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "chunkX": 10,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "chunkX": 10,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "target": "EASTERN_FENS_DRAINAGE_SW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "chunkX": 10,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "target": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "chunkX": 10,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_DRY_RISE_APPROACH_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "chunkX": 11,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "chunkX": 11,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "chunkX": 11,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "target": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "chunkX": 11,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "target": "EASTERN_FENS_DRAINAGE_NW_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "chunkX": 12,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "chunkX": 12,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "target": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "chunkX": 12,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "chunkX": 12,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "target": "EASTERN_FENS_WORKED_REEDS_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "chunkX": 12,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "target": "EASTERN_FENS_MANAGED_REEDS_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "chunkX": 12,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "chunkX": 12,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_WIDE_WATER_MAP",
+        "target": "EASTERN_FENS_WIDE_WATER_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "chunkX": 12,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_WIDE_WATER_MAP",
+        "chunkX": 13,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_WIDE_WATER_MAP",
+        "chunkX": 13,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "target": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_WIDE_WATER_MAP",
+        "chunkX": 13,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_WIDE_WATER_MAP",
+        "chunkX": 13,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "target": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "chunkX": 13,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_WIDE_WATER_MAP",
+        "target": "EASTERN_FENS_WIDE_WATER_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "chunkX": 13,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "chunkX": 13,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "target": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "chunkX": 13,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "chunkX": 14,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "chunkX": 14,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "chunkX": 14,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "target": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "chunkX": 14,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "target": "EASTERN_FENS_CHANNEL_APPROACH_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "chunkX": 15,
+        "chunkY": 4,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "target": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "chunkX": 15,
+        "chunkY": 4,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "chunkX": 15,
+        "chunkY": 4,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "chunkX": 15,
+        "chunkY": 4,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "target": "EASTERN_FENS_CHANNEL_APPROACH_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "chunkX": 15,
+        "chunkY": 3,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "target": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "chunkX": 15,
+        "chunkY": 3,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "target": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "chunkX": 15,
+        "chunkY": 3,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "chunkX": 15,
+        "chunkY": 3,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "chunkX": 15,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "target": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "chunkX": 15,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "target": "EASTERN_FENS_CHANNEL_ROAD_S_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "chunkX": 15,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "chunkX": 15,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "chunkX": 15,
+        "chunkY": 1,
+        "dir": "north",
+        "neighbor": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "target": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "chunkX": 15,
+        "chunkY": 1,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "target": "EASTERN_FENS_CHANNEL_ROAD_MID_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "chunkX": 15,
+        "chunkY": 1,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "chunkX": 15,
+        "chunkY": 1,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "chunkX": 15,
+        "chunkY": 0,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "chunkX": 15,
+        "chunkY": 0,
+        "dir": "south",
+        "neighbor": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "target": "EASTERN_FENS_CHANNEL_ROAD_N_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "chunkX": 15,
+        "chunkY": 0,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "target": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "chunkX": 15,
+        "chunkY": 0,
+        "dir": "west",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "chunkX": 16,
+        "chunkY": 0,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "chunkX": 16,
+        "chunkY": 0,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "chunkX": 16,
+        "chunkY": 0,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "target": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "chunkX": 16,
+        "chunkY": 0,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "target": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "chunkX": 17,
+        "chunkY": 0,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "chunkX": 17,
+        "chunkY": 0,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "chunkX": 17,
+        "chunkY": 0,
+        "dir": "east",
+        "neighbor": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "target": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "chunkX": 17,
+        "chunkY": 0,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "target": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "chunkX": 18,
+        "chunkY": 0,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "chunkX": 18,
+        "chunkY": 0,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "chunkX": 18,
+        "chunkY": 0,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "chunkX": 18,
+        "chunkY": 0,
+        "dir": "west",
+        "neighbor": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "target": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       }
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BORDER": 24,
-      "ALIGNS": 50,
-      "BLOCKED": 46
+      "BORDER": 66,
+      "ALIGNS": 96,
+      "BLOCKED": 50
     }
   }
 }

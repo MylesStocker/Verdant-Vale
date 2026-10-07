@@ -1801,6 +1801,26 @@ function drawReeds(x, y) {
   ctx.fillRect(x + 20, y + 26, 6, 4);
 }
 
+// Dense unmanaged reeds: the same wetland family as REEDS, with a darker water-
+// logged base and enough overlapping stalks to read clearly as impassable growth.
+function drawDeepReeds(x, y) {
+  ctx.fillStyle = '#263b28';
+  ctx.fillRect(x, y, TILE, TILE);
+  ctx.fillStyle = '#4f6e3b';
+  for (let i = 0; i < 8; i++) {
+    const sx = x + 2 + i * 4;
+    const top = y + (i % 3) * 3;
+    ctx.fillRect(sx, top, 2, 28 - (i % 2) * 3);
+  }
+  ctx.fillStyle = '#71834a';
+  ctx.fillRect(x + 3, y + 1, 4, 3);
+  ctx.fillRect(x + 11, y + 4, 4, 3);
+  ctx.fillRect(x + 19, y + 2, 4, 3);
+  ctx.fillRect(x + 27, y + 5, 3, 3);
+  ctx.fillStyle = '#182a24';
+  ctx.fillRect(x, y + 27, TILE, 5);
+}
+
 // Drought-cracked wetland mud — marsh floor that used to be underwater and
 // isn't anymore. Deliberately not GRASS, but still ordinary walkable,
 // encounter-eligible wilderness terrain (see TILE_PROPERTIES in tiles.js).
@@ -2509,6 +2529,7 @@ function drawTile(id, x, y) {
     case TOWN_MARKET:         drawTownMarket(x, y);       break;
     case NOTICE_BOARD:        drawNoticeBoardTile(x, y);  break;
     case REEDS:               drawReeds(x, y);            break;
+    case DEEP_REEDS:          drawDeepReeds(x, y);        break;
     case EAST_ENTRANCE:       drawEastEntrance(x, y);     break;
     case EAST_EXIT:           drawEastExit(x, y);         break;
     case WEST_ENTRANCE:       drawWestEntrance(x, y);     break;
@@ -2639,6 +2660,6 @@ const RENDERABLE_TILE_IDS = new Set([
   CHAMBER_DOOR, CHAMBER_FLOOR, CHAMBER_WALL, CHAMBER_EXIT,
   SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, TEMPLE_SHALLOWS, TEMPLE_CARVING, RODDON_SILT,
   CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE, HILLS, TREE_IN_WATER,
-  ROCKS_IN_WATER, LIGHTHOUSE,
+  ROCKS_IN_WATER, LIGHTHOUSE, DEEP_REEDS,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;

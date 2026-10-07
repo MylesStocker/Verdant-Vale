@@ -8,7 +8,7 @@
 // This is the last convertible overworld point crossing, so the second half of this
 // test proves regional CLOSURE from existing authorities: zero NEEDS_REMAP, every
 // directed edge classified, REGIONAL_POINT_CROSSINGS reduced to exactly the four
-// Verdant Vale legacy-home crossings, and the 20-map graph traversably connected
+// Verdant Vale legacy-home crossings, and the 47-map accessible graph traversably connected
 // (the Northern Road branch reconnecting through the legacy home, not a blocked wall).
 
 const assert = require('assert/strict');
@@ -34,7 +34,7 @@ const camY = (g) => { const pl = g.run("JSON.stringify((function(){var c=regiona
 const pool = (g) => g.run('(currentEncounterPool()===FAR_ENEMY_TEMPLATES?"FAR":currentEncounterPool()===NORTH_BASIN_ENEMY_TEMPLATES?"NBASIN":"OTHER")');
 
 module.exports = {
-  name: 'MAP3_N2<->NORTH_BASIN_S_MAP seam + regional closure: zero NEEDS_REMAP, connected 20-map graph',
+  name: 'MAP3_N2<->NORTH_BASIN_S_MAP seam + regional closure: zero NEEDS_REMAP, connected 47-map accessible graph',
   run() {
     const g = ctx();
     const J = (e) => JSON.parse(g.run(e));
@@ -239,30 +239,30 @@ module.exports = {
     // ── C1. Zero NEEDS_REMAP; every directed edge classified; no CONFLICT/OUTSIDE ─
     const edges = audit.seamReadiness.edges;
     assert.equal(edges.filter((e) => e.verdict === 'NEEDS_REMAP').length, 0, 'NEEDS_REMAP === 0 (no unconverted point crossings remain)');
-    assert.equal(edges.length, 124, '124 directed regional edges total (31 placed maps x 4 sides)');
+    assert.equal(edges.length, 216, '216 directed regional edges total (54 placed maps x 4 sides)');
     const CLASSES = new Set(['ALIGNS', 'INTENTIONAL_DISCRETE', 'BLOCKED', 'BORDER']);
     assert.ok(edges.every((e) => CLASSES.has(e.verdict)), 'every directed edge is ALIGNS / INTENTIONAL_DISCRETE / BLOCKED / BORDER');
     assert.equal(edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 50, BLOCKED: 46 }, 'closure totals include the blocked ferry adjacency and the eastern threshold borders');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 96, BLOCKED: 50 }, 'closure totals include the blocked ferry adjacency, route turns, and eastern threshold borders');
 
     // ── C2. Every ALIGNS edge is represented by the fail-closed eligible-seam authority ─
     const alignsEdges = edges.filter((e) => e.verdict === 'ALIGNS').map((e) => e.mapId + '|' + e.dir);
     const seamSet = new Set(J("JSON.stringify(continuousSeamEntries().map(function(e){return e.from+'|'+e.dir;}))"));
     for (const a of alignsEdges) assert.ok(seamSet.has(a), `${a} (ALIGNS) is represented in the eligible continuous-seam authority`);
-    assert.equal(alignsEdges.length, seamSet.size, 'the ALIGNS physical-edge set equals the eligible continuous-edge set exactly (48; segment entries are counted separately)');
+    assert.equal(alignsEdges.length, seamSet.size, 'the ALIGNS physical-edge set equals the eligible continuous-edge set exactly (82; segment entries are counted separately)');
 
     // ── C3. REGIONAL_POINT_CROSSINGS is now exactly the four Verdant Vale legacy crossings ─
     const rpc = J("JSON.stringify(REGIONAL_POINT_CROSSINGS.map(function(c){return c.from+'>'+c.dir+'>'+c.to;}))").sort();
     assert.deepEqual(rpc, ['MAP2>west>MAP', 'MAP>east>MAP2', 'MAP>north>MAP_N1', 'MAP_N1>south>MAP'].sort(), 'REGIONAL_POINT_CROSSINGS is exactly the 4 Verdant Vale legacy-home directed crossings — no ordinary continuous-world crossing remains');
 
     // ── C4. Graph connectivity: continuous-only graph is split around the legacy home; ─
-    //        adding the intentional-discrete home crossings reconnects all 17 ACCESSIBLE
+    //        adding the intentional-discrete home crossings reconnects all 47 ACCESSIBLE
     //        maps. Seven scenery-only placements are deliberately unreachable, so
     //        the traversable-graph assertions run over the accessible nodes only.
     const allNodes = J("JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(function(p){return p.mapId;}))");
-    assert.equal(allNodes.length, 31, '31 placed regional maps (24 accessible + 7 scenery-only)');
+    assert.equal(allNodes.length, 54, '54 placed regional maps (47 accessible + 7 scenery-only)');
     const nodes = allNodes.filter((n) => g.run('mapPlayerAccessible(' + JSON.stringify(n) + ')'));
-    assert.equal(nodes.length, 24, '24 accessible regional maps include the scripted-ferry eastern threshold');
+    assert.equal(nodes.length, 47, '47 accessible regional maps include the scripted-ferry eastern route');
     assert.ok(allNodes.includes('DRENWICK_WEST_OUTFALL_MAP') && !nodes.includes('DRENWICK_WEST_OUTFALL_MAP'),
       'the West Outfall is placed but not player-accessible');
     assert.equal(g.run("continuousSeamEntries().filter(function(e){return e.from==='DRENWICK_WEST_OUTFALL_MAP'||e.to==='DRENWICK_WEST_OUTFALL_MAP';}).length"), 0,
@@ -283,17 +283,17 @@ module.exports = {
       for (const [a, b] of pairs) if (a in parent && b in parent) parent[find(a)] = find(b);
       return find(target);
     };
-    // continuous-only: 3 components — the legacy home and ferry-only eastern bank are
+    // continuous-only: 3 components — the legacy home and ferry-only eastern route are
     // isolated, while everything else is joined. The
     // Northern branch now joins the southern/basin cluster through the secret Roddon Way
     // <-> Northern Road WORLD_HOLLOW seam (MAP_N1.east <-> RODDON_WAY_MAP.west, row 1).
-    assert.equal(components(nodes, contPairs), 3, 'continuous-only graph has 3 components (Verdant Vale and Eastern Bank isolated; the Northern branch joins the southern/basin cluster)');
+    assert.equal(components(nodes, contPairs), 3, 'continuous-only graph has 3 components (Verdant Vale and the Eastern Bank route isolated; the Northern branch joins the southern/basin cluster)');
     assert.equal(compClass(nodes, contPairs, 'MAP_N1'), compClass(nodes, contPairs, 'MAP3'), 'the Northern Road branch (MAP_N1) now shares a continuous component with the southern cluster (MAP3) via the secret Roddon Way seam');
     assert.equal([...new Set(nodes.map((n) => compClass(nodes, contPairs, n)))].filter((c) => nodes.filter((n) => compClass(nodes, contPairs, n) === c).length === 1 && compClass(nodes, contPairs, 'MAP') === c).length, 1, 'Verdant Vale (MAP) is an isolated continuous component');
     // full graph = structural seams + intentional-discrete home crossings + the
     // MQ5 ferry connection → one component.
-    assert.equal(components(nodes, contPairs.concat(homePairs)), 2, 'home crossings leave only the ferry-only Eastern Bank separate');
-    assert.equal(components(nodes, contPairs.concat(homePairs, ferryPairs)), 1, 'adding the scripted ferry connects all 24 accessible maps into one traversable graph');
+    assert.equal(components(nodes, contPairs.concat(homePairs)), 2, 'home crossings leave only the ferry-only eastern route separate');
+    assert.equal(components(nodes, contPairs.concat(homePairs, ferryPairs)), 1, 'adding the scripted ferry connects all 47 accessible maps into one traversable graph');
     assert.equal(compClass(nodes, contPairs.concat(homePairs, ferryPairs), 'MAP_N1'), compClass(nodes, contPairs.concat(homePairs, ferryPairs), 'MAP3'), 'with the home crossings, the Northern branch and the southern cluster are in the same component');
     // the reconnection is via the legacy home presentation (INTENTIONAL_DISCRETE), NOT a blocked wall
     assert.equal(V['MAP_N1|south'], 'INTENTIONAL_DISCRETE', 'the Northern branch reconnects through the Verdant Vale legacy boundary (MAP_N1.south is INTENTIONAL_DISCRETE, not BLOCKED)');

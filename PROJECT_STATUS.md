@@ -6,7 +6,7 @@ actually fits together.
 
 ## Current state
 
-### MQ5 and the first eastward threshold
+### MQ5 and the eastern Valmere road
 
 The canonical Sera/Liora cutaway now records completion only when its normal
 story entry returns Lely to the Drenwick infirmary; debug previews remain
@@ -26,10 +26,19 @@ Before MQ5, no ferry element exists; the original top-right broken-causeway
 inspect remains available with its established text and collision. That inspect
 also remains independently available after the ferry arrives.
 The ferry uses the shared `transitionToLocation()` path rather than a conditional
-regional seam. One 15×16 `EASTERN_BANK_MAP` at regional `(5,2)` provides a quiet,
-encounter-free landing and a maintained road continuing east to the ordinary
-unfinished regional border. The eastern city, onward road, shops, encounters,
-new quest chain, and Thornmere boats remain deferred.
+regional seam. The 15×16 `EASTERN_BANK_MAP` at regional `(5,2)` provides a quiet,
+encounter-free landing. Its maintained road now continues through twenty-three
+terrain-only Eastern Fens chunks to a safe unfinished Valmere threshold at
+`(18,0)`. The reliable road first runs east on old embankments through deep fen,
+then reaches a managed navigable channel at `(15,4)` and follows it north to the
+Valmere. A shorter eastern leg follows the inland sea's southern shore toward the
+unbuilt port. The shortest valid walk from the ferry spawn is 444 tile steps,
+27.75 normal 512px viewport widths, and traverses all 24 route chunks including
+Eastern Bank. The future camp reservation is now the dry Travellers’ Rise at
+`(12,3)`, 257 steps or about 57.9% through that shortest walk; it has no trigger,
+NPC, dialogue, or state. The unnamed port settlement, camp scene, encounters,
+party content, shops, further MQ5 progression, and boat travel remain deferred;
+the port is canonically unserved by rail.
 
 ### Reservoir balance-lock reward
 
@@ -87,14 +96,15 @@ Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass
 below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
-the newer North Basin/eastern threshold region (16 placed chunks: eleven accessible and five
-scenery-only, plus the unmarked chamber and the Sunken Gallery hanging off
-the Upper Reach; see the newer passes below).
+the newer North Basin/causeway region (16 placed chunks: eleven accessible and five
+scenery-only), and the 23-chunk accessible Eastern Fens route beyond the ferry
+(plus the unmarked chamber and the Sunken Gallery hanging off the Upper Reach;
+see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-132 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 132 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 108 are the
+155 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 155 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 131 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -113,8 +123,12 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **31 regional chunks** are placed: the established 30 fill the `'overworld'`
-  5×6 envelope, and the first eastward threshold extends it at `(5,2)`. The
+- **54 regional chunks** are placed: 47 player-accessible wilderness chunks and
+  seven scenery-only chunks within the sparse `'overworld'` coordinate envelope
+  from `(0,0)` through `(18,5)`. The twenty-three Eastern Fens chunks form a
+  single winding reciprocal route east and then north of `EASTERN_BANK_MAP`;
+  touching switchback adjacencies remain deliberately blocked so they cannot
+  become shortcuts. The
   accessible **North Basin — Flooded Rim**
   (`NORTH_BASIN_NW2_MAP`, chunk (0,0)) is a 49.6%-WATER drowned woodland of
   encounter-eligible BASIN_MUD, REEDS, and three EXPOSED_STONE remnants. Six
@@ -219,9 +233,9 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 124 directed physical edges → ALIGNS 50 / BORDER 24 / BLOCKED 46 /
+  Audit: 216 directed physical edges → ALIGNS 96 / BORDER 66 / BLOCKED 50 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  70 directed entries / 35 reciprocal segment pairs. See architecture.md
+  116 directed entries / 58 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
 
 - **Eastern Reaches’ second farmhouse is enterable.** The dedicated safe

@@ -57,7 +57,7 @@ module.exports = {
 
     // ── 8 + 9. DECLARATIVE physical-map -> content-key authority (pure) ──────
     const ents = J('JSON.stringify(outdoorContentKeyEntries())');
-    assert.equal(ents.length, 31, 'all 31 placed outdoor maps are bound');
+    assert.equal(ents.length, 54, 'all 54 placed outdoor maps are bound');
     const byId = {}; ents.forEach(e => { byId[e.mapId] = e; });
     // full binding table matches the established currentContentLocationKey() mapping
     const expected = { MAP:'overworld', MAP2:'map2', MAP3:'map3', MAP4:'map4', MAP5:'overworld',
@@ -65,7 +65,16 @@ module.exports = {
       DRENWICK_EAST_CANAL_MAP:'drenwick_east_canal', THORNMERE_NORTH_FEN_MAP:'thornmere_north_fen', THORNMERE_CANAL_HEAD_MAP:'thornmere_canal_head', THORNMERE_UPPER_SHALLOWS_MAP:'thornmere_upper_shallows',
       NORTH_BASIN_S_MAP:'north_basin_s', NORTH_BASIN_SE_MAP:'north_basin_se', EAST_CAUSEWAY_MAP:'east_causeway', EASTERN_BANK_MAP:'eastern_bank', NORTH_BASIN_C_MAP:'north_basin_c', NORTH_BASIN_SW_MAP:'north_basin_sw', NORTH_BASIN_MIREWOOD_MAP:'north_basin_mirewood',
       NORTH_BASIN_W_MAP:'north_basin_w', NORTH_BASIN_NW2_MAP:'north_basin_nw2', NORTH_BASIN_NW_MAP:'north_basin_nw',
-      DRENWICK_WEST_OUTFALL_MAP:'drenwick_west_outfall', NORTH_BASIN_N_MAP:'north_basin_n', NORTH_BASIN_NE_MAP:'north_basin_ne', NORTH_BASIN_NE2_MAP:'north_basin_ne2', NORTH_BASIN_E2_MAP:'north_basin_e2', NORTH_BASIN_E_MAP:'north_basin_e' };
+      DRENWICK_WEST_OUTFALL_MAP:'drenwick_west_outfall', NORTH_BASIN_N_MAP:'north_basin_n', NORTH_BASIN_NE_MAP:'north_basin_ne', NORTH_BASIN_NE2_MAP:'north_basin_ne2', NORTH_BASIN_E2_MAP:'north_basin_e2', NORTH_BASIN_E_MAP:'north_basin_e',
+      EASTERN_FENS_EMBANKMENT_W_MAP:'eastern_fens_01', EASTERN_FENS_EMBANKMENT_E_MAP:'eastern_fens_02',
+      EASTERN_FENS_REEDBELT_N_MAP:'eastern_fens_03', EASTERN_FENS_REEDBELT_E_MAP:'eastern_fens_04', EASTERN_FENS_REEDBELT_S_MAP:'eastern_fens_05',
+      EASTERN_FENS_DRY_RISE_APPROACH_MAP:'eastern_fens_06', EASTERN_FENS_DRY_RISE_MAP:'eastern_fens_07',
+      EASTERN_FENS_DRAINAGE_SW_MAP:'eastern_fens_08', EASTERN_FENS_DRAINAGE_NW_MAP:'eastern_fens_09',
+      EASTERN_FENS_WORKED_REEDS_MAP:'eastern_fens_10', EASTERN_FENS_MANAGED_REEDS_MAP:'eastern_fens_11',
+      EASTERN_FENS_TRAVELLERS_RISE_MAP:'eastern_fens_12', EASTERN_FENS_WIDE_WATER_MAP:'eastern_fens_13',
+      EASTERN_FENS_CHANNEL_APPROACH_W_MAP:'eastern_fens_14', EASTERN_FENS_CHANNEL_APPROACH_E_MAP:'eastern_fens_15', EASTERN_FENS_VALMERE_ROAD_TURN_MAP:'eastern_fens_16',
+      EASTERN_FENS_CHANNEL_ROAD_S_MAP:'eastern_fens_17', EASTERN_FENS_CHANNEL_ROAD_MID_MAP:'eastern_fens_18', EASTERN_FENS_CHANNEL_ROAD_N_MAP:'eastern_fens_19',
+      EASTERN_FENS_VALMERE_REVEAL_MAP:'eastern_fens_20', EASTERN_FENS_VALMERE_SHORE_W_MAP:'eastern_fens_21', EASTERN_FENS_VALMERE_SHORE_E_MAP:'eastern_fens_22', EASTERN_FENS_PORT_THRESHOLD_MAP:'eastern_fens_23' };
     for (const id of Object.keys(expected)) {
       assert.equal(g.run(`outdoorContentKeyForMapId(${JSON.stringify(id)})`), expected[id], `${id} -> ${expected[id]}`);
       assert.equal(byId[id].key, expected[id], `entries: ${id} key`);
@@ -73,7 +82,7 @@ module.exports = {
     // ambiguity: MAP/MAP5/RODDON share 'overworld' (ambiguous); all others unique
     const ambiguous = ents.filter(e => !e.unambiguous).map(e => e.mapId).sort();
     assert.deepEqual(ambiguous, ['MAP', 'MAP5', 'RODDON_WAY_MAP'], 'exactly MAP/MAP5/RODDON_WAY_MAP are ambiguous');
-    assert.equal(ents.filter(e => e.unambiguous).length, 28, 'the other 28 bindings are unique');
+    assert.equal(ents.filter(e => e.unambiguous).length, 51, 'the other 51 bindings are unique');
     // namespace distinction: id !== key; non-outdoor ids resolve to null
     assert.notEqual('MAP2', byId['MAP2'].key);
     assert.equal(g.run("outdoorContentKeyForMapId('DRENWICK_INN_MAP')"), null, 'a non-outdoor map id is not bound');

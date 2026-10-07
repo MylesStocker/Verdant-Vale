@@ -34,6 +34,28 @@ module.exports = {
       assert.ok(CATS.includes(d.category), `${d.id} has a valid category (${d.category})`);
     }
 
+    // The MQ5 route has a clear menu entry at the established ferry arrival,
+    // immediately east of the broken causeway. It remains a neutral debug warp:
+    // reaching it does not grant MQ5 or ferry authorization.
+    const easternBank = dests.find(d => d.id === 'outdoor:EASTERN_BANK_MAP');
+    assert.ok(easternBank, 'Eastern Bank is present in the warp menu');
+    assert.equal(easternBank.label, 'East Causeway — Eastern Bank');
+    assert.deepEqual(
+      { col: easternBank.defaultCol, row: easternBank.defaultRow, facing: easternBank.facing },
+      { col: 5, row: 8, facing: 'right' },
+      'Eastern Bank warp uses the established east-side ferry landing',
+    );
+    g.run('MainQuest=4;sera_liora_opening_complete=false;syncQuestFlagsToWindow();');
+    const easternBankWarp = warp(easternBank.id);
+    assert.equal(easternBankWarp.success, true);
+    assert.deepEqual(
+      { map: g.run('mapIdForRef(activeMap)'), col: easternBankWarp.col, row: easternBankWarp.row, facing: g.run('player.facing') },
+      { map: 'EASTERN_BANK_MAP', col: 5, row: 8, facing: 'right' },
+    );
+    assert.equal(g.run('canWalk(player.x, player.y)'), true, 'Eastern Bank menu warp lands safely');
+    assert.equal(g.run('MainQuest'), 4, 'debug warp does not assign MQ5');
+    assert.equal(g.run('sera_liora_opening_complete'), false, 'debug warp does not alter story authorization');
+
     // ── 2. Deterministic outdoor-first ordering ─────────────────────────────
     const firstNonOutdoor = dests.findIndex(d => d.category !== 'outdoor');
     const lastOutdoor = dests.map(d => d.category).lastIndexOf('outdoor');
