@@ -93,7 +93,11 @@ function removeStatusEffect(id) { statusEffects = statusEffects.filter(s => s !=
 // reassigns it, so in normal play it is effectively an off constant.)
 let MUDSLITHER_INFLICTABLE = false;
 
-function triggerPoison()        { addStatusEffect('poison'); }
+function triggerPoison() {
+  if (stats.accessory && stats.accessory.preventsPoison) return false;
+  addStatusEffect('poison');
+  return true;
+}
 function triggerMuddied()       { addStatusEffect('muddied'); }
 // Slither — randomizes player SPD each combat turn; stored between calls so the HUD is stable.
 let slitherSpd = 1;
@@ -305,10 +309,11 @@ const continentMap = { open: false };
 // opening (both retain their Imperial defaults for existing readers).
 const accordPanel = { open: false, page: 0, pages: [], title: '', theme: 'imperial' };
 
-// Transient orchestration state for the first Sera/Liora cutaway. It is not a
-// story flag and is intentionally absent from the save payload: the persisted
-// basin_chamber_dream_done flag and the enclosing dream dialogue already own
-// the sequence's one-time ordering.
+// Transient orchestration state for the first Sera/Liora cutaway. The scene
+// machinery stays out of saves; only the story-entry completion result is
+// persisted by quests.js's sera_liora_opening_complete flag. `storyEntry`
+// distinguishes that canonical handoff from the progression-neutral debug
+// preview of the same scene.
 const SERA_LIORA_CUTAWAY_SCENE_ID = 'sera_liora_cutaway_opening';
 const SERA_LIORA_GUEST_ROOM_ID = 'bethany_guest_house_finest_room';
 const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
@@ -321,6 +326,7 @@ const seraLioraCutscene = {
   waitFrames: 0,
   revealAlpha: 0,
   lioraPose: 'sleeping',
+  storyEntry: false,
   startCount: 0,
   assetLoadToken: 0,
 };

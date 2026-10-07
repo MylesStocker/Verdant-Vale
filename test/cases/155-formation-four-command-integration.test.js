@@ -71,7 +71,7 @@ function lab(g,scenario=0) {
   assert.equal(g.run('formationCombatLab.isActive()'),true);
 }
 function receiver(g) {
-  g.run(`reservoir_quest_started=true;gallery_deeper_stair_seen=true;descendSunkenGallery();
+  g.run(`reservoir_quest_started=true;window.gallery_body_found=true;gallery_deeper_stair_seen=true;descendSunkenGallery();
     placeAtLocation('SUNKEN_GALLERY_MAP',2.5*TILE,2.5*TILE);ascendSunkenGallery();`);
   for(let i=0;i<7;i++)g.press('Enter');
   assert.equal(g.run('galleryReceiverEncounter.ownsCombat()'),true);assert.equal(g.run('combat.active'),true);
@@ -316,7 +316,7 @@ for(const exit of ['escape','cancel','abort'])test('Lab '+exit+' restores exact 
 });
 
 test('canonical Receiver supports cures/Observe and metadata-blocked Run through the shared menu',()=>{
-  const g=fresh(0);g.run("statusEffects=['poison'];stats.items=[createItem('Reed Remedy')];");receiver(g);instrument(g);
+  const g=fresh(0);g.run("stats.hp=stats.maxHp=500;statusEffects=['poison'];stats.items=[createItem('Reed Remedy')];");receiver(g);instrument(g);
   item(g,'Reed Remedy');tape(g,[0,0,0,...HIT,...HIT],()=>g.press('Enter'));playback(g);
   assert.deepEqual(J(g,'statusEffects'),[]);choose(g,'observe');g.press('ArrowRight');
   tape(g,[0,0,0,...HIT,...HIT,...HIT],()=>g.press('Enter'));playback(g);

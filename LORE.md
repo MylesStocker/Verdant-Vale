@@ -216,6 +216,8 @@ As the game starts, the water situation has three distinct layers: the North Bas
 
 The first Sera/Liora cutaway falls immediately after Lely’s final dream—presented with deliberately out-of-place realism—and before she wakes in the hospital. First thing that morning, Sera wakes Liora; the imagery echoes the preceding waking frame without explaining or implying connection to Lely or the dreams. Its purpose stays unknown. This is not a call to adventure: already travelling, they start their last full Bethany day with ordinary shared plans: evening Skybloom, next-morning departure.
 
+After Lely wakes, the Calwick supervisor judges Dreyfuss’s death, the losses in the uncovered ruins, and the surviving evidence beyond what the small Calwick and Drenwick offices can responsibly handle alone. He sends a sealed report to the regional office in the unnamed eastern city and assigns Lely to carry it because she is the surviving firsthand witness who can answer questions about the site. The Empire has sent a small officially maintained cable scow to move people across while the broken eastern causeway is repaired: still described as temporary after years of renewed notices, but sufficient to keep authorized travel and administration moving while the road remains out.
+
 Their cutaways use a brighter, warmer, more magical perspective than Lely’s Fen story: saturated natural colours, inviting architecture, environmental movement, abundance, and ordinary life touched by magic—akin to *Animal Crossing*. Perspective, not another reality; emotionally mature, never childish or purely comedic.
 
 ## The Calwick Office

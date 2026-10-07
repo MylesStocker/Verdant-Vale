@@ -130,8 +130,8 @@ module.exports = {
     const bl = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP',0,${(ROWS - 1) * TILE});return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(bl.camPxX, bounds.leftPx, 'clamp left edge');
     assert.equal(bl.camPxY, bounds.bottomPx - 480, 'clamp bottom edge');
-    // MAP5 (4,5) far-right column -> right clamp; NB_NW (1,0) top row -> top clamp.
-    const tr = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP5',${(COLS - 1) * TILE},0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
+    // Eastern Bank (5,2) far-right column -> right clamp; NB_NW (1,0) top row -> top clamp.
+    const tr = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('EASTERN_BANK_MAP',${(COLS - 1) * TILE},0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(tr.camPxX, bounds.rightPx - 512, 'clamp right edge');
     const top = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('NORTH_BASIN_NW_MAP',0,0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(top.camPxY, bounds.topPx, 'clamp top edge');

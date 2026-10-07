@@ -3986,8 +3986,8 @@ function formatFormationBattleEvent(event, playerName, labels) {
   }
   if (event.type === 'speed') return `${playerName}'s SPD is now ${event.after}.`;
   if (event.type === 'signal_broken') return event.reason==='caller_dead'
-    ? `${name(event.callerId)} falls. The signal breaks; the heavy strike is stopped.`
-    : `${name(event.receiverId)} falls. The signal dies away.`;
+    ? `${name(event.callerId)} falls. Its broken cry collapses into the water.`
+    : `${name(event.receiverId)} falls. The answering cry dies away.`;
   if (event.type === 'burn') return `Burn deals ${event.appliedDamage} damage to ${playerName}.`;
   if (event.type === 'round_end') return event.effectsBefore.evadeTurns>0 && event.effectsAfter.evadeTurns===0
     ? 'Bullet Time wears off.' : '';
@@ -3996,13 +3996,13 @@ function formatFormationBattleEvent(event, playerName, labels) {
     : event.after.bombFuse>0 ? `Bomb: ${event.after.bombFuse} turns remaining.` : 'The Bomb is spent.';
   const actor = name(event.actorId), target = name(event.targetId);
   if (!actor || !target) throw new Error('Invalid formation presentation event identity');
-  if (event.type === 'signal') return `${actor} signals! ${name(event.receiverId)} prepares a heavy strike for next round. Bring down the Caller to interrupt it.`;
+  if (event.type === 'signal') return `${actor} gives a broken cry. ${name(event.receiverId)} draws itself upright.`;
   if (event.type === 'heavy_attack') return event.evaded ? `${target} evades ${actor}'s heavy strike!` :
     `${event.critical ? 'Critical! ' : ''}${actor}'s heavy strike hits ${target} for ${event.appliedDamage} damage.`;
   if (event.type === 'attack' || event.type === 'guarded_attack') {
     if (event.evaded) return `${target} evades ${actor}'s attack.`;
     return `${event.critical ? 'Critical! ' : ''}${actor} attacks ${target} for ${event.appliedDamage} damage.`+
-      (event.type==='guarded_attack' ? ` ${name(event.keeperId)} halves the blow.` : '');
+      (event.type==='guarded_attack' ? ` ${name(event.keeperId)} turns part of the blow aside.` : '');
   }
   if (event.type === 'skip') return `${actor} cannot act.`;
   if (event.type === 'cancel') return `${actor}'s action is cancelled.`;
@@ -4069,17 +4069,6 @@ function drawFormationCombat(view) {
     ctx.fillStyle = '#3a8a5a';ctx.fillRect(position.x + 4, 36, Math.round((position.width - 8) * e.hp / e.maxHp), 7);
     ctx.fillStyle = '#7ab898';ctx.font = '11px "Courier New", monospace';
     ctx.fillText(`${e.hp} / ${e.maxHp}`, position.x + 4, 57, position.width - 8);
-    if (e.hp>0 && c) {
-      const guarded=receiverGuardActive(c,view.enemies,e.instanceId);
-      const label=e.instanceId===c.receiverId
-        ? [guarded ? 'GUARDED' : '',signalActive ? 'HEAVY READY' : ''].filter(Boolean).join(' / ')
-        : pose==='signal' ? 'SIGNALLING' : pose==='guard' ? 'PROTECTING' : '';
-      if (label) {
-        ctx.fillStyle='#08121e';ctx.fillRect(position.x+2,214,position.width-4,10);
-        ctx.fillStyle=signalActive ? '#f0cc88' : '#9cc4bb';ctx.font='bold 9px "Courier New", monospace';
-        ctx.fillText(label,position.x+4,222,position.width-8);
-      }
-    }
     if (view.phase === 'targeting' && view.selectedTargetInstanceId === e.instanceId && e.hp > 0) {
       // A dark surround and pale solid cursor remain clear on either sky/sprite.
       const cx = position.x + position.width / 2;
@@ -4089,12 +4078,6 @@ function drawFormationCombat(view) {
     }
   });
   drawBattlePlayer(108, 254);
-  if (signalActive) {
-    ctx.fillStyle='#08121e';ctx.fillRect(171,242,327,35);
-    ctx.fillStyle='#f0cc88';ctx.font='bold 11px "Courier New", monospace';
-    ctx.fillText('A heavy strike is prepared.',180,255,310);
-    ctx.fillText('Stop the Caller to break the signal.',180,270,310);
-  }
   ctx.fillStyle = '#08121e';ctx.fillRect(8, 297, 496, 175);
   ctx.strokeStyle = '#5a8a9a';ctx.lineWidth = 2;ctx.strokeRect(9, 298, 494, 173);
   ctx.strokeStyle = '#2a4e5e';ctx.lineWidth = 1;ctx.strokeRect(13, 302, 486, 165);

@@ -69,16 +69,16 @@ module.exports = {
       assert.equal(calls.length, 2 * 3, 'a 2×3 slice = 6 cells');
     }
 
-    // ── Region pixel bounds for the current 5×6 envelope ────────────────────
+    // ── Region pixel bounds including the first eastward threshold ───────────
     {
       const b = JSON.parse(g.run(`JSON.stringify(regionPixelBounds('${regionId}'))`));
       assert.deepEqual(
         { minChunkX: b.minChunkX, minChunkY: b.minChunkY, maxChunkX: b.maxChunkX, maxChunkY: b.maxChunkY },
-        { minChunkX: 0, minChunkY: 0, maxChunkX: 4, maxChunkY: 5 }, 'chunk extents span the 5×6 envelope');
+        { minChunkX: 0, minChunkY: 0, maxChunkX: 5, maxChunkY: 5 }, 'chunk extents include the eastern-bank threshold');
       assert.equal(b.leftPx, 0); assert.equal(b.topPx, 0);
-      assert.equal(b.rightPx, 5 * CW, 'right px exclusive = 5 chunks wide');
+      assert.equal(b.rightPx, 6 * CW, 'right px exclusive = 6 chunks wide');
       assert.equal(b.bottomPx, 6 * CH, 'bottom px exclusive = 6 chunks tall');
-      assert.equal(b.widthPx, 2560); assert.equal(b.heightPx, 2880);
+      assert.equal(b.widthPx, 3072); assert.equal(b.heightPx, 2880);
       assert.equal(g.run(`regionPixelBounds('nope')`), null, 'unknown regionId -> null bounds');
     }
 
@@ -89,7 +89,7 @@ module.exports = {
       const low = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 0, 0, 512, 480))`));
       assert.deepEqual(low, { camPxX: 0, camPxY: 0 }, 'clamped to top-left edge (no negative origin)');
       const high = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 999999, 999999, 512, 480))`));
-      assert.deepEqual(high, { camPxX: 2560 - 512, camPxY: 2880 - 480 }, 'clamped to bottom-right edge');
+      assert.deepEqual(high, { camPxX: 3072 - 512, camPxY: 2880 - 480 }, 'clamped to bottom-right edge');
       for (const v of [center.camPxX, center.camPxY, high.camPxX, high.camPxY])
         assert.ok(Number.isInteger(v), 'camera origin is integer/pixel-aligned');
       assert.equal(g.run(`cameraOriginForTarget('nope', 0, 0, 512, 480)`), null, 'unknown regionId -> null');

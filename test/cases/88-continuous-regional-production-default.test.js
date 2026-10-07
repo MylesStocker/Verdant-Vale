@@ -58,7 +58,7 @@ module.exports = {
 
     // ── 7. All 68 eligible directed segment entries operate under the default ──
     assert.equal(R('continuousSeamEntries().length'), 70, '68 eligible directed segment entries');
-    assert.equal(R('continuousSeamEntries().length/2'), 35, '34 reciprocal segment pairs');
+    assert.equal(R('continuousSeamEntries().length/2'), 35, '35 reciprocal segment pairs');
     // every seam endpoint is a continuous map that is active-by-default
     assert.equal(R("continuousSeamEntries().every(function(e){return continuousSeamMapEligible(e.from);})"), true, 'every seam map is continuous-eligible under the default');
 
@@ -101,8 +101,8 @@ module.exports = {
 
     // ── 10. BLOCKED / BORDER edges remain impassable (derived audit totals) ────
     const audit = require('../transition-audit.js').seamReadiness.totals;
-    assert.equal(audit.BLOCKED, 44, 'BLOCKED edges');
-    assert.equal(audit.BORDER, 22, 'BORDER edges');
+    assert.equal(audit.BLOCKED, 46, 'BLOCKED edges');
+    assert.equal(audit.BORDER, 24, 'BORDER edges');
     assert.equal(audit.ALIGNS, 50, 'ALIGNS physical edges');
     assert.equal(audit.INTENTIONAL_DISCRETE, 4, "MAP's four intentional-discrete crossings unchanged");
 
@@ -240,9 +240,9 @@ module.exports = {
     const catRef = R('REGIONAL_CHUNK_CATALOG'); void catRef;
     R("(function(){var w=mapLocalPxToRegionWorldPx('MAP3',8*TILE,7*TILE); for(var i=0;i<10;i++) buildContinuousWorldPlanFromWorld('overworld',w.worldPxX+i,w.worldPxY,512,480); })()");
     assert.equal(R("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+JSON.stringify(regionalWorldPosition())"), preplan, 'camera/visibility planning mutates no gameplay state');
-    assert.equal(R("REGIONAL_CHUNK_CATALOG===window.REGIONAL_CHUNK_CATALOG && _REGIONAL_CHUNK_DEFINITIONS.length===30"), true, 'no per-frame rebuild of the chunk catalog');
+    assert.equal(R("REGIONAL_CHUNK_CATALOG===window.REGIONAL_CHUNK_CATALOG && _REGIONAL_CHUNK_DEFINITIONS.length===31"), true, 'no per-frame rebuild of the chunk catalog');
 
-    // ── 22. All 30 regional grid fingerprints match the reviewed fixture ──────
+    // ── 22. All 31 regional grid fingerprints match the reviewed fixture ──────
     for (const id of Object.keys(GRID_FP.fingerprints)) {
       assert.equal(sha256(R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], `${id}: grid fingerprint unchanged`);
     }

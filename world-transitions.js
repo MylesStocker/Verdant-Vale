@@ -1124,8 +1124,9 @@ function exitBasinChamber() {
 // ─── The chamber's second-exit dream and Drenwick waking ────────────────────
 // The long monologue plays in the all-white DREAM_MAP (reusing enterDream's
 // setup). Its final close proceeds directly to the existing hospital wake.
-// The authored Sera/Liora cutaway remains available as a debug-menu preview,
-// but is intentionally inactive in normal play until its release is approved.
+// The authored Sera/Liora cutaway is the canonical bridge from Lely's final
+// dream to her Drenwick infirmary waking. The debug menu can still preview the
+// same scene without changing story progression.
 // enterDream()'s _dreamReturn stash is deliberately discarded on waking — the
 // player does NOT return to the chamber: Esla carried them out of the marshes.
 const BASIN_CHAMBER_DREAM_PAGES = [
@@ -1153,13 +1154,13 @@ const ESLA_INFIRMARY_WAKE_PAGES = [
   ['“Rest. You’re back now.”'],
 ];
 
-// Release gate: the cutaway remains debug-only until explicitly activated.
-// Tests may temporarily enable this session-only switch to exercise the exact
-// inherited-white normal-entry seam; it is not saved or exposed in player UI.
-let SERA_LIORA_NORMAL_ENTRY_ENABLED = false;
+// Session-only test seam retained for focused fallback coverage. Production
+// begins enabled; disabling it skips directly to the established infirmary wake.
+// The switch itself is never saved or exposed in player UI.
+let SERA_LIORA_NORMAL_ENTRY_ENABLED = true;
 
 function continueAfterBasinChamberDream() {
-  if (SERA_LIORA_NORMAL_ENTRY_ENABLED) startSeraLioraCutaway();
+  if (SERA_LIORA_NORMAL_ENTRY_ENABLED) startSeraLioraCutaway(true);
   else wakeAtDrenwickInfirmary();
 }
 
@@ -1239,7 +1240,7 @@ function advanceSeraLioraCutawayAfterBeat(index) {
   continueSeraLioraCutawayAfterOpening();
 }
 
-function startSeraLioraCutaway() {
+function startSeraLioraCutaway(storyEntry) {
   if (seraLioraCutscene.active) return;
   // Close every player-mode overlay defensively. The cutaway's input route then
   // permits dialogue advancement followed only by its scoped room controls.
@@ -1259,6 +1260,7 @@ function startSeraLioraCutaway() {
   seraLioraCutscene.waitFrames = 0;
   seraLioraCutscene.revealAlpha = 0;
   seraLioraCutscene.lioraPose = 'sleeping';
+  seraLioraCutscene.storyEntry = storyEntry === true;
   seraLioraGuestRoomWalk.active = false;
   seraLioraGuestRoomWalk.inputLocked = true;
   seraLioraGuestRoomWalk.moving = false;
@@ -1298,7 +1300,7 @@ function debugPlaySeraLioraCutaway() {
   dialogue.presentation = 'box';
   dialogue.portraitId = null;
   dialogue.portraitSide = null;
-  startSeraLioraCutaway();
+  startSeraLioraCutaway(false);
   return true;
 }
 
@@ -1307,8 +1309,7 @@ function revealBethanyGuestRoom() {
     mapId: 'BETHANY_GUEST_ROOM_MAP', x: 7.5 * TILE, y: 7.5 * TILE, facing: 'up'
   });
   if (!moved) {
-    seraLioraCutscene.active = false;
-    wakeAtDrenwickInfirmary();
+    endSeraLioraCutawayAtHospital();
     return;
   }
   seraLioraCutscene.phase = 'room_reveal';
@@ -1371,6 +1372,7 @@ function continueSeraLioraCutawayAfterOpening() {
 }
 
 function endSeraLioraCutawayAtHospital() {
+  const completedStoryEntry = seraLioraCutscene.storyEntry === true;
   seraLioraGuestRoomWalk.active = false;
   seraLioraGuestRoomWalk.inputLocked = true;
   seraLioraGuestRoomWalk.moving = false;
@@ -1378,8 +1380,13 @@ function endSeraLioraCutawayAtHospital() {
   seraLioraGuestRoomWalk.animationFrame = 1;
   seraLioraCutscene.active = false;
   seraLioraCutscene.phase = 'complete';
+  seraLioraCutscene.storyEntry = false;
   seraLioraCutscene.waitFrames = 0;
   seraLioraCutscene.revealAlpha = 0;
+  if (completedStoryEntry && !sera_liora_opening_complete) {
+    sera_liora_opening_complete = true;
+    syncQuestFlagsToWindow();
+  }
   wakeAtDrenwickInfirmary();
 }
 
@@ -1399,6 +1406,27 @@ function wakeAtDrenwickInfirmary() {
   dialogue.portraitSide = null;
   dialogue.open      = true;
   dialogue.page      = 0;
+}
+
+// ─── East Causeway official ferry ───────────────────────────────────────────
+// A scripted service across the washed-out span. MainQuest 5 is both the quest
+// assignment and the travel authorization; there is no second token or mutable
+// ferry flag to duplicate. Ordinary movement remains blocked by WATER on both
+// banks, and no conditional EDGE_TRANSITIONS seam is introduced.
+function crossCausewayFerry() {
+  if (MainQuest < 5) return false;
+  const from = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapIdForRef(activeMap);
+  if (from === 'EAST_CAUSEWAY_MAP') {
+    return transitionToLocation({
+      mapId: 'EASTERN_BANK_MAP', x: 5.5 * TILE, y: 8.5 * TILE, facing: 'right', cooldown: true,
+    });
+  }
+  if (from === 'EASTERN_BANK_MAP') {
+    return transitionToLocation({
+      mapId: 'EAST_CAUSEWAY_MAP', x: 10.5 * TILE, y: 8.5 * TILE, facing: 'left', cooldown: true,
+    });
+  }
+  return false;
 }
 
 function descendSunkenGallery() {

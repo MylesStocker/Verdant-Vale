@@ -170,9 +170,8 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   continuing along it, unlike the north/centre crossing). This is the
   region's first real encounter map, so unlike 17/18 it isn't a safe
   skeleton: it has `GRASS` on purpose and its own enemy pool
-  (`NORTH_BASIN_ENEMY_TEMPLATES`, gentler by design than
-  `FAR_ENEMY_TEMPLATES` — see combat.js's comment there re: not repeating the
-  Rotwood Troll spike from `BALANCE_REPORT.md`). Covers the same
+  (`NORTH_BASIN_ENEMY_TEMPLATES`, now a tougher MQ4-tier pool that also includes
+  both canonical Mire Toad templates). Covers the same
   crossing/save-load/edge-border pattern as 17/18, plus two things unique to
   a combat-bearing map: repeatedly calling `startCombat()` and asserting
   every enemy name produced is one of `NORTH_BASIN_ENEMY_TEMPLATES` (never
@@ -641,8 +640,8 @@ fresh, isolated game (no state leaks between tests), then drives it with:
   left clean. Runtime + validation.
 - `57-bullet-time` — the combat-only Bullet Time evade consumable.
 - `58-regional-content-split` — the structural contract for the regional split
-  of `maps.js` / `npcs.js` / `interactions.js` into 16 `content/*` files. Proves
-  all 16 files are in `index.html` in the correct order (regional maps before
+  of `maps.js` / `npcs.js` / `interactions.js` into 17 `content/*` files. Proves
+  all 17 files are in `index.html` in the correct order (regional maps before
   `maps.js`, regional NPCs before `npcs.js`, regional interactions before
   `interactions.js`, which loads last); the headless harness loads the same set
   (it parses `index.html`, so there is only **one** script order — no separate

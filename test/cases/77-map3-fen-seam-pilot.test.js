@@ -65,9 +65,9 @@ module.exports = {
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
     assert.equal(audit.seamReadiness.totals.ALIGNS, 50, 'ALIGNS 50 (Mirewood Silt Flats ranges + the secret Roddon Way <-> Northern Road seam)');
-    assert.equal(audit.seamReadiness.totals.BLOCKED, 44, 'BLOCKED 44 (the secret Roddon Way <-> Northern Road seam opened two previously-blocked edges)');
-    assert.equal(audit.seamReadiness.totals.BORDER, 22, 'BORDER 22 after the final void fills the regional envelope');
-    assert.equal(g.run('continuousSeamEntries().length'), 70, '68 eligible directed segment entries');
+    assert.equal(audit.seamReadiness.totals.BLOCKED, 46, 'BLOCKED 46 including both sides of the washed-out causeway adjacency');
+    assert.equal(audit.seamReadiness.totals.BORDER, 24, 'BORDER 24 after the eastern-bank threshold expands the envelope');
+    assert.equal(g.run('continuousSeamEntries().length'), 70, '70 eligible directed segment entries');
     // the new pair derives as two eligible directed seams
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3','north')"), 'MAP3|north is an eligible seam');
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3_N1','south')"), 'MAP3_N1|south is an eligible seam');

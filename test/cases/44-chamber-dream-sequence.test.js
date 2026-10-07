@@ -68,7 +68,7 @@ module.exports = {
 
     // ── 4. Once MQ4 is COMPLETED (the basin report is filed), the next exit
     //       triggers the dream — even though the count is already past two. ─────
-    g.run('reservoir_report_filed = true; syncQuestFlagsToWindow();');
+    g.run('window.gallery_body_found = true; reservoir_report_filed = true; syncQuestFlagsToWindow();');
     g.run('inBasinChamber=true; activeMap=BASIN_CHAMBER_MAP; dialogue.open=false;');
     g.run('exitBasinChamber()');
     assert.equal(g.run('activeMap === DREAM_MAP'), true, 'MQ4 completed: the exit warps into the dream, not the reach');
@@ -79,17 +79,16 @@ module.exports = {
     assert.ok(/four of us took the backroads/.test(monologue), 'the authored monologue plays');
     assert.ok(/find the Truth/.test(monologue), 'the monologue ends on the beast’s line');
 
-    // ── Click through the dream → Drenwick infirmary ───────────────────────
-    // The authored Sera/Liora cutaway is held behind the debug menu until its
-    // normal-play release is explicitly approved.
+    // ── Click through the dream → canonical Sera/Liora cutaway → infirmary ──
     let woke = false;
-    for (let i = 0; i < 240 && !woke; i++) {
+    for (let i = 0; i < 1200 && !woke; i++) {
       if (g.run('dialogue.open')) g.press(' ');
       else g.frames(1);
       woke = g.run('activeMap === DRENWICK_INFIRMARY_MAP');
     }
-    assert.equal(g.run('seraLioraCutscene.active'), false, 'normal play does not enter the held cutaway');
-    assert.equal(g.run('seraLioraCutscene.startCount'), 0, 'normal play never starts the debug-only cutaway');
+    assert.equal(g.run('seraLioraCutscene.active'), false, 'canonical cutaway completes before control returns');
+    assert.equal(g.run('seraLioraCutscene.startCount'), 1, 'normal play starts the cutaway exactly once');
+    assert.equal(g.run('sera_liora_opening_complete'), true, 'canonical return records the MQ5 prerequisite');
     assert.ok(woke, 'closing the dream wakes the player inside the Drenwick infirmary interior');
     assert.equal(g.run('townBuilding'), 'infirmary', 'they wake in the infirmary building');
     assert.equal(g.run('locationName()'), 'Drenwick — Infirmary');

@@ -59,7 +59,8 @@ test('registry and chest agree: combat-only, all-enemy consumable, unchanged pri
   assert.deepEqual(J(g,'SLUICE_LEVEL3_CHEST.item'),def);
   assert.equal(g.run("slotForType(ITEM_REGISTRY['Void Shard'].type)"),null);
   assert.equal(g.run("itemStatLabel(ITEM_REGISTRY['Void Shard'])"),'DMG 50-60 · all');
-  assert.deepEqual(J(g,"ITEM_REGISTRY['Fen Mask']"),{name:'Fen Mask',type:'accessory',bonus:5,price:400});
+  assert.deepEqual(J(g,"ITEM_REGISTRY['Fen Mask']"),{name:'Fen Mask',type:'accessory',bonus:5,price:800,preventsPoison:true});
+  assert.equal(g.run("itemStatLabel(ITEM_REGISTRY['Fen Mask'])"),'SPD +5 · wards poison');
 });
 for(const [def,damage] of [[0,60],[1,59],[4,56],[9,51],[10,50],[50,50],[Number.MAX_SAFE_INTEGER,50]])
 test('deterministic damage at DEF '+def+' is '+damage,()=>{
@@ -103,25 +104,27 @@ test('killing every living member ends the round before any response or reward',
   assert.equal(g.run('combat.pendingVictory'),false);assert.equal(g.run('combat.messageQueue.length'),0);
 });
 for(const order of [[0,1,2],[2,1,0],[1,0,2]])test('Keeper protects the entire blast even when killed: slots '+order,()=>{
-  const g=trio(order),{r,event}=round(g,[0,0,0,...HIT]);
+  const g=trio(order);g.run('combat.enemies.forEach(e=>{e.hp=e.maxHp=50;});');
+  const {r,event}=round(g,[0,0,0,...HIT]);
   const hp=Object.fromEntries(event.after.enemies.map(e=>[e.id,e.hp]));
-  assert.deepEqual(hp,{enemy_gallery_receiver:26,enemy_gallery_caller:0,enemy_gallery_keeper:0});
+  assert.deepEqual(hp,{enemy_gallery_receiver:25,enemy_gallery_caller:0,enemy_gallery_keeper:0});
   assert.equal(r.outcome,'ongoing');assert.equal(r.events.filter(e=>e.type==='skip').length,2);
   assert.equal(r.events.filter(e=>e.actorType==='enemy'&&e.type==='attack').length,1);
 });
 test('a previously defeated Keeper provides no protection',()=>{
-  const g=trio();g.run('combat.enemies[2].hp=0;');
+  const g=trio();g.run('combat.enemies[0].hp=50;combat.enemies[1].hp=50;combat.enemies[2].hp=0;');
   const {r}=round(g,[0,0]);assert.equal(r.outcome,'victory');
 });
 test('Keeper retains its existing round-up rule for odd damage',()=>{
   const g=trio();g.run('combat.enemies[0].def=3;combat.enemies[0].hp=100;combat.enemies[0].maxHp=100;');
-  const {event}=round(g,[0,0,0,...HIT]);assert.equal(loss(event)[0],29,'57 damage halves to 29');
+  const {event}=round(g,[0,0,0,...HIT,...HIT]);assert.equal(loss(event)[0],29,'57 damage halves to 29');
 });
 test('killing Caller in the blast breaks its already-prepared heavy strike',()=>{
   const g=trio();
   round(g,[0,0,0,...HIT,...HIT],{type:'run'});
   g.run('acknowledgeFormationRound(shardReel,shardReel.frameCount-1);');
-  const {r}=round(g,[0,0,0,...HIT]);
+  g.run('combat.enemies.find(e=>e.id==="enemy_gallery_caller").hp=50;');
+  const {r}=round(g,[0,0,0,...HIT,...HIT]);
   assert.equal(r.events.filter(e=>e.type==='signal_broken').length,1);
   assert.equal(r.events.some(e=>e.type==='heavy_attack'),false);
   assert.equal(g.run('formationRounds.coordination().strikeRound'),0);
@@ -193,9 +196,12 @@ test('old inventory and equipped Shards load as consumables without lost quantit
   g.run("initializeFormationState([0,1].map(slot=>({enemyId:'enemy_marsh_wisp',slot})));");
   assert.equal(round(g,[0,0]).r.outcome,'victory','rehydrated consumable passes exact ownership validation');
 });
-test('Fen Mask remains equipped through save/load and still supplies five speed',()=>{
+test('Fen Mask remains equipped through save/load, supplies five speed, and blocks poison',()=>{
   const g=fresh(0);g.run("stats.accessory=createItem('Fen Mask');saveGame();stats.accessory=null;loadGame();");
   assert.equal(g.run('stats.accessory.name'),'Fen Mask');assert.equal(g.run('effectiveSpd()'),12);
+  assert.doesNotThrow(()=>g.run('validateFormationPlayerBasicState(true);'));
+  assert.equal(g.run('triggerPoison()'),false);assert.equal(g.run("hasStatusEffect('poison')"),false);
+  g.run('stats.accessory=null;');assert.equal(g.run('triggerPoison()'),true);assert.equal(g.run("hasStatusEffect('poison')"),true);
 });
 test('Lab victory and exit restore the consumed Shard and all original player state',()=>{
   const g=fresh(0),before=J(g,'({stats,statusEffects,slitherSpd,player,day,tick,location:snapshotLocationState(),flags:QUEST_FLAG_BINDINGS.map(b=>[b.key,b.get()])})');

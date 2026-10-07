@@ -192,7 +192,8 @@ module.exports = {
     g.run('saveGame();');
     const saved = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
     assert.equal(saved.version, 4);
-    assert.equal(Object.keys(saved).some((key) => /sera|liora|bethany/i.test(key)), false,
-      'no cutaway state enters the save schema');
+    assert.equal(saved.sera_liora_opening_complete, false, 'debug preview does not persist story completion');
+    assert.equal(Object.keys(saved).filter((key) => key !== 'sera_liora_opening_complete').some((key) => /sera|liora|bethany/i.test(key)), false,
+      'no transient cutaway state enters the save schema');
   },
 };

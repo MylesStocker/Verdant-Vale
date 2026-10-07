@@ -83,6 +83,14 @@ const DUNGEON_HORROR_ENEMY_TEMPLATES = [
 const RAINFISH_TEMPLATE = { id: 'enemy_rainfish', name: 'Rainfish', hp: 22, maxHp: 22, atk: 10, def: 0, spd: 24, xp: 5, goldMin: 0, goldMax: 1 };
 window.RAINFISH_TEMPLATE = RAINFISH_TEMPLATE;
 
+// Mire Toads are shared by the far fen and both reservoir-surface pools. The
+// same two template objects are reused so sex, Observe progression, poison, and
+// the Jackbane/Henbane answer never drift between regions.
+const MIRE_TOAD_ENEMY_TEMPLATES = [
+  { id: 'enemy_mire_toad_male',   name: 'Mire Toad', hp: 150, maxHp: 150, atk: 22, def: 16, spd: 5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'male'   },
+  { id: 'enemy_mire_toad_female', name: 'Mire Toad', hp: 150, maxHp: 150, atk: 22, def: 16, spd: 5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'female' },
+];
+
 // Enemies for far world squares (MAP3, MAP_N1, MAP_N2) — significantly harder than ENEMY_TEMPLATES
 const FAR_ENEMY_TEMPLATES = [
   // Fen Lurker — ambush predator; high speed and attack, decent HP
@@ -110,8 +118,7 @@ const FAR_ENEMY_TEMPLATES = [
   // to grind one down by attacks is a losing proposition at this stage, so
   // Observe plus the 8-gold matching reagent is the intended answer. Both entries in the
   // pool so each sex is ~1-in-7 of a fen fight.
-  { id: 'enemy_mire_toad_male',   name: 'Mire Toad',     hp: 150, maxHp: 150, atk: 22, def: 16, spd: 5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'male'   },
-  { id: 'enemy_mire_toad_female', name: 'Mire Toad',     hp: 150, maxHp: 150, atk: 22, def: 16, spd: 5, xp: 52, goldMin: 10, goldMax: 20, poisonChance: 0.30, sex: 'female' },
+  ...MIRE_TOAD_ENEMY_TEMPLATES,
 ];
 
 // Enemies specific to Thornmere (MAP4) and Thornmere Shallows (MAP5) — deeper fen, harder than the open marsh
@@ -191,24 +198,25 @@ const SLUICE_TOP_ENEMY_TEMPLATES = [
 ];
 window.SLUICE_TOP_ENEMY_TEMPLATES = SLUICE_TOP_ENEMY_TEMPLATES;
 
-// The North Basin's Silt Flats (NORTH_BASIN_SW_MAP) — the region's first real
-// encounter map. Deliberately gentler than FAR_ENEMY_TEMPLATES (this is meant
-// to be an easy on-ramp into the basin, not another Rotwood Troll-style
-// spike — see BALANCE_REPORT.md for why that comparison matters here).
+// North Basin surface encounters. MQ4 sends the player into an exposed,
+// hostile reservoir system; its ordinary wildlife now hits at that progression
+// tier rather than serving as an easy on-ramp. Rewards stay unchanged so this
+// difficulty correction does not also inflate the regional economy.
 const NORTH_BASIN_ENEMY_TEMPLATES = [
   // Silt Crab — small crustacean stranded by the retreating waterline; slow,
-  // shelled, occasionally braces. A tank, not a threat.
-  { id: 'enemy_silt_crab',       name: 'Silt Crab',       hp: 28, maxHp: 28, atk: 12, def: 5, spd:  4, xp: 18, goldMin: 4, goldMax:  9, defendChance: 0.20 },
+  // heavily shelled, and prone to bracing.
+  { id: 'enemy_silt_crab',       name: 'Silt Crab',       hp: 78, maxHp: 78, atk: 24, def: 10, spd:  6, xp: 18, goldMin: 4, goldMax:  9, defendChance: 0.20 },
   // Mudflat Strider — long-legged wader that used to work the shallows;
-  // exposed ground suits it fine. Fast, fragile, low reward.
-  { id: 'enemy_mudflat_strider', name: 'Mudflat Strider', hp: 20, maxHp: 20, atk: 11, def: 2, spd: 10, xp: 16, goldMin: 3, goldMax:  7 },
+  // exposed ground suits it fine. Fast and dangerous, but less armoured.
+  { id: 'enemy_mudflat_strider', name: 'Mudflat Strider', hp: 56, maxHp: 56, atk: 27, def:  6, spd: 17, xp: 16, goldMin: 3, goldMax:  7 },
   // Basin Gull — scavenger gull come inland off the Thornmere, working the
   // stranded-fish die-offs on the exposed bed. Bold enough to go for the
   // eyes; quick, hits harder than it looks, folds fast when hit back.
   // stealAndFlee: on a landed hit it snatches gold, then the player gets exactly ONE
   // turn to strike it down (killing it recovers the gold) before it escapes — see
   // applyEnemyHitEffects()/applyKillRewards() and the flee resolver in advanceCombatMessage().
-  { id: 'enemy_basin_gull',      name: 'Basin Gull',      hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin: 5, goldMax: 10, stealAndFlee: true },
+  { id: 'enemy_basin_gull',      name: 'Basin Gull',      hp: 28, maxHp: 28, atk: 26, def:  5, spd: 18, xp: 20, goldMin: 5, goldMax: 10, stealAndFlee: true },
+  ...MIRE_TOAD_ENEMY_TEMPLATES,
 ];
 window.NORTH_BASIN_ENEMY_TEMPLATES = NORTH_BASIN_ENEMY_TEMPLATES;
 
@@ -229,25 +237,23 @@ window.SUNKEN_GALLERY_ENEMY_TEMPLATES = SUNKEN_GALLERY_ENEMY_TEMPLATES;
 
 // ─── The Upper Reach surface (NORTH_BASIN_NW_MAP) ────────────────────────────
 // The drained NW arm was silent for a long while; now the exposed bed has its
-// own dangers. Two are the same creatures worked elsewhere in the basin, come
-// up onto the oldest-exposed ground (not a new tier); two are new and much
-// tougher — the long-stranded, dried, wrong things the retreating water left
-// behind first. The surface counterpart to the Sunken Gallery's drowned dead
-// directly below it. Ordinary exposed terrain (BASIN_MUD and EXPOSED_STONE)
-// is encounter-eligible here; the physical map supplies this pool, while WATER
-// and deliberately safe travel terrain remain quiet.
+// own dangers. Its shared basin creatures use distinct ids but the same tougher
+// surface stats; the long-stranded things are tougher again. Mire Toads also
+// range onto this oldest-exposed ground. Ordinary BASIN_MUD and EXPOSED_STONE
+// are encounter-eligible here; WATER and safe travel terrain remain quiet.
 const UPPER_REACH_ENEMY_TEMPLATES = [
-  // Same creatures as the Silt Flats / West Shore pool, stranded up here too.
-  { id: 'enemy_silt_crab_upper',  name: 'Silt Crab',    hp: 28, maxHp: 28, atk: 12, def: 5, spd:  4, xp: 18, goldMin:  4, goldMax:  9, defendChance: 0.20 },
-  { id: 'enemy_basin_gull_upper', name: 'Basin Gull',   hp: 24, maxHp: 24, atk: 14, def: 3, spd: 12, xp: 20, goldMin:  5, goldMax: 10, stealAndFlee: true },
+  // Reservoir creatures stranded up here too.
+  { id: 'enemy_silt_crab_upper',  name: 'Silt Crab',    hp: 78, maxHp: 78, atk: 24, def: 10, spd:  6, xp: 18, goldMin:  4, goldMax:  9, defendChance: 0.20 },
+  { id: 'enemy_basin_gull_upper', name: 'Basin Gull',   hp: 28, maxHp: 28, atk: 26, def:  5, spd: 18, xp: 20, goldMin:  5, goldMax: 10, stealAndFlee: true },
   // New and tough: the arm the water left first, and what it left there.
   // Dust-Drowned — a reservoir drowning the drought gave up first, dried to
   // grave-leather and still walking the bed; its touch carries the cold.
-  { id: 'enemy_dust_drowned', name: 'Dust-Drowned', hp: 50, maxHp: 50, atk: 16, def: 5, spd:  8, xp: 46, goldMin:  9, goldMax: 19, curseChance: 0.20 },
+  { id: 'enemy_dust_drowned', name: 'Dust-Drowned', hp: 92, maxHp: 92, atk: 29, def:  9, spd: 12, xp: 46, goldMin:  9, goldMax: 19, curseChance: 0.20 },
   // Marrow Hulk — the largest thing the retreating water stranded, mineral-
   // and-bone-crusted from the long exposure; terribly slow, but it braces, and
   // it crushes.
-  { id: 'enemy_marrow_hulk',  name: 'Marrow Hulk',  hp: 66, maxHp: 66, atk: 19, def: 8, spd:  3, xp: 56, goldMin: 14, goldMax: 26, defendChance: 0.25 },
+  { id: 'enemy_marrow_hulk',  name: 'Marrow Hulk',  hp: 138, maxHp: 138, atk: 32, def: 14, spd:  5, xp: 56, goldMin: 14, goldMax: 26, defendChance: 0.25 },
+  ...MIRE_TOAD_ENEMY_TEMPLATES,
 ];
 window.UPPER_REACH_ENEMY_TEMPLATES = UPPER_REACH_ENEMY_TEMPLATES;
 
@@ -563,7 +569,7 @@ const SLUICE_DEEP_CHEST = {
   x:      11.5 * TILE,
   y:      10.5 * TILE,
   opened: false,
-  item:   { name: 'Fen Mask', type: 'accessory', bonus: 5, price: 400 },
+  item:   { name: 'Fen Mask', type: 'accessory', bonus: 5, price: 800 },
 };
 
 // ─── South Ruins West Deeper Chamber — gold chest ─────────────────────────────
@@ -1020,6 +1026,7 @@ const MAP_CATALOG = {
   NORTH_BASIN_S_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_S_MAP'),
   NORTH_BASIN_SE_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SE_MAP'),
   EAST_CAUSEWAY_MAP: _regionalChunkCatalogEntry('EAST_CAUSEWAY_MAP'),
+  EASTERN_BANK_MAP: _regionalChunkCatalogEntry('EASTERN_BANK_MAP'),
   NORTH_BASIN_C_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_C_MAP'),
   NORTH_BASIN_MIREWOOD_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_MIREWOOD_MAP'),
   NORTH_BASIN_SW_MAP: _regionalChunkCatalogEntry('NORTH_BASIN_SW_MAP'),

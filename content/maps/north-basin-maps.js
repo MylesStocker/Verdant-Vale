@@ -32,7 +32,7 @@
 // No GRASS on this map, but its REEDS are encounter-eligible all the same
 // (same as GRASS — see tiles.js's TILE_PROPERTIES), so it DOES roll random
 // encounters. Its pool is NORTH_BASIN_ENEMY_TEMPLATES (MAP_METADATA) — the
-// same gentle basin creatures as the Silt Flats; the maintained road (PATH)
+// same dangerous basin creatures as the Silt Flats; the maintained road (PATH)
 // and the water stay safe, so you meet things in the reeds.
 // NORTH_BASIN_S_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
@@ -68,9 +68,8 @@ const NORTH_BASIN_S_ITEMS = [];
 // edge of the region, not "future neighbour" placeholders. North is the one
 // open crossing (to the West Shore), cols 1-10 of row 0.
 //
-// Encounters: NORTH_BASIN_ENEMY_TEMPLATES (combat.js), gentler than
-// FAR_ENEMY_TEMPLATES on purpose — this is meant to be the basin's on-ramp,
-// not another spike (see BALANCE_REPORT.md re: FAR pool's Rotwood Troll).
+// Encounters: NORTH_BASIN_ENEMY_TEMPLATES (combat.js), the reservoir's tougher
+// MQ4-tier surface pool, including random Mire Toads.
 // NORTH_BASIN_SW_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
 const NORTH_BASIN_SW_ITEMS = [];
@@ -488,7 +487,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — South Approach', region: 'North Basin', contentKey: 'north_basin_s',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_s',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'The basin entry. It has no GRASS, but its REEDS are encounter-eligible all the same (see tiles.js TILE_PROPERTIES), so it does roll random encounters — now from the basin pool (NORTH_BASIN_ENEMY_TEMPLATES, the same gentle creatures as the Silt Flats) instead of the generic ENEMY_TEMPLATES fallback it used when this was left encounterPool: null. The maintained road (PATH, col 12) and the water stay safe; you meet things by cutting through the reeds.' },
+    notes: 'The basin entry. It has no GRASS, but its REEDS are encounter-eligible all the same (see tiles.js TILE_PROPERTIES), so it rolls random encounters from the tougher MQ4-tier basin pool (NORTH_BASIN_ENEMY_TEMPLATES), including Mire Toads. The maintained road (PATH, col 12) and the water stay safe; you meet things by cutting through the reeds.' },
   // ─── North Basin — South Reservoir Road — NORTH_BASIN_SE_MAP (16 × 15) ─────
   // Playable regional chunk (3,2), east of NORTH_BASIN_S_MAP and south of the
   // inaccessible NORTH_BASIN_E_MAP. The row-8 PATH is the eastbound road: it
@@ -549,6 +548,35 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'upper_reach',
     allowRandomEncounters: true, allowSave: true,
     notes: 'Eastbound causeway. A one-tile PATH crosses the western fen, then ordinary BASIN_MUD/EXPOSED_STONE subsidence and WATER interrupt it. All eligible wilderness terrain uses UPPER_REACH_ENEMY_TEMPLATES; PATH and WATER stay encounter-safe. One examinable inspect at the road’s end (east_causeway_break, MAP_FEATURES) explains the washed-out span and lampshades the broken-bridge trope; Oswin and Veran mention it in dialogue. No items, NPCs, landmarks, decorations, quests, persistent state, compatibility alias, or special transition machinery.' },
+
+  // ─── Eastern Reaches — Eastern Bank — EASTERN_BANK_MAP (16 × 15) ─────────
+  // The first threshold beyond the broken causeway, reached only by the MQ5
+  // official ferry. The causeway-facing west edge remains WATER from top to
+  // bottom, so ordinary movement cannot cross the gap in either direction.
+  // A planked landing meets a maintained road that continues to the east map
+  // boundary; the absent onward chunk remains an ordinary regional BORDER.
+  { mapId: 'EASTERN_BANK_MAP', regionId: 'overworld', chunkX: 5, chunkY: 2, map: [
+      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+      [  1,  1,  1,  1,  1,  1,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  //  0  lake edge into wooded north boundary
+      [  1,  1,  1,  1,  1, 23, 23,  0,  0,  0,  0,  0,  3,  3,  3,  3],  //  1  narrow reed shelf
+      [  1,  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  3,  3,  3],  //  2  settled grass begins
+      [  1,  1,  1,  1, 23, 23,  0,  0,  0,  0,  0,  0,  0,  0,  3,  3],  //  3  irregular shore
+      [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  4  broad verge
+      [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  5
+      [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0, 89,  0, 89,  0,  0,  3],  //  6  maintained roadside posts
+      [  1,  1,  1,  1, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  7  landing shoulder
+      [  1,  1,  1,  1, 58,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2],  //  8  ferry landing and eastbound road
+      [  1,  1,  1,  1, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  //  9  landing shoulder
+      [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0, 89,  0, 89,  0,  0,  3],  // 10  maintained roadside posts
+      [  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3],  // 11
+      [  1,  1,  1,  1,  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  3,  3],  // 12  shore bends back
+      [  1,  1,  1,  1,  1, 23, 23,  0,  0,  0,  0,  0,  3,  3,  3,  3],  // 13  southern reed shelf
+      [  1,  1,  1,  1,  1,  1,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],  // 14  lake edge into wooded south boundary
+    ],
+    displayName: 'Eastern Bank', region: 'Eastern Reaches', contentKey: 'eastern_bank',
+    presentation: 'continuous', encounterProfileId: 'far',
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'MQ5 threshold beyond the washed-out causeway. Reached and left only through the authorized cable ferry; WATER blocks the full west adjacency, while the maintained PATH visibly continues east to an ordinary unfinished regional border. No encounters, items, shops, dungeon, or onward quest content.' },
   { mapId: 'NORTH_BASIN_C_MAP', regionId: 'overworld', chunkX: 2, chunkY: 1, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3],  //  0  open reservoir continues beyond, off-map — WATER right to the top edge (impassable, same as a TREE border)
@@ -698,7 +726,7 @@ const NORTH_BASIN_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'North Basin — West Mire', region: 'North Basin', contentKey: 'north_basin_w2',
     presentation: 'continuous', encounterProfileId: 'north_basin', itemSetId: 'north_basin_w2',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'Cold boggy backwater at chunk (0,1), west of the West Shore. Marsh/mud border to border with small water pools, dry lakebed stone, and sunken fence posts — nobody lives here. East opens to the West Shore (rows 3-6 and 9-11); north opens to the Flooded Rim (cols 3-6 and 9-12); south remains blocked. The west outer boundary remains fully impassable but alternates TREE/WATER rather than a solid tree wall. One examine-only sparkle find (Reed Remedy) at c4 r10. No NPCs, buildings, or enterables. Uses the gentle north_basin pool; REEDS, BASIN_MUD, and EXPOSED_STONE roll, while WATER stays safe.' },
+    notes: 'Cold boggy backwater at chunk (0,1), west of the West Shore. Marsh/mud border to border with small water pools, dry lakebed stone, and sunken fence posts — nobody lives here. East opens to the West Shore (rows 3-6 and 9-11); north opens to the Flooded Rim (cols 3-6 and 9-12); south remains blocked. The west outer boundary remains fully impassable but alternates TREE/WATER rather than a solid tree wall. One examine-only sparkle find (Reed Remedy) at c4 r10. No NPCs, buildings, or enterables. Uses the tougher north_basin pool; REEDS, BASIN_MUD, and EXPOSED_STONE roll, while WATER stays safe.' },
   { mapId: 'NORTH_BASIN_NW_MAP', regionId: 'overworld', chunkX: 1, chunkY: 0, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],  //  0  north edge: open reservoir WATER (the flooded arm continues off-map; impassable)

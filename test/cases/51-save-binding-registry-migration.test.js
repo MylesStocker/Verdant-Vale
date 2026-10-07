@@ -29,7 +29,7 @@ const { createContext } = require('../harness');
 // schema is a deliberate, reviewed act.
 const EXPECTED_KEYS = [
   'cabinetCaseFlag', 'sluice_job_started', 'sluice_fixed', 'sluice_pay_ticket_ready',
-  'sluice_reward_given', 'MainQuest', 'equipment_ticket_ready', 'letter_quest_stage',
+  'sluice_reward_given', 'MainQuest', 'sera_liora_opening_complete', 'equipment_ticket_ready', 'letter_quest_stage',
   'cat_quest_stage', 'warden_quest_started', 'warden_quest_defeated', 'warden_quest_rewarded',
   'schilling_quest_started', 'schilling_returned', 'drama_stage', 'weight_quest_stage',
   'weight_note_signed', 'sentry_seen_on_board', 'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded',
@@ -106,7 +106,7 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 74, '74 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 75, '75 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
 
     // ── B. Complete flag round-trip (all bindings, generically) ─────────────

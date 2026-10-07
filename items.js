@@ -34,7 +34,9 @@ const ITEM_REGISTRY = {
   // Encounter protection still applies after that damage calculation.
   'Void Shard':     { name: 'Void Shard', type: 'throwable', damage: 60, minDamage: 50, targetsAll: true, battleOnly: true, price: 360 },
   'Resonant Targe': { name: 'Resonant Targe', type: 'shield',    bonus:  8, price: 360 },
-  'Fen Mask':       { name: 'Fen Mask',       type: 'accessory', bonus:  5, price: 400 },
+  // A sealed reed-and-wax field mask. Sold by the Travelling Salesman and also
+  // found in the sluice annex; while equipped it prevents new poison status.
+  'Fen Mask':       { name: 'Fen Mask',       type: 'accessory', bonus:  5, price: 800, preventsPoison: true },
   // Secret dev/reward accessory — hidden in the East Deeper Chamber's concealed
   // vault (DUNGEON8_EAST_SECRET_MAP). Deliberately broken: while equipped, the
   // player evades EVERY incoming attack (see evadeChance() in combat.js). Not

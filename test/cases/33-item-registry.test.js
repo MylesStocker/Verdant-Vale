@@ -69,17 +69,21 @@ module.exports = {
         'purchased item must carry complete canonical metadata');
       assert.equal(g.run('stats.gold'), 470, 'purchase price deducted');
 
-      // Shop stock itself is registry-derived (no duplicate definitions).
+      // Shop stock itself is registry-derived (no duplicate definitions). The
+      // traveller's one permitted divergence is its explicit equipment markup.
       const stockCanonical = g.run(`
         MERCHANT_STOCK.every(s => {
           const def = ITEM_REGISTRY[s.name];
           return def && s !== def && Object.keys(def).every(k => s[k] === def[k]);
         }) && TRAVELLER_STOCK.every(s => {
           const def = ITEM_REGISTRY[s.name];
-          return def && s !== def && Object.keys(def).every(k => s[k] === def[k]);
+          const multiplier = ['weapon','armor','shield','accessory'].includes(def.type)
+            ? (s.name === 'Dragon Blade' ? 3 : 2) : 1;
+          return def && s !== def && Object.keys(def).every(k =>
+            k === 'price' ? s.price === def.price * multiplier : s[k] === def[k]);
         });
       `);
-      assert.equal(stockCanonical, true, 'every shop stock entry must mirror its registry definition');
+      assert.equal(stockCanonical, true, 'shop stock mirrors the registry apart from the traveller equipment premium');
     }
 
     // ── Representative quest reward: Pip's Cat-Shaped Key ───────────────────

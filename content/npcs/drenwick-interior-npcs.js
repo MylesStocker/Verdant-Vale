@@ -3,6 +3,87 @@
 // Drenwick interior NPCs: inn, office, harbormaster, wash house, infirmary, store, guild, tavern, school, post office.
 // NPC objects moved verbatim from npcs.js SIMPLE_NPCS by the regional-content-split.
 // Loaded BEFORE npcs.js, which spreads these arrays (plus SHARED_NPCS) into SIMPLE_NPCS.
+
+// Once the reservoir assignment makes Garrick and Dreyfuss's disappearance
+// official, all three Drenwick office staff react to the passing calendar.
+// This is derived entirely from the existing saved `day`, assignment, and body
+// flags: it adds no parallel timer or mutable dialogue state.
+function drenwickObserverConcernPages(staffId) {
+  if (!reservoir_quest_started) return [];
+  const bodyFound = !!window.gallery_body_found;
+  const phase = day > 20 ? 3 : day > 15 ? 2 : day > 10 ? 1 : 0;
+
+  const lines = {
+    veth: [
+      bodyFound
+        ? ['“Dreyfuss is accounted for. I dislike the phrase, but it is accurate.”',
+           '“Garrick remains overdue. If you find him, word comes here as well as Calwick.”']
+        : ['“Garrick and Dreyfuss are overdue. I am still using that word.”',
+           '“If you find either man, word comes here as well as Calwick.”'],
+      bodyFound
+        ? ['“Dreyfuss’s death rules out the comforting explanations.”',
+           '“Garrick has now missed too many chances to report. I do not think delay explains him.”']
+        : ['“Neither Garrick nor Dreyfuss has used a checkpoint, packet boat, or district post.”',
+           '“Two careful men do not miss that many chances by accident.”'],
+      bodyFound
+        ? ['“Dreyfuss was pulled under. Garrick walked the same ground and has given us nothing since.”',
+           '“At this point, waiting is a decision. I dislike the decision and have nobody qualified to replace it.”']
+        : ['“By now I expect the basin kept Garrick and Dreyfuss from reporting. I no longer expect mere weather did it.”',
+           '“We have nobody qualified to follow them. That is the fact under all the paperwork.”'],
+      bodyFound
+        ? ['“Dreyfuss has a body and Garrick does not. After day twenty, that is the only distinction the basin has allowed us.”',
+           '“I no longer expect Garrick to walk through that door. I keep his file open because expectation is not evidence.”']
+        : ['“Day twenty passed without Garrick or Dreyfuss. A field party missing that long is not delayed.”',
+           '“The basin has them until somebody proves otherwise. The files stay open because paper permits a courtesy that facts do not.”'],
+    ],
+    holt: [
+      bodyFound
+        ? ['“Dreyfuss can be entered as located, deceased. Garrick is still an open field file.”',
+           '“One box filled, one blank. It is a poor use for the word progress.”']
+        : ['“Garrick and Dreyfuss are both past their reporting dates.”',
+           '“The register calls that overdue. The register does not have a column for how worried the clerk is.”'],
+      bodyFound
+        ? ['“I initialed the posting that sent Dreyfuss out. Now I am preparing the line that says he did not return.”',
+           '“Garrick’s line is still blank. I check it every morning as though that could alter it.”']
+        : ['“I have checked Garrick and Dreyfuss against every incoming packet twice.”',
+           '“Nothing was misfiled. I had hoped something was misfiled.”'],
+      bodyFound
+        ? ['“Dreyfuss is a closed life and an unfinished file. Garrick is neither.”',
+           '“The distinction used to feel important. It is getting harder to defend.”']
+        : ['“There are procedures for a late report and procedures for a recovered body.”',
+           '“Garrick and Dreyfuss have given me neither. The space between those procedures is where they are now.”'],
+      bodyFound
+        ? ['“After day twenty I stopped leaving Garrick’s file on the incoming shelf.”',
+           '“Dreyfuss has an ending I can enter. Garrick has only the absence of one. I expect that is what I will keep.”']
+        : ['“Day twenty passed. I moved both files from overdue to unresolved.”',
+           '“Unresolved means we have no ending to enter. It does not mean I believe Garrick and Dreyfuss are still coming back.”'],
+    ],
+    sable: [
+      bodyFound
+        ? ['“Dreyfuss’s coat hook is empty now. Nobody has said who cleared it.”',
+           '“Garrick’s is still occupied. Nobody has decided whether hope requires leaving it that way.”']
+        : ['“Garrick and Dreyfuss left their wet coats here before they took the basin issue.”',
+           '“Their hooks are still occupied. It has been long enough that everybody notices and nobody moves them.”'],
+      bodyFound
+        ? ['“Dreyfuss died on an assignment this office issued. Garrick remains somewhere beyond its reach.”',
+           '“We continue opening on schedule. Routine is useful until it begins to look like avoidance.”']
+        : ['“Veth still calls Garrick and Dreyfuss overdue. Holt still checks the packet basket.”',
+           '“I have stopped asking whether anything came in. Their faces answer before they speak.”'],
+      bodyFound
+        ? ['“Finding Dreyfuss did not make Garrick’s absence smaller. It gave it a shape.”',
+           '“One man was killed there. We are waiting for the basin to tell us whether it kept the other.”']
+        : ['“Garrick and Dreyfuss went into the basin and the office has received only silence.”',
+           '“There comes a point when silence is itself the report. I think we passed it.”'],
+      bodyFound
+        ? ['“Dreyfuss is dead. After day twenty, nobody here says Garrick is merely missing unless a form requires it.”',
+           '“We keep his desk because clearing it would be a declaration. Leaving it has become one too.”']
+        : ['“After day twenty, ‘missing’ is the courteous word for Garrick and Dreyfuss.”',
+           '“Their desks remain as they left them. We maintain them for the same reason we maintain graves.”'],
+    ],
+  };
+  return [lines[staffId][phase]];
+}
+
 const DRENWICK_INTERIOR_NPCS = [
   // Drenwick Inn — innkeeper (Nast)
   {
@@ -111,23 +192,7 @@ const DRENWICK_INTERIOR_NPCS = [
         ['\u201cThat road is properly open again.',
          'We had patrol requests backed up.\u201d']
       );
-      if (reservoir_quest_started && window.gallery_body_found) pages.push(
-        ['\u201cYou found Dreyfuss.\u201d He does not make it a question. Word comes down the canal faster than any report.',
-         '\u201cPulled under in the flooded end and held there. Something in that water killed him \u2014 a man does not claw the silt like that going quietly.\u201d'],
-        ['\u201cThat is one of my two accounted for \u2014 and the worse of the two accounts to have to write.\u201d',
-         '\u201cGarrick is still out there. Or still down there, in whatever took Dreyfuss. No body is not the same as alive. It is not the same as Dreyfuss either.\u201d'],
-        ['\u201cIf you go back, keep your eyes open for him. A man, or the place a man stopped.\u201d',
-         '\u201cI would close his file the honest way. I am not sure the basin means to let me.\u201d']
-      );
-      else if (reservoir_quest_started) pages.push(
-        ['\u201cThe basin observers \u2014 Garrick and Dreyfuss.\u201d',
-         'He says the names off a list he has read too many times.',
-         '\u201cThey worked out of this office. My signatures on their postings.\u201d'],
-        ['\u201cGarrick was the careful one \u2014 measured everything twice, wrote it all down. Dreyfuss went where Garrick pointed and didn\u2019t ask why.',
-         'A good pair for dull work. This stopped being dull.\u201d'],
-        ['\u201cGarrick\u2019s reports came thinner, then stranger, then not at all. From Dreyfuss, nothing once they passed the flats.\u201d',
-         '\u201cIf you find either of them out there, word comes back to this office as well as yours. They were mine before they were a file.\u201d']
-      );
+      pages.push(...drenwickObserverConcernPages('veth'));
       return pages;
     },
     flag_required: null,
@@ -169,20 +234,7 @@ const DRENWICK_INTERIOR_NPCS = [
         ['\u201cBoth our field investigators are out at once this week \u2014 field assignments, the far side of the district.\u201d',
          '\u201cSo it\u2019s the officer and me minding the desks. Come to see a field man and you\u2019ve come on the wrong week.\u201d']
       );
-      if (reservoir_quest_started && window.gallery_body_found) pages.push(
-        ['\u201cDreyfuss I can nearly close now. Cause of cessation: deceased, recovered \u2014 the register keeps a box for it. A small box, for a whole man.\u201d',
-         '\u201cGarrick stays open. Overdue past any schedule I could defend, and I have defended schedules no reasonable person would.\u201d'],
-        ['\u201cOne found, one not. The office prefers its pairs to resolve together. It is tidier.\u201d',
-         'He does not look tidy.',
-         '\u201cI did their postings. I initialed the line that sent the two of them up the flats. I remember doing it. It took me under a minute.\u201d']
-      );
-      else if (reservoir_quest_started) pages.push(
-        ['\u201cThere are two field files I cannot close. Garrick, G. \u2014 basin survey. Dreyfuss, no initial recorded, which is its own small crime against the register.\u201d',
-         '\u201cReports overdue eleven weeks and nine. A file stays open until its holder files or is filed. Neither man has done either.\u201d'],
-        ['\u201cPeople take me for callous about it. I am being accurate. The two are often confused.\u201d',
-         'He squares a corner of paper that was already square.',
-         '\u201cI would rather close them the ordinary way \u2014 sign-off, archive, done. I have started to doubt I will be given the ordinary way.\u201d']
-      );
+      pages.push(...drenwickObserverConcernPages('holt'));
       return pages;
     },
     flag_required: null,
@@ -289,12 +341,14 @@ const DRENWICK_INTERIOR_NPCS = [
         ['\u201cCompliance visits resume tomorrow.',
          'The mud will still be there. The mud is very reliable.\u201d'],
       ];
-      return [
+      const pages = [
         ['\u201cThread registration for this district runs through this office.\u201d',
          '\u201cIf a classification requires full Registry processing, I refer it northeast. Most things can be handled here.\u201d'],
         ['\u201cRareborn dispersal in the wetland settlements is difficult to reach.\u201d',
          '\u201cWe have outstanding compliance checks in four outlying sites. Getting there is the issue, not the filing.\u201d'],
       ];
+      pages.push(...drenwickObserverConcernPages('sable'));
+      return pages;
     },
     flag_required: null,
     flag_sets:     null,

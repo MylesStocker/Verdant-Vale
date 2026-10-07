@@ -105,7 +105,8 @@ function interactSupervisor() {
   // the player has a basin report ready; that report remains first.
   const criticalStoryPending = (day > 6 && !netto_letter_received) ||
     !reservoir_quest_started ||
-    (reservoir_quest_started && !reservoir_report_filed && !!window.sunken_gallery_seen);
+    (reservoir_quest_started && !reservoir_report_filed && !!window.sunken_gallery_seen) ||
+    (window.gallery_body_found && sera_liora_opening_complete && MainQuest < 5);
   if (criticalStoryPending || !supervisorLighthouseDialogue(false)) supervisorDialogueBody();
   // One-time light admonishment: if the player crossed the bridge north of
   // Drenwick before the reservoir assignment existed (recorded in
@@ -478,6 +479,39 @@ function supervisorDialogueBody() {
       reservoir_quest_started = true;
       syncQuestFlagsToWindow();
     }];
+  } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed &&
+             window.gallery_body_found && sera_liora_opening_complete && MainQuest < 5) {
+    // MainQuest 5: once the canonical Sera/Liora cutaway has returned control
+    // to Lely, the local inquiry becomes a sealed escalation to the regional
+    // office. MainQuest itself is the ferry authorization; no inventory token
+    // or parallel progression flag is created.
+    dialogue.pages = [
+      ['“Dreyfuss is dead. Garrick is still missing. The ruins below the basin have already cost more than one life.”'],
+      ['“The death, the casualties in those ruins, and the structure itself are beyond what Calwick or Drenwick can responsibly investigate alone.”',
+       '“We do not have the expertise here, and I will not manufacture it by giving you a longer title.”'],
+      ['He places a thick envelope on the desk. The district seal crosses the flap.',
+       '“This is the report. You will carry it east to the regional office and request qualified assistance.”'],
+      ['“They will want your firsthand account. You saw the Gallery, the body, and what came out of the lower rooms.”',
+       '“Principally, I am sending the report. You are the portion of it capable of answering questions.”'],
+      ['“The causeway is still broken. The Empire has sent a cable ferry to move people across while it is repaired.”',
+       '“Temporary, according to the same works notice they have renewed for six years.”',
+       '“Your assignment is the authorization. The operator has the office seal list.”'],
+      ['“Deliver the report. Answer what they ask. Bring back people qualified to decide what happens next.”',
+       '“Do not decide it for them on the road.”'],
+    ];
+    dialogue.callbacks = [function() {
+      if (MainQuest < 5) MainQuest = 5;
+      syncQuestFlagsToWindow();
+      refreshJobBoard();
+    }];
+  } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed && MainQuest >= 5) {
+    dialogue.pages = [
+      ['“The sealed report goes to the regional office in the eastern city.”',
+       '“Use the official ferry at the broken causeway. Your assignment is on the operator’s seal list.”'],
+      ['“Give them the report, then give them the part paper cannot: what you saw below the basin.”',
+       '“Ask for qualified assistance. Nothing more heroic than that.”'],
+    ];
+    dialogue.callbacks = null;
   } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed) {
     // The findings have been reported and logged \u2014 closing acknowledgment, with
     // a lasting line on the two observers' standing outcome.
@@ -504,7 +538,7 @@ function supervisorDialogueBody() {
     ];
     dialogue.callbacks = null;
   } else if (fort_quest_stage === 6 && reservoir_quest_started) {
-    if (!gallery_receiver_defeated) { receiverReportNotReady(); return; }
+    if (!window.gallery_body_found || !gallery_receiver_defeated) { receiverReportNotReady(); return; }
     // Been down into the gallery and returned \u2014 offer to make the report.
     dialogue.pages = [
       ['\u201cInvestigator.\u201d',
@@ -532,19 +566,22 @@ function supervisorDialogueBody() {
 // interactive-beat flags, so the supervisor's reply reflects exactly which
 // clues the player actually investigated. Called from the "Report what I found"
 // choice in supervisorDialogueBody once the player has descended and returned.
-// Sets reservoir_report_filed so the report is one-time; no reward/quest-stage
-// side effects (this closes the observer thread narratively, not the main quest).
+// Sets reservoir_report_filed once, grants the established MQ4 report reward,
+// and advances MainQuest through the existing authoritative completion path.
 function receiverReportNotReady() {
   dialogue.name = 'Supervisor';
-  dialogue.pages = [['“Finish investigating the Gallery before you file your report.”',
-    '“There is still ground to cover down there.”']];
+  dialogue.pages = window.gallery_body_found
+    ? [['“Finish investigating the Gallery before you file your report.”',
+       '“There is still ground to cover down there.”']]
+    : [['“You were sent to find Garrick and Dreyfuss. You cannot close the assignment without accounting for them.”',
+       '“Go back to the Gallery. Keep looking.”']];
   dialogue.callbacks = null;
   dialogue.open = true;
   dialogue.page = 0;
 }
 
 function reportBasinFindings() {
-  if (!gallery_receiver_defeated) { receiverReportNotReady(); return; }
+  if (!window.gallery_body_found || !gallery_receiver_defeated) { receiverReportNotReady(); return; }
   if (reservoir_report_filed) return;
   const f = (k) => !!window[k];
   const satchel  = f('gallery_clue_satchel');
@@ -666,7 +703,7 @@ function reportBasinFindings() {
   dialogue.name = 'Supervisor';
   dialogue.pages = pages;
   dialogue.callbacks = [function () {
-    if (!gallery_receiver_defeated || reservoir_report_filed) return;
+    if (!window.gallery_body_found || !gallery_receiver_defeated || reservoir_report_filed) return;
     reservoir_report_filed = true;
     stats.gold += rewardGold;
     if (rewardItem) grantItem(rewardItem);

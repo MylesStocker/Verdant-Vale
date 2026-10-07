@@ -271,7 +271,7 @@ module.exports = {
 
     // ── 7. Supervisor turn-in: exact one-item removal, 150g, idempotence ────
     g = fresh(); setOutcome(g, 'killed', true);
-    g.run("lighthouse_quest_stage=1;reservoir_report_filed=true;stats.gold=10;grantItem('Old Engagement Ring');grantItem('Old Engagement Ring');grantItem('Stashed Gem');syncQuestFlagsToWindow();");
+    g.run("lighthouse_quest_stage=1;window.gallery_body_found=true;reservoir_report_filed=true;stats.gold=10;grantItem('Old Engagement Ring');grantItem('Old Engagement Ring');grantItem('Stashed Gem');syncQuestFlagsToWindow();");
     atSupervisorOffice(g); g.run('handleInteract();');
     assert.match(text(g), /one hundred and fifty|own|Mine/i); dismiss(g);
     assert.equal(g.run('lighthouse_quest_stage'), 2);
@@ -318,7 +318,7 @@ module.exports = {
 
     // ── 9. Existing interaction priority and outcome behavior remain intact ─
     const main = fresh(); setOutcome(main, 'killed', true);
-    main.run("lighthouse_quest_stage=1;grantItem('Old Engagement Ring');window.sunken_gallery_seen=true;gallery_receiver_defeated=true;reservoir_report_filed=false;syncQuestFlagsToWindow();");
+    main.run("lighthouse_quest_stage=1;grantItem('Old Engagement Ring');window.sunken_gallery_seen=true;window.gallery_body_found=true;gallery_receiver_defeated=true;reservoir_report_filed=false;syncQuestFlagsToWindow();");
     atSupervisorOffice(main); main.run('handleInteract();');
     assert.match(text(main), /reservoir bed|Tell me what you found/i, 'ready MQ4 report retains priority');
     assert.doesNotMatch(text(main), /recognizes the ring|one hundred and fifty/i);

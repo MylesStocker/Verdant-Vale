@@ -2,15 +2,26 @@
 
 // ─── Shop stock ───────────────────────────────────────────────────────────────
 // Item properties live in ITEM_REGISTRY (items.js, loaded before this file);
-// these lists only choose what each shop carries. Stock entries are fresh
-// createItem() instances so display code can read prices/stats directly.
+// these lists choose what each shop carries. Stock entries are fresh
+// createItem() instances so display code can read prices/stats directly. The
+// travelling salesman applies a shop-only premium to equipment; canonical item
+// values remain the authority for inventory, rewards, pickups, and resale.
 const MERCHANT_STOCK = [
   'Potion', 'Iron Sword', 'Leather Armor', 'Steel Sword', 'Iron Shield', 'Swift Bangle', 'Throwing Knife',
 ].map(createItem);
 
+const TRAVELLER_EQUIPMENT_TYPES = ['weapon', 'armor', 'shield', 'accessory'];
+function createTravellerStockItem(name) {
+  const item = createItem(name);
+  if (TRAVELLER_EQUIPMENT_TYPES.includes(item.type)) {
+    item.price *= name === 'Dragon Blade' ? 3 : 2;
+  }
+  return item;
+}
+
 const TRAVELLER_STOCK = [
-  'Elixir', 'Battle Axe', 'Dragon Blade', 'Shadow Cloak', 'Mithril Shield', 'Wraithband', 'Sapper Charge',
-].map(createItem);
+  'Elixir', 'Battle Axe', 'Dragon Blade', 'Shadow Cloak', 'Mithril Shield', 'Wraithband', 'Fen Mask', 'Sapper Charge',
+].map(createTravellerStockItem);
 
 // ─── Shop registry ────────────────────────────────────────────────────────────
 // Additive/reference-only: gameplay code has not yet been migrated to use this.

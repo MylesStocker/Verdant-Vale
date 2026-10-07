@@ -12,7 +12,10 @@ const galleryReceiverEncounter = (() => {
   ]);
   let encounter = null;
   let backedAway = false; // permits walking OFF the automatic stair trigger
-  const armed = () => reservoir_quest_started && gallery_deeper_stair_seen && !gallery_receiver_defeated;
+  // The encounter exists only after Lely has found Dreyfuss. The body is in
+  // R1C4 and remains reachable before this entrance-stair ambush can arm.
+  const armed = () => reservoir_quest_started && !!window.gallery_body_found &&
+    gallery_deeper_stair_seen && !gallery_receiver_defeated;
   const onStair = () => inSunkenGallery && activeMap === SUNKEN_GALLERY_MAP &&
     activeMap[Math.floor(player.y/TILE)]?.[Math.floor(player.x/TILE)] === GALLERY_STAIR_UP;
   const ownsCombat = () => !!encounter && ['battle','fault'].includes(encounter.phase) &&

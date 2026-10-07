@@ -108,11 +108,12 @@ module.exports = {
     assert.equal(g.run('isEncounterEligibleTile(EXPOSED_STONE)'), true,
       'EXPOSED_STONE remains eligible on the Silt Flats without a map-specific override');
     g.run('activeMap = NORTH_BASIN_NW_MAP;; __reconcileCanonicalForTest();');
-    // Its pool: two creatures shared with the Silt Flats + two new tough ones.
+    // Its pool: two basin creatures, two older exposed-bed threats, and both
+    // canonical Mire Toad sexes now roaming the reservoir surface.
     assert.equal(
       g.run('JSON.stringify(currentEncounterPool().map(t => t.name).sort())'),
-      JSON.stringify(['Basin Gull', 'Dust-Drowned', 'Marrow Hulk', 'Silt Crab']),
-      'Upper Reach pool = 2 shared basin creatures (Silt Crab, Basin Gull) + 2 new tough ones (Dust-Drowned, Marrow Hulk)'
+      JSON.stringify(['Basin Gull', 'Dust-Drowned', 'Marrow Hulk', 'Mire Toad', 'Mire Toad', 'Silt Crab']),
+      'Upper Reach pool includes its four established threats plus both Mire Toad sexes'
     );
 
     // Leaving and re-entering the trigger zone must NOT re-fire (onceFlag).

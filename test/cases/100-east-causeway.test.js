@@ -1,6 +1,6 @@
 'use strict';
-// EAST_CAUSEWAY_MAP — accessible terrain-only obstruction at overworld (4,2).
-// Proves the broad fen entrance, one-tile road, ordinary terrain blockage,
+// EAST_CAUSEWAY_MAP — accessible obstruction and MQ5 ferry landing at (4,2).
+// Proves the broad fen entrance, one-tile road, ordinary movement blockage,
 // upper-reach encounters, persistence, and fingerprint isolation.
 
 const assert = require('assert/strict');
@@ -28,7 +28,7 @@ function context() {
 }
 
 module.exports = {
-  name: 'East Causeway: broad fen entrance, terrain-only subsidence, upper-reach encounters',
+  name: 'East Causeway: broad fen entrance, blocked span, upper-reach encounters',
   run() {
     const g = context();
     const J = (expr) => JSON.parse(g.run(expr));
@@ -155,24 +155,26 @@ module.exports = {
     }
     g.run(`placeAtLocation('${ID}',8.5*TILE,8.5*TILE);debugMode=true;forceLegacyRegionalView=false;`); drive('ArrowRight',100); assert.equal(mapId(),ID); assert.ok(g.run('player.x') < 11*TILE, 'road stops before open water');
 
-    // 15–17. Placement, warp, v4 persistence, empty content, fingerprints, and
-    // terrain/seam-only reversibility with no bespoke runtime branch.
+    // 15–17. Placement, warp, v4 persistence, gated content, fingerprints, and
+    // no map-ID movement/save/warp exception.
     assert.equal(g.run(`placeAtLocation('${ID}',6.5*TILE,8.5*TILE)`), true);
     assert.equal(g.run(`commitRegionalWorldPosition('overworld',4*COLS*TILE+6.5*TILE,2*ROWS*TILE+8.5*TILE)`), true);
     assert.equal(g.run(`transitionToLocation({mapId:'${ID}',x:6.5*TILE,y:8.5*TILE,facing:'right'})`), true);
     const warp = J(`JSON.stringify(debugWarpToDestination('outdoor:${ID}'))`); assert.deepEqual([warp.success,warp.col,warp.row],[true,8,7]);
     g.run(`placeAtLocation('${ID}',6.5*TILE,8.5*TILE);player.facing='right';saveGame();`); const saved=J("localStorage.getItem('verdantVale_save')"), before=worldPos();
     assert.equal(saved.version,4); assert.equal(saved.location.kind,'regional'); g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';"); assert.equal(g.run('loadGame()'),true); assert.equal(mapId(),ID); assert.deepEqual(worldPos(),before); assert.equal(g.run('player.facing'),'right');
-    assert.equal(g.run(`MAP_CATALOG['${ID}'].items.length`),0); assert.equal(g.run(`SIMPLE_NPCS.some(function(n){return n.map==='east_causeway'||n.physicalMapId==='${ID}';})`),false);
-    assert.equal(g.run(`typeof MAP_FEATURES['east_causeway']`),'undefined'); assert.equal(g.run(`typeof OUTDOOR_MAP_DECOR['${ID}']`),'undefined');
+    assert.equal(g.run(`MAP_CATALOG['${ID}'].items.length`),0);
+    assert.equal(g.run(`SIMPLE_NPCS.some(function(n){return n.map==='east_causeway'||n.physicalMapId==='${ID}';})`),false, 'operator stays absent before MQ5');
+    assert.equal(g.run(`typeof MAP_FEATURES['east_causeway']`),'undefined');
+    assert.equal(g.run(`typeof OUTDOOR_MAP_DECOR['${ID}']`),'function', 'MQ5 ferry drawing is registered without changing collision');
     assert.equal(g.run(`typeof ${ID}`),'undefined'); assert.equal(g.run(`typeof window['${ID}']`),'undefined'); assert.equal(g.run(`REGIONAL_POINT_CROSSINGS.some(function(c){return c.from==='${ID}'||c.to==='${ID}';})`),false);
     const runtimeFiles=['movement.js','continuous-seams.js','regional-position.js','save.js','debug-warp.js'];
     const runtime=runtimeFiles.map((file)=>fs.readFileSync(path.join(__dirname,'..','..',file),'utf8')).join('\n'); assert.doesNotMatch(runtime,/EAST_CAUSEWAY_MAP/,'no map-ID movement/save/warp exception');
-    assert.equal(sha256(JSON.stringify(m)),FP); assert.equal(GRID_FP.fingerprints[ID],FP); assert.equal(GRID_FP.fingerprints[WEST_ID],WEST_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length,30);
+    assert.equal(sha256(JSON.stringify(m)),FP); assert.equal(GRID_FP.fingerprints[ID],FP); assert.equal(GRID_FP.fingerprints[WEST_ID],WEST_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length,31);
     for(const [id,fp] of Object.entries(GRID_FP.fingerprints)) assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)),fp,`${id}: fingerprint stable`);
     const audit=require('../transition-audit.js'); const verdict=Object.fromEntries(audit.seamReadiness.edges.map((e)=>[e.mapId+'|'+e.dir,e.verdict]));
-    assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BORDER');
-    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:22,ALIGNS:50,BLOCKED:44}); assert.equal(audit.seamReadiness.edges.length,120);
-    assert.equal(g.run('continuousSeamEntries().length'),70); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),30); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),131); assert.equal(g.run('SAVE_VERSION'),4);
+    assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BLOCKED');
+    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:24,ALIGNS:50,BLOCKED:46}); assert.equal(audit.seamReadiness.edges.length,124);
+    assert.equal(g.run('continuousSeamEntries().length'),70); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),31); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),132); assert.equal(g.run('SAVE_VERSION'),4);
   },
 };

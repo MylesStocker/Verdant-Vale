@@ -1174,6 +1174,7 @@ function validateNPCs() {
     'overworld',
     'map2', 'map3', 'map_n1', 'map_n2', 'map4', 'map3_n1', 'map3_n2',
     'north_basin_s', 'north_basin_c', 'north_basin_sw', 'north_basin_w',
+    'east_causeway', 'eastern_bank',
     'dungeon1', 'dungeon2', 'dungeon3', 'dungeon4', 'dungeon5',
     'dungeon_entrance',
     'sluice', 'sluice2', 'sluice3',
@@ -1559,6 +1560,10 @@ function validateItems() {
         addValidationError(GROUP, lbl + ': defenseCapBypass must be boolean when present');
       if ('defenseCapBypass' in item && item.type !== 'armor')
         addValidationError(GROUP, lbl + ': defenseCapBypass is only valid on armor');
+      if ('preventsPoison' in item && typeof item.preventsPoison !== 'boolean')
+        addValidationError(GROUP, lbl + ': preventsPoison must be boolean when present');
+      if ('preventsPoison' in item && item.type !== 'accessory')
+        addValidationError(GROUP, lbl + ': preventsPoison is only valid on accessories');
       // Every status-cure property (curesX) must be registered in the shared
       // STATUS_CURE_PROPERTIES contract (combat.js), so it routes through the one
       // status-cure resolution path and never leaks the cured status into item

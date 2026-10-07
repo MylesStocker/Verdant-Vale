@@ -6,7 +6,7 @@
 //   1. Holt's early (pre-reservoir) office dialogue mentions BOTH field
 //      investigators being away, without pre-revealing their disappearance --
 //      and the later reservoir_quest_started-gated Garrick/Dreyfuss material
-//      is untouched and only appears once the assignment has begun.
+//      only appears once the assignment has begun.
 //   2. Sera resolves to the formerly-vacant apartment (house:drenwick_apt_b2_u3)
 //      at valid, non-overlapping coordinates, is no longer in the civic square,
 //      and her Dayoff line no longer claims she is "just out" while indoors.

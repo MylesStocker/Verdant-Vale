@@ -23,9 +23,9 @@ module.exports = {
       enemy_shade_wraith:           [36, 36, 15, 3, 13],
       enemy_mire_toad_male:         [150, 150, 22, 16, 5],
       enemy_mire_toad_female:       [150, 150, 22, 16, 5],
-      enemy_smuggler_guard:         [46, 46, 17, 7, 8],
-      enemy_polwick:                [64, 64, 19, 7, 9],
-      enemy_essa:                   [36, 36, 17, 4, 14],
+      enemy_smuggler_guard:         [72, 72, 22, 10, 10],
+      enemy_polwick:                [96, 96, 25, 11, 12],
+      enemy_essa:                   [60, 60, 23, 7, 16],
       enemy_briar_warden:           [110, 110, 22, 8, 9],
       enemy_pale_sentry:            [500, 500, 32, 10, 4],
       enemy_marsh_rat:              [44, 44, 22, 4, 14],
@@ -34,14 +34,28 @@ module.exports = {
       enemy_lensweb_spider:         [180, 180, 34, 11, 15],
       enemy_pale_drowned_gallery:   [58, 58, 30, 4, 13],
       enemy_silt_hag_gallery:       [85, 85, 27, 9, 6],
+      enemy_silt_crab:              [78, 78, 24, 10, 6],
+      enemy_mudflat_strider:        [56, 56, 27, 6, 17],
+      enemy_basin_gull:             [28, 28, 26, 5, 18],
+      enemy_silt_crab_upper:        [78, 78, 24, 10, 6],
+      enemy_basin_gull_upper:       [28, 28, 26, 5, 18],
+      enemy_dust_drowned:           [92, 92, 29, 9, 12],
+      enemy_marrow_hulk:            [138, 138, 32, 14, 5],
     };
     for (const [id, stats] of Object.entries(expected))
       assert.deepEqual(statLine(g, id), stats, id + ' keeps the tuned combat profile');
 
-    // The toad's first Observe now names the exact matching reagent. The
-    // existing sexBane path still supplies the instant, no-counter resolution.
-    assert.match(g.run("getObservationText(ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male,0).join(' ')"), /male.*jack.*Jackbane/i);
-    assert.match(g.run("getObservationText(ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_female,0).join(' ')"), /female.*hen.*Henbane/i);
+    // The first Observe identifies the toad without solving the item choice;
+    // the second names the exact matching reagent. The existing sexBane path
+    // still supplies the instant, no-counter resolution.
+    const maleFirst = g.run("getObservationText(ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male,0).join(' ')");
+    const femaleFirst = g.run("getObservationText(ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_female,0).join(' ')");
+    assert.match(maleFirst, /male.*jack/i);
+    assert.match(femaleFirst, /female.*hen/i);
+    assert.doesNotMatch(maleFirst, /Jackbane|Henbane|reagent/i);
+    assert.doesNotMatch(femaleFirst, /Jackbane|Henbane|reagent/i);
+    assert.match(g.run("getObservationText(ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male,1).join(' ')"), /jack.*Jackbane/i);
+    assert.match(g.run("getObservationText(ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_female,1).join(' ')"), /hen.*Henbane/i);
     assert.equal(g.run("createItem('Jackbane Vial').sexBane"), 'male');
     assert.equal(g.run("createItem('Henbane Sprig').sexBane"), 'female');
 
@@ -71,7 +85,7 @@ module.exports = {
     assert.equal(Math.ceil(180 / (23 - 11)), 15, 'spider survives about fifteen average player hits');
     assert.equal(Math.ceil(70 / (34 - 16)), 4, 'spider drops the benchmark player in about four average hits');
     assert.ok(
-      (46 + 64 + 36) > ((23 - 7) + (23 - 7) + (23 - 4)),
+      (72 + 96 + 60) > ((23 - 10) + (23 - 11) + (23 - 7)),
       'the Polwick sequence cannot be cleared in one average hit per opponent',
     );
 

@@ -270,6 +270,17 @@ for (const fn of flatFns) {
   check(fn, `${fn}()`, { group: 'flat-transitions' });
 }
 
+// Scripted MQ5 ferry: ordinary movement remains blocked, so audit both explicit
+// authorized directions from their real source banks.
+check('crossCausewayFerry (west to east)', 'crossCausewayFerry();', {
+  group: 'scripted-transitions',
+  pre: "MainQuest=5; placeAtLocation('EAST_CAUSEWAY_MAP',10.5*TILE,8.5*TILE);",
+});
+check('crossCausewayFerry (east to west)', 'crossCausewayFerry();', {
+  group: 'scripted-transitions',
+  pre: "MainQuest=5; placeAtLocation('EASTERN_BANK_MAP',5.5*TILE,8.5*TILE);",
+});
+
 // ascendToDungeon5 lands the player exactly on the floor-5 boss's tile
 // (col 7, row 11 -- BOSS.x/BOSS.y). In real play you can only ascend back to
 // floor 5 having already defeated that boss (descendToDungeon6 is gated on

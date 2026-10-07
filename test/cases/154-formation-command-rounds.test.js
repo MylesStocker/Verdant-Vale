@@ -239,7 +239,7 @@ test('locked Run spends a round with no escape roll and all enemy responses',()=
 });
 
 test('the actual Receiver owner remains escape-blocked after repeated Observe',()=>{
-  const g=fresh(0);g.run(`reservoir_quest_started=true;gallery_deeper_stair_seen=true;
+  const g=fresh(0);g.run(`reservoir_quest_started=true;window.gallery_body_found=true;gallery_deeper_stair_seen=true;
     stats.hp=500;stats.maxHp=500;stats.def=8;
     descendSunkenGallery();placeAtLocation('SUNKEN_GALLERY_MAP',2.5*TILE,2.5*TILE);ascendSunkenGallery();`);
   for(let i=0;i<7;i++)g.press('Enter');

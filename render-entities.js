@@ -333,6 +333,40 @@ function drawWestOutfallCanalTunnelBody() {
   ctx.fillRect(faceX - 18, cy + 21, 37, 3);
 }
 
+// ─── East Causeway cable ferry ──────────────────────────────────────────────
+// Read-only, deterministic regional decoration. The cable spans both physical
+// chunks after MQ5; the scow itself is drawn only on the bank derived from the
+// canonical active chunk, matching the single travelling operator.
+function drawCausewayFerryBody(mapId) {
+  if (MainQuest < 5) return;
+  const eastern = mapId === 'EASTERN_BANK_MAP';
+  const cableY = Math.round(8.5 * TILE);
+
+  ctx.fillStyle = '#5f5545';
+  ctx.fillRect(eastern ? 0 : 10.5 * TILE, cableY - 8, eastern ? 4.5 * TILE : 5.5 * TILE, 2);
+  ctx.fillStyle = '#9a8b70';
+  ctx.fillRect(eastern ? 0 : 10.5 * TILE, cableY - 9, eastern ? 4.5 * TILE : 5.5 * TILE, 1);
+
+  if (causewayFerryMooredMapId() !== mapId) return;
+  const firstCol = eastern ? 1 : 11;
+  for (let col = firstCol; col < firstCol + 3; col++) drawBridgeDeck(col * TILE, 8 * TILE);
+
+  // Low patched side rails and the cable drum keep the reused bridge planks
+  // reading as a small work scow rather than a permanent bridge.
+  const left = firstCol * TILE;
+  ctx.fillStyle = '#4d4333';
+  ctx.fillRect(left, 8 * TILE + 3, 3 * TILE, 3);
+  ctx.fillRect(left, 9 * TILE - 6, 3 * TILE, 3);
+  ctx.fillStyle = '#70614b';
+  ctx.fillRect(left + 42, 8 * TILE + 9, 12, 12);
+  ctx.fillStyle = '#302a23';
+  ctx.fillRect(left + 45, 8 * TILE + 12, 6, 6);
+  ctx.fillStyle = '#8d2424';
+  ctx.fillRect(left + 6, 8 * TILE + 7, 10, 5);
+  ctx.fillStyle = '#c7b46d';
+  ctx.fillRect(left + 6, 8 * TILE + 7, 10, 2);
+}
+
 // ─── Player Drawing ───────────────────────────────────────────────────────────
 function drawPlayer() {
   const px = Math.round(player.x);

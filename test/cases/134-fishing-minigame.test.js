@@ -17,15 +17,15 @@ module.exports = {
     // ── 1. Difficulty scales with rod power (shorter seq, wider window). ───────
     g.run('startFishing(1)');
     assert.equal(g.run('fishing.seq.length'), 7, 'power 1: 7 prompts');
-    assert.equal(g.run('fishing.windowFrames'), 34, 'power 1: tight window');
+    assert.equal(g.run('fishing.windowFrames'), 120, 'power 1: two-second window');
     g.run('endFishing()');
     g.run('startFishing(2)');
     assert.equal(g.run('fishing.seq.length'), 6, 'power 2: 6 prompts');
-    assert.equal(g.run('fishing.windowFrames'), 44, 'power 2: wider window');
+    assert.equal(g.run('fishing.windowFrames'), 150, 'power 2: wider window');
     g.run('endFishing()');
     g.run('startFishing(3)');
     assert.equal(g.run('fishing.seq.length'), 5, 'power 3: 5 prompts');
-    assert.equal(g.run('fishing.windowFrames'), 54, 'power 3: widest window');
+    assert.equal(g.run('fishing.windowFrames'), 180, 'power 3: widest window');
     g.run('endFishing()');
 
     // ── 2. Completing the whole sequence lands a catch. ───────────────────────
@@ -46,6 +46,8 @@ module.exports = {
       try { startFishing(1); handleFishingKey('ArrowRight'); } finally { Math.random = _r; }
     `);
     assert.equal(g.run('fishing.result.win'), false, 'wrong key = it gets away');
+    assert.equal(g.run('fishing.result.lines[0]'), 'The prompt was LEFT; you pressed RIGHT.',
+      'wrong-key result identifies both the expected and pressed prompts');
     assert.equal(g.run('stats.items.length'), 0, 'a miss grants nothing');
     g.run('endFishing()');
 
@@ -53,10 +55,14 @@ module.exports = {
     g.run(`
       var _r = Math.random; Math.random = function(){ return 0; };
       try { startFishing(1); } finally { Math.random = _r; }
-      for (var i=0; i<fishing.windowFrames + 2; i++) updateFishing();
+      for (var i=0; i<fishing.windowFrames - 1; i++) updateFishing();
     `);
+    assert.equal(g.run('fishing.phase'), 'play', 'the full response window remains playable');
+    g.run('updateFishing()');
     assert.equal(g.run('fishing.phase'), 'result', 'timeout resolves the cast');
     assert.equal(g.run('fishing.result.win'), false, 'timeout = it gets away');
+    assert.equal(g.run('fishing.result.lines[0]'), 'The LEFT prompt ran out before you pressed it.',
+      'timeout result identifies the missed prompt');
     g.run('endFishing()');
 
     // ── 5. Bait is sold at the Drenwick Provision Store (Oda), not the dock. ──

@@ -50,8 +50,9 @@ function outdoorContentKeyInfo(mapId) {
 }
 
 // ── The sole authority for physical-map -> outdoor procedural decorations ────
-// Each entry draws that map's STATIC decoration body at LOCAL coordinates (the
-// caller has already translated to the chunk's world origin). Player-relative
+// Each entry draws that map's deterministic decoration body at LOCAL coordinates
+// (the caller has already translated to the chunk's world origin). Bodies may
+// read canonical story/location state but never mutate it. Player-relative
 // hints/prompts are NOT here — they stay in the active-only draw functions.
 const OUTDOOR_MAP_DECOR = {
   MAP4:   function () { if (typeof drawThornmereStoneBody === 'function')  drawThornmereStoneBody(); },
@@ -59,6 +60,8 @@ const OUTDOOR_MAP_DECOR = {
   // Scenery-only West Outfall canal tunnel. This is its production draw path,
   // exactly once per frame whenever the inaccessible chunk is a visible neighbour.
   DRENWICK_WEST_OUTFALL_MAP: function () { if (typeof drawWestOutfallCanalTunnelBody === 'function') drawWestOutfallCanalTunnelBody(); },
+  EAST_CAUSEWAY_MAP: function () { if (typeof drawCausewayFerryBody === 'function') drawCausewayFerryBody('EAST_CAUSEWAY_MAP'); },
+  EASTERN_BANK_MAP: function () { if (typeof drawCausewayFerryBody === 'function') drawCausewayFerryBody('EASTERN_BANK_MAP'); },
 };
 
 // Active counterpart to drawNeighbourOutdoorContent()'s decoration dispatch.
@@ -102,7 +105,7 @@ function drawNeighbourOutdoorContent(cx) {
     drawContentNPCsForPhysicalMap(cx.mapId);
   }
   const decor = OUTDOOR_MAP_DECOR[cx.mapId];
-  if (typeof decor === 'function') decor();                 // static landmark body (no active hint)
+  if (typeof decor === 'function') decor();                 // deterministic landmark body (no active hint)
 }
 
 if (typeof window !== 'undefined') {

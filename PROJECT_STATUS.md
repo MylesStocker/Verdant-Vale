@@ -6,6 +6,31 @@ actually fits together.
 
 ## Current state
 
+### MQ5 and the first eastward threshold
+
+The canonical Sera/Liora cutaway now records completion only when its normal
+story entry returns Lely to the Drenwick infirmary; debug previews remain
+progression-neutral. The journal then directs Lely to the Calwick supervisor.
+Finding Dreyfuss through the existing `gallery_body_found` authority is required
+before the Receiver can arm and before the Gallery report can grant its reward or
+complete MQ4. After that report and the cutaway, the supervisor advances `MainQuest`
+from 4 to 5, gives her a sealed report for the regional office in the unnamed
+eastern city, and treats MQ5 itself as official ferry authorization. The
+assignment and repeat conversation are idempotent, and the new completion flag
+is save-bound without changing `SAVE_VERSION` 4.
+
+At MQ5, one ferry operator and a small government cable scow appear at the
+broken East Causeway. The player may cross or decline; the same service returns
+them safely. Ordinary WATER collision continues to block the washed-out span.
+Before MQ5, no ferry element exists; the original top-right broken-causeway
+inspect remains available with its established text and collision. That inspect
+also remains independently available after the ferry arrives.
+The ferry uses the shared `transitionToLocation()` path rather than a conditional
+regional seam. One 15×16 `EASTERN_BANK_MAP` at regional `(5,2)` provides a quiet,
+encounter-free landing and a maintained road continuing east to the ordinary
+unfinished regional border. The eastern city, onward road, shops, encounters,
+new quest chain, and Thornmere boats remain deferred.
+
 ### Reservoir balance-lock reward
 
 The Warden Blade (+10 ATK, unchanged) now comes from an optional, unmarked
@@ -17,11 +42,15 @@ No map cells, paths, quest requirements, or save version changed.
 
 ### Receiver playable vertical slice
 
-The reservoir assignment now requires the three-member Receiver ambush at the
-Gallery exit. Real room arrival in R0C4 records `gallery_deeper_stair_seen`,
-independently of inspecting the stair clue. Assigned players who have seen that
-room may back away from the exit warning to prepare, but cannot leave normally
-until acknowledged victory records `gallery_receiver_defeated`.
+The reservoir assignment now requires finding Dreyfuss in R1C4 before the
+three-member Receiver ambush can appear at the Gallery exit. The body is reachable
+before returning to that exit. Real room arrival in R0C4 records
+`gallery_deeper_stair_seen`, independently of inspecting the stair clue, but
+approaching the exit remains inert until `gallery_body_found` is true. Once it is,
+assigned players who have seen that room may back away from the exit warning to
+prepare, but cannot leave normally until acknowledged victory records
+`gallery_receiver_defeated`. The Calwick report requires both flags before it can
+grant its established reward, file the report, or complete MQ4.
 
 `gallery-receiver.js` owns staging, canonical activation and aftermath; the
 existing formation controller/resolver/playback/input/renderer run the battle.
@@ -32,15 +61,18 @@ existing effect authorities. Durations advance once per round, with no decrement
 on the application round. Boss-template metadata locks formation escape for the
 entire encounter; existing singleton escape rules remain unchanged.
 
-The Receiver keeps provisional base stats and no dedicated boss reward. Its
+The Receiver is a full boss encounter: Receiver has 400 HP, with substantially
+stronger Caller and Keeper support and dangerous attacks across the trio. It has
+no dedicated boss reward. Its
 authored trio now coordinates: Caller spends an action signalling a next-round
 double-damage strike; killing Caller breaks that pending signal. Keeper halves
 damage to Receiver while alive (rounded up), including offensive items/Bomb.
 Signals cannot re-arm on the release round. Normal defeat/home recovery creates
-fresh members on retry. Observe explains the relationships without revealing the
-aftermath. Map staging reveals Receiver first, then both helpers; separate
+fresh members on retry. Player-facing role labels, tactical instructions and
+mechanical Observe tips are absent; Lely sees only physical behaviour, attack
+results and diegetic observations. Map staging reveals Receiver first, then both helpers; separate
 programmatic battle art and historical signal/guard poses replace the placeholders.
-Route-level balance and browser playtesting remain deferred. Native/2x software
+Browser playtesting remains deferred. Native/2x software
 raster previews were inspected; they are not browser gameplay verification.
 The Lab remains separately inactive, adds a Receiver boss-lock test scenario,
 and restores inventory, equipment, statuses and temporary speed as well as HP
@@ -55,14 +87,14 @@ Playable start-to-endgame content across Calwick, Drenwick, the fen
 wilderness, the South Ruins dungeon (10 floors, including a horror branch),
 East Sluice (3 levels **plus the hidden Sealed Room — see the newest pass
 below**), Mirethyst's Vault, the hidden meadow (Verdant Vale NW nook), and
-the newer North Basin region (15 placed chunks: ten accessible and five
+the newer North Basin/eastern threshold region (16 placed chunks: eleven accessible and five
 scenery-only, plus the unmarked chamber and the Sunken Gallery hanging off
 the Upper Reach; see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-125 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 125 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 101 are the
+132 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 132 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 108 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -81,8 +113,9 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **30 regional chunks** now fill the `'overworld'` 5×6 envelope (no sparse voids
-  remain). The accessible **North Basin — Flooded Rim**
+- **31 regional chunks** are placed: the established 30 fill the `'overworld'`
+  5×6 envelope, and the first eastward threshold extends it at `(5,2)`. The
+  accessible **North Basin — Flooded Rim**
   (`NORTH_BASIN_NW2_MAP`, chunk (0,0)) is a 49.6%-WATER drowned woodland of
   encounter-eligible BASIN_MUD, REEDS, and three EXPOSED_STONE remnants. Six
   blocking `TREE_IN_WATER` tiles (stable tile 120) use the ordinary tile-property,
@@ -148,8 +181,17 @@ rooms were added to the registry.)
   that road into the Eastern Reaches through a broad five-tile fen opening. Its
   western 73 walkable cells form one component, while ordinary mud/stone subsidence
   and WATER completely interrupt the road from column 11 eastward. The present
-  blockage is deliberately terrain-only: reopening it later requires only terrain
-  replacement and an east seam, with no quest flag, save state, or movement rule.
+  blockage remains ordinary impassable terrain, and its established top-right
+  examination remains available before and after MQ5. At MQ5, deterministic decoration
+  and one active-bank operator expose an Empire-provided cable scow; `MainQuest >= 5`
+  is the authorization, with no inventory token or duplicate ferry flag.
+
+  The accessible **Eastern Bank** (`EASTERN_BANK_MAP`, chunk (5,2)) is the ferry's
+  modest east-side threshold. Its full west edge remains WATER, so there is no
+  ordinary movement seam across the washed-out span. A planked landing meets a
+  maintained PATH continuing visibly to the east border. The map is safe and
+  saveable, with no encounters, items, shops, dungeon, major NPC cast, or onward
+  quest content; the ferry provides the safe return to East Causeway.
 
   The accessible **Eastern Canal Banks** (`DRENWICK_EAST_CANAL_MAP`, chunk (3,3))
   continues the Drenwick canal straight east with uninterrupted WATER across row 5.
@@ -177,9 +219,9 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 120 directed physical edges → ALIGNS 48 / BORDER 22 / BLOCKED 46 /
+  Audit: 124 directed physical edges → ALIGNS 50 / BORDER 24 / BLOCKED 46 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  68 directed entries / 34 reciprocal segment pairs. See architecture.md
+  70 directed entries / 35 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
 
 - **Eastern Reaches’ second farmhouse is enterable.** The dedicated safe
@@ -551,8 +593,8 @@ New save flags this pass: `rareborn_rhyme_heard`, `abandonedAptDresserLooted`,
     positions). The cistern and gauge deliberately carry the drought
     story (three rainless months, "drought" now official, "same story up
     north"). Plus a third North Basin enemy, the **Basin Gull** —
-    scavenger gull come inland for the die-offs on the exposed bed; hp 24
-    / atk 14 / spd 12, same tier as its poolmates, with its own bespoke
+    scavenger gull come inland for the die-offs on the exposed bed; now hp 28
+    / atk 26 / spd 18 as part of the tougher MQ4 reservoir pool, with its own bespoke
     battle sprite (`drawBattleBasinGull()`, registered by id in
     `ENEMY_SPRITE_DISPATCH`). Test 34 covers all of it end-to-end.
 

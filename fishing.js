@@ -26,10 +26,10 @@ const fishing = {
   result:       null,     // { win, title, lines } once resolved
 };
 
-// Difficulty from rod power. Old Fishing Rod (power 1): 7 prompts, ~0.57s each —
-// deliberately punishing. Each rod tier trims a prompt and widens the window.
+// Difficulty from rod power. The starter rod allows a readable two seconds per
+// prompt; each rod tier still trims a prompt and widens the response window.
 function fishingSeqLength(power)    { return Math.max(3, 8 - power); }   // p1:7 p2:6 p3:5
-function fishingWindowFrames(power) { return 24 + 10 * power; }          // p1:34 p2:44 p3:54
+function fishingWindowFrames(power) { return 90 + 30 * power; }          // p1:120 p2:150 p3:180
 
 const FISHING_KEYS = ['left', 'right', 'up', 'down', 'space'];
 // Raw keydown value -> prompt token.
@@ -60,7 +60,10 @@ function updateFishing() {
   if (fishing.flash > 0) fishing.flash--;
   if (fishing.phase !== 'play') return;
   if (fishing.timer > 0) fishing.timer--;
-  if (fishing.timer <= 0) fishingMiss('Too slow — the line goes slack.');
+  if (fishing.timer <= 0) {
+    const expected = FISHING_LABEL[fishing.seq[fishing.idx]];
+    fishingMiss(`The ${expected} prompt ran out before you pressed it.`);
+  }
 }
 
 // A keydown while fishing.active. In the play phase it is a prompt attempt; in the
@@ -79,7 +82,8 @@ function handleFishingKey(key) {
     if (fishing.idx >= fishing.seq.length) fishingSuccess();
     else fishing.timer = fishing.windowFrames;
   } else {
-    fishingMiss('Wrong move — it thrashes off the hook.');
+    const expected = FISHING_LABEL[fishing.seq[fishing.idx]];
+    fishingMiss(`The prompt was ${expected}; you pressed ${FISHING_LABEL[pressed]}.`);
   }
 }
 

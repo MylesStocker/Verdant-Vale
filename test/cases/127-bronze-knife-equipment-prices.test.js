@@ -1,7 +1,8 @@
 'use strict';
 // Lély's issued weapon is the +2 Bronze Knife, while every positive canonical
 // price accepted by an equipment slot is doubled. Consumables and reagents keep
-// their established prices, and zero-value equipment remains zero.
+// their established prices, and zero-value equipment remains zero. The
+// travelling salesman adds a further shop-only equipment premium.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -30,7 +31,7 @@ module.exports = {
       'Wraithband': 400,
       'Warden Blade': 440,
       'Resonant Targe': 360,
-      'Fen Mask': 400,
+      'Fen Mask': 800,
       'Fen Cowl': 240,
       'Amethyst Bangle': 800,
     };
@@ -56,11 +57,39 @@ module.exports = {
     assert.equal(g.run("ITEM_REGISTRY['Old Boot'].price"), 0);
     assert.equal(g.run("ITEM_REGISTRY['Bottle of Mushroom Wine'].price"), 12);
     assert.equal(g.run("ITEM_REGISTRY['Case of Mushroom Wine'].price"), 132);
+    assert.deepEqual(
+      JSON.parse(g.run("JSON.stringify(TRAVELLER_STOCK.find(function(item){return item.name==='Fen Mask';}))")),
+      { name: 'Fen Mask', type: 'accessory', bonus: 5, price: 1600, preventsPoison: true }
+    );
+    g.run("dialogue.open=false;stats.items=[];stats.gold=1599;shop.open=true;shop.screen='buy';shop.stock=TRAVELLER_STOCK;shop.cursor=TRAVELLER_STOCK.findIndex(function(item){return item.name==='Fen Mask';});");
+    g.press('Enter');
+    assert.equal(g.run('stats.gold'), 1599, 'Fen Mask cannot be bought below the traveller\'s 1600g price');
+    assert.equal(g.run("stats.items.some(function(item){return item.name==='Fen Mask';})"), false);
+    g.run('stats.gold=1600;');
+    g.press('Enter');
+    assert.equal(g.run('stats.gold'), 0, 'Fen Mask purchase deducts exactly 1600g');
+    assert.equal(g.run("stats.items.filter(function(item){return item.name==='Fen Mask';}).length"), 1);
+    assert.equal(g.run("stats.items.find(function(item){return item.name==='Fen Mask';}).price"), 800,
+      'the purchased item retains its canonical value rather than the shop markup');
 
     assert.equal(
-      g.run("MERCHANT_STOCK.every(function(item){return item.price===ITEM_REGISTRY[item.name].price;}) && TRAVELLER_STOCK.every(function(item){return item.price===ITEM_REGISTRY[item.name].price;})"),
+      g.run("MERCHANT_STOCK.every(function(item){return item.price===ITEM_REGISTRY[item.name].price;})"),
       true,
-      'both shops inherit the doubled registry prices'
+      'the permanent merchant continues to use canonical prices'
+    );
+    assert.deepEqual(
+      JSON.parse(g.run(`JSON.stringify(Object.fromEntries(TRAVELLER_STOCK.map(function(item){return [item.name,item.price];})))`)),
+      {
+        Elixir: 80,
+        'Battle Axe': 1000,
+        'Dragon Blade': 2100,
+        'Shadow Cloak': 1120,
+        'Mithril Shield': 880,
+        Wraithband: 800,
+        'Fen Mask': 1600,
+        'Sapper Charge': 200,
+      },
+      'traveller equipment is doubled except for the tripled Dragon Blade; consumables retain canonical prices'
     );
     assert.deepEqual(
       JSON.parse(g.run(`JSON.stringify(

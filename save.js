@@ -48,6 +48,7 @@ const QUEST_FLAG_BINDINGS = [
   lex('sluice_pay_ticket_ready', false, () => sluice_pay_ticket_ready, (v) => { sluice_pay_ticket_ready = v; }),
   lex('sluice_reward_given', false, () => sluice_reward_given, (v) => { sluice_reward_given = v; }),
   lex('MainQuest', 0, () => MainQuest, (v) => { MainQuest = v; }),
+  lex('sera_liora_opening_complete', false, () => sera_liora_opening_complete, (v) => { sera_liora_opening_complete = v; }),
   lex('equipment_ticket_ready', false, () => equipment_ticket_ready, (v) => { equipment_ticket_ready = v; }),
   lex('letter_quest_stage', 0, () => letter_quest_stage, (v) => { letter_quest_stage = v; }),
   lex('cat_quest_stage', 0, () => cat_quest_stage, (v) => { cat_quest_stage = v; }),

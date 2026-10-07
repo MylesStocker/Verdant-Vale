@@ -54,6 +54,9 @@ const actorEvents=r=>r.events.filter(e=>e.actorType==='enemy');
 
 test('trio binds three exact identities once; duplicate/mixed subsets gain no coordination',()=>{
   const g=fresh(),c=J(g,'formationRounds.coordination()');
+  assert.deepEqual(J(g,'GALLERY_RECEIVER_TEMPLATES.map(e=>[e.hp,e.maxHp,e.atk,e.def,e.spd])'),[
+    [400,400,36,12,6],[140,140,30,6,14],[180,180,28,10,8],
+  ]);
   assert.deepEqual([c.receiverId,c.callerId,c.keeperId],J(g,'combat.enemies.map(e=>e.instanceId)'));
   assert.equal(c.strikeRound,0);assert.equal(c.nextSignalRound,1);
   g.run(`endCombat();initializeFormationState([{enemyId:'enemy_gallery_receiver',slot:0},{enemyId:'enemy_gallery_caller',slot:1}]);`);
@@ -83,7 +86,7 @@ test('next round replaces Receiver attack with exactly one doubled heavy strike'
   const g=fresh();prime(g);
   const {r}=round(g,{type:'run'},[0,0,0,...HIT,...HIT,...HIT]);
   const heavy=r.events.find(e=>e.type==='heavy_attack');
-  assert.equal(heavy.actorId,target(g,0));assert.equal(heavy.attemptedDamage,16);
+  assert.equal(heavy.actorId,target(g,0));assert.equal(heavy.attemptedDamage,68);
   assert.equal(actorEvents(r).length,3);assert.equal(r.events.some(e=>e.type==='signal'),false);
   assert.equal(g.run('formationRounds.coordination().strikeRound'),0);
   assert.equal(prime(g).r.events.find(e=>e.type==='signal').strikeRound,4);
@@ -101,7 +104,7 @@ for(const critical of [false,true]) test('heavy strike preserves crit/evade orde
   const {r}=round(g,{type:'run'},[0,0,0,0.5,critical?0:0.99,0.99,...HIT,...HIT]);
   const event=r.events.find(e=>e.type==='heavy_attack');
   assert.equal(event.critical,critical);
-  assert.equal(event.attemptedDamage,g.run(`attackDamageNumbers(10,effectivePlayerIncomingMitigation(10),1,${critical}).dmg*2`));
+  assert.equal(event.attemptedDamage,g.run(`attackDamageNumbers(36,effectivePlayerIncomingMitigation(36),1,${critical}).dmg*2`));
 });
 
 test('Bullet Time can evade a heavy strike and it still consumes the charge once',()=>{
@@ -114,7 +117,7 @@ test('Bullet Time can evade a heavy strike and it still consumes the charge once
 });
 
 test('killing Caller before the warned strike breaks it immediately and skips its slot',()=>{
-  const g=fresh();prime(g);g.run('stats.atk=30;');
+  const g=fresh();prime(g);g.run('stats.atk=30;combat.enemies[1].hp=1;');
   const {r,p}=round(g,attack(g,1),[0,0,0,...HIT,...HIT,...HIT]);
   assert.equal(r.events[0].targetId,target(g,1));assert.equal(r.events[1].type,'signal_broken');
   assert.equal(r.events[1].reason,'caller_dead');assert.equal(p.frames[1].coordination.strikeRound,2);
@@ -124,20 +127,20 @@ test('killing Caller before the warned strike breaks it immediately and skips it
 });
 
 test('a faster Caller can signal and be interrupted in the same round',()=>{
-  const g=fresh();g.run('stats.atk=30;');
+  const g=fresh();g.run('stats.atk=30;combat.enemies[1].hp=1;');
   const {r}=round(g,attack(g,1),[0,0.99,0,...HIT,...HIT,...HIT]);
   assert.equal(r.events[0].type,'signal');assert.equal(r.events[2].type,'signal_broken');
   assert.equal(g.run('formationRounds.coordination().strikeRound'),0);
 });
 
-test('the warning disappears on the historical Caller death frame, not ahead of it',()=>{
-  const g=fresh();prime(g);g.run('stats.atk=30;formationSessionController.begin();formationSessionController.beginAttack();formationSessionController.moveTarget("next");');
+test('historical Caller death frames expose no tactical instruction overlay',()=>{
+  const g=fresh();prime(g);g.run('stats.atk=30;combat.enemies[1].hp=1;formationSessionController.begin();formationSessionController.beginAttack();formationSessionController.moveTarget("next");');
   record(g);tape(g,[0,0,0,...HIT,...HIT,...HIT],'formationSessionController.confirmTarget();');
   g.run('paint=[];drawCombat(formationSessionController.getView());');
-  assert.ok(J(g,'paint').some(c=>c.type==='text'&&c.args[0]==='A heavy strike is prepared.'));
+  assert.equal(J(g,'paint').filter(c=>c.type==="text").some(c=>/HEAVY READY|SIGNALLING|PROTECTING|GUARDED|Stop the Caller|strike is prepared/i.test(c.args[0])),false);
   g.run('formationSessionController.advancePlayback();paint=[];drawCombat(formationSessionController.getView());');
   assert.equal(g.run('formationSessionController.getView().enemies[1].hp'),0);
-  assert.equal(J(g,'paint').some(c=>c.type==='text'&&c.args[0]==='A heavy strike is prepared.'),false);
+  assert.equal(J(g,'paint').filter(c=>c.type==="text").some(c=>/HEAVY READY|SIGNALLING|PROTECTING|GUARDED|Stop the Caller|strike is prepared/i.test(c.args[0])),false);
 });
 
 test('coordination follows exact identity with roles in a different stable slot order',()=>{
@@ -148,18 +151,18 @@ test('coordination follows exact identity with roles in a different stable slot 
 });
 
 test('killing Receiver breaks its pending signal; living helpers still fight',()=>{
-  const g=fresh();prime(g);g.run('stats.atk=200;');
+  const g=fresh();prime(g);g.run('stats.atk=200;combat.enemies[0].hp=1;');
   const {r}=round(g,attack(g,0),[0,0,0,...HIT,...HIT,...HIT]);
   assert.equal(r.events[0].type,'guarded_attack');assert.equal(r.events[1].reason,'receiver_dead');
   assert.equal(r.outcome,'ongoing');assert.equal(r.events.filter(e=>e.type==='attack').length,2);
 });
 
 test('Keeper halves Receiver damage after the normal roll, rounding up; minimum is one',()=>{
-  for(const atk of [4,9,10]) {
+  for(const atk of [12,13,20]) {
     const g=fresh();g.run('stats.atk='+atk+';');
     const {r}=round(g,attack(g,0),[0,0,0,...HIT,...HIT,...HIT]);
     const e=r.events[0];assert.equal(e.type,'guarded_attack');
-    assert.equal(e.unprotectedDamage,g.run(`attackDamageNumbers(${atk},4,1,false).dmg`));
+    assert.equal(e.unprotectedDamage,g.run(`attackDamageNumbers(${atk},12,1,false).dmg`));
     assert.equal(e.attemptedDamage,Math.ceil(e.unprotectedDamage/2));assert.ok(e.attemptedDamage>=1);
     assert.equal(e.keeperId,target(g,2));
   }
@@ -173,11 +176,11 @@ test('Keeper does not shield itself or Caller',()=>{
 });
 
 test('killing Keeper removes protection for the next action without moving a slot',()=>{
-  const g=fresh(),ids=J(g,'combat.enemies.map(e=>e.instanceId)');g.run('stats.atk=40;');
+  const g=fresh(),ids=J(g,'combat.enemies.map(e=>e.instanceId)');g.run('stats.atk=40;combat.enemies[2].hp=1;');
   round(g,attack(g,2),[0,0,0,...HIT,...HIT]);
   assert.equal(g.run('combat.enemies[2].hp'),0);
   const {r}=round(g,attack(g,0),[0,0,...HIT,...HIT,...HIT]);
-  assert.equal(r.events[0].type,'attack');assert.equal(r.events[0].attemptedDamage,36);
+  assert.equal(r.events[0].type,'attack');assert.equal(r.events[0].attemptedDamage,28);
   assert.deepEqual(J(g,'combat.enemies.map(e=>e.instanceId)'),ids);
 });
 
@@ -186,24 +189,24 @@ for(const id of ['Throwing Knife','Sapper Charge'])test(id+' respects protection
   const raw=g.run(`offensiveItemDamage(ITEM_REGISTRY[${JSON.stringify(id)}],combat.enemies[0])`);
   const {r,p}=round(g,command,[0,0,0,...HIT,...HIT]);
   assert.equal(r.events[0].type,'item');assert.equal(g.run('stats.items.length'),0);
-  assert.equal(p.frames[0].enemies[0].hp,54);assert.equal(p.frames[1].enemies[0].hp,54-Math.ceil(raw/2));
+  assert.equal(p.frames[0].enemies[0].hp,400);assert.equal(p.frames[1].enemies[0].hp,400-Math.ceil(raw/2));
 });
 
 test('Bomb detonation obeys living Keeper protection and can break a Caller signal',()=>{
   for(const slot of [0,1]) {
-    const g=fresh();round(g,addItem(g,'Bomb',slot),[0,0,0,...HIT,...HIT]);
+    const g=fresh();if(slot===1)g.run('combat.enemies[1].hp=80;');round(g,addItem(g,'Bomb',slot),[0,0,0,...HIT,...HIT]);
     round(g,{type:'run'},[0,0,0,...HIT,...HIT,...HIT]);
     prime(g);
     const {r}=round(g,{type:'run'},[0,0,0,...HIT,...HIT,...HIT]);
     const bomb=r.events.find(e=>e.type==='bomb_tick');assert.equal(bomb.attemptedDamage,slot===0?40:80);
     assert.equal(g.run('combat.bombFuse'),0);
-    if(slot===0)assert.equal(g.run('combat.enemies[0].hp'),14);
+    if(slot===0)assert.equal(g.run('combat.enemies[0].hp'),360);
     else assert.equal(g.run('combat.enemies[1].hp'),0);
   }
 });
 
 test('a Bomb killing Caller on a signalling round breaks the pending strike',()=>{
-  const g=fresh();prime(g);
+  const g=fresh();prime(g);g.run('combat.enemies[1].hp=80;');
   round(g,addItem(g,'Bomb',1),[0,0,0,...HIT,...HIT,...HIT]);
   prime(g);round(g,{type:'run'},[0,0,0,...HIT,...HIT,...HIT]);
   const {r}=prime(g);
@@ -213,7 +216,7 @@ test('a Bomb killing Caller on a signalling round breaks the pending strike',()=
 });
 
 test('Bomb protection is evaluated at detonation, not at planting',()=>{
-  const g=fresh();round(g,addItem(g,'Bomb',0),[0,0,0,...HIT,...HIT]);
+  const g=fresh();g.run('combat.enemies[0].hp=80;combat.enemies[2].hp=1;');round(g,addItem(g,'Bomb',0),[0,0,0,...HIT,...HIT]);
   round(g,addItem(g,'Sapper Charge',2),[0,0,0,...HIT,...HIT]);
   round(g,{type:'run'},[0,0,...HIT]);
   const {r}=round(g,{type:'run'},[0,0,...HIT,...HIT]);
@@ -257,11 +260,13 @@ test('the real Lab Receiver scenario uses the same mechanic and restores on exit
   assert.equal(g.run('formationRounds.coordination()'),null);assert.equal(g.run('gallery_receiver_defeated'),false);
 });
 
-test('Observe teaches all three roles without disclosing the aftermath',()=>{
+test('Observe stays diegetic and gives no tactical role instructions',()=>{
   for(const slot of [0,1,2]) {
     const g=fresh(),{r}=round(g,observe(g,slot),[0,0,0,...HIT,...HIT]);
     const e=r.events[0];assert.equal(e.type,'observe');assert.equal(e.targetId,target(g,slot));
-    assert.match(e.lines.join(' '),/Caller|Keeper/);assert.doesNotMatch(e.lines.join(' '),/bridle|filament|mechanism|skull/);
+    assert.match(e.lines.join(' '),/throat|forelimbs|Water keeps running/i);
+    assert.doesNotMatch(e.lines.join(' '),/damage|half|heavy|next round|bring down|interrupt|signal|attack|protect|guard/i);
+    assert.doesNotMatch(e.lines.join(' '),/bridle|filament|mechanism|skull/);
     assert.deepEqual(J(g,'combat.enemies.map(e=>e.observeCount)'),[0,1,2].map(i=>i===slot?1:0));
   }
 });
@@ -308,7 +313,7 @@ test('session view and art use projected warning and HP, never final live state'
     g.run('paint=[];drawCombat(formationSessionController.getView());');
     const v=J(g,'formationSessionController.getView()');
     const texts=J(g,'paint').filter(c=>c.type==='text').map(c=>c.args[0]);
-    assert.equal(texts.includes('A heavy strike is prepared.'),v.coordination.strikeRound>0);
+    assert.equal(texts.some(t=>/HEAVY READY|SIGNALLING|PROTECTING|GUARDED|Stop the Caller|strike is prepared/i.test(t)),false);
     if(v.playbackFrame.currentEvent?.type==='signal')sawSignal=true;
     assert.equal(snapshot(g),after);g.run('formationSessionController.advancePlayback();');
   }
@@ -334,7 +339,7 @@ test('separate map and battle pixel drawings fit native bounds for all poses',()
 });
 
 test('intro reveals Receiver first, then both helpers; input never unlocks between pages',()=>{
-  const g=fresh();g.run(`endCombat();reservoir_quest_started=true;gallery_deeper_stair_seen=true;
+  const g=fresh();g.run(`endCombat();reservoir_quest_started=true;window.gallery_body_found=true;gallery_deeper_stair_seen=true;
     descendSunkenGallery();placeAtLocation('SUNKEN_GALLERY_MAP',2.5*TILE,2.5*TILE);ascendSunkenGallery();`);
   g.press('Enter');g.press('Enter');g.press('Enter');
   assert.deepEqual(J(g,'galleryReceiverEncounter.getView().actors.map(a=>a.kind)'),['receiver']);

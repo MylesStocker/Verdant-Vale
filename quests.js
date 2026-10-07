@@ -91,6 +91,12 @@ let reservoir_report_filed   = false; // player has reported the Sunken Gallery 
 let gallery_deeper_stair_seen = false;
 let gallery_receiver_defeated = false;
 
+// The story-entry Sera/Liora cutaway has finished and control has returned to
+// Lely at the Drenwick infirmary. This is deliberately distinct from
+// basin_chamber_dream_done, which is set before the dream begins, and from the
+// progression-neutral debug preview of the same scene.
+let sera_liora_opening_complete = false;
+
 // ─── Side quest: The Weight Discrepancy ───────────────────────────────────────
 // A cargo weight mismatch between Drenwick harbormaster records and Calwick
 // district ledgers requires a neutral party to carry paperwork between offices.
@@ -459,6 +465,7 @@ function syncQuestFlagsToWindow() {
   window.reservoir_report_filed  = reservoir_report_filed;
   window.gallery_deeper_stair_seen = gallery_deeper_stair_seen;
   window.gallery_receiver_defeated = gallery_receiver_defeated;
+  window.sera_liora_opening_complete = sera_liora_opening_complete;
   window.schilling_quest_started = schilling_quest_started;
   window.schilling_returned      = schilling_returned;
   window.drama_stage             = drama_stage;
@@ -725,9 +732,22 @@ function getActiveQuestNotes() {
   if (reservoir_quest_started && !reservoir_report_filed) {
     notes.push({
       title: 'Reservoir Bed',
-      body: gallery_receiver_defeated
-        ? "Report what you found in the Sunken Gallery to the supervisor at the Calwick office."
-        : "The drought has uncovered old stonework in the reservoir bed north of Drenwick. Investigate it — in daylight. A basin observer already went out and did not come back.",
+      body: !window.gallery_body_found
+        ? "Continue searching the Sunken Gallery for the missing observers. Dreyfuss and Garrick were last seen below the reservoir bed."
+        : gallery_receiver_defeated
+          ? "Report Dreyfuss's death and what you found in the Sunken Gallery to the supervisor at the Calwick office."
+          : "Dreyfuss is found. Finish investigating the Sunken Gallery, then return to the supervisor in Calwick.",
+    });
+  }
+  if (window.gallery_body_found && sera_liora_opening_complete && MainQuest < 5) {
+    notes.push({
+      title: 'Beyond Local Authority',
+      body: "Report to the supervisor at the Calwick office. The Gallery findings and Dreyfuss's death require a larger office.",
+    });
+  } else if (MainQuest >= 5) {
+    notes.push({
+      title: 'Sealed Report',
+      body: "Carry the supervisor's sealed report east, give your firsthand account at the regional office, and request qualified assistance. Your assignment authorizes the ferry at the broken causeway.",
     });
   }
   // Schilling

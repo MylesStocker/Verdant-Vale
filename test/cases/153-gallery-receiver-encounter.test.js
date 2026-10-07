@@ -17,7 +17,7 @@ function fresh() {
   return g;
 }
 function warning(g) {
-  g.run(`reservoir_quest_started=true;gallery_deeper_stair_seen=true;
+  g.run(`reservoir_quest_started=true;window.gallery_body_found=true;gallery_deeper_stair_seen=true;
     descendSunkenGallery();placeAtLocation('SUNKEN_GALLERY_MAP',2.5*TILE,2.5*TILE);ascendSunkenGallery();`);
   assert.equal(g.run('galleryReceiverEncounter.isLocked()'),true);
   g.press('Enter');g.press('Enter');assert.equal(g.run('choice.open'),true);
@@ -48,6 +48,7 @@ function round(g,slot) {
   g.press('Enter');
 }
 function win(g) {
+  g.run('stats.hp=stats.maxHp=1000;stats.atk=1000;');
   rng(g);for(let i=0;g.run('combat.active');i++) {
     assert.ok(i<50);const slot=g.run('combat.enemies.find(e=>e.hp>0).slot');round(g,slot);
   }
@@ -58,6 +59,36 @@ function flags(g) {return J(g,'QUEST_FLAG_BINDINGS.map(b=>[b.key,b.get()])');}
 function preserved(g) {return g.run(`JSON.stringify({hp:stats.hp,items:stats.items,xp:stats.xp,gold:stats.gold,
   statusEffects,day,flags:QUEST_FLAG_BINDINGS.map(b=>[b.key,b.get()]),sequence:combatEnemyInstanceSequence,
   location:snapshotLocationState(),map:mapIdForRef(activeMap),player})`);}
+
+function walkGalleryRoute(g, goal) {
+  return g.run(`(function(goal){
+    var first={map:mapIdForRef(activeMap),col:Math.floor(player.x/TILE),row:Math.floor(player.y/TILE),prior:null};
+    var queue=[first],seen=new Set([first.map+':'+first.col+':'+first.row]),end=null;
+    for(var i=0;i<queue.length;i++){
+      var node=queue[i];if(node.map===goal){end=node;break;}
+      for(var step of [['west',-1,0],['east',1,0],['north',0,-1],['south',0,1]]){
+        var dir=step[0],dx=step[1],dy=step[2],col=node.col+dx,row=node.row+dy,map=node.map,cross=null;
+        if(col<0||col>=COLS||row<0||row>=ROWS){
+          var along=dx?node.row:node.col;
+          var seg=(EDGE_TRANSITIONS[map]?.[dir]||[]).find(function(s){return along>=s.sourceRange[0]&&along<=s.sourceRange[1];});
+          if(!seg)continue;var landing=edgeTransitionLanding(seg,along);if(!landing)continue;
+          map=typeof seg.targetMap==='string'?seg.targetMap:mapIdForRef(seg.targetMap);
+          col=landing.col;row=landing.row;cross=dir;
+        }
+        if(!map.startsWith('SUNKEN_GALLERY')||!WALKABLE[mapRefForId(map)[row][col]])continue;
+        var key=map+':'+col+':'+row;if(seen.has(key))continue;seen.add(key);
+        queue.push({map:map,col:col,row:row,prior:node,cross:cross});
+      }
+    }
+    if(!end)throw Error('Gallery route missing: '+goal);
+    var route=[];for(var n=end;n.prior;n=n.prior)route.unshift(n);
+    for(var routeNode of route){
+      if(routeNode.cross){if(!tryEdgeTransition(routeNode.cross))throw Error('Actual seam rejected');}
+      else placeAtLocation(routeNode.map,(routeNode.col+0.5)*TILE,(routeNode.row+0.5)*TILE);
+    }
+    return route.length;
+  })(${JSON.stringify(goal)})`);
+}
 
 test('defaults and exactly two new save bindings, with independent inspected clue',()=>{
   const g=fresh();assert.deepEqual(J(g,'[gallery_deeper_stair_seen,gallery_receiver_defeated,!!window.gallery_clue_stair]'),[false,false,false]);
@@ -87,6 +118,32 @@ test('validation, rendering, failed transition and development placement do not 
   g.renderFrame();assert.equal(g.run('gallery_deeper_stair_seen'),false);
   assert.equal(g.run("transitionToLocation({mapId:'unknown',x:0,y:0,facing:'up'})"),false);
   assert.equal(g.run('gallery_deeper_stair_seen'),false);
+});
+
+test('Dreyfuss body is reachable and examinable before the Receiver can appear',()=>{
+  const g=fresh();g.run('reservoir_quest_started=true;descendSunkenGallery();');
+  assert.ok(walkGalleryRoute(g,'SUNKEN_GALLERY_R1C4')>0);
+  assert.equal(g.run('galleryReceiverEncounter.isLocked()'),false);
+  assert.equal(g.run('combat.enemies.length'),0);
+  g.run("placeAtLocation('SUNKEN_GALLERY_R1C4',7.5*TILE,7.5*TILE);dialogue.open=false;choice.open=false;handleInteract();");
+  assert.equal(g.run('window.gallery_body_found'),true);
+  assert.match(g.run('dialogue.pages.flat().join(" ")'),/DREYFUSS|Dreyfuss/);
+  assert.equal(g.run('galleryReceiverEncounter.isLocked()'),false,'finding the body does not start the entrance ambush in the body room');
+});
+
+test('Receiver entrance is absent and inert before Dreyfuss is found',()=>{
+  const g=fresh();g.run(`reservoir_quest_started=true;gallery_deeper_stair_seen=true;window.gallery_body_found=false;
+    descendSunkenGallery();placeAtLocation('SUNKEN_GALLERY_MAP',2.5*TILE,2.5*TILE);`);
+  const before=preserved(g);g.run('ascendSunkenGallery();');
+  assert.equal(g.run('mapIdForRef(activeMap)'),'NORTH_BASIN_NW_MAP','the ordinary exit remains available before the body discovery');
+  assert.equal(g.run('galleryReceiverEncounter.isLocked()'),false);
+  assert.equal(g.run('dialogue.open||choice.open'),false);
+  assert.equal(g.run('combat.enemies.length'),0);
+  assert.equal(g.run('gallery_receiver_defeated'),false);
+  assert.equal(g.run('receiverRolls'),0);
+  const after=JSON.parse(preserved(g)),prior=JSON.parse(before);
+  assert.equal(after.sequence,prior.sequence,'no formation identity allocated');
+  assert.deepEqual(after.flags,prior.flags,'no quest/completion state changed');
 });
 
 for(const [assigned,seen] of [[false,false],[false,true],[true,false]]) test('normal stair exit before armed: '+assigned+'/'+seen,()=>{
@@ -154,7 +211,7 @@ test('only the exact canonical owner may activate a formation; entry is once-onl
   assert.equal(g.run('JSON.stringify(stats.items)===inventoryBefore'),true);
   assert.deepEqual(view(g).availableActions,['attack','item','observe','run']);
   assert.deepEqual(J(g,'combat.enemies.map(e=>[e.id,e.slot,e.hp])'),[
-    ['enemy_gallery_receiver',0,54],['enemy_gallery_caller',1,20],['enemy_gallery_keeper',2,32]]);
+    ['enemy_gallery_receiver',0,400],['enemy_gallery_caller',1,140],['enemy_gallery_keeper',2,180]]);
   assert.equal(new Set(J(g,'combat.enemies.map(e=>e.instanceId)')).size,3);
   const ids=J(g,'combat.enemies.map(e=>e.instanceId)');g.run('ENCOUNTER_HANDLERS.gallery_receiver();');
   assert.deepEqual(J(g,'combat.enemies.map(e=>e.instanceId)'),ids);
@@ -164,7 +221,7 @@ test('only the exact canonical owner may activate a formation; entry is once-onl
 });
 
 test('canonical render/input reuse the immutable session and one resolution per confirm',()=>{
-  const g=fresh();enter(g);rng(g);g.run(`var resolutions=0,realResolve=resolveFormationRound;
+  const g=fresh();enter(g);rng(g);g.run(`stats.atk=200;var resolutions=0,realResolve=resolveFormationRound;
     resolveFormationRound=a=>{resolutions++;return realResolve(a);};var drawnView=null;drawCombat=v=>{drawnView=v;};`);
   g.press('Enter');assert.equal(g.run('resolutions'),0);g.press('ArrowRight');const target=view(g).selectedTargetInstanceId;
   g.press('Enter');assert.equal(g.run('resolutions'),1);assert.equal(view(g).playbackFrame.player.hp,100);
@@ -203,7 +260,7 @@ test('acknowledged defeat uses ordinary recovery, preserves seen flag and retrie
   assert.equal(g.run('stats.hp'),100);assert.equal(g.run('day'),day+1);assert.equal(view(g),null);
   assert.equal(g.run('galleryReceiverEncounter.isLocked()'),false);assert.equal(g.run('combat.enemies.length'),0);
   closeDialogue(g);g.run("Math.random=()=>{throw Error('retry initialization RNG');};");enter(g);
-  assert.deepEqual(J(g,'combat.enemies.map(e=>e.hp)'),[54,20,32]);
+  assert.deepEqual(J(g,'combat.enemies.map(e=>e.hp)'),[400,140,180]);
   for(const id of J(g,'combat.enemies.map(e=>e.instanceId)'))assert.ok(!ids.includes(id));
 });
 
@@ -211,7 +268,7 @@ test('post-resolution fault never refunds, retries or completes; reload last sav
   const g=fresh();g.run('saveGame();');const saved=g.run("localStorage.getItem('verdantVale_save')");enter(g);rng(g);
   g.run(`var resolutions=0,realResolve=resolveFormationRound;
     resolveFormationRound=a=>{resolutions++;return realResolve(a);};
-    createFormationRoundPlayback=()=>{throw Error('injected after authoritative damage');};`);
+    createFormationRoundPlayback=()=>{throw Error('injected after authoritative damage');};stats.atk=200;`);
   g.press('Enter');g.press('ArrowRight');g.press('Enter');
   assert.equal(g.run('resolutions'),1);assert.equal(g.run('combat.enemies[1].hp'),0);
   assert.equal(g.run('galleryReceiverEncounter.getView().phase'),'fault');
@@ -229,16 +286,27 @@ test('post-resolution fault never refunds, retries or completes; reload last sav
 test('report cannot complete without victory, including supervisor and direct callback paths',()=>{
   const g=fresh();g.run(`sluice_job_started=sluice_fixed=sluice_reward_given=true;
     dispatch_quest_started=dispatch_delivered=dispatch_rewarded=true;fort_quest_started=true;
-    fort_quest_stage=6;mq4_available_day=1;reservoir_quest_started=true;window.sunken_gallery_seen=true;MainQuest=3;`);
+    fort_quest_stage=6;mq4_available_day=1;reservoir_quest_started=true;window.sunken_gallery_seen=true;
+    window.gallery_body_found=true;MainQuest=3;`);
   const gold=g.run('stats.gold');g.run('reportBasinFindings();');closeDialogue(g);
   assert.equal(g.run('reservoir_report_filed'),false);assert.equal(g.run('MainQuest'),3);assert.equal(g.run('stats.gold'),gold);
   g.run('supervisorDialogueBody();');assert.match(g.run('dialogue.pages.flat().join(" ")'),/Finish investigating/);
   assert.equal(g.run('choice.open'),false);
 });
 
+test('MQ4 report and every completion reward remain blocked without Dreyfuss',()=>{
+  const g=fresh();g.run(`reservoir_quest_started=true;gallery_receiver_defeated=true;window.gallery_body_found=false;MainQuest=3;
+    reservoir_report_filed=false;stats.gold=91;stats.items=[];reportBasinFindings();`);
+  assert.match(g.run('dialogue.pages.flat().join(" ")'),/find Garrick and Dreyfuss|Keep looking/i);
+  assert.equal(g.run('dialogue.callbacks'),null);
+  closeDialogue(g);
+  assert.deepEqual(J(g,'[reservoir_report_filed,MainQuest,stats.gold,stats.items.length]'),[false,3,91,0]);
+  assert.match(J(g,'getActiveQuestNotes()').find(n=>n.title==='Reservoir Bed').body,/Dreyfuss|missing observers/i);
+});
+
 for(const [clues,gold,item] of [[0,20,null],[1,75,null],[3,150,'Elixir'],[6,250,'Warp Stone']]) {
   test('post-victory report tier unchanged and exactly once: '+clues+' clues',()=>{
-    const g=fresh();g.run(`gallery_receiver_defeated=true;MainQuest=3;stats.items=[];stats.gold=0;
+    const g=fresh();g.run(`window.gallery_body_found=true;gallery_receiver_defeated=true;MainQuest=3;stats.items=[];stats.gold=0;
       ['satchel','notebook','visitor','survey','silt','gauge','reliefs','stair'].forEach((s,i)=>window['gallery_clue_'+s]=i<${clues});reportBasinFindings();var rewardCallback=dialogue.callbacks[0];`);
     closeDialogue(g);g.run('rewardCallback();reportBasinFindings();');
     assert.equal(g.run('stats.gold'),gold);assert.equal(g.run('MainQuest'),4);assert.equal(g.run('reservoir_report_filed'),true);
@@ -246,8 +314,15 @@ for(const [clues,gold,item] of [[0,20,null],[1,75,null],[3,150,'Elixir'],[6,250,
   });
 }
 
+test('body-gated Receiver victory permits the remaining MQ4 report progression',()=>{
+  const g=fresh();g.run('MainQuest=3;stats.gold=0;');enter(g);win(g);closeDialogue(g);
+  g.run('reportBasinFindings();');closeDialogue(g);
+  assert.deepEqual(J(g,'[window.gallery_body_found,gallery_receiver_defeated,reservoir_report_filed,MainQuest,stats.gold]'),
+    [true,true,true,4,20]);
+});
+
 test('armed player Warp Stone cannot bypass the ambush; debug warp remains available',()=>{
-  const g=fresh();g.run(`reservoir_quest_started=true;gallery_deeper_stair_seen=true;descendSunkenGallery();
+  const g=fresh();g.run(`reservoir_quest_started=true;window.gallery_body_found=true;gallery_deeper_stair_seen=true;descendSunkenGallery();
     warpMenu.open=true;warpMenu.mode='list';warpMenu.playerMode=true;warpMenu.destinations=getPlayerWarpDestinations();warpMenu.cursor=0;`);
   const map=g.run('activeMap');g.press('Enter');assert.equal(g.run('activeMap'),map);assert.equal(g.run('warpMenu.open'),true);
   g.run('warpMenu.open=false;');assert.equal(g.run('debugWarpToDestination(getPlayerWarpDestinations()[0].id).success'),true);
@@ -332,20 +407,15 @@ test('entrance to deeper room and back uses connected walkable tiles and real su
   assert.equal(g.run('inSunkenGallery'),false,'pre-assignment route remains freely escapable');
 });
 
-for(const level of [4,5]) test('provisional L'+level+' ordinary gear wins without critical luck, items or exceptional equipment',()=>{
-  const remaining=[];
-  for(const order of [[1,2,0],[0,2,1]]) {
-    const g=fresh();g.run(`stats.level=${level};stats.maxHp=${20+level*10};stats.hp=${15+level*10};
-      stats.atk=${6+level*2};stats.def=${level*2};stats.spd=${7+Math.floor(level/2)};
-      stats.weapon=createItem('Steel Sword');stats.armor=createItem('Leather Armor');`);
-    enter(g);g.run(`Math.random=()=>{receiverRolls++;return 0.5;};`);
-    for(let i=0;g.run('combat.active');i++) {
-      assert.ok(i<25);const slot=g.run(JSON.stringify(order)+'.find(s=>combat.enemies[s].hp>0)');
-      round(g,slot);
-    }
-    assert.equal(g.run('gallery_receiver_defeated'),true);remaining.push(g.run('stats.hp'));
-  }
-  assert.ok(remaining[0]>remaining[1],'Caller first avoids sustained extra damage');
+for(const level of [4,5]) test('unprepared L'+level+' cannot face-tank the Receiver boss',()=>{
+  const g=fresh();g.run(`stats.level=${level};stats.maxHp=${20+level*10};stats.hp=${15+level*10};
+    stats.atk=${6+level*2};stats.def=${level*2};stats.spd=${7+Math.floor(level/2)};
+    stats.weapon=createItem('Steel Sword');stats.armor=createItem('Leather Armor');`);
+  enter(g);g.run(`Math.random=()=>{receiverRolls++;return 0.5;};`);
+  let rounds=0;
+  while(g.run('combat.active')) { assert.ok(rounds++<3);round(g,0); }
+  assert.equal(g.run('gallery_receiver_defeated'),false);
+  assert.equal(g.run('mapIdForRef(activeMap)'),'HOUSE_INTERIOR_MAP');
 });
 
 test('canonical ownership clears through the shared collection cleanup; Lab remains inactive',()=>{

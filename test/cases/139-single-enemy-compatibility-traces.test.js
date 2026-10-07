@@ -202,13 +202,13 @@ test('Polwick: deferred first-hit scorch, later Burn tick, cleanup', () => {
   t.press('Attack', PLAYER_FIRST);
   const scorch = t.press('first enemy hit', [0.5]);
   assert.deepEqual(scorch.statuses, ['burn']);
-  assert.equal(scorch.player.hp, 78); // 16 physical + 6 scorch
+  assert.equal(scorch.player.hp, 72); // 22 physical + 6 scorch
   assert.equal(scorch.local.polwickHasCast, true);
   assert.equal(scorch.local.fireCastTimer, t.g.run('FIRE_CAST_FRAMES'));
   t.drainMessages();
   t.press('second Attack', [...PLAYER_FIRST,0.5]);
-  assert.equal(t.press('second physical hit').player.hp, 62);
-  assert.equal(t.press('Burn tick').player.hp, 52);
+  assert.equal(t.press('second physical hit').player.hp, 50);
+  assert.equal(t.press('Burn tick').player.hp, 40);
   const done = t.step('end', [], 'endCombat();');
   assert.deepEqual(done.statuses, []);
   assert.equal(done.local.fireCastTimer, 0);

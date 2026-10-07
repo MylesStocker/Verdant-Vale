@@ -21,17 +21,17 @@ const BRIAR_WARDEN_TEMPLATE = {
 // Intentionally hard for early-game players: fight-path is optional but punishing.
 const SMUGGLER_GUARD_TEMPLATE = {
   id: 'enemy_smuggler_guard',
-  name: 'Smuggler Guard', hp: 46, maxHp: 46, atk: 17, def: 7, spd: 8,
+  name: 'Smuggler Guard', hp: 72, maxHp: 72, atk: 22, def: 10, spd: 10,
   xp: 40, goldMin: 12, goldMax: 22,
 };
 const POLWICK_TEMPLATE = {
   id: 'enemy_polwick',
-  name: 'Polwick', hp: 64, maxHp: 64, atk: 19, def: 7, spd: 9,
+  name: 'Polwick', hp: 96, maxHp: 96, atk: 25, def: 11, spd: 12,
   xp: 52, goldMin: 20, goldMax: 35,
 };
 const ESSA_TEMPLATE = {
   id: 'enemy_essa',
-  name: 'Essa', hp: 36, maxHp: 36, atk: 17, def: 4, spd: 14,
+  name: 'Essa', hp: 60, maxHp: 60, atk: 23, def: 7, spd: 16,
   xp: 36, goldMin: 10, goldMax: 18,
 };
 
@@ -43,12 +43,12 @@ const PALE_SENTRY_TEMPLATE = {
   xp: 350, goldMin: 40, goldMax: 80,
 };
 
-// Gallery formation base stats remain provisional. Coordination is owned by
-// formationRounds below. No per-member awards: the report remains the reward.
+// Gallery formation boss stats. Coordination is owned by formationRounds below.
+// No per-member awards: the report remains the reward.
 const GALLERY_RECEIVER_TEMPLATES = [
-  {id:'enemy_gallery_receiver', name:'The Receiver', hp:54, maxHp:54, atk:10, def:4, spd:4, xp:0, goldMin:0, goldMax:0},
-  {id:'enemy_gallery_caller', name:'The Caller', hp:20, maxHp:20, atk:14, def:0, spd:12, xp:0, goldMin:0, goldMax:0},
-  {id:'enemy_gallery_keeper', name:'The Keeper', hp:32, maxHp:32, atk:9, def:2, spd:7, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_receiver', name:'The Receiver', hp:400, maxHp:400, atk:36, def:12, spd:6, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_caller', name:'The Caller', hp:140, maxHp:140, atk:30, def:6, spd:14, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_keeper', name:'The Keeper', hp:180, maxHp:180, atk:28, def:10, spd:8, xp:0, goldMin:0, goldMax:0},
 ];
 Object.defineProperty(GALLERY_RECEIVER_TEMPLATES[0], 'isBoss', {value:true});
 
@@ -315,6 +315,7 @@ function itemStatLabel(item) {
   if (item.type === 'shield')    return `DEF +${item.bonus}`;
   if (item.type === 'accessory' && item.evadeAll) return 'Evade 100%';
   if (item.type === 'accessory' && item.preventsCursed) return `SPD +${item.bonus} · wards curses`;
+  if (item.type === 'accessory' && item.preventsPoison) return `SPD +${item.bonus} · wards poison`;
   if (item.type === 'accessory') return `SPD +${item.bonus}`;
   if (item.type === 'potion')    return `HP  +${item.heals}`;
   return '';
@@ -720,10 +721,10 @@ function validateFormationPlayerBasicState(extended = false) {
         ![Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(gear))) fail();
     const props = Object.getOwnPropertyDescriptors(gear);
     const allowed = ['name','type','bonus','price', ...(slot === 'armor' ? ['defenseCapBypass'] : []),
-      ...(extended ? ['evadeAll','preventsCursed','questItem'] : [])];
+      ...(extended ? ['evadeAll','preventsCursed','preventsPoison','questItem'] : [])];
     if (Reflect.ownKeys(props).some(key => !allowed.includes(key) || !Object.hasOwn(props[key], 'value')) ||
         props.type?.value !== slot || typeof props.name?.value !== 'string' || !Number.isSafeInteger(props.bonus?.value) ||
-        ['defenseCapBypass','evadeAll','preventsCursed','questItem'].some(key => props[key] && typeof props[key].value !== 'boolean')) fail();
+        ['defenseCapBypass','evadeAll','preventsCursed','preventsPoison','questItem'].some(key => props[key] && typeof props[key].value !== 'boolean')) fail();
   }
   if (![effectiveAtk(),effectiveDef(),effectiveSpd()].every(Number.isSafeInteger)) fail();
 }
@@ -925,7 +926,7 @@ function formationItemDefinition(itemId) {
   const item = copyFormationData(ITEM_REGISTRY[itemId]);
   const allowed=['name','type','price','bonus','heals','curesPoison','curesCursed','evadeTurns','evadeRate',
     'damage','minDamage','targetsAll','fuse','ignoresDef','impactVerb','stunTurns','sexBane','battleOnly','questItem','keyItem',
-    'causesMuddied','defenseCapBypass','evadeAll','preventsCursed'];
+    'causesMuddied','defenseCapBypass','evadeAll','preventsCursed','preventsPoison'];
   if (Object.keys(item).some(k=>!allowed.includes(k))) throw new Error('Unsupported formation item capability');
   if (item.keyItem || item.name !== itemId) throw new Error('Invalid formation item');
   if ((Object.hasOwn(item,'targetsAll') && (item.targetsAll !== true || item.type !== 'throwable' || item.fuse)) ||
@@ -2249,9 +2250,10 @@ function startLenswebSpiderCombat() {
   combat.isLenswebSpider = true;
   combat.pendingLighthouseObjective = objective;
 
-  // Poison from the bite — applied only now, after setup. Existing status; no
-  // lighthouse-specific variant, and no extra out-of-cadence damage tick.
-  addStatusEffect('poison');
+  // Poison from the bite is attempted only now, after setup. The ordinary Fen
+  // Mask ward can block it; there is no lighthouse-specific status variant or
+  // extra out-of-cadence damage tick.
+  triggerPoison();
 }
 
 // The ONE idempotent finalization authority for the lens event, shared by victory
@@ -2439,8 +2441,9 @@ function applyEnemyHitEffects(enemy) {
     combat.messageQueue.unshift('The wraith\u2019s touch scrambles your footing. Slithered! (SPD randomized each turn)');
   }
   if (enemy && enemy.id === 'enemy_fen_witch' && !hasStatusEffect('poison') && Math.random() < 0.25) {
-    triggerPoison();
-    combat.messageQueue.unshift('The hag\u2019s curse seeps in. Poisoned! (lose HP each rest)');
+    combat.messageQueue.unshift(triggerPoison()
+      ? 'The hag\u2019s curse seeps in. Poisoned! (lose HP each rest)'
+      : 'The Fen Mask filters the hag\u2019s poison. It does not take.');
   }
   // Polwick — a firelit rareborn. When he lands a blow and the player isn't
   // already alight, he flares his hand into flame: a burst of scorch damage on
@@ -2466,10 +2469,12 @@ function applyEnemyHitEffects(enemy) {
   // Generic poison-on-hit (template `poisonChance`) — currently the poison-
   // skinned Mire Toad. The Fen Witch keeps its own by-name poison above.
   if (enemy && enemy.poisonChance && !hasStatusEffect('poison') && Math.random() < enemy.poisonChance) {
-    triggerPoison();
-    const pMsg = (enemy.id === 'enemy_mire_toad_male' || enemy.id === 'enemy_mire_toad_female')
-      ? 'The toad’s skin weeps a bitter slime where it struck. Poisoned! (lose HP each rest)'
-      : 'Venom works into the wound. Poisoned! (lose HP each rest)';
+    const poisoned = triggerPoison();
+    const pMsg = !poisoned
+      ? 'The Fen Mask filters the venom. Poison does not take.'
+      : (enemy.id === 'enemy_mire_toad_male' || enemy.id === 'enemy_mire_toad_female')
+        ? 'The toad’s skin weeps a bitter slime where it struck. Poisoned! (lose HP each rest)'
+        : 'Venom works into the wound. Poisoned! (lose HP each rest)';
     combat.messageQueue.unshift(pMsg);
   }
   if (enemy && enemy.curseChance && !hasStatusEffect('cursed') && Math.random() < enemy.curseChance) {
@@ -2745,27 +2750,28 @@ function applyKillRewards(enemy, msgs) {
 // by display name -- Observe/lore is identity-dispatched, so renaming an
 // enemy's player-facing `name` never changes its lore. Each entry is an array
 // of { lines: string[] } objects ordered by observation count (0 = first).
-// First entry: practical tactical info. Later entries: behavior, ecology, lore.
+// Most first entries offer practical tactical info; authored exceptions may stay
+// wholly diegetic when the protagonist could not know the underlying mechanic.
 // Templates that share one display identity (e.g. the three Marsh Wisp variant
 // ids) share a single entry via the alias block below the literal.
 const ENEMY_OBSERVATIONS = {
   enemy_gallery_caller: [
-    {lines:['Its broken call draws the Receiver upright. The heavy blow follows next round.',
-      'Bring the Caller down before that blow and the signal breaks.']},
-    {lines:['Calling takes its whole action. Between signals, it attacks.',
-      'The warning gives you time to choose: interrupt it, or prepare for the blow.']},
+    {lines:['Its throat is too long for its body. Every breath catches there before it escapes.',
+      'Its head keeps turning toward the larger creature.']},
+    {lines:['The ribs flex separately beneath its skin, like fingers closing around an empty space.',
+      'It watches the Receiver more closely than it watches you.']},
   ],
   enemy_gallery_keeper: [
-    {lines:['It braces beside the Receiver, turning blows aside.',
-      'While the Keeper lives, the Receiver takes only half damage. The Keeper itself is exposed.']},
-    {lines:['Its protection does not extend to the Caller.',
-      'Bring the Keeper down and the Receiver loses that protection.']},
+    {lines:['Its forelimbs have widened into jointed slabs. Old impact scars cross them in layers.',
+      'It never quite faces you. Its body stays angled toward the Receiver.']},
+    {lines:['The stone beneath its planted limbs is scored into shallow crescents.',
+      'It has held that posture before. Many times.']},
   ],
   enemy_gallery_receiver: [
-    {lines:['It gathers itself when the Caller signals. Its next-round strike will hit twice as hard.',
-      'The Keeper shelters it. The two smaller creatures make the larger one dangerous.']},
-    {lines:['Without the signal it uses ordinary attacks. Without the Keeper, its bulk is no shield.',
-      'It can still be hurt while protected.']},
+    {lines:['Water keeps running from folds that should have drained dry by now.',
+      'Something rigid moves beneath the flesh at the base of its throat.']},
+    {lines:['It does not search for you with its eyes. Its whole body turns toward each sound.',
+      'The movement is slow until, suddenly, it is not.']},
   ],
   // ── Overworld enemies ───────────────────────────────────────────────────────
   enemy_marsh_wisp: [
@@ -3018,27 +3024,29 @@ const ENEMY_OBSERVATIONS = {
 function getObservationText(enemy, count) {
   // Sexed enemies (the identical-looking Mire Toads) can ONLY be told apart by
   // observing them — nothing in the battle art or name gives it away. The first
-  // Observe reveals the sex (and hints at the matching reagent); later Observes
-  // add flavour. This runs ahead of the name-keyed table below.
+  // Observe identifies the sex; the second names the matching reagent. Later
+  // Observes add flavour. This runs ahead of the name-keyed table below.
   if (enemy.sex) {
     // The sex is told by a real, subtle physical difference Lélý spots on close
     // study — nuptial pads and a vocal-sac throat on the male; the larger, egg-
     // heavy body and smooth fingers of the female — not by intuition.
     const reveal = enemy.sex === 'male'
       ? ['Lélý reads the animal, not the fight.',
-         'Rough nuptial pads, a swelling throat-sac — this one is a male. A jack.',
-         'Jackbane is the matching reagent. It should bring this one down.']
+         'Rough nuptial pads, a swelling throat-sac — this one is a male. A jack.']
       : ['Lélý reads the animal, not the fight.',
-         'Egg-heavy and round, throat pale, fingers smooth — this one is a female. A hen.',
+         'Egg-heavy and round, throat pale, fingers smooth — this one is a female. A hen.'];
+    const advice = enemy.sex === 'male'
+      ? ['The rough pads and throat-sac confirm it: a jack.',
+         'Jackbane is the matching reagent. It should bring this one down.']
+      : ['The smooth fingers and egg-heavy body confirm it: a hen.',
          'Henbane is the matching reagent. It should bring this one down.'];
     const later = [
-      ['Jack and hen look identical — only the tells give it away.',
-       'Now you know which bane to use.'],
       ['It watches you back now, toad-patient. It has all the time the fen has.',
        'Which is all of it.'],
     ];
     if (count === 0) return reveal;
-    return later[Math.min(count - 1, later.length - 1)];
+    if (count === 1) return advice;
+    return later[Math.min(count - 2, later.length - 1)];
   }
   const entries = ENEMY_OBSERVATIONS[enemy.id];
   if (entries && count < entries.length) return entries[count].lines;

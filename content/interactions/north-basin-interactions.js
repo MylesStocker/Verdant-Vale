@@ -613,17 +613,52 @@ const NORTH_BASIN_MAP_FEATURES = {
     {
       id: 'east_causeway_break', type: 'inspect', x: 10.5, y: 8.5, radius: 44, allowUnwalkable: true,
       label: 'The broken causeway', sparkle: true,
-      pages: [
-        ['The maintained road gives out under your boots — dressed kerbstone, then heaved mud, then a few broken slabs tilting down into the water, and then only water.',
-         'The causeway picks up again on the far bank. You can see it plainly, a good bowshot off across open lake. There is no reaching it from here.'],
-        ['This was a real road once; the kerbs are still squared and set. The drought that emptied the reservoir heaved the causeway’s footings and dropped its whole middle span into the lake.',
-         'Someone drove a warning stake at the last firm slab and went home. No boat. No ferry. No repair crew. The district has not come.'],
-        ['One road east out of the valley — and it’s washed out at exactly the span you need to cross, in exactly the season you need to cross it.',
-         'You have the oddest feeling you were always going to arrive and find it like this. Come back when there’s a way over. In a place like this there always turns out to be one, given long enough.'],
-      ],
+      get pages() {
+        return [
+          ['The maintained road gives out under your boots — dressed kerbstone, then heaved mud, then a few broken slabs tilting down into the water, and then only water.',
+           'The causeway picks up again on the far bank. You can see it plainly, a good bowshot off across open lake. There is no reaching it from here.'],
+          ['This was a real road once; the kerbs are still squared and set. The drought that emptied the reservoir heaved the causeway’s footings and dropped its whole middle span into the lake.',
+           MainQuest >= 5
+             ? 'The warning stake remains at the last firm slab. The Empire’s cable ferry works around the break; the causeway itself is no nearer repaired.'
+             : 'Someone drove a warning stake at the last firm slab and went home. No boat. No ferry. No repair crew. The district has not come.'],
+          ['One road east out of the valley — and it’s washed out at exactly the span you need to cross, in exactly the season you need to cross it.',
+           MainQuest >= 5
+             ? 'The road is still broken. For now, the temporary scow is the way around it.'
+             : 'You have the oddest feeling you were always going to arrive and find it like this. Come back when there’s a way over. In a place like this there always turns out to be one, given long enough.'],
+        ];
+      },
     },
   ],
 };
+
+// MQ5 ferry service. The operator is a single SIMPLE_NPC whose physical side is
+// derived from the active bank; this action owns the choice and delegates the
+// actual atomic map change to world-transitions.js.
+function interactCausewayFerry() {
+  if (MainQuest < 5) return;
+  const onEasternBank = regionalActiveMapId() === 'EASTERN_BANK_MAP';
+  dialogue.name = 'Ferry Operator';
+  dialogue.pages = onEasternBank
+    ? [['The operator rests one hand on the cable brake.',
+        '“Back west? The authorization covers the return.”']]
+    : [['The operator checks the seal impressed on your assignment sheet, then checks it again against a rain-warped list.',
+        '“Regional office. Yes. You’re cleared.”'],
+       ['The scow is little more than a planked deck, a cable drum, and patched side rails.',
+        'The notice calling it temporary has six annual renewal stamps beneath it.']];
+  dialogue.callbacks = [function() {
+    choice.title = 'Causeway Ferry';
+    choice.options = ['Cross now', 'Not yet'];
+    choice.cursor = 0;
+    choice.callbacks = [
+      function crossNow() { crossCausewayFerry(); },
+      function notYet() {},
+    ];
+    choice.open = true;
+  }];
+  dialogue.open = true;
+  dialogue.page = 0;
+}
+NPC_ACTIONS.causewayFerry = interactCausewayFerry;
 
 // Split out of the former interactWildsAndOutposts() by the regional-content-split;
 // original branch order preserved. Reached as an OVERWORLD_INTERACT_HANDLERS entry.

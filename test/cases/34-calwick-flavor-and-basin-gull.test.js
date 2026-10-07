@@ -2,8 +2,8 @@
 // Covers: the Calwick environmental-flavor pass -- five new MAP_FEATURES
 // 'inspect' entries across TOWN_MAP (charter stone, public cistern),
 // EAST_TOWN_MAP (water gauge, reed-drying racks), and
-// APARTMENT_CORRIDOR_MAP (building notice) -- plus the third North Basin
-// enemy, the Basin Gull, with its dedicated battle sprite.
+// APARTMENT_CORRIDOR_MAP (building notice) -- plus the Basin Gull sprite and
+// the tougher reservoir encounter pools.
 //
 //   1. Each of the five inspectables opens dialogue from its authored spot
 //      (all five sit on walkable tiles, clear of NPCs/market/doors).
@@ -13,14 +13,13 @@
 //   3. The entries are Calwick-gated (same currentTownId condition
 //      convention as the west survey marker): with another town id the
 //      press is a silent no-op, since none of them author fallbackPages.
-//   4. Basin Gull is in NORTH_BASIN_ENEMY_TEMPLATES -- the pool
-//      MAP_METADATA points all four North Basin maps at -- with stats
-//      inside the region's existing tier (nothing boss-shaped).
+//   4. Basin Gull and both Mire Toad sexes are in the reservoir pools, with
+//      the tougher MQ4-tier stats used by ordinary random encounters.
 //   5. Basin Gull has a dedicated sprite: registered by id in
 //      ENEMY_SPRITE_DISPATCH, and a real combat render frame with it as the
 //      active enemy draws without throwing.
 //   6. validateGameData() stays clean: 0 errors, and no warning mentions
-//      the new feature ids or the new enemy.
+//      the affected feature ids or pool enemies.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -49,7 +48,7 @@ function standAt(g, mapGlobal, townBuilding, x, y, townId) {
 }
 
 module.exports = {
-  name: 'Calwick flavor pass (5 inspectables) + Basin Gull (3rd North Basin enemy, dedicated sprite)',
+  name: 'Calwick flavor pass + tougher five-member North Basin pool and Basin Gull sprite',
   run() {
     const g = createContext();
     g.press('Enter');
@@ -95,11 +94,16 @@ module.exports = {
     // ── 4. Basin Gull is in the shared North Basin pool with sane stats ────
     const gull = g.run(`NORTH_BASIN_ENEMY_TEMPLATES.find(t => t.name === 'Basin Gull')`);
     assert.ok(gull, 'Basin Gull should be in NORTH_BASIN_ENEMY_TEMPLATES');
-    assert.equal(g.run(`NORTH_BASIN_ENEMY_TEMPLATES.length`), 3,
-      'the North Basin pool should now have three enemies');
-    // Same tier as its poolmates -- a variety add, not a balance change.
-    assert.ok(gull.hp <= 30 && gull.atk <= 15 && gull.xp <= 25,
-      `Basin Gull stats should sit in the existing North Basin tier, got ${JSON.stringify(gull)}`);
+    assert.equal(g.run(`NORTH_BASIN_ENEMY_TEMPLATES.length`), 5,
+      'the North Basin pool has three native enemies plus both Mire Toad sexes');
+    assert.deepEqual([gull.hp, gull.maxHp, gull.atk, gull.def, gull.spd],
+      [28, 28, 26, 5, 18], 'Basin Gull carries the tougher reservoir stat line');
+    for (const pool of ['NORTH_BASIN_ENEMY_TEMPLATES', 'UPPER_REACH_ENEMY_TEMPLATES']) {
+      assert.deepEqual(JSON.parse(g.run(`JSON.stringify(${pool}.filter(function(t){return t.name==='Mire Toad';}).map(function(t){return [t.id,t.sex];}))`)),
+        [['enemy_mire_toad_male', 'male'], ['enemy_mire_toad_female', 'female']], pool + ' includes both canonical Mire Toads');
+      assert.equal(g.run(`${pool}.filter(function(t){return t.name==='Mire Toad';}).every(function(t){return ENEMY_TEMPLATE_REGISTRY[t.id]===t;})`), true,
+        pool + ' reuses the registered Mire Toad templates');
+    }
     // The Silt Flats and West Shore share this pool via MAP_METADATA (the
     // South Approach and Reservoir are deliberately encounter-free), so
     // being in the array is being in the region's encounters -- verify.
@@ -107,6 +111,26 @@ module.exports = {
       assert.equal(
         g.run(`MAP_METADATA['${key}'].encounterPool === NORTH_BASIN_ENEMY_TEMPLATES`), true,
         `${key} should draw encounters from the shared North Basin pool`);
+    }
+    for (const [mapId, selectionRoll, expectedId] of [
+      ['NORTH_BASIN_SW_MAP', 0.61, 'enemy_mire_toad_male'],
+      ['NORTH_BASIN_NW_MAP', 0.90, 'enemy_mire_toad_female'],
+    ]) {
+      const spawnedId = g.run(`(function(){
+        resetLocationState();
+        activeMap = mapRefForId(${JSON.stringify(mapId)});
+        __reconcileCanonicalForTest();
+        var rolls = [${selectionRoll}, 0.99, 0.99], i = 0, oldRandom = Math.random;
+        Math.random = function(){ return i < rolls.length ? rolls[i++] : 0.99; };
+        startCombat();
+        Math.random = oldRandom;
+        var id = combat.enemy && combat.enemy.id;
+        combat.active = false;
+        combat.enemy = null;
+        return id;
+      })()`);
+      assert.equal(spawnedId, expectedId,
+        mapId + ' can select a Mire Toad through the ordinary random encounter path');
     }
 
     // ── 5. Dedicated sprite: registered, and a combat frame renders ────────

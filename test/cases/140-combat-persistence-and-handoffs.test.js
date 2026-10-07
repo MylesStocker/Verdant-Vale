@@ -59,7 +59,7 @@ test('Polwick gang: three singleton fights, exact stage handoffs, HP carryover a
   const blocked = t.step('blocked Run', [0.5,0.9,0.9], g => {
     g.run('combat.cursor=3;');g.press('Enter');
   });
-  assert.equal(blocked.player.hp, 986);
+  assert.equal(blocked.player.hp, 981);
   assert.equal(blocked.pending.escape, false);
   t.drainMessages();
   let previousXp = 0;
@@ -77,7 +77,7 @@ test('Polwick gang: three singleton fights, exact stage handoffs, HP carryover a
     assert.equal(handoff.active, false, 'interstitial has no active opponent');
     assert.equal(handoff.enemy, null);
     assert.equal(handoff.watched.stage, stage);
-    assert.equal(handoff.player.hp, 986, 'no free heal between opponents at max level');
+    assert.equal(handoff.player.hp, 981, 'no free heal between opponents at max level');
     assert.ok(handoff.player.xp > previousXp);
     previousXp = handoff.player.xp;
     if (next) {

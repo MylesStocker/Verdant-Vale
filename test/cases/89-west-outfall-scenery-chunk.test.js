@@ -57,7 +57,7 @@ module.exports = {
       assert.ok(GRID_FP.fingerprints[id], id + ': original fingerprint still present in the fixture');
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], id + ': original grid unchanged');
     }
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 30, 'fixture now has 30 fingerprints');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 31, 'fixture now has 31 fingerprints');
 
     // ── 7 + 8. Border contract: agrees with all four neighbours, all non-walkable ─
     const outfall = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`);
@@ -97,9 +97,9 @@ module.exports = {
     }
 
     // ── 11. Audit totals match the verified new layout ────────────────────────
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 22, ALIGNS: 50, BLOCKED: 44 },
-      'audit totals: 120 edges -> ALIGNS 48 / BORDER 22 / BLOCKED 46 / INTENTIONAL_DISCRETE 4');
-    assert.equal(audit.seamReadiness.edges.length, 120, '120 directed placed-map edges (30 x 4)');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 24, ALIGNS: 50, BLOCKED: 46 },
+      'audit totals include the eastern-bank threshold');
+    assert.equal(audit.seamReadiness.edges.length, 124, '124 directed placed-map edges (31 x 4)');
     assert.ok(!audit.seamReadiness.totals.CONFLICT && !audit.seamReadiness.totals.OUTSIDE_REGION && !audit.seamReadiness.totals.NEEDS_REMAP,
       'no CONFLICT / OUTSIDE_REGION / NEEDS_REMAP');
 
@@ -108,11 +108,11 @@ module.exports = {
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) {
       if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++; else voids++;
     }
-    assert.equal(placed, 30, '30 placed chunks fill the 5x6 envelope');
+    assert.equal(placed, 30, 'the original 5x6 envelope remains fully placed');
     assert.equal(voids, 0, 'no sparse void cells remain');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
-    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 4, 0, 5], 'region chunk extent unchanged (0..4 x 0..5)');
-    assert.equal(b.widthPx, 5 * 16 * 32, 'region pixel width unchanged (5 chunks)');
+    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 5, 0, 5], 'region extent includes the eastern-bank threshold');
+    assert.equal(b.widthPx, 6 * 16 * 32, 'region pixel width includes the sixth eastern column');
     assert.equal(b.heightPx, 6 * 15 * 32, 'region pixel height unchanged (6 chunks)');
 
     // ── 13. Continuous cameras from all four neighbours plan the outfall terrain ─

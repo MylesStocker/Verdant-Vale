@@ -3,7 +3,7 @@
 // Covers the optional raster seam end to end: authoritative metadata and real
 // PNG headers, lazy one-per-id caching, cold-cache wait, close-cutaway actor
 // draws, retained general field assets, local bed occlusion, scoped portraits,
-// fail-soft fallback, and both the held normal-entry seam and direct debug preview.
+// fail-soft fallback, canonical normal entry, and direct debug preview.
 
 const assert = require('assert/strict');
 const fs = require('fs');
@@ -100,7 +100,7 @@ module.exports = {
     assert.deepEqual(
       JSON.parse(g.run("JSON.stringify([IMAGE_ASSET_REGISTRY.cutaway_sera_walk_cycle_v1.frameWidth,IMAGE_ASSET_REGISTRY.cutaway_sera_walk_cycle_v1.frameHeight])")),
       [112, 168], 'walking frames retain the established Guest Room actor scale');
-    assert.equal(g.run('SERA_LIORA_NORMAL_ENTRY_ENABLED'), false, 'normal entry remains held by default');
+    assert.equal(g.run('SERA_LIORA_NORMAL_ENTRY_ENABLED'), true, 'canonical normal entry is enabled');
     assert.equal(g.run('Object.keys(_imageAssetCache).length'), 0, 'module import creates no Image objects/cache entries');
     assert.deepEqual(JSON.parse(g.run('JSON.stringify(IMAGE_ASSET_BUNDLES.sera_liora_opening)')), [
       'cutaway_bethany_guest_room_redraw_v1',
@@ -215,10 +215,9 @@ module.exports = {
     assert.equal(cold.run('seraLioraCutscene.phase'), 'room_reveal');
     assert.equal(cold.run('activeMap === BETHANY_GUEST_ROOM_MAP'), true);
 
-    // Dormant normal entry uses the same white field and loader seam without
-    // changing the default release gate.
+    // Canonical normal entry uses the same white field and loader seam.
     const normal = createContext(); normal.press('Enter'); normal.press('Enter'); installImmediateImages(normal);
-    normal.run('SERA_LIORA_NORMAL_ENTRY_ENABLED=true;inTown=false;inBasinChamber=true;activeMap=BASIN_CHAMBER_MAP;dialogue.open=false;basinChamberDreamSequence();');
+    normal.run('inTown=false;inBasinChamber=true;activeMap=BASIN_CHAMBER_MAP;dialogue.open=false;basinChamberDreamSequence();');
     const pageCount = normal.run('dialogue.pages.length');
     for (let i = 0; i < pageCount; i++) normal.press(' ');
     assert.equal(normal.run('seraLioraCutscene.active'), true);
@@ -262,6 +261,7 @@ module.exports = {
     saveCtx.run('saveGame();');
     const saved = JSON.parse(saveCtx.run("localStorage.getItem('verdantVale_save')"));
     assert.equal(saved.version, 4);
-    assert.equal(Object.keys(saved).some((key) => /image|asset|portrait|sera|liora/i.test(key)), false);
+    assert.equal(saved.sera_liora_opening_complete, false, 'unused story completion binding defaults false');
+    assert.equal(Object.keys(saved).filter((key) => key !== 'sera_liora_opening_complete').some((key) => /image|asset|portrait|sera|liora/i.test(key)), false);
   },
 };

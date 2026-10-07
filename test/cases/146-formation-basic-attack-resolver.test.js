@@ -370,11 +370,11 @@ test('accepted critical-boundary rounds create playback across both endpoints, c
   }
 });
 
-test('all eight normal templates still create authentic playback at variance/critical endpoints',()=>{
+test('all approved templates still create authentic playback at variance/critical endpoints',()=>{
   const approved=J(fresh(0),'FORMATION_STATE_TEMPLATE_IDS');assert.equal(approved.length,11);
   for(const id of approved) for(const variance of [0,MAX_RANDOM]) for(const critical of [0,0.99]) {
     const g=fresh(0);
-    g.run('initializeFormationState('+JSON.stringify([0,1,2].map(slot=>({enemyId:id,slot})))+');stats.atk=1;');
+    g.run('initializeFormationState('+JSON.stringify([0,1,2].map(slot=>({enemyId:id,slot})))+');stats.hp=stats.maxHp=1000;stats.atk=1;');
     const hit=[variance,critical,0.99];
     acceptedPlayback(g,[0,0.99,0,...hit,...hit,...hit,...hit]);
   }

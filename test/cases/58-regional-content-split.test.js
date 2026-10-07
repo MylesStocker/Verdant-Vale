@@ -2,12 +2,12 @@
 // test/cases/58-regional-content-split.test.js
 //
 // Structural contract for the regional content split: maps, NPCs, and
-// interactions were moved out of maps.js / npcs.js / interactions.js into 16
+// interactions were moved out of maps.js / npcs.js / interactions.js into 17
 // regional files under content/, while MAP_REGISTRY, SIMPLE_NPCS / NPC_REGISTRY,
 // MAP_FEATURES, and the INTERACT_HANDLERS / OVERWORLD_INTERACT_HANDLERS tables
 // stay the authoritative aggregates. This test locks that layout in.
 //
-// It proves: all 16 files are in index.html in the correct order; the harness
+// It proves: all 17 files are in index.html in the correct order; the harness
 // loads them; every prescribed fragment exists; duplicate MAP_FEATURES ownership
 // throws; representative maps/NPCs/features/handlers resolve through the
 // aggregates; per-map NPC and feature order is preserved; removing a regional
@@ -21,49 +21,49 @@ const REGIONAL_FILES = [
   'content/maps/calwick-maps.js', 'content/maps/thornmere-wilds-maps.js', 'content/maps/drenwick-maps.js',
   'content/maps/south-ruins-maps.js', 'content/maps/north-basin-maps.js',
   'content/npcs/calwick-npcs.js', 'content/npcs/thornmere-wilds-npcs.js', 'content/npcs/drenwick-town-npcs.js',
-  'content/npcs/drenwick-interior-npcs.js', 'content/npcs/south-ruins-npcs.js',
+  'content/npcs/drenwick-interior-npcs.js', 'content/npcs/south-ruins-npcs.js', 'content/npcs/north-basin-npcs.js',
   'content/interactions/calwick-interactions.js', 'content/interactions/thornmere-wilds-interactions.js',
   'content/interactions/drenwick-town-interactions.js', 'content/interactions/drenwick-interior-interactions.js',
   'content/interactions/south-ruins-interactions.js', 'content/interactions/north-basin-interactions.js',
 ];
 
 function idx(list, f) { return list.indexOf(f); }
-function assertAll16Present(list) {
+function assertAll17Present(list) {
   for (const f of REGIONAL_FILES) if (!list.includes(f)) throw new Error('missing regional script: ' + f);
 }
 
 module.exports = {
-  name: 'Regional content split: 16 regional files + authoritative aggregates, behaviour-neutral',
+  name: 'Regional content split: 17 regional files + authoritative aggregates, behaviour-neutral',
   run() {
     const scripts = scriptOrderFromIndexHtml();
 
-    // 1. All 16 prescribed regional files appear in index.html.
-    assertAll16Present(scripts);
-    assert.equal(REGIONAL_FILES.length, 16);
+    // 1. All 17 prescribed regional files appear in index.html.
+    assertAll17Present(scripts);
+    assert.equal(REGIONAL_FILES.length, 17);
 
     // 2. Order relative to the three facades is correct.
     const mapsI = idx(scripts, 'maps.js'), npcsI = idx(scripts, 'npcs.js'), interI = idx(scripts, 'interactions.js');
     for (const f of REGIONAL_FILES.slice(0, 5)) assert.ok(idx(scripts, f) < mapsI, f + ' must load before maps.js');
-    for (const f of REGIONAL_FILES.slice(5, 10)) { assert.ok(idx(scripts, f) > mapsI, f + ' after maps.js'); assert.ok(idx(scripts, f) < npcsI, f + ' before npcs.js'); }
-    for (const f of REGIONAL_FILES.slice(10, 16)) { assert.ok(idx(scripts, f) > npcsI, f + ' after npcs.js'); assert.ok(idx(scripts, f) < interI, f + ' before interactions.js'); }
+    for (const f of REGIONAL_FILES.slice(5, 11)) { assert.ok(idx(scripts, f) > mapsI, f + ' after maps.js'); assert.ok(idx(scripts, f) < npcsI, f + ' before npcs.js'); }
+    for (const f of REGIONAL_FILES.slice(11, 17)) { assert.ok(idx(scripts, f) > npcsI, f + ' after npcs.js'); assert.ok(idx(scripts, f) < interI, f + ' before interactions.js'); }
     assert.equal(interI, scripts.length - 1, 'interactions.js must load last');
     // exact regional order within each group
     const mapOrder = REGIONAL_FILES.slice(0, 5).map(f => idx(scripts, f));
     assert.deepEqual(mapOrder.slice().sort((a, b) => a - b), mapOrder, 'regional map files in the prescribed order');
 
     // 11 (structural-failure guard): removing one regional script fails the check.
-    assertAll16Present(scripts); // passes with all present
+    assertAll17Present(scripts); // passes with all present
     const minusOne = scripts.filter(f => f !== 'content/npcs/south-ruins-npcs.js');
-    assert.throws(() => assertAll16Present(minusOne), /missing regional script/, 'removing a regional script must fail the presence check');
+    assert.throws(() => assertAll17Present(minusOne), /missing regional script/, 'removing a regional script must fail the presence check');
 
     const g = createContext();
     g.press('Enter'); g.press('Enter');
 
-    // 3. The headless harness loads the same 16 files (it parses this same index.html).
+    // 3. The headless harness loads the same 17 files (it parses this same index.html).
     assert.deepEqual(scriptOrderFromIndexHtml().filter(f => REGIONAL_FILES.includes(f)).sort(), REGIONAL_FILES.slice().sort());
 
     // 4. Every prescribed regional fragment exists.
-    for (const arr of ['CALWICK_NPCS','THORNMERE_WILDS_NPCS','DRENWICK_TOWN_NPCS','DRENWICK_INTERIOR_NPCS','SOUTH_RUINS_NPCS','SHARED_NPCS'])
+    for (const arr of ['CALWICK_NPCS','THORNMERE_WILDS_NPCS','DRENWICK_TOWN_NPCS','DRENWICK_INTERIOR_NPCS','SOUTH_RUINS_NPCS','NORTH_BASIN_NPCS','SHARED_NPCS'])
       assert.equal(g.run('Array.isArray(' + arr + ')'), true, arr + ' must be a declared array');
     for (const frag of ['CALWICK_MAP_FEATURES','THORNMERE_WILDS_MAP_FEATURES','DRENWICK_TOWN_MAP_FEATURES','DRENWICK_INTERIOR_MAP_FEATURES','SOUTH_RUINS_MAP_FEATURES','NORTH_BASIN_MAP_FEATURES','SHARED_MAP_FEATURES'])
       assert.equal(g.run('typeof ' + frag + " === 'object' && " + frag + ' !== null'), true, frag + ' must be a declared object');
@@ -71,17 +71,17 @@ module.exports = {
 
     // 5. Duplicate MAP_FEATURES map ownership is rejected.
     assert.equal(g.run('(function(){ try { mergeMapFeatureFragments([{Z:[]},{Z:[]}]); return "no-throw"; } catch (e) { return e.message.indexOf("duplicate") >= 0 ? "threw" : "wrong"; } })()'), 'threw');
-    // and SIMPLE_NPCS is exactly the six arrays concatenated (no sort / no source tags).
-    assert.equal(g.run('SIMPLE_NPCS.length === CALWICK_NPCS.length + THORNMERE_WILDS_NPCS.length + DRENWICK_TOWN_NPCS.length + DRENWICK_INTERIOR_NPCS.length + SOUTH_RUINS_NPCS.length + SHARED_NPCS.length'), true);
+    // and SIMPLE_NPCS is exactly the seven arrays concatenated (no sort / no source tags).
+    assert.equal(g.run('SIMPLE_NPCS.length === CALWICK_NPCS.length + THORNMERE_WILDS_NPCS.length + DRENWICK_TOWN_NPCS.length + DRENWICK_INTERIOR_NPCS.length + SOUTH_RUINS_NPCS.length + NORTH_BASIN_NPCS.length + SHARED_NPCS.length'), true);
     assert.equal(g.run('SIMPLE_NPCS[0] === CALWICK_NPCS[0]'), true, 'SIMPLE_NPCS begins with the Calwick array');
 
     // 6. Representative map from all five map regions resolves through MAP_REGISTRY.
     const mapReg = { MAP: 'calwick', SLUICE_MAP: 'thornmere', DRENWICK_MARKET_MAP: 'drenwick', DUNGEON_MAP: 'south-ruins', SUNKEN_GALLERY_R2C2: 'north-basin' };
     for (const m of Object.keys(mapReg)) assert.equal(g.run('MAP_REGISTRY[mapRegistryId(' + m + ')].map === ' + m), true, m + ' resolves through MAP_REGISTRY');
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 131);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 132);
 
-    // 7. Representative NPC from all five NPC files resolves through SIMPLE_NPCS + NPC_REGISTRY.
-    const npcReg = { aldric: 'CALWICK_NPCS', gorrit_wend: 'THORNMERE_WILDS_NPCS', tarvec: 'DRENWICK_TOWN_NPCS', harbormaster_interior: 'DRENWICK_INTERIOR_NPCS', wen: 'SOUTH_RUINS_NPCS' };
+    // 7. Representative NPC from all six NPC files resolves through SIMPLE_NPCS + NPC_REGISTRY.
+    const npcReg = { aldric: 'CALWICK_NPCS', gorrit_wend: 'THORNMERE_WILDS_NPCS', tarvec: 'DRENWICK_TOWN_NPCS', harbormaster_interior: 'DRENWICK_INTERIOR_NPCS', wen: 'SOUTH_RUINS_NPCS', causeway_ferry_operator: 'NORTH_BASIN_NPCS' };
     for (const [id, arr] of Object.entries(npcReg)) {
       assert.equal(g.run("SIMPLE_NPCS.some(n => n.id === '" + id + "')"), true, id + ' in SIMPLE_NPCS');
       assert.equal(g.run("!!NPC_REGISTRY['" + id + "']"), true, id + ' in NPC_REGISTRY');

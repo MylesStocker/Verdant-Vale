@@ -27,6 +27,7 @@
     "NORTH_BASIN_S_MAP",
     "NORTH_BASIN_SE_MAP",
     "EAST_CAUSEWAY_MAP",
+    "EASTERN_BANK_MAP",
     "NORTH_BASIN_C_MAP",
     "NORTH_BASIN_MIREWOOD_MAP",
     "NORTH_BASIN_SW_MAP",
@@ -291,6 +292,12 @@
     },
     {
       "id": "EAST_CAUSEWAY_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "EASTERN_BANK_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -3678,6 +3685,64 @@
         "down": true,
         "left": true,
         "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "crossCausewayFerry (west to east)",
+      "group": "scripted-transitions",
+      "setupCode": "crossCausewayFerry();",
+      "error": null,
+      "destMap": "EASTERN_BANK_MAP",
+      "px": 176,
+      "py": 272,
+      "facing": "right",
+      "tileCol": 5,
+      "tileRow": 8,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "crossCausewayFerry (east to west)",
+      "group": "scripted-transitions",
+      "setupCode": "crossCausewayFerry();",
+      "error": null,
+      "destMap": "EAST_CAUSEWAY_MAP",
+      "px": 336,
+      "py": 272,
+      "facing": "left",
+      "tileCol": 10,
+      "tileRow": 8,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 88,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -12010,10 +12075,10 @@
         "chunkX": 4,
         "chunkY": 2,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "EASTERN_BANK_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "EAST_CAUSEWAY_MAP",
@@ -12024,6 +12089,46 @@
         "target": "NORTH_BASIN_SE_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
+      },
+      {
+        "mapId": "EASTERN_BANK_MAP",
+        "chunkX": 5,
+        "chunkY": 2,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_BANK_MAP",
+        "chunkX": 5,
+        "chunkY": 2,
+        "dir": "south",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_BANK_MAP",
+        "chunkX": 5,
+        "chunkY": 2,
+        "dir": "east",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "EASTERN_BANK_MAP",
+        "chunkX": 5,
+        "chunkY": 2,
+        "dir": "west",
+        "neighbor": "EAST_CAUSEWAY_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "NORTH_BASIN_C_MAP",
@@ -12508,9 +12613,9 @@
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BORDER": 22,
+      "BORDER": 24,
       "ALIGNS": 50,
-      "BLOCKED": 44
+      "BLOCKED": 46
     }
   }
 }
