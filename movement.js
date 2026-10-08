@@ -551,6 +551,7 @@ function trySeraLioraGuestRoomDoor() {
 }
 
 function update(deltaSeconds) {
+  if (combatPlayerState.hasParty()) return; // headless preparation freezes simulation
   // Lab isolation includes cooldowns, NPCs, visits and automatic world triggers.
   if (formationCombatLab.isOpen()) return;
   galleryReceiverEncounter.updateStairLatch();

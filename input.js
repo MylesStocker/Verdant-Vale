@@ -12,6 +12,7 @@ const pressedKeys = Object.create(null);
 const keys = new Proxy(pressedKeys, {
   get(pressed, key) {
     const held = pressed[key];
+    if (held && combatPlayerState.hasParty()) return false;
     if (held && galleryReceiverEncounter.blocksWorldInput()) return false;
     if (held && combat.mode === 'formation' && formationSessionController.getView()) return false;
     return held;
@@ -28,6 +29,7 @@ function formationInputCommand(key) {
 }
 
 function handleFormationInputCommand(command) {
+  assertSinglePlayerExecution();
   const view = formationSessionController.getView();
   if (!view) return false;
   // A single branch may perform at most one controller operation. Invalid or
@@ -75,6 +77,7 @@ function reconcileFormationLabKeys() {
 }
 
 window.addEventListener('keydown', e => {
+  if (combatPlayerState.hasParty()) { e.preventDefault(); return; }
   if (e.key.startsWith('Arrow')) e.preventDefault();
   if (galleryReceiverEncounter.blocksWorldInput()) {
     const held = pressedKeys[e.key]; pressedKeys[e.key] = true;

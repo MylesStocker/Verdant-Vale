@@ -392,6 +392,7 @@ function rehydrateItem(saved) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (combatPlayerState.hasParty()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // never persist laboratory HP
   const meta = MAP_METADATA[mapIdForRef(activeMap)];
@@ -620,6 +621,7 @@ function loadGame() {
   }
 
   // ── COMMIT (everything below mutates runtime state) ───────────────────────
+  if (combatPlayerState.hasParty()) combatPlayerState.clear(); // never resume preparation
   // Clear the Upper Reach / Sunken Gallery "visited today" markers
   // (movement.js) unconditionally on a committed load. They are deliberately
   // session-only (not part of the save schema — see movement.js's comment), so

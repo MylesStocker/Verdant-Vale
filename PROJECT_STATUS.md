@@ -6,6 +6,28 @@ actually fits together.
 
 ## Current state
 
+### Headless player-party state foundation
+
+`combatPlayerState` now permits explicit, inactive preparation of exactly two
+noncanonical test combatants. It owns ordered stable identities and independent
+HP/status state behind immutable inspection views. It has no production caller,
+world roster, menu, rendering, encounters or gameplay entry. Enemy `combat.mode`
+remains independent; all existing live battles still use canonical Lely's
+`stats`, equipment, inventory and statuses.
+
+Strict preparation validation and one shared execution guard prevent this state
+from entering current combat, item/status processing, rewards, recovery,
+formation sessions/playback or battle rendering. Input and simulation remain
+inert during preparation. Cleanup preserves Lely and enemy state; runtime IDs
+are not reused. Saves exclude the authority entirely (`SAVE_VERSION` 4): saving
+preparation is refused and successful load discards it after validation.
+
+The next separately authorized increment is a headless generalized allied/enemy
+round scheduler. Party commands, UI, playback, inventory/equipment policy,
+persistent roster, Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
+The focused regression suite uses only local fixtures; no canon or content was
+added. No browser-visible route exists for this increment.
+
 ### MQ5 and the eastern Valmere road
 
 The canonical Sera/Liora cutaway now records completion only when its normal

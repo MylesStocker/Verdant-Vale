@@ -6,6 +6,102 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
+### Gated player-side combat preparation
+
+`combatPlayerState` in `combat.js` is a transient headless authority with **no
+production initializer or member-mutation callers**. It is orthogonal to enemy
+`combat.mode` (`null` / `single` / `formation`). `getView()` returns `null` with
+no prepared player side/enemies, a frozen `single` snapshot of canonical Lely
+when existing enemy state is installed, or a frozen `party` snapshot after
+explicit two-member preparation. Existing battles require no new initializer.
+
+`initialize()` accepts exactly two flat data descriptors with `characterId`,
+`slot`, `name`, `hp`, `maxHp`, `atk`, `def`, `spd`, and `statuses`. Slots must be
+0/1 in input order; stable authored IDs must be unique. The existing singleton
+`player` identity is reserved. Descriptors are plain or null-prototype data
+records; arrays must be dense ordinary arrays. Accessors, callbacks, extra keys,
+live runtime records, custom prototypes, unsupported statuses and unsafe numeric
+values reject before installation or identity allocation. Combat numbers follow
+the existing nonnegative safe-integer convention, with positive maximum HP and
+HP no greater than that maximum. Future scheduling must separately validate
+arithmetic overflow; this increment performs no attacks.
+
+Each installed member privately owns mutable HP and a copied array of the six
+existing status IDs. These are labels only: no duration, speed roll or effect
+execution is implemented. Authored identity/name/base stats/max HP and slot are
+frozen definitions; membership order is frozen. Runtime IDs `combat_party_N`
+use a separate monotonic sequence, never enemy IDs and never RNG. Cleanup drops
+membership, but does not recycle IDs. `setHp()` and `setStatuses()` require the
+exact current runtime ID and inactive combat; zero HP retains the slot. Inspection
+by exact runtime ID or authored ID returns detached, recursively frozen snapshots,
+never live records. There is no current-ally pointer or implicit retargeting.
+
+Initialization uses the shared read-only inactive-combat preparation preflight.
+Pending messages, outcomes, callbacks, sessions/playback, active UI, dangling
+combat effects, and an existing pair reject. A neutral inactive singleton enemy
+or untouched enemy formation can coexist without changing enemy identities,
+observations, slots or escape policy. Enemy installation/cleanup leaves the pair
+intact. `clear()` is the sole player-side cleanup: inactive only, no Lely/enemy,
+reward, recovery, flag or inventory writes. Reinitialization is deterministic.
+
+`assertSinglePlayerExecution()` guards activation, encounter starters, singleton
+processing/finalizers, formation validation/playback, equipment/item effects,
+status/reward mutation and battle drawing. The existing session cannot begin.
+Keyboard input and world simulation are suspended during headless preparation;
+there is no new UI, renderer, input route, debug control or canonical caller.
+Preparation cannot save. A successful load clears it at the existing commit
+boundary, after validation; failed loads preserve it. No party metadata enters
+save payloads or bindings; `SAVE_VERSION` remains 4.
+
+Existing singleton assumptions deliberately retained:
+
+| Authority | Current ownership and next boundary |
+| --- | --- |
+| HP, base stats, equipment, inventory | `state.js`'s canonical `stats`; world `player` owns position only. No second mutable Lely record. |
+| Effective ATK/DEF/SPD and capabilities | Existing `combat.js` helpers read canonical equipment, `statusEffects`, `slitherSpd`, and corrosion. No party equipment/inventory policy yet. |
+| Round effects | Bullet Time, Bomb, burn, poison, curse, muddied, Slither and dazzled remain under existing singleton/formation authorities. No per-member duration semantics introduced. |
+| Targeting, sessions, playback | Existing enemy runtime IDs and slots; the player actor remains `player`. No allied targeting or initiative. |
+| Rewards, defeat, recovery | Existing finalizers mutate canonical stats, inventory and world state. Prepared pairs cannot enter them. |
+| Presentation, input, simulators | Existing views/controls and production combat formulas remain in use; historical traces and renderer comparison remain compatibility evidence. |
+| Persistence | Canonical Lely and existing world flags only. No roster, slot, runtime ID or inactive preparation serialization. |
+
+The next boundary is an explicitly invoked, headless generalized allied/enemy
+round scheduler on this state authority. Inventory ownership, equipment exchange,
+persistent world-party membership, Rareborn/resonance, rewards and presentation
+remain separate future decisions. This increment supplies no canonical party
+stats, characters, abilities, content or lore.
+
+### Combat compatibility baseline reconciliation
+
+The historical 52-trace digest covers suites **139, 140 and 141**, using
+`sha256(JSON.stringify(traces.map(t => t.checkpoints)))`. Replaying Git objects
+at `5637b5778076562df61d7baeb872e99eac19eaf3` reproduces 52 traces / 388
+checkpoints / 482 RNG values and digest
+`152d74c67c151513dde7aeff1aef7d8bceed56d6f708a31c161f237fffb18560`.
+At terrain parent `afd591f247f624f55b9486105d3b639bf1f8093f` and with the
+player-party foundation, the identical scope/projection produces 52 traces /
+387 checkpoints / 482 RNG values and digest
+`2034f8f2639c78e6d8b69d4d25a47f7d9e8ec53548f4227376faa30a8b288a66`.
+
+All differences predate the party foundation, in commit
+`32277bf8220d0c1ad21795db09712b42bf2d2149`: suite 139's Bullet Time/toad
+scenario has one fewer first-Observe text acknowledgement after moving the item
+hint to the second inspection; its Polwick scorch scenario reflects the approved
+stronger stats. Suite 140's Polwick-gang scenario reflects those stronger
+opponents and resulting HP carryover. No scenario was removed, merged or renamed.
+The trace helper/projection source and suite 141 are byte-identical to `5637b57`.
+
+The later 50-trace / 319-checkpoint / 263-RNG report captured only suites 139–140
+and hashed `traces.map(t => ({checkpoints:t.checkpoints,rng:t.rng}))`, yielding
+`22e3a94729c1a13ccfddcdca77c01b3d44feaf63f00659e46e0a5be90f3adb6f`.
+That was a narrower reporting scope and different hash serialization, not deleted
+coverage. Suite 141 still runs its two traces: primitive arithmetic comparison
+(12 checkpoints / 24 RNG values) and the eighteen-round Thornback production
+comparison (56 checkpoints / 195 RNG values). Both are in the complete regression
+suite. Future comparisons must name the suite set and exact projection; raw
+hashes from different scopes are not interchangeable. No expectations or trace
+harness were rewritten to reconcile this difference.
+
 ### Canonical Gallery formation ownership
 
 `gallery-receiver.js` loads after combat/rendering/the Formation Lab and before

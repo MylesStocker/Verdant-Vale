@@ -273,7 +273,11 @@ test('singleton rendering source is unchanged after inlining the exact extracted
   const s=fs.readFileSync(path.join(ROOT,'render-battle.js'),'utf8');
   const background=s.slice(s.indexOf('function drawBattleBackground() {'),s.indexOf('\nfunction drawCombat(formationView)'));
   const body=background.slice(background.indexOf('  // ── Battle field'),background.lastIndexOf('\n}'));
-  const reconstructed=s.slice(s.indexOf('function drawCombat(formationView)'))
+  const entry=s.slice(s.indexOf('function drawCombat(formationView)'));
+  const guard='  assertSinglePlayerExecution();\n';
+  assert.ok(entry.startsWith('function drawCombat(formationView) {\n'+guard));
+  assert.equal(entry.split(guard).length,2);
+  const reconstructed=entry.replace(guard,'')
     .replace('function drawCombat(formationView)', 'function drawCombat()')
     .replace('  // Explicit presentation-only entry. Normal render() still calls with no\n  // arguments; this does not activate combat or acquire a session implicitly.\n  if (arguments.length) return drawFormationCombat(formationView);\n','')
     .replace('  drawBattleBackground();',body);

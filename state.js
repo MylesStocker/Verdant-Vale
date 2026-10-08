@@ -80,8 +80,8 @@ let dilemma_voss         = null; // null | 'report' | 'protect' | 'abstain'
 let statusEffects = [];  // array of string ids, e.g. ['poison']
 
 function hasStatusEffect(id)    { return statusEffects.includes(id); }
-function addStatusEffect(id)    { if (!hasStatusEffect(id)) statusEffects.push(id); }
-function removeStatusEffect(id) { statusEffects = statusEffects.filter(s => s !== id); }
+function addStatusEffect(id)    { assertSinglePlayerExecution(); if (!hasStatusEffect(id)) statusEffects.push(id); }
+function removeStatusEffect(id) { assertSinglePlayerExecution(); statusEffects = statusEffects.filter(s => s !== id); }
 
 // Muddied and Slither are kept in the game — their effects, HUD, trigger
 // functions, and the debug menu all remain — but for now they are intentionally
@@ -101,7 +101,7 @@ function triggerPoison() {
 function triggerMuddied()       { addStatusEffect('muddied'); }
 // Slither — randomizes player SPD each combat turn; stored between calls so the HUD is stable.
 let slitherSpd = 1;
-function rollSlitherSpd()  { return Math.floor(Math.random() * 20) + 1; }
+function rollSlitherSpd()  { assertSinglePlayerExecution(); return Math.floor(Math.random() * 20) + 1; }
 function triggerSlither()  { addStatusEffect('slither'); slitherSpd = rollSlitherSpd(); }
 function triggerCursed()   { addStatusEffect('cursed'); }
 // Burn — combat-only damage-over-time. Deals a random 0..20 HP each turn the
@@ -153,6 +153,7 @@ function xpForNextLevel() {
 // slowly and unevenly than the other stats. The message reports whatever
 // actually rolled, and only mentions SPD on the levels it went up.
 function checkLevelUp(msgs) {
+  assertSinglePlayerExecution();
   while (stats.level < MAX_LEVEL && stats.xp >= XP_THRESHOLDS[stats.level]) {
     stats.level++;
     const atkGain = 1 + Math.floor(Math.random() * 3); // 1, 2, or 3

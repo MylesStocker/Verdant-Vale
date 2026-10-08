@@ -4034,6 +4034,7 @@ function formatFormationBattleEvent(event, playerName, labels) {
 }
 
 function drawFormationCombat(view) {
+  assertSinglePlayerExecution();
   // Validate/format before the first canvas call. No live combatant, controller,
   // queue or outcome authority is read here. Historic views may be replayed.
   const layout = getFormationBattleLayout(view);
@@ -4202,6 +4203,7 @@ function drawBattleBackground() {
 }
 
 function drawCombat(formationView) {
+  assertSinglePlayerExecution();
   // Explicit presentation-only entry. Normal render() still calls with no
   // arguments; this does not activate combat or acquire a session implicitly.
   if (arguments.length) return drawFormationCombat(formationView);
