@@ -384,7 +384,7 @@ test('no new encounter, reward or save caller; input delegates and boss policy h
   const root=path.join(__dirname,'../..');
   for(const file of scriptOrderFromIndexHtml()) {
     const source=fs.readFileSync(path.join(root,file),'utf8');
-    if(!['combat.js','gallery-receiver.js','formation-lab.js'].includes(file))assert.doesNotMatch(source,/\binitializeFormationState\s*\(/,file);
+    if(!['combat.js','gallery-receiver.js','formation-lab.js','party-combat-lab.js'].includes(file))assert.doesNotMatch(source,/\binitializeFormationState\s*\(/,file);
     if(file!=='combat.js')assert.doesNotMatch(source,/\bresolveFormationRound\s*\(/,file);
   }
   const g=fresh();

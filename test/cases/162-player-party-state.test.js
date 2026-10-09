@@ -290,11 +290,12 @@ test('cleanup resumes identical canonical singleton combat without new setup',()
   assert.equal(snapshot(prepared),snapshot(baseline));
 });
 
-test('production has no initializer or member mutation callers; no persistent party authority',()=>{
+test('only the isolated Party Lab initializes members; no mutation caller or persistent party authority',()=>{
   const files=scriptOrderFromIndexHtml();
   for(const file of files) {
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.doesNotMatch(source,/combatPlayerState\.(initialize|setHp|setStatuses)\s*\(/,file);
+    assert.equal((source.match(/combatPlayerState\.initialize\s*\(/g)||[]).length,file==='party-combat-lab.js'?1:0,file);
+    assert.doesNotMatch(source,/combatPlayerState\.(setHp|setStatuses)\s*\(/,file);
   }
   const g=fresh();assert.deepEqual(J(g,'QUEST_FLAG_BINDINGS.filter(b=>/party|ally|combat_party/.test(b.key)).map(b=>b.key)'),[]);
 });

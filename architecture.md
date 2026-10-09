@@ -253,8 +253,9 @@ flags, inventory, equipment, rewards or saves are changed; `SAVE_VERSION` is 4.
 
 ### Gated headless party session
 
-`combatPlayerState.session` is a frozen controller API with no production caller
-or visible route. `begin()` requires fresh, valid inactive two-member preparation
+`combatPlayerState.session` is a frozen controller API whose sole production
+caller is the isolated headless Party Combat Lab below. It has no visible route.
+`begin()` requires fresh, valid inactive two-member preparation
 and one to three supported enemies. It will not adopt a standalone resolved round
 or unresolved playback. Enemy mode and existing singleton/formation controllers
 remain unchanged; `combat.active` stays false.
@@ -320,9 +321,71 @@ terminal locks, stale membership and diagnostic failures. Suites 163/164 now
 allow only this controller's scheduler/playback calls and still forbid gameplay
 callers; their historical result and arithmetic assertions are unchanged.
 Rendering, keyboard input, menus, items/other commands, persistent parties,
-rewards/recovery and canonical content remain deferred. A separately authorized
-isolated Lab adapter can exercise this controller without another target-planning
-architecture increment.
+rewards/recovery and canonical content remain deferred. The isolated Lab below
+exercises this controller without adding another target-planning authority.
+
+### Headless Party Combat Lab adapter
+
+`party-combat-lab.js` owns the isolated lifecycle around the authentic party
+foundation and session. `PARTY_COMBAT_LAB_SCENARIOS` is a frozen three-record
+catalogue with stable IDs `lely_esla_one`, `lely_esla_two` and
+`lely_esla_three`; their supported ordinary memberships are respectively Marsh
+Wisp; Marsh Wisp plus Briar Hound; and Reed Grappler, Silt Lurker plus Sluice
+Slime. No Receiver, boss, bespoke capability, generated enemy or encounter
+ownership enters this catalogue.
+
+The frozen `partyCombatLab` API is:
+
+| Method | Contract |
+| --- | --- |
+| `isActive()` | Read the lifecycle gate without touching live session projection. |
+| `listScenarios()` | Return the frozen scenario catalogue. |
+| `enter(id)` | Validate everything, install temporary enemies/party, then begin the real session. |
+| `getView()` | Return a detached immutable active/inactive presentation view and recoverable error. |
+| `submitAttack(action)` / `backtrack()` | Delegate exact command collection only in valid phases. |
+| `commitRound()` | Delegate one authentic session commit, including enemy planning, scheduler and playback. |
+| `advancePlayback()` / `acknowledgePlayback()` | Delegate the existing historical frame boundaries. |
+| `exit()` | Abandon temporary state without resolution, reward, recovery or RNG. |
+| `emergencyAbort(message)` | Preserve a bounded diagnostic, then perform the same guarded cleanup. |
+
+Entry requires empty inactive enemy state, no prepared party/session, neutral
+combat bookkeeping, no Formation Lab/Receiver/debug/modal owner, valid regional
+state and ordinary supported Lely state. It validates the selected frozen
+scenario and templates, both temporary party descriptors, every possible attack
+pair and the complete initiative sum before identities or state are installed.
+Known invalid entry therefore consumes no RNG and no party/enemy identities.
+
+The `lely_lab` member is a detached temporary snapshot. HP/max HP come from
+canonical `stats`; ATK, DEF and SPD come from `effectiveAtk()`, `effectiveDef()`
+and `effectiveSpd()`. Statuses must be empty and equipped objects may carry only
+ordinary name/type/bonus/price data, so Cat Armor, status wards, guaranteed evade
+and other unrepresented capabilities reject rather than being silently dropped.
+The canonical stats object, inventory and equipment never become party-owned and
+are never written by the Lab.
+
+No Esla combat stat authority exists in canon. The adapter-local frozen
+`PARTY_COMBAT_LAB_ESLA_PROFILE` is explicitly provisional: `hp/maxHp 50`, `atk
+10`, `def 4`, `spd 8`, empty statuses and full HP on each entry. It defines no
+level, equipment, Rareborn, resonance or persistent field. Her authored name is
+reused; the profile is not character progression data.
+
+The immutable Lab view exposes only active state, scenario ID/label, compact
+Lely/Esla and enemy descriptors, session phase, next actor, submitted commands,
+living target IDs, current playback frame, terminal outcome and diagnostic text.
+It contains no canonical reference or callback. World simulation and keyboard
+input are already inert while `combatPlayerState.hasParty()`; saving is already
+refused. Loading has one narrow additional refusal while the Party Lab is active,
+so it cannot invoke the ordinary successful-load party cleanup under the Lab.
+
+Normal exit and emergency abort call the existing player preparation cleanup,
+then the existing enemy collection cleanup. They do not call combat finalizers,
+rewards, recovery, transitions or save code and draw no RNG. Canonical Lely/world
+state was never mutated, so cleanup restores the exact pre-Lab canonical state by
+discarding only temporary authorities. Enemy and party identity sequences remain
+monotonic by design; immediate re-entry gets fresh provenance IDs. Unexpected
+session failures keep their consumed RNG/applied temporary HP only long enough to
+capture the error, then cleanup without retry. There is no renderer, input/debug
+entry, menu, save payload, encounter, quest or canonical party integration.
 
 ### Combat compatibility baseline reconciliation
 

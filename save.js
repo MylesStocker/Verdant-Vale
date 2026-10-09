@@ -573,6 +573,7 @@ function resolveLoadLocation(data) {
 function loadGame() {
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
+  if (partyCombatLab.isActive()) return false; // headless party Lab owns transient HP/playback
   const raw = localStorage.getItem('verdantVale_save');
   if (!raw) return false;
   let parsed;

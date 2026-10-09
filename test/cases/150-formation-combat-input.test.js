@@ -239,7 +239,7 @@ test('input delegates only to the controller, creates no sessions or rendering r
   assert.doesNotMatch(INPUT,/formationSessionController\.(begin|clearAfterCombatCleanup)\(|initializeFormationState|drawFormationCombat|drawCombat\(/);
   for(const file of scriptOrderFromIndexHtml()) {
     const s=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
+    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     if(file!=='input.js')assert.doesNotMatch(s,/handleFormationInputCommand|formationInputCommand|pressedKeys/,file);
     if(!['combat.js','input.js','render.js','formation-lab.js','gallery-receiver.js'].includes(file))assert.doesNotMatch(s,/formationSessionController/,file);
     if(file==='render.js')assert.match(s,/formationCombatLab\.isActive\(\)/);

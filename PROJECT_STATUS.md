@@ -88,10 +88,45 @@ session; there is no automatic cleanup, reward or recovery.
 The scheduler's validation was extracted for shared read-only use; weighted
 initiative, damage, result schema and old combat paths remain unchanged. Suite 165
 covers the controller; existing caller-isolation assertions permit only its gated
-scheduler/playback calls. No production caller reaches the controller. Rendering,
-keyboard input, menus, other commands, canonical parties, saves and gameplay entry
-remain excluded (`SAVE_VERSION` 4). A separately authorized isolated Lab adapter
-is the next presentation boundary; no additional target-planning layer is needed.
+scheduler/playback calls. The isolated headless Lab below is the sole controller
+caller. Rendering, keyboard input, menus, other commands, canonical parties,
+saves and gameplay entry remain excluded (`SAVE_VERSION` 4).
+
+### Headless Lely/Esla Party Combat Lab
+
+`partyCombatLab` is an isolated lifecycle adapter with three frozen scenarios:
+Lely and Esla against one Marsh Wisp, against a Marsh Wisp and Briar Hound, or
+against a Reed Grappler, Silt Lurker and Sluice Slime. It is the only production
+caller for party preparation and session start. It exposes scenario listing,
+entry, immutable inspection, exact Attack submission/backtracking, round commit,
+playback stepping/acknowledgement, normal exit and emergency abort. It has no
+debug-menu, input, renderer, encounter or normal-gameplay caller.
+
+Lab Lely is a detached snapshot of canonical current HP/max HP and the established
+`effectiveAtk()`, `effectiveDef()` and `effectiveSpd()` values. Canonical stats,
+equipment and inventory remain untouched. Entry rejects statuses, special gear
+capabilities, active/pending combat and other state the Attack-only party contract
+cannot represent. Esla's Lab-only provisional profile is 50 HP, 10 ATK, 4 DEF
+and 8 SPD; it is adapter data, not canonical progression or a Rareborn ability.
+
+The adapter validates scenarios, all possible attack arithmetic and complete
+initiative weight sums before installing enemy or party identities. It uses the
+real party session, including its minimal enemy target planner and immutable
+playback. Normal exit and emergency abort abandon temporary party/session and
+enemy membership through their existing cleanup authorities. They never run a
+finalizer, reward, recovery or transition and consume no cleanup RNG. Runtime
+identities remain monotonic so immediate re-entry receives fresh IDs; they are
+transient provenance, not restored canonical state.
+
+Prepared-party guards freeze simulation and refuse saves. `loadGame()` now also
+refuses while this Lab is active, rather than clearing the Lab through the normal
+prepared-state load boundary. Unexpected controller errors are reported in the
+inactive immutable Lab view after guarded cleanup and are never retried. Suite
+166 covers all three capacities, authoritative stat derivation, real round flow,
+victory/defeat, mid-command and mid-playback cleanup, exact canonical restoration,
+save isolation, failure diagnostics and immediate re-entry. The next boundary is
+a read-only party battle renderer; input and canonical party integration remain
+separate.
 
 ### MQ5 and the eastern Valmere road
 

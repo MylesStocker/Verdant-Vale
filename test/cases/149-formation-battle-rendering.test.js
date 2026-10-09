@@ -217,7 +217,7 @@ test('renderer has no controller/gameplay side effects or live HP reads, and no 
   for(const file of scriptOrderFromIndexHtml()) {
     const s=fs.readFileSync(path.join(ROOT,file),'utf8');
     if(file!=='render-battle.js')assert.doesNotMatch(s,/drawFormationCombat|getFormationBattleLayout|formatFormationBattleEvent/,file);
-    if(!['combat.js','formation-lab.js','gallery-receiver.js'].includes(file))assert.doesNotMatch(s,/initializeFormationState/,file);
+    if(!['combat.js','formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file))assert.doesNotMatch(s,/initializeFormationState/,file);
     if(!['combat.js','input.js','render.js','formation-lab.js','gallery-receiver.js'].includes(file))assert.doesNotMatch(s,/formationSessionController/,file);
     if(file==='render.js')assert.match(s,/formationCombatLab\.isActive\(\)/);
     if(file==='input.js') {
