@@ -387,6 +387,37 @@ session failures keep their consumed RNG/applied temporary HP only long enough t
 capture the error, then cleanup without retry. There is no renderer, input/debug
 entry, menu, save payload, encounter, quest or canonical party integration.
 
+### Read-only Party Combat Lab renderer
+
+`render-party-combat-lab.js` owns one presentation entry,
+`drawPartyCombatLabBattle()`. It takes no arguments and acquires exactly one
+detached immutable snapshot through `partyCombatLab.getView()`. An inactive Lab
+draws nothing. An active snapshot is validated completely before the first canvas
+operation: two fixed ally slots, one to three contiguous enemy slots, unique
+runtime identities, safe historical HP, valid submitted actor/target identities,
+phase/current-actor consistency, and playback-frame identity/HP agreement.
+
+Enemy layouts are deterministic by count: one centered 200-pixel slot; two
+224-pixel slots; or three 160-pixel slots. Ally slots remain fixed and never
+compact when a member reaches zero HP. The renderer uses small deterministic
+Lab-only figures rather than consulting live player/NPC/sprite state. It presents
+names, HP bars and numeric HP, explicit defeated labels, a `CHOOSING` marker for
+the current ally, and a read-only list of submitted actor-to-target commands.
+
+During playback, event text comes only from `playbackFrame.currentEvent` and all
+displayed HP comes from the Lab view's historical party/enemy projection. Attack,
+evasion, skip, dead-target cancellation and round-end records are formatted
+without recomputing combat. The playback-complete phase displays an explicit
+pending-acknowledgement final frame; acknowledged victory/defeat keeps the same
+final frame and HP visible.
+
+The renderer calls no controller, scheduler, playback projector, RNG, identity,
+save or gameplay authority. It does not increment `tick`. Nothing in `render.js`,
+input, menus, debug tools, encounters or content calls it, so merely loading the
+declaration adds no visible route. Suite 167 uses recorded canvas calls and exact
+state snapshots to enforce this boundary. A future visible Party Lab shell may
+call it, but input and lifecycle operations remain separate authorities.
+
 ### Combat compatibility baseline reconciliation
 
 The historical 52-trace digest covers suites **139, 140 and 141**, using

@@ -119,7 +119,8 @@ test('views are detached and frozen; no input, renderer, menu, encounter or cont
   const g=fresh(),v=enter(g),liveView=g.run('partyCombatLab.getView()');frozen(liveView);const serial=JSON.stringify(liveView);assert.throws(()=>{liveView.party[0].hp=0;});assert.equal(JSON.stringify(liveView),serial);
   const files=scriptOrderFromIndexHtml();for(const file of files){const source=fs.readFileSync(path.join(ROOT,file),'utf8');
     if(file!=='party-combat-lab.js')assert.doesNotMatch(source,/partyCombatLab\.(enter|submitAttack|backtrack|commitRound|advancePlayback|acknowledgePlayback|exit|emergencyAbort)\s*\(/,file);
-    if(/input|render|debug|content|interaction|quest/.test(file))assert.doesNotMatch(source,/partyCombatLab|PARTY_COMBAT_LAB_/,file);
+    if(file==='render-party-combat-lab.js')assert.equal((source.match(/partyCombatLab\.getView\(\)/g)||[]).length,1,'renderer has one read-only Lab view call');
+    else if(/input|render|debug|content|interaction|quest/.test(file))assert.doesNotMatch(source,/partyCombatLab|PARTY_COMBAT_LAB_/,file);
     if(file==='save.js')assert.equal((source.match(/partyCombatLab\.isActive\(\)/g)||[]).length,1,'one load refusal guard');}
   const source=fs.readFileSync(path.join(ROOT,'party-combat-lab.js'),'utf8');assert.doesNotMatch(source,/applyKillRewards|endCombat\(|recoverCombatDefeat|transitionToLocation|saveGame\(|loadGame\(|combat\.active\s*=|stats\.(hp|xp|gold)\s*=/);
   assert.equal(g.run('SAVE_VERSION'),4);

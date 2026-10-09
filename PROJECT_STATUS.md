@@ -125,8 +125,27 @@ inactive immutable Lab view after guarded cleanup and are never retried. Suite
 166 covers all three capacities, authoritative stat derivation, real round flow,
 victory/defeat, mid-command and mid-playback cleanup, exact canonical restoration,
 save isolation, failure diagnostics and immediate re-entry. The next boundary is
-a read-only party battle renderer; input and canonical party integration remain
+a visible Lab shell and input adapter; canonical party integration remains
 separate.
+
+### Read-only Party Combat Lab renderer
+
+`render-party-combat-lab.js` adds `drawPartyCombatLabBattle()`, an intentionally
+unrouted 512×480 presentation for the isolated Lab. Its only combat-state read is
+one immutable `partyCombatLab.getView()` snapshot. It validates that snapshot
+before drawing, then presents Lely and Esla in fixed ally slots, one to three
+enemies in stable enemy slots, historical HP and defeated labels, the ally whose
+command is being collected, already-submitted Attack targets, and the current
+recorded playback event. Playback-complete, victory and defeat views retain and
+render their final historical frame.
+
+The renderer has no input, menu, debug action or normal `render()` caller. It
+does not advance playback, acknowledge frames, read live combatants, rerun
+arithmetic, allocate identities or consume RNG. Suite 167 records its canvas
+operations and proves deterministic slot geometry, historical-frame fidelity,
+terminal-frame retention, zero state mutation and the absence of a gameplay or
+debug route. A later pass may add a separately guarded visible Lab shell and
+input adapter without changing this read-only boundary.
 
 ### MQ5 and the eastern Valmere road
 
