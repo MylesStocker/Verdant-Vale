@@ -10,8 +10,8 @@ actually fits together.
 
 `combatPlayerState` now permits explicit, inactive preparation of exactly two
 noncanonical test combatants. It owns ordered stable identities and independent
-HP/status state behind immutable inspection views. It has no production caller,
-world roster, menu, rendering, encounters or gameplay entry. Enemy `combat.mode`
+HP/status state behind immutable inspection views. Preparation has no production
+caller, world roster, menu, rendering, encounters or gameplay entry. Enemy `combat.mode`
 remains independent; all existing live battles still use canonical Lely's
 `stats`, equipment, inventory and statuses.
 
@@ -23,7 +23,7 @@ are not reused. Saves exclude the authority entirely (`SAVE_VERSION` 4): saving
 preparation is refused and successful load discards it after validation.
 
 The scheduler increment below supplies explicit headless Attack commands.
-Command selection, UI, inventory/equipment policy,
+The session below collects headless Attack commands. UI, inventory/equipment policy,
 persistent roster, Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
 The focused regression suite uses only local fixtures; no canon or content was
 added. No browser-visible route exists for this increment.
@@ -43,8 +43,8 @@ that actor's own stats. Death skips, dead-target cancellations and terminal
 truncation never retarget. One completed sequence advances one private round.
 Returned plans, events and final snapshots are detached and deeply immutable.
 
-There is no production caller, UI, enemy AI or encounter entry. The
-ordinary eight-template formation subset is supported; the Receiver and bespoke
+The gated headless session below is the only scheduler caller; there is no UI or
+encounter entry. The ordinary eight-template formation subset is supported; the Receiver and bespoke
 mechanics are excluded. Items, statuses/effects, rewards, recovery, equipment and
 inventory policy remain deferred. All existing gameplay/saving guards remain;
 `SAVE_VERSION` is 4 and no round data is serialized. Existing singleton and
@@ -61,10 +61,37 @@ reveals outcome and completed-round count. No RNG, live HP, identities or gamepl
 state is consumed or changed, and cleanup/later rounds cannot change a reel.
 
 Structural fixtures verify one-to-three members per side, including 3v3, without
-expanding the exactly-two-member preparation contract. There is no production
-caller, timing, rendering, input, controller, enemy AI or save persistence. The
-next boundary is a gated headless multi-member battle session controller; UI and
-canonical party content remain deferred.
+expanding the exactly-two-member preparation contract. The headless session below
+is the only production-source caller. Timing, rendering, input, save persistence,
+UI and canonical party content remain deferred.
+
+### Gated headless multi-member session
+
+`combatPlayerState.session` now owns an explicit Attack-only command/playback
+cycle for two prepared allies versus one to three supported inactive enemies.
+It collects exact commands in living ally slot order, permits backtracking before
+commit, and retains zero-HP members in their slots. A minimal target planner draws
+uniformly from living allies once per living enemy at commit when both allies
+live; a sole survivor is targeted deterministically without a target draw. It
+retains frozen explicit actions with no retargeting. This is not a broader enemy
+AI system.
+
+A commit validates all possible target arithmetic before RNG, invokes the existing
+scheduler once and immediately creates frame-zero playback. Frame stepping changes
+only the playback cursor. A separate final-frame acknowledgement resumes collection
+for an ongoing round or locks victory/defeat. Deeply immutable views show historical
+frame HP. Stale/replaced state, wrong phases, duplicate commits and unresolved
+playback reject. Unexpected failures retain consumed RNG/applied HP and lock retries
+with diagnostic evidence. Explicit existing preparation cleanup can abandon a
+session; there is no automatic cleanup, reward or recovery.
+
+The scheduler's validation was extracted for shared read-only use; weighted
+initiative, damage, result schema and old combat paths remain unchanged. Suite 165
+covers the controller; existing caller-isolation assertions permit only its gated
+scheduler/playback calls. No production caller reaches the controller. Rendering,
+keyboard input, menus, other commands, canonical parties, saves and gameplay entry
+remain excluded (`SAVE_VERSION` 4). A separately authorized isolated Lab adapter
+is the next presentation boundary; no additional target-planning layer is needed.
 
 ### MQ5 and the eastern Valmere road
 

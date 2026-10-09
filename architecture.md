@@ -32,8 +32,8 @@ execution is implemented. Authored identity/name/base stats/max HP and slot are
 frozen definitions; membership order is frozen. Runtime IDs `combat_party_N`
 use a separate monotonic sequence, never enemy IDs and never RNG. Cleanup drops
 membership, but does not recycle IDs. `setHp()` and `setStatuses()` require the
-exact current runtime ID and inactive combat; zero HP retains the slot. Inspection
-by exact runtime ID or authored ID returns detached, recursively frozen snapshots,
+exact current runtime ID and inactive combat, with no owning party session;
+zero HP retains the slot. Inspection by exact runtime ID or authored ID returns detached, recursively frozen snapshots,
 never live records. There is no current-ally pointer or implicit retargeting.
 
 Initialization uses the shared read-only inactive-combat preparation preflight.
@@ -74,7 +74,8 @@ stats, characters, abilities, content or lore.
 ### Headless party Attack rounds
 
 `combatPlayerState.resolveAttackRound({type:'attack-round', allyActions,
-enemyActions})` is the sole new execution authority; it has no production caller.
+enemyActions})` is the sole new execution authority. Its only production-source
+caller is the gated headless party session below, which has no gameplay entry.
 Each action is exactly `{actorId,targetId}` using current runtime IDs. Every actor
 alive at round start appears exactly once on its own side, with an initially
 living opposing target. The method normalizes action-array order to ally slots
@@ -170,18 +171,17 @@ fault but never refunds HP or RNG. All existing activation, input, rendering,
 movement, item/status, reward and save guards remain intact. Successful load or
 explicit cleanup discards transient round state; no payload or version change.
 
-The detached playback below consumes these results. The next execution boundary
-is a gated headless multi-member session controller. UI, target AI, content,
-equipment/inventory policy, rewards and effect-duration timing remain deferred.
-No canonical stats or encounters were added.
+The detached playback and gated headless session below consume these results.
+UI, broader target AI, content, equipment/inventory policy, rewards and
+effect-duration timing remain deferred. No canonical stats or encounters were added.
 
 ### Detached party Attack playback and closed result contract
 
 `combatPlayerState.createAttackRoundPlayback(result)` and
 `combatPlayerState.projectAttackRoundPlaybackFrame(reel, frameIndex)` are headless,
-explicit-only readers. There is no gameplay caller, session controller, UI,
-renderer, timing, AI, reward/recovery path or save binding. The private
-`partyAttackPlayback` authority validates/copies histories and recognizes its own
+explicit-only readers. The gated headless session is their only production-source
+caller; no gameplay entry, UI, renderer, timing, reward/recovery path or save
+binding reaches them. The private `partyAttackPlayback` authority validates/copies histories and recognizes its own
 immutable reels; neither method reads current party/enemy/combat state. Existing
 singleton/formation playback and their guards are unchanged.
 
@@ -250,6 +250,79 @@ and returned results are unchanged. No combat identities are allocated by
 playback. Cleanup, replacement actors, later rounds and save/load cannot change
 an existing reel. No HP/status writes, round ticks, commands, messages, outcomes,
 flags, inventory, equipment, rewards or saves are changed; `SAVE_VERSION` is 4.
+
+### Gated headless party session
+
+`combatPlayerState.session` is a frozen controller API with no production caller
+or visible route. `begin()` requires fresh, valid inactive two-member preparation
+and one to three supported enemies. It will not adopt a standalone resolved round
+or unresolved playback. Enemy mode and existing singleton/formation controllers
+remain unchanged; `combat.active` stays false.
+
+| API | Responsibility |
+| --- | --- |
+| `begin()` | Bind exact membership, validate all possible Attack targets and begin collection. |
+| `getView()` | Return a detached deeply frozen view or `null` before beginning. |
+| `submitAttack({actorId,targetId})` | Accept the next living ally's exact runtime identity and a living enemy target. |
+| `backtrack()` | Remove the last submitted action, reopening that living slot before commit. |
+| `commitRound()` | Plan enemy targets once, resolve exactly once, immediately create immutable playback at frame zero. |
+| `advancePlayback()` | Advance exactly one frame; reaching the final frame does not acknowledge it. |
+| `acknowledgePlayback()` | Separately accept the final frame and resume collection or lock victory/defeat. |
+
+Collection follows fixed ally slots, omitting zero-HP members without compacting
+membership. Phases are `collecting -> ready -> resolving -> playback ->
+playback_complete`; acknowledgement returns an ongoing round to `collecting`, or
+locks `victory`/`defeat`. `resolving` is a synchronous internal phase. Backtracking
+is permitted only during collection/readiness and consumes no RNG. Commands are
+closed `{actorId,targetId}` records; duplicates, wrong-side/stale actors,
+accessors, extra fields and nonprimitive identities reject before mutation.
+
+The minimal enemy planner uses exactly one RNG draw per living enemy in slot
+order when two allies live. With one living ally the target is deterministic and
+uses no target RNG. For the stable living-ally slot list, `floor(roll *
+livingCount)` chooses uniformly with replacement across enemies.
+These frozen explicit targets are retained through playback and never retargeted.
+No broader AI policy exists. All target draws precede the unchanged scheduler's
+N−1 initiative draws and three draws per executing Attack. All possible opposing
+attack pairs, current membership and cumulative Speed weights validate before
+any target RNG; no targets are generated while backtracking.
+
+The controller reuses the scheduler's extracted read-only state/action preflight.
+It binds exact roster references, runtime identities, slots, supported stats and
+HP, plus the private round authority. Subsequent operations reject replacement
+or external mutation, pending legacy combat work, wrong phases, duplicate commits
+and unresolved playback. While a session exists, direct scheduler calls and
+`setHp`/`setStatuses` reject; only the controller's single-use private permission
+can call the scheduler. Existing prepared-party input, rendering, movement,
+saving, item/status and finalizer guards remain intact.
+
+Views contain `phase, nextActorId, allyActions, enemyActions, party, enemies,
+playbackFrame, frameIndex, frameCount, completedRounds, awaitingAcknowledgement,
+terminalOutcome, failure`. During playback HP and round count come solely from
+the historical frame, not already-resolved live HP. The final frame reveals the
+recorded outcome; `terminalOutcome` locks only on acknowledgement. Ongoing
+acknowledgement drops old commands/playback, preserves exact slots and collects
+only surviving allies. Terminal acknowledgement grants no rewards or recovery.
+
+Unexpected target/resolver/playback failures leave consumed RNG and applied HP
+untouched, retain submitted/generated actions, and enter `fault` with stage,
+target-draw count and completed-round diagnostics. No retry is allowed. Fault
+views retain the last validated historical snapshot, not a reconstructed or
+rolled-back live state. Existing explicit `combatPlayerState.clear()` may abandon
+preparation outside resolution, dropping the session without changing enemy HP,
+Lely or the world; it is not called automatically. Successful validated load also
+discards transient state through that existing cleanup boundary. No fields or
+bindings enter saves and `SAVE_VERSION` remains 4.
+
+Suite 165 covers 2v1/2v2/2v3 collection, backtracking, uniform target intervals,
+zero-HP slots, exact RNG budgets, one-shot resolution, acknowledged frame stepping,
+terminal locks, stale membership and diagnostic failures. Suites 163/164 now
+allow only this controller's scheduler/playback calls and still forbid gameplay
+callers; their historical result and arithmetic assertions are unchanged.
+Rendering, keyboard input, menus, items/other commands, persistent parties,
+rewards/recovery and canonical content remain deferred. A separately authorized
+isolated Lab adapter can exercise this controller without another target-planning
+architecture increment.
 
 ### Combat compatibility baseline reconciliation
 

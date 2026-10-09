@@ -258,12 +258,19 @@ for(const [allies,enemies] of [[1,1],[1,3],[3,1],[3,3]])test('structural '+allie
   const reel=create(g);verify(g,reel,Array(allies+enemies).fill(100));assert.equal(reel.order.length,allies+enemies);assert.equal(g.run('combatPlayerState.getView().members.length'),2);
   if(allies===3&&enemies===3) {assert.equal(reel.frameCount,8);assert.equal(reel.initiative.length,5);}
 });
-test('six-actor history cannot expand preparation; no production caller, save field or visible route',()=>{
+test('six-actor history cannot expand preparation; only the gated session calls playback, with no save field or visible route',()=>{
   const {g}=ordinary();capacityFixture(g,3,3);create(g);g.run('combatPlayerState.clear();');
   unchanged(g,()=>assert.throws(()=>g.run('combatPlayerState.initialize([...fixtures,{...fixtures[1],characterId:"fixture_third",slot:2}])'),/Invalid player-party/));
   for(const file of scriptOrderFromIndexHtml()) {
     const source=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
-    assert.doesNotMatch(source,/combatPlayerState\.(createAttackRoundPlayback|projectAttackRoundPlaybackFrame)\s*\(/,file);
+    for(const method of ['createAttackRoundPlayback','projectAttackRoundPlaybackFrame']) {
+      const pattern=new RegExp('combatPlayerState\\.'+method+'\\s*\\(','g');
+      assert.equal((source.match(pattern)||[]).length,file==='combat.js'?1:0,file);
+      if(file==='combat.js') {
+        const start=source.indexOf('  const session=(() => {'),end=source.indexOf('    session,',start);
+        assert.ok(start>=0&&end>start);assert.doesNotMatch(source.slice(0,start)+source.slice(end),pattern);
+      }
+    }
     if(file!=='combat.js')assert.doesNotMatch(source,/partyAttackPlayback/,file);
   }
   assert.equal(g.run('SAVE_VERSION'),4);

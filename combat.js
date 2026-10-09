@@ -432,6 +432,7 @@ const combatPlayerState = (() => {
   let members = null;
   let sequence = 0;
   let roundState = null; // party-only boundary; enemy round accounting stays untouched
+  let sessionState = null; // gated headless controller; no canonical gameplay caller
   const fail = () => { throw new Error('Invalid player-party preparation or member state'); };
   const fields = ['characterId','slot','name','hp','maxHp','atk','def','spd','statuses'];
   const record = value => {
@@ -465,12 +466,236 @@ const combatPlayerState = (() => {
     return members?.find(member => member.instanceId === instanceId) || null;
   };
   const editable = instanceId => {
-    if (combat.active !== false || roundState?.phase === 'resolving') fail();
+    if (combat.active !== false || roundState?.phase === 'resolving' || sessionState) fail();
     const member = exactMember(instanceId);
     if (!member) fail();
     return member;
   };
+  const rejectAttack=()=>{throw new Error('Unsupported party Attack round');};
+  // Shallow data-only validation: reject nonprimitive action fields without
+  // recursively traversing arbitrary or cyclic caller-owned objects.
+  const attackRecord = (value, keys) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value) ||
+        ![Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(value))) rejectAttack();
+    const fields=Object.getOwnPropertyDescriptors(value);
+    if (Reflect.ownKeys(fields).length !== keys.length ||
+        keys.some(key=>!Object.hasOwn(fields[key] || {},'value'))) rejectAttack();
+    return {...Object.fromEntries(keys.map(key=>[key,fields[key].value]))};
+  };
+  const inspectAttackState=(allowTerminal=false)=>{
+    if (!members || (roundState && (roundState.enemies!==combat.enemies ||
+        (allowTerminal ? !['ready','complete'].includes(roundState.phase) :
+          roundState.phase!=='ready' || roundState.outcome!=='ongoing' || roundState.completed>=Number.MAX_SAFE_INTEGER)))) rejectAttack();
+    validateInactiveCombatPreparation();
+    if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open) rejectAttack();
+    const combatFields = Object.getOwnPropertyDescriptors(combat);
+    if (completedSingleVictoryReceipt !== null ||
+        Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value]) => combatFields[key]?.value !== value) ||
+        array(combatFields.messageQueue?.value).length ||
+        Reflect.ownKeys(combatFields).some(key => ![...Object.keys(FORMATION_NEUTRAL_COMBAT_STATE),
+          'mode','active','enemy','enemies','observeCount','escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(key))) rejectAttack();
+    const enemyMembers = combat.enemies, enemyCopies = array(enemyMembers);
+    if (!Object.isFrozen(enemyMembers) || (combat.mode === 'single' ? enemyCopies.length !== 1 :
+        combat.mode !== 'formation' || ![2,3].includes(enemyCopies.length))) rejectAttack();
+    const enemyRound = formationRounds.getView();
+    if (combat.mode === 'formation' ? !enemyRound || enemyRound.completedRounds !== 0 ||
+        enemyRound.awaitingPlayback || enemyRound.outcome !== 'ongoing' || formationRounds.coordination() !== null : enemyRound !== null) rejectAttack();
+    const enemyData = enemyCopies.map((enemy,slot) => {
+      const data = attackRecord(enemy,[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked']);
+      if (!PARTY_ATTACK_TEMPLATE_IDS.includes(data.id)) rejectAttack();
+      const template = attackRecord(ENEMY_TEMPLATE_REGISTRY[data.id],FORMATION_STATE_DATA_FIELDS);
+      const fields = Object.getOwnPropertyDescriptors(enemy);
+      if (template.id !== data.id || !formationBasicStatsValid(template) || !formationBasicStatsValid(data) ||
+          [template,data].some(d => typeof d.name !== 'string' ||
+            ['xp','goldMin','goldMax'].some(key => !Number.isSafeInteger(d[key]) || d[key] < 0)) ||
+          data.slot !== slot || typeof data.instanceId !== 'string' || !/^combat_enemy_[1-9]\d*$/.test(data.instanceId) ||
+          fields.hp.writable !== true || fields.instanceId.writable !== false || fields.instanceId.configurable !== false ||
+          fields.slot.writable !== false || fields.slot.configurable !== false ||
+          !Number.isSafeInteger(data.observeCount) || data.observeCount < 0 || data.escapeUnlocked !== false) rejectAttack();
+      return data;
+    });
+    const partyData = members.map(view);
+    if (partyData.some(member => !formationBasicStatsValid(member) || member.statuses.length) ||
+        (!allowTerminal && (!partyData.some(member => member.hp > 0) || !enemyData.some(member => member.hp > 0)))) rejectAttack();
+    const allIds = [...partyData,...enemyData].map(actor => actor.instanceId);
+    if (new Set(allIds).size !== allIds.length) rejectAttack();
+    return {enemyMembers,enemyData,partyData};
+  };
+  const prepareAttackRound=request=>{
+    const {enemyMembers,enemyData,partyData}=inspectAttackState();
+    const command = attackRecord(request,['type','allyActions','enemyActions']);
+    if (command.type !== 'attack-round') rejectAttack();
+    const normalize = (actions, actors, targets) => {
+      const supplied = array(actions).map(action => attackRecord(action,['actorId','targetId']));
+      const living = actors.filter(actor => actor.hp > 0);
+      if (supplied.length !== living.length || new Set(supplied.map(a=>a.actorId)).size !== supplied.length ||
+          supplied.some(a => typeof a.actorId !== 'string' || typeof a.targetId !== 'string' ||
+            !living.some(actor => actor.instanceId === a.actorId) ||
+            !targets.some(target => target.instanceId === a.targetId && target.hp > 0))) rejectAttack();
+      return living.map(actor => supplied.find(a => a.actorId === actor.instanceId));
+    };
+    const allyActions = normalize(command.allyActions,partyData,enemyData);
+    const enemyActions = normalize(command.enemyActions,enemyData,partyData);
+    const planActors = [...allyActions.map(action => {
+      const actor=partyData.find(m=>m.instanceId===action.actorId);
+      return {...action,side:'ally',slot:actor.slot,spd:Math.max(1,actor.spd)};
+    }), ...enemyActions.map(action => {
+      const actor=enemyData.find(m=>m.instanceId===action.actorId);
+      return {...action,side:'enemy',slot:actor.slot,spd:actor.spd};
+    })];
+    const dataFor = id => [...partyData,...enemyData].find(actor => actor.instanceId === id);
+    // Check every committed attack and the complete initiative weight sum
+    // before the first roll. Neither slots nor targets are inferred.
+    for (const action of planActors) {
+      const actor=dataFor(action.actorId), target=dataFor(action.targetId);
+      const defense=action.side==='enemy' ? playerIncomingMitigation(actor.atk,target.def,false) : target.def;
+      if (!attackNumbersAreSafe(actor.atk,defense)) rejectAttack();
+    }
+    partyInitiativeWeights(planActors);
+    return {enemyMembers,enemyData,partyData,allyActions,enemyActions,planActors};
+  };
+  // The controller owns only transient commands, exact bindings and immutable
+  // playback. Authoritative HP remains exclusively in the existing member state.
+  const session=(() => {
+    const invalid=()=>{throw new Error('Invalid party session operation or stale state');};
+    // Normalize key order for comparisons; authored enemy property order is not
+    // identity and differs from the detached resolver/playback field order.
+    const snapshot=prepared=>copyFormationData({
+      party:prepared.partyData.map(m=>attackRecord(m,[...fields,'instanceId'])),
+      enemies:prepared.enemyData.map(m=>attackRecord(m,[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked'])),
+    });
+    const prepare=()=>{
+      const prepared=inspectAttackState();
+      const allies=prepared.partyData.filter(m=>m.hp>0),enemies=prepared.enemyData.filter(m=>m.hp>0);
+      // Every possible target must be numerically safe before target RNG, not
+      // merely whichever target the planner happens to select.
+      for(const ally of allies)for(const enemy of enemies) {
+        if(!attackNumbersAreSafe(ally.atk,enemy.def) ||
+            !attackNumbersAreSafe(enemy.atk,playerIncomingMitigation(enemy.atk,ally.def,false))) rejectAttack();
+      }
+      partyInitiativeWeights([...allies,...enemies]);
+      return prepared;
+    };
+    const bound=()=>{
+      const s=sessionState;
+      if(!s || members!==s.roster || combat.enemies!==s.enemies || roundState!==s.roundState)invalid();
+      const current=snapshot(inspectAttackState(true));
+      if(JSON.stringify(current)!==JSON.stringify(s.snapshot))invalid();
+      return s;
+    };
+    const phase=allowed=>{
+      if(!sessionState || !allowed.includes(sessionState.phase))invalid();
+      return bound();
+    };
+    const livingAllies=s=>s.snapshot.party.filter(m=>m.hp>0);
+    const getView=function() {
+      if(arguments.length)invalid();
+      if(!sessionState)return null;
+      const s=sessionState;
+      if(!['resolving','fault'].includes(s.phase))bound();
+      const frame=s.playback?combatPlayerState.projectAttackRoundPlaybackFrame(s.playback,s.frameIndex):null;
+      return copyFormationData({phase:s.phase,
+        nextActorId:s.phase==='collecting'?livingAllies(s)[s.allyActions.length].instanceId:null,
+        allyActions:s.allyActions,enemyActions:s.enemyActions,
+        party:frame?frame.party:s.snapshot.party.map(m=>({...m,side:'ally',alive:m.hp>0,defeated:m.hp===0})),
+        enemies:frame?frame.enemies:s.snapshot.enemies.map(m=>({...m,side:'enemy',alive:m.hp>0,defeated:m.hp===0})),
+        playbackFrame:frame,frameIndex:s.frameIndex,frameCount:s.playback?.frameCount||0,
+        completedRounds:frame?frame.completedRounds:s.completedRounds,
+        awaitingAcknowledgement:s.phase==='playback_complete',
+        terminalOutcome:['victory','defeat'].includes(s.phase)?s.phase:null,failure:s.failure});
+    };
+    return Object.freeze({
+      begin() {
+        if(arguments.length || sessionState || roundState!==null)invalid();
+        const prepared=prepare();
+        sessionState={phase:'collecting',roster:members,enemies:prepared.enemyMembers,roundState,
+          snapshot:snapshot(prepared),allyActions:Object.freeze([]),enemyActions:Object.freeze([]),
+          playback:null,frameIndex:null,completedRounds:0,failure:null,resolvePermit:false};
+        return getView();
+      },
+      submitAttack(request) {
+        if(arguments.length!==1)invalid();
+        const s=phase(['collecting']),action=attackRecord(request,['actorId','targetId']);
+        if(typeof action.actorId!=='string' || typeof action.targetId!=='string' ||
+            action.actorId!==livingAllies(s)[s.allyActions.length].instanceId ||
+            !s.snapshot.enemies.some(e=>e.instanceId===action.targetId&&e.hp>0))invalid();
+        s.allyActions=copyFormationData([...s.allyActions,action]);
+        if(s.allyActions.length===livingAllies(s).length)s.phase='ready';
+        return getView();
+      },
+      backtrack() {
+        if(arguments.length)invalid();
+        const s=phase(['collecting','ready']);if(!s.allyActions.length)invalid();
+        s.allyActions=Object.freeze(s.allyActions.slice(0,-1));s.phase='collecting';
+        return getView();
+      },
+      commitRound() {
+        if(arguments.length)invalid();
+        const s=phase(['ready']);
+        if(s.playback || s.frameIndex!==null || s.enemyActions.length)invalid();
+        const prepared=prepare(),allies=prepared.partyData.filter(m=>m.hp>0),enemies=prepared.enemyData.filter(m=>m.hp>0);
+        // Validate all collected actions before any draw. This is a dry check,
+        // not a speculative resolution or a target decision.
+        prepareAttackRound({type:'attack-round',allyActions:s.allyActions,
+          enemyActions:enemies.map(e=>({actorId:e.instanceId,targetId:allies[0].instanceId}))});
+        s.phase='resolving';let stage='targets',targetDraws=0;
+        try {
+          for(const enemy of enemies) {
+            let target=allies[0];
+            if(allies.length>1) {
+              targetDraws++;
+              const roll=Math.random();
+              if(!Number.isFinite(roll)||roll<0||roll>=1)throw new Error('Invalid party target RNG value');
+              bound();
+              target=allies[Math.floor(roll*allies.length)];
+            }
+            const action={actorId:enemy.instanceId,targetId:target.instanceId};
+            s.enemyActions=copyFormationData([...s.enemyActions,action]);
+          }
+          const request=copyFormationData({type:'attack-round',allyActions:s.allyActions,enemyActions:s.enemyActions});
+          stage='resolve';s.resolvePermit=true;
+          let result;
+          try {result=combatPlayerState.resolveAttackRound(request);}finally{s.resolvePermit=false;}
+          stage='playback';
+          const playback=combatPlayerState.createAttackRoundPlayback(result);
+          // The reel must start at this controller's exact pre-round state.
+          // External mutation during RNG is diagnostic failure, never a retry.
+          const initial=playback.frames[0];
+          const strip=rows=>rows.map(({side,alive,defeated,...m})=>m);
+          if(JSON.stringify(snapshot({partyData:strip(initial.party),enemyData:strip(initial.enemies)}))!==JSON.stringify(s.snapshot))invalid();
+          const after=snapshot(inspectAttackState(true));
+          if(members!==s.roster || combat.enemies!==s.enemies ||
+              JSON.stringify(after)!==JSON.stringify(snapshot({partyData:result.party,enemyData:result.enemies})))invalid();
+          s.roundState=roundState;s.snapshot=after;s.playback=playback;s.frameIndex=0;s.phase='playback';
+          return getView();
+        } catch(error) {
+          s.resolvePermit=false;s.phase='fault';
+          s.failure=Object.freeze({stage,targetDraws,completedRounds:roundState?.completed||0});
+          throw error; // Retain consumed RNG/HP and commands; never resolve twice.
+        }
+      },
+      advancePlayback() {
+        if(arguments.length)invalid();
+        const s=phase(['playback']);s.frameIndex++;
+        if(s.frameIndex===s.playback.frameCount-1)s.phase='playback_complete';
+        return getView();
+      },
+      acknowledgePlayback() {
+        if(arguments.length)invalid();
+        const s=phase(['playback_complete']),frame=s.playback.frames[s.frameIndex];
+        if(!frame.complete)invalid();
+        s.completedRounds=frame.completedRounds;
+        if(frame.outcome==='ongoing') {
+          s.allyActions=Object.freeze([]);s.enemyActions=Object.freeze([]);
+          s.playback=null;s.frameIndex=null;s.phase='collecting';
+        } else s.phase=frame.outcome;
+        return getView();
+      },
+      getView,
+    });
+  })();
   return Object.freeze({
+    session,
     hasParty() { return members !== null; },
     getView() {
       if (members) return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});
@@ -539,82 +764,13 @@ const combatPlayerState = (() => {
         failure:roundState?.failure || null}) : null;
     },
     resolveAttackRound(request) {
-      const reject = () => { throw new Error('Unsupported party Attack round'); };
-      // Shallow data-only validation: reject nonprimitive action fields without
-      // recursively traversing arbitrary or cyclic caller-owned objects.
-      const flat = (value, keys) => {
-        if (!value || typeof value !== 'object' || Array.isArray(value) ||
-            ![Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(value))) reject();
-        const fields=Object.getOwnPropertyDescriptors(value);
-        if (Reflect.ownKeys(fields).length !== keys.length ||
-            keys.some(key=>!Object.hasOwn(fields[key] || {},'value'))) reject();
-        return {...Object.fromEntries(keys.map(key=>[key,fields[key].value]))};
-      };
-      if (arguments.length !== 1 || !members || (roundState &&
-          (roundState.phase !== 'ready' || roundState.outcome !== 'ongoing' ||
-           roundState.enemies !== combat.enemies || roundState.completed >= Number.MAX_SAFE_INTEGER))) reject();
-      validateInactiveCombatPreparation();
-      if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open) reject();
-      const combatFields = Object.getOwnPropertyDescriptors(combat);
-      if (completedSingleVictoryReceipt !== null ||
-          Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value]) => combatFields[key]?.value !== value) ||
-          array(combatFields.messageQueue?.value).length ||
-          Reflect.ownKeys(combatFields).some(key => ![...Object.keys(FORMATION_NEUTRAL_COMBAT_STATE),
-            'mode','active','enemy','enemies','observeCount','escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(key))) reject();
-      const enemyMembers = combat.enemies, enemyCopies = array(enemyMembers);
-      if (!Object.isFrozen(enemyMembers) || (combat.mode === 'single' ? enemyCopies.length !== 1 :
-          combat.mode !== 'formation' || ![2,3].includes(enemyCopies.length))) reject();
-      const enemyRound = formationRounds.getView();
-      if (combat.mode === 'formation' ? !enemyRound || enemyRound.completedRounds !== 0 ||
-          enemyRound.awaitingPlayback || enemyRound.outcome !== 'ongoing' || formationRounds.coordination() !== null : enemyRound !== null) reject();
-      const enemyData = enemyCopies.map((enemy,slot) => {
-        const data = flat(enemy,[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked']);
-        if (!PARTY_ATTACK_TEMPLATE_IDS.includes(data.id)) reject();
-        const template = flat(ENEMY_TEMPLATE_REGISTRY[data.id],FORMATION_STATE_DATA_FIELDS);
-        const fields = Object.getOwnPropertyDescriptors(enemy);
-        if (template.id !== data.id || !formationBasicStatsValid(template) || !formationBasicStatsValid(data) ||
-            [template,data].some(d => typeof d.name !== 'string' ||
-              ['xp','goldMin','goldMax'].some(key => !Number.isSafeInteger(d[key]) || d[key] < 0)) ||
-            data.slot !== slot || typeof data.instanceId !== 'string' || !/^combat_enemy_[1-9]\d*$/.test(data.instanceId) ||
-            fields.hp.writable !== true || fields.instanceId.writable !== false || fields.instanceId.configurable !== false ||
-            fields.slot.writable !== false || fields.slot.configurable !== false ||
-            !Number.isSafeInteger(data.observeCount) || data.observeCount < 0 || data.escapeUnlocked !== false) reject();
-        return data;
-      });
-      const partyData = members.map(view);
-      if (partyData.some(member => !formationBasicStatsValid(member) || member.statuses.length) ||
-          !partyData.some(member => member.hp > 0) || !enemyData.some(member => member.hp > 0)) reject();
-      const allIds = [...partyData,...enemyData].map(actor => actor.instanceId);
-      if (new Set(allIds).size !== allIds.length) reject();
-      const command = flat(request,['type','allyActions','enemyActions']);
-      if (command.type !== 'attack-round') reject();
-      const normalize = (actions, actors, targets) => {
-        const supplied = array(actions).map(action => flat(action,['actorId','targetId']));
-        const living = actors.filter(actor => actor.hp > 0);
-        if (supplied.length !== living.length || new Set(supplied.map(a=>a.actorId)).size !== supplied.length ||
-            supplied.some(a => typeof a.actorId !== 'string' || typeof a.targetId !== 'string' ||
-              !living.some(actor => actor.instanceId === a.actorId) ||
-              !targets.some(target => target.instanceId === a.targetId && target.hp > 0))) reject();
-        return living.map(actor => supplied.find(a => a.actorId === actor.instanceId));
-      };
-      const allyActions = normalize(command.allyActions,partyData,enemyData);
-      const enemyActions = normalize(command.enemyActions,enemyData,partyData);
-      const planActors = [...allyActions.map(action => {
-        const actor=partyData.find(m=>m.instanceId===action.actorId);
-        return {...action,side:'ally',slot:actor.slot,spd:Math.max(1,actor.spd)};
-      }), ...enemyActions.map(action => {
-        const actor=enemyData.find(m=>m.instanceId===action.actorId);
-        return {...action,side:'enemy',slot:actor.slot,spd:actor.spd};
-      })];
-      const dataFor = id => [...partyData,...enemyData].find(actor => actor.instanceId === id);
-      // Check every committed attack and the complete initiative weight sum
-      // before the first roll. Neither slots nor targets are inferred.
-      for (const action of planActors) {
-        const actor=dataFor(action.actorId), target=dataFor(action.targetId);
-        const defense=action.side==='enemy' ? playerIncomingMitigation(actor.atk,target.def,false) : target.def;
-        if (!attackNumbersAreSafe(actor.atk,defense)) reject();
+      if (arguments.length!==1) rejectAttack();
+      if (sessionState) {
+        if (!sessionState.resolvePermit) throw new Error('Party session owns round execution');
+        sessionState.resolvePermit=false; // one private authorization, never reentrant
       }
-      partyInitiativeWeights(planActors);
+      const {enemyMembers,enemyData,partyData,allyActions,enemyActions,planActors}=prepareAttackRound(request);
+      const dataFor=id=>[...partyData,...enemyData].find(actor=>actor.instanceId===id);
       const roster=members, events=[], tape=[];
       const live = id => roster.find(m=>m.instanceId===id) || enemyMembers.find(m=>m.instanceId===id);
       const exactMembership = () => {
@@ -686,7 +842,8 @@ const combatPlayerState = (() => {
       return view(member);
     },
     clear() {
-      if (arguments.length || combat.active !== false || roundState?.phase === 'resolving') fail();
+      if (arguments.length || combat.active !== false || roundState?.phase === 'resolving' || sessionState?.phase==='resolving') fail();
+      sessionState = null; // explicit preparation abandonment only; no enemy/reward/recovery writes
       roundState = null;
       members = null; // No enemy, Lely, reward, recovery or world-state writes.
     },

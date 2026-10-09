@@ -565,8 +565,15 @@ test('round identity cannot silently bind replacement enemies; explicit cleanup 
   assert.equal(g.run('combatPlayerState.getRoundView().completedRounds'),0);assert.equal(view.completedRounds,1);
 });
 
-test('no production scheduler callers and no saved round metadata',()=>{
-  for(const file of scriptOrderFromIndexHtml()) assert.doesNotMatch(fs.readFileSync(path.join(ROOT,file),'utf8'),/combatPlayerState\.resolveAttackRound\s*\(/,file);
+test('only the gated session calls the scheduler; no saved round metadata',()=>{
+  for(const file of scriptOrderFromIndexHtml()) {
+    const source=fs.readFileSync(path.join(ROOT,file),'utf8'),pattern=/combatPlayerState\.resolveAttackRound\s*\(/g;
+    assert.equal((source.match(pattern)||[]).length,file==='combat.js'?1:0,file);
+    if(file==='combat.js') {
+      const start=source.indexOf('  const session=(() => {'),end=source.indexOf('    session,',start);
+      assert.ok(start>=0&&end>start);assert.doesNotMatch(source.slice(0,start)+source.slice(end),pattern);
+    }
+  }
   const g=createContext();g.run('dialogue.open=false;resetLocationState();placeAtLocation("MAP",7.5*TILE,9.5*TILE);saveGame();');
   const before=g.run('localStorage.getItem("verdantVale_save")');
   g.run(setup(1));commands(g);g.run('var rngCalls=0;Math=Object.create(Math);');exact(g,[...orderTape(g),...HIT,...HIT,...HIT]);
