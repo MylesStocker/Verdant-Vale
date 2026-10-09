@@ -76,11 +76,96 @@ function exact(g,tape) {
   let result;
   try {result=g.run('combatPlayerState.resolveAttackRound(command)');assert.deepEqual(J(g,'used'),tape);}
   finally {g.run('Math.random=()=>{rngCalls++;throw Error("unexpected RNG");};');}
+  assertRoundContract(g,result);
   return result;
 }
 function frozen(value) {if(value&&typeof value==='object'){assert.ok(Object.isFrozen(value));Object.values(value).forEach(frozen);}else assert.notEqual(typeof value,'function');}
 function hp(g) {return J(g,'[combatPlayerState.getView().members.map(m=>m.hp),combat.enemies.map(e=>e.hp)]');}
 function equal(a,b) {assert.deepEqual(JSON.parse(JSON.stringify(a)),JSON.parse(JSON.stringify(b)));}
+
+// Lock the authentic scheduler wire shape independently of playback validation.
+function assertRoundContract(g,result) {
+  const prototypes=[g.run("Object.getPrototypeOf({})"),g.run("Object.getPrototypeOf([])"),null];
+  const keys=(value,expected)=>assert.deepEqual(Reflect.ownKeys(value).sort(),expected.slice().sort());
+  const safe=value=>assert.ok(Number.isSafeInteger(value)&&value>=0);
+  const closed=value=>{
+    if(value&&typeof value==='object') {
+      assert.ok(Object.isFrozen(value));assert.ok(prototypes.includes(Object.getPrototypeOf(value)));
+      for(const descriptor of Object.values(Object.getOwnPropertyDescriptors(value))) {
+        assert.ok(Object.hasOwn(descriptor,'value'));closed(descriptor.value);
+      }
+    } else assert.ok(value===null||['string','boolean'].includes(typeof value)||typeof value==='number'&&Number.isFinite(value));
+  };
+  closed(result);keys(result,['round','command','initiative','order','events','outcome','party','enemies']);
+  safe(result.round);assert.ok(result.round>0);assert.ok(['ongoing','victory','defeat'].includes(result.outcome));
+  keys(result.command,['type','allyActions','enemyActions']);assert.equal(result.command.type,'attack-round');
+  assert.equal(result.party.length,2);assert.ok(result.enemies.length>=1&&result.enemies.length<=3);
+  const roster=new Map();
+  for(const [side,members] of [['ally',result.party],['enemy',result.enemies]]) members.forEach((member,slot)=>{
+    keys(member,side==='ally'?['characterId','slot','name','maxHp','atk','def','spd','instanceId','hp','statuses']:
+      ['id','name','hp','maxHp','atk','def','spd','xp','goldMin','goldMax','instanceId','slot','observeCount','escapeUnlocked']);
+    assert.equal(member.slot,slot);assert.equal(typeof member.name,'string');
+    assert.match(member.instanceId,side==='ally'?/^combat_party_[1-9]\d*$/:/^combat_enemy_[1-9]\d*$/);
+    assert.ok(!roster.has(member.instanceId));roster.set(member.instanceId,{member,side});
+    for(const field of ['hp','maxHp','atk','def','spd'])safe(member[field]);assert.ok(member.maxHp>0&&member.hp<=member.maxHp);
+    if(side==='ally'){assert.match(member.characterId,/^[a-z][a-z0-9_]*$/);assert.equal(member.statuses.length,0);}
+    else {assert.equal(typeof member.id,'string');for(const field of ['xp','goldMin','goldMax','observeCount'])safe(member[field]);assert.equal(member.escapeUnlocked,false);assert.notEqual(member,g.run('combat.enemies['+slot+']'));}
+  });
+  assert.equal(new Set(result.party.map(m=>m.characterId)).size,2);
+  for(const [side,commands] of [['ally',result.command.allyActions],['enemy',result.command.enemyActions]]) {
+    let slot=-1;
+    for(const command of commands) {
+      keys(command,['actorId','targetId']);assert.equal(typeof command.actorId,'string');assert.equal(typeof command.targetId,'string');
+      assert.equal(roster.get(command.actorId).side,side);assert.notEqual(roster.get(command.targetId).side,side);
+      assert.ok(roster.get(command.actorId).member.slot>slot);slot=roster.get(command.actorId).member.slot;
+    }
+  }
+  const actionKeys=['actorId','targetId','side','slot','spd'];
+  for(const action of result.order) {
+    keys(action,actionKeys);assert.equal(action.side,roster.get(action.actorId).side);
+    assert.notEqual(action.side,roster.get(action.targetId).side);assert.equal(action.slot,roster.get(action.actorId).member.slot);safe(action.spd);
+    if(action.side==='ally')assert.equal(action.spd,Math.max(1,roster.get(action.actorId).member.spd));
+    const command=[...result.command.allyActions,...result.command.enemyActions].find(c=>c.actorId===action.actorId);
+    assert.equal(action.targetId,command.targetId);
+  }
+  assert.equal(new Set(result.order.map(a=>a.actorId)).size,result.order.length);
+  for(const draw of result.initiative) {
+    keys(draw,['type','actorId','side','slot','candidates','weight','totalWeight','roll','point','intervalStart','intervalEnd']);
+    assert.equal(draw.type,'weighted_draw');assert.equal(draw.side,roster.get(draw.actorId).side);assert.equal(draw.slot,roster.get(draw.actorId).member.slot);
+    for(const field of ['weight','totalWeight','intervalStart','intervalEnd'])safe(draw[field]);
+    assert.ok(draw.roll>=0&&draw.roll<1);assert.equal(draw.point,draw.roll*draw.totalWeight);
+    assert.ok(draw.point>=draw.intervalStart&&draw.point<draw.intervalEnd);
+    for(const candidate of draw.candidates){keys(candidate,['actorId','weight']);assert.ok(roster.has(candidate.actorId));safe(candidate.weight);assert.ok(candidate.weight>0);}
+  }
+  auditDraws({complete:true,initiative:result.initiative,order:result.order},
+    [...result.order].sort((a,b)=>(a.side==='ally'?0:1)-(b.side==='ally'?0:1)||a.slot-b.slot),result.initiative.map(d=>d.roll));
+  const projected=new Map([...roster].map(([id,{member}])=>[id,member.hp]));
+  for(let i=result.events.length-1;i>=0;i--){const e=result.events[i];if(e.type==='attack'){assert.equal(projected.get(e.targetId),e.hpAfter);projected.set(e.targetId,e.hpBefore);}}
+  const outcome=()=>result.enemies.every(m=>projected.get(m.instanceId)===0)?'victory':result.party.every(m=>projected.get(m.instanceId)===0)?'defeat':'ongoing';
+  assert.equal(outcome(),'ongoing');
+  equal([...result.command.allyActions,...result.command.enemyActions].map(c=>c.actorId),[...result.party,...result.enemies].filter(m=>projected.get(m.instanceId)>0).map(m=>m.instanceId));
+  for(const command of [...result.command.allyActions,...result.command.enemyActions])assert.ok(projected.get(command.targetId)>0);
+  result.events.forEach((event,index)=>{
+    if(event.type==='round_end') {
+      keys(event,['type','roundBefore','roundAfter','outcome']);assert.equal(index,result.events.length-1);
+      assert.equal(event.roundBefore,result.round-1);assert.equal(event.roundAfter,result.round);assert.equal(event.outcome,result.outcome);assert.equal(event.outcome,outcome());return;
+    }
+    assert.equal(outcome(),'ongoing');assert.ok(['attack','skip','cancel'].includes(event.type));
+    keys(event,['type',...actionKeys,...(event.type==='attack'?['attemptedDamage','appliedDamage','critical','evaded','hpBefore','hpAfter']:['reason'])]);
+    for(const key of actionKeys)assert.equal(event[key],result.order[index][key]);
+    if(event.type==='attack') {
+      for(const key of ['attemptedDamage','appliedDamage','hpBefore','hpAfter'])safe(event[key]);
+      assert.equal(typeof event.critical,'boolean');assert.equal(typeof event.evaded,'boolean');assert.ok(event.attemptedDamage>0&&event.hpBefore>0);
+      assert.ok(projected.get(event.actorId)>0);assert.equal(projected.get(event.targetId),event.hpBefore);
+      assert.equal(event.hpAfter,Math.max(0,event.hpBefore-(event.evaded?0:event.attemptedDamage)));
+      assert.equal(event.appliedDamage,event.hpBefore-event.hpAfter);projected.set(event.targetId,event.hpAfter);
+    } else if(event.type==='skip') {assert.equal(event.reason,'actor_dead');assert.equal(projected.get(event.actorId),0);}
+    else {assert.equal(event.reason,'target_dead');assert.ok(projected.get(event.actorId)>0);assert.equal(projected.get(event.targetId),0);}
+  });
+  assert.equal(result.events.at(-1).type,'round_end');
+  if(result.outcome==='ongoing')assert.equal(result.events.length,result.order.length+1);
+  for(const [id,{member}] of roster)assert.equal(projected.get(id),member.hp);
+}
 
 for(const count of [1,2,3]) test('valid two allies versus '+count+' exact enemies, immutable results and one round',()=>{
   const g=fresh(count),before=J(g,'({stats,statusEffects,day,flags:QUEST_FLAG_BINDINGS.map(b=>b.get()),enemyRound:formationRounds.getView()})');
@@ -242,7 +327,7 @@ test('Speed snapshots precede RNG and live changes cannot recalculate the remain
   const g=fresh();g.run('combat.enemies[0].spd=20');
   const input=actors(g),tape=[...orderTape(g),...HIT,...HIT,...HIT];
   g.run('var tape='+JSON.stringify(tape)+';var used=0;Math.random=()=>{if(!used)combat.enemies[0].spd=1000;return tape[used++];};');
-  const result=g.run('combatPlayerState.resolveAttackRound(command)');auditDraws({complete:true,...result},input,tape.slice(0,2));
+  const result=g.run('combatPlayerState.resolveAttackRound(command)');assertRoundContract(g,result);auditDraws({complete:true,...result},input,tape.slice(0,2));
   assert.equal(g.run('used'),11);equal(result.order.map(a=>a.spd),[10,10,20]);
   assert.equal(result.initiative[1].totalWeight,30);assert.equal(result.enemies[0].spd,1000);
 });

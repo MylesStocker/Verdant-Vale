@@ -170,9 +170,86 @@ fault but never refunds HP or RNG. All existing activation, input, rendering,
 movement, item/status, reward and save guards remain intact. Successful load or
 explicit cleanup discards transient round state; no payload or version change.
 
-Next boundary: detached immutable playback of these round results. Controllers,
-UI, target AI, content, equipment/inventory policy, rewards and effect-duration
-timing remain deferred. No canonical stats or encounters were added.
+The detached playback below consumes these results. The next execution boundary
+is a gated headless multi-member session controller. UI, target AI, content,
+equipment/inventory policy, rewards and effect-duration timing remain deferred.
+No canonical stats or encounters were added.
+
+### Detached party Attack playback and closed result contract
+
+`combatPlayerState.createAttackRoundPlayback(result)` and
+`combatPlayerState.projectAttackRoundPlaybackFrame(reel, frameIndex)` are headless,
+explicit-only readers. There is no gameplay caller, session controller, UI,
+renderer, timing, AI, reward/recovery path or save binding. The private
+`partyAttackPlayback` authority validates/copies histories and recognizes its own
+immutable reels; neither method reads current party/enemy/combat state. Existing
+singleton/formation playback and their guards are unchanged.
+
+Suite 163 locks the scheduler's existing exact schema, without changing its
+returned data. Every object/array is frozen, plain data (no getters, callbacks,
+custom prototypes, mutable containers or live combat records):
+
+| Record | Exact keys |
+| --- | --- |
+| Result | `round, command, initiative, order, events, outcome, party, enemies` |
+| Command | `type, allyActions, enemyActions` (`type: "attack-round"`) |
+| Submitted action | `actorId, targetId` |
+| Ordered action | `actorId, targetId, side, slot, spd` |
+| Weighted draw | `type, actorId, side, slot, candidates, weight, totalWeight, roll, point, intervalStart, intervalEnd` (`type: "weighted_draw"`) |
+| Draw candidate | `actorId, weight` |
+| Attack event | `type` plus ordered-action keys plus `attemptedDamage, appliedDamage, critical, evaded, hpBefore, hpAfter` |
+| Skip/cancel event | `type` plus ordered-action keys plus `reason` (`actor_dead` / `target_dead`) |
+| Round-end event | `type, roundBefore, roundAfter, outcome` |
+| Ally snapshot | `characterId, slot, name, maxHp, atk, def, spd, instanceId, hp, statuses` |
+| Enemy snapshot | `id, name, hp, maxHp, atk, def, spd, xp, goldMin, goldMax, instanceId, slot, observeCount, escapeUnlocked` |
+
+`round` is the positive safe-integer completed-round number; the only boundary
+record is the final `round_end` with `roundBefore = round - 1` and
+`roundAfter = round`. Outcomes are `ongoing/victory/defeat`; sides are `ally/enemy`.
+HP/stats/slots and numeric enemy metadata are nonnegative safe integers, maximum
+HP is positive and HP never exceeds it. Ally statuses are empty; enemy escape is
+false. Critical/evasion fields are booleans. Runtime IDs retain their party/enemy
+prefixes, are unique across the history, and bind exact side/slot membership.
+Ally authored IDs are unique; enemy authored IDs may repeat. All commands name
+initially living opposing targets, in canonical side/slot order. Ordered actions
+are unique, keep committed targets and carry historical effective Speed.
+
+Playback requires a deeply frozen input tree, as produced by the scheduler.
+It rejects mutable/live records, accessors, foreign prototypes, cycles/aliases,
+unknown fields and malformed values before returning anything. It copies the
+whole supplied result, validates weighted candidates/intervals and their agreement
+with the supplied order, then discards the source reference. It never calls the
+initiative planner or draws/replays RNG. The order's historical Speed is the
+weight authority; final enemy stat fields are not a replacement Speed snapshot.
+
+Reconstruction starts with final HP in detached numeric storage and walks Attack
+events backward, requiring each target's current projected HP to equal `hpAfter`
+before restoring `hpBefore`. Forward projection checks exact actor/target IDs,
+alive actors, target continuity, skips/cancellations, recorded loss, evasion and
+zero-HP clamping. It checks numeric/boolean attack fields but does not rerun damage
+or critical formulas: there are no attack RNG rolls in this schema. Validation is
+structural consistency, not a provenance certificate for externally forged data.
+Events must be an exact prefix of the fixed plan followed by one `round_end`;
+ongoing rounds consume the whole plan and terminal HP forbids further action
+events. Final projected HP must equal every authoritative final snapshot.
+
+A reel has `round, command, initiative, order, eventCount, frameCount, frames`.
+Each frame has `frameIndex, eventIndex, currentEvent, party, enemies, complete,
+outcome, completedRounds`. Member rows retain every snapshot field, with historical
+HP plus `side, alive, defeated`; fixed zero-HP slots never compact. Frame 0 is
+before events (`eventIndex: -1`, `currentEvent: null`). Frame N is after event N−1,
+so `frameCount = eventCount + 1`. Only the final frame is complete; outcome and
+completed-round count change only on the recorded `round_end`, never on an earlier
+lethal Attack. Repeated/out-of-order reads return the same immutable frames.
+Invalid indices throw `RangeError`; forged/copied reels are not projection handles.
+
+Playback's structural bounds are one to three allies and one to three enemies,
+including six actors. Suite 164 exercises these bounds with frozen, noncanonical
+structural fixtures. Live preparation remains exactly two allies; its scheduler
+and returned results are unchanged. No combat identities are allocated by
+playback. Cleanup, replacement actors, later rounds and save/load cannot change
+an existing reel. No HP/status writes, round ticks, commands, messages, outcomes,
+flags, inventory, equipment, rewards or saves are changed; `SAVE_VERSION` is 4.
 
 ### Combat compatibility baseline reconciliation
 

@@ -525,6 +525,14 @@ const combatPlayerState = (() => {
       sequence += installed.length;
       return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});
     },
+    createAttackRoundPlayback(result) {
+      if (arguments.length!==1) throw new Error('Invalid party Attack playback history');
+      return partyAttackPlayback.create(result);
+    },
+    projectAttackRoundPlaybackFrame(playback,index) {
+      if (arguments.length>2) throw new Error('Invalid party Attack playback history');
+      return partyAttackPlayback.project(playback,index);
+    },
     getRoundView() {
       return members ? Object.freeze({completedRounds:roundState?.completed || 0,
         phase:roundState?.phase || 'ready', outcome:roundState?.outcome || 'ongoing',
@@ -737,6 +745,196 @@ function planPartyAttackOrder(actors, tape) {
   if (used!==tape.length) throw new Error('Unused party initiative tape');
   return copyFormationData({complete:true,initiative,order});
 }
+
+// Detached party Attack history only. These functions never inspect live combat,
+// invoke the scheduler/planner, or apply combat arithmetic. Reels are read-only
+// historical data; the weak set accepts only reels built by this validator.
+const partyAttackPlayback = (() => {
+  const reels=new WeakSet();
+  const actionKeys=['actorId','targetId','side','slot','spd'];
+  const partyKeys=['characterId','slot','name','maxHp','atk','def','spd','instanceId','hp','statuses'];
+  const enemyKeys=['id','name','hp','maxHp','atk','def','spd','xp','goldMin','goldMax',
+    'instanceId','slot','observeCount','escapeUnlocked'];
+  const drawKeys=['type','actorId','side','slot','candidates','weight','totalWeight','roll','point','intervalStart','intervalEnd'];
+  const fail=()=>{throw new Error('Invalid party Attack playback history');};
+  const safe=n=>Number.isSafeInteger(n)&&n>=0;
+  const hp=(n,max)=>safe(n)&&n<=max;
+  const keys=(value,allowed)=>{
+    if (!value || typeof value!=='object' || Array.isArray(value) ||
+        Reflect.ownKeys(value).length!==allowed.length || allowed.some(key=>!Object.hasOwn(value,key))) fail();
+  };
+  const list=(value,min,max)=>{if(!Array.isArray(value)||value.length<min||value.length>max)fail();};
+  // Authentic scheduler results are deeply frozen trees. Requiring that shape
+  // rejects live writable records without consulting live state. Inspect data
+  // descriptors before copying: no getters, callbacks, prototypes or cycles.
+  const detach=source=>{
+    const seen=new WeakSet();
+    const visit=(value,depth=0)=>{
+      if (value===null || ['string','boolean'].includes(typeof value)) return;
+      if (typeof value==='number' && Number.isFinite(value)) return;
+      if (!value || typeof value!=='object' || depth>12 || seen.has(value) || !Object.isFrozen(value) ||
+          ![Object.getPrototypeOf({}),Object.getPrototypeOf([]),null].includes(Object.getPrototypeOf(value))) fail();
+      seen.add(value);
+      const fields=Object.getOwnPropertyDescriptors(value);
+      for (const key of Reflect.ownKeys(fields)) {
+        if (typeof key!=='string' || !Object.hasOwn(fields[key],'value')) fail();
+        visit(fields[key].value,depth+1);
+      }
+    };
+    visit(source);
+    try {return copyFormationData(source);} catch (_) {fail();}
+  };
+  const create=source=>{
+    const result=detach(source);
+    keys(result,['round','command','initiative','order','events','outcome','party','enemies']);
+    if (!safe(result.round)||result.round===0||!['ongoing','victory','defeat'].includes(result.outcome)) fail();
+    list(result.party,1,3);list(result.enemies,1,3);
+    const participants=new Map(),characters=new Set();
+    for (const [side,members,fields] of [['ally',result.party,partyKeys],['enemy',result.enemies,enemyKeys]]) {
+      members.forEach((member,slot)=>{
+        keys(member,fields);
+        const prefix=side==='ally'?'combat_party_':'combat_enemy_';
+        if (typeof member.instanceId!=='string' || !member.instanceId.startsWith(prefix) ||
+            !/^[1-9]\d*$/.test(member.instanceId.slice(prefix.length)) ||
+            !Number.isSafeInteger(Number(member.instanceId.slice(prefix.length))) ||
+            participants.has(member.instanceId) || member.slot!==slot || typeof member.name!=='string' ||
+            !['hp','maxHp','atk','def','spd'].every(key=>safe(member[key])) ||
+            member.maxHp===0 || !hp(member.hp,member.maxHp)) fail();
+        if (side==='ally') {
+          if (typeof member.characterId!=='string' || !/^[a-z][a-z0-9_]*$/.test(member.characterId) ||
+              member.characterId==='player' || characters.has(member.characterId) || !member.name.trim()) fail();
+          list(member.statuses,0,0);characters.add(member.characterId);
+        } else if (!PARTY_ATTACK_TEMPLATE_IDS.includes(member.id) ||
+            !['xp','goldMin','goldMax','observeCount'].every(key=>safe(member[key])) || member.escapeUnlocked!==false) fail();
+        participants.set(member.instanceId,{side,member});
+      });
+    }
+    const action=value=>{
+      const actor=participants.get(value.actorId),target=participants.get(value.targetId);
+      if (typeof value.actorId!=='string' || typeof value.targetId!=='string' || !actor || !target ||
+          actor.side===target.side || value.side!==actor.side || value.slot!==actor.member.slot ||
+          !safe(value.spd) || (value.side==='ally'&&value.spd!==Math.max(1,actor.member.spd))) fail();
+    };
+    keys(result.command,['type','allyActions','enemyActions']);
+    if (result.command.type!=='attack-round') fail();
+    const commands=[];
+    for (const [side,values] of [['ally',result.command.allyActions],['enemy',result.command.enemyActions]]) {
+      list(values,1,3);let previous=-1;
+      for(const value of values) {
+        keys(value,['actorId','targetId']);
+        const actor=participants.get(value.actorId),target=participants.get(value.targetId);
+        if (typeof value.actorId!=='string' || typeof value.targetId!=='string' || !actor || !target ||
+            actor.side!==side || target.side===side || actor.member.slot<=previous) fail();
+        previous=actor.member.slot;commands.push(value);
+      }
+    }
+    list(result.order,commands.length,commands.length);
+    const planned=new Map();
+    for(const value of result.order) {
+      keys(value,actionKeys);action(value);
+      const command=commands.find(c=>c.actorId===value.actorId);
+      if (!command || command.targetId!==value.targetId || planned.has(value.actorId)) fail();
+      planned.set(value.actorId,value);
+    }
+    // Audit declared weighted intervals against the historical order. Never
+    // reroll initiative or use the rolls to construct/reorder actions.
+    list(result.initiative,result.order.length-1,result.order.length-1);
+    const remaining=commands.map(c=>c.actorId);
+    result.initiative.forEach((draw,index)=>{
+      keys(draw,drawKeys);
+      if (draw.type!=='weighted_draw' || draw.actorId!==result.order[index].actorId ||
+          draw.side!==result.order[index].side || draw.slot!==result.order[index].slot ||
+          !Number.isFinite(draw.roll) || draw.roll<0 || draw.roll>=1) fail();
+      list(draw.candidates,remaining.length,remaining.length);
+      let total=0,start=0,selectedWeight=0;
+      draw.candidates.forEach((candidate,i)=>{
+        keys(candidate,['actorId','weight']);
+        const weight=Math.max(1,planned.get(remaining[i]).spd);
+        if (candidate.actorId!==remaining[i] || candidate.weight!==weight) fail();
+        if (candidate.actorId===draw.actorId) {start=total;selectedWeight=weight;}
+        total+=weight;if(!safe(total))fail();
+      });
+      if (!selectedWeight || draw.weight!==selectedWeight || draw.totalWeight!==total ||
+          draw.intervalStart!==start || draw.intervalEnd!==start+selectedWeight ||
+          draw.point!==draw.roll*total || draw.point<start || draw.point>=start+selectedWeight) fail();
+      remaining.splice(remaining.indexOf(draw.actorId),1);
+    });
+    if (remaining.length!==1 || remaining[0]!==result.order.at(-1).actorId) fail();
+    list(result.events,2,result.order.length+1);
+    const events=result.events;
+    events.forEach((event,index)=>{
+      if (!event || typeof event!=='object' || Array.isArray(event)) fail();
+      if (event.type==='round_end') {
+        keys(event,['type','roundBefore','roundAfter','outcome']);
+        if (index!==events.length-1 || event.roundBefore!==result.round-1 ||
+            event.roundAfter!==result.round || event.outcome!==result.outcome) fail();
+        return;
+      }
+      const extra=event.type==='attack'?['attemptedDamage','appliedDamage','critical','evaded','hpBefore','hpAfter']:
+        ['skip','cancel'].includes(event.type)?['reason']:null;
+      if (!extra || index>=result.order.length) fail();
+      keys(event,['type',...actionKeys,...extra]);action(event);
+      if (actionKeys.some(key=>event[key]!==result.order[index][key])) fail();
+      if (event.type==='attack') {
+        const max=participants.get(event.targetId).member.maxHp;
+        if (!hp(event.hpBefore,max)||event.hpBefore===0||!hp(event.hpAfter,max)||event.hpAfter>event.hpBefore ||
+            !safe(event.attemptedDamage)||event.attemptedDamage===0||!safe(event.appliedDamage) ||
+            typeof event.critical!=='boolean'||typeof event.evaded!=='boolean' ||
+            event.appliedDamage!==event.hpBefore-event.hpAfter ||
+            event.hpAfter!==Math.max(0,event.hpBefore-(event.evaded?0:event.attemptedDamage))) fail();
+      } else if (event.reason!==(event.type==='skip'?'actor_dead':'target_dead')) fail();
+    });
+    if (events.at(-1).type!=='round_end' ||
+        (result.outcome==='ongoing'&&events.length!==result.order.length+1)) fail();
+    const finalHp=new Map([...participants].map(([id,{member}])=>[id,member.hp]));
+    const projectedHp=new Map(finalHp);
+    for(let i=events.length-1;i>=0;i--) {
+      const event=events[i];if(event.type!=='attack')continue;
+      if(projectedHp.get(event.targetId)!==event.hpAfter)fail();
+      projectedHp.set(event.targetId,event.hpBefore);
+    }
+    const outcome=()=>result.enemies.every(m=>projectedHp.get(m.instanceId)===0)?'victory':
+      result.party.every(m=>projectedHp.get(m.instanceId)===0)?'defeat':'ongoing';
+    if(outcome()!=='ongoing')fail();
+    const living=[...result.party,...result.enemies].filter(m=>projectedHp.get(m.instanceId)>0);
+    if(living.length!==commands.length || living.some((m,i)=>commands[i].actorId!==m.instanceId) ||
+        commands.some(c=>projectedHp.get(c.targetId)===0))fail();
+    let visibleOutcome='ongoing',completedRounds=result.round-1;
+    const frames=[];
+    const frame=(index,event)=>Object.freeze({frameIndex:index,eventIndex:index-1,currentEvent:event,
+      party:Object.freeze(result.party.map(m=>Object.freeze({...m,side:'ally',hp:projectedHp.get(m.instanceId),
+        alive:projectedHp.get(m.instanceId)>0,defeated:projectedHp.get(m.instanceId)===0}))),
+      enemies:Object.freeze(result.enemies.map(m=>Object.freeze({...m,side:'enemy',hp:projectedHp.get(m.instanceId),
+        alive:projectedHp.get(m.instanceId)>0,defeated:projectedHp.get(m.instanceId)===0}))),
+      complete:index===events.length,outcome:visibleOutcome,completedRounds});
+    frames.push(frame(0,null));
+    events.forEach((event,index)=>{
+      if(event.type==='round_end') {
+        if(outcome()!==event.outcome)fail();
+        visibleOutcome=event.outcome;completedRounds=event.roundAfter;
+      } else {
+        if(outcome()!=='ongoing')fail();
+        const actorHp=projectedHp.get(event.actorId),targetHp=projectedHp.get(event.targetId);
+        if(event.type==='attack') {
+          if(actorHp===0||targetHp!==event.hpBefore)fail();
+          projectedHp.set(event.targetId,event.hpAfter);
+        } else if(event.type==='skip') {if(actorHp!==0)fail();}
+        else if(actorHp===0||targetHp!==0)fail();
+      }
+      frames.push(frame(index+1,event));
+    });
+    if([...finalHp].some(([id,hp])=>projectedHp.get(id)!==hp))fail();
+    const reel=Object.freeze({round:result.round,command:result.command,initiative:result.initiative,order:result.order,
+      eventCount:events.length,frameCount:frames.length,frames:Object.freeze(frames)});
+    reels.add(reel);return reel;
+  };
+  const project=(reel,index)=>{
+    if (!reels.has(reel)) fail();
+    if (!Number.isSafeInteger(index)||index<0||index>=reel.frameCount) throw new RangeError('Party playback frame index out of bounds');
+    return reel.frames[index];
+  };
+  return Object.freeze({create,project});
+})();
 
 // One fail-closed execution policy, used at mutation and presentation boundaries.
 // State-only enemy preparation/inspection/cleanup deliberately remains available.

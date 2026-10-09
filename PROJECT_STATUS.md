@@ -23,7 +23,7 @@ are not reused. Saves exclude the authority entirely (`SAVE_VERSION` 4): saving
 preparation is refused and successful load discards it after validation.
 
 The scheduler increment below supplies explicit headless Attack commands.
-Command selection, UI, playback, inventory/equipment policy,
+Command selection, UI, inventory/equipment policy,
 persistent roster, Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
 The focused regression suite uses only local fixtures; no canon or content was
 added. No browser-visible route exists for this increment.
@@ -43,13 +43,28 @@ that actor's own stats. Death skips, dead-target cancellations and terminal
 truncation never retarget. One completed sequence advances one private round.
 Returned plans, events and final snapshots are detached and deeply immutable.
 
-There is no production caller, UI, playback, enemy AI or encounter entry. The
+There is no production caller, UI, enemy AI or encounter entry. The
 ordinary eight-template formation subset is supported; the Receiver and bespoke
 mechanics are excluded. Items, statuses/effects, rewards, recovery, equipment and
 inventory policy remain deferred. All existing gameplay/saving guards remain;
 `SAVE_VERSION` is 4 and no round data is serialized. Existing singleton and
-formation schedulers are unchanged. The next boundary is detached immutable
-playback for these multi-actor results.
+formation schedulers are unchanged.
+
+### Detached multi-actor Attack playback
+
+The scheduler result is now a closed, tested data contract. Explicit
+`combatPlayerState.createAttackRoundPlayback()` validates its frozen history and
+reconstructs immutable event frames solely from final snapshots and recorded HP
+transitions. `projectAttackRoundPlaybackFrame()` supports repeatable arbitrary
+frame reads. Frame zero precedes all events; only the final `round_end` frame
+reveals outcome and completed-round count. No RNG, live HP, identities or gameplay
+state is consumed or changed, and cleanup/later rounds cannot change a reel.
+
+Structural fixtures verify one-to-three members per side, including 3v3, without
+expanding the exactly-two-member preparation contract. There is no production
+caller, timing, rendering, input, controller, enemy AI or save persistence. The
+next boundary is a gated headless multi-member battle session controller; UI and
+canonical party content remain deferred.
 
 ### MQ5 and the eastern Valmere road
 
