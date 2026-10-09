@@ -10,8 +10,8 @@ actually fits together.
 
 `combatPlayerState` now permits explicit, inactive preparation of exactly two
 noncanonical test combatants. It owns ordered stable identities and independent
-HP/status state behind immutable inspection views. Preparation has no production
-caller, world roster, menu, rendering, encounters or gameplay entry. Enemy `combat.mode`
+HP/status state behind immutable inspection views. Preparation has one isolated
+developer-Lab caller and no world roster, encounters or canonical gameplay entry. Enemy `combat.mode`
 remains independent; all existing live battles still use canonical Lely's
 `stats`, equipment, inventory and statuses.
 
@@ -23,10 +23,10 @@ are not reused. Saves exclude the authority entirely (`SAVE_VERSION` 4): saving
 preparation is refused and successful load discards it after validation.
 
 The scheduler increment below supplies explicit headless Attack commands.
-The session below collects headless Attack commands. UI, inventory/equipment policy,
+The session below collects headless Attack commands. Canonical UI, inventory/equipment policy,
 persistent roster, Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
 The focused regression suite uses only local fixtures; no canon or content was
-added. No browser-visible route exists for this increment.
+added. The only browser-visible route is the backtick Party Combat Lab described below.
 
 ### Headless Attack-only party scheduler
 
@@ -43,8 +43,8 @@ that actor's own stats. Death skips, dead-target cancellations and terminal
 truncation never retarget. One completed sequence advances one private round.
 Returned plans, events and final snapshots are detached and deeply immutable.
 
-The gated headless session below is the only scheduler caller; there is no UI or
-encounter entry. The ordinary eight-template formation subset is supported; the Receiver and bespoke
+The gated headless session below is the only scheduler caller; its only UI is the
+isolated developer Lab, never an encounter entry. The ordinary eight-template formation subset is supported; the Receiver and bespoke
 mechanics are excluded. Items, statuses/effects, rewards, recovery, equipment and
 inventory policy remain deferred. All existing gameplay/saving guards remain;
 `SAVE_VERSION` is 4 and no round data is serialized. Existing singleton and
@@ -62,8 +62,8 @@ state is consumed or changed, and cleanup/later rounds cannot change a reel.
 
 Structural fixtures verify one-to-three members per side, including 3v3, without
 expanding the exactly-two-member preparation contract. The headless session below
-is the only production-source caller. Timing, rendering, input, save persistence,
-UI and canonical party content remain deferred.
+is the only production-source caller. Animation timing, save persistence and
+canonical party content remain deferred.
 
 ### Gated headless multi-member session
 
@@ -88,19 +88,19 @@ session; there is no automatic cleanup, reward or recovery.
 The scheduler's validation was extracted for shared read-only use; weighted
 initiative, damage, result schema and old combat paths remain unchanged. Suite 165
 covers the controller; existing caller-isolation assertions permit only its gated
-scheduler/playback calls. The isolated headless Lab below is the sole controller
-caller. Rendering, keyboard input, menus, other commands, canonical parties,
-saves and gameplay entry remain excluded (`SAVE_VERSION` 4).
+scheduler/playback calls. The isolated Lab below is the sole controller caller.
+Its input/render adapters are confined to that developer Lab; other commands,
+canonical parties, saves and gameplay entry remain excluded (`SAVE_VERSION` 4).
 
-### Headless Lely/Esla Party Combat Lab
+### Isolated Lely/Esla Party Combat Lab
 
 `partyCombatLab` is an isolated lifecycle adapter with three frozen scenarios:
 Lely and Esla against one Marsh Wisp, against a Marsh Wisp and Briar Hound, or
 against a Reed Grappler, Silt Lurker and Sluice Slime. It is the only production
 caller for party preparation and session start. It exposes scenario listing,
 entry, immutable inspection, exact Attack submission/backtracking, round commit,
-playback stepping/acknowledgement, normal exit and emergency abort. It has no
-debug-menu, input, renderer, encounter or normal-gameplay caller.
+playback stepping/acknowledgement, normal exit and emergency abort. The backtick
+debug menu exposes only these three scenarios; no encounter or normal-gameplay caller exists.
 
 Lab Lely is a detached snapshot of canonical current HP/max HP and the established
 `effectiveAtk()`, `effectiveDef()` and `effectiveSpd()` values. Canonical stats,
@@ -121,17 +121,17 @@ transient provenance, not restored canonical state.
 Prepared-party guards freeze simulation and refuse saves. `loadGame()` now also
 refuses while this Lab is active, rather than clearing the Lab through the normal
 prepared-state load boundary. Unexpected controller errors are reported in the
-inactive immutable Lab view after guarded cleanup and are never retried. Suite
+scenario submenu after guarded cleanup and are never retried. Suite
 166 covers all three capacities, authoritative stat derivation, real round flow,
 victory/defeat, mid-command and mid-playback cleanup, exact canonical restoration,
-save isolation, failure diagnostics and immediate re-entry. The next boundary is
-a visible Lab shell and input adapter; canonical party integration remains
-separate.
+save isolation, failure diagnostics and immediate re-entry. Suite 168 covers the
+debug submenu, exact target selection, keyboard routing, render routing and safe
+terminal exit. Canonical party integration remains separate.
 
-### Read-only Party Combat Lab renderer
+### Read-only Party Combat Lab renderer and debug route
 
-`render-party-combat-lab.js` adds `drawPartyCombatLabBattle()`, an intentionally
-unrouted 512×480 presentation for the isolated Lab. Its only combat-state read is
+`render-party-combat-lab.js` supplies a 512×480 presentation for the isolated Lab.
+Its only combat-state read is
 one immutable `partyCombatLab.getView()` snapshot. It validates that snapshot
 before drawing, then presents Lely and Esla in fixed ally slots, one to three
 enemies in stable enemy slots, historical HP and defeated labels, the ally whose
@@ -139,13 +139,14 @@ command is being collected, already-submitted Attack targets, and the current
 recorded playback event. Playback-complete, victory and defeat views retain and
 render their final historical frame.
 
-The renderer has no input, menu, debug action or normal `render()` caller. It
-does not advance playback, acknowledge frames, read live combatants, rerun
+The main render path calls it exclusively while the Party Lab is active. It does
+not advance playback, acknowledge frames, read live combatants, rerun
 arithmetic, allocate identities or consume RNG. Suite 167 records its canvas
 operations and proves deterministic slot geometry, historical-frame fidelity,
-terminal-frame retention, zero state mutation and the absence of a gameplay or
-debug route. A later pass may add a separately guarded visible Lab shell and
-input adapter without changing this read-only boundary.
+terminal-frame retention and zero state mutation. The adapter owns exact target
+selection by enemy runtime identity; the renderer adds one pale cursor only in
+the collecting phase. Input uses the existing physical-key latch: arrows/A/D
+choose, Enter/Space confirms, and Escape/B backtracks or exits at safe boundaries.
 
 ### MQ5 and the eastern Valmere road
 

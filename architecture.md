@@ -8,8 +8,8 @@ scripts without checking this doc.**
 
 ### Gated player-side combat preparation
 
-`combatPlayerState` in `combat.js` is a transient headless authority with **no
-production initializer or member-mutation callers**. It is orthogonal to enemy
+`combatPlayerState` in `combat.js` is a transient headless authority whose sole
+initializer is the isolated developer Party Combat Lab. It is orthogonal to enemy
 `combat.mode` (`null` / `single` / `formation`). `getView()` returns `null` with
 no prepared player side/enemies, a frozen `single` snapshot of canonical Lely
 when existing enemy state is installed, or a frozen `party` snapshot after
@@ -47,8 +47,8 @@ reward, recovery, flag or inventory writes. Reinitialization is deterministic.
 `assertSinglePlayerExecution()` guards activation, encounter starters, singleton
 processing/finalizers, formation validation/playback, equipment/item effects,
 status/reward mutation and battle drawing. The existing session cannot begin.
-Keyboard input and world simulation are suspended during headless preparation;
-there is no new UI, renderer, input route, debug control or canonical caller.
+Keyboard input and world simulation are suspended during preparation. The one
+debug-Lab input/render route is described below; there is no canonical caller.
 Preparation cannot save. A successful load clears it at the existing commit
 boundary, after validation; failed loads preserve it. No party metadata enters
 save payloads or bindings; `SAVE_VERSION` remains 4.
@@ -254,7 +254,8 @@ flags, inventory, equipment, rewards or saves are changed; `SAVE_VERSION` is 4.
 ### Gated headless party session
 
 `combatPlayerState.session` is a frozen controller API whose sole production
-caller is the isolated headless Party Combat Lab below. It has no visible route.
+caller is the isolated Party Combat Lab below. The controller itself has no input
+or rendering dependency.
 `begin()` requires fresh, valid inactive two-member preparation
 and one to three supported enemies. It will not adopt a standalone resolved round
 or unresolved playback. Enemy mode and existing singleton/formation controllers
@@ -319,12 +320,13 @@ Suite 165 covers 2v1/2v2/2v3 collection, backtracking, uniform target intervals,
 zero-HP slots, exact RNG budgets, one-shot resolution, acknowledged frame stepping,
 terminal locks, stale membership and diagnostic failures. Suites 163/164 now
 allow only this controller's scheduler/playback calls and still forbid gameplay
-callers; their historical result and arithmetic assertions are unchanged.
-Rendering, keyboard input, menus, items/other commands, persistent parties,
-rewards/recovery and canonical content remain deferred. The isolated Lab below
-exercises this controller without adding another target-planning authority.
+callers; their historical result and arithmetic assertions are unchanged. The
+controller itself remains headless; the isolated Lab below owns its only menu,
+input and rendering adapters without adding another target-planning authority.
+Items/other commands, persistent parties, rewards/recovery and canonical content
+remain deferred.
 
-### Headless Party Combat Lab adapter
+### Isolated Party Combat Lab adapter
 
 `party-combat-lab.js` owns the isolated lifecycle around the authentic party
 foundation and session. `PARTY_COMBAT_LAB_SCENARIOS` is a frozen three-record
@@ -339,9 +341,12 @@ The frozen `partyCombatLab` API is:
 | Method | Contract |
 | --- | --- |
 | `isActive()` | Read the lifecycle gate without touching live session projection. |
+| `isMenuOpen()` / `getMenuView()` | Inspect the isolated debug submenu. |
 | `listScenarios()` | Return the frozen scenario catalogue. |
 | `enter(id)` | Validate everything, install temporary enemies/party, then begin the real session. |
+| `openMenu()` / `moveScenario()` / `closeMenu()` / `startScenario()` | Own the debug-only scenario-selection lifecycle. |
 | `getView()` | Return a detached immutable active/inactive presentation view and recoverable error. |
+| `moveTarget(direction)` / `confirmTarget()` | Own exact living-enemy selection and submit the current ally's Attack. |
 | `submitAttack(action)` / `backtrack()` | Delegate exact command collection only in valid phases. |
 | `commitRound()` | Delegate one authentic session commit, including enemy planning, scheduler and playback. |
 | `advancePlayback()` / `acknowledgePlayback()` | Delegate the existing historical frame boundaries. |
@@ -371,7 +376,8 @@ reused; the profile is not character progression data.
 
 The immutable Lab view exposes only active state, scenario ID/label, compact
 Lely/Esla and enemy descriptors, session phase, next actor, submitted commands,
-living target IDs, current playback frame, terminal outcome and diagnostic text.
+living target IDs, the selected target runtime ID, current playback frame,
+terminal outcome and diagnostic text.
 It contains no canonical reference or callback. World simulation and keyboard
 input are already inert while `combatPlayerState.hasParty()`; saving is already
 refused. Loading has one narrow additional refusal while the Party Lab is active,
@@ -384,8 +390,8 @@ state was never mutated, so cleanup restores the exact pre-Lab canonical state b
 discarding only temporary authorities. Enemy and party identity sequences remain
 monotonic by design; immediate re-entry gets fresh provenance IDs. Unexpected
 session failures keep their consumed RNG/applied temporary HP only long enough to
-capture the error, then cleanup without retry. There is no renderer, input/debug
-entry, menu, save payload, encounter, quest or canonical party integration.
+capture the error, then cleanup without retry. The debug-only route below adds no
+save payload, encounter, quest or canonical party integration.
 
 ### Read-only Party Combat Lab renderer
 
@@ -412,11 +418,23 @@ pending-acknowledgement final frame; acknowledged victory/defeat keeps the same
 final frame and HP visible.
 
 The renderer calls no controller, scheduler, playback projector, RNG, identity,
-save or gameplay authority. It does not increment `tick`. Nothing in `render.js`,
-input, menus, debug tools, encounters or content calls it, so merely loading the
-declaration adds no visible route. Suite 167 uses recorded canvas calls and exact
-state snapshots to enforce this boundary. A future visible Party Lab shell may
-call it, but input and lifecycle operations remain separate authorities.
+save or gameplay authority. It does not increment `tick`. `render.js` routes to
+it before world or combat drawing only while `partyCombatLab.isActive()`; it stays
+inert otherwise. The renderer validates the adapter-owned selected runtime ID and
+draws exactly one cursor over that living stable slot only during command
+collection. Suite 167 uses recorded canvas calls and exact state snapshots to
+enforce this read-only boundary.
+
+The existing backtick debug menu has one `DEV: Party Combat Lab` row and a
+three-scenario submenu. `input.js` routes that submenu and active Lab before every
+world/combat handler while retaining the shared pressed-key latch and native
+repeat guard. During collection, Left/Right or A/D moves the adapter-owned target,
+Enter/Space submits it, and Escape/B removes the last command or exits when no
+command exists. Ready requires a separate confirmation; playback requires one
+confirmation per frame and another for the retained final frame. Terminal
+victory/defeat exits only with Escape/B. No arbitrary IDs originate in input.
+Normal exit and emergency abort return to the Party Lab submenu, restore only by
+discarding temporary authorities, and never invoke reward or recovery code.
 
 ### Combat compatibility baseline reconciliation
 

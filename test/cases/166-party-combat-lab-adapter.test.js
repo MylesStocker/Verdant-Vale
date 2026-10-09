@@ -115,16 +115,19 @@ test('other Lab and ordinary combat remain isolated',()=>{
   assert.throws(()=>g.run('startWardenCombat()'),/Prepared player party/);assert.equal(g.run('combat.active'),false);g.run('partyCombatLab.exit()');g.run('startWardenCombat()');assert.equal(g.run('combat.mode'),'single');
 });
 
-test('views are detached and frozen; no input, renderer, menu, encounter or content caller exists',()=>{
+test('views are detached and frozen; only the isolated input, renderer and debug menu call the Lab',()=>{
   const g=fresh(),v=enter(g),liveView=g.run('partyCombatLab.getView()');frozen(liveView);const serial=JSON.stringify(liveView);assert.throws(()=>{liveView.party[0].hp=0;});assert.equal(JSON.stringify(liveView),serial);
   const files=scriptOrderFromIndexHtml();for(const file of files){const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    if(file!=='party-combat-lab.js')assert.doesNotMatch(source,/partyCombatLab\.(enter|submitAttack|backtrack|commitRound|advancePlayback|acknowledgePlayback|exit|emergencyAbort)\s*\(/,file);
+    if(!['party-combat-lab.js','input.js'].includes(file))assert.doesNotMatch(source,/partyCombatLab\.(enter|submitAttack|backtrack|commitRound|advancePlayback|acknowledgePlayback|exit|emergencyAbort|moveTarget|confirmTarget|startScenario)\s*\(/,file);
     if(file==='render-party-combat-lab.js')assert.equal((source.match(/partyCombatLab\.getView\(\)/g)||[]).length,1,'renderer has one read-only Lab view call');
-    else if(/input|render|debug|content|interaction|quest/.test(file))assert.doesNotMatch(source,/partyCombatLab|PARTY_COMBAT_LAB_/,file);
+    else if(/content|interaction|quest|encounter/.test(file))assert.doesNotMatch(source,/partyCombatLab|PARTY_COMBAT_LAB_/,file);
     if(file==='save.js')assert.equal((source.match(/partyCombatLab\.isActive\(\)/g)||[]).length,1,'one load refusal guard');}
+  const input=fs.readFileSync(path.join(ROOT,'input.js'),'utf8'),render=fs.readFileSync(path.join(ROOT,'render.js'),'utf8');
+  assert.equal((input.match(/partyCombatLab\.confirmTarget\(\)/g)||[]).length,1);
+  assert.equal((render.match(/drawPartyCombatLabBattle\(\)/g)||[]).length,1);
   const source=fs.readFileSync(path.join(ROOT,'party-combat-lab.js'),'utf8');assert.doesNotMatch(source,/applyKillRewards|endCombat\(|recoverCombatDefeat|transitionToLocation|saveGame\(|loadGame\(|combat\.active\s*=|stats\.(hp|xp|gold)\s*=/);
   assert.equal(g.run('SAVE_VERSION'),4);
 });
 
-module.exports={name:'headless Lely/Esla Party Combat Lab: authentic lifecycle, restoration and isolation',checks,
+module.exports={name:'isolated Lely/Esla Party Combat Lab: authentic lifecycle, restoration and isolation',checks,
   run(){for(const check of checks){try{check.run();}catch(error){error.message=check.name+': '+error.message;throw error;}}console.log('  '+checks.length+' party combat lab checks passed');}};

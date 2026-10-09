@@ -46,11 +46,22 @@ test('one to three enemies occupy deterministic stable slots and all records sta
 
 test('current ally and submitted exact targets are presentation-only',()=>{
   const g=fresh('lely_esla_two'),first=view(g),enemy=first.enemies[1];let labels=texts(draw(g));
-  assert.ok(labels.includes('CHOOSING'));assert.ok(labels.includes('SUBMITTED: none'));assert.ok(labels.includes('Lély is choosing.'));
+  assert.ok(labels.includes('CHOOSING'));assert.ok(labels.includes('Lély: not submitted'));assert.ok(labels.includes('Esla: not submitted'));
+  assert.ok(labels.includes('Choose a target — Lély is choosing.'));assert.equal(labels.filter(label=>label==='▼').length,1);
   assert.ok(g.run('partyCombatLab.submitAttack('+JSON.stringify({actorId:first.nextActorId,targetId:enemy.instanceId})+')'));
   const second=view(g);labels=texts(draw(g));assert.equal(second.nextActorId,second.party[1].instanceId);
-  assert.ok(labels.includes('Esla is choosing.'));assert.ok(labels.some(line=>line.includes('Lély → '+enemy.name)));
+  assert.ok(labels.includes('Choose a target — Esla is choosing.'));assert.ok(labels.includes('Lély: Attack → '+enemy.name));
   assert.equal(g.run('partyPaint.filter(c=>c.type==="text"&&c.args[0]==="CHOOSING").length'),1);
+});
+
+test('one cursor follows the exact selected living runtime identity and disappears outside selection',()=>{
+  const g=fresh('lely_esla_three');let v=view(g),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
+  assert.equal(layout.target.instanceId,v.selectedTargetInstanceId);assert.equal(layout.target.slot,0);
+  assert.equal(texts(draw(g)).filter(label=>label==='▼').length,1);
+  assert.ok(g.run('partyCombatLab.moveTarget("next")'));v=view(g);layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
+  assert.equal(layout.target.instanceId,v.enemies[1].instanceId);assert.equal(layout.target.slot,1);
+  commandAll(g);assert.equal(J(g,'partyCombatLabBattleLayout(partyCombatLab.getView()).target'),null);
+  assert.equal(texts(draw(g)).filter(label=>label==='▼').length,0);
 });
 
 test('playback draws recorded events and frame HP instead of already-resolved live HP',()=>{
@@ -98,15 +109,16 @@ test('malformed projections fail before canvas output',()=>{
     g.run('partyPaint=[];');assert.throws(()=>g.run('partyCombatLabBattleLayout('+value+')'),/Invalid Party Combat Lab presentation/);assert.equal(g.run('partyPaint.length'),0);}
 });
 
-test('renderer declaration has no render, input, debug-menu, encounter or content route',()=>{
+test('renderer has one exclusive main-render route and no mutation or content route',()=>{
   for(const file of scriptOrderFromIndexHtml()){
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    if(file!=='render-party-combat-lab.js')assert.doesNotMatch(source,/drawPartyCombatLabBattle\s*\(/,file);
-    if(/render\.js|input|debug|content|interaction|quest|encounter/.test(file))assert.doesNotMatch(source,/PartyCombatLabBattle|partyCombatLabBattleLayout/,file);
+    if(!['render-party-combat-lab.js','render.js'].includes(file))assert.doesNotMatch(source,/drawPartyCombatLabBattle\s*\(/,file);
+    if(/content|interaction|quest|encounter/.test(file))assert.doesNotMatch(source,/PartyCombatLabBattle|partyCombatLabBattleLayout/,file);
   }
+  const route=fs.readFileSync(path.join(ROOT,'render.js'),'utf8');assert.equal((route.match(/drawPartyCombatLabBattle\(\)/g)||[]).length,1);
   const source=fs.readFileSync(path.join(ROOT,'render-party-combat-lab.js'),'utf8');
   assert.doesNotMatch(source,/addEventListener|pressedKeys|debugMenu|warpMenu|render\s*\(|drawCombat\s*\(/);
 });
 
-module.exports={name:'read-only Party Combat Lab renderer: stable slots, historical HP and no route',checks,
+module.exports={name:'read-only Party Combat Lab renderer: stable slots, historical HP and isolated route',checks,
   run(){for(const check of checks){try{check.run();}catch(error){error.message=check.name+': '+error.message;throw error;}}console.log('  '+checks.length+' Party Combat Lab renderer checks passed');}};

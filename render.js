@@ -210,6 +210,11 @@ function render() {
     return;
   }
 
+  if (partyCombatLab.isActive()) {
+    drawPartyCombatLabBattle();
+    return;
+  }
+
   if (formationCombatLab.isActive()) {
     const view = formationSessionController.getView();
     if (combat.mode !== 'formation' || !view) throw new Error('Invalid formation lab presentation state');

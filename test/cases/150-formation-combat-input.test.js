@@ -232,7 +232,7 @@ test('normalization preserves existing lower-case direction aliases and explicit
 });
 
 test('input delegates only to the controller, creates no sessions or rendering routes, and adds no listener',()=>{
-  const adapter=INPUT.slice(INPUT.indexOf('function handleFormationInputCommand'),INPUT.indexOf("window.addEventListener('keydown'"));
+  const adapter=INPUT.slice(INPUT.indexOf('function handleFormationInputCommand'),INPUT.indexOf('// Clear held movement'));
   assert.doesNotMatch(adapter,/Math\.random|\.hp\s*=|combat\.|stats\.|selectedTargetInstanceId\s*=|frameIndex|resolveFormation|createFormationRoundPlayback|applyKillRewards|endCombat|saveGame|drawCombat|catch\s*\(/);
   assert.equal((INPUT.match(/addEventListener\('keydown'/g)||[]).length,1);
   assert.equal((INPUT.match(/addEventListener\('keyup'/g)||[]).length,1);

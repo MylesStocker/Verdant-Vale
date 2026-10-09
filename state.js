@@ -191,13 +191,14 @@ const menu = {
 // Rows: 0 No Enemies, 1 Poison, 2 Muddied, 3 Slither, 4 Heal Full (action),
 // 5 Advance Day +1 (action), 6 Warp to... (opens warpMenu), 7 Validate Data
 // (action, runs validateGameData()), 8 Home on Defeat (toggle), 9 Legacy
-// Regional Fallback (toggle), 10 Play Sera/Liora Cutaway (action). See
+// Regional Fallback (toggle), 10 Play Sera/Liora Cutaway (action), 11 Formation
+// Combat Lab, 12 Party Combat Lab. See
 // render-ui.js's drawDebugMenu() for the row list and input.js for handling.
 const debugMenu = {
   open:   false,
   cursor: 0,
 };
-const DEBUG_MENU_ROW_COUNT = 12; // final row: developer Formation Combat Lab
+const DEBUG_MENU_ROW_COUNT = 13; // final row: developer Party Combat Lab
 
 // ─── Debug map inspector state ─────────────────────────────────────────────────
 // A lightweight, always-updating HUD overlay (not a modal menu — doesn't

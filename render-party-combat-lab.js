@@ -1,8 +1,7 @@
 'use strict';
 
-// Read-only presentation for the isolated Party Combat Lab. The normal render
-// loop does not call this file; a later visible Lab may opt into this function.
-// Its sole combat-state input is one detached immutable Lab snapshot.
+// Read-only presentation for the isolated Party Combat Lab. Its sole
+// combat-state input is one detached immutable Lab snapshot.
 const PARTY_COMBAT_LAB_ENEMY_COLORS = Object.freeze({
   enemy_marsh_wisp:'#48b8c8',
   enemy_briar_hound:'#587a3c',
@@ -29,9 +28,16 @@ function partyCombatLabBattleLayout(view) {
   const ids=[...view.party,...view.enemies].map(member=>member.instanceId);
   if(new Set(ids).size!==ids.length)fail();
   const playback=['playback','playback_complete','victory','defeat'].includes(view.phase);
+  const livingTargetIds=view.enemies.filter(member=>member.hp>0).map(member=>member.instanceId);
   if(playback!==!!view.playbackFrame ||
       (view.phase==='collecting' && !view.party.some(member=>member.hp>0&&member.instanceId===view.nextActorId)) ||
       (view.phase!=='collecting' && view.nextActorId!==null) ||
+      !Array.isArray(view.livingTargetIds) || !Object.isFrozen(view.livingTargetIds) ||
+      view.livingTargetIds.length!==livingTargetIds.length ||
+      view.livingTargetIds.some((id,index)=>id!==livingTargetIds[index]) ||
+      (view.phase==='collecting'
+        ? !livingTargetIds.includes(view.selectedTargetInstanceId)
+        : view.selectedTargetInstanceId!==null) ||
       (['victory','defeat'].includes(view.phase) ? view.terminalOutcome!==view.phase : view.terminalOutcome!==null))fail();
   if(!Array.isArray(view.allyActions) || !Object.isFrozen(view.allyActions) ||
       view.allyActions.some(action=>!Object.isFrozen(action) ||
@@ -55,14 +61,21 @@ function partyCombatLabBattleLayout(view) {
     enemies:Object.freeze(view.enemies.map((member,slot)=>Object.freeze({
       instanceId:member.instanceId,slot,x:enemyStart+slot*(enemyWidth+enemyGap),y:36,width:enemyWidth,height:166,
     }))),
+    target:view.phase==='collecting' ? Object.freeze((()=>{
+      const position=view.enemies.findIndex(member=>member.instanceId===view.selectedTargetInstanceId);
+      if(position<0)fail();
+      const enemyX=enemyStart+position*(enemyWidth+enemyGap);
+      return {instanceId:view.selectedTargetInstanceId,slot:position,
+        x:Math.round(enemyX+enemyWidth/2),y:34};
+    })()) : null,
   });
 }
 
 function formatPartyCombatLabEvent(view) {
   const frame=view.playbackFrame;
   if(!frame) {
-    if(view.phase==='collecting')return `${view.party.find(member=>member.instanceId===view.nextActorId).name} is choosing.`;
-    return 'Commands prepared. Round not committed.';
+    if(view.phase==='collecting')return `Choose a target — ${view.party.find(member=>member.instanceId===view.nextActorId).name} is choosing.`;
+    return 'Ready — confirm round.';
   }
   const event=frame.currentEvent;
   if(!event)return `Round ${frame.completedRounds+1}: ready.`;
@@ -134,22 +147,40 @@ function drawPartyCombatLabBattle() {
   ctx.fillStyle='#9ac8d8';ctx.font='bold 14px "Courier New", monospace';
   ctx.fillText(view.label,16,24,480);
   layout.enemies.forEach((position,slot)=>drawPartyCombatLabMember(view.enemies[slot],position,'enemy',false));
+  if(layout.target) {
+    ctx.fillStyle='#08121e';ctx.fillRect(layout.target.x-9,layout.target.y-13,18,15);
+    ctx.fillStyle='#f0e8b8';ctx.font='bold 15px "Courier New", monospace';ctx.textAlign='center';
+    ctx.fillText('\u25bc',layout.target.x,layout.target.y,16);ctx.textAlign='left';
+  }
   layout.allies.forEach((position,slot)=>drawPartyCombatLabMember(view.party[slot],position,'ally',
     view.phase==='collecting'&&view.nextActorId===view.party[slot].instanceId));
   ctx.fillStyle='#08121e';ctx.fillRect(12,340,488,128);
   ctx.strokeStyle='#42697a';ctx.lineWidth=1;ctx.strokeRect(13,341,486,126);
   ctx.fillStyle='#d4e0d6';ctx.font='12px "Courier New", monospace';ctx.fillText(eventText,24,365,464);
   ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
-  ctx.fillText(actions.length?'SUBMITTED: '+actions.join('  |  '):'SUBMITTED: none',24,389,464);
+  view.party.forEach((member,index)=>{
+    const action=view.allyActions.find(entry=>entry.actorId===member.instanceId);
+    ctx.fillText(`${member.name}: ${action?'Attack \u2192 '+labels.get(action.targetId):'not submitted'}`,24,386+index*14,464);
+  });
   const phase=view.phase==='playback_complete'?'FINAL FRAME — ACKNOWLEDGEMENT PENDING':
     view.phase==='victory'?'VICTORY — FINAL FRAME':view.phase==='defeat'?'DEFEAT — FINAL FRAME':view.phase.toUpperCase();
   ctx.fillStyle=['victory','defeat'].includes(view.phase)?'#e2c76f':'#8ab3c2';
-  ctx.font='bold 11px "Courier New", monospace';ctx.fillText(phase,24,416,464);
+  ctx.font='bold 11px "Courier New", monospace';ctx.fillText(phase,24,420,464);
   if(view.playbackFrame) {
     ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
-    ctx.fillText(`FRAME ${view.playbackFrame.frameIndex}  EVENT ${view.playbackFrame.eventIndex}  ROUNDS ${view.playbackFrame.completedRounds}`,24,441,464);
+    ctx.fillText(`FRAME ${view.playbackFrame.frameIndex}  EVENT ${view.playbackFrame.eventIndex}  ROUNDS ${view.playbackFrame.completedRounds}`,24,440,464);
+    const hint=view.phase==='playback'?'Enter/Space: next event':
+      view.phase==='playback_complete'?'Enter/Space: acknowledge final frame':'Esc/B: return to scenario menu';
+    ctx.fillText(hint,24,455,464);
+  } else if(view.phase==='collecting') {
+    ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
+    ctx.fillText('\u2190/\u2192 or A/D: target  \u00b7  Enter/Space: attack  \u00b7  Esc/B: back',24,442,464);
+  } else if(view.phase==='ready') {
+    ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
+    ctx.fillText('Enter/Space: confirm round  \u00b7  Esc/B: change Esla target',24,442,464);
   } else {
-    ctx.fillStyle='#566f7a';ctx.font='10px "Courier New", monospace';ctx.fillText('READ-ONLY PARTY COMBAT LAB',24,441,464);
+    ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
+    ctx.fillText('Esc/B: return to scenario menu',24,442,464);
   }
   ctx.restore();
   return true;

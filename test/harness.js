@@ -140,6 +140,11 @@ function createContext() {
     hold(key) {
       for (const fn of listeners.keydown) fn({ key, preventDefault() {} });
     },
+    /** Fire keydown with explicit native-event fields (repeat/modifier tests). */
+    keydown(key, fields) {
+      const event = Object.assign({ key, preventDefault() {} }, fields || {});
+      for (const fn of listeners.keydown) fn(event);
+    },
     /** Fire keyup only. */
     release(key) {
       for (const fn of listeners.keyup) fn({ key });
