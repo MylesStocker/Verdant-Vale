@@ -65,11 +65,114 @@ Existing singleton assumptions deliberately retained:
 | Presentation, input, simulators | Existing views/controls and production combat formulas remain in use; historical traces and renderer comparison remain compatibility evidence. |
 | Persistence | Canonical Lely and existing world flags only. No roster, slot, runtime ID or inactive preparation serialization. |
 
-The next boundary is an explicitly invoked, headless generalized allied/enemy
-round scheduler on this state authority. Inventory ownership, equipment exchange,
+The Attack-only scheduler below is the sole explicitly invoked execution path
+for prepared members. Inventory ownership, equipment exchange,
 persistent world-party membership, Rareborn/resonance, rewards and presentation
 remain separate future decisions. This increment supplies no canonical party
 stats, characters, abilities, content or lore.
+
+### Headless party Attack rounds
+
+`combatPlayerState.resolveAttackRound({type:'attack-round', allyActions,
+enemyActions})` is the sole new execution authority; it has no production caller.
+Each action is exactly `{actorId,targetId}` using current runtime IDs. Every actor
+alive at round start appears exactly once on its own side, with an initially
+living opposing target. The method normalizes action-array order to ally slots
+then enemy slots. Missing, duplicate, stale, wrong-side and dead identities reject,
+as do extra fields, accessors, functions, custom prototypes and runtime records.
+Two prepared party slots remain mandatory; a defeated slot stays in membership
+and receives no command on subsequent rounds.
+
+Supported enemy membership is one inactive singleton or two/three inactive
+formation members. `PARTY_ATTACK_TEMPLATE_IDS` retains only the eight ordinary
+members of the existing formation allowlist; the Receiver trio and all bespoke
+capabilities are excluded. Party statuses must be empty. Existing combat
+bookkeeping must be neutral, with no messages, callbacks, sessions, playback,
+outcomes or effects pending. Existing enemy-formation accounting remains untouched.
+The party round authority binds the exact enemy membership; replacing it requires
+explicit party cleanup/preparation, never an automatic rebind.
+
+Initiative is weighted random ordering without replacement, only for this new
+party scheduler. Existing singleton and one-player formation schedulers still
+use their unchanged `speedWinChance()` contests and RNG order.
+
+Before RNG, the scheduler snapshots effective Speed for every living actor.
+Supported party members have no equipment/effects and use the existing minimum-one
+Speed rule; ordinary enemies retain their raw Speed for attack/evasion arithmetic.
+The pure, capacity-neutral `planPartyAttackOrder(actors,tape)` gives each positive
+Speed exactly that weight. Legal zero Speed gets initiative weight 1 without
+changing the stat. Negative/fractional/non-finite base Speed is invalid under the
+existing preparation contract. `partyInitiativeWeights()` validates each weight
+and the full safe-integer sum before installing round state or drawing RNG; all
+remaining subset sums are then safe. No speed offset, probability cap or exponent
+is applied. Canonical Lely and existing speed-contest rules are unaffected.
+
+The planner scans remaining actors in ally-slot then enemy-slot order, selects
+the cumulative interval containing `roll * totalWeight`, removes that actor's
+entire weight and repeats. Intervals are `[start,end)`: an exact boundary selects
+the next actor. Identity, side, slot and labels never change weights. The last
+remaining actor is appended without RNG. For 2/3/4/5/6 living actors, initiative
+uses exactly 1/2/3/4/5 rolls. The fixed plan uses only the initial Speed snapshots;
+deaths cannot reorder it. Positive-weight pairwise precedence is `A/(A+B)`,
+independent of the other actors present.
+
+The pure planner accepts a numeric tape prefix and requests another value when
+incomplete; replaying a pure prefix never reruns an attack or reads live state.
+The top-level result schema is unchanged. Its immutable `initiative` array now
+contains one `weighted_draw` per consumed roll, recording candidate IDs/weights
+in scan order, selected identity/side/slot, weight, total, roll, point and interval
+bounds. There is no pivot/contest metadata or draw record for the final actor.
+The immutable `order` still contains every living actor and committed target.
+Prepared gameplay scope remains exactly two allies against one to three enemies;
+six-actor/3v3 fixtures exercise only the internal planner.
+
+Suite 163 checks exact tapes, boundaries, snapshots, safe sums and N-1 draw counts.
+Its statistical audit uses a fixed seeded xorshift32 PRNG, 12,000 rounds per
+configuration, binomial/uniform-rank six-standard-error tolerances plus one-sample
+rounding slack. It covers 2–6 actors, equal-speed ranks/first positions, side/slot
+permutations, monotonic Speed, extreme gaps and pairwise precedence with unrelated
+actors. It uses no ambient RNG and does not relax production party membership.
+
+Execution uses the fixed plan and exact target identity, without retargeting.
+A dead actor produces `skip/actor_dead`; a dead target produces
+`cancel/target_dead`. Each executing attack consumes exactly three further RNG
+values in variance → critical → evasion order. It uses the actor's own ATK and
+target's own DEF, with the existing 80% incoming-defense cap for party targets.
+`attackDamageNumbers()` preserves operation order and critical-before-rounding;
+ordinary evasion uses the existing explicit-speed, false-capability branch of
+`evadeChance()`, which never reads Lely's equipment or Bullet Time. Party base SPD
+uses the existing minimum-one rule. `attackNumbersAreSafe()` is the unchanged
+formation numeric check extracted behind its original wrapper, shared only for
+preflight. All committed attack bounds and initiative sums validate before RNG.
+Canonical Lely's stats, inventory, equipment and statuses are never impersonated.
+
+Only the exact recipient's authoritative HP is assigned, once per executing
+attack, clamped at zero. Events record attempted/applied damage, crit/evasion,
+and HP before/after. All enemies dead means victory; both allies dead means
+defeat. One casualty does not end the fight. A terminal hit immediately truncates
+remaining execution, matching existing formation behavior; the unexecuted tail
+remains in the plan without synthetic cancellation events. Sequential Attack
+cannot produce a draw because the attacker survives its own action.
+
+One successful call, including an early terminal result, advances the private
+party round count exactly once and emits `round_end`. `getRoundView()` is
+read-only; inspection, invalid requests and individual actions do not advance
+it. The result deeply freezes `{round,command,initiative,order,events,outcome,
+party,enemies}` snapshots, with no callbacks, presentation text or mutable
+records. Future HP changes cannot alter a returned result. Ongoing rounds may
+continue; terminal rounds reject further execution.
+
+Unexpected post-validation exceptions retain consumed RNG and already-applied
+HP, leave the count unadvanced, and expose a `fault` plus round/event/initiative
+counts. They surface the original exception and reject retries. Reentrant member
+mutation/cleanup is blocked while resolving. Explicit cleanup may discard the
+fault but never refunds HP or RNG. All existing activation, input, rendering,
+movement, item/status, reward and save guards remain intact. Successful load or
+explicit cleanup discards transient round state; no payload or version change.
+
+Next boundary: detached immutable playback of these round results. Controllers,
+UI, target AI, content, equipment/inventory policy, rewards and effect-duration
+timing remain deferred. No canonical stats or encounters were added.
 
 ### Combat compatibility baseline reconciliation
 

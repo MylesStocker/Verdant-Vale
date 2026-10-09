@@ -431,6 +431,7 @@ const combat = {
 const combatPlayerState = (() => {
   let members = null;
   let sequence = 0;
+  let roundState = null; // party-only boundary; enemy round accounting stays untouched
   const fail = () => { throw new Error('Invalid player-party preparation or member state'); };
   const fields = ['characterId','slot','name','hp','maxHp','atk','def','spd','statuses'];
   const record = value => {
@@ -464,7 +465,7 @@ const combatPlayerState = (() => {
     return members?.find(member => member.instanceId === instanceId) || null;
   };
   const editable = instanceId => {
-    if (combat.active !== false) fail();
+    if (combat.active !== false || roundState?.phase === 'resolving') fail();
     const member = exactMember(instanceId);
     if (!member) fail();
     return member;
@@ -524,6 +525,145 @@ const combatPlayerState = (() => {
       sequence += installed.length;
       return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});
     },
+    getRoundView() {
+      return members ? Object.freeze({completedRounds:roundState?.completed || 0,
+        phase:roundState?.phase || 'ready', outcome:roundState?.outcome || 'ongoing',
+        failure:roundState?.failure || null}) : null;
+    },
+    resolveAttackRound(request) {
+      const reject = () => { throw new Error('Unsupported party Attack round'); };
+      // Shallow data-only validation: reject nonprimitive action fields without
+      // recursively traversing arbitrary or cyclic caller-owned objects.
+      const flat = (value, keys) => {
+        if (!value || typeof value !== 'object' || Array.isArray(value) ||
+            ![Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(value))) reject();
+        const fields=Object.getOwnPropertyDescriptors(value);
+        if (Reflect.ownKeys(fields).length !== keys.length ||
+            keys.some(key=>!Object.hasOwn(fields[key] || {},'value'))) reject();
+        return {...Object.fromEntries(keys.map(key=>[key,fields[key].value]))};
+      };
+      if (arguments.length !== 1 || !members || (roundState &&
+          (roundState.phase !== 'ready' || roundState.outcome !== 'ongoing' ||
+           roundState.enemies !== combat.enemies || roundState.completed >= Number.MAX_SAFE_INTEGER))) reject();
+      validateInactiveCombatPreparation();
+      if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open) reject();
+      const combatFields = Object.getOwnPropertyDescriptors(combat);
+      if (completedSingleVictoryReceipt !== null ||
+          Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value]) => combatFields[key]?.value !== value) ||
+          array(combatFields.messageQueue?.value).length ||
+          Reflect.ownKeys(combatFields).some(key => ![...Object.keys(FORMATION_NEUTRAL_COMBAT_STATE),
+            'mode','active','enemy','enemies','observeCount','escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(key))) reject();
+      const enemyMembers = combat.enemies, enemyCopies = array(enemyMembers);
+      if (!Object.isFrozen(enemyMembers) || (combat.mode === 'single' ? enemyCopies.length !== 1 :
+          combat.mode !== 'formation' || ![2,3].includes(enemyCopies.length))) reject();
+      const enemyRound = formationRounds.getView();
+      if (combat.mode === 'formation' ? !enemyRound || enemyRound.completedRounds !== 0 ||
+          enemyRound.awaitingPlayback || enemyRound.outcome !== 'ongoing' || formationRounds.coordination() !== null : enemyRound !== null) reject();
+      const enemyData = enemyCopies.map((enemy,slot) => {
+        const data = flat(enemy,[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked']);
+        if (!PARTY_ATTACK_TEMPLATE_IDS.includes(data.id)) reject();
+        const template = flat(ENEMY_TEMPLATE_REGISTRY[data.id],FORMATION_STATE_DATA_FIELDS);
+        const fields = Object.getOwnPropertyDescriptors(enemy);
+        if (template.id !== data.id || !formationBasicStatsValid(template) || !formationBasicStatsValid(data) ||
+            [template,data].some(d => typeof d.name !== 'string' ||
+              ['xp','goldMin','goldMax'].some(key => !Number.isSafeInteger(d[key]) || d[key] < 0)) ||
+            data.slot !== slot || typeof data.instanceId !== 'string' || !/^combat_enemy_[1-9]\d*$/.test(data.instanceId) ||
+            fields.hp.writable !== true || fields.instanceId.writable !== false || fields.instanceId.configurable !== false ||
+            fields.slot.writable !== false || fields.slot.configurable !== false ||
+            !Number.isSafeInteger(data.observeCount) || data.observeCount < 0 || data.escapeUnlocked !== false) reject();
+        return data;
+      });
+      const partyData = members.map(view);
+      if (partyData.some(member => !formationBasicStatsValid(member) || member.statuses.length) ||
+          !partyData.some(member => member.hp > 0) || !enemyData.some(member => member.hp > 0)) reject();
+      const allIds = [...partyData,...enemyData].map(actor => actor.instanceId);
+      if (new Set(allIds).size !== allIds.length) reject();
+      const command = flat(request,['type','allyActions','enemyActions']);
+      if (command.type !== 'attack-round') reject();
+      const normalize = (actions, actors, targets) => {
+        const supplied = array(actions).map(action => flat(action,['actorId','targetId']));
+        const living = actors.filter(actor => actor.hp > 0);
+        if (supplied.length !== living.length || new Set(supplied.map(a=>a.actorId)).size !== supplied.length ||
+            supplied.some(a => typeof a.actorId !== 'string' || typeof a.targetId !== 'string' ||
+              !living.some(actor => actor.instanceId === a.actorId) ||
+              !targets.some(target => target.instanceId === a.targetId && target.hp > 0))) reject();
+        return living.map(actor => supplied.find(a => a.actorId === actor.instanceId));
+      };
+      const allyActions = normalize(command.allyActions,partyData,enemyData);
+      const enemyActions = normalize(command.enemyActions,enemyData,partyData);
+      const planActors = [...allyActions.map(action => {
+        const actor=partyData.find(m=>m.instanceId===action.actorId);
+        return {...action,side:'ally',slot:actor.slot,spd:Math.max(1,actor.spd)};
+      }), ...enemyActions.map(action => {
+        const actor=enemyData.find(m=>m.instanceId===action.actorId);
+        return {...action,side:'enemy',slot:actor.slot,spd:actor.spd};
+      })];
+      const dataFor = id => [...partyData,...enemyData].find(actor => actor.instanceId === id);
+      // Check every committed attack and the complete initiative weight sum
+      // before the first roll. Neither slots nor targets are inferred.
+      for (const action of planActors) {
+        const actor=dataFor(action.actorId), target=dataFor(action.targetId);
+        const defense=action.side==='enemy' ? playerIncomingMitigation(actor.atk,target.def,false) : target.def;
+        if (!attackNumbersAreSafe(actor.atk,defense)) reject();
+      }
+      partyInitiativeWeights(planActors);
+      const roster=members, events=[], tape=[];
+      const live = id => roster.find(m=>m.instanceId===id) || enemyMembers.find(m=>m.instanceId===id);
+      const exactMembership = () => {
+        if (members !== roster || combat.enemies !== enemyMembers || combat.active !== false)
+          throw new Error('Party round membership changed during execution');
+      };
+      const roll = () => {
+        const value=Math.random();
+        if (!Number.isFinite(value) || value < 0 || value >= 1) throw new Error('Invalid party round RNG value');
+        exactMembership();return value;
+      };
+      // Execution boundary. Unexpected failure keeps HP/RNG as consumed and
+      // locks this preparation with diagnostic evidence; it never retries.
+      roundState = {completed:roundState?.completed || 0,enemies:enemyMembers,
+        phase:'resolving',outcome:'ongoing',failure:null};
+      const round=roundState.completed+1;
+      try {
+        let plan=planPartyAttackOrder(planActors,tape);
+        while (!plan.complete) {tape.push(roll());plan=planPartyAttackOrder(planActors,tape);}
+        let outcome='ongoing';
+        for (const action of plan.order) {
+          exactMembership();
+          const actor=live(action.actorId),target=live(action.targetId);
+          if (!actor || !target) throw new Error('Party round lost an exact actor identity');
+          if (actor.hp === 0) {events.push({type:'skip',...action,reason:'actor_dead'});continue;}
+          if (target.hp === 0) {events.push({type:'cancel',...action,reason:'target_dead'});continue;}
+          const actorData=dataFor(action.actorId),targetData=dataFor(action.targetId);
+          const defense=action.side==='enemy' ? playerIncomingMitigation(actorData.atk,targetData.def,false) : targetData.def;
+          const hpBefore=target.hp;
+          const variance=ATTACK_VARIANCE_MIN+roll()*ATTACK_VARIANCE_SPAN;
+          const critical=roll()<CRIT_CHANCE;
+          const damage=attackDamageNumbers(actorData.atk,defense,variance,critical).dmg;
+          const targetSpd=action.side==='enemy' ? Math.max(1,targetData.spd) : targetData.spd;
+          // The false-capability branch is pure ordinary evasion: it never
+          // reads Lely's equipment or Bullet Time. No member has such effects.
+          const evaded=roll()<evadeChance(action.spd,targetSpd,false);
+          if (target.hp !== hpBefore) throw new Error('Party target HP changed during attack RNG');
+          target.hp=Math.max(0,hpBefore-(evaded ? 0 : damage));
+          events.push({type:'attack',...action,attemptedDamage:damage,appliedDamage:hpBefore-target.hp,
+            critical,evaded,hpBefore,hpAfter:target.hp});
+          if (enemyMembers.every(enemy=>enemy.hp===0)) outcome='victory';
+          else if (roster.every(member=>member.hp===0)) outcome='defeat';
+          if (outcome !== 'ongoing') break; // existing formation contract truncates the remaining plan
+        }
+        events.push({type:'round_end',roundBefore:round-1,roundAfter:round,outcome});
+        const result=copyFormationData({round,command:{type:'attack-round',allyActions,enemyActions},
+          initiative:plan.initiative,order:plan.order,events,outcome,
+          party:roster.map(view),enemies:enemyMembers.map(enemy=>formationRecord(enemy,
+            [...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked']))});
+        roundState.completed=round;roundState.outcome=outcome;roundState.phase=outcome==='ongoing'?'ready':'complete';
+        return result;
+      } catch (error) {
+        roundState.phase='fault';
+        roundState.failure=Object.freeze({round,completedEvents:events.length,initiativeRolls:tape.length});
+        throw error;
+      }
+    },
     setHp(instanceId, hp) {
       if (arguments.length !== 2) fail();
       const member = editable(instanceId);
@@ -538,11 +678,65 @@ const combatPlayerState = (() => {
       return view(member);
     },
     clear() {
-      if (arguments.length || combat.active !== false) fail();
+      if (arguments.length || combat.active !== false || roundState?.phase === 'resolving') fail();
+      roundState = null;
       members = null; // No enemy, Lely, reward, recovery or world-state writes.
     },
   });
 })();
+
+// Conservative ordinary subset of the established formation approval list.
+// Receiver members are intentionally absent: their identity carries coordination.
+const PARTY_ATTACK_TEMPLATE_IDS = Object.freeze([
+  'enemy_marsh_wisp','enemy_briar_hound','enemy_marsh_wisp_early','enemy_briar_hound_early',
+  'enemy_reed_grappler','enemy_silt_lurker','enemy_marsh_wisp_sluice_top','enemy_sluice_slime',
+]);
+
+// Validate the entire positive-weight sum before initiative RNG or round-state
+// installation. All subset sums remain safe. Prepared base SPD is nonnegative;
+// a legal zero gets weight 1 without changing its underlying stat/evasion speed.
+function partyInitiativeWeights(actors) {
+  let total=0;
+  const weights=actors.map(actor => {
+    if (!Number.isSafeInteger(actor.spd) || actor.spd<0)
+      throw new Error('Unsupported party initiative Speed');
+    const weight=Math.max(1,actor.spd);
+    total+=weight;
+    if (!Number.isSafeInteger(total)) throw new Error('Unsupported party initiative weight sum');
+    return weight;
+  });
+  return {weights,total};
+}
+
+// Pure, capacity-neutral planner over snapshotted actors and a numeric tape.
+// Canonical scan order is ally slots then enemy slots. Positive SPD is the exact
+// weight: cumulative intervals are [start,end), with no probability clamp.
+// Remove the entire selected actor; append the final actor without another roll.
+// N living actors consume exactly N-1 rolls. Prefix replay never reads live state.
+function planPartyAttackOrder(actors, tape) {
+  const {weights,total}=partyInitiativeWeights(actors);
+  const remaining=actors.map((actor,i)=>({actor,weight:weights[i]}));
+  const initiative=[],order=[];
+  let totalWeight=total,used=0;
+  while (remaining.length>1) {
+    if (used===tape.length) return Object.freeze({complete:false});
+    const roll=tape[used++];
+    if (!Number.isFinite(roll) || roll<0 || roll>=1) throw new Error('Invalid party initiative tape');
+    const point=roll*totalWeight;
+    let index=0,start=0;
+    while (point>=start+remaining[index].weight) start+=remaining[index++].weight;
+    const {actor,weight}=remaining[index];
+    initiative.push({type:'weighted_draw',actorId:actor.actorId,side:actor.side,slot:actor.slot,
+      candidates:remaining.map(entry=>({actorId:entry.actor.actorId,weight:entry.weight})),
+      weight,totalWeight,roll,point,intervalStart:start,intervalEnd:start+weight});
+    order.push(actor);
+    remaining.splice(index,1);
+    totalWeight-=weight;
+  }
+  if (remaining.length) order.push(remaining[0].actor);
+  if (used!==tape.length) throw new Error('Unused party initiative tape');
+  return copyFormationData({complete:true,initiative,order});
+}
 
 // One fail-closed execution policy, used at mutation and presentation boundaries.
 // State-only enemy preparation/inspection/cleanup deliberately remains available.
@@ -719,6 +913,11 @@ function bindCombatEnemyEffect(instanceId, effect) {
 // for both critical branches. Use the greatest representable random value < 1:
 // simply adding MIN + SPAN would round to a different upper bound in JS.
 function formationAttackNumbersAreSafe(atk, def, damageMultiplier = 1) {
+  return attackNumbersAreSafe(atk, def, damageMultiplier);
+}
+
+// Pure numeric preflight shared by formation and prepared-party validation.
+function attackNumbersAreSafe(atk, def, damageMultiplier = 1) {
   const maxRandom = 1 - Number.EPSILON / 2;
   const variances = [ATTACK_VARIANCE_MIN,
     ATTACK_VARIANCE_MIN + maxRandom * ATTACK_VARIANCE_SPAN];

@@ -22,11 +22,34 @@ inert during preparation. Cleanup preserves Lely and enemy state; runtime IDs
 are not reused. Saves exclude the authority entirely (`SAVE_VERSION` 4): saving
 preparation is refused and successful load discards it after validation.
 
-The next separately authorized increment is a headless generalized allied/enemy
-round scheduler. Party commands, UI, playback, inventory/equipment policy,
+The scheduler increment below supplies explicit headless Attack commands.
+Command selection, UI, playback, inventory/equipment policy,
 persistent roster, Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
 The focused regression suite uses only local fixtures; no canon or content was
 added. No browser-visible route exists for this increment.
+
+### Headless Attack-only party scheduler
+
+Prepared pairs can now explicitly resolve an Attack-only round against one
+inactive supported enemy or a two/three-member formation. Every living actor
+requires an exact actor/target command. Pure weighted initiative draws without
+replacement use snapshotted effective Speed (minimum weight 1 for legal zero),
+with exactly N−1 rolls for N living actors. Safe cumulative weights validate before
+RNG; the final actor costs no draw. Immutable draw records expose the weights and
+selected intervals. Deterministic and seeded statistical tests cover 2–6 actors,
+including synthetic 3v3; prepared parties still have exactly two allies.
+Each executing attack uses three further rolls and existing damage/evasion arithmetic with
+that actor's own stats. Death skips, dead-target cancellations and terminal
+truncation never retarget. One completed sequence advances one private round.
+Returned plans, events and final snapshots are detached and deeply immutable.
+
+There is no production caller, UI, playback, enemy AI or encounter entry. The
+ordinary eight-template formation subset is supported; the Receiver and bespoke
+mechanics are excluded. Items, statuses/effects, rewards, recovery, equipment and
+inventory policy remain deferred. All existing gameplay/saving guards remain;
+`SAVE_VERSION` is 4 and no round data is serialized. Existing singleton and
+formation schedulers are unchanged. The next boundary is detached immutable
+playback for these multi-actor results.
 
 ### MQ5 and the eastern Valmere road
 
