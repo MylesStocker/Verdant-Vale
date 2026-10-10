@@ -90,8 +90,24 @@ Suites 170–171 cover these boundaries and all 52 item definitions: all 38
 combat-selectable items retain established semantics, including deliberate no-ops;
 14 key items reject. Both preparation APIs share the same membership, identity,
 HP/status and cleanup authority. The full stable-ID parity matrix is recorded in
-architecture.md and suite 171. Generalized playback/controller/menu integration,
+architecture.md and suite 171. Generalized controller/menu integration,
 persistent parties, rewards and recovery remain deferred. No save changes.
+
+### Detached generalized command playback
+
+`createRoundPlayback()` / `projectRoundPlaybackFrame()` now validate and project
+frozen mixed-command round results, with no production caller. Frame zero copies
+the recorded before snapshot; every event adds one immutable historical frame.
+Item/equipment snapshots, status/effect annotations, Curse checks, Slither samples,
+observation, Run and delayed ticks are checked for exact identity and continuity.
+Outcome appears at its recorded boundary; only the final round-end frame completes
+and advances the displayed round count. Final state must equal the resolver's
+authoritative after snapshot. No formulas, RNG or live combat state are consulted.
+
+Suite 172 covers every selectable item, 1–3 members per side, 3v3, malformed
+histories and independence from later rounds/cleanup/replacement/save-load.
+Existing Attack playback is unchanged. Generalized controller, Lab commands,
+input, rendering and gameplay integration remain deferred. No save changes.
 
 ### Detached multi-actor Attack playback
 

@@ -1116,6 +1116,14 @@ const combatPlayerState = (() => {
       if (arguments.length>2) throw new Error('Invalid party Attack playback history');
       return partyAttackPlayback.project(playback,index);
     },
+    createRoundPlayback(result) {
+      if (arguments.length!==1) throw new Error('Invalid party command playback history');
+      return partyCommandPlayback.create(result);
+    },
+    projectRoundPlaybackFrame(reel,index) {
+      if (arguments.length>2) throw new Error('Invalid party command playback history');
+      return partyCommandPlayback.project(reel,index);
+    },
     getRoundView() {
       return members ? Object.freeze({completedRounds:roundState?.completed || 0,
         phase:roundState?.phase || 'ready', outcome:roundState?.outcome || 'ongoing',
@@ -1450,6 +1458,241 @@ const partyAttackPlayback = (() => {
     return reel.frames[index];
   };
   return Object.freeze({create,project});
+})();
+
+// Detached generalized history. Item vocabulary is captured once for identity,
+// category and ownership checks only; no amounts, bonuses or combat formulas
+// are read or recomputed by playback. Mutable registries are never consulted.
+const partyCommandPlayback = (() => {
+  const reels=new WeakSet(),gearSlots=['weapon','armor','shield','accessory'];
+  const itemKinds=Object.freeze(Object.fromEntries(Object.entries(ITEM_REGISTRY).map(([id,item])=>[id,Object.freeze({
+    key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
+    effect:item.sexBane?'reagent':item.type==='potion'?(item.curesPoison||item.curesCursed?'cure':'heal'):
+      item.type==='buff'?'evade':item.type==='throwable'?(item.fuse?'bomb':item.targetsAll?'damage_all':'damage'):
+      item.type==='stun'?'stun':gearSlots.includes(item.type)?'equip':item.type==='bait'?'nothing':null,
+    cures:Object.freeze(['poison','cursed'].filter(s=>s==='poison'?item.curesPoison:item.curesCursed)),mud:item.causesMuddied===true,
+  })])));
+  const fail=()=>{throw new Error('Invalid party command playback history');};
+  const safe=n=>Number.isSafeInteger(n)&&n>=0;
+  const roll=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0&&n<1;
+  const bool=n=>typeof n==='boolean';
+  const list=(v,min=0,max=Number.MAX_SAFE_INTEGER)=>{if(!Array.isArray(v)||v.length<min||v.length>max)fail();};
+  const keys=(v,names)=>{if(!v||typeof v!=='object'||Array.isArray(v)||Reflect.ownKeys(v).length!==names.length||names.some(k=>!Object.hasOwn(v,k)))fail();};
+  const same=(a,b)=>{
+    if(a===b)return true;
+    if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;
+    const ak=Object.keys(a),bk=Object.keys(b);return ak.length===bk.length&&ak.every(k=>Object.hasOwn(b,k)&&same(a[k],b[k]));
+  };
+  const equal=(a,b)=>{if(!same(a,b))fail();};
+  const clone=v=>{if(!v||typeof v!=='object')return v;if(Array.isArray(v))return v.map(clone);const out={};for(const k of Object.keys(v))out[k]=clone(v[k]);return out;};
+  const detach=source=>{
+    const seen=new WeakSet();
+    const visit=(v,depth=0)=>{
+      if(v===null||['string','boolean'].includes(typeof v)||typeof v==='number'&&Number.isFinite(v))return;
+      if(!v||typeof v!=='object'||depth>16||seen.has(v)||!Object.isFrozen(v)||
+          ![Object.getPrototypeOf({}),Object.getPrototypeOf([]),null].includes(Object.getPrototypeOf(v)))fail();
+      seen.add(v);const props=Object.getOwnPropertyDescriptors(v);
+      for(const k of Reflect.ownKeys(props)){if(typeof k!=='string'||!Object.hasOwn(props[k],'value'))fail();visit(props[k].value,depth+1);}
+    };
+    visit(source);try{return copyFormationData(source);}catch(_){fail();}
+  };
+  const spec=id=>{if(typeof id!=='string'||!Object.hasOwn(itemKinds,id)||itemKinds[id].key||!itemKinds[id].effect)fail();return itemKinds[id];};
+  const partyKeys=['characterId','slot','name','maxHp','atk','def','spd','instanceId','hp','statuses','side','effective'];
+  const enemyKeys=['id','name','hp','maxHp','atk','def','spd','xp','goldMin','goldMax','instanceId','slot','observeCount','escapeUnlocked','isBoss','side'];
+  const planKeys=['actorId','targetId','side','slot','spd','commandType'];
+  const eventKeys={attack:[...planKeys,'attemptedDamage','appliedDamage','critical','evaded','hpBefore','hpAfter'],
+    item:[...planKeys,'itemId','effect','consumed','before','after'],equipment:[...planKeys,'itemId','effect','consumed','before','after'],
+    observe:[...planKeys,'countBefore','countAfter','escapeBefore','escapeAfter','lines'],run:[...planKeys,'allowed','opponentId','chance','roll','success'],
+    skip:[...planKeys,'reason'],cancel:[...planKeys,'reason'],
+    curse_check:['actorId','targetId','side','slot','status','round','chance','roll','fumbled'],
+    slither_sample:['actorId','side','slot','status','round','commandType','roll','speedBefore','speedAfter'],
+    status:['targetId','statusesBefore','statusesAfter','sourceId','itemId'],effect:['sourceId','targetId','itemId','effectsBefore','effectsAfter'],
+    delayed_effect_tick:['effect','ownerId','targetId','before','after','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
+    outcome:['outcome'],round_end:['roundBefore','roundAfter','outcome','effectsBefore','effectsAfter']};
+  const statusList=v=>{list(v,0,6);if(v.some(s=>!FORMATION_PLAYER_STATUSES.includes(s))||new Set(v).size!==v.length)fail();};
+  const create=source=>{
+    const r=detach(source);keys(r,['round','command','initiative','order','events','outcome','before','after','party','enemies']);
+    if(!safe(r.round)||!r.round||!['ongoing','victory','defeat','escape'].includes(r.outcome))fail();
+    const snapshot=(s,maxRound)=>{
+      keys(s,['party','enemies','inventory','equipment','effects','escapePolicy','bossLocked']);list(s.party,1,3);list(s.enemies,1,3);
+      list(s.inventory);s.inventory.forEach(spec);list(s.equipment,s.party.length,s.party.length);list(s.effects,s.party.length,s.party.length);
+      if(!['blocked','fastest_living'].includes(s.escapePolicy)||!bool(s.bossLocked))fail();
+      const ids=new Set(),authored=new Set();
+      for(const [side,group,fields]of [['ally',s.party,partyKeys],['enemy',s.enemies,enemyKeys]])group.forEach((m,slot)=>{
+        keys(m,fields);const prefix=side==='ally'?'combat_party_':'combat_enemy_',suffix=typeof m.instanceId==='string'?m.instanceId.slice(prefix.length):'';
+        if(m.side!==side||m.slot!==slot||typeof m.name!=='string'||!m.name.trim()||typeof m.instanceId!=='string'||!m.instanceId.startsWith(prefix)||
+            !/^[1-9]\d*$/.test(suffix)||!Number.isSafeInteger(Number(suffix))||ids.has(m.instanceId)||!['hp','maxHp','atk','def','spd'].every(k=>safe(m[k]))||!m.maxHp||m.hp>m.maxHp)fail();
+        ids.add(m.instanceId);
+        if(side==='ally'){
+          if(typeof m.characterId!=='string'||! /^[a-z][a-z0-9_]*$/.test(m.characterId)||m.characterId==='player'||authored.has(m.characterId))fail();authored.add(m.characterId);statusList(m.statuses);
+          keys(m.effective,['atk','def','spd','defenseCapBypass','evadeAll']);if(!['atk','def','spd'].every(k=>safe(m.effective[k]))||!m.effective.spd||!bool(m.effective.defenseCapBypass)||!bool(m.effective.evadeAll))fail();
+        }else if(!PARTY_ATTACK_TEMPLATE_IDS.includes(m.id)||!['xp','goldMin','goldMax','observeCount'].every(k=>safe(m[k]))||m.escapeUnlocked!==false||!bool(m.isBoss))fail();
+      });
+      if(s.bossLocked!==s.enemies.some(m=>m.isBoss))fail();
+      s.party.forEach((m,slot)=>{
+        const gear=s.equipment[slot],f=s.effects[slot];keys(gear,['actorId',...gearSlots]);if(gear.actorId!==m.instanceId)fail();
+        for(const k of gearSlots)if(gear[k]!==null&&spec(gear[k]).slot!==k)fail();
+        keys(f,['actorId','evadeTurns','evadeAppliedRound','bomb',...(Object.hasOwn(f,'slither')?['slither']:[])]);
+        if(f.actorId!==m.instanceId||!safe(f.evadeTurns)||!safe(f.evadeAppliedRound)||f.evadeAppliedRound>maxRound||(f.evadeTurns>0&&f.evadeAppliedRound===0))fail();
+        if(f.bomb!==null){keys(f.bomb,['targetId','fuse','damage','ignoresDef','appliedRound']);const b=f.bomb;
+          if(!s.enemies.some(e=>e.instanceId===b.targetId)||!safe(b.fuse)||!b.fuse||!safe(b.damage)||!bool(b.ignoresDef)||!safe(b.appliedRound)||!b.appliedRound||b.appliedRound>maxRound)fail();}
+        if(m.statuses.includes('slither')){
+          keys(f.slither,['speed','round','roll','source']);const v=f.slither;
+          if(!safe(v.speed)||v.speed<1||v.speed>20||m.effective.spd!==v.speed||!safe(v.round)||v.round>maxRound||
+              (v.source==='prepared'?v.round!==0||v.roll!==null:!['attack','observe'].includes(v.source)||!v.round||!roll(v.roll)||v.speed!==Math.floor(v.roll*20)+1))fail();
+        }else if(Object.hasOwn(f,'slither'))fail();
+      });
+    };
+    snapshot(r.before,r.round-1);snapshot(r.after,r.round);equal(r.party,r.after.party);equal(r.enemies,r.after.enemies);
+    const membership=s=>({party:s.party.map(({hp,statuses,effective,...m})=>m),enemies:s.enemies.map(({hp,observeCount,...m})=>m),escapePolicy:s.escapePolicy,bossLocked:s.bossLocked});
+    const fixed=membership(r.before);equal(membership(r.after),fixed);
+    let state=clone(r.before),revealed='ongoing',completed=r.round-1,index=0;
+    const member=id=>[...state.party,...state.enemies].find(m=>m.instanceId===id);
+    const outcome=()=>state.enemies.every(m=>m.hp===0)?'victory':state.party.every(m=>m.hp===0)?'defeat':'ongoing';
+    if(outcome()!=='ongoing')fail();
+    keys(r.command,['type','allyActions','enemyActions']);if(r.command.type!=='party-round')fail();
+    list(r.command.allyActions,1,3);list(r.command.enemyActions,1,3);
+    const run=r.command.allyActions.length===1&&r.command.allyActions[0].type==='run';
+    const reservations=new Map(),commands=[];
+    for(const [side,actions]of [['ally',r.command.allyActions],['enemy',r.command.enemyActions]]){
+      const living=(side==='ally'?state.party:state.enemies).filter(m=>m.hp>0);let previous=-1;
+      if(!(run&&side==='ally')&&actions.length!==living.length)fail();
+      for(const a of actions){
+        const kind=side==='enemy'?'attack':a.type,info=kind==='item'?spec(a.itemId):null;
+        keys(a,side==='enemy'?['actorId','targetId']:kind==='run'?['type','actorId']:['attack','observe'].includes(kind)?['type','actorId','targetId']:
+          kind==='item'?['type','actorId','itemId',...(info.effect==='damage_all'?[]:['targetId'])]:[]);
+        const actor=member(a.actorId),target=member(a.targetId);
+        if(!actor||!actor.hp||actor.side!==side||actor.slot<=previous||kind==='run'&&!run)fail();previous=actor.slot;
+        if(kind!=='run'&&info?.effect!=='damage_all'){
+          if(!target||!target.hp)fail();const friendly=info&&['heal','cure','evade','equip','nothing'].includes(info.effect);
+          if(friendly?target.side!==side:target.side===side)fail();
+          if(info&&['equip','nothing'].includes(info.effect)&&target!==actor)fail();
+        }
+        if(info)reservations.set(a.itemId,(reservations.get(a.itemId)||0)+1);
+        commands.push({command:a,actorId:a.actorId,targetId:a.targetId??null,side,slot:actor.slot,commandType:kind});
+      }
+      if(!(run&&side==='ally'))equal(actions.map(a=>a.actorId),living.map(m=>m.instanceId));
+    }
+    for(const[id,n]of reservations)if(state.inventory.filter(x=>x===id).length<n)fail();
+    list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();keys(e,['type',...eventKeys[e.type]]);});
+    const frames=[];
+    const frame=(event=null)=>copyFormationData({round:r.round,command:r.command,frameIndex:index,eventIndex:index-1,currentEvent:event,
+      party:state.party.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),enemies:state.enemies.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
+      inventory:state.inventory,equipment:state.equipment,effects:state.effects,escapePolicy:state.escapePolicy,bossLocked:state.bossLocked,
+      complete:index===r.events.length&&event?.type==='round_end',outcome:revealed,completedRounds:completed});
+    frames.push(frame());
+    const take=type=>{const e=r.events[index];if(!e||e.type!==type)fail();return e;};
+    const push=e=>{index++;frames.push(frame(e));};
+    // All living Attack/Observe Slither samples are recorded before initiative.
+    for(const c of commands.filter(c=>c.side==='ally'&&['attack','observe'].includes(c.commandType)&&member(c.actorId).statuses.includes('slither'))){
+      const e=take('slither_sample'),m=member(c.actorId),f=state.effects[c.slot];
+      if(e.actorId!==c.actorId||e.side!=='ally'||e.slot!==c.slot||e.status!=='slither'||e.round!==r.round||e.commandType!==c.commandType||
+          !roll(e.roll)||e.speedBefore!==f.slither.speed||e.speedAfter!==Math.floor(e.roll*20)+1)fail();
+      f.slither={speed:e.speedAfter,round:r.round,roll:e.roll,source:c.commandType};m.effective.spd=e.speedAfter;push(e);
+    }
+    list(r.order,commands.length,commands.length);const planned=new Map();
+    for(const p of r.order){keys(p,planKeys);const c=commands.find(c=>c.actorId===p.actorId),m=member(p.actorId);
+      if(!c||planned.has(p.actorId)||['targetId','side','slot','commandType'].some(k=>p[k]!==c[k])||p.spd!==(c.side==='ally'?m.effective.spd:m.spd))fail();planned.set(p.actorId,p);}
+    // Check recorded intervals and declared order, without invoking the planner.
+    list(r.initiative,r.order.length-1,r.order.length-1);const remaining=commands.map(c=>c.actorId);
+    r.initiative.forEach((d,i)=>{
+      keys(d,['type','actorId','side','slot','candidates','weight','totalWeight','roll','point','intervalStart','intervalEnd']);
+      const p=r.order[i];if(d.type!=='weighted_draw'||d.actorId!==p.actorId||d.side!==p.side||d.slot!==p.slot||!roll(d.roll))fail();
+      list(d.candidates,remaining.length,remaining.length);let total=0,start=0,weight=0;
+      d.candidates.forEach((v,j)=>{keys(v,['actorId','weight']);const w=Math.max(1,planned.get(remaining[j]).spd);
+        if(v.actorId!==remaining[j]||v.weight!==w)fail();if(v.actorId===d.actorId){start=total;weight=w;}total+=w;if(!safe(total))fail();});
+      if(!weight||d.weight!==weight||d.totalWeight!==total||d.intervalStart!==start||d.intervalEnd!==start+weight||d.point!==d.roll*total||d.point<start||d.point>=start+weight)fail();
+      remaining.splice(remaining.indexOf(d.actorId),1);
+    });
+    equal(remaining,[r.order.at(-1).actorId]);
+    const matching=(e,p)=>{if(planKeys.some(k=>e[k]!==p[k]))fail();};
+    const damage=(e,t,mayEvade=false)=>{
+      if(!safe(e.attemptedDamage)||!safe(e.appliedDamage)||!safe(e.hpBefore)||!safe(e.hpAfter)||e.hpBefore!==t.hp||e.hpAfter>t.maxHp||
+          e.appliedDamage!==e.hpBefore-e.hpAfter||e.hpAfter!==Math.max(0,e.hpBefore-(mayEvade&&e.evaded?0:e.attemptedDamage)))fail();t.hp=e.hpAfter;
+    };
+    const itemEvent=(e,c,actor,target)=>{
+      const info=spec(c.command.itemId);if(e.itemId!==c.command.itemId||e.effect!==info.effect||e.type!==(info.effect==='equip'?'equipment':'item')||e.consumed!==!['equip','nothing'].includes(info.effect))fail();
+      snapshot(e.before,r.round);snapshot(e.after,r.round);equal(e.before,state);equal(membership(e.after),fixed);
+      const expected=clone(state),a=expected.party[actor.slot],t=target?(target.side==='ally'?expected.party:expected.enemies)[target.slot]:null;
+      const at=expected.inventory.indexOf(e.itemId);if(at<0)fail();if(e.consumed||info.effect==='equip')expected.inventory.splice(at,1);
+      const afterTarget=target?(target.side==='ally'?e.after.party:e.after.enemies)[target.slot]:null;
+      const copyEffective=allowed=>{
+        for(const k of allowed)t.effective[k]=afterTarget.effective[k];
+      };
+      if(info.effect==='heal'){
+        if(afterTarget.hp<t.hp)fail();t.hp=afterTarget.hp;
+        if(!same(t.statuses,afterTarget.statuses)){
+          if(!info.mud||t.statuses.includes('muddied'))fail();t.statuses.push('muddied');copyEffective(['def','spd']);
+        }
+      }else if(info.effect==='cure'){
+        t.statuses=t.statuses.filter(s=>!info.cures.includes(s));
+      }else if(info.effect==='evade'){
+        const f=e.after.effects[target.slot];if(!f.evadeTurns||f.evadeAppliedRound!==r.round)fail();
+        expected.effects[target.slot].evadeTurns=f.evadeTurns;expected.effects[target.slot].evadeAppliedRound=f.evadeAppliedRound;
+      }else if(info.effect==='bomb'){
+        const b=e.after.effects[actor.slot].bomb;if(!b||b.targetId!==target.instanceId||b.appliedRound!==r.round)fail();expected.effects[actor.slot].bomb=clone(b);
+      }else if(info.effect==='damage'){
+        if(afterTarget.hp>t.hp)fail();t.hp=afterTarget.hp;
+      }else if(info.effect==='damage_all'){
+        expected.enemies.forEach((m,i)=>{const hp=e.after.enemies[i].hp;if(hp>m.hp)fail();m.hp=hp;});
+      }else if(info.effect==='equip'){
+        const gear=expected.equipment[actor.slot],old=gear[info.slot];if(old!==null)expected.inventory.push(old);gear[info.slot]=e.itemId;
+        const allowed={weapon:['atk'],armor:['def','defenseCapBypass'],shield:['def'],accessory:['spd','evadeAll']}[info.slot];
+        for(const k of allowed)a.effective[k]=e.after.party[actor.slot].effective[k];
+      }
+      equal(expected,e.after);state=clone(e.after);push(e);
+      // Annotations refer to the same item transition; never apply it twice.
+      for(const [slot,m]of e.before.party.entries())if(!same(m.statuses,e.after.party[slot].statuses)){
+        const annotation=take('status');equal(annotation,{type:'status',targetId:m.instanceId,statusesBefore:m.statuses,statusesAfter:e.after.party[slot].statuses,sourceId:actor.instanceId,itemId:e.itemId});push(annotation);
+      }
+      if(['evade','bomb'].includes(info.effect)){
+        const annotation=take('effect');equal(annotation,{type:'effect',sourceId:actor.instanceId,targetId:target.instanceId,itemId:e.itemId,effectsBefore:e.before.effects,effectsAfter:e.after.effects});push(annotation);
+      }
+    };
+    let escaped=false;
+    for(const p of r.order){
+      if(outcome()!=='ongoing'||escaped)break;
+      const actor=member(p.actorId),target=member(p.targetId),c=commands.find(c=>c.actorId===p.actorId);
+      if(actor.hp===0){const e=take('skip');matching(e,p);if(e.reason!=='actor_dead')fail();push(e);continue;}
+      if(target?.hp===0){const e=take('cancel');matching(e,p);if(e.reason!=='target_dead')fail();push(e);continue;}
+      let curse=null;
+      if(p.commandType==='attack'&&actor.side==='ally'&&actor.statuses.includes('cursed')){
+        curse=take('curse_check');if(curse.actorId!==p.actorId||curse.targetId!==p.targetId||curse.side!=='ally'||curse.slot!==p.slot||curse.status!=='cursed'||curse.round!==r.round||curse.chance!==0.25||!roll(curse.roll)||curse.fumbled!==(curse.roll<curse.chance))fail();push(curse);
+      }
+      const e=take(p.commandType==='item'&&spec(c.command.itemId).effect==='equip'?'equipment':p.commandType);matching(e,p);
+      if(e.type==='attack'){
+        if(!bool(e.critical)||!bool(e.evaded)||e.attemptedDamage===0||curse?.fumbled&&(e.attemptedDamage!==1||e.critical||e.evaded))fail();damage(e,target,true);
+      }else if(e.type==='observe'){
+        list(e.lines);if(e.lines.some(x=>typeof x!=='string')||e.countBefore!==target.observeCount||!safe(e.countAfter)||e.countAfter!==e.countBefore+1||e.escapeBefore!==target.escapeUnlocked||e.escapeAfter!==false)fail();target.observeCount=e.countAfter;
+      }else if(e.type==='run'){
+        const fastest=state.enemies.filter(m=>m.hp>0).reduce((a,b)=>b.spd>a.spd?b:a),allowed=state.escapePolicy==='fastest_living'&&!state.bossLocked;
+        if(e.allowed!==allowed||e.opponentId!==fastest.instanceId||!bool(e.success)||typeof e.chance!=='number'||e.chance<0||e.chance>1||
+            (allowed?!roll(e.roll)||e.success!==(e.roll<e.chance):e.roll!==null||e.chance!==0||e.success))fail();escaped=e.success;
+      }else {itemEvent(e,c,actor,target);continue;}
+      push(e);
+    }
+    // Boundary ticks follow the resolver's stable burn-then-Bomb owner order.
+    if(!escaped&&outcome()==='ongoing')for(const m of state.party.filter(m=>m.hp>0&&m.statuses.includes('burn'))){
+      if(outcome()!=='ongoing')break;const e=take('delayed_effect_tick');
+      if(e.effect!=='burn'||e.ownerId!==m.instanceId||e.targetId!==m.instanceId||e.before!==null||e.after!==null||e.attemptedDamage>20)fail();damage(e,m);push(e);
+    }
+    if(!escaped&&outcome()==='ongoing')for(const f of state.effects){
+      if(outcome()!=='ongoing')break;const b=f.bomb;if(!b||b.appliedRound===r.round)continue;
+      const e=take('delayed_effect_tick'),target=member(b.targetId);if(e.effect!=='bomb'||e.ownerId!==f.actorId||e.targetId!==b.targetId)fail();equal(e.before,b);
+      const next={...b,fuse:b.fuse-1};if((!target.hp||next.fuse>0)&&e.attemptedDamage!==0)fail();damage(e,target);
+      equal(e.after,next.fuse===0||target.hp===0?null:next);f.bomb=clone(e.after);push(e);
+    }
+    const finalOutcome=escaped?'escape':outcome(),boundary=take('outcome');
+    if(boundary.outcome!==finalOutcome||r.outcome!==finalOutcome)fail();revealed=finalOutcome;push(boundary);
+    const end=take('round_end');if(index!==r.events.length-1||end.roundBefore!==r.round-1||end.roundAfter!==r.round||end.outcome!==finalOutcome)fail();equal(end.effectsBefore,state.effects);
+    for(const f of state.effects)if(f.evadeTurns>0&&f.evadeAppliedRound!==r.round)f.evadeTurns--;
+    equal(end.effectsAfter,state.effects);completed=r.round;push(end);equal(state,r.after);
+    const reel=copyFormationData({round:r.round,command:r.command,initiative:r.initiative,order:r.order,eventCount:r.events.length,frameCount:frames.length,frames});
+    reels.add(reel);return reel;
+  };
+  return Object.freeze({create,project(reel,index){
+    if(!reels.has(reel))fail();if(!Number.isSafeInteger(index)||index<0||index>=reel.frameCount)throw new RangeError('Party command playback frame index out of bounds');return reel.frames[index];
+  }});
 })();
 
 // One fail-closed execution policy, used at mutation and presentation boundaries.

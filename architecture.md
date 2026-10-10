@@ -317,8 +317,8 @@ are annotations of the corresponding Item transition, not a second mutation.
 `delayed_effect_tick` names effect, owner, target, before/after effect state and
 damage/HP. Skip/cancel retain `actor_dead`/`target_dead`. A recorded `outcome`
 precedes the final `round_end`, which has before/after count and effect snapshots.
-This is sufficient historical data for a later playback validator; no generalized
-playback is implemented or accepted by the Attack-only playback API.
+The generalized playback validator below consumes this history. The Attack-only
+playback API continues to reject generalized results.
 
 Conditional status evidence is closed and immutable:
 - `curse_check`: `type,actorId,targetId,side,slot,status,round,chance,roll,fumbled`.
@@ -361,6 +361,89 @@ Execution errors retain consumed RNG and mutations, set the existing diagnostic
 fault, and block retry. No rollback, rewards, recovery, save binding, production
 caller, controller/UI/input integration or normal-gameplay route is added.
 `SAVE_VERSION` stays 4. Existing `resolveAttackRound()` results remain unchanged.
+
+### Detached generalized party command playback
+
+`combatPlayerState.createRoundPlayback(result)` validates a completed frozen
+`resolveRound()` history and builds a detached immutable reel.
+`combatPlayerState.projectRoundPlaybackFrame(reel,index)` reads only that reel;
+invalid indices throw `RangeError`, and copied/forged reels reject. Neither API
+has a production caller. The Attack-only playback APIs and their schemas remain
+unchanged. No session, Lab, input, renderer, save or content integration is added.
+
+Reel keys are exactly `round,command,initiative,order,eventCount,frameCount,frames`.
+Frame keys are exactly `round,command,frameIndex,eventIndex,currentEvent,party,
+enemies,inventory,equipment,effects,escapePolicy,bossLocked,complete,outcome,
+completedRounds`. Party/enemy records retain all recorded snapshot fields plus
+`alive` and `defeated` derived from historical HP. Statuses and effective stats
+are embedded in each party record; observation counts in each enemy record;
+Slither ownership is embedded in member effects. Membership remains in original
+slots, including defeated actors and duplicate authored enemy templates.
+
+Frame zero copies `before`, has index 0 / event index −1 / null event, and reports
+`completedRounds = round - 1`. Frame N follows event N−1. There are exactly
+`eventCount + 1` frames; only the final `round_end` frame is complete. Outcome
+remains `ongoing` through damaging/escape events, becomes visible at the recorded
+`outcome` event, and remains available in the final frame. Completed-round count
+and boundary duration changes advance only in the recorded `round_end` frame.
+Repeated and out-of-order projections return the same frozen historical frame.
+
+Creation requires a deeply frozen, data-only tree; it rejects accessors,
+callbacks, custom prototypes, cycles/aliased containers, unknown keys/types,
+unsafe numeric fields, malformed slots/identities and contradictory histories.
+It validates exact commands, living actors/initial targets, Run exclusivity,
+inventory reservations, complete ordered opportunities and weighted-draw records.
+Recorded candidate order, weights, cumulative intervals and selected identities
+must agree with the declared initiative order. No planner or RNG is invoked.
+
+Projection uses recorded values and validates continuity:
+
+- Attack checks exact actor/target, historical life state, HP before/after,
+  applied loss, clamping, critical/evasion types and terminal truncation. It
+  never recomputes attack, defence, critical or evasion formulas.
+- `curse_check` must immediately precede a living Cursed ally's Attack. Its
+  recorded 25% check and fumble flag must agree. A fumble records exactly one
+  attempted damage with neither critical nor evasion; no unused rolls are added.
+- Slither Attack/Observe samples occur exactly once per affected living actor,
+  in slot order before actions. Recorded sample mapping, prior value, owner,
+  round and resulting initiative Speed must agree. Item/Run retain their sample.
+- Item/Equipment events validate their entire `before` against projection, then
+  permit only category-specific changes recorded in `after`. Inventory removal,
+  non-consuming no-ops, gear exchange/return, exact target, loadout owner and
+  effective-stat fields are checked. Healing cannot damage; damage cannot heal;
+  cures cannot add statuses. All unrelated state must remain identical.
+- Status/effect annotation events must immediately match their Item transition;
+  they do not apply it twice. Bullet Time/Bomb ownership and application rounds
+  are retained. No effect function or live equipment mutation is called.
+- Observe checks exact instance, count +1 and unchanged escape state, and copies
+  revealed strings without rereading enemy text.
+- Run checks the selected runner, historical boss/policy lock, fastest living
+  opponent identity, recorded allowed/blocked roll evidence and success flag.
+  It does not recompute the escape formula. Successful Run truncates execution.
+- Dead actors skip; dead committed targets cancel without retargeting or item
+  consumption. No additional reasons are accepted by this resolver contract.
+- Burn/Bomb ticks follow recorded owner order and HP/effect continuity. Bombs
+  retain their target and application exemption; terminal ticks truncate later
+  work. Round end checks one increment and the recorded Bullet Time decrement.
+- Victory requires all enemies dead, defeat all allies dead, escape a successful
+  Run; otherwise outcome is ongoing. Final projection must exactly equal `after`,
+  including inventory, equipment, statuses, effects and observation state.
+
+A frozen vocabulary derived once from the item registry supplies only valid
+IDs, key-item exclusion, effect categories, equipment slots and cure/mud ownership.
+Playback never reads item amounts/bonuses or uses definitions to calculate an
+alternative result. Recorded damage/healing amounts, effective-stat snapshots,
+revealed text and escape probabilities remain evidence, not a second simulation.
+Continuity validation does not cryptographically authenticate an entirely forged
+but internally coherent history.
+
+No live party/enemy/combat state, formulas or effect implementations are read by
+creation or projection. RNG, identities, HP, inventory, statuses, observations,
+round counters, rewards and saves remain unchanged. Reels survive cleanup,
+replacement, subsequent rounds, registry changes and save/load. Suite 172 covers
+authentic mixed-command histories, every selectable item, 1–3 actors per side,
+3v3, malformed histories and isolation. Generalized controller and visible command
+integration remain deferred; `SAVE_VERSION` remains 4.
 
 ### Detached party Attack playback and closed result contract
 
