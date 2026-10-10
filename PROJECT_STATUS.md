@@ -57,7 +57,8 @@ formation schedulers are unchanged.
 fixture members against one to three already-prepared ordinary enemies.
 `resolveRound({type:'party-round', allyActions, enemyActions})` accepts mixed
 Attack, Item and Observe commands, or one whole-party Run. No production caller
-uses either method. The playable Lab, its pair preparation, Attack scheduler,
+prepares this state; only the explicit standard session below calls the resolver.
+The playable Lab, its pair preparation, Attack scheduler,
 controller, playback, input and visible commands are unchanged.
 
 Inventory is a detached shared list of registry item IDs. Equipment and Bullet
@@ -70,7 +71,7 @@ Three ordinary Attack draws and N−1 weighted initiative draws remain unchanged
 Every successful round, including Run and early terminal rounds, counts once.
 
 The new result carries frozen before/after inventory, loadout, status, effect,
-HP and observation snapshots for later generalized playback. Invalid commitments
+HP and observation snapshots for generalized playback. Invalid commitments
 reject before RNG or mutation; unexpected execution errors retain effects and
 lock the preparation. Cursed uses the explicitly approved party-only Curse-first
 rule: one 25% fumble check; a fumble deals 1 damage without variance/critical/evasion
@@ -90,13 +91,14 @@ Suites 170–171 cover these boundaries and all 52 item definitions: all 38
 combat-selectable items retain established semantics, including deliberate no-ops;
 14 key items reject. Both preparation APIs share the same membership, identity,
 HP/status and cleanup authority. The full stable-ID parity matrix is recorded in
-architecture.md and suite 171. Generalized controller/menu integration,
-persistent parties, rewards and recovery remain deferred. No save changes.
+architecture.md and suite 171. Visible command integration, persistent parties,
+rewards and recovery remain deferred. No save changes.
 
 ### Detached generalized command playback
 
 `createRoundPlayback()` / `projectRoundPlaybackFrame()` now validate and project
-frozen mixed-command round results, with no production caller. Frame zero copies
+frozen mixed-command round results for the explicit standard session below.
+Frame zero copies
 the recorded before snapshot; every event adds one immutable historical frame.
 Item/equipment snapshots, status/effect annotations, Curse checks, Slither samples,
 observation, Run and delayed ticks are checked for exact identity and continuity.
@@ -106,8 +108,30 @@ authoritative after snapshot. No formulas, RNG or live combat state are consulte
 
 Suite 172 covers every selectable item, 1–3 members per side, 3v3, malformed
 histories and independence from later rounds/cleanup/replacement/save-load.
-Existing Attack playback is unchanged. Generalized controller, Lab commands,
-input, rendering and gameplay integration remain deferred. No save changes.
+Existing Attack playback is unchanged. Generalized Lab commands, input,
+rendering and gameplay integration remain deferred. No save changes.
+
+### Generalized headless party sessions
+
+`combatPlayerState.session.begin({commandSet:'standard'})` now collects Attack,
+Item, Observe or a whole-party Run for one to three prepared allies/enemies.
+This is an explicit test-only entry mode in the existing session closure; the
+playable Party Lab still uses its unchanged no-argument Attack-only mode.
+
+The controller owns command/item/target cursors, exact runtime-ID drafts, shared
+inventory reservations and deterministic cancellation/backtracking. Normal rounds
+and Run both require separate commitment. Full resolver validation precedes enemy
+target RNG: one draw per living enemy with multiple living allies, none with one.
+One resolver call is immediately followed by one immutable playback creation.
+Frame zero, one-event advancement and separate final acknowledgement are preserved.
+Ongoing acknowledgement restarts at the first living slot; victory/defeat/escape
+retain their historical final frame. Post-RNG faults retain evidence and lock retry.
+
+Standard views expose frozen historical inventory, equipment, statuses, effects,
+Slither ownership, observation and HP throughout playback. Suite 173 covers these
+flows, reservations, all supported party sizes and failure/isolation boundaries.
+No standard-mode production caller, visible commands, input/render integration,
+rewards, recovery, canonical party membership or save changes are added.
 
 ### Detached multi-actor Attack playback
 

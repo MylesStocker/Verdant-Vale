@@ -335,7 +335,9 @@ mutable HP or statuses. Its sidecar owns only local inventory/loadouts/effects
 and encounter bindings. Either initializer rejects existing membership; `clear()`
 removes all party/command/round/session state atomically without touching canonical
 Lely or enemies. Legacy setters and Attack sessions cannot mutate command parties.
-No production caller enters this preparation or generalized resolver.
+No production caller enters this preparation. The explicit standard session below
+is the generalized resolver's sole production-source caller; no gameplay path
+starts that session mode.
 
 Complete combat-item parity audit (stable registry name IDs; suite 171 asserts
 exhaustive coverage and executes each available definition):
@@ -358,8 +360,9 @@ All 38 selectable definitions are supported; all 14 keys reject. No new effects,
 canonical inventory/equipment ownership, items, save fields or content are added.
 
 Execution errors retain consumed RNG and mutations, set the existing diagnostic
-fault, and block retry. No rollback, rewards, recovery, save binding, production
-caller, controller/UI/input integration or normal-gameplay route is added.
+fault, and block retry. No rollback, rewards, recovery, save binding, UI/input
+integration or normal-gameplay route is added. Only the explicit standard session
+below may invoke generalized resolution.
 `SAVE_VERSION` stays 4. Existing `resolveAttackRound()` results remain unchanged.
 
 ### Detached generalized party command playback
@@ -368,8 +371,9 @@ caller, controller/UI/input integration or normal-gameplay route is added.
 `resolveRound()` history and builds a detached immutable reel.
 `combatPlayerState.projectRoundPlaybackFrame(reel,index)` reads only that reel;
 invalid indices throw `RangeError`, and copied/forged reels reject. Neither API
-has a production caller. The Attack-only playback APIs and their schemas remain
-unchanged. No session, Lab, input, renderer, save or content integration is added.
+has a gameplay caller. The standard session below is their sole production-source
+consumer. The Attack-only playback APIs and their schemas remain unchanged. No
+Lab, input, renderer, save or content integration is added.
 
 Reel keys are exactly `round,command,initiative,order,eventCount,frameCount,frames`.
 Frame keys are exactly `round,command,frameIndex,eventIndex,currentEvent,party,
@@ -521,7 +525,102 @@ playback. Cleanup, replacement actors, later rounds and save/load cannot change
 an existing reel. No HP/status writes, round ticks, commands, messages, outcomes,
 flags, inventory, equipment, rewards or saves are changed; `SAVE_VERSION` is 4.
 
-### Gated headless party session
+### Standard headless party command sessions
+
+`combatPlayerState.session.begin({commandSet:'standard'})` explicitly binds fresh
+`initializeCommandParty()` state: one to three fixed ally slots against one to
+three supported enemies. It extends the same private `sessionState` closure and
+single-use resolver permit; it is not another controller or party model. Options
+are closed records. No production caller requests standard mode. No-argument
+`begin()` and every existing Attack-only Lab view, control and rendering contract
+remain unchanged. The two modes reject simultaneous entry and cannot adopt an
+already resolved standalone round.
+
+The standard command order is `attack, item, observe, run`. Its additional API is:
+
+| API | Responsibility |
+| --- | --- |
+| `moveCommand('previous'|'next')` / `confirmCommand()` | Wrap the four commands, then enter targeting, item selection or Run confirmation. |
+| `moveItem('previous'|'next')` / `confirmItem()` | Move a bounded inventory cursor; choose its item and explicit targeting category. |
+| `cancelItem()` | Return to the acting ally's command menu, retaining the item cursor/scroll. |
+| `moveTarget('previous'|'next')` / `confirmTarget()` | Wrap living exact runtime targets in slot order; validate and submit one closed draft. |
+| `cancelTargeting()` | Return to the item list for Item, otherwise to the ally's command menu. |
+
+The existing `submitAttack({actorId,targetId})` is also supported as an exact-ID
+compatibility path in standard mode. All collection/navigation is RNG-free.
+Attack and Observe target living enemies; default selection is the lowest living
+slot, or a still-valid remembered cursor. Beneficial items target living allies,
+defaulting to the actor. Equipment/no-effect self items explicitly target their
+actor; all-enemy items omit a target. Duplicate templates never share identity.
+Observe does not reveal knowledge until authentic round execution.
+
+Normal phases are `awaiting_action -> targeting -> awaiting_action/ready`, or
+`awaiting_action -> item -> targeting -> awaiting_action/ready`. Self/all-enemy
+items can submit directly from `item`. Dead allies are omitted from collection
+without compacting slots. `ready` requires a separate `commitRound()` call.
+Run enters `ready_run`, retaining earlier drafts and reservations until cancelled
+or committed. Backtracking from `ready_run` returns to the same ally's command
+menu with those drafts intact; commitment submits only that runner's action.
+Other living allies remain possible enemy targets.
+
+Items are grouped by stable registry ID in inventory first-appearance order,
+matching existing combat grouping. Each row exposes `itemId,name,total,available,
+usable,targeting`; categories are `ally,enemy,self,all_enemies`. Earlier Item
+drafts reserve quantities, including established non-consuming no-op commitments
+under the resolver's existing reservation rule. Reservations never consume live
+inventory. Zero-available rows remain visible but cannot be selected. Key items
+cannot enter the battle-local preparation, so they never appear. Cursor movement
+clamps at list ends; `itemScroll` retains a three-row window, with no pixel layout.
+
+`backtrack()` first cancels the current targeting/item/Run depth. From `ready`,
+or an ally's command menu with prior drafts, it removes the last draft, releases
+its reservation and restores that ally's exact command/item/target cursor and
+scroll. Targeted drafts reopen targeting; self/all-enemy items reopen the item
+list. From targeting, cancel once to the command menu (twice for Item), then
+backtrack again to edit an earlier ally. The first ally with no draft rejects;
+scenario exit remains an adapter responsibility.
+
+Every operation binds roster references, exact identities, fixed slots and full
+prepared snapshots. The seal includes local inventory, equipment, statuses,
+effects, observation, escape policy and item definitions. Commit reuses the full
+resolver preflight, including aggregate reservations, prospective equipment and
+all possible enemy-target arithmetic, before any target RNG or mutation.
+Enemy actions are generated once in living enemy-slot order: one uniform draw
+per enemy for two/three living allies, zero draws with one living ally. Targets
+are frozen and never retargeted. The standard controller's single call site for
+`resolveRound()` is followed immediately by its single `createRoundPlayback()`
+call. Existing weighted initiative and conditional action RNG remain unchanged.
+
+Commit proceeds synchronously through `resolving` to `playback` frame zero.
+`advancePlayback()` moves one event at a time using generalized historical frames;
+its final frame enters `playback_complete`. Only a separate
+`acknowledgePlayback()` resumes `awaiting_action` at the first surviving slot or
+locks `victory`, `defeat` or `escape`, retaining the final frame. All command and
+cancellation operations reject during unresolved playback and terminal states.
+Post-RNG exceptions retain consumed effects/targets and enter the existing
+`fault` diagnostic phase, recording stage/target draws/completed rounds. No retry,
+refund, automatic cleanup, rewards or recovery occurs.
+
+Standard view keys are `commandSet,phase,nextActorId,currentAlly,commands,
+selectedCommand,commandCursor,pendingCommandType,targetSide,
+selectedTargetInstanceId,validTargetIds,selectedItemId,items,itemCursor,itemScroll,
+allyActions,enemyActions,reservedInventory,ready,party,enemies,inventory,equipment,
+effects,escapePolicy,bossLocked,playbackFrame,frameIndex,frameCount,completedRounds,
+awaitingAcknowledgement,terminalOutcome,failure`. Every nested value is detached
+and frozen. Selection is exposed only in its applicable collection phases.
+During playback/terminal phases all HP, inventory, equipment, statuses, effective
+stats, observation, Slither samples and temporary effects come exclusively from
+`projectRoundPlaybackFrame()`, never from already-final live state. The retained
+frame reveals outcome at its recorded boundary; terminal phase waits for ack.
+
+Suite 173 covers selection, reservations, backtracking, all party sizes, Run,
+exact target RNG, once-only scheduling/playback, historical continuity, stale
+bindings, fault lockout and no external standard-mode callers. Legacy party and
+formation suites continue to assert their original schemas/traces. No input,
+renderer, Lab menus, content, persistent state or save bindings are changed;
+`SAVE_VERSION` remains 4. Visible gameplay still offers Attack-only party combat.
+
+### Gated headless party session (Attack-only mode)
 
 `combatPlayerState.session` is a frozen controller API whose sole production
 caller is the isolated Party Combat Lab below. The controller itself has no input

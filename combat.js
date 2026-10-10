@@ -597,8 +597,8 @@ const combatPlayerState = (() => {
     sequence += installed.length;
     return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});
   };
-  // Explicit-only generalized preparation. The Attack session cannot enter
-  // this authority; it has no controller, playback, Lab or gameplay caller.
+  // Explicit-only generalized preparation. The standard session below owns
+  // its sole headless execution permit; the visible Lab stays Attack-only.
   const commandRounds = (() => {
     const invalid = () => { throw new Error('Unsupported party command state or round'); };
     const safe = n => Number.isSafeInteger(n) && n >= 0;
@@ -650,9 +650,9 @@ const combatPlayerState = (() => {
         return {...d,isBoss:combatEnemyBossAtCreation.get(enemy)};
       });
     };
-    const neutral = () => {
+    const neutral = (allowSession=false) => {
       validateInactiveCombatPreparation();
-      if(sessionState || galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() ||
+      if((sessionState&&(!allowSession||sessionState.commandSet!=='standard')) || galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() ||
           partyCombatLab.isActive() || debugMenu.open || completedSingleVictoryReceipt!==null)invalid();
       const fields=Object.getOwnPropertyDescriptors(combat);
       if(Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([k,v])=>fields[k]?.value!==v) ||
@@ -680,13 +680,13 @@ const combatPlayerState = (() => {
         effects:s.effects.map((effect,slot)=>({actorId:members[slot].instanceId,...effect})),
         escapePolicy:s.escape,bossLocked:s.bossLocked});
     };
-    const inspect = () => {
+    const inspect = (allowTerminal=false,allowSession=false) => {
       const s=commandBattle;
       if(!s || s.roster!==members || s.enemies!==combat.enemies ||
-          (roundState && (roundState.enemies!==s.enemies || roundState.phase!=='ready' ||
-            roundState.outcome!=='ongoing' || roundState.completed>=Number.MAX_SAFE_INTEGER)))invalid();
-      neutral();const enemyData=enemies();
-      if(!members.some(m=>m.hp>0) || !enemyData.some(e=>e.hp>0))invalid();
+          (roundState && (roundState.enemies!==s.enemies || (allowTerminal?!['ready','complete'].includes(roundState.phase):
+            roundState.phase!=='ready'||roundState.outcome!=='ongoing'||roundState.completed>=Number.MAX_SAFE_INTEGER))))invalid();
+      neutral(allowSession);const enemyData=enemies();
+      if(!allowTerminal&&(!members.some(m=>m.hp>0)||!enemyData.some(e=>e.hp>0)))invalid();
       for(const m of members){
         if(!formationBasicStatsValid(view(m)))invalid();
         supportedStatuses(m.statuses);validateSlither(m,s.effects[m.definition.slot]);
@@ -695,8 +695,8 @@ const combatPlayerState = (() => {
       if(JSON.stringify(enemyData)!==s.enemySeal)invalid();
       return {s,enemyData};
     };
-    const prepare = request => {
-      const {s,enemyData}=inspect(),command=dataRecord(request,['type','allyActions','enemyActions']);
+    const prepare = (request,allowSession=false) => {
+      const {s,enemyData}=inspect(false,allowSession),command=dataRecord(request,['type','allyActions','enemyActions']);
       if(command.type!=='party-round')invalid();
       const supplied=array(command.allyActions).map(a=>{
         const type=Object.getOwnPropertyDescriptor(a||{},'type')?.value;
@@ -796,8 +796,12 @@ const combatPlayerState = (() => {
         return view;
       },
       getView() { return commandBattle ? snapshot() : null; },
-      resolve(request) {
-        const {s,enemyData,allyActions,enemyActions,planActors,before}=prepare(request);
+      // Private controller-only read gates; never exported as gameplay APIs.
+      inspectSession(allowTerminal=false) { inspect(allowTerminal,true); return snapshot(); },
+      prepareSession(request) { return prepare(request,true); },
+      itemInfo(id) { return itemSpec(id); },
+      resolve(request,allowSession=false) {
+        const {s,enemyData,allyActions,enemyActions,planActors,before}=prepare(request,allowSession);
         const roster=members,enemyMembers=combat.enemies,events=[],tape=[];
         const exact=()=>{if(members!==roster||combat.enemies!==enemyMembers||combat.active!==false)throw Error('Party command membership changed during execution');};
         const roll=()=>{const n=Math.random();exact();if(!Number.isFinite(n)||n<0||n>=1)throw Error('Invalid party command RNG');return n;};
@@ -962,7 +966,8 @@ const combatPlayerState = (() => {
     const bound=()=>{
       const s=sessionState;
       if(!s || members!==s.roster || combat.enemies!==s.enemies || roundState!==s.roundState)invalid();
-      const current=snapshot(inspectAttackState(true));
+      const current=s.commandSet==='standard'?commandRounds.inspectSession(true):snapshot(inspectAttackState(true));
+      if(s.commandSet==='standard'&&itemSeal(current)!==s.itemSeal)invalid();
       if(JSON.stringify(current)!==JSON.stringify(s.snapshot))invalid();
       return s;
     };
@@ -971,10 +976,109 @@ const combatPlayerState = (() => {
       return bound();
     };
     const livingAllies=s=>s.snapshot.party.filter(m=>m.hp>0);
+    // Standard commands use this same sessionState/roster. These helpers own
+    // navigation and drafts only; commandRounds retains every combat mutation.
+    const commandMenu=Object.freeze(['attack','item','observe','run']);
+    const blankSelection=()=>({commandCursor:0,itemCursor:0,itemScroll:0,pendingType:null,itemId:null,enemyTarget:null,allyTarget:null,targetSide:null});
+    const standardPhase=allowed=>{if(sessionState?.commandSet!=='standard')invalid();return phase(allowed);};
+    const direction=value=>{if(!['previous','next'].includes(value))invalid();return value==='next'?1:-1;};
+    const currentAlly=s=>livingAllies(s)[s.allyActions.length]||null;
+    const itemSeal=snap=>JSON.stringify([...new Set([...snap.inventory,...snap.equipment.flatMap(g=>['weapon','armor','shield','accessory'].map(k=>g[k]).filter(Boolean))])]
+      .map(id=>commandRounds.itemInfo(id).item));
+    const reserved=s=>{
+      const counts=new Map();for(const a of s.allyActions)if(a.type==='item')counts.set(a.itemId,(counts.get(a.itemId)||0)+1);
+      return [...counts].map(([itemId,quantity])=>({itemId,quantity}));
+    };
+    const itemCategory=info=>info.effect==='damage_all'?'all_enemies':['equip','nothing'].includes(info.effect)?'self':
+      ['heal','cure','evade'].includes(info.effect)?'ally':'enemy';
+    const itemEntries=s=>{
+      const rows=[],counts=new Map(),reservations=new Map(reserved(s).map(r=>[r.itemId,r.quantity]));
+      for(const id of s.snapshot.inventory){if(counts.has(id)){rows[counts.get(id)].total++;continue;}
+        const info=commandRounds.itemInfo(id);counts.set(id,rows.length);rows.push({itemId:id,name:info.item.name,total:1,targeting:itemCategory(info)});}
+      return rows.map(row=>({...row,available:row.total-(reservations.get(row.itemId)||0),usable:row.total>(reservations.get(row.itemId)||0)}));
+    };
+    const selectedTarget=s=>s.selection.targetSide==='ally'?s.selection.allyTarget:s.selection.enemyTarget;
+    const targetRows=s=>(s.selection.targetSide==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0);
+    const enterTargets=(s,side)=>{
+      const rows=(side==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0),key=side==='ally'?'allyTarget':'enemyTarget';
+      const fallback=side==='ally'?currentAlly(s).instanceId:rows[0].instanceId;
+      s.selection[key]=rows.some(m=>m.instanceId===s.selection[key])?s.selection[key]:fallback;s.selection.targetSide=side;s.phase='targeting';
+    };
+    const dryRequest=(s,actions)=>({type:'party-round',allyActions:actions,
+      enemyActions:s.snapshot.enemies.filter(e=>e.hp>0).map(e=>({actorId:e.instanceId,targetId:livingAllies(s)[0].instanceId}))});
+    const validateDrafts=(s,actions,complete=false)=>{
+      const filled=actions.slice();if(!complete){const targetId=s.snapshot.enemies.find(e=>e.hp>0).instanceId;
+        for(const m of livingAllies(s).slice(actions.length))filled.push({type:'attack',actorId:m.instanceId,targetId});}
+      return commandRounds.prepareSession(dryRequest(s,filled));
+    };
+    const appendDraft=(s,action)=>{
+      validateDrafts(s,[...s.allyActions,action]);
+      s.draftHistory.push(copyFormationData({phase:s.phase,selection:s.selection}));
+      s.allyActions=copyFormationData([...s.allyActions,action]);s.selection=blankSelection();
+      s.phase=s.allyActions.length===livingAllies(s).length?'ready':'awaiting_action';return getView();
+    };
+    const beginStandard=options=>{
+      const o=attackRecord(options,['commandSet']);if(o.commandSet!=='standard'||sessionState||roundState!==null)invalid();
+      const snap=commandRounds.inspectSession(),allies=snap.party.filter(m=>m.hp>0),enemies=snap.enemies.filter(m=>m.hp>0);
+      commandRounds.prepareSession({type:'party-round',allyActions:allies.map(m=>({type:'attack',actorId:m.instanceId,targetId:enemies[0].instanceId})),
+        enemyActions:enemies.map(e=>({actorId:e.instanceId,targetId:allies[0].instanceId}))});
+      const seal=itemSeal(snap);
+      sessionState={commandSet:'standard',phase:'awaiting_action',roster:members,enemies:combat.enemies,roundState,
+        snapshot:snap,itemSeal:seal,allyActions:Object.freeze([]),enemyActions:Object.freeze([]),draftHistory:[],selection:blankSelection(),
+        playback:null,frameIndex:null,completedRounds:0,failure:null,resolvePermit:false};return getView();
+    };
+    const standardView=s=>{
+      if(!['resolving','fault'].includes(s.phase))bound();
+      const frame=s.playback?combatPlayerState.projectRoundPlaybackFrame(s.playback,s.frameIndex):null,snap=frame||s.snapshot;
+      const choosing=['awaiting_action','item','targeting','ready_run'].includes(s.phase),actor=choosing?currentAlly(s):null;
+      const showingItems=s.phase==='item'||s.phase==='targeting'&&s.selection.pendingType==='item';
+      const rows=showingItems?itemEntries(s):[],selection=s.selection;
+      return copyFormationData({commandSet:'standard',phase:s.phase,nextActorId:actor?.instanceId||null,
+        currentAlly:actor,commands:commandMenu,selectedCommand:choosing?commandMenu[selection.commandCursor]:null,
+        commandCursor:selection.commandCursor,pendingCommandType:['item','targeting','ready_run'].includes(s.phase)?selection.pendingType:null,
+        targetSide:s.phase==='targeting'?selection.targetSide:null,selectedTargetInstanceId:s.phase==='targeting'?selectedTarget(s):null,
+        validTargetIds:s.phase==='targeting'?targetRows(s).map(m=>m.instanceId):[],
+        selectedItemId:showingItems?(s.phase==='item'?rows[selection.itemCursor]?.itemId:selection.itemId)||null:null,
+        items:rows,itemCursor:selection.itemCursor,itemScroll:selection.itemScroll,
+        allyActions:s.allyActions,enemyActions:s.enemyActions,reservedInventory:choosing||s.phase==='ready'?reserved(s):[],
+        ready:['ready','ready_run'].includes(s.phase),
+        party:frame?frame.party:snap.party.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
+        enemies:frame?frame.enemies:snap.enemies.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
+        inventory:snap.inventory,equipment:snap.equipment,effects:snap.effects,escapePolicy:snap.escapePolicy,bossLocked:snap.bossLocked,
+        playbackFrame:frame,frameIndex:s.frameIndex,frameCount:s.playback?.frameCount||0,
+        completedRounds:frame?frame.completedRounds:s.completedRounds,awaitingAcknowledgement:s.phase==='playback_complete',
+        terminalOutcome:['victory','defeat','escape'].includes(s.phase)?s.phase:null,failure:s.failure});
+    };
+    const backtrackStandard=()=>{
+      const s=standardPhase(['awaiting_action','item','targeting','ready','ready_run']);
+      if(s.phase==='targeting'){s.phase=s.selection.pendingType==='item'?'item':'awaiting_action';s.selection.targetSide=null;if(s.phase==='awaiting_action')s.selection.pendingType=null;return getView();}
+      if(['item','ready_run'].includes(s.phase)){s.phase='awaiting_action';s.selection.pendingType=null;return getView();}
+      if(!s.allyActions.length)invalid();
+      const prior=s.draftHistory.pop();s.allyActions=Object.freeze(s.allyActions.slice(0,-1));s.selection={...prior.selection};s.phase=prior.phase;
+      if(s.phase==='targeting')enterTargets(s,s.selection.targetSide);return getView();
+    };
+    const commitStandard=()=>{
+      const s=standardPhase(['ready','ready_run']);if(s.playback||s.frameIndex!==null||s.enemyActions.length)invalid();
+      const actions=s.phase==='ready_run'?[{type:'run',actorId:currentAlly(s).instanceId}]:s.allyActions;
+      validateDrafts(s,actions,true); // complete all validation before target RNG
+      const allies=livingAllies(s),enemies=s.snapshot.enemies.filter(e=>e.hp>0);
+      s.allyActions=copyFormationData(actions);s.phase='resolving';let stage='targets',targetDraws=0;
+      try{
+        for(const enemy of enemies){let target=allies[0];if(allies.length>1){targetDraws++;const roll=Math.random();
+          if(!Number.isFinite(roll)||roll<0||roll>=1)throw Error('Invalid party target RNG value');bound();target=allies[Math.floor(roll*allies.length)];}
+          s.enemyActions=copyFormationData([...s.enemyActions,{actorId:enemy.instanceId,targetId:target.instanceId}]);}
+        const request=copyFormationData({type:'party-round',allyActions:s.allyActions,enemyActions:s.enemyActions});
+        stage='resolve';s.resolvePermit=true;let result;try{result=combatPlayerState.resolveRound(request);}finally{s.resolvePermit=false;}
+        stage='playback';const playback=combatPlayerState.createRoundPlayback(result),after=commandRounds.inspectSession(true);
+        if(JSON.stringify(result.before)!==JSON.stringify(s.snapshot)||JSON.stringify(result.after)!==JSON.stringify(after)||members!==s.roster||combat.enemies!==s.enemies)invalid();
+        s.snapshot=after;s.itemSeal=itemSeal(after);s.roundState=roundState;s.playback=playback;s.frameIndex=0;s.phase='playback';return getView();
+      }catch(error){s.resolvePermit=false;s.phase='fault';s.failure=Object.freeze({stage,targetDraws,completedRounds:roundState?.completed||0});throw error;}
+    };
     const getView=function() {
       if(arguments.length)invalid();
       if(!sessionState)return null;
       const s=sessionState;
+      if(s.commandSet==='standard')return standardView(s);
       if(!['resolving','fault'].includes(s.phase))bound();
       const frame=s.playback?combatPlayerState.projectAttackRoundPlaybackFrame(s.playback,s.frameIndex):null;
       return copyFormationData({phase:s.phase,
@@ -988,7 +1092,8 @@ const combatPlayerState = (() => {
         terminalOutcome:['victory','defeat'].includes(s.phase)?s.phase:null,failure:s.failure});
     };
     return Object.freeze({
-      begin() {
+      begin(options) {
+        if(arguments.length===1)return beginStandard(options);
         if(arguments.length || sessionState || roundState!==null)invalid();
         const prepared=prepare();
         sessionState={phase:'collecting',roster:members,enemies:prepared.enemyMembers,roundState,
@@ -998,6 +1103,14 @@ const combatPlayerState = (() => {
       },
       submitAttack(request) {
         if(arguments.length!==1)invalid();
+        if(sessionState?.commandSet==='standard') {
+          const s=standardPhase(['awaiting_action','targeting']),action=attackRecord(request,['actorId','targetId']);
+          if(s.phase==='targeting'&&s.selection.pendingType!=='attack'||action.actorId!==currentAlly(s).instanceId||
+              !s.snapshot.enemies.some(e=>e.instanceId===action.targetId&&e.hp>0))invalid();
+          const draft={type:'attack',...action};validateDrafts(s,[...s.allyActions,draft]);
+          s.selection.commandCursor=0;s.selection.pendingType='attack';s.selection.enemyTarget=action.targetId;s.selection.targetSide='enemy';s.phase='targeting';
+          return appendDraft(s,draft);
+        }
         const s=phase(['collecting']),action=attackRecord(request,['actorId','targetId']);
         if(typeof action.actorId!=='string' || typeof action.targetId!=='string' ||
             action.actorId!==livingAllies(s)[s.allyActions.length].instanceId ||
@@ -1008,12 +1121,14 @@ const combatPlayerState = (() => {
       },
       backtrack() {
         if(arguments.length)invalid();
+        if(sessionState?.commandSet==='standard')return backtrackStandard();
         const s=phase(['collecting','ready']);if(!s.allyActions.length)invalid();
         s.allyActions=Object.freeze(s.allyActions.slice(0,-1));s.phase='collecting';
         return getView();
       },
       commitRound() {
         if(arguments.length)invalid();
+        if(sessionState?.commandSet==='standard')return commitStandard();
         const s=phase(['ready']);
         if(s.playback || s.frameIndex!==null || s.enemyActions.length)invalid();
         const prepared=prepare(),allies=prepared.partyData.filter(m=>m.hp>0),enemies=prepared.enemyData.filter(m=>m.hp>0);
@@ -1070,10 +1185,47 @@ const combatPlayerState = (() => {
         s.completedRounds=frame.completedRounds;
         if(frame.outcome==='ongoing') {
           s.allyActions=Object.freeze([]);s.enemyActions=Object.freeze([]);
-          s.playback=null;s.frameIndex=null;s.phase='collecting';
+          s.playback=null;s.frameIndex=null;s.phase=s.commandSet==='standard'?'awaiting_action':'collecting';
+          if(s.commandSet==='standard'){s.draftHistory=[];s.selection=blankSelection();}
         } else s.phase=frame.outcome;
         return getView();
       },
+      moveCommand(value) {
+        if(arguments.length!==1)invalid();const s=standardPhase(['awaiting_action']),delta=direction(value);
+        s.selection.commandCursor=(s.selection.commandCursor+delta+commandMenu.length)%commandMenu.length;return getView();
+      },
+      confirmCommand() {
+        if(arguments.length)invalid();const s=standardPhase(['awaiting_action']),type=commandMenu[s.selection.commandCursor];
+        s.selection.pendingType=type;
+        if(type==='item'){const rows=itemEntries(s);s.selection.itemCursor=Math.min(s.selection.itemCursor,Math.max(0,rows.length-1));s.phase='item';}
+        else if(type==='run')s.phase='ready_run';else enterTargets(s,'enemy');return getView();
+      },
+      moveItem(value) {
+        if(arguments.length!==1)invalid();const s=standardPhase(['item']),delta=direction(value),rows=itemEntries(s);
+        s.selection.itemCursor=Math.max(0,Math.min(Math.max(0,rows.length-1),s.selection.itemCursor+delta));
+        s.selection.itemScroll=Math.min(s.selection.itemScroll,s.selection.itemCursor);
+        if(s.selection.itemCursor>=s.selection.itemScroll+3)s.selection.itemScroll=s.selection.itemCursor-2;return getView();
+      },
+      confirmItem() {
+        if(arguments.length)invalid();const s=standardPhase(['item']),row=itemEntries(s)[s.selection.itemCursor];if(!row?.usable)invalid();
+        const actorId=currentAlly(s).instanceId,action={type:'item',actorId,itemId:row.itemId};
+        if(row.targeting==='self')action.targetId=actorId;
+        if(['self','all_enemies'].includes(row.targeting)){
+          validateDrafts(s,[...s.allyActions,action]);s.selection.itemId=row.itemId;return appendDraft(s,action);
+        }
+        s.selection.itemId=row.itemId;enterTargets(s,row.targeting);return getView();
+      },
+      cancelItem() { if(arguments.length)invalid();standardPhase(['item']);return backtrackStandard(); },
+      moveTarget(value) {
+        if(arguments.length!==1)invalid();const s=standardPhase(['targeting']),delta=direction(value),rows=targetRows(s);
+        const i=rows.findIndex(m=>m.instanceId===selectedTarget(s));if(i<0)invalid();
+        s.selection[s.selection.targetSide==='ally'?'allyTarget':'enemyTarget']=rows[(i+delta+rows.length)%rows.length].instanceId;return getView();
+      },
+      confirmTarget() {
+        if(arguments.length)invalid();const s=standardPhase(['targeting']),actorId=currentAlly(s).instanceId,targetId=selectedTarget(s);
+        const action=s.selection.pendingType==='item'?{type:'item',actorId,itemId:s.selection.itemId,targetId}:{type:s.selection.pendingType,actorId,targetId};return appendDraft(s,action);
+      },
+      cancelTargeting() { if(arguments.length)invalid();standardPhase(['targeting']);return backtrackStandard(); },
       getView,
     });
   })();
@@ -1106,6 +1258,12 @@ const combatPlayerState = (() => {
     getCommandView() { return commandRounds.getView(); },
     resolveRound(request) {
       if (arguments.length !== 1) fail();
+      if(sessionState) {
+        if(sessionState.commandSet!=='standard'||sessionState.phase!=='resolving'||!sessionState.resolvePermit)
+          throw new Error('Party session owns round execution');
+        sessionState.resolvePermit=false; // single-use private authorization
+        return commandRounds.resolve(request,true);
+      }
       return commandRounds.resolve(request);
     },
     createAttackRoundPlayback(result) {
