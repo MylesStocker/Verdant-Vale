@@ -9,7 +9,8 @@ scripts without checking this doc.**
 ### Gated player-side combat preparation
 
 `combatPlayerState` in `combat.js` is a transient headless authority whose sole
-initializer is the isolated developer Party Combat Lab. It is orthogonal to enemy
+production preparation caller is the isolated developer Party Combat Lab. A
+separate explicit-only command preparation is documented below. It is orthogonal to enemy
 `combat.mode` (`null` / `single` / `formation`). `getView()` returns `null` with
 no prepared player side/enemies, a frozen `single` snapshot of canonical Lely
 when existing enemy state is installed, or a frozen `party` snapshot after
@@ -174,6 +175,192 @@ explicit cleanup discards transient round state; no payload or version change.
 The detached playback and gated headless session below consume these results.
 UI, broader target AI, content, equipment/inventory policy, rewards and
 effect-duration timing remain deferred. No canonical stats or encounters were added.
+
+### Generalized headless party command authority
+
+`combatPlayerState.initializeCommandParty({members, inventory, escape})` is a
+separate explicit preparation gate, with no production caller. `members` uses
+the same closed descriptor schema/identity allocator as `initialize()`, but
+accepts 1–3 ordered members. `inventory` is a dense detached array of registered
+item-name IDs (duplicates represent quantities); no canonical inventory object
+is accepted or mutated. `escape` is `blocked` or `fastest_living`; an already
+blocked enemy-formation policy cannot be overridden. Initial equipment is empty.
+`getCommandView()` exposes only copied frozen data. `clear()` discards this state
+alongside the existing party authority, without enemy cleanup, rewards or RNG.
+
+This gate requires an inactive, untouched, allowlisted singleton or formation,
+no session/playback/messages/outcomes or active Lab/UI. It validates the entire
+request before allocating party identities. The eight ordinary Attack templates
+remain the enemy allowlist; no enemy capabilities or Receiver coordination are
+introduced. An internal WeakMap captures `isBoss === true` when each enemy
+instance is created. It adds no enumerable enemy field or save metadata. The
+prepared command encounter retains that lock even after the boss dies. Member
+and enemy arrays are bound exactly; external enemy HP/stat/observation edits or
+replaced membership reject. External party HP/status setters are disabled for
+command preparation. Legacy Attack preparation, scheduler, playback and sessions
+cannot accept this expanded state.
+
+Authority audit: canonical `stats`, `statusEffects`, `slitherSpd`, `combat` effects
+and `equipItem()`/`applyStatusCure()` remain the singleton/one-player-formation
+authorities. Those mutating wrappers cannot operate on another ally. The command
+resolver instead owns each member's HP/status array, private registry-ID loadout,
+and timed effects; it shares `formationItemDefinition`, `slotForType`,
+`effectiveAtk`, `healingItemAmount`, `offensiveItemDamage`, `itemCuredStatuses`,
+`attackDamageNumbers`, `attackNumbersAreSafe`, `playerIncomingMitigation`,
+`evadeChance(..., false)`, `getObservationText`, and `speedWinChance`. DEF/SPD
+composition uses the same base/gear/mud arithmetic with explicit member state,
+never the global status readers. No temporary substitution of canonical Lely.
+
+`resolveRound()` accepts this closed request:
+
+```js
+{ type: 'party-round', allyActions: [ /* below */ ],
+  enemyActions: [{ actorId, targetId }] }
+```
+
+Allied actions are exactly `{type:'attack',actorId,targetId}`,
+`{type:'observe',actorId,targetId}`, `{type:'item',actorId,itemId,targetId}`, or
+`{type:'run',actorId}`. Only an established all-enemy item (`Void Shard`) omits
+`targetId`; supplying one there rejects. Healing, cure and Bullet Time explicitly
+target any living ally; equipment and Bait explicitly target their user. Offensive
+items, Bombs, reagents and Trollbane target an exact living enemy. Key items reject.
+Duplicate actors, unknown fields, accessors, prototypes, stale/wrong-side IDs,
+dead actors/initial targets, aggregate overcommit and unsafe arithmetic reject
+before any RNG or mutation. Every living ally/enemy supplies one action, except
+Run supplies exactly one ally and forbids all other allied commands.
+
+Equipment transfers one inventory copy to its user's private slot and returns
+prior gear to shared inventory. Scheduled consumption happens only on execution;
+dead users skip and dead targets cancel without consumption/retargeting. Numeric
+preflight covers possible equipment changes, mud/cleared-status mitigation,
+all opposing attack pairs, inventory commitments, observation-count additions,
+item/delayed damage and cumulative Speed weights before execution. Bait remains
+a non-consuming no-op; unmatched reagents and Trollbane on these unsexed,
+non-regenerating enemies consume with no effect. Full-HP healing and absent-status
+cures retain their established consuming no-effect behavior.
+
+Poison remains a status without a combat tick. The approved generalized-party
+Curse rule intentionally differs from legacy combat: check execution-time Curse
+first (one draw, `< 0.25`). A fumble consumes the action and deals 1 damage without
+variance, critical or evasion rolls; otherwise draw variance, critical and evasion
+in that order. Thus ordinary Attack uses 3 action draws, proceeding Cursed Attack
+4, and a fumble 1. Dead actors/targets skip/cancel before any conditional draw.
+An earlier Amethyst Dust cure suppresses a later Curse check. Singleton and
+one-player Formation retain variance → critical → Curse → evasion, including
+legacy evasion on fumbles; their implementations and captures are unchanged.
+
+Slither ownership preserves existing command-specific timing. An optional closed
+`slither:[{slot,speed}]` preparation field must provide exactly one seed, in slot
+order, for each descriptor carrying Slither. Speeds are safe integers 1–20; no
+seed is allowed for an unaffected member. This represents an already-applied
+status, consumes no RNG and never calls the singleton `triggerSlither()`.
+Each private per-member effect stores `{speed,round,roll,source}`: prepared seeds
+use round 0, null roll and source `prepared`. Before initiative, living allies
+committing Attack or Observe each sample once in stable slot order:
+`floor(draw * 20) + 1`. The sample records the current round and command source.
+Item/Run and non-running allies reuse their prior/application sample; dead actors
+consume no samples. A living actor later killed still retains its planned sample.
+Initiative, evasion and Run all read the same owned Speed without resampling.
+Slither overrides ordinary gear/mud Speed as it does in established combat.
+
+The prospective maximum sampled-weight sum is validated before RNG or mutation.
+New samples precede weighted initiative; later status changes never reorder it.
+There is no Slither application-round exemption or timed expiry in existing
+combat, and no authored Slither cure. Shared cure removal discards sampled state
+when the status is removed (covered by an isolated cure-mapping fixture).
+Whole-preparation cleanup discards it. The allowlisted enemies/items cannot apply
+Slither mid-round; unsupported application capabilities continue to reject.
+Read-only views cannot modify or inject stale samples.
+Muddied affects DEF/SPD, Dazzled affects attack accuracy, Burn ticks once at the
+round boundary. Ember Root respects the existing mud-acquisition gate. No
+enemy applies new statuses. Supported equipment capabilities (defence-cap bypass,
+evade-all and passive protection) never read canonical equipment.
+
+Weighted initiative is the unchanged pure without-replacement planner, using
+start-of-round effective Speed and minimum weight 1. It consumes N−1 draws;
+each ordinary executed Attack consumes variance/critical/evasion draws in that
+order. Curse uses the conditional contract above. Item/Observe have no action RNG;
+Slither Observe still has its pre-initiative sample. Run's participants are the runner and living
+enemies; other allies remain targetable. Allowed Run consumes one success roll
+using the runner's effective Speed against the fastest living enemy (slot order
+breaks ties); blocked/dead-runner Run consumes none. Success truncates with
+`escape`; failed/blocked attempts leave subsequent enemy actions scheduled.
+Boss evidence and blocked encounter policy never unlock through Observe.
+
+One completed sequence advances the existing private completed-round authority
+once. Bullet Time exempts its application round and decrements once at each
+later round end, including early terminal rounds as in Formation. Each user's
+Bomb has its own exact target, fuse, damage, defence policy and application round;
+it exempts application, ticks once after ongoing actions, clears on dead target,
+and never retargets. Re-arming replaces only that user's Bomb. Burn then Bomb
+ticks run in stable owner-slot order; terminal victory/defeat truncates remaining
+actions/ticks. A dead owner does not remove an already-armed Bomb. No duration
+advances per actor or frame. Terminal rounds cannot be retried.
+
+The result is deeply frozen plain data with exact keys
+`round, command, initiative, order, events, outcome, before, after, party, enemies`.
+`initiative` retains the existing weighted-draw schema. Ordered actions retain
+`actorId,targetId,side,slot,spd` and add `commandType`; Run/all-enemy items have a
+null planned target. Outcomes are `ongoing/victory/defeat/escape`. Both snapshots
+contain `party,enemies,inventory,equipment,effects,escapePolicy,bossLocked`.
+Allies include original identity/slot/base stats/statuses plus side and explicit
+effective stats/capabilities; enemies include observation state and boss evidence.
+Gear/effects bind exact actor IDs. Final `party/enemies` duplicate the final
+snapshot values for inspection, never live records.
+
+Closed events (suites 170–171 assert exact keys): Attack retains damage/HP/crit/evade
+fields plus ordered-action fields. Item/Equipment add item ID, effect category,
+consumption and complete before/after snapshots. Observe adds before/after count,
+unchanged escape flags and revealed lines. Run adds allowed/opponent/chance/roll/
+success. Status and effect records explicitly describe application deltas; these
+are annotations of the corresponding Item transition, not a second mutation.
+`delayed_effect_tick` names effect, owner, target, before/after effect state and
+damage/HP. Skip/cancel retain `actor_dead`/`target_dead`. A recorded `outcome`
+precedes the final `round_end`, which has before/after count and effect snapshots.
+This is sufficient historical data for a later playback validator; no generalized
+playback is implemented or accepted by the Attack-only playback API.
+
+Conditional status evidence is closed and immutable:
+- `curse_check`: `type,actorId,targetId,side,slot,status,round,chance,roll,fumbled`.
+  It immediately precedes the corresponding Attack; that Attack supplies exact
+  HP/damage evidence. A fumble is distinct from evasion or cancellation.
+- `slither_sample`: `type,actorId,side,slot,status,round,commandType,roll,
+  speedBefore,speedAfter`. Samples precede initiative/action events; final effect
+  snapshots retain the sample and its ownership. Playback must never reroll them.
+
+`initialize()` and `initializeCommandParty()` both use private `members`,
+`prepareMembers()`, `installMembers()`, and the same identity sequence and round
+state. `commandBattle.roster` references those exact members, with no copied
+mutable HP or statuses. Its sidecar owns only local inventory/loadouts/effects
+and encounter bindings. Either initializer rejects existing membership; `clear()`
+removes all party/command/round/session state atomically without touching canonical
+Lely or enemies. Legacy setters and Attack sessions cannot mutate command parties.
+No production caller enters this preparation or generalized resolver.
+
+Complete combat-item parity audit (stable registry name IDs; suite 171 asserts
+exhaustive coverage and executes each available definition):
+
+| Category | IDs | Generalized party behavior |
+| --- | --- | --- |
+| Healing | Potion; Elixir; Mushroom Wine; River Smelt; Canal Eel; Ember Root | Existing capped healing on a living ally; Ember Root preserves gated mud application. |
+| Cure | Reed Remedy; Amethyst Dust | Shared poison/Curse cure properties; no matching status still consumes. |
+| Temporary effect | Bullet Time | Selected ally owns evasion and three-round duration, application exempt. |
+| Immediate damage | Sapper Charge; Throwing Knife | Exact enemy; existing defence/minimum-damage rules. |
+| All-enemy damage | Void Shard | No selected target; simultaneous damage to living enemies. |
+| Delayed damage | Bomb | User-owned fuse bound to exact enemy; application exempt. |
+| Equipment | Bronze Knife; Iron Sword; Leather Armor; Steel Sword; Iron Shield; Swift Bangle; Battle Axe; Dragon Blade; Shadow Cloak; Mithril Shield; Wraithband; Warden Blade; Resonant Targe; Fen Mask; EvadeAll; Cat Armor; Old Boot; Fen Cowl; Bottle of Mushroom Wine; Case of Mushroom Wine; Amethyst Bangle | Acting ally equips; prior gear returns to local shared inventory. Existing stat/capability definitions remain authoritative. |
+| Reagent | Henbane Sprig; Jackbane Vial | Consumed with no effect on supported unsexed templates, as established. |
+| Compatibility-specific | Trollbane | Consumed with no effect on supported non-regenerating templates. |
+| No effect | Bait | Non-consuming no-op. |
+| Unavailable key | Old Fishing Rod; Fen Angler's Rod; Waxwood Rod; Sealed Letter; Warp Stone; Thank-You Note; Schilling; Cat-Shaped Key; Letter from Netto; Dispatch Letter; Doctor's Letter; The Drowned's Gift; Old Engagement Ring; Stashed Gem | Excluded from combat inventory; preparation/commands reject. |
+
+All 38 selectable definitions are supported; all 14 keys reject. No new effects,
+canonical inventory/equipment ownership, items, save fields or content are added.
+
+Execution errors retain consumed RNG and mutations, set the existing diagnostic
+fault, and block retry. No rollback, rewards, recovery, save binding, production
+caller, controller/UI/input integration or normal-gameplay route is added.
+`SAVE_VERSION` stays 4. Existing `resolveAttackRound()` results remain unchanged.
 
 ### Detached party Attack playback and closed result contract
 

@@ -23,7 +23,7 @@ are not reused. Saves exclude the authority entirely (`SAVE_VERSION` 4): saving
 preparation is refused and successful load discards it after validation.
 
 The scheduler increment below supplies explicit headless Attack commands.
-The session below collects headless Attack commands. Canonical UI, inventory/equipment policy,
+The session below collects headless Attack commands. Canonical UI, persistent inventory/equipment policy,
 persistent roster, Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
 The focused regression suite uses only local fixtures; no canon or content was
 added. The only browser-visible route is the backtick Party Combat Lab described below.
@@ -37,7 +37,7 @@ replacement use snapshotted effective Speed (minimum weight 1 for legal zero),
 with exactly N−1 rolls for N living actors. Safe cumulative weights validate before
 RNG; the final actor costs no draw. Immutable draw records expose the weights and
 selected intervals. Deterministic and seeded statistical tests cover 2–6 actors,
-including synthetic 3v3; prepared parties still have exactly two allies.
+including synthetic 3v3; this compatibility preparation still has exactly two allies.
 Each executing attack uses three further rolls and existing damage/evasion arithmetic with
 that actor's own stats. Death skips, dead-target cancellations and terminal
 truncation never retarget. One completed sequence advances one private round.
@@ -45,10 +45,53 @@ Returned plans, events and final snapshots are detached and deeply immutable.
 
 The gated headless session below is the only scheduler caller; its only UI is the
 isolated developer Lab, never an encounter entry. The ordinary eight-template formation subset is supported; the Receiver and bespoke
-mechanics are excluded. Items, statuses/effects, rewards, recovery, equipment and
-inventory policy remain deferred. All existing gameplay/saving guards remain;
+mechanics are excluded. This compatibility path remains Attack-only; the separate
+headless command authority below owns temporary inventory/effects. Rewards,
+recovery and persistent equipment/inventory policy remain deferred. All existing gameplay/saving guards remain;
 `SAVE_VERSION` is 4 and no round data is serialized. Existing singleton and
 formation schedulers are unchanged.
+
+### Generalized headless party commands
+
+`initializeCommandParty({members, inventory, escape})` prepares one to three
+fixture members against one to three already-prepared ordinary enemies.
+`resolveRound({type:'party-round', allyActions, enemyActions})` accepts mixed
+Attack, Item and Observe commands, or one whole-party Run. No production caller
+uses either method. The playable Lab, its pair preparation, Attack scheduler,
+controller, playback, input and visible commands are unchanged.
+
+Inventory is a detached shared list of registry item IDs. Equipment and Bullet
+Time belong to the selected member (equipment must target its user); each user's
+Bomb binds an exact enemy and ticks once per round. Items reuse existing registry,
+classification, healing, damage and cure authorities. Observe uses authored text
+and exact enemy-instance progress. Run schedules only its chosen runner and living
+enemies; encounter-time boss evidence and existing escape policy block escape.
+Three ordinary Attack draws and N−1 weighted initiative draws remain unchanged.
+Every successful round, including Run and early terminal rounds, counts once.
+
+The new result carries frozen before/after inventory, loadout, status, effect,
+HP and observation snapshots for later generalized playback. Invalid commitments
+reject before RNG or mutation; unexpected execution errors retain effects and
+lock the preparation. Cursed uses the explicitly approved party-only Curse-first
+rule: one 25% fumble check; a fumble deals 1 damage without variance/critical/evasion
+rolls, while a proceeding Attack uses those three rolls afterward. Singleton and
+one-player Formation Curse behavior remains unchanged. Checks use execution-time
+status, so an earlier cure removes the later check.
+
+Slither has one private sampled Speed per affected member. Preparation supplies
+validated existing samples via optional `slither:[{slot,speed}]` (1–20). Attack and
+Observe resample once in stable ally-slot order before initiative; Item, Run and
+passive allies retain their stored sample, matching existing command timing.
+Initiative, evasion and Run share that owned value. There is no authored Slither
+cure or timed expiry; cleanup discards it. No supported enemy/item applies Slither
+mid-round. Results record samples and Curse checks as frozen historical evidence.
+
+Suites 170–171 cover these boundaries and all 52 item definitions: all 38
+combat-selectable items retain established semantics, including deliberate no-ops;
+14 key items reject. Both preparation APIs share the same membership, identity,
+HP/status and cleanup authority. The full stable-ID parity matrix is recorded in
+architecture.md and suite 171. Generalized playback/controller/menu integration,
+persistent parties, rewards and recovery remain deferred. No save changes.
 
 ### Detached multi-actor Attack playback
 

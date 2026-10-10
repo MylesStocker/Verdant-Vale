@@ -334,6 +334,8 @@ function itemStatParen(item) {
 // ─── Combat state ─────────────────────────────────────────────────────────────
 // Session-only identity; template ids still own all data/sprite/behavior dispatch.
 let combatEnemyInstanceSequence = 0;
+// Immutable encounter-time boss evidence, outside legacy enumerable snapshots.
+const combatEnemyBossAtCreation = new WeakMap();
 let combatMode = null;
 let combatActive = false;
 // Provenance only, not another outcome authority. Issued after the ordinary
@@ -433,6 +435,7 @@ const combatPlayerState = (() => {
   let sequence = 0;
   let roundState = null; // party-only boundary; enemy round accounting stays untouched
   let sessionState = null; // gated headless controller; no canonical gameplay caller
+  let commandBattle = null; // separate, explicit headless command preparation
   const fail = () => { throw new Error('Invalid player-party preparation or member state'); };
   const fields = ['characterId','slot','name','hp','maxHp','atk','def','spd','statuses'];
   const record = value => {
@@ -466,7 +469,7 @@ const combatPlayerState = (() => {
     return members?.find(member => member.instanceId === instanceId) || null;
   };
   const editable = instanceId => {
-    if (combat.active !== false || roundState?.phase === 'resolving' || sessionState) fail();
+    if (combat.active !== false || roundState?.phase === 'resolving' || sessionState || commandBattle) fail();
     const member = exactMember(instanceId);
     if (!member) fail();
     return member;
@@ -483,6 +486,7 @@ const combatPlayerState = (() => {
     return {...Object.fromEntries(keys.map(key=>[key,fields[key].value]))};
   };
   const inspectAttackState=(allowTerminal=false)=>{
+    if (commandBattle) rejectAttack(); // generalized state never enters legacy playback/session
     if (!members || (roundState && (roundState.enemies!==combat.enemies ||
         (allowTerminal ? !['ready','complete'].includes(roundState.phase) :
           roundState.phase!=='ready' || roundState.outcome!=='ongoing' || roundState.completed>=Number.MAX_SAFE_INTEGER)))) rejectAttack();
@@ -554,6 +558,385 @@ const combatPlayerState = (() => {
     partyInitiativeWeights(planActors);
     return {enemyMembers,enemyData,partyData,allyActions,enemyActions,planActors};
   };
+  const prepareMembers = (descriptors, minimum, maximum) => {
+    if (members) fail();
+    validateInactiveCombatPreparation();
+    if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open ||
+        !Number.isFinite(stats.hp) || stats.hp <= 0) fail();
+    // Only an empty enemy side or an untouched inactive preparation is
+    // eligible. Dead/ambiguous membership may represent an unresolved outcome.
+    if (!Object.isFrozen(combat.enemies) ||
+        (combat.mode === null ? combat.enemies.length !== 0 :
+          combat.mode === 'single' ? combat.enemies.length !== 1 :
+          combat.mode !== 'formation' || ![2,3].includes(combat.enemies.length)) ||
+        combat.enemies.some((enemy,slot) => !formationBasicStatsValid(enemy) || enemy.hp === 0 ||
+          enemy.slot !== slot || typeof enemy.instanceId !== 'string')) fail();
+    const state = Object.getOwnPropertyDescriptors(combat);
+    if (Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value]) => state[key]?.value !== value) ||
+        array(state.messageQueue?.value).length || completedSingleVictoryReceipt !== null) fail();
+    const round = formationRounds.getView();
+    if (round && (round.completedRounds || round.awaitingPlayback || round.outcome !== 'ongoing')) fail();
+    const candidates = array(descriptors).map(record);
+    if (candidates.length < minimum || candidates.length > maximum || sequence > Number.MAX_SAFE_INTEGER-candidates.length) fail();
+    for (const [slot, member] of candidates.entries()) {
+      if (member.slot !== slot || typeof member.characterId !== 'string' ||
+          !/^[a-z][a-z0-9_]*$/.test(member.characterId) || member.characterId === 'player' ||
+          typeof member.name !== 'string' || !member.name.trim() ||
+          !['hp','maxHp','atk','def','spd'].every(key => Number.isSafeInteger(member[key]) && member[key] >= 0) ||
+          member.maxHp === 0 || member.hp > member.maxHp) fail();
+      member.statuses = statuses(member.statuses);
+    }
+    if (new Set(candidates.map(member => member.characterId)).size !== candidates.length) fail();
+    return candidates;
+  };
+  const installMembers = candidates => {
+    const installed = candidates.map(({hp,statuses,...definition},slot) => ({
+      definition:Object.freeze(definition),instanceId:'combat_party_'+(sequence+slot+1),hp,statuses,
+    }));
+    members = Object.freeze(installed);
+    sequence += installed.length;
+    return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});
+  };
+  // Explicit-only generalized preparation. The Attack session cannot enter
+  // this authority; it has no controller, playback, Lab or gameplay caller.
+  const commandRounds = (() => {
+    const invalid = () => { throw new Error('Unsupported party command state or round'); };
+    const safe = n => Number.isSafeInteger(n) && n >= 0;
+    const slots = ['weapon','armor','shield','accessory'];
+    const dataRecord = (v,keys) => attackRecord(v,keys);
+    const supportedStatuses = v => statuses(v);
+    const slitherSpeedValid = n => Number.isSafeInteger(n) && n>=1 && n<=20;
+    const validateSlither = (member,effect) => {
+      if(!member.statuses.includes('slither')) {
+        if(Object.hasOwn(effect,'slither'))invalid();
+        return;
+      }
+      const sample=dataRecord(effect.slither,['speed','round','roll','source']);
+      if(!slitherSpeedValid(sample.speed) || !safe(sample.round) || sample.round>(roundState?.completed||0) ||
+          (sample.source==='prepared' ? sample.round!==0||sample.roll!==null :
+            !['attack','observe'].includes(sample.source)||sample.round===0||
+            !Number.isFinite(sample.roll)||sample.roll<0||sample.roll>=1||Math.floor(sample.roll*20)+1!==sample.speed))invalid();
+    };
+    const itemSpec = id => {
+      const spec=formationItemDefinition(id), item=spec.item;
+      for(const key of ['bonus','heals','damage','minDamage','fuse','evadeTurns','stunTurns'])
+        if(Object.hasOwn(item,key) && !safe(item[key])) invalid();
+      if(spec.effect==='evade' && (item.evadeRate!==BULLET_TIME_EVADE_RATE || !item.evadeTurns)) invalid();
+      return spec;
+    };
+    const enemies = () => {
+      const list=array(combat.enemies);
+      if(!Object.isFrozen(combat.enemies) || (combat.mode==='single' ? list.length!==1 :
+          combat.mode!=='formation' || ![2,3].includes(list.length))) invalid();
+      const round=formationRounds.getView();
+      if(combat.mode==='formation' ? !round || round.completedRounds || round.awaitingPlayback ||
+          round.outcome!=='ongoing' || formationRounds.coordination()!==null : round!==null) invalid();
+      return list.map((enemy,slot)=>{
+        const keys=[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked'];
+        if(Object.hasOwn(enemy,'isBoss'))keys.push('isBoss');
+        const d=dataRecord(enemy,keys), p=Object.getOwnPropertyDescriptors(enemy);
+        if(!PARTY_ATTACK_TEMPLATE_IDS.includes(d.id) || !formationBasicStatsValid(d) || d.slot!==slot ||
+            typeof d.name!=='string' || !/^combat_enemy_[1-9]\d*$/.test(d.instanceId) ||
+            !['xp','goldMin','goldMax','observeCount'].every(k=>safe(d[k])) || d.escapeUnlocked!==false ||
+            p.hp.writable!==true || p.observeCount.writable!==true || p.instanceId.writable!==false ||
+            p.instanceId.configurable!==false || p.slot.writable!==false || p.slot.configurable!==false ||
+            (Object.hasOwn(d,'isBoss') && typeof d.isBoss!=='boolean') || !combatEnemyBossAtCreation.has(enemy)) invalid();
+        // Authored template capabilities remain as restricted as Attack-only.
+        const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,d.id)?.value;
+        const templateKeys=[...FORMATION_STATE_DATA_FIELDS];
+        if(template && Object.hasOwn(template,'isBoss'))templateKeys.push('isBoss');
+        const t=dataRecord(template,templateKeys);
+        if(!formationBasicStatsValid(t))invalid();
+        return {...d,isBoss:combatEnemyBossAtCreation.get(enemy)};
+      });
+    };
+    const neutral = () => {
+      validateInactiveCombatPreparation();
+      if(sessionState || galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() ||
+          partyCombatLab.isActive() || debugMenu.open || completedSingleVictoryReceipt!==null)invalid();
+      const fields=Object.getOwnPropertyDescriptors(combat);
+      if(Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([k,v])=>fields[k]?.value!==v) ||
+          array(fields.messageQueue?.value).length || Reflect.ownKeys(fields).some(k=>
+            ![...Object.keys(FORMATION_NEUTRAL_COMBAT_STATE),'mode','active','enemy','enemies','observeCount',
+              'escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(k)))invalid();
+    };
+    const equipment = (s,slot) => Object.fromEntries(slots.map(k=>[k,s.loadouts[slot][k]===null?null:itemSpec(s.loadouts[slot][k]).item]));
+    const effective = (member,gear,statusList=member.statuses) => {
+      const base=member.definition;
+      const atk=effectiveAtk({...base,...gear});
+      const rawDef=base.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0);
+      const rawSpd=base.spd+(gear.accessory?.bonus||0);
+      if(![atk,rawDef,rawSpd].every(safe))invalid();
+      return {atk,def:Math.max(0,rawDef-(statusList.includes('muddied')?1:0)),
+        spd:statusList.includes('slither') ? commandBattle.effects[base.slot].slither.speed :
+          Math.max(1,rawSpd-(statusList.includes('muddied')?2:0)),
+        defenseCapBypass:gear.armor?.defenseCapBypass===true,evadeAll:gear.accessory?.evadeAll===true};
+    };
+    const snapshot = () => {
+      const s=commandBattle;
+      return copyFormationData({party:members.map(m=>({...view(m),side:'ally',effective:effective(m,equipment(s,m.definition.slot))})),
+        enemies:enemies().map(e=>({...e,side:'enemy'})),inventory:s.inventory,
+        equipment:s.loadouts.map((gear,slot)=>({actorId:members[slot].instanceId,...gear})),
+        effects:s.effects.map((effect,slot)=>({actorId:members[slot].instanceId,...effect})),
+        escapePolicy:s.escape,bossLocked:s.bossLocked});
+    };
+    const inspect = () => {
+      const s=commandBattle;
+      if(!s || s.roster!==members || s.enemies!==combat.enemies ||
+          (roundState && (roundState.enemies!==s.enemies || roundState.phase!=='ready' ||
+            roundState.outcome!=='ongoing' || roundState.completed>=Number.MAX_SAFE_INTEGER)))invalid();
+      neutral();const enemyData=enemies();
+      if(!members.some(m=>m.hp>0) || !enemyData.some(e=>e.hp>0))invalid();
+      for(const m of members){
+        if(!formationBasicStatsValid(view(m)))invalid();
+        supportedStatuses(m.statuses);validateSlither(m,s.effects[m.definition.slot]);
+      }
+      // Reject external enemy replacement/stat/HP/observation edits between rounds.
+      if(JSON.stringify(enemyData)!==s.enemySeal)invalid();
+      return {s,enemyData};
+    };
+    const prepare = request => {
+      const {s,enemyData}=inspect(),command=dataRecord(request,['type','allyActions','enemyActions']);
+      if(command.type!=='party-round')invalid();
+      const supplied=array(command.allyActions).map(a=>{
+        const type=Object.getOwnPropertyDescriptor(a||{},'type')?.value;
+        const spec=type==='item'?itemSpec(Object.getOwnPropertyDescriptor(a,'itemId')?.value):null;
+        const keys=type==='run'?['type','actorId']:type==='item'?['type','actorId','itemId',...(spec.effect==='damage_all'?[]:['targetId'])]:
+          ['attack','observe'].includes(type)?['type','actorId','targetId']:null;
+        if(!keys)invalid();return dataRecord(a,keys);
+      });
+      const living=members.filter(m=>m.hp>0),run=supplied.length===1&&supplied[0].type==='run';
+      if(!supplied.length || (!run&&supplied.length!==living.length) ||
+          new Set(supplied.map(a=>a.actorId)).size!==supplied.length ||
+          supplied.some(a=>typeof a.actorId!=='string'||!living.some(m=>m.instanceId===a.actorId)||(!run&&a.type==='run')))invalid();
+      const allyActions=living.map(m=>supplied.find(a=>a.actorId===m.instanceId)).filter(Boolean);
+      const reserved=new Map(),observed=new Map();
+      for(const a of allyActions) {
+        const actor=exactMember(a.actorId);
+        if(a.type==='run')continue;
+        const target=members.find(m=>m.instanceId===a.targetId)||enemyData.find(e=>e.instanceId===a.targetId);
+        const spec=a.type==='item'?itemSpec(a.itemId):null;
+        if(!spec || spec.effect!=='damage_all') {
+          if(typeof a.targetId!=='string'||!target||target.hp===0)invalid();
+          const allyTarget=members.includes(target);
+          if(spec ? ['heal','cure','evade','equip','nothing'].includes(spec.effect)!==allyTarget : allyTarget)invalid();
+          if(spec && ['equip','nothing'].includes(spec.effect) && target!==actor)invalid();
+        }
+        if(a.type==='observe') {
+          const count=(observed.get(a.targetId)||0)+1;observed.set(a.targetId,count);
+          if(!safe(target.observeCount+count))invalid();
+          const lines=copyFormationData(getObservationText(target,target.observeCount+count-1));
+          if(!Array.isArray(lines)||lines.some(line=>typeof line!=='string'))invalid();
+        }
+        if(spec) reserved.set(a.itemId,(reserved.get(a.itemId)||0)+1);
+      }
+      for(const [id,count]of reserved)if(s.inventory.filter(item=>item===id).length<count)invalid();
+      const suppliedEnemies=array(command.enemyActions).map(a=>dataRecord(a,['actorId','targetId']));
+      const livingEnemies=enemyData.filter(e=>e.hp>0);
+      if(suppliedEnemies.length!==livingEnemies.length || new Set(suppliedEnemies.map(a=>a.actorId)).size!==suppliedEnemies.length ||
+          suppliedEnemies.some(a=>typeof a.actorId!=='string'||typeof a.targetId!=='string'||
+            !livingEnemies.some(e=>e.instanceId===a.actorId)||!living.some(m=>m.instanceId===a.targetId)))invalid();
+      const enemyActions=livingEnemies.map(e=>suppliedEnemies.find(a=>a.actorId===e.instanceId));
+      const planActors=[...allyActions.map(a=>({actorId:a.actorId,targetId:a.targetId??null,side:'ally',
+        slot:exactMember(a.actorId).definition.slot,spd:effective(exactMember(a.actorId),equipment(s,exactMember(a.actorId).definition.slot)).spd,commandType:a.type})),
+        ...enemyActions.map(a=>{const e=enemyData.find(e=>e.instanceId===a.actorId);return {...a,side:'enemy',slot:e.slot,spd:e.spd,commandType:'attack'};})];
+      partyInitiativeWeights(planActors);
+      // A sample may increase a Slither actor's weight to 20. Validate that
+      // whole prospective sum now, before any status/initiative draw or write.
+      partyInitiativeWeights(planActors.map(a=>({...a,spd:a.side==='ally' &&
+        exactMember(a.actorId).statuses.includes('slither') && ['attack','observe'].includes(a.commandType)?20:a.spd})));
+      // Cover all possible equipment and mud/cure states before initiative.
+      // Effects may change mitigation within this round; no unsafe endpoint is
+      // hidden by a minimum-damage clamp or a likely initiative order.
+      for(const member of living) {
+        const gears=[equipment(s,member.definition.slot)],action=allyActions.find(a=>a.actorId===member.instanceId);
+        if(action?.type==='item') {const spec=itemSpec(action.itemId);if(spec.effect==='equip')gears.push({...gears[0],[slotForType(spec.item.type)]:spec.item});}
+        for(const gear of gears)for(const statusList of [member.statuses,[],['muddied']]) {
+          const p=effective(member,gear,statusList);
+          for(const enemy of livingEnemies) {
+            if(!safe(Math.max(1,p.spd)+Math.max(1,enemy.spd)) || !attackNumbersAreSafe(p.atk,enemy.def) ||
+                !attackNumbersAreSafe(enemy.atk,playerIncomingMitigation(enemy.atk,p.def,p.defenseCapBypass)))invalid();
+          }
+        }
+      }
+      for(const id of reserved.keys()) {
+        const spec=itemSpec(id);
+        if(['damage','damage_all','bomb'].includes(spec.effect) && livingEnemies.some(e=>!safe(offensiveItemDamage(spec.item,e))))invalid();
+      }
+      for(const effect of s.effects)if(effect.bomb && enemyData.some(e=>e.instanceId===effect.bomb.targetId&&!safe(offensiveItemDamage(effect.bomb,e))))invalid();
+      const before=snapshot();
+      return {s,enemyData,allyActions,enemyActions,planActors,before};
+    };
+    return Object.freeze({
+      initialize(request) {
+        if(members||commandBattle||roundState||sessionState)invalid();
+        const data=dataRecord(request,['members','inventory','escape',...(Object.hasOwn(request||{},'slither')?['slither']:[])]);
+        if(!['blocked','fastest_living'].includes(data.escape))invalid();
+        neutral();const enemyData=enemies();
+        const candidates=prepareMembers(data.members,1,3);
+        if(!candidates.some(m=>m.hp>0))invalid();
+        candidates.forEach(m=>supportedStatuses(m.statuses));
+        const inventory=array(data.inventory);
+        inventory.forEach(id=>itemSpec(id));
+        const loadouts=candidates.map(()=>({weapon:null,armor:null,shield:null,accessory:null}));
+        const effects=candidates.map(()=>({evadeTurns:0,evadeAppliedRound:0,bomb:null}));
+        // This seed represents an already-applied status (including its
+        // existing sample), not a new application or a hidden initialization
+        // roll. Ordinary callers retain the original closed request schema.
+        const seeds=Object.hasOwn(data,'slither')?array(data.slither).map(v=>dataRecord(v,['slot','speed'])):[];
+        const affected=candidates.filter(m=>m.statuses.includes('slither'));
+        if(seeds.length!==affected.length || seeds.some((v,i)=>v.slot!==affected[i].slot||!slitherSpeedValid(v.speed)) ||
+            (Object.hasOwn(data,'slither')&&!affected.length))invalid();
+        for(const seed of seeds)effects[seed.slot].slither={speed:seed.speed,round:0,roll:null,source:'prepared'};
+        const bossLocked=combat.enemies.some(e=>combatEnemyBossAtCreation.get(e));
+        const escape=combat.mode==='formation'&&formationRounds.getView().escapePolicy==='blocked'?'blocked':data.escape;
+        // Everything above is read-only. Commit cannot run caller code.
+        const view=installMembers(candidates);
+        commandBattle={roster:members,enemies:combat.enemies,inventory,loadouts,effects,bossLocked,escape,enemySeal:JSON.stringify(enemyData)};
+        return view;
+      },
+      getView() { return commandBattle ? snapshot() : null; },
+      resolve(request) {
+        const {s,enemyData,allyActions,enemyActions,planActors,before}=prepare(request);
+        const roster=members,enemyMembers=combat.enemies,events=[],tape=[];
+        const exact=()=>{if(members!==roster||combat.enemies!==enemyMembers||combat.active!==false)throw Error('Party command membership changed during execution');};
+        const roll=()=>{const n=Math.random();exact();if(!Number.isFinite(n)||n<0||n>=1)throw Error('Invalid party command RNG');return n;};
+        const live=id=>roster.find(m=>m.instanceId===id)||enemyMembers.find(e=>e.instanceId===id);
+        const ally=m=>roster.includes(m);
+        const values=m=>ally(m)?effective(m,equipment(s,m.definition.slot)):m;
+        const terminal=()=>enemyMembers.every(m=>m.hp===0)?'victory':roster.every(m=>m.hp===0)?'defeat':'ongoing';
+        roundState={completed:roundState?.completed||0,enemies:enemyMembers,phase:'resolving',outcome:'ongoing',failure:null};
+        const round=roundState.completed+1;
+        try {
+          // Singleton/Formation timing: Attack and Observe resample; Item,
+          // Run and passive allies retain the sample from application/a prior
+          // turn. Slot order is deterministic; no enemy supports Slither.
+          for(const planned of planActors.filter(a=>a.side==='ally')) {
+            const actor=live(planned.actorId);
+            if(!actor.statuses.includes('slither') || !['attack','observe'].includes(planned.commandType))continue;
+            const effect=s.effects[planned.slot],speedBefore=effect.slither.speed,draw=roll(),speedAfter=Math.floor(draw*20)+1;
+            effect.slither={speed:speedAfter,round,roll:draw,source:planned.commandType};
+            planned.spd=speedAfter;
+            events.push({type:'slither_sample',actorId:actor.instanceId,side:'ally',slot:planned.slot,status:'slither',
+              round,commandType:planned.commandType,roll:draw,speedBefore,speedAfter});
+          }
+          let plan=planPartyAttackOrder(planActors,tape);
+          while(!plan.complete){tape.push(roll());plan=planPartyAttackOrder(planActors,tape);}
+          let outcome='ongoing';
+          for(const planned of plan.order) {
+            exact();const actor=live(planned.actorId),target=planned.targetId===null?null:live(planned.targetId);
+            if(!actor||(planned.targetId!==null&&!target))throw Error('Party command lost exact identity');
+            if(actor.hp===0){events.push({type:'skip',...planned,reason:'actor_dead'});continue;}
+            if(target?.hp===0){events.push({type:'cancel',...planned,reason:'target_dead'});continue;}
+            const action=planned.side==='ally'?allyActions.find(a=>a.actorId===planned.actorId):{type:'attack'};
+            if(action.type==='attack') {
+              const a=values(actor),t=values(target),hpBefore=target.hp;
+              const defense=ally(target)?playerIncomingMitigation(a.atk,t.def,t.defenseCapBypass):t.def;
+              // Explicitly approved party-only rule: Curse first. A fumble
+              // deals one damage without unused variance/crit/evasion rolls.
+              // Legacy singleton/Formation ordering remains unchanged.
+              let fumbled=false;
+              if(ally(actor)&&actor.statuses.includes('cursed')) {
+                const draw=roll();fumbled=draw<0.25;
+                events.push({type:'curse_check',actorId:actor.instanceId,targetId:target.instanceId,side:'ally',
+                  slot:planned.slot,status:'cursed',round,chance:0.25,roll:draw,fumbled});
+              }
+              let critical=false,attemptedDamage=1,evaded=false;
+              const attackSpd=a.spd-(ally(actor)&&actor.statuses.includes('dazzled')?DAZZLE_ACC_PENALTY:0);
+              const chance=ally(target)&&t.evadeAll?1:Math.max(evadeChance(attackSpd,t.spd,false),
+                ally(target)&&s.effects[target.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0);
+              if(!fumbled) {
+                const variance=ATTACK_VARIANCE_MIN+roll()*ATTACK_VARIANCE_SPAN;
+                critical=roll()<CRIT_CHANCE;
+                attemptedDamage=attackDamageNumbers(a.atk,defense,variance,critical).dmg;
+                evaded=roll()<chance;
+              }
+              if(target.hp!==hpBefore)throw Error('Party target HP changed during RNG');
+              target.hp=Math.max(0,hpBefore-(evaded?0:attemptedDamage));
+              events.push({type:'attack',...planned,attemptedDamage,appliedDamage:hpBefore-target.hp,critical,evaded,hpBefore,hpAfter:target.hp});
+            } else if(action.type==='observe') {
+              const countBefore=target.observeCount,lines=[...getObservationText(target,countBefore)];
+              target.observeCount++;
+              events.push({type:'observe',...planned,countBefore,countAfter:target.observeCount,
+                escapeBefore:target.escapeUnlocked,escapeAfter:target.escapeUnlocked,lines});
+            } else if(action.type==='run') {
+              const fastest=enemyMembers.filter(e=>e.hp>0).reduce((a,b)=>b.spd>a.spd?b:a);
+              const allowed=s.escape==='fastest_living'&&!s.bossLocked;
+              const chance=allowed?speedWinChance(values(actor).spd,fastest.spd):0;
+              const draw=allowed?roll():null,success=allowed&&draw<chance;
+              events.push({type:'run',...planned,allowed,opponentId:fastest.instanceId,chance,roll:draw,success});
+              if(success){outcome='escape';break;}
+            } else {
+              const {item,effect}=itemSpec(action.itemId),itemBefore=snapshot(),at=s.inventory.indexOf(action.itemId);
+              if(at<0)throw Error('Party committed inventory changed during execution');
+              const consumed=!['equip','nothing'].includes(effect);
+              if(effect==='heal') {
+                target.hp+=healingItemAmount(item,target.hp,target.definition.maxHp);
+                if(MUDSLITHER_INFLICTABLE&&item.causesMuddied&&!target.statuses.includes('muddied'))target.statuses.push('muddied');
+              } else if(effect==='cure') {
+                target.statuses=target.statuses.filter(id=>!itemCuredStatuses(item).includes(id));
+                if(!target.statuses.includes('slither'))delete s.effects[target.definition.slot].slither;
+              }
+              else if(effect==='evade') {s.effects[target.definition.slot].evadeTurns=item.evadeTurns;s.effects[target.definition.slot].evadeAppliedRound=round;}
+              else if(effect==='damage')target.hp=Math.max(0,target.hp-offensiveItemDamage(item,target));
+              else if(effect==='damage_all')for(const enemy of enemyMembers.filter(e=>e.hp>0))enemy.hp=Math.max(0,enemy.hp-offensiveItemDamage(item,enemy));
+              else if(effect==='bomb')s.effects[actor.definition.slot].bomb={targetId:target.instanceId,fuse:item.fuse,damage:item.damage,ignoresDef:!!item.ignoresDef,appliedRound:round};
+              else if(effect==='equip') {
+                const gear=s.loadouts[actor.definition.slot],slot=slotForType(item.type),old=gear[slot];
+                s.inventory.splice(at,1);if(old!==null)s.inventory.push(old);gear[slot]=action.itemId;
+              }
+              // Reagents on unsexed templates and Trollbane on non-regenerators
+              // consume but have no effect; Bait keeps its established no-op.
+              if(consumed)s.inventory.splice(at,1);
+              const itemAfter=snapshot();
+              events.push({type:effect==='equip'?'equipment':'item',...planned,itemId:action.itemId,effect,consumed,before:itemBefore,after:itemAfter});
+              for(const member of roster) {
+                const b=itemBefore.party[member.definition.slot],a=itemAfter.party[member.definition.slot];
+                if(JSON.stringify(b.statuses)!==JSON.stringify(a.statuses))events.push({type:'status',targetId:member.instanceId,
+                  statusesBefore:b.statuses,statusesAfter:a.statuses,sourceId:actor.instanceId,itemId:action.itemId});
+              }
+              if(['evade','bomb'].includes(effect))events.push({type:'effect',sourceId:actor.instanceId,targetId:target.instanceId,
+                itemId:action.itemId,effectsBefore:itemBefore.effects,effectsAfter:itemAfter.effects});
+            }
+            outcome=terminal();if(outcome!=='ongoing')break;
+          }
+          // End-of-round damage runs only after an ongoing action sequence,
+          // matching formation terminal truncation. Each owner ticks once.
+          if(outcome==='ongoing')for(const member of roster.filter(m=>m.hp>0&&m.statuses.includes('burn'))) {
+            const hpBefore=member.hp,attemptedDamage=Math.floor(roll()*21);
+            member.hp=Math.max(0,hpBefore-attemptedDamage);
+            events.push({type:'delayed_effect_tick',effect:'burn',ownerId:member.instanceId,targetId:member.instanceId,
+              before:null,after:null,attemptedDamage,appliedDamage:hpBefore-member.hp,hpBefore,hpAfter:member.hp});
+            outcome=terminal();if(outcome!=='ongoing')break;
+          }
+          if(outcome==='ongoing')for(const [slot,effect]of s.effects.entries()) {
+            const bomb=effect.bomb;if(!bomb||bomb.appliedRound===round)continue;
+            const bombBefore={...bomb},target=live(bomb.targetId),hpBefore=target.hp;
+            bomb.fuse--;
+            const damage=target.hp>0&&bomb.fuse===0?offensiveItemDamage(bomb,target):0;
+            target.hp=Math.max(0,target.hp-damage);
+            if(!bomb.fuse||!target.hp)effect.bomb=null;
+            events.push({type:'delayed_effect_tick',effect:'bomb',ownerId:roster[slot].instanceId,targetId:target.instanceId,
+              before:bombBefore,after:effect.bomb?{...effect.bomb}:null,attemptedDamage:damage,appliedDamage:hpBefore-target.hp,hpBefore,hpAfter:target.hp});
+            outcome=terminal();if(outcome!=='ongoing')break;
+          }
+          const effectsBefore=copyFormationData(snapshot().effects);
+          for(const effect of s.effects)if(effect.evadeTurns>0&&effect.evadeAppliedRound!==round)effect.evadeTurns--;
+          events.push({type:'outcome',outcome});
+          events.push({type:'round_end',roundBefore:round-1,roundAfter:round,outcome,effectsBefore,effectsAfter:snapshot().effects});
+          const after=snapshot();
+          const result=copyFormationData({round,command:{type:'party-round',allyActions,enemyActions},initiative:plan.initiative,
+            order:plan.order,events,outcome,before,after,party:after.party,enemies:after.enemies});
+          roundState.completed=round;roundState.phase=outcome==='ongoing'?'ready':'complete';roundState.outcome=outcome;
+          s.enemySeal=JSON.stringify(enemies());
+          return result;
+        } catch(error) {
+          roundState.phase='fault';roundState.failure=Object.freeze({round,completedEvents:events.length,initiativeRolls:tape.length});
+          throw error;
+        }
+      },
+    });
+  })();
   // The controller owns only transient commands, exact bindings and immutable
   // playback. Authoritative HP remains exclusively in the existing member state.
   const session=(() => {
@@ -713,42 +1096,17 @@ const combatPlayerState = (() => {
       return member ? view(member) : null;
     },
     initialize(descriptors) {
-      if (arguments.length !== 1 || members) fail();
-      validateInactiveCombatPreparation();
-      if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open ||
-          !Number.isFinite(stats.hp) || stats.hp <= 0) fail();
-      // Only an empty enemy side or an untouched inactive preparation is
-      // eligible. Dead/ambiguous membership may represent an unresolved outcome.
-      if (!Object.isFrozen(combat.enemies) ||
-          (combat.mode === null ? combat.enemies.length !== 0 :
-            combat.mode === 'single' ? combat.enemies.length !== 1 :
-            combat.mode !== 'formation' || ![2,3].includes(combat.enemies.length)) ||
-          combat.enemies.some((enemy,slot) => !formationBasicStatsValid(enemy) || enemy.hp === 0 ||
-            enemy.slot !== slot || typeof enemy.instanceId !== 'string')) fail();
-      const state = Object.getOwnPropertyDescriptors(combat);
-      if (Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value]) => state[key]?.value !== value) ||
-          array(state.messageQueue?.value).length || completedSingleVictoryReceipt !== null) fail();
-      const round = formationRounds.getView();
-      if (round && (round.completedRounds || round.awaitingPlayback || round.outcome !== 'ongoing')) fail();
-      const candidates = array(descriptors).map(record);
-      if (candidates.length !== 2 || sequence > Number.MAX_SAFE_INTEGER-2) fail();
-      for (const [slot, member] of candidates.entries()) {
-        if (member.slot !== slot || typeof member.characterId !== 'string' ||
-            !/^[a-z][a-z0-9_]*$/.test(member.characterId) || member.characterId === 'player' ||
-            typeof member.name !== 'string' || !member.name.trim() ||
-            !['hp','maxHp','atk','def','spd'].every(key => Number.isSafeInteger(member[key]) && member[key] >= 0) ||
-            member.maxHp === 0 || member.hp > member.maxHp) fail();
-        member.statuses = statuses(member.statuses);
-      }
-      if (new Set(candidates.map(member => member.characterId)).size !== 2) fail();
-      // Commit only after the entire request/preparation has passed. Identity
-      // sequence is separate from enemies and never reused after cleanup.
-      const installed = candidates.map(({hp,statuses,...definition},slot) => ({
-        definition:Object.freeze(definition),instanceId:'combat_party_'+(sequence+slot+1),hp,statuses,
-      }));
-      members = Object.freeze(installed);
-      sequence += installed.length;
-      return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});
+      if (arguments.length !== 1) fail();
+      return installMembers(prepareMembers(descriptors,2,2));
+    },
+    initializeCommandParty(request) {
+      if (arguments.length !== 1) fail();
+      return commandRounds.initialize(request);
+    },
+    getCommandView() { return commandRounds.getView(); },
+    resolveRound(request) {
+      if (arguments.length !== 1) fail();
+      return commandRounds.resolve(request);
     },
     createAttackRoundPlayback(result) {
       if (arguments.length!==1) throw new Error('Invalid party Attack playback history');
@@ -845,6 +1203,7 @@ const combatPlayerState = (() => {
       if (arguments.length || combat.active !== false || roundState?.phase === 'resolving' || sessionState?.phase==='resolving') fail();
       sessionState = null; // explicit preparation abandonment only; no enemy/reward/recovery writes
       roundState = null;
+      commandBattle = null;
       members = null; // No enemy, Lely, reward, recovery or world-state writes.
     },
   });
@@ -1131,6 +1490,7 @@ function createCombatEnemyInstance(enemy, slot) {
     throw new Error('Combat enemy input contains reserved observation state');
   }
   const instance = { ...enemy };
+  combatEnemyBossAtCreation.set(instance, enemy.isBoss === true);
   Object.defineProperties(instance, {
     // Mutable runtime-only ownership. Non-enumerable so legacy template-shaped
     // record copies/comparisons stay unchanged; every new instance starts fresh.
