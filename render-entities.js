@@ -2753,53 +2753,60 @@ function drawInfirmaryEslaSprite(npc) {
   drawEslaFigure(npc);
 }
 
-function drawEslaFigure(pos) {
-  const px = Math.round(pos.x);
-  const py = Math.round(pos.y);
-
+// Canonical Esla figure body. Keeping the authored geometry and palette in one
+// pure drawing helper lets the isolated Party Combat Lab present the same Esla
+// at battle scale without inheriting world interaction hints.
+function drawEslaFigureBody(px, py, scale = 1) {
+  const S = value => Math.round(value * scale);
   // Drop shadow
   ctx.fillStyle = 'rgba(0,0,0,0.18)';
   ctx.beginPath();
-  ctx.ellipse(px, py + 10, 9, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(px, py + S(10), S(9), S(3), 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Legs
   ctx.fillStyle = '#2a3848';
-  ctx.fillRect(px - 5, py,      4, 8);
-  ctx.fillRect(px + 1, py,      4, 8);
+  ctx.fillRect(px + S(-5), py, S(4), S(8));
+  ctx.fillRect(px + S(1),  py, S(4), S(8));
   // Shoes
   ctx.fillStyle = '#181820';
-  ctx.fillRect(px - 6, py + 6,  5, 3);
-  ctx.fillRect(px + 1, py + 6,  5, 3);
+  ctx.fillRect(px + S(-6), py + S(6), S(5), S(3));
+  ctx.fillRect(px + S(1),  py + S(6), S(5), S(3));
 
   // Body — muted teal office blouse
   ctx.fillStyle = '#3a6868';
-  ctx.fillRect(px - 7, py - 12, 14, 13);
+  ctx.fillRect(px + S(-7), py + S(-12), S(14), S(13));
   // Collar
   ctx.fillStyle = '#d0c8b8';
-  ctx.fillRect(px - 2, py - 12, 4, 5);
+  ctx.fillRect(px + S(-2), py + S(-12), S(4), S(5));
 
   // Head
   ctx.fillStyle = '#c09878';
-  ctx.fillRect(px - 5, py - 24, 10, 13);
+  ctx.fillRect(px + S(-5), py + S(-24), S(10), S(13));
 
   // Long kelly green hair — flows well past the shoulders
   ctx.fillStyle = '#2a9a28';
   // Top / sides of head
-  ctx.fillRect(px - 6, py - 26, 12, 5);
+  ctx.fillRect(px + S(-6), py + S(-26), S(12), S(5));
   // Left side flowing down
-  ctx.fillRect(px - 7, py - 22, 3, 20);
+  ctx.fillRect(px + S(-7), py + S(-22), S(3), S(20));
   // Right side flowing down
-  ctx.fillRect(px + 4, py - 22, 3, 20);
+  ctx.fillRect(px + S(4), py + S(-22), S(3), S(20));
   // Hair tips (slightly darker for depth)
   ctx.fillStyle = '#1e7820';
-  ctx.fillRect(px - 7, py - 4,  3,  4);
-  ctx.fillRect(px + 4, py - 4,  3,  4);
+  ctx.fillRect(px + S(-7), py + S(-4), S(3), S(4));
+  ctx.fillRect(px + S(4),  py + S(-4), S(3), S(4));
 
   // Eyes
   ctx.fillStyle = '#181620';
-  ctx.fillRect(px - 3, py - 18, 2, 2);
-  ctx.fillRect(px + 1, py - 18, 2, 2);
+  ctx.fillRect(px + S(-3), py + S(-18), S(2), S(2));
+  ctx.fillRect(px + S(1),  py + S(-18), S(2), S(2));
+}
+
+function drawEslaFigure(pos) {
+  const px = Math.round(pos.x);
+  const py = Math.round(pos.y);
+  drawEslaFigureBody(px, py);
 
   // SPACE hint when in range
   if (!dialogue.open && !choice.open && !shop.open) {

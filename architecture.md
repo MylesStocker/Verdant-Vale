@@ -399,16 +399,27 @@ save payload, encounter, quest or canonical party integration.
 `drawPartyCombatLabBattle()`. It takes no arguments and acquires exactly one
 detached immutable snapshot through `partyCombatLab.getView()`. An inactive Lab
 draws nothing. An active snapshot is validated completely before the first canvas
-operation: two fixed ally slots, one to three contiguous enemy slots, unique
+operation: one to three fixed ally slots, one to three contiguous enemy slots, unique
 runtime identities, safe historical HP, valid submitted actor/target identities,
 phase/current-actor consistency, and playback-frame identity/HP agreement.
 
-Enemy layouts are deterministic by count: one centered 200-pixel slot; two
-224-pixel slots; or three 160-pixel slots. Ally slots remain fixed and never
-compact when a member reaches zero HP. The renderer uses small deterministic
-Lab-only figures rather than consulting live player/NPC/sprite state. It presents
-names, HP bars and numeric HP, explicit defeated labels, a `CHOOSING` marker for
-the current ally, and a read-only list of submitted actor-to-target commands.
+Enemy layouts reuse Formation presentation by count: one centered 144-pixel
+slot; two 232-pixel slots; or three 144-pixel slots. They use the real
+`ENEMY_SPRITE_DISPATCH`, shared sprite bounds, baseline anchoring, stable slots,
+defeated dimming and HP strips. Ally positions are fixed at x 108, 256 and 404
+on one feet baseline at y 277 and never compact. Lely calls the unchanged
+`drawBattlePlayer()` at its ordinary x/y anchor. Esla calls `drawBattleEsla()`,
+which scales the canonical `drawEslaFigureBody()` geometry and palette by 1.5;
+no separate image or invented costume authority exists. The third slot is
+structurally reserved but no third Lab member or canonical party is added.
+
+The lower panel reuses the ordinary battle frame, colours, monospace typography,
+segmented green HP meters and four command-box positions. It reserves three
+compact member rows. Attack remains visually enabled; Item, Observe and Run stay
+visible and dimmed because this Lab remains Attack-only. Context and playback
+events use the ordinary message area. Runtime IDs, submitted-record dumps,
+diagnostic phases, control tutorials and large choosing labels are never drawn;
+a small pale battlefield arrow identifies the choosing ally.
 
 During playback, event text comes only from `playbackFrame.currentEvent` and all
 displayed HP comes from the Lab view's historical party/enemy projection. Attack,
@@ -423,7 +434,9 @@ it before world or combat drawing only while `partyCombatLab.isActive()`; it sta
 inert otherwise. The renderer validates the adapter-owned selected runtime ID and
 draws exactly one cursor over that living stable slot only during command
 collection. Suite 167 uses recorded canvas calls and exact state snapshots to
-enforce this read-only boundary.
+enforce this read-only boundary. Suite 169 additionally fixes the authentic
+sprite/frame contract, three-slot geometry and source hashes for the unchanged
+singleton, Formation and Receiver render authorities.
 
 The existing backtick debug menu has one `DEV: Party Combat Lab` row and a
 three-scenario submenu. `input.js` routes that submenu and active Lab before every

@@ -8,7 +8,7 @@ function record(g){g.run(`var partyPaint=[],partyPaintStack=[];
   const partyEmit=(type,args)=>partyPaint.push({type,args,style:Object.fromEntries(partyProps.map(k=>[k,ctx[k]]))});
   ctx.save=()=>partyPaintStack.push(partyProps.map(k=>ctx[k]));ctx.restore=()=>{const s=partyPaintStack.pop();partyProps.forEach((k,i)=>ctx[k]=s[i]);};
   ctx.fillRect=(...a)=>partyEmit('fillRect',a);ctx.strokeRect=(...a)=>partyEmit('strokeRect',a);
-  ctx.fillText=(...a)=>partyEmit('text',a);`);}
+  ctx.fillText=(...a)=>partyEmit('text',a);ctx.fill=()=>partyEmit('fill',[]);`);}
 function fresh(id='lely_esla_one'){
   const g=createContext();g.run(`resetLocationState();placeAtLocation('MAP',7.5*TILE,9.5*TILE);player.facing='left';
     dialogue.open=false;dialogue.callbacks=null;menu.open=false;debugMenu.open=false;statusEffects=[];
@@ -36,32 +36,31 @@ test('inactive Lab draws nothing and active rendering consumes one immutable Lab
 });
 
 test('one to three enemies occupy deterministic stable slots and all records stay on canvas',()=>{
-  const expected={lely_esla_one:[[156,200]],lely_esla_two:[[24,224],[264,224]],lely_esla_three:[[8,160],[176,160],[344,160]]};
+  const expected={lely_esla_one:[[184,144]],lely_esla_two:[[16,232],[264,232]],lely_esla_three:[[16,144],[184,144],[352,144]]};
   for(const [id,slots] of Object.entries(expected)){const g=fresh(id),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
     assert.deepEqual(layout.enemies.map(p=>[p.x,p.width]),slots);assert.deepEqual(layout.enemies.map(p=>p.slot),slots.map((_,i)=>i));
-    assert.deepEqual(layout.allies.map(p=>[p.x,p.width]),[[20,226],[266,226]]);
-    for(const p of [...layout.allies,...layout.enemies])assert.ok(p.x>=0&&p.y>=0&&p.x+p.width<=512&&p.y+p.height<=480);
+    assert.deepEqual(layout.allies.map(p=>[p.x,p.feetY]),[[108,277],[256,277]]);
+    for(const p of layout.enemies)assert.ok(p.x>=0&&p.spriteY>=0&&p.x+p.width<=512&&p.spriteY+p.spriteHeight<=480);
     const labels=texts(draw(g));for(const member of [...view(g).party,...view(g).enemies])assert.ok(labels.includes(member.name));}
 });
 
-test('current ally and submitted exact targets are presentation-only',()=>{
+test('current ally and submitted exact targets remain presentation-only without diagnostics',()=>{
   const g=fresh('lely_esla_two'),first=view(g),enemy=first.enemies[1];let labels=texts(draw(g));
-  assert.ok(labels.includes('CHOOSING'));assert.ok(labels.includes('Lély: not submitted'));assert.ok(labels.includes('Esla: not submitted'));
-  assert.ok(labels.includes('Choose a target — Lély is choosing.'));assert.equal(labels.filter(label=>label==='▼').length,1);
+  assert.ok(labels.includes('Choose a target.'));assert.ok(!labels.includes('CHOOSING'));
   assert.ok(g.run('partyCombatLab.submitAttack('+JSON.stringify({actorId:first.nextActorId,targetId:enemy.instanceId})+')'));
   const second=view(g);labels=texts(draw(g));assert.equal(second.nextActorId,second.party[1].instanceId);
-  assert.ok(labels.includes('Choose a target — Esla is choosing.'));assert.ok(labels.includes('Lély: Attack → '+enemy.name));
-  assert.equal(g.run('partyPaint.filter(c=>c.type==="text"&&c.args[0]==="CHOOSING").length'),1);
+  assert.ok(labels.includes("Choose Esla's target."));assert.ok(!labels.some(label=>label.includes('Attack →')));
+  assert.ok(!labels.some(label=>/submitted|CHOOSING|FRAME|EVENT|ROUNDS/.test(label)));
 });
 
 test('one cursor follows the exact selected living runtime identity and disappears outside selection',()=>{
   const g=fresh('lely_esla_three');let v=view(g),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.target.instanceId,v.selectedTargetInstanceId);assert.equal(layout.target.slot,0);
-  assert.equal(texts(draw(g)).filter(label=>label==='▼').length,1);
+  assert.equal(draw(g).filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8').length,2);
   assert.ok(g.run('partyCombatLab.moveTarget("next")'));v=view(g);layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.target.instanceId,v.enemies[1].instanceId);assert.equal(layout.target.slot,1);
   commandAll(g);assert.equal(J(g,'partyCombatLabBattleLayout(partyCombatLab.getView()).target'),null);
-  assert.equal(texts(draw(g)).filter(label=>label==='▼').length,0);
+  assert.equal(draw(g).filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8').length,0);
 });
 
 test('playback draws recorded events and frame HP instead of already-resolved live HP',()=>{
@@ -69,7 +68,7 @@ test('playback draws recorded events and frame HP instead of already-resolved li
   commit(g,[0,0,0,0,0,...Array.from({length:4},()=>HIT).flat()]);
   const live=J(g,'[...combatPlayerState.getView().members,...combat.enemies].map(m=>m.hp)'),frame0=view(g);
   assert.notDeepEqual([...frame0.party,...frame0.enemies].map(m=>m.hp),live);
-  let before=snapshot(g),calls=draw(g);assert.equal(snapshot(g),before);assert.ok(texts(calls).includes('Round 1: ready.'));
+  let before=snapshot(g),calls=draw(g);assert.equal(snapshot(g),before);assert.ok(texts(calls).includes('Ready.'));
   for(const member of [...frame0.party,...frame0.enemies])assert.ok(texts(calls).includes(`${member.hp} / ${member.maxHp}`));
   assert.ok(g.run('partyCombatLab.advancePlayback()'));const frame1=view(g);before=snapshot(g);calls=draw(g);assert.equal(snapshot(g),before);
   assert.ok(texts(calls).some(line=>/attacks|evades/.test(line)));for(const member of [...frame1.party,...frame1.enemies])assert.ok(texts(calls).includes(`${member.hp} / ${member.maxHp}`));
@@ -78,11 +77,10 @@ test('playback draws recorded events and frame HP instead of already-resolved li
 test('playback-complete and terminal victory preserve the same final historical frame',()=>{
   const g=fresh();g.run('partyCombatLab.exit();stats.atk=100;');assert.ok(g.run('partyCombatLab.enter("lely_esla_one")'));commandAll(g);
   commit(g,[0,0,0,...HIT]);complete(g);const completeView=view(g),completeCalls=draw(g);
-  assert.ok(texts(completeCalls).includes('FINAL FRAME — ACKNOWLEDGEMENT PENDING'));
-  assert.ok(texts(completeCalls).includes('DEFEATED'));assert.equal(completeView.playbackFrame.complete,true);
+  assert.ok(texts(completeCalls).includes('Victory.'));assert.equal(completeView.playbackFrame.complete,true);
   assert.ok(g.run('partyCombatLab.acknowledgePlayback()'));const terminal=view(g),terminalCalls=draw(g);
   assert.equal(terminal.phase,'victory');assert.deepEqual(terminal.playbackFrame,completeView.playbackFrame);
-  assert.ok(texts(terminalCalls).includes('VICTORY — FINAL FRAME'));assert.ok(texts(terminalCalls).includes('Victory.'));
+  assert.ok(texts(terminalCalls).includes('Victory.'));
   assert.deepEqual(terminalCalls,draw(g),'terminal draws remain deterministic');
 });
 
@@ -92,7 +90,7 @@ test('defeat marks both Lely and Esla defeated without recovery or slot compacti
   commit(g,[0,0.999,0.999,0.99,0,0.99,0.5,0.99,0]);complete(g);assert.ok(g.run('partyCombatLab.acknowledgePlayback()'));commandAll(g);
   commit(g,[0.999,0.99,0,0.99]);complete(g);assert.ok(g.run('partyCombatLab.acknowledgePlayback()'));
   const v=view(g),calls=draw(g),labels=texts(calls);assert.equal(v.phase,'defeat');assert.deepEqual(v.party.map(m=>[m.slot,m.hp]),[[0,0],[1,0]]);
-  assert.equal(labels.filter(label=>label==='DEFEATED').length,2);assert.ok(labels.includes('DEFEAT — FINAL FRAME'));assert.ok(labels.includes('Defeat.'));
+  assert.equal(labels.filter(label=>label==='DOWN').length,2);assert.ok(labels.includes('Defeat.'));
 });
 
 test('every phase draw consumes zero RNG and mutates no Lab, combat or world state',()=>{

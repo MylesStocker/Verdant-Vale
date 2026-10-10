@@ -51,6 +51,13 @@ function drawBattlePlayer(cx, cy) {
   ctx.fillRect(cx + 7, cy - 19, 3, 3);
 }
 
+// Esla's established world figure, enlarged by the same 1.5x relationship
+// used by Lely's battle sprite. Integer-rounded authored rectangles keep hard
+// pixel edges while the y origin aligns her boots with Lely's baseline.
+function drawBattleEsla(cx, cy) {
+  drawEslaFigureBody(cx, cy, 1.5);
+}
+
 // ─── Battle: enemy sprites ────────────────────────────────────────────────────
 
 // Marsh Wisp — ethereal floating orb, glowing cyan eye, trailing wisps

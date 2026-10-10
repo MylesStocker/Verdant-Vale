@@ -101,11 +101,12 @@ test('unexpected controller failure restores canonical state, reports it, and re
 });
 
 test('renderer cursor and routing are exact, bounded, deterministic and mutation-free',()=>{for(let i=0;i<3;i++){const g=fresh();start(g,i);
-  g.run(`var partyPaint=[];ctx.fillRect=(...a)=>partyPaint.push({type:'fillRect',args:a,fill:ctx.fillStyle});ctx.strokeRect=(...a)=>partyPaint.push({type:'strokeRect',args:a});ctx.fillText=(...a)=>partyPaint.push({type:'text',args:a,fill:ctx.fillStyle});`);
+  g.run(`var partyPaint=[];ctx.fillRect=(...a)=>partyPaint.push({type:'fillRect',args:a,fill:ctx.fillStyle});ctx.strokeRect=(...a)=>partyPaint.push({type:'strokeRect',args:a});ctx.fillText=(...a)=>partyPaint.push({type:'text',args:a,fill:ctx.fillStyle});ctx.fill=()=>partyPaint.push({type:'fill',fill:ctx.fillStyle});`);
   const before=canonical(g),lab=JSON.stringify(view(g));g.run('drawPartyCombatLabBattle()');const paint=J(g,'partyPaint');assert.equal(canonical(g),before);assert.equal(JSON.stringify(view(g)),lab);
-  assert.equal(paint.filter(p=>p.type==='text'&&p.args[0]==='▼'&&p.fill==='#f0e8b8').length,1);
-  const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');for(const p of [...layout.allies,...layout.enemies])assert.ok(p.x>=0&&p.y>=0&&p.x+p.width<=512&&p.y+p.height<=480);
-  submitBoth(g);g.run('partyPaint=[];drawPartyCombatLabBattle()');assert.equal(J(g,"partyPaint.filter(p=>p.type==='text'&&p.args[0]==='▼').length"),0);}}
+  assert.equal(paint.filter(p=>p.type==='fill'&&p.fill==='#f0e8b8').length,2,'enemy target and choosing-ally arrows');
+  const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');for(const p of layout.enemies)assert.ok(p.x>=0&&p.spriteY>=0&&p.x+p.width<=512&&p.spriteY+p.spriteHeight<=480);
+  assert.ok(layout.allies.every(p=>p.x>=0&&p.x<=512&&p.feetY===277));
+  submitBoth(g);g.run('partyPaint=[];drawPartyCombatLabBattle()');assert.equal(J(g,"partyPaint.filter(p=>p.type==='fill'&&p.fill==='#f0e8b8').length"),0);}}
 );
 
 test('input owns one listener pair, rejects repeat, and no canonical route or save field is added',()=>{const input=fs.readFileSync(path.join(ROOT,'input.js'),'utf8');

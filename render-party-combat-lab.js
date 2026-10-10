@@ -2,12 +2,15 @@
 
 // Read-only presentation for the isolated Party Combat Lab. Its sole
 // combat-state input is one detached immutable Lab snapshot.
-const PARTY_COMBAT_LAB_ENEMY_COLORS = Object.freeze({
-  enemy_marsh_wisp:'#48b8c8',
-  enemy_briar_hound:'#587a3c',
-  enemy_reed_grappler:'#7d7052',
-  enemy_silt_lurker:'#695f78',
-  enemy_sluice_slime:'#6e9a48',
+const PARTY_COMBAT_ALLY_SLOTS = Object.freeze([
+  Object.freeze({slot:0, x:108, anchorY:254}),
+  Object.freeze({slot:1, x:256, anchorY:263}),
+  Object.freeze({slot:2, x:404, anchorY:254}),
+]);
+
+const PARTY_COMBAT_ALLY_SPRITES = Object.freeze({
+  lely_lab:Object.freeze({draw:drawBattlePlayer, anchorY:254}),
+  esla_lab:Object.freeze({draw:drawBattleEsla, anchorY:263}),
 });
 
 function partyCombatLabBattleLayout(view) {
@@ -20,7 +23,8 @@ function partyCombatLabBattleLayout(view) {
     (side==='ally' ? typeof member.characterId==='string' : typeof member.id==='string');
   if(!view || !Object.isFrozen(view) || view.active!==true || typeof view.label!=='string' || !view.label ||
       !['collecting','ready','playback','playback_complete','victory','defeat'].includes(view.phase) ||
-      !Array.isArray(view.party) || !Object.isFrozen(view.party) || view.party.length!==2 ||
+      !Array.isArray(view.party) || !Object.isFrozen(view.party) ||
+      view.party.length<1 || view.party.length>3 ||
       !Array.isArray(view.enemies) || !Object.isFrozen(view.enemies) ||
       view.enemies.length<1 || view.enemies.length>3 ||
       view.party.some((member,slot)=>!validMember(member,'ally',slot)) ||
@@ -50,23 +54,34 @@ function partyCombatLabBattleLayout(view) {
         frame.party.some((member,slot)=>member.instanceId!==view.party[slot].instanceId || member.hp!==view.party[slot].hp) ||
         frame.enemies.some((member,slot)=>member.instanceId!==view.enemies[slot].instanceId || member.hp!==view.enemies[slot].hp))fail();
   }
-  const enemyWidth=view.enemies.length===1?200:view.enemies.length===2?224:160;
-  const enemyGap=view.enemies.length===1?0:view.enemies.length===2?16:8;
-  const total=view.enemies.length*enemyWidth+(view.enemies.length-1)*enemyGap;
-  const enemyStart=Math.floor((512-total)/2);
+
+  const count=view.enemies.length;
+  const width=count===2?232:144, step=count===2?248:168;
+  const start=count===1?184:16;
+  const names=view.enemies.map(member=>member.name);
+  const enemies=view.enemies.map((member,index)=>{
+    const sprite=ENEMY_SPRITE_DISPATCH[member.id];
+    const bounds=sprite&&FORMATION_SPRITE_BOUNDS.get(sprite.draw);
+    if(!sprite || !bounds)fail();
+    const x=start+index*step, spriteWidth=width-16;
+    const scale=Math.min(1,spriteWidth/(bounds[2]-bounds[0]),136/(bounds[3]-bounds[1]));
+    const duplicate=names.filter(name=>name===member.name).length>1;
+    return Object.freeze({instanceId:member.instanceId,slot:index,x,width,
+      label:member.name+(duplicate?' '+String.fromCharCode(65+index):''),
+      spriteX:x+8,spriteY:76,spriteWidth,spriteHeight:136,scale,
+      anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,
+      anchorY:212-scale*bounds[3]});
+  });
   return Object.freeze({
     allies:Object.freeze(view.party.map((member,slot)=>Object.freeze({
-      instanceId:member.instanceId,slot,x:slot===0?20:266,y:224,width:226,height:104,
+      instanceId:member.instanceId,slot,x:PARTY_COMBAT_ALLY_SLOTS[slot].x,
+      anchorY:PARTY_COMBAT_ALLY_SLOTS[slot].anchorY,feetY:277,
     }))),
-    enemies:Object.freeze(view.enemies.map((member,slot)=>Object.freeze({
-      instanceId:member.instanceId,slot,x:enemyStart+slot*(enemyWidth+enemyGap),y:36,width:enemyWidth,height:166,
-    }))),
+    enemies:Object.freeze(enemies),
     target:view.phase==='collecting' ? Object.freeze((()=>{
-      const position=view.enemies.findIndex(member=>member.instanceId===view.selectedTargetInstanceId);
-      if(position<0)fail();
-      const enemyX=enemyStart+position*(enemyWidth+enemyGap);
-      return {instanceId:view.selectedTargetInstanceId,slot:position,
-        x:Math.round(enemyX+enemyWidth/2),y:34};
+      const position=enemies.find(enemy=>enemy.instanceId===view.selectedTargetInstanceId);
+      if(!position)fail();
+      return {instanceId:position.instanceId,slot:position.slot,x:position.x+position.width/2,y:63};
     })()) : null,
   });
 }
@@ -74,11 +89,14 @@ function partyCombatLabBattleLayout(view) {
 function formatPartyCombatLabEvent(view) {
   const frame=view.playbackFrame;
   if(!frame) {
-    if(view.phase==='collecting')return `Choose a target — ${view.party.find(member=>member.instanceId===view.nextActorId).name} is choosing.`;
-    return 'Ready — confirm round.';
+    if(view.phase==='collecting') {
+      const member=view.party.find(entry=>entry.instanceId===view.nextActorId);
+      return member&&member.slot===0?'Choose a target.':`Choose ${member.name}'s target.`;
+    }
+    return 'Confirm actions?';
   }
   const event=frame.currentEvent;
-  if(!event)return `Round ${frame.completedRounds+1}: ready.`;
+  if(!event)return 'Ready.';
   const members=[...view.party,...view.enemies];
   const name=id=>members.find(member=>member.instanceId===id)?.name;
   if(event.type==='round_end')return event.outcome==='victory'?'Victory.':event.outcome==='defeat'?'Defeat.':'Round complete.';
@@ -91,45 +109,61 @@ function formatPartyCombatLabEvent(view) {
   return `${event.critical?'Critical! ':''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
 }
 
-function drawPartyCombatLabHp(member,x,y,width) {
-  ctx.fillStyle='#112820';ctx.fillRect(x,y,width,8);
-  ctx.fillStyle=member.hp===0?'#603838':'#4a9a62';
-  ctx.fillRect(x,y,Math.round(width*member.hp/member.maxHp),8);
-  ctx.fillStyle='#9ab8a8';ctx.font='11px "Courier New", monospace';
-  ctx.fillText(`${member.hp} / ${member.maxHp}`,x,y+22,width);
+function drawPartyCombatEnemy(member,position,selected) {
+  const sprite=ENEMY_SPRITE_DISPATCH[member.id];
+  ctx.save();
+  ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
+  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);
+  ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(0,0,'idle');ctx.restore();
+  ctx.fillStyle='#08121e';ctx.fillRect(position.x,12,position.width,50);
+  ctx.fillStyle=member.hp===0?'#718078':'#c0dcd0';ctx.font='bold 12px "Courier New", monospace';
+  ctx.fillText(position.label,position.x+4,27,position.width-8);
+  ctx.fillStyle='#0a1e18';ctx.fillRect(position.x+4,36,position.width-8,7);
+  ctx.fillStyle=member.hp===0?'#31483d':'#3a8a5a';
+  ctx.fillRect(position.x+4,36,Math.round((position.width-8)*member.hp/member.maxHp),7);
+  ctx.fillStyle=member.hp===0?'#66756d':'#7ab898';ctx.font='11px "Courier New", monospace';
+  ctx.fillText(`${member.hp} / ${member.maxHp}`,position.x+4,57,position.width-8);
+  if(selected&&member.hp>0) {
+    const cx=position.x+position.width/2;
+    ctx.fillStyle='#08121e';ctx.fillRect(cx-9,63,18,12);
+    ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(cx-6,65);ctx.lineTo(cx+6,65);ctx.lineTo(cx,73);ctx.closePath();ctx.fill();
+  }
 }
 
-function drawPartyCombatLabMember(member,position,side,choosing) {
-  const defeated=member.hp===0;
-  ctx.fillStyle=choosing?'#162f3a':'#101c28';ctx.fillRect(position.x,position.y,position.width,position.height);
-  ctx.strokeStyle=choosing?'#e2c76f':'#42697a';ctx.lineWidth=choosing?3:1;
-  ctx.strokeRect(position.x+1,position.y+1,position.width-2,position.height-2);
-  ctx.fillStyle=defeated?'#8a7474':'#d4e0d6';ctx.font='bold 13px "Courier New", monospace';
-  ctx.fillText(member.name,position.x+10,position.y+21,position.width-20);
-  if(choosing) {
-    ctx.fillStyle='#e2c76f';ctx.font='bold 10px "Courier New", monospace';
-    ctx.fillText('CHOOSING',position.x+position.width-72,position.y+21,62);
+function drawPartyCombatAlly(member,position,choosing) {
+  const sprite=PARTY_COMBAT_ALLY_SPRITES[member.characterId];
+  if(!sprite)throw new Error('Invalid Party Combat Lab ally sprite');
+  ctx.save();ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(position.x,sprite.anchorY);ctx.restore();
+  if(choosing&&member.hp>0) {
+    ctx.fillStyle='#08121e';ctx.fillRect(position.x-9,204,18,13);
+    ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(position.x-6,206);ctx.lineTo(position.x+6,206);ctx.lineTo(position.x,214);ctx.closePath();ctx.fill();
   }
-  if(side==='ally') {
-    const gx=position.x+32,gy=position.y+57;
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(gx-16,gy+17,32,5);
-    ctx.fillStyle=member.characterId==='lely_lab'?'#5c7090':'#3a6868';ctx.fillRect(gx-11,gy-5,22,24);
-    ctx.fillStyle='#b58a6a';ctx.fillRect(gx-7,gy-20,14,15);
-    ctx.fillStyle=member.characterId==='lely_lab'?'#302418':'#2a9a28';ctx.fillRect(gx-8,gy-23,16,6);
-    if(member.characterId==='esla_lab') {ctx.fillRect(gx-9,gy-18,3,25);ctx.fillRect(gx+6,gy-18,3,25);}
-    drawPartyCombatLabHp(member,position.x+68,position.y+49,position.width-80);
-  } else {
-    const color=PARTY_COMBAT_LAB_ENEMY_COLORS[member.id]||'#687080';
-    const cx=position.x+position.width/2;
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(cx-34,position.y+105,68,8);
-    ctx.fillStyle=color;ctx.fillRect(cx-28,position.y+50,56,54);
-    ctx.fillStyle='#17202a';ctx.fillRect(cx-15,position.y+69,8,8);ctx.fillRect(cx+7,position.y+69,8,8);
-    drawPartyCombatLabHp(member,position.x+10,position.y+126,position.width-20);
+}
+
+function drawPartyCombatStatusRow(member,row) {
+  const y=357+row*18,barX=102,segments=12,segmentW=10,gap=2;
+  ctx.fillStyle=member.hp===0?'#718078':'#d0e0d0';ctx.font='bold 12px "Courier New", monospace';
+  ctx.fillText(member.name,22,y,50);
+  ctx.fillStyle='#5a8898';ctx.font='bold 11px "Courier New", monospace';ctx.fillText('HP',76,y);
+  const filled=Math.round(segments*member.hp/member.maxHp);
+  for(let i=0;i<segments;i++) {
+    ctx.fillStyle=i<filled?(filled<=3?'#a06820':'#4a9a62'):'#112820';
+    ctx.fillRect(barX+i*(segmentW+gap),y-11,segmentW,8);
   }
-  if(defeated) {
-    ctx.fillStyle='#d08a8a';ctx.font='bold 11px "Courier New", monospace';
-    ctx.fillText('DEFEATED',position.x+10,position.y+position.height-10,position.width-20);
-  }
+  ctx.fillStyle=member.hp===0?'#66756d':'#8aaa98';ctx.font='11px "Courier New", monospace';
+  ctx.fillText(`${member.hp} / ${member.maxHp}`,251,y,68);
+  if(member.hp===0) {ctx.fillStyle='#9a6868';ctx.font='bold 10px "Courier New", monospace';ctx.fillText('DOWN',323,y);}
+}
+
+function drawPartyCombatCommands() {
+  ['Attack','Item','Observe','Run'].forEach((label,index)=>{
+    const x=22+index*117,enabled=index===0;
+    ctx.fillStyle=enabled?'#0e2434':'#080f1a';ctx.fillRect(x,414,111,38);
+    ctx.strokeStyle=enabled?'#5a9aaa':'#1e3040';ctx.lineWidth=1;ctx.strokeRect(x,414,111,38);
+    if(enabled) {ctx.fillStyle='#8ac8d8';ctx.font='bold 13px "Courier New", monospace';ctx.fillText('▶',x+6,439);}
+    ctx.fillStyle=enabled?'#e0f0e8':'#344f5a';ctx.font=enabled?'bold 14px "Courier New", monospace':'13px "Courier New", monospace';
+    ctx.fillText(label,x+(enabled?22:14),439);
+  });
 }
 
 function drawPartyCombatLabBattle() {
@@ -137,51 +171,21 @@ function drawPartyCombatLabBattle() {
   const view=partyCombatLab.getView();
   if(!view.active)return false;
   // Complete validation and event formatting before the first canvas call.
-  const layout=partyCombatLabBattleLayout(view),eventText=formatPartyCombatLabEvent(view);
-  const labels=new Map([...view.party,...view.enemies].map(member=>[member.instanceId,member.name]));
-  const actions=view.allyActions.map(action=>`${labels.get(action.actorId)} → ${labels.get(action.targetId)}`);
-  if(actions.some(label=>label.includes('undefined')))throw new Error('Invalid Party Combat Lab submitted action');
-  ctx.save();
-  ctx.fillStyle='#070e18';ctx.fillRect(0,0,512,480);
-  ctx.fillStyle='#142438';ctx.fillRect(0,202,512,278);
-  ctx.fillStyle='#9ac8d8';ctx.font='bold 14px "Courier New", monospace';
-  ctx.fillText(view.label,16,24,480);
-  layout.enemies.forEach((position,slot)=>drawPartyCombatLabMember(view.enemies[slot],position,'enemy',false));
-  if(layout.target) {
-    ctx.fillStyle='#08121e';ctx.fillRect(layout.target.x-9,layout.target.y-13,18,15);
-    ctx.fillStyle='#f0e8b8';ctx.font='bold 15px "Courier New", monospace';ctx.textAlign='center';
-    ctx.fillText('\u25bc',layout.target.x,layout.target.y,16);ctx.textAlign='left';
-  }
-  layout.allies.forEach((position,slot)=>drawPartyCombatLabMember(view.party[slot],position,'ally',
+  const layout=partyCombatLabBattleLayout(view),message=formatPartyCombatLabEvent(view);
+  ctx.save();drawBattleBackground();
+  layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,
+    !!layout.target&&layout.target.instanceId===position.instanceId));
+  layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,
     view.phase==='collecting'&&view.nextActorId===view.party[slot].instanceId));
-  ctx.fillStyle='#08121e';ctx.fillRect(12,340,488,128);
-  ctx.strokeStyle='#42697a';ctx.lineWidth=1;ctx.strokeRect(13,341,486,126);
-  ctx.fillStyle='#d4e0d6';ctx.font='12px "Courier New", monospace';ctx.fillText(eventText,24,365,464);
-  ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
-  view.party.forEach((member,index)=>{
-    const action=view.allyActions.find(entry=>entry.actorId===member.instanceId);
-    ctx.fillText(`${member.name}: ${action?'Attack \u2192 '+labels.get(action.targetId):'not submitted'}`,24,386+index*14,464);
-  });
-  const phase=view.phase==='playback_complete'?'FINAL FRAME — ACKNOWLEDGEMENT PENDING':
-    view.phase==='victory'?'VICTORY — FINAL FRAME':view.phase==='defeat'?'DEFEAT — FINAL FRAME':view.phase.toUpperCase();
-  ctx.fillStyle=['victory','defeat'].includes(view.phase)?'#e2c76f':'#8ab3c2';
-  ctx.font='bold 11px "Courier New", monospace';ctx.fillText(phase,24,420,464);
-  if(view.playbackFrame) {
-    ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
-    ctx.fillText(`FRAME ${view.playbackFrame.frameIndex}  EVENT ${view.playbackFrame.eventIndex}  ROUNDS ${view.playbackFrame.completedRounds}`,24,440,464);
-    const hint=view.phase==='playback'?'Enter/Space: next event':
-      view.phase==='playback_complete'?'Enter/Space: acknowledge final frame':'Esc/B: return to scenario menu';
-    ctx.fillText(hint,24,455,464);
-  } else if(view.phase==='collecting') {
-    ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
-    ctx.fillText('\u2190/\u2192 or A/D: target  \u00b7  Enter/Space: attack  \u00b7  Esc/B: back',24,442,464);
-  } else if(view.phase==='ready') {
-    ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
-    ctx.fillText('Enter/Space: confirm round  \u00b7  Esc/B: change Esla target',24,442,464);
-  } else {
-    ctx.fillStyle='#7898a2';ctx.font='10px "Courier New", monospace';
-    ctx.fillText('Esc/B: return to scenario menu',24,442,464);
-  }
-  ctx.restore();
-  return true;
+
+  ctx.fillStyle='#08121e';ctx.fillRect(8,297,496,175);
+  ctx.strokeStyle='#5a8a9a';ctx.lineWidth=2;ctx.strokeRect(9,298,494,173);
+  ctx.strokeStyle='#2a4e5e';ctx.lineWidth=1;ctx.strokeRect(13,302,486,165);
+  ctx.fillStyle='#8ac8d8';[[9,298],[501,298],[9,469],[501,469]].forEach(([x,y])=>ctx.fillRect(x,y,2,2));
+  ctx.fillStyle='#ccd8cc';ctx.font='14px "Courier New", monospace';ctx.fillText(message,22,325,468);
+  ctx.fillStyle='#1e3040';ctx.fillRect(22,334,468,1);
+  view.party.forEach(drawPartyCombatStatusRow);
+  ctx.fillStyle='#1e3040';ctx.fillRect(22,403,468,1);
+  drawPartyCombatCommands();
+  ctx.restore();return true;
 }

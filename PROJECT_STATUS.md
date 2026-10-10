@@ -133,20 +133,26 @@ terminal exit. Canonical party integration remains separate.
 `render-party-combat-lab.js` supplies a 512×480 presentation for the isolated Lab.
 Its only combat-state read is
 one immutable `partyCombatLab.getView()` snapshot. It validates that snapshot
-before drawing, then presents Lely and Esla in fixed ally slots, one to three
-enemies in stable enemy slots, historical HP and defeated labels, the ally whose
-command is being collected, already-submitted Attack targets, and the current
-recorded playback event. Playback-complete, victory and defeat views retain and
-render their final historical frame.
+before drawing, then reuses the ordinary battle background, frame, typography,
+segmented HP meters and command boxes. Lely keeps her ordinary battle position;
+Esla reuses her established green-haired figure at the matching battle scale.
+The three-capacity ally layout keeps fixed left, centre and right positions while
+the current Lab fills only the first two. One to three enemies use the existing
+Formation sprite dispatch, clipping, baseline, HP strips, stable slots, defeated
+dimming and pale target cursor. Playback-complete, victory and defeat views
+retain and render their final historical HP.
 
 The main render path calls it exclusively while the Party Lab is active. It does
 not advance playback, acknowledge frames, read live combatants, rerun
 arithmetic, allocate identities or consume RNG. Suite 167 records its canvas
 operations and proves deterministic slot geometry, historical-frame fidelity,
-terminal-frame retention and zero state mutation. The adapter owns exact target
-selection by enemy runtime identity; the renderer adds one pale cursor only in
-the collecting phase. Input uses the existing physical-key latch: arrows/A/D
-choose, Enter/Space confirms, and Escape/B backtracks or exits at safe boundaries.
+terminal-frame retention and zero state mutation. Suite 169 locks the visual
+convergence, three-ally layout capacity and unchanged singleton/Formation/
+Receiver render sources. The adapter owns exact target selection by enemy runtime
+identity; the renderer adds one pale cursor only in the collecting phase. Input
+uses the existing physical-key latch: arrows/A/D choose, Enter/Space confirms,
+and Escape/B backtracks or exits at safe boundaries. Item, Observe and Run remain
+visible but dimmed; only Attack is implemented.
 
 ### MQ5 and the eastern Valmere road
 
