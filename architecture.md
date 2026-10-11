@@ -1978,25 +1978,29 @@ different units. The set is derived, not hand-listed.
   `BRIDGE_DECK`, `WATER`, `REEDS`, `GRASS`, `BASIN_MUD`, `EXPOSED_STONE`, and
   `FENCE_POST` carry the raised road, timber walks, drainage, worked reeds, dry
   rise and broader-water approach. Stable tile 127, `DEEP_REEDS`, is the route's
-  only new primitive: a deterministic rendered, impassable wetland blocker. The
+  only new primitive: a deterministic, rendered, visually distinct *walkable* wet
+  fen (made walkable by the exploration pass below; `category: 'natural'`), kept
+  `encounterEligible: false` pending a later encounter pass. The
   future camp site is reserved at `EASTERN_FENS_TRAVELLERS_RISE_MAP` `(12,3)`,
-  257 of 444 walking steps from the ferry landing (about 57.9%), without content
+  215 of 400 walking steps from the ferry landing (about 53.8%), without content
   or state. `EASTERN_FENS_PORT_THRESHOLD_MAP` `(18,0)` ends safely on firm ground
   beside open Valmere water, at an ordinary unconnected east border before the
   unbuilt port. The twenty-three chunks own no NPCs, items, encounters,
   interactions, quest triggers, or save bindings. Canonical regional position
   rejects negative world coordinates, so the route stays within rows 0–4.
-  **Deferred explorability rule:** roads should communicate direction, safety,
+  **Explorability pass (done):** roads should communicate direction, safety,
   and convenience—not define the only terrain the player is permitted to
-  traverse. A later, separate explorability pass will make `DEEP_REEDS`
-  walkable; open surrounding terrain into side routes, loops, and discovery
-  spaces; keep open water and major channels as genuine barriers; and use roads
-  as the safest and clearest route rather than a compulsory corridor. That pass
-  will decide whether deep reeds or mud affect movement speed, visibility, or
-  encounter pressure, and will connect or intentionally resolve every currently
-  unfinished branch path before the region is considered finished. None of
-  those deferred collision, encounter, movement, grid, topology, endpoint, or
-  branch changes are part of the current terrain skeleton.
+  traverse. The separate explorability pass has now made `DEEP_REEDS` walkable,
+  water-framed every non-seam chunk border, opened the surrounding reed country
+  into side routes, loops, and quiet discovery space, kept open water and major
+  channels as genuine barriers, and holds the road to within ~10% of the fastest
+  cross-country walk (444→400 steps) so it guides rather than imprisons. Still
+  deferred to later passes: whether deep reeds or mud affect movement speed,
+  visibility, or encounter pressure; encounter integration (deep reeds stay
+  encounter-ineligible for now); and a regional-envelope infill that connects or
+  intentionally resolves every remaining edge branch and removes any visible void
+  from reachable space before the region is considered finished. Those deferred
+  encounter, movement, and infill changes are not part of this terrain pass.
 - **North Basin — Flooded Rim.** `NORTH_BASIN_NW2_MAP` at `(0,0)` fills the
   northwest void with an accessible flooded woodland using the existing
   `north_basin` profile. WATER occupies 119/240 cells; its one connected
