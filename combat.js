@@ -653,7 +653,8 @@ const combatPlayerState = (() => {
     const neutral = (allowSession=false) => {
       validateInactiveCombatPreparation();
       if((sessionState&&(!allowSession||sessionState.commandSet!=='standard')) || galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() ||
-          partyCombatLab.isActive() || debugMenu.open || completedSingleVictoryReceipt!==null)invalid();
+          (partyCombatLab.isActive()&&!(allowSession&&sessionState?.commandSet==='standard')) ||
+          debugMenu.open || completedSingleVictoryReceipt!==null)invalid();
       const fields=Object.getOwnPropertyDescriptors(combat);
       if(Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([k,v])=>fields[k]?.value!==v) ||
           array(fields.messageQueue?.value).length || Reflect.ownKeys(fields).some(k=>
@@ -1380,6 +1381,7 @@ const combatPlayerState = (() => {
 const PARTY_ATTACK_TEMPLATE_IDS = Object.freeze([
   'enemy_marsh_wisp','enemy_briar_hound','enemy_marsh_wisp_early','enemy_briar_hound_early',
   'enemy_reed_grappler','enemy_silt_lurker','enemy_marsh_wisp_sluice_top','enemy_sluice_slime',
+  'enemy_mulholland',
 ]);
 
 // Validate the entire positive-weight sum before initiative RNG or round-state

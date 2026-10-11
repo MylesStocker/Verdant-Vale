@@ -12,7 +12,7 @@ function open(g){g.press('`');for(let i=0;i<12;i++)g.press('ArrowDown');g.press(
 function start(g,index=0){open(g);for(let i=0;i<index;i++)g.press('ArrowDown');g.press('Enter');assert.equal(g.run('partyCombatLab.isActive()'),true);return view(g);}
 function tape(g,values,work){g.run(`var partyTape=${JSON.stringify(values)},partyUsed=0;Math.random=()=>{labRngCalls++;if(partyUsed===partyTape.length)throw Error('tape exhausted');return partyTape[partyUsed++];};`);
   try{work();assert.equal(g.run('partyUsed'),values.length);}finally{g.run("Math.random=()=>{labRngCalls++;throw Error('unexpected party lab RNG');};");}}
-function submitBoth(g,first=0,second=0){let v=view(g);while(v.phase==='collecting'){const index=v.allyActions.length?second:first;
+function submitBoth(g,first=0,second=0){let v=view(g);while(['awaiting_action','targeting'].includes(v.phase)){const index=v.allyActions.length?second:first;if(v.phase==='awaiting_action'){g.press('Enter');v=view(g);assert.equal(v.phase,'targeting');}
   for(let moves=0;v.enemies.findIndex(e=>e.instanceId===v.selectedTargetInstanceId)!==index&&moves<10;moves++){g.press('ArrowRight');v=view(g);}
   assert.equal(v.enemies.findIndex(e=>e.instanceId===v.selectedTargetInstanceId),index);g.press('Enter');v=view(g);}assert.equal(v.phase,'ready');return v;}
 function ordinaryRoundTape(enemyCount){const actors=2+enemyCount;return [...Array(enemyCount).fill(0),...Array(actors-1).fill(0),...Array.from({length:actors},()=>HIT).flat()];}
@@ -35,22 +35,23 @@ test('scenario entry rejection stays recoverable in the submenu and is atomic',(
 });
 
 for(const index of [0,1,2])test('scenario '+index+' enters the authentic 2v'+(index+1)+' session',()=>{const g=fresh(),v=start(g,index);
-  assert.equal(v.party.length,2);assert.equal(v.enemies.length,index+1);assert.equal(v.phase,'collecting');assert.equal(v.nextActorId,v.party[0].instanceId);
-  assert.equal(v.selectedTargetInstanceId,v.enemies[0].instanceId);assert.equal(g.run('debugMenu.open'),false);assert.equal(g.run('labRngCalls'),0);
+  assert.equal(v.party.length,2);assert.equal(v.enemies.length,index+1);assert.equal(v.phase,'awaiting_action');assert.equal(v.nextActorId,v.party[0].instanceId);
+  assert.equal(v.selectedTargetInstanceId,null);assert.equal(v.selectedCommand,'attack');assert.equal(g.run('debugMenu.open'),false);assert.equal(g.run('labRngCalls'),0);
 });
 
 test('target selection wraps by living stable slot with zero RNG',()=>{const g=fresh(),first=start(g,2),calls=g.run('labRngCalls');
+  g.press('Enter');
   g.press('ArrowLeft');assert.equal(view(g).selectedTargetInstanceId,first.enemies[2].instanceId);g.press('d');assert.equal(view(g).selectedTargetInstanceId,first.enemies[0].instanceId);
   g.press('ArrowRight');assert.equal(view(g).selectedTargetInstanceId,first.enemies[1].instanceId);assert.equal(g.run('labRngCalls'),calls);
   g.keydown('ArrowRight',{repeat:true});g.release('ArrowRight');assert.equal(view(g).selectedTargetInstanceId,first.enemies[1].instanceId);
 });
 
 test('commands advance Lely to Esla, stop ready, and backtrack with exact target restoration',()=>{const g=fresh(),first=start(g,2);
-  g.press('ArrowRight');g.press('Enter');let v=view(g);assert.equal(v.nextActorId,v.party[1].instanceId);assert.equal(v.allyActions[0].targetId,first.enemies[1].instanceId);
-  assert.equal(v.selectedTargetInstanceId,first.enemies[0].instanceId);g.press('ArrowRight');g.press('ArrowRight');g.press('Enter');v=view(g);
+  g.press('Enter');g.press('ArrowRight');g.press('Enter');let v=view(g);assert.equal(v.nextActorId,v.party[1].instanceId);assert.equal(v.allyActions[0].targetId,first.enemies[1].instanceId);
+  assert.equal(v.selectedTargetInstanceId,null);g.press('Enter');g.press('ArrowRight');g.press('ArrowRight');g.press('Enter');v=view(g);
   assert.equal(v.phase,'ready');assert.equal(v.selectedTargetInstanceId,null);assert.equal(v.allyActions[1].targetId,first.enemies[2].instanceId);assert.equal(g.run('labRngCalls'),0);
-  g.press('Escape');v=view(g);assert.equal(v.phase,'collecting');assert.equal(v.nextActorId,v.party[1].instanceId);assert.equal(v.selectedTargetInstanceId,first.enemies[2].instanceId);
-  g.press('Escape');v=view(g);assert.equal(v.nextActorId,v.party[0].instanceId);assert.equal(v.selectedTargetInstanceId,first.enemies[1].instanceId);assert.equal(v.allyActions.length,0);
+  g.press('Escape');v=view(g);assert.equal(v.phase,'targeting');assert.equal(v.nextActorId,v.party[1].instanceId);assert.equal(v.selectedTargetInstanceId,first.enemies[2].instanceId);
+  g.press('Escape');v=view(g);assert.equal(v.phase,'awaiting_action');g.press('Escape');v=view(g);assert.equal(v.nextActorId,v.party[0].instanceId);assert.equal(v.selectedTargetInstanceId,first.enemies[1].instanceId);assert.equal(v.allyActions.length,0);
 });
 
 test('ready confirmation resolves once, begins at frame zero, and advances one frame per press',()=>{const g=fresh();start(g,1);submitBoth(g,0,1);
@@ -60,7 +61,7 @@ test('ready confirmation resolves once, begins at frame zero, and advances one f
   for(let steps=0;view(g).phase==='playback'&&steps<30;steps++){const before=view(g).playbackFrame.frameIndex;g.hold('Enter');g.hold('Enter');g.release('Enter');
     assert.equal(view(g).playbackFrame.frameIndex,before+1);assert.deepEqual(J(g,'[...combatPlayerState.getView().members,...combat.enemies].map(m=>m.hp)'),live);}
   assert.equal(view(g).phase,'playback_complete');g.press('Escape');assert.equal(view(g).phase,'playback_complete');g.press('Enter');
-  v=view(g);assert.equal(v.phase,'collecting');assert.equal(v.selectedTargetInstanceId,v.enemies.find(e=>e.hp>0).instanceId);
+  v=view(g);assert.equal(v.phase,'awaiting_action');assert.equal(v.selectedTargetInstanceId,null);
 });
 
 test('target RNG and scheduler RNG remain exact for one to three enemies',()=>{for(const enemies of [1,2,3]){const g=fresh();start(g,enemies-1);submitBoth(g);
@@ -71,8 +72,8 @@ test('target RNG and scheduler RNG remain exact for one to three enemies',()=>{f
 
 test('a killed enemy retains its slot, is skipped, and the next round selects the lowest survivor',()=>{const g=fresh();g.run('stats.atk=100;');const initial=start(g,1);
   submitBoth(g,0,0);tape(g,[0,0,0,0,0,...HIT,...HIT],()=>g.press('Enter'));finishPlayback(g);g.press('Enter');const next=view(g);
-  assert.equal(next.phase,'collecting');assert.deepEqual(next.enemies.map(e=>e.slot),[0,1]);assert.equal(next.enemies[0].hp,0);
-  assert.equal(next.selectedTargetInstanceId,next.enemies[1].instanceId);const calls=g.run('labRngCalls');g.press('ArrowRight');assert.equal(view(g).selectedTargetInstanceId,next.enemies[1].instanceId);assert.equal(g.run('labRngCalls'),calls);
+  assert.equal(next.phase,'awaiting_action');assert.deepEqual(next.enemies.map(e=>e.slot),[0,1]);assert.equal(next.enemies[0].hp,0);
+  assert.equal(next.selectedTargetInstanceId,null);g.press('Enter');assert.equal(view(g).selectedTargetInstanceId,next.enemies[1].instanceId);const calls=g.run('labRngCalls');g.press('ArrowRight');assert.equal(view(g).selectedTargetInstanceId,next.enemies[1].instanceId);assert.equal(g.run('labRngCalls'),calls);
   assert.notEqual(initial.enemies[0].instanceId,initial.enemies[1].instanceId);
 });
 
@@ -101,9 +102,10 @@ test('unexpected controller failure restores canonical state, reports it, and re
 });
 
 test('renderer cursor and routing are exact, bounded, deterministic and mutation-free',()=>{for(let i=0;i<3;i++){const g=fresh();start(g,i);
+  g.press('Enter');
   g.run(`var partyPaint=[];ctx.fillRect=(...a)=>partyPaint.push({type:'fillRect',args:a,fill:ctx.fillStyle});ctx.strokeRect=(...a)=>partyPaint.push({type:'strokeRect',args:a});ctx.fillText=(...a)=>partyPaint.push({type:'text',args:a,fill:ctx.fillStyle});ctx.fill=()=>partyPaint.push({type:'fill',fill:ctx.fillStyle});`);
   const before=canonical(g),lab=JSON.stringify(view(g));g.run('drawPartyCombatLabBattle()');const paint=J(g,'partyPaint');assert.equal(canonical(g),before);assert.equal(JSON.stringify(view(g)),lab);
-  assert.equal(paint.filter(p=>p.type==='fill'&&p.fill==='#f0e8b8').length,2,'enemy target and choosing-ally arrows');
+  assert.equal(paint.filter(p=>p.type==='fill'&&p.fill==='#f0e8b8').length,1,'one enemy target cursor');
   const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');for(const p of layout.enemies)assert.ok(p.x>=0&&p.spriteY>=0&&p.x+p.width<=512&&p.spriteY+p.spriteHeight<=480);
   assert.ok(layout.allies.every(p=>p.x>=0&&p.x<=512&&p.feetY===277));
   submitBoth(g);g.run('partyPaint=[];drawPartyCombatLabBattle()');assert.equal(J(g,"partyPaint.filter(p=>p.type==='fill'&&p.fill==='#f0e8b8').length"),0);}}

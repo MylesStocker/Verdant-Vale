@@ -21,7 +21,7 @@ function snapshot(g){return g.run(`JSON.stringify({stats,statusEffects,player,da
   flags:QUEST_FLAG_BINDINGS.map(b=>b.get()),save:localStorage.getItem('verdantVale_save')})`);}
 function draw(g){g.run('partyPaint=[];drawPartyCombatLabBattle();');return J(g,'partyPaint');}
 const texts=calls=>calls.filter(call=>call.type==='text').map(call=>call.args[0]);
-function commandAll(g,target=null){while(view(g).phase==='collecting'){const v=view(g);assert.ok(g.run('partyCombatLab.submitAttack('+JSON.stringify({actorId:v.nextActorId,targetId:target||v.livingTargetIds[0]})+')'));}}
+function commandAll(g,target=null){while(['awaiting_action','targeting'].includes(view(g).phase)){const v=view(g);assert.ok(g.run('partyCombatLab.submitAttack('+JSON.stringify({actorId:v.nextActorId,targetId:target||v.enemies.find(e=>e.hp>0).instanceId})+')'));}}
 function commit(g,tape){g.run(`var renderTape=${JSON.stringify(tape)},renderUsed=0;Math.random=()=>{renderRng++;if(renderUsed===renderTape.length)throw Error('tape exhausted');return renderTape[renderUsed++];};`);
   assert.ok(g.run('partyCombatLab.commitRound()'));assert.equal(g.run('renderUsed'),tape.length);
   g.run("Math.random=()=>{renderRng++;throw Error('renderer consumed RNG');};");}
@@ -46,17 +46,18 @@ test('one to three enemies occupy deterministic stable slots and all records sta
 
 test('current ally and submitted exact targets remain presentation-only without diagnostics',()=>{
   const g=fresh('lely_esla_two'),first=view(g),enemy=first.enemies[1];let labels=texts(draw(g));
-  assert.ok(labels.includes('Choose a target.'));assert.ok(!labels.includes('CHOOSING'));
+  assert.ok(labels.includes('Choose an action.'));assert.ok(!labels.includes('CHOOSING'));
   assert.ok(g.run('partyCombatLab.submitAttack('+JSON.stringify({actorId:first.nextActorId,targetId:enemy.instanceId})+')'));
   const second=view(g);labels=texts(draw(g));assert.equal(second.nextActorId,second.party[1].instanceId);
-  assert.ok(labels.includes("Choose Esla's target."));assert.ok(!labels.some(label=>label.includes('Attack →')));
+  assert.ok(labels.includes('Choose an action.'));assert.ok(!labels.some(label=>label.includes('Attack →')));
+  assert.ok(g.run('partyCombatLab.confirmCommand()'));labels=texts(draw(g));assert.ok(labels.includes('Choose a target.'));
   assert.ok(!labels.some(label=>/submitted|CHOOSING|FRAME|EVENT|ROUNDS/.test(label)));
 });
 
 test('one cursor follows the exact selected living runtime identity and disappears outside selection',()=>{
-  const g=fresh('lely_esla_three');let v=view(g),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
+  const g=fresh('lely_esla_three');assert.ok(g.run('partyCombatLab.confirmCommand()'));let v=view(g),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.target.instanceId,v.selectedTargetInstanceId);assert.equal(layout.target.slot,0);
-  assert.equal(draw(g).filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8').length,2);
+  assert.equal(draw(g).filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8').length,1);
   assert.ok(g.run('partyCombatLab.moveTarget("next")'));v=view(g);layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.target.instanceId,v.enemies[1].instanceId);assert.equal(layout.target.slot,1);
   commandAll(g);assert.equal(J(g,'partyCombatLabBattleLayout(partyCombatLab.getView()).target'),null);
@@ -94,7 +95,7 @@ test('defeat marks both Lely and Esla defeated without recovery or slot compacti
 });
 
 test('every phase draw consumes zero RNG and mutates no Lab, combat or world state',()=>{
-  const g=fresh('lely_esla_three');for(const stage of ['collecting','ready','playback','playback_complete']){
+  const g=fresh('lely_esla_three');for(const stage of ['awaiting_action','ready','playback','playback_complete']){
     if(stage==='ready')commandAll(g);else if(stage==='playback')commit(g,[0,0.5,0.999,0,0,0,0,...Array.from({length:5},()=>HIT).flat()]);else if(stage==='playback_complete')complete(g);
     const before=snapshot(g),rng=g.run('renderRng'),first=draw(g);assert.equal(snapshot(g),before);assert.equal(g.run('renderRng'),rng);assert.deepEqual(draw(g),first);assert.equal(snapshot(g),before);
   }

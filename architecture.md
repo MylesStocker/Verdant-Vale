@@ -179,7 +179,8 @@ effect-duration timing remain deferred. No canonical stats or encounters were ad
 ### Generalized headless party command authority
 
 `combatPlayerState.initializeCommandParty({members, inventory, escape})` is a
-separate explicit preparation gate, with no production caller. `members` uses
+separate explicit preparation gate whose only production caller is the isolated
+Party Combat Lab. `members` uses
 the same closed descriptor schema/identity allocator as `initialize()`, but
 accepts 1–3 ordered members. `inventory` is a dense detached array of registered
 item-name IDs (duplicates represent quantities); no canonical inventory object
@@ -190,9 +191,10 @@ alongside the existing party authority, without enemy cleanup, rewards or RNG.
 
 This gate requires an inactive, untouched, allowlisted singleton or formation,
 no session/playback/messages/outcomes or active Lab/UI. It validates the entire
-request before allocating party identities. The eight ordinary Attack templates
-remain the enemy allowlist; no enemy capabilities or Receiver coordination are
-introduced. An internal WeakMap captures `isBoss === true` when each enemy
+request before allocating party identities. The ordinary Attack templates plus
+the Lab-only Mulholland boss-lock scenario form the closed enemy allowlist; no
+Receiver coordination or bespoke enemy capabilities are introduced. An internal
+WeakMap captures `isBoss === true` when each enemy
 instance is created. It adds no enumerable enemy field or save metadata. The
 prepared command encounter retains that lock even after the boss dies. Member
 and enemy arrays are bound exactly; external enemy HP/stat/observation edits or
@@ -531,9 +533,9 @@ flags, inventory, equipment, rewards or saves are changed; `SAVE_VERSION` is 4.
 `initializeCommandParty()` state: one to three fixed ally slots against one to
 three supported enemies. It extends the same private `sessionState` closure and
 single-use resolver permit; it is not another controller or party model. Options
-are closed records. No production caller requests standard mode. No-argument
-`begin()` and every existing Attack-only Lab view, control and rendering contract
-remain unchanged. The two modes reject simultaneous entry and cannot adopt an
+are closed records. The isolated Party Combat Lab is the sole production caller.
+No-argument `begin()` remains available as the Attack-only compatibility path.
+The two modes reject simultaneous entry and cannot adopt an
 already resolved standalone round.
 
 The standard command order is `attack, item, observe, run`. Its additional API is:
@@ -615,10 +617,11 @@ frame reveals outcome at its recorded boundary; terminal phase waits for ack.
 
 Suite 173 covers selection, reservations, backtracking, all party sizes, Run,
 exact target RNG, once-only scheduling/playback, historical continuity, stale
-bindings, fault lockout and no external standard-mode callers. Legacy party and
-formation suites continue to assert their original schemas/traces. No input,
-renderer, Lab menus, content, persistent state or save bindings are changed;
-`SAVE_VERSION` remains 4. Visible gameplay still offers Attack-only party combat.
+bindings, fault lockout and no unauthorized standard-mode callers. Legacy party
+and formation suites continue to assert their original schemas/traces. The
+debug-only Lab integration below owns the sole external standard-mode call path.
+No encounter, content, persistent state or save bindings are changed;
+`SAVE_VERSION` remains 4.
 
 ### Gated headless party session (Attack-only mode)
 
@@ -698,12 +701,14 @@ remain deferred.
 ### Isolated Party Combat Lab adapter
 
 `party-combat-lab.js` owns the isolated lifecycle around the authentic party
-foundation and session. `PARTY_COMBAT_LAB_SCENARIOS` is a frozen three-record
+foundation and session. `PARTY_COMBAT_LAB_SCENARIOS` is a frozen five-record
 catalogue with stable IDs `lely_esla_one`, `lely_esla_two` and
 `lely_esla_three`; their supported ordinary memberships are respectively Marsh
 Wisp; Marsh Wisp plus Briar Hound; and Reed Grappler, Silt Lurker plus Sluice
-Slime. No Receiver, boss, bespoke capability, generated enemy or encounter
-ownership enters this catalogue.
+Slime. `command_showcase` uses two durable Reed Grapplers with wounded allies,
+Curse and prepared Slither state. `boss_escape_lock` uses the existing Mulholland
+template solely to display snapshotted `isBoss` Run blocking. No Receiver,
+generated enemy or encounter ownership enters this catalogue.
 
 The frozen `partyCombatLab` API is:
 
@@ -715,8 +720,10 @@ The frozen `partyCombatLab` API is:
 | `enter(id)` | Validate everything, install temporary enemies/party, then begin the real session. |
 | `openMenu()` / `moveScenario()` / `closeMenu()` / `startScenario()` | Own the debug-only scenario-selection lifecycle. |
 | `getView()` | Return a detached immutable active/inactive presentation view and recoverable error. |
-| `moveTarget(direction)` / `confirmTarget()` | Own exact living-enemy selection and submit the current ally's Attack. |
-| `submitAttack(action)` / `backtrack()` | Delegate exact command collection only in valid phases. |
+| `moveCommand()` / `confirmCommand()` | Forward standard Attack, Item, Observe and Run selection. |
+| `moveItem()` / `confirmItem()` / `cancelItem()` | Forward the controller-owned item cursor, scroll and parent cancellation. |
+| `moveTarget()` / `confirmTarget()` / `cancelTargeting()` | Forward exact ally/enemy targeting without accepting identities from input. |
+| `submitAttack(action)` / `backtrack()` | Retain the exact-ID compatibility path and delegate deterministic editing. |
 | `commitRound()` | Delegate one authentic session commit, including enemy planning, scheduler and playback. |
 | `advancePlayback()` / `acknowledgePlayback()` | Delegate the existing historical frame boundaries. |
 | `exit()` | Abandon temporary state without resolution, reward, recovery or RNG. |
@@ -743,10 +750,15 @@ No Esla combat stat authority exists in canon. The adapter-local frozen
 level, equipment, Rareborn, resonance or persistent field. Her authored name is
 reused; the profile is not character progression data.
 
-The immutable Lab view exposes only active state, scenario ID/label, compact
-Lely/Esla and enemy descriptors, session phase, next actor, submitted commands,
-living target IDs, the selected target runtime ID, current playback frame,
-terminal outcome and diagnostic text.
+Each entry also installs a detached shared inventory from existing registry IDs:
+Potion ×3; Elixir, Reed Remedy, Amethyst Dust, Bullet Time, Throwing Knife and
+Bomb ×2; and Sapper Charge, Void Shard, Bait, Iron Sword and Iron Shield ×1.
+It is discarded on cleanup and never aliases canonical inventory or equipment.
+
+The immutable Lab view adds only active state, scenario ID/label, presentation
+profiles and diagnostic text to the controller view. Command/item cursors, scroll,
+targets, drafts, reservations, historical state, playback and outcome remain
+exclusively controller-owned.
 It contains no canonical reference or callback. World simulation and keyboard
 input are already inert while `combatPlayerState.hasParty()`; saving is already
 refused. Loading has one narrow additional refusal while the Party Lab is active,
@@ -784,15 +796,17 @@ structurally reserved but no third Lab member or canonical party is added.
 
 The lower panel reuses the ordinary battle frame, colours, monospace typography,
 segmented green HP meters and four command-box positions. It reserves three
-compact member rows. Attack remains visually enabled; Item, Observe and Run stay
-visible and dimmed because this Lab remains Attack-only. Context and playback
-events use the ordinary message area. Runtime IDs, submitted-record dumps,
+compact member rows. Attack, Item, Observe and Run are controller-selectable;
+the selected command uses the established highlight. Item selection uses three
+visible rows, available quantities, scrolling and unusable dimming. Context and
+playback events use the ordinary message area. Runtime IDs, submitted-record dumps,
 diagnostic phases, control tutorials and large choosing labels are never drawn;
 a small pale battlefield arrow identifies the choosing ally.
 
 During playback, event text comes only from `playbackFrame.currentEvent` and all
-displayed HP comes from the Lab view's historical party/enemy projection. Attack,
-evasion, skip, dead-target cancellation and round-end records are formatted
+displayed HP, inventory, equipment, status, effect and observation state comes
+from the historical projection. Attack, Item, equipment, Observe, Run, Curse,
+Slither, delayed effects, skips, cancellations and round boundaries are formatted
 without recomputing combat. The playback-complete phase displays an explicit
 pending-acknowledgement final frame; acknowledged victory/defeat keeps the same
 final frame and HP visible.
@@ -800,23 +814,28 @@ final frame and HP visible.
 The renderer calls no controller, scheduler, playback projector, RNG, identity,
 save or gameplay authority. It does not increment `tick`. `render.js` routes to
 it before world or combat drawing only while `partyCombatLab.isActive()`; it stays
-inert otherwise. The renderer validates the adapter-owned selected runtime ID and
-draws exactly one cursor over that living stable slot only during command
-collection. Suite 167 uses recorded canvas calls and exact state snapshots to
+inert otherwise. The renderer validates the controller-owned selected runtime ID
+and draws exactly one cursor over that living ally or enemy slot only during
+targeting. Suite 167 uses recorded canvas calls and exact state snapshots to
 enforce this read-only boundary. Suite 169 additionally fixes the authentic
 sprite/frame contract, three-slot geometry and source hashes for the unchanged
 singleton, Formation and Receiver render authorities.
 
 The existing backtick debug menu has one `DEV: Party Combat Lab` row and a
-three-scenario submenu. `input.js` routes that submenu and active Lab before every
+five-scenario submenu. `input.js` routes that submenu and active Lab before every
 world/combat handler while retaining the shared pressed-key latch and native
-repeat guard. During collection, Left/Right or A/D moves the adapter-owned target,
-Enter/Space submits it, and Escape/B removes the last command or exits when no
-command exists. Ready requires a separate confirmation; playback requires one
+repeat guard. Left/Right or A/D moves commands and exact targets; Up/Down or W/S
+moves the item list. Enter/Space confirms, while Escape/B cancels to the correct
+parent, backtracks, or exits only from the first untouched ally/terminal phase.
+Ready and ready-Run require separate confirmation; playback requires one
 confirmation per frame and another for the retained final frame. Terminal
-victory/defeat exits only with Escape/B. No arbitrary IDs originate in input.
+victory/defeat/escape exits only with Escape/B. No arbitrary IDs originate in input.
 Normal exit and emergency abort return to the Party Lab submenu, restore only by
 discarding temporary authorities, and never invoke reward or recovery code.
+Suite 174 covers the five scenarios, four-command navigation, item reservations
+and targeting categories, normal/failed/blocked Run, historical rendering,
+terminal cleanup and exact canonical-state isolation. Ordinary singleton,
+Formation, Receiver and Attack-only compatibility paths remain separate.
 
 ### Combat compatibility baseline reconciliation
 

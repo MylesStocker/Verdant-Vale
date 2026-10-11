@@ -1607,9 +1607,9 @@ function drawPartyCombatLabMenu() {
   ctx.fillStyle = '#e8a030';ctx.font = 'bold 13px "Courier New", monospace';
   ctx.fillText('DEV: PARTY COMBAT LAB',56,142);
   ctx.fillStyle = '#8aaa98';ctx.font = '10px "Courier New", monospace';
-  ctx.fillText('Lely/Esla Attack-only test. No rewards or progression.',56,160);
+  ctx.fillText('Lely/Esla command test. No rewards or progression.',56,160);
   PARTY_COMBAT_LAB_SCENARIOS.forEach((scenario,i) => {
-    const y = 190 + i * 30;
+    const y = 184 + i * 28;
     if (i === view.cursor) {
       ctx.fillStyle = '#173442';ctx.fillRect(52,y-15,408,24);
     }
@@ -1618,9 +1618,9 @@ function drawPartyCombatLabMenu() {
     ctx.fillText((i === view.cursor ? '\u25b6 ' : '  ') + scenario.label,60,y,392);
   });
   ctx.font = '10px "Courier New", monospace';ctx.fillStyle = '#8aaa98';
-  ctx.fillText('\u2191/\u2193 or w/s: select \u00b7 Enter/Space: start \u00b7 Esc/B: back',52,312,408);
+  ctx.fillText('\u2191/\u2193 or w/s: select \u00b7 Enter/Space: start \u00b7 Esc/B: back',52,342,408);
   ctx.fillStyle = '#e8bc80';
-  wrapMonospaceText(ctx,view.error,400).slice(0,3).forEach((line,i)=>ctx.fillText(line,56,337+i*12));
+  wrapMonospaceText(ctx,view.error,400).slice(0,3).forEach((line,i)=>ctx.fillText(line,56,363+i*12));
   ctx.restore();
 }
 

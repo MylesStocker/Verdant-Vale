@@ -56,10 +56,9 @@ formation schedulers are unchanged.
 `initializeCommandParty({members, inventory, escape})` prepares one to three
 fixture members against one to three already-prepared ordinary enemies.
 `resolveRound({type:'party-round', allyActions, enemyActions})` accepts mixed
-Attack, Item and Observe commands, or one whole-party Run. No production caller
-prepares this state; only the explicit standard session below calls the resolver.
-The playable Lab, its pair preparation, Attack scheduler,
-controller, playback, input and visible commands are unchanged.
+Attack, Item and Observe commands, or one whole-party Run. The isolated Party
+Combat Lab is the only production preparation caller; its standard session is
+the only resolver caller. No encounter or canonical party route reaches it.
 
 Inventory is a detached shared list of registry item IDs. Equipment and Bullet
 Time belong to the selected member (equipment must target its user); each user's
@@ -108,15 +107,16 @@ authoritative after snapshot. No formulas, RNG or live combat state are consulte
 
 Suite 172 covers every selectable item, 1–3 members per side, 3v3, malformed
 histories and independence from later rounds/cleanup/replacement/save-load.
-Existing Attack playback is unchanged. Generalized Lab commands, input,
-rendering and gameplay integration remain deferred. No save changes.
+Existing Attack playback is unchanged. The isolated debug Lab now presents these
+histories; canonical gameplay integration remains deferred. No save changes.
 
 ### Generalized headless party sessions
 
 `combatPlayerState.session.begin({commandSet:'standard'})` now collects Attack,
 Item, Observe or a whole-party Run for one to three prepared allies/enemies.
-This is an explicit test-only entry mode in the existing session closure; the
-playable Party Lab still uses its unchanged no-argument Attack-only mode.
+This is an explicit gated entry mode in the existing session closure. The
+playable Party Combat Lab is its only caller; the no-argument Attack-only mode
+remains available for compatibility tests.
 
 The controller owns command/item/target cursors, exact runtime-ID drafts, shared
 inventory reservations and deterministic cancellation/backtracking. Normal rounds
@@ -130,8 +130,7 @@ retain their historical final frame. Post-RNG faults retain evidence and lock re
 Standard views expose frozen historical inventory, equipment, statuses, effects,
 Slither ownership, observation and HP throughout playback. Suite 173 covers these
 flows, reservations, all supported party sizes and failure/isolation boundaries.
-No standard-mode production caller, visible commands, input/render integration,
-rewards, recovery, canonical party membership or save changes are added.
+Rewards, recovery, canonical party membership and save changes remain excluded.
 
 ### Detached multi-actor Attack playback
 
@@ -177,19 +176,20 @@ canonical parties, saves and gameplay entry remain excluded (`SAVE_VERSION` 4).
 
 ### Isolated Lely/Esla Party Combat Lab
 
-`partyCombatLab` is an isolated lifecycle adapter with three frozen scenarios:
+`partyCombatLab` is an isolated lifecycle adapter with five frozen scenarios:
 Lely and Esla against one Marsh Wisp, against a Marsh Wisp and Briar Hound, or
-against a Reed Grappler, Silt Lurker and Sluice Slime. It is the only production
-caller for party preparation and session start. It exposes scenario listing,
-entry, immutable inspection, exact Attack submission/backtracking, round commit,
-playback stepping/acknowledgement, normal exit and emergency abort. The backtick
-debug menu exposes only these three scenarios; no encounter or normal-gameplay caller exists.
+against a Reed Grappler, Silt Lurker and Sluice Slime, plus a durable command/status
+showcase and a Lab-local Mulholland boss-lock check. It is the only production
+caller for generalized party preparation and standard session start. It forwards
+all command, item, target, reservation and playback operations to the controller;
+the adapter owns only scenario selection and lifecycle. The backtick debug menu
+exposes all five scenarios; no encounter or normal-gameplay caller exists.
 
 Lab Lely is a detached snapshot of canonical current HP/max HP and the established
 `effectiveAtk()`, `effectiveDef()` and `effectiveSpd()` values. Canonical stats,
-equipment and inventory remain untouched. Entry rejects statuses, special gear
-capabilities, active/pending combat and other state the Attack-only party contract
-cannot represent. Esla's Lab-only provisional profile is 50 HP, 10 ATK, 4 DEF
+equipment and inventory remain untouched. Entry rejects unsupported canonical
+statuses, special gear capabilities and active/pending combat. Esla's Lab-only
+provisional profile is 50 HP, 10 ATK, 4 DEF
 and 8 SPD; it is adapter data, not canonical progression or a Rareborn ability.
 
 The adapter validates scenarios, all possible attack arithmetic and complete
@@ -201,11 +201,17 @@ finalizer, reward, recovery or transition and consume no cleanup RNG. Runtime
 identities remain monotonic so immediate re-entry receives fresh IDs; they are
 transient provenance, not restored canonical state.
 
+Every scenario receives a detached Lab inventory containing healing, cure,
+Bullet Time, immediate and delayed throwables, Void Shard, the established Bait
+no-op, and ordinary weapon/shield equipment. Quantities are intentionally mixed
+so controller reservations are visible. The showcase starts both allies wounded,
+with Lely Cursed and Esla carrying prepared Slither Speed; none of this persists.
+
 Prepared-party guards freeze simulation and refuse saves. `loadGame()` now also
 refuses while this Lab is active, rather than clearing the Lab through the normal
 prepared-state load boundary. Unexpected controller errors are reported in the
 scenario submenu after guarded cleanup and are never retried. Suite
-166 covers all three capacities, authoritative stat derivation, real round flow,
+166 covers all three enemy capacities, authoritative stat derivation, real round flow,
 victory/defeat, mid-command and mid-playback cleanup, exact canonical restoration,
 save isolation, failure diagnostics and immediate re-entry. Suite 168 covers the
 debug submenu, exact target selection, keyboard routing, render routing and safe
@@ -232,10 +238,14 @@ operations and proves deterministic slot geometry, historical-frame fidelity,
 terminal-frame retention and zero state mutation. Suite 169 locks the visual
 convergence, three-ally layout capacity and unchanged singleton/Formation/
 Receiver render sources. The adapter owns exact target selection by enemy runtime
-identity; the renderer adds one pale cursor only in the collecting phase. Input
-uses the existing physical-key latch: arrows/A/D choose, Enter/Space confirms,
-and Escape/B backtracks or exits at safe boundaries. Item, Observe and Run remain
-visible but dimmed; only Attack is implemented.
+identity; the renderer adds one pale cursor only during exact ally/enemy targeting.
+Input uses the existing physical-key latch. Left/Right or A/D move commands and
+targets, Up/Down or W/S move the three-row item list, Enter/Space confirms, and
+Escape/B cancels, backtracks or exits at safe boundaries. All four commands are
+active in the Lab. Playback formats recorded Attack, Item, equipment, Observe,
+Run, Curse, Slither and delayed-effect events without recalculation. Suite 174
+covers visible routing, reservations, all scenarios, historical presentation,
+terminal cleanup and canonical-state isolation.
 
 ### MQ5 and the eastern Valmere road
 

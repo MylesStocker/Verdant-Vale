@@ -1,16 +1,26 @@
 'use strict';
 
-// Isolated developer-Lab lifecycle. It owns its scenario menu and exact target
-// selection; input and rendering remain thin adapters over immutable views.
+// Isolated developer-Lab lifecycle. The standard combatPlayerState session owns
+// every command, item, target, reservation and playback choice. This adapter
+// owns only scenario selection and temporary Lab entry/cleanup.
 const PARTY_COMBAT_LAB_ESLA_PROFILE = Object.freeze({
   characterId:'esla_lab', name:'Esla', hp:50, maxHp:50, atk:10, def:4, spd:8,
 });
+
+const PARTY_COMBAT_LAB_INVENTORY = Object.freeze([
+  'Potion','Potion','Potion','Elixir','Elixir','Reed Remedy','Reed Remedy',
+  'Amethyst Dust','Amethyst Dust','Bullet Time','Bullet Time','Throwing Knife',
+  'Throwing Knife','Sapper Charge','Bomb','Bomb','Void Shard','Bait','Iron Sword','Iron Shield',
+]);
 
 const PARTY_COMBAT_LAB_SCENARIOS = Object.freeze([
   {id:'lely_esla_one',label:'Lely and Esla — one enemy',enemyIds:['enemy_marsh_wisp']},
   {id:'lely_esla_two',label:'Lely and Esla — two enemies',enemyIds:['enemy_marsh_wisp','enemy_briar_hound']},
   {id:'lely_esla_three',label:'Lely and Esla — three enemies',enemyIds:['enemy_reed_grappler','enemy_silt_lurker','enemy_sluice_slime']},
-].map(s=>Object.freeze({id:s.id,label:s.label,enemyIds:Object.freeze(s.enemyIds)})));
+  {id:'command_showcase',label:'Command and status showcase',enemyIds:['enemy_reed_grappler','enemy_reed_grappler'],showcase:true},
+  {id:'boss_escape_lock',label:'Boss escape lock',enemyIds:['enemy_mulholland'],escape:'fastest_living'},
+].map(s=>Object.freeze({id:s.id,label:s.label,enemyIds:Object.freeze(s.enemyIds),
+  showcase:s.showcase===true,escape:s.escape||'fastest_living'})));
 
 const partyCombatLab = (() => {
   let lab=null;
@@ -28,25 +38,27 @@ const partyCombatLab = (() => {
   };
   const enemyData=scenario=>scenario.enemyIds.map(id=>{
     if(!PARTY_ATTACK_TEMPLATE_IDS.includes(id))fail('Party Combat Lab scenario uses an unsupported enemy');
-    const descriptor=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id);
-    const template=descriptor&&descriptor.value;
+    const descriptor=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id),template=descriptor?.value;
     if(!descriptor || !Object.hasOwn(descriptor,'value') || !template ||
         Object.getPrototypeOf(template)!==Object.getPrototypeOf({}))fail('Party Combat Lab scenario has invalid enemy data');
-    const fields=Object.getOwnPropertyDescriptors(template);
-    if(Reflect.ownKeys(fields).length!==FORMATION_STATE_DATA_FIELDS.length ||
-        FORMATION_STATE_DATA_FIELDS.some(key=>!fields[key]||!Object.hasOwn(fields[key],'value')) ||
+    const fields=Object.getOwnPropertyDescriptors(template),keys=[...FORMATION_STATE_DATA_FIELDS];
+    if(Object.hasOwn(template,'isBoss'))keys.push('isBoss');
+    if(Reflect.ownKeys(fields).length!==keys.length || keys.some(key=>!fields[key]||!Object.hasOwn(fields[key],'value')) ||
         !formationBasicStatsValid(template) || typeof template.name!=='string' || template.id!==id ||
-        ['xp','goldMin','goldMax'].some(key=>!Number.isSafeInteger(template[key])||template[key]<0))
+        ['xp','goldMin','goldMax'].some(key=>!Number.isSafeInteger(template[key])||template[key]<0) ||
+        (Object.hasOwn(template,'isBoss')&&typeof template.isBoss!=='boolean'))
       fail('Party Combat Lab scenario has invalid enemy data');
-    return Object.fromEntries(FORMATION_STATE_DATA_FIELDS.map(key=>[key,fields[key].value]));
+    return Object.fromEntries(keys.map(key=>[key,fields[key].value]));
   });
-  const partyData=()=>{
+  const partyData=scenario=>{
     validateFormationPlayerBasicState(false);
     if(statusEffects.length || !['weapon','armor','shield','accessory'].every(slot=>ordinaryGear(stats[slot])) ||
         typeof stats.name!=='string' || !stats.name.trim())fail('Party Combat Lab requires ordinary supported Lely state');
-    const lely={characterId:'lely_lab',slot:0,name:stats.name,hp:stats.hp,maxHp:stats.maxHp,
-      atk:effectiveAtk(),def:effectiveDef(),spd:effectiveSpd(),statuses:[]};
-    const esla={...PARTY_COMBAT_LAB_ESLA_PROFILE,slot:1,statuses:[]};
+    const lely={characterId:'lely_lab',slot:0,name:stats.name,
+      hp:scenario.showcase?Math.max(1,Math.floor(stats.maxHp*0.55)):stats.hp,maxHp:stats.maxHp,
+      atk:effectiveAtk(),def:effectiveDef(),spd:effectiveSpd(),statuses:scenario.showcase?['cursed']:[]};
+    const esla={...PARTY_COMBAT_LAB_ESLA_PROFILE,slot:1,
+      hp:scenario.showcase?30:PARTY_COMBAT_LAB_ESLA_PROFILE.hp,statuses:scenario.showcase?['slither']:[]};
     return [lely,esla];
   };
   const preflight=(scenario,fromSubmenu=false)=>{
@@ -60,7 +72,7 @@ const partyCombatLab = (() => {
     const combatFields=Object.getOwnPropertyDescriptors(combat);
     if(Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value])=>combatFields[key]?.value!==value) ||
         !Array.isArray(combat.messageQueue) || combat.messageQueue.length)fail();
-    const party=partyData(),enemies=enemyData(scenario);
+    const party=partyData(scenario),enemies=enemyData(scenario);
     if(scenario.enemyIds.length>1)validateFormationDescriptors(
       scenario.enemyIds.map((enemyId,slot)=>({enemyId,slot})));
     for(const ally of party)for(const enemy of enemies) {
@@ -68,39 +80,23 @@ const partyCombatLab = (() => {
           !attackNumbersAreSafe(enemy.atk,playerIncomingMitigation(enemy.atk,ally.def,false)))fail();
     }
     partyInitiativeWeights([...party,...enemies]);
+    for(const itemId of PARTY_COMBAT_LAB_INVENTORY)formationItemDefinition(itemId);
     return {party,enemies};
   };
   const sessionView=()=>combatPlayerState.session.getView();
-  const lowestLivingTarget=session=>session.enemies.find(enemy=>enemy.hp>0)?.instanceId||null;
-  const validLivingTarget=(session,targetId)=>typeof targetId==='string' &&
-    session.enemies.some(enemy=>enemy.hp>0&&enemy.instanceId===targetId);
-  const setSelection=(session,preferred=null)=>{
-    lab.selectedTargetInstanceId=validLivingTarget(session,preferred)?preferred:lowestLivingTarget(session);
-    if(session.phase==='collecting' && !lab.selectedTargetInstanceId)fail('Party Combat Lab has no living target');
-  };
   const buildView=()=>{
-    if(!lab)return copy({active:false,scenarioId:lastScenarioId,label:null,party:[],enemies:[],
-      phase:null,nextActorId:null,allyActions:[],livingTargetIds:[],playbackFrame:null,
-      selectedTargetInstanceId:null,terminalOutcome:null,error:lastError});
+    if(!lab)return copy({active:false,scenarioId:lastScenarioId,label:null,party:[],enemies:[],phase:null,
+      nextActorId:null,allyActions:[],enemyActions:[],commands:[],selectedCommand:null,selectedTargetInstanceId:null,
+      validTargetIds:[],items:[],playbackFrame:null,terminalOutcome:null,error:lastError});
     const session=sessionView();
-    if(!session)fail('Party Combat Lab lost its session');
-    const selected=session.phase==='collecting'?lab.selectedTargetInstanceId:null;
-    if(session.phase==='collecting'&&!validLivingTarget(session,selected))fail('Party Combat Lab lost its selected target');
-    return copy({active:true,scenarioId:lab.scenario.id,label:lab.scenario.label,
-      party:session.party.map(member=>({characterId:member.characterId,instanceId:member.instanceId,
-        slot:member.slot,name:member.name,hp:member.hp,maxHp:member.maxHp,
-        profile:member.characterId==='lely_lab'?'canonical_snapshot':'lab_provisional'})),
-      enemies:session.enemies.map(enemy=>({id:enemy.id,instanceId:enemy.instanceId,slot:enemy.slot,
-        name:enemy.name,hp:enemy.hp,maxHp:enemy.maxHp})),phase:session.phase,
-      nextActorId:session.nextActorId,allyActions:session.allyActions,
-      livingTargetIds:session.enemies.filter(enemy=>enemy.hp>0).map(enemy=>enemy.instanceId),
-      selectedTargetInstanceId:selected,playbackFrame:session.playbackFrame,
-      terminalOutcome:session.terminalOutcome,error:lastError});
+    if(!session || session.commandSet!=='standard')fail('Party Combat Lab lost its standard session');
+    return copy({...session,active:true,scenarioId:lab.scenario.id,label:lab.scenario.label,
+      party:session.party.map(member=>({...member,
+        profile:member.characterId==='lely_lab'?'canonical_snapshot':'lab_provisional'})),error:lastError});
   };
   const restoreSubmenu=()=>{
     if(!submenu)return;
-    debugMenu.open=true;debugMenu.cursor=submenu.debugCursor;
-    reconcileFormationLabKeys();
+    debugMenu.open=true;debugMenu.cursor=submenu.debugCursor;reconcileFormationLabKeys();
   };
   const cleanup=error=>{
     const scenarioId=lab?.scenario.id||lastScenarioId;
@@ -118,18 +114,8 @@ const partyCombatLab = (() => {
     let session;
     try {session=sessionView();} catch(error) {abort(error);return false;}
     if(!session || !allowed.includes(session.phase))return false;
-    try {operation(session);return buildView();}
+    try {operation();return buildView();}
     catch(error) {abort(error);return false;}
-  };
-  const exactAction=(request,session)=>{
-    if(!request || typeof request!=='object' || Array.isArray(request) ||
-        ![Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(request)))return null;
-    const fields=Object.getOwnPropertyDescriptors(request);
-    if(Reflect.ownKeys(fields).length!==2 || !['actorId','targetId'].every(key=>fields[key]&&Object.hasOwn(fields[key],'value')))return null;
-    const action={actorId:fields.actorId.value,targetId:fields.targetId.value};
-    if(action.actorId!==session.nextActorId || typeof action.targetId!=='string' ||
-        !session.enemies.some(enemy=>enemy.hp>0&&enemy.instanceId===action.targetId))return null;
-    return action;
   };
   const beginScenario=(scenario,fromSubmenu)=>{
     let prepared;
@@ -137,31 +123,25 @@ const partyCombatLab = (() => {
       lastError=String(error?.message||error).slice(0,160);return false;
     }
     lastError='';lastScenarioId=scenario.id;
-    lab={scenario,selectedTargetInstanceId:null};
     if(fromSubmenu)debugMenu.open=false;
     try {
       if(scenario.enemyIds.length===1)combat.enemy=prepared.enemies[0];
-      else initializeFormationState(scenario.enemyIds.map((enemyId,slot)=>({enemyId,slot})));
-      combatPlayerState.initialize(prepared.party);
-      const session=combatPlayerState.session.begin();
-      setSelection(session);
+      else initializeFormationState(scenario.enemyIds.map((enemyId,slot)=>({enemyId,slot})),{escape:scenario.escape});
+      const request={members:prepared.party,inventory:[...PARTY_COMBAT_LAB_INVENTORY],escape:scenario.escape};
+      if(scenario.showcase)request.slither=[{slot:1,speed:PARTY_COMBAT_LAB_ESLA_PROFILE.spd}];
+      combatPlayerState.initializeCommandParty(request);
+      combatPlayerState.session.begin({commandSet:'standard'});
+      lab={scenario};
       reconcileFormationLabKeys();
       return buildView();
     } catch(error) {abort(error);return false;}
   };
-  const submitExact=(action,session)=>{
-    const after=combatPlayerState.session.submitAttack(action);
-    if(after.phase==='collecting')setSelection(after);
-    else lab.selectedTargetInstanceId=null;
-  };
+  const forward=(method,allowed,args=[])=>operate(allowed,()=>combatPlayerState.session[method](...args));
   return Object.freeze({
     isActive() {if(arguments.length)fail();return lab!==null;},
     isMenuOpen() {if(arguments.length)fail();return submenu!==null&&lab===null;},
     listScenarios() {if(arguments.length)fail();return PARTY_COMBAT_LAB_SCENARIOS;},
-    getMenuView() {
-      if(arguments.length)fail();
-      return submenu&&lab===null?copy({cursor:submenu.cursor,error:lastError}):null;
-    },
+    getMenuView() {if(arguments.length)fail();return submenu&&lab===null?copy({cursor:submenu.cursor,error:lastError}):null;},
     getView() {if(arguments.length)fail();return buildView();},
     openMenu() {
       if(arguments.length || submenu || lab || !debugMenu.open || combat.active || combat.mode!==null ||
@@ -170,62 +150,29 @@ const partyCombatLab = (() => {
     },
     moveScenario(direction) {
       if(arguments.length!==1 || !submenu || lab || !['previous','next'].includes(direction))return false;
-      const count=PARTY_COMBAT_LAB_SCENARIOS.length;
-      submenu.cursor=(submenu.cursor+(direction==='next'?1:count-1))%count;lastError='';return true;
+      submenu.cursor=(submenu.cursor+(direction==='next'?1:PARTY_COMBAT_LAB_SCENARIOS.length-1))%PARTY_COMBAT_LAB_SCENARIOS.length;
+      lastError='';return true;
     },
     closeMenu() {
       if(arguments.length || !submenu || lab)return false;
       debugMenu.cursor=submenu.debugCursor;submenu=null;lastError='';reconcileFormationLabKeys();return true;
     },
-    startScenario() {
-      if(arguments.length || !submenu || lab)return false;
-      return beginScenario(PARTY_COMBAT_LAB_SCENARIOS[submenu.cursor],true);
-    },
-    enter(scenarioId) {
-      if(arguments.length!==1 || typeof scenarioId!=='string')return false;
-      return beginScenario(scenarioById(scenarioId),false);
-    },
-    moveTarget(direction) {
-      if(arguments.length!==1 || !lab || !['previous','next'].includes(direction))return false;
-      return operate(['collecting'],session=>{
-        const living=session.enemies.filter(enemy=>enemy.hp>0);
-        const index=living.findIndex(enemy=>enemy.instanceId===lab.selectedTargetInstanceId);
-        if(index<0)fail('Party Combat Lab selected target is stale');
-        lab.selectedTargetInstanceId=living[(index+(direction==='next'?1:living.length-1))%living.length].instanceId;
-      });
-    },
-    confirmTarget() {
-      if(arguments.length || !lab)return false;
-      return operate(['collecting'],session=>{
-        const action={actorId:session.nextActorId,targetId:lab.selectedTargetInstanceId};
-        const exact=exactAction(action,session);if(!exact)fail('Party Combat Lab selected target is stale');
-        submitExact(exact,session);
-      });
-    },
-    submitAttack(request) {
-      if(arguments.length!==1 || !lab)return false;
-      let session;try {session=sessionView();}catch(error){abort(error);return false;}
-      if(session?.phase!=='collecting')return false;
-      const action=exactAction(request,session);if(!action)return false;
-      return operate(['collecting'],current=>submitExact(action,current));
-    },
-    backtrack() {if(arguments.length)return false;return operate(['collecting','ready'],session=>{
-      if(!session.allyActions.length)fail('Party Combat Lab has no command to cancel');
-      const removed=session.allyActions.at(-1),after=combatPlayerState.session.backtrack();
-      setSelection(after,removed.targetId);
-    });},
-    commitRound() {if(arguments.length)return false;return operate(['ready'],()=>{
-      lab.selectedTargetInstanceId=null;combatPlayerState.session.commitRound();
-    });},
-    advancePlayback() {if(arguments.length)return false;return operate(['playback'],()=>combatPlayerState.session.advancePlayback());},
-    acknowledgePlayback() {if(arguments.length)return false;return operate(['playback_complete'],()=>{
-      const after=combatPlayerState.session.acknowledgePlayback();
-      if(after.phase==='collecting')setSelection(after);
-    });},
-    exit() {
-      if(arguments.length||!lab)return false;
-      cleanup(null);lastError='';restoreSubmenu();return true;
-    },
+    startScenario() {if(arguments.length || !submenu || lab)return false;return beginScenario(PARTY_COMBAT_LAB_SCENARIOS[submenu.cursor],true);},
+    enter(scenarioId) {if(arguments.length!==1 || typeof scenarioId!=='string')return false;return beginScenario(scenarioById(scenarioId),false);},
+    moveCommand(direction) {if(arguments.length!==1)return false;return forward('moveCommand',['awaiting_action'],[direction]);},
+    confirmCommand() {if(arguments.length)return false;return forward('confirmCommand',['awaiting_action']);},
+    moveItem(direction) {if(arguments.length!==1)return false;return forward('moveItem',['item'],[direction]);},
+    confirmItem() {if(arguments.length)return false;return forward('confirmItem',['item']);},
+    cancelItem() {if(arguments.length)return false;return forward('cancelItem',['item']);},
+    moveTarget(direction) {if(arguments.length!==1)return false;return forward('moveTarget',['targeting'],[direction]);},
+    confirmTarget() {if(arguments.length)return false;return forward('confirmTarget',['targeting']);},
+    cancelTargeting() {if(arguments.length)return false;return forward('cancelTargeting',['targeting']);},
+    submitAttack(request) {if(arguments.length!==1)return false;return forward('submitAttack',['awaiting_action','targeting'],[request]);},
+    backtrack() {if(arguments.length)return false;return forward('backtrack',['awaiting_action','item','targeting','ready','ready_run']);},
+    commitRound() {if(arguments.length)return false;return forward('commitRound',['ready','ready_run']);},
+    advancePlayback() {if(arguments.length)return false;return forward('advancePlayback',['playback']);},
+    acknowledgePlayback() {if(arguments.length)return false;return forward('acknowledgePlayback',['playback_complete']);},
+    exit() {if(arguments.length||!lab)return false;cleanup(null);lastError='';restoreSubmenu();return true;},
     emergencyAbort(message) {
       if(arguments.length>1 || !lab || (message!==undefined&&typeof message!=='string'))return false;
       cleanup(message||'Party Combat Lab aborted safely.');restoreSubmenu();return true;

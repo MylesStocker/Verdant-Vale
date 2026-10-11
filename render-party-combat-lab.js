@@ -1,191 +1,194 @@
 'use strict';
 
 // Read-only presentation for the isolated Party Combat Lab. Its sole
-// combat-state input is one detached immutable Lab snapshot.
+// combat-state input is one detached immutable Lab/controller snapshot.
 const PARTY_COMBAT_ALLY_SLOTS = Object.freeze([
-  Object.freeze({slot:0, x:108, anchorY:254}),
-  Object.freeze({slot:1, x:256, anchorY:263}),
-  Object.freeze({slot:2, x:404, anchorY:254}),
+  Object.freeze({slot:0,x:108,anchorY:254}),
+  Object.freeze({slot:1,x:256,anchorY:263}),
+  Object.freeze({slot:2,x:404,anchorY:254}),
 ]);
-
 const PARTY_COMBAT_ALLY_SPRITES = Object.freeze({
-  lely_lab:Object.freeze({draw:drawBattlePlayer, anchorY:254}),
-  esla_lab:Object.freeze({draw:drawBattleEsla, anchorY:263}),
+  lely_lab:Object.freeze({draw:drawBattlePlayer,anchorY:254}),
+  esla_lab:Object.freeze({draw:drawBattleEsla,anchorY:263}),
 });
 
 function partyCombatLabBattleLayout(view) {
   const fail=()=>{throw new Error('Invalid Party Combat Lab presentation view');};
-  const validMember=(member,side,slot)=>member && Object.isFrozen(member) &&
-    member.slot===slot && typeof member.instanceId==='string' && member.instanceId &&
-    typeof member.name==='string' && member.name.trim() &&
-    Number.isSafeInteger(member.hp) && Number.isSafeInteger(member.maxHp) &&
-    member.maxHp>0 && member.hp>=0 && member.hp<=member.maxHp &&
-    (side==='ally' ? typeof member.characterId==='string' : typeof member.id==='string');
-  if(!view || !Object.isFrozen(view) || view.active!==true || typeof view.label!=='string' || !view.label ||
-      !['collecting','ready','playback','playback_complete','victory','defeat'].includes(view.phase) ||
-      !Array.isArray(view.party) || !Object.isFrozen(view.party) ||
-      view.party.length<1 || view.party.length>3 ||
-      !Array.isArray(view.enemies) || !Object.isFrozen(view.enemies) ||
-      view.enemies.length<1 || view.enemies.length>3 ||
-      view.party.some((member,slot)=>!validMember(member,'ally',slot)) ||
-      view.enemies.some((member,slot)=>!validMember(member,'enemy',slot)))fail();
-  const ids=[...view.party,...view.enemies].map(member=>member.instanceId);
+  const validMember=(member,side,slot)=>member&&Object.isFrozen(member)&&member.slot===slot&&
+    typeof member.instanceId==='string'&&member.instanceId&&typeof member.name==='string'&&member.name.trim()&&
+    Number.isSafeInteger(member.hp)&&Number.isSafeInteger(member.maxHp)&&member.maxHp>0&&member.hp>=0&&member.hp<=member.maxHp&&
+    (side==='ally'?typeof member.characterId==='string':typeof member.id==='string');
+  const phases=['awaiting_action','item','targeting','ready','ready_run','playback','playback_complete','victory','defeat','escape'];
+  if(!view||!Object.isFrozen(view)||view.active!==true||view.commandSet!=='standard'||typeof view.label!=='string'||!view.label||
+      !phases.includes(view.phase)||!Array.isArray(view.party)||!Object.isFrozen(view.party)||view.party.length<1||view.party.length>3||
+      !Array.isArray(view.enemies)||!Object.isFrozen(view.enemies)||view.enemies.length<1||view.enemies.length>3||
+      view.party.some((m,i)=>!validMember(m,'ally',i))||view.enemies.some((m,i)=>!validMember(m,'enemy',i)))fail();
+  const ids=[...view.party,...view.enemies].map(m=>m.instanceId);
   if(new Set(ids).size!==ids.length)fail();
-  const playback=['playback','playback_complete','victory','defeat'].includes(view.phase);
-  const livingTargetIds=view.enemies.filter(member=>member.hp>0).map(member=>member.instanceId);
-  if(playback!==!!view.playbackFrame ||
-      (view.phase==='collecting' && !view.party.some(member=>member.hp>0&&member.instanceId===view.nextActorId)) ||
-      (view.phase!=='collecting' && view.nextActorId!==null) ||
-      !Array.isArray(view.livingTargetIds) || !Object.isFrozen(view.livingTargetIds) ||
-      view.livingTargetIds.length!==livingTargetIds.length ||
-      view.livingTargetIds.some((id,index)=>id!==livingTargetIds[index]) ||
-      (view.phase==='collecting'
-        ? !livingTargetIds.includes(view.selectedTargetInstanceId)
-        : view.selectedTargetInstanceId!==null) ||
-      (['victory','defeat'].includes(view.phase) ? view.terminalOutcome!==view.phase : view.terminalOutcome!==null))fail();
-  if(!Array.isArray(view.allyActions) || !Object.isFrozen(view.allyActions) ||
-      view.allyActions.some(action=>!Object.isFrozen(action) ||
-        !view.party.some(member=>member.instanceId===action.actorId) ||
-        !view.enemies.some(member=>member.instanceId===action.targetId)))fail();
-  if(playback) {
+  const playing=['playback','playback_complete','victory','defeat','escape'].includes(view.phase);
+  if(playing!==!!view.playbackFrame||
+      (['awaiting_action','item','targeting','ready_run'].includes(view.phase)
+        ? !view.party.some(m=>m.hp>0&&m.instanceId===view.nextActorId):view.nextActorId!==null)||
+      (view.phase==='targeting'?!view.validTargetIds.includes(view.selectedTargetInstanceId):view.selectedTargetInstanceId!==null)||
+      (['victory','defeat','escape'].includes(view.phase)?view.terminalOutcome!==view.phase:view.terminalOutcome!==null))fail();
+  if(!Array.isArray(view.allyActions)||!Object.isFrozen(view.allyActions)||view.allyActions.some(action=>
+      !Object.isFrozen(action)||!view.party.some(m=>m.instanceId===action.actorId)||
+      (Object.hasOwn(action,'targetId')&&![...view.party,...view.enemies].some(m=>m.instanceId===action.targetId))))fail();
+  if(playing) {
     const frame=view.playbackFrame;
-    if(!Object.isFrozen(frame) || !Array.isArray(frame.party) || !Array.isArray(frame.enemies) ||
-        frame.party.length!==view.party.length || frame.enemies.length!==view.enemies.length ||
-        frame.party.some((member,slot)=>member.instanceId!==view.party[slot].instanceId || member.hp!==view.party[slot].hp) ||
-        frame.enemies.some((member,slot)=>member.instanceId!==view.enemies[slot].instanceId || member.hp!==view.enemies[slot].hp))fail();
+    if(!Object.isFrozen(frame)||frame.party.length!==view.party.length||frame.enemies.length!==view.enemies.length||
+        frame.party.some((m,i)=>m.instanceId!==view.party[i].instanceId||m.hp!==view.party[i].hp)||
+        frame.enemies.some((m,i)=>m.instanceId!==view.enemies[i].instanceId||m.hp!==view.enemies[i].hp))fail();
   }
-
-  const count=view.enemies.length;
-  const width=count===2?232:144, step=count===2?248:168;
-  const start=count===1?184:16;
-  const names=view.enemies.map(member=>member.name);
+  const count=view.enemies.length,width=count===2?232:144,step=count===2?248:168,start=count===1?184:16;
+  const names=view.enemies.map(m=>m.name);
   const enemies=view.enemies.map((member,index)=>{
-    const sprite=ENEMY_SPRITE_DISPATCH[member.id];
-    const bounds=sprite&&FORMATION_SPRITE_BOUNDS.get(sprite.draw);
-    if(!sprite || !bounds)fail();
-    const x=start+index*step, spriteWidth=width-16;
-    const scale=Math.min(1,spriteWidth/(bounds[2]-bounds[0]),136/(bounds[3]-bounds[1]));
-    const duplicate=names.filter(name=>name===member.name).length>1;
+    const sprite=ENEMY_SPRITE_DISPATCH[member.id],bounds=sprite&&FORMATION_SPRITE_BOUNDS.get(sprite.draw);
+    if(!sprite||!bounds)fail();
+    const x=start+index*step,spriteWidth=width-16,scale=Math.min(1,spriteWidth/(bounds[2]-bounds[0]),136/(bounds[3]-bounds[1]));
     return Object.freeze({instanceId:member.instanceId,slot:index,x,width,
-      label:member.name+(duplicate?' '+String.fromCharCode(65+index):''),
+      label:member.name+(names.filter(name=>name===member.name).length>1?' '+String.fromCharCode(65+index):''),
       spriteX:x+8,spriteY:76,spriteWidth,spriteHeight:136,scale,
-      anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,
-      anchorY:212-scale*bounds[3]});
+      anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,anchorY:212-scale*bounds[3]});
   });
-  return Object.freeze({
-    allies:Object.freeze(view.party.map((member,slot)=>Object.freeze({
-      instanceId:member.instanceId,slot,x:PARTY_COMBAT_ALLY_SLOTS[slot].x,
-      anchorY:PARTY_COMBAT_ALLY_SLOTS[slot].anchorY,feetY:277,
-    }))),
-    enemies:Object.freeze(enemies),
-    target:view.phase==='collecting' ? Object.freeze((()=>{
-      const position=enemies.find(enemy=>enemy.instanceId===view.selectedTargetInstanceId);
-      if(!position)fail();
-      return {instanceId:position.instanceId,slot:position.slot,x:position.x+position.width/2,y:63};
-    })()) : null,
-  });
+  const allies=view.party.map((member,slot)=>Object.freeze({instanceId:member.instanceId,slot,
+    x:PARTY_COMBAT_ALLY_SLOTS[slot].x,anchorY:PARTY_COMBAT_ALLY_SLOTS[slot].anchorY,feetY:277}));
+  let target=null;
+  if(view.phase==='targeting') {
+    const source=view.targetSide==='ally'?allies:enemies,position=source.find(p=>p.instanceId===view.selectedTargetInstanceId);
+    if(!position)fail();
+    target=Object.freeze({side:view.targetSide,instanceId:position.instanceId,slot:position.slot,
+      x:view.targetSide==='ally'?position.x:position.x+position.width/2,y:view.targetSide==='ally'?190:63});
+  }
+  return Object.freeze({allies:Object.freeze(allies),enemies:Object.freeze(enemies),target});
 }
 
 function formatPartyCombatLabEvent(view) {
-  const frame=view.playbackFrame;
-  if(!frame) {
-    if(view.phase==='collecting') {
-      const member=view.party.find(entry=>entry.instanceId===view.nextActorId);
-      return member&&member.slot===0?'Choose a target.':`Choose ${member.name}'s target.`;
+  if(!view.playbackFrame) {
+    if(view.phase==='awaiting_action')return 'Choose an action.';
+    if(view.phase==='item')return 'Choose an item.';
+    if(view.phase==='targeting') {
+      const actor=view.party.find(m=>m.instanceId===view.nextActorId);
+      if(view.targetSide==='ally')return `Choose ${actor?.name||'an ally'}'s target.`;
+      return view.pendingCommandType==='observe'?'Choose an enemy to observe.':'Choose a target.';
     }
-    return 'Confirm actions?';
+    if(view.phase==='ready_run')return 'Attempt to run?';
+    if(view.phase==='ready')return 'Confirm actions?';
+    if(view.phase==='victory')return 'Victory.';
+    if(view.phase==='defeat')return 'Defeat.';
+    if(view.phase==='escape')return 'The party escapes.';
+    return '';
   }
-  const event=frame.currentEvent;
+  const event=view.playbackFrame.currentEvent;
+  if(view.playbackFrame.complete&&view.playbackFrame.outcome!=='ongoing')return view.playbackFrame.outcome==='victory'?'Victory.':
+    view.playbackFrame.outcome==='defeat'?'Defeat.':view.playbackFrame.outcome==='escape'?'The party escapes.':'';
   if(!event)return 'Ready.';
-  const members=[...view.party,...view.enemies];
-  const name=id=>members.find(member=>member.instanceId===id)?.name;
-  if(event.type==='round_end')return event.outcome==='victory'?'Victory.':event.outcome==='defeat'?'Defeat.':'Round complete.';
+  const members=[...view.party,...view.enemies],name=id=>members.find(m=>m.instanceId===id)?.name;
   const actor=name(event.actorId),target=name(event.targetId);
-  if(!actor || !target)throw new Error('Invalid Party Combat Lab event identity');
+  if(event.type==='outcome')return event.outcome==='victory'?'Victory.':event.outcome==='defeat'?'Defeat.':event.outcome==='escape'?'The party escapes.':'Round complete.';
+  if(event.type==='round_end') {
+    const expired=event.effectsBefore.find((before,i)=>before.evadeTurns>0&&event.effectsAfter[i].evadeTurns===0);
+    return expired?`Bullet Time wears off for ${name(expired.actorId)}.`:'Round complete.';
+  }
+  if(event.type==='slither_sample')return `${name(event.actorId)}'s speed shifts.`;
+  if(event.type==='curse_check')return event.fumbled?`The curse twists ${name(event.actorId)}'s attack!`:`${name(event.actorId)} fights through the curse.`;
   if(event.type==='skip')return `${actor} cannot act: defeated.`;
-  if(event.type==='cancel')return `${actor}'s attack on ${target} is cancelled.`;
-  if(event.type!=='attack')throw new Error('Invalid Party Combat Lab event type');
-  if(event.evaded)return `${target} evades ${actor}'s attack.`;
-  return `${event.critical?'Critical! ':''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
+  if(event.type==='cancel')return `${actor}'s action on ${target} is cancelled.`;
+  if(event.type==='attack')return event.evaded?`${target} evades ${actor}'s attack.`:
+    `${event.critical?'Critical! ':''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
+  if(event.type==='observe')return `${actor} observes ${target}. ${event.lines.join(' ')}`;
+  if(event.type==='run')return !event.allowed?'Cannot escape this battle!':event.success?'The party escapes.':`${actor} tries to run, but cannot get away!`;
+  if(event.type==='equipment')return `${actor} equips ${event.itemId}.`;
+  if(event.type==='status') {
+    const removed=event.statusesBefore.filter(s=>!event.statusesAfter.includes(s));
+    const added=event.statusesAfter.filter(s=>!event.statusesBefore.includes(s));
+    return removed.length?`${name(event.targetId)} is cured of ${removed.join(', ')}.`:
+      added.length?`${name(event.targetId)} is afflicted with ${added.join(', ')}.`:'No status changes.';
+  }
+  if(event.type==='effect')return event.itemId==='Bullet Time'?`Bullet Time surrounds ${name(event.targetId)}.`:
+    `${name(event.sourceId)} arms a bomb against ${name(event.targetId)}.`;
+  if(event.type==='delayed_effect_tick')return event.effect==='bomb'?
+    (event.appliedDamage?`The bomb ticks for ${event.appliedDamage} damage.`:'The bomb fuse burns down.'):
+    `${name(event.targetId)} suffers ${event.appliedDamage} burn damage.`;
+  if(event.type==='item') {
+    const prefix=`${actor} uses ${event.itemId}${target?` on ${target}`:''}.`;
+    if(event.effect==='heal') {
+      const before=event.before.party.find(m=>m.instanceId===event.targetId),after=event.after.party.find(m=>m.instanceId===event.targetId);
+      return `${prefix} ${target} recovers ${after.hp-before.hp} HP.`;
+    }
+    if(event.effect==='damage') {
+      const before=event.before.enemies.find(m=>m.instanceId===event.targetId),after=event.after.enemies.find(m=>m.instanceId===event.targetId);
+      return `${prefix} ${target} takes ${before.hp-after.hp} damage.`;
+    }
+    if(event.effect==='damage_all') {
+      const losses=event.before.enemies.map((member,index)=>member.hp-event.after.enemies[index].hp),damage=losses.filter(value=>value>0);
+      return `${prefix} ${!damage.length?'No effect.':damage.every(value=>value===damage[0])?`Every enemy takes ${damage[0]} damage.`:
+        `The blast deals ${damage.reduce((sum,value)=>sum+value,0)} damage across the enemy group.`}`;
+    }
+    if(event.effect==='cure')return prefix;
+    if(event.effect==='evade')return `${prefix} Time slows around ${target}.`;
+    if(event.effect==='bomb')return `${prefix} The bomb is armed.`;
+    return `${prefix} No effect.`;
+  }
+  throw new Error('Invalid Party Combat Lab event type');
 }
 
+function drawPartyCombatTargetCursor(x,y) {
+  ctx.fillStyle='#08121e';ctx.fillRect(x-9,y,18,12);
+  ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(x-6,y+2);ctx.lineTo(x+6,y+2);ctx.lineTo(x,y+10);ctx.closePath();ctx.fill();
+}
 function drawPartyCombatEnemy(member,position,selected) {
-  const sprite=ENEMY_SPRITE_DISPATCH[member.id];
-  ctx.save();
-  ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
-  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);
-  ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(0,0,'idle');ctx.restore();
-  ctx.fillStyle='#08121e';ctx.fillRect(position.x,12,position.width,50);
-  ctx.fillStyle=member.hp===0?'#718078':'#c0dcd0';ctx.font='bold 12px "Courier New", monospace';
-  ctx.fillText(position.label,position.x+4,27,position.width-8);
-  ctx.fillStyle='#0a1e18';ctx.fillRect(position.x+4,36,position.width-8,7);
-  ctx.fillStyle=member.hp===0?'#31483d':'#3a8a5a';
-  ctx.fillRect(position.x+4,36,Math.round((position.width-8)*member.hp/member.maxHp),7);
-  ctx.fillStyle=member.hp===0?'#66756d':'#7ab898';ctx.font='11px "Courier New", monospace';
-  ctx.fillText(`${member.hp} / ${member.maxHp}`,position.x+4,57,position.width-8);
-  if(selected&&member.hp>0) {
-    const cx=position.x+position.width/2;
-    ctx.fillStyle='#08121e';ctx.fillRect(cx-9,63,18,12);
-    ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(cx-6,65);ctx.lineTo(cx+6,65);ctx.lineTo(cx,73);ctx.closePath();ctx.fill();
-  }
+  const sprite=ENEMY_SPRITE_DISPATCH[member.id];ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
+  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(0,0,'idle');ctx.restore();
+  ctx.fillStyle='#08121e';ctx.fillRect(position.x,12,position.width,50);ctx.fillStyle=member.hp===0?'#718078':'#c0dcd0';ctx.font='bold 12px "Courier New", monospace';ctx.fillText(position.label,position.x+4,27,position.width-8);
+  ctx.fillStyle='#0a1e18';ctx.fillRect(position.x+4,36,position.width-8,7);ctx.fillStyle=member.hp===0?'#31483d':'#3a8a5a';ctx.fillRect(position.x+4,36,Math.round((position.width-8)*member.hp/member.maxHp),7);
+  ctx.fillStyle=member.hp===0?'#66756d':'#7ab898';ctx.font='11px "Courier New", monospace';ctx.fillText(`${member.hp} / ${member.maxHp}`,position.x+4,57,position.width-8);
+  if(selected&&member.hp>0)drawPartyCombatTargetCursor(position.x+position.width/2,63);
 }
-
-function drawPartyCombatAlly(member,position,choosing) {
-  const sprite=PARTY_COMBAT_ALLY_SPRITES[member.characterId];
-  if(!sprite)throw new Error('Invalid Party Combat Lab ally sprite');
+function drawPartyCombatAlly(member,position,choosing,targeted) {
+  const sprite=PARTY_COMBAT_ALLY_SPRITES[member.characterId];if(!sprite)throw new Error('Invalid Party Combat Lab ally sprite');
   ctx.save();ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(position.x,sprite.anchorY);ctx.restore();
-  if(choosing&&member.hp>0) {
-    ctx.fillStyle='#08121e';ctx.fillRect(position.x-9,204,18,13);
-    ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(position.x-6,206);ctx.lineTo(position.x+6,206);ctx.lineTo(position.x,214);ctx.closePath();ctx.fill();
-  }
+  if(targeted&&member.hp>0)drawPartyCombatTargetCursor(position.x,190);
+  if(choosing&&member.hp>0) {ctx.strokeStyle='#8ac8d8';ctx.lineWidth=2;ctx.strokeRect(position.x-27,220,54,59);}
 }
-
-function drawPartyCombatStatusRow(member,row) {
-  const y=357+row*18,barX=102,segments=12,segmentW=10,gap=2;
-  ctx.fillStyle=member.hp===0?'#718078':'#d0e0d0';ctx.font='bold 12px "Courier New", monospace';
-  ctx.fillText(member.name,22,y,50);
+function drawPartyCombatStatusRow(member,row,effect) {
+  const y=357+row*18,barX=102,segments=12,filled=Math.round(segments*member.hp/member.maxHp);
+  ctx.fillStyle=member.hp===0?'#718078':'#d0e0d0';ctx.font='bold 12px "Courier New", monospace';ctx.fillText(member.name,22,y,50);
   ctx.fillStyle='#5a8898';ctx.font='bold 11px "Courier New", monospace';ctx.fillText('HP',76,y);
-  const filled=Math.round(segments*member.hp/member.maxHp);
-  for(let i=0;i<segments;i++) {
-    ctx.fillStyle=i<filled?(filled<=3?'#a06820':'#4a9a62'):'#112820';
-    ctx.fillRect(barX+i*(segmentW+gap),y-11,segmentW,8);
-  }
-  ctx.fillStyle=member.hp===0?'#66756d':'#8aaa98';ctx.font='11px "Courier New", monospace';
-  ctx.fillText(`${member.hp} / ${member.maxHp}`,251,y,68);
-  if(member.hp===0) {ctx.fillStyle='#9a6868';ctx.font='bold 10px "Courier New", monospace';ctx.fillText('DOWN',323,y);}
+  for(let i=0;i<segments;i++){ctx.fillStyle=i<filled?(filled<=3?'#a06820':'#4a9a62'):'#112820';ctx.fillRect(barX+i*12,y-11,10,8);}
+  ctx.fillStyle=member.hp===0?'#66756d':'#8aaa98';ctx.font='11px "Courier New", monospace';ctx.fillText(`${member.hp} / ${member.maxHp}`,251,y,68);
+  const tags={poison:'PSN',muddied:'MUD',slither:'SLI',cursed:'CUR',burn:'BURN',dazzled:'DAZ'};
+  const badges=[...(member.statuses||[]).map(s=>tags[s]||s.toUpperCase()),...(effect?.evadeTurns>0?[`EVADE ${effect.evadeTurns}`]:[])];
+  ctx.fillStyle=member.hp===0?'#9a6868':'#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText(member.hp===0?'DOWN':badges.join(' '),323,y,164);
 }
-
-function drawPartyCombatCommands() {
+function drawPartyCombatCommands(view) {
   ['Attack','Item','Observe','Run'].forEach((label,index)=>{
-    const x=22+index*117,enabled=index===0;
-    ctx.fillStyle=enabled?'#0e2434':'#080f1a';ctx.fillRect(x,414,111,38);
-    ctx.strokeStyle=enabled?'#5a9aaa':'#1e3040';ctx.lineWidth=1;ctx.strokeRect(x,414,111,38);
-    if(enabled) {ctx.fillStyle='#8ac8d8';ctx.font='bold 13px "Courier New", monospace';ctx.fillText('▶',x+6,439);}
-    ctx.fillStyle=enabled?'#e0f0e8':'#344f5a';ctx.font=enabled?'bold 14px "Courier New", monospace':'13px "Courier New", monospace';
-    ctx.fillText(label,x+(enabled?22:14),439);
+    const x=22+index*117,selected=view.phase==='awaiting_action'&&index===view.commandCursor,enabled=label!=='Item'||view.inventory.length>0;
+    ctx.fillStyle=selected?'#0e2434':'#080f1a';ctx.fillRect(x,414,111,38);ctx.strokeStyle=selected?'#9ac8d8':'#2a4e5e';ctx.strokeRect(x,414,111,38);
+    ctx.fillStyle=enabled?(selected?'#e0f0e8':'#6b8890'):'#344f5a';ctx.font='bold 13px "Courier New", monospace';ctx.fillText((selected?'▶ ':'')+label,x+7,439,99);
   });
+}
+function drawPartyCombatItems(view) {
+  const rows=view.items.slice(view.itemScroll,view.itemScroll+3);
+  rows.forEach((row,i)=>{const index=view.itemScroll+i,selected=index===view.itemCursor,label=`${row.name} ×${row.available}`;
+    ctx.fillStyle=row.usable?(selected?'#d0e0d0':'#6b8890'):'#344f5a';ctx.font='bold 12px "Courier New", monospace';ctx.fillText((selected?'▶ ':'  ')+label,22,414+i*18,438);});
+  ctx.fillStyle='#8ac8d8';ctx.font='12px "Courier New", monospace';if(view.itemScroll>0)ctx.fillText('↑',475,414);if(view.itemScroll+3<view.items.length)ctx.fillText('↓',475,450);
 }
 
 function drawPartyCombatLabBattle() {
   if(arguments.length)throw new Error('Party Combat Lab renderer takes no arguments');
-  const view=partyCombatLab.getView();
-  if(!view.active)return false;
-  // Complete validation and event formatting before the first canvas call.
+  const view=partyCombatLab.getView();if(!view.active)return false;
   const layout=partyCombatLabBattleLayout(view),message=formatPartyCombatLabEvent(view);
   ctx.save();drawBattleBackground();
-  layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,
-    !!layout.target&&layout.target.instanceId===position.instanceId));
+  layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,layout.target?.side==='enemy'&&layout.target.instanceId===position.instanceId));
   layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,
-    view.phase==='collecting'&&view.nextActorId===view.party[slot].instanceId));
-
-  ctx.fillStyle='#08121e';ctx.fillRect(8,297,496,175);
-  ctx.strokeStyle='#5a8a9a';ctx.lineWidth=2;ctx.strokeRect(9,298,494,173);
-  ctx.strokeStyle='#2a4e5e';ctx.lineWidth=1;ctx.strokeRect(13,302,486,165);
+    ['awaiting_action','item','targeting','ready_run'].includes(view.phase)&&view.nextActorId===view.party[slot].instanceId,
+    layout.target?.side==='ally'&&layout.target.instanceId===position.instanceId));
+  ctx.fillStyle='#08121e';ctx.fillRect(8,297,496,175);ctx.strokeStyle='#5a8a9a';ctx.lineWidth=2;ctx.strokeRect(9,298,494,173);ctx.strokeStyle='#2a4e5e';ctx.lineWidth=1;ctx.strokeRect(13,302,486,165);
   ctx.fillStyle='#8ac8d8';[[9,298],[501,298],[9,469],[501,469]].forEach(([x,y])=>ctx.fillRect(x,y,2,2));
-  ctx.fillStyle='#ccd8cc';ctx.font='14px "Courier New", monospace';ctx.fillText(message,22,325,468);
-  ctx.fillStyle='#1e3040';ctx.fillRect(22,334,468,1);
-  view.party.forEach(drawPartyCombatStatusRow);
-  ctx.fillStyle='#1e3040';ctx.fillRect(22,403,468,1);
-  drawPartyCombatCommands();
+  ctx.fillStyle='#ccd8cc';ctx.font='14px "Courier New", monospace';const lines=wrapMonospaceText(ctx,message,468);lines.slice(0,2).forEach((line,i)=>ctx.fillText(line,22,325+i*16,468));
+  ctx.fillStyle='#1e3040';ctx.fillRect(22,348,468,1);view.party.forEach((member,i)=>drawPartyCombatStatusRow(member,i,view.effects[i]));ctx.fillStyle='#1e3040';ctx.fillRect(22,403,468,1);
+  if(view.phase==='item')drawPartyCombatItems(view);else if(['awaiting_action','targeting'].includes(view.phase))drawPartyCombatCommands(view);
+  else if(view.playbackFrame)lines.slice(2,5).forEach((line,i)=>ctx.fillText(line,22,418+i*15,468));
   ctx.restore();return true;
 }

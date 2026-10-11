@@ -3925,8 +3925,8 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 }
 
 // Formation presentation is explicitly supplied a frozen session view. These
-// conservative visual bounds cover the existing idle animation of the eight
-// state-only templates; they do not grant any template combat capabilities.
+// conservative visual bounds cover the idle animations used by the Formation
+// and Party Lab layouts; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
   [drawBattleReceiver, Object.freeze([-52,-112,54,4])],
   [drawBattleCaller, Object.freeze([-31,-113,47,4])],
@@ -3936,6 +3936,7 @@ const FORMATION_SPRITE_BOUNDS = new Map([
   [drawBattleSluiceSlime, Object.freeze([-48, -66, 48, 15])],
   [drawBattleReedGrappler, Object.freeze([-70, -78, 70, 13])],
   [drawBattleSiltLurker, Object.freeze([-28, -132, 28, 15])],
+  [drawBattleMulholland, Object.freeze([-53, -130, 53, 14])],
 ]);
 
 function getFormationBattleLayout(view) {

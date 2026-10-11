@@ -85,16 +85,29 @@ function handlePartyCombatLabInput(command) {
   }
   if (!view.active) return false;
   switch (view.phase) {
-    case 'collecting':
-      if (command === 'left') partyCombatLab.moveTarget('previous');
-      else if (command === 'right') partyCombatLab.moveTarget('next');
-      else if (command === 'confirm') partyCombatLab.confirmTarget();
+    case 'awaiting_action':
+      if (command === 'left') partyCombatLab.moveCommand('previous');
+      else if (command === 'right') partyCombatLab.moveCommand('next');
+      else if (command === 'confirm') partyCombatLab.confirmCommand();
       else if (command === 'cancel') {
         if (view.allyActions.length) partyCombatLab.backtrack();
         else partyCombatLab.exit();
       }
       break;
+    case 'item':
+      if (command === 'up') partyCombatLab.moveItem('previous');
+      else if (command === 'down') partyCombatLab.moveItem('next');
+      else if (command === 'confirm') partyCombatLab.confirmItem();
+      else if (command === 'cancel') partyCombatLab.cancelItem();
+      break;
+    case 'targeting':
+      if (command === 'left') partyCombatLab.moveTarget('previous');
+      else if (command === 'right') partyCombatLab.moveTarget('next');
+      else if (command === 'confirm') partyCombatLab.confirmTarget();
+      else if (command === 'cancel') partyCombatLab.cancelTargeting();
+      break;
     case 'ready':
+    case 'ready_run':
       if (command === 'confirm') partyCombatLab.commitRound();
       else if (command === 'cancel') partyCombatLab.backtrack();
       break;
@@ -106,6 +119,7 @@ function handlePartyCombatLabInput(command) {
       break;
     case 'victory':
     case 'defeat':
+    case 'escape':
       if (command === 'cancel') partyCombatLab.exit();
       break;
     default:

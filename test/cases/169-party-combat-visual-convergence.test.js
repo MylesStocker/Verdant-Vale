@@ -22,8 +22,8 @@ function draw(g){g.run('paint=[];drawPartyCombatLabBattle();');return J(g,'paint
 function snapshot(g){return g.run(`JSON.stringify({stats,player,tick,day,statusEffects,dialogue,menu,debugMenu,
   party:combatPlayerState.getView(),session:partyCombatLab.isActive()?combatPlayerState.session.getView():null,lab:partyCombatLab.getView(),
   enemies:combat.enemies.map(e=>[e.instanceId,e.slot,e.hp]),save:localStorage.getItem('verdantVale_save')})`);}
-function commandAll(g){g.run(`while(partyCombatLab.getView().phase==='collecting'){
-  const v=partyCombatLab.getView();partyCombatLab.submitAttack({actorId:v.nextActorId,targetId:v.livingTargetIds[0]});}`);}
+function commandAll(g){g.run(`while(['awaiting_action','targeting'].includes(partyCombatLab.getView().phase)){
+  const v=partyCombatLab.getView();partyCombatLab.submitAttack({actorId:v.nextActorId,targetId:v.enemies.find(e=>e.hp>0).instanceId});}`);}
 
 test('inactive renderer is inert and normal render sources remain byte-stable',()=>{
   const g=createContext();record(g);const before=snapshot(g);g.run('paint=[];');
@@ -72,7 +72,7 @@ test('established Esla identity is reused at battle scale without an image place
 });
 
 test('enemy slots, exact target cursor and defeated retention match Formation vocabulary',()=>{
-  const g=fresh(),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())'),calls=draw(g);
+  const g=fresh();g.run('partyCombatLab.confirmCommand()');const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())'),calls=draw(g);
   assert.deepEqual(layout.enemies.map(p=>[p.slot,p.x,p.width]),[[0,16,144],[1,184,144],[2,352,144]]);
   const target=calls.filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8'&&call.bounds&&call.bounds[1]===65);
   assert.equal(target.length,1);assert.equal((target[0].bounds[0]+target[0].bounds[2])/2,layout.target.x);
@@ -83,11 +83,11 @@ test('enemy slots, exact target cursor and defeated retention match Formation vo
 
 test('three compact party rows and familiar command boxes fit the ordinary panel',()=>{
   const g=fresh(),calls=draw(g),labels=texts(calls);
-  for(const name of ['Lély','Esla','Attack','Item','Observe','Run'])assert.ok(labels.includes(name),name);
+  for(const name of ['Lély','Esla','Attack','Item','Observe','Run'])assert.ok(labels.some(label=>String(label).replace(/^▶ /,'')===name),name);
   assert.ok(calls.filter(call=>call.type==='fillRect'&&call.args[1]===414).every(call=>call.args[1]+call.args[3]<=472));
-  const attacks=calls.filter(call=>call.type==='text'&&call.args[0]==='Attack');
+  const attacks=calls.filter(call=>call.type==='text'&&call.args[0]==='▶ Attack');
   assert.equal(attacks.length,1);assert.equal(attacks[0].style.fillStyle,'#e0f0e8');
-  for(const label of ['Item','Observe','Run'])assert.equal(calls.find(call=>call.type==='text'&&call.args[0]===label).style.fillStyle,'#344f5a');
+  for(const label of ['Item','Observe','Run'])assert.equal(calls.find(call=>call.type==='text'&&call.args[0]===label).style.fillStyle,'#6b8890');
   g.run(`paint=[];drawPartyCombatStatusRow(Object.freeze({name:'Third',hp:30,maxHp:40}),2);`);
   for(const call of J(g,'paint').filter(entry=>entry.bounds))assert.ok(call.bounds[1]>=334&&call.bounds[3]<=404,JSON.stringify(call));
 });

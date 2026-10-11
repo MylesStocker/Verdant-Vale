@@ -194,10 +194,11 @@ test('explicit preparation cleanup drops only session state; old views stay immu
 test('no gameplay entry, input/render/reward route or saved controller payload',()=>{
   const g=fresh();ready(g);const before=state(g);g.press('Enter');g.press('ArrowRight');g.frames(3);assert.equal(state(g),before);assert.equal(g.run('saveGame()'),false);assert.equal(g.run('SAVE_VERSION'),4);
   for(const source of ['drawCombat()','handleCombatAction()','endCombat()','recoverCombatDefeat()'])reject(g,source);
-  const labCalls={begin:1,submitAttack:1,backtrack:1,commitRound:1,advancePlayback:1,acknowledgePlayback:1};
+  const labCalls={begin:1,submitAttack:0,backtrack:0,commitRound:0,advancePlayback:0,acknowledgePlayback:0};
   for(const file of scriptOrderFromIndexHtml()) {
     const fileSource=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
     for(const [method,count] of Object.entries(labCalls))assert.equal((fileSource.match(new RegExp('combatPlayerState\\.session\\.'+method+'\\s*\\(','g'))||[]).length,file==='party-combat-lab.js'?count:0,file+': '+method);
+    assert.equal((fileSource.match(/combatPlayerState\.session\[method\]\s*\(/g)||[]).length,file==='party-combat-lab.js'?1:0,file+': guarded forwarder');
   }
   const source=fs.readFileSync(path.join(__dirname,'../../combat.js'),'utf8');
   const start=source.indexOf('  const session=(() => {'),end=source.indexOf('    session,',start),controllerSource=source.slice(start,end);

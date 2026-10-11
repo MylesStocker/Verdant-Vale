@@ -311,7 +311,11 @@ test('faults retain consumed damage and diagnostic lockout; cleanup never retrie
   g.run('combatPlayerState.clear()');assert.equal(g.run('used'),used);assert.equal(g.run('combat.enemies[0].hp'),93);
 });
 test('headless command authority has no Lab, input, rendering, save or content caller',()=>{
-  for(const file of scriptOrderFromIndexHtml())if(file!=='combat.js')assert.doesNotMatch(fs.readFileSync(path.join(__dirname,'../..',file),'utf8'),/combatPlayerState\.(?:resolveRound|initializeCommandParty|getCommandView)\(/,file);
+  for(const file of scriptOrderFromIndexHtml())if(file!=='combat.js'){
+    const source=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
+    assert.doesNotMatch(source,/combatPlayerState\.(?:resolveRound|getCommandView)\(/,file);
+    assert.equal((source.match(/combatPlayerState\.initializeCommandParty\(/g)||[]).length,file==='party-combat-lab.js'?1:0,file);
+  }
   const g=fresh(),before=canonical(g);assert.equal(g.run('SAVE_VERSION'),4);
   assert.equal(g.run('combat.active'),false);assert.equal(g.run('combatPlayerState.session.getView()'),null);
   assert.throws(()=>g.run('combat.active=true'));assert.throws(()=>g.run('handleCombatAction()'));assert.throws(()=>g.run('drawCombat()'));
