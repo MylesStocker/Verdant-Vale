@@ -706,10 +706,10 @@ const combatPlayerState = (() => {
           ['attack','observe'].includes(type)?['type','actorId','targetId']:null;
         if(!keys)invalid();return dataRecord(a,keys);
       });
-      const living=members.filter(m=>m.hp>0),run=supplied.length===1&&supplied[0].type==='run';
-      if(!supplied.length || (!run&&supplied.length!==living.length) ||
+      const living=members.filter(m=>m.hp>0);
+      if(!supplied.length || supplied.length!==living.length ||
           new Set(supplied.map(a=>a.actorId)).size!==supplied.length ||
-          supplied.some(a=>typeof a.actorId!=='string'||!living.some(m=>m.instanceId===a.actorId)||(!run&&a.type==='run')))invalid();
+          supplied.some(a=>typeof a.actorId!=='string'||!living.some(m=>m.instanceId===a.actorId)))invalid();
       const allyActions=living.map(m=>supplied.find(a=>a.actorId===m.instanceId)).filter(Boolean);
       const reserved=new Map(),observed=new Map();
       for(const a of allyActions) {
@@ -814,7 +814,7 @@ const combatPlayerState = (() => {
         const round=roundState.completed+1;
         try {
           // Singleton/Formation timing: Attack and Observe resample; Item,
-          // Run and passive allies retain the sample from application/a prior
+          // Run and Item retain the sample from application/a prior
           // turn. Slot order is deterministic; no enemy supports Slither.
           for(const planned of planActors.filter(a=>a.side==='ally')) {
             const actor=live(planned.actorId);
@@ -1031,18 +1031,18 @@ const combatPlayerState = (() => {
     const standardView=s=>{
       if(!['resolving','fault'].includes(s.phase))bound();
       const frame=s.playback?combatPlayerState.projectRoundPlaybackFrame(s.playback,s.frameIndex):null,snap=frame||s.snapshot;
-      const choosing=['awaiting_action','item','targeting','ready_run'].includes(s.phase),actor=choosing?currentAlly(s):null;
+      const choosing=['awaiting_action','item','targeting'].includes(s.phase),actor=choosing?currentAlly(s):null;
       const showingItems=s.phase==='item'||s.phase==='targeting'&&s.selection.pendingType==='item';
       const rows=showingItems?itemEntries(s):[],selection=s.selection;
       return copyFormationData({commandSet:'standard',phase:s.phase,nextActorId:actor?.instanceId||null,
         currentAlly:actor,commands:commandMenu,selectedCommand:choosing?commandMenu[selection.commandCursor]:null,
-        commandCursor:selection.commandCursor,pendingCommandType:['item','targeting','ready_run'].includes(s.phase)?selection.pendingType:null,
+        commandCursor:selection.commandCursor,pendingCommandType:['item','targeting'].includes(s.phase)?selection.pendingType:null,
         targetSide:s.phase==='targeting'?selection.targetSide:null,selectedTargetInstanceId:s.phase==='targeting'?selectedTarget(s):null,
         validTargetIds:s.phase==='targeting'?targetRows(s).map(m=>m.instanceId):[],
         selectedItemId:showingItems?(s.phase==='item'?rows[selection.itemCursor]?.itemId:selection.itemId)||null:null,
         items:rows,itemCursor:selection.itemCursor,itemScroll:selection.itemScroll,
         allyActions:s.allyActions,enemyActions:s.enemyActions,reservedInventory:choosing||s.phase==='ready'?reserved(s):[],
-        ready:['ready','ready_run'].includes(s.phase),
+        ready:s.phase==='ready',
         party:frame?frame.party:snap.party.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
         enemies:frame?frame.enemies:snap.enemies.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
         inventory:snap.inventory,equipment:snap.equipment,effects:snap.effects,escapePolicy:snap.escapePolicy,bossLocked:snap.bossLocked,
@@ -1051,16 +1051,16 @@ const combatPlayerState = (() => {
         terminalOutcome:['victory','defeat','escape'].includes(s.phase)?s.phase:null,failure:s.failure});
     };
     const backtrackStandard=()=>{
-      const s=standardPhase(['awaiting_action','item','targeting','ready','ready_run']);
+      const s=standardPhase(['awaiting_action','item','targeting','ready']);
       if(s.phase==='targeting'){s.phase=s.selection.pendingType==='item'?'item':'awaiting_action';s.selection.targetSide=null;if(s.phase==='awaiting_action')s.selection.pendingType=null;return getView();}
-      if(['item','ready_run'].includes(s.phase)){s.phase='awaiting_action';s.selection.pendingType=null;return getView();}
+      if(s.phase==='item'){s.phase='awaiting_action';s.selection.pendingType=null;return getView();}
       if(!s.allyActions.length)invalid();
       const prior=s.draftHistory.pop();s.allyActions=Object.freeze(s.allyActions.slice(0,-1));s.selection={...prior.selection};s.phase=prior.phase;
       if(s.phase==='targeting')enterTargets(s,s.selection.targetSide);return getView();
     };
     const commitStandard=()=>{
-      const s=standardPhase(['ready','ready_run']);if(s.playback||s.frameIndex!==null||s.enemyActions.length)invalid();
-      const actions=s.phase==='ready_run'?[{type:'run',actorId:currentAlly(s).instanceId}]:s.allyActions;
+      const s=standardPhase(['ready']);if(s.playback||s.frameIndex!==null||s.enemyActions.length)invalid();
+      const actions=s.allyActions;
       validateDrafts(s,actions,true); // complete all validation before target RNG
       const allies=livingAllies(s),enemies=s.snapshot.enemies.filter(e=>e.hp>0);
       s.allyActions=copyFormationData(actions);s.phase='resolving';let stage='targets',targetDraws=0;
@@ -1199,7 +1199,7 @@ const combatPlayerState = (() => {
         if(arguments.length)invalid();const s=standardPhase(['awaiting_action']),type=commandMenu[s.selection.commandCursor];
         s.selection.pendingType=type;
         if(type==='item'){const rows=itemEntries(s);s.selection.itemCursor=Math.min(s.selection.itemCursor,Math.max(0,rows.length-1));s.phase='item';}
-        else if(type==='run')s.phase='ready_run';else enterTargets(s,'enemy');return getView();
+        else if(type==='run')return appendDraft(s,{type:'run',actorId:currentAlly(s).instanceId});else enterTargets(s,'enemy');return getView();
       },
       moveItem(value) {
         if(arguments.length!==1)invalid();const s=standardPhase(['item']),delta=direction(value),rows=itemEntries(s);
@@ -1712,17 +1712,16 @@ const partyCommandPlayback = (() => {
     if(outcome()!=='ongoing')fail();
     keys(r.command,['type','allyActions','enemyActions']);if(r.command.type!=='party-round')fail();
     list(r.command.allyActions,1,3);list(r.command.enemyActions,1,3);
-    const run=r.command.allyActions.length===1&&r.command.allyActions[0].type==='run';
     const reservations=new Map(),commands=[];
     for(const [side,actions]of [['ally',r.command.allyActions],['enemy',r.command.enemyActions]]){
       const living=(side==='ally'?state.party:state.enemies).filter(m=>m.hp>0);let previous=-1;
-      if(!(run&&side==='ally')&&actions.length!==living.length)fail();
+      if(actions.length!==living.length)fail();
       for(const a of actions){
         const kind=side==='enemy'?'attack':a.type,info=kind==='item'?spec(a.itemId):null;
         keys(a,side==='enemy'?['actorId','targetId']:kind==='run'?['type','actorId']:['attack','observe'].includes(kind)?['type','actorId','targetId']:
           kind==='item'?['type','actorId','itemId',...(info.effect==='damage_all'?[]:['targetId'])]:[]);
         const actor=member(a.actorId),target=member(a.targetId);
-        if(!actor||!actor.hp||actor.side!==side||actor.slot<=previous||kind==='run'&&!run)fail();previous=actor.slot;
+        if(!actor||!actor.hp||actor.side!==side||actor.slot<=previous)fail();previous=actor.slot;
         if(kind!=='run'&&info?.effect!=='damage_all'){
           if(!target||!target.hp)fail();const friendly=info&&['heal','cure','evade','equip','nothing'].includes(info.effect);
           if(friendly?target.side!==side:target.side===side)fail();
@@ -1731,7 +1730,7 @@ const partyCommandPlayback = (() => {
         if(info)reservations.set(a.itemId,(reservations.get(a.itemId)||0)+1);
         commands.push({command:a,actorId:a.actorId,targetId:a.targetId??null,side,slot:actor.slot,commandType:kind});
       }
-      if(!(run&&side==='ally'))equal(actions.map(a=>a.actorId),living.map(m=>m.instanceId));
+      equal(actions.map(a=>a.actorId),living.map(m=>m.instanceId));
     }
     for(const[id,n]of reservations)if(state.inventory.filter(x=>x===id).length<n)fail();
     list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();keys(e,['type',...eventKeys[e.type]]);});

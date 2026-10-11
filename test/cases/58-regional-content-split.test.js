@@ -46,7 +46,8 @@ module.exports = {
     for (const f of REGIONAL_FILES.slice(0, 6)) assert.ok(idx(scripts, f) < mapsI, f + ' must load before maps.js');
     for (const f of REGIONAL_FILES.slice(6, 12)) { assert.ok(idx(scripts, f) > mapsI, f + ' after maps.js'); assert.ok(idx(scripts, f) < npcsI, f + ' before npcs.js'); }
     for (const f of REGIONAL_FILES.slice(12, 18)) { assert.ok(idx(scripts, f) > npcsI, f + ' after npcs.js'); assert.ok(idx(scripts, f) < interI, f + ' before interactions.js'); }
-    assert.equal(interI, scripts.length - 1, 'interactions.js must load last');
+    assert.equal(interI, scripts.length - 2, 'interactions.js must remain the final content authority');
+    assert.equal(scripts.at(-1), 'game-loop.js', 'the animation loop must start after all content and runtime authorities');
     // exact regional order within each group
     const mapOrder = REGIONAL_FILES.slice(0, 6).map(f => idx(scripts, f));
     assert.deepEqual(mapOrder.slice().sort((a, b) => a - b), mapOrder, 'regional map files in the prescribed order');

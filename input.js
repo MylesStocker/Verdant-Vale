@@ -107,7 +107,6 @@ function handlePartyCombatLabInput(command) {
       else if (command === 'cancel') partyCombatLab.cancelTargeting();
       break;
     case 'ready':
-    case 'ready_run':
       if (command === 'confirm') partyCombatLab.commitRound();
       else if (command === 'cancel') partyCombatLab.backtrack();
       break;

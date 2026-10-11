@@ -46,10 +46,10 @@ test('one to three enemies occupy deterministic stable slots and all records sta
 
 test('current ally and submitted exact targets remain presentation-only without diagnostics',()=>{
   const g=fresh('lely_esla_two'),first=view(g),enemy=first.enemies[1];let labels=texts(draw(g));
-  assert.ok(labels.includes('Choose an action.'));assert.ok(!labels.includes('CHOOSING'));
+  assert.ok(labels.includes("Choose Lély's action."));assert.ok(!labels.includes('CHOOSING'));
   assert.ok(g.run('partyCombatLab.submitAttack('+JSON.stringify({actorId:first.nextActorId,targetId:enemy.instanceId})+')'));
   const second=view(g);labels=texts(draw(g));assert.equal(second.nextActorId,second.party[1].instanceId);
-  assert.ok(labels.includes('Choose an action.'));assert.ok(!labels.some(label=>label.includes('Attack →')));
+  assert.ok(labels.includes("Choose Esla's action."));assert.ok(!labels.some(label=>label.includes('Attack →')));
   assert.ok(g.run('partyCombatLab.confirmCommand()'));labels=texts(draw(g));assert.ok(labels.includes('Choose a target.'));
   assert.ok(!labels.some(label=>/submitted|CHOOSING|FRAME|EVENT|ROUNDS/.test(label)));
 });

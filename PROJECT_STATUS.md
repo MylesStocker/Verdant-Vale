@@ -56,7 +56,7 @@ formation schedulers are unchanged.
 `initializeCommandParty({members, inventory, escape})` prepares one to three
 fixture members against one to three already-prepared ordinary enemies.
 `resolveRound({type:'party-round', allyActions, enemyActions})` accepts mixed
-Attack, Item and Observe commands, or one whole-party Run. The isolated Party
+Attack, Item, Observe and Run commands for each living ally. The isolated Party
 Combat Lab is the only production preparation caller; its standard session is
 the only resolver caller. No encounter or canonical party route reaches it.
 
@@ -64,8 +64,8 @@ Inventory is a detached shared list of registry item IDs. Equipment and Bullet
 Time belong to the selected member (equipment must target its user); each user's
 Bomb binds an exact enemy and ticks once per round. Items reuse existing registry,
 classification, healing, damage and cure authorities. Observe uses authored text
-and exact enemy-instance progress. Run schedules only its chosen runner and living
-enemies; encounter-time boss evidence and existing escape policy block escape.
+and exact enemy-instance progress. Run occupies its chosen ally's action alongside
+the other allies' commands; encounter-time boss evidence and existing escape policy block escape.
 Three ordinary Attack draws and N−1 weighted initiative draws remain unchanged.
 Every successful round, including Run and early terminal rounds, counts once.
 
@@ -113,7 +113,7 @@ histories; canonical gameplay integration remains deferred. No save changes.
 ### Generalized headless party sessions
 
 `combatPlayerState.session.begin({commandSet:'standard'})` now collects Attack,
-Item, Observe or a whole-party Run for one to three prepared allies/enemies.
+Item, Observe or Run for each of one to three prepared allies/enemies.
 This is an explicit gated entry mode in the existing session closure. The
 playable Party Combat Lab is its only caller; the no-argument Attack-only mode
 remains available for compatibility tests.

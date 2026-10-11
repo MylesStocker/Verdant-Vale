@@ -98,9 +98,9 @@ for(const type of ['attack','observe','item','run'])test('Slither ownership on '
 });
 for(const [name,options,order,execution]of [
   ['blocked',{escape:'blocked'},null,[...HIT,...HIT]],['boss',{boss:true},null,[...HIT,...HIT]],
-  ['failed',{},null,[0.99,...HIT,...HIT]],['success',{},['e0','a0','e1'],[...HIT,0]],
-  ['runner death',{party:[{hp:1},{}]},['e0','a0','e1'],[...HIT,...HIT]]])test('Run '+name,()=>{
-    const {reel}=fixture(options,[['run',0]],order,execution);assert.equal(reel.order.length,3);assert.equal(reel.frames.at(-1).outcome,name==='success'?'escape':'ongoing');
+  ['failed',{},null,[0.99,...HIT,...HIT]],['success',{},['e0','a0','a1','e1'],[...HIT,0]],
+  ['runner death',{party:[{hp:1},{}]},['e0','a0','a1','e1'],[...HIT,...HIT]]])test('Run '+name,()=>{
+    const {reel}=fixture(options,[['run',0],['observe',1,0]],order,execution);assert.equal(reel.order.length,4);assert.equal(reel.frames.at(-1).outcome,name==='success'?'escape':'ongoing');
     if(name==='runner death')assert.ok(!eventFrame(reel,'run'));else assert.equal(eventFrame(reel,'run').currentEvent.roll,['blocked','boss'].includes(name)?null:name==='failed'?0.99:0);
 });
 for(const outcome of ['victory','defeat'])test(outcome+' truncates actions, remains hidden until outcome, retains final frame',()=>{
@@ -170,10 +170,10 @@ corrupt(observed,['bad.events[0].countBefore++','bad.events[0].countAfter++','ba
 const cursed=()=>fixture({allies:1,enemies:1,party:[{statuses:['cursed']}]},undefined,undefined,[0.1,...HIT]);
 corrupt(cursed,['bad.events.shift()','bad.events[0].roll=0.9','bad.events[0].fumbled=false','bad.events[0].chance=0.5','bad.events[0].status="burn"','bad.events[1].critical=true','bad.events[1].evaded=true','bad.events[1].attemptedDamage=2']);
 corrupt(()=>slither(),['bad.events.shift()','bad.events[0].speedAfter++','bad.events[0].speedBefore++','bad.events[0].slot=1','bad.events[0].round++','bad.before.effects[0].slither.round=1','bad.before.effects[0].slither.speed=0','bad.after.effects[0].slither.roll=0.1']);
-const running=()=>fixture({},[['run',0]],null,[0]);
+const running=()=>fixture({},[['run',0],['observe',1,0]],null,[0]);
 corrupt(running,['bad.events[0].success=false','bad.events[0].allowed=false','bad.events[0].roll=1','bad.events[0].opponentId="combat_enemy_999"','bad.before.bossLocked=true',
   'bad.events.splice(1,0,{type:"skip",...bad.order[1],reason:"actor_dead"})']);
-corrupt(()=>fixture({escape:'blocked'},[['run',0]],null,[...HIT,...HIT]),['bad.events[0].roll=0','bad.events[0].success=true','bad.events[0].chance=0.5']);
+corrupt(()=>fixture({escape:'blocked'},[['run',0],['observe',1,0]],null,[...HIT,...HIT]),['bad.events[0].roll=0','bad.events[0].success=true','bad.events[0].chance=0.5']);
 const buff=()=>fixture({inventory:['Bullet Time']},[['item',0,'a1','Bullet Time'],['observe',1,0]]);
 corrupt(buff,['bad.events.splice(1,1)','bad.events[1].effectsBefore[1].evadeTurns=1','bad.events[0].after.effects[1].evadeAppliedRound=0','bad.events.at(-1).effectsAfter[1].evadeTurns=2']);
 const bombTick=()=>{const {g}=fixture({inventory:['Bomb']},[['item',0,0,'Bomb'],['observe',1,0]]);resolve(g,command(g,[['observe',0,0],['observe',1,0]]),null,[...HIT,...HIT]);const reel=create(g);verify(g,reel);return {g,reel};};
@@ -198,13 +198,13 @@ test('Bomb victory truncates subsequent boundary ticks and retains historical ze
 });
 test('encounter boss lock remains historical after the only boss has died',()=>{
   const {g}=fixture({boss:true,inventory:['Sapper Charge'],enemy:[{hp:20},{}]},[['item',0,0,'Sapper Charge'],['observe',1,1]],null,HIT);
-  resolve(g,command(g,[['run',0]]),null,HIT);const reel=create(g);verify(g,reel);assert.equal(reel.frames[0].enemies[0].hp,0);assert.equal(eventFrame(reel,'run').currentEvent.allowed,false);
+  resolve(g,command(g,[['run',0],['observe',1,1]]),null,HIT);const reel=create(g);verify(g,reel);assert.equal(reel.frames[0].enemies[0].hp,0);assert.equal(eventFrame(reel,'run').currentEvent.allowed,false);
 });
 test('Slither historical samples survive cleanup and replacement with fresh identities',()=>{
   const {g,reel}=slither(),before=JSON.stringify(reel);g.run('var historical=result;combatPlayerState.clear();combat.enemy=null;combat.enemy={...ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp};combatPlayerState.initializeCommandParty(seed);var result=historical');
   assert.equal(g.run('combatPlayerState.getView().members[0].instanceId'),'combat_party_2');create(g);equal(g.run('reel'),reel);assert.equal(JSON.stringify(reel),before);
 });
-test('initially dead targets, extra Run allies and false terminal continuation reject',()=>{
+test('initially dead targets, contradictory Run history and false terminal continuation reject',()=>{
   const {g}=fixture();for(const edit of ['bad.before.enemies[0].hp=0','bad.command.allyActions[0]={type:"run",actorId:bad.command.allyActions[0].actorId}']){altered(g,edit);rejects(g);}
   const victory=fixture({allies:1,enemies:1,enemy:[{hp:1}]},undefined,null,HIT);altered(victory.g,'bad.events.splice(1,0,{type:"skip",...bad.order[1],reason:"actor_dead"})');rejects(victory.g);
 });

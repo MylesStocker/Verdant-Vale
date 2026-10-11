@@ -58,9 +58,12 @@ test('boss escape-lock scenario reaches its first rendered battle frame',()=>{
   for(let i=0;i<4;i++)g.press('ArrowDown');g.press('Enter');
   const v=view(g);assert.equal(v.scenarioId,'boss_escape_lock');assert.equal(v.phase,'awaiting_action');
   record(g);const before=canonical(g),rng=g.run('labRng');
+  g.run('FORMATION_SPRITE_BOUNDS.delete(drawBattleMulholland);');
   const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.enemies.length,1);assert.equal(layout.enemies[0].instanceId,v.enemies[0].instanceId);
   assert.doesNotThrow(()=>g.run('drawPartyCombatLabBattle()'));
+  assert.doesNotThrow(()=>g.renderFrame());g.frames(120);assert.doesNotThrow(()=>g.renderFrame());
+  g.press('ArrowRight');assert.equal(view(g).selectedCommand,'item');g.press('ArrowLeft');
   assert.ok(texts(J(g,'labPaint')).includes('Mulholland'));
   assert.equal(canonical(g),before);assert.equal(g.run('labRng'),rng);
 });
@@ -103,20 +106,20 @@ test('healing, cure, offensive, all-enemy, self-only, and equipment drafts use a
   }
 });
 
-test('ready and ready_run remain separate confirmations with deterministic restoration',()=>{
+test('Run drafts like other actions and ready retains separate confirmation',()=>{
   const g=fresh();enter(g,'lely_esla_two');attack(g,1);attack(g,0);let v=view(g);assert.equal(v.phase,'ready');assert.equal(g.run('labRng'),0);
   g.press('Escape');v=view(g);assert.equal(v.phase,'targeting');assert.equal(v.nextActorId,v.party[1].instanceId);assert.equal(v.selectedTargetInstanceId,v.enemies[0].instanceId);
   g.press('Escape');g.press('Escape');v=view(g);assert.equal(v.phase,'targeting');assert.equal(v.nextActorId,v.party[0].instanceId);assert.equal(v.selectedTargetInstanceId,v.enemies[1].instanceId);
-  g.press('Enter');v=view(g);command(g,3);v=view(g);assert.equal(v.phase,'ready_run');assert.equal(v.allyActions.length,1);g.press('Escape');v=view(g);
+  g.press('Enter');v=view(g);command(g,3);v=view(g);assert.equal(v.phase,'ready');assert.equal(v.allyActions.length,2);g.press('Escape');v=view(g);
   assert.equal(v.phase,'awaiting_action');assert.equal(v.nextActorId,v.party[1].instanceId);assert.equal(v.allyActions.length,1);assert.equal(v.selectedCommand,'run');assert.equal(g.run('labRng'),0);
 });
 
 test('successful, failed, and boss-blocked Run use the real resolver and retain final playback',()=>{
-  {const g=fresh();enter(g);command(g,3);arm(g,0);g.press('Enter');assert.equal(view(g).phase,'playback');assert.equal(view(g).playbackFrame.frameIndex,0);finish(g);
+  {const g=fresh();enter(g);command(g,3);command(g,2);target(g);arm(g,0);g.press('Enter');assert.equal(view(g).phase,'playback');assert.equal(view(g).playbackFrame.frameIndex,0);finish(g);
     assert.equal(view(g).playbackFrame.outcome,'escape');g.press('Enter');assert.equal(view(g).phase,'escape');}
-  {const g=fresh();enter(g);command(g,3);arm(g,0.999);g.press('Enter');finish(g);const events=view(g).playbackFrame.currentEvent;assert.equal(events.type,'round_end');
+  {const g=fresh();enter(g);command(g,3);command(g,2);target(g);arm(g,0.999);g.press('Enter');finish(g);const events=view(g).playbackFrame.currentEvent;assert.equal(events.type,'round_end');
     g.press('Enter');assert.equal(view(g).phase,'awaiting_action');}
-  {const g=fresh();const v=enter(g,'boss_escape_lock');assert.equal(v.bossLocked,true);command(g,3);arm(g,0);g.press('Enter');finish(g);
+  {const g=fresh();const v=enter(g,'boss_escape_lock');assert.equal(v.bossLocked,true);command(g,3);command(g,2);target(g);arm(g,0);g.press('Enter');finish(g);
     const reel=J(g,'combatPlayerState.session.getView().playbackFrame');assert.equal(reel.outcome,'ongoing');assert.ok(g.run('combatPlayerState.session.getView().playbackFrame.complete'));g.press('Enter');assert.equal(view(g).phase,'awaiting_action');}
 });
 
@@ -188,6 +191,13 @@ test('input remains one listener pair and no canonical gameplay or save route is
   for(const file of scriptOrderFromIndexHtml()){if(!/content\/|interaction|quest|encounter|maps|npcs/.test(file))continue;
     assert.doesNotMatch(fs.readFileSync(path.join(ROOT,file),'utf8'),/partyCombatLab|PARTY_COMBAT_LAB_/,file);}
   const g=fresh();assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('saveGame()'),true);assert.doesNotMatch(g.run("localStorage.getItem('verdantVale_save')"),/party|esla_lab|combat_party/);
+});
+
+test('the animation loop starts only after every runtime authority is loaded',()=>{
+  const scripts=scriptOrderFromIndexHtml(),loop=scripts.indexOf('game-loop.js');
+  assert.equal(loop,scripts.length-1);
+  for(const dependency of ['movement.js','render.js','combat.js','formation-lab.js','party-combat-lab.js','render-party-combat-lab.js','interactions.js'])
+    assert.ok(scripts.indexOf(dependency)>=0&&scripts.indexOf(dependency)<loop,dependency);
 });
 
 module.exports={name:'visible four-command Party Combat Lab: controller-owned commands, history and isolation',checks,

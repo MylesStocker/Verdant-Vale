@@ -95,8 +95,8 @@ test('Observe resamples once; Run and Item retain its owned sample without furth
   const run=resolve(g,command(g,[['run',0]]),null,[0]);const event=run.events.find(e=>e.type==='run');
   assert.equal(samples(run).length,0);assert.equal(run.order[0].spd,16);assert.equal(event.chance,g.run('speedWinChance(16,10)'));assert.equal(run.outcome,'escape');
 });
-test('passive Slither ally in a Run round and dead Slither members consume no samples',()=>{
-  const g=fresh({...slitherParty(3),party:[{statuses:['slither']},{statuses:['slither']},{hp:0,statuses:['slither']}]}),r=resolve(g,command(g,[['run',1]]),null,[0]);
+test('Run actors retain Slither samples and dead Slither members consume no samples',()=>{
+  const g=fresh({...slitherParty(3),party:[{statuses:['slither']},{statuses:['slither']},{hp:0,statuses:['slither']}]}),r=resolve(g,command(g,[['run',0],['run',1]]),null,[0]);
   assert.equal(samples(r).length,0);assert.deepEqual(r.after.effects.map(e=>e.slither.speed),[5,5,5]);assert.equal(r.party[2].slot,2);
 });
 test('alive-at-start Slither actor still owns its planned sample when killed before acting',()=>{

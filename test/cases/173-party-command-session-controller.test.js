@@ -18,7 +18,7 @@ function ready(g){while(view(g).phase==='awaiting_action')attack(g);assert.equal
 function tape(g,source,values,hook=''){g.run('var tape='+JSON.stringify(values)+';var used=[];Math.random=()=>{rngCalls++;'+hook+'if(used.length>=tape.length)throw Error("tape exhausted");const n=tape[used.length];used.push(n);return n;};');try{const v=g.run(source);equal(J(g,'used'),values);return v;}finally{g.run('Math.random=()=>{rngCalls++;throw Error("unexpected RNG");};');}}
 function commit(g,{targets,order,execution,samples=[]}={}){
   const v=view(g),allies=v.party.filter(m=>m.hp>0),enemies=v.enemies.filter(m=>m.hp>0);
-  const actions=v.phase==='ready_run'?[{type:'run',actorId:v.nextActorId}]:v.allyActions;
+  const actions=v.allyActions;
   const c={type:'party-round',allyActions:actions,enemyActions:enemies.map(e=>({actorId:e.instanceId,targetId:allies[0].instanceId}))};
   const targetDraws=allies.length>1?(targets||enemies.map(()=>0)):[];
   const executionDraws=execution||Array.from({length:actions.filter(a=>a.type==='attack').length+enemies.length},()=>HIT).flat();
@@ -100,25 +100,27 @@ test('ready backtracking restores Observe and Attack targets with no RNG',()=>{
   const g=fresh({enemies:3});attack(g,ids(g)[1][2]);observe(g,ids(g)[1][1]);g.run('controller.backtrack()');assert.equal(view(g).selectedCommand,'observe');assert.equal(view(g).selectedTargetInstanceId,ids(g)[1][1]);
   g.run('controller.backtrack()');assert.equal(view(g).phase,'awaiting_action');g.run('controller.backtrack()');assert.equal(view(g).nextActorId,ids(g)[0][0]);assert.equal(view(g).selectedCommand,'attack');assert.equal(view(g).selectedTargetInstanceId,ids(g)[1][2]);assert.equal(g.run('rngCalls'),0);
 });
-test('ready_run cancellation preserves earlier item drafts and reservations exactly',()=>{
+test('Run is an ordinary draft and backtracking preserves earlier item reservations',()=>{
   const g=fresh({inventory:['Potion']});item(g,'Potion',ids(g)[0][1]);const actions=view(g).allyActions,reservations=view(g).reservedInventory;
-  choose(g,'run');assert.equal(view(g).phase,'ready_run');assert.equal(view(g).nextActorId,ids(g)[0][1]);equal(view(g).allyActions,actions);reject(g,'controller.moveTarget("next")');
+  choose(g,'run');assert.equal(view(g).phase,'ready');equal(view(g).allyActions,[...actions,{type:'run',actorId:ids(g)[0][1]}]);
   g.run('controller.backtrack()');equal(view(g).allyActions,actions);equal(view(g).reservedInventory,reservations);assert.equal(view(g).selectedCommand,'run');assert.equal(g.run('rngCalls'),0);
-  choose(g,'run');commit(g,{execution:[0]});equal(view(g).allyActions,[{type:'run',actorId:ids(g)[0][1]}]);equal(view(g).inventory,['Potion']);equal(view(g).reservedInventory,[]);assert.equal(next(g).phase,'escape');
+  choose(g,'run');commit(g,{execution:[0]});equal(view(g).allyActions,[...actions,{type:'run',actorId:ids(g)[0][1]}]);equal(view(g).inventory,['Potion']);assert.equal(next(g).phase,'escape');
 });
 for(const kind of ['success','failure','boss','policy'])test('Run '+kind+' preserves scheduled enemies and exact roll accounting',()=>{
-  const g=fresh({boss:kind==='boss',escape:kind==='policy'?'blocked':'fastest_living'});choose(g,'run');
+  const g=fresh({boss:kind==='boss',escape:kind==='policy'?'blocked':'fastest_living'});choose(g,'run');observe(g);
   const success=kind==='success',blocked=kind==='boss'||kind==='policy';commit(g,{execution:success?[0]:[...(blocked?[]:[0.99]),...HIT,...HIT]});
-  const v=finish(g);assert.equal(v.playbackFrame.outcome,success?'escape':'ongoing');const terminal=g.run('controller.acknowledgePlayback()');assert.equal(terminal.phase,success?'escape':'awaiting_action');
+  const v=finish(g);equal(v.allyActions.map(action=>action.type),['run','observe']);
+  assert.equal(v.enemies[0].observeCount,success?0:1,'successful escape truncates; failed/blocked Run leaves the other ally action intact');
+  assert.equal(v.playbackFrame.outcome,success?'escape':'ongoing');const terminal=g.run('controller.acknowledgePlayback()');assert.equal(terminal.phase,success?'escape':'awaiting_action');
   if(success){assert.equal(terminal.frameIndex,terminal.frameCount-1);reject(g,'controller.commitRound()');reject(g,'controller.backtrack()');}
 });
 for(const a of [1,2,3])for(const roll of [0,0.499999,0.999999])test('enemy target draws use stable living slots with '+a+' allies at '+roll,()=>{
   const g=fresh({allies:a,enemies:3});ready(g);const v=commit(g,{targets:[roll,roll,roll]});equal(v.enemyActions.map(x=>x.targetId),Array(3).fill(ids(g)[0][Math.floor(roll*a)]));assert.equal(g.run('rngCalls'),(a===1?0:3)+(a+2)+3*(a+3));
 });
 test('Run targets include non-runner; enemy before runner attacks first and dead runner gets no escape roll',()=>{
-  const g=fresh({allies:2,enemies:1,party:[{hp:1},{}]});choose(g,'run');commit(g,{order:['e0','a0'],execution:HIT});
-  const last=finish(g);assert.equal(last.party[0].hp,0);assert.equal(last.playbackFrame.outcome,'ongoing');assert.equal(g.run('rngCalls'),1+1+3);assert.equal(g.run('controller.acknowledgePlayback()').nextActorId,ids(g)[0][1]);
-  const other=fresh({allies:2,enemies:1});choose(other,'run');commit(other,{targets:[0.9],order:['e0','a0'],execution:[...HIT,0]});const end=next(other);assert.equal(end.phase,'escape');assert.equal(end.party[0].hp,100);assert.equal(end.party[1].hp,93);
+  const g=fresh({allies:2,enemies:1,party:[{hp:1},{}]});choose(g,'run');observe(g);commit(g,{order:['e0','a0','a1'],execution:HIT});
+  const last=finish(g);assert.equal(last.party[0].hp,0);assert.equal(last.playbackFrame.outcome,'ongoing');assert.equal(g.run('rngCalls'),1+2+3);assert.equal(g.run('controller.acknowledgePlayback()').nextActorId,ids(g)[0][1]);
+  const other=fresh({allies:2,enemies:1});choose(other,'run');observe(other);commit(other,{targets:[0.9],order:['e0','a0','a1'],execution:[...HIT,0]});const end=next(other);assert.equal(end.phase,'escape');assert.equal(end.party[0].hp,100);assert.equal(end.party[1].hp,93);
 });
 test('frozen enemy targets cancel after sole committed target dies; living allies do not retarget',()=>{
   const g=fresh({party:[{hp:1},{}]});ready(g);commit(g,{order:['e0','e1','a0','a1'],execution:[...HIT,...HIT]});
@@ -209,12 +211,12 @@ test('dead item user keeps shared inventory untouched and historical command slo
   const g=fresh({party:[{hp:1},{}],inventory:['Potion']});item(g,'Potion',ids(g)[0][1]);observe(g);commit(g,{order:['e0','a0','a1','e1'],execution:HIT});equal(finish(g).inventory,['Potion']);assert.equal(view(g).allyActions[0].actorId,ids(g)[0][0]);assert.equal(view(g).party[0].slot,0);
 });
 test('encounter boss lock persists into a Run after its only boss dies',()=>{
-  const g=fresh({boss:true,enemy:[{hp:1},{}]});attack(g);observe(g,ids(g)[1][1]);commit(g,{execution:[...HIT,...HIT]});next(g);assert.equal(view(g).bossLocked,true);choose(g,'run');commit(g,{execution:HIT});assert.equal(next(g).phase,'awaiting_action');assert.equal(view(g).bossLocked,true);
+  const g=fresh({boss:true,enemy:[{hp:1},{}]});attack(g);observe(g,ids(g)[1][1]);commit(g,{execution:[...HIT,...HIT]});next(g);assert.equal(view(g).bossLocked,true);choose(g,'run');observe(g,ids(g)[1][1]);commit(g,{execution:HIT});assert.equal(next(g).phase,'awaiting_action');assert.equal(view(g).bossLocked,true);
 });
 test('Slither retained sample, Curse cure and later duration views remain historical',()=>{
   const g=fresh({allies:2,enemies:1,inventory:['Amethyst Dust'],party:[{statuses:['slither']},{statuses:['cursed']}],slither:[{slot:0,speed:10}]});
   item(g,'Amethyst Dust',ids(g)[0][1]);attack(g);commit(g,{execution:[...HIT,...HIT]});assert.equal(view(g).effects[0].slither.speed,10);equal(view(g).party[1].statuses,['cursed']);const end=next(g);equal(end.party[1].statuses,[]);assert.equal(end.effects[0].slither.round,0);
-  choose(g,'run');commit(g,{execution:[0]});assert.equal(next(g).phase,'escape');assert.equal(view(g).effects[0].slither.speed,10);
+  choose(g,'run');observe(g);commit(g,{execution:[0]});assert.equal(next(g).phase,'escape');assert.equal(view(g).effects[0].slither.speed,10);
 });
 test('Slither Attack samples and Bullet Time advancement come solely from authentic resolver and playback',()=>{
   const g=fresh({enemies:1,inventory:['Bullet Time'],party:[{statuses:['slither']},{}],slither:[{slot:0,speed:10}]});

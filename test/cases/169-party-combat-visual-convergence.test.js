@@ -92,6 +92,22 @@ test('three compact party rows and familiar command boxes fit the ordinary panel
   for(const call of J(g,'paint').filter(entry=>entry.bounds))assert.ok(call.bounds[1]>=334&&call.bounds[3]<=404,JSON.stringify(call));
 });
 
+test('the choosing ally is highlighted in the status row without a battlefield box',()=>{
+  const g=fresh('lely_esla_one'),calls=draw(g);
+  assert.equal(calls.some(call=>call.type==='strokeRect'&&call.args.join(',')==='81,220,54,59'),false);
+  assert.equal(calls.find(call=>call.type==='text'&&call.args[0]==='Lély').style.fillStyle,'#e0f0e8');
+  assert.equal(calls.find(call=>call.type==='text'&&call.args[0]==='Esla').style.fillStyle,'#d0e0d0');
+  assert.ok(calls.some(call=>call.type==='fillRect'&&call.args[1]===348&&call.style.fillStyle==='#78c88a'));
+  assert.ok(calls.some(call=>call.type==='fillRect'&&call.args[1]===366&&call.style.fillStyle==='#4a9a62'));
+  assert.equal(calls.some(call=>call.type==='fillRect'&&[346,364].includes(call.args[1])&&call.args[2]===10&&call.args[3]===8),false,
+    'HP segments use the lowered text-aligned y position');
+  g.run(`partyCombatLab.confirmCommand();partyCombatLab.confirmTarget();`);
+  const eslaCalls=draw(g);
+  assert.equal(eslaCalls.some(call=>call.type==='strokeRect'&&call.args.join(',')==='229,220,54,59'),false);
+  assert.equal(eslaCalls.find(call=>call.type==='text'&&call.args[0]==='Lély').style.fillStyle,'#d0e0d0');
+  assert.equal(eslaCalls.find(call=>call.type==='text'&&call.args[0]==='Esla').style.fillStyle,'#e0f0e8');
+});
+
 test('playback uses historical HP and defeated allies remain dimmed in fixed slots',()=>{
   const g=fresh('lely_esla_one');commandAll(g);
   g.run(`var tape=[0,0,0,...Array.from({length:3},()=>[0.5,0.99,0.99]).flat()],used=0;Math.random=()=>tape[used++];partyCombatLab.commitRound();

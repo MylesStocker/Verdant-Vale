@@ -184,30 +184,35 @@ test('dead item user consumes nothing and defeated allies remain in slots',()=>{
   assert.equal(r.events[1].reason,'actor_dead');assert.deepEqual(r.after.inventory,['Potion']);
   const c=command(g);assert.equal(c.allyActions.length,1);resolve(g,c);
 });
-test('successful Run uses only runner plus enemies and truncates later attacks',()=>{
-  const g=fresh(),r=resolve(g,command(g,[['run',1]]),['e0','a1','e1'],[...HIT,0]);
-  assert.equal(r.outcome,'escape');assert.equal(r.order.length,3);assert.equal(r.initiative.length,2);
-  assert.equal(r.events.filter(e=>e.type==='attack').length,1);assert.equal(r.events.find(e=>e.type==='run').success,true);
+test('successful Run is one ally action and truncates later planned actions',()=>{
+  const g=fresh(),r=resolve(g,command(g,[['attack',0,0],['run',1]]),['a1','a0','e0','e1'],[0]);
+  assert.equal(r.outcome,'escape');assert.equal(r.order.length,4);assert.equal(r.initiative.length,3);
+  assert.equal(r.events.filter(e=>e.type==='attack').length,0);assert.equal(r.events.find(e=>e.type==='run').success,true);
   assert.equal(J(g,'combatPlayerState.getRoundView()').completedRounds,1);g.run('rngCalls=0;Math.random=()=>{rngCalls++;throw Error();};');
   rejects(g,'combatPlayerState.resolveRound(command)');
 });
-test('failed Run permits remaining enemy attacks with no passive-ally command',()=>{
-  const g=fresh(),r=resolve(g,command(g,[['run',0]]),null,[0.99,...HIT,...HIT]);assert.equal(r.outcome,'ongoing');
-  assert.equal(r.events.find(e=>e.type==='run').success,false);assert.equal(r.events.filter(e=>e.type==='attack').length,2);
+test('failed Run consumes one ally action while the other ally and enemies still act',()=>{
+  const g=fresh(),r=resolve(g,command(g,[['run',0],['attack',1,0]]),null,[0.99,...HIT,...HIT,...HIT]);assert.equal(r.outcome,'ongoing');
+  assert.equal(r.events.find(e=>e.type==='run').success,false);assert.equal(r.events.filter(e=>e.type==='attack').length,3);
 });
-test('blocked Run uses no escape roll but enemies still act',()=>{
-  const g=fresh({escape:'blocked'}),r=resolve(g,command(g,[['run',0]]),null,[...HIT,...HIT]);
+test('blocked Run uses no escape roll while the other ally and enemies still act',()=>{
+  const g=fresh({escape:'blocked'}),r=resolve(g,command(g,[['run',0],['attack',1,0]]),null,[...HIT,...HIT,...HIT]);
   assert.equal(r.events.find(e=>e.type==='run').roll,null);assert.equal(r.events.find(e=>e.type==='run').allowed,false);
 });
 test('dead runner is skipped with no success roll while other ally remains targetable',()=>{
-  const g=fresh({party:[{hp:1},{}]}),r=resolve(g,command(g,[['run',0]]),['e0','a0','e1'],[...HIT,...HIT]);
+  const g=fresh({party:[{hp:1},{}]}),r=resolve(g,command(g,[['run',0],['attack',1,0]]),['e0','a0','a1','e1'],[...HIT,...HIT,...HIT]);
   assert.equal(r.outcome,'ongoing');assert.ok(!r.events.some(e=>e.type==='run'));assert.equal(r.events[1].reason,'actor_dead');
+});
+test('two allies may independently attempt Run in one round',()=>{
+  const g=fresh(),r=resolve(g,command(g,[['run',0],['run',1]]),['a0','a1','e0','e1'],[0.99,0]);
+  assert.deepEqual(r.events.filter(e=>e.type==='run').map(e=>e.success),[false,true]);assert.equal(r.outcome,'escape');
+  assert.equal(r.events.filter(e=>e.type==='attack').length,0);
 });
 test('boss lock is captured at enemy creation and persists after that boss dies',()=>{
   const g=fresh({boss:true,inventory:['Sapper Charge'],enemy:[{hp:20},{}]}),r=resolve(g,command(g,[['item',0,0,'Sapper Charge'],['observe',1,1]]),null,HIT);
   assert.equal(r.enemies[0].hp,0);assert.equal(r.after.bossLocked,true);
   assert.deepEqual(r.enemies.map(e=>e.isBoss),[true,false],'only the defeated enemy was a boss');
-  const next=resolve(g,command(g,[['run',0]]),null,HIT);assert.equal(next.events.find(e=>e.type==='run').roll,null);
+  const next=resolve(g,command(g,[['run',0],['observe',1,1]]),null,HIT);assert.equal(next.events.find(e=>e.type==='run').roll,null);
 });
 test('victory and defeat truncate and count exactly one round',()=>{
   const win=fresh({inventory:['Void Shard'],enemy:[{hp:20},{hp:20}]}),r=resolve(win,command(win,[['item',0,null,'Void Shard'],['observe',1,1]]),null,[]);
@@ -275,7 +280,6 @@ const invalidCommands={
   'callback':'command.allyActions[0].targetId=()=>1',
   'prototype':'Object.setPrototypeOf(command.allyActions[0],{extra:1})',
   'sparse actions':'delete command.allyActions[0]',
-  'mixed Run':"command.allyActions[0]={type:'run',actorId:command.allyActions[0].actorId}",
   'inventory overcommit':"command.allyActions=command.allyActions.map(a=>({type:'item',actorId:a.actorId,targetId:a.actorId,itemId:'Potion'}))",
   'equipping other ally':"command.allyActions[0]={type:'item',actorId:command.allyActions[0].actorId,targetId:command.allyActions[1].actorId,itemId:'Iron Sword'}",
   'key item':"command.allyActions[0]={type:'item',actorId:command.allyActions[0].actorId,targetId:command.allyActions[0].actorId,itemId:'Warp Stone'}",

@@ -228,8 +228,8 @@ target any living ally; equipment and Bait explicitly target their user. Offensi
 items, Bombs, reagents and Trollbane target an exact living enemy. Key items reject.
 Duplicate actors, unknown fields, accessors, prototypes, stale/wrong-side IDs,
 dead actors/initial targets, aggregate overcommit and unsafe arithmetic reject
-before any RNG or mutation. Every living ally/enemy supplies one action, except
-Run supplies exactly one ally and forbids all other allied commands.
+before any RNG or mutation. Every living ally and enemy supplies one action;
+Run is an ordinary ally action and may appear beside any other allied command.
 
 Equipment transfers one inventory copy to its user's private slot and returns
 prior gear to shared inventory. Scheduled consumption happens only on execution;
@@ -282,8 +282,8 @@ Weighted initiative is the unchanged pure without-replacement planner, using
 start-of-round effective Speed and minimum weight 1. It consumes N−1 draws;
 each ordinary executed Attack consumes variance/critical/evasion draws in that
 order. Curse uses the conditional contract above. Item/Observe have no action RNG;
-Slither Observe still has its pre-initiative sample. Run's participants are the runner and living
-enemies; other allies remain targetable. Allowed Run consumes one success roll
+Slither Observe still has its pre-initiative sample. A Run actor participates in the same
+initiative plan as every other commanded ally and living enemy. Allowed Run consumes one success roll
 using the runner's effective Speed against the fastest living enemy (slot order
 breaks ties); blocked/dead-runner Run consumes none. Success truncates with
 `escape`; failed/blocked attempts leave subsequent enemy actions scheduled.
@@ -542,7 +542,7 @@ The standard command order is `attack, item, observe, run`. Its additional API i
 
 | API | Responsibility |
 | --- | --- |
-| `moveCommand('previous'|'next')` / `confirmCommand()` | Wrap the four commands, then enter targeting, item selection or Run confirmation. |
+| `moveCommand('previous'|'next')` / `confirmCommand()` | Wrap the four commands, then enter targeting/item selection or submit that ally's Run draft. |
 | `moveItem('previous'|'next')` / `confirmItem()` | Move a bounded inventory cursor; choose its item and explicit targeting category. |
 | `cancelItem()` | Return to the acting ally's command menu, retaining the item cursor/scroll. |
 | `moveTarget('previous'|'next')` / `confirmTarget()` | Wrap living exact runtime targets in slot order; validate and submit one closed draft. |
@@ -558,12 +558,11 @@ Observe does not reveal knowledge until authentic round execution.
 
 Normal phases are `awaiting_action -> targeting -> awaiting_action/ready`, or
 `awaiting_action -> item -> targeting -> awaiting_action/ready`. Self/all-enemy
-items can submit directly from `item`. Dead allies are omitted from collection
-without compacting slots. `ready` requires a separate `commitRound()` call.
-Run enters `ready_run`, retaining earlier drafts and reservations until cancelled
-or committed. Backtracking from `ready_run` returns to the same ally's command
-menu with those drafts intact; commitment submits only that runner's action.
-Other living allies remain possible enemy targets.
+items can submit directly from `item`. Run likewise submits one draft and advances
+to the next living ally. Dead allies are omitted from collection without compacting
+slots. Once every living ally has a draft, `ready` requires a separate
+`commitRound()` call. Backtracking restores Run exactly like any other draft.
+All living allies remain possible enemy targets.
 
 Items are grouped by stable registry ID in inventory first-appearance order,
 matching existing combat grouping. Each row exposes `itemId,name,total,available,
@@ -574,7 +573,7 @@ inventory. Zero-available rows remain visible but cannot be selected. Key items
 cannot enter the battle-local preparation, so they never appear. Cursor movement
 clamps at list ends; `itemScroll` retains a three-row window, with no pixel layout.
 
-`backtrack()` first cancels the current targeting/item/Run depth. From `ready`,
+`backtrack()` first cancels the current targeting/item depth. From `ready`,
 or an ally's command menu with prior drafts, it removes the last draft, releases
 its reservation and restores that ally's exact command/item/target cursor and
 scroll. Targeted drafts reopen targeting; self/all-enemy items reopen the item
