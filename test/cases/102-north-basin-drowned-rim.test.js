@@ -277,9 +277,9 @@ module.exports = {
     assert.equal(verdict[`${ID}|north`], 'BORDER'); assert.equal(verdict[`${ID}|west`], 'BORDER');
     assert.equal(verdict[`${ID}|east`], 'BLOCKED'); assert.equal(verdict[`${ID}|south`], 'ALIGNS');
     assert.equal(verdict[`${EAST_ID}|west`], 'BLOCKED'); assert.equal(verdict[`${SOUTH_ID}|north`], 'ALIGNS');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 58, ALIGNS: 104, BLOCKED: 198 });
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 58, ALIGNS: 118, BLOCKED: 184 });
     assert.equal(audit.seamReadiness.edges.length, 364);
-    assert.equal(g.run('continuousSeamEntries().length'), 124);
+    assert.equal(g.run('continuousSeamEntries().length'), 138);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 91);
     assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 192);
     assert.equal(g.run('SAVE_VERSION'), 4);

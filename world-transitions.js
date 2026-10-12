@@ -1597,6 +1597,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_EMBANKMENT_W_MAP: {
     west: [{ targetMap: 'EASTERN_BANK_MAP', targetEdge: 'east', sourceRange: [7, 9] }],
     east: [{ targetMap: 'EASTERN_FENS_EMBANKMENT_E_MAP', targetEdge: 'west', sourceRange: [2, 4] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C6R3_MAP', targetEdge: 'north', sourceRange: [4, 4] }],
   },
   EASTERN_FENS_EMBANKMENT_E_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_EMBANKMENT_W_MAP', targetEdge: 'east', sourceRange: [2, 4] }],
@@ -1605,10 +1606,13 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_REEDBELT_N_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_EMBANKMENT_E_MAP', targetEdge: 'north', sourceRange: [11, 13] }],
     east: [{ targetMap: 'EASTERN_FENS_REEDBELT_E_MAP', targetEdge: 'west', sourceRange: [9, 11] }],
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', targetEdge: 'south', sourceRange: [7, 7] }],
+    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C6R1_MAP', targetEdge: 'east', sourceRange: [4, 4] }],
   },
   EASTERN_FENS_REEDBELT_E_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
     south: [{ targetMap: 'EASTERN_FENS_REEDBELT_S_MAP', targetEdge: 'north', sourceRange: [3, 5] }],
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', targetEdge: 'south', sourceRange: [8, 8] }],
   },
   EASTERN_FENS_REEDBELT_S_MAP: {
     north: [{ targetMap: 'EASTERN_FENS_REEDBELT_E_MAP', targetEdge: 'south', sourceRange: [3, 5] }],
@@ -1621,6 +1625,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_DRY_RISE_MAP: {
     north: [{ targetMap: 'EASTERN_FENS_DRY_RISE_APPROACH_MAP', targetEdge: 'south', sourceRange: [11, 13] }],
     east: [{ targetMap: 'EASTERN_FENS_DRAINAGE_SW_MAP', targetEdge: 'west', sourceRange: [10, 12] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C9R4_MAP', targetEdge: 'north', sourceRange: [8, 8] }],
   },
   EASTERN_FENS_DRAINAGE_SW_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'east', sourceRange: [10, 12] }],
@@ -1629,6 +1634,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_DRAINAGE_NW_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_DRAINAGE_SW_MAP', targetEdge: 'north', sourceRange: [2, 4] }],
     east: [{ targetMap: 'EASTERN_FENS_WORKED_REEDS_MAP', targetEdge: 'west', sourceRange: [10, 12] }],
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C10R1_MAP', targetEdge: 'south', sourceRange: [11, 11] }],
   },
   EASTERN_FENS_WORKED_REEDS_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_DRAINAGE_NW_MAP', targetEdge: 'east', sourceRange: [10, 12] }],
@@ -1703,6 +1709,30 @@ const EDGE_TRANSITIONS = {
   },
   EASTERN_FENS_REED_HOLLOW_MAP: {
     north: [{ targetMap: 'EASTERN_FENS_WORKED_REEDS_MAP', targetEdge: 'south', sourceRange: [2, 2] }],
+  },
+  // Western off-road pockets (dead-end reciprocal seams off the route). No shortcut.
+  EASTERN_FENS_ENVELOPE_C6R3_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_EMBANKMENT_W_MAP', targetEdge: 'south', sourceRange: [4, 4] }],
+  },
+  EASTERN_FENS_ENVELOPE_C10R1_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_DRAINAGE_NW_MAP', targetEdge: 'north', sourceRange: [11, 11] }],
+  },
+  EASTERN_FENS_ENVELOPE_C9R4_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'south', sourceRange: [8, 8] }],
+  },
+  // Bounded NW open-fen expansion off the reedbelt (walkable, enemy-gate-ready;
+  // no terrain wall at the road). Fades at the camera-clamped world top and the
+  // open water that keeps it separate from the North Basin. Never seamed to North Basin.
+  EASTERN_FENS_ENVELOPE_C7R0_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'north', sourceRange: [7, 7] }],
+    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', targetEdge: 'west', sourceRange: [7, 7] }],
+  },
+  EASTERN_FENS_ENVELOPE_C8R0_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_REEDBELT_E_MAP', targetEdge: 'north', sourceRange: [8, 8] }],
+    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', targetEdge: 'east', sourceRange: [7, 7] }],
+  },
+  EASTERN_FENS_ENVELOPE_C6R1_MAP: {
+    east: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'west', sourceRange: [4, 4] }],
   },
   DRENWICK_EAST_CANAL_MAP: {
     north: [

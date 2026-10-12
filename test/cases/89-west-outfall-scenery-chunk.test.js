@@ -97,7 +97,7 @@ module.exports = {
     }
 
     // ── 11. Audit totals match the verified new layout ────────────────────────
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 58, ALIGNS: 104, BLOCKED: 198 },
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 58, ALIGNS: 118, BLOCKED: 184 },
       'audit totals include the Eastern Fens route');
     assert.equal(audit.seamReadiness.edges.length, 364, '216 directed placed-map edges (54 x 4)');
     assert.ok(!audit.seamReadiness.totals.CONFLICT && !audit.seamReadiness.totals.OUTSIDE_REGION && !audit.seamReadiness.totals.NEEDS_REMAP,

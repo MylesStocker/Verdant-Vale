@@ -16,10 +16,20 @@ const INFILL = {
   EASTERN_FENS_CHANNEL_ELBOW_MAP: [14, 3],
   EASTERN_FENS_REED_HOLLOW_MAP: [11, 3],
 };
+// (10,1),(6,3),(9,4) were upgraded to walkable western pockets (increment 3);
+// (7,0),(8,0),(6,1) to the walkable NW open fen (increment 4); the rest stay scenery.
 const SCENERY_COORDS = [
-  [6,0],[7,0],[8,0],[9,0],[14,0],[5,1],[6,1],[9,1],[10,1],[11,1],[12,1],[13,1],
+  [6,0],[9,0],[14,0],[5,1],[9,1],[11,1],[12,1],[13,1],
   [14,1],[16,1],[17,1],[18,1],[16,2],[16,3],[16,4],
-  [5,3],[6,3],[7,3],[8,3],[8,4],[9,4],[10,4],[11,4],[12,4],[12,5],[13,5],[14,5],[15,5],[16,5],
+  [5,3],[7,3],[8,3],[8,4],[10,4],[11,4],[12,4],[12,5],[13,5],[14,5],[15,5],[16,5],
+];
+const WESTERN_POCKETS = [
+  ['EASTERN_FENS_ENVELOPE_C6R3_MAP', 6, 3],
+  ['EASTERN_FENS_ENVELOPE_C10R1_MAP', 10, 1],
+  ['EASTERN_FENS_ENVELOPE_C9R4_MAP', 9, 4],
+  ['EASTERN_FENS_ENVELOPE_C7R0_MAP', 7, 0],
+  ['EASTERN_FENS_ENVELOPE_C8R0_MAP', 8, 0],
+  ['EASTERN_FENS_ENVELOPE_C6R1_MAP', 6, 1],
 ];
 
 function context() {
@@ -53,9 +63,16 @@ module.exports = {
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowSave`), false, `${id} does not save`);
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} no encounters`);
     }
-    // Totals after Phase 2.
+    // The walkable off-road pockets (western increment 3 + NW open fen increment 4)
+    // are accessible, upgraded from scenery, and still content-free.
+    for (const [id, cx, cy] of WESTERN_POCKETS) {
+      assert.equal(g.run(`mapIdForChunk('overworld',${cx},${cy})`), id, `${id} placed at ${cx},${cy}`);
+      assert.equal(g.run(`mapPlayerAccessible('${id}')`), true, `${id} is a walkable pocket`);
+      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} no encounters`);
+    }
+    // Totals after increments 3 + 4.
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 91, '54 + 37 placements');
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 51, '47 + 4 accessible');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 57, '47 route + 4 infill + 3 western pockets + 3 NW open fen');
 
     // THE PERMANENT INVARIANT: zero visible void from every reachable EF tile.
     const voidResult = J(`JSON.stringify((function(){

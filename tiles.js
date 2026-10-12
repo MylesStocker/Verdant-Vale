@@ -574,11 +574,12 @@ const TILE_PROPERTIES = {
   },
   [DEEP_REEDS]: {
     id: DEEP_REEDS, name: 'Deep Reeds', debugName: 'DEEP_REEDS', walkable: WALKABLE[DEEP_REEDS],
-    category: 'natural', tags: ['outdoor', 'wetland', 'vegetation'], encounterEligible: false,
+    category: 'natural', tags: ['outdoor', 'wetland', 'vegetation'], encounterEligible: true,
     notes: 'Tile 127. Dense, saturated reed growth the player can wade through; walkable wet fen terrain, '
          + 'visually distinct from ordinary REEDS so the raised road still reads as the maintained route. '
-         + 'Deliberately kept encounter-INELIGIBLE for now: a later encounter-integration pass must revisit '
-         + 'this flag, since the Eastern Fens route is still authored encounter-free.',
+         + 'Encounter-eligible like ordinary REEDS/GRASS so wilderness encounters work once pools are assigned; '
+         + 'no encounter tables exist yet, and every DEEP_REEDS-bearing chunk still sets allowRandomEncounters:false, '
+         + 'so no encounters actually roll in this pass.',
   },
   [REEDS]: {
     id: REEDS, name: 'Reeds', debugName: 'REEDS', walkable: WALKABLE[REEDS],

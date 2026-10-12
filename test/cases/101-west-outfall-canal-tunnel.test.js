@@ -195,7 +195,7 @@ module.exports = {
     // Regional aggregates include the later Eastern Fens terrain skeleton;
     // the outfall remains scenery-only within that expanded catalogue.
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:58,ALIGNS:104,BLOCKED:198});
+    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:58,ALIGNS:118,BLOCKED:184});
     assert.equal(audit.seamReadiness.edges.length,364);
     assert.equal(g.run('Object.keys(MAP_METADATA).length'),192);
     assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),91);

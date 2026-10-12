@@ -241,11 +241,11 @@ module.exports = {
     const production = ['movement.js','continuous-seams.js','regional-position.js','save.js','debug-warp.js'].map((file) => fs.readFileSync(path.join(__dirname,'..','..',file),'utf8')).join('\n');
     assert.doesNotMatch(production, /THORNMERE_CANAL_HEAD_MAP/, 'no map-ID movement/save/warp special case');
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 58, ALIGNS: 104, BLOCKED: 198 });
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 58, ALIGNS: 118, BLOCKED: 184 });
     assert.equal(audit.seamReadiness.edges.length, 364);
-    assert.equal(g.run('continuousSeamEntries().length'), 124); assert.equal(g.run('continuousSeamEntries().length/2'), 62);
+    assert.equal(g.run('continuousSeamEntries().length'), 138); assert.equal(g.run('continuousSeamEntries().length/2'), 69);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 91);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 51);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 57);
     assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 192);
   },
 };

@@ -1093,8 +1093,15 @@ function interactCalwickOffice() {
       } else {
         // ── Daily rotation (day % 10) ────────────────────────────────────────
         // Helpful, dry, and hard to impress. Practical hints (rest, the job
-        // board, road danger, potions, Dayoff) mixed with the quiet absurdity
-        // of registry work. Kept consistent with her canon: Bloommarked
+        // board, road danger, potions, Dayoff, mire-toad tactics, how fleeing
+        // works) mixed with the quiet absurdity of registry work — she teaches
+        // the player to survive before she ever joins them.
+        // DESIGN NOTE (for the party-recruitment pass — not implemented here):
+        // Esla is the seasoned mentor and should recruit at LEVEL 11,
+        // deliberately above Lely's level at that point. No recruitment/member-
+        // level system exists in this branch yet, so the join level must be set
+        // where the party roster is authored, not in this dialogue file.
+        // Kept consistent with her canon: Bloommarked
         // (green thread — the clover), registered at birth, Alecton prep
         // school then the Academy, placed here six years ago, inn on Dayoff.
         const eslaVariants = [
@@ -1170,15 +1177,29 @@ function interactCalwickOffice() {
             ['“The clover flowered early, and I have developed opinions about the drainage ditch.',
              'I left it blank. The Empire can subpoena the clover.”'],
           ],
+          // 10 — helpful, tactical: the mire toads (the player's first real trick)
+          [
+            ['“Going east you’ll meet mire toads — two at a time, identical, and they’ll poison you if you stand there trading blows.”',
+             '“Observe one before you swing; Lély can sex it. Rough pads and a swelling throat-sac is a jack. Egg-heavy, smooth-fingered, pale throat is a hen.”'],
+            ['“Then throw the matching bane — Jackbane on the jack, Henbane on the hen — and it drops in one. Nora sells both at the Drenwick market, eight gold each.”',
+             '“Throw the wrong one and you’ve burned the turn for nothing. Match it, or run. I would rather not file you.”'],
+          ],
+          // 11 — helpful, tactical: how running actually works
+          [
+            ['“And when a fight turns against you — run. ‘Withdrew intact’ is my favourite report to file.”',
+             '“But running isn’t a door you open. It’s a footrace: your speed against theirs. Even money if you’re matched, worse if they’re quick.”'],
+            ['“So run early, before you’re hurt, and never bet on outrunning something fast.”',
+             '“And mind the mud — muddied, you’re slower yet. Don’t let it come to a chase in a bog.”'],
+          ],
         ];
-        // Index by WORKDAY, not by raw day % 10: days where day % 5 is 0
+        // Index by WORKDAY, not by raw day % 12: days where day % 5 is 0
         // (Dayoff, office closed) or 4 (Accord-eve override above) never
-        // reach this branch, so a plain day-mod rotation would leave four
-        // variants permanently unreachable. Each 5-day week contributes its
-        // three plain office days (day % 5 = 1..3), walking the whole list
-        // in ~3⅓ weeks with no repeats inside a cycle.
+        // reach this branch, so a plain day-mod rotation would leave variants
+        // permanently unreachable. Each 5-day week contributes its three plain
+        // office days (day % 5 = 1..3), walking the whole 12-entry list in
+        // exactly four weeks with no repeats inside a cycle.
         const weekSlot = (day % 5 >= 1 && day % 5 <= 3) ? (day % 5) - 1 : 0;
-        dialogue.pages = eslaVariants[(Math.floor(day / 5) * 3 + weekSlot) % 10];
+        dialogue.pages = eslaVariants[(Math.floor(day / 5) * 3 + weekSlot) % 12];
       }
       // First conversation of the day: she greets before whatever the
       // branches above chose. Spread, don't unshift — eslaVariants pages

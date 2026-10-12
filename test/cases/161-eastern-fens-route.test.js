@@ -64,7 +64,7 @@ module.exports = {
     assert.equal(g.run('DEEP_REEDS'), 127);
     assert.equal(g.run('WALKABLE[DEEP_REEDS]'), true);
     assert.equal(g.run("TILE_PROPERTIES[DEEP_REEDS].category"), 'natural');
-    assert.equal(g.run("TILE_PROPERTIES[DEEP_REEDS].encounterEligible"), false);
+    assert.equal(g.run("TILE_PROPERTIES[DEEP_REEDS].encounterEligible"), true);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(DEEP_REEDS)'), true);
     assert.equal(g.run('EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return d.map.some(function(row){return row.includes(DEEP_REEDS);});})'), true);
 

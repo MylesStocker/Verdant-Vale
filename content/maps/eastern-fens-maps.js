@@ -24,7 +24,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,  1,127, 88,127,127,  1,127,127,127,127,  1,127,127,127,  1], // 11
       [  1,127,  1,127,127,127,127, 23,127,127,127,127,  1,127,127,  1], // 12
       [  1,127,127,  1,127,127,127,127,  1,127,127, 81,127,  1,127,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
     displayName: 'Eastern Fens — Old Embankment', region: 'Eastern Fens', contentKey: 'eastern_fens_01',
     presentation: 'continuous', encounterProfileId: 'far',
@@ -54,11 +54,11 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     notes: 'The raised road turns north around deeper water. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
   // (7,1) A weathered timber walk begins the reedbelt detour.
   { mapId: 'EASTERN_FENS_REEDBELT_N_MAP', regionId: 'overworld', chunkX: 7, chunkY: 1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], //  0
+      [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1], //  0
       [  1,127,127,127,127,  1, 81,127,127,127,  1,127,127,127,127,  1], //  1
       [  1,  1, 23,127,127,127,  1,127,127,127, 23,  1,127,127,127,  1], //  2
       [  1, 81,  1,127,127,127,127,  1,127,127,127,127,  1,127, 23,  1], //  3
-      [  1,127,127,  1,127, 23,127,127,  1,127,127,127,127, 81,127,  1], //  4
+      [127,127,127,  1,127, 23,127,127,  1,127,127,127,127, 81,127,  1], //  4
       [  1,127,127,127,  1,127,127,127,127, 23,127,127,127,127,  1,  1], //  5
       [  1,127,127,127,127,  1,127,127,127,127,  1,127,127,127,127,  1], //  6
       [  1,  1,127,127,127, 58, 58, 58, 58, 58, 58, 58, 58,127,127,  1], //  7
@@ -76,7 +76,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     notes: 'A weathered timber walk begins the reedbelt detour. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
   // (8,1) The old line has failed; the maintained walk bends south.
   { mapId: 'EASTERN_FENS_REEDBELT_E_MAP', regionId: 'overworld', chunkX: 8, chunkY: 1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], //  0
+      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], //  0
       [  1,127,  1,127,127,127,127,  1, 23,127,127,127,  1,127,127,  1], //  1
       [  1,127,127,  1,127,127,127, 81,  1,127,127,127,127,  1,127,  1], //  2
       [  1,127,127, 23,  1,127,127,127,127,  1,127, 23,127,127,  1,  1], //  3
@@ -156,7 +156,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,127,127,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2], // 11
       [  1,127,  1,127,  1,127,  1,127,  1,127,  1,127,  1,127, 23, 23], // 12
       [  1,127,127,127,127,127,127,127,127,127,127,127,127,127,127,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
     displayName: 'Eastern Fens — Dry Rise', region: 'Eastern Fens', contentKey: 'eastern_fens_07',
     presentation: 'continuous', encounterProfileId: 'far',
@@ -186,7 +186,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     notes: 'The first regular drainage cuts and maintained banks. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
   // (10,2) Worked reed plots sit behind narrow drainage cuts.
   { mapId: 'EASTERN_FENS_DRAINAGE_NW_MAP', regionId: 'overworld', chunkX: 10, chunkY: 2, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], //  0
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1], //  0
       [  1,127,  1,127,127,127, 89,127,127,  1,127, 23,127,127,127,  1], //  1
       [  1,127, 23,127,127,127,127,  1,127,127,  0,127,127,127,  1,  1], //  2
       [  1, 89,127,127,127,  1, 23,127,127,127,127,127,  1,127, 23,  1], //  3
@@ -619,44 +619,44 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', regionId: 'overworld', chunkX: 7, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,127,127,  1,127,  1,  1,127,  1,  1, 23,  1, 23,127,  1,  1], // 1
-      [  1,127,  1,127,  1,127,120,  1,120,  1,  1,  1,127,  1,  1,  1], // 2
-      [  1,127,  1,120,  1,  1,127,  1,  1,  1,  1,  1,127,  1,  1,  1], // 3
-      [  1,127,127,127,  1,127,  1,  1,  1,127,  1,127, 23,127,127,  1], // 4
-      [  1, 23,127,127,  1,127,  1,  1,  1,  1,  1,  1, 23,120,  1,  1], // 5
-      [  1,  1,  1,  1,127,  1, 23,127,  1,  1,127,  1,  1,127,  1,  1], // 6
-      [  1, 23, 23,127,127,  1,  1,  1,  1,  1,127,  1,127, 23,127,  1], // 7
-      [  1,  1,  1,127,  1,  1,  1,127,  1,  1,  1,  1,  1,127,127,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1], // 9
-      [  1,  1,  1,  1,127,127,127,  1, 23, 23,127,  1,  1,  1,  1,  1], // 10
-      [  1,127,127,120, 23,  1,  1,127,  1,127,  1,127,127,120,127,  1], // 11
-      [  1,  1,  1,  1,127,127,  1,127,  1,  1,  1,  1,127,  1, 23,  1], // 12
-      [  1,120,127,  1,  1,  1, 23, 23, 23,  1,  1,127,127,127,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1, 23,127,127, 23, 23,127,127,127,127, 23, 23,127,127, 23,  1], // 1
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 2
+      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 3
+      [  1, 23,127, 81,  0,  0, 88, 88, 88, 88,  0,  0, 81,127, 23,  1], // 4
+      [  1, 23,127, 81,  0, 88, 88,  0,  0, 88, 88,  0, 81,127, 23,  1], // 5
+      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 6
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127,127,127], // 7
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 8
+      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 9
+      [  1, 23,127, 81,  0,  0,  0,127,127,  0,  0,  0, 81,127, 23,  1], // 10
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 11
+      [  1,  1, 23,127,127,127,127,127,127,127,127,127,127, 23,  1,  1], // 12
+      [  1,  1,  1, 23,127,127,127,127,127,127, 23,  1,  1,  1,  1,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Flooded Reeds', region: 'Eastern Fens', contentKey: 'eastern_fens_env_7_0',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Eastern Fens — North Fen', region: 'Eastern Fens', contentKey: 'eastern_fens_env_7_0',
+    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
+    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge and the open water that marks the North Basin margin. Reserved for a future enemy-gated expansion; terrain only — no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', regionId: 'overworld', chunkX: 8, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1], // 1
-      [  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,127, 23,  1,  1,  1], // 3
-      [  1,121,121,127,  1,127,127,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1], // 5
-      [  1,121,120,  1,  1, 81,127,121,  1,  1,  1,127,  1, 23,  1,  1], // 6
-      [  1,  1, 23,120,  1, 81, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1, 23,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,121,120,120,  1,  1,  1,  1,  1, 23,  1, 23,127,  1,  1,  1], // 9
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,120,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,127,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,127,  1,120,  1,  1,  1,  1, 23,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1, 23,127,127, 23, 23,127,127,127,127, 23, 23,127,127, 23,  1], // 1
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 2
+      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 3
+      [  1, 23,127, 81,  0,  0, 88, 88, 88, 88,  0,  0, 81,127, 23,  1], // 4
+      [  1, 23,127, 81,  0, 88, 88,  0,  0, 88, 88,  0, 81,127, 23,  1], // 5
+      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 6
+      [127,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1,  1], // 7
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 8
+      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 9
+      [  1, 23,127, 81,  0,  0,  0,127,127,  0,  0,  0, 81,127, 23,  1], // 10
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 11
+      [  1,  1, 23,127,127,127,127,127,127,127,127,127,127, 23,  1,  1], // 12
+      [  1,  1,  1, 23,127,127,127,127,127,127, 23,  1,  1,  1,  1,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Open Fen Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_8_0',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Eastern Fens — North Fen', region: 'Eastern Fens', contentKey: 'eastern_fens_env_8_0',
+    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
+    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. Reserved for a future enemy-gated expansion; terrain only — no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C9R0_MAP', regionId: 'overworld', chunkX: 9, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,120,  1,  1,  1,127,127, 23, 23,  1,  1,127,  1,  1], // 1
@@ -719,24 +719,24 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C6R1_MAP', regionId: 'overworld', chunkX: 6, chunkY: 1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,127,  1,  1,  1,127,  1,  1,127, 23, 23,127,  1,  1, 23,  1], // 1
-      [  1, 23,  1,  1, 23,  1,  1, 23,127, 23,  1,127,  1,  1,  1,  1], // 2
-      [  1,  1,  1, 23,127,  1,127,127,  1,  1,127, 23,  1, 23,127,  1], // 3
-      [  1, 23,  1,127,  1,  1,127,  1,  1,  1,  1,  1,120, 23,  1,  1], // 4
-      [  1, 23,127,  1,127,  1,  1,  1,  1,  1,127,  1,  1,127,  1,  1], // 5
-      [  1,  1, 23,  1,  1,  1, 23, 23, 23, 23,  1,127, 23,  1, 23,  1], // 6
-      [  1,127,  1,  1,  1,120,  1,  1,  1,127,  1,127, 23,  1, 23,  1], // 7
-      [  1,  1,  1,127,  1,127,  1,  1,  1,127,  1,127,127,  1,127,  1], // 8
-      [  1,  1,127,  1,  1,  1,127,  1,127,  1,  1,  1,  1,  1, 23,  1], // 9
-      [  1,120,  1,127,127, 23,  1,  1,  1,  1,127,  1,  1,  1,127,  1], // 10
-      [  1,  1, 23,  1,127,  1,120,127,127,127,  1,  1,  1,  1,  1,  1], // 11
-      [  1,127,  1, 23,127, 23, 23,127,  1,127, 23,  1,120,127, 23,  1], // 12
-      [  1,  1,  1,  1,127,  1, 23,127, 23,  1,127,  1,  1,  1,127,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  1,127,127,127,127, 23, 23,  1,  1], // 1
+      [  1,  1,  1,  1,  1,  1,  1,  1, 23,127,127, 81,127, 23,  1,  1], // 2
+      [  1,  1,  1,  1,  1,  1,  1,  1,127,127, 81, 81,127, 23,  1,  1], // 3
+      [  1,  1,  1,  1,  1,  1,  1,  1, 23,127,127, 81,127,127,127,127], // 4
+      [  1,  1,  1,  1,  1,  1,  1,  1,127,127, 81, 81,127, 23,  1,  1], // 5
+      [  1,  1,  1,  1,  1,  1,  1,  1, 23,127,127,127,127, 23,  1,  1], // 6
+      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 7
+      [  1, 23,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127, 23,  1], // 8
+      [  1,127,127, 81,  0,  0, 88, 88, 88, 88,  0,  0, 81,127, 23,  1], // 9
+      [  1, 23,127, 81,  0,  0, 88,  0,  0, 88,  0,  0, 81,127, 23,  1], // 10
+      [  1,127,127, 81,  0,  0,  0,127,127,  0,  0,  0, 81,127, 23,  1], // 11
+      [  1, 23,127, 81, 81,127,127,127,127,127,127, 81, 81,127, 23,  1], // 12
+      [  1,  1, 23,127,127,127,127,127,127,127,127,127,127, 23,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Flooded Reeds', region: 'Eastern Fens', contentKey: 'eastern_fens_env_6_1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Eastern Fens — Northwest Fen', region: 'Eastern Fens', contentKey: 'eastern_fens_env_6_1',
+    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
+    notes: 'Walkable open fen northwest of the reedbelt, bounded by open water toward the North Basin margin; room to wander. Reserved for a future enemy-gated expansion; terrain only — no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C9R1_MAP', regionId: 'overworld', chunkX: 9, chunkY: 1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 1
@@ -759,24 +759,24 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C10R1_MAP', regionId: 'overworld', chunkX: 10, chunkY: 1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,127,  1,  1,  1, 23,  1, 23,127,  1,127, 23,  1, 23,127,  1], // 1
-      [  1, 23,  1,127,127,  1,  1,127,120,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,127,  1, 23,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,127,  1], // 3
-      [  1, 23,  1,  1, 23,  1,127, 23, 23,127,  1,  1, 23,  1,  1,  1], // 4
-      [  1,127, 23,  1,  1,  1,127,  1, 23,  1,127,127,  1,  1,127,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,127,  1,  1, 23,127, 23,127,  1,  1], // 6
-      [  1,  1,  1,127,  1,  1,  1,  1,  1,  1,127,120,127,  1,120,  1], // 7
-      [  1,  1,  1,  1,120,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1], // 8
-      [  1,  1,127,  1,  1,  1,127,  1,  1,127, 23, 23,  1, 23,127,  1], // 9
-      [  1, 23,  1,  1,  1,  1,  1,  1,127,127, 23, 23,  1,127,  1,  1], // 10
-      [  1,  1,127,  1,127,  1, 23,  1,  1,  1,127,120,  1,  1,  1,  1], // 11
-      [  1,  1,120,  1,  1,  1,  1,  1,  1,  1,127,127,  1,  1,127,  1], // 12
-      [  1,120,127,120,127,  1,  1, 23,127, 23,127, 23,127,127, 23,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1,120,120,  1,  1,120,120,  1,  1,120,120,  1,  1,120,  1,  1], // 1
+      [  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1], // 2
+      [  1,120,120,  1,  1,120,120,  1,  1,120,120,  1,  1,120,  1,  1], // 3
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
+      [  1,  1,120,120,  1,  1,  1,  1,120,120,  1,  1,  1,  1,  1,  1], // 5
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
+      [  1, 23,127,127,127,127,127, 23,127,127,127,127, 23,  1,  1,  1], // 7
+      [  1, 23,127,127, 81, 81,127,127,127, 81, 81,127,127, 23,  1,  1], // 8
+      [  1, 23,127,127, 81, 81,127,127,127, 81, 81,127,127, 23,  1,  1], // 9
+      [  1, 23,127,127,127,127,127, 23,127,127,127,127,127, 23,  1,  1], // 10
+      [  1,  1, 23,127,127,127,127,127,127,127,127,127,127, 23,  1,  1], // 11
+      [  1,  1,  1, 23,127,127,127,127,127,127,127,127, 23,  1,  1,  1], // 12
+      [  1,  1,  1,  1, 23,127,127,127,127,127,127, 23,  1,  1,  1,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Flooded Reeds', region: 'Eastern Fens', contentKey: 'eastern_fens_env_10_1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Eastern Fens — Drainage Flats', region: 'Eastern Fens', contentKey: 'eastern_fens_env_10_1',
+    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
+    notes: 'Walkable off-road drainage country north of the managed cuts; a dead-end pocket off the road, bounded by open drainage and a dense flooded-woodland wall. Terrain only: no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C11R1_MAP', regionId: 'overworld', chunkX: 11, chunkY: 1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,127,  1,127,  1,  1,  1,  1, 23,  1, 23,  1,  1], // 1
@@ -998,25 +998,25 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C6R3_MAP', regionId: 'overworld', chunkX: 6, chunkY: 3, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,127,  1,127,127,  1,127,120,  1,  1,  1,127,  1,  1], // 1
-      [  1,  1,120,  1,127,  1,127,127,  1, 23,127,  1, 23,  1, 23,  1], // 2
-      [  1,  1,127,127,127,  1,  1,127,  1, 23,  1,  1, 23,  1, 23,  1], // 3
-      [  1,120,  1,127,  1, 23,  1, 23,  1,  1,  1,127,  1,127,  1,  1], // 4
-      [  1,  1,  1,  1,127,  1,  1, 23,127,  1,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,127,127,  1,  1,127, 23,127,  1,  1,  1, 23, 23,  1,  1], // 6
-      [  1,  1,127,  1,  1,  1,127,  1,  1,127,127,  1, 23,127,127,  1], // 7
-      [  1,  1,  1,  1,127,127,120,127,  1,127,  1,  1, 23,120,  1,  1], // 8
-      [  1,  1,  1,120,  1,  1,127,127,  1,127,  1,127,  1, 23,  1,  1], // 9
-      [  1,  1,127,  1,127,  1,120,127,127,  1,127,  1,  1, 23,127,  1], // 10
-      [  1,  1,  1,127,127,  1,127,  1,127,  1,  1,  1, 23,127,127,  1], // 11
-      [  1,127,  1,  1,  1,  1,127,120,127,  1,  1,  1, 23,  1,127,  1], // 12
-      [  1,  1,  1,127,127,  1,  1,  1,  1,127,127,127,  1,127,  1,  1], // 13
+      [  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  1,  1,127,127,127,127,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
+      [  1,  1, 23,127,127,127,127,127, 23,  1,  1,  1,  1,  1,  1,  1], // 2
+      [  1, 23,127,127, 81, 81,127,127,127,  1,  1,  1,  1,  1,  1,  1], // 3
+      [  1, 23,127, 81, 81, 81, 81,127,127, 23,  1,  1,  1,  1,  1,  1], // 4
+      [  1, 23,127, 81, 81, 81, 81,127,127, 23,  1,  1,  1,  1,  1,  1], // 5
+      [  1,  1, 23,127,127,127,127,127,127, 23,  1,  1,  1,  1,  1,  1], // 6
+      [  1,  1,  1, 23, 23,127,127, 23, 23,  1,  1,  1,  1,  1,  1,  1], // 7
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 8
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 9
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Flooded Reeds', region: 'Eastern Fens', contentKey: 'eastern_fens_env_6_3',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Eastern Fens — South Reedbed', region: 'Eastern Fens', contentKey: 'eastern_fens_env_6_3',
+    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
+    notes: 'Walkable off-road reedbed and muddy margin south of the old embankment; a dead-end pocket off the road that ends at broad fen water. Terrain only: no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C7R3_MAP', regionId: 'overworld', chunkX: 7, chunkY: 3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1], // 1
@@ -1078,25 +1078,25 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C9R4_MAP', regionId: 'overworld', chunkX: 9, chunkY: 4, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 5
-      [  1,  1,  1,  1,127,  1,127, 81,  1, 23, 81, 23,  1,  1,  1,  1], // 6
-      [  1,  1,  1, 89,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,127,  1, 89,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 8
-      [  1,  1, 89,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 9
-      [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23, 89,  1,  1,  1], // 10
-      [  1,  1,  1,  1,127,  1,127, 81,  1, 23,  1, 23,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,127,  1,127,  1, 89, 23,  1, 23,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,127,  1,127,  1,  1, 23,  1, 23,  1,  1,  1,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  1,  1,  1,  1, 23,127,127,127,127, 23,  1,  1,  1,  1,  1], // 1
+      [  1,  1,  1, 23,127,127,  0,  0,  0,  0,127,127, 23,  1,  1,  1], // 2
+      [  1,  1, 23,127,  0,  0,  0, 88, 88,  0,  0,  0,127, 23,  1,  1], // 3
+      [  1,  1, 23,  0,  0, 88, 88, 88, 88, 88,  0,  0, 23,  0,  1,  1], // 4
+      [  1,  1, 23,  0,  0,  0,  0,  0, 88,  0,  0,  0,  0,127,  1,  1], // 5
+      [  1,  1, 23,127,  0,  0,  0,  0,  0,  0,  0,127, 23,  1,  1,  1], // 6
+      [  1,  1,  1, 23, 23,127,127,127,127, 23, 23,  1,  1,  1,  1,  1], // 7
+      [  1,  1, 89, 89,  1,  1,  1,  1,  1,  1,  1,  1, 89, 89,  1,  1], // 8
+      [  1,119,119,119,  1,  1,  1,  1,  1,  1,  1,  1,119,119,119,  1], // 9
+      [  1,  1,119,119,  1,  1,  1,  1,  1,  1,  1,  1,119,119,  1,  1], // 10
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Drainage Flats', region: 'Eastern Fens', contentKey: 'eastern_fens_env_9_4',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Eastern Fens — Hummock Clearing', region: 'Eastern Fens', contentKey: 'eastern_fens_env_9_4',
+    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
+    notes: 'Walkable off-road firm grassy hummock and small clearing south of the dry rise (room reserved for a future quiet location, with no trigger or interaction); bounded by a collapsed embankment, a low moraine, and flooded ground. Terrain only: no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C10R4_MAP', regionId: 'overworld', chunkX: 10, chunkY: 4, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1, 23,127,127,127,127,  1,120,127,127,  1,  1, 23,  1,  1], // 1
