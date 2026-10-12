@@ -310,7 +310,7 @@ test('live observation fields never enter a save payload',()=>{
   const raw=t.g.run("localStorage.getItem('verdantVale_save')");
   assert.doesNotMatch(raw,/observeCount|escapeUnlocked|bombTargetInstanceId/);
   assert.equal(Object.hasOwn(JSON.parse(raw),'combat'),false);
-  assert.equal(JSON.parse(raw).version,4);
+  assert.equal(JSON.parse(raw).version, 5);
 });
 
 test('logical traces read instance values even if legacy projections lie',()=>{

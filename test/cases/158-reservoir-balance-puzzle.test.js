@@ -177,7 +177,7 @@ test('save/load persists the claim by chest id, never the intermediate water or 
   for(const key of ['levels','capacities','balancePuzzle','choice','callbacks'])assert.equal(Object.hasOwn(after,key),false);
   g.run('stats.items=[];RESERVOIR_BALANCE_CACHE.opened=false;');assert.equal(g.run('loadGame()'),true);
   assert.equal(g.run('RESERVOIR_BALANCE_CACHE.opened'),true);assert.equal(g.run('stats.items.length'),1);
-  g.press('Enter');closeDialogue(g);assert.equal(g.run('stats.items.length'),1);assert.equal(g.run('SAVE_VERSION'),4);
+  g.press('Enter');closeDialogue(g);assert.equal(g.run('stats.items.length'),1);assert.equal(g.run('SAVE_VERSION'), 5);
 });
 test('an opened old Sluice chest stays opened through load; no retroactive gold or blade removal',()=>{
   const g=fresh();g.run("SLUICE_SECRET_CHEST.opened=true;grantItem('Warden Blade');saveGame();");

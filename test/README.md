@@ -728,3 +728,13 @@ see `07`/`08`/`14`/`27`/`29`/`36`/`40`/`41`/`49`.)
 Extending: drop a new `NN-name.test.js` file in `cases/` exporting
 `{ name, run() }` (`run` may be async) — `run.js` picks it up automatically,
 no registration needed.
+
+## Persistent party foundation
+
+Suite 175 validates the version-5 persistent party lifecycle and authentic combat
+commitment. Historical save-version assertions move to 5 without weakening their
+world/gameplay checks. Formation source-count assertions permit exactly the one
+new private bridge constructor call; save isolation assertions permit the closed
+Lely-only persistent roster while continuing to forbid runtime/Lab identities.
+A source-local third-character fixture tests capacity without production canon.
+Run `node test/run.js` for the complete non-writing suite.

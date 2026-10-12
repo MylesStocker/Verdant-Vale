@@ -187,7 +187,7 @@ test('old inventory and equipped Shards load as consumables without lost quantit
   tape(g,[],()=>assert.equal(g.run('loadGame()'),true));
   assert.equal(g.run('stats.accessory'),null);assert.equal(g.run('effectiveSpd()'),7);
   assert.deepEqual(J(g,'stats.items'),[J(g,"ITEM_REGISTRY['Void Shard']"),J(g,"ITEM_REGISTRY['Void Shard']")]);
-  assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('saveGame()'),true);
+  assert.equal(g.run('SAVE_VERSION'), 5);assert.equal(g.run('saveGame()'),true);
   assert.equal(g.run('loadGame()'),true);assert.equal(g.run('stats.items.length'),2);
   // The harness injects the host JSON object: load-created arrays have a host
   // prototype, unlike browser JSON arrays. Keep actual rehydrated item objects;

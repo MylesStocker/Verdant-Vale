@@ -273,7 +273,7 @@ module.exports = {
     assert.equal(g.run(`placeAtLocation('${ID}',8.25*TILE,7.5*TILE)`), true);
     assert.equal(g.run(`commitRegionalWorldPosition('overworld',3*COLS*TILE+8.25*TILE,4*ROWS*TILE+7.5*TILE)`), true);
     g.run("player.facing='left';saveGame();"); const saved = J("localStorage.getItem('verdantVale_save')");
-    assert.equal(saved.version, 4); assert.equal(saved.location.kind, 'regional'); const savedPos = worldPos();
+    assert.equal(saved.version, 5); assert.equal(saved.location.kind, 'regional'); const savedPos = worldPos();
     g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';");
     assert.equal(g.run('loadGame()'), true); assert.equal(mapId(), ID); assert.deepEqual(worldPos(), savedPos); assert.equal(g.run('player.facing'), 'left'); assert.equal(g.run('canSaveHere()'), true);
     const legacy = [
@@ -292,7 +292,7 @@ module.exports = {
       else g.run(`combat.cooldown=0;placeAtLocation('${to}',0.5*TILE,${along + 0.5}*TILE);`);
       assert.equal(g.run(`tryEdgeTransition('${reverse}')`), true); assert.equal(mapId(), from);
     }
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
 
     // 9. Exactly three existing fingerprints change plus the new grid. Reverting
     // only the authorized cells recreates every reviewed predecessor exactly.

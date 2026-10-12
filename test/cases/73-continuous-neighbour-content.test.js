@@ -270,7 +270,7 @@ module.exports = {
     // (worldPxX/worldPxY ARE legitimate v4 save data — the canonical regional
     // position — so they are not excluded here; camera/render transients are.)
     g.run('__reconcileCanonicalForTest(); saveGame();'); const raw = g.run("localStorage.getItem('verdantVale_save')");
-    assert.equal(JSON.parse(raw).version, 4, 'SAVE_VERSION stays 4');
+    assert.equal(JSON.parse(raw).version, 5, 'SAVE_VERSION stays 5');
     assert.ok(!/continuousWorldView|camPx|visibleChunks/i.test(raw), 'no continuous-view/render/debug transient state enters the save');
   },
 };

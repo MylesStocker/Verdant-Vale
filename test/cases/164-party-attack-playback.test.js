@@ -273,7 +273,7 @@ test('six-actor history cannot expand preparation; only the gated session calls 
     }
     if(file!=='combat.js')assert.doesNotMatch(source,/partyAttackPlayback/,file);
   }
-  assert.equal(g.run('SAVE_VERSION'),4);
+  assert.equal(g.run('SAVE_VERSION'), 5);
 });
 module.exports={name:'detached party Attack playback: closed histories, immutable frames and zero live-state effects',checks,
   run(){for(const check of checks){try{check.run();}catch(error){console.error('Failed party playback check:',check.name);throw error;}}console.log('  '+checks.length+' party playback checks passed');}};

@@ -328,13 +328,13 @@ test('armed player Warp Stone cannot bypass the ambush; debug warp remains avail
   g.run('warpMenu.open=false;');assert.equal(g.run('debugWarpToDestination(getPlayerWarpDestinations()[0].id).success'),true);
 });
 
-test('only the two Labs and Receiver initialize formations; templates never enter a random pool',()=>{
+test('only the two Labs, Receiver and private persistent bridge initialize formations; templates never enter a random pool',()=>{
   const g=fresh();assert.equal(g.run('FORMATION_STATE_TEMPLATE_IDS.length'),11);
   assert.equal(g.run('ENEMY_TEMPLATE_POOLS.some(p=>p.templates.some(e=>GALLERY_RECEIVER_TEMPLATES.includes(e)))'),false);
   for(const file of scriptOrderFromIndexHtml()) {
     const source=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
     assert.equal((source.match(/\binitializeFormationState\(/g)||[]).length,
-      ['combat.js','formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
+      file==='combat.js'?2:['formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
   }
   const source=fs.readFileSync(path.join(__dirname,'../../gallery-receiver.js'),'utf8');
   assert.doesNotMatch(source,/Math\.random|applyKillRewards\(|stats\.hp\s*=|\.xp\s*\+=|\.gold\s*\+=|formationCombatLab\.(start|runOperation|exit)/);

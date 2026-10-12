@@ -364,9 +364,9 @@ test('formation state is gated; no target state or unsanctioned collection write
   const authority = source.slice(source.indexOf('function setSingleCombatEnemy('),source.indexOf('function findCombatEnemy('));
   const rest = source.replace(authority,'');
   assert.doesNotMatch(rest, /combat\.enemies\s*=|combat\.enemies\.(?:push|splice|unshift)\s*\(/);
-  // Only the authorized developer lab may call the inactive constructor.
+  // Labs, Receiver and the private persistent bridge may call the inactive constructor.
   // Preserve every actor/target and stale-effect assertion around this block.
-  assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length, 1);
+  assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length, 2);
   for (const file of fs.readdirSync(path.join(__dirname,'../..')).filter(f=>f.endsWith('.js') && f!=='combat.js')) {
     const text = fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
     assert.equal((text.match(/\binitializeFormationState\b/g)||[]).length, ['formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file) ? 1 : 0, file);

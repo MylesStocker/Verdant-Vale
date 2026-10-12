@@ -377,7 +377,7 @@ test('views stay deeply frozen, expose no templates/inventory references and nev
   assert.equal(state(g),before);assert.notEqual(v.items[0],g.run('stats.items[0]'));
   g.run('setSingleCombatEnemy(null);saveGame();');const save=g.run("localStorage.getItem('verdantVale_save')");
   assert.doesNotMatch(save,/commandCursor|itemWindowStart|formationRounds|selectedCommand|playback|isBoss/);
-  assert.equal(g.run('SAVE_VERSION'),4);
+  assert.equal(g.run('SAVE_VERSION'), 5);
 });
 
 test('no new encounter, reward or save caller; input delegates and boss policy has no identity special case',()=>{

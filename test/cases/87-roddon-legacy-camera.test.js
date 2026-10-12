@@ -167,10 +167,10 @@ module.exports = {
       assert.equal(sha256(R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], `${id}: grid fingerprint unchanged`);
     }
 
-    // ── 18. Save stays v4; no camera state persisted. ─────────────────────────
+    // ── 18. Save stays v5; no camera state persisted. ─────────────────────────
     R("placeAtLocation('RODDON_WAY_MAP', 6*32, 9*32); forceLegacyRegionalView = false; saveGame();");
     const saved = J("localStorage.getItem('verdantVale_save')");
-    assert.equal(saved.version, 4, 'SAVE_VERSION stays 4');
+    assert.equal(saved.version, 5, 'SAVE_VERSION stays 5');
     assert.ok(!/cam|camera|viewport|exclusion|continuousWorldView/i.test(JSON.stringify(saved)), 'no camera/exclusion/toggle state enters the save');
 
     // ── 19. Malformed / missing / unknown / contradictory policies fail. ──────

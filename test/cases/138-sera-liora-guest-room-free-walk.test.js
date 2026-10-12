@@ -184,6 +184,6 @@ module.exports = {
 
     const saveText = fs.readFileSync(path.join(ROOT, 'save.js'), 'utf8');
     assert.doesNotMatch(saveText, /seraLioraGuestRoomWalk|free_walk|walk_cycle/, 'transient walk state has no save binding');
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
   },
 };

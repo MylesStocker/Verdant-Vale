@@ -267,12 +267,12 @@ module.exports = {
       Math.random=_r; return rc;
     })()`), 0, 'the geographic resolver and selection consume no randomness');
 
-    // ── 14. SAVE_VERSION stays 4; no geographic/debug encounter state saved ──
+    // ── 14. SAVE_VERSION stays 5; no geographic/debug encounter state saved ──
     {
       const gg = ctx();
       gg.run("resetLocationState(); activeMap=mapRefForId('MAP3_N1'); player.x=8.5*TILE; player.y=7.5*TILE; __reconcileCanonicalForTest(); saveGame();");
       const saved = JSON.parse(gg.run("localStorage.getItem('verdantVale_save')"));
-      assert.equal(saved.version, 4, 'SAVE_VERSION stays 4');
+      assert.equal(saved.version, 5, 'SAVE_VERSION stays 5');
       const keys = Object.keys(saved).join(',');
       assert.ok(!/encounterGeo|geographic|standingChunk|encounterChunk/i.test(keys), 'no geographic/debug encounter state enters the save');
     }

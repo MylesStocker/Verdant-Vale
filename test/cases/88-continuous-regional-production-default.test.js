@@ -165,11 +165,11 @@ module.exports = {
     assert.equal(afterTog, beforeTog, 'toggling the fallback near a seam moves nothing (no strand / double-move)');
     R('forceLegacyRegionalView=false;');
 
-    // ── 18. Fallback absent from v4 saves; load does not restore it ───────────
+    // ── 18. Fallback absent from v5 saves; load does not restore it ───────────
     R("debugWarpToDestination('outdoor:MAP2'); placeAtLocation('MAP2', 8*TILE, 7*TILE); forceLegacyRegionalView=true; saveGame();");
     const saved = J("localStorage.getItem('verdantVale_save')");
-    assert.equal(saved.version, 4, 'SAVE_VERSION stays 4');
-    assert.ok(!/forceLegacyRegionalView|legacyRegional|continuousWorldView/i.test(JSON.stringify(saved)), 'the fallback is absent from the v4 save payload');
+    assert.equal(saved.version, 5, 'SAVE_VERSION stays 5');
+    assert.ok(!/forceLegacyRegionalView|legacyRegional|continuousWorldView/i.test(JSON.stringify(saved)), 'the fallback is absent from the v5 save payload');
     R('forceLegacyRegionalView=false; loadGame();');
     assert.equal(R('forceLegacyRegionalView'), false, 'load does not set/restore the session-only fallback');
 
@@ -248,7 +248,7 @@ module.exports = {
     }
 
     // ── 23. Save version + audit totals unchanged ─────────────────────────────
-    assert.equal(R('SAVE_VERSION'), 4, 'SAVE_VERSION === 4');
+    assert.equal(R('SAVE_VERSION'), 5, 'SAVE_VERSION === 5');
 
     // ── 24. The old opt-in symbol is absent from production ───────────────────
     assert.equal(R("typeof continuousWorldViewEnabled"), 'undefined', 'continuousWorldViewEnabled is gone from production');

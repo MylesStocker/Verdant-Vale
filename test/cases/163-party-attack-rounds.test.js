@@ -579,7 +579,7 @@ test('only the gated session calls the scheduler; no saved round metadata',()=>{
   g.run(setup(1));commands(g);g.run('var rngCalls=0;Math=Object.create(Math);');exact(g,[...orderTape(g),...HIT,...HIT,...HIT]);
   assert.equal(g.run('saveGame()'),false);assert.equal(g.run('localStorage.getItem("verdantVale_save")'),before);
   assert.equal(g.run('loadGame()'),true);assert.equal(g.run('combatPlayerState.getRoundView()'),null);
-  assert.equal(g.run('saveGame()'),true);assert.equal(g.run('localStorage.getItem("verdantVale_save")'),before);assert.equal(g.run('SAVE_VERSION'),4);
+  assert.equal(g.run('saveGame()'),true);assert.equal(g.run('localStorage.getItem("verdantVale_save")'),before);assert.equal(g.run('SAVE_VERSION'), 5);
 });
 
 module.exports={name:'headless party Attack rounds: explicit commands, weighted initiative, exact HP and isolation',checks,

@@ -6,12 +6,41 @@ actually fits together.
 
 ## Current state
 
+### Persistent party lifecycle foundation (headless)
+
+`persistent-party.js` now owns canonical ordered membership (capacity three),
+non-Lely personal state and idempotent reward receipts. New games are Lely-only;
+Esla can join only through an explicitly test-invoked API. Lely remains backed by
+her existing stats/status/equipment authorities. Shared inventory/gold stay in
+`stats`. Esla has isolated provisional level progression, anchored at level 5 to
+50 HP / 10 ATK / 4 DEF / 8 SPD, with no initial gear or resource grant.
+
+Full XP reaches every active member, including KOs; each levels independently.
+Victory commitment revives KOs to exactly 1 HP, while full recovery restores all
+HP and clears ordinary removable statuses. Private combat tickets bind the real
+generalized session and reject stale, incomplete, substituted, Lab and replayed
+results. Canonical state is unchanged until one atomic acknowledged commitment;
+rewards are separate. No encounter, input, menu or recruitment route calls it.
+
+`SAVE_VERSION` is now **5**, with no v4 migration. Ordered IDs, non-Lely records,
+reward receipts and Lely's Slither sample are saved; runtime combat identities,
+Labs, playback and drafts are not. Complete party candidate validation precedes
+load mutation. Test 175 covers canonical ownership, third-slot structural capacity,
+independent XP/equipment, save rejection/round trips, combat commitment and replay
+protection. See architecture.md for APIs, schema and the post-MQ5 encounter audit.
+Earlier save-version references in historical checkpoint notes below describe the
+version at that increment; the current format is v5.
+
+Canonical recruitment, visible party menus, encounter conversion, enemy specials,
+cutaway parties and all magic/Resonance remain deferred. No art, maps, lore or
+Chapter One presentation changed.
+
 ### Headless player-party state foundation
 
 `combatPlayerState` now permits explicit, inactive preparation of exactly two
 noncanonical test combatants. It owns ordered stable identities and independent
 HP/status state behind immutable inspection views. Preparation has one isolated
-developer-Lab caller and no world roster, encounters or canonical gameplay entry. Enemy `combat.mode`
+developer-Lab caller plus the headless persistent bridge above; no encounters or canonical gameplay entry. Enemy `combat.mode`
 remains independent; all existing live battles still use canonical Lely's
 `stats`, equipment, inventory and statuses.
 
@@ -24,7 +53,7 @@ preparation is refused and successful load discards it after validation.
 
 The scheduler increment below supplies explicit headless Attack commands.
 The session below collects headless Attack commands. Canonical UI, persistent inventory/equipment policy,
-persistent roster, Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
+visible roster/recruitment, canonical Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
 The focused regression suite uses only local fixtures; no canon or content was
 added. The only browser-visible route is the backtick Party Combat Lab described below.
 

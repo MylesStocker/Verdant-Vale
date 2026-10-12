@@ -105,7 +105,7 @@ module.exports = {
       'placed and chest equipment metadata has no stale pre-doubling price'
     );
 
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(JSON.parse(g.run('JSON.stringify(validateGameData())')).errors, 0);
   },
 };

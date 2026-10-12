@@ -93,7 +93,7 @@ module.exports = {
         assert.equal(meta.displayHeight, displayHeight);
       }
     }
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.deepEqual(
       JSON.parse(g.run("JSON.stringify([IMAGE_ASSET_REGISTRY.cutaway_sera_close_standing_fit_v2.width,IMAGE_ASSET_REGISTRY.cutaway_sera_close_standing_fit_v2.height,IMAGE_ASSET_REGISTRY.cutaway_liora_close_asleep_north_v1.displayWidth,IMAGE_ASSET_REGISTRY.cutaway_liora_close_asleep_north_v1.displayHeight])")),
       [112, 168, 112, 168], 'standing Sera and lying Liora share one environmental scale canvas');
@@ -260,7 +260,7 @@ module.exports = {
     const saveCtx = createContext(); saveCtx.press('Enter'); saveCtx.press('Enter');
     saveCtx.run('saveGame();');
     const saved = JSON.parse(saveCtx.run("localStorage.getItem('verdantVale_save')"));
-    assert.equal(saved.version, 4);
+    assert.equal(saved.version, 5);
     assert.equal(saved.sera_liora_opening_complete, false, 'unused story completion binding defaults false');
     assert.equal(Object.keys(saved).filter((key) => key !== 'sera_liora_opening_complete').some((key) => /image|asset|portrait|sera|liora/i.test(key)), false);
   },

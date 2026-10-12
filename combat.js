@@ -558,11 +558,11 @@ const combatPlayerState = (() => {
     partyInitiativeWeights(planActors);
     return {enemyMembers,enemyData,partyData,allyActions,enemyActions,planActors};
   };
-  const prepareMembers = (descriptors, minimum, maximum) => {
+  const prepareMembers = (descriptors, minimum, maximum, persistent = false) => {
     if (members) fail();
     validateInactiveCombatPreparation();
     if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open ||
-        !Number.isFinite(stats.hp) || stats.hp <= 0) fail();
+        !Number.isFinite(stats.hp) || (persistent ? stats.hp < 0 : stats.hp <= 0)) fail();
     // Only an empty enemy side or an untouched inactive preparation is
     // eligible. Dead/ambiguous membership may represent an unresolved outcome.
     if (!Object.isFrozen(combat.enemies) ||
@@ -768,18 +768,22 @@ const combatPlayerState = (() => {
       const before=snapshot();
       return {s,enemyData,allyActions,enemyActions,planActors,before};
     };
-    return Object.freeze({
-      initialize(request) {
+    const seed = (request,persistent=false) => {
         if(members||commandBattle||roundState||sessionState)invalid();
-        const data=dataRecord(request,['members','inventory','escape',...(Object.hasOwn(request||{},'slither')?['slither']:[])]);
+        const data=dataRecord(request,['members','inventory','escape',...(Object.hasOwn(request||{},'slither')?['slither']:[]),...(Object.hasOwn(request||{},'equipment')?['equipment']:[])]);
         if(!['blocked','fastest_living'].includes(data.escape))invalid();
-        neutral();const enemyData=enemies();
-        const candidates=prepareMembers(data.members,1,3);
+        neutral();
+        const candidates=prepareMembers(data.members,1,3,persistent);
         if(!candidates.some(m=>m.hp>0))invalid();
         candidates.forEach(m=>supportedStatuses(m.statuses));
         const inventory=array(data.inventory);
         inventory.forEach(id=>itemSpec(id));
-        const loadouts=candidates.map(()=>({weapon:null,armor:null,shield:null,accessory:null}));
+        const loadouts=Object.hasOwn(data,'equipment') ? array(data.equipment).map(v=>dataRecord(v,slots)) :
+          candidates.map(()=>({weapon:null,armor:null,shield:null,accessory:null}));
+        if(loadouts.length!==candidates.length)invalid();
+        for(const gear of loadouts)for(const slot of slots)if(gear[slot]!==null) {
+          const spec=itemSpec(gear[slot]);if(spec.effect!=='equip'||spec.item.type!==slot)invalid();
+        }
         const effects=candidates.map(()=>({evadeTurns:0,evadeAppliedRound:0,bomb:null}));
         // This seed represents an already-applied status (including its
         // existing sample), not a new application or a hidden initialization
@@ -789,12 +793,22 @@ const combatPlayerState = (() => {
         if(seeds.length!==affected.length || seeds.some((v,i)=>v.slot!==affected[i].slot||!slitherSpeedValid(v.speed)) ||
             (Object.hasOwn(data,'slither')&&!affected.length))invalid();
         for(const seed of seeds)effects[seed.slot].slither={speed:seed.speed,round:0,roll:null,source:'prepared'};
+        return {data,candidates,inventory,loadouts,effects};
+    };
+    const install = (prepared,enemyData) => {
+        const {data,candidates,inventory,loadouts,effects}=prepared;
         const bossLocked=combat.enemies.some(e=>combatEnemyBossAtCreation.get(e));
         const escape=combat.mode==='formation'&&formationRounds.getView().escapePolicy==='blocked'?'blocked':data.escape;
-        // Everything above is read-only. Commit cannot run caller code.
         const view=installMembers(candidates);
         commandBattle={roster:members,enemies:combat.enemies,inventory,loadouts,effects,bossLocked,escape,enemySeal:JSON.stringify(enemyData)};
         return view;
+    };
+    return Object.freeze({
+      seed, install,
+      enemyData:enemies,
+      initialize(request) {
+        const prepared=seed(request),enemyData=enemies();
+        return install(prepared,enemyData);
       },
       getView() { return commandBattle ? snapshot() : null; },
       // Private controller-only read gates; never exported as gameplay APIs.
@@ -1230,8 +1244,72 @@ const combatPlayerState = (() => {
       getView,
     });
   })();
+  let persistentBridgeClaimed=false;
+  const claimPersistentBridge=()=>{
+    if(persistentBridgeClaimed)fail();
+    persistentBridgeClaimed=true;
+    let owner=null;
+    const bound=ticket=>{
+      if(!owner||ticket!==owner.ticket||members!==owner.members||combat.enemies!==owner.enemies||sessionState!==owner.session)fail();
+      const current=session.getView(); // includes exact sealed mutable-state verification
+      return current;
+    };
+    return Object.freeze({
+      begin(request,enemyIds) {
+        if(owner||combat.mode!==null||combat.active||combat.enemies.length||partyCombatLab.isActive())fail();
+        const ids=array(enemyIds);
+        if(ids.length<1||ids.length>3||combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
+        const templates=ids.map(id=>{
+          if(!PARTY_ATTACK_TEMPLATE_IDS.includes(id))fail();
+          const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value;
+          const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[])];
+          const t=attackRecord(template,keys);
+          if(t.id!==id||typeof t.name!=='string'||!formationBasicStatsValid(t)||!t.hp||
+              !['xp','goldMin','goldMax'].every(k=>Number.isSafeInteger(t[k])&&t[k]>=0)||
+              (Object.hasOwn(t,'isBoss')&&typeof t.isBoss!=='boolean'))fail();
+          return t;
+        });
+        if(ids.length>1)validateFormationDescriptors(ids.map((enemyId,slot)=>({enemyId,slot})));
+        const prepared=commandRounds.seed(request,true);
+        const actorVariants=prepared.candidates.map((m,i)=>{
+          const gear=Object.fromEntries(Object.entries(prepared.loadouts[i]).map(([k,id])=>[k,id===null?null:formationItemDefinition(id).item]));
+          const atk=effectiveAtk({...m,...gear}),def=m.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0),spd=m.spd+(gear.accessory?.bonus||0);
+          if(![atk,def,spd].every(n=>Number.isSafeInteger(n)&&n>=0))fail();
+          return [m.statuses,[],['muddied']].map(statuses=>({...m,atk,
+            def:Math.max(0,def-(statuses.includes('muddied')?1:0)),
+            spd:statuses.includes('slither')?prepared.effects[i].slither.speed:Math.max(1,spd-(statuses.includes('muddied')?2:0)),
+            bypass:gear.armor?.defenseCapBypass===true}));
+        });
+        for(const variants of actorVariants)for(const a of variants)for(const e of templates)if(!attackNumbersAreSafe(a.atk,e.def)||
+            !attackNumbersAreSafe(e.atk,playerIncomingMitigation(e.atk,a.def,a.bypass))||
+            !Number.isSafeInteger(Math.max(1,a.spd)+Math.max(1,e.spd)))fail();
+        const actors=actorVariants.map(a=>a[0]).filter(m=>m.hp>0);
+        partyInitiativeWeights([...actors,...templates]);
+        partyInitiativeWeights([...actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})),...templates]);
+        // All input and numeric validation precedes either identity allocator.
+        if(ids.length===1)combat.enemy=templates[0];
+        else initializeFormationState(ids.map((enemyId,slot)=>({enemyId,slot})),{escape:prepared.data.escape});
+        commandRounds.install(prepared,commandRounds.enemyData());
+        session.begin({commandSet:'standard'});
+        const ticket=Object.freeze({});
+        owner={ticket,members,enemies:combat.enemies,session:sessionState};
+        return ticket;
+      },
+      completed(ticket) {
+        const v=bound(ticket);
+        if(!['victory','defeat','escape'].includes(v.phase)||!v.playbackFrame?.complete||v.awaitingAcknowledgement)fail();
+        return copyFormationData({outcome:v.phase,completedRounds:v.completedRounds,snapshot:commandRounds.inspectSession(true)});
+      },
+      finish(ticket) {
+        this.completed(ticket);
+        sessionState=null;roundState=null;commandBattle=null;members=null;
+        combat.enemy=null;owner=null;
+      },
+    });
+  };
   return Object.freeze({
     session,
+    claimPersistentBridge,
     hasParty() { return members !== null; },
     getView() {
       if (members) return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});

@@ -69,7 +69,7 @@ module.exports = {
     g.run('interactThornmereWilds();');
     assert.equal(g.run('choice.open'), true, 'tract remains readable without a persistent read flag');
 
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(JSON.parse(g.run('JSON.stringify(validateGameData())')).errors, 0);
   },
 };

@@ -153,7 +153,7 @@ module.exports = {
     assert.ok(neighbourFrame.trans.some(([x,y])=>x===16*32&&y===3*15*32), 'portal chunk translated to stable regional world origin');
 
     // 13-16. No gameplay authority changed; all shared placement/load paths keep
-    // rejecting the scenery chunk atomically and SAVE_VERSION stays 4.
+    // rejecting the scenery chunk atomically and SAVE_VERSION stays 5.
     assert.equal(g.run(`typeof EDGE_TRANSITIONS['${ID}']`), 'undefined');
     assert.equal(g.run(`typeof MAP_FEATURES['drenwick_west_outfall']`), 'undefined');
     assert.equal(g.run(`mapEntryForId('${ID}').items.length`), 0);
@@ -183,7 +183,7 @@ module.exports = {
     assert.equal(g.run('loadGame()'), false);
     assert.equal(g.run("JSON.stringify({map:mapIdForRef(activeMap),canon:regionalWorldPosition(),x:player.x,y:player.y,f:player.facing,loc:[inTown,inDungeon,inSluice]})"), live, 'edited-save rejection leaves live state atomic');
     assert.equal(g.run("localStorage.getItem('verdantVale_save')"), edited, 'edited invalid save remains byte-identical');
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
 
     // 17. Production naming is wholly canal-tunnel terminology for this feature.
     const prod = ['render-entities.js','continuous-content.js','content/maps/drenwick-maps.js']

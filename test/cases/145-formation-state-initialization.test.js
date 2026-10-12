@@ -169,12 +169,12 @@ test('renderer and combat input routing cannot activate/display the inactive sta
   assert.equal(g.run('combat.active'),false);
 });
 
-test('only explicit Lab lifecycles and the Receiver initialize formations; no encounter conversion or extra state',()=>{
+test('only explicit Lab lifecycles, Receiver and private persistent bridge initialize formations; no encounter conversion or extra state',()=>{
   const files=execFileSync('git',['ls-files','--','*.js'],{cwd:ROOT,encoding:'utf8'}).trim().split('\n')
     .filter(file=>file && !file.startsWith('test/'));
   for(const file of [...new Set([...files,'formation-lab.js'])]) {
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
+    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,file==='combat.js'?2:['formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
   }
   const g=fresh();initialize(g);
   for(const key of ['selectedTargetId','currentActorId','currentTargetId','intent','actionQueue',

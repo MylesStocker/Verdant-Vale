@@ -357,7 +357,7 @@ test('snapshot stays historical after live mutation and cleanup; no save binding
   g.run('stats.hp=20;combat.enemies[2].hp=0;endCombat();');
   assert.equal(g.run('JSON.stringify(reel)'),before);
   g.run('saveGame();');assert.doesNotMatch(g.run('localStorage.getItem("verdantVale_save")'),/strikeRound|nextSignalRound|coordination|combat_enemy_/);
-  assert.equal(g.run('SAVE_VERSION'),4);
+  assert.equal(g.run('SAVE_VERSION'), 5);
 });
 
 module.exports={name:'Receiver coordinated signal, protection, heavy strike and staged pixel art',checks,

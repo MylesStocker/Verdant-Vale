@@ -194,7 +194,7 @@ module.exports = {
     assert.equal(g.run(`placeAtLocation('${ID}',8.5*TILE,3.5*TILE)`),true);
     assert.equal(g.run(`debugWarpToDestination('outdoor:${ID}').success`),true);
     assert.equal(g.run(`mapIdForRef(activeMap)==='${ID}'&&player.y<10*TILE&&canWalk(player.x,player.y)`),true,'debug warp chooses the accessible upper component');
-    g.run("player.facing='left';saveGame();");const saved=J('JSON.stringify(regionalWorldPosition())');assert.equal(J("localStorage.getItem('verdantVale_save')").version,4);
+    g.run("player.facing='left';saveGame();");const saved=J('JSON.stringify(regionalWorldPosition())');assert.equal(J("localStorage.getItem('verdantVale_save')").version, 5);
     g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';");assert.equal(g.run('loadGame()'),true);assert.equal(mapId(),ID);assert.deepEqual(J('JSON.stringify(regionalWorldPosition())'),saved);assert.equal(g.run('player.facing'),'left');
     const validSave=g.run("localStorage.getItem('verdantVale_save')");
     const invalidLoad=J(`(function(){var s=JSON.parse(localStorage.getItem('verdantVale_save'));s.location.worldPxX=8.5*TILE;s.location.worldPxY=2*ROWS*TILE+10.5*TILE;localStorage.setItem('verdantVale_save',JSON.stringify(s));var before=regionalWorldPosition(),ok=loadGame(),after=regionalWorldPosition();localStorage.setItem('verdantVale_save',${JSON.stringify(validSave)});return JSON.stringify({ok:ok,same:before.regionId===after.regionId&&before.worldPxX===after.worldPxX&&before.worldPxY===after.worldPxY});})()`);
@@ -227,6 +227,6 @@ module.exports = {
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:66,ALIGNS:96,BLOCKED:50});
     assert.equal(audit.seamReadiness.edges.length,216);assert.equal(g.run('continuousSeamEntries().length'),116);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),54);assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'),47);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'),155);assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('validateGameData().errors'),0);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'),155);assert.equal(g.run('SAVE_VERSION'), 5);assert.equal(g.run('validateGameData().errors'),0);
   },
 };

@@ -56,7 +56,7 @@ module.exports = {
     g.press('Enter');
     installImmediateImages(g);
 
-    assert.equal(g.run('SAVE_VERSION'), 4, 'save schema version remains unchanged');
+    assert.equal(g.run('SAVE_VERSION'), 5, 'save schema version remains unchanged');
     assert.equal(g.run("SERA_LIORA_CUTAWAY_SCENE_ID"), 'sera_liora_cutaway_opening');
     assert.equal(g.run("SERA_LIORA_GUEST_ROOM_ID"), 'bethany_guest_house_finest_room');
     assert.equal(g.run('SERA_LIORA_CUTAWAY_BEATS.length'), 22, 'exactly 22 approved dialogue beats');
@@ -191,7 +191,7 @@ module.exports = {
     assert.notEqual(g.run('player.y'), beforeMove, 'normal control returns at the hospital’s existing post-dialogue point');
     g.run('saveGame();');
     const saved = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
-    assert.equal(saved.version, 4);
+    assert.equal(saved.version, 5);
     assert.equal(saved.sera_liora_opening_complete, false, 'debug preview does not persist story completion');
     assert.equal(Object.keys(saved).filter((key) => key !== 'sera_liora_opening_complete').some((key) => /sera|liora|bethany/i.test(key)), false,
       'no transient cutaway state enters the save schema');

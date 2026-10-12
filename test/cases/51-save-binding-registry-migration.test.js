@@ -72,7 +72,7 @@ module.exports = {
 
     // ── A. Binding-registry contract ────────────────────────────────────────
     assert.equal(G('typeof SAVE_VERSION'), 'number');
-    assert.equal(G('SAVE_VERSION'), 4, 'SAVE_VERSION is 4');
+    assert.equal(G('SAVE_VERSION'), 5, 'SAVE_VERSION is 5');
     assert.equal(G('Array.isArray(window.QUEST_FLAG_BINDINGS)'), true, 'registry is exposed as an array');
 
     const keys = JSON.parse(G('JSON.stringify(window.QUEST_FLAG_BINDINGS.map(function(b){return b.key;}))'));
@@ -169,7 +169,7 @@ module.exports = {
     assert.equal(G('wine_quest_gift'), null, 'missing nullable flag defaults to null, not the dirtied string');
     assert.equal(G('window.vale_tutorial_seen'), false, 'missing window-native flag defaults to false, not the dirtied true');
 
-    // ── D. v4 clean break: NO migration, NO backup; older/other versions rejected ─
+    // ── D. v5 clean break: NO migration, NO backup; older/other versions rejected ─
     G("localStorage.clear();");
     G("stats.gold = 4242; day = 9; MainQuest = 4; player.facing = 'up'; resetLocationState(); activeMap = MAP; player.x = 7.5*TILE; player.y = 9.5*TILE; __reconcileCanonicalForTest();");
     G("saveGame();");

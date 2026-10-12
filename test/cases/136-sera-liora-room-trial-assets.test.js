@@ -130,7 +130,7 @@ module.exports = {
     assert.ok(warmHairTop > warmHairBottom * 3, 'orange/red head hair is concentrated at the top');
 
     const g = createContext();
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(g.run("IMAGE_ASSET_REGISTRY.cutaway_liora_close_asleep_north_v1.use"), 'close_cutaway_pose_highres');
     assert.equal(g.run("IMAGE_ASSET_BUNDLES.sera_liora_opening.filter(function(id){return id==='cutaway_liora_close_asleep_north_v1';}).length"), 0,
       'the preserved north cutout is no longer preloaded for the opening');

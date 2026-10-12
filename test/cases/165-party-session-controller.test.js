@@ -192,7 +192,7 @@ test('explicit preparation cleanup drops only session state; old views stay immu
   reject(g,'controller.submitAttack({actorId:"combat_party_1",targetId:"combat_enemy_3"})');assert.equal(view(g).nextActorId,'combat_party_3');assert.equal(JSON.stringify(old),saved);
 });
 test('no gameplay entry, input/render/reward route or saved controller payload',()=>{
-  const g=fresh();ready(g);const before=state(g);g.press('Enter');g.press('ArrowRight');g.frames(3);assert.equal(state(g),before);assert.equal(g.run('saveGame()'),false);assert.equal(g.run('SAVE_VERSION'),4);
+  const g=fresh();ready(g);const before=state(g);g.press('Enter');g.press('ArrowRight');g.frames(3);assert.equal(state(g),before);assert.equal(g.run('saveGame()'),false);assert.equal(g.run('SAVE_VERSION'), 5);
   for(const source of ['drawCombat()','handleCombatAction()','endCombat()','recoverCombatDefeat()'])reject(g,source);
   const labCalls={begin:1,submitAttack:0,backtrack:0,commitRound:0,advancePlayback:0,acknowledgePlayback:0};
   for(const file of scriptOrderFromIndexHtml()) {

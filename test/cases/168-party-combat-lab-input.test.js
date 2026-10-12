@@ -115,7 +115,7 @@ test('input owns one listener pair, rejects repeat, and no canonical route or sa
   assert.equal((input.match(/addEventListener\('keydown'/g)||[]).length,1);assert.equal((input.match(/addEventListener\('keyup'/g)||[]).length,1);assert.match(input,/!wasHeld && !e\.repeat/);
   const render=fs.readFileSync(path.join(ROOT,'render.js'),'utf8');assert.equal((render.match(/drawPartyCombatLabBattle\(\)/g)||[]).length,1);
   for(const file of scriptOrderFromIndexHtml()){const source=fs.readFileSync(path.join(ROOT,file),'utf8');if(/content\/|interaction|quest|encounter|maps|npcs/.test(file))assert.doesNotMatch(source,/partyCombatLab|PARTY_COMBAT_LAB_/,file);}
-  const g=fresh();assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('saveGame()'),true);assert.doesNotMatch(g.run("localStorage.getItem('verdantVale_save')"),/party|esla_lab|combat_party/);
+  const g=fresh();assert.equal(g.run('SAVE_VERSION'), 5);assert.equal(g.run('saveGame()'),true);assert.deepEqual(JSON.parse(g.run("localStorage.getItem('verdantVale_save')")).party,{order:['lely'],characters:[],rewards:[]});assert.doesNotMatch(g.run("localStorage.getItem('verdantVale_save')"),/esla_lab|combat_party|instanceId/);
 });
 
 module.exports={name:'playable Party Combat Lab: target authority, input, debug menu and render routing',checks,
