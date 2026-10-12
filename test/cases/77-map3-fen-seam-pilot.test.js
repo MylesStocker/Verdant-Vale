@@ -64,10 +64,10 @@ module.exports = {
     const V = {}; for (const e of audit.seamReadiness.edges) V[e.mapId + '|' + e.dir] = e.verdict;
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
-    assert.equal(audit.seamReadiness.totals.ALIGNS, 96, 'ALIGNS 96 including the reciprocal Eastern Fens route');
-    assert.equal(audit.seamReadiness.totals.BLOCKED, 50, 'BLOCKED 50 including the causeway gap and deliberate route-turn contacts');
-    assert.equal(audit.seamReadiness.totals.BORDER, 66, 'BORDER 66 around the expanded eastern terrain skeleton');
-    assert.equal(g.run('continuousSeamEntries().length'), 116, '116 eligible directed segment entries');
+    assert.equal(audit.seamReadiness.totals.ALIGNS, 104, 'ALIGNS 104 including the reciprocal Eastern Fens route');
+    assert.equal(audit.seamReadiness.totals.BLOCKED, 198, 'BLOCKED 198 including the causeway gap, route-turn contacts, and the new scenery perimeter');
+    assert.equal(audit.seamReadiness.totals.BORDER, 58, 'BORDER 66 around the expanded eastern terrain skeleton');
+    assert.equal(g.run('continuousSeamEntries().length'), 124, '124 eligible directed segment entries');
     // the new pair derives as two eligible directed seams
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3','north')"), 'MAP3|north is an eligible seam');
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3_N1','south')"), 'MAP3_N1|south is an eligible seam');

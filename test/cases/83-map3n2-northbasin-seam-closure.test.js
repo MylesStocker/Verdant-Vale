@@ -239,11 +239,11 @@ module.exports = {
     // ── C1. Zero NEEDS_REMAP; every directed edge classified; no CONFLICT/OUTSIDE ─
     const edges = audit.seamReadiness.edges;
     assert.equal(edges.filter((e) => e.verdict === 'NEEDS_REMAP').length, 0, 'NEEDS_REMAP === 0 (no unconverted point crossings remain)');
-    assert.equal(edges.length, 216, '216 directed regional edges total (54 placed maps x 4 sides)');
+    assert.equal(edges.length, 364, '364 directed regional edges total (91 placed maps x 4 sides)');
     const CLASSES = new Set(['ALIGNS', 'INTENTIONAL_DISCRETE', 'BLOCKED', 'BORDER']);
     assert.ok(edges.every((e) => CLASSES.has(e.verdict)), 'every directed edge is ALIGNS / INTENTIONAL_DISCRETE / BLOCKED / BORDER');
     assert.equal(edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 96, BLOCKED: 50 }, 'closure totals include the blocked ferry adjacency, route turns, and eastern threshold borders');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 58, ALIGNS: 104, BLOCKED: 198 }, 'closure totals include the blocked ferry adjacency, route turns, and eastern threshold borders');
 
     // ── C2. Every ALIGNS edge is represented by the fail-closed eligible-seam authority ─
     const alignsEdges = edges.filter((e) => e.verdict === 'ALIGNS').map((e) => e.mapId + '|' + e.dir);
@@ -260,9 +260,9 @@ module.exports = {
     //        maps. Seven scenery-only placements are deliberately unreachable, so
     //        the traversable-graph assertions run over the accessible nodes only.
     const allNodes = J("JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(function(p){return p.mapId;}))");
-    assert.equal(allNodes.length, 54, '54 placed regional maps (47 accessible + 7 scenery-only)');
+    assert.equal(allNodes.length, 91, '91 placed regional maps (51 accessible + 40 scenery-only)');
     const nodes = allNodes.filter((n) => g.run('mapPlayerAccessible(' + JSON.stringify(n) + ')'));
-    assert.equal(nodes.length, 47, '47 accessible regional maps include the scripted-ferry eastern route');
+    assert.equal(nodes.length, 51, '51 accessible regional maps include the scripted-ferry eastern route');
     assert.ok(allNodes.includes('DRENWICK_WEST_OUTFALL_MAP') && !nodes.includes('DRENWICK_WEST_OUTFALL_MAP'),
       'the West Outfall is placed but not player-accessible');
     assert.equal(g.run("continuousSeamEntries().filter(function(e){return e.from==='DRENWICK_WEST_OUTFALL_MAP'||e.to==='DRENWICK_WEST_OUTFALL_MAP';}).length"), 0,
@@ -293,7 +293,7 @@ module.exports = {
     // full graph = structural seams + intentional-discrete home crossings + the
     // MQ5 ferry connection → one component.
     assert.equal(components(nodes, contPairs.concat(homePairs)), 2, 'home crossings leave only the ferry-only eastern route separate');
-    assert.equal(components(nodes, contPairs.concat(homePairs, ferryPairs)), 1, 'adding the scripted ferry connects all 47 accessible maps into one traversable graph');
+    assert.equal(components(nodes, contPairs.concat(homePairs, ferryPairs)), 1, 'adding the scripted ferry connects all 51 accessible maps into one traversable graph');
     assert.equal(compClass(nodes, contPairs.concat(homePairs, ferryPairs), 'MAP_N1'), compClass(nodes, contPairs.concat(homePairs, ferryPairs), 'MAP3'), 'with the home crossings, the Northern branch and the southern cluster are in the same component');
     // the reconnection is via the legacy home presentation (INTENTIONAL_DISCRETE), NOT a blocked wall
     assert.equal(V['MAP_N1|south'], 'INTENTIONAL_DISCRETE', 'the Northern branch reconnects through the Verdant Vale legacy boundary (MAP_N1.south is INTENTIONAL_DISCRETE, not BLOCKED)');

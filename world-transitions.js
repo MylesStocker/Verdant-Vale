@@ -1633,6 +1633,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_WORKED_REEDS_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_DRAINAGE_NW_MAP', targetEdge: 'east', sourceRange: [10, 12] }],
     east: [{ targetMap: 'EASTERN_FENS_MANAGED_REEDS_MAP', targetEdge: 'west', sourceRange: [1, 3] }],
+    south: [{ targetMap: 'EASTERN_FENS_REED_HOLLOW_MAP', targetEdge: 'north', sourceRange: [2, 2] }],
   },
   EASTERN_FENS_MANAGED_REEDS_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_WORKED_REEDS_MAP', targetEdge: 'east', sourceRange: [1, 3] }],
@@ -1645,6 +1646,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_WIDE_WATER_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_TRAVELLERS_RISE_MAP', targetEdge: 'east', sourceRange: [7, 9] }],
     south: [{ targetMap: 'EASTERN_FENS_CHANNEL_APPROACH_W_MAP', targetEdge: 'north', sourceRange: [3, 5] }],
+    north: [{ targetMap: 'EASTERN_FENS_BRIDGE_INLET_W_MAP', targetEdge: 'south', sourceRange: [4, 4] }],
   },
   EASTERN_FENS_CHANNEL_APPROACH_W_MAP: {
     north: [{ targetMap: 'EASTERN_FENS_WIDE_WATER_MAP', targetEdge: 'south', sourceRange: [3, 5] }],
@@ -1684,6 +1686,23 @@ const EDGE_TRANSITIONS = {
   },
   EASTERN_FENS_PORT_THRESHOLD_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_E_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
+  },
+  // Eastern Fens envelope (Phase 2) — walkable infill pockets off the route. The
+  // bridge inlet hangs north off the WIDE_WATER timber bridge as a dead-end reed
+  // inlet; the reed hollow hangs south off WORKED_REEDS. No route shortcut.
+  EASTERN_FENS_BRIDGE_INLET_W_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_WIDE_WATER_MAP', targetEdge: 'north', sourceRange: [4, 4] }],
+    east: [{ targetMap: 'EASTERN_FENS_BRIDGE_INLET_E_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_BRIDGE_INLET_E_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_BRIDGE_INLET_W_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    south: [{ targetMap: 'EASTERN_FENS_CHANNEL_ELBOW_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+  },
+  EASTERN_FENS_CHANNEL_ELBOW_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_BRIDGE_INLET_E_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+  },
+  EASTERN_FENS_REED_HOLLOW_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_WORKED_REEDS_MAP', targetEdge: 'south', sourceRange: [2, 2] }],
   },
   DRENWICK_EAST_CANAL_MAP: {
     north: [

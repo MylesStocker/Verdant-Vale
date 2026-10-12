@@ -13,9 +13,11 @@ const { createContext } = require('../harness');
 // maintained road/bridge spurs that visibly continue past a chunk border
 // (notably the unfinished Cardenport port-road threshold). Everything else on a
 // non-seam edge must be impassable so no walkable tile implies a void crossing.
+// (Phase 2 resolved the WIDE_WATER north bridge into a real seam to the bridge
+// inlet (13,2), so it is no longer a non-seam walkable edge. CHANNEL_APPROACH_W's
+// south road now ends against the placed southern fen (13,5), not void.)
 const SANCTIONED_EDGE_SPURS = {
   EASTERN_FENS_REEDBELT_S_MAP: ['east:4'],
-  EASTERN_FENS_WIDE_WATER_MAP: ['north:4'],
   EASTERN_FENS_CHANNEL_APPROACH_W_MAP: ['south:4'],
   EASTERN_FENS_PORT_THRESHOLD_MAP: ['east:9', 'east:10', 'east:11'],
 };
@@ -49,14 +51,13 @@ module.exports = {
     // 2. Making Deep Reeds walkable cannot open any area outside the Eastern
     //    Fens: tile 127 appears in no other regional chunk or legacy map grid.
     const foreign = J(`JSON.stringify((function(){
-      var ef={}; ${JSON.stringify(EF_IDS)}.forEach(function(id){ef[id]=1;});
       var hits=[];
       Object.keys(REGIONAL_CHUNK_CATALOG).forEach(function(id){
-        if(ef[id])return;
+        if(REGIONAL_CHUNK_CATALOG[id].region==='Eastern Fens')return; // route + Phase 2 envelope
         if(REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);}))hits.push(id);
       });
       if(typeof MAP_CATALOG!=='undefined')Object.keys(MAP_CATALOG).forEach(function(id){
-        if(ef[id]||REGIONAL_CHUNK_CATALOG[id])return;
+        if(REGIONAL_CHUNK_CATALOG[id])return;
         var grid=MAP_CATALOG[id]&&(MAP_CATALOG[id].map||MAP_CATALOG[id].grid);
         if(Array.isArray(grid)&&grid.some(function(r){return Array.isArray(r)&&r.includes(127);}))hits.push(id);
       });
