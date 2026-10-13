@@ -258,7 +258,9 @@ window.addEventListener('keydown', e => {
       handleFishingKey(e.key);
     } else if (!combat.active) {
       if (menu.open) {
-        if (menu.screen === 'saveConfirm') {
+        if (partyFieldMenu.handleInput(e)) {
+          // Multi-member navigation shares this listener and physical-key latch.
+        } else if (menu.screen === 'saveConfirm') {
           // ── Save-confirm navigation ─────────────────────────────────────
           if (e.key === 'ArrowLeft'  || e.key === 'a') menu.saveCursor = 0;
           if (e.key === 'ArrowRight' || e.key === 'd') menu.saveCursor = 1;

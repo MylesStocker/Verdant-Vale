@@ -6,6 +6,26 @@ actually fits together.
 
 ## Current state
 
+### Canonical multi-member field menu
+
+`party-field-menu.js` adds member summaries and Equipment/Status selection only
+when the canonical roster has multiple members. The existing solo menu, direct
+item/equip navigation, Notebook and save/load presentation stay unchanged. Eight
+recording-canvas baselines lock the solo screen to lifecycle checkpoint bb73177.
+
+Targeted field healing/cures and equipment exchanges use `persistentParty`, with
+shared inventory and independent personal state. Fallen members retain rows and
+may change equipment; ordinary healing cannot revive them. Three-member capacity
+is tested using a test-only authored fixture. Save format remains version 5 and
+contains no menu state. No third character, artwork, Lab changes or combat route
+was added.
+
+**Gameplay prerequisite:** MQ5 still has no call to `persistentParty.joinEsla()`.
+This menu responds to canonical membership but does not recruit anyone. The later
+recruitment/encounter integration must provide that story-owned call. Browser
+inspection remains outstanding; automated geometry is tested at native and 2×
+scale.
+
 ### Persistent party lifecycle foundation (headless)
 
 `persistent-party.js` now owns canonical ordered membership (capacity three),
@@ -31,7 +51,7 @@ protection. See architecture.md for APIs, schema and the post-MQ5 encounter audi
 Earlier save-version references in historical checkpoint notes below describe the
 version at that increment; the current format is v5.
 
-Canonical recruitment, visible party menus, encounter conversion, enemy specials,
+Canonical recruitment, encounter conversion, enemy specials,
 cutaway parties and all magic/Resonance remain deferred. No art, maps, lore or
 Chapter One presentation changed.
 

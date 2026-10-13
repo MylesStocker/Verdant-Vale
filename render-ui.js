@@ -1132,6 +1132,9 @@ function drawMenu() {
   // ─────────────────────────────────────────────────────────────────────────
   // Section 1 — CHARACTER
   // ─────────────────────────────────────────────────────────────────────────
+  if (persistentParty.getView().members.length > 1) {
+    drawPartyFieldMenu();
+  } else {
   sectionLabel('CHARACTER', BY + 26);
   rule(BY + 31);
 
@@ -1368,6 +1371,8 @@ function drawMenu() {
     ctx.fillText('[ M / ESC ]', BX + BW - PAD, BY + BH - 12);
     ctx.textAlign = 'left';
   }
+
+  } // Solo layout above is unchanged; common banners/confirmations follow.
 
   // ── "Game Saved" banner ───────────────────────────────────────────────────
   if (menu.saveMessage > 0) {

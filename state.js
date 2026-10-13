@@ -265,6 +265,7 @@ function toggleMenu() {
     menu.scrollOffset = 0;
     menu.screen       = 'main';
     menu.saveCursor   = 0;
+    if (persistentParty.getView().members.length > 1) partyFieldMenu.reset();
   }
 }
 

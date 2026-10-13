@@ -87,6 +87,69 @@ cutaway parties and battle effects are absent. Saving/loading a pending bridge
 or existing Lab remains blocked. Earlier v4 notes below describe those historical
 increments, not the current save version.
 
+### Canonical field-menu ownership
+
+The field menu branches on `persistentParty.getView().members.length > 1`.
+`drawMenu()` retains its entire solo body and common frame, Notebook, save/load
+confirmations and banners. `partyFieldMenu.handleInput(event)` lives inside the
+existing `menu.open` input branch and shares the one physical pressed-key latch.
+It declines the solo path and original Notebook/save/load handlers. Multi-member
+native repeats and modified/IME events are inert. Existing combat, Lab, Receiver,
+cutscene, dialogue and other modal locks retain ownership; transitions are
+synchronous and do not introduce a new menu lock state.
+
+Menu-only state: selected persistent character ID, pending item ID, purpose,
+equipment cursor/scroll and `menu.screen`. No mutable character record is stored.
+The shared inventory still comes from `groupItems()` (first-occurrence order,
+quantities, key-item filtering, four visible rows). Save and Load keep their
+existing positions after inventory; Equipment and Status follow only for multiple
+members. The Notebook shortcut remains N. No Party/Formation/Resonance command.
+
+Multi-member flow:
+
+- `main` → item → `partyTarget` → revalidated use → `main`; cancel preserves
+  the inventory cursor/scroll. Invalid or missing targets consume nothing.
+- `main` → Equipment/Status → `partyMembers` → `partyEquipment`/`partyStatus`.
+  Back returns to the same selected member, then main. Status left/right wraps
+  through all fixed slots, including Fallen members. Equipment uses a four-row
+  shared equipment list and member-specific effective-stat preview.
+- Main and list navigation uses Up/Down or W/S, targeting/member selection also
+  accepts Left/Right or A/D, Enter/Space confirms, Escape/B backs out. M retains
+  the existing back/close convention. No listeners were added.
+
+Canonical APIs added in `persistent-party.js`:
+
+- `getFieldView()` augments immutable member snapshots with `{effective:{atk,def,spd}}`.
+- `fieldItemTargets(itemId)` returns frozen stable IDs of eligible members.
+- `previewEquipment(characterId,itemId)` returns an immutable prospective member.
+- `useFieldItem(characterId,itemId)` validates locks, identity, inventory copy,
+  target and arithmetic before any writer. It consumes one shared copy only on
+  execution. Equipment returns the prior copy to shared inventory and changes
+  only the selected owner's slot. Ordinary heals use `healingItemAmount`; cures
+  use `itemCuredStatuses`/the established cure-property registry. A cure with no
+  matching status still consumes, matching existing solo field semantics. Field
+  Ember Root remains healing-only. Battle-only items and reagents gain no field
+  effects. Fallen members are excluded from healing targets, retained for cures and gear.
+
+Lely remains `stats` + `statusEffects` + `slitherSpd`; non-Lely records remain private
+in `persistentParty`. `effectiveDef` and `effectiveSpd` accept optional explicit
+status/corrosion/sample arguments for personal previews; their defaults and all
+existing combat arithmetic are unchanged. HP/item mutations do not replace
+unrelated equipped objects. Existing solo mutation paths remain `input.js`'s
+heal, `applyStatusCure`, and `equipItem`; singleton rewards still use their existing
+paths. Party rewards/recovery remain `awardRewards`/`awardExperience`/`recover`.
+
+Save v5 is unchanged. `prepareLoad` additionally rejects nested executable/custom
+objects and Lely equipment in an invalid slot before restoration. Authored item
+rehydration and legacy inventory metadata behavior remain intact. The existing
+key-item/former Void Shard inventory-restoration policy is shared through the pure
+`savedEquipmentDisposition` helper; those records never restore invalid equipment.
+Test 176 covers
+eight complete solo draw-call hashes, input flows, ownership, stale targets,
+control locks, immutable reads, two/three-member saves and display bounds. No
+canonical recruitment or encounter caller was added; the missing MQ5 join hook
+is explicitly a later story-integration prerequisite.
+
 ### Later post-recruitment encounter routing audit (read-only)
 
 `movement.update()` chooses geographic eligibility, then `startCombat()` selects

@@ -133,7 +133,67 @@ const persistentParty = (() => {
     if(member===stats){statusEffects=data.statuses;slitherSpd=data.slitherSpeed;for(const k of slots)stats[k]=data.equipment[k]===null?null:{...item(data.equipment[k])};}
     else {member.statuses=data.statuses;member.slitherSpeed=data.slitherSpeed;member.equipment=data.equipment;}
   };
+  // Field views adapt the same persistent members. Only IDs/cursors belong to
+  // the menu; canonical item exchanges and HP/status writes stay in this closure.
+  const fieldMember = m => {
+    const equipped={...m,...from(slots.map(k=>[k,m.equipment[k]===null?null:item(m.equipment[k])]))};
+    const effective={atk:effectiveAtk(equipped),def:effectiveDef(equipped,m.statuses,0),
+      spd:effectiveSpd(equipped,m.statuses,m.slitherSpeed)};
+    if(!Object.values(effective).every(safe))fail();
+    return {...m,effective};
+  };
+  const fieldTargets = id => {
+    const def=item(id),members=snapshot().members;
+    if(def.keyItem||def.battleOnly)return [];
+    if(slots.includes(def.type))return members.map(m=>m.characterId);
+    if(isStatusCureItem(def))return members.map(m=>m.characterId);
+    if(def.type==='potion')return members.filter(m=>m.hp>0).map(m=>m.characterId);
+    return [];
+  };
   return Object.freeze({
+    getFieldView(){if(arguments.length)fail();const v=snapshot();return copy({...v,members:v.members.map(fieldMember)});},
+    fieldItemTargets(id){if(arguments.length!==1)fail();return copy(fieldTargets(id));},
+    previewEquipment(characterId,itemId){
+      if(arguments.length!==2)fail();const m=snapshot().members.find(m=>m.characterId===characterId),def=item(itemId);
+      if(!m||def.keyItem||def.battleOnly||!slots.includes(def.type))fail();
+      return copy(fieldMember({...m,equipment:{...m.equipment,[def.type]:itemId}}));
+    },
+    useFieldItem(characterId,itemId){
+      if(arguments.length!==2)fail();idle();canonicalValid();
+      if(dialogue.open||choice.open||shop.open||seraLioraCutscene.active||fishing.active||
+          continentMap.open||accordPanel.open)fail();
+      const def=item(itemId),index=stats.items.findIndex(i=>i.name===itemId),slot=order.indexOf(characterId);
+      if(index<0||slot<0||!fieldTargets(itemId).includes(characterId))fail();
+      const m=snapshot().members[slot],inventory=stats.items.slice();
+      const next={hp:m.hp,statuses:m.statuses.slice(),equipment:{...m.equipment},slitherSpeed:m.slitherSpeed};
+      if(slots.includes(def.type)){
+        next.equipment[def.type]=itemId;fieldMember({...m,equipment:next.equipment});
+        if(m.equipment[def.type]!==null)inventory.push(slot===0?stats[def.type]:createItem(m.equipment[def.type]));
+      }else if(isStatusCureItem(def)){
+        // Preserve the field cure contract: no matching status still consumes.
+        const cured=itemCuredStatuses(def);next.statuses=next.statuses.filter(s=>!cured.includes(s));
+        if(cured.includes('slither'))next.slitherSpeed=1;
+      }else{
+        const amount=healingItemAmount(def,m.hp,m.maxHp);
+        if(!safe(amount)||!safe(m.hp+amount))fail();next.hp+=amount;
+        // Field Ember Root historically heals only; its battle-only side effect
+        // is not imported into the field menu.
+      }
+      const result=copy(fieldMember({...m,...next}));
+      const equippedInstance=inventory[index];inventory.splice(index,1);
+      // All rejection precedes mutation. Only the intended fields change; a
+      // potion must not replace unrelated equipped objects or status containers.
+      const owner=slot===0?stats:characters[slot-1];
+      if(slots.includes(def.type)){
+        if(slot===0)stats[def.type]=equippedInstance;
+        else owner.equipment=next.equipment;
+      }else if(isStatusCureItem(def)){
+        if(slot===0){statusEffects=next.statuses;slitherSpd=next.slitherSpeed;}
+        else{owner.statuses=next.statuses;owner.slitherSpeed=next.slitherSpeed;}
+      }else owner.hp=next.hp;
+      stats.items=inventory;revision++;
+      return result;
+    },
     getView(){if(arguments.length)fail();return snapshot();},
     getMember(id){if(arguments.length!==1||typeof id!=='string')fail();return snapshot().members.find(m=>m.characterId===id)||null;},
     joinEsla(){
@@ -215,9 +275,14 @@ const persistentParty = (() => {
       const p=validatePayload(value);
       // Candidate validation precedes all existing load writers, even flag mirrors.
       lelyState=record(lelyState,[...scalarKeys,'gold',...slots,'items']);
+      copy(lelyState); // Reject nested getters/callbacks/prototypes before any writer.
       validateStats(lelyState);if(!safe(lelyState.gold))fail();statusList(lelyStatuses);speed(sampledSpeed,lelyStatuses);
       array(lelyState.items).forEach(i=>{if(!i||typeof i!=='object'||typeof i.name!=='string')fail();});
-      for(const slot of slots)if(lelyState[slot]!==null&&(!lelyState[slot]||typeof lelyState[slot].name!=='string'))fail();
+      for(const slot of slots)if(lelyState[slot]!==null){
+        const saved=lelyState[slot];if(!saved||typeof saved.name!=='string')fail();
+        const definition=item(saved.name);
+        if(savedEquipmentDisposition(definition)==='equipped'&&definition.type!==slot)fail();
+      }
       const token=Object.freeze({});loads.set(token,{p,sampledSpeed,revision});return token;
     },
     commitLoad(token){

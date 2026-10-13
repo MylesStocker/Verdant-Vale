@@ -376,6 +376,14 @@ function rehydrateItem(saved) {
   return item;
 }
 
+// Existing equipped-save restoration policy, shared by candidate validation
+// and the commit below. This does not migrate save versions.
+function savedEquipmentDisposition(item) {
+  if (item && item.keyItem) return 'key';
+  if (item && item.name === 'Void Shard') return 'consumable';
+  return 'equipped';
+}
+
 // ─── The single authoritative answer to "can the player save right now?" ───
 // Based on MAP_METADATA[mapIdForRef(activeMap)].allowSave -- defaults to
 // true if the active map has no metadata entry at all (so an unregistered
@@ -673,10 +681,10 @@ function loadGame() {
   // every other equipped item is left untouched.
   for (const slot of ['weapon', 'armor', 'shield', 'accessory']) {
     const eq = stats[slot];
-    if (eq && eq.keyItem) {
+    if (savedEquipmentDisposition(eq) === 'key') {
       if (!stats.items.some(i => i.name === eq.name)) stats.items.push(eq);
       stats[slot] = null;
-    } else if (eq && eq.name === 'Void Shard') {
+    } else if (savedEquipmentDisposition(eq) === 'consumable') {
       // Preserve every owned unit when loading its former equipped form.
       stats.items.push(eq);
       stats[slot] = null;

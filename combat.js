@@ -143,13 +143,13 @@ function effectiveAtk(playerStats = stats) {
   return playerStats.atk + (playerStats.weapon ? playerStats.weapon.bonus : 0);
 }
 
-function effectiveDef(playerStats = stats) {
+function effectiveDef(playerStats = stats, statuses = statusEffects, corrosion = combat.corrosion || 0) {
   return Math.max(0,
     playerStats.def
     + (playerStats.armor  ? playerStats.armor.bonus  : 0)
     + (playerStats.shield ? playerStats.shield.bonus : 0)
-    - (hasStatusEffect('muddied') ? 1 : 0)
-    - (combat.corrosion || 0)   // Dripping Maw acid — combat-only, cleared on endCombat
+    - (statuses.includes('muddied') ? 1 : 0)
+    - corrosion   // Dripping Maw acid — combat-only, cleared on endCombat
   );
 }
 
@@ -172,12 +172,12 @@ function effectivePlayerIncomingMitigation(enemyAtk) {
 }
 
 // Accessories contribute a speed bonus; callers that need effective SPD use this.
-function effectiveSpd(playerStats = stats) {
-  if (hasStatusEffect('slither')) return slitherSpd;
+function effectiveSpd(playerStats = stats, statuses = statusEffects, sampledSpeed = slitherSpd) {
+  if (statuses.includes('slither')) return sampledSpeed;
   return Math.max(1,
     playerStats.spd
     + (playerStats.accessory ? playerStats.accessory.bonus : 0)
-    - (hasStatusEffect('muddied') ? 2 : 0)
+    - (statuses.includes('muddied') ? 2 : 0)
   );
 }
 
