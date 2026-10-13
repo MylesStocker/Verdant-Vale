@@ -280,7 +280,7 @@ function canWalk(cx, cy) {
     }
     if (currentTownId === 'calwick' && isDayOff()) {
       if (Math.abs(cx - SUPERVISOR_DAYOFF.x) < 18 && Math.abs(cy - SUPERVISOR_DAYOFF.y) < 18) return false;
-      if (Math.abs(cx - ESLA_DAYOFF.x) < 18 && Math.abs(cy - ESLA_DAYOFF.y) < 18) return false;
+      if (eslaAvailableAsNpc() && Math.abs(cx - ESLA_DAYOFF.x) < 18 && Math.abs(cy - ESLA_DAYOFF.y) < 18) return false;
     }
   } else if (inTown && townBuilding === 'tavern') {
     if (currentTownId === 'drenwick' && activeMap === DRENWICK_TAVERN_MAP) {
@@ -304,7 +304,7 @@ function canWalk(cx, cy) {
       if (Math.abs(cx - FILING_CABINET.x) < 18 && Math.abs(cy - FILING_CABINET.y) < 18) return false;
       if (Math.abs(cx - CORVIN_CABINET.x) < 18 && Math.abs(cy - CORVIN_CABINET.y) < 18) return false;
       if (Math.abs(cx - ESLA_CABINET.x) < 18 && Math.abs(cy - ESLA_CABINET.y) < 18) return false;
-      if (Math.abs(cx - ESLA.x) < 18 && Math.abs(cy - ESLA.y) < 18) return false;
+      if (eslaAvailableAsNpc() && Math.abs(cx - ESLA.x) < 18 && Math.abs(cy - ESLA.y) < 18) return false;
     }
   } else if (inTown && townBuilding === 'house') {
     const hd = HOUSE_DATA[currentHouseId];

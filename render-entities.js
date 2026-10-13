@@ -2742,7 +2742,7 @@ function drawSupervisorSprite() {
 
 // ─── Esla Sprite ──────────────────────────────────────────────────────────────
 function drawEslaSprite() {
-  if (!inTown || currentTownId !== 'calwick') return;
+  if (!inTown || currentTownId !== 'calwick' || !eslaAvailableAsNpc()) return;
   const atInnDayoff = townBuilding === 'inn' && isDayOff();
   if (townBuilding !== 'office' && !atInnDayoff) return;
   const pos = atInnDayoff ? ESLA_DAYOFF : ESLA;

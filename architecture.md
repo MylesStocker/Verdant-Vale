@@ -14,14 +14,15 @@ receipts. Lely is permanently slot 0 / field leader; her `stats`, `statusEffects
 and `slitherSpd` remain the sole mutable canonical authorities. Shared gold and
 inventory stay in `stats.gold` / `stats.items`. Inspection is detached and deeply
 frozen. There are no reserves, reorder/remove operations, overworld followers,
-recruitment dialogue or ordinary encounter callers.
+or ordinary encounter callers of the combat bridge. Recruitment is owned by MQ5 below.
 
 The roster schema supports 1–3 fixed slots. Authored definitions currently contain
 only `lely` and `esla`; future slot 2 needs its own authored definition/progression,
 not a fabricated third character. Test 175 supplies a source-local fixture to
 exercise three-member persistence, XP, preparation and commitment. `joinEsla()`
-is idempotent, uses Lely's joining level and Esla's own progression, and grants
-no resources or equipment. Her provisional progression for level L is:
+is idempotent; its no-argument preparation uses Lely's level, while the closed
+`joinEsla({level:11})` call supplies MQ5's authored joining level. Both use Esla's
+own progression and grant no resources or equipment. Her provisional progression for level L is:
 `maxHp=30+5*(L-1)`, `atk=6+(L-1)`, `def=2+floor((L-1)/2)`,
 `spd=6+floor((L-1)/2)`. This anchors level 5 at 50/10/4/8 without copying Lely.
 Joining XP is the authored threshold for that level. Equipment slots begin empty.
@@ -147,8 +148,34 @@ key-item/former Void Shard inventory-restoration policy is shared through the pu
 Test 176 covers
 eight complete solo draw-call hashes, input flows, ownership, stale targets,
 control locks, immutable reads, two/three-member saves and display bounds. No
-canonical recruitment or encounter caller was added; the missing MQ5 join hook
-is explicitly a later story-integration prerequisite.
+encounter caller was added by the menu. MQ5 now provides its canonical membership
+through the story completion authority below.
+
+### MQ5 assignment and canonical recruitment
+
+`quests.js:mq5AssignmentReady()` checks the existing fort completion, reservoir
+assignment/report, Gallery body discovery, canonical Sera/Liora completion and
+pre-MQ5 quest state. `supervisorDialogueBody()` uses it to offer the assignment;
+its sole completion callback is `completeMq5Assignment()`, which checks it again.
+The callback invokes the one production `persistentParty.joinEsla({level:11})`
+call before setting MainQuest to 5 and refreshing the established quest mirrors
+and job board. All fallible member preparation precedes quest advancement; there
+is no second Esla record, runtime identity allocation, RNG, resource grant or
+recruitment flag. Already recruited members are never reset. Completed MQ5
+conversations use the existing short reminder and no recruitment callback.
+
+The scene establishes Esla at the office desk through attributed dialogue, using
+the existing page/callback system. She chooses the journey; the Supervisor's
+reluctance concerns staff capacity. MainQuest remains the ferry authorization.
+The active Sealed Report note derives the joint Cardenport objective from canonical
+membership. `npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared
+by Calwick drawing, collision and interaction, and the infirmary follow-up's map
+projection. Ordinary dialogue and reusable Esla figure drawing are unchanged.
+No follower or new save binding is introduced. Test 179 covers these boundaries.
+
+Recruitment does **not** activate canonical party combat. Returning west can still
+start solo battles and their existing Lely-only reward/recovery flows, as audited
+below; that integration remains a separate authorized task.
 
 ### Later post-recruitment encounter routing audit (read-only)
 
@@ -1073,7 +1100,8 @@ The sole MQ4 report callback in `calwick-interactions.js` requires both
 `gallery_body_found` and `gallery_receiver_defeated` before it can show the report,
 grant a reward, set `reservoir_report_filed`, or advance `MainQuest` to 4. The MQ5
 assignment separately rechecks body discovery, the filed report, and the canonical
-post-cutaway flag before advancing `MainQuest` to 5.
+post-cutaway flag before recruiting Esla and advancing `MainQuest` to 5 through
+`completeMq5Assignment()` above.
 
 The formation session owns every combat phase and target. Its terminal result
 is finalized once by the encounter owner: victory records the completion flag

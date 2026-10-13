@@ -2,7 +2,7 @@
 
 // Canonical roster, not a second player record. Only non-Lely state lives here.
 // Esla's linear progression is provisional: level 5 anchors the approved Lab
-// scale (50 HP / 10 ATK / 4 DEF / 8 SPD). No recruitment caller is installed.
+// scale (50 HP / 10 ATK / 4 DEF / 8 SPD). MQ5 recruits through this authority.
 const PERSISTENT_CHARACTER_DEFINITIONS = Object.freeze({
   lely:Object.freeze({id:'lely',slot:0,name:'Lély'}),
   esla:Object.freeze({id:'esla',slot:1,name:'Esla',provisional:true,
@@ -196,11 +196,13 @@ const persistentParty = (() => {
     },
     getView(){if(arguments.length)fail();return snapshot();},
     getMember(id){if(arguments.length!==1||typeof id!=='string')fail();return snapshot().members.find(m=>m.characterId===id)||null;},
-    joinEsla(){
-      if(arguments.length)fail();idle();canonicalValid();
+    joinEsla(options){
+      if(arguments.length>1)fail();
+      const level=arguments.length?record(options,['level']).level:stats.level;
+      const base=progression(level);
+      idle();canonicalValid();
       if(order.includes('esla'))return snapshot();
       if(order.length!==1)fail();
-      const level=stats.level,base=progression(level);
       characters=[{characterId:'esla',level,xp:XP_THRESHOLDS[level-1],hp:base.maxHp,...base,statuses:[],
         equipment:from(slots.map(k=>[k,null])),slitherSpeed:1}];order=['lely','esla'];revision++;
       return snapshot();

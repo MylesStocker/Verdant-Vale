@@ -6,6 +6,30 @@ actually fits together.
 
 ## Current state
 
+### Canonical MQ5 Esla recruitment
+
+The existing Supervisor assignment now includes Esla's explicit decision to
+accompany Lely to Cardenport. `completeMq5Assignment()` rechecks the existing
+fort/report/body/canonical-cutaway prerequisites, validates and installs Esla
+through `persistentParty.joinEsla({level:11})`, then advances MainQuest to 5.
+Failed preparation cannot advance the quest. Repeated conversations neither
+recruit again nor reset personal state. No recruitment flag, item grant or save
+schema change was added.
+
+Esla starts at level 11, 40,000 XP, full 80 HP, ATK 16 / DEF 7 / SPD 11, with
+empty personal equipment. Those values use her existing provisional progression.
+Membership automatically activates the canonical field menu, updates the joint
+ferry/report objective, and removes Esla's independent Calwick office/Dayoff and
+Drenwick infirmary NPC projections. Her ordinary pre-join dialogue is unchanged.
+Test 179 covers recruitment, prerequisites, atomic failure, repeats, world NPCs,
+field-menu targeting and version-5 saves.
+
+**Known next boundary:** ordinary and optional western encounters still start
+Lely-only combat, including when the canonical roster contains Esla. Their reward
+and recovery paths are also unchanged. No canonical party-combat bridge caller is
+installed and no encounter was disabled. Eastern Fens remains encounter-free.
+Browser inspection of the recruitment scene remains outstanding.
+
 ### Canonical multi-member field menu
 
 `party-field-menu.js` adds member summaries and Equipment/Status selection only
@@ -20,17 +44,16 @@ is tested using a test-only authored fixture. Save format remains version 5 and
 contains no menu state. No third character, artwork, Lab changes or combat route
 was added.
 
-**Gameplay prerequisite:** MQ5 still has no call to `persistentParty.joinEsla()`.
-This menu responds to canonical membership but does not recruit anyone. The later
-recruitment/encounter integration must provide that story-owned call. Browser
-inspection remains outstanding; automated geometry is tested at native and 2×
-scale.
+The menu responds to canonical membership; the MQ5 completion authority above
+now supplies the story-owned join call. The menu itself cannot recruit anyone.
+Browser inspection remains outstanding; automated geometry is tested at native
+and 2× scale.
 
 ### Persistent party lifecycle foundation (headless)
 
 `persistent-party.js` now owns canonical ordered membership (capacity three),
 non-Lely personal state and idempotent reward receipts. New games are Lely-only;
-Esla can join only through an explicitly test-invoked API. Lely remains backed by
+Esla joins through the MQ5 completion authority above. Lely remains backed by
 her existing stats/status/equipment authorities. Shared inventory/gold stay in
 `stats`. Esla has isolated provisional level progression, anchored at level 5 to
 50 HP / 10 ATK / 4 DEF / 8 SPD, with no initial gear or resource grant.
@@ -51,9 +74,9 @@ protection. See architecture.md for APIs, schema and the post-MQ5 encounter audi
 Earlier save-version references in historical checkpoint notes below describe the
 version at that increment; the current format is v5.
 
-Canonical recruitment, encounter conversion, enemy specials,
-cutaway parties and all magic/Resonance remain deferred. No art, maps, lore or
-Chapter One presentation changed.
+Encounter conversion, enemy specials,
+cutaway parties and all magic/Resonance remain deferred. The lifecycle foundation
+introduced no art, maps, lore or Chapter One presentation changes.
 
 ### Headless player-party state foundation
 
@@ -73,7 +96,7 @@ preparation is refused and successful load discards it after validation.
 
 The scheduler increment below supplies explicit headless Attack commands.
 The session below collects headless Attack commands. Canonical UI, persistent inventory/equipment policy,
-visible roster/recruitment, canonical Esla/Sera/Liora combat, Rareborn and resonance remain deferred.
+canonical Esla/Sera/Liora combat, Rareborn and resonance remain deferred. Canonical roster/recruitment and the field menu are implemented above.
 The focused regression suite uses only local fixtures; no canon or content was
 added. The only browser-visible route is the backtick Party Combat Lab described below.
 
@@ -303,11 +326,12 @@ story entry returns Lely to the Drenwick infirmary; debug previews remain
 progression-neutral. The journal then directs Lely to the Calwick supervisor.
 Finding Dreyfuss through the existing `gallery_body_found` authority is required
 before the Receiver can arm and before the Gallery report can grant its reward or
-complete MQ4. After that report and the cutaway, the supervisor advances `MainQuest`
-from 4 to 5, gives her a sealed report for the regional office in the unnamed
-eastern city, and treats MQ5 itself as official ferry authorization. The
-assignment and repeat conversation are idempotent, and the new completion flag
-is save-bound without changing `SAVE_VERSION` 4.
+complete MQ4. After that report and the cutaway, the Supervisor assignment advances
+`MainQuest` from 4 to 5, entrusts Lely with the sealed report for Cardenport's
+regional office, and recruits Esla through the canonical completion operation
+above. MQ5 itself remains the ferry authorization. The assignment and repeat
+conversation are idempotent. The existing cutaway completion flag and canonical
+roster are saved in version 5; recruitment adds no flag or schema change.
 
 At MQ5, one ferry operator and a small government cable scow appear at the
 broken East Causeway. The player may cross or decline; the same service returns
