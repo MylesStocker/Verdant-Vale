@@ -215,7 +215,7 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(east)),EAST_FP);assert.equal(GRID_FP.fingerprints[EAST_ID],EAST_FP);
     const oldEast=east.map((row)=>row.slice());for(const row of [1,2,3,4,6,7,8,9])oldEast[row][0]=TREE;
     assert.equal(sha256(JSON.stringify(oldEast)),OLD_EAST_FP,'Silt Flats delta is exactly eight west-edge TREE cells');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length,91);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length,g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
     for(const [id,fp] of Object.entries(GRID_FP.fingerprints))assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)),fp,`${id}: fingerprint stable`);
 
     // 12. Final-region and audit totals; save schema remains v4.
@@ -226,7 +226,7 @@ module.exports = {
     assert.equal(verdict[`${ID}|south`],'BLOCKED');assert.equal(verdict[`${SOUTH_ID}|north`],'BLOCKED');assert.equal(verdict[`${ID}|west`],'BORDER');
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:58,ALIGNS:118,BLOCKED:184});
     assert.equal(audit.seamReadiness.edges.length,364);assert.equal(g.run('continuousSeamEntries().length'),138);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),91);assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'),57);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'),57);
     assert.equal(g.run('Object.keys(MAP_CATALOG).length'),192);assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('validateGameData().errors'),0);
   },
 };

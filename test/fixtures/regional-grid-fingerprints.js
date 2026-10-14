@@ -1,5 +1,5 @@
 'use strict';
-// Stable, repository-owned fingerprints of the 54 placed regional chunk grids.
+// Stable, repository-owned fingerprints of the placed regional chunk grids.
 //
 // Canonical serialization: `sha256hex(JSON.stringify(map))`, where `map` is the
 // 15×16 row-major tile-id array read from `REGIONAL_CHUNK_CATALOG[mapId].map`.
@@ -11,7 +11,7 @@
 // so they run correctly from any future commit, clone, branch, or archive.
 //
 // Regenerate ONLY on an intentional, reviewed terrain edit (recompute the affected
-// map's sha256 from its current grid). All 54 are currently unique — a collision here
+// map's sha256 from its current grid). All are currently unique — a collision here
 // would mean two grids are genuinely byte-identical, which must be reported, not
 // silenced by weakening the check.
 module.exports = {

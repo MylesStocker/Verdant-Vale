@@ -64,13 +64,13 @@ const FRAGMENTS = {
 };
 
 module.exports = {
-  name: 'Regional chunk authoring: distributed fragments → resolved catalog, all 54 grids inline',
+  name: 'Regional chunk authoring: distributed fragments → resolved catalog, every grid inline',
   run() {
     const g = createContext();
     g.press('Enter'); g.press('Enter');
     const J = (e) => JSON.parse(g.run(e));
 
-    // ── 1. Authored fragments collectively contain all 54 maps exactly once ───
+    // ── 1. Authored fragments collectively contain every placed map exactly once ───
     const seenAcross = new Map(); // mapId -> fragment
     for (const [frag, ids] of Object.entries(FRAGMENTS)) {
       assert.equal(g.run(`Array.isArray(${frag})`), true, `${frag} is an authored array`);
@@ -82,15 +82,15 @@ module.exports = {
         seenAcross.set(id, frag);
       }
     }
-    assert.deepEqual([...seenAcross.keys()].sort(), [...EXPECTED].sort(), 'the fragments collectively author exactly the 91 placed maps');
+    assert.deepEqual([...seenAcross.keys()].sort(), [...EXPECTED].sort(), 'the fragments collectively author exactly the placed maps');
     // merged definition list = the union, deduped, and coordinates unique
-    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.length'), 91, 'the merged _REGIONAL_CHUNK_DEFINITIONS has 91 definitions');
+    assert.equal(g.run('_REGIONAL_CHUNK_DEFINITIONS.length'), EXPECTED.length, 'the merged _REGIONAL_CHUNK_DEFINITIONS has one definition per placed map');
     const defCoords = J("JSON.stringify(_REGIONAL_CHUNK_DEFINITIONS.map(function(d){return d.regionId+':'+d.chunkX+','+d.chunkY;}))");
-    assert.equal(new Set(defCoords).size, 91, 'no chunk coordinate is authored in more than one fragment');
+    assert.equal(new Set(defCoords).size, EXPECTED.length, 'no chunk coordinate is authored in more than one fragment');
 
-    // ── 3. The resolved runtime catalog has exactly the same 54 entries ───────
+    // ── 3. The resolved runtime catalog has exactly the same entries ───────
     const ids = J('JSON.stringify(Object.keys(REGIONAL_CHUNK_CATALOG))');
-    assert.equal(ids.length, 91, 'exactly 91 resolved chunk records');
+    assert.equal(ids.length, EXPECTED.length, 'one resolved chunk record per placed map');
     assert.deepEqual([...ids].sort(), [...EXPECTED].sort(), 'the resolved catalog is exactly the placed regional maps');
     assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).every(function(k){return REGIONAL_CHUNK_CATALOG[k].mapId===k;})'), true, 'each record.mapId equals its key');
     assert.equal(g.run('Object.values(REGIONAL_CHUNK_CATALOG).every(function(r){return r.map.length===15 && r.map.every(function(row){return row.length===16;});})'), true, 'every chunk grid is 15×16');
@@ -112,8 +112,8 @@ module.exports = {
       const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
       assert.deepEqual([p.chunkX, p.chunkY, p.regionId], [rec.cx, rec.cy, rec.rid], `${id}: REGIONAL_LAYOUT placement derives`);
     }
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 91, 'REGIONAL_LAYOUT has 91 placements');
-    assert.equal(g.run('Object.keys(OUTDOOR_CONTENT_KEYS).length'), 91, 'OUTDOOR_CONTENT_KEYS has 54 entries');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), EXPECTED.length, 'REGIONAL_LAYOUT places every catalogued chunk');
+    assert.equal(g.run('Object.keys(OUTDOOR_CONTENT_KEYS).length'), EXPECTED.length, 'OUTDOOR_CONTENT_KEYS has one entry per placed map');
 
     // ── 5. Reverse map-ref → id and chunk-coordinate lookups remain correct ───
     for (const id of EXPECTED) {
@@ -193,7 +193,7 @@ module.exports = {
     assert.equal(GRID_FP.serialization, 'sha256hex(JSON.stringify(map))', 'fixture documents its canonical serialization');
     const fpVals = Object.values(GRID_FP.fingerprints);
     assert.equal(new Set(fpVals).size, fpVals.length, 'all stored grid fingerprints are unique (no two grids are byte-identical)');
-    assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the 91 placed regional grids');
+    assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the placed regional grids');
     for (const id of EXPECTED) {
       const got = sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`));
       assert.equal(got, GRID_FP.fingerprints[id], `${id}: grid matches its stable pre-migration fingerprint (no tile-number changes)`);

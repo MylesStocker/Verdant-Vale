@@ -198,7 +198,7 @@ module.exports = {
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:58,ALIGNS:118,BLOCKED:184});
     assert.equal(audit.seamReadiness.edges.length,364);
     assert.equal(g.run('Object.keys(MAP_METADATA).length'),192);
-    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),91);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length,91);
+    assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),g.run('REGIONAL_LAYOUT.overworld.placements.length'));
+    assert.equal(Object.keys(GRID_FP.fingerprints).length,g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
   },
 };
