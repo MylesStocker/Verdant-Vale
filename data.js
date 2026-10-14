@@ -1643,10 +1643,11 @@ function localToWorld(mapId, localX, localY) {
 }
 // region-world (tile) coordinate -> the map id + local coordinate there.
 // { mapId, chunkX, chunkY, localX, localY }, or null if no chunk is placed there
-// (unknown regionId, negative, out of range, or a gap in the bounding box).
+// (unknown regionId, out of range, or a gap in the bounding box). Negative
+// coordinates are valid wherever a chunk is placed (the region can extend north/
+// west of the origin); they only return null when that coordinate is unplaced.
 function worldToLocal(regionId, worldX, worldY) {
   if (!REGIONAL_LAYOUT[regionId]) return null;
-  if (worldX < 0 || worldY < 0) return null; // negatives fall onto no chunk
   const chunkX = Math.floor(worldX / COLS), chunkY = Math.floor(worldY / ROWS);
   const mapId = mapIdForChunk(regionId, chunkX, chunkY);
   if (!mapId) return null;

@@ -47,12 +47,13 @@ function mapLocalPxToRegionWorldPx(mapId, localPxX, localPxY) {
 }
 
 // region-world pixels -> { regionId, mapId, map, localPxX, localPxY } | null.
-// Fails (null) on non-finite input, an unknown region, a negative coordinate, or
-// a void chunk (no map placed there). Pure — never mutates or throws.
+// Fails (null) on non-finite input, an unknown region, or a void chunk (no map
+// placed there). Negative coordinates are valid wherever a chunk is actually
+// placed — the region may extend in any direction from the origin (e.g. north of
+// row 0 once northern chunks exist). Pure — never mutates or throws.
 function regionWorldPxToLocal(regionId, worldPxX, worldPxY) {
   if (typeof REGIONAL_LAYOUT === 'undefined' || !REGIONAL_LAYOUT[regionId]) return null;
   if (!Number.isFinite(worldPxX) || !Number.isFinite(worldPxY)) return null;
-  if (worldPxX < 0 || worldPxY < 0) return null;
   const CW = _rpChunkW(), CH = _rpChunkH();
   const chunkX = Math.floor(worldPxX / CW), chunkY = Math.floor(worldPxY / CH);
   const mapId = (typeof mapIdForChunk === 'function') ? mapIdForChunk(regionId, chunkX, chunkY) : null;
