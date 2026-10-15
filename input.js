@@ -94,6 +94,12 @@ function handlePartyCombatLabInput(command) {
         else partyCombatLab.exit();
       }
       break;
+    case 'technique':
+      if (command === 'up') partyCombatLab.moveTechnique('previous');
+      else if (command === 'down') partyCombatLab.moveTechnique('next');
+      else if (command === 'confirm') partyCombatLab.confirmTechnique();
+      else if (command === 'cancel') partyCombatLab.cancelTechnique();
+      break;
     case 'item':
       if (command === 'up') partyCombatLab.moveItem('previous');
       else if (command === 'down') partyCombatLab.moveItem('next');

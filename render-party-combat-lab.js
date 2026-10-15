@@ -24,7 +24,7 @@ function partyCombatLabBattleLayout(view) {
     typeof member.instanceId==='string'&&member.instanceId&&typeof member.name==='string'&&member.name.trim()&&
     Number.isSafeInteger(member.hp)&&Number.isSafeInteger(member.maxHp)&&member.maxHp>0&&member.hp>=0&&member.hp<=member.maxHp&&
     (side==='ally'?typeof member.characterId==='string':typeof member.id==='string');
-  const phases=['awaiting_action','item','targeting','ready','playback','playback_complete','victory','defeat','escape'];
+  const phases=['awaiting_action','item','technique','targeting','ready','playback','playback_complete','victory','defeat','escape'];
   if(!view||!Object.isFrozen(view)||view.active!==true||view.commandSet!=='standard'||typeof view.label!=='string'||!view.label||
       !phases.includes(view.phase)||!Array.isArray(view.party)||!Object.isFrozen(view.party)||view.party.length<1||view.party.length>3||
       !Array.isArray(view.enemies)||!Object.isFrozen(view.enemies)||view.enemies.length<1||view.enemies.length>3||
@@ -33,7 +33,7 @@ function partyCombatLabBattleLayout(view) {
   if(new Set(ids).size!==ids.length)fail();
   const playing=['playback','playback_complete','victory','defeat','escape'].includes(view.phase);
   if(playing!==!!view.playbackFrame||
-      (['awaiting_action','item','targeting'].includes(view.phase)
+      (['awaiting_action','item','technique','targeting'].includes(view.phase)
         ? !view.party.some(m=>m.hp>0&&m.instanceId===view.nextActorId):view.nextActorId!==null)||
       (view.phase==='targeting'?!view.validTargetIds.includes(view.selectedTargetInstanceId):view.selectedTargetInstanceId!==null)||
       (['victory','defeat','escape'].includes(view.phase)?view.terminalOutcome!==view.phase:view.terminalOutcome!==null))fail();
@@ -77,6 +77,7 @@ function formatPartyCombatLabEvent(view) {
       return `Choose ${actor.name}'s action.`;
     }
     if(view.phase==='item')return 'Choose an item.';
+    if(view.phase==='technique')return 'Choose a Resonance technique.';
     if(view.phase==='targeting') {
       const actor=view.party.find(m=>m.instanceId===view.nextActorId);
       if(view.targetSide==='ally')return `Choose ${actor?.name||'an ally'}'s target.`;
@@ -99,9 +100,14 @@ function formatPartyCombatLabEvent(view) {
     const expired=event.effectsBefore.find((before,i)=>before.evadeTurns>0&&event.effectsAfter[i].evadeTurns===0);
     return expired?`Bullet Time wears off for ${name(expired.actorId)}.`:'Round complete.';
   }
+  if(event.type==='resonance')return `${event.participantIds.map(name).join(' and ')} use${event.participantIds.length===1?'s':''} ${event.techniqueName}. ${target} recovers ${event.appliedHealing} HP.`;
+  if(event.type==='strain')return event.reason==='application'?`${name(event.actorId)} needs ${event.after} recovery round${event.after===1?'':'s'}.`:
+    event.after===0?`${name(event.actorId)}'s Strain clears.`:`${name(event.actorId)} has ${event.after} Strain remaining.`;
+  if(event.type==='resonance_wait')return `${actor} waits for the shared technique.`;
+  if(event.type==='resonance_cancel')return `The shared technique is cancelled: ${name(event.unavailableId)} is unavailable.`;
   if(event.type==='slither_sample')return `${name(event.actorId)}'s speed shifts.`;
   if(event.type==='curse_check')return event.fumbled?`The curse twists ${name(event.actorId)}'s attack!`:`${name(event.actorId)} fights through the curse.`;
-  if(event.type==='skip')return `${actor} cannot act: defeated.`;
+  if(event.type==='skip')return event.reason==='actor_disabled'?`${actor} cannot act.`:`${actor} cannot act: defeated.`;
   if(event.type==='cancel')return `${actor}'s action on ${target} is cancelled.`;
   if(event.type==='attack')return event.evaded?`${target} evades ${actor}'s attack.`:
     `${event.critical?'Critical! ':''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
@@ -159,21 +165,30 @@ function drawPartyCombatAlly(member,position,targeted) {
   ctx.save();ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(position.x,sprite.anchorY);ctx.restore();
   if(targeted&&member.hp>0)drawPartyCombatTargetCursor(position.x,190);
 }
-function drawPartyCombatStatusRow(member,row,effect,choosing=false) {
+function drawPartyCombatStatusRow(member,row,effect,choosing=false,resonance=null) {
   const y=357+row*18,barX=102,segments=12,filled=Math.round(segments*member.hp/member.maxHp);
   ctx.fillStyle=member.hp===0?'#718078':choosing?'#e0f0e8':'#d0e0d0';ctx.font='bold 12px "Courier New", monospace';ctx.fillText(member.name,22,y,50);
   ctx.fillStyle=choosing?'#8ac8d8':'#5a8898';ctx.font='bold 11px "Courier New", monospace';ctx.fillText('HP',76,y);
   for(let i=0;i<segments;i++){ctx.fillStyle=i<filled?(filled<=3?(choosing?'#d0a040':'#a06820'):(choosing?'#78c88a':'#4a9a62')):'#112820';ctx.fillRect(barX+i*12,y-9,10,8);}
   ctx.fillStyle=member.hp===0?'#66756d':'#8aaa98';ctx.font='11px "Courier New", monospace';ctx.fillText(`${member.hp} / ${member.maxHp}`,251,y,68);
   const tags={poison:'PSN',muddied:'MUD',slither:'SLI',cursed:'CUR',burn:'BURN',dazzled:'DAZ'};
-  const badges=[...(member.statuses||[]).map(s=>tags[s]||s.toUpperCase()),...(effect?.evadeTurns>0?[`EVADE ${effect.evadeTurns}`]:[])];
-  ctx.fillStyle=member.hp===0?'#9a6868':'#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText(member.hp===0?'DOWN':badges.join(' '),323,y,164);
+  const badges=[...(member.statuses||[]).map(s=>tags[s]||s.toUpperCase()),...(effect?.evadeTurns>0?[`EVADE ${effect.evadeTurns}`]:[]),...(resonance?.rareBorn?[`Strain ${resonance.strain}`]:[])];
+  ctx.fillStyle=member.hp===0?'#9a6868':'#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText(member.hp===0?['DOWN',...(resonance?.rareBorn?[`Strain ${resonance.strain}`]:[])].join(' '):badges.join(' '),323,y,164);
 }
 function drawPartyCombatCommands(view) {
-  ['Attack','Item','Observe','Run'].forEach((label,index)=>{
-    const x=22+index*117,selected=view.phase==='awaiting_action'&&index===view.commandCursor,enabled=label!=='Item'||view.inventory.length>0;
-    ctx.fillStyle=selected?'#0e2434':'#080f1a';ctx.fillRect(x,414,111,38);ctx.strokeStyle=selected?'#9ac8d8':'#2a4e5e';ctx.strokeRect(x,414,111,38);
-    ctx.fillStyle=enabled?(selected?'#e0f0e8':'#6b8890'):'#344f5a';ctx.font='bold 13px "Courier New", monospace';ctx.fillText((selected?'▶ ':'')+label,x+7,439,99);
+  const rareborn=view.commands.includes('resonance'),step=rareborn?94:117,width=rareborn?92:111;
+  const labels={attack:'Attack',resonance:'Resonance',item:'Item',observe:'Observe',run:'Run'};
+  view.commands.forEach((command,index)=>{
+    const label=labels[command],x=22+index*step,selected=view.phase==='awaiting_action'&&index===view.commandCursor,
+      enabled=command==='resonance'?view.enabledCommands?.includes(command):command!=='item'||view.inventory.length>0;
+    ctx.fillStyle=selected?'#0e2434':'#080f1a';ctx.fillRect(x,414,width,38);ctx.strokeStyle=selected?'#9ac8d8':'#2a4e5e';ctx.strokeRect(x,414,width,38);
+    ctx.fillStyle=enabled?(selected?'#e0f0e8':'#6b8890'):'#344f5a';ctx.font=`bold ${rareborn?12:13}px "Courier New", monospace`;ctx.fillText((selected?'▶ ':'')+label,x+(rareborn?5:7),439,rareborn?82:99);
+  });
+}
+function drawPartyCombatTechniques(view) {
+  view.techniques.slice(0,3).forEach((row,i)=>{
+    ctx.fillStyle=i===view.techniqueCursor?'#d0e0d0':'#6b8890';ctx.font='bold 12px "Courier New", monospace';
+    ctx.fillText((i===view.techniqueCursor?'▶ ':'  ')+row.name+' — '+row.strain.join('/')+' round Strain',22,414+i*18,458);
   });
 }
 function drawPartyCombatItems(view) {
@@ -194,9 +209,9 @@ function drawPartyCombatLabBattle() {
   ctx.fillStyle='#08121e';ctx.fillRect(8,297,496,175);ctx.strokeStyle='#5a8a9a';ctx.lineWidth=2;ctx.strokeRect(9,298,494,173);ctx.strokeStyle='#2a4e5e';ctx.lineWidth=1;ctx.strokeRect(13,302,486,165);
   ctx.fillStyle='#8ac8d8';[[9,298],[501,298],[9,469],[501,469]].forEach(([x,y])=>ctx.fillRect(x,y,2,2));
   ctx.fillStyle='#ccd8cc';ctx.font='14px "Courier New", monospace';const lines=wrapMonospaceText(ctx,message,468);lines.slice(0,2).forEach((line,i)=>ctx.fillText(line,22,325+i*16,468));
-  const choosingActorId=['awaiting_action','item','targeting'].includes(view.phase)?view.nextActorId:null;
-  ctx.fillStyle='#1e3040';ctx.fillRect(22,348,468,1);view.party.forEach((member,i)=>drawPartyCombatStatusRow(member,i,view.effects[i],member.instanceId===choosingActorId));ctx.fillStyle='#1e3040';ctx.fillRect(22,403,468,1);
-  if(view.phase==='item')drawPartyCombatItems(view);else if(['awaiting_action','targeting'].includes(view.phase))drawPartyCombatCommands(view);
+  const choosingActorId=['awaiting_action','item','technique','targeting'].includes(view.phase)?view.nextActorId:null;
+  ctx.fillStyle='#1e3040';ctx.fillRect(22,348,468,1);view.party.forEach((member,i)=>drawPartyCombatStatusRow(member,i,view.effects[i],member.instanceId===choosingActorId,view.resonance?.find(c=>c.actorId===member.instanceId)));ctx.fillStyle='#1e3040';ctx.fillRect(22,403,468,1);
+  if(view.phase==='technique')drawPartyCombatTechniques(view);else if(view.phase==='item')drawPartyCombatItems(view);else if(['awaiting_action','targeting'].includes(view.phase))drawPartyCombatCommands(view);
   else if(view.playbackFrame)lines.slice(2,5).forEach((line,i)=>ctx.fillText(line,22,418+i*15,468));
   ctx.restore();return true;
 }

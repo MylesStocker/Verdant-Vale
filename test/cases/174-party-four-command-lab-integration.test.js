@@ -21,7 +21,7 @@ function canonical(g){return g.run(`JSON.stringify({stats,statusEffects,slitherS
   location:regionalWorldPosition(),locationState:snapshotLocationState(),flags:QUEST_FLAG_BINDINGS.map(b=>b.get()),
   npcs:SIMPLE_NPCS.map(n=>[n.id,n.x,n.y,n.facing]),save:localStorage.getItem('verdantVale_save')})`);}
 function enter(g,id='lely_esla_one'){assert.ok(g.run('partyCombatLab.enter('+JSON.stringify(id)+')'));return view(g);}
-function command(g,index){let v=view(g);assert.equal(v.phase,'awaiting_action');while(v.commandCursor!==index){g.press('ArrowRight');v=view(g);}g.press('Enter');return view(g);}
+function command(g,index){let v=view(g);assert.equal(v.phase,'awaiting_action');let turns=0;while(v.selectedCommand!==['attack','item','observe','run'][index]){assert.ok(turns++<5);g.press('ArrowRight');v=view(g);}g.press('Enter');return view(g);}
 function item(g,id){let v=view(g);assert.equal(v.phase,'item');const targetIndex=v.items.findIndex(row=>row.itemId===id);assert.ok(targetIndex>=0);
   let guard=0;while(v.itemCursor!==targetIndex&&guard++<40){g.press(v.itemCursor<targetIndex?'ArrowDown':'ArrowUp');v=view(g);}assert.equal(v.selectedItemId,id);g.press('Enter');return view(g);}
 function target(g,index=0){let v=view(g);assert.equal(v.phase,'targeting');const rows=v.validTargetIds;while(rows.indexOf(v.selectedTargetInstanceId)!==index){g.press('ArrowRight');v=view(g);}g.press('Enter');return view(g);}

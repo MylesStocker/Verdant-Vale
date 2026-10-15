@@ -6,6 +6,90 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
+### Resonance MVP (Lab-only activation)
+
+`resonance.js` loads before `combat.js`; its closed, frozen registry contains
+exactly `quickbloom`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
+Lely `{rareBorn:false, affinity:null}` and Esla
+`{rareBorn:true, affinity:'bloommarked'}`. These static fields are not saved.
+The existing persistent combat bridge remains unconnected to ordinary encounters
+and does not opt into Resonance in this increment.
+
+Command preparation optionally accepts `resonance:[{slot,characterId}]`, one
+binding per member. A shared pure validator checks each against authored
+metadata before identity allocation. Lab identities `lely_lab` / `esla_lab`
+explicitly bind to the corresponding canonical definition without touching
+persistent records. Membership, naming or technique possession grants no power.
+Preparations without bindings retain their original four-command snapshots,
+results, playback and controller views byte-for-byte.
+
+The existing private command authority owns the optional snapshot array
+`resonance:[{actorId,characterId,rareBorn,affinity,strain,appliedRound}]`.
+No second HP, membership or inventory authority exists. All views are detached
+and frozen. The new closed action is
+`{type:'resonance',actorId,techniqueId,targetId,participantIds}`; ordinary
+Quickbloom has just Esla's exact runtime ID in `participantIds`. Selection and
+round preflight require a living wounded ally and zero participant Strain.
+Healing is `max(1,floor(target.maxHp/5))`, clamped to missing HP. A target healed
+full earlier still consumes the action and applies Strain; a dead actor/target
+skips/cancels without healing or cost. There is no cure, revival or action RNG.
+
+Definitions are closed `{id,name,kind,initiator,participants,target,effect}`
+records. Each participant authors `{characterId,affinity,strain}`; supported
+policies are only `living_wounded_ally` / `heal_fifth` and Bloommarked affinity.
+There is no callback language or runtime registry installation API. Ordinary
+techniques have one participant; a combined definition requires two or three
+unique explicitly authored Rareborn participants, including its initiator.
+There is no production combined definition. Test 180 supplies synthetic source
+fixtures solely inside its VM, never production characters or debug techniques.
+
+Combined drafts reserve all participants' actions. Every living actor remains
+in the same weighted initiative draw exactly once, using N−1 rolls. Earlier
+participants emit `resonance_wait`; execution occurs at the last required
+participant's planned position. Participant death/disablement cancels once,
+consumes all reserved opportunities and applies no cost, fallback or retargeting.
+`partyActorCanAct` is a pure shared eligibility boundary; HP is currently its
+only authored lock. Tests substitute a pure conditional policy to exercise
+future disablement without adding Stun/Sleep. Frozen membership prevents removal
+or replacement; unauthorized live-state corruption retains diagnostic lockout.
+
+New closed events extend generalized playback only:
+- `resonance`: ordinary plan fields plus technique ID/name, participant IDs,
+  attempted/applied healing and target HP before/after.
+- `resonance_wait`: plan fields, technique/participant IDs and latest executor ID.
+- `resonance_cancel`: plan fields, technique/participant IDs, unavailable ID and
+  `participant_dead`, `participant_disabled` or `target_dead` reason.
+- `strain`: owner ID, before/after Strain and application-round numbers, and
+  `application`, `recovery` or `cleanup` reason.
+
+Successful Quickbloom sets Strain 1, exempting that application round. At the end
+of the following completed round it becomes 0, even if Esla is Fallen. Effects,
+playback frames, inspections and acknowledgement never advance it separately.
+Victory/defeat/escape emit cleanup evidence; ordinary or emergency Lab teardown
+also discards the entire private battle state. Save version and payload remain 5.
+Generalized playback validates exact participants, initiative, wait/cancellation
+placement, healing continuity and Strain transitions using detached history;
+it consumes no RNG and never heals live actors. Old Attack-only playback is
+unchanged. Historical outcome remains hidden until its recorded boundary.
+
+The same session closure adds `moveTechnique`, `confirmTechnique`,
+`cancelTechnique`, a `technique` phase and immutable technique/reservation views.
+Target cancel returns to the technique list; list cancel returns to the command
+row. Backtracking releases every participant reservation atomically and restores
+the prior technique/target. The existing commitment still resolves once and
+creates playback once. No new listener, controller, save field or field command.
+
+The Party Lab alone opts in. The controller derives commands from the current
+actor's explicit Rareborn capability. Commonborn actors such as Lely have four
+boxes: Attack / Item / Observe / Run, x=22/139/256/373, width=111. Rareborn
+actors such as Esla have five: Attack / Resonance / Item / Observe / Run,
+x=22/116/210/304/398, width=92. Both use y=414, height=38. Resonance remains
+visible but dimmed/skipped for a strained Rareborn or without a wounded living
+ally. The renderer consumes this controller-owned command list. Technique navigation reuses Up/Down/W/S and
+Enter/Space; Escape/B cancels. Allied targeting uses the existing pale cursor.
+The status row shows historical Strain; text uses copied playback evidence.
+Lely stays x=108, Esla x=256, future slot 2 x=404; no art or baseline change.
+
 ### Persistent party lifecycle (save version 5)
 
 `persistent-party.js`, loaded immediately after `combat.js`, owns `persistentParty`:
@@ -26,7 +110,8 @@ own progression and grant no resources or equipment. Her provisional progression
 `maxHp=30+5*(L-1)`, `atk=6+(L-1)`, `def=2+floor((L-1)/2)`,
 `spd=6+floor((L-1)/2)`. This anchors level 5 at 50/10/4/8 without copying Lely.
 Joining XP is the authored threshold for that level. Equipment slots begin empty.
-No Rareborn, Resonance, Strain or speculative magic fields exist.
+Authored definitions now carry static Rareborn/affinity metadata (see Resonance below).
+No persistent Strain or speculative magic resources are stored.
 
 Lifecycle APIs:
 

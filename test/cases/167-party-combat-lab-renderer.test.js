@@ -91,7 +91,7 @@ test('defeat marks both Lely and Esla defeated without recovery or slot compacti
   commit(g,[0,0.999,0.999,0.99,0,0.99,0.5,0.99,0]);complete(g);assert.ok(g.run('partyCombatLab.acknowledgePlayback()'));commandAll(g);
   commit(g,[0.999,0.99,0,0.99]);complete(g);assert.ok(g.run('partyCombatLab.acknowledgePlayback()'));
   const v=view(g),calls=draw(g),labels=texts(calls);assert.equal(v.phase,'defeat');assert.deepEqual(v.party.map(m=>[m.slot,m.hp]),[[0,0],[1,0]]);
-  assert.equal(labels.filter(label=>label==='DOWN').length,2);assert.ok(labels.includes('Defeat.'));
+  assert.deepEqual(labels.filter(label=>/^DOWN(?: Strain 0)?$/.test(label)),['DOWN','DOWN Strain 0']);assert.ok(labels.includes('Defeat.'));
 });
 
 test('every phase draw consumes zero RNG and mutates no Lab, combat or world state',()=>{

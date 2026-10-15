@@ -6,6 +6,38 @@ actually fits together.
 
 ## Current state
 
+### Resonance MVP — Party Combat Lab only
+
+Quickbloom is the sole production technique: Esla's ordinary Bloommarked healing
+of one living wounded ally for one fifth of maximum HP (floor, minimum one,
+clamped), with no action RNG, cure or revival. Authored definitions explicitly
+mark Esla Rareborn/Bloommarked and Lely non-Rareborn. Optional battle preparation
+bindings preserve every older non-Resonance result shape and capability gate.
+
+The Lab presents Attack / Item / Observe / Run for commonborn actors such as
+Lely. Only Rareborn actors such as Esla see Resonance between Attack and Item;
+it remains visible but dimmed/skipped without an eligible target or at positive Strain. The technique
+list shows Quickbloom and its one-round cost. Successful use applies Strain 1;
+the application round is exempt and the following completed round clears it.
+Playback shows historical HP/Strain without applying effects again. The wounded
+showcase supports immediate testing. The approved sprites, baseline and fixed
+left/centre placement remain unchanged.
+
+Synthetic VM fixtures test two- and three-person combined techniques: explicit
+Rareborn participants reserve all their actions, keep their existing initiative
+entries, wait until the latest participant, and cancel once without cost if a
+participant becomes unavailable. No production combined technique, extra
+character, new disable status, Sera/Liora content or Lely/Esla combination exists.
+
+Test 180 covers definitions, exact IDs, atomic rejection, deterministic healing,
+Strain boundaries, combined reservations, historical playback, navigation and
+recording-canvas bounds. No browser-control tool is available in this session;
+manual visual inspection at native and 2× scale remains outstanding.
+Canonical party encounters, broader affinities/effects and combined content
+remain deferred. Field menus, MQ5 dialogue, saves (v5), maps, singleton combat,
+Formation Lab and Receiver are unchanged. Earlier implementation notes below
+retain the historical four-command/Attack-only checkpoints.
+
 ### Canonical MQ5 Esla recruitment
 
 The existing Supervisor assignment now includes Esla's explicit decision to
@@ -75,7 +107,7 @@ Earlier save-version references in historical checkpoint notes below describe th
 version at that increment; the current format is v5.
 
 Encounter conversion, enemy specials,
-cutaway parties and all magic/Resonance remain deferred. The lifecycle foundation
+cutaway parties and broader magic remain deferred; the Lab-only Resonance MVP is described above. The lifecycle foundation
 introduced no art, maps, lore or Chapter One presentation changes.
 
 ### Headless player-party state foundation
@@ -96,7 +128,7 @@ preparation is refused and successful load discards it after validation.
 
 The scheduler increment below supplies explicit headless Attack commands.
 The session below collects headless Attack commands. Canonical UI, persistent inventory/equipment policy,
-canonical Esla/Sera/Liora combat, Rareborn and resonance remain deferred. Canonical roster/recruitment and the field menu are implemented above.
+canonical multi-member combat and broader Rareborn systems remain deferred; the Lab-only Resonance MVP is described above. Canonical roster/recruitment and the field menu are implemented above.
 The focused regression suite uses only local fixtures; no canon or content was
 added. The only browser-visible route is the backtick Party Combat Lab described below.
 
