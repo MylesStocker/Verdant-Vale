@@ -731,7 +731,7 @@ no registration needed.
 
 ## Persistent party foundation
 
-Suite 175 validates the version-5 persistent party lifecycle and authentic combat
+Suite 181 validates the version-5 persistent party lifecycle and authentic combat
 commitment. Historical save-version assertions move to 5 without weakening their
 world/gameplay checks. Formation source-count assertions permit exactly the one
 new private bridge constructor call; save isolation assertions permit the closed

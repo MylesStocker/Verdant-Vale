@@ -103,7 +103,6 @@ module.exports = {
         var fx=Math.floor(cam.camPxX/cw),lx=Math.ceil((cam.camPxX+512)/cw)-1;
         var fy=Math.floor(cam.camPxY/chp),ly=Math.ceil((cam.camPxY+480)/chp)-1;
         for(var cy=fy;cy<=ly;cy++)for(var cx=fx;cx<=lx;cx++){
-          if(cx<0||cy<0)continue;
           if(!chunkVisibleTileRange(cam.camPxX,cam.camPxY,512,480,cx,cy))continue;
           if(!mapIdForChunk('overworld',cx,cy))voids[cx+','+cy]=1;
         }

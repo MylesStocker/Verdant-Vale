@@ -88,6 +88,6 @@ module.exports = {
 
     // ── No new saved state introduced by this segment ─────────────────────────
     assert.equal(g.run("QUEST_FLAG_SCHEMA.some(function(k){return /env_|pocket|reedbed|hummock|drainage_flat/i.test(k);})"), false, 'no new save flags');
-    assert.equal(g.run('SAVE_VERSION'), 4, 'SAVE_VERSION unchanged');
+    assert.equal(g.run('SAVE_VERSION'), 5, 'terrain adds no change to the integrated party save version');
   },
 };

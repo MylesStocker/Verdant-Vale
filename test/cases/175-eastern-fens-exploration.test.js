@@ -39,7 +39,7 @@ module.exports = {
     assert.equal(EF_IDS.length, 23);
 
     // 1. Deep Reeds is walkable, ordinary (non-blocker) wet fen, rendered and
-    //    visually distinct, deliberately still encounter-INELIGIBLE, and present
+    //    visually distinct, encounter-eligible but gated by each map, and present
     //    in every Eastern Fens chunk.
     assert.equal(g.run('WALKABLE[DEEP_REEDS]'), true);
     assert.equal(g.run("TILE_PROPERTIES[DEEP_REEDS].category"), 'natural');

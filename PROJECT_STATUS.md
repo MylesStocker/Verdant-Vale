@@ -6,6 +6,43 @@ actually fits together.
 
 ## Current state
 
+### Eastern terrain and party integration
+
+The integrated repository has 208 maps and metadata entries, 107 regional chunks
+(60 accessible, 47 scenery-only), 144 directed eligible seam segments / 72 pairs,
+and 182 regression suite files. The two newer party suites were renumbered to
+181 (lifecycle) and 182 (field menu); terrain suites 175–178 are retained. The
+pre-existing duplicate prefix 61 remains unchanged.
+
+Eastern terrain now includes the envelope, off-road pockets, NW open fen,
+northern water and Cardenport approach/headland. Source coordinates are preserved:
+the region spans chunk columns 0–18 and rows −2–5, using placed negative-coordinate
+support rather than a ten-row rebase. Deep Reeds is walkable and encounter-eligible;
+eastern map permissions still prevent encounters.
+The native 512×480 camera test checks negative rows as well as nonnegative rows.
+No grid, seam, placement or runtime mechanic was changed during reconciliation.
+
+Codex's version-5 party schema, MQ5 level-11 Esla recruitment, canonical field
+menus and Lab-only Quickbloom/Strain coexist with Claude's terrain and pre-join
+Esla tutorial rotation. Ordinary encounters remain Lely-only. The original script
+order is retained, including Resonance before combat and persistent party/field
+menu after combat. LORE.md retains recruitment and Quickbloom canon.
+
+Fresh-context validation reports 0 errors and the same 4 warnings. The transition
+audit covers 208 maps, 256 fixed destinations, 8 preserved-coordinate transitions,
+224 edge segments, 42 house doors and 49 transition tile constants. Its 428
+physical edges classify as ALIGNS 124 / BORDER 66 / BLOCKED 234 /
+INTENTIONAL_DISCRETE 4, with no incompatibilities or remaps. Regenerating the audit
+produces the existing merged artifact unchanged; all 107 grid fingerprints match
+without regeneration. Historical suites 139–141 retain 52 traces, 387 checkpoints,
+482 RNG values and digest
+`2034f8f2639c78e6d8b69d4d25a47f7d9e8ec53548f4227376faa30a8b288a66`.
+The complete 182-suite regression run and 39 focused suites pass; syntax checks
+pass for all 112 changed/new JavaScript files. Six combined simulations preserve
+MQ5 party state when loading negative-coordinate approach placements, render the
+party menu in both presentation modes, and retain the authored no-save policy on
+all three approach maps. Browser appearance and manual play remain untested.
+
 ### Resonance MVP — Party Combat Lab only
 
 Quickbloom is the sole production technique: Esla's ordinary Bloommarked healing
@@ -100,7 +137,7 @@ rewards are separate. No encounter, input, menu or recruitment route calls it.
 `SAVE_VERSION` is now **5**, with no v4 migration. Ordered IDs, non-Lely records,
 reward receipts and Lely's Slither sample are saved; runtime combat identities,
 Labs, playback and drafts are not. Complete party candidate validation precedes
-load mutation. Test 175 covers canonical ownership, third-slot structural capacity,
+load mutation. Test 181 covers canonical ownership, third-slot structural capacity,
 independent XP/equipment, save rejection/round trips, combat commitment and replay
 protection. See architecture.md for APIs, schema and the post-MQ5 encounter audit.
 Earlier save-version references in historical checkpoint notes below describe the
@@ -378,10 +415,10 @@ terrain-only Eastern Fens chunks to a safe unfinished Valmere threshold at
 `(18,0)`. The reliable road first runs east on old embankments through deep fen,
 then reaches a managed navigable channel at `(15,4)` and follows it north to the
 Valmere. A shorter eastern leg follows the inland sea's southern shore toward the
-unbuilt port. The shortest valid walk from the ferry spawn is 444 tile steps,
-27.75 normal 512px viewport widths, and traverses all 24 route chunks including
+unbuilt port. The shortest valid walk from the ferry spawn is 400 tile steps,
+25 normal 512px viewport widths, and traverses all 24 route chunks including
 Eastern Bank. The future camp reservation is now the dry Travellers’ Rise at
-`(12,3)`, 257 steps or about 57.9% through that shortest walk; it has no trigger,
+`(12,3)`, 215 steps or about 53.8% through that shortest walk; it has no trigger,
 NPC, dialogue, or state. The unnamed port settlement, camp scene, encounters,
 party content, shops, further MQ5 progression, and boat travel remain deferred;
 the port is canonically unserved by rail.
@@ -448,9 +485,9 @@ scenery-only), and the 23-chunk accessible Eastern Fens route beyond the ferry
 see the newer passes below).
 Every link *between* North Basin maps uses `EDGE_TRANSITIONS` rather than
 point-tile doors (the region's entry from Drenwick is still a point-tile).
-155 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
-agreement by `validateGameData()`). Of those 155 IDs, 24 are the generated
-Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 131 are the
+208 registered maps total in `MAP_REGISTRY`/`MAP_METADATA` (kept in exact
+agreement by `validateGameData()`). Of those 208 IDs, 24 are the generated
+Sunken Gallery grid rooms (`SUNKEN_GALLERY_R#C#`); the remaining 184 are the
 individually-authored base maps. (Earlier notes here said "77 registered
 maps" — that was the base-map count, from before the Sunken Gallery grid
 rooms were added to the registry.)
@@ -469,9 +506,9 @@ rooms were added to the registry.)
   encounters and canonical position do not depend on presentation mode. Verified
   render bound: ≤ 4 visible chunks and ≤ `17×16 = 272` tile draws per 512×480 frame
   (chunk-indexed, no double-draw); **browser frame-time profiling still pending**.
-- **54 regional chunks** are placed: 47 player-accessible wilderness chunks and
-  seven scenery-only chunks within the sparse `'overworld'` coordinate envelope
-  from `(0,0)` through `(18,5)`. The twenty-three Eastern Fens chunks form a
+- **107 regional chunks** are placed: 60 player-accessible wilderness chunks and
+  47 scenery-only chunks within the sparse `'overworld'` coordinate envelope
+  from `(0,-2)` through `(18,5)`. The twenty-three Eastern Fens chunks form a
   single winding reciprocal route east and then north of `EASTERN_BANK_MAP`;
   touching switchback adjacencies remain deliberately blocked so they cannot
   become shortcuts. The
@@ -579,9 +616,9 @@ rooms were added to the registry.)
   boundary remains entirely blocked. No PATH, item, NPC, quest, interaction,
   building, landmark, decoration, point crossing, or compatibility alias exists.
 
-  Audit: 216 directed physical edges → ALIGNS 96 / BORDER 66 / BLOCKED 50 /
+  Audit: 428 directed physical edges → ALIGNS 124 / BORDER 66 / BLOCKED 234 /
   INTENTIONAL_DISCRETE 4. Continuous eligibility counts segment entries instead:
-  116 directed entries / 58 reciprocal segment pairs. See architecture.md
+  144 directed entries / 72 reciprocal segment pairs. See architecture.md
   "Scenery-only (inaccessible) chunks" and "Continuous seams".
 
 - **Eastern Reaches’ second farmhouse is enterable.** The dedicated safe
@@ -647,7 +684,9 @@ rooms were added to the registry.)
   with the Fen Sickle remaining hidden and non-interactive until that
   conversation; and the Doctor's Letter has a specific Special Items summary
   and can be reread there in full. No grid, topology, or save change.
-- **128 tests** (`test/cases/01-…128-`), `node test/run.js` — all passing.
+- **Historical checkpoint (through suite 128):** the following audit and validation
+  totals describe that earlier increment. Current merged totals are above.
+- **128 tests** (`test/cases/01-…128-`), `node test/run.js` — all passing at that checkpoint.
 - **Transition audit**, `node test/transition-audit.js` — reset-state
   isolation pass (26 fields including the active-map check), 125 maps, 254 fixed-destination transitions, 8
   preserved-coordinate transitions, 42 house doors (0 problems), 49 tile

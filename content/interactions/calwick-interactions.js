@@ -1094,16 +1094,14 @@ function interactCalwickOffice() {
         ];
         dialogue.pages = eslaDayoff[Math.floor(day / 5) % eslaDayoff.length];
       } else {
-        // ── Daily rotation (day % 10) ────────────────────────────────────────
+        // ── Daily rotation (12 workday variants) ────────────────────────────────────────
         // Helpful, dry, and hard to impress. Practical hints (rest, the job
         // board, road danger, potions, Dayoff, mire-toad tactics, how fleeing
         // works) mixed with the quiet absurdity of registry work — she teaches
         // the player to survive before she ever joins them.
-        // DESIGN NOTE (for the party-recruitment pass — not implemented here):
-        // Esla is the seasoned mentor and should recruit at LEVEL 11,
-        // deliberately above Lely's level at that point. No recruitment/member-
-        // level system exists in this branch yet, so the join level must be set
-        // where the party roster is authored, not in this dialogue file.
+        // MQ5 recruitment is owned by completeMq5Assignment(), which joins
+        // the seasoned mentor at level 11 through persistentParty. This rotation
+        // remains available only before recruitment via eslaAvailableAsNpc().
         // Kept consistent with her canon: Bloommarked
         // (green thread — the clover), registered at birth, Alecton prep
         // school then the Academy, placed here six years ago, inn on Dayoff.
