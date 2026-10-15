@@ -99,13 +99,17 @@ module.exports = {
     assert.deepEqual(J("JSON.stringify(mapLocalPxToRegionWorldPx('EASTERN_FENS_CHANNEL_ROAD_N_MAP',64,96))"),
       { regionId: 'overworld', worldPxX: 7744, worldPxY: 576 });
     assert.equal(g.run("regionWorldPxToLocal('overworld',7744,576).mapId"), 'EASTERN_FENS_CHANNEL_ROAD_N_MAP');
-    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), -1);
+    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), -2);
     assert.equal(g.run("buildContinuousWorldPlanFromWorld('overworld',15*COLS*TILE,0,512,480).activePlacement.mapId"), 'EASTERN_FENS_VALMERE_REVEAL_MAP');
 
-    for (const id of ['EASTERN_FENS_VALMERE_REVEAL_MAP', 'EASTERN_FENS_VALMERE_SHORE_W_MAP', 'EASTERN_FENS_VALMERE_SHORE_E_MAP', 'EASTERN_FENS_PORT_THRESHOLD_MAP']) {
+    for (const id of ['EASTERN_FENS_VALMERE_REVEAL_MAP', 'EASTERN_FENS_VALMERE_SHORE_W_MAP', 'EASTERN_FENS_VALMERE_SHORE_E_MAP']) {
       assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${id}'].map[0].every(function(t){return t===WATER&&!WALKABLE[t];})`), true, `${id} keeps the Valmere north edge non-walkable`);
       assert.equal(g.run(`typeof EDGE_TRANSITIONS['${id}'].north`), 'undefined', `${id} has no false transition into the Valmere`);
     }
+
+    // The Port Road Threshold now opens north onto the walkable Cardenport approach.
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG['EASTERN_FENS_PORT_THRESHOLD_MAP'].map[0][7]"), g.run('PATH'), 'the port threshold north edge opens a walkable corridor');
+    assert.equal(g.run("EDGE_TRANSITIONS['EASTERN_FENS_PORT_THRESHOLD_MAP'].north[0].targetMap"), 'EASTERN_FENS_CARDENPORT_APPROACH_E_MAP', 'the port threshold seams north to the Cardenport approach');
 
     // Compute the shortest valid tile route over the actual collision table and
     // structural seams. One viewport is canvas.width / TILE = 16 tile steps.

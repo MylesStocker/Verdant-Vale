@@ -74,11 +74,11 @@ module.exports = {
       const b = JSON.parse(g.run(`JSON.stringify(regionPixelBounds('${regionId}'))`));
       assert.deepEqual(
         { minChunkX: b.minChunkX, minChunkY: b.minChunkY, maxChunkX: b.maxChunkX, maxChunkY: b.maxChunkY },
-        { minChunkX: 0, minChunkY: -1, maxChunkX: 18, maxChunkY: 5 }, 'chunk extents include the Valmere threshold');
-      assert.equal(b.leftPx, 0); assert.equal(b.topPx, -480);
+        { minChunkX: 0, minChunkY: -2, maxChunkX: 18, maxChunkY: 5 }, 'chunk extents include the Valmere threshold');
+      assert.equal(b.leftPx, 0); assert.equal(b.topPx, -960);
       assert.equal(b.rightPx, 19 * CW, 'right px exclusive = 19 chunks wide');
       assert.equal(b.bottomPx, 6 * CH, 'bottom px exclusive = 6 chunks tall');
-      assert.equal(b.widthPx, 9728); assert.equal(b.heightPx, 3360);
+      assert.equal(b.widthPx, 9728); assert.equal(b.heightPx, 3840);
       assert.equal(g.run(`regionPixelBounds('nope')`), null, 'unknown regionId -> null bounds');
     }
 
@@ -86,8 +86,8 @@ module.exports = {
     {
       const center = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 1280, 1440, 512, 480))`));
       assert.deepEqual(center, { camPxX: 1280 - 256, camPxY: 1440 - 240 }, 'centred camera origin');
-      const low = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 0, -480, 512, 480))`));
-      assert.deepEqual(low, { camPxX: 0, camPxY: -480 }, 'clamped to the top-left edge (now the northern water band at row -1)');
+      const low = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 0, -960, 512, 480))`));
+      assert.deepEqual(low, { camPxX: 0, camPxY: -960 }, 'clamped to the top-left edge (now the Cardenport headland row at -2)');
       const high = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 999999, 999999, 512, 480))`));
       assert.deepEqual(high, { camPxX: 9728 - 512, camPxY: 2880 - 480 }, 'clamped to bottom-right edge');
       for (const v of [center.camPxX, center.camPxY, high.camPxX, high.camPxY])

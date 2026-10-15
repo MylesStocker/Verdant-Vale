@@ -1692,6 +1692,18 @@ const EDGE_TRANSITIONS = {
   },
   EASTERN_FENS_PORT_THRESHOLD_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_E_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
+    north: [{ targetMap: 'EASTERN_FENS_CARDENPORT_APPROACH_E_MAP', targetEdge: 'south', sourceRange: [6, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_APPROACH_E_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_PORT_THRESHOLD_MAP', targetEdge: 'north', sourceRange: [6, 9] }],
+    west: [{ targetMap: 'EASTERN_FENS_CARDENPORT_APPROACH_M_MAP', targetEdge: 'east', sourceRange: [5, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_APPROACH_M_MAP: {
+    east: [{ targetMap: 'EASTERN_FENS_CARDENPORT_APPROACH_E_MAP', targetEdge: 'west', sourceRange: [5, 9] }],
+    west: [{ targetMap: 'EASTERN_FENS_CARDENPORT_APPROACH_W_MAP', targetEdge: 'east', sourceRange: [5, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_APPROACH_W_MAP: {
+    east: [{ targetMap: 'EASTERN_FENS_CARDENPORT_APPROACH_M_MAP', targetEdge: 'west', sourceRange: [5, 9] }],
   },
   // Eastern Fens envelope (Phase 2) — walkable infill pockets off the route. The
   // bridge inlet hangs north off the WIDE_WATER timber bridge as a dead-end reed

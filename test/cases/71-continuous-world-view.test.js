@@ -133,7 +133,7 @@ module.exports = {
     // Valmere port threshold (18,0) far-right/top row -> both clamps; NB_NW (1,0) also remains a top-row case.
     const tr = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('EASTERN_FENS_PORT_THRESHOLD_MAP',${(COLS - 1) * TILE},0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(tr.camPxX, bounds.rightPx - 512, 'clamp right edge');
-    const top = J(`JSON.stringify(buildContinuousWorldPlanFromWorld('overworld',${bounds.leftPx},${bounds.topPx},512,480))`);
+    const top = J(`JSON.stringify(buildContinuousWorldPlanFromWorld('overworld',8192,${bounds.topPx},512,480))`);
     assert.equal(top.camPxY, bounds.topPx, 'clamp top edge');
 
     // ── 8. Viewport resolves one, two, and four visible chunks ──────────────

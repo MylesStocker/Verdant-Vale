@@ -325,10 +325,10 @@ module.exports = {
     assert.equal(g.run('typeof enterSmugglerFort'), 'function'); assert.equal(g.run('typeof enterFenBrewery'), 'function');
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 64, ALIGNS: 118, BLOCKED: 214 });
-    assert.equal(audit.seamReadiness.edges.length, 400);
-    assert.equal(g.run('continuousSeamEntries().length'), 138); assert.equal(g.run('continuousSeamEntries().length/2'), 69);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 124, BLOCKED: 234 });
+    assert.equal(audit.seamReadiness.edges.length, 428);
+    assert.equal(g.run('continuousSeamEntries().length'), 144); assert.equal(g.run('continuousSeamEntries().length/2'), 72);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 57);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 60);
   },
 };
