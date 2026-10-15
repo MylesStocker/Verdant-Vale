@@ -65,8 +65,8 @@ module.exports = {
     assert.equal(V['MAP3|north'], 'ALIGNS', 'MAP3.north is now ALIGNS');
     assert.equal(V['MAP3_N1|south'], 'ALIGNS', 'MAP3_N1.south is now ALIGNS');
     assert.equal(audit.seamReadiness.totals.ALIGNS, 118, 'ALIGNS 118 including the reciprocal Eastern Fens route');
-    assert.equal(audit.seamReadiness.totals.BLOCKED, 184, 'BLOCKED 184 including the causeway gap, route-turn contacts, and the scenery perimeter');
-    assert.equal(audit.seamReadiness.totals.BORDER, 58, 'BORDER 66 around the expanded eastern terrain skeleton');
+    assert.equal(audit.seamReadiness.totals.BLOCKED, 214, 'BLOCKED including the causeway gap, route-turn contacts, and the scenery perimeter');
+    assert.equal(audit.seamReadiness.totals.BORDER, 64, 'BORDER 66 around the expanded eastern terrain skeleton');
     assert.equal(g.run('continuousSeamEntries().length'), 138, '138 eligible directed segment entries');
     // the new pair derives as two eligible directed seams
     assert.ok(g.run("!!eligibleContinuousSeam('MAP3','north')"), 'MAP3|north is an eligible seam');

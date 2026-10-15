@@ -71,7 +71,7 @@ module.exports = {
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} no encounters`);
     }
     // Totals after increments 3 + 4.
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 91, '54 + 37 placements');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 100, 'route + infill + scenery + northern water placements');
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 57, '47 route + 4 infill + 3 western pockets + 3 NW open fen');
 
     // THE PERMANENT INVARIANT: zero visible void from every reachable EF tile.
@@ -119,7 +119,7 @@ module.exports = {
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.equal(b.maxChunkX, 18, 'east bbox unchanged (Cardenport at 19,0 stays clamped)');
     assert.equal(b.maxChunkY, 5, 'south bbox unchanged');
-    assert.equal(b.minChunkY, 0, 'north bbox unchanged (Valmere stays clamped)');
+    assert.equal(b.minChunkY, -1, 'north bbox now row -1 (northern water band)');
 
     // Resolved spurs: the WIDE_WATER north bridge is now a real seam into the
     // bridge inlet (13,2); the CHANNEL_APPROACH_W south road now ends against the

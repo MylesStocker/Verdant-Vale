@@ -224,9 +224,9 @@ module.exports = {
     assert.equal(verdict[`${ID}|north`],'BLOCKED');assert.equal(verdict[`${NORTH_ID}|south`],'BLOCKED');
     assert.equal(verdict[`${ID}|east`],'ALIGNS');assert.equal(verdict[`${EAST_ID}|west`],'ALIGNS');
     assert.equal(verdict[`${ID}|south`],'BLOCKED');assert.equal(verdict[`${SOUTH_ID}|north`],'BLOCKED');assert.equal(verdict[`${ID}|west`],'BORDER');
-    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:58,ALIGNS:118,BLOCKED:184});
-    assert.equal(audit.seamReadiness.edges.length,364);assert.equal(g.run('continuousSeamEntries().length'),138);
+    assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:64,ALIGNS:118,BLOCKED:214});
+    assert.equal(audit.seamReadiness.edges.length,400);assert.equal(g.run('continuousSeamEntries().length'),138);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'),57);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'),192);assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('validateGameData().errors'),0);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'),201);assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('validateGameData().errors'),0);
   },
 };
