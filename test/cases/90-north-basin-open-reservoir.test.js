@@ -47,7 +47,7 @@ module.exports = {
     // ── 4. Fingerprint recorded; every original grid still unchanged ──────────
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'grid matches its computed SHA-256');
     assert.equal(GRID_FP.fingerprints[ID], FP, 'the fixture records the reservoir fingerprint');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 54, 'fixture now has 54 fingerprints');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 107, 'fixture fingerprints every regional grid');
 
     // ── 5. Border continuity: south mirrors the reservoir's north edge; the ────
     //      west/north/east edges are open water. All border cells non-walkable.
@@ -64,10 +64,10 @@ module.exports = {
     assert.equal(V[`${ID}|south`], 'BLOCKED', 'south (to the reservoir) is a structural BLOCKED boundary');
     assert.equal(V[`${ID}|west`], 'BLOCKED', 'west (to the Upper Reach) is a structural BLOCKED boundary');
     assert.equal(V[`${ID}|east`], 'BLOCKED', 'east is now BLOCKED (NORTH_BASIN_NE_MAP placed at 3,0)');
-    assert.equal(V[`${ID}|north`], 'BORDER', 'north is the region edge');
+    assert.equal(V[`${ID}|north`], 'BLOCKED', 'north now borders the new northern water band');
     assert.equal(V['NORTH_BASIN_C_MAP|north'], 'BLOCKED', "the reservoir's north edge is now BLOCKED (was BORDER)");
     assert.equal(V['NORTH_BASIN_NW_MAP|east'], 'BLOCKED', "the Upper Reach's east edge is now BLOCKED (was BORDER)");
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 96, BLOCKED: 50 }, 'audit totals include the Eastern Fens route');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 124, BLOCKED: 234 }, 'audit totals include the Eastern Fens route');
 
     // ── 7. Inaccessible scenery: fail-closed against every placement path ──────
     assert.equal(g.run(`mapPlayerAccessible('${ID}')`), false, 'not player-accessible (scenery only)');
@@ -115,7 +115,7 @@ module.exports = {
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++;
     assert.equal(placed, 30, 'the original 5x6 envelope remains fully placed');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
-    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 18, 0, 5], 'region extent includes the Eastern Fens threshold');
+    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 18, -2, 5], 'region extent includes the Eastern Fens threshold');
     assert.equal(g.run('SAVE_VERSION'), 5, 'SAVE_VERSION === 5');
   },
 };

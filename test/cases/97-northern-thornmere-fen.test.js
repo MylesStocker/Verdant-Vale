@@ -311,7 +311,7 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP);
     const oldSouth = south.map((row) => row.slice()); for (const c of [1, 2, 13, 14]) oldSouth[0][c] = TREE;
     assert.equal(sha256(JSON.stringify(oldSouth)), OLD_SOUTH_FP);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 54);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint matches`);
     }
@@ -325,10 +325,10 @@ module.exports = {
     assert.equal(g.run('typeof enterSmugglerFort'), 'function'); assert.equal(g.run('typeof enterFenBrewery'), 'function');
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 96, BLOCKED: 50 });
-    assert.equal(audit.seamReadiness.edges.length, 216);
-    assert.equal(g.run('continuousSeamEntries().length'), 116); assert.equal(g.run('continuousSeamEntries().length/2'), 58);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 54);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 47);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 124, BLOCKED: 234 });
+    assert.equal(audit.seamReadiness.edges.length, 428);
+    assert.equal(g.run('continuousSeamEntries().length'), 144); assert.equal(g.run('continuousSeamEntries().length/2'), 72);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 60);
   },
 };

@@ -76,7 +76,7 @@ module.exports = {
     assert.equal(g.run("mapIdForChunk('overworld',3,3)"), WEST_ID);
     assert.equal(g.run("mapIdForChunk('overworld',4,4)"), SOUTH_ID);
     assert.equal(g.run("mapIdForChunk('overworld',4,2)"), 'EAST_CAUSEWAY_MAP');
-    assert.equal(g.run("mapIdForChunk('overworld',5,3)"), null);
+    assert.equal(g.run("mapIdForChunk('overworld',5,3)"), 'EASTERN_FENS_ENVELOPE_C5R3_MAP');
     const meta = J(`JSON.stringify((function(){var d=THORNMERE_REGIONAL_CHUNK_DEFINITIONS.find(function(x){return x.mapId==='${ID}';});var r=REGIONAL_CHUNK_CATALOG['${ID}'];return {mapId:r.mapId,regionId:r.regionId,chunkX:r.chunkX,chunkY:r.chunkY,displayName:r.displayName,region:r.region,contentKey:r.contentKey,presentation:r.presentation,profile:d.encounterProfileId,itemSet:Object.prototype.hasOwnProperty.call(d,'itemSetId'),access:Object.prototype.hasOwnProperty.call(d,'playerAccessible'),accessible:r.playerAccessible,enc:r.allowRandomEncounters,save:r.allowSave,pool:r.encounterPool===THORNMERE_ENEMY_TEMPLATES};})())`);
     assert.deepEqual(meta, { mapId: ID, regionId: 'overworld', chunkX: 4, chunkY: 3, displayName: 'Thornmere — Canal Head', region: 'Thornmere', contentKey: 'thornmere_canal_head', presentation: 'continuous', profile: 'thornmere', itemSet: false, access: false, accessible: true, enc: true, save: true, pool: true });
     assert.equal(m.length, 15); assert.ok(m.every((row) => row.length === 16));
@@ -235,17 +235,17 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(south)), SOUTH_FP); assert.equal(GRID_FP.fingerprints[SOUTH_ID], SOUTH_FP, 'Upper Shallows byte-identical');
     const oldWest = west.map((row) => row.slice()); for (let row = 0; row < 15; row++) oldWest[row][15] = row === 5 ? WATER : TREE;
     assert.equal(sha256(JSON.stringify(oldWest)), OLD_WEST_FP, 'restoring exactly the authorized edge recreates reviewed Eastern Canal Banks');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 54);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint stable`);
 
     const production = ['movement.js','continuous-seams.js','regional-position.js','save.js','debug-warp.js'].map((file) => fs.readFileSync(path.join(__dirname,'..','..',file),'utf8')).join('\n');
     assert.doesNotMatch(production, /THORNMERE_CANAL_HEAD_MAP/, 'no map-ID movement/save/warp special case');
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 96, BLOCKED: 50 });
-    assert.equal(audit.seamReadiness.edges.length, 216);
-    assert.equal(g.run('continuousSeamEntries().length'), 116); assert.equal(g.run('continuousSeamEntries().length/2'), 58);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 54);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 47);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 155);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 124, BLOCKED: 234 });
+    assert.equal(audit.seamReadiness.edges.length, 428);
+    assert.equal(g.run('continuousSeamEntries().length'), 144); assert.equal(g.run('continuousSeamEntries().length/2'), 72);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 60);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 208);
   },
 };

@@ -24,7 +24,6 @@
 function geographicEncounterContext(regionId, worldPxX, worldPxY) {
   if (typeof REGIONAL_LAYOUT === 'undefined' || !REGIONAL_LAYOUT[regionId]) return null;
   if (!Number.isFinite(worldPxX) || !Number.isFinite(worldPxY)) return null;
-  if (worldPxX < 0 || worldPxY < 0) return null;
   const CW = COLS * TILE, CH = ROWS * TILE;
   const chunkX = Math.floor(worldPxX / CW), chunkY = Math.floor(worldPxY / CH);
   const mapId = (typeof mapIdForChunk === 'function') ? mapIdForChunk(regionId, chunkX, chunkY) : null;

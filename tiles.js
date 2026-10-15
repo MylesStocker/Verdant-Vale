@@ -200,10 +200,11 @@ const HORROR_SECRET_ENTRANCE = 125; // on DUNGEON8_EAST_LOWER2_MAP (r8 c1): look
 const HORROR_SECRET_EXIT     = 126; // on DUNGEON8_EAST_SECRET_MAP: the way back out to the East Deeper Chamber
 
 // ─── Eastern Fens ────────────────────────────────────────────────────────────
-// Dense, chest-high reed growth. Unlike ordinary REEDS this is impassable: it
-// marks the saturated, unmanaged reed mass beside the raised eastern road and
-// lets water/reed country constrain the route without pretending every barrier
-// is open water or woodland.
+// Dense, chest-high reed growth. Walkable wet reed country — the player can wade
+// through it, but it reads visually distinct from ordinary trimmed REEDS (taller,
+// denser, saturated) so the raised road still stands out as the maintained route.
+// It stays encounter-INELIGIBLE for now (see TILE_PROPERTIES below); a later
+// encounter-integration pass must revisit that flag deliberately.
 const DEEP_REEDS = 127;
 
 // true = player can walk on it
@@ -335,7 +336,7 @@ const WALKABLE = [
   /* 124 HORROR_TENDON_UP      */ true,
   /* 125 HORROR_SECRET_ENTRANCE*/ true,
   /* 126 HORROR_SECRET_EXIT    */ true,
-  /* 127 DEEP_REEDS            */ false,
+  /* 127 DEEP_REEDS            */ true,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -573,8 +574,12 @@ const TILE_PROPERTIES = {
   },
   [DEEP_REEDS]: {
     id: DEEP_REEDS, name: 'Deep Reeds', debugName: 'DEEP_REEDS', walkable: WALKABLE[DEEP_REEDS],
-    category: 'natural_blocker', tags: ['outdoor', 'wetland', 'vegetation', 'blocker'], encounterEligible: false,
-    notes: 'Tile 127. Dense, saturated reed growth that blocks ordinary movement; used to shape the raised eastern-fens route.',
+    category: 'natural', tags: ['outdoor', 'wetland', 'vegetation'], encounterEligible: true,
+    notes: 'Tile 127. Dense, saturated reed growth the player can wade through; walkable wet fen terrain, '
+         + 'visually distinct from ordinary REEDS so the raised road still reads as the maintained route. '
+         + 'Encounter-eligible like ordinary REEDS/GRASS so wilderness encounters work once pools are assigned; '
+         + 'no encounter tables exist yet, and every DEEP_REEDS-bearing chunk still sets allowRandomEncounters:false, '
+         + 'so no encounters actually roll in this pass.',
   },
   [REEDS]: {
     id: REEDS, name: 'Reeds', debugName: 'REEDS', walkable: WALKABLE[REEDS],

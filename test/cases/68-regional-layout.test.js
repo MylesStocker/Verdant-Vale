@@ -101,7 +101,7 @@ module.exports = {
     // negative
     assert.equal(g.run(`worldToLocal('${regionId}', -1, 0)`), null, 'negative worldX -> null');
     assert.equal(g.run(`tileAtWorld('${regionId}', -1, 0)`), VOID, 'negative worldX -> void');
-    assert.equal(g.run(`tileAtWorld('${regionId}', 0, -5)`), VOID, 'negative worldY -> void');
+    assert.equal(g.run(`tileAtWorld('${regionId}', 0, -5000)`), VOID, 'negative worldY -> void');
     // out of range (beyond the bounding box)
     assert.equal(g.run(`tileAtWorld('${regionId}', 99999, 99999)`), VOID, 'far out-of-range -> void');
     // The final in-envelope gap is now Mirewood; the 5×6 envelope is complete.

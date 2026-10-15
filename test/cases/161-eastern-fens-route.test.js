@@ -59,10 +59,12 @@ module.exports = {
     assert.equal(g.run('new Set(_REGIONAL_CHUNK_DEFINITIONS.map(function(d){return d.mapId;})).size===_REGIONAL_CHUNK_DEFINITIONS.length'), true);
     assert.equal(g.run("new Set(_REGIONAL_CHUNK_DEFINITIONS.map(function(d){return d.regionId+':'+d.chunkX+','+d.chunkY;})).size===_REGIONAL_CHUNK_DEFINITIONS.length"), true);
 
-    // The one new terrain primitive is deterministic, rendered, and blocking.
+    // Deep Reeds is now walkable wet fen terrain (exploration pass), still a
+    // deterministic, rendered, visually distinct primitive kept encounter-free.
     assert.equal(g.run('DEEP_REEDS'), 127);
-    assert.equal(g.run('WALKABLE[DEEP_REEDS]'), false);
-    assert.equal(g.run("TILE_PROPERTIES[DEEP_REEDS].category"), 'natural_blocker');
+    assert.equal(g.run('WALKABLE[DEEP_REEDS]'), true);
+    assert.equal(g.run("TILE_PROPERTIES[DEEP_REEDS].category"), 'natural');
+    assert.equal(g.run("TILE_PROPERTIES[DEEP_REEDS].encounterEligible"), true);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(DEEP_REEDS)'), true);
     assert.equal(g.run('EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return d.map.some(function(row){return row.includes(DEEP_REEDS);});})'), true);
 
@@ -89,21 +91,25 @@ module.exports = {
     assert.equal(g.run("typeof EDGE_TRANSITIONS['EASTERN_FENS_PORT_THRESHOLD_MAP'].east"), 'undefined', 'the unfinished port border has no false onward transition');
     assert.equal(g.run("WALKABLE[REGIONAL_CHUNK_CATALOG['EASTERN_FENS_PORT_THRESHOLD_MAP'].map[10][15]]"), true, 'the temporary endpoint itself is safe');
 
-    // Canonical regional position rejects negative world coordinates, so the
-    // reshaped route remains in supported non-negative rows and reaches row 0.
+    // The route itself stays in non-negative rows; unplaced coordinates (gap
+    // columns, or far north of the authored chunks) still resolve to void.
     assert.equal(ROUTE.every((entry) => entry[1] >= 0 && entry[2] >= 0), true);
-    assert.equal(g.run("regionWorldPxToLocal('overworld',0,-1)"), null);
+    assert.equal(g.run("regionWorldPxToLocal('overworld',2560,-1)"), null);
     assert.equal(g.run("mapIdForChunk('overworld',15,1)"), 'EASTERN_FENS_CHANNEL_ROAD_N_MAP');
     assert.deepEqual(J("JSON.stringify(mapLocalPxToRegionWorldPx('EASTERN_FENS_CHANNEL_ROAD_N_MAP',64,96))"),
       { regionId: 'overworld', worldPxX: 7744, worldPxY: 576 });
     assert.equal(g.run("regionWorldPxToLocal('overworld',7744,576).mapId"), 'EASTERN_FENS_CHANNEL_ROAD_N_MAP');
-    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), 0);
+    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), -2);
     assert.equal(g.run("buildContinuousWorldPlanFromWorld('overworld',15*COLS*TILE,0,512,480).activePlacement.mapId"), 'EASTERN_FENS_VALMERE_REVEAL_MAP');
 
-    for (const id of ['EASTERN_FENS_VALMERE_REVEAL_MAP', 'EASTERN_FENS_VALMERE_SHORE_W_MAP', 'EASTERN_FENS_VALMERE_SHORE_E_MAP', 'EASTERN_FENS_PORT_THRESHOLD_MAP']) {
+    for (const id of ['EASTERN_FENS_VALMERE_REVEAL_MAP', 'EASTERN_FENS_VALMERE_SHORE_W_MAP', 'EASTERN_FENS_VALMERE_SHORE_E_MAP']) {
       assert.equal(g.run(`REGIONAL_CHUNK_CATALOG['${id}'].map[0].every(function(t){return t===WATER&&!WALKABLE[t];})`), true, `${id} keeps the Valmere north edge non-walkable`);
       assert.equal(g.run(`typeof EDGE_TRANSITIONS['${id}'].north`), 'undefined', `${id} has no false transition into the Valmere`);
     }
+
+    // The Port Road Threshold now opens north onto the walkable Cardenport approach.
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG['EASTERN_FENS_PORT_THRESHOLD_MAP'].map[0][7]"), g.run('PATH'), 'the port threshold north edge opens a walkable corridor');
+    assert.equal(g.run("EDGE_TRANSITIONS['EASTERN_FENS_PORT_THRESHOLD_MAP'].north[0].targetMap"), 'EASTERN_FENS_CARDENPORT_APPROACH_E_MAP', 'the port threshold seams north to the Cardenport approach');
 
     // Compute the shortest valid tile route over the actual collision table and
     // structural seams. One viewport is canvas.width / TILE = 16 tile steps.
@@ -145,15 +151,20 @@ module.exports = {
       return {forward:search(west,east),reverse:search(east,west),toCamp:search(west,camp),campToEnd:search(camp,east),viewportTiles:canvas.width/TILE};
     })())`);
     assert.equal(measured.viewportTiles, 16, 'viewport width derives to 16 tiles at 512px / 32px');
-    assert.equal(measured.forward.distance, 444, 'shortest ferry-landing to Valmere threshold route is 444 tile steps');
+    // Deep Reeds became walkable, so the road is no longer the ONLY path: the
+    // shortest walk may cut modest corners through open fen. It stays within ~10%
+    // of the original 444-step road (444 -> 400, 9.9% shorter) so the road
+    // remains the clearest, fastest route and still threads every chunk in order.
+    assert.equal(measured.forward.distance, 400, 'shortest ferry-landing to Valmere threshold route is 400 tile steps');
+    assert.ok((444 - measured.forward.distance) / 444 <= 0.11, 'shortest route is not more than ~10% shorter than the original road');
     assert.equal(measured.reverse.distance, measured.forward.distance, 'the same route is safely reversible');
     assert.deepEqual(measured.forward.maps, ROUTE.map((entry) => entry[0]), 'shortest route traverses every planned chunk in order');
     const viewportWidths = measured.forward.distance / measured.viewportTiles;
-    assert.equal(viewportWidths, 27.75, 'the measured route is 27.75 normal viewport widths');
+    assert.equal(viewportWidths, 25, 'the measured route is 25 normal viewport widths');
     const campPercent = measured.toCamp.distance / measured.forward.distance * 100;
     assert.equal(measured.toCamp.distance + measured.campToEnd.distance, measured.forward.distance, 'camp anchor lies on the shortest route');
-    assert.equal(measured.toCamp.distance, 257, 'travellers rise anchor is 257 steps from the ferry landing');
-    assert.equal(measured.campToEnd.distance, 187, 'Valmere threshold is 187 steps beyond the camp anchor');
+    assert.equal(measured.toCamp.distance, 215, 'travellers rise anchor is 215 steps from the ferry landing');
+    assert.equal(measured.campToEnd.distance, 185, 'Valmere threshold is 185 steps beyond the camp anchor');
     assert.ok(campPercent >= 45 && campPercent <= 60, `camp lies ${campPercent.toFixed(1)}% through the measured route`);
 
     // The relocated travellers' rise is terrain only, as is every other new chunk.

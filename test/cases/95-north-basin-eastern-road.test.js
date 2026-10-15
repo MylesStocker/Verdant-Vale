@@ -221,13 +221,13 @@ module.exports = {
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);
     const old = m.map((row) => row.slice()); for (const row of [6,7,8,9,10]) old[row][15] = TREE;
     assert.equal(sha256(JSON.stringify(old)), OLD_FP, 'restoring only the five authorized east-edge cells recreates the reviewed predecessor');
-    assert.equal(GRID_FP.fingerprints[S_ID], S_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length, 54);
+    assert.equal(GRID_FP.fingerprints[S_ID], S_FP); assert.equal(Object.keys(GRID_FP.fingerprints).length, g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
     for (const [id, fp] of Object.entries(PRIOR_FPS)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: prior fingerprint unchanged`);
     }
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 96, BLOCKED: 50 });
-    assert.equal(audit.seamReadiness.edges.length, 216);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 54);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 47);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 124, BLOCKED: 234 });
+    assert.equal(audit.seamReadiness.edges.length, 428);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 60);
   },
 };
