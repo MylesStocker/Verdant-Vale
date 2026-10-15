@@ -116,6 +116,6 @@ module.exports = {
     assert.equal(placed, 30, 'the original 5x6 envelope remains fully placed');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 18, 0, 5], 'region extent includes the Eastern Fens threshold');
-    assert.equal(g.run('SAVE_VERSION'), 4, 'SAVE_VERSION === 4');
+    assert.equal(g.run('SAVE_VERSION'), 5, 'SAVE_VERSION === 5');
   },
 };

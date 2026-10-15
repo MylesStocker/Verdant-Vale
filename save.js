@@ -2,13 +2,11 @@
 
 // save.js — save-file schema and the saveGame()/loadGame() implementations.
 
-// Bumped when the on-disk save format changes. v4 introduces the canonical
-// discriminated location representation (regional world-pixel position vs
-// discrete map + local pixels — see saveGame()/resolveLoadLocation()). There are
-// no pre-v4 saves in the wild, so loadGame() accepts ONLY the current version and
-// rejects anything else cleanly (no migration, no fallback); a save it cannot
-// read is left untouched on disk, never deleted.
-const SAVE_VERSION = 4;
+// v5 adds the ordered persistent party, non-Lely state and reward receipts.
+// No v4 migration: Lely remains in the established stats/statusEffects fields.
+// Only the current version is accepted. Mismatched saves stay untouched on disk;
+// no version migration or location fallback is attempted.
+const SAVE_VERSION = 5;
 
 // ─── Authoritative quest/world-flag binding registry ─────────────────────────
 // ONE source of truth for every persistent quest/world flag. Each binding owns:
@@ -378,6 +376,14 @@ function rehydrateItem(saved) {
   return item;
 }
 
+// Existing equipped-save restoration policy, shared by candidate validation
+// and the commit below. This does not migrate save versions.
+function savedEquipmentDisposition(item) {
+  if (item && item.keyItem) return 'key';
+  if (item && item.name === 'Void Shard') return 'consumable';
+  return 'equipped';
+}
+
 // ─── The single authoritative answer to "can the player save right now?" ───
 // Based on MAP_METADATA[mapIdForRef(activeMap)].allowSave -- defaults to
 // true if the active map has no metadata entry at all (so an unregistered
@@ -392,6 +398,7 @@ function rehydrateItem(saved) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (persistentParty.isCombatPending()) return false;
   if (combatPlayerState.hasParty()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // never persist laboratory HP
@@ -449,6 +456,8 @@ function saveGame() {
 
   const data = {
     version: SAVE_VERSION,
+    party: persistentParty.serialize(),
+    slitherSpd,
     // ── Player (facing only; position lives in `location`) ────────────────
     player:     { facing: player.facing },
     // ── Stats / inventory ─────────────────────────────────────────────────
@@ -574,6 +583,7 @@ function loadGame() {
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
   if (partyCombatLab.isActive()) return false; // headless party Lab owns transient HP/playback
+  if (persistentParty.isCombatPending()) return false;
   const raw = localStorage.getItem('verdantVale_save');
   if (!raw) return false;
   let parsed;
@@ -598,6 +608,10 @@ function loadGame() {
   }
   const data = migration.data;
 
+  let partyLoad;
+  try { partyLoad = persistentParty.prepareLoad(data.party, data.stats, data.statusEffects, data.slitherSpd); }
+  catch (error) { console.warn('[loadGame] invalid version-5 party payload — leaving running state and save untouched.'); return false; }
+
   // Candidate-only quest preflight. Missing lighthouse_quest_stage is the
   // pre-feature default (0), preserving older current-version saves. Invalid
   // route/outcome mixtures reject atomically before any runtime mutation.
@@ -607,8 +621,6 @@ function loadGame() {
     return false;
   }
 
-  // Warn-only schema validation — no gameplay impact.
-  validateSaveSchema(data);
 
   // ── PREFLIGHT (no mutation) ───────────────────────────────────────────────
   // Resolve and validate the active map, player placement, and the complete
@@ -622,6 +634,8 @@ function loadGame() {
   }
 
   // ── COMMIT (everything below mutates runtime state) ───────────────────────
+  validateSaveSchema(data);
+  persistentParty.commitLoad(partyLoad);
   if (combatPlayerState.hasParty()) combatPlayerState.clear(); // never resume preparation
   // Clear the Upper Reach / Sunken Gallery "visited today" markers
   // (movement.js) unconditionally on a committed load. They are deliberately
@@ -667,10 +681,10 @@ function loadGame() {
   // every other equipped item is left untouched.
   for (const slot of ['weapon', 'armor', 'shield', 'accessory']) {
     const eq = stats[slot];
-    if (eq && eq.keyItem) {
+    if (savedEquipmentDisposition(eq) === 'key') {
       if (!stats.items.some(i => i.name === eq.name)) stats.items.push(eq);
       stats[slot] = null;
-    } else if (eq && eq.name === 'Void Shard') {
+    } else if (savedEquipmentDisposition(eq) === 'consumable') {
       // Preserve every owned unit when loading its former equipped form.
       stats.items.push(eq);
       stats[slot] = null;

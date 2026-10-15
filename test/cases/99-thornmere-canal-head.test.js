@@ -207,7 +207,7 @@ module.exports = {
       assert.equal(g.run(`placeAtLocation('${ID}',${x}*TILE,${y}*TILE)`), true, `${label} REEDS placement accepted`);
       assert.equal(g.run(`commitRegionalWorldPosition('overworld',4*COLS*TILE+${x}*TILE,3*ROWS*TILE+${y}*TILE)`), true, `${label} canonical placement accepted`);
       g.run("player.facing='left';saveGame();"); const saved = J("localStorage.getItem('verdantVale_save')"); const pos = worldPos();
-      assert.equal(saved.version, 4); assert.equal(saved.location.kind, 'regional');
+      assert.equal(saved.version, 5); assert.equal(saved.location.kind, 'regional');
       g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';");
       assert.equal(g.run('loadGame()'), true); assert.equal(mapId(), ID); assert.deepEqual(worldPos(), pos); assert.equal(g.run('player.facing'), 'left');
     }
@@ -221,7 +221,7 @@ module.exports = {
       g.run(`combat.cooldown=0;placeAtLocation('${ID}',0.5*TILE,${row+0.5}*TILE);`);
       assert.equal(g.run("tryEdgeTransition('west')"), true); assert.equal(mapId(), WEST_ID); assert.equal(g.run('player.x'), (COLS-1.5)*TILE);
     }
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
 
     // 14–16. No authored content/aliases; only the reviewed grid changes.
     assert.equal(g.run(`typeof ${ID}`), 'undefined'); assert.equal(g.run(`typeof window['${ID}']`), 'undefined');

@@ -72,7 +72,7 @@ module.exports = {
     `);
     assert.equal(g.run('accordPanel.theme'), 'imperial');
 
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(JSON.parse(g.run('JSON.stringify(validateGameData())')).errors, 0);
   },
 };

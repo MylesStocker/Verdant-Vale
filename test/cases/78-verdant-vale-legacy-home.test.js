@@ -203,7 +203,7 @@ module.exports = {
       const gg = ctx();
       gg.run("resetLocationState(); activeMap=mapRefForId('MAP'); player.x=6.5*TILE; player.y=6.5*TILE; __reconcileCanonicalForTest(); forceLegacyRegionalView = false; __reconcileCanonicalForTest(); saveGame();");
       const saved = JSON.parse(gg.run("localStorage.getItem('verdantVale_save')"));
-      assert.equal(saved.version, 4, 'SAVE_VERSION stays 4');
+      assert.equal(saved.version, 5, 'SAVE_VERSION stays 5');
       assert.ok(!/regionalPresentation|continuousWorldView|legacy_screen|presentation/i.test(Object.keys(saved).join(',') + JSON.stringify(saved.locationState || {})), 'no presentation/debug-toggle state enters the save');
       gg.run("activeMap=mapRefForId('MAP2'); player.x=1; player.y=1; __reconcileCanonicalForTest(); loadGame();");
       assert.equal(gg.run("mapIdForRef(activeMap)"), 'MAP', 'load restores MAP');

@@ -162,7 +162,7 @@ module.exports = {
     assert.equal(g.run(`transitionToLocation({mapId:'${ID}',x:6.5*TILE,y:8.5*TILE,facing:'right'})`), true);
     const warp = J(`JSON.stringify(debugWarpToDestination('outdoor:${ID}'))`); assert.deepEqual([warp.success,warp.col,warp.row],[true,8,7]);
     g.run(`placeAtLocation('${ID}',6.5*TILE,8.5*TILE);player.facing='right';saveGame();`); const saved=J("localStorage.getItem('verdantVale_save')"), before=worldPos();
-    assert.equal(saved.version,4); assert.equal(saved.location.kind,'regional'); g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';"); assert.equal(g.run('loadGame()'),true); assert.equal(mapId(),ID); assert.deepEqual(worldPos(),before); assert.equal(g.run('player.facing'),'right');
+    assert.equal(saved.version, 5); assert.equal(saved.location.kind,'regional'); g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';"); assert.equal(g.run('loadGame()'),true); assert.equal(mapId(),ID); assert.deepEqual(worldPos(),before); assert.equal(g.run('player.facing'),'right');
     assert.equal(g.run(`MAP_CATALOG['${ID}'].items.length`),0);
     assert.equal(g.run(`SIMPLE_NPCS.some(function(n){return n.map==='east_causeway'||n.physicalMapId==='${ID}';})`),false, 'operator stays absent before MQ5');
     assert.equal(g.run(`typeof MAP_FEATURES['east_causeway']`),'undefined');
@@ -175,6 +175,6 @@ module.exports = {
     const audit=require('../transition-audit.js'); const verdict=Object.fromEntries(audit.seamReadiness.edges.map((e)=>[e.mapId+'|'+e.dir,e.verdict]));
     assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BLOCKED');
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:66,ALIGNS:96,BLOCKED:50}); assert.equal(audit.seamReadiness.edges.length,216);
-    assert.equal(g.run('continuousSeamEntries().length'),116); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),54); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),155); assert.equal(g.run('SAVE_VERSION'),4);
+    assert.equal(g.run('continuousSeamEntries().length'),116); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),54); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),155); assert.equal(g.run('SAVE_VERSION'), 5);
   },
 };

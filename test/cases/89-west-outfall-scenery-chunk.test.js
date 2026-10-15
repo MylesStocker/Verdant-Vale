@@ -203,10 +203,10 @@ module.exports = {
     assert.equal(g.run("mapIdForRef(activeMap)+'|'+player.x+'|'+player.y+'|'+player.facing+'|'+inTown+'|'+inDungeon"), snap, 'catalog read + validation + render mutate no gameplay state');
 
     // ── 22. SAVE_VERSION unchanged; payload schema unchanged ──────────────────
-    assert.equal(g.run('SAVE_VERSION'), 4, 'SAVE_VERSION === 4');
+    assert.equal(g.run('SAVE_VERSION'), 5, 'SAVE_VERSION === 5');
     g.run("placeAtLocation('MAP3_N2', 8*TILE, 7*TILE); saveGame();");
     const payload = J("localStorage.getItem('verdantVale_save')");
-    assert.equal(payload.version, 4, 'save payload version is 4');
+    assert.equal(payload.version, 5, 'save payload version is 5');
     assert.equal(payload.location.kind, 'regional', 'a regional save is still a discriminated regional location');
     assert.ok('worldPxX' in payload.location && 'worldPxY' in payload.location && 'regionId' in payload.location, 'regional location schema unchanged');
   },

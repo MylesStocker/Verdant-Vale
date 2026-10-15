@@ -209,7 +209,7 @@ module.exports = {
       assert.equal(payload.indexOf('pendingLighthouseObjective'), -1, 'no transient pending objective serialized');
       assert.equal(payload.indexOf('escapeUnlocked'), -1, 'no transient escape unlock serialized');
       const saved = JSON.parse(payload);
-      assert.equal(saved.version, 4, 'SAVE_VERSION remains 4');
+      assert.equal(saved.version, 5, 'SAVE_VERSION remains 5');
       assert.equal(saved.lighthouse_spider_resolved, true, 'resolved flag is in the payload');
       gs.run('stats.items=[];lighthouse_spider_resolved=false;lighthouse_quest_stage=0;loadGame();');
       assert.equal(count(gs, RING), 1, 'item restored on load');
@@ -225,7 +225,7 @@ module.exports = {
       assert.equal(ge.run('lighthouse_spider_resolved'), true, 'escape resolved survives save/load');
     }
 
-    // ── 9. Old-save compatibility: a v4 save missing the new key loads with the
+    // ── 9. Old-save compatibility: a v5 save missing the new key loads with the
     //      default false, SAVE_VERSION unchanged. ────────────────────────────
     {
       const go = fresh();
@@ -233,9 +233,9 @@ module.exports = {
       go.run('lighthouse_spider_resolved=true;saveGame();');
       go.run("var o=JSON.parse(localStorage.getItem('verdantVale_save'));delete o.lighthouse_spider_resolved;localStorage.setItem('verdantVale_save',JSON.stringify(o));");
       go.run('lighthouse_spider_resolved=true;');   // dirty runtime value
-      assert.equal(go.run('loadGame()'), true, 'old-style v4 save still loads');
+      assert.equal(go.run('loadGame()'), true, 'old-style v5 save still loads');
       assert.equal(go.run('lighthouse_spider_resolved'), false, 'missing key defaults to false');
-      assert.equal(go.run('SAVE_VERSION'), 4);
+      assert.equal(go.run('SAVE_VERSION'), 5);
     }
 
     // ── 10. Run/Observe unchanged for other enemies; no later battle inherits

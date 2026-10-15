@@ -92,12 +92,12 @@ module.exports = {
     g.run('handleInteract()');
     assert.equal(g.run('dialogue.open || choice.open || combat.active'), false, 'resolved site cannot be re-opened');
 
-    // Completion rides the existing stable pickup-id save path; SAVE_VERSION stays 4.
+    // Completion rides the existing stable pickup-id save path; SAVE_VERSION stays 5.
     g.run('Math.random=window.__oldRandom; delete window.__oldRandom; delete window.__toadRolls; saveGame();');
     g.run(`PICKUP_REGISTRY['${id}'].picked=false;`);
     assert.equal(g.run('loadGame()'), true);
     assert.equal(g.run(`PICKUP_REGISTRY['${id}'].picked`), true, 'resolved sparkle survives save/load');
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
 
     // A defeat ends the transient chain without consuming a fresh site's state.
     const retry = createContext();

@@ -281,14 +281,14 @@ module.exports = {
       assert.equal(g.run(`commitRegionalWorldPosition('overworld',3*COLS*TILE+${x}*TILE,3*ROWS*TILE+${y}*TILE)`), true, `${label} canonical placement`);
       g.run("player.facing='left';saveGame();");
       const saved = J("localStorage.getItem('verdantVale_save')");
-      assert.equal(saved.version, 4); assert.equal(saved.location.kind, 'regional');
+      assert.equal(saved.version, 5); assert.equal(saved.location.kind, 'regional');
       const before = worldPos();
       g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';");
       assert.equal(g.run('loadGame()'), true); assert.equal(mapId(), ID);
       assert.deepEqual(worldPos(), before); assert.equal(g.run('player.facing'), 'left');
       assert.equal(g.run('canSaveHere()'), true);
     }
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
 
     // 9. Exactly the two reviewed existing grids changed, plus this new grid.
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);

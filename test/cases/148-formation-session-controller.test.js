@@ -317,7 +317,7 @@ test('controller callers are limited to the gated input and explicit developer l
       assert.doesNotMatch(source,/formationSessionController\.(begin|beginAttack|confirmTarget|advancePlayback|acknowledgePlayback)\(/);
     // Definition, cleanup, entry check, and the read-only round/ack phase gates.
     } else if(!['formation-lab.js','gallery-receiver.js'].includes(file)) assert.equal((source.match(/\bformationSessionController\b/g)||[]).length,file==='combat.js'?5:0,file);
-    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
+    assert.equal((source.match(/\binitializeFormationState\b/g)||[]).length,file==='combat.js'?2:['formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
   }
   const source=fs.readFileSync(path.join(ROOT,'combat.js'),'utf8');
   const entry=source.slice(source.indexOf('function validateFormationEntry()'),source.indexOf('function validateFormationBasicAttackState('));

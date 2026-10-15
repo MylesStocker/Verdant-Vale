@@ -182,7 +182,7 @@ test('exactly one generalized resolver/playback call site; frozen views; only is
     assert.equal((fileSource.match(/combatPlayerState\.session\[method\]\s*\(/g)||[]).length,file==='party-combat-lab.js'?1:0,file);
   }
   const g=fresh();ready(g);const before=state(g),world=canonical(g),old=view(g),oldText=JSON.stringify(old);frozen(old);g.press('Enter');g.press('ArrowRight');g.frames(3);assert.equal(state(g),before);assert.equal(canonical(g),world);
-  assert.equal(g.run('saveGame()'),false);assert.equal(g.run('loadGame()'),false);assert.equal(g.run('SAVE_VERSION'),4);commit(g);finish(g);g.run('controller.acknowledgePlayback()');assert.equal(JSON.stringify(old),oldText);assert.equal(canonical(g),world);
+  assert.equal(g.run('saveGame()'),false);assert.equal(g.run('loadGame()'),false);assert.equal(g.run('SAVE_VERSION'), 5);commit(g);finish(g);g.run('controller.acknowledgePlayback()');assert.equal(JSON.stringify(old),oldText);assert.equal(canonical(g),world);
 });
 test('resolver and playback each execute once; view reads and acknowledgement never repeat them',()=>{
   const read=fs.readFileSync;let g;

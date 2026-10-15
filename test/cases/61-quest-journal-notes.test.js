@@ -157,7 +157,7 @@ module.exports = {
       //    bindings (no new flags; SAVE_VERSION unchanged).
       setFF(1, true, true, false);
       g.run('saveGame();');
-      assert.equal(g.run("JSON.parse(localStorage.getItem('verdantVale_save')).version"), 4, 'SAVE_VERSION is still 4');
+      assert.equal(g.run("JSON.parse(localStorage.getItem('verdantVale_save')).version"), 5, 'SAVE_VERSION is still 5');
       g.run('fourteenth_file_stage=0;window.ff_clue_skiff=false;window.ff_clue_ledger=false;window.ff_clue_dedication=false;');
       assert.equal(ffNote(), null, 'note gone after clearing the flags');
       g.run('loadGame();');

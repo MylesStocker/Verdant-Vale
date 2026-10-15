@@ -685,7 +685,7 @@ const DRENWICK_INTERIOR_NPCS = [
   {
     id:         'infirmary_esla',
     name:       'Esla',
-    map:        'drenwick_infirmary',
+    get map() { return eslaAvailableAsNpc() ? 'drenwick_infirmary' : null; },
     x:           8.5 * TILE,
     y:           7.5 * TILE,
     solid:      true,

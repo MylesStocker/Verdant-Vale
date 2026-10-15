@@ -6,10 +6,305 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
+### Resonance MVP (Lab-only activation)
+
+`resonance.js` loads before `combat.js`; its closed, frozen registry contains
+exactly `quickbloom`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
+Lely `{rareBorn:false, affinity:null}` and Esla
+`{rareBorn:true, affinity:'bloommarked'}`. These static fields are not saved.
+The existing persistent combat bridge remains unconnected to ordinary encounters
+and does not opt into Resonance in this increment.
+
+Command preparation optionally accepts `resonance:[{slot,characterId}]`, one
+binding per member. A shared pure validator checks each against authored
+metadata before identity allocation. Lab identities `lely_lab` / `esla_lab`
+explicitly bind to the corresponding canonical definition without touching
+persistent records. Membership, naming or technique possession grants no power.
+Preparations without bindings retain their original four-command snapshots,
+results, playback and controller views byte-for-byte.
+
+The existing private command authority owns the optional snapshot array
+`resonance:[{actorId,characterId,rareBorn,affinity,strain,appliedRound}]`.
+No second HP, membership or inventory authority exists. All views are detached
+and frozen. The new closed action is
+`{type:'resonance',actorId,techniqueId,targetId,participantIds}`; ordinary
+Quickbloom has just Esla's exact runtime ID in `participantIds`. Selection and
+round preflight require a living wounded ally and zero participant Strain.
+Healing is `max(1,floor(target.maxHp/5))`, clamped to missing HP. A target healed
+full earlier still consumes the action and applies Strain; a dead actor/target
+skips/cancels without healing or cost. There is no cure, revival or action RNG.
+
+Definitions are closed `{id,name,kind,initiator,participants,target,effect}`
+records. Each participant authors `{characterId,affinity,strain}`; supported
+policies are only `living_wounded_ally` / `heal_fifth` and Bloommarked affinity.
+There is no callback language or runtime registry installation API. Ordinary
+techniques have one participant; a combined definition requires two or three
+unique explicitly authored Rareborn participants, including its initiator.
+There is no production combined definition. Test 180 supplies synthetic source
+fixtures solely inside its VM, never production characters or debug techniques.
+
+Combined drafts reserve all participants' actions. Every living actor remains
+in the same weighted initiative draw exactly once, using N−1 rolls. Earlier
+participants emit `resonance_wait`; execution occurs at the last required
+participant's planned position. Participant death/disablement cancels once,
+consumes all reserved opportunities and applies no cost, fallback or retargeting.
+`partyActorCanAct` is a pure shared eligibility boundary; HP is currently its
+only authored lock. Tests substitute a pure conditional policy to exercise
+future disablement without adding Stun/Sleep. Frozen membership prevents removal
+or replacement; unauthorized live-state corruption retains diagnostic lockout.
+
+New closed events extend generalized playback only:
+- `resonance`: ordinary plan fields plus technique ID/name, participant IDs,
+  attempted/applied healing and target HP before/after.
+- `resonance_wait`: plan fields, technique/participant IDs and latest executor ID.
+- `resonance_cancel`: plan fields, technique/participant IDs, unavailable ID and
+  `participant_dead`, `participant_disabled` or `target_dead` reason.
+- `strain`: owner ID, before/after Strain and application-round numbers, and
+  `application`, `recovery` or `cleanup` reason.
+
+Successful Quickbloom sets Strain 1, exempting that application round. At the end
+of the following completed round it becomes 0, even if Esla is Fallen. Effects,
+playback frames, inspections and acknowledgement never advance it separately.
+Victory/defeat/escape emit cleanup evidence; ordinary or emergency Lab teardown
+also discards the entire private battle state. Save version and payload remain 5.
+Generalized playback validates exact participants, initiative, wait/cancellation
+placement, healing continuity and Strain transitions using detached history;
+it consumes no RNG and never heals live actors. Old Attack-only playback is
+unchanged. Historical outcome remains hidden until its recorded boundary.
+
+The same session closure adds `moveTechnique`, `confirmTechnique`,
+`cancelTechnique`, a `technique` phase and immutable technique/reservation views.
+Target cancel returns to the technique list; list cancel returns to the command
+row. Backtracking releases every participant reservation atomically and restores
+the prior technique/target. The existing commitment still resolves once and
+creates playback once. No new listener, controller, save field or field command.
+
+The Party Lab alone opts in. The controller derives commands from the current
+actor's explicit Rareborn capability. Commonborn actors such as Lely have four
+boxes: Attack / Item / Observe / Run, x=22/139/256/373, width=111. Rareborn
+actors such as Esla have five: Attack / Resonance / Item / Observe / Run,
+x=22/116/210/304/398, width=92. Both use y=414, height=38. Resonance remains
+visible but dimmed/skipped for a strained Rareborn or without a wounded living
+ally. The renderer consumes this controller-owned command list. Technique navigation reuses Up/Down/W/S and
+Enter/Space; Escape/B cancels. Allied targeting uses the existing pale cursor.
+The status row shows historical Strain; text uses copied playback evidence.
+Lely stays x=108, Esla x=256, future slot 2 x=404; no art or baseline change.
+
+### Persistent party lifecycle (save version 5)
+
+`persistent-party.js`, loaded immediately after `combat.js`, owns `persistentParty`:
+ordered persistent character IDs, non-Lely character records and idempotent reward
+receipts. Lely is permanently slot 0 / field leader; her `stats`, `statusEffects`
+and `slitherSpd` remain the sole mutable canonical authorities. Shared gold and
+inventory stay in `stats.gold` / `stats.items`. Inspection is detached and deeply
+frozen. There are no reserves, reorder/remove operations, overworld followers,
+or ordinary encounter callers of the combat bridge. Recruitment is owned by MQ5 below.
+
+The roster schema supports 1–3 fixed slots. Authored definitions currently contain
+only `lely` and `esla`; future slot 2 needs its own authored definition/progression,
+not a fabricated third character. Test 175 supplies a source-local fixture to
+exercise three-member persistence, XP, preparation and commitment. `joinEsla()`
+is idempotent; its no-argument preparation uses Lely's level, while the closed
+`joinEsla({level:11})` call supplies MQ5's authored joining level. Both use Esla's
+own progression and grant no resources or equipment. Her provisional progression for level L is:
+`maxHp=30+5*(L-1)`, `atk=6+(L-1)`, `def=2+floor((L-1)/2)`,
+`spd=6+floor((L-1)/2)`. This anchors level 5 at 50/10/4/8 without copying Lely.
+Joining XP is the authored threshold for that level. Equipment slots begin empty.
+Authored definitions now carry static Rareborn/affinity metadata (see Resonance below).
+No persistent Strain or speculative magic resources are stored.
+
+Lifecycle APIs:
+
+- `getView()` / `getMember(characterId)` expose ordered immutable member snapshots,
+  personal equipment IDs/statuses, shared item IDs/gold and whole-party defeat.
+- `joinEsla()` and `resetForNewGame()` manage membership. Fresh script loading is
+  Lely-only. Reset clears the roster/receipt ledger, leaving the existing Lely
+  new-game initialization authority in place.
+- `awardExperience(id,xp)` / `awardRewards({id,xp,gold,items})` give every recruited
+  member full XP, including knocked-out members. Lely uses unchanged `checkLevelUp`
+  (three existing growth draws per level); Esla grows independently/deterministically.
+  KO HP stays zero during XP. The saved receipt prevents repeat XP, gold and item
+  grants; a reused ID with different contents rejects. Headless results identify
+  each member with before/after values. Invalid awards reject before RNG/mutation.
+  Unexpected host RNG failure retains evidence and blocks retry; it does not rewind
+  Lely's existing growth authority. No existing singleton reward caller is rerouted.
+- `recover()` restores each member's maximum HP and clears the established removable
+  poison/muddied/slither/cursed/burn/dazzled statuses, resetting Slither samples. Equipment,
+  resources, time, flags and progression remain unchanged.
+- `combatSnapshot()` produces detached base stats, current HP/statuses, personal
+  equipment IDs, shared selectable inventory and owned Slither samples.
+- `beginCombat(enemyIds)` starts the authentic standard session; callers exercise
+  `combatPlayerState.session` explicitly. `commitCombat()` accepts no caller result.
+  It requires the exact acknowledged victory/defeat/escape session and commits once.
+- `isCombatPending()` and `getCombatDiagnostic()` expose pending/failed evidence.
+  `serialize()`, `prepareLoad(...)`, `commitLoad(token)` are the save boundary.
+
+The bridge claims a once-only capability from the existing `combatPlayerState`
+closure at script load. No second engine or party membership exists. Its private
+owner binds exact roster, runtime member IDs, enemies and session references.
+Preparation validates inactive state, supported 1–3 enemy templates, complete
+inventory/equipment/status seeds and prospective numerical safety before either
+identity allocator. Runtime IDs remain transient. A single supported boss may use
+`enemy_mulholland`; multi-enemy construction retains the conservative formation
+allowlist. No encounter, Lab or input route invokes this bridge.
+
+Canonical state remains untouched throughout the prepared combat. Commitment
+checks its initial persistent-state seal, exact membership, authenticated session,
+final historical acknowledgement and current sealed final snapshot before writes.
+It commits personal HP/statuses/equipment and shared inventory exactly once,
+retaining unselectable key items. Victory alone revives zero-HP members to exactly
+1; surviving HP is preserved. Burn, Dazzled and encounter-local effects end at cleanup;
+ordinary persistent statuses and retained Slither samples keep their owners.
+Completed-round count is returned in the receipt, not saved as ongoing combat.
+XP/gold/drop awards are separate. Stale, replaced, malformed, incomplete, Lab or
+replayed results reject without partial commitment. Failure retains diagnostic
+state; no retry, resource refund, recovery or reward is automatic.
+
+Save v5 adds `party: {order, characters, rewards}` and Lely's `slitherSpd`.
+`characters` excludes Lely and contains `{characterId,hp,maxHp,atk,def,spd,level,xp,
+statuses,equipment:{weapon,armor,shield,accessory},slitherSpeed}` with stable item IDs.
+`rewards` contains closed `{id,xp,gold,items}` receipts. Lely continues through
+existing `stats` and `statusEffects` fields. Candidate validation precedes every
+load writer (including flag mirroring); opaque load tokens are single-use and
+revision-bound. No RNG or combat identity allocation occurs on load. Version 4,
+other mismatches and malformed party payloads reject without altering live state
+or the on-disk save; there is no migration. Runtime IDs, drafts, playback, Labs,
+cutaway parties and battle effects are absent. Saving/loading a pending bridge
+or existing Lab remains blocked. Earlier v4 notes below describe those historical
+increments, not the current save version.
+
+### Canonical field-menu ownership
+
+The field menu branches on `persistentParty.getView().members.length > 1`.
+`drawMenu()` retains its entire solo body and common frame, Notebook, save/load
+confirmations and banners. `partyFieldMenu.handleInput(event)` lives inside the
+existing `menu.open` input branch and shares the one physical pressed-key latch.
+It declines the solo path and original Notebook/save/load handlers. Multi-member
+native repeats and modified/IME events are inert. Existing combat, Lab, Receiver,
+cutscene, dialogue and other modal locks retain ownership; transitions are
+synchronous and do not introduce a new menu lock state.
+
+Menu-only state: selected persistent character ID, pending item ID, purpose,
+equipment cursor/scroll and `menu.screen`. No mutable character record is stored.
+The shared inventory still comes from `groupItems()` (first-occurrence order,
+quantities, key-item filtering, four visible rows). Save and Load keep their
+existing positions after inventory; Equipment and Status follow only for multiple
+members. The Notebook shortcut remains N. No Party/Formation/Resonance command.
+
+Multi-member flow:
+
+- `main` → item → `partyTarget` → revalidated use → `main`; cancel preserves
+  the inventory cursor/scroll. Invalid or missing targets consume nothing.
+- `main` → Equipment/Status → `partyMembers` → `partyEquipment`/`partyStatus`.
+  Back returns to the same selected member, then main. Status left/right wraps
+  through all fixed slots, including Fallen members. Equipment uses a four-row
+  shared equipment list and member-specific effective-stat preview.
+- Main and list navigation uses Up/Down or W/S, targeting/member selection also
+  accepts Left/Right or A/D, Enter/Space confirms, Escape/B backs out. M retains
+  the existing back/close convention. No listeners were added.
+
+Canonical APIs added in `persistent-party.js`:
+
+- `getFieldView()` augments immutable member snapshots with `{effective:{atk,def,spd}}`.
+- `fieldItemTargets(itemId)` returns frozen stable IDs of eligible members.
+- `previewEquipment(characterId,itemId)` returns an immutable prospective member.
+- `useFieldItem(characterId,itemId)` validates locks, identity, inventory copy,
+  target and arithmetic before any writer. It consumes one shared copy only on
+  execution. Equipment returns the prior copy to shared inventory and changes
+  only the selected owner's slot. Ordinary heals use `healingItemAmount`; cures
+  use `itemCuredStatuses`/the established cure-property registry. A cure with no
+  matching status still consumes, matching existing solo field semantics. Field
+  Ember Root remains healing-only. Battle-only items and reagents gain no field
+  effects. Fallen members are excluded from healing targets, retained for cures and gear.
+
+Lely remains `stats` + `statusEffects` + `slitherSpd`; non-Lely records remain private
+in `persistentParty`. `effectiveDef` and `effectiveSpd` accept optional explicit
+status/corrosion/sample arguments for personal previews; their defaults and all
+existing combat arithmetic are unchanged. HP/item mutations do not replace
+unrelated equipped objects. Existing solo mutation paths remain `input.js`'s
+heal, `applyStatusCure`, and `equipItem`; singleton rewards still use their existing
+paths. Party rewards/recovery remain `awardRewards`/`awardExperience`/`recover`.
+
+Save v5 is unchanged. `prepareLoad` additionally rejects nested executable/custom
+objects and Lely equipment in an invalid slot before restoration. Authored item
+rehydration and legacy inventory metadata behavior remain intact. The existing
+key-item/former Void Shard inventory-restoration policy is shared through the pure
+`savedEquipmentDisposition` helper; those records never restore invalid equipment.
+Test 176 covers
+eight complete solo draw-call hashes, input flows, ownership, stale targets,
+control locks, immutable reads, two/three-member saves and display bounds. No
+encounter caller was added by the menu. MQ5 now provides its canonical membership
+through the story completion authority below.
+
+### MQ5 assignment and canonical recruitment
+
+`quests.js:mq5AssignmentReady()` checks the existing fort completion, reservoir
+assignment/report, Gallery body discovery, canonical Sera/Liora completion and
+pre-MQ5 quest state. `supervisorDialogueBody()` uses it to offer the assignment;
+its sole completion callback is `completeMq5Assignment()`, which checks it again.
+The callback invokes the one production `persistentParty.joinEsla({level:11})`
+call before setting MainQuest to 5 and refreshing the established quest mirrors
+and job board. All fallible member preparation precedes quest advancement; there
+is no second Esla record, runtime identity allocation, RNG, resource grant or
+recruitment flag. Already recruited members are never reset. Completed MQ5
+conversations use the existing short reminder and no recruitment callback.
+
+The scene establishes Esla at the office desk through attributed dialogue, using
+the existing page/callback system. She chooses the journey; the Supervisor's
+reluctance concerns staff capacity. MainQuest remains the ferry authorization.
+The active Sealed Report note derives the joint Cardenport objective from canonical
+membership. `npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared
+by Calwick drawing, collision and interaction, and the infirmary follow-up's map
+projection. Ordinary dialogue and reusable Esla figure drawing are unchanged.
+No follower or new save binding is introduced. Test 179 covers these boundaries.
+
+Recruitment does **not** activate canonical party combat. Returning west can still
+start solo battles and their existing Lely-only reward/recovery flows, as audited
+below; that integration remains a separate authorized task.
+
+### Later post-recruitment encounter routing audit (read-only)
+
+`movement.update()` chooses geographic eligibility, then `startCombat()` selects
+from `currentEncounterPool()`, applies the North Basin Swamp Donkey override and
+rare generated `23`, and finally installs singleton combat. The smallest future
+routing boundary is after an authentic encounter descriptor is fully selected,
+before activation: branch on persistent roster size, retaining the exact existing
+singleton path for Lely-only play. Do not route at map IDs or replace geographical
+pool ownership. Scripted starters and their completion/reward owners require
+individual review; merely having simple template stats does not authorize routing.
+
+Current party-supported ordinary IDs are Marsh Wisp/Briar Hound (core and early),
+Reed Grappler, Silt Lurker, Marsh Wisp (sluice top) and Sluice Slime. Other simple
+pool enemies remain unreviewed by the allowlist. Returning west after MQ5 can still
+reach these unsupported capability-bearing enemies:
+
+| Capability | Existing template IDs requiring later review |
+| --- | --- |
+| Defensive action | `enemy_stone_crawler`, `enemy_bone_guard`, `enemy_hollow`, `enemy_tomb_sentry`, `enemy_shallows_skitter`, `enemy_silt_crab`, `enemy_silt_crab_upper`, `enemy_marrow_hulk` |
+| Curse / acid | `enemy_void_walker`, `enemy_dust_drowned` / `enemy_dripping_maw` |
+| Splitting / regeneration | `enemy_the_seep` / `enemy_rotwood_troll` |
+| Armor and counters | `enemy_thornback` |
+| Poison and sex-specific observations | `enemy_mire_toad_male`, `enemy_mire_toad_female` |
+| Dazzle / theft-and-flight | `enemy_lantern_moth` / `enemy_basin_gull`, `enemy_basin_gull_upper` |
+
+Optional/repeatable bespoke encounters remain relevant: Pale Sentry persistent HP,
+Rainfish and spawning-toad chains, generated `23`, Seep follow-up, Den Wraith curse,
+Lensweb Observe/Run lock, Mimic guaranteed drop, trapped Drowned, sailor brawl and
+optional dungeon/boss routes (including Mulholland, Takomo and Wrongteeth). Their
+location, sequence, outcome and quest writers cannot be inferred from the generic
+stat block. Receiver victory/body discovery and the Sera/Liora return are mandatory
+before MQ5. The fort report is resolved earlier, but guard/Polwick/Essa fights are
+not universally mandatory because the spare/report route exists. No optional
+western encounters should be assumed complete solely because MQ5 was assigned.
+Eastern-fens terrain still has no encounters. This increment changes none of these
+routes; supported enemy specials and explicit encounter/outcome ownership are the
+next prerequisites before production routing.
+
 ### Gated player-side combat preparation
 
 `combatPlayerState` in `combat.js` is a transient headless authority whose sole
-production preparation caller is the isolated developer Party Combat Lab. A
+visible preparation caller is the isolated developer Party Combat Lab; the headless
+persistent bridge above is the other authorized lifecycle owner. A
 separate explicit-only command preparation is documented below. It is orthogonal to enemy
 `combat.mode` (`null` / `single` / `formation`). `getView()` returns `null` with
 no prepared player side/enemies, a frozen `single` snapshot of canonical Lely
@@ -890,7 +1185,8 @@ The sole MQ4 report callback in `calwick-interactions.js` requires both
 `gallery_body_found` and `gallery_receiver_defeated` before it can show the report,
 grant a reward, set `reservoir_report_filed`, or advance `MainQuest` to 4. The MQ5
 assignment separately rechecks body discovery, the filed report, and the canonical
-post-cutaway flag before advancing `MainQuest` to 5.
+post-cutaway flag before recruiting Esla and advancing `MainQuest` to 5 through
+`completeMq5Assignment()` above.
 
 The formation session owns every combat phase and target. Its terminal result
 is finalized once by the encounter owner: victory records the completion flag
@@ -998,7 +1294,7 @@ The rule this codebase actually follows:
 |---|---|---|
 | `state.js` | All core mutable game state: world/location flags, status effects, `stats`, `menu`/`debugMenu`/`debugInspector`/`warpMenu`, `dialogue`/`continentMap`/`accordPanel`, the `tick` counter, and tiny state-only helpers (`toggleMenu`, `checkLevelUp`, `toggleDebugMenu`, `toggleDebugInspector`, etc). | Combat state (`combat`, `choice`, `shop`) lives in `combat.js`. Furniture/NPC position consts live in `render-interiors.js` / `render-entities.js`, not here. |
 | `image-assets.js` | Stable optional raster-asset metadata, lazy one-image-per-id caching, bundle preload/settlement, and loaded-image lookup. Metadata declaration performs no load; failed assets settle for fail-soft rendering. | No drawing, scene progression, persistent state, or render-loop image construction. |
-| `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION` (**4**), `migrateSave()` (v4 accepts ONLY the current version — no migration/fallback; `SAVE_MIGRATIONS` is retired/unused), `saveGame()`, `loadGame()`, `resolveLoadLocation()` (the v4 discriminated-location preflight), `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here. `saveGame()` refuses to write when `regionalInvariantErrors()` is non-empty; `loadGame()` commits position via `placeAtLocation()` (regional-position.js), never by assigning `activeMap`/`player.x`/`player.y`. See "Save/flags" and "Canonical regional world position" below. |
+| `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION` (**5**), `migrateSave()` (v5 accepts ONLY the current version — no migration/fallback; `SAVE_MIGRATIONS` is retired/unused), `saveGame()`, `loadGame()`, `resolveLoadLocation()` (the v4 discriminated-location preflight), `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here. `saveGame()` refuses to write when `regionalInvariantErrors()` is non-empty; `loadGame()` commits position via `placeAtLocation()` (regional-position.js), never by assigning `activeMap`/`player.x`/`player.y`. See "Save/flags" and "Canonical regional world position" below. |
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
 | `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
@@ -1172,7 +1468,7 @@ principal wilderness maps sit relative to one another on a single continuous
 grid. Originally behaviour-neutral prework; as of **Canonical regional world
 position (Part 1)** it is the authority `regional-position.js` derives the runtime
 canonical `{ regionId, worldPxX, worldPxY }` from, and v4 regional saves persist that
-world point (`SAVE_VERSION` is now **4**). Keep the five terms distinct:
+world point (retained by current `SAVE_VERSION` **5**). Keep the five terms distinct:
 
 | Term | What it is | Example |
 | --- | --- | --- |
@@ -2082,14 +2378,14 @@ a conflicting projection, and there is no "repair from activeMap/local" loop —
 `buildContinuousWorldPlanFromWorld()` — the camera consumes the canonical world point
 directly and never re-derives it from `activeMap`+local. Rendering stays read-only.
 
-**Save v4 (`SAVE_VERSION = 4`, clean break — no migration).** Location is a
+**Save v5 (`SAVE_VERSION = 5`, clean break — no migration).** Location is a
 discriminated union: `{ kind:'regional', regionId, worldPxX, worldPxY }` or
 `{ kind:'discrete', mapId, localPxX, localPxY }`. A regional save stores the canonical
 region/world position only (no `activeMapId`/local as a second authority); a discrete
 save stores the physical map id + local pixels. `player` carries facing only. Other
 save data and location-state MODE flags (inTown, dungeonFloor, houseSourceMapId, …)
 are unchanged. `saveGame()` refuses to write (leaving any existing save intact) if the
-canonical invariant is broken; `loadGame()` accepts only version 4 and rejects any
+canonical invariant is broken; `loadGame()` accepts only version 5 and rejects any
 other version / unknown kind / malformed coords / void point / blocked placement /
 inconsistent state atomically (running state + stored save untouched). Regional load
 derives the chunk/local projection from the world point; discrete load uses the
@@ -2650,12 +2946,12 @@ callable `get`/`set`, and no getter throws. (The old migration-coverage check is
 gone — v4 has no migration path.) There is no longer a maintained reverse-direction
 copy of the synced-flag list to keep in step.
 
-### Save version 4 — a clean break, no migration, never deleted
+### Save version 5 — persistent party, no migration, never deleted
 
-`SAVE_VERSION` is the on-disk format number (currently **4**). v4 introduced the
-discriminated location representation (see "Canonical regional world position"
-above) and is a deliberate **clean break**: there are no pre-v4 saves in the wild,
-so there is **no migration path and no backward compatibility**. The
+`SAVE_VERSION` is the on-disk format number (currently **5**). v5 retains the v4
+canonical location representation and adds the persistent party payload and Lely
+Slither sample described above. Version 4 is intentionally unsupported; there is
+**no migration path and no backward compatibility**. The
 `SAVE_MIGRATIONS` registry is retired (kept only as historical reference; nothing
 consults it) and `migrateSave(parsed)` now accepts **only** the current version —
 it validates the payload is object-like with `version === SAVE_VERSION` and returns
@@ -2663,7 +2959,7 @@ it validates the payload is object-like with `version === SAVE_VERSION` and retu
 
 `loadGame()` calls it and, on `ok: false`, **warns and returns `false`, leaving the
 save on disk untouched** — malformed JSON, an unversioned save, and *any* non-current
-version (older v1/v2/v3 or a future version) are all rejected cleanly and
+version (older v1/v2/v3/v4 or a future version) are all rejected cleanly and
 non-destructively. A save is never silently deleted, and no versioned backup files
 are written (that path only ran on a successful migration, which no longer happens).
 

@@ -69,6 +69,6 @@ module.exports = {
     assert.equal(g.run(`mapEntryForId('${ID}').allowSave`), false, 'saving disabled');
     assert.equal(g.run(`SIMPLE_NPCS.filter(function(n){return n.map==='${ID}'||n.physicalMapId==='${ID}';}).length`), 0, 'no NPCs');
     assert.equal(g.run(`typeof OUTDOOR_MAP_DECOR['${ID}']`), 'undefined', 'no decoration');
-    assert.equal(g.run('SAVE_VERSION'), 4, 'SAVE_VERSION remains 4');
+    assert.equal(g.run('SAVE_VERSION'), 5, 'SAVE_VERSION remains 5');
   },
 };

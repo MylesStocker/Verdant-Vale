@@ -2295,6 +2295,9 @@ const CORVIN_CABINET  = { x: 4.5 * TILE, y: 2.5 * TILE };
 // Second filing cabinet (lower-left area, col 3, row 9); Esla stands beside it.
 const ESLA_CABINET = { x: 3.5 * TILE, y: 9.5 * TILE };
 const ESLA         = { x: 4.5 * TILE, y: 9.5 * TILE };
+// One read-only membership gate for Esla's independent world projections.
+// Her figure renderer remains reusable by the isolated Combat Lab.
+function eslaAvailableAsNpc() { return persistentParty.getMember('esla') === null; }
 
 // ─── Sluice Gate (interactable object, East Sluice) ──────────────────────────
 // West gate alcove (cols 2–3, rows 4–6); interaction point at col 2, row 5.

@@ -16,6 +16,24 @@ let sluice_pay_ticket_ready = false;
 let sluice_reward_given     = false;
 let MainQuest            = 0;    // tracks player progress through the main story
 
+// MQ5 completion owns both the assignment and canonical recruitment. Validate
+// the same prerequisites again at dialogue completion; party initialization
+// validates all candidate state before mutation. Only then advance MainQuest.
+function mq5AssignmentReady() {
+  return Number.isInteger(MainQuest) && MainQuest >= 0 && MainQuest < 5 &&
+    fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed &&
+    !!window.gallery_body_found && sera_liora_opening_complete;
+}
+
+function completeMq5Assignment() {
+  if (!mq5AssignmentReady()) return false;
+  persistentParty.joinEsla({level: 11});
+  MainQuest = 5;
+  syncQuestFlagsToWindow();
+  refreshJobBoard();
+  return true;
+}
+
 // ─── Starting kit requisition ──────────────────────────────────────────────────
 // The player no longer starts with equipment already in their pack. The
 // Supervisor issues a requisition slip alongside the sluice job (the first
@@ -747,7 +765,9 @@ function getActiveQuestNotes() {
   } else if (MainQuest >= 5) {
     notes.push({
       title: 'Sealed Report',
-      body: "Carry the supervisor's sealed report east, give your firsthand account at the regional office, and request qualified assistance. Your assignment authorizes the ferry at the broken causeway.",
+      body: persistentParty.getMember('esla')
+        ? "Lely and Esla should take the ferry at the broken causeway and carry the sealed report east to Cardenport. Give your firsthand account at the regional office and request qualified assistance."
+        : "Carry the supervisor's sealed report east, give your firsthand account at the regional office, and request qualified assistance. Your assignment authorizes the ferry at the broken causeway.",
     });
   }
   // Schilling

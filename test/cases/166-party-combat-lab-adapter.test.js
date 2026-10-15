@@ -129,7 +129,7 @@ test('views are detached and frozen; only the isolated input, renderer and debug
   assert.equal((input.match(/partyCombatLab\.confirmTarget\(\)/g)||[]).length,1);
   assert.equal((render.match(/drawPartyCombatLabBattle\(\)/g)||[]).length,1);
   const source=fs.readFileSync(path.join(ROOT,'party-combat-lab.js'),'utf8');assert.doesNotMatch(source,/applyKillRewards|endCombat\(|recoverCombatDefeat|transitionToLocation|saveGame\(|loadGame\(|combat\.active\s*=|stats\.(hp|xp|gold)\s*=/);
-  assert.equal(g.run('SAVE_VERSION'),4);
+  assert.equal(g.run('SAVE_VERSION'), 5);
 });
 
 module.exports={name:'isolated Lely/Esla Party Combat Lab: authentic lifecycle, restoration and isolation',checks,

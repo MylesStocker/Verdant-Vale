@@ -100,7 +100,7 @@ module.exports = {
     assert.equal(g.run('dialogue.name'), "Doctor's Letter");
     assert.match(g.run("dialogue.pages.flat().join(' ')"), /one prescription I am sure of/i);
 
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(JSON.parse(g.run('JSON.stringify(validateGameData())')).errors, 0);
   },
 };

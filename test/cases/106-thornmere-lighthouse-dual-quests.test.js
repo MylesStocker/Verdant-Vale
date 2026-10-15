@@ -338,7 +338,7 @@ module.exports = {
     assert.equal(reportedPolwick.run("SIMPLE_NPCS.find(function(n){return n.id==='polwick';}).map"), null, 'reported Polwick remains unavailable after execution day');
 
     // ── 10. Quest authority remains singular; regional grids stay unchanged ──
-    assert.equal(g.run('SAVE_VERSION'), 4, 'save version unchanged');
+    assert.equal(g.run('SAVE_VERSION'), 5, 'save version unchanged');
     assert.equal(g.run("QUEST_FLAG_SCHEMA.filter(function(k){return k==='lighthouse_quest_stage';}).length"), 1, 'one persisted lighthouse authority');
     const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {

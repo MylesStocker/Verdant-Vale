@@ -7,6 +7,11 @@ const PARTY_COMBAT_LAB_ESLA_PROFILE = Object.freeze({
   characterId:'esla_lab', name:'Esla', hp:50, maxHp:50, atk:10, def:4, spd:8,
 });
 
+// Explicit authored capability bindings; temporary Lab actors remain detached.
+const PARTY_COMBAT_LAB_RESONANCE = Object.freeze([
+  Object.freeze({slot:0,characterId:'lely'}),Object.freeze({slot:1,characterId:'esla'}),
+]);
+
 const PARTY_COMBAT_LAB_INVENTORY = Object.freeze([
   'Potion','Potion','Potion','Elixir','Elixir','Reed Remedy','Reed Remedy',
   'Amethyst Dust','Amethyst Dust','Bullet Time','Bullet Time','Throwing Knife',
@@ -73,6 +78,7 @@ const partyCombatLab = (() => {
     if(Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value])=>combatFields[key]?.value!==value) ||
         !Array.isArray(combat.messageQueue) || combat.messageQueue.length)fail();
     const party=partyData(scenario),enemies=enemyData(scenario);
+    party.forEach((member,slot)=>resonanceCapabilityBinding(member,PARTY_COMBAT_LAB_RESONANCE[slot],slot));
     if(scenario.enemyIds.length>1)validateFormationDescriptors(
       scenario.enemyIds.map((enemyId,slot)=>({enemyId,slot})));
     for(const ally of party)for(const enemy of enemies) {
@@ -127,7 +133,8 @@ const partyCombatLab = (() => {
     try {
       if(scenario.enemyIds.length===1)combat.enemy=prepared.enemies[0];
       else initializeFormationState(scenario.enemyIds.map((enemyId,slot)=>({enemyId,slot})),{escape:scenario.escape});
-      const request={members:prepared.party,inventory:[...PARTY_COMBAT_LAB_INVENTORY],escape:scenario.escape};
+      const request={members:prepared.party,inventory:[...PARTY_COMBAT_LAB_INVENTORY],escape:scenario.escape,
+        resonance:PARTY_COMBAT_LAB_RESONANCE.map(c=>({...c}))};
       if(scenario.showcase)request.slither=[{slot:1,speed:PARTY_COMBAT_LAB_ESLA_PROFILE.spd}];
       combatPlayerState.initializeCommandParty(request);
       combatPlayerState.session.begin({commandSet:'standard'});
@@ -161,6 +168,9 @@ const partyCombatLab = (() => {
     enter(scenarioId) {if(arguments.length!==1 || typeof scenarioId!=='string')return false;return beginScenario(scenarioById(scenarioId),false);},
     moveCommand(direction) {if(arguments.length!==1)return false;return forward('moveCommand',['awaiting_action'],[direction]);},
     confirmCommand() {if(arguments.length)return false;return forward('confirmCommand',['awaiting_action']);},
+    moveTechnique(direction) {if(arguments.length!==1)return false;return forward('moveTechnique',['technique'],[direction]);},
+    confirmTechnique() {if(arguments.length)return false;return forward('confirmTechnique',['technique']);},
+    cancelTechnique() {if(arguments.length)return false;return forward('cancelTechnique',['technique']);},
     moveItem(direction) {if(arguments.length!==1)return false;return forward('moveItem',['item'],[direction]);},
     confirmItem() {if(arguments.length)return false;return forward('confirmItem',['item']);},
     cancelItem() {if(arguments.length)return false;return forward('cancelItem',['item']);},
@@ -168,7 +178,7 @@ const partyCombatLab = (() => {
     confirmTarget() {if(arguments.length)return false;return forward('confirmTarget',['targeting']);},
     cancelTargeting() {if(arguments.length)return false;return forward('cancelTargeting',['targeting']);},
     submitAttack(request) {if(arguments.length!==1)return false;return forward('submitAttack',['awaiting_action','targeting'],[request]);},
-    backtrack() {if(arguments.length)return false;return forward('backtrack',['awaiting_action','item','targeting','ready']);},
+    backtrack() {if(arguments.length)return false;return forward('backtrack',['awaiting_action','item','technique','targeting','ready']);},
     commitRound() {if(arguments.length)return false;return forward('commitRound',['ready']);},
     advancePlayback() {if(arguments.length)return false;return forward('advancePlayback',['playback']);},
     acknowledgePlayback() {if(arguments.length)return false;return forward('acknowledgePlayback',['playback_complete']);},

@@ -156,7 +156,7 @@ module.exports = {
     g.run("equipItem(stats.items.find(function(i){return i.name==='Cat Armor';}));");
     assert.equal(g.run('saveGame()'), true);
     const saved = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
-    assert.equal(saved.version, 4);
+    assert.equal(saved.version, 5);
     assert.equal(saved.stats.armor.name, 'Cat Armor');
     assert.equal(saved.stats.armor.defenseCapBypass, true);
     assert.equal(Object.prototype.hasOwnProperty.call(saved, 'defenseCapBypass'), false, 'no separate save-state field was added');
@@ -178,7 +178,7 @@ module.exports = {
     assert.deepEqual(JSON.parse(g.run("JSON.stringify({name:CAT_ARMOR_CHEST.item.name,damage:CAT_ARMOR_CHEST.item.damage,price:CAT_ARMOR_CHEST.item.price,x:CAT_ARMOR_CHEST.x/TILE,y:CAT_ARMOR_CHEST.y/TILE,id:CAT_ARMOR_CHEST.id})")),
       { name: 'Bomb', damage: 80, price: 0, x: 2.5, y: 4.5, id: 'chest_cat_armor' });
     assert.equal(g.run("!!ITEM_REGISTRY['Cat Armor'] && ITEM_REGISTRY['Cat Armor'].defenseCapBypass"), true, 'Cat Armor item is preserved in the registry, only its chest source is disabled');
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
 
     // Static choke-point guard: every live enemy-ATK damage roll uses the one
     // mitigation helper; the formula path contains no Cat Armor/Takomo name case.

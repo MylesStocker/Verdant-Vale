@@ -105,7 +105,7 @@ module.exports = {
     assert.equal((southRuinsSource.match(/\[\['Cursed! You yank/g) || []).length, 2);
     assert.match(sluiceSource, /\[\['Cursed! You trip/);
 
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(JSON.parse(g.run('JSON.stringify(validateGameData())')).errors, 0, 'validation remains clean');
   },
 };

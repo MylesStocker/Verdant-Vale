@@ -169,7 +169,7 @@ module.exports = {
       assert.equal(g.run(`Object.prototype.hasOwnProperty.call(OUTDOOR_MAP_DECOR,'${key}')`), false, `${id} has no authored landmark decoration`);
     }
     assert.equal(g.run("QUEST_FLAG_SCHEMA.some(function(k){return /eastern_fens|travellers_rise|valmere|port_threshold/i.test(k);})"), false, 'route adds no saved quest state');
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
 
     // Access remains behind the existing MQ5 ferry authorization. Debug warps
     // are previews and do not forge story progress.

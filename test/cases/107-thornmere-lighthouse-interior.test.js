@@ -352,7 +352,7 @@ module.exports = {
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG[${JSON.stringify(id)}].map)`)), fp, `${id} regional grid unchanged`);
     }
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     const validation = J('JSON.stringify(validateGameData())');
     assert.equal(validation.errors, 0); assert.equal(validation.warnings, 4);
   },

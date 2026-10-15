@@ -94,6 +94,12 @@ function handlePartyCombatLabInput(command) {
         else partyCombatLab.exit();
       }
       break;
+    case 'technique':
+      if (command === 'up') partyCombatLab.moveTechnique('previous');
+      else if (command === 'down') partyCombatLab.moveTechnique('next');
+      else if (command === 'confirm') partyCombatLab.confirmTechnique();
+      else if (command === 'cancel') partyCombatLab.cancelTechnique();
+      break;
     case 'item':
       if (command === 'up') partyCombatLab.moveItem('previous');
       else if (command === 'down') partyCombatLab.moveItem('next');
@@ -258,7 +264,9 @@ window.addEventListener('keydown', e => {
       handleFishingKey(e.key);
     } else if (!combat.active) {
       if (menu.open) {
-        if (menu.screen === 'saveConfirm') {
+        if (partyFieldMenu.handleInput(e)) {
+          // Multi-member navigation shares this listener and physical-key latch.
+        } else if (menu.screen === 'saveConfirm') {
           // ── Save-confirm navigation ─────────────────────────────────────
           if (e.key === 'ArrowLeft'  || e.key === 'a') menu.saveCursor = 0;
           if (e.key === 'ArrowRight' || e.key === 'd') menu.saveCursor = 1;

@@ -204,7 +204,7 @@ module.exports = {
     // Save/load restores MQ5, its one completion flag, and the canonical bank.
     g.run('player.facing="right";saveGame();');
     const eastSave = J("localStorage.getItem('verdantVale_save')");
-    assert.equal(eastSave.version, 4);
+    assert.equal(eastSave.version, 5);
     assert.equal(eastSave.MainQuest, 5);
     assert.equal(eastSave.sera_liora_opening_complete, true);
     assert.equal(eastSave.location.kind, 'regional');
@@ -227,7 +227,7 @@ module.exports = {
     assert.equal(g.run('loadGame()'), true);
     assert.equal(currentMapId(g), WEST, 'west-bank return save restores safely');
     assert.equal(g.run('MainQuest'), 5);
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(J('JSON.stringify(validateGameData())').errors, 0);
   },
 };

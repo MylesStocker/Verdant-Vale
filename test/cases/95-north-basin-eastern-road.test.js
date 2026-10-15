@@ -211,11 +211,11 @@ module.exports = {
     assert.equal(g.run(`debugWarpToDestination('outdoor:${ID}').success`), true, 'debug warp');
     g.run(`placeAtLocation('${ID}',8.5*TILE,9.5*TILE);player.facing='down';saveGame();`);
     const saved = J(g, "localStorage.getItem('verdantVale_save')");
-    assert.equal(saved.version, 4); assert.equal(saved.location.kind, 'regional');
+    assert.equal(saved.version, 5); assert.equal(saved.location.kind, 'regional');
     const beforeSavePoint = J(g, 'JSON.stringify(regionalWorldPosition())');
     g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='left';");
     assert.equal(g.run('loadGame()'), true); assert.equal(mapId(g), ID); assert.deepEqual(J(g, 'JSON.stringify(regionalWorldPosition())'), beforeSavePoint);
-    assert.equal(g.run('player.facing'), 'down'); assert.equal(g.run('canSaveHere()'), true); assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('player.facing'), 'down'); assert.equal(g.run('canSaveHere()'), true); assert.equal(g.run('SAVE_VERSION'), 5);
 
     // 16. New/authorized fingerprints plus every other reviewed prior grid.
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);

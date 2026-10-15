@@ -190,11 +190,11 @@ test('inactive top-level routing and existing full debug warp stay unchanged',()
   assert.equal(g.run('warpMenu.destinations.length'),g.run('getDebugWarpDestinations().length'));
 });
 
-test('the labelled Formation Lab and isolated headless Party Lab are the only non-Receiver initializers',()=>{
+test('only the two Labs and private persistent bridge are non-Receiver initializers',()=>{
   const files=scriptOrderFromIndexHtml();
   for(const file of files) {
     const s=fs.readFileSync(path.join(ROOT,file),'utf8');
-    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,['combat.js','formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
+    assert.equal((s.match(/\binitializeFormationState\b/g)||[]).length,file==='combat.js'?2:['formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     assert.equal((s.match(/formationSessionController\.begin\(/g)||[]).length,['formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     assert.equal((s.match(/formationCombatLab\.open\(/g)||[]).length,file==='input.js'?1:0,file);
     if(/content\/|interactions|debug-warp|data\.js|quests|maps|npcs/.test(file))assert.doesNotMatch(s,/formationCombatLab|FORMATION_LAB_SCENARIOS/,file);

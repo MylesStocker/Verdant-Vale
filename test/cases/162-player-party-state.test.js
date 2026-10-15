@@ -241,7 +241,8 @@ test('save payload/version unchanged, invalid load atomic, successful/fresh load
   const raw=g.run("localStorage.getItem('verdantVale_save')");assert.ok(raw);
   installed(g);rejected(g,'combat.active=true');
   inert(g,()=>assert.equal(g.run('saveGame()'),false));
-  assert.equal(g.run('SAVE_VERSION'),4);assert.doesNotMatch(raw,/combat_party|fixture_amber|characterId|party|instanceId/);
+  assert.deepEqual(JSON.parse(raw).party,{order:['lely'],characters:[],rewards:[]});
+  assert.equal(g.run('SAVE_VERSION'), 5);assert.doesNotMatch(raw,/combat_party|fixture_amber|characterId|instanceId/);
   g.run("localStorage.setItem('verdantVale_save','{bad');");
   inert(g,()=>assert.equal(g.run('loadGame()'),false));
   g.run('localStorage.setItem("verdantVale_save",'+JSON.stringify(raw)+')');

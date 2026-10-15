@@ -3,7 +3,7 @@
 // authority: for every placed wilderness map (incl. Verdant Vale's legacy_screen
 // MAP) the runtime position is a region-world pixel point { regionId, worldPxX,
 // worldPxY }, and activeMap/player.x/player.y are DERIVED compatibility
-// projections. Discrete locations carry no canonical position. Also covers the v4
+// projections. Discrete locations carry no canonical position. Also covers the v5
 // discriminated save schema and its atomic rejection behaviour.
 
 const assert = require('assert/strict');
@@ -22,7 +22,7 @@ function warp(g, dest, cont) {
 }
 
 module.exports = {
-  name: 'canonical regional world position: authority, projections, v4 save schema, invariants',
+  name: 'canonical regional world position: authority, projections, v5 save schema, invariants',
   run() {
     const g = ctx();
 
@@ -143,11 +143,11 @@ module.exports = {
     warp(g, 'dungeon:f8_east');
     assert.equal(g.run('regionalWorldPosition()'), null, 'indoor debug warp clears canonical');
 
-    // ── 12 + 14 + 20. v4 REGIONAL save/load round-trip + payload shape ──────
+    // ── 12 + 14 + 20. v5 REGIONAL save/load round-trip + payload shape ──────
     warp(g, 'outdoor:MAP3', true);
     g.run(`player.x=6.25*TILE; player.y=7.75*TILE; player.facing='up'; __reconcileCanonicalForTest();`);
     const savedRegional = J(g, "(saveGame(), localStorage.getItem('verdantVale_save'))");
-    assert.equal(savedRegional.version, 4, 'SAVE_VERSION is 4');
+    assert.equal(savedRegional.version, 5, 'SAVE_VERSION is 5');
     assert.equal(savedRegional.location.kind, 'regional', 'a regional save is kind:regional');
     assert.equal(savedRegional.location.regionId, 'overworld', 'regional save stores the regionId');
     assert.ok(typeof savedRegional.location.worldPxX === 'number' && typeof savedRegional.location.worldPxY === 'number', 'regional save stores world-pixel position');
@@ -161,7 +161,7 @@ module.exports = {
     assert.ok(Math.abs(g.run('player.x') - 6.25 * TILEPX) < 1e-6 && Math.abs(g.run('player.y') - 7.75 * TILEPX) < 1e-6, 'regional load restores fractional local position');
     assert.deepEqual(J(g, "JSON.stringify(regionalInvariantErrors())"), [], 'invariants hold after a regional load');
 
-    // ── 13. v4 DISCRETE save/load round-trips (town/interior/dungeon/house) ──
+    // ── 13. v5 DISCRETE save/load round-trips (town/interior/dungeon/house) ──
     for (const [dest, expectMap] of [['town:calwick_west', 'TOWN_MAP'], ['dungeon:f8_east', 'DUNGEON_MAP']]) {
       warp(g, dest);
       const dmap = mapId(g);

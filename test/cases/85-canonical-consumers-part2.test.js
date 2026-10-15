@@ -153,13 +153,13 @@ module.exports = {
     assert.equal(g.run('regionalWorldPosition()'), null, 'discrete movement never establishes a canonical position');
     assert.deepEqual(J(g, "JSON.stringify(regionalInvariantErrors())"), [], 'discrete map: canonical-null invariant holds');
 
-    // ── 14. v4 regional + discrete save/load still round-trip. ───────────────
+    // ── 14. v5 regional + discrete save/load still round-trip. ───────────────
     g.run("placeAtLocation('MAP3', 6.25*TILE, 7.75*TILE); player.facing='up';");
     const rSave = J(g, "(saveGame(), localStorage.getItem('verdantVale_save'))");
-    assert.equal(rSave.version, 4, 'SAVE_VERSION is 4');
+    assert.equal(rSave.version, 5, 'SAVE_VERSION is 5');
     assert.equal(rSave.location.kind, 'regional', 'regional save unchanged (kind:regional, world position)');
     g.run("placeAtLocation('MAP', 1*TILE, 1*TILE); loadGame();");
-    assert.equal(mid(g), 'MAP3', 'v4 regional load restores the canonical chunk');
+    assert.equal(mid(g), 'MAP3', 'v5 regional load restores the canonical chunk');
     warp(g, 'town:calwick_west');
     const dSave = J(g, "(saveGame(), localStorage.getItem('verdantVale_save'))");
     assert.equal(dSave.location.kind, 'discrete', 'discrete save unchanged (kind:discrete, map+local)');

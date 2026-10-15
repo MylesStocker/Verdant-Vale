@@ -320,7 +320,7 @@ test('headless command authority has no Lab, input, rendering, save or content c
     assert.doesNotMatch(source,/combatPlayerState\.(?:resolveRound|getCommandView)\(/,file);
     assert.equal((source.match(/combatPlayerState\.initializeCommandParty\(/g)||[]).length,file==='party-combat-lab.js'?1:0,file);
   }
-  const g=fresh(),before=canonical(g);assert.equal(g.run('SAVE_VERSION'),4);
+  const g=fresh(),before=canonical(g);assert.equal(g.run('SAVE_VERSION'), 5);
   assert.equal(g.run('combat.active'),false);assert.equal(g.run('combatPlayerState.session.getView()'),null);
   assert.throws(()=>g.run('combat.active=true'));assert.throws(()=>g.run('handleCombatAction()'));assert.throws(()=>g.run('drawCombat()'));
   g.run('saveGame();loadGame();');assert.equal(canonical(g),before);

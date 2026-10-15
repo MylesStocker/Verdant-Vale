@@ -244,7 +244,7 @@ module.exports = {
     assert.equal(g.run(`debugWarpToDestination('outdoor:${ID}').success`), true);
     assert.equal(g.run(`placeAtLocation('${ID}',8.5*TILE,4.5*TILE)`), true);
     g.run("player.facing='left';saveGame();"); const before = J('JSON.stringify(regionalWorldPosition())');
-    assert.equal(J("localStorage.getItem('verdantVale_save')").version, 4);
+    assert.equal(J("localStorage.getItem('verdantVale_save')").version, 5);
     g.run("placeAtLocation('MAP2',2.5*TILE,2.5*TILE);player.facing='down';");
     assert.equal(g.run('loadGame()'), true); assert.equal(g.run('mapIdForRef(activeMap)'), ID);
     assert.deepEqual(J('JSON.stringify(regionalWorldPosition())'), before); assert.equal(g.run('player.facing'), 'left');
@@ -282,7 +282,7 @@ module.exports = {
     assert.equal(g.run('continuousSeamEntries().length'), 116);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 54);
     assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 155);
-    assert.equal(g.run('SAVE_VERSION'), 4);
+    assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(g.run('validateGameData().errors'), 0);
   },
 };

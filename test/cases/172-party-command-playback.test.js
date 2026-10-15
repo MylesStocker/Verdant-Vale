@@ -181,7 +181,7 @@ corrupt(bombTick,['bad.events.find(e=>e.type==="delayed_effect_tick").before.fus
 test('mutable source trees reject before getters or RNG; no production caller or save changes',()=>{
   const {g}=fixture();g.run('var bad='+JSON.stringify(J(g,'result')));rejects(g);
   for(const file of scriptOrderFromIndexHtml())if(file!=='combat.js')assert.doesNotMatch(fs.readFileSync(path.join(__dirname,'../..',file),'utf8'),/combatPlayerState\.(?:createRoundPlayback|projectRoundPlaybackFrame)\(/,file);
-  assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('combat.active'),false);
+  assert.equal(g.run('SAVE_VERSION'), 5);assert.equal(g.run('combat.active'),false);
 });
 test('recorded mud application changes only its target; status annotation preserves that frame',()=>{
   const g=fresh({inventory:['Ember Root']});g.run('MUDSLITHER_INFLICTABLE=true');resolve(g,command(g,[['item',0,'a1','Ember Root'],['observe',1,0]]));const reel=create(g);verify(g,reel);

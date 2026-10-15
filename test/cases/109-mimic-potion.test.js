@@ -116,7 +116,7 @@ module.exports = {
       assert.ok(payload && payload.indexOf('pickup_sunken_gallery_mimic') !== -1, 'sprung trap id is persisted as collected');
       gs.run("PICKUP_REGISTRY['pickup_sunken_gallery_mimic'].picked=false;loadGame();");
       assert.equal(gs.run("PICKUP_REGISTRY['pickup_sunken_gallery_mimic'].picked"), true, 'stays sprung after load');
-      assert.equal(gs.run('SAVE_VERSION'), 4);
+      assert.equal(gs.run('SAVE_VERSION'), 5);
     }
 
     // ── 8. Scope: the trap grants no map/chest/shop item; source has no scattered

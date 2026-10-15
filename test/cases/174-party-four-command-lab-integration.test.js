@@ -21,7 +21,7 @@ function canonical(g){return g.run(`JSON.stringify({stats,statusEffects,slitherS
   location:regionalWorldPosition(),locationState:snapshotLocationState(),flags:QUEST_FLAG_BINDINGS.map(b=>b.get()),
   npcs:SIMPLE_NPCS.map(n=>[n.id,n.x,n.y,n.facing]),save:localStorage.getItem('verdantVale_save')})`);}
 function enter(g,id='lely_esla_one'){assert.ok(g.run('partyCombatLab.enter('+JSON.stringify(id)+')'));return view(g);}
-function command(g,index){let v=view(g);assert.equal(v.phase,'awaiting_action');while(v.commandCursor!==index){g.press('ArrowRight');v=view(g);}g.press('Enter');return view(g);}
+function command(g,index){let v=view(g);assert.equal(v.phase,'awaiting_action');let turns=0;while(v.selectedCommand!==['attack','item','observe','run'][index]){assert.ok(turns++<5);g.press('ArrowRight');v=view(g);}g.press('Enter');return view(g);}
 function item(g,id){let v=view(g);assert.equal(v.phase,'item');const targetIndex=v.items.findIndex(row=>row.itemId===id);assert.ok(targetIndex>=0);
   let guard=0;while(v.itemCursor!==targetIndex&&guard++<40){g.press(v.itemCursor<targetIndex?'ArrowDown':'ArrowUp');v=view(g);}assert.equal(v.selectedItemId,id);g.press('Enter');return view(g);}
 function target(g,index=0){let v=view(g);assert.equal(v.phase,'targeting');const rows=v.validTargetIds;while(rows.indexOf(v.selectedTargetInstanceId)!==index){g.press('ArrowRight');v=view(g);}g.press('Enter');return view(g);}
@@ -73,7 +73,7 @@ test('Lab inventory uses registry IDs, restrained quantities, and every targetin
   const quantities=Object.fromEntries(rows.map(r=>[r.itemId,r.total]));
   assert.deepEqual(quantities,{Potion:3,Elixir:2,'Reed Remedy':2,'Amethyst Dust':2,'Bullet Time':2,'Throwing Knife':2,'Sapper Charge':1,Bomb:2,'Void Shard':1,Bait:1,'Iron Sword':1,'Iron Shield':1});
   assert.deepEqual([...new Set(rows.map(r=>r.targeting))].sort(),['all_enemies','ally','enemy','self']);
-  assert.equal(g.run('stats.items.length'),0);assert.equal(g.run('SAVE_VERSION'),4);
+  assert.equal(g.run('stats.items.length'),0);assert.equal(g.run('SAVE_VERSION'), 5);
 });
 
 test('command movement wraps with zero RNG and Attack/Observe use exact enemy targets',()=>{
@@ -190,7 +190,7 @@ test('input remains one listener pair and no canonical gameplay or save route is
   assert.doesNotMatch(adapter,/applyKillRewards|endCombat\(|recoverCombatDefeat|transitionToLocation|saveGame\(|loadGame\(|stats\.(hp|xp|gold)\s*=/);
   for(const file of scriptOrderFromIndexHtml()){if(!/content\/|interaction|quest|encounter|maps|npcs/.test(file))continue;
     assert.doesNotMatch(fs.readFileSync(path.join(ROOT,file),'utf8'),/partyCombatLab|PARTY_COMBAT_LAB_/,file);}
-  const g=fresh();assert.equal(g.run('SAVE_VERSION'),4);assert.equal(g.run('saveGame()'),true);assert.doesNotMatch(g.run("localStorage.getItem('verdantVale_save')"),/party|esla_lab|combat_party/);
+  const g=fresh();assert.equal(g.run('SAVE_VERSION'), 5);assert.equal(g.run('saveGame()'),true);assert.deepEqual(JSON.parse(g.run("localStorage.getItem('verdantVale_save')")).party,{order:['lely'],characters:[],rewards:[]});assert.doesNotMatch(g.run("localStorage.getItem('verdantVale_save')"),/esla_lab|combat_party|instanceId/);
 });
 
 test('the animation loop starts only after every runtime authority is loaded',()=>{
