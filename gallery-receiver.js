@@ -109,6 +109,7 @@ const galleryReceiverEncounter = (() => {
     },
     updateStairLatch() { if (!onStair()) backedAway = false; },
     interceptExit() {
+      if (canonicalPartyCombat.isActive()) return true;
       if (!onStair() || !armed()) return false;
       if (encounter || backedAway) return true;
       if (combat.active || combat.mode !== null || dialogue.open || dialogue.callbacks || dialogue.triggerEncounterId ||

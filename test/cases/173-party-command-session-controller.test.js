@@ -172,14 +172,14 @@ test('playback failure retains completed round and diagnostic lockout',()=>{
   const g=fresh();ready(g);g.run('var originalCopy=copyFormationData;copyFormationData=function(v){if(v&&v.events&&combatPlayerState.getRoundView().completedRounds===1)throw Error("injected playback failure");return originalCopy(v)}');
   assert.throws(()=>commit(g));g.run('copyFormationData=originalCopy');assert.equal(view(g).phase,'fault');equal(view(g).failure,{stage:'playback',targetDraws:2,completedRounds:1});assert.equal(g.run('combatPlayerState.getRoundView().completedRounds'),1);reject(g,'controller.commitRound()');
 });
-test('exactly one generalized resolver/playback call site; frozen views; only isolated Lab standard caller',()=>{
+test('exactly one generalized resolver/playback call site; frozen views; explicit Lab and canonical owners',()=>{
   const source=fs.readFileSync(path.join(__dirname,'../../combat.js'),'utf8'),start=source.indexOf('  const session=(() => {'),end=source.indexOf('    session,',start),controllerSource=source.slice(start,end);
   assert.equal((controllerSource.match(/combatPlayerState\.resolveRound\(/g)||[]).length,1);assert.equal((controllerSource.match(/combatPlayerState\.createRoundPlayback\(/g)||[]).length,1);
   for(const file of scriptOrderFromIndexHtml())if(file!=='combat.js'){
     const fileSource=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
     assert.equal((fileSource.match(/commandSet\s*:\s*['"]standard['"]/g)||[]).length,file==='party-combat-lab.js'?1:0,file);
     assert.doesNotMatch(fileSource,/combatPlayerState\.session\.(?:moveCommand|confirmCommand|moveItem|confirmItem|cancelItem|moveTarget|confirmTarget|cancelTargeting)\(/,file);
-    assert.equal((fileSource.match(/combatPlayerState\.session\[method\]\s*\(/g)||[]).length,file==='party-combat-lab.js'?1:0,file);
+    assert.equal((fileSource.match(/combatPlayerState\.session\[method\]\s*\(/g)||[]).length,['party-combat-lab.js','canonical-party-combat.js'].includes(file)?1:0,file);
   }
   const g=fresh();ready(g);const before=state(g),world=canonical(g),old=view(g),oldText=JSON.stringify(old);frozen(old);g.press('Enter');g.press('ArrowRight');g.frames(3);assert.equal(state(g),before);assert.equal(canonical(g),world);
   assert.equal(g.run('saveGame()'),false);assert.equal(g.run('loadGame()'),false);assert.equal(g.run('SAVE_VERSION'), 5);commit(g);finish(g);g.run('controller.acknowledgePlayback()');assert.equal(JSON.stringify(old),oldText);assert.equal(canonical(g),world);

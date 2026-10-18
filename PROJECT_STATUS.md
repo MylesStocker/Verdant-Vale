@@ -6,6 +6,27 @@ actually fits together.
 
 ## Current state
 
+### Canonical party combat integration
+
+Supported ordinary encounters now use the canonical party after MQ5 recruitment.
+One-member rosters retain singleton combat. The explicit boundary supports one to
+three approved enemies, imports personal equipment/statuses and shared inventory,
+and enables Esla's existing Quickbloom/Strain through the standard controller.
+Lely remains non-Rareborn. The approved party presentation is shared with the Lab;
+canonical input, outcomes and rewards have independent lifecycle ownership.
+
+Authenticated terminal writeback, full XP for all starting members, shared rewards,
+escape and full-party defeat recovery are one-time operations. Failures retain
+diagnostics and prohibit retry or saving/loading. No save fields, maps, terrain,
+enemy stats, balance, quest/dialogue or new content changed; `SAVE_VERSION` is 5.
+Unadapted enemy capabilities and scripted encounters fail closed after recruitment.
+The complete 60-template inventory, verification evidence and manual checklist are
+in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md). Suite 183 was used because
+181 and 182 already belonged to the lifecycle and field-menu suites.
+
+The following integration checkpoint describes the synchronized baseline; its
+182-suite count predates the new canonical integration suite (current total: 183).
+
 ### Eastern terrain and party integration
 
 The integrated repository has 208 maps and metadata entries, 107 regional chunks
@@ -43,7 +64,7 @@ MQ5 party state when loading negative-coordinate approach placements, render the
 party menu in both presentation modes, and retain the authored no-save policy on
 all three approach maps. Browser appearance and manual play remain untested.
 
-### Resonance MVP — Party Combat Lab only
+### Resonance MVP — Party Combat Lab and canonical encounters
 
 Quickbloom is the sole production technique: Esla's ordinary Bloommarked healing
 of one living wounded ally for one fifth of maximum HP (floor, minimum one,
@@ -70,8 +91,8 @@ Test 180 covers definitions, exact IDs, atomic rejection, deterministic healing,
 Strain boundaries, combined reservations, historical playback, navigation and
 recording-canvas bounds. No browser-control tool is available in this session;
 manual visual inspection at native and 2× scale remains outstanding.
-Canonical party encounters, broader affinities/effects and combined content
-remain deferred. Field menus, MQ5 dialogue, saves (v5), maps, singleton combat,
+Broader affinities/effects and combined content remain deferred.
+Field menus, MQ5 dialogue, saves (v5), maps, singleton combat,
 Formation Lab and Receiver are unchanged. Earlier implementation notes below
 retain the historical four-command/Attack-only checkpoints.
 
@@ -93,10 +114,10 @@ Drenwick infirmary NPC projections. Her ordinary pre-join dialogue is unchanged.
 Test 179 covers recruitment, prerequisites, atomic failure, repeats, world NPCs,
 field-menu targeting and version-5 saves.
 
-**Known next boundary:** ordinary and optional western encounters still start
-Lely-only combat, including when the canonical roster contains Esla. Their reward
-and recovery paths are also unchanged. No canonical party-combat bridge caller is
-installed and no encounter was disabled. Eastern Fens remains encounter-free.
+**Current boundary:** approved ordinary western encounters use canonical party
+combat. Unsupported specials and optional scripted encounters reject explicitly;
+their capabilities and quest outcomes have not been adapted. Eastern Fens remains
+encounter-free.
 Browser inspection of the recruitment scene remains outstanding.
 
 ### Canonical multi-member field menu
@@ -132,7 +153,7 @@ Victory commitment revives KOs to exactly 1 HP, while full recovery restores all
 HP and clears ordinary removable statuses. Private combat tickets bind the real
 generalized session and reject stale, incomplete, substituted, Lab and replayed
 results. Canonical state is unchanged until one atomic acknowledged commitment;
-rewards are separate. No encounter, input, menu or recruitment route calls it.
+rewards are separate. The canonical encounter owner now calls this bridge.
 
 `SAVE_VERSION` is now **5**, with no v4 migration. Ordered IDs, non-Lely records,
 reward receipts and Lely's Slither sample are saved; runtime combat identities,
@@ -143,8 +164,8 @@ protection. See architecture.md for APIs, schema and the post-MQ5 encounter audi
 Earlier save-version references in historical checkpoint notes below describe the
 version at that increment; the current format is v5.
 
-Encounter conversion, enemy specials,
-cutaway parties and broader magic remain deferred; the Lab-only Resonance MVP is described above. The lifecycle foundation
+Further enemy specials, cutaway parties and broader magic remain deferred;
+the shared Resonance MVP is described above. The lifecycle foundation
 introduced no art, maps, lore or Chapter One presentation changes.
 
 ### Headless player-party state foundation

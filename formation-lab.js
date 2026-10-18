@@ -44,6 +44,7 @@ const formationCombatLab = (() => {
       return lab ? Object.freeze({active:active(), cursor:lab.cursor, scenario:lab.scenario, error:lab.error}) : null;
     },
     open() {
+      if (canonicalPartyCombat.isActive()) return false;
       if (lab || !debugMenu.open || !stable()) return false;
       lab = {cursor:0, scenario:null, error:'', debugCursor:debugMenu.cursor, restore:null};
       reconcileFormationLabKeys();
@@ -64,6 +65,7 @@ const formationCombatLab = (() => {
       return true;
     },
     start() {
+      if (canonicalPartyCombat.isActive()) return false;
       if (!lab || active() || !debugMenu.open || !stable()) return false;
       const scenario = FORMATION_LAB_SCENARIOS[lab.cursor];
       const restore = {hp:stats.hp, tick, inventory:stats.items, items:stats.items.slice(),

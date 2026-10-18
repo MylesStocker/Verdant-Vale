@@ -125,9 +125,9 @@ test('stale canonical state, substituted runtime members, caller results and Lab
  const altered=fresh();altered.run('stats.atk=100');begin(altered);attacks(altered);resolve(altered);acknowledge(altered);assert.throws(()=>altered.run('persistentParty.commitCombat({outcome:"victory"})'));altered.run('combat.enemy=null;combat.enemy={...ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp}');assert.throws(()=>altered.run('persistentParty.commitCombat()'));
  const lab=fresh();assert.ok(lab.run('partyCombatLab.enter("lely_esla_one")'));assert.throws(()=>lab.run('persistentParty.commitCombat()'));assert.throws(()=>lab.run('persistentParty.beginCombat(["enemy_marsh_wisp"])'));
 });
-test('private bridge capability cannot be reclaimed; only MQ5 may recruit, no combat/reward callers',()=>{
+test('private bridge capability cannot be reclaimed; only MQ5 recruits and canonical encounter owner finalizes',()=>{
  const g=fresh();reject(g,'combatPlayerState.claimPersistentBridge()');
- const scripts=scriptOrderFromIndexHtml();for(const file of scripts){const src=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');assert.equal(/persistentParty\.(beginCombat|commitCombat|awardRewards|awardExperience|recover|resetForNewGame)\s*\(/.test(src),false,file);assert.equal((src.match(/persistentParty\.joinEsla\s*\(/g)||[]).length,file==='quests.js'?1:0,file);}
+ const scripts=scriptOrderFromIndexHtml();for(const file of scripts){const src=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');assert.equal(/persistentParty\.(beginCombat|commitCombat|awardRewards|awardExperience|recover|resetForNewGame)\s*\(/.test(src),file==='canonical-party-combat.js',file);assert.equal((src.match(/persistentParty\.joinEsla\s*\(/g)||[]).length,file==='quests.js'?1:0,file);}
  assert.equal(g.run('SAVE_VERSION'),5);
 });
 test('future third-slot capacity uses an authored test fixture, never a production character',()=>{

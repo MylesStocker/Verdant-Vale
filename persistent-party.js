@@ -133,6 +133,11 @@ const persistentParty = (() => {
     if(member===stats){statusEffects=data.statuses;slitherSpd=data.slitherSpeed;for(const k of slots)stats[k]=data.equipment[k]===null?null:{...item(data.equipment[k])};}
     else {member.statuses=data.statuses;member.slitherSpeed=data.slitherSpeed;member.equipment=data.equipment;}
   };
+  const encounterRequest=policy=>{
+    const request=prepare(),p=record(policy,['escape']);
+    if(!['blocked','fastest_living'].includes(p.escape))fail();
+    return copy({...request,escape:p.escape,resonance:order.map((characterId,slot)=>({characterId,slot}))});
+  };
   // Field views adapt the same persistent members. Only IDs/cursors belong to
   // the menu; canonical item exchanges and HP/status writes stay in this closure.
   const fieldMember = m => {
@@ -238,8 +243,14 @@ const persistentParty = (() => {
       statusEffects=statusEffects.filter(s=>!removable.includes(s));slitherSpd=1;revision++;return snapshot();
     },
     combatSnapshot(){if(arguments.length)fail();idle();return prepare();},
-    beginCombat(enemyIds){
-      if(arguments.length!==1)fail();idle();const request=prepare(),before=seal();
+    validateCombat(enemyIds,policy){
+      if(arguments.length!==2)fail();idle();bridge.begin(encounterRequest(policy),array(enemyIds),true);
+    },
+    beginCombat(enemyIds,policy){
+      if(arguments.length<1||arguments.length>2)fail();idle();let request=prepare();const before=seal();
+      if(policy!==undefined){
+        request=encounterRequest(policy);
+      }
       const ids=array(enemyIds),ticket=bridge.begin(request,ids);
       battle={ticket,before,memberIds:combatPlayerState.getView().members.map(m=>m.instanceId)};
       return combatPlayerState.session.getView();

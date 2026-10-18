@@ -106,7 +106,7 @@ test('renderer cursor and routing are exact, bounded, deterministic and mutation
   g.run(`var partyPaint=[];ctx.fillRect=(...a)=>partyPaint.push({type:'fillRect',args:a,fill:ctx.fillStyle});ctx.strokeRect=(...a)=>partyPaint.push({type:'strokeRect',args:a});ctx.fillText=(...a)=>partyPaint.push({type:'text',args:a,fill:ctx.fillStyle});ctx.fill=()=>partyPaint.push({type:'fill',fill:ctx.fillStyle});`);
   const before=canonical(g),lab=JSON.stringify(view(g));g.run('drawPartyCombatLabBattle()');const paint=J(g,'partyPaint');assert.equal(canonical(g),before);assert.equal(JSON.stringify(view(g)),lab);
   assert.equal(paint.filter(p=>p.type==='fill'&&p.fill==='#f0e8b8').length,1,'one enemy target cursor');
-  const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');for(const p of layout.enemies)assert.ok(p.x>=0&&p.spriteY>=0&&p.x+p.width<=512&&p.spriteY+p.spriteHeight<=480);
+  const layout=J(g,'partyBattleLayout(partyCombatLab.getView())');for(const p of layout.enemies)assert.ok(p.x>=0&&p.spriteY>=0&&p.x+p.width<=512&&p.spriteY+p.spriteHeight<=480);
   assert.ok(layout.allies.every(p=>p.x>=0&&p.x<=512&&p.feetY===277));
   submitBoth(g);g.run('partyPaint=[];drawPartyCombatLabBattle()');assert.equal(J(g,"partyPaint.filter(p=>p.type==='fill'&&p.fill==='#f0e8b8').length"),0);}}
 );

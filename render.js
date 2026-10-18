@@ -204,6 +204,16 @@ function drawContinuousWorld() {
 function render() {
   titleEl.textContent = locationName();
 
+  if (canonicalPartyCombat.isActive()) {
+    const view = canonicalPartyCombat.getView();
+    if (view.phase === 'fault') {
+      ctx.fillStyle='#0c121c'; ctx.fillRect(0,0,512,480);
+      ctx.fillStyle='#e0d0c0'; ctx.font='14px "Courier New", monospace';
+      ctx.fillText('Battle stopped. Diagnostic retained in console.',16,220);
+    } else drawPartyBattle(view);
+    return;
+  }
+
   if (galleryReceiverEncounter.getView()?.phase === 'fault') {
     ctx.fillStyle='#0c121c'; ctx.fillRect(0,0,512,480);
     drawGalleryReceiverStaging();

@@ -67,6 +67,7 @@ const partyCombatLab = (() => {
     return [lely,esla];
   };
   const preflight=(scenario,fromSubmenu=false)=>{
+    if(canonicalPartyCombat.isActive())fail('Canonical encounter owns combat');
     if(lab || !scenario || combatPlayerState.hasParty() || combat.active || combat.mode!==null ||
         !Object.isFrozen(combat.enemies) || combat.enemies.length ||
         formationCombatLab.isOpen() || galleryReceiverEncounter.isLocked() ||
@@ -151,6 +152,7 @@ const partyCombatLab = (() => {
     getMenuView() {if(arguments.length)fail();return submenu&&lab===null?copy({cursor:submenu.cursor,error:lastError}):null;},
     getView() {if(arguments.length)fail();return buildView();},
     openMenu() {
+      if(canonicalPartyCombat.isActive())return false;
       if(arguments.length || submenu || lab || !debugMenu.open || combat.active || combat.mode!==null ||
           combatPlayerState.hasParty() || formationCombatLab.isOpen() || galleryReceiverEncounter.isLocked())return false;
       submenu={cursor:0,debugCursor:debugMenu.cursor};lastError='';reconcileFormationLabKeys();return true;

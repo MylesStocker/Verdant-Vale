@@ -6,18 +6,45 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 182 regression suite
+Current integration totals: 208 maps, 107 regional chunks, 183 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
-### Resonance MVP (Lab-only activation)
+### Canonical party encounters
+
+`canonical-party-combat.js` owns real multi-member encounters. One-member rosters
+retain the singleton path. `startCombat()` selects through the existing geographic
+pool and overrides before calling the explicit `enter({enemies,escape})` boundary;
+unsupported selections fail closed, without installing singleton state. Entry
+accepts one to three exact approved templates (or template IDs), validates the
+canonical roster, equipment, statuses, arithmetic, policy and cleanup readiness,
+then obtains the private persistent-party bridge ticket. No combat RNG or identity
+allocation occurs before validation. Selection RNG remains upstream of entry.
+
+The standard session owns commands, exact targets, effects and historical playback.
+Canonical resources remain with `stats`/`statusEffects`/`slitherSpd` and
+`persistentParty`; authenticated terminal commitment occurs once. Victory grants
+full XP to every starting member and shared rewards once through the existing
+reward ledger; escape grants none. Defeat recovers all members and uses the shared
+`applyCombatDefeatWorldRecovery()` time/gold/location authority. It never invokes
+singleton cleanup. A failed resolution/finalization retains evidence, blocks
+retry, simulation, saving/loading, and entry into other combat owners.
+
+`render-party-battle.js` draws one detached immutable view. The Lab renderer is a
+thin caller of this shared presentation; canonical combat has no Lab-state/API
+dependency. Input uses the existing listener and key latch. `combat.active` retains
+its singleton/Receiver meaning; canonical activity is explicit and session-owned.
+Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
+see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
+
+### Resonance MVP (Lab and canonical activation)
 
 `resonance.js` loads before `combat.js`; its closed, frozen registry contains
 exactly `quickbloom`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
 Lely `{rareBorn:false, affinity:null}` and Esla
 `{rareBorn:true, affinity:'bloommarked'}`. These static fields are not saved.
-The existing persistent combat bridge remains unconnected to ordinary encounters
-and does not opt into Resonance in this increment.
+Canonical encounters supply these bindings through persistent-party preparation.
+The original explicit headless API without a policy retains its older result shape.
 
 Command preparation optionally accepts `resonance:[{slot,characterId}]`, one
 binding per member. A shared pure validator checks each against authored
@@ -262,11 +289,11 @@ by Calwick drawing, collision and interaction, and the infirmary follow-up's map
 projection. Ordinary dialogue and reusable Esla figure drawing are unchanged.
 No follower or new save binding is introduced. Test 179 covers these boundaries.
 
-Recruitment does **not** activate canonical party combat. Returning west can still
-start solo battles and their existing Lely-only reward/recovery flows, as audited
-below; that integration remains a separate authorized task.
+Recruitment activates canonical party routing for supported ordinary encounters.
+Unadapted specials and scripted encounters reject with diagnostics; they cannot
+silently route a recruited roster through Lely-only reward/recovery flows.
 
-### Later post-recruitment encounter routing audit (read-only)
+### Historical pre-bridge encounter routing audit (read-only)
 
 `movement.update()` chooses geographic eligibility, then `startCombat()` selects
 from `currentEncounterPool()`, applies the North Basin Swamp Donkey override and

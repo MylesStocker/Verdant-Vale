@@ -572,8 +572,8 @@ const combatPlayerState = (() => {
         combat.enemies.some((enemy,slot) => !formationBasicStatsValid(enemy) || enemy.hp === 0 ||
           enemy.slot !== slot || typeof enemy.instanceId !== 'string')) fail();
     const state = Object.getOwnPropertyDescriptors(combat);
-    if (Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value]) => state[key]?.value !== value) ||
-        array(state.messageQueue?.value).length || completedSingleVictoryReceipt !== null) fail();
+    if (!partyPreparationBookkeepingIsNeutral(state,persistent) ||
+        array(state.messageQueue?.value).length || (!persistent && completedSingleVictoryReceipt !== null)) fail();
     const round = formationRounds.getView();
     if (round && (round.completedRounds || round.awaitingPlayback || round.outcome !== 'ongoing')) fail();
     const candidates = array(descriptors).map(record);
@@ -650,13 +650,13 @@ const combatPlayerState = (() => {
         return {...d,isBoss:combatEnemyBossAtCreation.get(enemy)};
       });
     };
-    const neutral = (allowSession=false) => {
+    const neutral = (allowSession=false,persistent=false) => {
       validateInactiveCombatPreparation();
       if((sessionState&&(!allowSession||sessionState.commandSet!=='standard')) || galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() ||
           (partyCombatLab.isActive()&&!(allowSession&&sessionState?.commandSet==='standard')) ||
-          debugMenu.open || completedSingleVictoryReceipt!==null)invalid();
+          debugMenu.open || (!persistent&&completedSingleVictoryReceipt!==null))invalid();
       const fields=Object.getOwnPropertyDescriptors(combat);
-      if(Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([k,v])=>fields[k]?.value!==v) ||
+      if(!partyPreparationBookkeepingIsNeutral(fields,persistent) ||
           array(fields.messageQueue?.value).length || Reflect.ownKeys(fields).some(k=>
             ![...Object.keys(FORMATION_NEUTRAL_COMBAT_STATE),'mode','active','enemy','enemies','observeCount',
               'escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(k)))invalid();
@@ -795,7 +795,7 @@ const combatPlayerState = (() => {
         if(members||commandBattle||roundState||sessionState)invalid();
         const data=dataRecord(request,['members','inventory','escape',...(Object.hasOwn(request||{},'resonance')?['resonance']:[]),...(Object.hasOwn(request||{},'slither')?['slither']:[]),...(Object.hasOwn(request||{},'equipment')?['equipment']:[])]);
         if(!['blocked','fastest_living'].includes(data.escape))invalid();
-        neutral();
+        neutral(false,persistent);
         const candidates=prepareMembers(data.members,1,3,persistent);
         if(!candidates.some(m=>m.hp>0))invalid();
         candidates.forEach(m=>supportedStatuses(m.statuses));
@@ -1354,7 +1354,7 @@ const combatPlayerState = (() => {
       return current;
     };
     return Object.freeze({
-      begin(request,enemyIds) {
+      begin(request,enemyIds,validateOnly=false) {
         if(owner||combat.mode!==null||combat.active||combat.enemies.length||partyCombatLab.isActive())fail();
         const ids=array(enemyIds);
         if(ids.length<1||ids.length>3||combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
@@ -1385,7 +1385,9 @@ const combatPlayerState = (() => {
         const actors=actorVariants.map(a=>a[0]).filter(m=>m.hp>0);
         partyInitiativeWeights([...actors,...templates]);
         partyInitiativeWeights([...actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})),...templates]);
+        if(validateOnly)return;
         // All input and numeric validation precedes either identity allocator.
+        if(completedSingleVictoryReceipt!==null)prepareFormationEntry();
         if(ids.length===1)combat.enemy=templates[0];
         else initializeFormationState(ids.map((enemyId,slot)=>({enemyId,slot})),{escape:prepared.data.escape});
         commandRounds.install(prepared,commandRounds.enemyData());
@@ -2303,6 +2305,13 @@ const FORMATION_NEUTRAL_COMBAT_STATE = Object.freeze({
   gullStole:false, gullStolenAmount:0, bombFuse:0, bombDamage:0, bombIgnoresDef:false,
   bombTargetInstanceId:null, bombJustArmed:false,
 });
+
+// Persistent entry may consume the existing authenticated solo handoff. This
+// preflight only validates it; normalization waits until all entry checks pass.
+function partyPreparationBookkeepingIsNeutral(fields,persistent) {
+  if(persistent&&completedSingleVictoryReceipt!==null){validateFormationEntry();return true;}
+  return Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).every(([key,value])=>fields[key]?.value===value);
+}
 
 function completedSingleVictoryCandidate() {
   const enemy = combat.enemy; // acknowledged singleton lifecycle boundary
@@ -3572,6 +3581,7 @@ if (typeof window !== 'undefined') window.EMPTY_ENCOUNTER_POOL = EMPTY_ENCOUNTER
 
 function startCombat() {
   assertSinglePlayerExecution();
+  if (canonicalPartyCombat.hasMultipleMembers()) return startCanonicalPartyEncounter();
   // Pale Sentry: appears on MAP_N2 once the contract is accepted, until it is killed.
   // Keyed off the CANONICAL physical-map id (the regional authority), not the
   // `activeMap` compatibility projection — a placed regional chunk's identity comes
@@ -3661,11 +3671,35 @@ function startCombat() {
   }
 }
 
+// Selection is upstream of the canonical entry transaction. Preserve the
+// authored ordinary pool, North Basin override and rare-23 draw sequence, but
+// install no singleton enemy/state while deciding which encounter was selected.
+function startCanonicalPartyEncounter() {
+  persistentParty.combatSnapshot();
+  const mapId=typeof regionalActiveMapId==='function'?regionalActiveMapId():mapIdForRef(activeMap);
+  if(mapId==='MAP_N2'&&sentry_quest_started&&!sentry_quest_done)
+    throw Error('Canonical party encounter: unsupported Pale Sentry persistent-HP encounter');
+  const pool=currentEncounterPool();
+  if(!Array.isArray(pool)||!pool.length)return;
+  const roll=()=>{const value=Math.random();if(!Number.isFinite(value)||value<0||value>=1)
+    throw Error('Canonical party encounter: invalid selection RNG');return value;};
+  let template=pool[Math.floor(roll()*pool.length)];
+  const meta=MAP_METADATA[mapRegistryId(activeMap)];
+  if(meta&&meta.region==='North Basin'&&meta.type==='outdoor'&&roll()<1/16)template=SWAMP_DONKEY_TEMPLATE;
+  if(roll()<1/256){
+    const r23=()=>23*Math.ceil(roll()*23),hp=r23(),a=r23(),b=r23();
+    template={id:'enemy_23',name:'23',hp,maxHp:hp,atk:r23(),def:r23(),spd:r23(),xp:r23(),
+      goldMin:Math.min(a,b),goldMax:Math.max(a,b)};
+  }
+  return canonicalPartyCombat.enter({enemies:[template],escape:'fastest_living'});
+}
+
 // The Seep's second half — a smaller mass that pulls itself together after the
 // parent is struck down. Reduced HP and only token rewards (the parent already
 // paid out); its danger is the extra round of atk-45 swings, not more loot.
 function startSeepSplitCombat(remaining) {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startSeepSplitCombat");
   const t = ENEMY_TEMPLATE_REGISTRY.enemy_the_seep;
   if (!t) return; // Registry corruption: fail closed without creating combat.
   combat.enemy = { ...t, hp: 20, maxHp: 20, xp: 20, goldMin: 0, goldMax: 3 };
@@ -3684,6 +3718,7 @@ function startSeepSplitCombat(remaining) {
 
 function startRainfishCombat(remaining) {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startRainfishCombat");
   // remaining: how many fights still come AFTER this one (2 = first of 3, 1 = second, 0 = last)
   const intros = [
     'The last one turns on you.',      // remaining === 0
@@ -3709,6 +3744,7 @@ function startRainfishCombat(remaining) {
 // freshly randomized for every investigation rather than authored or saved.
 function startMireToadSpawnCombat(remaining) {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startMireToadSpawnCombat");
   const ids = ['enemy_mire_toad_male', 'enemy_mire_toad_female'];
   const t = ENEMY_TEMPLATE_REGISTRY[ids[Math.floor(Math.random() * ids.length)]];
   if (!t) return; // Registry corruption: fail closed without creating combat.
@@ -3783,6 +3819,7 @@ function endCombat() {
 
 function startBossCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startBossCombat");
   combat.enemy          = { ...BOSS_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3798,6 +3835,7 @@ function startBossCombat() {
 
 function startWardenCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startWardenCombat");
   combat.enemy          = { ...BRIAR_WARDEN_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3813,6 +3851,7 @@ function startWardenCombat() {
 
 function startFortGuardCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startFortGuardCombat");
   combat.enemy          = { ...SMUGGLER_GUARD_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3828,6 +3867,7 @@ function startFortGuardCombat() {
 
 function startFortPolwickCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startFortPolwickCombat");
   combat.enemy          = { ...POLWICK_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3844,6 +3884,7 @@ function startFortPolwickCombat() {
 
 function startFortEssaCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startFortEssaCombat");
   combat.enemy          = { ...ESSA_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3859,6 +3900,7 @@ function startFortEssaCombat() {
 
 function startMulhollandCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startMulhollandCombat");
   combat.enemy          = { ...MULHOLLAND_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3874,6 +3916,7 @@ function startMulhollandCombat() {
 
 function startDenWraithCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startDenWraithCombat");
   combat.enemy          = { ...DEN_WRAITH_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3889,6 +3932,7 @@ function startDenWraithCombat() {
 
 function startSailorBrawlCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startSailorBrawlCombat");
   combat.enemy          = { ...SAILOR_BRAWLER_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3904,6 +3948,7 @@ function startSailorBrawlCombat() {
 
 function startTakomoCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startTakomoCombat");
   combat.enemy          = { ...TAKOMO_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3924,6 +3969,7 @@ function startTakomoCombat() {
 // handled by applyKillRewards' `guaranteedDrop` path.
 function startMimicPotionCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startMimicPotionCombat");
   combat.enemy          = { ...MIMIC_POTION_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3947,6 +3993,7 @@ function startMimicPotionCombat() {
 // or the spider is already resolved, no combat starts and nothing is left pending.
 function startLenswebSpiderCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startLenswebSpiderCombat");
   if (lighthouse_spider_resolved) return;             // never re-run the event
   const objective = getActiveLighthouseObjective();   // the one route/item authority
   if (!objective) return;                             // malformed/none: fail closed, no combat
@@ -3996,6 +4043,7 @@ function finalizeLenswebSpiderEvent() {
 // so fleeing the fight doesn't get the clue back.
 function startTrappedDrownedCombat() {
   assertSinglePlayerExecution();
+  requireSingletonEncounter("startTrappedDrownedCombat");
   combat.enemy          = { ...SUNKEN_GALLERY_ENEMY_TEMPLATES[0] };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -4804,10 +4852,19 @@ function recoverCombatDefeat() {
   assertSinglePlayerExecution();
   const completedRecovery = completedSingleExitCandidate(true);
   stats.hp   = stats.maxHp;
-  stats.gold = 0;
-  day++;
   ['poison', 'muddied', 'slither', 'cursed'].forEach(id => removeStatusEffect(id));
   endCombat();
+  applyCombatDefeatWorldRecovery();
+  if (!defeatWakeAtHome || (activeMap === HOUSE_INTERIOR_MAP && currentHouseId === 'player_house'))
+    completedSingleVictoryReceipt = completedRecovery;
+}
+
+// Shared world consequences, after each combat owner has committed/recovered
+// its own actors. No singleton or party-session cleanup belongs here.
+function applyCombatDefeatWorldRecovery() {
+  stats.gold = 0;
+  day++;
+  let placementSucceeded = true;
   dialogue.name  = '';
   if (defeatWakeAtHome) {
     // Someone carried you home: wake beside your own bed in the Calwick
@@ -4824,7 +4881,7 @@ function recoverCombatDefeat() {
     // (Tobb Wend). Toggleable from the debug menu ("Home on Defeat").
     resetBridgeGuards();
     if (typeof resetAllPatrols === 'function') resetAllPatrols();
-    transitionToLocation({
+    placementSucceeded = transitionToLocation({
       mapId: 'HOUSE_INTERIOR_MAP', x: 9.5 * TILE, y: 3.5 * TILE, facing: 'down', // on the floor beside the bed
       state: {
         inTown: true, currentTownId: 'calwick', townBuilding: 'house', currentHouseId: 'player_house',
@@ -4838,8 +4895,7 @@ function recoverCombatDefeat() {
   }
   dialogue.open  = true;
   dialogue.page  = 0;
-  if (!defeatWakeAtHome || (activeMap === HOUSE_INTERIOR_MAP && currentHouseId === 'player_house'))
-    completedSingleVictoryReceipt = completedRecovery;
+  return placementSucceeded && (!defeatWakeAtHome || (activeMap === HOUSE_INTERIOR_MAP && currentHouseId === 'player_house'));
 }
 
 function handleCombatAction() {
