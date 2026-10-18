@@ -275,12 +275,12 @@ module.exports = {
       let runtimeResult, after;
       try {
         g.run(`window.__savedWardenId = BRIAR_WARDEN_TEMPLATE.id; delete BRIAR_WARDEN_TEMPLATE.id;`);
-        runtimeResult = g.run(`
-          (function(){
-            try { startWardenCombat(); return !!(combat.enemy && ${REG}[combat.enemy.id]); }
-            finally { endCombat(); }
-          })()
-        `);
+        const sequence = g.run('combatEnemyInstanceSequence');
+        assert.throws(() => g.run('startWardenCombat()'), /invalid enemy template/);
+        assert.equal(g.run('combatEnemyInstanceSequence'), sequence,
+          'invalid template rejects before identity allocation');
+        assert.equal(g.run('combat.active'), false);
+        runtimeResult = g.run(`!!(combat.enemy && ${REG}[combat.enemy.id])`);
         after = runValidation(g);
       } finally {
         g.run(`BRIAR_WARDEN_TEMPLATE.id = window.__savedWardenId; delete window.__savedWardenId;`);

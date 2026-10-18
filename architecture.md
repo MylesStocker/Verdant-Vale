@@ -6,7 +6,7 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 183 regression suite
+Current integration totals: 208 maps, 107 regional chunks, 184 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -36,6 +36,28 @@ dependency. Input uses the existing listener and key latch. `combat.active` reta
 its singleton/Receiver meaning; canonical activity is explicit and session-owned.
 Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
 see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
+
+### Scripted singleton entry lifecycle
+
+`scriptedCombatEntry` in `combat.js` supplies read-only preparation for the 15
+dedicated starters and the inline Pale Sentry override. `requireSingletonEncounter`
+retains the canonical roster gate and invokes this preparation. Authored callers
+own quest/proximity prerequisites and check before staging combat dialogue;
+registered choice/continuation callbacks carry their check in a WeakMap. Existing
+input and dialogue dispatch check before consuming the choice, final page or
+callback, then starters recheck before identities, RNG or combat writes.
+
+Fort arrest state, Kolm's stake, Mimic trap consumption and Rainfish wake state
+commit after successful activation. The trapped Drowned's existing slain flag
+commits only after victory for its exact bound enemy; defeat/escape allow retry.
+Lensweb finalization requires its exact enemy and victory or Observe-gated escape.
+Singleton reward receipts prevent duplicate awards and retain failed resolutions;
+inactive acknowledgement cannot repeat recovery. These runtime-only records do
+not change save version 5. Low-level singleton replacement remains available for
+the established normalization contract; world entry rejects active/foreign owners.
+See [the complete starter/lifecycle audit](SCRIPTED_COMBAT_ENTRY_AUDIT.md) and suite
+184. This does not expand canonical party enemy compatibility or alter Receiver/Lab
+ownership, formulas, valid RNG order or ordinary encounter selection.
 
 ### Resonance MVP (Lab and canonical activation)
 

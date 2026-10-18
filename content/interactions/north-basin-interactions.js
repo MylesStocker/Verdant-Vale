@@ -138,10 +138,9 @@ function interactSunkenGallery() {
           ];
           dialogue.open  = true; dialogue.page = 0;
         },
-        function killIt() {
-          window.sunken_gallery_drowned_slain = true; // clue destroyed the moment you choose the fight
+        scriptedCombatEntry.callback('startTrappedDrownedCombat', function killIt() {
           startTrappedDrownedCombat();
-        },
+        }),
         function backAway() {},
       ];
       choice.open = true;

@@ -410,6 +410,7 @@ window.addEventListener('keydown', e => {
         if (e.key === 'ArrowDown' || e.key === 's') choice.cursor = Math.min(choice.options.length - 1, choice.cursor + 1);
         if (e.key === ' ' || e.key === 'Enter') {
           const cb = choice.callbacks[choice.cursor];
+          if (!scriptedCombatEntry.checkCallback(cb)) return;
           choice.open = false;
           if (cb) cb();
         }

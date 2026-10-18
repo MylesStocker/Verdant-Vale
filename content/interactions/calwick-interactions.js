@@ -2149,6 +2149,7 @@ function interactCalwickVale() {
       const wx = player.x - BRIAR_WARDEN_SPAWN.x;
       const wy = player.y - BRIAR_WARDEN_SPAWN.y;
       if (Math.sqrt(wx * wx + wy * wy) < TALK_RADIUS) {
+        if (!scriptedCombatEntry.dialogue('warden')) return false;
         dialogue.name  = '';
         dialogue.pages = [
           ['The Briar Warden turns toward you.', 'It does not back down.'],

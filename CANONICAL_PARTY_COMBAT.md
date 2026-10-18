@@ -100,10 +100,14 @@ The 23 generation rolls are selection rolls, not battle-resolution rolls.
 Every existing scripted singleton starter has a roster guard, including Seep
 follow-up, Rainfish, spawning toads, dungeon boss, Warden, all three fort fights,
 Mulholland, Den Wraith, sailor brawl, Takomo, Mimic, Lensweb and trapped Drowned.
-Pale Sentry's persistent-HP override is rejected before selection. These handlers
-are unchanged for a one-member roster. Some dialogue/interaction callers already
-perform their own story effects before invoking a starter; this pass does not
-redesign those bespoke interaction transactions.
+Pale Sentry's persistent-HP override is rejected before selection. Pass 1 now adds
+read-only scripted preparation and caller guards before combat-specific staging,
+choice/queue consumption or activation. Drowned slain state waits for authenticated
+victory; fort arrest, Kolm stake, Mimic consumption and Rainfish wake state wait for
+successful activation. Exact-enemy reward receipts and outcome checks preserve
+idempotence. Valid singleton combat captures remain unchanged. See the complete
+[15-starter plus Sentry lifecycle audit](SCRIPTED_COMBAT_ENTRY_AUDIT.md) and suite
+184. These corrections do not approve any additional canonical-party template.
 
 The Receiver retains its pre-MQ5 Formation path. Both Labs retain their existing
 temporary profiles, inventory, cleanup and refund contracts. All three reject

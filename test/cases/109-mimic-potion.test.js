@@ -54,10 +54,11 @@ module.exports = {
       [['Someone must have dropped a potion on the ground!'], ['It attacks you!']],
       'grounded first line, "It attacks you!" second line');
     assert.equal(g.run("dialogue.triggerEncounterId"), 'mimic_potion', 'a mimic encounter is queued');
-    assert.equal(g.run("PICKUP_REGISTRY['pickup_sunken_gallery_mimic'].picked"), true, 'sparkle consumed on examination');
+    assert.equal(g.run("PICKUP_REGISTRY['pickup_sunken_gallery_mimic'].picked"), false, 'sparkle remains until successful activation');
     assert.equal(potions(g), 0, 'no potion granted up front (reward is on the kill)');
     g.run('handleInteract();'); g.run('handleInteract();'); // close dialogue -> dispatch encounter
     assert.equal(g.run('combat.active') && g.run("combat.enemy.id==='enemy_mimic_potion'"), true, 'exactly one Mimic Potion fight starts');
+    assert.equal(g.run("PICKUP_REGISTRY['pickup_sunken_gallery_mimic'].picked"), true, 'sparkle consumed on successful activation');
     assert.equal(g.run('combat.enemy.hp'), 40); assert.equal(g.run('combat.enemy.atk'), 60);
     assert.equal(g.run('combat.enemy.def'), 0); assert.equal(g.run('combat.enemy.guaranteedDrop'), 'Potion');
     // A second examine on the consumed sparkle does nothing (one-time trap).
@@ -104,7 +105,7 @@ module.exports = {
     {
       const gs = fresh();
       gs.run('resetLocationState();activeMap=SUNKEN_GALLERY_R0C3;inSunkenGallery=true;player.x=7.5*TILE;player.y=12.5*TILE;stats.items=[];');
-      gs.run('tryExamineWorldItem();'); // spring it
+      gs.run('tryExamineWorldItem();handleInteract();handleInteract();endCombat();'); // activate, then abandon
       assert.equal(gs.run("PICKUP_REGISTRY['pickup_sunken_gallery_mimic'].picked"), true, 'sprung');
       // The gallery is allowSave:false, but the sprung state lives on the GLOBAL
       // pickup registry, so it round-trips through collectedPickupIds from any

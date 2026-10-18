@@ -368,6 +368,7 @@ function interactMulhollandFloor() {
     const mx = player.x - MULHOLLAND.x;
     const my = player.y - MULHOLLAND.y;
     if (Math.sqrt(mx * mx + my * my) < TALK_RADIUS) {
+      if (!scriptedCombatEntry.dialogue('mulholland')) return false;
       dialogue.name  = '';
       dialogue.pages = MULHOLLAND_DIALOGUE;
       dialogue.open  = true;
@@ -468,6 +469,7 @@ function interactWrongteethFloor() {
     const bx = player.x - BOSS.x;
     const by = player.y - BOSS.y;
     if (Math.sqrt(bx * bx + by * by) < TALK_RADIUS) {
+      if (!scriptedCombatEntry.dialogue('boss')) return false;
       dialogue.name              = 'Wrongteeth';
       dialogue.pages             = BOSS_DIALOGUE;
       dialogue.open              = true;

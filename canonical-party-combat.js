@@ -1,8 +1,9 @@
 'use strict';
 
-function requireSingletonEncounter(name) {
+function requireSingletonEncounter(name, remaining) {
   if(canonicalPartyCombat.hasMultipleMembers())
     throw Error('Canonical party encounter: unsupported scripted encounter '+name);
+  return scriptedCombatEntry.preflight(name, remaining);
 }
 
 // World encounter ownership. Resolver/session state is transient; canonical

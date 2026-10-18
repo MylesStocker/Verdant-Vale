@@ -2104,6 +2104,8 @@ function assertSinglePlayerExecution() {
 // initializer below. No encounter calls the latter. Cleanup assigns null.
 function setSingleCombatEnemy(enemy) {
   if (enemy === null) {
+    trappedDrownedEnemy = null;
+    lenswebSpiderEnemy = null;
     if (combatMode === 'formation') formationRounds.clear();
     completedSingleVictoryReceipt = null;
     combat.enemies = Object.freeze([]);
@@ -2114,6 +2116,8 @@ function setSingleCombatEnemy(enemy) {
   }
   if (combatMode === 'formation') throw new Error('Clear formation state before initializing a singleton');
   const instance = createCombatEnemyInstance(enemy, 0);
+  trappedDrownedEnemy = null;
+  lenswebSpiderEnemy = null;
   completedSingleVictoryReceipt = null;
   combat.enemies = Object.freeze([instance]);
   combatMode = 'single';
@@ -3591,6 +3595,7 @@ function startCombat() {
   // reaches this call already does.
   const _sentryMapId = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapIdForRef(activeMap);
   if (_sentryMapId === 'MAP_N2' && sentry_quest_started && !sentry_quest_done) {
+    if (!scriptedCombatEntry.preflight('pale_sentry')) return;
     combat.enemy          = { ...PALE_SENTRY_TEMPLATE, hp: pale_sentry_hp };
     combat.active         = true;
     combat.phase          = 'choose';
@@ -3694,12 +3699,110 @@ function startCanonicalPartyEncounter() {
   return canonicalPartyCombat.enter({enemies:[template],escape:'fastest_living'});
 }
 
+// Read-only scripted-entry preparation. World callers use the same check before
+// staging dialogue/choices; starters recheck at installation. This owns neither
+// combat execution nor quest prerequisites (the authored interaction owns those).
+const scriptedCombatEntry = (() => {
+  const callbacks = new WeakMap();
+  const routes = Object.freeze({
+    boss:'startBossCombat', warden:'startWardenCombat', fort_guard:'startFortGuardCombat',
+    fort_polwick:'startFortPolwickCombat', fort_essa:'startFortEssaCombat',
+    mulholland:'startMulhollandCombat', den_wraith:'startDenWraithCombat',
+    takomo:'startTakomoCombat', kolm_brawler:'startSailorBrawlCombat',
+    lensweb_spider:'startLenswebSpiderCombat', mimic_potion:'startMimicPotionCombat',
+    mire_toad_spawn:'startMireToadSpawnCombat',
+  });
+  const templates = name => ({
+    startBossCombat:[BOSS_TEMPLATE], startWardenCombat:[BRIAR_WARDEN_TEMPLATE],
+    startFortGuardCombat:[SMUGGLER_GUARD_TEMPLATE], startFortPolwickCombat:[POLWICK_TEMPLATE],
+    startFortEssaCombat:[ESSA_TEMPLATE], startMulhollandCombat:[MULHOLLAND_TEMPLATE],
+    startDenWraithCombat:[DEN_WRAITH_TEMPLATE], startSailorBrawlCombat:[SAILOR_BRAWLER_TEMPLATE],
+    startTakomoCombat:[TAKOMO_TEMPLATE], startMimicPotionCombat:[MIMIC_POTION_TEMPLATE],
+    startLenswebSpiderCombat:[LENSWEB_SPIDER_TEMPLATE],
+    startTrappedDrownedCombat:[SUNKEN_GALLERY_ENEMY_TEMPLATES[0]],
+    startRainfishCombat:[RAINFISH_TEMPLATE],
+    startSeepSplitCombat:[ENEMY_TEMPLATE_REGISTRY.enemy_the_seep],
+    startMireToadSpawnCombat:[ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male,ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_female],
+    pale_sentry:[PALE_SENTRY_TEMPLATE],
+  })[name];
+  const fail = message => { throw Error('Scripted combat entry: '+message); };
+  const preflight = (name, remaining) => {
+    assertSinglePlayerExecution();
+    const candidates = templates(name);
+    if (!candidates) fail('unknown starter '+name);
+    const route=Object.keys(routes).find(id=>routes[id]===name);
+    if (route && typeof ENCOUNTER_HANDLERS[route]!=='function') fail('missing encounter handler '+route);
+    // Legacy singleton replacement is an established preparation contract.
+    // World/dialogue entry below requires idle combat; foreign owners never pass.
+    if (!['single',null].includes(combat.mode) || combat.enemies.length>1 ||
+        canonicalPartyCombat.isActive() || persistentParty.isCombatPending() ||
+        formationCombatLab.isOpen() || partyCombatLab.isActive() || galleryReceiverEncounter.isLocked())
+      fail('combat owner is not idle');
+    if (!Number.isSafeInteger(combatEnemyInstanceSequence) || combatEnemyInstanceSequence < 0 ||
+        combatEnemyInstanceSequence >= Number.MAX_SAFE_INTEGER)
+      fail('runtime identity capacity exhausted');
+    // The legacy missing-template paths remain inert, now before selection RNG.
+    if (candidates.some(t=>!t)) return false;
+    for (const t of candidates) {
+      const fields=Object.getOwnPropertyDescriptors(t);
+      if (Reflect.ownKeys(fields).some(k=>!Object.hasOwn(fields[k],'value')) ||
+          ['instanceId','slot','observeCount','escapeUnlocked'].some(k=>k in t))
+        fail('invalid enemy template metadata');
+      if (!['hp','maxHp','atk','def','spd','xp','goldMin','goldMax'].every(k=>Number.isSafeInteger(t[k])&&t[k]>=0) ||
+          !t.hp || t.hp>t.maxHp || t.goldMax<t.goldMin || typeof t.id!=='string') fail('invalid enemy template');
+    }
+    if (remaining!==undefined && (!Number.isInteger(remaining)||remaining<0||remaining>2)) fail('invalid chain count');
+    if (!Number.isFinite(stats.hp)||stats.hp<=0||!Array.isArray(stats.items)||!Array.isArray(statusEffects)) fail('invalid player state');
+    for (const [key,field] of Object.entries(Object.getOwnPropertyDescriptors(combat)))
+      if (Object.hasOwn(field,'value') && field.writable!==true) fail('combat field is not writable: '+key);
+    if (name==='startLenswebSpiderCombat' && (lighthouse_spider_resolved || !getActiveLighthouseObjective())) return false;
+    if (name==='startTrappedDrownedCombat' && (window.sunken_gallery_drowned_slain || window.sunken_gallery_drowned_freed)) return false;
+    if (name==='pale_sentry' && (!Number.isSafeInteger(pale_sentry_hp) || pale_sentry_hp<=0 || pale_sentry_hp>PALE_SENTRY_TEMPLATE.maxHp))
+      fail('invalid persistent Sentry HP');
+    return true;
+  };
+  const check = (name,remaining) => requireSingletonEncounter(name,remaining);
+  const dialogueCheck = id => {
+    if(id==='gallery_receiver') return true; // separate established Formation owner
+    if(combat.active) fail('combat owner is not idle');
+    if(!routes[id] || typeof ENCOUNTER_HANDLERS[id]!=='function') {
+      console.warn('Scripted combat entry: unknown dialogue encounter '+id);
+      return false;
+    }
+    if (!check(routes[id],id==='mire_toad_spawn'?2:undefined)) return false;
+    if (id==='kolm_brawler' && (!Number.isSafeInteger(stats.gold)||stats.gold<50)) fail('Kolm stake unavailable');
+    if (id==='mimic_potion') {
+      if (!PICKUP_REGISTRY.pickup_sunken_gallery_mimic) fail('missing Mimic pickup');
+      if (PICKUP_REGISTRY.pickup_sunken_gallery_mimic.picked) return false;
+    }
+    return true;
+  };
+  return Object.freeze({preflight, dialogue:dialogueCheck,
+    callback(name,callback,remaining,eligible=()=>true) {
+      if(typeof callback!=='function') fail('invalid callback');
+      const route=Object.keys(routes).find(id=>routes[id]===name);
+      const checkEntry=()=>{
+        if(!eligible()) return true; // e.g. the existing insufficient-stake dialogue
+        if(combat.active) fail('combat owner is not idle');
+        if(!check(name,remaining)) return false;
+        return route ? dialogueCheck(route) : true;
+      };
+      const wrapped=function(){if(checkEntry())return callback();};
+      callbacks.set(wrapped,checkEntry);return wrapped;
+    },
+    checkCallback(callback) {
+      if(callback!=null && typeof callback!=='function') fail('invalid callback');
+      return callbacks.has(callback)?callbacks.get(callback)():true;
+    },
+  });
+})();
+
 // The Seep's second half — a smaller mass that pulls itself together after the
 // parent is struck down. Reduced HP and only token rewards (the parent already
 // paid out); its danger is the extra round of atk-45 swings, not more loot.
 function startSeepSplitCombat(remaining) {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startSeepSplitCombat");
+  if (!requireSingletonEncounter("startSeepSplitCombat", remaining)) return;
   const t = ENEMY_TEMPLATE_REGISTRY.enemy_the_seep;
   if (!t) return; // Registry corruption: fail closed without creating combat.
   combat.enemy = { ...t, hp: 20, maxHp: 20, xp: 20, goldMin: 0, goldMax: 3 };
@@ -3718,7 +3821,7 @@ function startSeepSplitCombat(remaining) {
 
 function startRainfishCombat(remaining) {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startRainfishCombat");
+  if (!requireSingletonEncounter("startRainfishCombat", remaining)) return;
   // remaining: how many fights still come AFTER this one (2 = first of 3, 1 = second, 0 = last)
   const intros = [
     'The last one turns on you.',      // remaining === 0
@@ -3744,7 +3847,7 @@ function startRainfishCombat(remaining) {
 // freshly randomized for every investigation rather than authored or saved.
 function startMireToadSpawnCombat(remaining) {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startMireToadSpawnCombat");
+  if (!requireSingletonEncounter("startMireToadSpawnCombat", remaining)) return;
   const ids = ['enemy_mire_toad_male', 'enemy_mire_toad_female'];
   const t = ENEMY_TEMPLATE_REGISTRY[ids[Math.floor(Math.random() * ids.length)]];
   if (!t) return; // Registry corruption: fail closed without creating combat.
@@ -3819,7 +3922,7 @@ function endCombat() {
 
 function startBossCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startBossCombat");
+  if (!requireSingletonEncounter("startBossCombat")) return;
   combat.enemy          = { ...BOSS_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3835,7 +3938,7 @@ function startBossCombat() {
 
 function startWardenCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startWardenCombat");
+  if (!requireSingletonEncounter("startWardenCombat")) return;
   combat.enemy          = { ...BRIAR_WARDEN_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3851,7 +3954,7 @@ function startWardenCombat() {
 
 function startFortGuardCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startFortGuardCombat");
+  if (!requireSingletonEncounter("startFortGuardCombat")) return;
   combat.enemy          = { ...SMUGGLER_GUARD_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3867,7 +3970,7 @@ function startFortGuardCombat() {
 
 function startFortPolwickCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startFortPolwickCombat");
+  if (!requireSingletonEncounter("startFortPolwickCombat")) return;
   combat.enemy          = { ...POLWICK_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3884,7 +3987,7 @@ function startFortPolwickCombat() {
 
 function startFortEssaCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startFortEssaCombat");
+  if (!requireSingletonEncounter("startFortEssaCombat")) return;
   combat.enemy          = { ...ESSA_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3900,7 +4003,7 @@ function startFortEssaCombat() {
 
 function startMulhollandCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startMulhollandCombat");
+  if (!requireSingletonEncounter("startMulhollandCombat")) return;
   combat.enemy          = { ...MULHOLLAND_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3916,7 +4019,7 @@ function startMulhollandCombat() {
 
 function startDenWraithCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startDenWraithCombat");
+  if (!requireSingletonEncounter("startDenWraithCombat")) return;
   combat.enemy          = { ...DEN_WRAITH_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3932,7 +4035,7 @@ function startDenWraithCombat() {
 
 function startSailorBrawlCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startSailorBrawlCombat");
+  if (!requireSingletonEncounter("startSailorBrawlCombat")) return;
   combat.enemy          = { ...SAILOR_BRAWLER_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3948,7 +4051,7 @@ function startSailorBrawlCombat() {
 
 function startTakomoCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startTakomoCombat");
+  if (!requireSingletonEncounter("startTakomoCombat")) return;
   combat.enemy          = { ...TAKOMO_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3969,7 +4072,7 @@ function startTakomoCombat() {
 // handled by applyKillRewards' `guaranteedDrop` path.
 function startMimicPotionCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startMimicPotionCombat");
+  if (!requireSingletonEncounter("startMimicPotionCombat")) return;
   combat.enemy          = { ...MIMIC_POTION_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3993,12 +4096,13 @@ function startMimicPotionCombat() {
 // or the spider is already resolved, no combat starts and nothing is left pending.
 function startLenswebSpiderCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startLenswebSpiderCombat");
+  if (!requireSingletonEncounter("startLenswebSpiderCombat")) return;
   if (lighthouse_spider_resolved) return;             // never re-run the event
   const objective = getActiveLighthouseObjective();   // the one route/item authority
   if (!objective) return;                             // malformed/none: fail closed, no combat
 
   combat.enemy          = { ...LENSWEB_SPIDER_TEMPLATE };
+  lenswebSpiderEnemy    = combat.enemy;
   combat.active         = true;
   combat.phase          = 'choose';
   combat.cursor         = 0;
@@ -4029,6 +4133,13 @@ function finalizeLenswebSpiderEvent() {
   if (lighthouse_spider_resolved) return null;
   const objective = combat.pendingLighthouseObjective;
   if (!objective) return null;
+  const enemy=lenswebSpiderEnemy;
+  const victory=combat.phase==='victory' && combat.pendingVictory && enemy?.hp===0 &&
+    singletonRewardedEnemies.get(enemy)==='complete';
+  const escape=combat.pendingEscape && enemy?.escapeUnlocked && enemy.observeCount>0;
+  if (!enemy || !combat.active || combat.enemy!==enemy || stats.hp<=0 ||
+      combat.messageQueue.length || (!victory&&!escape) || objective!==getActiveLighthouseObjective())
+    throw Error('Invalid Lensweb Spider finalization');
   grantItem(objective);
   lighthouse_spider_resolved = true;
   syncQuestFlagsToWindow();
@@ -4039,12 +4150,16 @@ function finalizeLenswebSpiderEvent() {
 // down rather than free it (interactions.js). An ordinary Pale Drowned fight
 // (SUNKEN_GALLERY_ENEMY_TEMPLATES[0]) with its own opening line — victory,
 // defeat, and flight are all handled by the generic combat resolution. The
-// clue it was snagged on is destroyed at the moment of the choice, not here,
-// so fleeing the fight doesn't get the clue back.
+// persistent slain flag is written only on acknowledged victory. A private
+// runtime binding distinguishes this event from ordinary Pale Drowned encounters.
+let trappedDrownedEnemy = null;
+let lenswebSpiderEnemy = null;
+const singletonRewardedEnemies = new WeakMap();
 function startTrappedDrownedCombat() {
   assertSinglePlayerExecution();
-  requireSingletonEncounter("startTrappedDrownedCombat");
+  if (!requireSingletonEncounter("startTrappedDrownedCombat")) return;
   combat.enemy          = { ...SUNKEN_GALLERY_ENEMY_TEMPLATES[0] };
+  trappedDrownedEnemy   = combat.enemy;
   combat.active         = true;
   combat.phase          = 'choose';
   combat.cursor         = 0;
@@ -4493,6 +4608,10 @@ function enemyTurnResponse(enemy, textFn) {
 function applyKillRewards(enemy, msgs) {
   assertSinglePlayerExecution();
   if (!isActiveCombatEnemy(enemy)) return;
+  if (singletonRewardedEnemies.get(enemy)==='complete') return;
+  if (singletonRewardedEnemies.has(enemy)) throw Error('Singleton reward resolution cannot be retried');
+  // Claim before reward RNG: an unexpected failure must not rerun an award.
+  singletonRewardedEnemies.set(enemy,'resolving');
   msgs.push(`${enemy.name} was defeated!`);
   stats.xp += enemy.xp;
   msgs.push(`Gained ${enemy.xp} XP!  (Total: ${stats.xp})`);
@@ -4518,6 +4637,7 @@ function applyKillRewards(enemy, msgs) {
     combat.gullStolenAmount = 0;
   }
   combat.pendingVictory = true;
+  singletonRewardedEnemies.set(enemy,'complete');
 }
 
 // Custom observation text keyed by STABLE ENEMY TEMPLATE ID (enemy.id), not
@@ -4901,17 +5021,27 @@ function applyCombatDefeatWorldRecovery() {
 function handleCombatAction() {
   assertSinglePlayerExecution();
   if (combat.mode === 'formation') throw new Error('Formation state cannot process singleton actions');
+  if (!combat.active) return; // terminal acknowledgement must not finalize twice
   if (combat.phase === 'message') { advanceCombatMessage(); return; }
   if (combat.phase === 'victory') {
+    if (trappedDrownedEnemy) {
+      const enemy=trappedDrownedEnemy;
+      if (!combat.active || findCombatEnemy(enemy.instanceId)!==enemy || enemy.hp!==0 || stats.hp<=0 ||
+          !combat.pendingVictory || combat.messageQueue.length || singletonRewardedEnemies.get(enemy)!=='complete')
+        throw Error('Invalid trapped Drowned victory');
+      window.sunken_gallery_drowned_slain = true;
+      trappedDrownedEnemy = null;
+    }
     if (combat.isMireToadSpawn) {
       if (combat.mireToadRemaining > 0) {
         const nextRemaining = combat.mireToadRemaining - 1;
+        if (!requireSingletonEncounter('startMireToadSpawnCombat',nextRemaining)) return;
         endCombat();
         dialogue.name = '';
         dialogue.pages = [[nextRemaining === 1
           ? 'The first toad sinks into the mud. The spawning bed convulses again.'
           : 'The second toad falls. One last shape churns through the reeds.']];
-        dialogue.callbacks = [function() { startMireToadSpawnCombat(nextRemaining); }];
+        dialogue.callbacks = [scriptedCombatEntry.callback('startMireToadSpawnCombat', function() { startMireToadSpawnCombat(nextRemaining); }, nextRemaining)];
         dialogue.open = true;
         dialogue.page = 0;
       } else {
@@ -4939,10 +5069,11 @@ function handleCombatAction() {
       if (combat.rainfishRemaining > 0) {
         // Chain the next rainfish fight after a brief interstitial.
         const nextRemaining = combat.rainfishRemaining - 1;
+        if (!requireSingletonEncounter('startRainfishCombat',nextRemaining)) return;
         endCombat();
         dialogue.name  = '';
         dialogue.pages = [[ nextRemaining === 1 ? 'Another one follows.' : 'One more.' ]];
-        dialogue.callbacks = [function() { startRainfishCombat(nextRemaining); }];
+        dialogue.callbacks = [scriptedCombatEntry.callback('startRainfishCombat', function() { startRainfishCombat(nextRemaining); }, nextRemaining)];
         dialogue.open  = true;
         dialogue.page  = 0;
       } else {
@@ -4963,10 +5094,11 @@ function handleCombatAction() {
       if (combat.seepSplitRemaining > 0) {
         // The mass doesn't die — it splits. Chain the smaller half immediately.
         const nextRemaining = combat.seepSplitRemaining - 1;
+        if (!requireSingletonEncounter('startSeepSplitCombat',nextRemaining)) return;
         endCombat();
         dialogue.name  = '';
         dialogue.pages = [['The Seep bursts apart — but the pieces are still moving.']];
-        dialogue.callbacks = [function() { startSeepSplitCombat(nextRemaining); }];
+        dialogue.callbacks = [scriptedCombatEntry.callback('startSeepSplitCombat', function() { startSeepSplitCombat(nextRemaining); }, nextRemaining)];
         dialogue.open  = true;
         dialogue.page  = 0;
       } else {
@@ -5090,6 +5222,7 @@ function handleCombatAction() {
     }
     if (combat.isWarden) { warden_quest_defeated = true; refreshJobBoard(); }
     if (combat.isFortGuard) {
+      if (!requireSingletonEncounter('startFortPolwickCombat')) return;
       fort_quest_stage = 2;
       syncQuestFlagsToWindow();
       endCombat();
@@ -5104,6 +5237,7 @@ function handleCombatAction() {
       return;
     }
     if (combat.isFortPolwick) {
+      if (!requireSingletonEncounter('startFortEssaCombat')) return;
       fort_quest_stage = 3;
       syncQuestFlagsToWindow();
       endCombat();

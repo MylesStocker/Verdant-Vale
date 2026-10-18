@@ -6,6 +6,18 @@ actually fits together.
 
 ## Current state
 
+### Scripted entry atomicity — Pass 1
+
+The 15 dedicated singleton starters plus the inline Pale Sentry override are
+audited in [SCRIPTED_COMBAT_ENTRY_AUDIT.md](SCRIPTED_COMBAT_ENTRY_AUDIT.md).
+Predictable rejection now precedes combat-specific staging and callback/choice
+consumption. The trapped Drowned is marked slain only by authenticated victory;
+fort arrest, Kolm stake, Mimic consumption and Rainfish wake writes wait for
+successful activation. Repeated rewards/recovery and forged Lensweb finalization
+are guarded. Suite 184 adds deterministic caller, rejection and lifecycle coverage.
+Current suite count: 184; baseline: 183. No additional enemies become party
+compatible. Save version 5, geography and generated authorities remain unchanged.
+
 ### Canonical party combat integration
 
 Supported ordinary encounters now use the canonical party after MQ5 recruitment.
@@ -25,7 +37,7 @@ in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md). Suite 183 was used be
 181 and 182 already belonged to the lifecycle and field-menu suites.
 
 The following integration checkpoint describes the synchronized baseline; its
-182-suite count predates the new canonical integration suite (current total: 183).
+182-suite count predates suites 183 and 184 (current total: 184).
 
 ### Eastern terrain and party integration
 
