@@ -290,7 +290,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,127,  1, 23, 58, 23,  1,  1,  1,127,  1, 81,  1,127,  1,  1], // 13
       [  1,  1,  1, 58, 58, 58,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Reach', region: 'Eastern Fens', contentKey: 'eastern_fens_13',
+    displayName: 'Eastern Fens — Lakeward Reach', region: 'Eastern Fens', contentKey: 'eastern_fens_13',
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: false, allowSave: true,
     notes: 'A timbered bank crosses the widest water on the route. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
@@ -694,7 +694,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1, 23,  1, 23,  1,  1,  1,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_14_0',
+    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_14_0',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C5R1_MAP', regionId: 'overworld', chunkX: 5, chunkY: 1, map: [
@@ -834,7 +834,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1, 23,  1,121,  1,  1,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_13_1',
+    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_13_1',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C14R1_MAP', regionId: 'overworld', chunkX: 14, chunkY: 1, map: [
@@ -854,7 +854,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_14_1',
+    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_14_1',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C16R1_MAP', regionId: 'overworld', chunkX: 16, chunkY: 1, map: [
@@ -874,7 +874,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,121,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_16_1',
+    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_16_1',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C17R1_MAP', regionId: 'overworld', chunkX: 17, chunkY: 1, map: [
@@ -894,7 +894,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_17_1',
+    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_17_1',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C18R1_MAP', regionId: 'overworld', chunkX: 18, chunkY: 1, map: [
@@ -974,7 +974,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1, 23,  1, 23,  1,  1, 23,  1,  1,  1,  1,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_16_4',
+    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_16_4',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C5R3_MAP', regionId: 'overworld', chunkX: 5, chunkY: 3, map: [
@@ -1194,7 +1194,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,121,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Brackish Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_13_5',
+    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_13_5',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C14R5_MAP', regionId: 'overworld', chunkX: 14, chunkY: 5, map: [
