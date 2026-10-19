@@ -166,6 +166,6 @@ module.exports = {
 
     // ── 19. Seam audit unchanged. ────────────────────────────────────────────
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 66, ALIGNS: 124, BLOCKED: 234 }, 'seam audit includes the Eastern Fens route');
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 70, ALIGNS: 140, BLOCKED: 246 }, 'seam audit includes the Eastern Fens route');
   },
 };

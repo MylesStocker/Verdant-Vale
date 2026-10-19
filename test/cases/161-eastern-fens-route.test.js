@@ -99,7 +99,7 @@ module.exports = {
     assert.deepEqual(J("JSON.stringify(mapLocalPxToRegionWorldPx('EASTERN_FENS_CHANNEL_ROAD_N_MAP',64,96))"),
       { regionId: 'overworld', worldPxX: 7744, worldPxY: 576 });
     assert.equal(g.run("regionWorldPxToLocal('overworld',7744,576).mapId"), 'EASTERN_FENS_CHANNEL_ROAD_N_MAP');
-    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), -2);
+    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), -4);
     assert.equal(g.run("buildContinuousWorldPlanFromWorld('overworld',15*COLS*TILE,0,512,480).activePlacement.mapId"), 'EASTERN_FENS_VALMERE_REVEAL_MAP');
 
     for (const id of ['EASTERN_FENS_VALMERE_REVEAL_MAP', 'EASTERN_FENS_VALMERE_SHORE_W_MAP', 'EASTERN_FENS_VALMERE_SHORE_E_MAP']) {

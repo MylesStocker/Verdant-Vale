@@ -71,8 +71,8 @@ module.exports = {
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} no encounters`);
     }
     // Totals after increments 3 + 4.
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 107, 'route + infill + scenery + northern water placements');
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 60, '47 route + 4 infill + 3 western pockets + 3 NW open fen');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 115, 'route + infill + scenery + northern water placements');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 66, '47 route + 4 infill + 3 western pockets + 3 NW open fen');
 
     // THE PERMANENT INVARIANT: zero visible void from every reachable EF tile.
     const voidResult = J(`JSON.stringify((function(){
@@ -118,7 +118,7 @@ module.exports = {
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.equal(b.maxChunkX, 18, 'east bbox unchanged (Cardenport at 19,0 stays clamped)');
     assert.equal(b.maxChunkY, 5, 'south bbox unchanged');
-    assert.equal(b.minChunkY, -2, 'north bbox now row -2 (Cardenport headland)');
+    assert.equal(b.minChunkY, -4, 'north bbox now row -4 (Cardenport town + harbour water)');
 
     // Resolved spurs: the WIDE_WATER north bridge is now a real seam into the
     // bridge inlet (13,2); the CHANNEL_APPROACH_W south road now ends against the

@@ -1704,6 +1704,37 @@ const EDGE_TRANSITIONS = {
   },
   EASTERN_FENS_CARDENPORT_APPROACH_W_MAP: {
     east: [{ targetMap: 'EASTERN_FENS_CARDENPORT_APPROACH_M_MAP', targetEdge: 'west', sourceRange: [5, 9] }],
+    north: [{ targetMap: 'EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP', targetEdge: 'south', sourceRange: [6, 9] }],
+  },
+  // Cardenport town shell (terrain only) — a 3x2-chunk grid: Western Approach /
+  // Administrative Centre / Residential Streets at row -2 (street level), Harbour /
+  // Working Waterfront / Eastern Edge at row -3 (waterfront level), fully connected.
+  EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_CARDENPORT_APPROACH_W_MAP', targetEdge: 'north', sourceRange: [6, 9] }],
+    east: [{ targetMap: 'EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP', targetEdge: 'west', sourceRange: [6, 9] }],
+    north: [{ targetMap: 'EASTERN_FENS_CARDENPORT_HARBOUR_MAP', targetEdge: 'south', sourceRange: [6, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP', targetEdge: 'east', sourceRange: [6, 9] }],
+    east: [{ targetMap: 'EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP', targetEdge: 'west', sourceRange: [6, 9] }],
+    north: [{ targetMap: 'EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP', targetEdge: 'south', sourceRange: [6, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP', targetEdge: 'east', sourceRange: [6, 9] }],
+    north: [{ targetMap: 'EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP', targetEdge: 'south', sourceRange: [6, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_HARBOUR_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP', targetEdge: 'north', sourceRange: [6, 9] }],
+    east: [{ targetMap: 'EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP', targetEdge: 'west', sourceRange: [6, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_CARDENPORT_HARBOUR_MAP', targetEdge: 'east', sourceRange: [6, 9] }],
+    east: [{ targetMap: 'EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP', targetEdge: 'west', sourceRange: [6, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP', targetEdge: 'north', sourceRange: [6, 9] }],
+  },
+  EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP', targetEdge: 'east', sourceRange: [6, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP', targetEdge: 'north', sourceRange: [6, 9] }],
   },
   // Eastern Fens envelope (Phase 2) — walkable infill pockets off the route. The
   // bridge inlet hangs north off the WIDE_WATER timber bridge as a dead-end reed
