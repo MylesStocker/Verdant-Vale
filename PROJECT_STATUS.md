@@ -6,6 +6,38 @@ actually fits together.
 
 ## Current state
 
+### Structural canonical battle envelope — Pass 2
+
+Pass 1 was verified at 184/184 and checkpointed as
+`ae3860c219e5e4a77e26926fc668079efafbb4d9`
+(`fix(combat): make scripted encounter entry atomic`). Pass 2 remains uncommitted.
+
+Canonical preparation now explicitly supports all nine 1–3 ally / 1–3 enemy
+combinations through independent read-only player and enemy boundaries and a
+frozen combined plan. Suite 185 proves six-actor scheduling, stable Fallen slots,
+duplicate enemy identities/labels, three drafts and inventory reservations,
+Quickbloom/Strain, effects, outcomes, historical playback and atomic rejection.
+No third character is added; the third slot is exercised only in isolated tests.
+Normal singleton/recruited-party routing, Receiver ownership and both Labs remain
+unchanged. The nine-template party allowlist and group restrictions are preserved.
+
+`encounter-formations.js` supplies closed immutable ordered formation records,
+safe positive weights, legacy flat-pool shorthand and a one-draw selection API.
+Startup/data validation checks the tables; no production pool is rewritten or
+new encounter route activated. The intended Mire Toad/Waspthra/Botfly fixtures
+remain blocked: Toad mechanics are unsupported, and Waspthra/Botfly templates are
+not present in this checkout. Ordinary migration and special mechanics remain
+Pass 3/4 work.
+
+Quickbloom now declares immutable `elements: ['bloommarked']`; `firelit` is a
+recognized future element ID. Affinity remains the separate caster gate. There
+are no new techniques, elemental calculations or modifier items.
+
+Verification: 185/185 regression suites, 0 data errors / 4 established warnings,
+107/107 fingerprints, unchanged read-only transition audit and all four historical
+capture digests. SAVE_VERSION remains 5. No geography, generated artifacts, save
+fields, canon, stats, rewards or balance changed. Headless verification only.
+
 ### Scripted entry atomicity — Pass 1
 
 The 15 dedicated singleton starters plus the inline Pale Sentry override are
@@ -15,7 +47,7 @@ consumption. The trapped Drowned is marked slain only by authenticated victory;
 fort arrest, Kolm stake, Mimic consumption and Rainfish wake writes wait for
 successful activation. Repeated rewards/recovery and forged Lensweb finalization
 are guarded. Suite 184 adds deterministic caller, rejection and lifecycle coverage.
-Current suite count: 184; baseline: 183. No additional enemies become party
+Pass 1 suite count: 184; baseline: 183. No additional enemies become party
 compatible. Save version 5, geography and generated authorities remain unchanged.
 
 ### Canonical party combat integration
@@ -37,7 +69,7 @@ in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md). Suite 183 was used be
 181 and 182 already belonged to the lifecycle and field-menu suites.
 
 The following integration checkpoint describes the synchronized baseline; its
-182-suite count predates suites 183 and 184 (current total: 184).
+182-suite count predates suites 183–185 (current total: 185).
 
 ### Eastern terrain and party integration
 

@@ -118,7 +118,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
 const SECRET_23_TEMPLATE = { id: 'enemy_23', name: '23', inline: true };
 const ENEMY_TEMPLATE_REGISTRY = {};
 (function buildEnemyTemplateRegistry() {
-  const add = (t) => { if (t && typeof t.id === 'string') ENEMY_TEMPLATE_REGISTRY[t.id] = t; };
+  const add = (t) => { if (t && !Object.hasOwn(t,'enemies') && typeof t.id === 'string') ENEMY_TEMPLATE_REGISTRY[t.id] = t; };
   ENEMY_TEMPLATE_POOLS.forEach((pool) => pool.templates.forEach(add));
   ENEMY_SCRIPTED_TEMPLATES.forEach(add);
   add(SECRET_23_TEMPLATE);
@@ -1344,6 +1344,15 @@ const combatPlayerState = (() => {
     });
   })();
   let persistentBridgeClaimed=false;
+  const persistentActorVariants = prepared => prepared.candidates.map((m,i)=>{
+    const gear=Object.fromEntries(Object.entries(prepared.loadouts[i]).map(([k,id])=>[k,id===null?null:formationItemDefinition(id).item]));
+    const atk=effectiveAtk({...m,...gear}),def=m.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0),spd=m.spd+(gear.accessory?.bonus||0);
+    if(![atk,def,spd].every(n=>Number.isSafeInteger(n)&&n>=0))fail();
+    return [m.statuses,[],['muddied']].map(statuses=>({...m,atk,
+      def:Math.max(0,def-(statuses.includes('muddied')?1:0)),
+      spd:statuses.includes('slither')?prepared.effects[i].slither.speed:Math.max(1,spd-(statuses.includes('muddied')?2:0)),
+      bypass:gear.armor?.defenseCapBypass===true}));
+  });
   const claimPersistentBridge=()=>{
     if(persistentBridgeClaimed)fail();
     persistentBridgeClaimed=true;
@@ -1354,38 +1363,26 @@ const combatPlayerState = (() => {
       return current;
     };
     return Object.freeze({
+      preparePlayer(request) {
+        const prepared=commandRounds.seed(request,true),actors=persistentActorVariants(prepared).map(v=>v[0]).filter(m=>m.hp>0);
+        partyInitiativeWeights(actors);
+        partyInitiativeWeights(actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})));
+        return copyFormationData(prepared.data);
+      },
       begin(request,enemyIds,validateOnly=false) {
         if(owner||combat.mode!==null||combat.active||combat.enemies.length||partyCombatLab.isActive())fail();
-        const ids=array(enemyIds);
-        if(ids.length<1||ids.length>3||combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
-        const templates=ids.map(id=>{
-          if(!PARTY_ATTACK_TEMPLATE_IDS.includes(id))fail();
-          const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value;
-          const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[])];
-          const t=attackRecord(template,keys);
-          if(t.id!==id||typeof t.name!=='string'||!formationBasicStatsValid(t)||!t.hp||
-              !['xp','goldMin','goldMax'].every(k=>Number.isSafeInteger(t[k])&&t[k]>=0)||
-              (Object.hasOwn(t,'isBoss')&&typeof t.isBoss!=='boolean'))fail();
-          return t;
-        });
-        if(ids.length>1)validateFormationDescriptors(ids.map((enemyId,slot)=>({enemyId,slot})));
+        const {ids,templates}=preparePartyEnemyFormation(enemyIds);
+        if(!Number.isSafeInteger(combatEnemyInstanceSequence)||combatEnemyInstanceSequence<0||
+            combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
         const prepared=commandRounds.seed(request,true);
-        const actorVariants=prepared.candidates.map((m,i)=>{
-          const gear=Object.fromEntries(Object.entries(prepared.loadouts[i]).map(([k,id])=>[k,id===null?null:formationItemDefinition(id).item]));
-          const atk=effectiveAtk({...m,...gear}),def=m.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0),spd=m.spd+(gear.accessory?.bonus||0);
-          if(![atk,def,spd].every(n=>Number.isSafeInteger(n)&&n>=0))fail();
-          return [m.statuses,[],['muddied']].map(statuses=>({...m,atk,
-            def:Math.max(0,def-(statuses.includes('muddied')?1:0)),
-            spd:statuses.includes('slither')?prepared.effects[i].slither.speed:Math.max(1,spd-(statuses.includes('muddied')?2:0)),
-            bypass:gear.armor?.defenseCapBypass===true}));
-        });
+        const actorVariants=persistentActorVariants(prepared);
         for(const variants of actorVariants)for(const a of variants)for(const e of templates)if(!attackNumbersAreSafe(a.atk,e.def)||
             !attackNumbersAreSafe(e.atk,playerIncomingMitigation(e.atk,a.def,a.bypass))||
             !Number.isSafeInteger(Math.max(1,a.spd)+Math.max(1,e.spd)))fail();
         const actors=actorVariants.map(a=>a[0]).filter(m=>m.hp>0);
         partyInitiativeWeights([...actors,...templates]);
         partyInitiativeWeights([...actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})),...templates]);
-        if(validateOnly)return;
+        if(validateOnly)return copyFormationData({player:prepared.data,enemies:templates});
         // All input and numeric validation precedes either identity allocator.
         if(completedSingleVictoryReceipt!==null)prepareFormationEntry();
         if(ids.length===1)combat.enemy=templates[0];

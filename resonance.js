@@ -2,6 +2,7 @@
 
 // Closed authored technique data. This is not a registry extension API: tests
 // install synthetic authored definitions by replacing source in their VM only.
+const RESONANCE_ELEMENTS = Object.freeze(['bloommarked','firelit']);
 function validateResonanceTechnique(value) {
   const fail=()=>{throw Error('Invalid Resonance technique definition');};
   const record=(v,keys)=>{
@@ -10,7 +11,15 @@ function validateResonanceTechnique(value) {
     if(Reflect.ownKeys(d).length!==keys.length||keys.some(k=>!Object.hasOwn(d[k]||{},'value')))fail();
     return Object.fromEntries(keys.map(k=>[k,d[k].value]));
   };
-  const d=record(value,['id','name','kind','initiator','participants','target','effect']);
+  const d=record(value,['id','name','kind','initiator','participants','target','effect','elements']);
+  if(!Array.isArray(d.elements)||Object.getPrototypeOf(d.elements)!==Object.getPrototypeOf([])||!Object.isFrozen(d.elements))fail();
+  const elementFields=Object.getOwnPropertyDescriptors(d.elements),elements=[];
+  if(!d.elements.length||Reflect.ownKeys(elementFields).length!==d.elements.length+1)fail();
+  for(let i=0;i<d.elements.length;i++){
+    if(!Object.hasOwn(elementFields[i]||{},'value')||!RESONANCE_ELEMENTS.includes(elementFields[i].value))fail();
+    elements.push(elementFields[i].value);
+  }
+  if(new Set(elements).size!==elements.length)fail();
   const id=v=>typeof v==='string'&&/^[a-z][a-z0-9_]*$/.test(v);
   if(!id(d.id)||typeof d.name!=='string'||!d.name.trim()||d.name.length>40||!id(d.initiator)||
       !['ordinary','combined'].includes(d.kind)||d.target!=='living_wounded_ally'||d.effect!=='heal_fifth'||
@@ -25,10 +34,11 @@ function validateResonanceTechnique(value) {
     participants.push(Object.freeze(p));
   }
   if(new Set(participants.map(p=>p.characterId)).size!==n||!participants.some(p=>p.characterId===d.initiator))fail();
-  return Object.freeze({...d,participants:Object.freeze(participants)});
+  return Object.freeze({...d,elements:Object.freeze(elements),participants:Object.freeze(participants)});
 }
 const RESONANCE_TECHNIQUES = Object.freeze({
   quickbloom:validateResonanceTechnique({id:'quickbloom',name:'Quickbloom',kind:'ordinary',initiator:'esla',
+    elements:Object.freeze(['bloommarked']),
     participants:[{characterId:'esla',affinity:'bloommarked',strain:1}],target:'living_wounded_ally',effect:'heal_fifth'}),
 });
 

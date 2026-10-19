@@ -243,8 +243,11 @@ const persistentParty = (() => {
       statusEffects=statusEffects.filter(s=>!removable.includes(s));slitherSpd=1;revision++;return snapshot();
     },
     combatSnapshot(){if(arguments.length)fail();idle();return prepare();},
+    prepareCombat(policy){
+      if(arguments.length!==1)fail();idle();return bridge.preparePlayer(encounterRequest(policy));
+    },
     validateCombat(enemyIds,policy){
-      if(arguments.length!==2)fail();idle();bridge.begin(encounterRequest(policy),array(enemyIds),true);
+      if(arguments.length!==2)fail();idle();return bridge.begin(encounterRequest(policy),array(enemyIds),true);
     },
     beginCombat(enemyIds,policy){
       if(arguments.length<1||arguments.length>2)fail();idle();let request=prepare();const before=seal();

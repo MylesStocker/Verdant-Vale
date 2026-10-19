@@ -6,14 +6,14 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 184 regression suite
+Current integration totals: 208 maps, 107 regional chunks, 185 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
 ### Canonical party encounters
 
-`canonical-party-combat.js` owns real multi-member encounters. One-member rosters
-retain the singleton path. `startCombat()` selects through the existing geographic
+`canonical-party-combat.js` owns real party encounters. One-member rosters
+retain the singleton path in normal gameplay. `startCombat()` selects through the existing geographic
 pool and overrides before calling the explicit `enter({enemies,escape})` boundary;
 unsupported selections fail closed, without installing singleton state. Entry
 accepts one to three exact approved templates (or template IDs), validates the
@@ -36,6 +36,92 @@ dependency. Input uses the existing listener and key latch. `combat.active` reta
 its singleton/Receiver meaning; canonical activity is explicit and session-owned.
 Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
 see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
+
+### Structural canonical battle envelope — Pass 2
+
+The explicit canonical boundary supports one to three authored ally slots against
+one to three enemy slots. This adds no normal-game route: recruitment still gates
+automatic canonical entry, Chapter One still uses singleton combat, and the
+Receiver still owns its established Formation lifecycle. No third production
+character or additional compatible enemy is introduced.
+
+`canonicalPartyCombat.preparePlayerSide({escape})` reads the canonical roster
+through `persistentParty.prepareCombat` and the private bridge's existing command
+seed validator. It validates authored IDs/slots, unique membership, HP/statuses,
+equipment, shared inventory, Rareborn bindings and prepared arithmetic, requires
+at least one living ally, and retains Fallen slots. Lely remains owned by
+`stats`/`statusEffects`/`slitherSpd`; companion ownership remains `persistentParty`.
+The result is a frozen transient descriptor, not another mutable character owner.
+Its exact fields are `members`, `inventory`, `equipment`, `escape`, `resonance`,
+and optional `slither` when an existing Slither status needs its current sample.
+Each member has `characterId`, `slot`, `name`, `hp`, `maxHp`, `atk`, `def`, `spd`,
+`statuses`; inventory contains registered item IDs; each equipment row has
+`weapon`, `armor`, `shield`, `accessory` IDs or null. Resonance rows contain
+`characterId`, `slot`; Slither rows contain `slot`, `speed`. Equipment/capability
+rows correspond exactly to member slots. Escape is `blocked` or `fastest_living`.
+Level/XP/progression remain in their existing canonical owners, not runtime IDs.
+
+`canonicalPartyCombat.prepareEnemySide(enemies)` delegates to
+`preparePartyEnemyFormation` in `encounter-formations.js`. It accepts one to three
+ordered registered IDs or exact approved template data, checks numeric safety and
+the unchanged party/group capability gates, and produces frozen templates and
+slot descriptors without reading the roster. Duplicate templates remain distinct
+slots. `prepare({enemies,escape})` composes these authorities into a frozen battle
+plan and additionally checks cross-side arithmetic, cumulative initiative weights,
+ownership, reward arithmetic and world cleanup. No RNG, identities, callbacks or
+live writes occur in preparation. `enter` revalidates current canonical state;
+external plans are not installation credentials. Identities are allocated only
+after validation, remain unique across later encounters, and never enter saves.
+The enemy-side result has exactly `ids`, `templates`, `slots`; each slot row is
+`{enemyId, slot}`. The combined plan has `templates`, `ids`, `playerSide`,
+`enemySide`, `escape`, `origin`, `xp`, `rewardId`, `memberIds`. Origin/reward fields
+are validated cleanup/reward context, not an installed callback or awarded reward.
+
+The existing generalized scheduler/controller/playback and presentation already
+support six actors. Each living ally drafts in slot order; reservations/backtracking
+remain per draft. Each living enemy samples a living ally once when there are
+multiple living allies and uses no target-selection RNG when there is only one.
+Initiative consumes N−1 draws (five for six actors). Targets remain frozen, dead
+actors skip, dead targets cancel, slots never compact, and effects/Strain advance
+once per completed round. Ally x positions remain 108, 256, 404. The older
+`combatPlayerState.initialize` two-member Attack-only API and the Formation
+enemy-storage two/three descriptor contract remain intentionally unchanged.
+
+`encounter-formations.js` loads after `combat.js` (registry/copy authorities) and
+before `persistent-party.js`. The exact authored record is:
+
+```js
+Object.freeze({
+  id: 'formation_example',
+  enemies: Object.freeze(['enemy_marsh_wisp', 'enemy_marsh_wisp']),
+  weight: 2,
+})
+```
+
+Only `id`, `enemies`, `weight` are allowed. IDs match `formation_[a-z0-9_]+`;
+the dense frozen enemy array contains one to three `enemy_[a-z0-9_]+` IDs in slot
+order. Weight and total table weight are positive safe integers. Records/arrays
+reject accessors, callbacks, extra fields, holes and mutable nested data. Authored
+formation IDs are unique per table and cannot alias generated shorthand IDs.
+`validateDefinition` checks immutable shape only; `normalizePool` also requires
+registration. Neither implies runtime capability approval. Existing registered
+template objects are shorthand for `{id:'formation_single_'+template.id,
+enemies:[template.id],weight:1}`; repeated legacy entries retain their weighting.
+
+`select(pool)` validates the entire table before exactly one `Math.random()` draw,
+including a one-entry table. All-flat tables use the existing `floor(roll*length)`
+index. Tables with explicit records use ordered cumulative half-open weight
+intervals. The normalized result and selection are frozen. Startup and
+`validateGameData()` validate registered pool data. Existing pools are unchanged;
+the current geographic selector and its separate rare-23 override retain their
+original RNG calls. Explicit weighted formations are data/preparation contracts
+only until a later authorized routing pass; none is installed in geography here.
+
+Suite 185 exercises all nine size combinations with a VM-only third definition,
+including six-actor commands, outcomes, reservations, history, rejection and IDs.
+Future Eastern Fens fixtures are shape-valid only: Mire Toad remains capability
+blocked, while Waspthra/Botfly are absent from this registry and fail registration.
+No mechanics are discarded to execute those records.
 
 ### Scripted singleton entry lifecycle
 
@@ -67,6 +153,17 @@ Lely `{rareBorn:false, affinity:null}` and Esla
 `{rareBorn:true, affinity:'bloommarked'}`. These static fields are not saved.
 Canonical encounters supply these bindings through persistent-party preparation.
 The original explicit headless API without a policy retains its older result shape.
+
+Every immutable technique definition now has a nonempty frozen `elements` array
+of unique stable IDs from `RESONANCE_ELEMENTS`: `bloommarked` and `firelit`.
+Quickbloom has `elements: Object.freeze(['bloommarked'])` and retains its separate
+Bloommarked affinity requirement. Affinity controls caster eligibility; elements
+identify which future elemental modifiers apply. Future modifiers must match
+these static elements, not technique IDs, character IDs or inferred caster
+affinity. Unknown, duplicate, empty, malformed and mutable element arrays reject.
+No Firelit technique, combined technique, elemental calculation or modifier item
+is added. Healing, Strain, RNG, result/event schemas and detached history remain
+unchanged; playback does not duplicate static element metadata.
 
 Command preparation optionally accepts `resonance:[{slot,characterId}]`, one
 binding per member. A shared pure validator checks each against authored

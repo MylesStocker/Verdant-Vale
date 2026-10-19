@@ -1,9 +1,86 @@
 # Canonical party combat integration review
 
-Implementation is unstaged and uncommitted on `agent/codex`. No push, rebase,
-main modification, or other worktree modification was performed.
+Current Pass 2 implementation is unstaged and uncommitted on `agent/codex`.
+Pass 1 checkpoint: `ae3860c219e5e4a77e26926fc668079efafbb4d9`, after verifying
+184/184 suites. No push, merge, rebase, main modification or other worktree
+modification was performed during these two stages. The original integration
+baseline/review below is historical; the current contracts follow.
 
-## Baseline and scope
+## Pass 2 structural envelope
+
+The explicit canonical API represents 1–3 authored allies against 1–3 approved
+enemies. All nine size combinations pass suite 185. Normal routing is unchanged:
+one-member gameplay stays singleton, recruited supported encounters stay canonical,
+Receiver stays Formation. No third canonical member or new geographic route exists.
+The old compatibility inventory below still applies, including the independent
+group gate (Mulholland remains a one-enemy explicit fixture, not group-approved).
+
+Read-only `preparePlayerSide({escape})` uses persistent-party canonical ownership;
+`prepareEnemySide(enemies)` validates ordered registered IDs/exact template data
+without inspecting the roster. `prepare({enemies,escape})` produces a recursively
+frozen combined plan after cross-side arithmetic, safe cumulative weights, owner,
+reward and cleanup checks. Preparing allocates no identities and consumes no RNG.
+`enter` rechecks current state rather than trusting a supplied prior plan. Slots
+are fixed; Fallen members retain them. Runtime IDs are unique per instance and
+fresh on later encounters. Duplicate names retain slot-based A/B/C presentation.
+Lely still writes through stats/status/equipment authorities; companions through
+persistentParty; shared inventory and authenticated outcomes retain one-time
+writeback/reward semantics. No persistent schema or ownership changes were made.
+
+The exact formation schema, shorthand and validation boundaries are documented in
+[architecture.md](architecture.md#structural-canonical-battle-envelope--pass-2).
+An authored formation is frozen `{id, enemies: Object.freeze([...]), weight}`.
+One to three ordered registered IDs map directly to enemy slots. Positive safe
+integer weights have a safe total; authored IDs are unique. Existing exact template
+objects normalize to one-enemy formations at weight 1 and retain repeated entries.
+The whole table validates before one selection draw. Legacy flat tables retain
+`floor(roll*length)`; explicit weighted tables use cumulative half-open intervals.
+The existing normal-game pool selector and separate rare-23 override are untouched.
+No explicit formations are added to production geographic pools in this pass.
+
+Test-only intended formations:
+
+| Composition | Shape | Registration/runtime status |
+| --- | --- | --- |
+| Mire Toad ×3 | Valid | Uses registered male Toad ID three times; poison/sex mechanics remain blocked. |
+| Waspthra ×1 | Valid | `enemy_waspthra` is a fixture spelling, not an assigned production ID; template absent, rejects. |
+| Botfly ×2 + Waspthra ×1 | Valid | `enemy_botfly` and `enemy_waspthra` are fixture spellings; templates absent, reject. |
+
+Execution tests use approved duplicate Marsh Wisps. No enemy mechanics, stats or
+templates were invented. Pass 3/4 must address ordinary-enemy migration, special
+instance mechanics and any separately authorized content/formation activation.
+
+Resonance definitions add frozen nonempty unique `elements` arrays. Quickbloom is
+`['bloommarked']`, separately from its Bloommarked affinity requirement. `firelit`
+is a valid future element identifier; no Firelit technique/item is implemented.
+Future elemental modifiers match static technique elements rather than caster or
+technique IDs. Healing, Strain, RNG and combat-result/playback schemas are unchanged.
+Suite 180's synthetic definition inputs were updated only for this required field.
+
+Verification: full regression 185/185 (Pass 2 baseline 184/184), 0 validation
+errors / 4 established warnings, 107 fingerprints, exact committed transition
+audit, SAVE_VERSION 5. Historical evidence remains byte-identical:
+
+| Projection | Count | SHA-256 |
+| --- | --- | --- |
+| Singleton | 52 traces / 387 checkpoints / 482 RNG values | `2034f8f2639c78e6d8b69d4d25a47f7d9e8ec53548f4227376faa30a8b288a66` |
+| Formation | 133 captures | `403050ca0c4c346ad886eff4f2083736103bdb93aa50d387761b5d5215e6e36e` |
+| Party Attack | 586 captures | `b97f7bdc7c8012218a32c663d3a2b52a9f61e1c826993d40e956dc03caa13d8f` |
+| Generalized commands | 1,271 captures | `b084ef1cfd7a1694a7a5a0a63c0267fd8a0c12368861a56f6542edb34548e4ea` |
+
+An additional Pass 1/Pass 2 comparison of suite 180's 130 Resonance result/playback
+captures is identical: `026f44f41da431c818e33de08fe2679065cd461d9a2d638627b7b6ba0a168f74`.
+The only intended static definition-shape extension is `elements`; no historical
+combat-result or event field changes. Suite 185 contains 30 checks, including
+the nine size combinations. The focused verification run covers 43 suites.
+
+No transition/fingerprint artifact was regenerated. No browser testing was
+performed; this pass adds no visible production route. Optional smoke review:
+pre-MQ5 singleton, post-MQ5 supported encounter and all commands, Quickbloom's
+recovery round, victory/escape/defeat persistence and save/load, both Labs and
+Receiver. The third member and explicit formation examples remain headless-only.
+
+## Original integration baseline and scope (historical)
 
 - Before synchronization: `225620231cd2a58716fbaaf4ccb71c967fbbaa89`.
 - Synchronized baseline and final HEAD: `3d5413a8b3094070da503c5cb05c0a689b4c92b5`.

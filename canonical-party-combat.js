@@ -22,39 +22,13 @@ const canonicalPartyCombat = (() => {
       fail('unknown field or accessor');
     return Object.fromEntries(keys.map(k=>[k,fields[k].value]));
   };
-  const enemies=value=>{
-    if(!Array.isArray(value)||![Array.prototype,Object.getPrototypeOf([])].includes(Object.getPrototypeOf(value)))fail('enemy group must be a dense array');
-    const fields=Object.getOwnPropertyDescriptors(value),n=fields.length.value;
-    if(n<1||n>3||Reflect.ownKeys(fields).length!==n+1)fail('requires one to three enemies');
-    return Array.from({length:n},(_,i)=>{
-      if(!Object.hasOwn(fields[i]||{},'value'))fail('enemy group contains an accessor or hole');
-      const supplied=fields[i].value,id=typeof supplied==='string'?supplied:Object.getOwnPropertyDescriptor(supplied||{},'id')?.value;
-      if(typeof id!=='string'||!PARTY_ATTACK_TEMPLATE_IDS.includes(id)){
-        const known=typeof id==='string'?Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value:null;
-        const capabilities=known?Object.keys(known).filter(k=>![...FORMATION_STATE_DATA_FIELDS,'isBoss'].includes(k)):[];
-        fail('unsupported enemy '+String(id)+(capabilities.length?' ('+capabilities.join(', ')+')':' (unapproved encounter or presentation)'));
-      }
-      const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value;
-      const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[])];
-      const exact=data(template,keys);
-      if(typeof supplied!=='string'){
-        const input=data(supplied,keys);
-        if(keys.some(k=>input[k]!==exact[k]))fail('enemy instance differs from its approved template: '+id);
-      }
-      if(exact.id!==id||!formationBasicStatsValid(exact)||!exact.hp||
-          !['xp','goldMin','goldMax'].every(k=>safe(exact[k]))||exact.goldMax<exact.goldMin||
-          !safe(exact.goldMax-exact.goldMin+1))
-        fail('invalid enemy arithmetic: '+id);
-      return exact;
-    });
-  };
   const location=()=>JSON.stringify({location:snapshotLocationState(),regional:regionalWorldPosition(),
     mapId:mapIdForRef(activeMap),x:player.x,y:player.y,day,defeatWakeAtHome});
   const preflight=request=>{
-    if(battle||!multiple())fail('requires an idle canonical multi-member party');
+    if(battle)fail('requires an idle canonical party');
     const spec=data(request,['enemies','escape']);
     if(!['blocked','fastest_living'].includes(spec.escape))fail('unsupported escape policy');
-    const templates=enemies(spec.enemies),ids=templates.map(t=>t.id);
+    const enemySide=preparePartyEnemyFormation(spec.enemies),{templates,ids}=enemySide;
     if(regionalInvariantErrors().length||!safe(day)||!safe(day+1))fail('world cleanup is not ready');
     for(const [owner,keys]of [[combat,['cooldown','enemies']], [dialogue,['name','pages','open','page']]])
       for(const key of keys){const field=Object.getOwnPropertyDescriptor(owner,key);
@@ -65,12 +39,12 @@ const canonicalPartyCombat = (() => {
     if(!safe(xp)||!safe(gold)||!safe(party.gold+gold)||!safe(stats.items.length+templates.length)||
         party.members.some(m=>![m.xp+xp,m.maxHp+MAX_LEVEL*10,m.hp+MAX_LEVEL*10,
           m.atk+MAX_LEVEL*3,m.def+MAX_LEVEL*3,m.spd+MAX_LEVEL].every(safe)))fail('reward arithmetic overflow');
-    persistentParty.validateCombat(ids,{escape:spec.escape});
+    const composed=persistentParty.validateCombat(ids,{escape:spec.escape});
     const ledger=persistentParty.serialize().rewards;let ordinal=ledger.length+1;
     while(ledger.some(r=>r.id==='canonical_encounter_'+ordinal))ordinal++;
     if(!safe(ordinal))fail('reward receipt capacity exhausted');
-    return {templates,ids,escape:spec.escape,origin:location(),xp,
-      rewardId:'canonical_encounter_'+ordinal,memberIds:party.members.map(m=>m.characterId)};
+    return copy({templates,ids,playerSide:composed.player,enemySide,escape:spec.escape,origin:location(),xp,
+      rewardId:'canonical_encounter_'+ordinal,memberIds:party.members.map(m=>m.characterId)});
   };
   const view=()=>{
     if(!battle)return copy({active:false,phase:null,receipt:lastReceipt});
@@ -123,11 +97,14 @@ const canonicalPartyCombat = (() => {
     isActive(){return battle!==null;},
     getView:view,
     getReceipt(){return lastReceipt;},
+    preparePlayerSide(policy){if(arguments.length!==1)fail('requires one player policy');return persistentParty.prepareCombat(policy);},
+    prepareEnemySide(value){if(arguments.length!==1)fail('requires one enemy descriptor');return preparePartyEnemyFormation(value);},
+    prepare(request){if(arguments.length!==1)fail('requires one encounter descriptor');return preflight(request);},
     validate(request){if(arguments.length!==1)fail('requires one encounter descriptor');preflight(request);return true;},
     enter(request){
       if(arguments.length!==1)fail('requires one encounter descriptor');
       const prepared=preflight(request);
-      battle=prepared;lastReceipt=null;
+      battle={...prepared};lastReceipt=null;
       try{
         persistentParty.beginCombat(prepared.ids,{escape:prepared.escape});
         reconcileFormationLabKeys();return view();
