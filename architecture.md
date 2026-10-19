@@ -6,7 +6,7 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 185 regression suite
+Current integration totals: 208 maps, 107 regional chunks, 186 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -16,7 +16,7 @@ describe their original increments; the persistent-party schema below is current
 retain the singleton path in normal gameplay. `startCombat()` selects through the existing geographic
 pool and overrides before calling the explicit `enter({enemies,escape})` boundary;
 unsupported selections fail closed, without installing singleton state. Entry
-accepts one to three exact approved templates (or template IDs), validates the
+accepts one to three exact capability-compatible templates (or template IDs), validates the
 canonical roster, equipment, statuses, arithmetic, policy and cleanup readiness,
 then obtains the private persistent-party bridge ticket. No combat RNG or identity
 allocation occurs before validation. Selection RNG remains upstream of entry.
@@ -37,13 +37,52 @@ its singleton/Receiver meaning; canonical activity is explicit and session-owned
 Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
 see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
 
+### Enemy capability authority — Pass 3
+
+`enemy-capabilities.js` loads after `combat.js` has registered every template and
+before `encounter-formations.js` prepares authored sides. It derives one deeply
+frozen `{templateId, capabilities}` record per exact registered identity. Records
+and arrays are closed plain data. Capability IDs are stable, unique strings from
+`ENEMY_CAPABILITY_DEFINITIONS`; unknown IDs, unknown behavior-bearing template
+fields, accessors, custom prototypes, mutable arrays, duplicate capabilities,
+missing ordinary fields and stale registry coverage fail closed at startup or
+preparation.
+
+The canonical engine supports the mechanic registry `basic_attack`,
+`standard_observe`, `standard_rewards`, and `boss_escape_lock`. Compatibility is
+set inclusion over the template's complete requirements. Template identity proves
+registration only. `ENEMY_TEMPLATE_FIELD_CAPABILITIES` maps existing behavior
+fields such as `defendChance`, `regenPerTurn` and `stealAndFlee` to explicit
+requirements. `ENEMY_HIDDEN_CAPABILITIES` records behavior found in legacy
+ID-specific execution or scripted outcome branches; it can only add requirements,
+never approve an identity. `PARTY_ATTACK_TEMPLATE_IDS` no longer exists.
+
+`preparePartyEnemyFormation()` requires exact registration, complete capability
+support, closed template data and safe actual arithmetic independently of the
+player roster. Two/three-enemy canonical installation uses the same capability
+check through `validateCanonicalFormationDescriptors`; the older
+`validateFormationDescriptors` and `FORMATION_STATE_TEMPLATE_IDS` remain private
+to Formation/Receiver compatibility. All validation completes before RNG,
+identity allocation or mutation. The full 60-template classification, encounter
+sources and direct mechanic references are in
+[ENEMY_CAPABILITY_AUDIT.md](ENEMY_CAPABILITY_AUDIT.md).
+
+The 22 ordinary templates may occupy any one to three enemy slots. Duplicate
+templates allocate independent runtime IDs, HP and Observe progress without slot
+compaction. The party renderer reuses each singleton sprite and applies one shared
+layout envelope only when no legacy Formation measurement exists. Pools and
+weights remain authored as before, so production encounters remain single-enemy.
+The 23 special-capability and 15 scripted-lifecycle templates reject with their
+exact unsupported requirements. Passes 4 and 5 own those mechanics and outcomes.
+
 ### Structural canonical battle envelope — Pass 2
 
 The explicit canonical boundary supports one to three authored ally slots against
 one to three enemy slots. This adds no normal-game route: recruitment still gates
 automatic canonical entry, Chapter One still uses singleton combat, and the
 Receiver still owns its established Formation lifecycle. No third production
-character or additional compatible enemy is introduced.
+character is introduced. Pass 3 later expands compatible ordinary enemies without
+changing this structural envelope.
 
 `canonicalPartyCombat.preparePlayerSide({escape})` reads the canonical roster
 through `persistentParty.prepareCombat` and the private bridge's existing command
@@ -63,8 +102,8 @@ Level/XP/progression remain in their existing canonical owners, not runtime IDs.
 
 `canonicalPartyCombat.prepareEnemySide(enemies)` delegates to
 `preparePartyEnemyFormation` in `encounter-formations.js`. It accepts one to three
-ordered registered IDs or exact approved template data, checks numeric safety and
-the unchanged party/group capability gates, and produces frozen templates and
+ordered registered IDs or exact capability-compatible template data, checks numeric safety and
+the closed capability gate, and produces frozen templates and
 slot descriptors without reading the roster. Duplicate templates remain distinct
 slots. `prepare({enemies,escape})` composes these authorities into a frozen battle
 plan and additionally checks cross-side arithmetic, cumulative initiative weights,
@@ -87,8 +126,9 @@ once per completed round. Ally x positions remain 108, 256, 404. The older
 `combatPlayerState.initialize` two-member Attack-only API and the Formation
 enemy-storage two/three descriptor contract remain intentionally unchanged.
 
-`encounter-formations.js` loads after `combat.js` (registry/copy authorities) and
-before `persistent-party.js`. The exact authored record is:
+`enemy-capabilities.js` loads after `combat.js` (registry/copy authorities), then
+`encounter-formations.js` loads before `persistent-party.js`. The exact authored
+record is:
 
 ```js
 Object.freeze({
@@ -423,10 +463,10 @@ singleton path for Lely-only play. Do not route at map IDs or replace geographic
 pool ownership. Scripted starters and their completion/reward owners require
 individual review; merely having simple template stats does not authorize routing.
 
-Current party-supported ordinary IDs are Marsh Wisp/Briar Hound (core and early),
+At the Pass 2 identity-list checkpoint, party-supported ordinary IDs were Marsh Wisp/Briar Hound (core and early),
 Reed Grappler, Silt Lurker, Marsh Wisp (sluice top) and Sluice Slime. Other simple
-pool enemies remain unreviewed by the allowlist. Returning west after MQ5 can still
-reach these unsupported capability-bearing enemies:
+pool enemies were still unreviewed. Pass 3 supersedes this paragraph with the
+capability authority and complete audit above. The deferred mechanic list remains:
 
 | Capability | Existing template IDs requiring later review |
 | --- | --- |
@@ -531,9 +571,9 @@ Two prepared party slots remain mandatory; a defeated slot stays in membership
 and receives no command on subsequent rounds.
 
 Supported enemy membership is one inactive singleton or two/three inactive
-formation members. `PARTY_ATTACK_TEMPLATE_IDS` retains only the eight ordinary
-members of the existing formation allowlist; the Receiver trio and all bespoke
-capabilities are excluded. Party statuses must be empty. Existing combat
+formation members. Canonical capability metadata admits ordinary mechanics and
+excludes the Receiver trio and all bespoke capabilities. Party statuses must be
+empty. Existing combat
 bookkeeping must be neutral, with no messages, callbacks, sessions, playback,
 outcomes or effects pending. Existing enemy-formation accounting remains untouched.
 The party round authority binds the exact enemy membership; replacing it requires
@@ -634,11 +674,11 @@ blocked enemy-formation policy cannot be overridden. Initial equipment is empty.
 `getCommandView()` exposes only copied frozen data. `clear()` discards this state
 alongside the existing party authority, without enemy cleanup, rewards or RNG.
 
-This gate requires an inactive, untouched, allowlisted singleton or formation,
+This gate requires an inactive, untouched, capability-compatible singleton or formation,
 no session/playback/messages/outcomes or active Lab/UI. It validates the entire
-request before allocating party identities. The ordinary Attack templates plus
-the Lab-only Mulholland boss-lock scenario form the closed enemy allowlist; no
-Receiver coordination or bespoke enemy capabilities are introduced. An internal
+request before allocating party identities. The fixed Lab scenarios use ordinary
+templates plus Mulholland's metadata-driven boss lock; no Receiver coordination or
+bespoke enemy capabilities are introduced. An internal
 WeakMap captures `isBoss === true` when each enemy
 instance is created. It adds no enumerable enemy field or save metadata. The
 prepared command encounter retains that lock even after the boss dies. Member

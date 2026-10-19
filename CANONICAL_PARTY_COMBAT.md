@@ -1,10 +1,10 @@
 # Canonical party combat integration review
 
-Current Pass 2 implementation is unstaged and uncommitted on `agent/codex`.
-Pass 1 checkpoint: `ae3860c219e5e4a77e26926fc668079efafbb4d9`, after verifying
-184/184 suites. No push, merge, rebase, main modification or other worktree
-modification was performed during these two stages. The original integration
-baseline/review below is historical; the current contracts follow.
+Pass 2 is checkpointed at `5a26974ab277cfd5bdbf8d30031f6b9520d08c`
+(`feat(combat): add canonical battle envelope`). Pass 3 is the current unstaged,
+uncommitted increment on `agent/codex`. No push, merge, rebase, main modification
+or other worktree modification was performed. Earlier integration inventories
+below are retained as historical evidence and are explicitly labelled.
 
 ## Pass 2 structural envelope
 
@@ -12,8 +12,6 @@ The explicit canonical API represents 1–3 authored allies against 1–3 approv
 enemies. All nine size combinations pass suite 185. Normal routing is unchanged:
 one-member gameplay stays singleton, recruited supported encounters stay canonical,
 Receiver stays Formation. No third canonical member or new geographic route exists.
-The old compatibility inventory below still applies, including the independent
-group gate (Mulholland remains a one-enemy explicit fixture, not group-approved).
 
 Read-only `preparePlayerSide({escape})` uses persistent-party canonical ownership;
 `prepareEnemySide(enemies)` validates ordered registered IDs/exact template data
@@ -47,8 +45,8 @@ Test-only intended formations:
 | Botfly ×2 + Waspthra ×1 | Valid | `enemy_botfly` and `enemy_waspthra` are fixture spellings; templates absent, reject. |
 
 Execution tests use approved duplicate Marsh Wisps. No enemy mechanics, stats or
-templates were invented. Pass 3/4 must address ordinary-enemy migration, special
-instance mechanics and any separately authorized content/formation activation.
+templates were invented. Pass 3 subsequently migrates ordinary enemies by
+capability; special instance mechanics and content activation remain deferred.
 
 Resonance definitions add frozen nonempty unique `elements` arrays. Quickbloom is
 `['bloommarked']`, separately from its Bloommarked affinity requirement. `firelit`
@@ -80,6 +78,51 @@ pre-MQ5 singleton, post-MQ5 supported encounter and all commands, Quickbloom's
 recovery round, victory/escape/defeat persistence and save/load, both Labs and
 Receiver. The third member and explicit formation examples remain headless-only.
 
+## Pass 3 ordinary-enemy capability migration
+
+The registry still contains 60 exact templates. The complete evidence table is
+[ENEMY_CAPABILITY_AUDIT.md](ENEMY_CAPABILITY_AUDIT.md): 22 templates are ordinary
+and compatible, 23 require unsupported mechanics, and 15 belong to scripted-only
+lifecycles. Thirteen ordinary templates that the old identity list rejected now
+work in canonical combat. All 22 ordinary templates prepare against one, two and
+three canonical members and can occupy one, two or three stable enemy slots,
+including duplicates and mixed formations. Pools, weights and enemy counts remain
+unchanged; this authorizes existing single-enemy routing only.
+
+`enemy-capabilities.js` derives a frozen record with exactly `templateId` and
+`capabilities` for every registered template. Canonical support is the closed
+mechanic set `basic_attack`, `standard_observe`, `standard_rewards`, and
+`boss_escape_lock`. Field-backed requirements and the audited hidden legacy
+branches are combined before compatibility is decided. Unknown fields or
+capabilities, missing ordinary data, accessors, custom prototypes, duplicates and
+non-exact identities fail closed. `PARTY_ATTACK_TEMPLATE_IDS` has been removed;
+template identity establishes registration only and never mechanic approval.
+`FORMATION_STATE_TEMPLATE_IDS` remains solely for the older Formation/Receiver
+constructor and is not read by canonical preparation.
+
+Special mechanics remain explicit rejections, including brace, Curse/Corroded/
+Slither/Dazzled infliction, Void Walker shard burst, split follow-up, regeneration,
+melee armor/counterattack, Mire Toad reagent state, theft-and-flight, generated 23
+stats, and every scripted lifecycle listed in the audit. The trapped Pale Drowned
+template is ordinary in geographic pools; its separate trapped-Drowned starter
+remains guarded as scripted content. Mulholland's template retains metadata-driven
+boss escape lock; its authored boss outcome also remains guarded.
+
+Ordinary party rendering keeps each registered singleton sprite and uses a shared
+conservative layout envelope when the legacy Formation renderer has no measured
+bounds. Stable slots, A/B/C duplicate labels, independent HP/Observe state,
+historical defeated actors and exact runtime targeting remain unchanged. Test 186
+also proves a synthetic registered ordinary template is accepted from capabilities
+without adding its ID to any authority.
+
+Verification: suite 186 has 17 grouped checks; 43 focused suites and the complete
+186/186 regression pass. Validation reports 60 capability records, 0 errors and
+the four established warnings. All 107 regional fingerprints and the read-only
+transition audit match their committed artifacts. Singleton (52 traces / 387
+checkpoints / 482 RNG values), Formation (133), party Attack (586), generalized
+commands (1,271) and Resonance (130) retain the exact digests recorded above.
+`SAVE_VERSION` remains 5. Browser testing was not performed.
+
 ## Original integration baseline and scope (historical)
 
 - Before synchronization: `225620231cd2a58716fbaaf4ccb71c967fbbaa89`.
@@ -95,7 +138,11 @@ Receiver. The third member and explicit formation examples remain headless-only.
 - No gameplay data, maps, terrain, dialogue, quests, rewards, balance or persistent
   schema changed. SAVE_VERSION remains 5. No generated artifact was regenerated.
 
-## Encounter compatibility inventory
+## Encounter compatibility inventory before Pass 3 (historical)
+
+This table records the identity-list checkpoint before capability migration. It is
+superseded by [ENEMY_CAPABILITY_AUDIT.md](ENEMY_CAPABILITY_AUDIT.md) and is retained
+only to show which ordinary templates moved from review-needed to compatible.
 
 The runtime registry has 60 unique template IDs. This inventory is audit
 evidence, not a second runtime registry: 9 supported templates
@@ -196,8 +243,8 @@ No Eastern Fens pools, scripted escort, campfire, Cardenport, or new content was
 `canonicalPartyCombat.enter({enemies, escape})` accepts one to three template IDs
 or exact template-shaped instances. Existing runtime IDs, altered templates,
 accessors, unsupported fields/capabilities, unsafe arithmetic and unsupported
-policies reject. Current group support uses the eight approved ordinary templates;
-Mulholland is accepted singly. Policies are `fastest_living` and `blocked`,
+policies reject. Current structural group support covers all 22 capability-compatible
+ordinary templates. Policies are `fastest_living` and `blocked`,
 with the existing immutable boss lock additionally enforced.
 
 `persistentParty.validateCombat()` performs the same private bridge validation

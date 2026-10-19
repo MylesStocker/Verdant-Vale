@@ -18,6 +18,10 @@ const PARTY_COMBAT_ALLY_SPRITES = Object.freeze({
 const PARTY_COMBAT_EXTRA_ENEMY_BOUNDS = Object.freeze({
   enemy_mulholland:Object.freeze([-53,-130,53,14]),
 });
+// New ordinary templates keep their established singleton sprite. A conservative
+// capability-based envelope supplies layout bounds where the legacy Formation
+// renderer never needed a per-sprite measurement.
+const PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS = Object.freeze([-72,-144,72,72]);
 
 function partyBattleLayout(view) {
   const fail=()=>{throw new Error('Invalid party battle presentation view');};
@@ -50,8 +54,9 @@ function partyBattleLayout(view) {
   const count=view.enemies.length,width=count===2?232:144,step=count===2?248:168,start=count===1?184:16;
   const names=view.enemies.map(m=>m.name);
   const enemies=view.enemies.map((member,index)=>{
-    const sprite=ENEMY_SPRITE_DISPATCH[member.id],bounds=sprite&&
-      (FORMATION_SPRITE_BOUNDS.get(sprite.draw)||PARTY_COMBAT_EXTRA_ENEMY_BOUNDS[member.id]);
+    const sprite=ENEMY_SPRITE_DISPATCH[member.id],template=ENEMY_TEMPLATE_REGISTRY[member.id],bounds=sprite&&
+      (FORMATION_SPRITE_BOUNDS.get(sprite.draw)||PARTY_COMBAT_EXTRA_ENEMY_BOUNDS[member.id]||
+        (canonicalEnemyIsCompatible(template)?PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS:null));
     if(!sprite||!bounds)fail();
     const x=start+index*step,spriteWidth=width-16,scale=Math.min(1,spriteWidth/(bounds[2]-bounds[0]),136/(bounds[3]-bounds[1]));
     return Object.freeze({instanceId:member.instanceId,slot:index,x,width,

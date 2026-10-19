@@ -6,37 +6,42 @@ actually fits together.
 
 ## Current state
 
-### Structural canonical battle envelope — Pass 2
+### Ordinary-enemy capability migration — Pass 3
 
-Pass 1 was verified at 184/184 and checkpointed as
-`ae3860c219e5e4a77e26926fc668079efafbb4d9`
-(`fix(combat): make scripted encounter entry atomic`). Pass 2 remains uncommitted.
+Pass 2 was verified at 185/185 and checkpointed as
+`5a26974ab277cfd5bdbf8d30031f6b9520d08c`
+(`feat(combat): add canonical battle envelope`). Pass 3 remains unstaged and
+uncommitted.
 
-Canonical preparation now explicitly supports all nine 1–3 ally / 1–3 enemy
-combinations through independent read-only player and enemy boundaries and a
-frozen combined plan. Suite 185 proves six-actor scheduling, stable Fallen slots,
-duplicate enemy identities/labels, three drafts and inventory reservations,
-Quickbloom/Strain, effects, outcomes, historical playback and atomic rejection.
-No third character is added; the third slot is exercised only in isolated tests.
-Normal singleton/recruited-party routing, Receiver ownership and both Labs remain
-unchanged. The nine-template party allowlist and group restrictions are preserved.
+Canonical enemy compatibility now follows a closed mechanic contract rather than
+the removed `PARTY_ATTACK_TEMPLATE_IDS` identity list. All 60 registered templates
+have deterministic frozen metadata. The supported mechanic set is basic Attack,
+standard Observe, standard rewards and metadata-driven boss escape lock. The full
+[capability audit](ENEMY_CAPABILITY_AUDIT.md) classifies 22 ordinary compatible
+templates, 23 special-capability templates and 15 scripted-only lifecycle
+templates. Thirteen formerly rejected ordinary templates now enter existing
+post-recruitment canonical encounters; pools remain single-enemy and keep their
+authored probabilities and selection RNG.
 
-`encounter-formations.js` supplies closed immutable ordered formation records,
-safe positive weights, legacy flat-pool shorthand and a one-draw selection API.
-Startup/data validation checks the tables; no production pool is rewritten or
-new encounter route activated. The intended Mire Toad/Waspthra/Botfly fixtures
-remain blocked: Toad mechanics are unsupported, and Waspthra/Botfly templates are
-not present in this checkout. Ordinary migration and special mechanics remain
-Pass 3/4 work.
+Every ordinary template prepares against one, two and three canonical members and
+works as one to three independent enemy instances, including duplicate A/B/C
+labels and mixed test formations. Unsupported fields, hidden legacy branches,
+unknown capabilities, malformed metadata and unsafe actual state still reject
+before battle RNG, identities or mutation. Receiver and Formation retain their
+separate legacy authority. Scripted starters remain under the Pass 1 roster guard.
 
-Quickbloom now declares immutable `elements: ['bloommarked']`; `firelit` is a
-recognized future element ID. Affinity remains the separate caster gate. There
-are no new techniques, elemental calculations or modifier items.
+Pass 2's structural envelope remains unchanged: all nine 1–3 by 1–3 combinations,
+fixed Fallen slots, six-actor scheduling, detached playback and immutable authored
+formations. Quickbloom still declares `elements: ['bloommarked']`; `firelit`
+remains a future identifier only. Mire Toad is structurally valid but blocked by
+poison/reagent mechanics; Waspthra and Botfly remain unregistered test spellings.
+No production group, geography, generated artifact, save field, stats, rewards or
+balance changed. `SAVE_VERSION` remains 5.
 
-Verification: 185/185 regression suites, 0 data errors / 4 established warnings,
-107/107 fingerprints, unchanged read-only transition audit and all four historical
-capture digests. SAVE_VERSION remains 5. No geography, generated artifacts, save
-fields, canon, stats, rewards or balance changed. Headless verification only.
+Suite 186 contains 17 grouped checks. The complete regression is 186/186 and the
+43-suite combat focus passes. Validation is 0 errors / 4 established warnings;
+all 107 fingerprints, the transition audit, save/load checks and all five combat
+capture digests are unchanged. This pass is headless; no browser test was run.
 
 ### Scripted entry atomicity — Pass 1
 
@@ -69,7 +74,7 @@ in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md). Suite 183 was used be
 181 and 182 already belonged to the lifecycle and field-menu suites.
 
 The following integration checkpoint describes the synchronized baseline; its
-182-suite count predates suites 183–185 (current total: 185).
+182-suite count predates suites 183–186 (current total: 186).
 
 ### Eastern terrain and party integration
 

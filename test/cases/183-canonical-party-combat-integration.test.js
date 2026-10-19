@@ -36,7 +36,7 @@ test('one-member canonical roster keeps the exact singleton path, input and pres
 });
 test('unsupported world selection and scripted encounters never install singleton gameplay state',()=>{
  const g=fresh();g.run('Math.random=()=>{rolls++;return 0};');const before=state(g);
- assert.throws(()=>g.run('startCombat()'),/unsupported enemy enemy_23/);assert.equal(state(g),before);assert.equal(g.run('combatEnemyInstanceSequence'),0);
+ assert.throws(()=>g.run('startCombat()'),/Unsupported canonical enemy capabilities for enemy_23: generated_stats/);assert.equal(state(g),before);assert.equal(g.run('combatEnemyInstanceSequence'),0);
  for(const name of ['startBossCombat','startWardenCombat','startFortGuardCombat','startFortPolwickCombat','startFortEssaCombat',
   'startMulhollandCombat','startDenWraithCombat','startSailorBrawlCombat','startTakomoCombat','startMimicPotionCombat','startLenswebSpiderCombat','startTrappedDrownedCombat',
   'startRainfishCombat','startMireToadSpawnCombat','startSeepSplitCombat']){

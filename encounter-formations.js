@@ -96,12 +96,10 @@ function preparePartyEnemyFormation(value) {
   const templates=[...Array.from({length:n},(_,slot)=>{
     if(!Object.hasOwn(fields[slot]||{},'value'))fail('enemy group contains an accessor or hole');
     const supplied=fields[slot].value,id=typeof supplied==='string'?supplied:Object.getOwnPropertyDescriptor(supplied||{},'id')?.value;
-    if(typeof id!=='string'||!PARTY_ATTACK_TEMPLATE_IDS.includes(id)){
-      const known=typeof id==='string'?Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value:null;
-      const capabilities=known?Object.keys(known).filter(k=>![...FORMATION_STATE_DATA_FIELDS,'isBoss'].includes(k)):[];
-      fail('unsupported enemy '+(typeof id==='string'?id:'<invalid template ID>')+(capabilities.length?' ('+capabilities.join(', ')+')':' (unapproved encounter or presentation)'));
-    }
+    if(typeof id!=='string')fail('unregistered enemy <invalid template ID>');
     const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value;
+    if(!template)fail('unregistered enemy '+id);
+    try{requireCanonicalEnemyCapabilities(template);}catch(error){fail(error.message);}
     const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[])];
     const exact=data(template,keys);
     if(typeof supplied!=='string'){
@@ -115,8 +113,7 @@ function preparePartyEnemyFormation(value) {
     return exact;
   })];
   const ids=templates.map(t=>t.id);
-  // Keep the existing group capability gate as well as the party allowlist.
-  if(n>1)validateFormationDescriptors(ids.map((enemyId,slot)=>({enemyId,slot})));
+  if(n>1)validateCanonicalFormationDescriptors(ids.map((enemyId,slot)=>({enemyId,slot})));
   return copyFormationData({ids,templates,slots:ids.map((enemyId,slot)=>({enemyId,slot}))});
 }
 

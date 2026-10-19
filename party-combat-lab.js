@@ -42,8 +42,8 @@ const partyCombatLab = (() => {
       ['name','type','bonus','price'].includes(key) && Object.hasOwn(fields[key],'value'));
   };
   const enemyData=scenario=>scenario.enemyIds.map(id=>{
-    if(!PARTY_ATTACK_TEMPLATE_IDS.includes(id))fail('Party Combat Lab scenario uses an unsupported enemy');
     const descriptor=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id),template=descriptor?.value;
+    if(!canonicalEnemyIsCompatible(template))fail('Party Combat Lab scenario uses unsupported enemy capabilities');
     if(!descriptor || !Object.hasOwn(descriptor,'value') || !template ||
         Object.getPrototypeOf(template)!==Object.getPrototypeOf({}))fail('Party Combat Lab scenario has invalid enemy data');
     const fields=Object.getOwnPropertyDescriptors(template),keys=[...FORMATION_STATE_DATA_FIELDS];

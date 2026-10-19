@@ -2335,6 +2335,11 @@ function validateEncounterFormationData() {
   return checked;
 }
 
+function validateEnemyCapabilityData() {
+  try{return validateEnemyCapabilityRegistry();}
+  catch(error){addValidationError('Enemy capabilities',error.message);return 0;}
+}
+
 function validateGameData() {
   VALIDATION_ERRORS   = [];
   VALIDATION_WARNINGS = [];
@@ -2354,6 +2359,7 @@ function validateGameData() {
     'NPCs':            validateNPCs(),
     'Items':           validateItems(),
     'Enemies':         validateEnemies(),
+    'Enemy capabilities': validateEnemyCapabilityData(),
     'Encounter formations': validateEncounterFormationData(),
     'Dialogue':        validateDialogue(),
     'Save/Flags':      validateSaveFlags(),
@@ -2365,6 +2371,7 @@ function validateGameData() {
   console.log('validateGameData:');
   const LABELS = {
     'Encounter formations': 'encounter formation entries checked',
+    'Enemy capabilities': 'enemy capability records checked',
     'Maps':             'maps checked',
     'Map metadata':     'metadata entries checked',
     'Regional layout':  'layout placements checked',

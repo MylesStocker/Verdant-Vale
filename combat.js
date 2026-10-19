@@ -506,8 +506,9 @@ const combatPlayerState = (() => {
         enemyRound.awaitingPlayback || enemyRound.outcome !== 'ongoing' || formationRounds.coordination() !== null : enemyRound !== null) rejectAttack();
     const enemyData = enemyCopies.map((enemy,slot) => {
       const data = attackRecord(enemy,[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked']);
-      if (!PARTY_ATTACK_TEMPLATE_IDS.includes(data.id)) rejectAttack();
-      const template = attackRecord(ENEMY_TEMPLATE_REGISTRY[data.id],FORMATION_STATE_DATA_FIELDS);
+      const registeredTemplate=ENEMY_TEMPLATE_REGISTRY[data.id];
+      if (!canonicalEnemyIsCompatible(registeredTemplate)) rejectAttack();
+      const template = attackRecord(registeredTemplate,FORMATION_STATE_DATA_FIELDS);
       const fields = Object.getOwnPropertyDescriptors(enemy);
       if (template.id !== data.id || !formationBasicStatsValid(template) || !formationBasicStatsValid(data) ||
           [template,data].some(d => typeof d.name !== 'string' ||
@@ -635,7 +636,8 @@ const combatPlayerState = (() => {
         const keys=[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked'];
         if(Object.hasOwn(enemy,'isBoss'))keys.push('isBoss');
         const d=dataRecord(enemy,keys), p=Object.getOwnPropertyDescriptors(enemy);
-        if(!PARTY_ATTACK_TEMPLATE_IDS.includes(d.id) || !formationBasicStatsValid(d) || d.slot!==slot ||
+        const registeredTemplate=ENEMY_TEMPLATE_REGISTRY[d.id];
+        if(!canonicalEnemyIsCompatible(registeredTemplate) || !formationBasicStatsValid(d) || d.slot!==slot ||
             typeof d.name!=='string' || !/^combat_enemy_[1-9]\d*$/.test(d.instanceId) ||
             !['xp','goldMin','goldMax','observeCount'].every(k=>safe(d[k])) || d.escapeUnlocked!==false ||
             p.hp.writable!==true || p.observeCount.writable!==true || p.instanceId.writable!==false ||
@@ -1386,7 +1388,7 @@ const combatPlayerState = (() => {
         // All input and numeric validation precedes either identity allocator.
         if(completedSingleVictoryReceipt!==null)prepareFormationEntry();
         if(ids.length===1)combat.enemy=templates[0];
-        else initializeFormationState(ids.map((enemyId,slot)=>({enemyId,slot})),{escape:prepared.data.escape});
+        else initializeCanonicalEnemyFormationState(ids.map((enemyId,slot)=>({enemyId,slot})),{escape:prepared.data.escape});
         commandRounds.install(prepared,commandRounds.enemyData());
         session.begin({commandSet:'standard'});
         const ticket=Object.freeze({});
@@ -1552,14 +1554,6 @@ const combatPlayerState = (() => {
   });
 })();
 
-// Conservative ordinary subset of the established formation approval list.
-// Receiver members are intentionally absent: their identity carries coordination.
-const PARTY_ATTACK_TEMPLATE_IDS = Object.freeze([
-  'enemy_marsh_wisp','enemy_briar_hound','enemy_marsh_wisp_early','enemy_briar_hound_early',
-  'enemy_reed_grappler','enemy_silt_lurker','enemy_marsh_wisp_sluice_top','enemy_sluice_slime',
-  'enemy_mulholland',
-]);
-
 // Validate the entire positive-weight sum before initiative RNG or round-state
 // installation. All subset sums remain safe. Prepared base SPD is nonnegative;
 // a legal zero gets weight 1 without changing its underlying stat/evasion speed.
@@ -1664,7 +1658,7 @@ const partyAttackPlayback = (() => {
           if (typeof member.characterId!=='string' || !/^[a-z][a-z0-9_]*$/.test(member.characterId) ||
               member.characterId==='player' || characters.has(member.characterId) || !member.name.trim()) fail();
           list(member.statuses,0,0);characters.add(member.characterId);
-        } else if (!PARTY_ATTACK_TEMPLATE_IDS.includes(member.id) ||
+        } else if (!canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY[member.id]) ||
             !['xp','goldMin','goldMax','observeCount'].every(key=>safe(member[key])) || member.escapeUnlocked!==false) fail();
         participants.set(member.instanceId,{side,member});
       });
@@ -1866,7 +1860,7 @@ const partyCommandPlayback = (() => {
         if(side==='ally'){
           if(typeof m.characterId!=='string'||! /^[a-z][a-z0-9_]*$/.test(m.characterId)||m.characterId==='player'||authored.has(m.characterId))fail();authored.add(m.characterId);statusList(m.statuses);
           keys(m.effective,['atk','def','spd','defenseCapBypass','evadeAll']);if(!['atk','def','spd'].every(k=>safe(m.effective[k]))||!m.effective.spd||!bool(m.effective.defenseCapBypass)||!bool(m.effective.evadeAll))fail();
-        }else if(!PARTY_ATTACK_TEMPLATE_IDS.includes(m.id)||!['xp','goldMin','goldMax','observeCount'].every(k=>safe(m[k]))||m.escapeUnlocked!==false||!bool(m.isBoss))fail();
+        }else if(!canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY[m.id])||!['xp','goldMin','goldMax','observeCount'].every(k=>safe(m[k]))||m.escapeUnlocked!==false||!bool(m.isBoss))fail();
       });
       if(s.bossLocked!==s.enemies.some(m=>m.isBoss))fail();
       if(Object.hasOwn(s,'resonance')){
@@ -2145,9 +2139,8 @@ function createCombatEnemyInstance(enemy, slot) {
   return instance;
 }
 
-// State-construction approval, NOT permission to run these encounters together.
-// Keep this deliberately small: new identities require an explicit contract
-// review even when their stats look ordinary (some behavior is keyed by id).
+// Legacy Formation/Receiver construction projection. Canonical party combat does
+// not consult this identity list; it uses the capability validator below.
 const FORMATION_STATE_TEMPLATE_IDS = Object.freeze([
   'enemy_marsh_wisp', 'enemy_briar_hound',
   'enemy_marsh_wisp_early', 'enemy_briar_hound_early',
@@ -2169,11 +2162,21 @@ const FORMATION_STATE_UNSUPPORTED_FIELDS = Object.freeze([
 // State construction stays inactive. Lab and Receiver lifecycle owners call it.
 // Requires an empty, inactive state; does not clear a battle,
 // set flags, queue messages, calculate sprites, or grant any rewards.
-function initializeFormationState(descriptors, policy = {escape:'blocked'}) {
+function initializeFormationState(descriptors, policy = {escape:'blocked'}, capabilityApproval = false) {
+  const templates=capabilityApproval?validateCanonicalFormationDescriptors(descriptors):validateFormationDescriptors(descriptors);
+  return installFormationState(templates,policy);
+}
+
+// Canonical party construction uses the same enemy storage/round authority but
+// enters through mechanic requirements, never through the legacy identity list.
+function initializeCanonicalEnemyFormationState(descriptors, policy = {escape:'blocked'}) {
+  return initializeFormationState(descriptors,policy,true);
+}
+
+function installFormationState(templates, policy) {
   if (combat.active || combatMode !== null || combat.enemies.length !== 0) {
     throw new Error('Formation state requires empty inactive combat');
   }
-  const templates = validateFormationDescriptors(descriptors);
   formationRounds.validatePolicy(policy);
   const members = templates.map((template, slot) => createCombatEnemyInstance(template, slot));
   completedSingleVictoryReceipt = null;
@@ -2183,7 +2186,7 @@ function initializeFormationState(descriptors, policy = {escape:'blocked'}) {
 }
 
 // Pure construction preflight, also used before committing encounter staging.
-function validateFormationDescriptors(descriptors) {
+function validateFormationDescriptorData(descriptors, capabilityApproval) {
   if (!Array.isArray(descriptors) || descriptors.length < 2 || descriptors.length > 3 ||
       Reflect.ownKeys(descriptors).length !== descriptors.length + 1) {
     throw new Error('Formation state requires exactly two or three descriptors');
@@ -2229,9 +2232,9 @@ function validateFormationDescriptors(descriptors) {
       }
       copy[key] = data[key].value;
     }
-    if (!FORMATION_STATE_TEMPLATE_IDS.includes(id)) {
-      throw new Error('Template is not approved for formation state (singleton contract or unreviewed): ' + id);
-    }
+    if(capabilityApproval)requireCanonicalEnemyCapabilities(template);
+    else if (!FORMATION_STATE_TEMPLATE_IDS.includes(id))
+      throw new Error('Template is not approved for legacy Formation state: ' + id);
     if (copy.id !== id || typeof copy.name !== 'string' ||
         FORMATION_STATE_DATA_FIELDS.slice(2).some(key => !Number.isFinite(copy[key]))) {
       throw new Error('Invalid formation template data: ' + id);
@@ -2239,6 +2242,12 @@ function validateFormationDescriptors(descriptors) {
     templates.push(copy);
   }
   return templates;
+}
+function validateFormationDescriptors(descriptors) {
+  return validateFormationDescriptorData(descriptors,false);
+}
+function validateCanonicalFormationDescriptors(descriptors) {
+  return validateFormationDescriptorData(descriptors,true);
 }
 
 // Resolve membership, not life: legacy deferred trades/rewards can still use a
