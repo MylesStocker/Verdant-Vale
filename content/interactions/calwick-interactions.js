@@ -1023,6 +1023,28 @@ function interactCalwickOffice() {
            '“I try not to guess. It doesn’t usually help.”'],
         ];
         dialogue.callbacks = [function() { esla_said_polwick_pending = true; syncQuestFlagsToWindow(); }];
+      } else if (fort_quest_started && fort_quest_stage < 4) {
+        // The fen post, out in the field, before the confrontation resolves.
+        // Three variants, one picked at random each visit (matches
+        // randomCabinetPages()'s established pattern) -- no one-shot lock, so
+        // she stays relevant for however long this stage actually takes.
+        // First clear sign of "older sister" energy: she outranks Lely and
+        // says so, but the rank talk is a thin cover for worry.
+        const eslaFortPending = [
+          [['“A post that isn’t in the ledgers.” She sets down her pen. “I read the file before it reached you. I don’t love it.”',
+            '“I’m the senior investigator in this office. Officially that means I sign off on things. Unofficially it means I worry about the junior one first and the paperwork after.”'],
+           ['“South of Drenwick, off the main approach — same as he told you, I imagine. I’ll add the part he won’t: whoever built it did not want visitors.”',
+            '“Go in slow. Look before you swing. I would rather file a long report than a short one.”']],
+          [['“Still out at the fen post?” Not quite a question. “I keep half an ear on the door when you’re on something like this.”',
+            '“I’ve read every version of this story that ends badly. I would like yours not to.”'],
+           ['“South of Drenwick, off the main approach. If you can talk your way past whoever’s there, do. If you can’t, don’t be a hero about it — being a hero is how short reports happen.”',
+            '“Observe first. Always. It costs you a turn and tells you everything else costs.”']],
+          [['“The unmarked post.” She taps the file on her desk without opening it. “I keep this one close. Force of habit, or dread. I haven’t decided which.”',
+            '“Whoever’s out there built something nobody was supposed to find. That is rarely good news for the person who finds it.”'],
+           ['“Go carefully, come back whole, and let me do the worrying. It’s technically part of my rank.”',
+            'A beat. “Technically all of it is part of my rank. I just don’t usually say so.”']],
+        ];
+        dialogue.pages = eslaFortPending[Math.floor(Math.random() * eslaFortPending.length)];
       } else if (reservoir_quest_started && !esla_said_basin) {
         // The basin assignment routes an ecological problem across a Bloommarked
         // officer's desk. She reads a drying landscape more easily than people,
@@ -1036,6 +1058,46 @@ function interactCalwickOffice() {
            '“The fen answered in fungi and beetles and reed-rot, none of which have ever lied to me. Whatever’s wrong up there, it is telling the truth about it. Go and read it back.”'],
         ];
         dialogue.callbacks = [function() { esla_said_basin = true; syncQuestFlagsToWindow(); }];
+      } else if (window.gallery_body_found && !reservoir_report_filed) {
+        // Dreyfuss found, Garrick still missing, the receiver not yet dealt
+        // with. Three variants, random each visit, no one-shot lock.
+        const eslaGalleryBody = [
+          [['“You found him.” Not a question. “Word travels fast between two desks in the same room.”',
+            'She’s quiet for a moment. “Garrick’s still out there. I would like you to go on looking, if you’re able.”'],
+           ['“The thing guarding the lower gallery — I’ve read the notes on it. Three bodies in formation, and at least one of them is unpleasant up close.”',
+            '“Observe before you commit to anything permanent. And come back and file this properly when it’s done. I don’t love loose paperwork any more than I love loose smugglers.”']],
+          [['“Dreyfuss.” She says the name like she’s filing it somewhere specific. “I didn’t know him. I know the shape of this now, though. I’ve seen it before.”',
+            '“Garrick is still unaccounted for. I would rather you found him than the gallery did.”'],
+           ['“Three of them down there, is what I’ve read. Formation fighting is not the same arithmetic as one thing at a time — don’t assume it scales the way you expect.”',
+            '“Whatever happens, come back and tell me properly. Not the short version. The whole thing.”']],
+          [['“So the body was real.” Not quite relief in her voice. Something adjacent to it. “Some part of me was hoping the Supervisor’s sources were wrong.”',
+            '“They weren’t. They rarely are, which is its own kind of disappointing.”'],
+           ['“The receiver, or whatever’s guarding the lower room — I’d go in expecting more than one problem at once. Observe each of them. Don’t guess.”',
+            '“And Garrick is still missing. I haven’t let myself stop hoping about that one yet.”']],
+        ];
+        dialogue.pages = eslaGalleryBody[Math.floor(Math.random() * eslaGalleryBody.length)];
+      } else if (MainQuest === 4) {
+        // Report filed, waiting on whatever else the Supervisor's gating on
+        // (deliberately not named — this is her voice, not a spoiler of the
+        // Sera/Liora prerequisite). Three variants, random each visit; the
+        // flirtatious beat lives in exactly one of the three, so it surfaces
+        // only on roughly a third of visits during this already-brief window.
+        const eslaMq4Wait = [
+          [['“Report’s filed. For once, I don’t have anything to add to it — you did that part cleanly.”',
+            'She studies you for a second longer than usual.'],
+           ['“I’ve spent six years at this desk watching good people walk out that door and come back worse, or not at all. I’m not in a hurry to find out which one you are.”',
+            '“So when they finally send us out together — and they will, I can feel the form being drafted — try not to make me regret volunteering. I have a reputation for competence to protect.”',
+            'Almost gently: “Try to keep up, Investigator. I don’t slow down for juniors I like.”']],
+          [['“Still waiting on whatever’s next.” She doesn’t elaborate, which means she knows more than she’s saying. “That’s usually how it goes, here.”',
+            '“For what it’s worth — the report held up. That’s rarer than it should be.”'],
+           ['“I’ve filed stranger things than this and watched them go nowhere for months. Don’t read the silence as bad news. Read it as the Empire being the Empire.”',
+            '“It’ll move. Everything here eventually does, just not on anyone’s schedule but its own.”']],
+          [['“You did the hard part already,” she says, not looking up from the file. “Whatever comes next, that part’s done.”',
+            '“I don’t say well done often. Consider this the rare exception, and don’t expect a pattern.”'],
+           ['“Six years I’ve watched this desk hand people assignments that mattered and assignments that didn’t, and mostly I can tell which is which before they can.”',
+            '“This is the first one in a while I actually wanted to be part of. Make of that what you will.”']],
+        ];
+        dialogue.pages = eslaMq4Wait[Math.floor(Math.random() * eslaMq4Wait.length)];
       } else if (cabinetCaseFlag && !esla_said_cabinet) {
         dialogue.pages = [
           ['“Someone’s been in Aldric’s cabinet.”',
@@ -1057,6 +1119,23 @@ function interactCalwickOffice() {
           esla_said_sluice   = true;  // superseded — no stale sluice follow-up next visit
           syncQuestFlagsToWindow();
         }];
+      } else if (dispatch_quest_started && !dispatch_delivered) {
+        // Three variants, random each visit, no one-shot lock.
+        const eslaDispatchPending = [
+          [['“Carrying a letter to Drenwick. The Empire trusts its investigators with momentous tasks.”',
+            'She says it perfectly flat, which is somehow worse than if she’d laughed.'],
+           ['“Officer Veth, district office, east side of the square. Don’t lose it in a ditch — I’ve seen it happen.”',
+            '“Small piece of advice, since I’m apparently handing it out today: the road doesn’t care how important your envelope is. Watch the road.”']],
+          [['“Still out on the letter.” A glance at the window, and the light. “Drenwick isn’t far. It only feels far if you’re nervous about the contents.”',
+            '“I didn’t read it. I want that clearly understood, and also I am slightly lying.”'],
+           ['“District office, east side of the square, Officer Veth. He will make you wait exactly long enough to feel the rank difference. Let him.”',
+            '“It costs you nothing and it closes the file faster than arguing would.”']],
+          [['“The dispatch is still open on my side too. Two open files for one letter — that’s the Empire for you.”',
+            '“I’ve carried that road more times than I can count. It’s dull right up until it isn’t. Stay alert through the dull part anyway.”'],
+           ['“Veth, east side of the square. If his office smells like old paper, that’s correct. If it smells like anything else, leave.”',
+            'She says this with no apparent humour at all, which is somehow how you know it’s a joke.']],
+        ];
+        dialogue.pages = eslaDispatchPending[Math.floor(Math.random() * eslaDispatchPending.length)];
       } else if (MainQuest >= 1 && !esla_said_sluice) {
         dialogue.pages = [
           ['“The sluice assignment crossed my desk before it reached you.',
@@ -1066,6 +1145,44 @@ function interactCalwickOffice() {
            'That is as impressed as this office gets. Spend it wisely.”'],
         ];
         dialogue.callbacks = [function() { esla_said_sluice = true; syncQuestFlagsToWindow(); }];
+      } else if (sluice_job_started && !sluice_fixed) {
+        // First assignment, out in the field. Three variants, random each
+        // visit, no one-shot lock. Establishes the senior/junior dynamic and
+        // the fourth-wall voice ("some rooms really are just rooms").
+        const eslaSlucePending = [
+          [['“First assignment, and it’s a valve.” She doesn’t look up. “Not a monster, not a grudge. Pipe. Learn to be glad of that distinction — it does not last.”',
+            '“I was senior investigator here before you walked in, which mostly means I get asked questions nobody wants answered. Ask me anything. I may even answer honestly.”'],
+           ['“West gate, below the square. The flow valve is the whole job — turn it, don’t fight it.”',
+            '“And before you ask: no, there is no secret boss behind the sluice gate. Some rooms really are just rooms.”']],
+          [['“You’re still on the sluice.” She doesn’t look up. “Good. Means you haven’t drowned, which is the main failure state down there.”',
+            '“The East Sluice floods a section if you dawdle. Don’t dawdle. I would rather not explain a flooded junior investigator to anyone.”'],
+           ['“West gate, under the square, down the stairs nobody dusts.”',
+            '“If you get stuck, it is almost certainly the valve, and almost never a puzzle. Some assignments are exactly as simple as they look. Treasure those. They get rarer.”']],
+          [['“The East Sluice,” she says, like it explains itself. “It mostly does.”',
+            '“I logged you out there this morning. Habit. I like knowing where the people in this office actually are, not just where their paperwork says they should be.”'],
+           ['“Turn the valve, don’t argue with it. It has been losing arguments to water pressure since before either of us worked here.”',
+            '“Come back dry. The ink on an incident report runs if you don’t.”']],
+        ];
+        dialogue.pages = eslaSlucePending[Math.floor(Math.random() * eslaSlucePending.length)];
+      } else if (MainQuest === 3 && !reservoir_quest_started) {
+        // The rest-week gap between the fort pay ticket and the reservoir
+        // assignment (see mq4_available_day). Three variants, random each
+        // visit; the flirtatious beat lives in exactly one of the three.
+        const eslaRestWeek = [
+          [['“You’re off the roster. Actually off, this time — I checked twice.”',
+            '“If you don’t know what to do with a week that isn’t handing you forms, that is a very normal problem. I have never once solved it myself.”'],
+           ['“Practical advice, since you’ll get bored before the week’s out: sell what you’re not using, buy what you are. Gear doesn’t improve by sitting in your pack looking dignified.”',
+            'A pause, and almost a smile. “And if you turn up here at closing with nothing better to do, I won’t pretend I mind the company.”']],
+          [['“Still resting? Good. You looked like you needed it, and I don’t say that about many people.”',
+            '“The office survives without you for a week. It is deeply unflattering how easily it manages that.”'],
+           ['“Spend some of it on the notice board — contract work, nothing main-story, nothing that’ll get you killed on my watch. Petra handles the tickets.”',
+            '“Or spend it doing nothing. Nothing is underrated. I recommend it twice a year and take it myself about once.”']],
+          [['“Dayoff rules apply to the whole week, officially. Unofficially, half the office still finds reasons to walk past this desk.”',
+            '“You don’t have to be one of them. I’m simply noting that most people are.”'],
+           ['“If the quiet’s getting to you, that’s the fen talking. It does that to people who aren’t used to it yet.”',
+            '“It never fully stops. You just learn which parts of the quiet to trust.”']],
+        ];
+        dialogue.pages = eslaRestWeek[Math.floor(Math.random() * eslaRestWeek.length)];
       } else if (dayBeforeAccord) {
         dialogue.pages = [
           ['“Today’s the day,” she says quietly.'],

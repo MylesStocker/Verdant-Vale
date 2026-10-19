@@ -204,6 +204,12 @@ let esla_said_cabinet         = false; // noticed Aldric's cabinet was disturbed
 let esla_said_polwick_pending = false; // spoke about Polwick awaiting the district's decision
 let esla_said_polwick_dead    = false; // grieved Polwick's death (killed or executed)
 let esla_said_basin           = false; // opened up about the drying basin + her Bloommarked affinity (reservoir_quest_started)
+// Bespoke in-progress asides, one per main-quest step, keyed to the player's
+// CURRENT state rather than its completion (sluice/dispatch/fort pending,
+// rest week, gallery body found, MQ4 wait) — each picks one of three authored
+// variants at random every visit (randomCabinetPages()'s pattern), with no
+// one-shot flag: the condition itself is the only gate, so she stays
+// relevant for however long the step actually takes. See interactions.js.
 
 // ─── Daily office greetings ───────────────────────────────────────────────────
 // The Supervisor and Esla open the player's FIRST conversation of each day in
