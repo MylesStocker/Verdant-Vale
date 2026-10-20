@@ -20,6 +20,9 @@ const specs=[
  ['startLenswebSpiderCombat','','enemy_lensweb_spider',ring],
  ['startTrappedDrownedCombat','','enemy_pale_drowned_gallery','window.sunken_gallery_drowned_freed=false;window.sunken_gallery_drowned_slain=false;'],
 ];
+const PARTY_MIGRATED=new Set(['startRainfishCombat','startMireToadSpawnCombat','startBossCombat','startWardenCombat',
+ 'startMulhollandCombat','startDenWraithCombat','startSailorBrawlCombat','startTakomoCombat','startMimicPotionCombat',
+ 'startLenswebSpiderCombat','startTrappedDrownedCombat']);
 const J=(g,s)=>JSON.parse(g.run('JSON.stringify('+s+')'));
 function fresh(){const g=createContext();g.run(`dialogue.open=false;dialogue.callbacks=null;Math=Object.create(Math);
  var entryRolls=0;Math.random=()=>{entryRolls++;return 0.5};saveGame();`);return g;}
@@ -48,7 +51,12 @@ function confirmChoice(g){g.press('Enter');}
 function drain(g){let n=0;while(g.run('combat.active && combat.phase==="message"')){assert.ok(n++<100);g.run('handleCombatAction()');}}
 
 for(const [name,args,id,setup] of specs){
- test(name+': recruited-party rejection preserves all observable state',()=>{const g=fresh();g.run(setup+'persistentParty.joinEsla({level:11});');atomic(g,name+'('+args+')');});
+ test(name+': recruited-party routing is either canonical or atomically guarded',()=>{const g=fresh();g.run(setup+'persistentParty.joinEsla({level:11});');
+  if(PARTY_MIGRATED.has(name)){const before=g.run('entryRolls');g.run(name+'('+args+')');assert.equal(g.run('canonicalPartyCombat.isActive()'),true);
+   assert.equal(g.run('combat.active'),false);assert.equal(g.run('canonicalPartyCombat.getView().enemies[0].id'),id);
+   assert.equal(g.run('entryRolls')-before,name==='startMireToadSpawnCombat'?1:0);
+  }else atomic(g,name+'('+args+')');
+ });
  test(name+': original solo installation, real victory and one-time rewards',()=>{
   const g=fresh();g.run(setup);const before=g.run('entryRolls');g.run(name+'('+args+')');
   assert.equal(g.run('combat.active'),true);assert.equal(g.run('combat.enemy.id'),id);
@@ -74,11 +82,12 @@ test('inventory covers all 15 dedicated scripted starters, plus the Sentry overr
  const names=[...source.matchAll(/^function (start\w*Combat)\(/gm)].map(m=>m[1]).filter(n=>n!=='startCombat').sort();
  assert.deepEqual(names,specs.map(s=>s[0]).sort());
  const g=fresh();g.run("resetLocationState();placeAtLocation('MAP_N2',1.5*TILE,9.5*TILE);sentry_quest_started=true;sentry_quest_done=false;persistentParty.joinEsla({level:11});");
- atomic(g,'startCombat()',/unsupported Pale Sentry/);
+ g.run('startCombat()');assert.equal(g.run('canonicalPartyCombat.isActive()'),true);
+ assert.equal(g.run('canonicalPartyCombat.getView().enemies[0].id'),'enemy_pale_sentry');
 });
-test('actual Drowned choice rejects before closing choice, staging, slain flag or any save input changes',()=>{
- const g=fresh();drownedChoice(g);g.run('persistentParty.joinEsla({level:11});');atomic(g,'choice.callbacks[1]()');
- const before=snapshot(g);assert.throws(()=>confirmChoice(g),/unsupported scripted/);assert.equal(snapshot(g).json,before.json);
+test('actual Drowned choice installs canonical combat without premature completion',()=>{
+ const g=fresh();drownedChoice(g);g.run('persistentParty.joinEsla({level:11});');confirmChoice(g);
+ assert.equal(g.run('canonicalPartyCombat.isActive()'),true);assert.equal(g.run('combat.active'),false);
  assert.equal(g.run('!!window.sunken_gallery_drowned_slain'),false);
 });
 test('Drowned victory is authenticated, remains one-time and survives saving; ordinary Drowned kills do not resolve the event',()=>{
@@ -104,40 +113,30 @@ test('Drowned escape and real defeat leave the event retryable with fresh identi
   assert.notEqual(g.run('combat.enemy.instanceId'),first);win(g);assert.equal(g.run('window.sunken_gallery_drowned_slain'),true);
  }
 });
-test('all queued singleton entries reject before replacing pending callbacks or progressing a dialogue',()=>{
+test('pre-recruitment-only queued entries still reject before dialogue mutation',()=>{
  const g=fresh();g.run('persistentParty.joinEsla({level:11});');
- const ids=J(g,'Object.keys(ENCOUNTER_HANDLERS).filter(id=>id!=="gallery_receiver")');
+ const ids=['fort_guard','fort_polwick','fort_essa'];
  for(const id of ids){atomic(g,'queueDialogueEncounter('+JSON.stringify(id)+')');
   g.run('dialogue.open=true;dialogue.pages=[["test"]];dialogue.page=0;dialogue.triggerEncounterId='+JSON.stringify(id));
   atomic(g,'finishDialogue()');atomic(g,'handleInteract()');g.run('dialogue.triggerEncounterId=null;dialogue.open=false;');
  }
 });
-test('real world entry callers reject before staging dialogue or consuming pickups',()=>{
+test('pre-recruitment fort callers reject before staging dialogue',()=>{
  const cases=[
-  ["resetLocationState();activeMap=SUNKEN_GALLERY_R0C3;inSunkenGallery=true;player.x=7.5*TILE;player.y=12.5*TILE;",'tryExamineWorldItem()'],
-  ['warden_quest_started=true;activeMap=MEADOW_MAP;player.x=BRIAR_WARDEN_SPAWN.x;player.y=BRIAR_WARDEN_SPAWN.y;','interactCalwickVale()'],
-  ["den_wraith_quest_started=true;currentHouseId='west_i';player.x=DEN_WRAITH.x;player.y=DEN_WRAITH.y;",'interactHouseInterior()'],
-  ['player.x=MULHOLLAND.x;player.y=MULHOLLAND.y;','interactMulhollandFloor()'],
-  ['player.x=BOSS.x;player.y=BOSS.y;','interactWrongteethFloor()'],
-  ['player.x=TAKOMO.x;player.y=TAKOMO.y;','interactTakomoChamber()'],
   ['fort_quest_stage=1;player.x=6.5*TILE;player.y=9.5*TILE;','interactSmugglerFort()'],
   ['fort_quest_stage=2;player.x=7.5*TILE;player.y=4.5*TILE;','interactSmugglerFort()'],
   ['fort_quest_stage=3;player.x=9.5*TILE;player.y=6.5*TILE;','interactSmugglerFort()'],
  ];
  for(const [setup,call]of cases){const g=fresh();g.run(setup+'persistentParty.joinEsla({level:11});');atomic(g,call);}
 });
-test('arrest, Kolm, toad and Lensweb choices reject atomically through both callback and actual input',()=>{
- const setups=[
-  "enterSmugglerFort();player.x=7.5*TILE;player.y=4.5*TILE;interactSmugglerFort();handleInteract();handleInteract();handleInteract();",
-  "stats.gold=100;NPC_ACTIONS.kolmBrawler({name:'Kolm'});handleInteract();",
-  "resetLocationState();placeAtLocation('MAP3_N1',PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn.x,PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn.y);interactMireToadSpawnSite();handleInteract();handleInteract();",
-  ring+"transitionToLocation({mapId:'LIGHTHOUSE_LANTERN_MAP',x:7.5*TILE,y:5.5*TILE,facing:'right',state:{inLighthouse:true}});handleInteract();handleInteract();handleInteract();",
- ];
- for(const setup of setups){const g=fresh();g.run(setup);assert.equal(g.run('choice.open'),true);g.run('persistentParty.joinEsla({level:11});');atomic(g,'choice.callbacks[0]()');const before=snapshot(g);assert.throws(()=>confirmChoice(g),/unsupported scripted/);assert.equal(snapshot(g).json,before.json);}
+test('fort arrest choice remains atomically guarded after recruitment',()=>{
+ const g=fresh();g.run("enterSmugglerFort();player.x=7.5*TILE;player.y=4.5*TILE;interactSmugglerFort();handleInteract();handleInteract();handleInteract();");
+ assert.equal(g.run('choice.open'),true);g.run('persistentParty.joinEsla({level:11});');atomic(g,'choice.callbacks[0]()');
+ const before=snapshot(g);assert.throws(()=>confirmChoice(g),/unsupported scripted/);assert.equal(snapshot(g).json,before.json);
 });
-test('Rainfish movement preflight precedes player movement, time counters, status RNG and wake flag',()=>{
+test('Rainfish movement installs canonical combat and commits wake state only after preparation',()=>{
  const g=fresh();g.run("resetLocationState();placeAtLocation('MAP3_N1',7.5*TILE,4.5*TILE);sickle_quest_stage=1;rainfish_woken=false;persistentParty.joinEsla({level:11});statusEffects=['cursed'];player.step=79;keys.ArrowLeft=true;");
- atomic(g,'update(1/60)');assert.equal(g.run('rainfish_woken'),false);
+ g.run('update(1/60)');assert.equal(g.run('canonicalPartyCombat.isActive()'),true);assert.equal(g.run('rainfish_woken'),true);
 });
 test('missing toad templates, reserved metadata, frozen combat fields, malformed chain and unknown dispatch reject without RNG/identities',()=>{
  for(const setup of ['combatEnemyInstanceSequence=Number.MAX_SAFE_INTEGER',"Object.defineProperty(combat,'message',{writable:false})",'RAINFISH_TEMPLATE.instanceId="forged"']){

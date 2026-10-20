@@ -1,5 +1,51 @@
 # Scripted combat entry — Pass 1
 
+## Pass 5 reachability and lifecycle migration
+
+Pass 5 preserves the Pass 1 atomic-entry boundary and adds one authenticated
+`scriptedPartyEncounters` owner for routes that can remain unresolved after MQ5.
+The owner validates the canonical player side, the exact enemy record, encounter
+policy, current prerequisite state and callback ownership before activation. It
+then delegates combat to `canonicalPartyCombat`; only its one-use token can commit
+the story consequence after the exact battle reaches an authenticated terminal
+outcome. A direct call to canonical combat with a scripted template still fails.
+
+Categories are: **A**, canonically reachable after recruitment and migrated;
+**B**, necessarily resolved or abandoned before recruitment and retained on its
+legacy owner; **C**, debug/test-only after recruitment. There are nine A, six B,
+and zero C templates.
+
+| Template | Category | Production starters and prerequisites | Preserved lifecycle and route |
+| --- | --- | --- | --- |
+| `enemy_briar_warden` | A | `startWardenCombat`; accepted Warden contract, undefeated meadow Warden | Singleton before recruitment; canonical party afterward. Victory alone sets `warden_quest_defeated` and refreshes the board; defeat/Run leave retry state. |
+| `enemy_smuggler_guard` | B | `startFortGuardCombat`; fort fight route stage 0/1 | The guard, Polwick and Essa chain must reach stage 4, or the player must abandon it at stage 5, before the fort report can reach stage 6 and unlock MQ4. Legacy locked-Run singleton retained. |
+| `enemy_polwick` | B | `startFortPolwickCombat`; fort stage 2 or authenticated guard follow-up | Same fort gate. Legacy Firelit first-hit behavior and authenticated singleton chain retained. |
+| `enemy_essa` | B | `startFortEssaCombat`; fort stage 3 or authenticated Polwick follow-up | Same fort gate. Legacy singleton victory writes stage 4/`smugglers_dead`; cannot remain live at MQ5. |
+| `enemy_pale_sentry` | A | inline `startCombat` override on physical `MAP_N2`; accepted unfinished contract and positive saved HP | Authenticated generated record snapshots `pale_sentry_hp`. Escape/defeat write surviving HP; acknowledged victory zeroes HP, completes the contract and refreshes the board. |
+| `enemy_rainfish` | A | `startRainfishCombat`; Still Water stage 1, pond trigger or authenticated chain | Three separate blocked-Run battles. Wake state commits after first installation; each victory rewards once and stages the next protected callback; final aftermath is unchanged. |
+| `enemy_takomo` | A | `startTakomoCombat`; undefeated chamber occupant | Legacy probabilistic Run is preserved despite boss presentation metadata. Victory alone sets `TAKOMO.defeated`; ordinary and scripted rewards remain one-time. |
+| `enemy_den_wraith` | A | `startDenWraithCombat`; accepted unresolved property contract | Curse remains capability-driven. Victory writes both Wraith flags, synchronizes save bindings and refreshes the board; Morden's separate fee remains separate. |
+| `enemy_kolm` | A | `startSailorBrawlCombat`; not fought today and at least 50 gold | Stake is taken once after complete preparation. Victory records the day and pays 100 gold; defeat/Run keep the spent stake and permit the legacy retry policy. |
+| `enemy_wrongteeth` | A | `startBossCombat`; undefeated and not already knocked down | Legacy probabilistic Run is retained. Victory writes only `BOSS.knockedDown` and reopens the unchanged hug/kill decision; later story resolution remains separate. |
+| `enemy_lensweb_spider` | A | `startLenswebSpiderCombat`; unresolved lighthouse route with one valid objective | Poison is activation-time after dry preparation. Run is blocked until Observe, then guaranteed. Victory or authenticated Observe escape grants the exact objective and resolves once; defeat grants nothing. |
+| `enemy_mimic_potion` | A | `startMimicPotionCombat`; unpicked Gallery trap | The sparkle is consumed only after installation. Victory uses the capability-owned guaranteed Potion plus normal XP/gold once; defeat/Run leave the sprung trap consumed. |
+| `enemy_gallery_receiver` | B | `galleryReceiverEncounter`; Gallery evidence and staging | Receiver victory/report is required to advance MainQuest 3→4, before MQ5. Existing Formation warning, staging, coordination, retry and report gate remain authoritative. |
+| `enemy_gallery_caller` | B | exact Receiver Formation member | Same mandatory pre-MQ5 Formation lifecycle; never independently started. |
+| `enemy_gallery_keeper` | B | exact Receiver Formation member | Same mandatory pre-MQ5 Formation lifecycle; never independently started. |
+
+Three additional production routes use the same owner although their underlying
+templates are mechanically ordinary rather than members of the 15-row guarded
+inventory: Mulholland, the three-fight Mire Toad spawning site, and the trapped
+Pale Drowned. Mulholland preserves its legacy Run/victory flag; the Toad site
+validates both sex variants before each selection draw and grants Reed Remedy
+only after the final battle; the Drowned writes its slain flag only on victory.
+
+The fort proof is structural: `fort_quest_stage` must be 5 before reporting, and
+the report writes stage 6; MQ4 assignment depends on that resolved report. The
+Receiver proof is likewise structural: its authenticated victory/report advances
+MainQuest 3 to 4, and MQ5 recruitment is later. Debug Formation access does not
+alter either gate and remains progression-neutral.
+
 Baseline: `2b37229013c790318152985e4709b4ea81629bec`, 183 regression suites.
 This increment hardens entry and consequence timing. It does not approve any
 additional enemy for canonical party combat. All nine approved party templates,
@@ -40,8 +86,9 @@ points as well. `C/` means `content/interactions/`. Shared behavior in the table
   Repeated action acknowledgement cannot recover twice.
 - **Escape:** ordinary probabilistic Run gives no victory reward or completion.
   Exceptions are explicitly listed. Existing locks and attack costs are retained.
-- **Party rejection:** every row remains unsupported for a recruited party;
-  the existing diagnostic propagates before initialization or caller writes.
+- **Party rejection at the Pass 1 checkpoint:** every row was unsupported for a
+  recruited party; the existing diagnostic propagated before initialization or
+  caller writes. The Pass 5 table above supersedes that historical routing state.
 
 | Starter / template | Production caller, prerequisites and additional reads | Previous pre-entry writes; correction / activation writes | Victory / callback and reward owner | Defeat, escape and revisit |
 | --- | --- | --- | --- | --- |

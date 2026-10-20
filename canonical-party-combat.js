@@ -2,7 +2,7 @@
 
 function requireSingletonEncounter(name, remaining) {
   if(canonicalPartyCombat.hasMultipleMembers())
-    throw Error('Canonical party encounter: unsupported scripted encounter '+name);
+    return scriptedPartyEncounters.validate(name,remaining);
   return scriptedCombatEntry.preflight(name, remaining);
 }
 
@@ -25,12 +25,19 @@ const canonicalPartyCombat = (() => {
   };
   const location=()=>JSON.stringify({location:snapshotLocationState(),regional:regionalWorldPosition(),
     mapId:mapIdForRef(activeMap),x:player.x,y:player.y,day,defeatWakeAtHome});
-  const preflight=(request,permit=null)=>{
+  const preflight=(request,permit=null,scriptedToken=null)=>{
     if(pendingHandoff&&permit!==pendingHandoff)fail('pending authenticated follow-up');
+    if(typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.hasPending()&&
+        !scriptedPartyEncounters.permitsPending(scriptedToken))fail('pending authenticated scripted follow-up');
     if(battle)fail('requires an idle canonical party');
     const spec=data(request,['enemies','escape']);
-    if(!['blocked','fastest_living'].includes(spec.escape))fail('unsupported escape policy');
+    if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(spec.escape))fail('unsupported escape policy');
+    if(['ignore_boss','observe_gated'].includes(spec.escape)&&!scriptedToken)fail('scripted escape policy owner is required');
     const enemySide=preparePartyEnemyFormation(spec.enemies),{templates,ids}=enemySide;
+    const lifecycle=[...new Set(templates.flatMap(template=>enemyCapabilityMetadata(ENEMY_TEMPLATE_REGISTRY[template.id]).capabilities)
+      .filter(capability=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(capability)))];
+    if((lifecycle.length||scriptedToken)&&!scriptedPartyEncounters.authorize(scriptedToken,ids,lifecycle,spec.escape))
+      fail('scripted lifecycle owner is required');
     if(regionalInvariantErrors().length||!safe(day)||!safe(day+1))fail('world cleanup is not ready');
     for(const [owner,keys]of [[combat,['cooldown','enemies']], [dialogue,['name','pages','open','page','callbacks']]])
       for(const key of keys){const field=Object.getOwnPropertyDescriptor(owner,key);
@@ -41,12 +48,12 @@ const canonicalPartyCombat = (() => {
     if(!safe(xp)||!safe(gold)||!safe(party.gold+gold)||!safe(stats.items.length+templates.length)||
         party.members.some(m=>![m.xp+xp,m.maxHp+MAX_LEVEL*10,m.hp+MAX_LEVEL*10,
           m.atk+MAX_LEVEL*3,m.def+MAX_LEVEL*3,m.spd+MAX_LEVEL].every(safe)))fail('reward arithmetic overflow');
-    const composed=persistentParty.validateCombat(templates,{escape:spec.escape},permit);
+    const composed=persistentParty.validateCombat(templates,{escape:spec.escape},permit,scriptedToken);
     const ledger=persistentParty.serialize().rewards;let ordinal=ledger.length+1;
     while(ledger.some(r=>r.id==='canonical_encounter_'+ordinal))ordinal++;
     if(!safe(ordinal))fail('reward receipt capacity exhausted');
     return Object.freeze({...copy({ids,playerSide:composed.player,enemySide,escape:spec.escape,origin:location(),xp,
-      rewardId:'canonical_encounter_'+ordinal,memberIds:party.members.map(m=>m.characterId)}),templates});
+      rewardId:'canonical_encounter_'+ordinal,memberIds:party.members.map(m=>m.characterId)}),templates,scriptedToken});
   };
   const view=()=>{
     if(!battle)return copy({active:false,phase:null,receipt:lastReceipt});
@@ -79,7 +86,8 @@ const canonicalPartyCombat = (() => {
         const roll=()=>{const n=Math.random();if(!Number.isFinite(n)||n<0||n>=1)fail('invalid reward RNG');return n;};
         for(const slot of rewardSlots){const enemy=battle.templates[slot];
           gold+=enemy.goldMin+Math.floor(roll()*(enemy.goldMax-enemy.goldMin+1));
-          if(roll()<0.12)items.push('Potion');
+          const guaranteed=canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[enemy.id]).guaranteed_drop;
+          if(guaranteed)items.push(guaranteed.itemId);else if(roll()<0.12)items.push('Potion');
         }
         rewards={id:battle.rewardId,xp:rewardSlots.reduce((sum,slot)=>sum+battle.templates[slot].xp,0),gold,items};
         persistentParty.awardRewards(rewards);
@@ -87,8 +95,11 @@ const canonicalPartyCombat = (() => {
         stage='recovery';persistentParty.recover();
         if(!applyCombatDefeatWorldRecovery())fail('defeat recovery did not reach its destination');
       }
+      const receipt=copy({outcome:session.phase,members:battle.memberIds,writeback:battle.writeback,rewards});
+      if(battle.scriptedToken){stage='scripted_finalization';scriptedPartyEncounters.finalize(battle.scriptedToken,
+        {outcome:session.phase,enemies:session.enemies,rewards,receipt});}
       stage='cleanup';combat.cooldown=ENCOUNTER_COOLDOWN;
-      lastReceipt=copy({outcome:session.phase,members:battle.memberIds,writeback:battle.writeback,rewards});
+      lastReceipt=receipt;
       const successors=session.phase!=='defeat'&&cleared?[...(battle.tail||[]),...rewardSlots.map(slot=>battle.templates[slot])
         .filter(t=>canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[t.id]).split_followup&&!canonicalEnemyRecords.origin(t))
         .map(splitFactory)]:[];
@@ -119,14 +130,20 @@ const canonicalPartyCombat = (() => {
   };
   const install=(prepared,tail,handoff=null)=>{
     battle={...prepared,tail};lastReceipt=null;
-    try{persistentParty.beginCombat(prepared.templates,{escape:prepared.escape},handoff);reconcileFormationLabKeys();return view();}
+    try{persistentParty.beginCombat(prepared.templates,{escape:prepared.escape},handoff,prepared.scriptedToken);reconcileFormationLabKeys();return view();}
     catch(error){fault(error,'entry');throw error;}
   };
   return Object.freeze({
-    hasPendingHandoff(){return pendingHandoff!==null;},
+    hasPendingHandoff(){return pendingHandoff!==null||typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.hasPending();},
     permitsHandoff(token){
       return token===pendingHandoff&&token!==null&&Array.isArray(dialogue.callbacks)&&
         (dialogue.callbacks.length===1&&dialogue.callbacks[0]===token.callback||dialogue.callbacks.length===0&&!dialogue.open);
+    },
+    permitsScripted(token,ids,lifecycle,escape){
+      return typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.authorize(token,ids,lifecycle,escape);
+    },
+    permitsScriptedPreparation(token){
+      return typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.permitsPreparation(token);
     },
     checkHandoffCallback(callback){
       const token=pendingHandoff;if(!token||callback!==token.callback)return true;
@@ -141,9 +158,14 @@ const canonicalPartyCombat = (() => {
     prepareEnemySide(value){if(arguments.length!==1)fail('requires one enemy descriptor');return preparePartyEnemyFormation(value);},
     prepare(request){if(arguments.length!==1)fail('requires one encounter descriptor');return preflight(request);},
     validate(request){if(arguments.length!==1)fail('requires one encounter descriptor');preflight(request);return true;},
+    validateScripted(request,token){if(arguments.length!==2)fail('requires scripted encounter authority');preflight(request,null,token);return true;},
     enter(request){
       if(arguments.length!==1)fail('requires one encounter descriptor');
       return install(preflight(request),[]);
+    },
+    enterScripted(request,token){
+      if(arguments.length!==2)fail('requires scripted encounter authority');
+      return install(preflight(request,null,token),[]);
     },
     finish,
     handleInput(command){

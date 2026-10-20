@@ -8,6 +8,15 @@ still have a scripted starter whose outcome lifecycle remains unsupported, and a
 mandatory pre-MQ5 encounter may still require mechanics that the legacy Formation
 engine owns.
 
+Pass 5 adds canonical execution support for nine scripted templates through an
+authenticated lifecycle owner. The registry now reports **54 mechanically
+compatible templates**: the 45 ordinary templates plus those nine. The remaining
+six are the fort trio (including Polwick's unresolved Firelit attack) and the
+Receiver trio; all are necessarily pre-recruitment. Mechanical compatibility does
+not itself authorize a story route: all 15 scripted rows retain their
+`scripted-only lifecycle` audit classification, and the nine migrated rows require
+an exact one-use encounter token.
+
 Canonical compatibility is derived by `enemyCapabilityMetadata(template)`. Every
 record has the closed shape
 `{ templateId: string, capabilities: readonly string[] }`. The record, array and
@@ -22,9 +31,15 @@ closed.
 The supported canonical mechanic registry is exactly `basic_attack`,
 `standard_observe`, `standard_rewards`, `boss_escape_lock`, `brace`,
 `curse_on_hit`, `void_shard_burst`, `acid_corrosion`, `slither_on_hit`,
-`poison_spell`, and `dazzle_on_hit`. Compatibility means
-that every derived requirement is in that mechanic registry. It never means that
-an enemy ID is present in an approval list.
+`poison_spell`, `dazzle_on_hit`, `split_followup`, `regeneration`,
+`melee_armor`, `counterattack`, `poison_on_hit`,
+`mire_toad_reagent_observation`, `steal_and_flee`, `generated_stats`,
+`observe_run_lock`, `guaranteed_drop`, and the nine authenticated story
+lifecycle capabilities. Compatibility means that every derived requirement is
+implemented by that mechanic registry. It never means that an enemy ID is
+present in an approval list. The six pre-recruitment-only templates retain the
+unsupported `fort_lifecycle`, `firelit_attack`, and Receiver lifecycle
+capabilities under their existing singleton or Formation owners.
 
 Reachability terms used below:
 
@@ -80,27 +95,27 @@ column says otherwise.
 | `enemy_silt_crab` / Silt Crab | `data.js`; North Basin pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_mudflat_strider` / Mudflat Strider | `data.js`; North Basin pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_basin_gull` / Basin Gull | `data.js`; North Basin pool | repeatable | base + steal-and-flee | theft/flee generic branches | supported | ordinary | Pass 4C: gold theft, grace round and departure |
-| `enemy_pale_drowned_gallery` / Pale Drowned | `data.js`; Gallery pool and trapped-Drowned starter | repeatable; separate reachable scripted route | base | trapped starter/finalizer is route-owned | rejected | ordinary | random template newly compatible; trapped route remains deferred to Pass 5 |
+| `enemy_pale_drowned_gallery` / Pale Drowned | `data.js`; Gallery pool and trapped-Drowned starter | repeatable; separate reachable scripted route | base | trapped starter/finalizer is route-owned | rejected | ordinary | random template and authenticated trapped route compatible |
 | `enemy_silt_hag_gallery` / Silt Hag | `data.js`; Gallery pool | repeatable | base | observation/sprite alias only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_silt_crab_upper` / Silt Crab | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_basin_gull_upper` / Basin Gull | `data.js`; Upper Reach pool | repeatable | base + steal-and-flee | theft/flee generic branches | supported | ordinary | Pass 4C: gold theft, grace round and departure |
 | `enemy_dust_drowned` / Dust-Drowned | `data.js`; Upper Reach pool | repeatable | base + curse-on-hit | `curseChance` generic branch | rejected | ordinary | Pass 4B: 20% landed-hit Curse, Amethyst Bangle ward preserved |
 | `enemy_marrow_hulk` / Marrow Hulk | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 25% |
 | `enemy_silt_hag_vault` / Silt Hag | `data.js`; Mirethyst Vault pool | repeatable | base | observation/sprite alias only | rejected | ordinary | newly compatible by capabilities |
-| `enemy_briar_warden` / Briar Warden | `combat.js`; Warden scripted starter | reachable scripted | base + Warden lifecycle | Warden activation/victory writers | rejected | scripted-only lifecycle | defer bespoke outcome to Pass 5 |
-| `enemy_smuggler_guard` / Smuggler Guard | `combat.js`; fort guard starter | reachable scripted | base + fort lifecycle | fort sequence callbacks | rejected | scripted-only lifecycle | defer fort outcome chain |
-| `enemy_polwick` / Polwick | `combat.js`; fort Polwick starter | reachable scripted | base + fort lifecycle + firelit attack | Polwick fire/sequence branches | rejected | scripted-only lifecycle | defer fire attack and fort outcome |
-| `enemy_essa` / Essa | `combat.js`; fort Essa starter | reachable scripted | base + fort lifecycle | fort completion writers | rejected | scripted-only lifecycle | defer fort outcome chain |
-| `enemy_pale_sentry` / Pale Sentry | `combat.js`; persistent Sentry starter | reachable scripted | base + persistent-HP lifecycle | Sentry HP/finalizer branches | rejected | scripted-only lifecycle | defer persistent HP/outcome |
-| `enemy_rainfish` / Rainfish | `data.js`; three-fight Still Water chain | reachable scripted | base + Rainfish chain | chain counter/wake finalizer | rejected | scripted-only lifecycle | defer chained encounter lifecycle |
+| `enemy_briar_warden` / Briar Warden | `combat.js`; Warden scripted starter | reachable scripted | base + Warden lifecycle | Warden activation/victory writers | rejected | scripted-only lifecycle | Pass 5 authenticated party route; legacy singleton preserved |
+| `enemy_smuggler_guard` / Smuggler Guard | `combat.js`; fort guard starter | permanently completed before recruitment | base + fort lifecycle | fort sequence callbacks | rejected | scripted-only lifecycle | retained on mandatory pre-MQ5 singleton chain |
+| `enemy_polwick` / Polwick | `combat.js`; fort Polwick starter | permanently completed before recruitment | base + fort lifecycle + firelit attack | Polwick fire/sequence branches | rejected | scripted-only lifecycle | retained on mandatory pre-MQ5 singleton chain |
+| `enemy_essa` / Essa | `combat.js`; fort Essa starter | permanently completed before recruitment | base + fort lifecycle | fort completion writers | rejected | scripted-only lifecycle | retained on mandatory pre-MQ5 singleton chain |
+| `enemy_pale_sentry` / Pale Sentry | `combat.js`; persistent Sentry starter | reachable scripted | base + persistent-HP lifecycle | Sentry HP/finalizer branches | rejected | scripted-only lifecycle | Pass 5 authenticated HP snapshot/writeback and outcome |
+| `enemy_rainfish` / Rainfish | `data.js`; three-fight Still Water chain | reachable scripted | base + Rainfish chain | chain counter/wake finalizer | rejected | scripted-only lifecycle | Pass 5 authenticated separate-battle chain |
 | `enemy_swamp_donkey` / Swamp Donkey | `data.js`; North Basin random override | repeatable | base | opening-message ID branch only | rejected | ordinary | newly compatible by capabilities |
-| `enemy_takomo` / Takomo | `data.js`; Takomo scripted boss | reachable scripted | base + boss lock + Takomo lifecycle | Takomo outcome/reward writers | rejected | scripted-only lifecycle | defer authored boss outcome |
-| `enemy_mulholland` / Mulholland | `data.js`; optional dungeon boss and Lab fixture | reachable scripted | base + boss lock | authored starter/finalizer route | compatible as explicit fixture | ordinary | capability-derived template support; scripted route remains deferred |
-| `enemy_den_wraith` / Den Wraith | `data.js`; Den Wraith scripted starter | reachable scripted | base + curse-on-hit + Den lifecycle | curse plus quest finalizer | rejected | scripted-only lifecycle | defer status and outcome |
-| `enemy_kolm` / Kolm | `data.js`; sailor-brawl starter | reachable scripted | base + sailor-brawl lifecycle | stake/outcome writers | rejected | scripted-only lifecycle | defer brawl outcome |
-| `enemy_wrongteeth` / Wrongteeth | `data.js`; optional dungeon boss | reachable scripted | base + boss lock + Wrongteeth lifecycle | defeat/hug/final reward flow | rejected | scripted-only lifecycle | defer authored boss outcome |
-| `enemy_lensweb_spider` / Lensweb Spider | `data.js`; lighthouse objective starter | reachable scripted | base + boss lock + Observe/Run lock + objective lifecycle | Observe-gated escape and lens finalizer | rejected | scripted-only lifecycle | defer bespoke Run and objective outcome |
-| `enemy_mimic_potion` / Mimic Potion | `data.js`; Gallery trap starter | reachable scripted | base + guaranteed drop + trap lifecycle | consumption/drop/finalizer branches | rejected | scripted-only lifecycle | defer guaranteed drop and trap outcome |
+| `enemy_takomo` / Takomo | `data.js`; Takomo scripted boss | reachable scripted | base + boss lock + Takomo lifecycle | Takomo outcome/reward writers | rejected | scripted-only lifecycle | Pass 5 authenticated route, legacy Run policy retained |
+| `enemy_mulholland` / Mulholland | `data.js`; optional dungeon boss and Lab fixture | reachable scripted | base + boss lock | authored starter/finalizer route | compatible as explicit fixture | ordinary | Pass 5 authenticates the existing scripted route |
+| `enemy_den_wraith` / Den Wraith | `data.js`; Den Wraith scripted starter | reachable scripted | base + curse-on-hit + Den lifecycle | curse plus quest finalizer | rejected | scripted-only lifecycle | Pass 5 authenticated route and quest finalizer |
+| `enemy_kolm` / Kolm | `data.js`; sailor-brawl starter | reachable scripted | base + sailor-brawl lifecycle | stake/outcome writers | rejected | scripted-only lifecycle | Pass 5 stake/payout lifecycle |
+| `enemy_wrongteeth` / Wrongteeth | `data.js`; optional dungeon boss | reachable scripted | base + boss lock + Wrongteeth lifecycle | defeat/hug/final reward flow | rejected | scripted-only lifecycle | Pass 5 authenticated knockdown; later choice unchanged |
+| `enemy_lensweb_spider` / Lensweb Spider | `data.js`; lighthouse objective starter | reachable scripted | base + boss lock + Observe/Run lock + objective lifecycle | Observe-gated escape and lens finalizer | rejected | scripted-only lifecycle | Pass 5 Observe-gated party route and objective finalizer |
+| `enemy_mimic_potion` / Mimic Potion | `data.js`; Gallery trap starter | reachable scripted | base + guaranteed drop + trap lifecycle | consumption/drop/finalizer branches | rejected | scripted-only lifecycle | Pass 5 sprung-trap and guaranteed-drop lifecycle |
 | `enemy_gallery_receiver` / The Receiver | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + boss lock + Receiver coordination | Formation signals, staging and report | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
 | `enemy_gallery_caller` / The Caller | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + Receiver coordination | Formation coordination branches | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
 | `enemy_gallery_keeper` / The Keeper | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + Receiver coordination | Formation coordination branches | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
@@ -110,8 +125,10 @@ column says otherwise.
 
 - Registered templates: **60**.
 - Ordinary and capability-compatible: **45** — 22 Pass 3, eight Brace, seven status-special and eight unusual templates; generated 23 requires authenticated selection data.
+- Scripted templates mechanically compatible behind exact lifecycle tokens: **9**.
+- Total mechanically compatible: **54**.
 - Special capability pending: **0** (23 at the Pass 3 checkpoint).
-- Scripted-only lifecycle: **15**.
+- Scripted-only lifecycle audit rows: **15** — nine migrated routes and six necessarily pre-recruitment legacy routes.
 - Non-production/debug fixtures: **0**.
 - Permanently completed before recruitment: **3** Receiver templates. This is a
   reachability subset, not a fifth mechanical category.

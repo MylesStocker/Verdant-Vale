@@ -135,7 +135,7 @@ const persistentParty = (() => {
   };
   const encounterRequest=policy=>{
     const request=prepare(),p=record(policy,['escape']);
-    if(!['blocked','fastest_living'].includes(p.escape))fail();
+    if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(p.escape))fail();
     return copy({...request,gold:stats.gold,escape:p.escape,resonance:order.map((characterId,slot)=>({characterId,slot}))});
   };
   // Field views adapt the same persistent members. Only IDs/cursors belong to
@@ -246,15 +246,15 @@ const persistentParty = (() => {
     prepareCombat(policy){
       if(arguments.length!==1)fail();idle();return bridge.preparePlayer(encounterRequest(policy));
     },
-    validateCombat(enemyIds,policy,handoff=null){
-      if(arguments.length<2||arguments.length>3||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();return bridge.begin(encounterRequest(policy),array(enemyIds),true,handoff);
+    validateCombat(enemyIds,policy,handoff=null,scriptedToken=null){
+      if(arguments.length<2||arguments.length>4||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();return bridge.begin(encounterRequest(policy),array(enemyIds),true,handoff,scriptedToken);
     },
-    beginCombat(enemyIds,policy,handoff=null){
-      if(arguments.length<1||arguments.length>3||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();let request=prepare();const before=seal();
+    beginCombat(enemyIds,policy,handoff=null,scriptedToken=null){
+      if(arguments.length<1||arguments.length>4||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();let request=prepare();const before=seal();
       if(policy!==undefined){
         request=encounterRequest(policy);
       }
-      const ids=array(enemyIds),ticket=bridge.begin(request,ids,false,handoff);
+      const ids=array(enemyIds),ticket=bridge.begin(request,ids,false,handoff,scriptedToken);
       battle={ticket,before,memberIds:combatPlayerState.getView().members.map(m=>m.instanceId)};
       return combatPlayerState.session.getView();
     },

@@ -34,12 +34,10 @@ test('one-member canonical roster keeps the exact singleton path, input and pres
  const h=fresh();h.run('Math.random=()=>{rolls++;return 0.99};startCombat()');assert.equal(view(h).active,true);assert.equal(h.run('rolls'),2);assert.equal(h.run('combat.active'),false);
  assert.deepEqual(view(h).party.map(m=>m.characterId),['lely','esla']);
 });
-test('unsupported world selection and scripted encounters never install singleton gameplay state',()=>{
+test('unsupported world selection and pre-recruitment scripted encounters never install singleton gameplay state',()=>{
  const g=fresh();g.run('Math.random=()=>{rolls++;return 0};');const before=state(g);
  assert.throws(()=>g.run('startCombat()'),/invalid enemy arithmetic: enemy_23/);assert.equal(state(g),before);assert.equal(g.run('combatEnemyInstanceSequence'),0);
- for(const name of ['startBossCombat','startWardenCombat','startFortGuardCombat','startFortPolwickCombat','startFortEssaCombat',
-  'startMulhollandCombat','startDenWraithCombat','startSailorBrawlCombat','startTakomoCombat','startMimicPotionCombat','startLenswebSpiderCombat','startTrappedDrownedCombat',
-  'startRainfishCombat','startMireToadSpawnCombat','startSeepSplitCombat']){
+ for(const name of ['startFortGuardCombat','startFortPolwickCombat','startFortEssaCombat','startSeepSplitCombat']){
   const rolls=g.run('rolls');assert.throws(()=>g.run(name+'()'),/unsupported scripted encounter/);assert.equal(state(g),before);assert.equal(g.run('rolls'),rolls);
  }
 });

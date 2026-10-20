@@ -54,7 +54,7 @@ function resolve(g,body,{targets=[],initiative='enemies'}={}){
 function ack(g){let n=0;while(view(g).phase==='playback'){assert.ok(n++<240);input(g,'confirm');}assert.equal(view(g).phase,'playback_complete');input(g,'confirm');}
 function finish(g){g.run('Math.random=()=>{calls++;return .5}');return J(g,'canonicalPartyCombat.finish()');}
 
-test('seven templates expose closed immutable capability profiles and the registry totals are 45/0/15',()=>{
+test('seven templates expose closed immutable capability profiles and scripted mechanics reflect Pass 5 support',()=>{
   const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),60);
   for(const [id,spec]of Object.entries(TARGETS)){
     const compatibility=J(g,'canonicalEnemyCompatibility(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');
@@ -63,9 +63,10 @@ test('seven templates expose closed immutable capability profiles and the regist
     const profile=g.run('canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');frozen(profile);
     assert.equal(profile[spec.capability].chance,spec.chance,id);
   }
-  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),45);
+  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),54);
   for(const [id,reason]of Object.entries(PASS4C)){const c=J(g,'canonicalEnemyCompatibility(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');assert.deepEqual(c.unsupported,[],id);assert.ok(c.capabilities.includes(reason),id);}
-  for(const id of SCRIPTED)assert.equal(g.run('canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])'),false,id);
+  for(const id of SCRIPTED){const supported=!['enemy_smuggler_guard','enemy_polwick','enemy_essa','enemy_gallery_receiver','enemy_gallery_caller','enemy_gallery_keeper'].includes(id);
+    assert.equal(g.run('canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])'),supported,id);}
   assert.equal(g.run('calls'),0);
 });
 
@@ -241,7 +242,7 @@ test('geographic routing accepts the seven mechanics only after recruitment and 
 
 test('Pass 4C prepares atomically while scripted lifecycles remain explicitly rejected',()=>{
   const g=fresh(),before=state(g);for(const id of Object.keys(PASS4C)){if(id==='enemy_23')reject(g,'canonicalPartyCombat.enter({enemies:["enemy_23"],escape:"blocked"})',/authenticated/);else frozen(g.run('canonicalPartyCombat.prepare({enemies:['+JSON.stringify(id)+'],escape:"blocked"})'));}assert.equal(state(g),before);assert.equal(g.run('calls'),0);
-  for(const id of SCRIPTED)reject(g,'canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"blocked"})',/Unsupported canonical enemy capabilities/);
+  for(const id of SCRIPTED)reject(g,'canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"blocked"})',/Unsupported canonical enemy capabilities|scripted lifecycle owner/);
 });
 
 test('source dispatch is capability-driven and singleton source remains isolated',()=>{

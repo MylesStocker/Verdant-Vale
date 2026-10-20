@@ -104,11 +104,16 @@ function preparePartyEnemyFormation(value) {
     if(canonicalEnemyMechanicProfile(template).generated_stats&&!origin)fail('generated_stats requires authenticated selection provenance');
     const selected=origin?supplied:template;
     const mechanicFields=Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES).filter(key=>
-      Object.hasOwn(selected,key)&&ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical);
+      !['runLock','guaranteedDrop'].includes(key)&&Object.hasOwn(selected,key)&&
+      ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical);
     const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[]),...mechanicFields];
-    const exact=data(selected,keys);
+    const staticMechanicFields=['runLock','guaranteedDrop'].filter(key=>Object.hasOwn(selected,key));
+    const selectedData=data(selected,[...keys,...staticMechanicFields]),exact={};
+    for(const key of keys)exact[key]=selectedData[key];
     if(typeof supplied!=='string'){
-      const input=data(supplied,keys);
+      const suppliedStaticFields=['runLock','guaranteedDrop'].filter(key=>Object.hasOwn(supplied,key));
+      const inputData=data(supplied,[...keys,...suppliedStaticFields]),input={};
+      for(const key of keys)input[key]=inputData[key];
       if(keys.some(k=>input[k]!==exact[k]))fail('enemy instance differs from its approved template: '+id);
     }
     if(exact.id!==id||typeof exact.name!=='string'||!exact.name.trim()||!formationBasicStatsValid(exact)||!exact.hp||

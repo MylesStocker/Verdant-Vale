@@ -4,7 +4,7 @@
 // identity is allocated here. Originals are accepted by reference only; history
 // keeps immutable issuance evidence after the encounter has finished.
 const canonicalEnemyRecords=(()=>{
-  const issued=new WeakMap(),histories=new Map();let claimed=false;
+  const issued=new WeakMap(),histories=new Map();let splitClaimed=false,scriptedClaimed=false;
   const fail=()=>{throw Error('Invalid authenticated canonical enemy record');};
   const issue=(template,kind,rolls)=>{
     const record=copyFormationData(template),origin=copyFormationData({kind,template:record,rolls});
@@ -21,12 +21,20 @@ const canonicalEnemyRecords=(()=>{
       return issue({id:template.id,name:template.name,hp,maxHp:hp,atk:draw(),def:draw(),spd:draw(),xp:draw(),goldMin:Math.min(a,b),goldMax:Math.max(a,b)},'generated',rolls);
     },
     claimSplitFactory(){
-      if(claimed)fail();claimed=true;
+      if(splitClaimed)fail();splitClaimed=true;
       return template=>{
         const registered=ENEMY_TEMPLATE_REGISTRY[template.id];
         requireCanonicalEnemyCapabilities(registered);
         const split=canonicalEnemyMechanicProfile(registered).split_followup;if(!split)fail();
         return issue({...registered,hp:split.hp,maxHp:split.hp,xp:split.xp,goldMin:split.goldMin,goldMax:split.goldMax},'split',[]);
+      };
+    },
+    claimScriptedFactory(){
+      if(scriptedClaimed)fail();scriptedClaimed=true;
+      return (template,hp)=>{
+        if(!template||ENEMY_TEMPLATE_REGISTRY[template.id]!==template||!Number.isSafeInteger(hp)||hp<=0||hp>template.maxHp)fail();
+        requireCanonicalEnemyCapabilities(template);
+        return issue({...template,hp},'scripted',[]);
       };
     },
   });

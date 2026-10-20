@@ -6,6 +6,30 @@ actually fits together.
 
 ## Current state
 
+### Scripted canonical-party encounter migration — Pass 5
+
+Pass 4C is checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`.
+Pass 5 adds one authenticated story-lifecycle owner around the existing canonical
+party engine. The post-MQ5 routes for Briar Warden, Pale Sentry, Rainfish, Takomo,
+Den Wraith, Kolm, Wrongteeth, Lensweb Spider and Mimic Potion now accept one to
+three canonical members. Mulholland, the Mire Toad spawning chain and the trapped
+Drowned use the same boundary. Pre-recruitment calls still use their existing
+singleton implementation.
+
+The fort guard/Polwick/Essa chain and Receiver/Caller/Keeper Formation are proven
+pre-recruitment requirements and remain isolated. The capability inventory is 54
+mechanically supported templates, with nine requiring an authenticated story
+token and six retained on pre-MQ5 legacy owners. Entry dry-runs the complete
+canonical preparation before choices/callbacks commit activation state. Outcomes
+write story flags, persistent Sentry HP, wagers, guaranteed rewards and chain
+callbacks exactly once after canonical writeback and ordinary rewards.
+
+Rainfish and Mire Toad remain separate chained battles with save-blocking,
+origin-bound callbacks and fresh identities. Lensweb preserves poison and its
+Observe-gated guaranteed escape; Kolm preserves the spent stake on non-victory;
+Mimic preserves activation-time trap consumption. No maps, pools, stats, quests,
+dialogue, save fields or production formations changed. SAVE_VERSION remains 5.
+
 ### Unusual ordinary-enemy migration — Pass 4C
 
 Pass 4B is checkpointed as `10d2f27eeb2061cfa24a301207ef53010fabdb4f`
@@ -25,9 +49,10 @@ Gull departure; voluntary Run still pays nothing. Other Pass 6 policies are defe
 
 Suite 189 tests all eight templates at all nine side sizes, deterministic mechanics,
 duplicates, historical playback, malformed data, ownership, rewards and handoffs.
-Pass 4C remains unstaged/uncommitted. Geography, production pools/formations,
+Pass 4C is checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`. Geography, production pools/formations,
 legacy singleton/Formation behavior, artifact authorities and SAVE_VERSION 5 are
-unchanged. Same-slot replacement and the 15 scripted lifecycles remain deferred.
+unchanged. Same-slot replacement remains deferred; the scripted lifecycle state
+is superseded by the Pass 5 section above.
 Verification: 189/189 full suites, 68 focused suites, 22 new grouped checks,
 15 JavaScript syntax checks, 0 validation errors/4 established warnings, 107
 fingerprints, exact read-only transition audit, and all five historical capture

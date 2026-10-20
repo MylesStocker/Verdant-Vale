@@ -22,24 +22,34 @@ const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
   poison_spell:Object.freeze({canonical:true}),
   dazzle_on_hit:Object.freeze({canonical:true}),
   steal_and_flee:Object.freeze({canonical:true}),
-  observe_run_lock:Object.freeze({canonical:false}),
-  guaranteed_drop:Object.freeze({canonical:false}),
+  observe_run_lock:Object.freeze({canonical:true}),
+  guaranteed_drop:Object.freeze({canonical:true}),
   generated_stats:Object.freeze({canonical:true}),
-  warden_lifecycle:Object.freeze({canonical:false}),
+  warden_lifecycle:Object.freeze({canonical:true}),
   fort_lifecycle:Object.freeze({canonical:false}),
   firelit_attack:Object.freeze({canonical:false}),
-  persistent_hp_lifecycle:Object.freeze({canonical:false}),
-  rainfish_chain:Object.freeze({canonical:false}),
-  takomo_lifecycle:Object.freeze({canonical:false}),
-  den_wraith_lifecycle:Object.freeze({canonical:false}),
-  sailor_brawl_lifecycle:Object.freeze({canonical:false}),
-  wrongteeth_lifecycle:Object.freeze({canonical:false}),
-  lensweb_objective_lifecycle:Object.freeze({canonical:false}),
-  mimic_trap_lifecycle:Object.freeze({canonical:false}),
+  persistent_hp_lifecycle:Object.freeze({canonical:true}),
+  rainfish_chain:Object.freeze({canonical:true}),
+  takomo_lifecycle:Object.freeze({canonical:true}),
+  den_wraith_lifecycle:Object.freeze({canonical:true}),
+  sailor_brawl_lifecycle:Object.freeze({canonical:true}),
+  wrongteeth_lifecycle:Object.freeze({canonical:true}),
+  lensweb_objective_lifecycle:Object.freeze({canonical:true}),
+  mimic_trap_lifecycle:Object.freeze({canonical:true}),
   receiver_coordination:Object.freeze({canonical:false}),
 });
 const CANONICAL_ENEMY_CAPABILITIES = Object.freeze(Object.keys(ENEMY_CAPABILITY_DEFINITIONS)
   .filter(id=>ENEMY_CAPABILITY_DEFINITIONS[id].canonical));
+
+// These capabilities describe encounter-owned persistence and story outcomes.
+// Their combat mechanics are representable, but canonical installation still
+// requires an authenticated scripted-lifecycle owner. Ordinary entry may never
+// approve one merely because the capability itself is implemented.
+const CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES = Object.freeze([
+  'warden_lifecycle','persistent_hp_lifecycle','rainfish_chain','takomo_lifecycle',
+  'den_wraith_lifecycle','sailor_brawl_lifecycle','wrongteeth_lifecycle',
+  'lensweb_objective_lifecycle','mimic_trap_lifecycle',
+]);
 
 const ENEMY_TEMPLATE_FIELD_CAPABILITIES = Object.freeze({
   defendChance:'brace', curseChance:'curse_on_hit', acidChance:'acid_corrosion',
@@ -202,10 +212,15 @@ function canonicalEnemyMechanicProfile(template) {
   if(metadata.capabilities.includes('steal_and_flee'))add('steal_and_flee',{minGold:20,goldSpan:31,graceRounds:1});
   if(metadata.capabilities.includes('split_followup'))add('split_followup',{hp:20,xp:20,goldMin:0,goldMax:3});
   if(metadata.capabilities.includes('generated_stats'))add('generated_stats',{factor:23});
+  if(metadata.capabilities.includes('observe_run_lock'))add('observe_run_lock',{mode:template.runLock});
+  if(metadata.capabilities.includes('guaranteed_drop'))add('guaranteed_drop',{itemId:template.guaranteedDrop});
   if(metadata.capabilities.includes('counterattack')!==metadata.capabilities.includes('melee_armor'))
     throw Error('Incomplete melee armor/counter capability pair');
   if(metadata.capabilities.includes('mire_toad_reagent_observation')&&!metadata.capabilities.includes('poison_on_hit'))
     throw Error('Incomplete reagent/poison capability pair');
+  if(mechanics.observe_run_lock&&mechanics.observe_run_lock.mode!=='observe_gated')throw Error('Invalid Observe-gated Run capability');
+  if(mechanics.guaranteed_drop&&(!Object.hasOwn(ITEM_REGISTRY,mechanics.guaranteed_drop.itemId)||
+      ITEM_REGISTRY[mechanics.guaranteed_drop.itemId].keyItem))throw Error('Invalid guaranteed-drop capability');
   return Object.freeze(Object.fromEntries(Object.entries(mechanics).map(([id,data])=>[id,Object.freeze({...data})])));
 }
 function requireCanonicalEnemyCapabilities(template) {

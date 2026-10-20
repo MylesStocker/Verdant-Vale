@@ -55,10 +55,10 @@ function historical(g,r){g.run('var savedResult=__unusualResult;var replay=comba
 function tamper(g,code){g.run('var altered='+JSON.stringify(J(g,'savedResult'))+';'+code+';altered=copyFormationData(altered)');
   assert.throws(()=>g.run('combatPlayerState.createRoundPlayback(altered)'),/playback|authenticated/);}
 
-test('eight capabilities are supported; all fifteen scripted lifecycles remain guarded',()=>{
+test('eight capabilities are supported; all scripted lifecycles still require their authenticated owner',()=>{
  const g=fresh();for(const id of IDS){assert.equal(g.run('canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])'),true,id);frozen(g.run('canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])'));}
- assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),45);
- for(const id of SCRIPTED)reject(g,'canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"blocked"})',/Unsupported canonical enemy capabilities/);
+ assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),54);
+ for(const id of SCRIPTED)reject(g,'canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"blocked"})',/Unsupported canonical enemy capabilities|scripted lifecycle owner/);
 });
 
 test('every unusual mechanic prepares at all nine sizes; duplicates retain exact fixed identities',()=>{
@@ -182,7 +182,7 @@ test('voluntary Run after theft writes lost gold but gives no rewards; defeat us
 
 test('handoff rejection is read-only, its private token cannot be forged, and old targets stay stale',()=>{
  const g=fresh(1);sturdy(g);g.run('stats.atk=500');enter(g,['enemy_the_seep']);const old=view(g);draft(g);resolve(g,HIT,{initiative:'allies'});ack(g);finish(g);
- g.run('choice.open=true');const before=state(g),calls=g.run('calls');assert.throws(()=>g.run('handleInteract()'));assert.equal(state(g),before);assert.equal(g.run('calls'),calls);g.run('choice.open=false');
+ g.run('choice.open=true');const before=state(g),calls=g.run('calls');assert.throws(()=>g.run('canonicalPartyCombat.enter({enemies:["enemy_marsh_wisp"],escape:"blocked"})'),/pending authenticated follow-up/);assert.equal(state(g),before);assert.equal(g.run('calls'),calls);g.run('choice.open=false');
  reject(g,'persistentParty.beginCombat(["enemy_marsh_wisp"],{escape:"blocked"},{})');g.run('handleInteract()');
  reject(g,'combatPlayerState.session.submitAttack('+JSON.stringify({actorId:old.party[0].instanceId,targetId:old.enemies[0].instanceId})+')');
 });

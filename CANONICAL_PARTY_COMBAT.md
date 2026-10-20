@@ -1,11 +1,56 @@
 # Canonical party combat integration review
 
+## Pass 5 — authenticated scripted encounter lifecycles
+
+Pass 4C was checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`.
+Pass 5 routes every scripted encounter that can remain unresolved after MQ5
+through canonical party combat while leaving its pre-recruitment singleton path
+unchanged. Nine of the 15 guarded templates are reachable and migrated: Briar
+Warden, Pale Sentry, Rainfish, Takomo, Den Wraith, Kolm, Wrongteeth, Lensweb
+Spider and Mimic Potion. The same authority also owns reachable Mulholland, Mire
+Toad spawning-site and trapped-Drowned routes whose base templates were already
+ordinary. The fort guard/Polwick/Essa chain and Receiver/Caller/Keeper formation
+are required before recruitment and retain their legacy owners.
+
+`scriptedPartyEncounters` issues a private one-use token containing the exact
+starter, ordered template IDs, allocated runtime instance IDs, lifecycle capabilities, escape policy, origin and
+activation objective. `canonicalPartyCombat` and its persistent bridge require
+that token at validation, installation and finalization. A bare scripted template
+cannot enter through the ordinary boundary. The complete dry preflight precedes
+stake deduction, poison, pickup consumption, wake state, RNG and identities.
+Unexpected post-preflight installation failures retain their diagnostic and do
+not roll those activation consequences back.
+
+Finalization occurs after canonical HP/status/inventory writeback and ordinary
+reward receipt, but before transient battle cleanup. It authenticates the exact
+token, ordered template IDs and runtime instance IDs once. Victory then commits the existing flag, NPC/board state,
+stake payout, guaranteed drop, objective or chain callback. Defeat and ordinary
+escape commit no victory consequence. Kolm keeps the spent 50-gold stake on either;
+Mimic remains sprung; Rainfish remains woken. Lensweb's Observe-gated escape is
+the sole non-victory story success and grants the exact route objective once.
+Pale Sentry writes remaining HP on every outcome and completes only on victory.
+
+Rainfish and Mire Toad retain separate authenticated battles. Their interstitial
+callback is origin-bound, blocks saving, accepts only the next exact chain stage
+and allocates fresh identities. Toad sex selection remains one draw after both
+candidates pass full preflight. No dynamic formation mutation or same-slot
+replacement was added. Scripted escape policy is data passed to the existing
+controller: Rainfish/Toad are blocked, Lensweb is Observe-gated, ordinary routes
+use the legacy speed contest, and the legacy-runnable boss-presented Wrongteeth,
+Takomo and Mulholland use that same contest without changing template metadata.
+
+The capability registry now has 54 mechanically supported templates. Nine still
+need a story token; six remain mechanically guarded because their mandatory
+pre-recruitment legacy engines own unresolved behavior. SAVE_VERSION remains 5.
+No production formation, geography, dialogue, balance or save field changed.
+See `SCRIPTED_COMBAT_ENTRY_AUDIT.md` for the complete 15-template proof.
+
 ## Pass 4C — unusual ordinary mechanics
 
 Pass 4B was verified and checkpointed at
 `10d2f27eeb2061cfa24a301207ef53010fabdb4f`
-(`feat(combat): support status specials in canonical party battles`). Pass 4C is
-unstaged and uncommitted. The registry has 60 templates: **45 mechanically
+(`feat(combat): support status specials in canonical party battles`). Pass 4C was
+checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`. At that checkpoint the registry had 60 templates: **45 mechanically
 supported, zero special-capability pending, 15 scripted-lifecycle guarded**.
 Generated 23 is mechanically supported only with an authenticated generated
 record; its bare registry sentinel remains invalid encounter input.
@@ -105,8 +150,9 @@ previously committed draws.
 
 The intended Mire Toad ×3 fixture now executes; Waspthra/Botfly remain unregistered.
 No production formation, pool, geography, stats, save fields or new content was
-added. Pass 5 still owns all 15 scripted lifecycles; Pass 6 still owns the remaining
-universal rewards/XP/Fallen/recovery policies. Both Labs and Receiver stay isolated.
+added. At the Pass 4C checkpoint all 15 scripted lifecycles were deferred to Pass 5;
+the Pass 5 section above now supersedes that routing state. Pass 6 still owns the
+remaining universal rewards/XP/Fallen/recovery policies. Both Labs and Receiver stay isolated.
 
 No browser testing was performed. Optional smoke: pre-MQ5 singleton; recruited
 Seep and its smaller successor; Troll/Trollbane; Thornback melee versus items;

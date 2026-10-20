@@ -813,7 +813,7 @@ const combatPlayerState = (() => {
     const seed = (request,persistent=false,handoff=null) => {
         if(members||commandBattle||roundState||sessionState)invalid();
         const data=dataRecord(request,['members','inventory','escape',...(Object.hasOwn(request||{},'gold')?['gold']:[]),...(Object.hasOwn(request||{},'resonance')?['resonance']:[]),...(Object.hasOwn(request||{},'slither')?['slither']:[]),...(Object.hasOwn(request||{},'equipment')?['equipment']:[])]);
-        if(!['blocked','fastest_living'].includes(data.escape)||Object.hasOwn(data,'gold')&&!safe(data.gold))invalid();
+        if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(data.escape)||Object.hasOwn(data,'gold')&&!safe(data.gold))invalid();
         neutral(false,persistent,handoff);
         const candidates=prepareMembers(data.members,1,3,persistent,handoff);
         if(!candidates.some(m=>m.hp>0))invalid();
@@ -1041,9 +1041,11 @@ const combatPlayerState = (() => {
                 escapeBefore:target.escapeUnlocked,escapeAfter:target.escapeUnlocked,lines});
             } else if(action.type==='run') {
               const fastest=enemyMembers.filter(available).reduce((a,b)=>b.spd>a.spd?b:a);
-              const allowed=s.escape==='fastest_living'&&!s.bossLocked;
-              const chance=allowed?speedWinChance(values(actor).spd,fastest.spd):0;
-              const draw=allowed?roll():null,success=allowed&&draw<chance;
+              const gated=s.escape==='observe_gated',gate=gated&&enemyMembers.find(e=>
+                available(e)&&s.mechanics.get(e.instanceId)?.observe_run_lock?.mode==='observe_gated');
+              const allowed=s.escape==='ignore_boss'||s.escape==='fastest_living'&&!s.bossLocked||gated&&!!gate&&gate.observeCount>0;
+              const chance=gated?(allowed?1:0):allowed?speedWinChance(values(actor).spd,fastest.spd):0;
+              const draw=allowed&&!gated?roll():null,success=allowed&&(gated||draw<chance);
               events.push({type:'run',...planned,allowed,opponentId:fastest.instanceId,chance,roll:draw,success});
               if(success){outcome='escape';break;}
             } else {
@@ -1503,12 +1505,16 @@ const combatPlayerState = (() => {
         partyInitiativeWeights(actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})));
         return copyFormationData(prepared.data);
       },
-      begin(request,enemyIds,validateOnly=false,handoff=null) {
+      begin(request,enemyIds,validateOnly=false,handoff=null,scriptedToken=null) {
         if(owner||combat.mode!==null||combat.active||combat.enemies.length||partyCombatLab.isActive())fail();
         const {ids,templates}=preparePartyEnemyFormation(enemyIds);
+        const lifecycle=[...new Set(templates.flatMap(template=>enemyCapabilityMetadata(ENEMY_TEMPLATE_REGISTRY[template.id]).capabilities)
+          .filter(capability=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(capability)))];
+        if(['ignore_boss','observe_gated'].includes(request.escape)&&!scriptedToken)fail();
+        if((lifecycle.length||scriptedToken)&&!canonicalPartyCombat.permitsScripted(scriptedToken,ids,lifecycle,request.escape))fail();
         if(!Number.isSafeInteger(combatEnemyInstanceSequence)||combatEnemyInstanceSequence<0||
             combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
-        const prepared=commandRounds.seed(request,true,handoff);
+        const prepared=commandRounds.seed(request,true,handoff||scriptedToken);
         const actorVariants=persistentActorVariants(prepared);
         for(const variants of actorVariants)for(const a of variants)for(const e of templates)if(!Number.isSafeInteger(e.def+(e.meleeArmor||0))||!attackNumbersAreSafe(a.atk,e.def+(e.meleeArmor||0))||
             !attackNumbersAreSafe(e.atk,playerIncomingMitigation(e.atk,a.def,a.bypass))||
@@ -1999,7 +2005,7 @@ const partyCommandPlayback = (() => {
     const snapshot=(s,maxRound)=>{
       keys(s,['party','enemies','inventory','equipment','effects','escapePolicy','bossLocked',...(Object.hasOwn(s,'gold')?['gold']:[]),...(Object.hasOwn(s,'resonance')?['resonance']:[])]);list(s.party,1,3);list(s.enemies,1,3);
       list(s.inventory);s.inventory.forEach(spec);list(s.equipment,s.party.length,s.party.length);list(s.effects,s.party.length,s.party.length);
-      if(!['blocked','fastest_living'].includes(s.escapePolicy)||!bool(s.bossLocked)||Object.hasOwn(s,'gold')&&!safe(s.gold))fail();
+      if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(s.escapePolicy)||!bool(s.bossLocked)||Object.hasOwn(s,'gold')&&!safe(s.gold))fail();
       const ids=new Set(),authored=new Set();
       for(const [side,group,fields]of [['ally',s.party,partyKeys],['enemy',s.enemies,enemyKeys]])group.forEach((m,slot)=>{
         const registered=side==='enemy'?ENEMY_TEMPLATE_REGISTRY[m.id]:null;
@@ -2007,7 +2013,8 @@ const partyCommandPlayback = (() => {
         if(m.origin&&(side!=='enemy'||['id','name','maxHp','atk','def','spd','xp','goldMin','goldMax'].some(k=>m[k]!==template[k])))fail();
         const unusual=side==='enemy'?canonicalUnusualEnemySeed(registered):null;
         const mechanicFields=side==='enemy'?Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES).filter(key=>
-          Object.hasOwn(template||{},key)&&ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical):[];
+          !['runLock','guaranteedDrop'].includes(key)&&Object.hasOwn(template||{},key)&&
+          ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical):[];
         const hasBrace=mechanicFields.includes('defendChance');
         keys(m,[...fields,...mechanicFields,...(hasBrace?['braced']:[]),...(m.origin?['origin']:[]),...(unusual?['unusual']:[])]);
         if(unusual){keys(m.unusual,Object.keys(unusual));const u=m.unusual;
@@ -2315,9 +2322,12 @@ const partyCommandPlayback = (() => {
       }else if(e.type==='observe'){
         list(e.lines);if(e.lines.some(x=>typeof x!=='string')||e.countBefore!==target.observeCount||!safe(e.countAfter)||e.countAfter!==e.countBefore+1||e.escapeBefore!==target.escapeUnlocked||e.escapeAfter!==false)fail();target.observeCount=e.countAfter;
       }else if(e.type==='run'){
-        const fastest=state.enemies.filter(available).reduce((a,b)=>b.spd>a.spd?b:a),allowed=state.escapePolicy==='fastest_living'&&!state.bossLocked;
+        const fastest=state.enemies.filter(available).reduce((a,b)=>b.spd>a.spd?b:a),gated=state.escapePolicy==='observe_gated',
+          gate=gated&&state.enemies.find(m=>available(m)&&canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[m.id]).observe_run_lock?.mode==='observe_gated'),
+          allowed=state.escapePolicy==='ignore_boss'||state.escapePolicy==='fastest_living'&&!state.bossLocked||gated&&!!gate&&gate.observeCount>0;
         if(e.allowed!==allowed||e.opponentId!==fastest.instanceId||!bool(e.success)||typeof e.chance!=='number'||e.chance<0||e.chance>1||
-            (allowed?!roll(e.roll)||e.success!==(e.roll<e.chance):e.roll!==null||e.chance!==0||e.success))fail();escaped=e.success;
+            (gated?(e.roll!==null||e.chance!==(allowed?1:0)||e.success!==allowed):
+              allowed?!roll(e.roll)||e.success!==(e.roll<e.chance):e.roll!==null||e.chance!==0||e.success))fail();escaped=e.success;
       }else {itemEvent(e,c,actor,target);recoverGold();continue;}
       push(e);if(e.type==='attack'){enemyEffects(actor,target,e);counter(actor,target);theft(actor,target,e);}recoverGold();
     }
@@ -2503,7 +2513,8 @@ function validateFormationDescriptorData(descriptors, capabilityApproval) {
     const copy = {};
     for (const key of Reflect.ownKeys(data)) {
       const capability=ENEMY_TEMPLATE_FIELD_CAPABILITIES[key];
-      if(capabilityApproval&&capability&&ENEMY_CAPABILITY_DEFINITIONS[capability].canonical){
+      if(capabilityApproval&&capability&&ENEMY_CAPABILITY_DEFINITIONS[capability].canonical&&
+          !['runLock','guaranteedDrop'].includes(key)){
         copy[key]=data[key].value;continue;
       }
       if (key === 'isBoss' && Object.hasOwn(data[key], 'value') && typeof data[key].value === 'boolean') {
@@ -2686,10 +2697,11 @@ function prepareFormationEntry() {
 // Shared read-only preparation preflight; neither player nor enemy initialization
 // may acquire an unresolved UI/session/callback. No completion is inferred here.
 function validateInactiveCombatPreparation(handoff=null) {
-  const ownDialogue=handoff!==null&&canonicalPartyCombat.permitsHandoff(handoff);
+  const ownDialogue=handoff!==null&&(canonicalPartyCombat.permitsHandoff(handoff)||
+    canonicalPartyCombat.permitsScriptedPreparation(handoff));
   if (combat.active !== false || formationSessionController.getView() !== null ||
-      (!ownDialogue&&(dialogue.open !== false || dialogue.callbacks !== null)) || dialogue.triggerEncounterId !== null ||
-      seraLioraCutscene.active || fishing.active || menu.open || choice.open || shop.open ||
+      (!ownDialogue&&(dialogue.open !== false || dialogue.callbacks !== null || dialogue.triggerEncounterId !== null || choice.open)) ||
+      seraLioraCutscene.active || fishing.active || menu.open || shop.open ||
       warpMenu.open || accordPanel.open || continentMap.open)
     throw new Error('Unsupported formation entry: combat is not safely finalized');
 }
@@ -3975,7 +3987,7 @@ function startCanonicalPartyEncounter() {
   persistentParty.combatSnapshot();
   const mapId=typeof regionalActiveMapId==='function'?regionalActiveMapId():mapIdForRef(activeMap);
   if(mapId==='MAP_N2'&&sentry_quest_started&&!sentry_quest_done)
-    throw Error('Canonical party encounter: unsupported Pale Sentry persistent-HP encounter');
+    return scriptedPartyEncounters.start('pale_sentry');
   const pool=currentEncounterPool();
   if(!Array.isArray(pool)||!pool.length)return;
   const roll=()=>{const value=Math.random();if(!Number.isFinite(value)||value<0||value>=1)
@@ -4075,7 +4087,7 @@ const scriptedCombatEntry = (() => {
         if(!eligible()) return true; // e.g. the existing insufficient-stake dialogue
         if(combat.active) fail('combat owner is not idle');
         if(!check(name,remaining)) return false;
-        return route ? dialogueCheck(route) : true;
+        return route && remaining===undefined ? dialogueCheck(route) : true;
       };
       const wrapped=function(){if(checkEntry())return callback();};
       callbacks.set(wrapped,checkEntry);return wrapped;
@@ -4112,6 +4124,7 @@ function startSeepSplitCombat(remaining) {
 
 function startRainfishCombat(remaining) {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startRainfishCombat',remaining);
   if (!requireSingletonEncounter("startRainfishCombat", remaining)) return;
   // remaining: how many fights still come AFTER this one (2 = first of 3, 1 = second, 0 = last)
   const intros = [
@@ -4138,6 +4151,7 @@ function startRainfishCombat(remaining) {
 // freshly randomized for every investigation rather than authored or saved.
 function startMireToadSpawnCombat(remaining) {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startMireToadSpawnCombat',remaining);
   if (!requireSingletonEncounter("startMireToadSpawnCombat", remaining)) return;
   const ids = ['enemy_mire_toad_male', 'enemy_mire_toad_female'];
   const t = ENEMY_TEMPLATE_REGISTRY[ids[Math.floor(Math.random() * ids.length)]];
@@ -4213,6 +4227,7 @@ function endCombat() {
 
 function startBossCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startBossCombat');
   if (!requireSingletonEncounter("startBossCombat")) return;
   combat.enemy          = { ...BOSS_TEMPLATE };
   combat.active         = true;
@@ -4229,6 +4244,7 @@ function startBossCombat() {
 
 function startWardenCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startWardenCombat');
   if (!requireSingletonEncounter("startWardenCombat")) return;
   combat.enemy          = { ...BRIAR_WARDEN_TEMPLATE };
   combat.active         = true;
@@ -4294,6 +4310,7 @@ function startFortEssaCombat() {
 
 function startMulhollandCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startMulhollandCombat');
   if (!requireSingletonEncounter("startMulhollandCombat")) return;
   combat.enemy          = { ...MULHOLLAND_TEMPLATE };
   combat.active         = true;
@@ -4310,6 +4327,7 @@ function startMulhollandCombat() {
 
 function startDenWraithCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startDenWraithCombat');
   if (!requireSingletonEncounter("startDenWraithCombat")) return;
   combat.enemy          = { ...DEN_WRAITH_TEMPLATE };
   combat.active         = true;
@@ -4326,6 +4344,7 @@ function startDenWraithCombat() {
 
 function startSailorBrawlCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startSailorBrawlCombat');
   if (!requireSingletonEncounter("startSailorBrawlCombat")) return;
   combat.enemy          = { ...SAILOR_BRAWLER_TEMPLATE };
   combat.active         = true;
@@ -4342,6 +4361,7 @@ function startSailorBrawlCombat() {
 
 function startTakomoCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startTakomoCombat');
   if (!requireSingletonEncounter("startTakomoCombat")) return;
   combat.enemy          = { ...TAKOMO_TEMPLATE };
   combat.active         = true;
@@ -4363,6 +4383,7 @@ function startTakomoCombat() {
 // handled by applyKillRewards' `guaranteedDrop` path.
 function startMimicPotionCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startMimicPotionCombat');
   if (!requireSingletonEncounter("startMimicPotionCombat")) return;
   combat.enemy          = { ...MIMIC_POTION_TEMPLATE };
   combat.active         = true;
@@ -4387,6 +4408,7 @@ function startMimicPotionCombat() {
 // or the spider is already resolved, no combat starts and nothing is left pending.
 function startLenswebSpiderCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startLenswebSpiderCombat');
   if (!requireSingletonEncounter("startLenswebSpiderCombat")) return;
   if (lighthouse_spider_resolved) return;             // never re-run the event
   const objective = getActiveLighthouseObjective();   // the one route/item authority
@@ -4448,6 +4470,7 @@ let lenswebSpiderEnemy = null;
 const singletonRewardedEnemies = new WeakMap();
 function startTrappedDrownedCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startTrappedDrownedCombat');
   if (!requireSingletonEncounter("startTrappedDrownedCombat")) return;
   combat.enemy          = { ...SUNKEN_GALLERY_ENEMY_TEMPLATES[0] };
   trappedDrownedEnemy   = combat.enemy;

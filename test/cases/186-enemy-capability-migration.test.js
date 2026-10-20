@@ -32,6 +32,8 @@ const SCRIPTED={
   enemy_gallery_receiver:['receiver_coordination'],enemy_gallery_caller:['receiver_coordination'],
   enemy_gallery_keeper:['receiver_coordination'],
 };
+const SCRIPTED_SUPPORTED=new Set(['enemy_briar_warden','enemy_pale_sentry','enemy_rainfish','enemy_takomo',
+  'enemy_den_wraith','enemy_kolm','enemy_wrongteeth','enemy_lensweb_spider','enemy_mimic_potion']);
 const BASE=['basic_attack','standard_observe','standard_rewards'];
 
 function fresh(n=2,capture=false){
@@ -83,7 +85,10 @@ test('all 60 deterministic metadata records are closed, deeply frozen and capabi
   for(const id of ORDINARY)assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
   assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
     'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','melee_armor','counterattack',
-    'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee','generated_stats']);
+    'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee',
+    'observe_run_lock','guaranteed_drop','generated_stats','warden_lifecycle','persistent_hp_lifecycle','rainfish_chain',
+    'takomo_lifecycle','den_wraith_lifecycle','sailor_brawl_lifecycle','wrongteeth_lifecycle',
+    'lensweb_objective_lifecycle','mimic_trap_lifecycle']);
 });
 
 test('every ordinary template prepares against one, two and three canonical members',()=>{
@@ -144,9 +149,15 @@ test('all special and scripted templates reject with every exact unsupported cap
   const g=fresh();
   for(const [id,expected] of Object.entries({...SPECIAL,...SCRIPTED})){
     const compatibility=J(g,'canonicalEnemyCompatibility(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');
-    assert.equal(compatibility.compatible,false,id);assert.deepEqual(compatibility.unsupported,expected,id);
-    assert.throws(()=>g.run('canonicalPartyCombat.prepareEnemySide(['+JSON.stringify(id)+'])'),
-      error=>expected.every(capability=>error.message.includes(capability)),id);
+    if(SCRIPTED_SUPPORTED.has(id)){
+      assert.equal(compatibility.compatible,true,id);assert.deepEqual(compatibility.unsupported,[],id);
+      assert.deepEqual(J(g,'canonicalPartyCombat.prepareEnemySide(['+JSON.stringify(id)+']).ids'),[id]);
+      assert.throws(()=>g.run('canonicalPartyCombat.prepare({enemies:['+JSON.stringify(id)+'],escape:"blocked"})'),/scripted lifecycle owner/,id);
+    }else{
+      assert.equal(compatibility.compatible,false,id);assert.deepEqual(compatibility.unsupported,expected,id);
+      assert.throws(()=>g.run('canonicalPartyCombat.prepareEnemySide(['+JSON.stringify(id)+'])'),
+        error=>expected.every(capability=>error.message.includes(capability)),id);
+    }
   }
   assert.equal(g.run('capabilityRolls'),0);
 });
@@ -168,7 +179,7 @@ test('unknown, missing, mutable and malformed capability information fails close
 test('unsupported preparation is atomic before RNG, identities and live state',()=>{
   for(const id of Object.keys({...SPECIAL,...SCRIPTED})){
     const g=fresh(),before=state(g),rolls=g.run('capabilityRolls');
-    assert.throws(()=>g.run('canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"fastest_living"})'),/Unsupported canonical enemy capabilities/);
+    assert.throws(()=>g.run('canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"fastest_living"})'),/Unsupported canonical enemy capabilities|scripted lifecycle owner/);
     assert.equal(state(g),before,id);assert.equal(g.run('capabilityRolls'),rolls,id);
   }
 });

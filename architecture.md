@@ -1,12 +1,43 @@
 # Architecture
 
+## Authenticated scripted party encounters (Pass 5)
+
+`scriptedPartyEncounters` is the sole story-lifecycle owner for scripted fights
+that remain reachable after canonical recruitment. Interaction, movement and
+dialogue code still own proximity and authored choice prerequisites;
+`scriptedCombatEntry` asks the lifecycle owner for a read-only canonical
+preflight before consuming those UI states. The owner snapshots that exact UI
+boundary so `validateInactiveCombatPreparation()` can inspect it without closing,
+spoofing or rewriting it.
+
+The lifecycle owner does not resolve combat. It issues a private token binding a
+starter, ordered template and runtime enemy identities, lifecycle capability set, escape policy,
+origin and objective. `canonicalPartyCombat`, `persistentParty` and the existing
+standard session require the token through validation and installation. The
+canonical resolver continues dispatching mechanics only through capability
+metadata. Story finalization receives the exact token and terminal enemy snapshot
+after authenticated canonical writeback/rewards and accepts it once.
+
+Activation-time writes are limited to existing semantics: Kolm's stake, Lensweb
+poison, Rainfish wake state and Mimic trap consumption. Persistent victory writes,
+route items, board refreshes, payouts and follow-up callbacks occur only at
+authenticated finalization. Pending Rainfish/Mire callbacks are origin-bound and
+save-blocking. The fort trio remains singleton-owned and the Receiver trio remains
+Formation-owned because both routes are necessarily resolved before MQ5.
+
+Static `runLock` and `guaranteedDrop` fields remain capability metadata rather
+than mutable actor fields. Observe-gated and guaranteed-drop behavior is read
+from the validated mechanic profile; immutable battle snapshots carry only state
+that can change during combat. This keeps duplicate instances independent and
+avoids adding template metadata to result/playback schemas.
+
 No build step: every file is a plain `<script src="...">` tag in `index.html`,
 loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 `function` declared in one file is just a bare global name in every file
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 187 regression suite
+Current integration totals: 208 maps, 107 regional chunks, 190 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
