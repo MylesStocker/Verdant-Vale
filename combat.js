@@ -1203,6 +1203,20 @@ const combatPlayerState = (() => {
     const direction=value=>{if(!['previous','next'].includes(value))invalid();return value==='next'?1:-1;};
     const committedIds=s=>s.allyActions.flatMap(a=>a.type==='resonance'?a.participantIds:[a.actorId]);
     const currentAlly=s=>livingAllies(s).find(m=>!committedIds(s).includes(m.instanceId))||null;
+    const resonanceReason=(s,actor)=>{
+      const caps=s.snapshot.resonance,cap=caps?.find(c=>c.actorId===actor?.instanceId);
+      if(!actor||!cap?.rareBorn)return null;
+      if(actor.hp===0)return actor.name+' is Fallen';
+      if(cap.strain>0)return 'Strained';
+      const techniques=Object.values(RESONANCE_TECHNIQUES).filter(tech=>tech.initiator===cap.characterId);
+      if(!techniques.length)return 'No authored technique';
+      const committed=committedIds(s);
+      if(!techniques.some(tech=>resonanceParticipants(tech,s.snapshot.party,caps).every(m=>
+        m&&partyActorCanAct(m,s.snapshot.party)&&!committed.includes(m.instanceId)&&caps.find(c=>c.actorId===m.instanceId).strain===0)))
+        return 'Participant unavailable';
+      if(!s.snapshot.party.some(m=>m.hp>0&&m.hp<m.maxHp))return 'No wounded ally';
+      return null;
+    };
     const techniqueRows=s=>{
       const actor=currentAlly(s),caps=s.snapshot.resonance;if(!actor||!caps)return [];
       return [...Object.values(RESONANCE_TECHNIQUES)].filter(tech=>{
@@ -1215,6 +1229,8 @@ const combatPlayerState = (() => {
         strain:tech.participants.map(p=>p.strain)}));
     };
     const commandEnabled=(s,type)=>type!=='resonance'||techniqueRows(s).length>0;
+    const commandAvailability=s=>menuFor(s).map(command=>({command,enabled:commandEnabled(s,command),
+      disabledReason:command==='resonance'&&!commandEnabled(s,command)?resonanceReason(s,currentAlly(s)):null}));
     const itemSeal=snap=>JSON.stringify([...new Set([...snap.inventory,...snap.equipment.flatMap(g=>['weapon','armor','shield','accessory'].map(k=>g[k]).filter(Boolean))])]
       .map(id=>commandRounds.itemInfo(id).item));
     const reserved=s=>{
@@ -1283,6 +1299,9 @@ const combatPlayerState = (() => {
         terminalOutcome:['victory','defeat','escape'].includes(s.phase)?s.phase:null,failure:s.failure,
         ...(snap.resonance?{resonance:snap.resonance,
           enabledCommands:choosing?menuFor(s).filter(type=>commandEnabled(s,type)):[],
+          commandAvailability:choosing?commandAvailability(s):[],
+          resonanceAvailability:snap.party.filter(actor=>snap.resonance.some(cap=>cap.actorId===actor.instanceId&&cap.rareBorn))
+            .map(actor=>({actorId:actor.instanceId,enabled:resonanceReason(s,actor)===null,disabledReason:resonanceReason(s,actor)})),
           techniques:choosing?techniqueRows(s):[],techniqueCursor:selection.techniqueCursor,
           selectedTechniqueId:s.phase==='technique'?techniqueRows(s)[selection.techniqueCursor]?.techniqueId||null:selection.pendingType==='resonance'?selection.techniqueId:null,
           reservedActions:s.allyActions.filter(a=>a.type==='resonance').map(a=>({actorId:a.actorId,techniqueId:a.techniqueId,participantIds:a.participantIds}))}: {})});

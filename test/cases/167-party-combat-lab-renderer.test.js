@@ -35,8 +35,8 @@ test('inactive Lab draws nothing and active rendering consumes one immutable Lab
   assert.doesNotMatch(source,/partyCombatLab\.(enter|submitAttack|backtrack|commitRound|advancePlayback|acknowledgePlayback|exit|emergencyAbort)\s*\(/);
 });
 
-test('one to three enemies occupy deterministic stable slots and all records stay on canvas',()=>{
-  const expected={lely_esla_one:[[184,144]],lely_esla_two:[[16,232],[264,232]],lely_esla_three:[[16,144],[184,144],[352,144]]};
+test('one enemy uses the classic singleton composition while formations retain deterministic stable slots',()=>{
+  const expected={lely_esla_one:[[16,130]],lely_esla_two:[[16,232],[264,232]],lely_esla_three:[[16,144],[184,144],[352,144]]};
   for(const [id,slots] of Object.entries(expected)){const g=fresh(id),layout=J(g,'partyBattleLayout(partyCombatLab.getView())');
     assert.deepEqual(layout.enemies.map(p=>[p.x,p.width]),slots);assert.deepEqual(layout.enemies.map(p=>p.slot),slots.map((_,i)=>i));
     assert.deepEqual(layout.allies.map(p=>[p.x,p.feetY]),[[108,277],[256,277]]);

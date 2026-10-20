@@ -56,15 +56,21 @@ function partyBattleLayout(view) {
         frame.party.some((m,i)=>m.instanceId!==view.party[i].instanceId||m.hp!==view.party[i].hp)||
         frame.enemies.some((m,i)=>m.instanceId!==view.enemies[i].instanceId||m.hp!==view.enemies[i].hp))fail();
   }
-  const count=view.enemies.length,width=count===2?232:144,step=count===2?248:168,start=count===1?184:16;
+  const count=view.enemies.length,width=count===2?232:144,step=count===2?248:168,start=16;
   const names=view.enemies.map(m=>m.name);
   const enemies=view.enemies.map((member,index)=>{
     const sprite=partyBattleEnemySprite(member.id),template=ENEMY_TEMPLATE_REGISTRY[member.id],bounds=sprite&&
       (FORMATION_SPRITE_BOUNDS.get(sprite.draw)||PARTY_COMBAT_EXTRA_ENEMY_BOUNDS[member.id]||
         (canonicalEnemyIsCompatible(template)?PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS:null));
     if(!sprite||!bounds)fail();
+    if(count===1) {
+      const p=SINGLETON_ENEMY_BATTLE_LAYOUT;
+      return Object.freeze({instanceId:member.instanceId,slot:index,composition:'singleton',x:p.hpX,width:p.hpWidth,
+        label:member.name,spriteX:0,spriteY:0,spriteWidth:512,spriteHeight:297,scale:1,
+        anchorX:p.anchorX,anchorY:p.anchorY,targetCursorX:p.targetCursorX,targetCursorY:p.targetCursorY});
+    }
     const x=start+index*step,spriteWidth=width-16,scale=Math.min(1,spriteWidth/(bounds[2]-bounds[0]),136/(bounds[3]-bounds[1]));
-    return Object.freeze({instanceId:member.instanceId,slot:index,x,width,
+    return Object.freeze({instanceId:member.instanceId,slot:index,composition:'formation',x,width,
       label:member.name+(names.filter(name=>name===member.name).length>1?' '+String.fromCharCode(65+index):''),
       spriteX:x+8,spriteY:76,spriteWidth,spriteHeight:136,scale,
       anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,anchorY:212-scale*bounds[3]});
@@ -76,7 +82,8 @@ function partyBattleLayout(view) {
     const source=view.targetSide==='ally'?allies:enemies,position=source.find(p=>p.instanceId===view.selectedTargetInstanceId);
     if(!position)fail();
     target=Object.freeze({side:view.targetSide,instanceId:position.instanceId,slot:position.slot,
-      x:view.targetSide==='ally'?position.x:position.x+position.width/2,y:view.targetSide==='ally'?190:63});
+      x:view.targetSide==='ally'?position.x:(position.targetCursorX??position.x+position.width/2),
+      y:view.targetSide==='ally'?190:(position.targetCursorY??63)});
   }
   return Object.freeze({allies:Object.freeze(allies),enemies:Object.freeze(enemies),target});
 }
@@ -183,6 +190,15 @@ function drawPartyCombatTargetCursor(x,y) {
   ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(x-6,y+2);ctx.lineTo(x+6,y+2);ctx.lineTo(x,y+10);ctx.closePath();ctx.fill();
 }
 function drawPartyCombatEnemy(member,position,selected) {
+  if(position.composition==='singleton') {
+    ctx.save();ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;
+    drawBattleEnemyTemplate(member.id,member.name,position.anchorX,position.anchorY);ctx.restore();
+    drawSingletonEnemyBattleStatus(member,member.hp===0);
+    if(member.braced&&member.hp>0){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('BRACE',252,33,35);}
+    if(member.unusual?.departed){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('FLED',252,33,35);}
+    if(selected&&member.hp>0&&!member.unusual?.departed)drawPartyCombatTargetCursor(position.targetCursorX,position.targetCursorY);
+    return;
+  }
   const sprite=ENEMY_SPRITE_DISPATCH[member.id]||partyBattleEnemySprite(member.id);ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
   // Registered sprites own their optional defaults (pose or palette).
   ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;sprite.draw(0,0);ctx.restore();

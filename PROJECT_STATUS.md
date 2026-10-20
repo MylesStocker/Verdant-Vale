@@ -226,6 +226,13 @@ Playback shows historical HP/Strain without applying effects again. The wounded
 showcase supports immediate testing. The approved sprites, baseline and fixed
 left/centre placement remain unchanged.
 
+The controller exposes its exact disabled reason in the immutable command view.
+A full-health first party battle reports `No wounded ally`; positive Strain
+reports `Strained`; a Fallen Rareborn record reports that actor as Fallen. The
+renderer retains its established dimmed-command behavior because the approved
+battle layout has no existing short-reason region. Quickbloom targeting, healing,
+Strain timing, playback and RNG are unchanged.
+
 Synthetic VM fixtures test two- and three-person combined techniques: explicit
 Rareborn participants reserve all their actions, keep their existing initiative
 entries, wait until the latest participant, and cancel once without cost if a
@@ -290,8 +297,12 @@ cumulative XP and next-level progress, effective ATK/DEF/SPD, persistent status,
 and Weapon/Armor/Shield/Accessory. Fallen members retain their page, and the same
 controller/layout supports the test-only third slot.
 
-Equipment and Status open directly for the displayed member and return to the
-same page. Status shares the page's selected-member authority. Item use continues
+Unequip and Status open directly for the displayed member and return to the
+same page. Unequip presents the selected member's fixed Weapon, Armor, Shield
+and Accessory slots; an occupied slot returns one item to shared inventory and
+refreshes the character sheet immediately, while an empty slot is inert. Equipment
+installation remains in Items with explicit member targeting. Status shares the
+page's selected-member authority. Item use continues
 to require a separate explicit target and never infers that target from the page.
 Selection is a transient stable character ID owned by the controller and is not
 saved. The existing solo menu, direct item/equip navigation, Notebook and save/load
@@ -302,7 +313,7 @@ Targeted field healing/cures and equipment exchanges use `persistentParty`, with
 shared inventory and independent personal state. Fallen members retain pages and
 may change equipment; ordinary healing cannot revive them. Three-member capacity
 is tested using a test-only authored fixture. Test 193 covers paging, identical
-member geometry, direct Equipment/Status routing, explicit item targeting, the
+member geometry, direct Unequip/Status routing, explicit item targeting, the
 MQ5 checkpoint/recruitment state, read-only switching and both supported scales.
 Save format remains version 5 and
 contains no menu state. No third character, artwork, Lab changes or combat route
@@ -592,10 +603,13 @@ before drawing, then reuses the ordinary battle background, frame, typography,
 segmented HP meters and command boxes. Lely keeps her ordinary battle position;
 Esla reuses her established green-haired figure at the matching battle scale.
 The three-capacity ally layout keeps fixed left, centre and right positions while
-the current Lab fills only the first two. One to three enemies use the existing
-Formation sprite dispatch, clipping, baseline, HP strips, stable slots, defeated
-dimming and pale target cursor. Playback-complete, victory and defeat views
-retain and render their final historical HP.
+the current Lab fills only the first two. Exactly one enemy now uses the classic
+Chapter One composition: its authentic sprite is anchored at 358/168 on the
+upper right, while its unsuffixed name and 130×7 HP strip occupy the original
+top-left geometry. Two- and three-enemy encounters retain their Formation slots,
+clipping, labels and HP strips unchanged. Every layout preserves stable runtime
+slots, defeated/departed presentation, mechanic badges, historical playback HP
+and the pale target cursor.
 
 The main render path calls it exclusively while the Party Lab is active. It does
 not advance playback, acknowledge frames, read live combatants, rerun
@@ -603,7 +617,9 @@ arithmetic, allocate identities or consume RNG. Suite 167 records its canvas
 operations and proves deterministic slot geometry, historical-frame fidelity,
 terminal-frame retention and zero state mutation. Suite 169 locks the visual
 convergence, three-ally layout capacity and unchanged singleton/Formation/
-Receiver render sources. The adapter owns exact target selection by enemy runtime
+Receiver render sources. Suite 197 locks the one-enemy shared geometry,
+Lab/canonical parity, one-to-three ally fit and unchanged legacy/multi-enemy draw
+records. The adapter owns exact target selection by enemy runtime
 identity; the renderer adds one pale cursor only during exact ally/enemy targeting.
 Input uses the existing physical-key latch. Left/Right or A/D move commands and
 targets, Up/Down or W/S move the three-row item list, Enter/Space confirms, and

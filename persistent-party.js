@@ -170,6 +170,29 @@ const persistentParty = (() => {
       if(!m||def.keyItem||def.battleOnly||!slots.includes(def.type))fail();
       return copy(fieldMember({...m,equipment:{...m.equipment,[def.type]:itemId}}));
     },
+    unequipFieldEquipment(characterId,equipmentSlot){
+      if(arguments.length!==2||typeof characterId!=='string'||!slots.includes(equipmentSlot))fail();
+      idle();prepare();
+      if(dialogue.open||choice.open||shop.open||seraLioraCutscene.active||fishing.active||
+          continentMap.open||accordPanel.open)fail();
+      const memberSlot=order.indexOf(characterId);
+      if(memberSlot<0)fail();
+      const m=snapshot().members[memberSlot],itemId=m.equipment[equipmentSlot];
+      if(itemId===null)fail();
+      const def=item(itemId);
+      if(def.keyItem||def.battleOnly||def.type!==equipmentSlot||!safe(stats.items.length+1))fail();
+      const nextEquipment={...m.equipment,[equipmentSlot]:null};
+      const result=copy(fieldMember({...m,equipment:nextEquipment}));
+      const returned=memberSlot===0?stats[equipmentSlot]:createItem(itemId);
+      const inventory=stats.items.slice();inventory.push(returned);
+      // prepare() authenticated every inventory/equipment instance before this
+      // single commit. The returned object is the exact Lely instance or a new
+      // registered copy for a companion; no template or sibling slot mutates.
+      if(memberSlot===0)stats[equipmentSlot]=null;
+      else characters[memberSlot-1].equipment=nextEquipment;
+      stats.items=inventory;revision++;
+      return result;
+    },
     useFieldItem(characterId,itemId){
       if(arguments.length!==2)fail();idle();canonicalValid();
       if(dialogue.open||choice.open||shop.open||seraLioraCutscene.active||fishing.active||

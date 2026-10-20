@@ -180,6 +180,10 @@ test('full or Fallen allies never enable Quickbloom; invalid phase leaves drafts
   const g=fresh({party});g.run('combatPlayerState.session.begin({commandSet:"standard"})');
   if(party[0].hp)g.run('combatPlayerState.session.submitAttack({actorId:combatPlayerState.session.getView().nextActorId,targetId:combat.enemies[0].instanceId})');
   assert.equal(g.run('combatPlayerState.session.getView().enabledCommands.includes("resonance")'),false);
+  const availability=J(g,'combatPlayerState.session.getView().resonanceAvailability');
+  assert.equal(availability[0].disabledReason,'No wounded ally');
+  const command=J(g,'combatPlayerState.session.getView().commandAvailability.find(r=>r.command==="resonance")');
+  assert.equal(command.disabledReason,'No wounded ally');
   reject(g,'combatPlayerState.session.confirmTechnique()');g.run('combatPlayerState.session.moveCommand("next")');assert.equal(g.run('combatPlayerState.session.getView().selectedCommand'),'item');
  }
 });
@@ -202,11 +206,13 @@ test('Lab recovery round unlocks Resonance only after completion, with historica
   partyCombatLab.moveCommand('next');partyCombatLab.confirmCommand();partyCombatLab.confirmTechnique();partyCombatLab.confirmTarget();partyCombatLab.commitRound()`);
  finish(g);g.run('partyCombatLab.acknowledgePlayback()');
  g.run(`partyCombatLab.submitAttack({actorId:partyCombatLab.getView().nextActorId,targetId:partyCombatLab.getView().enemies[0].instanceId})`);
+ assert.equal(g.run('partyCombatLab.getView().commandAvailability.find(r=>r.command==="resonance").disabledReason'),'Strained');
  record(g);g.run('paint=[];drawPartyCombatLabBattle()');assert.equal(J(g,'paint').find(c=>c.type==='text'&&c.args[0]==='Resonance').style.fillStyle,'#344f5a');
  g.run(`partyCombatLab.submitAttack({actorId:partyCombatLab.getView().nextActorId,targetId:partyCombatLab.getView().enemies[0].instanceId});partyCombatLab.commitRound()`);
  assert.equal(g.run('partyCombatLab.getView().resonance[1].strain'),1);finish(g);assert.equal(g.run('partyCombatLab.getView().resonance[1].strain'),0);
  g.run(`partyCombatLab.acknowledgePlayback();partyCombatLab.submitAttack({actorId:partyCombatLab.getView().nextActorId,targetId:partyCombatLab.getView().enemies[0].instanceId});paint=[];drawPartyCombatLabBattle()`);
  assert.equal(g.run('partyCombatLab.getView().enabledCommands.includes("resonance")'),true);
+ assert.equal(g.run('partyCombatLab.getView().commandAvailability.find(r=>r.command==="resonance").disabledReason'),null);
  assert.notEqual(J(g,'paint').find(c=>c.type==='text'&&c.args[0]==='Resonance').style.fillStyle,'#344f5a');
 });
 test('post-RNG failure retains diagnostic lockout and does not retry or refund',()=>{

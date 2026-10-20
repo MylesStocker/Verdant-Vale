@@ -74,9 +74,13 @@ reward ledger; escape grants none. Defeat recovers all members and uses the shar
 singleton cleanup. A failed resolution/finalization retains evidence, blocks
 retry, simulation, saving/loading, and entry into other combat owners.
 
-`render-party-battle.js` draws one detached immutable view. The Lab renderer is a
-thin caller of this shared presentation; canonical combat has no Lab-state/API
-dependency. Input uses the existing listener and key latch. `combat.active` retains
+`render-party-battle.js` draws one detached immutable view. Enemy count alone
+selects its presentation: one enemy reuses the exact Chapter One singleton
+composition (`SINGLETON_ENEMY_BATTLE_LAYOUT`: sprite anchor 358/168, name 16/22,
+HP track 16/26 at 130×7, HP text 152/33); two or three enemies retain the
+Formation slots and strips. The Lab renderer is a thin caller of this shared
+presentation; canonical combat has no Lab-state/API dependency. Input uses the
+existing listener and key latch. `combat.active` retains
 its singleton/Receiver meaning; canonical activity is explicit and session-owned.
 Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
 see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
@@ -541,6 +545,12 @@ Joining XP is the authored threshold for that level. The no-argument structural
 fixture retains empty slots; MQ5 equipment is installed in Esla's own slots
 without adding duplicate items to shared inventory.
 Authored definitions now carry static Rareborn/affinity metadata (see Resonance below).
+The standard party controller is the availability authority. Its immutable view
+includes per-command `enabled`/`disabledReason` records and per-Rareborn
+availability records. Quickbloom reports `No wounded ally`, `Strained`, or the
+Fallen actor reason from the same participant/Strain/target checks that gate its
+technique row. Rendering continues to consume the controller decision and does
+not infer eligibility or alter the approved battle layout.
 No persistent Strain or speculative magic resources are stored.
 
 Lifecycle APIs:
@@ -614,14 +624,14 @@ cutscene, dialogue and other modal locks retain ownership; transitions are
 synchronous and do not introduce a new menu lock state.
 
 Menu-only state: selected persistent character ID, pending item/explicit target
-IDs, equipment cursor/scroll and `menu.screen`. No mutable character record is
+IDs, the four-slot Unequip cursor and `menu.screen`. No mutable character record is
 stored. Opening a multi-member menu resets the selected ID to `lely`; closing
 and reopening therefore always returns to Lely. The controller reconciles a
 stale selection against the current fixed roster, preferring Lely. This state
 is transient and never enters save version 5.
 The shared inventory still comes from `groupItems()` (first-occurrence order,
 quantities, key-item filtering, four visible rows). Save and Load keep their
-existing positions after inventory; Equipment and Status follow only for multiple
+existing positions after inventory; Unequip and Status follow only for multiple
 members. The Notebook shortcut remains N. No Party/Formation/Resonance command.
 
 Multi-member flow:
@@ -630,11 +640,13 @@ Multi-member flow:
   the inventory cursor/scroll and displayed character. The action target is a
   separate explicit stable ID, so the displayed page never silently chooses an
   item recipient. Invalid or missing targets consume nothing.
-- `main` → Equipment/Status opens `partyEquipment`/`partyStatus` directly for
+- `main` → Unequip/Status opens `partyUnequip`/`partyStatus` directly for
   the displayed member. Back returns to that same member page. Status left/right
   uses the shared selected-member authority and wraps through all fixed slots,
-  including Fallen members. Equipment uses a four-row shared equipment list and
-  member-specific effective-stat preview.
+  including Fallen members. Unequip lists Weapon/Armor/Shield/Accessory for the
+  selected stable identity. Occupied slots return exactly one registered item to
+  shared inventory through `persistentParty`; empty slots are visible and inert.
+  Replacement equipment still enters through Items and explicit member targeting.
 - On `main`, Left/Right or A/D pages through canonical slot order without moving
   the highlighted command; Up/Down or W/S still navigates inventory and commands.
   Item targeting retains local four-direction navigation. Enter/Space confirms;
@@ -646,7 +658,7 @@ time. Its common geometry contains name/page count, Level, current and maximum H
 with the existing segmented meter, cumulative XP plus progress toward the next
 threshold, effective ATK/DEF/SPD, a persistent-status summary, and
 Weapon/Armor/Shield/Accessory IDs. It retains shared gold, day, inventory, Save,
-Load, Equipment, Status and Notebook access. Fallen members keep their fixed page;
+Load, Unequip, Status and Notebook access. Fallen members keep their fixed page;
 two- and three-member rosters use the same layout. `getFieldView()` supplies the
 immutable stat and progression projections, so rendering does not reproduce
 combat/equipment or XP formulas. The single-member branch of `drawMenu()` is
@@ -658,9 +670,13 @@ Canonical APIs added in `persistent-party.js`:
   `{effective:{atk,def,spd}, progression:{nextLevelXp,progress,required}}`.
 - `fieldItemTargets(itemId)` returns frozen stable IDs of eligible members.
 - `previewEquipment(characterId,itemId)` returns an immutable prospective member.
+- `unequipFieldEquipment(characterId,slot)` authenticates the complete idle
+  canonical state, validates the exact owner and registered equipment instance,
+  then clears only that slot and returns one item to shared inventory. Empty,
+  malformed and stale requests reject before mutation; Fallen owners remain valid.
 - `useFieldItem(characterId,itemId)` validates locks, identity, inventory copy,
   target and arithmetic before any writer. It consumes one shared copy only on
-  execution. Equipment returns the prior copy to shared inventory and changes
+  execution. Equipment replacement returns the prior copy to shared inventory and changes
   only the selected owner's slot. Ordinary heals use `healingItemAmount`; cures
   use `itemCuredStatuses`/the established cure-property registry. A cure with no
   matching status still consumes, matching existing solo field semantics. Field
@@ -1591,10 +1607,12 @@ operation: one to three fixed ally slots, one to three contiguous enemy slots, u
 runtime identities, safe historical HP, valid submitted actor/target identities,
 phase/current-actor consistency, and playback-frame identity/HP agreement.
 
-Enemy layouts reuse Formation presentation by count: one centered 144-pixel
-slot; two 232-pixel slots; or three 144-pixel slots. They use the real
-`ENEMY_SPRITE_DISPATCH`, shared sprite bounds, baseline anchoring, stable slots,
-defeated dimming and HP strips. Ally positions are fixed at x 108, 256 and 404
+Enemy layouts are selected only by immutable roster size. A lone enemy uses the
+Chapter One right-side sprite anchor and top-left name/HP strip through the shared
+singleton geometry and sprite helper, with no A suffix. Two enemies retain their
+232-pixel Formation slots and three retain their 144-pixel Formation slots. All
+use the real `ENEMY_SPRITE_DISPATCH`, stable runtime identity, defeated dimming,
+mechanic badges and historical HP. Ally positions are fixed at x 108, 256 and 404
 on one feet baseline at y 277 and never compact. Lely calls the unchanged
 `drawBattlePlayer()` at its ordinary x/y anchor. Esla calls `drawBattleEsla()`,
 which scales the canonical `drawEslaFigureBody()` geometry and palette by 1.5;
@@ -1626,7 +1644,10 @@ and draws exactly one cursor over that living ally or enemy slot only during
 targeting. Suite 167 uses recorded canvas calls and exact state snapshots to
 enforce this read-only boundary. Suite 169 additionally fixes the authentic
 sprite/frame contract, three-slot geometry and source hashes for the unchanged
-singleton, Formation and Receiver render authorities.
+singleton, Formation and Receiver render authorities. Suite 197 locks the shared
+one-enemy geometry, native sprite dispatch, right-side cursor, historical state,
+one-to-three ally fit, unchanged two/three-enemy recordings and byte-identical
+Chapter One draw calls.
 
 The existing backtick debug menu has one `DEV: Party Combat Lab` row and a
 five-scenario submenu. `input.js` routes that submenu and active Lab before every

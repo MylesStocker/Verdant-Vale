@@ -29,7 +29,7 @@ test('inactive renderer is inert and normal render sources remain byte-stable',(
   const g=createContext();record(g);const before=snapshot(g);g.run('paint=[];');
   assert.equal(g.run('drawPartyCombatLabBattle()'),false);assert.equal(g.run('paint.length'),0);assert.equal(snapshot(g),before);
   const expected={
-    drawCombat:'64ffcee796621e740fd847f5b965c81a1efb4e3d229ad88c45ab6036a3a16972',
+    drawCombat:'b9ec0728c68a55f087c48b43e46358a329c2630fbd268969c5d441faf051aa98',
     drawFormationCombat:'ea398ca0ab06c9bf77f17e356785a74930d55edd976273938b3de6249841f98e',
     getFormationBattleLayout:'dd7334797064bb42ce840b1ebfca0a1ffd856f3ba9c1a181d0295ba005cbc8e3',
     drawBattleReceiver:'26993968664a9d93fadfa1da82051655abbc95c0d20fac0113d53f959e600b14',

@@ -85,15 +85,14 @@ test('battle-only/key/no-effect reagent items have no field-target route',()=>{
  assert.equal(g.run('groupItems().some(g=>g.name==="Schilling")'),false);
  assert.throws(()=>g.run('persistentParty.useFieldItem("esla","Schilling")'));
 });
-test('Equipment member selection, Fallen inspection, exchange and independent previews',()=>{
- const g=fresh();g.run('stats.items=["Iron Sword","Steel Sword","Iron Shield","Cat Armor","Fen Mask","Amethyst Bangle"].map(createItem)');seed(g,'payload.party.characters[0].hp=0');open(g);g.press('ArrowRight');extra(g,2);
- assert.equal(g.run('menu.screen'),'partyEquipment');
- assert.equal(g.run('partyFieldMenu.getView().preview.effective.atk'),10);g.press('Enter');assert.equal(view(g).members[1].equipment.weapon,'Iron Sword');assert.equal(g.run('stats.weapon'),null);
- g.press('Enter');assert.equal(view(g).members[1].equipment.weapon,'Steel Sword');assert.ok(view(g).inventory.includes('Iron Sword'));
- assert.equal(view(g).members[1].effective.atk,13);assert.equal(view(g).members[0].effective.atk,8);bounds(draw(g));
+test('Unequip uses the selected Fallen member and returns one exact item',()=>{
+ const g=fresh();g.run('stats.items=["Steel Sword","Iron Shield","Cat Armor","Fen Mask","Amethyst Bangle"].map(createItem);persistentParty.useFieldItem("esla","Steel Sword")');seed(g,'payload.party.characters[0].hp=0');open(g);g.press('ArrowRight');extra(g,2);
+ assert.equal(g.run('menu.screen'),'partyUnequip');const beforeAtk=view(g).members[1].effective.atk;
+ g.press('Enter');assert.equal(view(g).members[1].equipment.weapon,null);assert.equal(view(g).inventory.filter(id=>id==='Steel Sword').length,1);
+ assert.ok(view(g).members[1].effective.atk<beforeAtk);assert.equal(view(g).members[0].effective.atk,8);const once=state(g);g.press('Enter');assert.equal(state(g),once);bounds(draw(g));
  g.press('b');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');assert.equal(g.run('menu.screen'),'main');
- g.run('persistentParty.useFieldItem("lely","Iron Sword")');assert.equal(view(g).members[0].equipment.weapon,'Iron Sword');
- assert.equal(view(g).inventory.includes('Iron Sword'),false);const b=state(g);assert.throws(()=>g.run('persistentParty.useFieldItem("esla","Iron Sword")'));assert.equal(state(g),b);
+ g.run('persistentParty.useFieldItem("lely","Steel Sword")');assert.equal(view(g).members[0].equipment.weapon,'Steel Sword');
+ assert.equal(view(g).inventory.includes('Steel Sword'),false);const b=state(g);assert.throws(()=>g.run('persistentParty.useFieldItem("esla","Steel Sword")'));assert.equal(state(g),b);
  for(const id of ['Cat Armor','Fen Mask','Amethyst Bangle'])g.run('persistentParty.useFieldItem("esla",'+JSON.stringify(id)+')');
  assert.equal(view(g).members[1].effective.def,101);assert.ok(view(g).inventory.includes('Fen Mask'));assert.equal(view(g).members[1].hp,0);
  const snapshot=g.run('persistentParty.combatSnapshot()');assert.equal(snapshot.equipment[1].armor,'Cat Armor');
@@ -115,9 +114,9 @@ test('invalid operations and arithmetic reject atomically without RNG or combat 
  g.run('stats.atk=Number.MAX_SAFE_INTEGER');const b=state(g);assert.throws(()=>g.run('persistentParty.useFieldItem("lely","Iron Sword")'));assert.equal(state(g),b);
 });
 test('three valid fixture members render, navigate, target and save without a fourth slot',()=>{
- const g=third();g.run('stats.items=["Potion","Iron Shield"].map(createItem)');open(g);bounds(draw(g));assert.equal(texts(draw(g)).filter(s=>/^Lv\./.test(s)).length,1);
+ const g=third();g.run('stats.items=["Potion","Iron Shield"].map(createItem);persistentParty.useFieldItem("fixture_third","Iron Shield")');open(g);bounds(draw(g));assert.equal(texts(draw(g)).filter(s=>/^Lv\./.test(s)).length,1);
  item(g,'Potion');g.press('ArrowDown');g.press('ArrowDown');assert.equal(g.run('partyFieldMenu.getView().selectedTargetId'),'fixture_third');bounds(draw(g));g.press('Enter');assert.equal(view(g).members[2].hp,20);
- g.press('ArrowRight');g.press('ArrowRight');extra(g,2);g.press('Enter');assert.equal(view(g).members[2].equipment.shield,'Iron Shield');bounds(draw(g));g.press('b');
+ g.press('ArrowRight');g.press('ArrowRight');extra(g,2);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');assert.equal(view(g).members[2].equipment.shield,null);assert.ok(view(g).inventory.includes('Iron Shield'));bounds(draw(g));g.press('b');
  extra(g,3);assert.ok(texts(draw(g)).includes('Fixture'));bounds(draw(g));g.press('b');
  g.run('saveGame();var saved=localStorage.getItem("verdantVale_save")');const v=view(g);g.run('persistentParty.resetForNewGame()');assert.equal(g.run('loadGame()'),true);assert.deepEqual(view(g),v);
  g.run('var bad=JSON.parse(saved);bad.party.order.push("fourth");localStorage.setItem("verdantVale_save",JSON.stringify(bad))');const b=state(g);assert.equal(g.run('loadGame()'),false);assert.equal(state(g),b);
@@ -125,7 +124,7 @@ test('three valid fixture members render, navigate, target and save without a fo
 test('two-member save/load preserves equipment, statuses, HP and shared resources, excludes navigation',()=>{
  const g=fresh();g.run('stats.items=["Iron Sword","Potion"].map(createItem);stats.gold=31;persistentParty.useFieldItem("esla","Iron Sword");statusEffects=["cursed"]');open(g);item(g,'Potion');g.press('b');
  const before=view(g);g.run('saveGame();var saved=JSON.parse(localStorage.getItem("verdantVale_save"));persistentParty.resetForNewGame();');assert.equal(g.run('loadGame()'),true);assert.deepEqual(view(g),before);
- assert.equal(g.run('saved.version'),5);assert.doesNotMatch(g.run('JSON.stringify(saved.party)'),/selectedId|pendingItem|equipmentCursor|instanceId|playback|partyTarget/);
+ assert.equal(g.run('saved.version'),5);assert.doesNotMatch(g.run('JSON.stringify(saved.party)'),/selectedId|pendingItem|unequipCursor|instanceId|playback|partyTarget/);
  for(const edit of ['d.party.order=["esla","lely"]','d.party.order=["lely","esla","esla"]','d.party.characters[0].equipment.weapon="Potion"','d.stats.weapon={name:"Potion"}','d.party.characters[0].hp=-1']){
   g.run('var d=JSON.parse(JSON.stringify(saved));'+edit+';localStorage.setItem("verdantVale_save",JSON.stringify(d))');const b=state(g);assert.equal(g.run('loadGame()'),false,edit);assert.equal(state(g),b);
  }
@@ -155,7 +154,7 @@ test('Fallen cures remove only statuses without revival; healing does not replac
 test('all party screens and overlays fit native and nearest-neighbour 2x geometry',()=>{
  for(const count of [2,3]){
   const g=count===3?third():fresh();g.run('stats.items=["Potion","Iron Sword","Steel Sword","Iron Shield","Fen Mask","Cat Armor"].map(createItem)');open(g);
-  for(const phase of ['main','partyEquipment','partyStatus','saveConfirm','loadConfirm']){
+  for(const phase of ['main','partyUnequip','partyStatus','saveConfirm','loadConfirm']){
    g.run('menu.screen='+JSON.stringify(phase));bounds(draw(g));
    g.run('paint=[];ctx.save();ctx.scale(2,2);drawMenu();ctx.restore()');
    for(const c of J(g,'paint'))if(c.bounds)assert.ok(c.bounds[0]>=0&&c.bounds[1]>=0&&c.bounds[2]<=1024&&c.bounds[3]<=960,phase);
@@ -164,8 +163,8 @@ test('all party screens and overlays fit native and nearest-neighbour 2x geometr
  }
 });
 test('multi-member list navigation, empty gear, save/load and Notebook cancel paths',()=>{
- const g=fresh();open(g);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyEquipment');
- assert.ok(texts(draw(g)).includes('no equipment'));g.press('Enter');g.press('b');
+ const g=fresh();open(g);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyUnequip');
+ assert.equal(texts(draw(g)).filter(t=>t==='Empty').length,4);const empty=state(g);g.press('Enter');assert.equal(state(g),empty);g.press('b');
  extra(g,0);g.press('b');assert.equal(g.run('menu.screen'),'main');extra(g,0);g.press('Enter');assert.equal(g.run('menu.screen'),'main');
  extra(g,1);g.press('b');assert.equal(g.run('menu.screen'),'main');extra(g,1);g.press('Enter');assert.equal(g.run('menu.screen'),'main');
  g.press('n');assert.equal(g.run('menu.screen'),'notebook');g.press('b');g.press('Escape');assert.equal(g.run('menu.open'),false);
@@ -185,4 +184,4 @@ test('no recruitment, combat route, extra listeners, Lab fixtures or save fields
  for(const file of scriptOrderFromIndexHtml())assert.equal((fs.readFileSync(path.join(root,file),'utf8').match(/persistentParty\.joinEsla\s*\(/g)||[]).length,file==='quests.js'?1:0,file);
  const input=fs.readFileSync(path.join(root,'input.js'),'utf8');assert.equal((input.match(/addEventListener\('keydown'/g)||[]).length,1);assert.equal((input.match(/addEventListener\('keyup'/g)||[]).length,1);
 });
-module.exports={name:'Canonical field menu: solo recordings, persistent targets/equipment, three slots and saves',run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' canonical field-menu checks passed');}};
+module.exports={name:'Canonical field menu: solo recordings, persistent targets/unequip, three slots and saves',run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' canonical field-menu checks passed');}};
