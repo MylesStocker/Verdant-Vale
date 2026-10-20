@@ -47,7 +47,7 @@ test('authenticated completed singleton bookkeeping normalizes only after full p
  const g=createContext();g.run('dialogue.open=false;stats.atk=100;Math=Object.create(Math);Math.random=()=>0.5;startCombat();');g.frames(8);
  let n=0;while(g.run('combat.active')){assert.ok(n++<30);g.run('handleCombatAction()');}
  g.run('persistentParty.joinEsla()');assert.equal(g.run('combat.phase'),'victory');const before=state(g);
- assert.throws(()=>enter(g,['enemy_stone_crawler']));assert.equal(state(g),before);enter(g);assert.equal(view(g).phase,'awaiting_action');
+ assert.throws(()=>enter(g,['enemy_rotwood_troll']));assert.equal(state(g),before);enter(g);assert.equal(view(g).phase,'awaiting_action');
  assert.equal(g.run('combat.phase'),'choose');assert.equal(g.run('completedSingleVictoryReceipt'),null);
 });
 test('explicit boundary validates atomically, accepts exact one/two/three enemy groups and imports canonical state',()=>{
@@ -66,7 +66,7 @@ test('unsupported capabilities, stale identities, malformed parties, unsafe arit
  for(const setup of ['', 'stats.atk=Number.MAX_SAFE_INTEGER','stats.gold=Number.MAX_SAFE_INTEGER','dialogue.open=true','debugMenu.open=true',
   'Object.defineProperty(combat,"cooldown",{writable:false})', 'Object.freeze(dialogue)',
   'ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp.goldMin=0;ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp.goldMax=Number.MAX_SAFE_INTEGER']){
-  const g=fresh();g.run(setup);const before=state(g);assert.throws(()=>enter(g,setup?['enemy_marsh_wisp']:['enemy_stone_crawler']));assert.equal(state(g),before);assert.equal(g.run('rolls'),0);
+  const g=fresh();g.run(setup);const before=state(g);assert.throws(()=>enter(g,setup?['enemy_marsh_wisp']:['enemy_rotwood_troll']));assert.equal(state(g),before);assert.equal(g.run('rolls'),0);
  }
  for(const request of [
   '{enemies:[],escape:"fastest_living"}',

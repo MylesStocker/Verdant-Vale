@@ -6,7 +6,7 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 186 regression suite
+Current integration totals: 208 maps, 107 regional chunks, 187 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -49,7 +49,7 @@ missing ordinary fields and stale registry coverage fail closed at startup or
 preparation.
 
 The canonical engine supports the mechanic registry `basic_attack`,
-`standard_observe`, `standard_rewards`, and `boss_escape_lock`. Compatibility is
+`standard_observe`, `standard_rewards`, `boss_escape_lock`, and (Pass 4A) `brace`. Compatibility is
 set inclusion over the template's complete requirements. Template identity proves
 registration only. `ENEMY_TEMPLATE_FIELD_CAPABILITIES` maps existing behavior
 fields such as `defendChance`, `regenPerTurn` and `stealAndFlee` to explicit
@@ -67,13 +67,100 @@ identity allocation or mutation. The full 60-template classification, encounter
 sources and direct mechanic references are in
 [ENEMY_CAPABILITY_AUDIT.md](ENEMY_CAPABILITY_AUDIT.md).
 
-The 22 ordinary templates may occupy any one to three enemy slots. Duplicate
+The 22 Pass 3 ordinary templates and eight Pass 4A Brace templates may occupy any one to three enemy slots. Duplicate
 templates allocate independent runtime IDs, HP and Observe progress without slot
 compaction. The party renderer reuses each singleton sprite and applies one shared
 layout envelope only when no legacy Formation measurement exists. Pools and
 weights remain authored as before, so production encounters remain single-enemy.
-The 23 special-capability and 15 scripted-lifecycle templates reject with their
-exact unsupported requirements. Passes 4 and 5 own those mechanics and outcomes.
+The remaining 15 special-capability and 15 scripted-lifecycle templates reject
+with their exact unsupported requirements. Passes 4B/4C and 5 own those mechanics
+and outcomes.
+
+### Brace — Pass 4A
+
+The singleton `handleCombatAction()` Attack branch is the semantic authority.
+It rolls initiative, then `defendChance` when truthy, then both damage pairs even
+when the enemy will not attack. A successful Brace replaces the enemy attack,
+bypasses evasion and Cursed-fumble rolls, and applies
+`max(1, floor(rolled melee damage / 2))`. The rolled critical multiplier is included
+before halving, but the critical message is suppressed. Protection ignores the
+initiative result. It is local to that exchange, with no timer or persistent
+state. Item, Observe and Run branches never select Brace; offensive items and
+delayed Bomb damage are unaffected. Tomb Sentry's Observe text mentions a fixed
+interval, but actual runtime authority uses its authored 30% chance; neither
+the text nor the singleton behavior changes here.
+
+The user explicitly chose legacy exchange-wide timing and Attack-only eligibility
+for canonical combat. Each living enemy targeted by at least one committed melee
+Attack gets one decision, independent of other enemies and the number of incoming
+Attacks. Successful protection covers every melee Attack on that exact enemy in
+the round, including attacks before its scheduled slot. The enemy still occupies
+its weighted-initiative slot; its scheduled action records holding the guard
+instead of attacking. If defeated first, that slot records `actor_dead`, or is
+truncated by a terminal outcome. There is no later activation or replacement
+attack. Guard decisions already recorded at round start remain historical evidence.
+
+Compatibility remains capability-driven. The existing `defendChance` field is a
+finite number in [0,1]; zero retains the legacy no-draw behavior. Closed template
+validation requires exact registered data and all capabilities to be supported.
+The entire formation and actual arithmetic validate before RNG/identities/live
+installation. No Brace identity list exists. Formation/Receiver and the older
+Attack-only preparation API keep their separate restrictions; standard canonical
+sessions execute Brace.
+
+The minimal mutable mechanic state is `commandBattle.braced`, a private Set of
+exact runtime enemy IDs. It is not on templates or canonical characters. Only
+Brace-bearing snapshot enemies add `defendChance` and `braced: boolean`;
+non-Brace records retain their old shape. All completed-round snapshots have
+`braced:false`. Guard clears after action/effect resolution, also on terminal
+escape/victory/defeat, before the round boundary. Existing lifecycle owners still
+perform one-time HP/status/equipment/inventory writeback, rewards and recovery.
+No Brace state, decision, reel or identity enters the save payload.
+
+Canonical RNG order is deterministic:
+
+1. Living enemy slot order: one decision draw for each eligible positive-chance
+   bracer; then one ally-target draw only if it attacks and multiple allies live.
+   Brace has `targetId:null` and no target-selection draw.
+2. Existing allied Slither samples in slot order.
+3. Exactly N−1 weighted initiative draws for N living actors, including bracers.
+4. Existing scheduled action draws. A protected melee hit draws variance and
+   critical only (two draws); an ordinary non-Cursed attack draws variance,
+   critical and evasion (three). Skips/cancellations and scheduled Brace draw none.
+5. Existing round-end effects. Playback/render/acknowledgement draw nothing;
+   terminal world reward finalization retains its separate existing reward draws.
+
+Representative full-round counts with no extra statuses/effects and nonlethal
+hits (suite 187 uses explicit tapes):
+
+| Round | Decisions | Target draws | Initiative | Execution | Total |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1v1 successful Brace | 1 | 0 | 1 | 2 | 4 |
+| 1v1 failed Brace, both attack | 1 | 0 | 1 | 6 | 8 |
+| 1v1 Observe, enemy attacks | 0 | 0 | 1 | 3 | 4 |
+| 2v1 successful Brace, both allies attack | 1 | 0 | 2 | 4 | 7 |
+| 2v2 duplicate bracers, both brace | 2 | 0 | 3 | 4 | 9 |
+| 2v2 duplicate bracers, one braces/one attacks | 2 | 1 | 3 | 8 | 14 |
+| 2v2 bracer killed before its slot, ordinary enemy survives | 1 | 1 | 3 | 8 | 13 |
+| 3v3, three independently targeted bracers | 3 | 0 | 5 | 6 | 14 |
+
+Only eligible enemy command records add closed
+`brace:{chance,roll,selected}`. Histories add `brace_check` (round-start decision
+and before/after state), scheduled `brace`, and `brace_end` events. Protected
+Attack events add `brace:{before,after,unmodifiedDamage,rolledCritical}`;
+`attemptedDamage` is the halved result and existing applied-damage/HP fields retain
+their meaning. The detached validator checks identities, eligibility, decision
+thresholds, active-state continuity, halving, flags, skips, cleanup and exact final
+projection. It never reruns AI, damage formulas or RNG. Frame zero remains the
+pre-round state; each next frame projects one recorded event. Inconsistent or
+out-of-order histories reject. Unexpected execution faults retain diagnostics
+(including consumed Brace decision count) and prohibit retry without rollback.
+
+The shared party renderer reads only the historical view, adds minimal Brace
+messages and a `BRACE` badge, and calls registered sprites with their own default
+optional arguments. This is required by Stone Crawler's palette parameter.
+Singleton/Formation rendering is untouched. No Lab scenario or production group
+was added; existing single-enemy pools keep their probabilities and count.
 
 ### Structural canonical battle envelope — Pass 2
 
@@ -465,12 +552,12 @@ individual review; merely having simple template stats does not authorize routin
 
 At the Pass 2 identity-list checkpoint, party-supported ordinary IDs were Marsh Wisp/Briar Hound (core and early),
 Reed Grappler, Silt Lurker, Marsh Wisp (sluice top) and Sluice Slime. Other simple
-pool enemies were still unreviewed. Pass 3 supersedes this paragraph with the
-capability authority and complete audit above. The deferred mechanic list remains:
+pool enemies were still unreviewed. Passes 3 and 4A supersede this paragraph with
+the capability authority and complete audit above. Brace is migrated; the
+remaining deferred mechanic list is:
 
 | Capability | Existing template IDs requiring later review |
 | --- | --- |
-| Defensive action | `enemy_stone_crawler`, `enemy_bone_guard`, `enemy_hollow`, `enemy_tomb_sentry`, `enemy_shallows_skitter`, `enemy_silt_crab`, `enemy_silt_crab_upper`, `enemy_marrow_hulk` |
 | Curse / acid | `enemy_void_walker`, `enemy_dust_drowned` / `enemy_dripping_maw` |
 | Splitting / regeneration | `enemy_the_seep` / `enemy_rotwood_troll` |
 | Armor and counters | `enemy_thornback` |

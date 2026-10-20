@@ -1,8 +1,10 @@
 # Canonical party combat integration review
 
 Pass 2 is checkpointed at `5a26974ab277cfd5bdbf8d30031f6b9520d08c`
-(`feat(combat): add canonical battle envelope`). Pass 3 is the current unstaged,
-uncommitted increment on `agent/codex`. No push, merge, rebase, main modification
+(`feat(combat): add canonical battle envelope`). Pass 3 is checkpointed at
+`4793e2ac33d185d700bc6dc4db1dfd7432db0475`
+(`feat(combat): migrate ordinary enemies to capability routing`). Pass 4A is the
+current unstaged, uncommitted increment on `agent/codex`. No push, merge, rebase, main modification
 or other worktree modification was performed. Earlier integration inventories
 below are retained as historical evidence and are explicitly labelled.
 
@@ -78,7 +80,51 @@ pre-MQ5 singleton, post-MQ5 supported encounter and all commands, Quickbloom's
 recovery round, victory/escape/defeat persistence and save/load, both Labs and
 Receiver. The third member and explicit formation examples remain headless-only.
 
-## Pass 3 ordinary-enemy capability migration
+## Pass 4A Brace migration
+
+All eight existing Brace templates are now accepted by capability compatibility:
+Stone Crawler, Bone Guard, Hollow, Tomb Sentry, Shallows Skitter, both Silt Crab
+variants, and Marrow Hulk. They require no additional unsupported mechanics.
+Together with Pass 3's 22 templates this gives 30 supported templates, 15 remaining
+special-capability rejections and 15 scripted-lifecycle rejections, from the same
+60-template registry. No ordinary stat, reward, pool, formation, geography or
+singleton mechanic changed.
+
+The user resolved the singleton/canonical scheduling ambiguity explicitly in
+favor of legacy behavior: roll only when targeted by a committed melee Attack,
+and protect the exchange from round start regardless of initiative. A successful
+guard replaces the enemy's attack, halves the rolled melee damage (minimum one),
+includes any rolled critical multiplier but suppresses the critical message,
+and bypasses evasion and Cursed-fumble checks. Item/Bomb damage is unchanged.
+Each exact instance makes one independent decision per eligible round; all
+targeted melee hits share that instance's guard for that round. It clears at the
+completed round boundary or terminal cleanup. Dead scheduled actors skip; terminal
+outcomes truncate without another activation. The complete audited legacy
+semantics, closed snapshot/event schemas and RNG table are in
+[architecture.md](architecture.md#brace--pass-4a).
+
+Suite 187 covers the full nine-size matrix, all eight sprites, duplicate/mixed
+bracers, exact tapes and count assertions, item/Bomb bypass, Curse/critical rules,
+Observe/Run/boss locks, Quickbloom/Strain/Slither, immutable and tampered histories,
+atomic invalid preparation, outcome/reward idempotence, recovery, save refusal,
+fresh subsequent identities, and the natural recruited Stone Crawler route.
+Verification passes 27 grouped checks in suite 187, 46 focused suites and the
+complete 187/187 regression. All nine changed/new JavaScript files pass syntax
+checks; data validation is 0 errors / 4 established warnings, fingerprints are
+107/107, and the read-only transition audit exactly matches its committed artifact.
+Historical singleton, Formation, party Attack, generalized-command and Resonance
+captures retain the exact digests below. SAVE_VERSION stays 5; transition and
+fingerprint artifacts are unchanged and have not been regenerated.
+
+Pass 4B/4C still own the other special mechanics; Pass 5 owns scripted outcomes.
+Mire Toad remains poison/reagent-blocked; Waspthra/Botfly remain unregistered.
+No optional Lab scenario was added. No browser testing was performed. Manual
+smoke checklist: compare a solo Stone Crawler fight; after recruitment find a
+natural Stone Crawler and inspect Brace before/after its scheduled slot; try
+Attack versus item damage, Observe and Run; finish victory/escape/defeat and
+save/load afterward; confirm both Labs and Receiver remain separate.
+
+## Pass 3 ordinary-enemy capability migration (checkpoint evidence)
 
 The registry still contains 60 exact templates. The complete evidence table is
 [ENEMY_CAPABILITY_AUDIT.md](ENEMY_CAPABILITY_AUDIT.md): 22 templates are ordinary
@@ -243,7 +289,7 @@ No Eastern Fens pools, scripted escort, campfire, Cardenport, or new content was
 `canonicalPartyCombat.enter({enemies, escape})` accepts one to three template IDs
 or exact template-shaped instances. Existing runtime IDs, altered templates,
 accessors, unsupported fields/capabilities, unsafe arithmetic and unsupported
-policies reject. Current structural group support covers all 22 capability-compatible
+policies reject. Current structural group support covers all 30 capability-compatible
 ordinary templates. Policies are `fastest_living` and `blocked`,
 with the existing immutable boss lock additionally enforced.
 

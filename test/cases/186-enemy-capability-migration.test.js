@@ -10,17 +10,18 @@ const ORDINARY=[
   'enemy_silt_lurker','enemy_marsh_wisp_sluice_top','enemy_sluice_slime','enemy_tallyman',
   'enemy_mudflat_strider','enemy_pale_drowned_gallery','enemy_silt_hag_gallery',
   'enemy_silt_hag_vault','enemy_swamp_donkey','enemy_mulholland',
+  // Pass 4A adds the existing Brace mechanic; the original 22 remain covered.
+  'enemy_stone_crawler','enemy_bone_guard','enemy_hollow','enemy_tomb_sentry',
+  'enemy_shallows_skitter','enemy_silt_crab','enemy_silt_crab_upper','enemy_marrow_hulk',
 ];
 const SPECIAL={
-  enemy_stone_crawler:['brace'],enemy_bone_guard:['brace'],enemy_shade_wraith:['slither_on_hit'],
-  enemy_void_walker:['curse_on_hit','void_shard_burst'],enemy_hollow:['brace'],enemy_tomb_sentry:['brace'],
+  enemy_shade_wraith:['slither_on_hit'],enemy_void_walker:['curse_on_hit','void_shard_burst'],
   enemy_dripping_maw:['acid_corrosion'],enemy_the_seep:['split_followup'],enemy_rotwood_troll:['regeneration'],
   enemy_thornback:['melee_armor','counterattack'],enemy_fen_witch:['poison_spell'],
   enemy_mire_toad_male:['poison_on_hit','mire_toad_reagent_observation'],
   enemy_mire_toad_female:['poison_on_hit','mire_toad_reagent_observation'],
-  enemy_corpse_slug:['slither_on_hit'],enemy_shallows_skitter:['brace'],enemy_lantern_moth:['dazzle_on_hit'],
-  enemy_silt_crab:['brace'],enemy_basin_gull:['steal_and_flee'],enemy_silt_crab_upper:['brace'],
-  enemy_basin_gull_upper:['steal_and_flee'],enemy_dust_drowned:['curse_on_hit'],enemy_marrow_hulk:['brace'],
+  enemy_corpse_slug:['slither_on_hit'],enemy_lantern_moth:['dazzle_on_hit'],
+  enemy_basin_gull:['steal_and_flee'],enemy_basin_gull_upper:['steal_and_flee'],enemy_dust_drowned:['curse_on_hit'],
   enemy_23:['generated_stats'],
 };
 const SCRIPTED={
@@ -83,7 +84,7 @@ test('all 60 deterministic metadata records are closed, deeply frozen and capabi
     assert.equal(metadata.templateId,id);assert.equal(new Set(metadata.capabilities).size,metadata.capabilities.length);
   }
   for(const id of ORDINARY)assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
-  assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock']);
+  assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace']);
 });
 
 test('every ordinary template prepares against one, two and three canonical members',()=>{

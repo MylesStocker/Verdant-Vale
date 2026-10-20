@@ -112,10 +112,14 @@ function formatPartyBattleEvent(view) {
   if(event.type==='resonance_wait')return `${actor} waits for the shared technique.`;
   if(event.type==='resonance_cancel')return `The shared technique is cancelled: ${name(event.unavailableId)} is unavailable.`;
   if(event.type==='slither_sample')return `${name(event.actorId)}'s speed shifts.`;
+  if(event.type==='brace_check')return event.selected?`${actor} braces for the exchange!`:`${actor} prepares to attack.`;
+  if(event.type==='brace')return `${actor} holds its brace instead of attacking.`;
+  if(event.type==='brace_end')return `${actor}'s brace ends.`;
   if(event.type==='curse_check')return event.fumbled?`The curse twists ${name(event.actorId)}'s attack!`:`${name(event.actorId)} fights through the curse.`;
   if(event.type==='skip')return event.reason==='actor_disabled'?`${actor} cannot act.`:`${actor} cannot act: defeated.`;
   if(event.type==='cancel')return `${actor}'s action on ${target} is cancelled.`;
   if(event.type==='attack')return event.evaded?`${target} evades ${actor}'s attack.`:
+    event.brace?`${target} braces! ${actor} deals only ${event.appliedDamage} damage.`:
     `${event.critical?'Critical! ':''}${actor} attacks ${target} for ${event.appliedDamage} damage.`;
   if(event.type==='observe')return `${actor} observes ${target}. ${event.lines.join(' ')}`;
   if(event.type==='run')return !event.allowed?'Cannot escape this battle!':event.success?'The party escapes.':`${actor} tries to run, but cannot get away!`;
@@ -160,10 +164,12 @@ function drawPartyCombatTargetCursor(x,y) {
 }
 function drawPartyCombatEnemy(member,position,selected) {
   const sprite=ENEMY_SPRITE_DISPATCH[member.id];ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
-  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(0,0,'idle');ctx.restore();
+  // Registered sprites own their optional defaults (pose or palette).
+  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(0,0);ctx.restore();
   ctx.fillStyle='#08121e';ctx.fillRect(position.x,12,position.width,50);ctx.fillStyle=member.hp===0?'#718078':'#c0dcd0';ctx.font='bold 12px "Courier New", monospace';ctx.fillText(position.label,position.x+4,27,position.width-8);
   ctx.fillStyle='#0a1e18';ctx.fillRect(position.x+4,36,position.width-8,7);ctx.fillStyle=member.hp===0?'#31483d':'#3a8a5a';ctx.fillRect(position.x+4,36,Math.round((position.width-8)*member.hp/member.maxHp),7);
   ctx.fillStyle=member.hp===0?'#66756d':'#7ab898';ctx.font='11px "Courier New", monospace';ctx.fillText(`${member.hp} / ${member.maxHp}`,position.x+4,57,position.width-8);
+  if(member.braced&&member.hp>0){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('BRACE',position.x+position.width-39,57,35);}
   if(selected&&member.hp>0)drawPartyCombatTargetCursor(position.x+position.width/2,63);
 }
 function drawPartyCombatAlly(member,position,targeted) {

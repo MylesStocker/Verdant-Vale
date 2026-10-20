@@ -100,7 +100,8 @@ function preparePartyEnemyFormation(value) {
     const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value;
     if(!template)fail('unregistered enemy '+id);
     try{requireCanonicalEnemyCapabilities(template);}catch(error){fail(error.message);}
-    const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[])];
+    const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[]),
+      ...(Object.hasOwn(template,'defendChance')?['defendChance']:[])];
     const exact=data(template,keys);
     if(typeof supplied!=='string'){
       const input=data(supplied,keys);

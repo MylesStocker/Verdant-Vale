@@ -1,6 +1,8 @@
 # Enemy capability audit
 
-Pass 3 audits the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Mechanical
+Pass 3 audited the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Pass 4A adds
+Brace to the supported mechanics; the eight migrated rows below are now ordinary
+under the implemented capability contract. Mechanical
 classification and post-MQ5 reachability are separate: an ordinary template may
 still have a scripted starter whose outcome lifecycle remains unsupported, and a
 mandatory pre-MQ5 encounter may still require mechanics that the legacy Formation
@@ -18,7 +20,7 @@ capabilities, missing ordinary fields and non-exact registry identities fail
 closed.
 
 The supported canonical mechanic registry is exactly `basic_attack`,
-`standard_observe`, `standard_rewards`, and `boss_escape_lock`. Compatibility means
+`standard_observe`, `standard_rewards`, `boss_escape_lock`, and `brace`. Compatibility means
 that every derived requirement is in that mechanic registry. It never means that
 an enemy ID is present in an approval list.
 
@@ -42,17 +44,17 @@ column says otherwise.
 | Stable ID / name | Declaration; encounter sources | Post-MQ5 reachability | Required capabilities | Direct ID-specific semantic references | Before Pass 3 | Final category | Migration result / deferral |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `enemy_marsh_wisp` / Marsh Wisp | `data.js`; core overworld pool, Labs | repeatable | basic attack, observe, rewards | observation/sprite aliases only | compatible | ordinary | capability-derived compatibility retained |
-| `enemy_stone_crawler` / Stone Crawler | `data.js`; core overworld pool | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution to Pass 4 |
+| `enemy_stone_crawler` / Stone Crawler | `data.js`; core overworld pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_briar_hound` / Briar Hound | `data.js`; core overworld pool, Labs | repeatable | base | observation/sprite aliases only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_marsh_wisp_early` / Marsh Wisp | `data.js`; starting-map pool | repeatable | base | observation/sprite alias only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_briar_hound_early` / Briar Hound | `data.js`; starting-map pool | repeatable | base | observation/sprite alias only | compatible | ordinary | capability-derived compatibility retained |
-| `enemy_bone_guard` / Bone Guard | `data.js`; first dungeon pool | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution |
+| `enemy_bone_guard` / Bone Guard | `data.js`; first dungeon pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 25% |
 | `enemy_shade_wraith` / Shade Wraith | `data.js`; first dungeon pool | repeatable | base + slither-on-hit | explicit hit-effect ID branch | rejected | special capability pending | defer Slither infliction |
 | `enemy_crypt_fiend` / Crypt Fiend | `data.js`; second dungeon pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_void_walker` / Void Walker | `data.js`; second dungeon pool | repeatable | base + curse-on-hit + shard burst | explicit shard-burst ID branch | rejected | special capability pending | defer curse and shard burst |
-| `enemy_hollow` / Hollow | `data.js`; deep-dungeon pool | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution |
+| `enemy_hollow` / Hollow | `data.js`; deep-dungeon pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_fen_shade` / Fen Shade | `data.js`; deep-dungeon pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
-| `enemy_tomb_sentry` / Tomb Sentry | `data.js`; floor-eight pool | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution |
+| `enemy_tomb_sentry` / Tomb Sentry | `data.js`; floor-eight pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 30% |
 | `enemy_crypt_revenant` / Crypt Revenant | `data.js`; floor-eight pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_wall_tendril` / Wall Tendril | `data.js`; horror pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_dripping_maw` / Dripping Maw | `data.js`; horror pool | repeatable | base + acid corrosion | `acidChance` generic branch | rejected | special capability pending | defer Corroded handling |
@@ -66,22 +68,22 @@ column says otherwise.
 | `enemy_mire_toad_female` / Mire Toad | `data.js`; far/basin/upper pools and spawning site | repeatable | base + poison-on-hit + sex/reagent observation | sex-specific Observe/reagent and poison branches | rejected | special capability pending | defer per-instance reagent/observation mechanic |
 | `enemy_corpse_slug` / Corpse Slug | `data.js`; Thornmere pools | repeatable | base + slither-on-hit | explicit hit-effect ID branch | rejected | special capability pending | defer Slither infliction |
 | `enemy_marsh_rat` / Marsh Rat | `data.js`; lighthouse/shore/canal pools | repeatable | base | sprite only | rejected | ordinary | newly compatible by capabilities |
-| `enemy_shallows_skitter` / Shallows Skitter | `data.js`; lighthouse/shore/canal pools | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution |
+| `enemy_shallows_skitter` / Shallows Skitter | `data.js`; lighthouse/shore/canal pools | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 25% |
 | `enemy_lantern_moth` / Lantern Moth | `data.js`; lighthouse top pool | repeatable | base + dazzle-on-hit | `dazzleChance` generic branch | rejected | special capability pending | defer Dazzled infliction |
 | `enemy_reed_grappler` / Reed Grappler | `data.js`; sluice pool, Labs | repeatable | base | observation/sprite only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_silt_lurker` / Silt Lurker | `data.js`; sluice pool, Labs | repeatable | base | observation/sprite only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_marsh_wisp_sluice_top` / Marsh Wisp | `data.js`; upper-sluice pool | repeatable | base | observation/sprite alias only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_sluice_slime` / Sluice Slime | `data.js`; upper-sluice pool, Labs | repeatable | base | observation/sprite only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_tallyman` / Tallyman | `data.js`; sealed-sluice rare pool | repeatable | base | opening-message ID branch only | rejected | ordinary | newly compatible; authored stats/rewards unchanged |
-| `enemy_silt_crab` / Silt Crab | `data.js`; North Basin pool | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution |
+| `enemy_silt_crab` / Silt Crab | `data.js`; North Basin pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_mudflat_strider` / Mudflat Strider | `data.js`; North Basin pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_basin_gull` / Basin Gull | `data.js`; North Basin pool | repeatable | base + steal-and-flee | theft/flee generic branches | rejected | special capability pending | defer stolen-gold lifecycle |
 | `enemy_pale_drowned_gallery` / Pale Drowned | `data.js`; Gallery pool and trapped-Drowned starter | repeatable; separate reachable scripted route | base | trapped starter/finalizer is route-owned | rejected | ordinary | random template newly compatible; trapped route remains deferred to Pass 5 |
 | `enemy_silt_hag_gallery` / Silt Hag | `data.js`; Gallery pool | repeatable | base | observation/sprite alias only | rejected | ordinary | newly compatible by capabilities |
-| `enemy_silt_crab_upper` / Silt Crab | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution |
+| `enemy_silt_crab_upper` / Silt Crab | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_basin_gull_upper` / Basin Gull | `data.js`; Upper Reach pool | repeatable | base + steal-and-flee | theft/flee generic branches | rejected | special capability pending | defer stolen-gold lifecycle |
 | `enemy_dust_drowned` / Dust-Drowned | `data.js`; Upper Reach pool | repeatable | base + curse-on-hit | `curseChance` generic branch | rejected | special capability pending | defer Curse infliction |
-| `enemy_marrow_hulk` / Marrow Hulk | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | special capability pending | defer brace execution |
+| `enemy_marrow_hulk` / Marrow Hulk | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 25% |
 | `enemy_silt_hag_vault` / Silt Hag | `data.js`; Mirethyst Vault pool | repeatable | base | observation/sprite alias only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_briar_warden` / Briar Warden | `combat.js`; Warden scripted starter | reachable scripted | base + Warden lifecycle | Warden activation/victory writers | rejected | scripted-only lifecycle | defer bespoke outcome to Pass 5 |
 | `enemy_smuggler_guard` / Smuggler Guard | `combat.js`; fort guard starter | reachable scripted | base + fort lifecycle | fort sequence callbacks | rejected | scripted-only lifecycle | defer fort outcome chain |
@@ -105,9 +107,9 @@ column says otherwise.
 ## Reconciled totals
 
 - Registered templates: **60**.
-- Ordinary and capability-compatible: **22** — 9 previously accepted templates
-  and 13 newly migrated ordinary templates.
-- Special capability pending: **23**.
+- Ordinary and capability-compatible: **30** — the 22 Pass 3 templates plus
+  the eight Brace-family templates. No other capability was migrated.
+- Special capability pending: **15** (23 at the Pass 3 checkpoint).
 - Scripted-only lifecycle: **15**.
 - Non-production/debug fixtures: **0**.
 - Permanently completed before recruitment: **3** Receiver templates. This is a

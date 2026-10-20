@@ -172,7 +172,7 @@ test('invalid enemy sides, complete arithmetic, ownership and finalizer descript
  const invalid=[
   'canonicalPartyCombat.enter({enemies:[],escape:"blocked"})',
   'canonicalPartyCombat.enter({enemies:Array(4).fill("enemy_marsh_wisp"),escape:"blocked"})',
-  'canonicalPartyCombat.enter({enemies:["enemy_stone_crawler"],escape:"blocked"})',
+  'canonicalPartyCombat.enter({enemies:["enemy_rotwood_troll"],escape:"blocked"})',
   'canonicalPartyCombat.enter({enemies:["enemy_marsh_wisp"],escape:"blocked",onVictory(){}})',
   'canonicalPartyCombat.enter({enemies:["enemy_marsh_wisp"],get escape(){throw Error("getter")}})',
   'canonicalPartyCombat.enter({enemies:[{...ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp,instanceId:"combat_enemy_1"}],escape:"blocked"})',

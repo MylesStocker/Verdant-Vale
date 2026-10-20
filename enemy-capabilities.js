@@ -8,7 +8,7 @@ const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
   standard_observe:Object.freeze({canonical:true}),
   standard_rewards:Object.freeze({canonical:true}),
   boss_escape_lock:Object.freeze({canonical:true}),
-  brace:Object.freeze({canonical:false}),
+  brace:Object.freeze({canonical:true}),
   curse_on_hit:Object.freeze({canonical:false}),
   void_shard_burst:Object.freeze({canonical:false}),
   acid_corrosion:Object.freeze({canonical:false}),

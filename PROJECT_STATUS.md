@@ -6,12 +6,40 @@ actually fits together.
 
 ## Current state
 
-### Ordinary-enemy capability migration — Pass 3
+### Brace capability migration — Pass 4A
+
+Pass 3 was verified at 186/186, with 45 focused suites, and checkpointed as
+`4793e2ac33d185d700bc6dc4db1dfd7432db0475`
+(`feat(combat): migrate ordinary enemies to capability routing`). Pass 4A remains
+unstaged and uncommitted.
+
+Canonical standard sessions now execute the existing Brace mechanic for Stone
+Crawler, Bone Guard, Hollow, Tomb Sentry, Shallows Skitter, both Silt Crab variants
+and Marrow Hulk. Compatibility remains mechanic-based: 30 supported templates
+(22 prior plus eight Brace), 15 other special templates pending, 15 scripted-only.
+The user chose legacy Attack-only eligibility and exchange-wide protection from
+round start. Each exact enemy instance makes its own decision; its scheduled
+Brace replaces Attack, and private transient protection clears each completed
+round. Melee halving, critical/Cursed/evasion treatment and item/Bomb bypass follow
+the singleton authority. Full timing and RNG evidence is documented in
+[architecture.md](architecture.md#brace--pass-4a).
+
+Suite 187 adds deterministic matrix, mechanic, playback, rendering and lifecycle
+coverage (27 grouped checks). Verification: 187/187 complete regression suites,
+46 focused suites, nine JavaScript syntax checks, 0 data errors / 4 established
+warnings, 107/107 fingerprints and an unchanged read-only transition audit.
+All five historical capture counts/digests remain byte-identical. No production
+formations, Lab scenarios, enemy stats/rewards, pools,
+maps, quests, dialogue, save fields or terrain changed. SAVE_VERSION remains 5.
+The remaining special capabilities and scripted outcomes stay deferred to
+Passes 4B/4C and 5. This increment is headless; no browser test was performed.
+
+### Ordinary-enemy capability migration — Pass 3 checkpoint
 
 Pass 2 was verified at 185/185 and checkpointed as
 `5a26974ab277cfd5bdbf8d30031f6b9520d08c`
-(`feat(combat): add canonical battle envelope`). Pass 3 remains unstaged and
-uncommitted.
+(`feat(combat): add canonical battle envelope`). The following records the
+completed Pass 3 checkpoint before Brace support.
 
 Canonical enemy compatibility now follows a closed mechanic contract rather than
 the removed `PARTY_ATTACK_TEMPLATE_IDS` identity list. All 60 registered templates
@@ -74,7 +102,7 @@ in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md). Suite 183 was used be
 181 and 182 already belonged to the lifecycle and field-menu suites.
 
 The following integration checkpoint describes the synchronized baseline; its
-182-suite count predates suites 183–186 (current total: 186).
+182-suite count predates suites 183–187 (current total: 187).
 
 ### Eastern terrain and party integration
 

@@ -90,7 +90,7 @@ test('detached combat preparation, initial equipment and statuses, supported gro
  }
 });
 test('invalid enemy/preparation input consumes no identities, RNG or mutation',()=>{
- const g=fresh();for(const code of ['[]','["enemy_gallery_receiver"]','["enemy_23"]','["missing"]','["enemy_stone_crawler","enemy_marsh_wisp"]','["enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp"]','Object.create([])'])reject(g,'persistentParty.beginCombat('+code+')');
+ const g=fresh();for(const code of ['[]','["enemy_gallery_receiver"]','["enemy_23"]','["missing"]','["enemy_rotwood_troll","enemy_marsh_wisp"]','["enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp"]','Object.create([])'])reject(g,'persistentParty.beginCombat('+code+')');
  g.run('stats.atk=Number.MAX_SAFE_INTEGER');reject(g,'persistentParty.beginCombat(["enemy_marsh_wisp"])');
 });
 test('authentic victory requires final acknowledgement, commits once, revives KOs to one and preserves survivors',()=>{
