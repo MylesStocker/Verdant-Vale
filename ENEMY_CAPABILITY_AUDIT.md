@@ -1,8 +1,8 @@
 # Enemy capability audit
 
-Pass 3 audited the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Pass 4A adds
-Brace to the supported mechanics; the eight migrated rows below are now ordinary
-under the implemented capability contract. Mechanical
+Pass 3 audited the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Pass 4A added
+Brace and Pass 4B adds the seven established landed-hit riders; all fifteen
+migrated rows below are now ordinary under the implemented capability contract. Mechanical
 classification and post-MQ5 reachability are separate: an ordinary template may
 still have a scripted starter whose outcome lifecycle remains unsupported, and a
 mandatory pre-MQ5 encounter may still require mechanics that the legacy Formation
@@ -20,7 +20,9 @@ capabilities, missing ordinary fields and non-exact registry identities fail
 closed.
 
 The supported canonical mechanic registry is exactly `basic_attack`,
-`standard_observe`, `standard_rewards`, `boss_escape_lock`, and `brace`. Compatibility means
+`standard_observe`, `standard_rewards`, `boss_escape_lock`, `brace`,
+`curse_on_hit`, `void_shard_burst`, `acid_corrosion`, `slither_on_hit`,
+`poison_spell`, and `dazzle_on_hit`. Compatibility means
 that every derived requirement is in that mechanic registry. It never means that
 an enemy ID is present in an approval list.
 
@@ -49,27 +51,27 @@ column says otherwise.
 | `enemy_marsh_wisp_early` / Marsh Wisp | `data.js`; starting-map pool | repeatable | base | observation/sprite alias only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_briar_hound_early` / Briar Hound | `data.js`; starting-map pool | repeatable | base | observation/sprite alias only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_bone_guard` / Bone Guard | `data.js`; first dungeon pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 25% |
-| `enemy_shade_wraith` / Shade Wraith | `data.js`; first dungeon pool | repeatable | base + slither-on-hit | explicit hit-effect ID branch | rejected | special capability pending | defer Slither infliction |
+| `enemy_shade_wraith` / Shade Wraith | `data.js`; first dungeon pool | repeatable | base + slither-on-hit | explicit legacy hit-effect ID branch | rejected | ordinary | Pass 4B: 25% landed-hit Slither with sampled Speed |
 | `enemy_crypt_fiend` / Crypt Fiend | `data.js`; second dungeon pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
-| `enemy_void_walker` / Void Walker | `data.js`; second dungeon pool | repeatable | base + curse-on-hit + shard burst | explicit shard-burst ID branch | rejected | special capability pending | defer curse and shard burst |
+| `enemy_void_walker` / Void Walker | `data.js`; second dungeon pool | repeatable | base + curse-on-hit + shard burst | explicit legacy shard-burst ID branch | rejected | ordinary | Pass 4B: 20% landed-hit Curse plus independent 35% shard burst |
 | `enemy_hollow` / Hollow | `data.js`; deep-dungeon pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_fen_shade` / Fen Shade | `data.js`; deep-dungeon pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_tomb_sentry` / Tomb Sentry | `data.js`; floor-eight pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 30% |
 | `enemy_crypt_revenant` / Crypt Revenant | `data.js`; floor-eight pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_wall_tendril` / Wall Tendril | `data.js`; horror pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
-| `enemy_dripping_maw` / Dripping Maw | `data.js`; horror pool | repeatable | base + acid corrosion | `acidChance` generic branch | rejected | special capability pending | defer Corroded handling |
+| `enemy_dripping_maw` / Dripping Maw | `data.js`; horror pool | repeatable | base + acid corrosion | `acidChance` generic branch | rejected | ordinary | Pass 4B: 35% landed-hit per-instance corrosion, cap 6 |
 | `enemy_the_seep` / The Seep | `data.js`; horror pool and split follow-up | repeatable | base + split follow-up | split starter/finalizer | rejected | special capability pending | defer sequential split lifecycle |
 | `enemy_fen_lurker` / Fen Lurker | `data.js`; far-world pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_rotwood_troll` / Rotwood Troll | `data.js`; far-world pool | repeatable | base + regeneration | `regenPerTurn` generic branch | rejected | special capability pending | defer regeneration |
 | `enemy_thornback` / Thornback | `data.js`; far-world pool | repeatable | base + melee armor + counterattack | armor/counter generic branches | rejected | special capability pending | defer projectile puzzle mechanics |
-| `enemy_fen_witch` / Fen Witch | `data.js`; far-world pool | repeatable | base + poison spell | explicit hit-effect ID branch | rejected | special capability pending | defer poison spell |
+| `enemy_fen_witch` / Fen Witch | `data.js`; far-world pool | repeatable | base + poison spell | explicit legacy hit-effect ID branch | rejected | ordinary | Pass 4B: 25% landed-hit poison, Fen Mask ward preserved |
 | `enemy_bog_serpent` / Bog Serpent | `data.js`; far-world pool | repeatable | base | observation/sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_mire_toad_male` / Mire Toad | `data.js`; far/basin/upper pools and spawning site | repeatable | base + poison-on-hit + sex/reagent observation | sex-specific Observe/reagent and poison branches | rejected | special capability pending | defer per-instance reagent/observation mechanic |
 | `enemy_mire_toad_female` / Mire Toad | `data.js`; far/basin/upper pools and spawning site | repeatable | base + poison-on-hit + sex/reagent observation | sex-specific Observe/reagent and poison branches | rejected | special capability pending | defer per-instance reagent/observation mechanic |
-| `enemy_corpse_slug` / Corpse Slug | `data.js`; Thornmere pools | repeatable | base + slither-on-hit | explicit hit-effect ID branch | rejected | special capability pending | defer Slither infliction |
+| `enemy_corpse_slug` / Corpse Slug | `data.js`; Thornmere pools | repeatable | base + slither-on-hit | explicit legacy hit-effect ID branch | rejected | ordinary | Pass 4B: 30% landed-hit Slither with sampled Speed |
 | `enemy_marsh_rat` / Marsh Rat | `data.js`; lighthouse/shore/canal pools | repeatable | base | sprite only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_shallows_skitter` / Shallows Skitter | `data.js`; lighthouse/shore/canal pools | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 25% |
-| `enemy_lantern_moth` / Lantern Moth | `data.js`; lighthouse top pool | repeatable | base + dazzle-on-hit | `dazzleChance` generic branch | rejected | special capability pending | defer Dazzled infliction |
+| `enemy_lantern_moth` / Lantern Moth | `data.js`; lighthouse top pool | repeatable | base + dazzle-on-hit | `dazzleChance` generic branch | rejected | ordinary | Pass 4B: 40% landed-hit combat-only Dazzled accuracy penalty |
 | `enemy_reed_grappler` / Reed Grappler | `data.js`; sluice pool, Labs | repeatable | base | observation/sprite only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_silt_lurker` / Silt Lurker | `data.js`; sluice pool, Labs | repeatable | base | observation/sprite only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_marsh_wisp_sluice_top` / Marsh Wisp | `data.js`; upper-sluice pool | repeatable | base | observation/sprite alias only | compatible | ordinary | capability-derived compatibility retained |
@@ -82,7 +84,7 @@ column says otherwise.
 | `enemy_silt_hag_gallery` / Silt Hag | `data.js`; Gallery pool | repeatable | base | observation/sprite alias only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_silt_crab_upper` / Silt Crab | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_basin_gull_upper` / Basin Gull | `data.js`; Upper Reach pool | repeatable | base + steal-and-flee | theft/flee generic branches | rejected | special capability pending | defer stolen-gold lifecycle |
-| `enemy_dust_drowned` / Dust-Drowned | `data.js`; Upper Reach pool | repeatable | base + curse-on-hit | `curseChance` generic branch | rejected | special capability pending | defer Curse infliction |
+| `enemy_dust_drowned` / Dust-Drowned | `data.js`; Upper Reach pool | repeatable | base + curse-on-hit | `curseChance` generic branch | rejected | ordinary | Pass 4B: 20% landed-hit Curse, Amethyst Bangle ward preserved |
 | `enemy_marrow_hulk` / Marrow Hulk | `data.js`; Upper Reach pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 25% |
 | `enemy_silt_hag_vault` / Silt Hag | `data.js`; Mirethyst Vault pool | repeatable | base | observation/sprite alias only | rejected | ordinary | newly compatible by capabilities |
 | `enemy_briar_warden` / Briar Warden | `combat.js`; Warden scripted starter | reachable scripted | base + Warden lifecycle | Warden activation/victory writers | rejected | scripted-only lifecycle | defer bespoke outcome to Pass 5 |
@@ -107,9 +109,9 @@ column says otherwise.
 ## Reconciled totals
 
 - Registered templates: **60**.
-- Ordinary and capability-compatible: **30** — the 22 Pass 3 templates plus
-  the eight Brace-family templates. No other capability was migrated.
-- Special capability pending: **15** (23 at the Pass 3 checkpoint).
+- Ordinary and capability-compatible: **37** — the 22 Pass 3 templates, eight
+  Brace-family templates and seven Pass 4B landed-hit special templates.
+- Special capability pending: **8** (23 at the Pass 3 checkpoint).
 - Scripted-only lifecycle: **15**.
 - Non-production/debug fixtures: **0**.
 - Permanently completed before recruitment: **3** Receiver templates. This is a

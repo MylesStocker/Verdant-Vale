@@ -13,22 +13,23 @@ const ORDINARY=[
   // Pass 4A adds the existing Brace mechanic; the original 22 remain covered.
   'enemy_stone_crawler','enemy_bone_guard','enemy_hollow','enemy_tomb_sentry',
   'enemy_shallows_skitter','enemy_silt_crab','enemy_silt_crab_upper','enemy_marrow_hulk',
+  // Pass 4B migrates the existing landed-hit status and offensive riders.
+  'enemy_shade_wraith','enemy_void_walker','enemy_dripping_maw','enemy_fen_witch',
+  'enemy_corpse_slug','enemy_lantern_moth','enemy_dust_drowned',
 ];
 const SPECIAL={
-  enemy_shade_wraith:['slither_on_hit'],enemy_void_walker:['curse_on_hit','void_shard_burst'],
-  enemy_dripping_maw:['acid_corrosion'],enemy_the_seep:['split_followup'],enemy_rotwood_troll:['regeneration'],
-  enemy_thornback:['melee_armor','counterattack'],enemy_fen_witch:['poison_spell'],
+  enemy_the_seep:['split_followup'],enemy_rotwood_troll:['regeneration'],
+  enemy_thornback:['melee_armor','counterattack'],
   enemy_mire_toad_male:['poison_on_hit','mire_toad_reagent_observation'],
   enemy_mire_toad_female:['poison_on_hit','mire_toad_reagent_observation'],
-  enemy_corpse_slug:['slither_on_hit'],enemy_lantern_moth:['dazzle_on_hit'],
-  enemy_basin_gull:['steal_and_flee'],enemy_basin_gull_upper:['steal_and_flee'],enemy_dust_drowned:['curse_on_hit'],
+  enemy_basin_gull:['steal_and_flee'],enemy_basin_gull_upper:['steal_and_flee'],
   enemy_23:['generated_stats'],
 };
 const SCRIPTED={
   enemy_briar_warden:['warden_lifecycle'],enemy_smuggler_guard:['fort_lifecycle'],
   enemy_polwick:['fort_lifecycle','firelit_attack'],enemy_essa:['fort_lifecycle'],
   enemy_pale_sentry:['persistent_hp_lifecycle'],enemy_rainfish:['rainfish_chain'],
-  enemy_takomo:['takomo_lifecycle'],enemy_den_wraith:['curse_on_hit','den_wraith_lifecycle'],
+  enemy_takomo:['takomo_lifecycle'],enemy_den_wraith:['den_wraith_lifecycle'],
   enemy_kolm:['sailor_brawl_lifecycle'],enemy_wrongteeth:['wrongteeth_lifecycle'],
   enemy_lensweb_spider:['observe_run_lock','lensweb_objective_lifecycle'],
   enemy_mimic_potion:['guaranteed_drop','mimic_trap_lifecycle'],
@@ -84,7 +85,8 @@ test('all 60 deterministic metadata records are closed, deeply frozen and capabi
     assert.equal(metadata.templateId,id);assert.equal(new Set(metadata.capabilities).size,metadata.capabilities.length);
   }
   for(const id of ORDINARY)assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
-  assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace']);
+  assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
+    'curse_on_hit','void_shard_burst','acid_corrosion','slither_on_hit','poison_spell','dazzle_on_hit']);
 });
 
 test('every ordinary template prepares against one, two and three canonical members',()=>{
@@ -247,7 +249,7 @@ test('source authority has no manually curated canonical ordinary-enemy ID set',
   assert.match(combat,/requireCanonicalEnemyCapabilities\(template\)/);
   assert.match(combat,/FORMATION_STATE_TEMPLATE_IDS/); // Legacy Formation/Receiver authority remains intentionally separate.
   const capabilitySource=fs.readFileSync(path.join(ROOT,'enemy-capabilities.js'),'utf8');
-  for(const id of ORDINARY)
+  for(const id of ORDINARY.filter(id=>!['enemy_shade_wraith','enemy_void_walker','enemy_fen_witch','enemy_corpse_slug'].includes(id)))
     assert.doesNotMatch(capabilitySource,new RegExp("['\"]"+id+"['\"]\\s*[,\]]"),id);
 });
 

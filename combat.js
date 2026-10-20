@@ -615,7 +615,7 @@ const combatPlayerState = (() => {
       const sample=dataRecord(effect.slither,['speed','round','roll','source']);
       if(!slitherSpeedValid(sample.speed) || !safe(sample.round) || sample.round>(roundState?.completed||0) ||
           (sample.source==='prepared' ? sample.round!==0||sample.roll!==null :
-            !['attack','observe'].includes(sample.source)||sample.round===0||
+            !['attack','observe','inflicted'].includes(sample.source)||sample.round===0||
             !Number.isFinite(sample.roll)||sample.roll<0||sample.roll>=1||Math.floor(sample.roll*20)+1!==sample.speed))invalid();
     };
     const itemSpec = id => {
@@ -635,9 +635,11 @@ const combatPlayerState = (() => {
       return list.map((enemy,slot)=>{
         const keys=[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked'];
         if(Object.hasOwn(enemy,'isBoss'))keys.push('isBoss');
-        if(Object.hasOwn(enemy,'defendChance'))keys.push('defendChance');
+        const registeredTemplate=ENEMY_TEMPLATE_REGISTRY[enemy.id];
+        const mechanicFields=Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES).filter(key=>
+          Object.hasOwn(registeredTemplate||{},key)&&ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical);
+        keys.push(...mechanicFields);
         const d=dataRecord(enemy,keys), p=Object.getOwnPropertyDescriptors(enemy);
-        const registeredTemplate=ENEMY_TEMPLATE_REGISTRY[d.id];
         if(!canonicalEnemyIsCompatible(registeredTemplate) || !formationBasicStatsValid(d) || d.slot!==slot ||
             typeof d.name!=='string' || !/^combat_enemy_[1-9]\d*$/.test(d.instanceId) ||
             !['xp','goldMin','goldMax','observeCount'].every(k=>safe(d[k])) || d.escapeUnlocked!==false ||
@@ -648,10 +650,9 @@ const combatPlayerState = (() => {
         const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,d.id)?.value;
         const templateKeys=[...FORMATION_STATE_DATA_FIELDS];
         if(template && Object.hasOwn(template,'isBoss'))templateKeys.push('isBoss');
-        if(template && Object.hasOwn(template,'defendChance'))templateKeys.push('defendChance');
+        templateKeys.push(...mechanicFields);
         const t=dataRecord(template,templateKeys);
-        if(!formationBasicStatsValid(t)||Object.hasOwn(d,'defendChance')!==Object.hasOwn(t,'defendChance')||
-            d.defendChance!==t.defendChance)invalid();
+        if(!formationBasicStatsValid(t)||mechanicFields.some(key=>d[key]!==t[key]))invalid();
         return {...d,isBoss:combatEnemyBossAtCreation.get(enemy)};
       });
     };
@@ -672,8 +673,9 @@ const combatPlayerState = (() => {
       const atk=effectiveAtk({...base,...gear});
       const rawDef=base.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0);
       const rawSpd=base.spd+(gear.accessory?.bonus||0);
+      const corrosion=commandBattle?.effects[base.slot]?.corrosion||0;
       if(![atk,rawDef,rawSpd].every(safe))invalid();
-      return {atk,def:Math.max(0,rawDef-(statusList.includes('muddied')?1:0)),
+      return {atk,def:Math.max(0,rawDef-(statusList.includes('muddied')?1:0)-corrosion),
         spd:statusList.includes('slither') ? commandBattle.effects[base.slot].slither.speed :
           Math.max(1,rawSpd-(statusList.includes('muddied')?2:0)),
         defenseCapBypass:gear.armor?.defenseCapBypass===true,evadeAll:gear.accessory?.evadeAll===true};
@@ -844,6 +846,8 @@ const combatPlayerState = (() => {
         const escape=combat.mode==='formation'&&formationRounds.getView().escapePolicy==='blocked'?'blocked':data.escape;
         const view=installMembers(candidates);
         commandBattle={roster:members,enemies:combat.enemies,inventory,loadouts,effects,bossLocked,escape,enemySeal:JSON.stringify(enemyData),braced:new Set(),
+          mechanics:new Map(enemyData.map(e=>[e.instanceId,canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[e.id])])),
+          statusApplications:candidates.map(()=>Object.create(null)),
           resonance:resonance?resonance.map((v,i)=>({actorId:members[i].instanceId,...v})):null};
         return view;
     };
@@ -866,7 +870,8 @@ const combatPlayerState = (() => {
         const roll=()=>{const n=Math.random();exact();if(!Number.isFinite(n)||n<0||n>=1)throw Error('Invalid party command RNG');return n;};
         const live=id=>roster.find(m=>m.instanceId===id)||enemyMembers.find(e=>e.instanceId===id);
         const ally=m=>roster.includes(m);
-        const values=m=>ally(m)?effective(m,equipment(s,m.definition.slot)):m;
+        const activeStatuses=m=>m.statuses.filter(id=>s.statusApplications[m.definition.slot][id]!==round);
+        const values=m=>ally(m)?effective(m,equipment(s,m.definition.slot),activeStatuses(m)):m;
         const terminal=()=>enemyMembers.every(m=>m.hp===0)?'victory':roster.every(m=>m.hp===0)?'defeat':'ongoing';
         roundState={completed:roundState?.completed||0,enemies:enemyMembers,phase:'resolving',outcome:'ongoing',failure:null};
         const round=roundState.completed+1;
@@ -935,13 +940,13 @@ const combatPlayerState = (() => {
               // Legacy singleton/Formation ordering remains unchanged.
               let fumbled=false;
               const braced=s.braced.has(target.instanceId);
-              if(!braced&&ally(actor)&&actor.statuses.includes('cursed')) {
+              if(!braced&&ally(actor)&&activeStatuses(actor).includes('cursed')) {
                 const draw=roll();fumbled=draw<0.25;
                 events.push({type:'curse_check',actorId:actor.instanceId,targetId:target.instanceId,side:'ally',
                   slot:planned.slot,status:'cursed',round,chance:0.25,roll:draw,fumbled});
               }
               let critical=false,attemptedDamage=1,evaded=false,brace=null;
-              const attackSpd=a.spd-(ally(actor)&&actor.statuses.includes('dazzled')?DAZZLE_ACC_PENALTY:0);
+              const attackSpd=a.spd-(ally(actor)&&activeStatuses(actor).includes('dazzled')?DAZZLE_ACC_PENALTY:0);
               const chance=ally(target)&&t.evadeAll?1:Math.max(evadeChance(attackSpd,t.spd,false),
                 ally(target)&&s.effects[target.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0);
               if(!fumbled) {
@@ -956,6 +961,45 @@ const combatPlayerState = (() => {
               if(target.hp!==hpBefore)throw Error('Party target HP changed during RNG');
               target.hp=Math.max(0,hpBefore-(evaded?0:attemptedDamage));
               events.push({type:'attack',...planned,attemptedDamage,appliedDamage:hpBefore-target.hp,critical,evaded,hpBefore,hpAfter:target.hp,...(brace?{brace}:{})});
+              if(!ally(actor)&&!evaded&&hpBefore-target.hp>0&&target.hp>0){
+                const mechanics=s.mechanics.get(actor.instanceId)||{},gear=equipment(s,target.definition.slot);
+                for(const capability of ['slither_on_hit','poison_spell','curse_on_hit','void_shard_burst','dazzle_on_hit','acid_corrosion']){
+                  const mechanic=mechanics[capability];if(!mechanic||target.hp===0)continue;
+                  const status={slither_on_hit:'slither',poison_spell:'poison',curse_on_hit:'cursed',dazzle_on_hit:'dazzled'}[capability];
+                  const effect=s.effects[target.definition.slot];
+                  if(status&&target.statuses.includes(status)||capability==='acid_corrosion'&&(effect.corrosion||0)>=mechanic.cap)continue;
+                  const decision=roll(),triggered=decision<mechanic.chance;
+                  events.push({type:'enemy_effect_check',actorId:actor.instanceId,targetId:target.instanceId,capability,
+                    chance:mechanic.chance,roll:decision,triggered});
+                  if(!triggered)continue;
+                  if(capability==='void_shard_burst'){
+                    const warded=s.inventory.includes(mechanic.wardItem),damageRoll=warded?null:roll(),
+                      attemptedDamage=warded?0:mechanic.minDamage+Math.floor(damageRoll*(mechanic.maxDamage-mechanic.minDamage+1)),
+                      beforeHp=target.hp;
+                    target.hp=Math.max(0,target.hp-attemptedDamage);
+                    events.push({type:'enemy_shard_burst',actorId:actor.instanceId,targetId:target.instanceId,capability,
+                      wardItem:mechanic.wardItem,warded,damageRoll,attemptedDamage,appliedDamage:beforeHp-target.hp,hpBefore:beforeHp,hpAfter:target.hp});
+                    continue;
+                  }
+                  if(capability==='acid_corrosion'){
+                    const before=effect.corrosion||0,after=Math.min(mechanic.cap,before+1);effect.corrosion=after;
+                    events.push({type:'enemy_corrosion',actorId:actor.instanceId,targetId:target.instanceId,capability,before,after,cap:mechanic.cap});
+                    continue;
+                  }
+                  const blocked=capability==='poison_spell'?gear.accessory?.preventsPoison===true:
+                    capability==='curse_on_hit'?gear.accessory?.preventsCursed===true:false;
+                  const statusesBefore=[...target.statuses];
+                  if(!blocked){target.statuses.push(status);s.statusApplications[target.definition.slot][status]=round;}
+                  let slither=null;
+                  if(capability==='slither_on_hit'&&!blocked){
+                    const speedRoll=roll(),speedAfter=Math.floor(speedRoll*20)+1;
+                    effect.slither={speed:speedAfter,round,roll:speedRoll,source:'inflicted'};
+                    slither={round,roll:speedRoll,speedAfter};
+                  }
+                  events.push({type:'enemy_status',actorId:actor.instanceId,targetId:target.instanceId,capability,status,
+                    blocked,blocker:blocked?gear.accessory.name:null,statusesBefore,statusesAfter:[...target.statuses],...(slither?{slither}:{})});
+                }
+              }
             } else if(action.type==='observe') {
               const countBefore=target.observeCount,lines=[...getObservationText(target,countBefore)];
               target.observeCount++;
@@ -976,7 +1020,8 @@ const combatPlayerState = (() => {
                 target.hp+=healingItemAmount(item,target.hp,target.definition.maxHp);
                 if(MUDSLITHER_INFLICTABLE&&item.causesMuddied&&!target.statuses.includes('muddied'))target.statuses.push('muddied');
               } else if(effect==='cure') {
-                target.statuses=target.statuses.filter(id=>!itemCuredStatuses(item).includes(id));
+                const cured=itemCuredStatuses(item);target.statuses=target.statuses.filter(id=>!cured.includes(id));
+                cured.forEach(id=>delete s.statusApplications[target.definition.slot][id]);
                 if(!target.statuses.includes('slither'))delete s.effects[target.definition.slot].slither;
               }
               else if(effect==='evade') {s.effects[target.definition.slot].evadeTurns=item.evadeTurns;s.effects[target.definition.slot].evadeAppliedRound=round;}
@@ -1836,6 +1881,7 @@ const partyCommandPlayback = (() => {
       item.type==='buff'?'evade':item.type==='throwable'?(item.fuse?'bomb':item.targetsAll?'damage_all':'damage'):
       item.type==='stun'?'stun':gearSlots.includes(item.type)?'equip':item.type==='bait'?'nothing':null,
     cures:Object.freeze(['poison','cursed'].filter(s=>s==='poison'?item.curesPoison:item.curesCursed)),mud:item.causesMuddied===true,
+    preventsCursed:item.preventsCursed===true,preventsPoison:item.preventsPoison===true,
   })])));
   const fail=()=>{throw new Error('Invalid party command playback history');};
   const safe=n=>Number.isSafeInteger(n)&&n>=0;
@@ -1879,6 +1925,10 @@ const partyCommandPlayback = (() => {
     strain:['actorId','before','after','appliedRoundBefore','appliedRoundAfter','reason'],
     brace_check:['actorId','chance','roll','selected','before','after'],
     brace:[...planKeys,'active'],brace_end:['actorId','before','after','reason'],
+    enemy_effect_check:['actorId','targetId','capability','chance','roll','triggered'],
+    enemy_status:['actorId','targetId','capability','status','blocked','blocker','statusesBefore','statusesAfter'],
+    enemy_shard_burst:['actorId','targetId','capability','wardItem','warded','damageRoll','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
+    enemy_corrosion:['actorId','targetId','capability','before','after','cap'],
     outcome:['outcome'],round_end:['roundBefore','roundAfter','outcome','effectsBefore','effectsAfter']};
   const statusList=v=>{list(v,0,6);if(v.some(s=>!FORMATION_PLAYER_STATUSES.includes(s))||new Set(v).size!==v.length)fail();};
   const create=source=>{
@@ -1890,9 +1940,12 @@ const partyCommandPlayback = (() => {
       if(!['blocked','fastest_living'].includes(s.escapePolicy)||!bool(s.bossLocked))fail();
       const ids=new Set(),authored=new Set();
       for(const [side,group,fields]of [['ally',s.party,partyKeys],['enemy',s.enemies,enemyKeys]])group.forEach((m,slot)=>{
-        const hasBrace=side==='enemy'&&Object.hasOwn(ENEMY_TEMPLATE_REGISTRY[m.id]||{},'defendChance');
-        keys(m,[...fields,...(hasBrace?['defendChance','braced']:[])]);
-        if(hasBrace&&(m.defendChance!==ENEMY_TEMPLATE_REGISTRY[m.id].defendChance||!bool(m.braced)))fail();
+        const template=side==='enemy'?ENEMY_TEMPLATE_REGISTRY[m.id]:null;
+        const mechanicFields=side==='enemy'?Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES).filter(key=>
+          Object.hasOwn(template||{},key)&&ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical):[];
+        const hasBrace=mechanicFields.includes('defendChance');
+        keys(m,[...fields,...mechanicFields,...(hasBrace?['braced']:[])]);
+        if(mechanicFields.some(key=>m[key]!==template[key])||hasBrace&&!bool(m.braced))fail();
         const prefix=side==='ally'?'combat_party_':'combat_enemy_',suffix=typeof m.instanceId==='string'?m.instanceId.slice(prefix.length):'';
         if(m.side!==side||m.slot!==slot||typeof m.name!=='string'||!m.name.trim()||typeof m.instanceId!=='string'||!m.instanceId.startsWith(prefix)||
             !/^[1-9]\d*$/.test(suffix)||!Number.isSafeInteger(Number(suffix))||ids.has(m.instanceId)||!['hp','maxHp','atk','def','spd'].every(k=>safe(m[k]))||!m.maxHp||m.hp>m.maxHp)fail();
@@ -1919,14 +1972,16 @@ const partyCommandPlayback = (() => {
       s.party.forEach((m,slot)=>{
         const gear=s.equipment[slot],f=s.effects[slot];keys(gear,['actorId',...gearSlots]);if(gear.actorId!==m.instanceId)fail();
         for(const k of gearSlots)if(gear[k]!==null&&spec(gear[k]).slot!==k)fail();
-        keys(f,['actorId','evadeTurns','evadeAppliedRound','bomb',...(Object.hasOwn(f,'slither')?['slither']:[])]);
+        keys(f,['actorId','evadeTurns','evadeAppliedRound','bomb',...(Object.hasOwn(f,'slither')?['slither']:[]),
+          ...(Object.hasOwn(f,'corrosion')?['corrosion']:[])]);
         if(f.actorId!==m.instanceId||!safe(f.evadeTurns)||!safe(f.evadeAppliedRound)||f.evadeAppliedRound>maxRound||(f.evadeTurns>0&&f.evadeAppliedRound===0))fail();
+        if(Object.hasOwn(f,'corrosion')&&(!safe(f.corrosion)||f.corrosion<1||f.corrosion>6))fail();
         if(f.bomb!==null){keys(f.bomb,['targetId','fuse','damage','ignoresDef','appliedRound']);const b=f.bomb;
           if(!s.enemies.some(e=>e.instanceId===b.targetId)||!safe(b.fuse)||!b.fuse||!safe(b.damage)||!bool(b.ignoresDef)||!safe(b.appliedRound)||!b.appliedRound||b.appliedRound>maxRound)fail();}
         if(m.statuses.includes('slither')){
           keys(f.slither,['speed','round','roll','source']);const v=f.slither;
           if(!safe(v.speed)||v.speed<1||v.speed>20||m.effective.spd!==v.speed||!safe(v.round)||v.round>maxRound||
-              (v.source==='prepared'?v.round!==0||v.roll!==null:!['attack','observe'].includes(v.source)||!v.round||!roll(v.roll)||v.speed!==Math.floor(v.roll*20)+1))fail();
+              (v.source==='prepared'?v.round!==0||v.roll!==null:!['attack','observe','inflicted'].includes(v.source)||!v.round||!roll(v.roll)||v.speed!==Math.floor(v.roll*20)+1))fail();
         }else if(Object.hasOwn(f,'slither'))fail();
       });
     };
@@ -1935,6 +1990,7 @@ const partyCommandPlayback = (() => {
     const membership=s=>({party:s.party.map(({hp,statuses,effective,...m})=>m),enemies:s.enemies.map(({hp,observeCount,braced,...m})=>m),escapePolicy:s.escapePolicy,bossLocked:s.bossLocked,...(s.resonance?{resonance:s.resonance.map(({strain,appliedRound,...c})=>c)}:{})});
     const fixed=membership(r.before);equal(membership(r.after),fixed);
     let state=clone(r.before),revealed='ongoing',completed=r.round-1,index=0;
+    const statusApplications=state.party.map(()=>Object.create(null));
     const member=id=>[...state.party,...state.enemies].find(m=>m.instanceId===id);
     const outcome=()=>state.enemies.every(m=>m.hp===0)?'victory':state.party.every(m=>m.hp===0)?'defeat':'ongoing';
     if(outcome()!=='ongoing')fail();
@@ -1981,7 +2037,8 @@ const partyCommandPlayback = (() => {
     commands.sort((a,b)=>a.side===b.side?a.slot-b.slot:a.side==='ally'?-1:1);
     for(const[id,n]of reservations)if(state.inventory.filter(x=>x===id).length<n)fail();
     list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();
-      keys(e,['type',...eventKeys[e.type],...(e.type==='attack'&&Object.hasOwn(e,'brace')?['brace']:[])]);});
+      keys(e,['type',...eventKeys[e.type],...(e.type==='attack'&&Object.hasOwn(e,'brace')?['brace']:[]),
+        ...(e.type==='enemy_status'&&Object.hasOwn(e,'slither')?['slither']:[])]);});
     const frames=[];
     const frame=(event=null)=>copyFormationData({round:r.round,command:r.command,frameIndex:index,eventIndex:index-1,currentEvent:event,
       party:state.party.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),enemies:state.enemies.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
@@ -2068,6 +2125,44 @@ const partyCommandPlayback = (() => {
       const e=take('strain');equal(e,{type:'strain',actorId:id,before:cap.strain,after,appliedRoundBefore:cap.appliedRound,appliedRoundAfter,reason});
       cap.strain=after;cap.appliedRound=appliedRoundAfter;push(e);
     };
+    const enemyEffects=(actor,target,attack)=>{
+      if(actor.side!=='enemy'||attack.evaded||attack.appliedDamage<=0||target.hp===0)return;
+      const mechanics=canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[actor.id]),gear=state.equipment[target.slot],effect=state.effects[target.slot];
+      for(const capability of ['slither_on_hit','poison_spell','curse_on_hit','void_shard_burst','dazzle_on_hit','acid_corrosion']){
+        const mechanic=mechanics[capability];if(!mechanic||target.hp===0)continue;
+        const status={slither_on_hit:'slither',poison_spell:'poison',curse_on_hit:'cursed',dazzle_on_hit:'dazzled'}[capability];
+        if(status&&target.statuses.includes(status)||capability==='acid_corrosion'&&(effect.corrosion||0)>=mechanic.cap)continue;
+        const check=take('enemy_effect_check');
+        equal(check,{type:'enemy_effect_check',actorId:actor.instanceId,targetId:target.instanceId,capability,
+          chance:mechanic.chance,roll:check.roll,triggered:check.roll<mechanic.chance});
+        if(!roll(check.roll))fail();push(check);if(!check.triggered)continue;
+        if(capability==='void_shard_burst'){
+          const event=take('enemy_shard_burst'),warded=state.inventory.includes(mechanic.wardItem);
+          if(event.actorId!==actor.instanceId||event.targetId!==target.instanceId||event.capability!==capability||
+              event.wardItem!==mechanic.wardItem||event.warded!==warded||(warded?event.damageRoll!==null||event.attemptedDamage!==0:
+              !roll(event.damageRoll)||event.attemptedDamage!==mechanic.minDamage+Math.floor(event.damageRoll*(mechanic.maxDamage-mechanic.minDamage+1))))fail();
+          damage(event,target);push(event);continue;
+        }
+        if(capability==='acid_corrosion'){
+          const event=take('enemy_corrosion'),before=effect.corrosion||0,after=Math.min(mechanic.cap,before+1);
+          equal(event,{type:'enemy_corrosion',actorId:actor.instanceId,targetId:target.instanceId,capability,before,after,cap:mechanic.cap});
+          effect.corrosion=after;target.effective.def=Math.max(0,target.effective.def-1);push(event);continue;
+        }
+        const blocked=capability==='poison_spell'?gear.accessory!==null&&spec(gear.accessory).preventsPoison===true:
+          capability==='curse_on_hit'?gear.accessory!==null&&spec(gear.accessory).preventsCursed===true:false;
+        const event=take('enemy_status'),before=[...target.statuses],after=blocked?before:[...before,status];
+        if(event.actorId!==actor.instanceId||event.targetId!==target.instanceId||event.capability!==capability||event.status!==status||
+            event.blocked!==blocked||event.blocker!==(blocked?gear.accessory:null))fail();
+        equal(event.statusesBefore,before);equal(event.statusesAfter,after);
+        if(capability==='slither_on_hit'&&!blocked){
+          keys(event.slither,['round','roll','speedAfter']);
+          if(event.slither.round!==r.round||!roll(event.slither.roll)||event.slither.speedAfter!==Math.floor(event.slither.roll*20)+1)fail();
+          effect.slither={speed:event.slither.speedAfter,round:r.round,roll:event.slither.roll,source:'inflicted'};
+          target.effective.spd=event.slither.speedAfter;
+        }else if(Object.hasOwn(event,'slither'))fail();
+        target.statuses=after;if(!blocked)statusApplications[target.slot][status]=r.round;push(event);
+      }
+    };
     let escaped=false;const finishedTechniques=new Set();
     for(const p of r.order){
       if(outcome()!=='ongoing'||escaped)break;
@@ -2097,7 +2192,7 @@ const partyCommandPlayback = (() => {
         finishedTechniques.add(action.actorId);continue;
       }
       let curse=null;
-      if(p.commandType==='attack'&&!target.braced&&actor.side==='ally'&&actor.statuses.includes('cursed')){
+      if(p.commandType==='attack'&&!target.braced&&actor.side==='ally'&&actor.statuses.includes('cursed')&&statusApplications[actor.slot].cursed!==r.round){
         curse=take('curse_check');if(curse.actorId!==p.actorId||curse.targetId!==p.targetId||curse.side!=='ally'||curse.slot!==p.slot||curse.status!=='cursed'||curse.round!==r.round||curse.chance!==0.25||!roll(curse.roll)||curse.fumbled!==(curse.roll<curse.chance))fail();push(curse);
       }
       const e=take(p.commandType==='item'&&spec(c.command.itemId).effect==='equip'?'equipment':p.commandType);matching(e,p);
@@ -2116,7 +2211,7 @@ const partyCommandPlayback = (() => {
         if(e.allowed!==allowed||e.opponentId!==fastest.instanceId||!bool(e.success)||typeof e.chance!=='number'||e.chance<0||e.chance>1||
             (allowed?!roll(e.roll)||e.success!==(e.roll<e.chance):e.roll!==null||e.chance!==0||e.success))fail();escaped=e.success;
       }else {itemEvent(e,c,actor,target);continue;}
-      push(e);
+      push(e);if(e.type==='attack')enemyEffects(actor,target,e);
     }
     // Boundary ticks follow the resolver's stable burn-then-Bomb owner order.
     if(!escaped&&outcome()==='ongoing')for(const m of state.party.filter(m=>m.hp>0&&m.statuses.includes('burn'))){
@@ -2287,7 +2382,8 @@ function validateFormationDescriptorData(descriptors, capabilityApproval) {
     if(capabilityApproval)requireCanonicalEnemyCapabilities(template);
     const copy = {};
     for (const key of Reflect.ownKeys(data)) {
-      if(capabilityApproval&&key==='defendChance'){
+      const capability=ENEMY_TEMPLATE_FIELD_CAPABILITIES[key];
+      if(capabilityApproval&&capability&&ENEMY_CAPABILITY_DEFINITIONS[capability].canonical){
         copy[key]=data[key].value;continue;
       }
       if (key === 'isBoss' && Object.hasOwn(data[key], 'value') && typeof data[key].value === 'boolean') {

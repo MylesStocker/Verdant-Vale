@@ -6,33 +6,28 @@ actually fits together.
 
 ## Current state
 
-### Brace capability migration — Pass 4A
+### Status/offensive capability migration — Pass 4B
 
-Pass 3 was verified at 186/186, with 45 focused suites, and checkpointed as
-`4793e2ac33d185d700bc6dc4db1dfd7432db0475`
-(`feat(combat): migrate ordinary enemies to capability routing`). Pass 4A remains
+Pass 4A was verified at 187/187 and checkpointed as
+`74d8990dab042c167f90daedf9e4fa75edd3324d`
+(`feat(combat): support brace in canonical party battles`). Pass 4B remains
 unstaged and uncommitted.
 
-Canonical standard sessions now execute the existing Brace mechanic for Stone
-Crawler, Bone Guard, Hollow, Tomb Sentry, Shallows Skitter, both Silt Crab variants
-and Marrow Hulk. Compatibility remains mechanic-based: 30 supported templates
-(22 prior plus eight Brace), 15 other special templates pending, 15 scripted-only.
-The user chose legacy Attack-only eligibility and exchange-wide protection from
-round start. Each exact enemy instance makes its own decision; its scheduled
-Brace replaces Attack, and private transient protection clears each completed
-round. Melee halving, critical/Cursed/evasion treatment and item/Bomb bypass follow
-the singleton authority. Full timing and RNG evidence is documented in
-[architecture.md](architecture.md#brace--pass-4a).
+Canonical standard sessions now execute the existing landed-hit mechanics for
+Shade Wraith, Corpse Slug, Void Walker, Dripping Maw, Fen Witch, Lantern Moth and
+Dust-Drowned. Compatibility remains mechanic-based: 37 supported templates, eight
+special templates pending and 15 scripted-only. Slither, poison and Curse retain
+exact-member ownership and existing ward/cure/writeback behavior. Void shard burst,
+Dazzled and corrosion preserve their established chances, damage/modifiers and
+combat-only cleanup. Capability decisions and state belong to exact runtime enemy
+and canonical member identities; duplicates remain independent.
 
-Suite 187 adds deterministic matrix, mechanic, playback, rendering and lifecycle
-coverage (27 grouped checks). Verification: 187/187 complete regression suites,
-46 focused suites, nine JavaScript syntax checks, 0 data errors / 4 established
-warnings, 107/107 fingerprints and an unchanged read-only transition audit.
-All five historical capture counts/digests remain byte-identical. No production
-formations, Lab scenarios, enemy stats/rewards, pools,
-maps, quests, dialogue, save fields or terrain changed. SAVE_VERSION remains 5.
-The remaining special capabilities and scripted outcomes stay deferred to
-Passes 4B/4C and 5. This increment is headless; no browser test was performed.
+Suite 188 adds deterministic matrix, mechanic, targeting, playback, rendering and
+lifecycle coverage (18 grouped checks). Full verification evidence is recorded in
+the completion report. No production formations, enemy stats/rewards, pools, maps,
+quests, dialogue, save fields or terrain changed. SAVE_VERSION remains 5. The
+remaining special capabilities and scripted outcomes stay deferred to Pass 4C and
+Pass 5. This increment is headless; no browser test was performed.
 
 ### Ordinary-enemy capability migration — Pass 3 checkpoint
 
@@ -102,7 +97,7 @@ in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md). Suite 183 was used be
 181 and 182 already belonged to the lifecycle and field-menu suites.
 
 The following integration checkpoint describes the synchronized baseline; its
-182-suite count predates suites 183–187 (current total: 187).
+182-suite count predates suites 183–188 (current total: 188).
 
 ### Eastern terrain and party integration
 

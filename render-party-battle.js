@@ -116,6 +116,12 @@ function formatPartyBattleEvent(view) {
   if(event.type==='brace')return `${actor} holds its brace instead of attacking.`;
   if(event.type==='brace_end')return `${actor}'s brace ends.`;
   if(event.type==='curse_check')return event.fumbled?`The curse twists ${name(event.actorId)}'s attack!`:`${name(event.actorId)} fights through the curse.`;
+  if(event.type==='enemy_effect_check')return event.triggered?`${actor}'s ${event.capability.replaceAll('_',' ')} takes hold.`:`${actor}'s ${event.capability.replaceAll('_',' ')} fails to take hold.`;
+  if(event.type==='enemy_status')return event.blocked?`${target}'s ${event.blocker} wards off ${event.status}.`:
+    `${target} is afflicted with ${event.status}${event.status==='slither'?` (SPD ${event.slither.speedAfter})`:''}.`;
+  if(event.type==='enemy_shard_burst')return event.warded?`${target}'s ${event.wardItem} turns the void splinter aside.`:
+    `A void splinter bursts against ${target} for ${event.appliedDamage} damage.`;
+  if(event.type==='enemy_corrosion')return `Acid corrodes ${target}'s defence (${event.after}/${event.cap}).`;
   if(event.type==='skip')return event.reason==='actor_disabled'?`${actor} cannot act.`:`${actor} cannot act: defeated.`;
   if(event.type==='cancel')return `${actor}'s action on ${target} is cancelled.`;
   if(event.type==='attack')return event.evaded?`${target} evades ${actor}'s attack.`:
@@ -184,7 +190,7 @@ function drawPartyCombatStatusRow(member,row,effect,choosing=false,resonance=nul
   for(let i=0;i<segments;i++){ctx.fillStyle=i<filled?(filled<=3?(choosing?'#d0a040':'#a06820'):(choosing?'#78c88a':'#4a9a62')):'#112820';ctx.fillRect(barX+i*12,y-9,10,8);}
   ctx.fillStyle=member.hp===0?'#66756d':'#8aaa98';ctx.font='11px "Courier New", monospace';ctx.fillText(`${member.hp} / ${member.maxHp}`,251,y,68);
   const tags={poison:'PSN',muddied:'MUD',slither:'SLI',cursed:'CUR',burn:'BURN',dazzled:'DAZ'};
-  const badges=[...(member.statuses||[]).map(s=>tags[s]||s.toUpperCase()),...(effect?.evadeTurns>0?[`EVADE ${effect.evadeTurns}`]:[]),...(resonance?.rareBorn?[`Strain ${resonance.strain}`]:[])];
+  const badges=[...(member.statuses||[]).map(s=>tags[s]||s.toUpperCase()),...(effect?.corrosion>0?[`COR ${effect.corrosion}`]:[]),...(effect?.evadeTurns>0?[`EVADE ${effect.evadeTurns}`]:[]),...(resonance?.rareBorn?[`Strain ${resonance.strain}`]:[])];
   ctx.fillStyle=member.hp===0?'#9a6868':'#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText(member.hp===0?['DOWN',...(resonance?.rareBorn?[`Strain ${resonance.strain}`]:[])].join(' '):badges.join(' '),323,y,164);
 }
 function drawPartyCombatCommands(view) {

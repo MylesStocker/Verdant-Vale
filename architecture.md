@@ -49,7 +49,9 @@ missing ordinary fields and stale registry coverage fail closed at startup or
 preparation.
 
 The canonical engine supports the mechanic registry `basic_attack`,
-`standard_observe`, `standard_rewards`, `boss_escape_lock`, and (Pass 4A) `brace`. Compatibility is
+`standard_observe`, `standard_rewards`, `boss_escape_lock`, `brace`,
+`curse_on_hit`, `void_shard_burst`, `acid_corrosion`, `slither_on_hit`,
+`poison_spell`, and `dazzle_on_hit`. Compatibility is
 set inclusion over the template's complete requirements. Template identity proves
 registration only. `ENEMY_TEMPLATE_FIELD_CAPABILITIES` maps existing behavior
 fields such as `defendChance`, `regenPerTurn` and `stealAndFlee` to explicit
@@ -67,13 +69,14 @@ identity allocation or mutation. The full 60-template classification, encounter
 sources and direct mechanic references are in
 [ENEMY_CAPABILITY_AUDIT.md](ENEMY_CAPABILITY_AUDIT.md).
 
-The 22 Pass 3 ordinary templates and eight Pass 4A Brace templates may occupy any one to three enemy slots. Duplicate
+The 22 Pass 3 ordinary templates, eight Pass 4A Brace templates and seven Pass
+4B landed-hit special templates may occupy any one to three enemy slots. Duplicate
 templates allocate independent runtime IDs, HP and Observe progress without slot
 compaction. The party renderer reuses each singleton sprite and applies one shared
 layout envelope only when no legacy Formation measurement exists. Pools and
 weights remain authored as before, so production encounters remain single-enemy.
-The remaining 15 special-capability and 15 scripted-lifecycle templates reject
-with their exact unsupported requirements. Passes 4B/4C and 5 own those mechanics
+The remaining eight special-capability and 15 scripted-lifecycle templates reject
+with their exact unsupported requirements. Pass 4C and Pass 5 own those mechanics
 and outcomes.
 
 ### Brace — Pass 4A
@@ -161,6 +164,56 @@ messages and a `BRACE` badge, and calls registered sprites with their own defaul
 optional arguments. This is required by Stone Crawler's palette parameter.
 Singleton/Formation rendering is untouched. No Lab scenario or production group
 was added; existing single-enemy pools keep their probabilities and count.
+
+### Landed-hit status and offensive riders — Pass 4B
+
+`canonicalEnemyMechanicProfile(template)` is the closed execution contract for
+supported enemy mechanics. Field-backed probabilities remain on the registered
+template; legacy parameters without template fields live in deeply frozen
+capability metadata. The resulting record is closed, immutable and keyed by
+capability. Formation preparation copies only fields mapped to supported
+capabilities. Installation maps each exact enemy runtime ID to its validated
+profile, so duplicates never share decisions or mutable state. Canonical
+resolution dispatches capabilities in stable legacy order and never dispatches
+on template identity.
+
+Shade Wraith and Corpse Slug apply Slither after a surviving landed hit with 25%
+and 30% chances. A success draws once more to sample Speed 1–20. Fen Witch uses
+the same landed-hit structure at 25% for poison; Fen Mask blocks the application
+after the chance succeeds. Void Walker and Dust-Drowned use their authored 20%
+Curse chance; Amethyst Bangle blocks the application after the draw. Void Walker
+then independently checks a 35% shard burst on every eligible landed hit. Carrying
+a Void Shard wards it without consumption or damage RNG; otherwise a second draw
+selects 8–14 extra damage. Lantern Moth checks 40% for combat-only Dazzled, whose
+only modifier is the established eight-point outgoing Attack accuracy penalty.
+Dripping Maw checks 35% for one combat-only Defence corrosion stack, capped at six.
+
+These riders do not select a distinct enemy action and do not replace Attack.
+Enemy command planning still commits only actor and exact target. With two or
+three living allies, each attacking enemy consumes one target-selection draw;
+with one living ally it consumes none. The N−1 initiative draws follow. A landed
+ordinary Attack consumes variance, critical and evasion draws, then each eligible
+rider consumes its chance draw and only the conditional secondary draws described
+above. Misses, base-hit Fallen targets, dead actors and dead committed targets
+consume no rider RNG. Cancellation never retargets or refunds earlier planning
+RNG. Playback, rendering, preparation, projection and acknowledgement draw none.
+
+Status ownership stays per canonical member: Lely uses the existing stats/status
+authority; companions use `persistentParty`. Slither's sampled Speed and Acid
+corrosion are per-member battle effects. Statuses applied during a round are
+recorded immediately for playback but excluded from already committed same-round
+command mechanics and initiative; they become active for the following round.
+Slither, poison and Curse retain existing cure/writeback/recovery rules. Dazzled
+and corrosion are transient combat state and are omitted from saves and cleanup
+writeback. No global status flag or shared-template state exists.
+
+Results record `enemy_effect_check`, `enemy_status`, `enemy_shard_burst` and
+`enemy_corrosion`. The immutable playback validator captures poison/Curse ward
+metadata with the existing item vocabulary, verifies every roll threshold and
+state transition, and projects exactly one event per frame from the historical
+frame-zero snapshot. Tampered identity, target, status, ward, sampled Speed,
+corrosion, damage or final snapshot fails closed. The renderer consumes only this
+view and adds concise event text plus a `COR` badge for corrosion.
 
 ### Structural canonical battle envelope — Pass 2
 
@@ -553,16 +606,16 @@ individual review; merely having simple template stats does not authorize routin
 At the Pass 2 identity-list checkpoint, party-supported ordinary IDs were Marsh Wisp/Briar Hound (core and early),
 Reed Grappler, Silt Lurker, Marsh Wisp (sluice top) and Sluice Slime. Other simple
 pool enemies were still unreviewed. Passes 3 and 4A supersede this paragraph with
-the capability authority and complete audit above. Brace is migrated; the
-remaining deferred mechanic list is:
+the capability authority and complete audit above. Brace and the seven Pass 4B
+landed-hit riders are migrated; the remaining deferred mechanic list is:
 
 | Capability | Existing template IDs requiring later review |
 | --- | --- |
-| Curse / acid | `enemy_void_walker`, `enemy_dust_drowned` / `enemy_dripping_maw` |
 | Splitting / regeneration | `enemy_the_seep` / `enemy_rotwood_troll` |
 | Armor and counters | `enemy_thornback` |
 | Poison and sex-specific observations | `enemy_mire_toad_male`, `enemy_mire_toad_female` |
-| Dazzle / theft-and-flight | `enemy_lantern_moth` / `enemy_basin_gull`, `enemy_basin_gull_upper` |
+| Theft-and-flight | `enemy_basin_gull`, `enemy_basin_gull_upper` |
+| Runtime-generated stats | `enemy_23` |
 
 Optional/repeatable bespoke encounters remain relevant: Pale Sentry persistent HP,
 Rainfish and spawning-toad chains, generated `23`, Seep follow-up, Den Wraith curse,

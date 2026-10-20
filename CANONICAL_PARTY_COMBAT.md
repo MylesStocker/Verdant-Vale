@@ -116,13 +116,70 @@ Historical singleton, Formation, party Attack, generalized-command and Resonance
 captures retain the exact digests below. SAVE_VERSION stays 5; transition and
 fingerprint artifacts are unchanged and have not been regenerated.
 
-Pass 4B/4C still own the other special mechanics; Pass 5 owns scripted outcomes.
+Pass 4B owns the landed-hit status/offensive riders described below; Pass 4C
+still owns the remaining special mechanics, and Pass 5 owns scripted outcomes.
 Mire Toad remains poison/reagent-blocked; Waspthra/Botfly remain unregistered.
 No optional Lab scenario was added. No browser testing was performed. Manual
 smoke checklist: compare a solo Stone Crawler fight; after recruitment find a
 natural Stone Crawler and inspect Brace before/after its scheduled slot; try
 Attack versus item damage, Observe and Run; finish victory/escape/defeat and
 save/load afterward; confirm both Labs and Receiver remain separate.
+
+## Pass 4B landed-hit status and offensive specials
+
+Seven repeatable templates now route through canonical capability compatibility:
+Shade Wraith and Corpse Slug (`slither_on_hit`), Void Walker
+(`curse_on_hit` plus `void_shard_burst`), Dripping Maw (`acid_corrosion`), Fen
+Witch (`poison_spell`), Lantern Moth (`dazzle_on_hit`) and Dust-Drowned
+(`curse_on_hit`). This raises the capability-compatible cohort to 37 templates;
+eight special-capability and fifteen scripted-lifecycle templates remain closed.
+No identity list or canonical ID switch grants support. Closed immutable mechanic
+profiles combine existing template fields with audited legacy parameters, and the
+complete formation validates before RNG, identities or installation.
+
+All seven mechanics are landed-hit riders on the enemy's ordinary Attack. They
+do not replace the Attack or add an AI branch. A miss, actor-dead skip,
+target-dead cancellation, or base hit that makes the target Fallen performs no
+rider check. On a surviving landed target, the stable legacy order is Slither,
+Fen Witch poison, Curse, Void shard burst, Dazzle, then Acid. Each applicable
+check consumes one draw; Slither consumes a second draw only on success to sample
+Speed 1–20, and an unwarded successful shard burst consumes a second draw for
+8–14 damage. Void Shard inventory wards the burst without consumption or a damage
+draw. Fen Mask and Amethyst Bangle preserve their existing poison/Curse wards.
+
+Status and corrosion ownership is exact-member state. Slither, poison and Curse
+write back through Lely's status authority or the companion's persistent-party
+record. Dazzled and corrosion are combat-only: Dazzled applies the established
+eight-point Attack accuracy penalty and corrosion subtracts one Defence per
+successful application to a cap of six. Both clear at cleanup and never enter the
+version-5 save. A rider applied after order commitment cannot reorder that round
+or alter the target's already committed action; it becomes active for command
+mechanics on the following round. Existing cure items can remove an older status
+before a later action, and a later landed hit may reapply it under the legacy rule.
+
+Enemy targeting remains independent of capabilities. Every attacking enemy first
+commits one exact living ally using the existing policy; a single living ally
+costs no target-selection draw. Weighted initiative then uses N−1 draws. Execution
+uses three ordinary Attack draws, followed by only the applicable conditional
+rider draws. Frozen targets never retarget, and committed RNG is not refunded
+when an actor or target later becomes unavailable. Duplicate templates keep
+separate runtime IDs, status decisions, corrosion and history.
+
+The detached result adds closed `enemy_effect_check`, `enemy_status`,
+`enemy_shard_burst`, and `enemy_corrosion` evidence. Frame zero remains the
+pre-round state and each later frame applies exactly one recorded event. Playback
+captures equipment ward flags once, reconstructs Slither samples and corrosion,
+and rejects altered identities, thresholds, rolls, status transitions, damage or
+final snapshots without rerunning RNG. The shared renderer adds concise rider
+messages and a `COR` badge; singleton rendering remains unchanged.
+
+Suite 188 covers all nine party/enemy sizes, six-actor scheduling, duplicate and
+mixed formations, exact target ownership, same-round timing, cancellation,
+Quickbloom/Observe/Run, wards and cures, historical rendering, outcomes,
+writeback, recovery and version-5 save/load. Production pools remain flat
+single-enemy pools with unchanged selection RNG. Pass 4C retains The Seep,
+Rotwood Troll, Thornback, both Mire Toad variants, both Basin Gull variants and
+generated enemy 23. Scripted lifecycle templates remain guarded for Pass 5.
 
 ## Pass 3 ordinary-enemy capability migration (checkpoint evidence)
 

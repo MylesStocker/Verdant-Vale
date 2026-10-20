@@ -9,18 +9,18 @@ const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
   standard_rewards:Object.freeze({canonical:true}),
   boss_escape_lock:Object.freeze({canonical:true}),
   brace:Object.freeze({canonical:true}),
-  curse_on_hit:Object.freeze({canonical:false}),
-  void_shard_burst:Object.freeze({canonical:false}),
-  acid_corrosion:Object.freeze({canonical:false}),
+  curse_on_hit:Object.freeze({canonical:true}),
+  void_shard_burst:Object.freeze({canonical:true}),
+  acid_corrosion:Object.freeze({canonical:true}),
   split_followup:Object.freeze({canonical:false}),
   regeneration:Object.freeze({canonical:false}),
   melee_armor:Object.freeze({canonical:false}),
   counterattack:Object.freeze({canonical:false}),
   poison_on_hit:Object.freeze({canonical:false}),
   mire_toad_reagent_observation:Object.freeze({canonical:false}),
-  slither_on_hit:Object.freeze({canonical:false}),
-  poison_spell:Object.freeze({canonical:false}),
-  dazzle_on_hit:Object.freeze({canonical:false}),
+  slither_on_hit:Object.freeze({canonical:true}),
+  poison_spell:Object.freeze({canonical:true}),
+  dazzle_on_hit:Object.freeze({canonical:true}),
   steal_and_flee:Object.freeze({canonical:false}),
   observe_run_lock:Object.freeze({canonical:false}),
   guaranteed_drop:Object.freeze({canonical:false}),
@@ -74,6 +74,17 @@ const ENEMY_HIDDEN_CAPABILITIES = Object.freeze(Object.fromEntries(Object.entrie
   enemy_gallery_caller:['receiver_coordination'],
   enemy_gallery_keeper:['receiver_coordination'],
 }).map(([id,capabilities])=>[id,Object.freeze(capabilities)])));
+
+// Closed authored parameters for mechanics that predate template fields. This
+// is capability metadata, not a compatibility list: the canonical resolver
+// receives the validated capability profile and never switches on enemy IDs.
+const ENEMY_HIDDEN_MECHANIC_DATA = Object.freeze(Object.fromEntries(Object.entries({
+  enemy_shade_wraith:{slither_on_hit:{chance:0.25}},
+  enemy_corpse_slug:{slither_on_hit:{chance:0.30}},
+  enemy_void_walker:{void_shard_burst:{chance:0.35,minDamage:8,maxDamage:14,wardItem:'Void Shard'}},
+  enemy_fen_witch:{poison_spell:{chance:0.25}},
+}).map(([id,mechanics])=>[id,Object.freeze(Object.fromEntries(Object.entries(mechanics)
+  .map(([capability,data])=>[capability,Object.freeze({...data})])))])));
 
 const ENEMY_CAPABILITY_BASE_FIELDS = Object.freeze([
   'id','name','hp','maxHp','atk','def','spd','xp','goldMin','goldMax',
@@ -140,12 +151,50 @@ function enemyCapabilityMetadata(template) {
 
 function canonicalEnemyCompatibility(template) {
   const metadata=enemyCapabilityMetadata(template);
+  const authored=ENEMY_CAPABILITY_REGISTRY[metadata.templateId];
+  const mechanicIds=new Set(['brace','curse_on_hit','void_shard_burst','acid_corrosion','slither_on_hit','poison_spell','dazzle_on_hit',
+    'split_followup','regeneration','melee_armor','counterattack','poison_on_hit','mire_toad_reagent_observation','steal_and_flee','generated_stats']);
+  if(authored&&JSON.stringify(authored.capabilities.filter(id=>mechanicIds.has(id)))!==
+      JSON.stringify(metadata.capabilities.filter(id=>mechanicIds.has(id))))
+    throw Error('Enemy mechanic capability metadata is stale for '+metadata.templateId);
   const unsupported=metadata.capabilities.filter(id=>!ENEMY_CAPABILITY_DEFINITIONS[id].canonical);
   return copyFormationData({templateId:metadata.templateId,compatible:unsupported.length===0,
     capabilities:metadata.capabilities,unsupported});
 }
 function canonicalEnemyIsCompatible(template) {
   try{return canonicalEnemyCompatibility(template).compatible;}catch(_){return false;}
+}
+
+function canonicalEnemyMechanicProfile(template) {
+  const metadata=enemyCapabilityMetadata(template),mechanics={};
+  const add=(capability,data)=>{if(!metadata.capabilities.includes(capability))throw Error('Enemy mechanic profile capability mismatch');mechanics[capability]=Object.freeze({...data});};
+  if(metadata.capabilities.includes('brace'))add('brace',{chance:template.defendChance});
+  if(metadata.capabilities.includes('curse_on_hit'))add('curse_on_hit',{chance:template.curseChance,status:'cursed',wardAccessory:'Amethyst Bangle'});
+  if(metadata.capabilities.includes('acid_corrosion'))add('acid_corrosion',{chance:template.acidChance,cap:6});
+  if(metadata.capabilities.includes('dazzle_on_hit'))add('dazzle_on_hit',{chance:template.dazzleChance,status:'dazzled',accuracyPenalty:8});
+  for(const [capability,data]of Object.entries(ENEMY_HIDDEN_MECHANIC_DATA[template.id]||{}))add(capability,data);
+  const expected=metadata.capabilities.filter(id=>['brace','curse_on_hit','acid_corrosion','dazzle_on_hit','slither_on_hit','poison_spell','void_shard_burst'].includes(id));
+  if(expected.length!==Object.keys(mechanics).length||expected.some(id=>!Object.hasOwn(mechanics,id)))
+    throw Error('Enemy mechanic profile is incomplete for '+template.id);
+  for(const [capability,data]of Object.entries(mechanics)){
+    if(!data||typeof data!=='object'||Array.isArray(data)||!Object.isFrozen(data)||
+        ![Object.prototype,Object.getPrototypeOf({}),null].includes(Object.getPrototypeOf(data)))throw Error('Enemy mechanic profile must be frozen plain data');
+    if(typeof data.chance!=='number'||!Number.isFinite(data.chance)||data.chance<0||data.chance>1)
+      throw Error('Enemy mechanic profile has invalid chance for '+capability);
+    const schema={brace:['chance'],curse_on_hit:['chance','status','wardAccessory'],acid_corrosion:['chance','cap'],
+      dazzle_on_hit:['chance','status','accuracyPenalty'],slither_on_hit:['chance'],poison_spell:['chance'],
+      void_shard_burst:['chance','minDamage','maxDamage','wardItem']}[capability];
+    if(!schema||Reflect.ownKeys(data).length!==schema.length||schema.some(key=>!Object.hasOwn(data,key)))
+      throw Error('Enemy mechanic profile has unknown or missing data for '+capability);
+    if(capability==='curse_on_hit'&&(data.status!=='cursed'||data.wardAccessory!=='Amethyst Bangle'))
+      throw Error('Enemy mechanic profile has invalid curse data');
+    if(capability==='dazzle_on_hit'&&(data.status!=='dazzled'||data.accuracyPenalty!==8))
+      throw Error('Enemy mechanic profile has invalid dazzle data');
+    if(capability==='void_shard_burst'&&(!Number.isSafeInteger(data.minDamage)||!Number.isSafeInteger(data.maxDamage)||
+        data.minDamage<=0||data.maxDamage<data.minDamage||typeof data.wardItem!=='string'))throw Error('Enemy mechanic profile has invalid shard burst');
+    if(capability==='acid_corrosion'&&(!Number.isSafeInteger(data.cap)||data.cap<=0))throw Error('Enemy mechanic profile has invalid corrosion cap');
+  }
+  return Object.freeze(Object.fromEntries(Object.entries(mechanics).map(([id,data])=>[id,Object.freeze({...data})])));
 }
 function requireCanonicalEnemyCapabilities(template) {
   const result=canonicalEnemyCompatibility(template);
@@ -170,6 +219,7 @@ function validateEnemyCapabilityRegistry() {
         capabilities.some(capability=>!Object.hasOwn(ENEMY_CAPABILITY_DEFINITIONS,capability)))
       throw Error('Invalid hidden enemy capability audit for '+id);
   }
+  for(const id of ids)canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[id]);
   return ids.length;
 }
 validateEnemyCapabilityRegistry();
