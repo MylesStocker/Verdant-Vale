@@ -80,19 +80,19 @@ test('the real scene walks Esla over the authored orthogonal route before recrui
  assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'walking');assert.equal(g.run('MainQuest'),4);
  assert.equal(g.run('persistentParty.getMember("esla")'),null);assert.equal(g.run('Object.keys(NPC_ROUTES).filter(id=>id===ESLA.id).length'),1);
  const trace=walk(g);assert.ok(trace.length>2);assert.deepEqual(trace[0],{x:146,y:304,facing:'right',phase:'walking'});
- assert.ok(trace.some(p=>p.x===432&&p.y===304));assert.ok(trace.some(p=>p.x===432&&p.y<304));
+ assert.ok(trace.some(p=>p.x===368&&p.y===304));assert.ok(trace.some(p=>p.x===368&&p.y<304));
  let prev=start;for(const point of trace){const dx=Math.abs(point.x-prev.x),dy=Math.abs(point.y-prev.y);assert.ok(dx+dy<=2&&!(dx&&dy),JSON.stringify({prev,point}));prev=point;}
- assert.deepEqual(J(g,'({x:ESLA.x,y:ESLA.y,facing:ESLA.facing})'),{x:432,y:112,facing:'left'});
+ assert.deepEqual(J(g,'({x:ESLA.x,y:ESLA.y,facing:ESLA.facing})'),{x:368,y:112,facing:'right'});
  assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'dialogue');assert.equal(g.run('MainQuest'),4);
  assert.equal(g.run('persistentParty.getMember("esla")'),null);assert.equal(g.run('mq5RngCalls'),0);
 });
 
-test('every route position is walkable, clear of authored solids and safe from all legal Supervisor interaction poses',()=>{
+test('every route position is walkable, clear of authored solids and ends opposite the canonical player pose',()=>{
  const g=fresh();checkpoint(g);g.run('supervisorDialogueBody();finishDialogue()');const trace=walk(g);
  const points=[{x:144,y:304},...trace.map(({x,y})=>({x,y}))];g.run('var __mq5RoutePoints='+JSON.stringify(points));
  assert.equal(g.run(`__mq5RoutePoints.every(p=>{const t=tileAt(p.x,p.y),props=TILE_PROPERTIES[t];return isTileWalkable(t)&&!(props&&props.isTransition)&&!npcRouteCustomSolidBlocks(p.x,p.y)})`),true);
- assert.equal(g.run(`(()=>{for(let x=0;x<COLS*TILE;x++)for(let y=0;y<ROWS*TILE;y++)if(Math.hypot(x-SUPERVISOR.x,y-SUPERVISOR.y)<TALK_RADIUS&&canWalk(x,y))
-  for(const p of __mq5RoutePoints)if(Math.abs(x-p.x)<18&&Math.abs(y-p.y)<18)return false;return true})()`),true);
+ assert.deepEqual(J(g,'({esla:[ESLA.x,ESLA.y],player:[player.x,player.y],opposite:ESLA.x<player.x,facing:ESLA.facing})'),
+  {esla:[368,112],player:[384,104],opposite:true,facing:'right'});
 });
 
 test('walking owns input and blocks save/load without advancing time or world state',()=>{
@@ -134,6 +134,17 @@ test('renderer projection is historical-only: walking animation and dialogue dra
  drawText(g);g.run('finishDialogue();var route=NPC_ROUTES[ESLA.id];drawEslaSprite();drawEslaSprite()');
  const after=J(g,'({MainQuest,party:persistentParty.serialize(),flags:QUEST_FLAG_BINDINGS.map(b=>b.get()),pos:[MQ5_ESLA_OFFICE_HOME.x,MQ5_ESLA_OFFICE_HOME.y]})');
  assert.deepEqual(after,before);assert.equal(g.run('mq5RngCalls'),0);assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'walking');
+});
+
+test('up-facing walking pose covers the back of Esla head with her long green hair',()=>{
+ const g=fresh();
+ const rects=J(g,`(()=>{const out=[];ctx.fillRect=(x,y,w,h)=>out.push({x,y,w,h,fill:ctx.fillStyle});
+  drawWalkingEslaFigure({x:100,y:100},'up',0);return out})()`);
+ const skinIndex=rects.findIndex(r=>r.x===95&&r.y===76&&r.w===10&&r.h===13&&r.fill==='#c09878');
+ const hairIndex=rects.findIndex(r=>r.x===95&&r.y===78&&r.w===10&&r.h===19&&r.fill==='#2a9a28');
+ assert.ok(skinIndex>=0&&hairIndex>skinIndex,'rear hair must cover the head after the base skin layer');
+ assert.ok(rects.some(r=>r.x===95&&r.y===95&&r.w===10&&r.h===3&&r.fill==='#1e7820'));
+ assert.equal(rects.some(r=>r.fill==='#181620'),false,'up-facing pose must not draw facial features');
 });
 
 module.exports={name:'MQ5 Esla speaker styling and scripted office walk',run(){for(const check of checks){try{check.run();}catch(error){error.message=check.name+': '+error.message;throw error;}}console.log('  '+checks.length+' MQ5 Esla walk/style checks passed');}};

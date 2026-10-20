@@ -264,7 +264,7 @@ style, selected independently on every page.
 
 The MQ5 scene now shows rather than narrates Esla coming to the desk. After the
 unchanged briefing, dialogue yields to a deterministic two-leg office route:
-`(4.5,9.5) → (13.5,9.5) → (13.5,3.5)`, ending left-facing beside the Supervisor's
+`(4.5,9.5) → (11.5,9.5) → (11.5,3.5)`, ending right-facing beside the Supervisor's
 desk. The real Esla projection uses the shared walking cadence; no duplicate actor
 or pathfinder exists. Input, menus and save/load remain locked until arrival,
 then the remaining attributed conversation resumes. Final acknowledgement alone

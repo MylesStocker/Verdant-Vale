@@ -4,12 +4,12 @@
 // completion still belongs to completeMq5Assignment(); this owner only divides
 // the authored conversation around Esla's visible office walk.
 const MQ5_ESLA_OFFICE_HOME = Object.freeze({x:4.5*TILE,y:9.5*TILE,facing:'up'});
-const MQ5_ESLA_OFFICE_DESTINATION = Object.freeze({x:13.5*TILE,y:3.5*TILE,facing:'left'});
+const MQ5_ESLA_OFFICE_DESTINATION = Object.freeze({x:11.5*TILE,y:3.5*TILE,facing:'right'});
 const MQ5_ESLA_OFFICE_ROUTE = Object.freeze({
   type:'scriptedRoute',
   waypoints:Object.freeze([
-    Object.freeze({x:13.5,y:9.5}),
-    Object.freeze({x:13.5,y:3.5}),
+    Object.freeze({x:11.5,y:9.5}),
+    Object.freeze({x:11.5,y:3.5}),
   ]),
   speed:2,pauseFrames:0,loop:false,
 });
@@ -98,10 +98,6 @@ const mq5AssignmentCutscene=(()=>{
     if(npcRouteCustomSolidBlocks(x,y))return false;
     for(const other of SIMPLE_NPCS){if(other.map!=='office'||!other.solid)continue;
       if(Math.abs(x-other.x)<18&&Math.abs(y-other.y)<18)return false;}
-    // Every legal Supervisor interaction pose lies within TALK_RADIUS of his
-    // anchor. The route keeps at least one AABB axis beyond TALK_RADIUS + 18,
-    // so no such pose can obstruct Esla.
-    if(Math.abs(x-SUPERVISOR.x)<TALK_RADIUS+18&&Math.abs(y-SUPERVISOR.y)<TALK_RADIUS+18)return false;
     return true;
   };
   const validatePath=()=>{
@@ -139,7 +135,10 @@ const mq5AssignmentCutscene=(()=>{
     if(phase!=='idle'||!mq5AssignmentReady()||!inOffice()||!eslaAvailableAsNpc())return false;
     try{
       validatePath();
-      if(!startTransientNpcRoute(ESLA,MQ5_ESLA_OFFICE_ROUTE))throw Error('Esla route is already installed');
+      // This exclusive cutscene intentionally brings Esla beside Lely. Player
+      // input is locked, so only this transient route ignores the ordinary
+      // moving-NPC player buffer; terrain, furniture and NPC solids still bind.
+      if(!startTransientNpcRoute(ESLA,MQ5_ESLA_OFFICE_ROUTE,true))throw Error('Esla route is already installed');
       phase='walking';lastError='';lastX=ESLA.x;lastY=ESLA.y;stalledFrames=0;startCount++;
       return true;
     }catch(error){return fail(error);}

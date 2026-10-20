@@ -703,10 +703,12 @@ The assignment presentation is owned transiently by
 `mq5-assignment-cutscene.js`. It divides the existing authored conversation into
 Supervisor, narration and Esla pages, closes dialogue after the ferry briefing,
 and lends Esla's one real office projection to the established `NPC_ROUTES`
-waypoint runtime. Esla walks right from `(4.5,9.5)` to `(13.5,9.5)`, then north
-to `(13.5,3.5)`, where she faces left beside the desk. The route is validated
-against office terrain, furniture, fixed NPCs and every legal Supervisor talk
-pose before it is installed. While it runs, it exclusively owns input and the
+waypoint runtime. Esla walks right from `(4.5,9.5)` to `(11.5,9.5)`, then north
+to `(11.5,3.5)`, where she faces right beside the desk. The route is validated
+against office terrain, furniture and fixed NPCs before it is installed. Its
+transient runtime alone may enter the ordinary
+player collision buffer so Esla can approach Lely; all other NPC routes retain
+the player-blocking rule. While it runs, it exclusively owns input and the
 simulation: menus, interactions, save/load and world advancement are blocked,
 while rendering and route animation continue. It consumes no RNG and has no
 saved midpoint. Arrival reopens the rest of the same conversation; only its final

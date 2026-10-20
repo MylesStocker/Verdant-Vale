@@ -2826,7 +2826,12 @@ function drawWalkingEslaFigure(pos,facing,step) {
   ctx.fillStyle='#c09878';ctx.fillRect(px-5,py-24,10,13);
   ctx.fillStyle='#2a9a28';ctx.fillRect(px-6,py-26,12,5);ctx.fillRect(px-7,py-22,3,20);ctx.fillRect(px+4,py-22,3,20);
   ctx.fillStyle='#1e7820';ctx.fillRect(px-7,py-4,3,4);ctx.fillRect(px+4,py-4,3,4);
-  if(facing!=='up'){
+  if(facing==='up'){
+    // Esla's long hair covers the back of her head and falls between the side
+    // locks when she walks away from the camera; no face/skin is visible.
+    ctx.fillStyle='#2a9a28';ctx.fillRect(px-5,py-22,10,19);
+    ctx.fillStyle='#1e7820';ctx.fillRect(px-5,py-5,10,3);
+  }else{
     ctx.fillStyle='#181620';ctx.fillRect(px-3+2*dir,py-18,2,2);ctx.fillRect(px+1+2*dir,py-18,2,2);
   }
 }

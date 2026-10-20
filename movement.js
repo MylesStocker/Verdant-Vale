@@ -1438,7 +1438,7 @@ window.patrolNpcTalk = patrolNpcTalk;
 // the current map's custom-code fixed solids (house furniture — see
 // npcRouteCustomSolidBlocks()). The bridge checkpoint and the brewery have no
 // such fixed solids; a house wanderer (Tomas) does, so those are honoured too.
-function npcRouteCanOccupy(npc, nx, ny) {
+function npcRouteCanOccupy(npc, nx, ny, ignorePlayerCollision = false) {
   // Regional NPC in the nearby simulation set: resolve occupancy against its OWN
   // physical map in regional world pixels (terrain, transition tiles, owner-chunk
   // confinement, the player, and other solid regional NPC poses) — never activeMap
@@ -1455,7 +1455,7 @@ function npcRouteCanOccupy(npc, nx, ny) {
     const props = (typeof TILE_PROPERTIES !== 'undefined') ? TILE_PROPERTIES[t] : null;
     if (props && props.isTransition) return false; // never enter exits/doorways
   }
-  if (Math.abs(nx - player.x) < 18 && Math.abs(ny - player.y) < 18) return false; // never push/trap the player
+  if (!ignorePlayerCollision && Math.abs(nx - player.x) < 18 && Math.abs(ny - player.y) < 18) return false; // never push/trap the player
   const mapId = currentContentLocationKey();
   for (const other of SIMPLE_NPCS) {
     if (other === npc || other.map !== mapId || !other.solid) continue;
@@ -1652,13 +1652,14 @@ function validateTransientNpcRouteDefinition(npc, movement) {
     pauseFrames:value.pauseFrames,loop:value.loop});
 }
 
-function startTransientNpcRoute(npc, movement) {
+function startTransientNpcRoute(npc, movement, ignorePlayerCollision = false) {
   const mv=validateTransientNpcRouteDefinition(npc,movement);
+  if(typeof ignorePlayerCollision!=='boolean')throw Error('Invalid transient NPC route collision policy');
   if(NPC_ROUTES[npc.id])return false;
   NPC_ROUTES[npc.id]={npc,type:'scriptedRoute',waypoints:mv.waypoints.map(wp=>({
     x:wp.x*TILE,y:wp.y*TILE,pauseFrames:0,
   })),speed:mv.speed,loop:false,idx:0,pauseLeft:0,step:0,moving:true,done:false,
-    frozen:false,resumeDelay:0,facing:npc.facing};
+    frozen:false,resumeDelay:0,facing:npc.facing,ignorePlayerCollision};
   return true;
 }
 window.validateTransientNpcRouteDefinition=validateTransientNpcRouteDefinition;
@@ -1771,7 +1772,7 @@ function updateNpcRoutes() {
     const remaining = sx !== 0 ? Math.abs(dx) : Math.abs(dy);
     if (remaining <= rt.speed) {
       // Arrival: snap exactly onto the waypoint (if the spot is clear).
-      if (!npcRouteCanOccupy(npc, wp.x, wp.y)) continue; // blocked — wait
+      if (!npcRouteCanOccupy(npc, wp.x, wp.y, rt.ignorePlayerCollision === true)) continue; // blocked — wait
       npc.x = wp.x; npc.y = wp.y;
       const dwell = rt.waypoints[rt.idx].pauseFrames; // dwell at the waypoint just reached
       rt.idx++;
@@ -1790,7 +1791,7 @@ function updateNpcRoutes() {
       continue;
     }
     const nx = npc.x + sx * rt.speed, ny = npc.y + sy * rt.speed;
-    if (npcRouteCanOccupy(npc, nx, ny)) {
+    if (npcRouteCanOccupy(npc, nx, ny, rt.ignorePlayerCollision === true)) {
       npc.x = nx; npc.y = ny;
       rt.step++; // walk-animation frame counter advances only on real steps
     }
