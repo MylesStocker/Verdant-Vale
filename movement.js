@@ -694,11 +694,11 @@ function update(deltaSeconds) {
     }
 
     player.step++;
-    if (hasStatusEffect('poison') && player.step % 60 === 0)
+    if ((stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers()) && hasStatusEffect('poison') && player.step % 60 === 0)
       stats.hp = Math.max(1, stats.hp - 1);
     if (MUDSLITHER_INFLICTABLE && inSluice && !hasStatusEffect('muddied') && Math.random() < 0.003)
       addStatusEffect('muddied');
-    if (hasStatusEffect('cursed') && player.step % 80 === 0 && Math.random() < 0.20) {
+    if ((stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers()) && hasStatusEffect('cursed') && player.step % 80 === 0 && Math.random() < 0.20) {
       const tripDmg = Math.floor(Math.random() * 2) + 2;
       stats.hp = Math.max(1, stats.hp - tripDmg);
       const tripMsgs = [

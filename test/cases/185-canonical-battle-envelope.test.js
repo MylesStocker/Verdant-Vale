@@ -80,7 +80,7 @@ for(const a of [1,2,3])for(const e of [1,2,3])test(a+' allies x '+e+' enemies: i
 test('independent side preparations do not require the other side or allocate identities',()=>{
  const g=fresh(3),before=state(g);frozen(g.run('canonicalPartyCombat.preparePlayerSide({escape:"fastest_living"})'));
  frozen(g.run('canonicalPartyCombat.prepareEnemySide(["enemy_mire_toad_male"])'));
- g.run('stats.hp=0');seed(g,'saved.party.characters.forEach(m=>m.hp=0)');
+ seed(g,'saved.party.characters.forEach(m=>m.hp=0)');g.run('stats.hp=0');
  frozen(g.run('canonicalPartyCombat.prepareEnemySide(["enemy_marsh_wisp"])'));
  reject(g,'canonicalPartyCombat.preparePlayerSide({escape:"fastest_living"})');assert.equal(g.run('rolls'),0);
  assert.equal(g.run('combatEnemyInstanceSequence'),0);assert.notEqual(state(g),before);
@@ -142,11 +142,11 @@ test('six-actor timed effects exempt their application round and tick only at co
  const frames=acknowledge(g);assert.equal(frames.at(-2).effects[0].evadeTurns,3);assert.equal(frames.at(-1).effects[0].evadeTurns,2);
  assert.equal(view(g).completedRounds,2);assert.equal(second.events.filter(e=>e.type==='round_end').length,1);
 });
-test('three-member victory grants full XP including Fallen and shared rewards once; later identities are fresh',()=>{
+test('three-member victory grants full XP only to living members and shared rewards once; later identities are fresh',()=>{
  const g=fresh(3);g.run('stats.atk=1000');seed(g,'saved.party.characters[1].hp=0');const first=enter(g,3);
  while(view(g).phase==='awaiting_action'){fill(g,'attack');resolve(g);acknowledge(g);}
  assert.equal(view(g).phase,'victory');assert.equal(g.run('saveGame()'),false);finish(g);
- assert.deepEqual(party(g).members.map(m=>m.xp),[36,36,36]);assert.equal(party(g).gold,6);assert.equal(g.run('persistentParty.serialize().rewards.length'),1);
+ assert.deepEqual(party(g).members.map(m=>m.xp),[36,36,0]);assert.equal(party(g).gold,6);assert.equal(g.run('persistentParty.serialize().rewards.length'),1);
  const after=state(g);assert.equal(g.run('canonicalPartyCombat.finish()'),false);assert.equal(state(g),after);
  assert.equal(g.run('saveGame()'),true);assert.equal(g.run('loadGame()'),true);const second=enter(g,3);
  assert.ok(second.party.every(m=>!first.party.some(old=>old.instanceId===m.instanceId)));
@@ -182,7 +182,7 @@ test('invalid enemy sides, complete arithmetic, ownership and finalizer descript
  for(const setup of ['ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp.hp=0','stats.hp=0;saved.party.characters.forEach(m=>m.hp=0)',
   'stats.spd=Number.MAX_SAFE_INTEGER-10','stats.atk=Number.MAX_SAFE_INTEGER','stats.items=[{...ITEM_REGISTRY.Potion,heal:999}]',
   'dialogue.open=true','combatEnemyInstanceSequence=Number.MAX_SAFE_INTEGER-2']){
-  const g=fresh(3);if(setup.includes('saved.party')){g.run('stats.hp=0');seed(g,'saved.party.characters.forEach(m=>m.hp=0)');}else g.run(setup);
+  const g=fresh(3);if(setup.includes('saved.party')){seed(g,'saved.party.characters.forEach(m=>m.hp=0)');g.run('stats.hp=0');}else g.run(setup);
   reject(g,'canonicalPartyCombat.enter({enemies:["enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp"],escape:"blocked"})');
  }
  const g=fresh(3);enter(g,3);reject(g,'canonicalPartyCombat.enter({enemies:["enemy_marsh_wisp"],escape:"blocked"})');
@@ -206,8 +206,8 @@ test('actual six-actor cumulative initiative overflow rejects before IDs even wh
  const h=fresh(3);h.run('stats.spd=Number.MAX_SAFE_INTEGER-10');reject(h,'canonicalPartyCombat.preparePlayerSide({escape:"blocked"})');
 });
 test('a prepared plan cannot authorize stale canonical state or replacement identities',()=>{
- const g=fresh(3);g.run('var plan=canonicalPartyCombat.prepare({enemies:["enemy_marsh_wisp"],escape:"blocked"});stats.hp=0');
- seed(g,'saved.party.characters.forEach(m=>m.hp=0)');reject(g,'canonicalPartyCombat.enter(plan)');
+ const g=fresh(3);g.run('var plan=canonicalPartyCombat.prepare({enemies:["enemy_marsh_wisp"],escape:"blocked"})');
+ seed(g,'saved.party.characters.forEach(m=>m.hp=0)');g.run('stats.hp=0');reject(g,'canonicalPartyCombat.enter(plan)');
  reject(g,'canonicalPartyCombat.enter({enemies:plan.ids,escape:plan.escape})');
 });
 

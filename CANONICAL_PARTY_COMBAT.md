@@ -1,5 +1,136 @@
 # Canonical party combat integration review
 
+## Pass 6 — living rewards, Fallen field operation and universal verification
+
+Pass 5 was verified at 190/190 suites and checkpointed as
+`4512eabc75d4a194e72f14ce98589822e6e4d59a`
+(`feat(combat): migrate scripted encounters to canonical party battles`).
+Pass 6 is an uncommitted policy increment. This section supersedes earlier
+checkpoint descriptions of XP for Fallen members and victory revival.
+
+**Rewards and progression.** After final playback acknowledgement, the exact
+session and canonical-state seal authenticate writeback. Reward eligibility comes
+from the terminal snapshot: each defeated, reward-eligible enemy contributes its
+authored XP once; every living active member receives that full sum, Fallen
+members receive zero. Shared gold and item drops resolve once in fixed enemy-slot
+order, with the original gold draw followed by the drop draw (or guaranteed drop).
+Party size never multiplies shared rewards. Voluntary Run and defeat grant none.
+The approved mixed-Gull departure exception rewards only defeated instances;
+Seep successors retain separate battle receipts. Scripted fees, payouts, guaranteed
+objectives and chain callbacks retain their existing authenticated owner.
+
+The existing saved receipt ledger prevents duplicate grants. Shared gold/items
+commit before XP/growth; unexpected growth or scripted-finalizer failure retains
+its diagnostic and spent work, blocks unsafe retry and refuses saving. There is
+no rollback or reward reroll. Initial terminal acknowledgement performs the one
+transaction; subsequent acknowledgement and rendering perform no reward RNG.
+
+Lely still uses `stats` and `checkLevelUp`, including three growth draws per
+level and the established +10 HP rule. Companions still use their authored
+`persistentParty` progression and HP increase by the max-HP gain. Both authorities
+already support multiple levels per award; no new curve was added. Member-specific
+pages are ordered by fixed party slot, one page per level, ahead of existing story
+or chained-battle aftermath. Closing those pages does not repeat progression.
+
+**Fallen and recovery.** Zero HP retains the member and slot; victory does not
+revive. `partyTerminalOutcome` is shared by both party resolvers and their
+historical validators: no living ally means defeat first, including simultaneous
+all-party/all-enemy death; otherwise enemy victory/departure conditions apply.
+Singleton and Receiver Formation retain their separate unchanged authorities.
+Membership, not the living-member count, continues to select canonical combat.
+
+Fallen Lely can move, interact, open the menu, save/load, use the ferry and enter
+another battle while a companion survives. No input/movement/transition HP lock
+was found. Field poison/Curse and cat-scratch minimum-one damage no longer revive
+Fallen Lely; solo behavior is unchanged. Existing beds, inns, infirmary and other
+authored treatment retain their restoration behavior, as explicitly approved.
+Items and Quickbloom remain non-reviving. Stable all-Fallen saves are rejected
+before load writers, and saving an all-Fallen field state is refused.
+
+Defeat commits completed actions, restores every member through their existing
+owner, clears established recoverable statuses/sampled Slither, sets shared gold
+to zero, advances one day and uses the existing home/stay recovery destination and
+messages once. It grants no rewards or completion and does not refund spent items.
+Scripted defeat finalizers accept that authenticated recovery movement.
+
+| State | Victory / Run writeback | Full-party defeat |
+| --- | --- | --- |
+| HP, fixed membership, equipment | Exact terminal values; zero stays zero | HP maximum for every member; equipment and membership retained |
+| Shared inventory / gold | Completed consumption/exchanges/theft; eligible rewards once | No item refund; existing zero-gold consequence |
+| Poison, Curse, Slither / sample, Muddied | Existing persistent ownership retained | Established recovery clears and resets sample to 1 |
+| Burn, Dazzled, corrosion, Brace, Bullet Time, Bomb, Strain | Combat-only cleanup; never saved | Cleared through cleanup/recovery |
+| Observation | Existing authored enemy/quest authority; no new saved observation field | Same existing authority |
+| Drafts, reservations, playback, runtime IDs/tokens | Cleared after safe finalization; monotonic IDs never rewind | Same; faults retain diagnostics rather than masquerading as completion |
+
+**Coverage and route audit.** The registry remains 60: 45 ordinary mechanical
+records (44 static plus authenticated generated 23), nine Category A scripted
+records and six Category B pre-recruitment-only records. The complete template
+and starter tables in `ENEMY_CAPABILITY_AUDIT.md` and
+`SCRIPTED_COMBAT_ENTRY_AUDIT.md` remain authoritative; all 12 reachable scripted
+routes, including Mulholland, the Toad chain and trapped Drowned, retain Pass 5
+coverage. No capability approval list or new enemy-ID dispatch was introduced.
+Takomo now uses the existing registered generic silhouette in the shared party
+renderer; singleton rendering is unchanged.
+
+The new case 191 exhausts all 16,214 unordered formations of one through three
+of the 44 static ordinary templates for each party size: **48,642 complete dry
+preparations**, with no RNG, identities or mutation. It also installs each static
+template for all three sizes (132 installations), tests authenticated generated
+records in mixed groups, and retains ordered/duplicate execution coverage from
+185–190. All 20 production flat pools (60 entries) normalize without changing
+selection or weighting; the 80 encounter-enabled metadata entries retain their
+existing dispatchers. North Basin Donkey and rare-23 overrides are unchanged;
+generated 23 retains seven authenticated draws. Eastern maps inherit a dormant
+pool profile but `allowRandomEncounters: false` remains authoritative; no pool,
+formation, map, encounter permission or artifact was edited.
+
+The simulated end-to-end test performs actual assignment/pay callbacks, the
+fort leave/report route, rest-week assignment, earned singleton XP, authentic
+Receiver Formation victory/report, story cutaway completion, MQ5 recruitment,
+party menu/save/load, geographic combat, Quickbloom/Strain, rewards, Fallen field
+movement/ferry/save/load, a subsequent battle and exactly-once total defeat.
+Travel uses validated placements, not a claim of manual walking; quest flags,
+levels, recruitment and combat outcomes are not seeded. Three-member tests use
+an isolated authored fixture, never a production third character.
+
+SAVE_VERSION remains **5** with no new fields or migration. Geographic artifacts
+and all five historical combat capture digests are unchanged. No browser testing
+was performed. Manual checks: play a solo fight; recruit Esla via MQ5; try a
+backtracking ordinary and optional scripted fight; check all commands and
+Quickbloom recovery; win with one Fallen; check member-specific level pages;
+move/menu/save/load/ferry with Fallen Lely; rest/treat her; lose the full party;
+check both Labs and Receiver remain isolated.
+
+### Pass 6 verification result
+
+- Complete regression: **191/191**, including all cases 162–191 and every legacy
+  combat, progression, field, save/load, ferry, recruitment and scripted suite.
+- Case 191: **25 checks**, 48,642 dry preparations and 132 actual installations.
+- Syntax: all **14** changed/new JavaScript files pass `node --check`.
+- `validateGameData()`: **0 errors, 4 established warnings**.
+- Regional catalogue test: **107/107** stored fingerprints match.
+- Read-only transition audit: 208 maps, 256 fixed transitions, 8 preserved-coordinate
+  transitions, 224 edge segments, 42 house doors; reset isolation passes,
+  zero hard regional incompatibilities. Its output was redirected outside the
+  repository; tracked artifacts were not regenerated.
+- `git diff --check`, conflict-marker, ordinary-compatibility authority, non-combat
+  HP-reader, reward/progression/finalizer writer and exact file-scope reviews pass.
+- Historical capture checks reran the existing 139–141, 147, 164, 172 and 180
+  scenarios; complete captured data retain these supplied SHA-256 digests:
+
+| Capture | Count | SHA-256 |
+| --- | --- | --- |
+| Singleton | 52 traces / 387 checkpoints / 482 RNG values | `2034f8f2639c78e6d8b69d4d25a47f7d9e8ec53548f4227376faa30a8b288a66` |
+| Formation | 133 | `403050ca0c4c346ad886eff4f2083736103bdb93aa50d387761b5d5215e6e36e` |
+| Party Attack | 586 | `b97f7bdc7c8012218a32c663d3a2b52a9f61e1c826993d40e956dc03caa13d8f` |
+| Generalized commands | 1,271 | `b084ef1cfd7a1694a7a5a0a63c0267fd8a0c12368861a56f6542edb34548e4ea` |
+| Resonance | 130 | `026f44f41da431c818e33de08fe2679065cd461d9a2d638627b7b6ba0a168f74` |
+
+Tracked fingerprint artifact: `cd2038ef431700a07b29849c996113702cb692f042f836ae61df4995c1bb1ae1`.
+Tracked transition artifact: `6dd95428521b8971bc7bd6ee6040928f4311b1f7787b0798c35e817a51377337`.
+Both equal HEAD byte-for-byte. SAVE_VERSION is 5. Pass 6 remains unstaged and
+uncommitted; no push, merge or rebase was performed, and other worktrees were untouched.
+
 ## Pass 5 — authenticated scripted encounter lifecycles
 
 Pass 4C was checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`.
@@ -151,7 +282,7 @@ previously committed draws.
 The intended Mire Toad ×3 fixture now executes; Waspthra/Botfly remain unregistered.
 No production formation, pool, geography, stats, save fields or new content was
 added. At the Pass 4C checkpoint all 15 scripted lifecycles were deferred to Pass 5;
-the Pass 5 section above now supersedes that routing state. Pass 6 still owns the
+the Pass 5 section above now supersedes that routing state. Pass 6 above supersedes the earlier deferral of the
 remaining universal rewards/XP/Fallen/recovery policies. Both Labs and Receiver stay isolated.
 
 No browser testing was performed. Optional smoke: pre-MQ5 singleton; recruited
@@ -595,8 +726,8 @@ after all checks pass.
 
 Canonical resources remain unchanged during commands and historical playback.
 The bridge commits completed actions once at terminal acknowledgement; repeated
-acknowledgements cannot reapply them. Victory revives Fallen members to 1 HP under
-the existing lifecycle policy, grants full encounter XP to every starting member,
+acknowledgements cannot reapply them. Under Pass 6, victory retains Fallen members
+at zero HP and grants full encounter XP only to members living at finalization,
 and rolls shared gold and the existing 12% Potion drop once per defeated enemy.
 Party size never multiplies shared rewards. Reward receipts use the existing
 persistent ledger; runtime combat identities do not enter it.
@@ -691,7 +822,7 @@ five-command contract.
    Briar Hound); confirm positions 108/256 and independent HP.
 4. Exercise Attack, Resonance, Item, Observe and Run; confirm Lely has no Resonance.
 5. Wound an ally, use Esla's Quickbloom, and complete its following recovery round.
-6. Win; confirm full XP for both starting members, shared rewards once, and
+6. Win; confirm full XP for both living members, shared rewards once, and
    persistent HP/equipment/inventory after repeated confirmation.
 7. Escape after using an item; confirm consumption/HP persist and no rewards.
 8. Let every member fall; confirm membership, full recovery, one lost-gold/day

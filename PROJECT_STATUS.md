@@ -6,6 +6,25 @@ actually fits together.
 
 ## Current state
 
+### Canonical party completion policy — Pass 6 (uncommitted)
+
+Pass 5 checkpoint: `4512eabc75d4a194e72f14ce98589822e6e4d59a` (verified 190/190).
+Full XP now goes to every living terminal member; Fallen members receive none
+and remain at zero after victory. Shared rewards stay once per defeated instance.
+Independent multi-level notices precede existing story aftermath. No-survivor
+defeat wins terminal ties and recovers every member once under existing policy.
+Fallen Lely remains operational in the field with a living companion. Stable
+all-Fallen saves reject atomically; existing rest/treatment restores Lely, while
+items and Quickbloom cannot revive. Takomo uses the existing generic party sprite.
+Case 191 exhausts 48,642 dry formation preparations plus 132 installations and
+simulates actual MQ1–MQ5 callbacks, Receiver, recruitment, backtracking battle,
+Fallen field/save/ferry and full-party recovery. See `CANONICAL_PARTY_COMBAT.md`
+for ownership, cleanup, route totals and the manual checklist. No new content,
+geography, save fields, version increment or browser-testing claim. Verification:
+191/191 suites, 25 new checks, 0 data errors / 4 established warnings, 107/107
+fingerprints, read-only transition audit and all five historical capture digests
+unchanged. All 14 changed/new JavaScript syntax checks and diff checks pass.
+
 ### Scripted canonical-party encounter migration — Pass 5
 
 Pass 4C is checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`.
@@ -45,7 +64,7 @@ round-end HP; Thornbacks counter immediately against each melee attacker; Toads
 retain per-instance poison/Observe/reagents; Gulls steal gold and allow a full
 subsequent round before flight; generated 23 requires authenticated selected data.
 The user explicitly approved defeated-enemy-only rewards after mixed-formation
-Gull departure; voluntary Run still pays nothing. Other Pass 6 policies are deferred.
+Gull departure; voluntary Run still pays nothing. Pass 6 policies are now described above.
 
 Suite 189 tests all eight templates at all nine side sizes, deterministic mechanics,
 duplicates, historical playback, malformed data, ownership, rewards and handoffs.
@@ -140,7 +159,7 @@ and enables Esla's existing Quickbloom/Strain through the standard controller.
 Lely remains non-Rareborn. The approved party presentation is shared with the Lab;
 canonical input, outcomes and rewards have independent lifecycle ownership.
 
-Authenticated terminal writeback, full XP for all starting members, shared rewards,
+Authenticated terminal writeback, full XP for living terminal members, shared rewards,
 escape and full-party defeat recovery are one-time operations. Failures retain
 diagnostics and prohibit retry or saving/loading. No save fields, maps, terrain,
 enemy stats, balance, quest/dialogue or new content changed; `SAVE_VERSION` is 5.
@@ -273,8 +292,8 @@ her existing stats/status/equipment authorities. Shared inventory/gold stay in
 `stats`. Esla has isolated provisional level progression, anchored at level 5 to
 50 HP / 10 ATK / 4 DEF / 8 SPD, with no initial gear or resource grant.
 
-Full XP reaches every active member, including KOs; each levels independently.
-Victory commitment revives KOs to exactly 1 HP, while full recovery restores all
+Full XP reaches every living active member; Fallen members receive none.
+Victory retains Fallen HP at zero, while full recovery restores all
 HP and clears ordinary removable statuses. Private combat tickets bind the real
 generalized session and reject stale, incomplete, substituted, Lab and replayed
 results. Canonical state is unchanged until one atomic acknowledged commitment;

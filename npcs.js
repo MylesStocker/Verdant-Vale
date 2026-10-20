@@ -1547,7 +1547,7 @@ const SHARED_NPCS = [
         dialogue.name  = '';
         dialogue.pages = [['The black cat presses into the corner, flattens its ears, and gives a low, unbroken growl. Best leave it be.']];
       } else {
-        stats.hp = Math.max(1, stats.hp - 2);
+        if(stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers())stats.hp = Math.max(1, stats.hp - 2);
         dialogue.name  = '';
         dialogue.pages = [['You reach for the black cat anyway. It lashes out — a hot line of pain rakes the back of your hand. (−2 HP)']];
       }

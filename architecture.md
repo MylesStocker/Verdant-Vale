@@ -1,5 +1,18 @@
 # Architecture
 
+## Canonical party finalization policy (Pass 6)
+
+See the current Pass 6 contract in `CANONICAL_PARTY_COMBAT.md`.
+`partyTerminalOutcome` gives no-survivor defeat precedence in party resolution
+and historical validation. `persistentParty.commitCombat` retains zero HP;
+`awardRewards` grants full XP only to living terminal members, shared resources
+once, and detached per-member/per-level presentation in stable slot order.
+Canonical finalization prepends those pages without replacing authenticated
+story callbacks. A failed reward commit keeps its receipt evidence and refuses
+save/retry. `hasLivingMember` gates stable-field saving; load preparation rejects
+all-Fallen data before writers. Field poison/Curse/cat damage preserve zero HP;
+authored rest/treatment still restores Lely. No new persistent schema exists.
+
 ## Authenticated scripted party encounters (Pass 5)
 
 `scriptedPartyEncounters` is the sole story-lifecycle owner for scripted fights
@@ -55,7 +68,7 @@ allocation occurs before validation. Selection RNG remains upstream of entry.
 The standard session owns commands, exact targets, effects and historical playback.
 Canonical resources remain with `stats`/`statusEffects`/`slitherSpd` and
 `persistentParty`; authenticated terminal commitment occurs once. Victory grants
-full XP to every starting member and shared rewards once through the existing
+full XP to every living terminal member and shared rewards once through the existing
 reward ledger; escape grants none. Defeat recovers all members and uses the shared
 `applyCombatDefeatWorldRecovery()` time/gold/location authority. It never invokes
 singleton cleanup. A failed resolution/finalization retains evidence, blocks
@@ -273,7 +286,7 @@ Gull battles; authenticated `persistentParty.commitCombat()` writes it once to
 existing `stats.gold`. Killing a Gull returns its stolen amount once. As explicitly
 authorized, resolving a mixed formation after departure grants rewards only for
 defeated slots, through the existing reward ledger. Voluntary Run pays nothing.
-Other universal reward/Fallen/recovery policies remain deferred to Pass 6.
+The Pass 6 policy above now governs universal rewards, Fallen state and recovery.
 
 `canonical-enemy-records.js`, loaded after capability metadata, issues immutable
 private-provenance records for selected generated 23 and smaller Seep successors.
@@ -535,9 +548,9 @@ Lifecycle APIs:
   Lely-only. Reset clears the roster/receipt ledger, leaving the existing Lely
   new-game initialization authority in place.
 - `awardExperience(id,xp)` / `awardRewards({id,xp,gold,items})` give every recruited
-  member full XP, including knocked-out members. Lely uses unchanged `checkLevelUp`
+  living member full XP; knocked-out members receive none. Lely uses unchanged `checkLevelUp`
   (three existing growth draws per level); Esla grows independently/deterministically.
-  KO HP stays zero during XP. The saved receipt prevents repeat XP, gold and item
+  KO HP and progression stay unchanged. The saved receipt prevents repeat XP, gold and item
   grants; a reused ID with different contents rejects. Headless results identify
   each member with before/after values. Invalid awards reject before RNG/mutation.
   Unexpected host RNG failure retains evidence and blocks retry; it does not rewind
@@ -566,8 +579,7 @@ Canonical state remains untouched throughout the prepared combat. Commitment
 checks its initial persistent-state seal, exact membership, authenticated session,
 final historical acknowledgement and current sealed final snapshot before writes.
 It commits personal HP/statuses/equipment and shared inventory exactly once,
-retaining unselectable key items. Victory alone revives zero-HP members to exactly
-1; surviving HP is preserved. Burn, Dazzled and encounter-local effects end at cleanup;
+retaining unselectable key items. Victory retains zero-HP members; surviving HP is preserved. Burn, Dazzled and encounter-local effects end at cleanup;
 ordinary persistent statuses and retained Slither samples keep their owners.
 Completed-round count is returned in the receipt, not saved as ongoing combat.
 XP/gold/drop awards are separate. Stale, replaced, malformed, incomplete, Lab or

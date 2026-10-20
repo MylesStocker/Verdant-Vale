@@ -5,6 +5,15 @@
 // turn-resolution logic (combatOptions, applyEnemyHitEffects, observe text,
 // handleCombatAction).
 
+// Shared canonical-party terminal precedence, also used by historical validators.
+// Singleton and Receiver Formation keep their existing outcome authorities.
+function partyTerminalOutcome(party,enemies,hp=actor=>actor.hp,available=actor=>hp(actor)>0&&!actor.unusual?.departed) {
+  if(!party.some(actor=>hp(actor)>0))return 'defeat';
+  if(enemies.every(actor=>hp(actor)===0))return 'victory';
+  if(enemies.every(actor=>!available(actor)))return 'escape';
+  return 'ongoing';
+}
+
 // ─── Enemy templates ─────────────────────────────────────────────────────────
 // ─── Removal Contract quest objects ───────────────────────────────────────────
 // Briar Warden — territorial fen creature denning in the hidden spring meadow
@@ -878,7 +887,7 @@ const combatPlayerState = (() => {
         const activeStatuses=m=>m.statuses.filter(id=>s.statusApplications[m.definition.slot][id]!==round);
         const values=m=>ally(m)?effective(m,equipment(s,m.definition.slot),activeStatuses(m)):m;
         const available=m=>m.hp>0&&!s.unusual.get(m.instanceId)?.departed;
-        const terminal=()=>enemyMembers.every(m=>m.hp===0)?'victory':roster.every(m=>m.hp===0)?'defeat':enemyMembers.every(m=>!available(m))?'escape':'ongoing';
+        const terminal=()=>partyTerminalOutcome(roster,enemyMembers,m=>m.hp,available);
         const recoverGold=()=>{for(const enemy of enemyMembers){const state=s.unusual.get(enemy.instanceId);
           if(enemy.hp===0&&state?.stolenGold>0){const before=state.stolenGold,goldBefore=s.gold;s.gold+=before;state.stolenGold=0;
             events.push({type:'gold_recovered',actorId:enemy.instanceId,amount:before,goldBefore,goldAfter:s.gold});}}};
@@ -1653,8 +1662,7 @@ const combatPlayerState = (() => {
           target.hp=Math.max(0,hpBefore-(evaded ? 0 : damage));
           events.push({type:'attack',...action,attemptedDamage:damage,appliedDamage:hpBefore-target.hp,
             critical,evaded,hpBefore,hpAfter:target.hp});
-          if (enemyMembers.every(enemy=>enemy.hp===0)) outcome='victory';
-          else if (roster.every(member=>member.hp===0)) outcome='defeat';
+          outcome=partyTerminalOutcome(roster,enemyMembers);
           if (outcome !== 'ongoing') break; // existing formation contract truncates the remaining plan
         }
         events.push({type:'round_end',roundBefore:round-1,roundAfter:round,outcome});
@@ -1886,8 +1894,7 @@ const partyAttackPlayback = (() => {
       if(projectedHp.get(event.targetId)!==event.hpAfter)fail();
       projectedHp.set(event.targetId,event.hpBefore);
     }
-    const outcome=()=>result.enemies.every(m=>projectedHp.get(m.instanceId)===0)?'victory':
-      result.party.every(m=>projectedHp.get(m.instanceId)===0)?'defeat':'ongoing';
+    const outcome=()=>partyTerminalOutcome(result.party,result.enemies,m=>projectedHp.get(m.instanceId));
     if(outcome()!=='ongoing')fail();
     const living=[...result.party,...result.enemies].filter(m=>projectedHp.get(m.instanceId)>0);
     if(living.length!==commands.length || living.some((m,i)=>commands[i].actorId!==m.instanceId) ||
@@ -2070,7 +2077,7 @@ const partyCommandPlayback = (() => {
     const statusApplications=state.party.map(()=>Object.create(null));
     const member=id=>[...state.party,...state.enemies].find(m=>m.instanceId===id);
     const available=m=>m.hp>0&&!m.unusual?.departed;
-    const outcome=()=>state.enemies.every(m=>m.hp===0)?'victory':state.party.every(m=>m.hp===0)?'defeat':state.enemies.every(m=>!available(m))?'escape':'ongoing';
+    const outcome=()=>partyTerminalOutcome(state.party,state.enemies,m=>m.hp,available);
     if(outcome()!=='ongoing')fail();
     keys(r.command,['type','allyActions','enemyActions']);if(r.command.type!=='party-round')fail();
     list(r.command.allyActions,1,3);list(r.command.enemyActions,1,3);

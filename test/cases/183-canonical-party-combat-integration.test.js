@@ -75,18 +75,18 @@ test('unsupported capabilities, stale identities, malformed parties, unsafe arit
   '{enemies:["enemy_marsh_wisp"],get escape(){throw Error("accessor")}}',
  ]){const g=fresh(),before=state(g);assert.throws(()=>g.run('canonicalPartyCombat.enter('+request+')'));assert.equal(state(g),before);assert.equal(g.run('rolls'),0);}
 });
-test('Attack victory writes each member once, grants full XP including Fallen, shares gold/items once and saves cleanly',()=>{
+test('Attack victory writes each member once, grants full XP only to living members, shares gold/items once and saves cleanly',()=>{
  const g=fresh();g.run('stats.atk=100;');seed(g,'saved.party.characters[0].hp=0');
  const before=party(g);enter(g);assert.equal(g.run('saveGame()'),false);assert.equal(g.run('loadGame()'),false);
  attacks(g);resolve(g);acknowledge(g);assert.equal(view(g).phase,'victory');assert.deepEqual(party(g),before);
  const historical=g.run('combatPlayerState.session.getView().playbackFrame');
  const receipt=finish(g);assert.equal(receipt.outcome,'victory');assert.equal(view(g).active,false);
- assert.deepEqual(party(g).members.map(m=>m.xp),[12,12]);assert.equal(party(g).gold,2);assert.equal(party(g).members[1].hp,1);
+ assert.deepEqual(party(g).members.map(m=>m.xp),[12,0]);assert.equal(party(g).gold,2);assert.equal(party(g).members[1].hp,0);
  assert.equal(party(g).inventory.length,0);assert.equal(g.run('persistentParty.serialize().rewards.length'),1);
  const after=state(g),rolls=g.run('rolls');assert.equal(g.run('canonicalPartyCombat.finish()'),false);input(g,'confirm');assert.equal(state(g),after);assert.equal(g.run('rolls'),rolls);
  assert.equal(historical.party[1].hp,0);assert.equal(g.run('saveGame()'),true);assert.equal(g.run('loadGame()'),true);
  assert.equal(g.run('SAVE_VERSION'),5);assert.doesNotMatch(g.run('localStorage.getItem("verdantVale_save")'),/combat_party_|combat_enemy_|playbackFrame|appliedRound/);
- const first=receipt.writeback;enter(g);assert.notEqual(view(g).party[0].instanceId,'combat_party_1');assert.equal(first.members[1].hp,1);
+ const first=receipt.writeback;enter(g);assert.notEqual(view(g).party[0].instanceId,'combat_party_1');assert.equal(first.members[1].hp,0);
 });
 test('all enemies must fall before group victory; rewards are per encounter enemy, never per ally',()=>{
  const g=fresh();g.run('stats.atk=100;stats.def=100;');enter(g,['enemy_marsh_wisp','enemy_briar_hound']);
@@ -94,12 +94,12 @@ test('all enemies must fall before group victory; rewards are per encounter enem
  attacks(g);resolve(g);acknowledge(g);assert.equal(view(g).phase,'victory');finish(g);
  assert.deepEqual(party(g).members.map(m=>m.xp),[28,28]);assert.equal(party(g).gold,8);assert.equal(g.run('persistentParty.serialize().rewards.length'),1);
 });
-test('reward drops are shared once and full XP levels every starting member through existing growth authorities',()=>{
+test('reward drops are shared once and full XP levels only living members through existing growth authorities',()=>{
  const g=fresh();g.run('stats.atk=1000;');seed(g,'saved.party.characters[0].hp=0');enter(g,['enemy_mulholland']);
  attacks(g);resolve(g);acknowledge(g);g.run('Math.random=()=>{rolls++;return 0}');g.run('canonicalPartyCombat.finish()');
- assert.deepEqual(party(g).members.map(m=>[m.level,m.xp]),[[2,180],[2,180]]);
+ assert.deepEqual(party(g).members.map(m=>[m.level,m.xp]),[[2,180],[1,0]]);
  assert.deepEqual(party(g).inventory,['Potion']);assert.equal(party(g).gold,30);
- assert.equal(party(g).members[1].maxHp,35);assert.equal(party(g).members[1].atk,7);
+ assert.equal(party(g).members[1].maxHp,30);assert.equal(party(g).members[1].atk,6);
  assert.equal(g.run('persistentParty.serialize().rewards.length'),1);
 });
 test('Item reservation, independent equipment/status ownership and completed consumption persist through escape',()=>{

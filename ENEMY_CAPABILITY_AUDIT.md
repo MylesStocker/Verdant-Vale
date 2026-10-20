@@ -1,5 +1,13 @@
 # Enemy capability audit
 
+Pass 6 re-verifies this unchanged 60-template classification: 45 ordinary
+(44 static plus authenticated 23), nine token-owned Category A scripts, six
+pre-recruitment-only Category B scripts. Case 191 checks 48,642 dry preparations
+and 132 installations; cases 184–190 retain capability, lifecycle and ordered
+execution evidence. All 20 flat pools remain supported with unchanged selection.
+Takomo uses the existing generic silhouette in shared party presentation.
+No template, capability, reward value, pool or geography was changed.
+
 Pass 3 audited the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Pass 4A added
 Brace and Pass 4B adds the seven established landed-hit riders; all fifteen
 migrated rows below are now ordinary under the implemented capability contract. Mechanical

@@ -185,7 +185,7 @@ test('victory truncates, rewards/writeback happen once, saves omit Brace and lat
   const g=fresh(3);g.run('stats.atk=100');seed(g,'saved.party.characters[1].hp=0');const first=enter(g);draft(g);draft(g);
   const r=round(g,guardHit());assert.equal(r.outcome,'victory');assert.equal(r.events.filter(e=>e.type==='attack').length,1);assert.equal(r.events.filter(e=>e.type==='brace').length,0);
   assert.equal(r.events.find(e=>e.type==='brace_end').reason,'cleanup');assert.equal(g.run('saveGame()'),false);assert.equal(g.run('loadGame()'),false);ack(g);const receipt=finish(g);
-  assert.equal(receipt.outcome,'victory');assert.deepEqual(party(g).members.map(m=>m.xp),[20,20,20]);assert.equal(party(g).gold,6);assert.equal(g.run('persistentParty.serialize().rewards.length'),1);
+  assert.equal(receipt.outcome,'victory');assert.deepEqual(party(g).members.map(m=>m.xp),[20,20,0]);assert.equal(party(g).gold,6);assert.equal(g.run('persistentParty.serialize().rewards.length'),1);
   const after=state(g);assert.equal(g.run('canonicalPartyCombat.finish()'),false);assert.equal(state(g),after);assert.equal(g.run('saveGame()'),true);assert.doesNotMatch(g.run('localStorage.getItem("verdantVale_save")'),/braced|defendChance|combat_enemy_/);assert.equal(g.run('loadGame()'),true);
   g.run('dialogue.open=false');const next=enter(g);assert.ok(next.enemies[0].instanceId!==first.enemies[0].instanceId);assert.equal(next.enemies[0].braced,false);
   reject(g,'combatPlayerState.session.submitAttack('+JSON.stringify({actorId:next.party[0].instanceId,targetId:first.enemies[0].instanceId})+')');

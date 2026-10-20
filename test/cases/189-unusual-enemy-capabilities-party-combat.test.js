@@ -154,7 +154,7 @@ test('Gull killed during grace returns only its stolen gold; flight retains slot
 
 test('Seep has an authenticated separate successor, stale callback cannot duplicate it, saves wait for the handoff',()=>{
  const g=fresh(1);sturdy(g);g.run('stats.atk=500');enter(g,['enemy_the_seep']);const first=view(g).enemies[0].instanceId;draft(g);let r=resolve(g,HIT,{initiative:'allies'});assert.equal(r.outcome,'victory');ack(g);const receipt=finish(g);assert.equal(receipt.rewards.xp,170);
- assert.equal(g.run('canonicalPartyCombat.hasPendingHandoff()'),true);assert.equal(g.run('saveGame()'),false);g.run('var oldCallback=dialogue.callbacks[0];handleInteract()');const second=view(g).enemies[0];assert.notEqual(second.instanceId,first);assert.equal(second.hp,20);assert.equal(second.xp,20);assert.equal(g.run('oldCallback()'),false);
+ assert.equal(g.run('canonicalPartyCombat.hasPendingHandoff()'),true);assert.equal(g.run('saveGame()'),false);g.run('var oldCallback=dialogue.callbacks[0];while(dialogue.open)handleInteract()');const second=view(g).enemies[0];assert.notEqual(second.instanceId,first);assert.equal(second.hp,20);assert.equal(second.xp,20);assert.equal(g.run('oldCallback()'),false);
  draft(g);r=resolve(g,HIT,{initiative:'allies'});historical(g,r);ack(g);const next=finish(g);assert.equal(next.rewards.xp,20);assert.equal(g.run('canonicalPartyCombat.hasPendingHandoff()'),false);assert.equal(g.run('saveGame()'),true);
 });
 
@@ -191,7 +191,7 @@ test('three Seep parents retain separate successor battles and one reward receip
  const g=fresh(1);sturdy(g);g.run('stats.atk=500');enter(g,Array(3).fill('enemy_the_seep'));let r;
  for(let slot=0;slot<3;slot++){draft(g,'attack',slot);r=resolve(g,[...HIT,...Array(2-slot).fill(HIT).flat()],{initiative:'allies'});ack(g);}
  assert.equal(r.outcome,'victory');const parent=finish(g);assert.equal(parent.rewards.xp,510);
- const seen=new Set();for(let n=0;n<3;n++){g.run('handleInteract()');const id=view(g).enemies[0].instanceId;assert.ok(!seen.has(id));seen.add(id);
+ const seen=new Set();for(let n=0;n<3;n++){g.run('while(dialogue.open)handleInteract()');const id=view(g).enemies[0].instanceId;assert.ok(!seen.has(id));seen.add(id);
   draft(g);r=resolve(g,HIT,{initiative:'allies'});ack(g);assert.equal(finish(g).rewards.xp,20);}
  assert.equal(g.run('canonicalPartyCombat.hasPendingHandoff()'),false);assert.equal(g.run('persistentParty.serialize().rewards.length'),4);
 });

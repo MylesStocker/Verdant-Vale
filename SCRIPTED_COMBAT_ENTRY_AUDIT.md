@@ -1,5 +1,13 @@
 # Scripted combat entry — Pass 1
 
+Pass 6 preserves every classification/starter/outcome below. Case 190 rechecks
+all 12 reachable routes; case 191 follows production progression through fort
+closure, Receiver victory/report and canonical MQ5 recruitment, then verifies
+Fallen field operation and recovery. Level-up pages now precede existing aftermath
+without replacing chain callbacks. Ordinary rewards use living terminal-member
+XP eligibility; authored scripted rewards, costs, locks and story consequences
+retain their existing authenticated owners. No scripted content was rewritten.
+
 ## Pass 5 reachability and lifecycle migration
 
 Pass 5 preserves the Pass 1 atomic-entry boundary and adds one authenticated

@@ -398,8 +398,9 @@ function savedEquipmentDisposition(item) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (!persistentParty.hasLivingMember()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
-  if (persistentParty.isCombatPending()) return false;
+  if (persistentParty.getCombatDiagnostic()) return false;
   if (combatPlayerState.hasParty()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // never persist laboratory HP

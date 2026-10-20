@@ -80,7 +80,7 @@ const canonicalPartyCombat = (() => {
       // exception rewards only defeated slots once every enemy is resolved.
       const cleared=session.enemies.every(e=>e.hp===0||e.unusual?.departed),
         rewardSlots=session.phase==='victory'||session.phase==='escape'&&cleared?session.enemies.filter(e=>e.hp===0).map(e=>e.slot):[];
-      let rewards=null;
+      let rewards=null,progression=null;
       if(rewardSlots.length){
         stage='rewards';let gold=0;const items=[];
         const roll=()=>{const n=Math.random();if(!Number.isFinite(n)||n<0||n>=1)fail('invalid reward RNG');return n;};
@@ -90,12 +90,12 @@ const canonicalPartyCombat = (() => {
           if(guaranteed)items.push(guaranteed.itemId);else if(roll()<0.12)items.push('Potion');
         }
         rewards={id:battle.rewardId,xp:rewardSlots.reduce((sum,slot)=>sum+battle.templates[slot].xp,0),gold,items};
-        persistentParty.awardRewards(rewards);
+        progression=persistentParty.awardRewards(rewards);
       }else if(session.phase==='defeat'){
         stage='recovery';persistentParty.recover();
         if(!applyCombatDefeatWorldRecovery())fail('defeat recovery did not reach its destination');
       }
-      const receipt=copy({outcome:session.phase,members:battle.memberIds,writeback:battle.writeback,rewards});
+      const receipt=copy({outcome:session.phase,members:battle.memberIds,writeback:battle.writeback,rewards,progression});
       if(battle.scriptedToken){stage='scripted_finalization';scriptedPartyEncounters.finalize(battle.scriptedToken,
         {outcome:session.phase,enemies:session.enemies,rewards,receipt});}
       stage='cleanup';combat.cooldown=ENCOUNTER_COOLDOWN;
@@ -117,6 +117,11 @@ const canonicalPartyCombat = (() => {
         };dialogue.callbacks=[token.callback];dialogue.open=true;dialogue.page=0;
       }else if(wasSplit&&session.phase==='victory'){
         dialogue.name='';dialogue.pages=[['The last of the Seep slumps and stops moving.']];dialogue.callbacks=null;dialogue.open=true;dialogue.page=0;
+      }
+      if(progression?.pages.length){
+        const aftermath=dialogue.open?dialogue.pages:[];
+        dialogue.pages=[...progression.pages.map(lines=>[...lines]),...aftermath];
+        dialogue.open=true;dialogue.page=0;
       }
       return lastReceipt;
     }catch(error){fault(error,stage);throw error;}

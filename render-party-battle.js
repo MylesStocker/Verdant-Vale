@@ -23,6 +23,11 @@ const PARTY_COMBAT_EXTRA_ENEMY_BOUNDS = Object.freeze({
 // renderer never needed a per-sprite measurement.
 const PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS = Object.freeze([-72,-144,72,72]);
 
+function partyBattleEnemySprite(id) {
+  return ENEMY_SPRITE_DISPATCH[id] ||
+    (ENEMY_GENERIC_SPRITE_IDS.has(id)?{draw:drawBattleGenericEnemy}:null);
+}
+
 function partyBattleLayout(view) {
   const fail=()=>{throw new Error('Invalid party battle presentation view');};
   const validMember=(member,side,slot)=>member&&Object.isFrozen(member)&&member.slot===slot&&
@@ -54,7 +59,7 @@ function partyBattleLayout(view) {
   const count=view.enemies.length,width=count===2?232:144,step=count===2?248:168,start=count===1?184:16;
   const names=view.enemies.map(m=>m.name);
   const enemies=view.enemies.map((member,index)=>{
-    const sprite=ENEMY_SPRITE_DISPATCH[member.id],template=ENEMY_TEMPLATE_REGISTRY[member.id],bounds=sprite&&
+    const sprite=partyBattleEnemySprite(member.id),template=ENEMY_TEMPLATE_REGISTRY[member.id],bounds=sprite&&
       (FORMATION_SPRITE_BOUNDS.get(sprite.draw)||PARTY_COMBAT_EXTRA_ENEMY_BOUNDS[member.id]||
         (canonicalEnemyIsCompatible(template)?PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS:null));
     if(!sprite||!bounds)fail();
@@ -178,7 +183,7 @@ function drawPartyCombatTargetCursor(x,y) {
   ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(x-6,y+2);ctx.lineTo(x+6,y+2);ctx.lineTo(x,y+10);ctx.closePath();ctx.fill();
 }
 function drawPartyCombatEnemy(member,position,selected) {
-  const sprite=ENEMY_SPRITE_DISPATCH[member.id];ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
+  const sprite=ENEMY_SPRITE_DISPATCH[member.id]||partyBattleEnemySprite(member.id);ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
   // Registered sprites own their optional defaults (pose or palette).
   ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;sprite.draw(0,0);ctx.restore();
   ctx.fillStyle='#08121e';ctx.fillRect(position.x,12,position.width,50);ctx.fillStyle=member.hp===0?'#718078':'#c0dcd0';ctx.font='bold 12px "Courier New", monospace';ctx.fillText(position.label,position.x+4,27,position.width-8);
