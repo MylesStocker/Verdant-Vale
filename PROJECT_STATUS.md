@@ -252,7 +252,8 @@ recruit again nor reset personal state. No recruitment flag, item grant or save
 schema change was added.
 
 Esla starts at level 11, 40,000 XP, full 80 HP, ATK 16 / DEF 7 / SPD 11, with
-empty personal equipment. Those values use her existing provisional progression.
+the ordinary shop loadout `Dragon Blade`, `Shadow Cloak`, `Mithril Shield`, and
+`Fen Mask`. Those values use her existing provisional progression.
 Membership automatically activates the canonical field menu, updates the joint
 ferry/report objective, and removes Esla's independent Calwick office/Dayoff and
 Drenwick infirmary NPC projections. Her ordinary pre-join dialogue is unchanged.
@@ -291,7 +292,7 @@ non-Lely personal state and idempotent reward receipts. New games are Lely-only;
 Esla joins through the MQ5 completion authority above. Lely remains backed by
 her existing stats/status/equipment authorities. Shared inventory/gold stay in
 `stats`. Esla has isolated provisional level progression, anchored at level 5 to
-50 HP / 10 ATK / 4 DEF / 8 SPD, with no initial gear or resource grant.
+50 HP / 10 ATK / 4 DEF / 8 SPD, and an authored ordinary MQ5 recruitment loadout.
 
 Full XP reaches every living active member; Fallen members receive none.
 Victory retains Fallen HP at zero, while full recovery restores all
@@ -312,6 +313,36 @@ version at that increment; the current format is v5.
 Further enemy specials, cutaway parties and broader magic remain deferred;
 the shared Resonance MVP is described above. The lifecycle foundation
 introduced no art, maps, lore or Chapter One presentation changes.
+
+### Developer Story Checkpoint Lab
+
+The backtick menu now exposes `DEV: Story Checkpoint Lab`, with one checkpoint:
+`MQ5 — Assignment Ready`. Selection opens an explicit Apply/Cancel confirmation.
+Apply replaces only the running session, closes the debug UI, places Lely in the
+Calwick office beside the Supervisor, and shows a short confirmation. It never
+writes or replaces the stored save; storage changes only through a later normal
+Save, which remains `SAVE_VERSION` 5.
+
+The fixture is a reusable developer convenience, not a balance-testing save. It
+installs the canonical pre-assignment MQ5 gates after the Receiver, report,
+dream and Sera/Liora cutaway, with `MainQuest` still 4, Esla absent, the ferry
+absent, and the normal derived journal pointing to the Supervisor. Lely is level
+10 at 25,600 XP, full 120 HP, clean, and deterministically uses maximum legal
+level-growth rolls (35 ATK / 29 DEF / 16 SPD). Lely equips `Dragon Blade`,
+`Shadow Cloak`, `Mithril Shield`, and `Fen Mask`; the shop audit found these to
+be the highest-bonus ordinary pre-MQ5 buyable choices, with Fen Mask also
+providing poison prevention. Production MQ5 recruitment now gives level-11 Esla
+that same ordinary loadout, full HP, and clean statuses through her persistent
+party profile rather than a checkpoint-only patch.
+
+Shared resources are exactly 1,000 gold plus Potion ×20, Elixir ×10, Reed
+Remedy ×10, Amethyst Dust ×10, Bullet Time ×5, Throwing Knife ×10, Bomb ×5,
+Sapper Charge ×5, Henbane Sprig ×5, Jackbane Vial ×5, and Trollbane ×5. The
+application preflights the entire immutable record, then clears transient combat,
+Receiver, Lab, dialogue, cutscene, input and transition ownership through their
+reset boundaries. Reapplication is deterministic and idempotent. Future
+checkpoints can be added to the same bounded registry without copying its menu,
+confirmation, reset or persistence rules.
 
 ### Headless player-party state foundation
 

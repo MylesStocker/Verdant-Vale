@@ -57,7 +57,7 @@ test('canonical completion recruits level 11 using authored progression, without
  assert.deepEqual(after,before);assert.deepEqual(J(g,'persistentParty.serialize().order'),['lely','esla']);
  const e=J(g,'persistentParty.getMember("esla")');assert.equal(e.slot,1);assert.equal(e.level,11);
  assert.deepEqual([e.hp,e.maxHp,e.atk,e.def,e.spd],[80,80,16,7,11]);assert.equal(e.xp,g.run('XP_THRESHOLDS[10]'));
- assert.deepEqual(e.statuses,[]);assert.deepEqual(e.equipment,{weapon:null,armor:null,shield:null,accessory:null});
+ assert.deepEqual(e.statuses,[]);assert.deepEqual(e.equipment,{weapon:'Dragon Blade',armor:'Shadow Cloak',shield:'Mithril Shield',accessory:'Fen Mask'});
  assert.equal(g.run('persistentParty.getMember("lely").slot'),0);assert.equal(g.run('combatPlayerState.hasParty()'),false);assert.equal(g.run('combatEnemyInstanceSequence'),0);
  g.run('combatPlayerState.initialize([{characterId:"fixture_a",slot:0,name:"A",hp:1,maxHp:1,atk:1,def:1,spd:1,statuses:[]},{characterId:"fixture_b",slot:1,name:"B",hp:1,maxHp:1,atk:1,def:1,spd:1,statuses:[]}])');
  assert.deepEqual(J(g,'combatPlayerState.getView().members.map(m=>m.instanceId)'),['combat_party_1','combat_party_2']);

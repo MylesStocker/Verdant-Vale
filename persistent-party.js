@@ -13,6 +13,8 @@ const PERSISTENT_CHARACTER_DEFINITIONS = Object.freeze({
 const persistentParty = (() => {
   const bridge=combatPlayerState.claimPersistentBridge();
   const slots=['weapon','armor','shield','accessory'];
+  const eslaRecruitmentEquipment=Object.freeze({weapon:'Dragon Blade',armor:'Shadow Cloak',
+    shield:'Mithril Shield',accessory:'Fen Mask'});
   const scalarKeys=['hp','maxHp','atk','def','spd','level','xp'];
   let order=['lely'], characters=[], rewards=[], revision=0, battle=null, rewardFailure=null;
   const loads=new WeakMap();
@@ -204,16 +206,21 @@ const persistentParty = (() => {
     getMember(id){if(arguments.length!==1||typeof id!=='string')fail();return snapshot().members.find(m=>m.characterId===id)||null;},
     joinEsla(options){
       if(arguments.length>1)fail();
-      const level=arguments.length?record(options,['level']).level:stats.level;
+      const authoredRecruitment=arguments.length===1;
+      const level=authoredRecruitment?record(options,['level']).level:stats.level;
       const base=progression(level);
       idle();canonicalValid();
       if(order.includes('esla'))return snapshot();
       if(order.length!==1)fail();
       characters=[{characterId:'esla',level,xp:XP_THRESHOLDS[level-1],hp:base.maxHp,...base,statuses:[],
-        equipment:from(slots.map(k=>[k,null])),slitherSpeed:1}];order=['lely','esla'];revision++;
+        equipment:authoredRecruitment?{...eslaRecruitmentEquipment}:from(slots.map(k=>[k,null])),slitherSpeed:1}];order=['lely','esla'];revision++;
       return snapshot();
     },
     resetForNewGame(){if(arguments.length)fail();idle();order=['lely'];characters=[];rewards=[];revision++;return snapshot();},
+    resetForStoryCheckpoint(){
+      if(arguments.length)fail();order=['lely'];characters=[];rewards=[];battle=null;rewardFailure=null;revision++;
+      return snapshot();
+    },
     awardExperience(id,xp){if(arguments.length!==2)fail();return this.awardRewards({id,xp,gold:0,items:[]});},
     awardRewards(value){
       if(arguments.length!==1)fail();idle();canonicalValid();const r=validateReward(value),previous=rewards.find(x=>x.id===r.id);

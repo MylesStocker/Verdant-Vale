@@ -532,11 +532,14 @@ only `lely` and `esla`; future slot 2 needs its own authored definition/progress
 not a fabricated third character. Test 181 supplies a source-local fixture to
 exercise three-member persistence, XP, preparation and commitment. `joinEsla()`
 is idempotent; its no-argument preparation uses Lely's level, while the closed
-`joinEsla({level:11})` call supplies MQ5's authored joining level. Both use Esla's
-own progression and grant no resources or equipment. Her provisional progression for level L is:
+`joinEsla({level:11})` call supplies MQ5's authored joining level and loadout. Both forms use Esla's
+own progression and grant no shared resources. Her MQ5 recruitment equipment
+is `Dragon Blade`, `Shadow Cloak`, `Mithril Shield`, and `Fen Mask`. Her provisional progression for level L is:
 `maxHp=30+5*(L-1)`, `atk=6+(L-1)`, `def=2+floor((L-1)/2)`,
 `spd=6+floor((L-1)/2)`. This anchors level 5 at 50/10/4/8 without copying Lely.
-Joining XP is the authored threshold for that level. Equipment slots begin empty.
+Joining XP is the authored threshold for that level. The no-argument structural
+fixture retains empty slots; MQ5 equipment is installed in Esla's own slots
+without adding duplicate items to shared inventory.
 Authored definitions now carry static Rareborn/affinity metadata (see Resonance below).
 No persistent Strain or speculative magic resources are stored.
 
@@ -685,6 +688,43 @@ projection. Ordinary dialogue and reusable Esla figure drawing are unchanged.
 No follower or new save binding is introduced. Test 179 covers these boundaries.
 
 Recruitment activates canonical party routing for supported ordinary encounters.
+
+### Developer Story Checkpoint Lab
+
+`story-checkpoint-lab.js` owns a closed, immutable registry of developer story
+fixtures and the one whole-session replacement boundary used by the backtick
+menu. The initial registry contains only `mq5_assignment_ready` (shown as
+**MQ5 — Assignment Ready**). A checkpoint is a developer convenience for
+mechanics, story and playability checks; its deliberately generous resources
+are not a balance-testing save.
+
+The authority validates the complete definition before mutation: stable map and
+item IDs, legal shop equipment slots, canonical level/XP and reachable Lely stat
+growth, safe resources, the complete quest binding projection, lighthouse-route
+invariants, and a walkable discrete placement. Application then asks the owning
+combat, party, Receiver, Lab, fishing, UI, movement and location authorities to
+discard session-only state before installing the validated canonical state.
+It consumes no RNG or combat identities. The registry entry supplies data; menu,
+confirmation, validation and reset machinery are shared, so a later authorized
+checkpoint requires another bounded registry record rather than another menu.
+
+The MQ5 checkpoint installs Lely at level 10 and 25,600 XP with the maximum
+legal deterministic gains from nine ordinary level advances (120 HP, 35 ATK,
+29 DEF, 16 SPD). Lely equips `Dragon Blade`, `Shadow Cloak`, `Mithril Shield`
+and `Fen Mask`, the strongest general-purpose ordinary equipment sold before
+MQ5 in each slot. The same four IDs are the canonical level-11 Esla recruitment
+loadout in `persistent-party.js`; checkpoint application never patches Esla
+after recruitment. The fixture sets 1,000 shared gold and its explicitly
+authored consumable/reagent inventory, while leaving Esla absent until the real
+Supervisor callback.
+
+The checkpoint sits in `OFFICE_MAP` at local pixels `(384,104)`, immediately
+south of the Supervisor. It derives the journal and ferry projection from the
+normal quest state: `MainQuest` stays 4, the completed reservoir/Receiver/dream/
+cutaway prerequisites are true, and the ferry remains absent until MQ5 is
+assigned. Applying or cancelling never calls `saveGame()` and never touches
+`localStorage`; a later deliberate Save produces an ordinary version-5 payload.
+The transient on-screen confirmation is intentionally unsaved.
 Unadapted specials and scripted encounters reject with diagnostics; they cannot
 silently route a recruited roster through Lely-only reward/recovery flows.
 

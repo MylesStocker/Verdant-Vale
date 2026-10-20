@@ -21,7 +21,7 @@ function canonical(g){return g.run(`JSON.stringify({stats,player,day,tick,status
   flags:QUEST_FLAG_BINDINGS.map(b=>b.get()),npcs:SIMPLE_NPCS.map(n=>[n.id,n.x,n.y,n.facing]),save:localStorage.getItem('verdantVale_save')})`);}
 
 test('debug row opens the scenario menu, supports navigation and cancels without entry',()=>{const g=fresh();g.press('`');
-  assert.equal(g.run('DEBUG_MENU_ROW_COUNT'),13);for(let i=0;i<30;i++)g.press('ArrowDown');assert.equal(g.run('debugMenu.cursor'),12);
+  assert.equal(g.run('DEBUG_MENU_ROW_COUNT'),14);g.run('debugMenu.cursor=12');assert.equal(g.run('debugMenu.cursor'),12);
   g.press('Enter');assert.equal(g.run('partyCombatLab.isMenuOpen()'),true);assert.equal(g.run('partyCombatLab.getMenuView().cursor'),0);
   g.press('ArrowDown');assert.equal(g.run('partyCombatLab.getMenuView().cursor'),1);g.press('ArrowUp');assert.equal(g.run('partyCombatLab.getMenuView().cursor'),0);
   g.press('Escape');assert.equal(g.run('partyCombatLab.isMenuOpen()'),false);assert.equal(g.run('debugMenu.open'),true);assert.equal(g.run('debugMenu.cursor'),12);

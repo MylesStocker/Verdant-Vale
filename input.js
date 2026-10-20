@@ -77,6 +77,10 @@ function reconcileFormationLabKeys() {
   }
 }
 
+function resetInputForStoryCheckpoint() {
+  for (const key of Object.keys(pressedKeys)) pressedKeys[key]=false;
+}
+
 function handlePartyCombatLabInput(command) {
   let view;
   try { view = partyCombatLab.getView(); }
@@ -135,6 +139,15 @@ function handlePartyCombatLabInput(command) {
 }
 
 window.addEventListener('keydown', e => {
+  if (storyCheckpointLab.isOpen()) {
+    const wasHeld=pressedKeys[e.key];pressedKeys[e.key]=true;
+    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
+      const command=formationInputCommand(e.key);
+      if(command||e.key==='`')e.preventDefault();
+      if(!wasHeld&&!e.repeat)storyCheckpointLab.handleInput(command,e.key);
+    }
+    return;
+  }
   if (canonicalPartyCombat.isActive()) {
     const wasHeld = pressedKeys[e.key]; pressedKeys[e.key] = true;
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
@@ -477,7 +490,8 @@ window.addEventListener('keydown', e => {
         // 2 Muddied, 3 Slither, 4 Heal Full, 5 Day +1, 6 Warp to...,
         // 7 Validate Data, 8 Home on Defeat, 9 Legacy Regional Fallback,
         // 10 Play Sera/Liora Cutaway
-        // 11 DEV: Formation Combat Lab, 12 DEV: Party Combat Lab
+        // 11 DEV: Formation Combat Lab, 12 DEV: Party Combat Lab,
+        // 13 DEV: Story Checkpoint Lab
         e.preventDefault();
         if (e.key === 'ArrowUp'   || e.key === 'w') debugMenu.cursor = Math.max(0, debugMenu.cursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') debugMenu.cursor = Math.min(DEBUG_MENU_ROW_COUNT - 1, debugMenu.cursor + 1);
@@ -545,6 +559,8 @@ window.addEventListener('keydown', e => {
             formationCombatLab.open();
           } else if (debugMenu.cursor === 12) {
             partyCombatLab.openMenu();
+          } else if (debugMenu.cursor === 13) {
+            storyCheckpointLab.open();
           }
         }
         if (e.key === 'Escape' || e.key === '`') { debugMenu.open = false; }

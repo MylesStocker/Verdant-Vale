@@ -169,6 +169,7 @@ const galleryReceiverEncounter = (() => {
       }
       encounter=null;
     },
+    resetForStoryCheckpoint() {encounter=null;backedAway=false;return true;},
     getView() {
       if (!encounter || encounter.phase === 'warning' || encounter.phase === 'battle') return null;
       // Dialogue advances the reveal, not rendering/timers. All three remain

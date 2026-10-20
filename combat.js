@@ -1699,6 +1699,10 @@ const combatPlayerState = (() => {
       commandBattle = null;
       members = null; // No enemy, Lely, reward, recovery or world-state writes.
     },
+    resetForStoryCheckpoint() {
+      sessionState=null;roundState=null;commandBattle=null;members=null;sequence=0;
+      return true;
+    },
   });
 })();
 
@@ -4231,6 +4235,20 @@ function endCombat() {
   combat.bombDamage        = 0;
   combat.bombIgnoresDef    = false;
   combat.bombJustArmed     = false;
+}
+
+// Developer checkpoint cleanup. It deliberately skips combat outcomes,
+// rewards and story callbacks because a complete validated session replaces
+// the current runtime immediately afterward.
+function resetCombatForStoryCheckpoint() {
+  combatActive=false;
+  setSingleCombatEnemy(null);
+  combatPlayerState.resetForStoryCheckpoint();
+  for (const [key,value] of Object.entries(FORMATION_NEUTRAL_COMBAT_STATE)) combat[key]=value;
+  combat.cursor=0;combat.itemCursor=0;combat.cooldown=0;combat.messageQueue=[];
+  combatEnemyInstanceSequence=0;completedSingleVictoryReceipt=null;
+  trappedDrownedEnemy=null;lenswebSpiderEnemy=null;
+  return true;
 }
 
 function startBossCombat() {

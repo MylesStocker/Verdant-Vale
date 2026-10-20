@@ -189,5 +189,6 @@ const partyCombatLab = (() => {
       if(arguments.length>1 || !lab || (message!==undefined&&typeof message!=='string'))return false;
       cleanup(message||'Party Combat Lab aborted safely.');restoreSubmenu();return true;
     },
+    resetForStoryCheckpoint() {lab=null;submenu=null;lastError='';lastScenarioId=null;return true;},
   });
 })();

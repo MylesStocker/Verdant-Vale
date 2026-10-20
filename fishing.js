@@ -127,6 +127,11 @@ function endFishing() {
   fishing.seq    = [];
 }
 
+function resetFishingForStoryCheckpoint() {
+  endFishing();fishing.idx=0;fishing.timer=0;fishing.windowFrames=40;fishing.power=1;
+  fishing.flash=0;fishing.flashType=null;
+}
+
 // ─── Rendering (full-screen modal, drawn instead of the world) ───────────────
 const FISHING_GLYPH = { left: '◄', right: '►', up: '▲', down: '▼', space: 'SPACE' };
 const FISHING_LABEL = { left: 'LEFT', right: 'RIGHT', up: 'UP', down: 'DOWN', space: 'SPACE' };

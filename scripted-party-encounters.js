@@ -4,7 +4,7 @@
 // canonical recruitment. Combat mechanics stay in canonicalPartyCombat; this
 // authority only validates entry prerequisites and commits encounter outcomes.
 const scriptedPartyEncounters=(()=>{
-  const issued=new WeakMap();
+  let issued=new WeakMap();
   const scriptedEnemy=canonicalEnemyRecords.claimScriptedFactory();
   let pending=null;
   const fail=message=>{throw Error('Scripted party encounter: '+message);};
@@ -181,6 +181,7 @@ const scriptedPartyEncounters=(()=>{
   };
   return Object.freeze({
     validate,start,finalize,
+    resetForStoryCheckpoint(){pending=null;issued=new WeakMap();return true;},
     authorize(token,ids,lifecycle,escape){
       const record=issued.get(token);return !!record&&record.phase!=='complete'&&escape===record.escape&&
         JSON.stringify(ids)===JSON.stringify(record.ids)&&JSON.stringify(lifecycle)===JSON.stringify(record.lifecycle);

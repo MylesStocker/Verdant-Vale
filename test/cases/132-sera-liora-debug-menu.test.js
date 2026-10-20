@@ -21,7 +21,7 @@ module.exports = {
     g.press('Enter');
     installImmediateImages(g);
 
-    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 13);
+    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 14);
     g.run(`
       __debugLabels = [];
       ctx.fillText = function(text) { __debugLabels.push(String(text)); };

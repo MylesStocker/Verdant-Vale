@@ -115,5 +115,6 @@ const formationCombatLab = (() => {
       restoreSubmenu();
       return true;
     },
+    resetForStoryCheckpoint() { lab=null;return true; },
   });
 })();

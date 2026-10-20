@@ -1537,11 +1537,12 @@ function drawMenu() {
 const DEBUG_MENU_PANEL_WIDTH = 300;
 function drawDebugMenu() {
   if (!debugMenu.open) return;
+  if (storyCheckpointLab.isOpen()) { drawStoryCheckpointLab(); return; }
   if (partyCombatLab.isMenuOpen()) { drawPartyCombatLabMenu(); return; }
   if (formationCombatLab.isMenuOpen()) { drawFormationLabMenu(); return; }
 
   const W = 512, H = 480;
-  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 364;
+  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 388;
   const PX = Math.floor((W - PW) / 2);
   const PY = Math.floor((H - PH) / 2);
 
@@ -1576,6 +1577,7 @@ function drawDebugMenu() {
     { type: 'action', label: '[ Play Sera/Liora Cutaway ]' },
     { type: 'action', label: '[ DEV: Formation Combat Lab ]' },
     { type: 'action', label: '[ DEV: Party Combat Lab ]' },
+    { type: 'action', label: '[ DEV: Story Checkpoint Lab ]' },
   ];
 
   rows.forEach((row, i) => {
@@ -1601,6 +1603,33 @@ function drawDebugMenu() {
   ctx.textAlign = 'center';
   ctx.fillText('[ \u0060 / ESC ] close   [ I ] inspector', PX + Math.floor(PW / 2), PY + PH - 8);
   ctx.textAlign = 'left';
+}
+
+function drawStoryCheckpointLab() {
+  const view=storyCheckpointLab.getView();if(!view)return;
+  const PW=432,PH=view.phase==='confirm'?250:210,PX=40,PY=Math.floor((480-PH)/2);
+  ctx.save();ctx.fillStyle='#08121e';ctx.fillRect(PX,PY,PW,PH);
+  ctx.strokeStyle='#e8a030';ctx.lineWidth=2;ctx.strokeRect(PX+1,PY+1,PW-2,PH-2);
+  ctx.fillStyle='#e8a030';ctx.font='bold 13px "Courier New", monospace';
+  ctx.fillText('DEV: STORY CHECKPOINT LAB',PX+16,PY+28);
+  ctx.fillStyle='#8aaa98';ctx.font='10px "Courier New", monospace';
+  if(view.phase==='list'){
+    ctx.fillText('Deterministic developer fixtures. Not balance saves.',PX+16,PY+48);
+    view.checkpoints.forEach((entry,i)=>{ctx.fillStyle=i===view.cursor?'#8ac8d8':'#4a7888';
+      ctx.font=i===view.cursor?'bold 12px "Courier New", monospace':'12px "Courier New", monospace';
+      ctx.fillText((i===view.cursor?'▶ ':'  ')+entry.label,PX+20,PY+88+i*26);});
+    ctx.fillStyle='#3a6050';ctx.font='10px "Courier New", monospace';ctx.fillText('ENTER select · ESC back',PX+16,PY+PH-18);
+  }else{
+    ctx.fillStyle='#d9c89a';ctx.font='11px "Courier New", monospace';
+    ['The current runtime state will be replaced.','Your stored save will not be changed.','Storage changes only if you deliberately Save afterward.']
+      .forEach((line,i)=>ctx.fillText(line,PX+16,PY+58+i*20));
+    view.choices.forEach((label,i)=>{const x=PX+94+i*190;ctx.fillStyle=i===view.confirmCursor?'#8ac8d8':'#4a7888';
+      ctx.font=i===view.confirmCursor?'bold 12px "Courier New", monospace':'12px "Courier New", monospace';
+      ctx.fillText((i===view.confirmCursor?'▶ ':'  ')+label,x,PY+150);});
+    ctx.fillStyle='#3a6050';ctx.font='10px "Courier New", monospace';ctx.fillText('← → choose · ENTER confirm · ESC cancel',PX+16,PY+PH-18);
+  }
+  if(view.error){ctx.fillStyle='#e07060';ctx.font='10px "Courier New", monospace';ctx.fillText(view.error,PX+16,PY+PH-38);}
+  ctx.restore();
 }
 
 function drawPartyCombatLabMenu() {

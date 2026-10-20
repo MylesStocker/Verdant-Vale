@@ -140,6 +140,7 @@ const canonicalPartyCombat = (() => {
   };
   return Object.freeze({
     hasPendingHandoff(){return pendingHandoff!==null||typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.hasPending();},
+    resetForStoryCheckpoint(){battle=null;lastReceipt=null;pendingHandoff=null;return true;},
     permitsHandoff(token){
       return token===pendingHandoff&&token!==null&&Array.isArray(dialogue.callbacks)&&
         (dialogue.callbacks.length===1&&dialogue.callbacks[0]===token.callback||dialogue.callbacks.length===0&&!dialogue.open);
