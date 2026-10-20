@@ -613,8 +613,12 @@ native repeats and modified/IME events are inert. Existing combat, Lab, Receiver
 cutscene, dialogue and other modal locks retain ownership; transitions are
 synchronous and do not introduce a new menu lock state.
 
-Menu-only state: selected persistent character ID, pending item ID, purpose,
-equipment cursor/scroll and `menu.screen`. No mutable character record is stored.
+Menu-only state: selected persistent character ID, pending item/explicit target
+IDs, equipment cursor/scroll and `menu.screen`. No mutable character record is
+stored. Opening a multi-member menu resets the selected ID to `lely`; closing
+and reopening therefore always returns to Lely. The controller reconciles a
+stale selection against the current fixed roster, preferring Lely. This state
+is transient and never enters save version 5.
 The shared inventory still comes from `groupItems()` (first-occurrence order,
 quantities, key-item filtering, four visible rows). Save and Load keep their
 existing positions after inventory; Equipment and Status follow only for multiple
@@ -623,18 +627,35 @@ members. The Notebook shortcut remains N. No Party/Formation/Resonance command.
 Multi-member flow:
 
 - `main` → item → `partyTarget` → revalidated use → `main`; cancel preserves
-  the inventory cursor/scroll. Invalid or missing targets consume nothing.
-- `main` → Equipment/Status → `partyMembers` → `partyEquipment`/`partyStatus`.
-  Back returns to the same selected member, then main. Status left/right wraps
-  through all fixed slots, including Fallen members. Equipment uses a four-row
-  shared equipment list and member-specific effective-stat preview.
-- Main and list navigation uses Up/Down or W/S, targeting/member selection also
-  accepts Left/Right or A/D, Enter/Space confirms, Escape/B backs out. M retains
-  the existing back/close convention. No listeners were added.
+  the inventory cursor/scroll and displayed character. The action target is a
+  separate explicit stable ID, so the displayed page never silently chooses an
+  item recipient. Invalid or missing targets consume nothing.
+- `main` → Equipment/Status opens `partyEquipment`/`partyStatus` directly for
+  the displayed member. Back returns to that same member page. Status left/right
+  uses the shared selected-member authority and wraps through all fixed slots,
+  including Fallen members. Equipment uses a four-row shared equipment list and
+  member-specific effective-stat preview.
+- On `main`, Left/Right or A/D pages through canonical slot order without moving
+  the highlighted command; Up/Down or W/S still navigates inventory and commands.
+  Item targeting retains local four-direction navigation. Enter/Space confirms;
+  Escape/B backs out. M retains the existing back/close convention. No listeners
+  were added.
+
+The recruited-party `main` screen renders one complete character sheet at a
+time. Its common geometry contains name/page count, Level, current and maximum HP
+with the existing segmented meter, cumulative XP plus progress toward the next
+threshold, effective ATK/DEF/SPD, a persistent-status summary, and
+Weapon/Armor/Shield/Accessory IDs. It retains shared gold, day, inventory, Save,
+Load, Equipment, Status and Notebook access. Fallen members keep their fixed page;
+two- and three-member rosters use the same layout. `getFieldView()` supplies the
+immutable stat and progression projections, so rendering does not reproduce
+combat/equipment or XP formulas. The single-member branch of `drawMenu()` is
+unchanged and retains its draw-call recordings with no paging or companion hints.
 
 Canonical APIs added in `persistent-party.js`:
 
-- `getFieldView()` augments immutable member snapshots with `{effective:{atk,def,spd}}`.
+- `getFieldView()` augments immutable member snapshots with
+  `{effective:{atk,def,spd}, progression:{nextLevelXp,progress,required}}`.
 - `fieldItemTargets(itemId)` returns frozen stable IDs of eligible members.
 - `previewEquipment(characterId,itemId)` returns an immutable prospective member.
 - `useFieldItem(characterId,itemId)` validates locks, identity, inventory copy,

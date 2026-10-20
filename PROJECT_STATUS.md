@@ -268,15 +268,29 @@ Browser inspection of the recruitment scene remains outstanding.
 
 ### Canonical multi-member field menu
 
-`party-field-menu.js` adds member summaries and Equipment/Status selection only
-when the canonical roster has multiple members. The existing solo menu, direct
-item/equip navigation, Notebook and save/load presentation stay unchanged. Eight
-recording-canvas baselines lock the solo screen to lifecycle checkpoint bb73177.
+`party-field-menu.js` replaces the recruited party's stacked HP summaries with a
+paged character sheet. Opening always selects Lely; Left/Right or A/D wraps through
+stable canonical slots while preserving the highlighted command. Each page uses
+the same geometry for name/page count, Level, current/maximum HP and meter,
+cumulative XP and next-level progress, effective ATK/DEF/SPD, persistent status,
+and Weapon/Armor/Shield/Accessory. Fallen members retain their page, and the same
+controller/layout supports the test-only third slot.
+
+Equipment and Status open directly for the displayed member and return to the
+same page. Status shares the page's selected-member authority. Item use continues
+to require a separate explicit target and never infers that target from the page.
+Selection is a transient stable character ID owned by the controller and is not
+saved. The existing solo menu, direct item/equip navigation, Notebook and save/load
+presentation stay unchanged. Eight recording-canvas baselines lock the solo screen
+to lifecycle checkpoint bb73177.
 
 Targeted field healing/cures and equipment exchanges use `persistentParty`, with
-shared inventory and independent personal state. Fallen members retain rows and
+shared inventory and independent personal state. Fallen members retain pages and
 may change equipment; ordinary healing cannot revive them. Three-member capacity
-is tested using a test-only authored fixture. Save format remains version 5 and
+is tested using a test-only authored fixture. Test 193 covers paging, identical
+member geometry, direct Equipment/Status routing, explicit item targeting, the
+MQ5 checkpoint/recruitment state, read-only switching and both supported scales.
+Save format remains version 5 and
 contains no menu state. No third character, artwork, Lab changes or combat route
 was added.
 

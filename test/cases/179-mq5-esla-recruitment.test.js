@@ -108,15 +108,16 @@ test('journal and ferry authorization change at completion, with no new flag or 
 });
 test('recruitment automatically replaces the unchanged solo menu with the canonical member menu',()=>{
  const g=fresh();record(g);g.run('menu.open=true;');assert.doesNotMatch(paint(g).join(' '),/Esla|Equipment|Status|CHARACTERS/);
- g.run('menu.open=false');ready(g);assign(g);g.press('m');const text=paint(g);assert.ok(text.includes('Esla'));assert.ok(text.includes('Lv. 11'));assert.ok(text.includes('Lély'));
- extra(g,2);g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyEquipment');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
- g.press('b');g.press('b');extra(g,3);g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyStatus');assert.ok(paint(g).includes('Lv. 11'));
+ g.run('menu.open=false');ready(g);assign(g);g.press('m');let text=paint(g);assert.ok(text.includes('◀ LÉLY 1/2 ▶'));assert.ok(text.some(s=>/^Lv\. /.test(s)));assert.equal(text.includes('ESLA'),false);
+ g.press('ArrowRight');text=paint(g);assert.ok(text.includes('◀ ESLA 2/2 ▶'));assert.ok(text.includes('Lv. 11'));
+ extra(g,2);assert.equal(g.run('menu.screen'),'partyEquipment');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
+ g.press('b');extra(g,3);assert.equal(g.run('menu.screen'),'partyStatus');assert.ok(paint(g).includes('Lv. 11'));
 });
 test('post-recruitment item targeting and equipment use the same persistent members',()=>{
  const g=fresh();ready(g);assign(g);g.run('stats.hp=1;stats.items=["Potion","Potion","Iron Sword"].map(createItem)');seed(g,'payload.party.characters[0].hp=1');g.press('m');
  g.press('Enter');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('persistentParty.getMember("esla").hp'),21);assert.equal(g.run('stats.hp'),1);
  g.press('Enter');g.press('Enter');assert.equal(g.run('stats.hp'),21);assert.equal(g.run('persistentParty.getMember("esla").hp'),21);
- extra(g,2);g.press('ArrowDown');g.press('Enter');g.press('Enter');assert.equal(g.run('persistentParty.getMember("esla").equipment.weapon'),'Iron Sword');assert.equal(g.run('stats.weapon'),null);
+ g.press('ArrowRight');extra(g,2);g.press('Enter');assert.equal(g.run('persistentParty.getMember("esla").equipment.weapon'),'Iron Sword');assert.equal(g.run('stats.weapon'),null);
 });
 test('save/load restores individual Esla state, roster, MQ5 and absent NPC projection',()=>{
  const g=fresh();ready(g);assign(g);g.run('stats.items=[createItem("Iron Shield")];persistentParty.useFieldItem("esla","Iron Shield")');

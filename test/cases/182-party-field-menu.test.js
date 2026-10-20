@@ -51,10 +51,10 @@ test('solo navigation, direct heal/equip, save/load and Notebook remain unchange
  g.press('n');assert.equal(g.run('menu.screen'),'notebook');g.press('b');g.press('Enter');assert.equal(g.run('menu.screen'),'saveConfirm');
  g.press('Enter');assert.equal(g.run('menu.screen'),'main');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'loadConfirm');g.press('b');g.press('Escape');assert.equal(g.run('menu.open'),false);
 });
-test('two-member summary has exactly two rows, fits the canvas and mutates nothing',()=>{
+test('two-member character page opens on Lely, fits the canvas and mutates nothing',()=>{
  const g=fresh();open(g);const before=state(g),nav=g.run('JSON.stringify(menu)');const p=draw(g);bounds(p);
- assert.equal(texts(p).filter(t=>t==='Lély').length,1);assert.equal(texts(p).filter(t=>t==='Esla').length,1);
- assert.equal(texts(p).filter(t=>/^Lv\./.test(t)).length,2);assert.equal(state(g),before);assert.equal(g.run('JSON.stringify(menu)'),nav);
+ assert.ok(texts(p).includes('◀ LÉLY 1/2 ▶'));assert.equal(texts(p).some(t=>/ESLA/.test(t)),false);
+ assert.equal(texts(p).filter(t=>/^Lv\./.test(t)).length,1);assert.equal(state(g),before);assert.equal(g.run('JSON.stringify(menu)'),nav);
  frozen(g.run('partyFieldMenu.getView()'));assert.deepEqual(draw(g),p);
 });
 test('item targeting preserves list cursor/scroll on cancel and consumes exactly one on success',()=>{
@@ -71,8 +71,8 @@ test('field cures affect only the selected member and retain existing no-effect 
  item(g,'Amethyst Dust');g.press('Enter');assert.deepEqual(view(g).members.map(m=>m.statuses),[['poison'],['cursed']]);
 });
 test('ordinary healing rejects Fallen targets and member cycling skips them',()=>{
- const g=fresh();g.run('stats.hp=0;stats.items=[createItem("Potion")]');open(g);item(g,'Potion');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
- g.press('ArrowDown');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');const before=state(g);assert.throws(()=>g.run('persistentParty.useFieldItem("lely","Potion")'));assert.equal(state(g),before);
+ const g=fresh();g.run('stats.hp=0;stats.items=[createItem("Potion")]');open(g);item(g,'Potion');assert.equal(g.run('partyFieldMenu.getView().selectedTargetId'),'esla');
+ g.press('ArrowDown');assert.equal(g.run('partyFieldMenu.getView().selectedTargetId'),'esla');const before=state(g);assert.throws(()=>g.run('persistentParty.useFieldItem("lely","Potion")'));assert.equal(state(g),before);
  assert.ok(texts(draw(g)).includes('Fallen'));g.press('Enter');assert.equal(g.run('stats.hp'),0);
 });
 test('stale item or removed target fails without consumption; cancelling still returns safely',()=>{
@@ -86,12 +86,12 @@ test('battle-only/key/no-effect reagent items have no field-target route',()=>{
  assert.throws(()=>g.run('persistentParty.useFieldItem("esla","Schilling")'));
 });
 test('Equipment member selection, Fallen inspection, exchange and independent previews',()=>{
- const g=fresh();g.run('stats.items=["Iron Sword","Steel Sword","Iron Shield","Cat Armor","Fen Mask","Amethyst Bangle"].map(createItem)');seed(g,'payload.party.characters[0].hp=0');open(g);extra(g,2);
- assert.equal(g.run('menu.screen'),'partyMembers');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyEquipment');
+ const g=fresh();g.run('stats.items=["Iron Sword","Steel Sword","Iron Shield","Cat Armor","Fen Mask","Amethyst Bangle"].map(createItem)');seed(g,'payload.party.characters[0].hp=0');open(g);g.press('ArrowRight');extra(g,2);
+ assert.equal(g.run('menu.screen'),'partyEquipment');
  assert.equal(g.run('partyFieldMenu.getView().preview.effective.atk'),10);g.press('Enter');assert.equal(view(g).members[1].equipment.weapon,'Iron Sword');assert.equal(g.run('stats.weapon'),null);
  g.press('Enter');assert.equal(view(g).members[1].equipment.weapon,'Steel Sword');assert.ok(view(g).inventory.includes('Iron Sword'));
  assert.equal(view(g).members[1].effective.atk,13);assert.equal(view(g).members[0].effective.atk,8);bounds(draw(g));
- g.press('b');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');g.press('b');assert.equal(g.run('menu.screen'),'main');
+ g.press('b');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');assert.equal(g.run('menu.screen'),'main');
  g.run('persistentParty.useFieldItem("lely","Iron Sword")');assert.equal(view(g).members[0].equipment.weapon,'Iron Sword');
  assert.equal(view(g).inventory.includes('Iron Sword'),false);const b=state(g);assert.throws(()=>g.run('persistentParty.useFieldItem("esla","Iron Sword")'));assert.equal(state(g),b);
  for(const id of ['Cat Armor','Fen Mask','Amethyst Bangle'])g.run('persistentParty.useFieldItem("esla",'+JSON.stringify(id)+')');
@@ -99,9 +99,9 @@ test('Equipment member selection, Fallen inspection, exchange and independent pr
  const snapshot=g.run('persistentParty.combatSnapshot()');assert.equal(snapshot.equipment[1].armor,'Cat Armor');
 });
 test('Status switches members without changing order and returns to the same member selection',()=>{
- const g=fresh();open(g);extra(g,3);g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyStatus');
+ const g=fresh();open(g);g.press('ArrowRight');extra(g,3);assert.equal(g.run('menu.screen'),'partyStatus');
  assert.ok(texts(draw(g)).includes('Esla'));g.press('ArrowRight');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'lely');
- g.press('ArrowLeft');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');bounds(draw(g));g.press('b');assert.equal(g.run('menu.screen'),'partyMembers');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');g.press('b');assert.equal(g.run('menu.screen'),'main');
+ g.press('ArrowLeft');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');bounds(draw(g));g.press('b');assert.equal(g.run('menu.screen'),'main');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
 });
 test('equipment-aware effective stats use each member status and Slither owner',()=>{
  const g=fresh();g.run('statusEffects=["muddied","slither"];slitherSpd=17;stats.items=["Swift Bangle","Iron Shield"].map(createItem)');
@@ -115,10 +115,10 @@ test('invalid operations and arithmetic reject atomically without RNG or combat 
  g.run('stats.atk=Number.MAX_SAFE_INTEGER');const b=state(g);assert.throws(()=>g.run('persistentParty.useFieldItem("lely","Iron Sword")'));assert.equal(state(g),b);
 });
 test('three valid fixture members render, navigate, target and save without a fourth slot',()=>{
- const g=third();g.run('stats.items=["Potion","Iron Shield"].map(createItem)');open(g);bounds(draw(g));assert.equal(texts(draw(g)).filter(s=>/^Lv\./.test(s)).length,3);
- item(g,'Potion');g.press('ArrowDown');g.press('ArrowDown');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'fixture_third');bounds(draw(g));g.press('Enter');assert.equal(view(g).members[2].hp,20);
- extra(g,2);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');g.press('Enter');assert.equal(view(g).members[2].equipment.shield,'Iron Shield');bounds(draw(g));g.press('b');g.press('b');
- extra(g,3);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');assert.ok(texts(draw(g)).includes('Fixture'));bounds(draw(g));g.press('b');g.press('b');
+ const g=third();g.run('stats.items=["Potion","Iron Shield"].map(createItem)');open(g);bounds(draw(g));assert.equal(texts(draw(g)).filter(s=>/^Lv\./.test(s)).length,1);
+ item(g,'Potion');g.press('ArrowDown');g.press('ArrowDown');assert.equal(g.run('partyFieldMenu.getView().selectedTargetId'),'fixture_third');bounds(draw(g));g.press('Enter');assert.equal(view(g).members[2].hp,20);
+ g.press('ArrowRight');g.press('ArrowRight');extra(g,2);g.press('Enter');assert.equal(view(g).members[2].equipment.shield,'Iron Shield');bounds(draw(g));g.press('b');
+ extra(g,3);assert.ok(texts(draw(g)).includes('Fixture'));bounds(draw(g));g.press('b');
  g.run('saveGame();var saved=localStorage.getItem("verdantVale_save")');const v=view(g);g.run('persistentParty.resetForNewGame()');assert.equal(g.run('loadGame()'),true);assert.deepEqual(view(g),v);
  g.run('var bad=JSON.parse(saved);bad.party.order.push("fourth");localStorage.setItem("verdantVale_save",JSON.stringify(bad))');const b=state(g);assert.equal(g.run('loadGame()'),false);assert.equal(state(g),b);
 });
@@ -155,7 +155,7 @@ test('Fallen cures remove only statuses without revival; healing does not replac
 test('all party screens and overlays fit native and nearest-neighbour 2x geometry',()=>{
  for(const count of [2,3]){
   const g=count===3?third():fresh();g.run('stats.items=["Potion","Iron Sword","Steel Sword","Iron Shield","Fen Mask","Cat Armor"].map(createItem)');open(g);
-  for(const phase of ['main','partyMembers','partyEquipment','partyStatus','saveConfirm','loadConfirm']){
+  for(const phase of ['main','partyEquipment','partyStatus','saveConfirm','loadConfirm']){
    g.run('menu.screen='+JSON.stringify(phase));bounds(draw(g));
    g.run('paint=[];ctx.save();ctx.scale(2,2);drawMenu();ctx.restore()');
    for(const c of J(g,'paint'))if(c.bounds)assert.ok(c.bounds[0]>=0&&c.bounds[1]>=0&&c.bounds[2]<=1024&&c.bounds[3]<=960,phase);
@@ -164,8 +164,8 @@ test('all party screens and overlays fit native and nearest-neighbour 2x geometr
  }
 });
 test('multi-member list navigation, empty gear, save/load and Notebook cancel paths',()=>{
- const g=fresh();open(g);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyMembers');g.press('Enter');
- assert.ok(texts(draw(g)).includes('no equipment'));g.press('Enter');g.press('b');g.press('b');
+ const g=fresh();open(g);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('menu.screen'),'partyEquipment');
+ assert.ok(texts(draw(g)).includes('no equipment'));g.press('Enter');g.press('b');
  extra(g,0);g.press('b');assert.equal(g.run('menu.screen'),'main');extra(g,0);g.press('Enter');assert.equal(g.run('menu.screen'),'main');
  extra(g,1);g.press('b');assert.equal(g.run('menu.screen'),'main');extra(g,1);g.press('Enter');assert.equal(g.run('menu.screen'),'main');
  g.press('n');assert.equal(g.run('menu.screen'),'notebook');g.press('b');g.press('Escape');assert.equal(g.run('menu.open'),false);

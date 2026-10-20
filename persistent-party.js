@@ -147,7 +147,12 @@ const persistentParty = (() => {
     const effective={atk:effectiveAtk(equipped),def:effectiveDef(equipped,m.statuses,0),
       spd:effectiveSpd(equipped,m.statuses,m.slitherSpeed)};
     if(!Object.values(effective).every(safe))fail();
-    return {...m,effective};
+    const levelFloor=m.level===1?0:XP_THRESHOLDS[m.level-1];
+    const nextLevelXp=m.level<MAX_LEVEL?XP_THRESHOLDS[m.level]:null;
+    const progression=nextLevelXp===null
+      ? {nextLevelXp:null,progress:null,required:null}
+      : {nextLevelXp,progress:Math.max(0,m.xp-levelFloor),required:nextLevelXp-levelFloor};
+    return {...m,effective,progression};
   };
   const fieldTargets = id => {
     const def=item(id),members=snapshot().members;
