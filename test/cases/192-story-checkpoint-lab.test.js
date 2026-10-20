@@ -14,7 +14,9 @@ function snapshot(g){return g.run(`JSON.stringify({stats,statusEffects,slitherSp
  ui:{dialogue:dialogue.open,choice:choice.open,menu:menu.open,debug:debugMenu.open,warp:warpMenu.open,fishing:fishing.active,cutscene:seraLioraCutscene.active},save:localStorage.getItem('verdantVale_save')})`);}
 function apply(g){assert.equal(g.run('storyCheckpointLab.apply("mq5_assignment_ready")'),true);}
 function inventory(g){return J(g,'Object.fromEntries(groupItems().map(g=>[g.name,g.count]))');}
-function closeDialogue(g){g.run('var guard=0;while(dialogue.open){if(guard++>100)throw Error("dialogue loop");handleInteract()}');}
+function closeDialogue(g){g.run(`var guard=0;while(dialogue.open||mq5AssignmentCutscene.getView().phase==='walking'){
+ if(guard++>600)throw Error('dialogue loop');if(dialogue.open)handleInteract();else update();
+}`);}
 
 test('debug menu discovers exactly one checkpoint and Cancel mutates nothing',()=>{
  const g=fresh(),before=snapshot(g),calls=g.run('checkpointRolls'),seq=g.run('combatEnemyInstanceSequence');
@@ -89,7 +91,8 @@ test('stored save bytes remain unchanged until deliberate Save, then version-5 l
  assert.deepEqual(J(g,'persistentParty.serialize().order'),['lely']);
 });
 test('real Supervisor assignment preserves dialogue, recruits Esla once and activates ferry once',()=>{
- const g=fresh();apply(g);g.run('handleInteract()');assert.equal(g.run('dialogue.name'),'Supervisor');const text=g.run('dialogue.pages.flat().join(" ")');
+ const g=fresh();apply(g);g.run('handleInteract()');assert.equal(g.run('dialogue.name'),'Supervisor');
+ const text=g.run('[...MQ5_ASSIGNMENT_OPENING_PAGES,...MQ5_ASSIGNMENT_AFTER_WALK_PAGES].flatMap(page=>page.lines).join(" ")');
  assert.match(text,/I am going with her/);assert.match(text,/You know the Gallery\. I know the road/);assert.equal(g.run('choice.open'),false);
  closeDialogue(g);assert.equal(g.run('MainQuest'),5);let esla=J(g,'persistentParty.getMember("esla")');
  assert.deepEqual([esla.level,esla.xp,esla.hp,esla.maxHp,esla.atk,esla.def,esla.spd],[11,40000,80,80,16,7,11]);

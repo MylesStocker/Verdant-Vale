@@ -99,6 +99,14 @@ function supervisorLighthouseDialogue(allowOffer) {
   return false;
 }
 
+function prependSupervisorDialoguePages(pages) {
+  if (dialogue._speakerPagesFor === dialogue.pages && dialogue.pageSpeakers) {
+    const records=pages.map(lines=>({speakerId:'supervisor',lines}));
+    dialogue.pages.forEach((lines,index)=>records.push({speakerId:dialogue.pageSpeakers[index],lines}));
+    setSpeakerDialoguePages(records);
+  } else dialogue.pages=[...pages,...dialogue.pages];
+}
+
 function interactSupervisor() {
   // Unfinished main-story assignment/report beats retain priority. Once MQ4 is
   // assigned, an accepted lighthouse reminder/turn-in may use the office unless
@@ -121,7 +129,7 @@ function interactSupervisor() {
   if (north_bridge_crossed_early && !north_bridge_scolded && !reservoir_quest_started) {
     north_bridge_scolded = true;
     syncQuestFlagsToWindow();
-    dialogue.pages = [
+    prependSupervisorDialoguePages([
       ['He sets the pen down before you’ve finished crossing the room.',
        '“You went over the bridge north of Drenwick. Past the canal, onto the basin road.”',
        '“What took you up there?”'],
@@ -130,8 +138,7 @@ function interactSupervisor() {
        '“The toll buys you across a bridge. It does not hand you a reason to be on the far side of it.”'],
       ['“I won’t write it up. Consider that the whole of my generosity on the subject.”',
        '“When the north is yours to walk, you will hear it from me. Not from your own boots.”'],
-      ...dialogue.pages,
-    ];
+    ]);
   }
   // One-time backstory: once the reservoir assignment exists, the supervisor
   // (economical with words and alarm) explains, once, where his caution comes
@@ -143,24 +150,22 @@ function interactSupervisor() {
   if (reservoir_quest_started && !supervisor_said_flood) {
     supervisor_said_flood = true;
     syncQuestFlagsToWindow();
-    dialogue.pages = [
+    prependSupervisorDialoguePages([
       ['He doesn’t hand the basin file straight over.',
        '“Before this desk I was a field officer. Before that I wrote flood summaries for a works office, twenty years old, no business being listened to.”'],
       ['“One spring I read four reports that disagreed about which embankment would fail first. I picked one and sent the villages the other way.”',
        '“I was right. That is the whole of the story people tell. They leave out that I could have been wrong, and that I’d have signed the same order either way.”'],
       ['He turns the file around for you to take.',
        '“I send you north because it’s your work, not because it’s safe. Signing the paper doesn’t make it lighter. Go carefully.”'],
-      ...dialogue.pages,
-    ];
+    ]);
   }
   if (supervisor_greet_day !== day) {
     supervisor_greet_day = day;
     syncQuestFlagsToWindow();
-    dialogue.pages = [
+    prependSupervisorDialoguePages([
       ['“Good morning, Investigator.”',
        'He says it to the ledger first, then looks up.'],
-      ...dialogue.pages,
-    ];
+    ]);
   }
 }
 
@@ -484,29 +489,7 @@ function supervisorDialogueBody() {
     // to Lely, the local inquiry becomes a sealed escalation to the regional
     // office. MainQuest itself is the ferry authorization; no inventory token
     // or parallel progression flag is created.
-    dialogue.pages = [
-      ['“Dreyfuss is dead. Garrick is still missing. The ruins below the basin have already cost more than one life.”'],
-      ['“The death, the casualties in those ruins, and the structure itself are beyond what Calwick or Drenwick can responsibly investigate alone.”',
-       '“We do not have the expertise here, and I will not manufacture it by giving you a longer title.”'],
-      ['He places a thick envelope on the desk. The district seal crosses the flap.',
-       '“This is the report. You will carry it east to the regional office in Mornay and request qualified assistance.”'],
-      ['“They will want your firsthand account. You saw the Gallery, the body, and what came out of the lower rooms.”',
-       '“Principally, I am sending the report. You are the portion of it capable of answering questions.”'],
-      ['“The causeway is still broken. The Empire has sent a cable ferry to move people across while it is repaired.”',
-       '“Temporary, according to the same works notice they have renewed for six years.”',
-       '“Your assignment is the authorization. The operator has the office seal list.”'],
-      ['Esla closes the file she has been working on and comes to the desk.',
-       'The Supervisor turns to her. “The road to Mornay is long, and growing less safe. I can scarcely spare you. We are short of staff already.”'],
-      ['“I know what happened to Dreyfuss,” Esla says. “And I know that road. Sending Lely alone would be irresponsible.”',
-       '“Your work here will not do itself,” the Supervisor says.'],
-      ['“It has never shown much inclination,” Esla says. “I will leave it in order. I am going with her.”',
-       'The Supervisor folds his hands. “I had meant to ask.”'],
-      ['“Then you have my answer.” Esla looks at Lely. “You know the Gallery. I know the road. We should make this journey together.”',
-       '“Very well,” the Supervisor says. “I will cover your files. Lely, you still carry the report.”'],
-      ['“Deliver the report. Answer what they ask. Bring back people qualified to decide what happens next.”',
-       '“Do not decide it for them on the road.”'],
-    ];
-    dialogue.callbacks = [completeMq5Assignment];
+    mq5AssignmentCutscene.open();
   } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed && MainQuest >= 5) {
     dialogue.pages = [
       ['“The sealed report goes to the regional office in the eastern city of Mornay.”',
@@ -1331,6 +1314,7 @@ function interactCalwickOffice() {
           ...dialogue.pages,
         ];
       }
+      setUniformSpeakerDialoguePages(dialogue.pages,'esla');
       dialogue.open = true;
       dialogue.page = 0;
       return true;
@@ -1792,6 +1776,7 @@ function interactCalwickInn() {
           ['“You can stand here, though.',
            'You don’t have to say anything.”'],
         ];
+        setUniformSpeakerDialoguePages(dialogue.pages,'esla');
         dialogue.open = true;
         dialogue.page = 0;
         return true;
@@ -1803,6 +1788,7 @@ function interactCalwickInn() {
            'She turns her glass a quarter-turn.',
            '“It didn’t feel true when I said it.”'],
         ];
+        setUniformSpeakerDialoguePages(dialogue.pages,'esla');
         dialogue.open = true;
         dialogue.page = 0;
         return true;
@@ -2038,6 +2024,7 @@ function interactCalwickInn() {
            '\u201cWith you, I keep having to remind myself.\u201d'],
         ];
       }
+      setUniformSpeakerDialoguePages(dialogue.pages,'esla');
       dialogue.open = true;
       dialogue.page = 0;
       return true;

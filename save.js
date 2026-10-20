@@ -412,6 +412,7 @@ window.canSaveHere = canSaveHere;
 // ─── All mutable game state that must survive a save/load cycle should be
 // ─── included here. Add new persistent variables to both saveGame() and loadGame().
 function saveGame() {
+  if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   // Authoritative guard: refuse to write anything at all on a blocked map,
   // regardless of caller. Returns before touching localStorage or any menu
   // state -- the caller (normally input.js's save-confirm handler, which
@@ -582,6 +583,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore

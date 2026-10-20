@@ -2746,7 +2746,9 @@ function drawEslaSprite() {
   const atInnDayoff = townBuilding === 'inn' && isDayOff();
   if (townBuilding !== 'office' && !atInnDayoff) return;
   const pos = atInnDayoff ? ESLA_DAYOFF : ESLA;
-  drawEslaFigure(pos);
+  const route=!atInnDayoff&&typeof NPC_ROUTES!=='undefined'?NPC_ROUTES[ESLA.id]:null;
+  if(route&&route.moving&&!route.done)drawWalkingEslaFigure(pos,route.facing,route.step);
+  else drawEslaFigure(pos);
 }
 
 function drawInfirmaryEslaSprite(npc) {
@@ -2801,6 +2803,32 @@ function drawEslaFigureBody(px, py, scale = 1) {
   ctx.fillStyle = '#181620';
   ctx.fillRect(px + S(-3), py + S(-18), S(2), S(2));
   ctx.fillRect(px + S(1),  py + S(-18), S(2), S(2));
+}
+
+// Route-only walking pose for Esla's real office projection. It uses the same
+// two-frame `step >> 3` cadence as the player and shared NPC route sprites while
+// retaining her authored proportions and palette. The stationary helper above
+// remains untouched and therefore pixel-identical everywhere else.
+function drawWalkingEslaFigure(pos,facing,step) {
+  const px=Math.round(pos.x),py=Math.round(pos.y),frame=(step>>3)&1;
+  const horizontal=facing==='left'||facing==='right';
+  const dir=facing==='left'?-1:facing==='right'?1:0;
+  const swing=frame===0?1:-1;
+  let leftX=px-5,rightX=px+1,leftH=8,rightH=8;
+  if(horizontal){const stride=frame===0?2:-2;leftX+=stride*dir;rightX-=stride*dir;}
+  else{leftH=frame===0?9:7;rightH=frame===0?7:9;}
+  ctx.fillStyle='rgba(0,0,0,0.18)';ctx.beginPath();ctx.ellipse(px,py+10,9,3,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#2a3848';ctx.fillRect(leftX,py,4,leftH);ctx.fillRect(rightX,py,4,rightH);
+  ctx.fillStyle='#181820';ctx.fillRect(leftX-1,py+leftH-2,5,3);ctx.fillRect(rightX,py+rightH-2,5,3);
+  ctx.fillStyle='#3a6868';ctx.fillRect(px-7,py-12,14,13);
+  ctx.fillRect(px-11,py-7+swing,5,5);ctx.fillRect(px+6,py-7-swing,5,5);
+  ctx.fillStyle='#d0c8b8';ctx.fillRect(px-2,py-12,4,5);
+  ctx.fillStyle='#c09878';ctx.fillRect(px-5,py-24,10,13);
+  ctx.fillStyle='#2a9a28';ctx.fillRect(px-6,py-26,12,5);ctx.fillRect(px-7,py-22,3,20);ctx.fillRect(px+4,py-22,3,20);
+  ctx.fillStyle='#1e7820';ctx.fillRect(px-7,py-4,3,4);ctx.fillRect(px+4,py-4,3,4);
+  if(facing!=='up'){
+    ctx.fillStyle='#181620';ctx.fillRect(px-3+2*dir,py-18,2,2);ctx.fillRect(px+1+2*dir,py-18,2,2);
+  }
 }
 
 function drawEslaFigure(pos) {

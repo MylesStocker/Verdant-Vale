@@ -1398,7 +1398,16 @@ function wakeAtDrenwickInfirmary() {
   transitionToLocation({ mapId: 'DRENWICK_INFIRMARY_MAP', x: 7.5 * TILE, y: 8.5 * TILE, facing: 'up',
     state: { inTown: true, currentTownId: 'drenwick', townBuilding: 'infirmary' }, cooldown: true }); // ward aisle by the beds
   dialogue.name      = 'Esla';
-  dialogue.pages     = ESLA_INFIRMARY_WAKE_PAGES;
+  setSpeakerDialoguePages([
+    {speakerId:null,lines:ESLA_INFIRMARY_WAKE_PAGES[0]},
+    {speakerId:'esla',lines:[ESLA_INFIRMARY_WAKE_PAGES[1][0]]},
+    {speakerId:null,lines:[ESLA_INFIRMARY_WAKE_PAGES[1][1]]},
+    {speakerId:'esla',lines:ESLA_INFIRMARY_WAKE_PAGES[2]},
+    {speakerId:'esla',lines:ESLA_INFIRMARY_WAKE_PAGES[3]},
+    {speakerId:'esla',lines:[ESLA_INFIRMARY_WAKE_PAGES[4][0]]},
+    {speakerId:null,lines:[ESLA_INFIRMARY_WAKE_PAGES[4][1]]},
+    {speakerId:'esla',lines:ESLA_INFIRMARY_WAKE_PAGES[5]},
+  ]);
   dialogue.callbacks = [];   // NOT null: handleInteract reads .length right after this returns
   dialogue.styleId   = null;
   dialogue.presentation = 'box';

@@ -186,9 +186,11 @@ test('authenticated generated records compose with mixed ordinary groups for eve
 test('production progression from first assignment through Receiver, MQ5, backtracking, Fallen ferry and recovery',()=>{
 const g=createContext();
 const run=s=>g.run(s),J=s=>JSON.parse(run('JSON.stringify('+s+')'));
-function close(){run('var closeGuard=0;while(dialogue.open){if(closeGuard++>100)throw Error("dialogue loop");handleInteract()}');}
+function close(){run(`var closeGuard=0;while(dialogue.open||mq5AssignmentCutscene.getView().phase==='walking'){
+ if(closeGuard++>600)throw Error('dialogue loop');if(dialogue.open)handleInteract();else update();
+}`);}
 function choose(index){run('choice.cursor='+index);g.press('Enter');close();}
-function supervisor(){run('supervisorDialogueBody()');close();}
+function supervisor(){if(run('mq5AssignmentReady()'))run(`transitionToLocation({mapId:'OFFICE_MAP',x:384,y:104,facing:'up',state:{inTown:true,currentTownId:'calwick',townBuilding:'office'}})`);run('supervisorDialogueBody()');close();}
 function rest(){run('enterHouse("player_house");player.x=HOUSE_DATA.player_house.bed.x;player.y=HOUSE_DATA.player_house.bed.y;interactHouseInterior()');choose(0);close();}
 function pay(){run('enterTown("calwick");enterBuilding("office");player.x=SIMPLE_NPCS.find(n=>n.id==="petra").x;player.y=SIMPLE_NPCS.find(n=>n.id==="petra").y;interactCalwickOffice()');close();}
 close();run('console=Object.create(console);console.log=()=>{};Math=Object.create(Math);Math.random=()=>.5');

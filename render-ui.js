@@ -794,6 +794,14 @@ const DIALOGUE_TEXT_STYLES = Object.freeze({
     boxColor: '#f7ead7', outerBorderColor: '#a85f78',
     innerBorderColor: '#d5a267', cornerColor: '#f0bd5f', lineHeight: 23,
   }),
+  [ESLA_DIALOGUE_STYLE_ID]: Object.freeze({
+    bodyFont: '14px "Courier New", monospace',
+    nameFont: 'bold 13px "Courier New", monospace',
+    promptFont: 'bold 12px "Courier New", monospace',
+    bodyColor: '#a8e89c', nameColor: '#8fda86', promptColor: '#8fda86',
+    boxColor: '#08121e', outerBorderColor: '#5a8a9a',
+    innerBorderColor: '#2a4e5e', cornerColor: '#8ac8d8', lineHeight: 22,
+  }),
 });
 
 function dialogueTextStyle(styleId) {
@@ -836,7 +844,8 @@ function drawDialogue() {
 
   const BX = 8, BY = 358, BW = 496, BH = 114;
   const PAD = 14;
-  const style = dialogueTextStyle(dialogue.styleId);
+  let pagePresentation = dialoguePagePresentation();
+  let style = dialogueTextStyle(pagePresentation.styleId);
 
   // The cutaway's first two lines sit directly on the already-white dream
   // field. They still use ordinary dialogue pages/advance behavior; only their
@@ -890,10 +899,10 @@ function drawDialogue() {
   if (layout.portrait) ctx.drawImage(layout.portrait, layout.portraitX, layout.portraitY);
 
   // Name plate (omitted for system messages like chest opened)
-  if (dialogue.name) {
+  if (pagePresentation.name) {
     ctx.fillStyle = style.nameColor;
     ctx.font = style.nameFont;
-    ctx.fillText(dialogue.name, layout.textX, BY + 24);
+    ctx.fillText(pagePresentation.name, layout.textX, BY + 24);
   }
 
   // Separator line under name
@@ -912,8 +921,23 @@ function drawDialogue() {
   if (dialogue._preprocessedFor !== dialogue.pages) {
     const maxVisLines = Math.max(1, Math.floor((BH - 40) / style.lineHeight));
     const measure = (s) => ctx.measureText(s).width;
-    dialogue.pages = paginateDialoguePages(dialogue.pages, maxLineW, maxVisLines, measure);
+    const sourcePages = dialogue.pages;
+    const sourceSpeakers = dialogue._speakerPagesFor === sourcePages ? dialogue.pageSpeakers : null;
+    if (sourceSpeakers) {
+      const pages = [], speakers = [];
+      sourcePages.forEach((page, index) => {
+        const visual = paginateDialoguePages([page], maxLineW, maxVisLines, measure);
+        for (const part of visual) { pages.push(part); speakers.push(sourceSpeakers[index]); }
+      });
+      dialogue.pages = Object.freeze(pages.map(page => Object.freeze(page)));
+      dialogue.pageSpeakers = Object.freeze(speakers);
+      dialogue._speakerPagesFor = dialogue.pages;
+    } else {
+      dialogue.pages = paginateDialoguePages(dialogue.pages, maxLineW, maxVisLines, measure);
+    }
     dialogue._preprocessedFor = dialogue.pages;
+    pagePresentation = dialoguePagePresentation();
+    style = dialogueTextStyle(pagePresentation.styleId);
   }
 
   // Guard against a dialogue opened with zero pages (or a cursor past the

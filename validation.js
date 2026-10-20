@@ -1194,6 +1194,13 @@ function validateNPCs() {
   const houseIds = (typeof HOUSE_DATA !== 'undefined') ? new Set(Object.keys(HOUSE_DATA)) : null;
   const actionsKnown = (typeof NPC_ACTIONS !== 'undefined');
 
+  if(typeof DIALOGUE_SPEAKER_DEFINITIONS==='undefined')addValidationError(GROUP,'dialogue speaker registry is missing');
+  else for(const speakerId of Object.keys(DIALOGUE_SPEAKER_DEFINITIONS)){
+    try{dialogueSpeakerDefinition(speakerId);}catch(error){
+      addValidationError(GROUP,'speaker "'+speakerId+'": '+String(error&&error.message||error));
+    }
+  }
+
   const seenIds = new Set();
   // Solid-NPC overlap detection groups by (resolved map string, day) since
   // that's the actual runtime key drawSimpleNPCs()/canWalk() filter on;
@@ -1280,6 +1287,12 @@ function validateNPCs() {
 
     if (npc.spriteType !== undefined && !VALID_SPRITE_TYPES.has(npc.spriteType))
       addValidationWarning(GROUP, lbl + ': spriteType "' + npc.spriteType + '" is not a known type (falls back to \'clerk\' at runtime, so not fatal -- likely a typo)');
+
+    if(npc.speakerId!==undefined){
+      try{dialogueSpeakerDefinition(npc.speakerId);}catch(error){
+        addValidationError(GROUP,lbl+': invalid speakerId "'+String(npc.speakerId)+'"');
+      }
+    }
 
     if (npc.action !== undefined && npc.action !== null) {
       const t = typeof npc.action;

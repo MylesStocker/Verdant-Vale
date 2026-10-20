@@ -22,7 +22,8 @@ function third(){
   payload.party.order.push('fixture_third');payload.party.characters.push({characterId:'fixture_third',hp:5,maxHp:20,atk:4,def:1,spd:5,level:1,xp:0,statuses:[],equipment:{weapon:null,armor:null,shield:null,accessory:null},slitherSpeed:1});
   localStorage.setItem('verdantVale_save',JSON.stringify(payload));loadGame()`);return g;
 }
-function checkpointParty(){const g=fresh(false);g.run(`storyCheckpointLab.apply('mq5_assignment_ready');supervisorDialogueBody();finishDialogue()`);return g;}
+function checkpointParty(){const g=fresh(false);g.run(`storyCheckpointLab.apply('mq5_assignment_ready');supervisorDialogueBody();finishDialogue();
+ var guard=0;while(mq5AssignmentCutscene.getView().phase==='walking'){if(guard++>400)throw Error('MQ5 walk stalled');update()}finishDialogue()`);return g;}
 
 test('solo menu recording, controls and absence of party hints remain exact',()=>{
  const g=fresh(false);g.run('menu.open=true;tick=32');const p=paint(g);

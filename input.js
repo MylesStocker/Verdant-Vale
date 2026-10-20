@@ -12,6 +12,7 @@ const pressedKeys = Object.create(null);
 const keys = new Proxy(pressedKeys, {
   get(pressed, key) {
     const held = pressed[key];
+    if (held && typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
     if (held && canonicalPartyCombat.isActive()) return false;
     if (held && combatPlayerState.hasParty()) return false;
     if (held && galleryReceiverEncounter.blocksWorldInput()) return false;
@@ -139,6 +140,13 @@ function handlePartyCombatLabInput(command) {
 }
 
 window.addEventListener('keydown', e => {
+  if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) {
+    const wasHeld=pressedKeys[e.key];pressedKeys[e.key]=true;
+    const confirm=e.key===' '||e.key==='Enter';
+    if(confirm||e.key.startsWith('Arrow')||['m','M','Escape','`'].includes(e.key))e.preventDefault();
+    if(!wasHeld&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&confirm&&dialogue.open)handleInteract();
+    return;
+  }
   if (storyCheckpointLab.isOpen()) {
     const wasHeld=pressedKeys[e.key];pressedKeys[e.key]=true;
     if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){

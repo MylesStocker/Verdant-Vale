@@ -699,14 +699,40 @@ is no second Esla record, runtime identity allocation, RNG, resource grant or
 recruitment flag. Already recruited members are never reset. Completed MQ5
 conversations use the existing short reminder and no recruitment callback.
 
-The scene establishes Esla at the office desk through attributed dialogue, using
-the existing page/callback system. She chooses the journey; the Supervisor's
-reluctance concerns staff capacity. MainQuest remains the ferry authorization.
-The active Sealed Report note derives the joint Mornay objective from canonical
-membership. `npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared
-by Calwick drawing, collision and interaction, and the infirmary follow-up's map
-projection. Ordinary dialogue and reusable Esla figure drawing are unchanged.
-No follower or new save binding is introduced. Test 179 covers these boundaries.
+The assignment presentation is owned transiently by
+`mq5-assignment-cutscene.js`. It divides the existing authored conversation into
+Supervisor, narration and Esla pages, closes dialogue after the ferry briefing,
+and lends Esla's one real office projection to the established `NPC_ROUTES`
+waypoint runtime. Esla walks right from `(4.5,9.5)` to `(13.5,9.5)`, then north
+to `(13.5,3.5)`, where she faces left beside the desk. The route is validated
+against office terrain, furniture, fixed NPCs and every legal Supervisor talk
+pose before it is installed. While it runs, it exclusively owns input and the
+simulation: menus, interactions, save/load and world advancement are blocked,
+while rendering and route animation continue. It consumes no RNG and has no
+saved midpoint. Arrival reopens the rest of the same conversation; only its final
+acknowledgement invokes the unchanged `completeMq5Assignment()` authority.
+Failure clears the transient route/dialogue, restores Esla's home projection,
+unlocks controls and retains a diagnostic without partially recruiting her.
+
+Speaker presentation is an explicit page contract rather than prose inference.
+`DIALOGUE_SPEAKER_DEFINITIONS` in `npcs.js` maps stable speaker IDs to a name and
+validated named dialogue style. `state.js:setSpeakerDialoguePages()` accepts only
+closed `{speakerId, lines}` records, clones and freezes them, validates every
+speaker before installation, and treats `speakerId:null` as narration/default.
+`render-ui.js:drawDialogue()` resolves name and style independently for every
+page and carries the speaker identity through visual repagination, so a coloured
+page cannot leak into the next one. Esla's durable character and NPC definitions
+use speaker ID `esla`; its named `esla_light_green` style uses readable pale-green
+body `#a8e89c` and name/prompt `#8fda86` on the unchanged dialogue box. Legacy
+string-array dialogue remains valid and byte-for-byte default-styled.
+
+Esla still chooses the journey; the Supervisor's reluctance concerns staff
+capacity. MainQuest remains the ferry authorization. The active Sealed Report
+note derives the joint Mornay objective from canonical membership.
+`npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared by Calwick
+drawing, collision and interaction, and the infirmary follow-up's map projection.
+No follower or new save binding is introduced. Tests 179 and 194 cover these
+boundaries.
 
 Recruitment activates canonical party routing for supported ordinary encounters.
 
@@ -3307,6 +3333,14 @@ word-wraps **each string independently** to the box width (496px box, 468px
 text) and treats the boundary between two strings as a **hard line break**;
 the wrapped sub-lines are then repaginated into height-safe visual pages of at
 most three lines each.
+
+Pages may alternatively be installed through
+`setSpeakerDialoguePages([{speakerId, lines}, ...])` when a mixed-speaker scene
+needs explicit presentation identity. `speakerId` must be a registered stable ID
+or `null` for narration; unknown IDs, malformed/accessor records and unknown
+fields fail before dialogue state changes. Speaker identity determines only the
+name plate and named text style. It is transient presentation state and never
+enters version-5 saves.
 
 Because of that, the rule for authoring content is:
 

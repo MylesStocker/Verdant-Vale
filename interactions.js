@@ -44,7 +44,8 @@ function interactSimpleNPCs() {
         patrolNpcTalk(npc);
       } else {
         dialogue.name  = npc.name;
-        dialogue.pages = npc.dialogue;
+        if (npc.speakerId) setUniformSpeakerDialoguePages(npc.dialogue, npc.speakerId);
+        else dialogue.pages = npc.dialogue;
         dialogue.open  = true;
         dialogue.page  = 0;
       }
@@ -76,6 +77,8 @@ function openDialogue(name, pages, callbacks, options) {
   dialogue.presentation = opts.presentation || 'box';
   dialogue.portraitId = opts.portraitId || null;
   dialogue.portraitSide = opts.portraitSide || null;
+  dialogue.pageSpeakers = null;
+  dialogue._speakerPagesFor = null;
   dialogue.open      = true;
   dialogue.page      = 0;
 }
@@ -2072,6 +2075,8 @@ function finishDialogue() {
   dialogue.presentation = 'box';
   dialogue.portraitId = null;
   dialogue.portraitSide = null;
+  dialogue.pageSpeakers = null;
+  dialogue._speakerPagesFor = null;
   if (dialogue.callbacks) {
     const cb = dialogue.callbacks.shift();
     if (cb) cb();

@@ -8,8 +8,13 @@ function fresh(){const g=createContext();g.run('dialogue.open=false;dialogue.cal
 function ready(g){g.run(`fort_quest_stage=6;sluice_job_started=true;sluice_fixed=true;sluice_reward_given=true;
  dispatch_quest_started=true;dispatch_delivered=true;dispatch_rewarded=true;fort_quest_started=true;
  mq4_available_day=1;reservoir_quest_started=true;reservoir_report_filed=true;gallery_receiver_defeated=true;
- window.gallery_body_found=true;sera_liora_opening_complete=true;MainQuest=4;syncQuestFlagsToWindow();`);}
-function assign(g){g.run('supervisorDialogueBody();finishDialogue()');assert.equal(g.run('MainQuest'),5);}
+ window.gallery_body_found=true;sera_liora_opening_complete=true;MainQuest=4;syncQuestFlagsToWindow();
+ transitionToLocation({mapId:'OFFICE_MAP',x:384,y:104,facing:'up',state:{inTown:true,currentTownId:'calwick',townBuilding:'office'}});`);}
+function assign(g){
+ g.run("transitionToLocation({mapId:'OFFICE_MAP',x:384,y:104,facing:'up',state:{inTown:true,currentTownId:'calwick',townBuilding:'office'}});supervisorDialogueBody();finishDialogue()");assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'walking');
+ let guard=0;while(g.run(`mq5AssignmentCutscene.getView().phase==='walking'`)){g.frames(1);assert.ok(guard++<400);}
+ assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'dialogue');g.run('finishDialogue()');assert.equal(g.run('MainQuest'),5);
+}
 const state=g=>g.run('JSON.stringify({party:persistentParty.serialize(),stats,statusEffects,slitherSpd,MainQuest,flags:QUEST_FLAG_BINDINGS.map(b=>b.get()),player,day,tick,enemySequence:combatEnemyInstanceSequence})');
 function seed(g,edit){g.run('dialogue.open=false;saveGame();var payload=JSON.parse(localStorage.getItem("verdantVale_save"));'+edit+';localStorage.setItem("verdantVale_save",JSON.stringify(payload))');assert.equal(g.run('loadGame()'),true);}
 function paint(g){g.run('paint=[];drawMenu()');return J(g,'paint').filter(p=>p.type==='text').map(p=>p.args[0]);}
@@ -18,7 +23,8 @@ function extra(g,i){g.run('menu.itemCursor=groupItems().length+'+i);g.press('Ent
 test('pre-MQ5 membership remains Lely-only, with Esla available as an NPC',()=>{
  const g=fresh();assert.deepEqual(J(g,'persistentParty.serialize().order'),['lely']);assert.equal(g.run('eslaAvailableAsNpc()'),true);
  ready(g);g.run('supervisorDialogueBody()');assert.equal(g.run('MainQuest'),4);assert.equal(g.run('persistentParty.getMember("esla")'),null);
- assert.equal(g.run('dialogue.callbacks[0]===completeMq5Assignment'),true);
+ assert.equal(g.run('typeof dialogue.callbacks[0]'), 'function');
+ assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'idle');
 });
 test('every established prerequisite is revalidated before completion',()=>{
  for(const edit of ['fort_quest_stage=5','reservoir_quest_started=false','reservoir_report_filed=false','window.gallery_body_found=false','sera_liora_opening_complete=false']){
@@ -35,9 +41,10 @@ test('debug Sera/Liora preview is neutral; canonical completion enables, but doe
  g.run('dialogue.open=false;');assign(g);
 });
 test('the assignment retains its setup and gives Esla explicit agency without a player choice',()=>{
- const g=fresh();ready(g);g.run('supervisorDialogueBody()');const text=g.run('dialogue.pages.flat().join(" ")');
+ const g=fresh();ready(g);g.run('supervisorDialogueBody()');
+ const text=g.run('[...MQ5_ASSIGNMENT_OPENING_PAGES,...MQ5_ASSIGNMENT_AFTER_WALK_PAGES].flatMap(page=>page.lines).join(" ")');
  for(const re of [/Dreyfuss is dead/,/Garrick is still missing/,/beyond what Calwick or Drenwick/,/district seal/,/firsthand account/,/Empire has sent a cable ferry/,/six years/,/Mornay is long/,/short of staff/,/Sending Lely alone would be irresponsible/,/I am going with her/,/You know the Gallery\. I know the road/,/Lely, you still carry the report/])assert.match(text,re);
- assert.doesNotMatch(text,/Rareborn|Resonance|romance|bodyguard/);assert.equal(g.run('choice.open'),false);
+ assert.doesNotMatch(text,/Rareborn|Resonance|romance|bodyguard|closes the file.*comes to the desk/);assert.equal(g.run('choice.open'),false);
  assert.equal(g.run('dialogue.callbacks.length'),1);
 });
 test('the paginated Supervisor scene recruits only after its final confirmed page',()=>{
@@ -46,6 +53,13 @@ test('the paginated Supervisor scene recruits only after its final confirmed pag
   assert.equal(g.run('persistentParty.getMember("esla")'),null);
   assert.equal(g.run('MainQuest'),4);assert.ok(pages++<80);
   g.press('Enter');if(g.run('dialogue.open'))g.run('drawDialogue()');
+ }
+ assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'walking');
+ let frames=0;while(g.run(`mq5AssignmentCutscene.getView().phase==='walking'`)){g.frames(1);assert.ok(frames++<400);}
+ assert.equal(g.run('dialogue.open'),true);g.run('drawDialogue()');
+ while(g.run('dialogue.open')){
+  assert.equal(g.run('persistentParty.getMember("esla")'),null);assert.equal(g.run('MainQuest'),4);
+  assert.ok(pages++<80);g.press('Enter');if(g.run('dialogue.open'))g.run('drawDialogue()');
  }
  assert.ok(pages>=10);assert.equal(g.run('MainQuest'),5);
  assert.equal(g.run('persistentParty.getMember("esla").level'),11);
@@ -70,15 +84,18 @@ test('repeat conversation and repeated completion cannot reset Esla or replay re
 });
 test('an already populated roster is never reset when finishing the assignment',()=>{
  const g=fresh();ready(g);g.run('persistentParty.joinEsla();');seed(g,'payload.party.characters[0].hp=1;payload.party.characters[0].statuses=["poison"]');
- const member=g.run('JSON.stringify(persistentParty.getMember("esla"))');assign(g);assert.equal(g.run('JSON.stringify(persistentParty.getMember("esla"))'),member);
+ const member=g.run('JSON.stringify(persistentParty.getMember("esla"))');assert.equal(g.run('completeMq5Assignment()'),true);assert.equal(g.run('JSON.stringify(persistentParty.getMember("esla"))'),member);
 });
 test('malformed preparation options and invalid canonical state fail atomically before MQ5 advances',()=>{
  const g=fresh();ready(g);
  for(const expr of ['persistentParty.joinEsla({level:0})','persistentParty.joinEsla({level:11,extra:1})','persistentParty.joinEsla({get level(){throw Error("getter executed")}})','persistentParty.joinEsla(Object.create({level:11}))','persistentParty.joinEsla({level:NaN})']){
   const b=state(g);assert.throws(()=>g.run(expr),/Invalid persistent/);assert.equal(state(g),b);
  }
- g.run('stats.hp=-1;supervisorDialogueBody()');const b=state(g);assert.throws(()=>g.run('finishDialogue()'),/Invalid persistent/);assert.equal(state(g),b);
- assert.equal(g.run('MainQuest'),4);assert.equal(g.run('persistentParty.getMember("esla")'),null);
+ g.run('stats.hp=-1;supervisorDialogueBody();finishDialogue()');let guard=0;
+ while(g.run(`mq5AssignmentCutscene.getView().phase==='walking'`)){g.frames(1);assert.ok(guard++<400);}
+ const b=state(g);g.run('finishDialogue()');assert.equal(state(g),b);
+ assert.match(g.run('mq5AssignmentCutscene.getView().lastError'),/Invalid persistent/);
+ assert.equal(g.run('mq5AssignmentCutscene.getView().phase'),'fault');assert.equal(g.run('MainQuest'),4);assert.equal(g.run('persistentParty.getMember("esla")'),null);
 });
 test('conflicting detached combat preparation prevents both recruitment and advancement',()=>{
  const g=fresh();ready(g);g.run('combatPlayerState.initialize([{characterId:"fixture_a",slot:0,name:"A",hp:1,maxHp:1,atk:1,def:1,spd:1,statuses:[]},{characterId:"fixture_b",slot:1,name:"B",hp:1,maxHp:1,atk:1,def:1,spd:1,statuses:[]}])');

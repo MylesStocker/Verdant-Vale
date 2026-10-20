@@ -5,7 +5,7 @@
 // scale (50 HP / 10 ATK / 4 DEF / 8 SPD). MQ5 recruits through this authority.
 const PERSISTENT_CHARACTER_DEFINITIONS = Object.freeze({
   lely:Object.freeze({id:'lely',slot:0,name:'Lély',rareBorn:false,affinity:null}),
-  esla:Object.freeze({id:'esla',slot:1,name:'Esla',rareBorn:true,affinity:'bloommarked',provisional:true,
+  esla:Object.freeze({id:'esla',slot:1,name:'Esla',speakerId:'esla',rareBorn:true,affinity:'bloommarked',provisional:true,
     progression:Object.freeze({hpBase:30,hpPerLevel:5,atkBase:6,atkPerLevel:1,
       defBase:2,defEveryLevels:2,spdBase:6,spdEveryLevels:2})}),
 });

@@ -2214,6 +2214,15 @@ NPC_ACTIONS.kolmBrawler = function(npc) {
 
 const TALK_RADIUS = 28; // px; must be within this to open dialogue (~0.9 tiles)
 
+// Stable speaker presentation metadata. Dialogue authoring opts into these
+// identities explicitly; rendering never guesses a speaker from prose or from
+// whichever NPC happens to be nearby. `null` remains the legacy/default style.
+const ESLA_DIALOGUE_STYLE_ID = 'esla_light_green';
+const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
+  supervisor: Object.freeze({speakerId:'supervisor',name:'Supervisor',dialogueStyleId:null}),
+  esla: Object.freeze({speakerId:'esla',name:'Esla',dialogueStyleId:ESLA_DIALOGUE_STYLE_ID}),
+});
+
 // ─── Merchant ─────────────────────────────────────────────────────────────────
 const MERCHANT = { x: 9.5 * TILE, y: 7.5 * TILE }; // col 9, row 7 in TOWN_MAP
 
@@ -2294,7 +2303,8 @@ const CORVIN_CABINET  = { x: 4.5 * TILE, y: 2.5 * TILE };
 // ─── Esla (office NPC) ────────────────────────────────────────────────────────
 // Second filing cabinet (lower-left area, col 3, row 9); Esla stands beside it.
 const ESLA_CABINET = { x: 3.5 * TILE, y: 9.5 * TILE };
-const ESLA         = { x: 4.5 * TILE, y: 9.5 * TILE };
+const ESLA         = { id:'esla_office', name:'Esla', speakerId:'esla', map:'office', solid:true,
+  x:4.5*TILE, y:9.5*TILE, facing:'up' };
 // One read-only membership gate for Esla's independent world projections.
 // Her figure renderer remains reusable by the isolated Combat Lab.
 function eslaAvailableAsNpc() { return persistentParty.getMember('esla') === null; }

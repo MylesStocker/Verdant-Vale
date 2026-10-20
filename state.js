@@ -257,7 +257,8 @@ function groupItems() {
 
 function toggleMenu() {
   if (galleryReceiverEncounter.isLocked()) return;
-  if (seraLioraCutscene.active || dialogue.open || shop.open || continentMap.open || accordPanel.open) return;
+  if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&mq5AssignmentCutscene.isActive()) ||
+      dialogue.open || shop.open || continentMap.open || accordPanel.open) return;
   menu.open = !menu.open;
   if (menu.open) {
     debugMenu.open    = false;
@@ -271,7 +272,8 @@ function toggleMenu() {
 
 function toggleDebugMenu() {
   if (galleryReceiverEncounter.isLocked()) return;
-  if (seraLioraCutscene.active || dialogue.open || shop.open || choice.open || combat.active) return;
+  if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&mq5AssignmentCutscene.isActive()) ||
+      dialogue.open || shop.open || choice.open || combat.active) return;
   debugMenu.open = !debugMenu.open;
   if (debugMenu.open) {
     menu.open      = false;
@@ -297,7 +299,90 @@ const dialogue = {
   presentation: 'box',
   portraitId: null,
   portraitSide: null,
+  // Explicit speaker binding for structured dialogue. The identity check keeps
+  // stale metadata from affecting legacy callers that replace `pages` directly.
+  pageSpeakers: null,
+  _speakerPagesFor: null,
 };
+
+function _dialoguePlainRecord(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return [Object.prototype, Object.getPrototypeOf({})].includes(Object.getPrototypeOf(value));
+}
+
+function _dialogueClosedRecord(value, keys) {
+  if (!_dialoguePlainRecord(value)) throw new Error('Invalid dialogue page record');
+  const fields = Object.getOwnPropertyDescriptors(value);
+  if (Reflect.ownKeys(fields).length !== keys.length ||
+      keys.some(key => !fields[key] || !Object.hasOwn(fields[key], 'value')))
+    throw new Error('Invalid dialogue page record');
+  return Object.fromEntries(keys.map(key => [key, fields[key].value]));
+}
+
+function validateDialogueSpeakerDefinition(record, expectedId = null) {
+  const value = _dialogueClosedRecord(record, ['speakerId','name','dialogueStyleId']);
+  if (typeof value.speakerId !== 'string' || !value.speakerId ||
+      (expectedId !== null && value.speakerId !== expectedId) ||
+      typeof value.name !== 'string' || !value.name ||
+      (value.dialogueStyleId !== null && (typeof value.dialogueStyleId !== 'string' ||
+        typeof DIALOGUE_TEXT_STYLES === 'undefined' ||
+        !Object.prototype.hasOwnProperty.call(DIALOGUE_TEXT_STYLES, value.dialogueStyleId))))
+    throw new Error('Invalid dialogue speaker metadata');
+  return record;
+}
+
+function dialogueSpeakerDefinition(speakerId) {
+  if (typeof speakerId !== 'string' ||
+      !Object.prototype.hasOwnProperty.call(DIALOGUE_SPEAKER_DEFINITIONS, speakerId))
+    throw new Error('Invalid dialogue speaker id');
+  return validateDialogueSpeakerDefinition(DIALOGUE_SPEAKER_DEFINITIONS[speakerId], speakerId);
+}
+
+// Installs closed `{speakerId,lines}` page records. A null speaker is authored
+// narration and therefore uses the exact legacy name/palette. Copies are frozen
+// so presentation cannot be changed after validation but before a later frame.
+function validateSpeakerDialoguePages(records) {
+  if (!Array.isArray(records) || !records.length ||
+      ![Array.prototype, Object.getPrototypeOf([])].includes(Object.getPrototypeOf(records)))
+    throw new Error('Invalid dialogue page records');
+  const pages = [], speakers = [];
+  for (const entry of records) {
+    const value = _dialogueClosedRecord(entry, ['speakerId','lines']);
+    if (value.speakerId !== null) dialogueSpeakerDefinition(value.speakerId);
+    if (!Array.isArray(value.lines) || !value.lines.length ||
+        ![Array.prototype, Object.getPrototypeOf([])].includes(Object.getPrototypeOf(value.lines)) ||
+        value.lines.some(line => typeof line !== 'string'))
+      throw new Error('Invalid dialogue page lines');
+    pages.push(Object.freeze(Array.from(value.lines)));
+    speakers.push(value.speakerId);
+  }
+  return Object.freeze({pages:Object.freeze(pages),speakers:Object.freeze(speakers)});
+}
+
+function setSpeakerDialoguePages(records) {
+  const prepared=validateSpeakerDialoguePages(records);
+  dialogue.pages = prepared.pages;
+  dialogue.pageSpeakers = prepared.speakers;
+  dialogue._speakerPagesFor = dialogue.pages;
+  return dialogue.pages;
+}
+
+function setUniformSpeakerDialoguePages(pages, speakerId) {
+  dialogueSpeakerDefinition(speakerId);
+  if (!Array.isArray(pages)) throw new Error('Invalid dialogue pages');
+  return setSpeakerDialoguePages(Array.from(pages, lines => ({speakerId,lines})));
+}
+
+function dialoguePagePresentation() {
+  if (dialogue._speakerPagesFor === dialogue.pages && dialogue.pageSpeakers &&
+      dialogue.page >= 0 && dialogue.page < dialogue.pageSpeakers.length) {
+    const speakerId = dialogue.pageSpeakers[dialogue.page];
+    if (speakerId === null) return {name:'',styleId:null,speakerId:null};
+    const speaker = dialogueSpeakerDefinition(speakerId);
+    return {name:speaker.name,styleId:speaker.dialogueStyleId,speakerId};
+  }
+  return {name:dialogue.name,styleId:dialogue.styleId,speakerId:null};
+}
 
 // ─── Continent map overlay state ──────────────────────────────────────────────
 // Full-screen inspection panel for the wall map in the Calwick Empire office.

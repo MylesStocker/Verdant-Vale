@@ -93,12 +93,14 @@ const storyCheckpointLab=(()=>{
       location:Object.freeze({...location,state:Object.freeze(proposed.state)})});
   };
   const resetTransient=()=>{
+    if(typeof mq5AssignmentCutscene!=='undefined')mq5AssignmentCutscene.reset();
     canonicalPartyCombat.resetForStoryCheckpoint();scriptedPartyEncounters.resetForStoryCheckpoint();
     formationCombatLab.resetForStoryCheckpoint();partyCombatLab.resetForStoryCheckpoint();
     galleryReceiverEncounter.resetForStoryCheckpoint();resetCombatForStoryCheckpoint();
     persistentParty.resetForStoryCheckpoint();resetFishingForStoryCheckpoint();
     dialogue.open=false;dialogue.page=0;dialogue.pages=[];dialogue.name='';dialogue.triggerEncounterId=null;
     dialogue.callbacks=null;dialogue.styleId=null;dialogue.presentation='box';dialogue.portraitId=null;dialogue.portraitSide=null;
+    dialogue.pageSpeakers=null;dialogue._speakerPagesFor=null;
     choice.open=false;choice.cursor=0;choice.title='';choice.options=[];choice.callbacks=[];
     shop.open=false;shop.screen='main';shop.cursor=0;menu.open=false;menu.screen='main';menu.itemCursor=0;menu.scrollOffset=0;
     menu.saveCursor=0;menu.saveMessage=0;menu.saveBlockedMessage=0;menu.loadCursor=0;menu.loadMessage=0;menu.loadStatus=null;

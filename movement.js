@@ -578,6 +578,12 @@ function update(deltaSeconds) {
   if (formationCombatLab.isOpen()) return;
   galleryReceiverEncounter.updateStairLatch();
   if (galleryReceiverEncounter.blocksWorldInput()) return;
+  // The MQ5 office walk owns simulation exclusively. It advances only its
+  // authenticated Esla route and never ticks world time, cooldowns or encounters.
+  if (typeof mq5AssignmentCutscene !== 'undefined' && mq5AssignmentCutscene.isActive()) {
+    mq5AssignmentCutscene.update();
+    return;
+  }
   // Cooldown ticks every frame regardless of game state
   if (combat.cooldown > 0) combat.cooldown--;
   if (worldToastTimer > 0) worldToastTimer--;
@@ -1416,7 +1422,8 @@ function patrolNpcTalk(npc) {
                                             : (dy >= 0 ? 'down'  : 'up');
   if (rt) { rt.frozen = true; rt.facing = npc.facing; rt.resumeDelay = 30; }
   dialogue.name  = npc.name;
-  dialogue.pages = npc.dialogue;
+  if (npc.speakerId) setUniformSpeakerDialoguePages(npc.dialogue, npc.speakerId);
+  else dialogue.pages = npc.dialogue;
   dialogue.open  = true;
   dialogue.page  = 0;
 }
@@ -1466,6 +1473,15 @@ function npcRouteCanOccupy(npc, nx, ny) {
 // radii) the player's canWalk() does. Add other maps' fixed solids here if a
 // future route NPC lives among them.
 function npcRouteCustomSolidBlocks(nx, ny) {
+  if (inTown && townBuilding === 'office' && currentTownId === 'calwick') {
+    const fixed=[SUPERVISOR,FILING_CABINET,CORVIN_CABINET,ESLA_CABINET];
+    for(const anchor of fixed)if(Math.abs(nx-anchor.x)<18&&Math.abs(ny-anchor.y)<18)return true;
+    // Three ordinary desks and the wide Supervisor desk occupy their drawn
+    // tiles. The thin partition closes col 10 through row 7.
+    for(const col of [3,6,9])if(nx>col*TILE-9&&nx<(col+1)*TILE+9&&ny>3*TILE-9&&ny<4*TILE+9)return true;
+    if(nx>11*TILE-9&&nx<13*TILE+9&&ny>2*TILE-9&&ny<3*TILE+9)return true;
+    if(nx>10*TILE-9&&nx<10*TILE+13&&ny>2*TILE-9&&ny<8*TILE+9)return true;
+  }
   if (inTown && townBuilding === 'house') {
     const hd = (typeof HOUSE_DATA !== 'undefined') ? HOUSE_DATA[currentHouseId] : null;
     if (hd) {
@@ -1605,6 +1621,48 @@ function startNpcRoute(id) {
   return true;
 }
 window.startNpcRoute = startNpcRoute;
+
+// A cutscene may lend the established waypoint runtime to an existing bespoke
+// projection without registering a second SIMPLE_NPCS actor. Only the closed,
+// one-way scriptedRoute shape is accepted. The caller remains responsible for
+// validating authored path occupancy before installation.
+function validateTransientNpcRouteDefinition(npc, movement) {
+  const plain=value=>!!value&&typeof value==='object'&&!Array.isArray(value)&&
+    [Object.prototype,Object.getPrototypeOf({})].includes(Object.getPrototypeOf(value));
+  const closed=(value,keys)=>{
+    if(!plain(value))throw Error('Invalid transient NPC route');
+    const fields=Object.getOwnPropertyDescriptors(value);
+    if(Reflect.ownKeys(fields).length!==keys.length||keys.some(key=>!fields[key]||!Object.hasOwn(fields[key],'value')))
+      throw Error('Invalid transient NPC route');
+    return Object.fromEntries(keys.map(key=>[key,fields[key].value]));
+  };
+  if(!plain(npc)||typeof npc.id!=='string'||!npc.id||typeof npc.map!=='string'||
+      !Number.isFinite(npc.x)||!Number.isFinite(npc.y))throw Error('Invalid transient NPC projection');
+  const value=closed(movement,['type','waypoints','speed','pauseFrames','loop']);
+  if(value.type!=='scriptedRoute'||value.loop!==false||value.pauseFrames!==0||
+      !Number.isFinite(value.speed)||value.speed<=0||!Array.isArray(value.waypoints)||!value.waypoints.length)
+    throw Error('Invalid transient NPC route');
+  const waypoints=value.waypoints.map(entry=>{
+    const point=closed(entry,['x','y']);
+    if(!Number.isFinite(point.x)||!Number.isFinite(point.y)||point.x<0||point.x>=COLS||point.y<0||point.y>=ROWS)
+      throw Error('Invalid transient NPC waypoint');
+    return Object.freeze(point);
+  });
+  return Object.freeze({type:value.type,waypoints:Object.freeze(waypoints),speed:value.speed,
+    pauseFrames:value.pauseFrames,loop:value.loop});
+}
+
+function startTransientNpcRoute(npc, movement) {
+  const mv=validateTransientNpcRouteDefinition(npc,movement);
+  if(NPC_ROUTES[npc.id])return false;
+  NPC_ROUTES[npc.id]={npc,type:'scriptedRoute',waypoints:mv.waypoints.map(wp=>({
+    x:wp.x*TILE,y:wp.y*TILE,pauseFrames:0,
+  })),speed:mv.speed,loop:false,idx:0,pauseLeft:0,step:0,moving:true,done:false,
+    frozen:false,resumeDelay:0,facing:npc.facing};
+  return true;
+}
+window.validateTransientNpcRouteDefinition=validateTransientNpcRouteDefinition;
+window.startTransientNpcRoute=startTransientNpcRoute;
 
 // Per-frame route updater — called only from update()'s tail (see above), so
 // it inherits every global freeze. Movement is orthogonal (x resolved before

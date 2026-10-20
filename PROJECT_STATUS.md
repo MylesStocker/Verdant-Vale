@@ -256,15 +256,29 @@ the ordinary shop loadout `Dragon Blade`, `Shadow Cloak`, `Mithril Shield`, and
 `Fen Mask`. Those values use her existing provisional progression.
 Membership automatically activates the canonical field menu, updates the joint
 ferry/report objective, and removes Esla's independent Calwick office/Dayoff and
-Drenwick infirmary NPC projections. Her ordinary pre-join dialogue is unchanged.
-Test 179 covers recruitment, prerequisites, atomic failure, repeats, world NPCs,
-field-menu targeting and version-5 saves.
+Drenwick infirmary NPC projections. Her ordinary pre-join dialogue wording is
+unchanged and now resolves through stable speaker ID `esla`, whose named
+`esla_light_green` presentation uses body `#a8e89c` and name/prompt `#8fda86`.
+Legacy dialogue, Supervisor speech and narration retain the existing default
+style, selected independently on every page.
+
+The MQ5 scene now shows rather than narrates Esla coming to the desk. After the
+unchanged briefing, dialogue yields to a deterministic two-leg office route:
+`(4.5,9.5) → (13.5,9.5) → (13.5,3.5)`, ending left-facing beside the Supervisor's
+desk. The real Esla projection uses the shared walking cadence; no duplicate actor
+or pathfinder exists. Input, menus and save/load remain locked until arrival,
+then the remaining attributed conversation resumes. Final acknowledgement alone
+calls the existing assignment/recruitment authority, so MainQuest, membership and
+the ferry still change exactly once. The route and speaker metadata are transient,
+consume no RNG and add no save field. Tests 179 and 194 cover recruitment,
+prerequisites, page styling, route geometry, exclusive ownership, reset/repeat
+behavior, world NPCs, field-menu targeting and version-5 saves.
 
 **Current boundary:** approved ordinary western encounters use canonical party
 combat. Unsupported specials and optional scripted encounters reject explicitly;
 their capabilities and quest outcomes have not been adapted. Eastern Fens remains
 encounter-free.
-Browser inspection of the recruitment scene remains outstanding.
+Browser inspection of the updated walk and per-speaker colours remains outstanding.
 
 ### Canonical multi-member field menu
 

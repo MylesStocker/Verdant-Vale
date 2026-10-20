@@ -112,8 +112,10 @@ module.exports = {
 
     // The existing supervisor authority assigns MQ5 once. Dialogue preserves
     // the bounded rationale and uses MainQuest itself as ferry authorization.
-    g.run('dialogue.open=false;choice.open=false;supervisorDialogueBody();');
-    const assignmentDialogue = g.run('dialogue.pages.flat().join(" ")');
+    g.run(`dialogue.open=false;choice.open=false;
+      transitionToLocation({mapId:'OFFICE_MAP',x:384,y:104,facing:'up',state:{inTown:true,currentTownId:'calwick',townBuilding:'office'}});
+      supervisorDialogueBody();`);
+    const assignmentDialogue = g.run('[...MQ5_ASSIGNMENT_OPENING_PAGES,...MQ5_ASSIGNMENT_AFTER_WALK_PAGES].flatMap(page=>page.lines).join(" ")');
     assert.match(assignmentDialogue, /Dreyfuss is dead/i);
     assert.match(assignmentDialogue, /beyond what Calwick or Drenwick can responsibly investigate/i);
     assert.match(assignmentDialogue, /sealed|district seal/i);
@@ -124,6 +126,9 @@ module.exports = {
     assert.match(assignmentDialogue, /temporary|six years/i);
     assert.equal(g.run('dialogue.callbacks.length'), 1);
     g.run('finishDialogue();');
+    assert.equal(g.run('mq5AssignmentCutscene.getView().phase'), 'walking');
+    let walkGuard=0;while(g.run(`mq5AssignmentCutscene.getView().phase==='walking'`)){g.frames(1);assert.ok(walkGuard++<400);}
+    assert.equal(g.run('mq5AssignmentCutscene.getView().phase'), 'dialogue');g.run('finishDialogue();');
     assert.equal(g.run('MainQuest'), 5);
     assert.equal(g.run('dialogue.callbacks'), null);
     const mq5Objective = questNotes(g).find((note) => note.title === 'Sealed Report');
