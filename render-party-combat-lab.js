@@ -176,13 +176,13 @@ function drawPartyCombatStatusRow(member,row,effect,choosing=false,resonance=nul
   ctx.fillStyle=member.hp===0?'#9a6868':'#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText(member.hp===0?['DOWN',...(resonance?.rareBorn?[`Strain ${resonance.strain}`]:[])].join(' '):badges.join(' '),323,y,164);
 }
 function drawPartyCombatCommands(view) {
-  const rareborn=view.commands.includes('resonance'),step=rareborn?94:117,width=rareborn?92:111;
+  const hasResonance=view.commands.includes('resonance'),step=117,width=111;
   const labels={attack:'Attack',resonance:'Resonance',item:'Item',observe:'Observe',run:'Run'};
   view.commands.forEach((command,index)=>{
     const label=labels[command],x=22+index*step,selected=view.phase==='awaiting_action'&&index===view.commandCursor,
       enabled=command==='resonance'?view.enabledCommands?.includes(command):command!=='item'||view.inventory.length>0;
     ctx.fillStyle=selected?'#0e2434':'#080f1a';ctx.fillRect(x,414,width,38);ctx.strokeStyle=selected?'#9ac8d8':'#2a4e5e';ctx.strokeRect(x,414,width,38);
-    ctx.fillStyle=enabled?(selected?'#e0f0e8':'#6b8890'):'#344f5a';ctx.font=`bold ${rareborn?12:13}px "Courier New", monospace`;ctx.fillText((selected?'▶ ':'')+label,x+(rareborn?5:7),439,rareborn?82:99);
+    ctx.fillStyle=enabled?(selected?'#e0f0e8':'#6b8890'):'#344f5a';ctx.font=`bold ${hasResonance?12:13}px "Courier New", monospace`;ctx.fillText((selected?'▶ ':'')+label,x+(hasResonance?5:7),439,99);
   });
 }
 function drawPartyCombatTechniques(view) {

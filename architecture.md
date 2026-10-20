@@ -84,10 +84,10 @@ the prior technique/target. The existing commitment still resolves once and
 creates playback once. No new listener, controller, save field or field command.
 
 The Party Lab alone opts in. The controller derives commands from the current
-actor's explicit Rareborn capability. Commonborn actors such as Lely have four
-boxes: Attack / Item / Observe / Run, x=22/139/256/373, width=111. Rareborn
-actors such as Esla have five: Attack / Resonance / Item / Observe / Run,
-x=22/116/210/304/398, width=92. Both use y=414, height=38. Resonance remains
+actor's authored identity and Rareborn capability. Lely has Attack / Item /
+Observe / Run; Observe is her compensation for lacking Rareborn abilities. Esla
+has Attack / Resonance / Item / Run and cannot select Observe. Both actors use
+four boxes at x=22/139/256/373, width=111, y=414, height=38. Resonance remains
 visible but dimmed/skipped for a strained Rareborn or without a wounded living
 ally. The renderer consumes this controller-owned command list. Technique navigation reuses Up/Down/W/S and
 Enter/Space; Escape/B cancels. Allied targeting uses the existing pale cursor.
@@ -1018,7 +1018,7 @@ The frozen `partyCombatLab` API is:
 | `enter(id)` | Validate everything, install temporary enemies/party, then begin the real session. |
 | `openMenu()` / `moveScenario()` / `closeMenu()` / `startScenario()` | Own the debug-only scenario-selection lifecycle. |
 | `getView()` | Return a detached immutable active/inactive presentation view and recoverable error. |
-| `moveCommand()` / `confirmCommand()` | Forward standard Attack, Item, Observe and Run selection. |
+| `moveCommand()` / `confirmCommand()` | Forward the current actor's menu: Lely has Attack, Item, Observe and Run; Esla has Attack, Resonance, Item and Run. |
 | `moveItem()` / `confirmItem()` / `cancelItem()` | Forward the controller-owned item cursor, scroll and parent cancellation. |
 | `moveTarget()` / `confirmTarget()` / `cancelTargeting()` | Forward exact ally/enemy targeting without accepting identities from input. |
 | `submitAttack(action)` / `backtrack()` | Retain the exact-ID compatibility path and delegate deterministic editing. |

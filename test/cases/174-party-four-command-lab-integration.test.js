@@ -76,12 +76,12 @@ test('Lab inventory uses registry IDs, restrained quantities, and every targetin
   assert.equal(g.run('stats.items.length'),0);assert.equal(g.run('SAVE_VERSION'), 5);
 });
 
-test('command movement wraps with zero RNG and Attack/Observe use exact enemy targets',()=>{
+test('command movement wraps with zero RNG; Lely Observe and Esla Attack use exact enemy targets',()=>{
   const g=fresh(),start=enter(g,'lely_esla_three'),rng=g.run('labRng');g.press('ArrowLeft');assert.equal(view(g).selectedCommand,'run');
-  g.press('ArrowRight');assert.equal(view(g).selectedCommand,'attack');command(g,0);assert.equal(view(g).selectedTargetInstanceId,start.enemies[0].instanceId);
+  g.press('ArrowRight');assert.equal(view(g).selectedCommand,'attack');command(g,2);assert.equal(view(g).selectedTargetInstanceId,start.enemies[0].instanceId);
   g.press('ArrowLeft');assert.equal(view(g).selectedTargetInstanceId,start.enemies[2].instanceId);g.press('Enter');
-  let v=view(g);assert.equal(v.allyActions[0].type,'attack');assert.equal(v.allyActions[0].targetId,start.enemies[2].instanceId);
-  command(g,2);g.press('ArrowRight');g.press('Enter');v=view(g);assert.equal(v.phase,'ready');assert.equal(v.allyActions[1].type,'observe');assert.equal(v.allyActions[1].targetId,start.enemies[1].instanceId);assert.equal(g.run('labRng'),rng);
+  let v=view(g);assert.equal(v.allyActions[0].type,'observe');assert.equal(v.allyActions[0].targetId,start.enemies[2].instanceId);
+  command(g,0);g.press('ArrowRight');g.press('Enter');v=view(g);assert.equal(v.phase,'ready');assert.equal(v.allyActions[1].type,'attack');assert.equal(v.allyActions[1].targetId,start.enemies[1].instanceId);assert.equal(g.run('labRng'),rng);
 });
 
 test('item scrolling, ally targeting, reservations, cancellation, and backtracking are controller-owned',()=>{
@@ -115,11 +115,11 @@ test('Run drafts like other actions and ready retains separate confirmation',()=
 });
 
 test('successful, failed, and boss-blocked Run use the real resolver and retain final playback',()=>{
-  {const g=fresh();enter(g);command(g,3);command(g,2);target(g);arm(g,0);g.press('Enter');assert.equal(view(g).phase,'playback');assert.equal(view(g).playbackFrame.frameIndex,0);finish(g);
+  {const g=fresh();enter(g);command(g,3);command(g,0);target(g);arm(g,0);g.press('Enter');assert.equal(view(g).phase,'playback');assert.equal(view(g).playbackFrame.frameIndex,0);finish(g);
     assert.equal(view(g).playbackFrame.outcome,'escape');g.press('Enter');assert.equal(view(g).phase,'escape');}
-  {const g=fresh();enter(g);command(g,3);command(g,2);target(g);arm(g,0.999);g.press('Enter');finish(g);const events=view(g).playbackFrame.currentEvent;assert.equal(events.type,'round_end');
+  {const g=fresh();enter(g);command(g,3);command(g,0);target(g);arm(g,0.999);g.press('Enter');finish(g);const events=view(g).playbackFrame.currentEvent;assert.equal(events.type,'round_end');
     g.press('Enter');assert.equal(view(g).phase,'awaiting_action');}
-  {const g=fresh();const v=enter(g,'boss_escape_lock');assert.equal(v.bossLocked,true);command(g,3);command(g,2);target(g);arm(g,0);g.press('Enter');finish(g);
+  {const g=fresh();const v=enter(g,'boss_escape_lock');assert.equal(v.bossLocked,true);command(g,3);command(g,0);target(g);arm(g,0);g.press('Enter');finish(g);
     const reel=J(g,'combatPlayerState.session.getView().playbackFrame');assert.equal(reel.outcome,'ongoing');assert.ok(g.run('combatPlayerState.session.getView().playbackFrame.complete'));g.press('Enter');assert.equal(view(g).phase,'awaiting_action');}
 });
 
@@ -129,10 +129,10 @@ test('standard commitment generates enemy targets once and exposes frame zero be
   assert.equal(v.playbackFrame.currentEvent,null);const used=g.run('visibleLabUses');g.press('Escape');g.press('ArrowRight');assert.equal(g.run('visibleLabUses'),used);
 });
 
-test('showcase playback preserves Cursed and Slither evidence and displays recorded events',()=>{
-  const g=fresh();enter(g,'command_showcase');attack(g);command(g,2);target(g,1);arm(g,0);g.press('Enter');let v=view(g);assert.equal(v.playbackFrame.frameIndex,0);
+test('showcase playback preserves Cursed and Slither evidence',()=>{
+  const g=fresh();enter(g,'command_showcase');attack(g);attack(g,1);arm(g,0);g.press('Enter');let v=view(g);assert.equal(v.playbackFrame.frameIndex,0);
   record(g);const seen=[];while(view(g).phase==='playback'){g.run('labPaint=[];drawPartyCombatLabBattle()');seen.push(...texts(J(g,'labPaint')));g.press('Enter');}
-  assert.ok(seen.some(line=>/speed shifts/.test(line)));assert.ok(seen.some(line=>/curse twists/.test(line)));assert.ok(seen.some(line=>/observes/.test(line)));
+  assert.ok(seen.some(line=>/speed shifts/.test(line)));assert.ok(seen.some(line=>/curse twists/.test(line)));
   assert.equal(view(g).playbackFrame.complete,true);
 });
 
@@ -147,16 +147,16 @@ test('authentic item histories render healing, cure, Bullet Time, equipment, dam
   {const g=fresh();g.run(`ENEMY_TEMPLATE_REGISTRY.enemy_reed_grappler={...ENEMY_TEMPLATE_REGISTRY.enemy_reed_grappler,hp:1000,maxHp:1000};`);enter(g,'command_showcase');command(g,1);item(g,'Throwing Knife');target(g,0);command(g,1);item(g,'Void Shard');const round=playRound(g);
     assert.ok(round.events.some(e=>e.type==='item'&&e.effect==='damage'));assert.ok(round.events.some(e=>e.type==='item'&&e.effect==='damage_all'));
     assert.ok(round.messages.some(line=>/takes \d+ damage/.test(line)));assert.ok(round.messages.some(line=>/Every enemy takes/.test(line)));}
-  {const g=fresh();enter(g,'command_showcase');command(g,1);item(g,'Bait');command(g,2);target(g,0);const round=playRound(g);
+  {const g=fresh();enter(g,'command_showcase');command(g,2);target(g,0);command(g,1);item(g,'Bait');const round=playRound(g);
     assert.ok(round.events.some(e=>e.type==='item'&&e.effect==='nothing'));assert.ok(round.events.some(e=>e.type==='observe'));
     assert.ok(round.messages.some(line=>/Bait.*No effect/.test(line)));assert.ok(round.messages.some(line=>/observes Reed Grappler/.test(line)));}
 });
 
 test('Bomb placement and later ticks remain historical, round-based, and visibly formatted',()=>{
   const g=fresh();g.run(`ENEMY_TEMPLATE_REGISTRY.enemy_reed_grappler={...ENEMY_TEMPLATE_REGISTRY.enemy_reed_grappler,hp:1000,maxHp:1000,atk:0};`);enter(g,'command_showcase');
-  command(g,1);item(g,'Bomb');target(g,0);command(g,2);target(g,1);let round=playRound(g);
+  command(g,2);target(g,1);command(g,1);item(g,'Bomb');target(g,0);let round=playRound(g);
   assert.ok(round.events.some(e=>e.type==='effect'&&e.itemId==='Bomb'));assert.ok(round.messages.some(line=>/bomb is armed/.test(line)));
-  const ticks=[];for(let i=0;i<3;i++){g.press('Enter');command(g,2);target(g,0);command(g,2);target(g,1);round=playRound(g);ticks.push(...round.events.filter(e=>e.type==='delayed_effect_tick'));}
+  const ticks=[];for(let i=0;i<3;i++){g.press('Enter');command(g,2);target(g,0);command(g,0);target(g,1);round=playRound(g);ticks.push(...round.events.filter(e=>e.type==='delayed_effect_tick'));}
   assert.equal(ticks.length,3);assert.equal(ticks.at(-1).effect,'bomb');assert.ok(ticks.at(-1).appliedDamage>0);
   assert.ok(round.messages.some(line=>/bomb ticks for \d+ damage/.test(line)));
 });

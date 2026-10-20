@@ -51,9 +51,10 @@ clamped), with no action RNG, cure or revival. Authored definitions explicitly
 mark Esla Rareborn/Bloommarked and Lely non-Rareborn. Optional battle preparation
 bindings preserve every older non-Resonance result shape and capability gate.
 
-The Lab presents Attack / Item / Observe / Run for commonborn actors such as
-Lely. Only Rareborn actors such as Esla see Resonance between Attack and Item;
-it remains visible but dimmed/skipped without an eligible target or at positive Strain. The technique
+The Lab presents Attack / Item / Observe / Run for Lely; Observe compensates for
+her lack of Rareborn abilities. Esla instead sees Attack / Resonance / Item / Run;
+Observe is absent while she acts. Her Resonance command remains visible but is
+dimmed/skipped without an eligible target or at positive Strain. The technique
 list shows Quickbloom and its one-round cost. Successful use applies Strain 1;
 the application round is exempt and the following completed round clears it.
 Playback shows historical HP/Strain without applying effects again. The wounded

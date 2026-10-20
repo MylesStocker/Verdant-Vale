@@ -128,7 +128,7 @@ for(const edit of ["altered.events.find(e=>e.type==='resonance').targetId=altere
 for(const edit of ["altered.events.find(e=>e.type==='resonance_wait').executeActorId=altered.party[0].instanceId","altered.events.find(e=>e.type==='resonance').participantIds.pop()","altered.events.find(e=>e.type==='resonance_wait').actorId=altered.party[1].instanceId"])
  test('combined history tampering rejects: '+edit,()=>{const g=fresh({combined:2});resolve(g,command(g,action(g,{actor:0,participants:[0,1],techniqueId:'fixture_shared'})));editResult(g,edit);});
 
-test('Lab five-command navigation, technique cancellation, exact ally targeting and no RNG collection',()=>{
+test('Esla replaces Observe with Resonance; technique cancellation, exact ally targeting and no RNG collection',()=>{
  const g=context();g.run('dialogue.open=false;Math=Object.create(Math);Math.random=()=>{throw Error("RNG during selection")};partyCombatLab.enter("command_showcase")');
  const v=()=>J(g,'partyCombatLab.getView()');assert.deepEqual(v().commands,['attack','item','observe','run']);assert.ok(!v().enabledCommands.includes('resonance'));
  g.press('ArrowRight');assert.equal(v().selectedCommand,'item');g.press('ArrowLeft');g.press('Enter');g.press('Enter');assert.equal(v().party.find(m=>m.instanceId===v().nextActorId).name,'Esla');
@@ -150,7 +150,7 @@ for(const scenario of ['lely_esla_one','lely_esla_two','lely_esla_three','comman
  for(const rareborn of [false,true]){
   if(rareborn)g.run('partyCombatLab.submitAttack({actorId:partyCombatLab.getView().nextActorId,targetId:partyCombatLab.getView().enemies[0].instanceId})');
   const before=state(g);g.run('paint=[];drawPartyCombatLabBattle()');const calls=J(g,'paint'),boxes=calls.filter(c=>c.type==='strokeRect'&&c.args[1]===414);
-  assert.equal(boxes.length,rareborn?5:4);assert.deepEqual(boxes.map(c=>c.args[0]),rareborn?[22,116,210,304,398]:[22,139,256,373]);
+  assert.equal(boxes.length,4);assert.deepEqual(boxes.map(c=>c.args[0]),[22,139,256,373]);
   for(const scale of [1,2])for(const b of boxes){assert.ok(b.args[0]*scale>=0);assert.ok((b.args[0]+b.args[2])*scale<=512*scale);assert.ok((b.args[1]+b.args[3])*scale<=480*scale);}
   const resonance=calls.find(c=>c.type==='text'&&c.args[0]==='Resonance');assert.equal(!!resonance,rareborn);
   if(rareborn)assert.equal(resonance.style.fillStyle,g.run('partyCombatLab.getView().enabledCommands.includes("resonance")')?'#6b8890':'#344f5a');
@@ -162,7 +162,8 @@ test('commonborn navigation wraps through four commands and backtracking restore
  const selected=()=>g.run('partyCombatLab.getView().selectedCommand');
  for(const expected of ['item','observe','run','attack']){g.press('ArrowRight');assert.equal(selected(),expected);}
  g.press('ArrowLeft');assert.equal(selected(),'run');g.press('ArrowRight');g.press('Enter');g.press('Enter');
- assert.deepEqual(J(g,'partyCombatLab.getView().commands'),['attack','resonance','item','observe','run']);
+ assert.deepEqual(J(g,'partyCombatLab.getView().commands'),['attack','resonance','item','run']);
+ assert.equal(J(g,'partyCombatLab.getView().commands').includes('observe'),false);
  g.press('ArrowRight');assert.equal(selected(),'resonance');g.press('Enter');g.press('Enter');g.press('Enter');
  g.press('Escape');assert.equal(g.run('partyCombatLab.getView().phase'),'targeting');g.press('Escape');g.press('Escape');g.press('Escape');
  assert.equal(g.run('partyCombatLab.getView().phase'),'targeting');assert.deepEqual(J(g,'partyCombatLab.getView().commands'),['attack','item','observe','run']);

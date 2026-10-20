@@ -1057,8 +1057,9 @@ const combatPlayerState = (() => {
     // Standard commands use this same sessionState/roster. These helpers own
     // navigation and drafts only; commandRounds retains every combat mutation.
     const commandMenu=Object.freeze(['attack','item','observe','run']);
+    const rarebornCommandMenu=Object.freeze(['attack','resonance','item','run']);
     const menuFor=s=>s.snapshot.resonance?.find(c=>c.actorId===currentAlly(s)?.instanceId)?.rareBorn===true
-      ?['attack','resonance','item','observe','run']:commandMenu;
+      ?rarebornCommandMenu:commandMenu;
     const blankSelection=()=>({commandCursor:0,itemCursor:0,itemScroll:0,techniqueCursor:0,techniqueId:null,pendingType:null,itemId:null,enemyTarget:null,allyTarget:null,targetSide:null});
     const standardPhase=allowed=>{if(sessionState?.commandSet!=='standard')invalid();return phase(allowed);};
     const direction=value=>{if(!['previous','next'].includes(value))invalid();return value==='next'?1:-1;};
