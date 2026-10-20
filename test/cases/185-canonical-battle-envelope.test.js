@@ -79,7 +79,7 @@ for(const a of [1,2,3])for(const e of [1,2,3])test(a+' allies x '+e+' enemies: i
 
 test('independent side preparations do not require the other side or allocate identities',()=>{
  const g=fresh(3),before=state(g);frozen(g.run('canonicalPartyCombat.preparePlayerSide({escape:"fastest_living"})'));
- reject(g,'canonicalPartyCombat.prepareEnemySide(["enemy_mire_toad_male"])');
+ frozen(g.run('canonicalPartyCombat.prepareEnemySide(["enemy_mire_toad_male"])'));
  g.run('stats.hp=0');seed(g,'saved.party.characters.forEach(m=>m.hp=0)');
  frozen(g.run('canonicalPartyCombat.prepareEnemySide(["enemy_marsh_wisp"])'));
  reject(g,'canonicalPartyCombat.preparePlayerSide({escape:"fastest_living"})');assert.equal(g.run('rolls'),0);
@@ -172,7 +172,7 @@ test('invalid enemy sides, complete arithmetic, ownership and finalizer descript
  const invalid=[
   'canonicalPartyCombat.enter({enemies:[],escape:"blocked"})',
   'canonicalPartyCombat.enter({enemies:Array(4).fill("enemy_marsh_wisp"),escape:"blocked"})',
-  'canonicalPartyCombat.enter({enemies:["enemy_rotwood_troll"],escape:"blocked"})',
+  'canonicalPartyCombat.enter({enemies:["enemy_gallery_keeper"],escape:"blocked"})',
   'canonicalPartyCombat.enter({enemies:["enemy_marsh_wisp"],escape:"blocked",onVictory(){}})',
   'canonicalPartyCombat.enter({enemies:["enemy_marsh_wisp"],get escape(){throw Error("getter")}})',
   'canonicalPartyCombat.enter({enemies:[{...ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp,instanceId:"combat_enemy_1"}],escape:"blocked"})',
@@ -252,12 +252,13 @@ test('malformed authored tables are rejected in full before the selection draw, 
  const g=fresh();g.run('ENEMY_TEMPLATE_POOLS[0].templates.push(Object.freeze({id:"formation_invalid",enemies:Object.freeze(["enemy_absent"]),weight:1}))');
  assert.ok(g.run('validateGameData().errors')>0);assert.ok(g.run('VALIDATION_ERRORS.some(e=>e.message.includes("unregistered template"))'));
 });
-test('future Eastern Fens fixtures are shape-valid only; unsupported/unregistered mechanics fail atomically',()=>{
+test('future Eastern Fens fixtures: toads prepare; absent templates reject atomically without production routing',()=>{
  const g=fresh(3),fixtures=[['formation_fixture_mire_toads',Array(3).fill('enemy_mire_toad_male')],
   ['formation_fixture_waspthra',['enemy_waspthra']],['formation_fixture_botflies_waspthra',['enemy_botfly','enemy_botfly','enemy_waspthra']]];
  for(const [id,ids]of fixtures){g.run('var intended='+formation(id,ids));frozen(g.run('encounterFormations.validateDefinition(intended)'));
   if(id.includes('mire_toads'))frozen(g.run('encounterFormations.normalizePool([intended])'));else reject(g,'encounterFormations.normalizePool([intended])');
-  reject(g,'canonicalPartyCombat.enter({enemies:intended.enemies,escape:"fastest_living"})');
+  if(id.includes('mire_toads'))frozen(g.run('canonicalPartyCombat.prepare({enemies:intended.enemies,escape:"fastest_living"})'));
+  else reject(g,'canonicalPartyCombat.enter({enemies:intended.enemies,escape:"fastest_living"})');
  }
  assert.equal(g.run('rolls'),0);assert.equal(g.run('combatEnemyInstanceSequence'),0);
  assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_waspthra")'),false);assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_botfly")'),false);

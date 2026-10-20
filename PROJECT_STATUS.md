@@ -6,17 +6,45 @@ actually fits together.
 
 ## Current state
 
+### Unusual ordinary-enemy migration — Pass 4C
+
+Pass 4B is checkpointed as `10d2f27eeb2061cfa24a301207ef53010fabdb4f`
+(`feat(combat): support status specials in canonical party battles`). Verification
+passed 188/188 regression suites and 50 focused suites, with 0 validation errors,
+4 established warnings, 107 regional fingerprints, read-only transition checks
+and all five supplied historical capture digests unchanged. SAVE_VERSION is 5.
+
+Pass 4C implements the eight remaining unusual ordinary-enemy templates: 45
+mechanically supported, zero special-capability pending, 15 scripted lifecycles
+still guarded. The Seep uses an authenticated separate successor; Trolls heal from
+round-end HP; Thornbacks counter immediately against each melee attacker; Toads
+retain per-instance poison/Observe/reagents; Gulls steal gold and allow a full
+subsequent round before flight; generated 23 requires authenticated selected data.
+The user explicitly approved defeated-enemy-only rewards after mixed-formation
+Gull departure; voluntary Run still pays nothing. Other Pass 6 policies are deferred.
+
+Suite 189 tests all eight templates at all nine side sizes, deterministic mechanics,
+duplicates, historical playback, malformed data, ownership, rewards and handoffs.
+Pass 4C remains unstaged/uncommitted. Geography, production pools/formations,
+legacy singleton/Formation behavior, artifact authorities and SAVE_VERSION 5 are
+unchanged. Same-slot replacement and the 15 scripted lifecycles remain deferred.
+Verification: 189/189 full suites, 68 focused suites, 22 new grouped checks,
+15 JavaScript syntax checks, 0 validation errors/4 established warnings, 107
+fingerprints, exact read-only transition audit, and all five historical capture
+digests unchanged. Full details are in CANONICAL_PARTY_COMBAT.md.
+No browser test was performed.
+
 ### Status/offensive capability migration — Pass 4B
 
 Pass 4A was verified at 187/187 and checkpointed as
 `74d8990dab042c167f90daedf9e4fa75edd3324d`
-(`feat(combat): support brace in canonical party battles`). Pass 4B remains
-unstaged and uncommitted.
+(`feat(combat): support brace in canonical party battles`). The completed Pass 4B
+increment is now checkpointed as recorded above.
 
 Canonical standard sessions now execute the existing landed-hit mechanics for
 Shade Wraith, Corpse Slug, Void Walker, Dripping Maw, Fen Witch, Lantern Moth and
-Dust-Drowned. Compatibility remains mechanic-based: 37 supported templates, eight
-special templates pending and 15 scripted-only. Slither, poison and Curse retain
+Dust-Drowned. At the Pass 4B checkpoint the counts were 37 supported, eight special pending
+and 15 scripted-only; Pass 4C above supersedes that inventory. Slither, poison and Curse retain
 exact-member ownership and existing ward/cure/writeback behavior. Void shard burst,
 Dazzled and corrosion preserve their established chances, damage/modifiers and
 combat-only cleanup. Capability decisions and state belong to exact runtime enemy

@@ -75,9 +75,8 @@ templates allocate independent runtime IDs, HP and Observe progress without slot
 compaction. The party renderer reuses each singleton sprite and applies one shared
 layout envelope only when no legacy Formation measurement exists. Pools and
 weights remain authored as before, so production encounters remain single-enemy.
-The remaining eight special-capability and 15 scripted-lifecycle templates reject
-with their exact unsupported requirements. Pass 4C and Pass 5 own those mechanics
-and outcomes.
+Pass 4C below adds the eight unusual templates (45 total supported). The 15
+scripted-lifecycle templates retain explicit capability rejection for Pass 5.
 
 ### Brace — Pass 4A
 
@@ -214,6 +213,60 @@ state transition, and projects exactly one event per frame from the historical
 frame-zero snapshot. Tampered identity, target, status, ward, sampled Speed,
 corrosion, damage or final snapshot fails closed. The renderer consumes only this
 view and adds concise event text plus a `COR` badge for corrosion.
+
+### Unusual enemy mechanics — Pass 4C
+
+The eight unusual templates bring mechanical support to 45/60; the other 15
+remain guarded scripted lifecycles. No production pool/formation was authored.
+`enemy-capabilities.js` owns immutable mechanic profiles; execution dispatches
+through capabilities, never enemy IDs. Authored numeric template fields remain
+unchanged. Exact legacy semantics, approved translations, RNG examples and tests
+are in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md#pass-4c--unusual-ordinary-mechanics)
+and the complete [enemy audit](ENEMY_CAPABILITY_AUDIT.md).
+
+The generalized round owner stores per-instance `unusual` state: Troll
+`{suppressedTurns,suppressedRound}`, Gull `{stolenGold,stolenRound,departed}`.
+It is never written to templates or saves. Troll regeneration uses approved
+round-end HP after existing burn/Bomb ticks; terminal outcomes suppress it.
+Trollbane cancels the target's still-unexecuted action and suppresses three later
+healing checks, exempting application-round decrement. Thornback's authored
+melee DEF applies only to Attack. Approved counters occur immediately after each
+surviving melee exchange, against its exact attacker, never retargeting. Toads
+compose the existing poison rider with exact-instance Observe and sex/reagent
+handling. Correct reagents work without an Observe prerequisite.
+
+Gulls steal gold only, once per exact instance. The approved grace is a complete
+subsequent party round. Departure retains slot/HP/history while excluding the
+actor from targeting/initiative. Its shared battle purse is snapshotted only for
+Gull battles; authenticated `persistentParty.commitCombat()` writes it once to
+existing `stats.gold`. Killing a Gull returns its stolen amount once. As explicitly
+authorized, resolving a mixed formation after departure grants rewards only for
+defeated slots, through the existing reward ledger. Voluntary Run pays nothing.
+Other universal reward/Fallen/recovery policies remain deferred to Pass 6.
+
+`canonical-enemy-records.js`, loaded after capability metadata, issues immutable
+private-provenance records for selected generated 23 and smaller Seep successors.
+The original record reference is required at entry; copies/forgeries and the raw
+23 sentinel reject. Generated stats use exactly seven existing selection draws;
+actual arithmetic validates before any combat identity or installation. Historical
+origin evidence is retained for detached validation without generation or rerolls.
+
+A defeated parent Seep queues a separate smaller battle, with its own identities
+and rewards. The canonical owner holds a one-use callback/token; the existing
+`scriptedCombatEntry.checkCallback()` hook asks it to preflight before dialogue
+advances. The private token passes through existing preparation to permit only
+that authenticated interstitial, without temporarily changing dialogue state.
+Arbitrary tokens reject. Saves/loads refuse until the handoff completes. The old
+Guard/Polwick/Essa singleton chain remains separate. Same-slot round-boundary
+replacement remains a deliberate future extension.
+
+New recorded events cover regeneration, counters, theft, gold recovery and
+flight; armor records its numeric evidence. Reagents/Trollbane use existing item
+snapshots. Creation validates closed histories and recorded arithmetic witnesses;
+frame projection and rendering read immutable frames without calling live combat,
+AI or RNG. Later rounds/encounters cannot change historical views. The shared
+renderer adds concise messages and a FLED badge; legacy singleton/Formation
+presentation, SAVE_VERSION 5 and geographic artifacts remain unchanged.
 
 ### Structural canonical battle envelope — Pass 2
 

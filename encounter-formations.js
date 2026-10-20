@@ -99,11 +99,14 @@ function preparePartyEnemyFormation(value) {
     if(typeof id!=='string')fail('unregistered enemy <invalid template ID>');
     const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value;
     if(!template)fail('unregistered enemy '+id);
-    try{requireCanonicalEnemyCapabilities(template);}catch(error){fail(error.message);}
+    try{requireCanonicalEnemyCapabilities(template);canonicalUnusualEnemySeed(template);}catch(error){fail(error.message);}
+    const origin=typeof supplied==='object'?canonicalEnemyRecords.origin(supplied):null;
+    if(canonicalEnemyMechanicProfile(template).generated_stats&&!origin)fail('generated_stats requires authenticated selection provenance');
+    const selected=origin?supplied:template;
     const mechanicFields=Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES).filter(key=>
-      Object.hasOwn(template,key)&&ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical);
+      Object.hasOwn(selected,key)&&ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical);
     const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[]),...mechanicFields];
-    const exact=data(template,keys);
+    const exact=data(selected,keys);
     if(typeof supplied!=='string'){
       const input=data(supplied,keys);
       if(keys.some(k=>input[k]!==exact[k]))fail('enemy instance differs from its approved template: '+id);
@@ -112,11 +115,11 @@ function preparePartyEnemyFormation(value) {
         !['xp','goldMin','goldMax'].every(k=>safe(exact[k]))||exact.goldMax<exact.goldMin||
         !safe(exact.goldMax-exact.goldMin+1)||Object.hasOwn(exact,'isBoss')&&typeof exact.isBoss!=='boolean')
       fail('invalid enemy arithmetic: '+id);
-    return exact;
+    return origin?supplied:copyFormationData(exact);
   })];
   const ids=templates.map(t=>t.id);
-  if(n>1)validateCanonicalFormationDescriptors(ids.map((enemyId,slot)=>({enemyId,slot})));
-  return copyFormationData({ids,templates,slots:ids.map((enemyId,slot)=>({enemyId,slot}))});
+  if(n>1&&!templates.some(t=>canonicalEnemyRecords.origin(t)))validateCanonicalFormationDescriptors(ids.map((enemyId,slot)=>({enemyId,slot})));
+  return Object.freeze({ids:Object.freeze(ids),templates:Object.freeze(templates),slots:copyFormationData(ids.map((enemyId,slot)=>({enemyId,slot})))});
 }
 
 // Fail malformed authored tables at script startup, before a world selection.

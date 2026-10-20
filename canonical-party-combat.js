@@ -9,7 +9,8 @@ function requireSingletonEncounter(name, remaining) {
 // World encounter ownership. Resolver/session state is transient; canonical
 // resource ownership and the authenticated writeback remain in persistentParty.
 const canonicalPartyCombat = (() => {
-  let battle=null,lastReceipt=null;
+  let battle=null,lastReceipt=null,pendingHandoff=null;
+  const splitFactory=canonicalEnemyRecords.claimSplitFactory();
   const copy=copyFormationData;
   const fail=message=>{throw Error('Canonical party encounter: '+message);};
   const multiple=()=>persistentParty.getView().members.length>1;
@@ -24,13 +25,14 @@ const canonicalPartyCombat = (() => {
   };
   const location=()=>JSON.stringify({location:snapshotLocationState(),regional:regionalWorldPosition(),
     mapId:mapIdForRef(activeMap),x:player.x,y:player.y,day,defeatWakeAtHome});
-  const preflight=request=>{
+  const preflight=(request,permit=null)=>{
+    if(pendingHandoff&&permit!==pendingHandoff)fail('pending authenticated follow-up');
     if(battle)fail('requires an idle canonical party');
     const spec=data(request,['enemies','escape']);
     if(!['blocked','fastest_living'].includes(spec.escape))fail('unsupported escape policy');
     const enemySide=preparePartyEnemyFormation(spec.enemies),{templates,ids}=enemySide;
     if(regionalInvariantErrors().length||!safe(day)||!safe(day+1))fail('world cleanup is not ready');
-    for(const [owner,keys]of [[combat,['cooldown','enemies']], [dialogue,['name','pages','open','page']]])
+    for(const [owner,keys]of [[combat,['cooldown','enemies']], [dialogue,['name','pages','open','page','callbacks']]])
       for(const key of keys){const field=Object.getOwnPropertyDescriptor(owner,key);
         if(!Object.hasOwn(field||{},'value')||field.writable!==true)fail('cleanup field is not writable: '+key);}
     if(defeatWakeAtHome&&!validatePlacement({mapId:'HOUSE_INTERIOR_MAP',x:9.5*TILE,y:3.5*TILE,facing:'down'}).ok)
@@ -39,12 +41,12 @@ const canonicalPartyCombat = (() => {
     if(!safe(xp)||!safe(gold)||!safe(party.gold+gold)||!safe(stats.items.length+templates.length)||
         party.members.some(m=>![m.xp+xp,m.maxHp+MAX_LEVEL*10,m.hp+MAX_LEVEL*10,
           m.atk+MAX_LEVEL*3,m.def+MAX_LEVEL*3,m.spd+MAX_LEVEL].every(safe)))fail('reward arithmetic overflow');
-    const composed=persistentParty.validateCombat(ids,{escape:spec.escape});
+    const composed=persistentParty.validateCombat(templates,{escape:spec.escape},permit);
     const ledger=persistentParty.serialize().rewards;let ordinal=ledger.length+1;
     while(ledger.some(r=>r.id==='canonical_encounter_'+ordinal))ordinal++;
     if(!safe(ordinal))fail('reward receipt capacity exhausted');
-    return copy({templates,ids,playerSide:composed.player,enemySide,escape:spec.escape,origin:location(),xp,
-      rewardId:'canonical_encounter_'+ordinal,memberIds:party.members.map(m=>m.characterId)});
+    return Object.freeze({...copy({ids,playerSide:composed.player,enemySide,escape:spec.escape,origin:location(),xp,
+      rewardId:'canonical_encounter_'+ordinal,memberIds:party.members.map(m=>m.characterId)}),templates});
   };
   const view=()=>{
     if(!battle)return copy({active:false,phase:null,receipt:lastReceipt});
@@ -53,6 +55,7 @@ const canonicalPartyCombat = (() => {
   };
   const fault=(error,stage)=>{
     let session=null;try{session=combatPlayerState.session.getView();}catch(_){}
+    if(!battle)battle={rewardId:lastReceipt?.rewards?.id||null};
     battle.failure=copy({stage,message:String(error?.message||error),rewardId:battle.rewardId,
       session,writeback:battle.writeback||null});
     console.error('[Canonical party encounter]',battle.failure);
@@ -66,15 +69,19 @@ const canonicalPartyCombat = (() => {
     try{
       if(location()!==battle.origin)fail('origin changed during battle');
       battle.writeback=persistentParty.commitCombat();
+      // Flight is not victory. The explicitly approved mixed-formation
+      // exception rewards only defeated slots once every enemy is resolved.
+      const cleared=session.enemies.every(e=>e.hp===0||e.unusual?.departed),
+        rewardSlots=session.phase==='victory'||session.phase==='escape'&&cleared?session.enemies.filter(e=>e.hp===0).map(e=>e.slot):[];
       let rewards=null;
-      if(session.phase==='victory'){
+      if(rewardSlots.length){
         stage='rewards';let gold=0;const items=[];
         const roll=()=>{const n=Math.random();if(!Number.isFinite(n)||n<0||n>=1)fail('invalid reward RNG');return n;};
-        for(const enemy of battle.templates){
+        for(const slot of rewardSlots){const enemy=battle.templates[slot];
           gold+=enemy.goldMin+Math.floor(roll()*(enemy.goldMax-enemy.goldMin+1));
           if(roll()<0.12)items.push('Potion');
         }
-        rewards={id:battle.rewardId,xp:battle.xp,gold,items};
+        rewards={id:battle.rewardId,xp:rewardSlots.reduce((sum,slot)=>sum+battle.templates[slot].xp,0),gold,items};
         persistentParty.awardRewards(rewards);
       }else if(session.phase==='defeat'){
         stage='recovery';persistentParty.recover();
@@ -82,7 +89,25 @@ const canonicalPartyCombat = (() => {
       }
       stage='cleanup';combat.cooldown=ENCOUNTER_COOLDOWN;
       lastReceipt=copy({outcome:session.phase,members:battle.memberIds,writeback:battle.writeback,rewards});
-      battle=null;reconcileFormationLabKeys();return lastReceipt;
+      const successors=session.phase!=='defeat'&&cleared?[...(battle.tail||[]),...rewardSlots.map(slot=>battle.templates[slot])
+        .filter(t=>canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[t.id]).split_followup&&!canonicalEnemyRecords.origin(t))
+        .map(splitFactory)]:[];
+      const wasSplit=battle.templates.some(t=>canonicalEnemyRecords.origin(t)?.kind==='split');
+      const policy=battle.escape;battle=null;reconcileFormationLabKeys();
+      if(successors.length){
+        const token={enemies:[successors[0]],tail:successors.slice(1),escape:policy,origin:location()};pendingHandoff=token;
+        dialogue.name='';dialogue.pages=[['The Seep bursts apart — but the pieces are still moving.']];
+        token.callback=()=>{
+          if(pendingHandoff!==token)return false;
+          if(location()!==token.origin)fail('follow-up origin changed');
+          const prepared=preflight({enemies:token.enemies,escape:token.escape},token);
+          if(dialogue.open||dialogue.callbacks?.length!==0)fail('follow-up callback is not being acknowledged');
+          const result=install(prepared,token.tail,token);pendingHandoff=null;return result;
+        };dialogue.callbacks=[token.callback];dialogue.open=true;dialogue.page=0;
+      }else if(wasSplit&&session.phase==='victory'){
+        dialogue.name='';dialogue.pages=[['The last of the Seep slumps and stops moving.']];dialogue.callbacks=null;dialogue.open=true;dialogue.page=0;
+      }
+      return lastReceipt;
     }catch(error){fault(error,stage);throw error;}
   };
   const operate=(method,...args)=>{
@@ -92,7 +117,22 @@ const canonicalPartyCombat = (() => {
       return result;
     }catch(error){fault(error,method);throw error;}
   };
+  const install=(prepared,tail,handoff=null)=>{
+    battle={...prepared,tail};lastReceipt=null;
+    try{persistentParty.beginCombat(prepared.templates,{escape:prepared.escape},handoff);reconcileFormationLabKeys();return view();}
+    catch(error){fault(error,'entry');throw error;}
+  };
   return Object.freeze({
+    hasPendingHandoff(){return pendingHandoff!==null;},
+    permitsHandoff(token){
+      return token===pendingHandoff&&token!==null&&Array.isArray(dialogue.callbacks)&&
+        (dialogue.callbacks.length===1&&dialogue.callbacks[0]===token.callback||dialogue.callbacks.length===0&&!dialogue.open);
+    },
+    checkHandoffCallback(callback){
+      const token=pendingHandoff;if(!token||callback!==token.callback)return true;
+      if(location()!==token.origin)fail('follow-up origin changed');
+      preflight({enemies:token.enemies,escape:token.escape},token);return true;
+    },
     hasMultipleMembers:multiple,
     isActive(){return battle!==null;},
     getView:view,
@@ -103,12 +143,7 @@ const canonicalPartyCombat = (() => {
     validate(request){if(arguments.length!==1)fail('requires one encounter descriptor');preflight(request);return true;},
     enter(request){
       if(arguments.length!==1)fail('requires one encounter descriptor');
-      const prepared=preflight(request);
-      battle={...prepared};lastReceipt=null;
-      try{
-        persistentParty.beginCombat(prepared.ids,{escape:prepared.escape});
-        reconcileFormationLabKeys();return view();
-      }catch(error){fault(error,'entry');throw error;}
+      return install(preflight(request),[]);
     },
     finish,
     handleInput(command){

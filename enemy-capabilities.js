@@ -12,19 +12,19 @@ const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
   curse_on_hit:Object.freeze({canonical:true}),
   void_shard_burst:Object.freeze({canonical:true}),
   acid_corrosion:Object.freeze({canonical:true}),
-  split_followup:Object.freeze({canonical:false}),
-  regeneration:Object.freeze({canonical:false}),
-  melee_armor:Object.freeze({canonical:false}),
-  counterattack:Object.freeze({canonical:false}),
-  poison_on_hit:Object.freeze({canonical:false}),
-  mire_toad_reagent_observation:Object.freeze({canonical:false}),
+  split_followup:Object.freeze({canonical:true}),
+  regeneration:Object.freeze({canonical:true}),
+  melee_armor:Object.freeze({canonical:true}),
+  counterattack:Object.freeze({canonical:true}),
+  poison_on_hit:Object.freeze({canonical:true}),
+  mire_toad_reagent_observation:Object.freeze({canonical:true}),
   slither_on_hit:Object.freeze({canonical:true}),
   poison_spell:Object.freeze({canonical:true}),
   dazzle_on_hit:Object.freeze({canonical:true}),
-  steal_and_flee:Object.freeze({canonical:false}),
+  steal_and_flee:Object.freeze({canonical:true}),
   observe_run_lock:Object.freeze({canonical:false}),
   guaranteed_drop:Object.freeze({canonical:false}),
-  generated_stats:Object.freeze({canonical:false}),
+  generated_stats:Object.freeze({canonical:true}),
   warden_lifecycle:Object.freeze({canonical:false}),
   fort_lifecycle:Object.freeze({canonical:false}),
   firelit_attack:Object.freeze({canonical:false}),
@@ -194,6 +194,18 @@ function canonicalEnemyMechanicProfile(template) {
         data.minDamage<=0||data.maxDamage<data.minDamage||typeof data.wardItem!=='string'))throw Error('Enemy mechanic profile has invalid shard burst');
     if(capability==='acid_corrosion'&&(!Number.isSafeInteger(data.cap)||data.cap<=0))throw Error('Enemy mechanic profile has invalid corrosion cap');
   }
+  if(metadata.capabilities.includes('regeneration'))add('regeneration',{amount:template.regenPerTurn});
+  if(metadata.capabilities.includes('melee_armor'))add('melee_armor',{defense:template.meleeArmor});
+  if(metadata.capabilities.includes('counterattack'))add('counterattack',{chance:template.counterChance});
+  if(metadata.capabilities.includes('poison_on_hit'))add('poison_on_hit',{chance:template.poisonChance});
+  if(metadata.capabilities.includes('mire_toad_reagent_observation'))add('mire_toad_reagent_observation',{sex:template.sex});
+  if(metadata.capabilities.includes('steal_and_flee'))add('steal_and_flee',{minGold:20,goldSpan:31,graceRounds:1});
+  if(metadata.capabilities.includes('split_followup'))add('split_followup',{hp:20,xp:20,goldMin:0,goldMax:3});
+  if(metadata.capabilities.includes('generated_stats'))add('generated_stats',{factor:23});
+  if(metadata.capabilities.includes('counterattack')!==metadata.capabilities.includes('melee_armor'))
+    throw Error('Incomplete melee armor/counter capability pair');
+  if(metadata.capabilities.includes('mire_toad_reagent_observation')&&!metadata.capabilities.includes('poison_on_hit'))
+    throw Error('Incomplete reagent/poison capability pair');
   return Object.freeze(Object.fromEntries(Object.entries(mechanics).map(([id,data])=>[id,Object.freeze({...data})])));
 }
 function requireCanonicalEnemyCapabilities(template) {
@@ -223,3 +235,13 @@ function validateEnemyCapabilityRegistry() {
   return ids.length;
 }
 validateEnemyCapabilityRegistry();
+
+// Mutable copies are held only by the command-round owner, never on templates.
+function canonicalUnusualEnemySeed(template) {
+  const profile=canonicalEnemyMechanicProfile(template);
+  if(profile.brace&&profile.melee_armor)throw Error('Unsupported Brace and melee armor combination');
+  if(profile.regeneration&&profile.steal_and_flee)throw Error('Contradictory unusual enemy mechanics');
+  if(profile.regeneration)return {suppressedTurns:0,suppressedRound:0};
+  if(profile.steal_and_flee)return {stolenGold:0,stolenRound:0,departed:false};
+  return null;
+}

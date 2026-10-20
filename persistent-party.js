@@ -136,7 +136,7 @@ const persistentParty = (() => {
   const encounterRequest=policy=>{
     const request=prepare(),p=record(policy,['escape']);
     if(!['blocked','fastest_living'].includes(p.escape))fail();
-    return copy({...request,escape:p.escape,resonance:order.map((characterId,slot)=>({characterId,slot}))});
+    return copy({...request,gold:stats.gold,escape:p.escape,resonance:order.map((characterId,slot)=>({characterId,slot}))});
   };
   // Field views adapt the same persistent members. Only IDs/cursors belong to
   // the menu; canonical item exchanges and HP/status writes stay in this closure.
@@ -246,15 +246,15 @@ const persistentParty = (() => {
     prepareCombat(policy){
       if(arguments.length!==1)fail();idle();return bridge.preparePlayer(encounterRequest(policy));
     },
-    validateCombat(enemyIds,policy){
-      if(arguments.length!==2)fail();idle();return bridge.begin(encounterRequest(policy),array(enemyIds),true);
+    validateCombat(enemyIds,policy,handoff=null){
+      if(arguments.length<2||arguments.length>3||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();return bridge.begin(encounterRequest(policy),array(enemyIds),true,handoff);
     },
-    beginCombat(enemyIds,policy){
-      if(arguments.length<1||arguments.length>2)fail();idle();let request=prepare();const before=seal();
+    beginCombat(enemyIds,policy,handoff=null){
+      if(arguments.length<1||arguments.length>3||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();let request=prepare();const before=seal();
       if(policy!==undefined){
         request=encounterRequest(policy);
       }
-      const ids=array(enemyIds),ticket=bridge.begin(request,ids);
+      const ids=array(enemyIds),ticket=bridge.begin(request,ids,false,handoff);
       battle={ticket,before,memberIds:combatPlayerState.getView().members.map(m=>m.instanceId)};
       return combatPlayerState.session.getView();
     },
@@ -270,6 +270,7 @@ const persistentParty = (() => {
         return {hp,statuses:statusList(m.statuses).filter(s=>!['burn','dazzled'].includes(s)),
           equipment:equipment(from(slots.map(k=>[k,gear[k]]))),slitherSpeed:effect.slither?.speed||1};
       });
+      if(Object.hasOwn(end,'gold')&&!safe(end.gold))fail();
       const remaining=array(end.inventory);remaining.forEach(item);
       // Keep unselectable quest items, including their exact canonical objects.
       let cursor=0;const inventory=[];
@@ -281,6 +282,7 @@ const persistentParty = (() => {
       // session, membership, acknowledged reel and live final snapshot again.
       bridge.finish(battle.ticket);
       updates.forEach((m,i)=>writeMember(i===0?stats:characters[i-1],m));stats.items=inventory;
+      if(Object.hasOwn(end,'gold'))stats.gold=end.gold;
       battle=null;revision++;return receipt;
     },
     isCombatPending(){return battle!==null;},

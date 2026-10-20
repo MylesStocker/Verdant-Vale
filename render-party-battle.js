@@ -122,6 +122,13 @@ function formatPartyBattleEvent(view) {
   if(event.type==='enemy_shard_burst')return event.warded?`${target}'s ${event.wardItem} turns the void splinter aside.`:
     `A void splinter bursts against ${target} for ${event.appliedDamage} damage.`;
   if(event.type==='enemy_corrosion')return `Acid corrodes ${target}'s defence (${event.after}/${event.cap}).`;
+  if(event.type==='regeneration')return event.hpAfter>event.hpBefore?`${actor} regenerates ${event.hpAfter-event.hpBefore} HP.`:event.before.suppressedTurns>0?`${actor}'s regeneration is suppressed.`:`${actor} is at full health.`;
+  if(event.type==='counter_check')return event.triggered?`${actor} counters ${target}!`:`${actor} does not counter.`;
+  if(event.type==='counterattack')return event.evaded?`${target} evades ${actor}'s counter!`:`${actor}'s counter deals ${event.appliedDamage} damage to ${target}.`;
+  if(event.type==='theft')return `${actor} steals ${event.amount} gold!`;
+  if(event.type==='gold_recovered')return `Recovered ${event.amount} stolen gold from ${actor}.`;
+  if(event.type==='departure')return `${actor} flies away!`;
+  if(event.type==='skip'&&event.reason==='trollbane')return `${actor} is stunned by Trollbane.`;
   if(event.type==='skip')return event.reason==='actor_disabled'?`${actor} cannot act.`:`${actor} cannot act: defeated.`;
   if(event.type==='cancel')return `${actor}'s action on ${target} is cancelled.`;
   if(event.type==='attack')return event.evaded?`${target} evades ${actor}'s attack.`:
@@ -159,6 +166,8 @@ function formatPartyBattleEvent(view) {
     if(event.effect==='cure')return prefix;
     if(event.effect==='evade')return `${prefix} Time slows around ${target}.`;
     if(event.effect==='bomb')return `${prefix} The bomb is armed.`;
+    if(event.effect==='reagent'&&event.before.enemies.some((e,i)=>e.hp>event.after.enemies[i].hp))return `${prefix} ${target} collapses.`;
+    if(event.effect==='stun'&&event.after.enemies.some((e,i)=>e.unusual?.suppressedRound!==event.before.enemies[i].unusual?.suppressedRound))return `${prefix} ${target}'s regeneration is suppressed.`;
     return `${prefix} No effect.`;
   }
   throw new Error('Invalid party battle event type');
@@ -171,12 +180,13 @@ function drawPartyCombatTargetCursor(x,y) {
 function drawPartyCombatEnemy(member,position,selected) {
   const sprite=ENEMY_SPRITE_DISPATCH[member.id];ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
   // Registered sprites own their optional defaults (pose or palette).
-  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(0,0);ctx.restore();
+  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;sprite.draw(0,0);ctx.restore();
   ctx.fillStyle='#08121e';ctx.fillRect(position.x,12,position.width,50);ctx.fillStyle=member.hp===0?'#718078':'#c0dcd0';ctx.font='bold 12px "Courier New", monospace';ctx.fillText(position.label,position.x+4,27,position.width-8);
   ctx.fillStyle='#0a1e18';ctx.fillRect(position.x+4,36,position.width-8,7);ctx.fillStyle=member.hp===0?'#31483d':'#3a8a5a';ctx.fillRect(position.x+4,36,Math.round((position.width-8)*member.hp/member.maxHp),7);
   ctx.fillStyle=member.hp===0?'#66756d':'#7ab898';ctx.font='11px "Courier New", monospace';ctx.fillText(`${member.hp} / ${member.maxHp}`,position.x+4,57,position.width-8);
   if(member.braced&&member.hp>0){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('BRACE',position.x+position.width-39,57,35);}
-  if(selected&&member.hp>0)drawPartyCombatTargetCursor(position.x+position.width/2,63);
+  if(member.unusual?.departed){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('FLED',position.x+position.width-39,57,35);}
+  if(selected&&member.hp>0&&!member.unusual?.departed)drawPartyCombatTargetCursor(position.x+position.width/2,63);
 }
 function drawPartyCombatAlly(member,position,targeted) {
   const sprite=PARTY_COMBAT_ALLY_SPRITES[member.characterId];if(!sprite)throw new Error('Invalid party battle ally sprite');

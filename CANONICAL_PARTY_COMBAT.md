@@ -1,12 +1,187 @@
 # Canonical party combat integration review
 
-Pass 2 is checkpointed at `5a26974ab277cfd5bdbf8d30031f6b9520d08c`
-(`feat(combat): add canonical battle envelope`). Pass 3 is checkpointed at
-`4793e2ac33d185d700bc6dc4db1dfd7432db0475`
-(`feat(combat): migrate ordinary enemies to capability routing`). Pass 4A is the
-current unstaged, uncommitted increment on `agent/codex`. No push, merge, rebase, main modification
-or other worktree modification was performed. Earlier integration inventories
-below are retained as historical evidence and are explicitly labelled.
+## Pass 4C — unusual ordinary mechanics
+
+Pass 4B was verified and checkpointed at
+`10d2f27eeb2061cfa24a301207ef53010fabdb4f`
+(`feat(combat): support status specials in canonical party battles`). Pass 4C is
+unstaged and uncommitted. The registry has 60 templates: **45 mechanically
+supported, zero special-capability pending, 15 scripted-lifecycle guarded**.
+Generated 23 is mechanically supported only with an authenticated generated
+record; its bare registry sentinel remains invalid encounter input.
+
+### Approved party translations and ownership
+
+- Seep remains a **separate smaller battle** after authenticated parent rewards.
+  A private one-use handoff issues the 20-HP/20-XP/0–3-gold successor, keeping its
+  other authored stats. Defeated parents in a formation queue successors in slot
+  order. The old identities remain stale. The canonical owner uses the existing
+  dialogue callback preflight hook; a private token permits only its own dialogue
+  during read-only preparation and installation. No UI state is spoofed to validate.
+  Saves/loads refuse while the interstitial handoff is pending. Final successor
+  victory uses the existing completion text. No runtime formation replacement is
+  implemented; same-slot round-boundary replacement remains a future extension.
+- Troll regeneration samples **round-end HP**, as explicitly approved. A surviving
+  Troll heals at most its authored six HP after burn/Bomb ticks, without RNG or
+  exceeding max HP. Terminal outcomes suppress it. Run-only rounds retain the
+  legacy absence of regeneration. Trollbane consumes on any target; on a Troll
+  it suppresses an unexecuted action in that round and three later regeneration
+  checks. The application round does not decrement the counter; later ordinary
+  attacks are not stunned. Duplicates have independent suppression counters.
+- Thornback adds its authored 90 DEF only to melee Attack. As explicitly approved,
+  an immediate 90% counter follows each melee attempt, even a miss, provided both
+  actors survive and combat remains ongoing. It targets the exact triggering ally
+  without target RNG, uses the ordinary damage/critical/evasion arithmetic, and
+  applies no landed-hit status rider. Items/Bombs bypass armor and never counter.
+  Existing Curse/Bullet Time rules are retained; no singleton timing changed.
+- Each Mire Toad uses the existing poison rider (30%, existing-status skip, Fen
+  Mask ward after the decision draw). Sex/Observe count belongs to each exact
+  instance. Jackbane Vial matches male, Henbane Sprig matches female; correct use
+  defeats that target even without prior Observe. Wrong/unsexed use still consumes.
+  Dead users/targets skip/cancel without consumption or retargeting.
+- Each Gull steals **gold, never inventory**, on its first landed nonlethal hit:
+  `min(purse,20+floor(roll*31))`. Even a zero purse consumes the amount draw and
+  arms flight. The approved grace is **one full subsequent party round**, after
+  which a surviving Gull departs without slot compaction. Killing it first returns
+  its own stolen gold once. Departure retains HP/history but removes the exact
+  instance from targeting, commands and initiative; no further theft occurs.
+  The user explicitly authorized **rewards for defeated enemies only** when all
+  remaining enemies resolve after a departure. This ends as Escape, not Victory;
+  XP/gold/Potion draws cover only defeated slots. Voluntary Run remains reward-free.
+  This is the bounded exception to the otherwise deferred Pass 6 reward policies.
+- Generated 23 uses the existing seven selection-generation draws, once, in order:
+  HP, gold A, gold B, ATK, DEF, SPD, XP; each is `23*ceil(roll*23)`. The private
+  `canonicalEnemyRecords` issuer freezes the selected data and records provenance
+  in a WeakMap. Copies/forgeries and the bare sentinel reject. History contains
+  issued `{kind,template,rolls}` evidence, validated without generating or rerolling.
+  Actual zero/unsafe stats reject after selection and before combat installation.
+
+`enemy-capabilities.js` owns the supported mechanic vocabulary and closed profiles.
+No enemy-ID execution/approval list was added. The new profile fields are
+`regeneration:{amount}`, `melee_armor:{defense}`, `counterattack:{chance}`,
+`poison_on_hit:{chance}`, `mire_toad_reagent_observation:{sex}`,
+`steal_and_flee:{minGold:20,goldSpan:31,graceRounds:1}`,
+`split_followup:{hp:20,xp:20,goldMin:0,goldMax:3}`, `generated_stats:{factor:23}`.
+All profiles are deeply immutable; existing authored fields and registry validation
+remain authoritative. Contradictory armor/counter and regeneration/flight profiles
+reject before installation. Arithmetic includes the actual armor-enhanced defence.
+
+Only the generalized round owner stores mutable enemy mechanic state. Snapshot
+`unusual` is closed: Troll `{suppressedTurns,suppressedRound}`; Gull
+`{stolenGold,stolenRound,departed}`. No global status, template mutation or second
+Lely record is introduced. A Gull battle additionally snapshots its shared `gold`
+purse; authenticated writeback updates `stats.gold` once. This is combat-only
+schema, not a save field. Persistent status/equipment/inventory owners and recovery
+remain unchanged. SAVE_VERSION stays 5.
+
+New immutable history evidence covers `regeneration`, `counter_check`,
+`counterattack`, `theft`, `gold_recovered`, `departure`; melee armor adds a bounded
+`armor` record with its defense and damage rolls. Reagents and Trollbane use the
+existing item before/after transition. Projection verifies exact identities,
+formula evidence, state/timer transitions, inventories and final snapshots without
+executing combat or consuming RNG. Frame zero remains historical. The shared
+renderer adds concise messages and a FLED badge using those frames only.
+
+### Representative deterministic RNG contracts
+
+Target draws remain one per attacking enemy when more than one ally lives, zero
+with one ally. Weighted initiative remains N−1 (five for six actors). Each ordinary
+attack consumes its existing three damage/critical/evasion draws. No targeting or
+initiative draw is added for a counter; cancelled scheduled actors do not refund
+previously committed draws.
+
+| Case | Total draws (excluding world selection/rewards) |
+| --- | --- |
+| Troll 1v1 Attack + regeneration | 7: initiative 1, two attacks 6; regeneration 0 |
+| Player-first Trollbane 1v1 | 1 initiative; suppressed enemy does not attack |
+| Thornback 1v1 with successful counter | 11: initiative 1, melee 3, check 1, counter 3, enemy attack 3 |
+| Thornback lethal player-first melee | 4: initiative 1 + melee 3; no counter |
+| Toad 1v1 Observe with new poison check | 5: initiative 1 + attack 3 + poison 1 |
+| Player-first matching reagent 1v1 | 1 initiative; no reagent RNG |
+| Gull 1v1 Observe with first theft | 5: initiative 1 + attack 3 + amount 1 |
+| Next Gull Observe round ending in flight | 4: initiative 1 + attack 3; flight 0 |
+| Three allies/three Toads, Observe + two reagents, enemies first | 20: target 3 + initiative 5 + attacks 9 + poison 3 |
+| Generated 23 selection-generation | 7 generation draws, separate from existing pool/override draws |
+
+The intended Mire Toad ×3 fixture now executes; Waspthra/Botfly remain unregistered.
+No production formation, pool, geography, stats, save fields or new content was
+added. Pass 5 still owns all 15 scripted lifecycles; Pass 6 still owns the remaining
+universal rewards/XP/Fallen/recovery policies. Both Labs and Receiver stay isolated.
+
+No browser testing was performed. Optional smoke: pre-MQ5 singleton; recruited
+Seep and its smaller successor; Troll/Trollbane; Thornback melee versus items;
+each Toad's Observe/reagent; Gull theft then kill/flight/Run; save/load afterward.
+
+### Final verification and review
+
+The Pass 4B checkpoint passed **188/188** before commit. The completed Pass 4C
+increment passes **189/189**, including all **22** grouped suite-189 checks and
+all 72 template/side-size preparation/entry combinations (eight templates × nine
+sizes). **68 focused suites** passed; final changed-suite reruns include the new
+handoff/forgery, mixed-six-actor and Fallen/counter checks. All **15** changed/new
+JavaScript files pass `node --check`. Save/load, party/Formation/Receiver/Lab,
+field-menu, recruitment, status/cure, rewards and recovery suites pass.
+
+`validateGameData()` reports **0 errors / 4 established warnings**, all **107**
+regional fingerprints match, and the read-only transition audit JSON matches its
+tracked authority byte-for-byte (256 fixed transitions, 224 edge segments; reset
+isolation passes all 26 fields). SAVE_VERSION is **5**. Neither artifact was
+regenerated:
+
+- `test/fixtures/regional-grid-fingerprints.js`:
+  `cd2038ef431700a07b29849c996113702cb692f042f836ae61df4995c1bb1ae1`
+- `test/transition-audit-output.json`:
+  `6dd95428521b8971bc7bd6ee6040928f4311b1f7787b0798c35e817a51377337`
+
+| Preserved capture | Count | SHA-256 |
+| --- | --- | --- |
+| Singleton | 52 traces / 387 checkpoints / 482 RNG values | `2034f8f2639c78e6d8b69d4d25a47f7d9e8ec53548f4227376faa30a8b288a66` |
+| Formation | 133 | `403050ca0c4c346ad886eff4f2083736103bdb93aa50d387761b5d5215e6e36e` |
+| Party Attack | 586 | `b97f7bdc7c8012218a32c663d3a2b52a9f61e1c826993d40e956dc03caa13d8f` |
+| Generalized commands | 1,271 | `b084ef1cfd7a1694a7a5a0a63c0267fd8a0c12368861a56f6542edb34548e4ea` |
+| Resonance | 130 | `026f44f41da431c818e33de08fe2679065cd461d9a2d638627b7b6ba0a168f74` |
+
+Final source/diff review finds no new production enemy-ID mechanic dispatch,
+compatibility allowlist, geography/pool change, conflict marker or save-field
+change. `git diff --check` passes. The two existing test files numbered 61 are
+already present in the checkpoint; neither was renamed or changed. Test 189 uses
+the reserved Codex number. Other assertions remain intact; former special-enemy
+rejection fixtures now use still-guarded scripted enemies or positively verify
+migrated support, with generated records covered through their authenticated path.
+
+### Files in this increment
+
+| File | Purpose |
+| --- | --- |
+| `canonical-enemy-records.js` (new) | Private generated/successor provenance and immutable history evidence. |
+| `enemy-capabilities.js` | Enable the eight mechanics and validate their closed profiles/state seeds. |
+| `encounter-formations.js` | Accept authenticated source records while validating all formation members. |
+| `combat.js` | Per-instance mechanics, arithmetic, fixed departed slots, events/playback and handoff preflight. |
+| `canonical-party-combat.js` | Authenticated separate Seep handoffs and approved defeated-slot flight rewards. |
+| `persistent-party.js` | Existing-owner shared-gold writeback and private handoff validation. |
+| `render-party-battle.js` | Historical mechanic messages and departed-slot presentation. |
+| `save.js` | Refuse save/load during a pending authenticated Seep handoff; no payload change. |
+| `index.html` | Register provenance authority after capabilities and before formation/canonical users. |
+| `test/cases/189-unusual-enemy-capabilities-party-combat.test.js` (new) | Deterministic mechanics, 72 preparation combinations, ownership, lifecycle, playback and atomicity. |
+| `test/cases/181-persistent-party-lifecycle.test.js` | Preserve unsupported-entry assertions using a still-guarded template. |
+| `test/cases/183-canonical-party-combat-integration.test.js` | Preserve rejection/atomicity coverage with guarded templates and unsafe generated stats. |
+| `test/cases/185-canonical-battle-envelope.test.js` | Confirm Toad formation support while retaining missing-template and invalid-state rejection. |
+| `test/cases/186-enemy-capability-migration.test.js` | Update complete 60-template classification and capability vocabulary; retain all guarded cohorts. |
+| `test/cases/187-brace-capability-party-combat.test.js` | Retain explicit unsupported scripted/raw-generated rejection after migration. |
+| `test/cases/188-status-specials-party-combat.test.js` | Assert migrated capabilities and unchanged scripted guards, retaining status coverage. |
+| `ENEMY_CAPABILITY_AUDIT.md` | Complete updated inventory, legacy evidence and approved translations. |
+| `architecture.md` | Ownership, provenance, per-instance state and authenticated handoff contracts. |
+| `PROJECT_STATUS.md` | Checkpoint, completed scope, validation results and deferred work. |
+| `CANONICAL_PARTY_COMBAT.md` | Current mechanic contract, exact verification and review record. |
+
+Final HEAD remains `10d2f27eeb2061cfa24a301207ef53010fabdb4f` on
+`agent/codex`; the index is empty and all Pass 4C changes are unstaged/uncommitted.
+Only the explicitly authorized Pass 4B checkpoint was committed. Nothing was
+pushed, merged or rebased; other worktrees were neither entered nor modified.
+
+The sections below retain earlier checkpoint histories. Their supported/pending
+counts describe those stages; the current authority is the Pass 4C 45/0/15 inventory
+above.
 
 ## Pass 2 structural envelope
 
@@ -42,7 +217,7 @@ Test-only intended formations:
 
 | Composition | Shape | Registration/runtime status |
 | --- | --- | --- |
-| Mire Toad ×3 | Valid | Uses registered male Toad ID three times; poison/sex mechanics remain blocked. |
+| Mire Toad ×3 | Valid | Uses registered male Toad ID three times; supported since Pass 4C; no production formation is authored. |
 | Waspthra ×1 | Valid | `enemy_waspthra` is a fixture spelling, not an assigned production ID; template absent, rejects. |
 | Botfly ×2 + Waspthra ×1 | Valid | `enemy_botfly` and `enemy_waspthra` are fixture spellings; templates absent, reject. |
 
@@ -180,6 +355,7 @@ writeback, recovery and version-5 save/load. Production pools remain flat
 single-enemy pools with unchanged selection RNG. Pass 4C retains The Seep,
 Rotwood Troll, Thornback, both Mire Toad variants, both Basin Gull variants and
 generated enemy 23. Scripted lifecycle templates remain guarded for Pass 5.
+
 
 ## Pass 3 ordinary-enemy capability migration (checkpoint evidence)
 
@@ -454,7 +630,7 @@ Documentation: this report, `architecture.md`, `PROJECT_STATUS.md`.
 New tests: suite 183. Existing source-ownership/extraction checks updated in suites
 152, 165, 167, 168, 169, 173, 174, 179 and 181. No test file was renamed.
 
-Unadapted ordinary templates and all listed bespoke encounters remain unavailable
+In the original integration below, unadapted templates and bespoke encounters were unavailable
 to a recruited party and stop with development diagnostics. This deliberately
 retains their capabilities rather than approximating them. It is not a complete
 conversion of all western combat. Esla retains Observe under this task's explicit

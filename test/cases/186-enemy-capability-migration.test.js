@@ -16,15 +16,11 @@ const ORDINARY=[
   // Pass 4B migrates the existing landed-hit status and offensive riders.
   'enemy_shade_wraith','enemy_void_walker','enemy_dripping_maw','enemy_fen_witch',
   'enemy_corpse_slug','enemy_lantern_moth','enemy_dust_drowned',
+  // Pass 4C completes mechanics; generated stats require authenticated input.
+  'enemy_the_seep','enemy_rotwood_troll','enemy_thornback','enemy_mire_toad_male','enemy_mire_toad_female',
+  'enemy_basin_gull','enemy_basin_gull_upper','enemy_23',
 ];
-const SPECIAL={
-  enemy_the_seep:['split_followup'],enemy_rotwood_troll:['regeneration'],
-  enemy_thornback:['melee_armor','counterattack'],
-  enemy_mire_toad_male:['poison_on_hit','mire_toad_reagent_observation'],
-  enemy_mire_toad_female:['poison_on_hit','mire_toad_reagent_observation'],
-  enemy_basin_gull:['steal_and_flee'],enemy_basin_gull_upper:['steal_and_flee'],
-  enemy_23:['generated_stats'],
-};
+const SPECIAL={};
 const SCRIPTED={
   enemy_briar_warden:['warden_lifecycle'],enemy_smuggler_guard:['fort_lifecycle'],
   enemy_polwick:['fort_lifecycle','firelit_attack'],enemy_essa:['fort_lifecycle'],
@@ -86,13 +82,14 @@ test('all 60 deterministic metadata records are closed, deeply frozen and capabi
   }
   for(const id of ORDINARY)assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
   assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
-    'curse_on_hit','void_shard_burst','acid_corrosion','slither_on_hit','poison_spell','dazzle_on_hit']);
+    'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','melee_armor','counterattack',
+    'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee','generated_stats']);
 });
 
 test('every ordinary template prepares against one, two and three canonical members',()=>{
   for(const count of [1,2,3]){
     const g=fresh(count),before=state(g);
-    for(const id of ORDINARY){
+    for(const id of ORDINARY.filter(id=>id!=='enemy_23')){
       const plan=J(g,'canonicalPartyCombat.prepare({enemies:['+JSON.stringify(id)+'],escape:"fastest_living"})');
       assert.equal(plan.playerSide.members.length,count,id);assert.deepEqual(plan.enemySide.ids,[id],id);
       assert.equal(state(g),before,id);assert.equal(g.run('capabilityRolls'),0,id);
@@ -102,7 +99,7 @@ test('every ordinary template prepares against one, two and three canonical memb
 
 test('every ordinary template instantiates duplicate and triplicate exact identities without shared state',()=>{
   const g=fresh();
-  for(const id of ORDINARY){
+  for(const id of ORDINARY.filter(id=>id!=='enemy_23')){
     for(const count of [2,3]){
       g.run('initializeCanonicalEnemyFormationState('+JSON.stringify(descriptors(Array(count).fill(id)))+',{escape:"blocked"})');
       const members=J(g,'combat.enemies.map(e=>({id:e.id,instanceId:e.instanceId,slot:e.slot,hp:e.hp,maxHp:e.maxHp,observeCount:e.observeCount}))');
@@ -225,7 +222,7 @@ test('Eastern Fens examples retain structural validity without production regist
     g.run('var eastern=Object.freeze({id:'+JSON.stringify(id)+',enemies:Object.freeze('+JSON.stringify(ids)+'),weight:1})');
     assert.deepEqual(J(g,'encounterFormations.validateDefinition(eastern).enemies'),ids);
   }
-  assert.throws(()=>g.run('canonicalPartyCombat.prepareEnemySide(["enemy_mire_toad_male","enemy_mire_toad_male","enemy_mire_toad_male"])'),/poison_on_hit.*mire_toad_reagent_observation/);
+  assert.equal(g.run('canonicalPartyCombat.prepareEnemySide(["enemy_mire_toad_male","enemy_mire_toad_male","enemy_mire_toad_male"]).templates.length'),3);
   assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_waspthra")'),false);
   assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_botfly")'),false);
 });
