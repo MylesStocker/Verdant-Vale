@@ -42,8 +42,8 @@ const partyCombatLab = (() => {
       ['name','type','bonus','price'].includes(key) && Object.hasOwn(fields[key],'value'));
   };
   const enemyData=scenario=>scenario.enemyIds.map(id=>{
-    if(!PARTY_ATTACK_TEMPLATE_IDS.includes(id))fail('Party Combat Lab scenario uses an unsupported enemy');
     const descriptor=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id),template=descriptor?.value;
+    if(!canonicalEnemyIsCompatible(template))fail('Party Combat Lab scenario uses unsupported enemy capabilities');
     if(!descriptor || !Object.hasOwn(descriptor,'value') || !template ||
         Object.getPrototypeOf(template)!==Object.getPrototypeOf({}))fail('Party Combat Lab scenario has invalid enemy data');
     const fields=Object.getOwnPropertyDescriptors(template),keys=[...FORMATION_STATE_DATA_FIELDS];
@@ -67,6 +67,7 @@ const partyCombatLab = (() => {
     return [lely,esla];
   };
   const preflight=(scenario,fromSubmenu=false)=>{
+    if(canonicalPartyCombat.isActive())fail('Canonical encounter owns combat');
     if(lab || !scenario || combatPlayerState.hasParty() || combat.active || combat.mode!==null ||
         !Object.isFrozen(combat.enemies) || combat.enemies.length ||
         formationCombatLab.isOpen() || galleryReceiverEncounter.isLocked() ||
@@ -151,6 +152,7 @@ const partyCombatLab = (() => {
     getMenuView() {if(arguments.length)fail();return submenu&&lab===null?copy({cursor:submenu.cursor,error:lastError}):null;},
     getView() {if(arguments.length)fail();return buildView();},
     openMenu() {
+      if(canonicalPartyCombat.isActive())return false;
       if(arguments.length || submenu || lab || !debugMenu.open || combat.active || combat.mode!==null ||
           combatPlayerState.hasParty() || formationCombatLab.isOpen() || galleryReceiverEncounter.isLocked())return false;
       submenu={cursor:0,debugCursor:debugMenu.cursor};lastError='';reconcileFormationLabKeys();return true;

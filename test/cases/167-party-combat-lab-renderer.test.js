@@ -29,7 +29,7 @@ function complete(g){while(view(g).phase==='playback')assert.ok(g.run('partyComb
 
 test('inactive Lab draws nothing and active rendering consumes one immutable Lab view',()=>{
   const g=createContext();record(g);const before=snapshot(g);assert.equal(g.run('drawPartyCombatLabBattle()'),false);assert.equal(g.run('partyPaint.length'),0);assert.equal(snapshot(g),before);
-  const source=fs.readFileSync(path.join(ROOT,'render-party-combat-lab.js'),'utf8');
+  const source=['render-party-battle.js','render-party-combat-lab.js'].map(file=>fs.readFileSync(path.join(ROOT,file),'utf8')).join('\n');
   assert.equal((source.match(/partyCombatLab\.getView\(\)/g)||[]).length,1);
   assert.doesNotMatch(source,/combatPlayerState|formationSessionController|formationRounds|\bcombat\.|\bstats\.|\bplayer\.|Math\.random|\btick\b/);
   assert.doesNotMatch(source,/partyCombatLab\.(enter|submitAttack|backtrack|commitRound|advancePlayback|acknowledgePlayback|exit|emergencyAbort)\s*\(/);
@@ -37,7 +37,7 @@ test('inactive Lab draws nothing and active rendering consumes one immutable Lab
 
 test('one to three enemies occupy deterministic stable slots and all records stay on canvas',()=>{
   const expected={lely_esla_one:[[184,144]],lely_esla_two:[[16,232],[264,232]],lely_esla_three:[[16,144],[184,144],[352,144]]};
-  for(const [id,slots] of Object.entries(expected)){const g=fresh(id),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
+  for(const [id,slots] of Object.entries(expected)){const g=fresh(id),layout=J(g,'partyBattleLayout(partyCombatLab.getView())');
     assert.deepEqual(layout.enemies.map(p=>[p.x,p.width]),slots);assert.deepEqual(layout.enemies.map(p=>p.slot),slots.map((_,i)=>i));
     assert.deepEqual(layout.allies.map(p=>[p.x,p.feetY]),[[108,277],[256,277]]);
     for(const p of layout.enemies)assert.ok(p.x>=0&&p.spriteY>=0&&p.x+p.width<=512&&p.spriteY+p.spriteHeight<=480);
@@ -55,12 +55,12 @@ test('current ally and submitted exact targets remain presentation-only without 
 });
 
 test('one cursor follows the exact selected living runtime identity and disappears outside selection',()=>{
-  const g=fresh('lely_esla_three');assert.ok(g.run('partyCombatLab.confirmCommand()'));let v=view(g),layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
+  const g=fresh('lely_esla_three');assert.ok(g.run('partyCombatLab.confirmCommand()'));let v=view(g),layout=J(g,'partyBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.target.instanceId,v.selectedTargetInstanceId);assert.equal(layout.target.slot,0);
   assert.equal(draw(g).filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8').length,1);
-  assert.ok(g.run('partyCombatLab.moveTarget("next")'));v=view(g);layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
+  assert.ok(g.run('partyCombatLab.moveTarget("next")'));v=view(g);layout=J(g,'partyBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.target.instanceId,v.enemies[1].instanceId);assert.equal(layout.target.slot,1);
-  commandAll(g);assert.equal(J(g,'partyCombatLabBattleLayout(partyCombatLab.getView()).target'),null);
+  commandAll(g);assert.equal(J(g,'partyBattleLayout(partyCombatLab.getView()).target'),null);
   assert.equal(draw(g).filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8').length,0);
 });
 
@@ -105,17 +105,17 @@ test('malformed projections fail before canvas output',()=>{
   const g=fresh(),v='partyCombatLab.getView()';
   for(const value of ['null','Object.freeze({...'+v+',phase:"bad"})','Object.freeze({...'+v+',nextActorId:"stale"})',
     'Object.freeze({...'+v+',enemies:Object.freeze([])})']){
-    g.run('partyPaint=[];');assert.throws(()=>g.run('partyCombatLabBattleLayout('+value+')'),/Invalid Party Combat Lab presentation/);assert.equal(g.run('partyPaint.length'),0);}
+    g.run('partyPaint=[];');assert.throws(()=>g.run('partyBattleLayout('+value+')'),/Invalid party battle presentation/);assert.equal(g.run('partyPaint.length'),0);}
 });
 
 test('renderer has one exclusive main-render route and no mutation or content route',()=>{
   for(const file of scriptOrderFromIndexHtml()){
     const source=fs.readFileSync(path.join(ROOT,file),'utf8');
     if(!['render-party-combat-lab.js','render.js'].includes(file))assert.doesNotMatch(source,/drawPartyCombatLabBattle\s*\(/,file);
-    if(/content|interaction|quest|encounter/.test(file))assert.doesNotMatch(source,/PartyCombatLabBattle|partyCombatLabBattleLayout/,file);
+    if(/content|interaction|quest|encounter/.test(file))assert.doesNotMatch(source,/PartyCombatLabBattle|partyBattleLayout/,file);
   }
   const route=fs.readFileSync(path.join(ROOT,'render.js'),'utf8');assert.equal((route.match(/drawPartyCombatLabBattle\(\)/g)||[]).length,1);
-  const source=fs.readFileSync(path.join(ROOT,'render-party-combat-lab.js'),'utf8');
+  const source=['render-party-battle.js','render-party-combat-lab.js'].map(file=>fs.readFileSync(path.join(ROOT,file),'utf8')).join('\n');
   assert.doesNotMatch(source,/addEventListener|pressedKeys|debugMenu|warpMenu|render\s*\(|drawCombat\s*\(/);
 });
 

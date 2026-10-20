@@ -6,6 +6,171 @@ actually fits together.
 
 ## Current state
 
+### Canonical party completion policy — Pass 6 (uncommitted)
+
+Pass 5 checkpoint: `4512eabc75d4a194e72f14ce98589822e6e4d59a` (verified 190/190).
+Full XP now goes to every living terminal member; Fallen members receive none
+and remain at zero after victory. Shared rewards stay once per defeated instance.
+Independent multi-level notices precede existing story aftermath. No-survivor
+defeat wins terminal ties and recovers every member once under existing policy.
+Fallen Lely remains operational in the field with a living companion. Stable
+all-Fallen saves reject atomically; existing rest/treatment restores Lely, while
+items and Quickbloom cannot revive. Takomo uses the existing generic party sprite.
+Case 191 exhausts 48,642 dry formation preparations plus 132 installations and
+simulates actual MQ1–MQ5 callbacks, Receiver, recruitment, backtracking battle,
+Fallen field/save/ferry and full-party recovery. See `CANONICAL_PARTY_COMBAT.md`
+for ownership, cleanup, route totals and the manual checklist. No new content,
+geography, save fields, version increment or browser-testing claim. Verification:
+191/191 suites, 25 new checks, 0 data errors / 4 established warnings, 107/107
+fingerprints, read-only transition audit and all five historical capture digests
+unchanged. All 14 changed/new JavaScript syntax checks and diff checks pass.
+
+### Scripted canonical-party encounter migration — Pass 5
+
+Pass 4C is checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`.
+Pass 5 adds one authenticated story-lifecycle owner around the existing canonical
+party engine. The post-MQ5 routes for Briar Warden, Pale Sentry, Rainfish, Takomo,
+Den Wraith, Kolm, Wrongteeth, Lensweb Spider and Mimic Potion now accept one to
+three canonical members. Mulholland, the Mire Toad spawning chain and the trapped
+Drowned use the same boundary. Pre-recruitment calls still use their existing
+singleton implementation.
+
+The fort guard/Polwick/Essa chain and Receiver/Caller/Keeper Formation are proven
+pre-recruitment requirements and remain isolated. The capability inventory is 54
+mechanically supported templates, with nine requiring an authenticated story
+token and six retained on pre-MQ5 legacy owners. Entry dry-runs the complete
+canonical preparation before choices/callbacks commit activation state. Outcomes
+write story flags, persistent Sentry HP, wagers, guaranteed rewards and chain
+callbacks exactly once after canonical writeback and ordinary rewards.
+
+Rainfish and Mire Toad remain separate chained battles with save-blocking,
+origin-bound callbacks and fresh identities. Lensweb preserves poison and its
+Observe-gated guaranteed escape; Kolm preserves the spent stake on non-victory;
+Mimic preserves activation-time trap consumption. No maps, pools, stats, quests,
+dialogue, save fields or production formations changed. SAVE_VERSION remains 5.
+
+### Unusual ordinary-enemy migration — Pass 4C
+
+Pass 4B is checkpointed as `10d2f27eeb2061cfa24a301207ef53010fabdb4f`
+(`feat(combat): support status specials in canonical party battles`). Verification
+passed 188/188 regression suites and 50 focused suites, with 0 validation errors,
+4 established warnings, 107 regional fingerprints, read-only transition checks
+and all five supplied historical capture digests unchanged. SAVE_VERSION is 5.
+
+Pass 4C implements the eight remaining unusual ordinary-enemy templates: 45
+mechanically supported, zero special-capability pending, 15 scripted lifecycles
+still guarded. The Seep uses an authenticated separate successor; Trolls heal from
+round-end HP; Thornbacks counter immediately against each melee attacker; Toads
+retain per-instance poison/Observe/reagents; Gulls steal gold and allow a full
+subsequent round before flight; generated 23 requires authenticated selected data.
+The user explicitly approved defeated-enemy-only rewards after mixed-formation
+Gull departure; voluntary Run still pays nothing. Pass 6 policies are now described above.
+
+Suite 189 tests all eight templates at all nine side sizes, deterministic mechanics,
+duplicates, historical playback, malformed data, ownership, rewards and handoffs.
+Pass 4C is checkpointed at `f2ed970fe6990fbafe66346ce5aefce03f6cb6a5`. Geography, production pools/formations,
+legacy singleton/Formation behavior, artifact authorities and SAVE_VERSION 5 are
+unchanged. Same-slot replacement remains deferred; the scripted lifecycle state
+is superseded by the Pass 5 section above.
+Verification: 189/189 full suites, 68 focused suites, 22 new grouped checks,
+15 JavaScript syntax checks, 0 validation errors/4 established warnings, 107
+fingerprints, exact read-only transition audit, and all five historical capture
+digests unchanged. Full details are in CANONICAL_PARTY_COMBAT.md.
+No browser test was performed.
+
+### Status/offensive capability migration — Pass 4B
+
+Pass 4A was verified at 187/187 and checkpointed as
+`74d8990dab042c167f90daedf9e4fa75edd3324d`
+(`feat(combat): support brace in canonical party battles`). The completed Pass 4B
+increment is now checkpointed as recorded above.
+
+Canonical standard sessions now execute the existing landed-hit mechanics for
+Shade Wraith, Corpse Slug, Void Walker, Dripping Maw, Fen Witch, Lantern Moth and
+Dust-Drowned. At the Pass 4B checkpoint the counts were 37 supported, eight special pending
+and 15 scripted-only; Pass 4C above supersedes that inventory. Slither, poison and Curse retain
+exact-member ownership and existing ward/cure/writeback behavior. Void shard burst,
+Dazzled and corrosion preserve their established chances, damage/modifiers and
+combat-only cleanup. Capability decisions and state belong to exact runtime enemy
+and canonical member identities; duplicates remain independent.
+
+Suite 188 adds deterministic matrix, mechanic, targeting, playback, rendering and
+lifecycle coverage (18 grouped checks). Full verification evidence is recorded in
+the completion report. No production formations, enemy stats/rewards, pools, maps,
+quests, dialogue, save fields or terrain changed. SAVE_VERSION remains 5. The
+remaining special capabilities and scripted outcomes stay deferred to Pass 4C and
+Pass 5. This increment is headless; no browser test was performed.
+
+### Ordinary-enemy capability migration — Pass 3 checkpoint
+
+Pass 2 was verified at 185/185 and checkpointed as
+`5a26974ab277cfd5bdbf8d30031f6b9520d08c`
+(`feat(combat): add canonical battle envelope`). The following records the
+completed Pass 3 checkpoint before Brace support.
+
+Canonical enemy compatibility now follows a closed mechanic contract rather than
+the removed `PARTY_ATTACK_TEMPLATE_IDS` identity list. All 60 registered templates
+have deterministic frozen metadata. The supported mechanic set is basic Attack,
+standard Observe, standard rewards and metadata-driven boss escape lock. The full
+[capability audit](ENEMY_CAPABILITY_AUDIT.md) classifies 22 ordinary compatible
+templates, 23 special-capability templates and 15 scripted-only lifecycle
+templates. Thirteen formerly rejected ordinary templates now enter existing
+post-recruitment canonical encounters; pools remain single-enemy and keep their
+authored probabilities and selection RNG.
+
+Every ordinary template prepares against one, two and three canonical members and
+works as one to three independent enemy instances, including duplicate A/B/C
+labels and mixed test formations. Unsupported fields, hidden legacy branches,
+unknown capabilities, malformed metadata and unsafe actual state still reject
+before battle RNG, identities or mutation. Receiver and Formation retain their
+separate legacy authority. Scripted starters remain under the Pass 1 roster guard.
+
+Pass 2's structural envelope remains unchanged: all nine 1–3 by 1–3 combinations,
+fixed Fallen slots, six-actor scheduling, detached playback and immutable authored
+formations. Quickbloom still declares `elements: ['bloommarked']`; `firelit`
+remains a future identifier only. Mire Toad is structurally valid but blocked by
+poison/reagent mechanics; Waspthra and Botfly remain unregistered test spellings.
+No production group, geography, generated artifact, save field, stats, rewards or
+balance changed. `SAVE_VERSION` remains 5.
+
+Suite 186 contains 17 grouped checks. The complete regression is 186/186 and the
+43-suite combat focus passes. Validation is 0 errors / 4 established warnings;
+all 107 fingerprints, the transition audit, save/load checks and all five combat
+capture digests are unchanged. This pass is headless; no browser test was run.
+
+### Scripted entry atomicity — Pass 1
+
+The 15 dedicated singleton starters plus the inline Pale Sentry override are
+audited in [SCRIPTED_COMBAT_ENTRY_AUDIT.md](SCRIPTED_COMBAT_ENTRY_AUDIT.md).
+Predictable rejection now precedes combat-specific staging and callback/choice
+consumption. The trapped Drowned is marked slain only by authenticated victory;
+fort arrest, Kolm stake, Mimic consumption and Rainfish wake writes wait for
+successful activation. Repeated rewards/recovery and forged Lensweb finalization
+are guarded. Suite 184 adds deterministic caller, rejection and lifecycle coverage.
+Pass 1 suite count: 184; baseline: 183. No additional enemies become party
+compatible. Save version 5, geography and generated authorities remain unchanged.
+
+### Canonical party combat integration
+
+Supported ordinary encounters now use the canonical party after MQ5 recruitment.
+One-member rosters retain singleton combat. The explicit boundary supports one to
+three approved enemies, imports personal equipment/statuses and shared inventory,
+and enables Esla's existing Quickbloom/Strain through the standard controller.
+Lely remains non-Rareborn. The approved party presentation is shared with the Lab;
+canonical input, outcomes and rewards have independent lifecycle ownership.
+
+Authenticated terminal writeback, full XP for living terminal members, shared rewards,
+escape and full-party defeat recovery are one-time operations. Failures retain
+diagnostics and prohibit retry or saving/loading. No save fields, maps, terrain,
+enemy stats, balance, quest/dialogue or new content changed; `SAVE_VERSION` is 5.
+Unadapted enemy capabilities and scripted encounters fail closed after recruitment.
+The complete 60-template inventory, verification evidence and manual checklist are
+in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md). Suite 183 was used because
+181 and 182 already belonged to the lifecycle and field-menu suites.
+
+The following integration checkpoint describes the synchronized baseline; its
+182-suite count predates suites 183–188 (current total: 188).
+
 ### Eastern terrain and party integration
 
 The integrated repository has 208 maps and metadata entries, 107 regional chunks
@@ -43,7 +208,7 @@ MQ5 party state when loading negative-coordinate approach placements, render the
 party menu in both presentation modes, and retain the authored no-save policy on
 all three approach maps. Browser appearance and manual play remain untested.
 
-### Resonance MVP — Party Combat Lab only
+### Resonance MVP — Party Combat Lab and canonical encounters
 
 Quickbloom is the sole production technique: Esla's ordinary Bloommarked healing
 of one living wounded ally for one fifth of maximum HP (floor, minimum one,
@@ -71,8 +236,8 @@ Test 180 covers definitions, exact IDs, atomic rejection, deterministic healing,
 Strain boundaries, combined reservations, historical playback, navigation and
 recording-canvas bounds. No browser-control tool is available in this session;
 manual visual inspection at native and 2× scale remains outstanding.
-Canonical party encounters, broader affinities/effects and combined content
-remain deferred. Field menus, MQ5 dialogue, saves (v5), maps, singleton combat,
+Broader affinities/effects and combined content remain deferred.
+Field menus, MQ5 dialogue, saves (v5), maps, singleton combat,
 Formation Lab and Receiver are unchanged. Earlier implementation notes below
 retain the historical four-command/Attack-only checkpoints.
 
@@ -94,10 +259,10 @@ Drenwick infirmary NPC projections. Her ordinary pre-join dialogue is unchanged.
 Test 179 covers recruitment, prerequisites, atomic failure, repeats, world NPCs,
 field-menu targeting and version-5 saves.
 
-**Known next boundary:** ordinary and optional western encounters still start
-Lely-only combat, including when the canonical roster contains Esla. Their reward
-and recovery paths are also unchanged. No canonical party-combat bridge caller is
-installed and no encounter was disabled. Eastern Fens remains encounter-free.
+**Current boundary:** approved ordinary western encounters use canonical party
+combat. Unsupported specials and optional scripted encounters reject explicitly;
+their capabilities and quest outcomes have not been adapted. Eastern Fens remains
+encounter-free.
 Browser inspection of the recruitment scene remains outstanding.
 
 ### Canonical multi-member field menu
@@ -128,12 +293,12 @@ her existing stats/status/equipment authorities. Shared inventory/gold stay in
 `stats`. Esla has isolated provisional level progression, anchored at level 5 to
 50 HP / 10 ATK / 4 DEF / 8 SPD, with no initial gear or resource grant.
 
-Full XP reaches every active member, including KOs; each levels independently.
-Victory commitment revives KOs to exactly 1 HP, while full recovery restores all
+Full XP reaches every living active member; Fallen members receive none.
+Victory retains Fallen HP at zero, while full recovery restores all
 HP and clears ordinary removable statuses. Private combat tickets bind the real
 generalized session and reject stale, incomplete, substituted, Lab and replayed
 results. Canonical state is unchanged until one atomic acknowledged commitment;
-rewards are separate. No encounter, input, menu or recruitment route calls it.
+rewards are separate. The canonical encounter owner now calls this bridge.
 
 `SAVE_VERSION` is now **5**, with no v4 migration. Ordered IDs, non-Lely records,
 reward receipts and Lely's Slither sample are saved; runtime combat identities,
@@ -144,8 +309,8 @@ protection. See architecture.md for APIs, schema and the post-MQ5 encounter audi
 Earlier save-version references in historical checkpoint notes below describe the
 version at that increment; the current format is v5.
 
-Encounter conversion, enemy specials,
-cutaway parties and broader magic remain deferred; the Lab-only Resonance MVP is described above. The lifecycle foundation
+Further enemy specials, cutaway parties and broader magic remain deferred;
+the shared Resonance MVP is described above. The lifecycle foundation
 introduced no art, maps, lore or Chapter One presentation changes.
 
 ### Headless player-party state foundation

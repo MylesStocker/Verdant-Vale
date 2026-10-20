@@ -1547,7 +1547,7 @@ const SHARED_NPCS = [
         dialogue.name  = '';
         dialogue.pages = [['The black cat presses into the corner, flattens its ears, and gives a low, unbroken growl. Best leave it be.']];
       } else {
-        stats.hp = Math.max(1, stats.hp - 2);
+        if(stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers())stats.hp = Math.max(1, stats.hp - 2);
         dialogue.name  = '';
         dialogue.pages = [['You reach for the black cat anyway. It lashes out — a hot line of pain rakes the back of your hand. (−2 HP)']];
       }
@@ -2172,7 +2172,7 @@ NPC_ACTIONS.kolmBrawler = function(npc) {
     choice.options = ['Fight (50g stake)', 'Decline'];
     choice.cursor  = 0;
     choice.callbacks = [
-      function accept() {
+      scriptedCombatEntry.callback('startSailorBrawlCombat', function accept() {
         if (stats.gold < 50) {
           dialogue.name  = 'Kolm';
           dialogue.pages = [
@@ -2184,7 +2184,7 @@ NPC_ACTIONS.kolmBrawler = function(npc) {
           dialogue.page = 0;
           return;
         }
-        stats.gold -= 50;
+        if (!scriptedCombatEntry.dialogue('kolm_brawler')) return;
         dialogue.name  = 'Kolm';
         dialogue.pages = [
           ['He rolls his neck and pushes back from the table.',
@@ -2194,7 +2194,7 @@ NPC_ACTIONS.kolmBrawler = function(npc) {
         queueDialogueEncounter('kolm_brawler');
         dialogue.open = true;
         dialogue.page = 0;
-      },
+      }, undefined, ()=>stats.gold>=50),
       function decline() {
         dialogue.name  = 'Kolm';
         dialogue.pages = [

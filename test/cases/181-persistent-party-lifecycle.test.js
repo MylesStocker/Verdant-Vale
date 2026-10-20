@@ -39,11 +39,11 @@ test('Esla joins once at current level with independent authored growth and empt
  const before=state(g);g.run('persistentParty.joinEsla()');assert.equal(state(g),before);reject(g,'persistentParty.joinEsla("unknown")');
  assert.equal(g.run('rolls'),0);assert.equal(g.run('combatEnemyInstanceSequence'),0);
 });
-test('full independent XP, KO retention, single shared reward grant and save-backed deduplication',()=>{
+test('full living-member XP, KO exclusion, single shared reward grant and save-backed deduplication',()=>{
  const g=fresh();g.run('persistentParty.joinEsla()');seed(g,{eslaHp:0});g.run('Math.random=()=>{rolls++;return 0.5};');
  const r=g.run('persistentParty.awardRewards({id:"fixture_reward",xp:100,gold:17,items:["Potion"]})');
- assert.equal(r.applied,true);frozen(r);const v=view(g);equal(v.members.map(m=>[m.level,m.xp]),[[2,100],[2,100]]);assert.equal(v.members[1].hp,0);
- equal([v.members[0].maxHp,v.members[0].atk,v.members[1].maxHp,v.members[1].atk],[40,10,35,7]);assert.equal(g.run('rolls'),3);
+ assert.equal(r.applied,true);frozen(r);const v=view(g);equal(v.members.map(m=>[m.level,m.xp]),[[2,100],[1,0]]);assert.equal(v.members[1].hp,0);
+ equal([v.members[0].maxHp,v.members[0].atk,v.members[1].maxHp,v.members[1].atk],[40,10,30,6]);assert.equal(g.run('rolls'),3);
  const before=state(g);assert.equal(g.run('persistentParty.awardRewards({id:"fixture_reward",xp:100,gold:17,items:["Potion"]}).applied'),false);assert.equal(state(g),before);
  reject(g,'persistentParty.awardRewards({id:"fixture_reward",xp:101,gold:17,items:["Potion"]})');
  g.run('saveGame();loadGame()');assert.equal(g.run('persistentParty.awardRewards({id:"fixture_reward",xp:100,gold:17,items:["Potion"]}).applied'),false);
@@ -56,7 +56,7 @@ test('invalid rewards fail before RNG or mutation, including getters and unsafe 
  g.run('stats.xp=Number.MAX_SAFE_INTEGER');reject(g,'persistentParty.awardExperience("x",1)');
 });
 test('recovery restores all HP, clears ordinary removable statuses, retains gear/resources',()=>{
- const g=fresh();g.run('persistentParty.joinEsla();stats.hp=0;statusEffects=["poison","cursed","slither","muddied"];');seed(g,{hp:0,eslaHp:0,statuses:['poison','slither','cursed','burn','dazzled']});
+ const g=fresh();g.run('persistentParty.joinEsla();statusEffects=["poison","cursed","slither","muddied"];');seed(g,{hp:1,eslaHp:0,statuses:['poison','slither','cursed','burn','dazzled']});g.run('stats.hp=0');
  assert.equal(view(g).defeated,true);equal(view(g).members.map(m=>m.slot),[0,1]);g.run('persistentParty.recover()');
  assert.equal(view(g).defeated,false);equal(view(g).members.map(m=>m.hp),[30,30]);equal(view(g).members.map(m=>m.statuses),[[],[]]);assert.equal(g.run('rolls'),0);
 });
@@ -90,17 +90,17 @@ test('detached combat preparation, initial equipment and statuses, supported gro
  }
 });
 test('invalid enemy/preparation input consumes no identities, RNG or mutation',()=>{
- const g=fresh();for(const code of ['[]','["enemy_gallery_receiver"]','["enemy_23"]','["missing"]','["enemy_mulholland","enemy_marsh_wisp"]','["enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp"]','Object.create([])'])reject(g,'persistentParty.beginCombat('+code+')');
+ const g=fresh();for(const code of ['[]','["enemy_gallery_receiver"]','["enemy_23"]','["missing"]','["enemy_gallery_keeper","enemy_marsh_wisp"]','["enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp","enemy_marsh_wisp"]','Object.create([])'])reject(g,'persistentParty.beginCombat('+code+')');
  g.run('stats.atk=Number.MAX_SAFE_INTEGER');reject(g,'persistentParty.beginCombat(["enemy_marsh_wisp"])');
 });
-test('authentic victory requires final acknowledgement, commits once, revives KOs to one and preserves survivors',()=>{
+test('authentic victory requires final acknowledgement, commits once, retains Fallen at zero and preserves survivors',()=>{
  const g=fresh();g.run('persistentParty.joinEsla();stats.atk=100');seed(g,{eslaHp:0});const before=g.run('JSON.stringify(stats)');begin(g);attacks(g);resolve(g);assert.equal(g.run('JSON.stringify(stats)'),before);
  assert.throws(()=>g.run('persistentParty.commitCombat()'));while(g.run('combatPlayerState.session.getView().phase')==='playback')g.run('combatPlayerState.session.advancePlayback()');assert.throws(()=>g.run('persistentParty.commitCombat()'));
- g.run('combatPlayerState.session.acknowledgePlayback()');const rolls=g.run('rolls'),result=g.run('persistentParty.commitCombat()');assert.equal(result.outcome,'victory');equal(view(g).members.map(m=>m.hp),[30,1]);assert.equal(g.run('rolls'),rolls);assert.equal(g.run('combatPlayerState.hasParty()'),false);assert.equal(g.run('combat.mode'),null);
+ g.run('combatPlayerState.session.acknowledgePlayback()');const rolls=g.run('rolls'),result=g.run('persistentParty.commitCombat()');assert.equal(result.outcome,'victory');equal(view(g).members.map(m=>m.hp),[30,0]);assert.equal(g.run('rolls'),rolls);assert.equal(g.run('combatPlayerState.hasParty()'),false);assert.equal(g.run('combat.mode'),null);
  reject(g,'persistentParty.commitCombat()');const v=begin(g);assert.equal(v.party[0].instanceId,'combat_party_3');assert.equal(v.enemies[0].instanceId,'combat_enemy_2');
 });
 test('canonical Lely may start knocked out; the living ally owns the action and wins',()=>{
- const g=fresh();g.run('stats.level=20;persistentParty.joinEsla();stats.hp=0');begin(g);attacks(g);resolve(g);acknowledge(g);const r=g.run('persistentParty.commitCombat()');assert.equal(r.outcome,'victory');assert.equal(g.run('stats.hp'),1);
+ const g=fresh();g.run('stats.level=20;persistentParty.joinEsla();stats.hp=0');begin(g);attacks(g);resolve(g);acknowledge(g);const r=g.run('persistentParty.commitCombat()');assert.equal(r.outcome,'victory');assert.equal(g.run('stats.hp'),0);
 });
 test('shared item consumption and personal equipment commit once, key items survive',()=>{
  const g=fresh();g.run('persistentParty.joinEsla();stats.atk=100;stats.items=[{...ITEM_REGISTRY["Iron Sword"]},{...ITEM_REGISTRY.Potion},{...Object.values(ITEM_REGISTRY).find(i=>i.keyItem)}];stats.hp=10;');
@@ -125,9 +125,9 @@ test('stale canonical state, substituted runtime members, caller results and Lab
  const altered=fresh();altered.run('stats.atk=100');begin(altered);attacks(altered);resolve(altered);acknowledge(altered);assert.throws(()=>altered.run('persistentParty.commitCombat({outcome:"victory"})'));altered.run('combat.enemy=null;combat.enemy={...ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp}');assert.throws(()=>altered.run('persistentParty.commitCombat()'));
  const lab=fresh();assert.ok(lab.run('partyCombatLab.enter("lely_esla_one")'));assert.throws(()=>lab.run('persistentParty.commitCombat()'));assert.throws(()=>lab.run('persistentParty.beginCombat(["enemy_marsh_wisp"])'));
 });
-test('private bridge capability cannot be reclaimed; only MQ5 may recruit, no combat/reward callers',()=>{
+test('private bridge capability cannot be reclaimed; only MQ5 recruits and canonical encounter owner finalizes',()=>{
  const g=fresh();reject(g,'combatPlayerState.claimPersistentBridge()');
- const scripts=scriptOrderFromIndexHtml();for(const file of scripts){const src=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');assert.equal(/persistentParty\.(beginCombat|commitCombat|awardRewards|awardExperience|recover|resetForNewGame)\s*\(/.test(src),false,file);assert.equal((src.match(/persistentParty\.joinEsla\s*\(/g)||[]).length,file==='quests.js'?1:0,file);}
+ const scripts=scriptOrderFromIndexHtml();for(const file of scripts){const src=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');assert.equal(/persistentParty\.(beginCombat|commitCombat|awardRewards|awardExperience|recover|resetForNewGame)\s*\(/.test(src),file==='canonical-party-combat.js',file);assert.equal((src.match(/persistentParty\.joinEsla\s*\(/g)||[]).length,file==='quests.js'?1:0,file);}
  assert.equal(g.run('SAVE_VERSION'),5);
 });
 test('future third-slot capacity uses an authored test fixture, never a production character',()=>{

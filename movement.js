@@ -550,8 +550,30 @@ function trySeraLioraGuestRoomDoor() {
   return true;
 }
 
+// The Rainfish trigger is reached after movement/status ticks. Preview only the
+// ordinary interior step into its authored zone so rejection precedes those
+// writes and any status RNG. The zone cannot overlap a seam or point transition.
+function preflightRainfishStep() {
+  if (activeMap!==MAP3_N1 || sickle_quest_stage!==1 || rainfish_woken || combat.active ||
+      dialogue.open || menu.open || choice.open || shop.open || debugMenu.open || warpMenu.open ||
+      fishing.active || seraLioraCutscene.active) return true;
+  let dx=0,dy=0;
+  if(keys.ArrowLeft||keys.a)dx=-SPEED;
+  if(keys.ArrowRight||keys.d)dx=SPEED;
+  if(keys.ArrowUp||keys.w)dy=-SPEED;
+  if(keys.ArrowDown||keys.s)dy=SPEED;
+  if(!dx&&!dy)return true;
+  if(dx&&dy){dx*=0.7071;dy*=0.7071;}
+  const x=canWalk(player.x+dx,player.y)?player.x+dx:player.x;
+  const y=canWalk(x,player.y+dy)?player.y+dy:player.y;
+  const col=Math.floor(x/TILE),row=Math.floor(y/TILE);
+  return !(row>=4&&row<=6&&col>=3&&col<=7) || requireSingletonEncounter('startRainfishCombat',2);
+}
+
 function update(deltaSeconds) {
+  if (canonicalPartyCombat.isActive()) return;
   if (combatPlayerState.hasParty()) return; // headless preparation freezes simulation
+  if (!preflightRainfishStep()) return;
   // Lab isolation includes cooldowns, NPCs, visits and automatic world triggers.
   if (formationCombatLab.isOpen()) return;
   galleryReceiverEncounter.updateStairLatch();
@@ -672,11 +694,11 @@ function update(deltaSeconds) {
     }
 
     player.step++;
-    if (hasStatusEffect('poison') && player.step % 60 === 0)
+    if ((stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers()) && hasStatusEffect('poison') && player.step % 60 === 0)
       stats.hp = Math.max(1, stats.hp - 1);
     if (MUDSLITHER_INFLICTABLE && inSluice && !hasStatusEffect('muddied') && Math.random() < 0.003)
       addStatusEffect('muddied');
-    if (hasStatusEffect('cursed') && player.step % 80 === 0 && Math.random() < 0.20) {
+    if ((stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers()) && hasStatusEffect('cursed') && player.step % 80 === 0 && Math.random() < 0.20) {
       const tripDmg = Math.floor(Math.random() * 2) + 2;
       stats.hp = Math.max(1, stats.hp - tripDmg);
       const tripMsgs = [
@@ -1125,9 +1147,10 @@ function update(deltaSeconds) {
     // Safe approach: stay on the main path (col 8) and cut west at row 3 only.
     if (activeMap === MAP3_N1 && sickle_quest_stage === 1 && !rainfish_woken &&
         tty >= 4 && tty <= 6 && ttx >= 3 && ttx <= 7) {
+      if (!requireSingletonEncounter('startRainfishCombat',2)) return;
+      startRainfishCombat(2);  // 2 remaining after this one = 3 total
       rainfish_woken = true;
       syncQuestFlagsToWindow();
-      startRainfishCombat(2);  // 2 remaining after this one = 3 total
       return;
     }
 

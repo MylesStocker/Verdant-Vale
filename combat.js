@@ -5,6 +5,15 @@
 // turn-resolution logic (combatOptions, applyEnemyHitEffects, observe text,
 // handleCombatAction).
 
+// Shared canonical-party terminal precedence, also used by historical validators.
+// Singleton and Receiver Formation keep their existing outcome authorities.
+function partyTerminalOutcome(party,enemies,hp=actor=>actor.hp,available=actor=>hp(actor)>0&&!actor.unusual?.departed) {
+  if(!party.some(actor=>hp(actor)>0))return 'defeat';
+  if(enemies.every(actor=>hp(actor)===0))return 'victory';
+  if(enemies.every(actor=>!available(actor)))return 'escape';
+  return 'ongoing';
+}
+
 // ─── Enemy templates ─────────────────────────────────────────────────────────
 // ─── Removal Contract quest objects ───────────────────────────────────────────
 // Briar Warden — territorial fen creature denning in the hidden spring meadow
@@ -118,7 +127,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
 const SECRET_23_TEMPLATE = { id: 'enemy_23', name: '23', inline: true };
 const ENEMY_TEMPLATE_REGISTRY = {};
 (function buildEnemyTemplateRegistry() {
-  const add = (t) => { if (t && typeof t.id === 'string') ENEMY_TEMPLATE_REGISTRY[t.id] = t; };
+  const add = (t) => { if (t && !Object.hasOwn(t,'enemies') && typeof t.id === 'string') ENEMY_TEMPLATE_REGISTRY[t.id] = t; };
   ENEMY_TEMPLATE_POOLS.forEach((pool) => pool.templates.forEach(add));
   ENEMY_SCRIPTED_TEMPLATES.forEach(add);
   add(SECRET_23_TEMPLATE);
@@ -336,6 +345,7 @@ function itemStatParen(item) {
 let combatEnemyInstanceSequence = 0;
 // Immutable encounter-time boss evidence, outside legacy enumerable snapshots.
 const combatEnemyBossAtCreation = new WeakMap();
+const combatCanonicalEnemySources = new WeakMap();
 let combatMode = null;
 let combatActive = false;
 // Provenance only, not another outcome authority. Issued after the ordinary
@@ -506,8 +516,9 @@ const combatPlayerState = (() => {
         enemyRound.awaitingPlayback || enemyRound.outcome !== 'ongoing' || formationRounds.coordination() !== null : enemyRound !== null) rejectAttack();
     const enemyData = enemyCopies.map((enemy,slot) => {
       const data = attackRecord(enemy,[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked']);
-      if (!PARTY_ATTACK_TEMPLATE_IDS.includes(data.id)) rejectAttack();
-      const template = attackRecord(ENEMY_TEMPLATE_REGISTRY[data.id],FORMATION_STATE_DATA_FIELDS);
+      const registeredTemplate=ENEMY_TEMPLATE_REGISTRY[data.id];
+      if (!canonicalEnemyIsCompatible(registeredTemplate)) rejectAttack();
+      const template = attackRecord(registeredTemplate,FORMATION_STATE_DATA_FIELDS);
       const fields = Object.getOwnPropertyDescriptors(enemy);
       if (template.id !== data.id || !formationBasicStatsValid(template) || !formationBasicStatsValid(data) ||
           [template,data].some(d => typeof d.name !== 'string' ||
@@ -558,9 +569,9 @@ const combatPlayerState = (() => {
     partyInitiativeWeights(planActors);
     return {enemyMembers,enemyData,partyData,allyActions,enemyActions,planActors};
   };
-  const prepareMembers = (descriptors, minimum, maximum, persistent = false) => {
+  const prepareMembers = (descriptors, minimum, maximum, persistent = false, handoff = null) => {
     if (members) fail();
-    validateInactiveCombatPreparation();
+    validateInactiveCombatPreparation(handoff);
     if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open ||
         !Number.isFinite(stats.hp) || (persistent ? stats.hp < 0 : stats.hp <= 0)) fail();
     // Only an empty enemy side or an untouched inactive preparation is
@@ -572,8 +583,8 @@ const combatPlayerState = (() => {
         combat.enemies.some((enemy,slot) => !formationBasicStatsValid(enemy) || enemy.hp === 0 ||
           enemy.slot !== slot || typeof enemy.instanceId !== 'string')) fail();
     const state = Object.getOwnPropertyDescriptors(combat);
-    if (Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([key,value]) => state[key]?.value !== value) ||
-        array(state.messageQueue?.value).length || completedSingleVictoryReceipt !== null) fail();
+    if (!partyPreparationBookkeepingIsNeutral(state,persistent) ||
+        array(state.messageQueue?.value).length || (!persistent && completedSingleVictoryReceipt !== null)) fail();
     const round = formationRounds.getView();
     if (round && (round.completedRounds || round.awaitingPlayback || round.outcome !== 'ongoing')) fail();
     const candidates = array(descriptors).map(record);
@@ -614,7 +625,7 @@ const combatPlayerState = (() => {
       const sample=dataRecord(effect.slither,['speed','round','roll','source']);
       if(!slitherSpeedValid(sample.speed) || !safe(sample.round) || sample.round>(roundState?.completed||0) ||
           (sample.source==='prepared' ? sample.round!==0||sample.roll!==null :
-            !['attack','observe'].includes(sample.source)||sample.round===0||
+            !['attack','observe','inflicted'].includes(sample.source)||sample.round===0||
             !Number.isFinite(sample.roll)||sample.roll<0||sample.roll>=1||Math.floor(sample.roll*20)+1!==sample.speed))invalid();
     };
     const itemSpec = id => {
@@ -634,29 +645,35 @@ const combatPlayerState = (() => {
       return list.map((enemy,slot)=>{
         const keys=[...FORMATION_STATE_DATA_FIELDS,'instanceId','slot','observeCount','escapeUnlocked'];
         if(Object.hasOwn(enemy,'isBoss'))keys.push('isBoss');
+        const registeredTemplate=ENEMY_TEMPLATE_REGISTRY[enemy.id],source=combatCanonicalEnemySources.get(enemy)||registeredTemplate;
+        const mechanicFields=Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES).filter(key=>
+          Object.hasOwn(source||{},key)&&ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical);
+        keys.push(...mechanicFields);
         const d=dataRecord(enemy,keys), p=Object.getOwnPropertyDescriptors(enemy);
-        if(!PARTY_ATTACK_TEMPLATE_IDS.includes(d.id) || !formationBasicStatsValid(d) || d.slot!==slot ||
+        if(!canonicalEnemyIsCompatible(registeredTemplate) || !formationBasicStatsValid(d) || d.slot!==slot ||
             typeof d.name!=='string' || !/^combat_enemy_[1-9]\d*$/.test(d.instanceId) ||
             !['xp','goldMin','goldMax','observeCount'].every(k=>safe(d[k])) || d.escapeUnlocked!==false ||
             p.hp.writable!==true || p.observeCount.writable!==true || p.instanceId.writable!==false ||
             p.instanceId.configurable!==false || p.slot.writable!==false || p.slot.configurable!==false ||
             (Object.hasOwn(d,'isBoss') && typeof d.isBoss!=='boolean') || !combatEnemyBossAtCreation.has(enemy)) invalid();
-        // Authored template capabilities remain as restricted as Attack-only.
-        const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,d.id)?.value;
+        // Mechanic fields must match the exact capability-validated template.
+        const template=source;
         const templateKeys=[...FORMATION_STATE_DATA_FIELDS];
         if(template && Object.hasOwn(template,'isBoss'))templateKeys.push('isBoss');
+        templateKeys.push(...mechanicFields);
         const t=dataRecord(template,templateKeys);
-        if(!formationBasicStatsValid(t))invalid();
-        return {...d,isBoss:combatEnemyBossAtCreation.get(enemy)};
+        if(!formationBasicStatsValid(t)||mechanicFields.some(key=>d[key]!==t[key]))invalid();
+        const origin=canonicalEnemyRecords.origin(source);
+        return {...d,isBoss:combatEnemyBossAtCreation.get(enemy),...(origin?{origin}:{})};
       });
     };
-    const neutral = (allowSession=false) => {
-      validateInactiveCombatPreparation();
+    const neutral = (allowSession=false,persistent=false,handoff=null) => {
+      validateInactiveCombatPreparation(handoff||commandBattle?.handoff);
       if((sessionState&&(!allowSession||sessionState.commandSet!=='standard')) || galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() ||
           (partyCombatLab.isActive()&&!(allowSession&&sessionState?.commandSet==='standard')) ||
-          debugMenu.open || completedSingleVictoryReceipt!==null)invalid();
+          debugMenu.open || (!persistent&&completedSingleVictoryReceipt!==null))invalid();
       const fields=Object.getOwnPropertyDescriptors(combat);
-      if(Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).some(([k,v])=>fields[k]?.value!==v) ||
+      if(!partyPreparationBookkeepingIsNeutral(fields,persistent) ||
           array(fields.messageQueue?.value).length || Reflect.ownKeys(fields).some(k=>
             ![...Object.keys(FORMATION_NEUTRAL_COMBAT_STATE),'mode','active','enemy','enemies','observeCount',
               'escapeUnlocked','messageQueue','cursor','itemCursor','cooldown'].includes(k)))invalid();
@@ -667,8 +684,9 @@ const combatPlayerState = (() => {
       const atk=effectiveAtk({...base,...gear});
       const rawDef=base.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0);
       const rawSpd=base.spd+(gear.accessory?.bonus||0);
+      const corrosion=commandBattle?.effects[base.slot]?.corrosion||0;
       if(![atk,rawDef,rawSpd].every(safe))invalid();
-      return {atk,def:Math.max(0,rawDef-(statusList.includes('muddied')?1:0)),
+      return {atk,def:Math.max(0,rawDef-(statusList.includes('muddied')?1:0)-corrosion),
         spd:statusList.includes('slither') ? commandBattle.effects[base.slot].slither.speed :
           Math.max(1,rawSpd-(statusList.includes('muddied')?2:0)),
         defenseCapBypass:gear.armor?.defenseCapBypass===true,evadeAll:gear.accessory?.evadeAll===true};
@@ -676,7 +694,8 @@ const combatPlayerState = (() => {
     const snapshot = () => {
       const s=commandBattle;
       return copyFormationData({party:members.map(m=>({...view(m),side:'ally',effective:effective(m,equipment(s,m.definition.slot))})),
-        enemies:enemies().map(e=>({...e,side:'enemy'})),inventory:s.inventory,
+        enemies:enemies().map(e=>({...e,side:'enemy',...(Object.hasOwn(e,'defendChance')?{braced:s.braced.has(e.instanceId)}:{}),
+          ...(s.unusual.has(e.instanceId)?{unusual:s.unusual.get(e.instanceId)}:{})})),inventory:s.inventory,...(s.gold!==null?{gold:s.gold}:{}),
         equipment:s.loadouts.map((gear,slot)=>({actorId:members[slot].instanceId,...gear})),
         effects:s.effects.map((effect,slot)=>({actorId:members[slot].instanceId,...effect})),
         escapePolicy:s.escape,bossLocked:s.bossLocked,...(s.resonance?{resonance:s.resonance}:{} )});
@@ -702,7 +721,7 @@ const combatPlayerState = (() => {
       if(JSON.stringify(enemyData)!==s.enemySeal)invalid();
       return {s,enemyData};
     };
-    const prepare = (request,allowSession=false) => {
+    const prepare = (request,allowSession=false,preview=false) => {
       const {s,enemyData}=inspect(false,allowSession),command=dataRecord(request,['type','allyActions','enemyActions']);
       if(command.type!=='party-round')invalid();
       const supplied=array(command.allyActions).map(a=>{
@@ -741,7 +760,7 @@ const combatPlayerState = (() => {
         const target=members.find(m=>m.instanceId===a.targetId)||enemyData.find(e=>e.instanceId===a.targetId);
         const spec=a.type==='item'?itemSpec(a.itemId):null;
         if(!spec || spec.effect!=='damage_all') {
-          if(typeof a.targetId!=='string'||!target||target.hp===0)invalid();
+          if(typeof a.targetId!=='string'||!target||target.hp===0||s.unusual.get(target.instanceId)?.departed)invalid();
           const allyTarget=members.includes(target);
           if(spec ? ['heal','cure','evade','equip','nothing'].includes(spec.effect)!==allyTarget : allyTarget)invalid();
           if(spec && ['equip','nothing'].includes(spec.effect) && target!==actor)invalid();
@@ -755,15 +774,24 @@ const combatPlayerState = (() => {
         if(spec) reserved.set(a.itemId,(reserved.get(a.itemId)||0)+1);
       }
       for(const [id,count]of reserved)if(s.inventory.filter(item=>item===id).length<count)invalid();
-      const suppliedEnemies=array(command.enemyActions).map(a=>dataRecord(a,['actorId','targetId']));
-      const livingEnemies=enemyData.filter(e=>e.hp>0);
+      const suppliedEnemies=array(command.enemyActions).map(a=>dataRecord(a,['actorId','targetId',...(Object.hasOwn(a||{},'brace')?['brace']:[])]));
+      const livingEnemies=enemyData.filter(e=>e.hp>0&&!s.unusual.get(e.instanceId)?.departed);
       if(suppliedEnemies.length!==livingEnemies.length || new Set(suppliedEnemies.map(a=>a.actorId)).size!==suppliedEnemies.length ||
-          suppliedEnemies.some(a=>typeof a.actorId!=='string'||typeof a.targetId!=='string'||
-            !livingEnemies.some(e=>e.instanceId===a.actorId)||!living.some(m=>m.instanceId===a.targetId)))invalid();
+          suppliedEnemies.some(a=>typeof a.actorId!=='string'||!livingEnemies.some(e=>e.instanceId===a.actorId)))invalid();
       const enemyActions=livingEnemies.map(e=>suppliedEnemies.find(a=>a.actorId===e.instanceId));
+      for(const a of enemyActions){
+        const e=livingEnemies.find(e=>e.instanceId===a.actorId),eligible=e.defendChance>0&&allyActions.some(c=>c.type==='attack'&&c.targetId===a.actorId);
+        if(Object.hasOwn(a,'brace')!==(!preview&&eligible))invalid();
+        if(a.brace){
+          const b=dataRecord(a.brace,['chance','roll','selected']);
+          if(b.chance!==e.defendChance||!Number.isFinite(b.roll)||b.roll<0||b.roll>=1||b.selected!==(b.roll<b.chance))invalid();
+          a.brace=b;
+        }
+        if(a.brace?.selected?a.targetId!==null:typeof a.targetId!=='string'||!living.some(m=>m.instanceId===a.targetId))invalid();
+      }
       const planActors=[...living.map(m=>{const a=actionFor(m.instanceId);return {actorId:m.instanceId,targetId:a.targetId??null,side:'ally',
         slot:m.definition.slot,spd:effective(m,equipment(s,m.definition.slot)).spd,commandType:a.type};}),
-        ...enemyActions.map(a=>{const e=enemyData.find(e=>e.instanceId===a.actorId);return {...a,side:'enemy',slot:e.slot,spd:e.spd,commandType:'attack'};})];
+        ...enemyActions.map(a=>{const e=enemyData.find(e=>e.instanceId===a.actorId);return {actorId:a.actorId,targetId:a.targetId,side:'enemy',slot:e.slot,spd:e.spd,commandType:a.brace?.selected?'brace':'attack'};})];
       partyInitiativeWeights(planActors);
       // A sample may increase a Slither actor's weight to 20. Validate that
       // whole prospective sum now, before any status/initiative draw or write.
@@ -778,7 +806,7 @@ const combatPlayerState = (() => {
         for(const gear of gears)for(const statusList of [member.statuses,[],['muddied']]) {
           const p=effective(member,gear,statusList);
           for(const enemy of livingEnemies) {
-            if(!safe(Math.max(1,p.spd)+Math.max(1,enemy.spd)) || !attackNumbersAreSafe(p.atk,enemy.def) ||
+            if(!safe(Math.max(1,p.spd)+Math.max(1,enemy.spd)) || !safe(enemy.def+(enemy.meleeArmor||0)) || !attackNumbersAreSafe(p.atk,enemy.def+(enemy.meleeArmor||0)) ||
                 !attackNumbersAreSafe(enemy.atk,playerIncomingMitigation(enemy.atk,p.def,p.defenseCapBypass)))invalid();
           }
         }
@@ -791,12 +819,12 @@ const combatPlayerState = (() => {
       const before=snapshot();
       return {s,enemyData,allyActions,enemyActions,planActors,before,actionFor};
     };
-    const seed = (request,persistent=false) => {
+    const seed = (request,persistent=false,handoff=null) => {
         if(members||commandBattle||roundState||sessionState)invalid();
-        const data=dataRecord(request,['members','inventory','escape',...(Object.hasOwn(request||{},'resonance')?['resonance']:[]),...(Object.hasOwn(request||{},'slither')?['slither']:[]),...(Object.hasOwn(request||{},'equipment')?['equipment']:[])]);
-        if(!['blocked','fastest_living'].includes(data.escape))invalid();
-        neutral();
-        const candidates=prepareMembers(data.members,1,3,persistent);
+        const data=dataRecord(request,['members','inventory','escape',...(Object.hasOwn(request||{},'gold')?['gold']:[]),...(Object.hasOwn(request||{},'resonance')?['resonance']:[]),...(Object.hasOwn(request||{},'slither')?['slither']:[]),...(Object.hasOwn(request||{},'equipment')?['equipment']:[])]);
+        if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(data.escape)||Object.hasOwn(data,'gold')&&!safe(data.gold))invalid();
+        neutral(false,persistent,handoff);
+        const candidates=prepareMembers(data.members,1,3,persistent,handoff);
         if(!candidates.some(m=>m.hp>0))invalid();
         candidates.forEach(m=>supportedStatuses(m.statuses));
         const inventory=array(data.inventory);
@@ -822,14 +850,18 @@ const combatPlayerState = (() => {
           if(bindings.length!==candidates.length||new Set(bindings.map(v=>v.characterId)).size!==bindings.length)invalid();
           resonance=bindings.map((binding,slot)=>resonanceCapabilityBinding(candidates[slot],binding,slot));
         }
-        return {data,candidates,inventory,loadouts,effects,resonance};
+        return {data,candidates,inventory,loadouts,effects,resonance,handoff};
     };
     const install = (prepared,enemyData) => {
         const {data,candidates,inventory,loadouts,effects,resonance}=prepared;
         const bossLocked=combat.enemies.some(e=>combatEnemyBossAtCreation.get(e));
         const escape=combat.mode==='formation'&&formationRounds.getView().escapePolicy==='blocked'?'blocked':data.escape;
         const view=installMembers(candidates);
-        commandBattle={roster:members,enemies:combat.enemies,inventory,loadouts,effects,bossLocked,escape,enemySeal:JSON.stringify(enemyData),
+        commandBattle={handoff:prepared.handoff,roster:members,enemies:combat.enemies,inventory,loadouts,effects,bossLocked,escape,enemySeal:JSON.stringify(enemyData),braced:new Set(),
+          mechanics:new Map(enemyData.map(e=>[e.instanceId,canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[e.id])])),
+          unusual:new Map(enemyData.map(e=>[e.instanceId,canonicalUnusualEnemySeed(ENEMY_TEMPLATE_REGISTRY[e.id])]).filter(([,state])=>state!==null)),
+          gold:enemyData.some(e=>e.stealAndFlee)?(data.gold||0):null,
+          statusApplications:candidates.map(()=>Object.create(null)),
           resonance:resonance?resonance.map((v,i)=>({actorId:members[i].instanceId,...v})):null};
         return view;
     };
@@ -843,7 +875,7 @@ const combatPlayerState = (() => {
       getView() { return commandBattle ? snapshot() : null; },
       // Private controller-only read gates; never exported as gameplay APIs.
       inspectSession(allowTerminal=false) { inspect(allowTerminal,true); return snapshot(); },
-      prepareSession(request) { return prepare(request,true); },
+      prepareSession(request) { return prepare(request,true,true); },
       itemInfo(id) { return itemSpec(id); },
       resolve(request,allowSession=false) {
         const {s,enemyData,allyActions,enemyActions,planActors,before,actionFor}=prepare(request,allowSession);
@@ -852,11 +884,22 @@ const combatPlayerState = (() => {
         const roll=()=>{const n=Math.random();exact();if(!Number.isFinite(n)||n<0||n>=1)throw Error('Invalid party command RNG');return n;};
         const live=id=>roster.find(m=>m.instanceId===id)||enemyMembers.find(e=>e.instanceId===id);
         const ally=m=>roster.includes(m);
-        const values=m=>ally(m)?effective(m,equipment(s,m.definition.slot)):m;
-        const terminal=()=>enemyMembers.every(m=>m.hp===0)?'victory':roster.every(m=>m.hp===0)?'defeat':'ongoing';
+        const activeStatuses=m=>m.statuses.filter(id=>s.statusApplications[m.definition.slot][id]!==round);
+        const values=m=>ally(m)?effective(m,equipment(s,m.definition.slot),activeStatuses(m)):m;
+        const available=m=>m.hp>0&&!s.unusual.get(m.instanceId)?.departed;
+        const terminal=()=>partyTerminalOutcome(roster,enemyMembers,m=>m.hp,available);
+        const recoverGold=()=>{for(const enemy of enemyMembers){const state=s.unusual.get(enemy.instanceId);
+          if(enemy.hp===0&&state?.stolenGold>0){const before=state.stolenGold,goldBefore=s.gold;s.gold+=before;state.stolenGold=0;
+            events.push({type:'gold_recovered',actorId:enemy.instanceId,amount:before,goldBefore,goldAfter:s.gold});}}};
         roundState={completed:roundState?.completed||0,enemies:enemyMembers,phase:'resolving',outcome:'ongoing',failure:null};
         const round=roundState.completed+1;
         try {
+          // Legacy Brace is an exchange-wide decision, not an initiative-timed
+          // buff. Only committed melee targets roll; items/Observe/Run do not.
+          for(const action of enemyActions)if(action.brace){
+            if(action.brace.selected)s.braced.add(action.actorId);
+            events.push({type:'brace_check',actorId:action.actorId,...action.brace,before:false,after:action.brace.selected});
+          }
           // Singleton/Formation timing: Attack and Observe resample; Item,
           // Run and Item retain the sample from application/a prior
           // turn. Slot order is deterministic; no enemy supports Slither.
@@ -875,7 +918,7 @@ const combatPlayerState = (() => {
           for(const planned of plan.order) {
             exact();const actor=live(planned.actorId),target=planned.targetId===null?null:live(planned.targetId);
             if(!actor||(planned.targetId!==null&&!target))throw Error('Party command lost exact identity');
-            const action=planned.side==='ally'?actionFor(planned.actorId):{type:'attack'};
+            const action=planned.side==='ally'?actionFor(planned.actorId):{type:planned.commandType};
             if(action.type==='resonance'&&finishedTechniques.has(action.actorId))continue;
             const tech=action.type==='resonance'?resonanceTechnique(action.techniqueId):null;
             const partyNow=roster.map(view);
@@ -894,6 +937,8 @@ const combatPlayerState = (() => {
               events.push({type:'skip',...planned,reason:actor.hp===0?'actor_dead':'actor_disabled'});continue;
             }
             if(target?.hp===0){events.push({type:'cancel',...planned,reason:'target_dead'});continue;}
+            if(!ally(actor)&&s.unusual.get(actor.instanceId)?.suppressedRound===round){
+              events.push({type:'skip',...planned,reason:'trollbane'});continue;}
             if(tech){
               const hpBefore=target.hp,attemptedHealing=Math.max(1,Math.floor(target.definition.maxHp/5));
               target.hp+=Math.min(attemptedHealing,target.definition.maxHp-target.hp);
@@ -905,41 +950,111 @@ const combatPlayerState = (() => {
                 events.push({type:'strain',actorId:id,before,after:cap.strain,appliedRoundBefore,appliedRoundAfter:round,reason:'application'});
               }
               finishedTechniques.add(action.actorId);
+            } else if(action.type==='brace') {
+              events.push({type:'brace',...planned,active:s.braced.has(actor.instanceId)});
             } else if(action.type==='attack') {
               const a=values(actor),t=values(target),hpBefore=target.hp;
-              const defense=ally(target)?playerIncomingMitigation(a.atk,t.def,t.defenseCapBypass):t.def;
+              const armor=!ally(target)?(s.mechanics.get(target.instanceId)?.melee_armor?.defense||0):0;
+              const defense=ally(target)?playerIncomingMitigation(a.atk,t.def,t.defenseCapBypass):t.def+armor;
               // Explicitly approved party-only rule: Curse first. A fumble
               // deals one damage without unused variance/crit/evasion rolls.
               // Legacy singleton/Formation ordering remains unchanged.
               let fumbled=false;
-              if(ally(actor)&&actor.statuses.includes('cursed')) {
+              const braced=s.braced.has(target.instanceId);
+              if(!braced&&ally(actor)&&activeStatuses(actor).includes('cursed')) {
                 const draw=roll();fumbled=draw<0.25;
                 events.push({type:'curse_check',actorId:actor.instanceId,targetId:target.instanceId,side:'ally',
                   slot:planned.slot,status:'cursed',round,chance:0.25,roll:draw,fumbled});
               }
-              let critical=false,attemptedDamage=1,evaded=false;
-              const attackSpd=a.spd-(ally(actor)&&actor.statuses.includes('dazzled')?DAZZLE_ACC_PENALTY:0);
+              let critical=false,attemptedDamage=1,evaded=false,brace=null;const armorRolls=[];
+              const attackSpd=a.spd-(ally(actor)&&activeStatuses(actor).includes('dazzled')?DAZZLE_ACC_PENALTY:0);
               const chance=ally(target)&&t.evadeAll?1:Math.max(evadeChance(attackSpd,t.spd,false),
                 ally(target)&&s.effects[target.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0);
               if(!fumbled) {
-                const variance=ATTACK_VARIANCE_MIN+roll()*ATTACK_VARIANCE_SPAN;
-                critical=roll()<CRIT_CHANCE;
+                const varianceRoll=roll(),criticalRoll=roll();if(armor)armorRolls.push(varianceRoll,criticalRoll);
+                const variance=ATTACK_VARIANCE_MIN+varianceRoll*ATTACK_VARIANCE_SPAN;
+                critical=criticalRoll<CRIT_CHANCE;
                 attemptedDamage=attackDamageNumbers(a.atk,defense,variance,critical).dmg;
-                evaded=roll()<chance;
+                if(braced){
+                  brace={before:true,after:true,unmodifiedDamage:attemptedDamage,rolledCritical:critical};
+                  attemptedDamage=Math.max(1,Math.floor(attemptedDamage/2));critical=false;
+                }else {const evasionRoll=roll();if(armor)armorRolls.push(evasionRoll);evaded=evasionRoll<chance;}
               }
               if(target.hp!==hpBefore)throw Error('Party target HP changed during RNG');
               target.hp=Math.max(0,hpBefore-(evaded?0:attemptedDamage));
-              events.push({type:'attack',...planned,attemptedDamage,appliedDamage:hpBefore-target.hp,critical,evaded,hpBefore,hpAfter:target.hp});
+              events.push({type:'attack',...planned,attemptedDamage,appliedDamage:hpBefore-target.hp,critical,evaded,hpBefore,hpAfter:target.hp,...(brace?{brace}:{}),...(armor?{armor:{defense,bonus:armor,rolls:armorRolls,fumbled}}:{})});
+              if(!ally(actor)&&!evaded&&hpBefore-target.hp>0&&target.hp>0){
+                const mechanics=s.mechanics.get(actor.instanceId)||{},gear=equipment(s,target.definition.slot);
+                for(const capability of ['slither_on_hit','poison_spell','poison_on_hit','curse_on_hit','void_shard_burst','dazzle_on_hit','acid_corrosion']){
+                  const mechanic=mechanics[capability];if(!mechanic||target.hp===0)continue;
+                  const status={slither_on_hit:'slither',poison_spell:'poison',poison_on_hit:'poison',curse_on_hit:'cursed',dazzle_on_hit:'dazzled'}[capability];
+                  const effect=s.effects[target.definition.slot];
+                  if(status&&target.statuses.includes(status)||capability==='acid_corrosion'&&(effect.corrosion||0)>=mechanic.cap)continue;
+                  const decision=roll(),triggered=decision<mechanic.chance;
+                  events.push({type:'enemy_effect_check',actorId:actor.instanceId,targetId:target.instanceId,capability,
+                    chance:mechanic.chance,roll:decision,triggered});
+                  if(!triggered)continue;
+                  if(capability==='void_shard_burst'){
+                    const warded=s.inventory.includes(mechanic.wardItem),damageRoll=warded?null:roll(),
+                      attemptedDamage=warded?0:mechanic.minDamage+Math.floor(damageRoll*(mechanic.maxDamage-mechanic.minDamage+1)),
+                      beforeHp=target.hp;
+                    target.hp=Math.max(0,target.hp-attemptedDamage);
+                    events.push({type:'enemy_shard_burst',actorId:actor.instanceId,targetId:target.instanceId,capability,
+                      wardItem:mechanic.wardItem,warded,damageRoll,attemptedDamage,appliedDamage:beforeHp-target.hp,hpBefore:beforeHp,hpAfter:target.hp});
+                    continue;
+                  }
+                  if(capability==='acid_corrosion'){
+                    const before=effect.corrosion||0,after=Math.min(mechanic.cap,before+1);effect.corrosion=after;
+                    events.push({type:'enemy_corrosion',actorId:actor.instanceId,targetId:target.instanceId,capability,before,after,cap:mechanic.cap});
+                    continue;
+                  }
+                  const blocked=['poison_spell','poison_on_hit'].includes(capability)?gear.accessory?.preventsPoison===true:
+                    capability==='curse_on_hit'?gear.accessory?.preventsCursed===true:false;
+                  const statusesBefore=[...target.statuses];
+                  if(!blocked){target.statuses.push(status);s.statusApplications[target.definition.slot][status]=round;}
+                  let slither=null;
+                  if(capability==='slither_on_hit'&&!blocked){
+                    const speedRoll=roll(),speedAfter=Math.floor(speedRoll*20)+1;
+                    effect.slither={speed:speedAfter,round,roll:speedRoll,source:'inflicted'};
+                    slither={round,roll:speedRoll,speedAfter};
+                  }
+                  events.push({type:'enemy_status',actorId:actor.instanceId,targetId:target.instanceId,capability,status,
+                    blocked,blocker:blocked?gear.accessory.name:null,statusesBefore,statusesAfter:[...target.statuses],...(slither?{slither}:{})});
+                }
+              }
+              // Approved party reaction: immediately after each committed
+              // melee attempt, tied to that exact attacker, including misses.
+              if(ally(actor)&&target.hp>0&&actor.hp>0&&terminal()==='ongoing'&&s.mechanics.get(target.instanceId)?.counterattack?.chance>0){
+                const chance=s.mechanics.get(target.instanceId).counterattack.chance,decision=roll(),triggered=decision<chance;
+                events.push({type:'counter_check',actorId:target.instanceId,targetId:actor.instanceId,chance,roll:decision,triggered});
+                if(triggered){const v=values(actor),rolls=[roll(),roll(),roll()],hpBefore=actor.hp,
+                  defense=playerIncomingMitigation(target.atk,v.def,v.defenseCapBypass),critical=rolls[1]<CRIT_CHANCE,
+                  attemptedDamage=attackDamageNumbers(target.atk,defense,ATTACK_VARIANCE_MIN+rolls[0]*ATTACK_VARIANCE_SPAN,critical).dmg,
+                  evasionChance=v.evadeAll?1:Math.max(evadeChance(target.spd,v.spd,false),s.effects[actor.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),
+                  evaded=rolls[2]<evasionChance;
+                  actor.hp=Math.max(0,hpBefore-(evaded?0:attemptedDamage));
+                  events.push({type:'counterattack',actorId:target.instanceId,targetId:actor.instanceId,rolls,defense,critical,evasionChance,evaded,
+                    attemptedDamage,appliedDamage:hpBefore-actor.hp,hpBefore,hpAfter:actor.hp});
+                }
+              }
+              if(!ally(actor)&&!evaded&&hpBefore-target.hp>0&&target.hp>0&&s.mechanics.get(actor.instanceId)?.steal_and_flee){
+                const state=s.unusual.get(actor.instanceId);
+                if(state.stolenRound===0){const draw=roll(),attemptedGold=20+Math.floor(draw*31),goldBefore=s.gold,amount=Math.min(goldBefore,attemptedGold);
+                  s.gold-=amount;state.stolenGold=amount;state.stolenRound=round;
+                  events.push({type:'theft',actorId:actor.instanceId,targetId:target.instanceId,round,roll:draw,attemptedGold,amount,goldBefore,goldAfter:s.gold});}
+              }
             } else if(action.type==='observe') {
               const countBefore=target.observeCount,lines=[...getObservationText(target,countBefore)];
               target.observeCount++;
               events.push({type:'observe',...planned,countBefore,countAfter:target.observeCount,
                 escapeBefore:target.escapeUnlocked,escapeAfter:target.escapeUnlocked,lines});
             } else if(action.type==='run') {
-              const fastest=enemyMembers.filter(e=>e.hp>0).reduce((a,b)=>b.spd>a.spd?b:a);
-              const allowed=s.escape==='fastest_living'&&!s.bossLocked;
-              const chance=allowed?speedWinChance(values(actor).spd,fastest.spd):0;
-              const draw=allowed?roll():null,success=allowed&&draw<chance;
+              const fastest=enemyMembers.filter(available).reduce((a,b)=>b.spd>a.spd?b:a);
+              const gated=s.escape==='observe_gated',gate=gated&&enemyMembers.find(e=>
+                available(e)&&s.mechanics.get(e.instanceId)?.observe_run_lock?.mode==='observe_gated');
+              const allowed=s.escape==='ignore_boss'||s.escape==='fastest_living'&&!s.bossLocked||gated&&!!gate&&gate.observeCount>0;
+              const chance=gated?(allowed?1:0):allowed?speedWinChance(values(actor).spd,fastest.spd):0;
+              const draw=allowed&&!gated?roll():null,success=allowed&&(gated||draw<chance);
               events.push({type:'run',...planned,allowed,opponentId:fastest.instanceId,chance,roll:draw,success});
               if(success){outcome='escape';break;}
             } else {
@@ -950,19 +1065,23 @@ const combatPlayerState = (() => {
                 target.hp+=healingItemAmount(item,target.hp,target.definition.maxHp);
                 if(MUDSLITHER_INFLICTABLE&&item.causesMuddied&&!target.statuses.includes('muddied'))target.statuses.push('muddied');
               } else if(effect==='cure') {
-                target.statuses=target.statuses.filter(id=>!itemCuredStatuses(item).includes(id));
+                const cured=itemCuredStatuses(item);target.statuses=target.statuses.filter(id=>!cured.includes(id));
+                cured.forEach(id=>delete s.statusApplications[target.definition.slot][id]);
                 if(!target.statuses.includes('slither'))delete s.effects[target.definition.slot].slither;
               }
               else if(effect==='evade') {s.effects[target.definition.slot].evadeTurns=item.evadeTurns;s.effects[target.definition.slot].evadeAppliedRound=round;}
               else if(effect==='damage')target.hp=Math.max(0,target.hp-offensiveItemDamage(item,target));
-              else if(effect==='damage_all')for(const enemy of enemyMembers.filter(e=>e.hp>0))enemy.hp=Math.max(0,enemy.hp-offensiveItemDamage(item,enemy));
+              else if(effect==='damage_all')for(const enemy of enemyMembers.filter(available))enemy.hp=Math.max(0,enemy.hp-offensiveItemDamage(item,enemy));
               else if(effect==='bomb')s.effects[actor.definition.slot].bomb={targetId:target.instanceId,fuse:item.fuse,damage:item.damage,ignoresDef:!!item.ignoresDef,appliedRound:round};
               else if(effect==='equip') {
                 const gear=s.loadouts[actor.definition.slot],slot=slotForType(item.type),old=gear[slot];
                 s.inventory.splice(at,1);if(old!==null)s.inventory.push(old);gear[slot]=action.itemId;
               }
-              // Reagents on unsexed templates and Trollbane on non-regenerators
-              // consume but have no effect; Bait keeps its established no-op.
+              else if(effect==='reagent'&&s.mechanics.get(target.instanceId)?.mire_toad_reagent_observation?.sex===item.sexBane)target.hp=0;
+              else if(effect==='stun'&&s.mechanics.get(target.instanceId)?.regeneration){
+                const state=s.unusual.get(target.instanceId);state.suppressedTurns=item.stunTurns;state.suppressedRound=round;
+              }
+              // Mismatched reagents/Trollbane still consume; Bait is a no-op.
               if(consumed)s.inventory.splice(at,1);
               const itemAfter=snapshot();
               events.push({type:effect==='equip'?'equipment':'item',...planned,itemId:action.itemId,effect,consumed,before:itemBefore,after:itemAfter});
@@ -974,7 +1093,7 @@ const combatPlayerState = (() => {
               if(['evade','bomb'].includes(effect))events.push({type:'effect',sourceId:actor.instanceId,targetId:target.instanceId,
                 itemId:action.itemId,effectsBefore:itemBefore.effects,effectsAfter:itemAfter.effects});
             }
-            outcome=terminal();if(outcome!=='ongoing')break;
+            recoverGold();outcome=terminal();if(outcome!=='ongoing')break;
           }
           // End-of-round damage runs only after an ongoing action sequence,
           // matching formation terminal truncation. Each owner ticks once.
@@ -989,12 +1108,31 @@ const combatPlayerState = (() => {
             const bomb=effect.bomb;if(!bomb||bomb.appliedRound===round)continue;
             const bombBefore={...bomb},target=live(bomb.targetId),hpBefore=target.hp;
             bomb.fuse--;
-            const damage=target.hp>0&&bomb.fuse===0?offensiveItemDamage(bomb,target):0;
+            const damage=available(target)&&bomb.fuse===0?offensiveItemDamage(bomb,target):0;
             target.hp=Math.max(0,target.hp-damage);
             if(!bomb.fuse||!target.hp)effect.bomb=null;
             events.push({type:'delayed_effect_tick',effect:'bomb',ownerId:roster[slot].instanceId,targetId:target.instanceId,
               before:bombBefore,after:effect.bomb?{...effect.bomb}:null,attemptedDamage:damage,appliedDamage:hpBefore-target.hp,hpBefore,hpAfter:target.hp});
-            outcome=terminal();if(outcome!=='ongoing')break;
+            recoverGold();outcome=terminal();if(outcome!=='ongoing')break;
+          }
+          // Approved party timing: inspect surviving Trolls after the full
+          // round. Run-only rounds retain the legacy absence of regeneration.
+          if(outcome==='ongoing'&&allyActions.some(a=>a.type!=='run'))for(const enemy of enemyMembers.filter(available)){
+            const mechanic=s.mechanics.get(enemy.instanceId)?.regeneration;if(!mechanic)continue;
+            const state=s.unusual.get(enemy.instanceId),before={...state},hpBefore=enemy.hp;
+            if(state.suppressedTurns>0){if(state.suppressedRound!==round)state.suppressedTurns--;}
+            else enemy.hp+=Math.min(mechanic.amount,enemy.maxHp-enemy.hp);
+            events.push({type:'regeneration',actorId:enemy.instanceId,round,amount:mechanic.amount,hpBefore,hpAfter:enemy.hp,before,after:{...state}});
+          }
+          if(outcome==='ongoing')for(const enemy of enemyMembers.filter(available)){
+            const state=s.unusual.get(enemy.instanceId);
+            if(state?.stolenRound>0&&state.stolenRound<round){state.departed=true;
+              events.push({type:'departure',actorId:enemy.instanceId,round,stolenRound:state.stolenRound,stolenGold:state.stolenGold});}
+          }
+          if(outcome==='ongoing')outcome=terminal();
+          for(const actorId of s.braced){
+            s.braced.delete(actorId);
+            events.push({type:'brace_end',actorId,before:true,after:false,reason:outcome==='ongoing'?'round_end':'cleanup'});
           }
           for(const cap of s.resonance||[])if(cap.strain>0&&(outcome!=='ongoing'||cap.appliedRound!==round)){
             const before=cap.strain,appliedRoundBefore=cap.appliedRound;
@@ -1092,17 +1230,17 @@ const combatPlayerState = (() => {
       return rows.map(row=>({...row,available:row.total-(reservations.get(row.itemId)||0),usable:row.total>(reservations.get(row.itemId)||0)}));
     };
     const selectedTarget=s=>s.selection.targetSide==='ally'?s.selection.allyTarget:s.selection.enemyTarget;
-    const targetRows=s=>(s.selection.targetSide==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0&&(s.selection.pendingType!=='resonance'||m.hp<m.maxHp));
+    const targetRows=s=>(s.selection.targetSide==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0&&!m.unusual?.departed&&(s.selection.pendingType!=='resonance'||m.hp<m.maxHp));
     const enterTargets=(s,side)=>{
-      const rows=(side==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0&&(s.selection.pendingType!=='resonance'||m.hp<m.maxHp)),key=side==='ally'?'allyTarget':'enemyTarget';
+      const rows=(side==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0&&!m.unusual?.departed&&(s.selection.pendingType!=='resonance'||m.hp<m.maxHp)),key=side==='ally'?'allyTarget':'enemyTarget';
       if(!rows.length)invalid();
       const fallback=side==='ally'&&rows.some(m=>m.instanceId===currentAlly(s).instanceId)?currentAlly(s).instanceId:rows[0].instanceId;
       s.selection[key]=rows.some(m=>m.instanceId===s.selection[key])?s.selection[key]:fallback;s.selection.targetSide=side;s.phase='targeting';
     };
     const dryRequest=(s,actions)=>({type:'party-round',allyActions:actions,
-      enemyActions:s.snapshot.enemies.filter(e=>e.hp>0).map(e=>({actorId:e.instanceId,targetId:livingAllies(s)[0].instanceId}))});
+      enemyActions:s.snapshot.enemies.filter(e=>e.hp>0&&!e.unusual?.departed).map(e=>({actorId:e.instanceId,targetId:livingAllies(s)[0].instanceId}))});
     const validateDrafts=(s,actions,complete=false)=>{
-      const filled=actions.slice();if(!complete){const targetId=s.snapshot.enemies.find(e=>e.hp>0).instanceId;
+      const filled=actions.slice();if(!complete){const targetId=s.snapshot.enemies.find(e=>e.hp>0&&!e.unusual?.departed).instanceId;
         for(const m of livingAllies(s).filter(m=>!actions.flatMap(a=>a.type==='resonance'?a.participantIds:[a.actorId]).includes(m.instanceId)))filled.push({type:'attack',actorId:m.instanceId,targetId});}
       return commandRounds.prepareSession(dryRequest(s,filled));
     };
@@ -1137,8 +1275,8 @@ const combatPlayerState = (() => {
         items:rows,itemCursor:selection.itemCursor,itemScroll:selection.itemScroll,
         allyActions:s.allyActions,enemyActions:s.enemyActions,reservedInventory:choosing||s.phase==='ready'?reserved(s):[],
         ready:s.phase==='ready',
-        party:frame?frame.party:snap.party.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
-        enemies:frame?frame.enemies:snap.enemies.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
+        party:frame?frame.party:snap.party.map(m=>({...m,alive:m.hp>0&&!m.unusual?.departed,defeated:m.hp===0})),
+        enemies:frame?frame.enemies:snap.enemies.map(m=>({...m,alive:m.hp>0&&!m.unusual?.departed,defeated:m.hp===0})),
         inventory:snap.inventory,equipment:snap.equipment,effects:snap.effects,escapePolicy:snap.escapePolicy,bossLocked:snap.bossLocked,
         playbackFrame:frame,frameIndex:s.frameIndex,frameCount:s.playback?.frameCount||0,
         completedRounds:frame?frame.completedRounds:s.completedRounds,awaitingAcknowledgement:s.phase==='playback_complete',
@@ -1161,18 +1299,25 @@ const combatPlayerState = (() => {
       const s=standardPhase(['ready']);if(s.playback||s.frameIndex!==null||s.enemyActions.length)invalid();
       const actions=s.allyActions;
       validateDrafts(s,actions,true); // complete all validation before target RNG
-      const allies=livingAllies(s),enemies=s.snapshot.enemies.filter(e=>e.hp>0);
-      s.allyActions=copyFormationData(actions);s.phase='resolving';let stage='targets',targetDraws=0;
+      const allies=livingAllies(s),enemies=s.snapshot.enemies.filter(e=>e.hp>0&&!e.unusual?.departed);
+      s.allyActions=copyFormationData(actions);s.phase='resolving';let stage='targets',targetDraws=0,braceDraws=0;
       try{
-        for(const enemy of enemies){let target=allies[0];if(allies.length>1){targetDraws++;const roll=Math.random();
+        for(const enemy of enemies){
+          let brace=null;
+          if(enemy.defendChance>0&&actions.some(a=>a.type==='attack'&&a.targetId===enemy.instanceId)){
+            braceDraws++;const roll=Math.random();if(!Number.isFinite(roll)||roll<0||roll>=1)throw Error('Invalid party Brace RNG value');bound();
+            brace={chance:enemy.defendChance,roll,selected:roll<enemy.defendChance};
+          }
+          if(brace?.selected){s.enemyActions=copyFormationData([...s.enemyActions,{actorId:enemy.instanceId,targetId:null,brace}]);continue;}
+          let target=allies[0];if(allies.length>1){targetDraws++;const roll=Math.random();
           if(!Number.isFinite(roll)||roll<0||roll>=1)throw Error('Invalid party target RNG value');bound();target=allies[Math.floor(roll*allies.length)];}
-          s.enemyActions=copyFormationData([...s.enemyActions,{actorId:enemy.instanceId,targetId:target.instanceId}]);}
+          s.enemyActions=copyFormationData([...s.enemyActions,{actorId:enemy.instanceId,targetId:target.instanceId,...(brace?{brace}:{})}]);}
         const request=copyFormationData({type:'party-round',allyActions:s.allyActions,enemyActions:s.enemyActions});
         stage='resolve';s.resolvePermit=true;let result;try{result=combatPlayerState.resolveRound(request);}finally{s.resolvePermit=false;}
         stage='playback';const playback=combatPlayerState.createRoundPlayback(result),after=commandRounds.inspectSession(true);
         if(JSON.stringify(result.before)!==JSON.stringify(s.snapshot)||JSON.stringify(result.after)!==JSON.stringify(after)||members!==s.roster||combat.enemies!==s.enemies)invalid();
         s.snapshot=after;s.itemSeal=itemSeal(after);s.roundState=roundState;s.playback=playback;s.frameIndex=0;s.phase='playback';return getView();
-      }catch(error){s.resolvePermit=false;s.phase='fault';s.failure=Object.freeze({stage,targetDraws,completedRounds:roundState?.completed||0});throw error;}
+      }catch(error){s.resolvePermit=false;s.phase='fault';s.failure=Object.freeze({stage,targetDraws,completedRounds:roundState?.completed||0,...(braceDraws?{braceDraws}:{})});throw error;}
     };
     const getView=function() {
       if(arguments.length)invalid();
@@ -1206,7 +1351,7 @@ const combatPlayerState = (() => {
         if(sessionState?.commandSet==='standard') {
           const s=standardPhase(['awaiting_action','targeting']),action=attackRecord(request,['actorId','targetId']);
           if(s.phase==='targeting'&&s.selection.pendingType!=='attack'||action.actorId!==currentAlly(s).instanceId||
-              !s.snapshot.enemies.some(e=>e.instanceId===action.targetId&&e.hp>0))invalid();
+              !s.snapshot.enemies.some(e=>e.instanceId===action.targetId&&e.hp>0&&!e.unusual?.departed))invalid();
           const draft={type:'attack',...action};validateDrafts(s,[...s.allyActions,draft]);
           s.selection.commandCursor=0;s.selection.pendingType='attack';s.selection.enemyTarget=action.targetId;s.selection.targetSide='enemy';s.phase='targeting';
           return appendDraft(s,draft);
@@ -1214,7 +1359,7 @@ const combatPlayerState = (() => {
         const s=phase(['collecting']),action=attackRecord(request,['actorId','targetId']);
         if(typeof action.actorId!=='string' || typeof action.targetId!=='string' ||
             action.actorId!==livingAllies(s)[s.allyActions.length].instanceId ||
-            !s.snapshot.enemies.some(e=>e.instanceId===action.targetId&&e.hp>0))invalid();
+            !s.snapshot.enemies.some(e=>e.instanceId===action.targetId&&e.hp>0&&!e.unusual?.departed))invalid();
         s.allyActions=copyFormationData([...s.allyActions,action]);
         if(s.allyActions.length===livingAllies(s).length)s.phase='ready';
         return getView();
@@ -1345,6 +1490,15 @@ const combatPlayerState = (() => {
     });
   })();
   let persistentBridgeClaimed=false;
+  const persistentActorVariants = prepared => prepared.candidates.map((m,i)=>{
+    const gear=Object.fromEntries(Object.entries(prepared.loadouts[i]).map(([k,id])=>[k,id===null?null:formationItemDefinition(id).item]));
+    const atk=effectiveAtk({...m,...gear}),def=m.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0),spd=m.spd+(gear.accessory?.bonus||0);
+    if(![atk,def,spd].every(n=>Number.isSafeInteger(n)&&n>=0))fail();
+    return [m.statuses,[],['muddied']].map(statuses=>({...m,atk,
+      def:Math.max(0,def-(statuses.includes('muddied')?1:0)),
+      spd:statuses.includes('slither')?prepared.effects[i].slither.speed:Math.max(1,spd-(statuses.includes('muddied')?2:0)),
+      bypass:gear.armor?.defenseCapBypass===true}));
+  });
   const claimPersistentBridge=()=>{
     if(persistentBridgeClaimed)fail();
     persistentBridgeClaimed=true;
@@ -1355,40 +1509,35 @@ const combatPlayerState = (() => {
       return current;
     };
     return Object.freeze({
-      begin(request,enemyIds) {
+      preparePlayer(request) {
+        const prepared=commandRounds.seed(request,true),actors=persistentActorVariants(prepared).map(v=>v[0]).filter(m=>m.hp>0);
+        partyInitiativeWeights(actors);
+        partyInitiativeWeights(actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})));
+        return copyFormationData(prepared.data);
+      },
+      begin(request,enemyIds,validateOnly=false,handoff=null,scriptedToken=null) {
         if(owner||combat.mode!==null||combat.active||combat.enemies.length||partyCombatLab.isActive())fail();
-        const ids=array(enemyIds);
-        if(ids.length<1||ids.length>3||combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
-        const templates=ids.map(id=>{
-          if(!PARTY_ATTACK_TEMPLATE_IDS.includes(id))fail();
-          const template=Object.getOwnPropertyDescriptor(ENEMY_TEMPLATE_REGISTRY,id)?.value;
-          const keys=[...FORMATION_STATE_DATA_FIELDS,...(Object.hasOwn(template||{},'isBoss')?['isBoss']:[])];
-          const t=attackRecord(template,keys);
-          if(t.id!==id||typeof t.name!=='string'||!formationBasicStatsValid(t)||!t.hp||
-              !['xp','goldMin','goldMax'].every(k=>Number.isSafeInteger(t[k])&&t[k]>=0)||
-              (Object.hasOwn(t,'isBoss')&&typeof t.isBoss!=='boolean'))fail();
-          return t;
-        });
-        if(ids.length>1)validateFormationDescriptors(ids.map((enemyId,slot)=>({enemyId,slot})));
-        const prepared=commandRounds.seed(request,true);
-        const actorVariants=prepared.candidates.map((m,i)=>{
-          const gear=Object.fromEntries(Object.entries(prepared.loadouts[i]).map(([k,id])=>[k,id===null?null:formationItemDefinition(id).item]));
-          const atk=effectiveAtk({...m,...gear}),def=m.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0),spd=m.spd+(gear.accessory?.bonus||0);
-          if(![atk,def,spd].every(n=>Number.isSafeInteger(n)&&n>=0))fail();
-          return [m.statuses,[],['muddied']].map(statuses=>({...m,atk,
-            def:Math.max(0,def-(statuses.includes('muddied')?1:0)),
-            spd:statuses.includes('slither')?prepared.effects[i].slither.speed:Math.max(1,spd-(statuses.includes('muddied')?2:0)),
-            bypass:gear.armor?.defenseCapBypass===true}));
-        });
-        for(const variants of actorVariants)for(const a of variants)for(const e of templates)if(!attackNumbersAreSafe(a.atk,e.def)||
+        const {ids,templates}=preparePartyEnemyFormation(enemyIds);
+        const lifecycle=[...new Set(templates.flatMap(template=>enemyCapabilityMetadata(ENEMY_TEMPLATE_REGISTRY[template.id]).capabilities)
+          .filter(capability=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(capability)))];
+        if(['ignore_boss','observe_gated'].includes(request.escape)&&!scriptedToken)fail();
+        if((lifecycle.length||scriptedToken)&&!canonicalPartyCombat.permitsScripted(scriptedToken,ids,lifecycle,request.escape))fail();
+        if(!Number.isSafeInteger(combatEnemyInstanceSequence)||combatEnemyInstanceSequence<0||
+            combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
+        const prepared=commandRounds.seed(request,true,handoff||scriptedToken);
+        const actorVariants=persistentActorVariants(prepared);
+        for(const variants of actorVariants)for(const a of variants)for(const e of templates)if(!Number.isSafeInteger(e.def+(e.meleeArmor||0))||!attackNumbersAreSafe(a.atk,e.def+(e.meleeArmor||0))||
             !attackNumbersAreSafe(e.atk,playerIncomingMitigation(e.atk,a.def,a.bypass))||
             !Number.isSafeInteger(Math.max(1,a.spd)+Math.max(1,e.spd)))fail();
         const actors=actorVariants.map(a=>a[0]).filter(m=>m.hp>0);
         partyInitiativeWeights([...actors,...templates]);
         partyInitiativeWeights([...actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})),...templates]);
+        if(validateOnly)return copyFormationData({player:prepared.data,enemies:templates});
         // All input and numeric validation precedes either identity allocator.
+        if(completedSingleVictoryReceipt!==null)prepareFormationEntry();
         if(ids.length===1)combat.enemy=templates[0];
-        else initializeFormationState(ids.map((enemyId,slot)=>({enemyId,slot})),{escape:prepared.data.escape});
+        else installFormationState(templates,{escape:prepared.data.escape});
+        combat.enemies.forEach((enemy,i)=>combatCanonicalEnemySources.set(enemy,templates[i]));
         commandRounds.install(prepared,commandRounds.enemyData());
         session.begin({commandSet:'standard'});
         const ticket=Object.freeze({});
@@ -1514,8 +1663,7 @@ const combatPlayerState = (() => {
           target.hp=Math.max(0,hpBefore-(evaded ? 0 : damage));
           events.push({type:'attack',...action,attemptedDamage:damage,appliedDamage:hpBefore-target.hp,
             critical,evaded,hpBefore,hpAfter:target.hp});
-          if (enemyMembers.every(enemy=>enemy.hp===0)) outcome='victory';
-          else if (roster.every(member=>member.hp===0)) outcome='defeat';
+          outcome=partyTerminalOutcome(roster,enemyMembers);
           if (outcome !== 'ongoing') break; // existing formation contract truncates the remaining plan
         }
         events.push({type:'round_end',roundBefore:round-1,roundAfter:round,outcome});
@@ -1553,14 +1701,6 @@ const combatPlayerState = (() => {
     },
   });
 })();
-
-// Conservative ordinary subset of the established formation approval list.
-// Receiver members are intentionally absent: their identity carries coordination.
-const PARTY_ATTACK_TEMPLATE_IDS = Object.freeze([
-  'enemy_marsh_wisp','enemy_briar_hound','enemy_marsh_wisp_early','enemy_briar_hound_early',
-  'enemy_reed_grappler','enemy_silt_lurker','enemy_marsh_wisp_sluice_top','enemy_sluice_slime',
-  'enemy_mulholland',
-]);
 
 // Validate the entire positive-weight sum before initiative RNG or round-state
 // installation. All subset sums remain safe. Prepared base SPD is nonnegative;
@@ -1666,7 +1806,7 @@ const partyAttackPlayback = (() => {
           if (typeof member.characterId!=='string' || !/^[a-z][a-z0-9_]*$/.test(member.characterId) ||
               member.characterId==='player' || characters.has(member.characterId) || !member.name.trim()) fail();
           list(member.statuses,0,0);characters.add(member.characterId);
-        } else if (!PARTY_ATTACK_TEMPLATE_IDS.includes(member.id) ||
+        } else if (!canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY[member.id]) ||
             !['xp','goldMin','goldMax','observeCount'].every(key=>safe(member[key])) || member.escapeUnlocked!==false) fail();
         participants.set(member.instanceId,{side,member});
       });
@@ -1755,8 +1895,7 @@ const partyAttackPlayback = (() => {
       if(projectedHp.get(event.targetId)!==event.hpAfter)fail();
       projectedHp.set(event.targetId,event.hpBefore);
     }
-    const outcome=()=>result.enemies.every(m=>projectedHp.get(m.instanceId)===0)?'victory':
-      result.party.every(m=>projectedHp.get(m.instanceId)===0)?'defeat':'ongoing';
+    const outcome=()=>partyTerminalOutcome(result.party,result.enemies,m=>projectedHp.get(m.instanceId));
     if(outcome()!=='ongoing')fail();
     const living=[...result.party,...result.enemies].filter(m=>projectedHp.get(m.instanceId)>0);
     if(living.length!==commands.length || living.some((m,i)=>commands[i].actorId!==m.instanceId) ||
@@ -1799,16 +1938,21 @@ const partyAttackPlayback = (() => {
 })();
 
 // Detached generalized history. Item vocabulary is captured once for identity,
-// category and ownership checks only; no amounts, bonuses or combat formulas
-// are read or recomputed by playback. Mutable registries are never consulted.
+// category and ownership checks. Item amounts come from recorded transitions;
+// exceptional attack witnesses are checked by captured pure numeric validators.
+// Frame projection never executes actions, formulas or RNG.
 const partyCommandPlayback = (() => {
+  // Capture pure numeric validators once. Reels/projectors never call the live
+  // resolver, AI, mutable formulas or RNG; validation checks recorded witnesses.
+  const witnessDamage=attackDamageNumbers,witnessMitigation=playerIncomingMitigation,witnessEvasion=evadeChance;
   const reels=new WeakSet(),gearSlots=['weapon','armor','shield','accessory'];
   const itemKinds=Object.freeze(Object.fromEntries(Object.entries(ITEM_REGISTRY).map(([id,item])=>[id,Object.freeze({
-    key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
+    sexBane:item.sexBane||null,stunTurns:item.stunTurns||0,key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
     effect:item.sexBane?'reagent':item.type==='potion'?(item.curesPoison||item.curesCursed?'cure':'heal'):
       item.type==='buff'?'evade':item.type==='throwable'?(item.fuse?'bomb':item.targetsAll?'damage_all':'damage'):
       item.type==='stun'?'stun':gearSlots.includes(item.type)?'equip':item.type==='bait'?'nothing':null,
     cures:Object.freeze(['poison','cursed'].filter(s=>s==='poison'?item.curesPoison:item.curesCursed)),mud:item.causesMuddied===true,
+    preventsCursed:item.preventsCursed===true,preventsPoison:item.preventsPoison===true,
   })])));
   const fail=()=>{throw new Error('Invalid party command playback history');};
   const safe=n=>Number.isSafeInteger(n)&&n>=0;
@@ -1850,25 +1994,51 @@ const partyCommandPlayback = (() => {
     resonance_wait:[...planKeys,'techniqueId','participantIds','executeActorId'],
     resonance_cancel:[...planKeys,'techniqueId','participantIds','reason','unavailableId'],
     strain:['actorId','before','after','appliedRoundBefore','appliedRoundAfter','reason'],
+    brace_check:['actorId','chance','roll','selected','before','after'],
+    brace:[...planKeys,'active'],brace_end:['actorId','before','after','reason'],
+    enemy_effect_check:['actorId','targetId','capability','chance','roll','triggered'],
+    enemy_status:['actorId','targetId','capability','status','blocked','blocker','statusesBefore','statusesAfter'],
+    enemy_shard_burst:['actorId','targetId','capability','wardItem','warded','damageRoll','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
+    enemy_corrosion:['actorId','targetId','capability','before','after','cap'],
+    counter_check:['actorId','targetId','chance','roll','triggered'],
+    counterattack:['actorId','targetId','rolls','defense','critical','evasionChance','evaded','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
+    regeneration:['actorId','round','amount','hpBefore','hpAfter','before','after'],
+    theft:['actorId','targetId','round','roll','attemptedGold','amount','goldBefore','goldAfter'],
+    gold_recovered:['actorId','amount','goldBefore','goldAfter'],departure:['actorId','round','stolenRound','stolenGold'],
     outcome:['outcome'],round_end:['roundBefore','roundAfter','outcome','effectsBefore','effectsAfter']};
   const statusList=v=>{list(v,0,6);if(v.some(s=>!FORMATION_PLAYER_STATUSES.includes(s))||new Set(v).size!==v.length)fail();};
   const create=source=>{
     const r=detach(source);keys(r,['round','command','initiative','order','events','outcome','before','after','party','enemies']);
     if(!safe(r.round)||!r.round||!['ongoing','victory','defeat','escape'].includes(r.outcome))fail();
     const snapshot=(s,maxRound)=>{
-      keys(s,['party','enemies','inventory','equipment','effects','escapePolicy','bossLocked',...(Object.hasOwn(s,'resonance')?['resonance']:[])]);list(s.party,1,3);list(s.enemies,1,3);
+      keys(s,['party','enemies','inventory','equipment','effects','escapePolicy','bossLocked',...(Object.hasOwn(s,'gold')?['gold']:[]),...(Object.hasOwn(s,'resonance')?['resonance']:[])]);list(s.party,1,3);list(s.enemies,1,3);
       list(s.inventory);s.inventory.forEach(spec);list(s.equipment,s.party.length,s.party.length);list(s.effects,s.party.length,s.party.length);
-      if(!['blocked','fastest_living'].includes(s.escapePolicy)||!bool(s.bossLocked))fail();
+      if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(s.escapePolicy)||!bool(s.bossLocked)||Object.hasOwn(s,'gold')&&!safe(s.gold))fail();
       const ids=new Set(),authored=new Set();
       for(const [side,group,fields]of [['ally',s.party,partyKeys],['enemy',s.enemies,enemyKeys]])group.forEach((m,slot)=>{
-        keys(m,fields);const prefix=side==='ally'?'combat_party_':'combat_enemy_',suffix=typeof m.instanceId==='string'?m.instanceId.slice(prefix.length):'';
+        const registered=side==='enemy'?ENEMY_TEMPLATE_REGISTRY[m.id]:null;
+        const template=m.origin?canonicalEnemyRecords.history(m.origin):registered;
+        if(m.origin&&(side!=='enemy'||['id','name','maxHp','atk','def','spd','xp','goldMin','goldMax'].some(k=>m[k]!==template[k])))fail();
+        const unusual=side==='enemy'?canonicalUnusualEnemySeed(registered):null;
+        const mechanicFields=side==='enemy'?Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES).filter(key=>
+          !['runLock','guaranteedDrop'].includes(key)&&Object.hasOwn(template||{},key)&&
+          ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical):[];
+        const hasBrace=mechanicFields.includes('defendChance');
+        keys(m,[...fields,...mechanicFields,...(hasBrace?['braced']:[]),...(m.origin?['origin']:[]),...(unusual?['unusual']:[])]);
+        if(unusual){keys(m.unusual,Object.keys(unusual));const u=m.unusual;
+          if(Object.hasOwn(u,'suppressedTurns')&&(!safe(u.suppressedTurns)||u.suppressedTurns>3||!safe(u.suppressedRound)||u.suppressedRound>maxRound||u.suppressedTurns>0&&!u.suppressedRound))fail();
+          if(Object.hasOwn(u,'stolenGold')&&(!safe(s.gold)||!safe(u.stolenGold)||!safe(u.stolenRound)||u.stolenRound>maxRound||!bool(u.departed)||
+            !u.stolenRound&&(u.stolenGold!==0||u.departed)||u.departed&&u.stolenRound>=maxRound))fail();
+        }
+        if(mechanicFields.some(key=>m[key]!==template[key])||hasBrace&&!bool(m.braced))fail();
+        const prefix=side==='ally'?'combat_party_':'combat_enemy_',suffix=typeof m.instanceId==='string'?m.instanceId.slice(prefix.length):'';
         if(m.side!==side||m.slot!==slot||typeof m.name!=='string'||!m.name.trim()||typeof m.instanceId!=='string'||!m.instanceId.startsWith(prefix)||
             !/^[1-9]\d*$/.test(suffix)||!Number.isSafeInteger(Number(suffix))||ids.has(m.instanceId)||!['hp','maxHp','atk','def','spd'].every(k=>safe(m[k]))||!m.maxHp||m.hp>m.maxHp)fail();
         ids.add(m.instanceId);
         if(side==='ally'){
           if(typeof m.characterId!=='string'||! /^[a-z][a-z0-9_]*$/.test(m.characterId)||m.characterId==='player'||authored.has(m.characterId))fail();authored.add(m.characterId);statusList(m.statuses);
           keys(m.effective,['atk','def','spd','defenseCapBypass','evadeAll']);if(!['atk','def','spd'].every(k=>safe(m.effective[k]))||!m.effective.spd||!bool(m.effective.defenseCapBypass)||!bool(m.effective.evadeAll))fail();
-        }else if(!PARTY_ATTACK_TEMPLATE_IDS.includes(m.id)||!['xp','goldMin','goldMax','observeCount'].every(k=>safe(m[k]))||m.escapeUnlocked!==false||!bool(m.isBoss))fail();
+        }else if(!canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY[m.id])||!['xp','goldMin','goldMax','observeCount'].every(k=>safe(m[k]))||m.escapeUnlocked!==false||!bool(m.isBoss))fail();
       });
       if(s.bossLocked!==s.enemies.some(m=>m.isBoss))fail();
       if(Object.hasOwn(s,'resonance')){
@@ -1887,36 +2057,48 @@ const partyCommandPlayback = (() => {
       s.party.forEach((m,slot)=>{
         const gear=s.equipment[slot],f=s.effects[slot];keys(gear,['actorId',...gearSlots]);if(gear.actorId!==m.instanceId)fail();
         for(const k of gearSlots)if(gear[k]!==null&&spec(gear[k]).slot!==k)fail();
-        keys(f,['actorId','evadeTurns','evadeAppliedRound','bomb',...(Object.hasOwn(f,'slither')?['slither']:[])]);
+        keys(f,['actorId','evadeTurns','evadeAppliedRound','bomb',...(Object.hasOwn(f,'slither')?['slither']:[]),
+          ...(Object.hasOwn(f,'corrosion')?['corrosion']:[])]);
         if(f.actorId!==m.instanceId||!safe(f.evadeTurns)||!safe(f.evadeAppliedRound)||f.evadeAppliedRound>maxRound||(f.evadeTurns>0&&f.evadeAppliedRound===0))fail();
+        if(Object.hasOwn(f,'corrosion')&&(!safe(f.corrosion)||f.corrosion<1||f.corrosion>6))fail();
         if(f.bomb!==null){keys(f.bomb,['targetId','fuse','damage','ignoresDef','appliedRound']);const b=f.bomb;
           if(!s.enemies.some(e=>e.instanceId===b.targetId)||!safe(b.fuse)||!b.fuse||!safe(b.damage)||!bool(b.ignoresDef)||!safe(b.appliedRound)||!b.appliedRound||b.appliedRound>maxRound)fail();}
         if(m.statuses.includes('slither')){
           keys(f.slither,['speed','round','roll','source']);const v=f.slither;
           if(!safe(v.speed)||v.speed<1||v.speed>20||m.effective.spd!==v.speed||!safe(v.round)||v.round>maxRound||
-              (v.source==='prepared'?v.round!==0||v.roll!==null:!['attack','observe'].includes(v.source)||!v.round||!roll(v.roll)||v.speed!==Math.floor(v.roll*20)+1))fail();
+              (v.source==='prepared'?v.round!==0||v.roll!==null:!['attack','observe','inflicted'].includes(v.source)||!v.round||!roll(v.roll)||v.speed!==Math.floor(v.roll*20)+1))fail();
         }else if(Object.hasOwn(f,'slither'))fail();
       });
     };
     snapshot(r.before,r.round-1);snapshot(r.after,r.round);equal(r.party,r.after.party);equal(r.enemies,r.after.enemies);
-    const membership=s=>({party:s.party.map(({hp,statuses,effective,...m})=>m),enemies:s.enemies.map(({hp,observeCount,...m})=>m),escapePolicy:s.escapePolicy,bossLocked:s.bossLocked,...(s.resonance?{resonance:s.resonance.map(({strain,appliedRound,...c})=>c)}:{})});
+    if([...r.before.enemies,...r.after.enemies].some(m=>m.braced===true))fail();
+    const membership=s=>({party:s.party.map(({hp,statuses,effective,...m})=>m),enemies:s.enemies.map(({hp,observeCount,braced,unusual,...m})=>m),escapePolicy:s.escapePolicy,bossLocked:s.bossLocked,...(s.resonance?{resonance:s.resonance.map(({strain,appliedRound,...c})=>c)}:{})});
     const fixed=membership(r.before);equal(membership(r.after),fixed);
     let state=clone(r.before),revealed='ongoing',completed=r.round-1,index=0;
+    const statusApplications=state.party.map(()=>Object.create(null));
     const member=id=>[...state.party,...state.enemies].find(m=>m.instanceId===id);
-    const outcome=()=>state.enemies.every(m=>m.hp===0)?'victory':state.party.every(m=>m.hp===0)?'defeat':'ongoing';
+    const available=m=>m.hp>0&&!m.unusual?.departed;
+    const outcome=()=>partyTerminalOutcome(state.party,state.enemies,m=>m.hp,available);
     if(outcome()!=='ongoing')fail();
     keys(r.command,['type','allyActions','enemyActions']);if(r.command.type!=='party-round')fail();
     list(r.command.allyActions,1,3);list(r.command.enemyActions,1,3);
     const reservations=new Map(),commands=[];
     for(const [side,actions]of [['ally',r.command.allyActions],['enemy',r.command.enemyActions]]){
-      const living=(side==='ally'?state.party:state.enemies).filter(m=>m.hp>0);let previous=-1;
+      const living=(side==='ally'?state.party:state.enemies).filter(available);let previous=-1;
       const covered=new Set();
       for(const a of actions){
-        const kind=side==='enemy'?'attack':a.type,info=kind==='item'?spec(a.itemId):null;
-        keys(a,side==='enemy'?['actorId','targetId']:kind==='resonance'?['type','actorId','techniqueId','targetId','participantIds']:kind==='run'?['type','actorId']:['attack','observe'].includes(kind)?['type','actorId','targetId']:
+        const kind=side==='enemy'?(a.brace?.selected?'brace':'attack'):a.type,info=kind==='item'?spec(a.itemId):null;
+        keys(a,side==='enemy'?['actorId','targetId',...(Object.hasOwn(a,'brace')?['brace']:[])]:kind==='resonance'?['type','actorId','techniqueId','targetId','participantIds']:kind==='run'?['type','actorId']:['attack','observe'].includes(kind)?['type','actorId','targetId']:
           kind==='item'?['type','actorId','itemId',...(info.effect==='damage_all'?[]:['targetId'])]:[]);
         const actor=member(a.actorId),target=member(a.targetId);
         if(!actor||!actor.hp||actor.side!==side||actor.slot<=previous)fail();previous=actor.slot;
+        if(side==='enemy'){
+          const eligible=actor.defendChance>0&&r.command.allyActions.some(c=>c.type==='attack'&&c.targetId===a.actorId);
+          if(Object.hasOwn(a,'brace')!==eligible)fail();
+          if(eligible){keys(a.brace,['chance','roll','selected']);const b=a.brace;
+            if(b.chance!==actor.defendChance||!roll(b.roll)||b.selected!==(b.roll<b.chance))fail();}
+          if(kind==='brace'&&a.targetId!==null)fail();
+        }
         let ids=[a.actorId];
         if(kind==='resonance'){
           const tech=resonanceTechnique(a.techniqueId),participants=resonanceParticipants(tech,state.party,state.resonance);
@@ -1928,8 +2110,8 @@ const partyCommandPlayback = (() => {
           equal(ids,participants.map(m=>m.instanceId));
         }
         for(const id of ids){if(covered.has(id))fail();covered.add(id);}
-        if(kind!=='run'&&kind!=='resonance'&&info?.effect!=='damage_all'){
-          if(!target||!target.hp)fail();const friendly=info&&['heal','cure','evade','equip','nothing'].includes(info.effect);
+        if(kind!=='run'&&kind!=='resonance'&&kind!=='brace'&&info?.effect!=='damage_all'){
+          if(!target||!available(target))fail();const friendly=info&&['heal','cure','evade','equip','nothing'].includes(info.effect);
           if(friendly?target.side!==side:target.side===side)fail();
           if(info&&['equip','nothing'].includes(info.effect)&&target!==actor)fail();
         }
@@ -1940,15 +2122,24 @@ const partyCommandPlayback = (() => {
     }
     commands.sort((a,b)=>a.side===b.side?a.slot-b.slot:a.side==='ally'?-1:1);
     for(const[id,n]of reservations)if(state.inventory.filter(x=>x===id).length<n)fail();
-    list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();keys(e,['type',...eventKeys[e.type]]);});
+    list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();
+      keys(e,['type',...eventKeys[e.type],...(e.type==='attack'&&Object.hasOwn(e,'brace')?['brace']:[]),
+        ...(e.type==='enemy_status'&&Object.hasOwn(e,'slither')?['slither']:[]),...(e.type==='attack'&&Object.hasOwn(e,'armor')?['armor']:[])]);});
     const frames=[];
     const frame=(event=null)=>copyFormationData({round:r.round,command:r.command,frameIndex:index,eventIndex:index-1,currentEvent:event,
-      party:state.party.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),enemies:state.enemies.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),
-      inventory:state.inventory,equipment:state.equipment,effects:state.effects,escapePolicy:state.escapePolicy,bossLocked:state.bossLocked,
+      party:state.party.map(m=>({...m,alive:m.hp>0,defeated:m.hp===0})),enemies:state.enemies.map(m=>({...m,alive:available(m),defeated:m.hp===0})),
+      inventory:state.inventory,...(Object.hasOwn(state,'gold')?{gold:state.gold}:{}),equipment:state.equipment,effects:state.effects,escapePolicy:state.escapePolicy,bossLocked:state.bossLocked,
       complete:index===r.events.length&&event?.type==='round_end',outcome:revealed,completedRounds:completed,...(state.resonance?{resonance:state.resonance}:{})});
     frames.push(frame());
     const take=type=>{const e=r.events[index];if(!e||e.type!==type)fail();return e;};
     const push=e=>{index++;frames.push(frame(e));};
+    // The recorded decision protects the whole melee exchange, including hits
+    // before the enemy's scheduled (non-attacking) action. Never reroll its AI.
+    for(const a of r.command.enemyActions)if(a.brace){
+      const e=take('brace_check'),m=member(a.actorId);
+      equal(e,{type:'brace_check',actorId:a.actorId,...a.brace,before:false,after:a.brace.selected});
+      if(m.braced!==false)fail();m.braced=e.after;push(e);
+    }
     // All living Attack/Observe Slither samples are recorded before initiative.
     for(const c of commands.filter(c=>c.side==='ally'&&['attack','observe'].includes(c.commandType)&&member(c.actorId).statuses.includes('slither'))){
       const e=take('slither_sample'),m=member(c.actorId),f=state.effects[c.slot];
@@ -2006,6 +2197,8 @@ const partyCommandPlayback = (() => {
         const allowed={weapon:['atk'],armor:['def','defenseCapBypass'],shield:['def'],accessory:['spd','evadeAll']}[info.slot];
         for(const k of allowed)a.effective[k]=e.after.party[actor.slot].effective[k];
       }
+      if(info.effect==='reagent'&&t.sex===info.sexBane)t.hp=0;
+      if(info.effect==='stun'&&t.regenPerTurn){t.unusual.suppressedTurns=info.stunTurns;t.unusual.suppressedRound=r.round;}
       equal(expected,e.after);state=clone(e.after);push(e);
       // Annotations refer to the same item transition; never apply it twice.
       for(const [slot,m]of e.before.party.entries())if(!same(m.statuses,e.after.party[slot].statuses)){
@@ -2015,10 +2208,71 @@ const partyCommandPlayback = (() => {
         const annotation=take('effect');equal(annotation,{type:'effect',sourceId:actor.instanceId,targetId:target.instanceId,itemId:e.itemId,effectsBefore:e.before.effects,effectsAfter:e.after.effects});push(annotation);
       }
     };
+    const recoverGold=()=>{for(const m of state.enemies){if(m.hp!==0||!m.unusual?.stolenGold)continue;
+      const e=take('gold_recovered'),amount=m.unusual.stolenGold;
+      equal(e,{type:'gold_recovered',actorId:m.instanceId,amount,goldBefore:state.gold,goldAfter:state.gold+amount});
+      if(!safe(e.goldAfter))fail();state.gold=e.goldAfter;m.unusual.stolenGold=0;push(e);
+    }};
     const strain=(id,after,appliedRoundAfter,reason)=>{
       const cap=state.resonance?.find(c=>c.actorId===id);if(!cap)fail();
       const e=take('strain');equal(e,{type:'strain',actorId:id,before:cap.strain,after,appliedRoundBefore:cap.appliedRound,appliedRoundAfter,reason});
       cap.strain=after;cap.appliedRound=appliedRoundAfter;push(e);
+    };
+    const enemyEffects=(actor,target,attack)=>{
+      if(actor.side!=='enemy'||attack.evaded||attack.appliedDamage<=0||target.hp===0)return;
+      const mechanics=canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[actor.id]),gear=state.equipment[target.slot],effect=state.effects[target.slot];
+      for(const capability of ['slither_on_hit','poison_spell','poison_on_hit','curse_on_hit','void_shard_burst','dazzle_on_hit','acid_corrosion']){
+        const mechanic=mechanics[capability];if(!mechanic||target.hp===0)continue;
+        const status={slither_on_hit:'slither',poison_spell:'poison',poison_on_hit:'poison',curse_on_hit:'cursed',dazzle_on_hit:'dazzled'}[capability];
+        if(status&&target.statuses.includes(status)||capability==='acid_corrosion'&&(effect.corrosion||0)>=mechanic.cap)continue;
+        const check=take('enemy_effect_check');
+        equal(check,{type:'enemy_effect_check',actorId:actor.instanceId,targetId:target.instanceId,capability,
+          chance:mechanic.chance,roll:check.roll,triggered:check.roll<mechanic.chance});
+        if(!roll(check.roll))fail();push(check);if(!check.triggered)continue;
+        if(capability==='void_shard_burst'){
+          const event=take('enemy_shard_burst'),warded=state.inventory.includes(mechanic.wardItem);
+          if(event.actorId!==actor.instanceId||event.targetId!==target.instanceId||event.capability!==capability||
+              event.wardItem!==mechanic.wardItem||event.warded!==warded||(warded?event.damageRoll!==null||event.attemptedDamage!==0:
+              !roll(event.damageRoll)||event.attemptedDamage!==mechanic.minDamage+Math.floor(event.damageRoll*(mechanic.maxDamage-mechanic.minDamage+1))))fail();
+          damage(event,target);push(event);continue;
+        }
+        if(capability==='acid_corrosion'){
+          const event=take('enemy_corrosion'),before=effect.corrosion||0,after=Math.min(mechanic.cap,before+1);
+          equal(event,{type:'enemy_corrosion',actorId:actor.instanceId,targetId:target.instanceId,capability,before,after,cap:mechanic.cap});
+          effect.corrosion=after;target.effective.def=Math.max(0,target.effective.def-1);push(event);continue;
+        }
+        const blocked=['poison_spell','poison_on_hit'].includes(capability)?gear.accessory!==null&&spec(gear.accessory).preventsPoison===true:
+          capability==='curse_on_hit'?gear.accessory!==null&&spec(gear.accessory).preventsCursed===true:false;
+        const event=take('enemy_status'),before=[...target.statuses],after=blocked?before:[...before,status];
+        if(event.actorId!==actor.instanceId||event.targetId!==target.instanceId||event.capability!==capability||event.status!==status||
+            event.blocked!==blocked||event.blocker!==(blocked?gear.accessory:null))fail();
+        equal(event.statusesBefore,before);equal(event.statusesAfter,after);
+        if(capability==='slither_on_hit'&&!blocked){
+          keys(event.slither,['round','roll','speedAfter']);
+          if(event.slither.round!==r.round||!roll(event.slither.roll)||event.slither.speedAfter!==Math.floor(event.slither.roll*20)+1)fail();
+          effect.slither={speed:event.slither.speedAfter,round:r.round,roll:event.slither.roll,source:'inflicted'};
+          target.effective.spd=event.slither.speedAfter;
+        }else if(Object.hasOwn(event,'slither'))fail();
+        target.statuses=after;if(!blocked)statusApplications[target.slot][status]=r.round;push(event);
+      }
+    };
+    const counter=(actor,target)=>{
+      if(actor.side!=='ally'||target.hp===0||actor.hp===0||outcome()!=='ongoing'||!target.counterChance)return;
+      const check=take('counter_check');if(!roll(check.roll))fail();
+      equal(check,{type:'counter_check',actorId:target.instanceId,targetId:actor.instanceId,chance:target.counterChance,roll:check.roll,triggered:check.roll<target.counterChance});
+      push(check);if(!check.triggered)return;
+      const e=take('counterattack');list(e.rolls,3,3);if(e.rolls.some(v=>!roll(v)))fail();
+      const defense=witnessMitigation(target.atk,actor.effective.def,actor.effective.defenseCapBypass),critical=e.rolls[1]<CRIT_CHANCE,
+        evasionChance=actor.effective.evadeAll?1:Math.max(witnessEvasion(target.spd,actor.effective.spd,false),state.effects[actor.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),
+        attemptedDamage=witnessDamage(target.atk,defense,ATTACK_VARIANCE_MIN+e.rolls[0]*ATTACK_VARIANCE_SPAN,critical).dmg;
+      if(e.actorId!==target.instanceId||e.targetId!==actor.instanceId||e.defense!==defense||e.critical!==critical||e.evasionChance!==evasionChance||e.evaded!==(e.rolls[2]<evasionChance)||e.attemptedDamage!==attemptedDamage)fail();
+      damage(e,actor,true);push(e);
+    };
+    const theft=(actor,target,attack)=>{
+      if(actor.side!=='enemy'||!actor.stealAndFlee||attack.evaded||attack.appliedDamage<=0||target.hp===0||actor.unusual.stolenRound!==0)return;
+      const e=take('theft');if(!roll(e.roll))fail();const attemptedGold=20+Math.floor(e.roll*31),amount=Math.min(state.gold,attemptedGold);
+      equal(e,{type:'theft',actorId:actor.instanceId,targetId:target.instanceId,round:r.round,roll:e.roll,attemptedGold,amount,goldBefore:state.gold,goldAfter:state.gold-amount});
+      state.gold=e.goldAfter;actor.unusual.stolenGold=amount;actor.unusual.stolenRound=r.round;push(e);
     };
     let escaped=false;const finishedTechniques=new Set();
     for(const p of r.order){
@@ -2039,6 +2293,7 @@ const partyCommandPlayback = (() => {
       }
       if(!partyActorCanAct(actor,state.party)){const e=take('skip');matching(e,p);if(e.reason!==(actor.hp===0?'actor_dead':'actor_disabled'))fail();push(e);continue;}
       if(target?.hp===0){const e=take('cancel');matching(e,p);if(e.reason!=='target_dead')fail();push(e);continue;}
+      if(actor.side==='enemy'&&actor.unusual?.suppressedRound===r.round){const e=take('skip');equal(e,{type:'skip',...p,reason:'trollbane'});push(e);continue;}
       if(tech){
         const e=take('resonance');matching(e,p);equal(e.participantIds,action.participantIds);
         if(e.techniqueId!==tech.id||e.techniqueName!==tech.name||!safe(e.attemptedHealing)||!e.attemptedHealing||!safe(e.appliedHealing)||
@@ -2049,20 +2304,40 @@ const partyCommandPlayback = (() => {
         finishedTechniques.add(action.actorId);continue;
       }
       let curse=null;
-      if(p.commandType==='attack'&&actor.side==='ally'&&actor.statuses.includes('cursed')){
+      if(p.commandType==='attack'&&!target.braced&&actor.side==='ally'&&actor.statuses.includes('cursed')&&statusApplications[actor.slot].cursed!==r.round){
         curse=take('curse_check');if(curse.actorId!==p.actorId||curse.targetId!==p.targetId||curse.side!=='ally'||curse.slot!==p.slot||curse.status!=='cursed'||curse.round!==r.round||curse.chance!==0.25||!roll(curse.roll)||curse.fumbled!==(curse.roll<curse.chance))fail();push(curse);
       }
       const e=take(p.commandType==='item'&&spec(c.command.itemId).effect==='equip'?'equipment':p.commandType);matching(e,p);
       if(e.type==='attack'){
+        const bonus=target.side==='enemy'?(target.meleeArmor||0):0;
+        if(Object.hasOwn(e,'armor')!==!!bonus)fail();
+        if(bonus){keys(e.armor,['defense','bonus','rolls','fumbled']);const a=e.armor;
+          if(a.bonus!==bonus||a.defense!==target.def+bonus||a.fumbled!==!!curse?.fumbled)fail();
+          list(a.rolls,a.fumbled?0:3,a.fumbled?0:3);if(a.rolls.some(v=>!roll(v)))fail();
+          if(!a.fumbled){const [variance,critical,evade]=a.rolls,atk=actor.effective.atk;
+            const expected=witnessDamage(atk,a.defense,ATTACK_VARIANCE_MIN+variance*ATTACK_VARIANCE_SPAN,critical<CRIT_CHANCE).dmg;
+            const spd=actor.effective.spd-(actor.statuses.includes('dazzled')&&statusApplications[actor.slot].dazzled!==r.round?DAZZLE_ACC_PENALTY:0);
+            if(e.attemptedDamage!==expected||e.critical!==(critical<CRIT_CHANCE)||e.evaded!==(evade<witnessEvasion(spd,target.spd,false)))fail();
+          }
+        }
+        if(Object.hasOwn(e,'brace')!==(target.braced===true))fail();
+        if(e.brace){keys(e.brace,['before','after','unmodifiedDamage','rolledCritical']);const b=e.brace;
+          if(actor.side!=='ally'||b.before!==true||b.after!==true||!safe(b.unmodifiedDamage)||!b.unmodifiedDamage||!bool(b.rolledCritical)||
+              e.attemptedDamage!==Math.max(1,Math.floor(b.unmodifiedDamage/2))||e.critical||e.evaded)fail();}
         if(!bool(e.critical)||!bool(e.evaded)||e.attemptedDamage===0||curse?.fumbled&&(e.attemptedDamage!==1||e.critical||e.evaded))fail();damage(e,target,true);
+      }else if(e.type==='brace'){
+        if(actor.side!=='enemy'||actor.braced!==true||e.active!==true||target!==undefined)fail();
       }else if(e.type==='observe'){
         list(e.lines);if(e.lines.some(x=>typeof x!=='string')||e.countBefore!==target.observeCount||!safe(e.countAfter)||e.countAfter!==e.countBefore+1||e.escapeBefore!==target.escapeUnlocked||e.escapeAfter!==false)fail();target.observeCount=e.countAfter;
       }else if(e.type==='run'){
-        const fastest=state.enemies.filter(m=>m.hp>0).reduce((a,b)=>b.spd>a.spd?b:a),allowed=state.escapePolicy==='fastest_living'&&!state.bossLocked;
+        const fastest=state.enemies.filter(available).reduce((a,b)=>b.spd>a.spd?b:a),gated=state.escapePolicy==='observe_gated',
+          gate=gated&&state.enemies.find(m=>available(m)&&canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[m.id]).observe_run_lock?.mode==='observe_gated'),
+          allowed=state.escapePolicy==='ignore_boss'||state.escapePolicy==='fastest_living'&&!state.bossLocked||gated&&!!gate&&gate.observeCount>0;
         if(e.allowed!==allowed||e.opponentId!==fastest.instanceId||!bool(e.success)||typeof e.chance!=='number'||e.chance<0||e.chance>1||
-            (allowed?!roll(e.roll)||e.success!==(e.roll<e.chance):e.roll!==null||e.chance!==0||e.success))fail();escaped=e.success;
-      }else {itemEvent(e,c,actor,target);continue;}
-      push(e);
+            (gated?(e.roll!==null||e.chance!==(allowed?1:0)||e.success!==allowed):
+              allowed?!roll(e.roll)||e.success!==(e.roll<e.chance):e.roll!==null||e.chance!==0||e.success))fail();escaped=e.success;
+      }else {itemEvent(e,c,actor,target);recoverGold();continue;}
+      push(e);if(e.type==='attack'){enemyEffects(actor,target,e);counter(actor,target);theft(actor,target,e);}recoverGold();
     }
     // Boundary ticks follow the resolver's stable burn-then-Bomb owner order.
     if(!escaped&&outcome()==='ongoing')for(const m of state.party.filter(m=>m.hp>0&&m.statuses.includes('burn'))){
@@ -2072,10 +2347,26 @@ const partyCommandPlayback = (() => {
     if(!escaped&&outcome()==='ongoing')for(const f of state.effects){
       if(outcome()!=='ongoing')break;const b=f.bomb;if(!b||b.appliedRound===r.round)continue;
       const e=take('delayed_effect_tick'),target=member(b.targetId);if(e.effect!=='bomb'||e.ownerId!==f.actorId||e.targetId!==b.targetId)fail();equal(e.before,b);
-      const next={...b,fuse:b.fuse-1};if((!target.hp||next.fuse>0)&&e.attemptedDamage!==0)fail();damage(e,target);
-      equal(e.after,next.fuse===0||target.hp===0?null:next);f.bomb=clone(e.after);push(e);
+      const next={...b,fuse:b.fuse-1};if((!available(target)||next.fuse>0)&&e.attemptedDamage!==0)fail();damage(e,target);
+      equal(e.after,next.fuse===0||target.hp===0?null:next);f.bomb=clone(e.after);push(e);recoverGold();
+    }
+    if(!escaped&&outcome()==='ongoing'&&r.command.allyActions.some(a=>a.type!=='run'))for(const m of state.enemies.filter(available)){
+      if(!m.regenPerTurn)continue;const e=take('regeneration'),before=clone(m.unusual),after=clone(before),hpBefore=m.hp;
+      if(after.suppressedTurns>0){if(after.suppressedRound!==r.round)after.suppressedTurns--;}
+      else m.hp+=Math.min(m.regenPerTurn,m.maxHp-m.hp);
+      equal(e,{type:'regeneration',actorId:m.instanceId,round:r.round,amount:m.regenPerTurn,hpBefore,hpAfter:m.hp,before,after});m.unusual=after;push(e);
+    }
+    if(!escaped&&outcome()==='ongoing')for(const m of state.enemies.filter(available)){
+      if(m.unusual?.stolenRound>0&&m.unusual.stolenRound<r.round){const e=take('departure');
+        equal(e,{type:'departure',actorId:m.instanceId,round:r.round,stolenRound:m.unusual.stolenRound,stolenGold:m.unusual.stolenGold});
+        m.unusual.departed=true;push(e);
+      }
     }
     const finalOutcome=escaped?'escape':outcome();
+    for(const m of state.enemies.filter(m=>m.braced)){
+      const e=take('brace_end');equal(e,{type:'brace_end',actorId:m.instanceId,before:true,after:false,
+        reason:finalOutcome==='ongoing'?'round_end':'cleanup'});m.braced=false;push(e);
+    }
     for(const cap of state.resonance||[])if(cap.strain>0&&(finalOutcome!=='ongoing'||cap.appliedRound!==r.round)){
       const after=finalOutcome==='ongoing'?cap.strain-1:0;
       strain(cap.actorId,after,after===0?0:cap.appliedRound,finalOutcome==='ongoing'?'recovery':'cleanup');
@@ -2103,6 +2394,8 @@ function assertSinglePlayerExecution() {
 // initializer below. No encounter calls the latter. Cleanup assigns null.
 function setSingleCombatEnemy(enemy) {
   if (enemy === null) {
+    trappedDrownedEnemy = null;
+    lenswebSpiderEnemy = null;
     if (combatMode === 'formation') formationRounds.clear();
     completedSingleVictoryReceipt = null;
     combat.enemies = Object.freeze([]);
@@ -2113,6 +2406,8 @@ function setSingleCombatEnemy(enemy) {
   }
   if (combatMode === 'formation') throw new Error('Clear formation state before initializing a singleton');
   const instance = createCombatEnemyInstance(enemy, 0);
+  trappedDrownedEnemy = null;
+  lenswebSpiderEnemy = null;
   completedSingleVictoryReceipt = null;
   combat.enemies = Object.freeze([instance]);
   combatMode = 'single';
@@ -2143,9 +2438,8 @@ function createCombatEnemyInstance(enemy, slot) {
   return instance;
 }
 
-// State-construction approval, NOT permission to run these encounters together.
-// Keep this deliberately small: new identities require an explicit contract
-// review even when their stats look ordinary (some behavior is keyed by id).
+// Legacy Formation/Receiver construction projection. Canonical party combat does
+// not consult this identity list; it uses the capability validator below.
 const FORMATION_STATE_TEMPLATE_IDS = Object.freeze([
   'enemy_marsh_wisp', 'enemy_briar_hound',
   'enemy_marsh_wisp_early', 'enemy_briar_hound_early',
@@ -2167,11 +2461,21 @@ const FORMATION_STATE_UNSUPPORTED_FIELDS = Object.freeze([
 // State construction stays inactive. Lab and Receiver lifecycle owners call it.
 // Requires an empty, inactive state; does not clear a battle,
 // set flags, queue messages, calculate sprites, or grant any rewards.
-function initializeFormationState(descriptors, policy = {escape:'blocked'}) {
+function initializeFormationState(descriptors, policy = {escape:'blocked'}, capabilityApproval = false) {
+  const templates=capabilityApproval?validateCanonicalFormationDescriptors(descriptors):validateFormationDescriptors(descriptors);
+  return installFormationState(templates,policy);
+}
+
+// Canonical party construction uses the same enemy storage/round authority but
+// enters through mechanic requirements, never through the legacy identity list.
+function initializeCanonicalEnemyFormationState(descriptors, policy = {escape:'blocked'}) {
+  return initializeFormationState(descriptors,policy,true);
+}
+
+function installFormationState(templates, policy) {
   if (combat.active || combatMode !== null || combat.enemies.length !== 0) {
     throw new Error('Formation state requires empty inactive combat');
   }
-  const templates = validateFormationDescriptors(descriptors);
   formationRounds.validatePolicy(policy);
   const members = templates.map((template, slot) => createCombatEnemyInstance(template, slot));
   completedSingleVictoryReceipt = null;
@@ -2181,7 +2485,7 @@ function initializeFormationState(descriptors, policy = {escape:'blocked'}) {
 }
 
 // Pure construction preflight, also used before committing encounter staging.
-function validateFormationDescriptors(descriptors) {
+function validateFormationDescriptorData(descriptors, capabilityApproval) {
   if (!Array.isArray(descriptors) || descriptors.length < 2 || descriptors.length > 3 ||
       Reflect.ownKeys(descriptors).length !== descriptors.length + 1) {
     throw new Error('Formation state requires exactly two or three descriptors');
@@ -2213,8 +2517,14 @@ function validateFormationDescriptors(descriptors) {
       throw new Error('Formation template must be plain data: ' + id);
     }
     const data = Object.getOwnPropertyDescriptors(template);
+    if(capabilityApproval)requireCanonicalEnemyCapabilities(template);
     const copy = {};
     for (const key of Reflect.ownKeys(data)) {
+      const capability=ENEMY_TEMPLATE_FIELD_CAPABILITIES[key];
+      if(capabilityApproval&&capability&&ENEMY_CAPABILITY_DEFINITIONS[capability].canonical&&
+          !['runLock','guaranteedDrop'].includes(key)){
+        copy[key]=data[key].value;continue;
+      }
       if (key === 'isBoss' && Object.hasOwn(data[key], 'value') && typeof data[key].value === 'boolean') {
         Object.defineProperty(copy, key, {value:data[key].value});
         continue;
@@ -2227,9 +2537,8 @@ function validateFormationDescriptors(descriptors) {
       }
       copy[key] = data[key].value;
     }
-    if (!FORMATION_STATE_TEMPLATE_IDS.includes(id)) {
-      throw new Error('Template is not approved for formation state (singleton contract or unreviewed): ' + id);
-    }
+    if(!capabilityApproval && !FORMATION_STATE_TEMPLATE_IDS.includes(id))
+      throw new Error('Template is not approved for legacy Formation state: ' + id);
     if (copy.id !== id || typeof copy.name !== 'string' ||
         FORMATION_STATE_DATA_FIELDS.slice(2).some(key => !Number.isFinite(copy[key]))) {
       throw new Error('Invalid formation template data: ' + id);
@@ -2237,6 +2546,12 @@ function validateFormationDescriptors(descriptors) {
     templates.push(copy);
   }
   return templates;
+}
+function validateFormationDescriptors(descriptors) {
+  return validateFormationDescriptorData(descriptors,false);
+}
+function validateCanonicalFormationDescriptors(descriptors) {
+  return validateFormationDescriptorData(descriptors,true);
 }
 
 // Resolve membership, not life: legacy deferred trades/rewards can still use a
@@ -2304,6 +2619,13 @@ const FORMATION_NEUTRAL_COMBAT_STATE = Object.freeze({
   gullStole:false, gullStolenAmount:0, bombFuse:0, bombDamage:0, bombIgnoresDef:false,
   bombTargetInstanceId:null, bombJustArmed:false,
 });
+
+// Persistent entry may consume the existing authenticated solo handoff. This
+// preflight only validates it; normalization waits until all entry checks pass.
+function partyPreparationBookkeepingIsNeutral(fields,persistent) {
+  if(persistent&&completedSingleVictoryReceipt!==null){validateFormationEntry();return true;}
+  return Object.entries(FORMATION_NEUTRAL_COMBAT_STATE).every(([key,value])=>fields[key]?.value===value);
+}
 
 function completedSingleVictoryCandidate() {
   const enemy = combat.enemy; // acknowledged singleton lifecycle boundary
@@ -2382,10 +2704,12 @@ function prepareFormationEntry() {
 
 // Shared read-only preparation preflight; neither player nor enemy initialization
 // may acquire an unresolved UI/session/callback. No completion is inferred here.
-function validateInactiveCombatPreparation() {
+function validateInactiveCombatPreparation(handoff=null) {
+  const ownDialogue=handoff!==null&&(canonicalPartyCombat.permitsHandoff(handoff)||
+    canonicalPartyCombat.permitsScriptedPreparation(handoff));
   if (combat.active !== false || formationSessionController.getView() !== null ||
-      dialogue.open !== false || dialogue.callbacks !== null || dialogue.triggerEncounterId !== null ||
-      seraLioraCutscene.active || fishing.active || menu.open || choice.open || shop.open ||
+      (!ownDialogue&&(dialogue.open !== false || dialogue.callbacks !== null || dialogue.triggerEncounterId !== null || choice.open)) ||
+      seraLioraCutscene.active || fishing.active || menu.open || shop.open ||
       warpMenu.open || accordPanel.open || continentMap.open)
     throw new Error('Unsupported formation entry: combat is not safely finalized');
 }
@@ -3573,6 +3897,7 @@ if (typeof window !== 'undefined') window.EMPTY_ENCOUNTER_POOL = EMPTY_ENCOUNTER
 
 function startCombat() {
   assertSinglePlayerExecution();
+  if (canonicalPartyCombat.hasMultipleMembers()) return startCanonicalPartyEncounter();
   // Pale Sentry: appears on MAP_N2 once the contract is accepted, until it is killed.
   // Keyed off the CANONICAL physical-map id (the regional authority), not the
   // `activeMap` compatibility projection — a placed regional chunk's identity comes
@@ -3582,6 +3907,7 @@ function startCombat() {
   // reaches this call already does.
   const _sentryMapId = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapIdForRef(activeMap);
   if (_sentryMapId === 'MAP_N2' && sentry_quest_started && !sentry_quest_done) {
+    if (!scriptedCombatEntry.preflight('pale_sentry')) return;
     combat.enemy          = { ...PALE_SENTRY_TEMPLATE, hp: pale_sentry_hp };
     combat.active         = true;
     combat.phase          = 'choose';
@@ -3662,11 +3988,132 @@ function startCombat() {
   }
 }
 
+// Selection is upstream of the canonical entry transaction. Preserve the
+// authored ordinary pool, North Basin override and rare-23 draw sequence, but
+// install no singleton enemy/state while deciding which encounter was selected.
+function startCanonicalPartyEncounter() {
+  persistentParty.combatSnapshot();
+  const mapId=typeof regionalActiveMapId==='function'?regionalActiveMapId():mapIdForRef(activeMap);
+  if(mapId==='MAP_N2'&&sentry_quest_started&&!sentry_quest_done)
+    return scriptedPartyEncounters.start('pale_sentry');
+  const pool=currentEncounterPool();
+  if(!Array.isArray(pool)||!pool.length)return;
+  const roll=()=>{const value=Math.random();if(!Number.isFinite(value)||value<0||value>=1)
+    throw Error('Canonical party encounter: invalid selection RNG');return value;};
+  let template=pool[Math.floor(roll()*pool.length)];
+  const meta=MAP_METADATA[mapRegistryId(activeMap)];
+  if(meta&&meta.region==='North Basin'&&meta.type==='outdoor'&&roll()<1/16)template=SWAMP_DONKEY_TEMPLATE;
+  if(roll()<1/256){
+    template=canonicalEnemyRecords.generated();
+  }
+  return canonicalPartyCombat.enter({enemies:[template],escape:'fastest_living'});
+}
+
+// Read-only scripted-entry preparation. World callers use the same check before
+// staging dialogue/choices; starters recheck at installation. This owns neither
+// combat execution nor quest prerequisites (the authored interaction owns those).
+const scriptedCombatEntry = (() => {
+  const callbacks = new WeakMap();
+  const routes = Object.freeze({
+    boss:'startBossCombat', warden:'startWardenCombat', fort_guard:'startFortGuardCombat',
+    fort_polwick:'startFortPolwickCombat', fort_essa:'startFortEssaCombat',
+    mulholland:'startMulhollandCombat', den_wraith:'startDenWraithCombat',
+    takomo:'startTakomoCombat', kolm_brawler:'startSailorBrawlCombat',
+    lensweb_spider:'startLenswebSpiderCombat', mimic_potion:'startMimicPotionCombat',
+    mire_toad_spawn:'startMireToadSpawnCombat',
+  });
+  const templates = name => ({
+    startBossCombat:[BOSS_TEMPLATE], startWardenCombat:[BRIAR_WARDEN_TEMPLATE],
+    startFortGuardCombat:[SMUGGLER_GUARD_TEMPLATE], startFortPolwickCombat:[POLWICK_TEMPLATE],
+    startFortEssaCombat:[ESSA_TEMPLATE], startMulhollandCombat:[MULHOLLAND_TEMPLATE],
+    startDenWraithCombat:[DEN_WRAITH_TEMPLATE], startSailorBrawlCombat:[SAILOR_BRAWLER_TEMPLATE],
+    startTakomoCombat:[TAKOMO_TEMPLATE], startMimicPotionCombat:[MIMIC_POTION_TEMPLATE],
+    startLenswebSpiderCombat:[LENSWEB_SPIDER_TEMPLATE],
+    startTrappedDrownedCombat:[SUNKEN_GALLERY_ENEMY_TEMPLATES[0]],
+    startRainfishCombat:[RAINFISH_TEMPLATE],
+    startSeepSplitCombat:[ENEMY_TEMPLATE_REGISTRY.enemy_the_seep],
+    startMireToadSpawnCombat:[ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male,ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_female],
+    pale_sentry:[PALE_SENTRY_TEMPLATE],
+  })[name];
+  const fail = message => { throw Error('Scripted combat entry: '+message); };
+  const preflight = (name, remaining) => {
+    assertSinglePlayerExecution();
+    const candidates = templates(name);
+    if (!candidates) fail('unknown starter '+name);
+    const route=Object.keys(routes).find(id=>routes[id]===name);
+    if (route && typeof ENCOUNTER_HANDLERS[route]!=='function') fail('missing encounter handler '+route);
+    // Legacy singleton replacement is an established preparation contract.
+    // World/dialogue entry below requires idle combat; foreign owners never pass.
+    if (!['single',null].includes(combat.mode) || combat.enemies.length>1 ||
+        canonicalPartyCombat.isActive() || persistentParty.isCombatPending() ||
+        formationCombatLab.isOpen() || partyCombatLab.isActive() || galleryReceiverEncounter.isLocked())
+      fail('combat owner is not idle');
+    if (!Number.isSafeInteger(combatEnemyInstanceSequence) || combatEnemyInstanceSequence < 0 ||
+        combatEnemyInstanceSequence >= Number.MAX_SAFE_INTEGER)
+      fail('runtime identity capacity exhausted');
+    // The legacy missing-template paths remain inert, now before selection RNG.
+    if (candidates.some(t=>!t)) return false;
+    for (const t of candidates) {
+      const fields=Object.getOwnPropertyDescriptors(t);
+      if (Reflect.ownKeys(fields).some(k=>!Object.hasOwn(fields[k],'value')) ||
+          ['instanceId','slot','observeCount','escapeUnlocked'].some(k=>k in t))
+        fail('invalid enemy template metadata');
+      if (!['hp','maxHp','atk','def','spd','xp','goldMin','goldMax'].every(k=>Number.isSafeInteger(t[k])&&t[k]>=0) ||
+          !t.hp || t.hp>t.maxHp || t.goldMax<t.goldMin || typeof t.id!=='string') fail('invalid enemy template');
+    }
+    if (remaining!==undefined && (!Number.isInteger(remaining)||remaining<0||remaining>2)) fail('invalid chain count');
+    if (!Number.isFinite(stats.hp)||stats.hp<=0||!Array.isArray(stats.items)||!Array.isArray(statusEffects)) fail('invalid player state');
+    for (const [key,field] of Object.entries(Object.getOwnPropertyDescriptors(combat)))
+      if (Object.hasOwn(field,'value') && field.writable!==true) fail('combat field is not writable: '+key);
+    if (name==='startLenswebSpiderCombat' && (lighthouse_spider_resolved || !getActiveLighthouseObjective())) return false;
+    if (name==='startTrappedDrownedCombat' && (window.sunken_gallery_drowned_slain || window.sunken_gallery_drowned_freed)) return false;
+    if (name==='pale_sentry' && (!Number.isSafeInteger(pale_sentry_hp) || pale_sentry_hp<=0 || pale_sentry_hp>PALE_SENTRY_TEMPLATE.maxHp))
+      fail('invalid persistent Sentry HP');
+    return true;
+  };
+  const check = (name,remaining) => requireSingletonEncounter(name,remaining);
+  const dialogueCheck = id => {
+    if(id==='gallery_receiver') return true; // separate established Formation owner
+    if(combat.active) fail('combat owner is not idle');
+    if(!routes[id] || typeof ENCOUNTER_HANDLERS[id]!=='function') {
+      console.warn('Scripted combat entry: unknown dialogue encounter '+id);
+      return false;
+    }
+    if (!check(routes[id],id==='mire_toad_spawn'?2:undefined)) return false;
+    if (id==='kolm_brawler' && (!Number.isSafeInteger(stats.gold)||stats.gold<50)) fail('Kolm stake unavailable');
+    if (id==='mimic_potion') {
+      if (!PICKUP_REGISTRY.pickup_sunken_gallery_mimic) fail('missing Mimic pickup');
+      if (PICKUP_REGISTRY.pickup_sunken_gallery_mimic.picked) return false;
+    }
+    return true;
+  };
+  return Object.freeze({preflight, dialogue:dialogueCheck,
+    callback(name,callback,remaining,eligible=()=>true) {
+      if(typeof callback!=='function') fail('invalid callback');
+      const route=Object.keys(routes).find(id=>routes[id]===name);
+      const checkEntry=()=>{
+        if(!eligible()) return true; // e.g. the existing insufficient-stake dialogue
+        if(combat.active) fail('combat owner is not idle');
+        if(!check(name,remaining)) return false;
+        return route && remaining===undefined ? dialogueCheck(route) : true;
+      };
+      const wrapped=function(){if(checkEntry())return callback();};
+      callbacks.set(wrapped,checkEntry);return wrapped;
+    },
+    checkCallback(callback) {
+      if(callback!=null && typeof callback!=='function') fail('invalid callback');
+      if(!canonicalPartyCombat.checkHandoffCallback(callback))return false;
+      return callbacks.has(callback)?callbacks.get(callback)():true;
+    },
+  });
+})();
+
 // The Seep's second half — a smaller mass that pulls itself together after the
 // parent is struck down. Reduced HP and only token rewards (the parent already
 // paid out); its danger is the extra round of atk-45 swings, not more loot.
 function startSeepSplitCombat(remaining) {
   assertSinglePlayerExecution();
+  if (!requireSingletonEncounter("startSeepSplitCombat", remaining)) return;
   const t = ENEMY_TEMPLATE_REGISTRY.enemy_the_seep;
   if (!t) return; // Registry corruption: fail closed without creating combat.
   combat.enemy = { ...t, hp: 20, maxHp: 20, xp: 20, goldMin: 0, goldMax: 3 };
@@ -3685,6 +4132,8 @@ function startSeepSplitCombat(remaining) {
 
 function startRainfishCombat(remaining) {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startRainfishCombat',remaining);
+  if (!requireSingletonEncounter("startRainfishCombat", remaining)) return;
   // remaining: how many fights still come AFTER this one (2 = first of 3, 1 = second, 0 = last)
   const intros = [
     'The last one turns on you.',      // remaining === 0
@@ -3710,6 +4159,8 @@ function startRainfishCombat(remaining) {
 // freshly randomized for every investigation rather than authored or saved.
 function startMireToadSpawnCombat(remaining) {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startMireToadSpawnCombat',remaining);
+  if (!requireSingletonEncounter("startMireToadSpawnCombat", remaining)) return;
   const ids = ['enemy_mire_toad_male', 'enemy_mire_toad_female'];
   const t = ENEMY_TEMPLATE_REGISTRY[ids[Math.floor(Math.random() * ids.length)]];
   if (!t) return; // Registry corruption: fail closed without creating combat.
@@ -3784,6 +4235,8 @@ function endCombat() {
 
 function startBossCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startBossCombat');
+  if (!requireSingletonEncounter("startBossCombat")) return;
   combat.enemy          = { ...BOSS_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3799,6 +4252,8 @@ function startBossCombat() {
 
 function startWardenCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startWardenCombat');
+  if (!requireSingletonEncounter("startWardenCombat")) return;
   combat.enemy          = { ...BRIAR_WARDEN_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3814,6 +4269,7 @@ function startWardenCombat() {
 
 function startFortGuardCombat() {
   assertSinglePlayerExecution();
+  if (!requireSingletonEncounter("startFortGuardCombat")) return;
   combat.enemy          = { ...SMUGGLER_GUARD_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3829,6 +4285,7 @@ function startFortGuardCombat() {
 
 function startFortPolwickCombat() {
   assertSinglePlayerExecution();
+  if (!requireSingletonEncounter("startFortPolwickCombat")) return;
   combat.enemy          = { ...POLWICK_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3845,6 +4302,7 @@ function startFortPolwickCombat() {
 
 function startFortEssaCombat() {
   assertSinglePlayerExecution();
+  if (!requireSingletonEncounter("startFortEssaCombat")) return;
   combat.enemy          = { ...ESSA_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3860,6 +4318,8 @@ function startFortEssaCombat() {
 
 function startMulhollandCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startMulhollandCombat');
+  if (!requireSingletonEncounter("startMulhollandCombat")) return;
   combat.enemy          = { ...MULHOLLAND_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3875,6 +4335,8 @@ function startMulhollandCombat() {
 
 function startDenWraithCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startDenWraithCombat');
+  if (!requireSingletonEncounter("startDenWraithCombat")) return;
   combat.enemy          = { ...DEN_WRAITH_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3890,6 +4352,8 @@ function startDenWraithCombat() {
 
 function startSailorBrawlCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startSailorBrawlCombat');
+  if (!requireSingletonEncounter("startSailorBrawlCombat")) return;
   combat.enemy          = { ...SAILOR_BRAWLER_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3905,6 +4369,8 @@ function startSailorBrawlCombat() {
 
 function startTakomoCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startTakomoCombat');
+  if (!requireSingletonEncounter("startTakomoCombat")) return;
   combat.enemy          = { ...TAKOMO_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3925,6 +4391,8 @@ function startTakomoCombat() {
 // handled by applyKillRewards' `guaranteedDrop` path.
 function startMimicPotionCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startMimicPotionCombat');
+  if (!requireSingletonEncounter("startMimicPotionCombat")) return;
   combat.enemy          = { ...MIMIC_POTION_TEMPLATE };
   combat.active         = true;
   combat.phase          = 'choose';
@@ -3948,11 +4416,14 @@ function startMimicPotionCombat() {
 // or the spider is already resolved, no combat starts and nothing is left pending.
 function startLenswebSpiderCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startLenswebSpiderCombat');
+  if (!requireSingletonEncounter("startLenswebSpiderCombat")) return;
   if (lighthouse_spider_resolved) return;             // never re-run the event
   const objective = getActiveLighthouseObjective();   // the one route/item authority
   if (!objective) return;                             // malformed/none: fail closed, no combat
 
   combat.enemy          = { ...LENSWEB_SPIDER_TEMPLATE };
+  lenswebSpiderEnemy    = combat.enemy;
   combat.active         = true;
   combat.phase          = 'choose';
   combat.cursor         = 0;
@@ -3983,6 +4454,13 @@ function finalizeLenswebSpiderEvent() {
   if (lighthouse_spider_resolved) return null;
   const objective = combat.pendingLighthouseObjective;
   if (!objective) return null;
+  const enemy=lenswebSpiderEnemy;
+  const victory=combat.phase==='victory' && combat.pendingVictory && enemy?.hp===0 &&
+    singletonRewardedEnemies.get(enemy)==='complete';
+  const escape=combat.pendingEscape && enemy?.escapeUnlocked && enemy.observeCount>0;
+  if (!enemy || !combat.active || combat.enemy!==enemy || stats.hp<=0 ||
+      combat.messageQueue.length || (!victory&&!escape) || objective!==getActiveLighthouseObjective())
+    throw Error('Invalid Lensweb Spider finalization');
   grantItem(objective);
   lighthouse_spider_resolved = true;
   syncQuestFlagsToWindow();
@@ -3993,11 +4471,17 @@ function finalizeLenswebSpiderEvent() {
 // down rather than free it (interactions.js). An ordinary Pale Drowned fight
 // (SUNKEN_GALLERY_ENEMY_TEMPLATES[0]) with its own opening line — victory,
 // defeat, and flight are all handled by the generic combat resolution. The
-// clue it was snagged on is destroyed at the moment of the choice, not here,
-// so fleeing the fight doesn't get the clue back.
+// persistent slain flag is written only on acknowledged victory. A private
+// runtime binding distinguishes this event from ordinary Pale Drowned encounters.
+let trappedDrownedEnemy = null;
+let lenswebSpiderEnemy = null;
+const singletonRewardedEnemies = new WeakMap();
 function startTrappedDrownedCombat() {
   assertSinglePlayerExecution();
+  if(canonicalPartyCombat.hasMultipleMembers())return scriptedPartyEncounters.start('startTrappedDrownedCombat');
+  if (!requireSingletonEncounter("startTrappedDrownedCombat")) return;
   combat.enemy          = { ...SUNKEN_GALLERY_ENEMY_TEMPLATES[0] };
+  trappedDrownedEnemy   = combat.enemy;
   combat.active         = true;
   combat.phase          = 'choose';
   combat.cursor         = 0;
@@ -4446,6 +4930,10 @@ function enemyTurnResponse(enemy, textFn) {
 function applyKillRewards(enemy, msgs) {
   assertSinglePlayerExecution();
   if (!isActiveCombatEnemy(enemy)) return;
+  if (singletonRewardedEnemies.get(enemy)==='complete') return;
+  if (singletonRewardedEnemies.has(enemy)) throw Error('Singleton reward resolution cannot be retried');
+  // Claim before reward RNG: an unexpected failure must not rerun an award.
+  singletonRewardedEnemies.set(enemy,'resolving');
   msgs.push(`${enemy.name} was defeated!`);
   stats.xp += enemy.xp;
   msgs.push(`Gained ${enemy.xp} XP!  (Total: ${stats.xp})`);
@@ -4471,6 +4959,7 @@ function applyKillRewards(enemy, msgs) {
     combat.gullStolenAmount = 0;
   }
   combat.pendingVictory = true;
+  singletonRewardedEnemies.set(enemy,'complete');
 }
 
 // Custom observation text keyed by STABLE ENEMY TEMPLATE ID (enemy.id), not
@@ -4805,10 +5294,19 @@ function recoverCombatDefeat() {
   assertSinglePlayerExecution();
   const completedRecovery = completedSingleExitCandidate(true);
   stats.hp   = stats.maxHp;
-  stats.gold = 0;
-  day++;
   ['poison', 'muddied', 'slither', 'cursed'].forEach(id => removeStatusEffect(id));
   endCombat();
+  applyCombatDefeatWorldRecovery();
+  if (!defeatWakeAtHome || (activeMap === HOUSE_INTERIOR_MAP && currentHouseId === 'player_house'))
+    completedSingleVictoryReceipt = completedRecovery;
+}
+
+// Shared world consequences, after each combat owner has committed/recovered
+// its own actors. No singleton or party-session cleanup belongs here.
+function applyCombatDefeatWorldRecovery() {
+  stats.gold = 0;
+  day++;
+  let placementSucceeded = true;
   dialogue.name  = '';
   if (defeatWakeAtHome) {
     // Someone carried you home: wake beside your own bed in the Calwick
@@ -4825,7 +5323,7 @@ function recoverCombatDefeat() {
     // (Tobb Wend). Toggleable from the debug menu ("Home on Defeat").
     resetBridgeGuards();
     if (typeof resetAllPatrols === 'function') resetAllPatrols();
-    transitionToLocation({
+    placementSucceeded = transitionToLocation({
       mapId: 'HOUSE_INTERIOR_MAP', x: 9.5 * TILE, y: 3.5 * TILE, facing: 'down', // on the floor beside the bed
       state: {
         inTown: true, currentTownId: 'calwick', townBuilding: 'house', currentHouseId: 'player_house',
@@ -4839,24 +5337,33 @@ function recoverCombatDefeat() {
   }
   dialogue.open  = true;
   dialogue.page  = 0;
-  if (!defeatWakeAtHome || (activeMap === HOUSE_INTERIOR_MAP && currentHouseId === 'player_house'))
-    completedSingleVictoryReceipt = completedRecovery;
+  return placementSucceeded && (!defeatWakeAtHome || (activeMap === HOUSE_INTERIOR_MAP && currentHouseId === 'player_house'));
 }
 
 function handleCombatAction() {
   assertSinglePlayerExecution();
   if (combat.mode === 'formation') throw new Error('Formation state cannot process singleton actions');
+  if (!combat.active) return; // terminal acknowledgement must not finalize twice
   if (combat.phase === 'message') { advanceCombatMessage(); return; }
   if (combat.phase === 'victory') {
+    if (trappedDrownedEnemy) {
+      const enemy=trappedDrownedEnemy;
+      if (!combat.active || findCombatEnemy(enemy.instanceId)!==enemy || enemy.hp!==0 || stats.hp<=0 ||
+          !combat.pendingVictory || combat.messageQueue.length || singletonRewardedEnemies.get(enemy)!=='complete')
+        throw Error('Invalid trapped Drowned victory');
+      window.sunken_gallery_drowned_slain = true;
+      trappedDrownedEnemy = null;
+    }
     if (combat.isMireToadSpawn) {
       if (combat.mireToadRemaining > 0) {
         const nextRemaining = combat.mireToadRemaining - 1;
+        if (!requireSingletonEncounter('startMireToadSpawnCombat',nextRemaining)) return;
         endCombat();
         dialogue.name = '';
         dialogue.pages = [[nextRemaining === 1
           ? 'The first toad sinks into the mud. The spawning bed convulses again.'
           : 'The second toad falls. One last shape churns through the reeds.']];
-        dialogue.callbacks = [function() { startMireToadSpawnCombat(nextRemaining); }];
+        dialogue.callbacks = [scriptedCombatEntry.callback('startMireToadSpawnCombat', function() { startMireToadSpawnCombat(nextRemaining); }, nextRemaining)];
         dialogue.open = true;
         dialogue.page = 0;
       } else {
@@ -4884,10 +5391,11 @@ function handleCombatAction() {
       if (combat.rainfishRemaining > 0) {
         // Chain the next rainfish fight after a brief interstitial.
         const nextRemaining = combat.rainfishRemaining - 1;
+        if (!requireSingletonEncounter('startRainfishCombat',nextRemaining)) return;
         endCombat();
         dialogue.name  = '';
         dialogue.pages = [[ nextRemaining === 1 ? 'Another one follows.' : 'One more.' ]];
-        dialogue.callbacks = [function() { startRainfishCombat(nextRemaining); }];
+        dialogue.callbacks = [scriptedCombatEntry.callback('startRainfishCombat', function() { startRainfishCombat(nextRemaining); }, nextRemaining)];
         dialogue.open  = true;
         dialogue.page  = 0;
       } else {
@@ -4908,10 +5416,11 @@ function handleCombatAction() {
       if (combat.seepSplitRemaining > 0) {
         // The mass doesn't die — it splits. Chain the smaller half immediately.
         const nextRemaining = combat.seepSplitRemaining - 1;
+        if (!requireSingletonEncounter('startSeepSplitCombat',nextRemaining)) return;
         endCombat();
         dialogue.name  = '';
         dialogue.pages = [['The Seep bursts apart — but the pieces are still moving.']];
-        dialogue.callbacks = [function() { startSeepSplitCombat(nextRemaining); }];
+        dialogue.callbacks = [scriptedCombatEntry.callback('startSeepSplitCombat', function() { startSeepSplitCombat(nextRemaining); }, nextRemaining)];
         dialogue.open  = true;
         dialogue.page  = 0;
       } else {
@@ -5035,6 +5544,7 @@ function handleCombatAction() {
     }
     if (combat.isWarden) { warden_quest_defeated = true; refreshJobBoard(); }
     if (combat.isFortGuard) {
+      if (!requireSingletonEncounter('startFortPolwickCombat')) return;
       fort_quest_stage = 2;
       syncQuestFlagsToWindow();
       endCombat();
@@ -5049,6 +5559,7 @@ function handleCombatAction() {
       return;
     }
     if (combat.isFortPolwick) {
+      if (!requireSingletonEncounter('startFortEssaCombat')) return;
       fort_quest_stage = 3;
       syncQuestFlagsToWindow();
       endCombat();

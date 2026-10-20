@@ -1,23 +1,446 @@
 # Architecture
 
+## Canonical party finalization policy (Pass 6)
+
+See the current Pass 6 contract in `CANONICAL_PARTY_COMBAT.md`.
+`partyTerminalOutcome` gives no-survivor defeat precedence in party resolution
+and historical validation. `persistentParty.commitCombat` retains zero HP;
+`awardRewards` grants full XP only to living terminal members, shared resources
+once, and detached per-member/per-level presentation in stable slot order.
+Canonical finalization prepends those pages without replacing authenticated
+story callbacks. A failed reward commit keeps its receipt evidence and refuses
+save/retry. `hasLivingMember` gates stable-field saving; load preparation rejects
+all-Fallen data before writers. Field poison/Curse/cat damage preserve zero HP;
+authored rest/treatment still restores Lely. No new persistent schema exists.
+
+## Authenticated scripted party encounters (Pass 5)
+
+`scriptedPartyEncounters` is the sole story-lifecycle owner for scripted fights
+that remain reachable after canonical recruitment. Interaction, movement and
+dialogue code still own proximity and authored choice prerequisites;
+`scriptedCombatEntry` asks the lifecycle owner for a read-only canonical
+preflight before consuming those UI states. The owner snapshots that exact UI
+boundary so `validateInactiveCombatPreparation()` can inspect it without closing,
+spoofing or rewriting it.
+
+The lifecycle owner does not resolve combat. It issues a private token binding a
+starter, ordered template and runtime enemy identities, lifecycle capability set, escape policy,
+origin and objective. `canonicalPartyCombat`, `persistentParty` and the existing
+standard session require the token through validation and installation. The
+canonical resolver continues dispatching mechanics only through capability
+metadata. Story finalization receives the exact token and terminal enemy snapshot
+after authenticated canonical writeback/rewards and accepts it once.
+
+Activation-time writes are limited to existing semantics: Kolm's stake, Lensweb
+poison, Rainfish wake state and Mimic trap consumption. Persistent victory writes,
+route items, board refreshes, payouts and follow-up callbacks occur only at
+authenticated finalization. Pending Rainfish/Mire callbacks are origin-bound and
+save-blocking. The fort trio remains singleton-owned and the Receiver trio remains
+Formation-owned because both routes are necessarily resolved before MQ5.
+
+Static `runLock` and `guaranteedDrop` fields remain capability metadata rather
+than mutable actor fields. Observe-gated and guaranteed-drop behavior is read
+from the validated mechanic profile; immutable battle snapshots carry only state
+that can change during combat. This keeps duplicate instances independent and
+avoids adding template metadata to result/playback schemas.
+
 No build step: every file is a plain `<script src="...">` tag in `index.html`,
 loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 `function` declared in one file is just a bare global name in every file
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 182 regression suite
+Current integration totals: 208 maps, 107 regional chunks, 190 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
-### Resonance MVP (Lab-only activation)
+### Canonical party encounters
+
+`canonical-party-combat.js` owns real party encounters. One-member rosters
+retain the singleton path in normal gameplay. `startCombat()` selects through the existing geographic
+pool and overrides before calling the explicit `enter({enemies,escape})` boundary;
+unsupported selections fail closed, without installing singleton state. Entry
+accepts one to three exact capability-compatible templates (or template IDs), validates the
+canonical roster, equipment, statuses, arithmetic, policy and cleanup readiness,
+then obtains the private persistent-party bridge ticket. No combat RNG or identity
+allocation occurs before validation. Selection RNG remains upstream of entry.
+
+The standard session owns commands, exact targets, effects and historical playback.
+Canonical resources remain with `stats`/`statusEffects`/`slitherSpd` and
+`persistentParty`; authenticated terminal commitment occurs once. Victory grants
+full XP to every living terminal member and shared rewards once through the existing
+reward ledger; escape grants none. Defeat recovers all members and uses the shared
+`applyCombatDefeatWorldRecovery()` time/gold/location authority. It never invokes
+singleton cleanup. A failed resolution/finalization retains evidence, blocks
+retry, simulation, saving/loading, and entry into other combat owners.
+
+`render-party-battle.js` draws one detached immutable view. The Lab renderer is a
+thin caller of this shared presentation; canonical combat has no Lab-state/API
+dependency. Input uses the existing listener and key latch. `combat.active` retains
+its singleton/Receiver meaning; canonical activity is explicit and session-owned.
+Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
+see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
+
+### Enemy capability authority — Pass 3
+
+`enemy-capabilities.js` loads after `combat.js` has registered every template and
+before `encounter-formations.js` prepares authored sides. It derives one deeply
+frozen `{templateId, capabilities}` record per exact registered identity. Records
+and arrays are closed plain data. Capability IDs are stable, unique strings from
+`ENEMY_CAPABILITY_DEFINITIONS`; unknown IDs, unknown behavior-bearing template
+fields, accessors, custom prototypes, mutable arrays, duplicate capabilities,
+missing ordinary fields and stale registry coverage fail closed at startup or
+preparation.
+
+The canonical engine supports the mechanic registry `basic_attack`,
+`standard_observe`, `standard_rewards`, `boss_escape_lock`, `brace`,
+`curse_on_hit`, `void_shard_burst`, `acid_corrosion`, `slither_on_hit`,
+`poison_spell`, and `dazzle_on_hit`. Compatibility is
+set inclusion over the template's complete requirements. Template identity proves
+registration only. `ENEMY_TEMPLATE_FIELD_CAPABILITIES` maps existing behavior
+fields such as `defendChance`, `regenPerTurn` and `stealAndFlee` to explicit
+requirements. `ENEMY_HIDDEN_CAPABILITIES` records behavior found in legacy
+ID-specific execution or scripted outcome branches; it can only add requirements,
+never approve an identity. `PARTY_ATTACK_TEMPLATE_IDS` no longer exists.
+
+`preparePartyEnemyFormation()` requires exact registration, complete capability
+support, closed template data and safe actual arithmetic independently of the
+player roster. Two/three-enemy canonical installation uses the same capability
+check through `validateCanonicalFormationDescriptors`; the older
+`validateFormationDescriptors` and `FORMATION_STATE_TEMPLATE_IDS` remain private
+to Formation/Receiver compatibility. All validation completes before RNG,
+identity allocation or mutation. The full 60-template classification, encounter
+sources and direct mechanic references are in
+[ENEMY_CAPABILITY_AUDIT.md](ENEMY_CAPABILITY_AUDIT.md).
+
+The 22 Pass 3 ordinary templates, eight Pass 4A Brace templates and seven Pass
+4B landed-hit special templates may occupy any one to three enemy slots. Duplicate
+templates allocate independent runtime IDs, HP and Observe progress without slot
+compaction. The party renderer reuses each singleton sprite and applies one shared
+layout envelope only when no legacy Formation measurement exists. Pools and
+weights remain authored as before, so production encounters remain single-enemy.
+Pass 4C below adds the eight unusual templates (45 total supported). The 15
+scripted-lifecycle templates retain explicit capability rejection for Pass 5.
+
+### Brace — Pass 4A
+
+The singleton `handleCombatAction()` Attack branch is the semantic authority.
+It rolls initiative, then `defendChance` when truthy, then both damage pairs even
+when the enemy will not attack. A successful Brace replaces the enemy attack,
+bypasses evasion and Cursed-fumble rolls, and applies
+`max(1, floor(rolled melee damage / 2))`. The rolled critical multiplier is included
+before halving, but the critical message is suppressed. Protection ignores the
+initiative result. It is local to that exchange, with no timer or persistent
+state. Item, Observe and Run branches never select Brace; offensive items and
+delayed Bomb damage are unaffected. Tomb Sentry's Observe text mentions a fixed
+interval, but actual runtime authority uses its authored 30% chance; neither
+the text nor the singleton behavior changes here.
+
+The user explicitly chose legacy exchange-wide timing and Attack-only eligibility
+for canonical combat. Each living enemy targeted by at least one committed melee
+Attack gets one decision, independent of other enemies and the number of incoming
+Attacks. Successful protection covers every melee Attack on that exact enemy in
+the round, including attacks before its scheduled slot. The enemy still occupies
+its weighted-initiative slot; its scheduled action records holding the guard
+instead of attacking. If defeated first, that slot records `actor_dead`, or is
+truncated by a terminal outcome. There is no later activation or replacement
+attack. Guard decisions already recorded at round start remain historical evidence.
+
+Compatibility remains capability-driven. The existing `defendChance` field is a
+finite number in [0,1]; zero retains the legacy no-draw behavior. Closed template
+validation requires exact registered data and all capabilities to be supported.
+The entire formation and actual arithmetic validate before RNG/identities/live
+installation. No Brace identity list exists. Formation/Receiver and the older
+Attack-only preparation API keep their separate restrictions; standard canonical
+sessions execute Brace.
+
+The minimal mutable mechanic state is `commandBattle.braced`, a private Set of
+exact runtime enemy IDs. It is not on templates or canonical characters. Only
+Brace-bearing snapshot enemies add `defendChance` and `braced: boolean`;
+non-Brace records retain their old shape. All completed-round snapshots have
+`braced:false`. Guard clears after action/effect resolution, also on terminal
+escape/victory/defeat, before the round boundary. Existing lifecycle owners still
+perform one-time HP/status/equipment/inventory writeback, rewards and recovery.
+No Brace state, decision, reel or identity enters the save payload.
+
+Canonical RNG order is deterministic:
+
+1. Living enemy slot order: one decision draw for each eligible positive-chance
+   bracer; then one ally-target draw only if it attacks and multiple allies live.
+   Brace has `targetId:null` and no target-selection draw.
+2. Existing allied Slither samples in slot order.
+3. Exactly N−1 weighted initiative draws for N living actors, including bracers.
+4. Existing scheduled action draws. A protected melee hit draws variance and
+   critical only (two draws); an ordinary non-Cursed attack draws variance,
+   critical and evasion (three). Skips/cancellations and scheduled Brace draw none.
+5. Existing round-end effects. Playback/render/acknowledgement draw nothing;
+   terminal world reward finalization retains its separate existing reward draws.
+
+Representative full-round counts with no extra statuses/effects and nonlethal
+hits (suite 187 uses explicit tapes):
+
+| Round | Decisions | Target draws | Initiative | Execution | Total |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1v1 successful Brace | 1 | 0 | 1 | 2 | 4 |
+| 1v1 failed Brace, both attack | 1 | 0 | 1 | 6 | 8 |
+| 1v1 Observe, enemy attacks | 0 | 0 | 1 | 3 | 4 |
+| 2v1 successful Brace, both allies attack | 1 | 0 | 2 | 4 | 7 |
+| 2v2 duplicate bracers, both brace | 2 | 0 | 3 | 4 | 9 |
+| 2v2 duplicate bracers, one braces/one attacks | 2 | 1 | 3 | 8 | 14 |
+| 2v2 bracer killed before its slot, ordinary enemy survives | 1 | 1 | 3 | 8 | 13 |
+| 3v3, three independently targeted bracers | 3 | 0 | 5 | 6 | 14 |
+
+Only eligible enemy command records add closed
+`brace:{chance,roll,selected}`. Histories add `brace_check` (round-start decision
+and before/after state), scheduled `brace`, and `brace_end` events. Protected
+Attack events add `brace:{before,after,unmodifiedDamage,rolledCritical}`;
+`attemptedDamage` is the halved result and existing applied-damage/HP fields retain
+their meaning. The detached validator checks identities, eligibility, decision
+thresholds, active-state continuity, halving, flags, skips, cleanup and exact final
+projection. It never reruns AI, damage formulas or RNG. Frame zero remains the
+pre-round state; each next frame projects one recorded event. Inconsistent or
+out-of-order histories reject. Unexpected execution faults retain diagnostics
+(including consumed Brace decision count) and prohibit retry without rollback.
+
+The shared party renderer reads only the historical view, adds minimal Brace
+messages and a `BRACE` badge, and calls registered sprites with their own default
+optional arguments. This is required by Stone Crawler's palette parameter.
+Singleton/Formation rendering is untouched. No Lab scenario or production group
+was added; existing single-enemy pools keep their probabilities and count.
+
+### Landed-hit status and offensive riders — Pass 4B
+
+`canonicalEnemyMechanicProfile(template)` is the closed execution contract for
+supported enemy mechanics. Field-backed probabilities remain on the registered
+template; legacy parameters without template fields live in deeply frozen
+capability metadata. The resulting record is closed, immutable and keyed by
+capability. Formation preparation copies only fields mapped to supported
+capabilities. Installation maps each exact enemy runtime ID to its validated
+profile, so duplicates never share decisions or mutable state. Canonical
+resolution dispatches capabilities in stable legacy order and never dispatches
+on template identity.
+
+Shade Wraith and Corpse Slug apply Slither after a surviving landed hit with 25%
+and 30% chances. A success draws once more to sample Speed 1–20. Fen Witch uses
+the same landed-hit structure at 25% for poison; Fen Mask blocks the application
+after the chance succeeds. Void Walker and Dust-Drowned use their authored 20%
+Curse chance; Amethyst Bangle blocks the application after the draw. Void Walker
+then independently checks a 35% shard burst on every eligible landed hit. Carrying
+a Void Shard wards it without consumption or damage RNG; otherwise a second draw
+selects 8–14 extra damage. Lantern Moth checks 40% for combat-only Dazzled, whose
+only modifier is the established eight-point outgoing Attack accuracy penalty.
+Dripping Maw checks 35% for one combat-only Defence corrosion stack, capped at six.
+
+These riders do not select a distinct enemy action and do not replace Attack.
+Enemy command planning still commits only actor and exact target. With two or
+three living allies, each attacking enemy consumes one target-selection draw;
+with one living ally it consumes none. The N−1 initiative draws follow. A landed
+ordinary Attack consumes variance, critical and evasion draws, then each eligible
+rider consumes its chance draw and only the conditional secondary draws described
+above. Misses, base-hit Fallen targets, dead actors and dead committed targets
+consume no rider RNG. Cancellation never retargets or refunds earlier planning
+RNG. Playback, rendering, preparation, projection and acknowledgement draw none.
+
+Status ownership stays per canonical member: Lely uses the existing stats/status
+authority; companions use `persistentParty`. Slither's sampled Speed and Acid
+corrosion are per-member battle effects. Statuses applied during a round are
+recorded immediately for playback but excluded from already committed same-round
+command mechanics and initiative; they become active for the following round.
+Slither, poison and Curse retain existing cure/writeback/recovery rules. Dazzled
+and corrosion are transient combat state and are omitted from saves and cleanup
+writeback. No global status flag or shared-template state exists.
+
+Results record `enemy_effect_check`, `enemy_status`, `enemy_shard_burst` and
+`enemy_corrosion`. The immutable playback validator captures poison/Curse ward
+metadata with the existing item vocabulary, verifies every roll threshold and
+state transition, and projects exactly one event per frame from the historical
+frame-zero snapshot. Tampered identity, target, status, ward, sampled Speed,
+corrosion, damage or final snapshot fails closed. The renderer consumes only this
+view and adds concise event text plus a `COR` badge for corrosion.
+
+### Unusual enemy mechanics — Pass 4C
+
+The eight unusual templates bring mechanical support to 45/60; the other 15
+remain guarded scripted lifecycles. No production pool/formation was authored.
+`enemy-capabilities.js` owns immutable mechanic profiles; execution dispatches
+through capabilities, never enemy IDs. Authored numeric template fields remain
+unchanged. Exact legacy semantics, approved translations, RNG examples and tests
+are in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md#pass-4c--unusual-ordinary-mechanics)
+and the complete [enemy audit](ENEMY_CAPABILITY_AUDIT.md).
+
+The generalized round owner stores per-instance `unusual` state: Troll
+`{suppressedTurns,suppressedRound}`, Gull `{stolenGold,stolenRound,departed}`.
+It is never written to templates or saves. Troll regeneration uses approved
+round-end HP after existing burn/Bomb ticks; terminal outcomes suppress it.
+Trollbane cancels the target's still-unexecuted action and suppresses three later
+healing checks, exempting application-round decrement. Thornback's authored
+melee DEF applies only to Attack. Approved counters occur immediately after each
+surviving melee exchange, against its exact attacker, never retargeting. Toads
+compose the existing poison rider with exact-instance Observe and sex/reagent
+handling. Correct reagents work without an Observe prerequisite.
+
+Gulls steal gold only, once per exact instance. The approved grace is a complete
+subsequent party round. Departure retains slot/HP/history while excluding the
+actor from targeting/initiative. Its shared battle purse is snapshotted only for
+Gull battles; authenticated `persistentParty.commitCombat()` writes it once to
+existing `stats.gold`. Killing a Gull returns its stolen amount once. As explicitly
+authorized, resolving a mixed formation after departure grants rewards only for
+defeated slots, through the existing reward ledger. Voluntary Run pays nothing.
+The Pass 6 policy above now governs universal rewards, Fallen state and recovery.
+
+`canonical-enemy-records.js`, loaded after capability metadata, issues immutable
+private-provenance records for selected generated 23 and smaller Seep successors.
+The original record reference is required at entry; copies/forgeries and the raw
+23 sentinel reject. Generated stats use exactly seven existing selection draws;
+actual arithmetic validates before any combat identity or installation. Historical
+origin evidence is retained for detached validation without generation or rerolls.
+
+A defeated parent Seep queues a separate smaller battle, with its own identities
+and rewards. The canonical owner holds a one-use callback/token; the existing
+`scriptedCombatEntry.checkCallback()` hook asks it to preflight before dialogue
+advances. The private token passes through existing preparation to permit only
+that authenticated interstitial, without temporarily changing dialogue state.
+Arbitrary tokens reject. Saves/loads refuse until the handoff completes. The old
+Guard/Polwick/Essa singleton chain remains separate. Same-slot round-boundary
+replacement remains a deliberate future extension.
+
+New recorded events cover regeneration, counters, theft, gold recovery and
+flight; armor records its numeric evidence. Reagents/Trollbane use existing item
+snapshots. Creation validates closed histories and recorded arithmetic witnesses;
+frame projection and rendering read immutable frames without calling live combat,
+AI or RNG. Later rounds/encounters cannot change historical views. The shared
+renderer adds concise messages and a FLED badge; legacy singleton/Formation
+presentation, SAVE_VERSION 5 and geographic artifacts remain unchanged.
+
+### Structural canonical battle envelope — Pass 2
+
+The explicit canonical boundary supports one to three authored ally slots against
+one to three enemy slots. This adds no normal-game route: recruitment still gates
+automatic canonical entry, Chapter One still uses singleton combat, and the
+Receiver still owns its established Formation lifecycle. No third production
+character is introduced. Pass 3 later expands compatible ordinary enemies without
+changing this structural envelope.
+
+`canonicalPartyCombat.preparePlayerSide({escape})` reads the canonical roster
+through `persistentParty.prepareCombat` and the private bridge's existing command
+seed validator. It validates authored IDs/slots, unique membership, HP/statuses,
+equipment, shared inventory, Rareborn bindings and prepared arithmetic, requires
+at least one living ally, and retains Fallen slots. Lely remains owned by
+`stats`/`statusEffects`/`slitherSpd`; companion ownership remains `persistentParty`.
+The result is a frozen transient descriptor, not another mutable character owner.
+Its exact fields are `members`, `inventory`, `equipment`, `escape`, `resonance`,
+and optional `slither` when an existing Slither status needs its current sample.
+Each member has `characterId`, `slot`, `name`, `hp`, `maxHp`, `atk`, `def`, `spd`,
+`statuses`; inventory contains registered item IDs; each equipment row has
+`weapon`, `armor`, `shield`, `accessory` IDs or null. Resonance rows contain
+`characterId`, `slot`; Slither rows contain `slot`, `speed`. Equipment/capability
+rows correspond exactly to member slots. Escape is `blocked` or `fastest_living`.
+Level/XP/progression remain in their existing canonical owners, not runtime IDs.
+
+`canonicalPartyCombat.prepareEnemySide(enemies)` delegates to
+`preparePartyEnemyFormation` in `encounter-formations.js`. It accepts one to three
+ordered registered IDs or exact capability-compatible template data, checks numeric safety and
+the closed capability gate, and produces frozen templates and
+slot descriptors without reading the roster. Duplicate templates remain distinct
+slots. `prepare({enemies,escape})` composes these authorities into a frozen battle
+plan and additionally checks cross-side arithmetic, cumulative initiative weights,
+ownership, reward arithmetic and world cleanup. No RNG, identities, callbacks or
+live writes occur in preparation. `enter` revalidates current canonical state;
+external plans are not installation credentials. Identities are allocated only
+after validation, remain unique across later encounters, and never enter saves.
+The enemy-side result has exactly `ids`, `templates`, `slots`; each slot row is
+`{enemyId, slot}`. The combined plan has `templates`, `ids`, `playerSide`,
+`enemySide`, `escape`, `origin`, `xp`, `rewardId`, `memberIds`. Origin/reward fields
+are validated cleanup/reward context, not an installed callback or awarded reward.
+
+The existing generalized scheduler/controller/playback and presentation already
+support six actors. Each living ally drafts in slot order; reservations/backtracking
+remain per draft. Each living enemy samples a living ally once when there are
+multiple living allies and uses no target-selection RNG when there is only one.
+Initiative consumes N−1 draws (five for six actors). Targets remain frozen, dead
+actors skip, dead targets cancel, slots never compact, and effects/Strain advance
+once per completed round. Ally x positions remain 108, 256, 404. The older
+`combatPlayerState.initialize` two-member Attack-only API and the Formation
+enemy-storage two/three descriptor contract remain intentionally unchanged.
+
+`enemy-capabilities.js` loads after `combat.js` (registry/copy authorities), then
+`encounter-formations.js` loads before `persistent-party.js`. The exact authored
+record is:
+
+```js
+Object.freeze({
+  id: 'formation_example',
+  enemies: Object.freeze(['enemy_marsh_wisp', 'enemy_marsh_wisp']),
+  weight: 2,
+})
+```
+
+Only `id`, `enemies`, `weight` are allowed. IDs match `formation_[a-z0-9_]+`;
+the dense frozen enemy array contains one to three `enemy_[a-z0-9_]+` IDs in slot
+order. Weight and total table weight are positive safe integers. Records/arrays
+reject accessors, callbacks, extra fields, holes and mutable nested data. Authored
+formation IDs are unique per table and cannot alias generated shorthand IDs.
+`validateDefinition` checks immutable shape only; `normalizePool` also requires
+registration. Neither implies runtime capability approval. Existing registered
+template objects are shorthand for `{id:'formation_single_'+template.id,
+enemies:[template.id],weight:1}`; repeated legacy entries retain their weighting.
+
+`select(pool)` validates the entire table before exactly one `Math.random()` draw,
+including a one-entry table. All-flat tables use the existing `floor(roll*length)`
+index. Tables with explicit records use ordered cumulative half-open weight
+intervals. The normalized result and selection are frozen. Startup and
+`validateGameData()` validate registered pool data. Existing pools are unchanged;
+the current geographic selector and its separate rare-23 override retain their
+original RNG calls. Explicit weighted formations are data/preparation contracts
+only until a later authorized routing pass; none is installed in geography here.
+
+Suite 185 exercises all nine size combinations with a VM-only third definition,
+including six-actor commands, outcomes, reservations, history, rejection and IDs.
+Future Eastern Fens fixtures are shape-valid only: Mire Toad remains capability
+blocked, while Waspthra/Botfly are absent from this registry and fail registration.
+No mechanics are discarded to execute those records.
+
+### Scripted singleton entry lifecycle
+
+`scriptedCombatEntry` in `combat.js` supplies read-only preparation for the 15
+dedicated starters and the inline Pale Sentry override. `requireSingletonEncounter`
+retains the canonical roster gate and invokes this preparation. Authored callers
+own quest/proximity prerequisites and check before staging combat dialogue;
+registered choice/continuation callbacks carry their check in a WeakMap. Existing
+input and dialogue dispatch check before consuming the choice, final page or
+callback, then starters recheck before identities, RNG or combat writes.
+
+Fort arrest state, Kolm's stake, Mimic trap consumption and Rainfish wake state
+commit after successful activation. The trapped Drowned's existing slain flag
+commits only after victory for its exact bound enemy; defeat/escape allow retry.
+Lensweb finalization requires its exact enemy and victory or Observe-gated escape.
+Singleton reward receipts prevent duplicate awards and retain failed resolutions;
+inactive acknowledgement cannot repeat recovery. These runtime-only records do
+not change save version 5. Low-level singleton replacement remains available for
+the established normalization contract; world entry rejects active/foreign owners.
+See [the complete starter/lifecycle audit](SCRIPTED_COMBAT_ENTRY_AUDIT.md) and suite
+184. This does not expand canonical party enemy compatibility or alter Receiver/Lab
+ownership, formulas, valid RNG order or ordinary encounter selection.
+
+### Resonance MVP (Lab and canonical activation)
 
 `resonance.js` loads before `combat.js`; its closed, frozen registry contains
 exactly `quickbloom`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
 Lely `{rareBorn:false, affinity:null}` and Esla
 `{rareBorn:true, affinity:'bloommarked'}`. These static fields are not saved.
-The existing persistent combat bridge remains unconnected to ordinary encounters
-and does not opt into Resonance in this increment.
+Canonical encounters supply these bindings through persistent-party preparation.
+The original explicit headless API without a policy retains its older result shape.
+
+Every immutable technique definition now has a nonempty frozen `elements` array
+of unique stable IDs from `RESONANCE_ELEMENTS`: `bloommarked` and `firelit`.
+Quickbloom has `elements: Object.freeze(['bloommarked'])` and retains its separate
+Bloommarked affinity requirement. Affinity controls caster eligibility; elements
+identify which future elemental modifiers apply. Future modifiers must match
+these static elements, not technique IDs, character IDs or inferred caster
+affinity. Unknown, duplicate, empty, malformed and mutable element arrays reject.
+No Firelit technique, combined technique, elemental calculation or modifier item
+is added. Healing, Strain, RNG, result/event schemas and detached history remain
+unchanged; playback does not duplicate static element metadata.
 
 Command preparation optionally accepts `resonance:[{slot,characterId}]`, one
 binding per member. A shared pure validator checks each against authored
@@ -125,9 +548,9 @@ Lifecycle APIs:
   Lely-only. Reset clears the roster/receipt ledger, leaving the existing Lely
   new-game initialization authority in place.
 - `awardExperience(id,xp)` / `awardRewards({id,xp,gold,items})` give every recruited
-  member full XP, including knocked-out members. Lely uses unchanged `checkLevelUp`
+  living member full XP; knocked-out members receive none. Lely uses unchanged `checkLevelUp`
   (three existing growth draws per level); Esla grows independently/deterministically.
-  KO HP stays zero during XP. The saved receipt prevents repeat XP, gold and item
+  KO HP and progression stay unchanged. The saved receipt prevents repeat XP, gold and item
   grants; a reused ID with different contents rejects. Headless results identify
   each member with before/after values. Invalid awards reject before RNG/mutation.
   Unexpected host RNG failure retains evidence and blocks retry; it does not rewind
@@ -156,8 +579,7 @@ Canonical state remains untouched throughout the prepared combat. Commitment
 checks its initial persistent-state seal, exact membership, authenticated session,
 final historical acknowledgement and current sealed final snapshot before writes.
 It commits personal HP/statuses/equipment and shared inventory exactly once,
-retaining unselectable key items. Victory alone revives zero-HP members to exactly
-1; surviving HP is preserved. Burn, Dazzled and encounter-local effects end at cleanup;
+retaining unselectable key items. Victory retains zero-HP members; surviving HP is preserved. Burn, Dazzled and encounter-local effects end at cleanup;
 ordinary persistent statuses and retained Slither samples keep their owners.
 Completed-round count is returned in the receipt, not saved as ongoing combat.
 XP/gold/drop awards are separate. Stale, replaced, malformed, incomplete, Lab or
@@ -262,11 +684,11 @@ by Calwick drawing, collision and interaction, and the infirmary follow-up's map
 projection. Ordinary dialogue and reusable Esla figure drawing are unchanged.
 No follower or new save binding is introduced. Test 179 covers these boundaries.
 
-Recruitment does **not** activate canonical party combat. Returning west can still
-start solo battles and their existing Lely-only reward/recovery flows, as audited
-below; that integration remains a separate authorized task.
+Recruitment activates canonical party routing for supported ordinary encounters.
+Unadapted specials and scripted encounters reject with diagnostics; they cannot
+silently route a recruited roster through Lely-only reward/recovery flows.
 
-### Later post-recruitment encounter routing audit (read-only)
+### Historical pre-bridge encounter routing audit (read-only)
 
 `movement.update()` chooses geographic eligibility, then `startCombat()` selects
 from `currentEncounterPool()`, applies the North Basin Swamp Donkey override and
@@ -277,19 +699,19 @@ singleton path for Lely-only play. Do not route at map IDs or replace geographic
 pool ownership. Scripted starters and their completion/reward owners require
 individual review; merely having simple template stats does not authorize routing.
 
-Current party-supported ordinary IDs are Marsh Wisp/Briar Hound (core and early),
+At the Pass 2 identity-list checkpoint, party-supported ordinary IDs were Marsh Wisp/Briar Hound (core and early),
 Reed Grappler, Silt Lurker, Marsh Wisp (sluice top) and Sluice Slime. Other simple
-pool enemies remain unreviewed by the allowlist. Returning west after MQ5 can still
-reach these unsupported capability-bearing enemies:
+pool enemies were still unreviewed. Passes 3 and 4A supersede this paragraph with
+the capability authority and complete audit above. Brace and the seven Pass 4B
+landed-hit riders are migrated; the remaining deferred mechanic list is:
 
 | Capability | Existing template IDs requiring later review |
 | --- | --- |
-| Defensive action | `enemy_stone_crawler`, `enemy_bone_guard`, `enemy_hollow`, `enemy_tomb_sentry`, `enemy_shallows_skitter`, `enemy_silt_crab`, `enemy_silt_crab_upper`, `enemy_marrow_hulk` |
-| Curse / acid | `enemy_void_walker`, `enemy_dust_drowned` / `enemy_dripping_maw` |
 | Splitting / regeneration | `enemy_the_seep` / `enemy_rotwood_troll` |
 | Armor and counters | `enemy_thornback` |
 | Poison and sex-specific observations | `enemy_mire_toad_male`, `enemy_mire_toad_female` |
-| Dazzle / theft-and-flight | `enemy_lantern_moth` / `enemy_basin_gull`, `enemy_basin_gull_upper` |
+| Theft-and-flight | `enemy_basin_gull`, `enemy_basin_gull_upper` |
+| Runtime-generated stats | `enemy_23` |
 
 Optional/repeatable bespoke encounters remain relevant: Pale Sentry persistent HP,
 Rainfish and spawning-toad chains, generated `23`, Seep follow-up, Den Wraith curse,
@@ -385,9 +807,9 @@ Two prepared party slots remain mandatory; a defeated slot stays in membership
 and receives no command on subsequent rounds.
 
 Supported enemy membership is one inactive singleton or two/three inactive
-formation members. `PARTY_ATTACK_TEMPLATE_IDS` retains only the eight ordinary
-members of the existing formation allowlist; the Receiver trio and all bespoke
-capabilities are excluded. Party statuses must be empty. Existing combat
+formation members. Canonical capability metadata admits ordinary mechanics and
+excludes the Receiver trio and all bespoke capabilities. Party statuses must be
+empty. Existing combat
 bookkeeping must be neutral, with no messages, callbacks, sessions, playback,
 outcomes or effects pending. Existing enemy-formation accounting remains untouched.
 The party round authority binds the exact enemy membership; replacing it requires
@@ -488,11 +910,11 @@ blocked enemy-formation policy cannot be overridden. Initial equipment is empty.
 `getCommandView()` exposes only copied frozen data. `clear()` discards this state
 alongside the existing party authority, without enemy cleanup, rewards or RNG.
 
-This gate requires an inactive, untouched, allowlisted singleton or formation,
+This gate requires an inactive, untouched, capability-compatible singleton or formation,
 no session/playback/messages/outcomes or active Lab/UI. It validates the entire
-request before allocating party identities. The ordinary Attack templates plus
-the Lab-only Mulholland boss-lock scenario form the closed enemy allowlist; no
-Receiver coordination or bespoke enemy capabilities are introduced. An internal
+request before allocating party identities. The fixed Lab scenarios use ordinary
+templates plus Mulholland's metadata-driven boss lock; no Receiver coordination or
+bespoke enemy capabilities are introduced. An internal
 WeakMap captures `isBoss === true` when each enemy
 instance is created. It adds no enumerable enemy field or save metadata. The
 prepared command encounter retains that lock even after the boss dies. Member

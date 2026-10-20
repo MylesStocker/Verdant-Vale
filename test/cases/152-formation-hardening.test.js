@@ -243,7 +243,7 @@ test('authentic dead-actor skip stays valid and cannot borrow a living duplicate
 test('only authorized lifecycle owners initialize; Formation Lab owns its emergency wrapper',()=>{
   for(const file of scriptOrderFromIndexHtml()) {
     const source=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
-    assert.equal((source.match(/\bprepareFormationEntry\(/g)||[]).length,['combat.js','formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
+    assert.equal((source.match(/\bprepareFormationEntry\(/g)||[]).length,file==='combat.js'?2:['formation-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     assert.equal((source.match(/formationCombatLab\.runOperation\(/g)||[]).length,file==='input.js'?1:0,file);
     assert.equal((source.match(/\binitializeFormationState\(/g)||[]).length,file==='combat.js'?2:['formation-lab.js','party-combat-lab.js','gallery-receiver.js'].includes(file)?1:0,file);
     if(/save\.js|content\/|quests|npcs|maps/.test(file))assert.doesNotMatch(source,/completedSingleVictoryReceipt|prepareFormationEntry|runOperation/);

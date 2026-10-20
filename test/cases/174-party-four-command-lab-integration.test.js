@@ -29,7 +29,7 @@ function attack(g,index=0){command(g,0);return target(g,index);}
 function arm(g,value=0){g.run(`var visibleLabValue=${value},visibleLabUses=0;Math.random=()=>{labRng++;visibleLabUses++;return visibleLabValue;};`);}
 function finish(g){let guard=0;while(view(g).phase==='playback'&&guard++<100)g.press('Enter');assert.equal(view(g).phase,'playback_complete');}
 function playRound(g,value=0.5){arm(g,value);g.press('Enter');assert.equal(view(g).phase,'playback');assert.equal(view(g).playbackFrame.frameIndex,0);
-  const events=[],messages=[];let guard=0;while(view(g).phase==='playback'&&guard++<100){g.press('Enter');const v=view(g);events.push(v.playbackFrame.currentEvent);messages.push(g.run('formatPartyCombatLabEvent(partyCombatLab.getView())'));}
+  const events=[],messages=[];let guard=0;while(view(g).phase==='playback'&&guard++<100){g.press('Enter');const v=view(g);events.push(v.playbackFrame.currentEvent);messages.push(g.run('formatPartyBattleEvent(partyCombatLab.getView())'));}
   assert.equal(view(g).phase,'playback_complete');return {events,messages,final:view(g)};}
 function record(g){g.run(`var labPaint=[],labStack=[];const labProps=['fillStyle','strokeStyle','font','lineWidth','globalAlpha'];
   const emit=(type,args)=>labPaint.push({type,args,style:Object.fromEntries(labProps.map(k=>[k,ctx[k]]))});
@@ -59,7 +59,7 @@ test('boss escape-lock scenario reaches its first rendered battle frame',()=>{
   const v=view(g);assert.equal(v.scenarioId,'boss_escape_lock');assert.equal(v.phase,'awaiting_action');
   record(g);const before=canonical(g),rng=g.run('labRng');
   g.run('FORMATION_SPRITE_BOUNDS.delete(drawBattleMulholland);');
-  const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');
+  const layout=J(g,'partyBattleLayout(partyCombatLab.getView())');
   assert.equal(layout.enemies.length,1);assert.equal(layout.enemies[0].instanceId,v.enemies[0].instanceId);
   assert.doesNotThrow(()=>g.run('drawPartyCombatLabBattle()'));
   assert.doesNotThrow(()=>g.renderFrame());g.frames(120);assert.doesNotThrow(()=>g.renderFrame());
@@ -167,14 +167,14 @@ test('renderer presents enemy and ally targets, item rows, commands, and no diag
   g.run('labPaint=[];drawPartyCombatLabBattle()');calls=J(g,'labPaint');assert.equal(calls.filter(c=>c.type==='fill'&&c.style.fillStyle==='#f0e8b8').length,1);
   g.press('Escape');g.run('labPaint=[];drawPartyCombatLabBattle()');calls=J(g,'labPaint');assert.ok(texts(calls).some(t=>/Potion ×3/.test(t)));
   const all=texts(calls).join(' | ');assert.doesNotMatch(all,/combat_(?:party|enemy)_|CHOOSING|awaiting_action|targeting|DEV LAB|submitted/i);
-  const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())');assert.deepEqual(layout.allies.map(p=>[p.x,p.feetY]),[[108,277],[256,277]]);
+  const layout=J(g,'partyBattleLayout(partyCombatLab.getView())');assert.deepEqual(layout.allies.map(p=>[p.x,p.feetY]),[[108,277],[256,277]]);
   assert.ok(layout.enemies.every(p=>p.x>=0&&p.x+p.width<=512));
 });
 
 test('rendering reads one immutable view and consumes no RNG or state',()=>{
   const g=fresh();enter(g,'lely_esla_three');record(g);const before=canonical(g),lab=JSON.stringify(view(g)),rng=g.run('labRng');g.run('drawPartyCombatLabBattle()');
   assert.equal(canonical(g),before);assert.equal(JSON.stringify(view(g)),lab);assert.equal(g.run('labRng'),rng);
-  const source=fs.readFileSync(path.join(ROOT,'render-party-combat-lab.js'),'utf8');assert.equal((source.match(/partyCombatLab\.getView\(\)/g)||[]).length,1);
+  const source=['render-party-battle.js','render-party-combat-lab.js'].map(file=>fs.readFileSync(path.join(ROOT,file),'utf8')).join('\n');assert.equal((source.match(/partyCombatLab\.getView\(\)/g)||[]).length,1);
   assert.doesNotMatch(source,/Math\.random|setTimeout|requestAnimationFrame|combatPlayerState|\bcombat\.|\bstats\.|\bplayer\./);
 });
 

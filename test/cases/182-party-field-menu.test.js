@@ -142,9 +142,9 @@ test('latch, repeat/modifier rejection and existing dialogue/cutscene/combat con
  g.run('menu.open=false;persistentParty.beginCombat(["enemy_marsh_wisp"])');g.press('m');assert.equal(g.run('menu.open'),false);
  assert.throws(()=>g.run('persistentParty.useFieldItem("esla","Potion")'));
 });
-test('XP policy remains full and independent even for Fallen members',()=>{
+test('XP policy is full for living members and excludes Fallen members',()=>{
  const g=fresh();seed(g,'payload.party.characters[0].hp=0');g.run('Math.random=()=>0.5;persistentParty.awardExperience("field-fixture",100)');
- assert.deepEqual(view(g).members.map(m=>[m.level,m.xp]),[[2,100],[2,100]]);assert.equal(view(g).members[1].hp,0);
+ assert.deepEqual(view(g).members.map(m=>[m.level,m.xp]),[[2,100],[1,0]]);assert.equal(view(g).members[1].hp,0);
 });
 test('Fallen cures remove only statuses without revival; healing does not replace equipped objects',()=>{
  const g=fresh();g.run('stats.hp=0;statusEffects=["cursed"];stats.items=["Amethyst Dust","Potion"].map(createItem);stats.weapon=createItem("Iron Sword");var originalWeapon=stats.weapon');

@@ -398,7 +398,9 @@ function savedEquipmentDisposition(item) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
-  if (persistentParty.isCombatPending()) return false;
+  if (!persistentParty.hasLivingMember()) return false;
+  if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
+  if (persistentParty.getCombatDiagnostic()) return false;
   if (combatPlayerState.hasParty()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // never persist laboratory HP
@@ -580,6 +582,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
   if (partyCombatLab.isActive()) return false; // headless party Lab owns transient HP/playback

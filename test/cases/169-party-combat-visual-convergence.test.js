@@ -45,21 +45,21 @@ test('party battle reuses the ordinary background, frame, typography and real sp
   assert.ok(calls.some(call=>call.type==='fillRect'&&call.args.join(',')==='8,297,496,175'&&call.style.fillStyle==='#08121e'));
   assert.ok(calls.some(call=>call.type==='strokeRect'&&call.args.join(',')==='9,298,494,173'&&call.style.strokeStyle==='#5a8a9a'));
   assert.ok(calls.some(call=>call.style.fillStyle==='#98eef8'),'Marsh Wisp authored sprite');
-  const source=fs.readFileSync(path.join(ROOT,'render-party-combat-lab.js'),'utf8');
+  const source=['render-party-battle.js','render-party-combat-lab.js'].map(file=>fs.readFileSync(path.join(ROOT,file),'utf8')).join('\n');
   assert.match(source,/ENEMY_SPRITE_DISPATCH\[member\.id\]/);assert.match(source,/draw:drawBattlePlayer/);assert.match(source,/draw:drawBattleEsla/);
   assert.doesNotMatch(source,/PARTY_COMBAT_LAB_ENEMY_COLORS|DEV LAB/);
 });
 
 test('allies use stable three-capacity slots with one shared audited foot baseline',()=>{
   const g=fresh(),base='partyCombatLab.getView()';
-  const two=J(g,'partyCombatLabBattleLayout('+base+').allies');
+  const two=J(g,'partyBattleLayout('+base+').allies');
   assert.deepEqual(two.map(p=>[p.slot,p.x,p.anchorY,p.feetY]),[[0,108,254,277],[1,256,263,277]]);
-  const one=J(g,`(()=>{const v=${base};return partyCombatLabBattleLayout(Object.freeze({...v,party:Object.freeze([v.party[0]])})).allies;})()`);
+  const one=J(g,`(()=>{const v=${base};return partyBattleLayout(Object.freeze({...v,party:Object.freeze([v.party[0]])})).allies;})()`);
   assert.deepEqual(one.map(p=>[p.slot,p.x,p.feetY]),[[0,108,277]]);
-  const defeated=J(g,`(()=>{const v=${base};return partyCombatLabBattleLayout(Object.freeze({...v,nextActorId:v.party[1].instanceId,party:Object.freeze(v.party.map((m,i)=>Object.freeze({...m,hp:i?m.hp:0})))})).allies;})()`);
+  const defeated=J(g,`(()=>{const v=${base};return partyBattleLayout(Object.freeze({...v,nextActorId:v.party[1].instanceId,party:Object.freeze(v.party.map((m,i)=>Object.freeze({...m,hp:i?m.hp:0})))})).allies;})()`);
   assert.deepEqual(defeated.map(p=>[p.slot,p.x,p.feetY]),[[0,108,277],[1,256,277]],'defeated slots do not move or compact');
   const three=J(g,`(function(){const v=${base};const third=Object.freeze({characterId:'future_lab',instanceId:'party_future_3',slot:2,name:'Future',hp:40,maxHp:40});
-    const structural=Object.freeze({...v,party:Object.freeze([...v.party,third])});return partyCombatLabBattleLayout(structural).allies;})()`);
+    const structural=Object.freeze({...v,party:Object.freeze([...v.party,third])});return partyBattleLayout(structural).allies;})()`);
   assert.deepEqual(three.map(p=>[p.slot,p.x,p.feetY]),[[0,108,277],[1,256,277],[2,404,277]]);
   assert.ok(three.every((p,index)=>index===0||three[index-1].x<p.x));
 });
@@ -72,12 +72,12 @@ test('established Esla identity is reused at battle scale without an image place
 });
 
 test('enemy slots, exact target cursor and defeated retention match Formation vocabulary',()=>{
-  const g=fresh();g.run('partyCombatLab.confirmCommand()');const layout=J(g,'partyCombatLabBattleLayout(partyCombatLab.getView())'),calls=draw(g);
+  const g=fresh();g.run('partyCombatLab.confirmCommand()');const layout=J(g,'partyBattleLayout(partyCombatLab.getView())'),calls=draw(g);
   assert.deepEqual(layout.enemies.map(p=>[p.slot,p.x,p.width]),[[0,16,144],[1,184,144],[2,352,144]]);
   const target=calls.filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8'&&call.bounds&&call.bounds[1]===65);
   assert.equal(target.length,1);assert.equal((target[0].bounds[0]+target[0].bounds[2])/2,layout.target.x);
   commandAll(g);assert.equal(draw(g).filter(call=>call.type==='fill'&&call.style.fillStyle==='#f0e8b8'&&call.bounds?.[1]===65).length,0);
-  g.run('paint=[];var retainedEnemy=Object.freeze({...partyCombatLab.getView().enemies[0],hp:0});drawPartyCombatEnemy(retainedEnemy,partyCombatLabBattleLayout(partyCombatLab.getView()).enemies[0],false);');
+  g.run('paint=[];var retainedEnemy=Object.freeze({...partyCombatLab.getView().enemies[0],hp:0});drawPartyCombatEnemy(retainedEnemy,partyBattleLayout(partyCombatLab.getView()).enemies[0],false);');
   assert.ok(J(g,'paint').some(call=>call.style.globalAlpha===0.25));assert.equal(layout.enemies[0].slot,0);
 });
 
@@ -116,7 +116,7 @@ test('playback uses historical HP and defeated allies remain dimmed in fixed slo
   assert.notDeepEqual([...view.party,...view.enemies].map(m=>m.hp),live);
   const calls=draw(g);for(const member of [...view.party,...view.enemies])assert.ok(texts(calls).includes(`${member.hp} / ${member.maxHp}`));
   g.run(`paint=[];drawPartyCombatAlly(Object.freeze({...partyCombatLab.getView().party[0],hp:0}),
-    partyCombatLabBattleLayout(partyCombatLab.getView()).allies[0],false);`);
+    partyBattleLayout(partyCombatLab.getView()).allies[0],false);`);
   assert.ok(J(g,'paint').some(call=>call.style.globalAlpha===0.25));
 });
 
@@ -124,7 +124,7 @@ test('screen omits diagnostics and remains a render-only debug route',()=>{
   const g=fresh(),before=snapshot(g),calls=draw(g);assert.equal(snapshot(g),before);assert.equal(g.run('visualRng'),0);
   const banned=/CHOOSING|DEV LAB|submitted|not submitted|FRAME|EVENT|ROUNDS|combat_(?:party|enemy)_|collecting|playback_complete/i;
   assert.ok(texts(calls).every(text=>!banned.test(String(text))),texts(calls).join(' | '));
-  const source=fs.readFileSync(path.join(ROOT,'render-party-combat-lab.js'),'utf8');
+  const source=['render-party-battle.js','render-party-combat-lab.js'].map(file=>fs.readFileSync(path.join(ROOT,file),'utf8')).join('\n');
   assert.equal((source.match(/partyCombatLab\.getView\(\)/g)||[]).length,1);
   assert.doesNotMatch(source,/Math\.random|setTimeout|requestAnimationFrame|addEventListener|saveGame|loadGame/);
   for(const file of scriptOrderFromIndexHtml()){

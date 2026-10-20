@@ -49,13 +49,14 @@ module.exports = {
 
     // Choose "Make an arrest" (cursor defaults to 0).
     g.press('Enter');
-    assert.equal(g.run('fort_quest_stage'), 1, 'accepting the arrest should set stage 1');
+    assert.equal(g.run('fort_quest_stage'), 0, 'arrest staging must not advance the quest before combat activates');
     assert.equal(g.run('dialogue.triggerEncounterId'), 'fort_guard');
 
     // Close the "Guard." dialogue -- this is what starts the fight.
     g.press('Enter');
     g.press('Enter');
     assert.equal(g.run('combat.active'), true, 'guard fight should have started');
+    assert.equal(g.run('fort_quest_stage'), 1, 'successful guard activation sets stage 1');
     assert.equal(g.run('combat.isFortGuard'), true);
 
     // Simulate the fight being abandoned (flee succeeding, or a loss) --

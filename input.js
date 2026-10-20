@@ -12,6 +12,7 @@ const pressedKeys = Object.create(null);
 const keys = new Proxy(pressedKeys, {
   get(pressed, key) {
     const held = pressed[key];
+    if (held && canonicalPartyCombat.isActive()) return false;
     if (held && combatPlayerState.hasParty()) return false;
     if (held && galleryReceiverEncounter.blocksWorldInput()) return false;
     if (held && combat.mode === 'formation' && formationSessionController.getView()) return false;
@@ -134,6 +135,15 @@ function handlePartyCombatLabInput(command) {
 }
 
 window.addEventListener('keydown', e => {
+  if (canonicalPartyCombat.isActive()) {
+    const wasHeld = pressedKeys[e.key]; pressedKeys[e.key] = true;
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
+      const command = formationInputCommand(e.key);
+      if (command) e.preventDefault();
+      if (!wasHeld && !e.repeat) canonicalPartyCombat.handleInput(command);
+    }
+    return;
+  }
   if (partyCombatLab.isMenuOpen()) {
     const wasHeld = pressedKeys[e.key]; pressedKeys[e.key] = true;
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
@@ -400,6 +410,7 @@ window.addEventListener('keydown', e => {
         if (e.key === 'ArrowDown' || e.key === 's') choice.cursor = Math.min(choice.options.length - 1, choice.cursor + 1);
         if (e.key === ' ' || e.key === 'Enter') {
           const cb = choice.callbacks[choice.cursor];
+          if (!scriptedCombatEntry.checkCallback(cb)) return;
           choice.open = false;
           if (cb) cb();
         }

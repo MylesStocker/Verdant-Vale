@@ -275,7 +275,7 @@ test('failed starts and defeat/retry do not revive stale instances or reuse iden
     finally { g.run('ENEMY_TEMPLATE_REGISTRY.enemy_the_seep=savedSeep;'); }
   });
   assertEmpty(g);
-  t.step('missing selected toad registry entry', [0], () => {
+  t.step('missing toad registry entry rejects before selection RNG', [], () => {
     g.run('var savedToad=ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male;delete ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male;');
     try { g.run('startMireToadSpawnCombat(2);'); }
     finally { g.run('ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male=savedToad;'); }

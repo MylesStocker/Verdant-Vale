@@ -133,6 +133,11 @@ const persistentParty = (() => {
     if(member===stats){statusEffects=data.statuses;slitherSpd=data.slitherSpeed;for(const k of slots)stats[k]=data.equipment[k]===null?null:{...item(data.equipment[k])};}
     else {member.statuses=data.statuses;member.slitherSpeed=data.slitherSpeed;member.equipment=data.equipment;}
   };
+  const encounterRequest=policy=>{
+    const request=prepare(),p=record(policy,['escape']);
+    if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(p.escape))fail();
+    return copy({...request,gold:stats.gold,escape:p.escape,resonance:order.map((characterId,slot)=>({characterId,slot}))});
+  };
   // Field views adapt the same persistent members. Only IDs/cursors belong to
   // the menu; canonical item exchanges and HP/status writes stay in this closure.
   const fieldMember = m => {
@@ -195,6 +200,7 @@ const persistentParty = (() => {
       return result;
     },
     getView(){if(arguments.length)fail();return snapshot();},
+    hasLivingMember(){if(arguments.length)fail();return stats.hp>0||characters.some(m=>m.hp>0);},
     getMember(id){if(arguments.length!==1||typeof id!=='string')fail();return snapshot().members.find(m=>m.characterId===id)||null;},
     joinEsla(options){
       if(arguments.length>1)fail();
@@ -218,18 +224,35 @@ const persistentParty = (() => {
         if(!safe(m.xp+r.xp)||!safe(m.maxHp+MAX_LEVEL*10)||!safe(m.hp+MAX_LEVEL*10)||
             !safe(m.atk+MAX_LEVEL*3)||!safe(m.def+MAX_LEVEL*3)||!safe(m.spd+MAX_LEVEL))fail();
       }
-      for(const m of next){m.xp+=r.xp;while(m.level<MAX_LEVEL&&m.xp>=XP_THRESHOLDS[m.level]){
+      for(const m of next){if(m.hp===0)continue;m.xp+=r.xp;while(m.level<MAX_LEVEL&&m.xp>=XP_THRESHOLDS[m.level]){
         const hp=m.hp,oldMax=m.maxHp;m.level++;Object.assign(m,progression(m.level,m.characterId));m.hp=hp===0?0:Math.min(m.maxHp,hp+m.maxHp-oldMax);
       }}
       // The original Lely level-up authority keeps its exact three-roll growth.
-      // All input/overflow rejection occurs above. No presentation is queued.
-      const knockedOut=stats.hp===0;
+      // Eligibility comes from the authenticated HP already committed above.
+      // Keep presentation detached from progression so acknowledgement cannot
+      // repeat growth or its RNG.
+      const messages=[];let stage="shared_rewards";
       // A failed host RNG must not make an uncertain reward retryable.
       // Retain evidence and the original authority's partial changes; no rollback.
-      try { stats.xp+=r.xp;checkLevelUp([]);if(knockedOut)stats.hp=0; }
-      catch(error){rewardFailure=copy({id:r.id,stage:'lely_level_up'});throw error;}
-      characters=next;stats.gold+=r.gold;stats.items.push(...r.items.map(id=>({...item(id)})));rewards.push(r);revision++;
-      const after=snapshot();return copy({applied:true,members:after.members.map((m,i)=>({characterId:m.characterId,before:before.members[i],after:m}))});
+      try {
+        stats.gold+=r.gold;stats.items.push(...r.items.map(id=>({...item(id)})));
+        if(stats.hp>0){stage="lely_level_up";stats.xp+=r.xp;checkLevelUp(messages);}
+        characters=next;rewards.push(r);revision++;
+      }catch(error){rewardFailure=copy({id:r.id,stage,reward:r});throw error;}
+      const after=snapshot();
+      const members=after.members.map((m,i)=>({characterId:m.characterId,before:before.members[i],after:m}));
+      const pages=[];
+      for(const [i,m]of after.members.entries()){
+        if(before.members[i].hp===0||m.level===before.members[i].level)continue;
+        for(let level=before.members[i].level+1;level<=m.level;level++){
+          const index=level-before.members[i].level-1;
+          const lines=index===0?[`${m.name} gained ${r.xp} XP! (Total: ${m.xp})`]:[];
+          if(i===0)lines.push(...messages.slice(index*2,index*2+2).map(message=>`${m.name}: ${message}`));
+          else lines.push(`${m.name} reached Lv. ${level}!`);
+          pages.push(lines);
+        }
+      }
+      return copy({applied:true,members,pages});
     },
     recover(){
       if(arguments.length)fail();idle();canonicalValid();
@@ -238,9 +261,18 @@ const persistentParty = (() => {
       statusEffects=statusEffects.filter(s=>!removable.includes(s));slitherSpd=1;revision++;return snapshot();
     },
     combatSnapshot(){if(arguments.length)fail();idle();return prepare();},
-    beginCombat(enemyIds){
-      if(arguments.length!==1)fail();idle();const request=prepare(),before=seal();
-      const ids=array(enemyIds),ticket=bridge.begin(request,ids);
+    prepareCombat(policy){
+      if(arguments.length!==1)fail();idle();return bridge.preparePlayer(encounterRequest(policy));
+    },
+    validateCombat(enemyIds,policy,handoff=null,scriptedToken=null){
+      if(arguments.length<2||arguments.length>4||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();return bridge.begin(encounterRequest(policy),array(enemyIds),true,handoff,scriptedToken);
+    },
+    beginCombat(enemyIds,policy,handoff=null,scriptedToken=null){
+      if(arguments.length<1||arguments.length>4||handoff!==null&&!canonicalPartyCombat.permitsHandoff(handoff))fail();idle();let request=prepare();const before=seal();
+      if(policy!==undefined){
+        request=encounterRequest(policy);
+      }
+      const ids=array(enemyIds),ticket=bridge.begin(request,ids,false,handoff,scriptedToken);
       battle={ticket,before,memberIds:combatPlayerState.getView().members.map(m=>m.instanceId)};
       return combatPlayerState.session.getView();
     },
@@ -252,10 +284,11 @@ const persistentParty = (() => {
       const updates=end.party.map((m,i)=>{
         const gear=end.equipment[i],effect=end.effects[i];
         if(gear.actorId!==m.instanceId||effect.actorId!==m.instanceId)fail();
-        const hp=result.outcome==='victory'&&m.hp===0?1:m.hp;
+        const hp=m.hp;
         return {hp,statuses:statusList(m.statuses).filter(s=>!['burn','dazzled'].includes(s)),
           equipment:equipment(from(slots.map(k=>[k,gear[k]]))),slitherSpeed:effect.slither?.speed||1};
       });
+      if(Object.hasOwn(end,'gold')&&!safe(end.gold))fail();
       const remaining=array(end.inventory);remaining.forEach(item);
       // Keep unselectable quest items, including their exact canonical objects.
       let cursor=0;const inventory=[];
@@ -267,6 +300,7 @@ const persistentParty = (() => {
       // session, membership, acknowledged reel and live final snapshot again.
       bridge.finish(battle.ticket);
       updates.forEach((m,i)=>writeMember(i===0?stats:characters[i-1],m));stats.items=inventory;
+      if(Object.hasOwn(end,'gold'))stats.gold=end.gold;
       battle=null;revision++;return receipt;
     },
     isCombatPending(){return battle!==null;},
@@ -279,6 +313,7 @@ const persistentParty = (() => {
       lelyState=record(lelyState,[...scalarKeys,'gold',...slots,'items']);
       copy(lelyState); // Reject nested getters/callbacks/prototypes before any writer.
       validateStats(lelyState);if(!safe(lelyState.gold))fail();statusList(lelyStatuses);speed(sampledSpeed,lelyStatuses);
+      if(lelyState.hp===0&&p.characters.every(m=>m.hp===0))fail();
       array(lelyState.items).forEach(i=>{if(!i||typeof i!=='object'||typeof i.name!=='string')fail();});
       for(const slot of slots)if(lelyState[slot]!==null){
         const saved=lelyState[slot];if(!saved||typeof saved.name!=='string')fail();

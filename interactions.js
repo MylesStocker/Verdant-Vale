@@ -203,14 +203,15 @@ function tryExamineWorldItem() {
     // as an ordinary immediate pickup.
     if (wi.scriptedInspect !== undefined) continue;
     if (!nearPlayer(wi.x, wi.y, TALK_RADIUS)) continue;
-    wi.picked = true;   // the sparkle is consumed on examination, win, lose, or flee
     // A trap sparkle (`encounter`) springs a scripted fight instead of granting an
     // item — the fight itself decides any reward (e.g. the Mimic Potion drops a real
     // Potion only on death, via applyKillRewards). Ordinary sparkles grant their item.
     if (wi.encounter) {
+      if (!scriptedCombatEntry.dialogue(wi.encounter)) return false;
       openDialogue('', wi.examinePages || [['It attacks you!']]);
       queueDialogueEncounter(wi.encounter);
     } else {
+      wi.picked = true;
       grantItem(wi.name);
       openDialogue('', wi.examinePages || [['Got ' + wi.name + '.']]);
     }
@@ -397,22 +398,37 @@ const ENCOUNTER_HANDLERS = {
   gallery_receiver: function() { galleryReceiverEncounter.startBattle(); },
   boss:         function() { startBossCombat(); },
   warden:       function() { startWardenCombat(); },
-  fort_guard:   function() { startFortGuardCombat(); },
+  fort_guard:   function() {
+    startFortGuardCombat();
+    if (combat.active && combat.isFortGuard && fort_quest_stage===0) {
+      fort_quest_stage=1; syncQuestFlagsToWindow();
+    }
+  },
   fort_polwick: function() { startFortPolwickCombat(); },
   fort_essa:    function() { startFortEssaCombat(); },
   mulholland:   function() { startMulhollandCombat(); },
   den_wraith:   function() { startDenWraithCombat(); },
   takomo:       function() { startTakomoCombat(); },
-  kolm_brawler: function() { startSailorBrawlCombat(); },
+  kolm_brawler: function() {
+    if (!scriptedCombatEntry.dialogue('kolm_brawler')) return;
+    startSailorBrawlCombat();
+    if (combat.active && combat.isSailorBrawl) stats.gold-=50;
+  },
   lensweb_spider: function() { startLenswebSpiderCombat(); },
-  mimic_potion:  function() { startMimicPotionCombat(); },
+  mimic_potion:  function() {
+    if (!scriptedCombatEntry.dialogue('mimic_potion')) return;
+    startMimicPotionCombat();
+    if (combat.active) PICKUP_REGISTRY.pickup_sunken_gallery_mimic.picked=true;
+  },
   mire_toad_spawn: function() { startMireToadSpawnCombat(2); },
 };
 
 // Queue an encounter to begin when the current dialogue's last page closes.
 // Replaces the former per-fight trigger* booleans on `dialogue`.
 function queueDialogueEncounter(id) {
+  if (!scriptedCombatEntry.dialogue(id)) return false;
   dialogue.triggerEncounterId = id;
+  return true;
 }
 
 // ─── Main interaction handler ─────────────────────────────────────────────────
@@ -989,6 +1005,7 @@ function interactHouseInterior() {
     const dwx = player.x - DEN_WRAITH.x;
     const dwy = player.y - DEN_WRAITH.y;
     if (Math.sqrt(dwx * dwx + dwy * dwy) < TALK_RADIUS) {
+      if (!scriptedCombatEntry.dialogue('den_wraith')) return false;
       dialogue.name  = '';
       dialogue.pages = [
         ['Something shifts in the corner.', 'It turns toward you.'],
@@ -2047,6 +2064,8 @@ const INTERACT_HANDLERS = [
 //   3. Dispatch at most one queued encounter — clearing the id BEFORE starting
 //      combat so a repeated interact press can't launch the same fight twice.
 function finishDialogue() {
+  if (dialogue.triggerEncounterId && !scriptedCombatEntry.dialogue(dialogue.triggerEncounterId)) return;
+  if (dialogue.callbacks?.length && !scriptedCombatEntry.checkCallback(dialogue.callbacks[0])) return;
   dialogue.open = false;
   dialogue.page = 0;
   dialogue.styleId = null;
@@ -2071,6 +2090,10 @@ function handleInteract() {
   if (galleryReceiverEncounter.isLocked() && !dialogue.open) return;
   if (menu.open || shop.open) return;
   if (dialogue.open) {
+    if (dialogue.page+1>=dialogue.pages.length) {
+      if (dialogue.triggerEncounterId && !scriptedCombatEntry.dialogue(dialogue.triggerEncounterId)) return;
+      if (dialogue.callbacks?.length && !scriptedCombatEntry.checkCallback(dialogue.callbacks[0])) return;
+    }
     dialogue.page++;
     if (dialogue.page >= dialogue.pages.length) {
       finishDialogue();

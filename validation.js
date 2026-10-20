@@ -1740,6 +1740,13 @@ function validateEnemies() {
   // reference identity -> id, so we can (a) reject the same array registered
   // under two ids and (b) map a MAP_METADATA/runtime pool back to its id below.
   const poolIdByArray = new Map();
+  // Formation records reference existing templates; they are not templates.
+  // The separate formation validator reports malformed records/unknown IDs.
+  const poolTemplates = entry => {
+    if (!entry || !Object.hasOwn(entry,'enemies')) return [entry];
+    try { return encounterFormations.validateDefinition(entry).enemies.map(id => ENEMY_TEMPLATE_REGISTRY[id]).filter(Boolean); }
+    catch (_) { return []; }
+  };
   const registeredPoolIds = new Set();
   let anyPoolFound = false;
   if (_isPlainArray(poolRegistry)) {
@@ -1776,7 +1783,7 @@ function validateEnemies() {
       anyPoolFound = true;
       // Repetition inside a pool (a template listed twice for higher spawn
       // weight) is intentional and NOT flagged -- checkTemplate just re-checks it.
-      entry.templates.forEach((t, i) => checkTemplate(t, (id || 'pool[' + idx + ']') + '[' + i + ']'));
+      entry.templates.forEach((t, i) => poolTemplates(t).forEach(member => checkTemplate(member, (id || 'pool[' + idx + ']') + '[' + i + ']')));
     });
     for (const id of Object.keys(poolIdCounts))
       if (poolIdCounts[id] > 1) addValidationError(GROUP, 'duplicate enemy pool id "' + id + '" (registered ' + poolIdCounts[id] + ' times) -- pool ids must be unique');
@@ -1815,7 +1822,7 @@ function validateEnemies() {
     // Completeness + duplicate-id across every static template (pooled + scripted
     // + the inline "23"): each must be present in the registry under its own id.
     const statics = [];
-    if (_isPlainArray(window.ENEMY_TEMPLATE_POOLS)) window.ENEMY_TEMPLATE_POOLS.forEach((p) => { if (p && _isPlainArray(p.templates)) p.templates.forEach((t) => statics.push(t)); });
+    if (_isPlainArray(window.ENEMY_TEMPLATE_POOLS)) window.ENEMY_TEMPLATE_POOLS.forEach((p) => { if (p && _isPlainArray(p.templates)) p.templates.forEach((t) => statics.push(...poolTemplates(t))); });
     if (_isPlainArray(scripted)) scripted.forEach((t) => statics.push(t));
     if (window.SECRET_23_TEMPLATE) statics.push(window.SECRET_23_TEMPLATE);
     // A duplicate id means two DISTINCT template records claim the same id --
@@ -2319,6 +2326,20 @@ function validateChests() {
   return checked;
 }
 
+function validateEncounterFormationData() {
+  let checked=0;
+  for(const pool of ENEMY_TEMPLATE_POOLS){
+    try { checked+=encounterFormations.normalizePool(pool.templates).formations.length; }
+    catch(error){addValidationError('Encounter formations',String(pool.id)+': '+error.message);}
+  }
+  return checked;
+}
+
+function validateEnemyCapabilityData() {
+  try{return validateEnemyCapabilityRegistry();}
+  catch(error){addValidationError('Enemy capabilities',error.message);return 0;}
+}
+
 function validateGameData() {
   VALIDATION_ERRORS   = [];
   VALIDATION_WARNINGS = [];
@@ -2338,6 +2359,8 @@ function validateGameData() {
     'NPCs':            validateNPCs(),
     'Items':           validateItems(),
     'Enemies':         validateEnemies(),
+    'Enemy capabilities': validateEnemyCapabilityData(),
+    'Encounter formations': validateEncounterFormationData(),
     'Dialogue':        validateDialogue(),
     'Save/Flags':      validateSaveFlags(),
     'Map Features':    validateMapFeatures(),
@@ -2347,6 +2370,8 @@ function validateGameData() {
 
   console.log('validateGameData:');
   const LABELS = {
+    'Encounter formations': 'encounter formation entries checked',
+    'Enemy capabilities': 'enemy capability records checked',
     'Maps':             'maps checked',
     'Map metadata':     'metadata entries checked',
     'Regional layout':  'layout placements checked',

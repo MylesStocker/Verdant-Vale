@@ -18,6 +18,7 @@ const { createContext } = require('../harness');
 // in closures that look the globals up at call time, so reassigning them here
 // is exactly what the dispatcher will invoke.
 const STUBS = `
+  stats.gold = 100; // satisfy the real entry preflight even when execution is spied
   __enc = [];
   startBossCombat        = function(){ __enc.push('startBossCombat'); };
   startWardenCombat      = function(){ __enc.push('startWardenCombat'); };

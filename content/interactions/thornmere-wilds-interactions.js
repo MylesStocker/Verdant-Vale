@@ -189,9 +189,7 @@ function interactSmugglerFort() {
         choice.options = ['Make an arrest', 'Leave them be'];
         choice.cursor  = 0;
         choice.callbacks = [
-          function arrest() {
-            fort_quest_stage = 1;
-            syncQuestFlagsToWindow();
+          scriptedCombatEntry.callback('startFortGuardCombat', function arrest() {
             dialogue.name  = 'Polwick';
             dialogue.pages = [
               ['\u201cAn investigator.\u201d',
@@ -202,7 +200,7 @@ function interactSmugglerFort() {
             queueDialogueEncounter('fort_guard');
             dialogue.open = true;
             dialogue.page = 0;
-          },
+          }),
           function leave() {
             fort_quest_stage = 5;
             syncQuestFlagsToWindow();
@@ -231,6 +229,7 @@ function interactSmugglerFort() {
     const gx = player.x - 6.5 * TILE;
     const gy = player.y - 9.5 * TILE;
     if (Math.sqrt(gx * gx + gy * gy) < TALK_RADIUS) {
+      if (!scriptedCombatEntry.dialogue('fort_guard')) return;
       dialogue.name  = '';
       dialogue.pages = [['The guard hasn\u2019t moved from the door.', 'He doesn\u2019t look inclined to let this go.']];
       queueDialogueEncounter('fort_guard');
@@ -242,6 +241,7 @@ function interactSmugglerFort() {
     const px = player.x - 7.5 * TILE;
     const py = player.y - 4.5 * TILE;
     if (Math.sqrt(px * px + py * py) < TALK_RADIUS) {
+      if (!scriptedCombatEntry.dialogue('fort_polwick')) return;
       dialogue.name  = '';
       dialogue.pages = [['Polwick is still on his feet.', 'He doesn\u2019t look like a man who considers this settled.']];
       queueDialogueEncounter('fort_polwick');
@@ -253,6 +253,7 @@ function interactSmugglerFort() {
     const ex = player.x - 9.5 * TILE;
     const ey = player.y - 6.5 * TILE;
     if (Math.sqrt(ex * ex + ey * ey) < TALK_RADIUS) {
+      if (!scriptedCombatEntry.dialogue('fort_essa')) return;
       dialogue.name  = '';
       dialogue.pages = [['Essa is still between you and the door.', 'She\u2019s not going to ask twice.']];
       queueDialogueEncounter('fort_essa');
@@ -569,6 +570,7 @@ function interactTakomoChamber() {
     const tx = player.x - TAKOMO.x;
     const ty = player.y - TAKOMO.y;
     if (Math.sqrt(tx * tx + ty * ty) < TALK_RADIUS) {
+      if (!scriptedCombatEntry.dialogue('takomo')) return false;
       dialogue.name  = '';
       dialogue.pages = [
         ['The figure at the centre of the chamber does not turn around.',
@@ -631,7 +633,7 @@ function interactMireToadSpawnSite() {
     choice.options = ['Investigate', 'Leave it alone'];
     choice.cursor = 0;
     choice.callbacks = [
-      function investigateMireToadSpawn() {
+      scriptedCombatEntry.callback('startMireToadSpawnCombat', function investigateMireToadSpawn() {
         dialogue.name = '';
         dialogue.pages = [
           ['You ease the flattened reeds apart. The black water underneath trembles.'],
@@ -641,7 +643,7 @@ function interactMireToadSpawnSite() {
         dialogue.open = true;
         dialogue.page = 0;
         queueDialogueEncounter('mire_toad_spawn');
-      },
+      }, 2),
       function leaveMireToadSpawn() {},
     ];
     choice.open = true;
@@ -968,7 +970,7 @@ function interactLighthouseLens() {
     choice.options = ['Reach through the web', 'Leave it'];
     choice.cursor  = 0;
     choice.callbacks = [
-      function reachThrough() {
+      scriptedCombatEntry.callback('startLenswebSpiderCombat', function reachThrough() {
         // Player-facing: snatch the objective, get bitten, combat begins Poisoned.
         // The item is NOT granted here — it is snapshotted battle-local at combat
         // start (startLenswebSpiderCombat) and finalized only on victory or a
@@ -984,7 +986,7 @@ function interactLighthouseLens() {
         queueDialogueEncounter('lensweb_spider');
         dialogue.open = true;
         dialogue.page = 0;
-      },
+      }),
       function leaveIt() {
         // Decline: no item, no poison, no combat, no state change. The lens can be
         // examined and the choice made again later.
