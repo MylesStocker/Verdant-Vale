@@ -66,10 +66,10 @@ module.exports = {
     }
     assert.equal(pocketCount, 3, 'three distinct western off-road pockets');
 
-    // ── Ferry → Cardenport threshold still traversable BOTH ways at 400 steps ──
+    // ── Ferry → Mornay threshold still traversable BOTH ways at 400 steps ──
     const search = `function(a,b){var q=[a],h=0,D={},K=function(n){return n.id+'|'+n.r+'|'+n.c;};D[K(a)]=0;while(h<q.length){var n=q[h++],k=K(n);if(n.id===b.id&&n.r===b.r&&n.c===b.c)return D[k];var m=REGIONAL_CHUNK_CATALOG[n.id].map;[[-1,0],[1,0],[0,-1],[0,1]].forEach(function(e){var rr=n.r+e[0],cc=n.c+e[1];if(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS&&WALKABLE[m[rr][cc]])p({id:n.id,r:rr,c:cc},k);});var ed=n.r===0?'north':n.r===ROWS-1?'south':n.c===0?'west':n.c===COLS-1?'east':null;if(ed){var ix=(ed==='north'||ed==='south')?n.c:n.r;((EDGE_TRANSITIONS[n.id]||{})[ed]||[]).forEach(function(sg){if(ix<sg.sourceRange[0]||ix>sg.sourceRange[1])return;var t=REGIONAL_CHUNK_CATALOG[sg.targetMap].map,rr=n.r,cc=n.c;if(sg.targetEdge==='north')rr=0;else if(sg.targetEdge==='south')rr=ROWS-1;else if(sg.targetEdge==='west')cc=0;else cc=COLS-1;if(WALKABLE[t[rr][cc]])p({id:sg.targetMap,r:rr,c:cc},k);});}function p(x,f){var kk=K(x);if(D[kk]!==undefined)return;D[kk]=D[f]+1;q.push(x);}}return null;}`;
-    const fwd = g.run(`(${search})({id:'EASTERN_BANK_MAP',r:8,c:5},{id:'EASTERN_FENS_PORT_THRESHOLD_MAP',r:10,c:15})`);
-    const rev = g.run(`(${search})({id:'EASTERN_FENS_PORT_THRESHOLD_MAP',r:10,c:15},{id:'EASTERN_BANK_MAP',r:8,c:5})`);
+    const fwd = g.run(`(${search})({id:'EASTERN_BANK_MAP',r:8,c:5},{id:'EASTERN_FENS_MORNAY_THRESHOLD_MAP',r:10,c:15})`);
+    const rev = g.run(`(${search})({id:'EASTERN_FENS_MORNAY_THRESHOLD_MAP',r:10,c:15},{id:'EASTERN_BANK_MAP',r:8,c:5})`);
     assert.equal(fwd, 400, 'ferry -> threshold still 400 steps (pockets are dead-ends, no shortcut)');
     assert.equal(rev, 400, 'threshold -> ferry still 400 steps');
 

@@ -489,14 +489,14 @@ function supervisorDialogueBody() {
       ['“The death, the casualties in those ruins, and the structure itself are beyond what Calwick or Drenwick can responsibly investigate alone.”',
        '“We do not have the expertise here, and I will not manufacture it by giving you a longer title.”'],
       ['He places a thick envelope on the desk. The district seal crosses the flap.',
-       '“This is the report. You will carry it east to the regional office in Cardenport and request qualified assistance.”'],
+       '“This is the report. You will carry it east to the regional office in Mornay and request qualified assistance.”'],
       ['“They will want your firsthand account. You saw the Gallery, the body, and what came out of the lower rooms.”',
        '“Principally, I am sending the report. You are the portion of it capable of answering questions.”'],
       ['“The causeway is still broken. The Empire has sent a cable ferry to move people across while it is repaired.”',
        '“Temporary, according to the same works notice they have renewed for six years.”',
        '“Your assignment is the authorization. The operator has the office seal list.”'],
       ['Esla closes the file she has been working on and comes to the desk.',
-       'The Supervisor turns to her. “The road to Cardenport is long, and growing less safe. I can scarcely spare you. We are short of staff already.”'],
+       'The Supervisor turns to her. “The road to Mornay is long, and growing less safe. I can scarcely spare you. We are short of staff already.”'],
       ['“I know what happened to Dreyfuss,” Esla says. “And I know that road. Sending Lely alone would be irresponsible.”',
        '“Your work here will not do itself,” the Supervisor says.'],
       ['“It has never shown much inclination,” Esla says. “I will leave it in order. I am going with her.”',
@@ -509,7 +509,7 @@ function supervisorDialogueBody() {
     dialogue.callbacks = [completeMq5Assignment];
   } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed && MainQuest >= 5) {
     dialogue.pages = [
-      ['“The sealed report goes to the regional office in the eastern city of Cardenport.”',
+      ['“The sealed report goes to the regional office in the eastern city of Mornay.”',
        '“Use the official ferry at the broken causeway. Your assignment is on the operator’s seal list.”'],
       ['“Give them the report, then give them the part paper cannot: what you saw below the basin.”',
        '“Ask for qualified assistance. Nothing more heroic than that.”'],

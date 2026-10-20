@@ -113,12 +113,12 @@ module.exports = {
     assert.deepEqual(voidResult.voids, [], 'no reachable Eastern Fens tile can scroll an unplaced (void) coordinate into the 512x480 camera');
 
     // Camera bounds are unchanged by Phase 2 (all new chunks fit inside the
-    // existing overworld bbox), so the Valmere (north) and the future Cardenport
-    // direction (east of the port threshold, chunk 19,0) stay camera-clamped.
+    // existing overworld bbox), so the Valmere (north) and the future Mornay
+    // direction (east of the Mornay threshold, chunk 19,0) stay camera-clamped.
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
-    assert.equal(b.maxChunkX, 18, 'east bbox unchanged (Cardenport at 19,0 stays clamped)');
+    assert.equal(b.maxChunkX, 18, 'east bbox unchanged (Mornay at 19,0 stays clamped)');
     assert.equal(b.maxChunkY, 5, 'south bbox unchanged');
-    assert.equal(b.minChunkY, -4, 'north bbox now row -4 (Cardenport town + harbour water)');
+    assert.equal(b.minChunkY, -4, 'north bbox now row -4 (Mornay town + harbour water)');
 
     // Resolved spurs: the WIDE_WATER north bridge is now a real seam into the
     // bridge inlet (13,2); the CHANNEL_APPROACH_W south road now ends against the
@@ -153,7 +153,7 @@ module.exports = {
           if(edge){var idx=(edge==='north'||edge==='south')?n.c:n.r;((EDGE_TRANSITIONS[n.id]||{})[edge]||[]).forEach(function(seg){if(idx<seg.sourceRange[0]||idx>seg.sourceRange[1])return;var t=REGIONAL_CHUNK_CATALOG[seg.targetMap].map,rr=n.r,cc=n.c;if(seg.targetEdge==='north')rr=0;else if(seg.targetEdge==='south')rr=ROWS-1;else if(seg.targetEdge==='west')cc=0;else cc=COLS-1;if(WALKABLE[t[rr][cc]])push({id:seg.targetMap,r:rr,c:cc},nk);});}
           function push(x,f){var k=key(x);if(dist[k]!==undefined)return;dist[k]=dist[f]+1;q.push(x);}}
         return null;}
-      return search({id:'EASTERN_BANK_MAP',r:8,c:5},{id:'EASTERN_FENS_PORT_THRESHOLD_MAP',r:10,c:15});
+      return search({id:'EASTERN_BANK_MAP',r:8,c:5},{id:'EASTERN_FENS_MORNAY_THRESHOLD_MAP',r:10,c:15});
     })()`);
     assert.equal(dist, 400, 'ferry->threshold shortest walk unchanged at 400 steps');
   },

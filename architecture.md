@@ -681,7 +681,7 @@ conversations use the existing short reminder and no recruitment callback.
 The scene establishes Esla at the office desk through attributed dialogue, using
 the existing page/callback system. She chooses the journey; the Supervisor's
 reluctance concerns staff capacity. MainQuest remains the ferry authorization.
-The active Sealed Report note derives the joint Cardenport objective from canonical
+The active Sealed Report note derives the joint Mornay objective from canonical
 membership. `npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared
 by Calwick drawing, collision and interaction, and the infirmary follow-up's map
 projection. Ordinary dialogue and reusable Esla figure drawing are unchanged.
@@ -2746,12 +2746,12 @@ different units. The set is derived, not hand-listed.
   encounters. The
   future camp site is reserved at `EASTERN_FENS_TRAVELLERS_RISE_MAP` `(12,3)`,
   215 of 400 walking steps from the ferry landing (about 53.8%), without content
-  or state. `EASTERN_FENS_PORT_THRESHOLD_MAP` `(18,0)` ends safely on firm ground
+  or state. `EASTERN_FENS_MORNAY_THRESHOLD_MAP` `(18,0)` ends safely on firm ground
   beside open Valmere water, at an ordinary unconnected east border before the
   unbuilt port. The twenty-three chunks own no NPCs, items, encounters,
   interactions, quest triggers, or save bindings. The original route occupies rows
   0–4. Canonical regional position now accepts placed negative coordinates; the
-  northern water and Cardenport approach/headland extend the envelope to row −2.
+  northern water and Mornay approach/headland extend the envelope to row −2.
   **Explorability pass (done):** roads should communicate direction, safety,
   and convenience—not define the only terrain the player is permitted to
   traverse. The separate explorability pass has now made `DEEP_REEDS` walkable,
@@ -2762,7 +2762,7 @@ different units. The set is derived, not hand-listed.
   deferred to later passes: whether deep reeds or mud affect movement speed,
   visibility, or encounter pressure, and encounter integration. The completed
   envelope adds walkable infill, western pockets, the NW open fen, scenery, and
-  the Cardenport approach/headland. The native-viewport camera invariant includes
+  the Mornay approach/headland. The native-viewport camera invariant includes
   negative rows and finds no visible void from reachable Eastern Fens tile centres.
 - **North Basin — Flooded Rim.** `NORTH_BASIN_NW2_MAP` at `(0,0)` fills the
   northwest void with an accessible flooded woodland using the existing

@@ -180,7 +180,7 @@ and 182 regression suite files. The two newer party suites were renumbered to
 pre-existing duplicate prefix 61 remains unchanged.
 
 Eastern terrain now includes the envelope, off-road pockets, NW open fen,
-northern water and Cardenport approach/headland. Source coordinates are preserved:
+northern water and Mornay approach/headland. Source coordinates are preserved:
 the region spans chunk columns 0–18 and rows −2–5, using placed negative-coordinate
 support rather than a ten-row rebase. Deep Reeds is walkable and encounter-eligible;
 eastern map permissions still prevent encounters.
@@ -244,7 +244,7 @@ retain the historical four-command/Attack-only checkpoints.
 ### Canonical MQ5 Esla recruitment
 
 The existing Supervisor assignment now includes Esla's explicit decision to
-accompany Lely to Cardenport. `completeMq5Assignment()` rechecks the existing
+accompany Lely to Mornay. `completeMq5Assignment()` rechecks the existing
 fort/report/body/canonical-cutaway prerequisites, validates and installs Esla
 through `persistentParty.joinEsla({level:11})`, then advances MainQuest to 5.
 Failed preparation cannot advance the quest. Repeated conversations neither
@@ -593,7 +593,7 @@ progression-neutral. The journal then directs Lely to the Calwick supervisor.
 Finding Dreyfuss through the existing `gallery_body_found` authority is required
 before the Receiver can arm and before the Gallery report can grant its reward or
 complete MQ4. After that report and the cutaway, the Supervisor assignment advances
-`MainQuest` from 4 to 5, entrusts Lely with the sealed report for Cardenport's
+`MainQuest` from 4 to 5, entrusts Lely with the sealed report for Mornay's
 regional office, and recruits Esla through the canonical completion operation
 above. MQ5 itself remains the ferry authorization. The assignment and repeat
 conversation are idempotent. The existing cutaway completion flag and canonical
@@ -616,7 +616,7 @@ unbuilt port. The shortest valid walk from the ferry spawn is 400 tile steps,
 25 normal 512px viewport widths, and traverses all 24 route chunks including
 Eastern Bank. The future camp reservation is now the dry Travellers’ Rise at
 `(12,3)`, 215 steps or about 53.8% through that shortest walk; it has no trigger,
-NPC, dialogue, or state. The unnamed port settlement, camp scene, encounters,
+NPC, dialogue, or state. Mornay content, the camp scene, encounters,
 party content, shops, further MQ5 progression, and boat travel remain deferred;
 the port is canonically unserved by rail.
 

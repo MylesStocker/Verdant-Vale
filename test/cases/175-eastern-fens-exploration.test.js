@@ -11,7 +11,7 @@ const { createContext } = require('../harness');
 
 // Pre-existing, sanctioned walkable tiles that sit on a non-seam edge: the
 // maintained road/bridge spurs that visibly continue past a chunk border
-// (notably the unfinished Cardenport port-road threshold). Everything else on a
+// (notably the unfinished Mornay Mornay threshold). Everything else on a
 // non-seam edge must be impassable so no walkable tile implies a void crossing.
 // (Phase 2 resolved the WIDE_WATER north bridge into a real seam to the bridge
 // inlet (13,2), so it is no longer a non-seam walkable edge. CHANNEL_APPROACH_W's
@@ -19,7 +19,7 @@ const { createContext } = require('../harness');
 const SANCTIONED_EDGE_SPURS = {
   EASTERN_FENS_REEDBELT_S_MAP: ['east:4'],
   EASTERN_FENS_CHANNEL_APPROACH_W_MAP: ['south:4'],
-  EASTERN_FENS_PORT_THRESHOLD_MAP: ['east:9', 'east:10', 'east:11'],
+  EASTERN_FENS_MORNAY_THRESHOLD_MAP: ['east:9', 'east:10', 'east:11'],
 };
 
 function context() {
@@ -107,7 +107,7 @@ module.exports = {
     for (const tag of allowed) assert.ok(edgeViolations.includes(tag), `sanctioned edge spur still present: ${tag}`);
 
     // 5. Every Eastern Fens chunk stays reachable on foot from the ferry landing,
-    //    across the structural seams, and the port threshold endpoint is reached.
+    //    across the structural seams, and the Mornay threshold endpoint is reached.
     const reachedChunks = J(`JSON.stringify((function(){
       var start={id:'EASTERN_BANK_MAP',r:8,c:5}, seen={}, chunks={};
       function key(n){return n.id+'|'+n.r+'|'+n.c;}

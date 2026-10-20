@@ -74,7 +74,7 @@ module.exports = {
       EASTERN_FENS_TRAVELLERS_RISE_MAP:'eastern_fens_12', EASTERN_FENS_WIDE_WATER_MAP:'eastern_fens_13',
       EASTERN_FENS_CHANNEL_APPROACH_W_MAP:'eastern_fens_14', EASTERN_FENS_CHANNEL_APPROACH_E_MAP:'eastern_fens_15', EASTERN_FENS_VALMERE_ROAD_TURN_MAP:'eastern_fens_16',
       EASTERN_FENS_CHANNEL_ROAD_S_MAP:'eastern_fens_17', EASTERN_FENS_CHANNEL_ROAD_MID_MAP:'eastern_fens_18', EASTERN_FENS_CHANNEL_ROAD_N_MAP:'eastern_fens_19',
-      EASTERN_FENS_VALMERE_REVEAL_MAP:'eastern_fens_20', EASTERN_FENS_VALMERE_SHORE_W_MAP:'eastern_fens_21', EASTERN_FENS_VALMERE_SHORE_E_MAP:'eastern_fens_22', EASTERN_FENS_PORT_THRESHOLD_MAP:'eastern_fens_23' };
+      EASTERN_FENS_VALMERE_REVEAL_MAP:'eastern_fens_20', EASTERN_FENS_VALMERE_SHORE_W_MAP:'eastern_fens_21', EASTERN_FENS_VALMERE_SHORE_E_MAP:'eastern_fens_22', EASTERN_FENS_MORNAY_THRESHOLD_MAP:'eastern_fens_mornay_threshold' };
     for (const id of Object.keys(expected)) {
       assert.equal(g.run(`outdoorContentKeyForMapId(${JSON.stringify(id)})`), expected[id], `${id} -> ${expected[id]}`);
       assert.equal(byId[id].key, expected[id], `entries: ${id} key`);

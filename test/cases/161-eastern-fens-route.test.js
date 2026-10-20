@@ -29,7 +29,7 @@ const ROUTE = [
   ['EASTERN_FENS_VALMERE_REVEAL_MAP', 15, 0],
   ['EASTERN_FENS_VALMERE_SHORE_W_MAP', 16, 0],
   ['EASTERN_FENS_VALMERE_SHORE_E_MAP', 17, 0],
-  ['EASTERN_FENS_PORT_THRESHOLD_MAP', 18, 0],
+  ['EASTERN_FENS_MORNAY_THRESHOLD_MAP', 18, 0],
 ];
 const NEW_IDS = ROUTE.slice(1).map((entry) => entry[0]);
 const CONTENT_KEYS = NEW_IDS.map((_, index) => `eastern_fens_${String(index + 1).padStart(2, '0')}`);
@@ -88,8 +88,8 @@ module.exports = {
           `${first[0]} has no accidental shortcut to ${second[0]}`);
       }
     }
-    assert.equal(g.run("typeof EDGE_TRANSITIONS['EASTERN_FENS_PORT_THRESHOLD_MAP'].east"), 'undefined', 'the unfinished port border has no false onward transition');
-    assert.equal(g.run("WALKABLE[REGIONAL_CHUNK_CATALOG['EASTERN_FENS_PORT_THRESHOLD_MAP'].map[10][15]]"), true, 'the temporary endpoint itself is safe');
+    assert.equal(g.run("typeof EDGE_TRANSITIONS['EASTERN_FENS_MORNAY_THRESHOLD_MAP'].east"), 'undefined', 'the unfinished port border has no false onward transition');
+    assert.equal(g.run("WALKABLE[REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_THRESHOLD_MAP'].map[10][15]]"), true, 'the temporary endpoint itself is safe');
 
     // The route itself stays in non-negative rows; unplaced coordinates (gap
     // columns, or far north of the authored chunks) still resolve to void.
@@ -107,9 +107,9 @@ module.exports = {
       assert.equal(g.run(`typeof EDGE_TRANSITIONS['${id}'].north`), 'undefined', `${id} has no false transition into the Valmere`);
     }
 
-    // The Port Road Threshold now opens north onto the walkable Cardenport approach.
-    assert.equal(g.run("REGIONAL_CHUNK_CATALOG['EASTERN_FENS_PORT_THRESHOLD_MAP'].map[0][7]"), g.run('PATH'), 'the port threshold north edge opens a walkable corridor');
-    assert.equal(g.run("EDGE_TRANSITIONS['EASTERN_FENS_PORT_THRESHOLD_MAP'].north[0].targetMap"), 'EASTERN_FENS_CARDENPORT_APPROACH_E_MAP', 'the port threshold seams north to the Cardenport approach');
+    // The Mornay Threshold now opens north onto the walkable Mornay approach.
+    assert.equal(g.run("REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_THRESHOLD_MAP'].map[0][7]"), g.run('PATH'), 'the Mornay threshold north edge opens a walkable corridor');
+    assert.equal(g.run("EDGE_TRANSITIONS['EASTERN_FENS_MORNAY_THRESHOLD_MAP'].north[0].targetMap"), 'EASTERN_FENS_MORNAY_APPROACH_E_MAP', 'the Mornay threshold seams north to the Mornay approach');
 
     // Compute the shortest valid tile route over the actual collision table and
     // structural seams. One viewport is canvas.width / TILE = 16 tile steps.
@@ -146,7 +146,7 @@ module.exports = {
         return null;
       }
       var west={id:'EASTERN_BANK_MAP',r:8,c:5};
-      var east={id:'EASTERN_FENS_PORT_THRESHOLD_MAP',r:10,c:15};
+      var east={id:'EASTERN_FENS_MORNAY_THRESHOLD_MAP',r:10,c:15};
       var camp={id:'EASTERN_FENS_TRAVELLERS_RISE_MAP',r:7,c:10};
       return {forward:search(west,east),reverse:search(east,west),toCamp:search(west,camp),campToEnd:search(camp,east),viewportTiles:canvas.width/TILE};
     })())`);
@@ -186,7 +186,7 @@ module.exports = {
     // are previews and do not forge story progress.
     assert.equal(g.run("MainQuest=4;placeAtLocation('EAST_CAUSEWAY_MAP',10.5*TILE,8.5*TILE);crossCausewayFerry()"), false);
     assert.equal(g.run("SIMPLE_NPCS.find(function(n){return n.id==='causeway_ferry_operator';}).map"), null);
-    g.run("debugWarpToDestination('outdoor:EASTERN_FENS_PORT_THRESHOLD_MAP');");
+    g.run("debugWarpToDestination('outdoor:EASTERN_FENS_MORNAY_THRESHOLD_MAP');");
     assert.equal(g.run("regionPlacementForMapId(mapIdForRef(activeMap)).chunkY"), 0, 'debug warp resolves the northern-row endpoint');
     assert.equal(g.run('MainQuest'), 4, 'debug preview remains progression-neutral');
   },

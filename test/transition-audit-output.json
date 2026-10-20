@@ -50,7 +50,7 @@
     "EASTERN_FENS_VALMERE_REVEAL_MAP",
     "EASTERN_FENS_VALMERE_SHORE_W_MAP",
     "EASTERN_FENS_VALMERE_SHORE_E_MAP",
-    "EASTERN_FENS_PORT_THRESHOLD_MAP",
+    "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
     "EASTERN_FENS_BRIDGE_INLET_W_MAP",
     "EASTERN_FENS_BRIDGE_INLET_E_MAP",
     "EASTERN_FENS_CHANNEL_ELBOW_MAP",
@@ -97,16 +97,16 @@
     "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
     "EASTERN_FENS_ENVELOPE_C14RN1_MAP",
     "EASTERN_FENS_ENVELOPE_C15RN1_MAP",
-    "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
-    "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
-    "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+    "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
+    "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
+    "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
     "EASTERN_FENS_ENVELOPE_C15RN2_MAP",
-    "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
-    "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
-    "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
-    "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
-    "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
-    "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+    "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+    "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
+    "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
+    "EASTERN_FENS_MORNAY_HARBOUR_MAP",
+    "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+    "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
     "EASTERN_FENS_ENVELOPE_C15RN3_MAP",
     "EASTERN_FENS_ENVELOPE_C15RN4_MAP",
     "EASTERN_FENS_ENVELOPE_C16RN4_MAP",
@@ -519,7 +519,7 @@
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+      "id": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -801,19 +801,19 @@
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+      "id": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+      "id": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+      "id": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -825,37 +825,37 @@
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+      "id": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+      "id": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+      "id": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+      "id": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+      "id": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
     },
     {
-      "id": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+      "id": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -10729,14 +10729,14 @@
         9,
         11
       ],
-      "targetMap": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
       "targetEdge": "west",
       "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
@@ -10750,308 +10750,308 @@
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
       "direction": "north",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
       "targetEdge": "south",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
       "targetEdge": "north",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
         5,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
       "targetEdge": "east",
       "walkableSources": 5,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
       "direction": "east",
       "segment": 0,
       "sourceRange": [
         5,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
       "targetEdge": "west",
       "walkableSources": 5,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
         5,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
       "targetEdge": "east",
       "walkableSources": 5,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
       "direction": "east",
       "segment": 0,
       "sourceRange": [
         5,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
       "targetEdge": "west",
       "walkableSources": 5,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
       "direction": "north",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "targetEdge": "south",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
       "targetEdge": "north",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "direction": "east",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "targetEdge": "west",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "direction": "north",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
       "targetEdge": "south",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "targetEdge": "east",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "direction": "east",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
       "targetEdge": "west",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "direction": "north",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "targetEdge": "south",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "targetEdge": "east",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
       "direction": "north",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
       "targetEdge": "south",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "targetEdge": "north",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
       "direction": "east",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "targetEdge": "west",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
       "targetEdge": "east",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "direction": "east",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
       "targetEdge": "west",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "targetEdge": "north",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "targetEdge": "east",
       "walkableSources": 4,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
         6,
         9
       ],
-      "targetMap": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
       "targetEdge": "north",
       "walkableSources": 4,
       "bad": [],
@@ -15383,7 +15383,7 @@
         "chunkX": 16,
         "chunkY": 0,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -15423,7 +15423,7 @@
         "chunkX": 17,
         "chunkY": 0,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -15443,8 +15443,8 @@
         "chunkX": 17,
         "chunkY": 0,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_PORT_THRESHOLD_MAP",
-        "target": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
+        "target": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
@@ -15459,17 +15459,17 @@
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
         "chunkX": 18,
         "chunkY": 0,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
+        "target": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
         "chunkX": 18,
         "chunkY": 0,
         "dir": "south",
@@ -15479,7 +15479,7 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
         "chunkX": 18,
         "chunkY": 0,
         "dir": "east",
@@ -15489,7 +15489,7 @@
         "verdict": "BORDER"
       },
       {
-        "mapId": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
         "chunkX": 18,
         "chunkY": 0,
         "dir": "west",
@@ -16263,7 +16263,7 @@
         "chunkX": 18,
         "chunkY": 1,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -17203,7 +17203,7 @@
         "chunkX": 15,
         "chunkY": -1,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -17219,17 +17219,17 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "chunkX": 16,
         "chunkY": -1,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+        "target": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "chunkX": 16,
         "chunkY": -1,
         "dir": "south",
@@ -17239,17 +17239,17 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "chunkX": 16,
         "chunkY": -1,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
+        "target": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "chunkX": 16,
         "chunkY": -1,
         "dir": "west",
@@ -17259,17 +17259,17 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "chunkX": 17,
         "chunkY": -1,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "chunkX": 17,
         "chunkY": -1,
         "dir": "south",
@@ -17279,47 +17279,47 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "chunkX": 17,
         "chunkY": -1,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
+        "target": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "chunkX": 17,
         "chunkY": -1,
         "dir": "west",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
+        "target": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
         "chunkX": 18,
         "chunkY": -1,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
         "chunkX": 18,
         "chunkY": -1,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_PORT_THRESHOLD_MAP",
-        "target": "EASTERN_FENS_PORT_THRESHOLD_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
+        "target": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
         "chunkX": 18,
         "chunkY": -1,
         "dir": "east",
@@ -17329,12 +17329,12 @@
         "verdict": "BORDER"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
         "chunkX": 18,
         "chunkY": -1,
         "dir": "west",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
+        "target": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
@@ -17363,7 +17363,7 @@
         "chunkX": 15,
         "chunkY": -2,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -17379,37 +17379,37 @@
         "verdict": "BORDER"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "chunkX": 16,
         "chunkY": -2,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
+        "target": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "chunkX": 16,
         "chunkY": -2,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_APPROACH_W_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
+        "target": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "chunkX": 16,
         "chunkY": -2,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
+        "target": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "chunkX": 16,
         "chunkY": -2,
         "dir": "west",
@@ -17419,67 +17419,67 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "chunkX": 17,
         "chunkY": -2,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+        "target": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "chunkX": 17,
         "chunkY": -2,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_M_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "chunkX": 17,
         "chunkY": -2,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
+        "target": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "chunkX": 17,
         "chunkY": -2,
         "dir": "west",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+        "target": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
         "chunkX": 18,
         "chunkY": -2,
         "dir": "north",
-        "neighbor": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
+        "target": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
         "chunkX": 18,
         "chunkY": -2,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_APPROACH_E_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
         "chunkX": 18,
         "chunkY": -2,
         "dir": "east",
@@ -17489,17 +17489,17 @@
         "verdict": "BORDER"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
         "chunkX": 18,
         "chunkY": -2,
         "dir": "west",
-        "neighbor": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
+        "target": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "chunkX": 16,
         "chunkY": -3,
         "dir": "north",
@@ -17509,27 +17509,27 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "chunkX": 16,
         "chunkY": -3,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+        "target": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "chunkX": 16,
         "chunkY": -3,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+        "target": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "chunkX": 16,
         "chunkY": -3,
         "dir": "west",
@@ -17539,7 +17539,7 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "chunkX": 17,
         "chunkY": -3,
         "dir": "north",
@@ -17549,37 +17549,37 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "chunkX": 17,
         "chunkY": -3,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
+        "target": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "chunkX": 17,
         "chunkY": -3,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
+        "target": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "chunkX": 17,
         "chunkY": -3,
         "dir": "west",
-        "neighbor": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
+        "target": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
         "chunkX": 18,
         "chunkY": -3,
         "dir": "north",
@@ -17589,17 +17589,17 @@
         "verdict": "BLOCKED"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
         "chunkX": 18,
         "chunkY": -3,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
+        "target": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
         "chunkX": 18,
         "chunkY": -3,
         "dir": "east",
@@ -17609,12 +17609,12 @@
         "verdict": "BORDER"
       },
       {
-        "mapId": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+        "mapId": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
         "chunkX": 18,
         "chunkY": -3,
         "dir": "west",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
-        "target": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+        "target": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "type": "broad",
         "verdict": "ALIGNS"
       },
@@ -17643,7 +17643,7 @@
         "chunkX": 15,
         "chunkY": -3,
         "dir": "east",
-        "neighbor": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -17713,7 +17713,7 @@
         "chunkX": 16,
         "chunkY": -4,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_HARBOUR_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -17753,7 +17753,7 @@
         "chunkX": 17,
         "chunkY": -4,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
@@ -17793,7 +17793,7 @@
         "chunkX": 18,
         "chunkY": -4,
         "dir": "south",
-        "neighbor": "EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP",
+        "neighbor": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
         "target": null,
         "type": null,
         "verdict": "BLOCKED"

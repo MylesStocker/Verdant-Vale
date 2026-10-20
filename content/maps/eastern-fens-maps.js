@@ -4,7 +4,7 @@
 // carry the MQ5 route east from EASTERN_BANK_MAP, then north beside a navigable
 // channel to the Valmere's southern shore. The winding raised road, reedbelt
 // detour, reserved travellers' rise, managed drainage, open water, and unfinished
-// port threshold are terrain/topology only: no content, actors, items, triggers,
+// Mornay threshold are terrain/topology only: no content, actors, items, triggers,
 // or persistent state are authored here.
 
 const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
@@ -465,7 +465,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'Valmere — Southern Shore', region: 'Eastern Fens', contentKey: 'eastern_fens_21',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
     notes: 'Firm engineered southern shore road with open Valmere water to the north. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
-  // (17,0) Firmer margins and a broader road anticipate the unbuilt port district.
+  // (17,0) Firmer margins and a broader road anticipate the unbuilt Mornay district.
   { mapId: 'EASTERN_FENS_VALMERE_SHORE_E_MAP', regionId: 'overworld', chunkX: 17, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -485,9 +485,9 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Valmere — Southern Shore', region: 'Eastern Fens', contentKey: 'eastern_fens_22',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
-    notes: 'Broader maintained road and firm shore ground before the unbuilt port district. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
-  // (18,0) Safe unfinished threshold on firm southern-shore ground before the port town.
-  { mapId: 'EASTERN_FENS_PORT_THRESHOLD_MAP', regionId: 'overworld', chunkX: 18, chunkY: 0, map: [
+    notes: 'Broader maintained road and firm shore ground before the unbuilt Mornay district. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
+  // (18,0) Safe unfinished threshold on firm southern-shore ground before Mornay.
+  { mapId: 'EASTERN_FENS_MORNAY_THRESHOLD_MAP', regionId: 'overworld', chunkX: 18, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  1,  1,  1,  1,  1,  1],
@@ -504,9 +504,9 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,127, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
     ],
-    displayName: 'Valmere — Port Road Threshold', region: 'Eastern Fens', contentKey: 'eastern_fens_23',
+    displayName: 'Valmere — Mornay Threshold', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_threshold',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
-    notes: 'Safe unfinished southern-shore threshold before the unnamed port town. The maintained road visibly continues without a false transition or permanent obstruction. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
+    notes: 'Safe unfinished southern-shore threshold before Mornay. The maintained road visibly continues without a false transition or permanent obstruction. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
 ];
 
 // ─── Eastern Fens regional envelope (Phase 2) ───────────────────────────────
@@ -1377,7 +1377,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_15_n1',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only northern water extending the visible water edge one screen north (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_APPROACH_W_MAP', regionId: 'overworld', chunkX: 16, chunkY: -1, map: [
+  { mapId: 'EASTERN_FENS_MORNAY_APPROACH_W_MAP', regionId: 'overworld', chunkX: 16, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1],
       [  1,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  1],
       [  1,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  1],
@@ -1394,10 +1394,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
     ],
-    displayName: 'Valmere — Cardenport Approach (West)', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_approach_w',
+    displayName: 'Valmere — Mornay Approach (West)', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_approach_w',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. Reciprocal structural seams only; the unbuilt Cardenport headland to the north is non-walkable scenery.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_APPROACH_M_MAP', regionId: 'overworld', chunkX: 17, chunkY: -1, map: [
+    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. Reciprocal structural seams only; the unbuilt Mornay headland to the north is non-walkable scenery.' },
+  { mapId: 'EASTERN_FENS_MORNAY_APPROACH_M_MAP', regionId: 'overworld', chunkX: 17, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  1],
       [  1, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0,  1],
@@ -1414,10 +1414,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
     ],
-    displayName: 'Valmere — Cardenport Approach', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_approach_m',
+    displayName: 'Valmere — Mornay Approach', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_approach_m',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. Reciprocal structural seams only; the unbuilt Cardenport headland to the north is non-walkable scenery.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_APPROACH_E_MAP', regionId: 'overworld', chunkX: 18, chunkY: -1, map: [
+    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. Reciprocal structural seams only; the unbuilt Mornay headland to the north is non-walkable scenery.' },
+  { mapId: 'EASTERN_FENS_MORNAY_APPROACH_E_MAP', regionId: 'overworld', chunkX: 18, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1, 23,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  0,  0,  1],
       [  1,  0,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  0, 23,  1],
@@ -1434,9 +1434,9 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  0,  0, 23,  0,  0,  2,  2,  2,  2, 23,  0,  0,  0,  0,  1],
       [  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  1,  1,  1,  1,  1,  1],
     ],
-    displayName: 'Valmere — Cardenport Approach (Port Spur)', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_approach_e',
+    displayName: 'Valmere — Mornay Approach (East)', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_approach_e',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. Reciprocal structural seams only; the unbuilt Cardenport headland to the north is non-walkable scenery.' },
+    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. Reciprocal structural seams only; the unbuilt Mornay headland to the north is non-walkable scenery.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C15RN2_MAP', regionId: 'overworld', chunkX: 15, chunkY: -2, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -1456,8 +1456,8 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_15_n2',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only Cardenport headland/water north of the Valmere approach (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_WESTERN_APPROACH_MAP', regionId: 'overworld', chunkX: 16, chunkY: -2, map: [
+    notes: 'Scenery-only Mornay headland/water north of the Valmere approach (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+  { mapId: 'EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP', regionId: 'overworld', chunkX: 16, chunkY: -2, map: [
       [  1,  3,  3,  3,  3,  3, 12, 12, 12, 12,  3,  3,  3,  3,  3,  3],
       [  1, 13, 13, 13, 13, 13, 12, 12, 12, 12,  0, 13, 13, 13,  0,  3],
       [  1, 13, 13, 13, 13, 13, 12, 12, 12, 12,  0, 13, 13, 13,  0,  3],
@@ -1474,10 +1474,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1, 13, 13, 13, 13, 13, 12, 12, 12, 12,  0, 89, 89, 89,  0,  3],
       [  1,  3,  3,  3,  3,  3, 12, 12, 12, 12,  3,  3,  3,  3,  3,  3],
     ],
-    displayName: 'Cardenport — Western Approach', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_western_approach',
+    displayName: 'Mornay — Western Approach', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_western_approach',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
     notes: 'The town’s single landward gate. A gatehouse and customs block flank the road in from the Valmere approach; the main street continues north to the harbour and east to the administrative centre. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_ADMIN_CENTRE_MAP', regionId: 'overworld', chunkX: 17, chunkY: -2, map: [
+  { mapId: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', regionId: 'overworld', chunkX: 17, chunkY: -2, map: [
       [  3,  3,  3,  3,  3,  3, 12, 12, 12, 12,  3,  3,  3,  3,  3,  3],
       [  3, 13, 13, 13, 13, 13, 12, 12, 12, 12, 13, 13, 13, 13, 13,  3],
       [  3, 13, 13, 13, 13, 13, 12, 12, 12, 12, 13, 13, 13, 13, 13,  3],
@@ -1494,10 +1494,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  3, 13, 13, 13, 13, 13, 12, 12, 12, 12, 13, 13, 13, 13, 13,  3],
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],
     ],
-    displayName: 'Cardenport — Administrative Centre', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_admin_centre',
+    displayName: 'Mornay — Administrative Centre', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_admin_centre',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
-    notes: 'The civic heart of Cardenport: a cobbled square ringed by the town hall and its offices, with streets running to every other district. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_RESIDENTIAL_MAP', regionId: 'overworld', chunkX: 18, chunkY: -2, map: [
+    notes: 'The civic heart of Mornay: a cobbled square ringed by the town hall and its offices, with streets running to every other district. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
+  { mapId: 'EASTERN_FENS_MORNAY_RESIDENTIAL_MAP', regionId: 'overworld', chunkX: 18, chunkY: -2, map: [
       [  3,  3,  3,  3,  3,  3, 12, 12, 12, 12,  3,  3,  3,  3,  3,  3],
       [  3, 13, 13, 13, 13,  0,  0, 12, 12,  0, 13, 13, 13, 13,  0,  3],
       [  3, 13, 13, 13, 13,  0,  0, 12, 12, 13, 13, 13, 13, 13,  0,  3],
@@ -1514,10 +1514,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  3, 13, 13, 13, 13,  0,  0, 12, 12, 13, 13, 13, 13, 13,  0,  3],
       [  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3],
     ],
-    displayName: 'Cardenport — Residential Streets', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_residential',
+    displayName: 'Mornay — Residential Streets', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_residential',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
     notes: 'Rows of modest house footprints either side of a narrow street — home to most of the town’s roughly 8,000 people. The eastern and southern edges are the town boundary. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_HARBOUR_MAP', regionId: 'overworld', chunkX: 16, chunkY: -3, map: [
+  { mapId: 'EASTERN_FENS_MORNAY_HARBOUR_MAP', regionId: 'overworld', chunkX: 16, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1, 13, 13, 13, 13,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1, 13, 13, 13, 13,  1,  1,  1,  1,  1,  1],
@@ -1534,10 +1534,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1, 89, 89, 89, 89, 89, 12, 12, 12, 12, 12, 12, 12, 12, 12,  3],
       [  1,  3,  3,  3,  3,  3, 12, 12, 12, 12,  3,  3,  3,  3,  3,  3],
     ],
-    displayName: 'Cardenport — Harbour', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_harbour',
+    displayName: 'Mornay — Harbour', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_harbour',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
     notes: 'A decent, provincial harbour on Valmere’s south shore: a plank quay and two boathouses facing open water, well short of anything resembling metropolitan port infrastructure. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_WORKING_WATERFRONT_MAP', regionId: 'overworld', chunkX: 17, chunkY: -3, map: [
+  { mapId: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', regionId: 'overworld', chunkX: 17, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -1554,10 +1554,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  3, 81, 81, 81, 81, 81, 12, 12, 12, 12, 81, 81, 81, 81,  0,  3],
       [  3,  3,  3,  3,  3,  3, 12, 12, 12, 12,  3,  3,  3,  3,  3,  3],
     ],
-    displayName: 'Cardenport — Working Waterfront', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_working_waterfront',
+    displayName: 'Mornay — Working Waterfront', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_working_waterfront',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
     notes: 'The grittier working half of the shoreline: a row of warehouses and dock sheds, with muddy work-yards where cargo would be sorted. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
-  { mapId: 'EASTERN_FENS_CARDENPORT_EASTERN_EDGE_MAP', regionId: 'overworld', chunkX: 18, chunkY: -3, map: [
+  { mapId: 'EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP', regionId: 'overworld', chunkX: 18, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -1574,9 +1574,9 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  3, 12, 12, 12, 12, 12, 12, 12, 12, 12, 89, 89, 89, 89,  0,  3],
       [  3,  3,  3,  3,  3,  3, 12, 12, 12, 12,  3,  3,  3,  3,  3,  3],
     ],
-    displayName: 'Cardenport — Eastern Edge', region: 'Eastern Fens', contentKey: 'eastern_fens_cardenport_eastern_edge',
+    displayName: 'Mornay — Eastern Edge', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_eastern_edge',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
-    notes: 'Where Cardenport thins out and ends: a last scatter of buildings, open ground, and a small reed-fringed point looking east along the shore. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
+    notes: 'Where Mornay thins out and ends: a last scatter of buildings, open ground, and a small reed-fringed point looking east along the shore. Terrain shell only: no NPCs, dialogue, interiors, quests, shops, items, encounters, flags, or scripted events yet. Building footprints are solid exterior shapes only (TOWN_BUILDING) -- none have doors or interiors wired up.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C15RN3_MAP', regionId: 'overworld', chunkX: 15, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,127,121,  1, 23,  1,  1,  1,  1,  1],
@@ -1596,7 +1596,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_15_n3',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Cardenport peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Mornay peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C15RN4_MAP', regionId: 'overworld', chunkX: 15, chunkY: -4, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,127,  1,  1,121,  1,  1,  1,  1, 23,  1,  1,  1,  1],
@@ -1616,7 +1616,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_15_n4',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Cardenport peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Mornay peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C16RN4_MAP', regionId: 'overworld', chunkX: 16, chunkY: -4, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1, 23,  1,  1,127,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1],
@@ -1636,7 +1636,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_16_n4',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Cardenport peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Mornay peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C17RN4_MAP', regionId: 'overworld', chunkX: 17, chunkY: -4, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,121,  1,  1,  1,127,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1],
@@ -1656,7 +1656,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_17_n4',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Cardenport peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Mornay peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C18RN4_MAP', regionId: 'overworld', chunkX: 18, chunkY: -4, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1, 23,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -1676,6 +1676,6 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_18_n4',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Cardenport peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    notes: 'Scenery-only open Valmere water, placed to prevent void exposure around the Mornay peninsula (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
 ];
 window.EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS;

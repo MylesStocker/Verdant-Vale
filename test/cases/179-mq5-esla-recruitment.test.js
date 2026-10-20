@@ -36,7 +36,7 @@ test('debug Sera/Liora preview is neutral; canonical completion enables, but doe
 });
 test('the assignment retains its setup and gives Esla explicit agency without a player choice',()=>{
  const g=fresh();ready(g);g.run('supervisorDialogueBody()');const text=g.run('dialogue.pages.flat().join(" ")');
- for(const re of [/Dreyfuss is dead/,/Garrick is still missing/,/beyond what Calwick or Drenwick/,/district seal/,/firsthand account/,/Empire has sent a cable ferry/,/six years/,/Cardenport is long/,/short of staff/,/Sending Lely alone would be irresponsible/,/I am going with her/,/You know the Gallery\. I know the road/,/Lely, you still carry the report/])assert.match(text,re);
+ for(const re of [/Dreyfuss is dead/,/Garrick is still missing/,/beyond what Calwick or Drenwick/,/district seal/,/firsthand account/,/Empire has sent a cable ferry/,/six years/,/Mornay is long/,/short of staff/,/Sending Lely alone would be irresponsible/,/I am going with her/,/You know the Gallery\. I know the road/,/Lely, you still carry the report/])assert.match(text,re);
  assert.doesNotMatch(text,/Rareborn|Resonance|romance|bodyguard/);assert.equal(g.run('choice.open'),false);
  assert.equal(g.run('dialogue.callbacks.length'),1);
 });
@@ -102,7 +102,7 @@ test('the hospital follow-up projection also disappears without changing its pre
 });
 test('journal and ferry authorization change at completion, with no new flag or key item',()=>{
  const g=fresh();ready(g);assert.equal(g.run('SIMPLE_NPCS.find(n=>n.id==="causeway_ferry_operator").map'),null);
- assign(g);assert.match(g.run('getActiveQuestNotes().find(n=>n.title==="Sealed Report").body'),/Lely and Esla.*ferry at the broken causeway.*Cardenport/);
+ assign(g);assert.match(g.run('getActiveQuestNotes().find(n=>n.title==="Sealed Report").body'),/Lely and Esla.*ferry at the broken causeway.*Mornay/);
  assert.notEqual(g.run('SIMPLE_NPCS.find(n=>n.id==="causeway_ferry_operator").map'),null);
  assert.equal(g.run('QUEST_FLAG_SCHEMA.some(k=>/esla.*join|recruit/i.test(k))'),false);
 });

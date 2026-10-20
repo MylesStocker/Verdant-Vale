@@ -692,7 +692,7 @@ idempotence. Valid singleton combat captures remain unchanged. See the complete
 The Receiver retains its pre-MQ5 Formation path. Both Labs retain their existing
 temporary profiles, inventory, cleanup and refund contracts. All three reject
 entry while a canonical encounter (including a retained fault) owns combat.
-No Eastern Fens pools, scripted escort, campfire, Cardenport, or new content was added.
+No Eastern Fens pools, scripted escort, campfire, Mornay, or new content was added.
 
 ## State and lifecycle authorities
 

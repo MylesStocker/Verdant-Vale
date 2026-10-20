@@ -87,7 +87,7 @@ module.exports = {
       const center = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 1280, 1440, 512, 480))`));
       assert.deepEqual(center, { camPxX: 1280 - 256, camPxY: 1440 - 240 }, 'centred camera origin');
       const low = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 0, -1920, 512, 480))`));
-      assert.deepEqual(low, { camPxX: 0, camPxY: -1920 }, 'clamped to the top-left edge (now the Cardenport town/harbour water rows)');
+      assert.deepEqual(low, { camPxX: 0, camPxY: -1920 }, 'clamped to the top-left edge (now the Mornay town/harbour water rows)');
       const high = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 999999, 999999, 512, 480))`));
       assert.deepEqual(high, { camPxX: 9728 - 512, camPxY: 2880 - 480 }, 'clamped to bottom-right edge');
       for (const v of [center.camPxX, center.camPxY, high.camPxX, high.camPxY])

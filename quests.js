@@ -772,7 +772,7 @@ function getActiveQuestNotes() {
     notes.push({
       title: 'Sealed Report',
       body: persistentParty.getMember('esla')
-        ? "Lely and Esla should take the ferry at the broken causeway and carry the sealed report east to Cardenport. Give your firsthand account at the regional office and request qualified assistance."
+        ? "Lely and Esla should take the ferry at the broken causeway and carry the sealed report east to Mornay. Give your firsthand account at the regional office and request qualified assistance."
         : "Carry the supervisor's sealed report east, give your firsthand account at the regional office, and request qualified assistance. Your assignment authorizes the ferry at the broken causeway.",
     });
   }

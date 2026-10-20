@@ -113,7 +113,7 @@ module.exports = {
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
     assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 18, -4, 5], 'region extent includes the Eastern Fens threshold');
     assert.equal(b.widthPx, 19 * 16 * 32, 'region pixel width includes nineteen chunk columns');
-    assert.equal(b.heightPx, 10 * 15 * 32, 'region pixel height now ten chunk rows (northern water + the Cardenport town shell)');
+    assert.equal(b.heightPx, 10 * 15 * 32, 'region pixel height now ten chunk rows (northern water + the Mornay town shell)');
 
     // ── 13. Continuous cameras from all four neighbours plan the outfall terrain ─
     g.run('forceLegacyRegionalView = false;');
