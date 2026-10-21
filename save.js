@@ -404,7 +404,7 @@ function savedEquipmentDisposition(item) {
 function canSaveHere() {
   if (!persistentParty.hasLivingMember()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
-  if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
+  if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.blocksSave()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
   if (persistentParty.getCombatDiagnostic()) return false;
   if (combatPlayerState.hasParty()) return false;

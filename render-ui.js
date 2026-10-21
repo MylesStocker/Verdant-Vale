@@ -1642,7 +1642,7 @@ function drawStoryCheckpointLab() {
     view.checkpoints.forEach((entry,i)=>{ctx.fillStyle=i===view.cursor?'#8ac8d8':'#4a7888';
       ctx.font=i===view.cursor?'bold 12px "Courier New", monospace':'12px "Courier New", monospace';
       ctx.fillText((i===view.cursor?'▶ ':'  ')+entry.label,PX+20,PY+88+i*26);});
-    ctx.fillStyle='#3a6050';ctx.font='10px "Courier New", monospace';ctx.fillText('ENTER select · ESC back',PX+16,PY+PH-18);
+    ctx.fillStyle='#3a6050';ctx.font='10px "Courier New", monospace';ctx.fillText('↑ ↓ choose · ENTER select · ESC back',PX+16,PY+PH-18);
   }else{
     ctx.fillStyle='#d9c89a';ctx.font='11px "Courier New", monospace';
     ['The current runtime state will be replaced.','Your stored save will not be changed.','Storage changes only if you deliberately Save afterward.']

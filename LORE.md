@@ -228,7 +228,11 @@ The ambushers had occupied a screened rest clearing just off Travellers’ Rise.
 After the fight, Lely and Esla inspect it together. Lely wants to continue with
 the urgent report, but Esla refuses to walk through the fen in darkness without
 sleep after the day’s journey and the ambush. Lely agrees that they will leave at
-first light.
+first light. Around the rebuilt fire that night, they have their first sustained
+private conversation as travelling companions. Esla speaks about her past and
+her choice to stay in Calwick; Lely shares her present fears about the report.
+The exchange is warm and platonic. Esla promises to tell Lely a secret when the
+situation is over; its content remains undefined and is not ominous.
 
 Their cutaways use a brighter, warmer, more magical perspective than Lely’s Fen story: saturated natural colours, inviting architecture, environmental movement, abundance, and ordinary life touched by magic—akin to *Animal Crossing*. Perspective, not another reality; emotionally mature, never childish or purely comedic.
 

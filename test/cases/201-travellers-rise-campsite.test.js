@@ -280,7 +280,8 @@ test('two readable decorative log seats flank the unchanged fire and three bedro
    assert.ok(y+13<160||y>189,'seats flank the fire without hiding it');
   }
   for(const [c,r]of [[4,3],[10,3],[11,9]])assert.ok(rect(c*32+2,r*32+4,25,17,'#625a44'),'bedroll retained');
-  assert.ok(rect(269,174,4,3,'#b26d3d'),'fire embers retained');
+  assert.ok(rect(265,171,15,10,'#342d25'),'cold fire ring retained');
+  assert.equal(rect(269,174,4,3,'#b26d3d'),false,'night starts from cold ashes');
   for(const p of paint.filter(p=>p.bounds))assert.ok(p.bounds.every(Number.isInteger)&&
    p.bounds[0]>=0&&p.bounds[1]>=0&&p.bounds[2]<=512*scale&&p.bounds[3]<=480*scale);
  }

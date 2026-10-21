@@ -122,8 +122,8 @@ let sera_liora_opening_complete = false;
 let travellers_rise_ambush_complete = false;
 let travellers_rise_ambush_paid = false;
 let travellers_rise_ambush_payment = 0;
-// 0: introduction pending; 1: rest agreed, night pending; 2: future night complete.
-// This increment writes only 1, after the final authored acknowledgement.
+// 0: introduction pending; 1: rest agreed, night available; 2: night completed.
+// The camp introduction writes 1; authenticated overnight completion writes 2.
 let travellers_rise_camp_stage = 0;
 
 // The demand receipt is independent from victory, but its amount cannot exist
@@ -816,7 +816,8 @@ function getActiveQuestNotes() {
       title: 'Sealed Report',
       body: travellers_rise_ambush_complete
         ? (travellers_rise_camp_stage===0 ? "Inspect the ambushers’ campsite at Travellers’ Rise."
-          : "Settle in with Esla at the Travellers’ Rise campfire.")
+          : travellers_rise_camp_stage===1 ? "Settle in with Esla at the Travellers’ Rise campfire."
+          : "Continue east to the Mornay regional office with Esla. Deliver the sealed report and request qualified assistance.")
         : persistentParty.getMember('esla')
         ? "Lely and Esla should take the ferry at the broken causeway and carry the sealed report east to Mornay. Give your firsthand account at the regional office and request qualified assistance."
         : "Carry the supervisor's sealed report east, give your firsthand account at the regional office, and request qualified assistance. Your assignment authorizes the ferry at the broken causeway.",

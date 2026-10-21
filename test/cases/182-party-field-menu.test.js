@@ -181,7 +181,7 @@ test('nested executable save candidates and post-cure numeric overflow reject be
 test('no recruitment, combat route, extra listeners, Lab fixtures or save fields added by menu',()=>{
  const root=path.join(__dirname,'../..'),src=fs.readFileSync(path.join(root,'party-field-menu.js'),'utf8');
  assert.doesNotMatch(src,/addEventListener|joinEsla\(|beginCombat\(|initializeCommandParty|partyCombatLab|Math\.random|stats\./);
- for(const file of scriptOrderFromIndexHtml())assert.equal((fs.readFileSync(path.join(root,file),'utf8').match(/persistentParty\.joinEsla\s*\(/g)||[]).length,file==='quests.js'?1:0,file);
+ for(const file of scriptOrderFromIndexHtml())assert.equal((fs.readFileSync(path.join(root,file),'utf8').match(/persistentParty\.joinEsla\s*\(/g)||[]).length,['quests.js','story-checkpoint-lab.js'].includes(file)?1:0,file);
  const input=fs.readFileSync(path.join(root,'input.js'),'utf8');assert.equal((input.match(/addEventListener\('keydown'/g)||[]).length,1);assert.equal((input.match(/addEventListener\('keyup'/g)||[]).length,1);
 });
 module.exports={name:'Canonical field menu: solo recordings, persistent targets/unequip, three slots and saves',run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' canonical field-menu checks passed');}};

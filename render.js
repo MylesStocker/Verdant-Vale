@@ -141,7 +141,7 @@ function drawActiveMapContent() {
     // No controllable/player sprite exists in either cutaway presentation,
     // including the opening lines that continue on DREAM_MAP's white field.
   } else {
-    drawPlayer();
+    if(!travellersRiseNight.drawPlayerPose())drawPlayer();
   }
 }
 
@@ -283,6 +283,7 @@ function render() {
     ctx.fillRect(0, 0, 512, 480);
   }
 
+  travellersRiseNight.drawNight();
   drawDialogue();
   drawChoice();
   drawShop();

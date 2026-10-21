@@ -18,10 +18,10 @@ function closeDialogue(g){g.run(`var guard=0;while(dialogue.open||mq5AssignmentC
  if(guard++>600)throw Error('dialogue loop');if(dialogue.open)handleInteract();else update();
 }`);}
 
-test('debug menu discovers exactly one checkpoint and Cancel mutates nothing',()=>{
+test('debug menu discovers both checkpoints and Cancel mutates nothing',()=>{
  const g=fresh(),before=snapshot(g),calls=g.run('checkpointRolls'),seq=g.run('combatEnemyInstanceSequence');
  g.press('`');g.run('debugMenu.cursor=13');g.press('Enter');
- assert.equal(g.run('storyCheckpointLab.isOpen()'),true);assert.deepEqual(J(g,'storyCheckpointLab.list()'),[{id:'mq5_assignment_ready',label:'MQ5 — Assignment Ready'}]);
+ assert.equal(g.run('storyCheckpointLab.isOpen()'),true);assert.deepEqual(J(g,'storyCheckpointLab.list()'),[{id:'mq5_assignment_ready',label:'MQ5 — Assignment Ready'},{id:'mq5_campfire_ready',label:'MQ5 — Campfire Ready'}]);
  g.press('Enter');assert.equal(g.run('storyCheckpointLab.getView().phase'),'confirm');g.press('ArrowRight');g.press('Enter');
  assert.equal(g.run('storyCheckpointLab.getView().phase'),'list');g.press('Escape');assert.equal(g.run('storyCheckpointLab.isOpen()'),false);
  g.run('debugMenu.open=false');assert.equal(snapshot(g),before);assert.equal(g.run('checkpointRolls'),calls);assert.equal(g.run('combatEnemyInstanceSequence'),seq);
@@ -114,6 +114,61 @@ test('fresh New Game remains unchanged and the Lab renderer is scale-independent
  assert.ok(J(g,'painted.map(x=>x[0])').some(text=>text.includes('MQ5 — Assignment Ready')));
  g.run('storyCheckpointLab.handleInput("confirm","Enter");painted=[];canvas.width=1024;canvas.height=960;drawDebugMenu()');
  assert.ok(J(g,'painted.map(x=>x[0])').some(text=>text.includes('Apply')));assert.ok(J(g,'painted.map(x=>x[0])').some(text=>text.includes('Cancel')));
+});
+
+
+test('Campfire Ready navigation wraps and cancellation preserves all runtime and stored data',()=>{
+ const g=fresh(),before=snapshot(g);g.press('`');g.run('debugMenu.cursor=13');g.press('Enter');
+ g.press('ArrowUp');assert.equal(g.run('storyCheckpointLab.getView().cursor'),1);
+ g.press('ArrowDown');assert.equal(g.run('storyCheckpointLab.getView().cursor'),0);
+ g.press('ArrowDown');g.press('Enter');g.press('ArrowRight');g.press('Enter');g.press('Escape');
+ g.run('debugMenu.open=false');assert.equal(snapshot(g),before);assert.equal(g.run('checkpointRolls'),0);
+ assert.equal(g.run('combatEnemyInstanceSequence'),0);
+});
+test('Campfire Ready installs the same generous party fixture after victory, without replaying rewards',()=>{
+ const g=fresh();apply(g);g.run('completeMq5Assignment()');const expected=J(g,'persistentParty.serialize()'),expectedStats=J(g,'stats');
+ g.run("localStorage.setItem('verdantVale_save','preserve me');storyCheckpointLab.apply('mq5_campfire_ready')");
+ assert.deepEqual(J(g,'persistentParty.serialize()'),expected);assert.deepEqual(J(g,'stats'),expectedStats);
+ assert.deepEqual(inventory(g),expectedInventory);
+ assert.deepEqual(J(g,'[MainQuest,day,travellers_rise_ambush_complete,travellers_rise_ambush_paid,travellers_rise_ambush_payment,travellers_rise_camp_stage]'),[5,6,true,false,0,0]);
+ assert.deepEqual(J(g,'[regionalActiveMapId(),player.x,player.y]'),['EASTERN_FENS_TRAVELLERS_RISE_MAP',336,240]);
+ assert.deepEqual(J(g,'travellersRiseAmbushInvariantErrors()'),[]);assert.deepEqual(J(g,'regionalInvariantErrors()'),[]);
+ assert.equal(g.run('travellersRiseAmbush.getView().phase'),'idle');assert.equal(g.run('combat.active'),false);
+ assert.equal(g.run("localStorage.getItem('verdantVale_save')"),'preserve me');assert.equal(g.run('combatEnemyInstanceSequence'),0);
+ const once=snapshot(g);g.run("storyCheckpointLab.apply('mq5_campfire_ready')");assert.equal(snapshot(g),once);
+ assert.equal(g.run('checkpointRolls'),0);
+ assert.equal(g.run('saveGame()'),true);assert.equal(g.run('loadGame()'),true);
+ assert.equal(g.run('travellers_rise_camp_stage'),0);assert.equal(g.run('stats.gold'),1000);
+ g.frames(1);assert.equal(g.run('travellersRiseCamp.getView().phase'),'outside_dialogue');
+ assert.equal(g.run('combatEnemyInstanceSequence'),0);
+});
+test('new checkpoint reaches the real campfire scene, rests once and saves normally',()=>{
+ const g=fresh();g.press('`');g.run('debugMenu.cursor=13');g.press('Enter');g.press('ArrowDown');g.press('Enter');g.press('Enter');
+ assert.equal(g.run('worldToast'),'DEV CHECKPOINT LOADED: MQ5 — CAMPFIRE READY');
+ g.frames(1);g.run('finishDialogue()');g.frames(300);assert.equal(g.run('travellersRiseCamp.getView().phase'),'inside_dialogue');
+ g.run('finishDialogue()');assert.equal(g.run('travellers_rise_camp_stage'),1);
+ assert.equal(g.run('saveGame()'),true);assert.equal(g.run('loadGame()'),true);
+ g.press('Enter');assert.equal(g.run('travellersRiseNight.isActive()'),true);
+ for(let n=0;g.run('travellersRiseNight.isActive()');n++){
+  assert.ok(n<2000);if(g.run('dialogue.open'))g.run('finishDialogue()');else g.frames(1);
+ }
+ assert.deepEqual(J(g,'[MainQuest,day,travellers_rise_camp_stage,stats.gold,stats.hp,persistentParty.getMember("esla").hp]'),[5,7,2,1000,120,80]);
+ assert.equal(g.run('travellersRiseCamp.blocksEast()'),false);assert.equal(g.run('checkpointRolls'),0);
+ assert.equal(g.run('combatEnemyInstanceSequence'),0);assert.equal(g.run('saveGame()'),true);assert.equal(g.run('loadGame()'),true);
+ assert.deepEqual(J(g,'[travellers_rise_camp_stage,day]'),[2,7]);
+ g.run("storyCheckpointLab.apply('mq5_campfire_ready')");assert.deepEqual(J(g,'[travellers_rise_camp_stage,day]'),[0,6]);
+ assert.equal(g.run('travellersRiseNight.isActive()'),false);
+});
+test('contradictory post-ambush checkpoint data rejects without any mutation',()=>{
+ const g=fresh(),before=snapshot(g);
+ for(const mutation of ['bad.party="unknown"','bad.flags.MainQuest=4','bad.flags.travellers_rise_ambush_complete=false',
+  'bad.flags.travellers_rise_ambush_paid=true','bad.flags.travellers_rise_ambush_payment=100',
+  'bad.flags.travellers_rise_camp_stage=2','bad.location.x=0']){
+  g.run(`var bad=JSON.parse(JSON.stringify(STORY_CHECKPOINTS[1]));${mutation};
+   var freeze=v=>{if(v&&typeof v==='object'){Object.values(v).forEach(freeze);Object.freeze(v)}return v};freeze(bad)`);
+  assert.throws(()=>g.run('storyCheckpointLab.validateDefinition(bad)'),/Story checkpoint/);assert.equal(snapshot(g),before);
+ }
+ assert.equal(g.run('checkpointRolls'),0);assert.equal(g.run('combatEnemyInstanceSequence'),0);
 });
 
 test('checkpoint authority does not call RNG or combat identity allocators',()=>{

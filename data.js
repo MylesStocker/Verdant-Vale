@@ -1573,7 +1573,7 @@ const MAP_CATALOG = {
     displayName: 'Travellers’ Rise — Campsite', region: 'Eastern Fens',
     type: 'special', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
-    notes: 'Discrete screened rest site formerly occupied by the ambushers. No rest effects; night remains pending.',
+    notes: 'Enemy-free screened rest site formerly occupied by the ambushers. One deliberate campfire night follows rest agreement.',
   },
 
   DREAM_MAP: {

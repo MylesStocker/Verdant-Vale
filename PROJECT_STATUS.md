@@ -411,10 +411,11 @@ introduced no art, maps, lore or Chapter One presentation changes.
 
 ### Developer Story Checkpoint Lab
 
-The backtick menu now exposes `DEV: Story Checkpoint Lab`, with one checkpoint:
-`MQ5 — Assignment Ready`. Selection opens an explicit Apply/Cancel confirmation.
-Apply replaces only the running session, closes the debug UI, places Lely in the
-Calwick office beside the Supervisor, and shows a short confirmation. It never
+The backtick menu now exposes `DEV: Story Checkpoint Lab`, with two checkpoints:
+`MQ5 — Assignment Ready` and `MQ5 — Campfire Ready`. Selection opens an explicit Apply/Cancel confirmation.
+Apply replaces only the running session, closes the debug UI, installs the selected
+fixture and shows a short confirmation. Assignment Ready places Lely in the
+Calwick office beside the Supervisor; Campfire Ready starts after the ambush. It never
 writes or replaces the stored save; storage changes only through a later normal
 Save, which remains `SAVE_VERSION` 5.
 
@@ -438,6 +439,22 @@ Receiver, Lab, dialogue, cutscene, input and transition ownership through their
 reset boundaries. Reapplication is deterministic and idempotent. Future
 checkpoints can be added to the same bounded registry without copying its menu,
 confirmation, reset or persistence rules.
+
+The Campfire Ready developer checkpoint uses the same level-10 Lely, shared
+inventory, 1,000 gold and day 6 as Assignment Ready. It includes canonical
+level-11 Esla (40,000 XP, 80/80 HP and her production recruitment equipment),
+sets MQ5 to 5 and the ambush victory flag to complete, with no payment receipt
+and camp stage 0. Placement is Travellers’ Rise `(336,240)`, at the completed
+ambush position. The normal automatic campsite introduction starts on the next
+world update; afterward, interact with the cold fire ring to begin the night.
+It neither replays combat rewards nor skips the campsite argument. Up/Down
+selects either fixture; Apply/Cancel and no-automatic-save behavior are shared.
+Esla’s immutable recruitment-profile preview and normal join authority validate
+and install her loadout without a separate checkpoint character definition.
+Suite 192 covers both checkpoint choices and the full night path. Caller audits
+in suites 179, 181 and 182 permit exactly one guarded developer-checkpoint join
+in addition to MQ5; ordinary recruitment and menu ownership remain unchanged.
+
 
 ### Headless player-party state foundation
 
@@ -738,18 +755,18 @@ spawn, combat trigger or hostile NPC in the campsite.
 `travellers-rise-camp.js` owns transient routes/projection and input; the existing
 fixed placement, NPC walking, party and save authorities retain their roles.
 The one closed save-bound stage is 0 (not introduced), 1 (rest agreed/night
-pending), or 2 (future night complete). This pass writes only stage 1, after the
+pending), or 2 (night complete). The introduction writes only stage 1, after the
 final line; it grants no reward and changes no HP, status, equipment, inventory,
 XP, gold, day or MainQuest. The journal then says “Settle in with Esla at the
 Travellers’ Rise campfire.” Saving inside afterward is permitted; active
 presentation is unsavable and a pre-introduction victory save resumes safely.
 The exit marker at camp `(7,12)` returns to Rise `(6.5,5.5)`; subsequent entry
 uses the same fixed destination `(7.5,8.5)` without replaying the argument.
-Eastward progress remains blocked until the future night-completion authority,
+Eastward progress remains blocked until authenticated night completion,
 but camp exit, local exploration and westward retreat remain open.
 
-The substantive campfire conversation, sleep, recovery, time passage, morning,
-Mornay content, shops and further MQ5 progression remain deferred. The new local
+The campfire night is now implemented below. Mornay content, shops and further
+MQ5 progression remain deferred. The new local
 map brings totals to 217 maps and 258 fixed transitions; 115 regional chunks,
 8 preserved-coordinate transitions, 240 edge segments and 42 doors are unchanged.
 All existing grids, placements, pools and encounter permissions are unchanged;
@@ -765,6 +782,42 @@ playtesting has not been performed; native and 2× geometry, speaker pagination,
 movement, input ownership, real ambush outcomes and save/load are covered
 headlessly. Test number 201 was unused; the pre-existing duplicate prefix 61 is
 unchanged.
+
+### Travellers’ Rise campfire night
+
+After rest agreement, deliberate interaction with the cold fire ring starts a
+single private conversation. Both characters visibly gather fuel and rebuild the
+fire using dry material and flint; Esla’s practical knowledge is not flame magic.
+They sit on opposite log seats while a local dark-blue treatment and animated
+warm firelight make the camp visibly night. Esla recounts her established history
+without expanding it; Lely admits her current fear about the report. The final
+promise is warm and platonic: the future secret remains undefined.
+
+The scene waits for the final “I promise.” acknowledgement, fades completely
+black, applies one ordinary rest through a sealed persistent-party receipt,
+advances the day once and writes existing camp stage 2. It restores full HP and
+clears Poison, Muddied, Slither and Curse only; it preserves the ordinary rest
+rule for other statuses and stored Speed. It grants no reward or XP and leaves
+MainQuest at 5. Dawn restores control, the journal points to Mornay’s regional
+office, and the eastward gate opens. Morning embers can be examined without replay.
+
+Preparation and completion validate before mutation; stale callbacks are inert.
+Save/load is blocked while active. Before completion, faults leave stage 1 and
+safe retry; an unexpected failure after the rest boundary retains diagnostic
+evidence and blocks saving/replay until load or checkpoint recovery. Stable
+saves use the existing camp-stage field only, at SAVE_VERSION 5. No new geography,
+map/transition artifact, random content, ordinary sprite or combat rule changed.
+The entrance remains `(6,4)`, distinct from the ambush trigger and onward choke.
+
+The approved introduction was checkpointed as `0819708`. Suite 207 covers the
+night (202–206 are reserved by the visible concurrent terrain-work filenames).
+Verification: 21 focused night checks, 202/202 complete suites, all 74,409
+immutable formation preparations, syntax and diff checks pass. Validation retains
+0 errors and 12 established warnings; 115 regional fingerprints, the read-only
+transition audit and all five historical combat digests are unchanged. Suite 201’s
+only expectation change is the requested cold fire before deliberate lighting;
+its entrance, staging, dialogue, save and boundary checks remain. Browser
+playtesting remains required for pacing and final pixel appearance.
 
 ### Reservoir balance-lock reward
 

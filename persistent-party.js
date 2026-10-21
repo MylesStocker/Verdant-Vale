@@ -17,7 +17,7 @@ const persistentParty = (() => {
     shield:'Mithril Shield',accessory:'Fen Mask'});
   const scalarKeys=['hp','maxHp','atk','def','spd','level','xp'];
   let order=['lely'], characters=[], rewards=[], revision=0, battle=null, rewardFailure=null;
-  const loads=new WeakMap();
+  const loads=new WeakMap(),overnightRests=new WeakMap();
   const fail=()=>{throw new Error('Invalid persistent party state or lifecycle operation');};
   // JSON.parse/Object helpers may belong to the harness host realm. Accept
   // only either ordinary Object/Array prototype; still reject custom classes.
@@ -232,16 +232,21 @@ const persistentParty = (() => {
     getView(){if(arguments.length)fail();return snapshot();},
     hasLivingMember(){if(arguments.length)fail();return stats.hp>0||characters.some(m=>m.hp>0);},
     getMember(id){if(arguments.length!==1||typeof id!=='string')fail();return snapshot().members.find(m=>m.characterId===id)||null;},
+    eslaRecruitmentProfile(level){
+      if(arguments.length!==1)fail();const base=progression(level);
+      return copy(validateCharacter({characterId:'esla',level,xp:XP_THRESHOLDS[level-1],hp:base.maxHp,
+        ...base,statuses:[],equipment:{...eslaRecruitmentEquipment},slitherSpeed:1}));
+    },
     joinEsla(options){
       if(arguments.length>1)fail();
       const authoredRecruitment=arguments.length===1;
       const level=authoredRecruitment?record(options,['level']).level:stats.level;
-      const base=progression(level);
+      progression(level);
       idle();canonicalValid();
       if(order.includes('esla'))return snapshot();
       if(order.length!==1)fail();
-      characters=[{characterId:'esla',level,xp:XP_THRESHOLDS[level-1],hp:base.maxHp,...base,statuses:[],
-        equipment:authoredRecruitment?{...eslaRecruitmentEquipment}:from(slots.map(k=>[k,null])),slitherSpeed:1}];order=['lely','esla'];revision++;
+      const profile=this.eslaRecruitmentProfile(level);
+      characters=[{...profile,statuses:[],equipment:authoredRecruitment?{...profile.equipment}:from(slots.map(k=>[k,null]))}];order=['lely','esla'];revision++;
       return snapshot();
     },
     resetForNewGame(){if(arguments.length)fail();idle();order=['lely'];characters=[];rewards=[];revision++;return snapshot();},
@@ -288,6 +293,30 @@ const persistentParty = (() => {
         }
       }
       return copy({applied:true,members,pages});
+    },
+    prepareOvernightRest(){
+      if(arguments.length)fail();idle();canonicalValid();
+      if(!safe(day)||day<1||!safe(day+1)||stats.hp===0&&characters.every(m=>m.hp===0))fail();
+      // Ordinary beds and inns clear exactly these four statuses. Unlike defeat
+      // recovery they preserve burn/dazzled and the stored Slither sample.
+      const cleared=['poison','muddied','slither','cursed'];
+      const next=characters.map(m=>({...m,hp:m.maxHp,statuses:m.statuses.filter(s=>!cleared.includes(s))}));
+      next.forEach(validateCharacter);
+      const token=Object.freeze({});overnightRests.set(token,{before:seal(),day,next,
+        statuses:statusEffects.filter(s=>!cleared.includes(s))});return token;
+    },
+    validateOvernightRest(token){
+      if(arguments.length!==1)fail();idle();canonicalValid();
+      const r=overnightRests.get(token);
+      if(!r||r.before!==seal()||r.day!==day||!safe(day+1))fail();return true;
+    },
+    applyOvernightRest(token){
+      this.validateOvernightRest(token);
+      const r=overnightRests.get(token);overnightRests.delete(token);
+      // All numbers, owners and writable Lely fields have been checked. Consume
+      // the private receipt before writing so an unexpected host fault cannot retry.
+      stats.hp=stats.maxHp;statusEffects=r.statuses;characters=r.next;day=r.day+1;revision++;
+      return snapshot();
     },
     recover(){
       if(arguments.length)fail();idle();canonicalValid();

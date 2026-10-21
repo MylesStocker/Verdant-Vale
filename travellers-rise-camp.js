@@ -2,7 +2,7 @@
 
 // Presentation poses only: no HP, equipment, membership or other character data.
 // Persistent truth is the save-bound stage in quests.js; the ambush lifecycle
-// alone authenticates victory. Stage 2 has no writer until the later night pass.
+// alone authenticates victory. The night owner advances stage 1 to 2 after rest.
 const travellersRiseCamp=(()=>{
   const RISE='EASTERN_FENS_TRAVELLERS_RISE_MAP',CAMP='TRAVELLERS_RISE_CAMP_MAP';
   const entrance=Object.freeze({col:6,row:4}),exit=Object.freeze({col:7,row:12});
@@ -126,6 +126,7 @@ const travellersRiseCamp=(()=>{
     }catch(error){return fault(error);}
   };
   const update=()=>{
+    if(travellersRiseNight.update())return true;
     if(!active()){if(pendingHere()&&!busy())return begin();return false;}
     if(!['rise_walk','camp_walk'].includes(phase))return true;
     try{
@@ -155,6 +156,7 @@ const travellersRiseCamp=(()=>{
       phase==='idle'&&travellers_rise_camp_stage>=1);
   const interact=()=>{
     if(active())return !dialogue.open;
+    if(travellersRiseNight.interact())return true;
     const id=regionalActiveMapId(),point=id===RISE?entrance:id===CAMP?exit:null;
     if(!point||!nearPlayer((point.col+.5)*TILE,(point.row+.5)*TILE,TILE+1))return false;
     if(id===CAMP){exitTravellersRiseCamp();return true;}
@@ -195,20 +197,24 @@ const travellersRiseCamp=(()=>{
       ctx.fillStyle='#514d43';ctx.fillRect(x+3,y+7,27,19);
       ctx.fillStyle='#999782';for(const [dx,dy]of [[3,7],[13,3],[23,7],[3,21],[13,25],[23,21]])ctx.fillRect(x+dx,y+dy,6,4);
       ctx.fillStyle='#342d25';ctx.fillRect(x+9,y+11,15,10);
-      ctx.fillStyle='#b26d3d';ctx.fillRect(x+13,y+14,4,3);ctx.fillStyle='#dca75e';ctx.fillRect(x+19,y+16,2,2);
+      travellersRiseNight.drawFire();
       const ex=exit.col*TILE,ey=exit.row*TILE;ctx.fillStyle='#b0a17a';ctx.fillRect(ex+6,ey+4,3,21);ctx.fillRect(ex+6,ey+4,18,4);
     }
+    travellersRiseNight.drawEsla();
     if(active()){
       const rt=transientNpcRouteView(esla.id);
       drawWalkingEslaFigure(esla,esla.facing,rt?.moving?rt.step:0);
     }
     ctx.restore();
   };
-  return Object.freeze({prepare,update,interact,draw,canEnter,isActive:active,
-    blocksInput:()=>active()||pendingHere()&&!busy(),
+  return Object.freeze({prepare,update,interact,draw,canEnter,validateRoute,
+    canStartNight:()=>phase==='idle'&&eligible()&&!busy(),
+    isActive:()=>active()||travellersRiseNight.isActive(),
+    blocksSave:()=>active()||travellersRiseNight.blocksSave(),
+    blocksInput:()=>active()||travellersRiseNight.isActive()||pendingHere()&&!busy(),
     blocksEast:()=>eligible()&&travellers_rise_camp_stage<2,
     remind(){if(dialogue.open)return;open(pages([['esla','“We agreed to stop. The road can wait until first light.”']]),()=>{});},
-    resetTransient(){if(active())clearOwnedDialogue();clearRoutes();phase='idle';failure=null;plan=null;ticks=0;return true;},
+    resetTransient(){travellersRiseNight.resetTransient();if(active())clearOwnedDialogue();clearRoutes();phase='idle';failure=null;plan=null;ticks=0;return true;},
     getView(){return Object.freeze({phase,active:active(),failure,stage:travellers_rise_camp_stage,entrance,exit,
       actors:Object.freeze(active()?[lely,esla].map(a=>Object.freeze({id:a.id,x:a.x,y:a.y,facing:a.facing,route:transientNpcRouteView(a.id)})):[])});},
     dialogue:Object.freeze({outside,inside}),
