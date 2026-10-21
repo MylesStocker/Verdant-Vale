@@ -61,6 +61,7 @@ const canonicalPartyCombat = (() => {
     return copy({...combatPlayerState.session.getView(),active:true,label:'Battle'});
   };
   const fault=(error,stage)=>{
+    partyBattleQuickbloomAnimation.reset();
     let session=null;try{session=combatPlayerState.session.getView();}catch(_){}
     if(!battle)battle={rewardId:lastReceipt?.rewards?.id||null};
     battle.failure=copy({stage,message:String(error?.message||error),rewardId:battle.rewardId,
@@ -104,7 +105,7 @@ const canonicalPartyCombat = (() => {
         .filter(t=>canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[t.id]).split_followup&&!canonicalEnemyRecords.origin(t))
         .map(splitFactory)]:[];
       const wasSplit=battle.templates.some(t=>canonicalEnemyRecords.origin(t)?.kind==='split');
-      const policy=battle.escape;battle=null;reconcileFormationLabKeys();
+      const policy=battle.escape;battle=null;partyBattleQuickbloomAnimation.reset();reconcileFormationLabKeys();
       if(successors.length){
         const token={enemies:[successors[0]],tail:successors.slice(1),escape:policy,origin:location()};pendingHandoff=token;
         dialogue.name='';dialogue.pages=[['The Seep bursts apart — but the pieces are still moving.']];
@@ -134,13 +135,13 @@ const canonicalPartyCombat = (() => {
     }catch(error){fault(error,method);throw error;}
   };
   const install=(prepared,tail,handoff=null)=>{
-    battle={...prepared,tail};lastReceipt=null;
+    partyBattleQuickbloomAnimation.reset();battle={...prepared,tail};lastReceipt=null;
     try{persistentParty.beginCombat(prepared.templates,{escape:prepared.escape},handoff,prepared.scriptedToken);reconcileFormationLabKeys();return view();}
     catch(error){fault(error,'entry');throw error;}
   };
   return Object.freeze({
     hasPendingHandoff(){return pendingHandoff!==null||typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.hasPending();},
-    resetForStoryCheckpoint(){battle=null;lastReceipt=null;pendingHandoff=null;return true;},
+    resetForStoryCheckpoint(){partyBattleQuickbloomAnimation.reset();battle=null;lastReceipt=null;pendingHandoff=null;return true;},
     permitsHandoff(token){
       return token===pendingHandoff&&token!==null&&Array.isArray(dialogue.callbacks)&&
         (dialogue.callbacks.length===1&&dialogue.callbacks[0]===token.callback||dialogue.callbacks.length===0&&!dialogue.open);
@@ -197,7 +198,10 @@ const canonicalPartyCombat = (() => {
         if(command==='confirm')return operate('commitRound');
         if(command==='cancel')return operate('backtrack');
       }
-      if(v.phase==='playback'&&command==='confirm')return operate('advancePlayback');
+      if(v.phase==='playback'&&command==='confirm'){
+        if(partyBattleQuickbloomAnimation.blocksAdvance(v))return false;
+        partyBattleQuickbloomAnimation.reset();return operate('advancePlayback');
+      }
       if(v.phase==='playback_complete'&&command==='confirm')return operate('acknowledgePlayback');
       return false;
     },

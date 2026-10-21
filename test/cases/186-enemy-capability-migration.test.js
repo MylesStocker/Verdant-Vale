@@ -36,9 +36,13 @@ const SCRIPTED={
   enemy_mimic_potion:['guaranteed_drop','mimic_trap_lifecycle'],
   enemy_gallery_receiver:['receiver_coordination'],enemy_gallery_caller:['receiver_coordination'],
   enemy_gallery_keeper:['receiver_coordination'],
+  enemy_road_impostor:['travellers_rise_ambush_lifecycle'],
+  enemy_bridled_hollow:['brace','travellers_rise_ambush_lifecycle'],
+  enemy_fen_handler:['travellers_rise_ambush_lifecycle'],
 };
 const SCRIPTED_SUPPORTED=new Set(['enemy_briar_warden','enemy_pale_sentry','enemy_rainfish','enemy_takomo',
   'enemy_den_wraith','enemy_kolm','enemy_wrongteeth','enemy_lensweb_spider','enemy_mimic_potion']);
+SCRIPTED_SUPPORTED.add('enemy_road_impostor');SCRIPTED_SUPPORTED.add('enemy_bridled_hollow');SCRIPTED_SUPPORTED.add('enemy_fen_handler');
 const BASE=['basic_attack','standard_observe','standard_rewards'];
 
 function fresh(n=2,capture=false){
@@ -71,7 +75,7 @@ test('the audit covers every registered production template exactly once and rec
   const text=fs.readFileSync(path.join(ROOT,'ENEMY_CAPABILITY_AUDIT.md'),'utf8');
   const rows=[...text.matchAll(/^\| `(enemy_[^`]+)`[^\n]*\| (ordinary|special capability pending|scripted-only lifecycle|non-production\/debug fixture) \|/gm)]
     .map(match=>({id:match[1],category:match[2]}));
-  assert.equal(rows.length,67);assert.equal(new Set(rows.map(r=>r.id)).size,67);
+  assert.equal(rows.length,70);assert.equal(new Set(rows.map(r=>r.id)).size,70);
   const g=fresh();assert.deepEqual(rows.map(r=>r.id).sort(),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY).sort()'));
   assert.deepEqual(rows.filter(r=>r.category==='ordinary').map(r=>r.id).sort(),ORDINARY.slice().sort());
   assert.deepEqual(rows.filter(r=>r.category==='special capability pending').map(r=>r.id).sort(),Object.keys(SPECIAL).sort());
@@ -79,8 +83,8 @@ test('the audit covers every registered production template exactly once and rec
   assert.equal(rows.filter(r=>r.category==='non-production/debug fixture').length,0);
 });
 
-test('all 67 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),67);
+test('all 70 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),70);
   assert.deepEqual(J(g,'Object.keys(ENEMY_CAPABILITY_REGISTRY)'),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)'));
   for(const id of J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)')){
     const metadata=g.run('ENEMY_CAPABILITY_REGISTRY['+JSON.stringify(id)+']');frozen(metadata);
@@ -102,7 +106,7 @@ test('all 67 deterministic metadata records are closed, deeply frozen and capabi
     'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee',
     'observe_run_lock','guaranteed_drop','generated_stats','warden_lifecycle','persistent_hp_lifecycle','rainfish_chain',
     'takomo_lifecycle','den_wraith_lifecycle','sailor_brawl_lifecycle','wrongteeth_lifecycle',
-    'lensweb_objective_lifecycle','mimic_trap_lifecycle']);
+    'lensweb_objective_lifecycle','mimic_trap_lifecycle','travellers_rise_ambush_lifecycle']);
 });
 
 test('every ordinary template prepares against one, two and three canonical members',()=>{
@@ -251,8 +255,8 @@ test('Eastern Fens examples are now registered, structurally valid and mechanica
   assert.equal(g.run('canonicalPartyCombat.prepareEnemySide(["enemy_mire_toad_male","enemy_mire_toad_male","enemy_mire_toad_male"]).templates.length'),3);
   assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_waspthra")'),true);
   assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_botfly")'),true);
-  // Content-complete, but the geographic dispatcher still does a flat
-  // single-template draw -- no MAP_METADATA entry routes to this pool yet.
+  // The geographic bridge supports these records; no MAP_METADATA entry
+  // routes to this content pool yet.
   assert.equal(g.run("Object.values(MAP_METADATA).some(m=>m.encounterPool===ENEMY_TEMPLATE_POOLS.find(p=>p.id==='pool_eastern_fens_mornay').templates)"),false);
 });
 

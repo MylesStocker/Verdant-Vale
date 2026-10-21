@@ -47,6 +47,9 @@ const QUEST_FLAG_BINDINGS = [
   lex('sluice_reward_given', false, () => sluice_reward_given, (v) => { sluice_reward_given = v; }),
   lex('MainQuest', 0, () => MainQuest, (v) => { MainQuest = v; }),
   lex('sera_liora_opening_complete', false, () => sera_liora_opening_complete, (v) => { sera_liora_opening_complete = v; }),
+  lex('travellers_rise_ambush_complete', false, () => travellers_rise_ambush_complete, (v) => { travellers_rise_ambush_complete = v; }),
+  lex('travellers_rise_ambush_paid', false, () => travellers_rise_ambush_paid, (v) => { travellers_rise_ambush_paid = v; }),
+  lex('travellers_rise_ambush_payment', 0, () => travellers_rise_ambush_payment, (v) => { travellers_rise_ambush_payment = v; }),
   lex('equipment_ticket_ready', false, () => equipment_ticket_ready, (v) => { equipment_ticket_ready = v; }),
   lex('letter_quest_stage', 0, () => letter_quest_stage, (v) => { letter_quest_stage = v; }),
   lex('cat_quest_stage', 0, () => cat_quest_stage, (v) => { cat_quest_stage = v; }),
@@ -399,6 +402,7 @@ function savedEquipmentDisposition(item) {
 // leads to are actually blocked.
 function canSaveHere() {
   if (!persistentParty.hasLivingMember()) return false;
+  if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
   if (persistentParty.getCombatDiagnostic()) return false;
   if (combatPlayerState.hasParty()) return false;
@@ -413,6 +417,7 @@ window.canSaveHere = canSaveHere;
 // ─── included here. Add new persistent variables to both saveGame() and loadGame().
 function saveGame() {
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
+  if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   // Authoritative guard: refuse to write anything at all on a blocked map,
   // regardless of caller. Returns before touching localStorage or any menu
   // state -- the caller (normally input.js's save-confirm handler, which
@@ -435,6 +440,11 @@ function saveGame() {
   const lighthouseErrors = lighthouseQuestInvariantErrors();
   if (lighthouseErrors.length) {
     console.warn('[saveGame] refusing to write — lighthouse quest invariant broken: ' + lighthouseErrors.join('; ') + ' — the existing save is left untouched.');
+    return false;
+  }
+  const ambushErrors = travellersRiseAmbushInvariantErrors();
+  if (ambushErrors.length) {
+    console.warn('[saveGame] refusing to write — Travellers\' Rise ambush invariant broken: ' + ambushErrors.join('; ') + ' — the existing save is left untouched.');
     return false;
   }
 
@@ -584,6 +594,7 @@ function resolveLoadLocation(data) {
 
 function loadGame() {
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
+  if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
@@ -623,6 +634,11 @@ function loadGame() {
   const lighthouseErrors = lighthouseQuestInvariantErrors(data);
   if (lighthouseErrors.length) {
     console.warn('[loadGame] refusing to load — invalid lighthouse quest state: ' + lighthouseErrors.join('; ') + ' — the running game and the stored save are left untouched.');
+    return false;
+  }
+  const ambushErrors = travellersRiseAmbushInvariantErrors(data);
+  if (ambushErrors.length) {
+    console.warn('[loadGame] refusing to load — invalid Travellers\' Rise ambush state: ' + ambushErrors.join('; ') + ' — the running game and the stored save are left untouched.');
     return false;
   }
 
@@ -784,6 +800,7 @@ function loadGame() {
   // from the start position on the next frame. Loading elsewhere leaves it
   // parked at home, off the active map, so it never initialises or renders.
   if (typeof resetAllPatrols === 'function') resetAllPatrols();
+  if (typeof travellersRiseAmbush !== 'undefined') travellersRiseAmbush.resetTransient();
 
   // ── Migration persistence + versioned backup ───────────────────────────────
   // Only after a FULL, successful load: if this save needed migrating, preserve

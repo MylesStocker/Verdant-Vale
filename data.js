@@ -125,8 +125,8 @@ const FAR_ENEMY_TEMPLATES = [
 // New for the two-member-party stretch between the ferry and Mornay. Not yet
 // assigned to any geographic pool/MAP_METADATA entry — see
 // EASTERN_FENS_MORNAY_EASY_FORMATIONS and EASTERN_FENS_MORNAY_HARD_FORMATIONS
-// below for the authored encounter tables, and PROJECT_STATUS.md for why the
-// live geographic dispatcher doesn't yet reach them.
+// below for the authored encounter tables. The geographic bridge supports
+// them; production map assignments remain separate content work.
 const EASTERN_FENS_MORNAY_ENEMY_TEMPLATES = [
   // Botfly — small, fast biting-insect swarmer. Weak alone; the point is numbers:
   // poisonChance stacks across a multi-body formation in a way a single Botfly

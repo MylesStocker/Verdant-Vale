@@ -52,6 +52,23 @@ const PALE_SENTRY_TEMPLATE = {
   xp: 350, goldMin: 40, goldMax: 80,
 };
 
+// ─── MQ5 road: Travellers' Rise ambush ───────────────────────────────────────
+// Scripted-only fixed formation. The humans are dangerous support; the
+// conditioned Hollow owns roughly half the formation's HP and retains the
+// ordinary Hollow's established Brace capability.
+const ROAD_IMPOSTOR_TEMPLATE = {
+  id:'enemy_road_impostor',name:'Road Impostor',hp:58,maxHp:58,atk:19,def:7,spd:11,
+  xp:45,goldMin:10,goldMax:18,
+};
+const BRIDLED_HOLLOW_TEMPLATE = {
+  id:'enemy_bridled_hollow',name:'Bridled Hollow',hp:120,maxHp:120,atk:25,def:12,spd:7,
+  xp:120,goldMin:0,goldMax:0,defendChance:0.20,
+};
+const FEN_HANDLER_TEMPLATE = {
+  id:'enemy_fen_handler',name:'Fen Handler',hp:62,maxHp:62,atk:20,def:8,spd:10,
+  xp:50,goldMin:12,goldMax:22,
+};
+
 // Gallery formation boss stats. Coordination is owned by formationRounds below.
 // No per-member awards: the report remains the reward.
 const GALLERY_RECEIVER_TEMPLATES = [
@@ -101,9 +118,8 @@ const ENEMY_TEMPLATE_POOLS = [
   { id: 'pool_dungeon_horror',    label: 'Dungeon — floors 9–10 (horror)',     templates: DUNGEON_HORROR_ENEMY_TEMPLATES },
   { id: 'pool_far_overworld',     label: 'Far overworld (MAP3 / N-tier)',      templates: FAR_ENEMY_TEMPLATES },
   // Intentionally not yet routed from any MAP_METADATA.encounterPool (expect
-  // the "unreachable" validation warning) -- content prepared ahead of the
-  // geographic-dispatch/formation-selector bridge; see data.js and
-  // PROJECT_STATUS.md for the exact missing seam.
+  // the "unreachable" validation warning). The geographic bridge supports
+  // the authored tables; map assignments remain separate content work.
   { id: 'pool_eastern_fens_mornay', label: 'Eastern Fens — Mornay approach',  templates: EASTERN_FENS_MORNAY_ENEMY_TEMPLATES },
   { id: 'pool_thornmere',         label: 'Thornmere (MAP4)',                   templates: THORNMERE_ENEMY_TEMPLATES },
   { id: 'pool_lighthouse',        label: 'Abandoned Lighthouse — lower floors', templates: LIGHTHOUSE_ENEMY_TEMPLATES },
@@ -123,6 +139,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
   PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,
   MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
   LENSWEB_SPIDER_TEMPLATE, MIMIC_POTION_TEMPLATE,
+  ROAD_IMPOSTOR_TEMPLATE, BRIDLED_HOLLOW_TEMPLATE, FEN_HANDLER_TEMPLATE,
   ...GALLERY_RECEIVER_TEMPLATES,
 ];
 // The 1/256 secret "23" enemy is generated fresh each encounter with random
@@ -1208,6 +1225,20 @@ const combatPlayerState = (() => {
     const direction=value=>{if(!['previous','next'].includes(value))invalid();return value==='next'?1:-1;};
     const committedIds=s=>s.allyActions.flatMap(a=>a.type==='resonance'?a.participantIds:[a.actorId]);
     const currentAlly=s=>livingAllies(s).find(m=>!committedIds(s).includes(m.instanceId))||null;
+    const resonanceReason=(s,actor)=>{
+      const caps=s.snapshot.resonance,cap=caps?.find(c=>c.actorId===actor?.instanceId);
+      if(!actor||!cap?.rareBorn)return null;
+      if(actor.hp===0)return actor.name+' is Fallen';
+      if(cap.strain>0)return 'Strained';
+      const techniques=Object.values(RESONANCE_TECHNIQUES).filter(tech=>tech.initiator===cap.characterId);
+      if(!techniques.length)return 'No authored technique';
+      const committed=committedIds(s);
+      if(!techniques.some(tech=>resonanceParticipants(tech,s.snapshot.party,caps).every(m=>
+        m&&partyActorCanAct(m,s.snapshot.party)&&!committed.includes(m.instanceId)&&caps.find(c=>c.actorId===m.instanceId).strain===0)))
+        return 'Participant unavailable';
+      if(!s.snapshot.party.some(m=>m.hp>0&&m.hp<m.maxHp))return 'No wounded ally';
+      return null;
+    };
     const techniqueRows=s=>{
       const actor=currentAlly(s),caps=s.snapshot.resonance;if(!actor||!caps)return [];
       return [...Object.values(RESONANCE_TECHNIQUES)].filter(tech=>{
@@ -1220,6 +1251,8 @@ const combatPlayerState = (() => {
         strain:tech.participants.map(p=>p.strain)}));
     };
     const commandEnabled=(s,type)=>type!=='resonance'||techniqueRows(s).length>0;
+    const commandAvailability=s=>menuFor(s).map(command=>({command,enabled:commandEnabled(s,command),
+      disabledReason:command==='resonance'&&!commandEnabled(s,command)?resonanceReason(s,currentAlly(s)):null}));
     const itemSeal=snap=>JSON.stringify([...new Set([...snap.inventory,...snap.equipment.flatMap(g=>['weapon','armor','shield','accessory'].map(k=>g[k]).filter(Boolean))])]
       .map(id=>commandRounds.itemInfo(id).item));
     const reserved=s=>{
@@ -1288,6 +1321,9 @@ const combatPlayerState = (() => {
         terminalOutcome:['victory','defeat','escape'].includes(s.phase)?s.phase:null,failure:s.failure,
         ...(snap.resonance?{resonance:snap.resonance,
           enabledCommands:choosing?menuFor(s).filter(type=>commandEnabled(s,type)):[],
+          commandAvailability:choosing?commandAvailability(s):[],
+          resonanceAvailability:snap.party.filter(actor=>snap.resonance.some(cap=>cap.actorId===actor.instanceId&&cap.rareBorn))
+            .map(actor=>({actorId:actor.instanceId,enabled:resonanceReason(s,actor)===null,disabledReason:resonanceReason(s,actor)})),
           techniques:choosing?techniqueRows(s):[],techniqueCursor:selection.techniqueCursor,
           selectedTechniqueId:s.phase==='technique'?techniqueRows(s)[selection.techniqueCursor]?.techniqueId||null:selection.pendingType==='resonance'?selection.techniqueId:null,
           reservedActions:s.allyActions.filter(a=>a.type==='resonance').map(a=>({actorId:a.actorId,techniqueId:a.techniqueId,participantIds:a.participantIds}))}: {})});
@@ -4006,16 +4042,26 @@ function startCanonicalPartyEncounter() {
   if(mapId==='MAP_N2'&&sentry_quest_started&&!sentry_quest_done)
     return scriptedPartyEncounters.start('pale_sentry');
   const pool=currentEncounterPool();
-  if(!Array.isArray(pool)||!pool.length)return;
+  if(pool===EMPTY_ENCOUNTER_POOL)return; // the geographic no-encounter sentinel
+  // Validate EVERY authored entry and its actual party/formation combination
+  // before selection or override RNG. Selection remains the data authority's
+  // single draw; neither validation pass allocates identities or installs state.
+  const table=encounterFormations.normalizePool(pool);
+  const templatesFor=formation=>formation.enemies.map(id=>ENEMY_TEMPLATE_REGISTRY[id]);
+  for(const formation of table.formations)
+    canonicalPartyCombat.validate({enemies:templatesFor(formation),escape:'fastest_living'});
+  const meta=MAP_METADATA[mapRegistryId(activeMap)];
+  const basin=meta&&meta.region==='North Basin'&&meta.type==='outdoor';
+  if(basin)canonicalPartyCombat.validate({enemies:[SWAMP_DONKEY_TEMPLATE],escape:'fastest_living'});
+  let enemies=templatesFor(encounterFormations.select(pool));
   const roll=()=>{const value=Math.random();if(!Number.isFinite(value)||value<0||value>=1)
     throw Error('Canonical party encounter: invalid selection RNG');return value;};
-  let template=pool[Math.floor(roll()*pool.length)];
-  const meta=MAP_METADATA[mapRegistryId(activeMap)];
-  if(meta&&meta.region==='North Basin'&&meta.type==='outdoor'&&roll()<1/16)template=SWAMP_DONKEY_TEMPLATE;
-  if(roll()<1/256){
-    template=canonicalEnemyRecords.generated();
-  }
-  return canonicalPartyCombat.enter({enemies:[template],escape:'fastest_living'});
+  // Overrides replace the whole encounter, in the original order. Generated
+  // values are issued only on success and undergo actual-state preflight in
+  // enter() before installation. No discarded formation is ever installed.
+  if(basin&&roll()<1/16)enemies=[SWAMP_DONKEY_TEMPLATE];
+  if(roll()<1/256)enemies=[canonicalEnemyRecords.generated()];
+  return canonicalPartyCombat.enter({enemies,escape:'fastest_living'});
 }
 
 // Read-only scripted-entry preparation. World callers use the same check before
@@ -5114,6 +5160,15 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['Very high defense. Heavy attack. Moderate speed.', 'It braces occasionally.', 'It will outlast a reactive strategy. You need to push first.'] },
     { lines: ['The shell is not empty. Something minimal is animating it.', 'The original occupant is not in evidence.'] },
     { lines: ['It doesn\u2019t seem to notice damage unless the threshold is significant.', 'Below that threshold, it just keeps moving.'] },
+  ],
+  enemy_road_impostor: [
+    { lines: ['The coat is official enough at a distance.', 'Up close, every insignia has been carefully cut away.'] },
+  ],
+  enemy_bridled_hollow: [
+    { lines: ['A reed-and-hide bridle has been worked tightly around it.', 'It watches the Handler with patient, practised hunger.'] },
+  ],
+  enemy_fen_handler: [
+    { lines: ['The whistle at his throat is polished smooth.', 'The hand holding it is steadier than the one holding the knife.'] },
   ],
   enemy_fen_shade: [
     { lines: ['Very high attack. Light armor. Good speed.', 'Spectral remnant \u2014 fast and devastating.', 'First-strike risk is high. Hit hard and early.'] },

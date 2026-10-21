@@ -44,13 +44,36 @@ from the validated mechanic profile; immutable battle snapshots carry only state
 that can change during combat. This keeps duplicate instances independent and
 avoids adding template metadata to result/playback schemas.
 
+### Travellers' Rise ambush
+
+`travellersRiseAmbush` owns the MQ5 road event's transient field presentation:
+the exact Rise trigger, three projected actors, authored dialogue, deterministic
+routes, reveal, demand choice and post-victory exchange. It delegates complete
+formation preparation and the exact terminal receipt to
+`scriptedPartyEncounters.startTravellersRise()`. That lifecycle definition binds
+the stable Road Impostor / Bridled Hollow / Fen Handler order and the ordinary
+escape policy; combat mechanics remain capability-driven. The Bridled Hollow
+combines the established Brace capability with the encounter lifecycle and
+never depends on the Handler's runtime state.
+
+The payment callback validates and prepares the whole encounter before charging.
+Its activation transaction records `travellers_rise_ambush_paid` and the exact
+clamped amount immediately before installation, with a narrow pre-install
+rollback if installation rejects. Payment and victory are separate receipts:
+escape or defeat retains payment but leaves the ambush retryable; only an
+authenticated victory writes `travellers_rise_ambush_complete`. Save preflight
+validates the receipt pair, while active staging/battle remains unsavable.
+Movement routes and actors are session-only and are reset on load or developer
+checkpoint application. No combat identity, route position or half-finished
+cutscene enters the version-5 payload.
+
 No build step: every file is a plain `<script src="...">` tag in `index.html`,
 loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 `function` declared in one file is just a bare global name in every file
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 190 regression suite
+Current integration totals: 216 maps, 115 regional chunks, 199 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -74,12 +97,38 @@ reward ledger; escape grants none. Defeat recovers all members and uses the shar
 singleton cleanup. A failed resolution/finalization retains evidence, blocks
 retry, simulation, saving/loading, and entry into other combat owners.
 
-`render-party-battle.js` draws one detached immutable view. The Lab renderer is a
-thin caller of this shared presentation; canonical combat has no Lab-state/API
-dependency. Input uses the existing listener and key latch. `combat.active` retains
+`render-party-battle.js` draws one detached immutable view. Enemy count alone
+selects its presentation: one enemy reuses the exact Chapter One singleton
+composition (`SINGLETON_ENEMY_BATTLE_LAYOUT`: sprite anchor 358/168, name 16/22,
+HP track 16/26 at 130×7, HP text 152/33); two or three enemies retain the
+Formation slots and strips. The Lab renderer is a thin caller of this shared
+presentation; canonical combat has no Lab-state/API dependency. Input uses the
+existing listener and key latch. `combat.active` retains
 its singleton/Receiver meaning; canonical activity is explicit and session-owned.
 Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
 see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
+
+### Geographic formation bridge
+
+`startCanonicalPartyEncounter()` normalizes the entire geographic table, validates
+each actual party/enemy combination and the eligible Donkey override, then calls
+`encounterFormations.select(pool)` once. Accepted inputs are exact registered raw
+template arrays or frozen `{id, enemies, weight}` records with frozen ordered
+one-to-three-ID arrays and positive safe weights. Malformed tables and predictable
+authored preparation failures precede RNG, identities and gameplay mutation.
+
+The selected IDs resolve in order through `ENEMY_TEMPLATE_REGISTRY`. Donkey's
+eligible North Basin `< 1/16` check replaces the whole formation, followed by the
+unconditional `< 1/256` generated-23 check; 23 wins if both succeed. Its seven
+stat-generation draws occur only on success. One `canonicalPartyCombat.enter()`
+call validates the actual final side and installs distinct fixed-slot instances.
+The no-pool sentinel, pre-recruitment singleton path and cooldown/finalization
+owners remain unchanged. See `CANONICAL_PARTY_COMBAT.md` for schema and draw order.
+
+Claude may supply weighted pools/map assignments once this bridge reaches main,
+without editing combat entry. Composition, weights, rates, permissions and Eastern
+Fens content remain Claude-owned; this bridge changes none of them. Suite 194
+covers ordered selection, duplicates, overrides, atomic failure and all nine sizes.
 
 ### Enemy capability authority — Pass 3
 
@@ -499,6 +548,15 @@ placement, healing continuity and Strain transitions using detached history;
 it consumes no RNG and never heals live actors. Old Attack-only playback is
 unchanged. Historical outcome remains hidden until its recorded boundary.
 
+The shared party renderer gives the immutable recorded `resonance` event for
+`quickbloom` one presentation-only 24-frame flourish at the exact target slot.
+Six deterministic leaf motes use `#3f8f52`, `#78c86f` and `#a8e89c`, ending in
+a pale cross-shaped sparkle. Rendering never reruns healing or Strain and consumes
+no RNG. Once rendering has begun, the canonical and Lab input routes hold that
+playback frame until the 24 ticks complete. The transient timer clears on the
+next event, all terminal cleanup, Lab exit, checkpoint reset and diagnostic abort;
+it is neither combat state nor saved state.
+
 The same session closure adds `moveTechnique`, `confirmTechnique`,
 `cancelTechnique`, a `technique` phase and immutable technique/reservation views.
 Target cancel returns to the technique list; list cancel returns to the command
@@ -541,6 +599,12 @@ Joining XP is the authored threshold for that level. The no-argument structural
 fixture retains empty slots; MQ5 equipment is installed in Esla's own slots
 without adding duplicate items to shared inventory.
 Authored definitions now carry static Rareborn/affinity metadata (see Resonance below).
+The standard party controller is the availability authority. Its immutable view
+includes per-command `enabled`/`disabledReason` records and per-Rareborn
+availability records. Quickbloom reports `No wounded ally`, `Strained`, or the
+Fallen actor reason from the same participant/Strain/target checks that gate its
+technique row. Rendering continues to consume the controller decision and does
+not infer eligibility or alter the approved battle layout.
 No persistent Strain or speculative magic resources are stored.
 
 Lifecycle APIs:
@@ -614,14 +678,14 @@ cutscene, dialogue and other modal locks retain ownership; transitions are
 synchronous and do not introduce a new menu lock state.
 
 Menu-only state: selected persistent character ID, pending item/explicit target
-IDs, equipment cursor/scroll and `menu.screen`. No mutable character record is
+IDs, the four-slot Unequip cursor and `menu.screen`. No mutable character record is
 stored. Opening a multi-member menu resets the selected ID to `lely`; closing
 and reopening therefore always returns to Lely. The controller reconciles a
 stale selection against the current fixed roster, preferring Lely. This state
 is transient and never enters save version 5.
 The shared inventory still comes from `groupItems()` (first-occurrence order,
 quantities, key-item filtering, four visible rows). Save and Load keep their
-existing positions after inventory; Equipment and Status follow only for multiple
+existing positions after inventory; Unequip and Status follow only for multiple
 members. The Notebook shortcut remains N. No Party/Formation/Resonance command.
 
 Multi-member flow:
@@ -630,11 +694,13 @@ Multi-member flow:
   the inventory cursor/scroll and displayed character. The action target is a
   separate explicit stable ID, so the displayed page never silently chooses an
   item recipient. Invalid or missing targets consume nothing.
-- `main` → Equipment/Status opens `partyEquipment`/`partyStatus` directly for
+- `main` → Unequip/Status opens `partyUnequip`/`partyStatus` directly for
   the displayed member. Back returns to that same member page. Status left/right
   uses the shared selected-member authority and wraps through all fixed slots,
-  including Fallen members. Equipment uses a four-row shared equipment list and
-  member-specific effective-stat preview.
+  including Fallen members. Unequip lists Weapon/Armor/Shield/Accessory for the
+  selected stable identity. Occupied slots return exactly one registered item to
+  shared inventory through `persistentParty`; empty slots are visible and inert.
+  Replacement equipment still enters through Items and explicit member targeting.
 - On `main`, Left/Right or A/D pages through canonical slot order without moving
   the highlighted command; Up/Down or W/S still navigates inventory and commands.
   Item targeting retains local four-direction navigation. Enter/Space confirms;
@@ -646,7 +712,7 @@ time. Its common geometry contains name/page count, Level, current and maximum H
 with the existing segmented meter, cumulative XP plus progress toward the next
 threshold, effective ATK/DEF/SPD, a persistent-status summary, and
 Weapon/Armor/Shield/Accessory IDs. It retains shared gold, day, inventory, Save,
-Load, Equipment, Status and Notebook access. Fallen members keep their fixed page;
+Load, Unequip, Status and Notebook access. Fallen members keep their fixed page;
 two- and three-member rosters use the same layout. `getFieldView()` supplies the
 immutable stat and progression projections, so rendering does not reproduce
 combat/equipment or XP formulas. The single-member branch of `drawMenu()` is
@@ -658,9 +724,13 @@ Canonical APIs added in `persistent-party.js`:
   `{effective:{atk,def,spd}, progression:{nextLevelXp,progress,required}}`.
 - `fieldItemTargets(itemId)` returns frozen stable IDs of eligible members.
 - `previewEquipment(characterId,itemId)` returns an immutable prospective member.
+- `unequipFieldEquipment(characterId,slot)` authenticates the complete idle
+  canonical state, validates the exact owner and registered equipment instance,
+  then clears only that slot and returns one item to shared inventory. Empty,
+  malformed and stale requests reject before mutation; Fallen owners remain valid.
 - `useFieldItem(characterId,itemId)` validates locks, identity, inventory copy,
   target and arithmetic before any writer. It consumes one shared copy only on
-  execution. Equipment returns the prior copy to shared inventory and changes
+  execution. Equipment replacement returns the prior copy to shared inventory and changes
   only the selected owner's slot. Ordinary heals use `healingItemAmount`; cures
   use `itemCuredStatuses`/the established cure-property registry. A cure with no
   matching status still consumes, matching existing solo field semantics. Field
@@ -733,8 +803,16 @@ capacity. MainQuest remains the ferry authorization. The active Sealed Report
 note derives the joint Mornay objective from canonical membership.
 `npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared by Calwick
 drawing, collision and interaction, and the infirmary follow-up's map projection.
-No follower or new save binding is introduced. Tests 179 and 194 cover these
+No follower or new save binding is introduced. Tests 179, 195 and 198 cover these
 boundaries.
+
+Esla explicitly states that she does not know what happened to Dreyfuss; the
+line remains an attributed Esla page and therefore uses her speaker colour.
+Tomas's established day-cycle and delivered-dispatch pages remain first. When
+`persistentParty.getMember('esla')` is present, his getter appends one ambient
+acknowledgement that Lely and Esla arrived together. No quest threshold, NPC
+projection or additional flag participates, so Fallen membership and save/load
+select the same branch while the MQ5 checkpoint reset removes it.
 
 Recruitment activates canonical party routing for supported ordinary encounters.
 
@@ -1593,10 +1671,12 @@ operation: one to three fixed ally slots, one to three contiguous enemy slots, u
 runtime identities, safe historical HP, valid submitted actor/target identities,
 phase/current-actor consistency, and playback-frame identity/HP agreement.
 
-Enemy layouts reuse Formation presentation by count: one centered 144-pixel
-slot; two 232-pixel slots; or three 144-pixel slots. They use the real
-`ENEMY_SPRITE_DISPATCH`, shared sprite bounds, baseline anchoring, stable slots,
-defeated dimming and HP strips. Ally positions are fixed at x 108, 256 and 404
+Enemy layouts are selected only by immutable roster size. A lone enemy uses the
+Chapter One right-side sprite anchor and top-left name/HP strip through the shared
+singleton geometry and sprite helper, with no A suffix. Two enemies retain their
+232-pixel Formation slots and three retain their 144-pixel Formation slots. All
+use the real `ENEMY_SPRITE_DISPATCH`, stable runtime identity, defeated dimming,
+mechanic badges and historical HP. Ally positions are fixed at x 108, 256 and 404
 on one feet baseline at y 277 and never compact. Lely calls the unchanged
 `drawBattlePlayer()` at its ordinary x/y anchor. Esla calls `drawBattleEsla()`,
 which scales the canonical `drawEslaFigureBody()` geometry and palette by 1.5;
@@ -1628,7 +1708,10 @@ and draws exactly one cursor over that living ally or enemy slot only during
 targeting. Suite 167 uses recorded canvas calls and exact state snapshots to
 enforce this read-only boundary. Suite 169 additionally fixes the authentic
 sprite/frame contract, three-slot geometry and source hashes for the unchanged
-singleton, Formation and Receiver render authorities.
+singleton, Formation and Receiver render authorities. Suite 197 locks the shared
+one-enemy geometry, native sprite dispatch, right-side cursor, historical state,
+one-to-three ally fit, unchanged two/three-enemy recordings and byte-identical
+Chapter One draw calls.
 
 The existing backtick debug menu has one `DEV: Party Combat Lab` row and a
 five-scenario submenu. `input.js` routes that submenu and active Lab before every
@@ -4331,3 +4414,12 @@ Exact touch-points Phase 1 will need (none touched in Phase 0):
 - `test/` — a Phase 1 behavioural test (route following, freezes,
   collision, stop-and-face, no-encounter guarantee), replacing test 45's
   final "no real NPC has movement" assertion intentionally.
+
+Travellers’ Rise reachability: the original single-tile trigger at (10,7) was
+bypassable through walkable off-road terrain. An unresolved MQ5 ambush now gates
+attempted eastward departure in both continuous and legacy movement, before
+either seam path runs. The player can explore or retreat and return to the
+original staging tile. Loading never starts a cutscene. Test 199 traverses all
+registered regional tiles/seams with the trigger removed, proves the former
+bypass, and proves no onward route remains until authenticated victory. No grid,
+walkability, seam or generated geographic artifact changes.

@@ -1,25 +1,18 @@
 # Enemy capability audit
 
-Pass 6 re-verifies this unchanged 60-template classification: 45 ordinary
-(44 static plus authenticated 23), nine token-owned Category A scripts, six
-pre-recruitment-only Category B scripts. Case 191 checks 48,642 dry preparations
-and 132 installations; cases 184–190 retain capability, lifecycle and ordered
-execution evidence. All 20 flat pools remain supported with unchanged selection.
-Takomo uses the existing generic silhouette in shared party presentation.
-No template, capability, reward value, pool or geography was changed.
+The integrated registry contains 70 templates: 52 ordinary (51 static plus
+authenticated 23), twelve token-owned canonical scripts, and six pre-recruitment
+legacy scripts. Case 191 verifies 74,409 ordinary dry preparations. Travellers'
+ Rise's fixed scripted formation is covered separately by case 199.
 
-Pass 7 (Eastern Fens content pass) registers seven new-or-reused ordinary
-templates. 7a added Botfly and Waspthra. 7b (toughened stats) added Sparkeel,
-Mudwrack Snapper, Fen Rootworm, Willow-Veiled Stalker and Hollowreed Choker,
-raising the registry to 67 and total mechanically compatible to 61; case 191's
-dry-preparation count rises to 74,409. All five reuse already-supported
-generic capabilities or, for Hollowreed Choker, none at all (its intended
-split mechanic is deferred — see Reconciled totals below); no capability,
-selector, dispatcher or lifecycle code changed. Two weighted formation tables
-(`EASTERN_FENS_MORNAY_EASY_FORMATIONS` / `_HARD_FORMATIONS`, 16 shared
-formation ids each at different weights) replace the earlier narrower
-Botfly/Waspthra and Mire-Toad-only tables; none is yet routed from any
-MAP_METADATA.encounterPool.
+The Eastern Fens content adds seven templates using existing generic capabilities:
+Botfly, Waspthra, Sparkeel, Mudwrack Snapper, Fen Rootworm, Willow-Veiled Stalker
+and Hollowreed Choker. Choker remains ordinary; its proposed split is deferred.
+The two weighted tables share 16 compositions with different weights (32 records).
+Case 200 exercises all records through the geographic bridge for one, two and
+three canonical members. Neither table is assigned to a production map yet.
+The original 20 flat pools retain their contents; the new registration-only pool
+is intentionally unrouted. All seven new templates use generic sprite fallback.
 
 Pass 3 audited the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Pass 4A added
 Brace and Pass 4B adds the seven established landed-hit riders; all fifteen
@@ -29,13 +22,14 @@ still have a scripted starter whose outcome lifecycle remains unsupported, and a
 mandatory pre-MQ5 encounter may still require mechanics that the legacy Formation
 engine owns.
 
-Pass 5 adds canonical execution support for nine scripted templates through an
-authenticated lifecycle owner. The registry now reports **54 mechanically
-compatible templates**: the 45 ordinary templates plus those nine. The remaining
+Pass 5 added canonical execution support for nine scripted templates through an
+authenticated lifecycle owner; Travellers' Rise adds three more behind one
+formation lifecycle. The registry now reports **64 mechanically compatible
+templates**: the 52 ordinary templates plus those twelve. The remaining
 six are the fort trio (including Polwick's unresolved Firelit attack) and the
 Receiver trio; all are necessarily pre-recruitment. Mechanical compatibility does
-not itself authorize a story route: all 15 scripted rows retain their
-`scripted-only lifecycle` audit classification, and the nine migrated rows require
+not itself authorize a story route: all 18 scripted rows retain their
+`scripted-only lifecycle` audit classification, and the twelve canonical rows require
 an exact one-use encounter token.
 
 Canonical compatibility is derived by `enemyCapabilityMetadata(template)`. Every
@@ -137,6 +131,9 @@ column says otherwise.
 | `enemy_wrongteeth` / Wrongteeth | `data.js`; optional dungeon boss | reachable scripted | base + boss lock + Wrongteeth lifecycle | defeat/hug/final reward flow | rejected | scripted-only lifecycle | Pass 5 authenticated knockdown; later choice unchanged |
 | `enemy_lensweb_spider` / Lensweb Spider | `data.js`; lighthouse objective starter | reachable scripted | base + boss lock + Observe/Run lock + objective lifecycle | Observe-gated escape and lens finalizer | rejected | scripted-only lifecycle | Pass 5 Observe-gated party route and objective finalizer |
 | `enemy_mimic_potion` / Mimic Potion | `data.js`; Gallery trap starter | reachable scripted | base + guaranteed drop + trap lifecycle | consumption/drop/finalizer branches | rejected | scripted-only lifecycle | Pass 5 sprung-trap and guaranteed-drop lifecycle |
+| `enemy_road_impostor` / Road Impostor | `combat.js`; MQ5 Travellers' Rise fixed formation | reachable scripted | base + Travellers' Rise lifecycle | authenticated ambush staging/payment/outcome owner | new | scripted-only lifecycle | canonical fixed slot 0; ordinary attack and rewards |
+| `enemy_bridled_hollow` / Bridled Hollow | `combat.js`; MQ5 Travellers' Rise fixed formation | reachable scripted | base + brace + Travellers' Rise lifecycle | authenticated ambush staging/payment/outcome owner | new | scripted-only lifecycle | canonical fixed slot 1; 20% established Brace |
+| `enemy_fen_handler` / Fen Handler | `combat.js`; MQ5 Travellers' Rise fixed formation | reachable scripted | base + Travellers' Rise lifecycle | authenticated ambush staging/payment/outcome owner | new | scripted-only lifecycle | canonical fixed slot 2; Handler defeat does not alter Hollow |
 | `enemy_gallery_receiver` / The Receiver | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + boss lock + Receiver coordination | Formation signals, staging and report | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
 | `enemy_gallery_caller` / The Caller | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + Receiver coordination | Formation coordination branches | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
 | `enemy_gallery_keeper` / The Keeper | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + Receiver coordination | Formation coordination branches | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
@@ -151,12 +148,12 @@ column says otherwise.
 
 ## Reconciled totals
 
-- Registered templates: **67**.
+- Registered templates: **70**.
 - Ordinary and capability-compatible: **52** — 22 Pass 3, eight Brace, seven status-special and eight unusual templates; generated 23 requires authenticated selection data; plus Botfly, Waspthra, Sparkeel, Mudwrack Snapper, Fen Rootworm, Willow-Veiled Stalker and Hollowreed Choker (Eastern Fens content pass).
-- Scripted templates mechanically compatible behind exact lifecycle tokens: **9**.
-- Total mechanically compatible: **61**.
+- Scripted templates mechanically compatible behind exact lifecycle tokens: **12**.
+- Total mechanically compatible: **64**.
 - Special capability pending: **0** (23 at the Pass 3 checkpoint).
-- Scripted-only lifecycle audit rows: **15** — nine migrated routes and six necessarily pre-recruitment legacy routes.
+- Scripted-only lifecycle audit rows: **18** — twelve canonical routes (including the three-member Travellers' Rise formation) and six necessarily pre-recruitment legacy routes.
 - Non-production/debug fixtures: **0**.
 - Permanently completed before recruitment: **3** Receiver templates. This is a
   reachability subset, not a fifth mechanical category.
@@ -178,11 +175,10 @@ Two weighted `{ id, enemies, weight }` formation tables
 share the same 16 formation ids/compositions at different weights, intended
 for chunk column <= 12 (Eastern Bank through Travellers' Rise) and column >= 13
 (Travellers' Rise to Mornay Threshold) respectively. Neither table is routed
-from any MAP_METADATA.encounterPool yet — the geographic dispatcher
-(`startCanonicalPartyEncounter()` in combat.js) still draws one flat template
-rather than calling `encounterFormations.select()`, so this content remains
-reachable only in isolated preparation/test contexts, not live play. See
-PROJECT_STATUS.md for the exact missing seam.
+from any MAP_METADATA.encounterPool yet. The geographic dispatcher now selects
+these records through `encounterFormations.select()` and installs their ordered
+enemy side once; case 200 verifies this in isolated pool-routing fixtures.
+Production geographic assignment remains separate content work.
 
 ## Pass 4C legacy mechanic audit
 

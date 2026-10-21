@@ -6,6 +6,47 @@ actually fits together.
 
 ## Current state
 
+### MQ5 and Eastern Fens content integration
+
+The MQ5 presentation/ambush and geographic bridge are integrated with seven
+Eastern Fens templates and 32 weighted records (16 compositions, two weight
+tables). Case 200 now exercises all 32 through the real geographic selector and
+canonical entry for each of one, two and three members, preserving content
+assertions and unassigned map permissions. The registry contains 70 templates:
+52 ordinary, 12 token-owned canonical scripted and six pre-recruitment legacy.
+Case 191 covers 74,409 immutable ordinary preparations. The seven new templates
+retain their authored generic sprites; validation includes those seven warnings
+and the intentional unrouted-pool warning in addition to the established four.
+No map assignments, encounter permissions, terrain or save-version changes are
+part of this integration. Main's column-11/right-facing Esla walk is retained.
+
+### Geographic formation bridge (review increment)
+
+Approved MQ5 dialogue/Tomas/Quickbloom presentation, the Travellers’ Rise ambush
+and its mandatory eastward-exit reachability gate were checkpointed as
+`5a37beecc6b107f36ab8aeeae2daf90fd42ec853` after 198/198 suites and unchanged
+historical captures/artifacts. The gate preserves local exploration and inert
+loading while preventing an unresolved ambush from being bypassed toward Mornay.
+
+The canonical geographic starter now validates whole tables and actual candidate
+formations before RNG, selects exactly once through `encounterFormations`, resolves
+ordered registry IDs and installs one complete enemy side. Flat pools retain their
+selection mapping. Weighted immutable `{id, enemies, weight}` records support
+one to three enemies and duplicates. Donkey and generated 23 replace the whole
+selection, in that order; the last successful override wins. Existing eligibility,
+probabilities, generation order and cooldown/finalization behavior remain intact.
+Suite 194 adds 23 deterministic bridge checks without using the 200+ content range.
+Final verification: 199/199 suites, including 48,642 immutable formation
+preparations; 0 data errors and 4 established warnings; 115/115 fingerprints;
+read-only transition audit matches the tracked artifact; all five historical
+capture digests unchanged. SAVE_VERSION remains 5. No browser test was performed.
+
+**Claude handoff:** once merged to main through a separately authorized integration,
+Claude can author weighted pools/map assignments without changing combat entry.
+Formation weights, geographic assignment, rates and map permissions remain Claude's
+scope. No Eastern Fens random content or encounter permission was added here.
+No pool, grid, transition, fingerprint, enemy definition or SAVE_VERSION change.
+
 ### Canonical party completion policy — Pass 6 (uncommitted)
 
 Pass 5 checkpoint: `4512eabc75d4a194e72f14ce98589822e6e4d59a` (verified 190/190).
@@ -226,6 +267,13 @@ Playback shows historical HP/Strain without applying effects again. The wounded
 showcase supports immediate testing. The approved sprites, baseline and fixed
 left/centre placement remain unchanged.
 
+The controller exposes its exact disabled reason in the immutable command view.
+A full-health first party battle reports `No wounded ally`; positive Strain
+reports `Strained`; a Fallen Rareborn record reports that actor as Fallen. The
+renderer retains its established dimmed-command behavior because the approved
+battle layout has no existing short-reason region. Quickbloom targeting, healing,
+Strain timing, playback and RNG are unchanged.
+
 Synthetic VM fixtures test two- and three-person combined techniques: explicit
 Rareborn participants reserve all their actions, keep their existing initiative
 entries, wait until the latest participant, and cancel once without cost if a
@@ -262,6 +310,13 @@ unchanged and now resolves through stable speaker ID `esla`, whose named
 Legacy dialogue, Supervisor speech and narration retain the existing default
 style, selected independently on every page.
 
+Esla's Dreyfuss line now states that she does not know what happened to him and
+will not let it happen to anyone else in the office; it remains an Esla-attributed
+green page. Tomas retains every existing day-cycle and dispatch-delivered page,
+then appends one concise arrival acknowledgement only when canonical party
+membership actually contains Esla. Fallen membership and save/load retain the
+branch; the Assignment Ready checkpoint restores his original pre-recruitment text.
+
 The MQ5 scene now shows rather than narrates Esla coming to the desk. After the
 unchanged briefing, dialogue yields to a deterministic two-leg office route:
 `(4.5,9.5) → (11.5,9.5) → (11.5,3.5)`, ending right-facing beside the Supervisor's
@@ -270,9 +325,17 @@ or pathfinder exists. Input, menus and save/load remain locked until arrival,
 then the remaining attributed conversation resumes. Final acknowledgement alone
 calls the existing assignment/recruitment authority, so MainQuest, membership and
 the ferry still change exactly once. The route and speaker metadata are transient,
-consume no RNG and add no save field. Tests 179 and 194 cover recruitment,
+consume no RNG and add no save field. Tests 179, 195 and 198 cover recruitment,
 prerequisites, page styling, route geometry, exclusive ownership, reset/repeat
 behavior, world NPCs, field-menu targeting and version-5 saves.
+
+Successful recorded Quickbloom playback now draws six compact rising leaf motes
+in `#3f8f52`, `#78c86f` and `#a8e89c`, followed by a pale sparkle, around the exact
+healed slot at x=108, 256 or 404. The shared canonical/Lab renderer owns the
+24-frame presentation timer and briefly gates only player playback advance after
+the first rendered frame. Zero-heal execution still animates; wait, cancellation,
+Strain and other events do not. Cleanup and event advancement clear the timer.
+Combat state, historical reels, RNG, saves and Quickbloom mechanics are unchanged.
 
 **Current boundary:** approved ordinary western encounters use canonical party
 combat. Unsupported specials and optional scripted encounters reject explicitly;
@@ -290,8 +353,12 @@ cumulative XP and next-level progress, effective ATK/DEF/SPD, persistent status,
 and Weapon/Armor/Shield/Accessory. Fallen members retain their page, and the same
 controller/layout supports the test-only third slot.
 
-Equipment and Status open directly for the displayed member and return to the
-same page. Status shares the page's selected-member authority. Item use continues
+Unequip and Status open directly for the displayed member and return to the
+same page. Unequip presents the selected member's fixed Weapon, Armor, Shield
+and Accessory slots; an occupied slot returns one item to shared inventory and
+refreshes the character sheet immediately, while an empty slot is inert. Equipment
+installation remains in Items with explicit member targeting. Status shares the
+page's selected-member authority. Item use continues
 to require a separate explicit target and never infers that target from the page.
 Selection is a transient stable character ID owned by the controller and is not
 saved. The existing solo menu, direct item/equip navigation, Notebook and save/load
@@ -302,7 +369,7 @@ Targeted field healing/cures and equipment exchanges use `persistentParty`, with
 shared inventory and independent personal state. Fallen members retain pages and
 may change equipment; ordinary healing cannot revive them. Three-member capacity
 is tested using a test-only authored fixture. Test 193 covers paging, identical
-member geometry, direct Equipment/Status routing, explicit item targeting, the
+member geometry, direct Unequip/Status routing, explicit item targeting, the
 MQ5 checkpoint/recruitment state, read-only switching and both supported scales.
 Save format remains version 5 and
 contains no menu state. No third character, artwork, Lab changes or combat route
@@ -592,10 +659,13 @@ before drawing, then reuses the ordinary battle background, frame, typography,
 segmented HP meters and command boxes. Lely keeps her ordinary battle position;
 Esla reuses her established green-haired figure at the matching battle scale.
 The three-capacity ally layout keeps fixed left, centre and right positions while
-the current Lab fills only the first two. One to three enemies use the existing
-Formation sprite dispatch, clipping, baseline, HP strips, stable slots, defeated
-dimming and pale target cursor. Playback-complete, victory and defeat views
-retain and render their final historical HP.
+the current Lab fills only the first two. Exactly one enemy now uses the classic
+Chapter One composition: its authentic sprite is anchored at 358/168 on the
+upper right, while its unsuffixed name and 130×7 HP strip occupy the original
+top-left geometry. Two- and three-enemy encounters retain their Formation slots,
+clipping, labels and HP strips unchanged. Every layout preserves stable runtime
+slots, defeated/departed presentation, mechanic badges, historical playback HP
+and the pale target cursor.
 
 The main render path calls it exclusively while the Party Lab is active. It does
 not advance playback, acknowledge frames, read live combatants, rerun
@@ -603,7 +673,9 @@ arithmetic, allocate identities or consume RNG. Suite 167 records its canvas
 operations and proves deterministic slot geometry, historical-frame fidelity,
 terminal-frame retention and zero state mutation. Suite 169 locks the visual
 convergence, three-ally layout capacity and unchanged singleton/Formation/
-Receiver render sources. The adapter owns exact target selection by enemy runtime
+Receiver render sources. Suite 197 locks the one-enemy shared geometry,
+Lab/canonical parity, one-to-three ally fit and unchanged legacy/multi-enemy draw
+records. The adapter owns exact target selection by enemy runtime
 identity; the renderer adds one pale cursor only during exact ally/enemy targeting.
 Input uses the existing physical-key latch. Left/Right or A/D move commands and
 targets, Up/Down or W/S move the three-row item list, Enter/Space confirms, and
@@ -643,10 +715,16 @@ Valmere. A shorter eastern leg follows the inland sea's southern shore toward th
 unbuilt port. The shortest valid walk from the ferry spawn is 400 tile steps,
 25 normal 512px viewport widths, and traverses all 24 route chunks including
 Eastern Bank. The future camp reservation is now the dry Travellers’ Rise at
-`(12,3)`, 215 steps or about 53.8% through that shortest walk; it has no trigger,
-NPC, dialogue, or state. Mornay content, the camp scene, encounters,
-party content, shops, further MQ5 progression, and boat travel remain deferred;
-the port is canonically unserved by rail.
+`(12,3)`, 215 steps or about 53.8% through that shortest walk. Its deliberate
+road trigger stages the MQ5 ambush: two human impostors bracket Lely and Esla
+while a cloaked traveller is revealed as a conditioned Bridled Hollow, then the
+fixed three-member formation enters canonical party combat. Refusal costs
+nothing; handing over up to 100 gold records a separate one-time receipt but
+cannot prevent the fight. Escape and defeat permit retry without another charge.
+Authenticated victory alone removes the actors, completes the event and changes
+the journal objective to making camp at the Rise. The camp scene itself,
+healing/time passage, Mornay content, shops, further MQ5 progression, and boat
+travel remain deferred; the port is canonically unserved by rail.
 
 ### Reservoir balance-lock reward
 
@@ -1689,3 +1767,12 @@ Roughly in priority order:
   changing how either resolves a landing coordinate — collision/soft-lock
   risk, and this exact area has had real, previously-shipped bugs (a water
   soft-lock, an asymmetric-range clamp) before this arc's fixes.
+
+Travellers’ Rise reachability: the original single-tile trigger at (10,7) was
+bypassable through walkable off-road terrain. An unresolved MQ5 ambush now gates
+attempted eastward departure in both continuous and legacy movement, before
+either seam path runs. The player can explore or retreat and return to the
+original staging tile. Loading never starts a cutscene. Test 199 traverses all
+registered regional tiles/seams with the trigger removed, proves the former
+bypass, and proves no onward route remains until authenticated victory. No grid,
+walkability, seam or generated geographic artifact changes.

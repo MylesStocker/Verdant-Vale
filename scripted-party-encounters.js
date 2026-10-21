@@ -24,6 +24,8 @@ const scriptedPartyEncounters=(()=>{
     startTrappedDrownedCombat:Object.freeze({template:()=>SUNKEN_GALLERY_ENEMY_TEMPLATES[0],escape:'fastest_living',lifecycle:[]}),
     startMireToadSpawnCombat:Object.freeze({templates:()=>[ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_male,
       ENEMY_TEMPLATE_REGISTRY.enemy_mire_toad_female],escape:'blocked',lifecycle:[],chain:true}),
+    startTravellersRiseAmbush:Object.freeze({formation:()=>[ROAD_IMPOSTOR_TEMPLATE,BRIDLED_HOLLOW_TEMPLATE,
+      FEN_HANDLER_TEMPLATE],escape:'fastest_living',lifecycle:['travellers_rise_ambush_lifecycle']}),
   });
   const eligible=(name,remaining)=>{
     if(name==='pale_sentry')return sentry_quest_started&&!sentry_quest_done&&Number.isSafeInteger(pale_sentry_hp)&&
@@ -42,11 +44,15 @@ const scriptedPartyEncounters=(()=>{
     if(name==='startTrappedDrownedCombat')return !window.sunken_gallery_drowned_slain&&!window.sunken_gallery_drowned_freed;
     if(name==='startMireToadSpawnCombat')return Number.isInteger(remaining)&&remaining>=0&&remaining<=2&&
       !!PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn&&!PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn.picked;
+    if(name==='startTravellersRiseAmbush')return remaining===undefined&&MainQuest>=5&&
+      persistentParty.getMember('esla')!==null&&!travellers_rise_ambush_complete&&
+      mapIdForRef(activeMap)==='EASTERN_FENS_TRAVELLERS_RISE_MAP';
     return false;
   };
   const templatesFor=(name,remaining,select=false)=>{
     const definition=definitions[name];if(!definition)throw Error('Canonical party encounter: unsupported scripted encounter '+name);
     if(!eligible(name,remaining))return null;
+    if(definition.formation){const formation=definition.formation();return formation.length===3&&formation.every(Boolean)?formation:null;}
     if(definition.templates){
       const candidates=definition.templates();
       if(candidates.length!==2||candidates.some(t=>!t))return null;
@@ -72,13 +78,18 @@ const scriptedPartyEncounters=(()=>{
     const definition=definitions[name],permit=pending&&pending.name===name&&pending.remaining===remaining?pending:null;
     // Mire Toad selection is the sole authored pre-entry selection draw. Both
     // candidates must pass the complete canonical preflight before that draw.
+    if(definition.formation){
+      const token=createToken(name,remaining,candidates,permit);
+      canonicalPartyCombat.validateScripted(request(candidates,definition.escape),token);
+      return true;
+    }
     for(const template of candidates){
       const token=createToken(name,remaining,[template],permit);
       canonicalPartyCombat.validateScripted(request([template],definition.escape),token);
     }
     return true;
   };
-  const start=(name,remaining)=>{
+  const start=(name,remaining,activation=null)=>{
     if(!canonicalPartyCombat.hasMultipleMembers())return false;
     if(!validate(name,remaining))return false;
     const definition=definitions[name],permit=pending&&pending.name===name&&pending.remaining===remaining?pending:null;
@@ -91,7 +102,25 @@ const scriptedPartyEncounters=(()=>{
     // an unexpected installation fault.
     if(name==='startSailorBrawlCombat')stats.gold-=50;
     if(name==='startLenswebSpiderCombat')triggerPoison();
-    const result=canonicalPartyCombat.enterScripted(request(templates,definition.escape),token);
+    let payment=null;
+    if(name==='startTravellersRiseAmbush'){
+      if(!activation||typeof activation!=='object'||Array.isArray(activation)||
+          Reflect.ownKeys(activation).length!==1||typeof activation.pay!=='boolean')fail('invalid ambush activation');
+      if(activation.pay&&!travellers_rise_ambush_paid){
+        const amount=Math.min(100,stats.gold);payment={gold:stats.gold,paid:travellers_rise_ambush_paid,
+          amount:travellers_rise_ambush_payment};stats.gold-=amount;travellers_rise_ambush_paid=true;
+        travellers_rise_ambush_payment=amount;syncQuestFlagsToWindow();
+      }
+    }
+    let result;
+    try{result=canonicalPartyCombat.enterScripted(request(templates,definition.escape),token);}
+    catch(error){
+      if(payment&&!canonicalPartyCombat.isActive()){
+        stats.gold=payment.gold;travellers_rise_ambush_paid=payment.paid;
+        travellers_rise_ambush_payment=payment.amount;syncQuestFlagsToWindow();
+      }
+      throw error;
+    }
     const record=issued.get(token);record.instanceIds=Object.freeze(result.enemies.map(enemy=>enemy.instanceId));record.phase='active';
     if(permit===pending)pending=null;
     if(name==='startRainfishCombat'&&remaining===2){rainfish_woken=true;syncQuestFlagsToWindow();}
@@ -129,6 +158,7 @@ const scriptedPartyEncounters=(()=>{
       else syncQuestFlagsToWindow();
       return true;
     }
+    if(record.name==='startTravellersRiseAmbush')return travellersRiseAmbush.finalizeAuthenticated(result);
     if(!victory&&!(record.name==='startLenswebSpiderCombat'&&result.outcome==='escape'))return true;
     if(record.name==='startWardenCombat'){warden_quest_defeated=true;refreshJobBoard();return true;}
     if(record.name==='startRainfishCombat'){
@@ -181,6 +211,8 @@ const scriptedPartyEncounters=(()=>{
   };
   return Object.freeze({
     validate,start,finalize,
+    startTravellersRise(pay){if(arguments.length!==1||typeof pay!=='boolean')fail('invalid ambush activation');
+      return start('startTravellersRiseAmbush',undefined,Object.freeze({pay}));},
     resetForStoryCheckpoint(){pending=null;issued=new WeakMap();return true;},
     authorize(token,ids,lifecycle,escape){
       const record=issued.get(token);return !!record&&record.phase!=='complete'&&escape===record.escape&&

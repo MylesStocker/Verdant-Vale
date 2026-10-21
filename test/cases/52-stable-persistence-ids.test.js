@@ -27,7 +27,7 @@ const { createContext } = require('../harness');
 // Frozen expectation snapshots (production stays registry-driven).
 const EXPECTED_PICKUP_COUNT = 54;  // +1: persisted Northern Fen Mire Toad spawning-site sparkle
 const EXPECTED_CHEST_COUNT  = 14;  // +1: reservoir balance-puzzle compartment
-const EXPECTED_ENEMY_COUNT  = 67;  // Includes the three canonical Receiver formation members.
+const EXPECTED_ENEMY_COUNT  = 70;  // Includes Receiver plus the three Travellers' Rise scripted members.
 const CHEST_IDS = [
   'chest_cat_armor', 'chest_dungeon8_east_bomb', 'chest_dungeon8_east_secret', 'chest_dungeon8_west_deep',
   'chest_dungeon_alcove', 'chest_dungeon_main', 'chest_meadow',

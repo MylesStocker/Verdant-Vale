@@ -94,6 +94,7 @@ const storyCheckpointLab=(()=>{
   };
   const resetTransient=()=>{
     if(typeof mq5AssignmentCutscene!=='undefined')mq5AssignmentCutscene.reset();
+    if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.resetTransient();
     canonicalPartyCombat.resetForStoryCheckpoint();scriptedPartyEncounters.resetForStoryCheckpoint();
     formationCombatLab.resetForStoryCheckpoint();partyCombatLab.resetForStoryCheckpoint();
     galleryReceiverEncounter.resetForStoryCheckpoint();resetCombatForStoryCheckpoint();

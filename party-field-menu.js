@@ -3,9 +3,12 @@
 // Navigation only. Persistent character records, inventory and equipment never
 // live here; every read/mutation goes through persistentParty.
 const partyFieldMenu = (() => {
-  let selectedId='lely', pendingItem=null, targetId=null, equipmentCursor=0, equipmentScroll=0;
-  const memberScreens=['partyTarget','partyEquipment','partyStatus'];
-  const equipmentItems=()=>groupItems().filter(g=>['weapon','armor','shield','accessory'].includes(g.item.type));
+  let selectedId='lely', pendingItem=null, targetId=null, unequipCursor=0;
+  const memberScreens=['partyTarget','partyUnequip','partyStatus'];
+  const equipmentSlots=Object.freeze([
+    Object.freeze({id:'weapon',label:'Weapon'}),Object.freeze({id:'armor',label:'Armor'}),
+    Object.freeze({id:'shield',label:'Shield'}),Object.freeze({id:'accessory',label:'Accessory'}),
+  ]);
   const rowCount=()=>groupItems().length+4;
   const clampMain=()=>{
     menu.itemCursor=Math.max(0,Math.min(menu.itemCursor,rowCount()-1));
@@ -13,7 +16,7 @@ const partyFieldMenu = (() => {
     if(menu.itemCursor<menu.scrollOffset)menu.scrollOffset=menu.itemCursor;
     if(menu.itemCursor>=menu.scrollOffset+4)menu.scrollOffset=menu.itemCursor-3;
   };
-  const reset=()=>{selectedId='lely';pendingItem=null;targetId=null;equipmentCursor=0;equipmentScroll=0;};
+  const reset=()=>{selectedId='lely';pendingItem=null;targetId=null;unequipCursor=0;};
   const targets=()=>pendingItem ? persistentParty.fieldItemTargets(pendingItem) : [];
   const selected=members=>members.find(m=>m.characterId===selectedId)||members.find(m=>m.characterId==='lely')||members[0];
   const reconcile=members=>{selectedId=selected(members).characterId;};
@@ -24,13 +27,11 @@ const partyFieldMenu = (() => {
     return ids[((at<0?0:at)+delta+ids.length)%ids.length];
   };
   const getView=()=>{
-    const party=persistentParty.getFieldView(),current=selected(party.members),gear=equipmentItems();
-    const option=gear[equipmentCursor];
+    const party=persistentParty.getFieldView(),current=selected(party.members);
     return Object.freeze({...party,screen:menu.screen,selectedId:current.characterId,pendingItem,selectedTargetId:targetId,
       validTargets:Object.freeze(menu.screen==='partyTarget'?targets():[]),
-      equipmentCursor,equipmentScroll,
-      equipmentItems:Object.freeze(gear.map(g=>Object.freeze({id:g.name,count:g.count}))),
-      preview:menu.screen==='partyEquipment'&&option?persistentParty.previewEquipment(current.characterId,option.name):null});
+      unequipCursor,
+      unequipSlots:Object.freeze(equipmentSlots.map(slot=>Object.freeze({...slot,itemId:current.equipment[slot.id],enabled:current.equipment[slot.id]!==null})))});
   };
   const handleInput=e=>{
     const party=persistentParty.getView();
@@ -59,7 +60,7 @@ const partyFieldMenu = (() => {
           if(valid.length){pendingItem=entry.name;targetId=valid[0];menu.screen='partyTarget';}
         }else if(extra===0){menu.screen='saveConfirm';menu.saveCursor=0;}
         else if(extra===1){menu.screen='loadConfirm';menu.loadCursor=0;}
-        else if(extra===2){menu.screen='partyEquipment';equipmentCursor=0;equipmentScroll=0;}
+        else if(extra===2){menu.screen='partyUnequip';unequipCursor=0;}
         else if(extra===3)menu.screen='partyStatus';
       }
     }else if(menu.screen==='partyTarget'){
@@ -71,15 +72,11 @@ const partyFieldMenu = (() => {
     }else if(menu.screen==='partyStatus'){
       if(left||right)selectedId=moveId(selectedId,party.members,right?1:-1);
       else if(cancel)menu.screen='main';
-    }else if(menu.screen==='partyEquipment'){
-      const gear=equipmentItems();
+    }else if(menu.screen==='partyUnequip'){
       if(cancel)menu.screen='main';
-      else if(up||down){equipmentCursor=Math.max(0,Math.min(gear.length-1,equipmentCursor+(down?1:-1)));}
-      else if(confirm&&gear[equipmentCursor])persistentParty.useFieldItem(selectedId,gear[equipmentCursor].name);
-      const n=equipmentItems().length;equipmentCursor=Math.max(0,Math.min(equipmentCursor,n-1));
-      equipmentScroll=Math.max(0,Math.min(equipmentScroll,Math.max(0,n-4)));
-      if(equipmentCursor<equipmentScroll)equipmentScroll=equipmentCursor;
-      if(equipmentCursor>=equipmentScroll+4)equipmentScroll=equipmentCursor-3;
+      else if(up||down)unequipCursor=Math.max(0,Math.min(equipmentSlots.length-1,unequipCursor+(down?1:-1)));
+      else if(confirm&&selected(party.members).equipment[equipmentSlots[unequipCursor].id]!==null)
+        persistentParty.unequipFieldEquipment(selectedId,equipmentSlots[unequipCursor].id);
     }
     return true;
   };
@@ -119,26 +116,23 @@ function drawPartyFieldMenu() {
     if(offset+4<total)text('▼',CX+W-12,y+70,'#4a8898',10);
   };
   const selected=v.members.find(m=>m.characterId===v.selectedId),selectedIndex=v.members.indexOf(selected);
-  if(['partyEquipment','partyStatus'].includes(v.screen)){
-    label(v.screen==='partyEquipment'?'EQUIPMENT':'STATUS',76);rule(81);row(selected,106);
+  if(['partyUnequip','partyStatus'].includes(v.screen)){
+    label(v.screen==='partyUnequip'?'UNEQUIP':'STATUS',76);rule(81);row(selected,106);
     const progress=selected.progression;
     text(progress.nextLevelXp===null?'XP '+selected.xp+' MAX':'XP '+selected.xp+' · NEXT '+progress.progress+'/'+progress.required,CX+14,151,'#6a9ab8',11);
     ['atk','def','spd'].forEach((key,i)=>{
       text(key.toUpperCase()+' '+selected.effective[key],CX+i*125,177,'#d8e4d0',13,true);
-      if(v.preview&&v.preview.effective[key]!==selected.effective[key])text('→ '+v.preview.effective[key],CX+i*125+60,177,'#78d888',12);
     });
     rule(190);
-    Object.entries(selected.equipment).forEach(([slot,id],i)=>{
-      text(slot[0].toUpperCase()+slot.slice(1),CX,211+i*22,'#6a9898',12);
-      text(fit(id||'[ empty ]',34),CX+94,211+i*22,id?'#d8e4d0':'#2e5252',12);
+    v.unequipSlots.forEach((slot,i)=>{
+      const y=211+i*22,chosen=v.screen==='partyUnequip'&&i===v.unequipCursor;
+      if(chosen)text('▶',CX,y,'#8ac8d8',13,true);
+      text(slot.label,CX+(chosen?16:0),y,slot.enabled?'#6a9898':'#53646a',12,chosen);
+      text(fit(slot.itemId||'Empty',34),CX+110,y,slot.enabled?'#d8e4d0':'#53646a',12);
     });
-    if(v.screen==='partyEquipment'){
-      rule(293);label('SHARED EQUIPMENT',311);
-      const entries=v.equipmentItems.slice(v.equipmentScroll,v.equipmentScroll+4);
-      if(!entries.length)text('no equipment',CX,336,'#53646a');
-      entries.forEach((g,i)=>listRow(g.id+(g.count>1?' '+g.count:''),336+i*22,v.equipmentScroll+i===v.equipmentCursor));
-      scroll(v.equipmentScroll,v.equipmentItems.length,330);
-      hint('↑↓ select · ENTER equip · B / ESC back');
+    if(v.screen==='partyUnequip'){
+      rule(301);text('Returns the selected item to shared inventory.',CX,324,'#6a9898',11);
+      hint('↑↓ select · ENTER unequip · B / ESC back');
     }else{
       rule(301);text('Base ATK '+selected.atk+'  DEF '+selected.def+'  SPD '+selected.spd,CX,324,'#6a9898',12);
       text(fit(status(selected),42),CX,348,selected.hp===0?'#d07050':'#9ab8aa',12);
@@ -174,7 +168,7 @@ function drawPartyFieldMenu() {
   });
   text('● '+v.gold+' g',CX,296,'#c8a830',11,true);text('Day '+day,CX+260,296,'#8a9aac',11);
   rule(304);label('ITEMS',320);
-  const groups=groupItems(),extras=['[ Save Game ]','[ Load Game ]','[ Equipment ]','[ Status ]'];
+  const groups=groupItems(),extras=['[ Save Game ]','[ Load Game ]','[ Unequip ]','[ Status ]'];
   const entries=[...groups.map(g=>({label:g.name+(g.count>1?' '+g.count:''),enabled:persistentParty.fieldItemTargets(g.name).length>0})),...extras.map(label=>({label,enabled:true}))];
   const offset=Math.min(menu.scrollOffset,Math.max(0,entries.length-4));
   entries.slice(offset,offset+4).forEach((r,i)=>listRow(fit(r.label,42),341+i*21,offset+i===menu.itemCursor,r.enabled));

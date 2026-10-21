@@ -115,6 +115,32 @@ let gallery_receiver_defeated = false;
 // progression-neutral debug preview of the same scene.
 let sera_liora_opening_complete = false;
 
+// ─── MQ5 road: Travellers' Rise ambush ───────────────────────────────────────
+// Completion and the optional surrender payment are independent receipts.
+// The payment amount is retained so a later retry/save-load can prove the
+// party was charged once without presenting a second demand.
+let travellers_rise_ambush_complete = false;
+let travellers_rise_ambush_paid = false;
+let travellers_rise_ambush_payment = 0;
+
+// The demand receipt is independent from victory, but its amount cannot exist
+// without the receipt. This pure check accepts a candidate save payload so
+// loadGame can reject contradictions before changing live quest state.
+function travellersRiseAmbushInvariantErrors(source) {
+  const read=(key,current,fallback)=>source&&Object.prototype.hasOwnProperty.call(source,key)
+    ?source[key]:(source?fallback:current);
+  const complete=read('travellers_rise_ambush_complete',travellers_rise_ambush_complete,false);
+  const paid=read('travellers_rise_ambush_paid',travellers_rise_ambush_paid,false);
+  const payment=read('travellers_rise_ambush_payment',travellers_rise_ambush_payment,0);
+  const errors=[];
+  if(typeof complete!=='boolean')errors.push('travellers_rise_ambush_complete must be a boolean');
+  if(typeof paid!=='boolean')errors.push('travellers_rise_ambush_paid must be a boolean');
+  if(!Number.isSafeInteger(payment)||payment<0||payment>100)
+    errors.push('travellers_rise_ambush_payment must be a safe integer from 0 through 100');
+  if(paid===false&&payment!==0)errors.push('an ambush payment amount requires its receipt');
+  return errors;
+}
+
 // ─── Side quest: The Weight Discrepancy ───────────────────────────────────────
 // A cargo weight mismatch between Drenwick harbormaster records and Calwick
 // district ledgers requires a neutral party to carry paperwork between offices.
@@ -490,6 +516,9 @@ function syncQuestFlagsToWindow() {
   window.gallery_deeper_stair_seen = gallery_deeper_stair_seen;
   window.gallery_receiver_defeated = gallery_receiver_defeated;
   window.sera_liora_opening_complete = sera_liora_opening_complete;
+  window.travellers_rise_ambush_complete = travellers_rise_ambush_complete;
+  window.travellers_rise_ambush_paid = travellers_rise_ambush_paid;
+  window.travellers_rise_ambush_payment = travellers_rise_ambush_payment;
   window.schilling_quest_started = schilling_quest_started;
   window.schilling_returned      = schilling_returned;
   window.drama_stage             = drama_stage;
@@ -771,7 +800,9 @@ function getActiveQuestNotes() {
   } else if (MainQuest >= 5) {
     notes.push({
       title: 'Sealed Report',
-      body: persistentParty.getMember('esla')
+      body: travellers_rise_ambush_complete
+        ? "Make camp with Esla at Travellers’ Rise before continuing to Mornay."
+        : persistentParty.getMember('esla')
         ? "Lely and Esla should take the ferry at the broken causeway and carry the sealed report east to Mornay. Give your firsthand account at the regional office and request qualified assistance."
         : "Carry the supervisor's sealed report east, give your firsthand account at the regional office, and request qualified assistance. Your assignment authorizes the ferry at the broken causeway.",
     });
@@ -891,6 +922,7 @@ window.LIGHTHOUSE_QUEST_STAGE = LIGHTHOUSE_QUEST_STAGE;
 window.LIGHTHOUSE_OBJECTIVE_BY_ROUTE = LIGHTHOUSE_OBJECTIVE_BY_ROUTE;
 window.polwickLighthouseOutcome = polwickLighthouseOutcome;
 window.lighthouseQuestInvariantErrors = lighthouseQuestInvariantErrors;
+window.travellersRiseAmbushInvariantErrors = travellersRiseAmbushInvariantErrors;
 window.lighthouseQuestRoute = lighthouseQuestRoute;
 window.getLighthouseQuestOfferRoute = getLighthouseQuestOfferRoute;
 window.acceptLighthouseQuest = acceptLighthouseQuest;

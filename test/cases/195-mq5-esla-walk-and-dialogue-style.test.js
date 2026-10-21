@@ -70,7 +70,9 @@ test('the real Supervisor interaction alternates explicit styles and preserves a
  for(const page of all){g.run(`setSpeakerDialoguePages([${JSON.stringify(page)}]);dialogue.open=true;dialogue.page=0`);const p=drawText(g),body=p.find(row=>row.text===page.lines[0]);
   assert.equal(body.fill,page.speakerId==='esla'?'#a8e89c':'#ccd8cc');}
  const text=all.flatMap(page=>page.lines).join(' ');
- assert.match(text,/Sending Lely alone would be irresponsible/);assert.match(text,/I am going with her/);
+ assert.match(text,/I don’t know what happened to Dreyfuss, but I’m not going to let it happen to anyone in this office\./);
+ assert.doesNotMatch(text,/I know what happened to Dreyfuss|Sending Lely alone would be irresponsible/);
+ assert.match(text,/I am going with her/);
  assert.doesNotMatch(text,/closes the file.*comes to the desk/);assert.equal(g.run('mq5RngCalls'),0);
 });
 

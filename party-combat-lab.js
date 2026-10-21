@@ -110,7 +110,7 @@ const partyCombatLab = (() => {
     if(error)lastError=String(error?.message||error).slice(0,160);
     if(combatPlayerState.hasParty())combatPlayerState.clear();
     if(combat.mode!==null)combat.enemy=null;
-    lab=null;lastScenarioId=scenarioId;
+    partyBattleQuickbloomAnimation.reset();lab=null;lastScenarioId=scenarioId;
   };
   const abort=error=>{
     cleanup(error);restoreSubmenu();
@@ -129,7 +129,7 @@ const partyCombatLab = (() => {
     try {prepared=preflight(scenario,fromSubmenu);} catch(error) {
       lastError=String(error?.message||error).slice(0,160);return false;
     }
-    lastError='';lastScenarioId=scenario.id;
+    partyBattleQuickbloomAnimation.reset();lastError='';lastScenarioId=scenario.id;
     if(fromSubmenu)debugMenu.open=false;
     try {
       if(scenario.enemyIds.length===1)combat.enemy=prepared.enemies[0];
@@ -189,6 +189,6 @@ const partyCombatLab = (() => {
       if(arguments.length>1 || !lab || (message!==undefined&&typeof message!=='string'))return false;
       cleanup(message||'Party Combat Lab aborted safely.');restoreSubmenu();return true;
     },
-    resetForStoryCheckpoint() {lab=null;submenu=null;lastError='';lastScenarioId=null;return true;},
+    resetForStoryCheckpoint() {partyBattleQuickbloomAnimation.reset();lab=null;submenu=null;lastError='';lastScenarioId=null;return true;},
   });
 })();

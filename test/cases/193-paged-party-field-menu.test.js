@@ -49,11 +49,11 @@ test('both pages expose the same complete character-sheet geometry from immutabl
  assert.equal(g.run('Object.isFrozen(persistentParty.getFieldView())&&Object.isFrozen(persistentParty.getFieldView().members[0].progression)'),true);
 });
 
-test('Equipment and Status open for the displayed member, return to it, and refresh exact owner data',()=>{
- const g=fresh();g.run(`stats.items=['Iron Sword','Iron Shield'].map(createItem)`);open(g);g.press('ArrowRight');extra(g,2);
- assert.equal(g.run('menu.screen'),'partyEquipment');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');const before=J(g,'persistentParty.getFieldView().members');
- g.press('Enter');let after=J(g,'persistentParty.getFieldView().members');assert.deepEqual(after[0],before[0]);assert.equal(after[1].equipment.weapon,'Iron Sword');assert.notEqual(after[1].effective.atk,before[1].effective.atk);
- assert.ok(texts(paint(g)).includes('Iron Sword'));g.press('b');assert.equal(g.run('menu.screen'),'main');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
+test('Unequip and Status open for the displayed member, return to it, and refresh exact owner data',()=>{
+ const g=fresh();g.run(`stats.items=['Iron Sword','Iron Shield'].map(createItem);persistentParty.useFieldItem('esla','Iron Sword')`);open(g);g.press('ArrowRight');extra(g,2);
+ assert.equal(g.run('menu.screen'),'partyUnequip');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');const before=J(g,'persistentParty.getFieldView().members');
+ g.press('Enter');let after=J(g,'persistentParty.getFieldView().members');assert.deepEqual(after[0],before[0]);assert.equal(after[1].equipment.weapon,null);assert.notEqual(after[1].effective.atk,before[1].effective.atk);
+ assert.ok(texts(paint(g)).includes('Empty'));g.press('b');assert.equal(g.run('menu.screen'),'main');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
  extra(g,3);assert.equal(g.run('menu.screen'),'partyStatus');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');g.press('ArrowLeft');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'lely');g.press('ArrowRight');g.press('b');assert.equal(g.run('menu.screen'),'main');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
 });
 
@@ -64,8 +64,8 @@ test('item targeting remains explicit and independent of the displayed page',()=
 });
 
 test('Fallen members retain fixed pages, status labels and equipment access without revival',()=>{
- const g=fresh();g.run(`stats.hp=0;statusEffects=['poison'];stats.items=[createItem('Iron Shield')]`);open(g);const p=paint(g);assert.ok(texts(p).includes('Status  Fallen · Poison'));
- extra(g,2);g.run(`menu.itemCursor=0`);g.press('Enter');assert.equal(g.run('stats.hp'),0);assert.equal(g.run('stats.shield.name'),'Iron Shield');g.press('b');g.press('ArrowRight');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
+ const g=fresh();g.run(`stats.hp=0;statusEffects=['poison'];stats.shield=createItem('Iron Shield')`);open(g);const p=paint(g);assert.ok(texts(p).includes('Status  Fallen · Poison'));
+ extra(g,2);g.press('ArrowDown');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('stats.hp'),0);assert.equal(g.run('stats.shield'),null);assert.equal(g.run('stats.items.filter(i=>i.name==="Iron Shield").length'),1);g.press('b');g.press('ArrowRight');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
 });
 
 test('three-member fixture pages stable authored slots without compaction',()=>{
@@ -76,7 +76,7 @@ test('three-member fixture pages stable authored slots without compaction',()=>{
 
 test('closing resets to Lely while save/load omits transient selection',()=>{
  const g=fresh();open(g);g.press('ArrowRight');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');g.press('Escape');open(g);assert.equal(g.run('partyFieldMenu.getView().selectedId'),'lely');
- g.press('ArrowRight');g.run('saveGame();var saved=JSON.parse(localStorage.getItem("verdantVale_save"))');assert.doesNotMatch(g.run('JSON.stringify(saved)'),/selectedId|selectedTargetId|equipmentCursor|partyStatus|partyEquipment/);
+ g.press('ArrowRight');g.run('saveGame();var saved=JSON.parse(localStorage.getItem("verdantVale_save"))');assert.doesNotMatch(g.run('JSON.stringify(saved)'),/selectedId|selectedTargetId|unequipCursor|partyStatus|partyUnequip/);
  g.press('Escape');g.run('loadGame()');open(g);assert.equal(g.run('partyFieldMenu.getView().selectedId'),'lely');assert.equal(g.run('saved.version'),5);
 });
 

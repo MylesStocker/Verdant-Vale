@@ -2327,6 +2327,16 @@ function drawBattleHollow(cx, cy) {
   ctx.fillRect(cx - 3, cy - 110, 6, 6);
 }
 
+// Encounter-specific presentation only: combat mechanics still come entirely
+// from the Hollow's validated capability profile. The small reed-and-hide band
+// distinguishes the conditioned animal without creating another sprite family.
+function drawBattleBridledHollow(cx,cy) {
+  drawBattleHollow(cx,cy);
+  ctx.fillStyle='#8f7442';ctx.fillRect(cx-25,cy-42,50,5);
+  ctx.fillStyle='#c0a060';ctx.fillRect(cx-20,cy-41,34,2);
+  ctx.fillStyle='#4a3520';ctx.fillRect(cx+20,cy-38,5,12);
+}
+
 // Fen Shade — small, fast, seeped-down spectral remnant. Deliberately drawn
 // endearing (round, big-eyed) rather than menacing, despite its brutal
 // attack stat -- the joke is entirely in that disconnect.
@@ -3750,6 +3760,7 @@ function drawBattleKeeper(x,y,pose) { drawGalleryBattleCreature('keeper',x,y,pos
   def(drawBattleMudflatStrider,20, ['enemy_mudflat_strider']);
   def(drawBattleBasinGull,     55, ['enemy_basin_gull', 'enemy_basin_gull_upper']);
   def(drawBattleHollow,        62, ['enemy_hollow']);
+  def(drawBattleBridledHollow, 62, ['enemy_bridled_hollow']);
   def(drawBattleFenShade,      20, ['enemy_fen_shade']);
   def(drawBattleTombSentry,    62, ['enemy_tomb_sentry']);
   def(drawBattleCryptRevenant, 40, ['enemy_crypt_revenant']);
@@ -3764,10 +3775,12 @@ function drawBattleKeeper(x,y,pose) { drawGalleryBattleCreature('keeper',x,y,pos
   def(drawBattleMireToad,      54, ['enemy_mire_toad_male', 'enemy_mire_toad_female']);
   def(drawBattlePaleSentry,    58, ['enemy_pale_sentry']);
   def(drawBattleSmugglerGuard, 62, ['enemy_smuggler_guard']);
+  def(drawBattleSmugglerGuard, 62, ['enemy_road_impostor']);
   def(drawBattlePolwick,       58, ['enemy_polwick']);
   def(drawBattleEssa,          55, ['enemy_essa']);
   def(drawBattleRainfish,      20, ['enemy_rainfish']);
   def(drawBattleTallyman,      62, ['enemy_tallyman']);
+  def(drawBattleTallyman,      62, ['enemy_fen_handler']);
 })();
 window.ENEMY_SPRITE_DISPATCH = ENEMY_SPRITE_DISPATCH;
 
@@ -3812,9 +3825,7 @@ function drawBattleGenericEnemy(cx, cy) {
   ctx.fillRect(cx + 2,  cy - 86, 6, 6);
 }
 
-function drawBattleEnemy(cx, cy) {
-  if (!combat.enemy) return;
-  const id = combat.enemy.id;
+function drawBattleEnemyTemplate(id, name, cx, cy) {
   const entry = id ? ENEMY_SPRITE_DISPATCH[id] : null;
   if (entry) { entry.draw(cx, cy + entry.dy); return; }
   // No dedicated sprite for this id. Two cases, kept distinct on purpose:
@@ -3827,10 +3838,40 @@ function drawBattleEnemy(cx, cy) {
   if (!id || !ENEMY_GENERIC_SPRITE_IDS.has(id)) {
     if (typeof console !== 'undefined' && console.warn) {
       console.warn('drawBattleEnemy: enemy has no id-keyed sprite and is not a registered generic-art enemy (id=' +
-        JSON.stringify(id) + ', name=' + JSON.stringify(combat.enemy.name) + ') -- rendering generic silhouette');
+        JSON.stringify(id) + ', name=' + JSON.stringify(name) + ') -- rendering generic silhouette');
     }
   }
   drawBattleGenericEnemy(cx, cy + 40);
+}
+
+function drawBattleEnemy(cx, cy) {
+  if (!combat.enemy) return;
+  drawBattleEnemyTemplate(combat.enemy.id, combat.enemy.name, cx, cy);
+}
+
+// Exact Chapter One singleton-enemy composition, shared read-only with the
+// canonical party renderer when its immutable view contains one enemy.
+const SINGLETON_ENEMY_BATTLE_LAYOUT = Object.freeze({
+  anchorX:358, anchorY:168,
+  nameX:16, nameY:22,
+  hpX:16, hpY:26, hpWidth:130, hpHeight:7,
+  hpTextX:152, hpTextY:33,
+  targetCursorX:358, targetCursorY:63,
+});
+
+function drawSingletonEnemyBattleStatus(member, defeated=false) {
+  const p=SINGLETON_ENEMY_BATTLE_LAYOUT;
+  ctx.fillStyle = defeated ? '#718078' : '#c0dcd0';
+  ctx.font = 'bold 13px "Courier New", monospace';
+  ctx.fillText(member.name, p.nameX, p.nameY);
+  ctx.fillStyle = '#0a1e18';
+  ctx.fillRect(p.hpX, p.hpY, p.hpWidth, p.hpHeight);
+  const fill = Math.round(p.hpWidth * member.hp / member.maxHp);
+  ctx.fillStyle = defeated ? '#31483d' : '#3a8a5a';
+  ctx.fillRect(p.hpX, p.hpY, fill, p.hpHeight);
+  ctx.fillStyle = defeated ? '#66756d' : '#7ab898';
+  ctx.font = '11px "Courier New", monospace';
+  ctx.fillText(`${member.hp} / ${member.maxHp}`, p.hpTextX, p.hpTextY);
 }
 
 
@@ -4233,7 +4274,7 @@ function drawCombat(formationView) {
   drawBattleBackground();
 
   // Enemy sprite — right side, elevated (floating)
-  drawBattleEnemy(358, 168);
+  drawBattleEnemy(SINGLETON_ENEMY_BATTLE_LAYOUT.anchorX, SINGLETON_ENEMY_BATTLE_LAYOUT.anchorY);
 
   // Player battle sprite — left side, on the ground
   drawBattlePlayer(108, 254);
@@ -4242,19 +4283,7 @@ function drawCombat(formationView) {
   drawFireCast();
 
   // Enemy name + HP (top-left of battle field)
-  ctx.fillStyle = '#c0dcd0';
-  ctx.font = 'bold 13px "Courier New", monospace';
-  ctx.fillText(combat.enemy.name, 16, 22);
-
-  const ehpW = 130, ehpH = 7;
-  ctx.fillStyle = '#0a1e18';
-  ctx.fillRect(16, 26, ehpW, ehpH);
-  const ehpFill = Math.round(ehpW * combat.enemy.hp / combat.enemy.maxHp);
-  ctx.fillStyle = '#3a8a5a';
-  ctx.fillRect(16, 26, ehpFill, ehpH);
-  ctx.fillStyle = '#7ab898';
-  ctx.font = '11px "Courier New", monospace';
-  ctx.fillText(`${combat.enemy.hp} / ${combat.enemy.maxHp}`, 16 + ehpW + 6, 33);
+  drawSingletonEnemyBattleStatus(combat.enemy);
 
   // ── Combat UI panel (y = 297..477) ────────────────────────────────────────
   const PX = 8, PY = 297, PW = 496, PH = 175;

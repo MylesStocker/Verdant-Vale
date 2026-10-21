@@ -43,7 +43,7 @@ test('debug Sera/Liora preview is neutral; canonical completion enables, but doe
 test('the assignment retains its setup and gives Esla explicit agency without a player choice',()=>{
  const g=fresh();ready(g);g.run('supervisorDialogueBody()');
  const text=g.run('[...MQ5_ASSIGNMENT_OPENING_PAGES,...MQ5_ASSIGNMENT_AFTER_WALK_PAGES].flatMap(page=>page.lines).join(" ")');
- for(const re of [/Dreyfuss is dead/,/Garrick is still missing/,/beyond what Calwick or Drenwick/,/district seal/,/firsthand account/,/Empire has sent a cable ferry/,/six years/,/Mornay is long/,/short of staff/,/Sending Lely alone would be irresponsible/,/I am going with her/,/You know the Gallery\. I know the road/,/Lely, you still carry the report/])assert.match(text,re);
+ for(const re of [/Dreyfuss is dead/,/Garrick is still missing/,/beyond what Calwick or Drenwick/,/district seal/,/firsthand account/,/Empire has sent a cable ferry/,/six years/,/Mornay is long/,/short of staff/,/I don’t know what happened to Dreyfuss, but I’m not going to let it happen to anyone in this office/,/I am going with her/,/You know the Gallery\. I know the road/,/Lely, you still carry the report/])assert.match(text,re);
  assert.doesNotMatch(text,/Rareborn|Resonance|romance|bodyguard|closes the file.*comes to the desk/);assert.equal(g.run('choice.open'),false);
  assert.equal(g.run('dialogue.callbacks.length'),1);
 });
@@ -127,14 +127,14 @@ test('recruitment automatically replaces the unchanged solo menu with the canoni
  const g=fresh();record(g);g.run('menu.open=true;');assert.doesNotMatch(paint(g).join(' '),/Esla|Equipment|Status|CHARACTERS/);
  g.run('menu.open=false');ready(g);assign(g);g.press('m');let text=paint(g);assert.ok(text.includes('◀ LÉLY 1/2 ▶'));assert.ok(text.some(s=>/^Lv\. /.test(s)));assert.equal(text.includes('ESLA'),false);
  g.press('ArrowRight');text=paint(g);assert.ok(text.includes('◀ ESLA 2/2 ▶'));assert.ok(text.includes('Lv. 11'));
- extra(g,2);assert.equal(g.run('menu.screen'),'partyEquipment');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
+ extra(g,2);assert.equal(g.run('menu.screen'),'partyUnequip');assert.equal(g.run('partyFieldMenu.getView().selectedId'),'esla');
  g.press('b');extra(g,3);assert.equal(g.run('menu.screen'),'partyStatus');assert.ok(paint(g).includes('Lv. 11'));
 });
-test('post-recruitment item targeting and equipment use the same persistent members',()=>{
+test('post-recruitment item targeting and equipment-item flow use the same persistent members',()=>{
  const g=fresh();ready(g);assign(g);g.run('stats.hp=1;stats.items=["Potion","Potion","Iron Sword"].map(createItem)');seed(g,'payload.party.characters[0].hp=1');g.press('m');
  g.press('Enter');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('persistentParty.getMember("esla").hp'),21);assert.equal(g.run('stats.hp'),1);
  g.press('Enter');g.press('Enter');assert.equal(g.run('stats.hp'),21);assert.equal(g.run('persistentParty.getMember("esla").hp'),21);
- g.press('ArrowRight');extra(g,2);g.press('Enter');assert.equal(g.run('persistentParty.getMember("esla").equipment.weapon'),'Iron Sword');assert.equal(g.run('stats.weapon'),null);
+ g.run('menu.itemCursor=groupItems().findIndex(g=>g.name==="Iron Sword")');g.press('Enter');g.press('ArrowDown');g.press('Enter');assert.equal(g.run('persistentParty.getMember("esla").equipment.weapon'),'Iron Sword');assert.equal(g.run('stats.weapon'),null);
 });
 test('save/load restores individual Esla state, roster, MQ5 and absent NPC projection',()=>{
  const g=fresh();ready(g);assign(g);g.run('stats.items=[createItem("Iron Shield")];persistentParty.useFieldItem("esla","Iron Shield")');

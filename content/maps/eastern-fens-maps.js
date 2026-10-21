@@ -250,7 +250,9 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: false, allowSave: true,
     notes: 'The road turns south through increasingly regular plots. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
-  // (12,3) Reserved future camp location: a dry travellers' rise before the widening waterways, with no trigger, dialogue, NPC, state, or event.
+  // (12,3) A dry travellers' rise before the widening waterways. MQ5 owns a
+  // transient scripted ambush here; the physical grid and random-encounter
+  // policy remain unchanged, and the later camp scene is still deferred.
   { mapId: 'EASTERN_FENS_TRAVELLERS_RISE_MAP', regionId: 'overworld', chunkX: 12, chunkY: 3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1], //  0
       [  1,127,127,127,127,127,127, 23,  0,  0,  2,  0,  0, 23,127,  1], //  1
@@ -271,7 +273,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Travellers’ Rise', region: 'Eastern Fens', contentKey: 'eastern_fens_12',
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: false, allowSave: true,
-    notes: 'Reserved future camp location on a dry rise used by road workers, reed cutters, couriers, and travellers. No encounters, items, NPCs, interactions, quest triggers, or new save state.' },
+    notes: 'Dry rise used by road workers, reed cutters, couriers, and travellers. The MQ5 scripted ambush stages transient actors here; no random encounters or camp interaction.' },
   // (13,3) A timbered bank crosses the widest water on the route.
   { mapId: 'EASTERN_FENS_WIDE_WATER_MAP', regionId: 'overworld', chunkX: 13, chunkY: 3, map: [
       [  1,  1,  1,  1, 58,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], //  0

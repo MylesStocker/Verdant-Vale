@@ -23,6 +23,58 @@ const PARTY_COMBAT_EXTRA_ENEMY_BOUNDS = Object.freeze({
 // renderer never needed a per-sprite measurement.
 const PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS = Object.freeze([-72,-144,72,72]);
 
+// Quickbloom's recorded execution owns a short presentation-only flourish.
+// The session event is the trigger and exact target authority; this timer never
+// reads or writes combat state. Twenty-four render ticks is brief enough to keep
+// playback moving while leaving the final pale sparkle visible for four frames.
+const QUICKBLOOM_ANIMATION_FRAMES = 24;
+const QUICKBLOOM_ANIMATION_PALETTE = Object.freeze(['#3f8f52','#78c86f','#a8e89c']);
+const PARTY_QUICKBLOOM_MOTES = Object.freeze([
+  Object.freeze({dx:-18,delay:0,color:0}), Object.freeze({dx:12,delay:2,color:1}),
+  Object.freeze({dx:-8,delay:4,color:2}), Object.freeze({dx:21,delay:6,color:0}),
+  Object.freeze({dx:-25,delay:8,color:1}), Object.freeze({dx:3,delay:10,color:2}),
+]);
+
+const partyBattleQuickbloomAnimation=(()=>{
+  let key=null,frame=0,targetId=null;
+  const eventFor=view=>{
+    const event=view?.playbackFrame?.currentEvent;
+    return event?.type==='resonance'&&event.techniqueId==='quickbloom'?event:null;
+  };
+  const keyFor=(view,event)=>event?
+    [view.label,view.playbackFrame.completedRounds,view.frameIndex,event.actorId,event.targetId].join('|'):null;
+  const reset=()=>{key=null;frame=0;targetId=null;return true;};
+  const draw=view=>{
+    const event=eventFor(view),nextKey=keyFor(view,event);
+    if(!event){reset();return false;}
+    if(key!==nextKey){key=nextKey;frame=0;targetId=event.targetId;}
+    if(frame>=QUICKBLOOM_ANIMATION_FRAMES)return false;
+    const target=view.party.find(member=>member.instanceId===targetId),slot=target?.slot,
+      position=Number.isSafeInteger(slot)?PARTY_COMBAT_ALLY_SLOTS[slot]:null;
+    if(!target||!position)throw new Error('Invalid Quickbloom presentation target');
+    const age=frame,baseY=position.anchorY+8;
+    for(const mote of PARTY_QUICKBLOOM_MOTES){
+      const local=age-mote.delay;if(local<0||local>=14)continue;
+      const sway=((local+mote.delay)%4<2?0:2)*(mote.dx<0?-1:1),x=Math.round(position.x+mote.dx+sway),y=Math.round(baseY-local*3);
+      ctx.fillStyle=QUICKBLOOM_ANIMATION_PALETTE[mote.color];
+      if((mote.delay/2)%2===0){ctx.fillRect(x,y,5,2);ctx.fillRect(x+1,y-2,3,2);}
+      else {ctx.fillRect(x,y,2,5);ctx.fillRect(x+2,y+1,2,3);}
+    }
+    if(age>=20){
+      const sparkleAge=age-20,x=position.x,y=position.anchorY-32;
+      ctx.fillStyle=QUICKBLOOM_ANIMATION_PALETTE[2];ctx.fillRect(x-1,y-5+sparkleAge,3,11-sparkleAge*2);
+      ctx.fillRect(x-5+sparkleAge,y-1,11-sparkleAge*2,3);
+    }
+    frame++;return true;
+  };
+  return Object.freeze({
+    draw,reset,
+    blocksAdvance(view){const event=eventFor(view);return key!==null&&key===keyFor(view,event)&&frame<QUICKBLOOM_ANIMATION_FRAMES;},
+    getView(){return Object.freeze({active:key!==null&&frame<QUICKBLOOM_ANIMATION_FRAMES,frame,
+      duration:QUICKBLOOM_ANIMATION_FRAMES,targetId});},
+  });
+})();
+
 function partyBattleEnemySprite(id) {
   return ENEMY_SPRITE_DISPATCH[id] ||
     (ENEMY_GENERIC_SPRITE_IDS.has(id)?{draw:drawBattleGenericEnemy}:null);
@@ -56,15 +108,21 @@ function partyBattleLayout(view) {
         frame.party.some((m,i)=>m.instanceId!==view.party[i].instanceId||m.hp!==view.party[i].hp)||
         frame.enemies.some((m,i)=>m.instanceId!==view.enemies[i].instanceId||m.hp!==view.enemies[i].hp))fail();
   }
-  const count=view.enemies.length,width=count===2?232:144,step=count===2?248:168,start=count===1?184:16;
+  const count=view.enemies.length,width=count===2?232:144,step=count===2?248:168,start=16;
   const names=view.enemies.map(m=>m.name);
   const enemies=view.enemies.map((member,index)=>{
     const sprite=partyBattleEnemySprite(member.id),template=ENEMY_TEMPLATE_REGISTRY[member.id],bounds=sprite&&
       (FORMATION_SPRITE_BOUNDS.get(sprite.draw)||PARTY_COMBAT_EXTRA_ENEMY_BOUNDS[member.id]||
         (canonicalEnemyIsCompatible(template)?PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS:null));
     if(!sprite||!bounds)fail();
+    if(count===1) {
+      const p=SINGLETON_ENEMY_BATTLE_LAYOUT;
+      return Object.freeze({instanceId:member.instanceId,slot:index,composition:'singleton',x:p.hpX,width:p.hpWidth,
+        label:member.name,spriteX:0,spriteY:0,spriteWidth:512,spriteHeight:297,scale:1,
+        anchorX:p.anchorX,anchorY:p.anchorY,targetCursorX:p.targetCursorX,targetCursorY:p.targetCursorY});
+    }
     const x=start+index*step,spriteWidth=width-16,scale=Math.min(1,spriteWidth/(bounds[2]-bounds[0]),136/(bounds[3]-bounds[1]));
-    return Object.freeze({instanceId:member.instanceId,slot:index,x,width,
+    return Object.freeze({instanceId:member.instanceId,slot:index,composition:'formation',x,width,
       label:member.name+(names.filter(name=>name===member.name).length>1?' '+String.fromCharCode(65+index):''),
       spriteX:x+8,spriteY:76,spriteWidth,spriteHeight:136,scale,
       anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,anchorY:212-scale*bounds[3]});
@@ -76,7 +134,8 @@ function partyBattleLayout(view) {
     const source=view.targetSide==='ally'?allies:enemies,position=source.find(p=>p.instanceId===view.selectedTargetInstanceId);
     if(!position)fail();
     target=Object.freeze({side:view.targetSide,instanceId:position.instanceId,slot:position.slot,
-      x:view.targetSide==='ally'?position.x:position.x+position.width/2,y:view.targetSide==='ally'?190:63});
+      x:view.targetSide==='ally'?position.x:(position.targetCursorX??position.x+position.width/2),
+      y:view.targetSide==='ally'?190:(position.targetCursorY??63)});
   }
   return Object.freeze({allies:Object.freeze(allies),enemies:Object.freeze(enemies),target});
 }
@@ -183,6 +242,15 @@ function drawPartyCombatTargetCursor(x,y) {
   ctx.fillStyle='#f0e8b8';ctx.beginPath();ctx.moveTo(x-6,y+2);ctx.lineTo(x+6,y+2);ctx.lineTo(x,y+10);ctx.closePath();ctx.fill();
 }
 function drawPartyCombatEnemy(member,position,selected) {
+  if(position.composition==='singleton') {
+    ctx.save();ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;
+    drawBattleEnemyTemplate(member.id,member.name,position.anchorX,position.anchorY);ctx.restore();
+    drawSingletonEnemyBattleStatus(member,member.hp===0);
+    if(member.braced&&member.hp>0){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('BRACE',252,33,35);}
+    if(member.unusual?.departed){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('FLED',252,33,35);}
+    if(selected&&member.hp>0&&!member.unusual?.departed)drawPartyCombatTargetCursor(position.targetCursorX,position.targetCursorY);
+    return;
+  }
   const sprite=ENEMY_SPRITE_DISPATCH[member.id]||partyBattleEnemySprite(member.id);ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
   // Registered sprites own their optional defaults (pose or palette).
   ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;sprite.draw(0,0);ctx.restore();
@@ -239,6 +307,7 @@ function drawPartyBattle(view) {
   layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,layout.target?.side==='enemy'&&layout.target.instanceId===position.instanceId));
   layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,
     layout.target?.side==='ally'&&layout.target.instanceId===position.instanceId));
+  partyBattleQuickbloomAnimation.draw(view);
   ctx.fillStyle='#08121e';ctx.fillRect(8,297,496,175);ctx.strokeStyle='#5a8a9a';ctx.lineWidth=2;ctx.strokeRect(9,298,494,173);ctx.strokeStyle='#2a4e5e';ctx.lineWidth=1;ctx.strokeRect(13,302,486,165);
   ctx.fillStyle='#8ac8d8';[[9,298],[501,298],[9,469],[501,469]].forEach(([x,y])=>ctx.fillRect(x,y,2,2));
   ctx.fillStyle='#ccd8cc';ctx.font='14px "Courier New", monospace';const lines=wrapMonospaceText(ctx,message,468);lines.slice(0,2).forEach((line,i)=>ctx.fillText(line,22,325+i*16,468));

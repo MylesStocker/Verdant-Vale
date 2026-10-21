@@ -92,9 +92,8 @@ module.exports = {
     // ── 4. Every registered pool is reachable from MAP_METADATA.encounterPool
     //       (the declarative routing table validateEnemies() uses), with ONE
     //       documented, intentional exception: pool_eastern_fens_mornay is
-    //       content prepared ahead of the geographic-dispatch/formation-
-    //       selector bridge (encounter-formations.js) that doesn't exist yet
-    //       (see data.js, combat.js, PROJECT_STATUS.md) -- not an accidental
+    //       registered content awaiting map assignments. The geographic
+    //       formation bridge is present (see PROJECT_STATUS.md); this is not an accidental
     //       dead pool. validateGameData() surfaces the same gap as a warning.
     //       Any OTHER unreachable pool still fails this check. ───────────────
     assert.equal(g.run(`

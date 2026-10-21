@@ -92,6 +92,7 @@ function drawActiveMapContent() {
   // it paints over Merrin, Fisk, Odger and Esla and the ward reads as empty.
   if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
   drawSimpleNPCs();
+  if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.draw();
   if (inDungeon && dungeonFloor === 4 && !MULHOLLAND.defeated) drawMulholland();
   if (inDungeon && dungeonFloor === 5)   drawBoss();
   if (inTown && townBuilding === 'house' && currentHouseId === 'west_i' && den_wraith_quest_started && !den_wraith_defeated) drawDenWraith();

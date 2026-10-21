@@ -7,14 +7,15 @@
 // Travellers' Rise) and a hard-leaning table (column >= 13, Travellers' Rise
 // to Mornay Threshold). Both tables share the same 16 formation ids/
 // compositions; only the weights differ. Content and validation only — NOT
-// yet assigned to any geographic pool/MAP_METADATA entry, because the live
-// geographic dispatcher (startCanonicalPartyEncounter(), combat.js) does not
-// yet call encounterFormations.select() (see PROJECT_STATUS.md). This suite
+// yet assigned to any geographic pool/MAP_METADATA entry. The integrated
+// geographic dispatcher now accepts these tables without content-specific
+// routing or execution code (see PROJECT_STATUS.md). This suite
 // proves the content is correct and that it is genuinely inert: nothing here
 // is reachable through ordinary play yet, and nothing here is a second
 // selector/dispatcher of its own.
 
 const assert = require('assert/strict');
+const fs = require('fs');
 const { createContext } = require('../harness');
 
 function ctx() {
@@ -84,12 +85,37 @@ const ENEMY_TEMPLATE_REGISTRY_NAMES = {
   enemy_mire_toad_male: 'mire_toad', enemy_mire_toad_female: 'mire_toad',
 };
 
+
+// The isolated third member uses the existing Lab sprite identity; it is not
+// added to the production character registry.
+function geographicContext(count) {
+  const read=fs.readFileSync;let g;
+  try {
+    fs.readFileSync=function(file,...args){let source=read.call(this,file,...args);
+      if(String(file).endsWith('/encounter-formations.js'))source=source.replace('    select(pool){',
+        '    select(pool){window.contentSelectCalls=(window.contentSelectCalls||0)+1;');
+      if(String(file).endsWith('/canonical-party-combat.js'))source=source.replace('    enter(request){',
+        '    enter(request){window.contentEnterCalls=(window.contentEnterCalls||0)+1;window.contentEntered=request.enemies;');
+      if(String(file).endsWith('/persistent-party.js')&&count===3)source=source.replace('  lely:Object.freeze',
+        "  lely_lab:Object.freeze({id:'lely_lab',slot:2,name:'Fixture third',rareBorn:false,affinity:null,progression:Object.freeze({hpBase:30,hpPerLevel:5,atkBase:6,atkPerLevel:1,defBase:2,defEveryLevels:2,spdBase:6,spdEveryLevels:2})}),\n  lely:Object.freeze");
+      return source;
+    };
+    g=ctx();
+  }finally{fs.readFileSync=read;}
+  g.run(`dialogue.open=false;dialogue.callbacks=null;${count>1?'MainQuest=5;persistentParty.joinEsla({level:11});':''}`);
+  if(count===3)g.run(`saveGame();var fixture=JSON.parse(localStorage.getItem('verdantVale_save'));
+    fixture.party.order.push('lely_lab');fixture.party.characters.push({...fixture.party.characters[0],characterId:'lely_lab'});
+    localStorage.setItem('verdantVale_save',JSON.stringify(fixture));loadGame();dialogue.open=false;`);
+  g.run("resetLocationState();placeAtLocation('MAP2',8.5*TILE,8.5*TILE);combat.cooldown=37;");
+  return g;
+}
+
 module.exports = {
   name: 'Eastern Fens — Mornay approach: full 8-enemy roster, easy/hard formation tables, inertness',
   run() {
     const g = ctx();
 
-    // ── 1. Exact authored stats for the five new templates ──────────────────
+    // ── 1. Exact authored stats for the seven new templates ──────────────────
     for (const [id, spec] of Object.entries(NEW_TEMPLATES)) {
       assert.deepEqual(J(g, `JSON.stringify(ENEMY_TEMPLATE_REGISTRY['${id}'])`), spec, id + ': matches the authored spec exactly');
       assert.deepEqual(J(g, `JSON.stringify(enemyCapabilityMetadata(ENEMY_TEMPLATE_REGISTRY['${id}']).capabilities)`),
@@ -146,31 +172,49 @@ module.exports = {
     assert.equal(
       g.run("Object.values(MAP_METADATA).some(m=>m.encounterPool===EASTERN_FENS_MORNAY_ENEMY_TEMPLATES)"),
       false, 'no live map yet points its encounterPool at the new enemy templates');
-    assert.match(g.run('startCanonicalPartyEncounter.toString()'), /pool\[Math\.floor/,
-      'the live geographic dispatcher still does a flat single-template draw; encounterFormations.select is not yet called from it');
-    assert.doesNotMatch(g.run('startCanonicalPartyEncounter.toString()'), /encounterFormations\.select/,
-      'confirms the exact missing seam this suite documents, rather than asserting it blind');
+    for (const table of ['EASTERN_FENS_MORNAY_EASY_FORMATIONS','EASTERN_FENS_MORNAY_HARD_FORMATIONS'])
+      assert.equal(g.run(`Object.values(MAP_METADATA).some(m=>m.encounterPool===${table})`),false);
+    assert.equal((g.run('startCanonicalPartyEncounter.toString()').match(/encounterFormations\.select\(pool\)/g)||[]).length,1);
 
-    // ── 8. End-to-end: canonicalPartyCombat.enter() accepts every authored ──
-    // formation in BOTH tables today, with distinct runtime identities for
-    // duplicate templates and authored order preserved. A fresh context per
-    // formation (a live canonical party battle has no mid-test cancel path).
-    const allFormations = [
-      ...J(g, 'JSON.stringify(EASTERN_FENS_MORNAY_EASY_FORMATIONS)'),
-      ...J(g, 'JSON.stringify(EASTERN_FENS_MORNAY_HARD_FORMATIONS)'),
-    ];
-    for (const formation of allFormations) {
-      const g2 = ctx();
-      g2.run("MainQuest=5; persistentParty.joinEsla({level:11}); resetLocationState(); placeAtLocation('MAP',7.5*TILE,9.5*TILE);");
-      g2.run('Math=Object.create(Math); Math.random=()=>0.5;');
-      const entered = g2.run(`canonicalPartyCombat.enter({enemies:${JSON.stringify(formation.enemies)}.map(id=>ENEMY_TEMPLATE_REGISTRY[id]), escape:'fastest_living'})`);
-      assert.ok(entered, formation.id + ': canonicalPartyCombat.enter() accepts it');
-      assert.equal(g2.run('canonicalPartyCombat.isActive()'), true);
-      const view = J(g2, 'JSON.stringify(canonicalPartyCombat.getView())');
-      assert.deepEqual(view.enemies.map(e => e.name).map(n => n.toLowerCase().replace(/ /g, '_')),
-        formation.enemies.map(id => ENEMY_TEMPLATE_REGISTRY_NAMES[id]), formation.id + ': authored enemy order preserved');
-      assert.equal(new Set(view.enemies.map(e => e.instanceId)).size, formation.enemies.length,
-        formation.id + ': every body (including duplicate templates) gets a distinct runtime identity');
+    // ── 8. Actual geographic selection and installation: all 32 records ────
+    // Each isolated fixture supplies the unchanged authored table at the pool
+    // boundary. The real selector and real entry remain active and are spied,
+    // not replaced. No production map permission or assignment is changed.
+    let installed=0;
+    for (const table of ['EASTERN_FENS_MORNAY_EASY_FORMATIONS','EASTERN_FENS_MORNAY_HARD_FORMATIONS']) {
+      const formations=J(g,`JSON.stringify(${table})`),total=formations.reduce((n,f)=>n+f.weight,0);
+      let cumulative=0;
+      for (const formation of formations) {
+        const roll=(cumulative+formation.weight/2)/total;cumulative+=formation.weight;
+        for(const count of [1,2,3]) {
+          const g2=geographicContext(count),label=`${table}/${formation.id}/${count} allies`;
+          g2.run(`currentEncounterPool=()=>${table};var tape=[${roll},0.5],used=[];
+            Math=Object.create(Math);Math.random=()=>{if(!tape.length)throw Error('extra RNG');const r=tape.shift();used.push(r);return r;};`);
+          // One-member explicit canonical fixture; the normal pre-recruitment
+          // routing gate is separately preserved by suite 194.
+          g2.run(count===1?'startCanonicalPartyEncounter()':'startCombat()');
+          assert.deepEqual(J(g2,'JSON.stringify(used)'),[roll,0.5],label+': one selection then failed rare override');
+          assert.equal(g2.run('tape.length'),0,label);
+          assert.equal(g2.run('window.contentSelectCalls'),1,label+': select once');
+          assert.equal(g2.run('window.contentEnterCalls'),1,label+': enter once');
+          assert.equal(g2.run('combat.cooldown'),37,label+': entry preserves cooldown');
+          assert.equal(g2.run('canonicalPartyCombat.isActive()'),true,label);
+          const view=J(g2,'JSON.stringify(canonicalPartyCombat.getView())');
+          assert.equal(view.party.length,count,label);
+          assert.deepEqual(view.enemies.map(e=>e.id),formation.enemies,label+': ordered IDs');
+          assert.deepEqual(view.enemies.map(e=>e.name.toLowerCase().replace(/ /g,'_')),
+            formation.enemies.map(id=>ENEMY_TEMPLATE_REGISTRY_NAMES[id]),label+': names');
+          assert.deepEqual(view.enemies.map(e=>e.slot),formation.enemies.map((_,i)=>i),label+': fixed slots');
+          assert.equal(new Set([...view.party,...view.enemies].map(e=>e.instanceId)).size,count+formation.enemies.length,label+': independent identities');
+          assert.equal(g2.run('window.contentEntered.every(t=>t===ENEMY_TEMPLATE_REGISTRY[t.id])'),true,label+': exact registered records');
+          const before=g2.run('JSON.stringify({stats,party:persistentParty.getView(),combat:canonicalPartyCombat.getView(),sequence:combatEnemyInstanceSequence})');
+          g2.run('Math.random=()=>{throw Error("render RNG")};drawPartyBattle(canonicalPartyCombat.getView())');
+          assert.equal(g2.run('JSON.stringify({stats,party:persistentParty.getView(),combat:canonicalPartyCombat.getView(),sequence:combatEnemyInstanceSequence})'),before,label+': rendering read-only');
+          installed++;
+        }
+      }
     }
+    assert.equal(installed,96);
+    console.log('  32 authored formation records × 3 party sizes: 96 real geographic installations');
   },
 };

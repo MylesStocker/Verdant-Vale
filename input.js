@@ -13,6 +13,7 @@ const keys = new Proxy(pressedKeys, {
   get(pressed, key) {
     const held = pressed[key];
     if (held && typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
+    if (held && typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.isExclusive()) return false;
     if (held && canonicalPartyCombat.isActive()) return false;
     if (held && combatPlayerState.hasParty()) return false;
     if (held && galleryReceiverEncounter.blocksWorldInput()) return false;
@@ -123,7 +124,10 @@ function handlePartyCombatLabInput(command) {
       else if (command === 'cancel') partyCombatLab.backtrack();
       break;
     case 'playback':
-      if (command === 'confirm') partyCombatLab.advancePlayback();
+      if (command === 'confirm') {
+        if (partyBattleQuickbloomAnimation.blocksAdvance(view)) break;
+        partyBattleQuickbloomAnimation.reset();partyCombatLab.advancePlayback();
+      }
       break;
     case 'playback_complete':
       if (command === 'confirm') partyCombatLab.acknowledgePlayback();
@@ -145,6 +149,20 @@ window.addEventListener('keydown', e => {
     const confirm=e.key===' '||e.key==='Enter';
     if(confirm||e.key.startsWith('Arrow')||['m','M','Escape','`'].includes(e.key))e.preventDefault();
     if(!wasHeld&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&confirm&&dialogue.open)handleInteract();
+    return;
+  }
+  if(typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.isExclusive()){
+    const wasHeld=pressedKeys[e.key];pressedKeys[e.key]=true;
+    const command=formationInputCommand(e.key);
+    if(command||e.key==='`'||e.key==='m'||e.key==='M')e.preventDefault();
+    if(!wasHeld&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
+      if(dialogue.open&&command==='confirm')handleInteract();
+      else if(choice.open){
+        if(command==='up')choice.cursor=Math.max(0,choice.cursor-1);
+        else if(command==='down')choice.cursor=Math.min(choice.options.length-1,choice.cursor+1);
+        else if(command==='confirm'){const cb=choice.callbacks[choice.cursor];choice.open=false;if(cb)cb();}
+      }
+    }
     return;
   }
   if (storyCheckpointLab.isOpen()) {

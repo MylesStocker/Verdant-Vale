@@ -36,6 +36,7 @@ const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
   wrongteeth_lifecycle:Object.freeze({canonical:true}),
   lensweb_objective_lifecycle:Object.freeze({canonical:true}),
   mimic_trap_lifecycle:Object.freeze({canonical:true}),
+  travellers_rise_ambush_lifecycle:Object.freeze({canonical:true}),
   receiver_coordination:Object.freeze({canonical:false}),
 });
 const CANONICAL_ENEMY_CAPABILITIES = Object.freeze(Object.keys(ENEMY_CAPABILITY_DEFINITIONS)
@@ -49,6 +50,7 @@ const CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES = Object.freeze([
   'warden_lifecycle','persistent_hp_lifecycle','rainfish_chain','takomo_lifecycle',
   'den_wraith_lifecycle','sailor_brawl_lifecycle','wrongteeth_lifecycle',
   'lensweb_objective_lifecycle','mimic_trap_lifecycle',
+  'travellers_rise_ambush_lifecycle',
 ]);
 
 const ENEMY_TEMPLATE_FIELD_CAPABILITIES = Object.freeze({
@@ -80,6 +82,9 @@ const ENEMY_HIDDEN_CAPABILITIES = Object.freeze(Object.fromEntries(Object.entrie
   enemy_wrongteeth:['wrongteeth_lifecycle'],
   enemy_lensweb_spider:['lensweb_objective_lifecycle'],
   enemy_mimic_potion:['mimic_trap_lifecycle'],
+  enemy_road_impostor:['travellers_rise_ambush_lifecycle'],
+  enemy_bridled_hollow:['travellers_rise_ambush_lifecycle'],
+  enemy_fen_handler:['travellers_rise_ambush_lifecycle'],
   enemy_gallery_receiver:['receiver_coordination'],
   enemy_gallery_caller:['receiver_coordination'],
   enemy_gallery_keeper:['receiver_coordination'],

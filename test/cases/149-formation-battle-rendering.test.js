@@ -269,7 +269,7 @@ test('presentation roster is unsaved and rendering never writes the current save
   assert.doesNotMatch(saved,/formationSession|playback|templateId|combat_enemy_|selectedTargetInstanceId/);
 });
 
-test('singleton rendering source is unchanged after inlining the exact extracted background',()=>{
+test('singleton rendering retains its exact guarded composition after sharing singleton enemy geometry',()=>{
   const s=fs.readFileSync(path.join(ROOT,'render-battle.js'),'utf8');
   const background=s.slice(s.indexOf('function drawBattleBackground() {'),s.indexOf('\nfunction drawCombat(formationView)'));
   const body=background.slice(background.indexOf('  // ── Battle field'),background.lastIndexOf('\n}'));
@@ -282,8 +282,7 @@ test('singleton rendering source is unchanged after inlining the exact extracted
     .replace('  // Explicit presentation-only entry. Normal render() still calls with no\n  // arguments; this does not activate combat or acquire a session implicitly.\n  if (arguments.length) return drawFormationCombat(formationView);\n','')
     .replace('  drawBattleBackground();',body);
   const normalized=reconstructed.split('\n').map(line=>line.trim()).filter(Boolean).join('\n');
-  // Pre-increment drawCombat source: no existing singleton statement changed.
-  assert.equal(crypto.createHash('sha256').update(normalized).digest('hex'),'5948dec2907864c7efe4d862eca1fcb1833eed52236f084f5a9d0352399e35e0');
+  assert.equal(crypto.createHash('sha256').update(normalized).digest('hex'),'25bbd3c3afc3962376bb710975c06557274950ad01872389e9b2c2c23cfae050');
 });
 
 module.exports={name:'read-only formation presentation: stable slots, historical HP and no gameplay routing',checks,record,
