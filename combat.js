@@ -3941,6 +3941,7 @@ const EMPTY_ENCOUNTER_POOL = Object.freeze([]);
 if (typeof window !== 'undefined') window.EMPTY_ENCOUNTER_POOL = EMPTY_ENCOUNTER_POOL;
 
 function startCombat() {
+  if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput())return false;
   assertSinglePlayerExecution();
   if (canonicalPartyCombat.hasMultipleMembers()) return startCanonicalPartyEncounter();
   // Pale Sentry: appears on MAP_N2 once the contract is accepted, until it is killed.

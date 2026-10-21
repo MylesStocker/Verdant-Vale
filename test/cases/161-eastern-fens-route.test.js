@@ -181,8 +181,8 @@ module.exports = {
       assert.equal(g.run(`Object.prototype.hasOwnProperty.call(OUTDOOR_MAP_DECOR,'${key}')`), false, `${id} has no authored landmark decoration`);
     }
     assert.deepEqual(JSON.parse(g.run("JSON.stringify(QUEST_FLAG_SCHEMA.filter(function(k){return /eastern_fens|travellers_rise|valmere|port_threshold/i.test(k);}))")),
-      ['travellers_rise_ambush_complete','travellers_rise_ambush_paid','travellers_rise_ambush_payment'],
-      'the scripted ambush owns only its completion and one-time payment receipts');
+      ['travellers_rise_ambush_complete','travellers_rise_ambush_paid','travellers_rise_ambush_payment','travellers_rise_camp_stage'],
+      'the road sequence owns ambush receipts and one closed campsite stage');
     assert.equal(g.run('SAVE_VERSION'), 5);
 
     // Access remains behind the existing MQ5 ferry authorization. Debug warps

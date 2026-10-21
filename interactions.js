@@ -224,6 +224,7 @@ function tryExamineWorldItem() {
 }
 
 function tryMapFeatures() {
+  if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.interact())return true;
   const features = currentMapFeatures();
   if (!features) return false;
 
@@ -2092,6 +2093,7 @@ function finishDialogue() {
 }
 
 function handleInteract() {
+  if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput()&&!dialogue.open)return;
   if (galleryReceiverEncounter.isLocked() && !dialogue.open) return;
   if (menu.open || shop.open) return;
   if (dialogue.open) {

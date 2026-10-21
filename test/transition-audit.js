@@ -281,6 +281,15 @@ check('crossCausewayFerry (east to west)', 'crossCausewayFerry();', {
   pre: "MainQuest=5; placeAtLocation('EASTERN_BANK_MAP',5.5*TILE,8.5*TILE);",
 });
 
+check('enterTravellersRiseCamp', 'enterTravellersRiseCamp();', {
+  group:'scripted-transitions',
+  pre: "MainQuest=5;persistentParty.joinEsla({level:11});travellers_rise_ambush_complete=true;travellers_rise_camp_stage=1;placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',6.5*TILE,5.5*TILE);",
+});
+check('exitTravellersRiseCamp', 'exitTravellersRiseCamp();', {
+  group:'scripted-transitions',
+  pre: "placeAtLocation('TRAVELLERS_RISE_CAMP_MAP',7.5*TILE,12.5*TILE);",
+});
+
 // ascendToDungeon5 lands the player exactly on the floor-5 boss's tile
 // (col 7, row 11 -- BOSS.x/BOSS.y). In real play you can only ascend back to
 // floor 5 having already defeated that boss (descendToDungeon6 is gated on

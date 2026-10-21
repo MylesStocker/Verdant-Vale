@@ -122,6 +122,9 @@ let sera_liora_opening_complete = false;
 let travellers_rise_ambush_complete = false;
 let travellers_rise_ambush_paid = false;
 let travellers_rise_ambush_payment = 0;
+// 0: introduction pending; 1: rest agreed, night pending; 2: future night complete.
+// This increment writes only 1, after the final authored acknowledgement.
+let travellers_rise_camp_stage = 0;
 
 // The demand receipt is independent from victory, but its amount cannot exist
 // without the receipt. This pure check accepts a candidate save payload so
@@ -132,7 +135,17 @@ function travellersRiseAmbushInvariantErrors(source) {
   const complete=read('travellers_rise_ambush_complete',travellers_rise_ambush_complete,false);
   const paid=read('travellers_rise_ambush_paid',travellers_rise_ambush_paid,false);
   const payment=read('travellers_rise_ambush_payment',travellers_rise_ambush_payment,0);
+  const stage=read('travellers_rise_camp_stage',travellers_rise_camp_stage,0);
   const errors=[];
+  if(!Number.isInteger(stage)||stage<0||stage>2)errors.push('invalid Travellers Rise camp stage');
+  if(stage>0&&complete!==true)errors.push('camp stage requires authenticated ambush victory');
+  const campMap=source?source.location?.mapId==='TRAVELLERS_RISE_CAMP_MAP':activeMap===TRAVELLERS_RISE_CAMP_MAP;
+  if(campMap&&stage<1)errors.push('stable campsite save requires rest agreement');
+  if(stage>0){
+    if(read('MainQuest',MainQuest,0)<5)errors.push('camp stage requires MQ5');
+    const esla=source?source.party?.order?.includes('esla'):persistentParty.getMember('esla');
+    if(!esla)errors.push('camp stage requires canonical Esla membership');
+  }
   if(typeof complete!=='boolean')errors.push('travellers_rise_ambush_complete must be a boolean');
   if(typeof paid!=='boolean')errors.push('travellers_rise_ambush_paid must be a boolean');
   if(!Number.isSafeInteger(payment)||payment<0||payment>100)
@@ -519,6 +532,7 @@ function syncQuestFlagsToWindow() {
   window.travellers_rise_ambush_complete = travellers_rise_ambush_complete;
   window.travellers_rise_ambush_paid = travellers_rise_ambush_paid;
   window.travellers_rise_ambush_payment = travellers_rise_ambush_payment;
+  window.travellers_rise_camp_stage = travellers_rise_camp_stage;
   window.schilling_quest_started = schilling_quest_started;
   window.schilling_returned      = schilling_returned;
   window.drama_stage             = drama_stage;
@@ -801,7 +815,8 @@ function getActiveQuestNotes() {
     notes.push({
       title: 'Sealed Report',
       body: travellers_rise_ambush_complete
-        ? "Make camp with Esla at Travellers’ Rise before continuing to Mornay."
+        ? (travellers_rise_camp_stage===0 ? "Inspect the ambushers’ campsite at Travellers’ Rise."
+          : "Settle in with Esla at the Travellers’ Rise campfire.")
         : persistentParty.getMember('esla')
         ? "Lely and Esla should take the ferry at the broken causeway and carry the sealed report east to Mornay. Give your firsthand account at the regional office and request qualified assistance."
         : "Carry the supervisor's sealed report east, give your firsthand account at the regional office, and request qualified assistance. Your assignment authorizes the ferry at the broken causeway.",

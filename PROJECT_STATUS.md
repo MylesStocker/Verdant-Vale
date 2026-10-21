@@ -722,9 +722,49 @@ fixed three-member formation enters canonical party combat. Refusal costs
 nothing; handing over up to 100 gold records a separate one-time receipt but
 cannot prevent the fight. Escape and defeat permit retry without another charge.
 Authenticated victory alone removes the actors, completes the event and changes
-the journal objective to making camp at the Rise. The camp scene itself,
-healing/time passage, Mornay content, shops, further MQ5 progression, and boat
-travel remain deferred; the port is canonically unserved by rail.
+the journal objective to inspecting the ambushers’ campsite. Once combat rewards
+and level-up pages are acknowledged, the campsite introduction now starts
+automatically. Both Lely and Esla walk to the one-tile rest marker at Rise
+column 6, row 4 and enter a registered 16×15 local clearing. They walk to opposite
+sides of its low ember ring; Esla argues against travelling exhausted through the
+fen after dark, and Lely agrees to leave at first light. Esla uses her canonical
+green speaker style. The rest site is the ambushers’ former camp, not an office,
+settlement or new regional chunk. Its `(6,4)` entrance is distinct from the
+ambush trigger `(10,7)` and unavoidable eastward-exit gate. Two decorative log
+seats with bark and cut ends sit north/south of the retained fire; all three
+abandoned bedrolls remain. There is no sitting system, random encounter, enemy
+spawn, combat trigger or hostile NPC in the campsite.
+
+`travellers-rise-camp.js` owns transient routes/projection and input; the existing
+fixed placement, NPC walking, party and save authorities retain their roles.
+The one closed save-bound stage is 0 (not introduced), 1 (rest agreed/night
+pending), or 2 (future night complete). This pass writes only stage 1, after the
+final line; it grants no reward and changes no HP, status, equipment, inventory,
+XP, gold, day or MainQuest. The journal then says “Settle in with Esla at the
+Travellers’ Rise campfire.” Saving inside afterward is permitted; active
+presentation is unsavable and a pre-introduction victory save resumes safely.
+The exit marker at camp `(7,12)` returns to Rise `(6.5,5.5)`; subsequent entry
+uses the same fixed destination `(7.5,8.5)` without replaying the argument.
+Eastward progress remains blocked until the future night-completion authority,
+but camp exit, local exploration and westward retreat remain open.
+
+The substantive campfire conversation, sleep, recovery, time passage, morning,
+Mornay content, shops and further MQ5 progression remain deferred. The new local
+map brings totals to 217 maps and 258 fixed transitions; 115 regional chunks,
+8 preserved-coordinate transitions, 240 edge segments and 42 doors are unchanged.
+All existing grids, placements, pools and encounter permissions are unchanged;
+only the transition audit artifact gains this map and its two fixed landings.
+SAVE_VERSION stays 5. The port is canonically unserved by rail.
+
+Campsite verification: suite 201 has 21 grouped checks; the complete regression
+passes 201/201 after a clean 200/200 integrated baseline. Validation retains zero
+errors and the integrated baseline’s 12 warnings. All 115 fingerprints and all
+five historical combat capture digests are unchanged. The transition audit
+contains only the additional local map and its two fixed destinations. Browser
+playtesting has not been performed; native and 2× geometry, speaker pagination,
+movement, input ownership, real ambush outcomes and save/load are covered
+headlessly. Test number 201 was unused; the pre-existing duplicate prefix 61 is
+unchanged.
 
 ### Reservoir balance-lock reward
 

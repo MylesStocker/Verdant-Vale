@@ -48,7 +48,7 @@ avoids adding template metadata to result/playback schemas.
 
 `travellersRiseAmbush` owns the MQ5 road event's transient field presentation:
 the exact Rise trigger, three projected actors, authored dialogue, deterministic
-routes, reveal, demand choice and post-victory exchange. It delegates complete
+routes, reveal and demand choice. Its authenticated victory receipt hands presentation to the campsite owner after combat cleanup and reward acknowledgements. It delegates complete
 formation preparation and the exact terminal receipt to
 `scriptedPartyEncounters.startTravellersRise()`. That lifecycle definition binds
 the stable Road Impostor / Bridled Hollow / Fen Handler order and the ordinary
@@ -67,13 +67,57 @@ Movement routes and actors are session-only and are reset on load or developer
 checkpoint application. No combat identity, route position or half-finished
 cutscene enters the version-5 payload.
 
+### Travellers’ Rise campsite introduction
+
+`travellers-rise-camp.js` owns the automatic presentation after the ambush. It
+waits for canonical combat finalization and every reward/level-up page to finish,
+then validates both complete authored routes, speaker pages, placements and
+exclusive route ownership before installing any pose. The real player is moved
+through `placeAtLocation()` on each route tick; Esla has only a transient sprite
+pose, with no copied HP/equipment/membership. Both use the existing waypoint
+runtime and normal walking cadence. An optional owned-ID filter keeps unrelated
+NPC routes frozen. The existing explicit player-collision exception now reaches
+the regional route adapter as well as the local adapter; ordinary routes retain
+their default collision behavior.
+
+The single-tile rest marker overlays Travellers’ Rise `(6,4)` without changing
+its grid. This entrance is separate from the ambush trigger `(10,7)` and the
+onward east-exit gate; it never serves as the route choke. After victory the
+first entry is automatic. Later interaction uses the same `enterTravellersRiseCamp()` fixed transition: local
+`TRAVELLERS_RISE_CAMP_MAP`, arrival `(7.5,8.5)` in tile units. The local map is
+16 columns × 15 rows, enclosed by water and reeds, with a low ember ring and
+three ordinary bedrolls and two decorative log seats north/south of the fire.
+The logs have bark, grain and cut ends, with no sitting or collision behavior.
+The camp has no random encounters, enemy spawns, combat triggers or hostile NPCs.
+Its exit feature `(7,12)` returns to safe Rise tile
+`(6.5,5.5)`. It has no regional placement, encounters, pickups or rest effects.
+
+The save-bound `travellers_rise_camp_stage` is closed: `0` introduction pending,
+`1` rest agreed/night pending, `2` reserved for the future completed night. This
+pass writes only `1`, on the final acknowledgement. Nonzero stages require MQ5,
+canonical Esla membership and the authenticated ambush completion flag. Stable
+campsite saves additionally require rest agreement. Active presentation refuses
+save/load; a victory saved on the Rise before presentation resumes when the world
+is ready. Load/checkpoint cleanup clears poses and callbacks, not saved story
+progress. Exact session ownership makes stale callbacks inert. Faults retain
+phase/message diagnostics, retire owned poses and release controls for load or
+checkpoint recovery without advancing the story.
+
+After agreement, both transient routes are retired and Esla’s projection is
+removed; there is no follower system. The eastward gate remains closed until
+stage `2`, with Esla’s reminder, while local exploration, camp exit/re-entry and
+westward retreat remain available. Stage `1` is the integration boundary for the
+later campfire/night scene: no sleep, healing, day advancement or morning content
+exists yet. SAVE_VERSION remains 5; only the established quest binding gains one
+numeric story field. Suite 201 covers this contract.
+
 No build step: every file is a plain `<script src="...">` tag in `index.html`,
 loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 `function` declared in one file is just a bare global name in every file
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 216 maps, 115 regional chunks, 199 regression suite
+Current integration totals: 217 maps, 115 regional chunks, 201 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 

@@ -50,6 +50,7 @@ const QUEST_FLAG_BINDINGS = [
   lex('travellers_rise_ambush_complete', false, () => travellers_rise_ambush_complete, (v) => { travellers_rise_ambush_complete = v; }),
   lex('travellers_rise_ambush_paid', false, () => travellers_rise_ambush_paid, (v) => { travellers_rise_ambush_paid = v; }),
   lex('travellers_rise_ambush_payment', 0, () => travellers_rise_ambush_payment, (v) => { travellers_rise_ambush_payment = v; }),
+  lex('travellers_rise_camp_stage', 0, () => travellers_rise_camp_stage, (v) => { travellers_rise_camp_stage = v; }),
   lex('equipment_ticket_ready', false, () => equipment_ticket_ready, (v) => { equipment_ticket_ready = v; }),
   lex('letter_quest_stage', 0, () => letter_quest_stage, (v) => { letter_quest_stage = v; }),
   lex('cat_quest_stage', 0, () => cat_quest_stage, (v) => { cat_quest_stage = v; }),
@@ -403,6 +404,7 @@ function savedEquipmentDisposition(item) {
 function canSaveHere() {
   if (!persistentParty.hasLivingMember()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
+  if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
   if (persistentParty.getCombatDiagnostic()) return false;
   if (combatPlayerState.hasParty()) return false;
@@ -418,6 +420,7 @@ window.canSaveHere = canSaveHere;
 function saveGame() {
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
+  if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
   // Authoritative guard: refuse to write anything at all on a blocked map,
   // regardless of caller. Returns before touching localStorage or any menu
   // state -- the caller (normally input.js's save-confirm handler, which
@@ -595,6 +598,7 @@ function resolveLoadLocation(data) {
 function loadGame() {
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
+  if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
@@ -801,6 +805,7 @@ function loadGame() {
   // parked at home, off the active map, so it never initialises or renders.
   if (typeof resetAllPatrols === 'function') resetAllPatrols();
   if (typeof travellersRiseAmbush !== 'undefined') travellersRiseAmbush.resetTransient();
+  if (typeof travellersRiseCamp !== 'undefined') travellersRiseCamp.resetTransient();
 
   // ── Migration persistence + versioned backup ───────────────────────────────
   // Only after a FULL, successful load: if this save needed migrating, preserve
