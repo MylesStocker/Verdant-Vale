@@ -4038,16 +4038,26 @@ function startCanonicalPartyEncounter() {
   if(mapId==='MAP_N2'&&sentry_quest_started&&!sentry_quest_done)
     return scriptedPartyEncounters.start('pale_sentry');
   const pool=currentEncounterPool();
-  if(!Array.isArray(pool)||!pool.length)return;
+  if(pool===EMPTY_ENCOUNTER_POOL)return; // the geographic no-encounter sentinel
+  // Validate EVERY authored entry and its actual party/formation combination
+  // before selection or override RNG. Selection remains the data authority's
+  // single draw; neither validation pass allocates identities or installs state.
+  const table=encounterFormations.normalizePool(pool);
+  const templatesFor=formation=>formation.enemies.map(id=>ENEMY_TEMPLATE_REGISTRY[id]);
+  for(const formation of table.formations)
+    canonicalPartyCombat.validate({enemies:templatesFor(formation),escape:'fastest_living'});
+  const meta=MAP_METADATA[mapRegistryId(activeMap)];
+  const basin=meta&&meta.region==='North Basin'&&meta.type==='outdoor';
+  if(basin)canonicalPartyCombat.validate({enemies:[SWAMP_DONKEY_TEMPLATE],escape:'fastest_living'});
+  let enemies=templatesFor(encounterFormations.select(pool));
   const roll=()=>{const value=Math.random();if(!Number.isFinite(value)||value<0||value>=1)
     throw Error('Canonical party encounter: invalid selection RNG');return value;};
-  let template=pool[Math.floor(roll()*pool.length)];
-  const meta=MAP_METADATA[mapRegistryId(activeMap)];
-  if(meta&&meta.region==='North Basin'&&meta.type==='outdoor'&&roll()<1/16)template=SWAMP_DONKEY_TEMPLATE;
-  if(roll()<1/256){
-    template=canonicalEnemyRecords.generated();
-  }
-  return canonicalPartyCombat.enter({enemies:[template],escape:'fastest_living'});
+  // Overrides replace the whole encounter, in the original order. Generated
+  // values are issued only on success and undergo actual-state preflight in
+  // enter() before installation. No discarded formation is ever installed.
+  if(basin&&roll()<1/16)enemies=[SWAMP_DONKEY_TEMPLATE];
+  if(roll()<1/256)enemies=[canonicalEnemyRecords.generated()];
+  return canonicalPartyCombat.enter({enemies,escape:'fastest_living'});
 }
 
 // Read-only scripted-entry preparation. World callers use the same check before

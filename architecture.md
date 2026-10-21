@@ -73,7 +73,7 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 216 maps, 115 regional chunks, 198 regression suite
+Current integration totals: 216 maps, 115 regional chunks, 199 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -107,6 +107,28 @@ existing listener and key latch. `combat.active` retains
 its singleton/Receiver meaning; canonical activity is explicit and session-owned.
 Save version 5 and all persistent fields are unchanged. Suite 183 covers the bridge;
 see [the encounter inventory and review checklist](CANONICAL_PARTY_COMBAT.md).
+
+### Geographic formation bridge
+
+`startCanonicalPartyEncounter()` normalizes the entire geographic table, validates
+each actual party/enemy combination and the eligible Donkey override, then calls
+`encounterFormations.select(pool)` once. Accepted inputs are exact registered raw
+template arrays or frozen `{id, enemies, weight}` records with frozen ordered
+one-to-three-ID arrays and positive safe weights. Malformed tables and predictable
+authored preparation failures precede RNG, identities and gameplay mutation.
+
+The selected IDs resolve in order through `ENEMY_TEMPLATE_REGISTRY`. Donkey's
+eligible North Basin `< 1/16` check replaces the whole formation, followed by the
+unconditional `< 1/256` generated-23 check; 23 wins if both succeed. Its seven
+stat-generation draws occur only on success. One `canonicalPartyCombat.enter()`
+call validates the actual final side and installs distinct fixed-slot instances.
+The no-pool sentinel, pre-recruitment singleton path and cooldown/finalization
+owners remain unchanged. See `CANONICAL_PARTY_COMBAT.md` for schema and draw order.
+
+Claude may supply weighted pools/map assignments once this bridge reaches main,
+without editing combat entry. Composition, weights, rates, permissions and Eastern
+Fens content remain Claude-owned; this bridge changes none of them. Suite 194
+covers ordered selection, duplicates, overrides, atomic failure and all nine sizes.
 
 ### Enemy capability authority — Pass 3
 

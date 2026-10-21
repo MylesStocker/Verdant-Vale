@@ -6,6 +6,33 @@ actually fits together.
 
 ## Current state
 
+### Geographic formation bridge (review increment)
+
+Approved MQ5 dialogue/Tomas/Quickbloom presentation, the Travellers’ Rise ambush
+and its mandatory eastward-exit reachability gate were checkpointed as
+`5a37beecc6b107f36ab8aeeae2daf90fd42ec853` after 198/198 suites and unchanged
+historical captures/artifacts. The gate preserves local exploration and inert
+loading while preventing an unresolved ambush from being bypassed toward Mornay.
+
+The canonical geographic starter now validates whole tables and actual candidate
+formations before RNG, selects exactly once through `encounterFormations`, resolves
+ordered registry IDs and installs one complete enemy side. Flat pools retain their
+selection mapping. Weighted immutable `{id, enemies, weight}` records support
+one to three enemies and duplicates. Donkey and generated 23 replace the whole
+selection, in that order; the last successful override wins. Existing eligibility,
+probabilities, generation order and cooldown/finalization behavior remain intact.
+Suite 194 adds 23 deterministic bridge checks without using the 200+ content range.
+Final verification: 199/199 suites, including 48,642 immutable formation
+preparations; 0 data errors and 4 established warnings; 115/115 fingerprints;
+read-only transition audit matches the tracked artifact; all five historical
+capture digests unchanged. SAVE_VERSION remains 5. No browser test was performed.
+
+**Claude handoff:** once merged to main through a separately authorized integration,
+Claude can author weighted pools/map assignments without changing combat entry.
+Formation weights, geographic assignment, rates and map permissions remain Claude's
+scope. No Eastern Fens random content or encounter permission was added here.
+No pool, grid, transition, fingerprint, enemy definition or SAVE_VERSION change.
+
 ### Canonical party completion policy — Pass 6 (uncommitted)
 
 Pass 5 checkpoint: `4512eabc75d4a194e72f14ce98589822e6e4d59a` (verified 190/190).

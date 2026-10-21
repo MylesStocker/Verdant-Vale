@@ -1,5 +1,55 @@
 # Canonical party combat integration review
 
+## Geographic formation bridge
+
+`startCanonicalPartyEncounter()` accepts the existing legacy flat arrays of
+exact registered template objects and immutable authored formation records:
+`Object.freeze({id: 'formation_example', enemies: Object.freeze(['enemy_marsh_wisp']), weight: 1})`.
+Formation IDs match `/^formation_[a-z0-9_]+$/` and are unique within a table;
+enemy IDs match `/^enemy_[a-z0-9_]+$/` and may repeat in authored slot order.
+Enemy arrays contain one to three ordered registered IDs. The existing
+`encounterFormations` normalizer owns closed-record, accessor/prototype,
+immutability, ID, count and cumulative-weight validation. The geographic
+`EMPTY_ENCOUNTER_POOL` sentinel remains inert; malformed or empty authored
+tables fail closed.
+
+Before RNG, every normalized formation is checked through the existing complete
+canonical preflight against the actual party, arithmetic, lifecycle ownership,
+identity capacity and cleanup state. Eligible North Basin Donkey entry is also
+preflighted. Then `encounterFormations.select(pool)` runs exactly once. Flat
+arrays retain their exact uniform index mapping, including repeated entries;
+weighted tables use the selector's existing cumulative-weight mapping. Each uses
+one selection draw. The selected ordered IDs resolve through
+`ENEMY_TEMPLATE_REGISTRY`; duplicates remain separate fixed-slot runtime actors
+when the complete array reaches `canonicalPartyCombat.enter()` exactly once.
+
+Rare overrides remain whole-encounter replacements in their original order:
+North Basin outdoor eligibility adds one strict `< 1/16` Donkey check, then every
+ordinary selection adds one strict `< 1/256` generated-23 check. Successful 23
+selection alone issues its seven authenticated draws (HP, two gold bounds, ATK,
+DEF, SPD, XP). It wins if both overrides succeed. Thus entry consumes two draws
+outside North Basin or three within it, plus seven only on a 23 success. No
+rejected/discarded candidate receives a runtime identity. Generated actual values
+are validated by canonical entry before installation; invalid generated values
+retain the consumed selection evidence without partial combat or cooldown writes.
+Malformed tables and predictable authored preparation failures consume zero draws.
+
+The pre-recruitment singleton route, Sentry story override, combat finalization,
+reward/cooldown authorities, save refusal and all five historical combat capture
+projections are unchanged. Suite 194 covers the bridge, including the 1–3 by 1–3
+matrix, exact draws, stale/unsupported inputs, save/load and Run cleanup.
+
+### Handoff to Claude
+
+After this bridge reaches main, weighted pools and geographic assignments can be
+supplied through the existing encounter data authorities without editing
+`combat.js` or canonical installation. Claude owns formation composition/weights,
+map assignments, rates and encounter permissions. This increment supplies no
+Eastern Fens pool, enemy, rate or permission change and imports no content branch.
+Waspthra/Botfly definitions and the Eastern Fens population remain outside this
+worktree's bridge work. Tests use existing registered templates and one isolated
+third-member fixture, never production formations.
+
 ## MQ5 Travellers' Rise scripted formation
 
 The Rise road event is a production two-member-versus-three-enemy use of the
