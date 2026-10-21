@@ -794,8 +794,11 @@ without expanding it; Lely admits her current fear about the report. The final
 promise is warm and platonic: the future secret remains undefined.
 
 The scene waits for the final “I promise.” acknowledgement, fades completely
-black, applies one ordinary rest through a sealed persistent-party receipt,
-advances the day once and writes existing camp stage 2. It restores full HP and
+black, applies one ordinary rest through a sealed persistent-party receipt and
+advances the day once. Camp stage 1 remains authoritative through the black hold
+and dawn fade; existing camp stage 2 is written only when morning completes and
+is the sole persisted receipt for the entire ambush/camp sequence. No second
+completion flag is stored. The rest restores full HP and
 clears Poison, Muddied, Slither and Curse only; it preserves the ordinary rest
 rule for other statuses and stored Speed. It grants no reward or XP and leaves
 MainQuest at 5. Dawn restores control, the journal points to Mornay’s regional
@@ -811,13 +814,24 @@ The entrance remains `(6,4)`, distinct from the ambush trigger and onward choke.
 
 The approved introduction was checkpointed as `0819708`. Suite 207 covers the
 night (202–206 are reserved by the visible concurrent terrain-work filenames).
-Verification: 21 focused night checks, 202/202 complete suites, all 74,409
+Verification: 21 focused night checks, 8 focused one-time/dialogue checks and
+203/203 complete suites; all 74,409
 immutable formation preparations, syntax and diff checks pass. Validation retains
 0 errors and 12 established warnings; 115 regional fingerprints, the read-only
 transition audit and all five historical combat digests are unchanged. Suite 201’s
 only expectation change is the requested cold fire before deliberate lighting;
 its entrance, staging, dialogue, save and boundary checks remain. Browser
 playtesting remains required for pacing and final pixel appearance.
+
+Post-MQ5 ambient dialogue now recognizes the travelling pair at ten selected,
+plausibly informed contacts: the Calwick Supervisor, Tomas, Aldric, Petra,
+Corvin and Oswin, plus Drenwick's Veth, Holt, Sable and Renn. Every existing
+quest/day page remains first. The additions require `MainQuest >= 5` and
+canonical Esla membership, including Fallen membership; malformed numeric
+progress without Esla remains on legacy dialogue. Mixed pages use the shared
+speaker metadata, so Esla is green and every other speaker remains default.
+No ordinary resident learns the ambush, camp conversation or sealed findings,
+and no new dialogue/save framework is involved.
 
 ### Reservoir balance-lock reward
 

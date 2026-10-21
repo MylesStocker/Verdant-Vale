@@ -94,8 +94,10 @@ Its exit feature `(7,12)` returns to safe Rise tile
 or completing the introduction has no rest effect.
 
 The save-bound `travellers_rise_camp_stage` is closed: `0` introduction pending,
-`1` rest agreed/night available, `2` night completed. The introduction writes
-only `1`, on its final acknowledgement; deliberate fire-ring interaction owns
+`1` rest agreed/night available, `2` full ambush/camp sequence completed. Stage
+`2` is the one ordinary persisted completion receipt for the whole sequence; no
+parallel completion flag exists. The introduction writes only `1`, on its final
+acknowledgement; deliberate fire-ring interaction owns
 the later night. Nonzero stages require MQ5,
 canonical Esla membership and the authenticated ambush completion flag. Stable
 campsite saves additionally require rest agreement. Active presentation refuses
@@ -149,10 +151,13 @@ private to persistentParty. No fee, dream, cat-quest callback, reward or XP is
 attached to this campsite rest. Existing beds/inns remain unchanged.
 
 Completion revalidates story ownership, both seat placements and the entire rest
-receipt before mutation. It consumes the receipt, applies rest/day, writes stage
+receipt before mutation. It consumes the receipt and applies rest/day at full
+blackout, while stage `1` remains authoritative through the black hold and dawn
+fade. At completed morning it revalidates map, quest and membership, writes stage
 `2`, updates derived journal text toward the Mornay regional office and releases
-the existing east gate. MainQuest stays `5`. Expected failure before this boundary
-retains stage `1`, diagnostics and safe retry. Unexpected completion failure
+the existing east gate. A failed mirror write rolls stage back to `1`. MainQuest
+stays `5`. Expected failure before this boundary retains stage `1`, diagnostics
+and safe retry. Unexpected completion failure
 retains its consumed receipt/diagnostic and refuses saving or blind replay;
 loading a valid save or applying the Story Checkpoint resets transient ownership.
 Active scenes refuse save/load. Stable stage `1` loads await deliberate interaction;
@@ -166,7 +171,7 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 217 maps, 115 regional chunks, 201 regression suite
+Current integration totals: 217 maps, 115 regional chunks, 203 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -901,11 +906,15 @@ boundaries.
 
 Esla explicitly states that she does not know what happened to Dreyfuss; the
 line remains an attributed Esla page and therefore uses her speaker colour.
-Tomas's established day-cycle and delivered-dispatch pages remain first. When
-`persistentParty.getMember('esla')` is present, his getter appends one ambient
-acknowledgement that Lely and Esla arrived together. No quest threshold, NPC
-projection or additional flag participates, so Fallen membership and save/load
-select the same branch while the MQ5 checkpoint reset removes it.
+`postMq5CompanionDialogue()` is a narrow ambient adapter: at MQ5 with canonical
+Esla membership it preserves every existing NPC page in place, assigns those
+pages a stable speaker ID and appends a closed mixed-speaker exchange.
+`setNpcDialoguePages()` installs that form or the exact legacy line-array form
+through the existing dialogue authority. Tomas, Aldric, Petra, Corvin, Oswin,
+Veth, Holt, Sable, Renn and the Supervisor have selected post-recruitment
+exchanges; quest and one-time pages retain priority. Numeric quest state alone,
+NPC projection and Fallen status cannot substitute for membership. No generic
+follower-dialogue framework, save flag or renderer path is introduced.
 
 Recruitment activates canonical party routing for supported ordinary encounters.
 

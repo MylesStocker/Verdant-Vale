@@ -123,8 +123,17 @@ let travellers_rise_ambush_complete = false;
 let travellers_rise_ambush_paid = false;
 let travellers_rise_ambush_payment = 0;
 // 0: introduction pending; 1: rest agreed, night available; 2: night completed.
-// The camp introduction writes 1; authenticated overnight completion writes 2.
+// The camp introduction writes 1. Stage 2 is the sole persisted receipt for
+// completion of the entire ambush/camp sequence; it is written only after the
+// overnight rest and the fade back to morning have both finished.
 let travellers_rise_camp_stage = 0;
+
+function travellersRiseSequenceComplete(source) {
+  const stage=source
+    ?(Object.prototype.hasOwnProperty.call(source,'travellers_rise_camp_stage')?source.travellers_rise_camp_stage:0)
+    :travellers_rise_camp_stage;
+  return stage===2;
+}
 
 // The demand receipt is independent from victory, but its amount cannot exist
 // without the receipt. This pure check accepts a candidate save payload so
@@ -939,6 +948,7 @@ window.LIGHTHOUSE_OBJECTIVE_BY_ROUTE = LIGHTHOUSE_OBJECTIVE_BY_ROUTE;
 window.polwickLighthouseOutcome = polwickLighthouseOutcome;
 window.lighthouseQuestInvariantErrors = lighthouseQuestInvariantErrors;
 window.travellersRiseAmbushInvariantErrors = travellersRiseAmbushInvariantErrors;
+window.travellersRiseSequenceComplete = travellersRiseSequenceComplete;
 window.lighthouseQuestRoute = lighthouseQuestRoute;
 window.getLighthouseQuestOfferRoute = getLighthouseQuestOfferRoute;
 window.acceptLighthouseQuest = acceptLighthouseQuest;

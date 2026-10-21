@@ -44,8 +44,7 @@ function interactSimpleNPCs() {
         patrolNpcTalk(npc);
       } else {
         dialogue.name  = npc.name;
-        if (npc.speakerId) setUniformSpeakerDialoguePages(npc.dialogue, npc.speakerId);
-        else dialogue.pages = npc.dialogue;
+        setNpcDialoguePages(npc);
         dialogue.open  = true;
         dialogue.page  = 0;
       }

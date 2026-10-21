@@ -1270,6 +1270,9 @@ function validateNPCs() {
     if (npc.dialogue !== undefined && npc.dialogue !== null) {
       if (!_isPlainArray(npc.dialogue)) {
         addValidationError(GROUP, lbl + ': dialogue is neither an array nor null');
+      } else if (npc.dialogue.some(page => !_isPlainArray(page))) {
+        try { validateSpeakerDialoguePages(npc.dialogue); }
+        catch (error) { addValidationError(GROUP, lbl + ': invalid speaker dialogue pages'); }
       } else {
         npc.dialogue.forEach((page, i) => {
           if (!_isPlainArray(page)) addValidationError(GROUP, lbl + ': dialogue page ' + i + ' is not an array of lines');
@@ -1955,10 +1958,11 @@ function validateDialogue() {
     if (!_isPlainArray(pages)) return;
     pages.forEach((page, pi) => {
       checked++;
-      if (!_isPlainArray(page)) { addValidationWarning(GROUP, lbl + ' page ' + pi + ': not an array of lines'); return; }
-      if (page.length > MAX_LINES_PER_PAGE)
-        addValidationWarning(GROUP, lbl + ' page ' + pi + ': ' + page.length + ' lines (recommended max ~' + MAX_LINES_PER_PAGE + ') -- will auto-repaginate, but may read as choppy');
-      page.forEach((line, li) => {
+      const lines=_isPlainArray(page)?page:page&&_isPlainArray(page.lines)?page.lines:null;
+      if (!lines) { addValidationWarning(GROUP, lbl + ' page ' + pi + ': not an array or speaker page'); return; }
+      if (lines.length > MAX_LINES_PER_PAGE)
+        addValidationWarning(GROUP, lbl + ' page ' + pi + ': ' + lines.length + ' lines (recommended max ~' + MAX_LINES_PER_PAGE + ') -- will auto-repaginate, but may read as choppy');
+      lines.forEach((line, li) => {
         if (typeof line !== 'string') return; // already an error from validateNPCs() if applicable
         if (line.length > MAX_LINE_CHARS)
           addValidationWarning(GROUP, lbl + ' page ' + pi + ' line ' + li + ' may exceed dialogue width (' + line.length + ' chars, recommended max ~' + MAX_LINE_CHARS + ') -- will word-wrap, confirm it still reads well split');

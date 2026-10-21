@@ -34,24 +34,27 @@ test('MQ5 uses the exact corrected Dreyfuss line on an Esla-coloured page',()=>{
   assert.deepEqual(J(g,'styled'),{name:'Esla',styleId:'esla_light_green',speakerId:'esla'});
 });
 
-test('Tomas preserves every existing page before recruitment and appends one membership-owned acknowledgement after it',()=>{
+test('Tomas preserves every existing page before recruitment and appends a membership-owned exchange after it',()=>{
   const g=fresh();g.run('day=1;dispatch_delivered=false');const before=tomas(g);
   assert.deepEqual(before,[
     ['“Today’s page: wind out of the southwest, reeds leaning hard, three herons on the near bank.”','“The herons aren’t important. I write them down anyway. That’s the whole trick of it.”'],
     ['“Esla files things because the Empire tells her to. I file things because I want to. We understand each other completely and not at all.”'],
   ]);
-  assert.equal(g.run(`persistentParty.joinEsla({level:11}).members.length`),2);let after=tomas(g);
-  assert.deepEqual(after.slice(0,-1),before);assert.deepEqual(after.at(-1),['“Lely — and Esla with you. That saves me writing down two separate arrivals.”']);
+  assert.equal(g.run(`MainQuest=5;persistentParty.joinEsla({level:11}).members.length`),2);let after=tomas(g);
+  assert.deepEqual(after.slice(0,2).map(page=>page.lines),before);
+  assert.deepEqual(after.slice(-4).map(page=>page.speakerId),['tomas','esla','tomas','esla']);
+  assert.match(after.at(-1).lines[0],/add: briefly/);
   g.run('dispatch_delivered=true');after=tomas(g);
-  assert.match(after.at(-2).join(' '),/out to Drenwick|wrote the date down/);assert.match(after.at(-1)[0],/Lely — and Esla with you/);
+  assert.match(after.at(-5).lines.join(' '),/out to Drenwick|wrote the date down/);assert.match(after.at(-4).lines[0],/There you are/);
 });
 
 test('Tomas membership branch survives save/load, includes Fallen Esla, and checkpoint reset removes it',()=>{
-  const g=fresh();g.run(`persistentParty.joinEsla({level:11});saveGame();var saved=JSON.parse(localStorage.getItem('verdantVale_save'));
+  const g=fresh();g.run(`storyCheckpointLab.apply('mq5_assignment_ready');dialogue.open=false;completeMq5Assignment();dialogue.open=false;
+    saveGame();var saved=JSON.parse(localStorage.getItem('verdantVale_save'));
     saved.party.characters[0].hp=0;localStorage.setItem('verdantVale_save',JSON.stringify(saved));persistentParty.resetForNewGame();loadGame()`);
-  assert.equal(g.run(`persistentParty.getMember('esla').hp`),0);assert.match(tomas(g).at(-1)[0],/Lely — and Esla with you/);
+  assert.equal(g.run(`persistentParty.getMember('esla').hp`),0);assert.match(tomas(g).at(-1).lines[0],/add: briefly/);
   assert.equal(g.run(`storyCheckpointLab.apply('mq5_assignment_ready')`),true);assert.equal(g.run(`persistentParty.getMember('esla')`),null);
-  assert.doesNotMatch(tomas(g).flat().join(' '),/Lely — and Esla with you/);
+  assert.doesNotMatch(tomas(g).flat().join(' '),/There you are/);
 });
 
 test('Quickbloom motes anchor deterministically to all three authored ally slots, including zero healing',()=>{

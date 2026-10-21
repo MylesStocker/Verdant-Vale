@@ -212,7 +212,7 @@ const travellersRiseCamp=(()=>{
     isActive:()=>active()||travellersRiseNight.isActive(),
     blocksSave:()=>active()||travellersRiseNight.blocksSave(),
     blocksInput:()=>active()||travellersRiseNight.isActive()||pendingHere()&&!busy(),
-    blocksEast:()=>eligible()&&travellers_rise_camp_stage<2,
+    blocksEast:()=>eligible()&&!travellersRiseSequenceComplete(),
     remind(){if(dialogue.open)return;open(pages([['esla','“We agreed to stop. The road can wait until first light.”']]),()=>{});},
     resetTransient(){travellersRiseNight.resetTransient();if(active())clearOwnedDialogue();clearRoutes();phase='idle';failure=null;plan=null;ticks=0;return true;},
     getView(){return Object.freeze({phase,active:active(),failure,stage:travellers_rise_camp_stage,entrance,exit,

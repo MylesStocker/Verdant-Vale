@@ -1440,8 +1440,7 @@ function patrolNpcTalk(npc) {
                                             : (dy >= 0 ? 'down'  : 'up');
   if (rt) { rt.frozen = true; rt.facing = npc.facing; rt.resumeDelay = 30; }
   dialogue.name  = npc.name;
-  if (npc.speakerId) setUniformSpeakerDialoguePages(npc.dialogue, npc.speakerId);
-  else dialogue.pages = npc.dialogue;
+  setNpcDialoguePages(npc);
   dialogue.open  = true;
   dialogue.page  = 0;
 }

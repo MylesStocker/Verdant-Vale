@@ -97,10 +97,23 @@ const travellersRiseNight=(()=>{
     validateCompletion(); // all predictable failures precede the irreversible boundary
     committing=true;
     persistentParty.applyOvernightRest(plan.rest);
-    travellers_rise_camp_stage=2;syncQuestFlagsToWindow();
     // A private consumed rest receipt prevents any replay even if a later host
-    // callback throws. Such faults refuse saving until load/checkpoint recovery.
+    // callback throws. Stage 2 remains withheld until the dawn fade finishes;
+    // such faults refuse saving until load/checkpoint recovery.
     setPhase('sleep');fire='embers';
+  };
+  const finishMorning=()=>{
+    if(!committing||phase!=='dawn'||elapsed!==72||regionalActiveMapId()!==MAP||
+        MainQuest!==5||!travellers_rise_ambush_complete||travellers_rise_camp_stage!==1||
+        !persistentParty.getMember('lely')||!persistentParty.getMember('esla'))
+      throw Error('invalid night morning finalization');
+    // This is the one persisted receipt for the whole event. The rest has
+    // already succeeded, the complete morning fade has elapsed, and all
+    // predictable story/placement checks precede this write.
+    travellers_rise_camp_stage=2;
+    try{syncQuestFlagsToWindow();}
+    catch(error){travellers_rise_camp_stage=1;throw error;}
+    clear();seated=false;phase='idle';plan=null;committing=false;reconcileFormationLabKeys();
   };
   const update=()=>{
     if(!active())return false;
@@ -126,7 +139,7 @@ const travellersRiseNight=(()=>{
       }else if(phase==='nightfall'&&elapsed===60){setPhase('conversation');open(D.conversation,()=>setPhase('black'));}
       else if(phase==='black'&&elapsed===49)complete();
       else if(phase==='sleep'&&elapsed===48)setPhase('dawn');
-      else if(phase==='dawn'&&elapsed===72){clear();seated=false;phase='idle';plan=null;committing=false;reconcileFormationLabKeys();}
+      else if(phase==='dawn'&&elapsed===72)finishMorning();
       return true;
     }catch(error){fault(error);return true;}
   };

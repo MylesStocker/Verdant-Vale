@@ -135,10 +135,10 @@ test('overnight receipt restores each member and ONLY ordinary-night statuses on
  localStorage.setItem('verdantVale_save',JSON.stringify(p));loadGame();dialogue.open=false`);
  const before=J(g,'({day,stats,party:persistentParty.serialize(),ids:combatEnemyInstanceSequence})');begin(g);reach(g,'black');g.frames(48);
  assert.equal(view(g).black,1);assert.equal(view(g).stage,1);assert.equal(g.run('day'),before.day);assert.equal(g.run('stats.hp'),0);
- g.frames(1);assert.equal(view(g).phase,'sleep');assert.equal(g.run('day'),before.day+1);assert.equal(view(g).stage,2);
+ g.frames(1);assert.equal(view(g).phase,'sleep');assert.equal(g.run('day'),before.day+1);assert.equal(view(g).stage,1);
  for(const m of J(g,'persistentParty.getFieldView().members')){assert.equal(m.hp,m.maxHp);assert.deepEqual(m.statuses,['burn','dazzled']);}
  assert.equal(g.run('slitherSpd'),7);assert.equal(g.run('persistentParty.getMember("esla").slitherSpeed'),9);
- done(g);const after=J(g,'({day,stats,party:persistentParty.serialize(),ids:combatEnemyInstanceSequence})');
+ done(g);assert.equal(view(g).stage,2);const after=J(g,'({day,stats,party:persistentParty.serialize(),ids:combatEnemyInstanceSequence})');
  for(const key of ['items','gold','xp','level','weapon','armor','shield','accessory'])assert.deepEqual(after.stats[key],before.stats[key]);
  assert.deepEqual(after.party.rewards,before.party.rewards);assert.equal(after.ids,before.ids);assert.equal(g.run('MainQuest'),5);
  assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Sealed Report').body,'Continue east to the Mornay regional office with Esla. Deliver the sealed report and request qualified assistance.');
@@ -192,8 +192,9 @@ test('foreign route ownership fails closed without deleting another actor or loc
 
 test('unexpected post-rest failure preserves diagnostics, refuses save/blind retry, and load restores a safe session',()=>{
  const g=fresh();g.run('saveGame()');const stored=g.run("localStorage.getItem('verdantVale_save')"),day=g.run('day');
- begin(g);reach(g,'black');g.run('var realSync=syncQuestFlagsToWindow;syncQuestFlagsToWindow=()=>{throw Error("injected completion fault")}');g.frames(49);
+ begin(g);reach(g,'black');g.run('var realSync=syncQuestFlagsToWindow;syncQuestFlagsToWindow=()=>{throw Error("injected completion fault")}');g.frames(49+48+72);
  assert.equal(view(g).phase,'fault');assert.equal(view(g).failure.completionStarted,true);assert.equal(g.run('day'),day+1);
+ assert.equal(view(g).stage,1);
  assert.equal(g.run('saveGame()'),false);assert.equal(g.run('travellersRiseNight.begin()'),false);assert.equal(g.run("localStorage.getItem('verdantVale_save')"),stored);
  g.run('syncQuestFlagsToWindow=realSync;loadGame();dialogue.open=false');assert.equal(view(g).stage,1);assert.equal(g.run('day'),day);assert.equal(view(g).failure,null);begin(g);done(g);
 });
