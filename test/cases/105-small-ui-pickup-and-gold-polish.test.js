@@ -67,6 +67,6 @@ module.exports = {
     assert.match(text,/filed four reports.*none has been acknowledged/i);
 
     const validation=J('JSON.stringify(validateGameData())');
-    assert.equal(validation.errors,0); assert.equal(validation.warnings,4); assert.equal(g.run('SAVE_VERSION'), 5);
+    assert.equal(validation.errors,0); assert.equal(validation.warnings,12); assert.equal(g.run('SAVE_VERSION'), 5);
   },
 };

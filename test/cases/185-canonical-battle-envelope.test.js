@@ -252,16 +252,22 @@ test('malformed authored tables are rejected in full before the selection draw, 
  const g=fresh();g.run('ENEMY_TEMPLATE_POOLS[0].templates.push(Object.freeze({id:"formation_invalid",enemies:Object.freeze(["enemy_absent"]),weight:1}))');
  assert.ok(g.run('validateGameData().errors')>0);assert.ok(g.run('VALIDATION_ERRORS.some(e=>e.message.includes("unregistered template"))'));
 });
-test('future Eastern Fens fixtures: toads prepare; absent templates reject atomically without production routing',()=>{
+test('Eastern Fens fixtures: mire toads, Waspthra and Botfly all prepare now they are authored; a genuinely absent template still rejects atomically; no production routing yet',()=>{
  const g=fresh(3),fixtures=[['formation_fixture_mire_toads',Array(3).fill('enemy_mire_toad_male')],
   ['formation_fixture_waspthra',['enemy_waspthra']],['formation_fixture_botflies_waspthra',['enemy_botfly','enemy_botfly','enemy_waspthra']]];
  for(const [id,ids]of fixtures){g.run('var intended='+formation(id,ids));frozen(g.run('encounterFormations.validateDefinition(intended)'));
-  if(id.includes('mire_toads'))frozen(g.run('encounterFormations.normalizePool([intended])'));else reject(g,'encounterFormations.normalizePool([intended])');
-  if(id.includes('mire_toads'))frozen(g.run('canonicalPartyCombat.prepare({enemies:intended.enemies,escape:"fastest_living"})'));
-  else reject(g,'canonicalPartyCombat.enter({enemies:intended.enemies,escape:"fastest_living"})');
+  frozen(g.run('encounterFormations.normalizePool([intended])'));
+  frozen(g.run('canonicalPartyCombat.prepare({enemies:intended.enemies,escape:"fastest_living"})'));
  }
  assert.equal(g.run('rolls'),0);assert.equal(g.run('combatEnemyInstanceSequence'),0);
- assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_waspthra")'),false);assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_botfly")'),false);
+ assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_waspthra")'),true);assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_botfly")'),true);
+ // A still-genuinely-absent template continues to reject atomically.
+ g.run('var absent='+formation('formation_fixture_absent',['enemy_still_unregistered']));
+ reject(g,'encounterFormations.normalizePool([absent])');
+ reject(g,'canonicalPartyCombat.enter({enemies:absent.enemies,escape:"fastest_living"})');
+ // The authored Eastern Fens pool is content-complete but still has no live
+ // geographic route: no MAP_METADATA entry points its encounterPool at it.
+ assert.equal(g.run("Object.values(MAP_METADATA).some(m=>m.encounterPool===ENEMY_TEMPLATE_POOLS.find(p=>p.id==='pool_eastern_fens_mornay').templates)"),false);
 });
 test('element metadata is immutable and distinct from caster affinity; Firelit is metadata only',()=>{
  const g=fresh();assert.deepEqual(J(g,'RESONANCE_ELEMENTS'),['bloommarked','firelit']);frozen(g.run('RESONANCE_TECHNIQUES'));

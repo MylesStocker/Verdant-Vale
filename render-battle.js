@@ -3780,6 +3780,13 @@ window.ENEMY_SPRITE_DISPATCH = ENEMY_SPRITE_DISPATCH;
 // ENEMY_SPRITE_DISPATCH or ENEMY_GENERIC_SPRITE_IDS; validation enforces that.
 const ENEMY_GENERIC_SPRITE_IDS = new Set([
   'enemy_takomo',
+  'enemy_botfly',
+  'enemy_waspthra',
+  'enemy_sparkeel',
+  'enemy_mudwrack_snapper',
+  'enemy_fen_rootworm',
+  'enemy_willow_veiled_stalker',
+  'enemy_hollowreed_choker',
 ]);
 window.ENEMY_GENERIC_SPRITE_IDS = ENEMY_GENERIC_SPRITE_IDS;
 

@@ -72,13 +72,13 @@ test('every static ordinary formation up to three slots prepares for every party
    for(let a=0;a<ids.length;a++){verify([ids[a]]);for(let b=a;b<ids.length;b++){verify([ids[a],ids[b]]);
     for(let c=b;c<ids.length;c++)verify([ids[a],ids[b],ids[c]]);}}
    return {templates:ids.length,cases};})()`);
-  assert.equal(report.templates,44);assert.equal(report.cases,16214);total+=report.cases;
+  assert.equal(report.templates,51);assert.equal(report.cases,24803);total+=report.cases;
   assert.equal(state(g),before);assert.equal(g.run('rolls'),0);assert.equal(g.run('combatEnemyInstanceSequence'),0);
  }
- assert.equal(total,48642);console.log('  48,642 complete immutable ordinary-formation preparations');
+ assert.equal(total,74409);console.log('  74,409 complete immutable ordinary-formation preparations');
 });
 test('all registered pools normalize unchanged and contain only ordinary supported templates; no Eastern Fens pool',()=>{
- const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),60);
+ const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),67);
  const report=J(g,`ENEMY_TEMPLATE_POOLS.map(p=>({name:p.name,ids:p.templates.map(t=>t.id),ok:p.templates.every(t=>canonicalEnemyIsCompatible(t)&&
  !enemyCapabilityMetadata(t).capabilities.some(c=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(c)))}))`);
  assert.ok(report.length>0);assert.ok(report.every(p=>p.ok));

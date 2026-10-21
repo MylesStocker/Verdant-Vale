@@ -100,6 +100,11 @@ const ENEMY_TEMPLATE_POOLS = [
   { id: 'pool_dungeon_f8',        label: 'Dungeon — floor 8',                  templates: DUNGEON8_ENEMY_TEMPLATES },
   { id: 'pool_dungeon_horror',    label: 'Dungeon — floors 9–10 (horror)',     templates: DUNGEON_HORROR_ENEMY_TEMPLATES },
   { id: 'pool_far_overworld',     label: 'Far overworld (MAP3 / N-tier)',      templates: FAR_ENEMY_TEMPLATES },
+  // Intentionally not yet routed from any MAP_METADATA.encounterPool (expect
+  // the "unreachable" validation warning) -- content prepared ahead of the
+  // geographic-dispatch/formation-selector bridge; see data.js and
+  // PROJECT_STATUS.md for the exact missing seam.
+  { id: 'pool_eastern_fens_mornay', label: 'Eastern Fens — Mornay approach',  templates: EASTERN_FENS_MORNAY_ENEMY_TEMPLATES },
   { id: 'pool_thornmere',         label: 'Thornmere (MAP4)',                   templates: THORNMERE_ENEMY_TEMPLATES },
   { id: 'pool_lighthouse',        label: 'Abandoned Lighthouse — lower floors', templates: LIGHTHOUSE_ENEMY_TEMPLATES },
   { id: 'pool_lighthouse_top',    label: 'Abandoned Lighthouse — lantern room', templates: LIGHTHOUSE_TOP_ENEMY_TEMPLATES },

@@ -55,7 +55,7 @@ function ack(g){let n=0;while(view(g).phase==='playback'){assert.ok(n++<240);inp
 function finish(g){g.run('Math.random=()=>{calls++;return .5}');return J(g,'canonicalPartyCombat.finish()');}
 
 test('seven templates expose closed immutable capability profiles and scripted mechanics reflect Pass 5 support',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),60);
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),67);
   for(const [id,spec]of Object.entries(TARGETS)){
     const compatibility=J(g,'canonicalEnemyCompatibility(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');
     assert.equal(compatibility.compatible,true,id);assert.ok(compatibility.capabilities.includes(spec.capability),id);
@@ -63,7 +63,7 @@ test('seven templates expose closed immutable capability profiles and scripted m
     const profile=g.run('canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');frozen(profile);
     assert.equal(profile[spec.capability].chance,spec.chance,id);
   }
-  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),54);
+  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),61);
   for(const [id,reason]of Object.entries(PASS4C)){const c=J(g,'canonicalEnemyCompatibility(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');assert.deepEqual(c.unsupported,[],id);assert.ok(c.capabilities.includes(reason),id);}
   for(const id of SCRIPTED){const supported=!['enemy_smuggler_guard','enemy_polwick','enemy_essa','enemy_gallery_receiver','enemy_gallery_caller','enemy_gallery_keeper'].includes(id);
     assert.equal(g.run('canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])'),supported,id);}

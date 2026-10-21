@@ -3,6 +3,7 @@ const assert=require('assert/strict'),fs=require('fs'),path=require('path');
 const {createContext}=require('../harness');
 const checks=[],test=(name,run)=>checks.push({name,run}),J=(g,s)=>JSON.parse(g.run('JSON.stringify('+s+')'));
 const BRACERS={enemy_stone_crawler:.2,enemy_bone_guard:.25,enemy_hollow:.2,enemy_tomb_sentry:.3,
+  enemy_mudwrack_snapper:.35,
   enemy_shallows_skitter:.25,enemy_silt_crab:.2,enemy_silt_crab_upper:.2,enemy_marrow_hulk:.25};
 const view=g=>J(g,'canonicalPartyCombat.getView()'),party=g=>J(g,'persistentParty.getView()');
 function seed(g,changes){g.run('saveGame();var saved=JSON.parse(localStorage.getItem("verdantVale_save"));'+changes+

@@ -121,6 +121,115 @@ const FAR_ENEMY_TEMPLATES = [
   ...MIRE_TOAD_ENEMY_TEMPLATES,
 ];
 
+// ─── Eastern Fens — Mornay approach ───────────────────────────────────────────
+// New for the two-member-party stretch between the ferry and Mornay. Not yet
+// assigned to any geographic pool/MAP_METADATA entry — see
+// EASTERN_FENS_MORNAY_EASY_FORMATIONS and EASTERN_FENS_MORNAY_HARD_FORMATIONS
+// below for the authored encounter tables, and PROJECT_STATUS.md for why the
+// live geographic dispatcher doesn't yet reach them.
+const EASTERN_FENS_MORNAY_ENEMY_TEMPLATES = [
+  // Botfly — small, fast biting-insect swarmer. Weak alone; the point is numbers:
+  // poisonChance stacks across a multi-body formation in a way a single Botfly
+  // never threatens on its own.
+  { id: 'enemy_botfly',   name: 'Botfly',   hp: 32, maxHp: 32, atk: 16, def: 2, spd: 14, xp: 38, goldMin: 8,  goldMax: 15, poisonChance: 0.22 },
+  // Waspthra — the real threat. acidChance corrodes armor on a landed hit:
+  // a combat-wide, stacking DEF loss that gets worse with every Waspthra in
+  // the fight, not just the one that lands the hit — the mechanical reason a
+  // group of these is the hardest fight on this stretch.
+  { id: 'enemy_waspthra', name: 'Waspthra', hp: 56, maxHp: 56, atk: 24, def: 5, spd: 11, xp: 60, goldMin: 14, goldMax: 26, acidChance: 0.30 },
+  // Sparkeel — fast glass-cannon dazzler. Outruns the whole party (SPD 19), so
+  // it reliably lands its accuracy-sapping jolt before anything can answer,
+  // even though it dies in a couple of hits.
+  { id: 'enemy_sparkeel', name: 'Sparkeel', hp: 42, maxHp: 42, atk: 23, def: 6, spd: 19, xp: 50, goldMin: 11, goldMax: 20, dazzleChance: 0.40 },
+  // Mudwrack Snapper — the wall of this roster. Brace plus the highest DEF/HP
+  // on the stretch means burst damage gets absorbed; it rewards sustained
+  // pressure over trying to one-shot it down.
+  { id: 'enemy_mudwrack_snapper', name: 'Mudwrack Snapper', hp: 115, maxHp: 115, atk: 27, def: 20, spd: 7, xp: 70, goldMin: 16, goldMax: 28, defendChance: 0.35 },
+  // Fen Rootworm — attrition fighter. Low damage output but regenerates every
+  // turn, so an unfocused fight can stall out indefinitely instead of ending.
+  { id: 'enemy_fen_rootworm', name: 'Fen Rootworm', hp: 80, maxHp: 80, atk: 22, def: 10, spd: 9, xp: 58, goldMin: 13, goldMax: 22, regenPerTurn: 8 },
+  // Willow-Veiled Stalker — the same melee-armor/counter puzzle Thornback
+  // teaches ("don't melee this one"), reused deliberately rather than
+  // reinvented, in a harder stat shell.
+  { id: 'enemy_willow_veiled_stalker', name: 'Willow-Veiled Stalker', hp: 68, maxHp: 68, atk: 27, def: 8, spd: 14, xp: 72, goldMin: 17, goldMax: 30, meleeArmor: 90, counterChance: 0.9 },
+  // Hollowreed Choker — ordinary stats only for now. Its intended two-stage
+  // "cutting it down doesn't end the fight" split is deferred: the existing
+  // `splits` mechanic hardcodes The Seep's exact successor stats and death
+  // text (canonicalEnemyMechanicProfile/canonical-party-combat.js), so it
+  // isn't genuinely reusable for a different enemy yet. Revisit once Codex
+  // generalizes split_followup to read its data from the template.
+  { id: 'enemy_hollowreed_choker', name: 'Hollowreed Choker', hp: 58, maxHp: 58, atk: 21, def: 7, spd: 10, xp: 44, goldMin: 11, goldMax: 19 },
+];
+window.EASTERN_FENS_MORNAY_ENEMY_TEMPLATES = EASTERN_FENS_MORNAY_ENEMY_TEMPLATES;
+
+// Shared enemy-slot compositions for the full Eastern Fens Mornay roster,
+// reused by both weighted tables below (same formation ids and compositions,
+// different weights per geographic half of the route).
+const _fensBotfly         = Object.freeze(['enemy_botfly']);
+const _fensSparkeel       = Object.freeze(['enemy_sparkeel']);
+const _fensBotflyDuo      = Object.freeze(['enemy_botfly', 'enemy_botfly']);
+const _fensRootworm       = Object.freeze(['enemy_fen_rootworm']);
+const _fensMireToadMixed  = Object.freeze(['enemy_mire_toad_male', 'enemy_mire_toad_female']);
+const _fensChoker         = Object.freeze(['enemy_hollowreed_choker']);
+const _fensBotflySparkeel = Object.freeze(['enemy_botfly', 'enemy_sparkeel']);
+const _fensWaspthra       = Object.freeze(['enemy_waspthra']);
+const _fensBotflyPairWasp = Object.freeze(['enemy_botfly', 'enemy_botfly', 'enemy_waspthra']);
+const _fensMireToadTrio   = Object.freeze(['enemy_mire_toad_male', 'enemy_mire_toad_male', 'enemy_mire_toad_female']);
+const _fensWaspthraDuo    = Object.freeze(['enemy_waspthra', 'enemy_waspthra']);
+const _fensSnapper        = Object.freeze(['enemy_mudwrack_snapper']);
+const _fensStalker        = Object.freeze(['enemy_willow_veiled_stalker']);
+const _fensSnapperStalker = Object.freeze(['enemy_mudwrack_snapper', 'enemy_willow_veiled_stalker']);
+const _fensWaspthraTrio   = Object.freeze(['enemy_waspthra', 'enemy_waspthra', 'enemy_waspthra']);
+const _fensGauntlet       = Object.freeze(['enemy_waspthra', 'enemy_mudwrack_snapper', 'enemy_willow_veiled_stalker']);
+
+// Two weighted formation tables sharing the same 16 formation ids/compositions
+// (closed { id, enemies, weight } schema, encounter-formations.js), split by
+// which half of the 23-chunk Eastern Fens route they're meant for: chunk
+// column <= 12 (Eastern Bank through Travellers' Rise) draws mostly from the
+// easy table; column >= 13 (Travellers' Rise to Mornay Threshold) draws
+// mostly from the hard table. Every formation is possible in both — only the
+// weights change. Neither table is assigned to a map yet (see file-header
+// comment and PROJECT_STATUS.md).
+const EASTERN_FENS_MORNAY_EASY_FORMATIONS = Object.freeze([
+  Object.freeze({ id: 'formation_botfly_solo',          enemies: _fensBotfly,         weight: 16 }),
+  Object.freeze({ id: 'formation_sparkeel_solo',        enemies: _fensSparkeel,       weight: 14 }),
+  Object.freeze({ id: 'formation_botfly_duo',           enemies: _fensBotflyDuo,      weight: 12 }),
+  Object.freeze({ id: 'formation_rootworm_solo',        enemies: _fensRootworm,       weight: 10 }),
+  Object.freeze({ id: 'formation_mire_toad_pair_mixed', enemies: _fensMireToadMixed,  weight: 10 }),
+  Object.freeze({ id: 'formation_choker_solo',          enemies: _fensChoker,         weight: 8  }),
+  Object.freeze({ id: 'formation_botfly_sparkeel',      enemies: _fensBotflySparkeel, weight: 8  }),
+  Object.freeze({ id: 'formation_waspthra_solo',        enemies: _fensWaspthra,       weight: 6  }),
+  Object.freeze({ id: 'formation_botfly_pair_waspthra', enemies: _fensBotflyPairWasp, weight: 4  }),
+  Object.freeze({ id: 'formation_mire_toad_trio',       enemies: _fensMireToadTrio,   weight: 3  }),
+  Object.freeze({ id: 'formation_waspthra_duo',         enemies: _fensWaspthraDuo,    weight: 3  }),
+  Object.freeze({ id: 'formation_snapper_solo',         enemies: _fensSnapper,        weight: 4  }),
+  Object.freeze({ id: 'formation_stalker_solo',         enemies: _fensStalker,        weight: 4  }),
+  Object.freeze({ id: 'formation_snapper_stalker',      enemies: _fensSnapperStalker, weight: 2  }),
+  Object.freeze({ id: 'formation_waspthra_trio',        enemies: _fensWaspthraTrio,   weight: 1  }),
+  Object.freeze({ id: 'formation_the_gauntlet',         enemies: _fensGauntlet,       weight: 1  }),
+]);
+window.EASTERN_FENS_MORNAY_EASY_FORMATIONS = EASTERN_FENS_MORNAY_EASY_FORMATIONS;
+
+const EASTERN_FENS_MORNAY_HARD_FORMATIONS = Object.freeze([
+  Object.freeze({ id: 'formation_botfly_solo',          enemies: _fensBotfly,         weight: 4  }),
+  Object.freeze({ id: 'formation_sparkeel_solo',        enemies: _fensSparkeel,       weight: 4  }),
+  Object.freeze({ id: 'formation_botfly_duo',           enemies: _fensBotflyDuo,      weight: 4  }),
+  Object.freeze({ id: 'formation_rootworm_solo',        enemies: _fensRootworm,       weight: 6  }),
+  Object.freeze({ id: 'formation_mire_toad_pair_mixed', enemies: _fensMireToadMixed,  weight: 6  }),
+  Object.freeze({ id: 'formation_choker_solo',          enemies: _fensChoker,         weight: 6  }),
+  Object.freeze({ id: 'formation_botfly_sparkeel',      enemies: _fensBotflySparkeel, weight: 6  }),
+  Object.freeze({ id: 'formation_waspthra_solo',        enemies: _fensWaspthra,       weight: 10 }),
+  Object.freeze({ id: 'formation_botfly_pair_waspthra', enemies: _fensBotflyPairWasp, weight: 10 }),
+  Object.freeze({ id: 'formation_mire_toad_trio',       enemies: _fensMireToadTrio,   weight: 8  }),
+  Object.freeze({ id: 'formation_waspthra_duo',         enemies: _fensWaspthraDuo,    weight: 10 }),
+  Object.freeze({ id: 'formation_snapper_solo',         enemies: _fensSnapper,        weight: 12 }),
+  Object.freeze({ id: 'formation_stalker_solo',         enemies: _fensStalker,        weight: 12 }),
+  Object.freeze({ id: 'formation_snapper_stalker',      enemies: _fensSnapperStalker, weight: 10 }),
+  Object.freeze({ id: 'formation_waspthra_trio',        enemies: _fensWaspthraTrio,   weight: 8  }),
+  Object.freeze({ id: 'formation_the_gauntlet',         enemies: _fensGauntlet,       weight: 10 }),
+]);
+window.EASTERN_FENS_MORNAY_HARD_FORMATIONS = EASTERN_FENS_MORNAY_HARD_FORMATIONS;
+
 // Enemies specific to Thornmere (MAP4) and Thornmere Shallows (MAP5) — deeper fen, harder than the open marsh
 const THORNMERE_ENEMY_TEMPLATES = [
   // Corpse Slug — enormous pale slug; bloated, slow, carries the rot of the deep fen

@@ -19,6 +19,11 @@ const ORDINARY=[
   // Pass 4C completes mechanics; generated stats require authenticated input.
   'enemy_the_seep','enemy_rotwood_troll','enemy_thornback','enemy_mire_toad_male','enemy_mire_toad_female',
   'enemy_basin_gull','enemy_basin_gull_upper','enemy_23',
+  // Eastern Fens content pass: seven new-or-reused ordinary templates
+  // (already-supported generic capabilities, or none for Hollowreed Choker;
+  // no selector/dispatcher/lifecycle changes).
+  'enemy_botfly','enemy_waspthra','enemy_sparkeel','enemy_mudwrack_snapper',
+  'enemy_fen_rootworm','enemy_willow_veiled_stalker','enemy_hollowreed_choker',
 ];
 const SPECIAL={};
 const SCRIPTED={
@@ -66,7 +71,7 @@ test('the audit covers every registered production template exactly once and rec
   const text=fs.readFileSync(path.join(ROOT,'ENEMY_CAPABILITY_AUDIT.md'),'utf8');
   const rows=[...text.matchAll(/^\| `(enemy_[^`]+)`[^\n]*\| (ordinary|special capability pending|scripted-only lifecycle|non-production\/debug fixture) \|/gm)]
     .map(match=>({id:match[1],category:match[2]}));
-  assert.equal(rows.length,60);assert.equal(new Set(rows.map(r=>r.id)).size,60);
+  assert.equal(rows.length,67);assert.equal(new Set(rows.map(r=>r.id)).size,67);
   const g=fresh();assert.deepEqual(rows.map(r=>r.id).sort(),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY).sort()'));
   assert.deepEqual(rows.filter(r=>r.category==='ordinary').map(r=>r.id).sort(),ORDINARY.slice().sort());
   assert.deepEqual(rows.filter(r=>r.category==='special capability pending').map(r=>r.id).sort(),Object.keys(SPECIAL).sort());
@@ -74,15 +79,24 @@ test('the audit covers every registered production template exactly once and rec
   assert.equal(rows.filter(r=>r.category==='non-production/debug fixture').length,0);
 });
 
-test('all 60 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),60);
+test('all 67 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),67);
   assert.deepEqual(J(g,'Object.keys(ENEMY_CAPABILITY_REGISTRY)'),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)'));
   for(const id of J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)')){
     const metadata=g.run('ENEMY_CAPABILITY_REGISTRY['+JSON.stringify(id)+']');frozen(metadata);
     assert.deepEqual(Reflect.ownKeys(metadata).sort(),['capabilities','templateId']);
     assert.equal(metadata.templateId,id);assert.equal(new Set(metadata.capabilities).size,metadata.capabilities.length);
   }
-  for(const id of ORDINARY)assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
+  // The full Eastern Fens Mornay roster intentionally opts into the shared
+  // generic silhouette (ENEMY_GENERIC_SPRITE_IDS, same documented precedent
+  // as Takomo) instead of a dedicated ENEMY_SPRITE_DISPATCH entry;
+  // validateGameData() flags this as a warning, not an error.
+  const FENS_GENERIC = ['enemy_botfly','enemy_waspthra','enemy_sparkeel','enemy_mudwrack_snapper',
+    'enemy_fen_rootworm','enemy_willow_veiled_stalker','enemy_hollowreed_choker'];
+  for(const id of ORDINARY.filter(id=>!FENS_GENERIC.includes(id)))
+    assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
+  for(const id of FENS_GENERIC)
+    assert.equal(g.run('ENEMY_GENERIC_SPRITE_IDS.has('+JSON.stringify(id)+')'),true,id);
   assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
     'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','melee_armor','counterattack',
     'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee',
@@ -226,16 +240,20 @@ test('legacy flat-pool selection, pool membership and RNG consumption remain unc
   assert.equal(g.run('selected.enemies.length'),1);assert.equal(g.run('encounterFormations.normalizePool(ENEMY_TEMPLATE_POOLS[0].templates).mode'),'legacy_flat');
 });
 
-test('Eastern Fens examples retain structural validity without production registration or routing',()=>{
+test('Eastern Fens examples are now registered, structurally valid and mechanically ready, but still have no production routing',()=>{
   const g=fresh();
   for(const [id,ids] of [['formation_mire_toad_three',Array(3).fill('enemy_mire_toad_male')],
     ['formation_waspthra_one',['enemy_waspthra']],['formation_botfly_waspthra',['enemy_botfly','enemy_botfly','enemy_waspthra']]]){
     g.run('var eastern=Object.freeze({id:'+JSON.stringify(id)+',enemies:Object.freeze('+JSON.stringify(ids)+'),weight:1})');
     assert.deepEqual(J(g,'encounterFormations.validateDefinition(eastern).enemies'),ids);
+    assert.equal(g.run('canonicalPartyCombat.prepareEnemySide(eastern.enemies).templates.length'),ids.length);
   }
   assert.equal(g.run('canonicalPartyCombat.prepareEnemySide(["enemy_mire_toad_male","enemy_mire_toad_male","enemy_mire_toad_male"]).templates.length'),3);
-  assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_waspthra")'),false);
-  assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_botfly")'),false);
+  assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_waspthra")'),true);
+  assert.equal(g.run('Object.hasOwn(ENEMY_TEMPLATE_REGISTRY,"enemy_botfly")'),true);
+  // Content-complete, but the geographic dispatcher still does a flat
+  // single-template draw -- no MAP_METADATA entry routes to this pool yet.
+  assert.equal(g.run("Object.values(MAP_METADATA).some(m=>m.encounterPool===ENEMY_TEMPLATE_POOLS.find(p=>p.id==='pool_eastern_fens_mornay').templates)"),false);
 });
 
 test('singleton routing, Pass 2 matrix, Receiver ownership and save contract remain separate',()=>{

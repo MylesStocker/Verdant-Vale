@@ -8,6 +8,19 @@ execution evidence. All 20 flat pools remain supported with unchanged selection.
 Takomo uses the existing generic silhouette in shared party presentation.
 No template, capability, reward value, pool or geography was changed.
 
+Pass 7 (Eastern Fens content pass) registers seven new-or-reused ordinary
+templates. 7a added Botfly and Waspthra. 7b (toughened stats) added Sparkeel,
+Mudwrack Snapper, Fen Rootworm, Willow-Veiled Stalker and Hollowreed Choker,
+raising the registry to 67 and total mechanically compatible to 61; case 191's
+dry-preparation count rises to 74,409. All five reuse already-supported
+generic capabilities or, for Hollowreed Choker, none at all (its intended
+split mechanic is deferred — see Reconciled totals below); no capability,
+selector, dispatcher or lifecycle code changed. Two weighted formation tables
+(`EASTERN_FENS_MORNAY_EASY_FORMATIONS` / `_HARD_FORMATIONS`, 16 shared
+formation ids each at different weights) replace the earlier narrower
+Botfly/Waspthra and Mire-Toad-only tables; none is yet routed from any
+MAP_METADATA.encounterPool.
+
 Pass 3 audited the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Pass 4A added
 Brace and Pass 4B adds the seven established landed-hit riders; all fifteen
 migrated rows below are now ordinary under the implemented capability contract. Mechanical
@@ -128,23 +141,48 @@ column says otherwise.
 | `enemy_gallery_caller` / The Caller | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + Receiver coordination | Formation coordination branches | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
 | `enemy_gallery_keeper` / The Keeper | `combat.js`; mandatory Receiver Formation | permanently completed before recruitment | base + Receiver coordination | Formation coordination branches | rejected | scripted-only lifecycle | retained exclusively on Receiver Formation path |
 | `enemy_23` / 23 | `combat.js`; rare generated override | repeatable | base + generated stats | generation and opening-message branches | supported | ordinary | Pass 4C: authenticated generated record only |
+| `enemy_botfly` / Botfly | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + poison-on-hit | `poisonChance` generic branch | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass: registered and mechanically supported; see Reconciled totals |
+| `enemy_waspthra` / Waspthra | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + acid corrosion | `acidChance` generic branch | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass: registered and mechanically supported; see Reconciled totals |
+| `enemy_sparkeel` / Sparkeel | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + dazzle-on-hit | `dazzleChance` generic branch | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): registered and mechanically supported; see Reconciled totals |
+| `enemy_mudwrack_snapper` / Mudwrack Snapper | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + brace | `defendChance` generic branch | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): registered and mechanically supported; see Reconciled totals |
+| `enemy_fen_rootworm` / Fen Rootworm | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + regeneration | `regenPerTurn` generic branch | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): registered and mechanically supported; see Reconciled totals |
+| `enemy_willow_veiled_stalker` / Willow-Veiled Stalker | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + melee armor + counterattack | armor/counter generic branches (same puzzle shape as Thornback) | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): registered and mechanically supported; see Reconciled totals |
+| `enemy_hollowreed_choker` / Hollowreed Choker | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base only | observation/sprite only | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): intentionally ordinary — `splits` is deferred because split_followup hardcodes The Seep's successor stats/text; see Reconciled totals |
 
 ## Reconciled totals
 
-- Registered templates: **60**.
-- Ordinary and capability-compatible: **45** — 22 Pass 3, eight Brace, seven status-special and eight unusual templates; generated 23 requires authenticated selection data.
+- Registered templates: **67**.
+- Ordinary and capability-compatible: **52** — 22 Pass 3, eight Brace, seven status-special and eight unusual templates; generated 23 requires authenticated selection data; plus Botfly, Waspthra, Sparkeel, Mudwrack Snapper, Fen Rootworm, Willow-Veiled Stalker and Hollowreed Choker (Eastern Fens content pass).
 - Scripted templates mechanically compatible behind exact lifecycle tokens: **9**.
-- Total mechanically compatible: **54**.
+- Total mechanically compatible: **61**.
 - Special capability pending: **0** (23 at the Pass 3 checkpoint).
 - Scripted-only lifecycle audit rows: **15** — nine migrated routes and six necessarily pre-recruitment legacy routes.
 - Non-production/debug fixtures: **0**.
 - Permanently completed before recruitment: **3** Receiver templates. This is a
   reachability subset, not a fifth mechanical category.
 
-The isolated Eastern Fens records remain data-shape examples only. Mire Toad ×3
-is structurally valid and mechanically supported after Pass 4C. Waspthra and Botfly are not registered templates,
-so Waspthra ×1 and Botfly ×2 + Waspthra ×1 remain structural-only fixtures and
-cannot pass runtime registration. No Eastern Fens production pool was added.
+Eastern Fens content pass: the full eight-enemy Mornay-approach roster is now
+registered — Botfly (`poisonChance`), Waspthra (`acidChance`), Sparkeel
+(`dazzleChance`), Mudwrack Snapper (`defendChance`/Brace), Fen Rootworm
+(`regenPerTurn`), Willow-Veiled Stalker (`meleeArmor`/`counterChance`, same
+armor/counter puzzle shape as Thornback), Hollowreed Choker (ordinary, no
+mechanic), plus the reused Mire Toad templates. Hollowreed Choker's intended
+two-stage "cutting it down doesn't end the fight" split is deliberately
+deferred: `split_followup`'s mechanic profile
+(`canonicalEnemyMechanicProfile()`) and death dialogue
+(`canonical-party-combat.js`) both hardcode The Seep's exact successor
+stats/text rather than reading them from the template, so `splits` is not yet
+genuinely reusable for a different enemy — revisit once Codex generalizes it.
+Two weighted `{ id, enemies, weight }` formation tables
+(`EASTERN_FENS_MORNAY_EASY_FORMATIONS`, `EASTERN_FENS_MORNAY_HARD_FORMATIONS`)
+share the same 16 formation ids/compositions at different weights, intended
+for chunk column <= 12 (Eastern Bank through Travellers' Rise) and column >= 13
+(Travellers' Rise to Mornay Threshold) respectively. Neither table is routed
+from any MAP_METADATA.encounterPool yet — the geographic dispatcher
+(`startCanonicalPartyEncounter()` in combat.js) still draws one flat template
+rather than calling `encounterFormations.select()`, so this content remains
+reachable only in isolated preparation/test contexts, not live play. See
+PROJECT_STATUS.md for the exact missing seam.
 
 ## Pass 4C legacy mechanic audit
 

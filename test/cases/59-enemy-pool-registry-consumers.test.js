@@ -90,14 +90,21 @@ module.exports = {
     `), 'ok');
 
     // ── 4. Every registered pool is reachable from MAP_METADATA.encounterPool
-    //       (the declarative routing table validateEnemies() uses). ───────────
+    //       (the declarative routing table validateEnemies() uses), with ONE
+    //       documented, intentional exception: pool_eastern_fens_mornay is
+    //       content prepared ahead of the geographic-dispatch/formation-
+    //       selector bridge (encounter-formations.js) that doesn't exist yet
+    //       (see data.js, combat.js, PROJECT_STATUS.md) -- not an accidental
+    //       dead pool. validateGameData() surfaces the same gap as a warning.
+    //       Any OTHER unreachable pool still fails this check. ───────────────
     assert.equal(g.run(`
       (function(){
         var routed = new Set();
         for (var k in MAP_METADATA) { var ep = MAP_METADATA[k].encounterPool; if (Array.isArray(ep)) routed.add(ep); }
         var pools = ENEMY_TEMPLATE_POOLS;
+        var knownUnwired = { pool_eastern_fens_mornay: true };
         for (var i = 0; i < pools.length; i++)
-          if (!routed.has(pools[i].templates)) return 'unreachable pool: ' + pools[i].id;
+          if (!routed.has(pools[i].templates) && !knownUnwired[pools[i].id]) return 'unreachable pool: ' + pools[i].id;
         return 'ok';
       })()
     `), 'ok');

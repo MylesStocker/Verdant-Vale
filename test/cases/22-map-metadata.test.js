@@ -89,6 +89,13 @@ module.exports = {
     assert.doesNotThrow(() => { unregisteredResult = g.run('currentItemList()'); }, 'must not throw for a map with no MAP_METADATA entry');
     assert.ok(Array.isArray(unregisteredResult), 'should still return an array (falls back to WORLD_ITEMS), never undefined');
 
+    // Baseline: any catalog/metadata/registry warnings already present before
+    // the two temporary breakages below (e.g. an intentionally-unreachable
+    // enemy pool documented in data.js/PROJECT_STATUS.md) aren't this test's
+    // concern -- only NEW ones introduced by a failure to clean up are.
+    const baselineMetadataRelated = collectValidationWarnings(g)
+      .filter(w => w.includes('MAP_CATALOG') || w.includes('MAP_METADATA') || w.includes('MAP_REGISTRY'));
+
     // ── 4. A catalog id that doesn't equal its key is caught ────────────────
     // Replaces the old two-table cross-check (removed with the MAP_CATALOG
     // consolidation): the catalog is now validated directly, and id===key is a
@@ -124,7 +131,8 @@ module.exports = {
     // Confirm validation is clean again after both temporary breakages are undone.
     const warningsAfterCleanup = collectValidationWarnings(g);
     const metadataRelated = warningsAfterCleanup.filter(w => w.includes('MAP_CATALOG') || w.includes('MAP_METADATA') || w.includes('MAP_REGISTRY'));
-    assert.equal(metadataRelated.length, 0, 'no catalog/metadata/registry warnings should remain after restoring both temporary breakages: ' + JSON.stringify(metadataRelated));
+    const newMetadataRelated = metadataRelated.filter(w => !baselineMetadataRelated.includes(w));
+    assert.equal(newMetadataRelated.length, 0, 'no NEW catalog/metadata/registry warnings should remain after restoring both temporary breakages: ' + JSON.stringify(newMetadataRelated));
 
     // ── 6a. Existing special-tile transition still works (MAP <-> MAP2) ────
     g.run(`
