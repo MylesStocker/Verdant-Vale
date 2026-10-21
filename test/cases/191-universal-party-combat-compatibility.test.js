@@ -78,7 +78,7 @@ test('every static ordinary formation up to three slots prepares for every party
  assert.equal(total,48642);console.log('  48,642 complete immutable ordinary-formation preparations');
 });
 test('all registered pools normalize unchanged and contain only ordinary supported templates; no Eastern Fens pool',()=>{
- const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),60);
+ const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),63);
  const report=J(g,`ENEMY_TEMPLATE_POOLS.map(p=>({name:p.name,ids:p.templates.map(t=>t.id),ok:p.templates.every(t=>canonicalEnemyIsCompatible(t)&&
  !enemyCapabilityMetadata(t).capabilities.some(c=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(c)))}))`);
  assert.ok(report.length>0);assert.ok(report.every(p=>p.ok));

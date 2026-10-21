@@ -2327,6 +2327,16 @@ function drawBattleHollow(cx, cy) {
   ctx.fillRect(cx - 3, cy - 110, 6, 6);
 }
 
+// Encounter-specific presentation only: combat mechanics still come entirely
+// from the Hollow's validated capability profile. The small reed-and-hide band
+// distinguishes the conditioned animal without creating another sprite family.
+function drawBattleBridledHollow(cx,cy) {
+  drawBattleHollow(cx,cy);
+  ctx.fillStyle='#8f7442';ctx.fillRect(cx-25,cy-42,50,5);
+  ctx.fillStyle='#c0a060';ctx.fillRect(cx-20,cy-41,34,2);
+  ctx.fillStyle='#4a3520';ctx.fillRect(cx+20,cy-38,5,12);
+}
+
 // Fen Shade — small, fast, seeped-down spectral remnant. Deliberately drawn
 // endearing (round, big-eyed) rather than menacing, despite its brutal
 // attack stat -- the joke is entirely in that disconnect.
@@ -3750,6 +3760,7 @@ function drawBattleKeeper(x,y,pose) { drawGalleryBattleCreature('keeper',x,y,pos
   def(drawBattleMudflatStrider,20, ['enemy_mudflat_strider']);
   def(drawBattleBasinGull,     55, ['enemy_basin_gull', 'enemy_basin_gull_upper']);
   def(drawBattleHollow,        62, ['enemy_hollow']);
+  def(drawBattleBridledHollow, 62, ['enemy_bridled_hollow']);
   def(drawBattleFenShade,      20, ['enemy_fen_shade']);
   def(drawBattleTombSentry,    62, ['enemy_tomb_sentry']);
   def(drawBattleCryptRevenant, 40, ['enemy_crypt_revenant']);
@@ -3764,10 +3775,12 @@ function drawBattleKeeper(x,y,pose) { drawGalleryBattleCreature('keeper',x,y,pos
   def(drawBattleMireToad,      54, ['enemy_mire_toad_male', 'enemy_mire_toad_female']);
   def(drawBattlePaleSentry,    58, ['enemy_pale_sentry']);
   def(drawBattleSmugglerGuard, 62, ['enemy_smuggler_guard']);
+  def(drawBattleSmugglerGuard, 62, ['enemy_road_impostor']);
   def(drawBattlePolwick,       58, ['enemy_polwick']);
   def(drawBattleEssa,          55, ['enemy_essa']);
   def(drawBattleRainfish,      20, ['enemy_rainfish']);
   def(drawBattleTallyman,      62, ['enemy_tallyman']);
+  def(drawBattleTallyman,      62, ['enemy_fen_handler']);
 })();
 window.ENEMY_SPRITE_DISPATCH = ENEMY_SPRITE_DISPATCH;
 

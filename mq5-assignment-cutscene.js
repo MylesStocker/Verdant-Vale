@@ -44,7 +44,7 @@ const MQ5_ASSIGNMENT_AFTER_WALK_PAGES = Object.freeze([
     '“The road to Mornay is long, and growing less safe. I can scarcely spare you. We are short of staff already.”',
   ])}),
   Object.freeze({speakerId:'esla',lines:Object.freeze([
-    '“I know what happened to Dreyfuss,” Esla says. “And I know that road. Sending Lely alone would be irresponsible.”',
+    '“I don’t know what happened to Dreyfuss, but I’m not going to let it happen to anyone in this office.”',
   ])}),
   Object.freeze({speakerId:'supervisor',lines:Object.freeze([
     '“Your work here will not do itself,” the Supervisor says.',

@@ -49,8 +49,10 @@ function ack(g){const frames=[];let n=0;while(view(g).phase==='playback'){assert
   assert.equal(view(g).phase,'playback_complete');frames.push(g.run('canonicalPartyCombat.getView().playbackFrame'));input(g,'confirm');return frames;}
 function finish(g){g.run('Math.random=()=>{calls++;return .5};');return J(g,'canonicalPartyCombat.finish()');}
 
-test('eight authored templates plus a future registered bracer use capability approval with exact probabilities',()=>{
-  const g=fresh();assert.deepEqual(J(g,'Object.values(ENEMY_TEMPLATE_REGISTRY).filter(t=>Object.hasOwn(t,"defendChance")).map(t=>t.id)'),Object.keys(BRACERS));
+test('the eight ordinary and one scripted authored templates plus a future registered bracer use capability approval',()=>{
+  const g=fresh();assert.deepEqual(J(g,'Object.values(ENEMY_TEMPLATE_REGISTRY).filter(t=>Object.hasOwn(t,"defendChance")).map(t=>t.id)'),
+    [...Object.keys(BRACERS),'enemy_bridled_hollow']);
+  assert.deepEqual(J(g,'canonicalEnemyMechanicProfile(BRIDLED_HOLLOW_TEMPLATE).brace'),{chance:.2});
   for(const [id,chance]of Object.entries(BRACERS)){
     const c=J(g,'canonicalEnemyCompatibility(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])');assert.equal(c.compatible,true,id);assert.deepEqual(c.unsupported,[]);assert.ok(c.capabilities.includes('brace'));
     for(const count of [1,2,3]){const p=J(g,'canonicalPartyCombat.prepareEnemySide('+JSON.stringify(Array(count).fill(id))+')');assert.ok(p.templates.every(t=>t.defendChance===chance),id);}

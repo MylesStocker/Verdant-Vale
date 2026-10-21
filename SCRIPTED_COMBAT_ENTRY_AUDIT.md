@@ -1,5 +1,21 @@
 # Scripted combat entry — Pass 1
 
+## Current addition — Travellers' Rise ambush
+
+The MQ5 road adds one production starter with three scripted-only templates.
+It is separate from the historical 15-template Pass 5 classification below.
+
+| Templates / starter | Gate and entry reads | Activation and receipts | Terminal lifecycle |
+| --- | --- | --- | --- |
+| `enemy_road_impostor`, `enemy_bridled_hollow`, `enemy_fen_handler`; `travellersRiseAmbush` → `scriptedPartyEncounters.startTravellersRise` | Exact Rise map and trigger; MainQuest 5; canonical Esla membership; incomplete event; inactive dialogue/choice/menu/combat owners; registered map, safe trigger/destinations/routes; complete canonical party and ordered enemy formation; safe gold | Three session-only actors walk through validated authored routes, reveal, then offer Refuse/payment. Refusal writes nothing. Payment is clamped to current gold and its exact one-time receipt commits immediately before successful canonical installation. A predictable rejection charges nothing. | Escape and defeat remove staging, keep completion false and allow a fresh-identity retry; an earlier payment suppresses the payable demand. Authenticated victory grants normal enemy rewards once, writes completion once, removes actors and opens the Esla-led camp handoff. No camp, healing, clock or MainQuest write occurs. |
+
+The event uses ordinary escape policy. Bridled Hollow has established Brace plus
+the encounter lifecycle; the two humans have only base combat plus that lifecycle.
+Handler death never changes another actor. The save schema binds completion,
+payment receipt and exact paid amount; a pure invariant rejects malformed receipt
+pairs before load mutation. Runtime routes, reveal state and lifecycle tokens are
+not saved.
+
 Pass 6 preserves every classification/starter/outcome below. Case 190 rechecks
 all 12 reachable routes; case 191 follows production progression through fort
 closure, Receiver victory/report and canonical MQ5 recruitment, then verifies
@@ -232,3 +248,12 @@ Unchanged artifact SHA-256 values:
 | `test/cases/56-enemy-id-authority.test.js` | Invalid template ID rejects before installation; validation/restoration assertions retained. |
 | `test/cases/62-encounter-dispatch.test.js` | Provide legitimate stake in dispatch spy fixtures; all dispatcher assertions retained. |
 | `architecture.md`, `PROJECT_STATUS.md`, `CANONICAL_PARTY_COMBAT.md`, `SCRIPTED_COMBAT_ENTRY_AUDIT.md` | Lifecycle authority, current status, corrected diagnostic limitation and complete audit/evidence. |
+
+Travellers’ Rise reachability: the original single-tile trigger at (10,7) was
+bypassable through walkable off-road terrain. An unresolved MQ5 ambush now gates
+attempted eastward departure in both continuous and legacy movement, before
+either seam path runs. The player can explore or retreat and return to the
+original staging tile. Loading never starts a cutscene. Test 199 traverses all
+registered regional tiles/seams with the trigger removed, proves the former
+bypass, and proves no onward route remains until authenticated victory. No grid,
+walkability, seam or generated geographic artifact changes.

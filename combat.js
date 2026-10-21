@@ -52,6 +52,23 @@ const PALE_SENTRY_TEMPLATE = {
   xp: 350, goldMin: 40, goldMax: 80,
 };
 
+// ─── MQ5 road: Travellers' Rise ambush ───────────────────────────────────────
+// Scripted-only fixed formation. The humans are dangerous support; the
+// conditioned Hollow owns roughly half the formation's HP and retains the
+// ordinary Hollow's established Brace capability.
+const ROAD_IMPOSTOR_TEMPLATE = {
+  id:'enemy_road_impostor',name:'Road Impostor',hp:58,maxHp:58,atk:19,def:7,spd:11,
+  xp:45,goldMin:10,goldMax:18,
+};
+const BRIDLED_HOLLOW_TEMPLATE = {
+  id:'enemy_bridled_hollow',name:'Bridled Hollow',hp:120,maxHp:120,atk:25,def:12,spd:7,
+  xp:120,goldMin:0,goldMax:0,defendChance:0.20,
+};
+const FEN_HANDLER_TEMPLATE = {
+  id:'enemy_fen_handler',name:'Fen Handler',hp:62,maxHp:62,atk:20,def:8,spd:10,
+  xp:50,goldMin:12,goldMax:22,
+};
+
 // Gallery formation boss stats. Coordination is owned by formationRounds below.
 // No per-member awards: the report remains the reward.
 const GALLERY_RECEIVER_TEMPLATES = [
@@ -118,6 +135,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
   PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,
   MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
   LENSWEB_SPIDER_TEMPLATE, MIMIC_POTION_TEMPLATE,
+  ROAD_IMPOSTOR_TEMPLATE, BRIDLED_HOLLOW_TEMPLATE, FEN_HANDLER_TEMPLATE,
   ...GALLERY_RECEIVER_TEMPLATES,
 ];
 // The 1/256 secret "23" enemy is generated fresh each encounter with random
@@ -5128,6 +5146,15 @@ const ENEMY_OBSERVATIONS = {
     { lines: ['Very high defense. Heavy attack. Moderate speed.', 'It braces occasionally.', 'It will outlast a reactive strategy. You need to push first.'] },
     { lines: ['The shell is not empty. Something minimal is animating it.', 'The original occupant is not in evidence.'] },
     { lines: ['It doesn\u2019t seem to notice damage unless the threshold is significant.', 'Below that threshold, it just keeps moving.'] },
+  ],
+  enemy_road_impostor: [
+    { lines: ['The coat is official enough at a distance.', 'Up close, every insignia has been carefully cut away.'] },
+  ],
+  enemy_bridled_hollow: [
+    { lines: ['A reed-and-hide bridle has been worked tightly around it.', 'It watches the Handler with patient, practised hunger.'] },
+  ],
+  enemy_fen_handler: [
+    { lines: ['The whistle at his throat is polished smooth.', 'The hand holding it is steadier than the one holding the knife.'] },
   ],
   enemy_fen_shade: [
     { lines: ['Very high attack. Light armor. Good speed.', 'Spectral remnant \u2014 fast and devastating.', 'First-strike risk is high. Hit hard and early.'] },

@@ -1,5 +1,25 @@
 # Canonical party combat integration review
 
+## MQ5 Travellers' Rise scripted formation
+
+The Rise road event is a production two-member-versus-three-enemy use of the
+existing canonical engine. `travellersRiseAmbush` owns deterministic field
+staging and dialogue; `scriptedPartyEncounters` authenticates the exact ordered
+Road Impostor, Bridled Hollow and Fen Handler formation. The three registered
+templates require the closed `travellers_rise_ambush_lifecycle` capability; the
+Hollow additionally declares the already-supported `brace` capability. No enemy
+ID chooses its combat behavior, and defeating the Handler has no effect on the
+Hollow.
+
+Entry validates the complete story gate, routes, map cells, player side, enemy
+side, lifecycle token and arithmetic before identities, combat RNG, payment or
+story mutation. Refusal installs directly. The payment path records a separate
+clamped 0–100 gold receipt once immediately before a successful installation;
+escape and defeat keep that receipt and permit a free retry. Only authenticated
+victory writes completion, grants the normal per-instance rewards once and
+hands the journal to the deferred camp objective. Staging, playback and rendering
+consume no RNG, and active event state remains unsaved under SAVE_VERSION 5.
+
 ## Pass 6 — living rewards, Fallen field operation and universal verification
 
 Pass 5 was verified at 190/190 suites and checkpointed as

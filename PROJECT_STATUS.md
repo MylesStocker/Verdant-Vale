@@ -269,6 +269,13 @@ unchanged and now resolves through stable speaker ID `esla`, whose named
 Legacy dialogue, Supervisor speech and narration retain the existing default
 style, selected independently on every page.
 
+Esla's Dreyfuss line now states that she does not know what happened to him and
+will not let it happen to anyone else in the office; it remains an Esla-attributed
+green page. Tomas retains every existing day-cycle and dispatch-delivered page,
+then appends one concise arrival acknowledgement only when canonical party
+membership actually contains Esla. Fallen membership and save/load retain the
+branch; the Assignment Ready checkpoint restores his original pre-recruitment text.
+
 The MQ5 scene now shows rather than narrates Esla coming to the desk. After the
 unchanged briefing, dialogue yields to a deterministic two-leg office route:
 `(4.5,9.5) → (13.5,9.5) → (13.5,3.5)`, ending left-facing beside the Supervisor's
@@ -277,9 +284,17 @@ or pathfinder exists. Input, menus and save/load remain locked until arrival,
 then the remaining attributed conversation resumes. Final acknowledgement alone
 calls the existing assignment/recruitment authority, so MainQuest, membership and
 the ferry still change exactly once. The route and speaker metadata are transient,
-consume no RNG and add no save field. Tests 179 and 194 cover recruitment,
+consume no RNG and add no save field. Tests 179, 195 and 198 cover recruitment,
 prerequisites, page styling, route geometry, exclusive ownership, reset/repeat
 behavior, world NPCs, field-menu targeting and version-5 saves.
+
+Successful recorded Quickbloom playback now draws six compact rising leaf motes
+in `#3f8f52`, `#78c86f` and `#a8e89c`, followed by a pale sparkle, around the exact
+healed slot at x=108, 256 or 404. The shared canonical/Lab renderer owns the
+24-frame presentation timer and briefly gates only player playback advance after
+the first rendered frame. Zero-heal execution still animates; wait, cancellation,
+Strain and other events do not. Cleanup and event advancement clear the timer.
+Combat state, historical reels, RNG, saves and Quickbloom mechanics are unchanged.
 
 **Current boundary:** approved ordinary western encounters use canonical party
 combat. Unsupported specials and optional scripted encounters reject explicitly;
@@ -659,10 +674,16 @@ Valmere. A shorter eastern leg follows the inland sea's southern shore toward th
 unbuilt port. The shortest valid walk from the ferry spawn is 400 tile steps,
 25 normal 512px viewport widths, and traverses all 24 route chunks including
 Eastern Bank. The future camp reservation is now the dry Travellers’ Rise at
-`(12,3)`, 215 steps or about 53.8% through that shortest walk; it has no trigger,
-NPC, dialogue, or state. Mornay content, the camp scene, encounters,
-party content, shops, further MQ5 progression, and boat travel remain deferred;
-the port is canonically unserved by rail.
+`(12,3)`, 215 steps or about 53.8% through that shortest walk. Its deliberate
+road trigger stages the MQ5 ambush: two human impostors bracket Lely and Esla
+while a cloaked traveller is revealed as a conditioned Bridled Hollow, then the
+fixed three-member formation enters canonical party combat. Refusal costs
+nothing; handing over up to 100 gold records a separate one-time receipt but
+cannot prevent the fight. Escape and defeat permit retry without another charge.
+Authenticated victory alone removes the actors, completes the event and changes
+the journal objective to making camp at the Rise. The camp scene itself,
+healing/time passage, Mornay content, shops, further MQ5 progression, and boat
+travel remain deferred; the port is canonically unserved by rail.
 
 ### Reservoir balance-lock reward
 
@@ -1705,3 +1726,12 @@ Roughly in priority order:
   changing how either resolves a landing coordinate — collision/soft-lock
   risk, and this exact area has had real, previously-shipped bugs (a water
   soft-lock, an asymmetric-range clamp) before this arc's fixes.
+
+Travellers’ Rise reachability: the original single-tile trigger at (10,7) was
+bypassable through walkable off-road terrain. An unresolved MQ5 ambush now gates
+attempted eastward departure in both continuous and legacy movement, before
+either seam path runs. The player can explore or retreat and return to the
+original staging tile. Loading never starts a cutscene. Test 199 traverses all
+registered regional tiles/seams with the trigger removed, proves the former
+bypass, and proves no onward route remains until authenticated victory. No grid,
+walkability, seam or generated geographic artifact changes.

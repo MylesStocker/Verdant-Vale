@@ -158,6 +158,12 @@ const SHARED_NPCS = [
         ['“Esla said you’d been out to Drenwick. She went quiet about it — she does that with things that matter.”',
          '“I wrote the date down. It’s all I know how to do with a thing I can’t help.”']
       );
+      // Canonical membership is the only authority for Esla travelling with
+      // Lely. Keep the established day/dispatch pages first so this ambient
+      // acknowledgement cannot hide Tomas's more specific material.
+      if (persistentParty.getMember('esla')) pages.push(
+        ['“Lely — and Esla with you. That saves me writing down two separate arrivals.”']
+      );
       return pages;
     },
     flag_required: null,
@@ -2221,6 +2227,9 @@ const ESLA_DIALOGUE_STYLE_ID = 'esla_light_green';
 const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   supervisor: Object.freeze({speakerId:'supervisor',name:'Supervisor',dialogueStyleId:null}),
   esla: Object.freeze({speakerId:'esla',name:'Esla',dialogueStyleId:ESLA_DIALOGUE_STYLE_ID}),
+  lely: Object.freeze({speakerId:'lely',name:'Lély',dialogueStyleId:null}),
+  road_impostor: Object.freeze({speakerId:'road_impostor',name:'Road Impostor',dialogueStyleId:null}),
+  fen_handler: Object.freeze({speakerId:'fen_handler',name:'Fen Handler',dialogueStyleId:null}),
 });
 
 // ─── Merchant ─────────────────────────────────────────────────────────────────

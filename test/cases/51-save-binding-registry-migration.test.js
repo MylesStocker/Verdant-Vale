@@ -29,7 +29,9 @@ const { createContext } = require('../harness');
 // schema is a deliberate, reviewed act.
 const EXPECTED_KEYS = [
   'cabinetCaseFlag', 'sluice_job_started', 'sluice_fixed', 'sluice_pay_ticket_ready',
-  'sluice_reward_given', 'MainQuest', 'sera_liora_opening_complete', 'equipment_ticket_ready', 'letter_quest_stage',
+  'sluice_reward_given', 'MainQuest', 'sera_liora_opening_complete',
+  'travellers_rise_ambush_complete', 'travellers_rise_ambush_paid', 'travellers_rise_ambush_payment',
+  'equipment_ticket_ready', 'letter_quest_stage',
   'cat_quest_stage', 'warden_quest_started', 'warden_quest_defeated', 'warden_quest_rewarded',
   'schilling_quest_started', 'schilling_returned', 'drama_stage', 'weight_quest_stage',
   'weight_note_signed', 'sentry_seen_on_board', 'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded',
@@ -106,7 +108,7 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 75, '75 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 78, '78 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
 
     // ── B. Complete flag round-trip (all bindings, generically) ─────────────
@@ -125,8 +127,9 @@ module.exports = {
       // lighthouse/Polwick invariant so saveGame() is authorized to persist it.
       fort_quest_stage = 6; smugglers_dead = true; fort_report_filed = true;
       smugglers_execution_day = 0; reservoir_quest_started = true; lighthouse_quest_stage = 1;
+      travellers_rise_ambush_payment = 73;
       ['fort_quest_stage','smugglers_dead','fort_report_filed','smugglers_execution_day',
-       'reservoir_quest_started','lighthouse_quest_stage'].forEach(function(k){
+       'reservoir_quest_started','lighthouse_quest_stage','travellers_rise_ambush_payment'].forEach(function(k){
         var b = window.QUEST_FLAG_BINDINGS.find(function(x){return x.key===k;}); b.__rt = b.get();
       });`);
     G('saveGame();');

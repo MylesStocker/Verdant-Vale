@@ -227,6 +227,7 @@ function canWalk(cx, cy) {
   for (const [px, py] of footprintCorners(cx, cy)) {
     if (!isTileWalkable(tileAt(px, py))) return false;
   }
+  if(typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.blocksPosition(cx,cy))return false;
   // Custom-code solid objects (not in SIMPLE_NPCS)
   if (inSluice) {
     if (sluiceFloor === 1 && !SLUICE_CHEST.opened && Math.abs(cx - SLUICE_CHEST.x) < 18 && Math.abs(cy - SLUICE_CHEST.y) < 18) return false;
@@ -584,6 +585,10 @@ function update(deltaSeconds) {
     mq5AssignmentCutscene.update();
     return;
   }
+  if(typeof travellersRiseAmbush!=='undefined'){
+    if(travellersRiseAmbush.isExclusive()){travellersRiseAmbush.update();return;}
+    if(travellersRiseAmbush.tryTrigger())return;
+  }
   // Cooldown ticks every frame regardless of game state
   if (combat.cooldown > 0) combat.cooldown--;
   if (worldToastTimer > 0) worldToastTimer--;
@@ -648,6 +653,15 @@ function update(deltaSeconds) {
     // off col 0/col COLS-1/row 0/row ROWS-1 entirely.
     const curCol = Math.floor(player.x / TILE);
     const curRow = Math.floor(player.y / TILE);
+
+    // Resolve the road event before onward travel. This precedes BOTH seamless
+    // walking and the legacy inset exit; the structural edge stays untouched.
+    if(dx>0&&curCol>=COLS-1&&typeof travellersRiseAmbush!=='undefined'&&
+        travellersRiseAmbush.blocksExit(regionalActiveMapId()||mapIdForRef(activeMap),'east')){
+      player.moving=false;
+      showWorldToast('Deal with the travellers on the rise before continuing east.');
+      return;
+    }
 
     // DEBUG continuous-view CONTINUOUS SEAMS: whenever this frame's collision
     // footprint (current OR candidate) touches an eligible reciprocal ALIGNS seam
@@ -1663,6 +1677,19 @@ function startTransientNpcRoute(npc, movement) {
 }
 window.validateTransientNpcRouteDefinition=validateTransientNpcRouteDefinition;
 window.startTransientNpcRoute=startTransientNpcRoute;
+function transientNpcRouteView(id){
+  const rt=typeof id==='string'?NPC_ROUTES[id]:null;
+  return rt?Object.freeze({moving:!!rt.moving,done:!!rt.done,step:rt.step,facing:rt.facing,
+    waypointIndex:rt.idx,waypointCount:rt.waypoints?.length||0}):null;
+}
+function stopTransientNpcRoute(npc){
+  if(!npc||typeof npc.id!=='string')throw Error('Invalid transient NPC projection');
+  const rt=NPC_ROUTES[npc.id];
+  if(rt&&rt.npc!==npc)throw Error('Transient NPC route identity mismatch');
+  delete NPC_ROUTES[npc.id];return true;
+}
+window.transientNpcRouteView=transientNpcRouteView;
+window.stopTransientNpcRoute=stopTransientNpcRoute;
 
 // Per-frame route updater — called only from update()'s tail (see above), so
 // it inherits every global freeze. Movement is orthogonal (x resolved before

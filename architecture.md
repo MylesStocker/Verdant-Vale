@@ -44,13 +44,36 @@ from the validated mechanic profile; immutable battle snapshots carry only state
 that can change during combat. This keeps duplicate instances independent and
 avoids adding template metadata to result/playback schemas.
 
+### Travellers' Rise ambush
+
+`travellersRiseAmbush` owns the MQ5 road event's transient field presentation:
+the exact Rise trigger, three projected actors, authored dialogue, deterministic
+routes, reveal, demand choice and post-victory exchange. It delegates complete
+formation preparation and the exact terminal receipt to
+`scriptedPartyEncounters.startTravellersRise()`. That lifecycle definition binds
+the stable Road Impostor / Bridled Hollow / Fen Handler order and the ordinary
+escape policy; combat mechanics remain capability-driven. The Bridled Hollow
+combines the established Brace capability with the encounter lifecycle and
+never depends on the Handler's runtime state.
+
+The payment callback validates and prepares the whole encounter before charging.
+Its activation transaction records `travellers_rise_ambush_paid` and the exact
+clamped amount immediately before installation, with a narrow pre-install
+rollback if installation rejects. Payment and victory are separate receipts:
+escape or defeat retains payment but leaves the ambush retryable; only an
+authenticated victory writes `travellers_rise_ambush_complete`. Save preflight
+validates the receipt pair, while active staging/battle remains unsavable.
+Movement routes and actors are session-only and are reset on load or developer
+checkpoint application. No combat identity, route position or half-finished
+cutscene enters the version-5 payload.
+
 No build step: every file is a plain `<script src="...">` tag in `index.html`,
 loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 `function` declared in one file is just a bare global name in every file
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 208 maps, 107 regional chunks, 190 regression suite
+Current integration totals: 216 maps, 115 regional chunks, 198 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -503,6 +526,15 @@ placement, healing continuity and Strain transitions using detached history;
 it consumes no RNG and never heals live actors. Old Attack-only playback is
 unchanged. Historical outcome remains hidden until its recorded boundary.
 
+The shared party renderer gives the immutable recorded `resonance` event for
+`quickbloom` one presentation-only 24-frame flourish at the exact target slot.
+Six deterministic leaf motes use `#3f8f52`, `#78c86f` and `#a8e89c`, ending in
+a pale cross-shaped sparkle. Rendering never reruns healing or Strain and consumes
+no RNG. Once rendering has begun, the canonical and Lab input routes hold that
+playback frame until the 24 ticks complete. The transient timer clears on the
+next event, all terminal cleanup, Lab exit, checkpoint reset and diagnostic abort;
+it is neither combat state nor saved state.
+
 The same session closure adds `moveTechnique`, `confirmTechnique`,
 `cancelTechnique`, a `technique` phase and immutable technique/reservation views.
 Target cancel returns to the technique list; list cancel returns to the command
@@ -747,8 +779,16 @@ capacity. MainQuest remains the ferry authorization. The active Sealed Report
 note derives the joint Mornay objective from canonical membership.
 `npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared by Calwick
 drawing, collision and interaction, and the infirmary follow-up's map projection.
-No follower or new save binding is introduced. Tests 179 and 194 cover these
+No follower or new save binding is introduced. Tests 179, 195 and 198 cover these
 boundaries.
+
+Esla explicitly states that she does not know what happened to Dreyfuss; the
+line remains an attributed Esla page and therefore uses her speaker colour.
+Tomas's established day-cycle and delivered-dispatch pages remain first. When
+`persistentParty.getMember('esla')` is present, his getter appends one ambient
+acknowledgement that Lely and Esla arrived together. No quest threshold, NPC
+projection or additional flag participates, so Fallen membership and save/load
+select the same branch while the MQ5 checkpoint reset removes it.
 
 Recruitment activates canonical party routing for supported ordinary encounters.
 
@@ -4350,3 +4390,12 @@ Exact touch-points Phase 1 will need (none touched in Phase 0):
 - `test/` — a Phase 1 behavioural test (route following, freezes,
   collision, stop-and-face, no-encounter guarantee), replacing test 45's
   final "no real NPC has movement" assertion intentionally.
+
+Travellers’ Rise reachability: the original single-tile trigger at (10,7) was
+bypassable through walkable off-road terrain. An unresolved MQ5 ambush now gates
+attempted eastward departure in both continuous and legacy movement, before
+either seam path runs. The player can explore or retreat and return to the
+original staging tile. Loading never starts a cutscene. Test 199 traverses all
+registered regional tiles/seams with the trigger removed, proves the former
+bypass, and proves no onward route remains until authenticated victory. No grid,
+walkability, seam or generated geographic artifact changes.

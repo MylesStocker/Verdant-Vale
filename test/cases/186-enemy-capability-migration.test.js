@@ -31,9 +31,13 @@ const SCRIPTED={
   enemy_mimic_potion:['guaranteed_drop','mimic_trap_lifecycle'],
   enemy_gallery_receiver:['receiver_coordination'],enemy_gallery_caller:['receiver_coordination'],
   enemy_gallery_keeper:['receiver_coordination'],
+  enemy_road_impostor:['travellers_rise_ambush_lifecycle'],
+  enemy_bridled_hollow:['brace','travellers_rise_ambush_lifecycle'],
+  enemy_fen_handler:['travellers_rise_ambush_lifecycle'],
 };
 const SCRIPTED_SUPPORTED=new Set(['enemy_briar_warden','enemy_pale_sentry','enemy_rainfish','enemy_takomo',
   'enemy_den_wraith','enemy_kolm','enemy_wrongteeth','enemy_lensweb_spider','enemy_mimic_potion']);
+SCRIPTED_SUPPORTED.add('enemy_road_impostor');SCRIPTED_SUPPORTED.add('enemy_bridled_hollow');SCRIPTED_SUPPORTED.add('enemy_fen_handler');
 const BASE=['basic_attack','standard_observe','standard_rewards'];
 
 function fresh(n=2,capture=false){
@@ -66,7 +70,7 @@ test('the audit covers every registered production template exactly once and rec
   const text=fs.readFileSync(path.join(ROOT,'ENEMY_CAPABILITY_AUDIT.md'),'utf8');
   const rows=[...text.matchAll(/^\| `(enemy_[^`]+)`[^\n]*\| (ordinary|special capability pending|scripted-only lifecycle|non-production\/debug fixture) \|/gm)]
     .map(match=>({id:match[1],category:match[2]}));
-  assert.equal(rows.length,60);assert.equal(new Set(rows.map(r=>r.id)).size,60);
+  assert.equal(rows.length,63);assert.equal(new Set(rows.map(r=>r.id)).size,63);
   const g=fresh();assert.deepEqual(rows.map(r=>r.id).sort(),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY).sort()'));
   assert.deepEqual(rows.filter(r=>r.category==='ordinary').map(r=>r.id).sort(),ORDINARY.slice().sort());
   assert.deepEqual(rows.filter(r=>r.category==='special capability pending').map(r=>r.id).sort(),Object.keys(SPECIAL).sort());
@@ -74,8 +78,8 @@ test('the audit covers every registered production template exactly once and rec
   assert.equal(rows.filter(r=>r.category==='non-production/debug fixture').length,0);
 });
 
-test('all 60 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),60);
+test('all 63 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),63);
   assert.deepEqual(J(g,'Object.keys(ENEMY_CAPABILITY_REGISTRY)'),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)'));
   for(const id of J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)')){
     const metadata=g.run('ENEMY_CAPABILITY_REGISTRY['+JSON.stringify(id)+']');frozen(metadata);
@@ -88,7 +92,7 @@ test('all 60 deterministic metadata records are closed, deeply frozen and capabi
     'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee',
     'observe_run_lock','guaranteed_drop','generated_stats','warden_lifecycle','persistent_hp_lifecycle','rainfish_chain',
     'takomo_lifecycle','den_wraith_lifecycle','sailor_brawl_lifecycle','wrongteeth_lifecycle',
-    'lensweb_objective_lifecycle','mimic_trap_lifecycle']);
+    'lensweb_objective_lifecycle','mimic_trap_lifecycle','travellers_rise_ambush_lifecycle']);
 });
 
 test('every ordinary template prepares against one, two and three canonical members',()=>{

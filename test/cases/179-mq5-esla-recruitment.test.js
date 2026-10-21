@@ -43,7 +43,7 @@ test('debug Sera/Liora preview is neutral; canonical completion enables, but doe
 test('the assignment retains its setup and gives Esla explicit agency without a player choice',()=>{
  const g=fresh();ready(g);g.run('supervisorDialogueBody()');
  const text=g.run('[...MQ5_ASSIGNMENT_OPENING_PAGES,...MQ5_ASSIGNMENT_AFTER_WALK_PAGES].flatMap(page=>page.lines).join(" ")');
- for(const re of [/Dreyfuss is dead/,/Garrick is still missing/,/beyond what Calwick or Drenwick/,/district seal/,/firsthand account/,/Empire has sent a cable ferry/,/six years/,/Mornay is long/,/short of staff/,/Sending Lely alone would be irresponsible/,/I am going with her/,/You know the Gallery\. I know the road/,/Lely, you still carry the report/])assert.match(text,re);
+ for(const re of [/Dreyfuss is dead/,/Garrick is still missing/,/beyond what Calwick or Drenwick/,/district seal/,/firsthand account/,/Empire has sent a cable ferry/,/six years/,/Mornay is long/,/short of staff/,/I don’t know what happened to Dreyfuss, but I’m not going to let it happen to anyone in this office/,/I am going with her/,/You know the Gallery\. I know the road/,/Lely, you still carry the report/])assert.match(text,re);
  assert.doesNotMatch(text,/Rareborn|Resonance|romance|bodyguard|closes the file.*comes to the desk/);assert.equal(g.run('choice.open'),false);
  assert.equal(g.run('dialogue.callbacks.length'),1);
 });

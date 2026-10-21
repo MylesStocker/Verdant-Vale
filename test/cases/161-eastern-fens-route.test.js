@@ -167,7 +167,8 @@ module.exports = {
     assert.equal(measured.campToEnd.distance, 185, 'Valmere threshold is 185 steps beyond the camp anchor');
     assert.ok(campPercent >= 45 && campPercent <= 60, `camp lies ${campPercent.toFixed(1)}% through the measured route`);
 
-    // The relocated travellers' rise is terrain only, as is every other new chunk.
+    // The rise keeps its terrain-only physical catalogue record; the MQ5 ambush
+    // is a separately gated transient lifecycle and does not alter this grid.
     assert.ok(g.run("REGIONAL_CHUNK_CATALOG['EASTERN_FENS_TRAVELLERS_RISE_MAP'].map.flat().filter(function(t){return t===GRASS||t===EXPOSED_STONE;}).length") >= 60,
       'travellers rise has a substantial dry stopping area');
     for (let i = 0; i < NEW_IDS.length; i++) {
@@ -179,7 +180,9 @@ module.exports = {
       assert.equal(g.run(`SIMPLE_NPCS.some(function(n){return n.physicalMapId==='${id}'||n.map==='${key}';})`), false, `${id} has no NPC`);
       assert.equal(g.run(`Object.prototype.hasOwnProperty.call(OUTDOOR_MAP_DECOR,'${key}')`), false, `${id} has no authored landmark decoration`);
     }
-    assert.equal(g.run("QUEST_FLAG_SCHEMA.some(function(k){return /eastern_fens|travellers_rise|valmere|port_threshold/i.test(k);})"), false, 'route adds no saved quest state');
+    assert.deepEqual(JSON.parse(g.run("JSON.stringify(QUEST_FLAG_SCHEMA.filter(function(k){return /eastern_fens|travellers_rise|valmere|port_threshold/i.test(k);}))")),
+      ['travellers_rise_ambush_complete','travellers_rise_ambush_paid','travellers_rise_ambush_payment'],
+      'the scripted ambush owns only its completion and one-time payment receipts');
     assert.equal(g.run('SAVE_VERSION'), 5);
 
     // Access remains behind the existing MQ5 ferry authorization. Debug warps
