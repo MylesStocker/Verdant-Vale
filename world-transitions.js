@@ -82,7 +82,7 @@ function snapshotLocationState() {
 
 // Validate a proposed COMPLETE location state (every field present) against the
 // invariants. Returns { ok, errors:[...] }; performs no mutation.
-function validateLocationState(state) {
+function validateLocationState(state, mapId) {
   const errors = [];
   // Unknown / missing keys.
   for (const k of Object.keys(state)) if (!LOCATION_STATE_KEY_SET.has(k)) errors.push('unknown location key "' + k + '"');
@@ -95,6 +95,18 @@ function validateLocationState(state) {
   if (state.inTown !== true) {
     for (const k of ['currentTownId', 'townBuilding', 'currentHouseId', 'houseSourceMap', 'houseSourceBuilding']) {
       if (state[k] !== null) errors.push(k + ' must be neutral when inTown is false (got ' + JSON.stringify(state[k]) + ')');
+    }
+  }
+  // Mornay rooms have distinct IDs and no hidden source/quest state. Validate
+  // map/context together before transitions or loads commit any mutation.
+  if (mapId !== undefined) {
+    const room = mornayRoomForMap(mapId);
+    const exterior = mornayTownDefinition(mapId);
+    if (room || exterior || state.currentTownId === 'mornay') {
+      if ((!room && !exterior) || state.inTown !== true || state.currentTownId !== 'mornay' ||
+          state.townBuilding !== (room ? room.id : null) || state.currentHouseId !== null ||
+          state.houseSourceMap !== null || state.houseSourceBuilding !== null)
+        errors.push('Mornay map and town/building context do not agree');
     }
   }
   // A house id requires the house building.
@@ -263,7 +275,7 @@ function transitionToLocation(spec) {
   }
   const proposed = {};
   for (const b of LOCATION_STATE_BINDINGS) proposed[b.key] = (b.key in overrides) ? overrides[b.key] : _neutralValueFor(b);
-  const inv = validateLocationState(proposed);
+  const inv = validateLocationState(proposed, spec.mapId);
   if (!inv.ok) { console.warn('transitionToLocation: invalid destination state — ' + inv.errors.join('; ')); return false; }
 
   // ── All validated. Mutate atomically. ──
@@ -2445,3 +2457,21 @@ function debugNearbyTransitionInfo() {
   return 'none nearby';
 }
 window.debugNearbyTransitionInfo = debugNearbyTransitionInfo;
+
+// Mornay ordinary public rooms: all doors and returns use one authored registry.
+function enterMornayBuilding(id) {
+  const b = mornayBuilding(id);
+  const sourceId = mapIdForRef(activeMap);
+  const sourceRoom = mornayRoomForMap(sourceId);
+  if (!b || !inTown || currentTownId !== 'mornay' || sourceId !== b.sourceMapId ||
+      townBuilding !== (sourceRoom ? sourceRoom.id : null)) return false;
+  return transitionToLocation({mapId:b.mapId,x:7.5*TILE,y:13.5*TILE,facing:'up',
+    state:{inTown:true,currentTownId:'mornay',townBuilding:b.id},cooldown:true});
+}
+function exitMornayBuilding() {
+  const b = mornayBuilding(townBuilding);
+  if (!b || !inTown || currentTownId !== 'mornay' || mapIdForRef(activeMap) !== b.mapId) return false;
+  const parent = mornayRoomForMap(b.sourceMapId);
+  return transitionToLocation({mapId:b.sourceMapId,x:(b.returnCol+.5)*TILE,y:(b.returnRow+.5)*TILE,facing:b.facing,
+    state:{inTown:true,currentTownId:'mornay',townBuilding:parent ? parent.id : null},cooldown:true});
+}

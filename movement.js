@@ -124,6 +124,7 @@ function locationName() {
 // 'house:<houseId>', per-apartment keys, and town-building/state distinctions
 // ('west', 'drenwick_civic', …). See MAP_CATALOG (data.js) for physical map ids.
 function currentContentLocationKey() {
+  if (inTown && currentTownId === 'mornay') return mornayContentKey(mapIdForRef(activeMap));
   if (activeMap === TRAVELLERS_RISE_CAMP_MAP) return 'travellers_rise_camp';
   if (inLorraHouse)                  return 'lorra_house';
   if (inAbandonedFarmhouse)          return 'abandoned_farmhouse';
@@ -180,7 +181,6 @@ function currentContentLocationKey() {
   if (inTown && townBuilding === 'west')   return 'west';
   if (inTown && townBuilding === 'house')  return 'house:' + currentHouseId;
   if (inTown && !townBuilding) {
-    if (currentTownId === 'mornay') return 'mornay:' + mapIdForRef(activeMap).toLowerCase();
     if (currentTownId === 'drenwick') {
       if (activeMap === DRENWICK_WEST_RESIDENTIAL_MAP) return 'drenwick_west_residential';
       if (activeMap === DRENWICK_CANAL_DOCKS_MAP)      return 'drenwick_canal_docks';
@@ -1133,6 +1133,11 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
     if (inDungeon && dungeonFloor === 14 && curTile === HORROR_TENDON_UP)   { ascendToDungeon8EastLower();  return; }
     if (inDungeon && dungeonFloor === 14 && curTile === HORROR_SECRET_ENTRANCE) { enterDungeon8EastSecret(); return; }
     if (inDungeon && dungeonFloor === 15 && curTile === HORROR_SECRET_EXIT)     { exitDungeon8EastSecret();  return; }
+    if (inTown && currentTownId === 'mornay') {
+      const building = mornayDoorAt(mapIdForRef(activeMap), ttx, tty);
+      if (curTile === HOUSE_DOOR && building) { enterMornayBuilding(building.id); return; }
+      if (curTile === INTERIOR_EXIT && townBuilding) { exitMornayBuilding(); return; }
+    }
     if (inTown && !townBuilding && curTile === TOWN_EXIT)       { exitTown();              return; }
     // Waterfront: Dockworkers' Tavern (INN_DOOR) and Infirmary (OFFICE_DOOR, no interior map)
     if (inTown && !townBuilding && currentTownId === 'drenwick' && activeMap === DRENWICK_WATERFRONT_MAP) {

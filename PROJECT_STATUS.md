@@ -2054,3 +2054,7 @@ bed-state flag. Sera's gait is now 0.20 seconds per frame (5 fps), 30%
 slower in animation rate than 0.14 seconds, while her 90 px/s displacement and
 40-update opening route remain unchanged. Suite 261 and native/2× captures in
 `Art/qa/sera-liora/bedroom-v1/` cover the complete increment.
+
+### Mornay population branch — public rooms
+
+The dedicated Mornay population branch adds 17 accessible rooms in 15 establishments, with input-driven reciprocal doors and save/load coverage for every room. The catalogue now contains 251 maps; all 115 regional chunk fingerprints are unchanged. The original 17 exterior topology and both safe gate returns remain intact. See `MORNAY_TOWN_PLAN.md` for the complete population, institution and story-reservation plan.

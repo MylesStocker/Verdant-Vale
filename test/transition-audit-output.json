@@ -210,6 +210,23 @@
     "MORNAY_SOUTH_UPPER_EAST_MAP",
     "MORNAY_WEST_GATE_MAP",
     "MORNAY_EAST_GATE_MAP",
+    "MORNAY_OFFICE_MAP",
+    "MORNAY_INFIRMARY_MAP",
+    "MORNAY_PROVISIONER_MAP",
+    "MORNAY_APOTHECARY_MAP",
+    "MORNAY_WORKGEAR_MAP",
+    "MORNAY_CHANDLER_MAP",
+    "MORNAY_GATE_INN_MAP",
+    "MORNAY_GATE_BEDS_MAP",
+    "MORNAY_COMMERCIAL_INN_MAP",
+    "MORNAY_COMMERCIAL_BEDS_MAP",
+    "MORNAY_SCHOOL_MAP",
+    "MORNAY_HARBOUR_MAP",
+    "MORNAY_WAREHOUSE_MAP",
+    "MORNAY_WORKSHOP_MAP",
+    "MORNAY_LAUNDRY_MAP",
+    "MORNAY_BOARDING_MAP",
+    "MORNAY_COURT_MAP",
     "SUNKEN_GALLERY_R0C0",
     "SUNKEN_GALLERY_R0C1",
     "SUNKEN_GALLERY_R0C2",
@@ -1492,6 +1509,108 @@
     },
     {
       "id": "MORNAY_EAST_GATE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_OFFICE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_INFIRMARY_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_PROVISIONER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_APOTHECARY_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_WORKGEAR_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_CHANDLER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_GATE_INN_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_GATE_BEDS_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_COMMERCIAL_INN_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_COMMERCIAL_BEDS_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_SCHOOL_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_HARBOUR_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_WAREHOUSE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_WORKSHOP_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_LAUNDRY_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_BOARDING_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_COURT_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -4936,6 +5055,992 @@
       "facing": "up",
       "tileCol": 7,
       "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_office')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_office\");",
+      "error": null,
+      "destMap": "MORNAY_OFFICE_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_office]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_office\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_infirmary')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_WEST_MAP\",x:400,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_infirmary\");",
+      "error": null,
+      "destMap": "MORNAY_INFIRMARY_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_infirmary]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_WEST_MAP\",x:400,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_infirmary\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_SOUTH_UPPER_WEST_MAP",
+      "px": 400,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_provisioner')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_provisioner\");",
+      "error": null,
+      "destMap": "MORNAY_PROVISIONER_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_provisioner]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_provisioner\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_apothecary')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_EAST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_apothecary\");",
+      "error": null,
+      "destMap": "MORNAY_APOTHECARY_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_apothecary]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_EAST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_apothecary\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_SOUTH_UPPER_EAST_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_workgear')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_workgear\");",
+      "error": null,
+      "destMap": "MORNAY_WORKGEAR_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_workgear]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_workgear\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_chandler')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_NORTH_LOWER_EAST_MAP\",x:368,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_chandler\");",
+      "error": null,
+      "destMap": "MORNAY_CHANDLER_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_chandler]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_NORTH_LOWER_EAST_MAP\",x:368,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_chandler\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_NORTH_LOWER_EAST_MAP",
+      "px": 368,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 11,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_gate_inn')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_WEST_GATE_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_gate_inn\");",
+      "error": null,
+      "destMap": "MORNAY_GATE_INN_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_gate_inn]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_WEST_GATE_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_gate_inn\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_WEST_GATE_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_gate_beds')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_GATE_INN_MAP\",x:240,y:80,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:\"mornay_gate_inn\"}});enterMornayBuilding(\"mornay_gate_beds\");",
+      "error": null,
+      "destMap": "MORNAY_GATE_BEDS_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_gate_beds]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_GATE_INN_MAP\",x:240,y:80,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:\"mornay_gate_inn\"}});enterMornayBuilding(\"mornay_gate_beds\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_GATE_INN_MAP",
+      "px": 240,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_commercial_inn')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_NORTH_UPPER_WEST_MAP\",x:368,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_commercial_inn\");",
+      "error": null,
+      "destMap": "MORNAY_COMMERCIAL_INN_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_commercial_inn]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_NORTH_UPPER_WEST_MAP\",x:368,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_commercial_inn\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_NORTH_UPPER_WEST_MAP",
+      "px": 368,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 11,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_commercial_beds')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_COMMERCIAL_INN_MAP\",x:240,y:80,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:\"mornay_commercial_inn\"}});enterMornayBuilding(\"mornay_commercial_beds\");",
+      "error": null,
+      "destMap": "MORNAY_COMMERCIAL_BEDS_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_commercial_beds]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_COMMERCIAL_INN_MAP\",x:240,y:80,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:\"mornay_commercial_inn\"}});enterMornayBuilding(\"mornay_commercial_beds\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_COMMERCIAL_INN_MAP",
+      "px": 240,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_school')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_EAST_MAP\",x:400,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_school\");",
+      "error": null,
+      "destMap": "MORNAY_SCHOOL_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_school]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_EAST_MAP\",x:400,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_school\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_SOUTH_UPPER_EAST_MAP",
+      "px": 400,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_harbour')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_NORTH_LOWER_WEST_MAP\",x:368,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_harbour\");",
+      "error": null,
+      "destMap": "MORNAY_HARBOUR_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_harbour]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_NORTH_LOWER_WEST_MAP\",x:368,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_harbour\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_NORTH_LOWER_WEST_MAP",
+      "px": 368,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 11,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_warehouse')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_UPPER_WEST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_warehouse\");",
+      "error": null,
+      "destMap": "MORNAY_WAREHOUSE_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_warehouse]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_UPPER_WEST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_warehouse\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_MIDDLE_UPPER_WEST_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_workshop')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP\",x:400,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_workshop\");",
+      "error": null,
+      "destMap": "MORNAY_WORKSHOP_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_workshop]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP\",x:400,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_workshop\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP",
+      "px": 400,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_laundry')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_EAST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_laundry\");",
+      "error": null,
+      "destMap": "MORNAY_LAUNDRY_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_laundry]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_EAST_MAP\",x:112,y:208,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_laundry\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_MIDDLE_LOWER_EAST_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_boarding')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_WEST_MAP\",x:112,y:304,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_boarding\");",
+      "error": null,
+      "destMap": "MORNAY_BOARDING_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_boarding]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_WEST_MAP\",x:112,y:304,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_boarding\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_SOUTH_UPPER_WEST_MAP",
+      "px": 112,
+      "py": 304,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 9,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterMornayBuilding('mornay_court')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_EAST_MAP\",x:112,y:272,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_court\");",
+      "error": null,
+      "destMap": "MORNAY_COURT_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_court]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_MIDDLE_LOWER_EAST_MAP\",x:112,y:272,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_court\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_MIDDLE_LOWER_EAST_MAP",
+      "px": 112,
+      "py": 272,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 8,
       "actualDims": {
         "rows": 15,
         "cols": 16
@@ -10818,7 +11923,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 26,
+      "mapsUsingIt": 43,
       "handledInMovement": true
     },
     {
@@ -10853,7 +11958,7 @@
     },
     {
       "name": "HOUSE_DOOR",
-      "mapsUsingIt": 2,
+      "mapsUsingIt": 16,
       "handledInMovement": true
     },
     {

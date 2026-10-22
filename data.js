@@ -1638,7 +1638,16 @@ for (const def of MORNAY_TOWN_LAYOUT) {
     encounterPool: null,
     allowRandomEncounters: false,
     allowSave: true,
-    notes: 'Empty Mornay exterior skeleton (' + def.district + ' district). Reserved future footprints: ' + def.reserves.join(', ') + '. No functional interior or berth transition.',
+    notes: 'Mornay ' + def.district + ' district. Reserved future footprints: ' + def.reserves.join(', ') + '. Berths remain inactive.',
+  };
+}
+
+for (const b of MORNAY_BUILDINGS) {
+  MAP_CATALOG[b.mapId] = {
+    id: b.mapId, map: MORNAY_INTERIOR_MAPS[b.mapId], displayName: b.name,
+    region: 'Mornay', type: 'interior', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'Mornay public room; door and return authority: MORNAY_BUILDINGS.'
   };
 }
 

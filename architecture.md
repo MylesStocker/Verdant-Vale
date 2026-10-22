@@ -4756,3 +4756,7 @@ the reveal remains 40 updates, and ordinary player/NPC cadences are untouched.
 Suite 261 covers the interactions, route, painter order, bed phase, isolation and
 timing. Automated native/2× Canvas evidence is under
 `Art/qa/sera-liora/bedroom-v1/`.
+
+### Mornay public-room authority
+
+`content/maps/mornay-maps.js` owns `MORNAY_BUILDINGS`: distinct building IDs, room map IDs, source doors and reciprocal returns. `data.js` registers its 17 ordinary discrete interiors before deriving catalogue views. `movement.js` dispatches their doors and exits before generic town handlers; `world-transitions.js` validates the map and Mornay context together before committing. Save loading applies that same validation without changing SAVE_VERSION 5 or the location payload. Inn upstairs rooms use the same registry as exterior doors. No harbour or story transition is registered. `MORNAY_ROOM_FIXTURES` supplies both solid furniture tiles and rendering geometry.

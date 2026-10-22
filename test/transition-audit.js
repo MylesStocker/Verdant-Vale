@@ -338,6 +338,14 @@ for (const [town, pt] of townEntryPoints) {
   check(`enterTownAt('${town}', '${pt}')`, `enterTownAt('${town}', '${pt}')`, { group: 'town-entry' });
 }
 
+// Mornay public-room entry and reciprocal return, including inn upstairs rooms.
+for (const b of g.run('MORNAY_BUILDINGS.map(b=>({...b}))')) {
+  const parent = g.run(`mornayRoomForMap(${esc(b.sourceMapId)})?.id || null`);
+  const setup = `transitionToLocation({mapId:${esc(b.sourceMapId)},x:${(b.returnCol+.5)*32},y:${(b.returnRow+.5)*32},facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:${parent ? esc(parent) : 'null'}}});`;
+  check(`enterMornayBuilding('${b.id}')`, setup + `enterMornayBuilding(${esc(b.id)});`, {group:'mornay-buildings'});
+  check(`exitMornayBuilding() [${b.id}]`, setup + `enterMornayBuilding(${esc(b.id)}); exitMornayBuilding();`, {group:'mornay-buildings'});
+}
+
 // ── 4. enterBuilding(building) -- Calwick and Drenwick, every building ──
 const calwickBuildings = ['inn', 'office', 'school', 'apt'];
 for (const b of calwickBuildings) {

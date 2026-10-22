@@ -572,7 +572,7 @@ function resolveLoadLocation(data) {
     for (const e of place.errors) errors.push(e);
     map = place.map;
   }
-  const inv = validateLocationState(candidate);
+  const inv = validateLocationState(candidate, mapId);
   for (const e of inv.errors) errors.push(e);
 
   return { ok: errors.length === 0, errors, mapId, map, player: plr, locationState: candidate, regional };
