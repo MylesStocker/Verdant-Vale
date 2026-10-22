@@ -2227,6 +2227,7 @@ const TALK_RADIUS = 28; // px; must be within this to open dialogue (~0.9 tiles)
 // identities explicitly; rendering never guesses a speaker from prose or from
 // whichever NPC happens to be nearby. `null` remains the legacy/default style.
 const ESLA_DIALOGUE_STYLE_ID = 'esla_light_green';
+const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
 const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   supervisor: Object.freeze({speakerId:'supervisor',name:'Supervisor',dialogueStyleId:null}),
   esla: Object.freeze({speakerId:'esla',name:'Esla',dialogueStyleId:ESLA_DIALOGUE_STYLE_ID}),
@@ -2242,6 +2243,8 @@ const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   renn: Object.freeze({speakerId:'renn',name:'Harbormaster Renn',dialogueStyleId:null}),
   road_impostor: Object.freeze({speakerId:'road_impostor',name:'Road Impostor',dialogueStyleId:null}),
   fen_handler: Object.freeze({speakerId:'fen_handler',name:'Fen Handler',dialogueStyleId:null}),
+  sera: Object.freeze({speakerId:'sera',name:'Sera',dialogueStyleId:SERA_DIALOGUE_STYLE_ID}),
+  liora: Object.freeze({speakerId:'liora',name:'Liora',dialogueStyleId:null}),
 });
 
 // Ambient companion exchanges are appended only when the canonical party

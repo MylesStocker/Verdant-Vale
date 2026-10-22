@@ -12,6 +12,7 @@ const IMAGE_ASSET_REGISTRY = Object.freeze({
   cutaway_left_bed_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/left-bed.png', use: 'cutaway_depth_scene', width: 512, height: 480 }),
   cutaway_right_bed_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/right-bed.png', use: 'cutaway_depth_scene', width: 512, height: 480 }),
   cutaway_right_cover_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/right-cover.png', use: 'cutaway_depth_scene', width: 512, height: 480 }),
+  cutaway_right_bed_unmade_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/right-bed-unmade.png', use: 'cutaway_depth_scene', width: 512, height: 480 }),
   cutaway_bethany_guest_room_redraw_v1: Object.freeze({
     path: 'assets/backgrounds/cutaways/sera-liora/guest-room-redraw-v1-runtime.png',
     use: 'cutaway_background', width: 512, height: 480,
@@ -112,6 +113,7 @@ const IMAGE_ASSET_BUNDLES = Object.freeze({
     'cutaway_left_bed_depth_v2',
     'cutaway_right_bed_depth_v2',
     'cutaway_right_cover_depth_v2',
+    'cutaway_right_bed_unmade_depth_v2',
     'cutaway_sera_portrait',
     'cutaway_liora_portrait',
   ]),

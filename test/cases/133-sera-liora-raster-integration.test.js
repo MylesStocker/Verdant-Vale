@@ -84,6 +84,7 @@ module.exports = {
       ['sera_walk',384,576,'sera-walk'], ['liora_standing',128,192,'liora-standing'],
       ['liora_lying',192,216,'liora-lying'], ['liora_sitting',192,216,'liora-sitting'],
       ['left_bed',512,480,'left-bed'], ['right_bed',512,480,'right-bed'], ['right_cover',512,480,'right-cover'],
+      ['right_bed_unmade',512,480,'right-bed-unmade'],
     ]) expected['cutaway_'+id+'_depth_v2'] = ['assets/sprites/cutaways/sera-liora/depth-v2/'+file+'.png',width,height,null,null];
     const registry = JSON.parse(g.run('JSON.stringify(IMAGE_ASSET_REGISTRY)'));
     assert.deepEqual(Object.keys(registry).sort(), Object.keys(expected).sort());
@@ -111,12 +112,13 @@ module.exports = {
       'cutaway_bethany_guest_room_redraw_v1', 'cutaway_sera_walk_depth_v2',
       'cutaway_liora_standing_depth_v2', 'cutaway_liora_lying_depth_v2', 'cutaway_liora_sitting_depth_v2',
       'cutaway_left_bed_depth_v2', 'cutaway_right_bed_depth_v2', 'cutaway_right_cover_depth_v2',
+      'cutaway_right_bed_unmade_depth_v2',
       'cutaway_sera_portrait', 'cutaway_liora_portrait',
     ], 'opening loads normalized characters and exact furniture masks');
 
     installImmediateImages(g);
     g.run('debugPlaySeraLioraCutaway()');
-    assert.equal(g.run('__imageConstructions'), 10, 'the bundle constructs the room, bed states, standing/walking actors, fallback, and portraits');
+    assert.equal(g.run('__imageConstructions'), 11, 'the bundle constructs the room, bed states, standing/walking actors, fallback, and portraits');
     assert.equal(g.run("IMAGE_ASSET_BUNDLES.sera_liora_opening.every(function(id){return imageAssetRuntime(id).status==='loaded';})"), true);
     assert.equal(g.run('dialogue.portraitId'), null, 'first white line has no portrait');
     assert.equal(g.run('dialogue.portraitSide'), null);
@@ -253,7 +255,7 @@ module.exports = {
     failed.press(' '); failed.frames(30);
     assert.equal(failed.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'asset failures do not interrupt hospital handoff');
     failed.run('debugPlaySeraLioraCutaway()');
-    assert.equal(failed.run('__imageConstructions'), 10, 'warm replay constructs no replacement images');
+    assert.equal(failed.run('__imageConstructions'), 11, 'warm replay constructs no replacement images');
     assert.equal(failed.run('seraLioraCutscene.startCount'), 2);
 
     const saveCtx = createContext(); saveCtx.press('Enter'); saveCtx.press('Enter');

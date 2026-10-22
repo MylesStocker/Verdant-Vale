@@ -10,7 +10,9 @@ const SERA_LIORA_SCENE_METRICS = Object.freeze({
   wake: Object.freeze({ width: 192, height: 216, headX: 96, headY: 28,
     faceWidth: 20, faceHeight: 20.2 }),
   cycle: Object.freeze([0, 1, 2, 1]),
-  frameSeconds: 0.14,
+  // 5 fps is a 30% calmer cadence than the former 7.14 fps. Movement distance,
+  // collision and the authored reveal duration remain independently owned.
+  frameSeconds: 0.20,
   approach: Object.freeze({
     frames: 40, facing: 'down',
     from: Object.freeze({ x: 350, y: 285 }),
@@ -87,7 +89,12 @@ function drawSeraLioraDepthRoomActors() {
     return { id: bed.id, layer: 'world', depth: bed.depth,
       draw: function() {
         ctx.drawImage(loadedImageAsset(bed.assetId), 0, 0);
-        if (bed.id === 'right-bed') drawSeraLioraWakePose();
+        if (bed.id === 'right-bed') {
+          drawSeraLioraWakePose();
+          if (seraLioraCutscene.lioraPose === 'standing') {
+            ctx.drawImage(loadedImageAsset('cutaway_right_bed_unmade_depth_v2'), 0, 0);
+          }
+        }
       } };
   });
   entries.push({ id: 'sera', layer: 'world', depth: sera.y,
@@ -100,6 +107,13 @@ function drawSeraLioraDepthRoomActors() {
     } });
   }
   drawLayeredScene(entries);
+  const interaction = activeSeraLioraGuestRoomInteraction();
+  if (interaction) {
+    drawSpaceInteractionHint(interaction.prompt.x, interaction.prompt.y, true);
+  } else if (seraLioraDoorInteractionAvailable()) {
+    const prompt = SERA_LIORA_GUEST_ROOM_MOVEMENT.doorZone.prompt;
+    drawSpaceInteractionHint(prompt.x, prompt.y, true);
+  }
 }
 
 function drawSeraLioraWakePose() {

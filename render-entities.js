@@ -560,7 +560,8 @@ function seraLioraApprovedRoomReady() {
   return ['cutaway_bethany_guest_room_redraw_v1', 'cutaway_sera_walk_depth_v2',
     'cutaway_liora_standing_depth_v2', 'cutaway_liora_lying_depth_v2',
     'cutaway_liora_sitting_depth_v2', 'cutaway_left_bed_depth_v2',
-    'cutaway_right_bed_depth_v2', 'cutaway_right_cover_depth_v2'].every(function(id) {
+    'cutaway_right_bed_depth_v2', 'cutaway_right_cover_depth_v2',
+    'cutaway_right_bed_unmade_depth_v2'].every(function(id) {
       return !!loadedImageAsset(id);
     });
 }
@@ -974,18 +975,24 @@ const NPC_DRAW_FNS = {
   infirmary_esla: drawInfirmaryEslaSprite,
 };
 
-// Shared SPACE prompt drawn above an NPC when the player is in range.
-function drawNPCSpaceHint(npc, px, py) {
+// Shared interaction prompt. Callers retain authority over whether their
+// interaction is legal; this helper owns only the familiar blinking style.
+function drawSpaceInteractionHint(px, py, available) {
   if (dialogue.open || choice.open || shop.open) return;
-  const dx = player.x - npc.x;
-  const dy = player.y - npc.y;
-  if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS && (tick >> 4) & 1) {
+  if (available && (tick >> 4) & 1) {
     ctx.fillStyle = '#a8d0d8';
     ctx.font = 'bold 11px "Courier New", monospace';
     ctx.textAlign = 'center';
     ctx.fillText('SPACE', px, py - 28);
     ctx.textAlign = 'left';
   }
+}
+
+// Shared SPACE prompt drawn above an NPC when the player is in range.
+function drawNPCSpaceHint(npc, px, py) {
+  const dx = player.x - npc.x;
+  const dy = player.y - npc.y;
+  drawSpaceInteractionHint(px, py, Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS);
 }
 
 // Seated clerk — dark jacket, cream collar, dark hair (original default style).

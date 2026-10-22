@@ -4706,7 +4706,7 @@ The Bethany cutaway uses `SERA_LIORA_SCENE_METRICS` in `sera-liora-scene.js` for
 normalized actor canvases, foot anchors, measured peer proportions and gait.
 Sera's 146-pixel and Liora's 148-pixel neutral silhouettes differ by 1.37%; shared
 facial landmarks are approximately 20 pixels. The nine Sera frames cover actual
-four-direction room movement (left mirrors right), with the existing 0.14-second
+four-direction room movement (left mirrors right), with a 0.20-second
 gait and idle on dialogue/stop. The opening's existing 40-frame reveal projects a
 validated floor approach (350,285) → (350,345), ending at the prior anchor.
 
@@ -4724,3 +4724,34 @@ the supplied reference is QA only. Suite 260 covers pixels, scale, depth, animat
 route legality and rendering isolation. Existing cutaway tests retain lifecycle,
 asset-failure, master-preservation and free-walk coverage with updated runtime
 asset expectations.
+
+The playable tail owns four repeatable interactions in the closed
+`SERA_LIORA_GUEST_ROOM_INTERACTIONS` registry: standing Liora, the breakfast-table
+starflowers, the town window and the writing desk. Each record supplies authored
+continuous-pixel approach zones and facings because the transient Sera controller
+does not project the ordinary tile player. Input asks this registry before the
+existing door exit; active dialogue, route/cutscene ownership and invalid floor
+positions fail closed. Rendering reads that same validated record for the
+established blinking `SPACE` prompt, so its visual availability cannot diverge
+from interaction availability. The existing exit-door zone supplies its prompt
+anchor through the same drawing helper and its established availability check.
+Mixed Liora dialogue uses stable `sera`/`liora` speaker
+definitions, while observations remain default narration. No callback grants or
+persists anything.
+
+One rear walkable strip connects the existing main floor to the upper-right desk
+through the visible gap between table and right bed. The solid desk and bed remain
+in the shared collision authority. At foot depths below the bed's authored 350
+anchor, the existing generic layered-scene painter places Sera behind the exact
+bed foreground; the near floor reverses the order. `lioraPose === 'standing'`,
+already the authoritative post-wake phase, also selects a deterministic unmade-bed
+overlay clipped to the right-bed silhouette. The displaced pillow, exposed loose
+sheet and blanket gathered to one side are presentation only. There is no new
+mutable bed flag or save field.
+
+Sera's centralized gait interval is 0.20 seconds (5 fps), a 30% frame-rate
+reduction from 0.14 seconds (7.14 fps). Her movement remains 90 pixels per second,
+the reveal remains 40 updates, and ordinary player/NPC cadences are untouched.
+Suite 261 covers the interactions, route, painter order, bed phase, isolation and
+timing. Automated native/2× Canvas evidence is under
+`Art/qa/sera-liora/bedroom-v1/`.

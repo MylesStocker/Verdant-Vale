@@ -299,15 +299,15 @@ window.addEventListener('keydown', e => {
       // playable tail accepts only local Sera WASD state and the established
       // Space/Enter interaction action; ordinary player-mode commands remain
       // unavailable throughout the cutaway.
-      if (seraLioraCutscene.phase === 'free_walk') {
+      if (dialogue.open && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        handleInteract();
+      } else if (seraLioraCutscene.phase === 'free_walk') {
         noteSeraLioraMovementKey(e.key);
         if (e.key === ' ' || e.key === 'Enter') {
           e.preventDefault();
-          trySeraLioraGuestRoomDoor();
+          if (!trySeraLioraGuestRoomInteraction()) trySeraLioraGuestRoomDoor();
         }
-      } else if (dialogue.open && (e.key === ' ' || e.key === 'Enter')) {
-        e.preventDefault();
-        handleInteract();
       }
     } else if (combat.active && combat.flashTimer === 0 && debugMode && e.key === '`') {
       // ── Debug-only: exit the current battle safely ────────────────────────

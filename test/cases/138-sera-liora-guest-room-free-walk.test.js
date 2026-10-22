@@ -66,11 +66,13 @@ module.exports = {
 
     const config = JSON.parse(g.run('JSON.stringify(SERA_LIORA_GUEST_ROOM_MOVEMENT)'));
     assert.equal(config.speedPxPerSecond, 90);
-    assert.equal(config.animationFrameSeconds, 0.14);
-    assert.deepEqual(config.doorZone, { x: 55, y: 194, width: 32, height: 22, facing: 'left' });
-    assert.equal(config.walkableAreas.length, 3);
+    assert.equal(config.animationFrameSeconds, 0.20);
+    assert.deepEqual(config.doorZone, {
+      x: 55, y: 194, width: 32, height: 22, facing: 'left', prompt: { x: 43, y: 158 },
+    });
+    assert.equal(config.walkableAreas.length, 4);
     assert.deepEqual(config.obstacles.map((o) => o.id),
-      ['breakfast_table', 'left_bed', 'right_bed', 'left_luggage', 'right_luggage']);
+      ['breakfast_table', 'writing_desk', 'left_bed', 'right_bed', 'left_luggage', 'right_luggage']);
     assert.equal(g.run('seraLioraFootprintWalkable(350,345)'), true, 'Sera spawn is valid');
     assert.equal(g.run('seraLioraFootprintWalkable(270,345)'), false, 'standing Liora is solid');
     const doorPath = JSON.parse(g.run(`(function(){

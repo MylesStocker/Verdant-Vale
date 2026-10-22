@@ -411,7 +411,6 @@ const accordPanel = { open: false, page: 0, pages: [], title: '', theme: 'imperi
 // preview of the same scene.
 const SERA_LIORA_CUTAWAY_SCENE_ID = 'sera_liora_cutaway_opening';
 const SERA_LIORA_GUEST_ROOM_ID = 'bethany_guest_house_finest_room';
-const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
 const seraLioraCutscene = {
   active: false,
   sceneId: SERA_LIORA_CUTAWAY_SCENE_ID,

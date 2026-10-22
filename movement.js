@@ -434,19 +434,116 @@ const SERA_LIORA_GUEST_ROOM_MOVEMENT = Object.freeze({
   animationFrameSeconds: SERA_LIORA_SCENE_METRICS.frameSeconds,
   walkableAreas: Object.freeze([
     Object.freeze({ x: 55, y: 185, width: 140, height: 50 }),  // clear aisle across the door threshold
+    Object.freeze({ x: 345, y: 185, width: 145, height: 50 }), // rear path to the writing desk
     Object.freeze({ x: 145, y: 225, width: 235, height: 140 }), // main floor
     Object.freeze({ x: 95, y: 345, width: 340, height: 65 }),   // lower floor
   ]),
   obstacles: Object.freeze([
     Object.freeze({ id: 'breakfast_table', x: 190, y: 180, width: 155, height: 55 }),
+    Object.freeze({ id: 'writing_desk', x: 408, y: 135, width: 104, height: 60 }),
     Object.freeze({ id: 'left_bed', x: 95, y: 225, width: 50, height: 125 }),
     Object.freeze({ id: 'right_bed', x: 380, y: 225, width: 55, height: 125 }),
     Object.freeze({ id: 'left_luggage', x: 95, y: 345, width: 55, height: 50 }),
     Object.freeze({ id: 'right_luggage', x: 390, y: 345, width: 45, height: 50 }),
   ]),
   lioraCollider: Object.freeze({ halfWidth: 20, halfHeight: 12 }),
-  doorZone: Object.freeze({ x: 55, y: 194, width: 32, height: 22, facing: 'left' }),
+  doorZone: Object.freeze({
+    x: 55, y: 194, width: 32, height: 22, facing: 'left',
+    prompt: Object.freeze({ x: 43, y: 158 }),
+  }),
 });
+
+// The cutaway room has its own continuous-pixel movement owner rather than a
+// tile-positioned player. Its inspectables therefore use one closed, local
+// registry of legal approach zones. Dialogue, rewards and progression stay in
+// their existing authorities; these repeatable records have no callbacks.
+const SERA_LIORA_GUEST_ROOM_INTERACTIONS = Object.freeze([
+  Object.freeze({
+    id: 'liora',
+    prompt: Object.freeze({ x: 270, y: 218 }),
+    approaches: Object.freeze([
+      Object.freeze({ x: 250, y: 300, width: 40, height: 24, facing: 'down' }),
+      Object.freeze({ x: 250, y: 366, width: 40, height: 26, facing: 'up' }),
+      Object.freeze({ x: 218, y: 330, width: 22, height: 30, facing: 'right' }),
+      Object.freeze({ x: 300, y: 330, width: 22, height: 30, facing: 'left' }),
+    ]),
+    pages: Object.freeze([
+      Object.freeze({ speakerId: 'sera', lines: Object.freeze(['Still attached to the mountain?']) }),
+      Object.freeze({ speakerId: 'liora', lines: Object.freeze(['For the moment. You may ask again after breakfast.']) }),
+      Object.freeze({ speakerId: 'sera', lines: Object.freeze(['I intend to.']) }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'flowers',
+    prompt: Object.freeze({ x: 256, y: 150 }),
+    approaches: Object.freeze([
+      Object.freeze({ x: 228, y: 244, width: 56, height: 24, facing: 'up' }),
+    ]),
+    pages: Object.freeze([
+      Object.freeze({ speakerId: null, lines: Object.freeze([
+        'A vase of starflowers catches the morning light.',
+        'Every bloom is regally purple.',
+      ]) }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'window',
+    prompt: Object.freeze({ x: 362, y: 184 }),
+    approaches: Object.freeze([
+      Object.freeze({ x: 348, y: 196, width: 28, height: 26, facing: 'up' }),
+    ]),
+    pages: Object.freeze([
+      Object.freeze({ speakerId: null, lines: Object.freeze([
+        'Below the window, Bethany’s bright roofs step down the mountain.',
+        'Morning cloud drifts beneath the lower terraces.',
+      ]) }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'writing_desk',
+    prompt: Object.freeze({ x: 456, y: 158 }),
+    approaches: Object.freeze([
+      Object.freeze({ x: 430, y: 199, width: 50, height: 24, facing: 'up' }),
+    ]),
+    pages: Object.freeze([
+      Object.freeze({ speakerId: null, lines: Object.freeze([
+        'Paper, ink, and a clean blotter are laid out in careful order.',
+        'The top sheet is still blank.',
+      ]) }),
+    ]),
+  }),
+]);
+
+function validateSeraLioraGuestRoomInteractions() {
+  const plain = value => typeof _dialoguePlainRecord === 'function' && _dialoguePlainRecord(value);
+  const exact = (value, keys) => {
+    if (!plain(value)) return false;
+    const fields = Object.getOwnPropertyDescriptors(value);
+    return Reflect.ownKeys(fields).length === keys.length &&
+      keys.every(key => fields[key] && Object.hasOwn(fields[key], 'value'));
+  };
+  if (!Array.isArray(SERA_LIORA_GUEST_ROOM_INTERACTIONS) || !SERA_LIORA_GUEST_ROOM_INTERACTIONS.length)
+    throw new Error('Invalid Sera/Liora room interaction registry');
+  const ids = new Set();
+  for (const record of SERA_LIORA_GUEST_ROOM_INTERACTIONS) {
+    if (!exact(record, ['id', 'prompt', 'approaches', 'pages']) || typeof record.id !== 'string' || !record.id ||
+        ids.has(record.id) || !Array.isArray(record.approaches) || !record.approaches.length)
+      throw new Error('Invalid Sera/Liora room interaction');
+    ids.add(record.id);
+    if (!exact(record.prompt, ['x', 'y']) ||
+        ![record.prompt.x, record.prompt.y].every(Number.isFinite))
+      throw new Error('Invalid Sera/Liora room interaction prompt');
+    for (const zone of record.approaches) {
+      if (!exact(zone, ['x', 'y', 'width', 'height', 'facing']) ||
+          ![zone.x, zone.y, zone.width, zone.height].every(Number.isFinite) ||
+          zone.width <= 0 || zone.height <= 0 || !['up', 'down', 'left', 'right'].includes(zone.facing))
+        throw new Error('Invalid Sera/Liora room interaction approach');
+    }
+    validateSpeakerDialoguePages(record.pages);
+  }
+  return true;
+}
+validateSeraLioraGuestRoomInteractions();
 
 function seraLioraRectContainsPoint(rect, x, y) {
   return x >= rect.x && x <= rect.x + rect.width &&
@@ -545,6 +642,49 @@ function seraLioraDoorInteractionAvailable() {
   return seraLioraCutscene.active && seraLioraCutscene.phase === 'free_walk' &&
     walk.active && !walk.inputLocked && walk.facing === SERA_LIORA_GUEST_ROOM_MOVEMENT.doorZone.facing &&
     seraLioraRectContainsPoint(SERA_LIORA_GUEST_ROOM_MOVEMENT.doorZone, walk.x, walk.y);
+}
+
+function seraLioraGuestRoomControlAvailable() {
+  return seraLioraCutscene.active && activeMap === BETHANY_GUEST_ROOM_MAP &&
+    seraLioraCutscene.phase === 'free_walk' && seraLioraGuestRoomWalk.active &&
+    !seraLioraGuestRoomWalk.inputLocked && !dialogue.open;
+}
+
+function seraLioraGuestRoomInteractionAt(id) {
+  if (!seraLioraGuestRoomControlAvailable()) return null;
+  const record = SERA_LIORA_GUEST_ROOM_INTERACTIONS.find(function(entry) { return entry.id === id; });
+  if (!record) return null;
+  const walk = seraLioraGuestRoomWalk;
+  const approach = record.approaches.find(function(zone) {
+    return walk.facing === zone.facing && seraLioraRectContainsPoint(zone, walk.x, walk.y) &&
+      seraLioraFootprintWalkable(walk.x, walk.y);
+  });
+  return approach ? record : null;
+}
+
+function activeSeraLioraGuestRoomInteraction() {
+  if (!seraLioraGuestRoomControlAvailable()) return null;
+  return SERA_LIORA_GUEST_ROOM_INTERACTIONS.find(function(entry) {
+    return !!seraLioraGuestRoomInteractionAt(entry.id);
+  }) || null;
+}
+
+function trySeraLioraGuestRoomInteraction() {
+  const record = activeSeraLioraGuestRoomInteraction();
+  if (!record) return false;
+  dialogue.name = '';
+  setSpeakerDialoguePages(record.pages);
+  dialogue.callbacks = null;
+  dialogue.styleId = null;
+  dialogue.presentation = 'box';
+  dialogue.portraitId = null;
+  dialogue.portraitSide = null;
+  dialogue.open = true;
+  dialogue.page = 0;
+  seraLioraGuestRoomWalk.moving = false;
+  seraLioraGuestRoomWalk.animationTime = 0;
+  seraLioraGuestRoomWalk.animationFrame = 1;
+  return true;
 }
 
 function trySeraLioraGuestRoomDoor() {

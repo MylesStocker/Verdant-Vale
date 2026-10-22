@@ -33,7 +33,7 @@ approximately 20 px in both dimensions, within 5% across standing/waking poses;
 they describe reviewed artwork, not automated facial recognition. The focused
 suite verifies actual alpha heights, baseline, distinct frame pixels and margins.
 
-The 0.14-second gait cycle [0,1,2,1] is driven by movement. Dialogue/idle selects
+The 0.20-second gait cycle [0,1,2,1] is driven by movement. Dialogue/idle selects
 frame 1. The opening's existing 40-frame silent reveal now projects Sera from
 (350,285) to the unchanged bedside (350,345), 1.5 pixels per update; every position
 passes the unchanged footprint authority. There was no moving approach in the
@@ -44,6 +44,10 @@ Furniture masks contain exact background RGB pixels under binary alpha polygons.
 The two bed ground-depth anchors are y=350. Their pixels cover an actor behind
 that depth; an actor at or in front of it draws afterward. Liora's waking pose is
 clipped to the existing right-bed interior and covered by its original blanket.
+The post-wake `right-bed-unmade.png` is a deterministic, bed-clipped state overlay
+with a displaced pillow, loose diagonal sheet and blanket gathered to one side.
+It is derived without loading the user reference; `lioraPose === 'standing'`
+selects it.
 The generic `scene-depth.js` primitive has no bed, room or character dispatch.
 
 ## Browser evidence

@@ -137,6 +137,7 @@ Final artistic acceptance remains the user's visual review.
 - `assets/sprites/cutaways/sera-liora/depth-v2/liora-standing.png` — Normalized character frames or exact-source furniture mask.
 - `assets/sprites/cutaways/sera-liora/depth-v2/right-bed.png` — Normalized character frames or exact-source furniture mask.
 - `assets/sprites/cutaways/sera-liora/depth-v2/right-cover.png` — Normalized character frames or exact-source furniture mask.
+- `assets/sprites/cutaways/sera-liora/depth-v2/right-bed-unmade.png` — Deterministic post-wake bedding overlay, clipped to the authored right bed.
 - `assets/sprites/cutaways/sera-liora/depth-v2/sera-walk.png` — Normalized character frames or exact-source furniture mask.
 - `image-assets.js` — Register versioned runtime assets and opening bundle.
 - `index.html` — Load the two presentation modules.

@@ -2014,7 +2014,7 @@ The Bethany cutaway uses `SERA_LIORA_SCENE_METRICS` in `sera-liora-scene.js` for
 normalized actor canvases, foot anchors, measured peer proportions and gait.
 Sera's 146-pixel and Liora's 148-pixel neutral silhouettes differ by 1.37%; shared
 facial landmarks are approximately 20 pixels. The nine Sera frames cover actual
-four-direction room movement (left mirrors right), with the existing 0.14-second
+four-direction room movement (left mirrors right), with a 0.20-second
 gait and idle on dialogue/stop. The opening's existing 40-frame reveal projects a
 validated floor approach (350,285) → (350,345), ending at the prior anchor.
 
@@ -2032,3 +2032,23 @@ the supplied reference is QA only. Suite 260 covers pixels, scale, depth, animat
 route legality and rendering isolation. Existing cutaway tests retain lifecycle,
 asset-failure, master-preservation and free-walk coverage with updated runtime
 asset expectations.
+
+The playable Bethany room now has four deterministic, repeatable interactions:
+Liora, the breakfast-table starflowers, the window and the upper-right writing
+desk. Authored position/facing approaches are validated against the transient
+room collision owner; dialogue, active cutscene ownership and invalid approaches
+fail closed. The same records and the existing door zone supply the familiar
+blinking `SPACE` prompt only when their exact position-and-facing interaction is legal. Sera and Liora use
+their stable speaker metadata, while room
+observations use the ordinary narration style. No interaction changes flags,
+rewards, saves or Lely's state.
+
+The upper-right desk is reachable through the real gap between the breakfast
+table and Liora's bed. The existing scene-depth primitive hides Sera behind the
+bed on that rear route and restores her to the front on the near floor. The
+post-wake `standing` phase selects a deterministic unmade-bed overlay with a
+displaced pillow, loose diagonal sheet and gathered blanket, avoiding a second
+bed-state flag. Sera's gait is now 0.20 seconds per frame (5 fps), 30%
+slower in animation rate than 0.14 seconds, while her 90 px/s displacement and
+40-update opening route remain unchanged. Suite 261 and native/2× captures in
+`Art/qa/sera-liora/bedroom-v1/` cover the complete increment.

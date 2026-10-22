@@ -122,7 +122,7 @@ module.exports={name:'Sera/Liora shared character metrics, real animation pixels
   assert.ok(draws.every(d=>d.slice(1).every(Number.isInteger)));
  }
  g.run('seraLioraGuestRoomWalk.x=350;seraLioraGuestRoomWalk.y=345;keys.s=true;');
- const animation=new Set();for(let i=0;i<24;i++){g.run('updateSeraLioraGuestRoomFreeWalk(1/60)');animation.add(g.run('seraLioraSceneSeraView().frame'));}assert.equal(animation.size,3);
+ const animation=new Set();for(let i=0;i<36;i++){g.run('updateSeraLioraGuestRoomFreeWalk(1/60)');animation.add(g.run('seraLioraSceneSeraView().frame'));}assert.equal(animation.size,3);
  g.run('keys.s=false;updateSeraLioraGuestRoomFreeWalk(1/60)');assert.equal(g.run('seraLioraSceneSeraView().frame'),1);
  g.run('dialogue.open=true;keys.w=true;updateSeraLioraGuestRoomFreeWalk(1/60)');assert.equal(g.run('seraLioraSceneSeraView().frame'),1);g.run('keys.w=false;dialogue.open=false');
  // Draw repeatedly with RNG replaced by a throwing function. All character,
