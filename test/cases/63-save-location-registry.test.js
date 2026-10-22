@@ -34,7 +34,7 @@ module.exports = {
         houseSourceMap: WEST_TOWN_MAP, houseSourceBuilding: 'west', houseReturnPos: { x: 80, y: 272 },
       }));
       activeMap = HOUSE_INTERIOR_MAP; player.x = 7.5 * TILE; player.y = 9.5 * TILE; player.facing = 'up';
-      dilemma_voss = 3;
+      dilemma_voss = 'report'; // authored nullable-string state, not a numeric fixture
       saveGame();
     `);
     const saved = JSON.parse(g.run("localStorage.getItem('verdantVale_save')"));
@@ -45,7 +45,7 @@ module.exports = {
     assert.equal(saved.houseSourceMapId, 'WEST_TOWN_MAP', 'houseSourceMap serialized as flat houseSourceMapId (registry id)');
     assert.ok(!('houseSourceMap' in saved), 'the raw map-ref key is never written to the save');
     assert.deepEqual(saved.houseReturnPos, { x: 80, y: 272 }, 'houseReturnPos serialized as a flat {x,y}');
-    assert.equal(saved.dilemma_voss, 3, 'dilemma_voss lives at the top level, outside the location block');
+    assert.equal(saved.dilemma_voss, 'report', 'dilemma_voss lives at the top level, outside the location block');
     // Every binding contributes its flat save key to the payload.
     for (const b of JSON.parse(g.run('JSON.stringify(LOCATION_STATE_BINDINGS.map(b => ({ key: b.key, saveKey: (b.persist && b.persist.saveKey) || b.key })))'))) {
       assert.ok(b.saveKey in saved, 'flat payload includes location field "' + b.saveKey + '"');

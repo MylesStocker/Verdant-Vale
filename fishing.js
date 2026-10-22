@@ -38,6 +38,7 @@ const FISHING_KEY_MAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up',
 // Begin a cast. `power` is the player's best rod power (>= 1). The Bait has
 // already been consumed by the caller.
 function startFishing(power) {
+  if(activityOwnership.combatPreparationConflicts(false).length)return false;
   const p = Math.max(1, power || 1);
   const len = fishingSeqLength(p);
   const seq = [];

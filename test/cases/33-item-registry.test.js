@@ -2,8 +2,8 @@
 // Covers: ITEM_REGISTRY as the single authoritative source of item
 // properties — createItem()/grantItem() semantics, canonical metadata on
 // every migrated grant path (shop purchase, quest reward, chest, fishing,
-// enemy drop), save/load rehydration from the registry, unknown-legacy-item
-// tolerance, key-item retention, and mushroom-wine non-key behavior.
+// enemy drop), save/load rehydration from the registry, unknown-item rejection and
+// key-item retention, and mushroom-wine non-key behavior.
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
@@ -214,12 +214,23 @@ module.exports = {
           localStorage.setItem('verdantVale_save', JSON.stringify(raw));
         })();
       `);
-      assert.equal(g.run('loadGame()'), true, 'load must succeed despite the unknown legacy item');
+      const before = g.run('JSON.stringify({stats,party:persistentParty.serialize(),day})');
+      const raw = g.run("localStorage.getItem('verdantVale_save')");
+      assert.equal(g.run('loadGame()'), false, 'unsupported item metadata rejects before installation');
+      assert.equal(g.run('JSON.stringify({stats,party:persistentParty.serialize(),day})'), before);
+      assert.equal(g.run("localStorage.getItem('verdantVale_save')"), raw, 'rejection preserves stored bytes');
+      // Remove only the unsupported fixtures in this test copy. Registry-backed
+      // stale metadata remains supported and must rehydrate to current values.
+      g.run(`var clean = JSON.parse(localStorage.getItem('verdantVale_save'));
+        clean.stats.items = clean.stats.items.filter(item => item.name !== 'Old Charm');
+        clean.stats.items.forEach(item => { delete item.engraving; });
+        localStorage.setItem('verdantVale_save', JSON.stringify(clean));`);
+      assert.equal(g.run('loadGame()'), true, 'registered stale metadata still loads');
 
       const potion = JSON.parse(g.run("JSON.stringify(stats.items.find(i => i.name === 'Potion'))"));
       assert.equal(potion.heals, 20, 'registry heals must override stale saved value');
       assert.equal(potion.price, 30, 'registry price must override stale saved value');
-      assert.equal(potion.engraving, 'to Pa', 'unknown per-instance fields must be preserved');
+      assert.equal(Object.hasOwn(potion, 'engraving'), false, 'only registered metadata enters inventory');
 
       const wpn = JSON.parse(g.run('JSON.stringify(stats.weapon)'));
       assert.deepEqual(wpn, { name: 'Iron Sword', type: 'weapon', bonus: 4, price: 160 },
@@ -229,9 +240,7 @@ module.exports = {
       assert.equal(sch.questItem, true, 'protected quest item regains questItem on load');
       assert.equal(sch.keyItem, true, 'protected quest item regains keyItem on load');
 
-      const charm = JSON.parse(g.run("JSON.stringify(stats.items.find(i => i.name === 'Old Charm'))"));
-      assert.deepEqual(charm, { name: 'Old Charm', type: 'accessory', bonus: 1, price: 5 },
-        'unknown legacy items must survive the load unchanged');
+      assert.equal(g.run("stats.items.some(i => i.name === 'Old Charm')"), false, 'unsupported items were never installed');
 
       // Mushroom wine: still a normal, non-key inventory item after loading.
       const wine = JSON.parse(g.run("JSON.stringify(stats.items.find(i => i.name === 'Mushroom Wine'))"));

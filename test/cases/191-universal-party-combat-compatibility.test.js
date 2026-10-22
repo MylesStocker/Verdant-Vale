@@ -33,7 +33,7 @@ const state=g=>g.run('JSON.stringify({stats,statusEffects,slitherSpd,party:persi
 function reject(g,source){const before=state(g),rolls=g.run('rolls');assert.throws(()=>g.run(source));assert.equal(state(g),before);assert.equal(g.run('rolls'),rolls);}
 const enemies=n=>Array(n).fill('enemy_marsh_wisp');
 function enter(g,n=1,escape='fastest_living'){return J(g,'canonicalPartyCombat.enter('+JSON.stringify({enemies:enemies(n),escape})+')');}
-const input=(g,key)=>g.run('canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
+const input=(g,key)=>g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
 function command(g,name){let limit=0;while(view(g).selectedCommand!==name){assert.ok(limit++<6,name+' must be enabled');input(g,'right');}input(g,'confirm');}
 function target(g,slot=0){const v=view(g),id=(v.targetSide==='ally'?v.party:v.enemies)[slot].instanceId;let limit=0;
  while(view(g).selectedTargetInstanceId!==id){assert.ok(limit++<4);input(g,'right');}input(g,'confirm');}
@@ -238,7 +238,7 @@ assert.deepEqual(J('persistentParty.getView().members.map(m=>m.characterId)'),['
 g.press('m');assert.equal(run('menu.open'),true);g.press('Escape');assert.equal(run('saveGame()'),true);assert.equal(run('loadGame()'),true);close();
 // Buy and equip the authored non-invulnerable accessory using earned gold.
 run('enterTown();player.x=MERCHANT.x;player.y=MERCHANT.y;handleInteract()');assert.equal(run('shop.open'),true);g.press('Enter');run('shop.cursor=shop.stock.findIndex(i=>i.name==="Swift Bangle")');g.press('Enter');g.press('Escape');g.press('Escape');run('persistentParty.useFieldItem("lely","Swift Bangle")');
-const cv=()=>J('canonicalPartyCombat.getView()'),key=k=>run('canonicalPartyCombat.handleInput('+JSON.stringify(k)+')');
+const cv=()=>J('canonicalPartyCombat.getView()'),key=k=>run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(k)+')');
 function cmd(name,slot=0){let n=0;while(cv().selectedCommand!==name){assert.ok(n++<6,name);key('right');}key('confirm');
  if(cv().phase==='technique')key('confirm');if(cv().phase==='targeting'){const v=cv(),id=(v.targetSide==='ally'?v.party:v.enemies)[slot].instanceId;let n=0;while(cv().selectedTargetInstanceId!==id){assert.ok(n++<4);key('right');}key('confirm');}}
 function round(runRoll=.5,orderRoll=0){let healed=false,lastHp=cv().party[0].hp;run('var live=canonicalPartyCombat.getView();var draws=live.party.filter(m=>m.hp>0).length>1?live.enemies.filter(m=>m.hp>0).length:0;var ordered=live.party.filter(m=>m.hp>0).length+live.enemies.filter(m=>m.hp>0).length-1;var battleTape=[...Array(draws).fill(0),...Array(ordered).fill('+orderRoll+')];Math.random=()=>battleTape.shift()??'+runRoll);key('confirm');let n=0;while(cv().phase==='playback'){assert.ok(n++<200);key('confirm');const hp=run('combatPlayerState.session.getView().playbackFrame.party[0].hp');if(hp>lastHp)healed=true;lastHp=hp;}key('confirm');return healed;}

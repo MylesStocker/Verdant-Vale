@@ -26,7 +26,10 @@ const canonicalPartyCombat = (() => {
   const location=()=>JSON.stringify({location:snapshotLocationState(),regional:regionalWorldPosition(),
     mapId:mapIdForRef(activeMap),x:player.x,y:player.y,day,defeatWakeAtHome});
   const preflight=(request,permit=null,scriptedToken=null)=>{
-    if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput())fail('camp introduction owns input');
+    const ownDialogue=permit!==null&&canonicalPartyCombat.permitsHandoff(permit)||
+      scriptedToken!==null&&canonicalPartyCombat.permitsScriptedPreparation(scriptedToken);
+    const conflicts=activityOwnership.combatPreparationConflicts(ownDialogue);
+    if(conflicts.length)fail('input owned by '+conflicts.join(', '));
     if(pendingHandoff&&permit!==pendingHandoff)fail('pending authenticated follow-up');
     if(typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.hasPending()&&
         !scriptedPartyEncounters.permitsPending(scriptedToken))fail('pending authenticated scripted follow-up');
@@ -50,11 +53,9 @@ const canonicalPartyCombat = (() => {
         party.members.some(m=>![m.xp+xp,m.maxHp+MAX_LEVEL*10,m.hp+MAX_LEVEL*10,
           m.atk+MAX_LEVEL*3,m.def+MAX_LEVEL*3,m.spd+MAX_LEVEL].every(safe)))fail('reward arithmetic overflow');
     const composed=persistentParty.validateCombat(templates,{escape:spec.escape},permit,scriptedToken);
-    const ledger=persistentParty.serialize().rewards;let ordinal=ledger.length+1;
-    while(ledger.some(r=>r.id==='canonical_encounter_'+ordinal))ordinal++;
-    if(!safe(ordinal))fail('reward receipt capacity exhausted');
+    const rewardId=persistentParty.nextCanonicalRewardId();
     return Object.freeze({...copy({ids,playerSide:composed.player,enemySide,escape:spec.escape,origin:location(),xp,
-      rewardId:'canonical_encounter_'+ordinal,memberIds:party.members.map(m=>m.characterId)}),templates,scriptedToken});
+      rewardId,memberIds:party.members.map(m=>m.characterId)}),templates,scriptedToken});
   };
   const view=()=>{
     if(!battle)return copy({active:false,phase:null,receipt:lastReceipt});

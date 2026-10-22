@@ -12,7 +12,7 @@ const FORMATION_LAB_SCENARIOS = Object.freeze([
 const formationCombatLab = (() => {
   let lab = null; // sole lab authority: submenu selection and minimal restoration
   const active = () => !!lab && lab.restore !== null;
-  const stable = () => !combat.active && combat.mode === null && combat.enemies.length === 0 &&
+  const stable = () => activityOwnership.combatPreparationConflicts(false).length===0 && !combat.active && combat.mode === null && combat.enemies.length === 0 &&
     formationSessionController.getView() === null && !dialogue.open && !seraLioraCutscene.active &&
     !fishing.active && !menu.open && !choice.open && !shop.open && !warpMenu.open &&
     !accordPanel.open && !continentMap.open && regionalInvariantErrors().length === 0;

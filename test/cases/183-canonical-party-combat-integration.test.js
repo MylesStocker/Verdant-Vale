@@ -12,7 +12,7 @@ function seed(g,changes){g.run('saveGame();var saved=JSON.parse(localStorage.get
  ';localStorage.setItem("verdantVale_save",JSON.stringify(saved));');assert.equal(g.run('loadGame()'),true);}
 const state=g=>g.run('JSON.stringify({stats,statusEffects,slitherSpd,party:persistentParty.getView(),location:snapshotLocationState(),regional:regionalWorldPosition(),player,day,seq:combatEnemyInstanceSequence,combat,canonical:canonicalPartyCombat.getView()})');
 function enter(g,ids=['enemy_marsh_wisp'],escape='fastest_living'){return J(g,'canonicalPartyCombat.enter('+JSON.stringify({enemies:ids,escape})+')');}
-function input(g,key){return g.run('canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');}
+function input(g,key){return g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');}
 function command(g,name){let n=0;while(view(g).selectedCommand!==name){assert.ok(n++<6);input(g,'right');}input(g,'confirm');}
 function attack(g){command(g,'attack');input(g,'confirm');}
 function attacks(g){let n=0;while(view(g).phase==='awaiting_action'){assert.ok(n++<4);attack(g);}}

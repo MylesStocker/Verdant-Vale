@@ -1354,7 +1354,8 @@ function drawMenu() {
       ctx.fillText((selected ? '\u25b6 ' : '  ') + '[ Save Game ]', CX, iy);
     } else if (idx === grouped.length + 1) {
       // ── Load Game row ───────────────────────────────────────────────────
-      const hasSave = !!localStorage.getItem('verdantVale_save');
+      const stored = saveStorage.read();
+      const hasSave = stored.ok && !!stored.value;
       if (selected) {
         ctx.fillStyle = '#0a1e2e';
         ctx.fillRect(CX - 2, iy - 14, BW - PAD * 2, 18);
@@ -1365,7 +1366,7 @@ function drawMenu() {
       if (!hasSave) {
         ctx.fillStyle = '#2e4850';
         ctx.font = '11px "Courier New", monospace';
-        ctx.fillText('no save', CX + 120, iy);
+        ctx.fillText(stored.ok ? 'no save' : 'unavailable', CX + 120, iy);
       }
     }
   }
@@ -1410,7 +1411,7 @@ function drawMenu() {
     ctx.fillStyle = `rgba(120,220,140,${alpha.toFixed(2)})`;
     ctx.font = 'bold 14px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Game Saved', BX + BW / 2, BY + 31);
+    ctx.fillText(menu.saveStatus === 'failed' ? 'Save failed. Existing save retained.' : 'Game Saved', BX + BW / 2, BY + 31);
     ctx.textAlign = 'left';
   }
 
@@ -1443,7 +1444,7 @@ function drawMenu() {
     ctx.fillStyle = isLoaded ? `rgba(120,220,140,${alpha.toFixed(2)})` : `rgba(220,160,80,${alpha.toFixed(2)})`;
     ctx.font = 'bold 14px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(isLoaded ? 'Game Loaded' : 'No Save Found', BX + BW / 2, BY + 31);
+    ctx.fillText(isLoaded ? 'Game Loaded' : (menu.loadStatus === 'unavailable' ? 'Save storage unavailable' : 'No Save Found'), BX + BW / 2, BY + 31);
     ctx.textAlign = 'left';
   }
 

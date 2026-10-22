@@ -738,3 +738,22 @@ new private bridge constructor call; save isolation assertions permit the closed
 Lely-only persistent roster while continuing to forbid runtime/Lab identities.
 A source-local third-character fixture tests capacity without production canon.
 Run `node test/run.js` for the complete non-writing suite.
+
+## Current maintenance verification
+
+Run `node test/run.js` for all discovered suites (numeric prefixes must be unique).
+Run `node test/transition-audit.js` for read-only execution/artifact verification.
+Use `node test/transition-audit.js --write` only after reviewing a legitimate audit
+or geography change; never regenerate simply to make a failed comparison pass.
+
+Run `node test/run-browser-smoke.js` for actual Chromium DOM/Canvas/font checks.
+No npm dependencies or downloaded browser are required: set `VV_BROWSER` if the
+installed Chromium executable is not discovered. The runner starts a loopback
+server and a fresh temporary profile, then removes only its own profile.
+`VV_BROWSER_OUTPUT=/tmp/verdant-smoke` saves Canvas PNGs for visual review.
+This is automated smoke coverage, not a full manual playthrough.
+
+The VM Canvas metric remains deliberately historical to preserve draw recordings;
+it is not a text-fit oracle. Unknown Canvas methods now throw. Reviewed validation
+warnings and their rationale live in `validation-warning-baseline.json`; suite 253
+rejects new warning debt. Generic enemy art is deferred, not silently hidden.

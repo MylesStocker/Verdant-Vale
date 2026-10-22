@@ -61,6 +61,7 @@ test('Quickbloom motes anchor deterministically to all three authored ally slots
   const g=fresh(),anchors=[108,256,404];
   for(let slot=0;slot<3;slot++){
     g.run('partyBattleQuickbloomAnimation.reset()');effectFixture(g,slot,'resonance',slot===2?0:1);
+    g.run('partyBattleQuickbloomAnimation.update(quickbloomFixture,0)');
     const before=g.run('JSON.stringify(quickbloomFixture)'),rng=g.run('presentationRng'),rects=recordRects(g,'partyBattleQuickbloomAnimation.draw(quickbloomFixture)');
     assert.equal(g.run('JSON.stringify(quickbloomFixture)'),before);assert.equal(g.run('presentationRng'),rng);assert.ok(rects.length>0);
     assert.equal(g.run('partyBattleQuickbloomAnimation.getView().targetId'),'ally_fixture');
@@ -81,12 +82,12 @@ test('wait, cancellation, Strain and unrelated events never start the Quickbloom
 
 test('actual Lab Quickbloom uses the shared renderer, gates input for 24 ticks, then clears exactly once',()=>{
   const g=fresh(),event=reachLabQuickbloom(g),target=J(g,'partyCombatLab.getView().party.find(m=>m.instanceId==='+JSON.stringify(event.targetId)+')');
-  record(g);const gameplay=g.run(`JSON.stringify({view:partyCombatLab.getView(),party:combatPlayerState.getView(),rng:presentationRng})`);
+  record(g);g.run('partyBattleQuickbloomAnimation.update(partyCombatLab.getView(),0)');const gameplay=g.run(`JSON.stringify({view:partyCombatLab.getView(),party:combatPlayerState.getView(),rng:presentationRng})`);
   g.run('paint=[];drawPartyCombatLabBattle()');let paint=J(g,"paint.filter(c=>c.type==='fillRect'&&['#3f8f52','#78c86f','#a8e89c'].includes(c.style.fillStyle))");
   assert.ok(paint.length>0);assert.ok(paint.every(c=>Math.abs((c.args[0]+c.args[2]/2)-[108,256,404][target.slot])<=32));
   assert.equal(g.run(`JSON.stringify({view:partyCombatLab.getView(),party:combatPlayerState.getView(),rng:presentationRng})`),gameplay);
   const at=g.run('partyCombatLab.getView().frameIndex');assert.equal(g.run(`handlePartyCombatLabInput('confirm')`),true);assert.equal(g.run('partyCombatLab.getView().frameIndex'),at);
-  g.run('for(let i=1;i<QUICKBLOOM_ANIMATION_FRAMES;i++)drawPartyCombatLabBattle()');
+  g.run('for(let i=0;i<QUICKBLOOM_ANIMATION_FRAMES;i++){partyBattleQuickbloomAnimation.update(partyCombatLab.getView());drawPartyCombatLabBattle()}');
   assert.deepEqual(J(g,'partyBattleQuickbloomAnimation.getView()'),{active:false,frame:24,duration:24,targetId:event.targetId});
   assert.equal(g.run(`handlePartyCombatLabInput('confirm')`),true);assert.equal(g.run('partyCombatLab.getView().frameIndex'),at+1);
   assert.deepEqual(J(g,'partyBattleQuickbloomAnimation.getView()'),{active:false,frame:0,duration:24,targetId:null});
@@ -94,12 +95,12 @@ test('actual Lab Quickbloom uses the shared renderer, gates input for 24 ticks, 
 
 test('canonical and Lab routes share one effect authority; cleanup and later frames cannot replay it',()=>{
   const g=fresh();reachLabQuickbloom(g);record(g);
-  g.run('paint=[];partyBattleQuickbloomAnimation.reset();drawPartyBattle(partyCombatLab.getView())');const shared=J(g,"paint.filter(c=>c.type==='fillRect'&&['#3f8f52','#78c86f','#a8e89c'].includes(c.style.fillStyle))");
-  g.run('paint=[];partyBattleQuickbloomAnimation.reset();drawPartyCombatLabBattle()');const wrapped=J(g,"paint.filter(c=>c.type==='fillRect'&&['#3f8f52','#78c86f','#a8e89c'].includes(c.style.fillStyle))");
+  g.run('paint=[];partyBattleQuickbloomAnimation.reset();partyBattleQuickbloomAnimation.update(partyCombatLab.getView(),0);drawPartyBattle(partyCombatLab.getView())');const shared=J(g,"paint.filter(c=>c.type==='fillRect'&&['#3f8f52','#78c86f','#a8e89c'].includes(c.style.fillStyle))");
+  g.run('paint=[];partyBattleQuickbloomAnimation.reset();partyBattleQuickbloomAnimation.update(partyCombatLab.getView(),0);drawPartyCombatLabBattle()');const wrapped=J(g,"paint.filter(c=>c.type==='fillRect'&&['#3f8f52','#78c86f','#a8e89c'].includes(c.style.fillStyle))");
   assert.deepEqual(wrapped,shared);assert.match(fs.readFileSync(path.join(ROOT,'render.js'),'utf8'),/canonicalPartyCombat\.getView\(\)[\s\S]*drawPartyBattle\(view\)/);
   g.run('partyCombatLab.exit()');assert.equal(g.run('partyBattleQuickbloomAnimation.getView().active'),false);
-  effectFixture(g,1,'resonance',1);recordRects(g,'partyBattleQuickbloomAnimation.draw(quickbloomFixture)');
-  effectFixture(g,1,'attack',0);assert.deepEqual(recordRects(g,'partyBattleQuickbloomAnimation.draw(quickbloomFixture)'),[]);
+  effectFixture(g,1,'resonance',1);recordRects(g,'partyBattleQuickbloomAnimation.update(quickbloomFixture,0);partyBattleQuickbloomAnimation.draw(quickbloomFixture)');
+  effectFixture(g,1,'attack',0);g.run('partyBattleQuickbloomAnimation.update(quickbloomFixture,0)');assert.deepEqual(recordRects(g,'partyBattleQuickbloomAnimation.draw(quickbloomFixture)'),[]);
   assert.equal(g.run('partyBattleQuickbloomAnimation.getView().targetId'),null);
 });
 

@@ -78,7 +78,7 @@ const persistentParty = (() => {
   const snapshot=()=>copy({members:[lely(),...characters.map((m,i)=>memberView(m,i+1))],
     inventory:stats.items.map(i=>i.name),gold:stats.gold,defeated:[stats,...characters].every(m=>m.hp===0)});
   const idle=()=>{
-    if(rewardFailure||battle||combat.active||combat.mode!==null||combatPlayerState.hasParty()||
+    if(activityOwnership.has('water_travel')||rewardFailure||battle||combat.active||combat.mode!==null||combatPlayerState.hasParty()||
         combatPlayerState.session.getView()||formationCombatLab.isOpen()||partyCombatLab.isActive()||
         galleryReceiverEncounter.isLocked())fail();
   };
@@ -95,6 +95,18 @@ const persistentParty = (() => {
     if(typeof r.id!=='string'||!r.id.trim()||r.id.length>160||!safe(r.xp)||!safe(r.gold))fail();
     r.items=array(r.items);r.items.forEach(item);return r;
   };
+  const canonicalOrdinal = id => {
+    const match = /^canonical_encounter_([1-9][0-9]*)$/.exec(id);
+    if (!match) return 0;
+    const value = Number(match[1]);
+    if (!safe(value)) fail();
+    return value;
+  };
+  const compactRewards = receipts => {
+    const latest = receipts.reduce((high, receipt) => Math.max(high, canonicalOrdinal(receipt.id)), 0);
+    return receipts.filter(receipt => !canonicalOrdinal(receipt.id) || canonicalOrdinal(receipt.id) === latest);
+  };
+  const latestCanonicalOrdinal = () => rewards.reduce((high, receipt) => Math.max(high, canonicalOrdinal(receipt.id)), 0);
   const payload=()=>copy({order,characters,rewards});
   const validatePayload=v=>{
     const p=record(v,['order','characters','rewards']);
@@ -103,6 +115,7 @@ const persistentParty = (() => {
         p.characters.length!==p.order.length-1||p.order.some((id,slot)=>
           !Object.hasOwn(PERSISTENT_CHARACTER_DEFINITIONS,id)||PERSISTENT_CHARACTER_DEFINITIONS[id].slot!==slot)||
         p.characters.some((m,i)=>m.characterId!==p.order[i+1])||new Set(p.rewards.map(r=>r.id)).size!==p.rewards.length)fail();
+    p.rewards=compactRewards(p.rewards);
     return p;
   };
   const canonicalValid=()=>{
@@ -254,10 +267,16 @@ const persistentParty = (() => {
       if(arguments.length)fail();order=['lely'];characters=[];rewards=[];battle=null;rewardFailure=null;revision++;
       return snapshot();
     },
+    nextCanonicalRewardId(){
+      if(arguments.length)fail();const next=latestCanonicalOrdinal()+1;if(!safe(next))fail();
+      return 'canonical_encounter_'+next;
+    },
     awardExperience(id,xp){if(arguments.length!==2)fail();return this.awardRewards({id,xp,gold:0,items:[]});},
     awardRewards(value){
       if(arguments.length!==1)fail();idle();canonicalValid();const r=validateReward(value),previous=rewards.find(x=>x.id===r.id);
       if(previous){if(JSON.stringify(previous)!==JSON.stringify(r))fail();return copy({applied:false,members:[]});}
+      const ordinal=canonicalOrdinal(r.id);
+      if(ordinal&&ordinal<=latestCanonicalOrdinal())fail(); // compacted receipt: never retry an old transaction
       if(!safe(stats.gold+r.gold)||!safe(stats.items.length+r.items.length))fail();
       const before=snapshot(),next=characters.map(m=>({...m,statuses:m.statuses.slice(),equipment:{...m.equipment}}));
       for(const m of [stats,...next]){
@@ -277,7 +296,7 @@ const persistentParty = (() => {
       try {
         stats.gold+=r.gold;stats.items.push(...r.items.map(id=>({...item(id)})));
         if(stats.hp>0){stage="lely_level_up";stats.xp+=r.xp;checkLevelUp(messages);}
-        characters=next;rewards.push(r);revision++;
+        characters=next;rewards=compactRewards([...rewards,r]);revision++;
       }catch(error){rewardFailure=copy({id:r.id,stage,reward:r});throw error;}
       const after=snapshot();
       const members=after.members.map((m,i)=>({characterId:m.characterId,before:before.members[i],after:m}));
@@ -378,10 +397,9 @@ const persistentParty = (() => {
       copy(lelyState); // Reject nested getters/callbacks/prototypes before any writer.
       validateStats(lelyState);if(!safe(lelyState.gold))fail();statusList(lelyStatuses);speed(sampledSpeed,lelyStatuses);
       if(lelyState.hp===0&&p.characters.every(m=>m.hp===0))fail();
-      array(lelyState.items).forEach(i=>{if(!i||typeof i!=='object'||typeof i.name!=='string')fail();});
+      array(lelyState.items).forEach(rehydrateItem);
       for(const slot of slots)if(lelyState[slot]!==null){
-        const saved=lelyState[slot];if(!saved||typeof saved.name!=='string')fail();
-        const definition=item(saved.name);
+        const definition=rehydrateItem(lelyState[slot]);
         if(savedEquipmentDisposition(definition)==='equipped'&&definition.type!==slot)fail();
       }
       const token=Object.freeze({});loads.set(token,{p,sampledSpeed,revision});return token;

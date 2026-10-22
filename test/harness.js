@@ -23,8 +23,9 @@ const ROOT = path.join(__dirname, '..');
 
 // ── Canvas 2D context stub ──────────────────────────────────────────────────
 // Every drawing call is a no-op; we only care that render code *runs* without
-// throwing, not what it would have drawn. Proxy so any ctx.* method the game
-// calls (now or in the future) is automatically covered.
+// throwing, not what it would have drawn. Methods are explicitly enumerated:
+// typos/new APIs fail instead of silently becoming no-ops. The historical fixed
+// text metric is NOT visual evidence; run test/run-browser-smoke.js for Canvas.
 function makeCtxStub() {
   const known = {
     canvas: { width: 512, height: 480 },
@@ -34,10 +35,14 @@ function makeCtxStub() {
     createPattern: () => null,
     getImageData: () => ({ data: [] }),
   };
+  for(const method of ['save','restore','setTransform','resetTransform','transform','translate','rotate','scale',
+    'fillRect','strokeRect','clearRect','fillText','strokeText','drawImage','beginPath','closePath','moveTo','lineTo',
+    'rect','roundRect','arc','arcTo','ellipse','bezierCurveTo','quadraticCurveTo','fill','stroke','clip','setLineDash',
+    'putImageData']) known[method]=()=>{};
   return new Proxy(known, {
     get(target, prop) {
       if (prop in target) return target[prop];
-      if (typeof prop === 'string') return () => {}; // any other method -> no-op
+      // Unknown reads remain undefined: calling an unsupported method throws.
       return undefined;
     },
     set(target, prop, val) { target[prop] = val; return true; }, // fillStyle, font, etc.

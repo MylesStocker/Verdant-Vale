@@ -18,6 +18,12 @@ async function main() {
     .filter(f => f.endsWith('.test.js'))
     .sort();
 
+  const prefixes = new Set();
+  for (const file of files) {
+    const prefix = file.match(/^(\d+)-/);
+    if (!prefix || prefixes.has(Number(prefix[1]))) throw new Error('Missing/duplicate test number: ' + file);
+    prefixes.add(Number(prefix[1]));
+  }
   if (files.length === 0) {
     console.error('No test files found in test/cases/');
     process.exit(1);

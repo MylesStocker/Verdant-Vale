@@ -10467,7 +10467,7 @@
     {
       "name": "Drenwick school stairs: ground -> basement (west stairs)",
       "group": "school-stairs",
-      "setupCode": "currentTownId='drenwick'; inTown=true; activeMap=DRENWICK_SCHOOL_BASEMENT_MAP; player.x=2.5*TILE; player.y=3.5*TILE; player.facing='down';",
+      "setupCode": "keys.ArrowDown=true;try{update();}finally{keys.ArrowDown=false;}",
       "error": null,
       "destMap": "DRENWICK_SCHOOL_BASEMENT_MAP",
       "px": 80,
@@ -10496,7 +10496,7 @@
     {
       "name": "Drenwick school stairs: ground -> upper (east stairs)",
       "group": "school-stairs",
-      "setupCode": "currentTownId='drenwick'; inTown=true; activeMap=DRENWICK_SCHOOL_UPPER_MAP; player.x=13.5*TILE; player.y=3.5*TILE; player.facing='up';",
+      "setupCode": "keys.ArrowDown=true;try{update();}finally{keys.ArrowDown=false;}",
       "error": null,
       "destMap": "DRENWICK_SCHOOL_UPPER_MAP",
       "px": 432,
@@ -10525,7 +10525,7 @@
     {
       "name": "Drenwick school stairs: upper -> ground",
       "group": "school-stairs",
-      "setupCode": "currentTownId='drenwick'; inTown=true; activeMap=DRENWICK_SCHOOL_GROUND_MAP; player.x=13.5*TILE; player.y=3.5*TILE; player.facing='down';",
+      "setupCode": "keys.ArrowDown=true;try{update();}finally{keys.ArrowDown=false;}",
       "error": null,
       "destMap": "DRENWICK_SCHOOL_GROUND_MAP",
       "px": 432,
@@ -10554,7 +10554,7 @@
     {
       "name": "Drenwick school stairs: basement -> ground",
       "group": "school-stairs",
-      "setupCode": "currentTownId='drenwick'; inTown=true; activeMap=DRENWICK_SCHOOL_GROUND_MAP; player.x=2.5*TILE; player.y=3.5*TILE; player.facing='down';",
+      "setupCode": "keys.ArrowDown=true;try{update();}finally{keys.ArrowDown=false;}",
       "error": null,
       "destMap": "DRENWICK_SCHOOL_GROUND_MAP",
       "px": 80,

@@ -21,7 +21,7 @@ function fresh(setup='',members=2){
  const g=createContext();g.run(`dialogue.open=false;dialogue.callbacks=null;stats.hp=stats.maxHp=2000;stats.atk=10000;stats.def=100;${setup}
   ${members>1?'persistentParty.joinEsla({level:11});':''}Math=Object.create(Math);var calls=0;Math.random=()=>{calls++;return .25};`);return g;
 }
-const view=g=>J(g,'canonicalPartyCombat.getView()'),input=(g,key)=>g.run('canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
+const view=g=>J(g,'canonicalPartyCombat.getView()'),input=(g,key)=>g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
 function draftAttacks(g){let guard=0;while(view(g).phase==='awaiting_action'){assert.ok(guard++<4);input(g,'confirm');input(g,'confirm');}}
 function resolve(g){const v=view(g),living=v.party.filter(m=>m.hp>0).length+v.enemies.filter(m=>m.hp>0).length,
  targetDraws=v.party.filter(m=>m.hp>0).length>1?v.enemies.filter(m=>m.hp>0).length:0;

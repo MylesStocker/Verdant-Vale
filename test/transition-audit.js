@@ -30,14 +30,24 @@
 // This does not mutate game/runtime source or any persistent gameplay state:
 // it is read-only introspection of the loaded game plus (harmless, in-memory)
 // calls to its own transition functions. Running it DIRECTLY as a CLI (not when
-// required as a module by a test) does regenerate exactly one artifact at the
-// end -- test/transition-audit-output.json, the audit's own output file, which
-// is not game data.
+// required as a module by a test) compares against its artifact without writing.
+// Use --write only after an intentional source change to regenerate that evidence.
 
 const path = require('path');
 const { createContext } = require('./harness');
 
 const g = createContext();
+// Instrument the real placement gateway, not a duplicate destination registry.
+// An unchanged walkable origin is not evidence that a transition succeeded.
+g.run(`
+  var auditPlacements=[];
+  var auditPlaceAtLocation=placeAtLocation;
+  placeAtLocation=function(mapId,x,y){
+    const result=auditPlaceAtLocation(mapId,x,y);
+    auditPlacements.push({mapId,x,y});return result;
+  };
+`);
+
 
 // ── helpers ──────────────────────────────────────────────────────────────
 const TILE = g.run('TILE');
@@ -129,6 +139,7 @@ function check(name, setupCode, opts) {
   opts = opts || {};
   resetState();
   if (opts.pre) g.run(opts.pre);
+  g.run('auditPlacements=[]');
   let error = null;
   try {
     g.run(setupCode);
@@ -147,6 +158,12 @@ function check(name, setupCode, opts) {
   const px = g.run('player.x');
   const py = g.run('player.y');
   const facing = g.run('player.facing');
+  const committed=g.run('auditPlacements.at(-1)');
+  if(!committed||committed.mapId!==label||committed.x!==px||committed.y!==py){
+    record.verdict=committed?'PLACEMENT_MISMATCH':'NO_COMMITTED_TRANSITION';
+    results.push(record);return record;
+  }
+
   const tx = Math.floor(px / TILE);
   const ty = Math.floor(py / TILE);
 
@@ -434,13 +451,18 @@ for (const def of g.run('MORNAY_TOWN_LAYOUT.map(d=>({id:d.id,col:d.col,row:d.row
 
 // ── 9. Drenwick school staircases (inline in movement.js) ────────────────
 const schoolStairs = [
-  ['ground -> basement (west stairs)', () => `activeMap=DRENWICK_SCHOOL_BASEMENT_MAP; player.x=2.5*TILE; player.y=3.5*TILE; player.facing='down';`],
-  ['ground -> upper (east stairs)', () => `activeMap=DRENWICK_SCHOOL_UPPER_MAP; player.x=13.5*TILE; player.y=3.5*TILE; player.facing='up';`],
-  ['upper -> ground', () => `activeMap=DRENWICK_SCHOOL_GROUND_MAP; player.x=13.5*TILE; player.y=3.5*TILE; player.facing='down';`],
-  ['basement -> ground', () => `activeMap=DRENWICK_SCHOOL_GROUND_MAP; player.x=2.5*TILE; player.y=3.5*TILE; player.facing='down';`],
+  ['ground -> basement (west stairs)', 'DRENWICK_SCHOOL_GROUND_MAP', 'DUNGEON_STAIRS_DOWN'],
+  ['ground -> upper (east stairs)', 'DRENWICK_SCHOOL_GROUND_MAP', 'DUNGEON2_STAIRS_UP'],
+  ['upper -> ground', 'DRENWICK_SCHOOL_UPPER_MAP', 'DUNGEON_STAIRS_DOWN'],
+  ['basement -> ground', 'DRENWICK_SCHOOL_BASEMENT_MAP', 'DUNGEON2_STAIRS_UP'],
 ];
-for (const [label, code] of schoolStairs) {
-  check(`Drenwick school stairs: ${label}`, `currentTownId='drenwick'; inTown=true; ${code()}`, { group: 'school-stairs' });
+for(const [label,source,tile] of schoolStairs){
+  check(`Drenwick school stairs: ${label}`, 'keys.ArrowDown=true;try{update();}finally{keys.ArrowDown=false;}', {group:'school-stairs',pre:`
+    dialogue.open=false;choice.open=false;inTown=true;currentTownId='drenwick';townBuilding='school';
+    var stairMap=mapRefForId('${source}');var stairRow=stairMap.findIndex(row=>row.includes(${tile}));
+    var stairCol=stairMap[stairRow].indexOf(${tile});
+    placeAtLocation('${source}',(stairCol+.5)*TILE,(stairRow+.5)*TILE);
+  `});
 }
 // Registry-completeness assertion: the Drenwick school basement (used by the
 // stairs checks above) must be present in MAP_REGISTRY. It formerly was not --
@@ -870,10 +892,17 @@ console.log('  edge-transition segments (per-coordinate landings) checked:', edg
 console.log('  house doors checked:', houseDoorResults.length);
 console.log('  tile constants cross-referenced:', tileUsage.length);
 
-// Dump full JSON for the report-writing pass.
-require('fs').writeFileSync(
-  path.join(__dirname, 'transition-audit-output.json'),
-  JSON.stringify(auditData, null, 2)
-);
-console.log('\nFull detail written to test/transition-audit-output.json');
+// Verification is read-only by default. Regeneration is an explicit action.
+const fs=require('fs'),artifact=path.join(__dirname,'transition-audit-output.json');
+const serialized=JSON.stringify(auditData,null,2);
+const failures=results.filter(r=>r.verdict!=='OK').length+
+  preservedResults.filter(r=>!r.allOk).length+badDoors.length+badEdges.length+
+  dimReport.filter(r=>!r.ok).length+(resetIsolation.passed?0:1);
+if(failures)throw new Error('Transition audit failed: '+failures+' findings');
+if(process.argv.includes('--write')){
+  fs.writeFileSync(artifact,serialized);console.log('Wrote '+artifact);
+}else{
+  if(fs.readFileSync(artifact,'utf8')!==serialized)throw new Error('Transition artifact differs; review source before explicit --write');
+  console.log('Transition artifact matches (read-only).');
+}
 } // end require.main === module

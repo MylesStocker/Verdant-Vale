@@ -204,6 +204,7 @@ function drawContinuousWorld() {
 
 // ─── Render ───────────────────────────────────────────────────────────────────
 function render() {
+  if (gameRuntimeFailure.isActive()) { gameRuntimeFailure.draw(); return; }
   titleEl.textContent = locationName();
 
   if (canonicalPartyCombat.isActive()) {

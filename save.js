@@ -22,6 +22,15 @@ const SAVE_VERSION = 5;
 // single binding entry here (plus, for a lexical flag, its owning `let`
 // declaration and its syncQuestFlagsToWindow() mirror in quests.js) — there is
 // NO separate manual load assignment to maintain any more.
+// Value shapes derive from the binding, not a second list of quest names or
+// today's maximum stage/count. Closed quest invariants remain with their owners.
+function validBoundSaveValue(value, def) {
+  if (typeof def === 'boolean') return typeof value === 'boolean';
+  if (typeof def === 'number') return Number.isSafeInteger(value) && value >= 0;
+  if (def === null) return value === null || typeof value === 'string';
+  if (typeof def === 'string') return typeof value === 'string';
+  return false; // New structured bindings require an explicit validation contract.
+}
 function lex(key, def, get, set) { return { key: key, default: def, get: get, set: set, kind: 'lexical' }; }
 function win(key, def) {
   return { key: key, default: def, kind: 'window',
@@ -255,75 +264,14 @@ function applyOpenedChestIds(ids) {
   _unresolvedChestIds = unresolved;
 }
 
-// ─── Versioned save migrations ────────────────────────────────────────────────
-// SAVE_MIGRATIONS[v] transforms a version-v payload into a version-(v+1) one.
-// migrateSave() applies them sequentially until the payload reaches
-// SAVE_VERSION. This is intentionally a per-step registry, NOT one growing
-// conditional: the next format bump adds SAVE_MIGRATIONS[N] and nothing else.
-const SAVE_MIGRATIONS = {
-  // v1 → v2: same flat on-disk layout. Normalises an old payload to the current
-  // declared flag schema — clones the parsed object (never mutates it
-  // destructively), preserves every existing field and flag value, and seeds
-  // any flag the old save lacked (e.g. `vale_tutorial_seen`) with that binding's
-  // declared default. No gameplay or balance change.
-  1: function migrateV1toV2(old) {
-    const next = JSON.parse(JSON.stringify(old));
-    for (const b of QUEST_FLAG_BINDINGS) {
-      if (!(b.key in next)) next[b.key] = cloneDefaultValue(b.default);
-    }
-    next.version = 2;
-    return next;
-  },
-  // v2 → v3: replace positional pickup arrays and per-chest `.opened` fields with
-  // stable-id sets (collectedPickupIds / openedChestIds). Uses the FROZEN legacy
-  // snapshots below (never the live registries, which may reorder later). Clones
-  // the payload, preserves every unrelated field (stats, inventory, location,
-  // flags, home-chest gold, dresser looted, sparkle taken, boss state, ...), then
-  // deletes the obsolete positional/per-chest fields.
-  2: function migrateV2toV3(old) {
-    const next = JSON.parse(JSON.stringify(old));
-    const collected = new Set(Array.isArray(next.collectedPickupIds) ? next.collectedPickupIds : []);
-    for (const field of Object.keys(LEGACY_V2_PICKUP_FIELDS)) {
-      if (!(field in next)) continue;                 // absent field: nothing to migrate
-      const arr = next[field];
-      if (!Array.isArray(arr)) { delete next[field]; continue; } // malformed: drop safely
-      const ids = LEGACY_V2_PICKUP_FIELDS[field];
-      for (let i = 0; i < arr.length; i++) {
-        if (!arr[i]) continue;                        // uncollected slot
-        if (i < ids.length) collected.add(ids[i]);
-        else throw new Error('v2→v3: legacy pickup field "' + field + '"[' + i + '] is collected but has no id mapping — refusing to silently discard it');
-      }
-      delete next[field];                             // remove obsolete positional field
-    }
-    const opened = new Set(Array.isArray(next.openedChestIds) ? next.openedChestIds : []);
-    for (const field of Object.keys(LEGACY_V2_CHEST_FIELDS)) {
-      if (!(field in next)) continue;
-      if (next[field]) opened.add(LEGACY_V2_CHEST_FIELDS[field]);
-      delete next[field];                             // remove obsolete per-chest field
-    }
-    next.collectedPickupIds = Array.from(collected);
-    next.openedChestIds      = Array.from(opened);
-    next.version = 3;
-    return next;
-  },
-};
-window.SAVE_MIGRATIONS = SAVE_MIGRATIONS;
-window.SAVE_VERSION    = SAVE_VERSION;
-
-// Migration coordinator. Validates the parsed payload and applies each required
-// migration in order, WITHOUT touching localStorage (the caller persists only
-// after a full, successful load). Returns:
-//   { ok: true,  data, migratedFrom }  — migratedFrom = the original version if
-//     a migration actually ran (original < SAVE_VERSION), else null.
-//   { ok: false, reason }              — malformed / unsupported / future /
-//     missing-step / migration-error; the caller must leave the save untouched.
+// Current-version gate. Historical identity snapshots above are validation
+// evidence only; old saves are never migrated by the shipped runtime.
 function migrateSave(parsed) {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     return { ok: false, reason: 'save payload is not an object' };
   }
-  // v4 is a clean break: no old saves exist, so there is deliberately NO migration
-  // path. Accept ONLY the current version; reject every other version cleanly. The
-  // SAVE_MIGRATIONS registry is retired (kept only as historical reference).
+  // Accept only the current version; reject older and future versions cleanly.
+  // Old migration execution is removed; frozen identity snapshots remain.
   if (parsed.version !== SAVE_VERSION) {
     return { ok: false, reason: 'unsupported save version (' + JSON.stringify(parsed.version) + '); this build reads only version ' + SAVE_VERSION + ' and does not migrate older or future saves' };
   }
@@ -336,49 +284,70 @@ window.migrateSave = migrateSave;
 //   • a schema flag is not actually written by syncQuestFlagsToWindow (saveGame
 //     would write undefined for that key)
 // Call from loadGame() to catch schema drift at load time.
+// Pure candidate validation. Missing fields retain the established default
+// policy; present malformed fields never reach any live setter.
 function validateSaveSchema(data) {
-  // 1. Check each schema flag is present in the loaded save data.
-  for (const key of QUEST_FLAG_SCHEMA) {
-    if (data[key] === undefined) {
-      console.warn('[validateSaveSchema] "' + key + '" missing from save data — old save or schema mismatch; will use runtime default');
-    }
+  const errors = [];
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return { ok: false, errors: ['invalid save object'] };
+  for (const binding of QUEST_FLAG_BINDINGS) {
+    if (Object.hasOwn(data, binding.key) && !validBoundSaveValue(data[binding.key], binding.default)) errors.push(binding.key);
   }
-
-  // 2. Check each schema flag is actually written by syncQuestFlagsToWindow.
-  //    saveGame() reads quest flags via window[key] after calling syncQuestFlagsToWindow();
-  //    if a schema key is not set by that sync, the saved value would be undefined.
-  syncQuestFlagsToWindow();
-  for (const key of QUEST_FLAG_SCHEMA) {
-    if (window[key] === undefined) {
-      console.warn('[validateSaveSchema] "' + key + '" is in QUEST_FLAG_SCHEMA but not set by syncQuestFlagsToWindow — saveGame() would write undefined for this flag');
-    }
+  const nonnegative = value => Number.isSafeInteger(value) && value >= 0;
+  const boolean = value => typeof value === 'boolean';
+  // Non-quest world fields written by saveGame/loadGame. No inventory limits,
+  // map dimensions, registry counts, or authored quest-stage maxima live here.
+  const rules = {
+    day: value => nonnegative(value) && value > 0 && Number.isSafeInteger(value + 1),
+    travellerPresent: boolean,
+    homeChestGold: nonnegative,
+    dilemma_voss: value => value === null || typeof value === 'string',
+    abandonedAptDresserLooted: boolean,
+    abandonedAptSparkleTaken: boolean,
+    bossDefeated: boolean, bossKnockedDown: boolean,
+    mulhollandDefeated: boolean, takomoDefeated: boolean, denWraithDefeated: boolean,
+    sailorBrawlFightDay: value => value === -1 || nonnegative(value), // authored never-fought sentinel
+    mirethystRewarded: boolean,
+    collectedPickupIds: value => Array.isArray(value) && value.every(id => typeof id === 'string'),
+    openedChestIds: value => Array.isArray(value) && value.every(id => typeof id === 'string'),
+  };
+  for (const [key, valid] of Object.entries(rules)) {
+    if (Object.hasOwn(data, key) && !valid(data[key])) errors.push(key);
   }
+  return { ok: errors.length === 0, errors };
 }
 window.validateSaveSchema = validateSaveSchema;
 
-// ─── Re-creates a saved inventory/equipment item from its current
-// ─── ITEM_REGISTRY definition (items.js). Registry properties override stale
-// ─── saved metadata (missing keyItem flags, outdated prices/bonuses), while
-// ─── legitimate per-instance fields the registry doesn't know about are
-// ─── preserved. An item name no longer in the registry is kept as saved,
-// ─── with a warning, rather than failing the whole load.
+// Registered metadata is authoritative. Unknown items/instance fields reject
+// before loading rather than installing inventory that canonical combat refuses.
+// Supported stale registered fields still refresh from the current definition.
 function rehydrateItem(saved) {
-  if (!saved || !saved.name) return saved;
-  const def = ITEM_REGISTRY[saved.name];
-  if (!def) {
-    console.warn('[loadGame] saved item "' + saved.name + '" is not in ITEM_REGISTRY — keeping it as saved');
-    return { ...saved };
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) throw new Error('Invalid saved item');
+  const fields = Object.getOwnPropertyDescriptors(saved);
+  const name = fields.name && fields.name.value;
+  if (typeof name !== 'string' || !Object.hasOwn(ITEM_REGISTRY, name)) throw new Error('Unknown saved item: ' + name);
+  const definition = ITEM_REGISTRY[name];
+  for (const key of Reflect.ownKeys(fields)) {
+    if (!Object.hasOwn(fields[key], 'value') ||
+        (!Object.hasOwn(definition, key) && !(name === 'Void Shard' && key === 'bonus'))) {
+      throw new Error('Unsupported saved item field: ' + name + '.' + String(key));
+    }
   }
-  const item = { ...saved, ...def };
-  // Void Shard was formerly SPD equipment. Its obsolete bonus is not a
-  // per-instance modifier on the new consumable (including inventory saves).
-  if (saved.name === 'Void Shard') {
-    delete item.bonus;
-    // Canonical key order also matters to formation inventory validation.
-    return { ...def, ...item };
-  }
-  return item;
+  // The former Void Shard bonus is the existing authored restoration exception.
+  return { ...definition };
 }
+
+// Expected browser storage failures are results, not uncaught UI/loop errors.
+// Reading is side-effect-free, including when used by the Load menu renderer.
+const saveStorage = Object.freeze({
+  read(key = 'verdantVale_save') {
+    try { return { ok: true, value: localStorage.getItem(key) }; }
+    catch (error) { return { ok: false, error }; }
+  },
+  write(value, key = 'verdantVale_save') {
+    try { localStorage.setItem(key, value); return { ok: true }; }
+    catch (error) { return { ok: false, error }; }
+  },
+});
 
 // Existing equipped-save restoration policy, shared by candidate validation
 // and the commit below. This does not migrate save versions.
@@ -402,6 +371,7 @@ function savedEquipmentDisposition(item) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (gameRuntimeFailure.isActive()) return false;
   if (!persistentParty.hasLivingMember()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
@@ -529,7 +499,18 @@ function saveGame() {
     // ── Vault NPC ─────────────────────────────────────────────────────────
     mirethystRewarded:   !!window.mirethyst_rewarded,
   };
-  localStorage.setItem('verdantVale_save', JSON.stringify(data));
+  const schema = validateSaveSchema(data);
+  if (!schema.ok) {
+    console.warn('[saveGame] invalid world/quest values: ' + schema.errors.join(', '));
+    return false;
+  }
+  const written = saveStorage.write(JSON.stringify(data));
+  if (!written.ok) {
+    console.warn('[saveGame] storage write failed; existing save retained.', written.error);
+    menu.saveStatus = 'failed'; menu.saveMessage = 120; menu.screen = 'main';
+    return false;
+  }
+  menu.saveStatus = 'saved';
   menu.saveMessage = 120;   // show banner for ~2 s
   menu.screen      = 'main';
   return true;
@@ -598,6 +579,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (gameRuntimeFailure.isActive()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
@@ -607,7 +589,13 @@ function loadGame() {
   if (formationCombatLab.isOpen()) return false; // exit first; no live lab restore
   if (partyCombatLab.isActive()) return false; // headless party Lab owns transient HP/playback
   if (persistentParty.isCombatPending()) return false;
-  const raw = localStorage.getItem('verdantVale_save');
+  const stored = saveStorage.read();
+  if (!stored.ok) {
+    console.warn('[loadGame] storage read failed; running state retained.', stored.error);
+    menu.loadStatus = 'unavailable'; menu.loadMessage = 120;
+    return false;
+  }
+  const raw = stored.value;
   if (!raw) return false;
   let parsed;
   try {
@@ -630,6 +618,11 @@ function loadGame() {
     return false;
   }
   const data = migration.data;
+  const schema = validateSaveSchema(data);
+  if (!schema.ok) {
+    console.warn('[loadGame] invalid world/quest values: ' + schema.errors.join(', ') + ' — running state and save retained.');
+    return false;
+  }
 
   let partyLoad;
   try { partyLoad = persistentParty.prepareLoad(data.party, data.stats, data.statusEffects, data.slitherSpd); }
@@ -662,7 +655,6 @@ function loadGame() {
   }
 
   // ── COMMIT (everything below mutates runtime state) ───────────────────────
-  validateSaveSchema(data);
   persistentParty.commitLoad(partyLoad);
   if (combatPlayerState.hasParty()) combatPlayerState.clear(); // never resume preparation
   // Clear the Upper Reach / Sunken Gallery "visited today" markers
@@ -810,19 +802,6 @@ function loadGame() {
   if (typeof travellersRiseAmbush !== 'undefined') travellersRiseAmbush.resetTransient();
   if (typeof travellersRiseCamp !== 'undefined') travellersRiseCamp.resetTransient();
 
-  // ── Migration persistence + versioned backup ───────────────────────────────
-  // Only after a FULL, successful load: if this save needed migrating, preserve
-  // the ORIGINAL raw payload under a versioned backup key (written once — never
-  // overwritten on a later load) and rewrite the migrated payload to the normal
-  // key. Done with direct localStorage writes, NOT saveGame(), so save-location
-  // restrictions (canSaveHere()) and menu side effects can't interfere with
-  // migration persistence. A normal same-version load does neither (no
-  // migratedFrom), so it creates no backup and rewrites nothing.
-  if (migration.migratedFrom !== null) {
-    const backupKey = 'verdantVale_save_backup_v' + migration.migratedFrom;
-    if (localStorage.getItem(backupKey) === null) localStorage.setItem(backupKey, raw);
-    localStorage.setItem('verdantVale_save', JSON.stringify(data));
-  }
 
   return true;
 }

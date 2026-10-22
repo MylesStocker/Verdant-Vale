@@ -578,12 +578,18 @@ function preflightRainfishStep() {
   return !(row>=4&&row<=6&&col>=3&&col<=7) || requireSingletonEncounter('startRainfishCombat',2);
 }
 
-function update(deltaSeconds) {
+function update(deltaSeconds, presentationSeconds = deltaSeconds) {
+  if (gameRuntimeFailure.isActive()) return;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.isActive()) {
-    waterTravelController.update();
+    waterTravelController.update(presentationSeconds);
     return;
   }
-  if (canonicalPartyCombat.isActive()) return;
+  if (canonicalPartyCombat.isActive()) {
+    partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),presentationSeconds);return;
+  }
+  if (partyCombatLab.isActive()) {
+    partyBattleQuickbloomAnimation.update(partyCombatLab.getView(),presentationSeconds);return;
+  }
   if (combatPlayerState.hasParty()) return; // headless preparation freezes simulation
   if (!preflightRainfishStep()) return;
   // Lab isolation includes cooldowns, NPCs, visits and automatic world triggers.

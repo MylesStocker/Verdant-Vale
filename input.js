@@ -158,6 +158,11 @@ function handlePartyCombatLabInput(command) {
 }
 
 window.addEventListener('keydown', e => {
+  if (gameRuntimeFailure.isActive()) {
+    // Freeze game input without swallowing the browser's reload/devtools keys.
+    if (!e.ctrlKey && !e.metaKey && (e.key.startsWith('Arrow') || e.key === ' ')) e.preventDefault();
+    return;
+  }
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) {
     pressedKeys[e.key] = true;
     e.preventDefault();
@@ -374,9 +379,10 @@ window.addEventListener('keydown', e => {
           if (e.key === ' ' || e.key === 'Enter') {
             e.preventDefault();
             if (menu.loadCursor === 0) {
+              menu.loadStatus = null;
               const ok = loadGame();
               menu.loadMessage = 120;
-              menu.loadStatus  = ok ? 'loaded' : 'nosave';
+              menu.loadStatus  = ok ? 'loaded' : (menu.loadStatus === 'unavailable' ? 'unavailable' : 'nosave');
               menu.screen      = 'main';
               // Keep menu open so the banner is visible; player closes with M / Esc.
             } else {

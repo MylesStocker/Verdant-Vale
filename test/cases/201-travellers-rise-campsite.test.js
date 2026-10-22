@@ -21,7 +21,7 @@ function arrive(g){const trace=[];for(let i=0;view(g).phase!=='inside_dialogue';
  assert.ok(i<400,JSON.stringify(view(g)));g.frames(1);trace.push(view(g));
  }return trace;}
 function complete(g){intro(g);arrive(g);g.run('finishDialogue()');assert.equal(view(g).stage,1);}
-const input=(g,command)=>g.run('canonicalPartyCombat.handleInput('+JSON.stringify(command)+')');
+const input=(g,command)=>g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(command)+')');
 const battle=g=>J(g,'canonicalPartyCombat.getView()');
 function startAmbush(g){
  g.run("placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',9.5*TILE,7.5*TILE)");g.frames(1);

@@ -25,7 +25,7 @@ const state=g=>g.run('JSON.stringify({stats,statusEffects,slitherSpd,party:persi
 function reject(g,source,pattern){const before=state(g),calls=g.run('calls');assert.throws(()=>g.run(source),pattern);assert.equal(state(g),before);assert.equal(g.run('calls'),calls);}
 const frozen=v=>{if(v&&typeof v==='object'){assert.ok(Object.isFrozen(v));Object.values(v).forEach(frozen);}};
 function enter(g,ids=['enemy_stone_crawler'],escape='fastest_living'){return J(g,'canonicalPartyCombat.enter('+JSON.stringify({enemies:ids,escape})+')');}
-const input=(g,key)=>g.run('canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
+const input=(g,key)=>g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
 function command(g,name){let i=0;while(view(g).selectedCommand!==name){assert.ok(i++<6,name);input(g,'right');}input(g,'confirm');}
 function target(g,slot=0){const v=view(g),id=(v.targetSide==='ally'?v.party:v.enemies)[slot].instanceId;let i=0;
   while(view(g).selectedTargetInstanceId!==id){assert.ok(i++<4);input(g,'right');}input(g,'confirm');}

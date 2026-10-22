@@ -1,7 +1,7 @@
 'use strict';
 // Covers: the stable-identity systems (#4) — immutable ids for world pickups,
-// openable chests, and enemy templates; version-3 id-based save persistence; and
-// the sequential v1→v2→v3 migration.
+// openable chests, and enemy templates; current version-5 id persistence;
+// rejection of older versions and integrity of frozen historical ID tables.
 //
 //   • Registry contracts: every pickup / chest / enemy template has exactly one
 //     valid, unique id; registry keys equal object/template ids; all random and
@@ -12,8 +12,8 @@
 //     ever reverted to array-index persistence).
 //   • Chest persistence is by id and independent of registry enumeration order;
 //     nonstandard direct fields (home-chest gold, dresser, sparkle) survive.
-//   • v2→v3 migration maps legacy positional/per-chest fields to stable ids,
-//     preserves unrelated state, and removes the obsolete fields.
+//   • Older-version saves reject atomically; frozen legacy ID mappings remain
+//     integrity evidence, not executable migrations.
 //   • Unknown ids warn (not throw), never touch gameplay, and are preserved.
 //   • Enemy identity is plumbing only: names/sex/behaviour are unchanged.
 //
@@ -37,7 +37,7 @@ const CHEST_IDS = [
 ];
 
 module.exports = {
-  name: 'stable persistence ids: pickup/chest/enemy registries, v3 id save, v2→v3 migration',
+  name: 'stable persistence ids: pickup/chest/enemy registries, v5 save and older-version rejection',
   run() {
     const g = createContext();
     g.press('Enter');
@@ -76,7 +76,7 @@ module.exports = {
       var reg=window.ENEMY_TEMPLATE_REGISTRY, out=[];
       // A pool entry may be a flat template OR an authored { id, enemies,
       // weight } formation (Eastern Fens Mornay's two pools) -- formations
-      // are deliberately excluded from this by-id registry (see combat.js's
+      // are deliberately excluded from this by-id registry (see enemy-catalog.js's
       // buildEnemyTemplateRegistry() add() filter), not a gap.
       window.ENEMY_TEMPLATE_POOLS.forEach(function(p){p.templates.forEach(function(t){if(!Object.hasOwn(t,'enemies')&&reg[t.id]!==t)out.push(t.name);});});
       window.ENEMY_SCRIPTED_TEMPLATES.forEach(function(t){if(reg[t.id]!==t)out.push(t.name);});

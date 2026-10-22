@@ -46,17 +46,6 @@ const waterTravelController = (() => {
     }
   }
 
-  function competingOwnerActive() {
-    return dialogue.open || choice.open || menu.open || shop.open || debugMenu.open || warpMenu.open ||
-      continentMap.open || accordPanel.open || combat.active || fishing.active || seraLioraCutscene.active ||
-      canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff() ||
-      combatPlayerState.hasParty() || formationCombatLab.isOpen() || partyCombatLab.isActive() ||
-      partyCombatLab.isMenuOpen() || galleryReceiverEncounter.isLocked() ||
-      (typeof mq5AssignmentCutscene !== 'undefined' && mq5AssignmentCutscene.isActive()) ||
-      (typeof travellersRiseAmbush !== 'undefined' && travellersRiseAmbush.isExclusive()) ||
-      (typeof travellersRiseCamp !== 'undefined' && travellersRiseCamp.blocksInput()) ||
-      (typeof storyCheckpointLab !== 'undefined' && storyCheckpointLab.isOpen());
-  }
 
   function prepare(routeId) {
     if (session) return rejection('water travel is already active');
@@ -64,7 +53,7 @@ const waterTravelController = (() => {
     if (!route) return rejection('unknown water travel route');
     validateRouteRecord(routeId, route);
     if (!WATER_TRAVEL_AVAILABILITY[routeId]()) return rejection('water travel route is unavailable');
-    if (competingOwnerActive()) return rejection('another input owner is active');
+    if (activityOwnership.conflicts([]).length) return rejection('another input owner is active');
 
     const fromMapId = activeMapId();
     const fromIndex = route.endpoints.findIndex(endpoint => endpoint.mapId === fromMapId);
@@ -120,12 +109,14 @@ const waterTravelController = (() => {
     return true;
   }
 
-  function update() {
+  function update(deltaSeconds) {
     if (!session) return false;
     const current = session;
     try {
       if (activeMapId() !== current.plan.origin.mapId) return fail('departure location changed during travel');
-      current.frame++;
+      const delta = presentationFrameDelta(deltaSeconds);
+      current.elapsedFrames = (current.elapsedFrames || 0) + delta;
+      current.frame = Math.min(current.plan.durationFrames, Math.floor(current.elapsedFrames + 1e-8));
       if (current.frame < current.plan.durationFrames) return true;
       if (current.arrivalAttempted) return fail('arrival callback repeated');
       current.arrivalAttempted = true;

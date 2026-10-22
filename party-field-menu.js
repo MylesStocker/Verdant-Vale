@@ -36,6 +36,7 @@ const partyFieldMenu = (() => {
   const handleInput=e=>{
     const party=persistentParty.getView();
     if(!menu.open||party.members.length<2)return false;
+    if(activityOwnership.combatPreparationConflicts(false).length)return true;
     // Reuse the outer physical-key latch; native repeats also fail closed.
     if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing)return true;
     if(dialogue.open||choice.open||shop.open||seraLioraCutscene.active||combat.active||

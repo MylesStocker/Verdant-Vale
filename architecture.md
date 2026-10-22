@@ -1,5 +1,48 @@
 # Architecture
 
+## Current maintenance contracts
+
+Historical pass descriptions below record how systems were introduced. The
+current authorities take precedence: save version 5 accepts only current saves;
+`save.js` no longer ships executable old-version migrations. Frozen legacy ID
+tables remain solely for registry-integrity evidence.
+
+- `activity-ownership.js` reads exclusive owners without acquiring or releasing
+  them. Water travel rejects every competing owner. Combat adds the shared
+  travel/story exclusions while preserving its own Lab, Receiver, scripted-token
+  and playback validation. Direct canonical preparation cannot bypass travel.
+- `persistent-party.js` retains the highest numbered `canonical_encounter_N`
+  reward receipt plus independently named story receipts. Old numbered receipts
+  reject as stale; the most recent exact duplicate remains an idempotent no-op.
+  Existing version-5 histories validate fully, then compact on load without
+  re-awarding anything. IDs advance from the retained ordinal, never array size.
+  No save field, inventory cap or content-count limit is added.
+- `game-loop.js` supplies elapsed presentation time separately from the existing
+  simulation delta. Ferry progress and Quickbloom update through their controllers;
+  drawing does not advance either timer. Direct headless ticks still mean one
+  authored frame. Quickbloom blocks playback even before its first update.
+- `enemy-catalog.js` owns the unchanged authored templates, pool inventory and
+  stable template registry, loaded immediately before `combat.js`. Combat keeps
+  execution/installation. This is a bounded extraction, not a combat rewrite.
+- `test/transition-audit.js` witnesses committed placement and checks the final
+  destination. School stairs execute real movement. CLI verification is read-only;
+  only `--write` regenerates the report after an intentional reviewed change.
+- Headless Canvas supports an explicit API set; unknown method calls fail.
+  Its fixed historical text metric is not visual evidence. Run
+  `node test/run-browser-smoke.js` for actual DOM/Canvas/font checks in an isolated
+  Chromium profile. `VV_BROWSER` selects an installed executable and
+  `VV_BROWSER_OUTPUT` optionally saves PNG captures outside the repository.
+- `test/validation-warning-baseline.json` explains reviewed warnings without
+  suppressing them; suite 253 rejects newly introduced warnings. Dedicated enemy
+  artwork remains a content decision, and long authored text is browser-tested.
+
+Suite 252 is the unchanged house/cat suite formerly sharing prefix 61 with the
+journal suite. Discovery now rejects duplicate numeric prefixes. Suite 253 covers
+ownership, bounded receipts, elapsed animation, audit failure injection and the
+warning baseline. Existing combat tests advance presentation time explicitly
+before simulated acknowledgement; historical combat projections are unchanged.
+
+
 ## Canonical party finalization policy (Pass 6)
 
 See the current Pass 6 contract in `CANONICAL_PARTY_COMBAT.md`.
@@ -266,8 +309,8 @@ covers ordered selection, duplicates, overrides, atomic failure and all nine siz
 
 ### Enemy capability authority — Pass 3
 
-`enemy-capabilities.js` loads after `combat.js` has registered every template and
-before `encounter-formations.js` prepares authored sides. It derives one deeply
+`enemy-capabilities.js` loads after `enemy-catalog.js` registers every template and `combat.js` supplies helpers,
+but before `encounter-formations.js` prepares authored sides. It derives one deeply
 frozen `{templateId, capabilities}` record per exact registered identity. Records
 and arrays are closed plain data. Capability IDs are stable, unique strings from
 `ENEMY_CAPABILITY_DEFINITIONS`; unknown IDs, unknown behavior-bearing template
@@ -546,7 +589,7 @@ once per completed round. Ally x positions remain 108, 256, 404. The older
 `combatPlayerState.initialize` two-member Attack-only API and the Formation
 enemy-storage two/three descriptor contract remain intentionally unchanged.
 
-`enemy-capabilities.js` loads after `combat.js` (registry/copy authorities), then
+`enemy-capabilities.js` loads after `enemy-catalog.js` and `combat.js` (registry/copy authorities), then
 `encounter-formations.js` loads before `persistent-party.js`. The exact authored
 record is:
 
@@ -881,7 +924,8 @@ paths. Party rewards/recovery remain `awardRewards`/`awardExperience`/`recover`.
 
 Save v5 is unchanged. `prepareLoad` additionally rejects nested executable/custom
 objects and Lely equipment in an invalid slot before restoration. Authored item
-rehydration and legacy inventory metadata behavior remain intact. The existing
+rehydration remains supported; unknown items and unsupported instance fields
+reject atomically rather than installing inventory that cannot enter combat. The existing
 key-item/former Void Shard inventory-restoration policy is shared through the pure
 `savedEquipmentDisposition` helper; those records never restore invalid equipment.
 Test 182 covers
@@ -2043,9 +2087,9 @@ The rule this codebase actually follows:
 |---|---|---|
 | `state.js` | All core mutable game state: world/location flags, status effects, `stats`, `menu`/`debugMenu`/`debugInspector`/`warpMenu`, `dialogue`/`continentMap`/`accordPanel`, the `tick` counter, and tiny state-only helpers (`toggleMenu`, `checkLevelUp`, `toggleDebugMenu`, `toggleDebugInspector`, etc). | Combat state (`combat`, `choice`, `shop`) lives in `combat.js`. Furniture/NPC position consts live in `render-interiors.js` / `render-entities.js`, not here. |
 | `image-assets.js` | Stable optional raster-asset metadata, lazy one-image-per-id caching, bundle preload/settlement, and loaded-image lookup. Metadata declaration performs no load; failed assets settle for fail-soft rendering. | No drawing, scene progression, persistent state, or render-loop image construction. |
-| `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION` (**5**), `migrateSave()` (v5 accepts ONLY the current version — no migration/fallback; `SAVE_MIGRATIONS` is retired/unused), `saveGame()`, `loadGame()`, `resolveLoadLocation()` (the v4 discriminated-location preflight), `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here. `saveGame()` refuses to write when `regionalInvariantErrors()` is non-empty; `loadGame()` commits position via `placeAtLocation()` (regional-position.js), never by assigning `activeMap`/`player.x`/`player.y`. See "Save/flags" and "Canonical regional world position" below. |
+| `save.js` | `QUEST_FLAG_BINDINGS` (the flag registry) + derived `QUEST_FLAG_SCHEMA`, `SAVE_VERSION` (**5**), `migrateSave()` (v5 accepts ONLY the current version — no migration/fallback; old migration execution is removed), `saveGame()`, `loadGame()`, `resolveLoadLocation()` (the v4 discriminated-location preflight), `validateSaveSchema()`. | Don't declare new *persistent* variables here — declare them in the file that owns that concern, then add **one `QUEST_FLAG_BINDINGS` entry** here. `saveGame()` refuses to write when `regionalInvariantErrors()` is non-empty; `loadGame()` commits position via `placeAtLocation()` (regional-position.js), never by assigning `activeMap`/`player.x`/`player.y`. See "Save/flags" and "Canonical regional world position" below. |
 | `world-transitions.js` | Every `enter*`/`exit*`/`ascend*`/`descend*` function that moves the player between maps/dungeons/towns/buildings, plus the generic `EDGE_TRANSITIONS` table and `tryEdgeTransition()`, and the debug-only `debugWarpToMap()`/`debugFindNearestWalkableTile()`/`debugEdgeTransitionSummary()`/`debugNearbyTransitionInfo()` helpers. | No drawing code — even location-specific hint overlays (e.g. the sluice gate hint) live in `render-entities.js`. |
-| `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — `loop()` should only ever call `update()` then `render()`. |
+| `game-loop.js` | The 60fps-capped `loop()` and its `requestAnimationFrame` kickoff. Intentionally tiny. | No game logic — normal frames call `update()` then `render()`; the transient first-fault boundary stops gameplay and presents a reload diagnostic on failure. |
 | `render-tiles.js` | Per-cell base tile drawing (grass/water/dungeon/town/sluice tiles), the `drawTile(id, x, y)` dispatcher called once per grid cell every frame, the `drawMapTiles(map, originPxX?, originPxY?, range?)` loop that dispatches a whole (or sliced) rectangular map through `drawTile()` in row-major order, and the debug/validation-only `RENDERABLE_TILE_IDS` Set (mirrors the dispatcher's `case` labels). | Not furniture (`render-interiors.js`) and not sprites/items/NPCs (`render-entities.js`). Don't rewrite `drawTile()`'s dispatch shape without also updating `RENDERABLE_TILE_IDS` — they're two independent lists that happen to describe the same set today, checked for agreement only by hand, not by any automated cross-check between the two files. |
 | `world-view.js` | **PURE** camera / chunk-visibility calculations for the continuous overworld: `regionPixelBounds()`, `cameraOriginForTarget()`, `visibleChunks()`, `chunkVisibleTileRange()`, and `buildContinuousWorldPlanFromWorld()` — the ONE plan entry, keyed on a region-world PIXEL point. Derives everything from `REGIONAL_LAYOUT` + `mapIdForChunk` (data.js) and `COLS`/`ROWS`/`TILE`. | No DOM/canvas, no state mutation, no duplicated layout data. The runtime camera feeds it the CANONICAL regional world position; there is no map-id+local plan overload (removed) and no player-local→world adapter here. |
 | `regional-position.js` | **THE canonical regional-position authority**: the private canonical state `{ regionId, worldPxX, worldPxY }`; conversions `mapLocalPxToRegionWorldPx()` / `regionWorldPxToLocal()`; the derived read-model `regionalContext()` + accessors `regionalWorldPosition()` / `regionalDerivedLocation()` / `regionalActiveMapId()` / `regionalPlayerWorldPoint()`; atomic writers `commitRegionalWorldPosition()` (derives `activeMap`/`player.x`/`player.y`), `enterRegionalMapFromLocal()`, `clearRegionalPosition()`, `placeAtLocation()` (the regional/discrete router used by every location gateway); and read-only `regionalInvariantErrors()` / `regionalInvariantsHold()`. | Canonical state is not externally mutable and is `null` on every discrete location. Callers NEVER assign `activeMap`/`player.x`/`player.y` for a regional map — they go through this module. It never repairs state; the read model fails closed (returns null) on a broken invariant and `regionalInvariantErrors()` only reports. |
@@ -2061,7 +2105,8 @@ The rule this codebase actually follows:
 | `render.js` | The single `render()` orchestrator — the canonical draw-call order (layering) for a frame — plus the pre-computed vignette, the extracted `drawActiveMapContent()` current-map content block, and the production continuous-view path (`continuousWorldViewActive()` / `drawContinuousWorld()`; see "Continuous regional overworld" below). | Don't put actual drawing logic here beyond the terrain/camera orchestration — call into the `render-*.js` files. If draw order/layering looks wrong, this is the file to fix. |
 | `input.js` | The `keys` table and the `keydown`/`keyup` listeners; routes a keypress to whichever screen is active (combat, menu, choice, shop, debug menu, debug warp menu, overlay panels, overworld). | No game logic beyond routing — it calls into `movement.js`/`combat.js`/`interactions.js`/etc rather than mutating game state directly (aside from cursor/screen UI state). |
 | `movement.js` | `player`, `locationName()`, `currentContentLocationKey()` (logical content-location key; `currentMapId()` is a deprecated alias), `tileAt()`, `canWalk()` (collision), `isEncounterEligibleTile()`, and `update()` — the per-frame advance of movement/cooldowns/encounter checks/`MAP_FEATURES` trigger-zone checks. | No drawing code. |
-| `combat.js` | Equip helpers (`effectiveAtk`/etc), enemy stat templates, `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
+| `enemy-catalog.js` | Authored scripted enemy templates, `ENEMY_TEMPLATE_POOLS`, `ENEMY_TEMPLATE_REGISTRY`, and stable template registration. | Loaded after data and before combat. No battle installation, selection RNG or runtime identities. |
+| `combat.js` | Equip helpers (`effectiveAtk`/etc), `choice`/`shop` state, the `combat` state object, all `start*Combat()` functions, turn resolution (`combatOptions`, `applyEnemyHitEffects`, `handleCombatAction`), and `currentEncounterPool()`. | Battle *rendering* (sprites, the combat screen UI) lives in `render-battle.js`, not here. |
 | `render-battle.js` | Battle-screen sprite drawing for the player and every enemy type, `drawBattleGenericEnemy()` (the fallback silhouette for ids opted into `ENEMY_GENERIC_SPRITE_IDS`), the id-keyed `ENEMY_SPRITE_DISPATCH` table (`enemy.id → { draw, dy }`) that `drawBattleEnemy()` dispatches on, and `drawCombat()` (the action menu / item subscreen / message / victory / defeat UI). | Combat *logic* (damage, turn order, state transitions) lives in `combat.js` — this file only reads `combat` state and draws it. |
 | `bootstrap.js` | The one-time new-game startup state (starting map/position, intro dialogue). | Must stay the last file loaded before `interactions.js` — see ordering rules above. Don't add anything here beyond one-time startup values. |
 | `interactions.js` | `handleInteract()` (the interact-key dispatcher — a priority orchestrator over named location handlers, see below), `interactSimpleNPCs()`, and the `MAP_FEATURES` content-authoring registry (`tryMapFeatures()`, `checkMapFeatureTriggers()`, `evaluateMapFeatureCondition()`, `resolveMapFeaturePages()`, `debugMapFeatureInfo()`). Loaded last since `update()`/`handleInteract()` are called at runtime, by which point every script has finished loading. | See "Interactions" below for the full priority story. This is by far the largest file in the codebase. The *dispatch* is now a clean priority orchestrator (`INTERACT_HANDLERS` / `OVERWORLD_INTERACT_HANDLERS`, first-match-wins with explicit consumption), but the per-location behaviour it routes to — chests, quest triggers, boss encounters, town-specific dialogue branches — is still large, hand-written and one-off, so the physical file remains a maintainability hotspot despite the improved dispatch. `MAP_FEATURES` doesn't replace those handlers — it's the lowest-priority generic fallback, checked only if nothing consumed the press. **Region-specific interaction functions and `MAP_FEATURES` fragments now live in `content/interactions/*` (see "Regional content files"); `interactions.js` keeps the generic engine, the merge (`mergeMapFeatureFragments`), the cross-region handlers, and the priority tables.** |
@@ -3658,6 +3703,41 @@ const MAP_FEATURES = {
   `menu.open`/`shop.open`/`choice.open`/`debugMenu.open`/`warpMenu.open` so
   they never interrupt or compete with other modal UI.
 
+## Save validation and browser failure boundaries
+
+`validateSaveSchema(candidate)` is pure and runs before load writers. Quest
+value types derive from `QUEST_FLAG_BINDINGS` defaults: booleans, non-negative
+safe integers, and nullable strings. It does not hard-code stage maxima or
+content counts. Existing lighthouse and Travellers' Rise authorities still
+validate their closed states and cross-field invariants. World values outside
+that registry (day, gold containers, booleans, stable-ID lists and the authored
+brawl-day sentinel) receive explicit type/arithmetic checks. Missing fields keep
+their established restore/default policy. Location bounds remain owned by the
+location/catalogue authorities; inventory length is not capped here.
+
+`rehydrateItem` supplies the same registry-backed policy to party load preflight
+and restoration. Unknown names and fields absent from the current registered
+item reject the load, preserving running state and stored bytes. Supported stale
+registered values refresh from `ITEM_REGISTRY`; the existing key-item and former
+Void Shard restoration exceptions remain. New registered items/metadata need no
+save-specific name list. This does not enable new combat capabilities.
+
+`saveStorage.read/write` contain browser storage exceptions and return explicit
+results. Load-row rendering reads without mutation or exception leakage. A failed
+Save/Load reports unavailable storage through existing menu banners; it cannot
+report a successful save or delete/replace the old stored value on failed writes.
+The storage methods rely on the browser's atomic `setItem` contract.
+
+`gameRuntimeFailure` is a transient first-fault latch owned by `game-loop.js`.
+An unexpected update/render error stops simulation, input and saving/loading;
+the animation callback continues presenting a separate diagnostic screen, with
+a DOM title fallback if Canvas is unavailable. No failed operation is retried,
+rolled back or automatically saved. Reloading the page is the recovery route.
+Normal update timing and normal draw calls are unchanged. No new save fields,
+SAVE_VERSION change, fixed inventory/map limit or geographic changes are involved.
+Suite 251 covers candidate rejection, registry growth, retained saves, denied
+storage, failure-screen geometry and first-fault preservation.
+
 ## Save/flags — `QUEST_FLAG_BINDINGS` is the single source of truth
 
 **`saveGame()` persists an explicit registry, not a blanket dump of every
@@ -3666,7 +3746,7 @@ persistent quest/world flag, each owning
 
 - `key` — the stable, flat, top-level save-object key,
 - `default` — the exact runtime default (used to seed a missing field on
-  load and by the v1→v2 migration; a *fresh* copy is taken each time via
+  load; a *fresh* copy is taken each time via
   `cloneDefaultValue`),
 - `get()` / `set(v)` — read/write the authoritative runtime value,
 - `kind` — `'lexical'` (a `quests.js`/`state.js` `let`; `get`/`set` close
@@ -3729,7 +3809,7 @@ copy of the synced-flag list to keep in step.
 canonical location representation and adds the persistent party payload and Lely
 Slither sample described above. Version 4 is intentionally unsupported; there is
 **no migration path and no backward compatibility**. The
-`SAVE_MIGRATIONS` registry is retired (kept only as historical reference; nothing
+old migration registry has been removed (the frozen identity snapshots remain; nothing
 consults it) and `migrateSave(parsed)` now accepts **only** the current version —
 it validates the payload is object-like with `version === SAVE_VERSION` and returns
 `{ ok: true, data, migratedFrom: null }`, else `{ ok: false, reason }`.
@@ -3754,7 +3834,7 @@ stored id string is a permanent contract, even if the object later moves (an id
 containing a location hint keeps that literal string regardless).
 
 Three runtime registries key those objects by id (all in `data.js` except the
-enemy one, which is in `combat.js` because scripted templates live there):
+enemy one, owned by `enemy-catalog.js` alongside scripted templates):
 
 - **`PICKUP_REGISTRY`** — *discovered* by walking `MAP_METADATA.items` (the
   authoritative per-map content list), so it's complete and dedupes an array
@@ -3802,7 +3882,7 @@ current session's value). An **unknown id** (content temporarily missing or
 retired) is warned about, kept in an internal unresolved set so a later save
 doesn't erase it, and never applied to gameplay.
 
-**v2→v3 migration snapshots.** `SAVE_MIGRATIONS[2]` maps the exact legacy v2
+**Historical v2→v3 identity snapshots.** The frozen tables map the exact legacy v2
 fields to ids using two **frozen** tables in `save.js` — `LEGACY_V2_PICKUP_FIELDS`
 (legacy field → ids in v2 index order) and `LEGACY_V2_CHEST_FIELDS` (legacy
 field → id). These are *migration history, not the runtime source of truth*:
@@ -3910,7 +3990,7 @@ adds no mutable state or save field and does not change `SAVE_VERSION`.
   its scripted-enemy set from registry templates that aren't pool members, so no
   balance-report edit is needed to cover it.
 - **Add a random encounter pool**: register the array in `ENEMY_TEMPLATE_POOLS`
-  (combat.js) as `{ id: 'pool_<snake>', label, templates }` with a fresh
+  (enemy-catalog.js) as `{ id: 'pool_<snake>', label, templates }` with a fresh
   immutable id, and route a map/floor to that same array via
   `MAP_METADATA.encounterPool`. Both `validateEnemies()` and the balance report
   then pick it up with no further edits. To measure a pool at a specific player
@@ -4078,7 +4158,7 @@ balance report can never disagree about which pools exist.
 - **Don't change existing tile ids, `MAP_REGISTRY`/`MAP_METADATA` keys, or
   quest-flag names** — saves, map arrays, and the `QUEST_FLAG_BINDINGS` keys
   all reference them by exact value/name. The save *format* has a
-  version-migration layer (`SAVE_MIGRATIONS`, see "Save/flags"), but that
+  historical version-migration layer (removed; see "Save/flags"), but that
   upgrades payload shape forward — it does **not** rename existing keys/ids,
   so a rename still silently breaks old saves.
   `WALKABLE[]`/`TILE_PROPERTIES` grow by adding entries at new indices, not

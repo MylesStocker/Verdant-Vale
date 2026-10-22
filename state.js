@@ -178,11 +178,12 @@ const menu = {
   scrollOffset: 0,
   screen:       'main',  // 'main' | 'saveConfirm' | 'loadConfirm' | 'notebook'
   saveCursor:   0,        // 0 = Yes, 1 = No
+  saveStatus: 'saved',    // transient result only; never serialized
   saveMessage:  0,        // frame countdown for "Game Saved" banner
   saveBlockedMessage: 0,  // frame countdown for the "won't hold" banner (maps with MAP_METADATA allowSave: false — see input.js's save-confirm guard)
   loadCursor:   0,        // 0 = Yes, 1 = No
   loadMessage:  0,        // frame countdown for load result banner
-  loadStatus:     null,     // 'loaded' | 'nosave' — set alongside loadMessage
+  loadStatus:     null,     // 'loaded' | 'nosave' | 'unavailable' — set alongside loadMessage
   notebookOffset: 0,        // scroll offset for notebook screen
   notebookCursor: 0,        // selected row in the notebook (special-item rows are inspectable)
 };
@@ -256,6 +257,7 @@ function groupItems() {
 }
 
 function toggleMenu() {
+  if(activityOwnership.conflicts(['menu','debug']).length)return;
   if (galleryReceiverEncounter.isLocked()) return;
   if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&mq5AssignmentCutscene.isActive()) ||
       (typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.isExclusive()) ||
@@ -273,6 +275,7 @@ function toggleMenu() {
 }
 
 function toggleDebugMenu() {
+  if(activityOwnership.conflicts(['menu','debug']).length)return;
   if (galleryReceiverEncounter.isLocked()) return;
   if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&mq5AssignmentCutscene.isActive()) ||
       (typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.isExclusive()) ||

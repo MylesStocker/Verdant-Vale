@@ -33,7 +33,7 @@ const state=g=>g.run('JSON.stringify({stats,statusEffects,slitherSpd,party:persi
 function reject(g,source){const before=state(g),rolls=g.run('rolls');assert.throws(()=>g.run(source));assert.equal(state(g),before);assert.equal(g.run('rolls'),rolls);}
 const enemies=n=>Array(n).fill('enemy_marsh_wisp');
 function enter(g,n=1,escape='fastest_living'){return J(g,'canonicalPartyCombat.enter('+JSON.stringify({enemies:enemies(n),escape})+')');}
-const input=(g,key)=>g.run('canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
+const input=(g,key)=>g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(key)+')');
 function command(g,name){let limit=0;while(view(g).selectedCommand!==name){assert.ok(limit++<6,name+' must be enabled');input(g,'right');}input(g,'confirm');}
 function target(g,slot=0){const v=view(g),id=(v.targetSide==='ally'?v.party:v.enemies)[slot].instanceId;let limit=0;
  while(view(g).selectedTargetInstanceId!==id){assert.ok(limit++<4);input(g,'right');}input(g,'confirm');}

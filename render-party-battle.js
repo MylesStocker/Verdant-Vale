@@ -25,7 +25,7 @@ const PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS = Object.freeze([-72,-144,72,72]);
 
 // Quickbloom's recorded execution owns a short presentation-only flourish.
 // The session event is the trigger and exact target authority; this timer never
-// reads or writes combat state. Twenty-four render ticks is brief enough to keep
+// reads or writes combat state. Twenty-four update ticks is brief enough to keep
 // playback moving while leaving the final pale sparkle visible for four frames.
 const QUICKBLOOM_ANIMATION_FRAMES = 24;
 const QUICKBLOOM_ANIMATION_PALETTE = Object.freeze(['#3f8f52','#78c86f','#a8e89c']);
@@ -44,15 +44,22 @@ const partyBattleQuickbloomAnimation=(()=>{
   const keyFor=(view,event)=>event?
     [view.label,view.playbackFrame.completedRounds,view.frameIndex,event.actorId,event.targetId].join('|'):null;
   const reset=()=>{key=null;frame=0;targetId=null;return true;};
-  const draw=view=>{
+  const update=(view,deltaSeconds)=>{
     const event=eventFor(view),nextKey=keyFor(view,event);
     if(!event){reset();return false;}
+    const delta=presentationFrameDelta(deltaSeconds);
     if(key!==nextKey){key=nextKey;frame=0;targetId=event.targetId;}
-    if(frame>=QUICKBLOOM_ANIMATION_FRAMES)return false;
+    frame=Math.min(QUICKBLOOM_ANIMATION_FRAMES,frame+delta);
+    if(QUICKBLOOM_ANIMATION_FRAMES-frame<1e-8)frame=QUICKBLOOM_ANIMATION_FRAMES;
+    return true;
+  };
+  const draw=view=>{
+    const event=eventFor(view);
+    if(!event||key!==keyFor(view,event)||frame>=QUICKBLOOM_ANIMATION_FRAMES)return false;
     const target=view.party.find(member=>member.instanceId===targetId),slot=target?.slot,
       position=Number.isSafeInteger(slot)?PARTY_COMBAT_ALLY_SLOTS[slot]:null;
     if(!target||!position)throw new Error('Invalid Quickbloom presentation target');
-    const age=frame,baseY=position.anchorY+8;
+    const age=Math.floor(frame),baseY=position.anchorY+8;
     for(const mote of PARTY_QUICKBLOOM_MOTES){
       const local=age-mote.delay;if(local<0||local>=14)continue;
       const sway=((local+mote.delay)%4<2?0:2)*(mote.dx<0?-1:1),x=Math.round(position.x+mote.dx+sway),y=Math.round(baseY-local*3);
@@ -65,11 +72,11 @@ const partyBattleQuickbloomAnimation=(()=>{
       ctx.fillStyle=QUICKBLOOM_ANIMATION_PALETTE[2];ctx.fillRect(x-1,y-5+sparkleAge,3,11-sparkleAge*2);
       ctx.fillRect(x-5+sparkleAge,y-1,11-sparkleAge*2,3);
     }
-    frame++;return true;
+    return true;
   };
   return Object.freeze({
-    draw,reset,
-    blocksAdvance(view){const event=eventFor(view);return key!==null&&key===keyFor(view,event)&&frame<QUICKBLOOM_ANIMATION_FRAMES;},
+    draw,reset,update,
+    blocksAdvance(view){const event=eventFor(view);return !!event&&(key!==keyFor(view,event)||frame<QUICKBLOOM_ANIMATION_FRAMES);},
     getView(){return Object.freeze({active:key!==null&&frame<QUICKBLOOM_ANIMATION_FRAMES,frame,
       duration:QUICKBLOOM_ANIMATION_FRAMES,targetId});},
   });

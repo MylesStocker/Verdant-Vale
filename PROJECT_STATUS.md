@@ -6,6 +6,58 @@ actually fits together.
 
 ## Current state
 
+### Runtime maintenance follow-up
+
+Shared travel/story ownership checks close direct combat-entry bypasses.
+Ordinary reward history is bounded by retaining its latest ordinal receipt, with
+separate story receipts preserved and existing v5 histories accepted. Quickbloom
+rendering is read-only; Quickbloom and ferry duration now use elapsed presentation
+time. Enemy catalog registration is extracted unchanged from combat.js.
+
+Transition verification now requires a committed placement and exercises school
+stairs through movement; its CLI is read-only unless `--write` is explicit.
+Dead migration execution is removed. Test discovery rejects duplicate numbers;
+the former duplicate house/cat test is now 252. Headless Canvas rejects unknown
+methods, and an isolated real-Chromium smoke runner checks Canvas text/layout,
+speaker styling and travel at native/2× display sizes. Reviewed validation
+warnings remain visible and are guarded against new unreviewed warnings.
+
+Verification: 216/216 discovered suites pass, including the 74,409-case immutable
+formation matrix. Validation reports zero errors and the 12 reviewed warnings;
+all 115 regional fingerprints match. Read-only transition verification covers
+234 maps, 308 fixed transitions, eight preserved-coordinate routes, 240 edge
+segments and 42 house doors. Its generated report changes only four school-stair
+probe strings, with identical destinations/topology. All five historical combat
+capture digests match. Real headless Chromium smoke passes at native/2× display
+sizes; this is automated coverage, not a manual playthrough.
+
+These changes introduce no new gameplay content, balance, geographic grids or
+save fields. The combat monolith still contains execution controllers; this pass
+extracts its catalog only. Bespoke art for generic enemies remains deferred.
+
+
+### Save and runtime failure hardening
+
+Load now preflights registry-derived quest value types and non-quest world
+values before any live writer. Unknown inventory items or unsupported instance
+fields reject atomically, while supported stale metadata rehydrates from the
+current item registry. No inventory capacity, map dimensions or quest-stage
+maxima are hard-coded. Existing quest/location invariants and restoration
+exceptions remain authoritative.
+
+Browser storage failures return safe results and display menu feedback without
+losing the existing save. Unexpected update/render failures retain the first
+exception, freeze gameplay and save/load, and present a reload diagnostic rather
+than silently stopping the frame loop or retrying partial actions. This latch
+and menu results are transient; SAVE_VERSION and payload remain unchanged.
+Suite 251 covers these boundaries. Test 33 replaces its obsolete unknown-item
+acceptance expectation with atomic rejection while retaining stale registered
+metadata, key-item and equipment restoration coverage. Test 63 now uses the
+authored string Voss outcome instead of an invalid numeric sentinel; its complete
+location round-trip and rejection coverage remains. No gameplay content,
+geography, combat formulas or normal rendering is changed.
+
+
 ### MQ5 and Eastern Fens content integration
 
 The MQ5 presentation/ambush and geographic bridge are integrated with seven

@@ -19,7 +19,7 @@ function reachChoice(g){
   assert.equal(g.run('choice.open'),true);
 }
 function choose(g,index){g.run(`choice.cursor=${index};choice.open=false;choice.callbacks[${index}]()`);if(g.run('dialogue.open'))g.run('finishDialogue()');}
-const view=g=>J(g,'canonicalPartyCombat.getView()'),input=(g,c)=>g.run('canonicalPartyCombat.handleInput('+JSON.stringify(c)+')');
+const view=g=>J(g,'canonicalPartyCombat.getView()'),input=(g,c)=>g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(c)+')');
 function acknowledge(g){let guard=0;while(view(g).phase==='playback'){input(g,'confirm');assert.ok(guard++<500);}if(view(g).phase==='playback_complete')input(g,'confirm');}
 function escape(g){g.run('Math.random=()=>{ambushRolls++;return 0}');while(view(g).phase==='awaiting_action'){
   let guard=0;while(view(g).selectedCommand!=='run'){input(g,'right');assert.ok(guard++<8);}input(g,'confirm');}

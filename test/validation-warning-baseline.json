@@ -1,0 +1,62 @@
+[
+  {
+    "group": "Tile Properties",
+    "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)",
+    "reason": "Noticeboard walkability is an intentional established exception."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_botfly (Botfly): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_waspthra (Waspthra): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_sparkeel (Sparkeel): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_mudwrack_snapper (Mudwrack Snapper): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_fen_rootworm (Fen Rootworm): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_willow_veiled_stalker (Willow-Veiled Stalker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_hollowreed_choker (Hollowreed Choker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
+    "group": "Dialogue",
+    "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split",
+    "reason": "Preserve authored text. Real-browser smoke verifies wrapping with Canvas font measurements."
+  },
+  {
+    "group": "Dialogue",
+    "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split",
+    "reason": "Preserve authored text. Real-browser smoke verifies wrapping with Canvas font measurements."
+  }
+]

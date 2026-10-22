@@ -124,7 +124,7 @@ const storyCheckpointLab=(()=>{
     dialogue.pageSpeakers=null;dialogue._speakerPagesFor=null;
     choice.open=false;choice.cursor=0;choice.title='';choice.options=[];choice.callbacks=[];
     shop.open=false;shop.screen='main';shop.cursor=0;menu.open=false;menu.screen='main';menu.itemCursor=0;menu.scrollOffset=0;
-    menu.saveCursor=0;menu.saveMessage=0;menu.saveBlockedMessage=0;menu.loadCursor=0;menu.loadMessage=0;menu.loadStatus=null;
+    menu.saveCursor=0;menu.saveStatus='saved';menu.saveMessage=0;menu.saveBlockedMessage=0;menu.loadCursor=0;menu.loadMessage=0;menu.loadStatus=null;
     menu.notebookOffset=0;menu.notebookCursor=0;partyFieldMenu.reset();
     warpMenu.open=false;warpMenu.mode='list';warpMenu.cursor=0;warpMenu.scrollOffset=0;warpMenu.destinations=[];
     warpMenu.targetDestId=null;warpMenu.targetCol=8;warpMenu.targetRow=7;warpMenu.playerMode=false;continentMap.open=false;
