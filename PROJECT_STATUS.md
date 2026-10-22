@@ -1883,3 +1883,17 @@ original staging tile. Loading never starts a cutscene. Test 199 traverses all
 registered regional tiles/seams with the trigger removed, proves the former
 bypass, and proves no onward route remains until authenticated victory. No grid,
 walkability, seam or generated geographic artifact changes.
+
+### Integrated Mornay peninsula identity cleanup
+
+The six peninsula map IDs now use NECK_ROAD, WESTERN_COVE, EASTERN_SHORE,
+HARBOUR_SHORE, TOWN_APPROACH and EASTERN_POINT under EASTERN_FENS_MORNAY.
+All production catalogues, placement/seam references, debug/save lookup and
+source-derived evidence agree. Only names change: every grid, coordinate,
+encounter permission, pool and the solid 3×2 future town footprint is retained.
+No aliases or save migration are added: regional saves store canonical world
+coordinates, which still resolve to the same placements under the renamed IDs.
+The six maps retain their existing save restriction; malformed explicit retired
+IDs still fail existing atomic validation.
+SAVE_VERSION stays 5. The local campsite and all reviewed MQ5 story work are
+integrated with the 22 enabled route chunks (11 easy and 11 hard profiles).

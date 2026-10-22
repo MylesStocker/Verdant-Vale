@@ -1422,7 +1422,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Valmere — Mornay Approach', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_approach_m',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. The southern neck of the Mornay peninsula: north seam (cols 7-9) reopens into EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP, the peninsula spine.' },
+    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. The southern neck of the Mornay peninsula: north seam (cols 7-9) reopens into EASTERN_FENS_MORNAY_NECK_ROAD_MAP, the peninsula spine.' },
   { mapId: 'EASTERN_FENS_MORNAY_APPROACH_E_MAP', regionId: 'overworld', chunkX: 18, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1, 23,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  0,  0,  1],
@@ -1463,25 +1463,9 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_15_n2',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only Mornay headland/water north of the Valmere approach (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  // INTEGRATION NOTE (deferred rename): four of the six Mornay peninsula map
-  // IDs below (ADMIN_CENTRE, RESIDENTIAL, HARBOUR, WORKING_WATERFRONT) still
-  // use town-district terminology left over from the original premature
-  // town-shell pass and will read confusingly once real Mornay town maps
-  // exist. Display names are already correct peninsula/geography names
-  // (Neck Road / Western Cove / Eastern Shore / Harbour Shore / Town
-  // Approach / Eastern Point). The IDs themselves were NOT renamed in this
-  // pass because data.js (dirty, owned by a concurrent process) has literal
-  // MAP_CATALOG registry entries keyed by these exact strings
-  // (EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP, _RESIDENTIAL_MAP, _HARBOUR_MAP,
-  // _WORKING_WATERFRONT_MAP) -- renaming here without touching data.js would
-  // break the catalog. Do a clean, coordinated ID-rename pass (touching
-  // data.js, world-transitions.js, content/maps/eastern-fens-maps.js,
-  // test/fixtures/regional-grid-fingerprints.js, test/transition-audit-
-  // output.json, test/cases/86 and 215, and OVERWORLD_ATLAS.md) before real
-  // Mornay town maps are created, to suggested IDs such as
-  // EASTERN_FENS_MORNAY_NECK_ROAD_MAP, _EASTERN_SHORE_MAP, _HARBOUR_SHORE_MAP,
-  // and _TOWN_APPROACH_MAP.
-  { mapId: 'EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP', regionId: 'overworld', chunkX: 16, chunkY: -2, map: [
+  // Six walkable peninsula chunks, named for geography rather than future
+  // town districts. The town footprint remains solid and has no transition.
+  { mapId: 'EASTERN_FENS_MORNAY_WESTERN_COVE_MAP', regionId: 'overworld', chunkX: 16, chunkY: -2, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,  1,  1],
@@ -1500,8 +1484,8 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Mornay Peninsula — Western Cove', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_western_approach',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'The peninsula’s western flank: a sheltered, shallow cove where fen craft can transfer cargo, with drought-exposed mud, a stranded boat, and a quiet mooring spur that dead-ends at rock to the south. East seam (rows 6-8) opens onto the peninsula spine (EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP); north seam (cols 10-12) continues the west shore to EASTERN_FENS_MORNAY_HARBOUR_MAP. No NPCs, items, interactions, quest triggers, or save state yet.' },
-  { mapId: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', regionId: 'overworld', chunkX: 17, chunkY: -2, map: [
+    notes: 'The peninsula’s western flank: a sheltered, shallow cove where fen craft can transfer cargo, with drought-exposed mud, a stranded boat, and a quiet mooring spur that dead-ends at rock to the south. East seam (rows 6-8) opens onto the peninsula spine (EASTERN_FENS_MORNAY_NECK_ROAD_MAP); north seam (cols 10-12) continues the west shore to EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP. No NPCs, items, interactions, quest triggers, or save state yet.' },
+  { mapId: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', regionId: 'overworld', chunkX: 17, chunkY: -2, map: [
       [  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  0,  0,  2,  2,  2,  0,  0,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  0,  0,  2,  2,  2,  0,  0,  1,  1,  1,  1],
@@ -1520,8 +1504,8 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Mornay Peninsula — Neck Road', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_admin_centre',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'The peninsula’s southern spine, where the main road narrows to cross the neck. Water cuts into both the west and east sides so the landmass is not a rectangular slab; a gravel-bar spit either side (rows 6-8) opens onto the Sheltered Cove (west) and the exposed eastern shore (east). South seam (cols 7-9) continues the road down to EASTERN_FENS_MORNAY_APPROACH_M_MAP; north seam (cols 7-9) continues it up to the Mornay crown (EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP). No NPCs, items, interactions, quest triggers, or save state yet.' },
-  { mapId: 'EASTERN_FENS_MORNAY_RESIDENTIAL_MAP', regionId: 'overworld', chunkX: 18, chunkY: -2, map: [
+    notes: 'The peninsula’s southern spine, where the main road narrows to cross the neck. Water cuts into both the west and east sides so the landmass is not a rectangular slab; a gravel-bar spit either side (rows 6-8) opens onto the Sheltered Cove (west) and the exposed eastern shore (east). South seam (cols 7-9) continues the road down to EASTERN_FENS_MORNAY_APPROACH_M_MAP; north seam (cols 7-9) continues it up to the Mornay crown (EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP). No NPCs, items, interactions, quest triggers, or save state yet.' },
+  { mapId: 'EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP', regionId: 'overworld', chunkX: 18, chunkY: -2, map: [
       [  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  0,  0,  0,  0,  1,  1,121,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  0,  0,  0,  0,  1,121,  1,  1,121,  1,  1,  1,  1],
@@ -1540,8 +1524,8 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Mornay Peninsula — Eastern Shore', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_residential',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'The peninsula’s eastern flank, more exposed to Valmere than the western cove: a narrow shingle shore wraps north with open, rockier water beyond it, and a driftwood-littered spur south dead-ends at open water. West seam (rows 6-8) opens onto the peninsula spine (EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP); north seam (cols 3-5) continues the east shore to EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP. No NPCs, items, interactions, quest triggers, or save state yet.' },
-  { mapId: 'EASTERN_FENS_MORNAY_HARBOUR_MAP', regionId: 'overworld', chunkX: 16, chunkY: -3, map: [
+    notes: 'The peninsula’s eastern flank, more exposed to Valmere than the western cove: a narrow shingle shore wraps north with open, rockier water beyond it, and a driftwood-littered spur south dead-ends at open water. West seam (rows 6-8) opens onto the peninsula spine (EASTERN_FENS_MORNAY_NECK_ROAD_MAP); north seam (cols 3-5) continues the east shore to EASTERN_FENS_MORNAY_EASTERN_POINT_MAP. No NPCs, items, interactions, quest triggers, or save state yet.' },
+  { mapId: 'EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP', regionId: 'overworld', chunkX: 16, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1, 23,  0,  0, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -1560,8 +1544,8 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Mornay Peninsula — Harbour Shore', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_harbour',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'A sheltered, shallow harbour-facing shore where fen craft would transfer cargo to larger Valmere vessels: drought-exposed mud and a stranded boat, with a quiet mooring spur north that dead-ends at reeds. South seam (cols 10-12) continues the west shore down to the Sheltered Cove (EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP); east seam (rows 6-8) opens onto the Mornay crown (EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP). No NPCs, items, interactions, quest triggers, or save state yet.' },
-  { mapId: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', regionId: 'overworld', chunkX: 17, chunkY: -3, map: [
+    notes: 'A sheltered, shallow harbour-facing shore where fen craft would transfer cargo to larger Valmere vessels: drought-exposed mud and a stranded boat, with a quiet mooring spur north that dead-ends at reeds. South seam (cols 10-12) continues the west shore down to the Sheltered Cove (EASTERN_FENS_MORNAY_WESTERN_COVE_MAP); east seam (rows 6-8) opens onto the Mornay crown (EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP). No NPCs, items, interactions, quest triggers, or save state yet.' },
+  { mapId: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', regionId: 'overworld', chunkX: 17, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1, 13, 13, 13,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  0,  0, 13, 13, 13,  0,  0,  1,  1,  1,  1],
@@ -1580,8 +1564,8 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Mornay Peninsula — Town Approach', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_working_waterfront',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'The peninsula’s northern crown, on firm ground above the rest of the landform, with substantial open Valmere water visible on every side. Reserves the compact 3x2 Mornay settlement footprint (rows 1-2, cols 7-9, TOWN_BUILDING) -- the whole town at overworld scale, not a literal street grid. The road terminates at the footprint’s southern face (row 3 is the last walkable row before the building block); (col 8, row 2) is the future TOWN_ENTRANCE tile and (col 8, row 3) is the future return-landing tile once the separate interior Mornay town map exists -- both presently solid/road respectively, with no transition wired yet (no nonexistent-map transition, no invented closure). South seam (cols 7-9) continues the road down to EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP; west seam (rows 6-8) reaches the harbour shore; east seam (rows 10-12) reaches the exposed point. No NPCs, items, interactions, quest triggers, or save state yet.' },
-  { mapId: 'EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP', regionId: 'overworld', chunkX: 18, chunkY: -3, map: [
+    notes: 'The peninsula’s northern crown, on firm ground above the rest of the landform, with substantial open Valmere water visible on every side. Reserves the compact 3x2 Mornay settlement footprint (rows 1-2, cols 7-9, TOWN_BUILDING) -- the whole town at overworld scale, not a literal street grid. The road terminates at the footprint’s southern face (row 3 is the last walkable row before the building block); (col 8, row 2) is the future TOWN_ENTRANCE tile and (col 8, row 3) is the future return-landing tile once the separate interior Mornay town map exists -- both presently solid/road respectively, with no transition wired yet (no nonexistent-map transition, no invented closure). South seam (cols 7-9) continues the road down to EASTERN_FENS_MORNAY_NECK_ROAD_MAP; west seam (rows 6-8) reaches the harbour shore; east seam (rows 10-12) reaches the exposed point. No NPCs, items, interactions, quest triggers, or save state yet.' },
+  { mapId: 'EASTERN_FENS_MORNAY_EASTERN_POINT_MAP', regionId: 'overworld', chunkX: 18, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -1600,7 +1584,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Mornay Peninsula — Eastern Point', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_eastern_edge',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'The peninsula’s most exposed corner: a reed-fringed gravel point looking out over open Valmere water, with driftwood caught on its lee side. The point’s tip is a natural dead end (water on three sides). South seam (cols 3-5) continues the east shore down to the exposed eastern shore (EASTERN_FENS_MORNAY_RESIDENTIAL_MAP); west seam (rows 10-12) reaches the Mornay crown (EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP). No NPCs, items, interactions, quest triggers, or save state yet.' },
+    notes: 'The peninsula’s most exposed corner: a reed-fringed gravel point looking out over open Valmere water, with driftwood caught on its lee side. The point’s tip is a natural dead end (water on three sides). South seam (cols 3-5) continues the east shore down to the exposed eastern shore (EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP); west seam (rows 10-12) reaches the Mornay crown (EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP). No NPCs, items, interactions, quest triggers, or save state yet.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C15RN3_MAP', regionId: 'overworld', chunkX: 15, chunkY: -3, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,127,121,  1, 23,  1,  1,  1,  1,  1],

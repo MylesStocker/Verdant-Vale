@@ -7,22 +7,14 @@
 // scenery -- that went too far in the opposite direction from a six-chunk
 // town. This correction reworks them into one coherent, irregular peninsula
 // extending north into Valmere, with a reserved compact 3x2 Mornay
-// settlement footprint at the northern crown (WORKING_WATERFRONT_MAP, rows
+// settlement footprint at the northern crown (TOWN_APPROACH_MAP, rows
 // 1-2, cols 7-9). The footprint represents the whole town at overworld
 // scale -- no literal streets are drawn across the six chunks, and no
 // transition targets a nonexistent Mornay town map; the footprint is
 // presently a solid marker with the road ending at its southern face.
 //
-// NAMING AUDIT: all six display names were confirmed/updated to describe
-// peninsula geography, not town districts (Neck Road / Western Cove /
-// Eastern Shore / Harbour Shore / Town Approach / Eastern Point). Four
-// internal map IDs (ADMIN_CENTRE, RESIDENTIAL, HARBOUR, WORKING_WATERFRONT)
-// still carry town-district terminology and were NOT renamed this pass --
-// data.js (dirty, owned by a concurrent process) has literal MAP_CATALOG
-// registry entries keyed by those exact ID strings, so renaming here would
-// require touching an unowned file. See the INTEGRATION NOTE comment in
-// content/maps/eastern-fens-maps.js immediately above the six-chunk block
-// for the required clean rename pass before real Mornay town maps exist.
+// Catalogue IDs and display names consistently describe peninsula geography.
+// No retired district aliases are retained for these unreleased placeholders.
 
 const assert = require('assert/strict');
 const crypto = require('crypto');
@@ -122,7 +114,7 @@ const BLOCKER_FILL = new Set([1]);   // shoreline tighten: Water -> Driftwood on
 // town-shell grids from before that. This correction replaces that scenery
 // pass with the peninsula.
 const PENINSULA_OLD_GRIDS = {
-  EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP: [
+  EASTERN_FENS_MORNAY_WESTERN_COVE_MAP: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,128,128,128,128,128,128,128,128,128,128,128,128,128,128,1],
     [1,128,128,128,128,128,128,128,128,128,128,128,128,128,128,1],
@@ -139,7 +131,7 @@ const PENINSULA_OLD_GRIDS = {
     [1,128,128,128,128,128,128,128,128,128,128,128,128,128,128,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   ],
-  EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP: [
+  EASTERN_FENS_MORNAY_NECK_ROAD_MAP: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,121,1,1,1,1,121,1,1,1,1,1],
@@ -156,7 +148,7 @@ const PENINSULA_OLD_GRIDS = {
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   ],
-  EASTERN_FENS_MORNAY_RESIDENTIAL_MAP: [
+  EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -173,7 +165,7 @@ const PENINSULA_OLD_GRIDS = {
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   ],
-  EASTERN_FENS_MORNAY_HARBOUR_MAP: [
+  EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,121,1,1,1,1,1,1,1,1,121,1,1,1],
     [1,1,1,1,1,1,127,1,1,127,1,1,1,1,1,1],
@@ -190,7 +182,7 @@ const PENINSULA_OLD_GRIDS = {
     [1,1,128,128,1,1,1,1,1,1,1,1,128,128,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   ],
-  EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP: [
+  EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -207,7 +199,7 @@ const PENINSULA_OLD_GRIDS = {
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   ],
-  EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP: [
+  EASTERN_FENS_MORNAY_EASTERN_POINT_MAP: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,23,23,1,1,1,1],
@@ -243,30 +235,30 @@ const PENINSULA_OLD_GRIDS = {
   ],
 };
 const PENINSULA_OLD_FP = {
-  EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP: '4eac5c857975fa0374cbd7cca18f2290bccd67c684ead419f47956905c31bdc5',
-  EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP: 'a83fa14e81db0375633f0c81cf9c8886657a5feb26b8b1918647bba4ac1cbe05',
-  EASTERN_FENS_MORNAY_RESIDENTIAL_MAP: '5cf8fdb63841f32b440e343ddd9eac8215ef2aeaf4f8e21a1c0074bed2357444',
-  EASTERN_FENS_MORNAY_HARBOUR_MAP: '11d735989a10b5ac17e38be22840fc108551ab686caf1939e46103668ba48fc2',
-  EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP: 'e5c1659ded1be097545dd16afda2af4c1beee7c7181f2cac51f8f0271aa56805',
-  EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP: '703bf7fd979868abbfe7bb6d0e1c1a3c48f2db94624e0403fb2e5c1337d1e2b3',
+  EASTERN_FENS_MORNAY_WESTERN_COVE_MAP: '4eac5c857975fa0374cbd7cca18f2290bccd67c684ead419f47956905c31bdc5',
+  EASTERN_FENS_MORNAY_NECK_ROAD_MAP: 'a83fa14e81db0375633f0c81cf9c8886657a5feb26b8b1918647bba4ac1cbe05',
+  EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP: '5cf8fdb63841f32b440e343ddd9eac8215ef2aeaf4f8e21a1c0074bed2357444',
+  EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP: '11d735989a10b5ac17e38be22840fc108551ab686caf1939e46103668ba48fc2',
+  EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP: 'e5c1659ded1be097545dd16afda2af4c1beee7c7181f2cac51f8f0271aa56805',
+  EASTERN_FENS_MORNAY_EASTERN_POINT_MAP: '703bf7fd979868abbfe7bb6d0e1c1a3c48f2db94624e0403fb2e5c1337d1e2b3',
   EASTERN_FENS_MORNAY_APPROACH_M_MAP: '6608c5121e0383b7d8edbd981a8052ee8483966424ce9adeecbfe2e2bbf53241',
 };
 const PENINSULA_IDS = Object.keys(PENINSULA_OLD_GRIDS);
 
 // Declared seam plan (single source of truth, mirrors world-transitions.js).
 const PENINSULA_SEAMS = [
-  { from: 'EASTERN_FENS_MORNAY_APPROACH_M_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', toDir: 'south', range: [7, 9] },
-  { from: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', toDir: 'south', range: [7, 9] },
-  { from: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', dir: 'west', to: 'EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP', toDir: 'east', range: [6, 8] },
-  { from: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', dir: 'east', to: 'EASTERN_FENS_MORNAY_RESIDENTIAL_MAP', toDir: 'west', range: [6, 8] },
-  { from: 'EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_HARBOUR_MAP', toDir: 'south', range: [10, 12] },
-  { from: 'EASTERN_FENS_MORNAY_RESIDENTIAL_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP', toDir: 'south', range: [3, 5] },
-  { from: 'EASTERN_FENS_MORNAY_HARBOUR_MAP', dir: 'east', to: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', toDir: 'west', range: [6, 8] },
-  { from: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', dir: 'east', to: 'EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP', toDir: 'west', range: [10, 12] },
+  { from: 'EASTERN_FENS_MORNAY_APPROACH_M_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', toDir: 'south', range: [7, 9] },
+  { from: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', toDir: 'south', range: [7, 9] },
+  { from: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', dir: 'west', to: 'EASTERN_FENS_MORNAY_WESTERN_COVE_MAP', toDir: 'east', range: [6, 8] },
+  { from: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', dir: 'east', to: 'EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP', toDir: 'west', range: [6, 8] },
+  { from: 'EASTERN_FENS_MORNAY_WESTERN_COVE_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP', toDir: 'south', range: [10, 12] },
+  { from: 'EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP', dir: 'north', to: 'EASTERN_FENS_MORNAY_EASTERN_POINT_MAP', toDir: 'south', range: [3, 5] },
+  { from: 'EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP', dir: 'east', to: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', toDir: 'west', range: [6, 8] },
+  { from: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', dir: 'east', to: 'EASTERN_FENS_MORNAY_EASTERN_POINT_MAP', toDir: 'west', range: [10, 12] },
 ];
 
 // The reserved 3x2 Mornay footprint, and the future entry/return cells.
-const FOOTPRINT_MAP_ID = 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP';
+const FOOTPRINT_MAP_ID = 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP';
 const FOOTPRINT_CELLS = [[1, 7], [1, 8], [1, 9], [2, 7], [2, 8], [2, 9]]; // [row, col]
 const FUTURE_ENTRY = { mapId: FOOTPRINT_MAP_ID, row: 2, col: 8 }; // southern-face center tile of the footprint
 const FUTURE_RETURN = { mapId: FOOTPRINT_MAP_ID, row: 3, col: 8 }; // road tile immediately south of the footprint
@@ -327,7 +319,7 @@ module.exports = {
 
     // 4. The six chunks are NOT treated as six town interiors: TOWN_BUILDING
     //    (13) appears ONLY as the 6-tile reserved footprint on
-    //    WORKING_WATERFRONT_MAP; TOWN_FLOOR (12) and TOWN_MARKET (21) appear
+    //    TOWN_APPROACH_MAP; TOWN_FLOOR (12) and TOWN_MARKET (21) appear
     //    nowhere across the whole peninsula (no literal streets).
     let totalBuildingTiles = 0;
     for (const id of SIX_CHUNKS) {
@@ -369,37 +361,39 @@ module.exports = {
     //    movement.js has no enterTownAt('mornay', ...) call (the established
     //    TOWN_ENTRANCE-tile convention used by Calwick/Drenwick).
     assert.equal(/enterTownAt\(\s*['"]mornay['"]/i.test(movementSrc), false, 'no enterTownAt(\'mornay\', ...) wired yet');
-    assert.equal(/targetMap:\s*['"][^'"]*MORNAY_TOWN/i.test(worldTransitionsSrc), false, 'no EDGE_TRANSITIONS entry targets a Mornay town map');
+    const townNamedTargets = J("JSON.stringify([...new Set(Object.values(EDGE_TRANSITIONS).flatMap(d=>Object.values(d).flat()).map(e=>e.targetMap).filter(id=>id.includes('MORNAY_TOWN')))])");
+    assert.deepEqual(townNamedTargets, ['EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP'], 'only the outdoor approach uses the town word');
+    assert.equal(g.run("Object.values(MAP_CATALOG).some(m=>m.id.includes('MORNAY')&&m.type==='town')"), false, 'no Mornay town map exists');
 
     // 8. The approach reaches the peninsula: EASTERN_FENS_MORNAY_APPROACH_M_MAP
     //    has a reciprocal north seam into the peninsula's southern neck
-    //    (ADMIN_CENTRE_MAP), matching the "southern neck" requirement.
+    //    (NECK_ROAD_MAP), matching the "southern neck" requirement.
     const approachMNorth = J("JSON.stringify(EDGE_TRANSITIONS['EASTERN_FENS_MORNAY_APPROACH_M_MAP'].north)");
-    assert.deepEqual(approachMNorth, [{ targetMap: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', targetEdge: 'south', sourceRange: [7, 9] }]);
+    assert.deepEqual(approachMNorth, [{ targetMap: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', targetEdge: 'south', sourceRange: [7, 9] }]);
     const approachMGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_APPROACH_M_MAP'].map)");
     assert.deepEqual([approachMGrid[0][7], approachMGrid[0][8], approachMGrid[0][9]], [2, 2, 2], 'approach north seam is walkable PATH');
 
     // 9. The road reaches the reserved footprint: col 8 is walkable (PATH) on
-    //    every row from the southern seam (row 14) of ADMIN_CENTRE_MAP, up
-    //    through its north seam, through WORKING_WATERFRONT_MAP, to row 3
+    //    every row from the southern seam (row 14) of NECK_ROAD_MAP, up
+    //    through its north seam, through TOWN_APPROACH_MAP, to row 3
     //    (the footprint's southern face) -- one continuous corridor.
-    const adminGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP'].map)");
-    for (let r = 0; r <= 14; r++) assert.equal(adminGrid[r][8], 2, `ADMIN_CENTRE_MAP row ${r} col 8 is PATH (road spine)`);
-    for (let r = 3; r <= 14; r++) assert.equal(crownGrid[r][8], 2, `WORKING_WATERFRONT_MAP row ${r} col 8 is PATH (road to footprint)`);
+    const neckGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_NECK_ROAD_MAP'].map)");
+    for (let r = 0; r <= 14; r++) assert.equal(neckGrid[r][8], 2, `NECK_ROAD_MAP row ${r} col 8 is PATH (road spine)`);
+    for (let r = 3; r <= 14; r++) assert.equal(crownGrid[r][8], 2, `TOWN_APPROACH_MAP row ${r} col 8 is PATH (road to footprint)`);
 
     // 10. Western and eastern shoreline branches terminate safely (water,
     //     rock, mud, or dense vegetation), not void: the authored local dead
     //     ends in the Sheltered Cove, Exposed Eastern Shore, Western Harbour
     //     Shore, and Exposed Point chunks.
-    const westernGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP'].map)");
+    const westernGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_WESTERN_COVE_MAP'].map)");
     assert.equal(westernGrid[11][7], 88, 'Sheltered Cove: southern mooring spur ends at Exposed Stone');
     assert.equal(westernGrid[11][8], 88, 'Sheltered Cove: southern mooring spur ends at Exposed Stone');
-    const residentialGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_RESIDENTIAL_MAP'].map)");
-    assert.equal(residentialGrid[11][2], 129, 'Exposed Eastern Shore: southern spur ends at Driftwood');
-    const harbourGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_HARBOUR_MAP'].map)");
+    const easternShoreGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP'].map)");
+    assert.equal(easternShoreGrid[11][2], 129, 'Exposed Eastern Shore: southern spur ends at Driftwood');
+    const harbourGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP'].map)");
     assert.equal(harbourGrid[1][2], 23, 'Western Harbour Shore: northern mooring spur ends at Reeds');
     assert.equal(harbourGrid[1][3], 23, 'Western Harbour Shore: northern mooring spur ends at Reeds');
-    const edgeGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP'].map)");
+    const edgeGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_EASTERN_POINT_MAP'].map)");
     assert.equal(edgeGrid[4][8], 128, 'Exposed Point: the point tip is Gravel Bar');
     assert.equal(edgeGrid[3][8], 1, 'Exposed Point: water immediately north of the tip (natural dead end)');
 
@@ -432,12 +426,12 @@ module.exports = {
     //     invariant across the whole region is proven independently by test
     //     176; this confirms the six chunks specifically didn't move).
     const COORDS = {
-      EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP: [16, -2],
-      EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP: [17, -2],
-      EASTERN_FENS_MORNAY_RESIDENTIAL_MAP: [18, -2],
-      EASTERN_FENS_MORNAY_HARBOUR_MAP: [16, -3],
-      EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP: [17, -3],
-      EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP: [18, -3],
+      EASTERN_FENS_MORNAY_WESTERN_COVE_MAP: [16, -2],
+      EASTERN_FENS_MORNAY_NECK_ROAD_MAP: [17, -2],
+      EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP: [18, -2],
+      EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP: [16, -3],
+      EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP: [17, -3],
+      EASTERN_FENS_MORNAY_EASTERN_POINT_MAP: [18, -3],
     };
     for (const [id, [cx, cy]] of Object.entries(COORDS)) {
       const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
@@ -464,18 +458,32 @@ module.exports = {
     // 15. Naming audit: all six display names describe peninsula geography,
     //     not nonexistent Mornay town districts.
     const EXPECTED_DISPLAY_NAMES = {
-      EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP: 'Mornay Peninsula — Western Cove',
-      EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP: 'Mornay Peninsula — Neck Road',
-      EASTERN_FENS_MORNAY_RESIDENTIAL_MAP: 'Mornay Peninsula — Eastern Shore',
-      EASTERN_FENS_MORNAY_HARBOUR_MAP: 'Mornay Peninsula — Harbour Shore',
-      EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP: 'Mornay Peninsula — Town Approach',
-      EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP: 'Mornay Peninsula — Eastern Point',
+      EASTERN_FENS_MORNAY_WESTERN_COVE_MAP: 'Mornay Peninsula — Western Cove',
+      EASTERN_FENS_MORNAY_NECK_ROAD_MAP: 'Mornay Peninsula — Neck Road',
+      EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP: 'Mornay Peninsula — Eastern Shore',
+      EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP: 'Mornay Peninsula — Harbour Shore',
+      EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP: 'Mornay Peninsula — Town Approach',
+      EASTERN_FENS_MORNAY_EASTERN_POINT_MAP: 'Mornay Peninsula — Eastern Point',
     };
+    const saveFixture=context();
+    saveFixture.run('dialogue.open=false');assert.equal(saveFixture.run('saveGame()'),true);
+    const saved=JSON.parse(saveFixture.run("localStorage.getItem('verdantVale_save')"));
     for (const [id, name] of Object.entries(EXPECTED_DISPLAY_NAMES)) {
       assert.equal(g.run(`MAP_CATALOG['${id}'].displayName`), name, `${id}: display name describes peninsula geography`);
+      assert.equal(g.run(`mapIdForRef(mapRefForId('${id}'))`), id);
+      assert.equal(g.run(`getDebugWarpDestinations().filter(d=>d.mapId==='${id}').length`), 1);
+      g.run('dialogue.open=false');
+      assert.equal(g.run(`debugWarpToDestination('outdoor:${id}').success`), true, `${id}: derived warp resolves`);
+      assert.equal(g.run('regionalActiveMapId()'), id);
+      assert.equal(g.run('saveGame()'), false, 'peninsula save restriction remains unchanged');
+      // A regional saved location is a canonical world point, not a retired
+      // map ID. Exercise that existing load authority without enabling saves.
+      saved.location={kind:'regional',...JSON.parse(g.run('JSON.stringify(regionalWorldPosition())'))};
+      g.run('localStorage.setItem("verdantVale_save",'+JSON.stringify(JSON.stringify(saved))+');dialogue.open=false');
+      assert.equal(g.run('loadGame()'), true);
+      assert.equal(g.run('regionalActiveMapId()'), id, `${id}: save placement round trip`);
     }
-    // None of the (deliberately deferred) town-district-sounding internal ID
-    // fragments leak into any display name.
+    // No town-district terminology leaks into any display name.
     const DISTRICT_WORDS = ['Administrative', 'Residential', 'Waterfront', 'District'];
     for (const [id, name] of Object.entries(EXPECTED_DISPLAY_NAMES)) {
       for (const word of DISTRICT_WORDS) {

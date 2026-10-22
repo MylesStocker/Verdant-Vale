@@ -1720,7 +1720,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_MORNAY_APPROACH_M_MAP: {
     east: [{ targetMap: 'EASTERN_FENS_MORNAY_APPROACH_E_MAP', targetEdge: 'west', sourceRange: [5, 9] }],
     west: [{ targetMap: 'EASTERN_FENS_MORNAY_APPROACH_W_MAP', targetEdge: 'east', sourceRange: [5, 9] }],
-    north: [{ targetMap: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    north: [{ targetMap: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
   },
   EASTERN_FENS_MORNAY_APPROACH_W_MAP: {
     east: [{ targetMap: 'EASTERN_FENS_MORNAY_APPROACH_M_MAP', targetEdge: 'west', sourceRange: [5, 9] }],
@@ -1729,36 +1729,36 @@ const EDGE_TRANSITIONS = {
   // Eastern Shore; row -3: Western Harbour Shore / Northern Crown / Exposed
   // Point) -- one coherent, irregular landform extending north into Valmere.
   // The road continues north from EASTERN_FENS_MORNAY_APPROACH_M_MAP through
-  // the neck (ADMIN_CENTRE_MAP) to the crown (WORKING_WATERFRONT_MAP), which
+  // the neck (NECK_ROAD_MAP) to the crown (TOWN_APPROACH_MAP), which
   // reserves the compact 3x2 Mornay settlement footprint. No enterable town
   // transition exists yet -- the footprint is a solid marker until the
   // separate interior Mornay town map is built.
-  EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP: {
+  EASTERN_FENS_MORNAY_NECK_ROAD_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_MORNAY_APPROACH_M_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    north: [{ targetMap: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'EASTERN_FENS_MORNAY_RESIDENTIAL_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+    north: [{ targetMap: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'EASTERN_FENS_MORNAY_WESTERN_COVE_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
   },
-  EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP: {
-    east: [{ targetMap: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-    north: [{ targetMap: 'EASTERN_FENS_MORNAY_HARBOUR_MAP', targetEdge: 'south', sourceRange: [10, 12] }],
+  EASTERN_FENS_MORNAY_WESTERN_COVE_MAP: {
+    east: [{ targetMap: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+    north: [{ targetMap: 'EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP', targetEdge: 'south', sourceRange: [10, 12] }],
   },
-  EASTERN_FENS_MORNAY_RESIDENTIAL_MAP: {
-    west: [{ targetMap: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    north: [{ targetMap: 'EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP', targetEdge: 'south', sourceRange: [3, 5] }],
+  EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP: {
+    west: [{ targetMap: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    north: [{ targetMap: 'EASTERN_FENS_MORNAY_EASTERN_POINT_MAP', targetEdge: 'south', sourceRange: [3, 5] }],
   },
-  EASTERN_FENS_MORNAY_HARBOUR_MAP: {
-    south: [{ targetMap: 'EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP', targetEdge: 'north', sourceRange: [10, 12] }],
-    east: [{ targetMap: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_MORNAY_WESTERN_COVE_MAP', targetEdge: 'north', sourceRange: [10, 12] }],
+    east: [{ targetMap: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
   },
-  EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP: {
-    south: [{ targetMap: 'EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'EASTERN_FENS_MORNAY_HARBOUR_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP', targetEdge: 'west', sourceRange: [10, 12] }],
+  EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'EASTERN_FENS_MORNAY_EASTERN_POINT_MAP', targetEdge: 'west', sourceRange: [10, 12] }],
   },
-  EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP: {
-    south: [{ targetMap: 'EASTERN_FENS_MORNAY_RESIDENTIAL_MAP', targetEdge: 'north', sourceRange: [3, 5] }],
-    west: [{ targetMap: 'EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP', targetEdge: 'east', sourceRange: [10, 12] }],
+  EASTERN_FENS_MORNAY_EASTERN_POINT_MAP: {
+    south: [{ targetMap: 'EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP', targetEdge: 'north', sourceRange: [3, 5] }],
+    west: [{ targetMap: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', targetEdge: 'east', sourceRange: [10, 12] }],
   },
   // Eastern Fens envelope (Phase 2) — walkable infill pockets off the route. The
   // bridge inlet hangs north off the WIDE_WATER timber bridge as a dead-end reed

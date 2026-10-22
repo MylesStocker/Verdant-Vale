@@ -135,7 +135,7 @@ bog in the envelope. Beyond the threshold, six chunks at (16-18, -2) and
 extending north into Valmere (a sheltered western cove and harbour shore, a
 neck road up the spine, and a more exposed eastern shore/point), not six
 town-interior maps. The peninsula's northern crown reserves a compact 3x2
-Mornay settlement footprint (`EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP`,
+Mornay settlement footprint (`EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP`,
 rows 1-2, cols 7-9) — the whole town at overworld scale. No enterable town
 transition exists yet; the footprint is a solid marker until the separate
 interior Mornay town map is built (see change log).
@@ -147,13 +147,13 @@ interior Mornay town map is built (see change log).
 | `EASTERN_FENS_ENVELOPE_C17RN4_MAP` | (17, -4) | Eastern Fens — Valmere Open Water | no | no |
 | `EASTERN_FENS_ENVELOPE_C18RN4_MAP` | (18, -4) | Eastern Fens — Valmere Open Water | no | no |
 | `EASTERN_FENS_ENVELOPE_C15RN3_MAP` | (15, -3) | Eastern Fens — Valmere Open Water | no | no |
-| `EASTERN_FENS_MORNAY_HARBOUR_MAP` | (16, -3) | Mornay Peninsula — Harbour Shore | yes | no |
-| `EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP` | (17, -3) | Mornay Peninsula — Town Approach (reserves the 3x2 Mornay footprint) | yes | no |
-| `EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP` | (18, -3) | Mornay Peninsula — Eastern Point | yes | no |
+| `EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP` | (16, -3) | Mornay Peninsula — Harbour Shore | yes | no |
+| `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` | (17, -3) | Mornay Peninsula — Town Approach (reserves the 3x2 Mornay footprint) | yes | no |
+| `EASTERN_FENS_MORNAY_EASTERN_POINT_MAP` | (18, -3) | Mornay Peninsula — Eastern Point | yes | no |
 | `EASTERN_FENS_ENVELOPE_C15RN2_MAP` | (15, -2) | Eastern Fens — Valmere Open Water | no | no |
-| `EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP` | (16, -2) | Mornay Peninsula — Western Cove | yes | no |
-| `EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP` | (17, -2) | Mornay Peninsula — Neck Road | yes | no |
-| `EASTERN_FENS_MORNAY_RESIDENTIAL_MAP` | (18, -2) | Mornay Peninsula — Eastern Shore | yes | no |
+| `EASTERN_FENS_MORNAY_WESTERN_COVE_MAP` | (16, -2) | Mornay Peninsula — Western Cove | yes | no |
+| `EASTERN_FENS_MORNAY_NECK_ROAD_MAP` | (17, -2) | Mornay Peninsula — Neck Road | yes | no |
+| `EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP` | (18, -2) | Mornay Peninsula — Eastern Shore | yes | no |
 | `EASTERN_FENS_ENVELOPE_C6RN1_MAP` | (6, -1) | Eastern Fens — Open Fen Water | no | no |
 | `EASTERN_FENS_ENVELOPE_C7RN1_MAP` | (7, -1) | Eastern Fens — Open Fen Water | no | no |
 | `EASTERN_FENS_ENVELOPE_C8RN1_MAP` | (8, -1) | Eastern Fens — Open Fen Water | no | no |
@@ -293,14 +293,14 @@ code each time.
   the originally-flagged six-chunk town. Reworked into one coherent,
   irregular peninsula extending north into Valmere — walkable again (66
   accessible chunks, matching the pre-scenery total), but not a town grid.
-- **Peninsula shape**: `EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP` (17,-2) is the
+- **Peninsula shape**: `EASTERN_FENS_MORNAY_NECK_ROAD_MAP` (17,-2) is the
   neck road/spine (a single PATH corridor, water cut into both the west and
-  east sides so the landmass isn't a rectangular slab); `_WESTERN_APPROACH_MAP`
+  east sides so the landmass isn't a rectangular slab); `_WESTERN_COVE_MAP`
   (16,-2) is a sheltered cove/harbour-facing shore (drought mud, a stranded
-  boat); `_RESIDENTIAL_MAP` (18,-2) is a more exposed eastern shore (narrow
-  shingle, open rockier water); `_HARBOUR_MAP` (16,-3) is the western harbour
-  shore continuing north; `_WORKING_WATERFRONT_MAP` (17,-3) is the northern
-  crown; `_EASTERN_EDGE_MAP` (18,-3) is the exposed eastern point. Substantial
+  boat); `_EASTERN_SHORE_MAP` (18,-2) is a more exposed eastern shore (narrow
+  shingle, open rockier water); `_HARBOUR_SHORE_MAP` (16,-3) is the western harbour
+  shore continuing north; `_TOWN_APPROACH_MAP` (17,-3) is the northern
+  crown; `_EASTERN_POINT_MAP` (18,-3) is the exposed eastern point. Substantial
   open Valmere water remains visible on every side (the lake still reads as
   an inland sea). `EASTERN_FENS_MORNAY_APPROACH_M_MAP`'s (17,-1) north seam
   reopened (cols 7-9) so the existing approach connects into the peninsula's
@@ -309,12 +309,12 @@ code each time.
   ending at rock/reeds, a point tip ending at open water) for local
   exploration — not a bypass around anything.
 - **Reserved the compact 3x2 Mornay settlement footprint**: 6 TOWN_BUILDING
-  tiles at `EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP` rows 1-2, cols 7-9 —
+  tiles at `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` rows 1-2, cols 7-9 —
   the whole town at overworld scale, reusing the established
   TOWN_ENTRANCE/`enterTownAt()` convention already used by Calwick (`MAP`)
   and Drenwick (`MAP3_N2`) for when the real interior town map exists. The
   neck road terminates naturally at the footprint's southern face (row 3).
-  Future entry tile: (col 8, row 2) on `EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP`
+  Future entry tile: (col 8, row 2) on `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP`
   — presently solid (TOWN_BUILDING). Future return-landing tile: (col 8,
   row 3) on the same chunk — presently the walkable road (PATH). No
   transition to a nonexistent Mornay town map was created; no closure/guard/
@@ -330,29 +330,14 @@ code each time.
   residual bypass was corrected to an open Codex follow-up. Full suite:
   208/208 passed.
 
-### 2026-10-21 (Mornay peninsula naming audit)
+### 2026-10-21 (Mornay peninsula internal names)
 
-- **Display names corrected to pure peninsula geography** (approved):
-  `_WESTERN_APPROACH_MAP` → "Mornay Peninsula — Western Cove",
-  `_RESIDENTIAL_MAP` → "Mornay Peninsula — Eastern Shore",
-  `_HARBOUR_MAP` → "Mornay Peninsula — Harbour Shore",
-  `_WORKING_WATERFRONT_MAP` → "Mornay Peninsula — Town Approach",
-  `_EASTERN_EDGE_MAP` → "Mornay Peninsula — Eastern Point". `_ADMIN_CENTRE_MAP`'s
-  "Mornay Peninsula — Neck Road" was already correct.
-- **Internal-ID rename deferred, not completed.** Four of the six map IDs
-  (`_ADMIN_CENTRE_MAP`, `_RESIDENTIAL_MAP`, `_HARBOUR_MAP`,
-  `_WORKING_WATERFRONT_MAP`) still carry leftover town-district terminology
-  that will conflict conceptually with the real Mornay town maps later. A
-  full rename was audited and would touch `world-transitions.js`,
-  `content/maps/eastern-fens-maps.js`, `test/fixtures/regional-grid-
-  fingerprints.js`, `test/transition-audit-output.json`, `test/cases/86` and
-  `215`, this atlas — **and `data.js`**, which has literal `MAP_CATALOG`
-  registry entries keyed by these exact ID strings and is currently dirty
-  with unrelated, unowned changes. The rename was deferred rather than risk
-  touching that file; see the INTEGRATION NOTE comment in
-  `content/maps/eastern-fens-maps.js` immediately above the six-chunk block
-  for the exact file list and suggested replacement IDs
-  (`_NECK_ROAD_MAP`, `_EASTERN_SHORE_MAP`, `_HARBOUR_SHORE_MAP`,
-  `_TOWN_APPROACH_MAP`) for the next clean pass, before real Mornay town maps
-  are created. Grids, footprint coordinates, seams, and topology were not
-  altered. Full suite: 208/208 passed.
+The six peninsula IDs now describe Neck Road, Western Cove, Eastern Shore,
+Harbour Shore, Town Approach and Eastern Point. Their display names, grid
+hashes, placements, coastal spurs and structural seams are unchanged. The
+3×2 town footprint remains solid: future entry (8,2), future return (8,3),
+with no town transition. Catalogues, save placement, debug warp, tests and
+source-derived artifacts use the same renamed IDs. No compatibility aliases
+are retained for the unreleased district placeholders. Regional saved world
+coordinates remain compatible; the six maps retain their save restrictions.
+Malformed explicit retired IDs reject through existing unknown-map validation.
