@@ -635,7 +635,7 @@ const SHARED_NPCS = [
        '\u201cI retired here for the quiet. Save well and one can retire off of thirty-one years of work....as long as they are willing to live somewhere like here. I got mud instead of quiet. Close enough.\u201d'],
       ['\u201cThe Civic Class is the best thing the Empire has done in three hundred years. I am proof. Look at me here, retired and content.\u201d',
        '\u201cOpening the administrative register to qualifying individuals regardless of birth \u2014 commonborn and rareborn alike \u2014 was overdue.\u201d',
-       '\u201cThe Returners still grumble. They always will. The Empire doesn\u2019t care.\u201d'],
+       '\u201cThe Reclaimers still grumble. They always will. The Empire doesn\u2019t care.\u201d'],
       ['\u201cLumina is the other capital. Most people in Drenwick have never been.\u201d',
        '\u201cI went twice on official business. The registry\u2019s main tower catches the light at sunset and the whole thing goes amber.\u201d',
        '\u201cThey study rareborn gifts there. Keep them structured, sanctioned, recorded. Eleven centuries of method.\u201d'],
