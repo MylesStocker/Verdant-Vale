@@ -238,7 +238,9 @@ test('authorized Observe actors advance only selected duplicate runtime identiti
 
 test('legacy flat-pool selection, pool membership and RNG consumption remain unchanged',()=>{
   const g=fresh(),before=J(g,'ENEMY_TEMPLATE_POOLS.map(p=>p.templates.map(t=>t.id))');
-  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
+  // Every pool except the two Eastern Fens Mornay weighted-formation pools is
+  // flat raw templates (unchanged legacy shape).
+  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.filter(p=>!["pool_eastern_fens_mornay_easy","pool_eastern_fens_mornay_hard"].includes(p.id)).every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
   g.run(`var selectionCalls=0;Math.random=()=>{selectionCalls++;return .5};var selected=encounterFormations.select(ENEMY_TEMPLATE_POOLS[0].templates);`);
   assert.equal(g.run('selectionCalls'),1);assert.deepEqual(J(g,'ENEMY_TEMPLATE_POOLS.map(p=>p.templates.map(t=>t.id))'),before);
   assert.equal(g.run('selected.enemies.length'),1);assert.equal(g.run('encounterFormations.normalizePool(ENEMY_TEMPLATE_POOLS[0].templates).mode'),'legacy_flat');

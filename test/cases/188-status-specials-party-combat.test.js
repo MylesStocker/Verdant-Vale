@@ -237,7 +237,10 @@ test('geographic routing accepts the seven mechanics only after recruitment and 
     const g=fresh(count);g.run('currentEncounterPool=()=>[ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+']];var selected=[];Math.random=()=>{selected.push(.5);return .5};startCombat()');
     assert.equal(g.run('selected.length'),2,id);assert.equal(g.run('canonicalPartyCombat.isActive()'),count===2,id);assert.equal(g.run('combat.active'),count===1,id);
   }
-  const g=fresh();assert.equal(g.run('ENEMY_TEMPLATE_POOLS.every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
+  const g=fresh();
+  // Every pool except the two Eastern Fens Mornay weighted-formation pools is
+  // flat raw templates (unchanged legacy shape).
+  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.filter(p=>!["pool_eastern_fens_mornay_easy","pool_eastern_fens_mornay_hard"].includes(p.id)).every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
 });
 
 test('Pass 4C prepares atomically while scripted lifecycles remain explicitly rejected',()=>{

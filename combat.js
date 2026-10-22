@@ -117,10 +117,20 @@ const ENEMY_TEMPLATE_POOLS = [
   { id: 'pool_dungeon_f8',        label: 'Dungeon — floor 8',                  templates: DUNGEON8_ENEMY_TEMPLATES },
   { id: 'pool_dungeon_horror',    label: 'Dungeon — floors 9–10 (horror)',     templates: DUNGEON_HORROR_ENEMY_TEMPLATES },
   { id: 'pool_far_overworld',     label: 'Far overworld (MAP3 / N-tier)',      templates: FAR_ENEMY_TEMPLATES },
-  // Intentionally not yet routed from any MAP_METADATA.encounterPool (expect
-  // the "unreachable" validation warning). The geographic bridge supports
-  // the authored tables; map assignments remain separate content work.
+  // The raw template registration -- registers the seven enemies themselves
+  // (ENEMY_TEMPLATE_REGISTRY identity/capability auditing) independently of
+  // any formation table. Intentionally never routed directly from a map's
+  // encounterPool itself (expect its own "unreachable" validation warning,
+  // narrowly exempted in test 59) -- the two formation pools below are the
+  // actual live routing mechanism; they reference these same enemies by id.
   { id: 'pool_eastern_fens_mornay', label: 'Eastern Fens — Mornay approach',  templates: EASTERN_FENS_MORNAY_ENEMY_TEMPLATES },
+  // Weighted { id, enemies, weight } formation tables (encounter-formations.js),
+  // not flat template arrays -- poolTemplates()/validateEncounterFormationData()
+  // and the geographic dispatcher all already handle this shape. Routed from
+  // MAP_METADATA via the eastern_fens_mornay_easy/_hard encounter profiles
+  // (data.js, content/maps/eastern-fens-maps.js).
+  { id: 'pool_eastern_fens_mornay_easy', label: 'Eastern Fens — Mornay approach (easy)', templates: EASTERN_FENS_MORNAY_EASY_FORMATIONS },
+  { id: 'pool_eastern_fens_mornay_hard', label: 'Eastern Fens — Mornay approach (hard)', templates: EASTERN_FENS_MORNAY_HARD_FORMATIONS },
   { id: 'pool_thornmere',         label: 'Thornmere (MAP4)',                   templates: THORNMERE_ENEMY_TEMPLATES },
   { id: 'pool_lighthouse',        label: 'Abandoned Lighthouse — lower floors', templates: LIGHTHOUSE_ENEMY_TEMPLATES },
   { id: 'pool_lighthouse_top',    label: 'Abandoned Lighthouse — lantern room', templates: LIGHTHOUSE_TOP_ENEMY_TEMPLATES },

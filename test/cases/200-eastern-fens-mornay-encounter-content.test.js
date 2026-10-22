@@ -3,16 +3,15 @@
 // Mire Toad reuse, Sparkeel, Mudwrack Snapper, Fen Rootworm, Willow-Veiled
 // Stalker, Hollowreed Choker) and the two authored encounter-formation tables
 // ({ id, enemies, weight }, the closed schema in encounter-formations.js) —
-// an easy-leaning table (meant for chunk column <= 12, Eastern Bank through
-// Travellers' Rise) and a hard-leaning table (column >= 13, Travellers' Rise
-// to Mornay Threshold). Both tables share the same 16 formation ids/
-// compositions; only the weights differ. Content and validation only — NOT
-// yet assigned to any geographic pool/MAP_METADATA entry. The integrated
-// geographic dispatcher now accepts these tables without content-specific
-// routing or execution code (see PROJECT_STATUS.md). This suite
-// proves the content is correct and that it is genuinely inert: nothing here
-// is reachable through ordinary play yet, and nothing here is a second
-// selector/dispatcher of its own.
+// an easy-leaning table (chunk column <= 12, Eastern Bank through Travellers'
+// Rise) and a hard-leaning table (column >= 13, Travellers' Rise to Mornay
+// Threshold). Both tables share the same 16 formation ids/compositions; only
+// the weights differ. Now live on 22 of the 23 Eastern Fens route chunks via
+// the eastern_fens_mornay_easy/_hard encounter profiles (data.js,
+// content/maps/eastern-fens-maps.js) — Travellers' Rise alone stays
+// encounter-free, reserved for its own MQ5 scripted ambush. This suite
+// proves the content is correct, genuinely routed (not just prepared), and
+// that nothing here is a second selector/dispatcher of its own.
 
 const assert = require('assert/strict');
 const fs = require('fs');
@@ -168,12 +167,35 @@ module.exports = {
       }
     }
 
-    // ── 7. INERTNESS: not reachable from any live geographic pool yet ───────
+    // ── 7. LIVE ROUTING: exactly 22 of 23 route chunks, split by column,
+    //    Travellers' Rise excluded; the raw flat template array stays unrouted ─
     assert.equal(
       g.run("Object.values(MAP_METADATA).some(m=>m.encounterPool===EASTERN_FENS_MORNAY_ENEMY_TEMPLATES)"),
-      false, 'no live map yet points its encounterPool at the new enemy templates');
-    for (const table of ['EASTERN_FENS_MORNAY_EASY_FORMATIONS','EASTERN_FENS_MORNAY_HARD_FORMATIONS'])
-      assert.equal(g.run(`Object.values(MAP_METADATA).some(m=>m.encounterPool===${table})`),false);
+      false, 'the raw enemy-template array itself is never a map encounterPool (only the formation tables are)');
+    const ROUTE_EASY = ['EASTERN_FENS_EMBANKMENT_W_MAP','EASTERN_FENS_EMBANKMENT_E_MAP','EASTERN_FENS_REEDBELT_N_MAP',
+      'EASTERN_FENS_REEDBELT_E_MAP','EASTERN_FENS_REEDBELT_S_MAP','EASTERN_FENS_DRY_RISE_APPROACH_MAP',
+      'EASTERN_FENS_DRY_RISE_MAP','EASTERN_FENS_DRAINAGE_SW_MAP','EASTERN_FENS_DRAINAGE_NW_MAP',
+      'EASTERN_FENS_WORKED_REEDS_MAP','EASTERN_FENS_MANAGED_REEDS_MAP'];
+    const ROUTE_HARD = ['EASTERN_FENS_WIDE_WATER_MAP','EASTERN_FENS_CHANNEL_APPROACH_W_MAP','EASTERN_FENS_CHANNEL_APPROACH_E_MAP',
+      'EASTERN_FENS_VALMERE_ROAD_TURN_MAP','EASTERN_FENS_CHANNEL_ROAD_S_MAP','EASTERN_FENS_CHANNEL_ROAD_MID_MAP',
+      'EASTERN_FENS_CHANNEL_ROAD_N_MAP','EASTERN_FENS_VALMERE_REVEAL_MAP','EASTERN_FENS_VALMERE_SHORE_W_MAP',
+      'EASTERN_FENS_VALMERE_SHORE_E_MAP','EASTERN_FENS_MORNAY_THRESHOLD_MAP'];
+    assert.equal(ROUTE_EASY.length, 11); assert.equal(ROUTE_HARD.length, 11);
+    for (const id of ROUTE_EASY) {
+      assert.equal(g.run(`MAP_METADATA['${id}'].encounterPool===EASTERN_FENS_MORNAY_EASY_FORMATIONS`), true, `${id} routes to the easy table`);
+      assert.equal(g.run(`MAP_METADATA['${id}'].allowRandomEncounters`), true, `${id} has encounters enabled`);
+    }
+    for (const id of ROUTE_HARD) {
+      assert.equal(g.run(`MAP_METADATA['${id}'].encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS`), true, `${id} routes to the hard table`);
+      assert.equal(g.run(`MAP_METADATA['${id}'].allowRandomEncounters`), true, `${id} has encounters enabled`);
+    }
+    assert.equal(g.run("MAP_METADATA['EASTERN_FENS_TRAVELLERS_RISE_MAP'].allowRandomEncounters"), false,
+      "Travellers' Rise stays encounter-free, reserved for its own MQ5 scripted ambush");
+    assert.equal(g.run("MAP_METADATA['EASTERN_FENS_TRAVELLERS_RISE_MAP'].encounterPool===EASTERN_FENS_MORNAY_EASY_FORMATIONS"), false);
+    // No other map (any other region, or an Eastern Fens exploration/envelope
+    // chunk) was touched.
+    assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_EASY_FORMATIONS).length`), 11);
+    assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS).length`), 11);
     assert.equal((g.run('startCanonicalPartyEncounter.toString()').match(/encounterFormations\.select\(pool\)/g)||[]).length,1);
 
     // ── 8. Actual geographic selection and installation: all 32 records ────

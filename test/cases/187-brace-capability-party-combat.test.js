@@ -215,7 +215,10 @@ test('unexpected post-decision failure retains evidence, consumed RNG and the no
 test('existing geographic Stone Crawler selection routes recruited parties, preserves solo routing, and other specials reject',()=>{
   for(const count of [1,2]){const g=fresh(count);g.run('currentEncounterPool=()=>[ENEMY_TEMPLATE_REGISTRY.enemy_stone_crawler];var used=[];Math.random=()=>{used.push(.5);return .5};startCombat()');assert.equal(g.run('used.length'),2);assert.equal(g.run('canonicalPartyCombat.isActive()'),count===2);assert.equal(g.run('combat.active'),count===1);}
   const g=fresh();for(const [id,reason]of [['enemy_23','generated_stats'],['enemy_gallery_receiver','receiver_coordination'],['enemy_polwick','fort_lifecycle']])reject(g,'canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"blocked"})',new RegExp(reason));
-  assert.equal(g.run('SAVE_VERSION'),5);assert.equal(g.run('ENEMY_TEMPLATE_POOLS.every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
+  assert.equal(g.run('SAVE_VERSION'),5);
+  // Every pool except the two Eastern Fens Mornay weighted-formation pools is
+  // flat raw templates (unchanged legacy shape).
+  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.filter(p=>!["pool_eastern_fens_mornay_easy","pool_eastern_fens_mornay_hard"].includes(p.id)).every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
 });
 module.exports={name:'Brace capability: legacy exchange guard, exact instances, atomic entry and historical playback',run(){
   for(const check of checks){try{check.run();}catch(error){error.message=check.name+': '+error.message;throw error;}}

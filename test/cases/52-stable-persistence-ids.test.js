@@ -74,7 +74,11 @@ module.exports = {
     // all pooled + scripted templates represented
     const enemyGaps = J(`JSON.stringify((function(){
       var reg=window.ENEMY_TEMPLATE_REGISTRY, out=[];
-      window.ENEMY_TEMPLATE_POOLS.forEach(function(p){p.templates.forEach(function(t){if(reg[t.id]!==t)out.push(t.name);});});
+      // A pool entry may be a flat template OR an authored { id, enemies,
+      // weight } formation (Eastern Fens Mornay's two pools) -- formations
+      // are deliberately excluded from this by-id registry (see combat.js's
+      // buildEnemyTemplateRegistry() add() filter), not a gap.
+      window.ENEMY_TEMPLATE_POOLS.forEach(function(p){p.templates.forEach(function(t){if(!Object.hasOwn(t,'enemies')&&reg[t.id]!==t)out.push(t.name);});});
       window.ENEMY_SCRIPTED_TEMPLATES.forEach(function(t){if(reg[t.id]!==t)out.push(t.name);});
       if(reg[window.SECRET_23_TEMPLATE.id]!==window.SECRET_23_TEMPLATE)out.push('23');
       return out;

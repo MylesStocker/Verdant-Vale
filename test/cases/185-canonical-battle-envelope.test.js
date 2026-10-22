@@ -215,7 +215,12 @@ test('flat pool shorthand preserves every legacy index, repeated weight and one 
  const g=fresh(1);
  for(const roll of [0,.125,.5,.999999]){
   g.run('Math.random=()=>{rolls++;return '+roll+'}');const before=g.run('rolls');
-  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.every(p=>encounterFormations.select(p.templates).enemies[0]===p.templates[Math.floor('+roll+'*p.templates.length)].id)'),true);
+  // Eastern Fens Mornay's two pools are authored weighted formations, not
+  // flat template shorthand -- every pool (flat or weighted) still costs
+  // exactly one selection draw, but the uniform-index identity only holds
+  // for flat pools, checked separately.
+  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.every(p=>{const picked=encounterFormations.select(p.templates);'+
+   'return Object.hasOwn(p.templates[0],"enemies")||picked.enemies[0]===p.templates[Math.floor('+roll+'*p.templates.length)].id;})'),true);
   assert.equal(g.run('rolls')-before,g.run('ENEMY_TEMPLATE_POOLS.length'));
  }
  const table=g.run('encounterFormations.normalizePool([ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp,ENEMY_TEMPLATE_REGISTRY.enemy_marsh_wisp])');frozen(table);

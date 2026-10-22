@@ -83,6 +83,11 @@ module.exports = {
           for (var j = 0; j < pools[i].templates.length; j++) {
             var t = pools[i].templates[j];
             if (!t || !t.id) return 'pool ' + pools[i].id + ' member has no id';
+            // A pool member may be a flat template OR an authored
+            // { id, enemies, weight } formation (Eastern Fens Mornay's two
+            // pools) -- formations reference enemies by id, they are not
+            // registered under their own id in ENEMY_TEMPLATE_REGISTRY.
+            if (Object.hasOwn(t, 'enemies')) continue;
             if (reg[t.id] !== t) return 'pool member not registered: ' + t.id;
           }
         return 'ok';

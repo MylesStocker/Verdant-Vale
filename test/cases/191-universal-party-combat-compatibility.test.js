@@ -77,14 +77,25 @@ test('every static ordinary formation up to three slots prepares for every party
  }
  assert.equal(total,74409);console.log('  74,409 complete immutable ordinary-formation preparations');
 });
-test('all registered pools normalize unchanged and contain only ordinary supported templates; no Eastern Fens pool',()=>{
+test('all registered pools normalize unchanged and contain only ordinary supported templates; Eastern Fens Mornay route live except Travellers\' Rise',()=>{
  const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),70);
- const report=J(g,`ENEMY_TEMPLATE_POOLS.map(p=>({name:p.name,ids:p.templates.map(t=>t.id),ok:p.templates.every(t=>canonicalEnemyIsCompatible(t)&&
- !enemyCapabilityMetadata(t).capabilities.some(c=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(c)))}))`);
+ // A pool entry may be a flat template OR an authored { id, enemies, weight }
+ // formation (Eastern Fens Mornay's two pools) -- resolve formation entries
+ // to their actual enemy templates before checking compatibility, same as
+ // validation.js's poolTemplates().
+ const report=J(g,`ENEMY_TEMPLATE_POOLS.map(p=>({name:p.name,ids:p.templates.map(t=>t.id),
+  ok:p.templates.flatMap(t=>Object.hasOwn(t,'enemies')?t.enemies.map(id=>ENEMY_TEMPLATE_REGISTRY[id]):[t])
+   .every(t=>canonicalEnemyIsCompatible(t)&&!enemyCapabilityMetadata(t).capabilities.some(c=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(c)))}))`);
  assert.ok(report.length>0);assert.ok(report.every(p=>p.ok));
  g.run('for(const p of ENEMY_TEMPLATE_POOLS)encounterFormations.normalizePool(p.templates)');assert.equal(g.run('rolls'),0);
+ // 22 of the 23 main-route chunks now carry random encounters (easy/hard
+ // split by chunk column); Travellers' Rise alone stays encounter-free,
+ // reserved for its own MQ5 scripted ambush. Exploration/envelope chunks
+ // (and the raw flat pool_eastern_fens_mornay registration) stay unrouted.
  const fens=J(g,`Object.entries(MAP_METADATA).filter(([id])=>id.startsWith('EASTERN_')).map(([id,m])=>({id,enabled:m.allowRandomEncounters}))`);
- assert.ok(fens.length>0);assert.ok(fens.every(m=>m.enabled===false));
+ assert.ok(fens.length>0);
+ assert.equal(fens.filter(m=>m.enabled).length,22);
+ assert.equal(fens.find(m=>m.id==='EASTERN_FENS_TRAVELLERS_RISE_MAP').enabled,false);
 });
 for(const count of [1,2,3])for(const fallen of [-1,...Array.from({length:count},(_,i)=>i)]){
  if(count===1&&fallen===0)continue;

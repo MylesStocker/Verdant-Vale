@@ -122,11 +122,13 @@ const FAR_ENEMY_TEMPLATES = [
 ];
 
 // ─── Eastern Fens — Mornay approach ───────────────────────────────────────────
-// New for the two-member-party stretch between the ferry and Mornay. Not yet
-// assigned to any geographic pool/MAP_METADATA entry — see
+// For the two-member-party stretch between the ferry and Mornay. See
 // EASTERN_FENS_MORNAY_EASY_FORMATIONS and EASTERN_FENS_MORNAY_HARD_FORMATIONS
-// below for the authored encounter tables. The geographic bridge supports
-// them; production map assignments remain separate content work.
+// below for the authored encounter tables. Assigned via the
+// eastern_fens_mornay_easy/_hard encounter profiles (_ENCOUNTER_PROFILES) to
+// 22 of the 23 Eastern Fens route chunks (content/maps/eastern-fens-maps.js) —
+// EASTERN_FENS_TRAVELLERS_RISE_MAP stays encounter-free, reserved for its own
+// MQ5 scripted ambush.
 const EASTERN_FENS_MORNAY_ENEMY_TEMPLATES = [
   // Botfly — small, fast biting-insect swarmer. Weak alone; the point is numbers:
   // poisonChance stacks across a multi-body formation in a way a single Botfly
@@ -188,8 +190,8 @@ const _fensGauntlet       = Object.freeze(['enemy_waspthra', 'enemy_mudwrack_sna
 // column <= 12 (Eastern Bank through Travellers' Rise) draws mostly from the
 // easy table; column >= 13 (Travellers' Rise to Mornay Threshold) draws
 // mostly from the hard table. Every formation is possible in both — only the
-// weights change. Neither table is assigned to a map yet (see file-header
-// comment and PROJECT_STATUS.md).
+// weights change. Assigned via _ENCOUNTER_PROFILES below (see file-header
+// comment and content/maps/eastern-fens-maps.js).
 const EASTERN_FENS_MORNAY_EASY_FORMATIONS = Object.freeze([
   Object.freeze({ id: 'formation_botfly_solo',          enemies: _fensBotfly,         weight: 16 }),
   Object.freeze({ id: 'formation_sparkeel_solo',        enemies: _fensSparkeel,       weight: 14 }),
@@ -929,6 +931,12 @@ const _ENCOUNTER_PROFILES = {
   canal_banks:     CANAL_BANKS_ENEMY_TEMPLATES,
   north_basin: NORTH_BASIN_ENEMY_TEMPLATES,
   upper_reach: UPPER_REACH_ENEMY_TEMPLATES,
+  // Eastern Fens Mornay route: two weighted { id, enemies, weight } formation
+  // tables (encounter-formations.js), not flat template arrays like the
+  // profiles above. The geographic dispatcher (startCanonicalPartyEncounter(),
+  // combat.js) normalizes/selects either shape identically.
+  eastern_fens_mornay_easy: EASTERN_FENS_MORNAY_EASY_FORMATIONS,
+  eastern_fens_mornay_hard: EASTERN_FENS_MORNAY_HARD_FORMATIONS,
 };
 window._ENCOUNTER_PROFILES = _ENCOUNTER_PROFILES;
 

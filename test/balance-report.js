@@ -478,7 +478,17 @@ const poolResults = {};
 // Shared per-scenario simulation + printer, reused by the auto-coverage pass.
 function runPoolScenario(scenario) {
   const pool = poolById.get(scenario.poolId);
-  const templates = pool.templates;
+  // A pool entry may be a flat template OR an authored { id, enemies, weight }
+  // formation (Eastern Fens Mornay's two pools). This 1v1 Monte Carlo
+  // simulator has no notion of a multi-enemy formation, so resolve formations
+  // to their distinct constituent enemy templates and benchmark those
+  // individually -- the same per-enemy view the raw pool_eastern_fens_mornay
+  // registration already gives.
+  const seen = new Set();
+  const templates = pool.templates.flatMap((t) => {
+    if (!Object.hasOwn(t, 'enemies')) return [t];
+    return t.enemies.map((id) => ENEMY_TEMPLATE_REGISTRY[id]).filter((e) => e && !seen.has(e.id) && seen.add(e.id));
+  });
   const player = playerAt(scenario.level, scenario.tier);
   console.log(`\n--- ${scenario.heading} --- (benchmark: Lv.${scenario.level}, ${scenario.tier} => ATK${player.atk}/DEF${player.def}/SPD${player.spd}/HP${player.maxHp})`);
   console.log('Enemy            HP  ATK DEF SPD | XP  Gold(avg) | WinRate DeathRate AvgTurns HP%@Win | Danger');
