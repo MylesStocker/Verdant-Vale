@@ -154,7 +154,7 @@ module.exports = {
       assert.equal(R('continuousWorldViewActive()'), false, 'Mornay uses fixed legacy-town presentation');
       R('transitionCooldown=0;exitTown()');
       assert.equal(R('mapIdForRef(activeMap)'), 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP');
-      assert.deepEqual(J('JSON.stringify({col:Math.floor(player.x/TILE),row:Math.floor(player.y/TILE),facing:player.facing})'), { col:spec.col, row:3, facing:'down' }, `${spec.point}: exact paired return placement`);
+      assert.deepEqual(J('JSON.stringify({col:Math.floor(player.x/TILE),row:Math.floor(player.y/TILE),facing:player.facing})'), { col:spec.col, row:4, facing:'down' }, `${spec.point}: exact paired return placement`);
     }
 
     // 16. A normal SAVE_VERSION 5 save/load restores a valid Mornay screen.

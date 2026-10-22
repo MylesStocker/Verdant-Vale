@@ -243,7 +243,8 @@ layout coordinates are:
 `transitionToLocation()` with fixed, validated landings; there is no Mornay-only
 camera or transition engine. The two `TOWN_ENTRANCE` cells on the regional crown
 at `(7,3)` and `(8,3)` enter the West and East Gates respectively, and gate exits
-return to those same cells. The remaining upper four cells form the solid 2×3
+return one tile south to `(7,4)` and `(8,4)`, facing down, beyond the entrance
+triggers. The remaining upper four cells form the solid 2×3
 overworld marker. Mornay's empty exteriors do not roll the populated-town
 traveller cameo. The conventional debug destination enters West Gate.
 

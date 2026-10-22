@@ -940,11 +940,13 @@ function exitTown() {
   }
 
   if (currentTownId === 'mornay') {
+    // As with other towns, land beyond the entrance trigger. Landing on the
+    // marker itself re-enters on the next movement frame, even with cooldown.
     const sourceId = mapIdForRef(activeMap);
     const entrance = sourceId === 'MORNAY_WEST_GATE_MAP'
-      ? { col: 7, row: 3 }
+      ? { col: 7, row: 4 }
       : sourceId === 'MORNAY_EAST_GATE_MAP'
-        ? { col: 8, row: 3 }
+        ? { col: 8, row: 4 }
         : null;
     if (!entrance) { console.warn('Mornay exit requested outside a land gate:', sourceId); return false; }
     return transitionToLocation({ mapId: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP',

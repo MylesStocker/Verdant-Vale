@@ -8673,21 +8673,21 @@
       "error": null,
       "destMap": "EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP",
       "px": 240,
-      "py": 112,
+      "py": 144,
       "facing": "down",
       "tileCol": 7,
-      "tileRow": 3,
+      "tileRow": 4,
       "actualDims": {
         "rows": 15,
         "cols": 16
       },
       "dimsMismatch": false,
       "outOfBounds": false,
-      "tileId": 14,
+      "tileId": 2,
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": false,
+        "up": true,
         "down": true,
         "left": true,
         "right": true
@@ -8702,21 +8702,21 @@
       "error": null,
       "destMap": "EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP",
       "px": 272,
-      "py": 112,
+      "py": 144,
       "facing": "down",
       "tileCol": 8,
-      "tileRow": 3,
+      "tileRow": 4,
       "actualDims": {
         "rows": 15,
         "cols": 16
       },
       "dimsMismatch": false,
       "outOfBounds": false,
-      "tileId": 14,
+      "tileId": 2,
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": false,
+        "up": true,
         "down": true,
         "left": true,
         "right": true

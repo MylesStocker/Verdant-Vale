@@ -92,7 +92,9 @@ without population or functional doors.
 
 The regional crown is now a 2×3 marker: upper cells `(7,1)`, `(8,1)`, `(7,2)`
 and `(8,2)` are solid; `(7,3)` enters `MORNAY_WEST_GATE_MAP` and `(8,3)` enters
-`MORNAY_EAST_GATE_MAP`. Each gate returns to its corresponding marker cell.
+`MORNAY_EAST_GATE_MAP`. Each gate returns one tile south of its corresponding marker, to `(7,4)` or
+`(8,4)`, facing down. Controller suite 300 covers continued departure, deliberate
+re-entry, gate save/load and debug arrival in both regional presentations.
 Mornay uses legacy town rendering, permits ordinary field saves, disables
 encounters and adds one West Gate debug warp. Its visually reserved ferry and
 story-ship berths are inert. Mornay Island, ferry operation, ships, interiors,
