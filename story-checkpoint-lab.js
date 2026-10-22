@@ -111,6 +111,7 @@ const storyCheckpointLab=(()=>{
       location:Object.freeze({...location,state:Object.freeze(proposed.state)})});
   };
   const resetTransient=()=>{
+    if(typeof waterTravelController!=='undefined')waterTravelController.reset();
     if(typeof mq5AssignmentCutscene!=='undefined')mq5AssignmentCutscene.reset();
     if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.resetTransient();
     if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.resetTransient();

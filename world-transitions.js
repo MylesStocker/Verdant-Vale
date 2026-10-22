@@ -1475,19 +1475,7 @@ function wakeAtDrenwickInfirmary() {
 // ferry flag to duplicate. Ordinary movement remains blocked by WATER on both
 // banks, and no conditional EDGE_TRANSITIONS seam is introduced.
 function crossCausewayFerry() {
-  if (MainQuest < 5) return false;
-  const from = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : mapIdForRef(activeMap);
-  if (from === 'EAST_CAUSEWAY_MAP') {
-    return transitionToLocation({
-      mapId: 'EASTERN_BANK_MAP', x: 5.5 * TILE, y: 8.5 * TILE, facing: 'right', cooldown: true,
-    });
-  }
-  if (from === 'EASTERN_BANK_MAP') {
-    return transitionToLocation({
-      mapId: 'EAST_CAUSEWAY_MAP', x: 10.5 * TILE, y: 8.5 * TILE, facing: 'left', cooldown: true,
-    });
-  }
-  return false;
+  return waterTravelController.start('causeway_ferry');
 }
 
 function descendSunkenGallery() {
@@ -2343,6 +2331,9 @@ function debugFindNearestWalkableTile(map, col, row) {
 // out of bounds or on an unwalkable tile. On failure nothing is mutated (it only
 // commits through transitionToLocation(), which is atomic).
 function debugWarpToMap(mapId, col, row) {
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) {
+    return { success: false, message: 'Warp failed: water travel is active' };
+  }
   const meta      = (typeof mapEntryForId === 'function') ? mapEntryForId(mapId) : null;
   const targetMap = meta ? meta.map : undefined;
 

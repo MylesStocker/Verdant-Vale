@@ -184,6 +184,8 @@ module.exports = {
     // the east edge is the legitimate onward route added beyond the ferry gate.
     g.run('interactCausewayFerry();finishDialogue();');
     g.press('Enter');
+    assert.equal(g.run('waterTravelController.isActive()'), true, 'crossing begins as transient water travel');
+    g.frames(g.run("WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames"));
     assert.equal(currentMapId(g), EAST);
     assert.equal(g.run('player.x'), 5.5 * g.run('TILE'));
     assert.equal(g.run('player.y'), 8.5 * g.run('TILE'));
@@ -224,6 +226,7 @@ module.exports = {
     g.run('dialogue.open=false;choice.open=false;interactCausewayFerry();finishDialogue();');
     assert.match(g.run('dialogue.name'), /Ferry Operator/);
     g.press('Enter');
+    g.frames(g.run("WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames"));
     assert.equal(currentMapId(g), WEST);
     assert.equal(g.run('player.x'), 10.5 * g.run('TILE'));
     assert.equal(g.run('player.y'), 8.5 * g.run('TILE'));

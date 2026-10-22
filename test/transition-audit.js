@@ -132,6 +132,7 @@ function check(name, setupCode, opts) {
   let error = null;
   try {
     g.run(setupCode);
+    if (opts.settle) g.run(opts.settle);
   } catch (e) {
     error = e.message;
   }
@@ -274,11 +275,13 @@ for (const fn of flatFns) {
 // authorized directions from their real source banks.
 check('crossCausewayFerry (west to east)', 'crossCausewayFerry();', {
   group: 'scripted-transitions',
-  pre: "MainQuest=5; placeAtLocation('EAST_CAUSEWAY_MAP',10.5*TILE,8.5*TILE);",
+  pre: "dialogue.open=false;choice.open=false;MainQuest=5;placeAtLocation('EAST_CAUSEWAY_MAP',10.5*TILE,8.5*TILE);",
+  settle: "for(let i=0;i<WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames;i++)waterTravelController.update();",
 });
 check('crossCausewayFerry (east to west)', 'crossCausewayFerry();', {
   group: 'scripted-transitions',
-  pre: "MainQuest=5; placeAtLocation('EASTERN_BANK_MAP',5.5*TILE,8.5*TILE);",
+  pre: "dialogue.open=false;choice.open=false;MainQuest=5;placeAtLocation('EASTERN_BANK_MAP',5.5*TILE,8.5*TILE);",
+  settle: "for(let i=0;i<WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames;i++)waterTravelController.update();",
 });
 
 check('enterTravellersRiseCamp', 'enterTravellersRiseCamp();', {

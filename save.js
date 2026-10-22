@@ -403,6 +403,7 @@ function savedEquipmentDisposition(item) {
 // leads to are actually blocked.
 function canSaveHere() {
   if (!persistentParty.hasLivingMember()) return false;
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.blocksSave()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
@@ -418,6 +419,7 @@ window.canSaveHere = canSaveHere;
 // ─── All mutable game state that must survive a save/load cycle should be
 // ─── included here. Add new persistent variables to both saveGame() and loadGame().
 function saveGame() {
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
@@ -596,6 +598,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;

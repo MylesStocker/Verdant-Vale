@@ -4,11 +4,16 @@
 // geographic fragment into SIMPLE_NPCS.
 
 // The cable scow and its operator travel with Lely. Their moored side is derived
-// from the canonical active regional chunk, so saving on either bank restores a
-// coherent service without introducing mutable ferry-position state.
+// from canonical regional position relative to the ferry boundary, so continuing
+// east, saving there, or using a debug warp cannot strand a redundant boat flag.
 function causewayFerryMooredMapId() {
-  const active = (typeof regionalActiveMapId === 'function') ? regionalActiveMapId() : null;
-  return active === 'EASTERN_BANK_MAP' ? 'EASTERN_BANK_MAP' : 'EAST_CAUSEWAY_MAP';
+  const position = (typeof regionalWorldPosition === 'function') ? regionalWorldPosition() : null;
+  const eastPlacement = (typeof regionPlacementForMapId === 'function')
+    ? regionPlacementForMapId('EASTERN_BANK_MAP')
+    : null;
+  if (position && position.regionId === 'overworld' && eastPlacement &&
+      position.worldPxX >= eastPlacement.chunkX * COLS * TILE) return 'EASTERN_BANK_MAP';
+  return 'EAST_CAUSEWAY_MAP';
 }
 
 const NORTH_BASIN_NPCS = [

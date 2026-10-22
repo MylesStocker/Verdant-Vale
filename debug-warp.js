@@ -355,6 +355,9 @@ function _buildDebugStateOverrides(dest) {
 // location field untouched. On success: { success:true, message, col, row,
 // destinationId }.
 function debugWarpToDestination(destinationId, col, row) {
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) {
+    return { success: false, message: 'Warp failed: water travel is active' };
+  }
   const dest = debugDestinationById(destinationId);
   if (!dest) return { success: false, message: 'Warp failed: unknown destination "' + destinationId + '"' };
   if (dest.disabled) return { success: false, message: 'Warp failed: "' + dest.label + '" is disabled — ' + (dest.disabledReason || 'unsupported') };

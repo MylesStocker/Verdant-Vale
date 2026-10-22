@@ -757,8 +757,15 @@ them safely. Ordinary WATER collision continues to block the washed-out span.
 Before MQ5, no ferry element exists; the original top-right broken-causeway
 inspect remains available with its established text and collision. That inspect
 also remains independently available after the ferry arrives.
-The ferry uses the shared `transitionToLocation()` path rather than a conditional
-regional seam. The 15×16 `EASTERN_BANK_MAP` at regional `(5,2)` provides a quiet,
+The reusable `waterTravelController` now preflights the complete authored route,
+owns input for a 105-frame (1.75-second) deterministic cable-scow tableau, and
+calls the shared `transitionToLocation()` path exactly once at arrival rather
+than creating a conditional regional seam. The party is hidden while aboard;
+water, a one-pixel bob and a restrained wake animate without RNG or world time.
+Saving, loading, menus and debug actions are unavailable in transit. Progress is
+session-only, while the parked bank remains derived from the active lawful ferry
+endpoint, so version-5 saves and the save payload are unchanged. The 15×16
+`EASTERN_BANK_MAP` at regional `(5,2)` provides a quiet,
 encounter-free landing. Its maintained road now continues through twenty-three
 terrain-only Eastern Fens chunks to a safe unfinished Valmere threshold at
 `(18,0)`. The reliable road first runs east on old embankments through deep fen,

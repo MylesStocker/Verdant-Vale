@@ -337,6 +337,31 @@ function drawWestOutfallCanalTunnelBody() {
 // Read-only, deterministic regional decoration. The cable spans both physical
 // chunks after MQ5; the scow itself is drawn only on the bank derived from the
 // canonical active chunk, matching the single travelling operator.
+function drawCableScowSprite(cx, cy, direction, wake) {
+  const x = Math.round(cx), y = Math.round(cy);
+  if (wake) {
+    ctx.fillStyle = '#88a7b8';
+    const side = direction === 'east' ? -1 : 1;
+    ctx.fillRect(x + side * 42, y + 8, 18, 1);
+    ctx.fillRect(x + side * 48, y + 12, 24, 1);
+  }
+  ctx.fillStyle = '#4d4333';
+  ctx.fillRect(x - 38, y - 10, 76, 20);
+  ctx.fillStyle = '#70614b';
+  ctx.fillRect(x - 34, y - 7, 68, 14);
+  ctx.fillStyle = '#9a8b70';
+  ctx.fillRect(x - 30, y - 5, 60, 2);
+  ctx.fillStyle = '#302a23';
+  ctx.fillRect(x - 4, y - 4, 10, 10);
+  ctx.fillStyle = '#8d2424';
+  ctx.fillRect(x - 27, y - 4, 12, 6);
+  ctx.fillStyle = '#c7b46d';
+  ctx.fillRect(x - 27, y - 4, 12, 2);
+  ctx.fillStyle = '#3b342a';
+  ctx.fillRect(x - 38, y - 12, 4, 24);
+  ctx.fillRect(x + 34, y - 12, 4, 24);
+}
+
 function drawCausewayFerryBody(mapId) {
   if (MainQuest < 5) return;
   const eastern = mapId === 'EASTERN_BANK_MAP';
@@ -347,24 +372,32 @@ function drawCausewayFerryBody(mapId) {
   ctx.fillStyle = '#9a8b70';
   ctx.fillRect(eastern ? 0 : 10.5 * TILE, cableY - 9, eastern ? 4.5 * TILE : 5.5 * TILE, 1);
 
-  if (causewayFerryMooredMapId() !== mapId) return;
-  const firstCol = eastern ? 1 : 11;
-  for (let col = firstCol; col < firstCol + 3; col++) drawBridgeDeck(col * TILE, 8 * TILE);
+  if ((typeof waterTravelController !== 'undefined' && waterTravelController.isActive()) ||
+      causewayFerryMooredMapId() !== mapId) return;
+  drawCableScowSprite((eastern ? 2.5 : 12.5) * TILE, 8.5 * TILE, eastern ? 'west' : 'east', false);
+}
 
-  // Low patched side rails and the cable drum keep the reused bridge planks
-  // reading as a small work scow rather than a permanent bridge.
-  const left = firstCol * TILE;
-  ctx.fillStyle = '#4d4333';
-  ctx.fillRect(left, 8 * TILE + 3, 3 * TILE, 3);
-  ctx.fillRect(left, 9 * TILE - 6, 3 * TILE, 3);
-  ctx.fillStyle = '#70614b';
-  ctx.fillRect(left + 42, 8 * TILE + 9, 12, 12);
-  ctx.fillStyle = '#302a23';
-  ctx.fillRect(left + 45, 8 * TILE + 12, 6, 6);
-  ctx.fillStyle = '#8d2424';
-  ctx.fillRect(left + 6, 8 * TILE + 7, 10, 5);
-  ctx.fillStyle = '#c7b46d';
-  ctx.fillRect(left + 6, 8 * TILE + 7, 10, 2);
+function drawWaterTravelPresentation(view) {
+  if (!view || !view.active || view.boatId !== 'cable_scow') return;
+  const shimmer = (view.frame >> 3) & 3;
+  ctx.fillStyle = '#2e4860';
+  ctx.fillRect(0, 0, 512, 480);
+  ctx.fillStyle = '#3a5878';
+  for (let y = 34 + shimmer; y < 460; y += 48) {
+    ctx.fillRect(72, y, 368, 2);
+    ctx.fillRect(112, y + 19, 288, 1);
+  }
+  ctx.fillStyle = '#5b6570';
+  ctx.fillRect(0, 0, 64, 480);
+  ctx.fillRect(448, 0, 64, 480);
+  ctx.fillStyle = '#7a7567';
+  ctx.fillRect(48, 0, 16, 480);
+  ctx.fillRect(448, 0, 16, 480);
+  ctx.fillStyle = '#9a8b70';
+  ctx.fillRect(64, 219, 384, 2);
+  ctx.fillStyle = '#5f5545';
+  ctx.fillRect(64, 221, 384, 2);
+  drawCableScowSprite(view.x, view.y, view.direction, view.frame > 2);
 }
 
 // ─── Player Drawing ───────────────────────────────────────────────────────────

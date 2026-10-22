@@ -251,7 +251,7 @@ geographic('enemy_stone_crawler');let n=0;while(cv().party[0].hp>0){assert.ok(n+
 assert.ok(cv().party[1].hp>0);cmd('run');run('Math.random=()=>0');key('confirm');while(cv().phase==='playback')key('confirm');key('confirm');assert.equal(cv().phase,'escape');key('confirm');assert.equal(run('stats.hp'),0);
 run('placeAtLocation("EAST_CAUSEWAY_MAP",10.5*TILE,8.5*TILE)');const x=run('player.x');run('keys.ArrowLeft=true');g.frames(8);run('keys.ArrowLeft=false');assert.notEqual(run('player.x'),x);assert.equal(run('stats.hp'),0);
 g.press('m');assert.equal(run('menu.open'),true);g.renderFrame();g.press('Escape');assert.equal(run('saveGame()'),true);assert.equal(run('loadGame()'),true);close();assert.equal(run('stats.hp'),0);
-assert.equal(run('crossCausewayFerry()'),true);assert.equal(run('mapIdForRef(activeMap)'),'EASTERN_BANK_MAP');assert.equal(run('stats.hp'),0);
+assert.equal(run('crossCausewayFerry()'),true);g.frames(run('WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames'));assert.equal(run('mapIdForRef(activeMap)'),'EASTERN_BANK_MAP');assert.equal(run('stats.hp'),0);
 const east=run('player.x');run('keys.ArrowRight=true');g.frames(20);run('keys.ArrowRight=false');assert.notEqual(run('player.x'),east);assert.equal(run('combat.active||canonicalPartyCombat.isActive()'),false);
 run('canonicalPartyCombat.enter({enemies:["enemy_stone_crawler"],escape:"blocked"})');assert.equal(cv().party[0].hp,0);assert.equal(cv().party[1].hp>0,true);
 const defeatDay=run('day');n=0;while(cv().phase==='awaiting_action'){assert.ok(n++<100);cmd('run');round(.999,.999);}

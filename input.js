@@ -12,6 +12,7 @@ const pressedKeys = Object.create(null);
 const keys = new Proxy(pressedKeys, {
   get(pressed, key) {
     const held = pressed[key];
+    if (held && typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) return false;
     if (held && typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
     if (held && typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.isExclusive()) return false;
     if (held && typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.blocksInput()) return false;
@@ -84,6 +85,18 @@ function resetInputForStoryCheckpoint() {
   for (const key of Object.keys(pressedKeys)) pressedKeys[key]=false;
 }
 
+function resetInputForWaterTravel() {
+  for (const key of Object.keys(pressedKeys)) pressedKeys[key] = false;
+}
+
+// Movement held during the crossing must not leak into the arrival frame. Keep
+// action-key latches until keyup so native repeat cannot immediately reopen or
+// duplicate the just-completed crossing.
+function reconcileWaterTravelKeys() {
+  const actions = new Set(['Enter', ' ', 'Escape', 'm', 'M', '`']);
+  for (const key of Object.keys(pressedKeys)) if (!actions.has(key)) pressedKeys[key] = false;
+}
+
 function handlePartyCombatLabInput(command) {
   let view;
   try { view = partyCombatLab.getView(); }
@@ -145,6 +158,11 @@ function handlePartyCombatLabInput(command) {
 }
 
 window.addEventListener('keydown', e => {
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) {
+    pressedKeys[e.key] = true;
+    e.preventDefault();
+    return;
+  }
   if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput()){
     const held=pressedKeys[e.key];pressedKeys[e.key]=true;
     e.preventDefault();

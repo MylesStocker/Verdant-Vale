@@ -252,6 +252,14 @@ function render() {
     return;
   }
 
+  // Scripted water travel replaces the world for its brief deterministic
+  // tableau. Its private frame counter advances in update(), so rendering is
+  // read-only and deliberately does not advance the general render tick.
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.isActive()) {
+    drawWaterTravelPresentation(waterTravelController.getView());
+    return;
+  }
+
   // ── World (overworld or dungeon) ───────────────────────────────────────────
   if (continuousWorldViewActive()) {
     // DEBUG continuous scrolling camera (placed overworld maps only).

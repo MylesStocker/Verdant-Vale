@@ -579,6 +579,10 @@ function preflightRainfishStep() {
 }
 
 function update(deltaSeconds) {
+  if (typeof waterTravelController !== 'undefined' && waterTravelController.isActive()) {
+    waterTravelController.update();
+    return;
+  }
   if (canonicalPartyCombat.isActive()) return;
   if (combatPlayerState.hasParty()) return; // headless preparation freezes simulation
   if (!preflightRainfishStep()) return;

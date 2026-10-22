@@ -3002,7 +3002,22 @@ different units. The set is derived, not hand-listed.
   `MainQuest >= 5`, that existing quest authority also authorizes a deterministic
   official cable scow and one active-bank operator; no inventory token or second
   progression flag exists. `crossCausewayFerry()` uses `transitionToLocation()` in
-  both directions and creates no conditional `EDGE_TRANSITIONS` segment. Before
+  both directions through the reusable `waterTravelController` and creates no
+  conditional `EDGE_TRANSITIONS` segment. A frozen route record owns the paired
+  endpoints, cable-scow identity, integer visual path and 105-frame duration;
+  a separate closed predicate registry delegates availability to the existing
+  story authority without specializing the animation lifecycle to this route.
+  The controller validates availability, exact endpoint, destination placement,
+  neutral location state and exclusive-owner availability before installing its
+  transient session. While active it alone advances, so movement, encounters,
+  world time, menus, save/load and debug actions remain frozen. The renderer reads
+  an immutable progress view and replaces the world with a deterministic water
+  tableau; it does not advance `tick`, RNG or gameplay state. Only the terminal
+  update calls `transitionToLocation()` once. Predictable rejection mutates
+  nothing; pre-arrival faults retain a transient diagnostic and release input on
+  the unchanged departure bank. Story Checkpoint replacement explicitly resets
+  this transient owner. Parked side is derived from the current endpoint and is
+  never saved, so `SAVE_VERSION` and the payload remain unchanged. Before
   MQ5, the renderer, NPC projection, action, and crossing all fail closed; only the
   established top-right `east_causeway_break` inspect remains. That inspect retains
   its location, collision, and text after the ferry appears, with the operator on a
