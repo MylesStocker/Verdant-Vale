@@ -851,6 +851,10 @@ const TOWN_ENTRY_POINTS = {
     // Outskirts" moment rather than introducing a new, unvalidated spot.
     east:  { map: DRENWICK_EAST_OUTSKIRTS_MAP, x: 1.5 * TILE, y: 4.5 * TILE, facing: 'right', townBuilding: null },
   },
+  mornay: {
+    west_gate: { map: MORNAY_WEST_GATE_MAP, x: 7.5 * TILE, y: 13.5 * TILE, facing: 'up', townBuilding: null },
+    east_gate: { map: MORNAY_EAST_GATE_MAP, x: 7.5 * TILE, y: 13.5 * TILE, facing: 'up', townBuilding: null },
+  },
 };
 
 function enterTownAt(townId, entryPoint) {
@@ -866,7 +870,9 @@ function enterTownAt(townId, entryPoint) {
   }
   transitionToLocation({ mapId: mapIdForRef(entry.map), x: entry.x, y: entry.y, facing: entry.facing,
     state: { inTown: true, currentTownId: townId, townBuilding: entry.townBuilding || null }, cooldown: true });
-  travellerPresent = Math.random() < 1 / 3;
+  // Mornay's empty exterior skeleton intentionally has no population. Only
+  // the two established populated towns roll their existing traveller cameo.
+  travellerPresent = (townId === 'calwick' || townId === 'drenwick') && Math.random() < 1 / 3;
 }
 
 // Backward-compatible Calwick default entry.
@@ -886,6 +892,29 @@ function moveToDrenwichDistrict(map, x, y, facing) {
   // (null on a district) — enumerated deliberately, not a blanket preserve-all.
   transitionToLocation({ mapId: mapIdForRef(map), x: x * TILE, y: y * TILE, facing,
     state: { inTown: true, currentTownId: 'drenwick', townBuilding: townBuilding }, cooldown: true });
+}
+
+const MORNAY_TRANSITION_TILE_DIRECTIONS = Object.freeze({
+  [NORTH_EXIT]: 'north',
+  [NORTH_ENTRANCE]: 'south',
+  [MAP2_ENTRANCE]: 'west',
+  [MAP2_EXIT]: 'east',
+});
+
+function moveWithinMornay(direction) {
+  if (!inTown || currentTownId !== 'mornay' || townBuilding) return false;
+  const sourceId = mapIdForRef(activeMap);
+  const targetId = mornayTownNeighbor(sourceId, direction);
+  if (!targetId) return false;
+  const landings = {
+    north: { x: 7.5 * TILE, y: 13.5 * TILE, facing: 'up' },
+    south: { x: 7.5 * TILE, y: 1.5 * TILE, facing: 'down' },
+    west: { x: 14.5 * TILE, y: 7.5 * TILE, facing: 'left' },
+    east: { x: 1.5 * TILE, y: 7.5 * TILE, facing: 'right' },
+  };
+  const landing = landings[direction];
+  return transitionToLocation({ mapId: targetId, x: landing.x, y: landing.y, facing: landing.facing,
+    state: { inTown: true, currentTownId: 'mornay', townBuilding: null }, cooldown: true });
 }
 
 function exitTown() {
@@ -910,7 +939,20 @@ function exitTown() {
     return;
   }
 
-  // Calwick (and any future non-Drenwick towns)
+  if (currentTownId === 'mornay') {
+    const sourceId = mapIdForRef(activeMap);
+    const entrance = sourceId === 'MORNAY_WEST_GATE_MAP'
+      ? { col: 7, row: 3 }
+      : sourceId === 'MORNAY_EAST_GATE_MAP'
+        ? { col: 8, row: 3 }
+        : null;
+    if (!entrance) { console.warn('Mornay exit requested outside a land gate:', sourceId); return false; }
+    return transitionToLocation({ mapId: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP',
+      x: (entrance.col + 0.5) * TILE, y: (entrance.row + 0.5) * TILE,
+      facing: 'down', cooldown: true });
+  }
+
+  // Calwick default exit.
   transitionToLocation({ mapId: 'MAP', x: 5.5 * TILE, y: 2.5 * TILE, facing: 'down', cooldown: true });
 }
 
@@ -1729,10 +1771,9 @@ const EDGE_TRANSITIONS = {
   // Eastern Shore; row -3: Western Harbour Shore / Northern Crown / Exposed
   // Point) -- one coherent, irregular landform extending north into Valmere.
   // The road continues north from EASTERN_FENS_MORNAY_APPROACH_M_MAP through
-  // the neck (NECK_ROAD_MAP) to the crown (TOWN_APPROACH_MAP), which
-  // reserves the compact 3x2 Mornay settlement footprint. No enterable town
-  // transition exists yet -- the footprint is a solid marker until the
-  // separate interior Mornay town map is built.
+  // the neck (NECK_ROAD_MAP) to the crown (TOWN_APPROACH_MAP). The crown's
+  // paired TOWN_ENTRANCE cells enter the discrete Mornay exterior; regional
+  // seams remain concerned only with the peninsula geography.
   EASTERN_FENS_MORNAY_NECK_ROAD_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_MORNAY_APPROACH_M_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
     north: [{ targetMap: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', targetEdge: 'south', sourceRange: [7, 9] }],

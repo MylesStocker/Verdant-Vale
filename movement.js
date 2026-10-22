@@ -101,6 +101,10 @@ function locationName() {
     if (activeMap === DRENWICK_WATERFRONT_MAP)       return 'Drenwick \u2014 Waterfront';
     return 'Drenwick';
   }
+  if (inTown && currentTownId === 'mornay') {
+    const entry = mapEntryForId(mapIdForRef(activeMap));
+    return entry ? entry.displayName : 'Mornay';
+  }
   if (inTown)                                 return 'Calwick';
   if (inLorraHouse)                           return "Lorra's Farmhouse";
   if (inAbandonedFarmhouse)                   return 'Abandoned Farmhouse';
@@ -176,6 +180,7 @@ function currentContentLocationKey() {
   if (inTown && townBuilding === 'west')   return 'west';
   if (inTown && townBuilding === 'house')  return 'house:' + currentHouseId;
   if (inTown && !townBuilding) {
+    if (currentTownId === 'mornay') return 'mornay:' + mapIdForRef(activeMap).toLowerCase();
     if (currentTownId === 'drenwick') {
       if (activeMap === DRENWICK_WEST_RESIDENTIAL_MAP) return 'drenwick_west_residential';
       if (activeMap === DRENWICK_CANAL_DOCKS_MAP)      return 'drenwick_canal_docks';
@@ -271,8 +276,8 @@ function canWalk(cx, cy) {
     if (!BOSS.defeated && Math.abs(cx - BOSS.x) < 18 && Math.abs(cy - BOSS.y) < 18) return false;
   } else if (inTown && !townBuilding) {
     if (currentTownId === 'drenwick' && activeMap === DRENWICK_MARKET_MAP && Math.abs(cx - DRENWICK_MARKET_NOTICE_BOARD_X) < 18 && Math.abs(cy - DRENWICK_MARKET_NOTICE_BOARD_Y) < 18) return false;
-    if (currentTownId !== 'drenwick' && Math.abs(cx - NOTICE_BOARD_X) < 18 && Math.abs(cy - NOTICE_BOARD_Y) < 18) return false;
-    if (currentTownId !== 'drenwick' && Math.abs(cx - MERCHANT.x) < 18 && Math.abs(cy - MERCHANT.y) < 18) return false;
+    if (currentTownId === 'calwick' && Math.abs(cx - NOTICE_BOARD_X) < 18 && Math.abs(cy - NOTICE_BOARD_Y) < 18) return false;
+    if (currentTownId === 'calwick' && Math.abs(cx - MERCHANT.x) < 18 && Math.abs(cy - MERCHANT.y) < 18) return false;
     const travellerSpot = currentTravellerSpot();
     if (travellerSpot && Math.abs(cx - travellerSpot.x) < 18 && Math.abs(cy - travellerSpot.y) < 18) return false;
   } else if (inTown && townBuilding === 'inn') {
@@ -752,6 +757,10 @@ function update(deltaSeconds) {
     if (inDungeonEntrance && curTile === RUIN_STAIRS_DOWN) { descendToDungeon1(); return; }
     if (inDungeonEntrance && curTile === RUIN_EXIT)        { exitDungeon();       return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP && curTile === TOWN_ENTRANCE) { enterTownAt('calwick', entryPointFromFacing(player.facing)); return; }
+    if (!inDungeon && !inTown && !inSluice && mapIdForRef(activeMap) === 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP' && curTile === TOWN_ENTRANCE) {
+      if (ttx === 7) { enterTownAt('mornay', 'west_gate'); return; }
+      if (ttx === 8) { enterTownAt('mornay', 'east_gate'); return; }
+    }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP  && curTile === MAP2_EXIT)     { enterMap2(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP2 && curTile === MAP2_ENTRANCE) { exitMap2();  return; }
     // MAP2's two farmhouses share a tile id; their stable columns select the
@@ -867,6 +876,10 @@ function update(deltaSeconds) {
         if (curTile === MAP2_ENTRANCE)  { moveToDrenwichDistrict(DRENWICK_CANAL_DOCKS_MAP, 14.5,  7.5, 'left');  return; }
         if (curTile === TAKOMO_GATE)    { enterTakomo(); return; }
       }
+    }
+    if (inTown && currentTownId === 'mornay' && !townBuilding) {
+      const direction = MORNAY_TRANSITION_TILE_DIRECTIONS[curTile];
+      if (direction && moveWithinMornay(direction)) return;
     }
     if (inTakomo && curTile === TAKOMO_EXIT) { exitTakomo(); return; }
     if (!inDungeon && !inTown && !inSluice && activeMap === MAP3_N2 && curTile === TOWN_ENTRANCE)   { enterTownAt('drenwick', entryPointFromFacing(player.facing)); return; }

@@ -468,7 +468,7 @@ function interactionUiOpened() {
 function interactTownOutdoor() {
   // Notice board — Calwick (TOWN_MAP) and Drenwick Market use separate arrays and positions
   const isDrenwichMarket = currentTownId === 'drenwick' && activeMap === DRENWICK_MARKET_MAP;
-  if (currentTownId !== 'drenwick' || isDrenwichMarket) {
+  if (currentTownId === 'calwick' || isDrenwichMarket) {
     const boardX = isDrenwichMarket ? DRENWICK_MARKET_NOTICE_BOARD_X : NOTICE_BOARD_X;
     const boardY = isDrenwichMarket ? DRENWICK_MARKET_NOTICE_BOARD_Y : NOTICE_BOARD_Y;
     const bx = player.x - boardX;
@@ -504,7 +504,7 @@ function interactTownOutdoor() {
     }
   }
   // Permanent merchant (not present in Drenwick)
-  if (currentTownId !== 'drenwick') {
+  if (currentTownId === 'calwick') {
     const mx = player.x - MERCHANT.x;
     const my = player.y - MERCHANT.y;
     if (Math.sqrt(mx * mx + my * my) < TALK_RADIUS) {

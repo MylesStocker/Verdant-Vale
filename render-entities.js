@@ -2334,7 +2334,7 @@ function drawMapWorldItems(list) {
 
 // ─── Merchant Drawing ────────────────────────────────────────────────────────
 function drawMerchantSprite() {
-  if (!inTown || townBuilding || currentTownId === 'drenwick') return;
+  if (!inTown || townBuilding || currentTownId !== 'calwick') return;
   const px = Math.round(MERCHANT.x);
   const py = Math.round(MERCHANT.y);
   const bob = Math.round(Math.sin(tick * 0.04) * 1);

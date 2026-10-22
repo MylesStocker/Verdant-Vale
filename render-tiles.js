@@ -1539,6 +1539,7 @@ function drawTownMarket(x, y) {
 // Flashing "SPACE" prompt when player is adjacent to the notice board
 function drawNoticeBoardHint() {
   if (dialogue.open) return;
+  if (currentTownId !== 'calwick' && currentTownId !== 'drenwick') return;
   if (currentTownId === 'drenwick' && activeMap !== DRENWICK_MARKET_MAP) return;
   const boardX = (currentTownId === 'drenwick') ? DRENWICK_MARKET_NOTICE_BOARD_X : NOTICE_BOARD_X;
   const boardY = (currentTownId === 'drenwick') ? DRENWICK_MARKET_NOTICE_BOARD_Y : NOTICE_BOARD_Y;

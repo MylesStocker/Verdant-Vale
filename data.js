@@ -1623,6 +1623,25 @@ const MAP_CATALOG = {
   },
 };
 
+// ── Mornay exterior skeleton ────────────────────────────────────────────────
+// Seventeen discrete legacy-town screens share one authored topology authority
+// (content/maps/mornay-maps.js). They are empty exterior shells: no encounters,
+// items, NPCs, functional doors, services or story state.
+for (const def of MORNAY_TOWN_LAYOUT) {
+  MAP_CATALOG[def.id] = {
+    id: def.id,
+    map: MORNAY_EXTERIOR_MAPS[def.id],
+    displayName: def.displayName,
+    region: 'Mornay',
+    type: 'town',
+    items: [],
+    encounterPool: null,
+    allowRandomEncounters: false,
+    allowSave: true,
+    notes: 'Empty Mornay exterior skeleton (' + def.district + ' district). Reserved future footprints: ' + def.reserves.join(', ') + '. No functional interior or berth transition.',
+  };
+}
+
 // The 24 additional Sunken Gallery rooms (maps.js's 5×5 grid) all share the
 // entrance hall's profile: a dungeon-type map in the North Basin region, the
 // same Pale Drowned / Silt Hag encounter pool, no items, and no saving. Added

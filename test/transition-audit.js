@@ -388,6 +388,8 @@ const exitTownCases = [
   { pre: `currentTownId='drenwick'; activeMap=DRENWICK_EAST_OUTSKIRTS_MAP; player.facing='right';`, label: 'drenwick east outskirts (east exit)' },
   { pre: `currentTownId='drenwick'; activeMap=DRENWICK_EAST_OUTSKIRTS_MAP; player.facing='down';`, label: 'drenwick east outskirts (south exit)' },
   { pre: `currentTownId='drenwick'; activeMap=DRENWICK_CIVIC_MAP;`, label: 'drenwick civic (default)' },
+  { pre: `currentTownId='mornay'; inTown=true; activeMap=MORNAY_WEST_GATE_MAP;`, label: 'mornay west gate' },
+  { pre: `currentTownId='mornay'; inTown=true; activeMap=MORNAY_EAST_GATE_MAP;`, label: 'mornay east gate' },
 ];
 for (const c of exitTownCases) {
   check(`exitTown() [${c.label}]`, `${c.pre} exitTown();`, { group: 'exit-town' });
@@ -414,6 +416,17 @@ for (const [label, destMap, x, y, facing] of districtMoves) {
   check(`moveToDrenwichDistrict: ${label}`,
     `moveToDrenwichDistrict(${destMap}, ${x}, ${y}, ${esc(facing)});`,
     { group: 'drenwick-district' });
+}
+
+// ── 8b. Mornay exterior topology (derived from the single layout registry) ──
+for (const def of g.run('MORNAY_TOWN_LAYOUT.map(d=>({id:d.id,col:d.col,row:d.row}))')) {
+  for (const direction of ['north', 'south', 'west', 'east']) {
+    const destination = g.run(`mornayTownNeighbor(${JSON.stringify(def.id)}, ${JSON.stringify(direction)})`);
+    if (!destination) continue;
+    check(`moveWithinMornay: ${def.id} -> ${direction}`,
+      `currentTownId='mornay'; inTown=true; townBuilding=null; activeMap=MAP_CATALOG[${JSON.stringify(def.id)}].map; moveWithinMornay(${JSON.stringify(direction)});`,
+      { group: 'mornay-exterior' });
+  }
 }
 
 // ── 9. Drenwick school staircases (inline in movement.js) ────────────────

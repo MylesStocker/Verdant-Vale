@@ -21,8 +21,39 @@ retain their authored generic sprites; validation includes those seven warnings
 and the intentional unrouted-pool warning in addition to the established four.
 The reviewed moraine, bog, drainage, Valmere and peninsula geography is retained.
 Only the three documented Rise cells change in the final natural-choke fix.
-The future Mornay footprint stays solid. SAVE_VERSION is 5; main's approved
+Mornay now has an empty, enterable 17-area exterior skeleton behind two paired
+land gates; its upper four overworld marker cells remain solid. SAVE_VERSION is
+5; main's approved
 column-11/right-facing Esla walk is retained.
+
+### Mornay exterior skeleton
+
+Mornay is registered through the existing legacy-town authorities as 17
+fixed-screen 16×15 exteriors: four South, eight Middle, four west-offset North
+and Old Fort Mornay at the northwestern tip. A single layout registry supplies
+the exact irregular adjacency graph and descriptive IDs. Both southern gates
+reach every exterior; every internal transition is reciprocal and lands on a
+walkable street. Exposed edges use visible walls, dense building fabric or
+Valmere water. The denser Middle cross streets, older North harbour ward,
+southern yards and weathered fort establish topology and reserved footprints
+without population or functional doors.
+
+The regional crown is now a 2×3 marker: upper cells `(7,1)`, `(8,1)`, `(7,2)`
+and `(8,2)` are solid; `(7,3)` enters `MORNAY_WEST_GATE_MAP` and `(8,3)` enters
+`MORNAY_EAST_GATE_MAP`. Each gate returns to its corresponding marker cell.
+Mornay uses legacy town rendering, permits ordinary field saves, disables
+encounters and adds one West Gate debug warp. Its visually reserved ferry and
+story-ship berths are inert. Mornay Island, ferry operation, ships, interiors,
+NPCs, services, shops, quests and story progression remain deferred.
+
+Verification: focused case 218 passes with the complete 213/213 regression
+suite. `validateGameData()` checks 234 maps with 0 errors and the same 12
+warnings. All 115 regional fingerprints pass; only the intentionally edited
+Town Approach crown hash changes, to
+`a3c35824f82f349a588c0e7746cb95b7f880945c22b2546517b0094fbc8fd074`.
+The generated transition audit passes 308 fixed destinations, 8 preserved-
+coordinate transitions, 240 edge segments and 42 house doors. SAVE_VERSION is
+5 and historical combat compatibility suites remain green.
 
 ### Geographic formation bridge (review increment)
 
@@ -1891,8 +1922,9 @@ Loading remains inert and the separate campsite entrance stays at (6,4).
 The six peninsula map IDs now use NECK_ROAD, WESTERN_COVE, EASTERN_SHORE,
 HARBOUR_SHORE, TOWN_APPROACH and EASTERN_POINT under EASTERN_FENS_MORNAY.
 All production catalogues, placement/seam references, debug/save lookup and
-source-derived evidence agree. Only names change: every grid, coordinate,
-encounter permission, pool and the solid 3×2 future town footprint is retained.
+source-derived evidence agree. Only names changed in that checkpoint: every
+grid, coordinate, encounter permission and pool was retained. The current Mornay
+exterior-skeleton section above supersedes its then-reserved marker.
 No aliases or save migration are added: regional saves store canonical world
 coordinates, which still resolve to the same placements under the renamed IDs.
 The six maps retain their existing save restriction; malformed explicit retired

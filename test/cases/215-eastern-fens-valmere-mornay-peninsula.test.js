@@ -6,12 +6,9 @@
 // converted the six chunks at (16-18, -2) and (16-18, -3) into non-walkable
 // scenery -- that went too far in the opposite direction from a six-chunk
 // town. This correction reworks them into one coherent, irregular peninsula
-// extending north into Valmere, with a reserved compact 3x2 Mornay
-// settlement footprint at the northern crown (TOWN_APPROACH_MAP, rows
-// 1-2, cols 7-9). The footprint represents the whole town at overworld
-// scale -- no literal streets are drawn across the six chunks, and no
-// transition targets a nonexistent Mornay town map; the footprint is
-// presently a solid marker with the road ending at its southern face.
+// extending north into Valmere. The Mornay topology pass replaces the
+// former six-cell crown with a 2x3 marker whose two southern cells are
+// paired land entrances into the registered legacy-town exterior.
 //
 // Catalogue IDs and display names consistently describe peninsula geography.
 // No retired district aliases are retained for these unreleased placeholders.
@@ -257,11 +254,14 @@ const PENINSULA_SEAMS = [
   { from: 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP', dir: 'east', to: 'EASTERN_FENS_MORNAY_EASTERN_POINT_MAP', toDir: 'west', range: [10, 12] },
 ];
 
-// The reserved 3x2 Mornay footprint, and the future entry/return cells.
+// The enterable 2x3 Mornay footprint. Its upper four cells remain solid and
+// its southern two cells are the paired west/east town entrances.
 const FOOTPRINT_MAP_ID = 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP';
-const FOOTPRINT_CELLS = [[1, 7], [1, 8], [1, 9], [2, 7], [2, 8], [2, 9]]; // [row, col]
-const FUTURE_ENTRY = { mapId: FOOTPRINT_MAP_ID, row: 2, col: 8 }; // southern-face center tile of the footprint
-const FUTURE_RETURN = { mapId: FOOTPRINT_MAP_ID, row: 3, col: 8 }; // road tile immediately south of the footprint
+const SOLID_FOOTPRINT_CELLS = [[1, 7], [1, 8], [2, 7], [2, 8]]; // [row, col]
+const TOWN_ENTRANCES = [
+  { row: 3, col: 7, gate: 'MORNAY_WEST_GATE_MAP' },
+  { row: 3, col: 8, gate: 'MORNAY_EAST_GATE_MAP' },
+];
 
 function context() {
   const g = createContext();
@@ -271,7 +271,7 @@ function context() {
 }
 
 module.exports = {
-  name: 'Eastern Fens terrain redesign: Valmere shoreline light touch + Mornay peninsula correction (six-chunk landform + reserved 3x2 footprint)',
+  name: 'Eastern Fens terrain redesign: Valmere shoreline light touch + Mornay peninsula correction (six-chunk landform + enterable 2x3 crown)',
   run() {
     const g = context();
     const J = (expr) => JSON.parse(g.run(expr));
@@ -317,53 +317,49 @@ module.exports = {
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id}: no random encounters (unchanged)`);
     }
 
-    // 4. The six chunks are NOT treated as six town interiors: TOWN_BUILDING
-    //    (13) appears ONLY as the 6-tile reserved footprint on
-    //    TOWN_APPROACH_MAP; TOWN_FLOOR (12) and TOWN_MARKET (21) appear
-    //    nowhere across the whole peninsula (no literal streets).
+    // 4. The six chunks remain regional geography rather than town
+    //    interiors: the crown contains four solid marker cells and two
+    //    authored entrance cells. Literal town streets remain inside the
+    //    registered legacy-town maps.
     let totalBuildingTiles = 0;
+    let totalEntranceTiles = 0;
     for (const id of SIX_CHUNKS) {
       const grid = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`);
       const flat = grid.flat();
       assert.ok(!flat.includes(12), `${id}: no TOWN_FLOOR (no literal Mornay streets)`);
       assert.ok(!flat.includes(21), `${id}: no TOWN_MARKET (no literal Mornay streets)`);
       const buildingCount = flat.filter((t) => t === 13).length;
-      if (id === FOOTPRINT_MAP_ID) assert.equal(buildingCount, 6, `${id}: exactly 6 TOWN_BUILDING tiles (the reserved footprint)`);
+      const entranceCount = flat.filter((t) => t === 14).length;
+      if (id === FOOTPRINT_MAP_ID) {
+        assert.equal(buildingCount, 4, `${id}: exactly 4 solid TOWN_BUILDING marker tiles`);
+        assert.equal(entranceCount, 2, `${id}: exactly 2 paired TOWN_ENTRANCE tiles`);
+      }
       else assert.equal(buildingCount, 0, `${id}: no TOWN_BUILDING tiles outside the footprint chunk`);
       totalBuildingTiles += buildingCount;
+      totalEntranceTiles += entranceCount;
     }
-    assert.equal(totalBuildingTiles, 6, 'exactly 6 TOWN_BUILDING tiles across the whole peninsula');
+    assert.equal(totalBuildingTiles, 4, 'exactly 4 solid TOWN_BUILDING cells across the peninsula crown');
+    assert.equal(totalEntranceTiles, 2, 'exactly 2 TOWN_ENTRANCE cells across the peninsula crown');
 
-    // 5. The reserved Mornay footprint is exactly 3x2 tiles, at the
-    //    documented coordinates, on the northern crown.
+    // 5. The Mornay marker is exactly two tiles wide by three high, with the
+    //    southern pair serving as entrances.
     const crownGrid = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${FOOTPRINT_MAP_ID}'].map)`);
-    for (const [r, c] of FOOTPRINT_CELLS) assert.equal(crownGrid[r][c], 13, `footprint cell (${c},${r}) is TOWN_BUILDING`);
-    const rows = new Set(FOOTPRINT_CELLS.map(([r]) => r)), cols = new Set(FOOTPRINT_CELLS.map(([, c]) => c));
-    assert.deepEqual([...rows].sort(), [1, 2], 'footprint spans exactly 2 rows');
-    assert.deepEqual([...cols].sort(), [7, 8, 9], 'footprint spans exactly 3 cols');
+    for (const [r, c] of SOLID_FOOTPRINT_CELLS) assert.equal(crownGrid[r][c], 13, `solid crown cell (${c},${r}) is TOWN_BUILDING`);
+    for (const entrance of TOWN_ENTRANCES) assert.equal(crownGrid[entrance.row][entrance.col], 14, `entrance cell (${entrance.col},${entrance.row}) is TOWN_ENTRANCE`);
+    assert.deepEqual([...new Set([...SOLID_FOOTPRINT_CELLS, ...TOWN_ENTRANCES.map(e => [e.row, e.col])].map(([r]) => r))].sort(), [1, 2, 3], 'marker spans exactly 3 rows');
+    assert.deepEqual([...new Set([...SOLID_FOOTPRINT_CELLS, ...TOWN_ENTRANCES.map(e => [e.row, e.col])].map(([, c]) => c))].sort(), [7, 8], 'marker spans exactly 2 cols');
 
-    // 6. The future entry tile and return-landing tile are stable and
-    //    documented, so Codex can wire the real transition later without
-    //    redesigning the peninsula. No transition exists yet (no nonexistent-
-    //    map transition): the entry tile is presently solid (TOWN_BUILDING),
-    //    and the return tile is presently the walkable road (PATH).
-    assert.equal(crownGrid[FUTURE_ENTRY.row][FUTURE_ENTRY.col], 13, 'future TOWN_ENTRANCE tile is presently solid (TOWN_BUILDING)');
-    assert.equal(crownGrid[FUTURE_RETURN.row][FUTURE_RETURN.col], 2, 'future return-landing tile is presently the walkable road (PATH)');
-    // The road terminates naturally at the footprint's southern face: row 3
-    // (immediately south of the footprint) is PATH under the whole footprint
-    // width, and row 0 (immediately north of the footprint) is water -- the
-    // footprint is the literal end of the explorable peninsula.
-    assert.deepEqual([crownGrid[3][7], crownGrid[3][8], crownGrid[3][9]], [2, 2, 2], 'road terminates at the footprint southern face');
-    assert.deepEqual([crownGrid[0][7], crownGrid[0][8], crownGrid[0][9]], [1, 1, 1], 'open Valmere water immediately north of the footprint');
+    // 6. Both land entrances are reachable from the established approach and
+    //    retain distinct paired return identities.
+    assert.deepEqual([crownGrid[3][7], crownGrid[3][8]], [14, 14], 'paired southern crown cells are town entrances');
+    assert.deepEqual([crownGrid[0][7], crownGrid[0][8]], [1, 1], 'open Valmere water immediately north of the marker');
 
-    // 7. No transition anywhere targets a nonexistent Mornay town map: no
-    //    EDGE_TRANSITIONS/debug-warp entry references a 'mornay' town id, and
-    //    movement.js has no enterTownAt('mornay', ...) call (the established
-    //    TOWN_ENTRANCE-tile convention used by Calwick/Drenwick).
-    assert.equal(/enterTownAt\(\s*['"]mornay['"]/i.test(movementSrc), false, 'no enterTownAt(\'mornay\', ...) wired yet');
+    // 7. The paired entrances use the established enterTownAt authority and
+    //    all seventeen Mornay exteriors are registered as town maps.
+    assert.equal((movementSrc.match(/enterTownAt\(\s*['"]mornay['"]/gi) || []).length, 2, 'exactly two enterTownAt(\'mornay\', ...) land routes');
     const townNamedTargets = J("JSON.stringify([...new Set(Object.values(EDGE_TRANSITIONS).flatMap(d=>Object.values(d).flat()).map(e=>e.targetMap).filter(id=>id.includes('MORNAY_TOWN')))])");
     assert.deepEqual(townNamedTargets, ['EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP'], 'only the outdoor approach uses the town word');
-    assert.equal(g.run("Object.values(MAP_CATALOG).some(m=>m.id.includes('MORNAY')&&m.type==='town')"), false, 'no Mornay town map exists');
+    assert.equal(g.run("Object.values(MAP_CATALOG).filter(m=>m.region==='Mornay'&&m.type==='town').length"), 17, 'all seventeen Mornay town exteriors are registered');
 
     // 8. The approach reaches the peninsula: EASTERN_FENS_MORNAY_APPROACH_M_MAP
     //    has a reciprocal north seam into the peninsula's southern neck
@@ -373,13 +369,14 @@ module.exports = {
     const approachMGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_APPROACH_M_MAP'].map)");
     assert.deepEqual([approachMGrid[0][7], approachMGrid[0][8], approachMGrid[0][9]], [2, 2, 2], 'approach north seam is walkable PATH');
 
-    // 9. The road reaches the reserved footprint: col 8 is walkable (PATH) on
+    // 9. The road reaches both entrances: col 8 is walkable (PATH) on
     //    every row from the southern seam (row 14) of NECK_ROAD_MAP, up
-    //    through its north seam, through TOWN_APPROACH_MAP, to row 3
-    //    (the footprint's southern face) -- one continuous corridor.
+    //    through its north seam and through TOWN_APPROACH_MAP. A westward
+    //    branch on row 4 reaches the west entrance at (7,3).
     const neckGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_NECK_ROAD_MAP'].map)");
     for (let r = 0; r <= 14; r++) assert.equal(neckGrid[r][8], 2, `NECK_ROAD_MAP row ${r} col 8 is PATH (road spine)`);
-    for (let r = 3; r <= 14; r++) assert.equal(crownGrid[r][8], 2, `TOWN_APPROACH_MAP row ${r} col 8 is PATH (road to footprint)`);
+    for (let r = 4; r <= 14; r++) assert.equal(crownGrid[r][8], 2, `TOWN_APPROACH_MAP row ${r} col 8 is PATH (road to entrances)`);
+    assert.equal(crownGrid[4][7], 2, 'west entrance has a walkable approach cell');
 
     // 10. Western and eastern shoreline branches terminate safely (water,
     //     rock, mud, or dense vegetation), not void: the authored local dead

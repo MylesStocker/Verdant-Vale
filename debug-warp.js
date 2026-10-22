@@ -78,6 +78,8 @@ const DEBUG_WARP_DESTINATIONS_AUTHORED = [
     state: { inTown: true, currentTownId: 'drenwick', townBuilding: null }, defaultCol: 12, defaultRow: 8, facing: 'left' },
   { id: 'town:drenwick_waterfront', label: 'Drenwick — Waterfront', category: 'town', mapId: 'DRENWICK_WATERFRONT_MAP',
     state: { inTown: true, currentTownId: 'drenwick', townBuilding: null }, defaultCol: 1, defaultRow: 7, facing: 'right' },
+  { id: 'town:mornay_west_gate', label: 'Mornay — West Gate', category: 'town', mapId: 'MORNAY_WEST_GATE_MAP',
+    state: { inTown: true, currentTownId: 'mornay', townBuilding: null }, defaultCol: 7, defaultRow: 13, facing: 'up' },
 
   // ── Interiors: Calwick buildings ──────────────────────────────────────────
   { id: 'interior:calwick_inn',    label: 'Calwick — Inn', category: 'interior', mapId: 'INN_MAP',

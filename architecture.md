@@ -171,9 +171,45 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 217 maps, 115 regional chunks, 212 regression suite
-files and save version 5. Earlier subsystem checkpoint references to version 4
+Current integration totals: 234 maps, 115 regional chunks, 308 fixed-destination
+transitions, 8 preserved-coordinate transitions, 240 edge-transition segments,
+42 house doors, 213 regression suite files and save version 5. Earlier subsystem
+checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
+
+### Mornay exterior topology
+
+`content/maps/mornay-maps.js` owns Mornay's enterable exterior skeleton as one
+closed `MORNAY_TOWN_LAYOUT` registry. Its 17 fixed-screen 16×15 maps use the
+existing legacy-town architecture: catalog type `town`, ordinary town save
+eligibility, no regional placement and no random encounters. The irregular
+layout coordinates are:
+
+| Position | Map ID |
+|---|---|
+| (0,0) | `MORNAY_OLD_FORT_MAP` |
+| (0,1), (1,1) | `MORNAY_NORTH_UPPER_WEST_MAP`, `MORNAY_NORTH_UPPER_EAST_MAP` |
+| (0,2), (1,2) | `MORNAY_NORTH_LOWER_WEST_MAP`, `MORNAY_NORTH_LOWER_EAST_MAP` |
+| (0,3)–(3,3) | `MORNAY_MIDDLE_UPPER_WEST_MAP`, `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP`, `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP`, `MORNAY_MIDDLE_UPPER_EAST_MAP` |
+| (0,4)–(3,4) | `MORNAY_MIDDLE_LOWER_WEST_MAP`, `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP`, `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP`, `MORNAY_MIDDLE_LOWER_EAST_MAP` |
+| (1,5), (2,5) | `MORNAY_SOUTH_UPPER_WEST_MAP`, `MORNAY_SOUTH_UPPER_EAST_MAP` |
+| (1,6), (2,6) | `MORNAY_WEST_GATE_MAP`, `MORNAY_EAST_GATE_MAP` |
+
+`mornayTownNeighbor()` derives adjacency only from that registry.
+`moveWithinMornay()` uses the four established town boundary tiles and canonical
+`transitionToLocation()` with fixed, validated landings; there is no Mornay-only
+camera or transition engine. The two `TOWN_ENTRANCE` cells on the regional crown
+at `(7,3)` and `(8,3)` enter the West and East Gates respectively, and gate exits
+return to those same cells. The remaining upper four cells form the solid 2×3
+overworld marker. Mornay's empty exteriors do not roll the populated-town
+traveller cameo. The conventional debug destination enters West Gate.
+
+The registered reserve labels for the western harbour identify an inert island
+ferry berth and a future story-ship berth. They are ordinary deck presentation:
+no transition, NPC, ferry, island, ship or water-travel authority exists. All
+building masses and apparent doors are nonfunctional. Population, interiors,
+services, quests and later story progression remain deferred. SAVE_VERSION stays
+5; no town-specific persistent field was added.
 
 ### Canonical party encounters
 
@@ -4542,8 +4578,9 @@ Loading remains inert and the separate campsite entrance stays at (6,4).
 The six peninsula map IDs now use NECK_ROAD, WESTERN_COVE, EASTERN_SHORE,
 HARBOUR_SHORE, TOWN_APPROACH and EASTERN_POINT under EASTERN_FENS_MORNAY.
 All production catalogues, placement/seam references, debug/save lookup and
-source-derived evidence agree. Only names change: every grid, coordinate,
-encounter permission, pool and the solid 3×2 future town footprint is retained.
+source-derived evidence agree. Only names changed in that checkpoint: every
+grid, coordinate, encounter permission and pool was retained. The later Mornay
+exterior topology section near the top supersedes its then-reserved marker.
 No aliases or save migration are added: regional saves store canonical world
 coordinates, which still resolve to the same placements under the renamed IDs.
 The six maps retain their existing save restriction; malformed explicit retired

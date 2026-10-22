@@ -134,11 +134,11 @@ bog in the envelope. Beyond the threshold, six chunks at (16-18, -2) and
 (16-18, -3) form the Mornay peninsula: one coherent, irregular landform
 extending north into Valmere (a sheltered western cove and harbour shore, a
 neck road up the spine, and a more exposed eastern shore/point), not six
-town-interior maps. The peninsula's northern crown reserves a compact 3x2
-Mornay settlement footprint (`EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP`,
-rows 1-2, cols 7-9) — the whole town at overworld scale. No enterable town
-transition exists yet; the footprint is a solid marker until the separate
-interior Mornay town map is built (see change log).
+town-interior maps. The peninsula's northern crown now shows a two-tile-wide,
+three-tile-high Mornay marker on `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP`:
+four upper wall cells at cols 7–8, rows 1–2, and paired land entrances at
+`(7,3)` and `(8,3)`. They enter the West and East Gate screens of the separate
+17-area fixed-screen town exterior.
 
 | Map ID | Chunk (x,y) | Display name | Walkable | Encounters |
 |---|---|---|---|---|
@@ -148,7 +148,7 @@ interior Mornay town map is built (see change log).
 | `EASTERN_FENS_ENVELOPE_C18RN4_MAP` | (18, -4) | Eastern Fens — Valmere Open Water | no | no |
 | `EASTERN_FENS_ENVELOPE_C15RN3_MAP` | (15, -3) | Eastern Fens — Valmere Open Water | no | no |
 | `EASTERN_FENS_MORNAY_HARBOUR_SHORE_MAP` | (16, -3) | Mornay Peninsula — Harbour Shore | yes | no |
-| `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` | (17, -3) | Mornay Peninsula — Town Approach (reserves the 3x2 Mornay footprint) | yes | no |
+| `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` | (17, -3) | Mornay Peninsula — Town Approach (paired Mornay land entrances) | yes | no |
 | `EASTERN_FENS_MORNAY_EASTERN_POINT_MAP` | (18, -3) | Mornay Peninsula — Eastern Point | yes | no |
 | `EASTERN_FENS_ENVELOPE_C15RN2_MAP` | (15, -2) | Eastern Fens — Valmere Open Water | no | no |
 | `EASTERN_FENS_MORNAY_WESTERN_COVE_MAP` | (16, -2) | Mornay Peninsula — Western Cove | yes | no |
@@ -305,18 +305,17 @@ code each time.
   walkable landform, with two authored coastal dead ends (a mooring spur
   ending at rock/reeds, a point tip ending at open water) for local
   exploration — not a bypass around anything.
-- **Reserved the compact 3x2 Mornay settlement footprint**: 6 TOWN_BUILDING
+- **Reserved the former six-cell Mornay settlement marker**: 6 TOWN_BUILDING
   tiles at `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` rows 1-2, cols 7-9 —
   the whole town at overworld scale, reusing the established
   TOWN_ENTRANCE/`enterTownAt()` convention already used by Calwick (`MAP`)
   and Drenwick (`MAP3_N2`) for when the real interior town map exists. The
   neck road terminates naturally at the footprint's southern face (row 3).
-  Future entry tile: (col 8, row 2) on `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP`
+  The then-planned entry tile was (col 8, row 2) on `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP`
   — presently solid (TOWN_BUILDING). Future return-landing tile: (col 8,
   row 3) on the same chunk — presently the walkable road (PATH). No
-  transition to a nonexistent Mornay town map was created; no closure/guard/
-  lore explanation was invented. Wiring the real transition is left for
-  Codex.
+  transition to a nonexistent Mornay town map was created at that checkpoint.
+  The later exterior-topology entry below supersedes this reserved-marker state.
 - No TOWN_FLOOR or TOWN_MARKET tiles anywhere on the peninsula (no literal
   streets); TOWN_BUILDING appears nowhere except the 6-tile footprint. No
   Mornay town content, no combat/encounter/MQ5/ambush-lifecycle changes, no
@@ -331,13 +330,31 @@ code each time.
 
 The six peninsula IDs now describe Neck Road, Western Cove, Eastern Shore,
 Harbour Shore, Town Approach and Eastern Point. Their display names, grid
-hashes, placements, coastal spurs and structural seams are unchanged. The
-3×2 town footprint remains solid: future entry (8,2), future return (8,3),
-with no town transition. Catalogues, save placement, debug warp, tests and
+hashes, placements, coastal spurs and structural seams were unchanged by that
+rename. At that checkpoint the town marker was still solid; the exterior-
+topology entry below supersedes it. Catalogues, save placement, debug warp, tests and
 source-derived artifacts use the same renamed IDs. No compatibility aliases
 are retained for the unreleased district placeholders. Regional saved world
 coordinates remain compatible; the six maps retain their save restrictions.
 Malformed explicit retired IDs reject through existing unknown-map validation.
+
+### 2026-10-21 (Mornay exterior topology)
+
+The crown marker is now two tiles wide by three high. Its upper four cells are
+solid wall/town fabric; the southern pair at `(7,3)` and `(8,3)` are distinct
+West/East Gate entrances. A separate 17-map legacy-town exterior follows the
+approved irregular district shape: South (4), Middle (8), west-offset North
+(4), and Old Fort (1). Both gates reach every screen through reciprocal fixed
+transitions. Shore, seawall, building backs and southern walls visibly close
+every exposed boundary. Harbour deck reserves for a future story ship and
+island ferry are inert. No ferry, island, ship, interiors, population, service,
+quest or Mornay story progression is implemented.
+
+The only changed regional grid is the Town Approach crown
+(`a3c35824f82f349a588c0e7746cb95b7f880945c22b2546517b0094fbc8fd074`).
+All 115 regional fingerprints pass. The 17 discrete town exteriors increase the
+catalogue to 234 maps and the source-derived transition audit to 308 fixed
+destinations; regional placements and 240 structural edge segments are unchanged.
 
 ### Travellers’ Rise natural ambush choke
 

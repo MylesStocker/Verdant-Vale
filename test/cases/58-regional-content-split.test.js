@@ -81,7 +81,7 @@ module.exports = {
     for (const m of Object.keys(mapReg)) assert.equal(g.run('MAP_REGISTRY[mapRegistryId(' + m + ')].map === ' + m), true, m + ' resolves through MAP_REGISTRY');
     assert.equal(g.run("MAP_REGISTRY['EASTERN_FENS_VALMERE_ROAD_TURN_MAP'].map===mapRefForId('EASTERN_FENS_VALMERE_ROAD_TURN_MAP')"), true,
       'aliasless Eastern Fens representative resolves through MAP_REGISTRY');
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 217);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 234);
 
     // 7. Representative NPC from all six NPC files resolves through SIMPLE_NPCS + NPC_REGISTRY.
     const npcReg = { aldric: 'CALWICK_NPCS', gorrit_wend: 'THORNMERE_WILDS_NPCS', tarvec: 'DRENWICK_TOWN_NPCS', harbormaster_interior: 'DRENWICK_INTERIOR_NPCS', wen: 'SOUTH_RUINS_NPCS', causeway_ferry_operator: 'NORTH_BASIN_NPCS' };
