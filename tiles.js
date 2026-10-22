@@ -207,6 +207,14 @@ const HORROR_SECRET_EXIT     = 126; // on DUNGEON8_EAST_SECRET_MAP: the way back
 // encounter-integration pass must revisit that flag deliberately.
 const DEEP_REEDS = 127;
 
+// Terrain-redesign pass: firm shingle/gravel ground (moraine ridge, Valmere
+// shoreline) and two shoreline decorative blockers (driftwood, a drought-
+// stranded boat). Same shape as DEEP_REEDS above — walkable/properties/
+// rendering/validation, no new mechanic.
+const GRAVEL_BAR    = 128;
+const DRIFTWOOD     = 129;
+const STRANDED_BOAT = 130;
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -337,6 +345,9 @@ const WALKABLE = [
   /* 125 HORROR_SECRET_ENTRANCE*/ true,
   /* 126 HORROR_SECRET_EXIT    */ true,
   /* 127 DEEP_REEDS            */ true,
+  /* 128 GRAVEL_BAR            */ true,
+  /* 129 DRIFTWOOD             */ false,
+  /* 130 STRANDED_BOAT         */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -465,6 +476,9 @@ window.TREE_IN_WATER          = TREE_IN_WATER;
 window.ROCKS_IN_WATER         = ROCKS_IN_WATER;
 window.LIGHTHOUSE             = LIGHTHOUSE;
 window.DEEP_REEDS             = DEEP_REEDS;
+window.GRAVEL_BAR             = GRAVEL_BAR;
+window.DRIFTWOOD              = DRIFTWOOD;
+window.STRANDED_BOAT          = STRANDED_BOAT;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -500,6 +514,7 @@ const DEBUG_TILE_NAMES = [
   'TOWN_BUILDING',  'TOWN_ENTRANCE',  'TOWN_EXIT',  'TOWN_FLOOR',  'TOWN_MARKET',  'TRAPPER_HUT',
   'TREE',  'WATER',  'WEST_ENTRANCE',  'WEST_EXIT',  'WORLD_HOLLOW',
   'HORROR_TENDON_DOWN',  'HORROR_TENDON_UP',  'HORROR_SECRET_ENTRANCE',  'HORROR_SECRET_EXIT',
+  'GRAVEL_BAR',  'DRIFTWOOD',  'STRANDED_BOAT',
 ];
 
 let _debugTileNameById = null; // lazily built on first call, after every script has loaded
@@ -580,6 +595,25 @@ const TILE_PROPERTIES = {
          + 'Encounter-eligible like ordinary REEDS/GRASS so wilderness encounters work once pools are assigned; '
          + 'no encounter tables exist yet, and every DEEP_REEDS-bearing chunk still sets allowRandomEncounters:false, '
          + 'so no encounters actually roll in this pass.',
+  },
+  [GRAVEL_BAR]: {
+    id: GRAVEL_BAR, name: 'Gravel Bar', debugName: 'GRAVEL_BAR', walkable: WALKABLE[GRAVEL_BAR],
+    category: 'natural', tags: ['outdoor', 'wetland', 'shoreline'], encounterEligible: true,
+    notes: 'Tile 128. Firm shingle/gravel underfoot — the moraine ridge’s drier, rockier ground and the '
+         + 'Valmere shoreline’s shingle beach texture. Walkable, encounter-eligible like other walkable '
+         + 'natural terrain; every chunk that uses it still sets allowRandomEncounters as authored, so this '
+         + 'tile alone does not change whether an area rolls encounters.',
+  },
+  [DRIFTWOOD]: {
+    id: DRIFTWOOD, name: 'Driftwood', debugName: 'DRIFTWOOD', walkable: WALKABLE[DRIFTWOOD],
+    category: 'decorative_blocker', tags: ['outdoor', 'shoreline', 'blocker'], encounterEligible: false, isDecorative: true,
+    notes: 'Tile 129. A beached tangle of driftwood on the Valmere shoreline. Impassable and purely decorative — not a transition or interaction.',
+  },
+  [STRANDED_BOAT]: {
+    id: STRANDED_BOAT, name: 'Stranded Boat', debugName: 'STRANDED_BOAT', walkable: WALKABLE[STRANDED_BOAT],
+    category: 'decorative_blocker', tags: ['outdoor', 'shoreline', 'drought', 'blocker'], encounterEligible: false, isDecorative: true,
+    notes: 'Tile 130. A small boat left stranded on exposed mud or a dry drainage cut by dropping water — '
+         + 'a drought signal, not a dock or landmark. Impassable and purely decorative — not a transition or interaction.',
   },
   [REEDS]: {
     id: REEDS, name: 'Reeds', debugName: 'REEDS', walkable: WALKABLE[REEDS],

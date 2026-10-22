@@ -1870,6 +1870,74 @@ function drawExposedStone(x, y) {
   ctx.fillRect(x +  1, y + 20, 8, 3);
 }
 
+// Loose shingle/gravel — the moraine ridge's drier ground and the Valmere
+// shoreline's beach texture. Walkable, like EXPOSED_STONE, but reads as
+// smaller loose rounded pebbles rather than bare slab rock.
+function drawGravelBar(x, y) {
+  ctx.fillStyle = '#9a9184';
+  ctx.fillRect(x, y, TILE, TILE);
+  ctx.fillStyle = '#aba290';
+  ctx.fillRect(x +  2, y +  2, 5, 4);
+  ctx.fillRect(x + 10, y +  5, 4, 4);
+  ctx.fillRect(x + 18, y +  2, 5, 3);
+  ctx.fillRect(x + 25, y +  7, 4, 4);
+  ctx.fillRect(x +  5, y + 12, 4, 3);
+  ctx.fillRect(x + 14, y + 14, 5, 4);
+  ctx.fillRect(x + 23, y + 15, 4, 3);
+  ctx.fillRect(x +  2, y + 20, 5, 4);
+  ctx.fillRect(x + 11, y + 22, 4, 3);
+  ctx.fillRect(x + 20, y + 23, 5, 4);
+  ctx.fillRect(x + 27, y + 21, 3, 4);
+  ctx.fillStyle = '#6e685c';
+  ctx.fillRect(x +  7, y +  3, 2, 2);
+  ctx.fillRect(x + 16, y +  8, 2, 2);
+  ctx.fillRect(x + 24, y + 12, 2, 2);
+  ctx.fillRect(x +  9, y + 18, 2, 2);
+  ctx.fillRect(x + 19, y + 19, 2, 2);
+}
+
+// Beached driftwood — impassable, decorative, Valmere shoreline debris.
+// Sits on an exposed-ground base, the way FENCE_POST sits on GRASS.
+function drawDriftwood(x, y) {
+  drawExposedStone(x, y);
+  ctx.fillStyle = '#4a382a';
+  ctx.save();
+  ctx.translate(x + 16, y + 16);
+  ctx.rotate(-0.35);
+  ctx.fillRect(-14, -3, 26, 5);
+  ctx.restore();
+  ctx.fillStyle = '#5c4836';
+  ctx.save();
+  ctx.translate(x + 18, y + 20);
+  ctx.rotate(0.5);
+  ctx.fillRect(-10, -2, 18, 4);
+  ctx.restore();
+  ctx.fillStyle = '#342a20';
+  ctx.fillRect(x + 4, y + 10, 3, 3);
+  ctx.fillRect(x + 25, y + 22, 3, 3);
+}
+
+// A small boat, beached by dropping water on exposed mud or a dry drainage
+// cut — a drought signal, not a dock. Impassable, decorative.
+function drawStrandedBoat(x, y) {
+  drawBasinMud(x, y);
+  ctx.fillStyle = '#5a4432';
+  ctx.save();
+  ctx.translate(x + 16, y + 17);
+  ctx.rotate(0.18);
+  ctx.beginPath();
+  ctx.moveTo(-13, 4);
+  ctx.lineTo(-9, -4);
+  ctx.lineTo(9, -4);
+  ctx.lineTo(13, 4);
+  ctx.lineTo(-13, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#6e573f';
+  ctx.fillRect(-8, -4, 16, 3);
+  ctx.restore();
+}
+
 // Old fence post, half-swallowed by silt — impassable, decorative. What's
 // left of a farm/pasture boundary from before the basin started drying out
 // and reclaiming this ground.
@@ -2530,6 +2598,9 @@ function drawTile(id, x, y) {
     case NOTICE_BOARD:        drawNoticeBoardTile(x, y);  break;
     case REEDS:               drawReeds(x, y);            break;
     case DEEP_REEDS:          drawDeepReeds(x, y);        break;
+    case GRAVEL_BAR:          drawGravelBar(x, y);        break;
+    case DRIFTWOOD:           drawDriftwood(x, y);        break;
+    case STRANDED_BOAT:       drawStrandedBoat(x, y);     break;
     case EAST_ENTRANCE:       drawEastEntrance(x, y);     break;
     case EAST_EXIT:           drawEastExit(x, y);         break;
     case WEST_ENTRANCE:       drawWestEntrance(x, y);     break;
@@ -2660,6 +2731,6 @@ const RENDERABLE_TILE_IDS = new Set([
   CHAMBER_DOOR, CHAMBER_FLOOR, CHAMBER_WALL, CHAMBER_EXIT,
   SUNKEN_STAIR, GALLERY_FLOOR, GALLERY_WALL, GALLERY_STAIR_UP, TEMPLE_SHALLOWS, TEMPLE_CARVING, RODDON_SILT,
   CHARTER_STONE, CISTERN, WATER_GAUGE, REED_RACK, APT_NOTICE, HILLS, TREE_IN_WATER,
-  ROCKS_IN_WATER, LIGHTHOUSE, DEEP_REEDS,
+  ROCKS_IN_WATER, LIGHTHOUSE, DEEP_REEDS, GRAVEL_BAR, DRIFTWOOD, STRANDED_BOAT,
 ]);
 window.RENDERABLE_TILE_IDS = RENDERABLE_TILE_IDS;

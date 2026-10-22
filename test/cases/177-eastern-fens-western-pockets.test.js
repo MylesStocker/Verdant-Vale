@@ -24,12 +24,18 @@ module.exports = {
     const g = context();
     const J = (expr) => JSON.parse(g.run(expr));
 
-    // ── Deep Reeds walkable + encounter-eligible, but no encounters actually roll
-    //    (every DEEP_REEDS chunk keeps allowRandomEncounters:false). ───────────
+    // ── Deep Reeds walkable + encounter-eligible; tile eligibility alone does
+    //    not create encounters — the chunk-level allowRandomEncounters flag
+    //    governs it. The Eastern Fens Mornay content pass later enables
+    //    encounters on exactly the 22 main-route chunks (easy/hard split by
+    //    chunk column); every exploration/envelope chunk (these 3 pockets
+    //    included) and Travellers' Rise stay encounter-free. ─────────────────
     assert.equal(g.run('WALKABLE[DEEP_REEDS]'), true);
     assert.equal(g.run('TILE_PROPERTIES[DEEP_REEDS].encounterEligible'), true);
-    assert.equal(g.run("Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);})&&MAP_CATALOG[id].allowRandomEncounters===true;}).length"), 0,
-      'no DEEP_REEDS-bearing chunk enables encounters yet');
+    assert.equal(g.run("Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);})&&MAP_CATALOG[id].allowRandomEncounters===true;}).length"), 22,
+      'exactly the 22 main-route DEEP_REEDS-bearing chunks enable encounters');
+    for (const id of Object.keys(POCKETS))
+      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} (exploration pocket) stays encounter-free`);
     // tile 127 is still confined to the Eastern Fens (no sequence break elsewhere)
     assert.deepEqual(J("JSON.stringify(Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].region!=='Eastern Fens'&&REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);});}))"), [],
       'DEEP_REEDS used only inside the Eastern Fens');

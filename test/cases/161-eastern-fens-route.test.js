@@ -173,7 +173,11 @@ module.exports = {
       'travellers rise has a substantial dry stopping area');
     for (let i = 0; i < NEW_IDS.length; i++) {
       const id = NEW_IDS[i], key = CONTENT_KEYS[i];
-      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} has no random encounters`);
+      // Eastern Fens Mornay content pass: 22 of the 23 route chunks now carry
+      // random encounters (easy/hard split by chunk column); Travellers' Rise
+      // alone stays encounter-free, reserved for its own MQ5 scripted ambush.
+      const expectEncounters = id !== 'EASTERN_FENS_TRAVELLERS_RISE_MAP';
+      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), expectEncounters, `${id} encounter state`);
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowSave`), true, `${id} is saveable`);
       assert.equal(g.run(`MAP_CATALOG['${id}'].items.length`), 0, `${id} has no items`);
       assert.equal(g.run(`(MAP_FEATURES['${id}']||[]).length`), 0, `${id} has no feature or quest trigger`);

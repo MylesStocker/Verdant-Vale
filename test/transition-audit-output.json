@@ -10820,6 +10820,20 @@
       "allOk": true
     },
     {
+      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        7,
+        9
+      ],
+      "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
+      "targetEdge": "south",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
       "direction": "east",
       "segment": 0,
@@ -10834,58 +10848,30 @@
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
-      "direction": "north",
-      "segment": 0,
-      "sourceRange": [
-        6,
-        9
-      ],
-      "targetMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
-      "targetEdge": "south",
-      "walkableSources": 4,
-      "bad": [],
-      "allOk": true
-    },
-    {
-      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "direction": "south",
       "segment": 0,
       "sourceRange": [
-        6,
+        7,
         9
       ],
-      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
       "targetEdge": "north",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
-      "direction": "east",
-      "segment": 0,
-      "sourceRange": [
-        6,
-        9
-      ],
-      "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
-      "targetEdge": "west",
-      "walkableSources": 4,
-      "bad": [],
-      "allOk": true
-    },
-    {
-      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "direction": "north",
       "segment": 0,
       "sourceRange": [
-        6,
+        7,
         9
       ],
-      "targetMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "targetEdge": "south",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -10895,11 +10881,11 @@
       "segment": 0,
       "sourceRange": [
         6,
-        9
+        8
       ],
       "targetMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "targetEdge": "east",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -10909,25 +10895,39 @@
       "segment": 0,
       "sourceRange": [
         6,
-        9
+        8
       ],
       "targetMap": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
       "targetEdge": "west",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
-      "direction": "north",
+      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+      "direction": "east",
       "segment": 0,
       "sourceRange": [
         6,
-        9
+        8
       ],
-      "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
       "targetEdge": "south",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -10937,11 +10937,11 @@
       "segment": 0,
       "sourceRange": [
         6,
-        9
+        8
       ],
       "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "targetEdge": "east",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -10950,12 +10950,12 @@
       "direction": "north",
       "segment": 0,
       "sourceRange": [
-        6,
-        9
+        3,
+        5
       ],
       "targetMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
       "targetEdge": "south",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -10964,12 +10964,12 @@
       "direction": "south",
       "segment": 0,
       "sourceRange": [
-        6,
-        9
+        10,
+        12
       ],
       "targetMap": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
       "targetEdge": "north",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -10979,39 +10979,11 @@
       "segment": 0,
       "sourceRange": [
         6,
-        9
+        8
       ],
       "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "targetEdge": "west",
-      "walkableSources": 4,
-      "bad": [],
-      "allOk": true
-    },
-    {
-      "srcMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
-      "direction": "west",
-      "segment": 0,
-      "sourceRange": [
-        6,
-        9
-      ],
-      "targetMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
-      "targetEdge": "east",
-      "walkableSources": 4,
-      "bad": [],
-      "allOk": true
-    },
-    {
-      "srcMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
-      "direction": "east",
-      "segment": 0,
-      "sourceRange": [
-        6,
-        9
-      ],
-      "targetMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
-      "targetEdge": "west",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -11020,26 +10992,40 @@
       "direction": "south",
       "segment": 0,
       "sourceRange": [
-        6,
+        7,
         9
       ],
       "targetMap": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
       "targetEdge": "north",
-      "walkableSources": 4,
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
     {
-      "srcMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
+      "srcMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
       "direction": "west",
       "segment": 0,
       "sourceRange": [
         6,
-        9
+        8
       ],
-      "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+      "targetMap": "EASTERN_FENS_MORNAY_HARBOUR_MAP",
       "targetEdge": "east",
-      "walkableSources": 4,
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -11048,12 +11034,26 @@
       "direction": "south",
       "segment": 0,
       "sourceRange": [
-        6,
-        9
+        3,
+        5
       ],
       "targetMap": "EASTERN_FENS_MORNAY_RESIDENTIAL_MAP",
       "targetEdge": "north",
-      "walkableSources": 4,
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_MORNAY_EASTERN_EDGE_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_MORNAY_WORKING_WATERFRONT_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -17224,9 +17224,9 @@
         "chunkY": -1,
         "dir": "north",
         "neighbor": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
-        "target": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
-        "type": "broad",
-        "verdict": "ALIGNS"
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
@@ -17264,9 +17264,9 @@
         "chunkY": -1,
         "dir": "north",
         "neighbor": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
@@ -17394,9 +17394,9 @@
         "chunkY": -2,
         "dir": "south",
         "neighbor": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
-        "target": "EASTERN_FENS_MORNAY_APPROACH_W_MAP",
-        "type": "broad",
-        "verdict": "ALIGNS"
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "EASTERN_FENS_MORNAY_WESTERN_APPROACH_MAP",
@@ -17434,9 +17434,9 @@
         "chunkY": -2,
         "dir": "south",
         "neighbor": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "EASTERN_FENS_MORNAY_APPROACH_M_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "EASTERN_FENS_MORNAY_ADMIN_CENTRE_MAP",

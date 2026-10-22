@@ -68,7 +68,7 @@ module.exports = {
     assert.equal(g.run('DEBUG_TILE_NAMES.includes("HILLS")'), true);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(HILLS)'), true);
     assert.equal(g.run('DEBUG_TILE_NAMES.length'), g.run('new Set(DEBUG_TILE_NAMES.map(function(n){return window[n];})).size'), 'all exported tile ids remain unique');
-    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER'&&n!=='ROCKS_IN_WATER'&&n!=='LIGHTHOUSE'&&n!=='HORROR_TENDON_DOWN'&&n!=='HORROR_TENDON_UP'&&n!=='HORROR_SECRET_ENTRANCE'&&n!=='HORROR_SECRET_EXIT'&&n!=='DEEP_REEDS';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
+    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER'&&n!=='ROCKS_IN_WATER'&&n!=='LIGHTHOUSE'&&n!=='HORROR_TENDON_DOWN'&&n!=='HORROR_TENDON_UP'&&n!=='HORROR_SECRET_ENTRANCE'&&n!=='HORROR_SECRET_EXIT'&&n!=='DEEP_REEDS'&&n!=='GRAVEL_BAR'&&n!=='DRIFTWOOD'&&n!=='STRANDED_BOAT';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
     assert.equal(sha256(oldIds), OLD_TILE_ID_HASH, 'every pre-HILLS tile constant retains its reviewed numeric id');
     const hillRender = J(`(function(){
       var oldFill=ctx.fillRect, oldRandom=Math.random, randomCalls=0;
