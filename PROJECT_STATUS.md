@@ -2007,3 +2007,28 @@ Esla's post-victory campsite route uses row 6 to avoid the existing scrub at
 opens after the existing stage-2 receipt. Load stays inert until deliberate
 movement. Suite 217 covers graph and actual continuous/legacy input, while
 199/201/207/208 retain payment, retry, save/load and one-time story coverage.
+
+### Sera/Liora shared character scale and scene depth
+
+The Bethany cutaway uses `SERA_LIORA_SCENE_METRICS` in `sera-liora-scene.js` for
+normalized actor canvases, foot anchors, measured peer proportions and gait.
+Sera's 146-pixel and Liora's 148-pixel neutral silhouettes differ by 1.37%; shared
+facial landmarks are approximately 20 pixels. The nine Sera frames cover actual
+four-direction room movement (left mirrors right), with the existing 0.14-second
+gait and idle on dialogue/stop. The opening's existing 40-frame reveal projects a
+validated floor approach (350,285) → (350,345), ending at the prior anchor.
+
+`scene-depth.js` validates the complete draw plan before drawing: rear background,
+world objects/actors sorted by finite ground depth, always-foreground effects,
+then UI. Equal depths retain supplied order. It retains no state and consumes no
+RNG. Bethany supplies exact-pixel bed masks at depth 350; actors behind draw first,
+actors in front draw afterward. Collision remains owned by the unchanged room
+movement authority. Waking Liora uses transparent poses behind original cover
+pixels, never a resized opaque room patch.
+
+No story text, trigger, save data, map grid or control handoff changes. Versioned
+character assets and QA captures are documented in `Art/qa/sera-liora/depth-v2/`;
+the supplied reference is QA only. Suite 260 covers pixels, scale, depth, animation,
+route legality and rendering isolation. Existing cutaway tests retain lifecycle,
+asset-failure, master-preservation and free-walk coverage with updated runtime
+asset expectations.

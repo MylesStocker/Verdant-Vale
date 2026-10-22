@@ -1357,6 +1357,11 @@ function debugPlaySeraLioraCutaway() {
 }
 
 function revealBethanyGuestRoom() {
+  if (!seraLioraApproachIsWalkable()) {
+    console.error('[Sera/Liora] Invalid presentation approach; preserving the existing safe handoff.');
+    endSeraLioraCutawayAtHospital();
+    return;
+  }
   const moved = transitionToLocation({
     mapId: 'BETHANY_GUEST_ROOM_MAP', x: 7.5 * TILE, y: 7.5 * TILE, facing: 'up'
   });
@@ -1391,9 +1396,7 @@ function updateSeraLioraCutaway() {
 }
 
 function seraLioraFreeWalkAssetsReady() {
-  return seraLioraApprovedRoomReady() &&
-    !!loadedImageAsset('cutaway_sera_walk_cycle_v1') &&
-    !!loadedImageAsset('cutaway_liora_close_standing_master_v1');
+  return seraLioraApprovedRoomReady();
 }
 
 // The opening dialogue's existing continuation point now enters a small,

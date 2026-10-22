@@ -5,6 +5,13 @@
 // when a scene requests its bundle. Failed entries settle as errors so callers
 // can use their code-drawn/portrait-free fallback without waiting forever.
 const IMAGE_ASSET_REGISTRY = Object.freeze({
+  cutaway_sera_walk_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/sera-walk.png', use: 'cutaway_depth_scene', width: 384, height: 576 }),
+  cutaway_liora_standing_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/liora-standing.png', use: 'cutaway_depth_scene', width: 128, height: 192 }),
+  cutaway_liora_lying_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/liora-lying.png', use: 'cutaway_depth_scene', width: 192, height: 216 }),
+  cutaway_liora_sitting_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/liora-sitting.png', use: 'cutaway_depth_scene', width: 192, height: 216 }),
+  cutaway_left_bed_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/left-bed.png', use: 'cutaway_depth_scene', width: 512, height: 480 }),
+  cutaway_right_bed_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/right-bed.png', use: 'cutaway_depth_scene', width: 512, height: 480 }),
+  cutaway_right_cover_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/right-cover.png', use: 'cutaway_depth_scene', width: 512, height: 480 }),
   cutaway_bethany_guest_room_redraw_v1: Object.freeze({
     path: 'assets/backgrounds/cutaways/sera-liora/guest-room-redraw-v1-runtime.png',
     use: 'cutaway_background', width: 512, height: 480,
@@ -98,12 +105,13 @@ const IMAGE_ASSET_REGISTRY = Object.freeze({
 const IMAGE_ASSET_BUNDLES = Object.freeze({
   sera_liora_opening: Object.freeze([
     'cutaway_bethany_guest_room_redraw_v1',
-    'cutaway_liora_bed_lying_under_covers_v1',
-    'cutaway_liora_bed_sitting_under_covers_v1',
-    'cutaway_sera_close_standing_fit_v2',
-    'cutaway_sera_close_standing',
-    'cutaway_sera_walk_cycle_v1',
-    'cutaway_liora_close_standing_master_v1',
+    'cutaway_sera_walk_depth_v2',
+    'cutaway_liora_standing_depth_v2',
+    'cutaway_liora_lying_depth_v2',
+    'cutaway_liora_sitting_depth_v2',
+    'cutaway_left_bed_depth_v2',
+    'cutaway_right_bed_depth_v2',
+    'cutaway_right_cover_depth_v2',
     'cutaway_sera_portrait',
     'cutaway_liora_portrait',
   ]),

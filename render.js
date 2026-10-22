@@ -132,7 +132,6 @@ function drawActiveMapContent() {
   if (activeMap === MAP_N2) drawDrenwichNorthGateHint();
   if (seraLioraCutscene.active) {
     if (activeMap === BETHANY_GUEST_ROOM_MAP) {
-      drawSeraLioraBedStatePatch();
       drawSeraLioraCutawayActors();
       if (!seraLioraApprovedRoomReady()) {
         drawBethanyGuestBedForeground();

@@ -431,7 +431,7 @@ const SPEED = 2; // pixels per frame
 const SERA_LIORA_GUEST_ROOM_MOVEMENT = Object.freeze({
   speedPxPerSecond: 90,
   collisionRadius: 9,
-  animationFrameSeconds: 0.14,
+  animationFrameSeconds: SERA_LIORA_SCENE_METRICS.frameSeconds,
   walkableAreas: Object.freeze([
     Object.freeze({ x: 55, y: 185, width: 140, height: 50 }),  // clear aisle across the door threshold
     Object.freeze({ x: 145, y: 225, width: 235, height: 140 }), // main floor
@@ -535,7 +535,7 @@ function updateSeraLioraGuestRoomFreeWalk(deltaSeconds) {
     return;
   }
   walk.animationTime += dt;
-  const cycle = [0, 1, 2, 1];
+  const cycle = SERA_LIORA_SCENE_METRICS.cycle;
   walk.animationFrame = cycle[Math.floor(walk.animationTime /
     SERA_LIORA_GUEST_ROOM_MOVEMENT.animationFrameSeconds) % cycle.length];
 }

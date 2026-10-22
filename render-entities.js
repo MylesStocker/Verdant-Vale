@@ -556,107 +556,24 @@ function drawRasterCharacter(assetId, anchorX, anchorY) {
   return true;
 }
 
-// The art pass authored both opaque bed-state patches in the guest-room source
-// coordinate space. The cutscene's existing lioraPose value is the sole state
-// authority: every pre-sit-up pose uses the lying patch, and the explicit
-// 'sitting' beat atomically selects the sitting patch.
-const SERA_LIORA_BED_STATE_PATCH = Object.freeze({
-  x: 368,
-  y: 112,
-  width: 144,
-  height: 264,
-  lyingAssetId: 'cutaway_liora_bed_lying_under_covers_v1',
-  sittingAssetId: 'cutaway_liora_bed_sitting_under_covers_v1',
-});
-
-function seraLioraBedStateAssetId(pose) {
-  if (pose === 'standing') return null;
-  return pose === 'sitting'
-    ? SERA_LIORA_BED_STATE_PATCH.sittingAssetId
-    : SERA_LIORA_BED_STATE_PATCH.lyingAssetId;
-}
-
 function seraLioraApprovedRoomReady() {
-  return !!loadedImageAsset('cutaway_bethany_guest_room_redraw_v1') &&
-    !!loadedImageAsset(SERA_LIORA_BED_STATE_PATCH.lyingAssetId) &&
-    !!loadedImageAsset(SERA_LIORA_BED_STATE_PATCH.sittingAssetId);
-}
-
-function drawSeraLioraBedStatePatch() {
-  if (!seraLioraCutscene.active || activeMap !== BETHANY_GUEST_ROOM_MAP ||
-      !seraLioraApprovedRoomReady()) return false;
-  const assetId = seraLioraBedStateAssetId(seraLioraCutscene.lioraPose);
-  if (!assetId) return false;
-  const image = loadedImageAsset(assetId);
-  if (!image) return false;
-  // Native-size draw under the same room/camera transform as the background.
-  ctx.drawImage(image, SERA_LIORA_BED_STATE_PATCH.x, SERA_LIORA_BED_STATE_PATCH.y);
-  return true;
+  return ['cutaway_bethany_guest_room_redraw_v1', 'cutaway_sera_walk_depth_v2',
+    'cutaway_liora_standing_depth_v2', 'cutaway_liora_lying_depth_v2',
+    'cutaway_liora_sitting_depth_v2', 'cutaway_left_bed_depth_v2',
+    'cutaway_right_bed_depth_v2', 'cutaway_right_cover_depth_v2'].every(function(id) {
+      return !!loadedImageAsset(id);
+    });
 }
 
 function drawSeraLioraCutawayActors() {
   if (!seraLioraCutscene.active || activeMap !== BETHANY_GUEST_ROOM_MAP) return;
-  if (seraLioraCutscene.phase === 'free_walk') {
-    drawSeraLioraGuestRoomWalkActors();
+  if (seraLioraApprovedRoomReady()) {
+    drawSeraLioraDepthRoomActors();
     return;
   }
-  const redrawActive = seraLioraApprovedRoomReady();
-  // The guest room uses its own close-cutaway scale. The smaller neutral field
-  // sprite remains registered for later Lely-proportioned environments.
-  const seraAnchor = redrawActive ? { x: 350, y: 345 } : { x: 294, y: 335 };
-  let seraDrawn = drawRasterCharacter('cutaway_sera_close_standing_fit_v2', seraAnchor.x, seraAnchor.y);
-  if (!seraDrawn) seraDrawn = drawRasterCharacter('cutaway_sera_close_standing', 294, 335);
-  if (!seraDrawn) drawCutawaySera();
-
-  // In the approved raster room Liora is already part of the selected bed
-  // patch. Drawing any independent Liora sprite here would duplicate her.
-  if (redrawActive) return;
-
-  // If the approved room set cannot load, preserve the established fail-soft
-  // code-native room without reviving any obsolete raster bed cutout.
+  // Preserve the established code-native fail-soft room.
+  drawCutawaySera();
   drawCutawayLiora(seraLioraCutscene.lioraPose);
-}
-
-function drawSeraLioraWalkingSera() {
-  const meta = IMAGE_ASSET_REGISTRY.cutaway_sera_walk_cycle_v1;
-  const image = loadedImageAsset('cutaway_sera_walk_cycle_v1');
-  if (!meta || !image) return false;
-  const walk = seraLioraGuestRoomWalk;
-  const rows = { down: 0, up: 1, right: 2, left: 2 };
-  const row = rows[walk.facing] === undefined ? 0 : rows[walk.facing];
-  const frame = walk.moving ? walk.animationFrame : 1;
-  const dx = Math.round(walk.x - meta.anchor.x);
-  const dy = Math.round(walk.y - meta.anchor.y);
-  const sx = frame * meta.frameWidth;
-  const sy = row * meta.frameHeight;
-  if (walk.facing === 'left') {
-    ctx.save();
-    ctx.translate(dx + meta.frameWidth, dy);
-    ctx.scale(-1, 1);
-    ctx.drawImage(image, sx, sy, meta.frameWidth, meta.frameHeight,
-      0, 0, meta.frameWidth, meta.frameHeight);
-    ctx.restore();
-  } else {
-    ctx.drawImage(image, sx, sy, meta.frameWidth, meta.frameHeight,
-      dx, dy, meta.frameWidth, meta.frameHeight);
-  }
-  return true;
-}
-
-function drawSeraLioraGuestRoomWalkActors() {
-  if (!seraLioraGuestRoomWalk.active) return;
-  const actors = [
-    {
-      id: 'liora', y: seraLioraGuestRoomWalk.lioraY,
-      draw: function() {
-        return drawRasterCharacter('cutaway_liora_close_standing_master_v1',
-          seraLioraGuestRoomWalk.lioraX, seraLioraGuestRoomWalk.lioraY);
-      },
-    },
-    { id: 'sera', y: seraLioraGuestRoomWalk.y, draw: drawSeraLioraWalkingSera },
-  ];
-  actors.sort(function(a, b) { return a.y - b.y || a.id.localeCompare(b.id); });
-  for (const actor of actors) actor.draw();
 }
 
 function drawCutawaySera() {
