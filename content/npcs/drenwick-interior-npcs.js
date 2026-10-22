@@ -138,7 +138,7 @@ const DRENWICK_INTERIOR_NPCS = [
     facing:     'down',
     spriteType: 'clerk',
     get dialogue() {
-      if (day % 5 === 0) return [
+      if (day % 5 === 0) return postMq5CompanionDialogue([
         ['He’s out of uniform, which takes a moment to register.',
          '“Investigator. Sit if you like.',
          'The district can’t object — it’s shut.”'],
@@ -148,7 +148,11 @@ const DRENWICK_INTERIOR_NPCS = [
         ['“Tomorrow the ledgers reopen and I go back to being careful about what I say.”',
          '“Today I’m only careful about the ale.',
          'Moderately careful.”'],
-      ];
+      ], 'veth', [
+        {speakerId:'veth',lines:['“Calwick’s escalation reached this desk. It says the matter exceeded both offices.”']},
+        {speakerId:'esla',lines:['“That is accurate. Mornay gets the sealed report and our firsthand account.”']},
+        {speakerId:'veth',lines:['“Good. The report will arrive with witnesses, then.”']},
+      ]);
       const pages = [
         ['\u201cCalwick posting. I heard about it.\u201d',
          '\u201cSmall station. That\u2019s not a comment on the work.\u201d'],
@@ -193,7 +197,11 @@ const DRENWICK_INTERIOR_NPCS = [
          'We had patrol requests backed up.\u201d']
       );
       pages.push(...drenwickObserverConcernPages('veth'));
-      return pages;
+      return postMq5CompanionDialogue(pages, 'veth', [
+        {speakerId:'veth',lines:['“Calwick’s escalation reached this desk. It says the matter exceeded both offices.”']},
+        {speakerId:'esla',lines:['“That is accurate. Mornay gets the sealed report and our firsthand account.”']},
+        {speakerId:'veth',lines:['“Good. The report will arrive with witnesses, then.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,
@@ -212,13 +220,17 @@ const DRENWICK_INTERIOR_NPCS = [
     facing:     'down',
     spriteType: 'clerk',
     get dialogue() {
-      if (day % 5 === 0) return [
+      if (day % 5 === 0) return postMq5CompanionDialogue([
         ['\u201cThe batch is still open. The countersignature still hasn\u2019t come.\u201d',
          '\u201cBut it is Dayoff.',
          'So today, that is somebody else\u2019s tragedy.\u201d'],
         ['\u201cTomorrow at first bell it resumes being mine.\u201d',
          'He drinks with the focus of a man keeping to a schedule.'],
-      ];
+      ], 'holt', [
+        {speakerId:'holt',lines:['“Garrick and Dreyfuss are still open in our field ledger. Now your names are on the outward register.”']},
+        {speakerId:'esla',lines:['“Ours have a destination and a return line. Keep both blank until we earn them.”']},
+        {speakerId:'holt',lines:['“I was going to.”']},
+      ]);
       const pages = [
         ['\u201cThe third-quarter variance cross-references against the interim schedule before I can close the batch.\u201d',
          '\u201cIt has been this way for six weeks.\u201d'],
@@ -235,7 +247,11 @@ const DRENWICK_INTERIOR_NPCS = [
          '\u201cSo it\u2019s the officer and me minding the desks. Come to see a field man and you\u2019ve come on the wrong week.\u201d']
       );
       pages.push(...drenwickObserverConcernPages('holt'));
-      return pages;
+      return postMq5CompanionDialogue(pages, 'holt', [
+        {speakerId:'holt',lines:['“Garrick and Dreyfuss are still open in our field ledger. Now your names are on the outward register.”']},
+        {speakerId:'esla',lines:['“Ours have a destination and a return line. Keep both blank until we earn them.”']},
+        {speakerId:'holt',lines:['“I was going to.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,
@@ -332,7 +348,7 @@ const DRENWICK_INTERIOR_NPCS = [
     facing:     'down',
     spriteType: 'clerk',
     get dialogue() {
-      if (day % 5 === 0) return [
+      if (day % 5 === 0) return postMq5CompanionDialogue([
         ['\u201cYes. Even this desk takes the fifth day.\u201d',
          '\u201cThe Registry\u2019s northeast office doesn\u2019t answer on Dayoff either.',
          'I checked once, early in the posting. Only once.\u201d'],
@@ -340,7 +356,11 @@ const DRENWICK_INTERIOR_NPCS = [
          '\u201cFiling is harder on the body than anyone admits.\u201d'],
         ['\u201cCompliance visits resume tomorrow.',
          'The mud will still be there. The mud is very reliable.\u201d'],
-      ];
+      ], 'sable', [
+        {speakerId:'sable',lines:['“Officer Jonbur. Calwick has finally sent its Registration Officer into the field.”']},
+        {speakerId:'esla',lines:['“Temporarily. Try not to reorganize the district before I get back.”']},
+        {speakerId:'sable',lines:['“No promises.”']},
+      ]);
       const pages = [
         ['\u201cThread registration for this district runs through this office.\u201d',
          '\u201cIf a classification requires full Registry processing, I refer it northeast. Most things can be handled here.\u201d'],
@@ -348,7 +368,11 @@ const DRENWICK_INTERIOR_NPCS = [
          '\u201cWe have outstanding compliance checks in four outlying sites. Getting there is the issue, not the filing.\u201d'],
       ];
       pages.push(...drenwickObserverConcernPages('sable'));
-      return pages;
+      return postMq5CompanionDialogue(pages, 'sable', [
+        {speakerId:'sable',lines:['“Officer Jonbur. Calwick has finally sent its Registration Officer into the field.”']},
+        {speakerId:'esla',lines:['“Temporarily. Try not to reorganize the district before I get back.”']},
+        {speakerId:'sable',lines:['“No promises.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,
@@ -592,7 +616,11 @@ const DRENWICK_INTERIOR_NPCS = [
          'Variance is within tolerance once the copy error\u2019s corrected.\u201d'],
         ['\u201cFirst clean cycle-close in three months.\u201d']
       );
-      return pages;
+      return postMq5CompanionDialogue(pages, 'renn', [
+        {speakerId:'renn',lines:['“Two Calwick officers eastbound. Mornay?”']},
+        {speakerId:'esla',lines:['“Mornay. The road is the difficult part; the filing should be ordinary.”']},
+        {speakerId:'renn',lines:['“I admire your confidence in filing.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,

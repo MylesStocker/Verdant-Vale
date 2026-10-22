@@ -110,7 +110,11 @@ const DRENWICK_TOWN_NPCS = [
          'That\u2019s the job nobody wants.\u201d',
          '\u201cI appreciate it.\u201d']
       );
-      return pages;
+      return postMq5CompanionDialogue(pages, 'renn', [
+        {speakerId:'renn',lines:['“Two Calwick officers eastbound. Mornay?”']},
+        {speakerId:'esla',lines:['“Mornay. The road is the difficult part; the filing should be ordinary.”']},
+        {speakerId:'renn',lines:['“I admire your confidence in filing.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,

@@ -152,7 +152,7 @@ function npcExplicitOwnershipMismatchesActive(npc) {
 // from the NPC's physical map, clear of the player (regional world pixels) and of
 // every other solid regional NPC's world pose. Confinement to the owner chunk is
 // how "an NPC cannot leave its map" is enforced this increment.
-function regionalNpcRouteCanOccupy(npc, localNx, localNy) {
+function regionalNpcRouteCanOccupy(npc, localNx, localNy, ignorePlayerCollision = false) {
   const mapId = physicalMapIdForNpc(npc);
   if (!mapId) return false;
   const placement = (typeof regionPlacementForMapId === 'function') ? regionPlacementForMapId(mapId) : null;
@@ -168,10 +168,12 @@ function regionalNpcRouteCanOccupy(npc, localNx, localNy) {
     const props = (typeof TILE_PROPERTIES !== 'undefined') ? TILE_PROPERTIES[t] : null;
     if (props && props.isTransition) return false;                                        // never enter exits/doorways
   }
-  // Never push/trap the player (measured in regional world pixels) — the player's
+  // Ordinary routes never push/trap the player. Exclusive scripted routes can
+  // carry the player pose itself, using the same explicit opt-in as local routes
+  // (measured in regional world pixels) — the player's
   // world point comes from the canonical authority, not activeMap + player.x/y.
   const pw = (typeof regionalPlayerWorldPoint === 'function') ? regionalPlayerWorldPoint() : null;
-  if (pw && Math.abs(worldNx - pw.worldPxX) < 18 && Math.abs(worldNy - pw.worldPxY) < 18) return false;
+  if (!ignorePlayerCollision && pw && Math.abs(worldNx - pw.worldPxX) < 18 && Math.abs(worldNy - pw.worldPxY) < 18) return false;
   // Never overlap another SOLID regional NPC — compared in world pixels, so two
   // NPCs in different local frames can't overlap and distant NPCs never collide.
   for (const other of SIMPLE_NPCS) {

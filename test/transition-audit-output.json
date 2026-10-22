@@ -186,6 +186,7 @@
     "SLUICE_LEVEL2_MAP",
     "SLUICE_LEVEL3_MAP",
     "SLUICE_SECRET_MAP",
+    "TRAVELLERS_RISE_CAMP_MAP",
     "DREAM_MAP",
     "BETHANY_GUEST_ROOM_MAP",
     "MIRE_VAULT_MAP",
@@ -1330,6 +1331,12 @@
     },
     {
       "id": "SLUICE_SECRET_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "TRAVELLERS_RISE_CAMP_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -4331,6 +4338,64 @@
         "down": true,
         "left": true,
         "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "enterTravellersRiseCamp",
+      "group": "scripted-transitions",
+      "setupCode": "enterTravellersRiseCamp();",
+      "error": null,
+      "destMap": "TRAVELLERS_RISE_CAMP_MAP",
+      "px": 240,
+      "py": 272,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 8,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitTravellersRiseCamp",
+      "group": "scripted-transitions",
+      "setupCode": "exitTravellersRiseCamp();",
+      "error": null,
+      "destMap": "EASTERN_FENS_TRAVELLERS_RISE_MAP",
+      "px": 208,
+      "py": 176,
+      "facing": "down",
+      "tileCol": 6,
+      "tileRow": 5,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
       },
       "canEscape": true,
       "verdict": "OK"

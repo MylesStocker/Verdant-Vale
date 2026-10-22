@@ -63,7 +63,8 @@ module.exports = {
       });
       return hits;
     })())`);
-    assert.deepEqual(foreign, [], 'DEEP_REEDS (tile 127) is used only inside the Eastern Fens');
+    assert.deepEqual(foreign, ['TRAVELLERS_RISE_CAMP_MAP'], 'the sole discrete Deep Reeds site is the local Eastern Fens campsite');
+    assert.equal(g.run('MAP_CATALOG.TRAVELLERS_RISE_CAMP_MAP.region'),'Eastern Fens');
 
     // 3. Off-road walkable area meaningfully increased. Before the pass the 23
     //    chunks held 1694 walkable cells; the opened fen holds far more.

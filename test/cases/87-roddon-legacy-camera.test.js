@@ -171,7 +171,7 @@ module.exports = {
     R("placeAtLocation('RODDON_WAY_MAP', 6*32, 9*32); forceLegacyRegionalView = false; saveGame();");
     const saved = J("localStorage.getItem('verdantVale_save')");
     assert.equal(saved.version, 5, 'SAVE_VERSION stays 5');
-    assert.ok(!/cam|camera|viewport|exclusion|continuousWorldView/i.test(JSON.stringify(saved)), 'no camera/exclusion/toggle state enters the save');
+    assert.ok(!/cam|camera|viewport|exclusion|continuousWorldView/i.test(JSON.stringify(Object.fromEntries(Object.entries(saved).filter(([key])=>key!=='travellers_rise_camp_stage')))), 'no camera/exclusion/toggle state enters the save (the camp story stage is not camera state)');
 
     // ── 19. Malformed / missing / unknown / contradictory policies fail. ──────
     const errsFor = (mutate) => J(`(function(){

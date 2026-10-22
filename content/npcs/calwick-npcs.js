@@ -180,7 +180,11 @@ const CALWICK_NPCS = [
         ['“I keep a folio for such places. No builder on record, no levy ever raised, no note of the ground ever being broken.”',
          '“I’ll add the basin chamber to it. Then I’ll file it, and it won’t be acknowledged — they never are. But it will be written down. That is my part.”']
       );
-      return pages;
+      return postMq5CompanionDialogue(pages, 'aldric', [
+        {speakerId:'aldric',lines:['“Two field kits went out against the road ledger this morning. I checked them twice.”']},
+        {speakerId:'esla',lines:['“Then we will try to return both, and avoid giving you an interesting discrepancy.”']},
+        {speakerId:'aldric',lines:['“I would be grateful for a very dull return.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,
@@ -250,7 +254,11 @@ const CALWICK_NPCS = [
           );
         }
       }
-      return pages;
+      return postMq5CompanionDialogue(pages, 'petra', [
+        {speakerId:'petra',lines:['“Esla, your open register is still on my desk.”']},
+        {speakerId:'esla',lines:['“Blue tabs are active. Grey tabs may wait. Anything red goes to the Supervisor.”']},
+        {speakerId:'petra',lines:['“I knew you would have a system.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,
@@ -314,7 +322,11 @@ const CALWICK_NPCS = [
         ['\u201cA record\u2019s the only proof a canal man has that a thing happened at all.',
          'That\u2019s why I get the number right. It\u2019s somebody\u2019s word, after everyone\u2019s stopped listening to them.\u201d']
       );
-      return pages;
+      return postMq5CompanionDialogue(pages, 'corvin', [
+        {speakerId:'corvin',lines:['“Regional filing. Sealed report. Two names on the travel order.”']},
+        {speakerId:'esla',lines:['“You read quickly for a man who dislikes forms.”']},
+        {speakerId:'corvin',lines:['“I dislike unfinished forms.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,

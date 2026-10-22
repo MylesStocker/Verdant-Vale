@@ -33,6 +33,7 @@ function locationName() {
   const meta = MAP_METADATA[_locId];
   if (meta && meta.type === 'outdoor') return meta.displayName;
 
+  if (activeMap === TRAVELLERS_RISE_CAMP_MAP) return MAP_METADATA.TRAVELLERS_RISE_CAMP_MAP.displayName;
   if (activeMap === BETHANY_GUEST_ROOM_MAP) return 'Bethany — Guest House';
 
   if (inBasinChamber)                      return 'No Recorded Location';
@@ -119,6 +120,7 @@ function locationName() {
 // 'house:<houseId>', per-apartment keys, and town-building/state distinctions
 // ('west', 'drenwick_civic', …). See MAP_CATALOG (data.js) for physical map ids.
 function currentContentLocationKey() {
+  if (activeMap === TRAVELLERS_RISE_CAMP_MAP) return 'travellers_rise_camp';
   if (inLorraHouse)                  return 'lorra_house';
   if (inAbandonedFarmhouse)          return 'abandoned_farmhouse';
   if (inHollisFarmhouse)             return 'hollis_farmhouse';
@@ -585,6 +587,7 @@ function update(deltaSeconds) {
     mq5AssignmentCutscene.update();
     return;
   }
+  if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.update())return;
   if(typeof travellersRiseAmbush!=='undefined'){
     if(travellersRiseAmbush.isExclusive()){travellersRiseAmbush.update();return;}
     if(travellersRiseAmbush.tryTrigger())return;
@@ -659,7 +662,8 @@ function update(deltaSeconds) {
     if(dx>0&&curCol>=COLS-1&&typeof travellersRiseAmbush!=='undefined'&&
         travellersRiseAmbush.blocksExit(regionalActiveMapId()||mapIdForRef(activeMap),'east')){
       player.moving=false;
-      showWorldToast('Deal with the travellers on the rise before continuing east.');
+      if(travellers_rise_ambush_complete)travellersRiseCamp.remind();
+      else showWorldToast('Deal with the travellers on the rise before continuing east.');
       return;
     }
 
@@ -1436,8 +1440,7 @@ function patrolNpcTalk(npc) {
                                             : (dy >= 0 ? 'down'  : 'up');
   if (rt) { rt.frozen = true; rt.facing = npc.facing; rt.resumeDelay = 30; }
   dialogue.name  = npc.name;
-  if (npc.speakerId) setUniformSpeakerDialoguePages(npc.dialogue, npc.speakerId);
-  else dialogue.pages = npc.dialogue;
+  setNpcDialoguePages(npc);
   dialogue.open  = true;
   dialogue.page  = 0;
 }
@@ -1459,7 +1462,7 @@ function npcRouteCanOccupy(npc, nx, ny, ignorePlayerCollision = false) {
   // or the player's local frame. Nonregional NPCs keep the legacy active-map path.
   if (typeof regionalNpcInSimulationScope === 'function' && regionalNpcInSimulationScope(npc)
       && typeof regionalNpcRouteCanOccupy === 'function') {
-    return regionalNpcRouteCanOccupy(npc, nx, ny);
+    return regionalNpcRouteCanOccupy(npc, nx, ny, ignorePlayerCollision);
   }
   const r = 9; // same hitbox radius as the player's canWalk()
   const corners = [[nx - r, ny - r], [nx + r, ny - r], [nx - r, ny + r], [nx + r, ny + r]];
@@ -1702,8 +1705,9 @@ window.stopTransientNpcRoute=stopTransientNpcRoute;
 // re-pathing. Moving NPCs never roll encounters, never trigger interactions,
 // and never enter transition tiles (npcRouteCanOccupy) — nothing here touches
 // any of those systems.
-function updateNpcRoutes() {
+function updateNpcRoutes(ownedIds = null) {
   for (const id in NPC_ROUTES) {
+    if (ownedIds && !ownedIds.includes(id)) continue;
     const rt = NPC_ROUTES[id];
     if (rt.done || !rt.moving) continue;
     const npc = rt.npc;

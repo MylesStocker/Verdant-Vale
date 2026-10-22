@@ -26,6 +26,7 @@ const canonicalPartyCombat = (() => {
   const location=()=>JSON.stringify({location:snapshotLocationState(),regional:regionalWorldPosition(),
     mapId:mapIdForRef(activeMap),x:player.x,y:player.y,day,defeatWakeAtHome});
   const preflight=(request,permit=null,scriptedToken=null)=>{
+    if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput())fail('camp introduction owns input');
     if(pendingHandoff&&permit!==pendingHandoff)fail('pending authenticated follow-up');
     if(typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.hasPending()&&
         !scriptedPartyEncounters.permitsPending(scriptedToken))fail('pending authenticated scripted follow-up');

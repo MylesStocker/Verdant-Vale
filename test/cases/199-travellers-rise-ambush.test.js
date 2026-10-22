@@ -90,6 +90,8 @@ test('walkable off-road routes cannot bypass the unresolved ambush on the way to
     assert.ok(g.run('player.x')<15.5*32,'retreat remains available');
   }
   g.run('travellers_rise_ambush_complete=true');
+  assert.ok(!J(g,'ambushReachability(true)').maps.includes('EASTERN_FENS_MORNAY_THRESHOLD_MAP'),'night remains mandatory');
+  g.run('travellers_rise_camp_stage=2'); // isolated future-night gate fixture
   assert.ok(J(g,'ambushReachability(true)').maps.includes('EASTERN_FENS_MORNAY_THRESHOLD_MAP'));
   assert.equal(g.run('ambushRolls'),0);
 });
@@ -180,12 +182,13 @@ test('victory completes and rewards once, removes actors and advances only the c
   const g=fresh();recruit(g);g.run('stats.atk=10000');place(g);const day=g.run('day');reachChoice(g);choose(g,0);const receipt=victory(g);
   assert.equal(receipt.rewards.xp,215);assert.equal(receipt.rewards.gold,31);assert.deepEqual(receipt.rewards.items,[]);
   assert.equal(g.run('travellers_rise_ambush_complete'),true);assert.equal(g.run('day'),day);
-  assert.deepEqual(J(g,'dialogue.pageSpeakers'),['esla','lely','esla']);g.run('dialogue.page=0');
+  if(g.run('dialogue.open'))g.run('finishDialogue()'); // reward pages precede the camp introduction
+  g.frames(1);assert.deepEqual(J(g,'dialogue.pageSpeakers'),['esla','lely','esla']);g.run('dialogue.page=0');
   assert.deepEqual(J(g,'dialoguePagePresentation()'),{name:'Esla',styleId:'esla_light_green',speakerId:'esla'});
   assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Sealed Report').body,
-    'Make camp with Esla at Travellers’ Rise before continuing to Mornay.');
+    'Inspect the ambushers’ campsite at Travellers’ Rise.');
   assert.equal(g.run("typeof window.travellers_rise_camp_started"),'undefined');assert.equal(g.run('canonicalPartyCombat.finish()'),false);
-  g.run("finishDialogue();placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',9.5*TILE,7.5*TILE)");g.frames(1);g.run("placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',10.5*TILE,7.5*TILE)");g.frames(2);
+  g.run('finishDialogue()');g.frames(300);assert.equal(g.run('travellersRiseCamp.getView().phase'),'inside_dialogue');g.run('finishDialogue()');
   assert.equal(g.run('travellersRiseAmbush.getView().phase'),'idle');assert.equal(g.run('dialogue.open'),false);
 });
 

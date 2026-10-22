@@ -145,12 +145,14 @@ test('save/load restores individual Esla state, roster, MQ5 and absent NPC proje
  assert.deepEqual(J(g,'persistentParty.fieldItemTargets("Potion")'),['lely']);
  assert.doesNotMatch(g.run('JSON.stringify(JSON.parse(localStorage.getItem("verdantVale_save")).party)'),/instanceId|playback|session|esla_joined/);
 });
-test('the sole canonical join caller is MQ5; combat activation belongs only to the encounter boundary',()=>{
+test('only MQ5 and the explicit developer checkpoint may join Esla; combat activation belongs only to the encounter boundary',()=>{
  const root=path.join(__dirname,'../..');
  for(const file of scriptOrderFromIndexHtml()){
-  const src=fs.readFileSync(path.join(root,file),'utf8');assert.equal((src.match(/persistentParty\.joinEsla\s*\(/g)||[]).length,file==='quests.js'?1:0,file);
+  const src=fs.readFileSync(path.join(root,file),'utf8');assert.equal((src.match(/persistentParty\.joinEsla\s*\(/g)||[]).length,['quests.js','story-checkpoint-lab.js'].includes(file)?1:0,file);
   assert.equal((src.match(/persistentParty\.(beginCombat|commitCombat)\s*\(/g)||[]).length,file==='canonical-party-combat.js'?2:0,file);
  }
+ const checkpoint=fs.readFileSync(path.join(root,'story-checkpoint-lab.js'),'utf8');
+ assert.ok(checkpoint.includes("if(plan.value.party==='mq5')persistentParty.joinEsla({level:11});"),'the sole debug join is guarded by the validated checkpoint party policy');
  const g=fresh();ready(g);assign(g);assert.equal(g.run('combatPlayerState.getView()'),null);assert.equal(g.run('partyCombatLab.isActive()'),false);
 });
 module.exports={name:'MQ5 canonical Esla recruitment: agency, atomic assignment, NPC membership, field menu and persistence',run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' MQ5 recruitment checks passed');}};

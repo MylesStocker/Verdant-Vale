@@ -290,6 +290,16 @@ if (typeof window !== 'undefined') {
   window.transitionToLocation    = transitionToLocation;
 }
 
+// Campsite entry is shared by automatic staging and later deliberate visits.
+function enterTravellersRiseCamp() {
+  if(!travellersRiseCamp.canEnter())return false;
+  return transitionToLocation({mapId:'TRAVELLERS_RISE_CAMP_MAP',x:7.5*TILE,y:8.5*TILE,facing:'up'});
+}
+function exitTravellersRiseCamp() {
+  if(activeMap!==TRAVELLERS_RISE_CAMP_MAP||travellersRiseCamp.isActive())return false;
+  return transitionToLocation({mapId:'EASTERN_FENS_TRAVELLERS_RISE_MAP',x:6.5*TILE,y:5.5*TILE,facing:'down'});
+}
+
 // ─── Dungeon transitions ──────────────────────────────────────────────────────
 // Overworld ↔ South Ruins Entrance Hall ↔ dungeon floor 1. The entrance hall
 // (no encounters — see DUNGEON_ENTRANCE_MAP's header comment) sits between

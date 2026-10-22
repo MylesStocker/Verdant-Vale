@@ -12,8 +12,8 @@ const STORY_CHECKPOINT_INVENTORY = Object.freeze([
   ['Jackbane Vial',5],['Trollbane',5],
 ].map(entry=>Object.freeze(entry)));
 
-const STORY_CHECKPOINTS = Object.freeze([Object.freeze({
-  id:'mq5_assignment_ready',label:'MQ5 — Assignment Ready',level:10,xp:XP_THRESHOLDS[9],
+const STORY_CHECKPOINT_ASSIGNMENT = Object.freeze({
+  id:'mq5_assignment_ready',label:'MQ5 — Assignment Ready',party:'solo',level:10,xp:XP_THRESHOLDS[9],
   stats:Object.freeze({maxHp:120,atk:35,def:29,spd:16}),
   equipment:STORY_CHECKPOINT_EQUIPMENT,inventory:STORY_CHECKPOINT_INVENTORY,gold:1000,day:6,
   flags:Object.freeze({
@@ -29,6 +29,15 @@ const STORY_CHECKPOINTS = Object.freeze([Object.freeze({
   }),
   location:Object.freeze({mapId:'OFFICE_MAP',x:12*TILE,y:3.25*TILE,facing:'up',
     state:Object.freeze({inTown:true,currentTownId:'calwick',townBuilding:'office'})}),
+});
+const STORY_CHECKPOINTS = Object.freeze([STORY_CHECKPOINT_ASSIGNMENT,Object.freeze({
+  ...STORY_CHECKPOINT_ASSIGNMENT,
+  id:'mq5_campfire_ready',label:'MQ5 — Campfire Ready',party:'mq5',
+  flags:Object.freeze({...STORY_CHECKPOINT_ASSIGNMENT.flags,MainQuest:5,
+    travellers_rise_ambush_complete:true,travellers_rise_ambush_paid:false,
+    travellers_rise_ambush_payment:0,travellers_rise_camp_stage:0}),
+  location:Object.freeze({mapId:'EASTERN_FENS_TRAVELLERS_RISE_MAP',x:10.5*TILE,y:7.5*TILE,
+    facing:'left',state:Object.freeze({})}),
 })]);
 
 const storyCheckpointLab=(()=>{
@@ -62,7 +71,7 @@ const storyCheckpointLab=(()=>{
   };
   const prepare=definition=>{
     frozen(definition);
-    const value=closed(definition,['id','label','level','xp','stats','equipment','inventory','gold','day','flags','location']);
+    const value=closed(definition,['id','label','party','level','xp','stats','equipment','inventory','gold','day','flags','location']);
     if(typeof value.id!=='string'||!value.id||typeof value.label!=='string'||!value.label)fail('invalid identity');
     if(!Number.isSafeInteger(value.level)||value.level<1||value.level>MAX_LEVEL||value.xp!==XP_THRESHOLDS[value.level-1]||
         (value.level<MAX_LEVEL&&value.xp>=XP_THRESHOLDS[value.level]))fail('invalid level or XP');
@@ -83,8 +92,17 @@ const storyCheckpointLab=(()=>{
     for(const [key,flag] of Object.entries(value.flags)){
       if(!QUEST_FLAG_SCHEMA.includes(key))fail('unknown quest flag '+key);flags[key]=flag;
     }
-    if(flags.MainQuest!==4||flags.sera_liora_opening_complete!==true||flags.gallery_receiver_defeated!==true||
+    if(!['solo','mq5'].includes(value.party)||flags.MainQuest!==(value.party==='mq5'?5:4)||flags.sera_liora_opening_complete!==true||flags.gallery_receiver_defeated!==true||
         flags.reservoir_report_filed!==true||flags.gallery_body_found!==true)fail('contradictory MQ5 checkpoint');
+    if(value.party==='mq5'){
+      // Validate the same authored profile used by real MQ5 recruitment before reset.
+      persistentParty.eslaRecruitmentProfile(11);
+      if(flags.travellers_rise_ambush_complete!==true||flags.travellers_rise_ambush_paid!==false||
+          flags.travellers_rise_ambush_payment!==0||flags.travellers_rise_camp_stage!==0||
+          value.location.mapId!=='EASTERN_FENS_TRAVELLERS_RISE_MAP'||
+          value.location.x!==10.5*TILE||value.location.y!==7.5*TILE)fail('contradictory post-ambush checkpoint');
+    }else if(flags.travellers_rise_ambush_complete||flags.travellers_rise_camp_stage!==0)fail('premature ambush progress');
+    if(travellersRiseAmbushInvariantErrors(flags).length)fail('invalid ambush state');
     if(lighthouseQuestInvariantErrors(flags).length)fail('invalid lighthouse route');
     const location=closed(value.location,['mapId','x','y','facing','state']);
     if(mapIdForRef(mapRefForId(location.mapId))!==location.mapId)fail('unknown map');
@@ -95,6 +113,7 @@ const storyCheckpointLab=(()=>{
   const resetTransient=()=>{
     if(typeof mq5AssignmentCutscene!=='undefined')mq5AssignmentCutscene.reset();
     if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.resetTransient();
+    if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.resetTransient();
     canonicalPartyCombat.resetForStoryCheckpoint();scriptedPartyEncounters.resetForStoryCheckpoint();
     formationCombatLab.resetForStoryCheckpoint();partyCombatLab.resetForStoryCheckpoint();
     galleryReceiverEncounter.resetForStoryCheckpoint();resetCombatForStoryCheckpoint();
@@ -124,6 +143,7 @@ const storyCheckpointLab=(()=>{
     stats.atk=plan.growth.atk;stats.def=plan.growth.def;stats.spd=plan.growth.spd;stats.gold=plan.value.gold;
     for(const slot of gearSlots)stats[slot]=createItem(plan.equipment[slot]);
     stats.items=plan.inventory.map(createItem);statusEffects=[];slitherSpd=1;
+    if(plan.value.party==='mq5')persistentParty.joinEsla({level:11});
     day=plan.value.day;travellerPresent=false;dilemma_voss=null;
     applyCollectedPickupIds([]);applyOpenedChestIds([]);HOUSE_DATA.player_house.chest.gold=0;
     HOUSE_DATA.drenwick_apt_c1_u4.dresser.looted=false;HOUSE_DATA.drenwick_apt_c1_u4.sparkle.taken=false;
@@ -133,7 +153,7 @@ const storyCheckpointLab=(()=>{
     applyLocationState(plan.location.state);placeAtLocation(plan.location.mapId,plan.location.x,plan.location.y);
     player.facing=plan.location.facing;
     player.step=0;player.moving=false;tick=0;refreshJobBoard();debugMenu.open=false;menuState=null;lastError='';
-    showWorldToast('DEV CHECKPOINT LOADED: MQ5 — ASSIGNMENT READY');
+    showWorldToast('DEV CHECKPOINT LOADED: '+plan.value.label.toUpperCase());
     return true;
   };
   const apply=id=>{
@@ -151,6 +171,9 @@ const storyCheckpointLab=(()=>{
       menuState={phase:'list',cursor:0,confirmCursor:0,debugCursor:debugMenu.cursor};lastError='';return true;},
     handleInput(command,key){if(!menuState)return false;
       if(menuState.phase==='list'){
+        if(command==='up'||command==='down'){
+          menuState.cursor=(menuState.cursor+(command==='down'?1:-1)+STORY_CHECKPOINTS.length)%STORY_CHECKPOINTS.length;return true;
+        }
         if(command==='confirm'){menuState.phase='confirm';menuState.confirmCursor=0;return true;}
         if(command==='cancel'||key==='`'){debugMenu.cursor=menuState.debugCursor;menuState=null;lastError='';return true;}
         return false;

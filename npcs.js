@@ -84,7 +84,11 @@ const SHARED_NPCS = [
           '\u201cMonsters have been worse since the rains stopped.\u201d',
         ]);
       }
-      return pages;
+      return postMq5CompanionDialogue(pages, 'oswin', [
+        {speakerId:'oswin',lines:['“Two pairs of road boots in my doorway now. That usually means someone is going farther than Drenwick.”']},
+        {speakerId:'esla',lines:['“Far enough that I am beginning to respect your opinion of doors.”']},
+        {speakerId:'oswin',lines:['“Suggestions. Sensible ones, in weather like this.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,
@@ -158,13 +162,12 @@ const SHARED_NPCS = [
         ['“Esla said you’d been out to Drenwick. She went quiet about it — she does that with things that matter.”',
          '“I wrote the date down. It’s all I know how to do with a thing I can’t help.”']
       );
-      // Canonical membership is the only authority for Esla travelling with
-      // Lely. Keep the established day/dispatch pages first so this ambient
-      // acknowledgement cannot hide Tomas's more specific material.
-      if (persistentParty.getMember('esla')) pages.push(
-        ['“Lely — and Esla with you. That saves me writing down two separate arrivals.”']
-      );
-      return pages;
+      return postMq5CompanionDialogue(pages, 'tomas', [
+        {speakerId:'tomas',lines:['“There you are. Both of you. I wrote ‘Esla leaves Calwick’ this morning. I did not expect the entry to walk back in before the ink dried.”']},
+        {speakerId:'esla',lines:['“You could amend it.”']},
+        {speakerId:'tomas',lines:['“In ink? You know better.”']},
+        {speakerId:'esla',lines:['“Then add: briefly.”']},
+      ]);
     },
     flag_required: null,
     flag_sets:     null,
@@ -2228,9 +2231,48 @@ const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   supervisor: Object.freeze({speakerId:'supervisor',name:'Supervisor',dialogueStyleId:null}),
   esla: Object.freeze({speakerId:'esla',name:'Esla',dialogueStyleId:ESLA_DIALOGUE_STYLE_ID}),
   lely: Object.freeze({speakerId:'lely',name:'Lély',dialogueStyleId:null}),
+  tomas: Object.freeze({speakerId:'tomas',name:'Tomas',dialogueStyleId:null}),
+  aldric: Object.freeze({speakerId:'aldric',name:'Aldric',dialogueStyleId:null}),
+  petra: Object.freeze({speakerId:'petra',name:'Petra',dialogueStyleId:null}),
+  corvin: Object.freeze({speakerId:'corvin',name:'Corvin',dialogueStyleId:null}),
+  oswin: Object.freeze({speakerId:'oswin',name:'Oswin',dialogueStyleId:null}),
+  veth: Object.freeze({speakerId:'veth',name:'Officer Veth',dialogueStyleId:null}),
+  holt: Object.freeze({speakerId:'holt',name:'Holt',dialogueStyleId:null}),
+  sable: Object.freeze({speakerId:'sable',name:'Officer Sable',dialogueStyleId:null}),
+  renn: Object.freeze({speakerId:'renn',name:'Harbormaster Renn',dialogueStyleId:null}),
   road_impostor: Object.freeze({speakerId:'road_impostor',name:'Road Impostor',dialogueStyleId:null}),
   fen_handler: Object.freeze({speakerId:'fen_handler',name:'Fen Handler',dialogueStyleId:null}),
 });
+
+// Ambient companion exchanges are appended only when the canonical party
+// actually contains Esla. The existing pages keep their exact order and remain
+// plain arrays before recruitment; after recruitment they opt into the same
+// closed speaker-page authority used by scripted dialogue.
+function postMq5CompanionDialogue(pages, speakerId, exchange) {
+  if (MainQuest < 5 || !persistentParty.getMember('esla')) return pages;
+  dialogueSpeakerDefinition(speakerId);
+  const records = pages.map(lines => ({speakerId,lines}));
+  exchange.forEach(page => records.push(page));
+  validateSpeakerDialoguePages(records);
+  return Object.freeze(records.map(page => Object.freeze({
+    speakerId: page.speakerId,
+    lines: Object.freeze(Array.from(page.lines)),
+  })));
+}
+
+// The generic NPC interaction path accepts both unchanged legacy line arrays
+// and the closed mixed-speaker pages above. It owns installation only; content
+// getters remain the authority for which pages exist.
+function setNpcDialoguePages(npc) {
+  const pages = npc.dialogue;
+  if (Array.isArray(pages) && pages.some(page => !Array.isArray(page)))
+    return setSpeakerDialoguePages(pages);
+  if (npc.speakerId) return setUniformSpeakerDialoguePages(pages, npc.speakerId);
+  dialogue.pages = pages;
+  dialogue.pageSpeakers = null;
+  dialogue._speakerPagesFor = null;
+  return pages;
+}
 
 // ─── Merchant ─────────────────────────────────────────────────────────────────
 const MERCHANT = { x: 9.5 * TILE, y: 7.5 * TILE }; // col 9, row 7 in TOWN_MAP

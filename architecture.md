@@ -48,7 +48,7 @@ avoids adding template metadata to result/playback schemas.
 
 `travellersRiseAmbush` owns the MQ5 road event's transient field presentation:
 the exact Rise trigger, three projected actors, authored dialogue, deterministic
-routes, reveal, demand choice and post-victory exchange. It delegates complete
+routes, reveal and demand choice. Its authenticated victory receipt hands presentation to the campsite owner after combat cleanup and reward acknowledgements. It delegates complete
 formation preparation and the exact terminal receipt to
 `scriptedPartyEncounters.startTravellersRise()`. That lifecycle definition binds
 the stable Road Impostor / Bridled Hollow / Fen Handler order and the ordinary
@@ -67,13 +67,111 @@ Movement routes and actors are session-only and are reset on load or developer
 checkpoint application. No combat identity, route position or half-finished
 cutscene enters the version-5 payload.
 
+### Travellers’ Rise campsite introduction
+
+`travellers-rise-camp.js` owns the automatic presentation after the ambush. It
+waits for canonical combat finalization and every reward/level-up page to finish,
+then validates both complete authored routes, speaker pages, placements and
+exclusive route ownership before installing any pose. The real player is moved
+through `placeAtLocation()` on each route tick; Esla has only a transient sprite
+pose, with no copied HP/equipment/membership. Both use the existing waypoint
+runtime and normal walking cadence. An optional owned-ID filter keeps unrelated
+NPC routes frozen. The existing explicit player-collision exception now reaches
+the regional route adapter as well as the local adapter; ordinary routes retain
+their default collision behavior.
+
+The single-tile rest marker overlays Travellers’ Rise `(6,4)` without changing
+its grid. This entrance is separate from the ambush trigger `(10,7)` and the
+onward east-exit gate; it never serves as the route choke. After victory the
+first entry is automatic. Later interaction uses the same `enterTravellersRiseCamp()` fixed transition: local
+`TRAVELLERS_RISE_CAMP_MAP`, arrival `(7.5,8.5)` in tile units. The local map is
+16 columns × 15 rows, enclosed by water and reeds, with a low ember ring and
+three ordinary bedrolls and two decorative log seats north/south of the fire.
+The logs have bark, grain and cut ends, with no sitting or collision behavior.
+The camp has no random encounters, enemy spawns, combat triggers or hostile NPCs.
+Its exit feature `(7,12)` returns to safe Rise tile
+`(6.5,5.5)`. It has no regional placement, encounters or pickups. Merely entering
+or completing the introduction has no rest effect.
+
+The save-bound `travellers_rise_camp_stage` is closed: `0` introduction pending,
+`1` rest agreed/night available, `2` full ambush/camp sequence completed. Stage
+`2` is the one ordinary persisted completion receipt for the whole sequence; no
+parallel completion flag exists. The introduction writes only `1`, on its final
+acknowledgement; deliberate fire-ring interaction owns
+the later night. Nonzero stages require MQ5,
+canonical Esla membership and the authenticated ambush completion flag. Stable
+campsite saves additionally require rest agreement. Active presentation refuses
+save/load; a victory saved on the Rise before presentation resumes when the world
+is ready. Load/checkpoint cleanup clears poses and callbacks, not saved story
+progress. Exact session ownership makes stale callbacks inert. Faults retain
+phase/message diagnostics, retire owned poses and release controls for load or
+checkpoint recovery without advancing the story.
+
+After agreement, both transient routes are retired and Esla’s projection is
+removed; there is no follower system. The eastward gate remains closed until
+stage `2`, with Esla’s reminder, while local exploration, camp exit/re-entry and
+westward retreat remain available. Suite 201 covers the unchanged introduction.
+
+### Travellers’ Rise campfire and night
+
+`travellers-rise-night.js` is a bounded transient child of the camp owner, using
+its existing input/save/interaction/update/cleanup gates and route validator.
+At stage `1`, deliberate interaction within 65 native pixels of the cold ring
+`(272,176)` starts it. `prepare()` checks exact map/MQ5/party/stage, neutral local
+placement, all competing modal owners, every route cell, pairwise actor spacing,
+seats, speaker pages and an ordinary-rest receipt before installing any pose.
+The overworld entrance `(6,4)` and ambush trigger `(10,7)`/east-exit gate remain
+separate and unchanged. The local camp is enemy-free at every stage.
+
+Lely carries damp green branches; Esla walks to the dry material under the screen,
+returns with kindling, and uses flint. Bloommarked resonance does not light the
+fire. The two existing log seats at native `(272,128)` and `(272,224)` hold the
+characters facing inward. Scene-only clipping preserves the established sprite
+heads/torsos while adding bent knees; no ordinary sprite or follower changes.
+`travellers-rise-night-dialogue.js` is immutable authored speaker-aware content:
+Esla’s protective mother, emergency conservatorship, Academy and chosen Calwick
+life follow LORE.md; Lely shares only present worries. Esla’s future secret is
+undefined, lightly teasing and unrelated to plot. Her last line is “I promise.”
+
+The fire progresses cold → kindling → embers → flame. A 60-update nightfall and
+scene-local blue/warm pixel light field run below dialogue, with deterministic
+flame and firelight animation. Rendering reads transient ticks; it consumes no
+RNG and writes no story, combat or character state. A 48-update fade reaches one
+fully black frame before completion, then holds black for 48 updates and fades
+to dawn over 72. Both characters remain projected until safe control returns.
+No lighting, pose or timer enters saves.
+
+`persistentParty.prepareOvernightRest/validateOvernightRest/applyOvernightRest`
+uses an opaque, single-use WeakMap receipt sealed against roster, resources,
+revision and day. It follows existing bed/inn arithmetic: full HP (including
+Fallen), removal of Poison/Muddied/Slither/Curse only, and day +1. Burn/Dazzled and
+the stored Slither sample are retained, exactly as ordinary rest does; defeat
+recovery is not called. Lely still uses stats/statusEffects; companions remain
+private to persistentParty. No fee, dream, cat-quest callback, reward or XP is
+attached to this campsite rest. Existing beds/inns remain unchanged.
+
+Completion revalidates story ownership, both seat placements and the entire rest
+receipt before mutation. It consumes the receipt and applies rest/day at full
+blackout, while stage `1` remains authoritative through the black hold and dawn
+fade. At completed morning it revalidates map, quest and membership, writes stage
+`2`, updates derived journal text toward the Mornay regional office and releases
+the existing east gate. A failed mirror write rolls stage back to `1`. MainQuest
+stays `5`. Expected failure before this boundary retains stage `1`, diagnostics
+and safe retry. Unexpected completion failure
+retains its consumed receipt/diagnostic and refuses saving or blind replay;
+loading a valid save or applying the Story Checkpoint resets transient ownership.
+Active scenes refuse save/load. Stable stage `1` loads await deliberate interaction;
+stage `2` loads show morning embers and never replay. SAVE_VERSION remains `5`
+with no new payload field. Suite 207 is intentionally unused by the concurrent
+202–206 terrain suites and covers this contract.
+
 No build step: every file is a plain `<script src="...">` tag in `index.html`,
 loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 `function` declared in one file is just a bare global name in every file
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 216 maps, 115 regional chunks, 199 regression suite
+Current integration totals: 217 maps, 115 regional chunks, 203 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -808,11 +906,15 @@ boundaries.
 
 Esla explicitly states that she does not know what happened to Dreyfuss; the
 line remains an attributed Esla page and therefore uses her speaker colour.
-Tomas's established day-cycle and delivered-dispatch pages remain first. When
-`persistentParty.getMember('esla')` is present, his getter appends one ambient
-acknowledgement that Lely and Esla arrived together. No quest threshold, NPC
-projection or additional flag participates, so Fallen membership and save/load
-select the same branch while the MQ5 checkpoint reset removes it.
+`postMq5CompanionDialogue()` is a narrow ambient adapter: at MQ5 with canonical
+Esla membership it preserves every existing NPC page in place, assigns those
+pages a stable speaker ID and appends a closed mixed-speaker exchange.
+`setNpcDialoguePages()` installs that form or the exact legacy line-array form
+through the existing dialogue authority. Tomas, Aldric, Petra, Corvin, Oswin,
+Veth, Holt, Sable, Renn and the Supervisor have selected post-recruitment
+exchanges; quest and one-time pages retain priority. Numeric quest state alone,
+NPC projection and Fallen status cannot substitute for membership. No generic
+follower-dialogue framework, save flag or renderer path is introduced.
 
 Recruitment activates canonical party routing for supported ordinary encounters.
 
@@ -820,8 +922,8 @@ Recruitment activates canonical party routing for supported ordinary encounters.
 
 `story-checkpoint-lab.js` owns a closed, immutable registry of developer story
 fixtures and the one whole-session replacement boundary used by the backtick
-menu. The initial registry contains only `mq5_assignment_ready` (shown as
-**MQ5 — Assignment Ready**). A checkpoint is a developer convenience for
+menu. The registry contains `mq5_assignment_ready` (**MQ5 — Assignment Ready**)
+and `mq5_campfire_ready` (**MQ5 — Campfire Ready**). A checkpoint is a developer convenience for
 mechanics, story and playability checks; its deliberately generous resources
 are not a balance-testing save.
 
@@ -854,6 +956,19 @@ assigned. Applying or cancelling never calls `saveGame()` and never touches
 The transient on-screen confirmation is intentionally unsaved.
 Unadapted specials and scripted encounters reject with diagnostics; they cannot
 silently route a recruited roster through Lely-only reward/recovery flows.
+
+The Campfire Ready developer checkpoint uses the same level-10 Lely, shared
+inventory, 1,000 gold and day 6 as Assignment Ready. It includes canonical
+level-11 Esla (40,000 XP, 80/80 HP and her production recruitment equipment),
+sets MQ5 to 5 and the ambush victory flag to complete, with no payment receipt
+and camp stage 0. Placement is Travellers’ Rise `(336,240)`, at the completed
+ambush position. The normal automatic campsite introduction starts on the next
+world update; afterward, interact with the cold fire ring to begin the night.
+It neither replays combat rewards nor skips the campsite argument. Up/Down
+selects either fixture; Apply/Cancel and no-automatic-save behavior are shared.
+Esla’s immutable recruitment-profile preview and normal join authority validate
+and install her loadout without a separate checkpoint character definition.
+
 
 ### Historical pre-bridge encounter routing audit (read-only)
 

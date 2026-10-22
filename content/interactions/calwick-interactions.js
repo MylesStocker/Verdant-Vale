@@ -491,12 +491,19 @@ function supervisorDialogueBody() {
     // or parallel progression flag is created.
     mq5AssignmentCutscene.open();
   } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed && MainQuest >= 5) {
-    dialogue.pages = [
+    const reminder = [
       ['“The sealed report goes to the regional office in the eastern city of Mornay.”',
        '“Use the official ferry at the broken causeway. Your assignment is on the operator’s seal list.”'],
       ['“Give them the report, then give them the part paper cannot: what you saw below the basin.”',
        '“Ask for qualified assistance. Nothing more heroic than that.”'],
     ];
+    if (persistentParty.getMember('esla')) setSpeakerDialoguePages([
+      ...reminder.map(lines=>({speakerId:'supervisor',lines})),
+      {speakerId:'supervisor',lines:['“You should be on the road to Mornay. Both of you.”']},
+      {speakerId:'esla',lines:['“We are. Lely is permitting the road a brief pause for walls and a roof.”']},
+      {speakerId:'supervisor',lines:['“See that it remains brief.”']},
+    ]);
+    else dialogue.pages = reminder;
     dialogue.callbacks = null;
   } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed) {
     // The findings have been reported and logged \u2014 closing acknowledgment, with

@@ -1576,6 +1576,14 @@ const MAP_CATALOG = {
     notes: 'sluiceFloor 4 -- the sealed room behind the Deep Works false walls (L3 r7 c12-c13 -> SLUICE_SECRET_ENTRANCE). Encounter rate is overridden at runtime to SLUICE_SECRET_ENCOUNTER_CHANCE (1/64) via inSluiceSealedRoom() (movement.js); the pool here IS what the runtime inSluice branch selects on this map (combat.js).',
   },
 
+  TRAVELLERS_RISE_CAMP_MAP: {
+    id: 'TRAVELLERS_RISE_CAMP_MAP', map: TRAVELLERS_RISE_CAMP_MAP,
+    displayName: 'Travellers’ Rise — Campsite', region: 'Eastern Fens',
+    type: 'special', items: [], encounterPool: null,
+    allowRandomEncounters: false, allowSave: true,
+    notes: 'Enemy-free screened rest site formerly occupied by the ambushers. One deliberate campfire night follows rest agreement.',
+  },
+
   DREAM_MAP: {
     id: 'DREAM_MAP', map: DREAM_MAP, displayName: '???', region: 'Dream',
     type: 'special', items: [], encounterPool: null,

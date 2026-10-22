@@ -14,6 +14,7 @@ const keys = new Proxy(pressedKeys, {
     const held = pressed[key];
     if (held && typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
     if (held && typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.isExclusive()) return false;
+    if (held && typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.blocksInput()) return false;
     if (held && canonicalPartyCombat.isActive()) return false;
     if (held && combatPlayerState.hasParty()) return false;
     if (held && galleryReceiverEncounter.blocksWorldInput()) return false;
@@ -144,6 +145,13 @@ function handlePartyCombatLabInput(command) {
 }
 
 window.addEventListener('keydown', e => {
+  if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput()){
+    const held=pressedKeys[e.key];pressedKeys[e.key]=true;
+    e.preventDefault();
+    if(!held&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&
+        (e.key===' '||e.key==='Enter')&&dialogue.open)handleInteract();
+    return;
+  }
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) {
     const wasHeld=pressedKeys[e.key];pressedKeys[e.key]=true;
     const confirm=e.key===' '||e.key==='Enter';

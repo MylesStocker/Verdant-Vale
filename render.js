@@ -93,6 +93,7 @@ function drawActiveMapContent() {
   if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
   drawSimpleNPCs();
   if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.draw();
+  if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.draw();
   if (inDungeon && dungeonFloor === 4 && !MULHOLLAND.defeated) drawMulholland();
   if (inDungeon && dungeonFloor === 5)   drawBoss();
   if (inTown && townBuilding === 'house' && currentHouseId === 'west_i' && den_wraith_quest_started && !den_wraith_defeated) drawDenWraith();
@@ -140,7 +141,7 @@ function drawActiveMapContent() {
     // No controllable/player sprite exists in either cutaway presentation,
     // including the opening lines that continue on DREAM_MAP's white field.
   } else {
-    drawPlayer();
+    if(!travellersRiseNight.drawPlayerPose())drawPlayer();
   }
 }
 
@@ -282,6 +283,7 @@ function render() {
     ctx.fillRect(0, 0, 512, 480);
   }
 
+  travellersRiseNight.drawNight();
   drawDialogue();
   drawChoice();
   drawShop();

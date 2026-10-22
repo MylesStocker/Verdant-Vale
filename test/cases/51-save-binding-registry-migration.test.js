@@ -30,7 +30,7 @@ const { createContext } = require('../harness');
 const EXPECTED_KEYS = [
   'cabinetCaseFlag', 'sluice_job_started', 'sluice_fixed', 'sluice_pay_ticket_ready',
   'sluice_reward_given', 'MainQuest', 'sera_liora_opening_complete',
-  'travellers_rise_ambush_complete', 'travellers_rise_ambush_paid', 'travellers_rise_ambush_payment',
+  'travellers_rise_ambush_complete', 'travellers_rise_ambush_paid', 'travellers_rise_ambush_payment', 'travellers_rise_camp_stage',
   'equipment_ticket_ready', 'letter_quest_stage',
   'cat_quest_stage', 'warden_quest_started', 'warden_quest_defeated', 'warden_quest_rewarded',
   'schilling_quest_started', 'schilling_returned', 'drama_stage', 'weight_quest_stage',
@@ -108,7 +108,7 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 78, '78 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 79, '79 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
 
     // ── B. Complete flag round-trip (all bindings, generically) ─────────────
@@ -127,9 +127,9 @@ module.exports = {
       // lighthouse/Polwick invariant so saveGame() is authorized to persist it.
       fort_quest_stage = 6; smugglers_dead = true; fort_report_filed = true;
       smugglers_execution_day = 0; reservoir_quest_started = true; lighthouse_quest_stage = 1;
-      travellers_rise_ambush_payment = 73;
+      travellers_rise_ambush_payment = 73;travellers_rise_camp_stage=1;persistentParty.joinEsla({level:11});
       ['fort_quest_stage','smugglers_dead','fort_report_filed','smugglers_execution_day',
-       'reservoir_quest_started','lighthouse_quest_stage','travellers_rise_ambush_payment'].forEach(function(k){
+       'reservoir_quest_started','lighthouse_quest_stage','travellers_rise_ambush_payment','travellers_rise_camp_stage'].forEach(function(k){
         var b = window.QUEST_FLAG_BINDINGS.find(function(x){return x.key===k;}); b.__rt = b.get();
       });`);
     G('saveGame();');
@@ -159,6 +159,7 @@ module.exports = {
     G('localStorage.clear(); saveGame();');
     G(`(function(){
         var d = JSON.parse(localStorage.getItem('verdantVale_save'));
+        delete d.travellers_rise_camp_stage; // new closed numeric stage also defaults cleanly
         delete d.cabinetCaseFlag;   // boolean
         delete d.pale_sentry_hp;    // numeric (non-zero default)
         delete d.wine_quest_gift;   // nullable
@@ -167,6 +168,7 @@ module.exports = {
       })();`);
     G('cabinetCaseFlag = true; pale_sentry_hp = 777; wine_quest_gift = "DIRTY"; window.vale_tutorial_seen = true;');
     G('loadGame();');
+    assert.equal(G('travellers_rise_camp_stage'),0,'missing camp stage defaults without inheriting the prior session');
     assert.equal(G('cabinetCaseFlag'), false, 'missing boolean flag defaults to false, not the dirtied true');
     assert.equal(G('pale_sentry_hp'), 500, 'missing numeric flag defaults to 500, not the dirtied 777');
     assert.equal(G('wine_quest_gift'), null, 'missing nullable flag defaults to null, not the dirtied string');

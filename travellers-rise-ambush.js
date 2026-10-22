@@ -154,7 +154,8 @@ const travellersRiseAmbush=(()=>{
     },
     // Read-only story gate, independent of terrain and structural seams. The
     // movement owner checks an attempted exit, never map loading or rendering.
-    blocksExit(mapId,direction){return storyEligible()&&mapId===MAP_ID&&direction==='east';},
+    blocksExit(mapId,direction){return mapId===MAP_ID&&direction==='east'&&
+      (storyEligible()||travellersRiseCamp.blocksEast());},
     isExclusive(){return ['opening','walking','reveal','choice','payment','aftermath'].includes(phase);},
     blocksSaveLoad(){return this.isExclusive()||phase==='battle';},
     blocksPosition(x,y){return visible()&&actors.some(actor=>Math.abs(x-actor.x)<18&&Math.abs(y-actor.y)<18);},
@@ -175,12 +176,8 @@ const travellersRiseAmbush=(()=>{
       if(phase!=='battle'||!result||!['victory','defeat','escape'].includes(result.outcome))fail('invalid authenticated finalization');
       resetActors();
       if(result.outcome==='victory'){
-        travellers_rise_ambush_complete=true;syncQuestFlagsToWindow();phase='aftermath';
-        openPages([
-          {speakerId:'esla',lines:['“The light’s going. We should use the rise and stop for the night.”']},
-          {speakerId:'lely',lines:['“Here?”']},
-          {speakerId:'esla',lines:['“Dry ground. A clear view of the road. Better than choosing in the dark.”']},
-        ],()=>{phase='idle';});
+        travellers_rise_ambush_complete=true;syncQuestFlagsToWindow();phase='idle';
+        // The camp owner waits for cleanup and every reward/level-up page.
       }else{phase='idle';armed=result.outcome==='defeat';}
       return true;
     },
