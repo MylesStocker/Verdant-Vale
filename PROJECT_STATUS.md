@@ -12,13 +12,17 @@ The MQ5 presentation/ambush and geographic bridge are integrated with seven
 Eastern Fens templates and 32 weighted records (16 compositions, two weight
 tables). Case 200 now exercises all 32 through the real geographic selector and
 canonical entry for each of one, two and three members, preserving content
-assertions and unassigned map permissions. The registry contains 70 templates:
+assertions. The integrated route now enables exactly 22 chunks: 11 easy and
+11 hard; the Rise, campsite and six peninsula chunks remain encounter-disabled.
+The registry contains 70 templates:
 52 ordinary, 12 token-owned canonical scripted and six pre-recruitment legacy.
 Case 191 covers 74,409 immutable ordinary preparations. The seven new templates
 retain their authored generic sprites; validation includes those seven warnings
 and the intentional unrouted-pool warning in addition to the established four.
-No map assignments, encounter permissions, terrain or save-version changes are
-part of this integration. Main's column-11/right-facing Esla walk is retained.
+The reviewed moraine, bog, drainage, Valmere and peninsula geography is retained.
+Only the three documented Rise cells change in the final natural-choke fix.
+The future Mornay footprint stays solid. SAVE_VERSION is 5; main's approved
+column-11/right-facing Esla walk is retained.
 
 ### Geographic formation bridge (review increment)
 
@@ -1875,14 +1879,12 @@ Roughly in priority order:
   risk, and this exact area has had real, previously-shipped bugs (a water
   soft-lock, an asymmetric-range clamp) before this arc's fixes.
 
-Travellers’ Rise reachability: the original single-tile trigger at (10,7) was
-bypassable through walkable off-road terrain. An unresolved MQ5 ambush now gates
-attempted eastward departure in both continuous and legacy movement, before
-either seam path runs. The player can explore or retreat and return to the
-original staging tile. Loading never starts a cutscene. Test 199 traverses all
-registered regional tiles/seams with the trigger removed, proves the former
-bypass, and proves no onward route remains until authenticated victory. No grid,
-walkability, seam or generated geographic artifact changes.
+Travellers’ Rise reachability originally depended on the east-exit guard
+because walkable off-road terrain bypassed (10,7). The integrated natural-choke
+correction below closes that route while retaining the guard in both movement
+modes. Test 199 searches the full regional graph with the trigger removed and
+proves no onward route exists; stage 2 opens the ordinary route after the night.
+Loading remains inert and the separate campsite entrance stays at (6,4).
 
 ### Integrated Mornay peninsula identity cleanup
 
@@ -1897,3 +1899,20 @@ The six maps retain their existing save restriction; malformed explicit retired
 IDs still fail existing atomic validation.
 SAVE_VERSION stays 5. The local campsite and all reviewed MQ5 story work are
 integrated with the 22 enabled route chunks (11 easy and 11 hard profiles).
+
+### Travellers’ Rise natural ambush choke
+
+Three cells close the former staging shortcut: (11,4) grass → hills (119),
+(11,5) rushes (89) → tree (3), and (11,6) grass → hills (119). All other grids,
+seams, camp entry (6,4), return (6,5), pools and permissions are unchanged.
+Removing trigger (10,7) from the tile graph leaves 121 reachable western cells
+and no eastern-road access; retaining it connects 163 cells and all east exits.
+The Impostor begins at (8.5,4.5), the cloaked Hollow at (10.5,3.5), and the
+Handler retains (14.5,4.5). Their destinations remain (8.5,7.5), (10.5,5.5),
+and (12.5,7.5). Preflight validates terrain, occupied cells, trigger exclusion,
+all simultaneous actor positions and endpoint agreement before presentation.
+Esla's post-victory campsite route uses row 6 to avoid the existing scrub at
+(7,7). The original defensive east gate still blocks ambush/camp bypass and
+opens after the existing stage-2 receipt. Load stays inert until deliberate
+movement. Suite 217 covers graph and actual continuous/legacy input, while
+199/201/207/208 retain payment, retry, save/load and one-time story coverage.

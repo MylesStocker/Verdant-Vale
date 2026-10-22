@@ -42,8 +42,8 @@ test('story gate requires assigned MQ5, canonical Esla membership and the delibe
 test('walkable off-road routes cannot bypass the unresolved ambush on the way to Mornay',()=>{
   const g=fresh();recruit(g);
   // Search the entire registered regional tile graph, not only the authored
-  // road. Remove the original trigger to expose the old Deep Reeds bypass.
-  g.run(`function ambushReachability(gated){
+  // road. Remove the trigger to prove the natural choke, without relying on the exit guard.
+  g.run(`function ambushReachability(gated,removeTrigger=true){
     const start={id:'EASTERN_BANK_MAP',c:5,r:8},queue=[start],seen=new Set();
     const key=n=>n.id+':'+n.c+':'+n.r;
     seen.add(key(start));let local=0,reeds=0;
@@ -52,7 +52,7 @@ test('walkable off-road routes cannot bypass the unresolved ambush on the way to
       if(n.id==='EASTERN_FENS_TRAVELLERS_RISE_MAP'){local++;if(map[n.r][n.c]===DEEP_REEDS)reeds++;}
       const push=v=>{const grid=mapRefForId(v.id);
         if(!grid||!isTileWalkable(grid[v.r]?.[v.c])||
-          v.id==='EASTERN_FENS_TRAVELLERS_RISE_MAP'&&v.c===10&&v.r===7||seen.has(key(v)))return;
+          removeTrigger&&v.id==='EASTERN_FENS_TRAVELLERS_RISE_MAP'&&v.c===10&&v.r===7||seen.has(key(v)))return;
         seen.add(key(v));queue.push(v);
       };
       for(const [dc,dr]of [[1,0],[-1,0],[0,1],[0,-1]]){
@@ -72,7 +72,7 @@ test('walkable off-road routes cannot bypass the unresolved ambush on the way to
     return {maps:[...new Set(queue.map(n=>n.id))],local,reeds};
   }`);
   const old=J(g,'ambushReachability(false)'),guarded=J(g,'ambushReachability(true)');
-  assert.ok(old.maps.includes('EASTERN_FENS_MORNAY_THRESHOLD_MAP'),'single-tile trigger was bypassable');
+  assert.ok(!old.maps.includes('EASTERN_FENS_WIDE_WATER_MAP'),'the natural choke alone prevents bypass');
   assert.ok(guarded.local>100&&guarded.reeds>0,'local exploration and Deep Reeds remain accessible');
   for(const id of ['EASTERN_FENS_WIDE_WATER_MAP','EASTERN_FENS_MORNAY_THRESHOLD_MAP',
     'EASTERN_FENS_MORNAY_APPROACH_E_MAP'])assert.ok(!guarded.maps.includes(id),id+' cannot be reached unresolved');
@@ -90,9 +90,9 @@ test('walkable off-road routes cannot bypass the unresolved ambush on the way to
     assert.ok(g.run('player.x')<15.5*32,'retreat remains available');
   }
   g.run('travellers_rise_ambush_complete=true');
-  assert.ok(!J(g,'ambushReachability(true)').maps.includes('EASTERN_FENS_MORNAY_THRESHOLD_MAP'),'night remains mandatory');
+  assert.ok(!J(g,'ambushReachability(true,false)').maps.includes('EASTERN_FENS_MORNAY_THRESHOLD_MAP'),'night remains mandatory');
   g.run('travellers_rise_camp_stage=2'); // isolated future-night gate fixture
-  assert.ok(J(g,'ambushReachability(true)').maps.includes('EASTERN_FENS_MORNAY_THRESHOLD_MAP'));
+  assert.ok(J(g,'ambushReachability(true,false)').maps.includes('EASTERN_FENS_MORNAY_THRESHOLD_MAP'));
   assert.equal(g.run('ambushRolls'),0);
 });
 

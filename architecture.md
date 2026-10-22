@@ -171,7 +171,7 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 217 maps, 115 regional chunks, 203 regression suite
+Current integration totals: 217 maps, 115 regional chunks, 212 regression suite
 files and save version 5. Earlier subsystem checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -4530,14 +4530,12 @@ Exact touch-points Phase 1 will need (none touched in Phase 0):
   collision, stop-and-face, no-encounter guarantee), replacing test 45's
   final "no real NPC has movement" assertion intentionally.
 
-Travellers’ Rise reachability: the original single-tile trigger at (10,7) was
-bypassable through walkable off-road terrain. An unresolved MQ5 ambush now gates
-attempted eastward departure in both continuous and legacy movement, before
-either seam path runs. The player can explore or retreat and return to the
-original staging tile. Loading never starts a cutscene. Test 199 traverses all
-registered regional tiles/seams with the trigger removed, proves the former
-bypass, and proves no onward route remains until authenticated victory. No grid,
-walkability, seam or generated geographic artifact changes.
+Travellers’ Rise reachability originally depended on the east-exit guard
+because walkable off-road terrain bypassed (10,7). The integrated natural-choke
+correction below closes that route while retaining the guard in both movement
+modes. Test 199 searches the full regional graph with the trigger removed and
+proves no onward route exists; stage 2 opens the ordinary route after the night.
+Loading remains inert and the separate campsite entrance stays at (6,4).
 
 ### Integrated Mornay peninsula identity cleanup
 
@@ -4552,3 +4550,20 @@ The six maps retain their existing save restriction; malformed explicit retired
 IDs still fail existing atomic validation.
 SAVE_VERSION stays 5. The local campsite and all reviewed MQ5 story work are
 integrated with the 22 enabled route chunks (11 easy and 11 hard profiles).
+
+### Travellers’ Rise natural ambush choke
+
+Three cells close the former staging shortcut: (11,4) grass → hills (119),
+(11,5) rushes (89) → tree (3), and (11,6) grass → hills (119). All other grids,
+seams, camp entry (6,4), return (6,5), pools and permissions are unchanged.
+Removing trigger (10,7) from the tile graph leaves 121 reachable western cells
+and no eastern-road access; retaining it connects 163 cells and all east exits.
+The Impostor begins at (8.5,4.5), the cloaked Hollow at (10.5,3.5), and the
+Handler retains (14.5,4.5). Their destinations remain (8.5,7.5), (10.5,5.5),
+and (12.5,7.5). Preflight validates terrain, occupied cells, trigger exclusion,
+all simultaneous actor positions and endpoint agreement before presentation.
+Esla's post-victory campsite route uses row 6 to avoid the existing scrub at
+(7,7). The original defensive east gate still blocks ambush/camp bypass and
+opens after the existing stage-2 receipt. Load stays inert until deliberate
+movement. Suite 217 covers graph and actual continuous/legacy input, while
+199/201/207/208 retain payment, retry, save/load and one-time story coverage.

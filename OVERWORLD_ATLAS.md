@@ -276,13 +276,10 @@ code each time.
   into the NPC home/route area. The west fen remains a walkable
   retreat/exploration pocket. The TRIGGER tile (10,7) and all 13 hardcoded
   NPC home/route/destination cells in `travellers-rise-ambush.js` are
-  untouched (verified byte-identical). An integration follow-up is tracked
-  for Codex: the NPC's own row-4 route still bridges the TRIGGER column to
-  the home area, so the authored "every eastbound route crosses the trigger"
-  intention isn't fully terrain-enforced yet — `blocksExit('east')` at the
-  movement layer prevents any actual sequence break in the meantime (proven
-  by `test/cases/199`), and closing the gap requires relocating NPC
-  route/home cells, which is ambush-lifecycle work, not terrain.
+  untouched at that intermediate checkpoint. Its row-4 staging route still
+  allowed access to the eastern neighborhood; the exit guard prevented story
+  bypass. The integrated natural-choke correction below closes that remaining
+  gap and relocates two homes while retaining all final actor positions.
 - No Mornay town streets/NPCs/shops/quests, no combat/encounter/MQ5/ambush-
   lifecycle changes, no save-version change. Full suite: 208/208 passed.
 
@@ -327,7 +324,7 @@ code each time.
   were renumbered 201–208 → 209–216 to resolve a collision with Codex's
   campsite/campfire-night/lifecycle tests at the same numbers; test 215 was
   rewritten for the peninsula and test 216's framing of the Travellers' Rise
-  residual bypass was corrected to an open Codex follow-up. Full suite:
+  residual bypass was recorded for the later natural-choke correction below. Full suite:
   208/208 passed.
 
 ### 2026-10-21 (Mornay peninsula internal names)
@@ -341,3 +338,20 @@ source-derived artifacts use the same renamed IDs. No compatibility aliases
 are retained for the unreleased district placeholders. Regional saved world
 coordinates remain compatible; the six maps retain their save restrictions.
 Malformed explicit retired IDs reject through existing unknown-map validation.
+
+### Travellers’ Rise natural ambush choke
+
+Three cells close the former staging shortcut: (11,4) grass → hills (119),
+(11,5) rushes (89) → tree (3), and (11,6) grass → hills (119). All other grids,
+seams, camp entry (6,4), return (6,5), pools and permissions are unchanged.
+Removing trigger (10,7) from the tile graph leaves 121 reachable western cells
+and no eastern-road access; retaining it connects 163 cells and all east exits.
+The Impostor begins at (8.5,4.5), the cloaked Hollow at (10.5,3.5), and the
+Handler retains (14.5,4.5). Their destinations remain (8.5,7.5), (10.5,5.5),
+and (12.5,7.5). Preflight validates terrain, occupied cells, trigger exclusion,
+all simultaneous actor positions and endpoint agreement before presentation.
+Esla's post-victory campsite route uses row 6 to avoid the existing scrub at
+(7,7). The original defensive east gate still blocks ambush/camp bypass and
+opens after the existing stage-2 receipt. Load stays inert until deliberate
+movement. Suite 217 covers graph and actual continuous/legacy input, while
+199/201/207/208 retain payment, retry, save/load and one-time story coverage.

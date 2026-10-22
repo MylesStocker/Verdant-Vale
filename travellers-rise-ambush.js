@@ -8,8 +8,8 @@ const travellersRiseAmbush=(()=>{
   const MAP_ID='EASTERN_FENS_TRAVELLERS_RISE_MAP',CONTENT_KEY='eastern_fens_12';
   const TRIGGER=Object.freeze({col:10,row:7});
   const homes=Object.freeze([
-    Object.freeze({x:12.5,y:4.5,facing:'down'}),
-    Object.freeze({x:13.5,y:4.5,facing:'down'}),
+    Object.freeze({x:8.5,y:4.5,facing:'down'}),
+    Object.freeze({x:10.5,y:3.5,facing:'down'}),
     Object.freeze({x:14.5,y:4.5,facing:'down'}),
   ]);
   const destinations=Object.freeze([
@@ -27,10 +27,10 @@ const travellersRiseAmbush=(()=>{
   ];
   const routes=Object.freeze([
     Object.freeze({type:'scriptedRoute',waypoints:Object.freeze([
-      Object.freeze({x:12.5,y:6.5}),Object.freeze({x:8.5,y:6.5}),Object.freeze({x:8.5,y:7.5}),
+      Object.freeze({x:8.5,y:7.5}),
     ]),speed:1.5,pauseFrames:0,loop:false}),
     Object.freeze({type:'scriptedRoute',waypoints:Object.freeze([
-      Object.freeze({x:10.5,y:4.5}),Object.freeze({x:10.5,y:5.5}),
+      Object.freeze({x:10.5,y:5.5}),
     ]),speed:1.5,pauseFrames:0,loop:false}),
     Object.freeze({type:'scriptedRoute',waypoints:Object.freeze([
       Object.freeze({x:14.5,y:8.5}),Object.freeze({x:12.5,y:8.5}),Object.freeze({x:12.5,y:7.5}),
@@ -62,14 +62,44 @@ const travellersRiseAmbush=(()=>{
       return Number.isSafeInteger(t)&&isTileWalkable(t)&&!TILE_PROPERTIES[t]?.isTransition;});
   };
   const validateRouteCells=(map,start,route)=>{
-    let at={x:start.x,y:start.y};
+    const check=(x,y)=>{
+      if(!tileSafe(map,Math.floor(x),Math.floor(y)))fail('route crosses an unsafe cell');
+      if(Math.floor(x)===TRIGGER.col&&Math.floor(y)===TRIGGER.row)fail('route crosses the player trigger');
+      if(SIMPLE_NPCS.some(npc=>npc.solid&&npc.map===CONTENT_KEY&&
+        Math.abs(x*TILE-npc.x)<18&&Math.abs(y*TILE-npc.y)<18))fail('route crosses an occupied cell');
+    };
+    let at={x:start.x,y:start.y};check(at.x,at.y);
     for(const point of route.waypoints){
       if(point.x!==at.x&&point.y!==at.y)fail('route is not orthogonal');
       const dx=Math.sign(point.x-at.x),dy=Math.sign(point.y-at.y);
       let x=at.x,y=at.y;
-      while(x!==point.x||y!==point.y){x+=dx;y+=dy;if(!tileSafe(map,Math.floor(x),Math.floor(y)))fail('route crosses an unsafe cell');}
+      while(x!==point.x||y!==point.y){x+=dx;y+=dy;check(x,y);}
       at=point;
     }
+  };
+  // Dry-run the exact authored cadence before installing any route. Shared
+  // terrain paths are not enough: every actor must also clear the player and
+  // the other actors throughout the walk, including their homes/endpoints.
+  const validateStaging=()=>{
+    const poses=homes.map(p=>({x:p.x*TILE,y:p.y*TILE,next:0}));
+    const check=()=>poses.forEach((p,i)=>{
+      if(Math.abs(p.x-player.x)<18&&Math.abs(p.y-player.y)<18)fail('route overlaps the player');
+      for(let j=0;j<i;j++)if(Math.abs(p.x-poses[j].x)<18&&Math.abs(p.y-poses[j].y)<18)
+        fail('staging actors overlap');
+    });
+    check();
+    for(let tick=0;poses.some((p,i)=>p.next<routes[i].waypoints.length);tick++){
+      if(tick>=1000)fail('staging route exceeds bounded duration');
+      poses.forEach((p,i)=>{
+        const r=routes[i],wp=r.waypoints[p.next];if(!wp)return;
+        const tx=wp.x*TILE,ty=wp.y*TILE;
+        p.x+=Math.sign(tx-p.x)*Math.min(r.speed,Math.abs(tx-p.x));
+        p.y+=Math.sign(ty-p.y)*Math.min(r.speed,Math.abs(ty-p.y));
+        if(p.x===tx&&p.y===ty)p.next++;
+      });check();
+    }
+    poses.forEach((p,i)=>{if(p.x!==destinations[i].x*TILE||p.y!==destinations[i].y*TILE)
+      fail('route does not reach its authored destination');});
   };
   const preflight=()=>{
     if(!storyEligible()||!onMap()||entryBusy())fail('entry state is not eligible');
@@ -78,6 +108,7 @@ const travellersRiseAmbush=(()=>{
     actors.forEach((actor,i)=>{validateTransientNpcRouteDefinition(actor,routes[i]);validateRouteCells(map,homes[i],routes[i]);});
     if(!tileSafe(map,TRIGGER.col,TRIGGER.row)||!destinations.every(p=>tileSafe(map,Math.floor(p.x),Math.floor(p.y))))
       fail('trigger or destination is unsafe');
+    validateStaging();
     if(!scriptedPartyEncounters.validate('startTravellersRiseAmbush'))fail('canonical formation rejected');
     return true;
   };

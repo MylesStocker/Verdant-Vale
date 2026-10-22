@@ -262,9 +262,9 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,127,127,127,127,127,127, 23,  0,  0,  2,  0,119,  3,119,  1], //  1
       [  1,127,127,127,127,127, 23,  0,  0, 88,  2,  0,  3,119,  3,  1], //  2
       [  1,127,127,127,127, 23,  0,  0, 88, 88,  2,  0,119,  3,119,  1], //  3
-      [  1,127,127,127, 23,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  1], //  4
-      [  1,127,127, 23,  0,  0,  0,  0,  0, 89,  2, 89,  0,119,  0,  1], //  5
-      [  1,127, 23,  0,  0,  0,  0, 88, 88,  0,  2,  0,  0,  3,  0,  1], //  6
+      [  1,127,127,127, 23,  0,  0,  0,  0,  0,  2,119,  0,  0,  0,  1], //  4
+      [  1,127,127, 23,  0,  0,  0,  0,  0, 89,  2,  3,  0,119,  0,  1], //  5
+      [  1,127, 23,  0,  0,  0,  0, 88, 88,  0,  2,119,  0,  3,  0,  1], //  6
       [  1,127, 23,  0,  0,  0,  0,119,  0,  0,  2,  2,  2,  2,  2,  2], //  7
       [  1,127, 23,  0, 81,  0,  0,  0,  0,119,  0,  3,  0,  0,  2,  2], //  8
       [  1,127, 23,  0,  0,  0,  0,  0,  0,  3,  0,  0,119,  3,  2,  2], //  9
@@ -277,7 +277,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Travellers’ Rise', region: 'Eastern Fens', contentKey: 'eastern_fens_12',
     presentation: 'continuous', encounterProfileId: 'far',
     allowRandomEncounters: false, allowSave: true,
-    notes: 'Dry rise used by road workers, reed cutters, couriers, and travellers. A hill/scrub wall separates the enclosed west fen from the ambush approach; the existing east-exit gate prevents unresolved onward travel. The MQ5 ambush stages transient actors here. Its victory leads to the separate one-tile campsite entrance at (6,4); no random encounters.' },
+    notes: 'Dry rise used by road workers, reed cutters, couriers, and travellers. A continuous hill/scrub shoulder makes (10,7) the sole crossing from the western pocket to the eastern road. The east-exit story gate remains defensive backup. The MQ5 ambush stages transient actors here. Its victory leads to the separate one-tile campsite entrance at (6,4); no random encounters.' },
   // (13,3) A timbered bank crosses the widest water on the route.
   { mapId: 'EASTERN_FENS_WIDE_WATER_MAP', regionId: 'overworld', chunkX: 13, chunkY: 3, map: [
       [  1,  1,  1,  1, 58,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], //  0
