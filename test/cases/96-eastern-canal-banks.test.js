@@ -305,18 +305,18 @@ module.exports = {
     for (let c = 1; c <= 14; c++) oldNorth[14][c] = TREE;
     for (const row of [6, 7, 8, 9, 10]) oldNorth[row][15] = TREE;
     assert.equal(sha256(JSON.stringify(oldNorth)), OLD_NORTH_FP, 'restoring exactly fourteen south-edge cells recreates prior South Reservoir Road');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 115);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 244);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       if ([ID, WEST_ID, NORTH_ID].includes(id)) continue;
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: established fingerprint unchanged`);
     }
 
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 70, ALIGNS: 140, BLOCKED: 246 });
-    assert.equal(audit.seamReadiness.edges.length, 460);
-    assert.equal(g.run('continuousSeamEntries().length'), 160, '116 directed segment entries');
-    assert.equal(g.run('continuousSeamEntries().length/2'), 80, '69 reciprocal segment pairs');
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 115);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 66);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 96, ALIGNS: 280, BLOCKED: 596 });
+    assert.equal(audit.seamReadiness.edges.length, 976);
+    assert.equal(g.run('continuousSeamEntries().length'), 300, '116 directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length/2'), 150, '69 reciprocal segment pairs');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 244);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 121);
   },
 };

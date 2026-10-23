@@ -72,13 +72,13 @@ test('every static ordinary formation up to three slots prepares for every party
    for(let a=0;a<ids.length;a++){verify([ids[a]]);for(let b=a;b<ids.length;b++){verify([ids[a],ids[b]]);
     for(let c=b;c<ids.length;c++)verify([ids[a],ids[b],ids[c]]);}}
    return {templates:ids.length,cases};})()`);
-  assert.equal(report.templates,51);assert.equal(report.cases,24803);total+=report.cases;
+  assert.equal(report.templates,52);assert.equal(report.cases,26234);total+=report.cases;
   assert.equal(state(g),before);assert.equal(g.run('rolls'),0);assert.equal(g.run('combatEnemyInstanceSequence'),0);
  }
- assert.equal(total,74409);console.log('  74,409 complete immutable ordinary-formation preparations');
+ assert.equal(total,78702);console.log('  78,702 complete immutable ordinary-formation preparations');
 });
 test('all registered pools normalize unchanged and contain only ordinary supported templates; Eastern Fens Mornay route live except Travellers\' Rise',()=>{
- const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),70);
+ const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),71);
  // A pool entry may be a flat template OR an authored { id, enemies, weight }
  // formation (Eastern Fens Mornay's two pools) -- resolve formation entries
  // to their actual enemy templates before checking compatibility, same as
@@ -92,9 +92,16 @@ test('all registered pools normalize unchanged and contain only ordinary support
  // split by chunk column); Travellers' Rise alone stays encounter-free,
  // reserved for its own MQ5 scripted ambush. Exploration/envelope chunks
  // (and the raw flat pool_eastern_fens_mornay registration) stay unrouted.
+ // The 4 converted Great Fen entry chunks (EASTERN_FENS_ENVELOPE_C6RN1/
+ // C7RN1/C8RN1/C9RN1_MAP) now also carry random encounters (hard pool).
+ // The converted Valmere expanse (C14R0/C14RN1), Eastern Shore (C18R1) and
+ // Southern Moraine (C15R5) entry chunks, the 6 fresh EASTERN_SHORE_*
+ // chunks (the Southern Moraine's fresh chunks keep their own prefix), and
+ // the Fen Zolom gate flipping C7R0/C8R0 from false to true, bring the
+ // EASTERN_-prefixed enabled count to 38.
  const fens=J(g,`Object.entries(MAP_METADATA).filter(([id])=>id.startsWith('EASTERN_')).map(([id,m])=>({id,enabled:m.allowRandomEncounters}))`);
  assert.ok(fens.length>0);
- assert.equal(fens.filter(m=>m.enabled).length,22);
+ assert.equal(fens.filter(m=>m.enabled).length,38);
  assert.equal(fens.find(m=>m.id==='EASTERN_FENS_TRAVELLERS_RISE_MAP').enabled,false);
 });
 for(const count of [1,2,3])for(const fallen of [-1,...Array.from({length:count},(_,i)=>i)]){

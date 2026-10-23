@@ -1731,6 +1731,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_VALMERE_ROAD_TURN_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_CHANNEL_APPROACH_E_MAP', targetEdge: 'east', sourceRange: [4, 6] }],
     north: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_S_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C15R5_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
   },
   EASTERN_FENS_CHANNEL_ROAD_S_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_VALMERE_ROAD_TURN_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
@@ -1747,6 +1748,112 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_VALMERE_REVEAL_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_CHANNEL_ROAD_N_MAP', targetEdge: 'north', sourceRange: [6, 8] }],
     east: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_W_MAP', targetEdge: 'west', sourceRange: [9, 11] }],
+    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14R0_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C13RN6_MAP: {
+    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C14RN6_MAP: {
+    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN5_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C14RN5_MAP: {
+    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN6_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'VALMERE_EXPANSE_C15RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C15RN5_MAP: {
+    west: [{ targetMap: 'VALMERE_EXPANSE_C14RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C13RN4_MAP: {
+    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C14RN4_MAP: {
+    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C13RN3_MAP: {
+    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C14RN3_MAP: {
+    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C13RN2_MAP: {
+    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C14RN2_MAP: {
+    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  VALMERE_EXPANSE_C13RN1_MAP: {
+    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_ENVELOPE_C14RN1_MAP: {
+    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14R0_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_ENVELOPE_C14R0_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'EASTERN_FENS_VALMERE_REVEAL_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_ENVELOPE_C18R1_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_MORNAY_THRESHOLD_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_SHORE_C18R2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+  },
+  EASTERN_SHORE_C18R2_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C18R1_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_SHORE_C18R3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'EASTERN_SHORE_C19R2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_SHORE_C19R2_MAP: {
+    west: [{ targetMap: 'EASTERN_SHORE_C18R2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'EASTERN_SHORE_C20R2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_SHORE_C20R2_MAP: {
+    west: [{ targetMap: 'EASTERN_SHORE_C19R2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  EASTERN_SHORE_C18R3_MAP: {
+    north: [{ targetMap: 'EASTERN_SHORE_C18R2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'EASTERN_SHORE_C19R3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_SHORE_C19R3_MAP: {
+    south: [{ targetMap: 'EASTERN_SHORE_C19R4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'EASTERN_SHORE_C18R3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  EASTERN_SHORE_C19R4_MAP: {
+    north: [{ targetMap: 'EASTERN_SHORE_C19R3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+  },
+  EASTERN_FENS_ENVELOPE_C15R5_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_VALMERE_ROAD_TURN_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'SOUTHERN_MORAINE_C15R6_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+  },
+  SOUTHERN_MORAINE_C14R6_MAP: {
+    east: [{ targetMap: 'SOUTHERN_MORAINE_C15R6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  SOUTHERN_MORAINE_C15R6_MAP: {
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C15R5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'SOUTHERN_MORAINE_C14R6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'SOUTHERN_MORAINE_C16R6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  SOUTHERN_MORAINE_C16R6_MAP: {
+    south: [{ targetMap: 'SOUTHERN_MORAINE_C16R7_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'SOUTHERN_MORAINE_C15R6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'SOUTHERN_MORAINE_C17R6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  SOUTHERN_MORAINE_C17R6_MAP: {
+    south: [{ targetMap: 'SOUTHERN_MORAINE_C17R7_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'SOUTHERN_MORAINE_C16R6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  SOUTHERN_MORAINE_C16R7_MAP: {
+    north: [{ targetMap: 'SOUTHERN_MORAINE_C16R6_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+  },
+  SOUTHERN_MORAINE_C17R7_MAP: {
+    north: [{ targetMap: 'SOUTHERN_MORAINE_C17R6_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
   },
   EASTERN_FENS_VALMERE_SHORE_W_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_VALMERE_REVEAL_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
@@ -1759,6 +1866,7 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_MORNAY_THRESHOLD_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_E_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
     north: [{ targetMap: 'EASTERN_FENS_MORNAY_APPROACH_E_MAP', targetEdge: 'south', sourceRange: [6, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C18R1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
   },
   EASTERN_FENS_MORNAY_APPROACH_E_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_MORNAY_THRESHOLD_MAP', targetEdge: 'north', sourceRange: [6, 9] }],
@@ -1833,19 +1941,162 @@ const EDGE_TRANSITIONS = {
   EASTERN_FENS_ENVELOPE_C9R4_MAP: {
     north: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'south', sourceRange: [8, 8] }],
   },
-  // Bounded NW open-fen expansion off the reedbelt (walkable, enemy-gate-ready;
-  // no terrain wall at the road). Fades at the camera-clamped world top and the
-  // open water that keeps it separate from the North Basin. Never seamed to North Basin.
+  // Bounded NW open-fen expansion off the reedbelt (walkable, hard-pool
+  // encounters enabled). The north border now opens onto the Great Fen via
+  // the converted EASTERN_FENS_ENVELOPE_C7RN1_MAP/C8RN1_MAP entry chunks.
+  // Still never seamed to North Basin.
   EASTERN_FENS_ENVELOPE_C7R0_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'north', sourceRange: [7, 7] }],
     east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', targetEdge: 'west', sourceRange: [7, 7] }],
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
   },
   EASTERN_FENS_ENVELOPE_C8R0_MAP: {
     south: [{ targetMap: 'EASTERN_FENS_REEDBELT_E_MAP', targetEdge: 'north', sourceRange: [8, 8] }],
     west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', targetEdge: 'east', sourceRange: [7, 7] }],
+    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
   },
   EASTERN_FENS_ENVELOPE_C6R1_MAP: {
     east: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'west', sourceRange: [4, 4] }],
+  },
+  GREAT_FEN_C1RN5_MAP: {
+    east: [{ targetMap: 'GREAT_FEN_C2RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C2RN5_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C2RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C1RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C3RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C3RN5_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C2RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C4RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C4RN5_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C3RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C5RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C5RN5_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C4RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C2RN4_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C2RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C3RN4_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C3RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'GREAT_FEN_C3RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C2RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C4RN4_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C4RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'GREAT_FEN_C4RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C5RN4_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C5RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C6RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C6RN4_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C7RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C7RN4_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C6RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C3RN3_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'GREAT_FEN_C4RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C4RN3_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C3RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C5RN3_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'GREAT_FEN_C5RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C4RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C6RN3_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C6RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C7RN3_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C7RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C8RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C8RN3_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C9RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C9RN3_MAP: {
+    south: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C8RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C5RN2_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C6RN2_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C6RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C5RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C7RN2_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C8RN2_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C8RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C9RN2_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C9RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'GREAT_FEN_C10RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  GREAT_FEN_C10RN2_MAP: {
+    west: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_ENVELOPE_C6RN1_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_ENVELOPE_C7RN1_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C6RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_ENVELOPE_C8RN1_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
+    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
+  },
+  EASTERN_FENS_ENVELOPE_C9RN1_MAP: {
+    north: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
+    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
   },
   DRENWICK_EAST_CANAL_MAP: {
     north: [

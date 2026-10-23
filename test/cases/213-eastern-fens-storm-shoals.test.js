@@ -168,8 +168,14 @@ module.exports = {
     assert.equal(sha256(unchangedCurrent), OLD_FP[UNCHANGED_ID], `${UNCHANGED_ID}: fingerprint unchanged`);
     assert.equal(GRID_FP.fingerprints[UNCHANGED_ID], OLD_FP[UNCHANGED_ID], `${UNCHANGED_ID}: fixtures file still records the original fingerprint`);
 
-    // 4. All six stay scenery-only: unreachable, no seam.
+    // 4. All six stay scenery-only at the time of this batch: unreachable, no
+    //    seam. EASTERN_FENS_ENVELOPE_C15R5_MAP was later converted into the
+    //    Southern Moraine's entry chunk (a separate, later increment) and is
+    //    excluded from this specific check; its storm-shoal grid/fingerprint
+    //    claims above are unaffected since only its EDGE_TRANSITIONS/
+    //    playerAccessible metadata changed, not its terrain content.
     for (const id of ALL_IDS) {
+      if (id === 'EASTERN_FENS_ENVELOPE_C15R5_MAP') continue;
       assert.equal(g.run(`mapPlayerAccessible('${id}')`), false, `${id} stays scenery-only`);
       assert.deepEqual(J(`JSON.stringify(Object.keys(EDGE_TRANSITIONS['${id}']||{}))`), [], `${id} has no seam`);
     }

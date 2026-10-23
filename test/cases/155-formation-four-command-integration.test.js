@@ -257,8 +257,8 @@ for(const success of [true,false])test('Run commits directly from menu with exac
 test('only established boss templates carry boolean registry metadata; singleton copies remain unchanged',()=>{
   const g=fresh(0);
   assert.deepEqual(J(g,'Object.values(ENEMY_TEMPLATE_REGISTRY).filter(e=>e.isBoss===true).map(e=>e.id).sort()'),
-    ['enemy_gallery_receiver','enemy_lensweb_spider','enemy_mulholland','enemy_takomo','enemy_wrongteeth']);
-  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(e=>Object.hasOwn(e,"isBoss")).length'),5);
+    ['enemy_fen_zolom','enemy_gallery_receiver','enemy_lensweb_spider','enemy_mulholland','enemy_takomo','enemy_wrongteeth']);
+  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(e=>Object.hasOwn(e,"isBoss")).length'),6);
   g.run('startBossCombat();');assert.equal(g.run('combat.mode'),'single');
   assert.equal(g.run('Object.hasOwn(combat.enemy,"isBoss")'),false);
 });

@@ -49,11 +49,13 @@ module.exports = {
     assert.equal(g.run('EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS.every(function(d){return d.map.some(function(row){return row.includes(DEEP_REEDS);});})'), true);
 
     // 2. Making Deep Reeds walkable cannot open any area outside the Eastern
-    //    Fens: tile 127 appears in no other regional chunk or legacy map grid.
+    //    Fens (or its directly-seamed siblings the Great Fen and the
+    //    Valmere expanse, which reuse this same pre-existing tile): tile 127
+    //    appears in no other regional chunk or legacy map grid.
     const foreign = J(`JSON.stringify((function(){
       var hits=[];
       Object.keys(REGIONAL_CHUNK_CATALOG).forEach(function(id){
-        if(REGIONAL_CHUNK_CATALOG[id].region==='Eastern Fens')return; // route + Phase 2 envelope
+        if(['Eastern Fens','Great Fen','Valmere','Eastern Shore','Southern Moraine'].indexOf(REGIONAL_CHUNK_CATALOG[id].region)!==-1)return; // route + Phase 2 envelope + Great Fen + Valmere expanse + Eastern Shore + Southern Moraine
         if(REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);}))hits.push(id);
       });
       if(typeof MAP_CATALOG!=='undefined')Object.keys(MAP_CATALOG).forEach(function(id){

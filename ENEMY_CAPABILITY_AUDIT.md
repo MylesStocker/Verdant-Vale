@@ -145,13 +145,14 @@ column says otherwise.
 | `enemy_fen_rootworm` / Fen Rootworm | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + regeneration | `regenPerTurn` generic branch | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): registered and mechanically supported; see Reconciled totals |
 | `enemy_willow_veiled_stalker` / Willow-Veiled Stalker | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base + melee armor + counterattack | armor/counter generic branches (same puzzle shape as Thornback) | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): registered and mechanically supported; see Reconciled totals |
 | `enemy_hollowreed_choker` / Hollowreed Choker | `data.js`; Eastern Fens Mornay pool (registered, not yet map-routed) | repeatable | base only | observation/sprite only | n/a — introduced after Pass 3 | ordinary | Eastern Fens content pass (toughened): intentionally ordinary — `splits` is deferred because split_followup hardcodes The Seep's successor stats/text; see Reconciled totals |
+| `enemy_fen_zolom` / Fen Zolom | `data.js`; `pool_north_fen_zolom` (North Fen gate, routed) | repeatable | base + boss escape lock | existing `isBoss` generic branch (same as Takomo/Mulholland/Lensweb Spider/the final boss) | n/a — introduced after Pass 4C | ordinary | North Fen gate: the sole encounter on (7,0)/(8,0), essentially unwinnable; `isBoss` is an ordinary, canonical capability (`boss_escape_lock`), not a scripted lifecycle — no dispatcher change was needed for the lock to take effect |
 
 ## Reconciled totals
 
-- Registered templates: **70**.
-- Ordinary and capability-compatible: **52** — 22 Pass 3, eight Brace, seven status-special and eight unusual templates; generated 23 requires authenticated selection data; plus Botfly, Waspthra, Sparkeel, Mudwrack Snapper, Fen Rootworm, Willow-Veiled Stalker and Hollowreed Choker (Eastern Fens content pass).
+- Registered templates: **71**.
+- Ordinary and capability-compatible: **53** — 22 Pass 3, eight Brace, seven status-special and eight unusual templates; generated 23 requires authenticated selection data; plus Botfly, Waspthra, Sparkeel, Mudwrack Snapper, Fen Rootworm, Willow-Veiled Stalker and Hollowreed Choker (Eastern Fens content pass); plus Fen Zolom (North Fen gate).
 - Scripted templates mechanically compatible behind exact lifecycle tokens: **12**.
-- Total mechanically compatible: **64**.
+- Total mechanically compatible: **65**.
 - Special capability pending: **0** (23 at the Pass 3 checkpoint).
 - Scripted-only lifecycle audit rows: **18** — twelve canonical routes (including the three-member Travellers' Rise formation) and six necessarily pre-recruitment legacy routes.
 - Non-production/debug fixtures: **0**.

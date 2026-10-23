@@ -50,6 +50,16 @@
     "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
   },
   {
+    "group": "Enemies",
+    "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)",
+    "reason": "Intentional: Fen Zolom is a deliberate, essentially unwinnable gate boss and the game's hardest hitter by design, not a stat typo."
+  },
+  {
+    "group": "Enemies",
+    "message": "enemy_fen_zolom (Fen Zolom): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look",
+    "reason": "Authored generic sprite; bespoke artwork is deferred, not a runtime failure."
+  },
+  {
     "group": "Dialogue",
     "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split",
     "reason": "Preserve authored text. Real-browser smoke verifies wrapping with Canvas font measurements."

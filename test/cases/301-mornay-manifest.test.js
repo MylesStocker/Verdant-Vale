@@ -73,7 +73,7 @@ module.exports={
     assert.equal(residents.filter(n=>!exteriors.has(n.mapId)).length,196);
     assert.equal(rooms.length,41);assert.equal(new Set(rooms.map(b=>b.id)).size,41);assert.equal(new Set(rooms.map(b=>b.mapId)).size,41);
     assert.equal(new Set(rooms.filter(b=>exteriors.has(b.sourceMapId)).map(b=>b.id)).size,23);
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),275);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),404);
     for(const r of residents){
       const runtime=npcs.filter(n=>n.id===r.id);assert.equal(runtime.length,1,r.id);
       assert.equal(g.run(`SIMPLE_NPCS.filter(n=>n.id===${JSON.stringify(r.id)}).length`),1,r.id+' no registry overwrite');

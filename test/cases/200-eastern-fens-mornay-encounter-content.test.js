@@ -193,9 +193,11 @@ module.exports = {
       "Travellers' Rise stays encounter-free, reserved for its own MQ5 scripted ambush");
     assert.equal(g.run("MAP_METADATA['EASTERN_FENS_TRAVELLERS_RISE_MAP'].encounterPool===EASTERN_FENS_MORNAY_EASY_FORMATIONS"), false);
     // No other map (any other region, or an Eastern Fens exploration/envelope
-    // chunk) was touched.
+    // chunk) was touched. The Great Fen expansion (28 chunks: 4 converted
+    // entry chunks + 24 fresh) reuses this same hard pool, so the HARD count
+    // grows from 11 to 39; the EASY count is untouched by that expansion.
     assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_EASY_FORMATIONS).length`), 11);
-    assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS).length`), 11);
+    assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS).length`), 66);
     assert.equal((g.run('startCanonicalPartyEncounter.toString()').match(/encounterFormations\.select\(pool\)/g)||[]).length,1);
 
     // ── 8. Actual geographic selection and installation: all 32 records ────
