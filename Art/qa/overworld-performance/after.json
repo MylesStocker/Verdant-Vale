@@ -1,0 +1,1336 @@
+{
+  "phase": "measurement",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/155.0.8059.86",
+    "revision": "@804d6b05f089b27af8342622a36558c49401a1d4",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "jsVersion": "15.5.35.25"
+  },
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v24.14.1",
+    "cpu": "Apple M5"
+  },
+  "method": "Unthrottled real-time Chromium requestAnimationFrame production game loop. Headless, GPU disabled, one foreground page; native 512x480 Canvas at CSS 1x/2x; matching MQ5 solo fixture; ordinary grass MAP3 x336..432,y240. Debug suppresses encounters; blocked updates counted and excluded. Timings are browser measurements, not VM estimates.",
+  "branches": {
+    "main": [
+      {
+        "scale": 1,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 5.001300000190735,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.984404052658086,
+        "update": {
+          "meanMs": 0.09299999078114828,
+          "p50Ms": 0.09999990463256836,
+          "p95Ms": 0.20000028610229492,
+          "maxMs": 0.2999997138977051
+        },
+        "render": {
+          "meanMs": 6.179666684468587,
+          "p50Ms": 6.200000286102295,
+          "p95Ms": 6.400000095367432,
+          "maxMs": 6.599999904632568
+        },
+        "frame": {
+          "meanMs": 16.665886287306463,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.700000286102295
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 1,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 5.001699999809265,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 600,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.95921387185965,
+        "framesPerSecond": 59.97960693592982,
+        "update": {
+          "meanMs": 0.13566665808359782,
+          "p50Ms": 0.10000038146972656,
+          "p95Ms": 0.20000028610229492,
+          "maxMs": 0.3000001907348633
+        },
+        "render": {
+          "meanMs": 6.2176666816075645,
+          "p50Ms": 6.200000286102295,
+          "p95Ms": 6.400000095367432,
+          "maxMs": 7.300000190734863
+        },
+        "frame": {
+          "meanMs": 16.6652173916233,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.699999809265137
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 1,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 3.0015,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.97001499250375,
+        "update": {
+          "meanMs": 0.2572222153345744,
+          "p50Ms": 0.20000028610229492,
+          "p95Ms": 0.5999999046325684,
+          "maxMs": 0.6000003814697266
+        },
+        "render": {
+          "meanMs": 0.5977777931425307,
+          "p50Ms": 0.5999999046325684,
+          "p95Ms": 1.200000286102295,
+          "maxMs": 1.3000001907348633
+        },
+        "frame": {
+          "meanMs": 16.66592178664394,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.90000009536743
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 1,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 3.000199999809265,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 360,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.99200054092616,
+        "framesPerSecond": 59.99600027046308,
+        "update": {
+          "meanMs": 0.6066666788525051,
+          "p50Ms": 0.5999999046325684,
+          "p95Ms": 0.9000000953674316,
+          "maxMs": 1
+        },
+        "render": {
+          "meanMs": 0.7761110994550917,
+          "p50Ms": 0.6999998092651367,
+          "p95Ms": 1.1999998092651367,
+          "maxMs": 1.200000286102295
+        },
+        "frame": {
+          "meanMs": 16.66592178664394,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.59999990463257,
+          "maxMs": 17.800000190734863
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 5.001099999904633,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.98680290450516,
+        "update": {
+          "meanMs": 0.09333333651224772,
+          "p50Ms": 0.09999990463256836,
+          "p95Ms": 0.20000028610229492,
+          "maxMs": 0.20000028610229492
+        },
+        "render": {
+          "meanMs": 6.053000009854634,
+          "p50Ms": 6.099999904632568,
+          "p95Ms": 6.200000286102295,
+          "maxMs": 6.300000190734863
+        },
+        "frame": {
+          "meanMs": 16.668896321070235,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.700000286102295
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 5.001400000095368,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 600,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.96640940307896,
+        "framesPerSecond": 59.98320470153948,
+        "update": {
+          "meanMs": 0.1319999885559082,
+          "p50Ms": 0.09999990463256836,
+          "p95Ms": 0.20000028610229492,
+          "maxMs": 0.3000001907348633
+        },
+        "render": {
+          "meanMs": 6.1616666905085244,
+          "p50Ms": 6.199999809265137,
+          "p95Ms": 6.400000095367432,
+          "maxMs": 7.099999904632568
+        },
+        "frame": {
+          "meanMs": 16.668896321070235,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.699999809265137
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 3.000699999809265,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.98600326971754,
+        "update": {
+          "meanMs": 0.36888892385694716,
+          "p50Ms": 0.40000009536743164,
+          "p95Ms": 0.5999999046325684,
+          "maxMs": 0.6999998092651367
+        },
+        "render": {
+          "meanMs": 0.7633333179685805,
+          "p50Ms": 0.7000002861022949,
+          "p95Ms": 1.1999998092651367,
+          "maxMs": 1.3000001907348633
+        },
+        "frame": {
+          "meanMs": 16.668715082733325,
+          "p50Ms": 16.600000381469727,
+          "p95Ms": 17.5,
+          "maxMs": 18.199999809265137
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 244,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 3.0009000000953674,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 360,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.96401079294857,
+        "framesPerSecond": 59.982005396474285,
+        "update": {
+          "meanMs": 0.5899999936421713,
+          "p50Ms": 0.5999999046325684,
+          "p95Ms": 0.8000001907348633,
+          "maxMs": 1
+        },
+        "render": {
+          "meanMs": 0.7705555544959174,
+          "p50Ms": 0.7000002861022949,
+          "p95Ms": 1.0999999046325684,
+          "maxMs": 1.1999998092651367
+        },
+        "frame": {
+          "meanMs": 16.66983240010352,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.59999990463257,
+          "maxMs": 18.09999990463257
+        },
+        "runtimeFailure": false
+      }
+    ],
+    "mainProfile": {
+      "samples": 2402,
+      "self": [
+        {
+          "functionName": "(idle) @ ",
+          "samples": 1343,
+          "percent": 55.9
+        },
+        {
+          "functionName": "physicalMapIdForNpc @ regional-npc-runtime.js",
+          "samples": 788,
+          "percent": 32.8
+        },
+        {
+          "functionName": "(program) @ ",
+          "samples": 199,
+          "percent": 8.3
+        },
+        {
+          "functionName": "fillRect @ ",
+          "samples": 19,
+          "percent": 0.8
+        },
+        {
+          "functionName": "(garbage collector) @ ",
+          "samples": 9,
+          "percent": 0.4
+        },
+        {
+          "functionName": "drawGrass @ render-tiles.js",
+          "samples": 8,
+          "percent": 0.3
+        },
+        {
+          "functionName": "drawTree @ render-tiles.js",
+          "samples": 8,
+          "percent": 0.3
+        },
+        {
+          "functionName": "array @ persistent-party.js",
+          "samples": 7,
+          "percent": 0.3
+        },
+        {
+          "functionName": "resolveCrossSeamInteractTarget @ world-point-content.js",
+          "samples": 3,
+          "percent": 0.1
+        },
+        {
+          "functionName": "regionalInvariantErrors @ regional-position.js",
+          "samples": 3,
+          "percent": 0.1
+        },
+        {
+          "functionName": "crossSeamStaticPickup @ world-point-content.js",
+          "samples": 2,
+          "percent": 0.1
+        },
+        {
+          "functionName": "get map @ drenwick-interior-npcs.js",
+          "samples": 2,
+          "percent": 0.1
+        },
+        {
+          "functionName": "copy @ persistent-party.js",
+          "samples": 2,
+          "percent": 0.1
+        },
+        {
+          "functionName": "canWalk @ movement.js",
+          "samples": 2,
+          "percent": 0.1
+        },
+        {
+          "functionName": "drawContentNPCsForPhysicalMap @ render-entities.js",
+          "samples": 1,
+          "percent": 0
+        },
+        {
+          "functionName": "blocked @ ",
+          "samples": 1,
+          "percent": 0
+        },
+        {
+          "functionName": "draw @ travellers-rise-camp.js",
+          "samples": 1,
+          "percent": 0
+        },
+        {
+          "functionName": "drawPath @ render-tiles.js",
+          "samples": 1,
+          "percent": 0
+        },
+        {
+          "functionName": "drawWater @ render-tiles.js",
+          "samples": 1,
+          "percent": 0
+        },
+        {
+          "functionName": "_activeSimpleNpcTargetPresent @ world-point-content.js",
+          "samples": 1,
+          "percent": 0
+        },
+        {
+          "functionName": "snapshot @ persistent-party.js",
+          "samples": 1,
+          "percent": 0
+        }
+      ],
+      "inclusive": [
+        {
+          "functionName": "(root) @ ",
+          "samples": 2402,
+          "percent": 100
+        },
+        {
+          "functionName": "(idle) @ ",
+          "samples": 1343,
+          "percent": 55.9
+        },
+        {
+          "functionName": "loop @ game-loop.js",
+          "samples": 851,
+          "percent": 35.4
+        },
+        {
+          "functionName": "render @ render.js",
+          "samples": 831,
+          "percent": 34.6
+        },
+        {
+          "functionName": "render @ ",
+          "samples": 831,
+          "percent": 34.6
+        },
+        {
+          "functionName": "drawContinuousWorld @ render.js",
+          "samples": 830,
+          "percent": 34.6
+        },
+        {
+          "functionName": "physicalMapIdForNpc @ regional-npc-runtime.js",
+          "samples": 794,
+          "percent": 33.1
+        },
+        {
+          "functionName": "drawCrossSeamInteractPrompt @ render-entities.js",
+          "samples": 592,
+          "percent": 24.6
+        },
+        {
+          "functionName": "resolveCrossSeamInteractTarget @ world-point-content.js",
+          "samples": 588,
+          "percent": 24.5
+        },
+        {
+          "functionName": "drawContentNPCsForPhysicalMap @ render-entities.js",
+          "samples": 200,
+          "percent": 8.3
+        },
+        {
+          "functionName": "drawNeighbourOutdoorContent @ continuous-content.js",
+          "samples": 200,
+          "percent": 8.3
+        },
+        {
+          "functionName": "(program) @ ",
+          "samples": 199,
+          "percent": 8.3
+        },
+        {
+          "functionName": "drawTile @ render-tiles.js",
+          "samples": 37,
+          "percent": 1.5
+        },
+        {
+          "functionName": "drawMapTiles @ render-tiles.js",
+          "samples": 37,
+          "percent": 1.5
+        },
+        {
+          "functionName": "copy @ persistent-party.js",
+          "samples": 22,
+          "percent": 0.9
+        },
+        {
+          "functionName": "update @ ",
+          "samples": 20,
+          "percent": 0.8
+        },
+        {
+          "functionName": "fillRect @ ",
+          "samples": 19,
+          "percent": 0.8
+        },
+        {
+          "functionName": "drawGrass @ render-tiles.js",
+          "samples": 19,
+          "percent": 0.8
+        },
+        {
+          "functionName": "update @ movement.js",
+          "samples": 19,
+          "percent": 0.8
+        },
+        {
+          "functionName": "get map @ drenwick-interior-npcs.js",
+          "samples": 12,
+          "percent": 0.5
+        },
+        {
+          "functionName": "ensureAutoMovers @ movement.js",
+          "samples": 11,
+          "percent": 0.5
+        },
+        {
+          "functionName": "drawTree @ render-tiles.js",
+          "samples": 11,
+          "percent": 0.5
+        }
+      ]
+    },
+    "codex": [
+      {
+        "scale": 1,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 5.0015,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.98200539838049,
+        "update": {
+          "meanMs": 0.15500000635782876,
+          "p50Ms": 0.10000038146972656,
+          "p95Ms": 0.3000001907348633,
+          "maxMs": 0.40000009536743164
+        },
+        "render": {
+          "meanMs": 1.163333322207133,
+          "p50Ms": 1.1999998092651367,
+          "p95Ms": 1.5,
+          "maxMs": 2.1000003814697266
+        },
+        "frame": {
+          "meanMs": 16.665886287306463,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.40000009536743,
+          "maxMs": 18
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 1,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 5.0015,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 600,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.96401079676097,
+        "framesPerSecond": 59.98200539838049,
+        "update": {
+          "meanMs": 0.2529999939600627,
+          "p50Ms": 0.20000028610229492,
+          "p95Ms": 0.5,
+          "maxMs": 0.8000001907348633
+        },
+        "render": {
+          "meanMs": 1.0890000120798746,
+          "p50Ms": 1.0999999046325684,
+          "p95Ms": 1.3999996185302734,
+          "maxMs": 1.6000003814697266
+        },
+        "frame": {
+          "meanMs": 16.664214046503787,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.90000009536743
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 1,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 3.00089999961853,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.98200540600531,
+        "update": {
+          "meanMs": 0.10555558204650879,
+          "p50Ms": 0.09999990463256836,
+          "p95Ms": 0.20000028610229492,
+          "maxMs": 0.20000028610229492
+        },
+        "render": {
+          "meanMs": 0.7244444635179308,
+          "p50Ms": 0.6000003814697266,
+          "p95Ms": 1.200000286102295,
+          "maxMs": 1.3000001907348633
+        },
+        "frame": {
+          "meanMs": 16.666480445329036,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.699999809265137
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 1,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "512px",
+            "480px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 3.0009000000953674,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 360,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.96401079294857,
+        "framesPerSecond": 59.982005396474285,
+        "update": {
+          "meanMs": 0.2816666735543145,
+          "p50Ms": 0.2999997138977051,
+          "p95Ms": 0.5,
+          "maxMs": 0.5
+        },
+        "render": {
+          "meanMs": 0.5972222275204129,
+          "p50Ms": 0.5,
+          "p95Ms": 1,
+          "maxMs": 1.1999998092651367
+        },
+        "frame": {
+          "meanMs": 16.66648044799293,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 18
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 5.0008000001907345,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.9904015334662,
+        "update": {
+          "meanMs": 0.07566666920979817,
+          "p50Ms": 0.09999990463256836,
+          "p95Ms": 0.19999980926513672,
+          "maxMs": 0.20000028610229492
+        },
+        "render": {
+          "meanMs": 0.6399999984105428,
+          "p50Ms": 0.6000003814697266,
+          "p95Ms": 0.8000001907348633,
+          "maxMs": 0.9000000953674316
+        },
+        "frame": {
+          "meanMs": 16.665886288901238,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.800000190734863
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "outdoor",
+        "state": {
+          "mapId": "MAP3",
+          "x": 352,
+          "y": 240,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 5.000400000095367,
+        "updates": 300,
+        "excludedUpdates": 0,
+        "distancePx": 600,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.99040076565012,
+        "framesPerSecond": 59.99520038282506,
+        "update": {
+          "meanMs": 0.16166664600372316,
+          "p50Ms": 0.19999980926513672,
+          "p95Ms": 0.2999997138977051,
+          "maxMs": 0.40000009536743164
+        },
+        "render": {
+          "meanMs": 0.6773333390553792,
+          "p50Ms": 0.6999998092651367,
+          "p95Ms": 0.8999996185302734,
+          "maxMs": 1.0999999046325684
+        },
+        "frame": {
+          "meanMs": 16.665551839464882,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.5,
+          "maxMs": 17.700000286102295
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": false,
+        "seconds": 3.00160000038147,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 0,
+        "pxPerUpdate": 0,
+        "pxPerSecond": 0,
+        "framesPerSecond": 59.96801704994803,
+        "update": {
+          "meanMs": 0.03944444921281603,
+          "p50Ms": 0,
+          "p95Ms": 0.10000038146972656,
+          "maxMs": 0.20000028610229492
+        },
+        "render": {
+          "meanMs": 0.2955555597941081,
+          "p50Ms": 0.3000001907348633,
+          "p95Ms": 0.5,
+          "maxMs": 0.6999998092651367
+        },
+        "frame": {
+          "meanMs": 16.665921789307834,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.40000009536743,
+          "maxMs": 17.600000381469727
+        },
+        "runtimeFailure": false
+      },
+      {
+        "scale": 2,
+        "kind": "indoor",
+        "state": {
+          "mapId": "HOUSE_INTERIOR_MAP",
+          "x": 208,
+          "y": 272,
+          "SPEED": 2,
+          "slitherSpd": 1,
+          "statusEffects": [],
+          "canvas": [
+            512,
+            480
+          ],
+          "css": [
+            "1024px",
+            "960px"
+          ],
+          "dpr": 1,
+          "quest": 4,
+          "day": 6,
+          "chunks": 934,
+          "party": [
+            "lely"
+          ]
+        },
+        "walk": true,
+        "seconds": 3.001300000190735,
+        "updates": 180,
+        "excludedUpdates": 0,
+        "distancePx": 360,
+        "pxPerUpdate": 2,
+        "pxPerSecond": 119.94802251595033,
+        "framesPerSecond": 59.974011257975164,
+        "update": {
+          "meanMs": 0.07888888518015544,
+          "p50Ms": 0.09999990463256836,
+          "p95Ms": 0.19999980926513672,
+          "maxMs": 0.3000001907348633
+        },
+        "render": {
+          "meanMs": 0.22388889259762235,
+          "p50Ms": 0.20000028610229492,
+          "p95Ms": 0.3000001907348633,
+          "maxMs": 0.40000009536743164
+        },
+        "frame": {
+          "meanMs": 16.662569831869455,
+          "p50Ms": 16.699999809265137,
+          "p95Ms": 17.59999990463257,
+          "maxMs": 17.799999713897705
+        },
+        "runtimeFailure": false
+      }
+    ],
+    "codexProfile": {
+      "samples": 2395,
+      "self": [
+        {
+          "functionName": "(idle) @ ",
+          "samples": 1924,
+          "percent": 80.3
+        },
+        {
+          "functionName": "(program) @ ",
+          "samples": 311,
+          "percent": 13
+        },
+        {
+          "functionName": "fillRect @ ",
+          "samples": 34,
+          "percent": 1.4
+        },
+        {
+          "functionName": "array @ persistent-party.js",
+          "samples": 18,
+          "percent": 0.8
+        },
+        {
+          "functionName": "copy @ persistent-party.js",
+          "samples": 12,
+          "percent": 0.5
+        },
+        {
+          "functionName": "drawTree @ render-tiles.js",
+          "samples": 11,
+          "percent": 0.5
+        },
+        {
+          "functionName": "drawGrass @ render-tiles.js",
+          "samples": 10,
+          "percent": 0.4
+        },
+        {
+          "functionName": "crossSeamStaticPickup @ world-point-content.js",
+          "samples": 8,
+          "percent": 0.3
+        },
+        {
+          "functionName": "drawCrossSeamInteractPrompt @ render-entities.js",
+          "samples": 8,
+          "percent": 0.3
+        },
+        {
+          "functionName": "resolveCrossSeamInteractTarget @ world-point-content.js",
+          "samples": 8,
+          "percent": 0.3
+        },
+        {
+          "functionName": "drawWater @ render-tiles.js",
+          "samples": 5,
+          "percent": 0.2
+        },
+        {
+          "functionName": "snapshot @ persistent-party.js",
+          "samples": 5,
+          "percent": 0.2
+        },
+        {
+          "functionName": "(garbage collector) @ ",
+          "samples": 4,
+          "percent": 0.2
+        },
+        {
+          "functionName": "drawPath @ render-tiles.js",
+          "samples": 4,
+          "percent": 0.2
+        },
+        {
+          "functionName": "drawReeds @ render-tiles.js",
+          "samples": 3,
+          "percent": 0.1
+        },
+        {
+          "functionName": "drawContentNPCsForPhysicalMap @ render-entities.js",
+          "samples": 3,
+          "percent": 0.1
+        },
+        {
+          "functionName": "drawNeighbourOutdoorContent @ continuous-content.js",
+          "samples": 3,
+          "percent": 0.1
+        },
+        {
+          "functionName": "canWalk @ movement.js",
+          "samples": 3,
+          "percent": 0.1
+        },
+        {
+          "functionName": "lely @ persistent-party.js",
+          "samples": 2,
+          "percent": 0.1
+        },
+        {
+          "functionName": "regionWorldPxToLocal @ regional-position.js",
+          "samples": 2,
+          "percent": 0.1
+        },
+        {
+          "functionName": "drawTile @ render-tiles.js",
+          "samples": 1,
+          "percent": 0
+        },
+        {
+          "functionName": "drawGalleryReceiverStaging @ render-entities.js",
+          "samples": 1,
+          "percent": 0
+        }
+      ],
+      "inclusive": [
+        {
+          "functionName": "(root) @ ",
+          "samples": 2395,
+          "percent": 100
+        },
+        {
+          "functionName": "(idle) @ ",
+          "samples": 1924,
+          "percent": 80.3
+        },
+        {
+          "functionName": "(program) @ ",
+          "samples": 311,
+          "percent": 13
+        },
+        {
+          "functionName": "loop @ game-loop.js",
+          "samples": 156,
+          "percent": 6.5
+        },
+        {
+          "functionName": "render @ render.js",
+          "samples": 129,
+          "percent": 5.4
+        },
+        {
+          "functionName": "render @ ",
+          "samples": 129,
+          "percent": 5.4
+        },
+        {
+          "functionName": "drawContinuousWorld @ render.js",
+          "samples": 126,
+          "percent": 5.3
+        },
+        {
+          "functionName": "copy @ persistent-party.js",
+          "samples": 74,
+          "percent": 3.1
+        },
+        {
+          "functionName": "drawTile @ render-tiles.js",
+          "samples": 68,
+          "percent": 2.8
+        },
+        {
+          "functionName": "drawMapTiles @ render-tiles.js",
+          "samples": 68,
+          "percent": 2.8
+        },
+        {
+          "functionName": "drawCrossSeamInteractPrompt @ render-entities.js",
+          "samples": 40,
+          "percent": 1.7
+        },
+        {
+          "functionName": "get map @ drenwick-interior-npcs.js",
+          "samples": 39,
+          "percent": 1.6
+        },
+        {
+          "functionName": "snapshot @ persistent-party.js",
+          "samples": 38,
+          "percent": 1.6
+        },
+        {
+          "functionName": "eslaAvailableAsNpc @ npcs.js",
+          "samples": 38,
+          "percent": 1.6
+        },
+        {
+          "functionName": "fillRect @ ",
+          "samples": 34,
+          "percent": 1.4
+        },
+        {
+          "functionName": "getMember @ persistent-party.js",
+          "samples": 33,
+          "percent": 1.4
+        },
+        {
+          "functionName": "resolveCrossSeamInteractTarget @ world-point-content.js",
+          "samples": 30,
+          "percent": 1.3
+        },
+        {
+          "functionName": "update @ ",
+          "samples": 27,
+          "percent": 1.1
+        },
+        {
+          "functionName": "update @ movement.js",
+          "samples": 26,
+          "percent": 1.1
+        },
+        {
+          "functionName": "drawGrass @ render-tiles.js",
+          "samples": 23,
+          "percent": 1
+        },
+        {
+          "functionName": "array @ persistent-party.js",
+          "samples": 18,
+          "percent": 0.8
+        },
+        {
+          "functionName": "drawTree @ render-tiles.js",
+          "samples": 17,
+          "percent": 0.7
+        }
+      ]
+    }
+  }
+}

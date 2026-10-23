@@ -43,9 +43,9 @@ function physicalMapIdForNpc(npc) {
     return mid;
   }
   // Derived: an UNAMBIGUOUS outdoor content key resolves to exactly one placed map.
-  if (typeof outdoorContentKeyEntries !== 'function') return null;
-  for (const e of outdoorContentKeyEntries()) if (e.key === key && e.unambiguous) return e.mapId;
-  return null;                          // ambiguous / unknown / nonregional -> fail closed
+  return typeof unambiguousOutdoorMapIdForContentKey === 'function'
+    ? unambiguousOutdoorMapIdForContentKey(key)
+    : null;                            // ambiguous / unknown / nonregional -> fail closed
 }
 
 // ── Runtime pose authority (read-only) ───────────────────────────────────────

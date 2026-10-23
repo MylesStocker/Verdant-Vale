@@ -2016,9 +2016,30 @@ window.tileAtWorld          = tileAtWorld;
 // DERIVED from REGIONAL_CHUNK_CATALOG (each record's contentKey), in authored
 // order — no second authored content-key table. (MAP / MAP5 / RODDON_WAY_MAP
 // intentionally share 'overworld'; distinct namespaces from the physical mapId.)
-const OUTDOOR_CONTENT_KEYS = Object.fromEntries(
+// Binding edits invalidate derived ownership indexes in O(1). Reads retain the
+// existing plain-object contract; this revision is transient metadata, not state
+// saved with a game. Track set/delete/defineProperty so debug/test authoring cannot
+// leave a previously unique key incorrectly cached after an ambiguity change.
+let _OUTDOOR_CONTENT_KEYS_REVISION = 0;
+const OUTDOOR_CONTENT_KEYS = new Proxy(Object.fromEntries(
   Object.values(REGIONAL_CHUNK_CATALOG).map((r) => [r.mapId, r.contentKey])
-);
+), {
+  set(target, key, value) {
+    const changed = Reflect.set(target, key, value);
+    if (changed) _OUTDOOR_CONTENT_KEYS_REVISION++;
+    return changed;
+  },
+  deleteProperty(target, key) {
+    const changed = Reflect.deleteProperty(target, key);
+    if (changed) _OUTDOOR_CONTENT_KEYS_REVISION++;
+    return changed;
+  },
+  defineProperty(target, key, descriptor) {
+    const changed = Reflect.defineProperty(target, key, descriptor);
+    if (changed) _OUTDOOR_CONTENT_KEYS_REVISION++;
+    return changed;
+  },
+});
 // Physical outdoor map id -> its logical content-location key, or null if the id
 // is not a bound outdoor map. Pure O(1) lookup — never probes runtime state.
 function outdoorContentKeyForMapId(mapId) {

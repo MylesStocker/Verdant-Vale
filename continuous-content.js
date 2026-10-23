@@ -21,16 +21,21 @@
 // neighbouring NPC content can be attributed to that chunk); a key SHARED by
 // several maps (e.g. 'overworld' -> MAP/MAP5/RODDON_WAY_MAP) is ambiguous, so
 // neighbouring NPC content is skipped for those maps (items + decorations are
-// unaffected). Built once, lazily, from the static object — cached.
+// unaffected). Built lazily and refreshed when the binding authority is edited.
 let _CC_AMBIG = null; // Map mapId -> { key, unambiguous }
+let _CC_UNIQUE_MAP_BY_KEY = null; // reverse lookup; shared keys map to null
+let _CC_BINDING_REVISION = -1;
 function _ccAmbiguity() {
-  if (_CC_AMBIG) return _CC_AMBIG;
+  if (_CC_AMBIG && _CC_BINDING_REVISION === _OUTDOOR_CONTENT_KEYS_REVISION) return _CC_AMBIG;
   _CC_AMBIG = new Map();
+  _CC_UNIQUE_MAP_BY_KEY = new Map();
+  _CC_BINDING_REVISION = _OUTDOOR_CONTENT_KEYS_REVISION;
   if (typeof OUTDOOR_CONTENT_KEYS === 'undefined') return _CC_AMBIG;
   const count = Object.create(null);
   for (const id of Object.keys(OUTDOOR_CONTENT_KEYS)) {
     const k = OUTDOOR_CONTENT_KEYS[id];
     count[k] = (count[k] || 0) + 1;
+    _CC_UNIQUE_MAP_BY_KEY.set(k, count[k] === 1 ? id : null);
   }
   for (const id of Object.keys(OUTDOOR_CONTENT_KEYS)) {
     const k = OUTDOOR_CONTENT_KEYS[id];
@@ -38,6 +43,14 @@ function _ccAmbiguity() {
   }
   return _CC_AMBIG;
 }
+// Hot-path ownership lookup: no whole-world entry array or per-NPC scan.
+// Explicit physical ownership remains checked by physicalMapIdForNpc().
+function unambiguousOutdoorMapIdForContentKey(key) {
+  if (typeof key !== 'string') return null;
+  _ccAmbiguity();
+  return _CC_UNIQUE_MAP_BY_KEY.get(key) || null;
+}
+// Diagnostic enumeration only; callers receive fresh records as before.
 // { mapId, key, unambiguous } for every bound placed outdoor map.
 function outdoorContentKeyEntries() {
   return Array.from(_ccAmbiguity().entries()).map(([mapId, v]) => ({ mapId, key: v.key, unambiguous: v.unambiguous }));
@@ -111,6 +124,7 @@ function drawNeighbourOutdoorContent(cx) {
 if (typeof window !== 'undefined') {
   // outdoorContentKeyForMapId lives in data.js (the single authority); here we
   // expose only the derived ambiguity views.
+  window.unambiguousOutdoorMapIdForContentKey = unambiguousOutdoorMapIdForContentKey;
   window.outdoorContentKeyEntries    = outdoorContentKeyEntries;
   window.outdoorContentKeyInfo       = outdoorContentKeyInfo;
   window.OUTDOOR_MAP_DECOR           = OUTDOOR_MAP_DECOR;
