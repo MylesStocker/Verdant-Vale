@@ -42,7 +42,7 @@ test('one local 16x15 map, one-tile entrance, safe paired fixed placements and n
  for(const id of ['TRAVELLERS_RISE_CAMP_MAP','EASTERN_FENS_TRAVELLERS_RISE_MAP']){
   assert.equal(g.run(`MAP_METADATA.${id}.allowRandomEncounters`),false);
  }
- assert.equal(g.run('Object.keys(MAP_CATALOG).length'),404);
+ assert.equal(g.run('Object.keys(MAP_CATALOG).length'),407);
  assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),244);
  assert.ok(map[0].every(t=>t===1)&&map[14].every(t=>t===1));assert.ok(map.every(row=>row[0]===1&&row[15]===1));
  const fixture=require('../fixtures/regional-grid-fingerprints');

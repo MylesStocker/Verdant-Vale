@@ -69,11 +69,11 @@ module.exports={
     assert.equal(planIds.length,300);assert.deepEqual(residents.map(n=>n.id).sort(),planIds.sort());
     assert.equal(new Set(residents.map(n=>n.id)).size,300);assert.equal(new Set(residents.map(n=>n.name)).size,300);
     const exteriors=new Set(J(g,'MORNAY_TOWN_MAP_IDS'));
-    assert.equal(residents.filter(n=>exteriors.has(n.mapId)).length,104);
-    assert.equal(residents.filter(n=>!exteriors.has(n.mapId)).length,196);
-    assert.equal(rooms.length,41);assert.equal(new Set(rooms.map(b=>b.id)).size,41);assert.equal(new Set(rooms.map(b=>b.mapId)).size,41);
+    assert.equal(residents.filter(n=>exteriors.has(n.mapId)).length,101);
+    assert.equal(residents.filter(n=>!exteriors.has(n.mapId)).length,199);
+    assert.equal(rooms.length,44);assert.equal(new Set(rooms.map(b=>b.id)).size,44);assert.equal(new Set(rooms.map(b=>b.mapId)).size,44);
     assert.equal(new Set(rooms.filter(b=>exteriors.has(b.sourceMapId)).map(b=>b.id)).size,23);
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),404);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),407);
     for(const r of residents){
       const runtime=npcs.filter(n=>n.id===r.id);assert.equal(runtime.length,1,r.id);
       assert.equal(g.run(`SIMPLE_NPCS.filter(n=>n.id===${JSON.stringify(r.id)}).length`),1,r.id+' no registry overwrite');

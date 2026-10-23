@@ -12,7 +12,72 @@ Drenwick has 99 distinct, non-party humanoid characters available through ordina
 
 This is a comparable town-character count, not a claim that all 99 are permanent residents: eight are explicitly visitors, and domicile is not established for every remaining character. Drenwick comprises six exteriors and 49 logical interiors (12 public rooms, six corridors, 31 residences; some share map grids). The runtime NPC registry, house records and ordinary reachability are the authority, rather than raw placements or sprite counts.
 
-Mornay target: **300 distinct non-party speaking humanoids**, comprising **104 exterior and 196 interior characters** across **17 exterior maps and 41 rooms in 23 establishments**. Ratio: **300 / 99 = 3.0303**. No schedule clones, duplicate placements, party copies, animals or debug fixtures inflate this total. Twelve exterior characters have deterministic patrols; the others have stationary activity poses; Maris Glyn and Ferin Wold attend school on workdays and return home on Dayoff. All 300 speak, so moving/ambient and speaking totals overlap.
+Mornay target: **300 distinct non-party speaking humanoids**, comprising **101 exterior and 199 interior characters** across **17 exterior maps and 44 rooms in 23 establishments**. Ratio: **300 / 99 = 3.0303**. No schedule clones, duplicate placements, party copies, animals or debug fixtures inflate this total. Twelve exterior characters have deterministic patrols; the others have stationary activity poses; Maris Glyn and Ferin Wold attend school on workdays and return home on Dayoff. All 300 speak, so moving/ambient and speaking totals overlap.
+
+## Main integration — 2026-10-23
+
+The user authorized bringing the recent work onto `main`. This combines Mornay checkpoint `f4c9f5486e7221f2acd378dc95506a750bfe5bdd` with main’s existing Eastern Fens expansion at `472233cc7a66de0f38267e0b5ab54c501e41aee1`. The combined runtime contains **407 maps**, including **244 regional chunks** and **44 Mornay interiors**. Regional grids, fingerprints, encounter content and the expanded seam definitions are preserved from main; Mornay content and entrance behavior are preserved from its checkpoint. SAVE_VERSION remains 5.
+
+Twelve overlapping test expectations are reconciled to 407 total maps while retaining the expansion’s regional totals and warning baseline. Main already used prefix 315 for the Great Fen test, so the incoming Mornay shop-home suite is renamed to `316-mornay-shop-homes-orientation.test.js`, with byte-identical contents. References below to suite 315 and branch-only totals describe the original Mornay checkpoint. The existing QA captures likewise remain evidence of that checkpoint rather than a new manual playtest. Only the transition artifact is regenerated for the combined authorities; no regional fingerprint or image is regenerated.
+
+Combined-main verification: **236/236 regression suites passed**. `validateGameData()` reports **zero errors and the same 14 warnings already documented on main**; the two Fen Zolom warnings belong to the earlier expansion. All changed/new JavaScript passes syntax checks. The transition audit passes **407 maps, 396 fixed destinations, eight preserved-coordinate routes and 380 edge segments**; the regenerated artifact matches read-only verification, and every non-Mornay transition/seam record is unchanged. Automated Chromium passes **7,119 checks at native and 2× scale**, with zero browser errors. No new screenshots or fingerprint artifacts were written. Both test-number uniqueness and `git diff --check` pass. The user-authorized merge is local; nothing is pushed, and the Mornay source branch remains at its original checkpoint.
+
+## Entrance orientation and shopkeeper homes
+
+This follow-up starts from `ab084c686e8dc14a9b375aa004ea88b97e961c6a`. Eight buildings entered while walking south now have their interior entrance at the north edge, matching the physical approach. `mornayInteriorEntrance()` derives the interior side from the registered source door and return cell; grid generation and arrival dispatch share it. Their arrival is **(240,48), facing down**, and their exit tile is **(7,0)**. Other rooms keep arrival **(240,432), facing up**, exit **(7,14)**. Source door/return coordinates and both overworld gate contracts are unchanged.
+
+| Corrected room | Source street | Door tile | Street return tile / facing |
+|---|---|---|---|
+| Hume Boardinghouse | South Upper West | 3,10 | 3,9 up |
+| East Ward Shared Court | Middle Lower East | 3,9 | 3,8 up |
+| Reed’s Net Room | Middle Upper East | 3,9 | 3,8 up |
+| Pate’s Kitchen | South Upper West | 12,10 | 12,9 up |
+| Vale House | North Upper West | 11,8 | 11,7 up |
+| Examiner’s House | North Upper East | 3,8 | 3,7 up |
+| Dock Steps Tenement | Middle Upper West | 3,9 | 3,8 up |
+| South Rows Apartments | South Upper East | 3,10 | 3,9 up |
+
+**Three of four operational shops now have accessible family homes upstairs.** Kelm Provisions, Stern Apothecary and Sorn Work Gear each have visible wooden stairs at (7,1), with downstairs return (7,2), facing down. Their upper rooms use the established parent/child room registry and ordinary transition tiles; `connection: 'stairs'` changes presentation only. Upstairs arrival is (240,432), facing up, and the descending stair is (7,14). No new tile ID, persistent authority or service closure is introduced. Venn Chandlery remains a shop and storehouse without an accessible home.
+
+| Home | Keeper downstairs | Existing upstairs residents | Domestic character |
+|---|---|---|---|
+| Kelm Family Rooms | Neris Kelm | Adra Kelm, his sister and assistant | Two beds, dresser, household pantry, stove and supper table |
+| Stern Family Rooms | Melva Stern | Ilda Stern, her visiting sister | Two beds, dresser, reading desk/cabinet, stove and small dining table |
+| Sorn Family Rooms | Hesta Sorn | Henric Sorn, her brother; Berren Sorn, visiting nephew | Three beds, repairs bench, kitchen and family table |
+
+All 300 identities remain. Adra, Henric and Ilda move from the streets; Berren visits his aunt from Shared Court Flat 1, where Selda remains. The current split is 101 exterior / 199 interior, with 54 seated primary placements. Four short household lines establish those relationships; names and relationships remain revisable local flavour. No rareborn person or rareborn relative is added. Keepers, stock, prices, inns, treatment, schedules, patrols, Reclaimer ties and story reservations retain their established behavior.
+
+Existing saves in the eight reoriented rooms at the former southern arrival remain valid: their floor stem is retained and connects through the furnished room to the new north exit. SAVE_VERSION stays 5. No old walkable non-transition cell is removed, no exterior grid changes, and none of the 115 regional fingerprints require regeneration.
+
+Read-only reviews reused `mornay_layout_review` (Sol Medium) and `mornay_refinement_correctness` (Sol High). Accepted the three-shop family mix, permanently available keepers and explicit stair presentation. The correctness reviewer independently passed 16 old-save/input-exit journeys and the shop-controller suite; neither final reviewer found a concrete defect. The optional suggestion to put surnames on the stair signs is deferred: the existing HUD titles and household dialogue already identify ownership. `mornay_refinement_tests` (Sol High) exclusively wrote suite 315 while the root paused all edits. Its complete diff was accepted after review: actual walking, historical save coordinates, reachable conversations, stair art tied to traversable connections and single purchases provide behavioral coverage. No nested delegation was used.
+
+### Exact existing-grid changes in this follow-up
+
+Coordinates below are zero-based. `INTERIOR_WALL=19`, `INTERIOR_FLOOR=18`, `INTERIOR_EXIT=20`, `HOUSE_DOOR=34`. These are **73 changed cells across 11 existing interior grids**, plus three newly registered 15×16 home grids. All other existing grids are byte-equivalent to the starting checkpoint.
+
+- Provisioner, Apothecary and Work Gear: (7,1), WALL → HOUSE_DOOR, rendered as an ascending wooden stair.
+- Each of the eight corrected rooms: (7,0), WALL → EXIT; (7,14), EXIT → WALL.
+- Boardinghouse: columns 7–8, rows 1–3, WALL → FLOOR.
+- Shared Court, Reed’s, Pate’s, Dock Steps and South Rows: columns 7–8, rows 1–4, WALL → FLOOR.
+- Vale’s and Examiner’s houses: columns 7–8, rows 1–2, WALL → FLOOR.
+
+### Walkthrough for this follow-up
+
+Enter Hume Boardinghouse in South Upper West by walking south and verify that the party arrives below the top door. Walk through Shared Court to a flat and back, then leave north. Visit Kelm Provisions in Middle Upper Central West, Stern Apothecary in South Upper East and Sorn Work Gear in Middle Lower Central West: follow HOME UP, speak with the family, save/load, descend, purchase and leave. Check both town gates normally. The representative screenshots below were captured by automated Chromium, not a human playthrough.
+
+### Changed authorities and verification evidence
+
+- `content/maps/mornay-maps.js`: three household records/fixture plans and shared entrance orientation; `world-transitions.js`: consume that arrival contract.
+- `content/npcs/mornay-npcs.js`: four existing placements and household lines; `render-mornay.js`: read-only wooden stair presentation using existing floor art and colours.
+- `test/cases/303-mornay-room-district-controls.test.js` and `311-mornay-furnished-door-walks.test.js`: correct directional expectations while retaining actual held-control journeys. New suite `315-mornay-shop-homes-orientation.test.js`: historical save positions, full upstairs/service journeys and purchase continuity. Suites 301/309 reflect the three rooms and resident redistribution; suites 58/98–104/201/207/218 only update legitimate catalogue totals. No assertion accepts both old and new behavior.
+- `test/browser-smoke.js`: assert arrival side/facing and leave through the corresponding edge. `PROJECT_STATUS.md`, `architecture.md` and this plan record the new authority and housing inventory.
+- `test/transition-audit-output.json` is the only regenerated geographic artifact, via `node test/transition-audit.js --write`, then independently verified read-only. Catalogue 275 → 278; fixed transitions 390 → 396. Only registry IDs, dimensions, Mornay transition records and tile usage change. Eight entry destinations move north; Sorn’s existing street return also gains an unobstructed leftward step after Adra moves upstairs. All existing exit coordinates stay unchanged. Every non-Mornay fixed-transition record remains byte-equivalent; there are no catch-up changes or fingerprint edits.
+
+Final verification for this follow-up: **234/234 regression suites passed**, including singleton/Formation/party-command/Resonance compatibility, old-town behavior, all Mornay routes, services, story isolation and regional fingerprints. All 21 changed/new JavaScript files pass `node --check`. `validateGameData()` reports **278 maps, 481 registry NPCs, zero errors and the same 12 existing warnings**. Transition audit: **396 fixed destinations, eight preserved-coordinate routes and 240 edge segments**, all passing; generated artifact matches read-only verification. The old regional grids and 115 fingerprints are unchanged, and SAVE_VERSION remains **5**.
+
+Suite 311 walks all 44 furnished room journeys on both workday/Dayoff in both presentation settings (176 journeys). New suite 315 adds 32 historical-southern-arrival save/load escapes, 12 complete shop/home/service walks, 16 reachable household conversations and 12 exact single purchases with reload continuity. The input-level gate suite, both inns, treatment, routes, first-name labels, Esla styling and inert Reclaimer/story reservations all pass. Roster comparison matches all 300 plan lines; ID, conflict-marker, stale-count/terminology and `git diff --check` checks pass. Other worktrees, including unrelated dirty work, are left untouched. This checkpoint is local to `agent/mornay-population`; nothing is merged or pushed.
+
+Automated Chromium passed **7,119 checks**, produced 172 captures and reported zero browser errors at native and 2× size. The root inspected representative rooms, north entrances and stairs at both scales. Ten selected captures and source/capture SHA-256 values are retained in [the QA manifest](Art/qa/mornay/shop-homes-v1/manifest.json). Examples: [Kelm stairs](Art/qa/mornay/shop-homes-v1/mornay_provisioner-1x.png), [Kelm home](Art/qa/mornay/shop-homes-v1/mornay_kelm_home-1x.png), [Stern home](Art/qa/mornay/shop-homes-v1/mornay_stern_home-2x.png), [Sorn home](Art/qa/mornay/shop-homes-v1/mornay_sorn_home-2x.png), [Shared Court north entrance](Art/qa/mornay/shop-homes-v1/mornay_court-1x.png). These are new QA captures, not replacement game artwork. Human playtesting remains the short route above.
 
 ## Lore-based dialogue refinement
 
@@ -52,8 +117,11 @@ The source audit confirms Calwick has seven houses and one four-unit apartment e
 | Dock Steps Tenement | Middle Upper West (3,9) | 4 | Lake workers, household repairs and shift lodging |
 | South Rows Apartments | South Upper East (3,10) | 4 | Ordinary households, care and music near ward services |
 | Hume Boardinghouse | South Upper West (3,10) | 4 rented rooms, counted separately | Shared stove/dining room and four private sleeping rooms |
+| Kelm Family Rooms | Above Kelm Provisions, stair (7,1) | 1 | Provisioner and assistant’s household pantry and kitchen |
+| Stern Family Rooms | Above Stern Apothecary, stair (7,1) | 1 | Apothecary’s home with room for her visiting sister |
+| Sorn Family Rooms | Above Sorn Work Gear, stair (7,1) | 1 | Keeper’s family household, repairs and nephew’s visit |
 
-There are **18 accessible self-contained dwellings**, plus **four boarding rooms**. Twelve closed frontages imply another **20 self-contained dwellings**: eight single homes and four three-unit tenements. Total represented residential capacity is **38 dwellings plus four boarding rooms**. Inn guest beds are separate commercial lodging, not counted again as dwellings. These examples represent a compressed town of approximately 8,000; no numeric population claim is inferred from rendered beds. The housing mix deliberately does not triple Drenwick's building count.
+There are **21 accessible self-contained dwellings**, plus **four boarding rooms**. Twelve closed frontages imply another **20 self-contained dwellings**: eight single homes and four three-unit tenements. Total represented residential capacity is **41 dwellings plus four boarding rooms**. Inn guest beds are separate commercial lodging, not counted again as dwellings. These examples represent a compressed town of approximately 8,000; no numeric population claim is inferred from rendered beds. The housing mix deliberately does not triple Drenwick's building count.
 
 | Closed residential frontage | Door tile | Represented dwellings |
 |---|---|---:|
@@ -74,7 +142,7 @@ Closed frontages remain ordinary solid building cells, with no registered interi
 
 ### Residents, furnishing and presentation
 
-Forty-four existing characters change their primary map; all 300 stable IDs and names remain. Workday population is 104 outdoors and 196 indoors; the same split holds on Dayoff. Maris Glyn and Ferin Wold change between school and home using the established five-day `isDayOff()` calendar. Their map, coordinates, facing and pose are derived, with no duplicate NPC, schedule flag or save field. Twelve patrols remain deterministic; four now follow longer bent routes. Fifty-three primary placements are seated. The authored category totals remain 159 workers, 32 officials, 24 service staff, 18 merchants and 67 residents/visitors; these are content categories, not mutually exclusive real-world occupations.
+The first residential pass changed 44 primary placements; the shop-home follow-up changes four further placements. All 300 stable IDs and names remain. Current workday population is 101 outdoors and 199 indoors; the same split holds on Dayoff. Maris Glyn and Ferin Wold change between school and home using the established five-day `isDayOff()` calendar. Their map, coordinates, facing and pose are derived, with no duplicate NPC, schedule flag or save field. Twelve patrols remain deterministic; four now follow longer bent routes. Fifty-four primary placements are seated. The authored category totals remain 159 workers, 32 officials, 24 service staff, 18 merchants and 67 residents/visitors; these are content categories, not mutually exclusive real-world occupations.
 
 Rooms use existing furniture vocabulary: `drawTable()` and `drawInfirmaryBed()` directly, plus coordinate-only adaptations of `drawHouseFurniture()`, Calwick office desks/cabinets and the earlier ward-school furniture. There are desks, classroom work surfaces, filing cabinets, domestic beds, dressers, stoves, supply shelves, benches and tubs. No old-town rendering wrapper is invoked with spoofed state. Collision and fixture drawing share `MORNAY_ROOM_FIXTURES`; occupied seats use the existing solid NPC anchor. Short partitions divide sleeping alcoves from work/reception space. Beds in the infirmary now use the established two-tile ward-bed drawing, retaining all eight beds and the registered healer; 15 people remain in the ward.
 
@@ -104,17 +172,17 @@ NPC density counts below refer to exterior characters. Every street keeps its ma
 | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | Regional administration | Regional IJC Office; courier desk; archives. Doors: Regional IJC Office (3,5) | 8 | Clear row 7, columns 7–8, doors and boundary cells | Queues; contractors; fees; redirected responsibility | Operational plot dialogue and sealed archives |
 | `MORNAY_MIDDLE_UPPER_EAST_MAP` | Waterworks and survey frontage | Closed hydrographic office; waterworks. Doors: Reed’s Net Room (3,9) | 6 | Clear row 7, columns 7–8, doors and boundary cells | Gauge readings, drainage repair, storm marks | Hydrographer and Esla history absent |
 | `MORNAY_MIDDLE_LOWER_WEST_MAP` | Freight yards, carts and fen products | Cart sheds; freight stores; smoking sheds. Doors: No usable door | 9 | Clear row 7, columns 7–8, doors and boundary cells | Peat, salt fish barrels, damaged harness | No freight quests |
-| `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | Workwear and ordinary commerce | Sorn Work Gear; cobbler and cloth fronts. Doors: Sorn Work Gear (3,5), Rann Workroom House (12,5) | 8 | Clear row 7, columns 7–8, doors and boundary cells | Used tools, repairs, oil, patched roofs | Equipment progression deferred |
+| `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | Workwear and ordinary commerce | Sorn Work Gear; cobbler and cloth fronts. Doors: Sorn Work Gear (3,5), Rann Workroom House (12,5) | 6 | Clear row 7, columns 7–8, doors and boundary cells | Used tools, repairs, oil, patched roofs | Equipment progression deferred |
 | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | Repair crafts and small printing | Rusk Workshop Court; cooper and forge fronts. Doors: Rusk Workshop Court (12,5), Glyn Household (3,5) | 8 | Clear row 7, columns 7–8, doors and boundary cells | Benches, wheel repair, pasted-over handbills | Printer and organizer hooks inert |
 | `MORNAY_MIDDLE_LOWER_EAST_MAP` | Worker housing and washing | Quill Laundry; East Ward Shared Court. Doors: Quill Laundry (3,5), East Ward Shared Court (3,9) | 2 | Clear row 7, columns 7–8, doors and boundary cells | Laundry, shared repairs, mutual aid, suspected meeting facade | Locked back stair; no headquarters |
 | `MORNAY_SOUTH_UPPER_WEST_MAP` | Ordinary care and inexpensive housing | Mornay Infirmary; Hume Boardinghouse. Doors: Mornay Infirmary (12,5), Hume Boardinghouse (3,10), Pate’s Kitchen (12,10) | 5 | Clear row 7, columns 7–8, doors and boundary cells | Beds, injured workers, linen, rent, shifts | No new medical or lodging quest |
-| `MORNAY_SOUTH_UPPER_EAST_MAP` | Ward services and southern market | South Ward School; Stern Apothecary. Doors: Stern Apothecary (3,5), South Ward School (12,5), South Rows Apartments (3,10) | 8 | Clear row 7, columns 7–8, doors and boundary cells | Lunch sellers, remedies, parents, ordinary schooling | No school progression |
+| `MORNAY_SOUTH_UPPER_EAST_MAP` | Ward services and southern market | South Ward School; Stern Apothecary. Doors: Stern Apothecary (3,5), South Ward School (12,5), South Rows Apartments (3,10) | 7 | Clear row 7, columns 7–8, doors and boundary cells | Lunch sellers, remedies, parents, ordinary schooling | No school progression |
 | `MORNAY_WEST_GATE_MAP` | Passenger arrivals and cheap lodging | Wold's Gate Inn; watch shelter. Doors: Wold's Gate Inn (3,5) | 4 | Clear row 7, columns 7–8, doors and boundary cells | Porters, handcarts, arrivals and tired travellers | No new overworld links |
 | `MORNAY_EAST_GATE_MAP` | Freight arrivals and labour hiring | Hiring board; cart inspection; watch shelter. Doors: No usable door | 5 | Clear row 7, columns 7–8, doors and boundary cells | Loads, wheels, hiring notices and waiting labour | No transport or labour quest |
 
 ## Interior and door matrix
 
-Coordinates are zero-based tile columns/rows. Arrival in each room is tile centre (7,13), facing up; the exit at (7,14) returns to the listed source tile centre with the listed facing. Bedroom doors originate in their inn common rooms. North-facing street returns for lower buildings avoid immediate re-entry.
+Coordinates are zero-based tile columns/rows. Southward entry arrives at tile centre (7,1), facing down, with exit (7,0); northward entry arrives at (7,13), facing up, with exit (7,14). Exits return to the listed source tile centre with the listed facing. Child flats, inn bedrooms and shop homes originate in their registered parent rooms. Returns avoid immediate re-entry.
 
 | ID / map | Establishment | Source map | Door | Return / facing | NPCs (workday) |
 |---|---|---|---|---|---:|
@@ -143,7 +211,7 @@ Coordinates are zero-based tile columns/rows. Arrival in each room is tile centr
 | `mornay_dane_home` / `MORNAY_DANE_HOME_MAP` | Examiner’s House | `MORNAY_NORTH_UPPER_EAST_MAP` | 3,8 | 3,7 up | 3 |
 | `mornay_dock_steps` / `MORNAY_DOCK_STEPS_MAP` | Dock Steps Tenement | `MORNAY_MIDDLE_UPPER_WEST_MAP` | 3,9 | 3,8 up | 1 |
 | `mornay_south_rows` / `MORNAY_SOUTH_ROWS_MAP` | South Rows Apartments | `MORNAY_SOUTH_UPPER_EAST_MAP` | 3,10 | 3,9 up | 1 |
-| `mornay_court_unit_1` / `MORNAY_COURT_UNIT_1_MAP` | East Ward Shared Court — Flat 1 | `MORNAY_COURT_MAP` | 2,4 | 2,5 down | 2 |
+| `mornay_court_unit_1` / `MORNAY_COURT_UNIT_1_MAP` | East Ward Shared Court — Flat 1 | `MORNAY_COURT_MAP` | 2,4 | 2,5 down | 1 |
 | `mornay_court_unit_2` / `MORNAY_COURT_UNIT_2_MAP` | East Ward Shared Court — Flat 2 | `MORNAY_COURT_MAP` | 5,4 | 5,5 down | 2 |
 | `mornay_court_unit_3` / `MORNAY_COURT_UNIT_3_MAP` | East Ward Shared Court — Flat 3 | `MORNAY_COURT_MAP` | 10,4 | 10,5 down | 2 |
 | `mornay_court_unit_4` / `MORNAY_COURT_UNIT_4_MAP` | East Ward Shared Court — Flat 4 | `MORNAY_COURT_MAP` | 13,4 | 13,5 down | 2 |
@@ -159,6 +227,9 @@ Coordinates are zero-based tile columns/rows. Arrival in each room is tile centr
 | `mornay_boarding_unit_2` / `MORNAY_BOARDING_UNIT_2_MAP` | Hume Boardinghouse — Room 2 | `MORNAY_BOARDING_MAP` | 5,3 | 5,4 down | 1 |
 | `mornay_boarding_unit_3` / `MORNAY_BOARDING_UNIT_3_MAP` | Hume Boardinghouse — Room 3 | `MORNAY_BOARDING_MAP` | 10,3 | 10,4 down | 2 |
 | `mornay_boarding_unit_4` / `MORNAY_BOARDING_UNIT_4_MAP` | Hume Boardinghouse — Room 4 | `MORNAY_BOARDING_MAP` | 13,3 | 13,4 down | 1 |
+| `mornay_kelm_home` / `MORNAY_KELM_HOME_MAP` | Kelm Family Rooms | `MORNAY_PROVISIONER_MAP` | 7,1 | 7,2 down | 1 |
+| `mornay_stern_home` / `MORNAY_STERN_HOME_MAP` | Stern Family Rooms | `MORNAY_APOTHECARY_MAP` | 7,1 | 7,2 down | 1 |
+| `mornay_sorn_home` / `MORNAY_SORN_HOME_MAP` | Sorn Family Rooms | `MORNAY_WORKGEAR_MAP` | 7,1 | 7,2 down | 2 |
 
 ## Shops, services and institutions
 
@@ -279,8 +350,8 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_dennet_vale` | Dennet Vale | `MORNAY_MIDDLE_LOWER_WEST_MAP` | stores checker | Standing; faces right | One crate of medicine gets a clerk's escort. Ten loads of peat get me and a borrowed cart. I know which is worth more. I also know what heats the clerk's room. |
 | `mornay_mora_wist` | Mora Wist | `MORNAY_MIDDLE_LOWER_WEST_MAP` | yard messenger | Patrol | Berrit sends me to Hal, Hal sends me to Varda, Varda says Berrit has the paper. I can do the whole circuit before the soup goes cold now. |
 | `mornay_kelda_frey` | Kelda Frey | `MORNAY_MIDDLE_LOWER_WEST_MAP` | injured porter | Standing; faces right | The foreman remembers the fall. The contractor remembers employing someone else. Yara says the ankle will take time. |
-| `mornay_adra_kelm` | Adra Kelm | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | provisioner's assistant | Standing; faces right | Neris is in the market shop. Yara needs the plain jars kept aside for the infirmary. Everyone else can manage with a different lid. |
-| `mornay_henric_sorn` | Henric Sorn | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | workgear hawker | Standing; faces left | Hesta repairs what she sells. If you are going out on a removal job, buy something you can still grip in the wet. A fine hilt won't reopen a blocked road. |
+| `mornay_adra_kelm` | Adra Kelm | `MORNAY_KELM_HOME_MAP` | provisioner's assistant | Standing; faces left | My brother keeps the shop; I keep our supper out of his stock tally. Neris tried counting the kitchen salt once. He won't do it twice. |
+| `mornay_henric_sorn` | Henric Sorn | `MORNAY_SORN_HOME_MAP` | workgear hawker | Standing; faces right | Hesta sells downstairs and I take the repaired gear round the yards. My sister says supper starts when I put the tools away. Berren is watching me closely. |
 | `mornay_malva_teel` | Malva Teel | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | secondhand bookseller | Standing; faces up | Old examination books, half price. The sums still work. Check the law questions with Mr Dane before trusting a dead clerk's certainty. |
 | `mornay_iven_bellows` | Iven Bellows | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | knife sharpener | Standing; faces right | I sharpen fish knives and removal crews' blades on the same stone. Both customers need a clean edge. Only one insists on telling me the whole fight. |
 | `mornay_essie_rann` | Essie Rann | `MORNAY_RANN_HOME_MAP` | seamstress | Seated; faces left | Jorra can sew a straight seam now. The work comes from dock families, mostly: cuffs, blankets, a coat made to last another winter. She gets her share when I am paid. |
@@ -314,7 +385,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_fenric_dorr` | Fenric Dorr | `MORNAY_SOUTH_UPPER_EAST_MAP` | road guide | Standing; faces right | For Calwick, keep to the raised fen road and ask after the crossings. A dry month doesn't turn the marsh into firm ground. I've seen people learn that with a loaded cart. |
 | `mornay_selma_greaves` | Selma Greaves | `MORNAY_SOUTH_UPPER_EAST_MAP` | lunch seller | Patrol | Sit and eat. Vela sends the empty bowls back from the yard, so I know how many hands got hired. Fewer bowls this week. More people asking the price first. |
 | `mornay_torva_dale` | Torva Dale | `MORNAY_SOUTH_UPPER_EAST_MAP` | pack repairer | Standing; faces left | The strap failed where you kept telling yourself it would hold. |
-| `mornay_ilda_stern` | Ilda Stern | `MORNAY_SOUTH_UPPER_EAST_MAP` | traveller | Standing; faces up | I saved for a rail journey once, then spent the money on my mother's roof. She says the view from a dry room is quite good. I suppose we both got something out of it. |
+| `mornay_ilda_stern` | Ilda Stern | `MORNAY_STERN_HOME_MAP` | traveller | Seated; faces right | My sister Melva keeps a bed for me above her shop. I saved for a rail journey once, then spent it on our mother's roof. Mother says the view from a dry room is quite good. |
 | `mornay_brannic_hume` | Brannic Hume | `MORNAY_SOUTH_UPPER_EAST_MAP` | wagon guard | Standing; faces right | The merchant's letter travels ahead. I guard the load that follows. He has already complained from his inn that we are late. We met the same shallow channel as everyone else. |
 | `mornay_melli_voss` | Melli Voss | `MORNAY_SOUTH_UPPER_EAST_MAP` | market child | Standing; faces left | That man sells maps. I think he is lost. |
 | `mornay_oswen_lark` | Oswen Lark | `MORNAY_SOUTH_UPPER_EAST_MAP` | letter writer | Standing; faces down | Elva sends gold to her son when the crew is idle. He sends it back when he's paid. I write the letters and leave the little quarrel about who needs it more exactly as they say it. |
@@ -504,7 +575,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_davren_fenwick` | Davren Fenwick | `MORNAY_COURT_MAP` | home repairer | Standing; faces down | Everyone under this roof put something toward the repair. Selda kept the names and amounts. We can argue over a missing bowl later; the rain was coming into all our rooms. |
 | `mornay_nelva_pike` | Nelva Pike | `MORNAY_COURT_UNIT_4_MAP` | fish seller's sister | Standing; faces right | Niva brings the fish she couldn't sell. I cook enough for Verna too. She sends the dish back clean, usually with something mended folded inside it. |
 | `mornay_ossa_nair` | Ossa Nair | `MORNAY_COURT_UNIT_3_MAP` | constable's parent | Seated; faces left | Jessa learned her letters at the ward school and joined the watch. I am proud of her. I still tell her to eat before she starts checking my latch for the third time. |
-| `mornay_berren_sorn` | Berren Sorn | `MORNAY_COURT_UNIT_1_MAP` | child | Standing; faces left | My aunt fixes boots. She says my feet are repeat customers. |
+| `mornay_berren_sorn` | Berren Sorn | `MORNAY_SORN_HOME_MAP` | child | Standing; faces left | Aunt Hesta fixes boots downstairs. I wait up here till Mother finishes work. Aunt says my feet are repeat customers. |
 | `mornay_cerra_muir` | Cerra Muir | `MORNAY_COURT_UNIT_2_MAP` | elder's caregiver | Standing; faces right | Etta tells the same story differently every afternoon. I put the kettle on and listen. There are worse ways to spend time than letting somebody remember a life. |
 | `mornay_ilven_reed` | Ilven Reed | `MORNAY_REED_HOME_MAP` | homebound net maker | Seated; faces left | Heba brings the difficult nets here. I can't take the quay steps now, but I can still earn by my hands. The boats going toward Drynport carry a little of my work with them. |
 | `mornay_verna_quill` | Verna Quill | `MORNAY_COURT_UNIT_4_MAP` | Nessa's mother | Seated; faces left | Nessa learnt her sums counting laundry bundles here. Now she counts what the neighbours need. I wish she'd remember that her own supper belongs in the total. |

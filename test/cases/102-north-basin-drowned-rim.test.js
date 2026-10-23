@@ -281,7 +281,7 @@ module.exports = {
     assert.equal(audit.seamReadiness.edges.length, 976);
     assert.equal(g.run('continuousSeamEntries().length'), 300);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 244);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 404);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 407);
     assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(g.run('validateGameData().errors'), 0);
   },

@@ -193,7 +193,7 @@ module.exports = {
     assert.equal(R("MAP_CATALOG['EASTERN_FENS_TRAVELLERS_RISE_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].map.length"), 15);
-    assert.equal(R("Object.keys(MAP_CATALOG).length"), 404, '17 exteriors and 41 rooms (58 total) added to the 346-map baseline after the main integration merge brought in the Eastern Fens terrain expansion (Great Fen, Valmere, Eastern Shore, Southern Moraine)');
+    assert.equal(R("Object.keys(MAP_CATALOG).length"), 407, '17 exteriors and 44 rooms (61 total) added to the 346-map baseline after the main integration merge brought in the Eastern Fens terrain expansion (Great Fen, Valmere, Eastern Shore, Southern Moraine)');
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       const actual = R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`);
       assert.equal(sha256(actual), fp, `${id}: regional fingerprint current`);

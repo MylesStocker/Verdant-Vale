@@ -150,6 +150,20 @@ function drawMornayStreetProp(kind,x,y) {
     ctx.fillStyle='#444952';ctx.fillRect(x,y,80,3);ctx.fillRect(x+23,y,3,19);
   }
 }
+// Domestic wooden stairs use the established floor/palette and ordinary room
+// transition tiles. Presentation does not introduce another movement authority.
+function drawMornayStairs(col, row, up) {
+  const x=col*TILE,y=row*TILE;
+  drawInteriorFloor(x,y);
+  ctx.fillStyle='#3c3028';ctx.fillRect(x+3,y+2,26,30);
+  for(let step=0;step<5;step++){
+    const inset=up?5-step:step+1,sy=y+4+step*5;
+    ctx.fillStyle='#725236';ctx.fillRect(x+inset,sy,32-2*inset,5);
+    ctx.fillStyle='#b29061';ctx.fillRect(x+inset,sy,32-2*inset,1);
+  }
+  ctx.fillStyle='#453225';ctx.fillRect(x+2,y+2,2,30);ctx.fillRect(x+28,y+2,2,30);
+}
+
 function drawMornayContent() {
   if(!inTown||currentTownId!=='mornay')return;
   const id=mapIdForRef(activeMap),room=mornayRoomForMap(id);
@@ -180,7 +194,12 @@ function drawMornayContent() {
       ctx.fillStyle='#303a3d';ctx.fillRect(48,37,416,20);
       ctx.fillStyle='#c8c0a3';ctx.font='10px "Courier New", monospace';ctx.fillText('ORDINARY CARE · REGISTERED HEALER ON STAFF',256,51);
     }
+    if(room.connection==='stairs'){
+      const entrance=mornayInteriorEntrance(room);
+      drawMornayStairs(entrance.col,entrance.exitRow,false);
+    }
     for(const child of MORNAY_BUILDINGS.filter(b=>b.sourceMapId===id)){
+      if(child.connection==='stairs')drawMornayStairs(child.doorCol,child.doorRow,true);
       const x=(child.doorCol+.5)*TILE,y=child.doorRow*TILE-5,label=child.sign||'ROOMS';
       ctx.font='10px "Courier New", monospace';const w=ctx.measureText(label).width+8;
       ctx.fillStyle='#48483e';ctx.fillRect(x-w/2,y-9,w,12);
