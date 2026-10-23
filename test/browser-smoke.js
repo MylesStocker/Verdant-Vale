@@ -57,11 +57,33 @@
     };
     const closeDialogue=()=>{let count=0;while(dialogue.open&&count++<60){render();press('Enter');}check(!dialogue.open,'Dialogue closes through input');};
     const townState=id=>({inTown:true,currentTownId:'mornay',townBuilding:mornayRoomForMap(id)?.id||null});
-    const capture=name=>{render();result.captures.push({name,png:canvas.toDataURL()});};
+    const capture=name=>{
+      render();const pixels=document.createElement('canvas'),scale=canvas.getBoundingClientRect().width/canvas.width;
+      pixels.width=canvas.width*scale;pixels.height=canvas.height*scale;
+      const c=pixels.getContext('2d');c.imageSmoothingEnabled=false;c.drawImage(canvas,0,0,pixels.width,pixels.height);
+      result.captures.push({name,png:pixels.toDataURL()});
+    };
+    // Walk a collision-tested path with the browser's ordinary held-key listeners.
+    const walkTo=(accept,label)=>{
+      const q=[[player.x,player.y,-1,null]],seen=new Set([player.x+','+player.y]);let end=-1;
+      for(let i=0;i<q.length;i++){
+        const [x,y]=q[i];if(accept(x,y)){end=i;break;}
+        for(const [dx,dy,key]of [[8,0,'ArrowRight'],[-8,0,'ArrowLeft'],[0,8,'ArrowDown'],[0,-8,'ArrowUp']]){
+          const nx=x+dx,ny=y+dy,k=nx+','+ny;
+          if(seen.has(k)||nx<9||nx>503||ny<9||ny>471||TILE_PROPERTIES[tileAt(nx,ny)]?.isTransition)continue;
+          if(![.25,.5,.75,1].every(t=>canWalk(x+dx*t,y+dy*t)))continue;
+          seen.add(k);q.push([nx,ny,i,key]);
+        }
+      }
+      check(end>=0,'Reachable walking route '+label);const path=[];
+      for(let i=end;q[i][2]>=0;i=q[i][2])path.push(q[i]);
+      for(const [x,y,,key]of path.reverse())walkUntil(key,()=>Math.abs(player.x-x)<2&&Math.abs(player.y-y)<2,'Walk '+label);
+    };
     const talk=id=>{
-      const n=MORNAY_NPCS.find(n=>n.id===id),r=MORNAY_RESIDENTS.find(n=>n.id===id);
-      check(transitionToLocation({mapId:r.mapId,x:n.x,y:n.y+24,facing:'up',state:townState(r.mapId)}),'Reach '+id);
-      press(' ');check(dialogue.open,'Input conversation '+id);
+      const n=MORNAY_NPCS.find(n=>n.id===id),mapId=[...MORNAY_TOWN_MAP_IDS,...MORNAY_BUILDINGS.map(b=>b.mapId)].find(id=>mornayContentKey(id)===n.map);
+      check(transitionToLocation({mapId,x:240,y:432,facing:'up',state:townState(mapId)}),'Reach '+id);
+      walkTo((x,y)=>SIMPLE_NPCS.find(n=>n.map===currentContentLocationKey()&&Math.hypot(x-n.x,y-n.y)<TALK_RADIUS)?.id===id,'conversation '+id);
+      press(' ');check(dialogue.open&&dialogue.name===n.name,'Input conversation '+id);
     };
     const inert=()=>JSON.stringify({quest:MainQuest,flags:QUEST_FLAG_BINDINGS.map(b=>[b.key,b.get()]),stats,party:persistentParty.serialize(),day});
     for(const scale of [1,2]){
@@ -87,7 +109,8 @@
         capture(id.toLowerCase()+'-'+scale+'x');
       }
       for(const b of MORNAY_BUILDINGS){
-        check(transitionToLocation({mapId:b.sourceMapId,x:(b.returnCol+.5)*TILE,y:(b.returnRow+.5)*TILE,facing:b.facing==='up'?'down':'up',state:townState(b.sourceMapId)}),'Door approach '+b.id);
+        check(transitionToLocation({mapId:b.sourceMapId,x:240,y:432,facing:'up',state:townState(b.sourceMapId)}),'Door approach '+b.id);
+        walkTo((x,y)=>x===(b.returnCol+.5)*TILE&&y===(b.returnRow+.5)*TILE,'entrance '+b.id);
         walkUntil(b.facing==='up'?'ArrowDown':'ArrowUp',()=>mapIdForRef(activeMap)===b.mapId,'Input door entry '+b.id);
         check(saveGame()&&loadGame(),'Interior save/load '+b.id);closeDialogue();capture(b.id+'-'+scale+'x');
         walkUntil('ArrowDown',()=>mapIdForRef(activeMap)===b.sourceMapId,'Input door exit '+b.id);

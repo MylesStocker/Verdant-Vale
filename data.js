@@ -1647,7 +1647,7 @@ for (const b of MORNAY_BUILDINGS) {
     id: b.mapId, map: MORNAY_INTERIOR_MAPS[b.mapId], displayName: b.name,
     region: 'Mornay', type: 'interior', items: [], encounterPool: null,
     allowRandomEncounters: false, allowSave: true,
-    notes: 'Mornay public room; door and return authority: MORNAY_BUILDINGS.'
+    notes: 'Mornay discrete room; door and return authority: MORNAY_BUILDINGS.'
   };
 }
 

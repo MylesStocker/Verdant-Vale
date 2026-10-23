@@ -92,7 +92,7 @@ function drawActiveMapContent() {
   // it paints over Merrin, Fisk, Odger and Esla and the ward reads as empty.
   if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
   if (inTown && currentTownId === 'mornay') drawMornayContent();
-  drawSimpleNPCs();
+  if (!isMornayRoomView()) drawSimpleNPCs();
   if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.draw();
   if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.draw();
   if (inDungeon && dungeonFloor === 4 && !MULHOLLAND.defeated) drawMulholland();
@@ -141,7 +141,8 @@ function drawActiveMapContent() {
     // No controllable/player sprite exists in either cutaway presentation,
     // including the opening lines that continue on DREAM_MAP's white field.
   } else {
-    if(!travellersRiseNight.drawPlayerPose())drawPlayer();
+    if(isMornayRoomView())drawMornayRoomActors();
+    else if(!travellersRiseNight.drawPlayerPose())drawPlayer();
   }
 }
 

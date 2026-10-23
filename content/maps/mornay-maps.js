@@ -255,7 +255,7 @@ const MORNAY_BUILDINGS = Object.freeze([
     "returnCol": 3,
     "returnRow": 9,
     "facing": "up",
-    "kind": "lodging"
+    "kind": "boarding"
   },
   {
     "key": "court",
@@ -268,9 +268,442 @@ const MORNAY_BUILDINGS = Object.freeze([
     "returnCol": 3,
     "returnRow": 8,
     "facing": "up",
-    "kind": "housing"
+    "kind": "corridor"
+  },
+  {
+    "key": "glyn_home",
+    "id": "mornay_glyn_home",
+    "mapId": "MORNAY_GLYN_HOME_MAP",
+    "name": "Glyn Household",
+    "sourceMapId": "MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP",
+    "doorCol": 3,
+    "doorRow": 5,
+    "returnCol": 3,
+    "returnRow": 6,
+    "facing": "down",
+    "kind": "house",
+    "housing": "modest",
+    "sign": "GLYN HOME"
+  },
+  {
+    "key": "reed_home",
+    "id": "mornay_reed_home",
+    "mapId": "MORNAY_REED_HOME_MAP",
+    "name": "Reed’s Net Room",
+    "sourceMapId": "MORNAY_MIDDLE_UPPER_EAST_MAP",
+    "doorCol": 3,
+    "doorRow": 9,
+    "returnCol": 3,
+    "returnRow": 8,
+    "facing": "up",
+    "kind": "house",
+    "housing": "modest",
+    "sign": "REED’S NET ROOM"
+  },
+  {
+    "key": "pate_home",
+    "id": "mornay_pate_home",
+    "mapId": "MORNAY_PATE_HOME_MAP",
+    "name": "Pate’s Kitchen",
+    "sourceMapId": "MORNAY_SOUTH_UPPER_WEST_MAP",
+    "doorCol": 12,
+    "doorRow": 10,
+    "returnCol": 12,
+    "returnRow": 9,
+    "facing": "up",
+    "kind": "house",
+    "housing": "modest",
+    "sign": "PATE’S KITCHEN"
+  },
+  {
+    "key": "rann_home",
+    "id": "mornay_rann_home",
+    "mapId": "MORNAY_RANN_HOME_MAP",
+    "name": "Rann Workroom House",
+    "sourceMapId": "MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP",
+    "doorCol": 12,
+    "doorRow": 5,
+    "returnCol": 12,
+    "returnRow": 6,
+    "facing": "down",
+    "kind": "house",
+    "housing": "modest",
+    "sign": "RANN WORKROOM"
+  },
+  {
+    "key": "vale_home",
+    "id": "mornay_vale_home",
+    "mapId": "MORNAY_VALE_HOME_MAP",
+    "name": "Vale House",
+    "sourceMapId": "MORNAY_NORTH_UPPER_WEST_MAP",
+    "doorCol": 11,
+    "doorRow": 8,
+    "returnCol": 11,
+    "returnRow": 7,
+    "facing": "up",
+    "kind": "house",
+    "housing": "comfortable",
+    "sign": "VALE HOUSE"
+  },
+  {
+    "key": "dane_home",
+    "id": "mornay_dane_home",
+    "mapId": "MORNAY_DANE_HOME_MAP",
+    "name": "Examiner’s House",
+    "sourceMapId": "MORNAY_NORTH_UPPER_EAST_MAP",
+    "doorCol": 3,
+    "doorRow": 8,
+    "returnCol": 3,
+    "returnRow": 7,
+    "facing": "up",
+    "kind": "house",
+    "housing": "comfortable",
+    "sign": "EXAMINER’S HOUSE"
+  },
+  {
+    "key": "dock_steps",
+    "id": "mornay_dock_steps",
+    "mapId": "MORNAY_DOCK_STEPS_MAP",
+    "name": "Dock Steps Tenement",
+    "sourceMapId": "MORNAY_MIDDLE_UPPER_WEST_MAP",
+    "doorCol": 3,
+    "doorRow": 9,
+    "returnCol": 3,
+    "returnRow": 8,
+    "facing": "up",
+    "kind": "corridor",
+    "sign": "DOCK STEPS"
+  },
+  {
+    "key": "south_rows",
+    "id": "mornay_south_rows",
+    "mapId": "MORNAY_SOUTH_ROWS_MAP",
+    "name": "South Rows Apartments",
+    "sourceMapId": "MORNAY_SOUTH_UPPER_EAST_MAP",
+    "doorCol": 3,
+    "doorRow": 10,
+    "returnCol": 3,
+    "returnRow": 9,
+    "facing": "up",
+    "kind": "corridor",
+    "sign": "SOUTH ROWS"
+  },
+  {
+    "key": "court_unit_1",
+    "id": "mornay_court_unit_1",
+    "mapId": "MORNAY_COURT_UNIT_1_MAP",
+    "name": "East Ward Shared Court — Flat 1",
+    "sourceMapId": "MORNAY_COURT_MAP",
+    "doorCol": 2,
+    "doorRow": 4,
+    "returnCol": 2,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 1,
+    "sign": "1"
+  },
+  {
+    "key": "court_unit_2",
+    "id": "mornay_court_unit_2",
+    "mapId": "MORNAY_COURT_UNIT_2_MAP",
+    "name": "East Ward Shared Court — Flat 2",
+    "sourceMapId": "MORNAY_COURT_MAP",
+    "doorCol": 5,
+    "doorRow": 4,
+    "returnCol": 5,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 2,
+    "sign": "2"
+  },
+  {
+    "key": "court_unit_3",
+    "id": "mornay_court_unit_3",
+    "mapId": "MORNAY_COURT_UNIT_3_MAP",
+    "name": "East Ward Shared Court — Flat 3",
+    "sourceMapId": "MORNAY_COURT_MAP",
+    "doorCol": 10,
+    "doorRow": 4,
+    "returnCol": 10,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 3,
+    "sign": "3"
+  },
+  {
+    "key": "court_unit_4",
+    "id": "mornay_court_unit_4",
+    "mapId": "MORNAY_COURT_UNIT_4_MAP",
+    "name": "East Ward Shared Court — Flat 4",
+    "sourceMapId": "MORNAY_COURT_MAP",
+    "doorCol": 13,
+    "doorRow": 4,
+    "returnCol": 13,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 4,
+    "sign": "4"
+  },
+  {
+    "key": "dock_steps_unit_1",
+    "id": "mornay_dock_steps_unit_1",
+    "mapId": "MORNAY_DOCK_STEPS_UNIT_1_MAP",
+    "name": "Dock Steps Tenement — Flat 1",
+    "sourceMapId": "MORNAY_DOCK_STEPS_MAP",
+    "doorCol": 2,
+    "doorRow": 4,
+    "returnCol": 2,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 1,
+    "sign": "1"
+  },
+  {
+    "key": "dock_steps_unit_2",
+    "id": "mornay_dock_steps_unit_2",
+    "mapId": "MORNAY_DOCK_STEPS_UNIT_2_MAP",
+    "name": "Dock Steps Tenement — Flat 2",
+    "sourceMapId": "MORNAY_DOCK_STEPS_MAP",
+    "doorCol": 5,
+    "doorRow": 4,
+    "returnCol": 5,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 2,
+    "sign": "2"
+  },
+  {
+    "key": "dock_steps_unit_3",
+    "id": "mornay_dock_steps_unit_3",
+    "mapId": "MORNAY_DOCK_STEPS_UNIT_3_MAP",
+    "name": "Dock Steps Tenement — Flat 3",
+    "sourceMapId": "MORNAY_DOCK_STEPS_MAP",
+    "doorCol": 10,
+    "doorRow": 4,
+    "returnCol": 10,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 3,
+    "sign": "3"
+  },
+  {
+    "key": "dock_steps_unit_4",
+    "id": "mornay_dock_steps_unit_4",
+    "mapId": "MORNAY_DOCK_STEPS_UNIT_4_MAP",
+    "name": "Dock Steps Tenement — Flat 4",
+    "sourceMapId": "MORNAY_DOCK_STEPS_MAP",
+    "doorCol": 13,
+    "doorRow": 4,
+    "returnCol": 13,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 4,
+    "sign": "4"
+  },
+  {
+    "key": "south_rows_unit_1",
+    "id": "mornay_south_rows_unit_1",
+    "mapId": "MORNAY_SOUTH_ROWS_UNIT_1_MAP",
+    "name": "South Rows Apartments — Flat 1",
+    "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
+    "doorCol": 2,
+    "doorRow": 4,
+    "returnCol": 2,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 1,
+    "sign": "1"
+  },
+  {
+    "key": "south_rows_unit_2",
+    "id": "mornay_south_rows_unit_2",
+    "mapId": "MORNAY_SOUTH_ROWS_UNIT_2_MAP",
+    "name": "South Rows Apartments — Flat 2",
+    "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
+    "doorCol": 5,
+    "doorRow": 4,
+    "returnCol": 5,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 2,
+    "sign": "2"
+  },
+  {
+    "key": "south_rows_unit_3",
+    "id": "mornay_south_rows_unit_3",
+    "mapId": "MORNAY_SOUTH_ROWS_UNIT_3_MAP",
+    "name": "South Rows Apartments — Flat 3",
+    "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
+    "doorCol": 10,
+    "doorRow": 4,
+    "returnCol": 10,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 3,
+    "sign": "3"
+  },
+  {
+    "key": "south_rows_unit_4",
+    "id": "mornay_south_rows_unit_4",
+    "mapId": "MORNAY_SOUTH_ROWS_UNIT_4_MAP",
+    "name": "South Rows Apartments — Flat 4",
+    "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
+    "doorCol": 13,
+    "doorRow": 4,
+    "returnCol": 13,
+    "returnRow": 5,
+    "facing": "down",
+    "kind": "flat",
+    "unit": 4,
+    "sign": "4"
+  },
+  {
+    "key": "boarding_unit_1",
+    "id": "mornay_boarding_unit_1",
+    "mapId": "MORNAY_BOARDING_UNIT_1_MAP",
+    "name": "Hume Boardinghouse — Room 1",
+    "sourceMapId": "MORNAY_BOARDING_MAP",
+    "doorCol": 2,
+    "doorRow": 3,
+    "returnCol": 2,
+    "returnRow": 4,
+    "facing": "down",
+    "kind": "bedsit",
+    "unit": 1,
+    "sign": "1"
+  },
+  {
+    "key": "boarding_unit_2",
+    "id": "mornay_boarding_unit_2",
+    "mapId": "MORNAY_BOARDING_UNIT_2_MAP",
+    "name": "Hume Boardinghouse — Room 2",
+    "sourceMapId": "MORNAY_BOARDING_MAP",
+    "doorCol": 5,
+    "doorRow": 3,
+    "returnCol": 5,
+    "returnRow": 4,
+    "facing": "down",
+    "kind": "bedsit",
+    "unit": 2,
+    "sign": "2"
+  },
+  {
+    "key": "boarding_unit_3",
+    "id": "mornay_boarding_unit_3",
+    "mapId": "MORNAY_BOARDING_UNIT_3_MAP",
+    "name": "Hume Boardinghouse — Room 3",
+    "sourceMapId": "MORNAY_BOARDING_MAP",
+    "doorCol": 10,
+    "doorRow": 3,
+    "returnCol": 10,
+    "returnRow": 4,
+    "facing": "down",
+    "kind": "bedsit",
+    "unit": 3,
+    "sign": "3"
+  },
+  {
+    "key": "boarding_unit_4",
+    "id": "mornay_boarding_unit_4",
+    "mapId": "MORNAY_BOARDING_UNIT_4_MAP",
+    "name": "Hume Boardinghouse — Room 4",
+    "sourceMapId": "MORNAY_BOARDING_MAP",
+    "doorCol": 13,
+    "doorRow": 3,
+    "returnCol": 13,
+    "returnRow": 4,
+    "facing": "down",
+    "kind": "bedsit",
+    "unit": 4,
+    "sign": "4"
   }
 ].map(b => Object.freeze(b)));
+
+const MORNAY_RESIDENTIAL_FACADES = Object.freeze([
+  {
+    "mapId": "MORNAY_SOUTH_UPPER_WEST_MAP",
+    "col": 2,
+    "row": 5,
+    "units": 1
+  },
+  {
+    "mapId": "MORNAY_SOUTH_UPPER_EAST_MAP",
+    "col": 11,
+    "row": 10,
+    "units": 3
+  },
+  {
+    "mapId": "MORNAY_EAST_GATE_MAP",
+    "col": 3,
+    "row": 5,
+    "units": 1
+  },
+  {
+    "mapId": "MORNAY_WEST_GATE_MAP",
+    "col": 12,
+    "row": 10,
+    "units": 3
+  },
+  {
+    "mapId": "MORNAY_MIDDLE_LOWER_EAST_MAP",
+    "col": 12,
+    "row": 5,
+    "units": 3
+  },
+  {
+    "mapId": "MORNAY_MIDDLE_LOWER_EAST_MAP",
+    "col": 12,
+    "row": 9,
+    "units": 1
+  },
+  {
+    "mapId": "MORNAY_MIDDLE_UPPER_EAST_MAP",
+    "col": 4,
+    "row": 5,
+    "units": 1
+  },
+  {
+    "mapId": "MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP",
+    "col": 3,
+    "row": 9,
+    "units": 1
+  },
+  {
+    "mapId": "MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP",
+    "col": 12,
+    "row": 9,
+    "units": 1
+  },
+  {
+    "mapId": "MORNAY_NORTH_LOWER_EAST_MAP",
+    "col": 3,
+    "row": 5,
+    "units": 3
+  },
+  {
+    "mapId": "MORNAY_NORTH_UPPER_EAST_MAP",
+    "col": 12,
+    "row": 8,
+    "units": 1
+  },
+  {
+    "mapId": "MORNAY_NORTH_UPPER_WEST_MAP",
+    "col": 3,
+    "row": 6,
+    "units": 1
+  }
+].map(f => Object.freeze(f)));
 function mornayBuilding(id) { return MORNAY_BUILDINGS.find(b => b.id === id) || null; }
 function mornayRoomForMap(mapId) { return MORNAY_BUILDINGS.find(b => b.mapId === mapId) || null; }
 function mornayDoorAt(mapId, col, row) {
@@ -403,30 +836,76 @@ window.MORNAY_EXTERIOR_MAPS = MORNAY_EXTERIOR_MAPS;
 window.mornayTownDefinition = mornayTownDefinition;
 window.mornayTownNeighbor = mornayTownNeighbor;
 
-// Fixtures share geometry between collision and drawing. Beds are one tile in
-// this established 32px vocabulary; no invisible furniture collision exists.
-const MORNAY_ROOM_FIXTURES = Object.freeze(Object.fromEntries(MORNAY_BUILDINGS.map(b => {
-  const props = [];
-  const add = (kind, cols, rows) => rows.forEach(row => cols.forEach(col => props.push(Object.freeze({kind,col,row}))));
-  if (b.kind === 'infirmary' || b.kind === 'lodging') {
-    add('bed', [2,4,11,13], [6,9]); add('supply', [2,4,11,13], [3]);
-  } else if (b.kind === 'school') add('desk', [2,4,6,9,11,13], [6,9]);
-  else if (b.kind === 'office') add('desk', [2,4,6,9,11,13], [3,6]);
-  else if (b.kind === 'shop') add('counter', [2,4,6,9,11,13], [3]);
-  else if (b.kind === 'inn') add('table', [2,4,11,13], [3,9]);
-  else if (b.kind === 'warehouse') add('cargo', [2,4,6,9,11,13], [3,9]);
-  else if (b.kind === 'workshop') add('bench', [2,4,6,9,11,13], [3]);
-  else if (b.kind === 'laundry') add('tub', [2,4,11,13], [3,9]);
-  else add('table', [2,4,11,13], [3,9]);
-  return [b.id, Object.freeze(props)];
-})));
+// Shared fixture geometry is the collision and rendering authority. Public-room
+// furniture follows the established Calwick/Drenwick vocabulary; apartments use
+// compact plans, with a clear entrance stem and individually registered doors.
+const MORNAY_ROOM_FIXTURES = Object.freeze({
+  "mornay_office": [{"kind":"desk","col":3,"row":3},{"kind":"desk","col":11,"row":3},{"kind":"desk","col":2,"row":7},{"kind":"desk","col":5,"row":7},{"kind":"desk","col":10,"row":7},{"kind":"desk","col":13,"row":7},{"kind":"cabinet","col":1,"row":2},{"kind":"cabinet","col":5,"row":2},{"kind":"cabinet","col":13,"row":2},{"kind":"cabinet","col":14,"row":10},{"kind":"table","col":3,"row":11}],
+  "mornay_infirmary": [{"kind":"bed","col":1,"row":5,"w":2},{"kind":"bed","col":4,"row":5,"w":2},{"kind":"bed","col":10,"row":5,"w":2},{"kind":"bed","col":13,"row":5,"w":2},{"kind":"bed","col":1,"row":9,"w":2},{"kind":"bed","col":4,"row":9,"w":2},{"kind":"bed","col":10,"row":9,"w":2},{"kind":"bed","col":13,"row":9,"w":2},{"kind":"supply","col":1,"row":2},{"kind":"supply","col":2,"row":2},{"kind":"desk","col":5,"row":3},{"kind":"supply","col":13,"row":2},{"kind":"stove","col":14,"row":12}],
+  "mornay_provisioner": [{"kind":"counter","col":3,"row":4},{"kind":"counter","col":4,"row":4},{"kind":"counter","col":5,"row":4},{"kind":"supply","col":1,"row":2},{"kind":"supply","col":2,"row":2},{"kind":"supply","col":11,"row":2},{"kind":"supply","col":12,"row":2},{"kind":"cargo","col":12,"row":6},{"kind":"cargo","col":13,"row":6},{"kind":"table","col":3,"row":10}],
+  "mornay_apothecary": [{"kind":"counter","col":10,"row":4},{"kind":"counter","col":11,"row":4},{"kind":"counter","col":12,"row":4},{"kind":"supply","col":12,"row":2},{"kind":"supply","col":13,"row":2},{"kind":"supply","col":2,"row":2},{"kind":"desk","col":3,"row":6},{"kind":"tub","col":2,"row":10},{"kind":"cabinet","col":13,"row":9}],
+  "mornay_workgear": [{"kind":"counter","col":3,"row":5},{"kind":"counter","col":4,"row":5},{"kind":"counter","col":5,"row":5},{"kind":"bench","col":11,"row":4},{"kind":"bench","col":12,"row":4},{"kind":"supply","col":2,"row":2},{"kind":"supply","col":5,"row":2},{"kind":"bench","col":12,"row":9},{"kind":"cargo","col":2,"row":10}],
+  "mornay_chandler": [{"kind":"counter","col":10,"row":5},{"kind":"counter","col":11,"row":5},{"kind":"counter","col":12,"row":5},{"kind":"cargo","col":2,"row":2},{"kind":"cargo","col":3,"row":2},{"kind":"bench","col":3,"row":6},{"kind":"supply","col":13,"row":2},{"kind":"table","col":11,"row":10},{"kind":"cargo","col":2,"row":11}],
+  "mornay_gate_inn": [{"kind":"counter","col":2,"row":4},{"kind":"counter","col":3,"row":4},{"kind":"stove","col":1,"row":2},{"kind":"supply","col":4,"row":2},{"kind":"table","col":4,"row":7},{"kind":"table","col":11,"row":4},{"kind":"table","col":11,"row":9},{"kind":"table","col":3,"row":11}],
+  "mornay_commercial_inn": [{"kind":"counter","col":11,"row":4},{"kind":"counter","col":12,"row":4},{"kind":"stove","col":14,"row":2},{"kind":"cabinet","col":10,"row":2},{"kind":"table","col":3,"row":4},{"kind":"table","col":4,"row":9},{"kind":"table","col":11,"row":10},{"kind":"table","col":12,"row":7}],
+  "mornay_gate_beds": [{"kind":"homebed","col":2,"row":3},{"kind":"homebed","col":4,"row":3},{"kind":"homebed","col":11,"row":3},{"kind":"homebed","col":13,"row":3},{"kind":"homebed","col":2,"row":8},{"kind":"homebed","col":4,"row":8},{"kind":"homebed","col":11,"row":8},{"kind":"homebed","col":13,"row":8},{"kind":"dresser","col":1,"row":11},{"kind":"table","col":7,"row":5}],
+  "mornay_commercial_beds": [{"kind":"homebed","col":2,"row":3},{"kind":"homebed","col":5,"row":3},{"kind":"homebed","col":10,"row":3},{"kind":"homebed","col":13,"row":3},{"kind":"homebed","col":2,"row":9},{"kind":"homebed","col":5,"row":9},{"kind":"homebed","col":10,"row":9},{"kind":"homebed","col":13,"row":9},{"kind":"dresser","col":1,"row":6},{"kind":"desk","col":11,"row":6}],
+  "mornay_school": [{"kind":"desk","col":4,"row":3},{"kind":"cabinet","col":1,"row":2},{"kind":"cabinet","col":13,"row":2},{"kind":"studentdesk","col":3,"row":6},{"kind":"studentdesk","col":6,"row":6},{"kind":"studentdesk","col":10,"row":6},{"kind":"studentdesk","col":3,"row":9},{"kind":"studentdesk","col":6,"row":9},{"kind":"studentdesk","col":10,"row":9},{"kind":"desk","col":13,"row":11}],
+  "mornay_harbour": [{"kind":"desk","col":2,"row":3},{"kind":"desk","col":5,"row":3},{"kind":"desk","col":11,"row":3},{"kind":"desk","col":3,"row":7},{"kind":"desk","col":10,"row":7},{"kind":"desk","col":13,"row":7},{"kind":"cabinet","col":1,"row":2},{"kind":"cabinet","col":13,"row":2},{"kind":"cabinet","col":14,"row":10},{"kind":"table","col":3,"row":11}],
+  "mornay_warehouse": [{"kind":"cargo","col":1,"row":2},{"kind":"cargo","col":2,"row":2},{"kind":"cargo","col":4,"row":3},{"kind":"cargo","col":5,"row":3},{"kind":"cargo","col":11,"row":2},{"kind":"cargo","col":12,"row":2},{"kind":"cargo","col":13,"row":2},{"kind":"cargo","col":2,"row":8},{"kind":"cargo","col":3,"row":8},{"kind":"cargo","col":11,"row":9},{"kind":"cargo","col":12,"row":9},{"kind":"desk","col":12,"row":5},{"kind":"bench","col":4,"row":11}],
+  "mornay_workshop": [{"kind":"bench","col":2,"row":3},{"kind":"bench","col":3,"row":3},{"kind":"bench","col":11,"row":3},{"kind":"stove","col":14,"row":2},{"kind":"bench","col":4,"row":7},{"kind":"bench","col":5,"row":7},{"kind":"bench","col":12,"row":8},{"kind":"desk","col":2,"row":11},{"kind":"supply","col":1,"row":2},{"kind":"cargo","col":13,"row":11}],
+  "mornay_laundry": [{"kind":"tub","col":2,"row":3},{"kind":"tub","col":4,"row":3},{"kind":"bench","col":11,"row":4},{"kind":"table","col":3,"row":8},{"kind":"tub","col":12,"row":9},{"kind":"supply","col":14,"row":2},{"kind":"stove","col":1,"row":11}],
+  "mornay_boarding": [{"kind":"stove","col":2,"row":7},{"kind":"supply","col":3,"row":7},{"kind":"table","col":5,"row":9},{"kind":"table","col":10,"row":9},{"kind":"dresser","col":13,"row":7}],
+  "mornay_court": [{"kind":"tub","col":2,"row":8},{"kind":"table","col":11,"row":8},{"kind":"bench","col":3,"row":11}],
+  "mornay_dock_steps": [{"kind":"bench","col":3,"row":8},{"kind":"cargo","col":12,"row":10},{"kind":"tub","col":13,"row":7}],
+  "mornay_south_rows": [{"kind":"table","col":3,"row":9},{"kind":"stove","col":12,"row":7},{"kind":"supply","col":13,"row":7}],
+  "mornay_glyn_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"dresser","col":11,"row":5},{"kind":"stove","col":3,"row":10},{"kind":"table","col":10,"row":9},{"kind":"supply","col":12,"row":10}],
+  "mornay_reed_home": [{"kind":"homebed","col":11,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"stove","col":3,"row":5},{"kind":"bench","col":4,"row":9},{"kind":"supply","col":12,"row":10}],
+  "mornay_pate_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"dresser","col":11,"row":5},{"kind":"stove","col":3,"row":10},{"kind":"table","col":10,"row":9},{"kind":"supply","col":12,"row":10}],
+  "mornay_rann_home": [{"kind":"homebed","col":11,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"stove","col":3,"row":5},{"kind":"table","col":4,"row":9},{"kind":"supply","col":12,"row":10}],
+  "mornay_vale_home": [{"kind":"homebed","col":3,"row":4},{"kind":"dresser","col":5,"row":3},{"kind":"cabinet","col":12,"row":3},{"kind":"desk","col":11,"row":5},{"kind":"table","col":4,"row":9},{"kind":"stove","col":12,"row":11},{"kind":"table","col":10,"row":10}],
+  "mornay_dane_home": [{"kind":"homebed","col":4,"row":4},{"kind":"dresser","col":5,"row":3},{"kind":"cabinet","col":12,"row":3},{"kind":"desk","col":10,"row":5},{"kind":"desk","col":4,"row":9},{"kind":"stove","col":12,"row":11},{"kind":"cabinet","col":12,"row":8}],
+  "mornay_court_unit_1": [{"kind":"homebed","col":4,"row":6},{"kind":"homebed","col":5,"row":6},{"kind":"stove","col":10,"row":6},{"kind":"table","col":9,"row":9},{"kind":"dresser","col":4,"row":11}],
+  "mornay_court_unit_2": [{"kind":"homebed","col":10,"row":6},{"kind":"dresser","col":9,"row":6},{"kind":"stove","col":4,"row":6},{"kind":"table","col":5,"row":9}],
+  "mornay_court_unit_3": [{"kind":"homebed","col":4,"row":5},{"kind":"homebed","col":5,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"table","col":9,"row":8},{"kind":"stove","col":4,"row":11}],
+  "mornay_court_unit_4": [{"kind":"homebed","col":10,"row":5},{"kind":"homebed","col":9,"row":5},{"kind":"dresser","col":4,"row":5},{"kind":"table","col":5,"row":8},{"kind":"stove","col":10,"row":11}],
+  "mornay_dock_steps_unit_1": [{"kind":"homebed","col":4,"row":6},{"kind":"homebed","col":5,"row":6},{"kind":"stove","col":10,"row":6},{"kind":"table","col":9,"row":9},{"kind":"cargo","col":10,"row":11},{"kind":"bench","col":4,"row":9}],
+  "mornay_dock_steps_unit_2": [{"kind":"homebed","col":10,"row":6},{"kind":"dresser","col":9,"row":6},{"kind":"stove","col":4,"row":6},{"kind":"table","col":5,"row":9}],
+  "mornay_dock_steps_unit_3": [{"kind":"homebed","col":4,"row":5},{"kind":"homebed","col":5,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"table","col":9,"row":8},{"kind":"stove","col":4,"row":11}],
+  "mornay_dock_steps_unit_4": [{"kind":"homebed","col":10,"row":5},{"kind":"homebed","col":9,"row":5},{"kind":"supply","col":4,"row":5},{"kind":"bench","col":5,"row":8},{"kind":"stove","col":10,"row":11}],
+  "mornay_south_rows_unit_1": [{"kind":"homebed","col":4,"row":6},{"kind":"homebed","col":5,"row":6},{"kind":"stove","col":10,"row":6},{"kind":"table","col":9,"row":9},{"kind":"dresser","col":10,"row":11}],
+  "mornay_south_rows_unit_2": [{"kind":"homebed","col":10,"row":6},{"kind":"dresser","col":9,"row":6},{"kind":"stove","col":4,"row":6},{"kind":"table","col":5,"row":9}],
+  "mornay_south_rows_unit_3": [{"kind":"homebed","col":4,"row":5},{"kind":"homebed","col":5,"row":5},{"kind":"supply","col":10,"row":5},{"kind":"table","col":9,"row":8},{"kind":"stove","col":4,"row":11}],
+  "mornay_south_rows_unit_4": [{"kind":"homebed","col":10,"row":5},{"kind":"homebed","col":9,"row":5},{"kind":"dresser","col":4,"row":5},{"kind":"table","col":5,"row":8},{"kind":"stove","col":10,"row":11}],
+  "mornay_boarding_unit_1": [{"kind":"homebed","col":4,"row":6},{"kind":"homebed","col":5,"row":6},{"kind":"table","col":9,"row":9},{"kind":"dresser","col":4,"row":11}],
+  "mornay_boarding_unit_2": [{"kind":"homebed","col":10,"row":6},{"kind":"dresser","col":9,"row":6},{"kind":"table","col":5,"row":9}],
+  "mornay_boarding_unit_3": [{"kind":"homebed","col":4,"row":5},{"kind":"homebed","col":5,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"table","col":9,"row":8}],
+  "mornay_boarding_unit_4": [{"kind":"homebed","col":10,"row":5},{"kind":"homebed","col":9,"row":5},{"kind":"dresser","col":4,"row":5},{"kind":"table","col":5,"row":8}]
+});
 const MORNAY_INTERIOR_MAPS = Object.freeze(Object.fromEntries(MORNAY_BUILDINGS.map(b => {
+  const compact = b.kind === 'flat' || b.kind === 'bedsit';
+  const house = b.kind === 'house';
+  const left = compact ? 4 : house ? 2 : 1, right = compact ? 11 : house ? 13 : 14;
+  const top = compact ? (b.unit % 2 ? 5 : 6) : house ? (b.housing === 'comfortable' ? 3 : 5) : b.kind === 'corridor' ? 5 : b.kind === 'boarding' ? 4 : 2;
   const grid = Array.from({length:15}, (_,r) => Array.from({length:16}, (_,c) =>
-    r < 2 || r === 14 || c === 0 || c === 15 ? INTERIOR_WALL : INTERIOR_FLOOR));
+    r >= top && r < 13 && c >= left && c <= right ? INTERIOR_FLOOR : INTERIOR_WALL));
+  if (!compact && !house) for(let c=1;c<15;c++) grid[13][c]=INTERIOR_FLOOR;
+  grid[13][7] = grid[13][8] = INTERIOR_FLOOR;
   grid[14][7] = INTERIOR_EXIT;
-  for (const f of MORNAY_ROOM_FIXTURES[b.id]) grid[f.row][f.col] = TABLE;
-  for (const child of MORNAY_BUILDINGS.filter(child => child.sourceMapId === b.mapId))
+  // Short partitions distinguish sleeping alcoves from work and reception space.
+  // All openings join the entrance stem; no separate placement or door state.
+  if(house && b.housing==='comfortable')for(let row=3;row<=6;row++)grid[row][8]=INTERIOR_WALL;
+  else if(house){
+    const cols=['reed_home','rann_home'].includes(b.key)?[10,11,12,13]:[2,3,4];
+    for(const col of cols)grid[7][col]=INTERIOR_WALL;
+  }
+  if(compact && b.unit>=3)for(let row=5;row<=6;row++)grid[row][7]=INTERIOR_WALL;
+  for (const f of MORNAY_ROOM_FIXTURES[b.id])
+    for(let dx=0;dx<(f.w||1);dx++) grid[f.row][f.col+dx] = TABLE;
+  for (const child of MORNAY_BUILDINGS.filter(child => child.sourceMapId === b.mapId)) {
     grid[child.doorRow][child.doorCol] = HOUSE_DOOR;
+    grid[child.returnRow][child.returnCol] = INTERIOR_FLOOR;
+  }
   return [b.mapId, grid];
 })));
 // Ordinary discrete maps follow the existing export contract, never regional aliases.

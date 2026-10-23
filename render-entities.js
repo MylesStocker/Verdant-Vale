@@ -1420,6 +1420,7 @@ function drawOneContentNPC(npc) {
     const rt = (typeof NPC_ROUTES !== 'undefined') ? NPC_ROUTES[npc.id] : undefined;
     // Cats aren't humanoids — they never take the walking-humanoid path; drawCat
     // handles both the still and moving (wander/flee) poses itself.
+    if (npc.authoredPose) { drawMornayResident(npc, rt); return; }
     if (npc.spriteType === 'cat') { drawCat(npc, rt); return; }
     if (rt) {
       const style  = npc.spriteType || 'clerk';
