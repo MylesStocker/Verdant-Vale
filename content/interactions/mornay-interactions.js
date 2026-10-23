@@ -38,14 +38,14 @@ function mornayRest(service) {
   mornayServiceMessage(building.name,['The party rests until morning.','Paid '+fee+' gold.']);
   return true;
 }
-function mornayTreatmentChoices() {
+function mornayTreatmentChoices(npc) {
   const members=persistentParty.getView().members;
   choice.title='Infirmary — one gold per HP';
   choice.options=members.map(m=>m.name+' ('+m.hp+'/'+m.maxHp+' HP)');
   choice.options.push('Leave');choice.cursor=0;
   choice.callbacks=members.map(m=>()=>{
     const result=persistentParty.treatMember(m.characterId);
-    mornayServiceMessage('Selven Orr',result.restored
+    mornayServiceMessage(npc.name,result.restored
       ? ['They clean and bind what needs care.',m.name+': restored '+result.restored+' HP. Paid '+result.paid+' gold.']
       : [result.hp===result.maxHp ? 'No further health needs restoring today.' : 'You need some coin for treatment.']);
   });
@@ -62,7 +62,7 @@ NPC_ACTIONS.mornayService = function(npc) {
       choice.options=['Rest ('+fee+'g)','Leave'];choice.cursor=0;
       choice.callbacks=[()=>mornayRest(npc.service),()=>{}];choice.open=true;return;
     }
-    if (npc.service==='treatment') mornayTreatmentChoices();
+    if (npc.service==='treatment') mornayTreatmentChoices(npc);
   }];
   return true;
 };

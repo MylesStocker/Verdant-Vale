@@ -328,8 +328,9 @@ const MORNAY_COMPANION_EXCHANGES = Object.freeze({
     {speakerId:'mornay_nessa_quill',lines:['They live here. That is useful knowledge.']}
   ]
 });
+// Keep full names in the authored roster; dialogue uses first names, as in other towns.
 const MORNAY_NPCS = MORNAY_RESIDENTS.map((r,index) => ({
-  id:r.id, name:r.name,
+  id:r.id, name:r.name.split(' ')[0],
   map:mornayContentKey(r.mapId),
   x:r.x*TILE,y:r.y*TILE,
   solid:true, spriteType:r.spriteType,
