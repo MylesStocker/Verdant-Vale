@@ -627,6 +627,54 @@ const MORNAY_BUILDINGS = Object.freeze([
     "kind": "bedsit",
     "unit": 4,
     "sign": "4"
+  },
+  {
+    "key": "kelm_home",
+    "id": "mornay_kelm_home",
+    "mapId": "MORNAY_KELM_HOME_MAP",
+    "name": "Kelm Family Rooms",
+    "sourceMapId": "MORNAY_PROVISIONER_MAP",
+    "doorCol": 7,
+    "doorRow": 1,
+    "returnCol": 7,
+    "returnRow": 2,
+    "facing": "down",
+    "kind": "house",
+    "housing": "modest",
+    "connection": "stairs",
+    "sign": "HOME UP"
+  },
+  {
+    "key": "stern_home",
+    "id": "mornay_stern_home",
+    "mapId": "MORNAY_STERN_HOME_MAP",
+    "name": "Stern Family Rooms",
+    "sourceMapId": "MORNAY_APOTHECARY_MAP",
+    "doorCol": 7,
+    "doorRow": 1,
+    "returnCol": 7,
+    "returnRow": 2,
+    "facing": "down",
+    "kind": "house",
+    "housing": "modest",
+    "connection": "stairs",
+    "sign": "HOME UP"
+  },
+  {
+    "key": "sorn_home",
+    "id": "mornay_sorn_home",
+    "mapId": "MORNAY_SORN_HOME_MAP",
+    "name": "Sorn Family Rooms",
+    "sourceMapId": "MORNAY_WORKGEAR_MAP",
+    "doorCol": 7,
+    "doorRow": 1,
+    "returnCol": 7,
+    "returnRow": 2,
+    "facing": "down",
+    "kind": "house",
+    "housing": "modest",
+    "connection": "stairs",
+    "sign": "HOME UP"
   }
 ].map(b => Object.freeze(b)));
 
@@ -708,6 +756,13 @@ function mornayBuilding(id) { return MORNAY_BUILDINGS.find(b => b.id === id) || 
 function mornayRoomForMap(mapId) { return MORNAY_BUILDINGS.find(b => b.mapId === mapId) || null; }
 function mornayDoorAt(mapId, col, row) {
   return MORNAY_BUILDINGS.find(b => b.sourceMapId === mapId && b.doorCol === col && b.doorRow === row) || null;
+}
+// The source approach determines which side of the room contains its entrance.
+// Keep the grid and arrival in agreement; no input- or map-specific exceptions.
+function mornayInteriorEntrance(building) {
+  const north = building.returnRow < building.doorRow;
+  return { col: 7, exitRow: north ? 0 : 14, arrivalRow: north ? 1 : 13,
+    facing: north ? 'down' : 'up' };
 }
 function mornayContentKey(mapId) { return 'mornay:' + mapId.toLowerCase(); }
 
@@ -840,6 +895,9 @@ window.mornayTownNeighbor = mornayTownNeighbor;
 // furniture follows the established Calwick/Drenwick vocabulary; apartments use
 // compact plans, with a clear entrance stem and individually registered doors.
 const MORNAY_ROOM_FIXTURES = Object.freeze({
+  "mornay_kelm_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"dresser","col":5,"row":5},{"kind":"stove","col":12,"row":5},{"kind":"supply","col":13,"row":5},{"kind":"table","col":10,"row":9},{"kind":"supply","col":12,"row":11}],
+  "mornay_stern_home": [{"kind":"homebed","col":11,"row":5},{"kind":"homebed","col":12,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"desk","col":3,"row":5},{"kind":"cabinet","col":4,"row":5},{"kind":"stove","col":3,"row":10},{"kind":"table","col":10,"row":9}],
+  "mornay_sorn_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"homebed","col":11,"row":5},{"kind":"dresser","col":12,"row":5},{"kind":"bench","col":11,"row":8},{"kind":"table","col":5,"row":10},{"kind":"stove","col":2,"row":11},{"kind":"supply","col":13,"row":11}],
   "mornay_office": [{"kind":"desk","col":3,"row":3},{"kind":"desk","col":11,"row":3},{"kind":"desk","col":2,"row":7},{"kind":"desk","col":5,"row":7},{"kind":"desk","col":10,"row":7},{"kind":"desk","col":13,"row":7},{"kind":"cabinet","col":1,"row":2},{"kind":"cabinet","col":5,"row":2},{"kind":"cabinet","col":13,"row":2},{"kind":"cabinet","col":14,"row":10},{"kind":"table","col":3,"row":11}],
   "mornay_infirmary": [{"kind":"bed","col":1,"row":5,"w":2},{"kind":"bed","col":4,"row":5,"w":2},{"kind":"bed","col":10,"row":5,"w":2},{"kind":"bed","col":13,"row":5,"w":2},{"kind":"bed","col":1,"row":9,"w":2},{"kind":"bed","col":4,"row":9,"w":2},{"kind":"bed","col":10,"row":9,"w":2},{"kind":"bed","col":13,"row":9,"w":2},{"kind":"supply","col":1,"row":2},{"kind":"supply","col":2,"row":2},{"kind":"desk","col":5,"row":3},{"kind":"supply","col":13,"row":2},{"kind":"stove","col":14,"row":12}],
   "mornay_provisioner": [{"kind":"counter","col":3,"row":4},{"kind":"counter","col":4,"row":4},{"kind":"counter","col":5,"row":4},{"kind":"supply","col":1,"row":2},{"kind":"supply","col":2,"row":2},{"kind":"supply","col":11,"row":2},{"kind":"supply","col":12,"row":2},{"kind":"cargo","col":12,"row":6},{"kind":"cargo","col":13,"row":6},{"kind":"table","col":3,"row":10}],
@@ -891,7 +949,11 @@ const MORNAY_INTERIOR_MAPS = Object.freeze(Object.fromEntries(MORNAY_BUILDINGS.m
     r >= top && r < 13 && c >= left && c <= right ? INTERIOR_FLOOR : INTERIOR_WALL));
   if (!compact && !house) for(let c=1;c<15;c++) grid[13][c]=INTERIOR_FLOOR;
   grid[13][7] = grid[13][8] = INTERIOR_FLOOR;
-  grid[14][7] = INTERIOR_EXIT;
+  const entrance = mornayInteriorEntrance(b);
+  // Retain the old southern floor stem so existing interior saves stay walkable.
+  if (entrance.exitRow === 0)
+    for (let row=1;row<top;row++) grid[row][7] = grid[row][8] = INTERIOR_FLOOR;
+  grid[entrance.exitRow][entrance.col] = INTERIOR_EXIT;
   // Short partitions distinguish sleeping alcoves from work and reception space.
   // All openings join the entrance stem; no separate placement or door state.
   if(house && b.housing==='comfortable')for(let row=3;row<=6;row++)grid[row][8]=INTERIOR_WALL;

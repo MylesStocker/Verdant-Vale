@@ -1,0 +1,75 @@
+{
+  "sourceBaseCommit": "ab084c686e8dc14a9b375aa004ea88b97e961c6a",
+  "method": "Automated headless Chrome using production keyboard listeners, Canvas, fonts and storage; 512x480 and 1024x960. Canvas-only captures; map title stays in the DOM. Root inspected representative captures. Not a manual playthrough.",
+  "checks": 7119,
+  "totalCaptures": 172,
+  "browserErrors": [],
+  "productionSources": {
+    "content/maps/mornay-maps.js": "298b0d92fd8c4a21107d583a6f93a7f569e090c2aac763894af98f99dbc22080",
+    "content/npcs/mornay-npcs.js": "f3e17e0a95782436bedccca183d1496a33fc8d6ee9bb120203f5e636502054bc",
+    "render-mornay.js": "8a1054687c94afc50a1d570fa55694fd8e3b8d9cc3945931d5dbcfd837900ebb",
+    "world-transitions.js": "d5436b003d315de9a310dbcc272215a91197d6d98cc958872965bb0978d30c24"
+  },
+  "captures": [
+    {
+      "file": "mornay_provisioner-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "1e21696177557a67b77ff0749a343df90482b5baa408e8dac2086e57638eae6f"
+    },
+    {
+      "file": "mornay_provisioner-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "f6511fcf16fc6356e633e750af2917320156b306d35c8bcaa7565f3c931e7f36"
+    },
+    {
+      "file": "mornay_kelm_home-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "a69aa9728b0a08a9b5ae3ba250a925461c6a0740297cdc86a978adb7e9ff3c0a"
+    },
+    {
+      "file": "mornay_kelm_home-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "58cc2446f1eb3120ee37517ef8727803ec799c0b17491a98572f4622e602d1cd"
+    },
+    {
+      "file": "mornay_stern_home-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "25cb0045e1d4b9f204eb3b8d0f42313e043f2c90321433f3a63572710551dd93"
+    },
+    {
+      "file": "mornay_stern_home-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "e50db382e166cda18700b6015035c7f6d195e504412fb110897337dda7a5ad7f"
+    },
+    {
+      "file": "mornay_sorn_home-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "5ea8dc7892e7ff3972321f726ca15980dbde0535090cd0a3f312d042ef74232b"
+    },
+    {
+      "file": "mornay_sorn_home-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "35299c3c01fb2c2d7d38789754e9d375e14aa067a48885b46846aff5e5b7645d"
+    },
+    {
+      "file": "mornay_court-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "fb0663c4947f2b4c9493fb7715f496b036714491a400755cdcb82dcf726cc965"
+    },
+    {
+      "file": "mornay_court-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "ab799d099ab915d3c1ca82b727f9bcdcabee79460678f2775c62ed5c4893f0b1"
+    }
+  ]
+}

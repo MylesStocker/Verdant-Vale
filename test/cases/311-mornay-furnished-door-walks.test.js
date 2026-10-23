@@ -50,11 +50,11 @@ function enter(g,b){
  walk(g,(b.returnCol+.5)*32,(b.returnRow+.5)*32,b.id+' approach');
  until(g,b.returnRow>b.doorRow?'ArrowUp':'ArrowDown',()=>g.run('mapIdForRef(activeMap)')===b.mapId);
  assert.equal(g.run('townBuilding'),b.id);
- assert.deepEqual(J(g,'[player.x,player.y]'),[240,432],b.id+' actual arrival');
+ assert.deepEqual(J(g,'[player.x,player.y]'),[240,b.returnRow<b.doorRow?48:432],b.id+' actual arrival');
 }
 function leave(g,b,rooms){
- walk(g,240,432,b.id+' exit approach');
- until(g,'ArrowDown',()=>g.run('mapIdForRef(activeMap)')===b.sourceMapId);
+ walk(g,240,b.returnRow<b.doorRow?48:432,b.id+' exit approach');
+ until(g,b.returnRow<b.doorRow?'ArrowUp':'ArrowDown',()=>g.run('mapIdForRef(activeMap)')===b.sourceMapId);
  assert.equal(g.run('townBuilding'),rooms.find(p=>p.mapId===b.sourceMapId)?.id||null,b.id+' correct parent context');
  assert.equal(g.run('canWalk(player.x,player.y)'),true,b.id+' walkable return');
 }

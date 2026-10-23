@@ -2,7 +2,7 @@
 const assert=require('assert/strict');
 const {J,fresh,place,until}=require('./301-mornay-manifest.test');
 module.exports={
- name:'Mornay doors and districts: all 41 reciprocal rooms and 46 directed streets through held controls in both views',
+ name:'Mornay doors and districts: all 44 reciprocal rooms and 46 directed streets through held controls in both views',
  run(){
   for(const legacy of [false,true]){
    const g=fresh(legacy),rooms=J(g,'MORNAY_BUILDINGS');
@@ -11,10 +11,10 @@ module.exports={
     const into=b.returnRow>b.doorRow?'ArrowUp':'ArrowDown';
     until(g,into,()=>g.run('mapIdForRef(activeMap)')===b.mapId);
     assert.equal(g.run('townBuilding'),b.id);assert.equal(g.run('currentTownId'),'mornay');
-    assert.deepEqual(J(g,'[player.x,player.y,player.facing]'),[240,432,'up']);assert.equal(g.run('canWalk(player.x,player.y)'),true);
+    assert.deepEqual(J(g,'[player.x,player.y,player.facing]'),b.returnRow<b.doorRow?[240,48,'down']:[240,432,'up']);assert.equal(g.run('canWalk(player.x,player.y)'),true);
     assert.equal(g.run('saveGame()'),true);place(g,'MORNAY_WEST_GATE_MAP');assert.equal(g.run('loadGame()'),true);g.run('dialogue.open=false;');
     assert.equal(g.run('mapIdForRef(activeMap)'),b.mapId);assert.equal(g.run('townBuilding'),b.id);
-    until(g,'ArrowDown',()=>g.run('mapIdForRef(activeMap)')===b.sourceMapId);
+    until(g,b.returnRow<b.doorRow?'ArrowUp':'ArrowDown',()=>g.run('mapIdForRef(activeMap)')===b.sourceMapId);
     assert.deepEqual(J(g,'[player.x,player.y,player.facing]'),[(b.returnCol+.5)*32,(b.returnRow+.5)*32,b.facing]);
     assert.equal(g.run('townBuilding'),rooms.find(p=>p.mapId===b.sourceMapId)?.id||null);
     const away=b.facing==='up'?'ArrowUp':'ArrowDown';g.hold(away);g.frames(14);g.release(away);

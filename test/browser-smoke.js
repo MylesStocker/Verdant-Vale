@@ -112,8 +112,9 @@
         check(transitionToLocation({mapId:b.sourceMapId,x:240,y:432,facing:'up',state:townState(b.sourceMapId)}),'Door approach '+b.id);
         walkTo((x,y)=>x===(b.returnCol+.5)*TILE&&y===(b.returnRow+.5)*TILE,'entrance '+b.id);
         walkUntil(b.facing==='up'?'ArrowDown':'ArrowUp',()=>mapIdForRef(activeMap)===b.mapId,'Input door entry '+b.id);
+        check(player.y===(b.returnRow<b.doorRow?48:432)&&player.facing===(b.returnRow<b.doorRow?'down':'up'),'Door orientation '+b.id);
         check(saveGame()&&loadGame(),'Interior save/load '+b.id);closeDialogue();capture(b.id+'-'+scale+'x');
-        walkUntil('ArrowDown',()=>mapIdForRef(activeMap)===b.sourceMapId,'Input door exit '+b.id);
+        walkUntil(b.returnRow<b.doorRow?'ArrowUp':'ArrowDown',()=>mapIdForRef(activeMap)===b.sourceMapId,'Input door exit '+b.id);
       }
       stats.gold=1000;
       for(const id of ['mornay_neris_kelm','mornay_melva_stern','mornay_hesta_sorn','mornay_hal_venn']){
