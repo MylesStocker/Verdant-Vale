@@ -73,8 +73,9 @@ retain their authored generic sprites; validation includes those seven warnings
 and the intentional unrouted-pool warning in addition to the established four.
 The reviewed moraine, bog, drainage, Valmere and peninsula geography is retained.
 Only the three documented Rise cells change in the final natural-choke fix.
-Mornay now has an empty, enterable 17-area exterior skeleton behind two paired
-land gates; its upper four overworld marker cells remain solid. SAVE_VERSION is
+Mornay has 17 enterable exterior areas behind two paired land gates; the
+population-and-services MVP below fills that approved skeleton. Its upper four
+overworld marker cells remain solid. SAVE_VERSION is
 5; main's approved
 column-11/right-facing Esla walk is retained.
 
@@ -87,8 +88,8 @@ the exact irregular adjacency graph and descriptive IDs. Both southern gates
 reach every exterior; every internal transition is reciprocal and lands on a
 walkable street. Exposed edges use visible walls, dense building fabric or
 Valmere water. The denser Middle cross streets, older North harbour ward,
-southern yards and weathered fort establish topology and reserved footprints
-without population or functional doors.
+southern yards and weathered fort establish topology and reserved footprints.
+The population MVP adds the ordinary public doors and residents described below.
 
 The regional crown is now a 2×3 marker: upper cells `(7,1)`, `(8,1)`, `(7,2)`
 and `(8,2)` are solid; `(7,3)` enters `MORNAY_WEST_GATE_MAP` and `(8,3)` enters
@@ -97,10 +98,11 @@ and `(8,2)` are solid; `(7,3)` enters `MORNAY_WEST_GATE_MAP` and `(8,3)` enters
 re-entry, gate save/load and debug arrival in both regional presentations.
 Mornay uses legacy town rendering, permits ordinary field saves, disables
 encounters and adds one West Gate debug warp. Its visually reserved ferry and
-story-ship berths are inert. Mornay Island, ferry operation, ships, interiors,
-NPCs, services, shops, quests and story progression remain deferred.
+story-ship berths are inert. Mornay Island, ferry operation, ships, quests and
+further story progression remain deferred; interiors, NPCs, shops and services
+are implemented in the population MVP below.
 
-Verification: focused case 218 passes with the complete 213/213 regression
+Historical skeleton verification: focused case 218 passed with the 213/213 regression
 suite. `validateGameData()` checks 234 maps with 0 errors and the same 12
 warnings. All 115 regional fingerprints pass; only the intentionally edited
 Town Approach crown hash changes, to

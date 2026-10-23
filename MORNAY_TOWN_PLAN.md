@@ -425,3 +425,277 @@ Each row is one stable character, one placement and one concise dialogue purpose
 Later editorial review may revise names, quip frequency, exact prices, class accents and stock progression. A new equipment tier needs its own balance audit. The proposed Fen Angler’s Rod was rejected as shop stock because the item registry marks it as a quest/key item; ordinary Leather Armor is used instead. Valmere basin depth, hydrographic principal, ship narrative and future Reclaimer objectives are deliberately unresolved.
 
 Required verification includes input-driven gate and door routes; safe landings; unique roster IDs and comparable counts; swept patrol/collision checks; buying, selling, both inn receipts and treatment; save/load every room; mixed-speaker styling and text fit; no mutable Reclaimer state; inert reserved content; no town encounters; catalogue and fingerprints; full transition artifact; old-town and historical combat regression. Test 300 owns gate controls; reserve 301–319 for the exclusive post-production test writer. Browser/manual evidence must be reported separately from simulated controls.
+
+
+## Implementation delivery record
+
+The populated-town MVP is implemented on `agent/mornay-population` in the dedicated sibling worktree `../empire-game-mornay-population`. The district, room, service and complete 300-character tables above describe the delivered content. The delivery leaves this branch clean with local checkpoints; nothing is merged, pushed, rebased, force-updated or applied to another worktree.
+
+### Approved source and prerequisite exception
+
+Starting HEAD: `fe5992ec4bb647ce6f89554ad409a16a143769ec`. `main` and `agent/codex` both point there; `agent/claude` points to `3758d01beb014d50f918c34a98f20735b9ca4a42`. Merge bases: main/codex = `fe5992ec4bb647ce6f89554ad409a16a143769ec`; main/claude and codex/claude = `3758d01beb014d50f918c34a98f20735b9ca4a42`. No active Git operation was present in any of the 20 registered worktrees.
+
+Committed foundations were checked rather than reconstructed: Mornay skeleton and both entrances (`d32aef5`), ferry presentation (`79e8b9a`), Sera/Liora ownership and presentation (`9d93fed`, `052b949`, `fe5992e`), Rise ambush (`3758d01`), integrated Fens/MQ5 (`089b7f8`), Rise camp/dialogue (`e6b4671`), party menus/singleton compatibility (`3b35723`) and preceding canonical party integration (`feee974`). The dedicated worktree started clean. The source had no tracked changes, but its approved QA PNG was untracked; this was the exact original preflight blocker.
+
+The user's explicit resume exception authorized copying only `Art/qa/sera-liora/Sera and Liora between twin beds.png`. The source remains untouched and untracked in the codex worktree; the destination is a normal tracked 2,203,880-byte image, not a symlink. Both SHA-256 values match suite 260's authority: `47fbf97862f2865fda59a0750970112933fe0cdbd41c49bc29b0544b27c9a025`. The image was neither regenerated nor altered. Suite 260 passed, then the complete restored baseline passed **218/218** before the image-only prerequisite commit. The earlier preflight's only failure was the missing image (217/218).
+
+### Coordinated agents and integration decisions
+
+All initial findings were reused after the pause. Only the root edited production, changed Git, regenerated shared artifacts or committed. No nested delegation occurred. Concurrency stayed within available slots and the user's four-agent ceiling. All subagents used GPT-6.1 Sol; none used Astra.
+
+| Agent | Assignment / effort | Accepted findings and corrections |
+|---|---|---|
+| `gate_debugger` | Paired gate diagnosis / High | Accepted entrance-marker bounce diagnosis, row-4 safe returns, both-mode held-input coverage. Rejected the old topology test's row-3 landing as an authority. |
+| `drenwick_benchmark` | Ordinary town census / Medium | Accepted registry/schedule union and overlap methodology. Corrected provisional 101 to 99 by removing a position-only visitor and party Esla projection; retained ordinary wake-scene staff/patient. Visitors count comparably in both towns. |
+| `urban_geography` | Seventeen-district matrix / Medium | Accepted district roles, central circulation and narrow northern lane restrictions, reserve protection. Root placed infirmary/school in the South, commercial inn in North Upper West and harbour room in North Lower West. |
+| `economy_institutions` | Services and institutions / Medium | Accepted existing stocks, combined chandler/secondhand business, two prices and ordinary paid-care convention. Rejected quest/key-item Fen Angler's Rod as merchandise; used Leather Armor. Accepted rest-receipt gold-seal warning. |
+| `npc_network` | Full roster and dialogue clusters / Medium | Accepted 300 identities and connected family/work networks. Root reduced proposed patrols to 12 safe routes, revised numerous quips into practical concerns, and renamed Liora Bexley to Linna Bexley to avoid confusion with the established character. |
+| `reclaimer_canon` | Canon, terminology and knowledge / Medium | Accepted two stale text corrections, nine network ties, three concealed members and optional-reading/ambush knowledge limits. No legacy faction identifier required preservation. |
+| `state_architecture` | Ownership and implementation surface / Medium | Accepted distinct room IDs, existing registries/location payload and save version 5. Corrected its initial missed Drenwick exterior paid-treatment authority using economy/root tracing. |
+| `verification_audit` | Complete test matrix / High | Accepted controller, service, collision, state and compatibility matrix. Audited all worktrees and reserved previously unused 300–319 block. |
+| `mornay_test_writer` | Exclusive new focused tests / High | Wrote only new 301–310 after root production stopped at `b5ced18`; all ten passed. Root inspected every file and bounded its roster parser to the roster section after adding delivery tables. Tests exercise input, collision, accounting and atomicity, including an independently derived census; no production defect reproduced. |
+| `mornay_correctness_review` | Fresh final correctness / High | No evidence-backed defect. Independently reran 300, 303, 305, 306, 307 and 308 successfully. No files changed. |
+| `mornay_coherence_review` | Fresh final town coherence / Medium | No canon or coherence blocker. Five subjective editorial/visual suggestions are recorded below rather than silently rewritten. No files changed. |
+
+### Local checkpoint chain
+
+The final test/documentation checkpoint containing this delivery record follows `b5ced18`. Its exact SHA and parent are supplied with the delivery response; a commit cannot contain its own resulting hash. All preceding full hashes and parents are:
+
+| Commit | Parent | Subject |
+|---|---|---|
+| `29c87c9097ac3c663b7386d48a8f02910e02266f` | `fe5992ec4bb647ce6f89554ad409a16a143769ec` | chore(test): track approved Sera and Liora reference image |
+| `da794f77f6a62b7e033a337bcb6229088e41054b` | `29c87c9097ac3c663b7386d48a8f02910e02266f` | fix(mornay): restore paired overworld exits |
+| `f3902739d142a132479a6fa511e6cd0ba5fe3431` | `da794f77f6a62b7e033a337bcb6229088e41054b` | docs(mornay): define population and services plan |
+| `f5095e3b681bab1cc1ddf6b387cc74b19706cb50` | `f3902739d142a132479a6fa511e6cd0ba5fe3431` | fix(lore): restore Reclaimer terminology |
+| `3ec5fdec6cab592fdb6deb404ffe8df9fcf7f6cc` | `f5095e3b681bab1cc1ddf6b387cc74b19706cb50` | feat(mornay): add civic and commercial interiors |
+| `b5ced18db5269b6e36454af7a55f57780048854e` | `3ec5fdec6cab592fdb6deb404ffe8df9fcf7f6cc` | feat(mornay): populate services and Reclaimer networks |
+
+Services, street population and Reclaimer content were combined in one checkpoint because they share the NPC, interaction and rendering authorities. No milestone was committed with a failing focused check.
+
+### Gate defect, corrected contract and evidence
+
+Reproduction on the approved source used the real keyboard listeners and `update()`: start on Town Approach below either entrance, hold Up into the corresponding gate, then hold Down toward the southern exit. The party left town onto the same `TOWN_ENTRANCE` marker and re-entered on the next update. Existing transition cooldown did not suppress this tile dispatch. Both regional presentation modes behaved alike; direct topology tests incorrectly required the marker landing and stopped before the next input frame.
+
+`world-transitions.js:exitTown()` now follows the existing town convention of landing beyond the entrance trigger. No input-specific or debug-only escape was added. Gate identity comes from the actual gate map, so loading a gate save or arriving by debug warp needs no remembered origin.
+
+| Gate | Local arrival | Local exit tile | Town Approach return | Canonical regional world point | Facing |
+|---|---|---|---|---|---|
+| West | `(240,432)` px, up | `(7,14)` | tile `(7,4)`, centre `(240,144)` px | `(8944,-1296)` | down |
+| East | `(240,432)` px, up | `(7,14)` | tile `(8,4)`, centre `(272,144)` px | `(8976,-1296)` | down |
+
+Both returns use existing PATH tile 2 with a valid full player collision footprint. They are south of the trigger row `(7,3)/(8,3)` and the four solid crown tiles in rows 1–2. Continued Down movement leaves the marker, idle frames do not re-enter, and deliberate Up movement re-enters the correct gate. Tests cover both complete round trips, both presentations, saving/loading each gate and conventional West Gate debug warp followed by ordinary exit. Automated Chrome repeats these routes at both display sizes. No manual pre-fix or post-fix human playthrough is claimed.
+
+### Delivered population and political distribution
+
+The census is **99 Drenwick comparable characters versus 300 Mornay characters: 3.0303×**. Drenwick is a union of 9 exterior and 92 interior identities with Renn and Veran shared. Schedule aliases, duplicate placements, cutscene party copies, enemies and debug fixtures do not inflate it. Eight Drenwick characters are explicitly visitors; the remaining 91 are not all established permanent residents. Suite 310 derives the ordinary schedule union over ten days.
+
+Mornay has 120 exterior and 180 interior speakers; all 300 have unique stable IDs and distinct names. There are 12 moving speakers and 288 stationary speakers, zero silent-only residents, and 293 incidental/ambient speakers plus seven operational service keepers. Movement and speaking counts overlap. Authored primary role buckets (exclusive, rather than a claim that occupations never overlap) are: 159 workers, 67 residents/visitors, 32 officials, 24 service workers and 18 merchants. The seven transactional keepers comprise four shops, two inns and one physician. The exterior district matrix and room matrix above give every map's exact count; the full roster gives every person and location.
+
+Nine network-linked residents occupy eight exterior districts: five are outside and four inside. Three are author-only confirmed members; four are associates; two are sympathizers, one of whom is falsely accused of organizing violence. Three additional Imperial/watch observers are separate from those nine.
+
+| Character | Classification | Exact location |
+|---|---|---|
+| Dena Mere | labour associate; sympathetic, membership unconfirmed | `MORNAY_NORTH_LOWER_WEST_MAP` |
+| Bram Fen | confirmed member | `MORNAY_MIDDLE_UPPER_WEST_MAP` |
+| Pella Dorn | sympathizer falsely accused of organizing violence | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` |
+| Tavi Rusk | confirmed member | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` |
+| Sima Wold | boarding and lodging associate | `MORNAY_SOUTH_UPPER_WEST_MAP` |
+| Yara Kelm | medical mutual-aid associate | `MORNAY_INFIRMARY_MAP` |
+| Hal Venn | logistics associate | `MORNAY_CHANDLER_MAP` |
+| Oren Teal | educated sympathizer | `MORNAY_SCHOOL_MAP` |
+| Nessa Quill | confirmed member | `MORNAY_LAUNDRY_MAP` |
+
+Imperial observers are Jessa Nair (West Gate), Marit Voss (Regional IJC Office, Middle Upper Central East) and Edrin Saye (Harbour/Customs room, North Lower West). The network is conveyed through linen and food aid, contested wages, missing freight, private letter carriage, printers, seized sheets and guarded associations. Thirteen inspectable notices also identify ordinary institutions and inert reserves; only a restrained subset concerns political activity. The locked back stair and bonded annex do not open.
+
+Representative connected dialogue includes Gessa asking why Arlis's contractor returned a condemned hoist to use; Kelda describing a contractor denying her employment after an injury; Nessa refusing to trade contributors' names for donations; Marit separating wage grievances from conspiracy; and Benna describing three years of paid examination preparation. The five companion conversations use canonical `speakerId: 'esla'` and `esla_light_green` (`#a8e89c`), gated by actual companion availability. Lely remains quiet. No one exposes membership, assumes optional brewery reading, attributes the earlier ambush to the faction, resolves the central mystery or starts an investigation.
+
+The two corrected stale faction references were Fenwick's dialogue in `npcs.js` and the ambusher non-affiliation passage in `LORE.md`. Runtime and lore now consistently say Reclaimers. **Retained internal or persistence faction identifiers: none.** The obsolete spelling remains only where a test or this audit explicitly describes the prohibited terminology; it is not an alias, faction or historical rename.
+
+### Exact existing-grid changes
+
+All 115 regional grids and fingerprints are unchanged by this branch. Exactly 18 cells in existing Mornay exteriors changed: fifteen `TOWN_BUILDING` (13) cells became ordinary `HOUSE_DOOR` (34), and three northern approach cells became `TOWN_FLOOR` (12). No other existing-grid cell changed. Coordinates are zero-based `(column,row)`:
+
+| Exterior | 13 → 34 doors | 13 → 12 approach |
+|---|---|---|
+| North Upper West | `(11,5)` | `(11,6)` |
+| North Lower West | `(11,5)` | `(11,6)` |
+| North Lower East | `(11,5)` | `(11,6)` |
+| Middle Upper West | `(3,5)` | — |
+| Middle Upper Central West | `(3,5)` | — |
+| Middle Upper Central East | `(3,5)` | — |
+| Middle Lower Central West | `(3,5)` | — |
+| Middle Lower Central East | `(12,5)` | — |
+| Middle Lower East | `(3,5)`, `(3,9)` | — |
+| South Upper West | `(12,5)`, `(3,10)` | — |
+| South Upper East | `(3,5)`, `(12,5)` | — |
+| West Gate | `(3,5)` | — |
+
+The 17 new room grids use existing walls, floor, exit, door and solid fixture tiles. Furniture collision and rendering share `MORNAY_ROOM_FIXTURES`. Exterior dressing is deterministic and sits on existing building massing; no new terrain type, random decoration, dependency or bespoke portrait was added. The only added raster file is the explicitly authorized prerequisite QA reference.
+
+### File-level delivery
+
+| Files | Purpose |
+|---|---|
+| `Art/qa/sera-liora/Sera and Liora between twin beds.png` | Exact approved test reference import. |
+| `LORE.md`, `MORNAY_TOWN_PLAN.md`, `architecture.md`, `PROJECT_STATUS.md` | Canon terminology, approved institution definitions, complete roster/district/service plan, ownership/current status and delivery record. Historical skeleton verification is labelled as historical. |
+| `content/maps/mornay-maps.js`, `data.js` | Door/return/fixture authorities, 17 rooms and catalogue registration. |
+| `content/npcs/mornay-npcs.js`, `npcs.js` | 300 stable speakers, 12 routes, companion exchanges, registry integration and Fenwick correction. |
+| `content/interactions/mornay-interactions.js`, `interactions.js`, `shops.js` | Inert inspectables, four inventories, two inns and selected-member treatment offers. |
+| `persistent-party.js` | Narrow canonical `treatMember()` operation; no new saved authority. |
+| `movement.js`, `world-transitions.js`, `save.js`, `validation.js` | Safe gate returns, room dispatch/reciprocity, map-context validation and existing save-v5 integration. |
+| `render-mornay.js`, `render-entities.js`, `render.js`, `index.html` | Deterministic town details, room fixtures, optional sprite palette variation and script/render integration. |
+| `test/browser-smoke.js` | Real Chrome keyboard, Canvas, font and service review at both display scales. |
+| `test/cases/300-mornay-gate-controller.test.js` | Root-owned gate prerequisite coverage. |
+| `test/cases/301-mornay-manifest.test.js`, `302-mornay-occupancy-routes.test.js`, `303-mornay-room-district-controls.test.js`, `304-mornay-shop-controller.test.js`, `305-mornay-inn-recovery.test.js` | Delegated identity/reachability/routes, every room and street crossing, real commerce and both inn recovery contracts. |
+| `test/cases/306-mornay-treatment-controller.test.js`, `307-mornay-persistence-atomicity.test.js`, `308-mornay-dialogue-reservations.test.js`, `309-mornay-compatibility.test.js`, `310-mornay-comparable-census.test.js` | Delegated care accounting, forged-save rejection, inert content/style, no encounters/read-only rendering and independent benchmark. |
+| `test/cases/45-npc-movement-contract.test.js`, `46-bridge-guard-toll.test.js`, `58-regional-content-split.test.js` | Extend explicit mover/aggregate expectations for the twelve new routes and Mornay registry; retain old assertions. |
+| `test/cases/98-thornmere-upper-shallows-scenery.test.js`, `99-thornmere-canal-head.test.js`, `100-east-causeway.test.js`, `101-west-outfall-canal-tunnel.test.js`, `102-north-basin-drowned-rim.test.js`, `103-north-basin-mirewood.test.js`, `104-eastern-reaches-abandoned-farmhouse.test.js`, `201-travellers-rise-campsite.test.js`, `207-travellers-rise-campfire-night.test.js`, `218-mornay-exterior-topology.test.js` | Legitimate catalogue total update to 251; case 218 also corrects the defective gate landing expectation. No topology/fingerprint/compatibility assertions were relaxed. |
+| `test/transition-audit.js`, `test/transition-audit-output.json` | Enumerate new reciprocal room transitions and regenerate their authoritative audit. |
+
+### Verification and artifact accounting
+
+The final complete `node test/run.js` regression passed **229/229 suites, 0 failures**. This includes the historical singleton, Formation, party-command, Resonance, Sera/Liora, MQ5, Eastern Fens, Travellers' Rise, ferry, old-town and no-visible-void compatibility coverage. The restored prerequisite baseline was 218/218; eleven new Mornay suites account for the increase.
+
+The 11 Mornay suites cover both gate round trips, actual held controls for all 17 rooms and all 46 directed exterior crossings in both regional modes, all 300 reachable conversations on workday and Dayoff, all twelve moving routes and swept occupancy, four complete inventories through buy/sell/cancel/insufficient-funds/save flows, both inns for solo/companion/mixed Fallen parties, and selected-member full/partial/zero-funds treatment. Every room saves/loads and exits normally; 136 forged room-save combinations reject atomically. Dialogue/notices remain repeatable without flag, reward, allegiance or MainQuest mutation. Canonical speaker styling survives pagination. Every exterior/interior remains escapable and the town does not roll encounters.
+
+`node --check` passed for all 41 changed/new JavaScript files. `validateGameData()` reports 251 maps, 481 total registry NPCs, 956 text entries, 205 existing save flags, **0 errors and the same 12 baseline warnings**. The warnings remain the documented notice-board property, eight generic battle sprites, one reserved encounter pool and two older long-dialogue entries. SAVE_VERSION remains **5** with no added payload field. Unique IDs, route validation, fixture collision, malformed placement rejection, state isolation, fingerprints, stale-reference/conflict searches and `git diff --check` pass.
+
+The complete read-only transition audit passes: **251 maps, 342 fixed destinations, 8 preserved-coordinate transitions, 240 edge segments and 42 legacy house doors**. Its fixed destinations include 34 new room entry/exit records. The 17 Mornay room doors are registry entries, distinct from the legacy house-door count.
+
+Only `test/transition-audit-output.json` was regenerated, always through `node test/transition-audit.js --write`. The gate checkpoint changed two return destinations; the room checkpoint added 17 map/dimension records and 34 fixed transitions; populated collision changed 38 escape-direction booleans across 26 Mornay records (11 door returns and 15 district landings), all still escapable and OK. These are current-input changes, not unrelated catch-up. Regional fingerprint fixtures were not regenerated.
+
+The first populated full run exposed twelve historical assertions tied to old map totals, mover lists or the aggregate NPC array. Those expectations were updated for the authorized additions without relaxing the substantive assertions; their focused reruns passed before checkpointing. No historical combat or old-town production workaround was introduced.
+
+### Browser evidence and remaining human review
+
+The in-app browser execution tool was unavailable. The existing local headless Chrome workflow was used instead: `node test/run-browser-smoke.js` with a temporary capture-output directory. It passed **1,071 checks with no browser errors and produced 118 Canvas captures**. The actual DOM Canvas displayed at 512×480 and 1024×960; exported Canvas PNGs retain the logical 512×480 resolution, so they are not full-viewport screenshots.
+
+Real browser keyboard events exercised both gates in both movement modes at both scales, save/load in both gates, ordinary departure after West Gate debug warp, every room entrance/exit and room save, four shop purchases, both inn rests, infirmary care and representative cluster conversations. Every exterior was placed/rendered, and all 293 non-service NPC dialogues were measured using actual browser fonts. Esla's green interjection, Collegium/reserve presentation, no town battles, ferry behaviour and old-town rendering were inspected. The root visually reviewed eight captures; the coherence reviewer inspected four. These are automated browser evidence and visual inspection of captures, not a human continuous playthrough. All 46 district crossings were separately exercised through VM keyboard controls.
+
+Remaining human feel/pacing checklist, at both display sizes:
+
+1. From `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP`, walk Up from `(240,144)` into West Gate, Down out, then repeat at `(272,144)` for East Gate. Hold departure; release/repress; save/load each gate; use the conventional Mornay West Gate debug destination and leave normally. Repeat in Legacy Regional Fallback.
+2. Traverse the full 17-map district matrix above. Check foreground readability, route clearance and perceived density, especially the narrow North rows, Middle market and freight yards. Read political evidence at North Lower West `(12.5,8.2)`, Middle Upper Central West `(2.5,9.2)`, Middle Lower Central East `(2.5,5.8)`, Middle Lower West `(12.5,9.2)` and locked Middle Lower East stair `(12.5,5.8)` (tile units).
+3. Walk every exact door/return pair in the interior matrix, including both inn upstairs rooms. Save/load in the IJC office, infirmary, warehouse and both lodging rooms; confirm furniture and moving residents cannot obstruct an exit. Use all four keepers, both innkeepers and physician Selven Orr.
+4. Speak to the five companion-exchange speakers: Inessa Cray in the IJC office; Yara Kelm and Elrin Vey in the infirmary; Dena Mere at North Lower West; Nessa Quill in the laundry. Check green Esla text and normal text afterward. Sample workers, parents, children, exam candidates, clerks, shopkeepers, patients, crews, injured/unemployed residents and all nine network-linked residents from the roster.
+5. Inspect the locked Civic Collegium at North Upper East `(12.5,6.2)`, hydrographic frontage at Middle Upper East `(12.5,5.8)`, Old Fort cells `(10.5,2.8)`, story berth at North Upper West `(4.5,10.5)` and island ferry reserve at North Lower West `(4.5,4.5)`. No boarding, quest, faction, investigation or reputation interface should activate.
+6. Revisit Calwick and Drenwick; use their ordinary exits and representative services. Confirm no random Mornay encounter and unchanged causeway ferry behaviour. Judge crowding and dialogue rhythm across a sustained visit; automation does not establish those qualities.
+
+### Editorial questions retained for later review
+
+The fresh coherence reviewer found no blocker but recommended considering: (1) reducing the shared aphoristic voice among unrelated workers and customers; (2) making Sima's letter-drop hint and Yara's mention of Nessa's meetings more guarded; (3) clarifying whether Elna's complaint means a lower per-unit charge rather than lower total freight fee; (4) depicting injured patients resting rather than standing beside beds; and (5) varying the repeated room geometry and regular NPC rows. These are recorded suggestions, not silently applied rewrites. Names, prices and flavour remain revisable. A new equipment progression tier still requires a separate balance audit.
+
+The scope deliberately leaves Regional Office operational plot dialogue, hydrographer/Esla history, ship mystery, clandestine boarding, island ferry, Old Fort plot, new major quests, Reclaimer recruitment/investigation and allegiance/reputation systems inactive. The Civic Collegium has no interior. No future principal character was introduced and no hidden mutable story hook was added.
+
+### Worktree preservation and final status
+
+All 20 registered worktrees were rechecked. Every non-Mornay HEAD, status entry and active-operation result matches preflight. No worktree has a merge, rebase, cherry-pick, revert, bisect or sequencer operation in progress. Paths below are relative to the original repository to avoid committing machine-specific absolute paths. The dedicated branch's exact final checkpoint hash is in the delivery response; after that checkpoint its porcelain status is empty.
+
+| Worktree | Branch | HEAD | Porcelain status |
+|---|---|---|---|
+| `.` | `main` | `fe5992ec4bb647ce6f89554ad409a16a143769ec` | clean |
+| `../empire-game-claude` | `agent/claude` | `3758d01beb014d50f918c34a98f20735b9ca4a42` | 65 entries, reproduced below |
+| `../empire-game-codex` | `agent/codex` | `fe5992ec4bb647ce6f89554ad409a16a143769ec` | 1 entries, reproduced below |
+| `../empire-game-integration` | `integration/eastern-party-foundations` | `3d5413a8b3094070da503c5cb05c0a689b4c92b5` | clean |
+| `../empire-game-mornay-population` | `agent/mornay-population` | delivery checkpoint containing this record | clean |
+| `.claude/worktrees/bullet-time` | `bullet-time` | `ff43da6bf6161d0dd5a2a5fc89b1b5ff570e2cbf` | clean |
+| `.claude/worktrees/canonical-transition` | `canonical-transition` | `190dd83c17720eeb08579f0a5f483cd3ae87cf98` | clean |
+| `.claude/worktrees/enemy-id-authority` | `enemy-id-authority` | `a75b700b7f9e685469fbae2ca28b777475b8bee1` | clean |
+| `.claude/worktrees/enemy-pool-registry-consumers` | `enemy-pool-registry-consumers` | `a1a43ab559b51f2ff249541fdf2f3fad842d7f06` | clean |
+| `.claude/worktrees/mundane-dilemmas` | `mundane-dilemmas` | `e8b624b83032a4ed8354f110669333665e86e801` | clean |
+| `.claude/worktrees/post-door-top` | `post-door-top` | `6aa7a828471e844692aff48875fdbf0b5674af76` | clean |
+| `.claude/worktrees/regional-content-split` | `regional-content-split` | `318503b4863ed136cad010f5e600039990b9f524` | clean |
+| `.claude/worktrees/save-binding-migration` | `worktree-save-binding-migration` | `a949335a0bf5674eedb15789e09c158cae61b91c` | clean |
+| `.claude/worktrees/secret-northern-road-seam` | `secret-northern-road-seam` | `d37c360dbe55f852f3ac3edcea16a866a9c648e3` | clean |
+| `.claude/worktrees/sluice-easy-top-floor` | `sluice-easy-top-floor` | `507b6965a21b86086d7c796b784c1bf081053f0e` | clean |
+| `.claude/worktrees/sluice-top-fix` | `sluice-top-fix` | `42e82da663378c610b2523952e260e43c509fc2c` | clean |
+| `.claude/worktrees/small-fixes-2` | `small-fixes-2` | `3b5e22f801dc639ad1df4aa3377a05f83872dd27` | clean |
+| `.claude/worktrees/small-fixes-batch` | `small-fixes-batch` | `f98861c7fdfa6c9f5197fe493b3ac5fed9ff2335` | clean |
+| `.claude/worktrees/stable-ids-v3` | `stable-ids-v3` | `29607ee4d943277a56c2e919d3ddb53612138e33` | clean |
+| `.claude/worktrees/status-cure-contract` | `status-cure-contract` | `6ecccd8536e905f1d4e2ed1335ebc806b31b774d` | 5 entries, reproduced below |
+
+Exact retained porcelain entries for `agent/claude`:
+
+```text
+ M ENEMY_CAPABILITY_AUDIT.md
+ M OVERWORLD_ATLAS.md
+ M combat.js
+ M content/maps/eastern-fens-maps.js
+ M data.js
+ M index.html
+ M render-battle.js
+ M test/cases/100-east-causeway.test.js
+ M test/cases/101-west-outfall-canal-tunnel.test.js
+ M test/cases/102-north-basin-drowned-rim.test.js
+ M test/cases/103-north-basin-mirewood.test.js
+ M test/cases/104-eastern-reaches-abandoned-farmhouse.test.js
+ M test/cases/105-small-ui-pickup-and-gold-polish.test.js
+ M test/cases/106-thornmere-lighthouse-dual-quests.test.js
+ M test/cases/107-thornmere-lighthouse-interior.test.js
+ M test/cases/155-formation-four-command-integration.test.js
+ M test/cases/161-eastern-fens-route.test.js
+ M test/cases/175-eastern-fens-exploration.test.js
+ M test/cases/176-eastern-fens-envelope.test.js
+ M test/cases/177-eastern-fens-western-pockets.test.js
+ M test/cases/178-eastern-fens-nw-open-fen.test.js
+ M test/cases/186-enemy-capability-migration.test.js
+ M test/cases/188-status-specials-party-combat.test.js
+ M test/cases/189-unusual-enemy-capabilities-party-combat.test.js
+ M test/cases/191-universal-party-combat-compatibility.test.js
+ M test/cases/200-eastern-fens-mornay-encounter-content.test.js
+ M test/cases/201-travellers-rise-campsite.test.js
+ M test/cases/207-travellers-rise-campfire-night.test.js
+ M test/cases/209-eastern-fens-new-terrain-tiles.test.js
+ M test/cases/213-eastern-fens-storm-shoals.test.js
+ M test/cases/215-eastern-fens-valmere-mornay-peninsula.test.js
+ M test/cases/52-stable-persistence-ids.test.js
+ M test/cases/58-regional-content-split.test.js
+ M test/cases/69-world-view-and-drawmaptiles.test.js
+ M test/cases/71-continuous-world-view.test.js
+ M test/cases/72-continuous-seams.test.js
+ M test/cases/73-continuous-neighbour-content.test.js
+ M test/cases/76-geographic-encounters.test.js
+ M test/cases/77-map3-fen-seam-pilot.test.js
+ M test/cases/78-verdant-vale-legacy-home.test.js
+ M test/cases/83-map3n2-northbasin-seam-closure.test.js
+ M test/cases/84-canonical-regional-position.test.js
+ M test/cases/85-canonical-consumers-part2.test.js
+ M test/cases/86-regional-chunk-catalog.test.js
+ M test/cases/88-continuous-regional-production-default.test.js
+ M test/cases/89-west-outfall-scenery-chunk.test.js
+ M test/cases/90-north-basin-open-reservoir.test.js
+ M test/cases/91-north-basin-open-reservoir-east.test.js
+ M test/cases/92-north-basin-eastern-woods.test.js
+ M test/cases/93-north-basin-open-reservoir-far-east.test.js
+ M test/cases/94-north-basin-east-shore-reservoir.test.js
+ M test/cases/95-north-basin-eastern-road.test.js
+ M test/cases/96-eastern-canal-banks.test.js
+ M test/cases/97-northern-thornmere-fen.test.js
+ M test/cases/98-thornmere-upper-shallows-scenery.test.js
+ M test/cases/99-thornmere-canal-head.test.js
+ M test/fixtures/regional-grid-fingerprints.js
+ M test/transition-audit-output.json
+ M world-transitions.js
+?? content/maps/eastern-shore-maps.js
+?? content/maps/great-fen-maps.js
+?? content/maps/southern-moraine-maps.js
+?? content/maps/valmere-expanse-maps.js
+?? test/cases/218-great-fen-expansion.test.js
+?? test/cases/219-valmere-expanse.test.js
+```
+
+Exact retained porcelain entries for `agent/codex`:
+
+```text
+?? "Art/qa/sera-liora/Sera and Liora between twin beds.png"
+```
+
+Exact retained porcelain entries for `status-cure-contract`:
+
+```text
+ M interactions.js
+ M maps.js
+ M npcs.js
+ M render-interiors.js
+ M test/cases/30-rest-week-inn-and-dayoff-closures.test.js
+```
