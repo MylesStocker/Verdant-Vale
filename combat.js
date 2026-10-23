@@ -117,6 +117,7 @@ const ENEMY_TEMPLATE_POOLS = [
   { id: 'pool_dungeon_f8',        label: 'Dungeon — floor 8',                  templates: DUNGEON8_ENEMY_TEMPLATES },
   { id: 'pool_dungeon_horror',    label: 'Dungeon — floors 9–10 (horror)',     templates: DUNGEON_HORROR_ENEMY_TEMPLATES },
   { id: 'pool_far_overworld',     label: 'Far overworld (MAP3 / N-tier)',      templates: FAR_ENEMY_TEMPLATES },
+  { id: 'pool_north_fen_zolom',   label: 'Eastern Fens — North Fen (Zolom gate)', templates: FEN_ZOLOM_ENEMY_TEMPLATES },
   // The raw template registration -- registers the seven enemies themselves
   // (ENEMY_TEMPLATE_REGISTRY identity/capability auditing) independently of
   // any formation table. Intentionally never routed directly from a map's

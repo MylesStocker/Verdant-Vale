@@ -17,11 +17,14 @@ const INFILL = {
   EASTERN_FENS_REED_HOLLOW_MAP: [11, 3],
 };
 // (10,1),(6,3),(9,4) were upgraded to walkable western pockets (increment 3);
-// (7,0),(8,0),(6,1) to the walkable NW open fen (increment 4); the rest stay scenery.
+// (7,0),(8,0),(6,1) to the walkable NW open fen (increment 4); (14,0) to the
+// Valmere expanse gateway (later increment); (18,1) to the Eastern Shore
+// gateway and (15,5) to the Southern Moraine gateway (final increment); the
+// rest stay scenery.
 const SCENERY_COORDS = [
-  [6,0],[9,0],[14,0],[5,1],[9,1],[11,1],[12,1],[13,1],
-  [14,1],[16,1],[17,1],[18,1],[16,2],[16,3],[16,4],
-  [5,3],[7,3],[8,3],[8,4],[10,4],[11,4],[12,4],[12,5],[13,5],[14,5],[15,5],[16,5],
+  [6,0],[9,0],[5,1],[9,1],[11,1],[12,1],[13,1],
+  [14,1],[16,1],[17,1],[16,2],[16,3],[16,4],
+  [5,3],[7,3],[8,3],[8,4],[10,4],[11,4],[12,4],[12,5],[13,5],[14,5],[16,5],
 ];
 const WESTERN_POCKETS = [
   ['EASTERN_FENS_ENVELOPE_C6R3_MAP', 6, 3],
@@ -64,15 +67,18 @@ module.exports = {
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} no encounters`);
     }
     // The walkable off-road pockets (western increment 3 + NW open fen increment 4)
-    // are accessible, upgraded from scenery, and still content-free.
+    // are accessible, upgraded from scenery, and still content-free. (7,0)/(8,0)
+    // are the one exception: the Fen Zolom gate (see test 178), encounters on.
     for (const [id, cx, cy] of WESTERN_POCKETS) {
+      const isGate = id === 'EASTERN_FENS_ENVELOPE_C7R0_MAP' || id === 'EASTERN_FENS_ENVELOPE_C8R0_MAP';
       assert.equal(g.run(`mapIdForChunk('overworld',${cx},${cy})`), id, `${id} placed at ${cx},${cy}`);
       assert.equal(g.run(`mapPlayerAccessible('${id}')`), true, `${id} is a walkable pocket`);
-      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} no encounters`);
+      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), isGate, `${id} encounters ${isGate ? 'on (Fen Zolom gate)' : 'off'}`);
     }
-    // Totals after increments 3 + 4.
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 115, 'route + infill + scenery + northern water placements');
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 66, '47 route + 4 infill + 3 western pockets + 3 NW open fen');
+    // Totals after increments 3 + 4 + the Great Fen expansion (28 Great Fen
+    // chunks: 4 converted entry chunks + 24 fresh, all walkable).
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 244, 'route + infill + scenery + northern water placements + Great Fen');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 121, '66 pre-Great-Fen accessible chunks + 28 Great Fen chunks');
 
     // THE PERMANENT INVARIANT: zero visible void from every reachable EF tile.
     const voidResult = J(`JSON.stringify((function(){
@@ -112,13 +118,14 @@ module.exports = {
     assert.ok(voidResult.reachable > 3000, `broad reachable fen (${voidResult.reachable} tiles)`);
     assert.deepEqual(voidResult.voids, [], 'no reachable Eastern Fens tile can scroll an unplaced (void) coordinate into the 512x480 camera');
 
-    // Camera bounds are unchanged by Phase 2 (all new chunks fit inside the
-    // existing overworld bbox), so the Valmere (north) and the future Mornay
-    // direction (east of the Mornay threshold, chunk 19,0) stay camera-clamped.
+    // Camera bounds are unchanged by Phase 2 itself (all new Phase-2 chunks
+    // fit inside the existing overworld bbox); the later Great Fen, Valmere,
+    // Eastern Shore, and Southern Moraine expansions grow the bbox further
+    // north, east, and south, which this same assertion now reflects.
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
-    assert.equal(b.maxChunkX, 18, 'east bbox unchanged (Mornay at 19,0 stays clamped)');
-    assert.equal(b.maxChunkY, 5, 'south bbox unchanged');
-    assert.equal(b.minChunkY, -4, 'north bbox now row -4 (Mornay town + harbour water)');
+    assert.equal(b.maxChunkX, 20, 'east bbox now col 20 (the Valmere expanse open water)');
+    assert.equal(b.maxChunkY, 7, 'south bbox now row 7 (the Southern Moraine expansion)');
+    assert.equal(b.minChunkY, -7, 'north bbox now row -7 (the Great Fen + Valmere expansions)');
 
     // Resolved spurs: the WIDE_WATER north bridge is now a real seam into the
     // bridge inlet (13,2); the CHANNEL_APPROACH_W south road now ends against the

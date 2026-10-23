@@ -266,7 +266,7 @@ module.exports = {
     for (const col of [4,5,10,11]) oldSouth[0][col] = TREE;
     for (const row of [2,5,8,11,13]) oldSouth[row][0] = TREE;
     assert.equal(sha256(JSON.stringify(oldSouth)), OLD_SOUTH_FP, 'West Mire delta is exactly eight north-edge seam cells plus five blocked west-edge cells');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 115);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 244);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint stable`);
     }
@@ -277,11 +277,11 @@ module.exports = {
     assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|west`], 'BORDER');
     assert.equal(verdict[`${ID}|east`], 'BLOCKED'); assert.equal(verdict[`${ID}|south`], 'ALIGNS');
     assert.equal(verdict[`${EAST_ID}|west`], 'BLOCKED'); assert.equal(verdict[`${SOUTH_ID}|north`], 'ALIGNS');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 70, ALIGNS: 140, BLOCKED: 246 });
-    assert.equal(audit.seamReadiness.edges.length, 460);
-    assert.equal(g.run('continuousSeamEntries().length'), 160);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 115);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 217);
+    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 96, ALIGNS: 280, BLOCKED: 596 });
+    assert.equal(audit.seamReadiness.edges.length, 976);
+    assert.equal(g.run('continuousSeamEntries().length'), 300);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 244);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 346);
     assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(g.run('validateGameData().errors'), 0);
   },

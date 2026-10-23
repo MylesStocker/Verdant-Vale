@@ -283,10 +283,23 @@ module.exports = {
       assert.equal(sha256(JSON.stringify(SHORELINE_OLD_GRIDS[id])), SHORELINE_OLD_FP[id], `${id}: recorded OLD_FP matches the literal prior grid`);
       const newGrid = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`);
       assert.equal(sha256(JSON.stringify(newGrid)), GRID_FP.fingerprints[id], `${id}: current grid matches the updated fingerprint`);
+      // EASTERN_FENS_VALMERE_REVEAL_MAP's west border (col 0, rows 6-8) was
+      // separately authorized later to open the Valmere expanse's entrance
+      // seam (water -> walkable reed/gravel matching the adjacent col-1
+      // texture) -- excluded from this pass's own shingle/driftwood diff.
+      // EASTERN_FENS_MORNAY_THRESHOLD_MAP's south border (row 14, cols 7-9)
+      // was separately authorized later to open the Eastern Shore expansion's
+      // entrance seam (water -> walkable grass) -- excluded likewise.
+      const SEAM_EXCEPTION_CELLS = id === 'EASTERN_FENS_VALMERE_REVEAL_MAP'
+        ? new Set([[6, 0], [7, 0], [8, 0]].map(([r, c]) => r + ',' + c))
+        : id === 'EASTERN_FENS_MORNAY_THRESHOLD_MAP'
+        ? new Set([[14, 7], [14, 8], [14, 9]].map(([r, c]) => r + ',' + c))
+        : new Set();
       let diffs = 0;
       for (let r = 0; r < 15; r++) {
         for (let c = 0; c < 16; c++) {
           if (SHORELINE_OLD_GRIDS[id][r][c] === newGrid[r][c]) continue;
+          if (SEAM_EXCEPTION_CELLS.has(r + ',' + c)) continue;
           diffs++;
           const isWalkableSwap = WALKABLE_FILL.has(SHORELINE_OLD_GRIDS[id][r][c]) && newGrid[r][c] === 128;
           const isBlockerSwap = BLOCKER_FILL.has(SHORELINE_OLD_GRIDS[id][r][c]) && newGrid[r][c] === 129;
@@ -440,8 +453,14 @@ module.exports = {
     }
 
     // 13. Every chunk NOT touched by this pass keeps its exact recorded
-    //     fingerprint.
-    const touched = new Set([...SHORELINE_IDS, ...PENINSULA_IDS]);
+    //     fingerprint. EASTERN_FENS_MORNAY_APPROACH_E_MAP was separately
+    //     authorized later (the road-gap fix): its rows 6-8 gained a paved
+    //     spur (cols 0-5) west to APPROACH_M_MAP's seam, closing the open-fen
+    //     gap that broke the Threshold->Mornay road; it is excluded here and
+    //     checked against the current fixture fingerprint instead.
+    const approachEGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_APPROACH_E_MAP'].map)");
+    assert.equal(sha256(JSON.stringify(approachEGrid)), GRID_FP.fingerprints.EASTERN_FENS_MORNAY_APPROACH_E_MAP, 'EASTERN_FENS_MORNAY_APPROACH_E_MAP: current grid matches the updated fingerprint');
+    const touched = new Set([...SHORELINE_IDS, ...PENINSULA_IDS, 'EASTERN_FENS_MORNAY_APPROACH_E_MAP']);
     let swept = 0;
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       if (touched.has(id)) continue;

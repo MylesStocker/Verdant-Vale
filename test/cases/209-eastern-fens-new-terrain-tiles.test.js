@@ -58,14 +58,18 @@ module.exports = {
       assert.doesNotMatch(body.slice(0, body.indexOf('\n}')), /Math\.random/, fn + ' is deterministic');
     }
 
-    // 6. Confined to the Eastern Fens region (mirrors test 175's DEEP_REEDS
-    //    confinement check exactly). Holds vacuously true until a later batch
-    //    places these tiles, then proves they never leaked elsewhere.
+    // 6. Confined to the Eastern Fens region plus its directly-seamed
+    //    siblings the Great Fen and the Valmere expanse (mirrors test 175's
+    //    DEEP_REEDS confinement check, widened as each expansion reused
+    //    tiles from this same approved natural palette). Holds vacuously
+    //    true for Driftwood/Stranded Boat until a later batch places them,
+    //    then proves they never leak into any other region.
+    const ALLOWED_REGIONS = ['Eastern Fens', 'Great Fen', 'Valmere', 'Eastern Shore', 'Southern Moraine'];
     for (const id of [128, 129, 130]) {
       const foreign = J(`JSON.stringify((function(){
         var hits=[];
         Object.keys(REGIONAL_CHUNK_CATALOG).forEach(function(mid){
-          if(REGIONAL_CHUNK_CATALOG[mid].region==='Eastern Fens')return;
+          if(${JSON.stringify(ALLOWED_REGIONS)}.indexOf(REGIONAL_CHUNK_CATALOG[mid].region)!==-1)return;
           if(REGIONAL_CHUNK_CATALOG[mid].map.some(function(r){return r.includes(${id});}))hits.push(mid);
         });
         if(typeof MAP_CATALOG!=='undefined')Object.keys(MAP_CATALOG).forEach(function(mid){
@@ -75,7 +79,7 @@ module.exports = {
         });
         return hits;
       })())`);
-      assert.deepEqual(foreign, [], `tile ${id} is used only inside the Eastern Fens`);
+      assert.deepEqual(foreign, [], `tile ${id} is used only inside the Eastern Fens, the Great Fen, the Valmere expanse, the Eastern Shore, or the Southern Moraine`);
     }
 
     // 7. validateGameData() stays clean with the new tiles registered.

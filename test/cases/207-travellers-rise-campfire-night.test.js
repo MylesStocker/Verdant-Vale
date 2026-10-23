@@ -225,7 +225,7 @@ test('ordinary maps retain zero extra night draw calls, save version and all geo
  const g=createContext();record(g);g.run('paint=[];travellersRiseNight.drawFire();travellersRiseNight.drawEsla();travellersRiseNight.drawNight()');assert.deepEqual(J(g,'paint'),[]);
  assert.equal(g.run('travellersRiseNight.drawPlayerPose()'),false);assert.equal(g.run('SAVE_VERSION'),5);
  const fixture=require('../fixtures/regional-grid-fingerprints');for(const [id,hash]of Object.entries(fixture.fingerprints))assert.equal(crypto.createHash('sha256').update(g.run(`JSON.stringify(mapRefForId('${id}'))`)).digest('hex'),hash);
- assert.equal(g.run('Object.keys(MAP_CATALOG).length'),217);
+ assert.equal(g.run('Object.keys(MAP_CATALOG).length'),346);
 });
 
 module.exports={name:'Travellers Rise campfire night: private conversation, local firelight and authenticated ordinary rest',

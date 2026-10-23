@@ -24,6 +24,9 @@ const ORDINARY=[
   // no selector/dispatcher/lifecycle changes).
   'enemy_botfly','enemy_waspthra','enemy_sparkeel','enemy_mudwrack_snapper',
   'enemy_fen_rootworm','enemy_willow_veiled_stalker','enemy_hollowreed_choker',
+  // Fen Zolom gate (North Fen): isBoss is an existing ordinary capability
+  // (boss_escape_lock, canonical:true) already used by Takomo/Mulholland/etc.
+  'enemy_fen_zolom',
 ];
 const SPECIAL={};
 const SCRIPTED={
@@ -75,7 +78,7 @@ test('the audit covers every registered production template exactly once and rec
   const text=fs.readFileSync(path.join(ROOT,'ENEMY_CAPABILITY_AUDIT.md'),'utf8');
   const rows=[...text.matchAll(/^\| `(enemy_[^`]+)`[^\n]*\| (ordinary|special capability pending|scripted-only lifecycle|non-production\/debug fixture) \|/gm)]
     .map(match=>({id:match[1],category:match[2]}));
-  assert.equal(rows.length,70);assert.equal(new Set(rows.map(r=>r.id)).size,70);
+  assert.equal(rows.length,71);assert.equal(new Set(rows.map(r=>r.id)).size,71);
   const g=fresh();assert.deepEqual(rows.map(r=>r.id).sort(),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY).sort()'));
   assert.deepEqual(rows.filter(r=>r.category==='ordinary').map(r=>r.id).sort(),ORDINARY.slice().sort());
   assert.deepEqual(rows.filter(r=>r.category==='special capability pending').map(r=>r.id).sort(),Object.keys(SPECIAL).sort());
@@ -83,8 +86,8 @@ test('the audit covers every registered production template exactly once and rec
   assert.equal(rows.filter(r=>r.category==='non-production/debug fixture').length,0);
 });
 
-test('all 70 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),70);
+test('all 71 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),71);
   assert.deepEqual(J(g,'Object.keys(ENEMY_CAPABILITY_REGISTRY)'),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)'));
   for(const id of J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)')){
     const metadata=g.run('ENEMY_CAPABILITY_REGISTRY['+JSON.stringify(id)+']');frozen(metadata);
@@ -96,7 +99,7 @@ test('all 70 deterministic metadata records are closed, deeply frozen and capabi
   // as Takomo) instead of a dedicated ENEMY_SPRITE_DISPATCH entry;
   // validateGameData() flags this as a warning, not an error.
   const FENS_GENERIC = ['enemy_botfly','enemy_waspthra','enemy_sparkeel','enemy_mudwrack_snapper',
-    'enemy_fen_rootworm','enemy_willow_veiled_stalker','enemy_hollowreed_choker'];
+    'enemy_fen_rootworm','enemy_willow_veiled_stalker','enemy_hollowreed_choker','enemy_fen_zolom'];
   for(const id of ORDINARY.filter(id=>!FENS_GENERIC.includes(id)))
     assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
   for(const id of FENS_GENERIC)

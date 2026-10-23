@@ -126,14 +126,21 @@ module.exports = {
 
     // ── 7. Camera clamps at all four region bounds ──────────────────────────
     const bounds = J("JSON.stringify(regionPixelBounds('overworld'))");
-    // MAP (0,5) local (0, bottom): true left + bottom corner -> clamps both.
+    // MAP (0,5) local (0, _): true left edge -> clamps left.
     const bl = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('MAP',0,${(ROWS - 1) * TILE});return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(bl.camPxX, bounds.leftPx, 'clamp left edge');
-    assert.equal(bl.camPxY, bounds.bottomPx - 480, 'clamp bottom edge');
-    // Valmere Mornay threshold (18,0) far-right/top row -> both clamps; NB_NW (1,0) also remains a top-row case.
-    const tr = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('EASTERN_FENS_MORNAY_THRESHOLD_MAP',${(COLS - 1) * TILE},0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
+    // Southern Moraine envelope C15R7 (15,7) is now the placed chunk at the
+    // region's new bottom row (the Southern Moraine expansion pushed the
+    // region two rows further south than MAP's old bottom edge).
+    const bottom = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP',0,${(ROWS - 1) * TILE});return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
+    assert.equal(bottom.camPxY, bounds.bottomPx - 480, 'clamp bottom edge');
+    // Valmere expanse envelope C20RN5 (20,-5) is now the placed chunk at the
+    // region's new far-right column (the Valmere expanse pushed the region
+    // two columns further east than the Mornay threshold).
+    const tr = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('VALMERE_EXPANSE_ENVELOPE_C20RN5_MAP',${(COLS - 1) * TILE},0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(tr.camPxX, bounds.rightPx - 512, 'clamp right edge');
-    const top = J(`JSON.stringify(buildContinuousWorldPlanFromWorld('overworld',8192,${bounds.topPx},512,480))`);
+    // Valmere expanse envelope C15RN7 (15,-7) is the placed chunk at the region's new top row.
+    const top = J(`JSON.stringify((function(){var _w=mapLocalPxToRegionWorldPx('VALMERE_EXPANSE_ENVELOPE_C15RN7_MAP',0,0);return _w?buildContinuousWorldPlanFromWorld('overworld',_w.worldPxX,_w.worldPxY,512,480):null;})())`);
     assert.equal(top.camPxY, bounds.topPx, 'clamp top edge');
 
     // ── 8. Viewport resolves one, two, and four visible chunks ──────────────

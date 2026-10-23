@@ -360,12 +360,12 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,127,127,127,127,127,127,127,127,127, 23,  1,  1,  1,  1,  1], // 11
       [  1,127,127,127,127,127,127,127,127,127,127, 23,  1,  1,  1,  1], // 12
       [  1,127,127,127,127,127,127,127,127,127,127,127, 23,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
     ],
     displayName: 'Eastern Fens — Valmere Road Turn', region: 'Eastern Fens', contentKey: 'eastern_fens_16',
     presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard',
     allowRandomEncounters: true, allowSave: true,
-    notes: 'The eastbound embankment meets a managed navigable channel and turns north toward the Valmere. Eastern Fens Mornay hard-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
+    notes: 'The eastbound embankment meets a managed navigable channel and turns north toward the Valmere; a southward spur drops into the Southern Moraine. Eastern Fens Mornay hard-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
   // (15,3) The road follows the channel's raised western bank north.
   { mapId: 'EASTERN_FENS_CHANNEL_ROAD_S_MAP', regionId: 'overworld', chunkX: 15, chunkY: 3, map: [
       [  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -437,9 +437,9 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,129,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,129,  1],
-      [  1,128,128, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,128,128,  1],
-      [  1, 23, 23, 23, 23,  0,  0,  0,  0,  0,  0, 23, 23, 23, 23,  1],
-      [  1,127,127,127, 23,  0,  0,  2,  0,  0,  0, 23,127,127,127,  1],
+      [128,128,128, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,128,128,  1],
+      [ 23, 23, 23, 23, 23,  0,  0,  0,  0,  0,  0, 23, 23, 23, 23,  1],
+      [127,127,127,127, 23,  0,  0,  2,  0,  0,  0, 23,127,127,127,  1],
       [  1,127,127,127, 23,  0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2],
       [  1,127,127,127, 23,  0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2],
       [  1,127,127,127, 23,  0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2],
@@ -449,7 +449,7 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Valmere — Southern Shore', region: 'Eastern Fens', contentKey: 'eastern_fens_20',
     presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'First broad Valmere view where the channel reaches the inland sea and the road turns east along firm southern shore. Gravel-bar shingle flanks the mud bank, with driftwood stranded at the open-water edge. Eastern Fens Mornay hard-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
+    notes: 'First broad Valmere view where the channel reaches the inland sea and the road turns east along firm southern shore. Gravel-bar shingle flanks the mud bank, with driftwood stranded at the open-water edge. Eastern Fens Mornay hard-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state. A west seam (rows 6-8) now opens onto the Valmere expanse (EASTERN_FENS_ENVELOPE_C14R0_MAP).' },
   // (16,0) A maintained shore road keeps open Valmere water continuously to the north.
   { mapId: 'EASTERN_FENS_VALMERE_SHORE_W_MAP', regionId: 'overworld', chunkX: 16, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
@@ -508,11 +508,11 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
       [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2],
       [  1, 23,  0,  0, 89,  0,  0,  0,  0,  0,  0, 89,  0,  0,  0,  1],
       [  1,127, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1],
     ],
     displayName: 'Valmere — Mornay Threshold', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_threshold',
     presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Safe unfinished southern-shore threshold before Mornay. The maintained road visibly continues without a false transition or permanent obstruction. Gravel-bar shingle flanks the mud bank, with driftwood stranded at the open-water edge. Eastern Fens Mornay hard-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
+    notes: 'Safe unfinished southern-shore threshold before Mornay. The maintained road visibly continues without a false transition or permanent obstruction. Gravel-bar shingle flanks the mud bank, with driftwood stranded at the open-water edge; a southward spur drops onto the Eastern Shore. Eastern Fens Mornay hard-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
 ];
 
 // ─── Eastern Fens regional envelope (Phase 2) ───────────────────────────────
@@ -624,7 +624,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', regionId: 'overworld', chunkX: 7, chunkY: 0, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  1,  1,  1,  1,  1,  1, 23, 23, 23,  1,  1,  1,  1,  1,  1], // 0
       [  1, 23,127,127, 23, 23,127,127,127,127, 23, 23,127,127, 23,  1], // 1
       [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 2
       [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 3
@@ -641,10 +641,10 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
     displayName: 'Eastern Fens — North Fen', region: 'Eastern Fens', contentKey: 'eastern_fens_env_7_0',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
-    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge and the open water that marks the North Basin margin. Reserved for a future enemy-gated expansion; terrain only — no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
+    presentation: 'continuous', encounterProfileId: 'north_fen_zolom', allowRandomEncounters: true, allowSave: true,
+    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C7RN2_MAP via EASTERN_FENS_ENVELOPE_C7RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', regionId: 'overworld', chunkX: 8, chunkY: 0, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  1,  1,  1,  1,  1,  1, 23, 23, 23,  1,  1,  1,  1,  1,  1], // 0
       [  1, 23,127,127, 23, 23,127,127,127,127, 23, 23,127,127, 23,  1], // 1
       [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 2
       [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 3
@@ -661,8 +661,8 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
     displayName: 'Eastern Fens — North Fen', region: 'Eastern Fens', contentKey: 'eastern_fens_env_8_0',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
-    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. Reserved for a future enemy-gated expansion; terrain only — no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
+    presentation: 'continuous', encounterProfileId: 'north_fen_zolom', allowRandomEncounters: true, allowSave: true,
+    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C8RN2_MAP via EASTERN_FENS_ENVELOPE_C8RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C9R0_MAP', regionId: 'overworld', chunkX: 9, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,120,  1,  1,  1,127,127, 23, 23,  1,  1,127,  1,  1], // 1
@@ -684,25 +684,25 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C14R0_MAP', regionId: 'overworld', chunkX: 14, chunkY: 0, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,127,  1,  1,  1,127,  1,  1,  1,  1,  1,121,121,  1,121,  1], // 1
-      [  1,121,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,127,  1,127,127,  1,  1,  1,  1,  1,  1,121,  1], // 3
-      [  1,  1,127,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,127,  1,  1,121,  1,  1,  1,127,  1,  1,  1,127,  1,  1], // 5
-      [  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1], // 6
-      [  1, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1], // 7
-      [  1, 81, 81, 81,121, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,121,  1, 23,  1], // 9
-      [  1,  1,  1,  1,  1, 23,  1,  1,  1, 23,  1,  1,  1,  1,121,  1], // 10
-      [  1,  1, 23, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1, 23,  1, 23, 23,  1,  1,  1, 23,  1,  1,  1, 23,  1], // 12
-      [  1,  1,  1,  1,  1,  1, 23,  1, 23,  1,  1,  1,  1,  1,  1,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  0,  0,  0,  1], // 2
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  1], // 3
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 5
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 6
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 7
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 8
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 9
+      [  1,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  1], // 10
+      [  1,  0, 23, 23, 23, 23, 23, 23,127, 23, 23, 23, 23, 23,  0,  1], // 11
+      [  1,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  1], // 12
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_14_0',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Valmere — Sheltered Cove', region: 'Valmere', contentKey: 'valmere_expanse_14_0',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Valmere near-shore entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C5R1_MAP', regionId: 'overworld', chunkX: 5, chunkY: 1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,120,  1,  1,127,127,127,  1,  1,127,  1,  1,127,  1,  1,  1], // 1
@@ -904,25 +904,25 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C18R1_MAP', regionId: 'overworld', chunkX: 18, chunkY: 1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23,  1,  1,  1], // 1
-      [  1,  1, 89,  1,127,  1,127,  1,  1,  1, 23,  1, 23, 89,  1,  1], // 2
-      [  1,  1,  1,  1, 89,  1,127,  1,  1,  1, 81,  1, 23, 89,  1,  1], // 3
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23,  1,  1,  1], // 4
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23, 89,  1,  1], // 5
-      [  1,  1,  1,  1,127,  1,127, 89, 81,  1, 23,  1, 23,  1,  1,  1], // 6
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23, 89, 23,  1,  1,  1], // 7
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23,  1,  1,  1], // 8
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23,  1,  1,  1], // 9
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23,  1,  1,  1], // 10
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23,  1,  1,  1], // 11
-      [  1,  1,  1,  1,127,  1, 81,  1, 89,  1, 23,  1, 23,  1,  1,  1], // 12
-      [  1,  1,  1,  1,127,  1,127,  1,  1,  1, 23,  1, 23,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
+      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 3
+      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81, 88,  0,  0,  1], // 4
+      [  1,  0,  0,  0, 81,  0,  0, 81,  0, 88, 81,  0,  0,  0,  0,  1], // 5
+      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 6
+      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 7
+      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,128,  0,  0,  1], // 8
+      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 9
+      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 10
+      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 11
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Drainage Flats', region: 'Eastern Fens', contentKey: 'eastern_fens_env_18_1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Eastern Shore — Clay Bank', region: 'Eastern Shore', contentKey: 'eastern_shore_18_1',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Eastern Shore entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately. A northward spur rejoins the Valmere Mornay Threshold road.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C16R2_MAP', regionId: 'overworld', chunkX: 16, chunkY: 2, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,127,  1,  1,  1,  1], // 1
@@ -1224,25 +1224,25 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only: a small Exposed Stone/Grass islet with a new gravel (128) fringe breaks the open water — the storm-influenced shallows beyond the widening channel. playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority. No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C15R5_MAP', regionId: 'overworld', chunkX: 15, chunkY: 5, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,120,  1,127,  1,  1,127,  1,  1,  1, 23,  1,  1], // 2
-      [  1,  1,127,120,121, 23,  1,  1, 23,  1,127,  1,  1,  1,  1,  1], // 3
-      [  1,  1,127,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,128,127, 23,  1,121,127,  1,  1,  1,  1,  1], // 5
-      [  1,  1, 23,  1,  1,128,128,121,121,  1, 23,  1,127,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1,  1,  1,  1, 23,127,121,120, 23,  1,  1,  1], // 7
-      [  1,120, 23, 23,  1,  1,121,  1,  1,  1,  1,121,  1,  1,121,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1, 23,120,  1,127, 23,  1,  1,  1], // 9
-      [  1,  1,  1,  1,  1,  1,  1,120,  1,  1, 23,  1,  1, 23,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,  1,  1,127,127,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,127,120,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
+      [  1,  0,  0,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
+      [  1,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  1], // 5
+      [  1,  0,  0,  0,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,  1], // 6
+      [  1,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  1], // 7
+      [  1,  0,  0,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,  0,  1], // 8
+      [  1,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  1], // 9
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 10
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 11
+      [  1,  0,  0,  0,  0,127,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Storm Shoal: East', region: 'Eastern Fens', contentKey: 'eastern_fens_env_15_5',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only: an exposed Basin Mud (81) bank capped by a small gravel (128) shoal — the eastern edge of the same lakeward silt system as Storm Shoal: West. playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority. No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Southern Moraine — Gravel Ridge', region: 'Southern Moraine', contentKey: 'southern_moraine_15_5',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Southern Moraine entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately. A northward spur rejoins the Eastern Fens Valmere Road Turn.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C16R5_MAP', regionId: 'overworld', chunkX: 16, chunkY: 5, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1], // 1
@@ -1264,105 +1264,105 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only: a small Basin Mud (81) patch capped by a gravel (128) rise breaks the open water — the easternmost storm-influenced shallows before the Valmere shoreline proper. playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority. No encounters, items, NPCs, interactions, quest triggers, or save state.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C6RN1_MAP', regionId: 'overworld', chunkX: 6, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,127,  1, 23,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1],
-      [  1,  1,  1,121,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,127,  1,  1, 23,121,  1,  1,  1,  1,  1],
-      [  1, 23,121,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,121,127,  1,  1,  1, 23,  1],
-      [  1,121,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,127,  1,  1,  1],
-      [  1,127,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,127,  1],
-      [  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1],
-      [  1,  1,  1, 23,  1,127,  1,121,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,121,  1],
-      [  1,  1,  1,  1,  1,  1,121,  1, 23,127,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,121,  1,  1],
-      [  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,127,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1], // 1
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
+      [  1,  0,  0, 81, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
+      [  1,  0,  0, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 5
+      [  1,  0,  0,  0,  0,  0,  0, 81,  0,  0,  0,  0,  0,  0,  0,  0], // 6
+      [  1,  0, 88,  0,  0,  0, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 7
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 8
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81, 81,  0,  0,  1], // 9
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81,  0,  0,  0,  1], // 10
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 11
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
+      [  1, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Open Fen Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_6_n1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only northern water extending the visible water edge one screen north (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Great Fen — Hummock Ground', region: 'Great Fen', contentKey: 'great_fen_6_n1',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', regionId: 'overworld', chunkX: 7, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1, 23,  1,  1,127,  1,  1,  1,  1,  1,  1,121,  1,  1],
-      [  1,  1,  1,  1,  1,121,  1,  1,127,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,127,  1,121,  1,  1,  1],
-      [  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1],
-      [  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1, 23,127,  1],
-      [  1,  1,  1,121,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,127,  1,  1,  1,  1,121,  1,  1,  1,  1,  1],
-      [  1,  1,121,  1,  1,  1,  1,127,  1,  1, 23,  1,  1,  1,  1,  1],
-      [  1,  1, 23,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1],
-      [  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1, 23,121,  1,  1,  1,  1,127,  1,  1],
-      [  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,127,  1,  1,121,  1,  1,  1,  1, 23,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  0,  1], // 2
+      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  1], // 3
+      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 4
+      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 5
+      [  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0], // 6
+      [  0,  0,  0,  0,  0, 81,  0,  0, 88,  0,  0, 81,  0,  0,  0,  0], // 7
+      [  0,  0,128,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0], // 8
+      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  1], // 9
+      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 10
+      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 11
+      [  1,  0,128,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Open Fen Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_7_n1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only northern water extending the visible water edge one screen north (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Great Fen — Mud Basin', region: 'Great Fen', contentKey: 'great_fen_7_n1',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', regionId: 'overworld', chunkX: 8, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,127,  1,  1,  1],
-      [  1,127,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,121,  1],
-      [  1,  1,  1,127,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1, 23,121,  1,  1],
-      [  1,  1,  1,  1, 23,121,  1,127,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,121,  1,  1,  1],
-      [  1,  1,  1,  1,121,  1,  1,  1,  1, 23,  1,127,  1,  1,  1,  1],
-      [  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1,127,  1,  1],
-      [  1,  1,127,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1],
-      [  1,  1,  1,  1,127,  1, 23,  1,  1,  1,121,  1,  1,  1,  1,  1],
-      [  1,  1,121,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,127,121,  1, 23,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
+      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 2
+      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 3
+      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,121,  0,  0,  0,127,  1], // 4
+      [  1, 23,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,127,  1], // 5
+      [  0, 23,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,  0,127,  0], // 6
+      [  0, 23,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,127,  0], // 7
+      [  0, 23,  0,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,127,  0], // 8
+      [  1, 23,127,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,127,  1], // 9
+      [  1, 23,  0,  0,121,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 10
+      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 11
+      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 12
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Open Fen Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_8_n1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only northern water extending the visible water edge one screen north (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Great Fen — Gravel Spur', region: 'Great Fen', contentKey: 'great_fen_8_n1',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', regionId: 'overworld', chunkX: 9, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,127,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1],
-      [  1,  1,  1,127,  1,  1,  1,  1,  1,121,  1,  1,  1,  1, 23,  1],
-      [  1,121,  1,  1,  1,127, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,127,121,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1, 23,  1,  1,  1,  1],
-      [  1,  1,  1, 23,  1,  1,  1,121,  1,  1,  1,127,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,121,  1],
-      [  1,  1,127,  1,  1,  1,121,  1, 23,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1],
-      [  1,  1,  1,  1,  1,121,127,  1,  1,  1,  1,  1,  1, 23,  1,  1],
-      [  1,  1,  1,  1,  1, 23,  1,  1,127,  1,  1,  1,121,  1,  1,  1],
-      [  1,  1,  1,  1,121,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,121,127,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,120,  0,  0,  1], // 2
+      [  1,  0,  0,120,  0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  1], // 3
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 4
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 5
+      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 6
+      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 7
+      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 8
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 9
+      [  1,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 10
+      [  1,  0,  0,120,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  0,  1], // 11
+      [  1,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Open Fen Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_9_n1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only northern water extending the visible water edge one screen north (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Great Fen — Drowned Woodland', region: 'Great Fen', contentKey: 'great_fen_9_n1',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', regionId: 'overworld', chunkX: 14, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,121,  1,  1,  1],
-      [  1,  1,  1,  1,121,  1,  1,  1,  1, 23,127,  1,  1,  1,  1,  1],
-      [  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,121,127,  1,  1,  1],
-      [  1,127,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1],
-      [  1,  1,  1,127,  1,  1, 23,  1,  1,  1,121,  1,  1,  1,  1,  1],
-      [  1,  1,121,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,127,  1,121,  1, 23,  1,  1,  1,  1],
-      [  1,121,  1, 23,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,127,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,127,  1,  1],
-      [  1,  1,127,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1, 23,121,  1],
-      [  1,  1,  1,  1,  1, 23,121,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
+      [  1,  0,  0,128,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  1], // 2
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  0,  0,  1], // 5
+      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,121, 88,  0,  0,  0,  1], // 6
+      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  0,  0,  1], // 7
+      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,121,  0,  0,  1], // 8
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  0,  0,  1], // 9
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 10
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 11
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
+      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
+      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
     ],
-    displayName: 'Eastern Fens — Valmere Open Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_14_n1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only northern water extending the visible water edge one screen north (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+    displayName: 'Valmere — Rocky Point', region: 'Valmere', contentKey: 'valmere_expanse_14_n1',
+    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
+    notes: 'Valmere near-shore entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C15RN1_MAP', regionId: 'overworld', chunkX: 15, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,121,  1],
@@ -1405,24 +1405,24 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. East seam only; the Mornay peninsula is reached via the middle approach (EASTERN_FENS_MORNAY_APPROACH_M_MAP), not directly from here.' },
   { mapId: 'EASTERN_FENS_MORNAY_APPROACH_M_MAP', regionId: 'overworld', chunkX: 17, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  1,  1,  1,  1,  1,  1],
-      [  1,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  1],
-      [  1, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0,  1],
-      [  1,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1],
-      [  1,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  1],
-      [  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0],
-      [  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0],
-      [  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0],
-      [  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0],
-      [  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0,  0],
-      [  1,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  1],
-      [  1,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  1],
-      [  1,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  1],
-      [  1,  0,  0,  0, 23,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  1],
+      [  1,  0, 23,  0,  0,  0,  0,  2,  2,  2,  0,  0,  0,  0,  0,  1],
+      [  1, 23,  0,  0,  0,  0,  0,  2,  2,  2,  0,  0,  0,  0,  0,  1],
+      [  1,  0,  0,  0,  0,  0,  0,  2,  2,  2,  0,  0,  0,  0, 23,  1],
+      [  1,  0,  0,  0,  0,  0, 23,  2,  2,  2,  0,  0,  0, 23,  0,  1],
+      [  0,  0,  0,  0,  0, 23,  0,  2,  2,  2,  0,  0, 23,  0,  0,  0],
+      [  0,  0,  0,  0, 23,  0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2],
+      [  0,  0,  0, 23,  0,  0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2],
+      [  0,  0, 23,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2],
+      [  0, 23,  0,  0,  0,  0,  0,  2,  2,  2,  0,  0,  0,  0,  0,  0],
+      [  1,  0,  0,  0,  0,  0,  0,  2,  2,  2,  0,  0,  0,  0, 23,  1],
+      [  1,  0,  0,  0,  0,  0, 23,  2,  2,  2,  0,  0,  0, 23,  0,  1],
+      [  1,  0,  0,  0,  0, 23,  0,  2,  2,  2,  0,  0, 23,  0,  0,  1],
+      [  1,  0,  0,  0, 23,  0,  0,  2,  2,  2,  0, 23,  0,  0,  0,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
     ],
     displayName: 'Valmere — Mornay Approach', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_approach_m',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. The southern neck of the Mornay peninsula: north seam (cols 7-9) reopens into EASTERN_FENS_MORNAY_NECK_ROAD_MAP, the peninsula spine.' },
+    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. The southern neck of the Mornay peninsula: a paved spine (cols 7-9) now runs the full chunk height, with a rows-6-8 spur east to the EASTERN_FENS_MORNAY_APPROACH_E_MAP seam so the road connects all the way from the Valmere threshold up to Mornay rather than breaking into open fen; north seam (cols 7-9) reopens into EASTERN_FENS_MORNAY_NECK_ROAD_MAP, the peninsula spine.' },
   { mapId: 'EASTERN_FENS_MORNAY_APPROACH_E_MAP', regionId: 'overworld', chunkX: 18, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1, 23,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  0,  0,  1],
@@ -1430,9 +1430,9 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
       [  1,  0,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0, 23,  0,  1],
       [  1,  0,  0,  0,  0, 23,  2,  2,  2,  2,  0,  0, 23,  0,  0,  1],
       [  0,  0,  0,  0, 23,  0,  2,  2,  2,  2,  0, 23,  0,  0,  0,  1],
-      [  0,  0,  0, 23,  0,  0,  2,  2,  2,  2, 23,  0,  0,  0,  0,  1],
-      [  0,  0, 23,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  0,  0,  1],
-      [  0, 23,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  0,  0,  1],
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, 23,  0,  0,  0,  0,  1],
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  1],
+      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  1],
       [  0,  0,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0,  0, 23,  1],
       [  1,  0,  0,  0,  0,  0,  2,  2,  2,  2,  0,  0,  0, 23,  0,  1],
       [  1,  0,  0,  0,  0, 23,  2,  2,  2,  2,  0,  0, 23,  0,  0,  1],
@@ -1442,7 +1442,7 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     ],
     displayName: 'Valmere — Mornay Approach (East)', region: 'Eastern Fens', contentKey: 'eastern_fens_mornay_approach_e',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false,
-    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. Reciprocal structural seams only; the Mornay peninsula is reached via the middle approach (EASTERN_FENS_MORNAY_APPROACH_M_MAP), not directly from here.' },
+    notes: 'Walkable Valmere port approach spit north of the shore; safe (no random encounters), no save point, no NPCs/items/interactions. The vertical spine (cols 6-9) now gains a rows-6-8 paved spur west to the EASTERN_FENS_MORNAY_APPROACH_M_MAP seam, so the road no longer breaks into open fen; the Mornay peninsula is reached via the middle approach (EASTERN_FENS_MORNAY_APPROACH_M_MAP), not directly from here.' },
   { mapId: 'EASTERN_FENS_ENVELOPE_C15RN2_MAP', regionId: 'overworld', chunkX: 15, chunkY: -2, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],

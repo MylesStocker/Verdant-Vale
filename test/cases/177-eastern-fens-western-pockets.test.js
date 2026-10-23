@@ -32,13 +32,20 @@ module.exports = {
     //    included) and Travellers' Rise stay encounter-free. ─────────────────
     assert.equal(g.run('WALKABLE[DEEP_REEDS]'), true);
     assert.equal(g.run('TILE_PROPERTIES[DEEP_REEDS].encounterEligible'), true);
-    assert.equal(g.run("Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);})&&MAP_CATALOG[id].allowRandomEncounters===true;}).length"), 22,
-      'exactly the 22 main-route DEEP_REEDS-bearing chunks enable encounters');
+    // 22 main-route Eastern Fens chunks + 14 Great Fen chunks (1 converted
+    // entry chunk + 13 fresh) + 7 Valmere expanse chunks (1 converted entry
+    // chunk + 6 fresh) + 6 Eastern Shore/Southern Moraine chunks + the 2
+    // North Fen Zolom-gate chunks (7,0)/(8,0) that happen to use Deep Reeds
+    // and have encounters enabled = 51.
+    assert.equal(g.run("Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);})&&MAP_CATALOG[id].allowRandomEncounters===true;}).length"), 51,
+      'the 22 main-route + 14 Great Fen + 7 Valmere expanse + 6 Eastern Shore/Southern Moraine + 2 Fen Zolom gate DEEP_REEDS-bearing chunks enable encounters');
     for (const id of Object.keys(POCKETS))
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} (exploration pocket) stays encounter-free`);
-    // tile 127 is still confined to the Eastern Fens (no sequence break elsewhere)
-    assert.deepEqual(J("JSON.stringify(Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].region!=='Eastern Fens'&&REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);});}))"), [],
-      'DEEP_REEDS used only inside the Eastern Fens');
+    // tile 127 is still confined to the Eastern Fens plus its directly-seamed
+    // siblings the Great Fen, the Valmere expanse, the Eastern Shore, and the
+    // Southern Moraine (no sequence break into any other region)
+    assert.deepEqual(J("JSON.stringify(Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return ['Eastern Fens','Great Fen','Valmere','Eastern Shore','Southern Moraine'].indexOf(REGIONAL_CHUNK_CATALOG[id].region)===-1&&REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);});}))"), [],
+      'DEEP_REEDS used only inside the Eastern Fens, the Great Fen, the Valmere expanse, the Eastern Shore, or the Southern Moraine');
 
     // ── 3 distinct walkable pockets, each a reciprocal single-seam dead-end ────
     let pocketCount = 0;

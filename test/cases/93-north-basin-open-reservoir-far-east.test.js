@@ -36,12 +36,15 @@ module.exports = {
 
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'new grid fingerprint');
     assert.equal(GRID_FP.fingerprints[ID], FP, 'fingerprint fixture records it');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 115, 'all regional grids are fingerprinted');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 244, 'all regional grids are fingerprinted');
 
     const audit = require('../transition-audit.js');
     const verdicts = Object.fromEntries(audit.seamReadiness.edges.map((e) => [e.mapId + '|' + e.dir, e.verdict]));
     assert.equal(verdicts[`${ID}|west`], 'BLOCKED', 'west water boundary is structurally blocked');
-    for (const dir of ['north', 'east']) assert.equal(verdicts[`${ID}|${dir}`], 'BORDER', `${dir} remains a void-facing border`);
+    // north/east were void-facing BORDER before the Great Fen expansion; its
+    // own zero-void framing (GREAT_FEN_ENVELOPE_C4RN1_MAP / C5R0_MAP) now
+    // fills those slots, so both reclassify to structurally BLOCKED.
+    for (const dir of ['north', 'east']) assert.equal(verdicts[`${ID}|${dir}`], 'BLOCKED', `${dir} is now structurally blocked by the Great Fen envelope`);
     assert.equal(verdicts[`${ID}|south`], 'BLOCKED', 'south is now structurally blocked by NORTH_BASIN_E2_MAP');
     assert.equal(verdicts['NORTH_BASIN_E2_MAP|north'], 'BLOCKED', 'new East Shore north edge is structurally blocked');
     assert.equal(verdicts['NORTH_BASIN_NE_MAP|east'], 'BLOCKED', 'the existing east reservoir edge is now structurally blocked');

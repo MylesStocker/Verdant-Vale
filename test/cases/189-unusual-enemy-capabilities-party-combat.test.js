@@ -57,7 +57,7 @@ function tamper(g,code){g.run('var altered='+JSON.stringify(J(g,'savedResult'))+
 
 test('eight capabilities are supported; all scripted lifecycles still require their authenticated owner',()=>{
  const g=fresh();for(const id of IDS){assert.equal(g.run('canonicalEnemyIsCompatible(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])'),true,id);frozen(g.run('canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY['+JSON.stringify(id)+'])'));}
- assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),64);
+ assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(canonicalEnemyIsCompatible).length'),65);
  for(const id of SCRIPTED)reject(g,'canonicalPartyCombat.enter({enemies:['+JSON.stringify(id)+'],escape:"blocked"})',/Unsupported canonical enemy capabilities|scripted lifecycle owner/);
 });
 
