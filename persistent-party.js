@@ -313,6 +313,18 @@ const persistentParty = (() => {
       }
       return copy({applied:true,members,pages});
     },
+    // Ordinary paid care follows the established one-gold-per-HP convention.
+    // Selection is by stable party identity; this owner alone writes companion HP.
+    // No status, day, inventory, progression or additional saved authority changes.
+    treatMember(characterId){
+      if(arguments.length!==1||typeof characterId!=='string')fail();
+      idle();canonicalValid();
+      const slot=order.indexOf(characterId);if(slot<0)fail();
+      const member=slot===0?stats:characters[slot-1];
+      const restored=Math.min(member.maxHp-member.hp,stats.gold);
+      if(restored>0){member.hp+=restored;stats.gold-=restored;revision++;}
+      return copy({characterId,restored,paid:restored,hp:member.hp,maxHp:member.maxHp});
+    },
     prepareOvernightRest(){
       if(arguments.length)fail();idle();canonicalValid();
       if(!safe(day)||day<1||!safe(day+1)||stats.hp===0&&characters.every(m=>m.hp===0))fail();

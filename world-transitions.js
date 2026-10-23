@@ -882,8 +882,8 @@ function enterTownAt(townId, entryPoint) {
   }
   transitionToLocation({ mapId: mapIdForRef(entry.map), x: entry.x, y: entry.y, facing: entry.facing,
     state: { inTown: true, currentTownId: townId, townBuilding: entry.townBuilding || null }, cooldown: true });
-  // Mornay's empty exterior skeleton intentionally has no population. Only
-  // the two established populated towns roll their existing traveller cameo.
+  // Only Calwick and Drenwick host the established travelling-merchant cameo.
+  // Mornay's permanent shops do not roll an additional visiting merchant.
   travellerPresent = (townId === 'calwick' || townId === 'drenwick') && Math.random() < 1 / 3;
 }
 

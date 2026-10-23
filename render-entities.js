@@ -998,11 +998,11 @@ function drawNPCSpaceHint(npc, px, py) {
 // Seated clerk — dark jacket, cream collar, dark hair (original default style).
 function drawGenericClerk(npc) {
   const px = Math.round(npc.x), py = Math.round(npc.y);
-  ctx.fillStyle = '#3a404e';
+  ctx.fillStyle = npc.coatColor || '#3a404e';
   ctx.fillRect(px - 7, py - 10, 14, 10);        // jacket/shoulders
   ctx.fillStyle = '#c8c0b0';
   ctx.fillRect(px - 3, py - 10, 6, 5);           // shirt collar
-  ctx.fillStyle = '#3a404e';
+  ctx.fillStyle = npc.coatColor || '#3a404e';
   ctx.fillRect(px - 12, py - 6, 6, 5);           // left arm
   ctx.fillRect(px +  6, py - 6, 6, 5);           // right arm
   ctx.fillStyle = '#c09070';
@@ -1010,7 +1010,7 @@ function drawGenericClerk(npc) {
   ctx.fillRect(px +  7, py - 3, 6, 4);           // right hand
   ctx.fillStyle = '#c09070';
   ctx.fillRect(px - 5, py - 22, 10, 13);         // head
-  ctx.fillStyle = '#2a1c10';
+  ctx.fillStyle = npc.hairColor || '#2a1c10';
   ctx.fillRect(px - 5, py - 22, 10, 4);          // dark hair
   ctx.fillStyle = '#181620';
   ctx.fillRect(px - 3, py - 15, 2, 2);           // left eye
@@ -1027,11 +1027,11 @@ function drawGenericClerk(npc) {
 // Patron — warm vest over white shirt, auburn hair. Inn/tavern visitor feel.
 function drawGenericPatron(npc) {
   const px = Math.round(npc.x), py = Math.round(npc.y);
-  ctx.fillStyle = '#5a3828';
+  ctx.fillStyle = npc.coatColor || '#5a3828';
   ctx.fillRect(px - 7, py - 10, 14, 10);        // vest
   ctx.fillStyle = '#e8d8c0';
   ctx.fillRect(px - 3, py - 10, 6, 5);           // white shirt collar
-  ctx.fillStyle = '#5a3828';
+  ctx.fillStyle = npc.coatColor || '#5a3828';
   ctx.fillRect(px - 12, py - 6, 6, 5);           // left arm
   ctx.fillRect(px +  6, py - 6, 6, 5);           // right arm
   ctx.fillStyle = '#b88060';
@@ -1039,7 +1039,7 @@ function drawGenericPatron(npc) {
   ctx.fillRect(px +  7, py - 3, 6, 4);           // right hand
   ctx.fillStyle = '#b88060';
   ctx.fillRect(px - 5, py - 22, 10, 13);         // head (slightly warmer skin)
-  ctx.fillStyle = '#7a3a18';
+  ctx.fillStyle = npc.hairColor || '#7a3a18';
   ctx.fillRect(px - 5, py - 22, 10, 4);          // auburn hair
   ctx.fillStyle = '#181620';
   ctx.fillRect(px - 3, py - 15, 2, 2);
@@ -1058,7 +1058,7 @@ function drawGenericPatron(npc) {
 function drawCalwickChild(npc) {
   const px = Math.round(npc.x), py = Math.round(npc.y);
   // Torso — muted teal-grey tunic
-  ctx.fillStyle = '#5a7060';
+  ctx.fillStyle = npc.coatColor || '#5a7060';
   ctx.fillRect(px - 5, py - 6, 10, 6);  // body
   ctx.fillRect(px - 8, py - 5,  3, 4);  // left arm
   ctx.fillRect(px + 5, py - 5,  3, 4);  // right arm
@@ -1095,11 +1095,11 @@ function drawCalwickChild(npc) {
 // Worker — rough grey-green tunic, no formal collar, dark messy hair.
 function drawGenericWorker(npc) {
   const px = Math.round(npc.x), py = Math.round(npc.y);
-  ctx.fillStyle = '#4a5638';
+  ctx.fillStyle = npc.coatColor || '#4a5638';
   ctx.fillRect(px - 7, py - 10, 14, 10);        // rough tunic
-  ctx.fillStyle = '#4a5638';                      // no contrast collar
+  ctx.fillStyle = npc.coatColor || '#4a5638';                      // no contrast collar
   ctx.fillRect(px - 3, py - 10, 6, 5);
-  ctx.fillStyle = '#4a5638';
+  ctx.fillStyle = npc.coatColor || '#4a5638';
   ctx.fillRect(px - 12, py - 6, 6, 5);
   ctx.fillRect(px +  6, py - 6, 6, 5);
   ctx.fillStyle = '#a07858';
@@ -1107,7 +1107,7 @@ function drawGenericWorker(npc) {
   ctx.fillRect(px +  7, py - 3, 6, 4);
   ctx.fillStyle = '#a07858';
   ctx.fillRect(px - 5, py - 22, 10, 13);         // head
-  ctx.fillStyle = '#3a2820';
+  ctx.fillStyle = npc.hairColor || '#3a2820';
   ctx.fillRect(px - 5, py - 22, 10, 5);          // thick dark hair (1px taller = messier)
   ctx.fillRect(px - 6, py - 20, 2, 3);           // rough sideburn left
   ctx.fillRect(px + 4, py - 20, 2, 3);           // rough sideburn right
@@ -1126,11 +1126,11 @@ function drawGenericWorker(npc) {
 // Traveler — blue-grey cloak, hood pulled up (no bare hair), lighter build.
 function drawGenericTraveler(npc) {
   const px = Math.round(npc.x), py = Math.round(npc.y);
-  ctx.fillStyle = '#3a4850';
+  ctx.fillStyle = npc.coatColor || '#3a4850';
   ctx.fillRect(px - 8, py - 10, 16, 10);        // wide cloak shoulders
   ctx.fillStyle = '#2a3840';
   ctx.fillRect(px - 3, py - 10, 6, 5);           // cloak front/clasp area
-  ctx.fillStyle = '#3a4850';
+  ctx.fillStyle = npc.coatColor || '#3a4850';
   ctx.fillRect(px - 13, py - 6, 7, 5);           // left arm (wider cloak sleeve)
   ctx.fillRect(px +  6, py - 6, 7, 5);           // right arm
   ctx.fillStyle = '#9a8068';
@@ -1243,7 +1243,7 @@ function drawWalkingWorker(npc, facing, step, moving) {
       l2h = frame === 0 ? 7 : 9;
     }
   }
-  ctx.fillStyle = '#4a5638';
+  ctx.fillStyle = npc.coatColor || '#4a5638';
   ctx.fillRect(px - 7, py - 10, 14, 10);              // rough tunic
   ctx.fillRect(px - 3, py - 10, 6, 5);               // (no contrast collar)
   ctx.fillRect(px - 12, py - 6 + swing, 6, 5);       // left arm (opposing swing)
@@ -1253,7 +1253,7 @@ function drawWalkingWorker(npc, facing, step, moving) {
   ctx.fillRect(px +  7, py - 3 - swing, 6, 4);       // right hand
   ctx.fillStyle = '#a07858';
   ctx.fillRect(px - 5, py - 22, 10, 13);             // head
-  ctx.fillStyle = '#3a2820';
+  ctx.fillStyle = npc.hairColor || '#3a2820';
   ctx.fillRect(px - 5, py - 22, 10, 5);              // thick dark hair
   ctx.fillRect(px - 6, py - 20, 2, 3);               // sideburn left
   ctx.fillRect(px + 4, py - 20, 2, 3);               // sideburn right
@@ -1299,11 +1299,11 @@ function drawWalkingPatron(npc, facing, step, moving) {
       l2h = frame === 0 ? 7 : 9;
     }
   }
-  ctx.fillStyle = '#5a3828';
+  ctx.fillStyle = npc.coatColor || '#5a3828';
   ctx.fillRect(px - 7, py - 10, 14, 10);             // vest
   ctx.fillStyle = '#e8d8c0';
   ctx.fillRect(px - 3, py - 10, 6, 5);               // white shirt collar
-  ctx.fillStyle = '#5a3828';
+  ctx.fillStyle = npc.coatColor || '#5a3828';
   ctx.fillRect(px - 12, py - 6 + swing, 6, 5);       // left arm (opposing swing)
   ctx.fillRect(px +  6, py - 6 - swing, 6, 5);       // right arm
   ctx.fillStyle = '#b88060';
@@ -1311,7 +1311,7 @@ function drawWalkingPatron(npc, facing, step, moving) {
   ctx.fillRect(px +  7, py - 3 - swing, 6, 4);       // right hand
   ctx.fillStyle = '#b88060';
   ctx.fillRect(px - 5, py - 22, 10, 13);             // head
-  ctx.fillStyle = '#7a3a18';
+  ctx.fillStyle = npc.hairColor || '#7a3a18';
   ctx.fillRect(px - 5, py - 22, 10, 4);              // auburn hair
   if (facing !== 'up') {                             // eyes: shift for L/R, hidden facing away
     ctx.fillStyle = '#181620';

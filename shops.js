@@ -23,9 +23,19 @@ const TRAVELLER_STOCK = [
   'Elixir', 'Battle Axe', 'Dragon Blade', 'Shadow Cloak', 'Mithril Shield', 'Wraithband', 'Fen Mask', 'Sapper Charge',
 ].map(createTravellerStockItem);
 
+// Mornay shops reuse registered goods and the ordinary purchase/sale controller.
+// The fishing rod is deliberately absent: its registered identity is a quest item.
+const MORNAY_SHOPS = Object.freeze({
+  provisioner: Object.freeze({id:'mornay_provisioner',label:'KELM PROVISIONS',stock:['Potion','Bait'].map(createItem)}),
+  apothecary: Object.freeze({id:'mornay_apothecary',label:'STERN APOTHECARY',stock:['Potion','Elixir','Reed Remedy','Amethyst Dust'].map(createItem)}),
+  workgear: Object.freeze({id:'mornay_workgear',label:'SORN WORK GEAR',stock:['Bronze Knife','Leather Armor','Iron Shield','Iron Sword','Fen Cowl'].map(createItem)}),
+  chandler: Object.freeze({id:'mornay_chandler',label:'VENN CHANDLERY',stock:['Bait','Throwing Knife','Leather Armor','Swift Bangle'].map(createItem)})
+});
+
 // ─── Shop registry ────────────────────────────────────────────────────────────
 // Additive/reference-only: gameplay code has not yet been migrated to use this.
 const SHOP_REGISTRY = {
+  ...Object.fromEntries(Object.values(MORNAY_SHOPS).map(s => [s.id,s])),
   merchant:  { id: 'merchant',  label: 'Merchant',             stock: MERCHANT_STOCK  },
   traveller: { id: 'traveller', label: 'Travelling Salesman',  stock: TRAVELLER_STOCK },
 };

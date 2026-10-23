@@ -5126,7 +5126,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -5183,7 +5183,7 @@
       "escapes": {
         "up": true,
         "down": true,
-        "left": true,
+        "left": false,
         "right": true
       },
       "canEscape": true,
@@ -5242,7 +5242,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -5300,7 +5300,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -5358,7 +5358,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -5474,7 +5474,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -5705,7 +5705,7 @@
       "escapes": {
         "up": true,
         "down": true,
-        "left": true,
+        "left": false,
         "right": true
       },
       "canEscape": true,
@@ -5822,7 +5822,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -5879,7 +5879,7 @@
       "escapes": {
         "up": true,
         "down": true,
-        "left": true,
+        "left": false,
         "right": true
       },
       "canEscape": true,
@@ -5938,7 +5938,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -6054,7 +6054,7 @@
         "up": true,
         "down": true,
         "left": true,
-        "right": true
+        "right": false
       },
       "canEscape": true,
       "verdict": "OK"
@@ -10662,8 +10662,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -10749,8 +10749,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -10778,8 +10778,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -10836,8 +10836,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -10865,8 +10865,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -10923,7 +10923,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -10981,8 +10981,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -11068,8 +11068,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -11097,8 +11097,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -11184,8 +11184,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -11213,8 +11213,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -11271,7 +11271,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true
@@ -11358,8 +11358,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -11445,8 +11445,8 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
-        "down": true,
+        "up": false,
+        "down": false,
         "left": true,
         "right": true
       },
@@ -11503,7 +11503,7 @@
       "walkableByTable": true,
       "canWalkHere": true,
       "escapes": {
-        "up": true,
+        "up": false,
         "down": true,
         "left": true,
         "right": true

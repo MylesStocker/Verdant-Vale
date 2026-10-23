@@ -47,6 +47,89 @@
       waterTravelController.update(WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames*MS_PER_FRAME/2000);
       check(!waterTravelController.isActive()&&mapIdForRef(activeMap)==='EASTERN_BANK_MAP','Ferry finishes @'+scale);
     }
+    // Mornay population review uses real browser input listeners and Canvas.
+    // This is automated browser evidence, not a claim of a manual playthrough.
+    const press=key=>{window.dispatchEvent(new KeyboardEvent('keydown',{key}));window.dispatchEvent(new KeyboardEvent('keyup',{key}));};
+    const walkUntil=(key,test,label)=>{
+      window.dispatchEvent(new KeyboardEvent('keydown',{key}));let count=0;
+      try{while(!test()&&count++<240)update();}finally{window.dispatchEvent(new KeyboardEvent('keyup',{key}));}
+      check(test(),label);
+    };
+    const closeDialogue=()=>{let count=0;while(dialogue.open&&count++<60){render();press('Enter');}check(!dialogue.open,'Dialogue closes through input');};
+    const townState=id=>({inTown:true,currentTownId:'mornay',townBuilding:mornayRoomForMap(id)?.id||null});
+    const capture=name=>{render();result.captures.push({name,png:canvas.toDataURL()});};
+    const talk=id=>{
+      const n=MORNAY_NPCS.find(n=>n.id===id),r=MORNAY_RESIDENTS.find(n=>n.id===id);
+      check(transitionToLocation({mapId:r.mapId,x:n.x,y:n.y+24,facing:'up',state:townState(r.mapId)}),'Reach '+id);
+      press(' ');check(dialogue.open,'Input conversation '+id);
+    };
+    const inert=()=>JSON.stringify({quest:MainQuest,flags:QUEST_FLAG_BINDINGS.map(b=>[b.key,b.get()]),stats,party:persistentParty.serialize(),day});
+    for(const scale of [1,2]){
+      canvas.style.width=512*scale+'px';canvas.style.height=480*scale+'px';
+      check(canvas.getBoundingClientRect().width===512*scale,'Mornay browser size '+512*scale+'x'+480*scale);
+      for(const legacy of [false,true])for(const [gate,x]of [['WEST',240],['EAST',272]]){
+        forceLegacyRegionalView=legacy;
+        check(transitionToLocation({mapId:'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP',x,y:144,facing:'up'}),'Gate approach '+gate);
+        walkUntil('ArrowUp',()=>inTown,'Input entry '+gate+' legacy='+legacy+' @'+scale);
+        check(mapIdForRef(activeMap)==='MORNAY_'+gate+'_GATE_MAP','Correct gate '+gate);
+        check(saveGame()&&loadGame(),'Gate save/load '+gate);closeDialogue();
+        capture('mornay-'+gate.toLowerCase()+'-gate-'+(legacy?'fallback-':'')+scale+'x');
+        walkUntil('ArrowDown',()=>!inTown,'Input exit '+gate+' legacy='+legacy+' @'+scale);
+        check(player.x===x&&player.y===144&&player.facing==='down'&&canWalk(player.x,player.y,9),'Safe gate landing '+gate);
+        for(let i=0;i<30;i++)update();check(!inTown,'No automatic reentry '+gate);
+      }
+      forceLegacyRegionalView=false;
+      check(debugWarpToDestination('town:mornay_west_gate').success,'Debug Mornay arrival');closeDialogue();
+      walkUntil('ArrowDown',()=>!inTown,'Ordinary exit after debug warp @'+scale);
+      for(const id of MORNAY_TOWN_MAP_IDS){
+        check(transitionToLocation({mapId:id,x:240,y:432,facing:'up',state:townState(id)}),'Exterior '+id);
+        for(let i=0;i<120;i++)update();check(!combat.active,'No random town battle '+id);
+        capture(id.toLowerCase()+'-'+scale+'x');
+      }
+      for(const b of MORNAY_BUILDINGS){
+        check(transitionToLocation({mapId:b.sourceMapId,x:(b.returnCol+.5)*TILE,y:(b.returnRow+.5)*TILE,facing:b.facing==='up'?'down':'up',state:townState(b.sourceMapId)}),'Door approach '+b.id);
+        walkUntil(b.facing==='up'?'ArrowDown':'ArrowUp',()=>mapIdForRef(activeMap)===b.mapId,'Input door entry '+b.id);
+        check(saveGame()&&loadGame(),'Interior save/load '+b.id);closeDialogue();capture(b.id+'-'+scale+'x');
+        walkUntil('ArrowDown',()=>mapIdForRef(activeMap)===b.sourceMapId,'Input door exit '+b.id);
+      }
+      stats.gold=1000;
+      for(const id of ['mornay_neris_kelm','mornay_melva_stern','mornay_hesta_sorn','mornay_hal_venn']){
+        talk(id);closeDialogue();check(shop.open,'Operational shop '+id);capture(id+'-shop-'+scale+'x');
+        const before=stats.gold,stock=shop.stock[0],owned=stats.items.filter(i=>i.name===stock.name).length;
+        press('Enter');press('Enter');check(stats.gold===before-stock.price&&stats.items.filter(i=>i.name===stock.name).length===owned+1,'Real purchase '+id);
+        press('Escape');press('Escape');
+      }
+      for(const [id,fee]of [['mornay_rella_wold',30],['mornay_gerta_vell',40]]){
+        stats.hp=Math.max(1,stats.maxHp-4);const before=day,gold=stats.gold;
+        talk(id);closeDialogue();check(choice.open,'Inn offer '+id);press('Enter');
+        check(day===before+1&&stats.gold===gold-fee&&stats.hp===stats.maxHp,'Operational rest '+id);closeDialogue();
+      }
+      stats.hp=stats.maxHp-7;const hp=stats.hp,gold=stats.gold;
+      talk('mornay_selven_orr');closeDialogue();check(choice.open,'Treatment target chooser');press('Enter');
+      check(stats.hp===hp+7&&stats.gold===gold-7,'Operational infirmary treatment');closeDialogue();
+      // All new lines are measured in the real font after the production
+      // pagination/speaker preprocessing; no fixed-width harness approximation.
+      const before=inert();let measured=0;
+      for(const npc of MORNAY_NPCS){
+        if(npc.service)continue;
+        dialogue.name=npc.name;setNpcDialoguePages(npc);dialogue.open=true;dialogue.page=0;
+        const draws=[],original=ctx.fillText;
+        ctx.fillText=function(text,x,y,...rest){const m=this.measureText(text),left=this.textAlign==='right'?x-m.width:this.textAlign==='center'?x-m.width/2:x;draws.push({left,right:left+m.width,top:y-m.actualBoundingBoxAscent,bottom:y+m.actualBoundingBoxDescent});return original.call(this,text,x,y,...rest);};
+        try{drawDialogue();for(let page=1;page<dialogue.pages.length;page++){dialogue.page=page;drawDialogue();}}
+        finally{ctx.fillText=original;dialogue.open=false;}
+        check(draws.length>0&&draws.every(d=>d.left>=0&&d.right<=512&&d.top>=0&&d.bottom<=480),'Mornay dialogue fits '+npc.id+' @'+scale);measured++;
+      }
+      check(measured===293&&inert()===before,'Ambient dialogue and presentation mutate no game state @'+scale);
+      for(const id of ['mornay_bram_fen','mornay_tavi_rusk','mornay_nessa_quill','mornay_yara_kelm','mornay_jessa_nair','mornay_marit_voss','mornay_edrin_saye','mornay_oren_teal','mornay_benna_lark','mornay_nevin_brack','mornay_otrin_wren']){
+        talk(id);capture(id+'-dialogue-'+scale+'x');
+        if(id==='mornay_yara_kelm'){
+          while(dialogue.open&&dialoguePagePresentation().speakerId!=='esla'){render();press('Enter');}
+          check(dialogue.open&&dialoguePagePresentation().styleId==='esla_light_green','Mornay Esla interjection stays green');capture('mornay-esla-green-'+scale+'x');
+        }
+        closeDialogue();
+      }
+      for(const town of ['calwick','drenwick']){enterTownAt(town,'south');capture('compatibility-'+town+'-'+scale+'x');check(canWalk(player.x,player.y,9),'Earlier town arrival remains walkable '+town);}
+    }
     check(result.errors.length===0,'No browser errors');result.ok=true;
   }catch(error){result.ok=false;result.errors.push(error.stack||String(error));}
   document.getElementById('results').textContent=JSON.stringify(result);

@@ -1171,6 +1171,8 @@ function validateNPCs() {
   // whose keys are canonical PHYSICAL map ids) because this is a genuinely
   // separate namespace -- see movement.js's currentContentLocationKey().
   const VALID_CONTENT_LOCATION_KEYS = new Set([
+    ...MORNAY_TOWN_MAP_IDS.map(mornayContentKey),
+    ...MORNAY_BUILDINGS.map(b => mornayContentKey(b.mapId)),
     'overworld',
     'map2', 'map3', 'map_n1', 'map_n2', 'map4', 'map3_n1', 'map3_n2',
     'north_basin_s', 'north_basin_c', 'north_basin_sw', 'north_basin_w',

@@ -283,8 +283,9 @@ module.exports = {
     const movers = g.run('SIMPLE_NPCS.filter(n => n.movement !== undefined).map(n => n.id)');
     assert.equal(JSON.stringify(Array.from(movers).sort()),
       JSON.stringify(['apt_c1_u4_feral_cat', 'bridge_soldier_north', 'bridge_soldier_south',
-        'north_a_cat_ginger', 'north_a_cat_grey', 'tobb_wend', 'tomas'].sort()),
-      'only the bridge guards + Tobb + Tomas + the three cats have movement configs');
+        'north_a_cat_ginger', 'north_a_cat_grey', 'tobb_wend', 'tomas',
+        'mornay_merra_keld', 'mornay_alwen_corst', 'mornay_halen_wick', 'mornay_dolen_weir', 'mornay_arven_beck', 'mornay_derren_kest', 'mornay_mora_wist', 'mornay_theda_wark', 'mornay_korrin_ashe', 'mornay_selma_greaves', 'mornay_porrin_beck', 'mornay_varen_noll'].sort()),
+      'only the approved old-town movers and twelve Mornay patrols have movement configs');
 
     // ── Render: stationary identity, walk frames, facing, stop, isolation ───
     // Record fillRect calls through the ctx stub (its Proxy allows property

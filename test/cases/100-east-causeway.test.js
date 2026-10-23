@@ -175,6 +175,6 @@ module.exports = {
     const audit=require('../transition-audit.js'); const verdict=Object.fromEntries(audit.seamReadiness.edges.map((e)=>[e.mapId+'|'+e.dir,e.verdict]));
     assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BLOCKED');
     assert.deepEqual(audit.seamReadiness.totals,{INTENTIONAL_DISCRETE:4,BORDER:70,ALIGNS:140,BLOCKED:246}); assert.equal(audit.seamReadiness.edges.length,460);
-    assert.equal(g.run('continuousSeamEntries().length'),160); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),115); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),234); assert.equal(g.run('SAVE_VERSION'),5);
+    assert.equal(g.run('continuousSeamEntries().length'),160); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),115); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),251); assert.equal(g.run('SAVE_VERSION'),5);
   },
 };

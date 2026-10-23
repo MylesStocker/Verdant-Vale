@@ -1798,6 +1798,7 @@ const SIMPLE_NPCS = [
   ...SOUTH_RUINS_NPCS,
   ...NORTH_BASIN_NPCS,
   ...SHARED_NPCS,
+  ...MORNAY_NPCS,
 ];
 
 // Named functions for NPCs with extra behaviour beyond dialogue.
@@ -2229,6 +2230,7 @@ const TALK_RADIUS = 28; // px; must be within this to open dialogue (~0.9 tiles)
 const ESLA_DIALOGUE_STYLE_ID = 'esla_light_green';
 const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
 const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
+  ...Object.fromEntries(MORNAY_NPCS.map(n => [n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
   supervisor: Object.freeze({speakerId:'supervisor',name:'Supervisor',dialogueStyleId:null}),
   esla: Object.freeze({speakerId:'esla',name:'Esla',dialogueStyleId:ESLA_DIALOGUE_STYLE_ID}),
   lely: Object.freeze({speakerId:'lely',name:'Lély',dialogueStyleId:null}),

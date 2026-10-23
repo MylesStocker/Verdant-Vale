@@ -135,6 +135,7 @@ const MAP_FEATURES = mergeMapFeatureFragments([
   SOUTH_RUINS_MAP_FEATURES,
   NORTH_BASIN_MAP_FEATURES,
   SHARED_MAP_FEATURES,
+  MORNAY_MAP_FEATURES,
 ]);
 
 // Evaluates a feature's `condition`, safely -- a throwing condition is
@@ -2014,6 +2015,7 @@ function interactHouseInterior() {
 // else-if chain exactly: conditions are unchanged and more-specific entries
 // (Drenwick variants) stay above their generic counterparts.
 const OVERWORLD_INTERACT_HANDLERS = [
+  { name: 'mornay', match: () => inTown && currentTownId === 'mornay', run: interactMornay },
   { name: "sluice"              , match: () => inSluice                                                              , run: interactSluiceInterior },
   { name: "mire-vault"          , match: () => inMireVault                                                           , run: interactMireVault },
   { name: "takomo-chamber"      , match: () => inTakomo                                                              , run: interactTakomoChamber },

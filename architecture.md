@@ -214,9 +214,9 @@ loaded in order. There are no `import`/`export` statements — a `const`/`let`/
 loaded after it. **Load order in `index.html` is load-bearing; don't reorder
 scripts without checking this doc.**
 
-Current integration totals: 234 maps, 115 regional chunks, 308 fixed-destination
+Current integration totals: 251 maps, 115 regional chunks, 342 fixed-destination
 transitions, 8 preserved-coordinate transitions, 240 edge-transition segments,
-42 house doors, 213 regression suite files and save version 5. Earlier subsystem
+42 legacy house doors, 17 Mornay public-room doors and save version 5. Earlier subsystem
 checkpoint references to version 4
 describe their original increments; the persistent-party schema below is current.
 
@@ -245,15 +245,14 @@ camera or transition engine. The two `TOWN_ENTRANCE` cells on the regional crown
 at `(7,3)` and `(8,3)` enter the West and East Gates respectively, and gate exits
 return one tile south to `(7,4)` and `(8,4)`, facing down, beyond the entrance
 triggers. The remaining upper four cells form the solid 2×3
-overworld marker. Mornay's empty exteriors do not roll the populated-town
-traveller cameo. The conventional debug destination enters West Gate.
+overworld marker. Mornay does not roll the Calwick/Drenwick travelling-merchant cameo. The conventional debug destination enters West Gate.
 
 The registered reserve labels for the western harbour identify an inert island
 ferry berth and a future story-ship berth. They are ordinary deck presentation:
-no transition, NPC, ferry, island, ship or water-travel authority exists. All
-building masses and apparent doors are nonfunctional. Population, interiors,
-services, quests and later story progression remain deferred. SAVE_VERSION stays
-5; no town-specific persistent field was added.
+no ferry, island, ship or water-travel transition is registered. The population
+pass adds explicit public-room doors, repeatable NPC dialogue and existing shop,
+inn and treatment behavior. Berths, plot rooms and later story progression remain
+inert. SAVE_VERSION stays 5; no town-specific persistent field was added.
 
 ### Canonical party encounters
 
@@ -4760,3 +4759,5 @@ timing. Automated native/2× Canvas evidence is under
 ### Mornay public-room authority
 
 `content/maps/mornay-maps.js` owns `MORNAY_BUILDINGS`: distinct building IDs, room map IDs, source doors and reciprocal returns. `data.js` registers its 17 ordinary discrete interiors before deriving catalogue views. `movement.js` dispatches their doors and exits before generic town handlers; `world-transitions.js` validates the map and Mornay context together before committing. Save loading applies that same validation without changing SAVE_VERSION 5 or the location payload. Inn upstairs rooms use the same registry as exterior doors. No harbour or story transition is registered. `MORNAY_ROOM_FIXTURES` supplies both solid furniture tiles and rendering geometry.
+
+Mornay population is authored once in `content/npcs/mornay-npcs.js`: 300 stable characters, 12 ordinary deterministic patrols and five companion exchanges. Author-only network classifications are not consumed by gameplay. `content/interactions/mornay-interactions.js` owns repeatable inspectables and service offers; it is dispatched before generic town interactions. `shops.js` supplies four existing-item inventories. Paid treatment goes through `persistentParty.treatMember()` (one gold per HP, selected stable member, no statuses/day change); inns use the existing overnight receipt before charging the fee. `render-mornay.js` is read-only and reuses fixture geometry; generic sprites accept optional hair/coat colours without changing old defaults.

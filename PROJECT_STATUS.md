@@ -861,8 +861,9 @@ uses the same fixed destination `(7.5,8.5)` without replaying the argument.
 Eastward progress remains blocked until authenticated night completion,
 but camp exit, local exploration and westward retreat remain open.
 
-The campfire night is now implemented below. Mornay content, shops and further
-MQ5 progression remain deferred. The new local
+The campfire night is now implemented below. Mornay population and services are
+implemented in the dedicated branch described at the end of this document; further
+MQ5 progression remains deferred. The new local
 map brings totals to 217 maps and 258 fixed transitions; 115 regional chunks,
 8 preserved-coordinate transitions, 240 edge segments and 42 doors are unchanged.
 All existing grids, placements, pools and encounter permissions are unchanged;
@@ -2058,3 +2059,9 @@ slower in animation rate than 0.14 seconds, while her 90 px/s displacement and
 ### Mornay population branch — public rooms
 
 The dedicated Mornay population branch adds 17 accessible rooms in 15 establishments, with input-driven reciprocal doors and save/load coverage for every room. The catalogue now contains 251 maps; all 115 regional chunk fingerprints are unchanged. The original 17 exterior topology and both safe gate returns remain intact. See `MORNAY_TOWN_PLAN.md` for the complete population, institution and story-reservation plan.
+
+### Mornay population and services MVP
+
+The populated town has 120 exterior and 180 interior speaking characters, 12 deterministic street patrols, four shops using existing inventory, two operational inns (30/40 gold), and an 18-character infirmary with ordinary staff, eight beds and one registered resonance healer. The corrected comparable Drenwick benchmark is 99 distinct non-party town characters; Mornay is 3.03 times that count. Nine residents have meaningful Reclaimer network ties, including three author-only confirmed members, distributed across eight districts. Three Imperial/watch staff address the movement. No new quest, reward, faction state or save flag was introduced.
+
+The Civic Collegium is visibly walled and inaccessible; the hydrographic office, Old Fort rooms, story berth, island ferry and suspected meeting stair stay inert. Canonical faction terminology is Reclaimers throughout runtime dialogue and lore. No legacy faction identifier needed retention. Automated Chromium review exercises both gate routes, every door, shops, inns and treatment at 512×480 and 1024×960, with real-font dialogue checks and captured Canvas output; it is not a manual playthrough.

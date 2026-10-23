@@ -2,20 +2,19 @@
 // Covers: the Phase 0 "Future NPC movement contract" (architecture.md) —
 // specifically the ADDITIVE validation for the optional `movement` property
 // on SIMPLE_NPCS entries (validation.js's validateNPCs()). No movement
-// system exists yet; these tests exercise the validator against SYNTHETIC
+// system is also covered by the later route suites; this test exercises SYNTHETIC
 // fixture NPCs pushed into SIMPLE_NPCS temporarily and removed afterwards,
 // the same construct-bad-data-in-isolation pattern as 24-content-validation.
 //
 //   1. The current, real game data validates with zero errors and zero
-//      movement-related warnings (no real NPC has `movement`, and the new
-//      validation block is a no-op for NPCs without it).
+//      movement-related warnings; optional movement remains a no-op when absent.
 //   2. A well-formed synthetic patrol config passes (no new errors).
 //   3. Malformed movement configs each fail clearly: unrecognized type,
 //      empty/missing waypoint list, non-finite coordinates, out-of-bounds
 //      waypoints, non-positive/non-finite speed, negative pauseFrames,
 //      non-boolean loop, missing id, bespoke-rendered NPC, dynamic x getter.
 //   4. Validation does not mutate the NPC definition.
-//   5. Exactly the three approved Phase 1 pilots have movement configs, and no
+//   5. Exactly the approved old-town and Mornay movers have configs, and no
 //      other real NPC does: the two Imperial bridge guards (scriptedRoute) and
 //      Tobb Wend, the fen-brewery auto-patrol (patrol). (This replaced the
 //      Phase 0 "no real NPC has movement" assertion when the pilots landed —
@@ -57,7 +56,7 @@ function validateFixture(g, npcLiteral, id) {
 }
 
 module.exports = {
-  name: 'NPC movement contract (Phase 0): additive validation, synthetic fixtures, no real NPC moves',
+  name: 'NPC movement contract: validation, synthetic fixtures and explicit approved movers',
   run() {
     const g = createContext();
     g.press('Enter');
@@ -220,7 +219,8 @@ module.exports = {
     // wanders; the black feral cat uses a flee.) Any additional NPC gaining
     // movement must be a deliberate, reviewed decision updating this list.
     const APPROVED_PILOTS = ['bridge_soldier_south', 'bridge_soldier_north', 'tobb_wend', 'tomas',
-      'north_a_cat_grey', 'north_a_cat_ginger', 'apt_c1_u4_feral_cat'];
+      'north_a_cat_grey', 'north_a_cat_ginger', 'apt_c1_u4_feral_cat',
+      'mornay_merra_keld', 'mornay_alwen_corst', 'mornay_halen_wick', 'mornay_dolen_weir', 'mornay_arven_beck', 'mornay_derren_kest', 'mornay_mora_wist', 'mornay_theda_wark', 'mornay_korrin_ashe', 'mornay_selma_greaves', 'mornay_porrin_beck', 'mornay_varen_noll'];
     const withMovement = g.run('SIMPLE_NPCS.filter(n => n.movement !== undefined).map(n => n.id)');
     assert.equal(JSON.stringify(Array.from(withMovement).sort()), JSON.stringify(APPROVED_PILOTS.slice().sort()),
       'exactly the approved movers may have movement; found: ' + JSON.stringify(withMovement));
@@ -234,7 +234,8 @@ module.exports = {
       'north_a_cat_grey:boundedWander',
       'tobb_wend:patrol',
       'tomas:boundedWander',
-    ]), 'guards scriptedRoute, Tobb patrol, Tomas + cats boundedWander, feral cat flee: ' + typeById);
+      'mornay_merra_keld:patrol', 'mornay_alwen_corst:patrol', 'mornay_halen_wick:patrol', 'mornay_dolen_weir:patrol', 'mornay_arven_beck:patrol', 'mornay_derren_kest:patrol', 'mornay_mora_wist:patrol', 'mornay_theda_wark:patrol', 'mornay_korrin_ashe:patrol', 'mornay_selma_greaves:patrol', 'mornay_porrin_beck:patrol', 'mornay_varen_noll:patrol',
+    ].sort()), 'guards scriptedRoute, Tobb patrol, Tomas + cats boundedWander, feral cat flee: ' + typeById);
     // Tobb's patrol auto-starts and loops.
     assert.equal(g.run("SIMPLE_NPCS.find(n => n.id === 'tobb_wend').movement.autoStart"), true, 'Tobb autoStart');
     assert.equal(g.run("SIMPLE_NPCS.find(n => n.id === 'tobb_wend').movement.loop"), true, 'Tobb loops');

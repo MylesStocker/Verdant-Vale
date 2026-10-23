@@ -72,8 +72,8 @@ module.exports = {
 
     // 5. Duplicate MAP_FEATURES map ownership is rejected.
     assert.equal(g.run('(function(){ try { mergeMapFeatureFragments([{Z:[]},{Z:[]}]); return "no-throw"; } catch (e) { return e.message.indexOf("duplicate") >= 0 ? "threw" : "wrong"; } })()'), 'threw');
-    // and SIMPLE_NPCS is exactly the seven arrays concatenated (no sort / no source tags).
-    assert.equal(g.run('SIMPLE_NPCS.length === CALWICK_NPCS.length + THORNMERE_WILDS_NPCS.length + DRENWICK_TOWN_NPCS.length + DRENWICK_INTERIOR_NPCS.length + SOUTH_RUINS_NPCS.length + NORTH_BASIN_NPCS.length + SHARED_NPCS.length'), true);
+    // and SIMPLE_NPCS is exactly the eight arrays concatenated (no sort / no source tags).
+    assert.equal(g.run('SIMPLE_NPCS.length === CALWICK_NPCS.length + THORNMERE_WILDS_NPCS.length + DRENWICK_TOWN_NPCS.length + DRENWICK_INTERIOR_NPCS.length + SOUTH_RUINS_NPCS.length + NORTH_BASIN_NPCS.length + SHARED_NPCS.length + MORNAY_NPCS.length'), true);
     assert.equal(g.run('SIMPLE_NPCS[0] === CALWICK_NPCS[0]'), true, 'SIMPLE_NPCS begins with the Calwick array');
 
     // 6. Representative map from all six map regions resolves through MAP_REGISTRY.
@@ -81,7 +81,7 @@ module.exports = {
     for (const m of Object.keys(mapReg)) assert.equal(g.run('MAP_REGISTRY[mapRegistryId(' + m + ')].map === ' + m), true, m + ' resolves through MAP_REGISTRY');
     assert.equal(g.run("MAP_REGISTRY['EASTERN_FENS_VALMERE_ROAD_TURN_MAP'].map===mapRefForId('EASTERN_FENS_VALMERE_ROAD_TURN_MAP')"), true,
       'aliasless Eastern Fens representative resolves through MAP_REGISTRY');
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 234);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'), 251);
 
     // 7. Representative NPC from all six NPC files resolves through SIMPLE_NPCS + NPC_REGISTRY.
     const npcReg = { aldric: 'CALWICK_NPCS', gorrit_wend: 'THORNMERE_WILDS_NPCS', tarvec: 'DRENWICK_TOWN_NPCS', harbormaster_interior: 'DRENWICK_INTERIOR_NPCS', wen: 'SOUTH_RUINS_NPCS', causeway_ferry_operator: 'NORTH_BASIN_NPCS' };
