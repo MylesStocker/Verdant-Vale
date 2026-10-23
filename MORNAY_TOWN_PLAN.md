@@ -504,7 +504,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 
 Later editorial review may revise names, quip frequency, exact prices, class accents and stock progression. A new equipment tier needs its own balance audit. The proposed Fen Angler’s Rod was rejected as shop stock because the item registry marks it as a quest/key item; ordinary Leather Armor is used instead. Valmere basin depth, hydrographic principal, ship narrative and future Reclaimer objectives are deliberately unresolved.
 
-Required verification includes input-driven gate and door routes; safe landings; unique roster IDs and comparable counts; swept patrol/collision checks; buying, selling, both inn receipts and treatment; save/load every room; mixed-speaker styling and text fit; no mutable Reclaimer state; inert reserved content; no town encounters; catalogue and fingerprints; full transition artifact; old-town and historical combat regression. Test 300 owns gate controls; reserve 301–319 for the exclusive post-production test writer. Browser/manual evidence must be reported separately from simulated controls.
+Required verification includes input-driven gate and door routes; safe landings; unique roster IDs and comparable counts; swept patrol/collision checks; buying, selling, both inn receipts and treatment; save/load every room; mixed-speaker styling and text fit; no mutable Reclaimer state; inert reserved content; no town encounters; catalogue and fingerprints; full transition artifact; old-town and historical combat regression. Test 300 owns gate controls; suites 301–310 cover the populated MVP, and the exclusive refinement test writer used the independently checked free block 311–314. Browser/manual evidence must be reported separately from simulated controls.
 
 
 ## Historical MVP delivery at 6f065af
@@ -835,3 +835,175 @@ Compared with `6f065af`, the following are every changed existing-grid cell, exp
 | `MORNAY_COURT_MAP` | 18 → 34 | (2,4), (5,4), (10,4), (13,4) |
 | `MORNAY_COURT_MAP` | 33 → 18 | (2,9), (4,9), (11,9), (13,9) |
 | `MORNAY_COURT_MAP` | 33 → 19 | (2,3), (4,3), (11,3), (13,3) |
+
+## Residential refinement verification and walkthrough
+
+The production checkpoint is `80bdddfbe8f22602f63be36e0ead2f034569cb7d` (`feat(mornay): add residential life and varied room layouts`), parent `6f065af3db3c1286712f65df71ab182f2a16b803`. The following local QA checkpoint records this section and screenshots; its parent is `80bdddf`. No merge, push, rebase, force-update or application to another worktree occurred in this pass.
+
+| Verification | Result |
+|---|---|
+| Baseline at the unchanged starting MVP checkpoint | 229/229 complete suites passed |
+| Focused Mornay block 300–314 | 15/15 passed after every confirmed defect was corrected |
+| Final `node test/run.js` | **233/233 passed**, including historical singleton, Formation, party-command, Resonance, Sera/Liora, ferry, Fens, Rise and earlier-town compatibility |
+| Syntax | All 26 changed/new JavaScript files passed `node --check` |
+| `validateGameData()` | 275 maps, 481 registry NPCs; zero errors, the same twelve pre-existing warnings; no Mornay occupancy warning |
+| SAVE_VERSION / payload | Version 5; no new fields; all 41 room save contexts round-trip and 328 forged contexts reject atomically |
+| Resident access | All 300 distinct conversations reachable and unshadowed on workday and Dayoff; twelve patrols sweep safely and pause/resume |
+| New navigation coverage | 164 complete furnished door journeys: all 41 rooms × workday/Dayoff × continuous/legacy setting, including nested apartment save/load and walking fully outside |
+| Both town gates | Controller and Chrome entry/exit, gate save/load, safe West (240,144) / East (272,144) returns facing down, no immediate re-entry, ordinary exit after debug warp |
+| Services | Four deterministic inventories/buy/sell flows, two inns at existing 30/40 gold, and existing lawful selected-member treatment remain operational |
+| Rendering | Each room fixture, resident and player once; actor/furniture depth order, HUD-only room names and exact old-town stationary Canvas dispatch verified |
+| Facades / reservations | Closed homes remain solid and inert; all street arms walkable; Collegium, hydrographic office, harbour departures, ship, island ferry and suspected meeting places remain inactive |
+| Transition audit | 275 valid grids; 390/390 fixed destinations, eight preserved-coordinate routes and 240 edge segments pass; 258 non-Mornay fixed-transition records are byte-equivalent |
+| Regional geography | All 115 fingerprints unchanged; 160 continuous seams and 115 layout placements retained |
+| Terminology / state | Reclaimers retained, no stale faction terminology introduced, no ambient flag/reward/quest/faction mutation; Esla remains green |
+| Repository checks | Whitespace, conflict markers, stale references and final file list reviewed; other worktrees unchanged |
+
+Only `test/transition-audit-output.json` was regenerated, through `node test/transition-audit.js --write`, then verified without writing. Its changed sections are registry IDs, dimensions, Mornay fixed transitions and tile usage. The catalogue grows 251 → 275 and fixed destinations 342 → 390 because 24 new rooms each have entry and exit. There are no catch-up changes to non-Mornay fixed transitions. Regional fingerprint artifacts were not regenerated.
+
+The change surfaces are the Mornay map/door/fixture authority; the existing roster and derived schedules; the catalogue note; read-only Mornay rendering and its narrow dispatch hooks; the plan/status/architecture documentation; existing exact-count and route tests; four new behavioral suites; browser walking/capture checks; the transition artifact; and the QA capture package. No shop stock, service recovery authority, lore canon, save schema, combat system, regional grid or other town content was edited.
+
+### Browser evidence
+
+Automated headless Chrome used the real input listeners, Canvas fonts, storage and production update/render functions at 512×480 and 1024×960. The final run passed **6,731 assertions**, produced **166 captures**, and reported **zero browser errors**. It walks from street/parent arrivals to every door, uses all shops/inns/treatment, exercises both gates in both settings plus debug/save/load routes, visits all exterior maps, checks representative dialogue clusters and measures all 293 ambient dialogue presentations. It also verifies unchanged Calwick/Drenwick rendering. This is automated browser evidence, not a manual human playthrough.
+
+Thirty-six representative captures (eighteen views at both scales) are tracked with dimensions and SHA-256 values in [the capture manifest](Art/qa/mornay/residential-v1/manifest.json). These are canvas captures at the displayed pixel sizes; the existing DOM/HUD map title is intentionally outside the exported canvas. Native-scale and 2× images were visually inspected for readable numbers/signs, furniture, actor depth and crowding.
+
+| View | Native | 2× |
+|---|---|---|
+| South housing and care street | [512×480](Art/qa/mornay/residential-v1/mornay_south_upper_west_map-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_south_upper_west_map-2x.png) |
+| East Ward residential street | [512×480](Art/qa/mornay/residential-v1/mornay_middle_lower_east_map-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_middle_lower_east_map-2x.png) |
+| South Rows and ward services | [512×480](Art/qa/mornay/residential-v1/mornay_south_upper_east_map-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_south_upper_east_map-2x.png) |
+| Glyn household | [512×480](Art/qa/mornay/residential-v1/mornay_glyn_home-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_glyn_home-2x.png) |
+| Net maker’s home | [512×480](Art/qa/mornay/residential-v1/mornay_reed_home-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_reed_home-2x.png) |
+| Vale House | [512×480](Art/qa/mornay/residential-v1/mornay_vale_home-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_vale_home-2x.png) |
+| Examiner’s House | [512×480](Art/qa/mornay/residential-v1/mornay_dane_home-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_dane_home-2x.png) |
+| Dock Steps common room | [512×480](Art/qa/mornay/residential-v1/mornay_dock_steps-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_dock_steps-2x.png) |
+| Repairer’s flat | [512×480](Art/qa/mornay/residential-v1/mornay_dock_steps_unit_1-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_dock_steps_unit_1-2x.png) |
+| Seamworker’s flat | [512×480](Art/qa/mornay/residential-v1/mornay_dock_steps_unit_4-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_dock_steps_unit_4-2x.png) |
+| Boarding common kitchen | [512×480](Art/qa/mornay/residential-v1/mornay_boarding-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_boarding-2x.png) |
+| Shared boarding bedroom | [512×480](Art/qa/mornay/residential-v1/mornay_boarding_unit_3-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_boarding_unit_3-2x.png) |
+| Ward School | [512×480](Art/qa/mornay/residential-v1/mornay_school-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_school-2x.png) |
+| Gate Inn | [512×480](Art/qa/mornay/residential-v1/mornay_gate_inn-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_gate_inn-2x.png) |
+| Ledger House | [512×480](Art/qa/mornay/residential-v1/mornay_commercial_inn-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_commercial_inn-2x.png) |
+| Regional IJC Office | [512×480](Art/qa/mornay/residential-v1/mornay_office-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_office-2x.png) |
+| Harbour/customs office | [512×480](Art/qa/mornay/residential-v1/mornay_harbour-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_harbour-2x.png) |
+| Infirmary | [512×480](Art/qa/mornay/residential-v1/mornay_infirmary-1x.png) | [1024×960](Art/qa/mornay/residential-v1/mornay_infirmary-2x.png) |
+
+### Short human walkthrough
+
+1. Enter West Gate, visit Wold’s Inn at (3,5), then go north to South Upper West. Inspect the infirmary (12,5), Hume common room (3,10) and its four numbered bedrooms, then Pate’s Kitchen (12,10).
+2. In South Upper East, inspect the school (12,5), apothecary (3,5), and South Rows apartments (3,10). Walk into a numbered flat, save/load there, then walk back through the common room to the street.
+3. Visit East Ward Shared Court in Middle Lower East (3,9), Rann Workroom in Middle Lower Central West (12,5), and Glyn Household in Middle Lower Central East (3,5). Compare homes and neighbours with the public workspaces.
+4. Visit Dock Steps in Middle Upper West (3,9), and Reed’s Net Room in Middle Upper East (3,9). Inspect domestic repair work, beds and storage. Check Ferin at school on a workday and Dock Steps Flat 4 on Dayoff; Maris returns to the Glyn home.
+5. In North Upper West compare Ledger House (11,5) with Vale House (11,8). In North Upper East visit Examiner’s House (3,8), then inspect the still-closed Civic Collegium. Visit the Regional IJC office in Middle Upper Central East (3,5) and harbour office in North Lower West (11,5).
+6. Use each shop and both inns, speak with care staff and selected labour/Reclaimer-linked residents, and repeat at 2× scale. Check that counter access, patrols, signs, flat numbers and Esla’s green interjections read naturally. Save inside each gate and exit; leave through East Gate as well as West Gate. Confirm no reserved harbour or story route opens.
+
+Remaining editorial judgments are the deliberately generous shared circulation areas, the repeated construction logic of some flats, Corra’s front-step phrasing, and the established names/prices/flavour dialogue. They do not block navigation or services and can be revised without making new canon. No confirmed implementation defect remains from either review.
+
+### Final worktree preservation
+
+All twenty registered worktrees were inspected. Nineteen retain exactly their starting HEAD and porcelain status, including both unrelated dirty worktrees. No active merge, rebase, cherry-pick, revert or bisect operation was present. The Mornay branch ends clean after the local QA commit; its full final hash is supplied in the delivery message.
+
+| Worktree | Branch | HEAD | Final status |
+|---|---|---|---|
+| `empire-game` | `main` | `fe5992ec4bb647ce6f89554ad409a16a143769ec` | Clean |
+| `empire-game-claude` | `agent/claude` | `3758d01beb014d50f918c34a98f20735b9ca4a42` | Unchanged; 65 porcelain entries (listed below) |
+| `empire-game-codex` | `agent/codex` | `6f065af3db3c1286712f65df71ab182f2a16b803` | Clean |
+| `empire-game-integration` | `integration/eastern-party-foundations` | `3d5413a8b3094070da503c5cb05c0a689b4c92b5` | Clean |
+| `empire-game-mornay-population` | `agent/mornay-population` | QA delivery commit, parent `80bdddf` | Clean after delivery commit |
+| `bullet-time` | `bullet-time` | `ff43da6bf6161d0dd5a2a5fc89b1b5ff570e2cbf` | Clean |
+| `canonical-transition` | `canonical-transition` | `190dd83c17720eeb08579f0a5f483cd3ae87cf98` | Clean |
+| `enemy-id-authority` | `enemy-id-authority` | `a75b700b7f9e685469fbae2ca28b777475b8bee1` | Clean |
+| `enemy-pool-registry-consumers` | `enemy-pool-registry-consumers` | `a1a43ab559b51f2ff249541fdf2f3fad842d7f06` | Clean |
+| `mundane-dilemmas` | `mundane-dilemmas` | `e8b624b83032a4ed8354f110669333665e86e801` | Clean |
+| `post-door-top` | `post-door-top` | `6aa7a828471e844692aff48875fdbf0b5674af76` | Clean |
+| `regional-content-split` | `regional-content-split` | `318503b4863ed136cad010f5e600039990b9f524` | Clean |
+| `save-binding-migration` | `worktree-save-binding-migration` | `a949335a0bf5674eedb15789e09c158cae61b91c` | Clean |
+| `secret-northern-road-seam` | `secret-northern-road-seam` | `d37c360dbe55f852f3ac3edcea16a866a9c648e3` | Clean |
+| `sluice-easy-top-floor` | `sluice-easy-top-floor` | `507b6965a21b86086d7c796b784c1bf081053f0e` | Clean |
+| `sluice-top-fix` | `sluice-top-fix` | `42e82da663378c610b2523952e260e43c509fc2c` | Clean |
+| `small-fixes-2` | `small-fixes-2` | `3b5e22f801dc639ad1df4aa3377a05f83872dd27` | Clean |
+| `small-fixes-batch` | `small-fixes-batch` | `f98861c7fdfa6c9f5197fe493b3ac5fed9ff2335` | Clean |
+| `stable-ids-v3` | `stable-ids-v3` | `29607ee4d943277a56c2e919d3ddb53612138e33` | Clean |
+| `status-cure-contract` | `status-cure-contract` | `6ecccd8536e905f1d4e2ed1335ebc806b31b774d` | Unchanged; 5 porcelain entries (listed below) |
+
+Unchanged `empire-game-claude` status:
+
+```text
+ M ENEMY_CAPABILITY_AUDIT.md
+ M OVERWORLD_ATLAS.md
+ M combat.js
+ M content/maps/eastern-fens-maps.js
+ M data.js
+ M index.html
+ M render-battle.js
+ M test/cases/100-east-causeway.test.js
+ M test/cases/101-west-outfall-canal-tunnel.test.js
+ M test/cases/102-north-basin-drowned-rim.test.js
+ M test/cases/103-north-basin-mirewood.test.js
+ M test/cases/104-eastern-reaches-abandoned-farmhouse.test.js
+ M test/cases/105-small-ui-pickup-and-gold-polish.test.js
+ M test/cases/106-thornmere-lighthouse-dual-quests.test.js
+ M test/cases/107-thornmere-lighthouse-interior.test.js
+ M test/cases/155-formation-four-command-integration.test.js
+ M test/cases/161-eastern-fens-route.test.js
+ M test/cases/175-eastern-fens-exploration.test.js
+ M test/cases/176-eastern-fens-envelope.test.js
+ M test/cases/177-eastern-fens-western-pockets.test.js
+ M test/cases/178-eastern-fens-nw-open-fen.test.js
+ M test/cases/186-enemy-capability-migration.test.js
+ M test/cases/188-status-specials-party-combat.test.js
+ M test/cases/189-unusual-enemy-capabilities-party-combat.test.js
+ M test/cases/191-universal-party-combat-compatibility.test.js
+ M test/cases/200-eastern-fens-mornay-encounter-content.test.js
+ M test/cases/201-travellers-rise-campsite.test.js
+ M test/cases/207-travellers-rise-campfire-night.test.js
+ M test/cases/209-eastern-fens-new-terrain-tiles.test.js
+ M test/cases/213-eastern-fens-storm-shoals.test.js
+ M test/cases/215-eastern-fens-valmere-mornay-peninsula.test.js
+ M test/cases/52-stable-persistence-ids.test.js
+ M test/cases/58-regional-content-split.test.js
+ M test/cases/69-world-view-and-drawmaptiles.test.js
+ M test/cases/71-continuous-world-view.test.js
+ M test/cases/72-continuous-seams.test.js
+ M test/cases/73-continuous-neighbour-content.test.js
+ M test/cases/76-geographic-encounters.test.js
+ M test/cases/77-map3-fen-seam-pilot.test.js
+ M test/cases/78-verdant-vale-legacy-home.test.js
+ M test/cases/83-map3n2-northbasin-seam-closure.test.js
+ M test/cases/84-canonical-regional-position.test.js
+ M test/cases/85-canonical-consumers-part2.test.js
+ M test/cases/86-regional-chunk-catalog.test.js
+ M test/cases/88-continuous-regional-production-default.test.js
+ M test/cases/89-west-outfall-scenery-chunk.test.js
+ M test/cases/90-north-basin-open-reservoir.test.js
+ M test/cases/91-north-basin-open-reservoir-east.test.js
+ M test/cases/92-north-basin-eastern-woods.test.js
+ M test/cases/93-north-basin-open-reservoir-far-east.test.js
+ M test/cases/94-north-basin-east-shore-reservoir.test.js
+ M test/cases/95-north-basin-eastern-road.test.js
+ M test/cases/96-eastern-canal-banks.test.js
+ M test/cases/97-northern-thornmere-fen.test.js
+ M test/cases/98-thornmere-upper-shallows-scenery.test.js
+ M test/cases/99-thornmere-canal-head.test.js
+ M test/fixtures/regional-grid-fingerprints.js
+ M test/transition-audit-output.json
+ M world-transitions.js
+?? content/maps/eastern-shore-maps.js
+?? content/maps/great-fen-maps.js
+?? content/maps/southern-moraine-maps.js
+?? content/maps/valmere-expanse-maps.js
+?? test/cases/218-great-fen-expansion.test.js
+?? test/cases/219-valmere-expanse.test.js
+```
+
+Unchanged `status-cure-contract` status:
+
+```text
+ M interactions.js
+ M maps.js
+ M npcs.js
+ M render-interiors.js
+ M test/cases/30-rest-week-inn-and-dayoff-closures.test.js
+```

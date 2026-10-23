@@ -1,0 +1,225 @@
+{
+  "productionCommit": "80bdddfbe8f22602f63be36e0ead2f034569cb7d",
+  "method": "Automated headless Chrome using production input listeners, Canvas, fonts and storage. Canvas CSS sizes 512x480 and 1024x960; exports reproduce displayed pixels with nearest-neighbour scaling. HUD titles remain in the DOM, outside these canvas-only captures. Not a manual playthrough.",
+  "checks": 6731,
+  "totalCaptures": 166,
+  "browserErrors": [],
+  "captures": [
+    {
+      "file": "mornay_south_upper_west_map-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "ab7a9e7daa66d8c98621384a389fb092998f41f1ff749f99adcedb5646ff6030"
+    },
+    {
+      "file": "mornay_south_upper_west_map-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "0ea2dee096c7210767dff5458c990d389c5165861e05d2e8c137a97db4a82a2e"
+    },
+    {
+      "file": "mornay_middle_lower_east_map-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "22c5a36196c48c7fda92cf293c7ee6438b9794070a3426db195a4dcc97ea0a61"
+    },
+    {
+      "file": "mornay_middle_lower_east_map-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "c390698125faf28d7136a27a678f1a3176c7d88db1d6adabcff4e75706216eed"
+    },
+    {
+      "file": "mornay_south_upper_east_map-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "c8f89499b9ab48414a34f5583fbba45590f71e8cb72c6a6dfa59b93b0f117ebc"
+    },
+    {
+      "file": "mornay_south_upper_east_map-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "9dad64e24cc85fb2bc98463dacf1d608a86bb66991a7bec2f99a7e85ade869d0"
+    },
+    {
+      "file": "mornay_glyn_home-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "a777d7d2cae684d2fa56fd65b025c3fc525df5bb9f20997ae720c814fd7cec90"
+    },
+    {
+      "file": "mornay_glyn_home-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "6ae0f7f6d3f979808445f0c3178521c0d7834f2c9ee3988bbb06c71040f46847"
+    },
+    {
+      "file": "mornay_reed_home-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "40a12550a6ac1a90eb416be3bf96674bc21e5421db2d0317caac395f0c47ed56"
+    },
+    {
+      "file": "mornay_reed_home-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "8d1477ef108d66fea7a1f3c339e1b2d034aa05dbb33a96d59014f234622507c2"
+    },
+    {
+      "file": "mornay_vale_home-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "55b222053f43d434249c2ae8721977ae9def330019836967400e67c67b484d5a"
+    },
+    {
+      "file": "mornay_vale_home-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "bb910b674e1305132f13b659c781c2488df647713f18fd4154d68e1f44b93418"
+    },
+    {
+      "file": "mornay_dane_home-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "f852bd78b6b86a9b191a28d05d0b140945a0ac4dbf3e998518b5b90dd2bb652d"
+    },
+    {
+      "file": "mornay_dane_home-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "a80344a79bf53c3ce0cebc205af873e99bb94baac048269fd26a7f655ea5c20d"
+    },
+    {
+      "file": "mornay_dock_steps-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "d7839eff65a297c5b28ef9275d28c5a0ad470ad55f8ddaff831d6355dab7b333"
+    },
+    {
+      "file": "mornay_dock_steps-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "f1cb1214ca43e7fadd104cedb1e9d185502263cd9b9b88abf021e2ac2a3d835b"
+    },
+    {
+      "file": "mornay_dock_steps_unit_1-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "e373ae979bd5f52faa3849c80a5f571f544c9509af39b66b1f4574bfd4d3df10"
+    },
+    {
+      "file": "mornay_dock_steps_unit_1-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "c1f5143beead3818aa1da37fb17661b837ce5ed5408bc233a13007eada0a7639"
+    },
+    {
+      "file": "mornay_dock_steps_unit_4-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "60a0fb2cb6e14cf9e2ec9d1d5e4607e1d6eef8c5009f476e0c0696473a2b6f93"
+    },
+    {
+      "file": "mornay_dock_steps_unit_4-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "06e7f3d81636aa6f287fe257bd6d86b075d38ab125543a2667abf7869c83c4ed"
+    },
+    {
+      "file": "mornay_boarding-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "457c0b4b052754cf3a74b6e9b94f53de3b7d2c2a3126fc73ac73dd1e7a2f6fe3"
+    },
+    {
+      "file": "mornay_boarding-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "32551bd10bbd5ca0fa403b6123b66a9ae68b97cdf70f8f2c22bf9530a15a92b0"
+    },
+    {
+      "file": "mornay_boarding_unit_3-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "cd44aba5b7786011132773a635253ed6eda03066abec153d128f5679e77b19bf"
+    },
+    {
+      "file": "mornay_boarding_unit_3-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "0eb6056db1946b3323f4c63ff3eb2fb0a5ba317e158fe1b1e6a302aa5046fc5f"
+    },
+    {
+      "file": "mornay_school-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "a632da1b8b4249bbf2783ed6e15e3e03cf923e396becd8ffacc5e78baaf01a7d"
+    },
+    {
+      "file": "mornay_school-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "4ffb0507b7c886138432b87eeeb8df5b576aff0fbed9fa84c6ed61043ea6abc8"
+    },
+    {
+      "file": "mornay_gate_inn-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "85cf3f88c148a9c294f5ac2259c1418f5404d437ed64a53da98c3a9c00ca6e22"
+    },
+    {
+      "file": "mornay_gate_inn-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "f0673ca4a3472b8952f4ccff3856d1c8bca25f74e3e2d7df5d7a2590cd07014d"
+    },
+    {
+      "file": "mornay_commercial_inn-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "595f21244e598d2a141e47fce7da16fec2af43e198534898c72b289c3f24f1c7"
+    },
+    {
+      "file": "mornay_commercial_inn-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "cde8ef40f4f49a925d1a9aa0de074d62b2e28a5d43389f12056282e27085a247"
+    },
+    {
+      "file": "mornay_office-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "d8e61f6b5ae954b02d7288e2236d7bad094f8cdfe2ff89b3d6c9667962358472"
+    },
+    {
+      "file": "mornay_office-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "60bed66a42e59f41e0b5b96927c8500bca87b29244f232cb3ff95dbf839a295b"
+    },
+    {
+      "file": "mornay_harbour-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "f9fefdd50dcb11b69cf647c44f9e00e2b2a14990d7c22a0e4d5652a5cc36b68c"
+    },
+    {
+      "file": "mornay_harbour-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "ce67f3f871e02df887fb20583dbf414c18e1601b7678bb6a65cd93238574fe0c"
+    },
+    {
+      "file": "mornay_infirmary-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "aa0c027252de05cc5ea90d24c2201ba6fa8bb09dce8a8e2de483573397b3a7fc"
+    },
+    {
+      "file": "mornay_infirmary-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "830c9fa1642f9bbc37d9c7097c825e960cc2816e77dbee01a2ec491f333b30a3"
+    }
+  ]
+}
