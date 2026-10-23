@@ -1,0 +1,206 @@
+{
+  "baselineCommit": "fb42db428b9e6217cbacaadf77dec9fdd4f08a3e",
+  "baselineRegression": {
+    "passed": 236,
+    "failed": 0
+  },
+  "finalRegression": {
+    "command": "node test/run.js",
+    "passed": 238,
+    "failed": 0
+  },
+  "syntaxCheckedJavaScript": [
+    "content/maps/eastern-fens-maps.js",
+    "content/maps/eastern-shore-maps.js",
+    "content/maps/great-fen-maps.js",
+    "content/maps/mainland-maps.js",
+    "content/maps/southern-moraine-maps.js",
+    "content/maps/thornmere-wilds-maps.js",
+    "content/maps/valmere-expanse-maps.js",
+    "data.js",
+    "test/cases/100-east-causeway.test.js",
+    "test/cases/101-west-outfall-canal-tunnel.test.js",
+    "test/cases/102-north-basin-drowned-rim.test.js",
+    "test/cases/103-north-basin-mirewood.test.js",
+    "test/cases/104-eastern-reaches-abandoned-farmhouse.test.js",
+    "test/cases/161-eastern-fens-route.test.js",
+    "test/cases/176-eastern-fens-envelope.test.js",
+    "test/cases/177-eastern-fens-western-pockets.test.js",
+    "test/cases/191-universal-party-combat-compatibility.test.js",
+    "test/cases/200-eastern-fens-mornay-encounter-content.test.js",
+    "test/cases/201-travellers-rise-campsite.test.js",
+    "test/cases/207-travellers-rise-campfire-night.test.js",
+    "test/cases/209-eastern-fens-new-terrain-tiles.test.js",
+    "test/cases/210-eastern-fens-moraine-ridge.test.js",
+    "test/cases/218-mornay-exterior-topology.test.js",
+    "test/cases/301-mornay-manifest.test.js",
+    "test/cases/315-great-fen-expansion.test.js",
+    "test/cases/317-mainland-navigation.test.js",
+    "test/cases/318-mainland-water-camera.test.js",
+    "test/cases/58-regional-content-split.test.js",
+    "test/cases/68-regional-layout.test.js",
+    "test/cases/69-world-view-and-drawmaptiles.test.js",
+    "test/cases/71-continuous-world-view.test.js",
+    "test/cases/72-continuous-seams.test.js",
+    "test/cases/73-continuous-neighbour-content.test.js",
+    "test/cases/76-geographic-encounters.test.js",
+    "test/cases/77-map3-fen-seam-pilot.test.js",
+    "test/cases/78-verdant-vale-legacy-home.test.js",
+    "test/cases/83-map3n2-northbasin-seam-closure.test.js",
+    "test/cases/84-canonical-regional-position.test.js",
+    "test/cases/85-canonical-consumers-part2.test.js",
+    "test/cases/86-regional-chunk-catalog.test.js",
+    "test/cases/88-continuous-regional-production-default.test.js",
+    "test/cases/89-west-outfall-scenery-chunk.test.js",
+    "test/cases/90-north-basin-open-reservoir.test.js",
+    "test/cases/91-north-basin-open-reservoir-east.test.js",
+    "test/cases/92-north-basin-eastern-woods.test.js",
+    "test/cases/93-north-basin-open-reservoir-far-east.test.js",
+    "test/cases/94-north-basin-east-shore-reservoir.test.js",
+    "test/cases/95-north-basin-eastern-road.test.js",
+    "test/cases/96-eastern-canal-banks.test.js",
+    "test/cases/97-northern-thornmere-fen.test.js",
+    "test/cases/98-thornmere-upper-shallows-scenery.test.js",
+    "test/cases/99-thornmere-canal-head.test.js",
+    "test/fixtures/regional-grid-fingerprints.js",
+    "test/regional-atlas.js",
+    "test/regional-geography-browser.js",
+    "test/run-browser-smoke.js",
+    "validation.js",
+    "world-transitions.js"
+  ],
+  "validation": {
+    "errors": 0,
+    "warnings": 14,
+    "counts": {
+      "Maps": 1097,
+      "Map metadata": 1097,
+      "Regional layout": 934,
+      "Regional chunks": 934,
+      "Camera exclusion": 8,
+      "Continuous seams": 1978,
+      "Continuous content": 934,
+      "Encounter geography": 934,
+      "Regional presentation": 2,
+      "Tiles": 263280,
+      "EDGE_TRANSITIONS": 2058,
+      "NPCs": 481,
+      "Items": 140,
+      "Enemies": 217,
+      "Enemy capabilities": 71,
+      "Encounter formations": 100,
+      "Dialogue": 956,
+      "Save/Flags": 205,
+      "Map Features": 81,
+      "Pickups": 79,
+      "Chests": 23
+    },
+    "errorList": [],
+    "warningList": [
+      {
+        "group": "Tile Properties",
+        "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+      },
+      {
+        "group": "Enemies",
+        "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_fen_zolom (Fen Zolom): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_botfly (Botfly): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_waspthra (Waspthra): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_sparkeel (Sparkeel): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_mudwrack_snapper (Mudwrack Snapper): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_fen_rootworm (Fen Rootworm): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_willow_veiled_stalker (Willow-Veiled Stalker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_hollowreed_choker (Hollowreed Choker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      }
+    ]
+  },
+  "saveVersion": 5,
+  "regionalChunks": 934,
+  "explorableChunks": 481,
+  "sceneryChunks": 453,
+  "newChunks": 690,
+  "newExplorableChunks": 331,
+  "newSceneryChunks": 359,
+  "existingGridChanges": {
+    "maps": 143,
+    "cells": 22083,
+    "protectedGrids": 101
+  },
+  "fingerprintsVerified": 934,
+  "cameraCoverage": {
+    "walkableTiles": 81551,
+    "centreAndCornerViewports": 407755,
+    "visibleVoidFailures": 0
+  },
+  "transitions": {
+    "fixedPlacements": 396,
+    "preservedCoordinates": 8,
+    "structuralSegments": 2058,
+    "continuousEligibleEntries": 1978,
+    "artifactMatches": true
+  },
+  "browser": {
+    "geography": {
+      "checks": 110,
+      "captures": 27,
+      "errors": 0
+    },
+    "existingLifecycle": {
+      "checks": 7119,
+      "captures": 172,
+      "errors": 0
+    },
+    "method": "Automated Chromium DOM keyboard, Canvas and local-storage checks plus visual inspection of representative captures; not a human playthrough."
+  },
+  "scopeChecks": [
+    "git diff --check",
+    "conflict-marker search",
+    "unique map IDs and chunk coordinates",
+    "exact existing-grid delta comparison",
+    "protected original route footing",
+    "ferry and Rise physical cut sets",
+    "all new walkable cells have return paths",
+    "main/Mornay/Claude branch heads unchanged"
+  ]
+}

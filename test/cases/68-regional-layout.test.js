@@ -99,8 +99,8 @@ module.exports = {
     const VOID = g.run('REGION_VOID_TILE');
     assert.ok(VOID < 0, 'REGION_VOID_TILE is not a real (non-negative) tile id');
     // negative
-    assert.equal(g.run(`worldToLocal('${regionId}', -1, 0)`), null, 'negative worldX -> null');
-    assert.equal(g.run(`tileAtWorld('${regionId}', -1, 0)`), VOID, 'negative worldX -> void');
+    assert.equal(g.run(`worldToLocal('${regionId}', -99999, 0)`), null, 'negative worldX -> null');
+    assert.equal(g.run(`tileAtWorld('${regionId}', -99999, 0)`), VOID, 'negative worldX -> void');
     assert.equal(g.run(`tileAtWorld('${regionId}', 0, -5000)`), VOID, 'negative worldY -> void');
     // out of range (beyond the bounding box)
     assert.equal(g.run(`tileAtWorld('${regionId}', 99999, 99999)`), VOID, 'far out-of-range -> void');

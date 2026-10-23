@@ -11,6 +11,7 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 
 const ID = 'NORTH_BASIN_SE_MAP';
 const S_ID = 'NORTH_BASIN_S_MAP';
+// MAP3 fingerprint includes the authorized three-cell southern countryside opening.
 const FP = '96ac86bdc402728eab845a9cd6250609787d4ed0994affe294fce8f3d578a2b3';
 const OLD_FP = '04f4d719559a39ed231a147fd6e3604a48611c7628e3c5aa20e196e82077bcd7';
 const S_FP = '41d3b38d9932ad5ed3fea54ed787aece91375e88e7cc7c4e0a69cb9bed36b240';
@@ -23,7 +24,7 @@ const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 const PRIOR_FPS = {
   MAP: '2c16bbd381d4f365b4404ab83f7bb66ccb3d60a12bcbc008cf08b787d352c2e8',
   MAP2: 'f7c253c495451b51adab13a9a884064f0aab96298376749010d6e506043de46d',
-  MAP3: '14cb9111d171454cba60c986e8bd06974ab3023652ce036017bb0c4f13abca17',
+  MAP3: '9ebe3687c656847e5d07bb44cee41b666fd2f607d46cfa906139a73a27c3e77b',
   MAP4: '4e64a4a814b1fb4c4729a651fd6b34e6dc96e03950fd322339054407a2b4dca9',
   MAP5: '230b3da3362be36d5f026d684809879ab96aabcc1ce19c16fed064773d63ec19',
   MAP_N1: '26ce9621f0b756aee6f9a83902955d667d9241cecc9156043f661e6b4f66e7a6',
@@ -225,9 +226,9 @@ module.exports = {
     for (const [id, fp] of Object.entries(PRIOR_FPS)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: prior fingerprint unchanged`);
     }
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 96, ALIGNS: 280, BLOCKED: 596 });
-    assert.equal(audit.seamReadiness.edges.length, 976);
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1994, "ALIGNS": 1570, "BORDER": 168});
+    assert.equal(audit.seamReadiness.edges.length, 3736);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 121);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 481);
   },
 };

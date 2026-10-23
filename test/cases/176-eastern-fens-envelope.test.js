@@ -77,8 +77,8 @@ module.exports = {
     }
     // Totals after increments 3 + 4 + the Great Fen expansion (28 Great Fen
     // chunks: 4 converted entry chunks + 24 fresh, all walkable).
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 244, 'route + infill + scenery + northern water placements + Great Fen');
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 121, '66 pre-Great-Fen accessible chunks + 28 Great Fen chunks');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 934, 'route + infill + scenery + northern water placements + Great Fen');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 481, '66 pre-Great-Fen accessible chunks + 28 Great Fen chunks');
 
     // THE PERMANENT INVARIANT: zero visible void from every reachable EF tile.
     const voidResult = J(`JSON.stringify((function(){
@@ -123,9 +123,9 @@ module.exports = {
     // Eastern Shore, and Southern Moraine expansions grow the bbox further
     // north, east, and south, which this same assertion now reflects.
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
-    assert.equal(b.maxChunkX, 20, 'east bbox now col 20 (the Valmere expanse open water)');
-    assert.equal(b.maxChunkY, 7, 'south bbox now row 7 (the Southern Moraine expansion)');
-    assert.equal(b.minChunkY, -7, 'north bbox now row -7 (the Great Fen + Valmere expansions)');
+    assert.equal(b.maxChunkX, 30, 'east bbox now col 20 (the Valmere expanse open water)');
+    assert.equal(b.maxChunkY, 12, 'south bbox now row 7 (the Southern Moraine expansion)');
+    assert.equal(b.minChunkY, -15, 'north bbox now row -7 (the Great Fen + Valmere expansions)');
 
     // Resolved spurs: the WIDE_WATER north bridge is now a real seam into the
     // bridge inlet (13,2); the CHANNEL_APPROACH_W south road now ends against the

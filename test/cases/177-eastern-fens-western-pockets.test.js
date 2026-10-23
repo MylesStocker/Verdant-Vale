@@ -36,9 +36,9 @@ module.exports = {
     // entry chunk + 13 fresh) + 7 Valmere expanse chunks (1 converted entry
     // chunk + 6 fresh) + 6 Eastern Shore/Southern Moraine chunks + the 2
     // North Fen Zolom-gate chunks (7,0)/(8,0) that happen to use Deep Reeds
-    // and have encounters enabled = 51.
-    assert.equal(g.run("Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);})&&MAP_CATALOG[id].allowRandomEncounters===true;}).length"), 51,
-      'the 22 main-route + 14 Great Fen + 7 Valmere expanse + 6 Eastern Shore/Southern Moraine + 2 Fen Zolom gate DEEP_REEDS-bearing chunks enable encounters');
+    // and have encounters enabled = 192 after the mainland pass.
+    assert.equal(g.run("Object.keys(REGIONAL_CHUNK_CATALOG).filter(function(id){return REGIONAL_CHUNK_CATALOG[id].map.some(function(r){return r.includes(127);})&&MAP_CATALOG[id].allowRandomEncounters===true;}).length"), 192,
+      '192 regional chunks with deep reeds enable encounters after the mainland expansion');
     for (const id of Object.keys(POCKETS))
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), false, `${id} (exploration pocket) stays encounter-free`);
     // tile 127 is still confined to the Eastern Fens plus its directly-seamed
@@ -53,7 +53,7 @@ module.exports = {
       pocketCount++;
       assert.equal(g.run(`mapPlayerAccessible('${id}')`), true, `${id} is walkable`);
       const dirs = J(`JSON.stringify(Object.keys(EDGE_TRANSITIONS['${id}']||{}))`);
-      assert.deepEqual(dirs, [p.edge], `${id} has exactly one seam edge (dead-end)`);
+      assert.deepEqual(dirs, id==='EASTERN_FENS_ENVELOPE_C9R4_MAP'?[p.edge,'south']:[p.edge], `${id} retains its old approach; dry-rise toe also opens into countryside`);
       // reciprocal: the route neighbour seams back to this pocket
       assert.equal(g.run(`(EDGE_TRANSITIONS['${id}']['${p.edge}']||[]).some(function(s){return s.targetMap==='${p.via}'&&s.targetEdge==='${INV[p.edge]}';})`), true, `${id} seam -> ${p.via}`);
       assert.equal(g.run(`(EDGE_TRANSITIONS['${p.via}']['${INV[p.edge]}']||[]).some(function(s){return s.targetMap==='${id}';})`), true, `${p.via} seams back to ${id}`);
@@ -65,7 +65,7 @@ module.exports = {
       // edge into void/abrupt termination.
       const edgeLeak = J(`JSON.stringify((function(){var m=REGIONAL_CHUNK_CATALOG['${id}'].map,leaks=[];
         var seam=EDGE_TRANSITIONS['${id}']['${p.edge}'][0].sourceRange;
-        function ok(edge,idx){return edge==='${p.edge}'&&idx>=seam[0]&&idx<=seam[1];}
+        function ok(edge,idx){return (EDGE_TRANSITIONS['${id}'][edge]||[]).some(s=>idx>=s.sourceRange[0]&&idx<=s.sourceRange[1]);}
         for(var c=0;c<COLS;c++){if(WALKABLE[m[0][c]]&&!ok('north',c))leaks.push('n'+c);if(WALKABLE[m[ROWS-1][c]]&&!ok('south',c))leaks.push('s'+c);}
         for(var r=0;r<ROWS;r++){if(WALKABLE[m[r][0]]&&!ok('west',r))leaks.push('w'+r);if(WALKABLE[m[r][COLS-1]]&&!ok('east',r))leaks.push('e'+r);}
         return leaks;})())`);

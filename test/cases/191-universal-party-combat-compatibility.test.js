@@ -98,10 +98,11 @@ test('all registered pools normalize unchanged and contain only ordinary support
  // Southern Moraine (C15R5) entry chunks, the 6 fresh EASTERN_SHORE_*
  // chunks (the Southern Moraine's fresh chunks keep their own prefix), and
  // the Fen Zolom gate flipping C7R0/C8R0 from false to true, bring the
- // EASTERN_-prefixed enabled count to 38.
+ // EASTERN_-prefixed enabled count to 38. The mainland pass also opens nine
+ // existing Eastern Shore framing chunks, bringing this metadata count to 47.
  const fens=J(g,`Object.entries(MAP_METADATA).filter(([id])=>id.startsWith('EASTERN_')).map(([id,m])=>({id,enabled:m.allowRandomEncounters}))`);
  assert.ok(fens.length>0);
- assert.equal(fens.filter(m=>m.enabled).length,38);
+ assert.equal(fens.filter(m=>m.enabled).length,47);
  assert.equal(fens.find(m=>m.id==='EASTERN_FENS_TRAVELLERS_RISE_MAP').enabled,false);
 });
 for(const count of [1,2,3])for(const fallen of [-1,...Array.from({length:count},(_,i)=>i)]){

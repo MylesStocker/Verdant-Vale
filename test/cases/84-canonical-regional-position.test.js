@@ -28,7 +28,7 @@ module.exports = {
 
     // ── 1. Pure round-trips for all 54 placed maps (fractional + boundaries) ─
     const placed = J(g, "JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(p=>p.mapId))");
-    assert.equal(placed.length, 244, '244 placed regional maps');
+    assert.equal(placed.length, 934, '934 placed regional maps');
     for (const m of placed) {
       // a fractional interior point and a chunk-boundary point
       for (const [lx, ly] of [[3.25 * TILEPX, 4.75 * TILEPX], [0, 0], [CW - 0.5, CH - 0.5]]) {
@@ -44,7 +44,7 @@ module.exports = {
 
     // ── 2. Rejections: void / negative / non-finite / unknown region / OOR ──
     assert.equal(g.run("regionWorldPxToLocal('overworld', 99*512, 99*480)"), null, 'a void (unplaced) chunk resolves to null');
-    assert.equal(g.run("regionWorldPxToLocal('overworld', -1, 100)"), null, 'a negative coordinate resolves to null');
+    assert.equal(g.run("regionWorldPxToLocal('overworld', -99999, 100)"), null, 'a negative coordinate resolves to null');
     assert.equal(g.run("regionWorldPxToLocal('overworld', Infinity, 100)"), null, 'a non-finite coordinate resolves to null');
     assert.equal(g.run("regionWorldPxToLocal('overworld', NaN, 0)"), null, 'NaN resolves to null');
     assert.equal(g.run("regionWorldPxToLocal('NO_SUCH_REGION', 100, 100)"), null, 'an unknown region resolves to null');

@@ -16,7 +16,9 @@ async function main(){
   });
   try{
     await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-    const address='http://127.0.0.1:'+server.address().port+'/test/browser-smoke.html';
+    const page=process.env.VV_BROWSER_PAGE||'browser-smoke.html';
+    if(!/^[a-z0-9-]+\.html$/.test(page))throw Error('Invalid local browser test page');
+    const address='http://127.0.0.1:'+server.address().port+'/test/'+page;
     const output=await new Promise((resolve,reject)=>{
       const child=spawn(browser,['--headless','--disable-gpu','--no-first-run','--user-data-dir='+temporary,'--dump-dom','--virtual-time-budget=30000',address]);
       let stdout='',stderr='';child.stdout.on('data',d=>stdout+=d);child.stderr.on('data',d=>stderr+=d);

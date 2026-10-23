@@ -33,7 +33,8 @@ module.exports = {
     assert.equal(g.run("mapIdForChunk('overworld',3,4)"), WEST_ID);
     assert.equal(g.run("mapIdForChunk('overworld',4,5)"), SOUTH_ID);
     assert.equal(g.run("mapIdForChunk('overworld',4,3)"), 'THORNMERE_CANAL_HEAD_MAP', 'Canal Head is now the placed north neighbour');
-    assert.equal(g.run("mapIdForChunk('overworld',5,4)"), null, 'east lies beyond the placed envelope');
+    assert.equal(g.run("mapIdForChunk('overworld',5,4)"),'MAINLAND_C5R4_MAP','mainland scenery now frames the eastern side');
+    assert.equal(g.run("mapPlayerAccessible('MAINLAND_C5R4_MAP')"),false,'framing adds no walkable Thornmere crossing');
     const meta = J(`JSON.stringify((function(){var d=REGIONAL_CHUNK_CATALOG['${ID}'];var m=mapEntryForId('${ID}');
       var def=THORNMERE_REGIONAL_CHUNK_DEFINITIONS.find(function(x){return x.mapId==='${ID}';});return {
       mapId:d.mapId,regionId:d.regionId,chunkX:d.chunkX,chunkY:d.chunkY,displayName:d.displayName,region:d.region,
@@ -152,7 +153,7 @@ module.exports = {
 
     // 12–15. Fingerprints, audit, totals, and save schema remain stable.
     assert.equal(sha256(JSON.stringify(m)), FP); assert.equal(GRID_FP.fingerprints[ID], FP);
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 244);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 934);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint stable`);
     }
@@ -160,13 +161,13 @@ module.exports = {
     const verdict = Object.fromEntries(audit.seamReadiness.edges.map((e) => [e.mapId + '|' + e.dir, e.verdict]));
     assert.equal(verdict[`${ID}|west`], 'BLOCKED'); assert.equal(verdict[`${WEST_ID}|east`], 'BLOCKED');
     assert.equal(verdict[`${ID}|south`], 'BLOCKED'); assert.equal(verdict[`${SOUTH_ID}|north`], 'BLOCKED');
-    assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'BORDER');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 96, ALIGNS: 280, BLOCKED: 596 });
-    assert.equal(audit.seamReadiness.edges.length, 976);
-    assert.equal(g.run('continuousSeamEntries().length'), 300);
+    assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'BLOCKED');
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1994, "ALIGNS": 1570, "BORDER": 168});
+    assert.equal(audit.seamReadiness.edges.length, 3736);
+    assert.equal(g.run('continuousSeamEntries().length'), 1978);
     let placed = 0; for (let y = 0; y <= 5; y++) for (let x = 0; x <= 4; x++) if (g.run(`mapIdForChunk('overworld',${x},${y})`)) placed++;
     assert.equal(placed, 30); assert.equal(30 - placed, 0);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 407);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 1097);
     assert.equal(g.run('SAVE_VERSION'), 5);
   },
 };

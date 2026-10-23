@@ -266,7 +266,7 @@ module.exports = {
     for (const col of [4,5,10,11]) oldSouth[0][col] = TREE;
     for (const row of [2,5,8,11,13]) oldSouth[row][0] = TREE;
     assert.equal(sha256(JSON.stringify(oldSouth)), OLD_SOUTH_FP, 'West Mire delta is exactly eight north-edge seam cells plus five blocked west-edge cells');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 244);
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 934);
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: fingerprint stable`);
     }
@@ -274,14 +274,14 @@ module.exports = {
     // 11. Expected regional topology/count changes only; save schema unchanged.
     const audit = require('../transition-audit.js');
     const verdict = Object.fromEntries(audit.seamReadiness.edges.map((e) => [`${e.mapId}|${e.dir}`, e.verdict]));
-    assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|west`], 'BORDER');
+    assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|west`], 'BLOCKED');
     assert.equal(verdict[`${ID}|east`], 'BLOCKED'); assert.equal(verdict[`${ID}|south`], 'ALIGNS');
     assert.equal(verdict[`${EAST_ID}|west`], 'BLOCKED'); assert.equal(verdict[`${SOUTH_ID}|north`], 'ALIGNS');
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 96, ALIGNS: 280, BLOCKED: 596 });
-    assert.equal(audit.seamReadiness.edges.length, 976);
-    assert.equal(g.run('continuousSeamEntries().length'), 300);
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 244);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 407);
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1994, "ALIGNS": 1570, "BORDER": 168});
+    assert.equal(audit.seamReadiness.edges.length, 3736);
+    assert.equal(g.run('continuousSeamEntries().length'), 1978);
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 934);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 1097);
     assert.equal(g.run('SAVE_VERSION'), 5);
     assert.equal(g.run('validateGameData().errors'), 0);
   },

@@ -5,7 +5,8 @@
 // retexture from scattered water-noise into a connected gravel-bar ridge with
 // scrub-hills flanks and peat hollows; the one walkable pocket in the middle
 // (EASTERN_FENS_ENVELOPE_C9R4_MAP) gets a light interior-only retexture (its
-// seam, border, and reserved "walled garden" shape are untouched). This is a
+// northern seam and reserved frame remain, with the later mainland pass's
+// explicitly checked southern gateway). This is a
 // full redesign, not a small cell-level delta, so instead of reconstructing
 // the old grid by reverting specific cells (the pattern used for small
 // corrections elsewhere), this test embeds the complete old grids literally
@@ -172,19 +173,27 @@ module.exports = {
       assert.deepEqual(J(`JSON.stringify(Object.keys(EDGE_TRANSITIONS['${id}']||{}))`), [], `${id} has no seam`);
     }
 
-    // 4. The walkable pocket's seam, permissions, and reserved "walled garden"
-    //    shape (rows 8-10, the FENCE_POST/HILLS frame) are byte-identical to
-    //    before -- only the interior knoll (rows 3-5) was retextured.
-    assert.deepEqual(J(`JSON.stringify(EDGE_TRANSITIONS['${POCKET_ID}'])`), { north: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'south', sourceRange: [8, 8] }] });
+    // 4. Preserve the original northern approach and pocket permissions. The
+    //    mainland pass adds only the explicit three-cell-wide southern gateway;
+    //    outside it, the historical frame and knoll retexture stay intact.
+    assert.deepEqual(J(`JSON.stringify(EDGE_TRANSITIONS['${POCKET_ID}'])`), {
+      north: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'south', sourceRange: [8, 8] }],
+      south: [{ targetMap: 'MAINLAND_C9R5_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
+    });
     assert.equal(g.run(`MAP_CATALOG['${POCKET_ID}'].allowSave`), true);
     assert.equal(g.run(`MAP_CATALOG['${POCKET_ID}'].allowRandomEncounters`), false);
     assert.equal(g.run(`mapPlayerAccessible('${POCKET_ID}')`), true, 'pocket stays accessible');
     const pocketNew = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${POCKET_ID}'].map)`);
     const pocketOld = OLD_GRIDS[POCKET_ID];
     for (let r = 0; r < 15; r++) {
-      if (r >= 8 && r <= 10) { assert.deepEqual(pocketNew[r], pocketOld[r], `pocket row ${r} (walled garden) unchanged`); continue; }
-      if (r === 3 || r === 4 || r === 5) continue; // the retextured knoll rows
-      assert.deepEqual(pocketNew[r], pocketOld[r], `pocket row ${r} unchanged`);
+      if (r === 3 || r === 4 || r === 5) continue; // the historical retextured knoll rows
+      for (let c = 0; c < 16; c++) {
+        if (r >= 7 && c >= 7 && c <= 9) {
+          assert.equal(pocketNew[r][c], g.run('GRAVEL_BAR'), `southern gateway ${c},${r}`);
+        } else {
+          assert.equal(pocketNew[r][c], pocketOld[r][c], `pocket ${c},${r} unchanged`);
+        }
+      }
     }
     assert.deepEqual(pocketNew[0], pocketOld[0], 'pocket north seam row (0) unchanged');
 
@@ -206,8 +215,8 @@ module.exports = {
     }
     assert.equal(swept, Object.keys(GRID_FP.fingerprints).length - ALL_IDS.length);
 
-    // 7. Zero-void camera invariant, route length, and general validation are
-    //    unaffected by a scenery-only retexture (no reachability change).
+    // 7. General validation remains clean; suites 317/318 separately verify
+    //    the expanded navigation, progression cuts and zero-void camera.
     const v = J('JSON.stringify(validateGameData())');
     assert.equal(v.errors, 0);
   },

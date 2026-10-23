@@ -512,27 +512,37 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     presentation: 'continuous', encounterProfileId: 'reaches', itemSetId: 'map2',
     legacyCameraExclusion: { mapId: 'MAP', side: 'east' },
     allowRandomEncounters: true, allowSave: true },
-  { mapId: 'MAP3', regionId: 'overworld', chunkX: 2, chunkY: 5, map: [
-      //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-      [  1,  1,  1,  1,  1,  1,  1,  1,  2,  3,  3,  3,  3,  3,  3,  3],  //  0  ← col 8 = PATH seam to MAP3_N1; N lake continues off-map W of the road
-      [  1, 23, 23,  1,  1,  1,  1, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  1  N lake + reeds; road at col 8; water W edge
-      [  1, 23,  1,  1,  1,  1,  1,  1,  2,  0,  0,  0,  0,  3,  3,  3],  //  2  N lake + reeds; road at col 8; water W edge
-      [ 23,  0,  1,  1,  1, 23, 23,  0,  2,  0,  0,  0,  0,  3,  0,  3],  //  3  N lake edge; road at col 8; west seam c0 = reed shore
-      [  0,  0, 23, 23, 23,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  4  reeds band; road at col 8; west seam c0 = grass shore
-      [ 23,  0,  0, 23,  1,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  5  mid-pond; road at col 8; west seam c0 = reed shore
-      [  0,  0,  0, 23,  1,  1,  1, 23,  2,  2,  2,  2,  2,  2,  2,  2],  //  6  mid-pond + road east; col 15 seam → MAP4.west (continuous); west seam c0 = grass shore
-      [  3,  0,  0,  0, 23,  1, 23,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  7  reeds + road N/S; west seam c0 = a lone tree
-      [  0,  0,  0,  0,  0, 23,  0,  0,  2,  0,  0,  0,  0,  0,  0,  3],  //  8  reeds + road; west seam c0 = grass shore
-      [ 23,  0, 23,  0,  0,  0, 23, 23,  2,  0,  0,  0,  0,  0,  0,  3],  //  9  reeds + road; west seam c0 = reed shore
-      [  3,  0, 23,  1,  0,  0,  0, 23,  2,  0,  0,  0,  0,  0,  0,  3],  // 10  water + reeds + road; west seam c0 = tree framing the road crossing
-      [  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  3],  // 11  ← col 0 = west seam → MAP2.east (continuous)
-      [  3,  0,  0, 23, 23,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  3],  // 12  S marsh
-      [  3,  0,  0,  0, 23,  1,  1,  0, 23,  0,  0,  0,  0,  0,  0,  3],  // 13  S marsh + reeds
-      [  3,  3,  3,  3,  1,  1,  1,  3,  1,  3,  3,  3,  3,  3,  3,  3],  // 14  S marsh drains off-map (cols 4-6, 8)
-    ],
-    displayName: 'Thornmere Fen', region: 'Thornmere', contentKey: 'map3',
-    presentation: 'continuous', encounterProfileId: 'far', itemSetId: 'map3',
-    allowRandomEncounters: true, allowSave: true },
+  {
+  "mapId": "MAP3",
+  "regionId": "overworld",
+  "chunkX": 2,
+  "chunkY": 5,
+  "displayName": "Thornmere Fen",
+  "region": "Thornmere",
+  "contentKey": "map3",
+  "presentation": "continuous",
+  "encounterProfileId": "far",
+  "itemSetId": "map3",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "map": [
+    [1,1,1,1,1,1,1,1,2,3,3,3,3,3,3,3],
+    [1,23,23,1,1,1,1,23,2,0,0,0,0,0,0,3],
+    [1,23,1,1,1,1,1,1,2,0,0,0,0,3,3,3],
+    [23,0,1,1,1,23,23,0,2,0,0,0,0,3,0,3],
+    [0,0,23,23,23,0,0,0,2,0,0,0,0,0,0,3],
+    [23,0,0,23,1,1,23,0,2,0,0,0,0,0,0,3],
+    [0,0,0,23,1,1,1,23,2,2,2,2,2,2,2,2],
+    [3,0,0,0,23,1,23,0,2,0,0,0,0,0,0,3],
+    [0,0,0,0,0,23,0,0,2,0,0,0,0,0,0,3],
+    [23,0,23,0,0,0,23,23,2,0,0,0,0,0,0,3],
+    [3,0,23,1,0,0,0,23,2,0,0,0,0,0,0,3],
+    [2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,3],
+    [3,0,0,23,23,1,1,1,0,0,0,0,0,0,0,3],
+    [3,0,0,0,23,1,1,0,23,0,0,0,0,0,0,3],
+    [3,3,3,3,1,1,1,3,1,3,0,0,0,3,3,3]
+  ]
+},
   { mapId: 'MAP4', regionId: 'overworld', chunkX: 3, chunkY: 5, map: [
       //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
       [  3,  0,  0,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  0,  0,  3],  //  0  split north-shore seams c1-2 / c13-14 to Northern Thornmere Fen

@@ -684,12 +684,13 @@ function validateEncounterGeography() {
       if (ctx.encounterPool !== canonical)
         addValidationError(GROUP, 'resolved encounter pool for "' + p.mapId + '" is not the canonical MAP_CATALOG reference');
     }
-    // Fail-closed cases (per region): a sparse/void chunk, negatives, non-finite.
+    // Fail-closed cases (per region): a sparse/void chunk, unplaced western coordinates, non-finite.
     const bx = _regionMaxChunkX(region), by = _regionMaxChunkY(region);
     if (geographicEncounterContext(regionId, (bx + 2) * CW + 1, (by + 2) * CH + 1) !== null)
       addValidationError(GROUP, 'a point far outside every placed chunk did not fail closed (region "' + regionId + '")');
-    if (geographicEncounterContext(regionId, -1, 10) !== null)
-      addValidationError(GROUP, 'a negative world point did not fail closed (region "' + regionId + '")');
+    const minChunkX = Math.min(...region.placements.map(p => p.chunkX));
+    if (geographicEncounterContext(regionId, (minChunkX - 2) * CW, 10) !== null)
+      addValidationError(GROUP, 'a point west of all placed chunks did not fail closed (region "' + regionId + '")');
     if (geographicEncounterContext(regionId, NaN, 10) !== null)
       addValidationError(GROUP, 'a non-finite world point did not fail closed (region "' + regionId + '")');
   }
@@ -738,6 +739,8 @@ function legacyBoundaryCrossingErrors(regionId) {
       const nb = mapIdForChunk(regionId, p.chunkX + DELTA[dir][0], p.chunkY + DELTA[dir][1]);
       if (!nb) continue;                      // no placed neighbour -> ordinary BORDER, no requirement
       if (isLegacyScreenMap(nb)) continue;    // legacy<->legacy (none today): not this invariant
+      // Scenery has no player crossing; its camera exclusion is validated separately.
+      if (typeof mapPlayerAccessible === 'function' && !mapPlayerAccessible(nb)) continue;
       const lbl = L + '.' + dir + ' <-> ' + nb + '.' + INV[dir];
       const fwd = find(L, dir), rev = find(nb, INV[dir]);
       if (!fwd || fwd.to !== nb)

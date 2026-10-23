@@ -39,7 +39,7 @@ module.exports = {
       }
       return JSON.stringify(out);
     })()`);
-    assert.equal(all.length, 244, 'all 244 placed regional maps considered');
+    assert.equal(all.length, 934, 'all 934 placed regional maps considered');
     for (const r of all) {
       assert.ok(r.ok && r.right, `${r.mapId} resolves from its own chunk centre to itself`);
       assert.ok(r.poolMatch, `${r.mapId} resolves to the exact canonical MAP_CATALOG encounter pool (incl. empty/absent)`);
@@ -202,7 +202,7 @@ module.exports = {
 
     // ── 11. Mirewood / unknown region / invalid coords / inconsistency ───────
     assert.equal(g.run(`(function(){var c=geographicEncounterContext('overworld',100,${2 * CH + 100});return c.mapId==='NORTH_BASIN_MIREWOOD_MAP'&&c.encounterPool===NORTH_BASIN_ENEMY_TEMPLATES;})()`), true, 'the completed (0,2) chunk resolves Mirewood and the North Basin pool');
-    assert.equal(g.run("geographicEncounterContext('overworld', -1, 100)"), null, 'a negative coordinate fails closed');
+    assert.equal(g.run("geographicEncounterContext('overworld', -99999, 100)"), null, 'a negative coordinate fails closed');
     assert.equal(g.run("geographicEncounterContext('overworld', NaN, 100)"), null, 'a non-finite coordinate fails closed');
     assert.equal(g.run("geographicEncounterContext('nope', 100, 100)"), null, 'an unknown region fails closed');
     // Inconsistent placement: active map RODDON but the standing point is off-chunk

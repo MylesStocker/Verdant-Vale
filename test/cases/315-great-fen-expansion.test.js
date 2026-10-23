@@ -46,6 +46,7 @@ module.exports = {
   run() {
     const g = context();
     const J = (expr) => JSON.parse(g.run(expr));
+    const currentFenIds = new Set(J("JSON.stringify(Object.values(REGIONAL_CHUNK_CATALOG).filter(c=>c.region==='Great Fen'&&c.playerAccessible!==false).map(c=>c.mapId))"));
 
     // ── 1-2. Both entrances exist, are placed at their authored coordinates,
     //         and provide a real structural seam (not a point crossing). ────
@@ -98,7 +99,7 @@ module.exports = {
     for (const [id] of ALL) {
       const targets = J(`JSON.stringify(Object.values(EDGE_TRANSITIONS['${id}']||{}).flat().map(function(s){return s.targetMap;}))`);
       for (const t of targets) {
-        assert.ok(GREAT_FEN_IDS.has(t) || ENTRANCES.includes(t), `${id} seam -> ${t} stays inside the Great Fen or its two authorized entrances`);
+        assert.ok(currentFenIds.has(t) || ENTRANCES.includes(t), `${id} seam -> ${t} stays inside the Great Fen or its two authorized entrances`);
       }
     }
     // The two entrances themselves point into the Great Fen and into the
@@ -106,7 +107,7 @@ module.exports = {
     for (const id of ENTRANCES) {
       const targets = J(`JSON.stringify(Object.values(EDGE_TRANSITIONS['${id}']||{}).flat().map(function(s){return s.targetMap;}))`);
       for (const t of targets) {
-        assert.ok(GREAT_FEN_IDS.has(t) || t === 'EASTERN_FENS_REEDBELT_N_MAP' || t === 'EASTERN_FENS_REEDBELT_E_MAP' || ENTRANCES.includes(t),
+        assert.ok(currentFenIds.has(t) || t === 'EASTERN_FENS_REEDBELT_N_MAP' || t === 'EASTERN_FENS_REEDBELT_E_MAP' || ENTRANCES.includes(t),
           `${id} seam -> ${t} is the Great Fen or the pre-existing Eastern Fens route (never Mornay/North Basin/wider continent)`);
       }
     }

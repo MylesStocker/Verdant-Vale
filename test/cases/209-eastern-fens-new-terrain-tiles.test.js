@@ -64,7 +64,7 @@ module.exports = {
     //    tiles from this same approved natural palette). Holds vacuously
     //    true for Driftwood/Stranded Boat until a later batch places them,
     //    then proves they never leak into any other region.
-    const ALLOWED_REGIONS = ['Eastern Fens', 'Great Fen', 'Valmere', 'Eastern Shore', 'Southern Moraine'];
+    const ALLOWED_REGIONS = ['Eastern Fens', 'Great Fen', 'Valmere', 'Eastern Shore', 'Southern Moraine', 'Eastern Mainland', 'Southern Countryside'];
     for (const id of [128, 129, 130]) {
       const foreign = J(`JSON.stringify((function(){
         var hits=[];

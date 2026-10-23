@@ -120,17 +120,18 @@ const SOUTHERN_MORAINE_ENVELOPE = [
   'SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP', 'SOUTHERN_MORAINE_ENVELOPE_C18R6_MAP', 'SOUTHERN_MORAINE_ENVELOPE_C18R7_MAP',
   'SOUTHERN_MORAINE_ENVELOPE_C17R5_MAP',
 ];
+const MAINLAND = Object.keys(GRID_FP.fingerprints).filter(id=>id.startsWith('MAINLAND_'));
 const EXPECTED = ['MAP', 'MAP2', 'MAP3', 'MAP4', 'MAP5', 'MAP_N1', 'MAP_N2', 'RODDON_WAY_MAP',
   'MAP3_N1', 'MAP3_N2', 'DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_C_MAP',
   'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_NW_MAP', 'NORTH_BASIN_N_MAP',
-  'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE];
+  'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE, ...MAINLAND];
 
 // The 15 ORIGINAL placed maps carry a derived compat alias (const/window) in data.js
 // for legacy consumers. Newer chunks, including every scenery-only addition, were
 // added after that pattern and deliberately have NO alias/standalone var/window export
 // (new code uses mapRefForId()/the catalog helpers).
 // Alias-specific checks use ALIASED.
-const ALIASLESS = ['DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE];
+const ALIASLESS = ['DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE, ...MAINLAND];
 const ALIASED = EXPECTED.filter((id) => !ALIASLESS.includes(id));
 
 // Which fragment (and therefore which geographic file) authors each chunk.
@@ -151,6 +152,7 @@ const FRAGMENTS = {
   EASTERN_SHORE_ENVELOPE_CHUNK_DEFINITIONS: EASTERN_SHORE_ENVELOPE,
   SOUTHERN_MORAINE_REGIONAL_CHUNK_DEFINITIONS: SOUTHERN_MORAINE,
   SOUTHERN_MORAINE_ENVELOPE_CHUNK_DEFINITIONS: SOUTHERN_MORAINE_ENVELOPE,
+  MAINLAND_REGIONAL_CHUNK_DEFINITIONS: MAINLAND,
 };
 
 module.exports = {
@@ -261,6 +263,7 @@ module.exports = {
       ...Object.fromEntries(EASTERN_SHORE_ENVELOPE.map((id) => [id, 'content/maps/eastern-shore-maps.js'])),
       ...Object.fromEntries(SOUTHERN_MORAINE.map((id) => [id, 'content/maps/southern-moraine-maps.js'])),
       ...Object.fromEntries(SOUTHERN_MORAINE_ENVELOPE.map((id) => [id, 'content/maps/southern-moraine-maps.js'])),
+      ...Object.fromEntries(MAINLAND.map(id=>[id,'content/maps/mainland-maps.js'])),
     };
     const readSrc = (rel) => fs.readFileSync(path.join(__dirname, '../../', rel), 'utf8');
     const curData = readSrc('data.js');
@@ -268,7 +271,8 @@ module.exports = {
     for (const id of EXPECTED) {
       const file = SRC[id];
       const src = fileCache[file] || (fileCache[file] = readSrc(file));
-      assert.ok(new RegExp("mapId:\\s*'" + id + "'[\\s\\S]{0,800}?map:\\s*\\[").test(src), id + ': grid authored inline in its chunk definition record (' + file + ')');
+      const inline = new RegExp(String.raw`["']?mapId["']?\s*:\s*["']${id}["'][\s\S]{0,1600}?["']?map["']?\s*:\s*\[`);
+      assert.ok(inline.test(src), id + ': grid authored inline in its chunk definition record (' + file + ')');
       assert.ok(!new RegExp('map:\\s*' + id + '\\s*,').test(src), id + ': no map:' + id + ' legacy grid-variable reference remains');
       assert.ok(!new RegExp('(^|\\n)const ' + id + '\\s*=\\s*\\[').test(src), id + ': no standalone const ' + id + ' = [ grid literal remains');
       assert.ok(!new RegExp('window\\.' + id + '\\s*=\\s*' + id + '\\b').test(src), id + ': the former independent window.' + id + ' export is gone from ' + file);
@@ -293,7 +297,18 @@ module.exports = {
     //        tile-number changes) — evidence is a SHA-256 fixture, NOT Git history.
     assert.equal(GRID_FP.serialization, 'sha256hex(JSON.stringify(map))', 'fixture documents its canonical serialization');
     const fpVals = Object.values(GRID_FP.fingerprints);
-    assert.equal(new Set(fpVals).size, fpVals.length, 'all stored grid fingerprints are unique (no two grids are byte-identical)');
+    // Open Valmere deliberately shares pure-WATER scenery grids. Accessible
+    // grids remain unique; no decorated/land grid may hide behind this exception.
+    for(const fp of new Set(fpVals)){
+      const ids=Object.keys(GRID_FP.fingerprints).filter(id=>GRID_FP.fingerprints[id]===fp);
+      if(ids.length<2)continue;
+      for(const id of ids){
+        assert.equal(g.run(`mapPlayerAccessible('${id}')`),false,id+' duplicate is scenery');
+        assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`),false);
+        assert.equal(g.run(`mapRefForId('${id}').every(row=>row.every(tile=>tile===WATER))`),true,id+' duplicate is only open water');
+        assert.equal(g.run(`EDGE_TRANSITIONS['${id}']===undefined`),true,id+' no walkable lake crossing');
+      }
+    }
     assert.deepEqual(Object.keys(GRID_FP.fingerprints).sort(), [...EXPECTED].sort(), 'fixture fingerprints exactly the placed regional grids');
     for (const id of EXPECTED) {
       const got = sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`));
@@ -322,7 +337,7 @@ module.exports = {
     assert.equal(g.run('mapIdForRef(activeMap)'), 'MAP5', 'v4 regional load restores MAP5');
 
     // ── 9,11,13 of spec. Behaviour parity across the migrated maps ────────────
-    assert.equal(g.run('continuousSeamEntries().length'), 300, '138 eligible directed segment entries');
+    assert.equal(g.run('continuousSeamEntries().length'), 1978, '1978 eligible directed segment entries');
     for (const id of EXPECTED) {
       // The scenery-only West Outfall is a DISABLED debug destination (no player
       // access), so it can't be warped to — its geographic pool still resolves below.

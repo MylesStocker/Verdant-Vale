@@ -94,12 +94,12 @@ module.exports = {
     // The route itself stays in non-negative rows; unplaced coordinates (gap
     // columns, or far north of the authored chunks) still resolve to void.
     assert.equal(ROUTE.every((entry) => entry[1] >= 0 && entry[2] >= 0), true);
-    assert.equal(g.run("regionWorldPxToLocal('overworld',2560,-3361)"), null, 'one row north of the Valmere expanse envelope still resolves to void');
+    assert.equal(g.run("regionWorldPxToLocal('overworld',2560,-7201)"), null, 'one row north of the Valmere expanse envelope still resolves to void');
     assert.equal(g.run("mapIdForChunk('overworld',15,1)"), 'EASTERN_FENS_CHANNEL_ROAD_N_MAP');
     assert.deepEqual(J("JSON.stringify(mapLocalPxToRegionWorldPx('EASTERN_FENS_CHANNEL_ROAD_N_MAP',64,96))"),
       { regionId: 'overworld', worldPxX: 7744, worldPxY: 576 });
     assert.equal(g.run("regionWorldPxToLocal('overworld',7744,576).mapId"), 'EASTERN_FENS_CHANNEL_ROAD_N_MAP');
-    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), -7, 'the Great Fen + Valmere expansions extend the region bounds further north');
+    assert.equal(g.run("regionPixelBounds('overworld').minChunkY"), -15, 'the Great Fen + Valmere expansions extend the region bounds further north');
     assert.equal(g.run("buildContinuousWorldPlanFromWorld('overworld',15*COLS*TILE,0,512,480).activePlacement.mapId"), 'EASTERN_FENS_VALMERE_REVEAL_MAP');
 
     for (const id of ['EASTERN_FENS_VALMERE_REVEAL_MAP', 'EASTERN_FENS_VALMERE_SHORE_W_MAP', 'EASTERN_FENS_VALMERE_SHORE_E_MAP']) {

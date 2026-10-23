@@ -57,7 +57,7 @@ module.exports = {
       assert.ok(GRID_FP.fingerprints[id], id + ': original fingerprint still present in the fixture');
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), GRID_FP.fingerprints[id], id + ': original grid unchanged');
     }
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 244, 'fixture fingerprints every regional grid');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 934, 'fixture fingerprints every regional grid');
 
     // ── 7 + 8. Border contract: agrees with all four neighbours, all non-walkable ─
     const outfall = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`);
@@ -97,9 +97,9 @@ module.exports = {
     }
 
     // ── 11. Audit totals match the verified new layout ────────────────────────
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 96, ALIGNS: 280, BLOCKED: 596 },
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1994, "ALIGNS": 1570, "BORDER": 168},
       'audit totals include the Eastern Fens route');
-    assert.equal(audit.seamReadiness.edges.length, 976, '216 directed placed-map edges (54 x 4)');
+    assert.equal(audit.seamReadiness.edges.length, 3736, '216 directed placed-map edges (54 x 4)');
     assert.ok(!audit.seamReadiness.totals.CONFLICT && !audit.seamReadiness.totals.OUTSIDE_REGION && !audit.seamReadiness.totals.NEEDS_REMAP,
       'no CONFLICT / OUTSIDE_REGION / NEEDS_REMAP');
 
@@ -111,9 +111,9 @@ module.exports = {
     assert.equal(placed, 30, 'the original 5x6 envelope remains fully placed');
     assert.equal(voids, 0, 'no sparse void cells remain');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
-    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 20, -7, 7], 'region extent includes the Eastern Fens threshold');
-    assert.equal(b.widthPx, 21 * 16 * 32, 'region pixel width includes twenty-one chunk columns');
-    assert.equal(b.heightPx, 15 * 15 * 32, 'region pixel height now fifteen chunk rows (northern water + the Mornay town shell + the Great Fen + the Valmere expanse + the Southern Moraine)');
+    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [-8, 30, -15, 12], 'region extent includes the Eastern Fens threshold');
+    assert.equal(b.widthPx, 39 * 16 * 32, 'region pixel width includes thirty-nine chunk columns');
+    assert.equal(b.heightPx, 28 * 15 * 32, 'region pixel height now twenty-eight chunk rows (northern water + the Mornay town shell + the Great Fen + the Valmere expanse + the Southern Moraine)');
 
     // ── 13. Continuous cameras from all four neighbours plan the outfall terrain ─
     g.run('forceLegacyRegionalView = false;');

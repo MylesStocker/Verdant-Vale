@@ -1,0 +1,107 @@
+{
+  "method": "Automated headless Chrome with production scripts, Canvas, local storage and DOM keyboard events; representative captures visually inspected. Not a human gameplay session.",
+  "date": "2026-10-23",
+  "geographyChecks": 110,
+  "geographyCaptures": 27,
+  "existingLifecycleChecks": 7119,
+  "existingLifecycleCaptures": 172,
+  "browserErrors": 0,
+  "notes": "Images capture the gameplay Canvas. Later cartographic display-name cleanup affects HUD titles outside the captured Canvas; tile grids and renderers are unchanged.",
+  "gridFingerprintsSha256": "66e8fbbfbf00f8f53c389f95039b213a65e124e38c88748a5afda53f0fb16321",
+  "rendererSha256": {
+    "render.js": "dba37192c57c0aa7d6e62f339dba76111adf20dbf47f56adab799f6d9a25b018",
+    "render-tiles.js": "5246c6a2868984679709e605b8d70f8c86d1646a450997620316f41e1cbc4bb6"
+  },
+  "captures": [
+    {
+      "file": "production-overview.png",
+      "width": 2496,
+      "height": 1680,
+      "sha256": "0c40661610e9d7cd716a1df478369b13600161f5f4cfe03d560b7693cdc148e4"
+    },
+    {
+      "file": "western-willow-fen-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "ac99bb8a2ca8c4342a21e16e29251d9198ab7b5d62efee0376b8aaa9c2f68c9c"
+    },
+    {
+      "file": "western-willow-fen-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "a9f444ba0ac808ec3136c20585aa218c12fdfe28c5c8ffe26d3dd7d10c436096"
+    },
+    {
+      "file": "southern-pasture-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "5db63d52a480bfead90f04e7e01084fa67870402682f6b8bef42c0342d54bb36"
+    },
+    {
+      "file": "southern-pasture-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "ed51ddc0f0c2c075109ec149d0171874767043abff99aef5d81edb97f7fbd6c0"
+    },
+    {
+      "file": "river-mouth-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "a18abc8242b7e9e3153238b6e34047e4d49220564d8a3229d54c15943576cfa6"
+    },
+    {
+      "file": "river-mouth-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "a70b5915298a00eb535e7f4b9f2aebab83943f3935b6307f1e5cc90d11ee9ac6"
+    },
+    {
+      "file": "lower-river-crossing-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "6de12d9073177a219202a1f413595f4cdea575de1eb4088bec69d3d3ab8d3e89"
+    },
+    {
+      "file": "lower-river-crossing-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "89b373fa8ffa1d1e48bfd280cb5d06f1eb2674cdc3c8702810f4891e17a010ef"
+    },
+    {
+      "file": "moraine-river-gap-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "354549432e02198c118876f0fd267a520745c83f6f234025b9b310906ca6799b"
+    },
+    {
+      "file": "moraine-river-gap-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "af8e66db21c03e2148d5d7d66cec09356534ad732534374c80e00d55c433ab7b"
+    },
+    {
+      "file": "zolom-southern-warning-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "ac036f6fd1137078ab8dc69a0adf472b3d0c2a78f3b0d072a7f062dfc6efcb06"
+    },
+    {
+      "file": "zolom-southern-warning-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "9e32f65024f0336fe8fe235a20cdd801e505fca6e241f6fe14db7eb5e2302f26"
+    },
+    {
+      "file": "lake-headland-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "5876426344e6f50cab6ac9e28558c90257dec43f6df111ec99e84986dbcfec93"
+    },
+    {
+      "file": "lake-headland-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "7e7c0c61cc657a15036c578361ab25f5e71d1d623b6eff3b1be59d1a5b4d4818"
+    }
+  ]
+}

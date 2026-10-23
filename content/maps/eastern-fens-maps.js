@@ -57,49 +57,69 @@ const EASTERN_FENS_REGIONAL_CHUNK_DEFINITIONS = [
     allowRandomEncounters: true, allowSave: true,
     notes: 'The raised road turns north around deeper water. Eastern Fens Mornay easy-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
   // (7,1) A weathered timber walk begins the reedbelt detour.
-  { mapId: 'EASTERN_FENS_REEDBELT_N_MAP', regionId: 'overworld', chunkX: 7, chunkY: 1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1], //  0
-      [  1,127,127,127,127,  1, 81,127,127,127,  1,127,127,127,127,  1], //  1
-      [  1,  1, 23,127,127,127,  1,127,127,127, 23,  1,127,127,127,  1], //  2
-      [  1, 81,  1,127,127,127,127,  1,127,127,127,127,  1,127, 23,  1], //  3
-      [127,127,127,  1,127, 23,127,127,  1,127,127,127,127, 81,127,  1], //  4
-      [  1,127,127,127,  1,127,127,127,127, 23,127,127,127,127,  1,  1], //  5
-      [  1,127,127,127,127,  1,127,127,127,127,  1,127,127,127,127,  1], //  6
-      [  1,  1,127,127,127, 58, 58, 58, 58, 58, 58, 58, 58,127,127,  1], //  7
-      [  1,127,  1, 81,127, 58,127,  1,127,127,127,127, 58,127,127,  1], //  8
-      [  1,127,127,  1,127, 58,127,127,  1,127,127,127, 58,  1, 23, 23], //  9
-      [  1,127,127,127,  1, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58], // 10
-      [  1,127, 23,127,127,  1,127,127,127,127,  1,127, 58,127, 23, 23], // 11
-      [  1,  1,127,127,127,127, 23,127,127,127,127,  1, 58,127, 23,  1], // 12
-      [  1,127,  1,127,127, 81,127,  1,127,127,127, 23, 58, 23,127,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23, 58, 23,  1,  1], // 14
-    ],
-    displayName: 'Eastern Fens — Reedbelt', region: 'Eastern Fens', contentKey: 'eastern_fens_03',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_easy',
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'A weathered timber walk begins the reedbelt detour. Eastern Fens Mornay easy-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
+  {
+  "mapId": "EASTERN_FENS_REEDBELT_N_MAP",
+  "regionId": "overworld",
+  "chunkX": 7,
+  "chunkY": 1,
+  "displayName": "Eastern Fens — Reedbelt",
+  "region": "Eastern Fens",
+  "contentKey": "eastern_fens_03",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_easy",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "A weathered timber walk begins the reedbelt detour. Eastern Fens Mornay easy-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.",
+  "map": [
+    [1,1,1,1,1,1,1,111,1,1,1,1,1,1,1,1],
+    [1,127,127,127,127,129,81,111,127,127,1,127,127,127,127,1],
+    [1,1,23,127,127,127,1,111,127,127,23,1,127,127,127,1],
+    [1,81,1,127,127,127,127,111,127,129,127,127,1,127,23,1],
+    [127,127,127,1,127,23,127,111,1,127,127,127,127,81,127,1],
+    [1,127,127,127,1,127,127,111,127,23,127,127,127,127,1,1],
+    [1,127,127,127,127,1,127,111,127,127,1,127,127,127,127,1],
+    [1,1,127,127,127,58,58,58,58,58,58,58,58,127,127,1],
+    [1,127,1,81,127,58,127,1,127,127,127,127,58,127,127,1],
+    [1,127,127,1,127,58,127,127,1,127,127,127,58,1,23,23],
+    [1,127,127,127,1,58,58,58,58,58,58,58,58,58,58,58],
+    [1,127,23,127,127,1,127,127,127,127,1,127,58,127,23,23],
+    [1,1,127,127,127,127,23,127,127,127,127,1,58,127,23,1],
+    [1,127,1,127,127,81,127,1,127,127,127,23,58,23,127,1],
+    [1,1,1,1,1,1,1,1,1,1,1,23,58,23,1,1]
+  ]
+},
   // (8,1) The old line has failed; the maintained walk bends south.
-  { mapId: 'EASTERN_FENS_REEDBELT_E_MAP', regionId: 'overworld', chunkX: 8, chunkY: 1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], //  0
-      [  1,127,  1,127,127,127,127,  1, 23,127,127,127,  1,127,127,  1], //  1
-      [  1,127,127,  1,127,127,127, 81,  1,127,127,127,127,  1,127,  1], //  2
-      [  1,127,127, 23,  1,127,127,127,127,  1,127, 23,127,127,  1,  1], //  3
-      [  1,127, 81,127, 58, 58, 58, 58, 58,127,  1,127,127,127,127,  1], //  4
-      [  1,  1,127,127, 58,127,  1,127, 58,127,127,  1,127,127, 81,  1], //  5
-      [  1,127,  1,127, 58,127,127,  1, 58,127, 23,127,  1,127,127,  1], //  6
-      [  1, 23,127,  1, 58,127,127,127, 58,127,127,127,127,  1,127,  1], //  7
-      [  1,127,127,127, 58,127,127,127, 58,  1,127,127,127, 23,  1,  1], //  8
-      [ 23, 23,127,127, 58,  1,127,127, 58,127,  1,127,127,127,127,  1], //  9
-      [ 58, 58, 58, 58, 58, 58, 58, 58, 58,127,127,  1,127,127,127,  1], // 10
-      [ 23, 23,  1,127, 58,127,127,  1,127,127,127,127, 23,127,127,  1], // 11
-      [  1,127,127,  1, 58,127,127,127,  1,127,127, 81,127,  1,127,  1], // 12
-      [  1,127,127, 23, 58, 23,127, 23,127,  1,127,127,127,127,  1,  1], // 13
-      [  1,  1,  1, 23, 58, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Fens — Reedbelt', region: 'Eastern Fens', contentKey: 'eastern_fens_04',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_easy',
-    allowRandomEncounters: true, allowSave: true,
-    notes: 'The old line has failed; the maintained walk bends south. Eastern Fens Mornay easy-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.' },
+  {
+  "mapId": "EASTERN_FENS_REEDBELT_E_MAP",
+  "regionId": "overworld",
+  "chunkX": 8,
+  "chunkY": 1,
+  "displayName": "Eastern Fens — Reedbelt",
+  "region": "Eastern Fens",
+  "contentKey": "eastern_fens_04",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_easy",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "The old line has failed; the maintained walk bends south. Eastern Fens Mornay easy-leaning encounters now enabled; no items, NPCs, interactions, quest triggers, or new save state.",
+  "map": [
+    [1,1,1,1,1,1,1,1,111,1,1,1,1,1,1,1],
+    [1,127,1,127,127,127,129,1,111,127,127,127,1,127,127,1],
+    [1,127,127,1,127,127,127,81,111,127,127,127,127,1,127,1],
+    [1,127,127,23,1,127,127,127,111,1,129,23,127,127,1,1],
+    [1,127,81,127,58,58,58,58,111,127,1,127,127,127,127,1],
+    [1,1,127,127,58,127,1,127,111,127,127,1,127,127,81,1],
+    [1,127,1,127,58,127,127,1,111,127,23,127,1,127,127,1],
+    [1,23,127,1,58,127,127,127,58,127,127,127,127,1,127,1],
+    [1,127,127,127,58,127,127,127,58,1,127,127,127,23,1,1],
+    [23,23,127,127,58,1,127,127,58,127,1,127,127,127,127,1],
+    [58,58,58,58,58,58,58,58,58,127,127,1,127,127,127,1],
+    [23,23,1,127,58,127,127,1,127,127,127,127,23,127,127,1],
+    [1,127,127,1,58,127,127,127,1,127,127,81,127,1,127,1],
+    [1,127,127,23,58,23,127,23,127,1,127,127,127,127,1,1],
+    [1,1,1,23,58,23,1,1,1,1,1,1,1,1,1,1]
+  ]
+},
   // (8,2) The detour regains firmer embankment ground.
   { mapId: 'EASTERN_FENS_REEDBELT_S_MAP', regionId: 'overworld', chunkX: 8, chunkY: 2, map: [
       [  1,  1,  1, 23,  2, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], //  0
@@ -623,46 +643,68 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Open Fen Water', region: 'Eastern Fens', contentKey: 'eastern_fens_env_6_0',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', regionId: 'overworld', chunkX: 7, chunkY: 0, map: [
-      [  1,  1,  1,  1,  1,  1,  1, 23, 23, 23,  1,  1,  1,  1,  1,  1], // 0
-      [  1, 23,127,127, 23, 23,127,127,127,127, 23, 23,127,127, 23,  1], // 1
-      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 2
-      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 3
-      [  1, 23,127, 81,  0,  0, 88, 88, 88, 88,  0,  0, 81,127, 23,  1], // 4
-      [  1, 23,127, 81,  0, 88, 88,  0,  0, 88, 88,  0, 81,127, 23,  1], // 5
-      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 6
-      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127,127,127], // 7
-      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 8
-      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 9
-      [  1, 23,127, 81,  0,  0,  0,127,127,  0,  0,  0, 81,127, 23,  1], // 10
-      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 11
-      [  1,  1, 23,127,127,127,127,127,127,127,127,127,127, 23,  1,  1], // 12
-      [  1,  1,  1, 23,127,127,127,127,127,127, 23,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Fens — North Fen', region: 'Eastern Fens', contentKey: 'eastern_fens_env_7_0',
-    presentation: 'continuous', encounterProfileId: 'north_fen_zolom', allowRandomEncounters: true, allowSave: true,
-    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C7RN2_MAP via EASTERN_FENS_ENVELOPE_C7RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', regionId: 'overworld', chunkX: 8, chunkY: 0, map: [
-      [  1,  1,  1,  1,  1,  1,  1, 23, 23, 23,  1,  1,  1,  1,  1,  1], // 0
-      [  1, 23,127,127, 23, 23,127,127,127,127, 23, 23,127,127, 23,  1], // 1
-      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 2
-      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 3
-      [  1, 23,127, 81,  0,  0, 88, 88, 88, 88,  0,  0, 81,127, 23,  1], // 4
-      [  1, 23,127, 81,  0, 88, 88,  0,  0, 88, 88,  0, 81,127, 23,  1], // 5
-      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 6
-      [127,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1,  1], // 7
-      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 8
-      [  1,127,127, 81, 81,  0,  0,127,127,  0,  0, 81, 81,127,127,  1], // 9
-      [  1, 23,127, 81,  0,  0,  0,127,127,  0,  0,  0, 81,127, 23,  1], // 10
-      [  1, 23,127,127, 81, 81,127,127,127,127, 81, 81,127,127, 23,  1], // 11
-      [  1,  1, 23,127,127,127,127,127,127,127,127,127,127, 23,  1,  1], // 12
-      [  1,  1,  1, 23,127,127,127,127,127,127, 23,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Fens — North Fen', region: 'Eastern Fens', contentKey: 'eastern_fens_env_8_0',
-    presentation: 'continuous', encounterProfileId: 'north_fen_zolom', allowRandomEncounters: true, allowSave: true,
-    notes: 'Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C8RN2_MAP via EASTERN_FENS_ENVELOPE_C8RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself.' },
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C7R0_MAP",
+  "regionId": "overworld",
+  "chunkX": 7,
+  "chunkY": 0,
+  "displayName": "Eastern Fens — North Fen",
+  "region": "Eastern Fens",
+  "contentKey": "eastern_fens_env_7_0",
+  "presentation": "continuous",
+  "encounterProfileId": "north_fen_zolom",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C7RN2_MAP via EASTERN_FENS_ENVELOPE_C7RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself.",
+  "map": [
+    [1,1,1,1,1,1,1,23,23,23,1,1,1,1,1,1],
+    [1,23,127,127,23,23,127,127,127,127,23,23,127,127,23,1],
+    [1,23,127,127,81,81,127,127,127,127,81,81,127,127,23,1],
+    [1,127,127,81,81,0,0,127,127,0,0,81,81,127,127,1],
+    [1,23,127,81,0,0,88,88,88,88,0,0,81,127,23,1],
+    [1,23,127,81,0,88,88,0,0,88,88,0,81,127,23,1],
+    [1,127,127,81,81,0,0,127,127,0,0,81,81,127,127,1],
+    [1,23,127,127,81,81,127,127,127,127,81,81,127,127,127,127],
+    [1,23,127,127,81,81,127,127,127,127,81,81,127,127,23,1],
+    [1,127,127,81,81,0,0,127,127,0,0,81,81,127,127,1],
+    [1,23,127,81,0,81,81,81,81,81,129,0,81,127,23,1],
+    [1,23,127,127,81,81,81,81,81,81,81,81,127,127,23,1],
+    [1,1,23,127,127,129,81,81,81,81,81,127,127,23,1,1],
+    [1,1,1,23,127,127,127,127,127,127,23,1,1,1,1,1],
+    [1,1,1,1,1,1,1,127,1,1,1,1,1,1,1,1]
+  ]
+},
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C8R0_MAP",
+  "regionId": "overworld",
+  "chunkX": 8,
+  "chunkY": 0,
+  "displayName": "Eastern Fens — North Fen",
+  "region": "Eastern Fens",
+  "contentKey": "eastern_fens_env_8_0",
+  "presentation": "continuous",
+  "encounterProfileId": "north_fen_zolom",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C8RN2_MAP via EASTERN_FENS_ENVELOPE_C8RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself.",
+  "map": [
+    [1,1,1,1,1,1,1,23,23,23,1,1,1,1,1,1],
+    [1,23,127,127,23,23,127,127,127,127,23,23,127,127,23,1],
+    [1,23,127,127,81,81,127,127,127,127,81,81,127,127,23,1],
+    [1,127,127,81,81,0,0,127,127,0,0,81,81,127,127,1],
+    [1,23,127,81,0,0,88,88,88,88,0,0,81,127,23,1],
+    [1,23,127,81,0,88,88,0,0,88,88,0,81,127,23,1],
+    [1,127,127,81,81,0,0,127,127,0,0,81,81,127,127,1],
+    [127,127,127,81,81,127,127,127,127,81,81,127,127,23,1,1],
+    [1,23,127,127,81,81,127,127,127,127,81,81,127,127,23,1],
+    [1,127,127,81,81,0,0,127,127,0,0,81,81,127,127,1],
+    [1,23,127,81,0,81,81,81,81,81,129,0,81,127,23,1],
+    [1,23,127,127,81,81,81,81,81,81,81,81,127,127,23,1],
+    [1,1,23,127,127,129,81,81,81,81,81,127,127,23,1,1],
+    [1,1,1,23,127,127,127,127,127,127,23,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,127,1,1,1,1,1,1,1]
+  ]
+},
   { mapId: 'EASTERN_FENS_ENVELOPE_C9R0_MAP', regionId: 'overworld', chunkX: 9, chunkY: 0, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,120,  1,  1,  1,127,127, 23, 23,  1,  1,127,  1,  1], // 1
@@ -683,26 +725,38 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Flooded Reeds', region: 'Eastern Fens', contentKey: 'eastern_fens_env_9_0',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C14R0_MAP', regionId: 'overworld', chunkX: 14, chunkY: 0, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  0,  0,  0,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 5
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 6
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 7
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 9
-      [  1,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  1], // 10
-      [  1,  0, 23, 23, 23, 23, 23, 23,127, 23, 23, 23, 23, 23,  0,  1], // 11
-      [  1,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Valmere — Sheltered Cove', region: 'Valmere', contentKey: 'valmere_expanse_14_0',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Valmere near-shore entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately.' },
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C14R0_MAP",
+  "regionId": "overworld",
+  "chunkX": 14,
+  "chunkY": 0,
+  "displayName": "Valmere — Sheltered Cove",
+  "region": "Valmere",
+  "contentKey": "valmere_expanse_14_0",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [3,3,0,0,0,0,0,0,0,0,0,0,0,0,128,3],
+    [3,3,0,0,0,0,0,0,0,0,0,0,0,0,128,3],
+    [3,3,0,0,0,0,0,0,0,0,0,0,0,0,128,3],
+    [3,3,3,0,0,0,0,0,0,0,0,0,0,0,128,3],
+    [3,3,3,0,0,0,0,0,0,0,0,0,0,0,128,3],
+    [3,3,0,0,0,0,0,0,0,0,0,0,0,0,128,3],
+    [3,3,3,23,0,0,0,0,0,0,128,128,128,128,128,128],
+    [3,3,3,23,23,23,23,23,23,23,128,128,128,128,128,128],
+    [3,3,23,23,23,23,23,23,23,23,128,128,128,128,128,128],
+    [3,3,23,23,23,23,23,23,23,23,23,23,23,23,128,3],
+    [3,3,3,23,23,23,23,23,23,23,23,23,23,23,128,3],
+    [3,3,23,23,23,23,23,23,23,23,23,23,23,23,128,3],
+    [3,3,23,3,3,23,3,3,23,23,3,23,23,3,128,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+  ]
+},
   { mapId: 'EASTERN_FENS_ENVELOPE_C5R1_MAP', regionId: 'overworld', chunkX: 5, chunkY: 1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,120,  1,  1,127,127,127,  1,  1,127,  1,  1,127,  1,  1,  1], // 1
@@ -903,26 +957,38 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Silted Margin', region: 'Eastern Fens', contentKey: 'eastern_fens_env_17_1',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only perimeter fen completing the visible landscape (playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C18R1_MAP', regionId: 'overworld', chunkX: 18, chunkY: 1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
-      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81, 88,  0,  0,  1], // 4
-      [  1,  0,  0,  0, 81,  0,  0, 81,  0, 88, 81,  0,  0,  0,  0,  1], // 5
-      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 6
-      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 7
-      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,128,  0,  0,  1], // 8
-      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 9
-      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 10
-      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 11
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Clay Bank', region: 'Eastern Shore', contentKey: 'eastern_shore_18_1',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Eastern Shore entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately. A northward spur rejoins the Valmere Mornay Threshold road.' },
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C18R1_MAP",
+  "regionId": "overworld",
+  "chunkX": 18,
+  "chunkY": 1,
+  "displayName": "Eastern Shore — Clay Bank",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_18_1",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [3,3,3,3,3,3,3,128,128,128,3,3,3,3,3,3],
+    [3,3,23,23,23,23,23,128,128,128,128,23,0,0,0,0],
+    [3,3,23,23,23,23,23,128,128,128,128,23,23,0,0,0],
+    [3,3,23,23,23,23,23,128,128,128,128,23,23,0,0,0],
+    [3,3,3,23,23,23,23,128,128,128,128,23,23,0,0,0],
+    [3,3,3,23,23,23,23,128,128,128,128,23,0,0,0,0],
+    [3,3,3,23,23,23,23,128,128,128,128,23,0,0,0,0],
+    [3,3,3,23,23,23,23,128,128,128,128,23,0,0,0,0],
+    [3,3,23,23,23,23,23,88,128,128,23,23,0,0,0,0],
+    [3,3,23,23,23,23,23,23,128,128,23,23,0,0,0,3],
+    [3,3,23,23,23,23,23,23,128,128,23,23,0,0,0,3],
+    [3,3,23,23,23,23,23,23,128,128,23,23,0,0,0,3],
+    [3,3,23,23,23,23,23,23,128,128,23,23,0,0,0,3],
+    [3,3,23,23,23,23,23,23,23,128,23,23,0,0,0,0],
+    [3,3,3,0,23,23,23,23,23,23,23,23,0,0,0,0]
+  ]
+},
   { mapId: 'EASTERN_FENS_ENVELOPE_C16R2_MAP', regionId: 'overworld', chunkX: 16, chunkY: 2, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,127,  1,  1,  1,  1], // 1
@@ -1083,26 +1149,37 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Moraine Ridge: West Shoulder', region: 'Eastern Fens', contentKey: 'eastern_fens_env_8_4',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only: the moraine ridge rises out of the fen here — a gravel-bar crest (128) flanked by scrub hills (119), with a small grassy saddle and peat hollows (81) in the surrounding low ground. playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority. No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C9R4_MAP', regionId: 'overworld', chunkX: 9, chunkY: 4, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1, 23,127,127,127,127, 23,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1, 23,127,127,  0,  0,  0,  0,127,127, 23,  1,  1,  1], // 2
-      [  1,  1, 23,127,  0,  0,  0,128,128,  0,  0,  0,127, 23,  1,  1], // 3
-      [  1,  1, 23,  0,  0,128,128,128,128,128,  0,  0, 23,  0,  1,  1], // 4
-      [  1,  1, 23,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,127,  1,  1], // 5
-      [  1,  1, 23,127,  0,  0,  0,  0,  0,  0,  0,127, 23,  1,  1,  1], // 6
-      [  1,  1,  1, 23, 23,127,127,127,127, 23, 23,  1,  1,  1,  1,  1], // 7
-      [  1,  1, 89, 89,  1,  1,  1,  1,  1,  1,  1,  1, 89, 89,  1,  1], // 8
-      [  1,119,119,119,  1,  1,  1,  1,  1,  1,  1,  1,119,119,119,  1], // 9
-      [  1,  1,119,119,  1,  1,  1,  1,  1,  1,  1,  1,119,119,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Fens — Moraine Ridge: Hummock Clearing', region: 'Eastern Fens', contentKey: 'eastern_fens_env_9_4',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: true,
-    notes: 'Walkable off-road firm grassy hummock and small clearing south of the dry rise, centred on a small gravel-bar (128) knoll — the moraine ridge that flanks this chunk to east and west (room reserved for a future quiet location, with no trigger or interaction); bounded by a collapsed embankment, a low moraine, and flooded ground. Terrain only: no encounters, items, NPCs, interactions, quest triggers, or save bindings.' },
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C9R4_MAP",
+  "regionId": "overworld",
+  "chunkX": 9,
+  "chunkY": 4,
+  "displayName": "Eastern Fens — Moraine Ridge: Hummock Clearing",
+  "region": "Eastern Fens",
+  "contentKey": "eastern_fens_env_9_4",
+  "presentation": "continuous",
+  "encounterProfileId": "far",
+  "allowRandomEncounters": false,
+  "allowSave": true,
+  "notes": "Walkable off-road firm grassy hummock and small clearing south of the dry rise, centred on a small gravel-bar (128) knoll — the moraine ridge that flanks this chunk to east and west (room reserved for a future quiet location, with no trigger or interaction); bounded by a collapsed embankment, a low moraine, and flooded ground. Terrain only: no encounters, items, NPCs, interactions, quest triggers, or save bindings.",
+  "map": [
+    [1,1,1,1,1,1,1,1,127,1,1,1,1,1,1,1],
+    [1,1,1,1,1,23,127,127,127,127,23,1,1,1,1,1],
+    [1,1,1,23,127,127,0,0,0,0,127,127,23,1,1,1],
+    [1,1,23,127,0,0,0,128,128,0,0,0,127,23,1,1],
+    [1,1,23,0,0,128,128,128,128,128,0,0,23,0,1,1],
+    [1,1,23,0,0,0,0,0,128,0,0,0,0,127,1,1],
+    [1,1,23,127,0,0,0,0,0,0,0,127,23,1,1,1],
+    [1,1,1,23,23,127,127,128,128,128,23,1,1,1,1,1],
+    [1,1,89,89,1,1,1,128,128,128,1,1,89,89,1,1],
+    [1,119,119,119,1,1,1,128,128,128,1,1,119,119,119,1],
+    [1,1,119,119,1,1,1,128,128,128,1,1,119,119,1,1],
+    [1,1,1,1,1,1,1,128,128,128,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,128,128,128,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,128,128,128,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,128,128,128,1,1,1,1,1,1]
+  ]
+},
   { mapId: 'EASTERN_FENS_ENVELOPE_C10R4_MAP', regionId: 'overworld', chunkX: 10, chunkY: 4, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,  1,  1,  1, 81, 81,  1,  1,  1,  1,  1,  1,  1], // 1
@@ -1223,26 +1300,38 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Lakeward Shallows', region: 'Eastern Fens', contentKey: 'eastern_fens_env_14_5',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only: a small Exposed Stone/Grass islet with a new gravel (128) fringe breaks the open water — the storm-influenced shallows beyond the widening channel. playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority. No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C15R5_MAP', regionId: 'overworld', chunkX: 15, chunkY: 5, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0, 88,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  1], // 5
-      [  1,  0,  0,  0,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,  1], // 6
-      [  1,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  1], // 7
-      [  1,  0,  0,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,  0,  1], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  1], // 9
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 10
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 11
-      [  1,  0,  0,  0,  0,127,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Southern Moraine — Gravel Ridge', region: 'Southern Moraine', contentKey: 'southern_moraine_15_5',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Southern Moraine entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately. A northward spur rejoins the Eastern Fens Valmere Road Turn.' },
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C15R5_MAP",
+  "regionId": "overworld",
+  "chunkX": 15,
+  "chunkY": 5,
+  "displayName": "Southern Moraine — Gravel Ridge",
+  "region": "Southern Moraine",
+  "contentKey": "southern_moraine_15_5",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [3,3,3,3,3,3,3,128,128,128,3,3,3,3,3,3],
+    [3,119,0,0,0,0,0,128,128,128,0,23,23,23,119,119],
+    [3,3,3,3,3,3,0,128,128,128,0,0,0,0,119,119],
+    [3,3,3,3,3,3,3,128,128,128,0,0,0,119,119,119],
+    [3,3,3,3,3,3,3,128,128,128,0,0,0,119,119,119],
+    [3,3,3,3,3,3,3,128,128,128,0,0,0,0,119,119],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,119,119,119],
+    [3,3,3,3,3,0,3,3,0,0,0,0,0,119,119,119],
+    [3,3,3,3,0,0,0,128,0,0,0,0,0,119,119,119],
+    [3,3,3,3,3,0,3,3,0,0,0,0,0,0,119,119],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,119,119,119],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,119,119,119],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,119,119,119],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,0,119,119],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,0,119,119]
+  ]
+},
   { mapId: 'EASTERN_FENS_ENVELOPE_C16R5_MAP', regionId: 'overworld', chunkX: 16, chunkY: 5, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
       [  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1], // 1
@@ -1263,106 +1352,166 @@ const EASTERN_FENS_ENVELOPE_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Fens — Lakeward Shallows: East', region: 'Eastern Fens', contentKey: 'eastern_fens_env_16_5',
     presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
     notes: 'Scenery-only: a small Basin Mud (81) patch capped by a gravel (128) rise breaks the open water — the easternmost storm-influenced shallows before the Valmere shoreline proper. playerAccessible: false; non-walkable borders, no seam/transition; fail-closed at the placement authority. No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C6RN1_MAP', regionId: 'overworld', chunkX: 6, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
-      [  1,  0,  0, 81, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
-      [  1,  0,  0, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 5
-      [  1,  0,  0,  0,  0,  0,  0, 81,  0,  0,  0,  0,  0,  0,  0,  0], // 6
-      [  1,  0, 88,  0,  0,  0, 81,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 7
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81, 81,  0,  0,  1], // 9
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 81,  0,  0,  0,  1], // 10
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 11
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Great Fen — Hummock Ground', region: 'Great Fen', contentKey: 'great_fen_6_n1',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', regionId: 'overworld', chunkX: 7, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  0,  1], // 2
-      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 5
-      [  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0], // 6
-      [  0,  0,  0,  0,  0, 81,  0,  0, 88,  0,  0, 81,  0,  0,  0,  0], // 7
-      [  0,  0,128,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0], // 8
-      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  1], // 9
-      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 10
-      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 11
-      [  1,  0,128,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Great Fen — Mud Basin', region: 'Great Fen', contentKey: 'great_fen_7_n1',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', regionId: 'overworld', chunkX: 8, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 2
-      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 3
-      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,121,  0,  0,  0,127,  1], // 4
-      [  1, 23,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,127,  1], // 5
-      [  0, 23,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,  0,127,  0], // 6
-      [  0, 23,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,127,  0], // 7
-      [  0, 23,  0,  0,  0,  0,  0,128,128,  0,  0,  0,  0,  0,127,  0], // 8
-      [  1, 23,127,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,127,  1], // 9
-      [  1, 23,  0,  0,121,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 10
-      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 11
-      [  1, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,127,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Great Fen — Gravel Spur', region: 'Great Fen', contentKey: 'great_fen_8_n1',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', regionId: 'overworld', chunkX: 9, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,120,  0,  0,  1], // 2
-      [  1,  0,  0,120,  0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 5
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 6
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 7
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 9
-      [  1,  0, 23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  1], // 10
-      [  1,  0,  0,120,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  0,  1], // 11
-      [  1,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Great Fen — Drowned Woodland', region: 'Great Fen', contentKey: 'great_fen_9_n1',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Great Fen entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately, no roads.' },
-  { mapId: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', regionId: 'overworld', chunkX: 14, chunkY: -1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,128,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  0,  0,  1], // 5
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,121, 88,  0,  0,  0,  1], // 6
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  0,  0,  1], // 7
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,121,  0,  0,  1], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,  0,  0,  0,  1], // 9
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 10
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 11
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Valmere — Rocky Point', region: 'Valmere', contentKey: 'valmere_expanse_14_n1',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Valmere near-shore entry chunk converted from scenery-only open fen water; walkable, hard-pool encounters active immediately.' },
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C6RN1_MAP",
+  "regionId": "overworld",
+  "chunkX": 6,
+  "chunkY": -1,
+  "displayName": "Great Fen — Hummock Ground",
+  "region": "Great Fen",
+  "contentKey": "great_fen_6_n1",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [3,3,3,127,127,127,127,23,23,23,23,23,23,23,23,23],
+    [3,3,127,127,127,127,127,127,23,23,23,23,23,23,23,23],
+    [3,3,3,127,127,127,127,127,127,23,23,23,23,23,23,23],
+    [3,3,127,127,127,127,127,127,127,127,23,23,23,23,23,127],
+    [3,3,3,81,81,81,127,127,127,127,23,23,23,23,23,127],
+    [3,3,3,81,81,81,127,127,127,127,127,23,23,23,127,127],
+    [3,3,127,81,81,81,81,127,127,127,127,23,23,23,127,127],
+    [3,3,127,81,81,81,127,127,127,127,23,23,23,23,23,127],
+    [3,3,3,127,127,127,127,127,127,23,23,23,23,23,23,127],
+    [3,3,127,127,127,127,127,23,23,23,23,23,23,23,23,23],
+    [3,3,23,23,23,23,23,23,23,23,23,0,0,23,23,23],
+    [3,3,0,0,0,0,0,0,0,0,0,0,3,3,0,23],
+    [3,3,3,3,3,3,3,0,3,0,0,0,3,3,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+  ]
+},
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C7RN1_MAP",
+  "regionId": "overworld",
+  "chunkX": 7,
+  "chunkY": -1,
+  "displayName": "Great Fen — Mud Basin",
+  "region": "Great Fen",
+  "contentKey": "great_fen_7_n1",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [23,23,23,23,23,23,23,23,23,0,0,0,3,3,3,3],
+    [23,23,23,127,127,127,127,23,23,23,0,0,3,3,3,3],
+    [127,127,127,127,127,127,127,127,23,23,23,0,0,0,0,0],
+    [127,127,127,127,127,127,127,127,127,23,23,23,3,3,0,0],
+    [127,127,127,127,81,81,81,127,127,127,23,23,0,0,0,0],
+    [127,127,81,81,81,81,81,81,127,127,23,23,0,3,3,3],
+    [127,127,81,81,81,81,81,81,127,127,23,23,23,3,3,3],
+    [127,127,81,81,81,81,81,81,127,127,23,23,0,3,3,3],
+    [127,127,127,81,81,81,81,81,127,127,23,23,0,3,3,3],
+    [127,127,127,127,81,81,81,127,127,127,23,23,3,3,3,3],
+    [23,127,127,127,127,81,127,127,127,23,23,0,3,3,3,3],
+    [23,23,127,127,127,127,127,127,127,23,23,0,3,3,3,3],
+    [23,23,127,127,127,127,127,111,111,111,0,0,3,3,3,3],
+    [23,23,23,127,127,127,127,111,111,111,0,0,3,3,3,3],
+    [120,120,120,120,120,120,120,111,111,111,120,120,120,120,120,120]
+  ]
+},
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C8RN1_MAP",
+  "regionId": "overworld",
+  "chunkX": 8,
+  "chunkY": -1,
+  "displayName": "Great Fen — Gravel Spur",
+  "region": "Great Fen",
+  "contentKey": "great_fen_8_n1",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,0,0,0,3,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,0,0,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,0,0,111,111,111,3,3,3,3,3,3],
+    [3,3,3,3,3,3,0,111,111,111,3,3,3,3,3,3],
+    [120,120,120,120,120,120,120,111,111,111,120,120,120,120,120,120]
+  ]
+},
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+  "regionId": "overworld",
+  "chunkX": 9,
+  "chunkY": -1,
+  "displayName": "Great Fen — Drowned Woodland",
+  "region": "Great Fen",
+  "contentKey": "great_fen_9_n1",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [3,3,3,0,0,23,127,127,81,81,81,127,127,3,3,3],
+    [3,0,3,0,0,23,23,127,127,127,127,127,127,23,3,3],
+    [0,0,0,0,0,23,23,127,127,127,127,127,127,23,3,3],
+    [0,0,0,0,0,0,23,23,127,127,127,127,23,23,3,3],
+    [0,0,0,3,0,0,23,23,23,127,127,23,23,3,3,3],
+    [0,0,3,3,0,0,23,23,23,23,23,23,23,3,3,3],
+    [0,0,3,3,0,3,23,23,23,23,23,23,23,3,3,3],
+    [3,3,3,3,0,0,23,23,23,23,23,23,23,3,3,3],
+    [3,3,3,3,0,0,23,23,23,127,23,23,23,3,3,3],
+    [3,3,3,3,0,0,23,23,127,127,127,23,23,23,3,3],
+    [3,3,3,3,0,23,23,127,127,127,127,127,127,23,3,3],
+    [3,3,3,0,0,23,23,127,127,127,127,127,127,127,3,3],
+    [3,3,3,3,3,3,3,127,3,81,127,127,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+  ]
+},
+  {
+  "mapId": "EASTERN_FENS_ENVELOPE_C14RN1_MAP",
+  "regionId": "overworld",
+  "chunkX": 14,
+  "chunkY": -1,
+  "displayName": "Valmere — Rocky Point",
+  "region": "Valmere",
+  "contentKey": "valmere_expanse_14_n1",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [0,0,0,0,0,0,0,0,3,3,3,0,0,128,3,1],
+    [0,0,0,0,0,0,0,0,3,3,3,0,0,128,3,1],
+    [0,0,0,0,0,0,0,0,0,3,3,0,0,3,3,1],
+    [23,23,23,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [23,23,23,23,23,0,0,0,0,0,0,0,0,0,3,3],
+    [23,23,23,23,23,23,0,0,0,0,0,0,0,0,3,3],
+    [23,23,23,23,23,23,0,0,0,0,0,0,0,0,3,3],
+    [23,23,23,23,23,23,0,0,0,0,0,0,0,0,3,3],
+    [23,23,23,23,23,23,0,0,0,0,0,0,0,0,3,3],
+    [23,23,23,23,23,0,0,0,0,0,0,0,0,3,3,3],
+    [0,23,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3]
+  ]
+},
   { mapId: 'EASTERN_FENS_ENVELOPE_C15RN1_MAP', regionId: 'overworld', chunkX: 15, chunkY: -1, map: [
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,121,  1],

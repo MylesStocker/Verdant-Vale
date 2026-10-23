@@ -74,11 +74,11 @@ module.exports = {
       const b = JSON.parse(g.run(`JSON.stringify(regionPixelBounds('${regionId}'))`));
       assert.deepEqual(
         { minChunkX: b.minChunkX, minChunkY: b.minChunkY, maxChunkX: b.maxChunkX, maxChunkY: b.maxChunkY },
-        { minChunkX: 0, minChunkY: -7, maxChunkX: 20, maxChunkY: 7 }, 'chunk extents include the Valmere expanse, the Great Fen, and the Southern Moraine');
-      assert.equal(b.leftPx, 0); assert.equal(b.topPx, -3360);
-      assert.equal(b.rightPx, 21 * CW, 'right px exclusive = 21 chunks wide');
-      assert.equal(b.bottomPx, 8 * CH, 'bottom px exclusive = 8 chunks tall');
-      assert.equal(b.widthPx, 10752); assert.equal(b.heightPx, 7200);
+        { minChunkX: -8, minChunkY: -15, maxChunkX: 30, maxChunkY: 12 }, 'chunk extents include the Valmere expanse, the Great Fen, and the Southern Moraine');
+      assert.equal(b.leftPx, -4096); assert.equal(b.topPx, -7200);
+      assert.equal(b.rightPx, 31 * CW, 'right px exclusive = column 31 origin');
+      assert.equal(b.bottomPx, 13 * CH, 'bottom px exclusive = row 13 origin');
+      assert.equal(b.widthPx, 19968); assert.equal(b.heightPx, 13440);
       assert.equal(g.run(`regionPixelBounds('nope')`), null, 'unknown regionId -> null bounds');
     }
 
@@ -86,10 +86,10 @@ module.exports = {
     {
       const center = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 1280, 1440, 512, 480))`));
       assert.deepEqual(center, { camPxX: 1280 - 256, camPxY: 1440 - 240 }, 'centred camera origin');
-      const low = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 0, -3360, 512, 480))`));
-      assert.deepEqual(low, { camPxX: 0, camPxY: -3360 }, 'clamped to the top-left edge (now the Valmere expanse rows)');
+      const low = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', -4096, -7200, 512, 480))`));
+      assert.deepEqual(low, { camPxX: -4096, camPxY: -7200 }, 'clamped to the top-left edge (now the Valmere expanse rows)');
       const high = JSON.parse(g.run(`JSON.stringify(cameraOriginForTarget('${regionId}', 999999, 999999, 512, 480))`));
-      assert.deepEqual(high, { camPxX: 10752 - 512, camPxY: 3840 - 480 }, 'clamped to bottom-right edge (now the Southern Moraine rows)');
+      assert.deepEqual(high, { camPxX: 15872 - 512, camPxY: 6240 - 480 }, 'clamped to bottom-right edge (now the Southern Moraine rows)');
       for (const v of [center.camPxX, center.camPxY, high.camPxX, high.camPxY])
         assert.ok(Number.isInteger(v), 'camera origin is integer/pixel-aligned');
       assert.equal(g.run(`cameraOriginForTarget('nope', 0, 0, 512, 480)`), null, 'unknown regionId -> null');
@@ -162,7 +162,7 @@ module.exports = {
     {
       assert.deepEqual(vis(0, 0, 512, 480).map(c => c.mapId), ['NORTH_BASIN_NW2_MAP'], 'the newly placed Flooded Rim fills chunk (0,0)');
       assert.deepEqual(vis(999999, 999999, 512, 480), [], 'far out-of-regionId camera -> no chunks');
-      assert.deepEqual(vis(-512, -480, 512, 480), [], 'negative/out-of-regionId camera -> no chunks');
+      assert.deepEqual(vis(-10000, -10000, 512, 480), [], 'negative/out-of-regionId camera -> no chunks');
       // A viewport spanning Mirewood (0,2) and MAP_N2 (0,3) resolves both
       // occupied chunks with complementary half-open row ranges.
       const straddle = vis(0, 3 * CH - 224, 512, 480);

@@ -56,7 +56,7 @@ module.exports = {
     // ── 5. Fingerprint recorded; every prior grid unchanged ───────────────────
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'grid matches its computed SHA-256');
     assert.equal(GRID_FP.fingerprints[ID], FP, 'the fixture records the fingerprint');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 244, 'fixture fingerprints every regional grid');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 934, 'fixture fingerprints every regional grid');
 
     // ── 6. No seam/transition; audit: west BLOCKED, other three BORDER; the ────
     //      N_MAP east edge converts BORDER -> BLOCKED.
@@ -69,7 +69,7 @@ module.exports = {
     assert.equal(V[`${ID}|south`], 'BLOCKED', 'south is now BLOCKED (NORTH_BASIN_E_MAP placed at 3,1)');
     assert.equal(V[`${ID}|east`], 'BLOCKED', 'east is now BLOCKED (NORTH_BASIN_NE2_MAP placed at 4,0)');
     assert.equal(V['NORTH_BASIN_N_MAP|east'], 'BLOCKED', "NORTH_BASIN_N_MAP's east edge is now BLOCKED (neighbour placed)");
-    assert.deepEqual(audit.seamReadiness.totals, { INTENTIONAL_DISCRETE: 4, BORDER: 96, ALIGNS: 280, BLOCKED: 596 }, 'audit totals include the Eastern Fens route');
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1994, "ALIGNS": 1570, "BORDER": 168}, 'audit totals include the Eastern Fens route');
 
     // ── 7. Inaccessible scenery: fail-closed against every placement path ──────
     assert.equal(g.run(`mapPlayerAccessible('${ID}')`), false, 'not player-accessible (scenery only)');
@@ -108,7 +108,7 @@ module.exports = {
     for (let cy = 0; cy <= 5; cy++) for (let cx = 0; cx <= 4; cx++) if (g.run(`mapIdForChunk('overworld', ${cx}, ${cy})`)) placed++;
     assert.equal(placed, 30, 'the original 5x6 envelope remains fully placed');
     const b = J("JSON.stringify(regionPixelBounds('overworld'))");
-    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [0, 20, -7, 7], 'region extent includes the Eastern Fens threshold');
+    assert.deepEqual([b.minChunkX, b.maxChunkX, b.minChunkY, b.maxChunkY], [-8, 30, -15, 12], 'region extent includes the Eastern Fens threshold');
     assert.equal(g.run('SAVE_VERSION'), 5, 'SAVE_VERSION === 5');
   },
 };

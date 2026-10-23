@@ -999,6 +999,7 @@ const _REGIONAL_CHUNK_DEFINITIONS = [].concat(
   SOUTHERN_MORAINE_REGIONAL_CHUNK_DEFINITIONS,
   EASTERN_SHORE_ENVELOPE_CHUNK_DEFINITIONS,
   SOUTHERN_MORAINE_ENVELOPE_CHUNK_DEFINITIONS,
+  MAINLAND_REGIONAL_CHUNK_DEFINITIONS,
 );
 window._REGIONAL_CHUNK_DEFINITIONS = _REGIONAL_CHUNK_DEFINITIONS;
 
@@ -1834,6 +1835,8 @@ for (const cell of window.SUNKEN_GALLERY_GRID_CELLS) {
 // registers normally.
 MAP_CATALOG['SUNKEN_GALLERY_R0C3'].items = SUNKEN_GALLERY_MIMIC_ITEMS;
 MAP_CATALOG['SUNKEN_GALLERY_R0C3'].notes = 'A blank room near the far corner of the Sunken Gallery 5×5 grid (maps.js), top row one in from the R0C4 corner. No inspect features of its own — it holds only one examine-only trap-potion sparkle (mid-room) that springs the scripted Mimic Potion fight, deliberately the sole sparkle in the room. Shares the entrance hall’s encounter pool and allowSave: false.';
+for (const def of MAINLAND_REGIONAL_CHUNK_DEFINITIONS)
+  MAP_CATALOG[def.mapId] = _regionalChunkCatalogEntry(def.mapId);
 window.MAP_CATALOG = MAP_CATALOG;
 
 // ─── Derived compatibility views + canonical helpers ─────────────────────────

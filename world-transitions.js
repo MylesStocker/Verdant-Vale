@@ -1751,110 +1751,1025 @@ const EDGE_TRANSITIONS = {
     west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14R0_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
   },
   VALMERE_EXPANSE_C13RN6_MAP: {
-    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C14RN6_MAP: {
-    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN5_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C14RN5_MAP: {
-    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN6_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'VALMERE_EXPANSE_C15RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C15RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                11
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C15RN5_MAP: {
-    west: [{ targetMap: 'VALMERE_EXPANSE_C14RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                11
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C13RN4_MAP: {
-    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C14RN4_MAP: {
-    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C13RN3_MAP: {
-    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C14RN3_MAP: {
-    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'VALMERE_EXPANSE_C14RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C13RN2_MAP: {
-    east: [{ targetMap: 'VALMERE_EXPANSE_C14RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                5
+            ]
+        },
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C14RN2_MAP: {
-    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C14RN1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C14RN1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                13
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
   VALMERE_EXPANSE_C13RN1_MAP: {
-    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                5
+            ]
+        },
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C14RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C14RN1_MAP: {
-    north: [{ targetMap: 'VALMERE_EXPANSE_C14RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14R0_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'VALMERE_EXPANSE_C13RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C13RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "VALMERE_EXPANSE_C14RN2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C14R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                13
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C14R0_MAP: {
-    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C14RN1_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'EASTERN_FENS_VALMERE_REVEAL_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C14RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_FENS_VALMERE_REVEAL_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                8
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C18R1_MAP: {
-    north: [{ targetMap: 'EASTERN_FENS_MORNAY_THRESHOLD_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_SHORE_C18R2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-  },
+    "north": [
+        {
+            "targetMap": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_C18R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
   EASTERN_SHORE_C18R2_MAP: {
-    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C18R1_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_SHORE_C18R3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'EASTERN_SHORE_C19R2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C18R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_C18R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
   EASTERN_SHORE_C19R2_MAP: {
-    west: [{ targetMap: 'EASTERN_SHORE_C18R2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'EASTERN_SHORE_C20R2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C19R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_C18R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_C20R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C20R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ]
+},
   EASTERN_SHORE_C20R2_MAP: {
-    west: [{ targetMap: 'EASTERN_SHORE_C19R2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C19R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
   EASTERN_SHORE_C18R3_MAP: {
-    north: [{ targetMap: 'EASTERN_SHORE_C18R2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'EASTERN_SHORE_C19R3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C17R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_C18R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
   EASTERN_SHORE_C19R3_MAP: {
-    south: [{ targetMap: 'EASTERN_SHORE_C19R4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'EASTERN_SHORE_C18R3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C19R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C19R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_C18R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                10
+            ]
+        }
+    ]
+},
   EASTERN_SHORE_C19R4_MAP: {
-    north: [{ targetMap: 'EASTERN_SHORE_C19R3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-  },
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C19R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C19R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C15R5_MAP: {
-    north: [{ targetMap: 'EASTERN_FENS_VALMERE_ROAD_TURN_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'SOUTHERN_MORAINE_C15R6_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-  },
+    "north": [
+        {
+            "targetMap": "EASTERN_FENS_VALMERE_ROAD_TURN_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C15R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                13
+            ]
+        }
+    ]
+},
   SOUTHERN_MORAINE_C14R6_MAP: {
-    east: [{ targetMap: 'SOUTHERN_MORAINE_C15R6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C13R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C14R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C14R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C15R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                7
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_C15R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ]
+},
   SOUTHERN_MORAINE_C15R6_MAP: {
-    north: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C15R5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'SOUTHERN_MORAINE_C14R6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'SOUTHERN_MORAINE_C16R6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C15R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C14R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                7
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_C14R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                11
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
   SOUTHERN_MORAINE_C16R6_MAP: {
-    south: [{ targetMap: 'SOUTHERN_MORAINE_C16R7_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'SOUTHERN_MORAINE_C15R6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'SOUTHERN_MORAINE_C17R6_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C15R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
   SOUTHERN_MORAINE_C17R6_MAP: {
-    south: [{ targetMap: 'SOUTHERN_MORAINE_C17R7_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'SOUTHERN_MORAINE_C16R6_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C17R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
   SOUTHERN_MORAINE_C16R7_MAP: {
-    north: [{ targetMap: 'SOUTHERN_MORAINE_C16R6_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-  },
+    "south": [
+        {
+            "targetMap": "MAINLAND_C16R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C16R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   SOUTHERN_MORAINE_C17R7_MAP: {
-    north: [{ targetMap: 'SOUTHERN_MORAINE_C17R6_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-  },
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C17R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                3
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ]
+},
   EASTERN_FENS_VALMERE_SHORE_W_MAP: {
     west: [{ targetMap: 'EASTERN_FENS_VALMERE_REVEAL_MAP', targetEdge: 'east', sourceRange: [9, 11] }],
     east: [{ targetMap: 'EASTERN_FENS_VALMERE_SHORE_E_MAP', targetEdge: 'west', sourceRange: [9, 11] }],
@@ -1939,8 +2854,27 @@ const EDGE_TRANSITIONS = {
     south: [{ targetMap: 'EASTERN_FENS_DRAINAGE_NW_MAP', targetEdge: 'north', sourceRange: [11, 11] }],
   },
   EASTERN_FENS_ENVELOPE_C9R4_MAP: {
-    north: [{ targetMap: 'EASTERN_FENS_DRY_RISE_MAP', targetEdge: 'south', sourceRange: [8, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "EASTERN_FENS_DRY_RISE_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                8
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ]
+},
   // Bounded NW open-fen expansion off the reedbelt (walkable, hard-pool
   // encounters enabled). The north border now opens onto the Great Fen via
   // the converted EASTERN_FENS_ENVELOPE_C7RN1_MAP/C8RN1_MAP entry chunks.
@@ -1959,145 +2893,1085 @@ const EDGE_TRANSITIONS = {
     east: [{ targetMap: 'EASTERN_FENS_REEDBELT_N_MAP', targetEdge: 'west', sourceRange: [4, 4] }],
   },
   GREAT_FEN_C1RN5_MAP: {
-    east: [{ targetMap: 'GREAT_FEN_C2RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                1
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                8
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C1RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C2RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
   GREAT_FEN_C2RN5_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C2RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C1RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C3RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C3RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C2RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C2RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C2RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C1RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
   GREAT_FEN_C3RN5_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C2RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C4RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C3RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C3RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C2RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C4RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C4RN5_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C3RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C5RN5_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C3RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C4RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C5RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C4RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
   GREAT_FEN_C5RN5_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C4RN5_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C5RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C5RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C5RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C4RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C2RN4_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C2RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C2RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C2RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C3RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
   GREAT_FEN_C3RN4_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C3RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'GREAT_FEN_C3RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C2RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C3RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C2RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C4RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C3RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
   GREAT_FEN_C4RN4_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C4RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'GREAT_FEN_C4RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C4RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C5RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C4RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C3RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C5RN4_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C5RN5_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C6RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C5RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C5RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C4RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C6RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
   GREAT_FEN_C6RN4_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C7RN4_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C7RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C5RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C6RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ]
+},
   GREAT_FEN_C7RN4_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C6RN4_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C7RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C7RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C6RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                10
+            ]
+        }
+    ]
+},
   GREAT_FEN_C3RN3_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C3RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'GREAT_FEN_C4RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C4RN3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C3RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
   GREAT_FEN_C4RN3_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C4RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C3RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C4RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C3RN3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C5RN3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                9
+            ]
+        }
+    ]
+},
   GREAT_FEN_C5RN3_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C5RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'GREAT_FEN_C5RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C4RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C4RN3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                9
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C5RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C6RN3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C5RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ]
+},
   GREAT_FEN_C6RN3_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C6RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C7RN3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C6RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C6RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                7
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C6RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C6RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C5RN3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C7RN3_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C7RN4_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C8RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C7RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C7RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C6RN3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C8RN3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C8RN3_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C9RN3_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C7RN3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C8RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C8RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C9RN3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C9RN3_MAP: {
-    south: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C8RN3_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C9RN4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C9RN2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C8RN3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C5RN2_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C5RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C6RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C6RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C5RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ]
+},
   GREAT_FEN_C6RN2_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C6RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C6RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C5RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C6RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C6RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                7
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C6RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C6RN1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C5RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C5RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C7RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
   GREAT_FEN_C7RN2_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C7RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C7RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C6RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C8RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C7RN1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
   GREAT_FEN_C8RN2_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C8RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C9RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                5
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C8RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C8RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C7RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ]
+},
   GREAT_FEN_C9RN2_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C9RN3_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'GREAT_FEN_C10RN2_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C9RN3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C8RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                5
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C10RN2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                12
+            ]
+        }
+    ]
+},
   GREAT_FEN_C10RN2_MAP: {
-    west: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C9RN2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                12
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C6RN1_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C6RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C6RN2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C7RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C7RN1_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C7RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7R0_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C6RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "west": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C6RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C7R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C8RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                4
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C7RN2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C8RN1_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    south: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8R0_MAP', targetEdge: 'north', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C7RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-    east: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'west', sourceRange: [6, 8] }],
-  },
+    "south": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C8R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C7RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                4
+            ]
+        }
+    ]
+},
   EASTERN_FENS_ENVELOPE_C9RN1_MAP: {
-    north: [{ targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'south', sourceRange: [7, 9] }],
-    west: [{ targetMap: 'EASTERN_FENS_ENVELOPE_C8RN1_MAP', targetEdge: 'east', sourceRange: [6, 8] }],
-  },
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_C9RN2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
   DRENWICK_EAST_CANAL_MAP: {
     north: [
       { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'south', sourceRange: [1, 14] },
@@ -2220,29 +4094,63 @@ const EDGE_TRANSITIONS = {
   // FEN_N_EXIT/FEN_N_ENTRANCE point crossing to a structural seam; reciprocal of
   // MAP3_N1.south. The one-tile corridor is authored geography (unchanged).
   MAP3: {
-    north: [
-      { targetMap: 'MAP3_N1', targetEdge: 'south', sourceRange: [8, 8] },
+    "north": [
+        {
+            "targetMap": "MAP3_N1",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                8
+            ]
+        }
     ],
-    // West edge: an open fen boundary with MAP2 (Eastern Reaches). The player may
-    // cross wherever the terrain on BOTH sides is permeable, so the crossing spans
-    // every walkable run of the shared shore — rows 3-5 and 8-9 (grass/reeds), plus
-    // the row-11 road. The tree/water rows between stay closed. Each segment must be
-    // fully walkable on both sides (continuous-seams fails an edge closed otherwise),
-    // so the permeable runs are listed separately. Reciprocal of MAP2.east; rows
-    // match exactly, so crossings never clamp.
-    west: [
-      { targetMap: 'MAP2', targetEdge: 'east', sourceRange: [3, 5] },
-      { targetMap: 'MAP2', targetEdge: 'east', sourceRange: [8, 9] },
-      { targetMap: 'MAP2', targetEdge: 'east', sourceRange: [11, 11] },
+    "west": [
+        {
+            "targetMap": "MAP2",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAP2",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAP2",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                11
+            ]
+        }
     ],
-    // East edge: the single row-6 PATH into MAP4 (Thornmere). MAP3's east edge is
-    // otherwise closed, so the seam is ONE tile wide (sourceRange [6,6]) — the former
-    // MAP4_EXIT/MAP4_ENTRANCE point crossing. Reciprocal of MAP4.west. Rows match
-    // exactly, so crossings never clamp.
-    east: [
-      { targetMap: 'MAP4', targetEdge: 'west', sourceRange: [6, 6] },
+    "east": [
+        {
+            "targetMap": "MAP4",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                6
+            ]
+        }
     ],
-  },
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                12
+            ]
+        }
+    ]
+},
   // West edge: rows 4-9 into Roddon Way's east edge -- the roddon ridge
   // crossing the map boundary. Deliberately clear of the Mire Entrance
   // (col 1, row 3) and the hamlet farmhouses (col 1, rows 10-12) on the
@@ -2388,6 +4296,16070 @@ const EDGE_TRANSITIONS = {
       { targetMap: 'MAP_N1', targetEdge: 'north', sourceRange: [7, 7] },
     ],
   },
+  GREAT_FEN_ENVELOPE_C3RN6_MAP: {
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C3RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C4RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C2RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1R8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C0R9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C19R11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C19R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C18R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C20R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ]
+},
+  MAINLAND_C19R10_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C19R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C20R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C19R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C18R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C18R11_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C19R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C18R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C17R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C20R11_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C19R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C20R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                7
+            ]
+        }
+    ]
+},
+  MAINLAND_C2RN12_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2RN13_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C1RN12_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3RN12_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                11
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C9RN7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C10RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C9RN8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C9RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ]
+},
+  MAINLAND_C8RN7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C10RN7_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C9RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C10RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C10RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ]
+},
+  SOUTHERN_MORAINE_ENVELOPE_C13R6_MAP: {
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C13R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                6
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C13R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C14R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  SOUTHERN_MORAINE_ENVELOPE_C13R7_MAP: {
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C13R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                6
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C13R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C14R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C13R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C6RN12_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C6RN13_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C6RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN12_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C7RN12_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C8RN5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C8RN6_MAP: {
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C8RN4_MAP: {
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C9RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C9RN4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C7RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C8RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C9RN5_MAP: {
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C9RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C28R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C7RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C0RN9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C0RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN1RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C0RN10_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C1RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                5
+            ]
+        }
+    ]
+},
+  MAINLAND_C0RN8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C0RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C0RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN1RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C1RN9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C1RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN6RN9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN6RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN6RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN6RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN7RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN5RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN6RN10_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN6RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN7RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN6RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN5RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_CN6RN8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN6RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN6RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN6RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN5RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN7RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_CN7RN9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN6RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN7RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN7RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN7RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN6RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN5RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN5RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R7_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R8_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                0
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C10R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C10R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C10R9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C10R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C10R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C9R10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C16R8_MAP: {
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C15R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C17R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C17R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_C15R8_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C16R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C14R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                5
+            ]
+        }
+    ]
+},
+  MAINLAND_C17R8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C16R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C16R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                10
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C18R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C7RN5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                11
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                15,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C7RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C7RN6_MAP: {
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C7RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C7RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                11
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C7RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                15,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C6RN5_MAP: {
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C7RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C7RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_C5RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C6RN4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ]
+},
+  MAINLAND_C10R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C10R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C10R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C10R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C10R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C10R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C10R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C10R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C10R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C10R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C10R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C9R7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C9R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3RN8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3RN9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3RN7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C3RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2RN8_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C1RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                4
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN11_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN5RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN6RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN10_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                4
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C1RN7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C1RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C1RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C1RN8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C1RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C1RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C1RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C1RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C2RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C2RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C0RN7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2RN7_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C2RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C8RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C9RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C8RN11_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C8RN9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ]
+},
+  MAINLAND_C7RN10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C9RN10_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C9RN4_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9RN5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C9RN3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C8RN4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C6RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C5RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C6RN7_MAP: {
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C5RN6_MAP: {
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C6RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C4RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C5RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C5RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C17R4_MAP: {
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C17R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C17R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                9
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C17R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C17R3_MAP: {
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C17R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_C18R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  SOUTHERN_MORAINE_ENVELOPE_C17R5_MAP: {
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C17R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                9
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C17R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C18R4_MAP: {
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C17R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_C18R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C18R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R1_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R0_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C20R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R2_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_C20R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C20R1_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C20R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_C20R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C0R8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C19R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C19R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C19R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C18R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C20R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C19R7_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C19R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C19R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                10
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C20R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C19R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C19R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C20R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C18R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C19R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C18R8_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C19R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C17R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C18R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C20R8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C19R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C20R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C20R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C4RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C4RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C3RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C5RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN7_MAP: {
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C4RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C4RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                10
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C4RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C18R5_MAP: {
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C17R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C19R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C20R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C20R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C20R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ]
+},
+  MAINLAND_C20R9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C20R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C20R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C19R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C1RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C0RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C1RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C0RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                5
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C0RN11_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C1RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C0RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN5RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN5RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN6RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN5RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN5RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN5RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN6RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN5RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_CN6RN7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN5RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN6RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN7_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN12_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN11_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP: {
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_C16R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C14R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C15R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                11
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_C15R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C15R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C15R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C7RN7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                0
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C7RN8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                0
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C7R5_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C7R6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C6R5_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C8R5_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C7R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C7R7_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C7R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C6R8_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C8R8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C0RN5_MAP: {
+    "north": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN1RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_C1RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                1
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C1RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                8
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_C1RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                11
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C0RN6_MAP: {
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C1RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN5_MAP: {
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C6R6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C5R5_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                12
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C18R10_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C18R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C18R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C17R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                10
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C19R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C17R11_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C18R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C17R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                11
+            ]
+        }
+    ]
+},
+  SOUTHERN_MORAINE_ENVELOPE_C18R6_MAP: {
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C19R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_C19R6_MAP: {
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C18R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                13
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C19R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C19R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                10
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C20R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ]
+},
+  SOUTHERN_MORAINE_ENVELOPE_C14R7_MAP: {
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C14R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_C14R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C14R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C13R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C15R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C14R8_MAP: {
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C14R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C13R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C13R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C15R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                5
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C14R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C2R9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ]
+},
+  MAINLAND_C1R10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                4
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C3R10_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C20RN1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C20R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_C20R0_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C20RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C20R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R10_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN13_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN14_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN14_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                8
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN12_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3RN13_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN13_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C5RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C6RN8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        }
+    ]
+},
+  MAINLAND_C2R8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C1R9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        }
+    ]
+},
+  MAINLAND_C3R9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                5
+            ]
+        }
+    ]
+},
+  MAINLAND_C5R6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4R6_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                10
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                0
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R7_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C1RN13_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C8R11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C8R10_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C9R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C7R11_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C9R5_MAP: {
+    "north": [
+        {
+            "targetMap": "EASTERN_FENS_ENVELOPE_C9R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                9
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C10R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C9R6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C10R5_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C9R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C10R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C8R6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C8R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C9R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN12_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN5RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN5RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN5RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN6RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN13_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN5RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN5RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN6RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN6RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN5RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN5RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN5RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN6RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN4RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN6RN12_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN5RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN7RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN6RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN6RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN6RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN12_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R2_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R3_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R2_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R2_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAP3",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C1R7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3R7_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                8
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN5_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN5_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                8
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R4_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R3_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R3_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C19R5_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C19R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C18R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                10
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C20R6_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C19R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C20R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_CN7RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN7RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN7RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN6RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN7RN12_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN7RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN6RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN7RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN7RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN7RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN7RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN6RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN6RN11_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN7RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN5RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN6RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN6RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN6RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C8R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C9R8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C9R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C20R4_MAP: {
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                9
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C20R3_MAP: {
+    "south": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                9
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_C19R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C19R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                10
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_C20R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "EASTERN_SHORE_C20R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ]
+},
+  EASTERN_SHORE_ENVELOPE_C20R5_MAP: {
+    "north": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C20R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C19R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R4_MAP: {
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN7_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN6_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN6_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C3R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                11
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                15,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN12_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                15,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN13_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                15,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN4RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN1RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C0RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4R9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                10
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4R11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C5R10_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R10_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C6RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R6_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R6_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C16R9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C16R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C17R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C16R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C16R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C17R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C15R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C17R9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C16R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C18R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                5
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C17R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                5
+            ]
+        }
+    ]
+},
+  MAINLAND_C22RN1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R0_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                7,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C23RN1_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN13_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN14_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN14_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  GREAT_FEN_ENVELOPE_C2RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C1RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C1RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "GREAT_FEN_ENVELOPE_C3RN6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "GREAT_FEN_C2RN5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  SOUTHERN_MORAINE_ENVELOPE_C18R7_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C18R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                3
+            ]
+        },
+        {
+            "targetMap": "SOUTHERN_MORAINE_C17R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C19R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C18R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C18R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C18R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C18R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C17R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                5
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C19R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                11
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C2RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C3RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN11_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3RN11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C20R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C20R7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C20R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C20R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C19R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C19R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_CN7RN8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN7RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN6RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C6RN9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN3RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5R9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                3
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4R8_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                10,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C28R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C29R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R7_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R11_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_C29R1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C29R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C28R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C29R2_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C29R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C28R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R1_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C29R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R4_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                10
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C17R10_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C17R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                11
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C17R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                5
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C16R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C18R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R2_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C28R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R3_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R2_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                8
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C29R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C28R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C29R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C29R7_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C28R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C29R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R3_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C21R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                9,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R2_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C20R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C20R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C20R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C20R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                7
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C19R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C21R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R4_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R5_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                13
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                12,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                7,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R3_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R2_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R2_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R3_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R2_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C1R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C1R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C0R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C25R0_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                2
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C25RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C26R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R1_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R1_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                9,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R0_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C24RN1_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25RN1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C10RN8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C10RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C4RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN10_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                11
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                15,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN4RN8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN5RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN4RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN4RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN3RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C7R10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C8R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C9R9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C10R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C8RN8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C8RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C7RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C9RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C8RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C7RN9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C8RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C7RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C6RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C7RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C9RN9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C8RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C9RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C9RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C23R2_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R0_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R1_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R3_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                5
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C22R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                8,
+                9
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R3_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R8_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C26R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                3
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                9
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R4_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                8
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C22R5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C22R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C23R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C22R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C21R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R4_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5RN14_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4RN14_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                8
+            ]
+        }
+    ]
+},
+  MAINLAND_C13R8_MAP: {
+    "north": [
+        {
+            "targetMap": "SOUTHERN_MORAINE_ENVELOPE_C13R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C14R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C14R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C25RN1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C25R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C24RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24RN1_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R0_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                7
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C24RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C26R0_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C25R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C27R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C26R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                8
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN1RN8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                10,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C0R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                1,
+                4
+            ]
+        }
+    ]
+},
+  MAINLAND_C4R7_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C4R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C4R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C4R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C3R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C5R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN14_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                1,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN14_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                6
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN13_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                1,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN14_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN14_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                6
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                11,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN14_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2RN10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2RN11_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2RN9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1RN10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3RN10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C2RN9_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C2RN10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C2RN8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C1RN9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C3RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3RN9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C1R6_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C1R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C2R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C0R7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C3R8_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C3R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C3R9_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                5,
+                5
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C2R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C4R8_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R3_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R2_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                4,
+                8
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R4_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R3_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                7,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R4_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ]
+},
+  MAINLAND_CN3RN14_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN3RN13_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN2RN14_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN4RN14_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN2RN13_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN3RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN3RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN2RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                6,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN2RN14_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                11
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN2RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN1RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C6R10_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                1
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C7R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                6,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6R11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5R10_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C6R9_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                9
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C6R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                14,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R0_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C28RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C28RN1_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                13,
+                13
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C28RN1_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C28R0_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                13
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R0_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R0_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R1_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R0_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C28R5_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C28R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                6,
+                13
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C27R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                12,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R6_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R6_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                4
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C26R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                13,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C29R8_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C28R8_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                7
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C29R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C0RN13_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN13_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                11,
+                14
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C0RN12_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C0RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C1RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C0RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C0RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                13,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN1RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C27R4_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C28R4_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C27R5_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C27R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C27R3_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                11,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C26R4_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                4
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                1
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C24R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                5,
+                10
+            ]
+        }
+    ]
+},
+  MAINLAND_C23R6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C23R5_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C23R7_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C22R6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C24R5_MAP: {
+    "west": [
+        {
+            "targetMap": "MAINLAND_C23R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                5,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C24R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C24R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                5,
+                10
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C25R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                3,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C25R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                14,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN12_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                3,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0RN11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN1RN12_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN1RN11_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_CN1RN13_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C0RN12_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_CN2RN12_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C21R5_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C21R4_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C22R5_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                14
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "EASTERN_SHORE_ENVELOPE_C20R5_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                10
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C21R6_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                10,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C6R7_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7R7_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_C6R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6R6_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5R7_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                1,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_CN6RN13_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_CN5RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                2,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_CN5RN13_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                8,
+                14
+            ]
+        }
+    ],
+    "south": [
+        {
+            "targetMap": "MAINLAND_CN6RN12_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                15
+            ]
+        }
+    ]
+},
+  MAINLAND_C6R11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C6R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                15
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C7R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C5R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C10RN6_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C10RN7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C9RN6_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                6
+            ]
+        }
+    ]
+},
+  MAINLAND_C15R10_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C15R9_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                2,
+                6
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C16R10_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                7,
+                11
+            ]
+        }
+    ]
+},
+  MAINLAND_C15R9_MAP: {
+    "south": [
+        {
+            "targetMap": "MAINLAND_C15R10_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                2,
+                6
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C14R9_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                4,
+                12
+            ]
+        }
+    ]
+},
+  MAINLAND_C14R9_MAP: {
+    "east": [
+        {
+            "targetMap": "MAINLAND_C15R9_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                4,
+                12
+            ]
+        }
+    ],
+    "north": [
+        {
+            "targetMap": "MAINLAND_C14R8_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                3,
+                14
+            ]
+        }
+    ]
+},
+  MAINLAND_C5R11_MAP: {
+    "north": [
+        {
+            "targetMap": "MAINLAND_C5R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                0,
+                2
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                9,
+                10
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C5R10_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                12,
+                15
+            ]
+        }
+    ],
+    "west": [
+        {
+            "targetMap": "MAINLAND_C4R11_MAP",
+            "targetEdge": "east",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ],
+    "east": [
+        {
+            "targetMap": "MAINLAND_C6R11_MAP",
+            "targetEdge": "west",
+            "sourceRange": [
+                0,
+                11
+            ]
+        }
+    ]
+},
 };
 window.EDGE_TRANSITIONS = EDGE_TRANSITIONS;
 

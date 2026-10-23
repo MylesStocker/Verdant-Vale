@@ -11,329 +11,521 @@
 // None of the six protected Mornay peninsula grids are touched.
 
 const EASTERN_SHORE_REGIONAL_CHUNK_DEFINITIONS = [
-  { mapId: 'EASTERN_SHORE_C18R2_MAP', regionId: 'overworld', chunkX: 18, chunkY: 2, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 3
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,129,128,  1,  1], // 5
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  0,  0], // 6
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  0,  0], // 7
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  0,  0], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,128,  1,  1], // 9
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 10
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 11
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Storm Shingle', region: 'Eastern Shore', contentKey: 'eastern_shore_18_2',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Eastern Shore walkable wilderness; hard-pool encounters active immediately.' },
-  { mapId: 'EASTERN_SHORE_C19R2_MAP', regionId: 'overworld', chunkX: 19, chunkY: 2, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
-      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81, 88,  0,  0,  1], // 4
-      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 5
-      [  0,  0,  0, 81,  0,  0, 81,  0, 88, 81,  0,  0,  0,  0,  0,  0], // 6
-      [  0,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0], // 7
-      [  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,128,  0,  0,  0], // 8
-      [  1,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  0,  1], // 9
-      [  1,  0,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  1], // 10
-      [  1,  0,  0,  0, 81,  0,  0, 81,  0,  0, 81,  0,  0,  0,  0,  1], // 11
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Clay Bank', region: 'Eastern Shore', contentKey: 'eastern_shore_19_2',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Eastern Shore walkable wilderness; hard-pool encounters active immediately.' },
-  { mapId: 'EASTERN_SHORE_C20R2_MAP', regionId: 'overworld', chunkX: 20, chunkY: 2, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,120,  0,  3,  0,  0,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,119,  0,  1], // 5
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,119,  0,  1], // 6
-      [  0,  0,  0,  0,  0,  0,  0,  0, 81,  0,  0,  0,  0,119,  0,  1], // 7
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,119,  0,  1], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,119,  0,  1], // 9
-      [  1,  0,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 10
-      [  1,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 11
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Wind-Shaped Woodland', region: 'Eastern Shore', contentKey: 'eastern_shore_20_2',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Eastern Shore walkable wilderness; hard-pool encounters active immediately.' },
-  { mapId: 'EASTERN_SHORE_C18R3_MAP', regionId: 'overworld', chunkX: 18, chunkY: 3, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,129,  0,  0,  0,  0,  0,  0,  0,  1], // 5
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 6
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 7
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], // 8
-      [  1,  0,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  0,  1], // 9
-      [  1,  0,  0, 23, 23, 23, 23,127, 23, 23, 23, 23, 23,  0,  0,  1], // 10
-      [  1,  0,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  0,  1], // 11
-      [  1,  0,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Sheltered Cove', region: 'Eastern Shore', contentKey: 'eastern_shore_18_3',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Eastern Shore walkable wilderness; hard-pool encounters active immediately.' },
-  { mapId: 'EASTERN_SHORE_C19R3_MAP', regionId: 'overworld', chunkX: 19, chunkY: 3, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 3
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,129,128,  1,  1], // 5
-      [  0,  0,  0,  0,  0,  0,  0,128,  0,  0,  0,  0,  0,128,  1,  1], // 6
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 7
-      [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 8
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 88,128,  1,  1], // 9
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 10
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 11
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,  1,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Storm Shingle', region: 'Eastern Shore', contentKey: 'eastern_shore_19_3',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Eastern Shore walkable wilderness; hard-pool encounters active immediately.' },
-  { mapId: 'EASTERN_SHORE_C19R4_MAP', regionId: 'overworld', chunkX: 19, chunkY: 4, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 1
-      [  1,  0,  0,  0,128,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 2
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 3
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 4
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 5
-      [  1,  0,  0,  0,  0,  0,129,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 6
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 7
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 8
-      [  1,  0,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  0,  1], // 9
-      [  1,  0,  0, 23, 23, 23, 23,127, 23, 23, 23, 23, 23,  0,  0,  1], // 10
-      [  1,  0,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  0,  1], // 11
-      [  1,  0,  0, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,  0,  0,  1], // 12
-      [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Sheltered Cove', region: 'Eastern Shore', contentKey: 'eastern_shore_19_4',
-    presentation: 'continuous', encounterProfileId: 'eastern_fens_mornay_hard', allowRandomEncounters: true, allowSave: true,
-    notes: 'Eastern Shore walkable wilderness; hard-pool encounters active immediately.' },
+  {
+  "mapId": "EASTERN_SHORE_C18R2_MAP",
+  "regionId": "overworld",
+  "chunkX": 18,
+  "chunkY": 2,
+  "displayName": "Eastern Shore — Storm Shingle",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_18_2",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [3,3,0,0,0,23,23,23,23,23,23,23,0,0,0,0],
+    [3,3,0,0,0,0,0,23,23,23,23,23,0,0,0,0],
+    [3,3,0,0,0,0,0,0,23,23,23,0,0,0,0,0],
+    [3,3,0,0,0,0,0,0,0,0,0,0,0,23,23,23],
+    [3,3,3,0,0,0,0,0,0,0,0,0,23,23,23,23],
+    [3,3,3,0,0,0,0,0,0,0,0,0,23,23,88,88],
+    [3,3,3,0,0,0,0,0,0,0,0,0,23,23,128,128],
+    [3,3,3,0,0,0,0,0,0,0,0,0,23,23,128,128],
+    [3,3,0,0,0,0,0,0,0,0,0,0,23,23,23,128],
+    [3,3,3,0,0,0,0,0,23,23,23,23,23,23,23,23],
+    [3,3,0,0,0,0,23,23,23,23,23,23,23,23,23,0],
+    [3,3,3,23,23,23,23,23,23,128,23,23,23,23,0,0],
+    [3,3,3,23,23,88,88,88,128,128,128,128,23,0,0,0],
+    [3,3,3,88,88,88,88,88,128,128,128,128,23,0,0,0],
+    [3,3,3,128,128,128,128,128,128,128,128,128,23,0,0,0]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_C19R2_MAP",
+  "regionId": "overworld",
+  "chunkX": 19,
+  "chunkY": 2,
+  "displayName": "Eastern Shore — Clay Bank",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_19_2",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,23,23,23],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [23,23,23,23,0,0,0,0,0,3,3,3,3,3,0,0],
+    [88,88,128,128,23,0,0,0,3,3,3,3,3,3,0,0],
+    [88,88,88,128,128,23,0,0,3,3,3,3,3,3,0,0],
+    [88,88,128,128,128,23,0,0,3,3,3,3,3,3,3,3],
+    [128,128,128,128,128,23,0,0,3,3,3,3,3,3,3,3],
+    [128,128,128,128,23,0,0,0,3,3,3,3,3,0,0,0],
+    [23,23,23,23,23,0,0,0,3,3,3,3,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,3,3,3,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_C20R2_MAP",
+  "regionId": "overworld",
+  "chunkX": 20,
+  "chunkY": 2,
+  "displayName": "Eastern Shore — Wind-Shaped Woodland",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_20_2",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [23,88,88,88,128,128,128,128,23,23,23,0,0,0,0,0],
+    [23,23,88,88,88,88,128,128,23,23,23,23,23,23,23,23],
+    [0,23,23,88,88,88,128,128,23,23,23,23,23,23,23,23],
+    [0,0,23,88,88,128,128,128,128,23,23,23,23,23,23,23],
+    [0,0,23,88,128,128,128,128,128,128,128,128,128,23,128,128],
+    [0,0,23,88,128,128,128,128,128,128,128,128,128,128,128,128],
+    [0,0,23,88,128,128,128,128,128,128,128,128,128,128,128,128],
+    [0,0,23,23,128,128,128,128,128,128,128,128,128,128,128,128],
+    [0,0,23,23,23,23,23,23,23,23,23,23,23,23,23,23],
+    [0,0,0,23,23,23,23,23,23,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_C18R3_MAP",
+  "regionId": "overworld",
+  "chunkX": 18,
+  "chunkY": 3,
+  "displayName": "Eastern Shore — Sheltered Cove",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_18_3",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [128,128,128,128,128,128,128,128,88,88,88,128,23,0,0,0],
+    [128,128,128,128,128,128,128,128,88,88,88,128,23,0,0,0],
+    [128,128,128,128,128,128,128,128,88,88,88,23,23,0,0,0],
+    [128,128,128,128,128,23,23,23,23,23,23,0,0,0,0,0],
+    [128,128,128,128,23,23,0,0,0,0,0,0,0,0,0,0],
+    [128,128,128,128,23,0,0,0,0,0,0,0,0,0,0,0],
+    [128,128,128,23,0,0,0,0,3,3,3,3,0,0,0,0],
+    [128,128,128,23,0,0,0,3,3,3,3,3,3,0,0,0],
+    [88,128,128,23,0,0,3,3,3,3,3,3,3,3,0,0],
+    [88,88,88,23,0,0,3,3,3,3,3,3,3,3,0,0],
+    [88,88,88,23,0,0,3,3,3,3,3,3,3,0,0,0],
+    [88,88,88,23,0,0,3,3,3,3,3,3,3,0,0,0],
+    [88,88,23,0,0,0,3,3,3,3,3,3,3,3,0,0],
+    [88,23,23,0,0,0,3,3,3,3,3,3,3,3,0,0],
+    [23,23,0,0,0,0,3,3,3,3,3,3,3,3,0,0]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_C19R3_MAP",
+  "regionId": "overworld",
+  "chunkX": 19,
+  "chunkY": 3,
+  "displayName": "Eastern Shore — Storm Shingle",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_19_3",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3],
+    [0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,0,0,3,3,3,3,3,3,3,0,0],
+    [0,0,0,0,0,0,0,0,3,3,3,3,3,3,0,3],
+    [0,0,0,0,0,0,0,0,3,3,3,3,3,3,0,3],
+    [0,0,0,0,0,0,0,0,0,3,3,3,0,0,0,3],
+    [0,0,0,0,0,0,0,0,0,3,3,3,0,0,0,3]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_C19R4_MAP",
+  "regionId": "overworld",
+  "chunkX": 19,
+  "chunkY": 4,
+  "displayName": "Eastern Shore — Sheltered Cove",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_19_4",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "playerAccessible": true,
+  "map": [
+    [0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [3,3,3,3,3,3,0,0,0,0,0,0,0,0,3,3],
+    [3,3,3,3,3,3,3,0,0,0,0,0,0,0,3,3],
+    [3,3,3,3,3,3,3,3,3,0,3,0,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,0]
+  ]
+},
 ];
 
-// Eastern Shore envelope: scenery-only framing closing the zero-visible-
-// void camera envelope around the irregular walkable spine.
+// Historical Eastern Shore envelope IDs now join the broader eastern mainland.
+// Individual access metadata distinguishes explorable woodland from framing.
 const EASTERN_SHORE_ENVELOPE_CHUNK_DEFINITIONS = [
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C17R2_MAP', regionId: 'overworld', chunkX: 17, chunkY: 2, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1], // 6
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1,  1], // 9
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_17_2',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C20R1_MAP', regionId: 'overworld', chunkX: 20, chunkY: 1, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1], // 9
-      [  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 81,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_20_1',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C20R3_MAP', regionId: 'overworld', chunkX: 20, chunkY: 3, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 81,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,127,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 9
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_20_3',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C17R3_MAP', regionId: 'overworld', chunkX: 17, chunkY: 3, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1, 81,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,  1, 81,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 9
-      [  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_17_3',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C20R4_MAP', regionId: 'overworld', chunkX: 20, chunkY: 4, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 9
-      [  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 81,  1], // 10
-      [  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_20_4',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C18R4_MAP', regionId: 'overworld', chunkX: 18, chunkY: 4, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,121,  1,  1, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1], // 9
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 81,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_18_4',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C17R4_MAP', regionId: 'overworld', chunkX: 17, chunkY: 4, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 81,  1,  1], // 1
-      [  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1,  1, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1, 81,  1,  1,127,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 9
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_17_4',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C19R5_MAP', regionId: 'overworld', chunkX: 19, chunkY: 5, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1,  1, 23,  1,  1,121,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 9
-      [  1,  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_19_5',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C20R5_MAP', regionId: 'overworld', chunkX: 20, chunkY: 5, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1,  1,120,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,120,  1,  1, 23,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,  1,  1, 81,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 8
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,120,  1,  1], // 9
-      [  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 81,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_20_5',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
-  { mapId: 'EASTERN_SHORE_ENVELOPE_C18R5_MAP', regionId: 'overworld', chunkX: 18, chunkY: 5, map: [
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 0
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 1
-      [  1,  1,  1,  1,  1,  1, 23,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 2
-      [  1,  1,  1,  1,  1,  1,  1,  1,121,  1,  1,  1,  1,  1,  1,  1], // 3
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 4
-      [  1, 81,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 5
-      [  1,  1,  1,127,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 6
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 7
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 23,  1,  1], // 8
-      [  1,121,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 9
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 10
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 11
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,127,  1,  1,  1,  1,  1], // 12
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 13
-      [  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1], // 14
-    ],
-    displayName: 'Eastern Shore — Framing', region: 'Eastern Shore', contentKey: 'eastern_shore_env_18_5',
-    presentation: 'continuous', encounterProfileId: 'far', allowRandomEncounters: false, allowSave: false, playerAccessible: false,
-    notes: 'Scenery-only framing chunk closing the Eastern Shore\'s zero-visible-void camera envelope (playerAccessible: false; no seam/transition; fail-closed at the placement authority). No encounters, items, NPCs, interactions, quest triggers, or save state.' },
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C17R2_MAP",
+  "regionId": "overworld",
+  "chunkX": 17,
+  "chunkY": 2,
+  "displayName": "Eastern Shore — Framing",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_17_2",
+  "presentation": "continuous",
+  "encounterProfileId": "far",
+  "allowRandomEncounters": false,
+  "allowSave": false,
+  "playerAccessible": false,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [23,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [128,128,23,23,23,23,23,23,0,0,0,0,0,0,0,0],
+    [128,128,128,128,23,23,23,23,23,0,0,0,0,0,0,3],
+    [128,128,128,128,23,23,23,23,23,0,0,0,0,0,3,3],
+    [88,88,128,128,23,23,23,23,23,0,0,0,0,0,0,3],
+    [88,88,23,23,23,23,0,0,0,0,0,0,0,0,0,0],
+    [23,23,23,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,3,3,3,3,3,0,0,0,0,0,23,23],
+    [0,0,3,3,3,3,3,3,3,3,0,0,0,0,23,128],
+    [3,0,3,3,3,3,3,3,3,3,0,0,0,23,23,128]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C20R1_MAP",
+  "regionId": "overworld",
+  "chunkX": 20,
+  "chunkY": 1,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_20_1",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [23,128,128,88,88,88,88,128,128,128,128,128,88,88,88,88],
+    [23,128,128,88,88,88,88,128,128,128,128,128,88,88,88,88],
+    [88,88,88,88,88,88,128,128,128,128,128,128,88,88,88,128],
+    [88,88,88,88,128,128,128,128,128,128,128,128,88,88,88,128],
+    [88,88,88,88,128,128,128,128,128,128,128,128,88,88,88,128],
+    [88,88,88,128,128,128,128,128,128,128,128,128,88,88,88,128],
+    [128,128,128,128,128,128,128,128,128,128,128,128,88,88,88,23],
+    [128,128,128,128,128,128,128,128,128,128,128,128,88,88,88,23],
+    [128,128,128,128,128,128,128,128,128,128,128,23,23,23,23,23],
+    [128,128,128,128,128,128,128,128,128,23,23,23,23,23,23,0],
+    [128,128,128,128,128,128,128,128,23,23,23,0,0,0,0,0],
+    [128,128,128,128,128,128,128,23,23,23,0,0,0,0,0,0],
+    [128,128,128,128,128,128,128,23,23,23,0,0,0,0,0,0],
+    [128,128,128,128,128,128,128,23,23,23,0,0,0,0,0,0],
+    [128,88,88,128,128,128,128,23,23,23,23,0,0,0,0,0]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C20R3_MAP",
+  "regionId": "overworld",
+  "chunkX": 20,
+  "chunkY": 3,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_20_3",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [0,0,0,0,0,0,0,0,3,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3],
+    [0,0,0,0,0,0,0,3,3,3,3,3,0,0,0,3],
+    [0,0,0,0,3,3,3,3,3,3,3,3,0,0,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,0,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,3,3,3],
+    [3,3,3,3,3,3,3,3,3,0,3,3,0,0,0,3],
+    [3,3,3,3,3,3,3,3,3,3,3,0,0,0,0,0],
+    [3,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0],
+    [0,0,3,3,3,3,3,3,3,3,3,0,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,0,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,0,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,0,0,3,0,0,0,0]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C17R3_MAP",
+  "regionId": "overworld",
+  "chunkX": 17,
+  "chunkY": 3,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_17_3",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,0,23,128,3],
+    [3,3,3,3,3,3,3,3,3,3,0,0,0,23,128,128],
+    [3,3,3,3,3,3,3,3,3,3,3,0,0,23,128,128],
+    [3,3,3,3,3,3,3,3,3,0,3,0,0,23,128,128],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,23,128,128],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,23,128,128],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,23,88,88],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,23,88,88],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,23,88,88],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,23,88,88],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,23,23,88],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0,23,23,23],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0,23,23,23]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C20R4_MAP",
+  "regionId": "overworld",
+  "chunkX": 20,
+  "chunkY": 4,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_20_4",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [3,3,3,3,3,3,3,3,3,0,3,3,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,0,3,3,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,3,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,3,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,0,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,3,0,0,0,0,0,0],
+    [3,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0],
+    [3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0],
+    [3,3,3,3,3,3,3,0,0,0,0,23,23,23,23,23],
+    [3,3,3,3,3,3,0,0,0,0,23,128,128,128,128,128],
+    [3,3,3,3,3,0,0,0,0,23,88,88,88,88,88,88],
+    [3,0,0,0,0,0,0,0,0,23,88,88,88,88,88,88],
+    [3,0,0,0,0,0,0,0,0,23,88,88,88,88,88,88],
+    [0,0,0,0,0,0,0,0,0,23,88,88,88,88,88,128],
+    [0,0,0,0,0,0,0,0,23,23,88,88,88,128,128,128]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C18R4_MAP",
+  "regionId": "overworld",
+  "chunkX": 18,
+  "chunkY": 4,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_18_4",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [0,0,0,0,0,3,3,3,3,3,3,3,3,3,0,0],
+    [0,0,0,0,0,3,3,3,3,3,3,3,3,3,0,0],
+    [0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3],
+    [0,0,0,0,0,0,0,3,3,3,3,3,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C17R4_MAP",
+  "regionId": "overworld",
+  "chunkX": 17,
+  "chunkY": 4,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_17_4",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,3,3,0,0,0,23,23,23,23,23,23,0,0,0,0],
+    [3,3,0,0,0,23,23,88,88,23,23,23,23,0,0,0],
+    [3,3,3,0,0,23,88,88,88,128,23,23,23,0,0,0],
+    [3,3,3,0,0,23,23,88,88,23,23,23,0,0,0,0],
+    [3,3,0,0,0,0,23,23,23,23,23,0,0,0,0,0],
+    [3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,3,3,3,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,3,3,3,3,3,3,0,0],
+    [3,3,3,3,0,0,0,0,3,3,3,3,3,3,0,0],
+    [3,3,3,3,0,0,0,0,3,3,3,3,3,3,0,0],
+    [3,3,0,0,0,0,0,0,0,0,3,3,3,0,0,0],
+    [3,3,0,0,0,0,0,0,0,0,3,3,3,0,0,0]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C19R5_MAP",
+  "regionId": "overworld",
+  "chunkX": 19,
+  "chunkY": 5,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_19_5",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,0],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,0,0,0],
+    [0,0,0,0,0,0,0,3,3,3,3,3,3,0,0,0],
+    [0,0,0,0,0,0,0,0,3,3,3,3,3,0,0,0],
+    [0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0],
+    [0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,3,3,3,3,0,0,0,0,23,23,23,23,23,23],
+    [3,0,3,3,3,3,0,0,0,23,128,88,88,88,23,23],
+    [3,0,3,3,3,3,0,0,23,128,128,88,88,88,88,23],
+    [3,3,3,3,3,3,0,0,23,88,88,88,88,88,88,88]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C20R5_MAP",
+  "regionId": "overworld",
+  "chunkX": 20,
+  "chunkY": 5,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_20_5",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [0,0,0,0,0,0,0,0,23,23,88,88,88,128,128,128],
+    [0,0,0,0,0,0,0,23,23,23,88,88,88,128,128,128],
+    [0,0,0,23,23,23,23,23,23,88,88,88,88,88,128,128],
+    [0,0,23,23,23,23,23,128,128,128,128,128,88,88,88,88],
+    [0,23,23,128,128,128,128,128,128,128,128,23,23,23,23,23],
+    [0,23,128,128,128,128,128,128,128,128,23,23,23,23,23,23],
+    [0,23,128,128,128,128,128,128,128,128,23,23,23,23,23,23],
+    [0,23,128,128,128,128,128,128,128,128,23,23,23,23,23,23],
+    [23,23,128,128,128,128,128,128,23,23,23,0,0,0,0,0],
+    [23,23,23,128,128,128,128,23,23,0,0,0,0,0,0,0],
+    [23,23,23,23,23,23,23,23,0,0,0,0,0,0,0,0],
+    [23,23,23,23,23,23,0,0,0,0,0,0,3,3,3,3],
+    [23,23,0,0,0,0,0,0,0,0,3,3,3,3,3,3],
+    [23,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3],
+    [23,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3]
+  ]
+},
+  {
+  "mapId": "EASTERN_SHORE_ENVELOPE_C18R5_MAP",
+  "regionId": "overworld",
+  "chunkX": 18,
+  "chunkY": 5,
+  "displayName": "Eastern Shore — Shore Woods",
+  "region": "Eastern Shore",
+  "contentKey": "eastern_shore_env_18_5",
+  "presentation": "continuous",
+  "encounterProfileId": "eastern_fens_mornay_hard",
+  "allowRandomEncounters": true,
+  "allowSave": true,
+  "playerAccessible": true,
+  "notes": "Regional mainland refinement; existing identity and placement retained.",
+  "map": [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [23,23,23,23,23,23,23,23,0,0,0,0,0,0,0,0],
+    [23,23,23,23,23,23,23,23,23,23,23,0,0,0,0,0],
+    [88,23,23,23,23,23,23,23,23,23,23,0,0,0,0,0],
+    [23,23,23,23,23,23,23,23,23,23,23,23,0,0,0,0],
+    [23,23,23,23,23,23,23,23,23,23,23,23,0,0,0,0],
+    [0,0,0,0,23,23,23,23,23,128,23,23,23,0,0,0],
+    [0,0,0,0,0,23,23,128,128,128,128,23,23,0,0,0],
+    [0,0,0,0,0,23,23,88,128,128,128,128,23,0,0,0],
+    [3,3,0,0,0,0,23,88,128,128,128,128,23,0,0,0],
+    [3,3,3,0,0,0,23,88,128,128,128,128,23,0,0,3],
+    [3,3,3,3,0,0,88,88,88,88,88,128,23,0,0,3]
+  ]
+},
 ];
