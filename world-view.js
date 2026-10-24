@@ -217,6 +217,23 @@ function _continuousPlanCore(regionId, activeMapId, placement, worldPxX, worldPx
   const exclusion = resolveLegacyCameraExclusion(regionId, activeMapId);
   const cam = continuousCameraOrigin(regionId, worldPxX, worldPxY, viewportPxW, viewportPxH, exclusion);
   if (!cam) return null;
+  // Closed early-region edges can retain their original framing even though
+  // the authored continent now continues beyond them. Presentation only: no
+  // change to collision, regional position, seams or the global camera bounds.
+  const edges = REGIONAL_CHUNK_CATALOG[activeMapId].cameraClampEdges;
+  if (edges !== undefined) {
+    if (!Array.isArray(edges) || !edges.length || edges.length > 4) return null;
+    const left = placement.chunkX * _chunkWidthPx(), top = placement.chunkY * _chunkHeightPx();
+    for (const edge of edges) {
+      switch (edge) {
+        case 'west': cam.camPxX = Math.max(cam.camPxX, left); break;
+        case 'east': cam.camPxX = Math.min(cam.camPxX, left + _chunkWidthPx() - viewportPxW); break;
+        case 'north': cam.camPxY = Math.max(cam.camPxY, top); break;
+        case 'south': cam.camPxY = Math.min(cam.camPxY, top + _chunkHeightPx() - viewportPxH); break;
+        default: return null; // malformed policy fails to the existing local view
+      }
+    }
+  }
   let chunks = visibleChunks(regionId, cam.camPxX, cam.camPxY, viewportPxW, viewportPxH);
   // Belt-and-suspenders: a legacy_screen chunk other than the active map is never a
   // continuous neighbour (the camera already avoids its area; this guarantees it).

@@ -1,0 +1,67 @@
+{
+  "source": "Working tree based on fb6c65f; seven-cell water closure and four camera policies",
+  "method": "Automated Chromium production Canvas/DOM keyboard review plus visual inspection; not a human playthrough",
+  "checks": 130,
+  "captures": [
+    {
+      "file": "northern-road-west-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "32b138b57fb392567226d6937a8ece7c5250177e19ae5669c8492fc62557cdea"
+    },
+    {
+      "file": "northern-road-west-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "4f386d9f3afd6b0b20c5031608657a683fbf545e74da74061494d1515e3a4f5f"
+    },
+    {
+      "file": "blocked-path-west-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "135c364a11967207a025578d566ca36fded73e0a609493ce3708902495afdfaf"
+    },
+    {
+      "file": "blocked-path-west-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "57587fa1ae54f0c20b8c8f9d065498495787ae428ba7d952489dfffba30fd1cd"
+    },
+    {
+      "file": "eastern-reaches-south-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "f69a9d222fa02fbdb88dccda67e1f6e1500c4f052388f2392e67798a4a4b790d"
+    },
+    {
+      "file": "eastern-reaches-south-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "dfd84a039a0ae569e70fcfb4cf29d274300e735290dff4a081ab4ed15c47fa2b"
+    },
+    {
+      "file": "thornmere-fen-south-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "69209af50692e00a84fec84eecb2260bc984c1a809055d3e23cad54450aadfcb"
+    },
+    {
+      "file": "thornmere-fen-south-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "7ecde2a9ab8843588975b4c3004b5baf2ee3055cfac46b0cd98dc4c59956b0de"
+    },
+    {
+      "file": "thornmere-water-barrier-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "6402b9472a9f42d095db5669aaf95bb55484a6c64aca37bae2eb7d80cb779611"
+    },
+    {
+      "file": "thornmere-water-barrier-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "e6491a997046c8c68bb053c4a51f3a223c272e75ccf549d80b47d70929f0bd3f"
+    }
+  ]
+}

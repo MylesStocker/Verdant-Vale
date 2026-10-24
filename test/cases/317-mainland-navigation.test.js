@@ -14,7 +14,7 @@ function graph(d){
  return {chunks,idx,key,flood};
 }
 function held(g,key,goal){g.hold(key);try{for(let i=0;i<300;i++){g.frames();if(goal())return;}}finally{g.release(key);}assert.fail('Control route failed: '+key);}
-module.exports={name:'Mainland navigation: complete return paths, ferry/Rise cut sets, protected geography and negative-coordinate input/save lifecycle',graph,J,held,
+module.exports={name:'Mainland navigation: connected playable/reserved components, ferry/Rise cut sets, protected geography and negative-coordinate input/save lifecycle',graph,J,held,
  run(){
   const g=createContext(),d=J(g,'({chunks:_REGIONAL_CHUNK_DEFINITIONS,edges:EDGE_TRANSITIONS,tiles:TILE_PROPERTIES})'),net=graph(d),cut=net.key('EASTERN_FENS_TRAVELLERS_RISE_MAP',10,7);
   const west=net.flood('MAP3',8,11,cut),middle=net.flood('EASTERN_BANK_MAP',5,8,cut),east=net.flood('EASTERN_FENS_WIDE_WATER_MAP',1,8,cut);
@@ -22,16 +22,20 @@ module.exports={name:'Mainland navigation: complete return paths, ferry/Rise cut
   assert.equal(middle[net.key('EASTERN_FENS_WIDE_WATER_MAP',1,8)],0,'new loops cannot bypass the Rise ambush trigger');
   assert.equal(middle[net.key('EASTERN_FENS_MORNAY_THRESHOLD_MAP',8,10)],0,'Mornay remains on the far side of the Rise');
   assert.equal(net.flood('EASTERN_BANK_MAP',5,8)[net.key('EASTERN_FENS_MORNAY_THRESHOLD_MAP',8,10)],1,'ordinary route remains connected when the trigger is retained');
+  const sealed=net.flood('MAINLAND_C2R6_MAP',10,0);
+  assert.equal(west[net.key('MAINLAND_C2R6_MAP',10,0)],0,'southern countryside stays sealed from early travel');
+  assert.equal(middle[net.key('MAINLAND_C2R6_MAP',10,0)],0,'the sealed bank has no new ferry-side entrance');
+  assert.equal(east[net.key('MAINLAND_C2R6_MAP',10,0)],0,'the sealed bank has no invented later entrance');
   const oldIslands=new Set(invariant.originalUnreachableCells.map(([id,x,y])=>id+':'+x+','+y));
   for(const c of d.chunks){if(c.playerAccessible===false||(!c.mapId.startsWith('MAINLAND_')&&!invariant.reauthoredIds.includes(c.mapId)))continue;
-   for(let y=0;y<15;y++)for(let x=0;x<16;x++)if(d.tiles[c.map[y][x]].walkable){const p=net.key(c.mapId,x,y);assert.ok(west[p]||middle[p]||east[p]||oldIslands.has(c.mapId+':'+x+','+y),c.mapId+' return path '+x+','+y);}
+   for(let y=0;y<15;y++)for(let x=0;x<16;x++)if(d.tiles[c.map[y][x]].walkable){const p=net.key(c.mapId,x,y);assert.ok(west[p]||middle[p]||east[p]||sealed[p]||oldIslands.has(c.mapId+':'+x+','+y),c.mapId+' return path '+x+','+y);}
   }
   for(const [id,fp]of Object.entries(invariant.protectedGrids)){const c=d.chunks.find(c=>c.mapId===id);assert.equal(crypto.createHash('sha256').update(JSON.stringify(c.map)).digest('hex'),fp,id+' protected terrain');}
   for(const id of invariant.originalAccessibleIds)assert.equal(g.run(`mapPlayerAccessible('${id}')`),true,id+' retains access');
   for(const [id,original]of Object.entries(invariant.approachGrids)){
    const c=d.chunks.find(c=>c.mapId===id);
    for(let y=0;y<15;y++)for(let x=0;x<16;x++){
-    let allowed=id==='MAP3'?y===14&&x>=10&&x<=12:id==='EASTERN_FENS_ENVELOPE_C9R4_MAP'?y>=7&&x>=7&&x<=9:id==='EASTERN_FENS_REEDBELT_N_MAP'?y<7&&x===7||y===1&&x===5||y===3&&x===9:id==='EASTERN_FENS_REEDBELT_E_MAP'?y<7&&x===8||y===1&&x===6||y===3&&x===10:y>=10&&y<=12&&x>=5&&x<=10;
+    let allowed=id==='MAP3'?(y===14&&x>=10&&x<=12)||(y===13&&x>=9&&x<=12):id==='EASTERN_FENS_ENVELOPE_C9R4_MAP'?y>=7&&x>=7&&x<=9:id==='EASTERN_FENS_REEDBELT_N_MAP'?y<7&&x===7||y===1&&x===5||y===3&&x===9:id==='EASTERN_FENS_REEDBELT_E_MAP'?y<7&&x===8||y===1&&x===6||y===3&&x===10:y>=10&&y<=12&&x>=5&&x<=10;
     if(!allowed)assert.equal(c.map[y][x],original[y][x],id+' preserves original route/boardwalk '+x+','+y);
    }
   }

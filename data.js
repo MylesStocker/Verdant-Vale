@@ -1025,6 +1025,7 @@ const REGIONAL_CHUNK_CATALOG = (function () {
     };
     if (def.notes !== undefined) rec.notes = def.notes;
     if (def.legacyCameraExclusion !== undefined) rec.legacyCameraExclusion = def.legacyCameraExclusion;
+    if (def.cameraClampEdges !== undefined) rec.cameraClampEdges = def.cameraClampEdges;
     out[def.mapId] = rec;
   }
   return out;

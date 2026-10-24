@@ -162,9 +162,9 @@ module.exports = {
     assert.equal(verdict[`${ID}|west`], 'BLOCKED'); assert.equal(verdict[`${WEST_ID}|east`], 'BLOCKED');
     assert.equal(verdict[`${ID}|south`], 'BLOCKED'); assert.equal(verdict[`${SOUTH_ID}|north`], 'BLOCKED');
     assert.equal(verdict[`${ID}|north`], 'BLOCKED'); assert.equal(verdict[`${ID}|east`], 'BLOCKED');
-    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1994, "ALIGNS": 1570, "BORDER": 168});
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1996, "ALIGNS": 1568, "BORDER": 168});
     assert.equal(audit.seamReadiness.edges.length, 3736);
-    assert.equal(g.run('continuousSeamEntries().length'), 1978);
+    assert.equal(g.run('continuousSeamEntries().length'), 1976);
     let placed = 0; for (let y = 0; y <= 5; y++) for (let x = 0; x <= 4; x++) if (g.run(`mapIdForChunk('overworld',${x},${y})`)) placed++;
     assert.equal(placed, 30); assert.equal(30 - placed, 0);
     assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 1097);

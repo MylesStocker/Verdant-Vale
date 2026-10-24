@@ -271,7 +271,7 @@ function validateRegionalChunkCatalog() {
     return checked;
   }
   const ROWS_EXP = 15, COLS_EXP = 16;
-  const ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterPool', 'items', 'allowRandomEncounters', 'allowSave', 'playerAccessible', 'notes', 'legacyCameraExclusion']);
+  const ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterPool', 'items', 'allowRandomEncounters', 'allowSave', 'playerAccessible', 'notes', 'legacyCameraExclusion', 'cameraClampEdges']);
   const PRESENTATIONS = new Set(['continuous', 'legacy_screen']);
   const knownRegions = (typeof REGIONAL_LAYOUT !== 'undefined') ? new Set(Object.keys(REGIONAL_LAYOUT)) : new Set();
   const seenIds = new Set(), seenRefs = new Map(), seenCoord = new Set();
@@ -282,6 +282,17 @@ function validateRegionalChunkCatalog() {
     checked++;
     if (!r || typeof r !== 'object') { addValidationError(GROUP, lbl + ': not an object'); continue; }
     for (const k of Object.keys(r)) if (!ALLOWED.has(k)) addValidationError(GROUP, lbl + ': unrecognized field "' + k + '" (fail-closed: an unknown field may imply unsupported behaviour)');
+    if (r.cameraClampEdges !== undefined) {
+      const edges = r.cameraClampEdges;
+      if (!Array.isArray(edges) || !edges.length || edges.length > 4 ||
+          edges.some(edge => !['north', 'south', 'east', 'west'].includes(edge)) || new Set(edges).size !== edges.length) {
+        addValidationError(GROUP, lbl + ': cameraClampEdges must be a nonempty unique list of cardinal edges');
+      } else {
+        if (r.presentation !== 'continuous') addValidationError(GROUP, lbl + ': cameraClampEdges requires continuous presentation');
+        for (const edge of edges) if (typeof EDGE_TRANSITIONS !== 'undefined' && EDGE_TRANSITIONS[r.mapId]?.[edge]?.length)
+          addValidationError(GROUP, lbl + ': cameraClampEdges cannot hide an open structural ' + edge + ' edge');
+      }
+    }
     if (typeof r.mapId !== 'string' || !r.mapId) addValidationError(GROUP, lbl + ': mapId is missing/empty');
     else {
       if (r.mapId !== key) addValidationError(GROUP, lbl + ': mapId "' + r.mapId + '" does not equal its property key');
@@ -354,7 +365,7 @@ function validateRegionalChunkCatalog() {
   if (typeof _REGIONAL_CHUNK_DEFINITIONS === 'undefined') {
     addValidationError(GROUP, '_REGIONAL_CHUNK_DEFINITIONS is undefined -- regional chunk fragments did not load (check content/maps/*.js + maps.js load order before data.js)');
   } else {
-    const DEF_ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterProfileId', 'itemSetId', 'allowRandomEncounters', 'allowSave', 'playerAccessible', 'notes', 'legacyCameraExclusion']);
+    const DEF_ALLOWED = new Set(['mapId', 'regionId', 'chunkX', 'chunkY', 'map', 'displayName', 'region', 'contentKey', 'presentation', 'encounterProfileId', 'itemSetId', 'allowRandomEncounters', 'allowSave', 'playerAccessible', 'notes', 'legacyCameraExclusion', 'cameraClampEdges']);
     const profiles = (typeof _ENCOUNTER_PROFILES !== 'undefined') ? _ENCOUNTER_PROFILES : {};
     const itemSets = (typeof _REGIONAL_ITEM_SETS !== 'undefined') ? _REGIONAL_ITEM_SETS : {};
     const defIds = new Set(), defCoords = new Set();
@@ -388,6 +399,8 @@ function validateRegionalChunkCatalog() {
           if (rec && rec.items !== itemSets[d.itemSetId]) addValidationError(GROUP, lbl + ': resolved items is not the array for itemSet "' + d.itemSetId + '"');
         }
       }
+      if (d.cameraClampEdges !== REGIONAL_CHUNK_CATALOG[d.mapId]?.cameraClampEdges)
+        addValidationError(GROUP, lbl + ': cameraClampEdges must resolve unchanged into the catalogue');
       if (d.playerAccessible !== undefined && typeof d.playerAccessible !== 'boolean') addValidationError(GROUP, lbl + ': playerAccessible must be a boolean when present');
       if (typeof d.mapId === 'string' && d.mapId && !REGIONAL_CHUNK_CATALOG[d.mapId]) addValidationError(GROUP, lbl + ': definition did not resolve into REGIONAL_CHUNK_CATALOG');
     }

@@ -24939,20 +24939,6 @@
       "allOk": true
     },
     {
-      "srcMap": "MAP3",
-      "direction": "south",
-      "segment": 0,
-      "sourceRange": [
-        10,
-        12
-      ],
-      "targetMap": "MAINLAND_C2R6_MAP",
-      "targetEdge": "north",
-      "walkableSources": 3,
-      "bad": [],
-      "allOk": true
-    },
-    {
       "srcMap": "MAP3_N1",
       "direction": "west",
       "segment": 0,
@@ -38295,20 +38281,6 @@
       "allOk": true
     },
     {
-      "srcMap": "MAINLAND_C2R6_MAP",
-      "direction": "north",
-      "segment": 0,
-      "sourceRange": [
-        10,
-        12
-      ],
-      "targetMap": "MAP3",
-      "targetEdge": "south",
-      "walkableSources": 3,
-      "bad": [],
-      "allOk": true
-    },
-    {
       "srcMap": "MAINLAND_C1R7_MAP",
       "direction": "east",
       "segment": 0,
@@ -48993,9 +48965,9 @@
         "chunkY": 5,
         "dir": "south",
         "neighbor": "MAINLAND_C2R6_MAP",
-        "target": "MAINLAND_C2R6_MAP",
-        "type": "broad",
-        "verdict": "ALIGNS"
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAP3",
@@ -75663,9 +75635,9 @@
         "chunkY": 6,
         "dir": "north",
         "neighbor": "MAP3",
-        "target": "MAP3",
-        "type": "broad",
-        "verdict": "ALIGNS"
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C2R6_MAP",
@@ -86260,8 +86232,8 @@
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BLOCKED": 1994,
-      "ALIGNS": 1570,
+      "BLOCKED": 1996,
+      "ALIGNS": 1568,
       "BORDER": 168
     }
   }

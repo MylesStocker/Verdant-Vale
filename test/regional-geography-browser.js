@@ -32,6 +32,16 @@
    place('EASTERN_FENS_REEDBELT_N_MAP',240,144);capture('zolom-southern-warning-'+scale+'x');check(!isEncounterEligibleTile(tileAt(player.x,player.y)),'Safe Zolom observation bar');
    for(const town of ['calwick','drenwick']){enterTownAt(town,'south');dialogue.open=false;capture(town+'-'+scale+'x');}
   }
+  // The early region keeps its original closed-edge framing inside the larger world.
+  for(const scale of [1,2]){
+   canvas.style.width=512*scale+'px';canvas.style.height=480*scale+'px';
+   for(const [id,x,y,edge,name]of [['MAP_N1',48,144,'west','northern-road-west'],['MAP_N2',48,336,'west','blocked-path-west'],['MAP2',176,432,'south','eastern-reaches-south'],['MAP3',432,432,'south','thornmere-fen-south']]){
+    place(id,x,y);const p=regionalWorldPosition(),v=buildContinuousWorldPlanFromWorld(p.regionId,p.worldPxX,p.worldPxY,512,480);
+    check(edge==='west'?v.camPxX===0:v.camPxY===2400,'Original camera edge '+id+' scale='+scale);capture(name+'-'+scale+'x');
+   }
+   place('MAP3',336,400);press('ArrowDown',true);try{for(let i=0;i<100;i++)update();}finally{press('ArrowDown',false);}
+   check(mapIdForRef(activeMap)==='MAP3'&&player.y<=407,'Water closes southern route scale='+scale);capture('thornmere-water-barrier-'+scale+'x');
+  }
   // The overview uses the game's own tile painter at stable world coordinates.
   const bounds=regionPixelBounds('overworld'),scale=4/32;
   canvas.width=Math.round(bounds.widthPx*scale);canvas.height=Math.round(bounds.heightPx*scale);

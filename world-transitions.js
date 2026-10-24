@@ -4139,16 +4139,6 @@ const EDGE_TRANSITIONS = {
                 6
             ]
         }
-    ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C2R6_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                10,
-                12
-            ]
-        }
     ]
 },
   // West edge: rows 4-9 into Roddon Way's east edge -- the roddon ridge
@@ -13546,16 +13536,6 @@ const EDGE_TRANSITIONS = {
             "sourceRange": [
                 2,
                 14
-            ]
-        }
-    ],
-    "north": [
-        {
-            "targetMap": "MAP3",
-            "targetEdge": "south",
-            "sourceRange": [
-                10,
-                12
             ]
         }
     ]

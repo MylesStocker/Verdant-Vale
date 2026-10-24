@@ -511,6 +511,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     displayName: 'Eastern Reaches', region: 'Eastern Reaches', contentKey: 'map2',
     presentation: 'continuous', encounterProfileId: 'reaches', itemSetId: 'map2',
     legacyCameraExclusion: { mapId: 'MAP', side: 'east' },
+    cameraClampEdges: ['south'],
     allowRandomEncounters: true, allowSave: true },
   {
   "mapId": "MAP3",
@@ -521,6 +522,7 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
   "region": "Thornmere",
   "contentKey": "map3",
   "presentation": "continuous",
+  "cameraClampEdges": ["south"],
   "encounterProfileId": "far",
   "itemSetId": "map3",
   "allowRandomEncounters": true,
@@ -539,8 +541,8 @@ const THORNMERE_REGIONAL_CHUNK_DEFINITIONS = [
     [3,0,23,1,0,0,0,23,2,0,0,0,0,0,0,3],
     [2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,3],
     [3,0,0,23,23,1,1,1,0,0,0,0,0,0,0,3],
-    [3,0,0,0,23,1,1,0,23,0,0,0,0,0,0,3],
-    [3,3,3,3,1,1,1,3,1,3,0,0,0,3,3,3]
+    [3,0,0,0,23,1,1,0,23,1,1,1,1,0,0,3],
+    [3,3,3,3,1,1,1,3,1,3,1,1,1,3,3,3]
   ]
 },
   { mapId: 'MAP4', regionId: 'overworld', chunkX: 3, chunkY: 5, map: [

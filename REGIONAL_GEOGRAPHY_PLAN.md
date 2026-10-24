@@ -33,7 +33,7 @@ Author inline 15×16 grids through regional definition fragments; retain every e
 
 Verify whole-region tile reachability and return paths from each story side; remove ferry connectivity and the Rise trigger from the navigation graph and prove the story sides remain separated. Exercise negative-coordinate controls/save/load, continuous and legacy seams, river/shore edges, encounter ownership, all accessible camera positions, old towns and historical combat. Render the overview from live tile data and inspect representative production browser views. Record exact existing-grid deltas, legitimate fingerprints and transition artifacts, focused/final tests, counts, screenshots and local checkpoint commits below.
 
-## Implemented footprint and drainage
+## Initial mainland checkpoint footprint and drainage
 
 The final live window is exactly **columns -8…30, rows -15…12**. It contains **934 regional chunks: 481 explorable and 453 scenery**, with 462 encounter-enabled chunks. The full catalogue contains 1,097 maps. There are 690 added chunks: **331 explorable, 359 scenery**. Of those scenery additions, 228 are plain open-lake chunks; about 72% of newly authored non-open-water land is explorable. Another 29 existing scenery chunks become explorable; every one of the original 121 accessible map IDs retains access. No map ID or existing chunk coordinate is removed or moved.
 
@@ -86,7 +86,7 @@ Generated evidence uses `node test/regional-atlas.js --write`, `node test/region
 
 ## Walkthrough checklist
 
-1. From Thornmere's `MAP3` (2,5), take the new southern opening at columns 10–12. Explore the pasture and woodland, return north, and confirm the deep eastern channel cannot be walked across.
+1. From Thornmere's `MAP3` (2,5), confirm the seven-cell water barrier blocks the former southern opening. The southwestern bank remains sealed for this pass; use debug warp to inspect that reserved component and to leave an existing save inside it.
 2. Cross the official ferry normally. Inspect either Zolom approach from the safe creek-bed bar; stop and turn back before the encounter-bearing reeds if avoiding the creature. Check that the original boardwalk remains visible.
 3. Explore north into the Great Fen and branch west to the Willow Basin near (-6,-10), north toward the Peat Fans near (4,-12), and back through the gravel fords. Save/load west of column zero and cross back through column zero in both presentation settings.
 4. Complete the ordinary Travellers' Rise ambush and campsite/campfire requirements, then continue toward Mornay. Verify both town gates and familiar services.
@@ -109,3 +109,16 @@ No player-facing NPC, dialogue, item, quest, building, new terrain type or mutab
 The final complete regression passes **238/238 suites, zero failures**, following the synchronized **236/236** baseline. This includes historical singleton, Formation, party-command and Resonance compatibility; ferry/Rise/camp sequences; Calwick/Drenwick/Mornay lifecycles; and the complete 1,978-entry held-control seam sweep. All **58 changed/new JavaScript files** pass `node --check`; `git diff --check`, conflict-marker, unique-ID, fingerprint and final file-scope reviews pass. [verification.json](Art/qa/regional-geography/verification.json) records the exact results and validator warnings. Initial footprint-dependent test failures were corrected by asserting the authorized geography; no combat, state, collision or progression assertion was dropped to obtain this result.
 
 The local plan checkpoint is `fd36e37` (parent `fb42db4`); the terrain, tests, artifacts and final evidence form the next coherent checkpoint on `agent/codex`. Nothing is merged into main or pushed. Main remains `fb42db4`, Mornay remains `f4c9f54` and Claude remains `3bd0d25`. Final checkpoint hash and clean Git status are reported with delivery.
+
+
+## Early-region framing follow-up (current)
+
+Northern Road (`MAP_N1`) and Blocked Path (`MAP_N2`) retain their old western camera edge at world X 0. Eastern Reaches (`MAP2`) and Thornmere Fen (`MAP3`) retain their old southern edge at world Y 2880 (native camera top capped at 2400). These are four authored `cameraClampEdges` policies; global region bounds, the expanded world, and other maps' cameras remain unchanged. The legacy-screen home exclusion still applies independently. Policies are validated and may only name closed structural edges.
+
+Exactly seven MAP3 cells change GRASS → WATER: columns 9–12 on row 13 and columns 10–12 on row 14. Both directions of the former MAP3/southern-mainland seam are removed. The [delta record](Art/qa/early-region/grid-deltas.json) is relative to `fb6c65f`; every other grid is unchanged in this follow-up. The original mainland delta snapshot remains historical evidence. Relative to the original synchronized foundation, 143 grids now differ in 22,087 cells.
+
+Myles explicitly confirmed that the southern area should remain sealed for this pass. Its western-bank component spans parts of 34 chunks; some chunks also contain a separate reachable eastern bank. Terrain and placement/save permissions remain intact for authoring and existing saves, but no replacement route, one-way exit, emergency transition or new progression flag is invented. Existing saves inside the sealed component need debug warp to leave. Navigation tests now distinguish ordinary story-side components from this deliberately reserved component while continuing to require internal connectivity throughout each.
+
+[Early-region verification and screenshots](Art/qa/early-region/README.md) record focused camera/water tests, browser checks and final regression. SAVE_VERSION remains 5. This follow-up is delivered as a local checkpoint on `agent/codex` at Myles’s request; it is not merged into main or pushed.
+
+Follow-up verification: 240/240 regression suites; 32 JavaScript syntax checks; 130 automated browser checks / 37 captures / zero errors; validator zero errors / 14 unchanged warnings; all 934 current fingerprints and the read-only transition audit match. See the early-region evidence guide for the exact file inventory.

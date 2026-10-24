@@ -27,3 +27,5 @@ node test/transition-audit.js
 ```
 
 Set `VV_BROWSER_OUTPUT` to a chosen output directory to retain browser PNGs. `--fingerprints` is a separate deliberate atlas-generator option, used only after reviewed terrain changes. `inventory.json` is the live chunk/access/encounter/hash inventory. `grid-deltas.json` compares all existing regional grids with the synchronized committed baseline, using `[column,row,oldTileId,newTileId]` records. Full drainage, scope decisions, verification and the walkthrough are in [REGIONAL_GEOGRAPHY_PLAN.md](../../../REGIONAL_GEOGRAPHY_PLAN.md).
+
+Follow-up: the current terrain overview/inventory/fingerprints include the seven-cell Thornmere Fen water closure. `grid-deltas.json` preserves the initial mainland checkpoint; [the early-region delta record](../early-region/grid-deltas.json) records the subsequent seven cells. [Early-region evidence](../early-region/README.md) covers restored camera framing and the sealed southern bank. The later browser review has 130 checks / 37 captures, with zero errors.

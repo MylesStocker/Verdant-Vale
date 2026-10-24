@@ -6,8 +6,8 @@
   "existingLifecycleChecks": 7119,
   "existingLifecycleCaptures": 172,
   "browserErrors": 0,
-  "notes": "Images capture the gameplay Canvas. Later cartographic display-name cleanup affects HUD titles outside the captured Canvas; tile grids and renderers are unchanged.",
-  "gridFingerprintsSha256": "66e8fbbfbf00f8f53c389f95039b213a65e124e38c88748a5afda53f0fb16321",
+  "notes": "Production overview refreshed after the seven-cell Thornmere closure. All other listed views were re-rendered and verified byte-identical. Additional early-region camera captures are in ../early-region/. The untracked visual-atlas poster remains its earlier snapshot.",
+  "gridFingerprintsSha256": "c84f718d2d333aec70e8bf2f04f3ba8c836927496e541d2322f832fce41cfd45",
   "rendererSha256": {
     "render.js": "dba37192c57c0aa7d6e62f339dba76111adf20dbf47f56adab799f6d9a25b018",
     "render-tiles.js": "5246c6a2868984679709e605b8d70f8c86d1646a450997620316f41e1cbc4bb6"
@@ -17,7 +17,7 @@
       "file": "production-overview.png",
       "width": 2496,
       "height": 1680,
-      "sha256": "0c40661610e9d7cd716a1df478369b13600161f5f4cfe03d560b7693cdc148e4"
+      "sha256": "09462620072281c717dbfd50eb3f8a308d8c8e8241f31e24fd42be5b17224c67"
     },
     {
       "file": "western-willow-fen-1x.png",
@@ -103,5 +103,10 @@
       "height": 960,
       "sha256": "7e7c0c61cc657a15036c578361ab25f5e71d1d623b6eff3b1be59d1a5b4d4818"
     }
-  ]
+  ],
+  "latestReview": {
+    "checks": 130,
+    "captures": 37,
+    "errors": 0
+  }
 }

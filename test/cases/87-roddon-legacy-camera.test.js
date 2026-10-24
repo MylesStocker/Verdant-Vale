@@ -115,13 +115,13 @@ module.exports = {
       assert.equal(flipped, false, 'MAP2<->RODDON handoff: no camera jump / policy flip (all steps <= SPEED)');
     }
 
-    // ── 11. MAP_N1 retains its NORTH-side behaviour (Y clamp, X free). ─────────
+    // ── 11. MAP_N1 retains its NORTH-side exclusion plus the restored west edge. ─────────
     assert.deepEqual(J("JSON.stringify(legacyCameraExclusionForMapId('MAP_N1'))"), { mapId: 'MAP', side: 'north' }, 'MAP_N1 policy is exclude MAP, side north');
     for (let ry = 6; ry <= 14; ry += 2) {
       const w = world('MAP_N1', 7 * 32 + 16, ry * 32 + 16);
       const c = J(`(function(){var pl=buildContinuousWorldPlanFromWorld('overworld',${w.worldPxX},${w.worldPxY},${VW},${VH});return JSON.stringify({cx:pl.camPxX,cy:pl.camPxY});})()`);
       const base = baseCam(w.worldPxX, w.worldPxY);
-      assert.equal(c.cx, base.camPxX, `MAP_N1 (7,${ry}): camX unconstrained (north policy touches only Y)`);
+      assert.equal(c.cx, Math.max(0,base.camPxX), `MAP_N1 (7,${ry}): restored west edge combines with north exclusion`);
       assert.ok(c.cy <= MAPR.topPx - VH || c.cy === base.camPxY, `MAP_N1 (7,${ry}): camY only ever clamped north of MAP.top`);
       assert.ok(!(c.cy < MAPR.bottomPx && c.cy + VH > MAPR.topPx && c.cx < MAPR.rightPx && c.cx + VW > MAPR.leftPx), `MAP_N1 (7,${ry}): viewport clears MAP`);
     }
@@ -132,14 +132,14 @@ module.exports = {
     assert.equal(R("mapIdForRef(activeMap)"), 'MAP', 'warped onto MAP');
     assert.equal(R("continuousWorldViewActive()"), false, 'MAP suppresses continuous view even with the toggle on (fixed-screen home)');
 
-    // ── 13. Other continuous maps (no policy) keep their base camera origins. ──
+    // ── 13. Other maps keep their base camera, except the restored MAP3 south edge. ──
     for (const mid of ['MAP3', 'MAP4', 'MAP3_N1', 'NORTH_BASIN_SW_MAP']) {
-      assert.equal(R(`legacyCameraExclusionForMapId('${mid}')`), null, `${mid} has no camera policy`);
+      assert.equal(R(`legacyCameraExclusionForMapId('${mid}')`), null, `${mid} has no legacy-screen exclusion`);
       for (const [lx, ly] of [[8 * 32, 7 * 32], [1 * 32, 1 * 32], [14 * 32, 13 * 32]]) {
         const w = world(mid, lx, ly);
         const c = J(`(function(){var pl=buildContinuousWorldPlanFromWorld('overworld',${w.worldPxX},${w.worldPxY},${VW},${VH});return pl?JSON.stringify({cx:pl.camPxX,cy:pl.camPxY}):'null';})()`);
         const base = baseCam(w.worldPxX, w.worldPxY);
-        assert.deepEqual(c, { cx: base.camPxX, cy: base.camPxY }, `${mid} @(${lx / 32},${ly / 32}): camera equals the unconstrained base (prior origin retained)`);
+        assert.deepEqual(c, { cx: base.camPxX, cy: mid==='MAP3'?Math.min(base.camPxY,2400):base.camPxY }, `${mid} @(${lx / 32},${ly / 32}): base camera plus Thornmere's restored south edge`);
       }
     }
 

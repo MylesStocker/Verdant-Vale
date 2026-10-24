@@ -2086,3 +2086,10 @@ Final geography verification: 238/238 regression suites; 58 JavaScript syntax ch
 ### Overworld ownership performance correction — Codex branch
 
 The expanded world exposed per-NPC whole-catalogue enumeration in `physicalMapIdForNpc()`. A revision-aware reverse content-key index removes that work while preserving explicit/ambiguous ownership, movement and encounters. The final matching Chromium comparison measures native grass walking at 59.98 fps / 119.96 pixels per second (previously 40.73 / 81.47), with mean render cost reduced from 23.061 to 1.089 ms; 2× render cost is 0.677 ms. The initial native post-fix sample's missed slots are retained and discussed in `Art/qa/overworld-performance/README.md`. Verification: 239/239 regression suites, zero validation errors / 14 existing warnings, 934 unchanged fingerprints, matching transition artifact, SAVE_VERSION 5, plus 82 targeted / 110 geography / 7,119 lifecycle browser checks. No geography or gameplay timing rule changed; the unrelated untracked visual atlas is preserved.
+
+
+### Early-region camera framing and Thornmere closure
+
+Northern Road/Blocked Path again clamp at their western edge; Eastern Reaches/Thornmere Fen again clamp at their southern edge. The wider geography and other cameras remain intact. MAP3 row 13 columns 9–12 and row 14 columns 10–12 are now water, and both directions of the former southern seam are removed. Myles confirmed that the southwestern bank should remain sealed for this pass; existing saves there need debug warp to leave. No replacement route or persistent authority is added. See `Art/qa/early-region/README.md` for exact deltas and verification. SAVE_VERSION remains 5.
+
+Early-region verification passes 240/240 regression suites, 32 JavaScript syntax checks and 130 automated browser checks; validator zero errors / 14 existing warnings, all 934 fingerprints and the regenerated transition artifact match. This pass is delivered as a local checkpoint on `agent/codex`; it is not merged into main or pushed.
