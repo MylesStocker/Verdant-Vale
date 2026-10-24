@@ -14,6 +14,11 @@
 const ITEM_REGISTRY = {
   // Starting issue (not sold by either shop)
   'Bronze Knife':  { name: 'Bronze Knife',  type: 'weapon',    bonus: 2,  price: 80  },
+  // Cutaway profiles only: ordinary equipment, no canonical grants or stock.
+  'Fine Sabre': { name:'Fine Sabre', type:'weapon', bonus:28, price:0 },
+  'Balanced Staff': { name:'Balanced Staff', type:'weapon', bonus:26, price:0 },
+  'Reinforced Travel Coat': { name:'Reinforced Travel Coat', type:'armor', bonus:22, price:0 },
+  'Woven Guard Coat': { name:'Woven Guard Coat', type:'armor', bonus:24, price:0 },
   // Merchant (Calwick) stock — see SHOP_REGISTRY in shops.js for who sells what
   'Potion':        { name: 'Potion',        type: 'potion',    heals: 20, price: 30  },
   'Iron Sword':    { name: 'Iron Sword',    type: 'weapon',    bonus: 4,  price: 160 },

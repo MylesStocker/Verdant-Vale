@@ -58,6 +58,14 @@ module.exports = {
   name: 'Sera/Liora raster integration: cache, anchors, bed layers, portraits, cold wait, fallback',
   async run() {
     const expected = {
+      cutaway_bethany_storeroom_flour_v1: ['assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png',512,480,null,null,2],
+      cutaway_bethany_storeroom_v1: ['assets/backgrounds/cutaways/sera-liora/storeroom-v1.png',512,480,null,null,2],
+      cutaway_bethany_breakfast_v1: ['assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png',512,480,null,null,2],
+      cutaway_bethany_breakfast_gate_open_v1: ['assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png',512,480,null,null,2],
+      cutaway_bethany_keeper_v1: ['assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png',384,576,null,null,6],
+      cutaway_buzzy_beetle_scene_v1: ['assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png',384,128,null,null,6],
+      cutaway_bethany_courtyard_v1: ['assets/backgrounds/cutaways/sera-liora/courtyard-v1.png',512,480,null,null,2],
+      cutaway_liora_walk_courtyard_v1: ['assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png',384,576,null,null,6],
       cutaway_bethany_guest_room_redraw_v1: ['assets/backgrounds/cutaways/sera-liora/guest-room-redraw-v1-runtime.png', 512, 480, null, null, 2],
       cutaway_liora_bed_lying_under_covers_v1: ['Art/generated/sera-liora/liora-bed-lying-under-covers-v1-patch.png', 144, 264, null, null, 2],
       cutaway_liora_bed_sitting_under_covers_v1: ['Art/generated/sera-liora/liora-bed-sitting-under-covers-v1-patch.png', 144, 264, null, null, 2],
@@ -118,7 +126,7 @@ module.exports = {
 
     installImmediateImages(g);
     g.run('debugPlaySeraLioraCutaway()');
-    assert.equal(g.run('__imageConstructions'), 11, 'the bundle constructs the room, bed states, standing/walking actors, fallback, and portraits');
+    assert.equal(g.run('__imageConstructions'), 17, 'the bundle constructs the room, bed states, standing/walking actors, fallback, and portraits');
     assert.equal(g.run("IMAGE_ASSET_BUNDLES.sera_liora_opening.every(function(id){return imageAssetRuntime(id).status==='loaded';})"), true);
     assert.equal(g.run('dialogue.portraitId'), null, 'first white line has no portrait');
     assert.equal(g.run('dialogue.portraitSide'), null);
@@ -255,7 +263,7 @@ module.exports = {
     failed.press(' '); failed.frames(30);
     assert.equal(failed.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'asset failures do not interrupt hospital handoff');
     failed.run('debugPlaySeraLioraCutaway()');
-    assert.equal(failed.run('__imageConstructions'), 11, 'warm replay constructs no replacement images');
+    assert.equal(failed.run('__imageConstructions'), 17, 'warm replay constructs no replacement images');
     assert.equal(failed.run('seraLioraCutscene.startCount'), 2);
 
     const saveCtx = createContext(); saveCtx.press('Enter'); saveCtx.press('Enter');

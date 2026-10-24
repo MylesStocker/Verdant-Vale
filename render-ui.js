@@ -926,8 +926,13 @@ function drawDialogue() {
     if (sourceSpeakers) {
       const pages = [], speakers = [];
       sourcePages.forEach((page, index) => {
-        const visual = paginateDialoguePages([page], maxLineW, maxVisLines, measure);
-        for (const part of visual) { pages.push(part); speakers.push(sourceSpeakers[index]); }
+        const speakerId = sourceSpeakers[index];
+        const pageStyle = dialogueTextStyle(speakerId === null ? null :
+          dialogueSpeakerDefinition(speakerId).dialogueStyleId);
+        ctx.font = pageStyle.bodyFont;
+        const pageMaxVisLines = Math.max(1, Math.floor((BH - 40) / pageStyle.lineHeight));
+        const visual = paginateDialoguePages([page], maxLineW, pageMaxVisLines, measure);
+        for (const part of visual) { pages.push(part); speakers.push(speakerId); }
       });
       dialogue.pages = Object.freeze(pages.map(page => Object.freeze(page)));
       dialogue.pageSpeakers = Object.freeze(speakers);
@@ -938,6 +943,9 @@ function drawDialogue() {
     dialogue._preprocessedFor = dialogue.pages;
     pagePresentation = dialoguePagePresentation();
     style = dialogueTextStyle(pagePresentation.styleId);
+    // Measuring later speakers must not leak their font into the current page.
+    ctx.font = style.bodyFont;
+    ctx.fillStyle = style.bodyColor;
   }
 
   // Guard against a dialogue opened with zero pages (or a cursor past the
@@ -1646,7 +1654,8 @@ function drawStoryCheckpointLab() {
     ctx.fillStyle='#3a6050';ctx.font='10px "Courier New", monospace';ctx.fillText('↑ ↓ choose · ENTER select · ESC back',PX+16,PY+PH-18);
   }else{
     ctx.fillStyle='#d9c89a';ctx.font='11px "Courier New", monospace';
-    ['The current runtime state will be replaced.','Your stored save will not be changed.','Storage changes only if you deliberately Save afterward.']
+    (view.sceneOnly?['Preview the breakfast battle.','Lely’s resources and stored save stay unchanged.','The preview returns to the infirmary afterward.']:
+      ['The current runtime state will be replaced.','Your stored save will not be changed.','Storage changes only if you deliberately Save afterward.'])
       .forEach((line,i)=>ctx.fillText(line,PX+16,PY+58+i*20));
     view.choices.forEach((label,i)=>{const x=PX+94+i*190;ctx.fillStyle=i===view.confirmCursor?'#8ac8d8':'#4a7888';
       ctx.font=i===view.confirmCursor?'bold 12px "Courier New", monospace':'12px "Courier New", monospace';

@@ -198,7 +198,7 @@ test('no gameplay entry, input/render/reward route or saved controller payload',
   for(const file of scriptOrderFromIndexHtml()) {
     const fileSource=fs.readFileSync(path.join(__dirname,'../..',file),'utf8');
     for(const [method,count] of Object.entries(labCalls))assert.equal((fileSource.match(new RegExp('combatPlayerState\\.session\\.'+method+'\\s*\\(','g'))||[]).length,file==='party-combat-lab.js'?count:0,file+': '+method);
-    assert.equal((fileSource.match(/combatPlayerState\.session\[method\]\s*\(/g)||[]).length,['party-combat-lab.js','canonical-party-combat.js'].includes(file)?1:0,file+': guarded forwarder');
+    assert.equal((fileSource.match(/combatPlayerState\.session\[method\]\s*\(/g)||[]).length,['party-combat-lab.js','canonical-party-combat.js','story-battle.js'].includes(file)?1:0,file+': guarded forwarder');
   }
   const source=fs.readFileSync(path.join(__dirname,'../../combat.js'),'utf8');
   const start=source.indexOf('  const session=(() => {'),end=source.indexOf('    session,',start),controllerSource=source.slice(start,end);

@@ -1320,6 +1320,11 @@ function startSeraLioraCutaway(storyEntry) {
   accordPanel.open = false;
   player.moving = false;
 
+  storyBattle.reset();
+  resetSeraLioraBreakfast();
+  resetSeraLioraCourtyard();
+  preloadImageAssetBundle('sera_liora_courtyard');
+  preloadImageAssetBundle('sera_liora_breakfast');
   seraLioraCutscene.active = true;
   seraLioraCutscene.phase = 'white_dialogue';
   seraLioraCutscene.beat = -1;
@@ -1441,6 +1446,12 @@ function continueSeraLioraCutawayAfterOpening() {
 }
 
 function endSeraLioraCutawayAtHospital() {
+  if (!seraLioraCutscene.active) return false;
+  seraLioraGuestRoomWalk.completionCount++;
+  storyBattle.reset();
+  resetSeraLioraBreakfast();
+  resetSeraLioraCourtyard();
+  clearSeraLioraMovementKeys();
   const completedStoryEntry = seraLioraCutscene.storyEntry === true;
   seraLioraGuestRoomWalk.active = false;
   seraLioraGuestRoomWalk.inputLocked = true;
@@ -1457,6 +1468,7 @@ function endSeraLioraCutawayAtHospital() {
     syncQuestFlagsToWindow();
   }
   wakeAtDrenwickInfirmary();
+  return true;
 }
 
 function wakeAtDrenwickInfirmary() {

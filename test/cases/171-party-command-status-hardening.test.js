@@ -168,7 +168,7 @@ test('both initializers share membership, identities, HP and cleanup; canonical 
 
 // Exhaustive stable-ID matrix, intentionally independent of runtime classification.
 const ITEM_MATRIX={
-  equip:['Bronze Knife','Iron Sword','Leather Armor','Steel Sword','Iron Shield','Swift Bangle','Battle Axe','Dragon Blade','Shadow Cloak','Mithril Shield','Wraithband','Warden Blade','Resonant Targe','Fen Mask','EvadeAll','Cat Armor','Old Boot','Fen Cowl','Bottle of Mushroom Wine','Case of Mushroom Wine','Amethyst Bangle'],
+  equip:['Fine Sabre','Balanced Staff','Reinforced Travel Coat','Woven Guard Coat','Bronze Knife','Iron Sword','Leather Armor','Steel Sword','Iron Shield','Swift Bangle','Battle Axe','Dragon Blade','Shadow Cloak','Mithril Shield','Wraithband','Warden Blade','Resonant Targe','Fen Mask','EvadeAll','Cat Armor','Old Boot','Fen Cowl','Bottle of Mushroom Wine','Case of Mushroom Wine','Amethyst Bangle'],
   heal:['Potion','Elixir','Mushroom Wine','River Smelt','Canal Eel','Ember Root'],
   cure:['Reed Remedy','Amethyst Dust'],evade:['Bullet Time'],damage:['Sapper Charge','Throwing Knife'],damage_all:['Void Shard'],bomb:['Bomb'],
   nothing:['Bait'],reagent:['Henbane Sprig','Jackbane Vial'],stun:['Trollbane'],

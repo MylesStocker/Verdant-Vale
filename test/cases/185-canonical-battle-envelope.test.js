@@ -275,9 +275,9 @@ test('Eastern Fens fixtures: mire toads, Waspthra and Botfly all prepare now the
  assert.equal(g.run("Object.values(MAP_METADATA).some(m=>m.encounterPool===ENEMY_TEMPLATE_POOLS.find(p=>p.id==='pool_eastern_fens_mornay').templates)"),false);
 });
 test('element metadata is immutable and distinct from caster affinity; Firelit is metadata only',()=>{
- const g=fresh();assert.deepEqual(J(g,'RESONANCE_ELEMENTS'),['bloommarked','firelit']);frozen(g.run('RESONANCE_TECHNIQUES'));
+ const g=fresh();assert.deepEqual(J(g,'RESONANCE_ELEMENTS'),['bloommarked','firelit','void','prism']);frozen(g.run('RESONANCE_TECHNIQUES'));
  assert.deepEqual(J(g,'RESONANCE_TECHNIQUES.quickbloom.elements'),['bloommarked']);assert.equal(g.run('RESONANCE_TECHNIQUES.quickbloom.participants[0].affinity'),'bloommarked');
- assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom']);
+ assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom','null','rainbow','eclipse']);
  g.run('var example=validateResonanceTechnique({...RESONANCE_TECHNIQUES.quickbloom,participants:RESONANCE_TECHNIQUES.quickbloom.participants.map(p=>({...p})),elements:Object.freeze(["bloommarked","firelit"])})');frozen(g.run('example'));
  assert.equal(g.run('example.participants[0].affinity'),'bloommarked');
  for(const value of ['[]','Object.freeze([])','["bloommarked"]','Object.freeze(["unknown"])','Object.freeze(["bloommarked","bloommarked"])',

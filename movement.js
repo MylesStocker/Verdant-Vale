@@ -580,7 +580,7 @@ function seraLioraMovementKeyDown(key) {
 }
 
 function noteSeraLioraMovementKey(key) {
-  if (!seraLioraGuestRoomWalk.active || typeof key !== 'string') return;
+  if (!seraLioraGuestRoomWalk.active || seraLioraGuestRoomWalk.inputLocked || dialogue.open || typeof key !== 'string') return;
   const facing = ({ w: 'up', a: 'left', s: 'down', d: 'right' })[key.toLowerCase()];
   if (!facing || facing === seraLioraGuestRoomWalk.facing) return;
   seraLioraGuestRoomWalk.facing = facing;
@@ -614,14 +614,16 @@ function updateSeraLioraGuestRoomFreeWalk(deltaSeconds) {
     walk.facing = axisX < 0 ? 'left' : axisX > 0 ? 'right' : axisY < 0 ? 'up' : 'down';
   }
   const distance = SERA_LIORA_GUEST_ROOM_MOVEMENT.speedPxPerSecond * dt;
+  const walkable = isSeraLioraBreakfastSequence() ? seraLioraBreakfastFootprintWalkable :
+    isSeraLioraCourtyard() ? seraLioraCourtyardFootprintWalkable : seraLioraFootprintWalkable;
   const nextX = walk.x + axisX * distance;
   const nextY = walk.y + axisY * distance;
   let moved = false;
-  if (axisX !== 0 && seraLioraFootprintWalkable(nextX, walk.y)) {
+  if (axisX !== 0 && walkable(nextX, walk.y)) {
     walk.x = nextX;
     moved = true;
   }
-  if (axisY !== 0 && seraLioraFootprintWalkable(walk.x, nextY)) {
+  if (axisY !== 0 && walkable(walk.x, nextY)) {
     walk.y = nextY;
     moved = true;
   }
@@ -689,13 +691,7 @@ function trySeraLioraGuestRoomInteraction() {
 
 function trySeraLioraGuestRoomDoor() {
   if (!seraLioraDoorInteractionAvailable()) return false;
-  const walk = seraLioraGuestRoomWalk;
-  walk.inputLocked = true;
-  walk.active = false;
-  walk.moving = false;
-  walk.completionCount++;
-  endSeraLioraCutawayAtHospital();
-  return true;
+  return enterSeraLioraCourtyard();
 }
 
 // The Rainfish trigger is reached after movement/status ticks. Preview only the
@@ -724,6 +720,8 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
     waterTravelController.update(presentationSeconds);
     return;
   }
+  if (seraLioraBreakfastBattle.isActive()) {seraLioraBreakfastBattle.update(presentationSeconds);return;}
+  if (storyBattle.hasContext()) return; // headless story preparation freezes world simulation
   if (canonicalPartyCombat.isActive()) {
     partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),presentationSeconds);return;
   }
@@ -780,7 +778,9 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   // The cutaway always returns before ordinary player/world simulation. Its
   // final room phase updates only the dedicated transient Sera actor.
   if (seraLioraCutscene.active) {
-    if (seraLioraCutscene.phase === 'free_walk') updateSeraLioraGuestRoomFreeWalk(deltaSeconds);
+    if (isSeraLioraBreakfastSequence()) updateSeraLioraBreakfast(deltaSeconds);
+    else if (isSeraLioraCourtyard()) updateSeraLioraCourtyard(deltaSeconds);
+    else if (seraLioraCutscene.phase === 'free_walk') updateSeraLioraGuestRoomFreeWalk(deltaSeconds);
     else updateSeraLioraCutaway();
     return;
   }

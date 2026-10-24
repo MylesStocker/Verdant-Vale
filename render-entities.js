@@ -568,6 +568,14 @@ function seraLioraApprovedRoomReady() {
 
 function drawSeraLioraCutawayActors() {
   if (!seraLioraCutscene.active || activeMap !== BETHANY_GUEST_ROOM_MAP) return;
+  if (seraLioraBreakfast.visible && isSeraLioraBreakfastSequence()) {
+    drawSeraLioraBreakfastActors();
+    return;
+  }
+  if (isSeraLioraCourtyard() && seraLioraCutscene.phase !== 'courtyard_asset_wait') {
+    drawSeraLioraCourtyardActors();
+    return;
+  }
   if (seraLioraApprovedRoomReady()) {
     drawSeraLioraDepthRoomActors();
     return;

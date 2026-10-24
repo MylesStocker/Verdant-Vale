@@ -12,6 +12,8 @@ const PARTY_COMBAT_ALLY_SPRITES = Object.freeze({
   esla:Object.freeze({draw:drawBattleEsla,anchorY:263}),
   lely_lab:Object.freeze({draw:drawBattlePlayer,anchorY:254}),
   esla_lab:Object.freeze({draw:drawBattleEsla,anchorY:263}),
+  sera:Object.freeze({draw:drawStoryBattleSera,anchorY:254}),
+  liora:Object.freeze({draw:drawStoryBattleLiora,anchorY:263}),
 });
 // The party renderer supports this explicit boss template without changing
 // the Formation renderer's closed set of sprite bounds.
@@ -98,13 +100,15 @@ function partyBattleLayout(view) {
       !phases.includes(view.phase)||!Array.isArray(view.party)||!Object.isFrozen(view.party)||view.party.length<1||view.party.length>3||
       !Array.isArray(view.enemies)||!Object.isFrozen(view.enemies)||view.enemies.length<1||view.enemies.length>3||
       view.party.some((m,i)=>!validMember(m,'ally',i))||view.enemies.some((m,i)=>!validMember(m,'enemy',i)))fail();
+  const enemyFloorY=view.enemyFloorY??212;
+  if(!Number.isSafeInteger(enemyFloorY)||enemyFloorY<140||enemyFloorY>212)fail();
   const ids=[...view.party,...view.enemies].map(m=>m.instanceId);
   if(new Set(ids).size!==ids.length)fail();
   const playing=['playback','playback_complete','victory','defeat','escape'].includes(view.phase);
   if(playing!==!!view.playbackFrame||
       (['awaiting_action','item','technique','targeting'].includes(view.phase)
         ? !view.party.some(m=>m.hp>0&&m.instanceId===view.nextActorId):view.nextActorId!==null)||
-      (view.phase==='targeting'?!view.validTargetIds.includes(view.selectedTargetInstanceId):view.selectedTargetInstanceId!==null)||
+      (view.phase==='targeting'?(view.targetMode==='all'?view.selectedTargetInstanceId!==null||view.targetSide!=='enemy'||!view.validTargetIds.length||view.validTargetIds.some(id=>!view.enemies.some(e=>e.instanceId===id&&e.hp>0&&!e.unusual?.departed)):!view.validTargetIds.includes(view.selectedTargetInstanceId)):view.selectedTargetInstanceId!==null)||
       (['victory','defeat','escape'].includes(view.phase)?view.terminalOutcome!==view.phase:view.terminalOutcome!==null))fail();
   if(!Array.isArray(view.allyActions)||!Object.isFrozen(view.allyActions)||view.allyActions.some(action=>
       !Object.isFrozen(action)||!view.party.some(m=>m.instanceId===action.actorId)||
@@ -126,25 +130,25 @@ function partyBattleLayout(view) {
       const p=SINGLETON_ENEMY_BATTLE_LAYOUT;
       return Object.freeze({instanceId:member.instanceId,slot:index,composition:'singleton',x:p.hpX,width:p.hpWidth,
         label:member.name,spriteX:0,spriteY:0,spriteWidth:512,spriteHeight:297,scale:1,
-        anchorX:p.anchorX,anchorY:p.anchorY,targetCursorX:p.targetCursorX,targetCursorY:p.targetCursorY});
+        anchorX:p.anchorX,anchorY:view.enemyFloorY??p.anchorY,targetCursorX:p.targetCursorX,targetCursorY:p.targetCursorY});
     }
     const x=start+index*step,spriteWidth=width-16,scale=Math.min(1,spriteWidth/(bounds[2]-bounds[0]),136/(bounds[3]-bounds[1]));
     return Object.freeze({instanceId:member.instanceId,slot:index,composition:'formation',x,width,
       label:member.name+(names.filter(name=>name===member.name).length>1?' '+String.fromCharCode(65+index):''),
       spriteX:x+8,spriteY:76,spriteWidth,spriteHeight:136,scale,
-      anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,anchorY:212-scale*bounds[3]});
+      anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,anchorY:enemyFloorY-scale*bounds[3]});
   });
   const allies=view.party.map((member,slot)=>Object.freeze({instanceId:member.instanceId,slot,
     x:PARTY_COMBAT_ALLY_SLOTS[slot].x,anchorY:PARTY_COMBAT_ALLY_SLOTS[slot].anchorY,feetY:277}));
   let target=null;
-  if(view.phase==='targeting') {
+  if(view.phase==='targeting'&&view.targetMode!=='all') {
     const source=view.targetSide==='ally'?allies:enemies,position=source.find(p=>p.instanceId===view.selectedTargetInstanceId);
     if(!position)fail();
     target=Object.freeze({side:view.targetSide,instanceId:position.instanceId,slot:position.slot,
       x:view.targetSide==='ally'?position.x:(position.targetCursorX??position.x+position.width/2),
       y:view.targetSide==='ally'?190:(position.targetCursorY??63)});
   }
-  return Object.freeze({allies:Object.freeze(allies),enemies:Object.freeze(enemies),target});
+  return Object.freeze({allies:Object.freeze(allies),enemies:Object.freeze(enemies),target,...(view.phase==='targeting'&&view.targetMode==='all'?{targetIds:Object.freeze([...view.validTargetIds])}:{})});
 }
 
 function formatPartyBattleEvent(view) {
@@ -156,6 +160,7 @@ function formatPartyBattleEvent(view) {
     if(view.phase==='item')return 'Choose an item.';
     if(view.phase==='technique')return 'Choose a Resonance technique.';
     if(view.phase==='targeting') {
+      if(view.targetMode==='all')return 'Confirm all living enemies.';
       const actor=view.party.find(m=>m.instanceId===view.nextActorId);
       if(view.targetSide==='ally')return `Choose ${actor?.name||'an ally'}'s target.`;
       return view.pendingCommandType==='observe'?'Choose an enemy to observe.':'Choose a target.';
@@ -177,10 +182,11 @@ function formatPartyBattleEvent(view) {
     const expired=event.effectsBefore.find((before,i)=>before.evadeTurns>0&&event.effectsAfter[i].evadeTurns===0);
     return expired?`Bullet Time wears off for ${name(expired.actorId)}.`:'Round complete.';
   }
+  if(event.type==='resonance_damage')return `${event.participantIds.map(name).join(' and ')} use${event.participantIds.length===1?'s':''} ${event.techniqueName}. ${target} takes ${event.appliedDamage} ${event.elements.map(id=>id[0].toUpperCase()+id.slice(1)).join('/')} damage.`;
   if(event.type==='resonance')return `${event.participantIds.map(name).join(' and ')} use${event.participantIds.length===1?'s':''} ${event.techniqueName}. ${target} recovers ${event.appliedHealing} HP.`;
   if(event.type==='strain')return event.reason==='application'?`${name(event.actorId)} needs ${event.after} recovery round${event.after===1?'':'s'}.`:
     event.after===0?`${name(event.actorId)}'s Strain clears.`:`${name(event.actorId)} has ${event.after} Strain remaining.`;
-  if(event.type==='resonance_wait')return `${actor} waits for the shared technique.`;
+  if(event.type==='resonance_damage_all')return `${event.participantIds.map(name).join(' and ')} use ${event.techniqueName}. ${event.elements.map(id=>id[0].toUpperCase()+id.slice(1)).join('/')} damage: ${event.hits.map(hit=>name(hit.targetId)+' '+hit.appliedDamage).join('; ')}.`;
   if(event.type==='resonance_cancel')return `The shared technique is cancelled: ${name(event.unavailableId)} is unavailable.`;
   if(event.type==='slither_sample')return `${name(event.actorId)}'s speed shifts.`;
   if(event.type==='brace_check')return event.selected?`${actor} braces for the exchange!`:`${actor} prepares to attack.`;
@@ -288,7 +294,8 @@ function drawPartyCombatCommands(view) {
   const labels={attack:'Attack',resonance:'Resonance',item:'Item',observe:'Observe',run:'Run'};
   view.commands.forEach((command,index)=>{
     const label=labels[command],x=22+index*step,selected=view.phase==='awaiting_action'&&index===view.commandCursor,
-      enabled=command==='resonance'?view.enabledCommands?.includes(command):command!=='item'||view.inventory.length>0;
+      enabled=(view.commandAvailability?.find(row=>row.command===command)?.enabled??
+        (command==='resonance'?view.enabledCommands?.includes(command):true))&&(command!=='item'||view.inventory.length>0);
     ctx.fillStyle=selected?'#0e2434':'#080f1a';ctx.fillRect(x,414,width,38);ctx.strokeStyle=selected?'#9ac8d8':'#2a4e5e';ctx.strokeRect(x,414,width,38);
     ctx.fillStyle=enabled?(selected?'#e0f0e8':'#6b8890'):'#344f5a';ctx.font=`bold ${hasResonance?12:13}px "Courier New", monospace`;ctx.fillText((selected?'▶ ':'')+label,x+(hasResonance?5:7),439,99);
   });
@@ -310,8 +317,13 @@ function drawPartyBattle(view) {
   if(arguments.length!==1)throw new Error('Party battle renderer requires one immutable view');
   if(!view.active)return false;
   const layout=partyBattleLayout(view),message=formatPartyBattleEvent(view);
-  ctx.save();drawBattleBackground();
-  layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,layout.target?.side==='enemy'&&layout.target.instanceId===position.instanceId));
+  ctx.save();
+  if(view.backgroundAssetId){
+    const asset=IMAGE_ASSET_REGISTRY[view.backgroundAssetId],image=loadedImageAsset(view.backgroundAssetId);
+    if(!asset||asset.use!=='cutaway_background'||asset.width!==512||asset.height!==480||!image)throw Error('Invalid party battle background');
+    ctx.drawImage(image,0,0,512,480);
+  }else drawBattleBackground();
+  layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,layout.targetIds?.includes(position.instanceId)||layout.target?.side==='enemy'&&layout.target.instanceId===position.instanceId));
   layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,
     layout.target?.side==='ally'&&layout.target.instanceId===position.instanceId));
   partyBattleQuickbloomAnimation.draw(view);
@@ -323,4 +335,14 @@ function drawPartyBattle(view) {
   if(view.phase==='technique')drawPartyCombatTechniques(view);else if(view.phase==='item')drawPartyCombatItems(view);else if(['awaiting_action','targeting'].includes(view.phase))drawPartyCombatCommands(view);
   else if(view.playbackFrame)lines.slice(2,5).forEach((line,i)=>ctx.fillText(line,22,418+i*15,468));
   ctx.restore();return true;
+}
+
+// Pure adapters reuse the approved measured cutaway assets at one battle scale.
+function drawStoryBattleSera(x,y) {
+  ctx.save();ctx.translate(x,y);ctx.scale(0.62,0.62);
+  drawSeraLioraSceneSera({x:0,y:0,facing:'right',frame:1});ctx.restore();
+}
+function drawStoryBattleLiora(x,y) {
+  ctx.save();ctx.translate(x,y);ctx.scale(0.62,0.62);
+  drawSeraLioraCourtyardLiora({x:0,y:0,facing:'right',frame:1});ctx.restore();
 }

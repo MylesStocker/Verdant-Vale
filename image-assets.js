@@ -5,6 +5,14 @@
 // when a scene requests its bundle. Failed entries settle as errors so callers
 // can use their code-drawn/portrait-free fallback without waiting forever.
 const IMAGE_ASSET_REGISTRY = Object.freeze({
+  cutaway_bethany_storeroom_flour_v1: Object.freeze({path:'assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png',use:'cutaway_background',width:512,height:480}),
+  cutaway_bethany_storeroom_v1: Object.freeze({path:'assets/backgrounds/cutaways/sera-liora/storeroom-v1.png',use:'cutaway_background',width:512,height:480}),
+  cutaway_bethany_breakfast_v1: Object.freeze({path:'assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png',use:'cutaway_background',width:512,height:480}),
+  cutaway_bethany_breakfast_gate_open_v1: Object.freeze({path:'assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png',use:'cutaway_background',width:512,height:480}),
+  cutaway_bethany_keeper_v1: Object.freeze({path:'assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png',use:'cutaway_depth_scene',width:384,height:576}),
+  cutaway_buzzy_beetle_scene_v1: Object.freeze({path:'assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png',use:'cutaway_depth_scene',width:384,height:128}),
+  cutaway_bethany_courtyard_v1: Object.freeze({ path: 'assets/backgrounds/cutaways/sera-liora/courtyard-v1.png', use: 'cutaway_background', width: 512, height: 480 }),
+  cutaway_liora_walk_courtyard_v1: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png', use: 'cutaway_depth_scene', width: 384, height: 576 }),
   cutaway_sera_walk_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/sera-walk.png', use: 'cutaway_depth_scene', width: 384, height: 576 }),
   cutaway_liora_standing_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/liora-standing.png', use: 'cutaway_depth_scene', width: 128, height: 192 }),
   cutaway_liora_lying_depth_v2: Object.freeze({ path: 'assets/sprites/cutaways/sera-liora/depth-v2/liora-lying.png', use: 'cutaway_depth_scene', width: 192, height: 216 }),
@@ -104,6 +112,9 @@ const IMAGE_ASSET_REGISTRY = Object.freeze({
 });
 
 const IMAGE_ASSET_BUNDLES = Object.freeze({
+  sera_liora_storeroom: Object.freeze(['cutaway_bethany_storeroom_v1','cutaway_bethany_storeroom_flour_v1']),
+  sera_liora_breakfast: Object.freeze(['cutaway_bethany_breakfast_v1','cutaway_bethany_breakfast_gate_open_v1','cutaway_bethany_keeper_v1','cutaway_buzzy_beetle_scene_v1']),
+  sera_liora_courtyard: Object.freeze(['cutaway_bethany_courtyard_v1', 'cutaway_liora_walk_courtyard_v1']),
   sera_liora_opening: Object.freeze([
     'cutaway_bethany_guest_room_redraw_v1',
     'cutaway_sera_walk_depth_v2',

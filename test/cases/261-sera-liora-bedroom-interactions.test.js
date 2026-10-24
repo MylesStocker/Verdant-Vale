@@ -4,6 +4,7 @@ const assert = require('assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { createContext } = require('../harness');
+const { completeCourtyard } = require('../sera-liora-courtyard-helpers');
 
 const ROOT = path.join(__dirname, '..', '..');
 const J = (g, source) => JSON.parse(g.run('JSON.stringify(' + source + ')'));
@@ -208,7 +209,8 @@ module.exports = {
     g.run("tick=16;window.__roomPrompt=[];drawSeraLioraCutawayActors();");
     assert.deepEqual(J(g, '__roomPrompt'), [['SPACE', 43, 130]],
       'the exit door uses the same familiar SPACE interaction indicator');
-    assert.equal(g.run('trySeraLioraGuestRoomDoor()'), true, 'existing completion exit remains intact');
+    assert.equal(g.run('trySeraLioraGuestRoomDoor()'), true, 'bedroom door enters the courtyard');
+    completeCourtyard(g);
     assert.equal(g.run('activeMap === DRENWICK_INFIRMARY_MAP'), true);
     assert.equal(g.run('SAVE_VERSION'), 5);
   },

@@ -125,7 +125,8 @@ test('Quickbloom uses canonical Esla metadata, applies Strain once and clears af
  assert.deepEqual(view(g).commands,['attack','resonance','item','run']);assert.ok(!view(g).commands.includes('observe'));command(g,'resonance');input(g,'confirm');input(g,'confirm');resolve(g);acknowledge(g);
  assert.equal(view(g).resonance[1].strain,1);assert.ok(view(g).party[0].hp>15);assert.equal(party(g).members[0].hp,15);
  command(g,'observe');input(g,'confirm');assert.ok(!view(g).enabledCommands.includes('resonance'));command(g,'attack');input(g,'confirm');resolve(g);acknowledge(g);
- assert.equal(view(g).resonance[1].strain,0);assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom']);
+ assert.equal(view(g).resonance[1].strain,0);assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom','null','rainbow','eclipse']);
+ assert.deepEqual(J(g,'Object.values(RESONANCE_TECHNIQUES).filter(t=>t.initiator==="esla").map(t=>t.id)'),['quickbloom']);
 });
 test('successful Run preserves completed HP/items, no rewards; failed Run and boss/explicit locks remain in battle',()=>{
  const g=fresh();g.run('stats.hp=10;stats.items=[{...ITEM_REGISTRY.Potion}];');enter(g);

@@ -2247,6 +2247,8 @@ const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   fen_handler: Object.freeze({speakerId:'fen_handler',name:'Fen Handler',dialogueStyleId:null}),
   sera: Object.freeze({speakerId:'sera',name:'Sera',dialogueStyleId:SERA_DIALOGUE_STYLE_ID}),
   liora: Object.freeze({speakerId:'liora',name:'Liora',dialogueStyleId:null}),
+  bethany_keeper: Object.freeze({speakerId:'bethany_keeper',name:'Keeper',dialogueStyleId:null}),
+  bethany_server: Object.freeze({speakerId:'bethany_server',name:'Server',dialogueStyleId:null}),
 });
 
 // Ambient companion exchanges are appended only when the canonical party

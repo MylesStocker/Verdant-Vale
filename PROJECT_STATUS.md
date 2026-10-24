@@ -342,7 +342,7 @@ all three approach maps. Browser appearance and manual play remain untested.
 
 ### Resonance MVP — Party Combat Lab and canonical encounters
 
-Quickbloom is the sole production technique: Esla's ordinary Bloommarked healing
+Quickbloom remains Esla's sole technique: ordinary Bloommarked healing
 of one living wounded ally for one fifth of maximum HP (floor, minimum one,
 clamped), with no action RNG, cure or revival. Authored definitions explicitly
 mark Esla Rareborn/Bloommarked and Lely non-Rareborn. Optional battle preparation
@@ -365,11 +365,12 @@ renderer retains its established dimmed-command behavior because the approved
 battle layout has no existing short-reason region. Quickbloom targeting, healing,
 Strain timing, playback and RNG are unchanged.
 
-Synthetic VM fixtures test two- and three-person combined techniques: explicit
-Rareborn participants reserve all their actions, keep their existing initiative
-entries, wait until the latest participant, and cancel once without cost if a
-participant becomes unavailable. No production combined technique, extra
-character, new disable status, Sera/Liora content or Lely/Esla combination exists.
+The shared combined contract now requires separate explicit participant choices
+and one initiative entry at minimum effective participant Speed (story Pass 3).
+Synthetic VM fixtures retain two-/three-person healing coverage and cancel once
+without cost if a participant becomes unavailable. Eclipse supplies the first
+production combined definition, for story-bound Sera/Liora only; no Lely/Esla
+combination or new disable status exists.
 
 Test 180 covers definitions, exact IDs, atomic rejection, deterministic healing,
 Strain boundaries, combined reservations, historical playback, navigation and
@@ -2093,3 +2094,119 @@ The expanded world exposed per-NPC whole-catalogue enumeration in `physicalMapId
 Northern Road/Blocked Path again clamp at their western edge; Eastern Reaches/Thornmere Fen again clamp at their southern edge. The wider geography and other cameras remain intact. MAP3 row 13 columns 9–12 and row 14 columns 10–12 are now water, and both directions of the former southern seam are removed. Myles confirmed that the southwestern bank should remain sealed for this pass; existing saves there need debug warp to leave. No replacement route or persistent authority is added. See `Art/qa/early-region/README.md` for exact deltas and verification. SAVE_VERSION remains 5.
 
 Early-region verification passes 240/240 regression suites, 32 JavaScript syntax checks and 130 automated browser checks; validator zero errors / 14 existing warnings, all 934 fingerprints and the regenerated transition artifact match. This pass is delivered as a local checkpoint on `agent/codex`; it is not merged into main or pushed.
+
+
+### Sera/Liora Part 2 — Bethany courtyard (review)
+
+The bedroom door now enters a generated guesthouse courtyard with initial solo Sera control. Liora calls, walks from the doorway and joins a brief breakfast/Bethany/Skybloom exchange before the unchanged Drenwick infirmary awakening. This remains their last full Bethany day; deeper relationship insecurities, Lely/dream connections, breakfast gameplay, town exploration and battles are not introduced. Party, resources, regional grids and SAVE_VERSION 5 are unchanged. Verification passes 241/241 suites, 21 JavaScript syntax checks, zero validation errors / 14 existing warnings, unchanged fingerprints/transition artifact and 174 automated native/2× browser checks. Generated assets, all dialogue, twelve captures, exact files and manual checklist are documented in `Art/qa/sera-liora/courtyard-v1/README.md`. Work remains unstaged/uncommitted on `agent/codex`.
+
+Courtyard text follow-up: mixed-speaker pagination now measures each page in its own speaker font, preventing Liora’s monospace text from overflowing after measurement in Sera’s italic font. The browser check measures emitted text directly; suite 43 covers differing fonts and speaker-preserving pagination. Dialogue and graphics are unchanged.
+
+
+### Sera/Liora Part 3 — interrupted breakfast (review)
+
+The approved courtyard now continues through a bounded paired walk into the adjacent breakfast terrace. A temporary keeper, empty table, separated kitchen yard/stores, inner access gate and two independently animated Buzzy Beetle scene actors establish a domestic interruption. Both protagonists volunteer; the keeper opens access and they walk into confrontation positions. The single pre-battle handoff then fades to the existing Esla infirmary awakening. No combat, enemy data, reward, Resonance technique, party membership, save schema or regional grid changes are introduced. Verification passes 242/242 suites, 24 syntax checks, zero validation errors / 14 existing warnings, unchanged fingerprints/transition artifact and 3,291 automated native/2× browser checks with zero combat starts. Asset provenance, final dialogue, captures, exact incremental files and visual limitations are in `Art/qa/sera-liora/breakfast-v1/README.md`. All work remains unstaged/uncommitted on `agent/codex`.
+
+### Sera/Liora story-battle infrastructure — Pass 1 (review)
+
+A reusable session-only story context now accepts authored party profiles, temporary inventory, registered encounters, a presentation label and once-only outcome handlers. Sera/Liora opening profiles start at 220/290 HP with four real equipment definitions using ordinary shared combat arithmetic. Existing sprites are registered with the shared read-only battle renderer. The canonical party/resources and SAVE_VERSION 5 are unchanged. The breakfast scene still fades before combat; playable encounter, spells, cooperative Tech, menus, retry/aftermath and second fight remain deferred. Mechanics and builds are recorded in `STORY_BATTLES.md`; Pass 1 evidence and file inventory are recorded in `Art/qa/sera-liora/story-battle-pass1/README.md`.
+
+### Independent offensive Resonance — story Pass 2 (review)
+
+Null and Rainbow extend the shared Resonance effect, target and immutable-history
+contracts. Explicit private story bindings give Sera/Liora Attack / Resonance /
+Item / Run, with only their respective spell. Void/Prism metadata, deterministic
+power-minus-DEF damage, exact living-enemy targeting, Strain 1 and copied damage
+presentation reuse the existing command authority. Canonical Quickbloom,
+ordinary initiative, Lely resources, SAVE_VERSION 5 and the breakfast fade remain
+unchanged. No Buzzy Beetle combat stats exist; actual lethality/tuning, playable
+handoff, cooperative Tech/scheduling, retry/aftermath and second fight are deferred.
+Mechanics/bounds are in `STORY_BATTLES.md`; scoped verification and limits are in
+`Art/qa/sera-liora/story-battle-pass2/README.md`.
+
+
+### Explicit Eclipse consent — story Pass 3 (review)
+
+Eclipse now appears through shared Resonance for both Sera and Liora. Each must
+confirm her own compatible choice; no partner action is auto-drafted. The two
+choices schedule one combined action at their minimum effective Speed, including
+gear, Muddied and retained Slither. One simultaneous all-enemy damage witness
+uses the existing deterministic formula (provisional power 120) and applies
+Strain 1 each; participant unavailability cancels once without cost or fallback.
+Strict historical checks cover consent, initiative and exact surviving target
+sets. Lely's state, SAVE_VERSION 5, ordinary action scheduling, prior assets and
+breakfast behavior remain unchanged. No beetle combat templates/playable battle
+handoff, retry/aftermath or second fight is added. All work remains unstaged and
+uncommitted on agent/codex for Dot's review. See
+`Art/qa/sera-liora/story-battle-pass3/README.md` for verification and limits.
+
+
+Pass 3 eligibility follow-up: every participant must explicitly know the selected
+technique through static authored `knownTechniques` metadata. Sera knows
+Null/Eclipse, Liora Rainbow/Eclipse and Esla Quickbloom. Affinity/identity alone
+never grant a technique. The shared participant check gates menu availability,
+raw preflight and detached replay; no save/capability schema changes. Suite 266
+adds an otherwise eligible partner lacking Eclipse, with atomic rejection and
+canonical-state checks. Changes remain uncommitted for Dot's review.
+
+
+### First playable breakfast battle — story Pass 4 (review)
+
+Breakfast now enters the shared two-allies/two-Buzzy-Beetles command engine after
+the existing confrontation. The authored beetle is HP64/ATK2/DEF4/SPD4, XP/gold0,
+with ordinary capabilities and no random pool. Actual endpoint tests prove two
+landed noncritical hits, possible earlier critical kills, one-spell kills and
+1–2 HP incoming damage. Explicit Eclipse consent/minimum effective Speed,
+Strain, items, Run, immutable playback and outcome acknowledgement use existing
+authorities. Victory gives a short aftermath and the established one-time
+infirmary return. Escape/defeat retry only the temporary encounter; faults retain
+diagnostics. A direct scene checkpoint preserves canonical resources. Approved
+art is reused with sunny background/clear sprite separation. No Lely resource,
+new reward/quest flag, save-schema or second-fight change. SAVE_VERSION5 remains.
+Scoped evidence and native/2× browser captures are under
+`Art/qa/sera-liora/story-battle-pass4/`. Work remains unstaged and uncommitted on
+agent/codex, stopped for Dot's review before further work.
+
+
+### Sera/Liora storeroom continuation — stage 1, awaiting Dot review
+
+The first victory now leads through the keeper's cautious question and a storeroom
+crash to a larger easy Buzzy Beetle among flour bins. A warning and Sera's Eclipse
+suggestion leave ordinary commands and both explicit cooperative selections intact.
+The same story context carries HP, persistent statuses, equipment and inventory;
+local retries restore only the current fight's entry. The generated storeroom
+background includes flour bins, spilled flour and scattered flowers, using the
+approved courtyard/breakfast plates as references. First-fight mechanics and
+existing artwork remain unchanged. Flour-covered supplies and the server's
+question lead to an inert review boundary. Courtyard return, improvised breakfast,
+pinky promise, eating hold and final hospital completion remain deferred until
+Dot's review. No Lely resource, save-schema/version or random-pool change.
+See `Art/qa/sera-liora/storeroom-stage1/README.md` for evidence and walkthrough.
+Work remains unstaged and uncommitted on `agent/codex`.
+
+Follow-up: both Sera/Liora fights now use the shared blocked escape policy. Run
+remains visible but cannot escape or trigger a retry; defeat retries remain local.
+
+Visual follow-up: acknowledged storeroom victory now selects a separately
+registered flour-covered breakfast-supplies plate. Both plates load before room
+entry; the battle keeps its approved original plate. Rendering reads the existing
+secondCleared state only. Mechanics and the pending final-breakfast stage are unchanged.
+
+
+### Sera/Liora final courtyard breakfast — stage 2, pending final review
+
+Dot's stage-1 review passed. After the flour-covered supplies/server scene, the
+travellers now return to the approved sunny breakfast terrace. Bread, fruit and
+tea accompany quieter plans for their remaining Bethany day, returning in time
+for Skybloom, and a pinky promise to stay together as always. A three-second eating
+hold precedes the fade into Lely's unchanged infirmary awakening. Minimal existing
+standing sprites and Canvas gestures are used; no cosmetic overhaul or new art.
+
+Accepted battles, blocked Run, shared-context carryover/current-fight retries and
+the visual flour reveal are unchanged. Natural completion occurs exactly once;
+only a true story entry sets the existing opening-complete flag. Debug replay,
+held-input protection, callback invalidation and Lely resource isolation are
+covered by suite 269 and the native/2× browser route. SAVE_VERSION remains 5.
+Evidence, dialogue and the walkthrough are under
+`Art/qa/sera-liora/breakfast-ending-stage2/`. Work remains unstaged/uncommitted
+on `agent/codex`, stopped for final review.

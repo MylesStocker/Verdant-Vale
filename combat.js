@@ -222,6 +222,8 @@ let combatEnemyInstanceSequence = 0;
 // Immutable encounter-time boss evidence, outside legacy enumerable snapshots.
 const combatEnemyBossAtCreation = new WeakMap();
 const combatCanonicalEnemySources = new WeakMap();
+// Private story preparation capability; never exported or saved.
+const storyCombatPreparationPermits = new WeakMap();
 let combatMode = null;
 let combatActive = false;
 // Provenance only, not another outcome authority. Issued after the ordinary
@@ -449,7 +451,8 @@ const combatPlayerState = (() => {
     if (members) fail();
     validateInactiveCombatPreparation(handoff);
     if (galleryReceiverEncounter.isLocked() || formationCombatLab.isOpen() || debugMenu.open ||
-        !Number.isFinite(stats.hp) || (persistent ? stats.hp < 0 : stats.hp <= 0)) fail();
+        (!storyCombatPreparationPermits.has(handoff) &&
+          (!Number.isFinite(stats.hp) || (persistent ? stats.hp < 0 : stats.hp <= 0)))) fail();
     // Only an empty enemy side or an untouched inactive preparation is
     // eligible. Dead/ambiguous membership may represent an unresolved outcome.
     if (!Object.isFrozen(combat.enemies) ||
@@ -588,7 +591,7 @@ const combatPlayerState = (() => {
         supportedStatuses(m.statuses);validateSlither(m,s.effects[m.definition.slot]);
       }
       if(s.resonance)for(const [slot,cap]of s.resonance.entries()){
-        dataRecord(cap,['actorId','characterId','rareBorn','affinity','strain','appliedRound']);
+        dataRecord(cap,['actorId','characterId','rareBorn','affinity','strain','appliedRound',...(Object.hasOwn(cap,'source')?['source']:[])]);
         if(cap.actorId!==members[slot].instanceId||!safe(cap.strain)||!safe(cap.appliedRound)||
             cap.appliedRound>(roundState?.completed||0)||(!cap.strain)!==(!cap.appliedRound)||
             !cap.rareBorn&&cap.strain)invalid();
@@ -597,13 +600,13 @@ const combatPlayerState = (() => {
       if(JSON.stringify(enemyData)!==s.enemySeal)invalid();
       return {s,enemyData};
     };
-    const prepare = (request,allowSession=false,preview=false) => {
+    const prepare = (request,allowSession=false,preview=false,partial=false) => {
       const {s,enemyData}=inspect(false,allowSession),command=dataRecord(request,['type','allyActions','enemyActions']);
       if(command.type!=='party-round')invalid();
       const supplied=array(command.allyActions).map(a=>{
         const type=Object.getOwnPropertyDescriptor(a||{},'type')?.value;
         const spec=type==='item'?itemSpec(Object.getOwnPropertyDescriptor(a,'itemId')?.value):null;
-        const keys=type==='resonance'?['type','actorId','techniqueId','targetId','participantIds']:type==='run'?['type','actorId']:type==='item'?['type','actorId','itemId',...(spec.effect==='damage_all'?[]:['targetId'])]:
+        const keys=type==='resonance'?['type','actorId','techniqueId',resonanceTechnique(Object.getOwnPropertyDescriptor(a,'techniqueId')?.value).target==='all_living_enemies'?'targetIds':'targetId','participantIds']:type==='run'?['type','actorId']:type==='item'?['type','actorId','itemId',...(spec.effect==='damage_all'?[]:['targetId'])]:
           ['attack','observe'].includes(type)?['type','actorId','targetId']:null;
         if(!keys)invalid();return dataRecord(a,keys);
       });
@@ -616,19 +619,28 @@ const combatPlayerState = (() => {
         if(a.type==='resonance'){
           const tech=resonanceTechnique(a.techniqueId),participants=resonanceParticipants(tech,partyData,s.resonance);
           ids=array(a.participantIds);
-          if(!s.resonance||participants.some(m=>!m||!partyActorCanAct(m,partyData))||
+          if(ids.some(id=>typeof id!=='string')||!s.resonance||participants.some(m=>!m||!partyActorCanAct(m,partyData))||
               JSON.stringify(ids)!==JSON.stringify(participants.map(m=>m.instanceId))||
-              s.resonance.find(c=>c.actorId===a.actorId)?.characterId!==tech.initiator||
+              !ids.includes(a.actorId)||
               ids.some(id=>s.resonance.find(c=>c.actorId===id).strain>0))invalid();
-          const target=partyData.find(m=>m.instanceId===a.targetId);
-          if(!target||target.hp<=0||target.hp>=target.maxHp)invalid();
+          const side=resonanceTargetSide(tech),target=(side==='ally'?partyData:enemyData).find(m=>m.instanceId===a.targetId);
+          if(tech.target==='all_living_enemies'){
+            a.targetIds=array(a.targetIds);
+            const targets=enemyData.filter(e=>e.hp>0&&!s.unusual.get(e.instanceId)?.departed);
+            if(a.targetIds.some(id=>typeof id!=='string')||!targets.length||JSON.stringify(a.targetIds)!==JSON.stringify(targets.map(e=>e.instanceId)))invalid();
+            for(const enemy of targets)resonanceDamageAmount(tech.power,enemy.def);
+          }else{
+            if(!resonanceTargetEligible(tech,target,side)||side==='enemy'&&s.unusual.get(target.instanceId)?.departed)invalid();
+            if(tech.effect==='damage')resonanceDamageAmount(tech.power,target.def);
+          }
           a.participantIds=ids;
         }
-        for(const id of ids){if(covered.has(id))invalid();covered.add(id);}
+        if(covered.has(a.actorId))invalid();covered.add(a.actorId);
       }
-      if(covered.size!==living.length||living.some(m=>!covered.has(m.instanceId)))invalid();
+      if(!partial&&(covered.size!==living.length||living.some(m=>!covered.has(m.instanceId))))invalid();
+      validateResonanceConsents(supplied,partial);
       const allyActions=living.map(m=>supplied.find(a=>a.actorId===m.instanceId)).filter(Boolean);
-      const actionFor=id=>allyActions.find(a=>a.actorId===id||a.type==='resonance'&&a.participantIds.includes(id));
+      const actionFor=id=>allyActions.find(a=>a.actorId===id);
       const reserved=new Map(),observed=new Map();
       for(const a of allyActions) {
         const actor=exactMember(a.actorId);
@@ -665,8 +677,9 @@ const combatPlayerState = (() => {
         }
         if(a.brace?.selected?a.targetId!==null:typeof a.targetId!=='string'||!living.some(m=>m.instanceId===a.targetId))invalid();
       }
-      const planActors=[...living.map(m=>{const a=actionFor(m.instanceId);return {actorId:m.instanceId,targetId:a.targetId??null,side:'ally',
-        slot:m.definition.slot,spd:effective(m,equipment(s,m.definition.slot)).spd,commandType:a.type};}),
+      const speedParty=partyData.map((m,slot)=>({...m,effective:effective(members[slot],equipment(s,slot))}));
+      const planActors=[...allyActions.filter(a=>resonancePlansActor(a,s.resonance)).map(a=>({actorId:a.actorId,targetId:a.targetId??null,side:'ally',
+        slot:exactMember(a.actorId).definition.slot,spd:resonancePlanSpeed(a,speedParty),commandType:a.type})),
         ...enemyActions.map(a=>{const e=enemyData.find(e=>e.instanceId===a.actorId);return {actorId:a.actorId,targetId:a.targetId,side:'enemy',slot:e.slot,spd:e.spd,commandType:a.brace?.selected?'brace':'attack'};})];
       partyInitiativeWeights(planActors);
       // A sample may increase a Slither actor's weight to 20. Validate that
@@ -722,9 +735,9 @@ const combatPlayerState = (() => {
         for(const seed of seeds)effects[seed.slot].slither={speed:seed.speed,round:0,roll:null,source:'prepared'};
         let resonance=null;
         if(Object.hasOwn(data,'resonance')){
-          const bindings=array(data.resonance).map(v=>dataRecord(v,['slot','characterId']));
+          const bindings=array(data.resonance).map(v=>dataRecord(v,['slot','characterId',...(Object.hasOwn(v||{},'source')?['source']:[])]));
           if(bindings.length!==candidates.length||new Set(bindings.map(v=>v.characterId)).size!==bindings.length)invalid();
-          resonance=bindings.map((binding,slot)=>resonanceCapabilityBinding(candidates[slot],binding,slot));
+          resonance=bindings.map((binding,slot)=>resonanceCapabilityBinding(candidates[slot],binding,slot,storyCombatPreparationPermits.has(handoff)));
         }
         return {data,candidates,inventory,loadouts,effects,resonance,handoff};
     };
@@ -751,7 +764,7 @@ const combatPlayerState = (() => {
       getView() { return commandBattle ? snapshot() : null; },
       // Private controller-only read gates; never exported as gameplay APIs.
       inspectSession(allowTerminal=false) { inspect(allowTerminal,true); return snapshot(); },
-      prepareSession(request) { return prepare(request,true,true); },
+      prepareSession(request,partial=false) { return prepare(request,true,true,partial); },
       itemInfo(id) { return itemSpec(id); },
       resolve(request,allowSession=false) {
         const {s,enemyData,allyActions,enemyActions,planActors,before,actionFor}=prepare(request,allowSession);
@@ -790,42 +803,55 @@ const combatPlayerState = (() => {
           }
           let plan=planPartyAttackOrder(planActors,tape);
           while(!plan.complete){tape.push(roll());plan=planPartyAttackOrder(planActors,tape);}
-          let outcome='ongoing';const finishedTechniques=new Set();
+          let outcome='ongoing';
           for(const planned of plan.order) {
             exact();const actor=live(planned.actorId),target=planned.targetId===null?null:live(planned.targetId);
             if(!actor||(planned.targetId!==null&&!target))throw Error('Party command lost exact identity');
             const action=planned.side==='ally'?actionFor(planned.actorId):{type:planned.commandType};
-            if(action.type==='resonance'&&finishedTechniques.has(action.actorId))continue;
             const tech=action.type==='resonance'?resonanceTechnique(action.techniqueId):null;
             const partyNow=roster.map(view);
             if(tech?.kind==='combined'){
               const unavailable=action.participantIds.map(id=>partyNow.find(m=>m.instanceId===id)).find(m=>!partyActorCanAct(m,partyNow));
-              if(unavailable||target.hp===0){
+              if(unavailable||target?.hp===0){
                 events.push({type:'resonance_cancel',...planned,techniqueId:tech.id,participantIds:action.participantIds,
                   reason:unavailable?(unavailable.hp===0?'participant_dead':'participant_disabled'):'target_dead',
-                  unavailableId:unavailable?.instanceId||target.instanceId});finishedTechniques.add(action.actorId);continue;
+                  unavailableId:unavailable?.instanceId||target.instanceId});continue;
               }
-              const last=plan.order.filter(p=>action.participantIds.includes(p.actorId)).at(-1).actorId;
-              if(planned.actorId!==last){events.push({type:'resonance_wait',...planned,techniqueId:tech.id,
-                participantIds:action.participantIds,executeActorId:last});continue;}
             }
             if(!partyActorCanAct(ally(actor)?view(actor):actor,partyNow)){
               events.push({type:'skip',...planned,reason:actor.hp===0?'actor_dead':'actor_disabled'});continue;
             }
             if(target?.hp===0){events.push({type:'cancel',...planned,reason:'target_dead'});continue;}
+            if(tech?.target==='living_enemy'&&!available(target)){events.push({type:'cancel',...planned,reason:'target_departed'});continue;}
             if(!ally(actor)&&s.unusual.get(actor.instanceId)?.suppressedRound===round){
               events.push({type:'skip',...planned,reason:'trollbane'});continue;}
             if(tech){
-              const hpBefore=target.hp,attemptedHealing=Math.max(1,Math.floor(target.definition.maxHp/5));
-              target.hp+=Math.min(attemptedHealing,target.definition.maxHp-target.hp);
-              events.push({type:'resonance',...planned,techniqueId:tech.id,techniqueName:tech.name,participantIds:action.participantIds,
-                attemptedHealing,appliedHealing:target.hp-hpBefore,hpBefore,hpAfter:target.hp});
+              const hpBefore=target?.hp;
+              if(tech.target==='all_living_enemies'){
+                const hits=action.targetIds.map(live).filter(available).map(enemy=>{
+                  const attemptedDamage=resonanceDamageAmount(tech.power,enemy.def),hpBefore=enemy.hp,hpAfter=Math.max(0,hpBefore-attemptedDamage);
+                  return {targetId:enemy.instanceId,defense:enemy.def,attemptedDamage,appliedDamage:hpBefore-hpAfter,hpBefore,hpAfter};
+                });
+                for(const hit of hits)live(hit.targetId).hp=hit.hpAfter;
+                events.push({type:'resonance_damage_all',...planned,techniqueId:tech.id,techniqueName:tech.name,
+                  participantIds:action.participantIds,elements:tech.elements,power:tech.power,targetIds:action.targetIds,hits});
+              }else if(tech.effect==='damage'){
+                const attemptedDamage=resonanceDamageAmount(tech.power,target.def);
+                target.hp=Math.max(0,hpBefore-attemptedDamage);
+                events.push({type:'resonance_damage',...planned,techniqueId:tech.id,techniqueName:tech.name,
+                  participantIds:action.participantIds,elements:tech.elements,power:tech.power,defense:target.def,
+                  attemptedDamage,appliedDamage:hpBefore-target.hp,hpBefore,hpAfter:target.hp});
+              }else{
+                const attemptedHealing=Math.max(1,Math.floor(target.definition.maxHp/5));
+                target.hp+=Math.min(attemptedHealing,target.definition.maxHp-target.hp);
+                events.push({type:'resonance',...planned,techniqueId:tech.id,techniqueName:tech.name,participantIds:action.participantIds,
+                  attemptedHealing,appliedHealing:target.hp-hpBefore,hpBefore,hpAfter:target.hp});
+              }
               for(const [i,id]of action.participantIds.entries()){
                 const cap=s.resonance.find(c=>c.actorId===id),before=cap.strain,appliedRoundBefore=cap.appliedRound;
                 cap.strain=tech.participants[i].strain;cap.appliedRound=round;
                 events.push({type:'strain',actorId:id,before,after:cap.strain,appliedRoundBefore,appliedRoundAfter:round,reason:'application'});
               }
-              finishedTechniques.add(action.actorId);
             } else if(action.type==='brace') {
               events.push({type:'brace',...planned,active:s.braced.has(actor.instanceId)});
             } else if(action.type==='attack') {
@@ -1077,36 +1103,41 @@ const combatPlayerState = (() => {
     const blankSelection=()=>({commandCursor:0,itemCursor:0,itemScroll:0,techniqueCursor:0,techniqueId:null,pendingType:null,itemId:null,enemyTarget:null,allyTarget:null,targetSide:null});
     const standardPhase=allowed=>{if(sessionState?.commandSet!=='standard')invalid();return phase(allowed);};
     const direction=value=>{if(!['previous','next'].includes(value))invalid();return value==='next'?1:-1;};
-    const committedIds=s=>s.allyActions.flatMap(a=>a.type==='resonance'?a.participantIds:[a.actorId]);
+    const committedIds=s=>s.allyActions.map(a=>a.actorId);
     const currentAlly=s=>livingAllies(s).find(m=>!committedIds(s).includes(m.instanceId))||null;
+    const pendingConsent=(s,actor=currentAlly(s))=>s.allyActions.find(a=>a.type==='resonance'&&
+      resonanceTechnique(a.techniqueId).kind==='combined'&&a.participantIds.includes(actor?.instanceId));
     const resonanceReason=(s,actor)=>{
       const caps=s.snapshot.resonance,cap=caps?.find(c=>c.actorId===actor?.instanceId);
       if(!actor||!cap?.rareBorn)return null;
       if(actor.hp===0)return actor.name+' is Fallen';
       if(cap.strain>0)return 'Strained';
-      const techniques=Object.values(RESONANCE_TECHNIQUES).filter(tech=>tech.initiator===cap.characterId);
+      const techniques=Object.values(RESONANCE_TECHNIQUES).filter(tech=>tech.participants.some(p=>p.characterId===cap.characterId));
       if(!techniques.length)return 'No authored technique';
       const committed=committedIds(s);
       if(!techniques.some(tech=>resonanceParticipants(tech,s.snapshot.party,caps).every(m=>
-        m&&partyActorCanAct(m,s.snapshot.party)&&!committed.includes(m.instanceId)&&caps.find(c=>c.actorId===m.instanceId).strain===0)))
+        m&&partyActorCanAct(m,s.snapshot.party)&&(!committed.includes(m.instanceId)||s.allyActions.some(a=>a.actorId===m.instanceId&&a.type==='resonance'&&a.techniqueId===tech.id))&&caps.find(c=>c.actorId===m.instanceId).strain===0)))
         return 'Participant unavailable';
-      if(!s.snapshot.party.some(m=>m.hp>0&&m.hp<m.maxHp))return 'No wounded ally';
+      if(!techniques.some(tech=>(resonanceTargetSide(tech)==='ally'?s.snapshot.party:s.snapshot.enemies)
+          .some(m=>resonanceTargetEligible(tech,m,resonanceTargetSide(tech)))))
+        return techniques.every(tech=>tech.target==='living_wounded_ally')?'No wounded ally':'No living target';
       return null;
     };
     const techniqueRows=s=>{
       const actor=currentAlly(s),caps=s.snapshot.resonance;if(!actor||!caps)return [];
       return [...Object.values(RESONANCE_TECHNIQUES)].filter(tech=>{
         const participants=resonanceParticipants(tech,s.snapshot.party,caps);
-        return caps.find(c=>c.actorId===actor.instanceId)?.characterId===tech.initiator&&
-          participants.every(m=>m&&partyActorCanAct(m,s.snapshot.party)&&!committedIds(s).includes(m.instanceId)&&caps.find(c=>c.actorId===m.instanceId).strain===0)&&
-          s.snapshot.party.some(m=>m.hp>0&&m.hp<m.maxHp);
+        return (!pendingConsent(s)||pendingConsent(s).techniqueId===tech.id)&&tech.participants.some(p=>p.characterId===caps.find(c=>c.actorId===actor.instanceId)?.characterId)&&
+          participants.every(m=>m&&partyActorCanAct(m,s.snapshot.party)&&(!committedIds(s).includes(m.instanceId)||s.allyActions.some(a=>a.actorId===m.instanceId&&a.type==='resonance'&&a.techniqueId===tech.id))&&caps.find(c=>c.actorId===m.instanceId).strain===0)&&
+          (resonanceTargetSide(tech)==='ally'?s.snapshot.party:s.snapshot.enemies)
+            .some(m=>resonanceTargetEligible(tech,m,resonanceTargetSide(tech)));
       }).map(tech=>({techniqueId:tech.id,name:tech.name,kind:tech.kind,
         participantIds:resonanceParticipants(tech,s.snapshot.party,caps).map(m=>m.instanceId),
         strain:tech.participants.map(p=>p.strain)}));
     };
-    const commandEnabled=(s,type)=>type!=='resonance'||techniqueRows(s).length>0;
+    const commandEnabled=(s,type)=>(!pendingConsent(s)||type==='resonance')&&(type!=='resonance'||techniqueRows(s).length>0);
     const commandAvailability=s=>menuFor(s).map(command=>({command,enabled:commandEnabled(s,command),
-      disabledReason:command==='resonance'&&!commandEnabled(s,command)?resonanceReason(s,currentAlly(s)):null}));
+      disabledReason:!commandEnabled(s,command)?pendingConsent(s)?'Awaiting shared technique consent':resonanceReason(s,currentAlly(s)):null}));
     const itemSeal=snap=>JSON.stringify([...new Set([...snap.inventory,...snap.equipment.flatMap(g=>['weapon','armor','shield','accessory'].map(k=>g[k]).filter(Boolean))])]
       .map(id=>commandRounds.itemInfo(id).item));
     const reserved=s=>{
@@ -1121,10 +1152,14 @@ const combatPlayerState = (() => {
         const info=commandRounds.itemInfo(id);counts.set(id,rows.length);rows.push({itemId:id,name:info.item.name,total:1,targeting:itemCategory(info)});}
       return rows.map(row=>({...row,available:row.total-(reservations.get(row.itemId)||0),usable:row.total>(reservations.get(row.itemId)||0)}));
     };
+    const allTargets=s=>s.selection.pendingType==='resonance'&&resonanceTechnique(s.selection.techniqueId).target==='all_living_enemies';
     const selectedTarget=s=>s.selection.targetSide==='ally'?s.selection.allyTarget:s.selection.enemyTarget;
-    const targetRows=s=>(s.selection.targetSide==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0&&!m.unusual?.departed&&(s.selection.pendingType!=='resonance'||m.hp<m.maxHp));
+    const targetEligible=(s,m,side)=>s.selection.pendingType==='resonance'?
+      resonanceTargetEligible(resonanceTechnique(s.selection.techniqueId),m,side)&&
+        (!pendingConsent(s)||!Object.hasOwn(pendingConsent(s),'targetId')||pendingConsent(s).targetId===m.instanceId):m.hp>0&&!m.unusual?.departed;
+    const targetRows=s=>(s.selection.targetSide==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>targetEligible(s,m,s.selection.targetSide));
     const enterTargets=(s,side)=>{
-      const rows=(side==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>m.hp>0&&!m.unusual?.departed&&(s.selection.pendingType!=='resonance'||m.hp<m.maxHp)),key=side==='ally'?'allyTarget':'enemyTarget';
+      const rows=(side==='ally'?s.snapshot.party:s.snapshot.enemies).filter(m=>targetEligible(s,m,side)),key=side==='ally'?'allyTarget':'enemyTarget';
       if(!rows.length)invalid();
       const fallback=side==='ally'&&rows.some(m=>m.instanceId===currentAlly(s).instanceId)?currentAlly(s).instanceId:rows[0].instanceId;
       s.selection[key]=rows.some(m=>m.instanceId===s.selection[key])?s.selection[key]:fallback;s.selection.targetSide=side;s.phase='targeting';
@@ -1132,15 +1167,15 @@ const combatPlayerState = (() => {
     const dryRequest=(s,actions)=>({type:'party-round',allyActions:actions,
       enemyActions:s.snapshot.enemies.filter(e=>e.hp>0&&!e.unusual?.departed).map(e=>({actorId:e.instanceId,targetId:livingAllies(s)[0].instanceId}))});
     const validateDrafts=(s,actions,complete=false)=>{
-      const filled=actions.slice();if(!complete){const targetId=s.snapshot.enemies.find(e=>e.hp>0&&!e.unusual?.departed).instanceId;
-        for(const m of livingAllies(s).filter(m=>!actions.flatMap(a=>a.type==='resonance'?a.participantIds:[a.actorId]).includes(m.instanceId)))filled.push({type:'attack',actorId:m.instanceId,targetId});}
-      return commandRounds.prepareSession(dryRequest(s,filled));
+      return commandRounds.prepareSession(dryRequest(s,actions),!complete);
     };
     const appendDraft=(s,action)=>{
-      validateDrafts(s,[...s.allyActions,action]);
+      validateDrafts(s,[...s.allyActions,action],s.allyActions.length+1===livingAllies(s).length);
       s.draftHistory.push(copyFormationData({phase:s.phase,selection:s.selection}));
       s.allyActions=copyFormationData([...s.allyActions,action]);s.selection=blankSelection();
-      s.phase=currentAlly(s)?'awaiting_action':'ready';return getView();
+      s.phase=currentAlly(s)?'awaiting_action':'ready';
+      if(s.phase==='awaiting_action'&&pendingConsent(s))s.selection.commandCursor=menuFor(s).indexOf('resonance');
+      return getView();
     };
     const beginStandard=options=>{
       const o=attackRecord(options,['commandSet']);if(o.commandSet!=='standard'||sessionState||roundState!==null)invalid();
@@ -1161,7 +1196,8 @@ const combatPlayerState = (() => {
       return copyFormationData({commandSet:'standard',phase:s.phase,nextActorId:actor?.instanceId||null,
         currentAlly:actor,commands:menuFor(s),selectedCommand:choosing?menuFor(s)[selection.commandCursor]:null,
         commandCursor:selection.commandCursor,pendingCommandType:['item','technique','targeting'].includes(s.phase)?selection.pendingType:null,
-        targetSide:s.phase==='targeting'?selection.targetSide:null,selectedTargetInstanceId:s.phase==='targeting'?selectedTarget(s):null,
+        targetSide:s.phase==='targeting'?selection.targetSide:null,selectedTargetInstanceId:s.phase==='targeting'&&!allTargets(s)?selectedTarget(s):null,
+        ...(s.phase==='targeting'&&allTargets(s)?{targetMode:'all'}:{}),
         validTargetIds:s.phase==='targeting'?targetRows(s).map(m=>m.instanceId):[],
         selectedItemId:showingItems?(s.phase==='item'?rows[selection.itemCursor]?.itemId:selection.itemId)||null:null,
         items:rows,itemCursor:selection.itemCursor,itemScroll:selection.itemScroll,
@@ -1348,7 +1384,7 @@ const combatPlayerState = (() => {
       },
       confirmTechnique() {
         if(arguments.length)invalid();const s=standardPhase(['technique']),row=techniqueRows(s)[s.selection.techniqueCursor];
-        if(!row)invalid();s.selection.techniqueId=row.techniqueId;enterTargets(s,'ally');return getView();
+        if(!row)invalid();s.selection.techniqueId=row.techniqueId;enterTargets(s,resonanceTargetSide(resonanceTechnique(row.techniqueId)));return getView();
       },
       cancelTechnique() {if(arguments.length)invalid();standardPhase(['technique']);return backtrackStandard();},
       moveItem(value) {
@@ -1369,6 +1405,7 @@ const combatPlayerState = (() => {
       cancelItem() { if(arguments.length)invalid();standardPhase(['item']);return backtrackStandard(); },
       moveTarget(value) {
         if(arguments.length!==1)invalid();const s=standardPhase(['targeting']),delta=direction(value),rows=targetRows(s);
+        if(allTargets(s))return getView();
         const i=rows.findIndex(m=>m.instanceId===selectedTarget(s));if(i<0)invalid();
         s.selection[s.selection.targetSide==='ally'?'allyTarget':'enemyTarget']=rows[(i+delta+rows.length)%rows.length].instanceId;return getView();
       },
@@ -1377,14 +1414,14 @@ const combatPlayerState = (() => {
         let action;
         if(s.selection.pendingType==='resonance'){
           const row=techniqueRows(s).find(t=>t.techniqueId===s.selection.techniqueId);if(!row)invalid();
-          action={type:'resonance',actorId,techniqueId:row.techniqueId,targetId,participantIds:row.participantIds};
+          action={type:'resonance',actorId,techniqueId:row.techniqueId,...(allTargets(s)?{targetIds:targetRows(s).map(m=>m.instanceId)}:{targetId}),participantIds:row.participantIds};
         }else action=s.selection.pendingType==='item'?{type:'item',actorId,itemId:s.selection.itemId,targetId}:{type:s.selection.pendingType,actorId,targetId};return appendDraft(s,action);
       },
       cancelTargeting() { if(arguments.length)invalid();standardPhase(['targeting']);return backtrackStandard(); },
       getView,
     });
   })();
-  let persistentBridgeClaimed=false;
+  let persistentBridgeClaimed=false,storyBridgeClaimed=false;
   const persistentActorVariants = prepared => prepared.candidates.map((m,i)=>{
     const gear=Object.fromEntries(Object.entries(prepared.loadouts[i]).map(([k,id])=>[k,id===null?null:formationItemDefinition(id).item]));
     const atk=effectiveAtk({...m,...gear}),def=m.def+(gear.armor?.bonus||0)+(gear.shield?.bonus||0),spd=m.spd+(gear.accessory?.bonus||0);
@@ -1394,9 +1431,10 @@ const combatPlayerState = (() => {
       spd:statuses.includes('slither')?prepared.effects[i].slither.speed:Math.max(1,spd-(statuses.includes('muddied')?2:0)),
       bypass:gear.armor?.defenseCapBypass===true}));
   });
-  const claimPersistentBridge=()=>{
-    if(persistentBridgeClaimed)fail();
-    persistentBridgeClaimed=true;
+  // Canonical and story lifecycles share the same preparation and execution.
+  const createLifecycleBridge=(story,allowsCutaway=()=>false)=>{
+    const storyPermit=story?Object.freeze({}):null;
+    if(storyPermit)storyCombatPreparationPermits.set(storyPermit,allowsCutaway);
     let owner=null;
     const bound=ticket=>{
       if(!owner||ticket!==owner.ticket||members!==owner.members||combat.enemies!==owner.enemies||sessionState!==owner.session)fail();
@@ -1405,21 +1443,24 @@ const combatPlayerState = (() => {
     };
     return Object.freeze({
       preparePlayer(request) {
-        const prepared=commandRounds.seed(request,true),actors=persistentActorVariants(prepared).map(v=>v[0]).filter(m=>m.hp>0);
+        const prepared=commandRounds.seed(request,!story,storyPermit),actors=persistentActorVariants(prepared).map(v=>v[0]).filter(m=>m.hp>0);
         partyInitiativeWeights(actors);
         partyInitiativeWeights(actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})));
         return copyFormationData(prepared.data);
       },
       begin(request,enemyIds,validateOnly=false,handoff=null,scriptedToken=null) {
         if(owner||combat.mode!==null||combat.active||combat.enemies.length||partyCombatLab.isActive())fail();
+        if(story&&(handoff!==null||scriptedToken!==null||completedSingleVictoryReceipt!==null||
+            !['blocked','fastest_living'].includes(request.escape)))fail();
         const {ids,templates}=preparePartyEnemyFormation(enemyIds);
         const lifecycle=[...new Set(templates.flatMap(template=>enemyCapabilityMetadata(ENEMY_TEMPLATE_REGISTRY[template.id]).capabilities)
           .filter(capability=>CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES.includes(capability)))];
+        if(story&&lifecycle.length)fail();
         if(['ignore_boss','observe_gated'].includes(request.escape)&&!scriptedToken)fail();
         if((lifecycle.length||scriptedToken)&&!canonicalPartyCombat.permitsScripted(scriptedToken,ids,lifecycle,request.escape))fail();
         if(!Number.isSafeInteger(combatEnemyInstanceSequence)||combatEnemyInstanceSequence<0||
             combatEnemyInstanceSequence>Number.MAX_SAFE_INTEGER-ids.length)fail();
-        const prepared=commandRounds.seed(request,true,handoff||scriptedToken);
+        const prepared=commandRounds.seed(request,!story,storyPermit||handoff||scriptedToken);
         const actorVariants=persistentActorVariants(prepared);
         for(const variants of actorVariants)for(const a of variants)for(const e of templates)if(!Number.isSafeInteger(e.def+(e.meleeArmor||0))||!attackNumbersAreSafe(a.atk,e.def+(e.meleeArmor||0))||
             !attackNumbersAreSafe(e.atk,playerIncomingMitigation(e.atk,a.def,a.bypass))||
@@ -1429,7 +1470,7 @@ const combatPlayerState = (() => {
         partyInitiativeWeights([...actors.map(m=>({...m,spd:m.statuses.includes('slither')?20:m.spd})),...templates]);
         if(validateOnly)return copyFormationData({player:prepared.data,enemies:templates});
         // All input and numeric validation precedes either identity allocator.
-        if(completedSingleVictoryReceipt!==null)prepareFormationEntry();
+        if(!story&&completedSingleVictoryReceipt!==null)prepareFormationEntry();
         if(ids.length===1)combat.enemy=templates[0];
         else installFormationState(templates,{escape:prepared.data.escape});
         combat.enemies.forEach((enemy,i)=>combatCanonicalEnemySources.set(enemy,templates[i]));
@@ -1449,11 +1490,26 @@ const combatPlayerState = (() => {
         sessionState=null;roundState=null;commandBattle=null;members=null;
         combat.enemy=null;owner=null;
       },
+      ...(story?{abandon(ticket) {
+        // Faults cannot be inspected, but cleanup still requires exact ownership.
+        if(!owner||ticket!==owner.ticket||members!==owner.members||
+            combat.enemies!==owner.enemies||sessionState!==owner.session||
+            sessionState?.phase==='resolving'||roundState?.phase==='resolving')fail();
+        sessionState=null;roundState=null;commandBattle=null;members=null;
+        combat.enemy=null;owner=null;
+      }}:{}),
     });
+  };
+  const claimPersistentBridge=()=>{
+    if(persistentBridgeClaimed)fail();persistentBridgeClaimed=true;return createLifecycleBridge(false);
+  };
+  const claimStoryBridge=(allowsCutaway=()=>false)=>{
+    if(storyBridgeClaimed||typeof allowsCutaway!=='function')fail();storyBridgeClaimed=true;return createLifecycleBridge(true,allowsCutaway);
   };
   return Object.freeze({
     session,
     claimPersistentBridge,
+    claimStoryBridge,
     hasParty() { return members !== null; },
     getView() {
       if (members) return Object.freeze({shape:'party',members:Object.freeze(members.map(view))});
@@ -1843,7 +1899,9 @@ const partyAttackPlayback = (() => {
 const partyCommandPlayback = (() => {
   // Capture pure numeric validators once. Reels/projectors never call the live
   // resolver, AI, mutable formulas or RNG; validation checks recorded witnesses.
-  const witnessDamage=attackDamageNumbers,witnessMitigation=playerIncomingMitigation,witnessEvasion=evadeChance;
+  const witnessDamage=attackDamageNumbers,witnessMitigation=playerIncomingMitigation,witnessEvasion=evadeChance,
+    witnessResonanceDamage=resonanceDamageAmount,witnessResonancePlanSpeed=resonancePlanSpeed,
+    witnessResonancePlansActor=resonancePlansActor,witnessResonanceConsents=validateResonanceConsents;
   const reels=new WeakSet(),gearSlots=['weapon','armor','shield','accessory'];
   const itemKinds=Object.freeze(Object.fromEntries(Object.entries(ITEM_REGISTRY).map(([id,item])=>[id,Object.freeze({
     sexBane:item.sexBane||null,stunTurns:item.stunTurns||0,key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
@@ -1890,7 +1948,8 @@ const partyCommandPlayback = (() => {
     status:['targetId','statusesBefore','statusesAfter','sourceId','itemId'],effect:['sourceId','targetId','itemId','effectsBefore','effectsAfter'],
     delayed_effect_tick:['effect','ownerId','targetId','before','after','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
     resonance:[...planKeys,'techniqueId','techniqueName','participantIds','attemptedHealing','appliedHealing','hpBefore','hpAfter'],
-    resonance_wait:[...planKeys,'techniqueId','participantIds','executeActorId'],
+    resonance_damage:[...planKeys,'techniqueId','techniqueName','participantIds','elements','power','defense','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
+    resonance_damage_all:[...planKeys,'techniqueId','techniqueName','participantIds','elements','power','targetIds','hits'],
     resonance_cancel:[...planKeys,'techniqueId','participantIds','reason','unavailableId'],
     strain:['actorId','before','after','appliedRoundBefore','appliedRoundAfter','reason'],
     brace_check:['actorId','chance','roll','selected','before','after'],
@@ -1943,12 +2002,12 @@ const partyCommandPlayback = (() => {
       if(Object.hasOwn(s,'resonance')){
         list(s.resonance,s.party.length,s.party.length);const characters=new Set();
         s.resonance.forEach((c,i)=>{
-          keys(c,['actorId','characterId','rareBorn','affinity','strain','appliedRound']);
+          keys(c,['actorId','characterId','rareBorn','affinity','strain','appliedRound',...(Object.hasOwn(c,'source')?['source']:[])]);
           if(c.actorId!==s.party[i].instanceId||typeof c.characterId!=='string'||! /^[a-z][a-z0-9_]*$/.test(c.characterId)||characters.has(c.characterId)||
-              ![c.characterId,c.characterId+'_lab'].includes(s.party[i].characterId)||!bool(c.rareBorn)||
-              (c.rareBorn?c.affinity!=='bloommarked':c.affinity!==null||c.strain!==0)||
+              !(c.source==='story'?[c.characterId]:[c.characterId,c.characterId+'_lab']).includes(s.party[i].characterId)||!bool(c.rareBorn)||
+              (c.rareBorn?!(c.source==='story'?['bloommarked','voidborn','prismborn']:['bloommarked']).includes(c.affinity):c.affinity!==null||c.strain!==0)||
               !safe(c.strain)||!safe(c.appliedRound)||c.appliedRound>maxRound||(!c.strain)!==(!c.appliedRound))fail();
-          const authored=resonanceCapabilityBinding(s.party[i],{slot:i,characterId:c.characterId},i);
+          const authored=resonanceCapabilityBinding(s.party[i],{slot:i,characterId:c.characterId,...(Object.hasOwn(c,'source')?{source:c.source}:{})},i,c.source==='story');
           if(c.rareBorn!==authored.rareBorn||c.affinity!==authored.affinity)fail();
           characters.add(c.characterId);
         });
@@ -1987,7 +2046,7 @@ const partyCommandPlayback = (() => {
       const covered=new Set();
       for(const a of actions){
         const kind=side==='enemy'?(a.brace?.selected?'brace':'attack'):a.type,info=kind==='item'?spec(a.itemId):null;
-        keys(a,side==='enemy'?['actorId','targetId',...(Object.hasOwn(a,'brace')?['brace']:[])]:kind==='resonance'?['type','actorId','techniqueId','targetId','participantIds']:kind==='run'?['type','actorId']:['attack','observe'].includes(kind)?['type','actorId','targetId']:
+        keys(a,side==='enemy'?['actorId','targetId',...(Object.hasOwn(a,'brace')?['brace']:[])]:kind==='resonance'?['type','actorId','techniqueId',resonanceTechnique(Object.getOwnPropertyDescriptor(a,'techniqueId')?.value).target==='all_living_enemies'?'targetIds':'targetId','participantIds']:kind==='run'?['type','actorId']:['attack','observe'].includes(kind)?['type','actorId','targetId']:
           kind==='item'?['type','actorId','itemId',...(info.effect==='damage_all'?[]:['targetId'])]:[]);
         const actor=member(a.actorId),target=member(a.targetId);
         if(!actor||!actor.hp||actor.side!==side||actor.slot<=previous)fail();previous=actor.slot;
@@ -2003,22 +2062,26 @@ const partyCommandPlayback = (() => {
           const tech=resonanceTechnique(a.techniqueId),participants=resonanceParticipants(tech,state.party,state.resonance);
           list(a.participantIds,tech.participants.length,tech.participants.length);ids=a.participantIds;
           if(side!=='ally'||!state.resonance||participants.some(m=>!m||!partyActorCanAct(m,state.party))||
-              state.resonance.find(c=>c.actorId===actor.instanceId)?.characterId!==tech.initiator||
+              !ids.includes(actor.instanceId)||
               ids.some(id=>!state.resonance.some(c=>c.actorId===id&&c.strain===0))||
-              !target||target.side!=='ally'||target.hp<=0||target.hp>=target.maxHp)fail();
+              tech.target!=='all_living_enemies'&&!resonanceTargetEligible(tech,target,target?.side))fail();
+          if(tech.target==='all_living_enemies'){
+            list(a.targetIds,1,3);equal(a.targetIds,state.enemies.filter(available).map(e=>e.instanceId));
+          }
           equal(ids,participants.map(m=>m.instanceId));
         }
-        for(const id of ids){if(covered.has(id))fail();covered.add(id);}
+        if(covered.has(a.actorId))fail();covered.add(a.actorId);
         if(kind!=='run'&&kind!=='resonance'&&kind!=='brace'&&info?.effect!=='damage_all'){
           if(!target||!available(target))fail();const friendly=info&&['heal','cure','evade','equip','nothing'].includes(info.effect);
           if(friendly?target.side!==side:target.side===side)fail();
           if(info&&['equip','nothing'].includes(info.effect)&&target!==actor)fail();
         }
         if(info)reservations.set(a.itemId,(reservations.get(a.itemId)||0)+1);
-        for(const id of ids)commands.push({command:a,actorId:id,targetId:a.targetId??null,side,slot:member(id).slot,commandType:kind});
+        if(side==='enemy'||witnessResonancePlansActor(a,state.resonance))commands.push({command:a,actorId:a.actorId,targetId:a.targetId??null,side,slot:actor.slot,commandType:kind});
       }
       equal([...covered].sort(),living.map(m=>m.instanceId).sort());
     }
+    witnessResonanceConsents(r.command.allyActions);
     commands.sort((a,b)=>a.side===b.side?a.slot-b.slot:a.side==='ally'?-1:1);
     for(const[id,n]of reservations)if(state.inventory.filter(x=>x===id).length<n)fail();
     list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();
@@ -2048,7 +2111,7 @@ const partyCommandPlayback = (() => {
     }
     list(r.order,commands.length,commands.length);const planned=new Map();
     for(const p of r.order){keys(p,planKeys);const c=commands.find(c=>c.actorId===p.actorId),m=member(p.actorId);
-      if(!c||planned.has(p.actorId)||['targetId','side','slot','commandType'].some(k=>p[k]!==c[k])||p.spd!==(c.side==='ally'?m.effective.spd:m.spd))fail();planned.set(p.actorId,p);}
+      if(!c||planned.has(p.actorId)||['targetId','side','slot','commandType'].some(k=>p[k]!==c[k])||p.spd!==(c.side==='ally'?witnessResonancePlanSpeed(c.command,state.party):m.spd))fail();planned.set(p.actorId,p);}
     // Check recorded intervals and declared order, without invoking the planner.
     list(r.initiative,r.order.length-1,r.order.length-1);const remaining=commands.map(c=>c.actorId);
     r.initiative.forEach((d,i)=>{
@@ -2173,34 +2236,52 @@ const partyCommandPlayback = (() => {
       equal(e,{type:'theft',actorId:actor.instanceId,targetId:target.instanceId,round:r.round,roll:e.roll,attemptedGold,amount,goldBefore:state.gold,goldAfter:state.gold-amount});
       state.gold=e.goldAfter;actor.unusual.stolenGold=amount;actor.unusual.stolenRound=r.round;push(e);
     };
-    let escaped=false;const finishedTechniques=new Set();
+    let escaped=false;
     for(const p of r.order){
       if(outcome()!=='ongoing'||escaped)break;
       const actor=member(p.actorId),target=member(p.targetId),c=commands.find(c=>c.actorId===p.actorId);
       const action=c.command,tech=p.commandType==='resonance'?resonanceTechnique(action.techniqueId):null;
-      if(tech&&finishedTechniques.has(action.actorId))continue;
       if(tech?.kind==='combined'){
         const unavailable=action.participantIds.map(member).find(m=>!partyActorCanAct(m,state.party));
-        if(unavailable||target.hp===0){
+        if(unavailable||target?.hp===0){
           const e=take('resonance_cancel');matching(e,p);
           equal(e,{type:'resonance_cancel',...p,techniqueId:tech.id,participantIds:action.participantIds,
             reason:unavailable?(unavailable.hp===0?'participant_dead':'participant_disabled'):'target_dead',unavailableId:unavailable?.instanceId||target.instanceId});
-          finishedTechniques.add(action.actorId);push(e);continue;
+          push(e);continue;
         }
-        const last=r.order.filter(p=>action.participantIds.includes(p.actorId)).at(-1).actorId;
-        if(p.actorId!==last){const e=take('resonance_wait');equal(e,{type:'resonance_wait',...p,techniqueId:tech.id,participantIds:action.participantIds,executeActorId:last});push(e);continue;}
+
       }
       if(!partyActorCanAct(actor,state.party)){const e=take('skip');matching(e,p);if(e.reason!==(actor.hp===0?'actor_dead':'actor_disabled'))fail();push(e);continue;}
       if(target?.hp===0){const e=take('cancel');matching(e,p);if(e.reason!=='target_dead')fail();push(e);continue;}
+      if(tech?.target==='living_enemy'&&!available(target)){const e=take('cancel');equal(e,{type:'cancel',...p,reason:'target_departed'});push(e);continue;}
       if(actor.side==='enemy'&&actor.unusual?.suppressedRound===r.round){const e=take('skip');equal(e,{type:'skip',...p,reason:'trollbane'});push(e);continue;}
       if(tech){
-        const e=take('resonance');matching(e,p);equal(e.participantIds,action.participantIds);
-        if(e.techniqueId!==tech.id||e.techniqueName!==tech.name||!safe(e.attemptedHealing)||!e.attemptedHealing||!safe(e.appliedHealing)||
-            e.hpBefore!==target.hp||!safe(e.hpAfter)||e.hpAfter>target.maxHp||
-            e.appliedHealing!==Math.min(e.attemptedHealing,target.maxHp-e.hpBefore)||e.hpAfter!==e.hpBefore+e.appliedHealing)fail();
-        target.hp=e.hpAfter;push(e);
+        const e=take(tech.target==='all_living_enemies'?'resonance_damage_all':tech.effect==='damage'?'resonance_damage':'resonance');matching(e,p);equal(e.participantIds,action.participantIds);
+        if(e.techniqueId!==tech.id||e.techniqueName!==tech.name)fail();
+        if(tech.target==='all_living_enemies'){
+          equal(e.elements,tech.elements);equal(e.targetIds,action.targetIds);
+          if(e.power!==tech.power)fail();
+          const targets=action.targetIds.map(member).filter(available);list(e.hits,targets.length,targets.length);
+          for(const [i,hit]of e.hits.entries()){
+            keys(hit,['targetId','defense','attemptedDamage','appliedDamage','hpBefore','hpAfter']);const t=targets[i];
+            if(hit.targetId!==t.instanceId||hit.defense!==t.def||hit.attemptedDamage!==witnessResonanceDamage(e.power,t.def)||
+                hit.hpBefore!==t.hp||hit.hpAfter!==Math.max(0,t.hp-hit.attemptedDamage)||hit.appliedDamage!==t.hp-hit.hpAfter)fail();
+          }
+          for(const hit of e.hits)damage(hit,member(hit.targetId));
+        }else if(tech.effect==='damage'){
+          equal(e.elements,tech.elements);
+          if(target.side!=='enemy'||e.power!==tech.power||e.defense!==target.def||
+              e.attemptedDamage!==witnessResonanceDamage(e.power,e.defense))fail();
+          damage(e,target);
+        }else{
+          if(!safe(e.attemptedHealing)||!e.attemptedHealing||!safe(e.appliedHealing)||
+              e.hpBefore!==target.hp||!safe(e.hpAfter)||e.hpAfter>target.maxHp||
+              e.appliedHealing!==Math.min(e.attemptedHealing,target.maxHp-e.hpBefore)||e.hpAfter!==e.hpBefore+e.appliedHealing)fail();
+          target.hp=e.hpAfter;
+        }
+        push(e);
         for(const [i,id]of action.participantIds.entries())strain(id,tech.participants[i].strain,r.round,'application');
-        finishedTechniques.add(action.actorId);continue;
+        recoverGold();continue;
       }
       let curse=null;
       if(p.commandType==='attack'&&!target.braced&&actor.side==='ally'&&actor.statuses.includes('cursed')&&statusApplications[actor.slot].cursed!==r.round){
@@ -2608,11 +2689,11 @@ function prepareFormationEntry() {
 function validateInactiveCombatPreparation(handoff=null) {
   const ownDialogue=handoff!==null&&(canonicalPartyCombat.permitsHandoff(handoff)||
     canonicalPartyCombat.permitsScriptedPreparation(handoff));
-  const conflicts=activityOwnership.combatPreparationConflicts(ownDialogue);
+  const conflicts=activityOwnership.combatPreparationConflicts(ownDialogue,storyCombatPreparationPermits.has(handoff));
   if(conflicts.length)throw new Error('Combat preparation conflicts with '+conflicts.join(', '));
   if (combat.active !== false || formationSessionController.getView() !== null ||
       (!ownDialogue&&(dialogue.open !== false || dialogue.callbacks !== null || dialogue.triggerEncounterId !== null || choice.open)) ||
-      seraLioraCutscene.active || fishing.active || menu.open || shop.open ||
+      (seraLioraCutscene.active&&storyCombatPreparationPermits.get(handoff)?.()!==true) || fishing.active || menu.open || shop.open ||
       warpMenu.open || accordPanel.open || continentMap.open)
     throw new Error('Unsupported formation entry: combat is not safely finalized');
 }

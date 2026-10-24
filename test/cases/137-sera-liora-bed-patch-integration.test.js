@@ -86,7 +86,7 @@ module.exports = {
 
     installImmediateImages(g);
     g.run('debugPlaySeraLioraCutaway()');
-    assert.equal(g.run('__imageConstructions'), 11);
+    assert.equal(g.run('__imageConstructions'), 17);
     assert.equal(g.run("IMAGE_ASSET_BUNDLES.sera_liora_opening.every(function(id){return imageAssetRuntime(id).status==='loaded';})"), true);
     advanceToRoom(g);
 

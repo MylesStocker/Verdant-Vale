@@ -5,6 +5,7 @@
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
+const { completeBreakfast } = require('../sera-liora-courtyard-helpers');
 
 function installImmediateImages(g) {
   g.run(`
@@ -76,6 +77,11 @@ module.exports = {
         g.press('a');
         g.press('Enter');
       }
+      else if (g.run("seraLioraCutscene.phase==='courtyard_free'")) {
+        g.hold('s');g.frames(20);g.release('s');
+        g.hold('d');g.frames(110);g.release('d');
+      }
+      else if(g.run('isSeraLioraBreakfastSequence()')) completeBreakfast(g);
       else g.frames(1);
       guard++;
     }

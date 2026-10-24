@@ -55,7 +55,7 @@ function seraLioraApproachIsWalkable() {
 // Drawing never advances a clock and spoken pages always select idle.
 function seraLioraSceneSeraView() {
   const m = SERA_LIORA_SCENE_METRICS, a = m.approach;
-  if (seraLioraCutscene.phase === 'free_walk') {
+  if (seraLioraCutscene.phase === 'free_walk' || isSeraLioraCourtyard() || isSeraLioraBreakfastSequence()) {
     const w = seraLioraGuestRoomWalk;
     return Object.freeze({ x: w.x, y: w.y, facing: w.facing,
       frame: w.moving && !dialogue.open ? w.animationFrame : 1 });

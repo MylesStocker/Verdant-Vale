@@ -3724,8 +3724,16 @@ function drawGalleryBattleCreature(kind,x,y,pose='idle') {
 function drawBattleReceiver(x,y,pose) { drawGalleryBattleCreature('receiver',x,y,pose); }
 function drawBattleCaller(x,y,pose) { drawGalleryBattleCreature('caller',x,y,pose); }
 function drawBattleKeeper(x,y,pose) { drawGalleryBattleCreature('keeper',x,y,pose); }
+// Reuse the approved breakfast creature sheet; no new art or animation state.
+function drawBattleBuzzyBeetle(x,y,pose,scale=2.5) {
+  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+  drawBreakfastBeetle({x:0,y:0,frame:1,facing:'left'});ctx.restore();
+}
+function drawBattleLargeBuzzyBeetle(x,y,pose) { drawBattleBuzzyBeetle(x,y,pose,3); }
 (function buildEnemySpriteDispatch() {
   const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
+  def(drawBattleBuzzyBeetle, 0, ['enemy_buzzy_beetle']);
+  def(drawBattleLargeBuzzyBeetle, 0, ['enemy_large_buzzy_beetle']);
   def(drawBattleReceiver, 0, ['enemy_gallery_receiver']);
   def(drawBattleCaller, 0, ['enemy_gallery_caller']);
   def(drawBattleKeeper, 0, ['enemy_gallery_keeper']);
@@ -3977,6 +3985,8 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 // conservative visual bounds cover the existing idle animation of the eight
 // state-only templates; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
+  [drawBattleBuzzyBeetle,Object.freeze([-65,-80,65,0])],
+  [drawBattleLargeBuzzyBeetle,Object.freeze([-78,-96,78,0])],
   [drawBattleReceiver, Object.freeze([-52,-112,54,4])],
   [drawBattleCaller, Object.freeze([-31,-113,47,4])],
   [drawBattleKeeper, Object.freeze([-49,-79,48,4])],

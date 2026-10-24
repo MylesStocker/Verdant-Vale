@@ -1,0 +1,193 @@
+{
+  "scope": "post-victory flour-covered breakfast-supplies visual reveal only; stop for Dot review",
+  "branch": "agent/codex",
+  "startingHead": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "finalHead": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "staged": [],
+  "committed": false,
+  "pushed": false,
+  "fullRegression": {
+    "total": 247,
+    "passed": 247,
+    "failed": 0,
+    "logSha256": "05f53faaf78d9cdb94b916497d1019d49319470c812104376f29be5194977d4f"
+  },
+  "focused": {
+    "suites": [
+      133,
+      263,
+      264,
+      267,
+      268
+    ],
+    "268Groups": 16,
+    "result": "passed",
+    "logSha256": "df65a2bc439235ec3eceaece009457534743283130af84deaccb9fbd3046a896"
+  },
+  "browser": {
+    "type": "automated Chromium DOM keyboard, production Canvas and real PNGs; native512x480 and2x1024x960; coordinator inspected before/after captures; no human playtest claimed",
+    "checks": 3386,
+    "errors": [],
+    "passed": true,
+    "logSha256": "6c053f9dedeb92429d172702becf9d77745bd0d65f37203ec034801ca43b58b4",
+    "savedRepresentativeCaptures": 4
+  },
+  "validation": {
+    "validation": {
+      "errors": 0,
+      "warnings": 14,
+      "counts": {
+        "Maps": 1097,
+        "Map metadata": 1097,
+        "Regional layout": 934,
+        "Regional chunks": 934,
+        "Camera exclusion": 8,
+        "Continuous seams": 1976,
+        "Continuous content": 934,
+        "Encounter geography": 934,
+        "Regional presentation": 2,
+        "Tiles": 263280,
+        "EDGE_TRANSITIONS": 2056,
+        "NPCs": 481,
+        "Items": 144,
+        "Enemies": 221,
+        "Enemy capabilities": 73,
+        "Encounter formations": 100,
+        "Dialogue": 956,
+        "Save/Flags": 205,
+        "Map Features": 81,
+        "Pickups": 79,
+        "Chests": 23
+      },
+      "errorList": [],
+      "warningList": [
+        {
+          "group": "Tile Properties",
+          "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+        },
+        {
+          "group": "Enemies",
+          "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_fen_zolom (Fen Zolom): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_botfly (Botfly): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_waspthra (Waspthra): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_sparkeel (Sparkeel): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_mudwrack_snapper (Mudwrack Snapper): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_fen_rootworm (Fen Rootworm): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_willow_veiled_stalker (Willow-Veiled Stalker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_hollowreed_choker (Hollowreed Choker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+        },
+        {
+          "group": "Dialogue",
+          "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+        },
+        {
+          "group": "Dialogue",
+          "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+        }
+      ]
+    },
+    "saveVersion": 5
+  },
+  "syntax": {
+    "files": [
+      "image-assets.js",
+      "test/cases/133-sera-liora-raster-integration.test.js",
+      "sera-liora-breakfast-battle.js",
+      "test/cases/268-storeroom-story-battle.test.js",
+      "test/sera-liora-courtyard-browser.js"
+    ],
+    "result": "passed"
+  },
+  "diffCheck": "passed",
+  "art": {
+    "tool": "built-in imagegen, precise-object edit",
+    "reference": "assets/backgrounds/cutaways/sera-liora/storeroom-v1.png",
+    "source": "Art/generated/sera-liora/storeroom-flour-v1-imagegen-source.png",
+    "runtime": "assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png",
+    "sourceDimensions": [
+      1295,
+      1214
+    ],
+    "runtimeDimensions": [
+      512,
+      480
+    ],
+    "processing": "RGB Lanczos downsample only; source and approved original preserved",
+    "prompt": "README.md"
+  },
+  "behavior": "Existing secondCleared selects reveal only after acknowledged victory. Both plates ready before room entry. No new state or mechanics. Run remains blocked.",
+  "files": [
+    "PROJECT_STATUS.md",
+    "architecture.md",
+    "image-assets.js",
+    "test/cases/133-sera-liora-raster-integration.test.js",
+    "Art/generated/sera-liora/storeroom-flour-v1-imagegen-source.png",
+    "Art/qa/sera-liora/storeroom-flour-reveal/README.md",
+    "Art/qa/sera-liora/storeroom-flour-reveal/after-1x.png",
+    "Art/qa/sera-liora/storeroom-flour-reveal/after-2x.png",
+    "Art/qa/sera-liora/storeroom-flour-reveal/before-1x.png",
+    "Art/qa/sera-liora/storeroom-flour-reveal/before-2x.png",
+    "Art/qa/sera-liora/storeroom-flour-reveal/verification.json",
+    "STORY_BATTLES.md",
+    "assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png",
+    "sera-liora-breakfast-battle.js",
+    "test/cases/268-storeroom-story-battle.test.js",
+    "test/sera-liora-courtyard-browser.js"
+  ],
+  "sha256": {
+    "PROJECT_STATUS.md": "3cfbfc1d4ba97fa7c179cbe418f5980f03d858bd7dc978746f38a8a6b2724dde",
+    "architecture.md": "2871d3f80dccc89a1eb958dc466edb8ee2be5ece86bc736c0c29db8e72ca6192",
+    "image-assets.js": "11b4df453848de8026258cf53b8dbe18bfa33cfbdbd4fe84abeb08a6370f8165",
+    "test/cases/133-sera-liora-raster-integration.test.js": "8884fef513d3ece5d305749c74bbaf496c899df951ac1f3e602be346d13700b2",
+    "Art/generated/sera-liora/storeroom-flour-v1-imagegen-source.png": "6a5a8faf638dcb0bd448122ac56fad7eec66582535bbcd027581a165c0d25826",
+    "Art/qa/sera-liora/storeroom-flour-reveal/README.md": "18f5e571321eecb79dcdf42ed3b6c29d9bbad1d4f0561bb6526d730db2f3d910",
+    "Art/qa/sera-liora/storeroom-flour-reveal/after-1x.png": "ee62b114bd1ca5d47128cd482df26db54fa59a4c1e5d0335d1f9cfe026d0182c",
+    "Art/qa/sera-liora/storeroom-flour-reveal/after-2x.png": "b9d72556ada549f1a3083efa4b5f3e20b3d4cb2e3be92fb8cedc2a2ef7ea1260",
+    "Art/qa/sera-liora/storeroom-flour-reveal/before-1x.png": "e4f0b471a4b6a962e094f2f3dbe3f10d3e7ce08a434a75baea92e44fa8f076c8",
+    "Art/qa/sera-liora/storeroom-flour-reveal/before-2x.png": "d244a1bd72eb14177c3d868afbdaf17ae3b786be4189297c112c83cdd25c6c74",
+    "STORY_BATTLES.md": "6662be8fcad7e2e02102ba1b66dcf56b3ca04ba66568e38caa1be4cd74fd48f7",
+    "assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png": "7d30fcdde793fad85b2024c7f4f57972574da65f252e3c5ec554f2c9fdc790ab",
+    "sera-liora-breakfast-battle.js": "51a741eeeef417d38f2d52f37459d8807c6a9082b4f988bc35ce99b27b92efdb",
+    "test/cases/268-storeroom-story-battle.test.js": "9d25d56cbe29a3d1e0d54b22ecf7a2182ca1e988a9ae6c24acb53460b2159db8",
+    "test/sera-liora-courtyard-browser.js": "d942c258f55921e193e05a401a96289feb229bae756a2506a1a7f277d847ab40"
+  },
+  "existingDirtyFilesPreservedByteIdentical": 150,
+  "finalDirtyFiles": 166,
+  "initialGitStatus": " M ENEMY_CAPABILITY_AUDIT.md\n M PROJECT_STATUS.md\n M activity-ownership.js\n M architecture.md\n M combat.js\n M data.js\n M enemy-catalog.js\n M image-assets.js\n M index.html\n M input.js\n M items.js\n M movement.js\n M npcs.js\n M persistent-party.js\n M render-battle.js\n M render-entities.js\n M render-party-battle.js\n M render-ui.js\n M render.js\n M resonance.js\n M save.js\n M sera-liora-scene.js\n M story-checkpoint-lab.js\n M test/cases/131-sera-liora-cutaway-opening.test.js\n M test/cases/132-sera-liora-debug-menu.test.js\n M test/cases/133-sera-liora-raster-integration.test.js\n M test/cases/137-sera-liora-bed-patch-integration.test.js\n M test/cases/138-sera-liora-guest-room-free-walk.test.js\n M test/cases/155-formation-four-command-integration.test.js\n M test/cases/165-party-session-controller.test.js\n M test/cases/171-party-command-status-hardening.test.js\n M test/cases/173-party-command-session-controller.test.js\n M test/cases/180-resonance-mvp.test.js\n M test/cases/183-canonical-party-combat-integration.test.js\n M test/cases/185-canonical-battle-envelope.test.js\n M test/cases/186-enemy-capability-migration.test.js\n M test/cases/188-status-specials-party-combat.test.js\n M test/cases/189-unusual-enemy-capabilities-party-combat.test.js\n M test/cases/191-universal-party-combat-compatibility.test.js\n M test/cases/192-story-checkpoint-lab.test.js\n M test/cases/261-sera-liora-bedroom-interactions.test.js\n M test/cases/43-dialogue-wrapping.test.js\n M test/cases/52-stable-persistence-ids.test.js\n M world-transitions.js\n?? Art/generated/sera-liora/breakfast-gate-open-v1-imagegen-source.png\n?? Art/generated/sera-liora/breakfast-keeper-v1-imagegen-source.png\n?? Art/generated/sera-liora/breakfast-v1-imagegen-source.png\n?? Art/generated/sera-liora/buzzy-beetle-scene-v1-imagegen-source.png\n?? Art/generated/sera-liora/courtyard-v1-imagegen-source.png\n?? Art/generated/sera-liora/liora-walk-courtyard-v1-imagegen-source.png\n?? Art/generated/sera-liora/storeroom-v1-imagegen-source.png\n?? Art/qa/regional-geography/visual-atlas.html\n?? Art/qa/regional-geography/visual-atlas.md\n?? Art/qa/regional-geography/visual-atlas.png\n?? Art/qa/sera-liora/breakfast-v1/ASSET_PROMPTS.md\n?? Art/qa/sera-liora/breakfast-v1/README.md\n?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-1x.png\n?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-2x.png\n?? Art/qa/sera-liora/breakfast-v1/confrontation-1x.png\n?? Art/qa/sera-liora/breakfast-v1/confrontation-2x.png\n?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-1x.png\n?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-2x.png\n?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-1x.png\n?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-2x.png\n?? Art/qa/sera-liora/breakfast-v1/manifest.json\n?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-1x.png\n?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-2x.png\n?? Art/qa/sera-liora/breakfast-v1/verification.json\n?? Art/qa/sera-liora/courtyard-v1/ASSET_PROMPTS.md\n?? Art/qa/sera-liora/courtyard-v1/README.md\n?? Art/qa/sera-liora/courtyard-v1/approach-1x.png\n?? Art/qa/sera-liora/courtyard-v1/approach-2x.png\n?? Art/qa/sera-liora/courtyard-v1/arrival-1x.png\n?? Art/qa/sera-liora/courtyard-v1/arrival-2x.png\n?? Art/qa/sera-liora/courtyard-v1/call-1x.png\n?? Art/qa/sera-liora/courtyard-v1/call-2x.png\n?? Art/qa/sera-liora/courtyard-v1/conversation-1x.png\n?? Art/qa/sera-liora/courtyard-v1/conversation-2x.png\n?? Art/qa/sera-liora/courtyard-v1/infirmary-return-1x.png\n?? Art/qa/sera-liora/courtyard-v1/infirmary-return-2x.png\n?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-1x.png\n?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-2x.png\n?? Art/qa/sera-liora/courtyard-v1/manifest.json\n?? Art/qa/sera-liora/courtyard-v1/verification.json\n?? Art/qa/sera-liora/storeroom-stage1/README.md\n?? Art/qa/sera-liora/storeroom-stage1/run-policy-followup.json\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-aftermath-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-aftermath-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-battle-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-battle-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-intro-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-intro-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-review-stop-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-review-stop-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/verification.json\n?? Art/qa/sera-liora/story-battle-pass1/README.md\n?? Art/qa/sera-liora/story-battle-pass1/verification.json\n?? Art/qa/sera-liora/story-battle-pass2/README.md\n?? Art/qa/sera-liora/story-battle-pass2/verification.json\n?? Art/qa/sera-liora/story-battle-pass3/README.md\n?? Art/qa/sera-liora/story-battle-pass3/verification.json\n?? Art/qa/sera-liora/story-battle-pass4/README.md\n?? Art/qa/sera-liora/story-battle-pass4/approach-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/approach-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/arrival-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/arrival-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-damage-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-damage-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-targets-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-targets-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-aftermath-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-aftermath-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-arrival-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-arrival-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/call-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/call-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/confrontation-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/confrontation-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/conversation-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/conversation-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/courtyard-departure-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/courtyard-departure-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/first-battle-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/first-battle-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/infirmary-return-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/infirmary-return-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/keeper-opens-gate-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/keeper-opens-gate-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/liora-breakfast-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/liora-breakfast-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/pre-battle-fade-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/pre-battle-fade-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/resonance-list-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/resonance-list-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/verification.json\n?? STORY_BATTLES.md\n?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png\n?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png\n?? assets/backgrounds/cutaways/sera-liora/courtyard-v1.png\n?? assets/backgrounds/cutaways/sera-liora/storeroom-v1.png\n?? assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png\n?? assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png\n?? assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png\n?? sera-liora-battle-profiles.js\n?? sera-liora-breakfast-battle.js\n?? sera-liora-breakfast.js\n?? sera-liora-courtyard.js\n?? story-battle.js\n?? test/cases/262-sera-liora-courtyard.test.js\n?? test/cases/263-sera-liora-breakfast.test.js\n?? test/cases/264-story-battle-context.test.js\n?? test/cases/265-offensive-resonance.test.js\n?? test/cases/266-combined-eclipse.test.js\n?? test/cases/267-breakfast-story-battle.test.js\n?? test/cases/268-storeroom-story-battle.test.js\n?? test/sera-liora-courtyard-browser.html\n?? test/sera-liora-courtyard-browser.js\n?? test/sera-liora-courtyard-helpers.js\n",
+  "finalGitStatus": " M ENEMY_CAPABILITY_AUDIT.md\n M PROJECT_STATUS.md\n M activity-ownership.js\n M architecture.md\n M combat.js\n M data.js\n M enemy-catalog.js\n M image-assets.js\n M index.html\n M input.js\n M items.js\n M movement.js\n M npcs.js\n M persistent-party.js\n M render-battle.js\n M render-entities.js\n M render-party-battle.js\n M render-ui.js\n M render.js\n M resonance.js\n M save.js\n M sera-liora-scene.js\n M story-checkpoint-lab.js\n M test/cases/131-sera-liora-cutaway-opening.test.js\n M test/cases/132-sera-liora-debug-menu.test.js\n M test/cases/133-sera-liora-raster-integration.test.js\n M test/cases/137-sera-liora-bed-patch-integration.test.js\n M test/cases/138-sera-liora-guest-room-free-walk.test.js\n M test/cases/155-formation-four-command-integration.test.js\n M test/cases/165-party-session-controller.test.js\n M test/cases/171-party-command-status-hardening.test.js\n M test/cases/173-party-command-session-controller.test.js\n M test/cases/180-resonance-mvp.test.js\n M test/cases/183-canonical-party-combat-integration.test.js\n M test/cases/185-canonical-battle-envelope.test.js\n M test/cases/186-enemy-capability-migration.test.js\n M test/cases/188-status-specials-party-combat.test.js\n M test/cases/189-unusual-enemy-capabilities-party-combat.test.js\n M test/cases/191-universal-party-combat-compatibility.test.js\n M test/cases/192-story-checkpoint-lab.test.js\n M test/cases/261-sera-liora-bedroom-interactions.test.js\n M test/cases/43-dialogue-wrapping.test.js\n M test/cases/52-stable-persistence-ids.test.js\n M world-transitions.js\n?? Art/generated/sera-liora/breakfast-gate-open-v1-imagegen-source.png\n?? Art/generated/sera-liora/breakfast-keeper-v1-imagegen-source.png\n?? Art/generated/sera-liora/breakfast-v1-imagegen-source.png\n?? Art/generated/sera-liora/buzzy-beetle-scene-v1-imagegen-source.png\n?? Art/generated/sera-liora/courtyard-v1-imagegen-source.png\n?? Art/generated/sera-liora/liora-walk-courtyard-v1-imagegen-source.png\n?? Art/generated/sera-liora/storeroom-flour-v1-imagegen-source.png\n?? Art/generated/sera-liora/storeroom-v1-imagegen-source.png\n?? Art/qa/regional-geography/visual-atlas.html\n?? Art/qa/regional-geography/visual-atlas.md\n?? Art/qa/regional-geography/visual-atlas.png\n?? Art/qa/sera-liora/breakfast-v1/ASSET_PROMPTS.md\n?? Art/qa/sera-liora/breakfast-v1/README.md\n?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-1x.png\n?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-2x.png\n?? Art/qa/sera-liora/breakfast-v1/confrontation-1x.png\n?? Art/qa/sera-liora/breakfast-v1/confrontation-2x.png\n?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-1x.png\n?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-2x.png\n?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-1x.png\n?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-2x.png\n?? Art/qa/sera-liora/breakfast-v1/manifest.json\n?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-1x.png\n?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-2x.png\n?? Art/qa/sera-liora/breakfast-v1/verification.json\n?? Art/qa/sera-liora/courtyard-v1/ASSET_PROMPTS.md\n?? Art/qa/sera-liora/courtyard-v1/README.md\n?? Art/qa/sera-liora/courtyard-v1/approach-1x.png\n?? Art/qa/sera-liora/courtyard-v1/approach-2x.png\n?? Art/qa/sera-liora/courtyard-v1/arrival-1x.png\n?? Art/qa/sera-liora/courtyard-v1/arrival-2x.png\n?? Art/qa/sera-liora/courtyard-v1/call-1x.png\n?? Art/qa/sera-liora/courtyard-v1/call-2x.png\n?? Art/qa/sera-liora/courtyard-v1/conversation-1x.png\n?? Art/qa/sera-liora/courtyard-v1/conversation-2x.png\n?? Art/qa/sera-liora/courtyard-v1/infirmary-return-1x.png\n?? Art/qa/sera-liora/courtyard-v1/infirmary-return-2x.png\n?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-1x.png\n?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-2x.png\n?? Art/qa/sera-liora/courtyard-v1/manifest.json\n?? Art/qa/sera-liora/courtyard-v1/verification.json\n?? Art/qa/sera-liora/storeroom-flour-reveal/README.md\n?? Art/qa/sera-liora/storeroom-flour-reveal/after-1x.png\n?? Art/qa/sera-liora/storeroom-flour-reveal/after-2x.png\n?? Art/qa/sera-liora/storeroom-flour-reveal/before-1x.png\n?? Art/qa/sera-liora/storeroom-flour-reveal/before-2x.png\n?? Art/qa/sera-liora/storeroom-flour-reveal/verification.json\n?? Art/qa/sera-liora/storeroom-stage1/README.md\n?? Art/qa/sera-liora/storeroom-stage1/run-policy-followup.json\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-aftermath-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-aftermath-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-battle-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-battle-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-intro-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-intro-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-review-stop-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-review-stop-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/verification.json\n?? Art/qa/sera-liora/story-battle-pass1/README.md\n?? Art/qa/sera-liora/story-battle-pass1/verification.json\n?? Art/qa/sera-liora/story-battle-pass2/README.md\n?? Art/qa/sera-liora/story-battle-pass2/verification.json\n?? Art/qa/sera-liora/story-battle-pass3/README.md\n?? Art/qa/sera-liora/story-battle-pass3/verification.json\n?? Art/qa/sera-liora/story-battle-pass4/README.md\n?? Art/qa/sera-liora/story-battle-pass4/approach-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/approach-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/arrival-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/arrival-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-damage-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-damage-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-targets-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-targets-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-aftermath-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-aftermath-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-arrival-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-arrival-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/call-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/call-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/confrontation-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/confrontation-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/conversation-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/conversation-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/courtyard-departure-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/courtyard-departure-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/first-battle-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/first-battle-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/infirmary-return-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/infirmary-return-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/keeper-opens-gate-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/keeper-opens-gate-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/liora-breakfast-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/liora-breakfast-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/pre-battle-fade-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/pre-battle-fade-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/resonance-list-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/resonance-list-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/verification.json\n?? STORY_BATTLES.md\n?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png\n?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png\n?? assets/backgrounds/cutaways/sera-liora/courtyard-v1.png\n?? assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png\n?? assets/backgrounds/cutaways/sera-liora/storeroom-v1.png\n?? assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png\n?? assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png\n?? assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png\n?? sera-liora-battle-profiles.js\n?? sera-liora-breakfast-battle.js\n?? sera-liora-breakfast.js\n?? sera-liora-courtyard.js\n?? story-battle.js\n?? test/cases/262-sera-liora-courtyard.test.js\n?? test/cases/263-sera-liora-breakfast.test.js\n?? test/cases/264-story-battle-context.test.js\n?? test/cases/265-offensive-resonance.test.js\n?? test/cases/266-combined-eclipse.test.js\n?? test/cases/267-breakfast-story-battle.test.js\n?? test/cases/268-storeroom-story-battle.test.js\n?? test/sera-liora-courtyard-browser.html\n?? test/sera-liora-courtyard-browser.js\n?? test/sera-liora-courtyard-helpers.js\n",
+  "artifacts": "New imagegen source/runtime and four QA captures only; no geographic artifacts regenerated",
+  "deferred": "Final courtyard/breakfast ending remains stopped for Dot review"
+}

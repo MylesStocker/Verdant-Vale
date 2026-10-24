@@ -112,5 +112,41 @@ module.exports = {
 
     const after = g.run('JSON.stringify({flags: QUEST_FLAG_SCHEMA.map(function(k){return window[k]}), day: day, mq: MainQuest})');
     assert.equal(after, before, 'reading Oswin’s dialogue must not change any save/progression state');
+
+    // Different speaker fonts must govern actual rendered lines, rather than
+    // wrapping the entire conversation using whichever page appeared first.
+    // The VM's usual fixed-width stub cannot expose that mismatch.
+    g.run(`
+      ctx.measureText=function(text){return {width:String(text).length*(ctx.font.includes('Georgia')?6:10)};};
+      window.__mixedPaint=[];
+      ctx.fillText=function(text,x,y){__mixedPaint.push({text,font:ctx.font,x,y,width:ctx.measureText(text).width});};
+    `);
+    const sentence='Then let’s eat. I’d like to see it before you arrange a private showing.';
+    for(const ids of [['sera','liora',null,'esla'],['liora','sera',null,'esla']]){
+      const records=ids.map(speakerId=>({speakerId,lines:[sentence]}));
+      // Include a long page to check metadata survives additional visual pages.
+      records.push({speakerId:'sera',lines:[Array(9).fill(sentence).join(' ')]});
+      g.run('openDialogue("",[[]]);setSpeakerDialoguePages('+JSON.stringify(records)+');tick=0');
+      let cursor=0;
+      while(cursor<g.run('dialogue.pages.length')){
+        g.run('dialogue.page='+cursor+';__mixedPaint=[];drawDialogue()');
+        const speaker=g.run('dialoguePagePresentation().speakerId');
+        const font=g.run('dialogueTextStyle(dialoguePagePresentation().styleId).bodyFont');
+        const paint=JSON.parse(g.run('JSON.stringify(__mixedPaint)')).filter(v=>v.y>=410&&v.y<=456);
+        assert.ok(paint.length>0);
+        for(const line of paint){
+          assert.equal(line.font,font,'draw font matches the active speaker on the first and later frames');
+          assert.ok(line.width<=468,'actual painted line fits for '+speaker+': '+line.text);
+        }
+        assert.ok(g.run('dialogue.pages[dialogue.page].length')<=3,'visual page remains height-safe');
+        cursor++;
+      }
+      const flat=JSON.parse(g.run('JSON.stringify(dialogue.pages)')).flat().join(' ');
+      assert.equal(norm(flat),norm(records.map(r=>r.lines.join(' ')).join(' ')),'no prose lost or duplicated');
+      const speakers=JSON.parse(g.run('JSON.stringify(dialogue.pageSpeakers)'));
+      assert.deepEqual(speakers.slice(0,4),ids,'mixed speaker identity survives wrapping');
+      assert.ok(speakers.slice(4).every(id=>id==='sera'),'pagination retains the long-page speaker');
+    }
+
   },
 };

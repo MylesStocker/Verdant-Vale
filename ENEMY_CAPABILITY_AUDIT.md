@@ -1,5 +1,12 @@
 # Enemy capability audit
 
+Story-battle Pass 4 and the storeroom stage add the ordinary `enemy_buzzy_beetle`
+and `enemy_large_buzzy_beetle` templates for Bethany only. The live registry has
+73 identities: 55 ordinary (54 static plus authenticated 23), twelve token-owned
+canonical scripts and six legacy scripts. Case 191 checks 87,777 complete ordinary
+preparations. The older 70-template summary below predates Fen Zolom and these
+beetles. No random encounter pool is changed.
+
 The integrated registry contains 70 templates: 52 ordinary (51 static plus
 authenticated 23), twelve token-owned canonical scripts, and six pre-recruitment
 legacy scripts. Case 191 verifies 74,409 ordinary dry preparations. Travellers'
@@ -75,6 +82,8 @@ column says otherwise.
 
 | Stable ID / name | Declaration; encounter sources | Post-MQ5 reachability | Required capabilities | Direct ID-specific semantic references | Before Pass 3 | Final category | Migration result / deferral |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| `enemy_buzzy_beetle` / Buzzy Beetle | `enemy-catalog.js`; Bethany breakfast only | repeatable local attempts | basic attack, observe, zero rewards | none | compatible | ordinary | shared story lifecycle; no random pool |
+| `enemy_large_buzzy_beetle` / Large Buzzy Beetle | `enemy-catalog.js`; Bethany breakfast only | repeatable local attempts | basic attack, observe, zero rewards | none | compatible | ordinary | shared story lifecycle; no random pool |
 | `enemy_marsh_wisp` / Marsh Wisp | `data.js`; core overworld pool, Labs | repeatable | basic attack, observe, rewards | observation/sprite aliases only | compatible | ordinary | capability-derived compatibility retained |
 | `enemy_stone_crawler` / Stone Crawler | `data.js`; core overworld pool | repeatable | base + brace | `defendChance` generic branch | rejected | ordinary | Pass 4A: Brace migrated, 20% |
 | `enemy_briar_hound` / Briar Hound | `data.js`; core overworld pool, Labs | repeatable | base | observation/sprite aliases only | compatible | ordinary | capability-derived compatibility retained |

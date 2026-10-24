@@ -1,0 +1,411 @@
+{
+  "scope": "Pass 1 only; stop for review before Pass 2",
+  "branch": "agent/codex",
+  "startingHead": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "finalHead": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "fullRegression": {
+    "command": "node test/run.js",
+    "total": 243,
+    "passed": 243,
+    "failed": 0
+  },
+  "focused": {
+    "suite264BehaviorGroups": 14,
+    "finalFocusedSuites": [
+      155,
+      165,
+      171,
+      173,
+      264
+    ],
+    "result": "passed"
+  },
+  "syntax": {
+    "scopedFiles": [
+      "activity-ownership.js",
+      "combat.js",
+      "input.js",
+      "items.js",
+      "movement.js",
+      "persistent-party.js",
+      "render-party-battle.js",
+      "save.js",
+      "sera-liora-battle-profiles.js",
+      "story-battle.js",
+      "story-checkpoint-lab.js",
+      "test/cases/155-formation-four-command-integration.test.js",
+      "test/cases/165-party-session-controller.test.js",
+      "test/cases/171-party-command-status-hardening.test.js",
+      "test/cases/173-party-command-session-controller.test.js",
+      "test/cases/264-story-battle-context.test.js",
+      "world-transitions.js"
+    ],
+    "scopedCount": 17,
+    "aggregateCount": 37,
+    "result": "passed"
+  },
+  "validation": {
+    "validation": {
+      "errors": 0,
+      "warnings": 14,
+      "counts": {
+        "Maps": 1097,
+        "Map metadata": 1097,
+        "Regional layout": 934,
+        "Regional chunks": 934,
+        "Camera exclusion": 8,
+        "Continuous seams": 1976,
+        "Continuous content": 934,
+        "Encounter geography": 934,
+        "Regional presentation": 2,
+        "Tiles": 263280,
+        "EDGE_TRANSITIONS": 2056,
+        "NPCs": 481,
+        "Items": 144,
+        "Enemies": 217,
+        "Enemy capabilities": 71,
+        "Encounter formations": 100,
+        "Dialogue": 956,
+        "Save/Flags": 205,
+        "Map Features": 81,
+        "Pickups": 79,
+        "Chests": 23
+      },
+      "errorList": [],
+      "warningList": [
+        {
+          "group": "Tile Properties",
+          "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+        },
+        {
+          "group": "Enemies",
+          "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_fen_zolom (Fen Zolom): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_botfly (Botfly): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_waspthra (Waspthra): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_sparkeel (Sparkeel): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_mudwrack_snapper (Mudwrack Snapper): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_fen_rootworm (Fen Rootworm): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_willow_veiled_stalker (Willow-Veiled Stalker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_hollowreed_choker (Hollowreed Choker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+        },
+        {
+          "group": "Dialogue",
+          "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+        },
+        {
+          "group": "Dialogue",
+          "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+        }
+      ]
+    },
+    "saveVersion": 5
+  },
+  "browser": {
+    "page": "sera-liora-courtyard-browser.html",
+    "viewportSizes": [
+      [
+        512,
+        480
+      ],
+      [
+        1024,
+        960
+      ]
+    ],
+    "checks": 3291,
+    "captures": [
+      "arrival-1x",
+      "call-1x",
+      "approach-1x",
+      "conversation-1x",
+      "liora-breakfast-1x",
+      "courtyard-departure-1x",
+      "breakfast-arrival-1x",
+      "keeper-opens-gate-1x",
+      "confrontation-1x",
+      "pre-battle-fade-1x",
+      "infirmary-return-1x",
+      "arrival-2x",
+      "call-2x",
+      "approach-2x",
+      "conversation-2x",
+      "liora-breakfast-2x",
+      "courtyard-departure-2x",
+      "breakfast-arrival-2x",
+      "keeper-opens-gate-2x",
+      "confrontation-2x",
+      "pre-battle-fade-2x",
+      "infirmary-return-2x"
+    ],
+    "errors": [],
+    "combatStarts": 0,
+    "ok": true,
+    "scope": "Unchanged playable cutaway; no new battle entry"
+  },
+  "newSpriteEvidence": "Simulated Canvas through shared drawPartyBattle; existing approved assets, correct feet/common scale, no state/RNG mutation",
+  "attackProof": [
+    {
+      "equipped": true,
+      "hits": [
+        {
+          "actor": "sera",
+          "damage": 50,
+          "critical": false,
+          "evaded": false
+        },
+        {
+          "actor": "liora",
+          "damage": 46,
+          "critical": false,
+          "evaded": false
+        },
+        {
+          "actor": "enemy",
+          "damage": 62,
+          "critical": false,
+          "evaded": false
+        }
+      ],
+      "canonicalUnchanged": true
+    },
+    {
+      "equipped": false,
+      "hits": [
+        {
+          "actor": "sera",
+          "damage": 22,
+          "critical": false,
+          "evaded": false
+        },
+        {
+          "actor": "liora",
+          "damage": 20,
+          "critical": false,
+          "evaded": false
+        },
+        {
+          "actor": "enemy",
+          "damage": 86,
+          "critical": false,
+          "evaded": false
+        }
+      ],
+      "canonicalUnchanged": true
+    }
+  ],
+  "manualHumanPlaytest": false,
+  "scopeFiles": [
+    "PROJECT_STATUS.md",
+    "STORY_BATTLES.md",
+    "activity-ownership.js",
+    "architecture.md",
+    "combat.js",
+    "index.html",
+    "input.js",
+    "items.js",
+    "movement.js",
+    "persistent-party.js",
+    "render-party-battle.js",
+    "save.js",
+    "sera-liora-battle-profiles.js",
+    "story-battle.js",
+    "story-checkpoint-lab.js",
+    "test/cases/155-formation-four-command-integration.test.js",
+    "test/cases/165-party-session-controller.test.js",
+    "test/cases/171-party-command-status-hardening.test.js",
+    "test/cases/173-party-command-session-controller.test.js",
+    "test/cases/264-story-battle-context.test.js",
+    "world-transitions.js",
+    "Art/qa/sera-liora/story-battle-pass1/README.md",
+    "Art/qa/sera-liora/story-battle-pass1/verification.json"
+  ],
+  "scopeFileSha256": {
+    "PROJECT_STATUS.md": "2977f351d88f1e92a06ebc7bf39761853171b731616aa5880bb943ed2c0769ef",
+    "STORY_BATTLES.md": "81021b7264fc330dc31121eb649832ca75dd2fce75b70641a3297b1a41579b6b",
+    "activity-ownership.js": "e6a6a8587c893215fd41aae4e472daba7c52f846870492e9f00e902df7611f85",
+    "architecture.md": "7500fceb01b121c15ee7f73879309d1d6bfb2ef72cc0e6d7198bb36a6946a9cb",
+    "combat.js": "53a93f897e27b44742a390b2516ba79040097512a127b70852da1ac588a79c49",
+    "index.html": "14d3967e1a616040703947b46bf7664b05e6122d6470bf36fbd58a17dc3a445d",
+    "input.js": "d083c982f4660d465982afba5424739d6293adcfb43c04dbb043f1bc882c6ec9",
+    "items.js": "4ca7e3e93907b23838ab7f07f1614e0d9000c1143d8a29970dafda601d267906",
+    "movement.js": "180885787694d2971229f117b759b5cd5bda64a07e8c025a5048b674eac87534",
+    "persistent-party.js": "00b99214a239a40011a9ee443986cdcb4d7feb021baa286342c07139cfcc1e1f",
+    "render-party-battle.js": "87bac99ea502d18054363df32b180de38f1a443156b7944d57ffb6517a2e4a00",
+    "save.js": "b98cc08b0ea2f026fe424fb21cb08c76452204adf6fa305e697f610739cd874c",
+    "sera-liora-battle-profiles.js": "b8e718bc936d64fd43e23f9324fd86cd3b3b85a9c11c6c6878801569a820833d",
+    "story-battle.js": "16cd5ac6ec004561cfbe5fb914791aa75dca2d001e3318e9352ec500adefa4f0",
+    "story-checkpoint-lab.js": "b975b5ee70eda0e6944faf1087211fe22cb1218250d9bd3892504c62815e7924",
+    "test/cases/155-formation-four-command-integration.test.js": "3f7c1b436745d485be6969f2883fa4cd3932358b72d90093dd15462484191373",
+    "test/cases/165-party-session-controller.test.js": "3d370e3ba35ed744deda6b5b48647874f2054ac6765f37f97abddedd407fae6b",
+    "test/cases/171-party-command-status-hardening.test.js": "05aa5394cc32134ff23722a4388c95ae0708a2113829a28ba4b9d851ac113abf",
+    "test/cases/173-party-command-session-controller.test.js": "9f2645993435f9871835ab76eb45eb014e7015b1e219a568546a60db99fb0edc",
+    "test/cases/264-story-battle-context.test.js": "a2ad078603dada7eb0e1ec4801ea26171e4e35f814524aa45ec72b7fcc6f43fa",
+    "world-transitions.js": "9e3b00c8f8120c635ebc2d7d9a9ef4043d63ab5068e7f1e9310144213fe04990",
+    "Art/qa/sera-liora/story-battle-pass1/README.md": "ea9567681be3de02a6eb2653656756bd6f61e87a969df0eeb62e32c89240fbdc"
+  },
+  "preservation": {
+    "priorDirtyFiles": 73,
+    "priorFilesOutsideScopeVerifiedByteIdentical": 66,
+    "overlappingPriorFiles": [
+      "PROJECT_STATUS.md",
+      "architecture.md",
+      "index.html",
+      "input.js",
+      "movement.js",
+      "story-checkpoint-lab.js",
+      "world-transitions.js"
+    ],
+    "otherWorktreesEdited": false,
+    "geographyChanged": false,
+    "artworkChanged": false,
+    "regeneratedArtifacts": []
+  },
+  "review": {
+    "rootRuntimeModelVerified": false,
+    "agents": [
+      {
+        "id": "/root/story_battle_architecture",
+        "configuredModel": "gpt-6-astra",
+        "reasoningEffort": "high",
+        "task": "architecture, state isolation and correctness review",
+        "final": "No remaining concrete defects; accepted within Pass 1 scope"
+      },
+      {
+        "id": "/root/story_battle_patterns",
+        "configuredModel": "gpt-6.1-sol",
+        "reasoningEffort": "medium",
+        "task": "bounded pattern audit and only suite 264"
+      }
+    ]
+  },
+  "git": {
+    "stagedFiles": [],
+    "committed": false,
+    "merged": false,
+    "pushed": false,
+    "statusPorcelainV1": [
+      " M PROJECT_STATUS.md",
+      " M activity-ownership.js",
+      " M architecture.md",
+      " M combat.js",
+      " M data.js",
+      " M image-assets.js",
+      " M index.html",
+      " M input.js",
+      " M items.js",
+      " M movement.js",
+      " M npcs.js",
+      " M persistent-party.js",
+      " M render-entities.js",
+      " M render-party-battle.js",
+      " M render-ui.js",
+      " M render.js",
+      " M save.js",
+      " M sera-liora-scene.js",
+      " M story-checkpoint-lab.js",
+      " M test/cases/131-sera-liora-cutaway-opening.test.js",
+      " M test/cases/132-sera-liora-debug-menu.test.js",
+      " M test/cases/133-sera-liora-raster-integration.test.js",
+      " M test/cases/137-sera-liora-bed-patch-integration.test.js",
+      " M test/cases/138-sera-liora-guest-room-free-walk.test.js",
+      " M test/cases/155-formation-four-command-integration.test.js",
+      " M test/cases/165-party-session-controller.test.js",
+      " M test/cases/171-party-command-status-hardening.test.js",
+      " M test/cases/173-party-command-session-controller.test.js",
+      " M test/cases/261-sera-liora-bedroom-interactions.test.js",
+      " M test/cases/43-dialogue-wrapping.test.js",
+      " M world-transitions.js",
+      "?? Art/generated/sera-liora/breakfast-gate-open-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/breakfast-keeper-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/breakfast-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/buzzy-beetle-scene-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/courtyard-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/liora-walk-courtyard-v1-imagegen-source.png",
+      "?? Art/qa/regional-geography/visual-atlas.html",
+      "?? Art/qa/regional-geography/visual-atlas.md",
+      "?? Art/qa/regional-geography/visual-atlas.png",
+      "?? Art/qa/sera-liora/breakfast-v1/ASSET_PROMPTS.md",
+      "?? Art/qa/sera-liora/breakfast-v1/README.md",
+      "?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/confrontation-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/confrontation-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/manifest.json",
+      "?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/verification.json",
+      "?? Art/qa/sera-liora/courtyard-v1/ASSET_PROMPTS.md",
+      "?? Art/qa/sera-liora/courtyard-v1/README.md",
+      "?? Art/qa/sera-liora/courtyard-v1/approach-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/approach-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/arrival-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/arrival-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/call-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/call-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/conversation-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/conversation-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/infirmary-return-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/infirmary-return-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/manifest.json",
+      "?? Art/qa/sera-liora/courtyard-v1/verification.json",
+      "?? Art/qa/sera-liora/story-battle-pass1/README.md",
+      "?? Art/qa/sera-liora/story-battle-pass1/verification.json",
+      "?? STORY_BATTLES.md",
+      "?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png",
+      "?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png",
+      "?? assets/backgrounds/cutaways/sera-liora/courtyard-v1.png",
+      "?? assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png",
+      "?? assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png",
+      "?? assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png",
+      "?? sera-liora-battle-profiles.js",
+      "?? sera-liora-breakfast.js",
+      "?? sera-liora-courtyard.js",
+      "?? story-battle.js",
+      "?? test/cases/262-sera-liora-courtyard.test.js",
+      "?? test/cases/263-sera-liora-breakfast.test.js",
+      "?? test/cases/264-story-battle-context.test.js",
+      "?? test/sera-liora-courtyard-browser.html",
+      "?? test/sera-liora-courtyard-browser.js",
+      "?? test/sera-liora-courtyard-helpers.js"
+    ]
+  }
+}

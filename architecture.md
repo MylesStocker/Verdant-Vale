@@ -651,22 +651,23 @@ ownership, formulas, valid RNG order or ordinary encounter selection.
 ### Resonance MVP (Lab and canonical activation)
 
 `resonance.js` loads before `combat.js`; its closed, frozen registry contains
-exactly `quickbloom`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
+`quickbloom`, `null`, `rainbow` and `eclipse`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
 Lely `{rareBorn:false, affinity:null}` and Esla
 `{rareBorn:true, affinity:'bloommarked'}`. These static fields are not saved.
 Canonical encounters supply these bindings through persistent-party preparation.
 The original explicit headless API without a policy retains its older result shape.
 
 Every immutable technique definition now has a nonempty frozen `elements` array
-of unique stable IDs from `RESONANCE_ELEMENTS`: `bloommarked` and `firelit`.
+of unique stable IDs from `RESONANCE_ELEMENTS`: `bloommarked`, `firelit`, `void` and `prism`.
 Quickbloom has `elements: Object.freeze(['bloommarked'])` and retains its separate
 Bloommarked affinity requirement. Affinity controls caster eligibility; elements
 identify which future elemental modifiers apply. Future modifiers must match
 these static elements, not technique IDs, character IDs or inferred caster
 affinity. Unknown, duplicate, empty, malformed and mutable element arrays reject.
-No Firelit technique, combined technique, elemental calculation or modifier item
-is added. Healing, Strain, RNG, result/event schemas and detached history remain
-unchanged; playback does not duplicate static element metadata.
+No Firelit technique, elemental modifier or modifier item is added. Eclipse is
+the story-bound combined technique described below. Quickbloom healing and its event shape remain unchanged. Offensive
+events carry copied Void/Prism metadata and a deterministic damage witness; see
+the Pass 2 contract below.
 
 Command preparation optionally accepts `resonance:[{slot,characterId}]`, one
 binding per member. A shared pure validator checks each against authored
@@ -682,25 +683,38 @@ No second HP, membership or inventory authority exists. All views are detached
 and frozen. The new closed action is
 `{type:'resonance',actorId,techniqueId,targetId,participantIds}`; ordinary
 Quickbloom has just Esla's exact runtime ID in `participantIds`. Selection and
-round preflight require a living wounded ally and zero participant Strain.
+round preflight use the technique policy: one living wounded ally for healing or
+one exact living enemy for ordinary damage, or all captured living enemies for
+combined damage, plus zero participant Strain.
 Healing is `max(1,floor(target.maxHp/5))`, clamped to missing HP. A target healed
 full earlier still consumes the action and applies Strain; a dead actor/target
 skips/cancels without healing or cost. There is no cure, revival or action RNG.
 
-Definitions are closed `{id,name,kind,initiator,participants,target,effect}`
-records. Each participant authors `{characterId,affinity,strain}`; supported
-policies are only `living_wounded_ally` / `heal_fifth` and Bloommarked affinity.
+Definitions are closed `{id,name,kind,initiator,participants,target,effect,elements}`
+records; the damaging variant additionally requires positive safe-integer `power`.
+Each participant authors `{characterId,affinity,strain}`; supported
+policies are `living_wounded_ally` / `heal_fifth`, ordinary `living_enemy` /
+`damage` and combined `all_living_enemies` / `damage`; authored affinities are Bloommarked, Voidborn and Prismborn.
 There is no callback language or runtime registry installation API. Ordinary
 techniques have one participant; a combined definition requires two or three
 unique explicitly authored Rareborn participants, including its initiator.
-There is no production combined definition. Test 180 supplies synthetic source
+Frozen character-definition `knownTechniques` lists explicitly grant techniques.
+`resonanceParticipants()` requires knowledge for every participant independently
+of identity, Rareborn status and affinity; an absent list grants no technique.
+The same policy gates menus, raw commands and historical validation without
+extending capability snapshots or saves. Eclipse binds Sera and Liora; test 180 additionally supplies synthetic healing
 fixtures solely inside its VM, never production characters or debug techniques.
 
-Combined drafts reserve all participants' actions. Every living actor remains
-in the same weighted initiative draw exactly once, using N−1 rolls. Earlier
-participants emit `resonance_wait`; execution occurs at the last required
-participant's planned position. Participant death/disablement cancels once,
-consumes all reserved opportunities and applies no cost, fallback or retargeting.
+Every combined participant submits an explicit compatible choice with the same
+technique, authored ordered participant IDs and target selection. Partial draft
+validation never fabricates missing choices; pending consent restricts the next
+participant's menu/targets while retaining backtracking. The complete command
+retains each consent. It coalesces to one initiative entry represented by the
+authored initiator, using the minimum effective participant Speed at preparation.
+The ordinary weighted planner uses N−1 draws over that coalesced list. Gear,
+Muddied and retained Slither are included; later changes do not reschedule.
+Participant death/disablement cancels once, consumes both/all opportunities and
+applies no cost, fallback or retargeting. There is no latest-position wait path.
 `partyActorCanAct` is a pure shared eligibility boundary; HP is currently its
 only authored lock. Tests substitute a pure conditional policy to exercise
 future disablement without adding Stun/Sleep. Frozen membership prevents removal
@@ -709,7 +723,10 @@ or replacement; unauthorized live-state corruption retains diagnostic lockout.
 New closed events extend generalized playback only:
 - `resonance`: ordinary plan fields plus technique ID/name, participant IDs,
   attempted/applied healing and target HP before/after.
-- `resonance_wait`: plan fields, technique/participant IDs and latest executor ID.
+- `resonance_damage`: plan/technique/participant IDs, name, elements, power,
+  historical DEF, attempted/applied damage and target HP before/after.
+- `resonance_damage_all`: the same technique metadata, null plan target, captured
+  target IDs and ordered surviving-target damage witnesses, applied simultaneously.
 - `resonance_cancel`: plan fields, technique/participant IDs, unavailable ID and
   `participant_dead`, `participant_disabled` or `target_dead` reason.
 - `strain`: owner ID, before/after Strain and application-round numbers, and
@@ -4783,3 +4800,158 @@ Negative columns use the existing floor-based world conversion and canonical pix
 ### Closed-edge regional camera framing
 
 Regional chunk definitions may author `cameraClampEdges`, a unique list of closed cardinal edges. `data.js` projects that field unchanged into the chunk catalogue. `_continuousPlanCore()` combines these local edge limits with the existing global camera and legacy-screen exclusion; it reads the already-resolved placement and never changes regional position, movement or world bounds. Validation rejects malformed policies and policies hiding an open structural edge. The four early maps opt in: MAP_N1/MAP_N2 west, MAP2/MAP3 south. Other maps remain unrestricted by this policy. Suite 320 protects exact cell deltas, camera framing, the closed southern seam in both movement modes, and the explicitly sealed bank.
+
+
+### Sera/Liora courtyard continuation
+
+`sera-liora-courtyard.js` extends the existing transient Bethany scene with `courtyard_*` phases, scoped floor geometry and a validated Liora route. It reuses Sera’s room-space movement controller, the existing cutaway input owner, speaker metadata and `drawLayeredScene()`. The bedroom map identity remains the compatibility location for both scene stages; neither stage projects temporary actors onto Lely or enters saves. The existing infirmary completion now rejects inactive repeats; the courtyard callback additionally checks its stage and session epoch. Completion and checkpoint reset clear temporary actors/routes and invalidate stale asynchronous callbacks. Generated Liora frames use measured alpha bounds to retain the shared 148-pixel height/ground anchor. Suite 262 and the courtyard browser review cover the continuation; asset provenance and review evidence are under `Art/qa/sera-liora/courtyard-v1/`.
+
+Mixed-speaker pagination in `drawDialogue()` measures each source page with its own validated speaker style and line height, then restores the active page’s body font before drawing. Cached visual pages retain their speaker metadata; legacy uniform pages keep their existing path. The courtyard browser check measures actual emitted text instead of re-wrapping already processed strings.
+
+
+### Sera/Liora breakfast continuation and pre-battle handoff
+
+`sera-liora-breakfast.js` extends the same transient special scene with authored paired departure/arrival, scoped floor/gate collision, one-at-a-time keeper/Liora/Sera routes, two deterministic scene-only beetles and a temporary fade. It reuses the existing Sera controller, protagonist sprites/metrics, speaker metadata, cutaway activity owner and depth painter. No world map, general follower, enemy definition, canonical-party member or save field is added. The courtyard callback now begins this continuation instead of completing the cutaway. `finishSeraLioraBreakfastPreBattle()` remains the sole normal battle handoff; Pass 4 below replaces its temporary ending with the shared battle, then the existing authenticated completion. Start, completion and checkpoint reset invalidate epochs and clear temporary routes/visibility/fade. Narrow gate-state/foreground crops retain the original plate outside their authored masks. Suite 263 and the extended native/2× courtyard browser harness cover the complete lifecycle.
+
+### Reusable transient story battles — Pass 1
+
+`story-battle.js` owns one detached, session-only context of authored profiles and inventory. `combatPlayerState.claimStoryBridge()` is independently claimed once; its private capability shares the canonical bridge's seed, arithmetic validation, enemy installation, standard command session, immutable playback and authenticated completion. It cannot use canonical/scripted handoffs, special escape policies or scripted-lifecycle enemies. Its party preparation does not depend on Lely's HP.
+
+Between fights the context owns acknowledged HP/status/equipment/inventory. During a fight the ordinary session owns live resources. Terminal commitment verifies exact runtime membership and the acknowledged reel, validates a detached candidate, finishes the bound session, replaces context resources and consumes the outcome before invoking an authored continuation. It never snapshots/restores or writes canonical characters, grants rewards, recovers the world or moves story flags. Faults retain diagnostics until explicit discard/checkpoint reset.
+
+Context existence blocks saves, loads, world simulation/input and competing combat entry. Cutaway start/end and checkpoint cleanup discard it through its authenticated owner. `SAVE_VERSION` and the payload are unchanged. `sera-liora-battle-profiles.js` supplies opening data independently of the name-agnostic adapter; `render-party-battle.js` registers pure adapters to the existing approved Sera/Liora assets. The breakfast controller now supplies the first playable caller (Pass 4 below). See `STORY_BATTLES.md` for game mechanics and deliberate deferrals.
+
+### Independent offensive Resonance — story Pass 2
+
+`resonance.js` extends the existing closed technique/effect union with Null and
+Rainbow. The reusable damage effect is `max(1, power - enemy.def)`, clamped to
+current HP, with no action RNG. Both authored powers are 120 provisional balance
+data. Target side and eligibility come from technique policy, shared by command
+preflight, selection, availability and history validation. Only one exact living,
+present enemy is eligible; wrong-side, stale, missing, dead and departed targets
+reject. A target killed earlier cancels without replacement or cost. Attack-only
+mitigation/counters/accuracy and melee armour/Brace are not new spell mechanics.
+
+`storyBattle.createContext` optionally accepts frozen-copy `resonance` bindings.
+Opening data supplies `SERA_LIORA_OPENING_RESONANCE`. Rows with `source:'story'`
+require the engine's private story preparation permit and resolve only through
+`STORY_CHARACTER_DEFINITIONS`; canonical and Lab preparation retain their closed
+persistent-character authority. Story capability snapshots carry that source so
+detached history can validate authored provenance without a live context. Default
+unbound contexts and canonical capability snapshots keep their accepted shapes.
+The context retains only static bindings; mutable Strain remains in the ordinary
+command authority and uses its existing recovery/terminal-cleanup lifecycle.
+
+`resonance_damage` records plan/participant/technique IDs, technique name,
+elements, power, historical DEF, attempted/applied damage and exact HP before/after.
+Playback validates the deterministic witness and strict metadata, then projects
+immutable frames without running a resolver, formula or RNG. Shared rendering
+uses copied damage and element labels and historical enemy HP. Existing healing
+history/Quickbloom presentation and ordinary weighted initiative are unchanged.
+Damage kills process the same stolen-gold recovery receipts as the shared
+resolver; the story adapter still has no gold/reward ownership.
+
+Pass 3 below adds cooperative Tech and its combined scheduling. No playable story
+input, breakfast handoff, encounter tuning, retry or second fight is connected. Beetle combat templates
+are absent; authored lethality remains unverified until that encounter is added.
+SAVE_VERSION remains 5, with no save-payload change.
+
+
+### Explicit combined Resonance — story Pass 3
+
+Eclipse uses the same shared Resonance authority and deterministic per-enemy
+power-minus-base-DEF policy, with provisional power 120, Void/Prism metadata and
+Strain 1 on each successful participant. Each actor's closed all-target action
+uses `targetIds` instead of `targetId`: the exact round-start living, nondeparted
+enemy IDs in slot order. Malformed/nonprimitive IDs reject before serialization,
+RNG or writes. Execution hits only surviving captured IDs, computes all witnesses
+before changing HP and emits one `resonance_damage_all` event before Strain and
+terminal/gold recovery. No new target is acquired. Detached history checks every
+consent, the single representative/minimum-Speed entry, initiative weights,
+metadata, exact surviving hit set and HP deltas; pure scheduling witnesses are
+captured at initialization just like the existing damage witness. Frame
+projection/rendering consume recorded data without executing live effects or RNG.
+The shared renderer supports explicit all-enemy confirmation/cursors and derives
+disabled commands from controller availability. No new art, global planner change,
+persistent state or save field is introduced. SAVE_VERSION remains 5. Breakfast
+now enters the first authored battle through the separately authorized Pass 4
+controller below. The second fight remains deferred.
+
+
+### Breakfast story battle — Pass 4
+
+`sera-liora-breakfast-battle.js` owns only scene stage, epoch, attempt and the
+opaque context token. It routes keyboard commands to the existing standard party
+session and shared playback. Input routes before the generic story-context block;
+update advances only scene presentation; render consumes the immutable shared
+view and never mutates effects. Two registered Buzzy Beetle identities use ordinary
+capabilities, zero rewards and the approved scene sheet. No random pool changes.
+The shared optional presentation fields are `backgroundAssetId` (registered
+512×480 cutaway background) and `enemyFloorY` (integer140–212); defaults preserve
+existing canonical/headless layouts. Breakfast supplies the sunny plate and156.
+
+Generic `storyBattle.createContext(options)` retains strict activity exclusion.
+A once-claimed scene bridge provides the sole authorized variant. Its read-only
+owner predicate checks the controller identity/epoch, active cutaway, physical
+map and allowed phase; preflight temporarily retains only that owner credential,
+then stores it on the accepted context. The engine's opaque story permit maps
+to that private predicate and may waive ONLY the active-cutaway preparation guard.
+Other modal conflicts and generic context/canonical entry remain closed. No
+public caller boolean, active=false spoof or canonical snapshot/restore exists.
+
+Final dialogue defers entry until a later update after callback cleanup. Every
+attempt has authenticated terminal acknowledgement, then separate outcome
+commitment. Victory retains context through aftermath/fade and discards it via
+the existing hospital completion. Escape/defeat confirmation defers a fresh
+context until the next fade/update; faults never retry. Reset/start/completion
+and ordinary checkpoints invalidate tokens and stale dialogue/asset callbacks.
+Save/load also checks the scene controller before storage, covering assets/fades
+without a context. A strict scene-only checkpoint variant enters the same preview
+route without applying a world fixture or mutating canonical character data.
+No save-schema/version change, new quest flag or second fight is introduced.
+
+
+### Storeroom continuation — reviewed stage 1
+
+`storyBattle.begin()` now privately records the accepted fight-entry resources
+and normalized encounter recipe. `retry(token)` accepts only that context's most
+recent completed, acknowledged defeat/escape, restores that entry through the same
+shared preflight/install authority, and keeps the context token. A rejected
+preflight cannot replace the entry snapshot. Victory and fault cannot retry.
+Starting the next fight replaces the retry baseline with the previous victory's
+committed HP, persistent statuses, equipment and inventory. Strain remains
+battle-local; existing Burn/Dazzled terminal cleanup is unchanged.
+
+The breakfast controller advances its same context from the two approved yard
+beetles into a single ordinary large storeroom beetle. Stable per-fight callbacks
+and monotonic receipt IDs authenticate retries; epoch/phase guards invalidate
+stale dialogue and image continuations. `firstCleared` keeps the yard beetles
+absent through every later stage. Both registered storeroom plates load as one
+bundle after the crash and must be ready before room entry. The original plate
+remains through combat; acknowledged second victory selects the flour-covered
+breakfast-supplies variant using existing secondCleared state only. Shared scene
+sprites and background/battle rendering remain read-only.
+The server's final question ends at `review_hold`: context/input/save ownership
+remain active, no hospital transition or completion flag fires. Courtyard return,
+improvised breakfast and final completion await Dot's stage-1 review.
+
+
+### Final courtyard breakfast — stage 2, pending final review
+
+The former storeroom review hold now enters controller-owned `breakfast_ending_*`
+phases: fade to the approved sunny terrace, quiet plans, pinky promise, three
+presentation seconds of eating, and final fade. Existing standing sprites, table
+and small deterministic Canvas hand/cup gestures provide minimal MVP staging;
+there are no new raster assets. The same idle story context remains owned until
+completion, so input/world simulation/save/load stay isolated through every stage.
+`endingElapsed` is a transient presentation clock only. Confirm-key latches are
+preserved; dialogue continuation failures enter the existing diagnostic fault.
+
+Callbacks require the current state/epoch and expected stage. The controller marks
+`completing` before calling `endSeraLioraCutawayAtHospital()` and writes no old state
+after cleanup. That unchanged authority alone clears the context/actors, places
+Lely and conditionally sets the existing opening-complete flag for true story
+entry. Debug replay preserves current flags and canonical resources. Helpers now
+follow the natural ending; the temporary direct hospital-completion test bypass
+is removed. Suites 267/268 retain accepted fight/reveal/retry coverage; suite 269
+covers final timing, completion, held input, reset, replay and fault isolation.

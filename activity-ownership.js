@@ -11,6 +11,7 @@ const activityOwnership = (() => {
     ['ambush', () => travellersRiseAmbush.isExclusive()],
     ['cutaway', () => seraLioraCutscene.active],
     ['fishing', () => fishing.active],
+    ['story_battle', () => storyBattle.hasContext()],
     ['canonical', () => canonicalPartyCombat.isActive()],
     ['handoff', () => canonicalPartyCombat.hasPendingHandoff()],
     ['party', () => combatPlayerState.hasParty()],
@@ -34,12 +35,12 @@ const activityOwnership = (() => {
     // Older combat controllers authenticate their existing menus, Labs and
     // Receiver handoffs themselves. Add the shared story/travel exclusions
     // without overriding those token-specific policies.
-    combatPreparationConflicts(ownDialogue) {
+    combatPreparationConflicts(ownDialogue,ownStory=false) {
       return matching(id=>['runtime_fault','water_travel','mq5_assignment','camp','checkpoint',
-        ...(!ownDialogue?['ambush']:[])].includes(id));
+        ...(!ownDialogue?['ambush']:[]),...(!ownStory?['story_battle']:[])].includes(id));
     },
     legacyExecutionConflicts() {
-      return matching(id=>['runtime_fault','water_travel','mq5_assignment','camp','checkpoint'].includes(id));
+      return matching(id=>['runtime_fault','water_travel','mq5_assignment','camp','checkpoint','story_battle'].includes(id));
     },
   });
 })();

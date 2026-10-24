@@ -1,0 +1,65 @@
+{
+  "scope": "Run always fails in both authored Sera/Liora fights; no engine or other encounter changes",
+  "branch": "agent/codex",
+  "head": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "committed": false,
+  "staged": [],
+  "fullRegression": {
+    "passed": 247,
+    "total": 247,
+    "failed": 0,
+    "logSha256": "8a55b0f0cd5309b93210d3051aabd280c0aabc90a20bc29822c20d3f02aa3b83"
+  },
+  "focused": {
+    "suites": [
+      263,
+      264,
+      265,
+      266,
+      267,
+      268
+    ],
+    "result": "passed",
+    "267Groups": 19,
+    "268Groups": 14,
+    "logSha256": "3f3da4dd8c539cafb16461a8ff02bfed0b8718de7d1a211fe77acc7da811fdc5"
+  },
+  "browser": {
+    "type": "automated Chromium DOM-keyboard/production Canvas, native and2x; explicitly selects Run for both characters in both fights",
+    "checks": 3360,
+    "errors": [],
+    "passed": true,
+    "logSha256": "80d8fd96523464ebe8aaebc80ab0b1f64b51e6689758b439b89ab19c56463245"
+  },
+  "validation": {
+    "errors": 0,
+    "warnings": 14
+  },
+  "saveVersion": 5,
+  "syntax": "4 changed JS files passed",
+  "diffCheck": "passed",
+  "files": [
+    "PROJECT_STATUS.md",
+    "Art/qa/sera-liora/storeroom-stage1/README.md",
+    "STORY_BATTLES.md",
+    "sera-liora-breakfast-battle.js",
+    "test/cases/267-breakfast-story-battle.test.js",
+    "test/cases/268-storeroom-story-battle.test.js",
+    "test/sera-liora-courtyard-browser.js",
+    "Art/qa/sera-liora/storeroom-stage1/run-policy-followup.json"
+  ],
+  "sha256": {
+    "PROJECT_STATUS.md": "68141f1750e04eae8b55ef227f1a456b2c428abf475d85c12ba64584b40ee7e5",
+    "Art/qa/sera-liora/storeroom-stage1/README.md": "fe3b3f78af3c0ef616501a07fcfb69828d1be4e0a43452a6ea2ee98fc1100758",
+    "STORY_BATTLES.md": "b87a97157b422db653d74e284e548586496ffec385aa9ef991e27a7eec4c7d11",
+    "sera-liora-breakfast-battle.js": "fee4c4eacca8f19eef1544d179a9de5bc83b32b52c729ed59b9efc3bfe5dfc3d",
+    "test/cases/267-breakfast-story-battle.test.js": "5e9f35a66d1c3f6d98cb90165b332d12eee315e71a690fe8011970b3414606b6",
+    "test/cases/268-storeroom-story-battle.test.js": "21ae29ac26678860b23991cd52e9974b34f1858609085b9e9ae151b384a466fc",
+    "test/sera-liora-courtyard-browser.js": "0172529ed2e87390f541d5d9d43c9c069012ca1928c98fd74fbe4bb45af6e289"
+  },
+  "existingDirtyFilesUnchanged": 150,
+  "finalDirtyFiles": 158,
+  "finalGitStatus": " M ENEMY_CAPABILITY_AUDIT.md\n M PROJECT_STATUS.md\n M activity-ownership.js\n M architecture.md\n M combat.js\n M data.js\n M enemy-catalog.js\n M image-assets.js\n M index.html\n M input.js\n M items.js\n M movement.js\n M npcs.js\n M persistent-party.js\n M render-battle.js\n M render-entities.js\n M render-party-battle.js\n M render-ui.js\n M render.js\n M resonance.js\n M save.js\n M sera-liora-scene.js\n M story-checkpoint-lab.js\n M test/cases/131-sera-liora-cutaway-opening.test.js\n M test/cases/132-sera-liora-debug-menu.test.js\n M test/cases/133-sera-liora-raster-integration.test.js\n M test/cases/137-sera-liora-bed-patch-integration.test.js\n M test/cases/138-sera-liora-guest-room-free-walk.test.js\n M test/cases/155-formation-four-command-integration.test.js\n M test/cases/165-party-session-controller.test.js\n M test/cases/171-party-command-status-hardening.test.js\n M test/cases/173-party-command-session-controller.test.js\n M test/cases/180-resonance-mvp.test.js\n M test/cases/183-canonical-party-combat-integration.test.js\n M test/cases/185-canonical-battle-envelope.test.js\n M test/cases/186-enemy-capability-migration.test.js\n M test/cases/188-status-specials-party-combat.test.js\n M test/cases/189-unusual-enemy-capabilities-party-combat.test.js\n M test/cases/191-universal-party-combat-compatibility.test.js\n M test/cases/192-story-checkpoint-lab.test.js\n M test/cases/261-sera-liora-bedroom-interactions.test.js\n M test/cases/43-dialogue-wrapping.test.js\n M test/cases/52-stable-persistence-ids.test.js\n M world-transitions.js\n?? Art/generated/sera-liora/breakfast-gate-open-v1-imagegen-source.png\n?? Art/generated/sera-liora/breakfast-keeper-v1-imagegen-source.png\n?? Art/generated/sera-liora/breakfast-v1-imagegen-source.png\n?? Art/generated/sera-liora/buzzy-beetle-scene-v1-imagegen-source.png\n?? Art/generated/sera-liora/courtyard-v1-imagegen-source.png\n?? Art/generated/sera-liora/liora-walk-courtyard-v1-imagegen-source.png\n?? Art/generated/sera-liora/storeroom-v1-imagegen-source.png\n?? Art/qa/regional-geography/visual-atlas.html\n?? Art/qa/regional-geography/visual-atlas.md\n?? Art/qa/regional-geography/visual-atlas.png\n?? Art/qa/sera-liora/breakfast-v1/ASSET_PROMPTS.md\n?? Art/qa/sera-liora/breakfast-v1/README.md\n?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-1x.png\n?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-2x.png\n?? Art/qa/sera-liora/breakfast-v1/confrontation-1x.png\n?? Art/qa/sera-liora/breakfast-v1/confrontation-2x.png\n?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-1x.png\n?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-2x.png\n?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-1x.png\n?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-2x.png\n?? Art/qa/sera-liora/breakfast-v1/manifest.json\n?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-1x.png\n?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-2x.png\n?? Art/qa/sera-liora/breakfast-v1/verification.json\n?? Art/qa/sera-liora/courtyard-v1/ASSET_PROMPTS.md\n?? Art/qa/sera-liora/courtyard-v1/README.md\n?? Art/qa/sera-liora/courtyard-v1/approach-1x.png\n?? Art/qa/sera-liora/courtyard-v1/approach-2x.png\n?? Art/qa/sera-liora/courtyard-v1/arrival-1x.png\n?? Art/qa/sera-liora/courtyard-v1/arrival-2x.png\n?? Art/qa/sera-liora/courtyard-v1/call-1x.png\n?? Art/qa/sera-liora/courtyard-v1/call-2x.png\n?? Art/qa/sera-liora/courtyard-v1/conversation-1x.png\n?? Art/qa/sera-liora/courtyard-v1/conversation-2x.png\n?? Art/qa/sera-liora/courtyard-v1/infirmary-return-1x.png\n?? Art/qa/sera-liora/courtyard-v1/infirmary-return-2x.png\n?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-1x.png\n?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-2x.png\n?? Art/qa/sera-liora/courtyard-v1/manifest.json\n?? Art/qa/sera-liora/courtyard-v1/verification.json\n?? Art/qa/sera-liora/storeroom-stage1/README.md\n?? Art/qa/sera-liora/storeroom-stage1/run-policy-followup.json\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-aftermath-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-aftermath-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-battle-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-battle-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-intro-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-intro-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-review-stop-1x.png\n?? Art/qa/sera-liora/storeroom-stage1/storeroom-review-stop-2x.png\n?? Art/qa/sera-liora/storeroom-stage1/verification.json\n?? Art/qa/sera-liora/story-battle-pass1/README.md\n?? Art/qa/sera-liora/story-battle-pass1/verification.json\n?? Art/qa/sera-liora/story-battle-pass2/README.md\n?? Art/qa/sera-liora/story-battle-pass2/verification.json\n?? Art/qa/sera-liora/story-battle-pass3/README.md\n?? Art/qa/sera-liora/story-battle-pass3/verification.json\n?? Art/qa/sera-liora/story-battle-pass4/README.md\n?? Art/qa/sera-liora/story-battle-pass4/approach-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/approach-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/arrival-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/arrival-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-damage-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-damage-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-targets-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/battle-targets-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-aftermath-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-aftermath-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-arrival-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/breakfast-arrival-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/call-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/call-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/confrontation-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/confrontation-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/conversation-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/conversation-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/courtyard-departure-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/courtyard-departure-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/first-battle-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/first-battle-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/infirmary-return-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/infirmary-return-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/keeper-opens-gate-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/keeper-opens-gate-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/liora-breakfast-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/liora-breakfast-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/pre-battle-fade-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/pre-battle-fade-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/resonance-list-1x.png\n?? Art/qa/sera-liora/story-battle-pass4/resonance-list-2x.png\n?? Art/qa/sera-liora/story-battle-pass4/verification.json\n?? STORY_BATTLES.md\n?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png\n?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png\n?? assets/backgrounds/cutaways/sera-liora/courtyard-v1.png\n?? assets/backgrounds/cutaways/sera-liora/storeroom-v1.png\n?? assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png\n?? assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png\n?? assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png\n?? sera-liora-battle-profiles.js\n?? sera-liora-breakfast-battle.js\n?? sera-liora-breakfast.js\n?? sera-liora-courtyard.js\n?? story-battle.js\n?? test/cases/262-sera-liora-courtyard.test.js\n?? test/cases/263-sera-liora-breakfast.test.js\n?? test/cases/264-story-battle-context.test.js\n?? test/cases/265-offensive-resonance.test.js\n?? test/cases/266-combined-eclipse.test.js\n?? test/cases/267-breakfast-story-battle.test.js\n?? test/cases/268-storeroom-story-battle.test.js\n?? test/sera-liora-courtyard-browser.html\n?? test/sera-liora-courtyard-browser.js\n?? test/sera-liora-courtyard-helpers.js\n",
+  "manualCheck": "Select Run for either protagonist in each fight; it must fail and combat must continue. Defeat still offers only the current-fight retry.",
+  "deferred": "Stage2 courtyard/breakfast ending remains awaiting Dot review"
+}

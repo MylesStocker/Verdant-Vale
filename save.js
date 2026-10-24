@@ -371,6 +371,7 @@ function savedEquipmentDisposition(item) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (storyBattle.hasContext() || seraLioraBreakfastBattle.isActive()) return false; // transient resources never enter saves
   if (gameRuntimeFailure.isActive()) return false;
   if (!persistentParty.hasLivingMember()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
@@ -579,6 +580,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (storyBattle.hasContext() || seraLioraBreakfastBattle.isActive()) return false; // explicit discard/checkpoint first
   if (gameRuntimeFailure.isActive()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;

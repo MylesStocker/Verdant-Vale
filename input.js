@@ -16,6 +16,7 @@ const keys = new Proxy(pressedKeys, {
     if (held && typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
     if (held && typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.isExclusive()) return false;
     if (held && typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.blocksInput()) return false;
+    if (held && storyBattle.hasContext()) return false;
     if (held && canonicalPartyCombat.isActive()) return false;
     if (held && combatPlayerState.hasParty()) return false;
     if (held && galleryReceiverEncounter.blocksWorldInput()) return false;
@@ -205,6 +206,15 @@ window.addEventListener('keydown', e => {
     }
     return;
   }
+  if (seraLioraBreakfastBattle.isActive()) {
+    const held=pressedKeys[e.key];pressedKeys[e.key]=true;
+    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
+      const command=formationInputCommand(e.key);if(command)e.preventDefault();
+      if(!held&&!e.repeat)seraLioraBreakfastBattle.handleInput(command);
+    }
+    return;
+  }
+  if (storyBattle.hasContext()) { e.preventDefault(); return; }
   if (canonicalPartyCombat.isActive()) {
     const wasHeld = pressedKeys[e.key]; pressedKeys[e.key] = true;
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
@@ -302,11 +312,12 @@ window.addEventListener('keydown', e => {
       if (dialogue.open && (e.key === ' ' || e.key === 'Enter')) {
         e.preventDefault();
         handleInteract();
-      } else if (seraLioraCutscene.phase === 'free_walk') {
+      } else if (seraLioraCutscene.phase === 'free_walk' || seraLioraCutscene.phase === 'courtyard_free' || seraLioraCutscene.phase === 'breakfast_free') {
         noteSeraLioraMovementKey(e.key);
         if (e.key === ' ' || e.key === 'Enter') {
           e.preventDefault();
-          if (!trySeraLioraGuestRoomInteraction()) trySeraLioraGuestRoomDoor();
+          if (seraLioraCutscene.phase === 'breakfast_free') trySeraLioraBreakfastInteraction();
+          else if (!trySeraLioraGuestRoomInteraction()) trySeraLioraGuestRoomDoor();
         }
       }
     } else if (combat.active && combat.flashTimer === 0 && debugMode && e.key === '`') {

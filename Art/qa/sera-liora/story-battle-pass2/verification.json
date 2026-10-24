@@ -1,0 +1,377 @@
+{
+  "scope": "Pass 2 independent offensive Resonance only; stop before Pass 3 for review",
+  "branch": "agent/codex",
+  "startingHead": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "finalHead": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "fullRegression": {
+    "command": "node test/run.js",
+    "total": 244,
+    "passed": 244,
+    "failed": 0,
+    "exitCode": 0
+  },
+  "focused": {
+    "offensiveSuite": 265,
+    "groups": 19,
+    "names": [
+      "opt-in story capabilities expose exactly the two offensive techniques and ordinary defaults remain unbound",
+      "Null and Rainbow affect exact separate targets using authored power minus base DEF without action RNG",
+      "deterministic offense clamps damage to one and ignores melee-only armor",
+      "selection cancellation and backtracking preserve exact command ownership without cost or RNG",
+      "a prior exact-target kill cancels the second technique without Strain or retargeting",
+      "Strain one blocks the following collection round and recovers through ordinary attacks",
+      "each authored technique defeats a bounded synthetic fixture, not an authored beetle",
+      "each authored technique defeats a bounded synthetic fixture, not an authored beetle",
+      "invalid arithmetic, target eligibility, techniques and story capabilities fail closed without RNG",
+      "offensive history rejects altered damage, metadata, source, side, stale IDs and Strain without live writes",
+      "immutable playback and shared offensive rendering use recorded witnesses without live formulas or RNG",
+      "late failure after one technique retains its damage and Strain, locks retry, and preserves canonical resources",
+      "offensive definitions do not create a playable story battle route",
+      "an actor killed before its scheduled technique skips without damage or Strain",
+      "offensive Resonance recovers stolen fixture gold and authentic history includes the recovery",
+      "a braced enemy reduces ordinary melee but offensive Resonance still uses its base DEF",
+      "actual shared command preparation atomically rejects dead, stale, foreign and wrong-side targets",
+      "a naturally departed enemy is excluded by actual shared command preparation",
+      "actual session selection excludes genuinely defeated IDs after normal recovery and cancellation costs nothing"
+    ],
+    "otherPassedSuites": [
+      155,
+      165,
+      166,
+      170,
+      171,
+      172,
+      173,
+      174,
+      180,
+      181,
+      182,
+      183,
+      185,
+      187,
+      188,
+      189,
+      190,
+      191,
+      196,
+      197,
+      264
+    ],
+    "coordinatorReportedIndependentRun": {
+      "groups": 19,
+      "exitCode": 0
+    }
+  },
+  "syntax": {
+    "scopedJavaScriptFiles": [
+      "combat.js",
+      "render-party-battle.js",
+      "resonance.js",
+      "sera-liora-battle-profiles.js",
+      "story-battle.js",
+      "test/cases/180-resonance-mvp.test.js",
+      "test/cases/183-canonical-party-combat-integration.test.js",
+      "test/cases/185-canonical-battle-envelope.test.js",
+      "test/cases/265-offensive-resonance.test.js"
+    ],
+    "scopedCount": 9,
+    "aggregateCount": 42,
+    "result": "passed"
+  },
+  "validation": {
+    "validation": {
+      "errors": 0,
+      "warnings": 14,
+      "counts": {
+        "Maps": 1097,
+        "Map metadata": 1097,
+        "Regional layout": 934,
+        "Regional chunks": 934,
+        "Camera exclusion": 8,
+        "Continuous seams": 1976,
+        "Continuous content": 934,
+        "Encounter geography": 934,
+        "Regional presentation": 2,
+        "Tiles": 263280,
+        "EDGE_TRANSITIONS": 2056,
+        "NPCs": 481,
+        "Items": 144,
+        "Enemies": 217,
+        "Enemy capabilities": 71,
+        "Encounter formations": 100,
+        "Dialogue": 956,
+        "Save/Flags": 205,
+        "Map Features": 81,
+        "Pickups": 79,
+        "Chests": 23
+      },
+      "errorList": [],
+      "warningList": [
+        {
+          "group": "Tile Properties",
+          "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+        },
+        {
+          "group": "Enemies",
+          "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_fen_zolom (Fen Zolom): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_botfly (Botfly): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_waspthra (Waspthra): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_sparkeel (Sparkeel): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_mudwrack_snapper (Mudwrack Snapper): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_fen_rootworm (Fen Rootworm): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_willow_veiled_stalker (Willow-Veiled Stalker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_hollowreed_choker (Hollowreed Choker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+        },
+        {
+          "group": "Enemies",
+          "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+        },
+        {
+          "group": "Dialogue",
+          "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+        },
+        {
+          "group": "Dialogue",
+          "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+        }
+      ]
+    },
+    "saveVersion": 5
+  },
+  "mechanics": {
+    "elements": {
+      "null": "void",
+      "rainbow": "prism"
+    },
+    "powers": {
+      "null": 120,
+      "rainbow": 120
+    },
+    "attemptedDamage": "max(1, authored power - historical base enemy DEF)",
+    "appliedDamage": "min(hpBefore, attemptedDamage)",
+    "actionRng": false,
+    "strainCost": 1,
+    "strainTiming": "application round exempt; next completed recovery round clears; terminal cleanup clears; no cross-fight persistence",
+    "canonicalQuickbloomUnchanged": true,
+    "ordinaryInitiativeUnchanged": true
+  },
+  "authoredBeetleKillVerified": false,
+  "authoredBeetleLimitation": "No combat templates exist; only bethany_buzzy_1 and bethany_buzzy_2 scene actors. Actual lethality/tuning and human combat playtest deferred to authored encounter.",
+  "syntheticKillProof": {
+    "enemyHp": 100,
+    "enemyDef": 10,
+    "attemptedDamage": 110,
+    "appliedDamage": 100,
+    "eachIndependentTechniqueTested": true,
+    "notBeetleStatistics": true
+  },
+  "evidenceKinds": {
+    "headlessSharedEngine": true,
+    "simulatedCanvas": true,
+    "browserPerformedThisPass": false,
+    "manualHumanPlaytest": false,
+    "departedEnemy": "Natural end-of-round departure followed by actual preparation rejection; no mid-round cancellation evidence claimed"
+  },
+  "intermediateFixtureCorrection": "Development fixture initially seeded enemy0 HP0 and correctly failed preparation. Final fixture seeds HP1, kills through real combat and completes a recovery round before dead-target rejection. Production guard unchanged.",
+  "scopeFiles": [
+    "PROJECT_STATUS.md",
+    "STORY_BATTLES.md",
+    "architecture.md",
+    "combat.js",
+    "render-party-battle.js",
+    "resonance.js",
+    "sera-liora-battle-profiles.js",
+    "story-battle.js",
+    "test/cases/180-resonance-mvp.test.js",
+    "test/cases/183-canonical-party-combat-integration.test.js",
+    "test/cases/185-canonical-battle-envelope.test.js",
+    "test/cases/265-offensive-resonance.test.js",
+    "Art/qa/sera-liora/story-battle-pass2/README.md",
+    "Art/qa/sera-liora/story-battle-pass2/verification.json"
+  ],
+  "scopeFileSha256": {
+    "PROJECT_STATUS.md": "c48cd8af9e4f9ad20d11d3db083a5f8566f47ff6317550b144951bc30f14d499",
+    "STORY_BATTLES.md": "177db78ba4ce3b9c261256092f4380a2e9d869ff90176ee533b2c315c7007431",
+    "architecture.md": "682d14a1e3778e2dabcd7ea89392642aad53d67bd1b63e830fccf5c516417538",
+    "combat.js": "7572cbf8bdd7abcaf5754b243b75e27c2f3b96cc124835a27cbf8dfcf1eebcc0",
+    "render-party-battle.js": "8562ce183f62267d237020a815260112844a2c2b22ff2e4549efdc925ac5864a",
+    "resonance.js": "a347eb9a307e869a4e9a4837190a1681e5f134a68258f5a354b9abe83f81fbe5",
+    "sera-liora-battle-profiles.js": "186d2eb3201a788f15c576d223e57dc35106623ec819e78c327f4a210b52ca0e",
+    "story-battle.js": "831ac85928735bcfbeee04b704470aabe5d21dcac0a2e2885ac77c45acf816b2",
+    "test/cases/180-resonance-mvp.test.js": "063f925f5026e1e25258b87598c3f2ae9175c521b5ff7994cb8bffa4a56760ee",
+    "test/cases/183-canonical-party-combat-integration.test.js": "183b12b0f706091c51cfe6c680aef14b561a648cecfee1a2310dc09bf8a42368",
+    "test/cases/185-canonical-battle-envelope.test.js": "9212cb03c305392449c538e1d90b42f64c0b80caebacf92af72023ea8ac95d12",
+    "test/cases/265-offensive-resonance.test.js": "f3a1476660eeb2c7b0713ec0054c5c4d9a0ca684d2fc00b972f1db7db58db6b0",
+    "Art/qa/sera-liora/story-battle-pass2/README.md": "07776ea1a3675f592f72b7a3e864f613a89e7ce44c5ed7951b7cf4f2dd3d5907"
+  },
+  "preservation": {
+    "baselineDirtyIndividualFiles": 89,
+    "outsideScopeByteIdentical": 82,
+    "overlappingPriorFiles": [
+      "PROJECT_STATUS.md",
+      "STORY_BATTLES.md",
+      "architecture.md",
+      "combat.js",
+      "render-party-battle.js",
+      "sera-liora-battle-profiles.js",
+      "story-battle.js"
+    ],
+    "artworkChanged": false,
+    "geographyChanged": false,
+    "encountersAuthoredOrTuned": false,
+    "savePayloadChanged": false,
+    "regeneratedArtifacts": [],
+    "otherWorktreesEdited": false
+  },
+  "agents": {
+    "leadRuntimeModelVerified": false,
+    "configuredAssignments": [
+      {
+        "id": "/root/story_battle_architecture",
+        "model": "gpt-6-astra",
+        "reasoningEffort": "high",
+        "task": "difficult framework/isolation design and final correctness review",
+        "result": "Replay gold-recovery defect fixed and covered; no remaining concrete defects; accepted within Pass 2 scope"
+      },
+      {
+        "id": "/root/story_battle_patterns",
+        "model": "gpt-6.1-sol",
+        "reasoningEffort": "medium",
+        "task": "bounded pattern audit and exclusively new suite 265"
+      }
+    ]
+  },
+  "git": {
+    "stagedFiles": [],
+    "committed": false,
+    "merged": false,
+    "pushed": false,
+    "statusPorcelainV1": [
+      " M PROJECT_STATUS.md",
+      " M activity-ownership.js",
+      " M architecture.md",
+      " M combat.js",
+      " M data.js",
+      " M image-assets.js",
+      " M index.html",
+      " M input.js",
+      " M items.js",
+      " M movement.js",
+      " M npcs.js",
+      " M persistent-party.js",
+      " M render-entities.js",
+      " M render-party-battle.js",
+      " M render-ui.js",
+      " M render.js",
+      " M resonance.js",
+      " M save.js",
+      " M sera-liora-scene.js",
+      " M story-checkpoint-lab.js",
+      " M test/cases/131-sera-liora-cutaway-opening.test.js",
+      " M test/cases/132-sera-liora-debug-menu.test.js",
+      " M test/cases/133-sera-liora-raster-integration.test.js",
+      " M test/cases/137-sera-liora-bed-patch-integration.test.js",
+      " M test/cases/138-sera-liora-guest-room-free-walk.test.js",
+      " M test/cases/155-formation-four-command-integration.test.js",
+      " M test/cases/165-party-session-controller.test.js",
+      " M test/cases/171-party-command-status-hardening.test.js",
+      " M test/cases/173-party-command-session-controller.test.js",
+      " M test/cases/180-resonance-mvp.test.js",
+      " M test/cases/183-canonical-party-combat-integration.test.js",
+      " M test/cases/185-canonical-battle-envelope.test.js",
+      " M test/cases/261-sera-liora-bedroom-interactions.test.js",
+      " M test/cases/43-dialogue-wrapping.test.js",
+      " M world-transitions.js",
+      "?? Art/generated/sera-liora/breakfast-gate-open-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/breakfast-keeper-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/breakfast-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/buzzy-beetle-scene-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/courtyard-v1-imagegen-source.png",
+      "?? Art/generated/sera-liora/liora-walk-courtyard-v1-imagegen-source.png",
+      "?? Art/qa/regional-geography/visual-atlas.html",
+      "?? Art/qa/regional-geography/visual-atlas.md",
+      "?? Art/qa/regional-geography/visual-atlas.png",
+      "?? Art/qa/sera-liora/breakfast-v1/ASSET_PROMPTS.md",
+      "?? Art/qa/sera-liora/breakfast-v1/README.md",
+      "?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/breakfast-arrival-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/confrontation-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/confrontation-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/courtyard-departure-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/manifest.json",
+      "?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-1x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/pre-battle-fade-2x.png",
+      "?? Art/qa/sera-liora/breakfast-v1/verification.json",
+      "?? Art/qa/sera-liora/courtyard-v1/ASSET_PROMPTS.md",
+      "?? Art/qa/sera-liora/courtyard-v1/README.md",
+      "?? Art/qa/sera-liora/courtyard-v1/approach-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/approach-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/arrival-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/arrival-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/call-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/call-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/conversation-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/conversation-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/infirmary-return-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/infirmary-return-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-1x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/liora-breakfast-2x.png",
+      "?? Art/qa/sera-liora/courtyard-v1/manifest.json",
+      "?? Art/qa/sera-liora/courtyard-v1/verification.json",
+      "?? Art/qa/sera-liora/story-battle-pass1/README.md",
+      "?? Art/qa/sera-liora/story-battle-pass1/verification.json",
+      "?? Art/qa/sera-liora/story-battle-pass2/README.md",
+      "?? Art/qa/sera-liora/story-battle-pass2/verification.json",
+      "?? STORY_BATTLES.md",
+      "?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png",
+      "?? assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png",
+      "?? assets/backgrounds/cutaways/sera-liora/courtyard-v1.png",
+      "?? assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png",
+      "?? assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png",
+      "?? assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png",
+      "?? sera-liora-battle-profiles.js",
+      "?? sera-liora-breakfast.js",
+      "?? sera-liora-courtyard.js",
+      "?? story-battle.js",
+      "?? test/cases/262-sera-liora-courtyard.test.js",
+      "?? test/cases/263-sera-liora-breakfast.test.js",
+      "?? test/cases/264-story-battle-context.test.js",
+      "?? test/cases/265-offensive-resonance.test.js",
+      "?? test/sera-liora-courtyard-browser.html",
+      "?? test/sera-liora-courtyard-browser.js",
+      "?? test/sera-liora-courtyard-helpers.js"
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "baseCommit": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "method": "Built-in imagegen; automated Chromium DOM keyboard/Canvas review plus visual inspection, not human gameplay",
+  "checks": 174,
+  "browserErrors": [],
+  "images": [
+    {
+      "file": "Art/generated/sera-liora/courtyard-v1-imagegen-source.png",
+      "width": 1295,
+      "height": 1214,
+      "sha256": "26dd19dc21e1b0fd1ebd0a584cdcbaf50340086abf4c4c1f337d0e6b9ac41388"
+    },
+    {
+      "file": "Art/generated/sera-liora/liora-walk-courtyard-v1-imagegen-source.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "8de24dada6293b4970aac03a36bed95af908b8fc968655fe226a7e675311da05"
+    },
+    {
+      "file": "assets/backgrounds/cutaways/sera-liora/courtyard-v1.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "53bbe37d22003fc6d8a58ca9b203a9a5d6b1c56946743888b600518ac36ab7b2"
+    },
+    {
+      "file": "assets/sprites/cutaways/sera-liora/courtyard-v1/liora-walk.png",
+      "width": 384,
+      "height": 576,
+      "sha256": "2a1f4cce02a3847761002978b61e012a14c97c6522859a8712f52e9033dc3fc9"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/approach-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "00cf5ee22cf66c332ace3484fece8029f9d98c7c5beb0e6acd493f0f5c2cd02f"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/approach-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "fd393b2419a7eca4bd38cb7823f94a3fad2f3abe00621940c9a9dc45486f06e0"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/arrival-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "2278a56bbcc5e3b57d0ec8f9bbe341976db64292560b7a1548ad7067d59bbeea"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/arrival-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "a5cbe00dca95f820363a8744a9c533382a03027965c0691bf9a9dd31d2ad4a09"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/call-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "eba7cdab6bee5e83e3974d08ea2de98971a8a7bb33e35ab63f7dcda1d95193fa"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/call-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "87b53915f57c19f6fd0107b4de09a9ae64b0abeb97ba6fa02d2fcf1e3dfa1db6"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/conversation-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "f8e6f4a03a9510b719cd7bcde4c97e182c7eeb3410b084c46d3f9bde2d0751e2"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/conversation-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "1fc82955849785a5c280ccd34b8d1aa7e0a9c9128b7b30197a1bd9edf8751f50"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/infirmary-return-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "d7b173b246361e714f041a222918ffec765f8cad63b2f7ba2286727aaeab7969"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/infirmary-return-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "cbe81c726aaad7b56359d0716e912e552d0d1129ee5514d2c173c9d1158e5c6f"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/liora-breakfast-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "ab394f122e4a54dbcc704d3ded8a2b02c59d432b5d15d7510770a0817e2f8653"
+    },
+    {
+      "file": "Art/qa/sera-liora/courtyard-v1/liora-breakfast-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "b802927c4ef2cf785bfbf063b97dc946a1f3bb8cd654394c07c805ae85757425"
+    }
+  ],
+  "wrappingFollowup": "Mixed-speaker pages are measured with their own body font. Browser checks now inspect actual emitted text rather than wrapping it again."
+}

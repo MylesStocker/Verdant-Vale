@@ -1,0 +1,136 @@
+{
+  "syntaxFiles": [
+    "data.js",
+    "image-assets.js",
+    "input.js",
+    "movement.js",
+    "render-entities.js",
+    "render-ui.js",
+    "render.js",
+    "sera-liora-courtyard.js",
+    "sera-liora-scene.js",
+    "story-checkpoint-lab.js",
+    "test/cases/131-sera-liora-cutaway-opening.test.js",
+    "test/cases/132-sera-liora-debug-menu.test.js",
+    "test/cases/133-sera-liora-raster-integration.test.js",
+    "test/cases/137-sera-liora-bed-patch-integration.test.js",
+    "test/cases/138-sera-liora-guest-room-free-walk.test.js",
+    "test/cases/261-sera-liora-bedroom-interactions.test.js",
+    "test/cases/262-sera-liora-courtyard.test.js",
+    "test/cases/43-dialogue-wrapping.test.js",
+    "test/sera-liora-courtyard-browser.js",
+    "test/sera-liora-courtyard-helpers.js",
+    "world-transitions.js"
+  ],
+  "validation": {
+    "errors": 0,
+    "warnings": 14,
+    "counts": {
+      "Maps": 1097,
+      "Map metadata": 1097,
+      "Regional layout": 934,
+      "Regional chunks": 934,
+      "Camera exclusion": 8,
+      "Continuous seams": 1976,
+      "Continuous content": 934,
+      "Encounter geography": 934,
+      "Regional presentation": 2,
+      "Tiles": 263280,
+      "EDGE_TRANSITIONS": 2056,
+      "NPCs": 481,
+      "Items": 140,
+      "Enemies": 217,
+      "Enemy capabilities": 71,
+      "Encounter formations": 100,
+      "Dialogue": 956,
+      "Save/Flags": 205,
+      "Map Features": 81,
+      "Pickups": 79,
+      "Chests": 23
+    },
+    "errorList": [],
+    "warningList": [
+      {
+        "group": "Tile Properties",
+        "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+      },
+      {
+        "group": "Enemies",
+        "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_fen_zolom (Fen Zolom): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_botfly (Botfly): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_waspthra (Waspthra): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_sparkeel (Sparkeel): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_mudwrack_snapper (Mudwrack Snapper): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_fen_rootworm (Fen Rootworm): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_willow_veiled_stalker (Willow-Veiled Stalker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_hollowreed_choker (Hollowreed Choker): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      }
+    ]
+  },
+  "saveVersion": 5,
+  "fingerprints": 934,
+  "browser": {
+    "checks": 174,
+    "captures": 12,
+    "errors": [],
+    "ok": true
+  },
+  "baseCommit": "df88701eb9f4fb0559b0d402a5fb63baab34aa28",
+  "regression": {
+    "passed": 241,
+    "failed": 0
+  },
+  "transitionArtifactMatches": true,
+  "regionalGridsChanged": 0,
+  "additionalAsyncChecks": 3,
+  "manualHumanGameplay": false,
+  "wrappingFollowup": {
+    "before": "Actual painted line on the first Liora reply reached x=526.082, beyond the box right edge x=504. Pages had been measured in Sera\u2019s narrower font.",
+    "after": "All actual emitted dialogue glyphs fit the box at native and 2x scale, including Then let\u2019s eat.",
+    "regression": {
+      "passed": 241,
+      "failed": 0
+    }
+  }
+}

@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { createContext } = require('../harness');
+const { completeCourtyard } = require('../sera-liora-courtyard-helpers');
 
 const ROOT = path.join(__dirname, '..', '..');
 const WALK_PATH = 'assets/sprites/cutaways/sera-liora/depth-v2/sera-walk.png';
@@ -172,6 +173,7 @@ module.exports = {
     g.press('a');
     assert.equal(g.run('seraLioraDoorInteractionAvailable()'), true, 'door approach is reachable and facing-gated');
     g.press('Enter');
+    completeCourtyard(g);
     assert.equal(g.run('seraLioraGuestRoomWalk.completionCount'), 1);
     assert.equal(g.run('seraLioraGuestRoomWalk.active'), false);
     assert.equal(g.run('seraLioraCutscene.active'), false);

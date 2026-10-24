@@ -5,7 +5,7 @@
 // scale (50 HP / 10 ATK / 4 DEF / 8 SPD). MQ5 recruits through this authority.
 const PERSISTENT_CHARACTER_DEFINITIONS = Object.freeze({
   lely:Object.freeze({id:'lely',slot:0,name:'Lély',rareBorn:false,affinity:null}),
-  esla:Object.freeze({id:'esla',slot:1,name:'Esla',speakerId:'esla',rareBorn:true,affinity:'bloommarked',provisional:true,
+  esla:Object.freeze({id:'esla',slot:1,name:'Esla',speakerId:'esla',rareBorn:true,affinity:'bloommarked',knownTechniques:Object.freeze(['quickbloom']),provisional:true,
     progression:Object.freeze({hpBase:30,hpPerLevel:5,atkBase:6,atkPerLevel:1,
       defBase:2,defEveryLevels:2,spdBase:6,spdEveryLevels:2})}),
 });
@@ -78,7 +78,7 @@ const persistentParty = (() => {
   const snapshot=()=>copy({members:[lely(),...characters.map((m,i)=>memberView(m,i+1))],
     inventory:stats.items.map(i=>i.name),gold:stats.gold,defeated:[stats,...characters].every(m=>m.hp===0)});
   const idle=()=>{
-    if(activityOwnership.has('water_travel')||rewardFailure||battle||combat.active||combat.mode!==null||combatPlayerState.hasParty()||
+    if(activityOwnership.has('water_travel')||activityOwnership.has('story_battle')||rewardFailure||battle||combat.active||combat.mode!==null||combatPlayerState.hasParty()||
         combatPlayerState.session.getView()||formationCombatLab.isOpen()||partyCombatLab.isActive()||
         galleryReceiverEncounter.isLocked())fail();
   };

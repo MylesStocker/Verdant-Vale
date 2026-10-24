@@ -142,7 +142,8 @@ test('combat item rows reuse registry names, grouping, filtering and stable sing
   const g=fresh();g.run(`stats.items=Object.values(ITEM_REGISTRY).map(i=>createItem(i.name));stats.items.push(createItem('Potion'));`);
   const expected=J(g,'groupItems().map(({name,count})=>({name,count}))');const before=state(g);choose(g,'item');
   assert.deepEqual(view(g).items.map(({name,count})=>({name,count})),expected);
-  assert.equal(view(g).items.length,38);assert.equal(view(g).items.find(i=>i.name==='Potion').count,2);
+  assert.equal(view(g).items.length,42); // previous 38 plus four registered cutaway equipment definitions
+  for(const name of ['Fine Sabre','Balanced Staff','Reinforced Travel Coat','Woven Guard Coat'])assert.equal(view(g).items.find(i=>i.name===name).count,1);assert.equal(view(g).items.find(i=>i.name==='Potion').count,2);
   assert.equal(state(g),before);g.press('Escape');assert.equal(view(g).phase,'awaiting_action');
 });
 

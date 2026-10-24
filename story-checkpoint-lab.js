@@ -38,7 +38,7 @@ const STORY_CHECKPOINTS = Object.freeze([STORY_CHECKPOINT_ASSIGNMENT,Object.free
     travellers_rise_ambush_payment:0,travellers_rise_camp_stage:0}),
   location:Object.freeze({mapId:'EASTERN_FENS_TRAVELLERS_RISE_MAP',x:10.5*TILE,y:7.5*TILE,
     facing:'left',state:Object.freeze({})}),
-})]);
+}),Object.freeze({id:'sera_liora_battle_ready',label:'Sera/Liora — Breakfast Battle',scene:'breakfast_battle'})]);
 
 const storyCheckpointLab=(()=>{
   let menuState=null,lastError='';
@@ -71,6 +71,11 @@ const storyCheckpointLab=(()=>{
   };
   const prepare=definition=>{
     frozen(definition);
+    if(Object.hasOwn(definition,'scene')){
+      const value=closed(definition,['id','label','scene']);
+      if(value.id!=='sera_liora_battle_ready'||value.scene!=='breakfast_battle'||typeof value.label!=='string'||!value.label)fail('invalid scene checkpoint');
+      return {scene:value.scene};
+    }
     const value=closed(definition,['id','label','party','level','xp','stats','equipment','inventory','gold','day','flags','location']);
     if(typeof value.id!=='string'||!value.id||typeof value.label!=='string'||!value.label)fail('invalid identity');
     if(!Number.isSafeInteger(value.level)||value.level<1||value.level>MAX_LEVEL||value.xp!==XP_THRESHOLDS[value.level-1]||
@@ -115,6 +120,7 @@ const storyCheckpointLab=(()=>{
     if(typeof mq5AssignmentCutscene!=='undefined')mq5AssignmentCutscene.reset();
     if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.resetTransient();
     if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.resetTransient();
+    storyBattle.reset();
     canonicalPartyCombat.resetForStoryCheckpoint();scriptedPartyEncounters.resetForStoryCheckpoint();
     formationCombatLab.resetForStoryCheckpoint();partyCombatLab.resetForStoryCheckpoint();
     galleryReceiverEncounter.resetForStoryCheckpoint();resetCombatForStoryCheckpoint();
@@ -129,6 +135,8 @@ const storyCheckpointLab=(()=>{
     warpMenu.open=false;warpMenu.mode='list';warpMenu.cursor=0;warpMenu.scrollOffset=0;warpMenu.destinations=[];
     warpMenu.targetDestId=null;warpMenu.targetCol=8;warpMenu.targetRow=7;warpMenu.playerMode=false;continentMap.open=false;
     accordPanel.open=false;accordPanel.page=0;accordPanel.pages=[];accordPanel.title='';accordPanel.theme='imperial';
+    resetSeraLioraBreakfast();
+    resetSeraLioraCourtyard();
     Object.assign(seraLioraCutscene,{active:false,phase:'idle',beat:-1,waitFrames:0,revealAlpha:0,
       lioraPose:'sleeping',storyEntry:false,startCount:0,assetLoadToken:0});
     Object.assign(seraLioraGuestRoomWalk,{active:false,inputLocked:true,x:350,y:345,facing:'down',moving:false,
@@ -159,13 +167,19 @@ const storyCheckpointLab=(()=>{
   };
   const apply=id=>{
     const definition=STORY_CHECKPOINTS.find(entry=>entry.id===id);if(!definition)fail('unknown checkpoint');
-    const plan=prepare(definition);return commit(plan);
+    const plan=prepare(definition);
+    if(plan.scene){
+      if(activityOwnership.conflicts(['debug','checkpoint']).length)fail('another activity owns the session');
+      menuState=null;debugMenu.open=false;
+      if(!seraLioraBreakfastBattle.preview())fail('breakfast preview unavailable');return true;
+    }
+    return commit(plan);
   };
   return Object.freeze({
     list(){return Object.freeze(STORY_CHECKPOINTS.map(({id,label})=>Object.freeze({id,label})));},
     isOpen(){return menuState!==null;},
     getView(){return menuState&&Object.freeze({phase:menuState.phase,cursor:menuState.cursor,
-      confirmCursor:menuState.confirmCursor,checkpoints:this.list(),choices:Object.freeze(['Apply','Cancel']),error:lastError});},
+      confirmCursor:menuState.confirmCursor,sceneOnly:Object.hasOwn(STORY_CHECKPOINTS[menuState.cursor],'scene'),checkpoints:this.list(),choices:Object.freeze(['Apply','Cancel']),error:lastError});},
     validateDefinition(definition){prepare(definition);return true;},
     apply,
     open(){if(menuState||!debugMenu.open||combat.active||canonicalPartyCombat.isActive())return false;

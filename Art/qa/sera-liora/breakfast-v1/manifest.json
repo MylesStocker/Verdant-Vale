@@ -1,0 +1,117 @@
+{
+  "method": "Built-in imagegen assets; automated Chromium DOM keyboard/production Canvas review plus representative visual inspection, not human gameplay",
+  "browserChecks": 3291,
+  "browserCaptures": 22,
+  "retainedCaptures": 10,
+  "combatStarts": 0,
+  "images": [
+    {
+      "file": "Art/generated/sera-liora/breakfast-v1-imagegen-source.png",
+      "width": 1295,
+      "height": 1214,
+      "sha256": "8c14931466bb07a33b5d927a7479e071165c97b3660610f3aa62a8ec8d1de510"
+    },
+    {
+      "file": "Art/generated/sera-liora/breakfast-gate-open-v1-imagegen-source.png",
+      "width": 1295,
+      "height": 1215,
+      "sha256": "1d633299b82a57ee6ff8d9fb8d23f4b5d01aa923f87050edb73e337ab0f12eef"
+    },
+    {
+      "file": "Art/generated/sera-liora/breakfast-keeper-v1-imagegen-source.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "7197926b8b2e4f2b10cdec2a12dc4ef6f90fe3b0bf81efa1940d5af0df2031b5"
+    },
+    {
+      "file": "Art/generated/sera-liora/buzzy-beetle-scene-v1-imagegen-source.png",
+      "width": 2172,
+      "height": 724,
+      "sha256": "c35f15548049909f447105adaf880f5cb5cd565b626ce9c6684cef559d045e5a"
+    },
+    {
+      "file": "assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "12f7f9653993146b23cc9a1f4066c43239d32bdc8c327f3b86dae152561be601"
+    },
+    {
+      "file": "assets/backgrounds/cutaways/sera-liora/breakfast-v1/gate-open.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "a11efa86bd02a8c93458fae15dc78ac3c067585280d284cec218a8bf178ef9d7"
+    },
+    {
+      "file": "assets/sprites/cutaways/sera-liora/breakfast-v1/keeper-walk.png",
+      "width": 384,
+      "height": 576,
+      "sha256": "79107a0c2a06d94f01b58323b462a60d523480aa420f253b8a7cf56868fc5500"
+    },
+    {
+      "file": "assets/sprites/cutaways/sera-liora/breakfast-v1/buzzy-beetle.png",
+      "width": 384,
+      "height": 128,
+      "sha256": "d305437df71beee8a3aaa97a131bc1f20dfc245e45cbe2b8184636ab4d1123c5"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/breakfast-arrival-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "2a9eb3219f789bd6adf86d3682ff822e06741cfd707b09049cf52df0ed0ed504"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/breakfast-arrival-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "45181b17a9f50b3713fea6c7609b972f684b4d43a4b62794fc8ceceb59c7f6d3"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/confrontation-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "835a6e1b13178d810c3b81f952a901b6d8140e66e2932a9392c909d83f48c16e"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/confrontation-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "f61527ee72a4d66b761b2a5bacce9978570a0c6eb793fa6c241f8a1654dc003b"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/courtyard-departure-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "f5261c21995d4f91ee618a588f081510aed3371b4ade32be47d37276860ec57b"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/courtyard-departure-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "f35c4a719fbf15709cecbfdbd0d1913c1148debf941eb41fed00a17d919fc5f4"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "a19dcec37abbdcf1dc31dfb9741d260673db61558a16b0e1f0b786d181c63658"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/keeper-opens-gate-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "d149044927351b8566eb0395a79fc86b72f73e8d78c1331e4114a3d4391a7145"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/pre-battle-fade-1x.png",
+      "width": 512,
+      "height": 480,
+      "sha256": "261e60afd08e7006263e89b0f1ad5e7f8699c8ce6105e0690da35a67ee235c23"
+    },
+    {
+      "file": "Art/qa/sera-liora/breakfast-v1/pre-battle-fade-2x.png",
+      "width": 1024,
+      "height": 960,
+      "sha256": "b776c6fde5291f9e7084dcfac41714c81c0d4e3e6838bde9311ad6014dfc9dcc"
+    }
+  ]
+}

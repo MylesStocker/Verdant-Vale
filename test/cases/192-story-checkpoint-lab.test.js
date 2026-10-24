@@ -18,10 +18,10 @@ function closeDialogue(g){g.run(`var guard=0;while(dialogue.open||mq5AssignmentC
  if(guard++>600)throw Error('dialogue loop');if(dialogue.open)handleInteract();else update();
 }`);}
 
-test('debug menu discovers both checkpoints and Cancel mutates nothing',()=>{
+test('debug menu discovers the world and scene checkpoints and Cancel mutates nothing',()=>{
  const g=fresh(),before=snapshot(g),calls=g.run('checkpointRolls'),seq=g.run('combatEnemyInstanceSequence');
  g.press('`');g.run('debugMenu.cursor=13');g.press('Enter');
- assert.equal(g.run('storyCheckpointLab.isOpen()'),true);assert.deepEqual(J(g,'storyCheckpointLab.list()'),[{id:'mq5_assignment_ready',label:'MQ5 — Assignment Ready'},{id:'mq5_campfire_ready',label:'MQ5 — Campfire Ready'}]);
+ assert.equal(g.run('storyCheckpointLab.isOpen()'),true);assert.deepEqual(J(g,'storyCheckpointLab.list()'),[{id:'mq5_assignment_ready',label:'MQ5 — Assignment Ready'},{id:'mq5_campfire_ready',label:'MQ5 — Campfire Ready'},{id:'sera_liora_battle_ready',label:'Sera/Liora — Breakfast Battle'}]);
  g.press('Enter');assert.equal(g.run('storyCheckpointLab.getView().phase'),'confirm');g.press('ArrowRight');g.press('Enter');
  assert.equal(g.run('storyCheckpointLab.getView().phase'),'list');g.press('Escape');assert.equal(g.run('storyCheckpointLab.isOpen()'),false);
  g.run('debugMenu.open=false');assert.equal(snapshot(g),before);assert.equal(g.run('checkpointRolls'),calls);assert.equal(g.run('combatEnemyInstanceSequence'),seq);
@@ -119,7 +119,7 @@ test('fresh New Game remains unchanged and the Lab renderer is scale-independent
 
 test('Campfire Ready navigation wraps and cancellation preserves all runtime and stored data',()=>{
  const g=fresh(),before=snapshot(g);g.press('`');g.run('debugMenu.cursor=13');g.press('Enter');
- g.press('ArrowUp');assert.equal(g.run('storyCheckpointLab.getView().cursor'),1);
+ g.press('ArrowUp');assert.equal(g.run('storyCheckpointLab.getView().cursor'),2);
  g.press('ArrowDown');assert.equal(g.run('storyCheckpointLab.getView().cursor'),0);
  g.press('ArrowDown');g.press('Enter');g.press('ArrowRight');g.press('Enter');g.press('Escape');
  g.run('debugMenu.open=false');assert.equal(snapshot(g),before);assert.equal(g.run('checkpointRolls'),0);

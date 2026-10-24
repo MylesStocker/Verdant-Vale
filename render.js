@@ -59,7 +59,9 @@ function drawActiveMapContent() {
     const guestRoomImage = seraLioraCutscene.active && seraLioraApprovedRoomReady()
       ? loadedImageAsset('cutaway_bethany_guest_room_redraw_v1')
       : null;
-    if (guestRoomImage) ctx.drawImage(guestRoomImage, 0, 0);
+    if (seraLioraBreakfast.visible && isSeraLioraBreakfastSequence()) drawSeraLioraBreakfast();
+    else if (isSeraLioraCourtyard() && seraLioraCutscene.phase !== 'courtyard_asset_wait') drawSeraLioraCourtyard();
+    else if (guestRoomImage) ctx.drawImage(guestRoomImage, 0, 0);
     else drawBethanyGuestRoom();
   }
   if (inTown && townBuilding === 'office' && currentTownId === 'calwick')  drawOfficeFurniture();
@@ -208,6 +210,8 @@ function render() {
   if (gameRuntimeFailure.isActive()) { gameRuntimeFailure.draw(); return; }
   titleEl.textContent = locationName();
 
+  if (seraLioraBreakfastBattle.draw()) return;
+
   if (canonicalPartyCombat.isActive()) {
     const view = canonicalPartyCombat.getView();
     if (view.phase === 'fault') {
@@ -294,6 +298,7 @@ function render() {
   }
 
   travellersRiseNight.drawNight();
+  drawSeraLioraBreakfastFade();
   drawDialogue();
   drawChoice();
   drawShop();

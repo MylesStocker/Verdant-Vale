@@ -65,6 +65,20 @@ const GALLERY_RECEIVER_TEMPLATES = [
 ];
 Object.defineProperty(GALLERY_RECEIVER_TEMPLATES[0], 'isBoss', {value:true});
 
+// Bethany breakfast only: ordinary shared-engine mechanics, no field pool.
+// Any two minimum landed noncritical opening attacks defeat HP64; no maximum
+// single noncritical attack does. Balance data is revisable, not world canon.
+const BUZZY_BEETLE_TEMPLATE = {
+  id:'enemy_buzzy_beetle',name:'Buzzy Beetle',hp:64,maxHp:64,atk:2,def:4,spd:4,
+  xp:0,goldMin:0,goldMax:0,
+};
+
+// A visibly larger storeroom pest; still ordinary, harmless opening combat.
+const LARGE_BUZZY_BEETLE_TEMPLATE = {
+  id:'enemy_large_buzzy_beetle',name:'Large Buzzy Beetle',hp:96,maxHp:96,atk:2,def:4,spd:4,
+  xp:0,goldMin:0,goldMax:0,
+};
+
 // ─── Enemy-template identity registry (stable IDs, #4) ───────────────────────
 // One authoritative, id-keyed registry of every enemy TEMPLATE. Combat clones a
 // template into combat.enemy with `{ ...t }`, which carries the `id` through, so
@@ -138,7 +152,7 @@ const ENEMY_SCRIPTED_TEMPLATES = [
   MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
   LENSWEB_SPIDER_TEMPLATE, MIMIC_POTION_TEMPLATE,
   ROAD_IMPOSTOR_TEMPLATE, BRIDLED_HOLLOW_TEMPLATE, FEN_HANDLER_TEMPLATE,
-  ...GALLERY_RECEIVER_TEMPLATES,
+  ...GALLERY_RECEIVER_TEMPLATES, BUZZY_BEETLE_TEMPLATE, LARGE_BUZZY_BEETLE_TEMPLATE,
 ];
 // The 1/256 secret "23" enemy is generated fresh each encounter with random
 // stats (startCombat in combat.js), so it has no static stat block — only a stable id.

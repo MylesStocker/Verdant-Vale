@@ -9,7 +9,7 @@ function context({combined=0,disabled=false}={}){
  const read=fs.readFileSync;
  try{
   if(combined||disabled)fs.readFileSync=function(file,...args){let s=read.call(this,file,...args);
-   if(String(file).endsWith('/persistent-party.js')&&combined)s=s.replace('  lely:Object.freeze',Array.from({length:combined},(_,i)=>`  fixture_${String.fromCharCode(97+i)}:Object.freeze({id:'fixture_${String.fromCharCode(97+i)}',slot:${i},name:'Fixture',rareBorn:true,affinity:'bloommarked'}),`).join('\n')+'\n  lely:Object.freeze');
+   if(String(file).endsWith('/persistent-party.js')&&combined)s=s.replace('  lely:Object.freeze',Array.from({length:combined},(_,i)=>`  fixture_${String.fromCharCode(97+i)}:Object.freeze({id:'fixture_${String.fromCharCode(97+i)}',slot:${i},name:'Fixture',rareBorn:true,affinity:'bloommarked',knownTechniques:Object.freeze(['fixture_shared'])}),`).join('\n')+'\n  lely:Object.freeze');
    if(String(file).endsWith('/resonance.js')){
     if(combined){const participants=Array.from({length:combined},(_,i)=>({characterId:'fixture_'+String.fromCharCode(97+i),affinity:'bloommarked',strain:1}));s=s.replace('  quickbloom:validateResonanceTechnique',`  fixture_shared:validateResonanceTechnique({...${JSON.stringify({id:'fixture_shared',name:'Fixture shared heal',kind:'combined',initiator:'fixture_a',participants,target:'living_wounded_ally',effect:'heal_fifth'})},elements:Object.freeze(['bloommarked'])}),\n  quickbloom:validateResonanceTechnique`);}
     if(disabled)s=s.replace('return actor.hp > 0;',"return actor.hp > 0 && !(['fixture_b','esla'].includes(actor.characterId) && party[0].hp < 40);");
@@ -35,10 +35,10 @@ function action(g,{actor=1,target=0,techniqueId='quickbloom',participants=[actor
 function command(g,res=action(g)){
  const v=view(g),covered=res?.participantIds||[];
  const actions=v.party.filter(m=>m.hp>0&&!covered.includes(m.instanceId)).map(m=>({type:'observe',actorId:m.instanceId,targetId:v.enemies.find(e=>e.hp>0).instanceId}));
- if(res)actions.push(res);actions.sort((a,b)=>v.party.findIndex(m=>m.instanceId===a.actorId)-v.party.findIndex(m=>m.instanceId===b.actorId));
+ if(res)actions.push(...res.participantIds.map(actorId=>({...res,actorId,participantIds:[...res.participantIds]})));actions.sort((a,b)=>v.party.findIndex(m=>m.instanceId===a.actorId)-v.party.findIndex(m=>m.instanceId===b.actorId));
  return {type:'party-round',allyActions:actions,enemyActions:v.enemies.filter(e=>e.hp>0).map(e=>({actorId:e.instanceId,targetId:v.party.find(m=>m.hp>0).instanceId}))};
 }
-function tape(g,c,order){const v=view(g),pool=[...v.party.filter(m=>m.hp>0).map(m=>({id:m.instanceId,w:m.effective.spd})),...v.enemies.filter(e=>e.hp>0).map(e=>({id:e.instanceId,w:Math.max(1,e.spd)}))];
+function tape(g,c,order){const v=view(g),pool=[...c.allyActions.filter(a=>a.type!=='resonance'||a.participantIds.length===1||a.actorId===a.participantIds[0]).map(a=>({id:a.actorId,w:Math.min(...(a.participantIds||[a.actorId]).map(id=>v.party.find(m=>m.instanceId===id).effective.spd))})),...v.enemies.filter(e=>e.hp>0).map(e=>({id:e.instanceId,w:Math.max(1,e.spd)}))];
  const wanted=order?order.map(x=>(x[0]==='a'?v.party:v.enemies)[+x.slice(1)].instanceId):pool.map(m=>m.id),out=[];
  for(const id of wanted.slice(0,-1)){const i=pool.findIndex(m=>m.id===id);assert.ok(i>=0);out.push((pool.slice(0,i).reduce((n,m)=>n+m.w,0)+pool[i].w/2)/pool.reduce((n,m)=>n+m.w,0));pool.splice(i,1);}return out;
 }
@@ -49,10 +49,10 @@ function reject(g,source){const before=state(g);assert.throws(()=>g.run(source))
 function editResult(g,source){g.run('var altered='+JSON.stringify(J(g,'result'))+';'+source+';altered=copyFormationData(altered)');reject(g,'combatPlayerState.createRoundPlayback(altered)');}
 function finish(g){g.run('while(combatPlayerState.session.getView().phase==="playback")combatPlayerState.session.advancePlayback()');return J(g,'combatPlayerState.session.getView()');}
 
-test('explicit static metadata, sole frozen Quickbloom definition, no capability by membership',()=>{
+test('explicit static metadata, frozen authored techniques, no capability by membership',()=>{
  const g=fresh({enabled:false});assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.lely.rareBorn'),false);assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.lely.affinity'),null);
  assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.esla.rareBorn'),true);assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.esla.affinity'),'bloommarked');
- assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom']);frozen(g.run('RESONANCE_TECHNIQUES'));
+ assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom','null','rainbow','eclipse']);frozen(g.run('RESONANCE_TECHNIQUES'));
  g.run('var bad='+JSON.stringify(command(g)));reject(g,'combatPlayerState.resolveRound(bad)');assert.equal(view(g).resonance,undefined);
 });
 for(const edit of ["d.extra=1","d.kind='combined'","d.participants.push(d.participants[0]);d.kind='combined'","d.initiator='absent'","d.effect='damage'","d.target='enemy'","d.participants[0].affinity='unknown'","d.participants[0].strain=Infinity","d.participants[0].strain=-1","Object.defineProperty(d,'name',{get(){throw Error('getter invoked')}})","Object.setPrototypeOf(d,{})","d.callback=()=>{}","d.participants[0].extra=true","d.participants[0].characterId=''","d.participants.length=3"])
@@ -90,31 +90,35 @@ test('terminal escape and victory discard Strain with historical cleanup evidenc
   const r=resolve(g,c,null,outcome==='escape'?[0]:[]);assert.equal(r.outcome,outcome);assert.equal(r.after.resonance[1].strain,0);assert.ok(r.events.some(e=>e.type==='strain'&&e.reason==='cleanup'));
  }
 });
-for(const n of [2,3])test('synthetic '+n+'-participant technique waits for latest weighted position, once',()=>{
- const g=fresh({combined:n,enemies:3}),c=command(g,action(g,{actor:0,participants:Array.from({length:n},(_,i)=>i),techniqueId:'fixture_shared'}));
- const order=n===3?['a2','e0','a0','e1','a1','e2']:['a1','e0','e1','a0','e2'],r=resolve(g,c,order);
- assert.equal(r.initiative.length,n+2);assert.equal(r.order.filter(p=>p.side==='ally').length,n);assert.equal(r.events.filter(e=>e.type==='resonance_wait').length,n-1);
- const execution=r.events.find(e=>e.type==='resonance');assert.equal(execution.actorId,ids(g)[n===3?1:0]);assert.equal(r.events.filter(e=>e.type==='resonance').length,1);
- assert.deepEqual(r.after.resonance.map(c=>c.strain),Array(n).fill(1));assert.equal(g.run('used.length'),n+2+9);
+for(const n of [2,3])test('synthetic '+n+'-participant technique uses one minimum-Speed position, once',()=>{
+ const g=fresh({combined:n,enemies:3,party:[{spd:19},{spd:7},{spd:13}]}),c=command(g,action(g,{actor:0,participants:Array.from({length:n},(_,i)=>i),techniqueId:'fixture_shared'}));
+ const r=resolve(g,c,['e0','a0','e1','e2']);
+ assert.equal(r.command.allyActions.length,n);assert.equal(r.initiative.length,3);assert.equal(r.order.filter(p=>p.side==='ally').length,1);
+ assert.equal(r.order.find(p=>p.side==='ally').spd,7);assert.equal(r.events.some(e=>e.type==='resonance_wait'),false);
+ const execution=r.events.find(e=>e.type==='resonance');assert.equal(execution.actorId,ids(g)[0]);assert.equal(r.events.filter(e=>e.type==='resonance').length,1);
+ assert.deepEqual(r.after.resonance.map(c=>c.strain),Array(n).fill(1));assert.equal(g.run('used.length'),3+9);
 });
 for(const n of [2,3])test('synthetic combined participant death cancels once and consumes reserved actions '+n,()=>{
  const g=fresh({combined:n,party:[{}, {hp:1},{}]}),c=command(g,action(g,{actor:0,participants:Array.from({length:n},(_,i)=>i),techniqueId:'fixture_shared'}));c.enemyActions[0].targetId=ids(g)[1];
- const r=resolve(g,c,n===3?['a0','e0','a1','a2']:['a0','e0','a1']);assert.equal(r.events.filter(e=>e.type==='resonance_cancel').length,1);assert.equal(r.events.find(e=>e.type==='resonance_cancel').unavailableId,ids(g)[1]);assert.equal(r.events.some(e=>e.type==='resonance'),false);assert.ok(r.after.resonance.every(c=>c.strain===0));
+ const r=resolve(g,c,['e0','a0']);assert.equal(r.events.filter(e=>e.type==='resonance_cancel').length,1);assert.equal(r.events.find(e=>e.type==='resonance_cancel').unavailableId,ids(g)[1]);assert.equal(r.events.some(e=>e.type==='resonance'),false);assert.ok(r.after.resonance.every(c=>c.strain===0));
 });
 test('pure eligibility policy gates disabled participants before and after commitment',()=>{
  const pre=fresh({combined:2,disabled:true,party:[{hp:20},{}]});pre.run('var bad='+JSON.stringify(command(pre,action(pre,{actor:0,participants:[0,1],techniqueId:'fixture_shared'}))));reject(pre,'combatPlayerState.resolveRound(bad)');
- const g=fresh({combined:2,disabled:true,enemy:[{atk:20}]}),c=command(g,action(g,{actor:0,participants:[0,1],techniqueId:'fixture_shared'}));const r=resolve(g,c,['a0','e0','a1']);assert.equal(r.events.find(e=>e.type==='resonance_cancel').reason,'participant_disabled');assert.ok(r.after.resonance.every(c=>c.strain===0));
+ const g=fresh({combined:2,disabled:true,enemy:[{atk:20}]}),c=command(g,action(g,{actor:0,participants:[0,1],techniqueId:'fixture_shared'}));const r=resolve(g,c,['e0','a0']);assert.equal(r.events.find(e=>e.type==='resonance_cancel').reason,'participant_disabled');assert.ok(r.after.resonance.every(c=>c.strain===0));
  const ordinary=fresh({disabled:true,enemy:[{atk:20}]}),r2=resolve(ordinary,command(ordinary),['e0','a0','a1']);assert.equal(r2.events.find(e=>e.type==='skip').reason,'actor_disabled');assert.equal(r2.after.resonance[1].strain,0);
 });
 test('combined command requires exact participants and exclusive action ownership',()=>{
  const g=fresh({combined:3}),a=action(g,{actor:0,participants:[0,1,2],techniqueId:'fixture_shared'});
  for(const mutation of [c=>c.allyActions[0].participantIds.reverse(),c=>c.allyActions[0].participantIds.pop(),c=>c.allyActions.push({type:'attack',actorId:ids(g)[1],targetId:view(g).enemies[0].instanceId})]){const c=command(g,a);mutation(c);g.run('var bad='+JSON.stringify(c));reject(g,'combatPlayerState.resolveRound(bad)');}
 });
-test('combined controller reserves every slot and backtracking releases the complete draft',()=>{
+test('combined controller requires every explicit choice and backtracks only one participant',()=>{
  const g=fresh({combined:3});g.run('combatPlayerState.session.begin({commandSet:"standard"});combatPlayerState.session.moveCommand("next");combatPlayerState.session.confirmCommand();combatPlayerState.session.confirmTechnique();combatPlayerState.session.confirmTarget()');
- let s=J(g,'combatPlayerState.session.getView()');assert.equal(s.phase,'ready');assert.equal(s.allyActions.length,1);assert.equal(s.reservedActions[0].participantIds.length,3);
+ let s=J(g,'combatPlayerState.session.getView()');assert.equal(s.phase,'awaiting_action');assert.equal(s.allyActions.length,1);assert.equal(s.nextActorId,ids(g)[1]);
  g.run('combatPlayerState.session.backtrack()');s=J(g,'combatPlayerState.session.getView()');assert.equal(s.phase,'targeting');assert.equal(s.reservedActions.length,0);assert.equal(s.allyActions.length,0);assert.equal(s.nextActorId,ids(g)[0]);
- g.run('combatPlayerState.session.confirmTarget();Math.random=()=>0.99;combatPlayerState.session.commitRound()');assert.equal(g.run('combatPlayerState.session.getView().frameIndex'),0);finish(g);g.run('combatPlayerState.session.acknowledgePlayback()');assert.equal(g.run('combatPlayerState.session.getView().phase'),'awaiting_action');
+ g.run('combatPlayerState.session.confirmTarget()');
+ for(let i=1;i<3;i++)g.run('combatPlayerState.session.confirmCommand();combatPlayerState.session.confirmTechnique();while(combatPlayerState.session.getView().selectedTargetInstanceId!==combatPlayerState.getCommandView().party[0].instanceId)combatPlayerState.session.moveTarget("previous");combatPlayerState.session.confirmTarget()');
+ s=J(g,'combatPlayerState.session.getView()');assert.equal(s.phase,'ready');assert.equal(s.allyActions.length,3);
+ g.run('Math.random=()=>0.99;combatPlayerState.session.commitRound()');assert.equal(g.run('combatPlayerState.session.getView().frameIndex'),0);finish(g);g.run('combatPlayerState.session.acknowledgePlayback()');assert.equal(g.run('combatPlayerState.session.getView().phase'),'awaiting_action');
 });
 test('deeply immutable playback is historical and independent after cleanup/replacement',()=>{
  const g=fresh(),r=resolve(g),reel=g.run('reel');frozen(reel);assert.equal(reel.frameCount,r.events.length+1);assert.equal(reel.frames[0].party[0].hp,50);assert.equal(reel.frames[0].resonance[1].strain,0);
@@ -125,7 +129,7 @@ test('deeply immutable playback is historical and independent after cleanup/repl
 });
 for(const edit of ["altered.events.find(e=>e.type==='resonance').targetId=altered.enemies[0].instanceId","altered.events.find(e=>e.type==='resonance').hpBefore++","altered.events.find(e=>e.type==='resonance').appliedHealing++","altered.events.find(e=>e.type==='resonance').techniqueName='Forgery'","altered.events.find(e=>e.type==='strain').after=0","altered.events.find(e=>e.type==='strain').appliedRoundAfter=0","altered.events.reverse()","altered.before.resonance[0].rareBorn=true","altered.before.resonance[1].actorId=altered.before.party[0].instanceId","altered.after.resonance[1].strain=0","altered.events.find(e=>e.type==='resonance').extra=true","altered.command.allyActions[1].participantIds=[altered.party[0].instanceId]","altered.initiative.reverse()"])
  test('malformed Resonance history rejects without live mutation: '+edit,()=>{const g=fresh();resolve(g);editResult(g,edit);});
-for(const edit of ["altered.events.find(e=>e.type==='resonance_wait').executeActorId=altered.party[0].instanceId","altered.events.find(e=>e.type==='resonance').participantIds.pop()","altered.events.find(e=>e.type==='resonance_wait').actorId=altered.party[1].instanceId"])
+for(const edit of ["altered.order.find(p=>p.side==='ally').spd++","altered.events.find(e=>e.type==='resonance').participantIds.pop()","altered.command.allyActions[1].targetId=altered.party[1].instanceId"])
  test('combined history tampering rejects: '+edit,()=>{const g=fresh({combined:2});resolve(g,command(g,action(g,{actor:0,participants:[0,1],techniqueId:'fixture_shared'})));editResult(g,edit);});
 
 test('Esla replaces Observe with Resonance; technique cancellation, exact ally targeting and no RNG collection',()=>{

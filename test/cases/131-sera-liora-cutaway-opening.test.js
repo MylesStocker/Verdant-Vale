@@ -6,6 +6,7 @@
 
 const assert = require('assert/strict');
 const { createContext } = require('../harness');
+const { completeCourtyard } = require('../sera-liora-courtyard-helpers');
 
 const EXPECTED = [
   ['Sera',  'Liora.'],
@@ -177,7 +178,8 @@ module.exports = {
     assert.equal(g.run('activeMap === BETHANY_GUEST_ROOM_MAP'), true, 'door interaction outside its approach does nothing');
     g.run("seraLioraGuestRoomWalk.x=70;seraLioraGuestRoomWalk.y=210;seraLioraGuestRoomWalk.facing='left';");
     g.press('Enter');
-    assert.equal(g.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'the room door reuses the existing hospital wake');
+    completeCourtyard(g);
+    assert.equal(g.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'the courtyard reuses the existing hospital wake');
     assert.equal(g.run('dialogue.name'), 'Esla');
     assert.equal(g.run('seraLioraCutscene.active'), false);
     assert.equal(g.run('window.basin_chamber_dream_done'), false, 'debug preview does not complete story progression');
