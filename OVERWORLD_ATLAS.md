@@ -6,13 +6,13 @@ The mainland, Great Fen and Valmere continue beyond this local authored window. 
 
 The southwestern countryside is sealed from ordinary early-game travel at Thornmere Fen. Its terrain remains reserved and debug-accessible; placement permissions are retained for existing saves. Northern Road/Blocked Path keep their west camera edge, and Eastern Reaches/Thornmere Fen keep their south camera edge.
 
-**934 chunks: 481 explorable, 453 scenery; 462 encounter-enabled.** Extent: columns -8 to 30, rows -15 to 12.
+**944 chunks: 481 explorable, 463 scenery; 462 encounter-enabled.** Extent: columns -8 to 30, rows -15 to 12.
 
 [Overview](Art/qa/regional-geography/overview.svg) · [Production tile overview](Art/qa/regional-geography/production-overview.png) · [Live inventory](Art/qa/regional-geography/inventory.json)
 
 | Region | Chunks | Explorable | Scenery | Encounters | Columns | Rows |
 |---|---:|---:|---:|---:|---|---|
-| Great Fen | 247 | 174 | 73 | 174 | -8…11 | -15…4 |
+| Great Fen | 257 | 174 | 83 | 174 | -8…11 | -15…4 |
 | Valmere | 271 | 13 | 258 | 13 | 11…30 | -15…1 |
 | Eastern Fens | 73 | 42 | 31 | 24 | 5…18 | -4…5 |
 | Eastern Mainland | 64 | 49 | 15 | 49 | 20…30 | -2…4 |
@@ -40,6 +40,10 @@ The southwestern countryside is sealed from ordinary early-game travel at Thornm
 | MAINLAND_C4RN15_MAP | (4,-15) | Long Sedge Plain | scenery | no |
 | MAINLAND_C5RN15_MAP | (5,-15) | Northern Peat Fans | scenery | no |
 | MAINLAND_C6RN15_MAP | (6,-15) | Northern Peat Fans | scenery | no |
+| MAINLAND_C7RN15_MAP | (7,-15) | Great Fen — Open Water | scenery | no |
+| MAINLAND_C8RN15_MAP | (8,-15) | Great Fen — Open Water | scenery | no |
+| MAINLAND_C9RN15_MAP | (9,-15) | Great Fen — Open Water | scenery | no |
+| MAINLAND_C10RN15_MAP | (10,-15) | Great Fen — Open Water | scenery | no |
 | MAINLAND_CN7RN14_MAP | (-7,-14) | Willow Basin | scenery | no |
 | MAINLAND_CN6RN14_MAP | (-6,-14) | Willow Basin | scenery | no |
 | MAINLAND_CN5RN14_MAP | (-5,-14) | Willow Basin | scenery | no |
@@ -55,6 +59,9 @@ The southwestern countryside is sealed from ordinary early-game travel at Thornm
 | MAINLAND_C5RN14_MAP | (5,-14) | Northern Peat Fans | explorable | yes |
 | MAINLAND_C6RN14_MAP | (6,-14) | Northern Peat Fans | scenery | no |
 | MAINLAND_C7RN14_MAP | (7,-14) | Northern Peat Fans | scenery | no |
+| MAINLAND_C8RN14_MAP | (8,-14) | Great Fen — Open Water | scenery | no |
+| MAINLAND_C9RN14_MAP | (9,-14) | Great Fen — Open Water | scenery | no |
+| MAINLAND_C10RN14_MAP | (10,-14) | Great Fen — Open Water | scenery | no |
 | MAINLAND_CN8RN13_MAP | (-8,-13) | Willow Basin | scenery | no |
 | MAINLAND_CN7RN13_MAP | (-7,-13) | Willow Basin | scenery | no |
 | MAINLAND_CN6RN13_MAP | (-6,-13) | Willow Basin | explorable | yes |
@@ -72,6 +79,8 @@ The southwestern countryside is sealed from ordinary early-game travel at Thornm
 | MAINLAND_C6RN13_MAP | (6,-13) | Northern Peat Fans | explorable | yes |
 | MAINLAND_C7RN13_MAP | (7,-13) | Northern Peat Fans | scenery | no |
 | MAINLAND_C8RN13_MAP | (8,-13) | Northern Peat Fans | scenery | no |
+| MAINLAND_C9RN13_MAP | (9,-13) | Great Fen — Open Water | scenery | no |
+| MAINLAND_C10RN13_MAP | (10,-13) | Great Fen — Open Water | scenery | no |
 | MAINLAND_CN8RN12_MAP | (-8,-12) | Willow Basin | scenery | no |
 | MAINLAND_CN7RN12_MAP | (-7,-12) | Willow Basin | explorable | yes |
 | MAINLAND_CN6RN12_MAP | (-6,-12) | Willow Basin | explorable | yes |
@@ -90,6 +99,7 @@ The southwestern countryside is sealed from ordinary early-game travel at Thornm
 | MAINLAND_C7RN12_MAP | (7,-12) | Northern Peat Fans | explorable | yes |
 | MAINLAND_C8RN12_MAP | (8,-12) | Northern Peat Fans | scenery | no |
 | MAINLAND_C9RN12_MAP | (9,-12) | Northern Peat Fans | scenery | no |
+| MAINLAND_C10RN12_MAP | (10,-12) | Great Fen — Open Water | scenery | no |
 | MAINLAND_CN8RN11_MAP | (-8,-11) | Willow Basin | scenery | no |
 | MAINLAND_CN7RN11_MAP | (-7,-11) | Willow Basin | explorable | yes |
 | MAINLAND_CN6RN11_MAP | (-6,-11) | Willow Basin | explorable | yes |

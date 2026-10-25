@@ -77,7 +77,7 @@ module.exports = {
     }
     // Totals after increments 3 + 4 + the Great Fen expansion (28 Great Fen
     // chunks: 4 converted entry chunks + 24 fresh, all walkable).
-    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 934, 'route + infill + scenery + northern water placements + Great Fen');
+    assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), 944, 'route + infill + scenery + northern water placements + Great Fen');
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 481, '66 pre-Great-Fen accessible chunks + 28 Great Fen chunks');
 
     // THE PERMANENT INVARIANT: zero visible void from every reachable EF tile.

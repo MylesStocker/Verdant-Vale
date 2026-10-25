@@ -47,7 +47,7 @@ module.exports = {
     // ── 4. Fingerprint recorded; every original grid still unchanged ──────────
     assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${ID}'].map)`)), FP, 'grid matches its computed SHA-256');
     assert.equal(GRID_FP.fingerprints[ID], FP, 'the fixture records the reservoir fingerprint');
-    assert.equal(Object.keys(GRID_FP.fingerprints).length, 934, 'fixture fingerprints every regional grid');
+    assert.equal(Object.keys(GRID_FP.fingerprints).length, 944, 'fixture fingerprints every regional grid');
 
     // ── 5. Border continuity: south mirrors the reservoir's north edge; the ────
     //      west/north/east edges are open water. All border cells non-walkable.
@@ -67,7 +67,7 @@ module.exports = {
     assert.equal(V[`${ID}|north`], 'BLOCKED', 'north now borders the new northern water band');
     assert.equal(V['NORTH_BASIN_C_MAP|north'], 'BLOCKED', "the reservoir's north edge is now BLOCKED (was BORDER)");
     assert.equal(V['NORTH_BASIN_NW_MAP|east'], 'BLOCKED', "the Upper Reach's east edge is now BLOCKED (was BORDER)");
-    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1996, "ALIGNS": 1568, "BORDER": 168}, 'audit totals include the Eastern Fens route');
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2044, "ALIGNS": 1568, "BORDER": 160}, 'audit totals include the Eastern Fens route');
 
     // ── 7. Inaccessible scenery: fail-closed against every placement path ──────
     assert.equal(g.run(`mapPlayerAccessible('${ID}')`), false, 'not player-accessible (scenery only)');

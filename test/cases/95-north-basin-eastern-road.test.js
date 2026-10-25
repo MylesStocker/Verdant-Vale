@@ -226,8 +226,8 @@ module.exports = {
     for (const [id, fp] of Object.entries(PRIOR_FPS)) {
       assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)), fp, `${id}: prior fingerprint unchanged`);
     }
-    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 1996, "ALIGNS": 1568, "BORDER": 168});
-    assert.equal(audit.seamReadiness.edges.length, 3736);
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2044, "ALIGNS": 1568, "BORDER": 160});
+    assert.equal(audit.seamReadiness.edges.length, 3776);
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'), g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
     assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.filter(function(p){return mapPlayerAccessible(p.mapId);}).length'), 481);
   },

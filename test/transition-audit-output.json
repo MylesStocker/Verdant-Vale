@@ -1096,7 +1096,17 @@
     "MAINLAND_C25R12_MAP",
     "MAINLAND_C26R12_MAP",
     "MAINLAND_C27R12_MAP",
-    "MAINLAND_C28R12_MAP"
+    "MAINLAND_C28R12_MAP",
+    "MAINLAND_C7RN15_MAP",
+    "MAINLAND_C8RN15_MAP",
+    "MAINLAND_C8RN14_MAP",
+    "MAINLAND_C9RN15_MAP",
+    "MAINLAND_C9RN14_MAP",
+    "MAINLAND_C9RN13_MAP",
+    "MAINLAND_C10RN15_MAP",
+    "MAINLAND_C10RN14_MAP",
+    "MAINLAND_C10RN13_MAP",
+    "MAINLAND_C10RN12_MAP"
   ],
   "dimReport": [
     {
@@ -7677,6 +7687,66 @@
     },
     {
       "id": "MAINLAND_C28R12_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C7RN15_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C8RN15_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C8RN14_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C9RN15_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C9RN14_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C9RN13_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C10RN15_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C10RN14_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C10RN13_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MAINLAND_C10RN12_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -58664,10 +58734,10 @@
         "chunkX": 11,
         "chunkY": -15,
         "dir": "west",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C10RN15_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C12RN15_MAP",
@@ -59704,10 +59774,10 @@
         "chunkX": 11,
         "chunkY": -14,
         "dir": "west",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C10RN14_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C12RN14_MAP",
@@ -61024,10 +61094,10 @@
         "chunkX": 11,
         "chunkY": -13,
         "dir": "west",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C10RN13_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C12RN13_MAP",
@@ -62424,10 +62494,10 @@
         "chunkX": 11,
         "chunkY": -12,
         "dir": "west",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C10RN12_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C12RN12_MAP",
@@ -82214,10 +82284,10 @@
         "chunkX": 6,
         "chunkY": -15,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C7RN15_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C6RN15_MAP",
@@ -82474,10 +82544,10 @@
         "chunkX": 7,
         "chunkY": -14,
         "dir": "north",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C7RN15_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C7RN14_MAP",
@@ -82494,10 +82564,10 @@
         "chunkX": 7,
         "chunkY": -14,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C8RN14_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C7RN14_MAP",
@@ -82674,10 +82744,10 @@
         "chunkX": 8,
         "chunkY": -13,
         "dir": "north",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C8RN14_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C8RN13_MAP",
@@ -82694,10 +82764,10 @@
         "chunkX": 8,
         "chunkY": -13,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C9RN13_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C8RN13_MAP",
@@ -82794,10 +82864,10 @@
         "chunkX": 9,
         "chunkY": -12,
         "dir": "north",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C9RN13_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C9RN12_MAP",
@@ -82814,10 +82884,10 @@
         "chunkX": 9,
         "chunkY": -12,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C10RN12_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C9RN12_MAP",
@@ -82914,10 +82984,10 @@
         "chunkX": 10,
         "chunkY": -11,
         "dir": "north",
-        "neighbor": null,
+        "neighbor": "MAINLAND_C10RN12_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "MAINLAND_C10RN11_MAP",
@@ -86228,13 +86298,413 @@
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C7RN15_MAP",
+        "chunkX": 7,
+        "chunkY": -15,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAINLAND_C7RN15_MAP",
+        "chunkX": 7,
+        "chunkY": -15,
+        "dir": "south",
+        "neighbor": "MAINLAND_C7RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C7RN15_MAP",
+        "chunkX": 7,
+        "chunkY": -15,
+        "dir": "east",
+        "neighbor": "MAINLAND_C8RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C7RN15_MAP",
+        "chunkX": 7,
+        "chunkY": -15,
+        "dir": "west",
+        "neighbor": "MAINLAND_C6RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C8RN15_MAP",
+        "chunkX": 8,
+        "chunkY": -15,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAINLAND_C8RN15_MAP",
+        "chunkX": 8,
+        "chunkY": -15,
+        "dir": "south",
+        "neighbor": "MAINLAND_C8RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C8RN15_MAP",
+        "chunkX": 8,
+        "chunkY": -15,
+        "dir": "east",
+        "neighbor": "MAINLAND_C9RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C8RN15_MAP",
+        "chunkX": 8,
+        "chunkY": -15,
+        "dir": "west",
+        "neighbor": "MAINLAND_C7RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C8RN14_MAP",
+        "chunkX": 8,
+        "chunkY": -14,
+        "dir": "north",
+        "neighbor": "MAINLAND_C8RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C8RN14_MAP",
+        "chunkX": 8,
+        "chunkY": -14,
+        "dir": "south",
+        "neighbor": "MAINLAND_C8RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C8RN14_MAP",
+        "chunkX": 8,
+        "chunkY": -14,
+        "dir": "east",
+        "neighbor": "MAINLAND_C9RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C8RN14_MAP",
+        "chunkX": 8,
+        "chunkY": -14,
+        "dir": "west",
+        "neighbor": "MAINLAND_C7RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN15_MAP",
+        "chunkX": 9,
+        "chunkY": -15,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAINLAND_C9RN15_MAP",
+        "chunkX": 9,
+        "chunkY": -15,
+        "dir": "south",
+        "neighbor": "MAINLAND_C9RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN15_MAP",
+        "chunkX": 9,
+        "chunkY": -15,
+        "dir": "east",
+        "neighbor": "MAINLAND_C10RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN15_MAP",
+        "chunkX": 9,
+        "chunkY": -15,
+        "dir": "west",
+        "neighbor": "MAINLAND_C8RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN14_MAP",
+        "chunkX": 9,
+        "chunkY": -14,
+        "dir": "north",
+        "neighbor": "MAINLAND_C9RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN14_MAP",
+        "chunkX": 9,
+        "chunkY": -14,
+        "dir": "south",
+        "neighbor": "MAINLAND_C9RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN14_MAP",
+        "chunkX": 9,
+        "chunkY": -14,
+        "dir": "east",
+        "neighbor": "MAINLAND_C10RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN14_MAP",
+        "chunkX": 9,
+        "chunkY": -14,
+        "dir": "west",
+        "neighbor": "MAINLAND_C8RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN13_MAP",
+        "chunkX": 9,
+        "chunkY": -13,
+        "dir": "north",
+        "neighbor": "MAINLAND_C9RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN13_MAP",
+        "chunkX": 9,
+        "chunkY": -13,
+        "dir": "south",
+        "neighbor": "MAINLAND_C9RN12_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN13_MAP",
+        "chunkX": 9,
+        "chunkY": -13,
+        "dir": "east",
+        "neighbor": "MAINLAND_C10RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C9RN13_MAP",
+        "chunkX": 9,
+        "chunkY": -13,
+        "dir": "west",
+        "neighbor": "MAINLAND_C8RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN15_MAP",
+        "chunkX": 10,
+        "chunkY": -15,
+        "dir": "north",
+        "neighbor": null,
+        "target": null,
+        "type": null,
+        "verdict": "BORDER"
+      },
+      {
+        "mapId": "MAINLAND_C10RN15_MAP",
+        "chunkX": 10,
+        "chunkY": -15,
+        "dir": "south",
+        "neighbor": "MAINLAND_C10RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN15_MAP",
+        "chunkX": 10,
+        "chunkY": -15,
+        "dir": "east",
+        "neighbor": "MAINLAND_C11RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN15_MAP",
+        "chunkX": 10,
+        "chunkY": -15,
+        "dir": "west",
+        "neighbor": "MAINLAND_C9RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN14_MAP",
+        "chunkX": 10,
+        "chunkY": -14,
+        "dir": "north",
+        "neighbor": "MAINLAND_C10RN15_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN14_MAP",
+        "chunkX": 10,
+        "chunkY": -14,
+        "dir": "south",
+        "neighbor": "MAINLAND_C10RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN14_MAP",
+        "chunkX": 10,
+        "chunkY": -14,
+        "dir": "east",
+        "neighbor": "MAINLAND_C11RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN14_MAP",
+        "chunkX": 10,
+        "chunkY": -14,
+        "dir": "west",
+        "neighbor": "MAINLAND_C9RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN13_MAP",
+        "chunkX": 10,
+        "chunkY": -13,
+        "dir": "north",
+        "neighbor": "MAINLAND_C10RN14_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN13_MAP",
+        "chunkX": 10,
+        "chunkY": -13,
+        "dir": "south",
+        "neighbor": "MAINLAND_C10RN12_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN13_MAP",
+        "chunkX": 10,
+        "chunkY": -13,
+        "dir": "east",
+        "neighbor": "MAINLAND_C11RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN13_MAP",
+        "chunkX": 10,
+        "chunkY": -13,
+        "dir": "west",
+        "neighbor": "MAINLAND_C9RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN12_MAP",
+        "chunkX": 10,
+        "chunkY": -12,
+        "dir": "north",
+        "neighbor": "MAINLAND_C10RN13_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN12_MAP",
+        "chunkX": 10,
+        "chunkY": -12,
+        "dir": "south",
+        "neighbor": "MAINLAND_C10RN11_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN12_MAP",
+        "chunkX": 10,
+        "chunkY": -12,
+        "dir": "east",
+        "neighbor": "MAINLAND_C11RN12_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "MAINLAND_C10RN12_MAP",
+        "chunkX": 10,
+        "chunkY": -12,
+        "dir": "west",
+        "neighbor": "MAINLAND_C9RN12_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       }
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BLOCKED": 1996,
+      "BLOCKED": 2044,
       "ALIGNS": 1568,
-      "BORDER": 168
+      "BORDER": 160
     }
   }
 }
