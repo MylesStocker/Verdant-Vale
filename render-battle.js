@@ -3730,8 +3730,123 @@ function drawBattleBuzzyBeetle(x,y,pose,scale=2.5) {
   drawBreakfastBeetle({x:0,y:0,frame:1,facing:'left'});ctx.restore();
 }
 function drawBattleLargeBuzzyBeetle(x,y,pose) { drawBattleBuzzyBeetle(x,y,pose,3); }
+// Eastern Fens sprites use the same Canvas shapes and restrained pixel palette
+// as the established roster. All coordinates are relative to planted feet.
+function drawBattleFenInsect(cx,cy,wasp=false) {
+  ctx.save();ctx.translate(cx,cy);
+  const r=(colour,x,y,w,h)=>{ctx.fillStyle=colour;ctx.fillRect(x,y,w,h);};
+  const p=(colour,points)=>{ctx.fillStyle=colour;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
+  const lift=Math.round(Math.sin(tick*.12)*2),body=wasp?'#b08b35':'#53694d',light=wasp?'#d0ae59':'#8ca071';
+  r('#192b2a',-26,-5,52,5);
+  ctx.translate(0,-34+lift);
+  // Four veined wings, six bent legs, a segmented abdomen and compound eyes.
+  for(const side of [-1,1]) {
+    ctx.save();ctx.scale(side,1);
+    p('#334747',[[5,-31],[19,-57],[40,-55],[33,-39],[14,-21]]);
+    p('#9ab5a7',[[10,-31],[22,-51],[34,-50],[29,-41]]);
+    p('#536f67',[[12,-22],[35,-28],[43,-16],[31,-10],[16,-14]]);
+    r('#c0c9a0',22,-45,3,9);r('#8caaa0',26,-21,10,2);
+    for(let i=0;i<3;i++){p('#26352a',[[8,-20+i*9],[21+i*3,-14+i*9],[29+i*2,-4+i*9],[25+i*2,-2+i*9],[18+i*3,-10+i*9],[6,-15+i*9]]);}
+    ctx.restore();
+  }
+  p('#202c23',[[-13,-28],[-10,-42],[9,-44],[15,-29],[11,-11],[8,6],[0,wasp?19:12],[-10,3],[-15,-13]]);
+  r(body,-10,-30,20,31);r(light,-8,-27,6,24);
+  for(let i=0;i<3;i++)r('#29382a',-10+i,-18+i*10,20-i*2,4);
+  r('#283b32',-14,-45,28,17);r(body,-10,-48,20,17);
+  r(wasp?'#8d513a':'#9a644c',-14,-43,8,9);r(wasp?'#8d513a':'#9a644c',7,-43,8,9);
+  r('#d6bf82',-12,-42,2,3);r('#d6bf82',9,-42,2,3);
+  r('#24352a',-9,-56,3,9);r('#24352a',7,-56,3,9);
+  if(wasp)p('#c4bd86',[[0,14],[3,17],[0,27],[-2,17]]);
+  ctx.restore();
+}
+function drawBattleBotfly(cx,cy) { drawBattleFenInsect(cx,cy); }
+function drawBattleWaspthra(cx,cy) { drawBattleFenInsect(cx,cy,true); }
+function drawBattleFenSerpent(cx,cy,zolom=false) {
+  ctx.save();ctx.translate(cx,cy);
+  const r=(colour,x,y,w,h)=>{ctx.fillStyle=colour;ctx.fillRect(x,y,w,h);};
+  const p=(colour,points)=>{ctx.fillStyle=colour;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
+  const dark=zolom?'#283c30':'#243d53',body=zolom?'#596447':'#4d8593',light=zolom?'#8e9160':'#9fc3a7';
+  r('#192d2b',-61,-4,122,5);
+  // Angular coils support a raised neck; a tapered tail makes the body readable.
+  p('#172c2b',[[-64,-10],[-49,-33],[-20,-45],[20,-38],[47,-22],[57,-8],[42,1],[-42,1],[-53,-10],[-34,-23],[6,-21],[22,-12],[34,-15],[11,-29],[-17,-30],[-39,-22]]);
+  p(body,[[-54,-10],[-43,-26],[-18,-38],[17,-32],[40,-19],[45,-10],[35,-6],[-36,-6],[-41,-12],[-31,-17],[7,-16],[20,-8],[35,-10],[12,-34],[-17,-35],[-42,-20]]);
+  p(light,[[-35,-8],[-30,-12],[7,-12],[18,-5],[33,-6],[22,-1],[-30,-2]]);
+  p('#182d2b',[[15,-24],[4,-47],[10,-73],[29,-93],[26,-110],[41,-122],[61,-112],[65,-99],[47,-89],[32,-83],[24,-64],[25,-48],[36,-26]]);
+  p(body,[[20,-25],[12,-47],[18,-70],[36,-91],[33,-108],[43,-115],[57,-107],[57,-100],[39,-94],[25,-77],[18,-60],[21,-46],[31,-28]]);
+  p(light,[[23,-32],[17,-48],[20,-65],[29,-78],[35,-80],[27,-61],[26,-46],[31,-32]]);
+  r(dark,33,-101,27,5);r(zolom?'#cf9a58':'#e0d887',47,-108,5,3);r('#162927',49,-108,2,3);
+  p('#c7bb8e',[[54,-99],[58,-99],[55,-91]]);
+  if(zolom){for(let i=0;i<5;i++)p('#8c8957',[[11+i*5,-72-i*7],[7+i*5,-80-i*7],[17+i*5,-77-i*7]]);}
+  else {for(const [x,y]of [[-45,-28],[-14,-40],[15,-36],[14,-62]])p('#d0d78c',[[x,y],[x+6,y-7],[x+2,y-2],[x+7,y-2],[x,y+7],[x+2,y+1],[x-3,y+1]]);}
+  ctx.restore();
+}
+function drawBattleSparkeel(cx,cy) { drawBattleFenSerpent(cx,cy); }
+function drawBattleFenZolom(cx,cy) { drawBattleFenSerpent(cx,cy,true); }
+function drawBattleMudwrackSnapper(cx,cy) {
+  ctx.save();ctx.translate(cx,cy);
+  const r=(colour,x,y,w,h)=>{ctx.fillStyle=colour;ctx.fillRect(x,y,w,h);};
+  const p=(colour,points)=>{ctx.fillStyle=colour;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
+  r('#1b2b25',-62,-4,124,6);
+  for(const x of [-43,22]){r('#273e31',x,-22,22,22);r('#647452',x+2,-20,13,13);r('#bab38b',x-2,-3,6,5);}
+  p('#202e26',[[-59,-23],[-49,-53],[-27,-72],[15,-75],[41,-57],[48,-28],[32,-14],[-39,-13]]);
+  p('#52644b',[[-51,-27],[-43,-50],[-23,-65],[13,-67],[34,-51],[39,-30],[26,-20],[-35,-20]]);
+  p('#85906a',[[-41,-47],[-23,-61],[10,-63],[28,-50],[4,-53],[-15,-50],[-25,-35]]);
+  for(const [x,y]of [[-25,-53],[0,-57],[17,-43],[-38,-35],[-9,-34]]){r('#2e4535',x,y,3,15);r('#9a9b73',x+4,y+4,14,3);}
+  p('#263b2c',[[32,-37],[49,-43],[65,-34],[68,-18],[56,-10],[36,-17]]);
+  p('#78815b',[[39,-33],[51,-37],[60,-31],[62,-22],[53,-20],[39,-22]]);
+  r('#1f3227',48,-23,18,4);r('#ceb879',52,-33,4,3);r('#c1b78d',62,-21,4,6);
+  p('#52644b',[[-48,-25],[-69,-16],[-54,-15]]);
+  ctx.restore();
+}
+function drawBattleFenRootworm(cx,cy) {
+  ctx.save();ctx.translate(cx,cy);
+  const r=(colour,x,y,w,h)=>{ctx.fillStyle=colour;ctx.fillRect(x,y,w,h);};
+  r('#1a2c26',-56,-5,112,7);
+  // A pale root-like segmented grub rises out of a curled peat-dark tail.
+  const segments=[[-43,-13],[-23,-20],[-2,-21],[16,-34],[15,-53],[3,-69],[-8,-84]];
+  segments.forEach(([x,y],i)=>{r('#353c27',x-13,y-11,28,24);r('#8b8660',x-10,y-9,22,18);r('#b1a97a',x-8,y-8,7,15);r('#5c6540',x+7,y-8,4,17);if(i<5){r('#6e714b',x-17,y+5,8,3);r('#b5ac7a',x-20,y+7,5,3);}});
+  r('#343d29',-24,-103,32,21);r('#a49a6b',-20,-100,25,16);r('#222f22',-16,-93,17,9);
+  r('#d2c697',-17,-93,4,5);r('#d2c697',-3,-93,4,5);r('#c2b37c',-10,-86,4,3);
+  r('#596d40',-17,-107,4,8);r('#596d40',-3,-111,4,12);
+  ctx.restore();
+}
+function drawBattleFenReedCreature(cx,cy,stalker=false) {
+  ctx.save();ctx.translate(cx,cy);
+  const r=(colour,x,y,w,h)=>{ctx.fillStyle=colour;ctx.fillRect(x,y,w,h);};
+  const p=(colour,points)=>{ctx.fillStyle=colour;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
+  r('#192b24',-39,-3,78,6);
+  // Split reed legs, grasping branch arms and a hollow trunk/veiled crown.
+  for(const side of [-1,1]){ctx.save();ctx.scale(side,1);
+    p('#25372a',[[3,-47],[17,-43],[24,-16],[32,-3],[26,2],[15,-8],[10,-28],[1,-19]]);
+    p('#67714b',[[8,-43],[14,-39],[19,-15],[26,-4],[21,-7],[14,-20]]);
+    p('#293b2b',[[10,-76],[25,-66],[31,-46],[41,-35],[36,-27],[25,-39],[18,-58],[9,-53]]);
+    r('#b0a16a',36,-37,4,15);r('#b0a16a',42,-35,3,11);ctx.restore();}
+  p('#26372a',[[-18,-82],[-9,-96],[10,-92],[22,-74],[14,-39],[-3,-30],[-16,-46]]);
+  p('#74764d',[[-11,-82],[-5,-89],[7,-85],[14,-72],[8,-44],[-1,-39],[-10,-49]]);
+  r('#293b28',-5,-78,9,34);r('#b4a373',-10,-79,3,29);r('#a59866',8,-72,3,26);
+  if(stalker){
+    for(let i=0;i<7;i++){const x=-25+i*8,top=-115+Math.abs(i-3)*3;p(i%2?'#7e8659':'#4d6543',[[x,top],[x+7,top-5],[x+12,-80],[x+7,-59],[x+3,-84]]);}
+    r('#192c22',-12,-92,24,6);r('#d6bc70',-8,-91,4,2);r('#d6bc70',6,-91,4,2);
+  }else{
+    for(const x of [-15,-4,8]){r('#435936',x,-113,7,33);r('#a89561',x+1,-112,3,18);r('#253b2a',x,-112,7,5);}
+    p('#63744c',[[-7,-68],[-31,-84],[-41,-88],[-36,-77],[-15,-60]]);
+    p('#86915c',[[6,-71],[28,-93],[37,-99],[34,-85],[15,-63]]);
+  }
+  ctx.restore();
+}
+function drawBattleWillowVeiledStalker(cx,cy) { drawBattleFenReedCreature(cx,cy,true); }
+function drawBattleHollowreedChoker(cx,cy) { drawBattleFenReedCreature(cx,cy); }
+
 (function buildEnemySpriteDispatch() {
   const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
+  def(drawBattleBotfly, 0, ['enemy_botfly']);
+  def(drawBattleWaspthra, 0, ['enemy_waspthra']);
+  def(drawBattleSparkeel, 50, ['enemy_sparkeel']);
+  def(drawBattleFenZolom, 50, ['enemy_fen_zolom']);
+  def(drawBattleMudwrackSnapper, 60, ['enemy_mudwrack_snapper']);
+  def(drawBattleFenRootworm, 60, ['enemy_fen_rootworm']);
+  def(drawBattleWillowVeiledStalker, 60, ['enemy_willow_veiled_stalker']);
+  def(drawBattleHollowreedChoker, 60, ['enemy_hollowreed_choker']);
   def(drawBattleBuzzyBeetle, 0, ['enemy_buzzy_beetle']);
   def(drawBattleLargeBuzzyBeetle, 0, ['enemy_large_buzzy_beetle']);
   def(drawBattleReceiver, 0, ['enemy_gallery_receiver']);
@@ -3801,14 +3916,6 @@ window.ENEMY_SPRITE_DISPATCH = ENEMY_SPRITE_DISPATCH;
 // ENEMY_SPRITE_DISPATCH or ENEMY_GENERIC_SPRITE_IDS; validation enforces that.
 const ENEMY_GENERIC_SPRITE_IDS = new Set([
   'enemy_takomo',
-  'enemy_fen_zolom',
-  'enemy_botfly',
-  'enemy_waspthra',
-  'enemy_sparkeel',
-  'enemy_mudwrack_snapper',
-  'enemy_fen_rootworm',
-  'enemy_willow_veiled_stalker',
-  'enemy_hollowreed_choker',
 ]);
 window.ENEMY_GENERIC_SPRITE_IDS = ENEMY_GENERIC_SPRITE_IDS;
 
@@ -3985,6 +4092,15 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 // conservative visual bounds cover the existing idle animation of the eight
 // state-only templates; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
+  [drawBattleBotfly,Object.freeze([-46, -94, 46, 0])],
+  [drawBattleWaspthra,Object.freeze([-46, -94, 46, 0])],
+  [drawBattleSparkeel,Object.freeze([-64, -122, 65, 1])],
+  [drawBattleFenZolom,Object.freeze([-64, -122, 65, 1])],
+  [drawBattleMudwrackSnapper,Object.freeze([-69, -75, 68, 3])],
+  [drawBattleFenRootworm,Object.freeze([-63, -111, 56, 3])],
+  [drawBattleWillowVeiledStalker,Object.freeze([-45, -120, 45, 3])],
+  [drawBattleHollowreedChoker,Object.freeze([-45, -113, 45, 3])],
+
   [drawBattleBuzzyBeetle,Object.freeze([-65,-80,65,0])],
   [drawBattleLargeBuzzyBeetle,Object.freeze([-78,-96,78,0])],
   [drawBattleReceiver, Object.freeze([-52,-112,54,4])],

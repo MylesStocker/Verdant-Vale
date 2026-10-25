@@ -94,16 +94,21 @@ test('all 73 deterministic metadata records are closed, deeply frozen and capabi
     assert.deepEqual(Reflect.ownKeys(metadata).sort(),['capabilities','templateId']);
     assert.equal(metadata.templateId,id);assert.equal(new Set(metadata.capabilities).size,metadata.capabilities.length);
   }
-  // The full Eastern Fens Mornay roster intentionally opts into the shared
-  // generic silhouette (ENEMY_GENERIC_SPRITE_IDS, same documented precedent
-  // as Takomo) instead of a dedicated ENEMY_SPRITE_DISPATCH entry;
-  // validateGameData() flags this as a warning, not an error.
-  const FENS_GENERIC = ['enemy_botfly','enemy_waspthra','enemy_sparkeel','enemy_mudwrack_snapper',
+  // All eight Eastern Fens creatures now have authored art and measured layout
+  // bounds; Takomo alone retains the deliberate generic silhouette. Rendering
+  // geometry against these bounds is exercised before clipping in case 272.
+  const FENS_AUTHORED = ['enemy_botfly','enemy_waspthra','enemy_sparkeel','enemy_mudwrack_snapper',
     'enemy_fen_rootworm','enemy_willow_veiled_stalker','enemy_hollowreed_choker','enemy_fen_zolom'];
-  for(const id of ORDINARY.filter(id=>!FENS_GENERIC.includes(id)))
-    assert.equal(g.run('!!ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+']'),true,id);
-  for(const id of FENS_GENERIC)
-    assert.equal(g.run('ENEMY_GENERIC_SPRITE_IDS.has('+JSON.stringify(id)+')'),true,id);
+  for(const id of ORDINARY)
+    assert.equal(g.run('typeof ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+'].draw'), 'function', id);
+  for(const id of FENS_AUTHORED){
+    assert.equal(g.run('ENEMY_GENERIC_SPRITE_IDS.has('+JSON.stringify(id)+')'),false,id);
+    const bounds=g.run('FORMATION_SPRITE_BOUNDS.get(ENEMY_SPRITE_DISPATCH['+JSON.stringify(id)+'].draw)');
+    frozen(bounds);assert.equal(bounds.length,4,id);
+    assert.ok(bounds.every(Number.isFinite)&&bounds[2]>bounds[0]&&bounds[3]>bounds[1],id+' has valid measured sprite bounds');
+  }
+  assert.deepEqual(J(g,'Array.from(ENEMY_GENERIC_SPRITE_IDS)'),['enemy_takomo']);
+  assert.equal(g.run('Object.hasOwn(ENEMY_SPRITE_DISPATCH,"enemy_takomo")'),false);
   assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
     'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','melee_armor','counterattack',
     'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee',

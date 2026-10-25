@@ -202,7 +202,9 @@ function supervisorDialogueBody() {
   if (!sluice_job_started) {
     dialogue.pages = [
       ['\u201cInvestigator ' + stats.name + '.', 'There\u2019s a discrepancy in the East Sluice.'],
-      ['Flow readings are off at the west gate.', 'Go and have a look. Routine inspection.\u201d'],
+      ['Flow readings are off at the sluice valve.', 'Go and have a look. Routine inspection.\u201d'],
+      ['\u201cGo east from the square, through the residential streets.',
+       'The East Sluice hatch is just north of the street, beside the wetland boardwalk.\u201d'],
       ['\u201cBefore you head out \u2014 you\u2019ll need a kit.\u201d',
        'He writes something on a chit and holds it out.',
        '\u201cRequisition slip. Aldric handles issue. Get it from him before you go.\u201d'],
@@ -217,7 +219,9 @@ function supervisorDialogueBody() {
     }];
   } else if (sluice_job_started && !sluice_fixed) {
     dialogue.pages = [
-      ['\u201cWest gate, East Sluice.', 'Report back once you\u2019ve had a look.\u201d'],
+      ['\u201cEast from the square, through the residential streets.',
+       'The East Sluice hatch is just north of the street, beside the wetland boardwalk.',
+       'Report back once you\u2019ve had a look.\u201d'],
     ];
     dialogue.callbacks = null;
   } else if (sluice_fixed && !sluice_pay_ticket_ready && !sluice_reward_given) {
@@ -824,6 +828,16 @@ function finishFourteenthFile(outcome, rewardGold) {
   dialogue.page = 0;
 }
 
+function eslaFenMaskAdvice(pages) {
+  const hasMask = (stats.accessory && stats.accessory.name === 'Fen Mask') ||
+    stats.items.some(item => item && item.name === 'Fen Mask');
+  if (!hasMask) return pages;
+  return [...pages,
+    ['“That Fen Mask wards off poison while you have it equipped.',
+     'It will not protect you from the bottom of your bag. Put it on before you need it.”'],
+  ];
+}
+
 function interactCalwickOffice() {
   if (currentTownId === 'calwick') {
     // Wall primer — a framed service manual on the north wall (row 1, cols 6-9)
@@ -1125,7 +1139,11 @@ function interactCalwickOffice() {
            ['“Veth, east side of the square. If his office smells like old paper, that’s correct. If it smells like anything else, leave.”',
             'She says this with no apparent humour at all, which is somehow how you know it’s a joke.']],
         ];
-        dialogue.pages = eslaDispatchPending[Math.floor(Math.random() * eslaDispatchPending.length)];
+        dialogue.pages = [
+          ...eslaDispatchPending[Math.floor(Math.random() * eslaDispatchPending.length)],
+          ['“Monsters do not attack on the road here. Stay on it.',
+           'Step off the road and they do. Your envelope is not a shield.”'],
+        ];
       } else if (MainQuest >= 1 && !esla_said_sluice) {
         dialogue.pages = [
           ['“The sluice assignment crossed my desk before it reached you.',
@@ -1142,18 +1160,24 @@ function interactCalwickOffice() {
         const eslaSlucePending = [
           [['“First assignment, and it’s a valve.” She doesn’t look up. “Not a monster, not a grudge. Pipe. Learn to be glad of that distinction — it does not last.”',
             '“I was senior investigator here before you walked in, which mostly means I get asked questions nobody wants answered. Ask me anything. I may even answer honestly.”'],
-           ['“West gate, below the square. The flow valve is the whole job — turn it, don’t fight it.”',
+           ['“East from the square, through the residential streets. Look for the sluice hatch beside the wetland boardwalk.”',
             '“And before you ask: no, there is no secret boss behind the sluice gate. Some rooms really are just rooms.”']],
           [['“You’re still on the sluice.” She doesn’t look up. “Good. Means you haven’t drowned, which is the main failure state down there.”',
             '“The East Sluice floods a section if you dawdle. Don’t dawdle. I would rather not explain a flooded junior investigator to anyone.”'],
-           ['“West gate, under the square, down the stairs nobody dusts.”',
+           ['“The hatch is east of the square, beside the wetland boardwalk. Down the stairs nobody dusts.”',
             '“If you get stuck, it is almost certainly the valve, and almost never a puzzle. Some assignments are exactly as simple as they look. Treasure those. They get rarer.”']],
           [['“The East Sluice,” she says, like it explains itself. “It mostly does.”',
             '“I logged you out there this morning. Habit. I like knowing where the people in this office actually are, not just where their paperwork says they should be.”'],
            ['“Turn the valve, don’t argue with it. It has been losing arguments to water pressure since before either of us worked here.”',
             '“Come back dry. The ink on an incident report runs if you don’t.”']],
         ];
-        dialogue.pages = eslaSlucePending[Math.floor(Math.random() * eslaSlucePending.length)];
+        dialogue.pages = [
+          ...eslaSlucePending[Math.floor(Math.random() * eslaSlucePending.length)],
+          ['“Go down only one level for this job. The valve is on the first level.',
+           'The monsters get stronger farther down. Do not descend any deeper yet.”'],
+          ['“Treasure is optional. Only look for it if your health allows.',
+           'An unopened chest has never filed a complaint. Come back alive.”'],
+        ];
       } else if (MainQuest === 3 && !reservoir_quest_started) {
         // The rest-week gap between the fort pay ticket and the reservoir
         // assignment (see mq4_available_day). Three variants, random each
@@ -1321,6 +1345,7 @@ function interactCalwickOffice() {
           ...dialogue.pages,
         ];
       }
+      dialogue.pages = eslaFenMaskAdvice(dialogue.pages);
       setUniformSpeakerDialoguePages(dialogue.pages,'esla');
       dialogue.open = true;
       dialogue.page = 0;
@@ -1783,6 +1808,7 @@ function interactCalwickInn() {
           ['“You can stand here, though.',
            'You don’t have to say anything.”'],
         ];
+        dialogue.pages = eslaFenMaskAdvice(dialogue.pages);
         setUniformSpeakerDialoguePages(dialogue.pages,'esla');
         dialogue.open = true;
         dialogue.page = 0;
@@ -1795,6 +1821,7 @@ function interactCalwickInn() {
            'She turns her glass a quarter-turn.',
            '“It didn’t feel true when I said it.”'],
         ];
+        dialogue.pages = eslaFenMaskAdvice(dialogue.pages);
         setUniformSpeakerDialoguePages(dialogue.pages,'esla');
         dialogue.open = true;
         dialogue.page = 0;
@@ -2031,6 +2058,7 @@ function interactCalwickInn() {
            '\u201cWith you, I keep having to remind myself.\u201d'],
         ];
       }
+      dialogue.pages = eslaFenMaskAdvice(dialogue.pages);
       setUniformSpeakerDialoguePages(dialogue.pages,'esla');
       dialogue.open = true;
       dialogue.page = 0;

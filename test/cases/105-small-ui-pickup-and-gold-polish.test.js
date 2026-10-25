@@ -67,6 +67,7 @@ module.exports = {
     assert.match(text,/filed four reports.*none has been acknowledged/i);
 
     const validation=J('JSON.stringify(validateGameData())');
-    assert.equal(validation.errors,0); assert.equal(validation.warnings,14); assert.equal(g.run('SAVE_VERSION'), 5);
+    // Eight authored Fens sprites eliminate the former missing-art warnings.
+    assert.equal(validation.errors,0); assert.equal(validation.warnings,6); assert.equal(g.run('SAVE_VERSION'), 5);
   },
 };

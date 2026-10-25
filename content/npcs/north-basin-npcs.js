@@ -19,7 +19,7 @@ function causewayFerryMooredMapId() {
 const NORTH_BASIN_NPCS = [
   {
     id: 'causeway_ferry_operator',
-    name: 'Ferry Operator',
+    name: 'Imperial Guard',
     get map() {
       if (typeof MainQuest === 'undefined' || MainQuest < 5) return null;
       return causewayFerryMooredMapId() === 'EASTERN_BANK_MAP' ? 'eastern_bank' : 'east_causeway';
@@ -34,7 +34,7 @@ const NORTH_BASIN_NPCS = [
     y: 7.5 * TILE,
     solid: false,
     facing: 'down',
-    spriteType: 'worker',
+    spriteType: 'clerk', // established Imperial guard uniform
     dialogue: [['“Official crossings only.”']],
     flag_required: null,
     flag_sets: null,

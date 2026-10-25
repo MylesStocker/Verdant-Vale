@@ -106,7 +106,8 @@ module.exports = {
     assert.equal(g.run(`activeMap===${ID}&&inAbandonedFarmhouse&&!inLorraHouse`), true);
     assert.equal(g.run('player.x'), 9.5*TILE); assert.equal(g.run('player.y'), 8.5*TILE); assert.equal(g.run('player.facing'), 'left');
     assert.equal(g.run('SAVE_VERSION'), 5); assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 1107);
-    const validation = J('JSON.stringify(validateGameData())'); assert.equal(validation.errors,0); assert.equal(validation.warnings,14);
+    // Eight authored Fens sprites eliminate the former missing-art warnings.
+    const validation = J('JSON.stringify(validateGameData())'); assert.equal(validation.errors,0); assert.equal(validation.warnings,6);
     const audit = require('../transition-audit.js');
     for (const name of ['enterAbandonedFarmhouse','exitAbandonedFarmhouse']) {
       const record = audit.results.find((r) => r.name === name);

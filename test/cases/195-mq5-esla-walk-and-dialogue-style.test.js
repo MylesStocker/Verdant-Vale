@@ -21,7 +21,7 @@ test('Esla has one stable validated light-green speaker style',()=>{
  assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.esla.speakerId'),'esla');
  assert.equal(g.run('ESLA.speakerId'),'esla');
  assert.equal(g.run(`DIALOGUE_TEXT_STYLES.esla_light_green.bodyColor`),'#a8e89c');
- assert.equal(g.run(`DIALOGUE_TEXT_STYLES.esla_light_green.nameColor`),'#8fda86');
+ assert.equal(g.run(`DIALOGUE_TEXT_STYLES.esla_light_green.nameColor`),'#8ac8d8');
  assert.equal(g.run('Object.isFrozen(DIALOGUE_SPEAKER_DEFINITIONS.esla)&&Object.isFrozen(DIALOGUE_TEXT_STYLES.esla_light_green)'),true);
 });
 
@@ -32,7 +32,7 @@ test('legacy, Supervisor, Esla and narration pages select their own style withou
  assert.equal(g.run('dialoguePagePresentation().styleId'),null);
  g.run(`setSpeakerDialoguePages([{speakerId:'esla',lines:['Green words']}]);dialogue.open=true;dialogue.page=0;dialogue.name='stale'`);
  paint=drawText(g);assert.equal(paint.find(row=>row.text==='Green words').fill,'#a8e89c');
- assert.equal(paint.find(row=>row.text==='Esla').fill,'#8fda86');
+ assert.equal(paint.find(row=>row.text==='Esla').fill,'#8ac8d8');
  g.run(`setSpeakerDialoguePages([{speakerId:'supervisor',lines:['Default words']},{speakerId:null,lines:['Narration words']}]);dialogue.open=true;dialogue.page=0`);
  paint=drawText(g);assert.equal(paint.find(row=>row.text==='Default words').fill,'#ccd8cc');
  g.run('dialogue.page=1');paint=drawText(g);assert.equal(paint.find(row=>row.text==='Narration words').fill,'#ccd8cc');
@@ -67,8 +67,10 @@ test('the real Supervisor interaction alternates explicit styles and preserves a
  const all=J(g,'[...MQ5_ASSIGNMENT_OPENING_PAGES,...MQ5_ASSIGNMENT_AFTER_WALK_PAGES]');
  assert.ok(all.filter(page=>page.speakerId==='esla').length>=3);
  assert.ok(all.some(page=>page.speakerId===null));
- for(const page of all){g.run(`setSpeakerDialoguePages([${JSON.stringify(page)}]);dialogue.open=true;dialogue.page=0`);const p=drawText(g),body=p.find(row=>row.text===page.lines[0]);
-  assert.equal(body.fill,page.speakerId==='esla'?'#a8e89c':'#ccd8cc');}
+ for(const page of all){g.run(`setSpeakerDialoguePages([${JSON.stringify(page)}]);dialogue.open=true;dialogue.page=0`);const p=drawText(g),body=p.filter(row=>row.y>=410&&row.y<=454);
+  assert.ok(body.length>0);
+  assert.equal(body[0].fill,page.speakerId==='esla'?'#a8e89c':'#ccd8cc');
+  if(page.speakerId!=='esla')assert.ok(body.every(row=>row.fill==='#ccd8cc'));}
  const text=all.flatMap(page=>page.lines).join(' ');
  assert.match(text,/I don’t know what happened to Dreyfuss, but I’m not going to let it happen to anyone in this office\./);
  assert.doesNotMatch(text,/I know what happened to Dreyfuss|Sending Lely alone would be irresponsible/);

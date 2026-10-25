@@ -115,9 +115,11 @@ const ITEM_REGISTRY = {
   'Jackbane Vial':   { name: 'Jackbane Vial',    type: 'reagent', sexBane: 'male',   price: 8 },
   // Trollbane — a cheap fen bane that seizes up a regenerating brute (the Rotwood
   // Troll). Used in combat: it staggers the enemy for the turn (no counter) and
-  // holds its rot slack so it can't self-heal for `stunTurns` turns after (see
+  // prevents self-healing for the rest of the battle (see
   // combat.js's 'stun' item branch + enemyRegenEntry). Wasted on anything that
   // doesn't regenerate. battleOnly keeps it out of the field-use menu.
+  // Retain the old duration field for existing saved inventory; combat no longer
+  // reads it. The battle-local heal-lock above is the runtime authority.
   'Trollbane':       { name: 'Trollbane',        type: 'stun',    stunTurns: 3, battleOnly: true, price: 15 },
   // Fen Brewery — Gorrit Wend sells freshly made mushroom wine directly (distinct
   // from the tavern's by-the-cup 'Mushroom Wine'); bought as a gift, not a heal item.

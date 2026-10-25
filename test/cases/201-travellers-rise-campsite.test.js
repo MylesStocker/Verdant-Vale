@@ -27,7 +27,7 @@ function startAmbush(g){
  g.run("placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',9.5*TILE,7.5*TILE)");g.frames(1);
  g.run("placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',10.5*TILE,7.5*TILE)");g.frames(1);g.run('finishDialogue()');
  for(let i=0;g.run("travellersRiseAmbush.getView().phase==='walking'");i++){assert.ok(i<400);g.frames(1);}
- g.run('finishDialogue();choice.open=false;choice.callbacks[0]()');assert.equal(g.run('canonicalPartyCombat.isActive()'),true);
+ g.run('finishDialogue()');assert.equal(g.run('canonicalPartyCombat.isActive()'),true);
 }
 function win(g){g.run('Math.random=()=>{campRolls++;return .5}');for(let i=0;battle(g).phase!=='victory';i++){
  assert.ok(i<1000);const v=battle(g);if(['awaiting_action','targeting','ready','playback','playback_complete'].includes(v.phase))input(g,'confirm');
@@ -44,7 +44,7 @@ test('one local 16x15 map, one-tile entrance, safe paired fixed placements and n
  }
  assert.equal(g.run('Object.keys(MAP_CATALOG).length'),1107);
  assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),944);
- assert.ok(map[0].every(t=>t===1)&&map[14].every(t=>t===1));assert.ok(map.every(row=>row[0]===1&&row[15]===1));
+ assert.ok(map[0].every(t=>t===3)&&map[14].every(t=>t===3));assert.ok(map.every(row=>row[0]===3&&row[15]===3));
  const fixture=require('../fixtures/regional-grid-fingerprints');
  for(const [id,hash]of Object.entries(fixture.fingerprints))assert.equal(crypto.createHash('sha256').update(g.run(`JSON.stringify(mapRefForId('${id}'))`)).digest('hex'),hash);
 });
@@ -76,7 +76,7 @@ test('real Supervisor, authenticated ambush victory, reward pages and level-up a
  assert.equal(view(g).stage,1);assert.equal(persistent(g),afterRewards);assert.equal(g.run('canonicalPartyCombat.finish()'),false);
 });
 
-test('escape and defeat do not schedule the camp; payment and retries remain with the ambush owner',()=>{
+test('escape and defeat do not schedule the camp; retries remain with the ambush owner',()=>{
  for(const outcome of ['escape','defeat']){
   const g=fresh();if(outcome==='defeat')g.run(`saveGame();var fallen=JSON.parse(localStorage.getItem('verdantVale_save'));
     fallen.stats.hp=1;fallen.party.characters[0].hp=0;localStorage.setItem('verdantVale_save',JSON.stringify(fallen));loadGame();dialogue.open=false`);startAmbush(g);

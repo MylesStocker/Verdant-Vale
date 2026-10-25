@@ -60,7 +60,7 @@ test('registry and chest agree: combat-only, all-enemy consumable, unchanged pri
   assert.equal(g.run("slotForType(ITEM_REGISTRY['Void Shard'].type)"),null);
   assert.equal(g.run("itemStatLabel(ITEM_REGISTRY['Void Shard'])"),'DMG 50-60 · all');
   assert.deepEqual(J(g,"ITEM_REGISTRY['Fen Mask']"),{name:'Fen Mask',type:'accessory',bonus:5,price:800,preventsPoison:true});
-  assert.equal(g.run("itemStatLabel(ITEM_REGISTRY['Fen Mask'])"),'SPD +5 · wards poison');
+  assert.equal(g.run("itemStatLabel(ITEM_REGISTRY['Fen Mask'])"),'SPD +5');
 });
 for(const [def,damage] of [[0,60],[1,59],[4,56],[9,51],[10,50],[50,50],[Number.MAX_SAFE_INTEGER,50]])
 test('deterministic damage at DEF '+def+' is '+damage,()=>{

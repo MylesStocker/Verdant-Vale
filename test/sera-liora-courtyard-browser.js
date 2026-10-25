@@ -122,9 +122,9 @@
    check(fade<50&&seraLioraBreakfastBattle.getView()?.enemies.length===2,'Two shared-engine beetles '+scale);
    tryBlockedRun('yard '+scale);
    capture('first-battle-'+scale+'x');preBattle();check(seraLioraGuestRoomWalk.completionCount===0,'Stale handoff cannot complete battle '+scale);
-   let battleGuard=0,damageCaptured=false,selectionCaptured=false;
+   let battleGuard=0,damageCaptured=false,selectionCaptured=false;const spellCaptures=new Set();
    while(seraLioraBreakfastBattle.getState()?.stage==='battle'&&battleGuard++<250){
-    const v=seraLioraBreakfastBattle.getView();
+    const v=seraLioraBreakfastBattle.getView();update(1/60);
     if(v.phase==='awaiting_action'){
       const wanted=v.enabledCommands.includes('resonance')?'resonance':'attack';
       if(v.selectedCommand!==wanted)tap('ArrowRight');else tap('Enter');
@@ -137,6 +137,12 @@
       else{const living=v.enemies.filter(e=>e.hp>0),slot=v.party.find(m=>m.instanceId===v.nextActorId).slot,desired=living[Math.min(slot,living.length-1)].instanceId;
         if(v.selectedTargetInstanceId!==desired)tap('ArrowRight');else tap('Enter');}
     }else{
+      const spellEvent=v.playbackFrame?.currentEvent;
+      if(['resonance_damage','resonance_damage_all'].includes(spellEvent?.type)&&!spellCaptures.has(spellEvent.techniqueId)){
+        for(let n=0;n<10;n++)update(1/60);
+        check(partyBattleOffensiveResonanceAnimation.blocksAdvance(v),'Spell effect remains visible '+spellEvent.techniqueId+' '+scale);
+        capture('spell-'+spellEvent.techniqueId+'-'+scale+'x');spellCaptures.add(spellEvent.techniqueId);
+      }
       if(!damageCaptured&&['resonance_damage','resonance_damage_all'].includes(v.playbackFrame?.currentEvent?.type)){capture('battle-damage-'+scale+'x');damageCaptured=true;}
       tap('Enter');
     }
@@ -153,7 +159,7 @@
    tryBlockedRun('storeroom '+scale);
    let secondGuard=0;
    while(seraLioraBreakfastBattle.getState()?.stage==='battle'&&secondGuard++<500){
-    const v=seraLioraBreakfastBattle.getView();
+    const v=seraLioraBreakfastBattle.getView();update(1/60);
     if(v.phase==='awaiting_action'){
       const wanted=scale===2?'resonance':'attack';
       check(v.enabledCommands.includes(wanted),'Ordinary actions and explicit Eclipse stay available '+scale);
@@ -177,7 +183,7 @@
    check(returnFrames<100&&seraLioraBreakfastBattle.getState().stage==='ending_dialogue','Breakfast courtyard reached '+scale);
    check(seraLioraBreakfastBattle.isEndingTerrace(),'Approved terrace presentation '+scale);
    check(dialogue.pages.flat().join(' ').includes('Skybloom')&&dialogue.pages.flat().join(' ').includes('Bethany'),'Quiet Bethany/Skybloom plans '+scale);
-   checkStoreroomPlate('cutaway_bethany_breakfast_v1','courtyard breakfast '+scale);capture('improvised-breakfast-'+scale+'x');
+   checkStoreroomPlate('cutaway_bethany_breakfast_meal_v1','seated courtyard breakfast '+scale);capture('improvised-breakfast-'+scale+'x');
    while(seraLioraBreakfastBattle.getState().stage==='ending_dialogue'){
     paintDialogue('Breakfast conversation '+scale+':'+dialogue.page);
     if(dialoguePagePresentation().speakerId==='sera')check(dialoguePagePresentation().styleId==='sera_elegant','Sera ending typography '+scale);
@@ -187,15 +193,15 @@
    const promiseCallback=dialogue.callbacks[0];
    while(seraLioraBreakfastBattle.getState().stage==='promise'){
     paintDialogue('Pinky promise '+scale+':'+dialogue.page);
-    if(dialogue.page===2)capture('pinky-promise-'+scale+'x');tap('Enter');
+    if(dialogue.page===2){checkStoreroomPlate('cutaway_bethany_breakfast_promise_v1','pinky promise '+scale);capture('pinky-promise-'+scale+'x');}tap('Enter');
    }
-   check(seraLioraBreakfastBattle.getState().stage==='eating'&&!dialogue.open,'Eating hold begins '+scale);
-   check(seraLioraBreakfastBattle.getState().endingElapsed===0,'Eating hold starts at zero '+scale);
-   tap('Enter');tap('Escape');check(seraLioraBreakfastBattle.getState().stage==='eating','Confirm/cancel cannot skip eating '+scale);
-   for(let n=0;n<179;n++)update(1/60);
-   check(seraLioraBreakfastBattle.getState().stage==='eating','Three-second hold has not ended early '+scale);capture('breakfast-eating-'+scale+'x');
-   check(!canSaveHere()&&!saveGame()&&!loadGame(),'Eating resources cannot enter saves '+scale);update(1/60);
-   check(seraLioraBreakfastBattle.getState().stage==='ending_departure_fade','Eating hold completes on time '+scale);
+   check(seraLioraBreakfastBattle.getState().stage==='promise_hold'&&!dialogue.open,'Promise hold begins '+scale);
+   check(seraLioraBreakfastBattle.getState().endingElapsed===0,'Promise hold starts at zero '+scale);
+   tap('Enter');tap('Escape');check(seraLioraBreakfastBattle.getState().stage==='promise_hold','Confirm/cancel cannot skip promise hold '+scale);
+   for(let n=0;n<119;n++)update(1/60);
+   check(seraLioraBreakfastBattle.getState().stage==='promise_hold','Two-second hold has not ended early '+scale);capture('pinky-promise-hold-'+scale+'x');
+   check(!canSaveHere()&&!saveGame()&&!loadGame(),'Promise resources cannot enter saves '+scale);update(1/60);
+   check(seraLioraBreakfastBattle.getState().stage==='ending_departure_fade','Promise hold completes on time '+scale);
    for(let n=0;n<20;n++)update(1/60);capture('breakfast-final-fade-'+scale+'x');
    let finalFrames=0;while(seraLioraCutscene.active&&finalFrames++<40)update(1/60);
    check(finalFrames<40&&!seraLioraBreakfastBattle.isActive()&&!storyBattle.hasContext(),'Ending releases story context '+scale);

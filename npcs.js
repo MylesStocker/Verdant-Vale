@@ -1618,14 +1618,15 @@ const SHARED_NPCS = [
   },
 
   // ── Smugglers' fort — Smuggler Guard (door sentry) ────────────────────────
-  // Visible in stage 0 (unconfronted) and stage 1 (his own fight is pending
-  // or was fled/lost — stays put and re-engages on approach, same
-  // retry-safe pattern as the Briar Warden / Den Wraith).
+  // Visible in stages 0/1 (unconfronted or his own fight is pending)
+  // and stage 5 (spared, before the final report). In stage 1 he stays
+  // put after a fled/lost fight and re-engages on approach, following
+  // the retry-safe pattern of the Briar Warden / Den Wraith.
   {
     id:            'fort_guard',
     name:          'Guard',
     get map()      {
-      if (!inSmugglerFort || (fort_quest_stage !== 0 && fort_quest_stage !== 1)) return null;
+      if (!inSmugglerFort || (fort_quest_stage !== 0 && fort_quest_stage !== 1 && fort_quest_stage !== 5)) return null;
       if (smugglers_dead || (smugglers_execution_day > 0 && day >= smugglers_execution_day)) return null;
       return 'smuggler_fort';
     },
@@ -1660,7 +1661,7 @@ const SHARED_NPCS = [
     solid:         true,
     facing:        'down',
     get dialogue() {
-      if (fort_quest_stage >= 5) {
+      if (fort_quest_stage === 6) {
         // Spared — minimal, wary
         return [
           ['\u201cYou again.\u201d', 'He doesn\u2019t move from his spot.'],
@@ -2073,7 +2074,8 @@ NPC_ACTIONS.mabelSickleQuest = function(npc) {
        '\u201cGood. They\u2019re not dangerous \u2014 just messy. They cloud the shallows for a whole day if something startles them.\u201d'],
       ['\u201cHere.\u201d',
        '\u201cI\u2019ve been setting this aside for something worth doing.\u201d',
-       '\u201cYou\u2019ve given me back something I thought I\u2019d let go of.\u201d'],
+       '\u201cYou\u2019ve given me back something I thought I\u2019d let go of.\u201d',
+       'Received 300 gold.'],
     ];
   } else if (sickle_quest_stage === 3) {
     sickle_quest_stage = 4;
@@ -2087,7 +2089,8 @@ NPC_ACTIONS.mabelSickleQuest = function(npc) {
        '\u201cThey do that if you disturb the bank. Not dangerous, just messy.\u201d',
        '\u201cThey\u2019ll settle by morning.\u201d'],
       ['\u201cHere \u2014 for your trouble.\u201d',
-       '\u201cThe sickle is what matters. Thank you.\u201d'],
+       '\u201cThe sickle is what matters. Thank you.\u201d',
+       'Received 80 gold.'],
     ];
   } else {
     // Stage 4 complete — normal Mabel dialogue
@@ -2231,6 +2234,7 @@ const ESLA_DIALOGUE_STYLE_ID = 'esla_light_green';
 const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
 const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   ...Object.fromEntries(MORNAY_NPCS.map(n => [n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
+  causeway_ferry_operator: Object.freeze({speakerId:'causeway_ferry_operator',name:'Imperial Guard',dialogueStyleId:null}),
   supervisor: Object.freeze({speakerId:'supervisor',name:'Supervisor',dialogueStyleId:null}),
   esla: Object.freeze({speakerId:'esla',name:'Esla',dialogueStyleId:ESLA_DIALOGUE_STYLE_ID}),
   lely: Object.freeze({speakerId:'lely',name:'Lély',dialogueStyleId:null}),
@@ -2243,7 +2247,7 @@ const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   holt: Object.freeze({speakerId:'holt',name:'Holt',dialogueStyleId:null}),
   sable: Object.freeze({speakerId:'sable',name:'Officer Sable',dialogueStyleId:null}),
   renn: Object.freeze({speakerId:'renn',name:'Harbormaster Renn',dialogueStyleId:null}),
-  road_impostor: Object.freeze({speakerId:'road_impostor',name:'Road Impostor',dialogueStyleId:null}),
+  road_impostor: Object.freeze({speakerId:'road_impostor',name:'Highwayman',dialogueStyleId:null}),
   fen_handler: Object.freeze({speakerId:'fen_handler',name:'Fen Handler',dialogueStyleId:null}),
   sera: Object.freeze({speakerId:'sera',name:'Sera',dialogueStyleId:SERA_DIALOGUE_STYLE_ID}),
   liora: Object.freeze({speakerId:'liora',name:'Liora',dialogueStyleId:null}),

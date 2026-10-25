@@ -8,6 +8,7 @@ const WATER_TRAVEL_ROUTES = Object.freeze({
     id: 'causeway_ferry',
     boatId: 'cable_scow',
     durationFrames: 105, // 1.75 seconds at the fixed 60 Hz update rate
+    departureFares: Object.freeze([0, 10]), // eastbound official travel; westbound return
     endpoints: Object.freeze([
       Object.freeze({ mapId: 'EAST_CAUSEWAY_MAP', x: 10.5 * TILE, y: 8.5 * TILE, facing: 'left' }),
       Object.freeze({ mapId: 'EASTERN_BANK_MAP', x: 5.5 * TILE, y: 8.5 * TILE, facing: 'right' }),
@@ -31,10 +32,13 @@ const waterTravelController = (() => {
 
   function validateRouteRecord(routeId, route) {
     if (!route || !Object.isFrozen(route) ||
-        Reflect.ownKeys(route).join(',') !== 'id,boatId,durationFrames,endpoints,visual' ||
+        Reflect.ownKeys(route).join(',') !== 'id,boatId,durationFrames,departureFares,endpoints,visual' ||
         route.id !== routeId || !/^[a-z][a-z0-9_]*$/.test(route.id) ||
         route.boatId !== 'cable_scow' ||
         !Number.isSafeInteger(route.durationFrames) || route.durationFrames < 1 ||
+        !Array.isArray(route.departureFares) || !Object.isFrozen(route.departureFares) ||
+        route.departureFares.length !== 2 ||
+        !route.departureFares.every(fare => Number.isSafeInteger(fare) && fare >= 0) ||
         !Array.isArray(route.endpoints) || !Object.isFrozen(route.endpoints) || route.endpoints.length !== 2 ||
         !route.endpoints.every(endpoint => Object.isFrozen(endpoint) &&
           Reflect.ownKeys(endpoint).join(',') === 'mapId,x,y,facing') ||
@@ -58,6 +62,9 @@ const waterTravelController = (() => {
     const fromMapId = activeMapId();
     const fromIndex = route.endpoints.findIndex(endpoint => endpoint.mapId === fromMapId);
     if (fromIndex < 0) return rejection('player is not at a route endpoint');
+    const fare = route.departureFares[fromIndex];
+    if (fare > 0 && (!Number.isSafeInteger(stats.gold) || stats.gold < fare))
+      return rejection('not enough gold for the crossing');
     const toIndex = fromIndex === 0 ? 1 : 0;
     const destination = route.endpoints[toIndex];
     const placement = validatePlacement(destination);
@@ -74,6 +81,7 @@ const waterTravelController = (() => {
         routeId: route.id,
         boatId: route.boatId,
         durationFrames: route.durationFrames,
+        fare,
         origin: Object.freeze({ ...route.endpoints[fromIndex] }),
         destination: Object.freeze({ ...destination }),
         direction: fromIndex === 0 ? 'east' : 'west',
@@ -120,6 +128,9 @@ const waterTravelController = (() => {
       if (current.frame < current.plan.durationFrames) return true;
       if (current.arrivalAttempted) return fail('arrival callback repeated');
       current.arrivalAttempted = true;
+      const fare = current.plan.fare;
+      if (fare > 0 && (!Number.isSafeInteger(stats.gold) || stats.gold < fare))
+        return fail('not enough gold for the crossing');
       const destination = current.plan.destination;
       const arrived = transitionToLocation({
         mapId: destination.mapId,
@@ -129,6 +140,9 @@ const waterTravelController = (() => {
         cooldown: true,
       });
       if (!arrived) return fail('arrival transition rejected');
+      // Input ownership freezes spending in transit. Settle only on successful
+      // arrival, so rejected/aborted crossings cannot consume the fare.
+      stats.gold -= fare;
       session = null;
       diagnostic = null;
       releaseInput();

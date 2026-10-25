@@ -203,7 +203,6 @@ function itemStatLabel(item) {
   if (item.type === 'shield')    return `DEF +${item.bonus}`;
   if (item.type === 'accessory' && item.evadeAll) return 'Evade 100%';
   if (item.type === 'accessory' && item.preventsCursed) return `SPD +${item.bonus} · wards curses`;
-  if (item.type === 'accessory' && item.preventsPoison) return `SPD +${item.bonus} · wards poison`;
   if (item.type === 'accessory') return `SPD +${item.bonus}`;
   if (item.type === 'potion')    return `HP  +${item.heals}`;
   return '';
@@ -302,7 +301,7 @@ const combat = {
   },
   evadeTurns:        0,     // remaining turns of Bullet Time's heightened evade (0 = none)
   // ── Per-fight enemy-mechanic state (battle-local ONLY; reset by endCombat) ──
-  enemyStunTurns:    0,     // Trollbane: turns the enemy's self-heal (regenPerTurn) stays suppressed (0 = none)
+  enemyStunTurns:    0,     // Trollbane battle-local heal-lock marker (0 = clear, 1 = rest of combat)
   corrosion:         0,     // Dripping Maw acid: accumulated combat-only DEF loss (0 = none)
   isSeepSplit:       false, // The Seep divides on defeat into a sequential follow-up
   seepSplitRemaining: 0,    // Seep follow-up fights still to come (0 = last/only)
@@ -981,7 +980,7 @@ const combatPlayerState = (() => {
               }
               else if(effect==='reagent'&&s.mechanics.get(target.instanceId)?.mire_toad_reagent_observation?.sex===item.sexBane)target.hp=0;
               else if(effect==='stun'&&s.mechanics.get(target.instanceId)?.regeneration){
-                const state=s.unusual.get(target.instanceId);state.suppressedTurns=item.stunTurns;state.suppressedRound=round;
+                const state=s.unusual.get(target.instanceId);state.healingSuppressed=true;state.suppressedRound=round;
               }
               // Mismatched reagents/Trollbane still consume; Bait is a no-op.
               if(consumed)s.inventory.splice(at,1);
@@ -1022,8 +1021,7 @@ const combatPlayerState = (() => {
           if(outcome==='ongoing'&&allyActions.some(a=>a.type!=='run'))for(const enemy of enemyMembers.filter(available)){
             const mechanic=s.mechanics.get(enemy.instanceId)?.regeneration;if(!mechanic)continue;
             const state=s.unusual.get(enemy.instanceId),before={...state},hpBefore=enemy.hp;
-            if(state.suppressedTurns>0){if(state.suppressedRound!==round)state.suppressedTurns--;}
-            else enemy.hp+=Math.min(mechanic.amount,enemy.maxHp-enemy.hp);
+            if(!state.healingSuppressed)enemy.hp+=Math.min(mechanic.amount,enemy.maxHp-enemy.hp);
             events.push({type:'regeneration',actorId:enemy.instanceId,round,amount:mechanic.amount,hpBefore,hpAfter:enemy.hp,before,after:{...state}});
           }
           if(outcome==='ongoing')for(const enemy of enemyMembers.filter(available)){
@@ -1904,7 +1902,7 @@ const partyCommandPlayback = (() => {
     witnessResonancePlansActor=resonancePlansActor,witnessResonanceConsents=validateResonanceConsents;
   const reels=new WeakSet(),gearSlots=['weapon','armor','shield','accessory'];
   const itemKinds=Object.freeze(Object.fromEntries(Object.entries(ITEM_REGISTRY).map(([id,item])=>[id,Object.freeze({
-    sexBane:item.sexBane||null,stunTurns:item.stunTurns||0,key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
+    sexBane:item.sexBane||null,key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
     effect:item.sexBane?'reagent':item.type==='potion'?(item.curesPoison||item.curesCursed?'cure':'heal'):
       item.type==='buff'?'evade':item.type==='throwable'?(item.fuse?'bomb':item.targetsAll?'damage_all':'damage'):
       item.type==='stun'?'stun':gearSlots.includes(item.type)?'equip':item.type==='bait'?'nothing':null,
@@ -1984,7 +1982,7 @@ const partyCommandPlayback = (() => {
         const hasBrace=mechanicFields.includes('defendChance');
         keys(m,[...fields,...mechanicFields,...(hasBrace?['braced']:[]),...(m.origin?['origin']:[]),...(unusual?['unusual']:[])]);
         if(unusual){keys(m.unusual,Object.keys(unusual));const u=m.unusual;
-          if(Object.hasOwn(u,'suppressedTurns')&&(!safe(u.suppressedTurns)||u.suppressedTurns>3||!safe(u.suppressedRound)||u.suppressedRound>maxRound||u.suppressedTurns>0&&!u.suppressedRound))fail();
+          if(Object.hasOwn(u,'healingSuppressed')&&(!bool(u.healingSuppressed)||!safe(u.suppressedRound)||u.suppressedRound>maxRound||u.healingSuppressed!==!!u.suppressedRound))fail();
           if(Object.hasOwn(u,'stolenGold')&&(!safe(s.gold)||!safe(u.stolenGold)||!safe(u.stolenRound)||u.stolenRound>maxRound||!bool(u.departed)||
             !u.stolenRound&&(u.stolenGold!==0||u.departed)||u.departed&&u.stolenRound>=maxRound))fail();
         }
@@ -2160,7 +2158,7 @@ const partyCommandPlayback = (() => {
         for(const k of allowed)a.effective[k]=e.after.party[actor.slot].effective[k];
       }
       if(info.effect==='reagent'&&t.sex===info.sexBane)t.hp=0;
-      if(info.effect==='stun'&&t.regenPerTurn){t.unusual.suppressedTurns=info.stunTurns;t.unusual.suppressedRound=r.round;}
+      if(info.effect==='stun'&&t.regenPerTurn){t.unusual.healingSuppressed=true;t.unusual.suppressedRound=r.round;}
       equal(expected,e.after);state=clone(e.after);push(e);
       // Annotations refer to the same item transition; never apply it twice.
       for(const [slot,m]of e.before.party.entries())if(!same(m.statuses,e.after.party[slot].statuses)){
@@ -2332,8 +2330,7 @@ const partyCommandPlayback = (() => {
     }
     if(!escaped&&outcome()==='ongoing'&&r.command.allyActions.some(a=>a.type!=='run'))for(const m of state.enemies.filter(available)){
       if(!m.regenPerTurn)continue;const e=take('regeneration'),before=clone(m.unusual),after=clone(before),hpBefore=m.hp;
-      if(after.suppressedTurns>0){if(after.suppressedRound!==r.round)after.suppressedTurns--;}
-      else m.hp+=Math.min(m.regenPerTurn,m.maxHp-m.hp);
+      if(!after.healingSuppressed)m.hp+=Math.min(m.regenPerTurn,m.maxHp-m.hp);
       equal(e,{type:'regeneration',actorId:m.instanceId,round:r.round,amount:m.regenPerTurn,hpBefore,hpAfter:m.hp,before,after});m.unusual=after;push(e);
     }
     if(!escaped&&outcome()==='ongoing')for(const m of state.enemies.filter(available)){
@@ -4518,6 +4515,9 @@ function refreshJobBoard() {
         : 'MISSING \u2014 child\u2019s toy bear, name Schilling, believed taken into the South Ruins by a large creature. Child at the schoolhouse. Please return if recovered. \u2014 Bram, Schoolhouse, Calwick.'
     );
   }
+  if (day >= 2 && fort_quest_started && !schilling_quest_started && !schilling_returned) {
+    JOB_BOARD_NOTICES.push('A note in a child’s handwriting: Please talk to Pip at the School about Schilling.');
+  }
   // Briar Warden removal contract — posted a few days in (day 5+), matching
   // Overseer Mault's appearance in the square (npcs.js getter)
   if (sluice_reward_given && day >= 5 && !warden_quest_rewarded) {
@@ -4800,14 +4800,11 @@ function enemyRegenEntry(enemy) {
   const e = enemy;
   if (!e || !e.regenPerTurn || combat.pendingVictory) return null;
   const heal = Math.min(e.regenPerTurn, e.maxHp - e.hp);
-  // Trollbane stun: while it holds, the enemy can't knit its rot back. Each
-  // regen-eligible turn (Attack / Observe / item — the only turns that reach
-  // here) burns one turn off the stun, whether or not it had HP to recover.
-  if (combat.enemyStunTurns > 0) {
-    combat.enemyStunTurns--;
+  // Trollbane's heal-lock lasts until this battle is cleaned up.
+  if (combat.enemyStunTurns) {
     if (heal <= 0) return null;
     return {
-      text: `The ${e.name} strains to close its wounds — the Trollbane holds its rot slack.`,
+      text: `Trollbane stops the ${e.name} from healing.`,
       apply: function() {},
     };
   }
@@ -5729,15 +5726,16 @@ function handleCombatAction() {
     } else if (item.type === 'stun') {
       // Trollbane. On a regenerating enemy (the Rotwood Troll) it seizes it up:
       // the enemy reels this turn (no counter, enemyActs = false) and can't
-      // self-heal for the next few turns (combat.enemyStunTurns, gated in
+      // self-heal for the rest of combat (combat.enemyStunTurns, gated in
       // enemyRegenEntry). On anything that doesn't regenerate it does nothing and
       // the turn is wasted, matching a mismatched reagent. Consumed either way.
       stats.items.splice(stats.items.indexOf(item), 1);
       combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
       if (enemy.regenPerTurn) {
-        combat.enemyStunTurns = item.stunTurns;
+        combat.enemyStunTurns = 1;
         enemyActs = false;
-        msgs.push(`Used ${item.name} — the ${enemy.name} seizes up, its rot going grey and slack. It won't be mending itself for a while.`);
+        msgs.push(`Used ${item.name} — the ${enemy.name} seizes up!`);
+        msgs.push('It cannot heal for the rest of this battle.');
       } else {
         msgs.push(`Used ${item.name} — it does nothing to the ${enemy.name}. Wasted on this one.`);
       }

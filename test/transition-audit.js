@@ -297,7 +297,7 @@ check('crossCausewayFerry (west to east)', 'crossCausewayFerry();', {
 });
 check('crossCausewayFerry (east to west)', 'crossCausewayFerry();', {
   group: 'scripted-transitions',
-  pre: "dialogue.open=false;choice.open=false;MainQuest=5;placeAtLocation('EASTERN_BANK_MAP',5.5*TILE,8.5*TILE);",
+  pre: "dialogue.open=false;choice.open=false;MainQuest=5;stats.gold=10;placeAtLocation('EASTERN_BANK_MAP',5.5*TILE,8.5*TILE);",
   settle: "for(let i=0;i<WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames;i++)waterTravelController.update();",
 });
 

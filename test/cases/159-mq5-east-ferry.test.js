@@ -163,7 +163,7 @@ module.exports = {
     assert.doesNotMatch(g.run('dialogue.pages.flat().join(" ")'), /No boat\. No ferry/i,
       'the post-MQ5 causeway text does not contradict the arrived ferry');
     g.run('finishDialogue();placeAtLocation("EAST_CAUSEWAY_MAP",8.5*TILE,7.5*TILE);dialogue.open=false;choice.open=false;handleInteract();');
-    assert.equal(g.run('dialogue.name'), 'Ferry Operator', 'the operator owns the ferry interaction at the separate landing position');
+    assert.equal(g.run('dialogue.name'), 'Imperial Guard', 'the operator owns the ferry interaction at the separate landing position');
     while (g.run('dialogue.open')) g.run('handleInteract();');
     g.run('choice.open=false;placeAtLocation("EAST_CAUSEWAY_MAP",10.5*TILE,8.5*TILE);');
     const westRenderState = J('JSON.stringify({map:mapIdForRef(activeMap),x:player.x,y:player.y,mq:MainQuest})');
@@ -221,13 +221,15 @@ module.exports = {
     assert.equal(g.run('sera_liora_opening_complete'), true);
     assert.equal(currentMapId(g), EAST);
 
-    // The same single operator offers the safe return trip and the west spawn
+    g.run('stats.gold=25;');
+    // The same single operator offers the paid return trip and the west spawn
     // is the established walkable road-end stone.
     g.run('dialogue.open=false;choice.open=false;interactCausewayFerry();finishDialogue();');
-    assert.match(g.run('dialogue.name'), /Ferry Operator/);
+    assert.match(g.run('dialogue.name'), /Imperial Guard/);
     g.press('Enter');
     g.frames(g.run("WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames"));
     assert.equal(currentMapId(g), WEST);
+    assert.equal(g.run('stats.gold'), 15, 'return fare is charged once');
     assert.equal(g.run('player.x'), 10.5 * g.run('TILE'));
     assert.equal(g.run('player.y'), 8.5 * g.run('TILE'));
     assert.equal(g.run("isTileWalkable(MAP_CATALOG['EAST_CAUSEWAY_MAP'].map[8][10])"), true);

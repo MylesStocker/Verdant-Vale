@@ -2685,6 +2685,16 @@ function drawHollisFarmhouseFurniture() {
     ctx.fillStyle = '#c9591f'; ctx.fillRect(x + 11, y + 18 - flick, 9, 8);
     ctx.fillStyle = '#e8a13a'; ctx.fillRect(x + 13, y + 20 - flick, 5, 6);
     ctx.fillStyle = '#f6dd7a'; ctx.fillRect(x + 15, y + 22, 2, 3);
+    // Soup pot over the existing fire: the dispensary's copper palette and
+    // square steam marks, kept inside this hearth's decorative footprint.
+    ctx.fillStyle = '#3b342c'; ctx.fillRect(x + 5, y + 11, 22, 3); // handles
+    ctx.fillStyle = '#b06a3a'; ctx.fillRect(x + 8, y + 10, 16, 9);
+    ctx.fillStyle = '#c88248'; ctx.fillRect(x + 8, y + 9, 16, 3); // rim
+    ctx.fillStyle = '#d7c08b'; ctx.fillRect(x + 10, y + 10, 12, 2); // soup
+    if ((tick >> 5) & 1) {
+      ctx.fillStyle = 'rgba(220,220,215,0.35)';
+      ctx.fillRect(x + 15, y + 1, 3, 6);
+    }
   }
 
   // Plank table with two stools (r7 c4-5).

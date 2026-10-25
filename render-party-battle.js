@@ -84,6 +84,66 @@ const partyBattleQuickbloomAnimation=(()=>{
   });
 })();
 
+// Presentation clocks follow authenticated shared-engine events. They never
+// resolve damage, spend Strain, use RNG or change the event/target history.
+const partyBattleOffensiveResonanceAnimation=(()=>{
+  const durations=Object.freeze({null:24,rainbow:30,eclipse:42});
+  const colors=Object.freeze(['#f06065','#f5a34b','#f5d46b','#7dcc83','#6cc4e9','#7483dd','#bd7cdb']);
+  let key=null,frame=0,duration=0;
+  const eventFor=view=>{
+    const event=view?.playbackFrame?.currentEvent;
+    return event&&Object.hasOwn(durations,event.techniqueId)&&
+      ((event.type==='resonance_damage'&&event.techniqueId!=='eclipse')||
+       (event.type==='resonance_damage_all'&&event.techniqueId==='eclipse'))?event:null;
+  };
+  const keyFor=(view,event)=>event?[view.label,view.playbackFrame.completedRounds,view.frameIndex,
+    event.techniqueId,event.participantIds.join(','),event.targetId||event.hits.map(hit=>hit.targetId).join(',')].join('|'):null;
+  const reset=()=>{key=null;frame=0;duration=0;return true;};
+  const update=(view,seconds)=>{
+    const event=eventFor(view);if(!event){reset();return false;}
+    const next=keyFor(view,event);if(next!==key){key=next;frame=0;}
+    duration=durations[event.techniqueId];
+    frame=Math.min(duration,frame+presentationFrameDelta(seconds));
+    if(duration-frame<1e-8)frame=duration;
+    return true;
+  };
+  const draw=view=>{
+    const event=eventFor(view);if(!event||key!==keyFor(view,event)||frame>=durations[event.techniqueId])return false;
+    const layout=partyBattleLayout(view),ids=event.hits?event.hits.map(hit=>hit.targetId):[event.targetId];
+    const t=frame/durations[event.techniqueId];
+    ctx.save();ctx.beginPath();ctx.rect(0,0,512,297);ctx.clip();
+    for(const id of ids){
+      const target=layout.enemies.find(enemy=>enemy.instanceId===id);
+      if(!target)throw Error('Invalid offensive Resonance visual target');
+      const x=target.anchorX,y=target.anchorY-36;
+      if(event.techniqueId==='null'){
+        const radius=8+24*(1-t);ctx.fillStyle='#151124';ctx.beginPath();ctx.ellipse(x,y,radius,radius*.7,0,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#9e7abb';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,radius+5,radius*.7+5,0,0,Math.PI*2);ctx.stroke();
+        for(let i=0;i<6;i++){const angle=i*Math.PI/3+t*2;ctx.fillStyle='#d1c3e0';ctx.fillRect(Math.round(x+Math.cos(angle)*(radius+8)),Math.round(y+Math.sin(angle)*(radius+8)),3,3);}
+      }else if(event.techniqueId==='rainbow'){
+        for(let i=0;i<colors.length;i++){
+          ctx.strokeStyle=colors[i];ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,10+i*4+Math.sin(t*Math.PI)*8,Math.PI+t,Math.PI*2+t);ctx.stroke();
+          const angle=i*Math.PI*2/7+t*3;ctx.fillStyle=colors[i];ctx.fillRect(Math.round(x+Math.cos(angle)*40*t),Math.round(y+Math.sin(angle)*40*t),4,4);
+        }
+      }else{
+        // One strong expanding burst with a dark core and bright fractured rays.
+        // No repeated full-screen flashes, and no geometry enters the command UI.
+        const burst=Math.sin(t*Math.PI),radius=8+58*burst;
+        ctx.fillStyle=t<.5?'#f6dd9c':'#b58ed7';ctx.beginPath();
+        for(let i=0;i<24;i++){const angle=i*Math.PI/12,r=i%2?radius*.45:radius;const px=x+Math.cos(angle)*r,py=y+Math.sin(angle)*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py);}
+        ctx.closePath();ctx.fill();ctx.fillStyle='#1b142c';ctx.beginPath();ctx.arc(x,y,10+20*burst,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#e9b8ec';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,16+64*t,0,Math.PI*2);ctx.stroke();
+        for(let i=0;i<12;i++){const angle=i*Math.PI/6,r=24+68*t;ctx.fillStyle=colors[i%7];ctx.fillRect(Math.round(x+Math.cos(angle)*r),Math.round(y+Math.sin(angle)*r),4,4);}
+      }
+    }
+    ctx.restore();return true;
+  };
+  return Object.freeze({update,draw,reset,
+    blocksAdvance(view){const event=eventFor(view);return !!event&&(key!==keyFor(view,event)||frame<durations[event.techniqueId]);},
+    getView(){return Object.freeze({active:key!==null&&frame<duration,frame,duration});},
+  });
+})();
+
 function partyBattleEnemySprite(id) {
   return ENEMY_SPRITE_DISPATCH[id] ||
     (ENEMY_GENERIC_SPRITE_IDS.has(id)?{draw:drawBattleGenericEnemy}:null);
@@ -327,6 +387,7 @@ function drawPartyBattle(view) {
   layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,
     layout.target?.side==='ally'&&layout.target.instanceId===position.instanceId));
   partyBattleQuickbloomAnimation.draw(view);
+  partyBattleOffensiveResonanceAnimation.draw(view);
   ctx.fillStyle='#08121e';ctx.fillRect(8,297,496,175);ctx.strokeStyle='#5a8a9a';ctx.lineWidth=2;ctx.strokeRect(9,298,494,173);ctx.strokeStyle='#2a4e5e';ctx.lineWidth=1;ctx.strokeRect(13,302,486,165);
   ctx.fillStyle='#8ac8d8';[[9,298],[501,298],[9,469],[501,469]].forEach(([x,y])=>ctx.fillRect(x,y,2,2));
   ctx.fillStyle='#ccd8cc';ctx.font='14px "Courier New", monospace';const lines=wrapMonospaceText(ctx,message,468);lines.slice(0,2).forEach((line,i)=>ctx.fillText(line,22,325+i*16,468));

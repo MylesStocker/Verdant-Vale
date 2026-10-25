@@ -46,6 +46,43 @@
       result.captures.push({name:'ferry-'+scale+'x',png:canvas.toDataURL()});
       waterTravelController.update(WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames*MS_PER_FRAME/2000);
       check(!waterTravelController.isActive()&&mapIdForRef(activeMap)==='EASTERN_BANK_MAP','Ferry finishes @'+scale);
+      // Paid return: real browser key events, dialogue pagination and reverse tableau.
+      {
+        const tap=key=>{window.dispatchEvent(new KeyboardEvent('keydown',{key}));window.dispatchEvent(new KeyboardEvent('keyup',{key}));};
+        const finish=()=>{let n=0;while(dialogue.open&&n++<30){render();tap('Enter');}check(!dialogue.open,'Return dialogue closes @'+scale);};
+        const capture=name=>{
+          render();const image=document.createElement('canvas');image.width=512*scale;image.height=480*scale;
+          const output=image.getContext('2d');output.imageSmoothingEnabled=false;output.drawImage(canvas,0,0,image.width,image.height);
+          result.captures.push({name:name+'-'+scale+'x',png:image.toDataURL()});
+        };
+        stats.gold=9;
+        window.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowUp'}));for(let n=0;n<6;n++)update();
+        window.dispatchEvent(new KeyboardEvent('keyup',{key:'ArrowUp'}));tap('Enter');
+        check(dialogue.open&&dialogue.name==='Imperial Guard','Eastern guard reachable through input @'+scale);
+        render();let foundEsla=false,steps=0;
+        while(dialogue.open&&steps++<30){
+          const presentation=dialoguePagePresentation();
+          if(presentation.speakerId==='esla'){
+            check(presentation.styleId==='esla_light_green','Ferry objection uses Esla green @'+scale);
+            if(!foundEsla)capture('ferry-return-esla');foundEsla=true;
+          }
+          const text=[],originalText=ctx.fillText;
+          ctx.fillText=function(value,x,y,...rest){const w=this.measureText(value).width;const left=this.textAlign==='center'?x-w/2:this.textAlign==='right'?x-w:x;text.push({left,right:left+w});return originalText.call(this,value,x,y,...rest);};
+          try{drawDialogue();}finally{ctx.fillText=originalText;}
+          check(text.every(t=>t.left>=0&&t.right<=512),'Return dialogue fits width @'+scale+' page '+steps);
+          tap('Enter');render();
+        }
+        check(foundEsla&&choice.options[0]==='Pay 10g and cross','Explicit return fare choice @'+scale);
+        tap('Enter');check(!waterTravelController.isActive()&&stats.gold===9&&dialogue.open,'Insufficient gold refuses boarding @'+scale);
+        finish();stats.gold=20;tap('Enter');finish();tap('Enter');
+        check(waterTravelController.getView()?.direction==='west','Paid return starts reverse animation @'+scale);
+        const reverseStart=waterTravelController.getView().x;
+        waterTravelController.update(WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames*MS_PER_FRAME/2000);
+        check(waterTravelController.getView().x<reverseStart,'Reverse animation moves west @'+scale);capture('ferry-return-crossing');
+        waterTravelController.update(WATER_TRAVEL_ROUTES.causeway_ferry.durationFrames*MS_PER_FRAME/2000);
+        check(regionalActiveMapId()==='EAST_CAUSEWAY_MAP'&&stats.gold===10,'Return lands west and charges exactly 10g @'+scale);
+        capture('ferry-return-arrival');
+      }
     }
     // Mornay population review uses real browser input listeners and Canvas.
     // This is automated browser evidence, not a claim of a manual playthrough.

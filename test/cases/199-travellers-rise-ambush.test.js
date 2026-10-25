@@ -12,13 +12,12 @@ function recruit(g,real=false){
 }
 function place(g,gold=1000){g.run(`stats.gold=${gold};placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',9.5*TILE,7.5*TILE);
   travellersRiseAmbush.tryTrigger();placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',10.5*TILE,7.5*TILE);`);}
-function reachChoice(g){
+function reachBattle(g){
   g.frames(1);assert.equal(g.run('travellersRiseAmbush.getView().phase'),'opening');g.run('finishDialogue()');
   let guard=0;while(g.run("travellersRiseAmbush.getView().phase==='walking'")){g.frames(1);assert.ok(guard++<1000);}
   assert.equal(g.run('travellersRiseAmbush.getView().phase'),'reveal');g.run('finishDialogue()');
-  assert.equal(g.run('choice.open'),true);
+  assert.equal(g.run('choice.open'),false);assert.equal(g.run('canonicalPartyCombat.isActive()'),true);
 }
-function choose(g,index){g.run(`choice.cursor=${index};choice.open=false;choice.callbacks[${index}]()`);if(g.run('dialogue.open'))g.run('finishDialogue()');}
 const view=g=>J(g,'canonicalPartyCombat.getView()'),input=(g,c)=>g.run('partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),QUICKBLOOM_ANIMATION_FRAMES*MS_PER_FRAME/1000);canonicalPartyCombat.handleInput('+JSON.stringify(c)+')');
 function acknowledge(g){let guard=0;while(view(g).phase==='playback'){input(g,'confirm');assert.ok(guard++<500);}if(view(g).phase==='playback_complete')input(g,'confirm');}
 function escape(g){g.run('Math.random=()=>{ambushRolls++;return 0}');while(view(g).phase==='awaiting_action'){
@@ -117,7 +116,7 @@ test('real checkpoint, Supervisor assignment and staged walking reveal the fixed
   assert.deepEqual(paths.at(-1),[[272,240],[336,176],[400,240]]);assert.equal(g.run('travellersRiseAmbush.getView().revealed'),true);
   for(const actor of paths.at(-1))for(const x of [10*32+7,11*32-7])for(const y of [7*32+7,8*32-7])
     assert.ok(Math.abs(actor[0]-x)>=18||Math.abs(actor[1]-y)>=18,'staged actor never overlaps a legal trigger-tile player position');
-  g.run('finishDialogue()');choose(g,0);assert.deepEqual(view(g).enemies.map(e=>e.id),
+  g.run('finishDialogue()');assert.deepEqual(view(g).enemies.map(e=>e.id),
     ['enemy_road_impostor','enemy_bridled_hollow','enemy_fen_handler']);assert.deepEqual(view(g).enemies.map(e=>e.slot),[0,1,2]);
   assert.equal(new Set(view(g).enemies.map(e=>e.instanceId)).size,3);
   assert.deepEqual(view(g).commands,['attack','item','observe','run']);input(g,'confirm');input(g,'confirm');
@@ -139,47 +138,54 @@ test('templates are capability-driven, independently prepared and balanced below
 });
 
 test('refusal loses no gold; Handler defeat cannot alter the exact Hollow instance or Brace profile',()=>{
-  const g=fresh();recruit(g);place(g,222);reachChoice(g);choose(g,0);assert.equal(g.run('stats.gold'),222);
+  const g=fresh();recruit(g);place(g,222);reachBattle(g);assert.equal(g.run('stats.gold'),222);
   const before=J(g,'canonicalPartyCombat.getView().enemies[1]');
   assert.equal(g.run("canonicalEnemyMechanicProfile(FEN_HANDLER_TEMPLATE).brace"),undefined);
   assert.deepEqual(J(g,'canonicalPartyCombat.getView().enemies[1]'),before);
   assert.deepEqual(J(g,'canonicalEnemyMechanicProfile(BRIDLED_HOLLOW_TEMPLATE).brace'),{chance:.2});
 });
 
-test('payment clamps to available gold, installs atomically and records one persistent receipt',()=>{
-  for(const [gold,amount]of [[250,100],[37,37],[0,0]]){const g=fresh();recruit(g);place(g,gold);reachChoice(g);choose(g,1);
-    assert.equal(g.run('stats.gold'),gold-amount);assert.deepEqual(J(g,'[travellers_rise_ambush_paid,travellers_rise_ambush_payment]'),[true,amount]);
+test('Esla refuses the demand and threats start combat without any extortion charge',()=>{
+  for(const gold of [250,37,0]){const g=fresh();recruit(g);place(g,gold);reachBattle(g);
+    assert.equal(g.run('stats.gold'),gold);assert.deepEqual(J(g,'[travellers_rise_ambush_paid,travellers_rise_ambush_payment]'),[false,0]);
     assert.equal(g.run('canonicalPartyCombat.isActive()'),true);}
 });
 
 test('predictable activation rejection charges nothing and leaves no battle or completion',()=>{
-  const g=fresh();recruit(g);place(g,91);reachChoice(g);g.run('MainQuest=4;choice.open=false;choice.callbacks[1]();finishDialogue()');
+  const g=fresh();recruit(g);place(g,91);g.frames(1);g.run('finishDialogue()');
+  while(g.run("travellersRiseAmbush.getView().phase==='walking'"))g.frames(1);
+  g.run('MainQuest=4;finishDialogue()');
   assert.deepEqual(J(g,'[stats.gold,travellers_rise_ambush_paid,travellers_rise_ambush_payment,travellers_rise_ambush_complete]'),[91,false,0,false]);
   assert.equal(g.run('canonicalPartyCombat.isActive()'),false);assert.equal(g.run('travellersRiseAmbush.getView().phase'),'fault');
 });
 
-test('escape retains payment, permits a no-demand retry and survives save/load',()=>{
-  const g=fresh();recruit(g);place(g,150);reachChoice(g);choose(g,1);escape(g);
-  assert.deepEqual(J(g,'[travellersRiseAmbush.getView().phase,travellers_rise_ambush_complete,stats.gold,travellers_rise_ambush_payment]'),['idle',false,50,100]);
-  assert.equal(g.run('saveGame()'),true);g.run('travellers_rise_ambush_paid=false;travellers_rise_ambush_payment=0;stats.gold=999');assert.equal(g.run('loadGame()'),true);
-  assert.deepEqual(J(g,'[travellers_rise_ambush_paid,travellers_rise_ambush_payment,stats.gold]'),[true,100,50]);
-  g.run("placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',9.5*TILE,7.5*TILE)");g.frames(1);g.run("placeAtLocation('EASTERN_FENS_TRAVELLERS_RISE_MAP',10.5*TILE,7.5*TILE)");g.frames(1);g.run('finishDialogue()');let guard=0;
-  while(g.run("travellersRiseAmbush.getView().phase==='walking'")){g.frames(1);assert.ok(guard++<1000);}g.run('finishDialogue()');
-  assert.equal(g.run('choice.open'),false);assert.equal(g.run('canonicalPartyCombat.isActive()'),true);assert.equal(g.run('stats.gold'),50);
+test('escape leaves gold intact, permits retry and survives save/load',()=>{
+  const g=fresh();recruit(g);place(g,150);reachBattle(g);escape(g);
+  assert.deepEqual(J(g,'[travellersRiseAmbush.getView().phase,travellers_rise_ambush_complete,stats.gold,travellers_rise_ambush_payment]'),['idle',false,150,0]);
+  assert.equal(g.run('saveGame()'),true);g.run('stats.gold=999');assert.equal(g.run('loadGame()'),true);
+  assert.deepEqual(J(g,'[travellers_rise_ambush_paid,travellers_rise_ambush_payment,stats.gold]'),[false,0,150]);
+  place(g,150);reachBattle(g);assert.equal(g.run('stats.gold'),150);
+});
+
+test('historical paid saves retain their receipt and retry without another payment',()=>{
+  const g=fresh();recruit(g);place(g,50);g.run('travellers_rise_ambush_paid=true;travellers_rise_ambush_payment=100;syncQuestFlagsToWindow()');
+  assert.equal(g.run('saveGame()'),true);g.run('stats.gold=999;travellers_rise_ambush_paid=false;travellers_rise_ambush_payment=0');
+  assert.equal(g.run('loadGame()'),true);place(g,50);reachBattle(g);
+  assert.deepEqual(J(g,'[stats.gold,travellers_rise_ambush_paid,travellers_rise_ambush_payment]'),[50,true,100]);
 });
 
 test('defeat recovers once, retains the event and permits a fresh-identity retry',()=>{
   const g=fresh();recruit(g);place(g);g.run(`saveGame();var s=JSON.parse(localStorage.getItem('verdantVale_save'));
     s.stats.hp=1;s.party.characters[0].hp=0;localStorage.setItem('verdantVale_save',JSON.stringify(s));loadGame();dialogue.open=false;`);
-  place(g);reachChoice(g);choose(g,0);const first=view(g).enemies.map(e=>e.instanceId);g.run('Math.random=()=>{ambushRolls++;return .5}');
+  place(g);reachBattle(g);const first=view(g).enemies.map(e=>e.instanceId);g.run('Math.random=()=>{ambushRolls++;return .5}');
   input(g,'confirm');input(g,'confirm');input(g,'confirm');acknowledge(g);assert.equal(view(g).phase,'defeat');input(g,'confirm');
   assert.equal(g.run('travellers_rise_ambush_complete'),false);assert.equal(g.run('travellersRiseAmbush.getView().phase'),'idle');
-  g.run('dialogue.open=false;dialogue.callbacks=null');place(g);g.frames(1);g.run('finishDialogue()');let guard=0;while(g.run("travellersRiseAmbush.getView().phase==='walking'")){g.frames(1);assert.ok(guard++<1000);}g.run('finishDialogue()');choose(g,0);
+  g.run('dialogue.open=false;dialogue.callbacks=null');place(g);g.frames(1);g.run('finishDialogue()');let guard=0;while(g.run("travellersRiseAmbush.getView().phase==='walking'")){g.frames(1);assert.ok(guard++<1000);}g.run('finishDialogue()');
   assert.ok(view(g).enemies.every(e=>!first.includes(e.instanceId)));
 });
 
 test('victory completes and rewards once, removes actors and advances only the camp handoff objective',()=>{
-  const g=fresh();recruit(g);g.run('stats.atk=10000');place(g);const day=g.run('day');reachChoice(g);choose(g,0);const receipt=victory(g);
+  const g=fresh();recruit(g);g.run('stats.atk=10000');place(g);const day=g.run('day');reachBattle(g);const receipt=victory(g);
   assert.equal(receipt.rewards.xp,215);assert.equal(receipt.rewards.gold,31);assert.deepEqual(receipt.rewards.items,[]);
   assert.equal(g.run('travellers_rise_ambush_complete'),true);assert.equal(g.run('day'),day);
   if(g.run('dialogue.open'))g.run('finishDialogue()'); // reward pages precede the camp introduction
@@ -193,7 +199,7 @@ test('victory completes and rewards once, removes actors and advances only the c
 });
 
 test('save refusal, completion reload and story-checkpoint reset keep receipts and transients coherent',()=>{
-  const g=fresh();recruit(g);place(g);reachChoice(g);choose(g,0);assert.equal(g.run('saveGame()'),false);escape(g);
+  const g=fresh();recruit(g);place(g);reachBattle(g);assert.equal(g.run('saveGame()'),false);escape(g);
   assert.equal(g.run('saveGame()'),true);const valid=g.run("localStorage.getItem('verdantVale_save')");
   g.run(`var broken=JSON.parse(localStorage.getItem('verdantVale_save'));broken.travellers_rise_ambush_paid=false;
     broken.travellers_rise_ambush_payment=50;localStorage.setItem('verdantVale_save',JSON.stringify(broken));stats.gold=777`);
@@ -226,4 +232,4 @@ test('enemy-side formation preparation is immutable and independent of one-, two
   }finally{fs.readFileSync=read;}
 });
 
-module.exports={name:"MQ5 Travellers' Rise ambush: staged formation, payment receipts, retries and authenticated victory",run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' Travellers\' Rise ambush checks passed');}};
+module.exports={name:"MQ5 Travellers' Rise ambush: staged formation, refusal, retries and authenticated victory",run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' Travellers\' Rise ambush checks passed');}};

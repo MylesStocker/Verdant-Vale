@@ -261,7 +261,7 @@ function canonicalUnusualEnemySeed(template) {
   const profile=canonicalEnemyMechanicProfile(template);
   if(profile.brace&&profile.melee_armor)throw Error('Unsupported Brace and melee armor combination');
   if(profile.regeneration&&profile.steal_and_flee)throw Error('Contradictory unusual enemy mechanics');
-  if(profile.regeneration)return {suppressedTurns:0,suppressedRound:0};
+  if(profile.regeneration)return {healingSuppressed:false,suppressedRound:0};
   if(profile.steal_and_flee)return {stolenGold:0,stolenRound:0,departed:false};
   return null;
 }

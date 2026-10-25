@@ -91,21 +91,22 @@ avoids adding template metadata to result/playback schemas.
 
 `travellersRiseAmbush` owns the MQ5 road event's transient field presentation:
 the exact Rise trigger, three projected actors, authored dialogue, deterministic
-routes, reveal and demand choice. Its authenticated victory receipt hands presentation to the campsite owner after combat cleanup and reward acknowledgements. It delegates complete
+routes, reveal and Esla’s refusal of the demand. Its authenticated victory receipt hands presentation to the campsite owner after combat cleanup and reward acknowledgements. It delegates complete
 formation preparation and the exact terminal receipt to
 `scriptedPartyEncounters.startTravellersRise()`. That lifecycle definition binds
-the stable Road Impostor / Bridled Hollow / Fen Handler order and the ordinary
+the stable Highwayman / Bridled Hollow / Fen Handler order and the ordinary
 escape policy; combat mechanics remain capability-driven. The Bridled Hollow
 combines the established Brace capability with the encounter lifecycle and
 never depends on the Handler's runtime state.
 
-The payment callback validates and prepares the whole encounter before charging.
-Its activation transaction records `travellers_rise_ambush_paid` and the exact
-clamped amount immediately before installation, with a narrow pre-install
-rollback if installation rejects. Payment and victory are separate receipts:
-escape or defeat retains payment but leaves the ambush retryable; only an
-authenticated victory writes `travellers_rise_ambush_complete`. Save preflight
-validates the receipt pair, while active staging/battle remains unsavable.
+Ordinary play starts the encounter without a payment choice or charge. Esla
+refuses; the highwaymen threaten the party and fight. Existing historical paid
+receipt fields and the dormant compatibility API remain loadable; they never
+cause a new charge through this presentation. Only an authenticated victory writes
+`travellers_rise_ambush_complete`. Finalization displays the existing XP, gold and
+item receipt without awarding it twice. Nearby projected actors also answer
+ordinary interaction before the unavoidable choke; conversation does not stage
+routes from an arbitrary player position. Active staging/battle remains unsavable.
 Movement routes and actors are session-only and are reset on load or developer
 checkpoint application. No combat identity, route position or half-finished
 cutscene enters the version-5 payload.
@@ -128,7 +129,7 @@ its grid. This entrance is separate from the ambush trigger `(10,7)` and the
 onward east-exit gate; it never serves as the route choke. After victory the
 first entry is automatic. Later interaction uses the same `enterTravellersRiseCamp()` fixed transition: local
 `TRAVELLERS_RISE_CAMP_MAP`, arrival `(7.5,8.5)` in tile units. The local map is
-16 columns × 15 rows, enclosed by water and reeds, with a low ember ring and
+16 columns × 15 rows, enclosed by trees and reeds, with a low ember ring and
 three ordinary bedrolls and two decorative log seats north/south of the fire.
 The logs have bark, grain and cut ends, with no sitting or collision behavior.
 The camp has no random encounters, enemy spawns, combat triggers or hostile NPCs.
@@ -495,11 +496,14 @@ are in [CANONICAL_PARTY_COMBAT.md](CANONICAL_PARTY_COMBAT.md#pass-4c--unusual-or
 and the complete [enemy audit](ENEMY_CAPABILITY_AUDIT.md).
 
 The generalized round owner stores per-instance `unusual` state: Troll
-`{suppressedTurns,suppressedRound}`, Gull `{stolenGold,stolenRound,departed}`.
+`{healingSuppressed,suppressedRound}`, Gull `{stolenGold,stolenRound,departed}`.
 It is never written to templates or saves. Troll regeneration uses approved
 round-end HP after existing burn/Bomb ticks; terminal outcomes suppress it.
-Trollbane cancels the target's still-unexecuted action and suppresses three later
-healing checks, exempting application-round decrement. Thornback's authored
+Trollbane cancels the target's still-unexecuted action and suppresses regeneration
+for the remainder of that combat. Later ordinary attacks resume; a new fight
+starts unsuppressed. The singleton retains its internal `enemyStunTurns` field as
+a 0/1 battle-local marker, while saved Trollbane items retain inert `stunTurns:3`
+metadata for exact version-5 item rehydration compatibility. Thornback's authored
 melee DEF applies only to Attack. Approved counters occur immediately after each
 surviving melee exchange, against its exact attacker, never retargeting. Toads
 compose the existing poison rider with exact-instance Observe and sex/reagent
@@ -3071,7 +3075,12 @@ different units. The set is derived, not hand-listed.
   story authority without specializing the animation lifecycle to this route.
   The controller validates availability, exact endpoint, destination placement,
   neutral location state and exclusive-owner availability before installing its
-  transient session. While active it alone advances, so movement, encounters,
+  transient session. Directional departure fares belong to the frozen route:
+  0g eastbound, 10g westbound. The controller checks available gold before
+  departure and again before arrival, deducting exactly once only after successful
+  placement. Declines, rejection and faults charge nothing; no fare flag is saved.
+  The guard dialogue uses the shared mixed-speaker pages for Esla’s green objection.
+  While active it alone advances, so movement, encounters,
   world time, menus, save/load and debug actions remain frozen. The renderer reads
   an immutable progress view and replaces the world with a deterministic water
   tableau; it does not advance `tick`, RNG or gameplay state. Only the terminal
@@ -4939,10 +4948,13 @@ improvised breakfast and final completion await Dot's stage-1 review.
 ### Final courtyard breakfast — stage 2, pending final review
 
 The former storeroom review hold now enters controller-owned `breakfast_ending_*`
-phases: fade to the approved sunny terrace, quiet plans, pinky promise, three
-presentation seconds of eating, and final fade. Existing standing sprites, table
-and small deterministic Canvas hand/cup gestures provide minimal MVP staging;
-there are no new raster assets. The same idle story context remains owned until
+phases: fade to seated breakfast, quiet plans, the generated pinky-promise still,
+a two-second promise hold, and final fade. Two new opaque 512×480 stills include
+both characters; standing sprites and the former hand/cup overlays are omitted
+during the ending. Both assets preload in the breakfast bundle. Null, Rainbow
+and Eclipse use authenticated shared-engine events for 24/30/42 presentation-frame
+effects, including an expanding Eclipse burst; rendering never resolves damage
+or spends resources. Scene input waits for the effect’s exact terminal frame. The same idle story context remains owned until
 completion, so input/world simulation/save/load stay isolated through every stage.
 `endingElapsed` is a transient presentation clock only. Confirm-key latches are
 preserved; dialogue continuation failures enter the existing diagnostic fault.

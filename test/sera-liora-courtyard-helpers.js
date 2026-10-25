@@ -35,7 +35,7 @@ function completeEnding(g){
   while(g.run('seraLioraCutscene.active')&&n++<600){
     if(g.run('dialogue.open'))g.press('Enter');else g.frames(1);
   }
-  assert.ok(n<600,'authored dialogue, three-second eating hold and final fade complete naturally');
+  assert.ok(n<600,'authored dialogue, two-second promise hold and final fade complete naturally');
   assertHospital(g);
 }
 function advanceBreakfastBattle(g){
@@ -49,6 +49,7 @@ function advanceBreakfastBattle(g){
   const alive=v.enemies.filter(e=>e.hp>0),slot=v.party.find(m=>m.instanceId===v.nextActorId).slot;
   const desired=alive[Math.min(slot,alive.length-1)].instanceId;
   if(v.selectedTargetInstanceId!==desired)g.press('ArrowRight');else g.press('Enter');
- }else g.press('Enter');
+ }else if(v.phase==='playback'&&g.run('partyBattleQuickbloomAnimation.blocksAdvance(seraLioraBreakfastBattle.getView())||partyBattleOffensiveResonanceAnimation.blocksAdvance(seraLioraBreakfastBattle.getView())'))g.frames(1);
+ else g.press('Enter');
 }
 module.exports={completeCourtyard,completeBreakfast,completeEnding,advanceBreakfastBattle};

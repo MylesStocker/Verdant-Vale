@@ -809,8 +809,12 @@ conversation are idempotent. The existing cutaway completion flag and canonical
 roster are saved in version 5; recruitment adds no flag or schema change.
 
 At MQ5, one ferry operator and a small government cable scow appear at the
-broken East Causeway. The player may cross or decline; the same service returns
-them safely. Ordinary WATER collision continues to block the washed-out span.
+broken East Causeway. Its Imperial guard clears eastbound official travel without
+a fare; westbound return costs 10g. Esla objects to the exploitation when present,
+but the guard insists. Players may pay or decline; insufficient funds prevent
+boarding. The route controller checks the fare before travel and settles it once
+on successful arrival, leaving rejected or aborted trips uncharged. Ordinary WATER collision continues to block the
+washed-out span.
 Before MQ5, no ferry element exists; the original top-right broken-causeway
 inspect remains available with its established text and collision. That inspect
 also remains independently available after the ferry arrives.
@@ -834,9 +838,9 @@ Eastern Bank. The future camp reservation is now the dry Travellers’ Rise at
 `(12,3)`, 215 steps or about 53.8% through that shortest walk. Its deliberate
 road trigger stages the MQ5 ambush: two human impostors bracket Lely and Esla
 while a cloaked traveller is revealed as a conditioned Bridled Hollow, then the
-fixed three-member formation enters canonical party combat. Refusal costs
-nothing; handing over up to 100 gold records a separate one-time receipt but
-cannot prevent the fight. Escape and defeat permit retry without another charge.
+fixed three-member formation enters canonical party combat. Esla refuses the
+demand; rude threats lead directly to combat without a payment choice or charge.
+Historical paid receipts remain loadable. Escape and defeat permit retry.
 Authenticated victory alone removes the actors, completes the event and changes
 the journal objective to inspecting the ambushers’ campsite. Once combat rewards
 and level-up pages are acknowledged, the campsite introduction now starts
@@ -2198,9 +2202,10 @@ secondCleared state only. Mechanics and the pending final-breakfast stage are un
 Dot's stage-1 review passed. After the flour-covered supplies/server scene, the
 travellers now return to the approved sunny breakfast terrace. Bread, fruit and
 tea accompany quieter plans for their remaining Bethany day, returning in time
-for Skybloom, and a pinky promise to stay together as always. A three-second eating
-hold precedes the fade into Lely's unchanged infirmary awakening. Minimal existing
-standing sprites and Canvas gestures are used; no cosmetic overhaul or new art.
+for Skybloom, and a pinky promise to stay together as always. New generated stills
+show them seated and eating, then linking pinkies. A two-second hold on the
+promise precedes the fade into Lely's unchanged infirmary awakening; the former
+post-promise eating animation is removed.
 
 Accepted battles, blocked Run, shared-context carryover/current-fight retries and
 the visual flour reveal are unchanged. Natural completion occurs exactly once;
@@ -2210,3 +2215,29 @@ covered by suite 269 and the native/2× browser route. SAVE_VERSION remains 5.
 Evidence, dialogue and the walkthrough are under
 `Art/qa/sera-liora/breakfast-ending-stage2/`. Work remains unstaged/uncommitted
 on `agent/codex`, stopped for final review.
+
+
+## Playtest refinements — early assignments through Bethany breakfast
+
+Supervisor directions identify the East Sluice hatch. Esla explicitly explains
+first-level sluice safety, optional treasure/HP and road encounter safety; only
+her spoken words are green, with neutral narration and UI. She also explains an
+owned Fen Mask rather than crowding its shop stat label. Merta tends a visible
+soup pot at Hollis’s northeast hearth. Mabel names the gold received. Sena’s
+correspondence and the cat’s picked-up coin/key appear in the Notebook through
+existing quest stages; no new saved flags or inventory duplicates exist. The
+MQ3 Calwick board points to Pip at school.
+
+Polwick’s guard remains after sparing him; reconsideration remains possible until
+the final “found nothing” report. Highwaymen answer ordinary interaction and are
+labelled Highwayman. The ambush’s existing rewards now have a visible receipt.
+The campsite’s 72 blocked WATER perimeter cells become blocked TREE cells, with
+identical walkability, interior cells and exit. No regional grid changes occur.
+Trollbane prevents regeneration for the whole combat. Eight Fens enemies have
+authored creature sprites and measured formation bounds, removing their eight
+missing-art warnings. Validation has six existing warnings and no errors.
+
+Null/Rainbow/Eclipse effects and the seated-breakfast/pinky-promise stills retain
+the accepted shared-engine mechanics, current-fight retries, blocked Run and
+Lely isolation. The promise pauses for two seconds before exactly-once hospital
+completion. Runtime remains SAVE_VERSION 5. Changes are local and uncommitted.

@@ -635,27 +635,50 @@ const NORTH_BASIN_MAP_FEATURES = {
 // actual atomic map change to world-transitions.js.
 function interactCausewayFerry() {
   if (MainQuest < 5) return;
-  const onEasternBank = regionalActiveMapId() === 'EASTERN_BANK_MAP';
-  dialogue.name = 'Ferry Operator';
-  dialogue.pages = onEasternBank
-    ? [['The operator rests one hand on the cable brake.',
-        '“Back west? The authorization covers the return.”']]
-    : [['The operator checks the seal impressed on your assignment sheet, then checks it again against a rain-warped list.',
-        '“Regional office. Yes. You’re cleared.”'],
-       ['The scow is little more than a planked deck, a cable drum, and patched side rails.',
-        'The notice calling it temporary has six annual renewal stamps beneath it.']];
-  dialogue.callbacks = [function() {
+  const originMapId = regionalActiveMapId();
+  const route = WATER_TRAVEL_ROUTES.causeway_ferry;
+  const fromIndex = route.endpoints.findIndex(endpoint => endpoint.mapId === originMapId);
+  if (fromIndex < 0) return;
+  const onEasternBank = fromIndex === 1;
+  const fare = route.departureFares[fromIndex];
+  const originX = player.x, originY = player.y;
+  const guard = 'causeway_ferry_operator';
+  const pages = onEasternBank
+    ? [{speakerId:guard,lines:[`“Westbound passage. ${fare} gold, paid here.”`]}]
+    : [{speakerId:guard,lines:['The guard checks the seal on your assignment sheet against a rain-warped list.',
+        '“Regional office. Yes. You’re cleared.”']},
+       {speakerId:null,lines:['The scow is little more than a planked deck, a cable drum, and patched side rails.',
+        'The notice calling it temporary has six annual renewal stamps beneath it.']}];
+  if (onEasternBank) {
+    if (persistentParty.getMember('esla')) pages.push({speakerId:'esla',lines:[
+      '“You let us cross on official business. Now you charge us to get home? That’s blatant exploitation.”',
+    ]});
+    pages.push({speakerId:guard,lines:[
+      '“Take it up with the office. Ten gold, or you stay on this bank. I’m not moving the scow without payment.”',
+    ]});
+  }
+  openDialogue('Imperial Guard', [], [function() {
     choice.title = 'Causeway Ferry';
-    choice.options = ['Cross now', 'Not yet'];
+    choice.options = [fare ? `Pay ${fare}g and cross` : 'Cross now', 'Not yet'];
     choice.cursor = 0;
-    choice.callbacks = [
-      function crossNow() { crossCausewayFerry(); },
-      function notYet() {},
+    let used = false;
+    const callbacks = [
+      function crossNow() {
+        if (used || choice.callbacks !== callbacks || dialogue.open || choice.open ||
+            regionalActiveMapId() !== originMapId || player.x !== originX || player.y !== originY) return;
+        used = true;
+        if (fare && (!Number.isSafeInteger(stats.gold) || stats.gold < fare)) {
+          openDialogue('Imperial Guard', [['“Not enough. Ten gold before you board. Those are the terms.”']]);
+          return;
+        }
+        crossCausewayFerry();
+      },
+      function notYet() { used = true; },
     ];
+    choice.callbacks = callbacks;
     choice.open = true;
-  }];
-  dialogue.open = true;
-  dialogue.page = 0;
+  }]);
+  setSpeakerDialoguePages(pages);
 }
 NPC_ACTIONS.causewayFerry = interactCausewayFerry;
 

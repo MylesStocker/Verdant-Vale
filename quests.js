@@ -646,6 +646,8 @@ const SPECIAL_ITEM_NOTES = {
   'Sealed Letter':      'A redacted transit authorization, fished from the canal. Sender unknown.',
   'Mushroom Wine':      "Wend's brew, from the fen settlements.",
   'Schilling':          "Pip's teddy bear. He's waiting for it back.",
+  'Tarnished Coin':     'An old pre-Empire coin the cat dropped at your feet. Worn smooth and no longer worth anything.',
+  'Bent Iron Key':      'A small, slightly bent iron key from the cat. It fits nothing you own.',
   'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
   'Old Fishing Rod':    'A battered rod found in an abandoned Drenwick apartment. The worst rod there is — but it casts. Needed to fish the Drenwick waterfront.',
   'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
@@ -856,6 +858,12 @@ function getActiveQuestNotes() {
   } else if (sentry_quest_done && !sentry_quest_rewarded) {
     notes.push({ title: 'Pale Sentry', body: "Collect the bounty from Constable Tarvec at the Drenwick guard post." });
   }
+  // Sena and Davan's carried correspondence is represented by drama_stage.
+  if (drama_stage === 1 || drama_stage === 3) {
+    notes.push({ title: "Sena's Letter", body: "Deliver Sena's letter to Davan by the east stalls at the Drenwick market." });
+  } else if (drama_stage === 2 || drama_stage === 4) {
+    notes.push({ title: "Davan's Reply", body: "Bring Davan's reply to Sena in the Calwick square." });
+  }
   // Mabel's sickle
   if (sickle_quest_stage === 1) {
     notes.push({ title: "Mabel's Sickle", body: "Find the lost fen sickle near the north bank of the bog." });
@@ -931,6 +939,15 @@ function getActiveQuestNotes() {
     seenSpecial.add(it.name);
     return true;
   });
+  // Cat keepsakes already persist through the existing quest stage. Derive
+  // their notebook rows so old saves gain the keepsakes without new inventory
+  // records or a second saved authority.
+  if (cat_quest_stage >= 2 && !seenSpecial.has('Tarnished Coin')) {
+    specialItems.push({ name: 'Tarnished Coin' });
+  }
+  if (cat_quest_stage >= 3 && !seenSpecial.has('Bent Iron Key')) {
+    specialItems.push({ name: 'Bent Iron Key' });
+  }
   if (specialItems.length > 0) {
     notes.push({ header: 'SPECIAL ITEMS' });
     specialItems.forEach(it => {

@@ -55,7 +55,8 @@ third-member fixture, never production formations.
 The Rise road event is a production two-member-versus-three-enemy use of the
 existing canonical engine. `travellersRiseAmbush` owns deterministic field
 staging and dialogue; `scriptedPartyEncounters` authenticates the exact ordered
-Road Impostor, Bridled Hollow and Fen Handler formation. The three registered
+Highwayman, Bridled Hollow and Fen Handler formation (the legacy
+`enemy_road_impostor` ID is retained). The three registered
 templates require the closed `travellers_rise_ambush_lifecycle` capability; the
 Hollow additionally declares the already-supported `brace` capability. No enemy
 ID chooses its combat behavior, and defeating the Handler has no effect on the
@@ -271,9 +272,9 @@ record; its bare registry sentinel remains invalid encounter input.
   Troll heals at most its authored six HP after burn/Bomb ticks, without RNG or
   exceeding max HP. Terminal outcomes suppress it. Run-only rounds retain the
   legacy absence of regeneration. Trollbane consumes on any target; on a Troll
-  it suppresses an unexecuted action in that round and three later regeneration
-  checks. The application round does not decrement the counter; later ordinary
-  attacks are not stunned. Duplicates have independent suppression counters.
+  it suppresses an unexecuted action in that round and regeneration for the rest
+  of combat. Later ordinary attacks are not stunned. Duplicates have independent
+  battle-local suppression booleans; a new fight starts unsuppressed.
 - Thornback adds its authored 90 DEF only to melee Attack. As explicitly approved,
   an immediate 90% counter follows each melee attempt, even a miss, provided both
   actors survive and combat remains ongoing. It targets the exact triggering ally
@@ -313,7 +314,7 @@ remain authoritative. Contradictory armor/counter and regeneration/flight profil
 reject before installation. Arithmetic includes the actual armor-enhanced defence.
 
 Only the generalized round owner stores mutable enemy mechanic state. Snapshot
-`unusual` is closed: Troll `{suppressedTurns,suppressedRound}`; Gull
+`unusual` is closed: Troll `{healingSuppressed,suppressedRound}`; Gull
 `{stolenGold,stolenRound,departed}`. No global status, template mutation or second
 Lely record is introduced. A Gull battle additionally snapshots its shared `gold`
 purse; authenticated writeback updates `stats.gold` once. This is combat-only

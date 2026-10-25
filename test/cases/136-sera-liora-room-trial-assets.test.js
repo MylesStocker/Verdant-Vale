@@ -80,14 +80,19 @@ function alphaBounds(image) {
 module.exports = {
   name: 'Sera/Liora guest-room trial: preserved masters, lossless north rotation, scoped runtime references',
   run() {
-    const oldRoomSource = fs.readFileSync(rel('render-interiors.js'));
+    // Pin both guest-room fallback passes, including their intervening source,
+    // without pinning unrelated interiors such as the Hollis farmhouse. This
+    // exact 8,202-byte scope matches HEAD before the playtest refinements.
+    const oldRoomSource = fs.readFileSync(rel('render-interiors.js'), 'utf8')
+      .match(/function drawBethanyGuestRoom\(\) \{[\s\S]*?function drawBethanyGuestBedForeground\(\) \{[\s\S]*?\n\}/)?.[0];
+    assert.ok(oldRoomSource, 'both complete guest-room fallback passes are present');
     const roomMaster = fs.readFileSync(rel('Art/generated/sera-liora/guest-room-redraw-v1-master.png'));
     const original = fs.readFileSync(rel('Art/generated/sera-liora/liora-lying-side-head-right-waist-hair-v3.png'));
     const runtimeRoom = fs.readFileSync(rel('assets/backgrounds/cutaways/sera-liora/guest-room-redraw-v1-runtime.png'));
     const viewportPreview = fs.readFileSync(rel('Art/generated/sera-liora/guest-room-redraw-v1-viewport-preview.png'));
 
-    assert.equal(sha256(oldRoomSource), 'aa4f4fe0e17e3d59111fbb69d3e4207d5592622c99e31491b80c733d4d22909f',
-      'the complete code-native fallback room source remains byte-identical');
+    assert.equal(sha256(oldRoomSource), 'eb269f468b96c7729f6fdce0b903ac736a26d473137ae8d101ecc6bbb9123c69',
+      'the complete guest-room and bed-foreground fallback source remains byte-identical');
     assert.equal(sha256(roomMaster), '7f70e1752b094f15cd62b7defeff2719c845e0517ec3a4112acdd04da3075827',
       'the generated full-resolution room master remains byte-identical');
     assert.equal(sha256(original), 'e2cdf9bf2e2ddcb862c62e169e3cfb2ffd1480f6f2e4e75ad4cb6d773b2385df',

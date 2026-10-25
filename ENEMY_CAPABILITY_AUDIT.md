@@ -19,7 +19,9 @@ The two weighted tables share 16 compositions with different weights (32 records
 Case 200 exercises all records through the geographic bridge for one, two and
 three canonical members. Neither table is assigned to a production map yet.
 The original 20 flat pools retain their contents; the new registration-only pool
-is intentionally unrouted. All seven new templates use generic sprite fallback.
+is intentionally unrouted. All seven templates, plus Fen Zolom, now have authored programmatic creature
+sprites with measured singleton/formation bounds. Their former generic-art
+warnings are resolved; Takomo retains the existing generic fallback.
 
 Pass 3 audited the 60 exact identities in `ENEMY_TEMPLATE_REGISTRY`. Pass 4A added
 Brace and Pass 4B adds the seven established landed-hit riders; all fifteen
@@ -199,7 +201,7 @@ are documented in CANONICAL_PARTY_COMBAT.md.
 | Templates | Actual authored mechanic | Legacy execution authority |
 | --- | --- | --- |
 | `enemy_the_seep` | Guaranteed separate smaller-Seep battle after parent victory; no split chance draw. | `startCombat`, `handleCombatAction` victory branch, `startSeepSplitCombat` |
-| `enemy_rotwood_troll` | Up to 6 HP regeneration, with eligibility/amount captured when the legacy message queue is constructed; Trollbane suppresses the immediate response and three later regeneration checks. | `enemyRegenEntry`, item branch in `handleCombatAction`, suite 139 regeneration asymmetry sentinel |
+| `enemy_rotwood_troll` | Up to 6 HP regeneration, with eligibility/amount captured when the legacy message queue is constructed; Trollbane suppresses the immediate response and regeneration for the rest of combat. | `enemyRegenEntry`, item branch in `handleCombatAction`, suite 139 regeneration asymmetry sentinel |
 | `enemy_thornback` | +90 DEF against melee Attack only; independent 90% additional counter check after the normal exchange, including a missed melee attempt. | Attack branch in `handleCombatAction`, suite 139 Thornback sentinel |
 | `enemy_mire_toad_male` | 30% poison rider, hidden male identity, per-instance Observe progression, instant defeat by Jackbane. | `applyEnemyHitEffects`, `getObservationText`, reagent item branch |
 | `enemy_mire_toad_female` | Same poison and observation contracts; hidden female identity, instant defeat by Henbane. | Same authorities; distinct authored `sex` |
@@ -240,11 +242,11 @@ in the test. A multi-actor round needs an approved sampling boundary; neither th
 code nor that singleton test establishes one for several allied actions.
 
 Trollbane is consumed even on a non-regenerating target, where it has no effect.
-On a regenerating target it suppresses that turn's response and sets three heal
-suppression turns. The item-use branch skips its normal end-of-turn factories, so
-the application does not decrement the new counter. Later regeneration-eligible
-turns decrement it even at full HP. It does not generally suppress attacks on
-those later turns. This state is battle-only and must be per enemy instance.
+On a regenerating target it suppresses that turn's response and regeneration for
+the remainder of combat. Later ordinary attacks are not suppressed. Shared
+rounds store an independent `healingSuppressed` boolean per enemy; the singleton
+retains its legacy 0/1 marker. New fights reset suppression. Saved item metadata
+`stunTurns:3` remains inert for version-5 item rehydration compatibility.
 
 ### Thornback: armor and counter
 

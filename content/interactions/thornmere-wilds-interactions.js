@@ -170,7 +170,7 @@ function polwickLighthouseDialogue(npc) {
 
 // ─── Smuggler fort interaction ────────────────────────────────────────────────
 function interactSmugglerFort() {
-  if (fort_quest_stage === 0) {
+  if (fort_quest_stage === 0 || fort_quest_stage === 5) {
     // Polwick confrontation — triggers when near his position (col 7 row 4)
     const px = player.x - 7.5 * TILE;
     const py = player.y - 4.5 * TILE;

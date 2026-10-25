@@ -27,7 +27,9 @@ const SOLO_HASHES={
   "empty": "e09438d26b5b642e61e42ae8f6cce4b761c0a8f0128f33880ddd32a35712be4d",
   "loaded": "e738eefe6f59131b55bd7e6144b041771c2a51b1c7a261d5d1fe9680be60106e",
   "scroll": "97be437da3b184bf07a283d29104b358fa88fba93b708c03d772929555e46ec4",
-  "ailments": "8fae0d1ca4b8f3067e2a469e24a74413b843d4c80e1c7f201ce24ac8c4bf4343",
+  // Reviewed playtest change: only call 59 changes from "SPD +5 · wards poison"
+  // to "SPD +5" (same position/style); all other 68 calls match the recording.
+  "ailments": "675e09231704f2b1a887480e44a288ec15e96f7a1511359152b2565408e87fcf",
   "save": "1843275fc0b0399464cf96b2a9dfb67c6c474dc970d9a513b992b5eb71ef63cd",
   "load": "468027076f19c36815ea75cd47599081e9cb18a3369944f4eb2f82cd526a9910",
   "notebook": "ee4c77ee66dab5f02d6c4f4f8ebcd3ed947f0039e5ea222f09ebc08b7a54ce71",
@@ -37,7 +39,7 @@ const SOLO_CASES={empty:'',loaded:'stats.hp=11;stats.xp=42;stats.gold=73;stats.i
  scroll:'stats.items=["Potion","Elixir","Iron Sword","Bait","Reed Remedy","Amethyst Dust","Iron Shield"].map(createItem);menu.itemCursor=5;menu.scrollOffset=2;',
  ailments:'statusEffects=["cursed","muddied","slither","poison"];slitherSpd=13;stats.weapon=createItem("Iron Sword");stats.accessory=createItem("Fen Mask");',
  save:'menu.screen="saveConfirm";',load:'menu.screen="loadConfirm";',notebook:'menu.screen="notebook";',fallen:'stats.hp=0;'};
-test('eight historical solo menu recordings are draw-call identical with no future-party hints',()=>{
+test('eight solo menu recordings retain historical draw calls and the reviewed Fen Mask label without future-party hints',()=>{
  for(const [name,setup]of Object.entries(SOLO_CASES)){
   const g=fresh(false);g.run('menu.open=true;tick=32;'+setup);const p=draw(g);
   assert.equal(crypto.createHash('sha256').update(JSON.stringify(p)).digest('hex'),SOLO_HASHES[name],name);

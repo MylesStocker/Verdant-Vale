@@ -354,6 +354,7 @@ module.exports = {
     }
     assert.equal(g.run('SAVE_VERSION'), 5);
     const validation = J('JSON.stringify(validateGameData())');
-    assert.equal(validation.errors, 0); assert.equal(validation.warnings,14);
+    // Eight authored Fens sprites eliminate the former missing-art warnings.
+    assert.equal(validation.errors, 0); assert.equal(validation.warnings,6);
   },
 };

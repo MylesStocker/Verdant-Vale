@@ -83,18 +83,22 @@ test('malformed mechanics, forged generated records and unsafe combinations reje
  generated(g,0);reject(g,'canonicalPartyCombat.enter({enemies:[generated],escape:"blocked"})');
 });
 
-test('Troll regenerates from round-end HP; Trollbane skips its immediate action and three later heals',()=>{
+test('Troll regenerates from round-end HP; Trollbane skips its immediate action and prevents all later healing',()=>{
  const g=fresh(1);sturdy(g);g.run('stats.atk=14;stats.items=[{...ITEM_REGISTRY.Trollbane}]');enter(g,['enemy_rotwood_troll']);draft(g);
  let r=resolve(g,[...HIT,...HIT],{initiative:'allies'});assert.equal(g.run('used.length'),7);let regen=r.events.find(e=>e.type==='regeneration');assert.equal(regen.hpAfter-regen.hpBefore,6);historical(g,r);
  tamper(g,'altered.events.find(e=>e.type==="regeneration").hpAfter++');ack(g);item(g,'Trollbane');r=resolve(g,[],{initiative:'allies'});
- assert.equal(r.events.find(e=>e.type==='skip').reason,'trollbane');assert.equal(r.after.enemies[0].unusual.suppressedTurns,3);assert.equal(r.after.inventory.length,0);ack(g);
- for(let left=2;left>=0;left--){draft(g);r=resolve(g,[...HIT,...HIT]);assert.equal(r.after.enemies[0].unusual.suppressedTurns,left);regen=r.events.find(e=>e.type==='regeneration');assert.equal(regen.hpAfter,regen.hpBefore);ack(g);}
- draft(g);r=resolve(g,[...HIT,...HIT]);assert.equal(r.events.find(e=>e.type==='regeneration').hpAfter-r.events.find(e=>e.type==='regeneration').hpBefore,6);
+ assert.equal(r.events.find(e=>e.type==='skip').reason,'trollbane');assert.equal(r.after.enemies[0].unusual.healingSuppressed,true);assert.equal(r.after.inventory.length,0);ack(g);
+ for(let turn=0;turn<6;turn++){draft(g,'observe');r=resolve(g,HIT);assert.equal(r.after.enemies[0].unusual.healingSuppressed,true);regen=r.events.find(e=>e.type==='regeneration');assert.equal(regen.hpAfter,regen.hpBefore);ack(g);}
+ draft(g,'observe');r=resolve(g,HIT);regen=r.events.find(e=>e.type==='regeneration');assert.equal(regen.hpAfter,regen.hpBefore);historical(g,r);
+ tamper(g,'altered.after.enemies[0].unusual.healingSuppressed=false');ack(g);
+ draft(g,'run');r=resolve(g,[0],{initiative:'allies'});assert.equal(r.outcome,'escape');ack(g);finish(g);
+ enter(g,['enemy_rotwood_troll']);assert.equal(view(g).enemies[0].unusual.healingSuppressed,false);
+ draft(g);r=resolve(g,[...HIT,...HIT],{initiative:'allies'});regen=r.events.find(e=>e.type==='regeneration');assert.equal(regen.hpAfter-regen.hpBefore,6);
 });
 
 test('Trolls are independent; terminal kills never regenerate; mismatched Trollbane consumes',()=>{
  const g=fresh(1);sturdy(g);g.run('stats.items=[{...ITEM_REGISTRY.Trollbane}]');enter(g,['enemy_rotwood_troll','enemy_rotwood_troll']);item(g,'Trollbane',1);
- const r=resolve(g,[...HIT],{initiative:'allies'});assert.deepEqual(r.after.enemies.map(m=>m.unusual.suppressedTurns),[0,3]);assert.equal(r.events.filter(e=>e.type==='skip').length,1);historical(g,r);
+ const r=resolve(g,[...HIT],{initiative:'allies'});assert.deepEqual(r.after.enemies.map(m=>m.unusual.healingSuppressed),[false,true]);assert.equal(r.events.filter(e=>e.type==='skip').length,1);historical(g,r);
  const k=fresh(1);sturdy(k);k.run('stats.atk=500');enter(k,['enemy_rotwood_troll']);draft(k);const kill=resolve(k,HIT,{initiative:'allies'});assert.equal(kill.outcome,'victory');assert.ok(!kill.events.some(e=>e.type==='regeneration'));
  const m=fresh(1);sturdy(m);m.run('stats.items=[{...ITEM_REGISTRY.Trollbane}]');enter(m,['enemy_marsh_wisp']);item(m,'Trollbane');const mismatch=resolve(m,HIT,{initiative:'allies'});assert.equal(mismatch.after.inventory.length,0);assert.ok(!mismatch.events.some(e=>e.type==='skip'));
 });

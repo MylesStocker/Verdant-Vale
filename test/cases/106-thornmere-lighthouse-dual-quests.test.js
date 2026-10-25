@@ -353,6 +353,7 @@ module.exports = {
 
     g.run('day=1;'); // validation's NPC-overlap sweep has one documented Dayoff-only warning
     const validation = JSON.parse(g.run('JSON.stringify(validateGameData())'));
-    assert.equal(validation.errors, 0); assert.equal(validation.warnings,14);
+    // Eight authored Fens sprites eliminate the former missing-art warnings.
+    assert.equal(validation.errors, 0); assert.equal(validation.warnings,6);
   },
 };

@@ -194,9 +194,12 @@ The approved terrace/table returns through a white fade, with the travellers fac
 one another over an improvised breakfast. They choose a quiet garden walk through
 Bethany, agree to return before Skybloom and remember tomorrow's departure. A
 little-finger promise to stay together as always remains an intimate, unlabelled
-moment; it reveals no future outcome or connection to Lely. Existing sprites move
-closer for a small Canvas hand gesture, then return beside the table. Cup gestures
-mark a three-second presentation hold; confirm/cancel cannot skip it.
+moment; it reveals no future outcome or connection to Lely. Generated stills show
+both characters seated and eating, then linking pinkies. A two-second hold stays
+on the promise image; confirm/cancel cannot skip it. No post-promise eating
+animation remains. Null, Rainbow and Eclipse now have deterministic 24/30/42-frame
+effects driven by their shared-engine events; Eclipse is an expanding burst.
+These visuals never resolve damage, spend Strain or modify battle history.
 
 The final fade calls the existing infirmary completion authority exactly once.
 The same temporary story context/resources remain owned until that cleanup. Lely's

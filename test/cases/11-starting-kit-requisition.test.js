@@ -24,18 +24,15 @@ module.exports = {
       inTown = true; currentTownId = 'calwick'; townBuilding = 'office';
       player.x = 12 * TILE; player.y = 2.5 * TILE;
     `);
-    g.press('Enter'); // opens (page 0 of 4)
+    g.press('Enter'); // opens the greeting before the assignment
     assert.equal(g.run('dialogue.name'), 'Supervisor');
-    // 5 pages: the once-per-day "good morning" greeting (this IS the first
-    // conversation of the day) + the 4 assignment pages (sluice job +
+    // 6 pages: the once-per-day "good morning" greeting (this IS the first
+    // conversation of the day) + the 5 assignment pages (sluice job + hatch directions +
     // requisition slip + the road-danger warning).
-    assert.equal(g.run('dialogue.pages.length'), 5, 'first conversation: greeting + 4 assignment pages');
+    assert.equal(g.run('dialogue.pages.length'), 6, 'first conversation: greeting + 5 assignment pages');
     assert.ok(JSON.stringify(g.run('dialogue.pages[0]')).includes('Good morning'), 'first page of the day is the greeting');
-    g.press('Enter');
-    g.press('Enter');
-    g.press('Enter');
-    g.press('Enter');
-    g.press('Enter'); // advance through all 5 pages -> closes, runs callback
+    assert.match(g.run('dialogue.pages.flat().join(" ")'), /East Sluice hatch/);
+    for (let page = 0; page < 6; page++) g.press('Enter'); // closes and runs the existing ticket callback
 
     assert.equal(g.run('sluice_job_started'), true);
     assert.equal(g.run('equipment_ticket_ready'), true, 'Supervisor should issue the requisition ticket alongside the job');

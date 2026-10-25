@@ -44,7 +44,7 @@ const PALE_SENTRY_TEMPLATE = {
 // conditioned Hollow owns roughly half the formation's HP and retains the
 // ordinary Hollow's established Brace capability.
 const ROAD_IMPOSTOR_TEMPLATE = {
-  id:'enemy_road_impostor',name:'Road Impostor',hp:58,maxHp:58,atk:19,def:7,spd:11,
+  id:'enemy_road_impostor',name:'Highwayman',hp:58,maxHp:58,atk:19,def:7,spd:11,
   xp:45,goldMin:10,goldMax:18,
 };
 const BRIDLED_HOLLOW_TEMPLATE = {

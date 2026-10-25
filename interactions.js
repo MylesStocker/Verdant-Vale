@@ -224,6 +224,7 @@ function tryExamineWorldItem() {
 }
 
 function tryMapFeatures() {
+  if(typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.interact())return true;
   if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.interact())return true;
   const features = currentMapFeatures();
   if (!features) return false;
@@ -404,7 +405,7 @@ const ENCOUNTER_HANDLERS = {
   warden:       function() { startWardenCombat(); },
   fort_guard:   function() {
     startFortGuardCombat();
-    if (combat.active && combat.isFortGuard && fort_quest_stage===0) {
+    if (combat.active && combat.isFortGuard && (fort_quest_stage===0 || fort_quest_stage===5)) {
       fort_quest_stage=1; syncQuestFlagsToWindow();
     }
   },
@@ -940,7 +941,7 @@ function interactPlayerCat() {
       ['A small tarnished disc.',
        'Old currency \u2014 pre-Empire, from the markings.',
        'Worn smooth. Not worth anything now.'],
-      ['You have no idea where it found this.'],
+      ['You pick it up.', 'You have no idea where it found this.'],
     ];
     dialogue.callbacks = [function() {
       cat_quest_stage = 2;
@@ -950,16 +951,16 @@ function interactPlayerCat() {
     dialogue.page  = 0;
     return true;
   }
-  // ── Stage 2: player can look in the corner ──────────────────────────
+  // ── Stage 2: player can pick up the keepsakes ──────────────────────────
   if (cat_quest_stage === 2) {
     choice.title     = '';
-    choice.options   = ['Look in the corner', 'Pet', 'Leave'];
+    choice.options   = ['Pick up the keepsakes', 'Pet', 'Leave'];
     choice.cursor    = 0;
     choice.callbacks = [
       function look() {
         dialogue.name  = '';
         dialogue.pages = [
-          ['Under the table, in the far corner.'],
+          ['You pick up the little collection the cat has left at your feet.'],
           ['Three more coins. A glass button.',
            'A folded scrap of paper, water-damaged, unreadable.',
            'A small iron key \u2014 slightly bent \u2014 that fits nothing you own.'],

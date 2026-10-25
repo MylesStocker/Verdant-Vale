@@ -18,7 +18,7 @@ const travellersRiseAmbush=(()=>{
     Object.freeze({x:12.5,y:7.5,facing:'left'}),
   ]);
   const actors=[
-    {id:'travellers_rise_road_impostor',name:'Road Impostor',map:CONTENT_KEY,physicalMapId:MAP_ID,
+    {id:'travellers_rise_road_impostor',name:'Highwayman',map:CONTENT_KEY,physicalMapId:MAP_ID,
       x:homes[0].x*TILE,y:homes[0].y*TILE,facing:homes[0].facing,solid:true,spriteType:'worker'},
     {id:'travellers_rise_cloaked_hollow',name:'Cloaked Traveller',map:CONTENT_KEY,physicalMapId:MAP_ID,
       x:homes[1].x*TILE,y:homes[1].y*TILE,facing:homes[1].facing,solid:true,spriteType:'traveler'},
@@ -112,42 +112,24 @@ const travellersRiseAmbush=(()=>{
     if(!scriptedPartyEncounters.validate('startTravellersRiseAmbush'))fail('canonical formation rejected');
     return true;
   };
-  const startBattle=pay=>{
-    const begin=()=>{
-      try{
-        const battle=scriptedPartyEncounters.startTravellersRise(pay&&!travellers_rise_ambush_paid);
-        if(!battle)fail('combat activation rejected');
-        phase='battle';return battle;
-      }catch(error){abort(error);return false;}
-    };
+  const startBattle=()=>{
     try{
-      const amount=pay&&!travellers_rise_ambush_paid?Math.min(100,stats.gold):0;
-      if(pay&&!travellers_rise_ambush_paid){
-        phase='payment';openPages([{speakerId:null,lines:[amount===100
-          ?'You hand over 100 gold.'
-          :'You hand over the '+amount+' gold you have.']}],begin);return true;
-      }
-      return begin();
+      const battle=scriptedPartyEncounters.startTravellersRise(false);
+      if(!battle)fail('combat activation rejected');
+      phase='battle';return battle;
     }catch(error){abort(error);return false;}
-  };
-  const openDemand=()=>{
-    phase='choice';choice.title='The ambushers demand your packs.';
-    choice.options=['Refuse','Hand over 100 gold'];choice.cursor=0;
-    choice.callbacks=[()=>startBattle(false),()=>startBattle(true)];choice.open=true;
   };
   const reveal=()=>{
     revealed=true;phase='reveal';
     actors.forEach((actor,i)=>actor.facing=destinations[i].facing);
-    const retry=travellers_rise_ambush_paid;
-    openPages(retry?[
-      {speakerId:'esla',lines:['“They’re closing in again.”']},
-      {speakerId:'fen_handler',lines:['“It knows the whistle.”']},
-    ]:[
+    openPages([
       {speakerId:'esla',lines:['“That thing is waiting for you.”']},
       {speakerId:'fen_handler',lines:['“It knows the whistle.”']},
       {speakerId:'lely',lines:['“No. It knows what comes after.”']},
       {speakerId:'road_impostor',lines:['“Packs. Now.”']},
-    ],retry?()=>startBattle(false):openDemand);
+      {speakerId:'esla',lines:['“We’re not handing over anything. Get out of our way.”']},
+      {speakerId:'road_impostor',lines:['“Then we’ll take them off your bodies.”']},
+    ],startBattle);
   };
   const startRoutes=()=>{
     try{
@@ -183,11 +165,24 @@ const travellersRiseAmbush=(()=>{
       if(!here){armed=true;return false;}if(!armed)return false;
       armed=false;try{return begin();}catch(error){abort(error);return true;}
     },
+    // Ordinary conversation is separate from the deliberate road trigger.
+    // It never installs routes from an arbitrary player position.
+    interact(){
+      if(phase!=='idle'||!visible()||entryBusy())return false;
+      const index=actors.findIndex(actor=>nearPlayer(actor.x,actor.y));if(index<0)return false;
+      const pages=[
+        {speakerId:'road_impostor',lines:['“Road’s worse east of here. We’re taking travellers through in a group before the light goes.”',
+          '“Road office. If you want through, do as you’re told.”']},
+        {speakerId:null,lines:['The cloaked traveller says nothing.']},
+        {speakerId:'fen_handler',lines:['“Stand here arguing if you like. We’re moving.”']},
+      ];
+      openPages([pages[index]]);return true;
+    },
     // Read-only story gate, independent of terrain and structural seams. The
     // movement owner checks an attempted exit, never map loading or rendering.
     blocksExit(mapId,direction){return mapId===MAP_ID&&direction==='east'&&
       (storyEligible()||travellersRiseCamp.blocksEast());},
-    isExclusive(){return ['opening','walking','reveal','choice','payment','aftermath'].includes(phase);},
+    isExclusive(){return ['opening','walking','reveal','aftermath'].includes(phase);},
     blocksSaveLoad(){return this.isExclusive()||phase==='battle';},
     blocksPosition(x,y){return visible()&&actors.some(actor=>Math.abs(x-actor.x)<18&&Math.abs(y-actor.y)<18);},
     update(){
@@ -208,6 +203,13 @@ const travellersRiseAmbush=(()=>{
       resetActors();
       if(result.outcome==='victory'){
         travellers_rise_ambush_complete=true;syncQuestFlagsToWindow();phase='idle';
+        // Canonical combat already granted these rewards. This acknowledgement
+        // only presents its authenticated receipt; it never grants a second award.
+        const rewards=result.rewards;
+        if(rewards)openPages([{speakerId:null,lines:[
+          `Gained ${rewards.xp} XP and ${rewards.gold} gold.`,
+          ...rewards.items.map(item=>'Found: '+item+'.'),
+        ]}]);
         // The camp owner waits for cleanup and every reward/level-up page.
       }else{phase='idle';armed=result.outcome==='defeat';}
       return true;

@@ -9,7 +9,7 @@ const seraLioraBreakfastBattle=(()=>{
     ['breakfast_battle_fade','breakfast_battle','breakfast_retry','breakfast_aftermath',
       'breakfast_storeroom_assets','breakfast_storeroom_intro','breakfast_storeroom_aftermath',
       'breakfast_ending_return','breakfast_ending_arrival','breakfast_ending_dialogue','breakfast_ending_promise',
-      'breakfast_ending_eating','breakfast_ending_departure','breakfast_ending_complete'].includes(seraLioraCutscene.phase);
+      'breakfast_ending_promise_hold','breakfast_ending_departure','breakfast_ending_complete'].includes(seraLioraCutscene.phase);
   const bridge=storyBattle.claimSceneBridge(ownsScene);
   const current=s=>state===s&&s.epoch===seraLioraBreakfast.epoch&&seraLioraCutscene.active;
   const clearInput=()=>clearSeraLioraMovementKeys();
@@ -53,12 +53,12 @@ const seraLioraBreakfastBattle=(()=>{
       {speakerId:'sera',lines:['Of course we will. Together, as always. Pinky promise?']},
       {speakerId:null,lines:['Sera holds out a little finger. Liora hooks hers around it.']},
       {speakerId:'liora',lines:['Pinky promise.']},
-      {speakerId:'sera',lines:['Now eat, before we have to rescue it again.']},
+      {speakerId:'sera',lines:['Together, as always.']},
     ],'breakfast_ending_promise',()=>{
       if(!current(s)||s.stage!=='promise')return;
       setBreakfastActor('sera',{x:110});
       setBreakfastActor('liora',{x:200});
-      s.stage='eating';s.endingElapsed=0;seraLioraCutscene.phase='breakfast_ending_eating';clearInput();
+      s.stage='promise_hold';s.endingElapsed=0;seraLioraCutscene.phase='breakfast_ending_promise_hold';clearInput();
     });
   };
   const beginEndingDialogue=s=>{
@@ -88,9 +88,9 @@ const seraLioraBreakfastBattle=(()=>{
     }else if(s.stage==='ending_fade_in'){
       seraLioraBreakfast.fade=Math.max(0,seraLioraBreakfast.fade-dt/SERA_LIORA_BREAKFAST.fadeSeconds);
       if(seraLioraBreakfast.fade===0)beginEndingDialogue(s);
-    }else if(s.stage==='eating'){
-      s.endingElapsed=Math.min(3,s.endingElapsed+dt);
-      if(s.endingElapsed>=3-1e-9){
+    }else if(s.stage==='promise_hold'){
+      s.endingElapsed=Math.min(2,s.endingElapsed+dt);
+      if(s.endingElapsed>=2-1e-9){
         s.stage='ending_departure_fade';seraLioraBreakfast.fade=0;seraLioraCutscene.phase='breakfast_ending_departure';
       }
     }else if(s.stage==='ending_departure_fade'){
@@ -162,6 +162,10 @@ const seraLioraBreakfastBattle=(()=>{
     hasWon(){return !!state?.firstCleared;},
     isStoreroom(){return state?.scene==='storeroom';},
     isEndingTerrace(){return state?.scene==='terrace';},
+    endingBackgroundId(){
+      return ['promise','promise_hold','ending_departure_fade'].includes(state?.stage)
+        ? 'cutaway_bethany_breakfast_promise_v1' : 'cutaway_bethany_breakfast_meal_v1';
+    },
     getState(){return state?copyFormationData({stage:state.stage,fight:state.fight,attempt:state.attempt,failure:state.failure,
       firstCleared:state.firstCleared,secondCleared:state.secondCleared,endingElapsed:state.endingElapsed||0,
       resources:state.token?storyBattle.getState(state.token):null}):null;},
@@ -174,14 +178,14 @@ const seraLioraBreakfastBattle=(()=>{
     },
     reset(){
       if(state?.token)storyBattle.discard(state.token);
-      state=null;partyBattleQuickbloomAnimation.reset();return true;
+      state=null;partyBattleQuickbloomAnimation.reset();partyBattleOffensiveResonanceAnimation.reset();return true;
     },
     update(seconds){
       const s=state;if(!s)return;
       if(!current(s)){this.reset();return;}
       const dt=Number.isFinite(seconds)?Math.max(0,Math.min(seconds,0.05)):MS_PER_FRAME/1000;
       if(s.stage==='battle'){
-        try{partyBattleQuickbloomAnimation.update(this.getView(),dt);}catch(error){fault(error);}return;
+        try{partyBattleQuickbloomAnimation.update(this.getView(),dt);partyBattleOffensiveResonanceAnimation.update(this.getView(),dt);}catch(error){fault(error);}return;
       }
       try{updateEnding(s,dt);}catch(error){fault(error);}
       if(!current(s))return;
@@ -212,28 +216,10 @@ const seraLioraBreakfastBattle=(()=>{
           ready:{confirm:['commitRound'],cancel:['backtrack']},playback:{confirm:['advancePlayback']},
           playback_complete:{confirm:['acknowledgePlayback']},
         };
-        if(phase==='playback'&&partyBattleQuickbloomAnimation.blocksAdvance(v))return true;
+        if(phase==='playback'&&(partyBattleQuickbloomAnimation.blocksAdvance(v)||partyBattleOffensiveResonanceAnimation.blocksAdvance(v)))return true;
         const action=dispatch[phase]?.[command];if(action)storyBattle.act(s.token,...action);
       }catch(error){fault(error);}
       return true;
-    },
-    drawEndingActors(){
-      const w=seraLioraGuestRoomWalk,c=seraLioraCourtyard;
-      drawLayeredScene([
-        {id:'sera',layer:'world',depth:w.y,draw:()=>drawSeraLioraSceneSera(seraLioraSceneSeraView())},
-        {id:'liora',layer:'world',depth:c.lioraY,draw:()=>drawSeraLioraCourtyardLiora({x:c.lioraX,y:c.lioraY,facing:c.lioraFacing,frame:1})},
-      ]);
-      // Minimal scene gestures reuse the approved standing sprites and table.
-      // All animation derives from the update-owned presentation clock.
-      if(state?.stage==='promise'&&dialogue.page>=2){
-        ctx.save();ctx.strokeStyle='#e7bd9b';ctx.lineWidth=4;ctx.lineCap='round';ctx.lineJoin='round';
-        ctx.beginPath();ctx.moveTo(133,205);ctx.lineTo(147,210);ctx.lineTo(155,207);ctx.lineTo(160,211);
-        ctx.moveTo(177,205);ctx.lineTo(164,210);ctx.lineTo(158,207);ctx.lineTo(154,212);ctx.stroke();ctx.restore();
-      }
-      if(state?.stage==='eating'){
-        const lift=Math.round((1+Math.sin(state.endingElapsed*Math.PI*2))*2);
-        for(const x of [137,174]){ctx.fillStyle='#e4dac4';ctx.fillRect(x,211-lift,8,6);ctx.fillStyle='#526e76';ctx.fillRect(x+1,211-lift,6,2);}
-      }
     },
     drawStoreroomBackground(){
       const id=state?.secondCleared?'cutaway_bethany_storeroom_flour_v1':'cutaway_bethany_storeroom_v1';

@@ -58,6 +58,8 @@ module.exports = {
   name: 'Sera/Liora raster integration: cache, anchors, bed layers, portraits, cold wait, fallback',
   async run() {
     const expected = {
+      cutaway_bethany_breakfast_meal_v1: ['assets/backgrounds/cutaways/sera-liora/breakfast-v1/seated-meal-v1.png',512,480,null,null,2],
+      cutaway_bethany_breakfast_promise_v1: ['assets/backgrounds/cutaways/sera-liora/breakfast-v1/pinky-promise-v1.png',512,480,null,null,2],
       cutaway_bethany_storeroom_flour_v1: ['assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png',512,480,null,null,2],
       cutaway_bethany_storeroom_v1: ['assets/backgrounds/cutaways/sera-liora/storeroom-v1.png',512,480,null,null,2],
       cutaway_bethany_breakfast_v1: ['assets/backgrounds/cutaways/sera-liora/breakfast-v1/terrace.png',512,480,null,null,2],
@@ -126,7 +128,7 @@ module.exports = {
 
     installImmediateImages(g);
     g.run('debugPlaySeraLioraCutaway()');
-    assert.equal(g.run('__imageConstructions'), 17, 'the bundle constructs the room, bed states, standing/walking actors, fallback, and portraits');
+    assert.equal(g.run('__imageConstructions'), 19, 'the bundle constructs the room, bed states, standing/walking actors, portraits, and both ending stills');
     assert.equal(g.run("IMAGE_ASSET_BUNDLES.sera_liora_opening.every(function(id){return imageAssetRuntime(id).status==='loaded';})"), true);
     assert.equal(g.run('dialogue.portraitId'), null, 'first white line has no portrait');
     assert.equal(g.run('dialogue.portraitSide'), null);
@@ -263,7 +265,7 @@ module.exports = {
     failed.press(' '); failed.frames(30);
     assert.equal(failed.run('activeMap === DRENWICK_INFIRMARY_MAP'), true, 'asset failures do not interrupt hospital handoff');
     failed.run('debugPlaySeraLioraCutaway()');
-    assert.equal(failed.run('__imageConstructions'), 17, 'warm replay constructs no replacement images');
+    assert.equal(failed.run('__imageConstructions'), 19, 'warm replay constructs no replacement images');
     assert.equal(failed.run('seraLioraCutscene.startCount'), 2);
 
     const saveCtx = createContext(); saveCtx.press('Enter'); saveCtx.press('Enter');

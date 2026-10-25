@@ -125,13 +125,14 @@ module.exports = {
     g.run("placeAtLocation('EASTERN_BANK_MAP',5.5*TILE,8.5*TILE)");
 
     // Return trip uses the same route/controller and reverses monotonically.
-    g.run('dialogue.open=false;choice.open=false');
+    g.run('dialogue.open=false;choice.open=false;stats.gold=10');
     assert.equal(g.run('crossCausewayFerry()'), true);
     const reverse = [];
     for (let i = 0; i < duration - 1; i++) { reverse.push(J(g, 'waterTravelController.getView()').x); g.frames(1); }
     assert.ok(reverse.every((x, i) => i === 0 || x <= reverse[i - 1]), 'westbound progress reverses');
     g.frames(1);
     assert.equal(g.run('mapIdForRef(activeMap)'), WEST);
+    assert.equal(g.run('stats.gold'), 0, 'exact return fare settles once');
     assert.equal(g.run('player.x'), 10.5 * g.run('TILE'));
 
     // An unexpected arrival failure leaves the departure untouched and releases ownership.

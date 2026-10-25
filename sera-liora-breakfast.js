@@ -228,6 +228,9 @@ function updateSeraLioraBreakfast(deltaSeconds) {
   }
 }
 function drawSeraLioraBreakfast() {
+  if(seraLioraBreakfastBattle.isEndingTerrace()){
+    ctx.drawImage(loadedImageAsset(seraLioraBreakfastBattle.endingBackgroundId()),0,0);return;
+  }
   if(seraLioraBreakfastBattle.isStoreroom()){seraLioraBreakfastBattle.drawStoreroomBackground();return;}
   ctx.drawImage(loadedImageAsset('cutaway_bethany_breakfast_v1'),0,0);
   if(seraLioraBreakfast.gateOpen){const r=SERA_LIORA_BREAKFAST.gatePatch;
@@ -251,7 +254,8 @@ function drawBreakfastBeetle(p) {
   ctx.drawImage(loadedImageAsset('cutaway_buzzy_beetle_scene_v1'),p.frame*128+r[0],r[1],r[2]-r[0],r[3]-r[1],-width/2,-height,width,height);ctx.restore();
 }
 function drawSeraLioraBreakfastActors() {
-  if(seraLioraBreakfastBattle.isEndingTerrace()){seraLioraBreakfastBattle.drawEndingActors();return;}
+  // The ending stills include both seated actors; never overlay standing sprites.
+  if(seraLioraBreakfastBattle.isEndingTerrace())return;
   if(seraLioraBreakfastBattle.isStoreroom()){seraLioraBreakfastBattle.drawStoreroomActors();return;}
   const w=seraLioraGuestRoomWalk,c=seraLioraCourtyard;
   const entries=[{id:'sera',layer:'world',depth:w.y,draw:()=>drawSeraLioraSceneSera(seraLioraSceneSeraView())},

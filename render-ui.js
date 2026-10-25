@@ -798,7 +798,7 @@ const DIALOGUE_TEXT_STYLES = Object.freeze({
     bodyFont: '14px "Courier New", monospace',
     nameFont: 'bold 13px "Courier New", monospace',
     promptFont: 'bold 12px "Courier New", monospace',
-    bodyColor: '#a8e89c', nameColor: '#8fda86', promptColor: '#8fda86',
+    bodyColor: '#a8e89c', nameColor: '#8ac8d8', promptColor: '#8ac8d8',
     boxColor: '#08121e', outerBorderColor: '#5a8a9a',
     innerBorderColor: '#2a4e5e', cornerColor: '#8ac8d8', lineHeight: 22,
   }),
@@ -809,6 +809,39 @@ function dialogueTextStyle(styleId) {
 }
 window.DIALOGUE_TEXT_STYLES = DIALOGUE_TEXT_STYLES;
 window.dialogueTextStyle = dialogueTextStyle;
+
+// Derived paint data belongs to the visual page array, not the save/game state.
+// Explicit Esla metadata chooses the voice; curly quotation marks distinguish
+// her speech from narration within that voice's authored page. Quote state is
+// carried through wrapping, height pagination and adjacent Esla source pages.
+const dialogueBodyRunCache = new WeakMap();
+function eslaDialogueVisualRuns(authored, visual, quoteOpen = false) {
+  const source = authored.join('\n');
+  const quoted = quoteOpen || /[“”]/.test(source);
+  const colors = [];
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
+    if (char === '“') quoteOpen = true;
+    colors.push(!quoted || quoteOpen || char === '”'
+      ? DIALOGUE_TEXT_STYLES[ESLA_DIALOGUE_STYLE_ID].bodyColor
+      : DIALOGUE_TEXT_STYLES.default.bodyColor);
+    if (char === '”') quoteOpen = false;
+  }
+  let cursor = 0;
+  const pages = visual.map(page => page.map(line => {
+    const start = source.indexOf(line, cursor);
+    cursor = start + line.length;
+    const runs = [];
+    for (let i = 0; i < line.length; i++) {
+      const color = colors[start + i];
+      const last = runs[runs.length - 1];
+      if (last && last.color === color) last.text += line[i];
+      else runs.push({text: line[i], color});
+    }
+    return runs;
+  }));
+  return {pages, quoteOpen};
+}
 
 // Portraits are optional. A missing/failed image returns the untouched legacy
 // geometry; successful portrait pages reserve a consistent 88px side column
@@ -924,7 +957,8 @@ function drawDialogue() {
     const sourcePages = dialogue.pages;
     const sourceSpeakers = dialogue._speakerPagesFor === sourcePages ? dialogue.pageSpeakers : null;
     if (sourceSpeakers) {
-      const pages = [], speakers = [];
+      const pages = [], speakers = [], bodyRuns = [];
+      let eslaQuoteOpen = false;
       sourcePages.forEach((page, index) => {
         const speakerId = sourceSpeakers[index];
         const pageStyle = dialogueTextStyle(speakerId === null ? null :
@@ -932,9 +966,16 @@ function drawDialogue() {
         ctx.font = pageStyle.bodyFont;
         const pageMaxVisLines = Math.max(1, Math.floor((BH - 40) / pageStyle.lineHeight));
         const visual = paginateDialoguePages([page], maxLineW, pageMaxVisLines, measure);
-        for (const part of visual) { pages.push(part); speakers.push(speakerId); }
+        const speech = speakerId === 'esla'
+          ? eslaDialogueVisualRuns(page, visual, eslaQuoteOpen) : null;
+        eslaQuoteOpen = speech ? speech.quoteOpen : false;
+        visual.forEach((part, partIndex) => {
+          pages.push(part); speakers.push(speakerId);
+          bodyRuns.push(speech ? speech.pages[partIndex] : null);
+        });
       });
       dialogue.pages = Object.freeze(pages.map(page => Object.freeze(page)));
+      dialogueBodyRunCache.set(dialogue.pages, bodyRuns);
       dialogue.pageSpeakers = Object.freeze(speakers);
       dialogue._speakerPagesFor = dialogue.pages;
     } else {
@@ -955,8 +996,21 @@ function drawDialogue() {
   // the fort Essa's stage-0 fallback.)
   const lines = dialogue.pages[dialogue.page] || [];
   let lineY = BY + 52;
-  for (const subline of lines) {
-    ctx.fillText(subline, layout.textX, lineY);
+  const bodyRuns = dialogueBodyRunCache.get(dialogue.pages);
+  const pageRuns = bodyRuns && bodyRuns[dialogue.page];
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const runs = pageRuns && pageRuns[lineIndex];
+    if (runs) {
+      let lineX = layout.textX;
+      for (const run of runs) {
+        ctx.fillStyle = run.color;
+        ctx.fillText(run.text, lineX, lineY);
+        lineX += ctx.measureText(run.text).width;
+      }
+    } else {
+      ctx.fillStyle = style.bodyColor;
+      ctx.fillText(lines[lineIndex], layout.textX, lineY);
+    }
     lineY += style.lineHeight;
   }
 
