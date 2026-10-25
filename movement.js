@@ -576,12 +576,14 @@ function seraLioraFootprintWalkable(x, y) {
 }
 
 function seraLioraMovementKeyDown(key) {
-  return !!keys[key] || !!keys[key.toUpperCase()];
+  const arrow = ({w:'ArrowUp',a:'ArrowLeft',s:'ArrowDown',d:'ArrowRight'})[key];
+  return !!keys[key] || !!keys[key.toUpperCase()] || !!keys[arrow];
 }
 
 function noteSeraLioraMovementKey(key) {
   if (!seraLioraGuestRoomWalk.active || seraLioraGuestRoomWalk.inputLocked || dialogue.open || typeof key !== 'string') return;
-  const facing = ({ w: 'up', a: 'left', s: 'down', d: 'right' })[key.toLowerCase()];
+  const facing = ({ w: 'up', a: 'left', s: 'down', d: 'right',
+    arrowup:'up',arrowleft:'left',arrowdown:'down',arrowright:'right' })[key.toLowerCase()];
   if (!facing || facing === seraLioraGuestRoomWalk.facing) return;
   seraLioraGuestRoomWalk.facing = facing;
   seraLioraGuestRoomWalk.animationTime = 0;

@@ -201,7 +201,10 @@ animation remains. Null, Rainbow and Eclipse now have deterministic 24/30/42-fra
 effects driven by their shared-engine events; Eclipse is an expanding burst.
 These visuals never resolve damage, spend Strain or modify battle history.
 
-The final fade calls the existing infirmary completion authority exactly once.
+The final fade leads to a three-second “Chapter 2” title card, then calls the
+existing infirmary completion authority exactly once. The card remains input
+locked and unsavable; it adds no saved state. Arrow keys and WASD both control
+the local Sera actor during the room, courtyard and breakfast free-walk phases.
 The same temporary story context/resources remain owned until that cleanup. Lely's
 HP, statuses, inventory, equipment, money, experience, party and day are preserved;
 her infirmary placement and the existing story-only opening-complete flag follow

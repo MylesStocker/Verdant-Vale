@@ -1,5 +1,7 @@
 'use strict';
 
+const SERA_LIORA_CHAPTER_CARD_SECONDS = 3;
+
 // Scene ownership only. Every action, resource, initiative draw and historical
 // frame belongs to storyBattle and the ordinary party command engine.
 const seraLioraBreakfastBattle=(()=>{
@@ -9,7 +11,7 @@ const seraLioraBreakfastBattle=(()=>{
     ['breakfast_battle_fade','breakfast_battle','breakfast_retry','breakfast_aftermath',
       'breakfast_storeroom_assets','breakfast_storeroom_intro','breakfast_storeroom_aftermath',
       'breakfast_ending_return','breakfast_ending_arrival','breakfast_ending_dialogue','breakfast_ending_promise',
-      'breakfast_ending_promise_hold','breakfast_ending_departure','breakfast_ending_complete'].includes(seraLioraCutscene.phase);
+      'breakfast_ending_promise_hold','breakfast_ending_departure','breakfast_ending_chapter','breakfast_ending_complete'].includes(seraLioraCutscene.phase);
   const bridge=storyBattle.claimSceneBridge(ownsScene);
   const current=s=>state===s&&s.epoch===seraLioraBreakfast.epoch&&seraLioraCutscene.active;
   const clearInput=()=>clearSeraLioraMovementKeys();
@@ -96,6 +98,12 @@ const seraLioraBreakfastBattle=(()=>{
     }else if(s.stage==='ending_departure_fade'){
       seraLioraBreakfast.fade=Math.min(1,seraLioraBreakfast.fade+dt/SERA_LIORA_BREAKFAST.fadeSeconds);
       if(seraLioraBreakfast.fade===1){
+        s.stage='chapter_card';s.endingElapsed=0;
+        seraLioraCutscene.phase='breakfast_ending_chapter';clearInput();
+      }
+    }else if(s.stage==='chapter_card'){
+      s.endingElapsed=Math.min(SERA_LIORA_CHAPTER_CARD_SECONDS,s.endingElapsed+dt);
+      if(s.endingElapsed>=SERA_LIORA_CHAPTER_CARD_SECONDS-1e-9){
         s.stage='completing';seraLioraCutscene.phase='breakfast_ending_complete';
         if(!endSeraLioraCutawayAtHospital())throw Error('Breakfast completion rejected');
         return; // hospital cleanup owns every subsequent state write
@@ -238,6 +246,14 @@ const seraLioraBreakfastBattle=(()=>{
     draw(){
       if(!state)return false;
       if(state.stage==='battle')return drawPartyBattle(this.getView());
+      if(state.stage==='chapter_card'){
+        ctx.save();ctx.fillStyle='#08121e';ctx.fillRect(0,0,512,480);
+        ctx.globalAlpha=Math.max(0,Math.min(1,state.endingElapsed/.4,
+          (SERA_LIORA_CHAPTER_CARD_SECONDS-state.endingElapsed)/.4));
+        ctx.fillStyle='#e8d9aa';ctx.font='bold 28px "Courier New", monospace';
+        ctx.textAlign='center';ctx.fillText('Chapter 2',256,248);ctx.restore();
+        return true;
+      }
       if(['fault','assets'].includes(state.stage)){
         ctx.fillStyle='#0c121c';ctx.fillRect(0,0,512,480);ctx.fillStyle='#e0d0c0';ctx.font='13px "Courier New", monospace';
         ctx.fillText(state.stage==='assets'?'Loading breakfast scene…':'Battle stopped. Reload or apply a story checkpoint.',16,220,480);

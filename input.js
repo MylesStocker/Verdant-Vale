@@ -306,7 +306,7 @@ window.addEventListener('keydown', e => {
   if (!pressedKeys[e.key]) {  // fire-once for all action keys
     if (seraLioraCutscene.active) {
       // The opening is fully locked until its final page closes. The brief
-      // playable tail accepts only local Sera WASD state and the established
+      // playable tail accepts local Sera WASD/arrow state and the established
       // Space/Enter interaction action; ordinary player-mode commands remain
       // unavailable throughout the cutaway.
       if (dialogue.open && (e.key === ' ' || e.key === 'Enter')) {

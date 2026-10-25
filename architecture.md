@@ -4967,3 +4967,10 @@ entry. Debug replay preserves current flags and canonical resources. Helpers now
 follow the natural ending; the temporary direct hospital-completion test bypass
 is removed. Suites 267/268 retain accepted fight/reveal/retry coverage; suite 269
 covers final timing, completion, held input, reset, replay and fault isolation.
+
+The ending fade now leads to a three-second `chapter_card` presentation showing
+“Chapter 2” before the hospital handoff. It retains the same scene/context/input
+ownership; completion and the existing story flag occur only after the card.
+The renderer reads the bounded presentation clock without advancing it. Room,
+courtyard and breakfast movement accept arrow keys alongside WASD through the
+same local movement/collision authority; both aliases clear at control handoffs.

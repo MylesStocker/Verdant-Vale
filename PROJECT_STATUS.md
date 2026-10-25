@@ -2241,3 +2241,11 @@ Null/Rainbow/Eclipse effects and the seated-breakfast/pinky-promise stills retai
 the accepted shared-engine mechanics, current-fight retries, blocked Run and
 Lely isolation. The promise pauses for two seconds before exactly-once hospital
 completion. Runtime remains SAVE_VERSION 5. Changes are local and uncommitted.
+
+### Cutaway arrow controls and Chapter 2
+
+Arrow keys now share the cutaway’s WASD movement, facing, animation and collision
+path in all three playable areas; held aliases clear when scripted control ends.
+After the final promise/fade, an owned three-second “Chapter 2” card appears before
+Lély’s infirmary awakening. Input/save ownership and the existing completion flag
+remain with the scene until the card finishes. No maps or save fields change.

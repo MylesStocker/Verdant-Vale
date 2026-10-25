@@ -51,6 +51,7 @@
    check(glyphs.length>0&&overflow.length===0,'Actual painted glyphs fit '+label);
   }
   for(const scale of [1,2]){
+   const walkKey=key=>scale===2?({w:'ArrowUp',a:'ArrowLeft',s:'ArrowDown',d:'ArrowRight'}[key]||key):key;
    check(storyCheckpointLab.apply('mq5_assignment_ready'),'Starting fixture '+scale);dialogue.open=false;worldToastTimer=0;
    canvas.style.width=512*scale+'px';canvas.style.height=480*scale+'px';
    const before=resources(),beforeOpening=sera_liora_opening_complete;
@@ -58,12 +59,12 @@
    tap('Enter');for(let n=0;n<18;n++)update(1/60);tap('Enter');for(let n=0;n<40;n++)update(1/60);
    while(seraLioraCutscene.beat<21)tap('Enter');tap('Enter');
    check(seraLioraCutscene.phase==='free_walk','Bedroom remains playable '+scale);
-   hold('s',30);hold('a',130);hold('w',120);hold('a',60);tap('a');
+   hold(walkKey('s'),30);hold(walkKey('a'),130);hold(walkKey('w'),120);hold(walkKey('a'),60);tap(walkKey('a'));
    check(seraLioraDoorInteractionAvailable(),'Reach bedroom door through controls '+scale);tap('Enter');
    check(seraLioraCutscene.phase==='courtyard_free'&&!seraLioraCourtyard.lioraVisible,'Solo courtyard arrival '+scale);
    check(seraLioraGuestRoomWalk.completionCount===0,'Door does not complete '+scale);capture('arrival-'+scale+'x');
    check(!canSaveHere()&&!saveGame(),'Courtyard uses existing unsaved cutaway policy '+scale);
-   hold('s',20);hold('d',110);
+   hold(walkKey('s'),20);hold(walkKey('d'),110);
    check(seraLioraCutscene.phase==='courtyard_call','Unavoidable call '+scale);
    const stop=[seraLioraGuestRoomWalk.x,seraLioraGuestRoomWalk.y,seraLioraGuestRoomWalk.facing];
    check(stop[2]==='left'&&!seraLioraGuestRoomWalk.moving,'Sera stops and turns '+scale);capture('call-'+scale+'x');
@@ -98,8 +99,8 @@
    capture('breakfast-arrival-'+scale+'x');
    check(!seraLioraBreakfast.gateOpen&&!breakfastFloorWalkable(345,303),'Inner barrier contains the yard '+scale);
    check(breakfastBeetleViews().length===2&&new Set(breakfastBeetleViews().map(b=>b.id)).size===2,'Two separate beetles '+scale);
-   hold('w',33);tap('Enter');check(dialogue.open&&dialogue.pages[0][0]==='Two places are set. Neither has breakfast.','Unserved table inspection '+scale);tap('Enter');hold('s',33);
-   hold('d',45);check(seraLioraCutscene.phase==='breakfast_problem','Keeper interruption '+scale);
+   hold(walkKey('w'),33);tap('Enter');check(dialogue.open&&dialogue.pages[0][0]==='Two places are set. Neither has breakfast.','Unserved table inspection '+scale);tap('Enter');hold(walkKey('s'),33);
+   hold(walkKey('d'),45);check(seraLioraCutscene.phase==='breakfast_problem','Keeper interruption '+scale);
    let spoken=0;
    while(seraLioraCutscene.phase==='breakfast_problem'&&spoken++<12){paintDialogue('Keeper '+scale+':'+spoken);tap('Enter');}
    let staged=0,openCapture=false;
@@ -203,8 +204,21 @@
    check(!canSaveHere()&&!saveGame()&&!loadGame(),'Promise resources cannot enter saves '+scale);update(1/60);
    check(seraLioraBreakfastBattle.getState().stage==='ending_departure_fade','Promise hold completes on time '+scale);
    for(let n=0;n<20;n++)update(1/60);capture('breakfast-final-fade-'+scale+'x');
-   let finalFrames=0;while(seraLioraCutscene.active&&finalFrames++<40)update(1/60);
-   check(finalFrames<40&&!seraLioraBreakfastBattle.isActive()&&!storyBattle.hasContext(),'Ending releases story context '+scale);
+   let finalFrames=0;while(seraLioraBreakfastBattle.getState()?.stage==='ending_departure_fade'&&finalFrames++<40)update(1/60);
+   check(finalFrames<40&&seraLioraBreakfastBattle.getState()?.stage==='chapter_card','Chapter card before hospital '+scale);
+   check(activeMap===BETHANY_GUEST_ROOM_MAP&&seraLioraGuestRoomWalk.completionCount===0,'No early hospital/completion '+scale);
+   let cardFrames=0;
+   while(seraLioraBreakfastBattle.getState()?.stage==='chapter_card'&&cardFrames<180){
+    if(cardFrames===30){
+     const beforeCard=JSON.stringify(seraLioraBreakfastBattle.getState());
+     capture('chapter-2-'+scale+'x');
+     check(JSON.stringify(seraLioraBreakfastBattle.getState())===beforeCard,'Chapter drawing is read-only '+scale);
+     check(!canSaveHere()&&!saveGame()&&!loadGame(),'Chapter card retains input/save ownership '+scale);
+     tap('Enter');tap('Escape');tap('ArrowRight');
+    }
+    update(1/60);cardFrames++;
+   }
+   check(cardFrames===180&&!seraLioraBreakfastBattle.isActive()&&!storyBattle.hasContext(),'Chapter completes after three seconds '+scale);
    check(activeMap===DRENWICK_INFIRMARY_MAP&&!seraLioraCutscene.active,'Natural return to Lely '+scale);
    check(seraLioraGuestRoomWalk.completionCount===1&&sera_liora_opening_complete===beforeOpening,'Preview completes once without story flag '+scale);
    check(dialogue.page===0&&dialogue.pages[0][0]===ESLA_INFIRMARY_WAKE_PAGES[0][0],'Hospital wake starts unskipped '+scale);

@@ -1441,7 +1441,7 @@ function continueSeraLioraCutawayAfterOpening() {
   seraLioraGuestRoomWalk.lioraX = 270;
   seraLioraGuestRoomWalk.lioraY = 345;
   // No held dialogue/menu key may leak into the first controllable frame.
-  for (const key of ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D']) keys[key] = false;
+  clearSeraLioraMovementKeys();
   return true;
 }
 
