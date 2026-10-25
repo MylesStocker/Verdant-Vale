@@ -45,8 +45,8 @@ function drawMornayFixture(f) {
     ctx.fillStyle='#eee2c6';ctx.fillRect(x+6,y+6,20,6);
     ctx.fillStyle='#5f7790';ctx.fillRect(x+5,y+14,22,14);
     ctx.fillStyle='#8796a3';ctx.fillRect(x+5,y+14,22,3);
-  }else if(f.kind==='desk'||f.kind==='studentdesk'){
-    const h=f.kind==='desk'?13:10;
+  }else if(f.kind==='desk'||f.kind==='studentdesk'||f.kind==='press'){
+    const h=f.kind==='studentdesk'?10:13;
     ctx.fillStyle='#4b2c15';ctx.fillRect(x+5,y+14,3,15);ctx.fillRect(x+24,y+14,3,15);
     ctx.fillStyle='#7a4a20';ctx.fillRect(x+3,y+3,26,h);
     ctx.fillStyle='#9a6830';ctx.fillRect(x+3,y+3,26,3);
@@ -54,6 +54,13 @@ function drawMornayFixture(f) {
     ctx.fillStyle='#f0ecdc';ctx.fillRect(x+6,y+7,9,6);
     ctx.fillStyle='#b3a88c';ctx.fillRect(x+8,y+9,5,1);
     ctx.fillStyle='#181018';ctx.fillRect(x+23,y+7,3,4);
+    if(f.kind==='press'){
+      // Small screw hand-press on the existing solid desk footprint.
+      ctx.fillStyle='#332d29';ctx.fillRect(x+4,y+1,4,20);ctx.fillRect(x+24,y+1,4,20);
+      ctx.fillRect(x+4,y+1,24,4);ctx.fillRect(x+15,y+3,3,10);ctx.fillRect(x+9,y+11,16,3);
+      ctx.fillStyle='#d4c6a1';ctx.fillRect(x+8,y+16,17,6);
+      ctx.fillStyle='#49423a';ctx.fillRect(x+11,y+17,10,1);ctx.fillRect(x+11,y+19,8,1);
+    }
   }else if(f.kind==='stove'){
     ctx.fillStyle='#303438';ctx.fillRect(x+5,y+7,22,20);ctx.fillRect(x+12,y,8,9);
     ctx.fillStyle='#161a1e';ctx.fillRect(x+8,y+10,6,3);ctx.fillRect(x+19,y+10,5,3);ctx.fillRect(x+9,y+18,14,6);
@@ -194,11 +201,30 @@ function drawMornayContent() {
       ctx.fillStyle='#303a3d';ctx.fillRect(48,37,416,20);
       ctx.fillStyle='#c8c0a3';ctx.font='10px "Courier New", monospace';ctx.fillText('ORDINARY CARE · REGISTERED HEALER ON STAFF',256,51);
     }
-    if(room.connection==='stairs'){
+    if(room.kind==='attic'){
+      // Pinned drying sheets and patched roof timbers: read-only room dressing.
+      for(let col=3;col<=11;col+=4){
+        ctx.fillStyle='#4a3729';ctx.fillRect(col*TILE,32,6,30);
+      }
+      for(let i=0;i<4;i++){
+        const x=144+i*29,y=105;
+        ctx.fillStyle='#cfbd95';ctx.fillRect(x,y,21,27);
+        ctx.fillStyle='#5b5243';for(let line=0;line<4;line++)ctx.fillRect(x+3,y+5+line*5,15-(line%2)*3,1);
+      }
+    }
+    if(room.connection==='stairs'||room.connection==='hatch'){
       const entrance=mornayInteriorEntrance(room);
       drawMornayStairs(entrance.col,entrance.exitRow,false);
     }
     for(const child of MORNAY_BUILDINGS.filter(b=>b.sourceMapId===id)){
+      if(child.connection==='hatch'){
+        // Disguised ceiling access: collision/transition stays with the ordinary door.
+        const x=child.doorCol*TILE,y=child.doorRow*TILE;
+        drawInteriorFloor(x,y);
+        ctx.fillStyle='#514738';ctx.fillRect(x+5,y+4,22,2);ctx.fillRect(x+26,y+4,1,18);
+        ctx.fillStyle='#aaa08a';ctx.fillRect(x+22,y+11,1,15);ctx.fillRect(x+20,y+25,5,2);
+        continue;
+      }
       if(child.connection==='stairs')drawMornayStairs(child.doorCol,child.doorRow,true);
       const x=(child.doorCol+.5)*TILE,y=child.doorRow*TILE-5,label=child.sign||'ROOMS';
       ctx.font='10px "Courier New", monospace';const w=ctx.measureText(label).width+8;

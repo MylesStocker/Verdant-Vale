@@ -25,6 +25,6 @@ module.exports={name:'Mainland water and presentation: river-to-lake continuity,
      }
     }
    }return {checked,errors};})()`);
-  assert.deepEqual(voids.errors,[],'all accessible centre/extrema camera viewports are fully authored');assert.ok(voids.checked>400000,'whole-world camera coverage, including earlier routes');
+  assert.deepEqual(voids.errors,[],'all accessible centre/extrema camera viewports are fully authored');assert.equal(voids.checked,d.chunks.filter(c=>c.playerAccessible!==false&&c.presentation!=='legacy_screen').reduce((n,c)=>n+c.map.flat().filter(t=>d.tiles[t].walkable).length*5,0),'every remaining walkable cell has five camera samples');
  }
 };

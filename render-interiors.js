@@ -1523,10 +1523,10 @@ const WASH_NOTICE        = { x: 10.5 * TILE, y: 3.5 * TILE }; // posted hours/ru
 const DRENWICK_PROVISION_LEDGER    = { x: 11.5 * TILE, y: 5.5 * TILE }; // order ledger, col 11 row 5
 const PROVISION_STOCK_CRATE = { x: 6 * TILE, y: 7.5 * TILE }; // stock crate inspection (approach from east face of crates)
 
-// Unshackled Flame tract hidden in the crate directly left of Polwick in his
-// disguised fort. Interaction/content lives in thornmere-wilds-interactions.js;
+// Unshackled Flame tract hidden among the smuggled cargo in the rear room.
+// Interaction/content lives in thornmere-wilds-interactions.js;
 // this file owns the shared crate/sparkle coordinate.
-const POLWICK_FLAME_TRACT = { x: 6.5 * TILE, y: 4.5 * TILE };
+const POLWICK_FLAME_TRACT = { x: 1.5 * TILE, y: 4.5 * TILE };
 
 
 // ─── Drenwick Office Furniture Drawing ───────────────────────────────────────
@@ -1684,7 +1684,25 @@ function drawFortCrates() {
     ctx.fillStyle = '#888';                                 // corner braces
     ctx.fillRect(bx + 2, by + 4, 2, TILE - 6);
     ctx.fillRect(bx + TILE - 4, by + 4, 2, TILE - 6);
+    if (c.contraband) {
+      // Fresh paper over scraped freight marks; a broken excise seal beneath.
+      ctx.fillStyle = '#c8b58a'; ctx.fillRect(bx + 7, by + 8, 17, 9);
+      ctx.fillStyle = '#594c39'; ctx.fillRect(bx + 10, by + 10, 10, 1);
+      ctx.fillRect(bx + 9, by + 13, 12, 1);
+      ctx.fillStyle = '#903b31'; ctx.fillRect(bx + 9, by + 21, 4, 3);
+      ctx.fillRect(bx + 17, by + 22, 3, 3);
+    }
   }
+  // Two books, loose consignment papers and a packing knife on the rear desk.
+  const bx = FORT_SMUGGLING_LEDGER.x - TILE / 2, by = FORT_SMUGGLING_LEDGER.y - TILE / 2;
+  ctx.fillStyle = '#754535'; ctx.fillRect(bx + 3, by + 7, 12, 12);
+  ctx.fillStyle = '#d4c398'; ctx.fillRect(bx + 5, by + 8, 9, 9);
+  ctx.fillStyle = '#4e6044'; ctx.fillRect(bx + 15, by + 11, 10, 11);
+  ctx.fillStyle = '#d4c398'; ctx.fillRect(bx + 17, by + 12, 7, 8);
+  ctx.fillStyle = '#a9aaa4'; ctx.fillRect(bx + 21, by + 4, 6, 2);
+  ctx.fillStyle = '#67472d'; ctx.fillRect(bx + 17, by + 4, 4, 2);
+  drawExamineSparkle(FORT_SMUGGLING_LEDGER.x, FORT_SMUGGLING_LEDGER.y,
+    FORT_SMUGGLING_LEDGER.x, FORT_SMUGGLING_LEDGER.y, TALK_RADIUS * 1.5);
 }
 
 // The Flame pamphlet is concealed inside Polwick's crate. Draw only the shared

@@ -189,6 +189,47 @@
         }
         closeDialogue();
       }
+      // Continuous ordinary-controls journey from the street through all landings
+      // to the concealed attic; no parent-room fixture placement in this route.
+      day=1;
+      check(transitionToLocation({mapId:'MORNAY_SOUTH_UPPER_EAST_MAP',x:240,y:432,state:townState('MORNAY_SOUTH_UPPER_EAST_MAP')}),'Tenement street start');
+      const chain=['south_rows','south_rows_floor_2','south_rows_floor_3','south_rows_attic'].map(key=>MORNAY_BUILDINGS.find(b=>b.key===key));
+      for(const b of chain){
+        walkTo((x,y)=>x===(b.returnCol+.5)*TILE&&y===(b.returnRow+.5)*TILE,'tenement ascent '+b.id);
+        walkUntil(b.facing==='up'?'ArrowDown':'ArrowUp',()=>mapIdForRef(activeMap)===b.mapId,'Unbroken ascent '+b.id);
+        capture(b.id+'-walkthrough-'+scale+'x');
+      }
+      const atticState=inert();
+      for(const feature of MORNAY_NOTICES.filter(n=>n.mapId==='MORNAY_SOUTH_ROWS_ATTIC_MAP')){
+        walkTo((x,y)=>Math.hypot(x-feature.x*TILE,y-feature.y*TILE)<feature.radius,'attic evidence '+feature.id);
+        press(' ');check(dialogue.open,'Attic inspect through input '+feature.id);capture(feature.id+'-'+scale+'x');closeDialogue();
+        check(inert()===atticState,'Attic evidence cannot advance MQ5 '+feature.id);
+      }
+      check(saveGame()&&loadGame(),'Attic save/load before return');closeDialogue();
+      for(const b of chain.slice().reverse()){
+        const arrival=mornayInteriorEntrance(b);
+        walkTo((x,y)=>x===240&&y===(arrival.arrivalRow+.5)*TILE,'tenement descent '+b.id);
+        walkUntil(arrival.exitRow===0?'ArrowUp':'ArrowDown',()=>mapIdForRef(activeMap)===b.sourceMapId,'Unbroken descent '+b.id);
+      }
+      check(townBuilding===null&&MainQuest===5,'Returns to street without MQ5 advancement');
+      for(const dayValue of [4,5]){
+        day=dayValue;
+        for(const key of ['south_rows_unit_5','south_rows_unit_9']){
+          const b=MORNAY_BUILDINGS.find(b=>b.key===key);
+          check(transitionToLocation({mapId:b.mapId,x:240,y:432,state:townState(b.mapId)}),'Scheduled home '+key);
+          capture(key+'-day-'+dayValue+'-'+scale+'x');
+        }
+      }
+      for(const id of ['mornay_marit_voss','mornay_corven_dace','mornay_maura_dell']){
+        talk(id);const before=inert();let esla=false;
+        while(dialogue.open){
+          render();if(dialoguePagePresentation().speakerId==='esla'){
+            check(dialoguePagePresentation().styleId==='esla_light_green','Office anger uses Esla green');
+            if(!esla)capture(id+'-esla-'+scale+'x');esla=true;
+          }press('Enter');
+        }
+        check(esla&&inert()===before,'Repeatable dead-end conversation '+id);
+      }
       for(const town of ['calwick','drenwick']){enterTownAt(town,'south');capture('compatibility-'+town+'-'+scale+'x');check(canWalk(player.x,player.y,9),'Earlier town arrival remains walkable '+town);}
     }
     check(result.errors.length===0,'No browser errors');result.ok=true;

@@ -83,6 +83,7 @@ let schilling_returned      = false;
 //   4=all defeated, 5=spared, 6=reported/denied to supervisor
 let fort_quest_started       = false; // supervisor gave the investigation assignment
 let fort_quest_stage         = 0;     // tracks fight/spare/report progress
+let polwick_esla_visit_stage = 0;     // completed companion exchanges: illicit cargo, Flame, drought (saturates at 3)
 let fort_pay_ticket_ready    = false; // supervisor issued pay ticket after report
 let fort_pay_ticket_reduced  = false; // true if the ready ticket is the reduced "Found nothing" rate (15g) rather than the full 200g
 let smugglers_dead           = false; // true once smugglers are eliminated (fought or Imperial follow-up)
@@ -509,6 +510,7 @@ function completeLighthouseQuest(giver) {
 // uses the let bindings directly. Call syncQuestFlagsToWindow() after any
 // gameplay change to keep the window properties current.
 function syncQuestFlagsToWindow() {
+  window.polwick_esla_visit_stage = polwick_esla_visit_stage;
   window.cabinetCaseFlag      = cabinetCaseFlag;
   window.sluice_job_started      = sluice_job_started;
   window.sluice_fixed            = sluice_fixed;

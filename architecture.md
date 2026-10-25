@@ -4974,3 +4974,18 @@ ownership; completion and the existing story flag occur only after the card.
 The renderer reads the bounded presentation clock without advancing it. Room,
 courtyard and breakfast movement accept arrow keys alongside WASD through the
 same local movement/collision authority; both aliases clear at control handoffs.
+
+### Mornay tenement and blocked office follow-up
+
+`MORNAY_BUILDINGS` now registers 67 rooms: South Rows gains two corridor floors, twenty flats and an attic. Each floor has eight reciprocal unit doors. Existing four flats retain their identities and geometry. `tiny` is immutable authoring metadata for five-by-five living space; it does not enter the save payload. `connection: 'hatch'` selects a concealed ceiling-seam presentation over the same ordinary HOUSE_DOOR, then descending ladder art on return; no new movement handler, tile ID, discovery flag or alternate transition authority exists.
+
+`MORNAY_MAP_FEATURES` now includes registered interiors as well as exteriors, allowing five repeatable tenement/attic inspectables through the existing feature dispatcher. They contain no callbacks. Twelve additional `dayOff` placements reuse the existing NPC getters and calendar; stable objects, IDs and routes are preserved. Fourteen `reportText` strings are selected only at MainQuest 5; existing companion metadata owns Esla's interjections. These dialogues have no service/action, state write, handover or MQ advancement. `MORNAY_TOWN_PLAN.md` tracks the intentionally circular errands and future unresolved decisions. Save version and schema remain 5.
+
+
+### Polwick companion visits and cargo room
+
+`polwickEslaDialogue()` in `thornmere-wilds-interactions.js` handles three ambient exchanges only for the physically available fort NPC at the completed report stage and canonical Esla membership. It uses `setSpeakerDialoguePages()` with the stable `polwick` and `esla` speaker definitions. The existing unresolved arrest and combat retry dispatch retains precedence. After three completed exchanges, the original lighthouse handler retains its normal offer/reminder/turn-in behavior; otherwise the drought exchange repeats.
+
+The sole new persistent authority is the ambient counter `polwick_esla_visit_stage` in `quests.js`, mirrored by `syncQuestFlagsToWindow()` and registered once in `QUEST_FLAG_BINDINGS`. It advances on completed dialogue with a captured-stage guard, is clamped for presentation, defaults to 0 when absent from a v5 save, and changes no outcome or quest. Standard numeric save validation rejects malformed values. There is no version change or migration.
+
+The rear room extends only the existing `SMUGGLER_FORT_MAP`; no new map/location/door registry is needed. Crates reuse `FORT_CRATES` collision and drawing; the freight table uses the existing TABLE tile. The two inspectable anchors are active-fort-only and repeatable. The Flame reader content/theme remain unchanged. Exact 18-cell wall-only expansion is recorded in `Art/qa/polwick-fort/grid-deltas.json`; regional terrain, fingerprints and the transition artifact do not change.

@@ -1,0 +1,32 @@
+{
+  "errors": 0,
+  "warnings": 6,
+  "errorList": [],
+  "warningList": [
+    {
+      "group": "Tile Properties",
+      "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+    },
+    {
+      "group": "Enemies",
+      "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+    },
+    {
+      "group": "Enemies",
+      "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+    },
+    {
+      "group": "Enemies",
+      "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+    },
+    {
+      "group": "Dialogue",
+      "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+    },
+    {
+      "group": "Dialogue",
+      "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+    }
+  ],
+  "saveVersion": 5
+}

@@ -378,7 +378,7 @@ const MORNAY_BUILDINGS = Object.freeze([
     "key": "south_rows",
     "id": "mornay_south_rows",
     "mapId": "MORNAY_SOUTH_ROWS_MAP",
-    "name": "South Rows Apartments",
+    "name": "South Rows Tenement — Ground Floor",
     "sourceMapId": "MORNAY_SOUTH_UPPER_EAST_MAP",
     "doorCol": 3,
     "doorRow": 10,
@@ -512,7 +512,7 @@ const MORNAY_BUILDINGS = Object.freeze([
     "key": "south_rows_unit_1",
     "id": "mornay_south_rows_unit_1",
     "mapId": "MORNAY_SOUTH_ROWS_UNIT_1_MAP",
-    "name": "South Rows Apartments — Flat 1",
+    "name": "South Rows — Unit 1",
     "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
     "doorCol": 2,
     "doorRow": 4,
@@ -527,7 +527,7 @@ const MORNAY_BUILDINGS = Object.freeze([
     "key": "south_rows_unit_2",
     "id": "mornay_south_rows_unit_2",
     "mapId": "MORNAY_SOUTH_ROWS_UNIT_2_MAP",
-    "name": "South Rows Apartments — Flat 2",
+    "name": "South Rows — Unit 2",
     "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
     "doorCol": 5,
     "doorRow": 4,
@@ -542,7 +542,7 @@ const MORNAY_BUILDINGS = Object.freeze([
     "key": "south_rows_unit_3",
     "id": "mornay_south_rows_unit_3",
     "mapId": "MORNAY_SOUTH_ROWS_UNIT_3_MAP",
-    "name": "South Rows Apartments — Flat 3",
+    "name": "South Rows — Unit 3",
     "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
     "doorCol": 10,
     "doorRow": 4,
@@ -557,7 +557,7 @@ const MORNAY_BUILDINGS = Object.freeze([
     "key": "south_rows_unit_4",
     "id": "mornay_south_rows_unit_4",
     "mapId": "MORNAY_SOUTH_ROWS_UNIT_4_MAP",
-    "name": "South Rows Apartments — Flat 4",
+    "name": "South Rows — Unit 4",
     "sourceMapId": "MORNAY_SOUTH_ROWS_MAP",
     "doorCol": 13,
     "doorRow": 4,
@@ -675,7 +675,29 @@ const MORNAY_BUILDINGS = Object.freeze([
     "housing": "modest",
     "connection": "stairs",
     "sign": "HOME UP"
-  }
+  },
+  ...[2,3].map(floor => ({
+    key:'south_rows_floor_'+floor, id:'mornay_south_rows_floor_'+floor,
+    mapId:'MORNAY_SOUTH_ROWS_FLOOR_'+floor+'_MAP',
+    name:'South Rows Tenement — Floor '+floor,
+    sourceMapId:floor===2?'MORNAY_SOUTH_ROWS_MAP':'MORNAY_SOUTH_ROWS_FLOOR_2_MAP',
+    doorCol:14,doorRow:6,returnCol:14,returnRow:7,facing:'down',
+    kind:'corridor',connection:'stairs',sign:'UP',tenementFloor:floor
+  })),
+  ...Array.from({length:20},(_,i)=>{
+    const unit=i+5,floor=Math.ceil(unit/8),slot=(unit-1)%8,lower=slot>=4;
+    return {key:'south_rows_unit_'+unit,id:'mornay_south_rows_unit_'+unit,
+      mapId:'MORNAY_SOUTH_ROWS_UNIT_'+unit+'_MAP',name:'South Rows — Unit '+unit,
+      sourceMapId:floor===1?'MORNAY_SOUTH_ROWS_MAP':'MORNAY_SOUTH_ROWS_FLOOR_'+floor+'_MAP',
+      doorCol:[2,5,10,13][slot%4],doorRow:lower?10:4,
+      returnCol:[2,5,10,13][slot%4],returnRow:lower?9:5,facing:lower?'up':'down',
+      kind:'flat',unit,tiny:true,sign:String(unit)};
+  }),
+  {key:'south_rows_attic',id:'mornay_south_rows_attic',mapId:'MORNAY_SOUTH_ROWS_ATTIC_MAP',
+    name:'South Rows — Attic',sourceMapId:'MORNAY_SOUTH_ROWS_FLOOR_3_MAP',
+    doorCol:1,doorRow:6,returnCol:1,returnRow:7,facing:'down',
+    kind:'attic',connection:'hatch',sign:''}
+
 ].map(b => Object.freeze(b)));
 
 const MORNAY_RESIDENTIAL_FACADES = Object.freeze([
@@ -916,7 +938,16 @@ const MORNAY_ROOM_FIXTURES = Object.freeze({
   "mornay_boarding": [{"kind":"stove","col":2,"row":7},{"kind":"supply","col":3,"row":7},{"kind":"table","col":5,"row":9},{"kind":"table","col":10,"row":9},{"kind":"dresser","col":13,"row":7}],
   "mornay_court": [{"kind":"tub","col":2,"row":8},{"kind":"table","col":11,"row":8},{"kind":"bench","col":3,"row":11}],
   "mornay_dock_steps": [{"kind":"bench","col":3,"row":8},{"kind":"cargo","col":12,"row":10},{"kind":"tub","col":13,"row":7}],
-  "mornay_south_rows": [{"kind":"table","col":3,"row":9},{"kind":"stove","col":12,"row":7},{"kind":"supply","col":13,"row":7}],
+  "mornay_south_rows": [{kind:'tub',col:1,row:8},{kind:'stove',col:12,row:7}],
+  mornay_south_rows_floor_2:[{kind:'tub',col:1,row:8},{kind:'supply',col:12,row:7}],
+  mornay_south_rows_floor_3:[{kind:'tub',col:12,row:7},{kind:'bench',col:3,row:7}],
+  mornay_south_rows_attic:[{kind:'homebed',col:2,row:3},{kind:'homebed',col:3,row:3},
+    {kind:'press',col:5,row:5},{kind:'desk',col:6,row:5},{kind:'supply',col:12,row:3},
+    {kind:'supply',col:11,row:3},{kind:'cargo',col:11,row:9},{kind:'cargo',col:12,row:9},
+    {kind:'table',col:3,row:9},{kind:'bench',col:4,row:10},{kind:'bench',col:2,row:10}],
+  ...Object.fromEntries(Array.from({length:20},(_,i)=>['mornay_south_rows_unit_'+(i+5),[
+    {kind:'homebed',col:i%2?10:6,row:8},{kind:'dresser',col:i%2?6:10,row:8},
+    {kind:'table',col:i%2?10:6,row:11},{kind:'stove',col:i%2?6:10,row:11}]])),
   "mornay_glyn_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"dresser","col":11,"row":5},{"kind":"stove","col":3,"row":10},{"kind":"table","col":10,"row":9},{"kind":"supply","col":12,"row":10}],
   "mornay_reed_home": [{"kind":"homebed","col":11,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"stove","col":3,"row":5},{"kind":"bench","col":4,"row":9},{"kind":"supply","col":12,"row":10}],
   "mornay_pate_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"dresser","col":11,"row":5},{"kind":"stove","col":3,"row":10},{"kind":"table","col":10,"row":9},{"kind":"supply","col":12,"row":10}],
@@ -943,8 +974,8 @@ const MORNAY_ROOM_FIXTURES = Object.freeze({
 const MORNAY_INTERIOR_MAPS = Object.freeze(Object.fromEntries(MORNAY_BUILDINGS.map(b => {
   const compact = b.kind === 'flat' || b.kind === 'bedsit';
   const house = b.kind === 'house';
-  const left = compact ? 4 : house ? 2 : 1, right = compact ? 11 : house ? 13 : 14;
-  const top = compact ? (b.unit % 2 ? 5 : 6) : house ? (b.housing === 'comfortable' ? 3 : 5) : b.kind === 'corridor' ? 5 : b.kind === 'boarding' ? 4 : 2;
+  const left = b.tiny ? 6 : compact ? 4 : house ? 2 : 1, right = b.tiny ? 10 : compact ? 11 : house ? 13 : 14;
+  const top = b.tiny ? 8 : compact ? (b.unit % 2 ? 5 : 6) : house ? (b.housing === 'comfortable' ? 3 : 5) : b.kind === 'corridor' ? 5 : b.kind === 'boarding' ? 4 : 2;
   const grid = Array.from({length:15}, (_,r) => Array.from({length:16}, (_,c) =>
     r >= top && r < 13 && c >= left && c <= right ? INTERIOR_FLOOR : INTERIOR_WALL));
   if (!compact && !house) for(let c=1;c<15;c++) grid[13][c]=INTERIOR_FLOOR;

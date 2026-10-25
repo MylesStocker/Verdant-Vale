@@ -1171,7 +1171,7 @@ rooms were added to the registry.)
   has a notebook entry; curse-caused mishaps begin with “Cursed!”; and the
   on-screen debug-menu key hint is hidden. No grid, topology, or save change.
 - **Faction tracts.** The Unshackled Flame's “The Wrong Side Won” is hidden in
-  the crate directly beside Polwick, while the Reclaimers' “Everything They Own
+  a cargo crate in Polwick’s back room, while the Reclaimers' “Everything They Own
   Was Made by Someone Else” is tucked beneath the Wend brewery's central vat.
   Small inspectable sparkles reveal both locations; both tracts open repeatably
   in distinct treatments of the established full-page parchment reader. Neither
@@ -2249,3 +2249,25 @@ path in all three playable areas; held aliases clear when scripted control ends.
 After the final promise/fade, an owned three-second “Chapter 2” card appears before
 Lély’s infirmary awakening. Input/save ownership and the existing completion flag
 remain with the scene until the card finishes. No maps or save fields change.
+
+### Mornay Regional Office dead end and South Rows tenement
+
+The Regional Office now refuses meaningful help at MQ5: Magistrate Marit Voss, two idle investigators and administrators send the party between Records, copying, requisitions and Maura's local harbour desk. Fourteen existing NPCs have MQ5-specific responses concerning Dreyfuss's death and Garrick's disappearance; Esla objects through the established green speaker metadata. The errands are repeatable dialogue only, per user direction. No report handover, quest/reward/faction flag or MQ5 advancement is added.
+
+South Rows now has three floors of eight units, with four units per floor empty on workdays and occupied by existing workers on Dayoff. Four existing children keep house instead of going to school. There are 300 distinct residents (95 exterior / 205 interior on workdays), 67 Mornay rooms and 1130 total maps. Twenty new tiny flats, two landings and a hidden attic are registered through existing room authorities; original room IDs and saved positions remain valid. The attic visibly houses covert Reclaimer printing, mutual aid and disputed criminal logistics, without identifying members or resolving the missing men. Other story reservations remain closed. See the current-pass errand ledger, housing matrix and exact eight-cell grid delta in MORNAY_TOWN_PLAN.md. SAVE_VERSION stays 5.
+
+## Wetwoods / Thornmere terrain refinement (2026-10-25, uncommitted)
+
+Primary `main` working tree: 114 new inaccessible western woodland chunks; 28 existing scenery/reserved-south grids refined (4,874 cells), including a substantial Thornmere basin connected to its old northern shallows. Uses existing tiles only. No camera code, settings or global bounds changed; no new starting-area access. All 454 ordinary-play/protected regional grids and the exact early/ferry/onward reachable tile sets are unchanged. Four completely submerged reserve chunks become scenery-only; stable IDs remain. Regional inventory: 1,058 chunks (477 placement-enabled / 581 scenery), 1,244 total maps including the previously uncommitted Mornay rooms. SAVE_VERSION 5. See the current section of `REGIONAL_GEOGRAPHY_PLAN.md` and `Art/qa/wetwoods-thornmere/README.md` for exact deltas, artifact provenance, verification and review locations. Existing Mornay work is preserved; no commit or push requested.
+
+
+## Valmere wilderness shoreline (2026-10-25, uncommitted)
+
+Scenery-only refinement: 45 existing grids / 4,321 cells now form irregular fen banks, a rounded wilderness spit and gravel coves along the far eastern lake shore. Every playable grid, Mornay’s peninsula/harbour and all town content, camera settings, access permissions, seams and encounters remain unchanged. No new tiles or chunks; SAVE_VERSION 5. Counts remain 1,058 regional chunks / 1,244 total maps. See `Art/qa/valmere-shoreline/README.md` for exact incremental files, deltas, rendered comparison and verification. Earlier uncommitted work is preserved.
+
+
+## Polwick’s back room and Esla visits (2026-10-25, uncommitted)
+
+The fort has a rear cargo room northwest of Polwick, entered through (4,3). Eighteen former wall cells become floor/a ledger table; every original floor, exit and NPC position is retained. Four additional solid cargo crates have altered labels and broken seals. Two freight ledgers expose smuggling; the existing Flame tract now sits in the rear crate at (1,4), unchanged and repeatably readable. No loot or quest effect is attached to either inspection.
+
+After the fort report, a living Polwick speaks with recruited Esla in three completed conversations: she recognizes the illicit trade but lets it go for Lély, rejects a coded Flame overture, then answers small talk about the drought. Only Esla’s words receive her green speaker style. One ambient counter, `polwick_esla_visit_stage`, uses the established save binding registry, defaults to 0 in older v5 saves and saturates at 3 on dialogue completion. SAVE_VERSION remains 5. The earlier arrest/retry choice and all death/execution rules are unchanged; the existing lighthouse dialogue resumes after these three exchanges. If no lighthouse dialogue applies, drought talk repeats. No MainQuest, outcome, reward or faction state changes. See `Art/qa/polwick-fort/README.md` for verification and walkthrough.

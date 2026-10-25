@@ -200,17 +200,17 @@ const MIRE_VAULT_MAP = [
 // Disguised as an Imperial guard post from the outside (GUARD_POST tile on
 // MAP3_N1 row 9 col 13). Entrance is blocked until the supervisor's investigation
 // assignment is active (fort_quest_started = true).
-// Floor plan mirrors DRENWICK_POST_MAP but a second TABLE at col 9 row 5 hints
-// at extra occupants. Exit: col 7 row 11.
+// The original guard-post room opens northwest through (4,3) into a concealed
+// cargo room. Existing floor, NPC approaches and exit (7,11) are unchanged.
 // Polwick: col 7 row 4.  Essa: col 9 row 6.
 const SMUGGLER_FORT_MAP = [
   //  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
   [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  0  top wall
-  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  1  top wall
-  [ 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  2  thick top wall
-  [ 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19],  //  3  interior cols 5-10
-  [ 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19],  //  4  Polwick c7 ✓
-  [ 19, 19, 19, 19, 19, 18, 18, 18, 18, 33, 18, 19, 19, 19, 19, 19],  //  5  TABLE c9 (second desk — extra occupant)
+  [19, 18, 18, 18, 33, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  1  concealed cargo / ledger
+  [19, 18, 18, 18, 18, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],  //  2  rear-room aisle
+  [19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19],  //  3  doorway at c4 joins original front room
+  [19, 18, 18, 18, 19, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19],  //  4  Polwick c7 ✓
+  [19, 18, 18, 18, 19, 18, 18, 18, 18, 33, 18, 19, 19, 19, 19, 19],  //  5  TABLE c9 (second desk — extra occupant)
   [ 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19],  //  6  Essa c9 ✓
   [ 19, 19, 19, 19, 19, 18, 33, 18, 18, 18, 18, 19, 19, 19, 19, 19],  //  7  TABLE c6 (main desk)
   [ 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19],  //  8

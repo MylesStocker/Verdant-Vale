@@ -1,10 +1,10 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-25",
   "totals": {
-    "chunks": 944,
-    "explorable": 481,
-    "scenery": 463,
-    "encounterEnabled": 462,
+    "chunks": 1058,
+    "explorable": 477,
+    "scenery": 581,
+    "encounterEnabled": 458,
     "x": [
       -8,
       30
@@ -123,7 +123,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "ee9b5fd8bab3b077eaefcd98d845ed214bea8b98d89f8992d09d5f54889f2a21"
+      "sha256": "e715180dcc249a7d40c2c9262b83b12d90e73fccee15e8f3d6c73ac51d1caa8c"
     },
     {
       "mapId": "MAINLAND_C7RN15_MAP",
@@ -134,7 +134,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "38c4a73ba65078d8f140233498d2810392c53ab6a8c966873f3dcf636b557da8"
     },
     {
       "mapId": "MAINLAND_C8RN15_MAP",
@@ -541,7 +541,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "a8c6ccba40010bffbb8c88be138f0affdde6b83a6f9b9a72dc6856e47c97e00a"
+      "sha256": "575bd3241a7bb5e056ae49d2509f2b64ee799fb349e0943a8aab8cbb1a0a51dd"
     },
     {
       "mapId": "MAINLAND_C7RN14_MAP",
@@ -552,7 +552,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e3795dfc2df44a1a4605585c862064b774ef5b1243c89d65333db7c778fb6abd"
+      "sha256": "ea329a735ab9b57659aa81d26f2d82153ec477c73a164343b71a96b54c35af80"
     },
     {
       "mapId": "MAINLAND_C8RN14_MAP",
@@ -563,7 +563,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "7e4d8a35fc810374879323e0882890e429dadba805c01268849d6490b2167be4"
     },
     {
       "mapId": "MAINLAND_C9RN14_MAP",
@@ -981,7 +981,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "c723ecbdc8d274471c6616603072b89270226646c956066ba61372f2c1595089"
+      "sha256": "9b569797d7feb56196b6a83cf5dfdd7dc8fa1b1e246ab7aeb993a81448728714"
     },
     {
       "mapId": "MAINLAND_C8RN13_MAP",
@@ -992,7 +992,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "40650c429a8db7e714982ab247b7ff6bc8e5aef7eeedfb1937468e30b9937fd8"
+      "sha256": "0ad75bd040f0a632fcfe20bee225288b7d19602bdfd20ba6af5f23d41058c6a6"
     },
     {
       "mapId": "MAINLAND_C9RN13_MAP",
@@ -1003,7 +1003,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "2bffe42ab5ddc9c7a0df8992f5579ef39e859d8feefd6666a2f530b9958837bd"
     },
     {
       "mapId": "MAINLAND_C10RN13_MAP",
@@ -1421,7 +1421,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "feb1e51c8e6c07c23ec776cc5f4b99c980896751a021b51dab1aec829f58e4d7"
+      "sha256": "f176f64e486cffd4fd12951bbd94c4fd9a234012da6ba012cbd4e26a5064413c"
     },
     {
       "mapId": "MAINLAND_C9RN12_MAP",
@@ -1432,7 +1432,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "2a229c65d63aa96254f192fd32e5767a43d525966b7322c23c8379de37fdafcb"
+      "sha256": "43e25668c8b023e18d4a7c40a889a151df801145871eed9453c79bf1254283ae"
     },
     {
       "mapId": "MAINLAND_C10RN12_MAP",
@@ -1443,7 +1443,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "0a89337661ef03afb334642562dedd5a498e11d7635087e6f18a69b4d53860f7"
     },
     {
       "mapId": "MAINLAND_C11RN12_MAP",
@@ -1861,7 +1861,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "a65898eacbd718e2d5b91b68336730bc29620dd5af6f21c96360f4b92d409ad0"
+      "sha256": "b0816643ad881697656d2a0e0838add9a8f48dbcb8b197e783a60be1219b9e39"
     },
     {
       "mapId": "MAINLAND_C10RN11_MAP",
@@ -1872,7 +1872,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "3b5fd196dbf76354e181023bd8cdd2c860a8816f3b59875f1dde06fa96bb8bae"
+      "sha256": "41a56fb7984c044767b2b937c307e8ecf3c833dbdc30ee2b1f8d07236efd2238"
     },
     {
       "mapId": "MAINLAND_C11RN11_MAP",
@@ -1883,7 +1883,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "dc678897d70161dcaa5ec3048302c831ad6d59b1b531d9b137b88452f6c6e602"
+      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
     },
     {
       "mapId": "MAINLAND_C12RN11_MAP",
@@ -2301,7 +2301,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "718c9ae55ab66b4f50dcb612c47f9497b0a5ac529b6ee3ef5471f76320d0f80d"
+      "sha256": "e7a3ac00ea8710af32214094aa60d2d44eca43f835f6a9ae61bd0559e1e71828"
     },
     {
       "mapId": "MAINLAND_C11RN10_MAP",
@@ -2312,7 +2312,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "542711586a2cbb294d5d9d0f0d1fa297787a4642b9a62b513f63998dec9e42f0"
+      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
     },
     {
       "mapId": "MAINLAND_C12RN10_MAP",
@@ -2730,7 +2730,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "6eafde35e4dde52e1adcc861af9f1c9a156da4bd3cc5e1f7a3483ea07cf6eef3"
+      "sha256": "6603700a5959bd8e2bb01a2e4691758fb309dbecbadbd7c6f2e6632fa645973d"
     },
     {
       "mapId": "MAINLAND_C11RN9_MAP",
@@ -2741,7 +2741,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "f2f55f4a47c20066c245f79a0a8d6c3723d3db3fe2ceaf6f81dcb9a7410de839"
     },
     {
       "mapId": "MAINLAND_C12RN9_MAP",
@@ -3170,7 +3170,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "8b7634cb68a2c29a417efe16321dce719096e4be23be4b294f4456e64f5ca902"
+      "sha256": "b3fa6ea457a7090371971b4ad7866022ab448f9f3bc89b3360f5c9b99f5e0cf7"
     },
     {
       "mapId": "MAINLAND_C12RN8_MAP",
@@ -3599,7 +3599,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "02c9f7fdf073476b6facd53680cd18960ad4c9e199c918c8108f09db7cbe6092"
+      "sha256": "d321f47cdbd55ba3843ece09a0e6aebc3c9aa07256a2ec7737f84050bb162042"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C12RN7_MAP",
@@ -3621,7 +3621,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "d4f7669efe90f81f4e0436f51dc553b38cc04beb16138a21b9923de7c06bb133"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C14RN7_MAP",
@@ -3632,7 +3632,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "1281bcdb2a8a001e3200327243afe267b6f883096cc8efccfce738748d2c8d28"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C15RN7_MAP",
@@ -4017,7 +4017,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "9ffb2629f1d8177261efa01f144b14d4b92965e55dd2afe7f3a773c78934b970"
+      "sha256": "a3cab4018d32616e033425b341767d50fbfb4baecf23c8c65b5484bf339647da"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C12RN6_MAP",
@@ -4028,7 +4028,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e8e516d2e63bf3e5fbd60c726f07aceb73a9d69298432951566fd05b48b32f75"
+      "sha256": "40276416974be0ee4e823a2a9fd18454f674f26931511c75eabc577370cb423a"
     },
     {
       "mapId": "VALMERE_EXPANSE_C13RN6_MAP",
@@ -4413,7 +4413,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "36908f1db3843c2697973ee03325d73c9b71e480d39749ab1daf8b847fb5ca21"
+      "sha256": "02077514fb79b0cbb9f2001891c07db21e042285eeeccc3069fd6e5e4803399e"
     },
     {
       "mapId": "MAINLAND_C11RN5_MAP",
@@ -4424,7 +4424,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "e8f1e1fb90795a775b68bf5a66c58e833c9c339a5c4fab649a5009bf120a8bb3"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C12RN5_MAP",
@@ -4435,7 +4435,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "b12ad4c245759461e1dbc11a6dd9a4853f0b431590b66954e77feb3a283e029a"
+      "sha256": "50aa64fa4479354de293d056e4e02f0fb8a8aa3d865d2276701d3481457edf93"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C13RN5_MAP",
@@ -4636,6 +4636,39 @@
       "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
     },
     {
+      "mapId": "MAINLAND_CN8RN4_MAP",
+      "x": -8,
+      "y": -4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "0dbd9d1be38f8862994c6a7962ef8dcf2bbfd76d5e186f9abe534be163cf64b8"
+    },
+    {
+      "mapId": "MAINLAND_CN7RN4_MAP",
+      "x": -7,
+      "y": -4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "b09756150286c520bf48491f662e8279a944d607802ca07cf01c4868349939e9"
+    },
+    {
+      "mapId": "MAINLAND_CN6RN4_MAP",
+      "x": -6,
+      "y": -4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "40f2e5e020a64c144dd00bc9b7d46571b19073a10fa7f4cbd126887d12fe1256"
+    },
+    {
       "mapId": "MAINLAND_CN5RN4_MAP",
       "x": -5,
       "y": -4,
@@ -4809,7 +4842,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "6d8259da136f0b0176f563fe7c01e62bf7085202e3bde7beba652b7c2520a3ce"
+      "sha256": "d52a8c4a6445fc51874677d6b03468619b87a763d67e00655b5d9f3123c92556"
     },
     {
       "mapId": "MAINLAND_C11RN4_MAP",
@@ -4820,7 +4853,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "2028d2686fcf0f94cbdee4aeb66f8e40c1515941620af3c81752321a1dc4a2a7"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C12RN4_MAP",
@@ -4831,7 +4864,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "c2c869ab97c8953696601119b6c5770a65c9fee1d450a5890c5157c5dedf5693"
+      "sha256": "5f2ce3c703b6a1c9e89508c7e88c3cc27a24c9105feeaced482c8ba97d16fd14"
     },
     {
       "mapId": "VALMERE_EXPANSE_C13RN4_MAP",
@@ -5032,6 +5065,94 @@
       "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
     },
     {
+      "mapId": "MAINLAND_CN8RN3_MAP",
+      "x": -8,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "9b02eb607c98d602fcd5efd9ee9333fa65df257874d6d33526829a5d7021928c"
+    },
+    {
+      "mapId": "MAINLAND_CN7RN3_MAP",
+      "x": -7,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "e1f52211e11ecc7952581bf104fdeb9917030082f4c5f1a9dbbc517c5caefaac"
+    },
+    {
+      "mapId": "MAINLAND_CN6RN3_MAP",
+      "x": -6,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "84c0df37642439968d389865bd57506fcc7d9e8444977d4bdf66875581fae0b8"
+    },
+    {
+      "mapId": "MAINLAND_CN5RN3_MAP",
+      "x": -5,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "429a2cdb96bd7f1b684e0cb72273785b5c13049535c1fe62fc2c11dd1a4148df"
+    },
+    {
+      "mapId": "MAINLAND_CN4RN3_MAP",
+      "x": -4,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "a56186433483722cabb1cb7d2cfddfcaae1b36ed5a9682eacce095f7f856e133"
+    },
+    {
+      "mapId": "MAINLAND_CN3RN3_MAP",
+      "x": -3,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "eec859876cea6d213ec98ee9326caa8e67c29b4a7dbf89548f599368ff20660d"
+    },
+    {
+      "mapId": "MAINLAND_CN2RN3_MAP",
+      "x": -2,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "87c77ddcceed7f5a36cbe76e1138e19f0a65b5235b4bc361fffd2ce2ab544e9a"
+    },
+    {
+      "mapId": "MAINLAND_CN1RN3_MAP",
+      "x": -1,
+      "y": -3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "80fc5a831ccc09dc1de840fab4e87a68d70db309395cab9445174e681c318aa1"
+    },
+    {
       "mapId": "GREAT_FEN_ENVELOPE_C1RN3_MAP",
       "x": 1,
       "y": -3,
@@ -5139,7 +5260,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "d6b1d6a6ea9c9b84d3341893d33fb497284d8efc16929f3f2134fcb8e0e045d7"
+      "sha256": "7627abc39dcfa8ea43aa12c1e0feac5e352684a6acf791d16f007e883fe640d6"
     },
     {
       "mapId": "GREAT_FEN_ENVELOPE_C11RN3_MAP",
@@ -5150,7 +5271,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "9cd3fb7eb761ac6d396713c694b0cb9b2b9da9c803eef2bc32f762ec51228bd4"
+      "sha256": "1ece67d7a14a331f15f5e132599ac2fcbcd604abd9b72137714199d89767c607"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C12RN3_MAP",
@@ -5161,7 +5282,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "ea5eb007d793281a849c443f64971b927566e3d16e032f9931442a2a248658f0"
+      "sha256": "aa7d7cac0bd4e4368ce2fc16135bb7da056bfe33c7895f71f35081c838fe2be0"
     },
     {
       "mapId": "VALMERE_EXPANSE_C13RN3_MAP",
@@ -5362,6 +5483,94 @@
       "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
     },
     {
+      "mapId": "MAINLAND_CN8RN2_MAP",
+      "x": -8,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "913b02a9a7968c29f09fbe33960defddcf0bf9b07b5ea31deb4d3c8f944c61e2"
+    },
+    {
+      "mapId": "MAINLAND_CN7RN2_MAP",
+      "x": -7,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "dc668f05e91bd18322e0f52cc6c45f6b48c8972ceca5fb84fd058086a924bc09"
+    },
+    {
+      "mapId": "MAINLAND_CN6RN2_MAP",
+      "x": -6,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "b98632e2fd6379ae5ca804b59d9fa67c93682cf0396a60df46d1edf07911b064"
+    },
+    {
+      "mapId": "MAINLAND_CN5RN2_MAP",
+      "x": -5,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "8f9212bfcddaf8ccfd3508437b27b7da6ed89f4c0704ea0c6e9919d34d1f8b34"
+    },
+    {
+      "mapId": "MAINLAND_CN4RN2_MAP",
+      "x": -4,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "d59f610d79b63ae01773f2128e7e75ccdd130c269bd314563ddbee70fac57cba"
+    },
+    {
+      "mapId": "MAINLAND_CN3RN2_MAP",
+      "x": -3,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "be4ff0985d549ac44c84ffa5dbf63231b4ecc8ad35f821e00ec5d972231e6966"
+    },
+    {
+      "mapId": "MAINLAND_CN2RN2_MAP",
+      "x": -2,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "11c2504c50b98c34b952ffe0fa62d82b5f37b3b4f29346f3c5b8d555e8ab734e"
+    },
+    {
+      "mapId": "MAINLAND_CN1RN2_MAP",
+      "x": -1,
+      "y": -2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "0794c0db9c8c14cdb2c5462fdde24a897df2ddb362c24860166b5fc63daf84a8"
+    },
+    {
       "mapId": "GREAT_FEN_ENVELOPE_C2RN2_MAP",
       "x": 2,
       "y": -2,
@@ -5469,7 +5678,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "a323071fca5170e286d56044679d10c9f597f2d02af2e2f4644b6c7a3f9383b7"
+      "sha256": "58e38f4f1b89a49cf11f577bb912fa640e92efdcc22b391c9d41447d84ca2b9f"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C12RN2_MAP",
@@ -5480,7 +5689,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "5bd130af270d6d5910baea1b3b19970de822b9655e49ef06a6889d7d8b57b570"
+      "sha256": "375b327ab5f6993afa3caaadd1dfa927fcbe5f87da50f646ae3e2c13f98a2640"
     },
     {
       "mapId": "VALMERE_EXPANSE_C13RN2_MAP",
@@ -5634,7 +5843,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "64414a2be2bb9d0dbb1fe9ca0d42b64188f55683ea0ce4ba5494a85b28429d2a"
     },
     {
       "mapId": "MAINLAND_C27RN2_MAP",
@@ -5645,7 +5854,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "f29615076687f169b9832097e2bc66a591007f24200aec6f16566ae843dd6682"
     },
     {
       "mapId": "MAINLAND_C28RN2_MAP",
@@ -5656,7 +5865,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "426e4cc06a0246bbcb88a61bd4a8a64d1d534e7088c49ddb2fbc533ee6bcd08d"
     },
     {
       "mapId": "MAINLAND_C29RN2_MAP",
@@ -5667,7 +5876,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
+      "sha256": "99454e5550c026c471bd33542c51bb101529aa8411540be3194723a9c00e4b79"
     },
     {
       "mapId": "MAINLAND_C30RN2_MAP",
@@ -5681,15 +5890,92 @@
       "sha256": "e15bd709184c4e19309fff63c658ab693dff1a144d731be955c1fbd4877d9b68"
     },
     {
-      "mapId": "MAINLAND_CN1RN1_MAP",
-      "x": -1,
+      "mapId": "MAINLAND_CN8RN1_MAP",
+      "x": -8,
       "y": -1,
-      "region": "Great Fen",
-      "name": "Western Wet Meadow",
+      "region": "Wetwoods",
+      "name": "Wetwoods",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "3c10f0250c6b5c98f8b459b22f0be9c69aa26e74b55b23fa431ddbef17a93ad7"
+      "sha256": "db5a5924ae4a224b28e4f55acdb7e963cbb4e49243773dbbaa62aba3c6799016"
+    },
+    {
+      "mapId": "MAINLAND_CN7RN1_MAP",
+      "x": -7,
+      "y": -1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "603ee8057aff8c35073b3d49189acdab291cccb01e60b27bcec8d576e01da51b"
+    },
+    {
+      "mapId": "MAINLAND_CN6RN1_MAP",
+      "x": -6,
+      "y": -1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "d05ef600404d61da1aeee98588baf61d5d65235fdc85914ffcaab2dfde07f649"
+    },
+    {
+      "mapId": "MAINLAND_CN5RN1_MAP",
+      "x": -5,
+      "y": -1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "217f04986b971e8c16dfde3d6c6f79ceea1aa0f467ab54d6a7d27e69861f00bc"
+    },
+    {
+      "mapId": "MAINLAND_CN4RN1_MAP",
+      "x": -4,
+      "y": -1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "187aeaa45cf3f53c22e4abe2dc828628cef0421fdcb6104e7237d9caf140ed47"
+    },
+    {
+      "mapId": "MAINLAND_CN3RN1_MAP",
+      "x": -3,
+      "y": -1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "1de7c5ddbabd0bb303fceaf891df3a6981398abaf6c1e3e147449aba599898d9"
+    },
+    {
+      "mapId": "MAINLAND_CN2RN1_MAP",
+      "x": -2,
+      "y": -1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "16e9221b4e5ad0fa0ac1fef22590f9ec86f2d06aba5024e7b64d542a9bc3eaae"
+    },
+    {
+      "mapId": "MAINLAND_CN1RN1_MAP",
+      "x": -1,
+      "y": -1,
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "d0fc748be70098181ef6595d0a68446059baea4f76d46ebb46d846c7bfba3c44"
     },
     {
       "mapId": "NORTH_BASIN_ENVELOPE_C0RN1_MAP",
@@ -5799,7 +6085,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e9c8c21d1ad1b7f4cef4be813e5b52831ee159fbbc17c71dbb1f82ba4715fa01"
+      "sha256": "dc95d784191625412b84d9eb8b57a2f881b64a335aacca052ad9d7bb36642dc0"
     },
     {
       "mapId": "GREAT_FEN_ENVELOPE_C11RN1_MAP",
@@ -5810,7 +6096,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "213cbe1fb633767c5a4d5138f08e4d8848fe054edada3155a7e7f58a561a6cea"
+      "sha256": "9cbc22efb1b9c96f12623a1d28ea89190cf0ade11dc68ac2087edfc09bad95aa"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C12RN1_MAP",
@@ -5821,7 +6107,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e2d27f6f177569dca88a879dc70a56c2b6747cadb2e06cebe8a5a8d3a8a2a708"
+      "sha256": "1ed2df85c7767b5de9b03d6c83ee7f108c2ed5545e399d355c3b81a6c4ee4bdd"
     },
     {
       "mapId": "VALMERE_EXPANSE_C13RN1_MAP",
@@ -5975,7 +6261,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "67aeba717f9af0b79f5b374d88fbf90fa43c5b424765c415acd4dad48891613b"
+      "sha256": "736ce992040f5c4e52cf80b7aefd7095b8c91057bf4ba483bab479022d785f2e"
     },
     {
       "mapId": "MAINLAND_C27RN1_MAP",
@@ -5986,7 +6272,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "e94fd5c7b6f335ff09fc0972a77dee4a491e82d5739e9aec6ab78817ee705fb9"
+      "sha256": "f04f08fbfb0d6abfdbf41439b431556834e62b3ec6b5a1aa27886f1ff9de6196"
     },
     {
       "mapId": "MAINLAND_C28RN1_MAP",
@@ -6008,18 +6294,95 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "9c9a068995b7d6ec1f8ba119a1159b706055c5df390f95bac175744accf7612e"
+      "sha256": "1265691f9aebf178e432e4f4eac55237c93fec5ce3a9de4fd7a153dcbfb9177e"
+    },
+    {
+      "mapId": "MAINLAND_CN8R0_MAP",
+      "x": -8,
+      "y": 0,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "7401f16755c305b5ff0ed82cb3e42372e17ba2049de4fa383d5de84b3eba2862"
+    },
+    {
+      "mapId": "MAINLAND_CN7R0_MAP",
+      "x": -7,
+      "y": 0,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "f170eadc2e87a7bd75f4168d55296b26f710a5b13354b2933e84c7591ad5df2d"
+    },
+    {
+      "mapId": "MAINLAND_CN6R0_MAP",
+      "x": -6,
+      "y": 0,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "4364d37c0a8be6f8a865fa0bfdae3b07691947a06d380194a40b89af2bc02713"
+    },
+    {
+      "mapId": "MAINLAND_CN5R0_MAP",
+      "x": -5,
+      "y": 0,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "1d4da28e53130ec719561743e482eef51a25c0b21cc0eda061af373f3c55ee0f"
+    },
+    {
+      "mapId": "MAINLAND_CN4R0_MAP",
+      "x": -4,
+      "y": 0,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "b0fed697b639f88c8a58dbc00dbd6c8ee50064f115cea651b22ad026282cf52d"
+    },
+    {
+      "mapId": "MAINLAND_CN3R0_MAP",
+      "x": -3,
+      "y": 0,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "6f47861e5e30931105a888c338603e77aafe1adaa04e6cc02abd33bc580a5465"
+    },
+    {
+      "mapId": "MAINLAND_CN2R0_MAP",
+      "x": -2,
+      "y": 0,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "57cf56a5cc8803bc80afb9750d0273a28bb9a74d5ba91649798aef2893017e6d"
     },
     {
       "mapId": "MAINLAND_CN1R0_MAP",
       "x": -1,
       "y": 0,
-      "region": "Great Fen",
-      "name": "Western Wet Meadow",
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "8df60da7f5bac2cd716fcc582eaacadc868633ecdb28344f0f65adc0d6554b29"
+      "sha256": "b65d96b8cff07edbc011d0a1b523bd0aad0f66ca5a30c716fdec9cd2beaa7087"
     },
     {
       "mapId": "NORTH_BASIN_NW2_MAP",
@@ -6363,15 +6726,92 @@
       "sha256": "034d066edf456b168d96cc833eed43953f4bfae51a2b09c18cbc3c5e5448e9cd"
     },
     {
-      "mapId": "MAINLAND_CN1R1_MAP",
-      "x": -1,
+      "mapId": "MAINLAND_CN8R1_MAP",
+      "x": -8,
       "y": 1,
-      "region": "Great Fen",
-      "name": "Western Wet Meadow",
+      "region": "Wetwoods",
+      "name": "Wetwoods",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "ac9f8a9395d43772f01b673697cf004c21f83ea06134114d2ed08075dd7f240a"
+      "sha256": "7590288f6eca9d6bb8cc23140bb411d399b82c694e7662ee9a67d7ba9b4e4d07"
+    },
+    {
+      "mapId": "MAINLAND_CN7R1_MAP",
+      "x": -7,
+      "y": 1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "f59ebd089ba3f55af982ceed545139790dc35c3a46b3ca809a690c31b7b35569"
+    },
+    {
+      "mapId": "MAINLAND_CN6R1_MAP",
+      "x": -6,
+      "y": 1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "b19208d91a3381fcce3ebce56b2aa0ecec462c324d9652b4e9b837492285bd0a"
+    },
+    {
+      "mapId": "MAINLAND_CN5R1_MAP",
+      "x": -5,
+      "y": 1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "514daadb05373161d9fda96856ca926b9fda12033182a71a86546eccd6ac4d48"
+    },
+    {
+      "mapId": "MAINLAND_CN4R1_MAP",
+      "x": -4,
+      "y": 1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "282f165495512a9e73a33920b34df8ffd46a32b3b2bdc7046722f1704e8be3d5"
+    },
+    {
+      "mapId": "MAINLAND_CN3R1_MAP",
+      "x": -3,
+      "y": 1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "28c607d61766593ad77db97dd5fcc762476ce8439e439d49aff33b4840ac4c0b"
+    },
+    {
+      "mapId": "MAINLAND_CN2R1_MAP",
+      "x": -2,
+      "y": 1,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "f3bbd5884d33a525f478f6646e5954908381af1f0c345a632854c4d3fb1e243a"
+    },
+    {
+      "mapId": "MAINLAND_CN1R1_MAP",
+      "x": -1,
+      "y": 1,
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "c9e5e961552e6500fdf133c7704a9d82b96a6b61e98c8ce01f4b9c8e2f9cae23"
     },
     {
       "mapId": "NORTH_BASIN_W2_MAP",
@@ -6715,15 +7155,92 @@
       "sha256": "05b8f95d3582ded758c7ee890b9c907bbe1bd8693e69b97773fedf1a9d97e5dd"
     },
     {
-      "mapId": "MAINLAND_CN1R2_MAP",
-      "x": -1,
+      "mapId": "MAINLAND_CN8R2_MAP",
+      "x": -8,
       "y": 2,
-      "region": "Great Fen",
-      "name": "Western Wet Meadow",
+      "region": "Wetwoods",
+      "name": "Wetwoods",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "8df4a271c8f3d22c19200f19c571cf056697f56f0db0aef6dd03e88e9125f472"
+      "sha256": "c06632accf0e34e683b02ba183ed5440cf367a2704406de2a6569da6ef11880c"
+    },
+    {
+      "mapId": "MAINLAND_CN7R2_MAP",
+      "x": -7,
+      "y": 2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "72fa506722a34d2c2ad0d797ccbfb54b08c6abd755ccb4fd409ec2bf36b18f30"
+    },
+    {
+      "mapId": "MAINLAND_CN6R2_MAP",
+      "x": -6,
+      "y": 2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "c9ed2c78198344277559970836bf16a050c7b7f9fc1c4582e34c6e6c2ffe5df9"
+    },
+    {
+      "mapId": "MAINLAND_CN5R2_MAP",
+      "x": -5,
+      "y": 2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "b22737f06f3bac33cdaf2af4879f6e6a7f9e73f4cc47bff0211b47960bfd6f54"
+    },
+    {
+      "mapId": "MAINLAND_CN4R2_MAP",
+      "x": -4,
+      "y": 2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "15e6592b212f34b16c60afa608c9776d65af016b913a27c8307e4982844a6b7e"
+    },
+    {
+      "mapId": "MAINLAND_CN3R2_MAP",
+      "x": -3,
+      "y": 2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "3ad659ac5dd9dd6d6af44fba1df2aa6ab91bc71772a590474e6b14e8fb06a29e"
+    },
+    {
+      "mapId": "MAINLAND_CN2R2_MAP",
+      "x": -2,
+      "y": 2,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "de34fe1bb2340f1e5f16166ebb11dfff2ef65363eb2737a2486f2cbcf09ca0b2"
+    },
+    {
+      "mapId": "MAINLAND_CN1R2_MAP",
+      "x": -1,
+      "y": 2,
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "ec43fcc3ffaa5c2a1f647960946fc960a2d1494c392cc445faf60f035c200bf1"
     },
     {
       "mapId": "NORTH_BASIN_MIREWOOD_MAP",
@@ -7067,15 +7584,92 @@
       "sha256": "b6e4c82b278b096b6ee2fc0fea9cdec8445a36ebb700785d9933234c17b296a9"
     },
     {
-      "mapId": "MAINLAND_CN1R3_MAP",
-      "x": -1,
+      "mapId": "MAINLAND_CN8R3_MAP",
+      "x": -8,
       "y": 3,
-      "region": "Great Fen",
-      "name": "Western Wet Meadow",
+      "region": "Wetwoods",
+      "name": "Wetwoods",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "99fad18af8244772a0d9a7b191644d081c4f49f89a3a281e0de3d4f2f6ed2a1f"
+      "sha256": "ea84e5c581058e7541c81da7b0dadab139287f3256d41583aba20ab484b31f8f"
+    },
+    {
+      "mapId": "MAINLAND_CN7R3_MAP",
+      "x": -7,
+      "y": 3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "e6ead54dbf579edd78cb2d4cc28ec85e5090d8395ff79df526883d30caebccf2"
+    },
+    {
+      "mapId": "MAINLAND_CN6R3_MAP",
+      "x": -6,
+      "y": 3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "bd0223430901a06a1f741b1d4b1897fd798e836ddf7d3e54880bb53675420eb0"
+    },
+    {
+      "mapId": "MAINLAND_CN5R3_MAP",
+      "x": -5,
+      "y": 3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "89a978d831f35681b2b4f6370f30c3ea035c2b8d47b0bb6012039de6ec90a49d"
+    },
+    {
+      "mapId": "MAINLAND_CN4R3_MAP",
+      "x": -4,
+      "y": 3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "4c7bcbf6ab1fe7f3dc99ba8bc5a0b482b37682d3d9eace61e0b6772892fbee99"
+    },
+    {
+      "mapId": "MAINLAND_CN3R3_MAP",
+      "x": -3,
+      "y": 3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "321f7d4cfa133f3c76cff40910dfe8218ddbbb29cdd74210d9e1cc2c1580a65e"
+    },
+    {
+      "mapId": "MAINLAND_CN2R3_MAP",
+      "x": -2,
+      "y": 3,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "e5e8f90e6cb3a14fa42380bdb004a77dca18314603f3abc2fa05028caf9f3a56"
+    },
+    {
+      "mapId": "MAINLAND_CN1R3_MAP",
+      "x": -1,
+      "y": 3,
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "0c99b4af76ee98d840c8e9aabba54a4d975872a0668d537956032d1d391988d3"
     },
     {
       "mapId": "MAP_N2",
@@ -7419,15 +8013,92 @@
       "sha256": "bbc15d6aeeb0e463c10d4946ab1afa8754b89e9b4622c069773e1ea219037c08"
     },
     {
-      "mapId": "MAINLAND_CN1R4_MAP",
-      "x": -1,
+      "mapId": "MAINLAND_CN8R4_MAP",
+      "x": -8,
       "y": 4,
-      "region": "Great Fen",
-      "name": "Western Wet Meadow",
+      "region": "Wetwoods",
+      "name": "Wetwoods",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "1c07d7e1fdeda7098e9e29b6c226204d379c0c9a34d3c5ee3dd30f087da59ea3"
+      "sha256": "a80ee39d51d4a493ebc4b2b029e216c16e67e7a919d807d3fd3d7ae2e60e374f"
+    },
+    {
+      "mapId": "MAINLAND_CN7R4_MAP",
+      "x": -7,
+      "y": 4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "ba5462fa3a7577e5f8b1cec55ff1a7ab5bad0a2c644558af06252d698162c80f"
+    },
+    {
+      "mapId": "MAINLAND_CN6R4_MAP",
+      "x": -6,
+      "y": 4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "1b352b1a8c51b10d7608dfea987d90b452c4f567f7081ca8ab170f4c4c9d948e"
+    },
+    {
+      "mapId": "MAINLAND_CN5R4_MAP",
+      "x": -5,
+      "y": 4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "381b13c68f01bb9d18bf22d260501f9fa38ba9caf9928b9e40fbde22152861e8"
+    },
+    {
+      "mapId": "MAINLAND_CN4R4_MAP",
+      "x": -4,
+      "y": 4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "dff295188da2519fe47d1b4a204474d6341bdb964341992840671e31a1415187"
+    },
+    {
+      "mapId": "MAINLAND_CN3R4_MAP",
+      "x": -3,
+      "y": 4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "a374df52d3c25a490c6b545e8db5e386c131bc0c39cdab521caa88d27bb3b493"
+    },
+    {
+      "mapId": "MAINLAND_CN2R4_MAP",
+      "x": -2,
+      "y": 4,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "fe961c8ce3e5f47ee53278041b74ae9ef727412f4dcad4e6912a78aec46f318e"
+    },
+    {
+      "mapId": "MAINLAND_CN1R4_MAP",
+      "x": -1,
+      "y": 4,
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "fcbf0d4a332f96cb658c9586329b192a1af21554d01265c6d8522c599a5a61a8"
     },
     {
       "mapId": "MAP_N1",
@@ -7760,15 +8431,92 @@
       "sha256": "53637b3da9f67ab34e670e6c880da345fa3098d2997b8323c634943147ba753d"
     },
     {
-      "mapId": "MAINLAND_CN1R5_MAP",
-      "x": -1,
+      "mapId": "MAINLAND_CN8R5_MAP",
+      "x": -8,
       "y": 5,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Wetwoods",
+      "name": "Wetwoods",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "1c92323c315914dbc0d0431168e9ebd836e2e68278efb3bc4f54538217949064"
+      "sha256": "61fb9db2669aeb2bc82d51a1ee50173916db41d9ac275e2a59ee0e713648d05d"
+    },
+    {
+      "mapId": "MAINLAND_CN7R5_MAP",
+      "x": -7,
+      "y": 5,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "59520c9126e040b70da92556eb3ec752bca3e47bea850697a9d410446392d388"
+    },
+    {
+      "mapId": "MAINLAND_CN6R5_MAP",
+      "x": -6,
+      "y": 5,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "b79f1711d66d00543e7b846ed3719c7dbd82a4b9a9050baf754b8fdbe6019f16"
+    },
+    {
+      "mapId": "MAINLAND_CN5R5_MAP",
+      "x": -5,
+      "y": 5,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "f827789bca069487f7483c85924b381d26921eb02b8616a54178aa010e42370c"
+    },
+    {
+      "mapId": "MAINLAND_CN4R5_MAP",
+      "x": -4,
+      "y": 5,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "89defb18902ced5057af9566075df1f889a612effc854d1ce54f05927256a02f"
+    },
+    {
+      "mapId": "MAINLAND_CN3R5_MAP",
+      "x": -3,
+      "y": 5,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "01c51ad31dbac427b2f73f98e434cc9bb65402dd06af521fd97e92eab47db501"
+    },
+    {
+      "mapId": "MAINLAND_CN2R5_MAP",
+      "x": -2,
+      "y": 5,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "a0c19543fe1d9cb7549d693c92ee18489a6350c6a605a3512f62ddddad0bcf04"
+    },
+    {
+      "mapId": "MAINLAND_CN1R5_MAP",
+      "x": -1,
+      "y": 5,
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "22b46bf98e8a8d112c41c4dfcb76978436ced15fb5aa470046ebdc7510f4d398"
     },
     {
       "mapId": "MAP",
@@ -8101,15 +8849,92 @@
       "sha256": "8c10e5316623bbe37aedce48064eaddd018f110b779b4c56fa0d90d58e53db49"
     },
     {
-      "mapId": "MAINLAND_CN1R6_MAP",
-      "x": -1,
+      "mapId": "MAINLAND_CN8R6_MAP",
+      "x": -8,
       "y": 6,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Wetwoods",
+      "name": "Wetwoods",
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "991de4ce1ac7d0861eec46cdf4efd2814be7143e03ab47bfa2d4e0d83597dda0"
+      "sha256": "1233360ec31aaa38f5d4473a3d069db9636aebf67fb72d7ba4a8b4c256211a2b"
+    },
+    {
+      "mapId": "MAINLAND_CN7R6_MAP",
+      "x": -7,
+      "y": 6,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "9376154d2b89d358425e39c4633ec5569061e8c9f56958abcdd724061e610f78"
+    },
+    {
+      "mapId": "MAINLAND_CN6R6_MAP",
+      "x": -6,
+      "y": 6,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "e91f8b910833ff65c52cf43f90cbe64852e8a608644d27bb073b1c09c65831b1"
+    },
+    {
+      "mapId": "MAINLAND_CN5R6_MAP",
+      "x": -5,
+      "y": 6,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "f4ee8dbf4f492770a039382205b922d616fbfa73054e1ec1c5877a99bd3bed3c"
+    },
+    {
+      "mapId": "MAINLAND_CN4R6_MAP",
+      "x": -4,
+      "y": 6,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "3bcf37ae545ffed844473287d3837a426f7c7abee558bf2e948f20ab0d2b8825"
+    },
+    {
+      "mapId": "MAINLAND_CN3R6_MAP",
+      "x": -3,
+      "y": 6,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "5871e4658467992e4b9de1d9dfec941d9d50c4a966ff9427a5dcf8390f41b8ea"
+    },
+    {
+      "mapId": "MAINLAND_CN2R6_MAP",
+      "x": -2,
+      "y": 6,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "ed965051eeb8bb3ebedd27f1dc79029d3262ff6fac2d6b21d4f8c9b4e37aa860"
+    },
+    {
+      "mapId": "MAINLAND_CN1R6_MAP",
+      "x": -1,
+      "y": 6,
+      "region": "Wetwoods",
+      "name": "Wetwoods — Eastern Margin",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "037fc1d5a9428d2a620e1a46391d7341a19493d6dfd8e100166cd18220626dd3"
     },
     {
       "mapId": "MAINLAND_C0R6_MAP",
@@ -8148,12 +8973,12 @@
       "mapId": "MAINLAND_C3R6_MAP",
       "x": 3,
       "y": 6,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "5b456756cb9cc979d210887aec9f1f4ead3fae97d1e36071509475e866817f8b"
+      "sha256": "2e5fa5322f1e43d4028f9e7a6b4ac27743e6a3697eaf62a76a973d7dcbf64ae3"
     },
     {
       "mapId": "MAINLAND_C4R6_MAP",
@@ -8453,6 +9278,72 @@
       "sha256": "670ca18d0756bad9f38d836a9cf7d1379080213bb1d4ce2da95d0cf35c13616d"
     },
     {
+      "mapId": "MAINLAND_CN8R7_MAP",
+      "x": -8,
+      "y": 7,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "4ee0bd6849224350e20dc6561c35de891f2b2a8ae57d4c31d1f89d9e97fcd334"
+    },
+    {
+      "mapId": "MAINLAND_CN7R7_MAP",
+      "x": -7,
+      "y": 7,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "85ac0975553d381cbbd41a92b1b29544d96ba1fe6c246497740d4bd182c58ee8"
+    },
+    {
+      "mapId": "MAINLAND_CN6R7_MAP",
+      "x": -6,
+      "y": 7,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "9f62c83e491f8a7e14cd746d10db7261eadbbd4abd61d8fbb151e0500fcf6be6"
+    },
+    {
+      "mapId": "MAINLAND_CN5R7_MAP",
+      "x": -5,
+      "y": 7,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "c2f1187ddedf798b1fb019a4b7369456a36220bbfb3c1c7436ac19ba5c67384a"
+    },
+    {
+      "mapId": "MAINLAND_CN4R7_MAP",
+      "x": -4,
+      "y": 7,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "dff9ab5c9b6d4e8682a9baa832396efad8a178e8babab8c57c7de4e95d893331"
+    },
+    {
+      "mapId": "MAINLAND_CN3R7_MAP",
+      "x": -3,
+      "y": 7,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "6f8a1dd890c00a973d49ce50fffb47cbac5efac1998bad5fa1f37f6993ff2e2b"
+    },
+    {
       "mapId": "MAINLAND_CN2R7_MAP",
       "x": -2,
       "y": 7,
@@ -8478,45 +9369,45 @@
       "mapId": "MAINLAND_C0R7_MAP",
       "x": 0,
       "y": 7,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "e0c6fcbe23cf892bcd22d9a1ee029f1047b61e6481ef7bb5ffaff36e229335f3"
+      "sha256": "a3628101dc9a0fa928b7e24db5ebb485941f5c3e2701c552486bdedd7136df3d"
     },
     {
       "mapId": "MAINLAND_C1R7_MAP",
       "x": 1,
       "y": 7,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "ded2ed317c1febb427fdce8391e5db445899e2c771f30697f7aa49a0aff91272"
+      "sha256": "a5073e703a64acf90c3ce468ac358774293b918a71f472f78b20fd435e010fa5"
     },
     {
       "mapId": "MAINLAND_C2R7_MAP",
       "x": 2,
       "y": 7,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "7d442098f8689969617bea7ec3722bd673b51708c712e5310aacd2c1b44d93f8"
+      "sha256": "aadbe7836f77237b6c40281a20e83c293f5b4a61deb95dba0a560942baba5bec"
     },
     {
       "mapId": "MAINLAND_C3R7_MAP",
       "x": 3,
       "y": 7,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "4d946c88185c1de95422fe95cf6aefb3553e19b7078ffc42018a53ba49478818"
+      "sha256": "9f0670c04b8a98b98992fe148d69d2e963c33b62c1340267b22e7b64aa57fda0"
     },
     {
       "mapId": "MAINLAND_C4R7_MAP",
@@ -8816,6 +9707,72 @@
       "sha256": "787aa100252b94a91788abb80b40a8d81587aeb1a78ca8f2997fc4ae00cf3437"
     },
     {
+      "mapId": "MAINLAND_CN8R8_MAP",
+      "x": -8,
+      "y": 8,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "74a6181dcf63a8b707580d7a9e182d613a74b65b29496cd89da674ee38cb2ab6"
+    },
+    {
+      "mapId": "MAINLAND_CN7R8_MAP",
+      "x": -7,
+      "y": 8,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "e5faf514a1dcf22e76b2dbabe0cf43288542e06c157931ab60f83720e8e75e57"
+    },
+    {
+      "mapId": "MAINLAND_CN6R8_MAP",
+      "x": -6,
+      "y": 8,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "41b13d55266485c9d8639ad5f5ca90c70d4fae667219f91d22c4529e0bce995b"
+    },
+    {
+      "mapId": "MAINLAND_CN5R8_MAP",
+      "x": -5,
+      "y": 8,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "32646ca76f5af85b668c0510bdfd2da36114b0f427ee0f90153de01b62d44588"
+    },
+    {
+      "mapId": "MAINLAND_CN4R8_MAP",
+      "x": -4,
+      "y": 8,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "7b557a4ba9903ccdfdcc23f0beb66f9f5a68d38f938f1d97705e8279f5c75b9c"
+    },
+    {
+      "mapId": "MAINLAND_CN3R8_MAP",
+      "x": -3,
+      "y": 8,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "58210a1e26c761354128e20c07475cd175518a27da75a275289a49adeeddaed2"
+    },
+    {
       "mapId": "MAINLAND_CN2R8_MAP",
       "x": -2,
       "y": 8,
@@ -8841,56 +9798,56 @@
       "mapId": "MAINLAND_C0R8_MAP",
       "x": 0,
       "y": 8,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "b6fe408f8c483bc871711e3ffa17d08b0292627106a3b09fd527f63761539fe8"
+      "sha256": "49d95c0d80f2a6e6886b5ae757bdf9aa19daf0993b617e6d11f768748bdc3f3c"
     },
     {
       "mapId": "MAINLAND_C1R8_MAP",
       "x": 1,
       "y": 8,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
-      "accessible": true,
-      "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "0ebb1fc868a54ef3936cd0e9bba96fe5b1a7ffad898b667308a272fb846853d7"
+      "region": "Thornmere",
+      "name": "Thornmere — Open Mere",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "c27bae91f42b92b2c7ad6d2bb466804dc696ab8c81e0ca37603c3891a1aacc19"
     },
     {
       "mapId": "MAINLAND_C2R8_MAP",
       "x": 2,
       "y": 8,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
-      "accessible": true,
-      "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "28b5353e6206f74a9e5ddf89b57dd44fc4b4d42939b6e651a47a516421a12597"
+      "region": "Thornmere",
+      "name": "Thornmere — Open Mere",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "854b5ea1cf16adbd06fa24d4756d0d23769e929c3173d69b4651292e3df20b7e"
     },
     {
       "mapId": "MAINLAND_C3R8_MAP",
       "x": 3,
       "y": 8,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Open Mere",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "93044f5f5056cba1ee5609bbcc890c90ac819519dc2020f5fad1627f95419a72"
+      "sha256": "333ac78c65387ece99567ff06cc69b6105f32d83417f09606c5b2440fe2bce76"
     },
     {
       "mapId": "MAINLAND_C4R8_MAP",
       "x": 4,
       "y": 8,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "d09ef16ed92c6cdfc85f63d0c6704af506af0af6adeaf1b7c439632df3f99889"
+      "sha256": "aacc5068280e1195fbb580cecd4122cae3a7472c66c30ccecf512ce0f35717b9"
     },
     {
       "mapId": "MAINLAND_C5R8_MAP",
@@ -9179,6 +10136,72 @@
       "sha256": "74d8cdfb2ba0a028f6ec84f2f3b103136bef7f54e2f58fe37b566d83df1413b8"
     },
     {
+      "mapId": "MAINLAND_CN8R9_MAP",
+      "x": -8,
+      "y": 9,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "4e161ca524ad97a231588a8ba3c41a46607f773a9fad10dd88c98cc238914545"
+    },
+    {
+      "mapId": "MAINLAND_CN7R9_MAP",
+      "x": -7,
+      "y": 9,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "16f6ad08ed9ec60aac21b886505f864ee410295fc393c350c099a6b5fdbbf833"
+    },
+    {
+      "mapId": "MAINLAND_CN6R9_MAP",
+      "x": -6,
+      "y": 9,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "e06fb0a11b57bc40317a16ea0cd0566d1f31f38c57ae39d71980963a2f6eec8c"
+    },
+    {
+      "mapId": "MAINLAND_CN5R9_MAP",
+      "x": -5,
+      "y": 9,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "18ee37d6e7d733b70484ee39adbd7cb5998673bb171fdf210cdc934626d73e32"
+    },
+    {
+      "mapId": "MAINLAND_CN4R9_MAP",
+      "x": -4,
+      "y": 9,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "53ffad61306a33518858ddd8c4c38efa2a5ffcae9a1a4deb248231bd392e3aa1"
+    },
+    {
+      "mapId": "MAINLAND_CN3R9_MAP",
+      "x": -3,
+      "y": 9,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "8c6cf53c81a5ed303e4c0841248db03ee40492d38dbad554cd90cb0a672eec0d"
+    },
+    {
       "mapId": "MAINLAND_CN2R9_MAP",
       "x": -2,
       "y": 9,
@@ -9204,56 +10227,56 @@
       "mapId": "MAINLAND_C0R9_MAP",
       "x": 0,
       "y": 9,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "01d299b972a38b9960c10dd59615239c5e88311f78a262c8eb8ea350e54cd9e4"
+      "sha256": "1f368edc0ee352eafe2a69056fbcaa05d55908df79cbf8124d0e4bac59f58e96"
     },
     {
       "mapId": "MAINLAND_C1R9_MAP",
       "x": 1,
       "y": 9,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
-      "accessible": true,
-      "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "ec2e8893d5f85e4c4ea883ea0ba4318a7bfb2cd156eed760cd52725b2660766c"
+      "region": "Thornmere",
+      "name": "Thornmere — Open Mere",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "8cce0e9025fd6f669c6726ff0344f5b3f77c7788fd3a21e7c8da3c9367b8a841"
     },
     {
       "mapId": "MAINLAND_C2R9_MAP",
       "x": 2,
       "y": 9,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
-      "accessible": true,
-      "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "eb03e506687f51e933abb67c7990d87148f2d0f7f93338864222cf7dd153be80"
+      "region": "Thornmere",
+      "name": "Thornmere — Open Mere",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "904d3d266f6e2a3d970c455d87dedd5020bdf7c409f0de457eee796c197295a8"
     },
     {
       "mapId": "MAINLAND_C3R9_MAP",
       "x": 3,
       "y": 9,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Open Mere",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "97eae113b319f078d6f8968ba0cd9de25a53fe48a2f22fe913620822db534185"
+      "sha256": "769254f7af9dc4b49116315cdd3aade557699886dd900ae1fecc817fd49625d1"
     },
     {
       "mapId": "MAINLAND_C4R9_MAP",
       "x": 4,
       "y": 9,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "78ecc18751856738726a3ec4e8c8ed770b0f648de91840f8eb1c3820e73a59cf"
+      "sha256": "4748e797fcdb51daad3a16a1d7988492ffe7ff2da8a6c41ef0698dd7f1a7f734"
     },
     {
       "mapId": "MAINLAND_C5R9_MAP",
@@ -9542,6 +10565,72 @@
       "sha256": "9f317b4e2606784943b0c83017a5d9a0ea82660a3a2686e4f79c621b51862f97"
     },
     {
+      "mapId": "MAINLAND_CN8R10_MAP",
+      "x": -8,
+      "y": 10,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "630100fc22416f4df84df7e43290a13ee4b030accd35903edfe085991ab1f2ee"
+    },
+    {
+      "mapId": "MAINLAND_CN7R10_MAP",
+      "x": -7,
+      "y": 10,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "1162ea195d0c0a892867e2c9f9e4b025d5535bd74fd465f90532930d723f9fe1"
+    },
+    {
+      "mapId": "MAINLAND_CN6R10_MAP",
+      "x": -6,
+      "y": 10,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "377d773e5dfe9245676e06d387d45c4d0ca596b8c3a3e768f63d52e97c2b0a09"
+    },
+    {
+      "mapId": "MAINLAND_CN5R10_MAP",
+      "x": -5,
+      "y": 10,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "1f97e6112581a99913ca302b66600d996fa282f85941d8393b43f3a7deec00a5"
+    },
+    {
+      "mapId": "MAINLAND_CN4R10_MAP",
+      "x": -4,
+      "y": 10,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "4902e458f96c90795cf6a753e9d357b52dfde14842bbff5e3b1d12fbc5022fc8"
+    },
+    {
+      "mapId": "MAINLAND_CN3R10_MAP",
+      "x": -3,
+      "y": 10,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "f005a7bf1ac65e7d8b54a1013cc6d6494e40739accb288ce345163cf6096e56f"
+    },
+    {
       "mapId": "MAINLAND_CN2R10_MAP",
       "x": -2,
       "y": 10,
@@ -9567,56 +10656,56 @@
       "mapId": "MAINLAND_C0R10_MAP",
       "x": 0,
       "y": 10,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "dcc1bd382244bcc5168f0eb6d1d4498d656942257f764108426f7f47d951a092"
+      "sha256": "ba0f1537b1caa4dc8f545bd02c7d95e0fe45f50e3e0ac6b207079817b7c4e9aa"
     },
     {
       "mapId": "MAINLAND_C1R10_MAP",
       "x": 1,
       "y": 10,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "14250bf66092265fc46e50b58e867b0ffeb29ef2b5ca53968440e3858f4321b4"
+      "sha256": "8900b01110fa4f092868fb74b21e10d93d2072f3d8eaf7f3b6de894a64cabf17"
     },
     {
       "mapId": "MAINLAND_C2R10_MAP",
       "x": 2,
       "y": 10,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "7d27837a2c043ba0b10f39c667376adbd76834e8ddf8f7b928608a6b783b485d"
+      "sha256": "c65896752621b59e8ec5065a38d5c39b686841c8643858372a95f6628f2710f0"
     },
     {
       "mapId": "MAINLAND_C3R10_MAP",
       "x": 3,
       "y": 10,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "9f97e189a77629910497c63fb6e24e137ae958c051aa61ae44d385b953f01e97"
+      "sha256": "4745832eb1267eabf533372a6a5557ce8c161fd6f9d84e9de9b163f5d05e0d05"
     },
     {
       "mapId": "MAINLAND_C4R10_MAP",
       "x": 4,
       "y": 10,
-      "region": "Southern Countryside",
-      "name": "Pasture Hollows",
+      "region": "Thornmere",
+      "name": "Thornmere — Reed Shore",
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "7170a67d1339000cc90e7a653464a5ff54dad2e682b69ebf106629e74e4fde91"
+      "sha256": "a1938c72bf51cfd75d83367f34959fa51b404e4f1cbfd54a08e75d1911c3384d"
     },
     {
       "mapId": "MAINLAND_C5R10_MAP",
@@ -9881,6 +10970,83 @@
       "encounters": false,
       "profile": "far",
       "sha256": "4812cc40da400a2eb90c3d99e05fa3af7b26bb735464a14ef6ac410524985fc5"
+    },
+    {
+      "mapId": "MAINLAND_CN8R11_MAP",
+      "x": -8,
+      "y": 11,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "60a849af9df3dd564d071aa3b2090b4604b571d9fea03c6e19e2cb0e4a4da1ca"
+    },
+    {
+      "mapId": "MAINLAND_CN7R11_MAP",
+      "x": -7,
+      "y": 11,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "edddccf32ce7ddbd67bd5509bd02daf8c6342316b26656ff29e874bd32bacafd"
+    },
+    {
+      "mapId": "MAINLAND_CN6R11_MAP",
+      "x": -6,
+      "y": 11,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "6a607f570d20d6f0e13647dc7c390c2541a52af29ebf634f36cff112a7634de1"
+    },
+    {
+      "mapId": "MAINLAND_CN5R11_MAP",
+      "x": -5,
+      "y": 11,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "5c17acaf3ac9a66a2bd0a96f142950cb7f239f7975618e30576f6044f901dd90"
+    },
+    {
+      "mapId": "MAINLAND_CN4R11_MAP",
+      "x": -4,
+      "y": 11,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "1f13ce5537c9a6c0bd66589ec0945bd6b0c0af293aa23e4ec7e6abb5c7f48979"
+    },
+    {
+      "mapId": "MAINLAND_CN3R11_MAP",
+      "x": -3,
+      "y": 11,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "f5783fa291ac35eb580c2a9beef6dea3c3936315b21b6674d250ba6d5b2cbb00"
+    },
+    {
+      "mapId": "MAINLAND_CN2R11_MAP",
+      "x": -2,
+      "y": 11,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "c84c8668e51dd28de6ecbe99f7757fd29de3cf518fdcd8606d03aa1be28d9833"
     },
     {
       "mapId": "MAINLAND_CN1R11_MAP",
@@ -10200,6 +11366,94 @@
       "encounters": false,
       "profile": "far",
       "sha256": "bc0e1477b32c9534b9ec6239e99c8f6d3a3d860c167a0121bac5cfbbb2fc0897"
+    },
+    {
+      "mapId": "MAINLAND_CN8R12_MAP",
+      "x": -8,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "50e9d63074c53c8380fbd4c0d053af67fcca12e03b8867cab82ee008077633eb"
+    },
+    {
+      "mapId": "MAINLAND_CN7R12_MAP",
+      "x": -7,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "a3f3e62985f655de4c6dccdd6056057678eaa9eb74dcf5a9b6d538830c8e1dc5"
+    },
+    {
+      "mapId": "MAINLAND_CN6R12_MAP",
+      "x": -6,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "8241c03228e9f9285f9a3cc9dd44e7c940ab9c13244d0da09ba7d731c6209db0"
+    },
+    {
+      "mapId": "MAINLAND_CN5R12_MAP",
+      "x": -5,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "ea27998d484a449c85428ff8d5d143288bb375b7114f2dca60944912ae852ee7"
+    },
+    {
+      "mapId": "MAINLAND_CN4R12_MAP",
+      "x": -4,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "b23a8f8bd41193999359c5f414f61e045c3f9605c1495a90b33335f114110b78"
+    },
+    {
+      "mapId": "MAINLAND_CN3R12_MAP",
+      "x": -3,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "2dd6baee8d13ef3b1ebba94a69ef5220dbeb2668abbd2c661e5956167185d5ae"
+    },
+    {
+      "mapId": "MAINLAND_CN2R12_MAP",
+      "x": -2,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "ad6677f54a79d2a5239472e5177960713e382d76f75b3bdd27b260cb30a6fcbb"
+    },
+    {
+      "mapId": "MAINLAND_CN1R12_MAP",
+      "x": -1,
+      "y": 12,
+      "region": "Wetwoods",
+      "name": "Wetwoods",
+      "accessible": false,
+      "encounters": false,
+      "profile": "far",
+      "sha256": "9d6470cdfaa9c000cae7f45fbe42013d04f0a08ec49f83244cd0d566a1e4b255"
     },
     {
       "mapId": "MAINLAND_C3R12_MAP",

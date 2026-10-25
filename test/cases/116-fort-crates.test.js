@@ -20,10 +20,10 @@ module.exports = {
 
     // ── A couple of crates, beside Polwick (col 7 row 4), on the same row. ────
     const crates = JSON.parse(g.run("JSON.stringify(FORT_CRATES.map(c=>[c.x/TILE, c.y/TILE]))"));
-    assert.equal(crates.length, 2, 'a couple of crates');
+    assert.equal(crates.length, 6, 'two front crates and four concealed cargo crates');
     const polwick = JSON.parse(g.run("JSON.stringify((function(){const p=SIMPLE_NPCS.find(n=>n.id==='polwick');return [p.x/TILE,p.y/TILE];})())"));
     assert.deepEqual(polwick, [7.5, 4.5], 'Polwick is at col 7 row 4');
-    for (const [cxs, cys] of crates) {
+    for (const [cxs, cys] of crates.slice(0, 2)) {
       assert.equal(cys, polwick[1], 'crate shares Polwick’s row');
       assert.ok(Math.abs(cxs - polwick[0]) <= 2.5, `crate is right beside Polwick (col ${cxs})`);
     }

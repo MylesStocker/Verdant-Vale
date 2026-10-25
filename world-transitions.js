@@ -4400,18 +4400,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C0R10_MAP",
             "targetEdge": "north",
             "sourceRange": [
-                6,
-                14
-            ]
-        }
-    ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C1R9_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                0,
-                2
+                3,
+                9
             ]
         }
     ],
@@ -4420,8 +4410,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C0R8_MAP",
             "targetEdge": "south",
             "sourceRange": [
-                4,
-                15
+                3,
+                8
             ]
         }
     ]
@@ -8537,23 +8527,13 @@ const EDGE_TRANSITIONS = {
             ]
         }
     ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C1R8_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
-    ],
     "north": [
         {
             "targetMap": "MAINLAND_C0R7_MAP",
             "targetEdge": "south",
             "sourceRange": [
-                13,
-                15
+                5,
+                11
             ]
         }
     ],
@@ -8562,8 +8542,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C0R9_MAP",
             "targetEdge": "north",
             "sourceRange": [
-                4,
-                15
+                3,
+                8
             ]
         }
     ]
@@ -10863,23 +10843,13 @@ const EDGE_TRANSITIONS = {
     ]
 },
   MAINLAND_C2R10_MAP: {
-    "north": [
-        {
-            "targetMap": "MAINLAND_C2R9_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                9
-            ]
-        }
-    ],
     "west": [
         {
             "targetMap": "MAINLAND_C1R10_MAP",
             "targetEdge": "east",
             "sourceRange": [
-                0,
-                11
+                7,
+                12
             ]
         }
     ],
@@ -10894,56 +10864,15 @@ const EDGE_TRANSITIONS = {
         }
     ]
 },
-  MAINLAND_C2R9_MAP: {
-    "south": [
-        {
-            "targetMap": "MAINLAND_C2R10_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                9
-            ]
-        }
-    ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C2R8_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                10
-            ]
-        }
-    ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C1R9_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
-    ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C3R9_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                8,
-                9
-            ]
-        }
-    ]
-},
+  MAINLAND_C2R9_MAP: {},
   MAINLAND_C1R10_MAP: {
     "east": [
         {
             "targetMap": "MAINLAND_C2R10_MAP",
             "targetEdge": "west",
             "sourceRange": [
-                0,
-                11
+                7,
+                12
             ]
         }
     ],
@@ -10952,18 +10881,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C0R10_MAP",
             "targetEdge": "east",
             "sourceRange": [
-                1,
-                4
-            ]
-        }
-    ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C1R9_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
                 5,
-                15
+                9
             ]
         }
     ]
@@ -11002,7 +10921,7 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C3R9_MAP",
             "targetEdge": "south",
             "sourceRange": [
-                1,
+                8,
                 15
             ]
         }
@@ -11898,115 +11817,15 @@ const EDGE_TRANSITIONS = {
         }
     ]
 },
-  MAINLAND_C2R8_MAP: {
-    "south": [
-        {
-            "targetMap": "MAINLAND_C2R9_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                10
-            ]
-        }
-    ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C2R7_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                2
-            ]
-        },
-        {
-            "targetMap": "MAINLAND_C2R7_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                12,
-                15
-            ]
-        }
-    ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C1R8_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
-    ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C3R8_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                0,
-                12
-            ]
-        }
-    ]
-},
-  MAINLAND_C1R9_MAP: {
-    "east": [
-        {
-            "targetMap": "MAINLAND_C2R9_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
-    ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C1R8_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                15
-            ]
-        }
-    ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C1R10_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                5,
-                15
-            ]
-        }
-    ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C0R9_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                2
-            ]
-        }
-    ]
-},
+  MAINLAND_C2R8_MAP: {},
+  MAINLAND_C1R9_MAP: {},
   MAINLAND_C3R9_MAP: {
-    "west": [
-        {
-            "targetMap": "MAINLAND_C2R9_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                8,
-                9
-            ]
-        }
-    ],
     "east": [
         {
             "targetMap": "MAINLAND_C4R9_MAP",
             "targetEdge": "west",
             "sourceRange": [
-                4,
+                10,
                 14
             ]
         }
@@ -12016,18 +11835,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C3R10_MAP",
             "targetEdge": "north",
             "sourceRange": [
-                1,
+                8,
                 15
-            ]
-        }
-    ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C3R8_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                5,
-                5
             ]
         }
     ]
@@ -13469,25 +13278,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "south",
             "sourceRange": [
                 0,
-                15
-            ]
-        }
-    ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C2R8_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                2
-            ]
-        },
-        {
-            "targetMap": "MAINLAND_C2R8_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                12,
-                15
+                14
             ]
         }
     ],
@@ -13497,25 +13288,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "east",
             "sourceRange": [
                 0,
-                14
-            ]
-        }
-    ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C3R7_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                0,
-                7
-            ]
-        },
-        {
-            "targetMap": "MAINLAND_C3R7_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                13,
-                14
+                6
             ]
         }
     ]
@@ -13527,7 +13300,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "north",
             "sourceRange": [
                 0,
-                15
+                14
             ]
         }
     ],
@@ -13537,7 +13310,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "west",
             "sourceRange": [
                 3,
-                14
+                11
             ]
         }
     ],
@@ -13559,17 +13332,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "west",
             "sourceRange": [
                 0,
-                14
-            ]
-        }
-    ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C1R8_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                15
+                6
             ]
         }
     ],
@@ -13588,37 +13351,19 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C0R7_MAP",
             "targetEdge": "east",
             "sourceRange": [
-                8,
-                14
+                6,
+                12
             ]
         }
     ]
 },
   MAINLAND_C3R7_MAP: {
-    "west": [
-        {
-            "targetMap": "MAINLAND_C2R7_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                7
-            ]
-        },
-        {
-            "targetMap": "MAINLAND_C2R7_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                13,
-                14
-            ]
-        }
-    ],
     "north": [
         {
             "targetMap": "MAINLAND_C3R6_MAP",
             "targetEdge": "south",
             "sourceRange": [
-                0,
+                8,
                 15
             ]
         }
@@ -13638,7 +13383,15 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C3R8_MAP",
             "targetEdge": "north",
             "sourceRange": [
-                0,
+                6,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3R8_MAP",
+            "targetEdge": "north",
+            "sourceRange": [
+                8,
                 15
             ]
         }
@@ -14612,7 +14365,7 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C3R7_MAP",
             "targetEdge": "north",
             "sourceRange": [
-                0,
+                8,
                 15
             ]
         }
@@ -14623,7 +14376,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "east",
             "sourceRange": [
                 3,
-                14
+                11
             ]
         }
     ],
@@ -15084,7 +14837,7 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C3R9_MAP",
             "targetEdge": "east",
             "sourceRange": [
-                4,
+                10,
                 14
             ]
         }
@@ -16549,7 +16302,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "east",
             "sourceRange": [
                 0,
-                11
+                10
             ]
         }
     ]
@@ -17702,48 +17455,7 @@ const EDGE_TRANSITIONS = {
         }
     ]
 },
-  MAINLAND_C1R8_MAP: {
-    "north": [
-        {
-            "targetMap": "MAINLAND_C1R7_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                15
-            ]
-        }
-    ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C1R9_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                15
-            ]
-        }
-    ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C0R8_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
-    ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C2R8_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
-    ]
-},
+  MAINLAND_C1R8_MAP: {},
   MAINLAND_C25R0_MAP: {
     "south": [
         {
@@ -18956,8 +18668,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C0R9_MAP",
             "targetEdge": "south",
             "sourceRange": [
-                6,
-                14
+                3,
+                9
             ]
         }
     ],
@@ -18966,8 +18678,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C1R10_MAP",
             "targetEdge": "west",
             "sourceRange": [
-                1,
-                4
+                5,
+                9
             ]
         }
     ]
@@ -19254,8 +18966,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C1R7_MAP",
             "targetEdge": "west",
             "sourceRange": [
-                8,
-                14
+                6,
+                12
             ]
         }
     ],
@@ -19264,8 +18976,8 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C0R8_MAP",
             "targetEdge": "north",
             "sourceRange": [
-                13,
-                15
+                5,
+                11
             ]
         }
     ]
@@ -19276,28 +18988,16 @@ const EDGE_TRANSITIONS = {
             "targetMap": "MAINLAND_C3R7_MAP",
             "targetEdge": "south",
             "sourceRange": [
-                0,
+                6,
+                6
+            ]
+        },
+        {
+            "targetMap": "MAINLAND_C3R7_MAP",
+            "targetEdge": "south",
+            "sourceRange": [
+                8,
                 15
-            ]
-        }
-    ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C3R9_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                5,
-                5
-            ]
-        }
-    ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C2R8_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                12
             ]
         }
     ],
@@ -19307,7 +19007,7 @@ const EDGE_TRANSITIONS = {
             "targetEdge": "west",
             "sourceRange": [
                 0,
-                11
+                10
             ]
         }
     ]

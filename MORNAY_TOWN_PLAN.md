@@ -6,13 +6,85 @@ Mornay is a cold, busy, primarily blue-collar freshwater port and county-seat-eq
 
 The prompt, LORE.md, physical maps/runtime registries, architecture.md and PROJECT_STATUS.md govern this plan, in that order. Names, prices and flavour dialogue below are revisable authored content, not immutable metaphysical canon. Cold, stormy water and shallow working shores are represented without resolving the previously deferred depth of the entire Valmere basin.
 
+## Current pass — blocked Regional Office and South Rows
+
+This pass supersedes the earlier reservation against enterable Reclaimer rooms **only for the new South Rows attic**. Other locked stairs, the island ferry, story berth, hydrographic office and Old Fort interiors remain reserved. MQ5 remains at 5. Per the user's follow-up, bureaucratic errands are repeatable conversations, not tracked side quests: no new inventory, payments, completion receipts, saved flags, reputation, or report handover. Future resolution is deliberately undefined.
+
+### Bureaucratic errand ledger
+
+| Person / place | What is requested or refused | Current outcome |
+|---|---|---|
+| Magistrate Marit Voss / Regional IJC | Superior to the Calwick Supervisor; demands a local jurisdiction certificate before allocating investigators | No assistance; refuses to write a formal refusal |
+| Inessa / reception | Sends party to Maura, then Halden | Report stays with party |
+| Maura / Harbour Public Room | Refuses to accept local responsibility for dead/missing Imperial staff | Sends party back to Magistrate |
+| Halden / Records | Requires Maura's certificate plus Messa's certified copy | Will not accept report |
+| Messa / copy desk | Can certify only an already accepted report | Sends party back to Records |
+| Eldric / requisitions | Demands harbour freight tariff before estimating an investigation | No search party or travel warrant |
+| Bera / payments | Promotes Magistrate's cousin's private expediting charge | Dialogue only; no gold is deducted or payment offered |
+| Corven and Nerin / investigators | Defer to local watch, medical return, or Garrick reporting himself | No investigation starts |
+| Hadrin / town watch; Dalen / harbour inspection | Call the basin and Imperial staff an Imperial responsibility | Redirect to Regional Office |
+| Novra, Lenva, Vessa / administration | Hide behind staffing classification, appointments and complaint procedure | No useful assistance |
+
+Fourteen existing NPCs receive report-specific lines at MQ5. Marit becomes the Regional Magistrate; Corven and Nerin become regional investigators. Earlier/debug visits do not disclose Dreyfuss's death or Garrick's disappearance. Six new companion exchanges plus Inessa's revised exchange show Esla's anger with existing green speaker metadata. All eleven Mornay companion conversations retain ordinary speaker ownership. Repeated visits change no persistent state.
+
+### Tenement inventory and weekday occupancy
+
+South Rows, entered southward at South Upper East **(3,10)**, now has **three residential floors, eight accessible units per floor, 24 units total**, plus an attic. Floor 1 retains the original entrance and four small flats (stable IDs, geometry and historical save positions). Twenty additional tiny one-room flats provide beds, a small stove, storage and table; each new flat's living area is five by five tiles, plus its entrance stem. Two shared landings and one attic add **23 maps**, bringing Mornay to **67 interiors + 17 exteriors**. No exterior grid or town connection changes.
+
+| Floor | Units occupied on workdays | Units empty on workdays, occupied on Dayoff | Circulation |
+|---|---|---|---|
+| Ground | 1–4: existing households | 5–8: Fennel, Salwen, Rulon, Heba | Upper doors 1–4; lower doors 5–8; stairs right |
+| Second | 9–12: Davi, Belli, Melli, Dorrie keeping house | 13–16: Maelin, Verda, Nerrin, Harnis | Eight numbered doors; stairs right |
+| Third | 17–20: Osric, Lotte, Ysol, Brissa | 21–24: Elsven, Jessin, Vela, Neven | Eight numbered doors; concealed ceiling hatch left |
+
+Eight existing residents move into units; twelve workers use the existing five-day calendar to return home on Dayoff. No new NPC identities: **300 total**, workday **95 exterior / 205 interior**, versus the prior 101/199. Four children do washing, cooking, childcare or mending instead of attending school; no rareborn identities or relatives are added. Dorrie's school seat is now empty. Kessa keeps the common landing. These changes do not imply all working-class residents support the Reclaimers.
+
+The hatch is at third-floor **(1,6)**, approached from **(1,7)**. A loose ceiling seam, hanging cord, scuffed floor and inspectable clue conceal an ordinary reciprocal room connection. Step beneath it to enter; leave by the attic's southern ladder. It uses no discovery/key flag and survives save/load. The door is not labelled as a faction headquarters.
+
+The empty attic contains bedding, food and bandages, printing materials, relabelled freight and guarded meeting instructions. A sheet identifies the Reclaimers; disagreement about blocking shipments versus endangering sleeping workers shows both clandestine methods and internal limits. No NPC confesses, names are omitted, and the material does not explain either Dreyfuss or Garrick. The existing nine author-only network ties and three confirmed members remain unchanged; the attic is evidence of a hideaway, not a quest or an allegiance choice.
+
+### Exact existing-grid delta
+
+Only `MORNAY_SOUTH_ROWS_MAP` changes: **eight cells**. Coordinates are zero-based; 18=floor, 33=solid furniture, 34=ordinary door.
+
+| Col,row | Before → after | Reason |
+|---|---|---|
+| 14,6 | 18 → 34 | New unit door or staircase |
+| 13,7 | 33 → 18 | Shared landing furniture relocation |
+| 1,8 | 18 → 33 | Shared landing furniture relocation |
+| 3,9 | 33 → 18 | Shared landing furniture relocation |
+| 2,10 | 18 → 34 | New unit door or staircase |
+| 5,10 | 18 → 34 | New unit door or staircase |
+| 10,10 | 18 → 34 | New unit door or staircase |
+| 13,10 | 18 → 34 | New unit door or staircase |
+
+All other pre-existing grids, including all 944 regional chunks, are byte-identical to the starting HEAD. SAVE_VERSION remains 5. Names, administrative demands and flavour remain revisable content. Future MQ5 resolution, any tracked fetch quests, recruitment/investigation, and the attic's individual users remain deferred.
+
+### Verification and walkthrough for this pass
+
+Final complete regression: **257/257 suites pass**. All **21 changed/new JavaScript files** pass `node --check`; `validateGameData()` reports **0 errors / 6 unchanged warnings**, **1130 maps / 944 regional chunks**. The existing regional fingerprint suites pass without regenerated fingerprints. Both gate controllers, all 67 furnished room journeys in both movement modes on workday/Dayoff, all 300 resident conversations, services, historical combat and save/load remain covered. New suite 321 verifies per-floor occupancy, report-specific refusals, repeatability/state isolation, child household placements and attic save escape. The manifest allows only the two new landings and empty attic to have no scheduled resident.
+
+Automated Chromium at **512×480 and 1024×960**: **10,665 checks**, **252 captures**, **0 errors**. Coverage includes every room door and save/load, the unbroken street–three floors–attic–street journey, actual input inspection of all attic evidence, Dayoff occupancy, both gates, shops, both inns, treatment, real-font text fitting and Esla's green dialogue. Representative screenshots were visually inspected. This is automated browser evidence, not a human playthrough.
+
+Only `test/transition-audit-output.json` was regenerated through its established generator, then verified read-only. Fixed transitions rise **396 → 442** for the 23 rooms; registry/dimension rows rise **1107 → 1130**. Two tile-usage entries change. One existing escape record legitimately gains a clear left step: the laundry return, after Ysol moves home. Other pre-existing transition records are identical. There are no catch-up geographic changes. Catalogue-only assertions in earlier regional tests were updated to 1130 without weakening terrain/seam checks. `git diff --check` and conflict/stale-terminology checks pass.
+
+For human playtesting:
+
+1. At MQ5, enter Regional IJC (Middle Upper Central East, door 3,5). Speak to Magistrate Marit, Inessa, Halden, Messa, Bera and the two investigators; confirm Esla's anger and the refusal loop.
+2. Visit Maura and Dalen in Harbour/Customs (North Lower West, door 11,5), then Hadrin in Old Fort. Return to the IJC: there is still no report handover or MQ5 advancement.
+3. Enter South Rows from South Upper East (3,10). Explore eight doors per floor; stairs are at the right. Four homes on each floor are empty on a workday. Stay at an inn into Dayoff and revisit the occupied homes.
+4. Speak with the children in units 9–12. On the third landing inspect the draught at (1,6), then step beneath the cord. Read the three attic evidence clusters, save/load, and descend all the way to the street.
+5. Confirm both town gates, ordinary shops and the infirmary still work; the other story berths, closed stair, Collegium and hydrographic office remain reserved.
+
+This pass is left unstaged and uncommitted on `main` at starting HEAD `59e7851156e2e4e8782748735d9f3c74e4189c6b`. Nothing is pushed or applied to another worktree. Two pre-existing untracked B3 atlas exports are untouched.
+
 ## Benchmark and target
 
 Drenwick has 99 distinct, non-party humanoid characters available through ordinary gameplay: 9 across six exterior maps and 92 across interiors, with Renn and Veran appearing in both sets (9 + 92 - 2 = 99). The earlier 101 included the position-only travelling vendor and the party/cutscene projection of Esla. Scheduled placements, aliases, repeat placements and combat copies are deduplicated; cats, enemies, debug fixtures, bridge guards outside town and Tarvec approach content are excluded. The three infirmary staff/patient characters encountered during the ordinary MQ4 wake sequence remain included.
 
 This is a comparable town-character count, not a claim that all 99 are permanent residents: eight are explicitly visitors, and domicile is not established for every remaining character. Drenwick comprises six exteriors and 49 logical interiors (12 public rooms, six corridors, 31 residences; some share map grids). The runtime NPC registry, house records and ordinary reachability are the authority, rather than raw placements or sprite counts.
 
-Mornay target: **300 distinct non-party speaking humanoids**, comprising **101 exterior and 199 interior characters** across **17 exterior maps and 44 rooms in 23 establishments**. Ratio: **300 / 99 = 3.0303**. No schedule clones, duplicate placements, party copies, animals or debug fixtures inflate this total. Twelve exterior characters have deterministic patrols; the others have stationary activity poses; Maris Glyn and Ferin Wold attend school on workdays and return home on Dayoff. All 300 speak, so moving/ambient and speaking totals overlap.
+Mornay target: **300 distinct non-party speaking humanoids**, comprising **95 exterior and 205 interior characters on workdays** across **17 exterior maps and 67 rooms in 23 establishments**. Ratio: **300 / 99 = 3.0303**. No schedule clones, duplicate placements, party copies, animals or debug fixtures inflate this total. Twelve exterior characters have deterministic patrols; the others have stationary activity poses; Maris Glyn and Ferin Wold attend school on workdays and return home on Dayoff. All 300 speak, so moving/ambient and speaking totals overlap.
 
 ## Main integration — 2026-10-23
 
@@ -45,7 +117,7 @@ This follow-up starts from `ab084c686e8dc14a9b375aa004ea88b97e961c6a`. Eight bui
 | Stern Family Rooms | Melva Stern | Ilda Stern, her visiting sister | Two beds, dresser, reading desk/cabinet, stove and small dining table |
 | Sorn Family Rooms | Hesta Sorn | Henric Sorn, her brother; Berren Sorn, visiting nephew | Three beds, repairs bench, kitchen and family table |
 
-All 300 identities remain. Adra, Henric and Ilda move from the streets; Berren visits his aunt from Shared Court Flat 1, where Selda remains. The current split is 101 exterior / 199 interior, with 54 seated primary placements. Four short household lines establish those relationships; names and relationships remain revisable local flavour. No rareborn person or rareborn relative is added. Keepers, stock, prices, inns, treatment, schedules, patrols, Reclaimer ties and story reservations retain their established behavior.
+All 300 identities remain. Adra, Henric and Ilda move from the streets; Berren visits his aunt from Shared Court Flat 1, where Selda remains. At that shop-home checkpoint the split was 101 exterior / 199 interior, with 54 seated primary placements; the current tenement split is recorded above. Four short household lines establish those relationships; names and relationships remain revisable local flavour. No rareborn person or rareborn relative is added. Keepers, stock, prices, inns, treatment, schedules, patrols, Reclaimer ties and story reservations retain their established behavior.
 
 Existing saves in the eight reoriented rooms at the former southern arrival remain valid: their floor stem is retained and connects through the furnished room to the new north exit. SAVE_VERSION stays 5. No old walkable non-transition cell is removed, no exterior grid changes, and none of the 115 regional fingerprints require regeneration.
 
@@ -115,13 +187,13 @@ The source audit confirms Calwick has seven houses and one four-unit apartment e
 | Examiner’s House | North Upper East (3,8) | 1 | Comfortable household with reading and writing furniture |
 | East Ward Shared Court | Middle Lower East (3,9) | 4 | Four modest flats, shared washing and repair space |
 | Dock Steps Tenement | Middle Upper West (3,9) | 4 | Lake workers, household repairs and shift lodging |
-| South Rows Apartments | South Upper East (3,10) | 4 | Ordinary households, care and music near ward services |
+| South Rows Tenement | South Upper East (3,10) | 24 | Three floors, eight units each; weekday household care and Dayoff workers |
 | Hume Boardinghouse | South Upper West (3,10) | 4 rented rooms, counted separately | Shared stove/dining room and four private sleeping rooms |
 | Kelm Family Rooms | Above Kelm Provisions, stair (7,1) | 1 | Provisioner and assistant’s household pantry and kitchen |
 | Stern Family Rooms | Above Stern Apothecary, stair (7,1) | 1 | Apothecary’s home with room for her visiting sister |
 | Sorn Family Rooms | Above Sorn Work Gear, stair (7,1) | 1 | Keeper’s family household, repairs and nephew’s visit |
 
-There are **21 accessible self-contained dwellings**, plus **four boarding rooms**. Twelve closed frontages imply another **20 self-contained dwellings**: eight single homes and four three-unit tenements. Total represented residential capacity is **41 dwellings plus four boarding rooms**. Inn guest beds are separate commercial lodging, not counted again as dwellings. These examples represent a compressed town of approximately 8,000; no numeric population claim is inferred from rendered beds. The housing mix deliberately does not triple Drenwick's building count.
+There are now **41 accessible self-contained dwellings**, plus **four boarding rooms**. Twelve closed frontages imply another **20 self-contained dwellings**: eight single homes and four three-unit tenements. Total represented residential capacity is **61 dwellings plus four boarding rooms**. Inn guest beds are separate commercial lodging, not counted again as dwellings. These examples represent a compressed town of approximately 8,000; no numeric population claim is inferred from rendered beds. The housing mix deliberately does not triple Drenwick's building count.
 
 | Closed residential frontage | Door tile | Represented dwellings |
 |---|---|---:|
@@ -142,7 +214,7 @@ Closed frontages remain ordinary solid building cells, with no registered interi
 
 ### Residents, furnishing and presentation
 
-The first residential pass changed 44 primary placements; the shop-home follow-up changes four further placements. All 300 stable IDs and names remain. Current workday population is 101 outdoors and 199 indoors; the same split holds on Dayoff. Maris Glyn and Ferin Wold change between school and home using the established five-day `isDayOff()` calendar. Their map, coordinates, facing and pose are derived, with no duplicate NPC, schedule flag or save field. Twelve patrols remain deterministic; four now follow longer bent routes. Fifty-four primary placements are seated. The authored category totals remain 159 workers, 32 officials, 24 service staff, 18 merchants and 67 residents/visitors; these are content categories, not mutually exclusive real-world occupations.
+The first residential pass changed 44 primary placements; the shop-home follow-up changes four further placements. All 300 stable IDs and names remain. Before the tenement follow-up the split was 101 outdoors and 199 indoors. It is now 95/205 on workdays and 89/211 on Dayoff. Maris Glyn and Ferin Wold change between school and home using the established five-day `isDayOff()` calendar. Their map, coordinates, facing and pose are derived, with no duplicate NPC, schedule flag or save field. Twelve patrols remain deterministic; four now follow longer bent routes. Fifty-four primary placements are seated. The authored category totals remain 159 workers, 32 officials, 24 service staff, 18 merchants and 67 residents/visitors; these are content categories, not mutually exclusive real-world occupations.
 
 Rooms use existing furniture vocabulary: `drawTable()` and `drawInfirmaryBed()` directly, plus coordinate-only adaptations of `drawHouseFurniture()`, Calwick office desks/cabinets and the earlier ward-school furniture. There are desks, classroom work surfaces, filing cabinets, domestic beds, dressers, stoves, supply shelves, benches and tubs. No old-town rendering wrapper is invoked with spoofed state. Collision and fixture drawing share `MORNAY_ROOM_FIXTURES`; occupied seats use the existing solid NPC anchor. Short partitions divide sleeping alcoves from work/reception space. Beds in the infirmary now use the established two-tile ward-bed drawing, retaining all eight beds and the registered healer; 15 people remain in the ward.
 
@@ -191,12 +263,12 @@ Coordinates are zero-based tile columns/rows. Southward entry arrives at tile ce
 | `mornay_provisioner` / `MORNAY_PROVISIONER_MAP` | Kelm Provisions | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | 3,5 | 3,6 down | 6 |
 | `mornay_apothecary` / `MORNAY_APOTHECARY_MAP` | Stern Apothecary | `MORNAY_SOUTH_UPPER_EAST_MAP` | 3,5 | 3,6 down | 7 |
 | `mornay_workgear` / `MORNAY_WORKGEAR_MAP` | Sorn Work Gear | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | 3,5 | 3,6 down | 8 |
-| `mornay_chandler` / `MORNAY_CHANDLER_MAP` | Venn Chandlery and Secondhand | `MORNAY_NORTH_LOWER_EAST_MAP` | 11,5 | 11,6 down | 8 |
+| `mornay_chandler` / `MORNAY_CHANDLER_MAP` | Venn Chandlery and Secondhand | `MORNAY_NORTH_LOWER_EAST_MAP` | 11,5 | 11,6 down | 7 |
 | `mornay_gate_inn` / `MORNAY_GATE_INN_MAP` | Wold's Gate Inn | `MORNAY_WEST_GATE_MAP` | 3,5 | 3,6 down | 10 |
 | `mornay_gate_beds` / `MORNAY_GATE_BEDS_MAP` | Gate Inn Shared Rooms | `MORNAY_GATE_INN_MAP` | 7,1 | 7,2 down | 8 |
 | `mornay_commercial_inn` / `MORNAY_COMMERCIAL_INN_MAP` | Ledger House | `MORNAY_NORTH_UPPER_WEST_MAP` | 11,5 | 11,6 down | 9 |
 | `mornay_commercial_beds` / `MORNAY_COMMERCIAL_BEDS_MAP` | Ledger House Rooms | `MORNAY_COMMERCIAL_INN_MAP` | 7,1 | 7,2 down | 7 |
-| `mornay_school` / `MORNAY_SCHOOL_MAP` | South Ward School | `MORNAY_SOUTH_UPPER_EAST_MAP` | 12,5 | 12,6 down | 15 |
+| `mornay_school` / `MORNAY_SCHOOL_MAP` | South Ward School | `MORNAY_SOUTH_UPPER_EAST_MAP` | 12,5 | 12,6 down | 14 |
 | `mornay_harbour` / `MORNAY_HARBOUR_MAP` | Harbour and Customs Public Room | `MORNAY_NORTH_LOWER_WEST_MAP` | 11,5 | 11,6 down | 14 |
 | `mornay_warehouse` / `MORNAY_WAREHOUSE_MAP` | Fen Warehouse | `MORNAY_MIDDLE_UPPER_WEST_MAP` | 3,5 | 3,6 down | 11 |
 | `mornay_workshop` / `MORNAY_WORKSHOP_MAP` | Rusk Workshop Court | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | 12,5 | 12,6 down | 10 |
@@ -210,7 +282,7 @@ Coordinates are zero-based tile columns/rows. Southward entry arrives at tile ce
 | `mornay_vale_home` / `MORNAY_VALE_HOME_MAP` | Vale House | `MORNAY_NORTH_UPPER_WEST_MAP` | 11,8 | 11,7 up | 2 |
 | `mornay_dane_home` / `MORNAY_DANE_HOME_MAP` | Examiner’s House | `MORNAY_NORTH_UPPER_EAST_MAP` | 3,8 | 3,7 up | 3 |
 | `mornay_dock_steps` / `MORNAY_DOCK_STEPS_MAP` | Dock Steps Tenement | `MORNAY_MIDDLE_UPPER_WEST_MAP` | 3,9 | 3,8 up | 1 |
-| `mornay_south_rows` / `MORNAY_SOUTH_ROWS_MAP` | South Rows Apartments | `MORNAY_SOUTH_UPPER_EAST_MAP` | 3,10 | 3,9 up | 1 |
+| `mornay_south_rows` / `MORNAY_SOUTH_ROWS_MAP` | South Rows Tenement — Ground Floor | `MORNAY_SOUTH_UPPER_EAST_MAP` | 3,10 | 3,9 up | 1 |
 | `mornay_court_unit_1` / `MORNAY_COURT_UNIT_1_MAP` | East Ward Shared Court — Flat 1 | `MORNAY_COURT_MAP` | 2,4 | 2,5 down | 1 |
 | `mornay_court_unit_2` / `MORNAY_COURT_UNIT_2_MAP` | East Ward Shared Court — Flat 2 | `MORNAY_COURT_MAP` | 5,4 | 5,5 down | 2 |
 | `mornay_court_unit_3` / `MORNAY_COURT_UNIT_3_MAP` | East Ward Shared Court — Flat 3 | `MORNAY_COURT_MAP` | 10,4 | 10,5 down | 2 |
@@ -219,10 +291,10 @@ Coordinates are zero-based tile columns/rows. Southward entry arrives at tile ce
 | `mornay_dock_steps_unit_2` / `MORNAY_DOCK_STEPS_UNIT_2_MAP` | Dock Steps Tenement — Flat 2 | `MORNAY_DOCK_STEPS_MAP` | 5,4 | 5,5 down | 2 |
 | `mornay_dock_steps_unit_3` / `MORNAY_DOCK_STEPS_UNIT_3_MAP` | Dock Steps Tenement — Flat 3 | `MORNAY_DOCK_STEPS_MAP` | 10,4 | 10,5 down | 2 |
 | `mornay_dock_steps_unit_4` / `MORNAY_DOCK_STEPS_UNIT_4_MAP` | Dock Steps Tenement — Flat 4 | `MORNAY_DOCK_STEPS_MAP` | 13,4 | 13,5 down | 1 |
-| `mornay_south_rows_unit_1` / `MORNAY_SOUTH_ROWS_UNIT_1_MAP` | South Rows Apartments — Flat 1 | `MORNAY_SOUTH_ROWS_MAP` | 2,4 | 2,5 down | 2 |
-| `mornay_south_rows_unit_2` / `MORNAY_SOUTH_ROWS_UNIT_2_MAP` | South Rows Apartments — Flat 2 | `MORNAY_SOUTH_ROWS_MAP` | 5,4 | 5,5 down | 2 |
-| `mornay_south_rows_unit_3` / `MORNAY_SOUTH_ROWS_UNIT_3_MAP` | South Rows Apartments — Flat 3 | `MORNAY_SOUTH_ROWS_MAP` | 10,4 | 10,5 down | 2 |
-| `mornay_south_rows_unit_4` / `MORNAY_SOUTH_ROWS_UNIT_4_MAP` | South Rows Apartments — Flat 4 | `MORNAY_SOUTH_ROWS_MAP` | 13,4 | 13,5 down | 2 |
+| `mornay_south_rows_unit_1` / `MORNAY_SOUTH_ROWS_UNIT_1_MAP` | South Rows — Unit 1 | `MORNAY_SOUTH_ROWS_MAP` | 2,4 | 2,5 down | 2 |
+| `mornay_south_rows_unit_2` / `MORNAY_SOUTH_ROWS_UNIT_2_MAP` | South Rows — Unit 2 | `MORNAY_SOUTH_ROWS_MAP` | 5,4 | 5,5 down | 2 |
+| `mornay_south_rows_unit_3` / `MORNAY_SOUTH_ROWS_UNIT_3_MAP` | South Rows — Unit 3 | `MORNAY_SOUTH_ROWS_MAP` | 10,4 | 10,5 down | 2 |
+| `mornay_south_rows_unit_4` / `MORNAY_SOUTH_ROWS_UNIT_4_MAP` | South Rows — Unit 4 | `MORNAY_SOUTH_ROWS_MAP` | 13,4 | 13,5 down | 2 |
 | `mornay_boarding_unit_1` / `MORNAY_BOARDING_UNIT_1_MAP` | Hume Boardinghouse — Room 1 | `MORNAY_BOARDING_MAP` | 2,3 | 2,4 down | 2 |
 | `mornay_boarding_unit_2` / `MORNAY_BOARDING_UNIT_2_MAP` | Hume Boardinghouse — Room 2 | `MORNAY_BOARDING_MAP` | 5,3 | 5,4 down | 1 |
 | `mornay_boarding_unit_3` / `MORNAY_BOARDING_UNIT_3_MAP` | Hume Boardinghouse — Room 3 | `MORNAY_BOARDING_MAP` | 10,3 | 10,4 down | 2 |
@@ -230,6 +302,29 @@ Coordinates are zero-based tile columns/rows. Southward entry arrives at tile ce
 | `mornay_kelm_home` / `MORNAY_KELM_HOME_MAP` | Kelm Family Rooms | `MORNAY_PROVISIONER_MAP` | 7,1 | 7,2 down | 1 |
 | `mornay_stern_home` / `MORNAY_STERN_HOME_MAP` | Stern Family Rooms | `MORNAY_APOTHECARY_MAP` | 7,1 | 7,2 down | 1 |
 | `mornay_sorn_home` / `MORNAY_SORN_HOME_MAP` | Sorn Family Rooms | `MORNAY_WORKGEAR_MAP` | 7,1 | 7,2 down | 2 |
+| `mornay_south_rows_floor_2` / `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | South Rows Tenement — Floor 2 | `MORNAY_SOUTH_ROWS_MAP` | 14,6 | 14,7 down | 0 |
+| `mornay_south_rows_floor_3` / `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | South Rows Tenement — Floor 3 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 14,6 | 14,7 down | 0 |
+| `mornay_south_rows_unit_5` / `MORNAY_SOUTH_ROWS_UNIT_5_MAP` | South Rows — Unit 5 | `MORNAY_SOUTH_ROWS_MAP` | 2,10 | 2,9 up | 0 |
+| `mornay_south_rows_unit_6` / `MORNAY_SOUTH_ROWS_UNIT_6_MAP` | South Rows — Unit 6 | `MORNAY_SOUTH_ROWS_MAP` | 5,10 | 5,9 up | 0 |
+| `mornay_south_rows_unit_7` / `MORNAY_SOUTH_ROWS_UNIT_7_MAP` | South Rows — Unit 7 | `MORNAY_SOUTH_ROWS_MAP` | 10,10 | 10,9 up | 0 |
+| `mornay_south_rows_unit_8` / `MORNAY_SOUTH_ROWS_UNIT_8_MAP` | South Rows — Unit 8 | `MORNAY_SOUTH_ROWS_MAP` | 13,10 | 13,9 up | 0 |
+| `mornay_south_rows_unit_9` / `MORNAY_SOUTH_ROWS_UNIT_9_MAP` | South Rows — Unit 9 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 2,4 | 2,5 down | 1 |
+| `mornay_south_rows_unit_10` / `MORNAY_SOUTH_ROWS_UNIT_10_MAP` | South Rows — Unit 10 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 5,4 | 5,5 down | 1 |
+| `mornay_south_rows_unit_11` / `MORNAY_SOUTH_ROWS_UNIT_11_MAP` | South Rows — Unit 11 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 10,4 | 10,5 down | 1 |
+| `mornay_south_rows_unit_12` / `MORNAY_SOUTH_ROWS_UNIT_12_MAP` | South Rows — Unit 12 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 13,4 | 13,5 down | 1 |
+| `mornay_south_rows_unit_13` / `MORNAY_SOUTH_ROWS_UNIT_13_MAP` | South Rows — Unit 13 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 2,10 | 2,9 up | 0 |
+| `mornay_south_rows_unit_14` / `MORNAY_SOUTH_ROWS_UNIT_14_MAP` | South Rows — Unit 14 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 5,10 | 5,9 up | 0 |
+| `mornay_south_rows_unit_15` / `MORNAY_SOUTH_ROWS_UNIT_15_MAP` | South Rows — Unit 15 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 10,10 | 10,9 up | 0 |
+| `mornay_south_rows_unit_16` / `MORNAY_SOUTH_ROWS_UNIT_16_MAP` | South Rows — Unit 16 | `MORNAY_SOUTH_ROWS_FLOOR_2_MAP` | 13,10 | 13,9 up | 0 |
+| `mornay_south_rows_unit_17` / `MORNAY_SOUTH_ROWS_UNIT_17_MAP` | South Rows — Unit 17 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 2,4 | 2,5 down | 1 |
+| `mornay_south_rows_unit_18` / `MORNAY_SOUTH_ROWS_UNIT_18_MAP` | South Rows — Unit 18 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 5,4 | 5,5 down | 1 |
+| `mornay_south_rows_unit_19` / `MORNAY_SOUTH_ROWS_UNIT_19_MAP` | South Rows — Unit 19 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 10,4 | 10,5 down | 1 |
+| `mornay_south_rows_unit_20` / `MORNAY_SOUTH_ROWS_UNIT_20_MAP` | South Rows — Unit 20 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 13,4 | 13,5 down | 1 |
+| `mornay_south_rows_unit_21` / `MORNAY_SOUTH_ROWS_UNIT_21_MAP` | South Rows — Unit 21 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 2,10 | 2,9 up | 0 |
+| `mornay_south_rows_unit_22` / `MORNAY_SOUTH_ROWS_UNIT_22_MAP` | South Rows — Unit 22 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 5,10 | 5,9 up | 0 |
+| `mornay_south_rows_unit_23` / `MORNAY_SOUTH_ROWS_UNIT_23_MAP` | South Rows — Unit 23 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 10,10 | 10,9 up | 0 |
+| `mornay_south_rows_unit_24` / `MORNAY_SOUTH_ROWS_UNIT_24_MAP` | South Rows — Unit 24 | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 13,10 | 13,9 up | 0 |
+| `mornay_south_rows_attic` / `MORNAY_SOUTH_ROWS_ATTIC_MAP` | South Rows — Attic | `MORNAY_SOUTH_ROWS_FLOOR_3_MAP` | 1,6 | 1,7 down | 0 |
 
 ## Shops, services and institutions
 
@@ -265,43 +360,43 @@ The nine meaningful non-Imperial network ties are author-only classifications; n
 | Sima Wold | boarding and lodging associate | inn proprietor on errands; guarded, repeatable conversation |
 | Oren Teal | educated sympathizer | headteacher; guarded, repeatable conversation |
 
-Marit Voss (IJC), Edrin Saye (customs) and Jessa Nair (watch) discuss Reclaimer activity or accusations. Workers with ordinary grievances are not automatically members. Aid, justified anger and political courage coexist with secrecy, illicit carriage of papers/goods, disagreement over coercion, and opportunistic accusations. No enterable building is marked as a headquarters.
+Edrin Saye (customs) and Jessa Nair (watch) discuss Reclaimer activity or accusations; Magistrate Marit Voss now foregrounds bureaucratic refusal of the Drenwick report. Workers with ordinary grievances are not automatically members. Aid, justified anger and political courage coexist with secrecy, illicit carriage of papers/goods, disagreement over coercion, and opportunistic accusations. No enterable building is marked as a headquarters.
 
 Cross-references connect Nessa–Nelda–Verna–Yara (laundry, school, family, infirmary); Dena–Perrin–Yelda (dock representation, pupil, washer); Bram–Varda (warehouse ledgers); Tavi–Halden–Vesta–Pella (printing and seized sheets); Neris–Yara–Adra (provisions and medical work); Sima–Rella (gate inn); Jessa–Ossa (watch and home); Harlis–Maris (worker and pupil); Heba–Ilven (net mending); Niva–Nelva (fish and household food).
 
 Lely and Esla know the faction exists and have their established professional/road experience. Optional brewery reading is not presumed. They do not know this local membership list, connect it to the central crisis, or expose, join, arrest or investigate anyone. The earlier ambush remains unaffiliated. Officials may recognize Imperial credentials; most people respond to strangers. Selected medical, administrative and practical exchanges use existing mixed-speaker metadata and Esla’s green style when her established companion availability permits.
 
-Environmental evidence is restrained: a mutual-aid collection notice, scraped slogan, overwritten handbill, confiscation notice and locked suspected meeting stair. None blocks circulation or grants state/rewards.
+Environmental evidence includes the existing street notices and locked meeting stair, plus the now-accessible South Rows attic described in the current-pass ledger. Its printing, supplies, relabelled freight and meeting notes identify Reclaimer activity without identifying members or granting state/rewards.
 
 ## Complete roster
 
-Each row is one stable character and one concise dialogue purpose. Two pupils have derived school/home placements, identified in the movement column. Location keys name an exterior map or the interior key above. Roles also define economic/social clusters; the relationships above connect those clusters. Future quest candidates are the nine network characters and selected officials, but every conversation remains repeatable and inert. No purely silent resident is required: “ambient” means incidental street/work/family dialogue rather than a quest.
+Each row is one stable character and one concise dialogue purpose. Two pupils and twelve tenement workers have derived school/home or work/home placements, identified in the movement column. Location keys name an exterior map or the interior key above. Roles also define economic/social clusters; the relationships above connect those clusters. Future quest candidates are the nine network characters and selected officials, but every conversation remains repeatable and inert. No purely silent resident is required: “ambient” means incidental street/work/family dialogue rather than a quest.
 
 | Stable ID | Name | Location | Role / cluster | Movement | Revisable dialogue seed |
 |---|---|---|---|---|---|
-| `mornay_hadrin_moss` | Hadrin Moss | `MORNAY_OLD_FORT_MAP` | watch veteran | Standing; faces right | The old removal crews called it an Istral job when people could use the road again. A head on a spear was only part of it. I still ask whether the carts got through. |
+| `mornay_hadrin_moss` | Hadrin Moss | `MORNAY_OLD_FORT_MAP` | watch veteran | Standing; faces right | The watch answers for the town. Anything outside it goes to the Empire. Anything costly generally goes there too. |
 | `mornay_elva_tern` | Elva Tern | `MORNAY_OLD_FORT_MAP` | wall inspector | Standing; faces left | Perris can mend this wall. Getting the repair approved means proving which office owns the crack. Apparently the watch owns one side and the town owns the rain. |
 | `mornay_perris_dun` | Perris Dun | `MORNAY_OLD_FORT_MAP` | mason | Standing; faces up | These stones have been fitted more than once. See the old mortar? People like to call everything ancient. Sometimes a wall is just somebody else's repair bill. |
-| `mornay_lotte_brin` | Lotte Brin | `MORNAY_OLD_FORT_MAP` | resident sketching | Seated; faces up | I learnt shading from a print of Lumina, all pale stone above the river. Here I have wet brick and Hadrin refusing to stand still. I prefer it, actually. |
-| `mornay_maelin_rook` | Maelin Rook | `MORNAY_NORTH_UPPER_WEST_MAP` | berth steward | Standing; faces left | An empty berth still needs sweeping. |
+| `mornay_lotte_brin` | Lotte Brin | `MORNAY_SOUTH_ROWS_UNIT_18_MAP` | resident sketching | Standing; faces right | I sketch the landing when the washing is down. Half the doors are quiet on workdays. You can tell when a shift ends without a clock. |
+| `mornay_maelin_rook` | Maelin Rook | `MORNAY_NORTH_UPPER_WEST_MAP` | berth steward | Standing; faces left; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_13_MAP` | An empty berth still needs sweeping. |
 | `mornay_corra_pike` | Corra Pike | `MORNAY_VALE_HOME_MAP` | house steward | Standing; faces up | Leave the bill with me. Mrs Vale accepts a Kethrin letter of credit from a shipping partner, but the woman who washes her curtains would prefer gold. |
-| `mornay_fennel_ashe` | Fennel Ashe | `MORNAY_NORTH_UPPER_WEST_MAP` | gardener | Standing; faces right | The lake wind has very definite ideas about my hedges. |
+| `mornay_fennel_ashe` | Fennel Ashe | `MORNAY_NORTH_UPPER_WEST_MAP` | gardener | Standing; faces right; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_5_MAP` | The lake wind has very definite ideas about my hedges. |
 | `mornay_nesta_vale` | Nesta Vale | `MORNAY_VALE_HOME_MAP` | shipowner's widow | Seated; faces left | Drynport takes its charges, Mornay takes its charges, and a damaged cargo still belongs to me. My tenants say the rents should come down. They have an answer for everything. |
-| `mornay_osric_bell` | Osric Bell | `MORNAY_NORTH_UPPER_WEST_MAP` | retired pilot | Seated; faces left | A boy came off a Thornmere scow and thought he knew the Valmere. I had him watch from shore for a day. He thanked me after the wind turned. |
+| `mornay_osric_bell` | Osric Bell | `MORNAY_SOUTH_ROWS_UNIT_17_MAP` | retired pilot | Standing; faces left | A whole life on Valmere and this is the room I can afford. Still, I have a dry chair and neighbours who knock before bad weather. |
 | `mornay_celda_verne` | Celda Verne | `MORNAY_DANE_HOME_MAP` | household secretary | Standing; faces up | A letter from Halcyra goes straight to Mr Dane's desk. The carpenter's bill waits beneath it. I put the bill on top again when he isn't looking. |
 | `mornay_idris_pell` | Idris Pell | `MORNAY_NORTH_UPPER_EAST_MAP` | Collegium porter | Standing; faces right | Civic Collegium. Upper pupils only. The fees prepare them for the Civic Examination, clerkships and junior service. Visitors require an appointment. You have neither pupil nor appointment with you. |
 | `mornay_benna_lark` | Benna Lark | `MORNAY_NORTH_UPPER_EAST_MAP` | Collegium student | Standing; faces down | The Civic Examination itself costs very little. Mother paid for three years of preparation here. I used to think everyone meant the same thing by an inexpensive examination. |
 | `mornay_tassel_dorn` | Tassel Dorn | `MORNAY_DANE_HOME_MAP` | domestic worker | Standing; faces right | The family visits on Dayoff, so I work on Dayoff. Mr Dane says rest is essential to clear thinking. I expect he is right; I haven't tested it lately. |
 | `mornay_ulric_dane` | Ulric Dane | `MORNAY_DANE_HOME_MAP` | retired examiner | Seated; faces left | The Examination may be open. An evening without work, a lamp and somebody to correct your answers are less evenly shared. |
 | `mornay_dena_mere` | Dena Mere | `MORNAY_NORTH_LOWER_WEST_MAP` | dock representative | Standing; faces right | A missed day's pay reaches the supper table before the explanation. Nessa has kept three crews fed. That does not give anyone the right to speak for every worker here. |
-| `mornay_salwen_reed` | Salwen Reed | `MORNAY_NORTH_LOWER_WEST_MAP` | rope inspector | Standing; faces left | Gessa wants this rope condemned. The owner wants another week from it. I have put my name beside hers. |
+| `mornay_salwen_reed` | Salwen Reed | `MORNAY_NORTH_LOWER_WEST_MAP` | rope inspector | Standing; faces left; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_6_MAP` | Gessa wants this rope condemned. The owner wants another week from it. I have put my name beside hers. |
 | `mornay_niva_cole` | Niva Cole | `MORNAY_NORTH_LOWER_WEST_MAP` | fish seller | Standing; faces left | Heba mends the nets, I sell what comes out. The Valmere catch has farther to travel than a Thornmere basket. Pay for fresh fish while I can still honestly call it fresh. |
-| `mornay_rulon_hart` | Rulon Hart | `MORNAY_NORTH_LOWER_WEST_MAP` | scow hand | Standing; faces up | We came down from Drynport with water over the bow. Lowen says the next freight will make it tonight. Lowen has a warm room and no intention of joining the crew. |
-| `mornay_heba_flint` | Heba Flint | `MORNAY_NORTH_LOWER_WEST_MAP` | net mender | Seated; faces left | Ilven still ties the difficult knots at home. Pay him for them. He needs wages, not people calling him brave. |
-| `mornay_davi_fenner` | Davi Fenner | `MORNAY_NORTH_LOWER_WEST_MAP` | child | Standing; faces up | That berth looks ready. Grown-ups say looking ready isn't enough. |
-| `mornay_merra_keld` | Merra Keld | `MORNAY_NORTH_LOWER_WEST_MAP` | laundry collector | Patrol | The Drynport crews tie their laundry into sailcloth. Better than the clerk who sends it with a written inventory. I can count six dirty shirts without a witness. |
+| `mornay_rulon_hart` | Rulon Hart | `MORNAY_NORTH_LOWER_WEST_MAP` | scow hand | Standing; faces up; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_7_MAP` | We came down from Drynport with water over the bow. Lowen says the next freight will make it tonight. Lowen has a warm room and no intention of joining the crew. |
+| `mornay_heba_flint` | Heba Flint | `MORNAY_NORTH_LOWER_WEST_MAP` | net mender | Seated; faces left; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_8_MAP` | Ilven still ties the difficult knots at home. Pay him for them. He needs wages, not people calling him brave. |
+| `mornay_davi_fenner` | Davi Fenner | `MORNAY_SOUTH_ROWS_UNIT_9_MAP` | child keeping house | Standing; faces left | Mother's at the fish sheds. I stir the pot and keep the little ones off the stairs. Oren says I can still come to school. Who would mind the pot? |
+| `mornay_merra_keld` | Merra Keld | `MORNAY_NORTH_LOWER_WEST_MAP` | laundry collector | Patrol; faces down | The Drynport crews tie their laundry into sailcloth. Better than the clerk who sends it with a written inventory. I can count six dirty shirts without a witness. |
 | `mornay_jorin_vetch` | Jorin Vetch | `MORNAY_NORTH_LOWER_EAST_MAP` | lodging tout | Standing; faces right | Rella has beds at the gate inn. If you need a room while you look for work, ask Della Hume. Neither price includes somebody finding you a job. |
-| `mornay_alwen_corst` | Alwen Corst | `MORNAY_NORTH_LOWER_EAST_MAP` | customs messenger | Patrol | The packet waits over Dayoff; the urgent letters don't stop arriving. Saye marks his urgent before he reads them. I sort by departure, not by the size of the underline. |
+| `mornay_alwen_corst` | Alwen Corst | `MORNAY_NORTH_LOWER_EAST_MAP` | customs messenger | Patrol; faces down | The packet waits over Dayoff; the urgent letters don't stop arriving. Saye marks his urgent before he reads them. I sort by departure, not by the size of the underline. |
 | `mornay_cessa_brack` | Cessa Brack | `MORNAY_NORTH_LOWER_EAST_MAP` | sailor's spouse | Standing; faces up | He wrote about Drynport's bridges for half a page, then asked whether the roof still leaked. I sent back a drawing of the bucket. That should answer him. |
 | `mornay_tobin_yarrow` | Tobin Yarrow | `MORNAY_NORTH_LOWER_EAST_MAP` | sail repairer | Standing; faces right | Elda sends me the small sail repairs. A Valmere squall tests every stitch, so we both sign the finished patch. The captain can argue with two of us. |
 | `mornay_ersa_vole` | Ersa Vole | `MORNAY_NORTH_LOWER_EAST_MAP` | discharged deckhand | Standing; faces left | The boat took on less cargo and kept fewer hands. They call that the drought allowance. I asked whether my room would take less rent. It wouldn't. |
@@ -309,7 +404,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_brena_sill` | Brena Sill | `MORNAY_NORTH_LOWER_EAST_MAP` | dockside baker | Standing; faces right | Crew bread, baked firm. Honey on a loaf is extra. If somebody promised you northern sugar for that price, ask to see it before handing over your gold. |
 | `mornay_bram_fen` | Bram Fen | `MORNAY_MIDDLE_UPPER_WEST_MAP` | warehouse tallyman | Standing; faces right | Varda keeps the signed tally. I keep the count of what actually arrived. No, those are not always the same number. You want a manifest, use the public office. |
 | `mornay_gessa_tarn` | Gessa Tarn | `MORNAY_MIDDLE_UPPER_WEST_MAP` | unloading forewoman | Standing; faces left | Hands clear. Set it down together. The hoist was condemned once already; ask Arlis why the contractor signed it back into use. |
-| `mornay_halen_wick` | Halen Wick | `MORNAY_MIDDLE_UPPER_WEST_MAP` | barrel roller | Patrol | Lume grain comes in sacks; fish goes out in barrels. I used to think round goods would be easier. You learn a great deal in your first shift. |
+| `mornay_halen_wick` | Halen Wick | `MORNAY_MIDDLE_UPPER_WEST_MAP` | barrel roller | Patrol; faces down | Lume grain comes in sacks; fish goes out in barrels. I used to think round goods would be easier. You learn a great deal in your first shift. |
 | `mornay_ivara_gorse` | Ivara Gorse | `MORNAY_MIDDLE_UPPER_WEST_MAP` | freight customer | Standing; faces up | My reed mats came through the fen channel on a scow. Now Varda needs a harbour release and the harbour needs her receipt. The mats have rented more rooms than I have. |
 | `mornay_petren_shaw` | Petren Shaw | `MORNAY_DOCK_STEPS_MAP` | warehouse carpenter | Standing; faces left | I build crates all day and mend our stair rail after supper. Gessa says a broken rail is a workplace hazard. I said she should tell my landlord that. |
 | `mornay_dossa_marr` | Dossa Marr | `MORNAY_MIDDLE_UPPER_WEST_MAP` | porter | Standing; faces right | Hands clear. There's no spare set in the stores. |
@@ -323,14 +418,14 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_evin_rusk` | Evin Rusk | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | market inspector | Standing; faces right | Stamped measures, please. A gold piece buys the same weight whoever holds it. I would like that to be true at every counter in Mornay. |
 | `mornay_talma_noll` | Talma Noll | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | basket seller | Standing; faces down | Fen reeds make a sound basket if you cut and dry them properly. My customers know that. The freight office insists I describe them as manufactured goods. |
 | `mornay_ressa_muir` | Ressa Muir | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | shopper | Standing; faces right | Orna's onions, Niva's fish, then home. On Dayoff I sometimes buy a little mushroom wine. A person ought to have one errand they look forward to. |
-| `mornay_dolen_weir` | Dolen Weir | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | street sweeper | Patrol | Keep moving, please. The fish water reaches this gutter before the carts do. |
+| `mornay_dolen_weir` | Dolen Weir | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | street sweeper | Patrol; faces down | Keep moving, please. The fish water reaches this gutter before the carts do. |
 | `mornay_ansel_crowe` | Ansel Crowe | `MORNAY_SOUTH_ROWS_UNIT_2_MAP` | music teacher | Seated; faces left | Everyone wants Erik Jontek's 'Shut Up and Kiss Me' tune. Vessa can play it by ear; I am still trying to persuade my pupils to count the opening beats. |
-| `mornay_belli_hume` | Belli Hume | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | errand child | Standing; faces left | Della sent me for change. Hadria says counting gold is arithmetic. Does that mean I can tell her I did my lesson at the market? |
+| `mornay_belli_hume` | Belli Hume | `MORNAY_SOUTH_ROWS_UNIT_10_MAP` | child keeping house | Standing; faces right | Della needs me at home today. Washing, then the market, then more washing. I borrowed a reader, but my hands keep getting it wet. |
 | `mornay_carden_firth` | Carden Firth | `MORNAY_MIDDLE_UPPER_CENTRAL_WEST_MAP` | cloth buyer | Standing; faces left | A client wanted a coat in the latest Academy fashion. I showed her a good warm weave. She bought the fashionable one and came back for a lining. |
 | `mornay_vessa_auld` | Vessa Auld | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | petition copyist | Standing; faces up | Mera Dren had neighbours, measurements and a clerk to help. People remember the petition and forget the help. Tell me what happened before paying me to make it sound official. |
 | `mornay_torren_glass` | Torren Glass | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | waiting claimant | Standing; faces left | I brought measurements, just like Mera Dren. Arlis sent me to Maura; Maura sent me back. The woman in the schoolbook got an engineer. I would settle for one answer. |
 | `mornay_helma_quist` | Helma Quist | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | office cleaner | Standing; faces left | They had the public benches repaired after a visiting official caught his coat. Our stairs have been loose since winter. |
-| `mornay_arven_beck` | Arven Beck | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | courier | Patrol | Calwick, Drenwick, then the fen road. The cable scow keeps the letters moving while they repair that causeway. I have carried several notices explaining how temporary it is. |
+| `mornay_arven_beck` | Arven Beck | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | courier | Patrol; faces down | Calwick, Drenwick, then the fen road. The cable scow keeps the letters moving while they repair that causeway. I have carried several notices explaining how temporary it is. |
 | `mornay_nerit_wold` | Nerit Wold | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | examination candidate | Standing; faces up | The examination is open to everyone. The Collegium's practice papers aren't. I borrow Ulric Dane's old exercises after my shift; he marks them while I mend his fire. |
 | `mornay_sella_croft` | Sella Croft | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | licence applicant | Standing; faces up | Corven says my licence needs the old receipt. The old receipt went down with the boat. Apparently that is the boat's responsibility. |
 | `mornay_garren_yew` | Garren Yew | `MORNAY_MIDDLE_UPPER_CENTRAL_EAST_MAP` | document carrier | Standing; faces left | The ribbon means untouched, not unimportant. |
@@ -340,7 +435,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_nollis_vane` | Nollis Vane | `MORNAY_MIDDLE_UPPER_EAST_MAP` | drainage worker | Standing; faces up | Less water doesn't mean less work. Silt stays where the current used to shift it. The men waiting for a full scow think we can clear the channel by arguing with it. |
 | `mornay_ketta_roy` | Ketta Roy | `MORNAY_MIDDLE_UPPER_EAST_MAP` | gauge reader | Standing; faces right | The Thornmere reports are low again. Our own readings go in a separate book. Two falling gauges aren't an explanation; they are two things somebody needs to understand. |
 | `mornay_ossa_fenwick` | Ossa Fenwick | `MORNAY_MIDDLE_UPPER_EAST_MAP` | pipe fitter | Standing; faces left | The contract covers the pipe. Excavating to reach the pipe is apparently a separate contract. I am waiting for a signature. |
-| `mornay_derren_kest` | Derren Kest | `MORNAY_MIDDLE_UPPER_EAST_MAP` | water carrier | Patrol | I fill these at the pump, not off the quay. Hanne at the infirmary checks. The lake being fresh water doesn't make everything that drains into it good to drink. |
+| `mornay_derren_kest` | Derren Kest | `MORNAY_MIDDLE_UPPER_EAST_MAP` | water carrier | Patrol; faces down | I fill these at the pump, not off the quay. Hanne at the infirmary checks. The lake being fresh water doesn't make everything that drains into it good to drink. |
 | `mornay_berrit_fane` | Berrit Fane | `MORNAY_MIDDLE_LOWER_WEST_MAP` | cart-yard foreman | Standing; faces up | Hiring is at the East Gate. I need two sober hands tomorrow, if the freight clears. Do not pay a middleman to hear that. |
 | `mornay_helven_moss` | Helven Moss | `MORNAY_MIDDLE_LOWER_WEST_MAP` | carter | Standing; faces right | Berrit wants the Drynport consignment moved before dark. Torlin has my spare wheel. Between them they've arranged my whole day without giving me a sound cart. |
 | `mornay_iset_brill` | Iset Brill | `MORNAY_MIDDLE_LOWER_WEST_MAP` | peat seller | Standing; faces right | Peat for the smokers, reeds for packing. Calwick sends the same sort of loads through the canals. Nobody puts that on a fine school map, but towns still need fuel. |
@@ -348,7 +443,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_rurik_dean` | Rurik Dean | `MORNAY_MIDDLE_LOWER_WEST_MAP` | teamster | Standing; faces left | The raised road keeps the wheels out of the fen. It also means every cart meets every other cart on the same dry strip. My mule has become very patient with fools. |
 | `mornay_vela_thorne` | Vela Thorne | `MORNAY_MIDDLE_LOWER_WEST_MAP` | freight cook | Standing; faces down | A bowl for Kelda too. Her injury happened in this yard; the yard can feed her while they argue about wages. |
 | `mornay_dennet_vale` | Dennet Vale | `MORNAY_MIDDLE_LOWER_WEST_MAP` | stores checker | Standing; faces right | One crate of medicine gets a clerk's escort. Ten loads of peat get me and a borrowed cart. I know which is worth more. I also know what heats the clerk's room. |
-| `mornay_mora_wist` | Mora Wist | `MORNAY_MIDDLE_LOWER_WEST_MAP` | yard messenger | Patrol | Berrit sends me to Hal, Hal sends me to Varda, Varda says Berrit has the paper. I can do the whole circuit before the soup goes cold now. |
+| `mornay_mora_wist` | Mora Wist | `MORNAY_MIDDLE_LOWER_WEST_MAP` | yard messenger | Patrol; faces down | Berrit sends me to Hal, Hal sends me to Varda, Varda says Berrit has the paper. I can do the whole circuit before the soup goes cold now. |
 | `mornay_kelda_frey` | Kelda Frey | `MORNAY_MIDDLE_LOWER_WEST_MAP` | injured porter | Standing; faces right | The foreman remembers the fall. The contractor remembers employing someone else. Yara says the ankle will take time. |
 | `mornay_adra_kelm` | Adra Kelm | `MORNAY_KELM_HOME_MAP` | provisioner's assistant | Standing; faces left | My brother keeps the shop; I keep our supper out of his stock tally. Neris tried counting the kitchen salt once. He won't do it twice. |
 | `mornay_henric_sorn` | Henric Sorn | `MORNAY_SORN_HOME_MAP` | workgear hawker | Standing; faces right | Hesta sells downstairs and I take the repaired gear round the yards. My sister says supper starts when I put the tools away. Berren is watching me closely. |
@@ -356,7 +451,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_iven_bellows` | Iven Bellows | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | knife sharpener | Standing; faces right | I sharpen fish knives and removal crews' blades on the same stone. Both customers need a clean edge. Only one insists on telling me the whole fight. |
 | `mornay_essie_rann` | Essie Rann | `MORNAY_RANN_HOME_MAP` | seamstress | Seated; faces left | Jorra can sew a straight seam now. The work comes from dock families, mostly: cuffs, blankets, a coat made to last another winter. She gets her share when I am paid. |
 | `mornay_pelren_oxley` | Pelren Oxley | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | customer | Standing; faces left | A coat for a Mornay winter, please. Not one for a gentleman walking between warm rooms in Halcyra. The lake doesn't care how well I look on arrival. |
-| `mornay_theda_wark` | Theda Wark | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | lamp oil carrier | Patrol | Nerit needs lamp oil for his examination reading. He asked for the smallest measure. I found a bottle that lets him carry every drop home. |
+| `mornay_theda_wark` | Theda Wark | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | lamp oil carrier | Patrol; faces down | Nerit needs lamp oil for his examination reading. He asked for the smallest measure. I found a bottle that lets him carry every drop home. |
 | `mornay_corlen_brume` | Corlen Brume | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | sign painter | Standing; faces down | A merchant asked for Stonehaven grey. I told him Stonehaven says it is still grey. He paid more for the words on the pot than the colour on his sign. |
 | `mornay_nella_gant` | Nella Gant | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | shop sweeper | Standing; faces right | People wipe their feet while entering. Leaving seems to inspire trust. |
 | `mornay_tavi_rusk` | Tavi Rusk | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | compositor | Standing; faces up | My uncle prints what he is paid to print. Do not put my words in his mouth. If you want work copied, ask at the front bench. |
@@ -365,9 +460,9 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_orenna_flint` | Orenna Flint | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | potter | Standing; faces left | Plain jars for Melva, bowls for Rella. The fine northern houses want matching cups. I make those after the orders people need tomorrow. |
 | `mornay_breck_yarrow` | Breck Yarrow | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | carpenter apprentice | Standing; faces left | They give repair work to boys when the lake trade slows. Master stays until I finish. He says replacing fingers ruins the saving. |
 | `mornay_ilma_dace` | Ilma Dace | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | dyer | Standing; faces down | Blue-grey for lake crews, dark cuffs for office wear. A Collegium parent wanted white. I asked whether her son intended to touch anything while he was dressed. |
-| `mornay_korrin_ashe` | Korrin Ashe | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | workshop runner | Patrol | Everybody's urgent parcel is waiting for somebody else's. |
-| `mornay_verda_pike` | Verda Pike | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | furniture repairer | Standing; faces right | I mend the chairs families bring here instead of throwing away. That one has served three children learning their letters. I would like it to survive a fourth. |
-| `mornay_ysol_reed` | Ysol Reed | `MORNAY_MIDDLE_LOWER_EAST_MAP` | grandmother | Standing; faces right | My grandchildren say Dayoff starts when the school shuts. I say it starts when the washing is in. We have agreed that mine starts later. |
+| `mornay_korrin_ashe` | Korrin Ashe | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | workshop runner | Patrol; faces down | Everybody's urgent parcel is waiting for somebody else's. |
+| `mornay_verda_pike` | Verda Pike | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | furniture repairer | Standing; faces right; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_14_MAP` | I mend the chairs families bring here instead of throwing away. That one has served three children learning their letters. I would like it to survive a fourth. |
+| `mornay_ysol_reed` | Ysol Reed | `MORNAY_SOUTH_ROWS_UNIT_19_MAP` | grandmother | Standing; faces left | The children keep this place going. Officials call it a choice about school. Choosing between a lesson and somebody's supper is a mean sort of choice. |
 | `mornay_tessa_glyn` | Tessa Glyn | `MORNAY_DOCK_STEPS_UNIT_4_MAP` | home seamworker | Seated; faces left | Harlis says Maris reads the office replies now. Mine is still young enough to think paper is for eating. I keep the rent notice high up for both our sakes. |
 | `mornay_loric_mallow` | Loric Mallow | `MORNAY_DOCK_STEPS_UNIT_1_MAP` | kettle repairer | Standing; faces left | People bring me kettles before they buy new ones. The good repair money comes after a freight payday. Lately I have been waiting with everybody else. |
 | `mornay_enna_quist` | Enna Quist | `MORNAY_DOCK_STEPS_UNIT_1_MAP` | tenant | Seated; faces right | The upstairs family practise that Jontek dance on Dayoff. I am happy for them. I would be happier if happiness came down a little more softly through the ceiling. |
@@ -379,42 +474,42 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_hollis_pate` | Hollis Pate | `MORNAY_PATE_HOME_MAP` | retired cook | Seated; faces right | At the inn I learnt to boil water before worrying about seasoning. Selven would approve. Sit down if your feet hurt; supper can have another opinion at the table. |
 | `mornay_tilda_mere` | Tilda Mere | `MORNAY_SOUTH_UPPER_WEST_MAP` | dockworker's sister | Standing; faces left | Dena remembers everyone's wages and forgets her own lunch. |
 | `mornay_vennel_saye` | Vennel Saye | `MORNAY_COURT_UNIT_3_MAP` | clerk's parent | Standing; faces left | Edrin passed his examinations at this table. We cleared the supper things so he could study. I am proud of him. It would still be nice to receive an ordinary letter. |
-| `mornay_kessa_tern` | Kessa Tern | `MORNAY_SOUTH_ROWS_MAP` | boardinghouse maid | Standing; faces right | Four workdays and Dayoff, unless the tenants all want fresh linen on the fifth. Then I rest when the sheets are dry. I don't mind the children helping with the pegs. |
+| `mornay_kessa_tern` | Kessa Tern | `MORNAY_SOUTH_ROWS_MAP` | boardinghouse maid | Standing; faces right | Twenty-four units. Four workdays of empty rooms and children keeping the others going. On Dayoff the grown-ups come back and ask why the water's cold. |
 | `mornay_orvin_clay` | Orvin Clay | `MORNAY_SOUTH_UPPER_WEST_MAP` | furniture mover | Standing; faces left | It came through that door once. This comforts nobody. |
 | `mornay_jalda_firth` | Jalda Firth | `MORNAY_SOUTH_ROWS_UNIT_4_MAP` | travelling aunt | Seated; faces left | My nephew passed the Civic Examination and waited a year for a vacancy. His first letter was all about the desk. His second asked whether I could send a warm blanket. |
 | `mornay_fenric_dorr` | Fenric Dorr | `MORNAY_SOUTH_UPPER_EAST_MAP` | road guide | Standing; faces right | For Calwick, keep to the raised fen road and ask after the crossings. A dry month doesn't turn the marsh into firm ground. I've seen people learn that with a loaded cart. |
-| `mornay_selma_greaves` | Selma Greaves | `MORNAY_SOUTH_UPPER_EAST_MAP` | lunch seller | Patrol | Sit and eat. Vela sends the empty bowls back from the yard, so I know how many hands got hired. Fewer bowls this week. More people asking the price first. |
+| `mornay_selma_greaves` | Selma Greaves | `MORNAY_SOUTH_UPPER_EAST_MAP` | lunch seller | Patrol; faces down | Sit and eat. Vela sends the empty bowls back from the yard, so I know how many hands got hired. Fewer bowls this week. More people asking the price first. |
 | `mornay_torva_dale` | Torva Dale | `MORNAY_SOUTH_UPPER_EAST_MAP` | pack repairer | Standing; faces left | The strap failed where you kept telling yourself it would hold. |
 | `mornay_ilda_stern` | Ilda Stern | `MORNAY_STERN_HOME_MAP` | traveller | Seated; faces right | My sister Melva keeps a bed for me above her shop. I saved for a rail journey once, then spent it on our mother's roof. Mother says the view from a dry room is quite good. |
 | `mornay_brannic_hume` | Brannic Hume | `MORNAY_SOUTH_UPPER_EAST_MAP` | wagon guard | Standing; faces right | The merchant's letter travels ahead. I guard the load that follows. He has already complained from his inn that we are late. We met the same shallow channel as everyone else. |
-| `mornay_melli_voss` | Melli Voss | `MORNAY_SOUTH_UPPER_EAST_MAP` | market child | Standing; faces left | That man sells maps. I think he is lost. |
+| `mornay_melli_voss` | Melli Voss | `MORNAY_SOUTH_ROWS_UNIT_11_MAP` | child keeping house | Standing; faces left | The school bell means turn the washing. The next one means put the kettle on. I can hear every lesson starting from here. |
 | `mornay_oswen_lark` | Oswen Lark | `MORNAY_SOUTH_UPPER_EAST_MAP` | letter writer | Standing; faces down | Elva sends gold to her son when the crew is idle. He sends it back when he's paid. I write the letters and leave the little quarrel about who needs it more exactly as they say it. |
 | `mornay_delra_tress` | Delra Tress | `MORNAY_SOUTH_UPPER_EAST_MAP` | jug seller | Standing; faces right | Hold the base as well. That advice comes free. |
 | `mornay_jessa_nair` | Jessa Nair | `MORNAY_WEST_GATE_MAP` | watch sergeant | Standing; faces left | Keep the gateway clear. We have orders to ask about Reclaimer printers. A labour complaint is not an answer to that question, whatever some employers tell us. |
 | `mornay_anric_fell` | Anric Fell | `MORNAY_WEST_GATE_MAP` | watch constable | Standing; faces down | Directions cost nothing. Please stop offering me coins. |
-| `mornay_porrin_beck` | Porrin Beck | `MORNAY_WEST_GATE_MAP` | road porter | Patrol | Rella keeps a chair near the inn door for people who have walked the fen road. I'll get this bag there. Its owner is coming at his own pace. |
+| `mornay_porrin_beck` | Porrin Beck | `MORNAY_WEST_GATE_MAP` | road porter | Patrol; faces down | Rella keeps a chair near the inn door for people who have walked the fen road. I'll get this bag there. Its owner is coming at his own pace. |
 | `mornay_vilda_thorn` | Vilda Thorn | `MORNAY_WEST_GATE_MAP` | returning resident | Standing; faces left | A week in Calwick and I could hear myself think. Here the carts start before dawn. I missed the noise, though I won't admit that to my neighbours. |
 | `mornay_dalven_rill` | Dalven Rill | `MORNAY_EAST_GATE_MAP` | freight watch | Standing; faces right | Declare the load before unloading. If someone offers to lose the excise copy for a fee, remember whose hand took the money. |
 | `mornay_meret_shaw` | Meret Shaw | `MORNAY_EAST_GATE_MAP` | wagon checker | Standing; faces down | A loose wheel is not a local administrative custom. |
-| `mornay_varen_noll` | Varen Noll | `MORNAY_EAST_GATE_MAP` | delivery driver | Patrol | A parcel for Mrs Vale, another for the shared court. The first has a seal and three lines of address. The second says 'ask Selda'. Selda is usually quicker. |
+| `mornay_varen_noll` | Varen Noll | `MORNAY_EAST_GATE_MAP` | delivery driver | Patrol; faces down | A parcel for Mrs Vale, another for the shared court. The first has a seal and three lines of address. The second says 'ask Selda'. Selda is usually quicker. |
 | `mornay_hilda_vane` | Hilda Vane | `MORNAY_EAST_GATE_MAP` | animal minder | Standing; faces right | Let him smell your hand. He has had a day of strangers. |
 | `mornay_cressa_mote` | Cressa Mote | `MORNAY_EAST_GATE_MAP` | exhausted traveller | Seated; faces right | Drynport is all steps and bridges. I thought I would have a rest from climbing in Mornay. Della says the room she has is upstairs. Of course it is. |
-| `mornay_marit_voss` | Marit Voss | `MORNAY_OFFICE_MAP` | senior officer | Standing; faces down | Reclaimer sheets have reached three wards. We want evidence of offences, not a list of people your employer dislikes. Harbour matters still go to Saye. I will not sign for his department. |
-| `mornay_inessa_cray` | Inessa Cray | `MORNAY_OFFICE_MAP` | reception clerk | Standing; faces down | Imperial credentials? Regional enquiries begin here. A credential does not make the responsible desk available. State the office you need. |
-| `mornay_halden_quill` | Halden Quill | `MORNAY_OFFICE_MAP` | records supervisor | Standing; faces down | A cargo record belongs with the harbour. An Imperial liability claim belongs here. Please keep both receipts. Nobody benefits from discovering that the other office kept the only copy. |
-| `mornay_bera_senn` | Bera Senn | `MORNAY_OFFICE_MAP` | payments clerk | Standing; faces down | The fee is posted. The contractor's handling charge is separate. No, this office does not issue a receipt for his portion. |
-| `mornay_eldric_fane` | Eldric Fane | `MORNAY_OFFICE_MAP` | requisitions clerk | Standing; faces down | Aldric at Calwick returns requisitions with every missing tool marked. Our contractor calls that obstructive. I call it a list we shall eventually have to pay for. |
-| `mornay_novra_dain` | Novra Dain | `MORNAY_OFFICE_MAP` | registration administrator | Standing; faces down | The Education Act opens the ward school to a child whose family wants a place. Missing papers shouldn't close it again. Oren sends a neighbour who can vouch for the family; we begin there. |
+| `mornay_marit_voss` | Marit Voss | `MORNAY_OFFICE_MAP` | Regional Magistrate | Standing; faces down | Magistrate Voss. Your Supervisor answers to this office. Regional work requires regional priorities; urgency is not something a visitor declares. |
+| `mornay_inessa_cray` | Inessa Cray | `MORNAY_OFFICE_MAP` | reception clerk | Standing; faces down | Enquiries before luncheon. Corrections after luncheon. The Magistrate's contractors do not need an appointment. |
+| `mornay_halden_quill` | Halden Quill | `MORNAY_OFFICE_MAP` | records supervisor | Standing; faces down | I have a backlog. Moving a file to the urgent shelf creates a different backlog. At least this one is in alphabetical order. |
+| `mornay_bera_senn` | Bera Senn | `MORNAY_OFFICE_MAP` | payments clerk | Standing; faces down | The copying fee is posted. Our approved expediter charges separately. He is the Magistrate's cousin, but you needn't put that on the form. |
+| `mornay_eldric_fane` | Eldric Fane | `MORNAY_OFFICE_MAP` | requisitions clerk | Standing; faces down | The contractor has been paid. If the supplies are missing, fetch his explanation. I am not walking over there to be told the same thing. |
+| `mornay_novra_dain` | Novra Dain | `MORNAY_OFFICE_MAP` | registration administrator | Standing; faces down | The school register is the school's responsibility. If the children aren't there, Oren can send another return. I do not visit homes. |
 | `mornay_coris_wren` | Coris Wren | `MORNAY_OFFICE_MAP` | archive assistant | Standing; faces right | Old freight books record water levels beside the loads. Ketta asked for copies. I leave the mud stains in the margins; sometimes they tell you why the clerk stopped writing. |
-| `mornay_lenva_purl` | Lenva Purl | `MORNAY_OFFICE_MAP` | appointment clerk | Standing; faces left | An examination pass makes you eligible for a post. It doesn't make a vacant desk appear. I waited nine months for mine. Please put a current address on the application. |
+| `mornay_lenva_purl` | Lenva Purl | `MORNAY_OFFICE_MAP` | appointment clerk | Standing; faces left | The Magistrate has no vacant appointments. A contractor cancelled one, but I am holding it in case he changes his mind. |
 | `mornay_torben_clay` | Torben Clay | `MORNAY_OFFICE_MAP` | building porter | Standing; faces left | That door sticks. Please blame the door before the Empire. |
-| `mornay_messa_yule` | Messa Yule | `MORNAY_OFFICE_MAP` | copy clerk | Seated; faces left | I copied the contractor's complaint twice. Both copies call the same dismissed porter a different kind of threat. |
+| `mornay_messa_yule` | Messa Yule | `MORNAY_OFFICE_MAP` | copy clerk | Seated; faces left | The contractor's letters get two copies and red string. Everyone else gets the end of the spool. |
 | `mornay_arlis_rook` | Arlis Rook | `MORNAY_OFFICE_MAP` | infrastructure liaison | Standing; faces down | The hoist certificate is a contractor matter. If Gessa contests it, she must provide another inspection. This desk cannot suspend an authorized contract on hearsay. |
 | `mornay_wenda_flax` | Wenda Flax | `MORNAY_OFFICE_MAP` | payroll petitioner | Standing; faces right | Three weeks of unpaid work. Bera says the signature is missing. My replacement had somebody to speak for him; his pay went through. I have brought my own timesheets again. |
-| `mornay_corven_dace` | Corven Dace | `MORNAY_OFFICE_MAP` | licence officer | Standing; faces down | A licence has to survive being read by a different officer. You may dislike the wording; I dislike parts of it myself. But I won't sell you a paper the next desk can dismiss. |
+| `mornay_corven_dace` | Corven Dace | `MORNAY_OFFICE_MAP` | regional investigator | Standing; faces down | Field visits raise questions. Questions require reports. I clear a great deal more work if I stay at my desk. |
 | `mornay_helis_tarn` | Helis Tarn | `MORNAY_OFFICE_MAP` | archive conservator | Standing; faces up | We dry the books a few leaves at a time. The oldest water records are the first people ask for when the water behaves strangely. They were less interested in paying to keep the roof sound. |
-| `mornay_nerin_gant` | Nerin Gant | `MORNAY_OFFICE_MAP` | junior examiner | Standing; faces up | Mera Dren used the Water Access Clause. The examination asks which statute. I ask candidates who took the measurements, and whether a clerk helped. That part matters when you actually have the job. |
-| `mornay_vessa_lund` | Vessa Lund | `MORNAY_OFFICE_MAP` | public assistant | Standing; faces left | Tell me what happened in your own words. The IJC can establish facts about Imperial funds or responsibility; it isn't a court for every quarrel. I can at least help you address the right desk. |
+| `mornay_nerin_gant` | Nerin Gant | `MORNAY_OFFICE_MAP` | regional investigator | Standing; faces up | I am reviewing the last review. There is no approved allowance for another field visit this quarter. |
+| `mornay_vessa_lund` | Vessa Lund | `MORNAY_OFFICE_MAP` | public assistant | Standing; faces left | Take a number. Keep your place. If a desk sends you back here, take another number; the first enquiry has been dealt with. |
 | `mornay_yara_kelm` | Yara Kelm | `MORNAY_INFIRMARY_MAP` | senior nurse | Standing; faces left | Rest is treatment. Nessa brings clean linen when the stores run short; I do not ask whose meetings she attends. No one gets to use a patient's bed as a political favour. |
 | `mornay_selven_orr` | Selven Orr | `MORNAY_INFIRMARY_MAP` | physician | Standing; faces down | We clean, bind and watch the wound. The ward charges one gold for each point of health restored. You may pay for what you can afford. Tell me who needs care. |
 | `mornay_hanne_brist` | Hanne Brist | `MORNAY_INFIRMARY_MAP` | infirmary steward | Standing; faces down | Eight beds, clean water and enough linen to change them. Those are my first requests. Yara can make a small stock last, but she shouldn't have to do it every week. |
@@ -426,8 +521,8 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_elma_pike` | Elma Pike | `MORNAY_SOUTH_ROWS_UNIT_4_MAP` | patient's partner | Standing; faces right | Nevin wants to get back to the quay. I want him to be able to stand without gripping the bed. Gessa sent word that she knows which of us is right. |
 | `mornay_dorran_bale` | Dorran Bale | `MORNAY_INFIRMARY_MAP` | recovering boat hand | Seated; faces left | Something struck us on the fen road. I did not see enough to give it a name. The nurse needs the wound cleaned, not another story about it. |
 | `mornay_mirren_ashe` | Mirren Ashe | `MORNAY_SOUTH_ROWS_UNIT_3_MAP` | exhausted caregiver | Standing; faces left | The ward sent Fressa home with instructions I can read. That helps. A neighbour takes my place when I need the market. I am beginning to get a little sleep again. |
-| `mornay_vela_rinn` | Vela Rinn | `MORNAY_INFIRMARY_MAP` | cook | Standing; faces right | Broth, soft grain, a little mushroom when Selven allows it. Good food for getting your strength back. I save the mushroom wine for my own Dayoff. |
-| `mornay_jessin_corst` | Jessin Corst | `MORNAY_INFIRMARY_MAP` | linen orderly | Standing; faces up | Fenric brings linen from Nessa's laundry. I count the clean sheets before the beds need changing. We've learnt not to wait for the accounts office to finish agreeing with itself. |
+| `mornay_vela_rinn` | Vela Rinn | `MORNAY_INFIRMARY_MAP` | cook | Standing; faces right; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_23_MAP` | Broth, soft grain, a little mushroom when Selven allows it. Good food for getting your strength back. I save the mushroom wine for my own Dayoff. |
+| `mornay_jessin_corst` | Jessin Corst | `MORNAY_INFIRMARY_MAP` | linen orderly | Standing; faces up; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_22_MAP` | Fenric brings linen from Nessa's laundry. I count the clean sheets before the beds need changing. We've learnt not to wait for the accounts office to finish agreeing with itself. |
 | `mornay_teren_lume` | Teren Lume | `MORNAY_INFIRMARY_MAP` | night nurse | Standing; faces right | More road injuries this month. More lifting injuries too. We record both; counting only the frightening ones would leave half the beds unexplained. |
 | `mornay_orla_nair` | Orla Nair | `MORNAY_INFIRMARY_MAP` | watch constable visiting colleague | Standing; faces left | She complains properly now. That is an improvement. |
 | `mornay_fressa_dean` | Fressa Dean | `MORNAY_SOUTH_ROWS_UNIT_3_MAP` | discharged patient | Seated; faces left | Yara says a little more walking each day. Mirren waits at the landing so I don't have to pretend I am managing. I'd like to carry her shopping again someday. |
@@ -444,7 +539,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_melva_stern` | Melva Stern | `MORNAY_APOTHECARY_MAP` | apothecary | Standing; faces down | Potions for the road, properly labelled compounds for the ward. Tell me what you need. None of these replaces cleaning a wound, and a larger dose isn't automatically a better one. |
 | `mornay_arret_cole` | Arret Cole | `MORNAY_APOTHECARY_MAP` | apprentice | Standing; faces down | Melva has me copy the recipe before measuring anything. The reading lessons I complained about are proving useful. So is admitting when I can't make out a number. |
 | `mornay_vessa_gorse` | Vessa Gorse | `MORNAY_APOTHECARY_MAP` | herb sorter | Standing; faces up | The dry spell changed what the collectors brought in. Melva tests each batch before we use it. A familiar leaf from stressed ground isn't a promise of familiar strength. |
-| `mornay_nerrin_hale` | Nerrin Hale | `MORNAY_APOTHECARY_MAP` | sleepless customer | Standing; faces up | The night shift ends when the schoolchildren start passing my window. I know their Mera Dren lesson almost by heart. I would prefer to learn it after sleeping. |
+| `mornay_nerrin_hale` | Nerrin Hale | `MORNAY_APOTHECARY_MAP` | sleepless customer | Standing; faces up; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_15_MAP` | The night shift ends when the schoolchildren start passing my window. I know their Mera Dren lesson almost by heart. I would prefer to learn it after sleeping. |
 | `mornay_orel_quist` | Orel Quist | `MORNAY_APOTHECARY_MAP` | medicine courier | Standing; faces left | Some costly medicines travel by rail in the northeast. These go to the next district in my pack. Melva wraps the glass carefully; I pick my steps just as carefully. |
 | `mornay_thelin_vole` | Thelin Vole | `MORNAY_APOTHECARY_MAP` | carpenter buying salve | Standing; faces left | I mend the dry walkways people use through the fen. One splinter and I am here buying salve. Hesta sold me good gloves. I had taken them off. |
 | `mornay_rissa_yew` | Rissa Yew | `MORNAY_SOUTH_ROWS_UNIT_1_MAP` | caregiver | Standing; faces left | My mother thinks a bitter medicine must be doing more. I read Melva's directions aloud anyway. We have agreed the label gets a vote, even in her own house. |
@@ -462,7 +557,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_jarven_clay` | Jarven Clay | `MORNAY_CHANDLER_MAP` | secondhand clerk | Seated; faces left | No pledges for later redemption. An outright sale at the usual secondhand rate. Keep anything you cannot afford to lose. |
 | `mornay_nessa_corst` | Nessa Corst | `MORNAY_CHANDLER_MAP` | sailor buying tools | Standing; faces up | I sold my tools when the crew was laid off. The drought has made us all very careful about cargo weight, except the rent man. These will have to earn their price again. |
 | `mornay_veldin_greaves` | Veldin Greaves | `MORNAY_CHANDLER_MAP` | mate buying supplies | Standing; faces left | Oil, wick, a spare sounding line. Captain says we know the Drynport run. I would like the water to know it too before we stop checking. |
-| `mornay_brissa_tern` | Brissa Tern | `MORNAY_CHANDLER_MAP` | resident selling plate | Standing; faces right | The plate came from my mother's wedding table. I'd rather keep it. I'd also rather pay the rent before the landlord starts coming round when the children are home. |
+| `mornay_brissa_tern` | Brissa Tern | `MORNAY_SOUTH_ROWS_UNIT_20_MAP` | resident selling plate | Standing; faces right | The landlord calls the attic storage. I hear chairs after dark. Leave it alone, please. Some of us need what comes down those stairs. |
 | `mornay_otrin_dain` | Otrin Dain | `MORNAY_CHANDLER_MAP` | repairer examining purchase | Standing; faces down | Stonehaven steel, if the old mark is honest. I'll judge the edge before paying for the name. There's useful work left in it either way. |
 | `mornay_fennra_rill` | Fennra Rill | `MORNAY_CHANDLER_MAP` | candle maker | Standing; faces left | Nerit reads by lamplight; some of his neighbours buy my candle ends. Study costs something even when the examination doesn't. I save the longest pieces for them. |
 | `mornay_rella_wold` | Rella Wold | `MORNAY_GATE_INN_MAP` | gate innkeeper and cook | Standing; faces down | Sima is on errands. Thirty gold for the party to rest. Shared rooms upstairs; keep your boots off the blankets. |
@@ -502,7 +597,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_brinna_beck` | Brinna Beck | `MORNAY_COMMERCIAL_BEDS_MAP` | freighter's mate | Standing; faces up | A shallower scow carries less, so a full warehouse doesn't mean full wages for us. People see the cargo waiting and think every crew must be busy. |
 | `mornay_hessa_rann` | Hessa Rann | `MORNAY_COMMERCIAL_BEDS_MAP` | rope worker travelling home | Standing; faces left | Essie has kept a place for me at supper. I brought her good thread. If the packet is late, she'll feed everyone else and keep mine warm; she always does. |
 | `mornay_torren_linn` | Torren Linn | `MORNAY_COMMERCIAL_BEDS_MAP` | cabin attendant | Standing; faces up | I scrub cabins, not navigate them. Nevertheless every passenger who sees a dark cloud asks me whether we shall arrive. I usually say the skipper would like to know too. |
-| `mornay_elsven_pike` | Elsven Pike | `MORNAY_COMMERCIAL_BEDS_MAP` | crew member writing home | Seated; faces left | I'm writing about the meal, the room, a child waving from the quay. My family knows the lake is dangerous. They deserve to hear something else about my days on it. |
+| `mornay_elsven_pike` | Elsven Pike | `MORNAY_COMMERCIAL_BEDS_MAP` | crew member writing home | Seated; faces left; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_21_MAP` | I'm writing about the meal, the room, a child waving from the quay. My family knows the lake is dangerous. They deserve to hear something else about my days on it. |
 | `mornay_oren_teal` | Oren Teal | `MORNAY_SCHOOL_MAP` | headteacher | Standing; faces down | The Empire teaches a child to petition, then charges the parent to have the words copied. I understand why the Reclaimers find listeners. I will not have children carrying their messages. |
 | `mornay_nelda_quill` | Nelda Quill | `MORNAY_SCHOOL_MAP` | school administrator | Standing; faces down | The ward school is publicly funded. Boots and aprons still cost families money. Nessa brings what she can; Oren makes sure a missing apron doesn't become a missing pupil. |
 | `mornay_hadria_beck` | Hadria Beck | `MORNAY_SCHOOL_MAP` | arithmetic teacher | Standing; faces down | Four workdays, then Dayoff. We count a week's pay and what the household needs. The children notice immediately when I give the example family more mouths than meals. |
@@ -511,22 +606,22 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 | `mornay_perrin_mere` | Perrin Mere | `MORNAY_SCHOOL_MAP` | pupil | Seated; faces up | Aunt Dena says counting your pay is arithmetic you should practise. |
 | `mornay_vella_corst` | Vella Corst | `MORNAY_SCHOOL_MAP` | pupil | Seated; faces up | Father says his boat is important even if it isn't on the big map. I told him Calwick isn't important enough for that map either. He said that was not helping. |
 | `mornay_ivenna_sorn` | Ivenna Sorn | `MORNAY_SCHOOL_MAP` | pupil | Seated; faces up | Mera got the road moved thirty paces. I wrote thirteen by mistake. Hadria asked whether the village would still reach its water. I went back and checked. |
-| `mornay_dorrie_firth` | Dorrie Firth | `MORNAY_SCHOOL_MAP` | pupil | Seated; faces up | The book says 'Be a Mera'. Mother says start by putting my complaint about my brother in writing. I need another sheet. |
+| `mornay_dorrie_firth` | Dorrie Firth | `MORNAY_SOUTH_ROWS_UNIT_12_MAP` | child keeping house | Standing; faces right | I missed the end of the Mera Dren lesson. Mother can't leave work and someone has to mend these stockings. I still want to know how the story ends. |
 | `mornay_helren_pate` | Helren Pate | `MORNAY_SCHOOL_MAP` | pupil | Seated; faces up | Fort Ariel grows strawberries inside a warm circle in the polar cold. The book says nobody knows how she did it. I like a book that admits it doesn't know something. |
 | `mornay_maris_glyn` | Maris Glyn | `MORNAY_SCHOOL_MAP` | pupil | Standing; faces left; Dayoff: `MORNAY_GLYN_HOME_MAP` | I read the Mera Dren story to my little brother. He wants the engineer in the picture too. Father says that's the first sensible complaint we've had all week. |
 | `mornay_bessa_rook` | Bessa Rook | `MORNAY_SCHOOL_MAP` | parent | Standing; faces left | We can manage the ward school. The Collegium wants fees and preparation. My daughter asks what happens if she is clever enough but we are not rich enough. |
 | `mornay_ellin_hesk` | Ellin Hesk | `MORNAY_SCHOOL_MAP` | caretaker | Standing; faces up | I learnt my letters late. These children have a place to learn before they start hauling and mending. I keep the roof sound; that is my part of the Education Act. |
 | `mornay_verra_moss` | Verra Moss | `MORNAY_SCHOOL_MAP` | adult learner | Seated; faces up | I can read the levy notice myself now. I don't agree with it, but I know what it actually says. Oren says that's a better place to start an argument. |
 | `mornay_edrin_saye` | Edrin Saye | `MORNAY_HARBOUR_MAP` | customs assessor | Standing; faces down | The Reclaimers use real grievances. That does not make every unlisted crate harmless. If Voss wants a cargo inquiry, she can send a signed request. We will not own her speculation. |
-| `mornay_maura_dell` | Maura Dell | `MORNAY_HARBOUR_MAP` | harbour administrator | Standing; faces down | Berth allocation here. Excise with Saye. Unsafe shore works with Arlis at the IJC office. Please do not bring their unanswered forms back to my counter. |
+| `mornay_maura_dell` | Maura Dell | `MORNAY_HARBOUR_MAP` | harbour administrator | Standing; faces down | The town pays for quays, not Imperial enquiries. The IJC has an office for those. A large one, if you need directions. |
 | `mornay_hassel_muir` | Hassel Muir | `MORNAY_HARBOUR_MAP` | manifest clerk | Standing; faces down | Write Thornmere if that's where the cargo started, not just Valmere province. A tax heading and a lake are different sorts of place. The next clerk needs to know which you mean. |
 | `mornay_vessa_fenn` | Vessa Fenn | `MORNAY_HARBOUR_MAP` | fee clerk | Standing; faces down | Small consignments pay the minimum charge. Large ones spread it across more cargo. I did not write the schedule and cannot waive it. |
 | `mornay_orris_teel` | Orris Teel | `MORNAY_HARBOUR_MAP` | berth scheduler | Standing; faces down | Drynport sends a departure estimate; Lowen writes it down as an arrival promise. Then two captains want the same water. I leave room in the schedule for weather. He calls it wasted space. |
-| `mornay_dalen_wist` | Dalen Wist | `MORNAY_HARBOUR_MAP` | inspection officer | Standing; faces down | A damaged hoist deserves an inspection whether the owner is well connected or not. Gessa has asked twice. I have kept both requests; someone may eventually want the dates. |
+| `mornay_dalen_wist` | Dalen Wist | `MORNAY_HARBOUR_MAP` | inspection officer | Standing; faces down | I have recorded the damaged hoist as awaiting inspection. It remains on the list. That is what the list is for. |
 | `mornay_berra_yule` | Berra Yule | `MORNAY_HARBOUR_MAP` | customs copyist | Seated; faces left | Initial the correction here. I'll show you which box, but I can't sign it for you. People are afraid a small mistake will cost another journey. Sometimes they are right. |
-| `mornay_neven_brume` | Neven Brume | `MORNAY_HARBOUR_MAP` | harbour messenger | Standing; faces left | The scheduled packet waits over Dayoff. My legs don't. If Maura needs a reply from the quay before morning, she sends me with it. |
+| `mornay_neven_brume` | Neven Brume | `MORNAY_HARBOUR_MAP` | harbour messenger | Standing; faces left; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_24_MAP` | The scheduled packet waits over Dayoff. My legs don't. If Maura needs a reply from the quay before morning, she sends me with it. |
 | `mornay_tilda_vole` | Tilda Vole | `MORNAY_HARBOUR_MAP` | waiting agent | Standing; faces up | A Kethrin credit letter doesn't unload a barge. My client finds that surprising every time. I have asked him to pay the waiting crew before writing another complaint. |
-| `mornay_harnis_roy` | Harnis Roy | `MORNAY_HARBOUR_MAP` | barge master | Standing; faces up | I paid a broker for quick clearance. He knew which clerk was away before the harbour did. I am beginning to understand what I bought. |
+| `mornay_harnis_roy` | Harnis Roy | `MORNAY_HARBOUR_MAP` | barge master | Standing; faces up; Dayoff: `MORNAY_SOUTH_ROWS_UNIT_16_MAP` | I paid a broker for quick clearance. He knew which clerk was away before the harbour did. I am beginning to understand what I bought. |
 | `mornay_elna_stern` | Elna Stern | `MORNAY_HARBOUR_MAP` | small trader | Standing; faces left | One little consignment of reed mats. The minimum charge takes more of my profit than a full boat's owner loses. Vessa understands the sum; she still has to collect it. |
 | `mornay_corren_wark` | Corren Wark | `MORNAY_HARBOUR_MAP` | archive clerk | Standing; faces up | The freight books show where scows used to load fully. Now captains come in to argue with the old figures. I give them copies. They should have something better than memory to work from. |
 | `mornay_delsin_orl` | Delsin Orl | `MORNAY_HARBOUR_MAP` | inspection assistant | Standing; faces up | I sat the internal examination after years of counting boxes. My supervisor noticed I could do the sums. I try to notice when the newer hands can do more than they're paid for. |
@@ -586,7 +681,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils ha
 - Maintain SAVE_VERSION 5 and the existing location payload. Dialogue, network classifications, decorations and routes add no saved state. Existing item, gold, day and party health authorities remain responsible for service results.
 - Correct the two stale faction references in `LORE.md` and Fenwick’s `npcs.js` dialogue to Reclaimers. The audit found no legacy internal/persistence identifier requiring retention; do not invent an alias or historical rename.
 - Gate departures already use safe approach PATH tiles: West (240,144), East (272,144), facing down. Town arrival remains (240,432). Controller tests cover both movement presentations, saves and debug arrival.
-- Hydrographer/Esla history, ship mystery, clandestine boarding, Island ferry, major quests, Regional Office operations, Old Fort plot and Reclaimer recruitment/investigation remain inactive. No placeholder doors expose them.
+- Hydrographer/Esla history, ship mystery, clandestine boarding, Island ferry, major quests, resolution of the Regional Office dead end, Old Fort plot and Reclaimer recruitment/investigation remain inactive. No placeholder doors expose them.
 - Rendering uses existing programmatic sprites, tile vocabulary and deterministic narrow decorations. No new image assets, dependency, terrain type, random encounters or save schema.
 
 ## Deliberately deferred and verification

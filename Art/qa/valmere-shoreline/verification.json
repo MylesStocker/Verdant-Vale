@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-25",
+  "scope": "Valmere scenery shoreline refinement only",
+  "changedGrids": 45,
+  "changedCells": 4321,
+  "unchangedRegionalGrids": 1013,
+  "allPlayableGridsUnchanged": 477,
+  "regionalChunks": 1058,
+  "totalMaps": 1244,
+  "syntaxFiles": 55,
+  "validationErrors": 0,
+  "validationWarnings": 6,
+  "fingerprints": 1058,
+  "changedFingerprints": 45,
+  "saveVersion": 5,
+  "mornayFilesUnchanged": true,
+  "transitionArtifactUnchanged": true,
+  "productionChanges": "Only explicit grid literals in three map fragments; no runtime logic or metadata.",
+  "browser": {
+    "automatedChecks": 163,
+    "captures": 57,
+    "errors": [],
+    "visualInspection": "Production overview and native/2x shoreline captures; inaccessible terrain rendered read-only, not entered in gameplay."
+  },
+  "regression": {
+    "total": 259,
+    "passed": 259,
+    "failed": 0
+  },
+  "exactCellDeltaVerified": true,
+  "diffCheck": "pass"
+}

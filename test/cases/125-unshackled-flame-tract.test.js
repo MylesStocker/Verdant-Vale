@@ -1,5 +1,5 @@
 'use strict';
-// The Unshackled Flame tract is hidden in the crate directly beside Polwick.
+// The Unshackled Flame tract is hidden in the back-room cargo crate.
 // A small sparkle reveals the repeatable interaction, which opens a Flame-themed
 // variant of the established full-page Accord reader.
 
@@ -19,11 +19,11 @@ module.exports = {
       dialogue.open=false;choice.open=false;accordPanel.open=false;
     `);
 
-    // The tract shares the authored crate anchor directly left of Polwick; the
-    // crate remains overlay furniture, so no map cell or collision changed.
-    assert.deepEqual(JSON.parse(g.run('JSON.stringify([POLWICK_FLAME_TRACT.x/TILE,POLWICK_FLAME_TRACT.y/TILE])')), [6.5, 4.5]);
+    // The tract shares the authored crate anchor in the rear room; the
+    // crate remains overlay furniture, with the existing solid-crate collision.
+    assert.deepEqual(JSON.parse(g.run('JSON.stringify([POLWICK_FLAME_TRACT.x/TILE,POLWICK_FLAME_TRACT.y/TILE])')), [1.5, 4.5]);
     assert.equal(g.run('FORT_CRATES.some(function(c){return c.x===POLWICK_FLAME_TRACT.x&&c.y===POLWICK_FLAME_TRACT.y;})'), true);
-    assert.equal(g.run('SMUGGLER_FORT_MAP[4][6]'), 18, 'crate remains overlay furniture on existing floor');
+    assert.equal(g.run('SMUGGLER_FORT_MAP[4][1]'), 18, 'crate remains overlay furniture on existing floor');
 
     const sparkle = JSON.parse(g.run(`(function(){
       var calls=[],old=drawExamineSparkle;
@@ -32,7 +32,7 @@ module.exports = {
       return JSON.stringify(calls);
     })()`));
     assert.deepEqual(sparkle, [[
-      Math.round(6.5 * 32), Math.round(4.5 * 32), 6.5 * 32, 4.5 * 32,
+      Math.round(1.5 * 32), Math.round(4.5 * 32), 1.5 * 32, 4.5 * 32,
       g.run('TALK_RADIUS*1.5'),
     ]]);
 

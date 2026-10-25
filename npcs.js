@@ -2123,7 +2123,9 @@ NPC_ACTIONS.fortGuardBlock = function() {
 // the generic dialogue path after the action check; so we need no action for that.
 // For stage 0, interactSmugglerFort() intercepts before interactSimpleNPCs().
 NPC_ACTIONS.polwickConfront = function(npc) {
+  if (polwickEslaDialogue(npc)) return;
   if (typeof polwickLighthouseDialogue === 'function' && polwickLighthouseDialogue(npc)) return;
+  if (polwickEslaDialogue(npc, true)) return;
   // Fallback: show whatever dialogue the getter returns (spared state).
   dialogue.name  = npc.name;
   dialogue.pages = npc.dialogue;
@@ -2233,6 +2235,7 @@ const TALK_RADIUS = 28; // px; must be within this to open dialogue (~0.9 tiles)
 const ESLA_DIALOGUE_STYLE_ID = 'esla_light_green';
 const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
 const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
+  polwick: Object.freeze({speakerId:'polwick',name:'Polwick',dialogueStyleId:null}),
   ...Object.fromEntries(MORNAY_NPCS.map(n => [n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
   causeway_ferry_operator: Object.freeze({speakerId:'causeway_ferry_operator',name:'Imperial Guard',dialogueStyleId:null}),
   supervisor: Object.freeze({speakerId:'supervisor',name:'Supervisor',dialogueStyleId:null}),
@@ -2406,7 +2409,12 @@ const RESERVED_TABLE  = { x: 8.5 * TILE, y: 7.5 * TILE };
 const FORT_CRATES = [
   { x: 5.5 * TILE, y: 4.5 * TILE },  // col 5 row 4 — against the west wall
   { x: 6.5 * TILE, y: 4.5 * TILE },  // col 6 row 4 — directly left of Polwick
+  { x: 1.5 * TILE, y: 1.5 * TILE, contraband: true },
+  { x: 2.5 * TILE, y: 1.5 * TILE, contraband: true },
+  { x: 1.5 * TILE, y: 4.5 * TILE, contraband: true },
+  { x: 2.5 * TILE, y: 5.5 * TILE, contraband: true },
 ];
+const FORT_SMUGGLING_LEDGER = { x: 4.5 * TILE, y: 1.5 * TILE };
 
 // ─── House Doors ──────────────────────────────────────────────────────────────
 // Each entry maps a HOUSE_DOOR tile on a specific map to a unique house ID.

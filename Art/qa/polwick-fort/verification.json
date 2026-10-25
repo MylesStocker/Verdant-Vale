@@ -1,0 +1,22 @@
+{
+  "syntaxFiles": 66,
+  "validationErrors": 0,
+  "validationWarnings": 6,
+  "regionalAuthoritiesUnchanged": true,
+  "fingerprints": 1058,
+  "saveVersion": 5,
+  "transitionArtifact": "Existing artifact matches; not regenerated",
+  "browser": {
+    "checks": 83,
+    "captureEvents": 16,
+    "uniqueImages": 11,
+    "errors": 0
+  },
+  "regression": {
+    "total": 260,
+    "passed": 260,
+    "failed": 0
+  },
+  "diffCheck": "pass",
+  "priorUnrelatedEditsPreserved": true
+}

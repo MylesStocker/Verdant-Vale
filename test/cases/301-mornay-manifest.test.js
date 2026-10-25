@@ -69,11 +69,11 @@ module.exports={
     assert.equal(planIds.length,300);assert.deepEqual(residents.map(n=>n.id).sort(),planIds.sort());
     assert.equal(new Set(residents.map(n=>n.id)).size,300);assert.equal(new Set(residents.map(n=>n.name)).size,300);
     const exteriors=new Set(J(g,'MORNAY_TOWN_MAP_IDS'));
-    assert.equal(residents.filter(n=>exteriors.has(n.mapId)).length,101);
-    assert.equal(residents.filter(n=>!exteriors.has(n.mapId)).length,199);
-    assert.equal(rooms.length,44);assert.equal(new Set(rooms.map(b=>b.id)).size,44);assert.equal(new Set(rooms.map(b=>b.mapId)).size,44);
+    assert.equal(residents.filter(n=>exteriors.has(n.mapId)).length,95);
+    assert.equal(residents.filter(n=>!exteriors.has(n.mapId)).length,205);
+    assert.equal(rooms.length,67);assert.equal(new Set(rooms.map(b=>b.id)).size,67);assert.equal(new Set(rooms.map(b=>b.mapId)).size,67);
     assert.equal(new Set(rooms.filter(b=>exteriors.has(b.sourceMapId)).map(b=>b.id)).size,23);
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),1107);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),1244);
     for(const r of residents){
       const runtime=npcs.filter(n=>n.id===r.id);assert.equal(runtime.length,1,r.id);
       assert.equal(g.run(`SIMPLE_NPCS.filter(n=>n.id===${JSON.stringify(r.id)}).length`),1,r.id+' no registry overwrite');
@@ -84,6 +84,6 @@ module.exports={
     const ties=residents.filter(n=>n.network);assert.equal(ties.length,9);
     assert.deepEqual(ties.filter(n=>n.network==='confirmed member').map(n=>n.id).sort(),['mornay_bram_fen','mornay_nessa_quill','mornay_tavi_rusk']);
     assert.ok(npcs.every(n=>!Object.hasOwn(n,'network')),'author classifications never enter runtime NPCs');
-    for(const b of rooms){assert.equal(g.run(`mapIdForRef(MAP_REGISTRY[${JSON.stringify(b.mapId)}].map)`),b.mapId);assert.ok(residents.some(n=>n.mapId===b.mapId||n.dayOff?.mapId===b.mapId));}
+    for(const b of rooms){assert.equal(g.run(`mapIdForRef(MAP_REGISTRY[${JSON.stringify(b.mapId)}].map)`),b.mapId);if(!['south_rows_floor_2','south_rows_floor_3','south_rows_attic'].includes(b.key))assert.ok(residents.some(n=>n.mapId===b.mapId||n.dayOff?.mapId===b.mapId),b.id+' inhabited at work or Dayoff');}
   }
 };

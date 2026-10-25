@@ -85,6 +85,7 @@ const QUEST_FLAG_BINDINGS = [
   lex('dispatch_rewarded', false, () => dispatch_rewarded, (v) => { dispatch_rewarded = v; }),
   lex('fort_quest_started', false, () => fort_quest_started, (v) => { fort_quest_started = v; }),
   lex('fort_quest_stage', 0, () => fort_quest_stage, (v) => { fort_quest_stage = v; }),
+  lex('polwick_esla_visit_stage', 0, () => polwick_esla_visit_stage, (v) => { polwick_esla_visit_stage = v; }),
   lex('fort_pay_ticket_ready', false, () => fort_pay_ticket_ready, (v) => { fort_pay_ticket_ready = v; }),
   lex('fort_pay_ticket_reduced', false, () => fort_pay_ticket_reduced, (v) => { fort_pay_ticket_reduced = v; }),
   lex('smugglers_dead', false, () => smugglers_dead, (v) => { smugglers_dead = v; }),

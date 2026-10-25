@@ -1,0 +1,188 @@
+{
+  "date": "2026-10-25",
+  "branch": "main",
+  "startingHead": "59e7851156e2e4e8782748735d9f3c74e4189c6b",
+  "finalHead": "59e7851156e2e4e8782748735d9f3c74e4189c6b",
+  "committed": false,
+  "pushed": false,
+  "staged": false,
+  "precedingVerifiedBaseline": {
+    "passed": 257,
+    "failed": 0,
+    "scope": "Previously completed Mornay working-tree regression; not claimed as a fresh geography baseline run"
+  },
+  "finalRegression": {
+    "command": "node test/run.js",
+    "total": 258,
+    "passed": 258,
+    "failed": 0
+  },
+  "syntaxFilesChecked": 52,
+  "validation": {
+    "errors": 0,
+    "warnings": 6,
+    "errorList": [],
+    "warningList": [
+      {
+        "group": "Tile Properties",
+        "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+      },
+      {
+        "group": "Enemies",
+        "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      }
+    ],
+    "saveVersion": 5
+  },
+  "regionalFingerprints": {
+    "count": 1058,
+    "allMatch": true
+  },
+  "transitionAudit": {
+    "artifactMatches": true,
+    "fixedDestinations": 442,
+    "preservedCoordinates": 8,
+    "structuralSegments": 2026,
+    "eligibleContinuousEntries": 1946
+  },
+  "browser": {
+    "automated": true,
+    "humanPlaythrough": false,
+    "checks": 155,
+    "captures": 49,
+    "errors": [],
+    "scales": [
+      "512x480",
+      "1024x960"
+    ],
+    "visualInspection": "Inspected native/2x terrain captures and production overview; inaccessible scenery is rendered read-only, never entered"
+  },
+  "geography": {
+    "newSceneryChunks": 114,
+    "existingGridsChanged": 28,
+    "changedCells": 4874,
+    "oldGridsUnchanged": 916,
+    "protectedOrdinaryGridsUnchanged": 454,
+    "regionBoundsUnchanged": [
+      -8,
+      30,
+      -15,
+      12
+    ],
+    "chunks": 1058,
+    "placementEnabled": 477,
+    "scenery": 581,
+    "encounterEnabled": 458,
+    "totalMaps": 1244
+  },
+  "preservation": {
+    "exactOrdinaryReachableTileSetsUnchanged": true,
+    "cameraMetadataUnchanged": true,
+    "noNewPhysicalEdgeConnections": true,
+    "tileRegistryUnchanged": true,
+    "unrelatedMornayImplementationByteIdentical": true,
+    "saveVersion": 5
+  },
+  "artifacts": [
+    "OVERWORLD_ATLAS.md",
+    "Art/qa/regional-geography/inventory.json",
+    "Art/qa/regional-geography/overview.svg",
+    "Art/qa/regional-geography/production-overview.png",
+    "test/fixtures/regional-grid-fingerprints.js",
+    "test/transition-audit-output.json"
+  ],
+  "taskFiles": [
+    "Art/qa/regional-geography/inventory.json",
+    "Art/qa/regional-geography/overview.svg",
+    "Art/qa/regional-geography/production-overview.png",
+    "Art/qa/wetwoods-thornmere/README.md",
+    "Art/qa/wetwoods-thornmere/browser-results.json",
+    "Art/qa/wetwoods-thornmere/grid-deltas.json",
+    "Art/qa/wetwoods-thornmere/thornmere-south-shore-1x.png",
+    "Art/qa/wetwoods-thornmere/thornmere-south-shore-2x.png",
+    "Art/qa/wetwoods-thornmere/thornmere-west-bank-1x.png",
+    "Art/qa/wetwoods-thornmere/thornmere-west-bank-2x.png",
+    "Art/qa/wetwoods-thornmere/validation.json",
+    "Art/qa/wetwoods-thornmere/verification.json",
+    "Art/qa/wetwoods-thornmere/western-overview.png",
+    "Art/qa/wetwoods-thornmere/wetwoods-clearing-1x.png",
+    "Art/qa/wetwoods-thornmere/wetwoods-clearing-2x.png",
+    "Art/qa/wetwoods-thornmere/wetwoods-stream-1x.png",
+    "Art/qa/wetwoods-thornmere/wetwoods-stream-2x.png",
+    "OVERWORLD_ATLAS.md",
+    "PROJECT_STATUS.md",
+    "REGIONAL_GEOGRAPHY_PLAN.md",
+    "content/maps/mainland-maps.js",
+    "test/cases/100-east-causeway.test.js",
+    "test/cases/101-west-outfall-canal-tunnel.test.js",
+    "test/cases/102-north-basin-drowned-rim.test.js",
+    "test/cases/103-north-basin-mirewood.test.js",
+    "test/cases/104-eastern-reaches-abandoned-farmhouse.test.js",
+    "test/cases/175-eastern-fens-exploration.test.js",
+    "test/cases/176-eastern-fens-envelope.test.js",
+    "test/cases/177-eastern-fens-western-pockets.test.js",
+    "test/cases/200-eastern-fens-mornay-encounter-content.test.js",
+    "test/cases/201-travellers-rise-campsite.test.js",
+    "test/cases/207-travellers-rise-campfire-night.test.js",
+    "test/cases/209-eastern-fens-new-terrain-tiles.test.js",
+    "test/cases/218-mornay-exterior-topology.test.js",
+    "test/cases/301-mornay-manifest.test.js",
+    "test/cases/318-mainland-water-camera.test.js",
+    "test/cases/322-wetwoods-thornmere.test.js",
+    "test/cases/58-regional-content-split.test.js",
+    "test/cases/72-continuous-seams.test.js",
+    "test/cases/73-continuous-neighbour-content.test.js",
+    "test/cases/76-geographic-encounters.test.js",
+    "test/cases/77-map3-fen-seam-pilot.test.js",
+    "test/cases/78-verdant-vale-legacy-home.test.js",
+    "test/cases/83-map3n2-northbasin-seam-closure.test.js",
+    "test/cases/84-canonical-regional-position.test.js",
+    "test/cases/85-canonical-consumers-part2.test.js",
+    "test/cases/86-regional-chunk-catalog.test.js",
+    "test/cases/88-continuous-regional-production-default.test.js",
+    "test/cases/89-west-outfall-scenery-chunk.test.js",
+    "test/cases/90-north-basin-open-reservoir.test.js",
+    "test/cases/91-north-basin-open-reservoir-east.test.js",
+    "test/cases/92-north-basin-eastern-woods.test.js",
+    "test/cases/93-north-basin-open-reservoir-far-east.test.js",
+    "test/cases/94-north-basin-east-shore-reservoir.test.js",
+    "test/cases/95-north-basin-eastern-road.test.js",
+    "test/cases/96-eastern-canal-banks.test.js",
+    "test/cases/97-northern-thornmere-fen.test.js",
+    "test/cases/98-thornmere-upper-shallows-scenery.test.js",
+    "test/cases/99-thornmere-canal-head.test.js",
+    "test/fixtures/regional-grid-fingerprints.js",
+    "test/fixtures/wetwoods-invariants.json",
+    "test/regional-atlas.js",
+    "test/regional-geography-browser.js",
+    "test/transition-audit-output.json",
+    "world-transitions.js"
+  ],
+  "imageHashes": {
+    "thornmere-south-shore-1x.png": "3da52058edaaa7ac4b7e2a559d29cbb6af36c1f90f4b04389ef72e3ff281a30d",
+    "thornmere-south-shore-2x.png": "5d16f85efae63a7eea33d886854d72b00b7aac3f29c07121096d8f9f314be734",
+    "thornmere-west-bank-1x.png": "48d8a5ebf0fd521bb6a81a79809c2ebb6d37025511c175db4490c3475e415eff",
+    "thornmere-west-bank-2x.png": "71299bf2ae54d005aec51d98cf3bf7924db0fc72e4997de8cc0abc11a1870325",
+    "western-overview.png": "fc7c289a679cd874448dd9982eecdaf86de4264074b446f2ada7db0392b287f6",
+    "wetwoods-clearing-1x.png": "c134ba4218e52676655ad732fd3f98753db3204d9752ab5ef7a2dff329aab7e8",
+    "wetwoods-clearing-2x.png": "093d31c577bbd9b60f286f338275c601aefe17d5ee2e6a4237355c5d10ec188f",
+    "wetwoods-stream-1x.png": "eddcff703defbc0e3bc0dffc48a2aca1492022c9faca4adeb2aeadb8584d6fe0",
+    "wetwoods-stream-2x.png": "8defae8f4810a9d99f0410172cc3a804e31877908f57f0238dcff0add12f07d9"
+  }
+}

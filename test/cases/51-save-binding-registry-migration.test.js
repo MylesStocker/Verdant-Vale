@@ -37,7 +37,7 @@ const EXPECTED_KEYS = [
   'weight_note_signed', 'sentry_seen_on_board', 'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded',
   'pale_sentry_hp', 'sickle_quest_stage', 'gridd_rainfish_warned', 'rainfish_woken',
   'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
-  'fort_quest_started', 'fort_quest_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
+  'fort_quest_started', 'fort_quest_stage', 'polwick_esla_visit_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
   'smugglers_dead', 'smugglers_execution_day', 'fort_report_filed', 'mq4_available_day',
   'reservoir_quest_started', 'lighthouse_quest_stage', 'lighthouse_cabinet_looted', 'lighthouse_drawer_looted', 'lighthouse_spider_resolved', 'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
   'netto_letter_received', 'dessa_met', 'rareborn_rhyme_heard', 'vale_tutorial_seen', 'tev_elixir_given',
@@ -108,7 +108,7 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 79, '79 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 80, '80 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
 
     // ── B. Complete flag round-trip (all bindings, generically) ─────────────

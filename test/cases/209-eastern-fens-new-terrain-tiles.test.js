@@ -64,7 +64,7 @@ module.exports = {
     //    tiles from this same approved natural palette). Holds vacuously
     //    true for Driftwood/Stranded Boat until a later batch places them,
     //    then proves they never leak into any other region.
-    const ALLOWED_REGIONS = ['Eastern Fens', 'Great Fen', 'Valmere', 'Eastern Shore', 'Southern Moraine', 'Eastern Mainland', 'Southern Countryside'];
+    const ALLOWED_REGIONS = ['Eastern Fens', 'Great Fen', 'Valmere', 'Eastern Shore', 'Southern Moraine', 'Eastern Mainland', 'Southern Countryside', 'Wetwoods', 'Thornmere'];
     for (const id of [128, 129, 130]) {
       const foreign = J(`JSON.stringify((function(){
         var hits=[];
@@ -79,7 +79,7 @@ module.exports = {
         });
         return hits;
       })())`);
-      assert.deepEqual(foreign, [], `tile ${id} is used only inside the Eastern Fens, the Great Fen, the Valmere expanse, the Eastern Shore, or the Southern Moraine`);
+      assert.deepEqual(foreign, [], `tile ${id} is used only inside the Eastern Fens, the Great Fen, the Valmere expanse, the Eastern Shore, the Southern Moraine, Wetwoods or Thornmere`);
     }
 
     // 7. validateGameData() stays clean with the new tiles registered.

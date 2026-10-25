@@ -5,7 +5,7 @@
 // Loaded BEFORE interactions.js, which keeps the generic engine, MAP_FEATURES merge,
 // and the INTERACT_HANDLERS / OVERWORLD_INTERACT_HANDLERS tables that reference these.
 
-// Contemporary Unshackled Flame propaganda found on Polwick's ledger table.
+// Contemporary Unshackled Flame propaganda concealed in his back-room cargo.
 // Its claims are faction rhetoric, not an objective statement of canon.
 const POLWICK_FLAME_TRACT_PAGES = [
   [
@@ -168,6 +168,51 @@ function polwickLighthouseDialogue(npc) {
   return false;
 }
 
+// The ordinary party can revisit after the fort report. Unresolved stage 5
+// retains the arrest/leave choice. This counter affects only ambient dialogue;
+// it never selects an outcome or alters the existing lighthouse quest.
+function polwickEslaDialogue(npc, repeat = false) {
+  if (!inSmugglerFort || activeMap !== SMUGGLER_FORT_MAP || !npc ||
+      npc.id !== 'polwick' || npc.map !== 'smuggler_fort' || fort_quest_stage !== 6 ||
+      !persistentParty.getMember('esla')) return false;
+  const stage = Math.min(polwick_esla_visit_stage, 3);
+  if (stage >= 3 && !repeat) return false;
+  const exchanges = [
+    [
+      {speakerId:'polwick', lines:['“Esla. Registry business again? Your friend and I have already sorted things out.”']},
+      {speakerId:'esla', lines:['“Scraped freight marks. Broken excise seals. A second ledger behind the wall. You haven’t sorted anything out. You’ve found someone willing to look away.”']},
+      {speakerId:'polwick', lines:['“Goods still have to move. Especially now.”']},
+      {speakerId:'esla', lines:['“Lély made a choice, and I’m not dragging him back through it. For his sake, I’ll leave this alone. Don’t mistake that for approval.”']},
+      {speakerId:'polwick', lines:['“Wouldn’t dream of it.”']},
+    ],
+    [
+      {speakerId:'polwick', lines:['“Between ourselves, some of us still follow the Flame. A gift like yours shouldn’t have to answer to dull hands. The last war didn’t prove they were right.”']},
+      {speakerId:'esla', lines:['“My Thread doesn’t make me better than Lély. Or anyone carrying your crates. Find someone else for that speech.”']},
+      {speakerId:'polwick', lines:['“Only saying there are people who understand.”']},
+      {speakerId:'esla', lines:['“I understand perfectly. Drop it.”']},
+    ],
+    [
+      {speakerId:'polwick', lines:['“Still no rain. The shallow runs are mud, and the boatmen want paying twice to drag their loads through it.”']},
+      {speakerId:'esla', lines:['“The farms could use the water too.”']},
+      {speakerId:'polwick', lines:['“Aye. Bad year all round.”']},
+    ],
+  ];
+  dialogue.name = '';
+  setSpeakerDialoguePages(exchanges[Math.min(stage, 2)]);
+  dialogue.page = 0;
+  dialogue.open = true;
+  dialogue.callbacks = stage < 3 ? [function () {
+    // Commit only a fully read exchange, once, while its speaker is available.
+    if (polwick_esla_visit_stage === stage && npc.map === 'smuggler_fort' &&
+        inSmugglerFort && activeMap === SMUGGLER_FORT_MAP &&
+        persistentParty.getMember('esla')) {
+      polwick_esla_visit_stage = stage + 1;
+      syncQuestFlagsToWindow();
+    }
+  }] : null;
+  return true;
+}
+
 // ─── Smuggler fort interaction ────────────────────────────────────────────────
 function interactSmugglerFort() {
   if (fort_quest_stage === 0 || fort_quest_stage === 5) {
@@ -267,7 +312,7 @@ function interactSmugglerFort() {
   // keeps Polwick interactable from the tile beside his crate.
   if (interactSimpleNPCs()) return;
 
-  // Folded pamphlet hidden in the crate directly left of Polwick. It is
+  // Folded pamphlet hidden among the cargo in the back room. It is
   // repeatable, available on every fort route, and adds no persistent state.
   const tractDx = player.x - POLWICK_FLAME_TRACT.x;
   const tractDy = player.y - POLWICK_FLAME_TRACT.y;
@@ -287,6 +332,15 @@ function interactSmugglerFort() {
     ];
     choice.open = true;
     return;
+  }
+  if (Math.hypot(player.x - FORT_SMUGGLING_LEDGER.x, player.y - FORT_SMUGGLING_LEDGER.y) < TALK_RADIUS * 1.5) {
+    dialogue.name = 'Altered freight records';
+    dialogue.pages = [
+      ['One ledger lists lamp oil and dried fish. Beneath it, the same numbered loads are entered as untaxed spirits and wrapped blades.'],
+      ['Excise seals have been cut from the crates. Fresh labels cover scraped shipping marks; spare seals and a knife lie beside the ink.'],
+      ['A note in the margin: No lantern at the landing. Use the reed channel after the patrol passes.'],
+    ];
+    dialogue.callbacks = null; dialogue.page = 0; dialogue.open = true;
   }
 }
 
