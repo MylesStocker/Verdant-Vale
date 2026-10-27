@@ -16,8 +16,8 @@ const persistentParty = (() => {
   const eslaRecruitmentEquipment=Object.freeze({weapon:'Dragon Blade',armor:'Shadow Cloak',
     shield:'Mithril Shield',accessory:'Fen Mask'});
   const scalarKeys=['hp','maxHp','atk','def','spd','level','xp'];
-  let order=['lely'], characters=[], rewards=[], revision=0, battle=null, rewardFailure=null;
-  const loads=new WeakMap(),overnightRests=new WeakMap();
+  let order=['lely'], characters=[], rewards=[], absences=[], revision=0, battle=null, rewardFailure=null;
+  const loads=new WeakMap(),overnightRests=new WeakMap(),availabilityChanges=new WeakMap();
   const fail=()=>{throw new Error('Invalid persistent party state or lifecycle operation');};
   // JSON.parse/Object helpers may belong to the harness host realm. Accept
   // only either ordinary Object/Array prototype; still reject custom classes.
@@ -75,8 +75,11 @@ const persistentParty = (() => {
     ...from(scalarKeys.map(k=>[k,stats[k]])),statuses:statusEffects.slice(),
     equipment:from(slots.map(k=>[k,stats[k]?.name||null])),slitherSpeed:slitherSpd});
   const memberView=(m,slot)=>({...m,slot,name:PERSISTENT_CHARACTER_DEFINITIONS[m.characterId].name});
-  const snapshot=()=>copy({members:[lely(),...characters.map((m,i)=>memberView(m,i+1))],
-    inventory:stats.items.map(i=>i.name),gold:stats.gold,defeated:[stats,...characters].every(m=>m.hp===0)});
+  const available=id=>order.includes(id)&&!absences.some(a=>a.characterId===id);
+  const activeCharacters=()=>characters.filter(m=>available(m.characterId));
+  const roster=()=>[lely(),...characters.map((m,i)=>memberView(m,i+1))];
+  const snapshot=()=>copy({members:roster().filter(m=>available(m.characterId)).map((m,slot)=>({...m,slot})),
+    inventory:stats.items.map(i=>i.name),gold:stats.gold,defeated:[stats,...activeCharacters()].every(m=>m.hp===0)});
   const idle=()=>{
     if(activityOwnership.has('water_travel')||activityOwnership.has('story_battle')||rewardFailure||battle||combat.active||combat.mode!==null||combatPlayerState.hasParty()||
         combatPlayerState.session.getView()||formationCombatLab.isOpen()||partyCombatLab.isActive()||
@@ -107,14 +110,22 @@ const persistentParty = (() => {
     return receipts.filter(receipt => !canonicalOrdinal(receipt.id) || canonicalOrdinal(receipt.id) === latest);
   };
   const latestCanonicalOrdinal = () => rewards.reduce((high, receipt) => Math.max(high, canonicalOrdinal(receipt.id)), 0);
-  const payload=()=>copy({order,characters,rewards});
+  const payload=()=>copy({order,characters,rewards,...(absences.length?{absences}: {})});
   const validatePayload=v=>{
-    const p=record(v,['order','characters','rewards']);
+    const p=record(v,['order','characters','rewards',...(v&&Object.hasOwn(v,'absences')?['absences']:[])]);
     p.order=array(p.order);p.characters=array(p.characters).map(validateCharacter);p.rewards=array(p.rewards).map(validateReward);
     if(p.order.length<1||p.order.length>3||p.order[0]!=='lely'||new Set(p.order).size!==p.order.length||
         p.characters.length!==p.order.length-1||p.order.some((id,slot)=>
           !Object.hasOwn(PERSISTENT_CHARACTER_DEFINITIONS,id)||PERSISTENT_CHARACTER_DEFINITIONS[id].slot!==slot)||
         p.characters.some((m,i)=>m.characterId!==p.order[i+1])||new Set(p.rewards.map(r=>r.id)).size!==p.rewards.length)fail();
+    p.absences=array(Object.hasOwn(p,'absences')?p.absences:[]).map(value=>{
+      const a=record(value,['characterId','reason','returnMapId']);
+      if(a.characterId==='lely'||!p.order.includes(a.characterId)||
+          typeof a.reason!=='string'||!/^[a-z][a-z0-9_]{0,79}$/.test(a.reason)||
+          typeof a.returnMapId!=='string'||!mapRefForId(a.returnMapId)||!mapPlayerAccessible(a.returnMapId))fail();
+      return a;
+    });
+    if(new Set(p.absences.map(a=>a.characterId)).size!==p.absences.length)fail();
     p.rewards=compactRewards(p.rewards);
     return p;
   };
@@ -151,7 +162,7 @@ const persistentParty = (() => {
   const encounterRequest=policy=>{
     const request=prepare(),p=record(policy,['escape']);
     if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(p.escape))fail();
-    return copy({...request,gold:stats.gold,escape:p.escape,resonance:order.map((characterId,slot)=>({characterId,slot}))});
+    return copy({...request,gold:stats.gold,escape:p.escape,resonance:request.members.map(({characterId,slot})=>({characterId,slot}))});
   };
   // Field views adapt the same persistent members. Only IDs/cursors belong to
   // the menu; canonical item exchanges and HP/status writes stay in this closure.
@@ -189,8 +200,8 @@ const persistentParty = (() => {
       if(dialogue.open||choice.open||shop.open||seraLioraCutscene.active||fishing.active||
           continentMap.open||accordPanel.open)fail();
       const memberSlot=order.indexOf(characterId);
-      if(memberSlot<0)fail();
-      const m=snapshot().members[memberSlot],itemId=m.equipment[equipmentSlot];
+      if(memberSlot<0||!available(characterId))fail();
+      const m=snapshot().members.find(m=>m.characterId===characterId),itemId=m.equipment[equipmentSlot];
       if(itemId===null)fail();
       const def=item(itemId);
       if(def.keyItem||def.battleOnly||def.type!==equipmentSlot||!safe(stats.items.length+1))fail();
@@ -212,7 +223,7 @@ const persistentParty = (() => {
           continentMap.open||accordPanel.open)fail();
       const def=item(itemId),index=stats.items.findIndex(i=>i.name===itemId),slot=order.indexOf(characterId);
       if(index<0||slot<0||!fieldTargets(itemId).includes(characterId))fail();
-      const m=snapshot().members[slot],inventory=stats.items.slice();
+      const m=snapshot().members.find(m=>m.characterId===characterId),inventory=stats.items.slice();
       const next={hp:m.hp,statuses:m.statuses.slice(),equipment:{...m.equipment},slitherSpeed:m.slitherSpeed};
       if(slots.includes(def.type)){
         next.equipment[def.type]=itemId;fieldMember({...m,equipment:next.equipment});
@@ -243,8 +254,40 @@ const persistentParty = (() => {
       return result;
     },
     getView(){if(arguments.length)fail();return snapshot();},
-    hasLivingMember(){if(arguments.length)fail();return stats.hp>0||characters.some(m=>m.hp>0);},
-    getMember(id){if(arguments.length!==1||typeof id!=='string')fail();return snapshot().members.find(m=>m.characterId===id)||null;},
+    hasLivingMember(){if(arguments.length)fail();return stats.hp>0||activeCharacters().some(m=>m.hp>0);},
+    getMember(id){if(arguments.length!==1||typeof id!=='string')fail();return copy(roster().find(m=>m.characterId===id)||null);},
+    getRosterView(){if(arguments.length)fail();return copy({members:roster()});},
+    getActiveMember(id){if(arguments.length!==1||typeof id!=='string')fail();return snapshot().members.find(m=>m.characterId===id)||null;},
+    isAvailable(id){if(arguments.length!==1||typeof id!=='string')fail();return available(id);},
+    getAbsence(id){if(arguments.length!==1||typeof id!=='string')fail();return copy(absences.find(a=>a.characterId===id)||null);},
+    // A private receipt keeps availability changes atomic and rejects stale
+    // transactions. Character records and recruitment history never move.
+    prepareAvailabilityChange(value){
+      if(arguments.length!==1)fail();idle();canonicalValid();
+      const change=record(value,['characterId','available','reason','returnMapId']);
+      if(typeof change.available!=='boolean'||change.characterId==='lely'||!order.includes(change.characterId))fail();
+      const old=absences.find(a=>a.characterId===change.characterId);
+      let next;
+      if(change.available){
+        if(!old||old.reason!==change.reason||old.returnMapId!==change.returnMapId)fail();
+        next=absences.filter(a=>a!==old);
+      }else{
+        if(old)fail();
+        next=[...absences,{characterId:change.characterId,reason:change.reason,returnMapId:change.returnMapId}];
+      }
+      validatePayload({...payload(),absences:next});
+      if(!roster().some(m=>m.hp>0&&!next.some(a=>a.characterId===m.characterId)))fail();
+      const token=Object.freeze({});availabilityChanges.set(token,{before:seal(),next});return token;
+    },
+    validateAvailabilityChange(token){
+      if(arguments.length!==1)fail();idle();canonicalValid();
+      const receipt=availabilityChanges.get(token);if(!receipt||receipt.before!==seal())fail();return true;
+    },
+    applyAvailabilityChange(token){
+      this.validateAvailabilityChange(token);
+      const receipt=availabilityChanges.get(token);availabilityChanges.delete(token);
+      absences=receipt.next;revision++;return snapshot();
+    },
     eslaRecruitmentProfile(level){
       if(arguments.length!==1)fail();const base=progression(level);
       return copy(validateCharacter({characterId:'esla',level,xp:XP_THRESHOLDS[level-1],hp:base.maxHp,
@@ -262,9 +305,9 @@ const persistentParty = (() => {
       characters=[{...profile,statuses:[],equipment:authoredRecruitment?{...profile.equipment}:from(slots.map(k=>[k,null]))}];order=['lely','esla'];revision++;
       return snapshot();
     },
-    resetForNewGame(){if(arguments.length)fail();idle();order=['lely'];characters=[];rewards=[];revision++;return snapshot();},
+    resetForNewGame(){if(arguments.length)fail();idle();order=['lely'];characters=[];rewards=[];absences=[];revision++;return snapshot();},
     resetForStoryCheckpoint(){
-      if(arguments.length)fail();order=['lely'];characters=[];rewards=[];battle=null;rewardFailure=null;revision++;
+      if(arguments.length)fail();order=['lely'];characters=[];rewards=[];absences=[];battle=null;rewardFailure=null;revision++;
       return snapshot();
     },
     nextCanonicalRewardId(){
@@ -283,7 +326,7 @@ const persistentParty = (() => {
         if(!safe(m.xp+r.xp)||!safe(m.maxHp+MAX_LEVEL*10)||!safe(m.hp+MAX_LEVEL*10)||
             !safe(m.atk+MAX_LEVEL*3)||!safe(m.def+MAX_LEVEL*3)||!safe(m.spd+MAX_LEVEL))fail();
       }
-      for(const m of next){if(m.hp===0)continue;m.xp+=r.xp;while(m.level<MAX_LEVEL&&m.xp>=XP_THRESHOLDS[m.level]){
+      for(const m of next){if(m.hp===0||!available(m.characterId))continue;m.xp+=r.xp;while(m.level<MAX_LEVEL&&m.xp>=XP_THRESHOLDS[m.level]){
         const hp=m.hp,oldMax=m.maxHp;m.level++;Object.assign(m,progression(m.level,m.characterId));m.hp=hp===0?0:Math.min(m.maxHp,hp+m.maxHp-oldMax);
       }}
       // The original Lely level-up authority keeps its exact three-roll growth.
@@ -319,7 +362,7 @@ const persistentParty = (() => {
     treatMember(characterId){
       if(arguments.length!==1||typeof characterId!=='string')fail();
       idle();canonicalValid();
-      const slot=order.indexOf(characterId);if(slot<0)fail();
+      const slot=order.indexOf(characterId);if(slot<0||!available(characterId))fail();
       const member=slot===0?stats:characters[slot-1];
       const restored=Math.min(member.maxHp-member.hp,stats.gold);
       if(restored>0){member.hp+=restored;stats.gold-=restored;revision++;}
@@ -327,11 +370,11 @@ const persistentParty = (() => {
     },
     prepareOvernightRest(){
       if(arguments.length)fail();idle();canonicalValid();
-      if(!safe(day)||day<1||!safe(day+1)||stats.hp===0&&characters.every(m=>m.hp===0))fail();
+      if(!safe(day)||day<1||!safe(day+1)||stats.hp===0&&activeCharacters().every(m=>m.hp===0))fail();
       // Ordinary beds and inns clear exactly these four statuses. Unlike defeat
       // recovery they preserve burn/dazzled and the stored Slither sample.
       const cleared=['poison','muddied','slither','cursed'];
-      const next=characters.map(m=>({...m,hp:m.maxHp,statuses:m.statuses.filter(s=>!cleared.includes(s))}));
+      const next=characters.map(m=>available(m.characterId)?({...m,hp:m.maxHp,statuses:m.statuses.filter(s=>!cleared.includes(s))}):m);
       next.forEach(validateCharacter);
       const token=Object.freeze({});overnightRests.set(token,{before:seal(),day,next,
         statuses:statusEffects.filter(s=>!cleared.includes(s))});return token;
@@ -352,7 +395,7 @@ const persistentParty = (() => {
     recover(){
       if(arguments.length)fail();idle();canonicalValid();
       const removable=['poison','muddied','slither','cursed','burn','dazzled'];
-      for(const m of [stats,...characters]){m.hp=m.maxHp;if(m!==stats){m.statuses=m.statuses.filter(s=>!removable.includes(s));m.slitherSpeed=1;}}
+      for(const m of [stats,...activeCharacters()]){m.hp=m.maxHp;if(m!==stats){m.statuses=m.statuses.filter(s=>!removable.includes(s));m.slitherSpeed=1;}}
       statusEffects=statusEffects.filter(s=>!removable.includes(s));slitherSpd=1;revision++;return snapshot();
     },
     combatSnapshot(){if(arguments.length)fail();idle();return prepare();},
@@ -368,14 +411,14 @@ const persistentParty = (() => {
         request=encounterRequest(policy);
       }
       const ids=array(enemyIds),ticket=bridge.begin(request,ids,false,handoff,scriptedToken);
-      battle={ticket,before,memberIds:combatPlayerState.getView().members.map(m=>m.instanceId)};
+      battle={ticket,before,characterIds:request.members.map(m=>m.characterId),memberIds:combatPlayerState.getView().members.map(m=>m.instanceId)};
       return combatPlayerState.session.getView();
     },
     commitCombat(){
       if(arguments.length||!battle)fail();
       canonicalValid();if(seal()!==battle.before)fail();
       const result=bridge.completed(battle.ticket),end=result.snapshot;
-      if(end.party.length!==order.length||end.party.some((m,i)=>m.characterId!==order[i]||m.slot!==i||m.instanceId!==battle.memberIds[i]))fail();
+      if(end.party.length!==battle.characterIds.length||end.party.some((m,i)=>m.characterId!==battle.characterIds[i]||m.slot!==i||m.instanceId!==battle.memberIds[i]))fail();
       const updates=end.party.map((m,i)=>{
         const gear=end.equipment[i],effect=end.effects[i];
         if(gear.actorId!==m.instanceId||effect.actorId!==m.instanceId)fail();
@@ -390,11 +433,11 @@ const persistentParty = (() => {
       for(const old of stats.items){if(old.keyItem)inventory.push(old);else if(cursor<remaining.length)inventory.push({...item(remaining[cursor++])});}
       while(cursor<remaining.length)inventory.push({...item(remaining[cursor++])});
       const receipt=copy({outcome:result.outcome,completedRounds:result.completedRounds,
-        members:updates.map((m,i)=>({characterId:order[i],...m})),inventory:inventory.map(i=>i.name)});
+        members:updates.map((m,i)=>({characterId:battle.characterIds[i],...m})),inventory:inventory.map(i=>i.name)});
       // No supplied result is trusted: the private owner verifies the exact
       // session, membership, acknowledged reel and live final snapshot again.
       bridge.finish(battle.ticket);
-      updates.forEach((m,i)=>writeMember(i===0?stats:characters[i-1],m));stats.items=inventory;
+      updates.forEach((m,i)=>writeMember(battle.characterIds[i]==='lely'?stats:characters.find(c=>c.characterId===battle.characterIds[i]),m));stats.items=inventory;
       if(Object.hasOwn(end,'gold'))stats.gold=end.gold;
       battle=null;revision++;return receipt;
     },
@@ -408,7 +451,7 @@ const persistentParty = (() => {
       lelyState=record(lelyState,[...scalarKeys,'gold',...slots,'items']);
       copy(lelyState); // Reject nested getters/callbacks/prototypes before any writer.
       validateStats(lelyState);if(!safe(lelyState.gold))fail();statusList(lelyStatuses);speed(sampledSpeed,lelyStatuses);
-      if(lelyState.hp===0&&p.characters.every(m=>m.hp===0))fail();
+      if(lelyState.hp===0&&p.characters.filter(m=>!p.absences.some(a=>a.characterId===m.characterId)).every(m=>m.hp===0))fail();
       array(lelyState.items).forEach(rehydrateItem);
       for(const slot of slots)if(lelyState[slot]!==null){
         const definition=rehydrateItem(lelyState[slot]);
@@ -418,7 +461,7 @@ const persistentParty = (() => {
     },
     commitLoad(token){
       const data=loads.get(token);if(!data||battle||data.revision!==revision)fail();loads.delete(token);
-      order=data.p.order;characters=data.p.characters;rewards=data.p.rewards;rewardFailure=null;slitherSpd=data.sampledSpeed;revision++;
+      order=data.p.order;characters=data.p.characters;rewards=data.p.rewards;absences=data.p.absences;rewardFailure=null;slitherSpd=data.sampledSpeed;revision++;
     },
   });
 })();

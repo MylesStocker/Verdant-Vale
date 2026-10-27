@@ -3,8 +3,8 @@
 //
 // Covers: "The Struck Entry" — Corvin's favour, handed out randomly at the
 // Calwick inn on a Dayoff, and its cross-wiring into the Weight Discrepancy
-// quest. The resolution (recovering the tally, corvin_favor_done becoming true)
-// is NOT built yet — this proves the parts that exist:
+// quest. Expedition/rescue/delivery coverage lives in suite 333; this retains
+// the original offer and countersignature contract:
 //
 //   - Corvin offers the favour only at the inn, only on a Dayoff, at a 1/3
 //     roll that is rolled once per Dayoff and remembered (stable across
@@ -13,9 +13,7 @@
 //   - once given, his ordinary dialogue picks up an in-progress line;
 //   - CRUCIALLY: Corvin will not countersign Aldric's correction until the
 //     favour is done — with corvin_favor_done false he deflects and
-//     weight_note_signed stays false; with it true he signs. Since nothing
-//     sets corvin_favor_done yet, this is exactly the intended "Aldric's quest
-//     can't reach its clean finish yet" state;
+//     weight_note_signed stays false; with it true he signs.
 //   - all four flags round-trip through save/load.
 //
 // Values pulled from the vm have a different Array prototype than host

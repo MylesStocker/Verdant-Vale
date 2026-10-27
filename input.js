@@ -13,6 +13,8 @@ const keys = new Proxy(pressedKeys, {
   get(pressed, key) {
     const held = pressed[key];
     if (held && typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) return false;
+    if (held && riverWrestling.isActive()) return false;
+    if (held && typeof fineNeedlework!=='undefined' && fineNeedlework.isActive()) return false;
     if (held && typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
     if (held && typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.isExclusive()) return false;
     if (held && typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.blocksInput()) return false;
@@ -79,6 +81,19 @@ function handleFormationInputCommand(command) {
 function reconcileFormationLabKeys() {
   for (const key of Object.keys(pressedKeys)) {
     if (!['Enter',' ','Escape','b','B','`'].includes(key)) pressedKeys[key] = false;
+  }
+}
+
+// Physical keys remain owned here. The sport receives only held movement
+// commands; action latches survive its boundaries until their actual keyup.
+function riverWrestlingControls() {
+  const held=(...names)=>names.some(k=>pressedKeys[k]);
+  return {direction:Number(held('ArrowRight','d','D'))-Number(held('ArrowLeft','a','A')),
+    brace:held('ArrowDown','s','S')};
+}
+function releaseRiverWrestlingKeys() {
+  for(const key of Object.keys(pressedKeys)) {
+    if(!['Enter',' ','Escape','z','Z','x','X','c','C'].includes(key))pressedKeys[key]=false;
   }
 }
 
@@ -164,6 +179,14 @@ window.addEventListener('keydown', e => {
     if (!e.ctrlKey && !e.metaKey && (e.key.startsWith('Arrow') || e.key === ' ')) e.preventDefault();
     return;
   }
+  if (riverWrestling.isActive()) {
+    const held=pressedKeys[e.key];pressedKeys[e.key]=true;
+    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
+      e.preventDefault();
+      if(!held&&!e.repeat)riverWrestling.keyDown(e.key);
+    }
+    return;
+  }
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) {
     pressedKeys[e.key] = true;
     e.preventDefault();
@@ -174,6 +197,19 @@ window.addEventListener('keydown', e => {
     e.preventDefault();
     if(!held&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&
         (e.key===' '||e.key==='Enter')&&dialogue.open)handleInteract();
+    return;
+  }
+  if(typeof fineNeedlework!=='undefined'&&fineNeedlework.isActive()){
+    const held=pressedKeys[e.key];pressedKeys[e.key]=true;e.preventDefault();
+    if(!held&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
+      const command=formationInputCommand(e.key);
+      if(dialogue.open&&command==='confirm')handleInteract();
+      else if(choice.open){
+        if(command==='up')choice.cursor=Math.max(0,choice.cursor-1);
+        else if(command==='down')choice.cursor=Math.min(choice.options.length-1,choice.cursor+1);
+        else if(command==='confirm'){const cb=choice.callbacks[choice.cursor];choice.open=false;if(cb)cb();}
+      }
+    }
     return;
   }
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) {

@@ -11,7 +11,7 @@ module.exports={
   for(const b of rooms){
    place(g,b.mapId);const party=J(g,'persistentParty.getView()');assert.equal(g.run('saveGame()'),true);const raw=g.run('localStorage.getItem("verdantVale_save")'),saved=JSON.parse(raw);
    assert.deepEqual(Object.keys(saved).sort(),originalKeys,'rooms introduce no persistent fields');assert.equal(saved.version,5);
-   assert.deepEqual(saved.location,{kind:'discrete',mapId:b.mapId,localPxX:240,localPxY:432});assert.equal(saved.townBuilding,b.id);assert.equal(saved.currentTownId,'mornay');assert.equal(saved.inTown,true);
+   assert.deepEqual(saved.location,{kind:'discrete',mapId:b.mapId,localPxX:240,localPxY:b.returnRow<b.doorRow?48:432});assert.equal(saved.townBuilding,b.id);assert.equal(saved.currentTownId,'mornay');assert.equal(saved.inTown,true);
    assert.doesNotMatch(raw,/NPC_ROUTES|MOVEMENT_HOMES|mornayPopulation|mornayNetwork|factionReputation|forceLegacyRegionalView|camera/);
    place(g,'MORNAY_EAST_GATE_MAP');assert.equal(g.run('loadGame()'),true);dismiss(g);assert.equal(g.run('mapIdForRef(activeMap)'),b.mapId);assert.equal(g.run('townBuilding'),b.id);assert.deepEqual(J(g,'persistentParty.getView()'),party);
    for(const edit of ['d.townBuilding=null','d.currentTownId="drenwick"','d.inTown=false','d.currentHouseId="forged"','d.location.mapId="MORNAY_WEST_GATE_MAP"','d.location.mapId="MORNAY_MISSING_MAP"','d.location.localPxX=0','d.houseSourceMapId="TOWN_MAP"']){

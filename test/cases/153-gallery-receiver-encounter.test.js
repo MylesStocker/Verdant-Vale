@@ -211,7 +211,7 @@ test('only the exact canonical owner may activate a formation; entry is once-onl
   assert.equal(g.run('JSON.stringify(stats.items)===inventoryBefore'),true);
   assert.deepEqual(view(g).availableActions,['attack','item','observe','run']);
   assert.deepEqual(J(g,'combat.enemies.map(e=>[e.id,e.slot,e.hp])'),[
-    ['enemy_gallery_receiver',0,400],['enemy_gallery_caller',1,140],['enemy_gallery_keeper',2,180]]);
+    ['enemy_gallery_receiver',0,300],['enemy_gallery_caller',1,105],['enemy_gallery_keeper',2,135]]);
   assert.equal(new Set(J(g,'combat.enemies.map(e=>e.instanceId)')).size,3);
   const ids=J(g,'combat.enemies.map(e=>e.instanceId)');g.run('ENCOUNTER_HANDLERS.gallery_receiver();');
   assert.deepEqual(J(g,'combat.enemies.map(e=>e.instanceId)'),ids);
@@ -260,7 +260,7 @@ test('acknowledged defeat uses ordinary recovery, preserves seen flag and retrie
   assert.equal(g.run('stats.hp'),100);assert.equal(g.run('day'),day+1);assert.equal(view(g),null);
   assert.equal(g.run('galleryReceiverEncounter.isLocked()'),false);assert.equal(g.run('combat.enemies.length'),0);
   closeDialogue(g);g.run("Math.random=()=>{throw Error('retry initialization RNG');};");enter(g);
-  assert.deepEqual(J(g,'combat.enemies.map(e=>e.hp)'),[400,140,180]);
+  assert.deepEqual(J(g,'combat.enemies.map(e=>e.hp)'),[300,105,135]);
   for(const id of J(g,'combat.enemies.map(e=>e.instanceId)'))assert.ok(!ids.includes(id));
 });
 

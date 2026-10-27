@@ -295,8 +295,7 @@ const CALWICK_NPCS = [
         : [['\u201cThe form requires a countersignature.', 'The countersignatory requires the form.\u201d']];
       // The Struck Entry (side quest). Once he's asked the player to recover his
       // father's canal tally, he checks for it every time -- the required
-      // work-day change -- until it's done; nothing sets corvin_favor_done yet,
-      // so the resolved line is dormant until that quest is built (quests.js).
+      // work-day reminder until Third Lock delivery restores the entry.
       if (corvin_favor_started && !corvin_favor_done) pages.push(
         ['\u201cYou\u2019ve been out to Drenwick since.\u201d',
          'He doesn\u2019t look up, but he asks it every time now.',

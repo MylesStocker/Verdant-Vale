@@ -15,6 +15,8 @@ const player = {
 
 // Returns the display name shown above the canvas for the current location.
 function locationName() {
+  if (THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
+  if (REEDBANK_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
   // MAP_METADATA-driven lookup, restricted to type === 'outdoor': every
   // plain overworld map (MAP, MAP2, MAP3, the North Basin maps, etc.) has a
   // single, unconditional display name with no further sub-state, so this
@@ -124,6 +126,10 @@ function locationName() {
 // 'house:<houseId>', per-apartment keys, and town-building/state distinctions
 // ('west', 'drenwick_civic', …). See MAP_CATALOG (data.js) for physical map ids.
 function currentContentLocationKey() {
+  const thirdLockKey=THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)];
+  if(thirdLockKey)return thirdLockKey;
+  const reedbankKey=REEDBANK_CONTENT_KEYS[mapIdForRef(activeMap)];
+  if(reedbankKey)return reedbankKey;
   if (inTown && currentTownId === 'mornay') return mornayContentKey(mapIdForRef(activeMap));
   if (activeMap === TRAVELLERS_RISE_CAMP_MAP) return 'travellers_rise_camp';
   if (inLorraHouse)                  return 'lorra_house';
@@ -718,6 +724,7 @@ function preflightRainfishStep() {
 
 function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   if (gameRuntimeFailure.isActive()) return;
+  if (riverWrestling.isActive()) {riverWrestling.update(deltaSeconds);return;}
   if (typeof waterTravelController !== 'undefined' && waterTravelController.isActive()) {
     waterTravelController.update(presentationSeconds);
     return;
@@ -738,6 +745,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   if (galleryReceiverEncounter.blocksWorldInput()) return;
   // The MQ5 office walk owns simulation exclusively. It advances only its
   // authenticated Esla route and never ticks world time, cooldowns or encounters.
+  if (typeof fineNeedlework!=='undefined' && fineNeedlework.update()) return;
   if (typeof mq5AssignmentCutscene !== 'undefined' && mq5AssignmentCutscene.isActive()) {
     mq5AssignmentCutscene.update();
     return;
@@ -893,6 +901,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
     }
 
     // Map transitions
+    if (struckEntry.tryDoor() || reedbankTryDoor()) return;
     const ttx = Math.floor(player.x / TILE);
     const tty = Math.floor(player.y / TILE);
     const curTile = activeMap[tty] ? activeMap[tty][ttx] : -1;

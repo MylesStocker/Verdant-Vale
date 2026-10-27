@@ -6,6 +6,7 @@
 // and the INTERACT_HANDLERS / OVERWORLD_INTERACT_HANDLERS tables that reference these.
 
 function interactDrenwickOffice() {
+  if(struckEntry.oldOffice())return true;
   // District Supervisor Harrow's desk (col 7 row 4). Harrow runs the district but
   // is not in the room — the player does business with Officer Veth in person.
   // This used to present "Supervisor Harrow" speaking from an empty tile (no NPC
@@ -518,6 +519,7 @@ function interactHarbormaster() {
              '\u201cThe district would take a month to process this. You did it in a day.\u201d'],
           ];
           dialogue.callbacks = [function() {
+            if(weight_quest_stage!==3)return; // one payout, even if a stale callback is repeated
             stats.gold += 60;
             weight_quest_stage = 4;
             refreshJobBoard();

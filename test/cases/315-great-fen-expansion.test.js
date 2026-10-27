@@ -171,10 +171,10 @@ module.exports = {
       assert.equal(got, GRID_FP.fingerprints[id], `${id}: Mornay peninsula grid untouched by the Great Fen expansion`);
     }
 
-    // ── 11. No new NPC/pickup/quest/story content anywhere in the Great Fen. ─
+    // ── 11. The optional Third Lock marker is the sole later content addition. ─
     for (const [id] of ALL) {
       assert.equal(g.run(`MAP_CATALOG['${id}'].items.length`), 0, `${id} has no items`);
-      assert.equal(g.run(`(MAP_FEATURES['${id}']||[]).length`), 0, `${id} has no feature/quest trigger`);
+      assert.deepEqual(JSON.parse(g.run(`JSON.stringify((MAP_FEATURES['${id}']||[]).map(f=>f.id))`)), id==='GREAT_FEN_C8RN3_MAP'?['third_lock_towpath']:[], `${id}: only the authored Third Lock marker may exist`);
       assert.equal(g.run(`SIMPLE_NPCS.some(function(n){return n.physicalMapId==='${id}';})`), false, `${id} has no NPC`);
     }
 

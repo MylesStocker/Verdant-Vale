@@ -96,6 +96,7 @@ const ITEM_REGISTRY = {
   'Old Boot':      { name: 'Old Boot',      type: 'accessory', bonus: 0, price: 0 },
   // Pure flavor/quest artifact (a voided transit letter fished up) — keyItem so
   // it lives in the Special Items notebook only, never the equip/use list.
+  'Embroideries Parcel': { name:'Embroideries Parcel', type:'accessory', bonus:0, price:0, questItem:true, keyItem:true },
   'Sealed Letter': { name: 'Sealed Letter', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   // Warp Stone — the rare reward for the best outcome of the reservoir arc (MQ4).
   // keyItem so it lives in the Special Items notebook only; inspecting it there
@@ -133,6 +134,9 @@ const ITEM_REGISTRY = {
   // never inferred from questItem — the mushroom wines above stay ordinary.)
   'Thank-You Note':    { name: 'Thank-You Note',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   'Schilling':         { name: 'Schilling',         type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Third Lock Towpath Tally': {name:'Third Lock Towpath Tally',type:'accessory',bonus:0,price:0,questItem:true,keyItem:true},
+  'Carved Canal Boat': {name:'Carved Canal Boat',type:'accessory',bonus:0,price:0,questItem:true,keyItem:true},
+  'Joran’s Supply Key': {name:'Joran’s Supply Key',type:'accessory',bonus:0,price:0,questItem:true,keyItem:true},
   'Cat-Shaped Key':    { name: 'Cat-Shaped Key',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   'Letter from Netto': { name: 'Letter from Netto', type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   'Dispatch Letter':   { name: 'Dispatch Letter',   type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },

@@ -1,5 +1,61 @@
 # Mornay Population and Services MVP Plan
 
+
+## South Mornay Watchhouse and Jail — current addition
+
+The public watchhouse occupies the lower-east civic frontage of **South Mornay — Upper East**, immediately north of the East Gate. Enter southward at **(12,10)**; return to **(12,9)** facing up. Its ordinary registered interior, `MORNAY_WATCHHOUSE_MAP` / `mornay_watchhouse`, receives the party at **(7.5,1.5)** facing down and exits through its northern door. No town street, gate, regional grid or camera policy changes.
+
+The accessible booking room has a duty desk, notices, patched waiting benches, records cupboard, confiscated-property chest and a cramped guardroom. A bolted iron screen shows the rear: two four-bed communal cells, two individual cells, a central staff corridor and a separately gated exercise/delivery yard with a privy. **Ten beds** are represented. The rear is deliberately inaccessible; its visible gates are solid fixtures, with no door transitions, unlock flags, prison inventories, prisoner conversations, payments or quests. Existing damp masonry, beds, cupboards, tables and crate artwork is reused, with narrow procedural iron-screen and privy fixtures. No tile IDs or raster assets are added.
+
+Hadrin Moss moves from Old Fort to booking duty. His suggested unofficial consideration is flavour only; his existing MQ5 refusal is retained. Anric Fell moves from West Gate to custody duty and refuses payment for recording arrests. Vannic Nair staffs the guardroom on workdays and retains his old Wold's Inn position and dialogue on Dayoff. All three stable identities remain; the **300-resident roster is now 93 exterior / 207 interior on workdays, 87 / 213 on Dayoff**. The separately registered Fine Needlework characters are not included in that historic resident benchmark.
+
+Mornay now has **17 exterior maps and 68 interior maps in 24 establishments**. One former closed three-unit residential frontage is repurposed: **41 accessible self-contained dwellings, 17 implied dwellings behind 11 closed frontages, and four boarding rooms** remain. Old Fort's stable `mornay_watch_cells` notice now identifies its disused lockup and redirects public custody enquiries south; Old Fort plot access remains reserved. Names and flavour are revisable content.
+
+Only one previously existing grid cell changes: `MORNAY_SOUTH_UPPER_EAST_MAP` **column 12, row 10**, `TOWN_BUILDING` (13) → `HOUSE_DOOR` (34). The added interior is 16 × 15. SAVE_VERSION remains **5**, with no new mutable state, loot or encounters. New suite **327** walks from East Gate, enters the booking room, reaches every staff/notice interaction, pushes against the security screen, saves/loads, walks out and exits town in both movement modes on workday and Dayoff. Existing room, population, service, render-depth and gate suites continue to apply. The transition audit is regenerated solely for the additional room and its two transitions; regional fingerprints are unchanged.
+
+Walkthrough: enter East Gate and walk north one district. Enter the lower-right **WATCHHOUSE / JAIL** door. Speak to Hadrin at the desk and Anric beside the screen; visit Vannic in the small guardroom on a workday. Read the public notices, inspect the locked property chest and custody screen, save/load, and leave through the northern door. Confirm the four cells and yard stay inaccessible. Revisit Wold's Inn on Dayoff for Vannic. No MQ5 progress or payments should occur.
+
+
+### Watchhouse verification
+
+Final complete regression: **263/263 suites pass**. The first run exposed one stale suite-307 expectation that every room saved at the southern arrival; its expectation now follows the authored entrance direction. All existing invalid-context/atomic-load assertions remain. The complete suite was rerun after the correction.
+
+All **48 changed or untracked JavaScript files** (including preserved earlier work) pass `node --check`. `validateGameData()` reports **1245 maps, 0 errors and 6 unchanged warnings**. All **1058 regional grid fingerprints** match without regeneration. The regenerated transition audit passes, then matches under read-only verification: **444 fixed transitions, 8 preserved-coordinate transitions, 2026 edge segments and 42 house doors**. Its diff adds only the watchhouse registry/dimensions, entry/exit records and increased INTERIOR_EXIT usage; there are no catch-up artifact changes. `git diff --check` and targeted conflict/stale-reference searches pass. SAVE_VERSION is still **5**.
+
+Automated headless Chromium checks pass at **512×480 and 1024×960** using ordinary keyboard events after checkpoint placement at East Gate: walk north, approach the new door, enter southward, talk at booking, inspect notices and cells, push into the locked screen, save/load, leave north and return to East Gate. Eight screenshots were captured and the street, complete cutaway, booking dialogue and locked rear were visually inspected. All **17 pages** of new/revised staff and notice text fit measured Canvas glyph bounds. This is automated browser testing plus screenshot inspection, not a human playthrough. The manual walkthrough above remains the playtest checklist.
+
+Changes remain **unstaged and uncommitted on main**, starting and ending at `d2861931401ccb6256137ae76646610cecb48084`. Earlier Fine Needlework/Buddy work is preserved. No Git branch changes, commits, merges or pushes were performed.
+
+### Watchhouse file inventory
+
+The following 25 files are changed by this addition. Other existing dirty files belong to earlier work and are preserved. Of these, `PROJECT_STATUS.md`, `architecture.md`, `render-mornay.js` and suite 58 already contained earlier edits; this pass adds only the watchhouse changes or catalogue-total adjustment. The global-total tests move from 1244 to 1245 without changing regional assertions.
+
+- `MORNAY_TOWN_PLAN.md`
+- `PROJECT_STATUS.md`
+- `architecture.md`
+- `content/maps/mornay-maps.js`
+- `content/npcs/mornay-npcs.js`
+- `content/interactions/mornay-interactions.js`
+- `render-mornay.js`
+- `test/cases/327-mornay-watchhouse.test.js`
+- `test/cases/301-mornay-manifest.test.js`
+- `test/cases/302-mornay-occupancy-routes.test.js`
+- `test/cases/303-mornay-room-district-controls.test.js`
+- `test/cases/307-mornay-persistence-atomicity.test.js`
+- `test/cases/309-mornay-compatibility.test.js`
+- `test/cases/58-regional-content-split.test.js`
+- `test/cases/98-thornmere-upper-shallows-scenery.test.js`
+- `test/cases/99-thornmere-canal-head.test.js`
+- `test/cases/100-east-causeway.test.js`
+- `test/cases/101-west-outfall-canal-tunnel.test.js`
+- `test/cases/102-north-basin-drowned-rim.test.js`
+- `test/cases/103-north-basin-mirewood.test.js`
+- `test/cases/104-eastern-reaches-abandoned-farmhouse.test.js`
+- `test/cases/201-travellers-rise-campsite.test.js`
+- `test/cases/207-travellers-rise-campfire-night.test.js`
+- `test/cases/218-mornay-exterior-topology.test.js`
+- `test/transition-audit-output.json`
+
 ## Design and authority
 
 Mornay is a cold, busy, primarily blue-collar freshwater port and county-seat-equivalent town of approximately 8,000 people on Valmere. Seventeen existing exterior maps retain their topology, paired southern gates, shore boundaries and reserved berths. Dense work yards and commercial streets contrast with ordinary southern services and quieter, better-kept northern institutions. There is no aetherrail, capital-city scale or universal hostility.
@@ -71,7 +127,7 @@ Only `test/transition-audit-output.json` was regenerated through its established
 For human playtesting:
 
 1. At MQ5, enter Regional IJC (Middle Upper Central East, door 3,5). Speak to Magistrate Marit, Inessa, Halden, Messa, Bera and the two investigators; confirm Esla's anger and the refusal loop.
-2. Visit Maura and Dalen in Harbour/Customs (North Lower West, door 11,5), then Hadrin in Old Fort. Return to the IJC: there is still no report handover or MQ5 advancement.
+2. Visit Maura and Dalen in Harbour/Customs (North Lower West, door 11,5), then Hadrin at the South Upper East watchhouse. Return to the IJC: there is still no report handover or MQ5 advancement.
 3. Enter South Rows from South Upper East (3,10). Explore eight doors per floor; stairs are at the right. Four homes on each floor are empty on a workday. Stay at an inn into Dayoff and revisit the occupied homes.
 4. Speak with the children in units 9–12. On the third landing inspect the draught at (1,6), then step beneath the cord. Read the three attic evidence clusters, save/load, and descend all the way to the street.
 5. Confirm both town gates, ordinary shops and the infirmary still work; the other story berths, closed stair, Collegium and hydrographic office remain reserved.
@@ -84,7 +140,7 @@ Drenwick has 99 distinct, non-party humanoid characters available through ordina
 
 This is a comparable town-character count, not a claim that all 99 are permanent residents: eight are explicitly visitors, and domicile is not established for every remaining character. Drenwick comprises six exteriors and 49 logical interiors (12 public rooms, six corridors, 31 residences; some share map grids). The runtime NPC registry, house records and ordinary reachability are the authority, rather than raw placements or sprite counts.
 
-Mornay target: **300 distinct non-party speaking humanoids**, comprising **95 exterior and 205 interior characters on workdays** across **17 exterior maps and 67 rooms in 23 establishments**. Ratio: **300 / 99 = 3.0303**. No schedule clones, duplicate placements, party copies, animals or debug fixtures inflate this total. Twelve exterior characters have deterministic patrols; the others have stationary activity poses; Maris Glyn and Ferin Wold attend school on workdays and return home on Dayoff. All 300 speak, so moving/ambient and speaking totals overlap.
+Mornay target: **300 distinct non-party speaking humanoids**, comprising **93 exterior and 207 interior characters on workdays** across **17 exterior maps and 68 rooms in 24 establishments**. Ratio: **300 / 99 = 3.0303**. No schedule clones, duplicate placements, party copies, animals or debug fixtures inflate this total. Twelve exterior characters have deterministic patrols; the others have stationary activity poses; Maris Glyn and Ferin Wold attend school on workdays and return home on Dayoff. All 300 speak, so moving/ambient and speaking totals overlap.
 
 ## Main integration — 2026-10-23
 
@@ -141,7 +197,8 @@ Enter Hume Boardinghouse in South Upper West by walking south and verify that th
 
 - `content/maps/mornay-maps.js`: three household records/fixture plans and shared entrance orientation; `world-transitions.js`: consume that arrival contract.
 - `content/npcs/mornay-npcs.js`: four existing placements and household lines; `render-mornay.js`: read-only wooden stair presentation using existing floor art and colours.
-- `test/cases/303-mornay-room-district-controls.test.js` and `311-mornay-furnished-door-walks.test.js`: correct directional expectations while retaining actual held-control journeys. New suite `315-mornay-shop-homes-orientation.test.js`: historical save positions, full upstairs/service journeys and purchase continuity. Suites 301/309 reflect the three rooms and resident redistribution; suites 58/98–104/201/207/218 only update legitimate catalogue totals. No assertion accepts both old and new behavior.
+- `test/cases/303-mornay-room-district-controls.test.js`
+- `test/cases/307-mornay-persistence-atomicity.test.js` and `311-mornay-furnished-door-walks.test.js`: correct directional expectations while retaining actual held-control journeys. New suite `315-mornay-shop-homes-orientation.test.js`: historical save positions, full upstairs/service journeys and purchase continuity. Suites 301/309 reflect the three rooms and resident redistribution; suites 58/98–104/201/207/218 only update legitimate catalogue totals. No assertion accepts both old and new behavior.
 - `test/browser-smoke.js`: assert arrival side/facing and leave through the corresponding edge. `PROJECT_STATUS.md`, `architecture.md` and this plan record the new authority and housing inventory.
 - `test/transition-audit-output.json` is the only regenerated geographic artifact, via `node test/transition-audit.js --write`, then independently verified read-only. Catalogue 275 → 278; fixed transitions 390 → 396. Only registry IDs, dimensions, Mornay transition records and tile usage change. Eight entry destinations move north; Sorn’s existing street return also gains an unobstructed leftward step after Adra moves upstairs. All existing exit coordinates stay unchanged. Every non-Mornay fixed-transition record remains byte-equivalent; there are no catch-up changes or fingerprint edits.
 
@@ -193,12 +250,11 @@ The source audit confirms Calwick has seven houses and one four-unit apartment e
 | Stern Family Rooms | Above Stern Apothecary, stair (7,1) | 1 | Apothecary’s home with room for her visiting sister |
 | Sorn Family Rooms | Above Sorn Work Gear, stair (7,1) | 1 | Keeper’s family household, repairs and nephew’s visit |
 
-There are now **41 accessible self-contained dwellings**, plus **four boarding rooms**. Twelve closed frontages imply another **20 self-contained dwellings**: eight single homes and four three-unit tenements. Total represented residential capacity is **61 dwellings plus four boarding rooms**. Inn guest beds are separate commercial lodging, not counted again as dwellings. These examples represent a compressed town of approximately 8,000; no numeric population claim is inferred from rendered beds. The housing mix deliberately does not triple Drenwick's building count.
+There are now **41 accessible self-contained dwellings**, plus **four boarding rooms**. Eleven closed frontages imply another **17 self-contained dwellings**: eight single homes and three three-unit tenements. Total represented residential capacity is **58 dwellings plus four boarding rooms**. The remaining former three-unit frontage is now the watchhouse. Inn guest beds are separate commercial lodging, not counted again as dwellings. These examples represent a compressed town of approximately 8,000; no numeric population claim is inferred from rendered beds. The housing mix deliberately does not triple Drenwick's building count.
 
 | Closed residential frontage | Door tile | Represented dwellings |
 |---|---|---:|
 | `MORNAY_SOUTH_UPPER_WEST_MAP` | 2,5 | 1 |
-| `MORNAY_SOUTH_UPPER_EAST_MAP` | 11,10 | 3 |
 | `MORNAY_EAST_GATE_MAP` | 3,5 | 1 |
 | `MORNAY_WEST_GATE_MAP` | 12,10 | 3 |
 | `MORNAY_MIDDLE_LOWER_EAST_MAP` | 12,5 | 3 |
@@ -214,7 +270,7 @@ Closed frontages remain ordinary solid building cells, with no registered interi
 
 ### Residents, furnishing and presentation
 
-The first residential pass changed 44 primary placements; the shop-home follow-up changes four further placements. All 300 stable IDs and names remain. Before the tenement follow-up the split was 101 outdoors and 199 indoors. It is now 95/205 on workdays and 89/211 on Dayoff. Maris Glyn and Ferin Wold change between school and home using the established five-day `isDayOff()` calendar. Their map, coordinates, facing and pose are derived, with no duplicate NPC, schedule flag or save field. Twelve patrols remain deterministic; four now follow longer bent routes. Fifty-four primary placements are seated. The authored category totals remain 159 workers, 32 officials, 24 service staff, 18 merchants and 67 residents/visitors; these are content categories, not mutually exclusive real-world occupations.
+The first residential pass changed 44 primary placements; the shop-home follow-up changes four further placements. All 300 stable IDs and names remain. Before the tenement follow-up the split was 101 outdoors and 199 indoors. With the watchhouse it is now 93/207 on workdays and 87/213 on Dayoff. Maris Glyn and Ferin Wold change between school and home using the established five-day `isDayOff()` calendar. Their map, coordinates, facing and pose are derived, with no duplicate NPC, schedule flag or save field. Twelve patrols remain deterministic; four now follow longer bent routes. Fifty-four primary placements are seated. The authored category totals remain 159 workers, 32 officials, 24 service staff, 18 merchants and 67 residents/visitors; these are content categories, not mutually exclusive real-world occupations.
 
 Rooms use existing furniture vocabulary: `drawTable()` and `drawInfirmaryBed()` directly, plus coordinate-only adaptations of `drawHouseFurniture()`, Calwick office desks/cabinets and the earlier ward-school furniture. There are desks, classroom work surfaces, filing cabinets, domestic beds, dressers, stoves, supply shelves, benches and tubs. No old-town rendering wrapper is invoked with spoofed state. Collision and fixture drawing share `MORNAY_ROOM_FIXTURES`; occupied seats use the existing solid NPC anchor. Short partitions divide sleeping alcoves from work/reception space. Beds in the infirmary now use the established two-tile ward-bed drawing, retaining all eight beds and the registered healer; 15 people remain in the ward.
 
@@ -234,7 +290,7 @@ NPC density counts below refer to exterior characters. Every street keeps its ma
 
 | Map ID | Role | Visible buildings / usable doors | Exterior NPCs | Hazards and circulation | Environmental story | Reserved content |
 |---|---|---|---:|---|---|---|
-| `MORNAY_OLD_FORT_MAP` | Obsolete fort, watch and holding cells | Watch post; locked cells; records shutters. Doors: No usable door | 4 | Clear row 7, columns 7–8, doors and boundary cells | Weathered masonry, patched wall, old watch bench | Fort plot and lookout |
+| `MORNAY_OLD_FORT_MAP` | Obsolete fort, watch post and disused lockup | Watch post; disused lockup; records shutters. Doors: No usable door | 2 | Clear row 7, columns 7–8, doors and boundary cells | Weathered masonry, patched wall, old watch bench | Fort plot and lookout |
 | `MORNAY_NORTH_UPPER_WEST_MAP` | Merchant frontage and commercial lodging | Ledger House; merchant houses. Doors: Ledger House (11,5), Vale House (11,8) | 3 | Clear narrow row 7 and columns 7–8; berth planking unobstructed | Kept steps and sheltered benches; swept empty berth | Story ship berth; boarding |
 | `MORNAY_NORTH_UPPER_EAST_MAP` | Wealth and examination privilege | Walled Civic Collegium; merchant houses. Doors: Examiner’s House (3,8) | 2 | Clear narrow row 7 and columns 7–8; berth planking unobstructed | Fee notice; tutor demand; clean paving | Collegium inaccessible |
 | `MORNAY_NORTH_LOWER_WEST_MAP` | Harbour administration and working quay | Harbour/customs room; net sheds. Doors: Harbour and Customs Public Room (11,5) | 7 | Clear narrow row 7 and columns 7–8; berth planking unobstructed | Rope inspection; mutual-aid collection; covered notices | Island ferry berth inactive |
@@ -248,8 +304,8 @@ NPC density counts below refer to exterior characters. Every street keeps its ma
 | `MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP` | Repair crafts and small printing | Rusk Workshop Court; cooper and forge fronts. Doors: Rusk Workshop Court (12,5), Glyn Household (3,5) | 8 | Clear row 7, columns 7–8, doors and boundary cells | Benches, wheel repair, pasted-over handbills | Printer and organizer hooks inert |
 | `MORNAY_MIDDLE_LOWER_EAST_MAP` | Worker housing and washing | Quill Laundry; East Ward Shared Court. Doors: Quill Laundry (3,5), East Ward Shared Court (3,9) | 2 | Clear row 7, columns 7–8, doors and boundary cells | Laundry, shared repairs, mutual aid, suspected meeting facade | Locked back stair; no headquarters |
 | `MORNAY_SOUTH_UPPER_WEST_MAP` | Ordinary care and inexpensive housing | Mornay Infirmary; Hume Boardinghouse. Doors: Mornay Infirmary (12,5), Hume Boardinghouse (3,10), Pate’s Kitchen (12,10) | 5 | Clear row 7, columns 7–8, doors and boundary cells | Beds, injured workers, linen, rent, shifts | No new medical or lodging quest |
-| `MORNAY_SOUTH_UPPER_EAST_MAP` | Ward services and southern market | South Ward School; Stern Apothecary. Doors: Stern Apothecary (3,5), South Ward School (12,5), South Rows Apartments (3,10) | 7 | Clear row 7, columns 7–8, doors and boundary cells | Lunch sellers, remedies, parents, ordinary schooling | No school progression |
-| `MORNAY_WEST_GATE_MAP` | Passenger arrivals and cheap lodging | Wold's Gate Inn; watch shelter. Doors: Wold's Gate Inn (3,5) | 4 | Clear row 7, columns 7–8, doors and boundary cells | Porters, handcarts, arrivals and tired travellers | No new overworld links |
+| `MORNAY_SOUTH_UPPER_EAST_MAP` | Ward services, market and civic lockup | South Ward School; Stern Apothecary. Doors: Stern Apothecary (3,5), South Ward School (12,5), South Rows Apartments (3,10), Watchhouse / Jail (12,10) | 7 | Clear row 7, columns 7–8, doors and boundary cells | Lunch sellers, remedies, parents, ordinary schooling | No school progression |
+| `MORNAY_WEST_GATE_MAP` | Passenger arrivals and cheap lodging | Wold's Gate Inn; watch shelter. Doors: Wold's Gate Inn (3,5) | 3 | Clear row 7, columns 7–8, doors and boundary cells | Porters, handcarts, arrivals and tired travellers | No new overworld links |
 | `MORNAY_EAST_GATE_MAP` | Freight arrivals and labour hiring | Hiring board; cart inspection; watch shelter. Doors: No usable door | 5 | Clear row 7, columns 7–8, doors and boundary cells | Loads, wheels, hiring notices and waiting labour | No transport or labour quest |
 
 ## Interior and door matrix
@@ -264,7 +320,8 @@ Coordinates are zero-based tile columns/rows. Southward entry arrives at tile ce
 | `mornay_apothecary` / `MORNAY_APOTHECARY_MAP` | Stern Apothecary | `MORNAY_SOUTH_UPPER_EAST_MAP` | 3,5 | 3,6 down | 7 |
 | `mornay_workgear` / `MORNAY_WORKGEAR_MAP` | Sorn Work Gear | `MORNAY_MIDDLE_LOWER_CENTRAL_WEST_MAP` | 3,5 | 3,6 down | 8 |
 | `mornay_chandler` / `MORNAY_CHANDLER_MAP` | Venn Chandlery and Secondhand | `MORNAY_NORTH_LOWER_EAST_MAP` | 11,5 | 11,6 down | 7 |
-| `mornay_gate_inn` / `MORNAY_GATE_INN_MAP` | Wold's Gate Inn | `MORNAY_WEST_GATE_MAP` | 3,5 | 3,6 down | 10 |
+| `mornay_watchhouse` / `MORNAY_WATCHHOUSE_MAP` | South Mornay Watchhouse & Jail | `MORNAY_SOUTH_UPPER_EAST_MAP` | 12,10 | 12,9 up | 3 (2 on Dayoff) |
+| `mornay_gate_inn` / `MORNAY_GATE_INN_MAP` | Wold's Gate Inn | `MORNAY_WEST_GATE_MAP` | 3,5 | 3,6 down | 9 |
 | `mornay_gate_beds` / `MORNAY_GATE_BEDS_MAP` | Gate Inn Shared Rooms | `MORNAY_GATE_INN_MAP` | 7,1 | 7,2 down | 8 |
 | `mornay_commercial_inn` / `MORNAY_COMMERCIAL_INN_MAP` | Ledger House | `MORNAY_NORTH_UPPER_WEST_MAP` | 11,5 | 11,6 down | 9 |
 | `mornay_commercial_beds` / `MORNAY_COMMERCIAL_BEDS_MAP` | Ledger House Rooms | `MORNAY_COMMERCIAL_INN_MAP` | 7,1 | 7,2 down | 7 |
@@ -342,7 +399,7 @@ Inns use the existing party overnight-recovery authority, advance the existing d
 
 Accessible institutions: Regional IJC Office including dispatch/records reception; infirmary; four shops; two inns and their sleeping rooms; ordinary South Ward School; harbour/customs public room; warehouse; workshop; laundry; boardinghouse; shared residential court.
 
-Facade-only institutions: walled fee-paying Civic Collegium; hydrographic office; Old Fort watch/holding cells/records; locked archives and suspected meeting stair. The Civic Collegium prepares adolescents for the Civic Examination, commercial clerkships and junior Imperial service. It is socially exclusive and inaccessible in this pass. The ordinary ward school serves local families and adult literacy without a new school mechanic. Hiring remains a public gate board, not a quest system.
+Facade-only institutions: walled fee-paying Civic Collegium; hydrographic office; Old Fort disused lockup/records; locked archives and suspected meeting stair. The Civic Collegium prepares adolescents for the Civic Examination, commercial clerkships and junior Imperial service. It is socially exclusive and inaccessible in this pass. The ordinary ward school serves local families and adult literacy without a new school mechanic. Hiring remains a public gate board, not a quest system.
 
 ## Relationships, dialogue and Reclaimer knowledge
 
@@ -374,7 +431,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils an
 
 | Stable ID | Name | Location | Role / cluster | Movement | Revisable dialogue seed |
 |---|---|---|---|---|---|
-| `mornay_hadrin_moss` | Hadrin Moss | `MORNAY_OLD_FORT_MAP` | watch veteran | Standing; faces right | The watch answers for the town. Anything outside it goes to the Empire. Anything costly generally goes there too. |
+| `mornay_hadrin_moss` | Hadrin Moss | `MORNAY_WATCHHOUSE_MAP` | booking officer | Standing; faces down | Name, business, and wait. I've heard every explanation except a short one. Copies go through the ordinary queue. A consideration for the clerk sometimes makes that queue shorter. |
 | `mornay_elva_tern` | Elva Tern | `MORNAY_OLD_FORT_MAP` | wall inspector | Standing; faces left | Perris can mend this wall. Getting the repair approved means proving which office owns the crack. Apparently the watch owns one side and the town owns the rain. |
 | `mornay_perris_dun` | Perris Dun | `MORNAY_OLD_FORT_MAP` | mason | Standing; faces up | These stones have been fitted more than once. See the old mortar? People like to call everything ancient. Sometimes a wall is just somebody else's repair bill. |
 | `mornay_lotte_brin` | Lotte Brin | `MORNAY_SOUTH_ROWS_UNIT_18_MAP` | resident sketching | Standing; faces right | I sketch the landing when the washing is down. Half the doors are quiet on workdays. You can tell when a shift ends without a clock. |
@@ -486,7 +543,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils an
 | `mornay_oswen_lark` | Oswen Lark | `MORNAY_SOUTH_UPPER_EAST_MAP` | letter writer | Standing; faces down | Elva sends gold to her son when the crew is idle. He sends it back when he's paid. I write the letters and leave the little quarrel about who needs it more exactly as they say it. |
 | `mornay_delra_tress` | Delra Tress | `MORNAY_SOUTH_UPPER_EAST_MAP` | jug seller | Standing; faces right | Hold the base as well. That advice comes free. |
 | `mornay_jessa_nair` | Jessa Nair | `MORNAY_WEST_GATE_MAP` | watch sergeant | Standing; faces left | Keep the gateway clear. We have orders to ask about Reclaimer printers. A labour complaint is not an answer to that question, whatever some employers tell us. |
-| `mornay_anric_fell` | Anric Fell | `MORNAY_WEST_GATE_MAP` | watch constable | Standing; faces down | Directions cost nothing. Please stop offering me coins. |
+| `mornay_anric_fell` | Anric Fell | `MORNAY_WATCHHOUSE_MAP` | custody constable | Standing; faces right | Keep your coins. Every name goes in the book, every bruise gets written down. Hadrin can call that troublesome if he likes. The rear door stays locked; visits need written authority. |
 | `mornay_porrin_beck` | Porrin Beck | `MORNAY_WEST_GATE_MAP` | road porter | Patrol; faces down | Rella keeps a chair near the inn door for people who have walked the fen road. I'll get this bag there. Its owner is coming at his own pace. |
 | `mornay_vilda_thorn` | Vilda Thorn | `MORNAY_WEST_GATE_MAP` | returning resident | Standing; faces left | A week in Calwick and I could hear myself think. Here the carts start before dawn. I missed the noise, though I won't admit that to my neighbours. |
 | `mornay_dalven_rill` | Dalven Rill | `MORNAY_EAST_GATE_MAP` | freight watch | Standing; faces right | Declare the load before unloading. If someone offers to lose the excise copy for a fee, remember whose hand took the money. |
@@ -568,7 +625,7 @@ Each row is one stable character and one concise dialogue purpose. Two pupils an
 | `mornay_pelda_wren` | Pelda Wren | `MORNAY_GATE_INN_MAP` | traveller | Seated; faces left | I asked for an ordinary inn. Rella found me a bed and someone showed me where the water was. After the fen road, being left in peace feels remarkably kind. |
 | `mornay_orven_lume` | Orven Lume | `MORNAY_GATE_INN_MAP` | potter visiting market | Seated; faces right | Oren orders sturdy cups for the school. I bring a few extra; children happen. He pays for the order and returns the sound ones nobody needed. |
 | `mornay_hessa_vane` | Hessa Vane | `MORNAY_PATE_HOME_MAP` | local regular | Standing; faces left | We used to watch river wrestling on Dayoff. Drenwick takes its holds and breaks seriously. I prefer a clean bout and somewhere warm afterward. |
-| `mornay_vannic_nair` | Vannic Nair | `MORNAY_GATE_INN_MAP` | off-duty watch | Seated; faces right | Off duty. If somebody calls the washer a Reclaimer again, they can make the complaint in writing tomorrow. Tonight she is bringing clean linen. |
+| `mornay_vannic_nair` | Vannic Nair | `MORNAY_WATCHHOUSE_MAP` | watch guard | Seated; faces down; Dayoff at Wold’s Inn | Two shared cells, two singles. Ten beds if nobody doubles up. The yard takes deliveries before exercise, and the privy drains badly. We asked for repairs before the last lake storm. |
 | `mornay_senric_teel` | Senric Teel | `MORNAY_GATE_INN_MAP` | kitchen boy | Standing; faces up | Marla taught me the chorus of that Jontek song. Rella says I may sing after I carry the soup. Apparently dancing while carrying it is not a useful new skill. |
 | `mornay_marla_fallow` | Marla Fallow | `MORNAY_GATE_INN_MAP` | itinerant singer | Standing; faces left | I know the Jontek tune. Everybody knows the Jontek tune. If one person asks for an old canal song, I shall sing it with unreasonable gratitude. |
 | `mornay_elva_brack` | Elva Brack | `MORNAY_DOCK_STEPS_UNIT_2_MAP` | sailor's mother | Seated; faces left | He sends money from Drynport when the crew is paid. I ask Oswen to write back about the kitchen and the neighbours. I want him to have a little of home, not just another bill. |
@@ -842,7 +899,7 @@ Remaining human feel/pacing checklist, at both display sizes:
 2. Traverse the full 17-map district matrix above. Check foreground readability, route clearance and perceived density, especially the narrow North rows, Middle market and freight yards. Read political evidence at North Lower West `(12.5,8.2)`, Middle Upper Central West `(2.5,9.2)`, Middle Lower Central East `(2.5,5.8)`, Middle Lower West `(12.5,9.2)` and locked Middle Lower East stair `(12.5,5.8)` (tile units).
 3. Walk every exact door/return pair in the interior matrix, including both inn upstairs rooms. Save/load in the IJC office, infirmary, warehouse and both lodging rooms; confirm furniture and moving residents cannot obstruct an exit. Use all four keepers, both innkeepers and physician Selven Orr.
 4. Speak to the five companion-exchange speakers: Inessa Cray in the IJC office; Yara Kelm and Elrin Vey in the infirmary; Dena Mere at North Lower West; Nessa Quill in the laundry. Check green Esla text and normal text afterward. Sample workers, parents, children, exam candidates, clerks, shopkeepers, patients, crews, injured/unemployed residents and all nine network-linked residents from the roster.
-5. Inspect the locked Civic Collegium at North Upper East `(12.5,6.2)`, hydrographic frontage at Middle Upper East `(12.5,5.8)`, Old Fort cells `(10.5,2.8)`, story berth at North Upper West `(4.5,10.5)` and island ferry reserve at North Lower West `(4.5,4.5)`. No boarding, quest, faction, investigation or reputation interface should activate.
+5. Inspect the locked Civic Collegium at North Upper East `(12.5,6.2)`, hydrographic frontage at Middle Upper East `(12.5,5.8)`, Old Fort disused lockup `(10.5,2.8)`, story berth at North Upper West `(4.5,10.5)` and island ferry reserve at North Lower West `(4.5,4.5)`. No boarding, quest, faction, investigation or reputation interface should activate.
 6. Revisit Calwick and Drenwick; use their ordinary exits and representative services. Confirm no random Mornay encounter and unchanged causeway ferry behaviour. Judge crowding and dialogue rhythm across a sustained visit; automation does not establish those qualities.
 
 ### Editorial questions retained for later review
@@ -1191,3 +1248,18 @@ Unchanged `status-cure-contract` status:
  M render-interiors.js
  M test/cases/30-rest-week-inn-and-dayoff-closures.test.js
 ```
+
+
+## Two Jorans — subsequent optional sidequest
+
+The original 300-resident roster is unchanged. Two additional named quest
+characters are registered separately: Joran Beck (stoneworker, watchhouse booking
+room until released, then Old Fort) and Joran Alden (freight contractor, Fen
+Warehouse). Existing Anric, Perris and Varda support the evidence trail.
+
+Anric separates mistaken accusations after four accounts; Beck gives a key to
+five Sapper Charges at the Old Fort. Local detention correction does not unlock
+the barred jail, activate Old Fort plot content or advance MQ5. The supply box
+uses an existing blocked wall cell; no floor plan, doorway or terrain changes.
+See `MORNAY_TWO_JORANS_PLAN.md` for exact identities, locations and persistence.
+Names and local phrasing remain revisable content.

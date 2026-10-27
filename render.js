@@ -93,7 +93,9 @@ function drawActiveMapContent() {
   // (like the office/school furniture above) it MUST draw BEFORE the NPCs — else
   // it paints over Merrin, Fisk, Odger and Esla and the ward reads as empty.
   if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
-  if (inTown && currentTownId === 'mornay') drawMornayContent();
+  if (inTown && currentTownId === 'mornay') {drawMornayContent();twoJorans.draw();}
+  drawReedbankContent();
+  struckEntry.draw();
   if (!isMornayRoomView()) drawSimpleNPCs();
   if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.draw();
   if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.draw();
@@ -250,6 +252,8 @@ function render() {
     tick++;
     return;
   }
+
+  if (riverWrestling.isActive()) {drawRiverWrestling(riverWrestling.getView());return;}
 
   if (fishing.active) {
     // Fishing minigame replaces the world entirely (same as combat)

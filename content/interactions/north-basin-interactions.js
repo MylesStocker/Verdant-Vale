@@ -650,7 +650,7 @@ function interactCausewayFerry() {
        {speakerId:null,lines:['The scow is little more than a planked deck, a cable drum, and patched side rails.',
         'The notice calling it temporary has six annual renewal stamps beneath it.']}];
   if (onEasternBank) {
-    if (persistentParty.getMember('esla')) pages.push({speakerId:'esla',lines:[
+    if (persistentParty.getActiveMember('esla')) pages.push({speakerId:'esla',lines:[
       '“You let us cross on official business. Now you charge us to get home? That’s blatant exploitation.”',
     ]});
     pages.push({speakerId:guard,lines:[

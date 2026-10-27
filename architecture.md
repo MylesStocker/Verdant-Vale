@@ -43,6 +43,43 @@ warning baseline. Existing combat tests advance presentation time explicitly
 before simulated acknowledgement; historical combat projections are unchanged.
 
 
+## Two Jorans quest ownership
+
+`two-jorans.js` owns the case and reward. The two ordinary numeric quest bindings
+are declared in `quests.js`, mirrored by its existing sync, and registered in
+`save.js`: stage 0–4 and a four-bit evidence set. Missing fields in pre-feature v5
+saves default to zero. A shared invariant checks evidence and exact key ownership
+before save and candidate load; no new payload container or version is added.
+Dialogue callbacks recheck stage and proximity. Inventory claim consumes the key,
+adds five existing items and closes the claim synchronously. Rendering and journal
+reads do not mutate state. Beck’s released location derives from quest stage.
+NPC and speaker fragments join the normal registries; the ordinary interaction
+dispatch intercepts only the five named participants. Esla uses availability, not
+merely recruitment, when filtering speaker pages. No map or transition changes.
+Suites 330–331 cover control-driven interactions and persistence boundaries.
+
+## Reedbank sport and village
+
+`content/maps/reedbank-maps.js` owns two discrete grids, a four-entry reciprocal
+point-door table and their content keys. `data.js` registers the maps;
+`content/npcs/reedbank-npcs.js` joins `SIMPLE_NPCS`; the interaction fragment joins
+`MAP_FEATURES` and routes NPC/shop interactions. `reedbankTryDoor()` is called by
+ordinary movement and delegates every placement to `transitionToLocation`.
+No regional alias, location-mode flag, camera change or new tile type is added.
+
+`river-wrestling.js` owns a session-only sport, never a combat party or actor.
+Its only persistent write is gold: deduct on paid start, settle once on a result.
+Private footing/stamina/AI advance at 60Hz from elapsed simulation time. Rendering
+consumes a copied view and remains read-only. The two new render functions live
+in `render-river-wrestling.js`; village props remain aligned with blocking grids.
+
+`input.js` owns all physical keys and passes normalized held movement/brace plus
+fresh action presses. Its sport boundary retains action latches. The shared
+activity owner excludes combat/fishing/travel/checkpoint ownership; movement
+returns early, transitions and save/load reject active ready/fight/result states.
+The sport adds no mutable save authority and preserves SAVE_VERSION 5. Suites
+328–329 cover real controls, financial settlement, party isolation and navigation.
+
 ## Canonical party finalization policy (Pass 6)
 
 See the current Pass 6 contract in `CANONICAL_PARTY_COMBAT.md`.
@@ -780,8 +817,9 @@ ordered persistent character IDs, non-Lely character records and idempotent rewa
 receipts. Lely is permanently slot 0 / field leader; her `stats`, `statusEffects`
 and `slitherSpd` remain the sole mutable canonical authorities. Shared gold and
 inventory stay in `stats.gold` / `stats.items`. Inspection is detached and deeply
-frozen. There are no reserves, reorder/remove operations, overworld followers,
-or ordinary encounter callers of the combat bridge. Recruitment is owned by MQ5 below.
+frozen. There are no reorder/remove operations or ordinary overworld followers.
+Temporary companion availability is separate from recruited membership (see below).
+Recruitment is owned by MQ5 below.
 
 The roster schema supports 1–3 fixed slots. Authored definitions currently contain
 only `lely` and `esla`; future slot 2 needs its own authored definition/progression,
@@ -807,12 +845,14 @@ No persistent Strain or speculative magic resources are stored.
 
 Lifecycle APIs:
 
-- `getView()` / `getMember(characterId)` expose ordered immutable member snapshots,
-  personal equipment IDs/statuses, shared item IDs/gold and whole-party defeat.
+- `getView()` / `getFieldView()` expose available travelling members, compact active
+  slots, personal equipment IDs/statuses, shared item IDs/gold and active-party defeat.
+  `getActiveMember(id)` tests present participation; `getMember(id)` and
+  `getRosterView()` retain recruited-history inspection, including absent members.
 - `joinEsla()` and `resetForNewGame()` manage membership. Fresh script loading is
   Lely-only. Reset clears the roster/receipt ledger, leaving the existing Lely
   new-game initialization authority in place.
-- `awardExperience(id,xp)` / `awardRewards({id,xp,gold,items})` give every recruited
+- `awardExperience(id,xp)` / `awardRewards({id,xp,gold,items})` give every available
   living member full XP; knocked-out members receive none. Lely uses unchanged `checkLevelUp`
   (three existing growth draws per level); Esla grows independently/deterministically.
   KO HP and progression stay unchanged. The saved receipt prevents repeat XP, gold and item
@@ -820,7 +860,7 @@ Lifecycle APIs:
   each member with before/after values. Invalid awards reject before RNG/mutation.
   Unexpected host RNG failure retains evidence and blocks retry; it does not rewind
   Lely's existing growth authority. No existing singleton reward caller is rerouted.
-- `recover()` restores each member's maximum HP and clears the established removable
+- `recover()` restores each available member's maximum HP and clears the established removable
   poison/muddied/slither/cursed/burn/dazzled statuses, resetting Slither samples. Equipment,
   resources, time, flags and progression remain unchanged.
 - `combatSnapshot()` produces detached base stats, current HP/statuses, personal
@@ -830,6 +870,30 @@ Lifecycle APIs:
   It requires the exact acknowledged victory/defeat/escape session and commits once.
 - `isCombatPending()` and `getCombatDiagnostic()` expose pending/failed evidence.
   `serialize()`, `prepareLoad(...)`, `commitLoad(token)` are the save boundary.
+
+Temporary availability is owned by the same closure. `prepareAvailabilityChange`,
+`validateAvailabilityChange` and `applyAvailabilityChange` authenticate a private,
+stale-sensitive receipt carrying character ID, availability, reason and return map.
+Lély cannot be removed, and removing a companion cannot leave all active members
+Fallen. Non-Lély records remain in place; no recruitment or inventory grants run
+on reunion. Optional `party.absences` entries `{characterId,reason,returnMapId}`
+serialize only while needed; absent fields in older v5 saves default to an empty
+list. Active battle, field effects, menus, XP, treatment, rest and defeat recovery
+exclude those records. Battle commitment maps compact active slots back to stable
+character IDs. The historical `canonicalPartyCombat.hasMultipleMembers()` routing
+gate continues to use recruited membership so a temporary solo journey still uses
+the shared engine. Recruitment-history and past camp invariants remain unchanged.
+
+`fine-needlework.js` owns the optional parcel/stage transaction and transient Esla
+projection; it never owns her character record. `fine_needlework_stage` is a normal
+quest binding. Candidate save invariants check cargo and companion absence together
+before any load writer. The existing Polwick alliance classifier and lighthouse
+reward priority are reused. Mornay room keys come from `mornayContentKey()`; a separate
+quest NPC list adds Chuggie and one nonpersistent Esla projection without duplicating
+the 300-resident manifest. The offer/departure uses exclusive input ownership and
+the existing transient NPC route engine, with a bounded room collision preflight.
+Save/load is blocked only during that presentation; no sprite coordinates are saved.
+See `MORNAY_FINE_NEEDLEWORK_PLAN.md` for the state table and verification.
 
 The bridge claims a once-only capability from the existing `combatPlayerState`
 closure at script load. No second engine or party membership exists. Its private
@@ -4897,7 +4961,23 @@ view and never mutates effects. Two registered Buzzy Beetle identities use ordin
 capabilities, zero rewards and the approved scene sheet. No random pool changes.
 The shared optional presentation fields are `backgroundAssetId` (registered
 512×480 cutaway background) and `enemyFloorY` (integer140–212); defaults preserve
-existing canonical/headless layouts. Breakfast supplies the sunny plate and156.
+existing canonical/headless layouts. Bethany no longer supplies the raised floor
+156. Its scene controller decorates the immutable presentation view with an
+allowlisted `stagingId` and session-only `presentationSeconds`, reset at each
+fight/retry and advanced only in update. These never enter the story adapter's
+resources, action history or saves. `PARTY_BATTLE_SCENE_STAGING` in the shared
+renderer owns the existing-plate crop, planted feet and scale for both scenes.
+Its identity/background/participant checks fail closed; unstaged battles retain
+their established geometry. The crop clears the entire canvas before painting.
+
+Beetles reuse their three existing sprite frames in the 0/1/2/1 cycle, 0.20 seconds
+per frame, with independent slot phase. Frame changes keep constant height and
+floor contact; defeated/departed actors hold the neutral pose. Contact shadows,
+target cursors and offensive Resonance effects use the staged positions.
+Rendering remains read-only; sprite pose is optional for ordinary callers.
+Suites 267 and 332 check alpha envelopes, UI clearance, movement frames, immutable
+views, no RNG/resource mutations and targeting; 267–269 retain mechanical,
+retry, carryover and final-completion coverage.
 
 Generic `storyBattle.createContext(options)` retains strict activity exclusion.
 A once-claimed scene bridge provides the sole authorized variant. Its read-only
@@ -4989,3 +5069,22 @@ same local movement/collision authority; both aliases clear at control handoffs.
 The sole new persistent authority is the ambient counter `polwick_esla_visit_stage` in `quests.js`, mirrored by `syncQuestFlagsToWindow()` and registered once in `QUEST_FLAG_BINDINGS`. It advances on completed dialogue with a captured-stage guard, is clamped for presentation, defaults to 0 when absent from a v5 save, and changes no outcome or quest. Standard numeric save validation rejects malformed values. There is no version change or migration.
 
 The rear room extends only the existing `SMUGGLER_FORT_MAP`; no new map/location/door registry is needed. Crates reuse `FORT_CRATES` collision and drawing; the freight table uses the existing TABLE tile. The two inspectable anchors are active-fort-only and repeatable. The Flame reader content/theme remain unchanged. Exact 18-cell wall-only expansion is recorded in `Art/qa/polwick-fort/grid-deltas.json`; regional terrain, fingerprints and the transition artifact do not change.
+
+### Mornay watchhouse
+
+`mornay_watchhouse` is an ordinary `MORNAY_BUILDINGS` record, with the shared north-door entrance/return contract. Its fixture grid authors a full-width solid security screen, four rear cells and a gated yard; public access is intentionally confined to the northern booking room. Iron gates are `TABLE` collision fixtures, not `HOUSE_DOOR` tiles or dormant transitions. Rendering reuses damp masonry primitives without changing interior tile semantics. The records, property and rear-screen features are repeatable `inspect` data only. Existing resident IDs/schedule ownership remain unchanged; no jail state enters saves. Suite 327 checks the public component and ordinary input round trip. Test placement now derives room arrival from `mornayInteriorEntrance` instead of assuming every interior is publicly reachable from its south edge.
+
+
+### Sedge Hollow expedition and linked clerk quests
+
+`struck-entry.js` owns the optional Struck Entry expedition. `content/maps/third-lock-maps.js` registers seven discrete maps and thirteen point doors through the map catalogue and existing movement dispatcher. The sole regional marker is in `GREAT_FEN_C8RN3_MAP`; it uses the existing outdoor decoration/feature authorities. It does not change a regional grid, seam, camera or main-route gate. Forward local doors require clearance masks; reverse doors are always usable.
+
+`scriptedPartyEncounters` issues the existing authenticated canonical-combat tokens for five `struck_entry` formations. This named entry also supports an unrecruited singleton; historical singleton and other scripted routing stay unchanged. Only its authenticated victory finalizer writes `struck_entry_wins`. Escape/defeat follow ordinary recovery, preserve earlier victories and grant no clearance. Formations reuse registered enemy templates and standard rewards.
+
+Four defaulted v5 bindings in `quests.js`/`save.js` own progress: `struck_entry_stage`, `struck_entry_wins`, `struck_entry_cache`, `struck_entry_supplies`. `struckEntry.invariantErrors(candidate)` checks stage, ordered bits, receipts and delivery items before save/load mutation; old saves default to zero/false. `corvin_favor_done` remains the completion authority. Stage 3 delivers exactly one tally and toy boat; Corvin's guarded completion consumes them and sets stage 4/done. Already-completed older favours remain valid without expedition fields. The countersignature and cabinet filing remain separate existing actions. Renn's existing payout callback now rejects repeated/stale completion.
+
+The five NPC records in `content/npcs/third-lock-npcs.js` retain stable identities. Heddra and Belric derive locations from the rescue stage rather than adding replacement bodies. Dialogue uses explicit speaker metadata and filters Esla through `persistentParty.isAvailable('esla')`; there are no recruitment, absence or equipment writers. Civilians never join combat. A short narrated cart/scow evacuation relocates them while leaving the player in the settlement, preventing a ferry/progression shortcut.
+
+Suites 333/334 cover authenticated outcomes, retry, discovery order, delivery, existing Polwick outcomes, temporary companion absence, save atomicity, all local doors through movement input, survivor reachability and the original filing/payout choice. `test/third-lock-browser.html` is an isolated browser review fixture with ordinary input-driven routes at both scales and manual-play controls.
+
+Geography correction: the destination is Sedge Hollow, an ordinary fen hamlet. Legacy `THIRD_LOCK_*` IDs remain stable for saves; they do not denote canal geography. Public titles, clues and journal text follow Heddra’s move from Drenwick. The historical tally still names its original Drenwick lock. No Drenwick grid, lock, route, combat formation, state binding or door changed.

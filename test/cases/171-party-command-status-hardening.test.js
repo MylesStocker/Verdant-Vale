@@ -172,7 +172,7 @@ const ITEM_MATRIX={
   heal:['Potion','Elixir','Mushroom Wine','River Smelt','Canal Eel','Ember Root'],
   cure:['Reed Remedy','Amethyst Dust'],evade:['Bullet Time'],damage:['Sapper Charge','Throwing Knife'],damage_all:['Void Shard'],bomb:['Bomb'],
   nothing:['Bait'],reagent:['Henbane Sprig','Jackbane Vial'],stun:['Trollbane'],
-  unavailable_key:['Old Fishing Rod',"Fen Angler's Rod",'Waxwood Rod','Sealed Letter','Warp Stone','Thank-You Note','Schilling','Cat-Shaped Key','Letter from Netto','Dispatch Letter',"Doctor's Letter","The Drowned's Gift",'Old Engagement Ring','Stashed Gem']};
+  unavailable_key:['Third Lock Towpath Tally','Carved Canal Boat','Joran’s Supply Key','Embroideries Parcel','Old Fishing Rod',"Fen Angler's Rod",'Waxwood Rod','Sealed Letter','Warp Stone','Thank-You Note','Schilling','Cat-Shaped Key','Letter from Netto','Dispatch Letter',"Doctor's Letter","The Drowned's Gift",'Old Engagement Ring','Stashed Gem']};
 test('complete item-ID matrix covers every definition and exactly the selectable inventory',()=>{
   const g=fresh(),all=Object.values(ITEM_MATRIX).flat();assert.equal(new Set(all).size,all.length);
   assert.deepEqual(all.sort(),J(g,'Object.keys(ITEM_REGISTRY)').sort());

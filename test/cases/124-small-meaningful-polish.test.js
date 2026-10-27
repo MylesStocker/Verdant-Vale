@@ -84,7 +84,7 @@ module.exports = {
     // 8. Corvin's accepted favour appears only while active.
     g.run('corvin_favor_started=true;corvin_favor_done=false;');
     let struck = JSON.parse(g.run("JSON.stringify(getActiveQuestNotes().filter(function(n){return n.title==='The Struck Entry';}))"));
-    assert.deepEqual(struck, [{ title: 'The Struck Entry', body: "Find Corvin's father's original towpath tally in the old Drenwick canal office." }]);
+    assert.deepEqual(struck, [{ title: 'The Struck Entry', body: "Find Corvin's father's original towpath tally. Check the old canal-office papers in Drenwick’s district office (northeast shelf), or ask on Mornay’s lower western waterfront where the papers went." }]);
     g.run('corvin_favor_done=true;');
     struck = JSON.parse(g.run("JSON.stringify(getActiveQuestNotes().filter(function(n){return n.title==='The Struck Entry';}))"));
     assert.deepEqual(struck, []);

@@ -11,6 +11,7 @@ const scriptedPartyEncounters=(()=>{
   const origin=()=>JSON.stringify({location:snapshotLocationState(),regional:regionalWorldPosition(),
     mapId:mapIdForRef(activeMap),x:player.x,y:player.y,day,defeatWakeAtHome});
   const definitions=Object.freeze({
+    struck_entry:Object.freeze({formation:id=>STRUCK_ENTRY_BATTLES[id].enemies.map(key=>ENEMY_TEMPLATE_REGISTRY[key]),escape:'fastest_living',lifecycle:[]}),
     pale_sentry:Object.freeze({template:()=>PALE_SENTRY_TEMPLATE,escape:'fastest_living',lifecycle:['persistent_hp_lifecycle']}),
     startWardenCombat:Object.freeze({template:()=>BRIAR_WARDEN_TEMPLATE,escape:'fastest_living',lifecycle:['warden_lifecycle']}),
     startRainfishCombat:Object.freeze({template:()=>RAINFISH_TEMPLATE,escape:'blocked',lifecycle:['rainfish_chain'],chain:true}),
@@ -28,6 +29,7 @@ const scriptedPartyEncounters=(()=>{
       FEN_HANDLER_TEMPLATE],escape:'fastest_living',lifecycle:['travellers_rise_ambush_lifecycle']}),
   });
   const eligible=(name,remaining)=>{
+    if(name==='struck_entry')return struckEntry.eligible(remaining);
     if(name==='pale_sentry')return sentry_quest_started&&!sentry_quest_done&&Number.isSafeInteger(pale_sentry_hp)&&
       pale_sentry_hp>0&&pale_sentry_hp<=PALE_SENTRY_TEMPLATE.maxHp;
     if(name==='startWardenCombat')return warden_quest_started&&!warden_quest_defeated;
@@ -45,14 +47,14 @@ const scriptedPartyEncounters=(()=>{
     if(name==='startMireToadSpawnCombat')return Number.isInteger(remaining)&&remaining>=0&&remaining<=2&&
       !!PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn&&!PICKUP_REGISTRY.pickup_map3n1_mire_toad_spawn.picked;
     if(name==='startTravellersRiseAmbush')return remaining===undefined&&MainQuest>=5&&
-      persistentParty.getMember('esla')!==null&&!travellers_rise_ambush_complete&&
+      persistentParty.getActiveMember('esla')!==null&&!travellers_rise_ambush_complete&&
       mapIdForRef(activeMap)==='EASTERN_FENS_TRAVELLERS_RISE_MAP';
     return false;
   };
   const templatesFor=(name,remaining,select=false)=>{
     const definition=definitions[name];if(!definition)throw Error('Canonical party encounter: unsupported scripted encounter '+name);
     if(!eligible(name,remaining))return null;
-    if(definition.formation){const formation=definition.formation();return formation.length===3&&formation.every(Boolean)?formation:null;}
+    if(definition.formation){const formation=definition.formation(remaining);return formation.length>=1&&formation.length<=3&&formation.every(Boolean)?formation:null;}
     if(definition.templates){
       const candidates=definition.templates();
       if(candidates.length!==2||candidates.some(t=>!t))return null;
@@ -73,7 +75,7 @@ const scriptedPartyEncounters=(()=>{
   };
   const request=(templates,escape)=>({enemies:templates,escape});
   const validate=(name,remaining)=>{
-    if(!canonicalPartyCombat.hasMultipleMembers())return scriptedCombatEntry.preflight(name,remaining);
+    if(name!=='struck_entry'&&!canonicalPartyCombat.hasMultipleMembers())return scriptedCombatEntry.preflight(name,remaining);
     const candidates=templatesFor(name,remaining,false);if(!candidates)return false;
     const definition=definitions[name],permit=pending&&pending.name===name&&pending.remaining===remaining?pending:null;
     // Mire Toad selection is the sole authored pre-entry selection draw. Both
@@ -90,7 +92,7 @@ const scriptedPartyEncounters=(()=>{
     return true;
   };
   const start=(name,remaining,activation=null)=>{
-    if(!canonicalPartyCombat.hasMultipleMembers())return false;
+    if(name!=='struck_entry'&&!canonicalPartyCombat.hasMultipleMembers())return false;
     if(!validate(name,remaining))return false;
     const definition=definitions[name],permit=pending&&pending.name===name&&pending.remaining===remaining?pending:null;
     let templates=templatesFor(name,remaining,!!definition.templates);
@@ -150,6 +152,13 @@ const scriptedPartyEncounters=(()=>{
     if(result.outcome!=='defeat'&&record.origin!==origin())fail('encounter origin changed');
     record.phase='complete';
     const victory=result.outcome==='victory';
+    if(record.name==='struck_entry'){
+      if(victory){
+        if(!struckEntry.eligible(record.remaining))fail('stale Third Lock victory');
+        struck_entry_wins|=1<<record.remaining;syncQuestFlagsToWindow();
+      }
+      return true;
+    }
     if(record.name==='pale_sentry'){
       pale_sentry_hp=Math.max(0,result.enemies[0].hp);
       if(victory){sentry_quest_done=true;pale_sentry_hp=0;refreshJobBoard();syncQuestFlagsToWindow();

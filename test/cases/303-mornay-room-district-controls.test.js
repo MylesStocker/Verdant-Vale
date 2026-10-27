@@ -2,7 +2,7 @@
 const assert=require('assert/strict');
 const {J,fresh,place,until}=require('./301-mornay-manifest.test');
 module.exports={
- name:'Mornay doors and districts: all 67 reciprocal rooms and 46 directed streets through held controls in both views',
+ name:'Mornay doors and districts: all 68 reciprocal rooms and 46 directed streets through held controls in both views',
  run(){
   for(const legacy of [false,true]){
    const g=fresh(legacy),rooms=J(g,'MORNAY_BUILDINGS');

@@ -16,7 +16,7 @@ module.exports={
    g.run(`day=${day};`);place(g,room.mapId);
    g.run('roomDrawLog=[];roomTextLog=[];');g.renderFrame();
    const log=J(g,'roomDrawLog'),fixtures=J(g,`MORNAY_ROOM_FIXTURES[${JSON.stringify(room.id)}]`);
-   const actors=J(g,'MORNAY_NPCS.filter(n=>n.map===currentContentLocationKey()).map(n=>n.id)');
+   const actors=J(g,'SIMPLE_NPCS.filter(n=>n.map===currentContentLocationKey()).map(n=>n.id)');
    assert.deepEqual(log.filter(e=>e.kind==='npc').map(e=>e.id).sort(),actors.sort(),room.id+' no doubled or omitted residents');
    assert.equal(log.filter(e=>e.kind==='player').length,1,room.id+' player drawn once');
    assert.deepEqual(log.filter(e=>e.kind==='fixture').map(e=>[e.col,e.row,e.width]).sort(),fixtures.map(f=>[f.col,f.row,f.w||1]).sort(),room.id+' every fixture drawn once');

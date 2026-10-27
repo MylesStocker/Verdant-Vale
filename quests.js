@@ -48,8 +48,8 @@ let equipment_ticket_ready = false;
 // 4=letters with Orwen, 5=Dessa got emotional reveal, 6=Orwen gave address, 7=complete
 let letter_quest_stage = 0;
 
-// ─── Side quest: Pell's Secret ────────────────────────────────────────────────
-// The player's cat (named Pell by neighbour Oswin) has been going out at night
+// ─── Side quest: Buddy's Secret ────────────────────────────────────────────────
+// The player's cat (named Buddy by neighbour Oswin) has been going out at night
 // and dragging things home. The player discovers the stash in stages.
 // 0=normal, 1=first rest done (cat will drop a coin next visit),
 // 2=coin seen (cat will show the stash corner next visit), 3=stash found (done)
@@ -83,6 +83,9 @@ let schilling_returned      = false;
 //   4=all defeated, 5=spared, 6=reported/denied to supervisor
 let fort_quest_started       = false; // supervisor gave the investigation assignment
 let fort_quest_stage         = 0;     // tracks fight/spare/report progress
+let two_jorans_stage = 0; // 0 new, 1 evidence, 2 cleared, 3 key given, 4 supplies claimed
+let two_jorans_evidence = 0; // Beck, Perris, Varda, Alden: bits 1/2/4/8
+let fine_needlework_stage = 0; // 0 new, 1 carrying, 2 delivered, 3 withdrawn, 4/5 reunited
 let polwick_esla_visit_stage = 0;     // completed companion exchanges: illicit cargo, Flame, drought (saturates at 3)
 let fort_pay_ticket_ready    = false; // supervisor issued pay ticket after report
 let fort_pay_ticket_reduced  = false; // true if the ready ticket is the reduced "Found nothing" rate (15g) rather than the full 200g
@@ -332,13 +335,14 @@ let wine_quest_rewarded  = false; // Fenna has paid out for the returned note
 // Dayoff (rolled once per Dayoff and remembered, so re-talking the same day — or
 // a save/load — is stable), mirroring the Fourteenth File's availability roll.
 //
-// NOTE: the resolution (where the tally is, retrieving it, the payoff) is NOT
-// built yet — nothing currently sets corvin_favor_done. That is deliberate: it
-// also means the Weight Discrepancy cannot yet reach its clean finish, because
-// Corvin will only countersign Aldric's correction once this favour is done
-// (see interactCalwickOffice). Both resolutions are future work.
+// Sedge Hollow rescue and delivery are owned by struck-entry.js. Completion
+// unlocks Corvin’s countersignature; the existing filing choice remains separate.
 let corvin_favor_started   = false; // Corvin asked the player, off the clock at the inn
-let corvin_favor_done      = false; // player restored the struck entry (no path sets this yet)
+let corvin_favor_done      = false; // player restored the entry from Heddra’s original tally
+let struck_entry_stage = 0;
+let struck_entry_wins = 0;
+let struck_entry_cache = false;
+let struck_entry_supplies = false;
 let corvin_favor_offer_day = 0;     // day the once-per-Dayoff 1/3 availability roll last ran
 let corvin_favor_offered   = false; // result of that roll (persisted so re-talk/save-load is stable)
 
@@ -510,6 +514,9 @@ function completeLighthouseQuest(giver) {
 // uses the let bindings directly. Call syncQuestFlagsToWindow() after any
 // gameplay change to keep the window properties current.
 function syncQuestFlagsToWindow() {
+  window.two_jorans_stage = two_jorans_stage;
+  window.two_jorans_evidence = two_jorans_evidence;
+  window.fine_needlework_stage = fine_needlework_stage;
   window.polwick_esla_visit_stage = polwick_esla_visit_stage;
   window.cabinetCaseFlag      = cabinetCaseFlag;
   window.sluice_job_started      = sluice_job_started;
@@ -582,6 +589,10 @@ function syncQuestFlagsToWindow() {
   window.wine_quest_gift      = wine_quest_gift;
   window.wine_quest_delivered = wine_quest_delivered;
   window.wine_quest_rewarded  = wine_quest_rewarded;
+  window.struck_entry_stage = struck_entry_stage;
+  window.struck_entry_wins = struck_entry_wins;
+  window.struck_entry_cache = struck_entry_cache;
+  window.struck_entry_supplies = struck_entry_supplies;
   window.corvin_favor_started   = corvin_favor_started;
   window.corvin_favor_done      = corvin_favor_done;
   window.corvin_favor_offer_day = corvin_favor_offer_day;
@@ -641,6 +652,7 @@ window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 // in the SPECIAL ITEMS list AND used as the default inspect text (see
 // getSpecialItemInspectPages) for any item without richer read-content below.
 const SPECIAL_ITEM_NOTES = {
+  'Embroideries Parcel': 'Chuggie’s tied parcel for Polwick. Return it to Chuggie at Wold’s Gate Inn if you withdraw.',
   'Warp Stone':         'A dark, warm reservoir-stone. Inspect it to travel.',
   'Letter from Netto':  'A letter from home. Inspect it to read it.',
   "Doctor's Letter":    'A former Drenwick doctor\u2019s warning about the cases the fen sends back wrong. Inspect it to read it.',
@@ -650,6 +662,9 @@ const SPECIAL_ITEM_NOTES = {
   'Schilling':          "Pip's teddy bear. He's waiting for it back.",
   'Tarnished Coin':     'An old pre-Empire coin the cat dropped at your feet. Worn smooth and no longer worth anything.',
   'Bent Iron Key':      'A small, slightly bent iron key from the cat. It fits nothing you own.',
+  'Third Lock Towpath Tally': 'A tally from the third lock on the Drenwick canal, saved when its old office was emptied. Heddra brought it to Sedge Hollow with her belongings. It carries Corvin’s father’s mark. Bring it to Corvin with the boat.',
+  'Carved Canal Boat': 'A small wooden boat made by Corvin’s father, with a clumsy repair worn smooth. Heddra kept it with the tally. It has no magical properties.',
+  'Joran’s Supply Key': 'Given freely by Joran Beck. Opens his supply box against the Old Fort’s south wall, east of the opening.',
   'Cat-Shaped Key':     "Doesn't fit anything you own. Yet.",
   'Old Fishing Rod':    'A battered rod found in an abandoned Drenwick apartment. The worst rod there is — but it casts. Needed to fish the Drenwick waterfront.',
   'Bottle of Mushroom Wine': "Fresh from Wend's brewery. Meant for Sael, not for drinking on the road.",
@@ -773,6 +788,9 @@ function getSpecialItemInspectAction(name) {
 // Pure: reads quest flags / stats.items / day but mutates nothing.
 function getActiveQuestNotes() {
   const notes = [];
+  const joransNote=twoJorans.note();if(joransNote)notes.push(joransNote);
+  const needleworkNote=[null,'carrying','deliveredAwaitingReunion','withdrawnAwaitingReunion','completed','withdrawn'][fine_needlework_stage];
+  if(needleworkNote)notes.push({title:FINE_NEEDLEWORK_CONTENT.title,body:FINE_NEEDLEWORK_CONTENT.journal[needleworkNote]});
   // Dispatch quest
   if (dispatch_quest_started && !dispatch_delivered) {
     notes.push({ title: "Supervisor's Errand", body: "Deliver the Dispatch Letter to Officer Veth at the Drenwick district office." });
@@ -827,7 +845,9 @@ function getActiveQuestNotes() {
   } else if (MainQuest >= 5) {
     notes.push({
       title: 'Sealed Report',
-      body: travellers_rise_ambush_complete
+      body: persistentParty.getAbsence('esla')
+        ? 'Esla is waiting at the Ledger House in Mornay. Rejoin her when your business is finished; the sealed report still needs qualified attention.'
+        : travellers_rise_ambush_complete
         ? (travellers_rise_camp_stage===0 ? "Inspect the ambushers’ campsite at Travellers’ Rise."
           : travellers_rise_camp_stage===1 ? "Settle in with Esla at the Travellers’ Rise campfire."
           : "Continue east to the Mornay regional office with Esla. Deliver the sealed report and request qualified assistance.")
@@ -841,8 +861,9 @@ function getActiveQuestNotes() {
     notes.push({ title: 'Missing Person', body: "Find Schilling and bring him back." });
   }
   // The Struck Entry
-  if (corvin_favor_started && !corvin_favor_done) {
-    notes.push({ title: 'The Struck Entry', body: "Find Corvin's father's original towpath tally in the old Drenwick canal office." });
+  const struckNote=struckEntry.note();if(struckNote)notes.push(struckNote);
+  if (corvin_favor_started && !corvin_favor_done && !struckNote) {
+    notes.push({ title: 'The Struck Entry', body: "Find Corvin's father's original towpath tally. Check the old canal-office papers in Drenwick’s district office (northeast shelf), or ask on Mornay’s lower western waterfront where the papers went." });
   }
   // The Weight Discrepancy
   if (weight_quest_stage === 1) {

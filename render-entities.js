@@ -2718,7 +2718,9 @@ function drawEslaSprite() {
 }
 
 function drawInfirmaryEslaSprite(npc) {
-  drawEslaFigure(npc);
+  const route=NPC_ROUTES[npc.id];
+  if(route&&route.moving&&!route.done)drawWalkingEslaFigure(npc,route.facing,route.step);
+  else drawEslaFigure(npc);
 }
 
 // Canonical Esla figure body. Keeping the authored geometry and palette in one

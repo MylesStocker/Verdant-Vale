@@ -229,7 +229,7 @@ does.
 
 ---
 
-## 6. Pell's Secret (`cat_quest_stage`)
+## 6. Buddy's Secret (`cat_quest_stage`)
 
 | Stage | Meaning | Set in | Entry | Exit |
 |---|---|---|---|---|
@@ -594,5 +594,5 @@ etc.):
    the general combat test already in the suite.
 
 Lower priority (clean, low-complexity, low-regression-risk quests — cheap
-to add later but not urgent): Weight Discrepancy, Between Posts, Pell's
+to add later but not urgent): Weight Discrepancy, Between Posts, Buddy's
 Secret, The Voss Dilemma, Mirethyst's Vault, Netto's Letter.

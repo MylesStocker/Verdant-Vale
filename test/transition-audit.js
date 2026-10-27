@@ -346,6 +346,19 @@ for (const b of g.run('MORNAY_BUILDINGS.map(b=>({...b}))')) {
   check(`exitMornayBuilding() [${b.id}]`, setup + `enterMornayBuilding(${esc(b.id)}); exitMornayBuilding();`, {group:'mornay-buildings'});
 }
 
+// Reedbank point doors: exercise the same physical-cell dispatcher as movement.
+for(const [i,d] of g.run('REEDBANK_DOORS.map(d=>({...d}))').entries()) {
+  const setup=`transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},facing:'down'});`;
+  check(`Reedbank door ${i}: ${d.source} -> ${d.target}`,setup+'reedbankTryDoor();',{group:'reedbank-buildings'});
+}
+
+// Third Lock reciprocal local doors; gate bits are fixture state, not altered terrain.
+for(const [i,d] of g.run('THIRD_LOCK_DOORS.map(d=>({...d}))').entries()) {
+  const setup=`struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},facing:'down'});`;
+  check(`Third Lock door ${i}: ${d.source} -> ${d.target}`,setup+'struckEntry.tryDoor();',{group:'third-lock'});
+}
+g.run('struck_entry_stage=0;struck_entry_wins=0;');
+
 // ── 4. enterBuilding(building) -- Calwick and Drenwick, every building ──
 const calwickBuildings = ['inn', 'office', 'school', 'apt'];
 for (const b of calwickBuildings) {

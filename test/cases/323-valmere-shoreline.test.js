@@ -9,9 +9,16 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
   const g = createContext();
   const d = J(g, '({chunks:_REGIONAL_CHUNK_DEFINITIONS,edges:EDGE_TRANSITIONS,tiles:TILE_PROPERTIES})');
   const changed = new Set(before.changedIds);
-  assert.equal(sha(d.chunks.filter(c => !changed.has(c.mapId)).map(c => [c.mapId, c.map])), before.protectedGridsSha256,
+  // The later Reedbank village changes exactly one tile and its descriptive
+  // note. Prove those values, then compare detached copies to the old fixture.
+  const historical=JSON.parse(JSON.stringify(d.chunks));
+  const reedbank=historical.find(c=>c.mapId==='MAINLAND_C22R3_MAP');
+  assert.equal(reedbank.map[8][3],54);reedbank.map[8][3]=0;
+  assert.equal(reedbank.notes,'Reedbank village entrance on the western riverbank; existing crossing and seams retained.');
+  reedbank.notes='Terrain-only regional mainland; no content or persistent state.';
+  assert.equal(sha(historical.filter(c => !changed.has(c.mapId)).map(c => [c.mapId, c.map])), before.protectedGridsSha256,
     'all other grids, including every playable grid and all Mornay approaches, are unchanged');
-  assert.equal(sha(d.chunks.map(({map, ...rest}) => rest)), before.metadataSha256,
+  assert.equal(sha(historical.map(({map, ...rest}) => rest)), before.metadataSha256,
     'identities, coordinates, capabilities, encounters and regional bounds are unchanged');
   assert.equal(sha(d.edges), before.edgesSha256, 'no new crossings or altered transitions');
   assert.equal(sha(d.tiles), before.tilesSha256, 'existing tile/collision authority only');

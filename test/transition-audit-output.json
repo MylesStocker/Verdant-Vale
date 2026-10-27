@@ -1,5 +1,7 @@
 {
   "registryIds": [
+    "REEDBANK_VILLAGE_MAP",
+    "REEDBANK_PROVISIONS_MAP",
     "MAP",
     "MEADOW_MAP",
     "MAP2",
@@ -339,6 +341,13 @@
     "MORNAY_SOUTH_UPPER_EAST_MAP",
     "MORNAY_WEST_GATE_MAP",
     "MORNAY_EAST_GATE_MAP",
+    "THIRD_LOCK_APPROACH_MAP",
+    "THIRD_LOCK_COTTAGES_MAP",
+    "THIRD_LOCK_SHELTER_MAP",
+    "THIRD_LOCK_COMMON_MAP",
+    "THIRD_LOCK_REED_CUT_MAP",
+    "THIRD_LOCK_CROSSING_MAP",
+    "THIRD_LOCK_LANDING_MAP",
     "MORNAY_OFFICE_MAP",
     "MORNAY_INFIRMARY_MAP",
     "MORNAY_PROVISIONER_MAP",
@@ -406,6 +415,7 @@
     "MORNAY_SOUTH_ROWS_UNIT_23_MAP",
     "MORNAY_SOUTH_ROWS_UNIT_24_MAP",
     "MORNAY_SOUTH_ROWS_ATTIC_MAP",
+    "MORNAY_WATCHHOUSE_MAP",
     "SUNKEN_GALLERY_R0C0",
     "SUNKEN_GALLERY_R0C1",
     "SUNKEN_GALLERY_R0C2",
@@ -1246,6 +1256,18 @@
     "MAINLAND_CN1R12_MAP"
   ],
   "dimReport": [
+    {
+      "id": "REEDBANK_VILLAGE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "REEDBANK_PROVISIONS_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
     {
       "id": "MAP",
       "rows": 15,
@@ -3281,6 +3303,48 @@
       "ok": true
     },
     {
+      "id": "THIRD_LOCK_APPROACH_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THIRD_LOCK_COTTAGES_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THIRD_LOCK_SHELTER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THIRD_LOCK_COMMON_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THIRD_LOCK_REED_CUT_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THIRD_LOCK_CROSSING_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "THIRD_LOCK_LANDING_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
       "id": "MORNAY_OFFICE_MAP",
       "rows": 15,
       "cols": 16,
@@ -3678,6 +3742,12 @@
     },
     {
       "id": "MORNAY_SOUTH_ROWS_ATTIC_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "MORNAY_WATCHHOUSE_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -15911,6 +15981,557 @@
       "verdict": "OK"
     },
     {
+      "name": "enterMornayBuilding('mornay_watchhouse')",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_EAST_MAP\",x:400,y:304,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_watchhouse\");",
+      "error": null,
+      "destMap": "MORNAY_WATCHHOUSE_MAP",
+      "px": 240,
+      "py": 48,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 1,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": false,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "exitMornayBuilding() [mornay_watchhouse]",
+      "group": "mornay-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MORNAY_SOUTH_UPPER_EAST_MAP\",x:400,y:304,facing:'up',state:{inTown:true,currentTownId:'mornay',townBuilding:null}});enterMornayBuilding(\"mornay_watchhouse\"); exitMornayBuilding();",
+      "error": null,
+      "destMap": "MORNAY_SOUTH_UPPER_EAST_MAP",
+      "px": 400,
+      "py": 304,
+      "facing": "up",
+      "tileCol": 12,
+      "tileRow": 9,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 12,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Reedbank door 0: MAINLAND_C22R3_MAP -> REEDBANK_VILLAGE_MAP",
+      "group": "reedbank-buildings",
+      "setupCode": "transitionToLocation({mapId:\"MAINLAND_C22R3_MAP\",x:112,y:272,facing:'down'});reedbankTryDoor();",
+      "error": null,
+      "destMap": "REEDBANK_VILLAGE_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Reedbank door 1: REEDBANK_VILLAGE_MAP -> MAINLAND_C22R3_MAP",
+      "group": "reedbank-buildings",
+      "setupCode": "transitionToLocation({mapId:\"REEDBANK_VILLAGE_MAP\",x:240,y:464,facing:'down'});reedbankTryDoor();",
+      "error": null,
+      "destMap": "MAINLAND_C22R3_MAP",
+      "px": 112,
+      "py": 304,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 9,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Reedbank door 2: REEDBANK_VILLAGE_MAP -> REEDBANK_PROVISIONS_MAP",
+      "group": "reedbank-buildings",
+      "setupCode": "transitionToLocation({mapId:\"REEDBANK_VILLAGE_MAP\",x:272,y:208,facing:'down'});reedbankTryDoor();",
+      "error": null,
+      "destMap": "REEDBANK_PROVISIONS_MAP",
+      "px": 240,
+      "py": 432,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 13,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Reedbank door 3: REEDBANK_PROVISIONS_MAP -> REEDBANK_VILLAGE_MAP",
+      "group": "reedbank-buildings",
+      "setupCode": "transitionToLocation({mapId:\"REEDBANK_PROVISIONS_MAP\",x:240,y:464,facing:'down'});reedbankTryDoor();",
+      "error": null,
+      "destMap": "REEDBANK_VILLAGE_MAP",
+      "px": 272,
+      "py": 240,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 0: THIRD_LOCK_APPROACH_MAP -> GREAT_FEN_C8RN3_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_APPROACH_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "GREAT_FEN_C8RN3_MAP",
+      "px": 240,
+      "py": 176,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 5,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 1: THIRD_LOCK_APPROACH_MAP -> THIRD_LOCK_COTTAGES_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_APPROACH_MAP\",x:240,y:48,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_COTTAGES_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 2: THIRD_LOCK_COTTAGES_MAP -> THIRD_LOCK_APPROACH_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_COTTAGES_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_APPROACH_MAP",
+      "px": 240,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 3: THIRD_LOCK_COTTAGES_MAP -> THIRD_LOCK_SHELTER_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_COTTAGES_MAP\",x:400,y:144,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_SHELTER_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 4: THIRD_LOCK_SHELTER_MAP -> THIRD_LOCK_COTTAGES_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_SHELTER_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_COTTAGES_MAP",
+      "px": 400,
+      "py": 176,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 5,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 5: THIRD_LOCK_COTTAGES_MAP -> THIRD_LOCK_COMMON_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_COTTAGES_MAP\",x:112,y:144,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_COMMON_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 6: THIRD_LOCK_COMMON_MAP -> THIRD_LOCK_COTTAGES_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_COMMON_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_COTTAGES_MAP",
+      "px": 112,
+      "py": 176,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 5,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 7: THIRD_LOCK_COTTAGES_MAP -> THIRD_LOCK_REED_CUT_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_COTTAGES_MAP\",x:48,y:208,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_REED_CUT_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 8: THIRD_LOCK_REED_CUT_MAP -> THIRD_LOCK_COTTAGES_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_REED_CUT_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_COTTAGES_MAP",
+      "px": 80,
+      "py": 208,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 9: THIRD_LOCK_REED_CUT_MAP -> THIRD_LOCK_CROSSING_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_REED_CUT_MAP\",x:240,y:48,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_CROSSING_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 10: THIRD_LOCK_CROSSING_MAP -> THIRD_LOCK_REED_CUT_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_CROSSING_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_REED_CUT_MAP",
+      "px": 240,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 11: THIRD_LOCK_COTTAGES_MAP -> THIRD_LOCK_LANDING_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_COTTAGES_MAP\",x:464,y:304,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_LANDING_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Third Lock door 12: THIRD_LOCK_LANDING_MAP -> THIRD_LOCK_COTTAGES_MAP",
+      "group": "third-lock",
+      "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_LANDING_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
+      "error": null,
+      "destMap": "THIRD_LOCK_COTTAGES_MAP",
+      "px": 432,
+      "py": 304,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 9,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 23,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
       "name": "enterBuilding('inn') [calwick]",
       "group": "enter-building",
       "setupCode": "currentTownId=null; enterBuilding('inn')",
@@ -21774,7 +22395,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 93,
+      "mapsUsingIt": 103,
       "handledInMovement": true
     },
     {
@@ -21809,7 +22430,7 @@
     },
     {
       "name": "HOUSE_DOOR",
-      "mapsUsingIt": 27,
+      "mapsUsingIt": 28,
       "handledInMovement": true
     },
     {
@@ -21854,7 +22475,7 @@
     },
     {
       "name": "FARM_HOUSE",
-      "mapsUsingIt": 3,
+      "mapsUsingIt": 4,
       "handledInMovement": true
     },
     {

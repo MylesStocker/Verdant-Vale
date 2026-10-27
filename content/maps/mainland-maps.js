@@ -12656,7 +12656,7 @@ const MAINLAND_REGIONAL_CHUNK_DEFINITIONS = [
   "allowRandomEncounters": true,
   "allowSave": true,
   "playerAccessible": true,
-  "notes": "Terrain-only regional mainland; no content or persistent state.",
+  "notes": "Reedbank village entrance on the western riverbank; existing crossing and seams retained.",
   "map": [
     [0,0,0,3,81,128,1,1,1,1,1,81,81,81,0,0],
     [0,0,0,0,128,128,128,1,1,1,1,1,81,81,0,0],
@@ -12666,7 +12666,7 @@ const MAINLAND_REGIONAL_CHUNK_DEFINITIONS = [
     [0,0,0,128,128,128,81,81,1,1,1,1,1,81,81,128],
     [0,0,0,0,0,0,81,81,1,1,1,1,1,128,81,81],
     [0,0,0,0,0,0,81,81,81,1,1,1,1,1,81,81],
-    [0,0,0,0,0,0,81,81,81,1,1,1,1,1,81,81],
+    [0,0,0,54,0,0,81,81,81,1,1,1,1,1,81,81],
     [0,0,0,0,0,0,0,81,81,1,1,1,1,1,81,81],
     [0,0,0,0,0,0,0,81,81,81,1,1,1,1,1,81],
     [0,0,0,0,0,0,0,0,81,81,1,1,1,1,1,81],

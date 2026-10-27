@@ -124,12 +124,14 @@ function alphaBounds(assetPath,rect){
  const [sx,sy,sw,sh]=rect;let minX=sw,minY=sh,maxX=-1,maxY=-1;for(let y=0;y<sh;y++)for(let x=0;x<sw;x++)if(pixels[((sy+y)*width+sx+x)*4+3]){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);}assert.ok(maxX>=0);return [minX,minY,maxX+1,maxY+1];
 }
 
-test('daylight battle presentation uses the approved plate and actual sprite alpha envelopes leave clear space above hero heads',()=>{
- const g=fresh();preview(g);assert.equal(view(g).backgroundAssetId,'cutaway_bethany_breakfast_v1');assert.equal(view(g).enemyFloorY,156);
+test('daylight battle presentation crops the approved plate and keeps actual sprite envelopes on clear separate floor',()=>{
+ const g=fresh();preview(g);assert.equal(view(g).backgroundAssetId,'cutaway_bethany_breakfast_v1');assert.equal(view(g).stagingId,'bethany_courtyard');
  require('./149-formation-battle-rendering.test').record(g);g.run(`var imageCalls=[];ctx.drawImage=(image,...args)=>imageCalls.push({path:image._src,args,matrix:matrix.slice()});`);const before=resources(g),scene=controller(g),battle=view(g),calls=g.run('calls');g.renderFrame();assert.equal(resources(g),before);assert.deepEqual(controller(g),scene);assert.deepEqual(view(g),battle);assert.equal(g.run('calls'),calls);
- const images=J(g,'imageCalls'),background=images[0];assert.equal(background.path,g.run("IMAGE_ASSET_REGISTRY.cutaway_bethany_breakfast_v1.path"));assert.deepEqual(background.args,[0,0,512,480]);
- const sprites=images.filter(image=>image.args.length===8).map(image=>{const a=image.args,b=alphaBounds(image.path,a.slice(0,4)),[sx,sy,tx,ty]=image.matrix;return {path:image.path,left:tx+sx*(a[4]+b[0]*a[6]/a[2]),top:ty+sy*(a[5]+b[1]*a[7]/a[3]),right:tx+sx*(a[4]+b[2]*a[6]/a[2]),bottom:ty+sy*(a[5]+b[3]*a[7]/a[3])};});
- const beetles=sprites.filter(s=>s.path.endsWith('/buzzy-beetle.png')),heroes=sprites.filter(s=>s.path.endsWith('/sera-walk.png')||s.path.endsWith('/liora-walk.png'));assert.equal(beetles.length,2);assert.equal(heroes.length,2);const headTop=Math.min(...heroes.map(s=>s.top));assert.ok(headTop>165&&headTop<167,'approved hero pixels begin near y166');beetles.forEach(s=>{assert.ok(s.bottom<=156.000001);assert.ok(s.bottom<headTop,'entire creature envelope is above both hero heads');assert.ok(s.top>=76,'creatures remain below enemy status area');});g.run('resetSeraLioraBreakfast()');
+ const images=J(g,'imageCalls'),background=images[0];assert.equal(background.path,g.run("IMAGE_ASSET_REGISTRY.cutaway_bethany_breakfast_v1.path"));assert.deepEqual(background.args,[0,100,512,297,0,0,512,297]);
+ const sprites=images.filter(image=>image.path.includes('/sprites/')&&image.args.length===8).map(image=>{const a=image.args,b=alphaBounds(image.path,a.slice(0,4)),[sx,sy,tx,ty]=image.matrix;return {path:image.path,left:tx+sx*(a[4]+b[0]*a[6]/a[2]),top:ty+sy*(a[5]+b[1]*a[7]/a[3]),right:tx+sx*(a[4]+b[2]*a[6]/a[2]),bottom:ty+sy*(a[5]+b[3]*a[7]/a[3])};});
+ const beetles=sprites.filter(s=>s.path.endsWith('/buzzy-beetle.png')),heroes=sprites.filter(s=>s.path.endsWith('/sera-walk.png')||s.path.endsWith('/liora-walk.png'));assert.equal(beetles.length,2);assert.equal(heroes.length,2);for(const s of [...beetles,...heroes]){assert.ok(s.top>=64&&s.bottom<297,'sprite stays between status and commands');assert.ok(s.left>0&&s.right<512,'sprite stays on screen');}
+ for(const b of beetles)for(const h of heroes)assert.ok(b.left>h.right||b.right<h.left||b.bottom<h.top||b.top>h.bottom,'actors do not overlap');
+ const layout=J(g,'partyBattleLayout(seraLioraBreakfastBattle.getView())');beetles.forEach((s,i)=>assert.ok(Math.abs(s.bottom-layout.enemies[i].anchorY)<.001,'feet meet authored ground'));g.run('resetSeraLioraBreakfast()');
 });
 
 test('generic story presentation rejects invalid asset IDs and floor bounds before RNG or identity allocation',()=>{

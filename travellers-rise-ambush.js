@@ -39,7 +39,7 @@ const travellersRiseAmbush=(()=>{
   let phase='idle',revealed=false,armed=false,failure=null;
   const fail=message=>{throw Error('Travellers\' Rise ambush: '+message);};
   const onMap=()=>mapIdForRef(activeMap)===MAP_ID;
-  const storyEligible=()=>MainQuest>=5&&persistentParty.getMember('esla')!==null&&
+  const storyEligible=()=>MainQuest>=5&&persistentParty.getActiveMember('esla')!==null&&
     !travellers_rise_ambush_complete;
   const entryBusy=()=>combat.active||canonicalPartyCombat.isActive()||dialogue.open||choice.open||
     menu.open||shop.open||debugMenu.open||warpMenu.open||continentMap.open||accordPanel.open||

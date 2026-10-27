@@ -6,11 +6,13 @@ const activityOwnership = (() => {
   const owners = [
     ['runtime_fault', () => gameRuntimeFailure.isActive()],
     ['water_travel', () => waterTravelController.isActive()],
+    ['fine_needlework', () => fineNeedlework.isActive()],
     ['mq5_assignment', () => mq5AssignmentCutscene.isActive()],
     ['camp', () => travellersRiseCamp.blocksInput()],
     ['ambush', () => travellersRiseAmbush.isExclusive()],
     ['cutaway', () => seraLioraCutscene.active],
     ['fishing', () => fishing.active],
+    ['river_wrestling', () => riverWrestling.isActive()],
     ['story_battle', () => storyBattle.hasContext()],
     ['canonical', () => canonicalPartyCombat.isActive()],
     ['handoff', () => canonicalPartyCombat.hasPendingHandoff()],
@@ -36,11 +38,11 @@ const activityOwnership = (() => {
     // Receiver handoffs themselves. Add the shared story/travel exclusions
     // without overriding those token-specific policies.
     combatPreparationConflicts(ownDialogue,ownStory=false) {
-      return matching(id=>['runtime_fault','water_travel','mq5_assignment','camp','checkpoint',
+      return matching(id=>['river_wrestling','runtime_fault','water_travel','fine_needlework','mq5_assignment','camp','checkpoint',
         ...(!ownDialogue?['ambush']:[]),...(!ownStory?['story_battle']:[])].includes(id));
     },
     legacyExecutionConflicts() {
-      return matching(id=>['runtime_fault','water_travel','mq5_assignment','camp','checkpoint','story_battle'].includes(id));
+      return matching(id=>['river_wrestling','runtime_fault','water_travel','fine_needlework','mq5_assignment','camp','checkpoint','story_battle'].includes(id));
     },
   });
 })();

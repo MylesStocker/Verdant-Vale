@@ -501,7 +501,7 @@ function supervisorDialogueBody() {
       ['“Give them the report, then give them the part paper cannot: what you saw below the basin.”',
        '“Ask for qualified assistance. Nothing more heroic than that.”'],
     ];
-    if (persistentParty.getMember('esla')) setSpeakerDialoguePages([
+    if (persistentParty.getActiveMember('esla')) setSpeakerDialoguePages([
       ...reminder.map(lines=>({speakerId:'supervisor',lines})),
       {speakerId:'supervisor',lines:['“You should be on the road to Mornay. Both of you.”']},
       {speakerId:'esla',lines:['“We are. Lely is permitting the road a brief pause for walls and a roof.”']},
@@ -839,6 +839,7 @@ function eslaFenMaskAdvice(pages) {
 }
 
 function interactCalwickOffice() {
+  if(struckEntry.corvin())return true;
   if (currentTownId === 'calwick') {
     // Wall primer — a framed service manual on the north wall (row 1, cols 6-9)
     // explaining how an agent's stats work. (The continent map lives in the
@@ -1617,6 +1618,7 @@ function interactCalwickOffice() {
 }
 
 function interactCalwickInn() {
+  if(struckEntry.corvin())return true;
   // Innkeeper
   const ix = player.x - INNKEEPER.x;
   const iy = player.y - INNKEEPER.y;
@@ -2071,8 +2073,8 @@ function interactCalwickInn() {
     // fen-post rest week; the roll is stored per Dayoff (corvin_favor_offer_day/
     // offered) so re-talking — or a save/load — the same day is stable. Once he's
     // asked (corvin_favor_started) or it's done, this steps aside and his normal
-    // SIMPLE_NPCS dialogue plays. The resolution isn't built yet — accepting only
-    // records that he asked; nothing sets corvin_favor_done.
+    // SIMPLE_NPCS dialogue plays. Third Lock delivery is checked above;
+    // accepting here preserves the original Dayoff availability contract.
     {
       const corvin = SIMPLE_NPCS.find(n => n.id === 'corvin');
       if (corvin && corvin.map === currentContentLocationKey() &&

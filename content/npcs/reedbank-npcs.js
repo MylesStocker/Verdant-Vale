@@ -1,0 +1,10 @@
+'use strict';
+const REEDBANK_NPCS = [
+  {id:'reedbank_tavin',name:'Tavin',map:'reedbank_village',x:10.5*TILE,y:9.5*TILE,facing:'left',spriteType:'worker',action:()=>riverWrestling.offer(),dialogue:[['First shoulders to the water. Then let go. No punches, kicks or gouging. I stop the bout if either wrestler gives in.']]},
+  {id:'reedbank_orren',name:'Orren',map:'reedbank_village',x:10.5*TILE,y:7.5*TILE,facing:'down',spriteType:'worker',dialogue:[['I haul mushroom logs all morning. By the afternoon I like to lift something that complains.'],['Tavin keeps the stakes. Ask him for a bout. Practise first if you like; nobody here pays to learn the rules.']]},
+  {id:'reedbank_bessa',name:'Bessa',map:'reedbank_village',x:2.5*TILE,y:9.5*TILE,facing:'left',spriteType:'patron',dialogue:[['Shade, damp wood, patience. Mushrooms ask less than cattle. The drought has made even the shade thirsty.']]},
+  {id:'reedbank_fenn',name:'Fenn',map:'reedbank_village',x:5.5*TILE,y:3.5*TILE,facing:'up',spriteType:'worker',dialogue:[['Seven roofs, and every one wants mending before winter. The river takes our baskets down towards Valmere faster than any cart.']]},
+  {id:'reedbank_oda',name:'Oda',map:'reedbank_village',x:9.5*TILE,y:11.5*TILE,facing:'right',spriteType:'patron',dialogue:[['Let him spend his strength shoving. Plant your feet, get a grip, then turn him when his footing goes.'],['The fine people in Mornay call it barbaric. They still lean out of the carriage to watch.']]},
+  {id:'reedbank_sel',name:'Sel',map:'reedbank_village',x:3.5*TILE,y:6.5*TILE,facing:'right',spriteType:'patron',dialogue:[['The provisions shop buys our dried mushrooms. Fresh ones go to the next village before the sun gets at them.']]},
+  {id:'reedbank_nella',name:'Nella',map:'reedbank_provisions',x:11.5*TILE,y:5.5*TILE,facing:'down',spriteType:'clerk',action:()=>reedbankOpenShop(),dialogue:[['Bait, remedies and provisions. Wipe the river off your boots before you come in.']]},
+].map(n=>({...n,solid:true,flag_required:null,flag_sets:null}));

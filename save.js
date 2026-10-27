@@ -85,6 +85,9 @@ const QUEST_FLAG_BINDINGS = [
   lex('dispatch_rewarded', false, () => dispatch_rewarded, (v) => { dispatch_rewarded = v; }),
   lex('fort_quest_started', false, () => fort_quest_started, (v) => { fort_quest_started = v; }),
   lex('fort_quest_stage', 0, () => fort_quest_stage, (v) => { fort_quest_stage = v; }),
+  lex('two_jorans_stage',0,()=>two_jorans_stage,v=>{two_jorans_stage=v;}),
+  lex('two_jorans_evidence',0,()=>two_jorans_evidence,v=>{two_jorans_evidence=v;}),
+  lex('fine_needlework_stage', 0, () => fine_needlework_stage, (v) => { fine_needlework_stage = v; }),
   lex('polwick_esla_visit_stage', 0, () => polwick_esla_visit_stage, (v) => { polwick_esla_visit_stage = v; }),
   lex('fort_pay_ticket_ready', false, () => fort_pay_ticket_ready, (v) => { fort_pay_ticket_ready = v; }),
   lex('fort_pay_ticket_reduced', false, () => fort_pay_ticket_reduced, (v) => { fort_pay_ticket_reduced = v; }),
@@ -120,6 +123,10 @@ const QUEST_FLAG_BINDINGS = [
   lex('wine_quest_gift', null, () => wine_quest_gift, (v) => { wine_quest_gift = v; }),  // nullable
   lex('wine_quest_delivered', false, () => wine_quest_delivered, (v) => { wine_quest_delivered = v; }),
   lex('wine_quest_rewarded', false, () => wine_quest_rewarded, (v) => { wine_quest_rewarded = v; }),
+  lex('struck_entry_stage',0,()=>struck_entry_stage,v=>{struck_entry_stage=v;}),
+  lex('struck_entry_wins',0,()=>struck_entry_wins,v=>{struck_entry_wins=v;}),
+  lex('struck_entry_cache',false,()=>struck_entry_cache,v=>{struck_entry_cache=v;}),
+  lex('struck_entry_supplies',false,()=>struck_entry_supplies,v=>{struck_entry_supplies=v;}),
   lex('corvin_favor_started', false, () => corvin_favor_started, (v) => { corvin_favor_started = v; }),
   lex('corvin_favor_done', false, () => corvin_favor_done, (v) => { corvin_favor_done = v; }),
   lex('corvin_favor_offer_day', 0, () => corvin_favor_offer_day, (v) => { corvin_favor_offer_day = v; }),
@@ -372,6 +379,7 @@ function savedEquipmentDisposition(item) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (riverWrestling.isActive()) return false;
   if (storyBattle.hasContext() || seraLioraBreakfastBattle.isActive()) return false; // transient resources never enter saves
   if (gameRuntimeFailure.isActive()) return false;
   if (!persistentParty.hasLivingMember()) return false;
@@ -391,7 +399,9 @@ window.canSaveHere = canSaveHere;
 // ─── All mutable game state that must survive a save/load cycle should be
 // ─── included here. Add new persistent variables to both saveGame() and loadGame().
 function saveGame() {
+  if (riverWrestling.isActive()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
+  if (typeof fineNeedlework!=='undefined' && fineNeedlework.isActive()) return false;
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
@@ -414,6 +424,8 @@ function saveGame() {
   // Quest-route guard: never persist a contradictory lighthouse/Polwick state.
   // The same pure invariant is used by offer/objective/reward eligibility,
   // load preflight, and validateGameData().
+  if(twoJorans.invariantErrors().length||struckEntry.invariantErrors().length)return false;
+  if(fineNeedlework.invariantErrors().length)return false;
   const lighthouseErrors = lighthouseQuestInvariantErrors();
   if (lighthouseErrors.length) {
     console.warn('[saveGame] refusing to write — lighthouse quest invariant broken: ' + lighthouseErrors.join('; ') + ' — the existing save is left untouched.');
@@ -581,9 +593,11 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (riverWrestling.isActive()) return false;
   if (storyBattle.hasContext() || seraLioraBreakfastBattle.isActive()) return false; // explicit discard/checkpoint first
   if (gameRuntimeFailure.isActive()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
+  if (typeof fineNeedlework!=='undefined' && fineNeedlework.isActive()) return false;
   if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
@@ -634,6 +648,8 @@ function loadGame() {
   // Candidate-only quest preflight. Missing lighthouse_quest_stage is the
   // pre-feature default (0), preserving older current-version saves. Invalid
   // route/outcome mixtures reject atomically before any runtime mutation.
+  if(twoJorans.invariantErrors(data).length||struckEntry.invariantErrors(data).length)return false;
+  if(fineNeedlework.invariantErrors(data).length)return false;
   const lighthouseErrors = lighthouseQuestInvariantErrors(data);
   if (lighthouseErrors.length) {
     console.warn('[loadGame] refusing to load — invalid lighthouse quest state: ' + lighthouseErrors.join('; ') + ' — the running game and the stored save are left untouched.');

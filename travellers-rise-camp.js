@@ -35,7 +35,7 @@ const travellersRiseCamp=(()=>{
   const campLely=route([[6.5,8.5],[6.5,5.5]]),campEsla=route([[10.5,8.5],[10.5,5.5]]);
   let phase='idle',failure=null,plan=null,ticks=0;
   const active=()=>['outside_dialogue','rise_walk','camp_walk','inside_dialogue'].includes(phase);
-  const eligible=()=>MainQuest>=5&&persistentParty.getMember('esla')!==null&&travellers_rise_ambush_complete;
+  const eligible=()=>MainQuest>=5&&persistentParty.getActiveMember('esla')!==null&&travellers_rise_ambush_complete;
   const pendingHere=()=>phase==='idle'&&eligible()&&travellers_rise_camp_stage===0&&regionalActiveMapId()===RISE;
   const busy=()=>combat.active||canonicalPartyCombat.isActive()||combatPlayerState.hasParty()||
     dialogue.open||choice.open||menu.open||shop.open||debugMenu.open||warpMenu.open||continentMap.open||

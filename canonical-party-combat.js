@@ -13,7 +13,9 @@ const canonicalPartyCombat = (() => {
   const splitFactory=canonicalEnemyRecords.claimSplitFactory();
   const copy=copyFormationData;
   const fail=message=>{throw Error('Canonical party encounter: '+message);};
-  const multiple=()=>persistentParty.getView().members.length>1;
+  // Recruited parties retain the shared engine during a temporary solo trip.
+  // The owner supplies only available actors; this is the historical routing gate.
+  const multiple=()=>persistentParty.getRosterView().members.length>1;
   const safe=n=>Number.isSafeInteger(n)&&n>=0;
   const data=(value,keys)=>{
     if(!value||typeof value!=='object'||Array.isArray(value)||

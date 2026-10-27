@@ -68,6 +68,7 @@ function outdoorContentKeyInfo(mapId) {
 // read canonical story/location state but never mutate it. Player-relative
 // hints/prompts are NOT here — they stay in the active-only draw functions.
 const OUTDOOR_MAP_DECOR = {
+  GREAT_FEN_C8RN3_MAP: function(){if(typeof struckEntry!=='undefined')struckEntry.drawEntry();},
   MAP4:   function () { if (typeof drawThornmereStoneBody === 'function')  drawThornmereStoneBody(); },
   MAP_N2: function () { if (typeof drawDrenwichNorthGateBody === 'function') drawDrenwichNorthGateBody(); },
   // Scenery-only West Outfall canal tunnel. This is its production draw path,

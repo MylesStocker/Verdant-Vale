@@ -35,6 +35,7 @@ const MORNAY_SHOPS = Object.freeze({
 // ─── Shop registry ────────────────────────────────────────────────────────────
 // Additive/reference-only: gameplay code has not yet been migrated to use this.
 const SHOP_REGISTRY = {
+  reedbank_provisions:{id:'reedbank_provisions',label:'REEDBANK PROVISIONS',stock:['Potion','Bait','Reed Remedy'].map(createItem)},
   ...Object.fromEntries(Object.values(MORNAY_SHOPS).map(s => [s.id,s])),
   merchant:  { id: 'merchant',  label: 'Merchant',             stock: MERCHANT_STOCK  },
   traveller: { id: 'traveller', label: 'Travelling Salesman',  stock: TRAVELLER_STOCK },

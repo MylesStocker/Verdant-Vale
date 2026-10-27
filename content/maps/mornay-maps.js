@@ -696,7 +696,10 @@ const MORNAY_BUILDINGS = Object.freeze([
   {key:'south_rows_attic',id:'mornay_south_rows_attic',mapId:'MORNAY_SOUTH_ROWS_ATTIC_MAP',
     name:'South Rows — Attic',sourceMapId:'MORNAY_SOUTH_ROWS_FLOOR_3_MAP',
     doorCol:1,doorRow:6,returnCol:1,returnRow:7,facing:'down',
-    kind:'attic',connection:'hatch',sign:''}
+    kind:'attic',connection:'hatch',sign:''},
+  {key: "watchhouse", id: "mornay_watchhouse", mapId: "MORNAY_WATCHHOUSE_MAP",
+    name: "South Mornay Watchhouse & Jail", sourceMapId: "MORNAY_SOUTH_UPPER_EAST_MAP",
+    doorCol:12, doorRow:10, returnCol:12, returnRow:9, facing:"up", kind:"watchhouse"}
 
 ].map(b => Object.freeze(b)));
 
@@ -706,12 +709,6 @@ const MORNAY_RESIDENTIAL_FACADES = Object.freeze([
     "col": 2,
     "row": 5,
     "units": 1
-  },
-  {
-    "mapId": "MORNAY_SOUTH_UPPER_EAST_MAP",
-    "col": 11,
-    "row": 10,
-    "units": 3
   },
   {
     "mapId": "MORNAY_EAST_GATE_MAP",
@@ -917,6 +914,20 @@ window.mornayTownNeighbor = mornayTownNeighbor;
 // furniture follows the established Calwick/Drenwick vocabulary; apartments use
 // compact plans, with a clear entrance stem and individually registered doors.
 const MORNAY_ROOM_FIXTURES = Object.freeze({
+  mornay_watchhouse: [
+    {kind:'desk',col:10,row:3}, {kind:'cabinet',col:1,row:2},
+    {kind:'cargo',col:13,row:2}, {kind:'table',col:3,row:4},
+    {kind:'bench',col:1,row:5}, {kind:'bench',col:2,row:5},
+    // The full-width security screen has no transition or unlock state.
+    ...Array.from({length:14},(_,i)=>({kind:i===5?'barredDoor':'bars',col:i+1,row:6})),
+    // Rear corridor, two communal cells, two individual cells, enclosed yard.
+    ...[5,7,11].flatMap(col=>Array.from({length:7},(_,i)=>({
+      kind:(col===11?i===1:i===1||i===6)?'barredDoor':'bars',axis:'vertical',col,row:i+7}))),
+    ...[1,2,3,4].flatMap(col=>[9,12].map(row=>({kind:'homebed',col,row}))),
+    {kind:'homebed',col:9,row:9}, {kind:'homebed',col:9,row:12},
+    {kind:'bench',col:13,row:8}, {kind:'cargo',col:12,row:12},
+    {kind:'privy',col:14,row:12}
+  ],
   "mornay_kelm_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"dresser","col":5,"row":5},{"kind":"stove","col":12,"row":5},{"kind":"supply","col":13,"row":5},{"kind":"table","col":10,"row":9},{"kind":"supply","col":12,"row":11}],
   "mornay_stern_home": [{"kind":"homebed","col":11,"row":5},{"kind":"homebed","col":12,"row":5},{"kind":"dresser","col":10,"row":5},{"kind":"desk","col":3,"row":5},{"kind":"cabinet","col":4,"row":5},{"kind":"stove","col":3,"row":10},{"kind":"table","col":10,"row":9}],
   "mornay_sorn_home": [{"kind":"homebed","col":3,"row":5},{"kind":"homebed","col":4,"row":5},{"kind":"homebed","col":11,"row":5},{"kind":"dresser","col":12,"row":5},{"kind":"bench","col":11,"row":8},{"kind":"table","col":5,"row":10},{"kind":"stove","col":2,"row":11},{"kind":"supply","col":13,"row":11}],
@@ -993,6 +1004,12 @@ const MORNAY_INTERIOR_MAPS = Object.freeze(Object.fromEntries(MORNAY_BUILDINGS.m
     for(const col of cols)grid[7][col]=INTERIOR_WALL;
   }
   if(compact && b.unit>=3)for(let row=5;row<=6;row++)grid[row][7]=INTERIOR_WALL;
+  if(b.kind==='watchhouse') {
+    // A cutaway view of an intentionally inaccessible rear, not another route.
+    // The central rear corridor joins all four cells and the locked yard gate.
+    for(const col of [1,2,3,4,5,7,8,9,10]) grid[11][col]=INTERIOR_WALL;
+    grid[2][5]=grid[3][5]=INTERIOR_WALL; // cramped guardroom; opening below
+  }
   for (const f of MORNAY_ROOM_FIXTURES[b.id])
     for(let dx=0;dx<(f.w||1);dx++) grid[f.row][f.col+dx] = TABLE;
   for (const child of MORNAY_BUILDINGS.filter(child => child.sourceMapId === b.mapId)) {

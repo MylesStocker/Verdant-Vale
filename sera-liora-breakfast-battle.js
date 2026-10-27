@@ -31,7 +31,7 @@ const seraLioraBreakfastBattle=(()=>{
       setBreakfastActor('liora',{x:365,y:350,facing:'up',moving:false,animationTime:0,animationFrame:1});
       setBreakfastActor('keeper',{x:65,y:275,facing:'right',moving:false,animationTime:0,animationFrame:1});
       openBreakfastPages([
-        {speakerId:null,lines:['A larger Buzzy Beetle is wedged between the flour bins.']},
+        {speakerId:null,lines:['A larger Buzzy Beetle looms on the storeroom floor.']},
         {speakerId:'bethany_keeper',lines:['Careful, please. The breakfast supplies are right behind it.']},
         {speakerId:'sera',lines:['Eclipse? Together, before it knocks anything else over.']},
         {speakerId:'liora',lines:['All right. Let’s be careful.']},
@@ -112,7 +112,7 @@ const seraLioraBreakfastBattle=(()=>{
   };
   const beginAttempt=()=>{
     const s=state;if(!current(s))return false;
-    s.stage='battle';seraLioraCutscene.phase='breakfast_battle';
+    s.stage='battle';s.presentationSeconds=0;seraLioraCutscene.phase='breakfast_battle';
     seraLioraBreakfast.fade=0;clearInput();
     try{
       if(!s.token)s.token=bridge.createContext({id:'bethany_breakfast',party:SERA_LIORA_OPENING_PROFILES,
@@ -160,7 +160,7 @@ const seraLioraBreakfastBattle=(()=>{
       const storeroom=fight===2;
       storyBattle.begin(s.token,{encounter:storeroom?['enemy_large_buzzy_beetle']:['enemy_buzzy_beetle','enemy_buzzy_beetle'],escape:'blocked',
         presentation:{label:storeroom?'Bethany — The flour bins':'Bethany — Rescue breakfast',
-          backgroundAssetId:storeroom?'cutaway_bethany_storeroom_v1':'cutaway_bethany_breakfast_v1',enemyFloorY:156},
+          backgroundAssetId:storeroom?'cutaway_bethany_storeroom_v1':'cutaway_bethany_breakfast_v1'},
         outcomes:{victory:outcome,defeat:outcome,escape:outcome}});
       s.attempt++;return true;
     }catch(error){fault(error);return false;}
@@ -177,7 +177,8 @@ const seraLioraBreakfastBattle=(()=>{
     getState(){return state?copyFormationData({stage:state.stage,fight:state.fight,attempt:state.attempt,failure:state.failure,
       firstCleared:state.firstCleared,secondCleared:state.secondCleared,endingElapsed:state.endingElapsed||0,
       resources:state.token?storyBattle.getState(state.token):null}):null;},
-    getView(){return state?.stage==='battle'?storyBattle.getView(state.token):null;},
+    getView(){return state?.stage==='battle'?copyFormationData({...storyBattle.getView(state.token),
+      stagingId:state.fight===2?'bethany_storeroom':'bethany_courtyard',presentationSeconds:state.presentationSeconds}):null;},
     start(){
       if(state||!isSeraLioraBreakfastSequence()||seraLioraCutscene.phase!=='breakfast_final'||dialogue.open)return false;
       state={epoch:seraLioraBreakfast.epoch,stage:'fade_in',scene:'yard',fight:1,attempt:0,token:null,
@@ -193,6 +194,7 @@ const seraLioraBreakfastBattle=(()=>{
       if(!current(s)){this.reset();return;}
       const dt=Number.isFinite(seconds)?Math.max(0,Math.min(seconds,0.05)):MS_PER_FRAME/1000;
       if(s.stage==='battle'){
+        s.presentationSeconds+=dt; // Session-only sprite clock; never enters combat resources/history.
         try{partyBattleQuickbloomAnimation.update(this.getView(),dt);partyBattleOffensiveResonanceAnimation.update(this.getView(),dt);}catch(error){fault(error);}return;
       }
       try{updateEnding(s,dt);}catch(error){fault(error);}

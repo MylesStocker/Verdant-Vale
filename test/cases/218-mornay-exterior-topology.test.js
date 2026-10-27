@@ -193,7 +193,7 @@ module.exports = {
     assert.equal(R("MAP_CATALOG['EASTERN_FENS_TRAVELLERS_RISE_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].map.length"), 15);
-    assert.equal(R("Object.keys(MAP_CATALOG).length"), 1244, '1107-map baseline plus 23 South Rows rooms and 114 Wetwoods scenery chunks; Mornay retains 17 exteriors');
+    assert.equal(R("Object.keys(MAP_CATALOG).length"), 1254, '1107-map baseline plus 23 South Rows rooms and 114 Wetwoods scenery chunks and the southern watchhouse plus two Reedbank and seven Third Lock maps; Mornay retains 17 exteriors');
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       const actual = R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`);
       assert.equal(sha256(actual), fp, `${id}: regional fingerprint current`);

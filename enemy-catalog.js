@@ -59,9 +59,9 @@ const FEN_HANDLER_TEMPLATE = {
 // Gallery formation boss stats. Coordination is owned by formationRounds below.
 // No per-member awards: the report remains the reward.
 const GALLERY_RECEIVER_TEMPLATES = [
-  {id:'enemy_gallery_receiver', name:'The Receiver', hp:400, maxHp:400, atk:36, def:12, spd:6, xp:0, goldMin:0, goldMax:0},
-  {id:'enemy_gallery_caller', name:'The Caller', hp:140, maxHp:140, atk:30, def:6, spd:14, xp:0, goldMin:0, goldMax:0},
-  {id:'enemy_gallery_keeper', name:'The Keeper', hp:180, maxHp:180, atk:28, def:10, spd:8, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_receiver', name:'The Receiver', hp:300, maxHp:300, atk:36, def:12, spd:6, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_caller', name:'The Caller', hp:105, maxHp:105, atk:30, def:6, spd:14, xp:0, goldMin:0, goldMax:0},
+  {id:'enemy_gallery_keeper', name:'The Keeper', hp:135, maxHp:135, atk:28, def:10, spd:8, xp:0, goldMin:0, goldMax:0},
 ];
 Object.defineProperty(GALLERY_RECEIVER_TEMPLATES[0], 'isBoss', {value:true});
 

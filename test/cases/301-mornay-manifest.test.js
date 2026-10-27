@@ -8,7 +8,11 @@ function fresh(legacy=false) {
   const g=createContext();g.press('Enter');g.press('Enter');
   g.run(`forceLegacyRegionalView=${legacy};dialogue.open=false;`);return g;
 }
-function place(g,mapId,x=240,y=432) {
+function place(g,mapId,x,y) {
+  if(x===undefined){
+    const entrance=J(g,`(()=>{const b=mornayRoomForMap(${JSON.stringify(mapId)});return b?mornayInteriorEntrance(b):null;})()`);
+    x=240;y=entrance?(entrance.arrivalRow+.5)*32:432;
+  }
   const building=g.run(`mornayRoomForMap(${JSON.stringify(mapId)})?.id||null`);
   assert.equal(g.run(`transitionToLocation({mapId:${JSON.stringify(mapId)},x:${x},y:${y},state:{inTown:true,currentTownId:'mornay',townBuilding:${JSON.stringify(building)}}})`),true,mapId+' fixture placement');
   g.run('dialogue.open=false;');return g;
@@ -69,11 +73,11 @@ module.exports={
     assert.equal(planIds.length,300);assert.deepEqual(residents.map(n=>n.id).sort(),planIds.sort());
     assert.equal(new Set(residents.map(n=>n.id)).size,300);assert.equal(new Set(residents.map(n=>n.name)).size,300);
     const exteriors=new Set(J(g,'MORNAY_TOWN_MAP_IDS'));
-    assert.equal(residents.filter(n=>exteriors.has(n.mapId)).length,95);
-    assert.equal(residents.filter(n=>!exteriors.has(n.mapId)).length,205);
-    assert.equal(rooms.length,67);assert.equal(new Set(rooms.map(b=>b.id)).size,67);assert.equal(new Set(rooms.map(b=>b.mapId)).size,67);
-    assert.equal(new Set(rooms.filter(b=>exteriors.has(b.sourceMapId)).map(b=>b.id)).size,23);
-    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),1244);
+    assert.equal(residents.filter(n=>exteriors.has(n.mapId)).length,93);
+    assert.equal(residents.filter(n=>!exteriors.has(n.mapId)).length,207);
+    assert.equal(rooms.length,68);assert.equal(new Set(rooms.map(b=>b.id)).size,68);assert.equal(new Set(rooms.map(b=>b.mapId)).size,68);
+    assert.equal(new Set(rooms.filter(b=>exteriors.has(b.sourceMapId)).map(b=>b.id)).size,24);
+    assert.equal(g.run('Object.keys(MAP_REGISTRY).length'),1254);
     for(const r of residents){
       const runtime=npcs.filter(n=>n.id===r.id);assert.equal(runtime.length,1,r.id);
       assert.equal(g.run(`SIMPLE_NPCS.filter(n=>n.id===${JSON.stringify(r.id)}).length`),1,r.id+' no registry overwrite');

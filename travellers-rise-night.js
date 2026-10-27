@@ -14,7 +14,7 @@ const travellersRiseNight=(()=>{
   const active=()=>phase!=='idle'&&phase!=='fault';
   const storySeal=()=>JSON.stringify([MainQuest,travellers_rise_ambush_complete,travellers_rise_ambush_paid,travellers_rise_ambush_payment,travellers_rise_camp_stage,snapshotLocationState()]);
   const ownerValid=()=>plan&&regionalActiveMapId()===MAP&&storySeal()===plan.story&&
-    persistentParty.getMember('lely')!==null&&persistentParty.getMember('esla')!==null;
+    persistentParty.getMember('lely')!==null&&persistentParty.getActiveMember('esla')!==null;
   const clear=()=>{for(const a of [lely,esla])stopTransientNpcRoute(a);player.moving=false;};
   const clearDialogue=()=>{dialogue.open=false;dialogue.pages=[];dialogue.page=0;dialogue.callbacks=[];
     dialogue.pageSpeakers=null;dialogue._speakerPagesFor=null;dialogue.name='';};
@@ -45,7 +45,7 @@ const travellersRiseNight=(()=>{
         !nearPlayer(FIRE.x,FIRE.y,65)||ids.some(id=>NPC_ROUTES[id]))throw Error('campfire night is not ready');
     if(LOCATION_MAJOR_MODE_KEYS.some(key=>snapshotLocationState()[key]))throw Error('campsite requires neutral location modes');
     if(regionalInvariantErrors().length||travellersRiseAmbushInvariantErrors().length)throw Error('invalid night story/placement');
-    if(!persistentParty.getMember('lely')||!persistentParty.getMember('esla'))throw Error('night requires canonical companions');
+    if(!persistentParty.getMember('lely')||!persistentParty.getActiveMember('esla'))throw Error('night requires canonical companions');
     if(!Number.isFinite(player.x)||!Number.isFinite(player.y))throw Error('invalid night start');
     for(const pages of Object.values(D))validateSpeakerDialoguePages(pages);
     const start=Object.freeze({x:player.x,y:player.y});
@@ -105,7 +105,7 @@ const travellersRiseNight=(()=>{
   const finishMorning=()=>{
     if(!committing||phase!=='dawn'||elapsed!==72||regionalActiveMapId()!==MAP||
         MainQuest!==5||!travellers_rise_ambush_complete||travellers_rise_camp_stage!==1||
-        !persistentParty.getMember('lely')||!persistentParty.getMember('esla'))
+        !persistentParty.getMember('lely')||!persistentParty.getActiveMember('esla'))
       throw Error('invalid night morning finalization');
     // This is the one persisted receipt for the whole event. The rest has
     // already succeeded, the complete morning fade has elapsed, and all

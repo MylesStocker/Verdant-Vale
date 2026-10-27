@@ -33,7 +33,9 @@ function interactSimpleNPCs() {
     const dx = player.x - npc.x;
     const dy = player.y - npc.y;
     if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS) {
-      if (typeof npc.action === 'function') {
+      if (struckEntry.interact(npc) || twoJorans.interact(npc)) {
+        // The optional case owns only its explicitly named speakers.
+      } else if (typeof npc.action === 'function') {
         npc.action(npc);
       } else if (npc.action && NPC_ACTIONS[npc.action]) {
         NPC_ACTIONS[npc.action](npc);
@@ -136,6 +138,8 @@ const MAP_FEATURES = mergeMapFeatureFragments([
   NORTH_BASIN_MAP_FEATURES,
   SHARED_MAP_FEATURES,
   MORNAY_MAP_FEATURES,
+  REEDBANK_MAP_FEATURES,
+  THIRD_LOCK_MAP_FEATURES,
 ]);
 
 // Evaluates a feature's `condition`, safely -- a throwing condition is
@@ -224,6 +228,7 @@ function tryExamineWorldItem() {
 }
 
 function tryMapFeatures() {
+  if(struckEntry.inspect())return true;
   if(typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.interact())return true;
   if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.interact())return true;
   const features = currentMapFeatures();
@@ -2055,6 +2060,8 @@ function interactOverworld() {
 
 // Top-level interact priority list — first match wins, exactly one runs.
 const INTERACT_HANDLERS = [
+  {name:'third-lock',match:()=>!!THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)],run:()=>interactSimpleNPCs()||tryMapFeatures()},
+  {name:'reedbank',match:()=>!!REEDBANK_CONTENT_KEYS[mapIdForRef(activeMap)],run:()=>interactSimpleNPCs()||tryMapFeatures()},
   { name: 'dungeon-floor-1', match: () => inDungeon && dungeonFloor === 1, run: interactDungeonFloor1 },
   { name: 'overworld-town',  match: () => !inDungeon,                      run: interactOverworld },
   { name: 'dungeon-floor-4', match: () => inDungeon && dungeonFloor === 4, run: interactMulhollandFloor },

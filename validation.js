@@ -1187,6 +1187,8 @@ function validateNPCs() {
   // whose keys are canonical PHYSICAL map ids) because this is a genuinely
   // separate namespace -- see movement.js's currentContentLocationKey().
   const VALID_CONTENT_LOCATION_KEYS = new Set([
+    ...Object.values(REEDBANK_CONTENT_KEYS),
+    ...Object.values(THIRD_LOCK_CONTENT_KEYS),
     ...MORNAY_TOWN_MAP_IDS.map(mornayContentKey),
     ...MORNAY_BUILDINGS.map(b => mornayContentKey(b.mapId)),
     'overworld',
@@ -1208,7 +1210,7 @@ function validateNPCs() {
     'drenwick_east_outskirts', 'drenwick_market', 'drenwick_post_office',
     'drenwick_waterfront', 'drenwick_civic',
   ]);
-  const VALID_SPRITE_TYPES = new Set(['clerk', 'patron', 'child', 'worker', 'traveler', 'cat']);
+  const VALID_SPRITE_TYPES = new Set(['clerk', 'patron', 'child', 'worker', 'traveler', 'cat', 'infirmary_esla']);
   const houseIds = (typeof HOUSE_DATA !== 'undefined') ? new Set(Object.keys(HOUSE_DATA)) : null;
   const actionsKnown = (typeof NPC_ACTIONS !== 'undefined');
 
@@ -1217,6 +1219,10 @@ function validateNPCs() {
     try{dialogueSpeakerDefinition(speakerId);}catch(error){
       addValidationError(GROUP,'speaker "'+speakerId+'": '+String(error&&error.message||error));
     }
+  }
+
+  if(typeof FINE_NEEDLEWORK_CONTENT!=='undefined')for(const [key,pages]of Object.entries(FINE_NEEDLEWORK_CONTENT.pages)){
+    try{validateSpeakerDialoguePages(pages);}catch(error){addValidationError(GROUP,'Fine Needlework '+key+': invalid speaker dialogue');}
   }
 
   const seenIds = new Set();
@@ -2069,6 +2075,16 @@ function validateSaveFlags() {
     // established MQ4 and Polwick outcome authorities. Runtime eligibility
     // fails closed on the same helper, while loadGame rejects a bad candidate
     // before mutating live state.
+    if(typeof struckEntry!=='undefined'){
+      checked++;for(const message of struckEntry.invariantErrors())addValidationError(GROUP,message);
+    }
+    if(typeof twoJorans!=='undefined'){
+      checked++;for(const message of twoJorans.invariantErrors())addValidationError(GROUP,message);
+    }
+    if(typeof fineNeedlework!=='undefined'){
+      checked++;
+      for(const message of fineNeedlework.invariantErrors())addValidationError(GROUP,message);
+    }
     if (typeof lighthouseQuestInvariantErrors === 'function') {
       checked++;
       for (const message of lighthouseQuestInvariantErrors()) {

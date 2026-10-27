@@ -55,7 +55,7 @@ const actorEvents=r=>r.events.filter(e=>e.actorType==='enemy');
 test('trio binds three exact identities once; duplicate/mixed subsets gain no coordination',()=>{
   const g=fresh(),c=J(g,'formationRounds.coordination()');
   assert.deepEqual(J(g,'GALLERY_RECEIVER_TEMPLATES.map(e=>[e.hp,e.maxHp,e.atk,e.def,e.spd])'),[
-    [400,400,36,12,6],[140,140,30,6,14],[180,180,28,10,8],
+    [300,300,36,12,6],[105,105,30,6,14],[135,135,28,10,8],
   ]);
   assert.deepEqual([c.receiverId,c.callerId,c.keeperId],J(g,'combat.enemies.map(e=>e.instanceId)'));
   assert.equal(c.strikeRound,0);assert.equal(c.nextSignalRound,1);
@@ -189,7 +189,7 @@ for(const id of ['Throwing Knife','Sapper Charge'])test(id+' respects protection
   const raw=g.run(`offensiveItemDamage(ITEM_REGISTRY[${JSON.stringify(id)}],combat.enemies[0])`);
   const {r,p}=round(g,command,[0,0,0,...HIT,...HIT]);
   assert.equal(r.events[0].type,'item');assert.equal(g.run('stats.items.length'),0);
-  assert.equal(p.frames[0].enemies[0].hp,400);assert.equal(p.frames[1].enemies[0].hp,400-Math.ceil(raw/2));
+  assert.equal(p.frames[0].enemies[0].hp,300);assert.equal(p.frames[1].enemies[0].hp,300-Math.ceil(raw/2));
 });
 
 test('Bomb detonation obeys living Keeper protection and can break a Caller signal',()=>{
@@ -200,7 +200,7 @@ test('Bomb detonation obeys living Keeper protection and can break a Caller sign
     const {r}=round(g,{type:'run'},[0,0,0,...HIT,...HIT,...HIT]);
     const bomb=r.events.find(e=>e.type==='bomb_tick');assert.equal(bomb.attemptedDamage,slot===0?40:80);
     assert.equal(g.run('combat.bombFuse'),0);
-    if(slot===0)assert.equal(g.run('combat.enemies[0].hp'),360);
+    if(slot===0)assert.equal(g.run('combat.enemies[0].hp'),260);
     else assert.equal(g.run('combat.enemies[1].hp'),0);
   }
 });

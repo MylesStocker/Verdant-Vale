@@ -1489,7 +1489,7 @@ function drawInteriorWall(x, y) {
 }
 
 // Interior exit door
-function drawInteriorExit(x, y) {
+function drawInteriorExit(x, y, showLabel = true) {
   drawInteriorWall(x, y);
   // Door frame
   ctx.fillStyle = '#5a3a18';
@@ -1508,12 +1508,14 @@ function drawInteriorExit(x, y) {
   // Light at threshold (warm glow from outside)
   ctx.fillStyle = 'rgba(220, 180, 80, 0.25)';
   ctx.fillRect(x + 8, y + 28, 16, 4);
-  // ▼ label
-  ctx.fillStyle = '#c8a060';
-  ctx.font = 'bold 7px "Courier New", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('EXIT', x + 16, y + 5);
-  ctx.textAlign = 'left';
+  // Legacy towns retain the caption; callers may use the door art alone.
+  if (showLabel) {
+    ctx.fillStyle = '#c8a060';
+    ctx.font = 'bold 7px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('EXIT', x + 16, y + 5);
+    ctx.textAlign = 'left';
+  }
 }
 
 // Market square cobblestone — slightly warmer/lighter patterned stone

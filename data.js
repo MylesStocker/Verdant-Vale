@@ -1084,6 +1084,8 @@ const NORTH_BASIN_W_MAP  = REGIONAL_CHUNK_CATALOG.NORTH_BASIN_W_MAP.map;  window
 const NORTH_BASIN_NW_MAP = REGIONAL_CHUNK_CATALOG.NORTH_BASIN_NW_MAP.map; window.NORTH_BASIN_NW_MAP = NORTH_BASIN_NW_MAP;
 
 const MAP_CATALOG = {
+  REEDBANK_VILLAGE_MAP: {id:'REEDBANK_VILLAGE_MAP',map:REEDBANK_VILLAGE_MAP,displayName:'Reedbank',region:'Eastern Mainland',type:'town',items:[],encounterPool:null,allowRandomEncounters:false,allowSave:true},
+  REEDBANK_PROVISIONS_MAP: {id:'REEDBANK_PROVISIONS_MAP',map:REEDBANK_PROVISIONS_MAP,displayName:'Reedbank Provisions',region:'Eastern Mainland',type:'interior',items:[],encounterPool:null,allowRandomEncounters:false,allowSave:true},
   // ── Overworld (Verdant Vale / Eastern Reaches / Thornmere fen) ────────────
   // Regional chunks (MAP, MAP2…MAP5, MAP_N1/2, RODDON, MAP3_N*, North Basin) are
   // DERIVED from REGIONAL_CHUNK_CATALOG via _regionalChunkCatalogEntry() — their
@@ -1797,6 +1799,11 @@ for (const def of MORNAY_TOWN_LAYOUT) {
     allowSave: true,
     notes: 'Mornay ' + def.district + ' district. Reserved future footprints: ' + def.reserves.join(', ') + '. Berths remain inactive.',
   };
+}
+
+for (const def of THIRD_LOCK_MAPS) {
+  MAP_CATALOG[def.id]={id:def.id,map:def.map,displayName:def.name,region:'Great Fen',
+    type:def.interior?'interior':'town',items:[],encounterPool:null,allowRandomEncounters:false,allowSave:true};
 }
 
 for (const b of MORNAY_BUILDINGS) {

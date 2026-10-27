@@ -1800,6 +1800,10 @@ const SIMPLE_NPCS = [
   ...NORTH_BASIN_NPCS,
   ...SHARED_NPCS,
   ...MORNAY_NPCS,
+  ...FINE_NEEDLEWORK_NPCS,
+  ...REEDBANK_NPCS,
+  ...THIRD_LOCK_NPCS,
+  ...TWO_JORANS_NPCS,
 ];
 
 // Named functions for NPCs with extra behaviour beyond dialogue.
@@ -2123,6 +2127,10 @@ NPC_ACTIONS.fortGuardBlock = function() {
 // the generic dialogue path after the action check; so we need no action for that.
 // For stage 0, interactSmugglerFort() intercepts before interactSimpleNPCs().
 NPC_ACTIONS.polwickConfront = function(npc) {
+  // An existing lighthouse reward keeps its turn-in priority. Ambient offers
+  // and reminders resume after this active parcel handoff.
+  if (fine_needlework_stage===1 && canTurnInLighthouseQuest('polwick') && polwickLighthouseDialogue(npc)) return;
+  if (fineNeedlework.interactPolwick(npc)) return;
   if (polwickEslaDialogue(npc)) return;
   if (typeof polwickLighthouseDialogue === 'function' && polwickLighthouseDialogue(npc)) return;
   if (polwickEslaDialogue(npc, true)) return;
@@ -2235,6 +2243,8 @@ const TALK_RADIUS = 28; // px; must be within this to open dialogue (~0.9 tiles)
 const ESLA_DIALOGUE_STYLE_ID = 'esla_light_green';
 const SERA_DIALOGUE_STYLE_ID = 'sera_elegant';
 const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
+  ...Object.fromEntries(TWO_JORANS_NPCS.map(n=>[n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
+  mornay_chuggie: Object.freeze({speakerId:'mornay_chuggie',name:'Chuggie',dialogueStyleId:null}),
   polwick: Object.freeze({speakerId:'polwick',name:'Polwick',dialogueStyleId:null}),
   ...Object.fromEntries(MORNAY_NPCS.map(n => [n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
   causeway_ferry_operator: Object.freeze({speakerId:'causeway_ferry_operator',name:'Imperial Guard',dialogueStyleId:null}),
@@ -2245,6 +2255,7 @@ const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   aldric: Object.freeze({speakerId:'aldric',name:'Aldric',dialogueStyleId:null}),
   petra: Object.freeze({speakerId:'petra',name:'Petra',dialogueStyleId:null}),
   corvin: Object.freeze({speakerId:'corvin',name:'Corvin',dialogueStyleId:null}),
+  ...Object.fromEntries(THIRD_LOCK_NPCS.map(n=>[n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
   oswin: Object.freeze({speakerId:'oswin',name:'Oswin',dialogueStyleId:null}),
   veth: Object.freeze({speakerId:'veth',name:'Officer Veth',dialogueStyleId:null}),
   holt: Object.freeze({speakerId:'holt',name:'Holt',dialogueStyleId:null}),
@@ -2263,7 +2274,7 @@ const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
 // plain arrays before recruitment; after recruitment they opt into the same
 // closed speaker-page authority used by scripted dialogue.
 function postMq5CompanionDialogue(pages, speakerId, exchange) {
-  if (MainQuest < 5 || !persistentParty.getMember('esla')) return pages;
+  if (MainQuest < 5 || !persistentParty.getActiveMember('esla')) return pages;
   dialogueSpeakerDefinition(speakerId);
   const records = pages.map(lines => ({speakerId,lines}));
   exchange.forEach(page => records.push(page));

@@ -13,7 +13,7 @@ module.exports={
     const residents=J(g,`MORNAY_NPCS.filter(n=>n.map===mornayContentKey(${JSON.stringify(map)}))`);
     for(const r of residents){talk(g,r.id,points);dismiss(g);if(g.run('choice.open'))g.press('Escape');if(g.run('shop.open'))g.press('Escape');spoken++;}
     // Mandatory routes must remain in the same collision-reachable component.
-    const required=map.includes('GATE_BEDS')||map.includes('COMMERCIAL_BEDS')||g.run(`!!mornayRoomForMap(${JSON.stringify(map)})`)
+    const required=map==='MORNAY_WATCHHOUSE_MAP'?[[240,80],[272,144]]:map.includes('GATE_BEDS')||map.includes('COMMERCIAL_BEDS')||g.run(`!!mornayRoomForMap(${JSON.stringify(map)})`)
       ? [[240,416],[240,400]] : [[240,240],[272,240]];
     for(const [x,y]of required)assert.ok(points.some(p=>p[0]===x&&p[1]===y),map+' clear central circulation '+x+','+y);
    }

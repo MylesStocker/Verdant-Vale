@@ -174,7 +174,7 @@ function polwickLighthouseDialogue(npc) {
 function polwickEslaDialogue(npc, repeat = false) {
   if (!inSmugglerFort || activeMap !== SMUGGLER_FORT_MAP || !npc ||
       npc.id !== 'polwick' || npc.map !== 'smuggler_fort' || fort_quest_stage !== 6 ||
-      !persistentParty.getMember('esla')) return false;
+      !persistentParty.getActiveMember('esla')) return false;
   const stage = Math.min(polwick_esla_visit_stage, 3);
   if (stage >= 3 && !repeat) return false;
   const exchanges = [
@@ -205,7 +205,7 @@ function polwickEslaDialogue(npc, repeat = false) {
     // Commit only a fully read exchange, once, while its speaker is available.
     if (polwick_esla_visit_stage === stage && npc.map === 'smuggler_fort' &&
         inSmugglerFort && activeMap === SMUGGLER_FORT_MAP &&
-        persistentParty.getMember('esla')) {
+        persistentParty.getActiveMember('esla')) {
       polwick_esla_visit_stage = stage + 1;
       syncQuestFlagsToWindow();
     }

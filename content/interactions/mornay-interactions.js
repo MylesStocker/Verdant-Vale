@@ -2,7 +2,12 @@
 
 // Repeatable public evidence: no callbacks, triggers, flags, rewards or quests.
 const MORNAY_NOTICES = Object.freeze([
-  Object.freeze({"mapId":"MORNAY_OLD_FORT_MAP","id":"mornay_watch_cells","type":"inspect","allowUnwalkable":true,"x":10.5,"y":2.8,"radius":44,"label":"Old Fort watch and cells","pages":[["WATCH, HOLDING CELLS AND OLD RECORDS."],["The public shutter is closed. A constable answers enquiries in the yard. No entry beyond the chained door."]]}),
+  Object.freeze({"mapId":"MORNAY_WATCHHOUSE_MAP","id":"mornay_jail_booking_notices","type":"inspect","allowUnwalkable":true,"x":14.5,"y":4.5,"radius":40,"label":"Custody notices","pages":[["Visitors must give a name and wait on the bench. Property must be listed and witnessed. No payment is required to record an arrest."],["A later notice requests information about Reclaimer printers. Someone has underlined: evidence, not neighbourhood quarrels."]]}),
+  Object.freeze({"mapId":"MORNAY_WATCHHOUSE_MAP","id":"mornay_jail_property","type":"inspect","allowUnwalkable":true,"x":13.5,"y":2.5,"radius":40,"label":"Confiscated property","pages":[["A locked chest holds numbered bundles. A cracked lantern, a belt knife, and a pair of work boots lie beneath a receipt book. Nothing is available to take."]]}),
+  Object.freeze({"mapId":"MORNAY_WATCHHOUSE_MAP","id":"mornay_jail_records","type":"inspect","allowUnwalkable":true,"x":1.5,"y":2.5,"radius":40,"label":"Records cupboard","pages":[["Water has swollen the bottom drawer. Arrest lists occupy the dry shelves; repair requests are tied into a much older bundle. The drawers stay shut."]]}),
+  Object.freeze({"mapId":"MORNAY_WATCHHOUSE_MAP","id":"mornay_jail_rear_screen","type":"inspect","allowUnwalkable":true,"x":9.5,"y":6.5,"radius":40,"label":"Guarded rear door","pages":[["Through the iron screen: two communal cells with four narrow beds apiece, and two single cells. Damp streaks run beneath the barred windows."],["A locked side gate leads to a small exercise and delivery yard. Beyond its bench stands a leaning privy. The smell reaches the booking desk."],["The custody door is bolted. There are no visits or property releases available here."]]}),
+
+  Object.freeze({"mapId":"MORNAY_OLD_FORT_MAP","id":"mornay_watch_cells","type":"inspect","allowUnwalkable":true,"x":10.5,"y":2.8,"radius":44,"label":"Old Fort records and disused lockup","pages":[["OLD RECORDS. FORMER LOCKUP. CLOSED TO THE PUBLIC."],["Bookings and custody enquiries: South Mornay Watchhouse, just north of the East Gate. This chained door is no longer the public entrance."]]}),
   Object.freeze({"mapId":"MORNAY_NORTH_UPPER_EAST_MAP","id":"mornay_collegium","type":"inspect","allowUnwalkable":true,"x":12.5,"y":6.2,"radius":44,"label":"Mornay Civic Collegium","pages":[["CIVIC COLLEGIUM — upper school."],["Preparation for the Civic Examination, commercial clerkships and junior Imperial service. Fees payable in advance. Admittance by appointment."],["The iron gate is locked. A porter watches through it."]]}),
   Object.freeze({"mapId":"MORNAY_MIDDLE_UPPER_EAST_MAP","id":"mornay_survey","type":"inspect","allowUnwalkable":true,"x":12.5,"y":5.8,"radius":44,"label":"Hydrographic survey office","pages":[["HYDROGRAPHIC SURVEY OFFICE. Public counter closed."],["Sounding and water-level enquiries: Harbour Public Room. No passage to the lake through these premises."]]}),
   Object.freeze({"mapId":"MORNAY_NORTH_UPPER_WEST_MAP","id":"mornay_story_berth","type":"inspect","allowUnwalkable":true,"x":4.5,"y":10.5,"radius":44,"label":"Reserved berth","pages":[["An empty berth, swept and numbered. No passenger service is offered here."]]}),
@@ -21,12 +26,15 @@ const MORNAY_NOTICES = Object.freeze([
   Object.freeze({"mapId": "MORNAY_SOUTH_ROWS_ATTIC_MAP", "id": "mornay_attic_routes", "type": "inspect", "allowUnwalkable": true, "x": 3.5, "y": 9.5, "radius": 44, "label": "Folded instructions", "pages": [["Meeting notes in several hands. Use the back landings. Keep names off the sheets. Never bring an officer upstairs."], ["The room is empty now. Nothing here identifies what happened to Dreyfuss or where Garrick went."]]}),
   Object.freeze({"mapId": "MORNAY_SOUTH_ROWS_MAP", "id": "mornay_tenement_laundry", "type": "inspect", "allowUnwalkable": true, "x": 1.5, "y": 8.5, "radius": 44, "label": "Washday roster", "pages": [["SOUTH ROWS. Eight doors on each of three floors. Four workdays, then Dayoff."], ["Half the units stand quiet while their occupants work. Several other doors have a child listed for washing, minding the stove, or watching younger children."]]}),
 ]);
+// Separate from inert public notices: the quest owns this cache transaction.
+const MORNAY_TWO_JORANS_SUPPLY = Object.freeze({mapId:'MORNAY_OLD_FORT_MAP',id:'two_jorans_supply_box',type:'inspect',allowUnwalkable:true,x:9.5,y:11.5,radius:44,label:'Joran Beck’s supply box',pages:[['A locked iron box stamped J. BECK.']]});
 const MORNAY_MAP_FEATURES = Object.fromEntries([...MORNAY_TOWN_MAP_IDS,...MORNAY_BUILDINGS.map(b=>b.mapId)].map(id =>
-  [id,MORNAY_NOTICES.filter(n => n.mapId === id)]));
+  [id,[...MORNAY_NOTICES,MORNAY_TWO_JORANS_SUPPLY].filter(n => n.mapId === id)]));
 const MORNAY_INNS = Object.freeze({gate_inn:30,commercial_inn:40});
 
 function interactMornay() {
   if (!inTown || currentTownId !== 'mornay') return false;
+  if (twoJorans.tryCache()) return true;
   if (interactSimpleNPCs()) return true;
   return tryMapFeatures();
 }

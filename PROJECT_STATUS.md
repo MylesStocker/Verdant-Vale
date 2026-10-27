@@ -6,6 +6,85 @@ actually fits together.
 
 ## Current state
 
+### Grounded Sera/Liora battle presentation
+
+Both Bethany fights now crop the existing background to its clear floor, stage
+Sera/Liora left and beetles right, and draw contact shadows at planted feet.
+The existing three-frame beetle animation runs in battle with offset timing;
+defeated beetles stop moving. Target cursors and Resonance effects follow the
+new positions. No image assets, stats, combat rules, rewards, retries, carryover,
+quest progression, map geometry or saves change. SAVE_VERSION remains 5.
+The presentation clock is session-only and does not enter combat history.
+Final verification: 268/268 regression suites pass; all seven changed/new JS
+files pass syntax checks; validation reports zero errors and six unchanged
+warnings; `git diff --check` passes. Automated Chromium review passes 276
+assertions at native/2× scale. Suite 276 now excludes only the ambient clock
+from its held-event equality check, while requiring the clock to advance and
+preserving every damage, history, Strain, target and exact-duration assertion.
+Work remains unstaged/uncommitted on `main`; nothing merged or pushed.
+Automated browser checks exercise both fights and the ending at native/2× scale;
+this is controlled browser automation, not a manual playthrough.
+Playtest via **DEV: Story Checkpoint Lab → Sera/Liora — Breakfast Battle**:
+watch the idle poses, target each beetle, win through to the flour-bin fight,
+and check Eclipse and the defeated poses.
+
+This increment changes `render-battle.js`, `render-party-battle.js`,
+`sera-liora-breakfast-battle.js`, `test/cases/267-breakfast-story-battle.test.js`,
+`test/cases/276-offensive-resonance-visuals.test.js`,
+`test/cases/332-bethany-grounded-battles.test.js`,
+`test/beetle-grounding-browser.html`, `test/beetle-grounding-browser.js`,
+`architecture.md` and this file. Existing unrelated changes are retained.
+The shared story adapter, combat engine, enemy definitions and character builds
+are unchanged. No geographic audit artifacts require regeneration.
+
+### Two Jorans — optional watchhouse case
+
+Anric offers a local mistaken-record case at the South Mornay Watchhouse.
+Interview Beck, Perris at the Old Fort, and Varda and Alden at Fen Warehouse;
+return the four accounts to Anric. Beck is released and gives his supply key at
+the fort. The locked box yields five existing Sapper Charges exactly once.
+Esla contributes only when available; MQ5 and the party record stay unchanged.
+Two default-zero quest bindings use the existing version-5 save contract.
+See `MORNAY_TWO_JORANS_PLAN.md` for the case, state rules and verification.
+Final checks: 267/267 regression suites, zero validation errors (six unchanged
+warnings), matching read-only transition audit, and 101 automated Chromium
+checks at native/2× scale. No geographic artifact regeneration.
+
+### Reedbank river wrestling
+
+Overworld `(22,3)` now leads to Reedbank: seven homestead facades, three mushroom
+plots, seven residents, a provisions shop and repeatable river-wrestling bouts.
+Practice is free; paid bouts stake 10g and return 20g on victory. Real-time
+footwork, bracing, grips, shoves, breaks and throws use transient sport state.
+First shoulders to water wins; no strikes or party combat-state changes.
+The existing save schema remains version 5. See `RIVER_WRESTLING_PLAN.md` for
+controls, map deltas, ownership, tests and the walkthrough. Verification:
+265/265 regression suites pass, validation has zero errors and the six existing
+warnings, and native/2× automated browser win/loss/navigation checks pass.
+
+### Fine Needlework — optional Mornay delivery
+
+Chuggie in Wold's Gate Inn offers a protected parcel only for the existing
+spared-and-concealed Polwick alliance. Esla objects visibly, then waits at Ledger
+House if Lély accepts. Delivery pays 1,500g once; withdrawal pays nothing and can
+be retried after reunion. Completed delivery cannot be repeated. Neither path
+advances MQ5. Parcel contents remain unspecified.
+
+Persistent-party availability now separates recruited history from active travel.
+Esla's exact record survives the solo journey, including injury, equipment,
+progression and statuses. Active combat, XP, menus, care, rest and defeat recovery
+exclude her. The optional v5 absence data and ordinary quest-stage binding are
+cross-validated with cargo before save/load writers. Existing v5 saves default to
+no absence/unstarted quest; SAVE_VERSION remains 5. No maps, encounter tables,
+camera policies or geographic artifacts change. Detailed contract, dialogue and
+verification are recorded in `MORNAY_FINE_NEEDLEWORK_PLAN.md`.
+
+Verification: 262/262 regression suites pass; validation has zero errors and the
+six existing warnings. Real Chromium local interaction/departure/reunion checks
+pass at native and 2× sizes, and all 24 dialogue pages fit measured Canvas bounds.
+This is automated browser coverage, not a manual wilderness round trip.
+
+
 ### Runtime maintenance follow-up
 
 Shared travel/story ownership checks close direct combat-entry bypasses.
@@ -967,8 +1046,9 @@ existing effect authorities. Durations advance once per round, with no decrement
 on the application round. Boss-template metadata locks formation escape for the
 entire encounter; existing singleton escape rules remain unchanged.
 
-The Receiver is a full boss encounter: Receiver has 400 HP, with substantially
-stronger Caller and Keeper support and dangerous attacks across the trio. It has
+The Receiver is a full boss encounter: Receiver has 300 HP, Caller 105 HP and
+Keeper 135 HP (each reduced by 25% after playtesting). The trio retains its
+existing attack, defence, speed and coordination mechanics. It has
 no dedicated boss reward. Its
 authored trio now coordinates: Caller spends an action signalling a next-round
 double-damage strike; killing Caller breaks that pending signal. Keeper halves
@@ -2271,3 +2351,22 @@ Scenery-only refinement: 45 existing grids / 4,321 cells now form irregular fen 
 The fort has a rear cargo room northwest of Polwick, entered through (4,3). Eighteen former wall cells become floor/a ledger table; every original floor, exit and NPC position is retained. Four additional solid cargo crates have altered labels and broken seals. Two freight ledgers expose smuggling; the existing Flame tract now sits in the rear crate at (1,4), unchanged and repeatably readable. No loot or quest effect is attached to either inspection.
 
 After the fort report, a living Polwick speaks with recruited Esla in three completed conversations: she recognizes the illicit trade but lets it go for Lély, rejects a coded Flame overture, then answers small talk about the drought. Only Esla’s words receive her green speaker style. One ambient counter, `polwick_esla_visit_stage`, uses the established save binding registry, defaults to 0 in older v5 saves and saturates at 3 on dialogue completion. SAVE_VERSION remains 5. The earlier arrest/retry choice and all death/execution rules are unchanged; the existing lighthouse dialogue resumes after these three exchanges. If no lighthouse dialogue applies, drought talk repeats. No MainQuest, outcome, reward or faction state changes. See `Art/qa/polwick-fort/README.md` for verification and walkthrough.
+
+## South Mornay Watchhouse and Jail (uncommitted)
+
+Added `MORNAY_WATCHHOUSE_MAP`, entered from South Upper East (12,10), immediately north of East Gate. Booking, staff, notices and waiting benches are accessible; two communal cells, two singles (ten beds total) and a yard/privy are visible behind a locked screen. Existing Hadrin, Anric and Vannic identities staff it; Vannic returns to Wold's Inn on Dayoff. Old Fort redirects custody enquiries here. No bribe transaction, confiscation inventory, prisoner quest, MQ5 advancement or new save state. Mornay has 68 rooms / 17 exteriors; global catalogue 1245 maps. Only one existing grid cell changes (building → door); no regional or camera change. See MORNAY_TOWN_PLAN.md for layout, staff and walkthrough; suite 327 covers input navigation, sealed rear, repeatable interactions and save/load departure.
+
+Watchhouse verification: **263/263 regression suites pass**; 48 changed/untracked JS files pass syntax; validation **0 errors / 6 existing warnings**; all 1058 regional fingerprints unchanged; transition audit regenerated only for the new room and verified read-only. Automated Chromium 1×/2× controls and visual inspection pass, including 17 text pages fitting actual Canvas bounds. SAVE_VERSION 5. Work remains unstaged/uncommitted.
+
+
+## The Struck Entry / Sedge Hollow (2026-10-26, uncommitted)
+
+Implemented Corvin's remaining favour as a human rescue expedition. Iswen Dorr, his childhood friend on Mornay's Middle Lower West waterfront, directs the party to her mother Heddra at Sedge Hollow. The old Drenwick-office shelf remains an alternative lead; no address-fetch prerequisite was added. Seven discrete maps branch from Great Fen Gravel Spur (8,-3), with four required visible fights and one optional harder cache fight. All use existing enemies, sprites and canonical combat, including solo Lely and temporary Esla absence. Existing regional grids, camera and main-story gates are untouched.
+
+Rescued Heddra moves to Wold's Gate Inn and injured Belric to Mornay Infirmary, preserving one identity each. The original tally and a carved childhood boat lead to Corvin's restrained family scene and restoration of his father's name. His countersignature, the player's cabinet-filing choice and Renn's 60g reward remain separate. Four defaulted save bindings use SAVE_VERSION 5; clearance, rescue and one-time loot persist. No party recruitment/equipment writes, escort engine or new bureaucratic chain. See `STRUCK_ENTRY_PLAN.md` for exact locations, formations, rewards, state ownership, verification and file inventory.
+
+Initial expedition verification (before the geography correction below): **270/270 regression suites pass**; **909 browser assertions** cover both display scales through rescue, delivery, filing and Renn's payout. Syntax checks pass for all 96 currently changed/untracked JS files; validation is **0 errors / 6 existing warnings**. Transition audit regenerated for seven maps/thirteen local doors and verified read-only; regional fingerprints unchanged. Catalogue now 1,254 maps / 497 NPCs / 149 items, SAVE_VERSION 5. No commit, merge or push; earlier uncommitted work remains preserved.
+
+Geography correction: Heddra moved from Drenwick to Sedge Hollow after her canal-crew cooking work ended, carrying papers saved from the emptied office. Iswen’s childhood and present Mornay waterfront work explain the lead. Sedge Hollow now has natural channels, a timber footbridge, cottages, kitchen gardens, drying reeds and peat; it is not a canal outpost. Drenwick’s modest canal to the western river and its locks remain unchanged. Existing internal IDs and historical tally name stay stable; the four rescue battles, optional cache fight and Corvin resolution are preserved.
+
+Correction verification: **270/270 full regression suites pass**; focused suites 333/334 pass all **16 lifecycle/navigation scenarios**, including the new forwarding-address and footbridge save/load checks. The browser fixture passes **909 checks** at 512×480 and 1024×960 through all five fights, rescue, delivery and filing; no browser errors. Automated route replay is distinct from manual marker entry/exit and visual inspection of the hamlet, footbridge and dialogue. All 96 dirty/new JavaScript files pass syntax. Validation: **0 errors / 6 existing warnings**. Transition audit matches read-only; no artifact regeneration or fingerprint edits. SAVE_VERSION **5**. All other pre-existing file bytes are preserved. Branch remains `main` at `d2861931401ccb6256137ae76646610cecb48084`; nothing staged, committed or pushed. Shared checkout now has 77 modified tracked paths and 37 untracked paths, including earlier work.

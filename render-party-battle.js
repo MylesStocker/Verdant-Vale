@@ -149,6 +149,19 @@ function partyBattleEnemySprite(id) {
     (ENEMY_GENERIC_SPRITE_IDS.has(id)?{draw:drawBattleGenericEnemy}:null);
 }
 
+// Battle-only crops of existing plates expose the floor above the command panel.
+// Coordinates are planted feet, not sprite centres. No world/collision changes.
+const PARTY_BATTLE_SCENE_STAGING = Object.freeze({
+  bethany_courtyard:Object.freeze({backgroundAssetId:'cutaway_bethany_breakfast_v1',cropY:100,
+    enemyId:'enemy_buzzy_beetle',height:56,scale:.7,
+    enemies:Object.freeze([Object.freeze({x:326,y:218}),Object.freeze({x:426,y:263})]),
+    allies:Object.freeze([Object.freeze({x:82,y:254}),Object.freeze({x:184,y:277})])}),
+  bethany_storeroom:Object.freeze({backgroundAssetId:'cutaway_bethany_storeroom_v1',cropY:70,
+    enemyId:'enemy_large_buzzy_beetle',height:96,scale:1,
+    enemies:Object.freeze([Object.freeze({x:370,y:250})]),
+    allies:Object.freeze([Object.freeze({x:84,y:253}),Object.freeze({x:184,y:277})])}),
+});
+
 function partyBattleLayout(view) {
   const fail=()=>{throw new Error('Invalid party battle presentation view');};
   const validMember=(member,side,slot)=>member&&Object.isFrozen(member)&&member.slot===slot&&
@@ -160,6 +173,11 @@ function partyBattleLayout(view) {
       !phases.includes(view.phase)||!Array.isArray(view.party)||!Object.isFrozen(view.party)||view.party.length<1||view.party.length>3||
       !Array.isArray(view.enemies)||!Object.isFrozen(view.enemies)||view.enemies.length<1||view.enemies.length>3||
       view.party.some((m,i)=>!validMember(m,'ally',i))||view.enemies.some((m,i)=>!validMember(m,'enemy',i)))fail();
+  const staging=view.stagingId===undefined?null:PARTY_BATTLE_SCENE_STAGING[view.stagingId];
+  if(view.stagingId!==undefined&&(!staging||view.backgroundAssetId!==staging.backgroundAssetId||
+      view.party.length!==2||view.party[0].characterId!=='sera'||view.party[1].characterId!=='liora'||
+      view.enemies.length!==staging.enemies.length||view.enemies.some(m=>m.id!==staging.enemyId)||
+      !Number.isFinite(view.presentationSeconds)||view.presentationSeconds<0))fail();
   const enemyFloorY=view.enemyFloorY??212;
   if(!Number.isSafeInteger(enemyFloorY)||enemyFloorY<140||enemyFloorY>212)fail();
   const ids=[...view.party,...view.enemies].map(m=>m.instanceId);
@@ -186,6 +204,18 @@ function partyBattleLayout(view) {
       (FORMATION_SPRITE_BOUNDS.get(sprite.draw)||PARTY_COMBAT_EXTRA_ENEMY_BOUNDS[member.id]||
         (canonicalEnemyIsCompatible(template)?PARTY_COMBAT_DEFAULT_ENEMY_BOUNDS:null));
     if(!sprite||!bounds)fail();
+    if(staging){
+      const p=staging.enemies[index],x=count===1?16:start+index*step;
+      // Alive beetles cycle independently; defeat and departure hold the neutral
+      // pose. All frames retain exactly the same floor contact and height.
+      const frame=member.hp>0&&!member.unusual?.departed
+        ?SERA_LIORA_SCENE_METRICS.cycle[Math.floor((view.presentationSeconds+index*.2)/.2)%SERA_LIORA_SCENE_METRICS.cycle.length]:1;
+      return Object.freeze({instanceId:member.instanceId,slot:index,composition:'scene',
+        x,width:count===1?480:width,label:member.name+(count>1?' '+String.fromCharCode(65+index):''),
+        spriteX:0,spriteY:64,spriteWidth:512,spriteHeight:233,scale:staging.scale,
+        anchorX:p.x,anchorY:p.y,targetCursorX:p.x,targetCursorY:p.y-staging.height-16,
+        frame,height:staging.height});
+    }
     if(count===1) {
       const p=SINGLETON_ENEMY_BATTLE_LAYOUT;
       return Object.freeze({instanceId:member.instanceId,slot:index,composition:'singleton',x:p.hpX,width:p.hpWidth,
@@ -199,14 +229,15 @@ function partyBattleLayout(view) {
       anchorX:x+width/2-scale*(bounds[0]+bounds[2])/2,anchorY:enemyFloorY-scale*bounds[3]});
   });
   const allies=view.party.map((member,slot)=>Object.freeze({instanceId:member.instanceId,slot,
-    x:PARTY_COMBAT_ALLY_SLOTS[slot].x,anchorY:PARTY_COMBAT_ALLY_SLOTS[slot].anchorY,feetY:277}));
+    ...(staging?{scene:true,x:staging.allies[slot].x,anchorY:staging.allies[slot].y,feetY:staging.allies[slot].y}:
+      {x:PARTY_COMBAT_ALLY_SLOTS[slot].x,anchorY:PARTY_COMBAT_ALLY_SLOTS[slot].anchorY,feetY:277})}));
   let target=null;
   if(view.phase==='targeting'&&view.targetMode!=='all') {
     const source=view.targetSide==='ally'?allies:enemies,position=source.find(p=>p.instanceId===view.selectedTargetInstanceId);
     if(!position)fail();
     target=Object.freeze({side:view.targetSide,instanceId:position.instanceId,slot:position.slot,
       x:view.targetSide==='ally'?position.x:(position.targetCursorX??position.x+position.width/2),
-      y:view.targetSide==='ally'?190:(position.targetCursorY??63)});
+      y:view.targetSide==='ally'?(position.scene?position.anchorY-103:190):(position.targetCursorY??63)});
   }
   return Object.freeze({allies:Object.freeze(allies),enemies:Object.freeze(enemies),target,...(view.phase==='targeting'&&view.targetMode==='all'?{targetIds:Object.freeze([...view.validTargetIds])}:{})});
 }
@@ -326,18 +357,25 @@ function drawPartyCombatEnemy(member,position,selected) {
   }
   const sprite=ENEMY_SPRITE_DISPATCH[member.id]||partyBattleEnemySprite(member.id);ctx.save();ctx.beginPath();ctx.rect(position.spriteX,position.spriteY,position.spriteWidth,position.spriteHeight);ctx.clip();
   // Registered sprites own their optional defaults (pose or palette).
-  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;sprite.draw(0,0);ctx.restore();
+  if(position.composition==='scene'&&!member.unusual?.departed){
+    ctx.fillStyle=member.hp===0?'rgba(31,28,23,0.10)':'rgba(31,28,23,0.30)';
+    ctx.beginPath();ctx.ellipse(position.anchorX,position.anchorY+1,position.height*.65,4,0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.translate(position.anchorX,position.anchorY);ctx.scale(position.scale,position.scale);ctx.globalAlpha=member.unusual?.departed?0:member.hp===0?0.25:1;
+  if(position.composition==='scene')sprite.draw(0,0,{frame:position.frame});else sprite.draw(0,0);ctx.restore();
   ctx.fillStyle='#08121e';ctx.fillRect(position.x,12,position.width,50);ctx.fillStyle=member.hp===0?'#718078':'#c0dcd0';ctx.font='bold 12px "Courier New", monospace';ctx.fillText(position.label,position.x+4,27,position.width-8);
   ctx.fillStyle='#0a1e18';ctx.fillRect(position.x+4,36,position.width-8,7);ctx.fillStyle=member.hp===0?'#31483d':'#3a8a5a';ctx.fillRect(position.x+4,36,Math.round((position.width-8)*member.hp/member.maxHp),7);
   ctx.fillStyle=member.hp===0?'#66756d':'#7ab898';ctx.font='11px "Courier New", monospace';ctx.fillText(`${member.hp} / ${member.maxHp}`,position.x+4,57,position.width-8);
   if(member.braced&&member.hp>0){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('BRACE',position.x+position.width-39,57,35);}
   if(member.unusual?.departed){ctx.fillStyle='#c8a868';ctx.font='bold 9px "Courier New", monospace';ctx.fillText('FLED',position.x+position.width-39,57,35);}
-  if(selected&&member.hp>0&&!member.unusual?.departed)drawPartyCombatTargetCursor(position.x+position.width/2,63);
+  if(selected&&member.hp>0&&!member.unusual?.departed)drawPartyCombatTargetCursor(position.targetCursorX??position.x+position.width/2,position.targetCursorY??63);
 }
 function drawPartyCombatAlly(member,position,targeted) {
   const sprite=PARTY_COMBAT_ALLY_SPRITES[member.characterId];if(!sprite)throw new Error('Invalid party battle ally sprite');
-  ctx.save();ctx.globalAlpha=member.hp===0?0.25:1;sprite.draw(position.x,sprite.anchorY);ctx.restore();
-  if(targeted&&member.hp>0)drawPartyCombatTargetCursor(position.x,190);
+  ctx.save();ctx.globalAlpha=member.hp===0?0.25:1;
+  if(position.scene){ctx.fillStyle='rgba(31,28,23,0.22)';ctx.beginPath();ctx.ellipse(position.x,position.feetY+1,15,3,0,0,Math.PI*2);ctx.fill();}
+  sprite.draw(position.x,position.scene?position.anchorY:sprite.anchorY);ctx.restore();
+  if(targeted&&member.hp>0)drawPartyCombatTargetCursor(position.x,position.scene?position.anchorY-103:190);
 }
 function drawPartyCombatStatusRow(member,row,effect,choosing=false,resonance=null) {
   const y=357+row*18,barX=102,segments=12,filled=Math.round(segments*member.hp/member.maxHp);
@@ -381,7 +419,13 @@ function drawPartyBattle(view) {
   if(view.backgroundAssetId){
     const asset=IMAGE_ASSET_REGISTRY[view.backgroundAssetId],image=loadedImageAsset(view.backgroundAssetId);
     if(!asset||asset.use!=='cutaway_background'||asset.width!==512||asset.height!==480||!image)throw Error('Invalid party battle background');
-    ctx.drawImage(image,0,0,512,480);
+    const staging=PARTY_BATTLE_SCENE_STAGING[view.stagingId];
+    if(staging){
+      // Cover the whole previous scene, including the margins outside the UI.
+      ctx.fillStyle='#08121e';ctx.fillRect(0,0,512,480);
+      ctx.drawImage(image,0,staging.cropY,512,297,0,0,512,297);
+    }
+    else ctx.drawImage(image,0,0,512,480);
   }else drawBattleBackground();
   layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,layout.targetIds?.includes(position.instanceId)||layout.target?.side==='enemy'&&layout.target.instanceId===position.instanceId));
   layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,

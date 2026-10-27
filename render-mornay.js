@@ -18,12 +18,12 @@ const MORNAY_STREET_DRESSING = Object.freeze({
   MORNAY_MIDDLE_LOWER_CENTRAL_EAST_MAP: ['tools','printing'],
   MORNAY_MIDDLE_LOWER_EAST_MAP: ['laundry','housing'],
   MORNAY_SOUTH_UPPER_WEST_MAP: ['laundry','care'],
-  MORNAY_SOUTH_UPPER_EAST_MAP: ['market','school'],
+  MORNAY_SOUTH_UPPER_EAST_MAP: ['stone','watch'],
   MORNAY_WEST_GATE_MAP: ['cart','lodging'],
   MORNAY_EAST_GATE_MAP: ['cart','hiring']
 });
 const MORNAY_DOOR_LABELS = Object.freeze({
-  office:'REGIONAL IJC',infirmary:'INFIRMARY',provisioner:'PROVISIONS',apothecary:'APOTHECARY',
+  watchhouse:'WATCHHOUSE / JAIL',office:'REGIONAL IJC',infirmary:'INFIRMARY',provisioner:'PROVISIONS',apothecary:'APOTHECARY',
   workgear:'WORK GEAR',chandler:'CHANDLERY',gate_inn:"WOLD'S INN",commercial_inn:'LEDGER HOUSE',
   school:'WARD SCHOOL',harbour:'HARBOUR / CUSTOMS',warehouse:'FEN WAREHOUSE',workshop:'WORKSHOPS',
   laundry:'LAUNDRY',boarding:'BOARDING',court:'SHARED COURT'
@@ -37,6 +37,25 @@ function drawMornayChair(x,y) {
 }
 function drawMornayFixture(f) {
   const x=f.col*TILE,y=f.row*TILE;
+  if(f.kind==='bars'||f.kind==='barredDoor'){
+    const vertical=f.axis==='vertical';
+    ctx.fillStyle='#343e3f';
+    for(const rail of [5,24])ctx.fillRect(x+(vertical?rail:0),y+(vertical?0:rail),vertical?3:32,vertical?32:3);
+    ctx.fillStyle='#777e75';
+    for(let n=3;n<32;n+=7)ctx.fillRect(x+(vertical?5:n),y+(vertical?n:3),vertical?22:3,vertical?3:26);
+    if(f.kind==='barredDoor'){
+      ctx.fillStyle='#ad9060';ctx.fillRect(x+13,y+12,7,9);
+      ctx.fillStyle='#272d2b';ctx.fillRect(x+16,y+15,2,4);
+    }
+    return;
+  }
+  if(f.kind==='privy'){
+    ctx.fillStyle='#423b2d';ctx.fillRect(x+2,y+2,28,30);
+    ctx.fillStyle='#71674d';ctx.fillRect(x+4,y+6,24,25);
+    ctx.fillStyle='#2d3028';ctx.fillRect(x+10,y+12,12,19);
+    ctx.fillStyle='#93856a';ctx.fillRect(x,y,32,6);ctx.fillRect(x+20,y+24,3,2);
+    return;
+  }
   if(f.kind==='bed'){drawInfirmaryBed(x,y,f.w||2);return;}
   if(f.kind==='table'){drawTable(x,y);return;}
   if(f.kind==='homebed'){
@@ -176,6 +195,9 @@ function drawMornayContent() {
   const id=mapIdForRef(activeMap),room=mornayRoomForMap(id);
   ctx.save();
   if(room){
+    // Doors and stairs identify themselves; omit navigation captions in-world.
+    const entrance=mornayInteriorEntrance(room);
+    drawInteriorExit(entrance.col*TILE,entrance.exitRow*TILE,false);
     // The existing terrain remains visible; a light floor motif gives each kind
     // its own palette without painting over doors, actors or furniture.
     const colors={infirmary:'#626b63',school:'#716a51',office:'#63616a',warehouse:'#555044',laundry:'#53636a'};
@@ -201,6 +223,31 @@ function drawMornayContent() {
       ctx.fillStyle='#303a3d';ctx.fillRect(48,37,416,20);
       ctx.fillStyle='#c8c0a3';ctx.font='10px "Courier New", monospace';ctx.fillText('ORDINARY CARE · REGISTERED HEALER ON STAFF',256,51);
     }
+    if(room.kind==='watchhouse'){
+      // Reuse the sluice's damp masonry vocabulary without importing its tile
+      // semantics. These remain ordinary, encounter-free interior tiles.
+      for(let row=0;row<15;row++)for(let col=0;col<16;col++){
+        const tile=activeMap[row][col];
+        if(tile===INTERIOR_WALL)drawSluiceWall(col*TILE,row*TILE);
+        else if((tile===INTERIOR_FLOOR||tile===TABLE)&&!(row<5&&col<5))drawSluiceFloor(col*TILE,row*TILE);
+      }
+      // The yard is visible beyond the locked screen; its enclosure is authored
+      // collision, while gravel, damp and windows are presentation only.
+      for(let row=7;row<=13;row++)for(let col=12;col<=14;col++){
+        ctx.fillStyle='#777465';ctx.fillRect(col*TILE,row*TILE,TILE,TILE);
+        ctx.fillStyle='#5c6154';ctx.fillRect(col*TILE+5,row*TILE+8,3,2);ctx.fillRect(col*TILE+22,row*TILE+24,4,2);
+      }
+      for(const col of [2,4,8,10]){
+        ctx.fillStyle='#263b39';ctx.fillRect(col*TILE+4,14*TILE+3,22,19);
+        ctx.fillStyle='#7b8276';for(let dx=7;dx<27;dx+=7)ctx.fillRect(col*TILE+dx,14*TILE+3,2,19);
+        ctx.fillStyle='#4c5c4b';ctx.fillRect(col*TILE,14*TILE+24,26,3);
+      }
+      ctx.fillStyle='#4d4536';ctx.fillRect(14*TILE+3,4*TILE+1,26,25);
+      ctx.fillStyle='#c7b891';ctx.fillRect(14*TILE+6,4*TILE+3,20,20);
+      ctx.fillStyle='#68604e';for(let i=0;i<4;i++)ctx.fillRect(14*TILE+9,4*TILE+7+i*4,14,1);
+      // Patched desk and salt-damaged masonry, without extra collision.
+      ctx.fillStyle='#6b7564';ctx.fillRect(32,100,5,23);ctx.fillRect(477,280,3,55);
+    }
     if(room.kind==='attic'){
       // Pinned drying sheets and patched roof timbers: read-only room dressing.
       for(let col=3;col<=11;col+=4){
@@ -225,7 +272,10 @@ function drawMornayContent() {
         ctx.fillStyle='#aaa08a';ctx.fillRect(x+22,y+11,1,15);ctx.fillRect(x+20,y+25,5,2);
         continue;
       }
-      if(child.connection==='stairs')drawMornayStairs(child.doorCol,child.doorRow,true);
+      if(child.connection==='stairs'){
+        drawMornayStairs(child.doorCol,child.doorRow,true);
+        continue;
+      }
       const x=(child.doorCol+.5)*TILE,y=child.doorRow*TILE-5,label=child.sign||'ROOMS';
       ctx.font='10px "Courier New", monospace';const w=ctx.measureText(label).width+8;
       ctx.fillStyle='#48483e';ctx.fillRect(x-w/2,y-9,w,12);
@@ -263,6 +313,14 @@ function drawMornayContent() {
 
     }
     for(const b of MORNAY_BUILDINGS.filter(b=>b.sourceMapId===id)){
+      if(b.kind==='watchhouse'){
+        for(const col of [11,13]){
+          const x=col*TILE,y=12*TILE;
+          ctx.fillStyle='#293633';ctx.fillRect(x+5,y+3,22,21);
+          ctx.fillStyle='#8a8e80';for(let dx=8;dx<27;dx+=7)ctx.fillRect(x+dx,y+3,2,21);
+          ctx.fillStyle='#58604d';ctx.fillRect(x+3,y+26,26,3);
+        }
+      }
       if(['house','corridor','boarding'].includes(b.kind))drawMornayResidentialWindows(b.doorCol,b.doorRow,b.facing,b.kind!=='house');
       const text=MORNAY_DOOR_LABELS[b.key]||b.sign,x=(b.doorCol+.5)*TILE,y=b.doorRow*TILE+(b.facing==='up'?44:-9);
       ctx.font='bold 10px "Courier New", monospace';ctx.textAlign='center';
@@ -302,7 +360,7 @@ function drawMornayRoomActors() {
   const room=mornayRoomForMap(mapIdForRef(activeMap));
   if(!isMornayRoomView()||!room)return;
   const layers=MORNAY_ROOM_FIXTURES[room.id].map(f=>({depth:f.row*TILE+24,draw:()=>drawMornayFixture(f)}));
-  for(const npc of MORNAY_NPCS.filter(n=>n.map===currentContentLocationKey()))
+  for(const npc of [...MORNAY_NPCS,...FINE_NEEDLEWORK_NPCS,...TWO_JORANS_NPCS].filter(n=>n.map===currentContentLocationKey()))
     layers.push({depth:npc.y+8,draw:()=>drawOneContentNPC(npc)});
   layers.push({depth:player.y+8,draw:()=>drawPlayer()});
   layers.sort((a,b)=>a.depth-b.depth);

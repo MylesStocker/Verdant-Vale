@@ -3724,10 +3724,11 @@ function drawGalleryBattleCreature(kind,x,y,pose='idle') {
 function drawBattleReceiver(x,y,pose) { drawGalleryBattleCreature('receiver',x,y,pose); }
 function drawBattleCaller(x,y,pose) { drawGalleryBattleCreature('caller',x,y,pose); }
 function drawBattleKeeper(x,y,pose) { drawGalleryBattleCreature('keeper',x,y,pose); }
-// Reuse the approved breakfast creature sheet; no new art or animation state.
+// Reuse the approved breakfast sheet. Optional presentation pose is read-only;
+// ordinary callers keep the neutral frame without acquiring an animation clock.
 function drawBattleBuzzyBeetle(x,y,pose,scale=2.5) {
   ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
-  drawBreakfastBeetle({x:0,y:0,frame:1,facing:'left'});ctx.restore();
+  drawBreakfastBeetle({x:0,y:0,frame:pose?.frame??1,facing:'left'});ctx.restore();
 }
 function drawBattleLargeBuzzyBeetle(x,y,pose) { drawBattleBuzzyBeetle(x,y,pose,3); }
 // Eastern Fens sprites use the same Canvas shapes and restrained pixel palette

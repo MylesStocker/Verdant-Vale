@@ -7,7 +7,11 @@ const before=require('../fixtures/wetwoods-invariants.json');
 module.exports={name:'Wetwoods and Thornmere: scenery-only expansion, unchanged ordinary gameplay/cameras, closed starting routes and coherent freshwater basin',run(){
  const g=createContext(),d=J(g,'({chunks:_REGIONAL_CHUNK_DEFINITIONS,edges:EDGE_TRANSITIONS,tiles:TILE_PROPERTIES})'),byId=new Map(d.chunks.map(c=>[c.mapId,c])),net=graph(d);
  assert.equal(sha(d.tiles),before.tileRegistrySha256,'reuse every existing tile definition');
- for(const [id,fp]of Object.entries(before.protectedGrids))assert.equal(sha(byId.get(id).map),fp,id+' preserves ordinary gameplay terrain');
+ // Keep the historical fixture strict while accounting for the later, single
+ // approved Reedbank entrance. Normalize a detached copy only, never live grids.
+ const reedbank=JSON.parse(JSON.stringify(byId.get('MAINLAND_C22R3_MAP').map));
+ assert.equal(reedbank[8][3],54,'the approved village marker is present');reedbank[8][3]=0;
+ for(const [id,fp]of Object.entries(before.protectedGrids))assert.equal(sha(id==='MAINLAND_C22R3_MAP'?reedbank:byId.get(id).map),fp,id+' preserves every other ordinary gameplay tile');
  assert.deepEqual([Math.min(...d.chunks.map(c=>c.chunkX)),Math.max(...d.chunks.map(c=>c.chunkX)),Math.min(...d.chunks.map(c=>c.chunkY)),Math.max(...d.chunks.map(c=>c.chunkY))],before.bounds,'global camera extent is unchanged and within west/south limits');
  const cut=net.key('EASTERN_FENS_TRAVELLERS_RISE_MAP',10,7);
  for(const [label,id,x,y,block]of [['early','MAP3',8,11,-1],['ferrySide','EASTERN_BANK_MAP',5,8,cut],['onward','EASTERN_FENS_WIDE_WATER_MAP',1,8,cut]]){

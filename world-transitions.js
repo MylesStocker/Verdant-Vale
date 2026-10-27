@@ -260,6 +260,7 @@ function validatePlacement(spec) {
 // Story/quest/dialogue/reward/NPC-reroll side effects belong in the wrapper
 // functions, NOT here.
 function transitionToLocation(spec) {
+  if (riverWrestling.isActive()) return false;
   if (galleryReceiverEncounter.isLocked()) return false;
   if (!spec || typeof spec !== 'object') { console.warn('transitionToLocation: no spec'); return false; }
   // Resolve + validate the whole placement through the ONE shared preflight:

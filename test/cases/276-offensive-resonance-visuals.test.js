@@ -19,9 +19,13 @@ function centers(paint){return [...new Set(paint.filter(p=>p.type==='stroke').ma
  ])))].map(s=>JSON.parse(s)).sort((a,b)=>a[0]-b[0]);}
 function expectedCenters(g,event){const ids=event.hits?event.hits.map(hit=>hit.targetId):[event.targetId];
  return J(g,'partyBattleLayout('+source+').enemies').filter(e=>ids.includes(e.instanceId)).map(e=>[e.anchorX,e.anchorY-36]).sort((a,b)=>a[0]-b[0]);}
-function hold(g,duration){const initial=view(g),calls=g.run('calls'),before=room(g).resources,initialPaint=draw(g);
- assert.equal(blocks(g),true);g.press('Enter');assert.deepEqual(view(g),initial,'confirm cannot skip an unstarted effect');
- g.frames(duration-1);assert.equal(blocks(g),true);assert.ok(Math.abs(g.run(animation+'.getView().frame')-(duration-1))<1e-8);g.press('Enter');assert.deepEqual(view(g),initial,'confirm cannot skip the last visible frame');assert.notDeepEqual(draw(g),initialPaint,'effect geometry advances with presentation time');
+function hold(g,duration){
+ // The ambient sprite clock may advance while the authenticated battle event is
+ // held. Everything else in the view, including damage/history, must stay exact.
+ const heldView=()=>{const {presentationSeconds,...battle}=view(g);return battle;};
+ const initial=heldView(),initialSeconds=view(g).presentationSeconds,calls=g.run('calls'),before=room(g).resources,initialPaint=draw(g);
+ assert.equal(blocks(g),true);g.press('Enter');assert.deepEqual(heldView(),initial,'confirm cannot skip an unstarted effect');
+ g.frames(duration-1);assert.equal(blocks(g),true);assert.ok(Math.abs(g.run(animation+'.getView().frame')-(duration-1))<1e-8);g.press('Enter');assert.deepEqual(heldView(),initial,'confirm cannot skip the last visible frame');assert.notDeepEqual(draw(g),initialPaint,'effect geometry advances with presentation time');assert.ok(view(g).presentationSeconds>initialSeconds,'ambient animation continues during the held effect');
  assert.deepEqual(room(g).resources,before);assert.equal(g.run('calls'),calls);g.frames(1);assert.equal(blocks(g),false);assert.ok(Math.abs(g.run(animation+'.getView().frame')-duration)<1e-8);assert.deepEqual(draw(g),[],'completed effects disappear before playback continues');
  g.press('Enter');assert.ok(view(g).frameIndex>initial.frameIndex);assert.equal(g.run('calls'),calls);
 }
