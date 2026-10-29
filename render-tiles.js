@@ -986,6 +986,50 @@ function drawTownBuilding(x, y) {
   ctx.fillRect(x, y, TILE, 2);
 }
 
+// Overworld-scale settlement vignettes. Deliberately confined to one tile so
+// viewport culling works identically in continuous and legacy presentation.
+// No active-map lookup, animation, random draw or gameplay state is involved.
+function drawSettlementRoofs(x,y) {
+  ctx.fillStyle='#747357';ctx.fillRect(x,y,TILE,TILE);
+  ctx.fillStyle='#b0a183';ctx.fillRect(x+13,y,4,32);ctx.fillRect(x,y+15,32,3);
+  for(const [dx,dy,w,h,roof]of [[1,2,11,9,'#805a43'],[19,1,12,11,'#625b54'],[2,21,10,9,'#6c6551'],[19,20,12,10,'#8a644b']]){
+    ctx.fillStyle='#454b43';ctx.fillRect(x+dx+1,y+dy+2,w,h);
+    ctx.fillStyle='#c2b18a';ctx.fillRect(x+dx,y+dy+4,w,h-3);
+    ctx.fillStyle=roof;ctx.fillRect(x+dx+4,y+dy,w-8,2);ctx.fillRect(x+dx+2,y+dy+2,w-4,2);ctx.fillRect(x+dx,y+dy+4,w,2);
+    ctx.fillStyle='#b29a75';ctx.fillRect(x+dx+4,y+dy,w-8,1);
+    ctx.fillStyle='#4b4840';ctx.fillRect(x+dx+1,y+dy+5,w-2,1);
+    ctx.fillStyle='#363e3c';ctx.fillRect(x+dx+3,y+dy+7,2,2);
+  }
+}
+function drawSettlementFort(x,y) {
+  ctx.fillStyle='#6b745a';ctx.fillRect(x,y,TILE,TILE);
+  ctx.fillStyle='#444c46';ctx.fillRect(x+3,y+5,27,26);
+  ctx.fillStyle='#aaa28b';ctx.fillRect(x+3,y+4,25,24);
+  ctx.fillStyle='#686f62';ctx.fillRect(x+9,y+10,13,13);
+  ctx.fillStyle='#84725b';ctx.fillRect(x+11,y+10,10,7);
+  for(const [dx,dy]of [[2,2],[22,2],[2,22],[22,22]]){
+    ctx.fillStyle='#b7b09a';ctx.fillRect(x+dx,y+dy,8,8);
+    ctx.fillStyle='#777b70';ctx.fillRect(x+dx+2,y+dy+2,4,4);
+    ctx.fillStyle='#d0c4a3';ctx.fillRect(x+dx,y+dy,2,3);ctx.fillRect(x+dx+6,y+dy,2,3);
+  }
+  ctx.fillStyle='#343f3c';ctx.fillRect(x+13,y+23,5,7);
+  ctx.fillStyle='#c8b185';ctx.fillRect(x+14,y+28,3,4);
+}
+function drawSettlementHarbour(x,y) {
+  ctx.fillStyle='#345160';ctx.fillRect(x,y,TILE,TILE);
+  ctx.fillStyle='#66818a';ctx.fillRect(x+1,y+5,6,1);ctx.fillRect(x+3,y+25,7,1);
+  ctx.fillStyle='#a49a7c';ctx.fillRect(x+17,y,15,32);
+  ctx.fillStyle='#625e4d';ctx.fillRect(x+16,y,2,32);
+  ctx.fillStyle='#a08459';ctx.fillRect(x+5,y+9,13,3);ctx.fillRect(x+4,y+22,14,3);
+  ctx.fillStyle='#c4af83';ctx.fillRect(x+6,y+9,10,1);ctx.fillRect(x+5,y+22,11,1);
+  ctx.fillStyle='#473f32';ctx.fillRect(x+7,y+13,7,7);
+  ctx.fillStyle='#ba9b62';ctx.fillRect(x+8,y+12,5,7);
+  ctx.fillStyle='#d1c49e';ctx.fillRect(x+10,y+11,1,10);
+  ctx.fillStyle='#d3c29b';ctx.fillRect(x+21,y+7,9,8);ctx.fillRect(x+21,y+22,9,7);
+  ctx.fillStyle='#715842';ctx.fillRect(x+20,y+3,11,6);ctx.fillRect(x+20,y+18,11,6);
+  ctx.fillStyle='#3e4945';ctx.fillRect(x+24,y+12,3,3);ctx.fillRect(x+24,y+26,3,3);
+}
+
 // Overworld tile — town gate/archway with warm glow
 function drawTownEntranceTile(x, y) {
   drawPath(x, y);
@@ -2586,6 +2630,9 @@ function drawTile(id, x, y) {
     case DUNGEON2_STAIRS_UP:  drawDungeon2StairsUp(x, y); break;
     case TOWN_FLOOR:          drawTownFloor(x, y);        break;
     case TOWN_BUILDING:       drawTownBuilding(x, y);     break;
+    case TOWN_ROOFS:          drawSettlementRoofs(x,y);   break;
+    case TOWN_FORT:           drawSettlementFort(x,y);    break;
+    case TOWN_HARBOUR:        drawSettlementHarbour(x,y); break;
     case TOWN_ENTRANCE:       drawTownEntranceTile(x, y); break;
     case TOWN_EXIT:           drawTownExit(x, y);         break;
     case INN_DOOR:            drawInnDoor(x, y);          break;
@@ -2713,6 +2760,7 @@ function drawTile(id, x, y) {
 const RENDERABLE_TILE_IDS = new Set([
   GRASS, WATER, PATH, TREE, DUNGEON_FLOOR, DUNGEON_WALL, DUNGEON_ENTRANCE, DUNGEON_EXIT,
   DUNGEON2_FLOOR, DUNGEON2_WALL, DUNGEON_STAIRS_DOWN, DUNGEON2_STAIRS_UP,
+  TOWN_ROOFS, TOWN_FORT, TOWN_HARBOUR,
   TOWN_FLOOR, TOWN_BUILDING, TOWN_ENTRANCE, TOWN_EXIT, INN_DOOR, OFFICE_DOOR,
   INTERIOR_FLOOR, INTERIOR_WALL, INTERIOR_EXIT, TOWN_MARKET, NOTICE_BOARD, REEDS,
   EAST_ENTRANCE, EAST_EXIT, SLUICE_ENTRANCE, SLUICE_FLOOR, SLUICE_WALL, SLUICE_EXIT,

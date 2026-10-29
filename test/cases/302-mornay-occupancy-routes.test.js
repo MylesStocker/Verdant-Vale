@@ -2,7 +2,7 @@
 const assert=require('assert/strict');
 const {J,fresh,place,reachable,talk,dismiss}=require('./301-mornay-manifest.test');
 module.exports={
- name:'Mornay occupancy: all 300 conversations reachable on workday and Dayoff; patrols sweep safely, pause and resume',
+ name:'Mornay occupancy: all 311 conversations reachable on workday and Dayoff; patrols sweep safely, pause and resume',
  run(){
   for(const day of [1,5]){
    const g=fresh();g.run(`day=${day};`);
@@ -17,7 +17,7 @@ module.exports={
       ? [[240,416],[240,400]] : [[240,240],[272,240]];
     for(const [x,y]of required)assert.ok(points.some(p=>p[0]===x&&p[1]===y),map+' clear central circulation '+x+','+y);
    }
-   assert.equal(spoken,300);
+   assert.equal(spoken,311);
   }
   const g=fresh(),patrols=J(g,'MORNAY_RESIDENTS.filter(n=>n.patrol)');assert.equal(patrols.length,12);
   for(const r of patrols){

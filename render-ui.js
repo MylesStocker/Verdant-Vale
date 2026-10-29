@@ -1629,7 +1629,7 @@ function drawDebugMenu() {
   if (formationCombatLab.isMenuOpen()) { drawFormationLabMenu(); return; }
 
   const W = 512, H = 480;
-  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 388;
+  const PW = DEBUG_MENU_PANEL_WIDTH, PH = 412;
   const PX = Math.floor((W - PW) / 2);
   const PY = Math.floor((H - PH) / 2);
 
@@ -1665,6 +1665,7 @@ function drawDebugMenu() {
     { type: 'action', label: '[ DEV: Formation Combat Lab ]' },
     { type: 'action', label: '[ DEV: Party Combat Lab ]' },
     { type: 'action', label: '[ DEV: Story Checkpoint Lab ]' },
+    { type: 'action', label: '[ Pinky Promise Animation ]' },
   ];
 
   rows.forEach((row, i) => {

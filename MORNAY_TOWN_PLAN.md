@@ -1,6 +1,30 @@
 # Mornay Population and Services MVP Plan
 
 
+## The Fleck — northeast peninsula extension (2026-10-28)
+
+The confirmed extension is **two town screens**, one north of North Mornay — Upper East and a second east of that. The irregular shore uses existing water, street, building, door and deck tiles. Town coordinates are distinct from regional overworld coordinates. The water gap west of Net Lane remains closed toward Old Fort; boats, harbour departures and future island content remain inert.
+
+| Map | Town coordinate | Role and access |
+|---|---|---|
+| `MORNAY_FLECK_NECK_MAP` — Net Lane | (1,0) | Southern link to North Upper East; eastern link to Water Steps. Crooked Oar tavern, Fleck House tenement, nets and laundry. 173/240 water cells. |
+| `MORNAY_FLECK_POINT_MAP` — Water Steps | (2,0) | Western return only. Nerys's smoking shed and sales hatch, fish baskets, two tethered rowboats, uneven landing, Oswin fishing inconveniently on the upper steps. 180/240 water cells. |
+
+**Seven new accessible rooms:** Crooked Oar; Fleck House main-floor hall; lower landing; two main-floor apartments; two lower apartments. Four additional self-contained dwellings are represented. These are compressed examples, not an eight-thousand-person housing census. The main-floor entrance is on the interior's north wall because the player enters southward. Main hall stairs descend; lower-landing stairs return upward. Existing furnishing/collision and room transition authorities apply.
+
+Lower rooms have persistent-looking water stains, puddles, bailing tubs and raised-bedding dialogue. Twelve gold weekly upstairs versus three downstairs is revisable flavour, not a rental mechanic. Onshore storms push freshwater Valmere into the lower rooms even during drought; there is no tide simulation or new flooding state.
+
+**Eleven additional residents**, listed in the complete roster below, connect the tavern, smoker, net work, boats and housing. Nerys, Oswin and Tessa are exterior; Brenna, Edric, Mavis, Ulric, Ada, Keir, Elsie and Orrin are inside. The historic comparable resident roster rises from 300 to **311**: **96 exterior / 215 interior** on workdays, **90 / 221** on Dayoff; Drenwick remains 99, a **3.14×** ratio. Existing resident identities, schedules and quest characters remain intact.
+
+The Crooked Oar sells **Smoked Lake Fish** (18g, heals 20); Nerys's hatch sells the same food and ordinary **Bait** (6g). Both use normal shops, including sale and save/load behavior. The tavern is a food counter and social room, not an additional inn.
+
+Fish from the lowest landing at local **(11.5,11.5)** with an existing rod and one bait. The existing Drenwick prompt game uses a cast-local Fleck profile: rods 1/2/3 require **10/9/8 prompts** with **72/90/108-frame windows**, versus Drenwick's unchanged 7/6/5 and 120/150/180. Success gives Valmere Perch (24 HP, sale 11g) or Lake Pike (36 HP, sale 19g); pike chances are 42/54/66%. There are no quest-letter or boot rolls here. A missed, timed-out or cancelled cast loses its bait without reward. Saving/loading during a transient cast is refused; dismissed catches save through ordinary inventory. No new save fields, flags or reputation.
+
+**Existing-grid delta:** only North Upper East column 7, row 0 changes WATER (1) → NORTH_EXIT (43). Nine new maps bring Mornay to **19 exteriors / 75 interiors**, global catalogue **1,263**. No regional overworld grid, camera or tile ID changes. Town links increase from 46 to 50 directed edges. Names, prices, fishing tuning and flavour remain revisable content rather than immutable canon. Flooding is environmental presentation; boats do not provide travel.
+
+Verification and screenshots: `Art/qa/mornay/fleck-v1/README.md`. Walk north from North Upper East, visit both Net Lane buildings and the lower flats, then east to Nerys's hatch and the landing. Buy bait and cast from the lowest step. Return west and south by the same streets.
+
+
 ## South Mornay Watchhouse and Jail — current addition
 
 The public watchhouse occupies the lower-east civic frontage of **South Mornay — Upper East**, immediately north of the East Gate. Enter southward at **(12,10)**; return to **(12,9)** facing up. Its ordinary registered interior, `MORNAY_WATCHHOUSE_MAP` / `mornay_watchhouse`, receives the party at **(7.5,1.5)** facing down and exits through its northern door. No town street, gate, regional grid or camera policy changes.
@@ -732,6 +756,18 @@ Each row is one stable character and one concise dialogue purpose. Two pupils an
 | `mornay_ilven_reed` | Ilven Reed | `MORNAY_REED_HOME_MAP` | homebound net maker | Seated; faces left | Heba brings the difficult nets here. I can't take the quay steps now, but I can still earn by my hands. The boats going toward Drynport carry a little of my work with them. |
 | `mornay_verna_quill` | Verna Quill | `MORNAY_COURT_UNIT_4_MAP` | Nessa's mother | Seated; faces left | Nessa learnt her sums counting laundry bundles here. Now she counts what the neighbours need. I wish she'd remember that her own supper belongs in the total. |
 
+| `mornay_nerys_cade` | Nerys Cade | MORNAY_FLECK_POINT_MAP | fish smoker | stationary, facing left | The Fleck households and lake trades |
+| `mornay_oswin_tull` | Oswin Tull | MORNAY_FLECK_POINT_MAP | inconvenient angler | stationary, facing down | The Fleck households and lake trades |
+| `mornay_tessa_noll` | Tessa Noll | MORNAY_FLECK_NECK_MAP | net mender | stationary, facing left | The Fleck households and lake trades |
+| `mornay_brenna_kett` | Brenna Kett | MORNAY_FLECK_TAVERN_MAP | tavern keeper | stationary, facing down | The Fleck households and lake trades |
+| `mornay_edric_voss` | Edric Voss | MORNAY_FLECK_TAVERN_MAP | rowing boat owner | stationary, facing right | The Fleck households and lake trades |
+| `mornay_mavis_tern` | Mavis Tern | MORNAY_FLECK_HOUSE_MAP | tenement caretaker | stationary, facing right | The Fleck households and lake trades |
+| `mornay_ulric_moss` | Ulric Moss | MORNAY_FLECK_CELLAR_MAP | tenant bailing the landing | stationary, facing left | The Fleck households and lake trades |
+| `mornay_ada_firth` | Ada Firth | MORNAY_FLECK_FLAT_1_MAP | basket maker | stationary, facing left | The Fleck households and lake trades |
+| `mornay_keir_dunn` | Keir Dunn | MORNAY_FLECK_FLAT_2_MAP | day labourer | stationary, facing right | The Fleck households and lake trades |
+| `mornay_elsie_marr` | Elsie Marr | MORNAY_FLECK_FLAT_3_MAP | lower-room resident | stationary, facing left | The Fleck households and lake trades |
+| `mornay_orrin_dell` | Orrin Dell | MORNAY_FLECK_FLAT_4_MAP | lower-room resident | stationary, facing right | The Fleck households and lake trades |
+
 ## Implementation decisions and reservations
 
 - Reuse the 17-map topology and all existing regional grids. New ordinary building doors are explicit registry entries; room IDs use `mornay_` prefixes so Calwick/Drenwick handlers cannot claim them.
@@ -1263,3 +1299,13 @@ the barred jail, activate Old Fort plot content or advance MQ5. The supply box
 uses an existing blocked wall cell; no floor plan, doorway or terrain changes.
 See `MORNAY_TWO_JORANS_PLAN.md` for exact identities, locations and persistence.
 Names and local phrasing remain revisable content.
+
+
+### Overworld approach presentation — 2026-10-28
+
+The approach is a modest one-to-two-tile road, with grassy shoulders replacing excess paving. It ends at the two southern gate markers, with no paved route beside the walls. The same compact two-by-three overworld footprint now shows a northwestern fort, western harbour and dense roofs above the gates. These are town-scale symbols, not extra playable districts or harbour departures. All town geography, services, Fleck content and future reservations remain unchanged. West and East returns stay at crown-local (240,144) and (272,144), facing south. Exact deltas and visual evidence: `Art/qa/mornay/overworld-marker-v1/`.
+
+
+### Mornay marker shifted north — 2026-10-28
+
+Follow-up to the road/marker pass: the two-by-three marker moves one row north within `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` (now rows 0–2, columns 7–8). Its gates are at row 2; the former gate cells on row 3 become road. Water replaces grass at row 2, columns 6 and 9, preventing lateral entry. Nine tile values change in this follow-up; no other regional grid changes. Return landings remain (240,144)/(272,144), now two rows south of the gates, facing down. Town maps, cameras, seams and SAVE_VERSION 5 are unchanged. Exact deltas are in `test/fixtures/mornay-north-shift.json`; suite 338 tests side collisions, southern gate round trips/save-load and connected shore ground. See `Art/qa/mornay/north-shift-v1/README.md` for evidence.

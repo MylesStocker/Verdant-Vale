@@ -4,6 +4,7 @@ const {createContext} = require('../harness');
 const {sha} = require('../regional-atlas');
 const {J} = require('./317-mainland-navigation.test');
 const before = require('../fixtures/valmere-shore-invariants.json');
+const {historicalChunks,historicalTiles} = require('../fixtures/mornay-marker-history');
 
 module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, playable grids, access, seams and connected open water', run() {
   const g = createContext();
@@ -11,7 +12,7 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
   const changed = new Set(before.changedIds);
   // The later Reedbank village changes exactly one tile and its descriptive
   // note. Prove those values, then compare detached copies to the old fixture.
-  const historical=JSON.parse(JSON.stringify(d.chunks));
+  const historical=historicalChunks(d.chunks);
   const reedbank=historical.find(c=>c.mapId==='MAINLAND_C22R3_MAP');
   assert.equal(reedbank.map[8][3],54);reedbank.map[8][3]=0;
   assert.equal(reedbank.notes,'Reedbank village entrance on the western riverbank; existing crossing and seams retained.');
@@ -21,7 +22,7 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
   assert.equal(sha(historical.map(({map, ...rest}) => rest)), before.metadataSha256,
     'identities, coordinates, capabilities, encounters and regional bounds are unchanged');
   assert.equal(sha(d.edges), before.edgesSha256, 'no new crossings or altered transitions');
-  assert.equal(sha(d.tiles), before.tilesSha256, 'existing tile/collision authority only');
+  assert.equal(sha(historicalTiles(d.tiles)), before.tilesSha256, 'all pre-marker tile/collision definitions remain unchanged');
 
   g.run("storyCheckpointLab.apply('mq5_assignment_ready'); dialogue.open=false");
   const placement = () => g.run('JSON.stringify({position:regionalWorldPosition(),map:mapIdForRef(activeMap),x:player.x,y:player.y})');

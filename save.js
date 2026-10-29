@@ -379,6 +379,8 @@ function savedEquipmentDisposition(item) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (fishing.active) return false; // a paid cast is transient until its result is dismissed
+  if (debugPromisePreview.isOpen()) return false;
   if (riverWrestling.isActive()) return false;
   if (storyBattle.hasContext() || seraLioraBreakfastBattle.isActive()) return false; // transient resources never enter saves
   if (gameRuntimeFailure.isActive()) return false;
@@ -593,6 +595,8 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (fishing.active) return false;
+  if (debugPromisePreview.isOpen()) return false;
   if (riverWrestling.isActive()) return false;
   if (storyBattle.hasContext() || seraLioraBreakfastBattle.isActive()) return false; // explicit discard/checkpoint first
   if (gameRuntimeFailure.isActive()) return false;

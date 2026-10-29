@@ -257,10 +257,10 @@ const PENINSULA_SEAMS = [
 // The enterable 2x3 Mornay footprint. Its upper four cells remain solid and
 // its southern two cells are the paired west/east town entrances.
 const FOOTPRINT_MAP_ID = 'EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP';
-const SOLID_FOOTPRINT_CELLS = [[1, 7], [1, 8], [2, 7], [2, 8]]; // [row, col]
+const SOLID_FOOTPRINT_CELLS = [[0, 7], [0, 8], [1, 7], [1, 8]]; // [row, col]
 const TOWN_ENTRANCES = [
-  { row: 3, col: 7, gate: 'MORNAY_WEST_GATE_MAP' },
-  { row: 3, col: 8, gate: 'MORNAY_EAST_GATE_MAP' },
+  { row: 2, col: 7, gate: 'MORNAY_WEST_GATE_MAP' },
+  { row: 2, col: 8, gate: 'MORNAY_EAST_GATE_MAP' },
 ];
 
 function context() {
@@ -302,8 +302,9 @@ module.exports = {
           if (SEAM_EXCEPTION_CELLS.has(r + ',' + c)) continue;
           diffs++;
           const isWalkableSwap = WALKABLE_FILL.has(SHORELINE_OLD_GRIDS[id][r][c]) && newGrid[r][c] === 128;
+          const isRoadVerge = SHORELINE_OLD_GRIDS[id][r][c] === 2 && newGrid[r][c] === 0; // authorized two-tile road pass; exact cells checked by suite 337
           const isBlockerSwap = BLOCKER_FILL.has(SHORELINE_OLD_GRIDS[id][r][c]) && newGrid[r][c] === 129;
-          assert.ok(isWalkableSwap || isBlockerSwap, `${id} (${r},${c}): must be a recognized shingle/driftwood swap`);
+          assert.ok(isWalkableSwap || isBlockerSwap || isRoadVerge, `${id} (${r},${c}): must be a recognized shingle/driftwood or road-verge swap`);
         }
       }
       assert.ok(diffs > 0, `${id}: at least one cell changed`);
@@ -341,38 +342,38 @@ module.exports = {
       const flat = grid.flat();
       assert.ok(!flat.includes(12), `${id}: no TOWN_FLOOR (no literal Mornay streets)`);
       assert.ok(!flat.includes(21), `${id}: no TOWN_MARKET (no literal Mornay streets)`);
-      const buildingCount = flat.filter((t) => t === 13).length;
+      const buildingCount = flat.filter((t) => [131,132,133].includes(t)).length;
       const entranceCount = flat.filter((t) => t === 14).length;
       if (id === FOOTPRINT_MAP_ID) {
-        assert.equal(buildingCount, 4, `${id}: exactly 4 solid TOWN_BUILDING marker tiles`);
+        assert.equal(buildingCount, 4, `${id}: exactly 4 solid settlement marker marker tiles`);
         assert.equal(entranceCount, 2, `${id}: exactly 2 paired TOWN_ENTRANCE tiles`);
       }
-      else assert.equal(buildingCount, 0, `${id}: no TOWN_BUILDING tiles outside the footprint chunk`);
+      else assert.equal(buildingCount, 0, `${id}: no settlement marker tiles outside the footprint chunk`);
       totalBuildingTiles += buildingCount;
       totalEntranceTiles += entranceCount;
     }
-    assert.equal(totalBuildingTiles, 4, 'exactly 4 solid TOWN_BUILDING cells across the peninsula crown');
+    assert.equal(totalBuildingTiles, 4, 'exactly 4 solid settlement marker cells across the peninsula crown');
     assert.equal(totalEntranceTiles, 2, 'exactly 2 TOWN_ENTRANCE cells across the peninsula crown');
 
     // 5. The Mornay marker is exactly two tiles wide by three high, with the
     //    southern pair serving as entrances.
     const crownGrid = J(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${FOOTPRINT_MAP_ID}'].map)`);
-    for (const [r, c] of SOLID_FOOTPRINT_CELLS) assert.equal(crownGrid[r][c], 13, `solid crown cell (${c},${r}) is TOWN_BUILDING`);
+    assert.deepEqual([crownGrid[0][7],crownGrid[0][8],crownGrid[1][7],crownGrid[1][8]],[132,131,133,131], 'fort, northern roofs, western harbour and middle roofs');
     for (const entrance of TOWN_ENTRANCES) assert.equal(crownGrid[entrance.row][entrance.col], 14, `entrance cell (${entrance.col},${entrance.row}) is TOWN_ENTRANCE`);
-    assert.deepEqual([...new Set([...SOLID_FOOTPRINT_CELLS, ...TOWN_ENTRANCES.map(e => [e.row, e.col])].map(([r]) => r))].sort(), [1, 2, 3], 'marker spans exactly 3 rows');
+    assert.deepEqual([...new Set([...SOLID_FOOTPRINT_CELLS, ...TOWN_ENTRANCES.map(e => [e.row, e.col])].map(([r]) => r))].sort(), [0, 1, 2], 'marker spans exactly 3 rows');
     assert.deepEqual([...new Set([...SOLID_FOOTPRINT_CELLS, ...TOWN_ENTRANCES.map(e => [e.row, e.col])].map(([, c]) => c))].sort(), [7, 8], 'marker spans exactly 2 cols');
 
     // 6. Both land entrances are reachable from the established approach and
     //    retain distinct paired return identities.
-    assert.deepEqual([crownGrid[3][7], crownGrid[3][8]], [14, 14], 'paired southern crown cells are town entrances');
-    assert.deepEqual([crownGrid[0][7], crownGrid[0][8]], [1, 1], 'open Valmere water immediately north of the marker');
+    assert.deepEqual([crownGrid[2][7], crownGrid[2][8]], [14, 14], 'paired southern crown cells are town entrances');
+    assert.deepEqual(J("JSON.stringify(_REGIONAL_CHUNK_DEFINITIONS.find(c=>c.chunkX===17&&c.chunkY===-4).map[14].slice(7,9))"), [1, 1], 'open Valmere water immediately north of the marker');
 
     // 7. The paired entrances use the established enterTownAt authority and
-    //    all seventeen Mornay exteriors are registered as town maps.
+    //    all nineteen Mornay exteriors are registered as town maps.
     assert.equal((movementSrc.match(/enterTownAt\(\s*['"]mornay['"]/gi) || []).length, 2, 'exactly two enterTownAt(\'mornay\', ...) land routes');
     const townNamedTargets = J("JSON.stringify([...new Set(Object.values(EDGE_TRANSITIONS).flatMap(d=>Object.values(d).flat()).map(e=>e.targetMap).filter(id=>id.includes('MORNAY_TOWN')))])");
     assert.deepEqual(townNamedTargets, ['EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP'], 'only the outdoor approach uses the town word');
-    assert.equal(g.run("Object.values(MAP_CATALOG).filter(m=>m.region==='Mornay'&&m.type==='town').length"), 17, 'all seventeen Mornay town exteriors are registered');
+    assert.equal(g.run("Object.values(MAP_CATALOG).filter(m=>m.region==='Mornay'&&m.type==='town').length"), 19, 'all nineteen Mornay town exteriors are registered');
 
     // 8. The approach reaches the peninsula: EASTERN_FENS_MORNAY_APPROACH_M_MAP
     //    has a reciprocal north seam into the peninsula's southern neck
@@ -380,7 +381,7 @@ module.exports = {
     const approachMNorth = J("JSON.stringify(EDGE_TRANSITIONS['EASTERN_FENS_MORNAY_APPROACH_M_MAP'].north)");
     assert.deepEqual(approachMNorth, [{ targetMap: 'EASTERN_FENS_MORNAY_NECK_ROAD_MAP', targetEdge: 'south', sourceRange: [7, 9] }]);
     const approachMGrid = J("JSON.stringify(REGIONAL_CHUNK_CATALOG['EASTERN_FENS_MORNAY_APPROACH_M_MAP'].map)");
-    assert.deepEqual([approachMGrid[0][7], approachMGrid[0][8], approachMGrid[0][9]], [2, 2, 2], 'approach north seam is walkable PATH');
+    assert.deepEqual([approachMGrid[0][7], approachMGrid[0][8], approachMGrid[0][9]], [2, 2, 0], 'approach north seam preserves two PATH tiles and a walkable verge');
 
     // 9. The road reaches both entrances: col 8 is walkable (PATH) on
     //    every row from the southern seam (row 14) of NECK_ROAD_MAP, up

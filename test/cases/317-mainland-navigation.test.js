@@ -2,6 +2,8 @@
 const assert=require('assert/strict'),crypto=require('crypto');
 const {createContext}=require('../harness');
 const invariant=require('../fixtures/regional-geography-invariants.json');
+const markerDeltas=require('../../Art/qa/mornay/overworld-marker-v1/grid-deltas.json');
+const {beforeNorthShift}=require('../fixtures/mornay-north-history');
 const J=(g,s)=>JSON.parse(g.run('JSON.stringify('+s+')'));
 function graph(d){
  const chunks=d.chunks,idx=new Map(chunks.map((c,i)=>[c.mapId,i])),key=(id,x,y)=>idx.get(id)*240+y*16+x;
@@ -30,7 +32,16 @@ module.exports={name:'Mainland navigation: connected playable/reserved component
   for(const c of d.chunks){if(c.playerAccessible===false||(!c.mapId.startsWith('MAINLAND_')&&!invariant.reauthoredIds.includes(c.mapId)))continue;
    for(let y=0;y<15;y++)for(let x=0;x<16;x++)if(d.tiles[c.map[y][x]].walkable){const p=net.key(c.mapId,x,y);assert.ok(west[p]||middle[p]||east[p]||sealed[p]||oldIslands.has(c.mapId+':'+x+','+y),c.mapId+' return path '+x+','+y);}
   }
-  for(const [id,fp]of Object.entries(invariant.protectedGrids)){const c=d.chunks.find(c=>c.mapId===id);assert.equal(crypto.createHash('sha256').update(JSON.stringify(c.map)).digest('hex'),fp,id+' protected terrain');}
+  for(const [id,fp]of Object.entries(invariant.protectedGrids)){
+   const c=beforeNorthShift(d.chunks).find(c=>c.mapId===id),original=c.map.map(r=>r.slice());
+   // Reverse only the explicitly reviewed later road/marker cells. Preserve the
+   // original geography baseline and its assertions everywhere else.
+   for(const delta of markerDeltas.filter(v=>v.mapId===id)){
+    assert.equal(original[delta.row][delta.col],delta.toTile,id+' reviewed marker/road delta');
+    original[delta.row][delta.col]=delta.fromTile;
+   }
+   assert.equal(crypto.createHash('sha256').update(JSON.stringify(original)).digest('hex'),fp,id+' protected terrain outside reviewed marker/road delta');
+  }
   for(const id of invariant.originalAccessibleIds)assert.equal(g.run(`mapPlayerAccessible('${id}')`),true,id+' retains access');
   for(const [id,original]of Object.entries(invariant.approachGrids)){
    const c=d.chunks.find(c=>c.mapId===id);

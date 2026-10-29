@@ -211,6 +211,7 @@ function drawContinuousWorld() {
 function render() {
   if (gameRuntimeFailure.isActive()) { gameRuntimeFailure.draw(); return; }
   titleEl.textContent = locationName();
+  if (debugPromisePreview.draw()) return;
 
   if (seraLioraBreakfastBattle.draw()) return;
 

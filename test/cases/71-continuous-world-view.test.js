@@ -73,7 +73,7 @@ module.exports = {
     // ── 1. Debug fallback defaults OFF (continuous is default); never serialized ─
     assert.equal(g.run('forceLegacyRegionalView'), false, 'legacy fallback defaults OFF -> continuous is the production default');
     assert.equal(g.run("typeof continuousWorldViewEnabled"), 'undefined', 'the old opt-in flag is gone');
-    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 14, 'debug menu includes both combat labs and the story checkpoint lab');
+    assert.equal(g.run('DEBUG_MENU_ROW_COUNT'), 15, 'debug menu includes both combat labs and the story checkpoint lab');
     g.run('forceLegacyRegionalView = true; saveGame();');
     const rawSave = g.run("localStorage.getItem('verdantVale_save')");
     assert.ok(!/continuousWorldView|forceLegacyRegionalView|legacyRegional/i.test(rawSave), 'the fallback is not written into the save payload');
@@ -225,7 +225,9 @@ module.exports = {
     // ── 19. Debug-menu fallback toggle behaviour + cursor bounds ────────────
     g.run('forceLegacyRegionalView = false; debugMenu.open = true; debugMenu.cursor = 0; dialogue.open=false; menu.open=false; choice.open=false; shop.open=false;');
     for (let i = 0; i < 20; i++) g.press('ArrowDown'); // over-scroll
-    assert.equal(g.run('debugMenu.cursor'), 13, 'cursor clamps at the last row ([ DEV: Story Checkpoint Lab ])');
+    assert.equal(g.run('debugMenu.cursor'), 14, 'cursor clamps at the new Pinky Promise Animation row');
+    g.press('ArrowUp');
+    assert.equal(g.run('debugMenu.cursor'), 13, 'story checkpoint lab remains on row 13');
     g.press('ArrowUp');
     assert.equal(g.run('debugMenu.cursor'), 12, 'party lab remains on row 12');
     g.press('ArrowUp');

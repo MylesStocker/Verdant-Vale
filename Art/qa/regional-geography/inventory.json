@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25",
+  "date": "2026-10-28",
   "totals": {
     "chunks": 1058,
     "explorable": 477,
@@ -5337,7 +5337,7 @@
       "accessible": true,
       "encounters": false,
       "profile": "far",
-      "sha256": "a3c35824f82f349a588c0e7746cb95b7f880945c22b2546517b0094fbc8fd074"
+      "sha256": "eba237a57cc37c1928fce5058455c908dad10d58272995ab227ef7c6808a431d"
     },
     {
       "mapId": "EASTERN_FENS_MORNAY_EASTERN_POINT_MAP",
@@ -5744,7 +5744,7 @@
       "accessible": true,
       "encounters": false,
       "profile": "far",
-      "sha256": "e7f0a08657a1b608f66a9f4ec936f27dfa4e61bc0354e8328ecff28913ad804f"
+      "sha256": "f0a5692b5aa850cad58dc33537f5127213430ea1f4debc7d477c2640789cb9bf"
     },
     {
       "mapId": "EASTERN_FENS_MORNAY_EASTERN_SHORE_MAP",
@@ -6162,7 +6162,7 @@
       "accessible": true,
       "encounters": false,
       "profile": "far",
-      "sha256": "ee05a3eaa89b3745e56883462da050e003a9682eb19df563a18cadacd1320ce4"
+      "sha256": "caacf7814db83853e7c765b92cb30c900bf2e675187d782e98ff0fabb35a3b12"
     },
     {
       "mapId": "EASTERN_FENS_MORNAY_APPROACH_E_MAP",
@@ -6173,7 +6173,7 @@
       "accessible": true,
       "encounters": false,
       "profile": "far",
-      "sha256": "dd485a4be1a6258742e110ea0e6d5d718434c0ba8737c522c5495056bb8cd2d7"
+      "sha256": "a1157cf204706f180301bc8351a7990e5f0d404f4c964c5808889e82b7424781"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C19RN1_MAP",
@@ -6558,7 +6558,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "30f15b0a8caf98783927eb50d14f69c8e17a237f1bca25df041249748667b573"
+      "sha256": "b54b3fcd85b3d85b97543e9968552e32f86cb7c1315c039af97aa41951941098"
     },
     {
       "mapId": "EASTERN_FENS_VALMERE_SHORE_W_MAP",
@@ -6569,7 +6569,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "656d22d9cfa108b40f859a2a08387d489fe4841ef11a366073f515271b2da403"
+      "sha256": "7058ce7ea2931573720986b25bcc2beb4cc0145eec095b213a9bda96c36dc0da"
     },
     {
       "mapId": "EASTERN_FENS_VALMERE_SHORE_E_MAP",
@@ -6580,7 +6580,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "64faeca6b8eadd6245b1b010bcc0fb5b6b06fde218622b5579aab8d7aec9e95d"
+      "sha256": "c9b5529d1b877263e47990304be04db20ce485f3d1d889a364ca2cb685179b2c"
     },
     {
       "mapId": "EASTERN_FENS_MORNAY_THRESHOLD_MAP",
@@ -6591,7 +6591,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "02db764f9b9c0b19ff57c0da0d802ddd680bfc03486c624845c06d232dc56b00"
+      "sha256": "708cbe18d3dafe927abdb7f4b9c11bae3f6673739e0f9c27eb621d75014e287c"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C19R0_MAP",
@@ -6987,7 +6987,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "f20d1ff6a978be486e5b57d49bd85a5f37c9ce7224715250ec713d2b207d0b31"
+      "sha256": "46aba75bee39cd52463b0b9bdcc68a98e082fdc8607f98e39fb4a499fbaefc3c"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C16R1_MAP",
@@ -7416,7 +7416,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "ecb92a8260e3fb32cd84410cf03c328f4bafa70344494ac70e0adc125910585f"
+      "sha256": "a21e345a169f9cafa953e4d3a59b9ca1391229b554999dc5d2b48ba4da483895"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C16R2_MAP",
@@ -7845,7 +7845,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "b9ee4d343b19345c399553afa788bf33d0bdf4ac50c73568aeaebce34611fed5"
+      "sha256": "1d4026123b8f54508e558b4e27203584ca534026951ba13585fc3dedb6a6377a"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C16R3_MAP",
@@ -8274,7 +8274,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "1651d9c5a33d38cd12533c474a80e81d03dd767c5375139c25365a899c9100e1"
+      "sha256": "7e102b108b22cd88f76875249818820df17c3a28a647f0932720e76805fe7563"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C16R4_MAP",

@@ -5088,3 +5088,26 @@ The five NPC records in `content/npcs/third-lock-npcs.js` retain stable identiti
 Suites 333/334 cover authenticated outcomes, retry, discovery order, delivery, existing Polwick outcomes, temporary companion absence, save atomicity, all local doors through movement input, survivor reachability and the original filing/payout choice. `test/third-lock-browser.html` is an isolated browser review fixture with ordinary input-driven routes at both scales and manual-play controls.
 
 Geography correction: the destination is Sedge Hollow, an ordinary fen hamlet. Legacy `THIRD_LOCK_*` IDs remain stable for saves; they do not denote canal geography. Public titles, clues and journal text follow Heddra’s move from Drenwick. The historical tally still names its original Drenwick lock. No Drenwick grid, lock, route, combat formation, state binding or door changed.
+
+### Standalone pinky-promise animation preview
+
+`debug-promise-preview.js` owns only a transient phase and elapsed presentation time. Debug row 14 opens the separate three-second illustration study; previous debug actions retain their indices. It keeps the debug menu as its return destination, freezes normal update before world timers/movement, and intercepts physical keys with the existing repeat latch. Rendering is read-only. Escape cancels even while the lazy image load is pending; no completion callback can reopen the preview. Save/load reject while it owns presentation, without changing SAVE_VERSION 5 or the payload. `activityOwnership` registers `promise_preview` for ordinary exclusivity checks. No production cutaway controller, asset, bundle or timing is replaced.
+
+Four six-pose sheets use the existing image registry/cache, with explicit source crops for 24 complete generated poses. The preview waits for all four sheets before starting and fails cancellably if any sheet fails. Each pose plays for 125 ms; duration derives from the 24-frame sequence (three seconds). Its generation prompts and limited-animation caveats are recorded in `assets/previews/sera-liora/README.md`. Suite 335 checks actual debug navigation, the three-second endpoint, replay, held input, failed/delayed loads, save refusal, state isolation, frame bounds and unchanged original art.
+
+
+### The Fleck: town extension and fishing profile
+
+Two `MORNAY_TOWN_LAYOUT` records extend the existing discrete Mornay graph. `mornayTownNeighbor` respects reciprocal `blockedEdges`, keeping the newly adjacent Old Fort/Net Lane boundary water-only. The ordinary town generator, catalogue registration and transition controller still own all movement. Seven `MORNAY_BUILDINGS` rooms use existing parent/child door context; `stairsDown` controls stair artwork only. Damp-room and waterfront drawing in `render-mornay.js` is read-only and uses existing collision-bearing tiles/fixtures. No regional chunk, camera, encounter pool or save schema is changed.
+
+`interactFleckFishing` is active-map/local-range gated and rechecks rod, bait and cast ownership in its choice callback. `startFishing(power, waters)` owns a transient profile (`drenwick` default or `fleck`), with shared input/timer/result handling. Bait is consumed only after a successful launch. A completed cast cannot grant its reward twice; dismissal clears the profile. Save/load refuse active fishing rather than serialize it. Three registered food/fish items use ordinary healing, shop sale and inventory persistence; no new item type or progression flag. Suite 336 tests control-driven street round trips, casting outcomes, ownership/payment and shop persistence; existing Mornay exhaustive room/route suites include the new rooms.
+
+
+### Compact regional settlement markers
+
+`TOWN_ROOFS` (131), `TOWN_FORT` (132) and `TOWN_HARBOUR` (133) append to the stable tile registry. They are solid, non-encounter scenery with deterministic, tile-bounded Canvas renderers. They add no transition, interaction, camera or save authority. Mornay uses them in four existing solid marker cells; the two `TOWN_ENTRANCE` cells remain the sole entry authority. Narrow road paving is authored directly in the regional grids; adjacent walkable grass preserves the existing structural seam ranges and obeys ordinary encounter eligibility.
+
+
+### Mornay marker shifted north — 2026-10-28
+
+Follow-up to the road/marker pass: the two-by-three marker moves one row north within `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` (now rows 0–2, columns 7–8). Its gates are at row 2; the former gate cells on row 3 become road. Water replaces grass at row 2, columns 6 and 9, preventing lateral entry. Nine tile values change in this follow-up; no other regional grid changes. Return landings remain (240,144)/(272,144), now two rows south of the gates, facing down. Town maps, cameras, seams and SAVE_VERSION 5 are unchanged. Exact deltas are in `test/fixtures/mornay-north-shift.json`; suite 338 tests side collisions, southern gate round trips/save-load and connected shore ground. See `Art/qa/mornay/north-shift-v1/README.md` for evidence.

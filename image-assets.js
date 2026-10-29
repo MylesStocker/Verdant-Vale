@@ -5,6 +5,19 @@
 // when a scene requests its bundle. Failed entries settle as errors so callers
 // can use their code-drawn/portrait-free fallback without waiting forever.
 const IMAGE_ASSET_REGISTRY = Object.freeze({
+  // Four debug-only six-pose sheets; crops exclude generated panel dividers.
+  debug_pinky_promise_v2_a: Object.freeze({path:'assets/previews/sera-liora/pinky-promise-v2-a.png',
+    use:'debug_animation',width:1586,height:992,frameWidth:524,frameHeight:491,
+    frames:Object.freeze([2,499].flatMap(y=>[2,531,1059].map(x=>Object.freeze({x,y}))))}),
+  debug_pinky_promise_v2_b: Object.freeze({path:'assets/previews/sera-liora/pinky-promise-v2-b.png',
+    use:'debug_animation',width:1585,height:992,frameWidth:524,frameHeight:491,
+    frames:Object.freeze([2,499].flatMap(y=>[2,531,1059].map(x=>Object.freeze({x,y}))))}),
+  debug_pinky_promise_v2_c: Object.freeze({path:'assets/previews/sera-liora/pinky-promise-v2-c.png',
+    use:'debug_animation',width:1586,height:992,frameWidth:524,frameHeight:491,
+    frames:Object.freeze([2,499].flatMap(y=>[2,531,1059].map(x=>Object.freeze({x,y}))))}),
+  debug_pinky_promise_v2_d: Object.freeze({path:'assets/previews/sera-liora/pinky-promise-v2-d.png',
+    use:'debug_animation',width:1586,height:992,frameWidth:524,frameHeight:491,
+    frames:Object.freeze([2,499].flatMap(y=>[2,531,1059].map(x=>Object.freeze({x,y}))))}),
   cutaway_bethany_breakfast_meal_v1: Object.freeze({path:'assets/backgrounds/cutaways/sera-liora/breakfast-v1/seated-meal-v1.png',use:'cutaway_background',width:512,height:480}),
   cutaway_bethany_breakfast_promise_v1: Object.freeze({path:'assets/backgrounds/cutaways/sera-liora/breakfast-v1/pinky-promise-v1.png',use:'cutaway_background',width:512,height:480}),
   cutaway_bethany_storeroom_flour_v1: Object.freeze({path:'assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png',use:'cutaway_background',width:512,height:480}),

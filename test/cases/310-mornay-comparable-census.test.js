@@ -24,6 +24,6 @@ module.exports={
   for(const id of ['infirmarer','infirmary_orderly','infirmary_patient'])assert.ok(census.interior.includes(id),id+' ordinary MQ4 wake content remains in comparator');
   for(const id of ['infirmary_esla','esla','lely','tarvec','bridge_soldier_south','bridge_soldier_north','traveller','drenwick_traveller','north_a_cat_grey','north_a_cat_ginger','apt_c1_u4_feral_cat'])assert.ok(!census.distinct.includes(id),id+' excluded from town-character benchmark');
   assert.ok(census.raw.includes('harbormaster_interior'));assert.ok(census.placements.includes('veran_retired@drenwick_canal_docks'));assert.ok(census.placements.includes('veran_retired@house:drenwick_west_b'));
-  assert.equal(g.run('MORNAY_NPCS.length')/census.distinct.length,300/99);
+  assert.equal(g.run('MORNAY_NPCS.length')/census.distinct.length,311/99);
  }
 };

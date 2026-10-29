@@ -724,6 +724,7 @@ function preflightRainfishStep() {
 
 function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   if (gameRuntimeFailure.isActive()) return;
+  if (debugPromisePreview.isOpen()) {debugPromisePreview.update(presentationSeconds);return;}
   if (riverWrestling.isActive()) {riverWrestling.update(deltaSeconds);return;}
   if (typeof waterTravelController !== 'undefined' && waterTravelController.isActive()) {
     waterTravelController.update(presentationSeconds);

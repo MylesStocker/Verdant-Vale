@@ -9,7 +9,7 @@ module.exports={
   const g=fresh();g.run('MainQuest=5;persistentParty.joinEsla();');
   const rooms=J(g,'MORNAY_BUILDINGS'),units=rooms.filter(b=>/^south_rows_unit_/.test(b.key));
   assert.equal(units.length,24);
-  const runtime=J(g,'MORNAY_NPCS.map(n=>n.id)');assert.equal(new Set(runtime).size,300);
+  const runtime=J(g,'MORNAY_NPCS.map(n=>n.id)');assert.equal(new Set(runtime).size,311);
   for(const day of [1,4,5,6,10]){
    g.run(`day=${day};`);
    for(const [floor,source]of [[1,'MORNAY_SOUTH_ROWS_MAP'],[2,'MORNAY_SOUTH_ROWS_FLOOR_2_MAP'],[3,'MORNAY_SOUTH_ROWS_FLOOR_3_MAP']]){

@@ -12,6 +12,8 @@ const GRID_FP = require('../fixtures/regional-grid-fingerprints');
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 const EXPECTED = Object.freeze([
+  ['MORNAY_FLECK_NECK_MAP',1,0,'fleck'],
+  ['MORNAY_FLECK_POINT_MAP',2,0,'fleck'],
   ['MORNAY_OLD_FORT_MAP', 0, 0, 'fort'],
   ['MORNAY_NORTH_UPPER_WEST_MAP', 0, 1, 'north'],
   ['MORNAY_NORTH_UPPER_EAST_MAP', 1, 1, 'north'],
@@ -58,7 +60,7 @@ function connectedWalkable(grid, walkable) {
 }
 
 module.exports = {
-  name: 'Mornay exterior: exact 17-area legacy-town topology, paired gates, safe traversal and inert harbour reserves',
+  name: 'Mornay exterior: exact 19-area legacy-town topology, paired gates, safe traversal and inert harbour reserves',
   run() {
     const g = context();
     const R = (code) => g.run(code);
@@ -66,16 +68,17 @@ module.exports = {
 
     // 1-5. Exact irregular topology and stable descriptive identities.
     const layout = J('JSON.stringify(MORNAY_TOWN_LAYOUT.map(d=>({id:d.id,x:d.x,y:d.y,district:d.district,displayName:d.displayName,reserves:d.reserves})))');
-    assert.equal(layout.length, 17, 'exactly seventeen exterior maps');
+    assert.equal(layout.length, 19, 'exactly nineteen exterior maps');
     assert.deepEqual(layout.map(d => [d.id, d.x, d.y, d.district]), EXPECTED, 'exact approved irregular layout');
     assert.deepEqual(layout.reduce((out, d) => ((out[d.district] = (out[d.district] || 0) + 1), out), {}),
-      { fort: 1, north: 4, middle: 8, south: 4 }, '1 fort + 4 north + 8 middle + 4 south');
+      { fleck: 2, fort: 1, north: 4, middle: 8, south: 4 }, '2 Fleck + 1 fort + 4 north + 8 middle + 4 south');
     assert.deepEqual(layout.filter(d => d.district === 'north').map(d => [d.x, d.y]), [[0,1],[1,1],[0,2],[1,2]], 'North Mornay is west-offset');
     assert.deepEqual(layout.filter(d => d.district === 'fort').map(d => [d.x, d.y]), [[0,0]], 'Old Fort occupies only the northwestern tip');
-    assert.equal(new Set(layout.map(d => d.id)).size, 17, 'map ids are unique');
+    assert.equal(new Set(layout.map(d => d.id)).size, 19, 'map ids are unique');
 
     const coords = new Map(layout.map(d => [d.x + ',' + d.y, d.id]));
     const expectedNeighbor = (d, dir) => {
+      if((d.id==='MORNAY_OLD_FORT_MAP'&&dir==='east')||(d.id==='MORNAY_FLECK_NECK_MAP'&&dir==='west'))return null; // water separates the fort
       const delta = { north:[0,-1], south:[0,1], west:[-1,0], east:[1,0] }[dir];
       return coords.get((d.x + delta[0]) + ',' + (d.y + delta[1])) || null;
     };
@@ -85,9 +88,9 @@ module.exports = {
       assert.equal(R(`mornayTownNeighbor('${d.id}','${dir}')`), expected, `${d.id}.${dir} matches topology`);
       if (expected) directedEdges++;
     }
-    assert.equal(directedEdges, 46, '23 reciprocal internal adjacencies');
+    assert.equal(directedEdges, 50, '25 reciprocal internal adjacencies');
 
-    // 6. Both gates reach all seventeen screens.
+    // 6. Both gates reach all nineteen screens.
     for (const gate of ['MORNAY_WEST_GATE_MAP', 'MORNAY_EAST_GATE_MAP']) {
       const seen = new Set([gate]), queue = [gate];
       while (queue.length) {
@@ -97,7 +100,7 @@ module.exports = {
           if (next && !seen.has(next)) { seen.add(next); queue.push(next); }
         }
       }
-      assert.equal(seen.size, 17, `${gate} reaches every exterior`);
+      assert.equal(seen.size, 19, `${gate} reaches every exterior`);
     }
 
     // 7-10, 13-15. Map dimensions, metadata, connected streets, exact
@@ -145,7 +148,7 @@ module.exports = {
     assert.deepEqual(layout.filter(d => J(`JSON.stringify(MAP_CATALOG['${d.id}'].map.flat().includes(TOWN_EXIT))`)).map(d => d.id),
       ['MORNAY_WEST_GATE_MAP', 'MORNAY_EAST_GATE_MAP']);
     const crown = J("JSON.stringify(MAP_CATALOG['EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP'].map)");
-    assert.deepEqual([crown[3][7], crown[3][8]], [14,14], 'only the two southern crown cells are town entrances');
+    assert.deepEqual([crown[2][7], crown[2][8]], [14,14], 'only the two southern crown cells are town entrances');
     assert.equal(crown.flat().filter(t => t === 14).length, 2, 'exactly two overworld entrances');
     for (const spec of [{ point:'west_gate', gate:'MORNAY_WEST_GATE_MAP', col:7 }, { point:'east_gate', gate:'MORNAY_EAST_GATE_MAP', col:8 }]) {
       R(`dialogue.open=false;enterTownAt('mornay','${spec.point}')`);
@@ -187,13 +190,13 @@ module.exports = {
     assert.deepEqual(J("JSON.stringify(Object.keys(TOWN_ENTRY_POINTS.mornay))"), ['west_gate','east_gate'], 'reserved berths add no external entry or transition authority');
 
     // 20-22. Existing towns and regional/story geography retain their
-    // authorities; only the crown fingerprint changes from this increment.
+    // authorities; the Fleck extension changes no regional grid fingerprint.
     assert.deepEqual(J("JSON.stringify(Object.keys(TOWN_ENTRY_POINTS.calwick))"), ['south','east','west']);
     assert.deepEqual(J("JSON.stringify(Object.keys(TOWN_ENTRY_POINTS.drenwick))"), ['south','west','east']);
     assert.equal(R("MAP_CATALOG['EASTERN_FENS_TRAVELLERS_RISE_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].map.length"), 15);
-    assert.equal(R("Object.keys(MAP_CATALOG).length"), 1254, '1107-map baseline plus 23 South Rows rooms and 114 Wetwoods scenery chunks and the southern watchhouse plus two Reedbank and seven Third Lock maps; Mornay retains 17 exteriors');
+    assert.equal(R("Object.keys(MAP_CATALOG).length"), 1263, '1254-map baseline plus two Fleck exteriors and seven rooms');
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       const actual = R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`);
       assert.equal(sha256(actual), fp, `${id}: regional fingerprint current`);

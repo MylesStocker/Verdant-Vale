@@ -93,6 +93,9 @@ const ITEM_REGISTRY = {
   'Bait':          { name: 'Bait',          type: 'bait', price: 6 },
   'River Smelt':   { name: 'River Smelt',   type: 'potion', heals:  8, price:  4 },
   'Canal Eel':     { name: 'Canal Eel',     type: 'potion', heals: 20, price: 12 },
+  'Valmere Perch': { name: 'Valmere Perch', type: 'potion', heals: 24, price: 22 },
+  'Lake Pike': { name: 'Lake Pike', type: 'potion', heals: 36, price: 38 },
+  'Smoked Lake Fish': { name: 'Smoked Lake Fish', type: 'potion', heals: 20, price: 18 },
   'Old Boot':      { name: 'Old Boot',      type: 'accessory', bonus: 0, price: 0 },
   // Pure flavor/quest artifact (a voided transit letter fished up) — keyItem so
   // it lives in the Special Items notebook only, never the equip/use list.

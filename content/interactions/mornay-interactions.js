@@ -2,6 +2,8 @@
 
 // Repeatable public evidence: no callbacks, triggers, flags, rewards or quests.
 const MORNAY_NOTICES = Object.freeze([
+  Object.freeze({mapId:'MORNAY_FLECK_HOUSE_MAP',id:'mornay_fleck_rents',type:'inspect',allowUnwalkable:true,x:1.5,y:5.5,radius:42,label:'Rent card',pages:[['Main floor: twelve gold a week. Lower rooms: three. The cheap rooms are below the storm-water line.'],['A tenant has added: A dry week costs the same as a wet one.']]}),
+  Object.freeze({mapId:'MORNAY_FLECK_CELLAR_MAP',id:'mornay_fleck_watermarks',type:'inspect',allowUnwalkable:true,x:2.5,y:8.5,radius:42,label:'Bailing tubs',pages:[['A dark waterline runs above the bed-height marks scratched into the plaster. The tubs are never put away.'],['Boards lift bedding above the damp. Even during the drought, an onshore storm can push Valmere into these rooms.']]}),
   Object.freeze({"mapId":"MORNAY_WATCHHOUSE_MAP","id":"mornay_jail_booking_notices","type":"inspect","allowUnwalkable":true,"x":14.5,"y":4.5,"radius":40,"label":"Custody notices","pages":[["Visitors must give a name and wait on the bench. Property must be listed and witnessed. No payment is required to record an arrest."],["A later notice requests information about Reclaimer printers. Someone has underlined: evidence, not neighbourhood quarrels."]]}),
   Object.freeze({"mapId":"MORNAY_WATCHHOUSE_MAP","id":"mornay_jail_property","type":"inspect","allowUnwalkable":true,"x":13.5,"y":2.5,"radius":40,"label":"Confiscated property","pages":[["A locked chest holds numbered bundles. A cracked lantern, a belt knife, and a pair of work boots lie beneath a receipt book. Nothing is available to take."]]}),
   Object.freeze({"mapId":"MORNAY_WATCHHOUSE_MAP","id":"mornay_jail_records","type":"inspect","allowUnwalkable":true,"x":1.5,"y":2.5,"radius":40,"label":"Records cupboard","pages":[["Water has swollen the bottom drawer. Arrest lists occupy the dry shelves; repair requests are tied into a much older bundle. The drawers stay shut."]]}),
@@ -34,9 +36,25 @@ const MORNAY_INNS = Object.freeze({gate_inn:30,commercial_inn:40});
 
 function interactMornay() {
   if (!inTown || currentTownId !== 'mornay') return false;
+  if(interactFleckFishing())return true;
   if (twoJorans.tryCache()) return true;
   if (interactSimpleNPCs()) return true;
   return tryMapFeatures();
+}
+const FLECK_FISHING_SPOT=Object.freeze({mapId:'MORNAY_FLECK_POINT_MAP',x:11.5*TILE,y:11.5*TILE});
+function interactFleckFishing(){
+  const s=FLECK_FISHING_SPOT;
+  if(mapIdForRef(activeMap)!==s.mapId||Math.hypot(player.x-s.x,player.y-s.y)>=TALK_RADIUS)return false;
+  if(!bestFishingPower()){
+    openDialogue('',[['Perch and pike turn below the uneven steps. You need a fishing rod.']]);return true;
+  }
+  choice.title='The Fleck — rough water';choice.options=['Cast line (1 bait)','Leave'];choice.cursor=0;
+  choice.callbacks=[()=>{
+    if(fishing.active||mapIdForRef(activeMap)!==s.mapId||Math.hypot(player.x-s.x,player.y-s.y)>=TALK_RADIUS||!bestFishingPower())return;
+    const bait=stats.items.findIndex(i=>i.name==='Bait');
+    if(bait<0){openDialogue('',[['You have no bait. Nerys sells it at the smoking shed.']]);return;}
+    if(startFishing(bestFishingPower(),'fleck'))stats.items.splice(bait,1);
+  },()=>{}];choice.open=true;return true;
 }
 function mornayServiceMessage(name, lines) { openDialogue(name,[lines]); }
 function mornayRest(service) {

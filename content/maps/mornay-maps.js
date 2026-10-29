@@ -1,10 +1,12 @@
 'use strict';
 
-// Mornay town: seventeen discrete 16x15 legacy-town maps.
+// Mornay town: discrete 16x15 legacy-town maps, including The Fleck.
 // The layout is intentionally irregular and is the one topology authority used
 // by movement, validation, tests and documentation. Coordinates here are town-
 // layout coordinates only; these maps are discrete and are not regional chunks.
 const MORNAY_TOWN_LAYOUT = Object.freeze([
+  Object.freeze({id:'MORNAY_FLECK_NECK_MAP',x:1,y:0,district:'fleck',displayName:'The Fleck — Net Lane',waterEdges:['north','west','east','south'],blockedEdges:['west'],reserves:[]}),
+  Object.freeze({id:'MORNAY_FLECK_POINT_MAP',x:2,y:0,district:'fleck',displayName:'The Fleck — Water Steps',waterEdges:['north','west','east','south'],reserves:[]}),
   Object.freeze({ id: 'MORNAY_OLD_FORT_MAP',                       x: 0, y: 0, district: 'fort',   displayName: 'Old Fort Mornay',                         waterEdges: ['north', 'west', 'east'], reserves: ['old fort lookout'] }),
   Object.freeze({ id: 'MORNAY_NORTH_UPPER_WEST_MAP',               x: 0, y: 1, district: 'north',  displayName: 'North Mornay — Upper West',               waterEdges: ['west'], reserves: ['story ship berth'] }),
   Object.freeze({ id: 'MORNAY_NORTH_UPPER_EAST_MAP',               x: 1, y: 1, district: 'north',  displayName: 'North Mornay — Upper East',               waterEdges: ['north', 'east'], reserves: ['older merchant properties'] }),
@@ -37,7 +39,10 @@ function mornayTownNeighbor(mapId, direction) {
   const def = mornayTownDefinition(mapId);
   const delta = _MORNAY_DIRECTION_DELTA[direction];
   if (!def || !delta) return null;
-  return _MORNAY_TOWN_BY_COORD[(def.x + delta[0]) + ',' + (def.y + delta[1])] || null;
+  const target=_MORNAY_TOWN_BY_COORD[(def.x + delta[0]) + ',' + (def.y + delta[1])];
+  const opposite={north:'south',south:'north',east:'west',west:'east'};
+  if(!target || def.blockedEdges?.includes(direction) || _MORNAY_TOWN_BY_ID[target].blockedEdges?.includes(opposite[direction]))return null;
+  return target;
 }
 
 function _mornayFillRect(grid, row0, row1, col0, col1, tile) {
@@ -49,6 +54,10 @@ function _mornayFillRect(grid, row0, row1, col0, col1, tile) {
 // One authority for doors, rooms, return placement and discrete location context.
 // The historic town skeleton and its boundary graph remain independent.
 const MORNAY_BUILDINGS = Object.freeze([
+  {key:'fleck_tavern',id:'mornay_fleck_tavern',mapId:'MORNAY_FLECK_TAVERN_MAP',name:'The Crooked Oar',sourceMapId:'MORNAY_FLECK_NECK_MAP',doorCol:5,doorRow:6,returnCol:5,returnRow:7,facing:'down',kind:'tavern',sign:'CROOKED OAR'},
+  {key:'fleck_house',id:'mornay_fleck_house',mapId:'MORNAY_FLECK_HOUSE_MAP',name:'Fleck House — Main Floor',sourceMapId:'MORNAY_FLECK_NECK_MAP',doorCol:10,doorRow:10,returnCol:10,returnRow:9,facing:'up',kind:'corridor',sign:'FLECK HOUSE'},
+  {key:'fleck_cellar',id:'mornay_fleck_cellar',mapId:'MORNAY_FLECK_CELLAR_MAP',name:'Fleck House — Lower Landing',sourceMapId:'MORNAY_FLECK_HOUSE_MAP',doorCol:13,doorRow:6,returnCol:13,returnRow:7,facing:'down',kind:'corridor',connection:'stairs',stairsDown:true,damp:true,sign:'DOWN'},
+  ...Array.from({length:4},(_,i)=>({key:'fleck_flat_'+(i+1),id:'mornay_fleck_flat_'+(i+1),mapId:'MORNAY_FLECK_FLAT_'+(i+1)+'_MAP',name:'Fleck House — '+(i<2?'Room '+(i+1):'Lower Room '+(i-1)),sourceMapId:i<2?'MORNAY_FLECK_HOUSE_MAP':'MORNAY_FLECK_CELLAR_MAP',doorCol:i%2?10:4,doorRow:4,returnCol:i%2?10:4,returnRow:5,facing:'down',kind:'flat',unit:i+1,damp:i>=2,sign:i<2?String(i+1):'L'+(i-1)})),
   {
     "key": "office",
     "id": "mornay_office",
@@ -795,7 +804,22 @@ function _mornayBuildExterior(def) {
 
   // District massing. Roads remain a connected cross through every screen;
   // explicit registered doors open only the populated public rooms below.
-  if (def.district === 'south') {
+  if(def.district==='fleck') {
+    for(const row of grid)row.fill(WATER);
+    // Row spans sculpt two irregular spits; open water remains the majority.
+    const spans=def.id==='MORNAY_FLECK_NECK_MAP'
+      ? {3:[7,7],4:[3,7],5:[3,8],6:[3,11],7:[3,14],8:[5,13],9:[6,12],10:[6,11],11:[7,11],12:[7,9],13:[7,8]}
+      : {4:[5,7],5:[4,9],6:[2,10],7:[1,11],8:[2,12],9:[4,11],10:[6,10],11:[8,9]};
+    for(const [row,[left,right]]of Object.entries(spans))for(let col=left;col<=right;col++)grid[row][col]=TOWN_FLOOR;
+    if(def.id==='MORNAY_FLECK_NECK_MAP'){
+      _mornayFillRect(grid,4,6,4,6,TOWN_BUILDING);
+      _mornayFillRect(grid,10,11,9,11,TOWN_BUILDING);
+    }else{
+      _mornayFillRect(grid,4,5,5,7,TOWN_BUILDING); // smoking shed; hatch has no enterable door
+      _mornayFillRect(grid,8,10,11,12,BRIDGE_DECK);
+      grid[11][11]=BRIDGE_DECK; // uneven final step; never a sailing exit
+    }
+  } else if (def.district === 'south') {
     _mornayFillRect(grid, 2, 5, 1, 4, TOWN_BUILDING);
     _mornayFillRect(grid, 2, 5, 11, 14, TOWN_BUILDING);
     _mornayFillRect(grid, 10, 12, 1, 5, TOWN_BUILDING);
@@ -914,6 +938,12 @@ window.mornayTownNeighbor = mornayTownNeighbor;
 // furniture follows the established Calwick/Drenwick vocabulary; apartments use
 // compact plans, with a clear entrance stem and individually registered doors.
 const MORNAY_ROOM_FIXTURES = Object.freeze({
+  mornay_fleck_tavern:[{kind:'counter',col:3,row:4},{kind:'counter',col:4,row:4},{kind:'stove',col:1,row:2},{kind:'supply',col:5,row:2},{kind:'table',col:4,row:8},{kind:'table',col:11,row:6},{kind:'table',col:11,row:11},{kind:'bench',col:2,row:11}],
+  mornay_fleck_house:[{kind:'cabinet',col:1,row:5},{kind:'bench',col:11,row:10}],
+  mornay_fleck_cellar:[{kind:'tub',col:2,row:8},{kind:'cargo',col:12,row:10}],
+  ...Object.fromEntries(Array.from({length:4},(_,i)=>['mornay_fleck_flat_'+(i+1),[
+    {kind:'homebed',col:i%2?10:4,row:7},{kind:'dresser',col:i%2?9:5,row:7},
+    {kind:'table',col:i%2?5:10,row:10},{kind:i>=2?'tub':'stove',col:i%2?10:4,row:11}]])),
   mornay_watchhouse: [
     {kind:'desk',col:10,row:3}, {kind:'cabinet',col:1,row:2},
     {kind:'cargo',col:13,row:2}, {kind:'table',col:3,row:4},

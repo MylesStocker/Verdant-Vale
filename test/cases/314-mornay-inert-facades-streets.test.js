@@ -12,7 +12,7 @@ module.exports={
    for(const map of layout){
     place(g,map.id);walk(g,240,240,map.id+' central street');
     for(const [dx,dy,x,y]of arms){
-     if(!layout.some(n=>n.x===map.x+dx&&n.y===map.y+dy))continue;
+     if(!layout.some(n=>n.x===map.x+dx&&n.y===map.y+dy)||(map.id==='MORNAY_OLD_FORT_MAP'&&dx===1)||(map.id==='MORNAY_FLECK_NECK_MAP'&&dx===-1))continue;
      walk(g,x,y,map.id+' complete street arm '+dx+','+dy);
      assert.equal(g.run('mapIdForRef(activeMap)'),map.id,'approaching edge does not change location prematurely');
     }

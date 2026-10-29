@@ -2,7 +2,7 @@
 const assert=require('assert/strict');
 const {J,fresh,place,until}=require('./301-mornay-manifest.test');
 module.exports={
- name:'Mornay doors and districts: all 68 reciprocal rooms and 46 directed streets through held controls in both views',
+ name:'Mornay doors and districts: all 75 reciprocal rooms and 50 directed streets through held controls in both views',
  run(){
   for(const legacy of [false,true]){
    const g=fresh(legacy),rooms=J(g,'MORNAY_BUILDINGS');
@@ -24,13 +24,13 @@ module.exports={
    const layout=J(g,'MORNAY_TOWN_LAYOUT');let count=0;
    const directions=[['north',0,-1,'ArrowUp',240,48,240,432],['south',0,1,'ArrowDown',240,432,240,48],['west',-1,0,'ArrowLeft',48,240,464,240],['east',1,0,'ArrowRight',464,240,48,240]];
    for(const source of layout)for(const [direction,dx,dy,key,x,y,lx,ly]of directions){
-    const target=layout.find(d=>d.x===source.x+dx&&d.y===source.y+dy);if(!target)continue;
+    const target=layout.find(d=>d.x===source.x+dx&&d.y===source.y+dy);if(!target||(source.id==='MORNAY_OLD_FORT_MAP'&&direction==='east')||(source.id==='MORNAY_FLECK_NECK_MAP'&&direction==='west'))continue;
     place(g,source.id,x,y);until(g,key,()=>g.run('mapIdForRef(activeMap)')===target.id);
     assert.deepEqual(J(g,'[player.x,player.y]'),[lx,ly],source.id+' '+direction);assert.equal(g.run('canWalk(player.x,player.y)'),true);
     g.hold(key);g.frames(14);g.release(key);assert.equal(g.run('mapIdForRef(activeMap)'),target.id,'continued inward movement');
     assert.equal(g.run('regionalPlayerWorldPoint()'),null);assert.equal(g.run('townBuilding'),null);count++;
    }
-   assert.equal(count,46);
+   assert.equal(count,50);
   }
  }
 };

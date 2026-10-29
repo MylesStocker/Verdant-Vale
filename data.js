@@ -1782,10 +1782,10 @@ const MAP_CATALOG = {
   },
 };
 
-// ── Mornay exterior skeleton ────────────────────────────────────────────────
-// Seventeen discrete legacy-town screens share one authored topology authority
-// (content/maps/mornay-maps.js). They are empty exterior shells: no encounters,
-// items, NPCs, functional doors, services or story state.
+// ── Mornay town registration ───────────────────────────────────────────────
+// Discrete town screens share the topology in content/maps/mornay-maps.js.
+// Population, doors and services use the Mornay content authorities; town
+// exteriors remain free of random encounters.
 for (const def of MORNAY_TOWN_LAYOUT) {
   MAP_CATALOG[def.id] = {
     id: def.id,

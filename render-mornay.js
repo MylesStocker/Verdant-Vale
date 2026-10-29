@@ -210,6 +210,19 @@ function drawMornayContent() {
       for(let dx=0;dx<(f.w||1);dx++)drawInteriorFloor((f.col+dx)*TILE,f.row*TILE);
       // Furniture and actors are drawn together by depth after this floor pass.
     }
+    if(room.damp){
+      // Persistent water damage, not a simulated rising tide or a collision patch.
+      for(let row=0;row<15;row++)for(let col=0;col<16;col++){
+        if(activeMap[row][col]===INTERIOR_WALL&&activeMap[row+1]?.[col]===INTERIOR_FLOOR){
+          ctx.fillStyle='#4b625d';ctx.fillRect(col*TILE+2,row*TILE+22,28,3);
+          ctx.fillStyle='#59685b';ctx.fillRect(col*TILE+6,row*TILE+25,5,7);
+        }
+      }
+      for(const [col,row]of [[5,8],[10,9],[6,11],[11,12]])if(activeMap[row][col]===INTERIOR_FLOOR){
+        ctx.fillStyle='#51696b';ctx.fillRect(col*TILE+5,row*TILE+14,20,5);ctx.fillRect(col*TILE+12,row*TILE+11,14,4);
+        ctx.fillStyle='#7e8c82';ctx.fillRect(col*TILE+7,row*TILE+14,12,1);
+      }
+    }
     // The HUD map title owns room names; only functional markings remain here.
     ctx.textAlign='center';
     if(room.kind==='school'){
@@ -261,7 +274,7 @@ function drawMornayContent() {
     }
     if(room.connection==='stairs'||room.connection==='hatch'){
       const entrance=mornayInteriorEntrance(room);
-      drawMornayStairs(entrance.col,entrance.exitRow,false);
+      drawMornayStairs(entrance.col,entrance.exitRow,!!room.stairsDown);
     }
     for(const child of MORNAY_BUILDINGS.filter(b=>b.sourceMapId===id)){
       if(child.connection==='hatch'){
@@ -273,7 +286,7 @@ function drawMornayContent() {
         continue;
       }
       if(child.connection==='stairs'){
-        drawMornayStairs(child.doorCol,child.doorRow,true);
+        drawMornayStairs(child.doorCol,child.doorRow,!child.stairsDown);
         continue;
       }
       const x=(child.doorCol+.5)*TILE,y=child.doorRow*TILE-5,label=child.sign||'ROOMS';
@@ -282,6 +295,7 @@ function drawMornayContent() {
       ctx.fillStyle='#ddd0a9';ctx.fillText(label,x,y);
     }
   }else{
+    if(mornayTownDefinition(id)?.district==='fleck')drawFleckWaterfront(id);
     const dressing=MORNAY_STREET_DRESSING[id];
     if(dressing){
       // The lower east building face is outside every mandatory road/berth.
@@ -365,4 +379,40 @@ function drawMornayRoomActors() {
   layers.push({depth:player.y+8,draw:()=>drawPlayer()});
   layers.sort((a,b)=>a.depth-b.depth);
   for(const layer of layers)layer.draw();
+}
+
+// The Fleck uses existing terrain collision; props on water/walls are scenery.
+function drawFleckWaterfront(id){
+  const point=id==='MORNAY_FLECK_POINT_MAP';
+  drawMornayStreetProp('nets',point?170:115,point?131:114);
+  if(!point){drawMornayStreetProp('laundry',285,365);return;}
+  // Smoking shed, stovepipe, fish racks and a raised sales shutter.
+  ctx.fillStyle='#343b3d';ctx.fillRect(179,110,10,28);
+  ctx.fillStyle='#96988d';ctx.fillRect(176,108,16,4);
+  ctx.fillStyle='#252b28';ctx.fillRect(231,164,22,23);
+  ctx.fillStyle='#a18456';ctx.fillRect(227,161,29,4);ctx.fillRect(227,187,29,3);
+  ctx.font='9px "Courier New", monospace';ctx.fillStyle='#ead6a8';ctx.textAlign='center';ctx.fillText('SMOKED FISH',208,121);
+  // Baskets lie beside the shed, away from the landing's walking line.
+  for(let i=0;i<3;i++){
+    const x=137+i*22,y=177;ctx.fillStyle='#836140';ctx.fillRect(x,y,19,13);
+    ctx.fillStyle='#b29564';for(let n=0;n<3;n++)ctx.fillRect(x,y+2+n*4,19,1);
+    ctx.fillStyle='#a7b6af';ctx.fillRect(x+4,y+2,10,3);
+  }
+  // Two tethered rowing boats float on unwalkable water, never transport triggers.
+  for(const [x,y]of [[432,310],[418,382]]){
+    ctx.strokeStyle='#a99a70';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(402,320);ctx.lineTo(x+8,y+12);ctx.stroke();
+    ctx.fillStyle='#483b2b';ctx.beginPath();ctx.moveTo(x,y+12);ctx.lineTo(x+12,y);ctx.lineTo(x+48,y+5);ctx.lineTo(x+55,y+14);ctx.lineTo(x+43,y+23);ctx.lineTo(x+10,y+22);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#97764c';ctx.fillRect(x+14,y+6,29,11);ctx.fillStyle='#514332';ctx.fillRect(x+26,y+4,4,15);
+    ctx.fillStyle='#b49e72';ctx.fillRect(x+8,y+10,39,2);
+  }
+  // Uneven stone treads overlay the ordinary walkable deck.
+  for(const [col,row]of [[11,9],[12,9],[11,10],[12,10],[11,11]]){
+    const x=col*TILE,y=row*TILE;ctx.fillStyle='#7b8279';ctx.fillRect(x+1,y+4,30,24);
+    ctx.fillStyle='#a9a996';ctx.fillRect(x+1,y+4,30,3);ctx.fillStyle='#424f50';ctx.fillRect(x+4,y+19,27,3);
+  }
+  // Oswin's rod is annoyingly across the water beside the landing, not a blocker.
+  ctx.strokeStyle='#b5a075';ctx.beginPath();ctx.moveTo(400,265);ctx.lineTo(431,296);ctx.stroke();
+  ctx.strokeStyle='#bbc7bb';ctx.beginPath();ctx.moveTo(431,296);ctx.lineTo(438,344);ctx.stroke();
+  const s=FLECK_FISHING_SPOT;ctx.fillStyle='#dbb86b';ctx.fillRect(s.x-3,s.y+18,6,3);
+  if(Math.hypot(player.x-s.x,player.y-s.y)<TALK_RADIUS){ctx.font='10px "Courier New", monospace';ctx.textAlign='center';ctx.fillStyle='#f3e0aa';ctx.fillText('SPACE: CAST',s.x,s.y-16);}
 }

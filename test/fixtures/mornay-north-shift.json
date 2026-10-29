@@ -1,0 +1,63 @@
+{
+  "mapId": "EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP",
+  "cells": [
+    {
+      "row": 0,
+      "col": 7,
+      "from": 1,
+      "to": 132
+    },
+    {
+      "row": 0,
+      "col": 8,
+      "from": 1,
+      "to": 131
+    },
+    {
+      "row": 1,
+      "col": 7,
+      "from": 132,
+      "to": 133
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "from": 0,
+      "to": 1
+    },
+    {
+      "row": 2,
+      "col": 7,
+      "from": 133,
+      "to": 14
+    },
+    {
+      "row": 2,
+      "col": 8,
+      "from": 131,
+      "to": 14
+    },
+    {
+      "row": 2,
+      "col": 9,
+      "from": 0,
+      "to": 1
+    },
+    {
+      "row": 3,
+      "col": 7,
+      "from": 14,
+      "to": 2
+    },
+    {
+      "row": 3,
+      "col": 8,
+      "from": 14,
+      "to": 2
+    }
+  ],
+  "notes": {
+    "before": "The peninsula’s northern crown, on firm ground above the rest of the landform, with substantial open Valmere water visible on every side. The compact two-by-three town marker shows a northwestern fort, dense roofs and a western harbour above the paired West/East Gate TOWN_ENTRANCE tiles at row 3 cols 7-8. The two-tile road meets only those gates. They lead to the separate Mornay town maps; returns land safely one row south at (240,144) and (272,144). South seam (cols 7-9) continues the road down to EASTERN_FENS_MORNAY_NECK_ROAD_MAP; west seam (rows 6-8) reaches the harbour shore; east seam (rows 10-12) reaches the exposed point. No overworld NPCs, items, interactions or encounter permission were added.",
+    "after": "The peninsula’s northern crown, on firm ground above the rest of the landform, with substantial open Valmere water visible on every side. The compact two-by-three town marker shows a northwestern fort, dense roofs and a western harbour above the paired West/East Gate TOWN_ENTRANCE tiles at row 2 cols 7-8. Water flanks both gates, restricting entry to the two-tile southern road. They lead to the separate Mornay town maps; returns land safely two rows south at (240,144) and (272,144). South seam (cols 7-9) continues the road down to EASTERN_FENS_MORNAY_NECK_ROAD_MAP; west seam (rows 6-8) reaches the harbour shore; east seam (rows 10-12) reaches the exposed point. No overworld NPCs, items, interactions or encounter permission were added."
+  }
+}

@@ -53,7 +53,7 @@ test('backtick lab row is explicitly labelled DEV and leaves all earlier debug r
   const g=fresh();record(g);g.press('`');g.renderFrame();
   const text=J(g,'paint.filter(c=>c.type==="text").map(c=>c.args[0])').join('\n');
   assert.match(text,/DEV: Formation Combat Lab/);assert.match(text,/DEV: Party Combat Lab/);assert.match(text,/Play Sera\/Liora Cutaway/);assert.match(text,/Warp to Map/);
-  assert.equal(g.run('DEBUG_MENU_ROW_COUNT'),14);assert.equal(g.run('debugMode'),false);
+  assert.equal(g.run('DEBUG_MENU_ROW_COUNT'),15);assert.equal(g.run('debugMode'),false);
   for(let i=0;i<11;i++)g.press('ArrowDown');g.hold('Enter');g.hold('Enter');
   assert.equal(g.run('formationCombatLab.isMenuOpen()'),true);assert.equal(g.run('combat.mode'),null);
   g.release('Enter');g.renderFrame();assert.equal(lab(g).cursor,0);

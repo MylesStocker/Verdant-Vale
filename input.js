@@ -179,6 +179,14 @@ window.addEventListener('keydown', e => {
     if (!e.ctrlKey && !e.metaKey && (e.key.startsWith('Arrow') || e.key === ' ')) e.preventDefault();
     return;
   }
+  if (debugPromisePreview.isOpen()) {
+    const held=pressedKeys[e.key];pressedKeys[e.key]=true;
+    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
+      e.preventDefault();
+      if(!held&&!e.repeat)debugPromisePreview.keyDown(e.key);
+    }
+    return;
+  }
   if (riverWrestling.isActive()) {
     const held=pressedKeys[e.key];pressedKeys[e.key]=true;
     if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
@@ -596,7 +604,7 @@ window.addEventListener('keydown', e => {
         // 7 Validate Data, 8 Home on Defeat, 9 Legacy Regional Fallback,
         // 10 Play Sera/Liora Cutaway
         // 11 DEV: Formation Combat Lab, 12 DEV: Party Combat Lab,
-        // 13 DEV: Story Checkpoint Lab
+        // 13 DEV: Story Checkpoint Lab, 14 Pinky Promise Animation
         e.preventDefault();
         if (e.key === 'ArrowUp'   || e.key === 'w') debugMenu.cursor = Math.max(0, debugMenu.cursor - 1);
         if (e.key === 'ArrowDown' || e.key === 's') debugMenu.cursor = Math.min(DEBUG_MENU_ROW_COUNT - 1, debugMenu.cursor + 1);
@@ -666,6 +674,8 @@ window.addEventListener('keydown', e => {
             partyCombatLab.openMenu();
           } else if (debugMenu.cursor === 13) {
             storyCheckpointLab.open();
+          } else if (debugMenu.cursor === 14) {
+            debugPromisePreview.open();
           }
         }
         if (e.key === 'Escape' || e.key === '`') { debugMenu.open = false; }

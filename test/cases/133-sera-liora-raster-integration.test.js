@@ -58,6 +58,10 @@ module.exports = {
   name: 'Sera/Liora raster integration: cache, anchors, bed layers, portraits, cold wait, fallback',
   async run() {
     const expected = {
+      debug_pinky_promise_v2_a: ['assets/previews/sera-liora/pinky-promise-v2-a.png',1586,992,null,null,2],
+      debug_pinky_promise_v2_b: ['assets/previews/sera-liora/pinky-promise-v2-b.png',1585,992,null,null,2],
+      debug_pinky_promise_v2_c: ['assets/previews/sera-liora/pinky-promise-v2-c.png',1586,992,null,null,2],
+      debug_pinky_promise_v2_d: ['assets/previews/sera-liora/pinky-promise-v2-d.png',1586,992,null,null,2],
       cutaway_bethany_breakfast_meal_v1: ['assets/backgrounds/cutaways/sera-liora/breakfast-v1/seated-meal-v1.png',512,480,null,null,2],
       cutaway_bethany_breakfast_promise_v1: ['assets/backgrounds/cutaways/sera-liora/breakfast-v1/pinky-promise-v1.png',512,480,null,null,2],
       cutaway_bethany_storeroom_flour_v1: ['assets/backgrounds/cutaways/sera-liora/storeroom-flour-v1.png',512,480,null,null,2],

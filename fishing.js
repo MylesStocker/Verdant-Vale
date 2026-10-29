@@ -14,6 +14,7 @@
 // handleFishingKey() are their fishing counterparts.
 
 const fishing = {
+  waters:       'drenwick', // cast-local difficulty/reward profile, never saved
   active:       false,
   phase:        'play',   // 'play' | 'result'
   seq:          [],       // prompt keys: 'left'|'right'|'up'|'down'|'space'
@@ -36,11 +37,12 @@ const FISHING_KEYS = ['left', 'right', 'up', 'down', 'space'];
 const FISHING_KEY_MAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', ' ': 'space' };
 
 // Begin a cast. `power` is the player's best rod power (>= 1). The Bait has
-// already been consumed by the caller.
-function startFishing(power) {
+// consumed by the interaction; new callers deduct it only after a successful launch.
+function startFishing(power, waters='drenwick') {
   if(activityOwnership.combatPreparationConflicts(false).length)return false;
+  if(!['drenwick','fleck'].includes(waters))return false;
   const p = Math.max(1, power || 1);
-  const len = fishingSeqLength(p);
+  const len = fishingSeqLength(p)+(waters==='fleck'?3:0);
   const seq = [];
   for (let i = 0; i < len; i++) seq.push(FISHING_KEYS[Math.floor(Math.random() * FISHING_KEYS.length)]);
   fishing.active       = true;
@@ -48,11 +50,13 @@ function startFishing(power) {
   fishing.seq          = seq;
   fishing.idx          = 0;
   fishing.power        = p;
-  fishing.windowFrames = fishingWindowFrames(p);
+  fishing.waters       = waters;
+  fishing.windowFrames = waters==='fleck'?Math.floor(fishingWindowFrames(p)*0.6):fishingWindowFrames(p);
   fishing.timer        = fishing.windowFrames;
   fishing.flash        = 0;
   fishing.flashType    = null;
   fishing.result       = null;
+  return true;
 }
 
 // Per-frame advance (called from update() while fishing.active). Only the timeout
@@ -95,14 +99,20 @@ function fishingMiss(reason) {
 }
 
 function fishingSuccess() {
+  if(!fishing.active || fishing.phase!=='play')return;
   fishing.phase = 'result';
   fishing.flash = 8; fishing.flashType = 'hit';
-  fishing.result = resolveFishingCatch(fishing.power);
+  fishing.result = resolveFishingCatch(fishing.power,fishing.waters);
 }
 
 // Decide the catch on a successful reel-in. A better rod tilts toward the Canal
 // Eel (the valuable catch); the Sealed Letter is the rare one-time flavour find.
-function resolveFishingCatch(power) {
+function resolveFishingCatch(power, waters='drenwick') {
+  if(waters==='fleck'){
+    const fish=Math.random()<Math.min(0.8,0.3+0.12*power)?'Lake Pike':'Valmere Perch';
+    grantItem(fish);
+    return {win:true,title:'CAUGHT!',lines:['You land a '+fish+'.','Added to items.']};
+  }
   if (Math.random() < 0.04 && !stats.items.some(i => i.name === 'Sealed Letter')) {
     grantItem('Sealed Letter');
     return { win: true, title: 'CAUGHT!', lines: ['A sealed letter, snagged and mostly dry.', 'Added to items.'] };
@@ -122,6 +132,7 @@ function resolveFishingCatch(power) {
 }
 
 function endFishing() {
+  fishing.waters = 'drenwick';
   fishing.active = false;
   fishing.phase  = 'play';
   fishing.result = null;
@@ -152,6 +163,7 @@ function drawFishing() {
   ctx.fillStyle = '#cfe8f2';
   ctx.font = 'bold 20px "Courier New", monospace';
   ctx.fillText('F I S H I N G', 256, 60);
+  if(fishing.waters==='fleck'){ctx.font='11px "Courier New", monospace';ctx.fillText('THE FLECK — rough water',256,108);}
   ctx.fillStyle = '#7fb0c4';
   ctx.font = '11px "Courier New", monospace';
   ctx.fillText('Hit the prompt shown — before the bar runs out. One miss and it’s gone.', 256, 84);

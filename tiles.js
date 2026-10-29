@@ -215,6 +215,12 @@ const GRAVEL_BAR    = 128;
 const DRIFTWOOD     = 129;
 const STRANDED_BOAT = 130;
 
+// Compact overworld settlement artwork. All are solid scenery; gates retain
+// the existing TOWN_ENTRANCE authority. IDs append without renumbering.
+const TOWN_ROOFS = 131;
+const TOWN_FORT = 132;
+const TOWN_HARBOUR = 133;
+
 // true = player can walk on it
 const WALKABLE = [
   /* 0  GRASS              */ true,
@@ -348,6 +354,9 @@ const WALKABLE = [
   /* 128 GRAVEL_BAR            */ true,
   /* 129 DRIFTWOOD             */ false,
   /* 130 STRANDED_BOAT         */ false,
+  /* 131 TOWN_ROOFS            */ false,
+  /* 132 TOWN_FORT             */ false,
+  /* 133 TOWN_HARBOUR          */ false,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -479,6 +488,9 @@ window.DEEP_REEDS             = DEEP_REEDS;
 window.GRAVEL_BAR             = GRAVEL_BAR;
 window.DRIFTWOOD              = DRIFTWOOD;
 window.STRANDED_BOAT          = STRANDED_BOAT;
+window.TOWN_ROOFS = TOWN_ROOFS;
+window.TOWN_FORT = TOWN_FORT;
+window.TOWN_HARBOUR = TOWN_HARBOUR;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -514,7 +526,7 @@ const DEBUG_TILE_NAMES = [
   'TOWN_BUILDING',  'TOWN_ENTRANCE',  'TOWN_EXIT',  'TOWN_FLOOR',  'TOWN_MARKET',  'TRAPPER_HUT',
   'TREE',  'WATER',  'WEST_ENTRANCE',  'WEST_EXIT',  'WORLD_HOLLOW',
   'HORROR_TENDON_DOWN',  'HORROR_TENDON_UP',  'HORROR_SECRET_ENTRANCE',  'HORROR_SECRET_EXIT',
-  'GRAVEL_BAR',  'DRIFTWOOD',  'STRANDED_BOAT',
+  'GRAVEL_BAR',  'DRIFTWOOD',  'STRANDED_BOAT', 'TOWN_ROOFS', 'TOWN_FORT', 'TOWN_HARBOUR',
 ];
 
 let _debugTileNameById = null; // lazily built on first call, after every script has loaded
@@ -555,6 +567,9 @@ window.debugTileName = debugTileName;
 // isEncounterEligibleTile() (including context-sensitive dungeon-floor rules),
 // and regional geographic consistency.
 const TILE_PROPERTIES = {
+  [TOWN_ROOFS]: {id:TOWN_ROOFS,name:'Town Roofs',debugName:'TOWN_ROOFS',walkable:WALKABLE[TOWN_ROOFS],category:'building',tags:['building','settlement'],encounterEligible:false,isDecorative:true},
+  [TOWN_FORT]: {id:TOWN_FORT,name:'Town Fort',debugName:'TOWN_FORT',walkable:WALKABLE[TOWN_FORT],category:'building',tags:['building','settlement'],encounterEligible:false,isDecorative:true},
+  [TOWN_HARBOUR]: {id:TOWN_HARBOUR,name:'Town Harbour',debugName:'TOWN_HARBOUR',walkable:WALKABLE[TOWN_HARBOUR],category:'building',tags:['building','settlement'],encounterEligible:false,isDecorative:true},
   // ── Outdoor / natural ──────────────────────────────────────────────────
   [GRASS]: {
     id: GRASS, name: 'Grass', debugName: 'GRASS', walkable: WALKABLE[GRASS],
