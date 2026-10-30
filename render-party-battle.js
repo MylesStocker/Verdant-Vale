@@ -84,6 +84,45 @@ const partyBattleQuickbloomAnimation=(()=>{
   });
 })();
 
+// Swallow presents a receipted combat event; this clock cannot resolve damage.
+const SWALLOW_ANIMATION_FRAMES=120;
+const partyBattleSwallowAnimation=(()=>{
+  let key=null,frame=0;
+  const eventFor=v=>v?.playbackFrame?.currentEvent?.type==='swallow'?v.playbackFrame.currentEvent:null;
+  const keyFor=(v,e)=>[v.label,v.playbackFrame.round,v.frameIndex,e.actorId].join('|');
+  const reset=()=>{key=null;frame=0;};
+  const update=(v,seconds)=>{
+    const e=eventFor(v);if(!e){reset();return false;}
+    const next=keyFor(v,e);if(next!==key){key=next;frame=0;}
+    frame=Math.min(SWALLOW_ANIMATION_FRAMES,frame+presentationFrameDelta(seconds));
+    if(SWALLOW_ANIMATION_FRAMES-frame<1e-8)frame=SWALLOW_ANIMATION_FRAMES;return true;
+  };
+  function draw(v){
+    const e=eventFor(v);if(!e)return false;
+    const age=key===keyFor(v,e)?frame:0,t=age/SWALLOW_ANIMATION_FRAMES;
+    const rise=Math.min(1,t/.35),sink=Math.max(0,Math.min(1,(t-.38)/.4)),close=Math.max(0,Math.min(1,(t-.76)/.2));
+    ctx.save();ctx.beginPath();ctx.rect(0,70,512,225);ctx.clip();
+    // Peat heaves upwards beneath the entire party before the jaws close.
+    ctx.fillStyle='#514b37';for(let i=0;i<11;i++)ctx.fillRect(51+i*39,281-Math.round(rise*(6+i%3*4)),23,8);
+    ctx.save();ctx.translate(256,282);ctx.scale(2.35,1.65*rise+.06);drawBattlePeatMaw(0,0,1-close);ctx.restore();
+    if(t<.79)for(const m of v.party){
+      const hit=e.hits.find(h=>h.targetId===m.instanceId);if(!hit)continue;
+      const pos=PARTY_COMBAT_ALLY_SLOTS[m.slot],sprite=PARTY_COMBAT_ALLY_SPRITES[m.characterId];
+      ctx.save();ctx.beginPath();ctx.rect(0,70,512,207);ctx.clip();
+      ctx.translate(Math.round((256-pos.x)*sink*.7),Math.round(sink*100));
+      sprite.draw(pos.x,sprite.anchorY);ctx.restore();
+    }
+    // Foreground teeth occlude the descending feet, then the mouth seals.
+    if(t>.35&&t<.79){ctx.fillStyle='#b8b18a';for(let i=0;i<10;i++){const x=95+i*35;ctx.fillRect(x,277,12,15);ctx.fillRect(x+3,270,6,9);}}
+    ctx.restore();return true;
+  }
+  return Object.freeze({draw,reset,update,
+    blocksAdvance(v){const e=eventFor(v);return !!e&&(key!==keyFor(v,e)||frame<SWALLOW_ANIMATION_FRAMES);},
+    getView(){return Object.freeze({key,frame,duration:SWALLOW_ANIMATION_FRAMES});},
+    isEvent:v=>!!eventFor(v),
+  });
+})();
+
 // Presentation clocks follow authenticated shared-engine events. They never
 // resolve damage, spend Strain, use RNG or change the event/target history.
 const partyBattleOffensiveResonanceAnimation=(()=>{
@@ -268,6 +307,8 @@ function formatPartyBattleEvent(view) {
   if(!event)return 'Ready.';
   const members=[...view.party,...view.enemies],name=id=>members.find(m=>m.instanceId===id)?.name;
   const actor=name(event.actorId),target=name(event.targetId);
+  if(event.type==='fen_effect')return event.messages.join(' ')||'The fen creatures settle.';
+  if(event.type==='swallow')return `${actor} uses Swallow! The ground opens beneath the party.`;
   if(event.type==='outcome')return event.outcome==='victory'?'Victory.':event.outcome==='defeat'?'Defeat.':event.outcome==='escape'?'The party escapes.':'Round complete.';
   if(event.type==='round_end') {
     const expired=event.effectsBefore.find((before,i)=>before.evadeTurns>0&&event.effectsAfter[i].evadeTurns===0);
@@ -318,6 +359,9 @@ function formatPartyBattleEvent(view) {
     `${name(event.targetId)} suffers ${event.appliedDamage} burn damage.`;
   if(event.type==='item') {
     const prefix=`${actor} uses ${event.itemId}${target?` on ${target}`:''}.`;
+    if (event.effect === 'escape') return itemAllowsEncounterEscape(event.itemId,event.before.enemies)
+      ? 'Serpentsmoke hides your scent. You escape the Fen Zolom!'
+      : 'Serpentsmoke disperses. It only confuses the Fen Zolom.';
     if(event.effect==='heal') {
       const before=event.before.party.find(m=>m.instanceId===event.targetId),after=event.after.party.find(m=>m.instanceId===event.targetId);
       return `${prefix} ${target} recovers ${after.hp-before.hp} HP.`;
@@ -427,9 +471,21 @@ function drawPartyBattle(view) {
     }
     else ctx.drawImage(image,0,0,512,480);
   }else drawBattleBackground();
-  layout.enemies.forEach((position,slot)=>drawPartyCombatEnemy(view.enemies[slot],position,layout.targetIds?.includes(position.instanceId)||layout.target?.side==='enemy'&&layout.target.instanceId===position.instanceId));
-  layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,
+  layout.enemies.forEach((position,slot)=>{
+    if(partyBattleSwallowAnimation.isEvent(view)&&view.playbackFrame.currentEvent.actorId===position.instanceId)return;
+    drawPartyCombatEnemy(view.enemies[slot],position,layout.targetIds?.includes(position.instanceId)||layout.target?.side==='enemy'&&layout.target.instanceId===position.instanceId);
+  });
+  const swallowed=partyBattleSwallowAnimation.isEvent(view)||view.party.every(m=>m.hp===0)&&view.enemies.some(e=>e.hp>0&&e.swallowAfterRounds<=(view.playbackFrame?.round||view.completedRounds));
+  if(!swallowed)layout.allies.forEach((position,slot)=>drawPartyCombatAlly(view.party[slot],position,
     layout.target?.side==='ally'&&layout.target.instanceId===position.instanceId));
+  drawFenBattleEffects(view,layout);
+  partyBattleSwallowAnimation.draw(view);
+  const deadline=view.enemies.find(e=>e.hp>0&&e.swallowAfterRounds);
+  if(deadline&&!['victory','defeat','escape'].includes(view.phase)){
+    const left=partyBattleSwallowAnimation.isEvent(view)?0:Math.max(0,deadline.swallowAfterRounds-view.completedRounds);
+    ctx.fillStyle='#161510';ctx.fillRect(12,70,278,23);ctx.fillStyle=left<=2?'#e6a16b':'#d6c891';ctx.font='bold 12px "Courier New", monospace';
+    ctx.fillText(`SWALLOW: ${left} full round${left===1?'':'s'} remaining`,20,86);
+  }
   partyBattleQuickbloomAnimation.draw(view);
   partyBattleOffensiveResonanceAnimation.draw(view);
   ctx.fillStyle='#08121e';ctx.fillRect(8,297,496,175);ctx.strokeStyle='#5a8a9a';ctx.lineWidth=2;ctx.strokeRect(9,298,494,173);ctx.strokeStyle='#2a4e5e';ctx.lineWidth=1;ctx.strokeRect(13,302,486,165);
@@ -450,4 +506,32 @@ function drawStoryBattleSera(x,y) {
 function drawStoryBattleLiora(x,y) {
   ctx.save();ctx.translate(x,y);ctx.scale(0.62,0.62);
   drawSeraLioraCourtyardLiora({x:0,y:0,facing:'right',frame:1});ctx.restore();
+}
+
+
+function drawFenBattleEffects(view,layout) {
+  const names=id=>view.party.find(m=>m.instanceId===id)?.name||'';
+  for(const [i,e]of view.enemies.entries()){
+    const u=e.unusual?.fen;if(!u||e.hp<=0)continue;const p=layout.enemies[i];
+    const label=u.mode==='charge'?(u.partnerId?'CHORUS NEXT ROUND':'DEEP TOLL NEXT ROUND'):
+      u.mode==='marked'?'LUNGE: '+names(u.targetId):u.mode==='bound'?'BINDING: '+names(u.targetId):
+      u.mode==='watch'?'WATCHING: '+names(u.targetId):u.mode==='swollen'?'SWOLLEN: HIT IT':u.exposed?'TRUE LIGHT':'';
+    if(label){ctx.fillStyle='#e1c77d';ctx.font='bold 10px "Courier New", monospace';ctx.fillText(label,p.x,73,p.width);}
+    if(u.mode==='charge'){
+      ctx.strokeStyle='#c9d998';ctx.lineWidth=2;const radius=13+Math.floor((Math.sin(view.presentationSeconds*5.4)+1)*8);
+      ctx.beginPath();ctx.ellipse(p.anchorX,p.anchorY-24,radius,radius*.5,0,0,Math.PI*2);ctx.stroke();
+    }
+    if(u.mode==='bound'){
+      const a=layout.allies.find(a=>a.instanceId===u.targetId);if(a){ctx.strokeStyle='#9d9160';ctx.lineWidth=3;
+        for(let n=0;n<3;n++){ctx.beginPath();ctx.ellipse(a.x,a.feetY-12-n*12,17,5,0,0,Math.PI*2);ctx.stroke();}}
+    }
+  }
+  const event=view.playbackFrame?.currentEvent;if(event?.type!=='fen_effect')return;
+  const pulse=(Math.sin(view.presentationSeconds*10.8)+1)/2;
+  for(const h of event.hits){
+    const a=layout.allies.find(a=>a.instanceId===h.targetId),e=layout.enemies.find(e=>e.instanceId===h.targetId);
+    const x=a?.x??e?.anchorX,y=a?a.feetY-42:e?.anchorY-30;if(x===undefined)continue;
+    ctx.strokeStyle=event.messages.some(s=>s.includes('Chorus'))?'#b8e8cc':'#dcc080';ctx.lineWidth=3;
+    ctx.beginPath();ctx.ellipse(x,y,12+pulse*20,7+pulse*12,0,0,Math.PI*2);ctx.stroke();
+  }
 }

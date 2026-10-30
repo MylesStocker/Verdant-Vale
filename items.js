@@ -117,6 +117,8 @@ const ITEM_REGISTRY = {
   // and costs the turn. Henbane kills the hen (female); Jackbane the jack (male).
   'Henbane Sprig':   { name: 'Henbane Sprig',    type: 'reagent', sexBane: 'female', price: 8 },
   'Jackbane Vial':   { name: 'Jackbane Vial',    type: 'reagent', sexBane: 'male',   price: 8 },
+  // Battle-only scent cover: consumed even on the wrong creature. No field flag.
+  'Serpentsmoke': {name:'Serpentsmoke',type:'reagent',escapeEnemyId:'enemy_fen_zolom',battleOnly:true,price:60},
   // Trollbane — a cheap fen bane that seizes up a regenerating brute (the Rotwood
   // Troll). Used in combat: it staggers the enemy for the turn (no counter) and
   // prevents self-healing for the rest of the battle (see
@@ -137,6 +139,7 @@ const ITEM_REGISTRY = {
   // never inferred from questItem — the mushroom wines above stay ordinary.)
   'Thank-You Note':    { name: 'Thank-You Note',    type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
   'Schilling':         { name: 'Schilling',         type: 'accessory', bonus: 0, price: 0, questItem: true, keyItem: true },
+  'Hoist Inspection Packet': {name:'Hoist Inspection Packet',type:'accessory',bonus:0,price:0,questItem:true,keyItem:true},
   'Third Lock Towpath Tally': {name:'Third Lock Towpath Tally',type:'accessory',bonus:0,price:0,questItem:true,keyItem:true},
   'Carved Canal Boat': {name:'Carved Canal Boat',type:'accessory',bonus:0,price:0,questItem:true,keyItem:true},
   'Joran’s Supply Key': {name:'Joran’s Supply Key',type:'accessory',bonus:0,price:0,questItem:true,keyItem:true},

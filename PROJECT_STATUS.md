@@ -2401,3 +2401,61 @@ Final verification for this pass: **273/273 regression suites passed**, all 57 c
 Follow-up to the road/marker pass: the two-by-three marker moves one row north within `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` (now rows 0–2, columns 7–8). Its gates are at row 2; the former gate cells on row 3 become road. Water replaces grass at row 2, columns 6 and 9, preventing lateral entry. Nine tile values change in this follow-up; no other regional grid changes. Return landings remain (240,144)/(272,144), now two rows south of the gates, facing down. Town maps, cameras, seams and SAVE_VERSION 5 are unchanged. Exact deltas are in `test/fixtures/mornay-north-shift.json`; suite 338 tests side collisions, southern gate round trips/save-load and connected shore ground. See `Art/qa/mornay/north-shift-v1/README.md` for evidence.
 
 North-shift verification: **274/274 regression suites passed**; 59 JavaScript syntax checks passed; validation zero errors/six existing warnings; all fingerprints match; transition audit matches. Manual browser checks confirmed blocked lateral approaches, both gate round trips and 1×/2× appearance. Nothing staged, committed or pushed.
+
+
+### Mornay job board — 2026-10-29
+
+South Upper East now has a notice board directing players to existing Iset,
+Torlin and Gessa. Iset offers a 250g removal deep in the western Great Fen;
+Torlin offers a 300g removal deep in the eastern Upper River Valley. Both use
+shared canonical combat with existing monster artwork, explicit engagement and
+ordinary retreat. Gessa's 35g inspection-packet errand goes back and forth through
+Arlis and Maura. All three persist in the notebook, pay once and leave MQ5
+unchanged. No NPC, map grid, camera or route changes. SAVE_VERSION remains 5 with
+three defaulted stage bindings. See `MORNAY_TOWN_PLAN.md` and
+`Art/qa/mornay/jobs-v1/README.md` for locations, verification and walkthrough.
+
+Verification: 275/275 regression suites passed; validation reports 0 errors and
+6 existing warnings. All 1,058 regional fingerprints and the transition audit
+artifact remain unchanged. Native/2× browser captures are in the QA folder;
+full wilderness journeys and balance tuning remain manual playtest items.
+
+### Peat-Bed Maw damage race — 2026-10-29
+
+The optional western removal boss is now a giant mouth in the peat. It has
+480 HP and uses Swallow after six complete rounds if still alive, defeating the
+party through normal recovery. Sixth-round attacks and Bomb damage can win
+before Swallow; retreat is still allowed. Dedicated programmatic art, an
+on-screen countdown and a two-second engulfing animation replace the rootworm
+presentation. Iset, Esla, field warnings, Observe and notebook explain the danger.
+The Snapper, delivery job, terrain, locations, reward and quest/save stages remain
+unchanged. See `Art/qa/mornay/maw-swallow-v1/README.md` for precise rule, tests,
+balance evidence, screenshots and changed-file inventory.
+
+Swallow verification: 276/276 full regression suites pass; validation has
+0 errors / 6 existing warnings; all 28 changed/new JavaScript files pass syntax.
+Chrome keyframe review and two-second playback checked at native/2× scale.
+No save version, grid or geographic artifact changes. Work remains uncommitted.
+
+### Great Fen tactical random encounters
+
+Six stronger enemies and ten weighted formations now occupy the existing 174
+encounter-enabled Great Fen chunks. Peatback is a plain tank; Drownlight rewards
+Observe; Blackbriar Hound marks and lunges; Bell-Throated Toad charges Deep Toll
+or the interruptible Witchlight Chorus with a Drownlight; Reedbinder binds;
+Bladder Leech reacts to healing and ruptures when struck swollen. All have
+programmatic sprites and idle motion, plus battle-view tactical cues.
+No terrain, camera, access, Zolom, road, town, quest or save-schema changes.
+SAVE_VERSION remains 5. Specs and walkthrough: GREAT_FEN_ENCOUNTERS.md.
+
+### Valmere shoreline access and Serpentsmoke (2026-10-29)
+
+The full land-bearing shore in columns 9–10 north of row 0 now has connected
+foot access: 88 tree cells opened across 13 grids and 11 formerly scenic chunks
+made playable, with ordinary Eastern Fens hard encounters on those new chunks.
+Existing Great Fen pools remain unchanged. Camera settings and water are unchanged.
+Zolom remains at (7,0), preceded by a session-only entry warning; (8,0) now uses
+ordinary hard encounters. Henric sells Serpentsmoke for 60g upstairs at Sorn Work
+Gear, with Messa's MQ5 paperwork dialogue supplying the tip. One use escapes a
+Zolom-only fight without rewards. It cannot unlock other bosses. MQ5 and save
+version 5 are unchanged. Exact deltas and verification: Art/qa/valmere-access/README.md.

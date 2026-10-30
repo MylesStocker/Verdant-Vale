@@ -20,7 +20,11 @@ module.exports = {
     const CH = ROWS * TILE, CW = COLS * TILE;
     // warp + clear any overlay a prior crossing may have opened (a North Basin
     // feature/evidence trigger can open dialogue, which freezes update()).
-    const warp = (id) => g.run(`debugWarpToDestination('outdoor:${id}'); dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;`);
+    const warp = (id) => {
+      g.run(`debugWarpToDestination('outdoor:${id}'); dialogue.open=false; menu.open=false; choice.open=false; shop.open=false; debugMenu.open=false; warpMenu.open=false;`);
+      // Acknowledge the ordinary arrival warning before measuring seam motion.
+      g.frames();require('./301-mornay-manifest.test').dismiss(g);
+    };
     const setKeys = (o) => g.run('(function(o){for(var k in keys)delete keys[k];for(var k in o)keys[k]=o[k];})(' + JSON.stringify(o) + ')');
     const clearKeys = () => g.run('for(var k in keys)delete keys[k];');
     const mapId = () => g.run('mapIdForRef(activeMap)');
@@ -51,7 +55,7 @@ module.exports = {
 
     // ── 1. Runtime eligibility == safe reciprocal ALIGNS (from the audit) ────
     const entries = J("JSON.stringify(continuousSeamEntries().map(e=>({from:e.from,dir:e.dir,to:e.to,range:e.range})))");
-    assert.equal(entries.length, 1946, '1946 eligible directed segment entries (973 reciprocal pairs)');
+    assert.equal(entries.length, 1992, '1992 eligible directed segment entries (996 reciprocal pairs)');
     const audit = require('../transition-audit.js');
     const alignsSet = new Set(audit.seamReadiness.edges.filter(e => e.verdict === 'ALIGNS').map(e => e.mapId + '|' + e.dir + '|' + e.neighbor));
     for (const e of entries) assert.ok(alignsSet.has(e.from + '|' + e.dir + '|' + e.to), `${e.from} ${e.dir} -> ${e.to} is an audit ALIGNS edge`);
@@ -413,6 +417,6 @@ module.exports = {
       delete window.__multiOldA;delete window.__multiOldB;
       delete window.__multiOldATile;delete window.__multiOldBTile;
       _CS_INDEX=null;_CS_MAPS=null;`);
-    assert.equal(g.run('continuousSeamEntries().length'), 1946, 'all production seam segments restore unchanged');
+    assert.equal(g.run('continuousSeamEntries().length'), 1992, 'all production seam segments restore unchanged');
   },
 };

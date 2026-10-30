@@ -1,10 +1,10 @@
 {
-  "date": "2026-10-28",
+  "date": "2026-10-29",
   "totals": {
     "chunks": 1058,
-    "explorable": 477,
-    "scenery": 581,
-    "encounterEnabled": 458,
+    "explorable": 488,
+    "scenery": 570,
+    "encounterEnabled": 469,
     "x": [
       -8,
       30
@@ -430,7 +430,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "8dff9770a445e7c79736806e7f10d2a8bb8e31cd89fed7399a8261389f3293f3"
     },
     {
@@ -441,7 +441,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ecbb4f1b6637cc819767a5540bd965995950c4ec508e63030496d59a6576fce5"
     },
     {
@@ -452,7 +452,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "1569524853a959923673e594093b9886eeff1abb06d7ffae21fe15c71ec187f1"
     },
     {
@@ -463,7 +463,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "d690349b846dc060716ef202a9394378981d134ffedb5d971822b2f192111ac5"
     },
     {
@@ -518,7 +518,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "e27cd58d5977efe4d36803dfaceb6516d49a7fd037bd7f29cbdb174a07e8362c"
     },
     {
@@ -529,7 +529,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "c7e4ada959f0ba2d1d3654d29e3e022576dbe99c6643c2ba4d698f390dcd3d74"
     },
     {
@@ -837,7 +837,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "9843df74ebea190e9cacbc5933543aea05b42433b3b8adf66b74006f23921cbf"
     },
     {
@@ -848,7 +848,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "e0c9cf53c78842a92d7d3165744bdf79ec74480a0a6d005a68c790def6156263"
     },
     {
@@ -859,7 +859,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "dfb873f204344ee0c1b4e20acb1b7f91f9dc53438b5e7eb2554e4d15f4d2d074"
     },
     {
@@ -870,7 +870,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "9971230f330cf729be26e9c03510ac212e67327d9f8adb927882b646bb3ca847"
     },
     {
@@ -881,7 +881,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "4aa52aa979929c99dec7348b2f261d1a9749dbe00f58ba61e4fc542cc4871efd"
     },
     {
@@ -892,7 +892,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "5a1f8bc258cc8379f790c076493485e9e11c689b4add92ab302754bd165223a4"
     },
     {
@@ -903,7 +903,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "040082a5d30722c7a02c5ecb3e684aea611a6d54da9b90d14512b12ba5db9099"
     },
     {
@@ -914,7 +914,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "34edf0ed6195c750d256229ac4ae16a4a8a42914853fc8915e8544475bafe878"
     },
     {
@@ -925,7 +925,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "284b7bed1df138838d8b3ce6471c1cc08fa6ab9b364d4b87a4c6d2cd469551a5"
     },
     {
@@ -936,7 +936,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "574c5f62f735630fa4147ea064d5678b4357c5534d14a7f5b08e71d39eca79d9"
     },
     {
@@ -947,7 +947,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "5d0e12c3d92fd167584ade29d2c932bd07eb1dd13d47a1223b950170bed1a92e"
     },
     {
@@ -958,7 +958,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "05442b331ebbbc403a7a982c1a0e3c50d12a13d49c1c370f3e9460e06c8d8c43"
     },
     {
@@ -969,7 +969,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ab6d4d654503ddafd95a9b34832352d1ece173612a3b8831fb4253db987b3ea0"
     },
     {
@@ -1000,9 +1000,9 @@
       "y": -13,
       "region": "Great Fen",
       "name": "Great Fen — Open Water",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
       "sha256": "2bffe42ab5ddc9c7a0df8992f5579ef39e859d8feefd6666a2f530b9958837bd"
     },
     {
@@ -1255,7 +1255,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "eb4fb5e6263d2b7cf65820ff495ef007d5dd7158777e6b1f6999bfcf3183b3bf"
     },
     {
@@ -1266,7 +1266,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "9ca4690ef5f3c8240b5b1b3598a723beb23e979fb8f1c8c9200bff1af6dcec5a"
     },
     {
@@ -1277,7 +1277,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "103f159ee79cae5ce32f601dcd1e4ffba98bb0f838bed6d0e19596cd9ca8c3c2"
     },
     {
@@ -1288,7 +1288,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "75e1809d13abc44c4db51aef4fc07a356c5226b43d0b7d1628ca87ace2a6d3bc"
     },
     {
@@ -1299,7 +1299,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "09a583ec770f20371808db24707930e139861cf7cc31ab917e746236ad1e88e0"
     },
     {
@@ -1310,7 +1310,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b23be663223bf2301cb64b7f94dfe14d380df0c4130368569211be4ac3c75b6c"
     },
     {
@@ -1321,7 +1321,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "a5578982debf60b3b143eb35100a524423a124680b0ff9688d4e89880466eee7"
     },
     {
@@ -1332,7 +1332,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "7752318173e7a06380a0e315af366a2f431e7b9ee75c0d32d2a453422b4d4aa0"
     },
     {
@@ -1343,7 +1343,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "60d45846d9485d8862e118c873c860010948240084251f7ac8a02dc1f118bd62"
     },
     {
@@ -1354,7 +1354,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "0eb444ab0efbfe7ef6ffac8b241a1aa1d3843513119f5f1451a579aa7c5a26be"
     },
     {
@@ -1365,7 +1365,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "7cbe8c07cd7be8e457d7001c71525e19d5b2d3afc851a829ce42448f6e25049f"
     },
     {
@@ -1376,7 +1376,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "cf8e4eab5d7d53975b5bd3b08f209d653f2690847a09a6ac3dfaec6f6db78211"
     },
     {
@@ -1387,7 +1387,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "60cea88f67060b44e6d0da0a12ee9b0a0bab72363a30950c50284618e2a29c2d"
     },
     {
@@ -1398,7 +1398,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b57379c3ad50d31b9232b49e408944652a4e0af36f10a43ef111266ebba23e4a"
     },
     {
@@ -1409,7 +1409,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "a61a2bf74a963bf297bc5b7c93a1f09bf86ee46999d2b4377a32da08ac30b448"
     },
     {
@@ -1429,10 +1429,10 @@
       "y": -12,
       "region": "Great Fen",
       "name": "Northern Peat Fans",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
-      "sha256": "43e25668c8b023e18d4a7c40a889a151df801145871eed9453c79bf1254283ae"
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
+      "sha256": "521bc71c1d09efcf5d657a67b5ccff02c41a1220c49b39aac2a57b7753157d3a"
     },
     {
       "mapId": "MAINLAND_C10RN12_MAP",
@@ -1440,9 +1440,9 @@
       "y": -12,
       "region": "Great Fen",
       "name": "Great Fen — Open Water",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
       "sha256": "0a89337661ef03afb334642562dedd5a498e11d7635087e6f18a69b4d53860f7"
     },
     {
@@ -1684,7 +1684,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "37c4ba355de31055c33e5e5effd5a60bd4f38720cfbdc6251ada3eb68079c617"
     },
     {
@@ -1695,7 +1695,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b4d40b265793499f9f8348e0aa7d7fd25adc1b5776ed84989dfbc096caedf8ff"
     },
     {
@@ -1706,7 +1706,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "c35cb1f12048fe2521e9443c84ac5bf6356bdd389c1d3a8898cfd75d322987a2"
     },
     {
@@ -1717,7 +1717,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "44b894ee1bbdd689d9a42ea940f5c248c967105b8b4bdd74639fea86e9e3329c"
     },
     {
@@ -1728,7 +1728,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "cfeb86db624e7d9a5186eb531ba30403e6bd9c82d48df32fa8f76eff1ef5234c"
     },
     {
@@ -1739,7 +1739,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "3c221ab24bbafb4e6d40363c9ed04d3a965a3da9075c94a559999a92c3a7c5e4"
     },
     {
@@ -1750,7 +1750,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "da54847364f37d857c2bbc5c21224a03cdd9f4f8946833125badf77f6c729f64"
     },
     {
@@ -1761,7 +1761,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "a472edfc7b2bd56f39d361e7959ee94c6071488dd4839d2c17b269dd039006a2"
     },
     {
@@ -1772,7 +1772,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "934690ad84fc620c8b4a11aefa5abc3846497ef192c22b60f91c22b25558406b"
     },
     {
@@ -1783,7 +1783,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "7c8e82ffed6b0238eeb2cf3b7a9dcaebcfe0003be43cc4009a1d81f74034fcff"
     },
     {
@@ -1794,7 +1794,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "3b69020fad5eb16f82d1a0afeb3fcc588beb32dab9183007975c87052828b0ba"
     },
     {
@@ -1805,7 +1805,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "442f692cdc0817e95863dbc07ef222285028b9b8c651650a457ac6ac71ddb313"
     },
     {
@@ -1816,7 +1816,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "7082b700999e4954509b9a0f56645b5dafcf070c4d09ab6223f58431c98a5f1b"
     },
     {
@@ -1827,7 +1827,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "e5a5f2e595c1569abd867c5d9da2fb3db88c82306c99d7ae92d6fd0b9f94598a"
     },
     {
@@ -1838,7 +1838,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "7a73aeaad2f005db8e65f4cb0c3aa7fbc2b7e01b9fe3f212059a922243dddda7"
     },
     {
@@ -1849,7 +1849,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "676c67a55697c3f6edb05c8e8fcd363198faddc2b91ed671639b8f102b79f43a"
     },
     {
@@ -1858,9 +1858,9 @@
       "y": -11,
       "region": "Great Fen",
       "name": "Northern Peat Fans",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
       "sha256": "b0816643ad881697656d2a0e0838add9a8f48dbcb8b197e783a60be1219b9e39"
     },
     {
@@ -1869,10 +1869,10 @@
       "y": -11,
       "region": "Great Fen",
       "name": "Northern Peat Fans",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
-      "sha256": "41a56fb7984c044767b2b937c307e8ecf3c833dbdc30ee2b1f8d07236efd2238"
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
+      "sha256": "60b6565d8d94833059c12d456c5480ea240a00777f646b3f8bca4cc2ddb0c1de"
     },
     {
       "mapId": "MAINLAND_C11RN11_MAP",
@@ -2113,7 +2113,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "12a058cec26f3c92ef779f26df8108c026753d6b07edb5bb488a83531c72631e"
     },
     {
@@ -2124,7 +2124,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "c384f8011057719864ca139cb53108fa75a29ce697c5e146ceac8644cf285570"
     },
     {
@@ -2135,7 +2135,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "01147853a8e57065693afa77e5b88a5f515fa88d7fbc1a9011812c50f97eb9b0"
     },
     {
@@ -2146,7 +2146,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "4a5715950e516ad1bdb6fba2b82e55194ffdf99a8c0de9533b988b699ce33869"
     },
     {
@@ -2157,7 +2157,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "8e170ad8faaf5b32defda9c2ccd1491ae2c713e5145c1d4d49769998ad3133fe"
     },
     {
@@ -2168,7 +2168,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ae5fffa8cc37bb93ec1fe55b3e36aaa7c67a3bc7a478c50bc22a7dfecabb5fc5"
     },
     {
@@ -2179,7 +2179,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "c7795bf5f6ee2be60e02f61b559679b94b15e0a208385c8eae5adab6794b7744"
     },
     {
@@ -2190,7 +2190,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "9c6429fd51201570e2df7145df66e576c078f70155f1162470c09480065a4be4"
     },
     {
@@ -2201,7 +2201,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "db010c20dc8ec421092e49b893293d46b4f0242f6a388cd61303299a7f850ebe"
     },
     {
@@ -2212,7 +2212,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "905bdc2d3768ebe246e463163004f1bb5f1697ba82c187b62053d173700efffc"
     },
     {
@@ -2223,7 +2223,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "94cdbb0f94f237fbe8532dee23e1adefd7fd6036f118d91ccdaad9adb36abb21"
     },
     {
@@ -2234,7 +2234,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "dcb52b253989cf6efa21495af5ce627e21faadf3f3f110a7ec824965908d2fee"
     },
     {
@@ -2245,7 +2245,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "e2eda7d0514909e0a61ca46e3ab6f3c91c6ed39483f9f58f43d51c93a083a6e7"
     },
     {
@@ -2256,7 +2256,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "832cb13f23d1b8681d9a4dbfcd27189e30e83469b138e3a91821f8d38f530d4d"
     },
     {
@@ -2267,7 +2267,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "618df25628edb2b2af2a45cc36ebffb95b14cc0012923f97bc53ba0cb69fb065"
     },
     {
@@ -2278,7 +2278,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "0b5dcbd1551f0be971e692dd0aa003596459cb9fe245698824b53cccbd74f6e6"
     },
     {
@@ -2289,8 +2289,8 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "cf641611ab3b5b3203da647359813ee0bcdcd84bd47fda0d98e15e98a48898ad"
+      "profile": "great_fen",
+      "sha256": "728b7be048be2a8bed6d4a5548c8ca84aec1cdbbe5e41260ee8ffc49291831ac"
     },
     {
       "mapId": "MAINLAND_C10RN10_MAP",
@@ -2298,9 +2298,9 @@
       "y": -10,
       "region": "Great Fen",
       "name": "Northern Peat Fans",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
       "sha256": "e7a3ac00ea8710af32214094aa60d2d44eca43f835f6a9ae61bd0559e1e71828"
     },
     {
@@ -2542,7 +2542,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "aab1248e3cc5710d577c8951a3f275126f909b4884ecddb97430b613a3678f71"
     },
     {
@@ -2553,7 +2553,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "c54392a28d3e7a37ba1c6099e7f1c9c1ca2c0bc428580716c1c6a15c510b439b"
     },
     {
@@ -2564,7 +2564,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "af5e94bc8dccee535089a6e8bff7ca5d673d941552751d06755089a37bda0bf4"
     },
     {
@@ -2575,7 +2575,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f1fd7a01593250f865525eab491c5f87bccd6f4b36bbafe8e81e99db2d737ec6"
     },
     {
@@ -2586,7 +2586,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "fae7f86b3b59a2e0332c1ef6ed04db151775e577b0b864ca3d5eaba214fa9593"
     },
     {
@@ -2597,7 +2597,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "73e00101b87382e65dfb681506ce12b61d07ed9c87119c685ecf5c077bcdf3d2"
     },
     {
@@ -2608,7 +2608,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "3a9ad458c73aa16ddbd886e0e85450ff7a32c38253bc4fce7e1fddfd74a537c1"
     },
     {
@@ -2619,7 +2619,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "6eaaf3c24835ffb037fc168184b6daf01dc42a0b29c58071d5f84fa9ff2f85fe"
     },
     {
@@ -2630,7 +2630,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ac7a3496af1dc2da5ed492ccf1cf4d9f501f14e0de971435b7a942e224b3f5bd"
     },
     {
@@ -2641,7 +2641,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "159437c3ad90b2fb2a15425c17d30185336d7cb6deaf4f5b41530d3104fda2a1"
     },
     {
@@ -2652,7 +2652,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "48bcefb31882b47cada650726a155310fbcb9ee2a6784165331f961fb4a17dae"
     },
     {
@@ -2663,7 +2663,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b3785fc124dcf971505d3f00a62ababae6480d65598b84eeff36271d9566f7ee"
     },
     {
@@ -2674,7 +2674,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "784a1aa538af2a1541c43d529bed3c76a7510f220f66c42d7e77f16ac2a3d426"
     },
     {
@@ -2685,7 +2685,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "45942a85324f1876a72ef1d618ebe63c6ee72bca7fb0ab8b7ff258f60d0a8bad"
     },
     {
@@ -2696,7 +2696,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "88144670b78a51cf74bda4ce4005a80343cc10ad6e0f9c6ad0509da7b9d5e40a"
     },
     {
@@ -2707,7 +2707,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "510037eec4f9cdda5718999208cb95ec77e3957e137154ed6c22d5936a6eda1f"
     },
     {
@@ -2718,8 +2718,8 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "4c7c833ef3b8a224431380f1fcbca7e786d99ad83d39f0401fff498178f8a38c"
+      "profile": "great_fen",
+      "sha256": "556be9b9927f5969f566fdad41a45592c5524e21468ae43cd90b6a111a43afe9"
     },
     {
       "mapId": "MAINLAND_C10RN9_MAP",
@@ -2727,10 +2727,10 @@
       "y": -9,
       "region": "Great Fen",
       "name": "Northern Peat Fans",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
-      "sha256": "6603700a5959bd8e2bb01a2e4691758fb309dbecbadbd7c6f2e6632fa645973d"
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
+      "sha256": "05dbbbae41cc523ae406deed505d0399839cc35895d9567925f797922fd0360a"
     },
     {
       "mapId": "MAINLAND_C11RN9_MAP",
@@ -2971,7 +2971,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "9e28ff69a3a192f771b14bb3f9a317cd5346d70eb5cd3322db38482eaf2983d6"
     },
     {
@@ -2982,7 +2982,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "2e47ff8d0c61c223c33d8f01ba7dc6262bd052a68872f94edd4d621d7bd697e6"
     },
     {
@@ -2993,7 +2993,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "996e599fd75ac4b7e2d68d829c6426935b4398a4eb6bfc9f3a88e06be6a12428"
     },
     {
@@ -3004,7 +3004,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "a8feb0b144eb5db6b68ee1fe93682d944e24795abd8df90f3eac94169065a9cd"
     },
     {
@@ -3015,7 +3015,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "52d598367540e31b706fd2ca960341517937b9bc0acd7a532baa29cde6a47a13"
     },
     {
@@ -3026,7 +3026,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f695079ccc0270a5e279ba061cd4b100c9aa8ee3898935eeedc418240de6ca69"
     },
     {
@@ -3037,7 +3037,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "2f32979085902dcd09fdeee5ac9ee0158f8f00eaf8360b57f435f28a68139c03"
     },
     {
@@ -3048,7 +3048,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "954fc6347f9d420c361deed5a0bba3664439d4e6a6aa81f1df1a7186656b8753"
     },
     {
@@ -3059,7 +3059,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "a4f971a548bfec947763391d961c89b552e4bd09c01a35fd47781d4e184736fc"
     },
     {
@@ -3070,7 +3070,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ffb46c033646492df69868a0974cba1694fa4f21e831bb8e54d773eba1613aa9"
     },
     {
@@ -3081,7 +3081,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "68546975b26ab9266a78c8bf7920a6902e7d5f78d3568fa619072969ac41f722"
     },
     {
@@ -3092,7 +3092,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f92f3f7087bb3f5e2a0bca754afee3ac4bf8825e1a8d192c2efc38941b35a4de"
     },
     {
@@ -3103,7 +3103,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "29ffc2e99f9dee02120134ee8b9fcc1eb884fb93fb44284cf3791b9a65116833"
     },
     {
@@ -3114,7 +3114,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "1e0aad5988adbd99712d13f115821b30471ee373b634d002d4be55a3a8226294"
     },
     {
@@ -3125,7 +3125,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "d1494a859e8f4a82557eeb3840a3ac6e81fd8db522e0cd67bde59e9ff90d314d"
     },
     {
@@ -3136,7 +3136,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "87653c93bc648cf6693c1fd1acaba9957f460473a22da656b3cd053123b3bcce"
     },
     {
@@ -3147,7 +3147,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b7deb6ed32f26c9f4631fdb7f32daf91b1cf49be94afb5028d501246dcb86863"
     },
     {
@@ -3158,8 +3158,8 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "b7a716ff7763e70301a6dab316847c4bc3747b1b899ab8d0cb4bc252003c1f68"
+      "profile": "great_fen",
+      "sha256": "0b6d667d0a8de7b154f152825f06ef44973e596440e29436043588be96703687"
     },
     {
       "mapId": "MAINLAND_C11RN8_MAP",
@@ -3411,7 +3411,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "6762df83d4a207ea1dc86c901651a458a4144e0cc51935148a30eafee5e50780"
     },
     {
@@ -3422,7 +3422,7 @@
       "name": "Willow Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "a2a6b301675c62b366281380a47d8f72cf4813943c2a72d3a6f2893ea64983cb"
     },
     {
@@ -3433,7 +3433,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ff2e4973a553301e14c9685e7426890e80024b2531d48744ce3689b090f227c7"
     },
     {
@@ -3444,7 +3444,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "5aae010e57235c602b3b59e823a288885f9c6a786c5eeebf8810387f980d85c2"
     },
     {
@@ -3455,7 +3455,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "1af24e5c34627a8bb05ba28b49d1e56d2a507832733c2434b0b61f10e269f5ce"
     },
     {
@@ -3466,7 +3466,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ad502b4747bef000703502239c513b30a0834ee4fb0439b575289495fa95148d"
     },
     {
@@ -3477,7 +3477,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "6761a53d9b3614f6bee197370b5d02cdc438bb4d2f1aba5c586660370dbc5da5"
     },
     {
@@ -3488,7 +3488,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "4638277ab602763e738e27be811aa8a1a292646f6271b657530e401f8eff927a"
     },
     {
@@ -3499,7 +3499,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "441d68fb917ed2900eee644e4ae80cb1525af5c3f31cf9f97e833e8701822e75"
     },
     {
@@ -3510,7 +3510,7 @@
       "name": "Long Sedge Plain",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "c30e66b82cc9f2bdb22a99502181ca28e4d3139ac34c55ca5da5ca913fa2aa45"
     },
     {
@@ -3521,7 +3521,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "67c0a0247d0a517df189cd6ed82138d89a4f711997dffe61c633b72a4fc2f7d0"
     },
     {
@@ -3532,7 +3532,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "e5c34279a6345290899ca80d14bde1e2a690d377470d6963ecfdca9f86e67c79"
     },
     {
@@ -3543,7 +3543,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "c234f619ea06ae2389085132d6c7d2d0639bd892ce9be4a07d03aca3aba43851"
     },
     {
@@ -3554,7 +3554,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "30de0fe80bbbd7720c6924ba0959ef6918b1f46199d8ada3425e07faaab51b3e"
     },
     {
@@ -3565,7 +3565,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f404756113bde88d25445fe128dd77069ab2de8363c131c433d2ba07a2445178"
     },
     {
@@ -3576,7 +3576,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "d1c888f84296b124993032ffee13077a17331c9b1ca96299eb440f8217edb30d"
     },
     {
@@ -3587,7 +3587,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "ef5428ec07345cae30eee8622df8621aa576bd513ba612b151d39e7de0e1ad61"
     },
     {
@@ -3840,7 +3840,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "693c6e9c6526efe8e406d5b870c220d4921b52ca67a7a75a27c28c4929be6242"
     },
     {
@@ -3851,7 +3851,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "a2a76739920106c8504781a98be1f805c56ca15cf7e64af46979d3cead32bdb1"
     },
     {
@@ -3862,7 +3862,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "0bc8d4f574c7d8a0df880cd16e869755d4883705df4bfa94cd7f79d36e738225"
     },
     {
@@ -3873,7 +3873,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "76e20d9afe653a1ecaa6cd12acd512ee2ce3dcd94a33a3df92b70a64997c473b"
     },
     {
@@ -3884,7 +3884,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "0b90549e92f97820ef5741c259c43d989c0576a39dfe054602b8328bbd5848d3"
     },
     {
@@ -3895,7 +3895,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "3aa8715185233ed3961d7ea24d5451c78cb8197f2a77736c57b2be86dbb92bb3"
     },
     {
@@ -3906,7 +3906,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "801bf278827bdbb121a6bd85db605dab37b47d4e0e63a0849c0b0bced2b04097"
     },
     {
@@ -3917,7 +3917,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f0e858f573c851fb7b510b22c62f20ed9bd34eb69eb66f8dc16ac815900fbce1"
     },
     {
@@ -3928,7 +3928,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "0bb4cb39cc28389e8c38a32343a0107d830f01d42e3d6862cb666479bb5c1e8a"
     },
     {
@@ -3939,7 +3939,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "66bb17e6a528cefa9d5a37056dca4fe0aad66181758eb326fd9c8fb85a846d0d"
     },
     {
@@ -3950,7 +3950,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "7d9cc1e4581394d95d7a2b245d4ee9b6ae350cf7ad6fb89c7545560819a7dd64"
     },
     {
@@ -3961,7 +3961,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "167bf542204c570d006c53a2676fa7e4881ed83154a6cff3253abca61c017e41"
     },
     {
@@ -3972,7 +3972,7 @@
       "name": "Gravelback Islands",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "0a51b4ed86a44d0a3268e067de93facc8b9669940b9b1ef031d48565cb79632e"
     },
     {
@@ -3983,7 +3983,7 @@
       "name": "Gravelback Islands",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "885bda4e1df2784b8aa24546aa27fb14ccd0fab97f612c434fb0b43986a90e05"
     },
     {
@@ -3994,7 +3994,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "14f4f25f8c982d922900c5dce9df735b1edc2afd9e845d888983ab9efba0b10e"
     },
     {
@@ -4005,7 +4005,7 @@
       "name": "Northern Peat Fans",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f83c8b99a29f703c0c4494e7d42686c63e4f89f570d4cf21391477bc9930eb49"
     },
     {
@@ -4258,7 +4258,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "cf4db493c6528d7306fe8bb3812d1ce777d1c7864569692247aa0c9eb804a8d8"
     },
     {
@@ -4269,7 +4269,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "90ce4329944b6eb498406d1ca12b831afa7341a4371b3d4ae504367272aa36d1"
     },
     {
@@ -4280,7 +4280,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "514b91ab0d6026a27e98e9be2d1c2bc8db3221da1a2d2b684a76da769a2b0141"
     },
     {
@@ -4291,7 +4291,7 @@
       "name": "Western Wet Meadow",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "d43db5ba16b1bfc0f84168e545ebe102462326d68911ca089ab881ce6a7ee18e"
     },
     {
@@ -4302,7 +4302,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "6447b4d07c73aece0991b5b8160f774a18c96429f1dc049e15ef9f477ed85ee3"
     },
     {
@@ -4313,7 +4313,7 @@
       "name": "Great Fen — Hummock Ground",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "47a744e624f72401249726c35a7e7bd6618c38028b80c631b827c0ddbd3ee0a2"
     },
     {
@@ -4324,7 +4324,7 @@
       "name": "Great Fen — Mud Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "e22e651345f5693fd041c42b2d606aaccbfec144773914cab1d120f4786f91bd"
     },
     {
@@ -4335,7 +4335,7 @@
       "name": "Great Fen — Gravel Spur",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "dc882bdd6fdab41e318a62612a8bbd71136fe4e95005f152162044a6097de5ce"
     },
     {
@@ -4346,7 +4346,7 @@
       "name": "Great Fen — Drowned Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "8f33793a234d2dffee02b2ad8929574c2c4f0e29a9808a6c7c0f965a7154c393"
     },
     {
@@ -4357,7 +4357,7 @@
       "name": "Great Fen — Blackwater Reeds",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b6d0f8d56985ff2625650259d128ef341bd183256d64ae9c6cc2d9112af77b79"
     },
     {
@@ -4368,7 +4368,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "bcf376e9d83c6dbe7ae4d4dc7665af550fb384a30bf18ab12002e2c2ea20dc0c"
     },
     {
@@ -4379,7 +4379,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "da887430c4844968c546c34fa54747c1451eff86673a66d7c4698a4c24d2d864"
     },
     {
@@ -4390,7 +4390,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "2a32012c42a9187bb732e8c6a9bbfa346c316f52e8c6d84b67f5b3ffb52d4e12"
     },
     {
@@ -4401,8 +4401,8 @@
       "name": "Gravelback Islands",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "a65c835db043df5a3ef66980ef9c823a2cb1695cf89ac676ac325d610f2b17ed"
+      "profile": "great_fen",
+      "sha256": "12d4dbf8868821fe867e09fff935822f0abbafee15f7701792c37d965c87b343"
     },
     {
       "mapId": "MAINLAND_C10RN5_MAP",
@@ -4410,10 +4410,10 @@
       "y": -5,
       "region": "Great Fen",
       "name": "Gravelback Islands",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
-      "sha256": "02077514fb79b0cbb9f2001891c07db21e042285eeeccc3069fd6e5e4803399e"
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
+      "sha256": "80c611a7b943305d2ecdc32aef37d8fc5d3c2a2fd0c91a0d93b9d07250438095"
     },
     {
       "mapId": "MAINLAND_C11RN5_MAP",
@@ -4753,7 +4753,7 @@
       "name": "Great Fen — Mud Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "499c9c3e5c3d6475adbfc52cc23f9a5d77d6f6a968b3396487a571c4c3ca3dfd"
     },
     {
@@ -4764,7 +4764,7 @@
       "name": "Great Fen — Gravel Spur",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "fa19e1f8bc5b7a211d9ea2e1636f0550bbdb2bbd15ef825ae73cb2f1e34ef78b"
     },
     {
@@ -4775,7 +4775,7 @@
       "name": "Great Fen — Drowned Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "5a8e2ec9d823cd2d1a71be3ff0b666d82cfaeb6e4444d488cd3f4e5b567f6041"
     },
     {
@@ -4786,7 +4786,7 @@
       "name": "Great Fen — Blackwater Reeds",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b6b76185dd03ca10d398a75243593a08820c553bdd85fb9e77775e11032dec09"
     },
     {
@@ -4797,7 +4797,7 @@
       "name": "Great Fen — Hummock Ground",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "727a3c3ac0f655220c01938630a7db92c7ffbddc615f9fadb9e2f72b2bf4944d"
     },
     {
@@ -4808,7 +4808,7 @@
       "name": "Great Fen — Mud Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "8add577d85b37393e795ee8b0e3339fc688f8e3a2751ef0f62f9b8fcda858ac4"
     },
     {
@@ -4819,7 +4819,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "76e236df24fdaed1065100a18310f5b8811d75858e0eff79e7a6b1cbc41d39c3"
     },
     {
@@ -4830,7 +4830,7 @@
       "name": "Great Fen — Bog Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "116b6890039ca2089db63bcd3cfa6c573f554a6c07aef20f85fed3112283febc"
     },
     {
@@ -4839,10 +4839,10 @@
       "y": -4,
       "region": "Great Fen",
       "name": "Great Fen — Continuing Wetland",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
-      "sha256": "d52a8c4a6445fc51874677d6b03468619b87a763d67e00655b5d9f3123c92556"
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
+      "sha256": "737e348b47301b5cf067e5ef5acc4362c0598ebb462d645dfc99e075834a4c79"
     },
     {
       "mapId": "MAINLAND_C11RN4_MAP",
@@ -5182,7 +5182,7 @@
       "name": "Great Fen — Gravel Spur",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "03aa0681c7a65ff57947190531d110df6e5a71b3cbbe7a802122619988b7dd05"
     },
     {
@@ -5193,7 +5193,7 @@
       "name": "Great Fen — Drowned Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "b74aa0a83d70e31b235044347ba0a8ecdd11862f4b433cb0b6eeb9d6f2092bf9"
     },
     {
@@ -5204,7 +5204,7 @@
       "name": "Great Fen — Blackwater Reeds",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f3ac1bda87d19bb855cd7e1ee6ded248b4884b4aa2cecc806e5d0e9c5452b2f3"
     },
     {
@@ -5215,7 +5215,7 @@
       "name": "Great Fen — Hummock Ground",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "cfa04caa973fea6fc92a6c30c58850a4bdb2f0fd60c6b4c804b9569449d1c024"
     },
     {
@@ -5226,7 +5226,7 @@
       "name": "Great Fen — Mud Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "173c92ff1f62f7b5104b69c2eeb0feaba72e7b80509fd6952e57e49fa56bac9e"
     },
     {
@@ -5237,7 +5237,7 @@
       "name": "Great Fen — Gravel Spur",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "214b83628e28813d78022db68649f09f604836836913addc22cdb1b457a1e10c"
     },
     {
@@ -5248,8 +5248,8 @@
       "name": "Great Fen — Drowned Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "28a789fd8db1afa3b5cc620402225368cbd08f6d062ccf5c0fa6323d2eee0b4b"
+      "profile": "great_fen",
+      "sha256": "f266e8440d8eec5fd21b16712bba9d6e80dc373f926460960e8e21a6f1df2063"
     },
     {
       "mapId": "GREAT_FEN_ENVELOPE_C10RN3_MAP",
@@ -5257,9 +5257,9 @@
       "y": -3,
       "region": "Great Fen",
       "name": "Great Fen — Continuing Wetland",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
       "sha256": "7627abc39dcfa8ea43aa12c1e0feac5e352684a6acf791d16f007e883fe640d6"
     },
     {
@@ -5611,7 +5611,7 @@
       "name": "Great Fen — Blackwater Reeds",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "fbd7ad3115d1c5429dcaa204d9a7c31a44380af74f2161571815d336d00a8e59"
     },
     {
@@ -5622,7 +5622,7 @@
       "name": "Great Fen — Hummock Ground",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "00e798986e117f92563698d46c1d99ab956e6a858bf6c1d9fcd7bfeac861e3a5"
     },
     {
@@ -5633,7 +5633,7 @@
       "name": "Great Fen — Mud Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "24303228c3f502ebb578a8d85af6c10b1cd3c87a3b06f7f467bfba4e4463441b"
     },
     {
@@ -5644,7 +5644,7 @@
       "name": "Great Fen — Gravel Spur",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "153d6446c68134f626b693d4be527b9324509640f9b4d330f4184026b79652a8"
     },
     {
@@ -5655,7 +5655,7 @@
       "name": "Great Fen — Drowned Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "75f7981e42f73c10f968766a4d8f69f2a810db0127cab4915eb62259d0efb298"
     },
     {
@@ -5666,8 +5666,8 @@
       "name": "Great Fen — Blackwater Reeds",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "230239830f8d0daa856282ff796703b155af93e15ada05e02919a217a9032eae"
+      "profile": "great_fen",
+      "sha256": "4e9dd8aa8515b7c589bab1dde93b425a83b1333aabee2defd0cac20f711fcfd7"
     },
     {
       "mapId": "GREAT_FEN_ENVELOPE_C11RN2_MAP",
@@ -6040,7 +6040,7 @@
       "name": "Great Fen — Hummock Ground",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "f1c12455cab031dc7bbb8d310d132e8a5bc1f329de837daf0bfd5e146535db64"
     },
     {
@@ -6051,7 +6051,7 @@
       "name": "Great Fen — Mud Basin",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "82068d16d516dccc66632b9a01abc1f608e50bbc5a973bd255f1171fc53c4f69"
     },
     {
@@ -6062,7 +6062,7 @@
       "name": "Great Fen — Gravel Spur",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
+      "profile": "great_fen",
       "sha256": "997ddd6d70562dba0e395fa6a080398315734c19d09f6945bcb846a1a9f57c4d"
     },
     {
@@ -6073,8 +6073,8 @@
       "name": "Great Fen — Drowned Woodland",
       "accessible": true,
       "encounters": true,
-      "profile": "eastern_fens_mornay_hard",
-      "sha256": "c00f6d51648ed183e7ff7e5abd40ea45f3931df2dc200471bde105c1cfcaf96e"
+      "profile": "great_fen",
+      "sha256": "8a07de5be478732b2f80064e0bf79afdc26abb129ecb4be1ee0410f5cf25ba46"
     },
     {
       "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
@@ -6082,10 +6082,10 @@
       "y": -1,
       "region": "Great Fen",
       "name": "Great Fen — Continuing Wetland",
-      "accessible": false,
-      "encounters": false,
-      "profile": "far",
-      "sha256": "dc95d784191625412b84d9eb8b57a2f881b64a335aacca052ad9d7bb36642dc0"
+      "accessible": true,
+      "encounters": true,
+      "profile": "eastern_fens_mornay_hard",
+      "sha256": "39fafba865309d2867a6185ab7a0810309483cb147b031be80c235685b66a705"
     },
     {
       "mapId": "GREAT_FEN_ENVELOPE_C11RN1_MAP",
@@ -6480,7 +6480,7 @@
       "name": "Eastern Fens — North Fen",
       "accessible": true,
       "encounters": true,
-      "profile": "north_fen_zolom",
+      "profile": "eastern_fens_mornay_hard",
       "sha256": "311c1df0207617c6e448dc822669dccac7f0e11f82198d955b9c775c0e9ee84e"
     },
     {

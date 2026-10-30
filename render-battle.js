@@ -61,7 +61,8 @@ function drawBattleEsla(cx, cy) {
 // ─── Battle: enemy sprites ────────────────────────────────────────────────────
 
 // Marsh Wisp — ethereal floating orb, glowing cyan eye, trailing wisps
-function drawBattleWisp(cx, cy) {
+function drawBattleWisp(cx, cy, palette = {}) {
+  const colour = value => palette[value] || value;
   const bob = Math.round(Math.sin(tick * 0.07) * 5);
   const ey  = cy + bob;
 
@@ -72,10 +73,10 @@ function drawBattleWisp(cx, cy) {
   ctx.fill();
 
   // Trailing wisps behind body
-  ctx.fillStyle = '#154858';
+  ctx.fillStyle = colour('#154858');
   ctx.fillRect(cx - 3,  ey + 22, 6,  26);
   ctx.fillRect(cx - 2,  ey + 46, 4,  14);
-  ctx.fillStyle = '#1c5e70';
+  ctx.fillStyle = colour('#1c5e70');
   ctx.fillRect(cx - 20, ey + 8,  6,  20);
   ctx.fillRect(cx - 18, ey + 26, 4,  12);
   ctx.fillRect(cx + 14, ey + 8,  6,  20);
@@ -83,31 +84,31 @@ function drawBattleWisp(cx, cy) {
 
   // Orb body
   [
-    { dy: -22, w: 14, c: '#186878' },
-    { dy: -14, w: 28, c: '#1e9098' },
-    { dy:  -6, w: 36, c: '#24a8b8' },
-    { dy:   2, w: 36, c: '#1e9098' },
-    { dy:  10, w: 26, c: '#186878' },
-    { dy:  18, w: 14, c: '#104858' },
+    { dy: -22, w: 14, c: colour('#186878') },
+    { dy: -14, w: 28, c: colour('#1e9098') },
+    { dy:  -6, w: 36, c: colour('#24a8b8') },
+    { dy:   2, w: 36, c: colour('#1e9098') },
+    { dy:  10, w: 26, c: colour('#186878') },
+    { dy:  18, w: 14, c: colour('#104858') },
   ].forEach(({ dy, w, c }) => {
     ctx.fillStyle = c;
     ctx.fillRect(cx - w / 2, ey + dy, w, 8);
   });
 
   // Inner glow core
-  ctx.fillStyle = '#48c8d8';
+  ctx.fillStyle = colour('#48c8d8');
   ctx.fillRect(cx - 10, ey - 8, 20, 16);
-  ctx.fillStyle = '#98eef8';
+  ctx.fillStyle = colour('#98eef8');
   ctx.fillRect(cx -  5, ey - 4, 10,  9);
 
   // Eye
-  ctx.fillStyle = '#010a0e';
+  ctx.fillStyle = colour('#010a0e');
   ctx.fillRect(cx -  9, ey - 3, 18, 12);
-  ctx.fillStyle = '#c8f8ff';
+  ctx.fillStyle = colour('#c8f8ff');
   ctx.fillRect(cx -  7, ey - 1, 14,  8);
-  ctx.fillStyle = '#00c0e0';
+  ctx.fillStyle = colour('#00c0e0');
   ctx.fillRect(cx -  4, ey,      8,  6);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = colour('#ffffff');
   ctx.fillRect(cx -  2, ey + 1,  3,  3);
 }
 
@@ -614,7 +615,8 @@ function drawBattleMimicPotion(cx, cy) {
 }
 
 // Briar Hound — thorned wolf; four legs, spine thorns, amber eyes, fangs
-function drawBattleBriarHound(cx, cy) {
+function drawBattleBriarHound(cx, cy, palette = {}) {
+  const colour = value => palette[value] || value;
   const sway = Math.round(Math.sin(tick * 0.04) * 1);
 
   ctx.fillStyle = 'rgba(0,0,0,0.32)';
@@ -623,14 +625,14 @@ function drawBattleBriarHound(cx, cy) {
   ctx.fill();
 
   // Tail
-  ctx.fillStyle = '#223a1a';
+  ctx.fillStyle = colour('#223a1a');
   ctx.fillRect(cx + 30, cy - 38 + sway, 8, 24);
   ctx.fillRect(cx + 34, cy - 50 + sway, 6, 14);
-  ctx.fillStyle = '#385828';
+  ctx.fillStyle = colour('#385828');
   ctx.fillRect(cx + 36, cy - 56 + sway, 4, 8);
 
   // Legs (rear pair, front pair)
-  ctx.fillStyle = '#1c3216';
+  ctx.fillStyle = colour('#1c3216');
   ctx.fillRect(cx + 14, cy - 14, 10, 28);
   ctx.fillRect(cx + 12, cy + 14, 14,  6);
   ctx.fillRect(cx + 26, cy - 10, 10, 24);
@@ -642,11 +644,11 @@ function drawBattleBriarHound(cx, cy) {
 
   // Body
   [
-    { x: cx - 22, dy: -40, w: 50, c: '#263c1c' },
-    { x: cx - 26, dy: -32, w: 58, c: '#2e4822' },
-    { x: cx - 26, dy: -24, w: 60, c: '#365028' },
-    { x: cx - 24, dy: -16, w: 56, c: '#2e4822' },
-    { x: cx - 20, dy:  -8, w: 48, c: '#263c1c' },
+    { x: cx - 22, dy: -40, w: 50, c: colour('#263c1c') },
+    { x: cx - 26, dy: -32, w: 58, c: colour('#2e4822') },
+    { x: cx - 26, dy: -24, w: 60, c: colour('#365028') },
+    { x: cx - 24, dy: -16, w: 56, c: colour('#2e4822') },
+    { x: cx - 20, dy:  -8, w: 48, c: colour('#263c1c') },
   ].forEach(({ x, dy, w, c }) => {
     ctx.fillStyle = c;
     ctx.fillRect(x, cy + dy, w, 8);
@@ -658,44 +660,44 @@ function drawBattleBriarHound(cx, cy) {
     { x: cx +  6, h: 16 }, { x: cx + 14, h: 12 },
     { x: cx + 20, h: 10 },
   ];
-  ctx.fillStyle = '#4c6e36';
+  ctx.fillStyle = colour('#4c6e36');
   thornData.forEach(({ x, h }) => ctx.fillRect(x, cy - 40 - h, 5, h));
-  ctx.fillStyle = '#6a9050';
+  ctx.fillStyle = colour('#6a9050');
   thornData.forEach(({ x, h }) => ctx.fillRect(x + 1, cy - 40 - h, 3, 4));
 
   // Neck
-  ctx.fillStyle = '#2e4822';
+  ctx.fillStyle = colour('#2e4822');
   ctx.fillRect(cx - 32, cy - 44, 22, 14);
 
   // Head
-  ctx.fillStyle = '#263c1c';
+  ctx.fillStyle = colour('#263c1c');
   ctx.fillRect(cx - 48, cy - 52, 24, 20);
   // Snout
-  ctx.fillStyle = '#1e3018';
+  ctx.fillStyle = colour('#1e3018');
   ctx.fillRect(cx - 54, cy - 44, 18, 12);
-  ctx.fillStyle = '#0e0c0a';
+  ctx.fillStyle = colour('#0e0c0a');
   ctx.fillRect(cx - 56, cy - 38, 6, 5);
 
   // Fangs
-  ctx.fillStyle = '#e8e0cc';
+  ctx.fillStyle = colour('#e8e0cc');
   ctx.fillRect(cx - 54, cy - 34, 5, 7);
   ctx.fillRect(cx - 46, cy - 34, 4, 6);
 
   // Ears
-  ctx.fillStyle = '#1c3016';
+  ctx.fillStyle = colour('#1c3016');
   ctx.fillRect(cx - 48, cy - 62, 7, 12);
   ctx.fillRect(cx - 30, cy - 60, 7, 10);
-  ctx.fillStyle = '#385226';
+  ctx.fillStyle = colour('#385226');
   ctx.fillRect(cx - 46, cy - 66, 4, 6);
 
   // Eyes (amber)
-  ctx.fillStyle = '#0c0c08';
+  ctx.fillStyle = colour('#0c0c08');
   ctx.fillRect(cx - 46, cy - 50, 9, 8);
   ctx.fillRect(cx - 32, cy - 50, 9, 8);
-  ctx.fillStyle = '#c88818';
+  ctx.fillStyle = colour('#c88818');
   ctx.fillRect(cx - 44, cy - 48, 6, 5);
   ctx.fillRect(cx - 30, cy - 48, 6, 5);
-  ctx.fillStyle = '#ffe050';
+  ctx.fillStyle = colour('#ffe050');
   ctx.fillRect(cx - 43, cy - 47, 3, 3);
   ctx.fillRect(cx - 29, cy - 47, 3, 3);
 }
@@ -3799,6 +3801,32 @@ function drawBattleMudwrackSnapper(cx,cy) {
   p('#52644b',[[-48,-25],[-69,-16],[-54,-15]]);
   ctx.restore();
 }
+// A peat-rooted mouth: deterministic stepped silhouettes, never a worm body.
+// The same geometry supplies field, idle battle and the Swallow emergence.
+function drawBattlePeatMaw(cx,cy,opening=1) {
+  const open=Math.max(0,Math.min(1,typeof opening==='number'?opening:1));
+  ctx.save();ctx.translate(Math.round(cx),Math.round(cy));
+  const polygon=(color,points)=>{ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
+  const top=-18-Math.round(62*open);
+  polygon('#242d23',[[-86,2],[-74,-14],[-61,top+15],[-42,top],[-16,top-6],[18,top-4],[45,top+2],[66,top+17],[78,-10],[88,4],[65,14],[-64,14]]);
+  polygon('#536044',[[-79,0],[-68,-15],[-55,top+18],[-38,top+4],[-16,top],[21,top+1],[46,top+8],[61,top+22],[73,-8],[80,4],[53,9],[-55,9]]);
+  if(open>.25){
+  polygon('#796448',[[-69,-2],[-59,top+24],[-39,top+12],[-15,top+6],[23,top+8],[49,top+20],[65,-5],[57,5],[-53,5]]);
+  polygon('#161510',[[-60,-1],[-51,top+28],[-34,top+19],[-9,top+14],[24,top+17],[45,top+28],[58,-3],[44,3],[-44,3]]);
+  polygon('#352b28',[[-27,-3],[-18,top+30],[7,top+26],[30,top+35],[35,-3]]);
+  // Uneven blunt ivory teeth remain non-gory and legible at half scale.
+  for(let i=0;i<7;i++){
+    const x=-44+i*14,y=top+20+Math.floor(Math.abs(i-3)*2);
+    polygon('#c5bc8d',[[x-5,y],[x+5,y+1],[x+3,y+12*open],[x-2,y+16*open]]);
+    polygon('#a8a17b',[[x-5,0],[x-2,-9*open],[x+3,-13*open],[x+5,1]]);
+  }
+  }else{polygon('#796448',[[-67,-5],[-40,-13],[38,-12],[66,-4],[44,4],[-46,4]]);
+    polygon('#161510',[[-59,-3],[-26,-6],[29,-5],[58,-2],[27,0],[-30,0]]);}
+  ctx.fillStyle='#758052';for(const [x,y]of [[-69,-9],[-51,top+10],[-22,top-2],[36,top+3],[65,-15]]){ctx.fillRect(x,y,9,4);ctx.fillRect(x+2,y-5,3,6);}
+  ctx.fillStyle='#443d2c';for(const [x,y]of [[-83,9],[-59,12],[62,12],[81,4]])ctx.fillRect(x,y,8,5);
+  ctx.restore();
+}
+
 function drawBattleFenRootworm(cx,cy) {
   ctx.save();ctx.translate(cx,cy);
   const r=(colour,x,y,w,h)=>{ctx.fillStyle=colour;ctx.fillRect(x,y,w,h);};
@@ -3838,14 +3866,68 @@ function drawBattleFenReedCreature(cx,cy,stalker=false) {
 function drawBattleWillowVeiledStalker(cx,cy) { drawBattleFenReedCreature(cx,cy,true); }
 function drawBattleHollowreedChoker(cx,cy) { drawBattleFenReedCreature(cx,cy); }
 
+// Deep-fen relatives retain the early creatures' silhouettes and motion.
+function drawBattleDrownlight(cx,cy) {
+  drawBattleWisp(cx,cy,{'#186878':'#52685b','#1e9098':'#789e8e','#24a8b8':'#9ec4b4','#48c8d8':'#253b34','#98eef8':'#10231f','#010a0e':'#abcdb0'});
+  for(let i=0;i<3;i++){const a=tick*.025+i*2.094,x=cx+Math.round(Math.cos(a)*32),y=cy+Math.round(Math.sin(a)*29);
+    ctx.fillStyle='#496858';ctx.fillRect(x-4,y-4,8,8);ctx.fillStyle='#b4d5b0';ctx.fillRect(x-2,y-2,4,4);}
+}
+function drawBattleBlackbriarHound(cx,cy) {
+  drawBattleBriarHound(cx,cy,{'#223a1a':'#302a2b','#385828':'#73503c','#1c3216':'#242329','#263c1c':'#343139','#2e4822':'#454049','#365028':'#685044','#4a6838':'#99876b'});
+  ctx.fillStyle='#b4ac8b';for(const x of [-18,-4,10,24]){ctx.fillRect(cx+x,cy-47,3,10);ctx.fillRect(cx+x+2,cy-50,2,5);}
+}
+function drawBattlePeatback(cx,cy) {
+  const b=Math.round(Math.sin(tick*.025));
+  ctx.fillStyle='#242820';ctx.beginPath();ctx.ellipse(cx,cy,64,11,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#413c32';for(const x of [-48,-25,20,43])ctx.fillRect(cx+x,cy-22,13,24);
+  for(const [y,w,c]of [[-62,68,'#3e4435'],[-50,108,'#525442'],[-34,122,'#68634b'],[-17,108,'#494536']]){ctx.fillStyle=c;ctx.fillRect(cx-w/2,cy+y+b,w,18);}
+  ctx.fillStyle='#343c2c';for(let i=0;i<8;i++){const x=cx-46+i*13,y=cy-47+(i%3)*9;ctx.fillRect(x,y,9,7);}
+  ctx.fillStyle='#837d50';for(const x of [-31,-12,17,35]){ctx.fillRect(cx+x,cy-78+b,3,24);ctx.fillRect(cx+x-5,cy-69+b,6,3);}
+  ctx.fillStyle='#3a3027';ctx.fillRect(cx-66,cy-26,29,18);ctx.fillStyle='#d0ab5d';ctx.fillRect(cx-63,cy-23,4,3);
+}
+function drawBattleBellToad(cx,cy) {
+  const breath=Math.round(Math.sin(tick*.045)*3);
+  ctx.fillStyle='#253629';ctx.beginPath();ctx.ellipse(cx,cy,54,8,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#52604a';ctx.fillRect(cx-52,cy-28,24,25);ctx.fillRect(cx+28,cy-28,24,25);
+  ctx.fillStyle='#798165';ctx.fillRect(cx-35,cy-57,70,42);ctx.fillStyle='#9a9a70';ctx.fillRect(cx-25,cy-65,50,24);
+  ctx.fillStyle='#b8a85e';ctx.beginPath();ctx.ellipse(cx,cy-20,28+breath,24+breath,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ddd194';ctx.fillRect(cx-15,cy-31,24,8);ctx.fillStyle='#716846';ctx.fillRect(cx-21,cy-9,42,4);
+  ctx.fillStyle='#454d39';ctx.fillRect(cx-33,cy-70,19,15);ctx.fillRect(cx+14,cy-70,19,15);
+  ctx.fillStyle='#e0bc53';ctx.fillRect(cx-28,cy-66,9,7);ctx.fillRect(cx+19,cy-66,9,7);ctx.fillStyle='#182421';ctx.fillRect(cx-24,cy-66,3,7);ctx.fillRect(cx+23,cy-66,3,7);
+  ctx.fillStyle='#596648';for(let i=0;i<6;i++)ctx.fillRect(cx-28+i*10,cy-50+(i%2)*6,5,4);
+}
+function drawBattleReedbinder(cx,cy) {
+  const sway=Math.round(Math.sin(tick*.035)*3);
+  ctx.fillStyle='#29382c';ctx.beginPath();ctx.ellipse(cx,cy,47,7,0,0,Math.PI*2);ctx.fill();
+  for(let i=0;i<7;i++){const x=cx-24+i*8,y=cy-48-(i%3)*13;ctx.fillStyle=i%2?'#756c3e':'#4b5940';ctx.fillRect(x+sway,y,5,-y+cy-5);ctx.fillRect(x+sway-4,y-9,9,14);}
+  ctx.strokeStyle='#8d8052';ctx.lineWidth=5;for(const d of [-1,1]){ctx.beginPath();ctx.moveTo(cx+d*17,cy-46);ctx.lineTo(cx+d*45+sway,cy-26);ctx.lineTo(cx+d*57,cy-5);ctx.lineTo(cx+d*35,cy+3);ctx.stroke();}
+  ctx.fillStyle='#353d2a';ctx.fillRect(cx-15,cy-42,30,31);ctx.fillStyle='#c7b879';ctx.fillRect(cx-11,cy-37,5,4);ctx.fillRect(cx+6,cy-37,5,4);
+}
+function drawBattleBladderLeech(cx,cy) {
+  const pulse=Math.round(Math.sin(tick*.06)*2);
+  ctx.fillStyle='#252d28';ctx.beginPath();ctx.ellipse(cx,cy,48,8,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#635655';ctx.beginPath();ctx.ellipse(cx,cy-29,43+pulse,28,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#936b70';ctx.beginPath();ctx.ellipse(cx+5,cy-30,29+pulse,20,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#bc9691';ctx.fillRect(cx-4,cy-45,21,5);ctx.fillStyle='#743b49';ctx.fillRect(cx-2,cy-27,28,9);
+  ctx.strokeStyle='#514344';ctx.lineWidth=2;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(cx-19+i*11,cy-49);ctx.lineTo(cx-23+i*11,cy-9);ctx.stroke();}
+  ctx.fillStyle='#302728';ctx.fillRect(cx-48,cy-24,17,16);ctx.fillStyle='#c8bba0';ctx.fillRect(cx-46,cy-21,3,9);ctx.fillRect(cx-38,cy-21,3,9);
+}
+
 (function buildEnemySpriteDispatch() {
   const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
+  def(drawBattlePeatback,60,['enemy_peatback']);
+  def(drawBattleDrownlight,0,['enemy_drownlight']);
+  def(drawBattleBlackbriarHound,58,['enemy_blackbriar_hound']);
+  def(drawBattleBellToad,60,['enemy_bell_throated_toad']);
+  def(drawBattleReedbinder,60,['enemy_reedbinder']);
+  def(drawBattleBladderLeech,60,['enemy_bladder_leech']);
   def(drawBattleBotfly, 0, ['enemy_botfly']);
   def(drawBattleWaspthra, 0, ['enemy_waspthra']);
   def(drawBattleSparkeel, 50, ['enemy_sparkeel']);
   def(drawBattleFenZolom, 50, ['enemy_fen_zolom']);
-  def(drawBattleMudwrackSnapper, 60, ['enemy_mudwrack_snapper']);
+  def(drawBattleMudwrackSnapper, 60, ['enemy_mudwrack_snapper','enemy_ridgeback_snapper']);
   def(drawBattleFenRootworm, 60, ['enemy_fen_rootworm']);
+  def(drawBattlePeatMaw, 60, ['enemy_peat_bed_maw']);
   def(drawBattleWillowVeiledStalker, 60, ['enemy_willow_veiled_stalker']);
   def(drawBattleHollowreedChoker, 60, ['enemy_hollowreed_choker']);
   def(drawBattleBuzzyBeetle, 0, ['enemy_buzzy_beetle']);
@@ -4093,6 +4175,13 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 // conservative visual bounds cover the existing idle animation of the eight
 // state-only templates; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
+  [drawBattlePeatback,Object.freeze([-67,-80,65,11])],
+  [drawBattleDrownlight,Object.freeze([-40,-55,40,65])],
+  [drawBattleBlackbriarHound,Object.freeze([-56,-67,44,22])],
+  [drawBattleBellToad,Object.freeze([-55,-71,55,9])],
+  [drawBattleReedbinder,Object.freeze([-61,-88,61,9])],
+  [drawBattleBladderLeech,Object.freeze([-49,-58,49,9])],
+  [drawBattlePeatMaw,Object.freeze([-88,-88,89,18])],
   [drawBattleBotfly,Object.freeze([-46, -94, 46, 0])],
   [drawBattleWaspthra,Object.freeze([-46, -94, 46, 0])],
   [drawBattleSparkeel,Object.freeze([-64, -122, 65, 1])],
@@ -4194,6 +4283,9 @@ function formatFormationBattleEvent(event, playerName, labels) {
     event.success ? `${actor} escapes!` : `${actor} tries to run, but cannot get away!`;
   if (event.type === 'item') {
     const prefix = `${actor} uses ${event.itemId}.`;
+    if (event.effect === 'escape') return itemAllowsEncounterEscape(event.itemId,event.before.enemies)
+      ? 'Serpentsmoke hides your scent. You escape the Fen Zolom!'
+      : 'Serpentsmoke disperses. It only confuses the Fen Zolom.';
     if (event.effect === 'heal') return `${prefix} Restored ${event.after.player.hp-event.before.player.hp} HP.`;
     if (event.effect === 'cure') {
       const removed=event.before.player.statuses.filter(s=>!event.after.player.statuses.includes(s));

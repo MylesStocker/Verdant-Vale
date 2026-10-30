@@ -1,0 +1,209 @@
+[
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C7R0_MAP",
+    "before": {
+      "notes": "Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C7RN2_MAP via EASTERN_FENS_ENVELOPE_C7RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself."
+    },
+    "after": {
+      "notes": "North Fen approach. An arrival dialogue warns of Fen Zolom territory before movement or encounter rolls; ordinary running remains blocked, while Serpentsmoke permits escape."
+    }
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C8R0_MAP",
+    "before": {
+      "encounterProfileId": "north_fen_zolom",
+      "notes": "Walkable open north fen off the reedbelt; room to wander out to the camera-clamped world edge. A natural reed-gap seam in the north border now opens onto the Great Fen (GREAT_FEN_C8RN2_MAP via EASTERN_FENS_ENVELOPE_C8RN1_MAP). The sole random encounter here is the Fen Zolom — essentially unwinnable, escape blocked — guarding the gate into the Great Fen; no items, NPCs, interactions, or quest triggers, and no new save bindings beyond the encounter itself."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "notes": "North Fen eastern pocket. Ordinary wilderness encounters replace Fen Zolom; terrain and existing structural connections are unchanged."
+    }
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN4_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Regional mainland refinement; existing identity and placement retained."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN3_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Regional mainland refinement; existing identity and placement retained."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Regional mainland refinement; existing identity and placement retained."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C10RN5_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only camera framing; landscape continues beyond the authored window."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C9RN12_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only camera framing; landscape continues beyond the authored window."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C9RN11_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only camera framing; landscape continues beyond the authored window."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C10RN11_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only camera framing; landscape continues beyond the authored window."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C10RN10_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only camera framing; landscape continues beyond the authored window."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C10RN9_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only camera framing; landscape continues beyond the authored window."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C9RN13_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only open water closing the Great Fen/Valmere shoreline camera envelope at the authored window's northern edge."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  },
+  {
+    "mapId": "MAINLAND_C10RN12_MAP",
+    "before": {
+      "encounterProfileId": "far",
+      "allowRandomEncounters": false,
+      "allowSave": false,
+      "playerAccessible": false,
+      "notes": "Scenery-only open water closing the Great Fen/Valmere shoreline camera envelope at the authored window's northern edge."
+    },
+    "after": {
+      "encounterProfileId": "eastern_fens_mornay_hard",
+      "allowRandomEncounters": true,
+      "allowSave": true,
+      "playerAccessible": true,
+      "notes": "Accessible Valmere shore; natural breaks in the tree barrier connect to the Great Fen. Open water remains impassable."
+    }
+  }
+]

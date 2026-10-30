@@ -171,8 +171,8 @@ const ITEM_MATRIX={
   equip:['Fine Sabre','Balanced Staff','Reinforced Travel Coat','Woven Guard Coat','Bronze Knife','Iron Sword','Leather Armor','Steel Sword','Iron Shield','Swift Bangle','Battle Axe','Dragon Blade','Shadow Cloak','Mithril Shield','Wraithband','Warden Blade','Resonant Targe','Fen Mask','EvadeAll','Cat Armor','Old Boot','Fen Cowl','Bottle of Mushroom Wine','Case of Mushroom Wine','Amethyst Bangle'],
   heal:['Potion','Elixir','Mushroom Wine','River Smelt','Canal Eel','Ember Root','Valmere Perch','Lake Pike','Smoked Lake Fish'],
   cure:['Reed Remedy','Amethyst Dust'],evade:['Bullet Time'],damage:['Sapper Charge','Throwing Knife'],damage_all:['Void Shard'],bomb:['Bomb'],
-  nothing:['Bait'],reagent:['Henbane Sprig','Jackbane Vial'],stun:['Trollbane'],
-  unavailable_key:['Third Lock Towpath Tally','Carved Canal Boat','Joran’s Supply Key','Embroideries Parcel','Old Fishing Rod',"Fen Angler's Rod",'Waxwood Rod','Sealed Letter','Warp Stone','Thank-You Note','Schilling','Cat-Shaped Key','Letter from Netto','Dispatch Letter',"Doctor's Letter","The Drowned's Gift",'Old Engagement Ring','Stashed Gem']};
+  escape:['Serpentsmoke'],nothing:['Bait'],reagent:['Henbane Sprig','Jackbane Vial'],stun:['Trollbane'],
+  unavailable_key:['Hoist Inspection Packet','Third Lock Towpath Tally','Carved Canal Boat','Joran’s Supply Key','Embroideries Parcel','Old Fishing Rod',"Fen Angler's Rod",'Waxwood Rod','Sealed Letter','Warp Stone','Thank-You Note','Schilling','Cat-Shaped Key','Letter from Netto','Dispatch Letter',"Doctor's Letter","The Drowned's Gift",'Old Engagement Ring','Stashed Gem']};
 test('complete item-ID matrix covers every definition and exactly the selectable inventory',()=>{
   const g=fresh(),all=Object.values(ITEM_MATRIX).flat();assert.equal(new Set(all).size,all.length);
   assert.deepEqual(all.sort(),J(g,'Object.keys(ITEM_REGISTRY)').sort());
@@ -194,7 +194,7 @@ for(const [effect,items]of Object.entries(ITEM_MATRIX))for(const id of items)tes
   if(effect==='equip'){const slot=g.run('slotForType('+JSON.stringify(def.type)+')');assert.equal(event.after.equipment[0][slot],id);assert.equal(event.after.equipment[1][slot],null);}
   if(effect==='evade')assert.equal(event.after.effects[0].evadeTurns,def.evadeTurns);
   if(effect==='bomb'){assert.equal(event.after.effects[0].bomb.targetId,ids(g)[1][0]);assert.equal(event.after.effects[0].bomb.fuse,def.fuse);}
-  if(['nothing','reagent','stun'].includes(effect))assert.deepEqual(event.after.enemies,event.before.enemies);
+  if(['nothing','reagent','stun','escape'].includes(effect))assert.deepEqual(event.after.enemies,event.before.enemies);
   if(['damage','damage_all'].includes(effect))assert.deepEqual(event.after.enemies.map(e=>e.hp),effect==='damage_all'?[943,943]:[1000-g.run('offensiveItemDamage(ITEM_REGISTRY['+JSON.stringify(id)+'],combat.enemies[0])'),1000]);
 });
 module.exports={name:'Party command hardening: Curse-first, owned Slither Speed, exhaustive item parity',checks,ITEM_MATRIX,

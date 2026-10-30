@@ -23650,6 +23650,342 @@
   ],
   "edgeLandingResults": [
     {
+      "srcMap": "MAINLAND_C9RN12_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        2
+      ],
+      "targetMap": "MAINLAND_C9RN13_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN12_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        10
+      ],
+      "targetMap": "MAINLAND_C10RN12_MAP",
+      "targetEdge": "west",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN9_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        7
+      ],
+      "targetMap": "MAINLAND_C9RN9_MAP",
+      "targetEdge": "east",
+      "walkableSources": 8,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN9_MAP",
+      "direction": "west",
+      "segment": 1,
+      "sourceRange": [
+        9,
+        14
+      ],
+      "targetMap": "MAINLAND_C9RN9_MAP",
+      "targetEdge": "east",
+      "walkableSources": 6,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN9_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        11
+      ],
+      "targetMap": "MAINLAND_C10RN10_MAP",
+      "targetEdge": "south",
+      "walkableSources": 12,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN9_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "MAINLAND_C10RN8_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN5_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "MAINLAND_C9RN5_MAP",
+      "targetEdge": "east",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN5_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        10
+      ],
+      "targetMap": "GREAT_FEN_ENVELOPE_C10RN4_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_ENVELOPE_C10RN3_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        13,
+        14
+      ],
+      "targetMap": "GREAT_FEN_C9RN3_MAP",
+      "targetEdge": "east",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN12_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        4
+      ],
+      "targetMap": "MAINLAND_C10RN11_MAP",
+      "targetEdge": "north",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN12_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        10,
+        10
+      ],
+      "targetMap": "MAINLAND_C9RN12_MAP",
+      "targetEdge": "east",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN11_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        10
+      ],
+      "targetMap": "MAINLAND_C10RN10_MAP",
+      "targetEdge": "north",
+      "walkableSources": 9,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN11_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        4,
+        4
+      ],
+      "targetMap": "MAINLAND_C10RN12_MAP",
+      "targetEdge": "south",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN10_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "MAINLAND_C9RN10_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN10_MAP",
+      "direction": "west",
+      "segment": 1,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "MAINLAND_C9RN10_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN10_MAP",
+      "direction": "west",
+      "segment": 2,
+      "sourceRange": [
+        13,
+        14
+      ],
+      "targetMap": "MAINLAND_C9RN10_MAP",
+      "targetEdge": "east",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN10_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        10
+      ],
+      "targetMap": "MAINLAND_C10RN11_MAP",
+      "targetEdge": "south",
+      "walkableSources": 9,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN10_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        11
+      ],
+      "targetMap": "MAINLAND_C10RN9_MAP",
+      "targetEdge": "north",
+      "walkableSources": 12,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_ENVELOPE_C10RN4_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        9,
+        10
+      ],
+      "targetMap": "MAINLAND_C10RN5_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN13_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        1,
+        2
+      ],
+      "targetMap": "MAINLAND_C9RN12_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN11_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "MAINLAND_C9RN10_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+      "direction": "west",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+      "targetEdge": "east",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+      "direction": "west",
+      "segment": 1,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+      "targetEdge": "east",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        12,
+        12
+      ],
+      "targetMap": "GREAT_FEN_C10RN2_MAP",
+      "targetEdge": "south",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
       "srcMap": "NORTH_BASIN_S_MAP",
       "direction": "north",
       "segment": 0,
@@ -27547,11 +27883,11 @@
       "segment": 0,
       "sourceRange": [
         0,
-        13
+        15
       ],
       "targetMap": "GREAT_FEN_C9RN2_MAP",
       "targetEdge": "north",
-      "walkableSources": 14,
+      "walkableSources": 16,
       "bad": [],
       "allOk": true
     },
@@ -27566,6 +27902,20 @@
       "targetMap": "GREAT_FEN_C8RN3_MAP",
       "targetEdge": "east",
       "walkableSources": 15,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_C9RN3_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        13,
+        14
+      ],
+      "targetMap": "GREAT_FEN_ENVELOPE_C10RN3_MAP",
+      "targetEdge": "west",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -27827,11 +28177,11 @@
       "segment": 0,
       "sourceRange": [
         0,
-        13
+        15
       ],
       "targetMap": "GREAT_FEN_C9RN3_MAP",
       "targetEdge": "south",
-      "walkableSources": 14,
+      "walkableSources": 16,
       "bad": [],
       "allOk": true
     },
@@ -27846,6 +28196,20 @@
       "targetMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
       "targetEdge": "north",
       "walkableSources": 10,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_C9RN2_MAP",
+      "direction": "south",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -27888,6 +28252,20 @@
       "targetMap": "GREAT_FEN_C9RN2_MAP",
       "targetEdge": "east",
       "walkableSources": 11,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "GREAT_FEN_C10RN2_MAP",
+      "direction": "south",
+      "segment": 0,
+      "sourceRange": [
+        12,
+        12
+      ],
+      "targetMap": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+      "targetEdge": "north",
+      "walkableSources": 1,
       "bad": [],
       "allOk": true
     },
@@ -28014,6 +28392,48 @@
       "targetMap": "GREAT_FEN_C9RN2_MAP",
       "targetEdge": "south",
       "walkableSources": 10,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+      "direction": "north",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "GREAT_FEN_C9RN2_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+      "targetEdge": "west",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+      "direction": "east",
+      "segment": 1,
+      "sourceRange": [
+        10,
+        12
+      ],
+      "targetMap": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
       "bad": [],
       "allOk": true
     },
@@ -29674,6 +30094,20 @@
       "direction": "east",
       "segment": 0,
       "sourceRange": [
+        0,
+        0
+      ],
+      "targetMap": "MAINLAND_C10RN8_MAP",
+      "targetEdge": "west",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN8_MAP",
+      "direction": "east",
+      "segment": 1,
+      "sourceRange": [
         3,
         14
       ],
@@ -29694,6 +30128,20 @@
       "targetMap": "MAINLAND_C9RN9_MAP",
       "targetEdge": "south",
       "walkableSources": 9,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN8_MAP",
+      "direction": "north",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "MAINLAND_C9RN9_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -29750,6 +30198,20 @@
       "targetMap": "MAINLAND_C9RN5_MAP",
       "targetEdge": "north",
       "walkableSources": 9,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN6_MAP",
+      "direction": "south",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "MAINLAND_C9RN5_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -30506,6 +30968,34 @@
       "targetMap": "MAINLAND_C9RN6_MAP",
       "targetEdge": "south",
       "walkableSources": 9,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN5_MAP",
+      "direction": "north",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "MAINLAND_C9RN6_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN5_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "MAINLAND_C10RN5_MAP",
+      "targetEdge": "west",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -34062,6 +34552,76 @@
       "targetMap": "MAINLAND_C9RN9_MAP",
       "targetEdge": "north",
       "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN10_MAP",
+      "direction": "south",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "MAINLAND_C9RN9_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN10_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        2,
+        4
+      ],
+      "targetMap": "MAINLAND_C10RN10_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN10_MAP",
+      "direction": "east",
+      "segment": 1,
+      "sourceRange": [
+        9,
+        11
+      ],
+      "targetMap": "MAINLAND_C10RN10_MAP",
+      "targetEdge": "west",
+      "walkableSources": 3,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN10_MAP",
+      "direction": "east",
+      "segment": 2,
+      "sourceRange": [
+        13,
+        14
+      ],
+      "targetMap": "MAINLAND_C10RN10_MAP",
+      "targetEdge": "west",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN10_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "MAINLAND_C9RN11_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -47692,12 +48252,40 @@
       "direction": "west",
       "segment": 0,
       "sourceRange": [
+        0,
+        0
+      ],
+      "targetMap": "MAINLAND_C9RN8_MAP",
+      "targetEdge": "east",
+      "walkableSources": 1,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN8_MAP",
+      "direction": "west",
+      "segment": 1,
+      "sourceRange": [
         3,
         14
       ],
       "targetMap": "MAINLAND_C9RN8_MAP",
       "targetEdge": "east",
       "walkableSources": 12,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C10RN8_MAP",
+      "direction": "north",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        1
+      ],
+      "targetMap": "MAINLAND_C10RN9_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
       "bad": [],
       "allOk": true
     },
@@ -48235,6 +48823,20 @@
     },
     {
       "srcMap": "MAINLAND_C9RN9_MAP",
+      "direction": "south",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "MAINLAND_C9RN8_MAP",
+      "targetEdge": "north",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN9_MAP",
       "direction": "north",
       "segment": 0,
       "sourceRange": [
@@ -48244,6 +48846,48 @@
       "targetMap": "MAINLAND_C9RN10_MAP",
       "targetEdge": "south",
       "walkableSources": 13,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN9_MAP",
+      "direction": "north",
+      "segment": 1,
+      "sourceRange": [
+        14,
+        15
+      ],
+      "targetMap": "MAINLAND_C9RN10_MAP",
+      "targetEdge": "south",
+      "walkableSources": 2,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN9_MAP",
+      "direction": "east",
+      "segment": 0,
+      "sourceRange": [
+        0,
+        7
+      ],
+      "targetMap": "MAINLAND_C10RN9_MAP",
+      "targetEdge": "west",
+      "walkableSources": 8,
+      "bad": [],
+      "allOk": true
+    },
+    {
+      "srcMap": "MAINLAND_C9RN9_MAP",
+      "direction": "east",
+      "segment": 1,
+      "sourceRange": [
+        9,
+        14
+      ],
+      "targetMap": "MAINLAND_C10RN9_MAP",
+      "targetEdge": "west",
+      "walkableSources": 6,
       "bad": [],
       "allOk": true
     },
@@ -55924,9 +56568,9 @@
         "chunkY": -1,
         "dir": "east",
         "neighbor": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
@@ -57324,9 +57968,9 @@
         "chunkY": -3,
         "dir": "east",
         "neighbor": "GREAT_FEN_ENVELOPE_C10RN3_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "GREAT_FEN_ENVELOPE_C10RN3_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "GREAT_FEN_C9RN3_MAP",
@@ -57554,9 +58198,9 @@
         "chunkY": -2,
         "dir": "south",
         "neighbor": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "GREAT_FEN_C10RN2_MAP",
@@ -57904,9 +58548,9 @@
         "chunkY": -4,
         "dir": "north",
         "neighbor": "MAINLAND_C10RN5_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN5_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "GREAT_FEN_ENVELOPE_C10RN4_MAP",
@@ -58054,9 +58698,9 @@
         "chunkY": -3,
         "dir": "west",
         "neighbor": "GREAT_FEN_C9RN3_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "GREAT_FEN_C9RN3_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "GREAT_FEN_ENVELOPE_C11RN3_MAP",
@@ -58344,9 +58988,9 @@
         "chunkY": -1,
         "dir": "north",
         "neighbor": "GREAT_FEN_C10RN2_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "GREAT_FEN_C10RN2_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
@@ -58374,9 +59018,9 @@
         "chunkY": -1,
         "dir": "west",
         "neighbor": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "GREAT_FEN_ENVELOPE_C11RN1_MAP",
@@ -68424,9 +69068,9 @@
         "chunkY": -10,
         "dir": "north",
         "neighbor": "MAINLAND_C9RN11_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN11_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN10_MAP",
@@ -68444,9 +69088,9 @@
         "chunkY": -10,
         "dir": "east",
         "neighbor": "MAINLAND_C10RN10_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN10_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN10_MAP",
@@ -69924,9 +70568,9 @@
         "chunkY": -9,
         "dir": "east",
         "neighbor": "MAINLAND_C10RN9_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN9_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN9_MAP",
@@ -71424,9 +72068,9 @@
         "chunkY": -8,
         "dir": "north",
         "neighbor": "MAINLAND_C10RN9_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN9_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN8_MAP",
@@ -74364,9 +75008,9 @@
         "chunkY": -5,
         "dir": "east",
         "neighbor": "MAINLAND_C10RN5_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN5_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN5_MAP",
@@ -84714,9 +85358,9 @@
         "chunkY": -5,
         "dir": "south",
         "neighbor": "GREAT_FEN_ENVELOPE_C10RN4_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "GREAT_FEN_ENVELOPE_C10RN4_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN5_MAP",
@@ -84734,9 +85378,9 @@
         "chunkY": -5,
         "dir": "west",
         "neighbor": "MAINLAND_C9RN5_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN5_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C12R6_MAP",
@@ -85944,9 +86588,9 @@
         "chunkY": -12,
         "dir": "north",
         "neighbor": "MAINLAND_C9RN13_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN13_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN12_MAP",
@@ -85964,9 +86608,9 @@
         "chunkY": -12,
         "dir": "east",
         "neighbor": "MAINLAND_C10RN12_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN12_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN12_MAP",
@@ -85994,9 +86638,9 @@
         "chunkY": -11,
         "dir": "south",
         "neighbor": "MAINLAND_C9RN10_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN10_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN11_MAP",
@@ -86064,9 +86708,9 @@
         "chunkY": -11,
         "dir": "north",
         "neighbor": "MAINLAND_C10RN12_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN12_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN11_MAP",
@@ -86074,9 +86718,9 @@
         "chunkY": -11,
         "dir": "south",
         "neighbor": "MAINLAND_C10RN10_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN10_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN11_MAP",
@@ -86104,9 +86748,9 @@
         "chunkY": -10,
         "dir": "north",
         "neighbor": "MAINLAND_C10RN11_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN11_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN10_MAP",
@@ -86114,9 +86758,9 @@
         "chunkY": -10,
         "dir": "south",
         "neighbor": "MAINLAND_C10RN9_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN9_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN10_MAP",
@@ -86134,9 +86778,9 @@
         "chunkY": -10,
         "dir": "west",
         "neighbor": "MAINLAND_C9RN10_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN10_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN9_MAP",
@@ -86144,9 +86788,9 @@
         "chunkY": -9,
         "dir": "north",
         "neighbor": "MAINLAND_C10RN10_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN10_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN9_MAP",
@@ -86154,9 +86798,9 @@
         "chunkY": -9,
         "dir": "south",
         "neighbor": "MAINLAND_C10RN8_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN8_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN9_MAP",
@@ -86174,9 +86818,9 @@
         "chunkY": -9,
         "dir": "west",
         "neighbor": "MAINLAND_C9RN9_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN9_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_CN8RN8_MAP",
@@ -89594,9 +90238,9 @@
         "chunkY": -13,
         "dir": "south",
         "neighbor": "MAINLAND_C9RN12_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN12_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C9RN13_MAP",
@@ -89754,9 +90398,9 @@
         "chunkY": -12,
         "dir": "south",
         "neighbor": "MAINLAND_C10RN11_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C10RN11_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_C10RN12_MAP",
@@ -89774,9 +90418,9 @@
         "chunkY": -12,
         "dir": "west",
         "neighbor": "MAINLAND_C9RN12_MAP",
-        "target": null,
-        "type": null,
-        "verdict": "BLOCKED"
+        "target": "MAINLAND_C9RN12_MAP",
+        "type": "broad",
+        "verdict": "ALIGNS"
       },
       {
         "mapId": "MAINLAND_CN8RN4_MAP",
@@ -94341,8 +94985,8 @@
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BLOCKED": 2522,
-      "ALIGNS": 1540,
+      "BLOCKED": 2494,
+      "ALIGNS": 1568,
       "BORDER": 166
     }
   }

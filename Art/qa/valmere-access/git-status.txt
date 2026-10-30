@@ -1,0 +1,129 @@
+## main...origin/main
+ M Art/qa/regional-geography/inventory.json
+ M Art/qa/regional-geography/overview.svg
+ M ENEMY_CAPABILITY_AUDIT.md
+ M MORNAY_TOWN_PLAN.md
+ M OVERWORLD_ATLAS.md
+ M PROJECT_STATUS.md
+ M architecture.md
+ M canonical-party-combat.js
+ M combat.js
+ M content/maps/eastern-fens-maps.js
+ M content/maps/great-fen-maps.js
+ M content/maps/mainland-maps.js
+ M content/npcs/mornay-npcs.js
+ M data.js
+ M enemy-capabilities.js
+ M enemy-catalog.js
+ M index.html
+ M input.js
+ M interactions.js
+ M items.js
+ M movement.js
+ M party-combat-lab.js
+ M quests.js
+ M render-battle.js
+ M render-party-battle.js
+ M render.js
+ M save.js
+ M scripted-party-encounters.js
+ M shops.js
+ M test/cases/100-east-causeway.test.js
+ M test/cases/101-west-outfall-canal-tunnel.test.js
+ M test/cases/102-north-basin-drowned-rim.test.js
+ M test/cases/103-north-basin-mirewood.test.js
+ M test/cases/155-formation-four-command-integration.test.js
+ M test/cases/171-party-command-status-hardening.test.js
+ M test/cases/176-eastern-fens-envelope.test.js
+ M test/cases/177-eastern-fens-western-pockets.test.js
+ M test/cases/178-eastern-fens-nw-open-fen.test.js
+ M test/cases/186-enemy-capability-migration.test.js
+ M test/cases/187-brace-capability-party-combat.test.js
+ M test/cases/188-status-specials-party-combat.test.js
+ M test/cases/189-unusual-enemy-capabilities-party-combat.test.js
+ M test/cases/191-universal-party-combat-compatibility.test.js
+ M test/cases/200-eastern-fens-mornay-encounter-content.test.js
+ M test/cases/315-great-fen-expansion.test.js
+ M test/cases/316-mornay-shop-homes-orientation.test.js
+ M test/cases/317-mainland-navigation.test.js
+ M test/cases/318-mainland-water-camera.test.js
+ M test/cases/322-wetwoods-thornmere.test.js
+ M test/cases/323-valmere-shoreline.test.js
+ M test/cases/51-save-binding-registry-migration.test.js
+ M test/cases/52-stable-persistence-ids.test.js
+ M test/cases/72-continuous-seams.test.js
+ M test/cases/77-map3-fen-seam-pilot.test.js
+ M test/cases/78-verdant-vale-legacy-home.test.js
+ M test/cases/83-map3n2-northbasin-seam-closure.test.js
+ M test/cases/85-canonical-consumers-part2.test.js
+ M test/cases/86-regional-chunk-catalog.test.js
+ M test/cases/88-continuous-regional-production-default.test.js
+ M test/cases/89-west-outfall-scenery-chunk.test.js
+ M test/cases/90-north-basin-open-reservoir.test.js
+ M test/cases/91-north-basin-open-reservoir-east.test.js
+ M test/cases/92-north-basin-eastern-woods.test.js
+ M test/cases/95-north-basin-eastern-road.test.js
+ M test/cases/96-eastern-canal-banks.test.js
+ M test/cases/97-northern-thornmere-fen.test.js
+ M test/cases/98-thornmere-upper-shallows-scenery.test.js
+ M test/cases/99-thornmere-canal-head.test.js
+ M test/fixtures/regional-grid-fingerprints.js
+ M test/regional-atlas.js
+ M test/regional-geography-browser.js
+ M test/transition-audit-output.json
+ M validation.js
+ M world-transitions.js
+?? Art/qa/great-fen/encounters-v1/binding-and-scent-native.png
+?? Art/qa/great-fen/encounters-v1/chorus-release-2x.png
+?? Art/qa/great-fen/encounters-v1/chorus-release-native.png
+?? Art/qa/great-fen/encounters-v1/chorus-warning-native.png
+?? Art/qa/great-fen/encounters-v1/six-enemies-2x-lower.png
+?? Art/qa/great-fen/encounters-v1/six-enemies-2x-upper.png
+?? Art/qa/great-fen/encounters-v1/six-enemies-native.png
+?? Art/qa/mornay/jobs-v1/README.md
+?? Art/qa/mornay/jobs-v1/board-1x.png
+?? Art/qa/mornay/jobs-v1/errand-esla-1x.png
+?? Art/qa/mornay/jobs-v1/esla-advice-1x.png
+?? Art/qa/mornay/jobs-v1/gessa-offer-2x.png
+?? Art/qa/mornay/jobs-v1/peat-maw-battle-1x.png
+?? Art/qa/mornay/jobs-v1/peat-maw-field-1x.png
+?? Art/qa/mornay/jobs-v1/ridgeback-field-2x.png
+?? Art/qa/mornay/jobs-v1/torlin-offer-1x.png
+?? Art/qa/mornay/maw-swallow-v1/README.md
+?? Art/qa/mornay/maw-swallow-v1/battle-countdown-1x.png
+?? Art/qa/mornay/maw-swallow-v1/closed-jaws-2x.png
+?? Art/qa/mornay/maw-swallow-v1/emergence-1x.png
+?? Art/qa/mornay/maw-swallow-v1/field-1x.png
+?? Art/qa/mornay/maw-swallow-v1/swallowing-1x.png
+?? Art/qa/valmere-access/README.md
+?? Art/qa/valmere-access/edge-deltas.json
+?? Art/qa/valmere-access/git-status.txt
+?? Art/qa/valmere-access/grid-deltas.json
+?? Art/qa/valmere-access/henric-2x.png
+?? Art/qa/valmere-access/henric-purchase.png
+?? Art/qa/valmere-access/messa-directions.png
+?? Art/qa/valmere-access/messa-tip.png
+?? Art/qa/valmere-access/metadata-deltas.json
+?? Art/qa/valmere-access/northern-crossing.png
+?? Art/qa/valmere-access/serpentsmoke-escape.png
+?? Art/qa/valmere-access/shore-2x.png
+?? Art/qa/valmere-access/shore-native.png
+?? Art/qa/valmere-access/zolom-warning.png
+?? GREAT_FEN_ENCOUNTERS.md
+?? fen-combat.js
+?? mornay-jobs.js
+?? test/cases/339-mornay-jobs.test.js
+?? test/cases/340-peat-maw-swallow.test.js
+?? test/cases/341-great-fen-tactics.test.js
+?? test/cases/342-great-fen-geography-art.test.js
+?? test/cases/343-serpentsmoke.test.js
+?? test/cases/344-valmere-access-warning.test.js
+?? test/fixtures/valmere-access-history.js
+?? test/great-fen-preview.html
+?? test/great-fen-preview.js
+?? test/mornay-jobs-preview.html
+?? test/mornay-jobs-preview.js
+?? test/peat-maw-preview.html
+?? test/peat-maw-preview.js
+?? test/valmere-access-preview.html
+?? test/valmere-access-preview.js

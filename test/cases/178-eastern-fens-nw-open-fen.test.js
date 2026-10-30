@@ -26,7 +26,7 @@ const WALKABLE_SET = new Set();
 function context() { const g = createContext(); g.press('Enter'); g.press('Enter'); return g; }
 
 module.exports = {
-  name: 'Eastern Fens NW open fen: reedbelt opens off-road, bounded & zero-void, never joins North Basin, Fen Zolom gate on the two Great Fen entrances',
+  name: 'Eastern Fens NW open fen: reedbelt opens off-road, bounded & zero-void, never joins North Basin, Fen Zolom at the western Great Fen entrance; ordinary encounters to the east',
   run() {
     const g = context();
     const J = (expr) => JSON.parse(g.run(expr));
@@ -68,20 +68,20 @@ module.exports = {
       assert.equal(g.run(`MAP_CATALOG['${id}'].items.length`), 0, `${id} no items`);
       assert.equal(g.run(`(MAP_FEATURES['${id}']||[]).length`), 0, `${id} no feature/trigger`);
       assert.equal(g.run(`SIMPLE_NPCS.some(function(n){return n.physicalMapId==='${id}';})`), false, `${id} no NPC`);
-      // the two Great Fen entrances (7,0)/(8,0) carry the Fen Zolom gate;
+      // Both southern approach chunks retain encounter permission; only (7,0) has Zolom.
       // the west lobe (6,1) is unaffected and stays encounter-free
       const isGate = id === 'EASTERN_FENS_ENVELOPE_C7R0_MAP' || id === 'EASTERN_FENS_ENVELOPE_C8R0_MAP';
-      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), isGate, `${id} encounters ${isGate ? 'on (Fen Zolom gate)' : 'off (unaffected west lobe)'}`);
+      assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), isGate, `${id} encounters ${isGate ? 'on (southern approach)' : 'off (unaffected west lobe)'}`);
     }
 
-    // The Fen Zolom gate: the sole encounter on both entrances is the Fen
-    // Zolom, and it is a genuinely unwinnable fight (isBoss blocks escape via
-    // the shared installFormationState() path, not a per-dispatcher special case).
-    for (const id of ['EASTERN_FENS_ENVELOPE_C7R0_MAP', 'EASTERN_FENS_ENVELOPE_C8R0_MAP']) {
+    // The western approach retains the Fen Zolom pool and canonical boss lock.
+    // Serpentsmoke is tested separately; eastern approach encounters are ordinary.
+    for (const id of ['EASTERN_FENS_ENVELOPE_C7R0_MAP']) {
       const pool = J(`JSON.stringify(MAP_CATALOG['${id}'].encounterPool)`);
       assert.equal(pool.length, 1, `${id} pool has exactly one entry`);
       assert.equal(pool[0].id, 'enemy_fen_zolom', `${id} pool is solely the Fen Zolom`);
     }
+    assert.equal(g.run('MAP_CATALOG.EASTERN_FENS_ENVELOPE_C8R0_MAP.encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS'),true,'(8,0) now has ordinary wilderness encounters');
     const zolom = J("JSON.stringify(ENEMY_TEMPLATE_REGISTRY.enemy_fen_zolom)");
     assert.equal(zolom.hp, 400, 'Fen Zolom has 400 HP');
     assert.equal(zolom.maxHp, 400, 'Fen Zolom maxHp matches hp');

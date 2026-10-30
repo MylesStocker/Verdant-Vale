@@ -117,6 +117,7 @@ const ENEMY_TEMPLATE_POOLS = [
   { id: 'pool_dungeon_f6_7',      label: 'Dungeon — floors 6–7',               templates: DUNGEON6_ENEMY_TEMPLATES },
   { id: 'pool_dungeon_f8',        label: 'Dungeon — floor 8',                  templates: DUNGEON8_ENEMY_TEMPLATES },
   { id: 'pool_dungeon_horror',    label: 'Dungeon — floors 9–10 (horror)',     templates: DUNGEON_HORROR_ENEMY_TEMPLATES },
+  { id: 'pool_great_fen', label:'Great Fen — deep wilderness', templates:GREAT_FEN_FORMATIONS },
   { id: 'pool_far_overworld',     label: 'Far overworld (MAP3 / N-tier)',      templates: FAR_ENEMY_TEMPLATES },
   { id: 'pool_north_fen_zolom',   label: 'Eastern Fens — North Fen (Zolom gate)', templates: FEN_ZOLOM_ENEMY_TEMPLATES },
   // The raw template registration -- registers the seven enemies themselves
@@ -146,7 +147,12 @@ const ENEMY_TEMPLATE_POOLS = [
   { id: 'pool_upper_reach',       label: 'Upper Reach',                        templates: UPPER_REACH_ENEMY_TEMPLATES },
   { id: 'pool_mire_vault',        label: "Mirethyst's Vault",                  templates: MIRE_VAULT_ENEMY_TEMPLATES },
 ];
+const MORNAY_REMOVAL_TEMPLATES = [
+  {id:'enemy_peat_bed_maw',name:'Peat-Bed Maw',hp:480,maxHp:480,atk:18,def:12,spd:9,swallowAfterRounds:6,xp:210,goldMin:0,goldMax:0},
+  {id:'enemy_ridgeback_snapper',name:'Ridgeback Snapper',hp:330,maxHp:330,atk:40,def:14,spd:12,xp:230,goldMin:0,goldMax:0},
+];
 const ENEMY_SCRIPTED_TEMPLATES = [
+  ...MORNAY_REMOVAL_TEMPLATES,
   BRIAR_WARDEN_TEMPLATE, SMUGGLER_GUARD_TEMPLATE, POLWICK_TEMPLATE, ESSA_TEMPLATE,
   PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,
   MULHOLLAND_TEMPLATE, DEN_WRAITH_TEMPLATE, SAILOR_BRAWLER_TEMPLATE, BOSS_TEMPLATE,
@@ -163,6 +169,7 @@ const ENEMY_TEMPLATE_REGISTRY = {};
 (function buildEnemyTemplateRegistry() {
   const add = (t) => { if (t && !Object.hasOwn(t,'enemies') && typeof t.id === 'string') ENEMY_TEMPLATE_REGISTRY[t.id] = t; };
   ENEMY_TEMPLATE_POOLS.forEach((pool) => pool.templates.forEach(add));
+  GREAT_FEN_ENEMY_TEMPLATES.forEach(add);
   ENEMY_SCRIPTED_TEMPLATES.forEach(add);
   add(SECRET_23_TEMPLATE);
 })();

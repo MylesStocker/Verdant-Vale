@@ -155,8 +155,8 @@ function handlePartyCombatLabInput(command) {
       break;
     case 'playback':
       if (command === 'confirm') {
-        if (partyBattleQuickbloomAnimation.blocksAdvance(view)) break;
-        partyBattleQuickbloomAnimation.reset();partyCombatLab.advancePlayback();
+        if (partyBattleQuickbloomAnimation.blocksAdvance(view)||partyBattleSwallowAnimation.blocksAdvance(view)) break;
+        partyBattleQuickbloomAnimation.reset();partyBattleSwallowAnimation.reset();partyCombatLab.advancePlayback();
       }
       break;
     case 'playback_complete':

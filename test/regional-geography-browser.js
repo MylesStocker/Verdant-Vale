@@ -25,7 +25,7 @@
    walk('ArrowRight',()=>regionalWorldPosition().worldPxX>=(end+.5)*32,'Complete river crossing '+row+' legacy='+legacy);
   }
   forceLegacyRegionalView=false;
-  const views=[[-6,-10,'western-willow-fen'],[4,-12,'northern-peat-fans'],[-1,-8,'negative-column-fen'],[4,8,'thornmere-east-bank'],[0,8,'thornmere-west-bank'],[2,10,'thornmere-south-shore'],[9,8,'southern-woodland'],[22,0,'river-mouth'],[22,3,'lower-river-crossing'],[25,8,'moraine-river-gap'],[28,10,'upper-river-country'],[24,0,'lake-headland']];
+  const views=[[10,-11,'valmere-fen-bank'],[-6,-10,'western-willow-fen'],[4,-12,'northern-peat-fans'],[-1,-8,'negative-column-fen'],[4,8,'thornmere-east-bank'],[0,8,'thornmere-west-bank'],[2,10,'thornmere-south-shore'],[9,8,'southern-woodland'],[22,0,'river-mouth'],[22,3,'lower-river-crossing'],[25,8,'moraine-river-gap'],[28,10,'upper-river-country'],[24,0,'lake-headland']];
   for(const scale of [1,2]){
    canvas.style.width=512*scale+'px';canvas.style.height=480*scale+'px';
    for(const [x,y,label]of views){const id=mapIdForChunk('overworld',x,y);check(mapPlayerAccessible(id),'Accessible view '+label);safe(id);capture(label+'-'+scale+'x');check(saveGame()&&loadGame(),'View save/load '+label);dialogue.open=false;}
@@ -46,7 +46,7 @@
   // These deliberately bypass neither placement nor camera rules: only tile art
   // is painted into the QA canvas, with canonical gameplay state held unchanged.
   const beforeScenery=JSON.stringify({position:regionalWorldPosition(),map:mapIdForRef(activeMap),x:player.x,y:player.y});
-  for(const scale of [1,2])for(const [cx,cy,label]of [[-3,5,'wetwoods-stream'],[-5,5,'wetwoods-clearing'],[-7,9,'wetwoods-southern-woods'],[2,8,'thornmere-open-water'],[10,-11,'valmere-fen-bank'],[12,-4,'valmere-western-cove'],[13,-7,'valmere-spit-tip'],[27,-2,'valmere-eastern-headland']]){
+  for(const scale of [1,2])for(const [cx,cy,label]of [[-3,5,'wetwoods-stream'],[-5,5,'wetwoods-clearing'],[-7,9,'wetwoods-southern-woods'],[2,8,'thornmere-open-water'],[12,-4,'valmere-western-cove'],[13,-7,'valmere-spit-tip'],[27,-2,'valmere-eastern-headland']]){
    const id=mapIdForChunk('overworld',cx,cy);check(!mapPlayerAccessible(id),'Scenery stays inaccessible '+label);
    ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#162630';ctx.fillRect(0,0,512,480);
    ctx.setTransform(1,0,0,1,-cx*512,-cy*480);

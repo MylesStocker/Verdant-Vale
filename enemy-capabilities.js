@@ -4,6 +4,7 @@
 // an enemy's complete requirements with the supported mechanic set below; no
 // enemy identity is an approval credential.
 const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
+  fen_tactics:Object.freeze({canonical:true}),
   basic_attack:Object.freeze({canonical:true}),
   standard_observe:Object.freeze({canonical:true}),
   standard_rewards:Object.freeze({canonical:true}),
@@ -14,6 +15,7 @@ const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
   acid_corrosion:Object.freeze({canonical:true}),
   split_followup:Object.freeze({canonical:true}),
   regeneration:Object.freeze({canonical:true}),
+  swallow_deadline:Object.freeze({canonical:true}),
   melee_armor:Object.freeze({canonical:true}),
   counterattack:Object.freeze({canonical:true}),
   poison_on_hit:Object.freeze({canonical:true}),
@@ -54,6 +56,8 @@ const CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES = Object.freeze([
 ]);
 
 const ENEMY_TEMPLATE_FIELD_CAPABILITIES = Object.freeze({
+  fenTactic:'fen_tactics',
+  swallowAfterRounds:'swallow_deadline',
   defendChance:'brace', curseChance:'curse_on_hit', acidChance:'acid_corrosion',
   splits:'split_followup', regenPerTurn:'regeneration', meleeArmor:'melee_armor',
   counterChance:'counterattack', poisonChance:'poison_on_hit',
@@ -147,7 +151,7 @@ function enemyCapabilityMetadata(template) {
   for(const key of probabilityFields)if(fields[key]&&
       (typeof fields[key].value!=='number'||!Number.isFinite(fields[key].value)||fields[key].value<0||fields[key].value>1))
     fail('malformed capability field '+key+' for '+id);
-  for(const key of ['regenPerTurn','meleeArmor'])if(fields[key]&&
+  for(const key of ['regenPerTurn','meleeArmor','swallowAfterRounds'])if(fields[key]&&
       (!Number.isSafeInteger(fields[key].value)||fields[key].value<=0))fail('malformed capability field '+key+' for '+id);
   for(const key of ['splits','stealAndFlee','inline'])if(fields[key]&&fields[key].value!==true)
     fail('malformed capability field '+key+' for '+id);
@@ -155,6 +159,7 @@ function enemyCapabilityMetadata(template) {
   if(fields.runLock&&fields.runLock.value!=='observe_gated')fail('malformed capability field runLock for '+id);
   if(fields.guaranteedDrop&&(typeof fields.guaranteedDrop.value!=='string'||!fields.guaranteedDrop.value))
     fail('malformed capability field guaranteedDrop for '+id);
+  if(fields.fenTactic&&!FEN_TACTICS.includes(fields.fenTactic.value))fail('malformed fen tactic');
   const capabilities=['basic_attack','standard_observe','standard_rewards'];
   if(fields.isBoss?.value===true)capabilities.push('boss_escape_lock');
   for(const key of Object.keys(ENEMY_TEMPLATE_FIELD_CAPABILITIES))if(Object.hasOwn(fields,key))
@@ -167,8 +172,8 @@ function enemyCapabilityMetadata(template) {
 function canonicalEnemyCompatibility(template) {
   const metadata=enemyCapabilityMetadata(template);
   const authored=ENEMY_CAPABILITY_REGISTRY[metadata.templateId];
-  const mechanicIds=new Set(['brace','curse_on_hit','void_shard_burst','acid_corrosion','slither_on_hit','poison_spell','dazzle_on_hit',
-    'split_followup','regeneration','melee_armor','counterattack','poison_on_hit','mire_toad_reagent_observation','steal_and_flee','generated_stats']);
+  const mechanicIds=new Set(['fen_tactics','brace','curse_on_hit','void_shard_burst','acid_corrosion','slither_on_hit','poison_spell','dazzle_on_hit',
+    'split_followup','regeneration','swallow_deadline','melee_armor','counterattack','poison_on_hit','mire_toad_reagent_observation','steal_and_flee','generated_stats']);
   if(authored&&JSON.stringify(authored.capabilities.filter(id=>mechanicIds.has(id)))!==
       JSON.stringify(metadata.capabilities.filter(id=>mechanicIds.has(id))))
     throw Error('Enemy mechanic capability metadata is stale for '+metadata.templateId);
@@ -209,6 +214,8 @@ function canonicalEnemyMechanicProfile(template) {
         data.minDamage<=0||data.maxDamage<data.minDamage||typeof data.wardItem!=='string'))throw Error('Enemy mechanic profile has invalid shard burst');
     if(capability==='acid_corrosion'&&(!Number.isSafeInteger(data.cap)||data.cap<=0))throw Error('Enemy mechanic profile has invalid corrosion cap');
   }
+  if(metadata.capabilities.includes('fen_tactics'))add('fen_tactics',{role:template.fenTactic});
+  if(metadata.capabilities.includes('swallow_deadline'))add('swallow_deadline',{rounds:template.swallowAfterRounds});
   if(metadata.capabilities.includes('regeneration'))add('regeneration',{amount:template.regenPerTurn});
   if(metadata.capabilities.includes('melee_armor'))add('melee_armor',{defense:template.meleeArmor});
   if(metadata.capabilities.includes('counterattack'))add('counterattack',{chance:template.counterChance});
@@ -261,6 +268,7 @@ function canonicalUnusualEnemySeed(template) {
   const profile=canonicalEnemyMechanicProfile(template);
   if(profile.brace&&profile.melee_armor)throw Error('Unsupported Brace and melee armor combination');
   if(profile.regeneration&&profile.steal_and_flee)throw Error('Contradictory unusual enemy mechanics');
+  if(profile.fen_tactics)return {fen:fenCombat.seed()};
   if(profile.regeneration)return {healingSuppressed:false,suppressedRound:0};
   if(profile.steal_and_flee)return {stolenGold:0,stolenRound:0,departed:false};
   return null;

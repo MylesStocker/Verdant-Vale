@@ -71,7 +71,13 @@ module.exports={
     const keeper=J(g,`MORNAY_NPCS.find(n=>n.service===${JSON.stringify(service)})`);
     place(g,shop.sourceMapId);enterByWalking(g,shop);
     assertVisibleStair(g,true,home);enterByWalking(g,home);assertVisibleStair(g,false,home);
-    for(const id of residents)converseByWalking(g,id);
+    for(const id of residents){
+     converseByWalking(g,id);
+     // Henric now offers private stock upstairs; leave it before visiting family.
+     if(id==='mornay_henric_sorn'){
+      assert.equal(g.run('shop.open'),true);g.press('Escape');assert.equal(g.run('shop.open'),false);
+     }
+    }
     assert.equal(g.run('saveGame()'),true);
     const upstairs=J(g,'[player.x,player.y]'),partyBefore=J(g,'persistentParty.getView()');
     descend(g,home);assert.equal(g.run('townBuilding'),shop.id);

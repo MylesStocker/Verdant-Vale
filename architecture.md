@@ -5111,3 +5111,76 @@ Two `MORNAY_TOWN_LAYOUT` records extend the existing discrete Mornay graph. `mor
 ### Mornay marker shifted north — 2026-10-28
 
 Follow-up to the road/marker pass: the two-by-three marker moves one row north within `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` (now rows 0–2, columns 7–8). Its gates are at row 2; the former gate cells on row 3 become road. Water replaces grass at row 2, columns 6 and 9, preventing lateral entry. Nine tile values change in this follow-up; no other regional grid changes. Return landings remain (240,144)/(272,144), now two rows south of the gates, facing down. Town maps, cameras, seams and SAVE_VERSION 5 are unchanged. Exact deltas are in `test/fixtures/mornay-north-shift.json`; suite 338 tests side collisions, southern gate round trips/save-load and connected shore ground. See `Art/qa/mornay/north-shift-v1/README.md` for evidence.
+
+
+### Mornay optional job contracts
+
+`mornay-jobs.js` owns the board, two removal records, existing-NPC conversation
+branches, packet delivery flow, pure journal projection, active-map-only field
+presentation and candidate/runtime invariants. `interactions.js` dispatches to
+it after the existing optional cases; `render.js` calls its read-only renderer.
+The board and creature overlays use existing drawing functions, not terrain IDs.
+
+`enemy-catalog.js` registers two ordinary static removal templates, with existing
+sprite dispatch in `render-battle.js`. `scripted-party-encounters.js` owns the
+`mornay_removal` entry, exact target/origin authentication and victory receipt.
+Both solo and multi-member parties use canonical combat. Only the authenticated
+finalizer clears a hunt; escape/defeat do not. Giver callbacks separately guard
+proximity/stage before paying once. Creature targets are active-map-only.
+
+`quests.js` owns `mornay_peat_hunt`, `mornay_ridge_hunt` (0–3) and
+`mornay_hoist_errand` (0–5); `save.js` binds each with default zero at version 5.
+Load preflight checks candidate stage/packet consistency before mutation; old v5
+saves omit these fields safely. Exactly one registered Hoist Inspection Packet
+exists while errand stage is 1–4; none at 0/5. No session state is persisted.
+Suite 339 covers input-driven interactions, reachability, authenticated outcomes,
+solo/party combat, one-time payments, stale callbacks and atomic save rejection.
+
+### Swallow deadline and presentation
+
+`enemy-capabilities.js` maps positive integer `swallowAfterRounds` to the closed
+`swallow_deadline` capability; only the Peat-Bed Maw currently authors it. The
+canonical command resolver uses its existing completed-round authority, after
+all scheduled actions, burn and Bomb ticks. A living deadline enemy records one
+`swallow` event with round, deadline and exact living-party HP witnesses, then
+ordinary defeat handling applies. Victory/escape preempt the event. There is no
+new save field or second timer for combat progression. Legacy Formation rejects
+the unsupported field rather than silently ignoring it.
+
+Historical playback independently reconstructs deadline eligibility and exact
+victims, rejects malformed history, and never rerolls or writes gameplay state.
+`partyBattleSwallowAnimation` in `render-party-battle.js` reads that event and
+owns only a 120-frame presentation clock. Normal elapsed-time update and input
+blocking mirror Quickbloom; canonical/Lab cleanup resets it. Read-only rendering
+reuses `drawBattlePeatMaw` for field/battle/emergence, clips above the UI, and
+shows the remaining full rounds from the shared immutable battle view.
+Suite 340 covers deadline boundaries, delayed-kill precedence, final-round
+victory, escape, defeat/retry, replay and animation isolation, and MQ5 loadout
+balance witnesses. SAVE_VERSION remains 5.
+
+### Great Fen tactical encounters
+
+`fen-combat.js` owns a pure reducer for the closed `fen_tactics` capability.
+Runtime state lives inside command-round `unusual.fen` records; no save authority
+is added. The resolver and playback verifier recompute identical effects from
+current authenticated state at enemy actions, post-action reactions and round
+boundaries. Recorded full before/after witnesses are compared, not executed as
+commands. Ordinary bites retain the shared Attack path. Chorus reserves both
+participants at round entry and schedules one action at minimum participant
+Speed; interrupted partners cannot receive a replacement action. Slows affect
+battle-effective Speed without writing character stats. Observe XP is paid only
+through canonical victory receipts. `great_fen` is an authored profile, not a
+map-ID exception. Solo encounters containing this capability use the canonical
+engine; older solo content is unchanged. See GREAT_FEN_ENCOUNTERS.md.
+
+### Zolom escape consumable and arrival warning
+
+`itemAllowsEncounterEscape` is the narrow shared Serpentsmoke predicate: at least
+one living, non-departed enemy, all Fen Zolom. Item events consume one registered
+item through existing combat authority; canonical and Formation replay recompute
+eligibility from authenticated state. Legacy singleton uses the ordinary escape
+receipt. No rewards or persistent escape-unlock state are created. Canonical party Run
+remains boss-locked; the older solo speed-contest Run is unchanged. Inventory persistence rehydrates the registered item at v5.
+`warnFenZolomArrival` reads canonical geography before movement and before an
+encounter roll, using a session-only per-visit latch; it adds no seam callbacks.
+Henric's upstairs stock uses `MORNAY_SHOPS.hidden_supplies`, not a new shop system.

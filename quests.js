@@ -83,6 +83,10 @@ let schilling_returned      = false;
 //   4=all defeated, 5=spared, 6=reported/denied to supervisor
 let fort_quest_started       = false; // supervisor gave the investigation assignment
 let fort_quest_stage         = 0;     // tracks fight/spare/report progress
+// Optional Mornay jobs: 0 new, 1 accepted, 2 cleared, 3 paid.
+let mornay_peat_hunt = 0;
+let mornay_ridge_hunt = 0;
+let mornay_hoist_errand = 0; // 0 new, 1–4 packet deliveries, 5 paid
 let two_jorans_stage = 0; // 0 new, 1 evidence, 2 cleared, 3 key given, 4 supplies claimed
 let two_jorans_evidence = 0; // Beck, Perris, Varda, Alden: bits 1/2/4/8
 let fine_needlework_stage = 0; // 0 new, 1 carrying, 2 delivered, 3 withdrawn, 4/5 reunited
@@ -514,6 +518,9 @@ function completeLighthouseQuest(giver) {
 // uses the let bindings directly. Call syncQuestFlagsToWindow() after any
 // gameplay change to keep the window properties current.
 function syncQuestFlagsToWindow() {
+  window.mornay_peat_hunt = mornay_peat_hunt;
+  window.mornay_ridge_hunt = mornay_ridge_hunt;
+  window.mornay_hoist_errand = mornay_hoist_errand;
   window.two_jorans_stage = two_jorans_stage;
   window.two_jorans_evidence = two_jorans_evidence;
   window.fine_needlework_stage = fine_needlework_stage;
@@ -652,6 +659,7 @@ window.syncQuestFlagsToWindow = syncQuestFlagsToWindow;
 // in the SPECIAL ITEMS list AND used as the default inspect text (see
 // getSpecialItemInspectPages) for any item without richer read-content below.
 const SPECIAL_ITEM_NOTES = {
+  'Hoist Inspection Packet': 'Gessa’s condemned-hoist inspection, covering request and harbour acknowledgement. Follow A Copy of a Copy in Quests for the next desk. Not a permit to use the hoist.',
   'Embroideries Parcel': 'Chuggie’s tied parcel for Polwick. Return it to Chuggie at Wold’s Gate Inn if you withdraw.',
   'Warp Stone':         'A dark, warm reservoir-stone. Inspect it to travel.',
   'Letter from Netto':  'A letter from home. Inspect it to read it.',
@@ -788,6 +796,7 @@ function getSpecialItemInspectAction(name) {
 // Pure: reads quest flags / stats.items / day but mutates nothing.
 function getActiveQuestNotes() {
   const notes = [];
+  notes.push(...mornayJobs.notes());
   const joransNote=twoJorans.note();if(joransNote)notes.push(joransNote);
   const needleworkNote=[null,'carrying','deliveredAwaitingReunion','withdrawnAwaitingReunion','completed','withdrawn'][fine_needlework_stage];
   if(needleworkNote)notes.push({title:FINE_NEEDLEWORK_CONTENT.title,body:FINE_NEEDLEWORK_CONTENT.journal[needleworkNote]});

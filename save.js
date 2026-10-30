@@ -85,6 +85,9 @@ const QUEST_FLAG_BINDINGS = [
   lex('dispatch_rewarded', false, () => dispatch_rewarded, (v) => { dispatch_rewarded = v; }),
   lex('fort_quest_started', false, () => fort_quest_started, (v) => { fort_quest_started = v; }),
   lex('fort_quest_stage', 0, () => fort_quest_stage, (v) => { fort_quest_stage = v; }),
+  lex('mornay_peat_hunt',0,()=>mornay_peat_hunt,v=>{mornay_peat_hunt=v;}),
+  lex('mornay_ridge_hunt',0,()=>mornay_ridge_hunt,v=>{mornay_ridge_hunt=v;}),
+  lex('mornay_hoist_errand',0,()=>mornay_hoist_errand,v=>{mornay_hoist_errand=v;}),
   lex('two_jorans_stage',0,()=>two_jorans_stage,v=>{two_jorans_stage=v;}),
   lex('two_jorans_evidence',0,()=>two_jorans_evidence,v=>{two_jorans_evidence=v;}),
   lex('fine_needlework_stage', 0, () => fine_needlework_stage, (v) => { fine_needlework_stage = v; }),
@@ -426,7 +429,7 @@ function saveGame() {
   // Quest-route guard: never persist a contradictory lighthouse/Polwick state.
   // The same pure invariant is used by offer/objective/reward eligibility,
   // load preflight, and validateGameData().
-  if(twoJorans.invariantErrors().length||struckEntry.invariantErrors().length)return false;
+  if(mornayJobs.invariantErrors().length||twoJorans.invariantErrors().length||struckEntry.invariantErrors().length)return false;
   if(fineNeedlework.invariantErrors().length)return false;
   const lighthouseErrors = lighthouseQuestInvariantErrors();
   if (lighthouseErrors.length) {
@@ -652,7 +655,7 @@ function loadGame() {
   // Candidate-only quest preflight. Missing lighthouse_quest_stage is the
   // pre-feature default (0), preserving older current-version saves. Invalid
   // route/outcome mixtures reject atomically before any runtime mutation.
-  if(twoJorans.invariantErrors(data).length||struckEntry.invariantErrors(data).length)return false;
+  if(mornayJobs.invariantErrors(data).length||twoJorans.invariantErrors(data).length||struckEntry.invariantErrors(data).length)return false;
   if(fineNeedlework.invariantErrors(data).length)return false;
   const lighthouseErrors = lighthouseQuestInvariantErrors(data);
   if (lighthouseErrors.length) {

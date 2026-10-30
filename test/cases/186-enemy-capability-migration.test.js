@@ -4,6 +4,7 @@ const {createContext}=require('../harness');
 const ROOT=path.join(__dirname,'../..'),checks=[],test=(name,run)=>checks.push({name,run});
 const J=(g,s)=>JSON.parse(g.run('JSON.stringify('+s+')'));
 const ORDINARY=[
+  'enemy_peatback','enemy_drownlight','enemy_blackbriar_hound','enemy_bell_throated_toad','enemy_reedbinder','enemy_bladder_leech',
   'enemy_marsh_wisp','enemy_briar_hound','enemy_marsh_wisp_early','enemy_briar_hound_early',
   'enemy_crypt_fiend','enemy_fen_shade','enemy_crypt_revenant','enemy_wall_tendril',
   'enemy_fen_lurker','enemy_bog_serpent','enemy_marsh_rat','enemy_reed_grappler',
@@ -27,6 +28,8 @@ const ORDINARY=[
   // Fen Zolom gate (North Fen): isBoss is an existing ordinary capability
   // (boss_escape_lock, canonical:true) already used by Takomo/Mulholland/etc.
   'enemy_fen_zolom','enemy_buzzy_beetle','enemy_large_buzzy_beetle',
+  // Optional Mornay removal contracts reuse basic attack/observe/rewards.
+  'enemy_peat_bed_maw','enemy_ridgeback_snapper',
 ];
 const SPECIAL={};
 const SCRIPTED={
@@ -78,7 +81,7 @@ test('the audit covers every registered production template exactly once and rec
   const text=fs.readFileSync(path.join(ROOT,'ENEMY_CAPABILITY_AUDIT.md'),'utf8');
   const rows=[...text.matchAll(/^\| `(enemy_[^`]+)`[^\n]*\| (ordinary|special capability pending|scripted-only lifecycle|non-production\/debug fixture) \|/gm)]
     .map(match=>({id:match[1],category:match[2]}));
-  assert.equal(rows.length,73);assert.equal(new Set(rows.map(r=>r.id)).size,73);
+  assert.equal(rows.length,81);assert.equal(new Set(rows.map(r=>r.id)).size,81);
   const g=fresh();assert.deepEqual(rows.map(r=>r.id).sort(),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY).sort()'));
   assert.deepEqual(rows.filter(r=>r.category==='ordinary').map(r=>r.id).sort(),ORDINARY.slice().sort());
   assert.deepEqual(rows.filter(r=>r.category==='special capability pending').map(r=>r.id).sort(),Object.keys(SPECIAL).sort());
@@ -86,8 +89,8 @@ test('the audit covers every registered production template exactly once and rec
   assert.equal(rows.filter(r=>r.category==='non-production/debug fixture').length,0);
 });
 
-test('all 73 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),73);
+test('all 81 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),81);
   assert.deepEqual(J(g,'Object.keys(ENEMY_CAPABILITY_REGISTRY)'),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)'));
   for(const id of J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)')){
     const metadata=g.run('ENEMY_CAPABILITY_REGISTRY['+JSON.stringify(id)+']');frozen(metadata);
@@ -109,8 +112,8 @@ test('all 73 deterministic metadata records are closed, deeply frozen and capabi
   }
   assert.deepEqual(J(g,'Array.from(ENEMY_GENERIC_SPRITE_IDS)'),['enemy_takomo']);
   assert.equal(g.run('Object.hasOwn(ENEMY_SPRITE_DISPATCH,"enemy_takomo")'),false);
-  assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
-    'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','melee_armor','counterattack',
+  assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['fen_tactics','basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
+    'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','swallow_deadline','melee_armor','counterattack',
     'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee',
     'observe_run_lock','guaranteed_drop','generated_stats','warden_lifecycle','persistent_hp_lifecycle','rainfish_chain',
     'takomo_lifecycle','den_wraith_lifecycle','sailor_brawl_lifecycle','wrongteeth_lifecycle',
@@ -248,7 +251,7 @@ test('legacy flat-pool selection, pool membership and RNG consumption remain unc
   const g=fresh(),before=J(g,'ENEMY_TEMPLATE_POOLS.map(p=>p.templates.map(t=>t.id))');
   // Every pool except the two Eastern Fens Mornay weighted-formation pools is
   // flat raw templates (unchanged legacy shape).
-  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.filter(p=>!["pool_eastern_fens_mornay_easy","pool_eastern_fens_mornay_hard"].includes(p.id)).every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
+  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.filter(p=>!["pool_eastern_fens_mornay_easy","pool_eastern_fens_mornay_hard","pool_great_fen"].includes(p.id)).every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
   g.run(`var selectionCalls=0;Math.random=()=>{selectionCalls++;return .5};var selected=encounterFormations.select(ENEMY_TEMPLATE_POOLS[0].templates);`);
   assert.equal(g.run('selectionCalls'),1);assert.deepEqual(J(g,'ENEMY_TEMPLATE_POOLS.map(p=>p.templates.map(t=>t.id))'),before);
   assert.equal(g.run('selected.enemies.length'),1);assert.equal(g.run('encounterFormations.normalizePool(ENEMY_TEMPLATE_POOLS[0].templates).mode'),'legacy_flat');

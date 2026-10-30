@@ -191,6 +191,7 @@ function itemStatLabel(item) {
   // Status-cure items deliberately show NO stat label \u2014 a display must never
   // reveal which status an item cures (a character can mention it instead).
   if (isStatusCureItem(item))                      return '';
+  if (item.escapeEnemyId) return 'Escape Fen Zolom';
   if (item.type === 'buff' && item.evadeRate)      return `Evade ${Math.round(item.evadeRate * 100)}% \u00b7 ${item.evadeTurns}t`;
   if (item.type === 'throwable') {
     const damage = item.minDamage !== undefined ? `${item.minDamage}-${item.damage}` : item.damage;
@@ -565,8 +566,8 @@ const combatPlayerState = (() => {
       const corrosion=commandBattle?.effects[base.slot]?.corrosion||0;
       if(![atk,rawDef,rawSpd].every(safe))invalid();
       return {atk,def:Math.max(0,rawDef-(statusList.includes('muddied')?1:0)-corrosion),
-        spd:statusList.includes('slither') ? commandBattle.effects[base.slot].slither.speed :
-          Math.max(1,rawSpd-(statusList.includes('muddied')?2:0)),
+        spd:fenCombat.speed((commandBattle?.enemies||[]).map(e=>({...e,unusual:commandBattle.unusual.get(e.instanceId)})),member.instanceId,
+          statusList.includes('slither') ? commandBattle.effects[base.slot].slither.speed : Math.max(1,rawSpd-(statusList.includes('muddied')?2:0))),
         defenseCapBypass:gear.armor?.defenseCapBypass===true,evadeAll:gear.accessory?.evadeAll===true};
     };
     const snapshot = () => {
@@ -680,6 +681,7 @@ const combatPlayerState = (() => {
       const planActors=[...allyActions.filter(a=>resonancePlansActor(a,s.resonance)).map(a=>({actorId:a.actorId,targetId:a.targetId??null,side:'ally',
         slot:exactMember(a.actorId).definition.slot,spd:resonancePlanSpeed(a,speedParty),commandType:a.type})),
         ...enemyActions.map(a=>{const e=enemyData.find(e=>e.instanceId===a.actorId);return {actorId:a.actorId,targetId:a.targetId,side:'enemy',slot:e.slot,spd:e.spd,commandType:a.brace?.selected?'brace':'attack'};})];
+      if(enemyData.some(e=>e.fenTactic))planActors.splice(0,planActors.length,...fenCombat.plan(planActors,snapshot()));
       partyInitiativeWeights(planActors);
       // A sample may increase a Slither actor's weight to 20. Validate that
       // whole prospective sum now, before any status/initiative draw or write.
@@ -780,7 +782,17 @@ const combatPlayerState = (() => {
           if(enemy.hp===0&&state?.stolenGold>0){const before=state.stolenGold,goldBefore=s.gold;s.gold+=before;state.stolenGold=0;
             events.push({type:'gold_recovered',actorId:enemy.instanceId,amount:before,goldBefore,goldAfter:s.gold});}}};
         roundState={completed:roundState?.completed||0,enemies:enemyMembers,phase:'resolving',outcome:'ongoing',failure:null};
-        const round=roundState.completed+1;
+        const round=roundState.completed+1,hasFen=enemyData.some(e=>e.fenTactic),fenPairs=hasFen?fenCombat.pairs(before):[];
+        const fenStep=(phase,actorId=null,context={})=>{
+          if(!hasFen)return false;
+          const result=fenCombat.step(snapshot(),phase,actorId,round,context);if(!result)return false;
+          for(const m of result.state.party){const liveMember=live(m.instanceId),old=[...liveMember.statuses];
+            liveMember.hp=m.hp;liveMember.statuses=[...m.statuses];
+            for(const status of m.statuses)if(!old.includes(status))s.statusApplications[m.slot][status]=round;
+          }
+          for(const e of result.state.enemies){live(e.instanceId).hp=e.hp;if(e.unusual)s.unusual.set(e.instanceId,fenCombat.clone(e.unusual));}
+          events.push(result.event);return phase==='action'?result.handled:true;
+        };
         try {
           // Legacy Brace is an exchange-wide decision, not an initiative-timed
           // buff. Only committed melee targets roll; items/Observe/Run do not.
@@ -796,7 +808,7 @@ const combatPlayerState = (() => {
             if(!actor.statuses.includes('slither') || !['attack','observe'].includes(planned.commandType))continue;
             const effect=s.effects[planned.slot],speedBefore=effect.slither.speed,draw=roll(),speedAfter=Math.floor(draw*20)+1;
             effect.slither={speed:speedAfter,round,roll:draw,source:planned.commandType};
-            planned.spd=speedAfter;
+            planned.spd=fenCombat.speed(snapshot().enemies,actor.instanceId,speedAfter);
             events.push({type:'slither_sample',actorId:actor.instanceId,side:'ally',slot:planned.slot,status:'slither',
               round,commandType:planned.commandType,roll:draw,speedBefore,speedAfter});
           }
@@ -808,6 +820,12 @@ const combatPlayerState = (() => {
             if(!actor||(planned.targetId!==null&&!target))throw Error('Party command lost exact identity');
             const action=planned.side==='ally'?actionFor(planned.actorId):{type:planned.commandType};
             const tech=action.type==='resonance'?resonanceTechnique(action.techniqueId):null;
+            const fenBefore=hasFen?snapshot():null,fenPair=fenPairs.find(p=>p.actorId===actor.instanceId);
+            if(!ally(actor)&&actor.fenTactic&&(fenPair||partyActorCanAct(actor,roster.map(view)))){
+              if(fenStep('action',actor.instanceId,{targetId:planned.targetId,pair:fenPair})){
+                fenStep('after',actor.instanceId,{previous:fenBefore});recoverGold();outcome=terminal();if(outcome!=='ongoing')break;continue;
+              }
+            }
             const partyNow=roster.map(view);
             if(tech?.kind==='combined'){
               const unavailable=action.participantIds.map(id=>partyNow.find(m=>m.instanceId===id)).find(m=>!partyActorCanAct(m,partyNow));
@@ -986,6 +1004,7 @@ const combatPlayerState = (() => {
               if(consumed)s.inventory.splice(at,1);
               const itemAfter=snapshot();
               events.push({type:effect==='equip'?'equipment':'item',...planned,itemId:action.itemId,effect,consumed,before:itemBefore,after:itemAfter});
+              if(effect==='escape'&&itemAllowsEncounterEscape(action.itemId,enemyMembers)){outcome='escape';break;}
               for(const member of roster) {
                 const b=itemBefore.party[member.definition.slot],a=itemAfter.party[member.definition.slot];
                 if(JSON.stringify(b.statuses)!==JSON.stringify(a.statuses))events.push({type:'status',targetId:member.instanceId,
@@ -994,6 +1013,7 @@ const combatPlayerState = (() => {
               if(['evade','bomb'].includes(effect))events.push({type:'effect',sourceId:actor.instanceId,targetId:target.instanceId,
                 itemId:action.itemId,effectsBefore:itemBefore.effects,effectsAfter:itemAfter.effects});
             }
+            fenStep('after',actor.instanceId,{previous:fenBefore});
             recoverGold();outcome=terminal();if(outcome!=='ongoing')break;
           }
           // End-of-round damage runs only after an ongoing action sequence,
@@ -1007,14 +1027,28 @@ const combatPlayerState = (() => {
           }
           if(outcome==='ongoing')for(const [slot,effect]of s.effects.entries()) {
             const bomb=effect.bomb;if(!bomb||bomb.appliedRound===round)continue;
-            const bombBefore={...bomb},target=live(bomb.targetId),hpBefore=target.hp;
+            const fenBefore=hasFen?snapshot():null,bombBefore={...bomb},target=live(bomb.targetId),hpBefore=target.hp;
             bomb.fuse--;
             const damage=available(target)&&bomb.fuse===0?offensiveItemDamage(bomb,target):0;
             target.hp=Math.max(0,target.hp-damage);
             if(!bomb.fuse||!target.hp)effect.bomb=null;
             events.push({type:'delayed_effect_tick',effect:'bomb',ownerId:roster[slot].instanceId,targetId:target.instanceId,
               before:bombBefore,after:effect.bomb?{...effect.bomb}:null,attemptedDamage:damage,appliedDamage:hpBefore-target.hp,hpBefore,hpAfter:target.hp});
+            fenStep('after',roster[slot].instanceId,{previous:fenBefore});
             recoverGold();outcome=terminal();if(outcome!=='ongoing')break;
+          }
+          if(outcome==='ongoing'){fenStep('boundary');outcome=terminal();}
+          if(outcome!=='ongoing')fenStep('cleanup');
+          // A surviving deadline creature consumes the party only after every
+          // action and delayed damage in its final allowed round. No RNG,
+          // evasion, stun extension or persistent countdown authority.
+          if(outcome==='ongoing')for(const enemy of enemyMembers.filter(available)){
+            const deadline=s.mechanics.get(enemy.instanceId)?.swallow_deadline;
+            if(!deadline||round<deadline.rounds)continue;
+            const hits=roster.filter(m=>m.hp>0).map(m=>{const hpBefore=m.hp;m.hp=0;
+              return {targetId:m.instanceId,hpBefore,hpAfter:0,appliedDamage:hpBefore};});
+            events.push({type:'swallow',actorId:enemy.instanceId,round,deadline:deadline.rounds,hits});
+            outcome=terminal();break;
           }
           // Approved party timing: inspect surviving Trolls after the full
           // round. Run-only rounds retain the legacy absence of regeneration.
@@ -1903,7 +1937,7 @@ const partyCommandPlayback = (() => {
   const reels=new WeakSet(),gearSlots=['weapon','armor','shield','accessory'];
   const itemKinds=Object.freeze(Object.fromEntries(Object.entries(ITEM_REGISTRY).map(([id,item])=>[id,Object.freeze({
     sexBane:item.sexBane||null,key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
-    effect:item.sexBane?'reagent':item.type==='potion'?(item.curesPoison||item.curesCursed?'cure':'heal'):
+    effect:item.escapeEnemyId?'escape':item.sexBane?'reagent':item.type==='potion'?(item.curesPoison||item.curesCursed?'cure':'heal'):
       item.type==='buff'?'evade':item.type==='throwable'?(item.fuse?'bomb':item.targetsAll?'damage_all':'damage'):
       item.type==='stun'?'stun':gearSlots.includes(item.type)?'equip':item.type==='bait'?'nothing':null,
     cures:Object.freeze(['poison','cursed'].filter(s=>s==='poison'?item.curesPoison:item.curesCursed)),mud:item.causesMuddied===true,
@@ -1958,6 +1992,8 @@ const partyCommandPlayback = (() => {
     enemy_corrosion:['actorId','targetId','capability','before','after','cap'],
     counter_check:['actorId','targetId','chance','roll','triggered'],
     counterattack:['actorId','targetId','rolls','defense','critical','evasionChance','evaded','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
+    fen_effect:['phase','actorId','round','messages','hits','before','after'],
+    swallow:['actorId','round','deadline','hits'],
     regeneration:['actorId','round','amount','hpBefore','hpAfter','before','after'],
     theft:['actorId','targetId','round','roll','attemptedGold','amount','goldBefore','goldAfter'],
     gold_recovered:['actorId','amount','goldBefore','goldAfter'],departure:['actorId','round','stolenRound','stolenGold'],
@@ -1982,6 +2018,7 @@ const partyCommandPlayback = (() => {
         const hasBrace=mechanicFields.includes('defendChance');
         keys(m,[...fields,...mechanicFields,...(hasBrace?['braced']:[]),...(m.origin?['origin']:[]),...(unusual?['unusual']:[])]);
         if(unusual){keys(m.unusual,Object.keys(unusual));const u=m.unusual;
+          if(u.fen)fenCombat.validate(u.fen,s,maxRound);
           if(Object.hasOwn(u,'healingSuppressed')&&(!bool(u.healingSuppressed)||!safe(u.suppressedRound)||u.suppressedRound>maxRound||u.healingSuppressed!==!!u.suppressedRound))fail();
           if(Object.hasOwn(u,'stolenGold')&&(!safe(s.gold)||!safe(u.stolenGold)||!safe(u.stolenRound)||u.stolenRound>maxRound||!bool(u.departed)||
             !u.stolenRound&&(u.stolenGold!==0||u.departed)||u.departed&&u.stolenRound>=maxRound))fail();
@@ -2021,7 +2058,7 @@ const partyCommandPlayback = (() => {
           if(!s.enemies.some(e=>e.instanceId===b.targetId)||!safe(b.fuse)||!b.fuse||!safe(b.damage)||!bool(b.ignoresDef)||!safe(b.appliedRound)||!b.appliedRound||b.appliedRound>maxRound)fail();}
         if(m.statuses.includes('slither')){
           keys(f.slither,['speed','round','roll','source']);const v=f.slither;
-          if(!safe(v.speed)||v.speed<1||v.speed>20||m.effective.spd!==v.speed||!safe(v.round)||v.round>maxRound||
+          if(!safe(v.speed)||v.speed<1||v.speed>20||m.effective.spd!==fenCombat.speed(s.enemies,m.instanceId,v.speed)||!safe(v.round)||v.round>maxRound||
               (v.source==='prepared'?v.round!==0||v.roll!==null:!['attack','observe','inflicted'].includes(v.source)||!v.round||!roll(v.roll)||v.speed!==Math.floor(v.roll*20)+1))fail();
         }else if(Object.hasOwn(f,'slither'))fail();
       });
@@ -2080,6 +2117,8 @@ const partyCommandPlayback = (() => {
       equal([...covered].sort(),living.map(m=>m.instanceId).sort());
     }
     witnessResonanceConsents(r.command.allyActions);
+    const fenPairs=fenCombat.pairs(state);
+    commands.splice(0,commands.length,...fenCombat.plan(commands,state));
     commands.sort((a,b)=>a.side===b.side?a.slot-b.slot:a.side==='ally'?-1:1);
     for(const[id,n]of reservations)if(state.inventory.filter(x=>x===id).length<n)fail();
     list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();
@@ -2105,11 +2144,11 @@ const partyCommandPlayback = (() => {
       const e=take('slither_sample'),m=member(c.actorId),f=state.effects[c.slot];
       if(e.actorId!==c.actorId||e.side!=='ally'||e.slot!==c.slot||e.status!=='slither'||e.round!==r.round||e.commandType!==c.commandType||
           !roll(e.roll)||e.speedBefore!==f.slither.speed||e.speedAfter!==Math.floor(e.roll*20)+1)fail();
-      f.slither={speed:e.speedAfter,round:r.round,roll:e.roll,source:c.commandType};m.effective.spd=e.speedAfter;push(e);
+      f.slither={speed:e.speedAfter,round:r.round,roll:e.roll,source:c.commandType};m.effective.spd=fenCombat.speed(state.enemies,m.instanceId,e.speedAfter);push(e);
     }
     list(r.order,commands.length,commands.length);const planned=new Map();
     for(const p of r.order){keys(p,planKeys);const c=commands.find(c=>c.actorId===p.actorId),m=member(p.actorId);
-      if(!c||planned.has(p.actorId)||['targetId','side','slot','commandType'].some(k=>p[k]!==c[k])||p.spd!==(c.side==='ally'?witnessResonancePlanSpeed(c.command,state.party):m.spd))fail();planned.set(p.actorId,p);}
+      if(!c||planned.has(p.actorId)||['targetId','side','slot','commandType'].some(k=>p[k]!==c[k])||p.spd!==(c.side==='ally'?witnessResonancePlanSpeed(c.command,state.party):(fenPairs.find(pair=>pair.actorId===m.instanceId)?.spd??m.spd)))fail();planned.set(p.actorId,p);}
     // Check recorded intervals and declared order, without invoking the planner.
     list(r.initiative,r.order.length-1,r.order.length-1);const remaining=commands.map(c=>c.actorId);
     r.initiative.forEach((d,i)=>{
@@ -2159,6 +2198,7 @@ const partyCommandPlayback = (() => {
       }
       if(info.effect==='reagent'&&t.sex===info.sexBane)t.hp=0;
       if(info.effect==='stun'&&t.regenPerTurn){t.unusual.healingSuppressed=true;t.unusual.suppressedRound=r.round;}
+      if(fenCombat.enabled(expected))fenCombat.refresh(expected);
       equal(expected,e.after);state=clone(e.after);push(e);
       // Annotations refer to the same item transition; never apply it twice.
       for(const [slot,m]of e.before.party.entries())if(!same(m.statuses,e.after.party[slot].statuses)){
@@ -2234,11 +2274,27 @@ const partyCommandPlayback = (() => {
       equal(e,{type:'theft',actorId:actor.instanceId,targetId:target.instanceId,round:r.round,roll:e.roll,attemptedGold,amount,goldBefore:state.gold,goldAfter:state.gold-amount});
       state.gold=e.goldAfter;actor.unusual.stolenGold=amount;actor.unusual.stolenRound=r.round;push(e);
     };
+    const fenStep=(phase,actorId=null,context={})=>{
+      if(!fenCombat.enabled(state))return false;
+      fenCombat.refresh(state);
+      const result=fenCombat.step(state,phase,actorId,r.round,context);if(!result)return false;
+      const e=take('fen_effect');equal(e,result.event);
+      for(const m of result.state.party)for(const status of m.statuses)
+        if(!state.party[m.slot].statuses.includes(status))statusApplications[m.slot][status]=r.round;
+      state=clone(result.state);push(e);return phase==='action'?result.handled:true;
+    };
     let escaped=false;
     for(const p of r.order){
       if(outcome()!=='ongoing'||escaped)break;
-      const actor=member(p.actorId),target=member(p.targetId),c=commands.find(c=>c.actorId===p.actorId);
+      let actor=member(p.actorId),target=member(p.targetId);const c=commands.find(c=>c.actorId===p.actorId);
       const action=c.command,tech=p.commandType==='resonance'?resonanceTechnique(action.techniqueId):null;
+      const fenBefore=fenCombat.enabled(state)?clone(state):null,fenPair=fenPairs.find(pair=>pair.actorId===actor.instanceId);
+      if(actor.side==='enemy'&&actor.fenTactic&&(fenPair||partyActorCanAct(actor,state.party))){
+        if(fenStep('action',actor.instanceId,{targetId:p.targetId,pair:fenPair})){
+          fenStep('after',actor.instanceId,{previous:fenBefore});recoverGold();continue;
+        }
+        actor=member(p.actorId);target=member(p.targetId);
+      }
       if(tech?.kind==='combined'){
         const unavailable=action.participantIds.map(member).find(m=>!partyActorCanAct(m,state.party));
         if(unavailable||target?.hp===0){
@@ -2279,7 +2335,7 @@ const partyCommandPlayback = (() => {
         }
         push(e);
         for(const [i,id]of action.participantIds.entries())strain(id,tech.participants[i].strain,r.round,'application');
-        recoverGold();continue;
+        fenStep('after',actor.instanceId,{previous:fenBefore});recoverGold();continue;
       }
       let curse=null;
       if(p.commandType==='attack'&&!target.braced&&actor.side==='ally'&&actor.statuses.includes('cursed')&&statusApplications[actor.slot].cursed!==r.round){
@@ -2314,8 +2370,8 @@ const partyCommandPlayback = (() => {
         if(e.allowed!==allowed||e.opponentId!==fastest.instanceId||!bool(e.success)||typeof e.chance!=='number'||e.chance<0||e.chance>1||
             (gated?(e.roll!==null||e.chance!==(allowed?1:0)||e.success!==allowed):
               allowed?!roll(e.roll)||e.success!==(e.roll<e.chance):e.roll!==null||e.chance!==0||e.success))fail();escaped=e.success;
-      }else {itemEvent(e,c,actor,target);recoverGold();continue;}
-      push(e);if(e.type==='attack'){enemyEffects(actor,target,e);counter(actor,target);theft(actor,target,e);}recoverGold();
+      }else {itemEvent(e,c,actor,target);if(e.effect==='escape'&&itemAllowsEncounterEscape(e.itemId,state.enemies)){escaped=true;continue;}fenStep('after',actor.instanceId,{previous:fenBefore});recoverGold();continue;}
+      push(e);if(e.type==='attack'){enemyEffects(actor,target,e);counter(actor,target);theft(actor,target,e);}fenStep('after',actor.instanceId,{previous:fenBefore});recoverGold();
     }
     // Boundary ticks follow the resolver's stable burn-then-Bomb owner order.
     if(!escaped&&outcome()==='ongoing')for(const m of state.party.filter(m=>m.hp>0&&m.statuses.includes('burn'))){
@@ -2324,9 +2380,19 @@ const partyCommandPlayback = (() => {
     }
     if(!escaped&&outcome()==='ongoing')for(const f of state.effects){
       if(outcome()!=='ongoing')break;const b=f.bomb;if(!b||b.appliedRound===r.round)continue;
-      const e=take('delayed_effect_tick'),target=member(b.targetId);if(e.effect!=='bomb'||e.ownerId!==f.actorId||e.targetId!==b.targetId)fail();equal(e.before,b);
+      const fenBefore=clone(state),e=take('delayed_effect_tick'),target=member(b.targetId);if(e.effect!=='bomb'||e.ownerId!==f.actorId||e.targetId!==b.targetId)fail();equal(e.before,b);
       const next={...b,fuse:b.fuse-1};if((!available(target)||next.fuse>0)&&e.attemptedDamage!==0)fail();damage(e,target);
-      equal(e.after,next.fuse===0||target.hp===0?null:next);f.bomb=clone(e.after);push(e);recoverGold();
+      equal(e.after,next.fuse===0||target.hp===0?null:next);f.bomb=clone(e.after);push(e);fenStep('after',f.actorId,{previous:fenBefore});recoverGold();
+    }
+    if(!escaped&&outcome()==='ongoing')fenStep('boundary');
+    if(escaped||outcome()!=='ongoing')fenStep('cleanup');
+    // Independently reconstruct the deadline from authenticated template data.
+    if(!escaped&&outcome()==='ongoing')for(const m of state.enemies.filter(available)){
+      const deadline=canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[m.id]).swallow_deadline;
+      if(!deadline||r.round<deadline.rounds)continue;
+      const e=take('swallow'),hits=state.party.filter(a=>a.hp>0).map(a=>{
+        const hpBefore=a.hp;a.hp=0;return {targetId:a.instanceId,hpBefore,hpAfter:0,appliedDamage:hpBefore};});
+      equal(e,{type:'swallow',actorId:m.instanceId,round:r.round,deadline:deadline.rounds,hits});push(e);break;
     }
     if(!escaped&&outcome()==='ongoing'&&r.command.allyActions.some(a=>a.type!=='run'))for(const m of state.enemies.filter(available)){
       if(!m.regenPerTurn)continue;const e=take('regeneration'),before=clone(m.unusual),after=clone(before),hpBefore=m.hp;
@@ -2434,7 +2500,7 @@ const FORMATION_STATE_DATA_FIELDS = Object.freeze([
 const FORMATION_STATE_UNSUPPORTED_FIELDS = Object.freeze([
   'defendChance', 'curseChance', 'acidChance', 'splits', 'regenPerTurn',
   'meleeArmor', 'counterChance', 'poisonChance', 'sex', 'dazzleChance',
-  'stealAndFlee', 'runLock', 'guaranteedDrop', 'inline', 'thornsReflect',
+  'stealAndFlee', 'runLock', 'guaranteedDrop', 'inline', 'thornsReflect', 'swallowAfterRounds', 'fenTactic',
 ]);
 
 // State construction stays inactive. Lab and Receiver lifecycle owners call it.
@@ -2922,23 +2988,31 @@ const formationRounds = (() => {
 // the next round. The session calls this only from playback_complete.
 function acknowledgeFormationRound(playback, frameIndex) { formationRounds.acknowledge(playback, frameIndex); }
 
+// A narrow item exception, not a general override of boss/scripted escape locks.
+function itemAllowsEncounterEscape(itemId, enemies) {
+  const living = enemies.filter(e => e.hp > 0 && !e.unusual?.departed);
+  return itemId === 'Serpentsmoke' && living.length > 0 && living.every(e => e.id === 'enemy_fen_zolom');
+}
+
 function formationItemDefinition(itemId) {
   if (typeof itemId !== 'string' || !Object.hasOwn(ITEM_REGISTRY,itemId)) throw new Error('Invalid formation item');
   const item = copyFormationData(ITEM_REGISTRY[itemId]);
   const allowed=['name','type','price','bonus','heals','curesPoison','curesCursed','evadeTurns','evadeRate',
     'damage','minDamage','targetsAll','fuse','ignoresDef','impactVerb','stunTurns','sexBane','battleOnly','questItem','keyItem',
-    'causesMuddied','defenseCapBypass','evadeAll','preventsCursed','preventsPoison'];
+    'causesMuddied','defenseCapBypass','evadeAll','preventsCursed','preventsPoison','escapeEnemyId'];
   if (Object.keys(item).some(k=>!allowed.includes(k))) throw new Error('Unsupported formation item capability');
   if (item.keyItem || item.name !== itemId) throw new Error('Invalid formation item');
   if ((Object.hasOwn(item,'targetsAll') && (item.targetsAll !== true || item.type !== 'throwable' || item.fuse)) ||
       (Object.hasOwn(item,'minDamage') && (item.type !== 'throwable' || item.fuse || item.ignoresDef ||
         !Number.isSafeInteger(item.minDamage) || item.minDamage < 0 || item.minDamage > item.damage)))
     throw new Error('Unsupported formation item capability');
-  const effect = item.sexBane ? 'reagent' : item.type === 'potion' ? (isStatusCureItem(item) ? 'cure' : 'heal') :
+  if (item.escapeEnemyId && (itemId !== 'Serpentsmoke' || item.escapeEnemyId !== 'enemy_fen_zolom' || item.type !== 'reagent' || item.battleOnly !== true))
+    throw new Error('Unsupported escape item');
+  const effect = item.escapeEnemyId ? 'escape' : item.sexBane ? 'reagent' : item.type === 'potion' ? (isStatusCureItem(item) ? 'cure' : 'heal') :
     item.type === 'buff' ? 'evade' : item.type === 'throwable' ? (item.fuse ? 'bomb' : item.targetsAll ? 'damage_all' : 'damage') :
     item.type === 'stun' ? 'stun' : slotForType(item.type) ? 'equip' : item.type === 'bait' ? 'nothing' : null;
   if (!effect) throw new Error('Unsupported formation item');
-  return {item,effect,targeted:['reagent','bomb','damage','stun'].includes(effect)};
+  return {item,effect,targeted:['escape','reagent','bomb','damage','stun'].includes(effect)};
 }
 
 function formationEffectSnapshot() {
@@ -3144,6 +3218,7 @@ function resolveFormationRound(action) {
         if (consumes) stats.items.splice(stats.items.indexOf(item),1);
         events.push({type:'item',...planned,itemId:command.itemId,effect:spec.effect,consumed:consumes,
           before,after:formationCommandSnapshot()});
+        if(spec.effect==='escape'&&itemAllowsEncounterEscape(command.itemId,members))return finish('escape');
       } else if (command.type === 'observe') {
         const count = recipient.observeCount++;
         events.push({type:'observe',...planned,countBefore:count,countAfter:recipient.observeCount,
@@ -3563,6 +3638,7 @@ function createFormationCommandPlayback(source) {
       // Approved enemies have neither sex nor regeneration. Their authored
       // mismatch result is a consumed, spent action with no enemy-state change.
       if (!equal(next,event.after)) fail();state=next;
+      if(spec.effect==='escape'&&itemAllowsEncounterEscape(command.itemId,state.enemies))escaped=true;
     } else if (event.type==='observe') {
       checkAction(event,['countBefore','countAfter','escapeBefore','escapeAfter','lines']);
       const target=entity(event.targetId);
@@ -3879,7 +3955,8 @@ if (typeof window !== 'undefined') window.EMPTY_ENCOUNTER_POOL = EMPTY_ENCOUNTER
 function startCombat() {
   if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput())return false;
   assertSinglePlayerExecution();
-  if (canonicalPartyCombat.hasMultipleMembers()) return startCanonicalPartyEncounter();
+  if (canonicalPartyCombat.hasMultipleMembers() || currentEncounterPool().some(entry=>
+      (entry.enemies||[entry.id]).some(id=>ENEMY_TEMPLATE_REGISTRY[id]?.fenTactic))) return startCanonicalPartyEncounter();
   // Pale Sentry: appears on MAP_N2 once the contract is accepted, until it is killed.
   // Keyed off the CANONICAL physical-map id (the regional authority), not the
   // `activeMap` compatibility projection — a placed regional chunk's identity comes
@@ -4977,6 +5054,12 @@ function applyKillRewards(enemy, msgs) {
 // Templates that share one display identity (e.g. the three Marsh Wisp variant
 // ids) share a single entry via the alias block below the literal.
 const ENEMY_OBSERVATIONS = {
+  enemy_peat_bed_maw: [
+    {lines:['A mouth rooted beneath the peat. The whole clearing is its jaw.',
+      'Defeat it within six full rounds. If it survives the sixth, Swallow takes the whole party.']},
+    {lines:['Its lips pull free a little more with every exchange.',
+      'Watching, healing and failed escapes still spend a round. Strike hard or retreat.']},
+  ],
   enemy_gallery_caller: [
     {lines:['Its throat is too long for its body. Every breath catches there before it escapes.',
       'Its head keeps turning toward the larger creature.']},
@@ -5253,6 +5336,7 @@ const ENEMY_OBSERVATIONS = {
 // Returns observation text for the current enemy and observe count.
 // Falls back to stat-derived traits on first look, then to a generic line.
 function getObservationText(enemy, count) {
+  if(GREAT_FEN_OBSERVATIONS[enemy.id])return GREAT_FEN_OBSERVATIONS[enemy.id];
   // Sexed enemies (the identical-looking Mire Toads) can ONLY be told apart by
   // observing them — nothing in the battle art or name gives it away. The first
   // Observe identifies the sex; the second names the matching reagent. Later
@@ -5652,7 +5736,16 @@ function handleCombatAction() {
 
     const msgs = [];
     let enemyActs = true; // whether the enemy still gets its turn after this
-    if (item.sexBane) {
+    if (item.escapeEnemyId) {
+      stats.items.splice(stats.items.indexOf(item), 1);
+      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      if (itemAllowsEncounterEscape(item.name, [enemy])) {
+        combat.message = 'Serpentsmoke hides your scent. You escape the Fen Zolom!';
+        combat.messageQueue = []; combat.pendingEscape = true; combat.phase = 'message';
+        return;
+      }
+      msgs.push('Serpentsmoke disperses. It only confuses the Fen Zolom.');
+    } else if (item.sexBane) {
       // Sex-specific reagent (Henbane Sprig / Jackbane Vial). Consumed on use.
       // A sex-matched target drops instantly (no counter); the wrong sex, or any
       // enemy without a sex, shrugs it off and the turn is wasted.

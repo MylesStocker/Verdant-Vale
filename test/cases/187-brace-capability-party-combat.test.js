@@ -218,7 +218,7 @@ test('existing geographic Stone Crawler selection routes recruited parties, pres
   assert.equal(g.run('SAVE_VERSION'),5);
   // Every pool except the two Eastern Fens Mornay weighted-formation pools is
   // flat raw templates (unchanged legacy shape).
-  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.filter(p=>!["pool_eastern_fens_mornay_easy","pool_eastern_fens_mornay_hard"].includes(p.id)).every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
+  assert.equal(g.run('ENEMY_TEMPLATE_POOLS.filter(p=>!["pool_eastern_fens_mornay_easy","pool_eastern_fens_mornay_hard","pool_great_fen"].includes(p.id)).every(p=>p.templates.every(t=>!Object.hasOwn(t,"enemies")))'),true);
 });
 module.exports={name:'Brace capability: legacy exchange guard, exact instances, atomic entry and historical playback',run(){
   for(const check of checks){try{check.run();}catch(error){error.message=check.name+': '+error.message;throw error;}}

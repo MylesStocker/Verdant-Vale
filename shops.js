@@ -26,6 +26,7 @@ const TRAVELLER_STOCK = [
 // Mornay shops reuse registered goods and the ordinary purchase/sale controller.
 // The fishing rod is deliberately absent: its registered identity is a quest item.
 const MORNAY_SHOPS = Object.freeze({
+  hidden_supplies:Object.freeze({id:'mornay_hidden_supplies',label:'HENRIC’S PRIVATE STOCK',stock:['Serpentsmoke','Trollbane','Reed Remedy'].map(createItem)}),
   fleck_tavern:Object.freeze({id:'mornay_fleck_tavern',label:'THE CROOKED OAR',stock:['Smoked Lake Fish'].map(createItem)}),
   fleck_smoker:Object.freeze({id:'mornay_fleck_smoker',label:'NERYS SMOKEHOUSE',stock:['Smoked Lake Fish','Bait'].map(createItem)}),
   provisioner: Object.freeze({id:'mornay_provisioner',label:'KELM PROVISIONS',stock:['Potion','Bait'].map(createItem)}),

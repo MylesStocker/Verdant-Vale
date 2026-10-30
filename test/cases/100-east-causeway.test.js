@@ -174,7 +174,7 @@ module.exports = {
     for(const [id,fp] of Object.entries(GRID_FP.fingerprints)) assert.equal(sha256(g.run(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`)),fp,`${id}: fingerprint stable`);
     const audit=require('../transition-audit.js'); const verdict=Object.fromEntries(audit.seamReadiness.edges.map((e)=>[e.mapId+'|'+e.dir,e.verdict]));
     assert.equal(verdict[`${WEST_ID}|east`],'ALIGNS'); assert.equal(verdict[`${ID}|west`],'ALIGNS'); assert.equal(verdict[`${ID}|north`],'BLOCKED'); assert.equal(verdict[`${ID}|south`],'BLOCKED'); assert.equal(verdict[`${ID}|east`],'BLOCKED');
-    assert.deepEqual(audit.seamReadiness.totals,{"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2522, "ALIGNS": 1540, "BORDER": 166}); assert.equal(audit.seamReadiness.edges.length,4232);
-    assert.equal(g.run('continuousSeamEntries().length'),1946); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),1058); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),1263); assert.equal(g.run('SAVE_VERSION'),5);
+    assert.deepEqual(audit.seamReadiness.totals,{"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2494, "ALIGNS": 1568, "BORDER": 166}); assert.equal(audit.seamReadiness.edges.length,4232);
+    assert.equal(g.run('continuousSeamEntries().length'),1992); assert.equal(g.run('REGIONAL_LAYOUT.overworld.placements.length'),1058); assert.equal(g.run('Object.keys(MAP_CATALOG).length'),1263); assert.equal(g.run('SAVE_VERSION'),5);
   },
 };

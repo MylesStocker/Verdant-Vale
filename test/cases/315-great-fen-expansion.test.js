@@ -85,8 +85,8 @@ module.exports = {
     //      the exact same pool object, not a duplicate/introductory table. ──
     for (const [id] of ALL) {
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowRandomEncounters`), true, `${id} has encounters enabled immediately`);
-      assert.equal(g.run(`MAP_CATALOG['${id}'].encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS`), true, `${id} resolves through the hard pool`);
-      assert.equal(g.run(`_REGIONAL_CHUNK_DEFINITIONS.find(function(d){return d.mapId==='${id}';}).encounterProfileId`), 'eastern_fens_mornay_hard', `${id} authored with the hard profile id`);
+      assert.equal(g.run(`MAP_CATALOG['${id}'].encounterPool===GREAT_FEN_FORMATIONS`), true, `${id} resolves through the hard pool`);
+      assert.equal(g.run(`_REGIONAL_CHUNK_DEFINITIONS.find(function(d){return d.mapId==='${id}';}).encounterProfileId`), 'great_fen', `${id} authored with the hard profile id`);
       assert.equal(g.run(`MAP_CATALOG['${id}'].allowSave`), true, `${id} allows save`);
     }
 

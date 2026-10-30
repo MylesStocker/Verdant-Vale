@@ -67,7 +67,7 @@ module.exports = {
     assert.equal(V[`${ID}|north`], 'BLOCKED', 'north now borders the new northern water band');
     assert.equal(V['NORTH_BASIN_C_MAP|north'], 'BLOCKED', "the reservoir's north edge is now BLOCKED (was BORDER)");
     assert.equal(V['NORTH_BASIN_NW_MAP|east'], 'BLOCKED', "the Upper Reach's east edge is now BLOCKED (was BORDER)");
-    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2522, "ALIGNS": 1540, "BORDER": 166}, 'audit totals include the Eastern Fens route');
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2494, "ALIGNS": 1568, "BORDER": 166}, 'audit totals include the Eastern Fens route');
 
     // ── 7. Inaccessible scenery: fail-closed against every placement path ──────
     assert.equal(g.run(`mapPlayerAccessible('${ID}')`), false, 'not player-accessible (scenery only)');

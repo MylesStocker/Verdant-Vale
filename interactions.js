@@ -33,7 +33,7 @@ function interactSimpleNPCs() {
     const dx = player.x - npc.x;
     const dy = player.y - npc.y;
     if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS) {
-      if (struckEntry.interact(npc) || twoJorans.interact(npc)) {
+      if (struckEntry.interact(npc) || twoJorans.interact(npc) || mornayJobs.interact(npc)) {
         // The optional case owns only its explicitly named speakers.
       } else if (typeof npc.action === 'function') {
         npc.action(npc);
@@ -228,6 +228,7 @@ function tryExamineWorldItem() {
 }
 
 function tryMapFeatures() {
+  if(mornayJobs.inspect())return true;
   if(struckEntry.inspect())return true;
   if(typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.interact())return true;
   if(typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.interact())return true;

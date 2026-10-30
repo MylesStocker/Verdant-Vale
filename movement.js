@@ -722,6 +722,22 @@ function preflightRainfishStep() {
   return !(row>=4&&row<=6&&col>=3&&col<=7) || requireSingletonEncounter('startRainfishCombat',2);
 }
 
+// Session-only arrival latch. Check before movement and before encounter rolls,
+// so ordinary seams, legacy transitions and debug/save arrivals all get warning.
+let fenZolomWarningInside = false;
+function warnFenZolomArrival() {
+  const inside = regionalActiveMapId() === 'EASTERN_FENS_ENVELOPE_C7R0_MAP';
+  if (!inside) { fenZolomWarningInside = false; return false; }
+  if (fenZolomWarningInside) return false;
+  fenZolomWarningInside = true;
+  player.moving = false;
+  openDialogue('', [
+    ['The reeds ahead are flattened into a broad drag channel. Something enormous has torn through them.'],
+    ['Fen Zolom territory. Do not rely on running from it. Turn back unless you are prepared; Serpentsmoke can cover an escape.']
+  ]);
+  return true;
+}
+
 function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   if (gameRuntimeFailure.isActive()) return;
   if (debugPromisePreview.isOpen()) {debugPromisePreview.update(presentationSeconds);return;}
@@ -733,10 +749,12 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   if (seraLioraBreakfastBattle.isActive()) {seraLioraBreakfastBattle.update(presentationSeconds);return;}
   if (storyBattle.hasContext()) return; // headless story preparation freezes world simulation
   if (canonicalPartyCombat.isActive()) {
-    partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),presentationSeconds);return;
+    partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),presentationSeconds);
+    partyBattleSwallowAnimation.update(canonicalPartyCombat.getView(),presentationSeconds);return;
   }
   if (partyCombatLab.isActive()) {
-    partyBattleQuickbloomAnimation.update(partyCombatLab.getView(),presentationSeconds);return;
+    partyBattleQuickbloomAnimation.update(partyCombatLab.getView(),presentationSeconds);
+    partyBattleSwallowAnimation.update(partyCombatLab.getView(),presentationSeconds);return;
   }
   if (combatPlayerState.hasParty()) return; // headless preparation freezes simulation
   if (!preflightRainfishStep()) return;
@@ -797,6 +815,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   }
 
   if (dialogue.open || menu.open || choice.open || shop.open || debugMenu.open || warpMenu.open) return;
+  if (warnFenZolomArrival()) return;
 
   let dx = 0, dy = 0;
   if (keys['ArrowLeft']  || keys['a']) { dx = -SPEED; player.facing = 'left';  }
@@ -1357,6 +1376,8 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
       syncQuestFlagsToWindow();
       return;
     }
+
+    if (warnFenZolomArrival()) return;
 
     // Random encounters: permitted location AND eligible standing tile.
     // The roll stays at this single update() choke point, at the same step cadence.

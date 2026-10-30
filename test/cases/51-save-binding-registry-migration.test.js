@@ -37,7 +37,7 @@ const EXPECTED_KEYS = [
   'weight_note_signed', 'sentry_seen_on_board', 'sentry_quest_started', 'sentry_quest_done', 'sentry_quest_rewarded',
   'pale_sentry_hp', 'sickle_quest_stage', 'gridd_rainfish_warned', 'rainfish_woken',
   'dispatch_quest_started', 'dispatch_delivered', 'dispatch_pay_ticket_ready', 'dispatch_rewarded',
-  'fort_quest_started', 'fort_quest_stage', 'two_jorans_stage', 'two_jorans_evidence', 'fine_needlework_stage', 'polwick_esla_visit_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
+  'fort_quest_started', 'fort_quest_stage', 'mornay_peat_hunt', 'mornay_ridge_hunt', 'mornay_hoist_errand', 'two_jorans_stage', 'two_jorans_evidence', 'fine_needlework_stage', 'polwick_esla_visit_stage', 'fort_pay_ticket_ready', 'fort_pay_ticket_reduced',
   'smugglers_dead', 'smugglers_execution_day', 'fort_report_filed', 'mq4_available_day',
   'reservoir_quest_started', 'lighthouse_quest_stage', 'lighthouse_cabinet_looted', 'lighthouse_drawer_looted', 'lighthouse_spider_resolved', 'den_wraith_quest_started', 'den_wraith_defeated', 'den_wraith_rewarded',
   'netto_letter_received', 'dessa_met', 'rareborn_rhyme_heard', 'vale_tutorial_seen', 'tev_elixir_given',
@@ -109,7 +109,7 @@ module.exports = {
     // Both binding kinds are present.
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 87, '87 lexical bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 90, '90 lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
 
     // ── B. Complete flag round-trip (all bindings, generically) ─────────────
@@ -126,12 +126,13 @@ module.exports = {
       });
       // Keep the deliberately non-default snapshot coherent with the shared
       // lighthouse/Polwick invariant so saveGame() is authorized to persist it.
+      mornay_peat_hunt=1;mornay_ridge_hunt=2;mornay_hoist_errand=5;
       fine_needlework_stage = 0;two_jorans_stage=1;two_jorans_evidence=7;
       struck_entry_stage=4;struck_entry_wins=31;struck_entry_cache=true;struck_entry_supplies=true;
       fort_quest_stage = 6; smugglers_dead = true; fort_report_filed = true;
       smugglers_execution_day = 0; reservoir_quest_started = true; lighthouse_quest_stage = 1;
       travellers_rise_ambush_payment = 73;travellers_rise_camp_stage=1;persistentParty.joinEsla({level:11});
-      ['struck_entry_stage','struck_entry_wins','struck_entry_cache','struck_entry_supplies','two_jorans_stage','two_jorans_evidence','fine_needlework_stage','fort_quest_stage','smugglers_dead','fort_report_filed','smugglers_execution_day',
+      ['mornay_peat_hunt','mornay_ridge_hunt','mornay_hoist_errand','struck_entry_stage','struck_entry_wins','struck_entry_cache','struck_entry_supplies','two_jorans_stage','two_jorans_evidence','fine_needlework_stage','fort_quest_stage','smugglers_dead','fort_report_filed','smugglers_execution_day',
        'reservoir_quest_started','lighthouse_quest_stage','travellers_rise_ambush_payment','travellers_rise_camp_stage'].forEach(function(k){
         var b = window.QUEST_FLAG_BINDINGS.find(function(x){return x.key===k;}); b.__rt = b.get();
       });`);

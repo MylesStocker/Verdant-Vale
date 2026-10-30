@@ -96,6 +96,7 @@ function drawActiveMapContent() {
   if (inTown && currentTownId === 'mornay') {drawMornayContent();twoJorans.draw();}
   drawReedbankContent();
   struckEntry.draw();
+  mornayJobs.draw();
   if (!isMornayRoomView()) drawSimpleNPCs();
   if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.draw();
   if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.draw();

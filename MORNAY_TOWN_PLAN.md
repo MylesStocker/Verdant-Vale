@@ -1309,3 +1309,57 @@ The approach is a modest one-to-two-tile road, with grassy shoulders replacing e
 ### Mornay marker shifted north — 2026-10-28
 
 Follow-up to the road/marker pass: the two-by-three marker moves one row north within `EASTERN_FENS_MORNAY_TOWN_APPROACH_MAP` (now rows 0–2, columns 7–8). Its gates are at row 2; the former gate cells on row 3 become road. Water replaces grass at row 2, columns 6 and 9, preventing lateral entry. Nine tile values change in this follow-up; no other regional grid changes. Return landings remain (240,144)/(272,144), now two rows south of the gates, facing down. Town maps, cameras, seams and SAVE_VERSION 5 are unchanged. Exact deltas are in `test/fixtures/mornay-north-shift.json`; suite 338 tests side collisions, southern gate round trips/save-load and connected shore ground. See `Art/qa/mornay/north-shift-v1/README.md` for evidence.
+
+
+### Optional job board — 2026-10-29
+
+A walkable notice board at South Upper East local tile (7,5), centre (240,176),
+points to existing residents. Reading it never accepts a job. All three jobs
+become available at MQ5; none advances MQ5, opens a reserved route or adds NPCs.
+Names, fees, stats and flavour are revisable content, not new metaphysical canon.
+
+| Job | Existing giver | Destination / route | Reward |
+| --- | --- | --- | --- |
+| The Peat-Bed Maw | Iset Brill, peat stall, Middle Lower West | Willow Basin, Great Fen chunk (-3,-8), local tile (8,6); far northwest beyond the southern approaches | 250g from Iset; 210 combat XP |
+| The Ridgeback Snapper | Torlin Hesk, Rusk Workshop Court, Middle Lower Central East | Upper River Valley chunk (28,6), local tile (11,6); east by the lake and Reedbank crossing, then southeast | 300g from Torlin; 230 combat XP |
+| A Copy of a Copy | Gessa Tarn, Middle Upper West | Gessa → Arlis (Regional IJC Office) → Gessa → Maura (Harbour Office) → Gessa | 35g |
+
+The removals restore peat drying ground and timber stacking ground. Visible
+creatures and damaged material mark both sites. Each has a warning, explicit
+confirmation and ordinary retreat. The original pass used rootworm/snapper sprites and shared Attack/Observe/reward
+mechanics; the Maw revision below replaces its art and adds the Swallow deadline. They do not join random
+encounter pools. Return to the giver for payment; clearing a site is permanent.
+
+The errand carries one Hoist Inspection Packet in Notebook Special Items. Arlis
+requires a covering request; Gessa signs it; Maura confirms the hoist stands on a
+quay. The packet returns to Gessa and is removed on payment. The hoist stays
+condemned. Esla comments when present, retaining her green words. Existing
+ambient conversations resume when the relevant job is finished.
+
+Three defaulted v5 stage fields persist the two hunts (0–3) and errand (0–5).
+No map grid, seam, camera, population, door, faction or reserved story changes.
+QA, balance smoke-test limits and walkthrough: `Art/qa/mornay/jobs-v1/README.md`.
+
+### Peat-Bed Maw revision — 2026-10-29
+
+The Maw is now a giant mouth rooted in the peat, with dedicated programmatic
+mouth art in field and battle. It is no longer presented as a rootworm. Its
+480 HP must be depleted within **six complete combat rounds**. If it survives
+the sixth round's actions and delayed damage, **Swallow** takes all living party
+members; ordinary defeat recovery follows. A two-second emergence/engulfing/jaw
+closure animation accompanies that authenticated event. Basic Attack18,
+Defence12 and Speed9 leave the deadline as the main threat. A persistent on-screen
+countdown, Iset's description, Esla's advice, field warning, Observe and notebook
+explain the rule. Retreat remains available and retries start at round zero.
+Fee, XP, NPC identity, quest stages, target location and other jobs are unchanged.
+Names and tuning remain revisable. Evidence: `Art/qa/mornay/maw-swallow-v1/README.md`.
+
+### Private fen supplies — revisable service content
+
+Henric Sorn sells private stock in his existing upstairs home over Sorn Work Gear
+in Middle Lower Central West: Serpentsmoke 60g, Trollbane 15g, Reed Remedy 50g.
+Messa Yule's MQ5 report dialogue tips the party to this shop. No new NPC, room,
+door, quest stage or discovery flag is added; the family remains present, and the
+shop is available through Henric's ordinary conversation. Serpentsmoke is a
+consumable escape from Fen Zolom fights, not a general boss escape. Price and
+flavour wording remain revisable.

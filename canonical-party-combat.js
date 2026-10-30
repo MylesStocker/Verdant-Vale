@@ -50,7 +50,7 @@ const canonicalPartyCombat = (() => {
         if(!Object.hasOwn(field||{},'value')||field.writable!==true)fail('cleanup field is not writable: '+key);}
     if(defeatWakeAtHome&&!validatePlacement({mapId:'HOUSE_INTERIOR_MAP',x:9.5*TILE,y:3.5*TILE,facing:'down'}).ok)
       fail('defeat destination is not ready');
-    const party=persistentParty.getView(),xp=templates.reduce((n,e)=>n+e.xp,0),gold=templates.reduce((n,e)=>n+e.goldMax,0);
+    const party=persistentParty.getView(),xp=templates.reduce((n,e)=>n+e.xp+(e.fenTactic==='false_lights'?Math.floor(e.xp/2):0),0),gold=templates.reduce((n,e)=>n+e.goldMax,0);
     if(!safe(xp)||!safe(gold)||!safe(party.gold+gold)||!safe(stats.items.length+templates.length)||
         party.members.some(m=>![m.xp+xp,m.maxHp+MAX_LEVEL*10,m.hp+MAX_LEVEL*10,
           m.atk+MAX_LEVEL*3,m.def+MAX_LEVEL*3,m.spd+MAX_LEVEL].every(safe)))fail('reward arithmetic overflow');
@@ -65,7 +65,7 @@ const canonicalPartyCombat = (() => {
     return copy({...combatPlayerState.session.getView(),active:true,label:'Battle'});
   };
   const fault=(error,stage)=>{
-    partyBattleQuickbloomAnimation.reset();
+    partyBattleQuickbloomAnimation.reset();partyBattleSwallowAnimation.reset();
     let session=null;try{session=combatPlayerState.session.getView();}catch(_){}
     if(!battle)battle={rewardId:lastReceipt?.rewards?.id||null};
     battle.failure=copy({stage,message:String(error?.message||error),rewardId:battle.rewardId,
@@ -94,7 +94,7 @@ const canonicalPartyCombat = (() => {
           const guaranteed=canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[enemy.id]).guaranteed_drop;
           if(guaranteed)items.push(guaranteed.itemId);else if(roll()<0.12)items.push('Potion');
         }
-        rewards={id:battle.rewardId,xp:rewardSlots.reduce((sum,slot)=>sum+battle.templates[slot].xp,0),gold,items};
+        rewards={id:battle.rewardId,xp:rewardSlots.reduce((sum,slot)=>sum+battle.templates[slot].xp+(session.enemies[slot].unusual?.fen?.observed?Math.floor(battle.templates[slot].xp/2):0),0),gold,items};
         progression=persistentParty.awardRewards(rewards);
       }else if(session.phase==='defeat'){
         stage='recovery';persistentParty.recover();
@@ -109,7 +109,7 @@ const canonicalPartyCombat = (() => {
         .filter(t=>canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[t.id]).split_followup&&!canonicalEnemyRecords.origin(t))
         .map(splitFactory)]:[];
       const wasSplit=battle.templates.some(t=>canonicalEnemyRecords.origin(t)?.kind==='split');
-      const policy=battle.escape;battle=null;partyBattleQuickbloomAnimation.reset();reconcileFormationLabKeys();
+      const policy=battle.escape;battle=null;partyBattleQuickbloomAnimation.reset();partyBattleSwallowAnimation.reset();reconcileFormationLabKeys();
       if(successors.length){
         const token={enemies:[successors[0]],tail:successors.slice(1),escape:policy,origin:location()};pendingHandoff=token;
         dialogue.name='';dialogue.pages=[['The Seep bursts apart — but the pieces are still moving.']];
@@ -139,13 +139,13 @@ const canonicalPartyCombat = (() => {
     }catch(error){fault(error,method);throw error;}
   };
   const install=(prepared,tail,handoff=null)=>{
-    partyBattleQuickbloomAnimation.reset();battle={...prepared,tail};lastReceipt=null;
+    partyBattleQuickbloomAnimation.reset();partyBattleSwallowAnimation.reset();battle={...prepared,tail};lastReceipt=null;
     try{persistentParty.beginCombat(prepared.templates,{escape:prepared.escape},handoff,prepared.scriptedToken);reconcileFormationLabKeys();return view();}
     catch(error){fault(error,'entry');throw error;}
   };
   return Object.freeze({
     hasPendingHandoff(){return pendingHandoff!==null||typeof scriptedPartyEncounters!=='undefined'&&scriptedPartyEncounters.hasPending();},
-    resetForStoryCheckpoint(){partyBattleQuickbloomAnimation.reset();battle=null;lastReceipt=null;pendingHandoff=null;return true;},
+    resetForStoryCheckpoint(){partyBattleQuickbloomAnimation.reset();partyBattleSwallowAnimation.reset();battle=null;lastReceipt=null;pendingHandoff=null;return true;},
     permitsHandoff(token){
       return token===pendingHandoff&&token!==null&&Array.isArray(dialogue.callbacks)&&
         (dialogue.callbacks.length===1&&dialogue.callbacks[0]===token.callback||dialogue.callbacks.length===0&&!dialogue.open);
@@ -203,8 +203,8 @@ const canonicalPartyCombat = (() => {
         if(command==='cancel')return operate('backtrack');
       }
       if(v.phase==='playback'&&command==='confirm'){
-        if(partyBattleQuickbloomAnimation.blocksAdvance(v))return false;
-        partyBattleQuickbloomAnimation.reset();return operate('advancePlayback');
+        if(partyBattleQuickbloomAnimation.blocksAdvance(v)||partyBattleSwallowAnimation.blocksAdvance(v))return false;
+        partyBattleQuickbloomAnimation.reset();partyBattleSwallowAnimation.reset();return operate('advancePlayback');
       }
       if(v.phase==='playback_complete'&&command==='confirm')return operate('acknowledgePlayback');
       return false;

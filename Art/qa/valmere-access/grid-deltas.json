@@ -1,0 +1,618 @@
+[
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 0,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 0,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 1,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 1,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 9,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 9,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 10,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 10,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 11,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 11,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 12,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
+    "row": 12,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "GREAT_FEN_C9RN3_MAP",
+    "row": 13,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_C9RN3_MAP",
+    "row": 13,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_C9RN3_MAP",
+    "row": 14,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_C9RN3_MAP",
+    "row": 14,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "GREAT_FEN_C10RN2_MAP",
+    "row": 13,
+    "col": 12,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_C10RN2_MAP",
+    "row": 14,
+    "col": 12,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN4_MAP",
+    "row": 1,
+    "col": 9,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+    "row": 0,
+    "col": 12,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+    "row": 1,
+    "col": 12,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+    "row": 3,
+    "col": 6,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+    "row": 3,
+    "col": 7,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+    "row": 4,
+    "col": 7,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "GREAT_FEN_ENVELOPE_C10RN1_MAP",
+    "row": 10,
+    "col": 1,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 0,
+    "col": 0,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 0,
+    "col": 1,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 1,
+    "col": 0,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 1,
+    "col": 1,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 2,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 2,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 3,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 3,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 4,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 4,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 9,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 9,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 10,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 10,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 11,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 11,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 13,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 13,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 14,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN10_MAP",
+    "row": 14,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 0,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 0,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 1,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 1,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 2,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 2,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 3,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 3,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 4,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 4,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 5,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 5,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 6,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 6,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 7,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 7,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 9,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 9,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 10,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 10,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 11,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 11,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 12,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 12,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 13,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 13,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 14,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN9_MAP",
+    "row": 14,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C10RN8_MAP",
+    "row": 0,
+    "col": 0,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C10RN8_MAP",
+    "row": 0,
+    "col": 1,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C10RN8_MAP",
+    "row": 1,
+    "col": 0,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C10RN8_MAP",
+    "row": 1,
+    "col": 1,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN5_MAP",
+    "row": 0,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN5_MAP",
+    "row": 0,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C9RN5_MAP",
+    "row": 1,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN5_MAP",
+    "row": 1,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C10RN5_MAP",
+    "row": 13,
+    "col": 9,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN12_MAP",
+    "row": 1,
+    "col": 1,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN12_MAP",
+    "row": 10,
+    "col": 14,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C9RN12_MAP",
+    "row": 10,
+    "col": 15,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C10RN11_MAP",
+    "row": 1,
+    "col": 4,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C10RN11_MAP",
+    "row": 13,
+    "col": 2,
+    "fromTile": 3,
+    "toTile": 23
+  },
+  {
+    "mapId": "MAINLAND_C10RN9_MAP",
+    "row": 14,
+    "col": 0,
+    "fromTile": 3,
+    "toTile": 23
+  }
+]

@@ -1596,6 +1596,8 @@ function validateItems() {
         if (field in item && !_isFiniteNumber(item[field]))
           addValidationError(GROUP, lbl + ': ' + field + ' is not a valid number (' + item[field] + ')');
       }
+      if ('escapeEnemyId' in item && (key !== 'Serpentsmoke' || item.escapeEnemyId !== 'enemy_fen_zolom' || item.type !== 'reagent' || item.battleOnly !== true))
+        addValidationError(GROUP, lbl + ': unsupported escape item');
       if ('defenseCapBypass' in item && typeof item.defenseCapBypass !== 'boolean')
         addValidationError(GROUP, lbl + ': defenseCapBypass must be boolean when present');
       if ('defenseCapBypass' in item && item.type !== 'armor')
@@ -2075,6 +2077,9 @@ function validateSaveFlags() {
     // established MQ4 and Polwick outcome authorities. Runtime eligibility
     // fails closed on the same helper, while loadGame rejects a bad candidate
     // before mutating live state.
+    if(typeof mornayJobs!=='undefined'){
+      checked++;for(const message of mornayJobs.invariantErrors())addValidationError(GROUP,message);
+    }
     if(typeof struckEntry!=='undefined'){
       checked++;for(const message of struckEntry.invariantErrors())addValidationError(GROUP,message);
     }

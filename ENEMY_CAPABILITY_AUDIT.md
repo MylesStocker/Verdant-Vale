@@ -1,7 +1,35 @@
 # Enemy capability audit
 
+Great Fen adds six ordinary identities (81 total; 63 ordinary including generated
+23). Five use `fen_tactics`: closed role metadata, battle-local telegraphs,
+observation exposure, combined Tech, binding and healing reactions. Peatback uses
+only ordinary attacks. Suite 191 now prepares 131,037 static combinations; suite
+341 resolves the ten authored formations and authenticates tactical playback.
+All six have dedicated programmatic sprites and idle motion.
+
+| Template | Mechanics | Category |
+| --- | --- | --- |
+| `enemy_peatback` | Basic attack, observation, rewards | ordinary |
+| `enemy_drownlight` | False Lights, Observe exposure and XP bonus | ordinary |
+| `enemy_blackbriar_hound` | Mark, Hamstring, temporary slow | ordinary |
+| `enemy_bell_throated_toad` | Deep Toll, Witchlight Chorus | ordinary |
+| `enemy_reedbinder` | Two-hit binding, bounded squeeze | ordinary |
+| `enemy_bladder_leech` | Healing siphon, rupture | ordinary |
+
+Mornay removal contracts add two ordinary templates: `enemy_peat_bed_maw` and
+`enemy_ridgeback_snapper`. Both use basic attack, observe and standard XP; their
+one-time gold payments belong to the quest giver. Neither enters a random pool.
+That preceding registry had **75 identities**, including 57 ordinary (56 static),
+with **97,524** immutable ordinary formation preparations in suite 191.
+The authenticated `mornay_removal` owner records victory; retreat and defeat leave
+the job accepted. The Maw now also requires the explicit `swallow_deadline`
+capability: after six complete rounds, if it survives all actions and delayed
+damage, it consumes the living party without evasion or RNG. Authenticated
+playback verifies the deadline and exact targets independently. Only the Maw
+authors this field; the Snapper remains unchanged.
+
 Story-battle Pass 4 and the storeroom stage add the ordinary `enemy_buzzy_beetle`
-and `enemy_large_buzzy_beetle` templates for Bethany only. The live registry has
+and `enemy_large_buzzy_beetle` templates for Bethany only. That earlier registry had
 73 identities: 55 ordinary (54 static plus authenticated 23), twelve token-owned
 canonical scripts and six legacy scripts. Case 191 checks 87,777 complete ordinary
 preparations. The older 70-template summary below predates Fen Zolom and these
@@ -84,6 +112,8 @@ column says otherwise.
 
 | Stable ID / name | Declaration; encounter sources | Post-MQ5 reachability | Required capabilities | Direct ID-specific semantic references | Before Pass 3 | Final category | Migration result / deferral |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| `enemy_peat_bed_maw` / Peat-Bed Maw | `enemy-catalog.js`; optional Mornay contract | one victory per job | basic attack, observe, standard XP, six-round Swallow | none | compatible | ordinary | authenticated removal outcome; giver owns gold; no random pool |
+| `enemy_ridgeback_snapper` / Ridgeback Snapper | `enemy-catalog.js`; optional Mornay contract | one victory per job | basic attack, observe, standard XP | none | compatible | ordinary | authenticated removal outcome; giver owns gold; no random pool |
 | `enemy_buzzy_beetle` / Buzzy Beetle | `enemy-catalog.js`; Bethany breakfast only | repeatable local attempts | basic attack, observe, zero rewards | none | compatible | ordinary | shared story lifecycle; no random pool |
 | `enemy_large_buzzy_beetle` / Large Buzzy Beetle | `enemy-catalog.js`; Bethany breakfast only | repeatable local attempts | basic attack, observe, zero rewards | none | compatible | ordinary | shared story lifecycle; no random pool |
 | `enemy_marsh_wisp` / Marsh Wisp | `data.js`; core overworld pool, Labs | repeatable | basic attack, observe, rewards | observation/sprite aliases only | compatible | ordinary | capability-derived compatibility retained |

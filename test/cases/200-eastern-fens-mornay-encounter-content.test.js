@@ -196,9 +196,11 @@ module.exports = {
     // chunk) was touched. The Great Fen expansion (28 chunks: 4 converted
     // entry chunks + 24 fresh) reuses this same hard pool, so the HARD count
     // grew through the mainland pass to 426. Four sealed reserve chunks are
-    // now open Thornmere water/scenery, leaving 422; EASY remains unchanged.
+    // now open Thornmere water/scenery, leaving 422. The Great Fen tier takes
+    // over 174 existing wilderness chunks, leaving 248; eleven opened Valmere shore chunks and (8,0) bring it
+    // to 260. EASY is unchanged.
     assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_EASY_FORMATIONS).length`), 11);
-    assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS).length`), 422);
+    assert.equal(g.run(`Object.values(MAP_METADATA).filter(m=>m.encounterPool===EASTERN_FENS_MORNAY_HARD_FORMATIONS).length`), 260);
     assert.equal((g.run('startCanonicalPartyEncounter.toString()').match(/encounterFormations\.select\(pool\)/g)||[]).length,1);
 
     // ── 8. Actual geographic selection and installation: all 32 records ────

@@ -1606,6 +1606,92 @@ function exitDream() {
 // row 13/1 or col 14/1 convention used by every enter*/exit* function in
 // this file — and facing is set to continue the direction of travel.
 const EDGE_TRANSITIONS = {
+  MAINLAND_C9RN12_MAP: {
+    north: [
+      { targetMap: 'MAINLAND_C9RN13_MAP', targetEdge: 'south', sourceRange: [1, 2] },
+    ],
+    east: [
+      { targetMap: 'MAINLAND_C10RN12_MAP', targetEdge: 'west', sourceRange: [10, 10] },
+    ],
+  },
+  MAINLAND_C10RN9_MAP: {
+    west: [
+      { targetMap: 'MAINLAND_C9RN9_MAP', targetEdge: 'east', sourceRange: [0, 7] },
+      { targetMap: 'MAINLAND_C9RN9_MAP', targetEdge: 'east', sourceRange: [9, 14] },
+    ],
+    north: [
+      { targetMap: 'MAINLAND_C10RN10_MAP', targetEdge: 'south', sourceRange: [0, 11] },
+    ],
+    south: [
+      { targetMap: 'MAINLAND_C10RN8_MAP', targetEdge: 'north', sourceRange: [0, 1] },
+    ],
+  },
+  MAINLAND_C10RN5_MAP: {
+    west: [
+      { targetMap: 'MAINLAND_C9RN5_MAP', targetEdge: 'east', sourceRange: [0, 1] },
+    ],
+    south: [
+      { targetMap: 'GREAT_FEN_ENVELOPE_C10RN4_MAP', targetEdge: 'north', sourceRange: [9, 10] },
+    ],
+  },
+  GREAT_FEN_ENVELOPE_C10RN3_MAP: {
+    west: [
+      { targetMap: 'GREAT_FEN_C9RN3_MAP', targetEdge: 'east', sourceRange: [13, 14] },
+    ],
+  },
+  MAINLAND_C10RN12_MAP: {
+    south: [
+      { targetMap: 'MAINLAND_C10RN11_MAP', targetEdge: 'north', sourceRange: [4, 4] },
+    ],
+    west: [
+      { targetMap: 'MAINLAND_C9RN12_MAP', targetEdge: 'east', sourceRange: [10, 10] },
+    ],
+  },
+  MAINLAND_C10RN11_MAP: {
+    south: [
+      { targetMap: 'MAINLAND_C10RN10_MAP', targetEdge: 'north', sourceRange: [2, 10] },
+    ],
+    north: [
+      { targetMap: 'MAINLAND_C10RN12_MAP', targetEdge: 'south', sourceRange: [4, 4] },
+    ],
+  },
+  MAINLAND_C10RN10_MAP: {
+    west: [
+      { targetMap: 'MAINLAND_C9RN10_MAP', targetEdge: 'east', sourceRange: [2, 4] },
+      { targetMap: 'MAINLAND_C9RN10_MAP', targetEdge: 'east', sourceRange: [9, 11] },
+      { targetMap: 'MAINLAND_C9RN10_MAP', targetEdge: 'east', sourceRange: [13, 14] },
+    ],
+    north: [
+      { targetMap: 'MAINLAND_C10RN11_MAP', targetEdge: 'south', sourceRange: [2, 10] },
+    ],
+    south: [
+      { targetMap: 'MAINLAND_C10RN9_MAP', targetEdge: 'north', sourceRange: [0, 11] },
+    ],
+  },
+  GREAT_FEN_ENVELOPE_C10RN4_MAP: {
+    north: [
+      { targetMap: 'MAINLAND_C10RN5_MAP', targetEdge: 'south', sourceRange: [9, 10] },
+    ],
+  },
+  MAINLAND_C9RN13_MAP: {
+    south: [
+      { targetMap: 'MAINLAND_C9RN12_MAP', targetEdge: 'north', sourceRange: [1, 2] },
+    ],
+  },
+  MAINLAND_C9RN11_MAP: {
+    south: [
+      { targetMap: 'MAINLAND_C9RN10_MAP', targetEdge: 'north', sourceRange: [0, 1] },
+    ],
+  },
+  GREAT_FEN_ENVELOPE_C10RN1_MAP: {
+    west: [
+      { targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'east', sourceRange: [0, 1] },
+      { targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'east', sourceRange: [10, 12] },
+    ],
+    north: [
+      { targetMap: 'GREAT_FEN_C10RN2_MAP', targetEdge: 'south', sourceRange: [12, 12] },
+    ],
+  },
   NORTH_BASIN_S_MAP: {
     // North edge: broad open ground (cols 1-14) into the Reservoir's south
     // shore. Source and target ranges match exactly (both maps' open
@@ -3624,37 +3710,19 @@ const EDGE_TRANSITIONS = {
     ]
 },
   GREAT_FEN_C9RN3_MAP: {
-    "north": [
-        {
-            "targetMap": "GREAT_FEN_ENVELOPE_C9RN4_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                13
-            ]
-        }
+    north: [
+      { targetMap: 'GREAT_FEN_ENVELOPE_C9RN4_MAP', targetEdge: 'south', sourceRange: [0, 13] },
     ],
-    "south": [
-        {
-            "targetMap": "GREAT_FEN_C9RN2_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                13
-            ]
-        }
+    south: [
+      { targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'north', sourceRange: [0, 15] },
     ],
-    "west": [
-        {
-            "targetMap": "GREAT_FEN_C8RN3_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
-    ]
-},
+    west: [
+      { targetMap: 'GREAT_FEN_C8RN3_MAP', targetEdge: 'east', sourceRange: [0, 14] },
+    ],
+    east: [
+      { targetMap: 'GREAT_FEN_ENVELOPE_C10RN3_MAP', targetEdge: 'west', sourceRange: [13, 14] },
+    ],
+  },
   GREAT_FEN_C5RN2_MAP: {
     "east": [
         {
@@ -3834,59 +3902,28 @@ const EDGE_TRANSITIONS = {
     ]
 },
   GREAT_FEN_C9RN2_MAP: {
-    "north": [
-        {
-            "targetMap": "GREAT_FEN_C9RN3_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                13
-            ]
-        }
+    north: [
+      { targetMap: 'GREAT_FEN_C9RN3_MAP', targetEdge: 'south', sourceRange: [0, 15] },
     ],
-    "south": [
-        {
-            "targetMap": "EASTERN_FENS_ENVELOPE_C9RN1_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                3,
-                12
-            ]
-        }
+    south: [
+      { targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'north', sourceRange: [3, 12] },
+      { targetMap: 'EASTERN_FENS_ENVELOPE_C9RN1_MAP', targetEdge: 'north', sourceRange: [14, 15] },
     ],
-    "west": [
-        {
-            "targetMap": "GREAT_FEN_C8RN2_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                5
-            ]
-        }
+    west: [
+      { targetMap: 'GREAT_FEN_C8RN2_MAP', targetEdge: 'east', sourceRange: [0, 5] },
     ],
-    "east": [
-        {
-            "targetMap": "GREAT_FEN_C10RN2_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                2,
-                12
-            ]
-        }
-    ]
-},
+    east: [
+      { targetMap: 'GREAT_FEN_C10RN2_MAP', targetEdge: 'west', sourceRange: [2, 12] },
+    ],
+  },
   GREAT_FEN_C10RN2_MAP: {
-    "west": [
-        {
-            "targetMap": "GREAT_FEN_C9RN2_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                2,
-                12
-            ]
-        }
-    ]
-},
+    west: [
+      { targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'east', sourceRange: [2, 12] },
+    ],
+    south: [
+      { targetMap: 'GREAT_FEN_ENVELOPE_C10RN1_MAP', targetEdge: 'north', sourceRange: [12, 12] },
+    ],
+  },
   EASTERN_FENS_ENVELOPE_C6RN1_MAP: {
     "north": [
         {
@@ -3974,17 +4011,15 @@ const EDGE_TRANSITIONS = {
     ]
 },
   EASTERN_FENS_ENVELOPE_C9RN1_MAP: {
-    "north": [
-        {
-            "targetMap": "GREAT_FEN_C9RN2_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                3,
-                12
-            ]
-        }
-    ]
-},
+    north: [
+      { targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'south', sourceRange: [3, 12] },
+      { targetMap: 'GREAT_FEN_C9RN2_MAP', targetEdge: 'south', sourceRange: [14, 15] },
+    ],
+    east: [
+      { targetMap: 'GREAT_FEN_ENVELOPE_C10RN1_MAP', targetEdge: 'west', sourceRange: [0, 1] },
+      { targetMap: 'GREAT_FEN_ENVELOPE_C10RN1_MAP', targetEdge: 'west', sourceRange: [10, 12] },
+    ],
+  },
   DRENWICK_EAST_CANAL_MAP: {
     north: [
       { targetMap: 'NORTH_BASIN_SE_MAP', targetEdge: 'south', sourceRange: [1, 14] },
@@ -4876,89 +4911,36 @@ const EDGE_TRANSITIONS = {
     ]
 },
   MAINLAND_C9RN8_MAP: {
-    "south": [
-        {
-            "targetMap": "MAINLAND_C9RN7_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                15
-            ]
-        }
+    south: [
+      { targetMap: 'MAINLAND_C9RN7_MAP', targetEdge: 'north', sourceRange: [0, 15] },
     ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C10RN8_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                3,
-                14
-            ]
-        }
+    east: [
+      { targetMap: 'MAINLAND_C10RN8_MAP', targetEdge: 'west', sourceRange: [0, 0] },
+      { targetMap: 'MAINLAND_C10RN8_MAP', targetEdge: 'west', sourceRange: [3, 14] },
     ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C9RN9_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                4,
-                12
-            ]
-        }
+    north: [
+      { targetMap: 'MAINLAND_C9RN9_MAP', targetEdge: 'south', sourceRange: [4, 12] },
+      { targetMap: 'MAINLAND_C9RN9_MAP', targetEdge: 'south', sourceRange: [14, 15] },
     ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C8RN8_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                6,
-                14
-            ]
-        }
-    ]
-},
+    west: [
+      { targetMap: 'MAINLAND_C8RN8_MAP', targetEdge: 'east', sourceRange: [6, 14] },
+    ],
+  },
   MAINLAND_C9RN6_MAP: {
-    "north": [
-        {
-            "targetMap": "MAINLAND_C9RN7_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                15
-            ]
-        }
+    north: [
+      { targetMap: 'MAINLAND_C9RN7_MAP', targetEdge: 'south', sourceRange: [0, 15] },
     ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C8RN6_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                14
-            ]
-        }
+    west: [
+      { targetMap: 'MAINLAND_C8RN6_MAP', targetEdge: 'east', sourceRange: [0, 14] },
     ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C9RN5_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                4,
-                12
-            ]
-        }
+    south: [
+      { targetMap: 'MAINLAND_C9RN5_MAP', targetEdge: 'north', sourceRange: [4, 12] },
+      { targetMap: 'MAINLAND_C9RN5_MAP', targetEdge: 'north', sourceRange: [14, 15] },
     ],
-    "east": [
-        {
-            "targetMap": "MAINLAND_C10RN6_MAP",
-            "targetEdge": "west",
-            "sourceRange": [
-                0,
-                6
-            ]
-        }
-    ]
-},
+    east: [
+      { targetMap: 'MAINLAND_C10RN6_MAP', targetEdge: 'west', sourceRange: [0, 6] },
+    ],
+  },
   MAINLAND_C8RN7_MAP: {
     "east": [
         {
@@ -5462,37 +5444,20 @@ const EDGE_TRANSITIONS = {
     ]
 },
   MAINLAND_C9RN5_MAP: {
-    "west": [
-        {
-            "targetMap": "GREAT_FEN_ENVELOPE_C8RN5_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                7,
-                14
-            ]
-        }
+    west: [
+      { targetMap: 'GREAT_FEN_ENVELOPE_C8RN5_MAP', targetEdge: 'east', sourceRange: [7, 14] },
     ],
-    "south": [
-        {
-            "targetMap": "GREAT_FEN_ENVELOPE_C9RN4_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                12
-            ]
-        }
+    south: [
+      { targetMap: 'GREAT_FEN_ENVELOPE_C9RN4_MAP', targetEdge: 'north', sourceRange: [0, 12] },
     ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C9RN6_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                4,
-                12
-            ]
-        }
-    ]
-},
+    north: [
+      { targetMap: 'MAINLAND_C9RN6_MAP', targetEdge: 'south', sourceRange: [4, 12] },
+      { targetMap: 'MAINLAND_C9RN6_MAP', targetEdge: 'south', sourceRange: [14, 15] },
+    ],
+    east: [
+      { targetMap: 'MAINLAND_C10RN5_MAP', targetEdge: 'west', sourceRange: [0, 1] },
+    ],
+  },
   MAINLAND_C27R9_MAP: {
     "north": [
         {
@@ -7994,35 +7959,23 @@ const EDGE_TRANSITIONS = {
     ]
 },
   MAINLAND_C9RN10_MAP: {
-    "west": [
-        {
-            "targetMap": "MAINLAND_C8RN10_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                2,
-                3
-            ]
-        },
-        {
-            "targetMap": "MAINLAND_C8RN10_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                13,
-                14
-            ]
-        }
+    west: [
+      { targetMap: 'MAINLAND_C8RN10_MAP', targetEdge: 'east', sourceRange: [2, 3] },
+      { targetMap: 'MAINLAND_C8RN10_MAP', targetEdge: 'east', sourceRange: [13, 14] },
     ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C9RN9_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                12
-            ]
-        }
-    ]
-},
+    south: [
+      { targetMap: 'MAINLAND_C9RN9_MAP', targetEdge: 'north', sourceRange: [0, 12] },
+      { targetMap: 'MAINLAND_C9RN9_MAP', targetEdge: 'north', sourceRange: [14, 15] },
+    ],
+    east: [
+      { targetMap: 'MAINLAND_C10RN10_MAP', targetEdge: 'west', sourceRange: [2, 4] },
+      { targetMap: 'MAINLAND_C10RN10_MAP', targetEdge: 'west', sourceRange: [9, 11] },
+      { targetMap: 'MAINLAND_C10RN10_MAP', targetEdge: 'west', sourceRange: [13, 14] },
+    ],
+    north: [
+      { targetMap: 'MAINLAND_C9RN11_MAP', targetEdge: 'south', sourceRange: [0, 1] },
+    ],
+  },
   GREAT_FEN_ENVELOPE_C9RN4_MAP: {
     "north": [
         {
@@ -17706,27 +17659,17 @@ const EDGE_TRANSITIONS = {
     ]
 },
   MAINLAND_C10RN8_MAP: {
-    "south": [
-        {
-            "targetMap": "MAINLAND_C10RN7_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                0,
-                12
-            ]
-        }
+    south: [
+      { targetMap: 'MAINLAND_C10RN7_MAP', targetEdge: 'north', sourceRange: [0, 12] },
     ],
-    "west": [
-        {
-            "targetMap": "MAINLAND_C9RN8_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                3,
-                14
-            ]
-        }
-    ]
-},
+    west: [
+      { targetMap: 'MAINLAND_C9RN8_MAP', targetEdge: 'east', sourceRange: [0, 0] },
+      { targetMap: 'MAINLAND_C9RN8_MAP', targetEdge: 'east', sourceRange: [3, 14] },
+    ],
+    north: [
+      { targetMap: 'MAINLAND_C10RN9_MAP', targetEdge: 'south', sourceRange: [0, 1] },
+    ],
+  },
   MAINLAND_C4RN10_MAP: {
     "north": [
         {
@@ -18086,37 +18029,22 @@ const EDGE_TRANSITIONS = {
     ]
 },
   MAINLAND_C9RN9_MAP: {
-    "west": [
-        {
-            "targetMap": "MAINLAND_C8RN9_MAP",
-            "targetEdge": "east",
-            "sourceRange": [
-                0,
-                6
-            ]
-        }
+    west: [
+      { targetMap: 'MAINLAND_C8RN9_MAP', targetEdge: 'east', sourceRange: [0, 6] },
     ],
-    "south": [
-        {
-            "targetMap": "MAINLAND_C9RN8_MAP",
-            "targetEdge": "north",
-            "sourceRange": [
-                4,
-                12
-            ]
-        }
+    south: [
+      { targetMap: 'MAINLAND_C9RN8_MAP', targetEdge: 'north', sourceRange: [4, 12] },
+      { targetMap: 'MAINLAND_C9RN8_MAP', targetEdge: 'north', sourceRange: [14, 15] },
     ],
-    "north": [
-        {
-            "targetMap": "MAINLAND_C9RN10_MAP",
-            "targetEdge": "south",
-            "sourceRange": [
-                0,
-                12
-            ]
-        }
-    ]
-},
+    north: [
+      { targetMap: 'MAINLAND_C9RN10_MAP', targetEdge: 'south', sourceRange: [0, 12] },
+      { targetMap: 'MAINLAND_C9RN10_MAP', targetEdge: 'south', sourceRange: [14, 15] },
+    ],
+    east: [
+      { targetMap: 'MAINLAND_C10RN9_MAP', targetEdge: 'west', sourceRange: [0, 7] },
+      { targetMap: 'MAINLAND_C10RN9_MAP', targetEdge: 'west', sourceRange: [9, 14] },
+    ],
+  },
   MAINLAND_C23R1_MAP: {
     "south": [
         {

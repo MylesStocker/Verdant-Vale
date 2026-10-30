@@ -121,15 +121,9 @@ const FAR_ENEMY_TEMPLATES = [
   ...MIRE_TOAD_ENEMY_TEMPLATES,
 ];
 
-// Fen Zolom — the sole random encounter on the two North Fen chunks
-// (EASTERN_FENS_ENVELOPE_C7R0_MAP/_C8R0_MAP), the open ground just south of
-// the Great Fen's two entrances. A deliberate, essentially unwinnable
-// roadblock (homage to Final Fantasy VII's Midgar Zolom, keeping that
-// game's own mistranslation as the joke) — massive HP, hits far harder
-// than anything else in the game, and isBoss locks escape exactly like
-// every other unbeatable/boss fight (installFormationState always derives
-// bossLocked from templates.some(t=>t.isBoss), regardless of which pool or
-// dispatcher drew the encounter, so no entry-point change was needed).
+// Fen Zolom — the random encounter at North Fen (7,0). An arrival
+// warning precedes danger. Its boss escape lock remains; the narrowly scoped
+// Serpentsmoke consumable is the one guaranteed retreat from this encounter.
 const FEN_ZOLOM_TEMPLATE = {
   id: 'enemy_fen_zolom', name: 'Fen Zolom',
   hp: 400, maxHp: 400, atk: 65, def: 20, spd: 30,
@@ -180,6 +174,29 @@ const EASTERN_FENS_MORNAY_ENEMY_TEMPLATES = [
   { id: 'enemy_hollowreed_choker', name: 'Hollowreed Choker', hp: 58, maxHp: 58, atk: 21, def: 7, spd: 10, xp: 44, goldMin: 11, goldMax: 19 },
 ];
 window.EASTERN_FENS_MORNAY_ENEMY_TEMPLATES = EASTERN_FENS_MORNAY_ENEMY_TEMPLATES;
+
+// Great Fen: a distinct deep-wilderness tier. Names and balance are revisable.
+const GREAT_FEN_ENEMY_TEMPLATES = [
+  {id:'enemy_peatback',name:'Peatback',hp:280,maxHp:280,atk:34,def:14,spd:6,xp:130,goldMin:28,goldMax:42},
+  {id:'enemy_drownlight',name:'Drownlight',hp:110,maxHp:110,atk:29,def:5,spd:23,xp:100,goldMin:22,goldMax:34,fenTactic:'false_lights'},
+  {id:'enemy_blackbriar_hound',name:'Blackbriar Hound',hp:150,maxHp:150,atk:38,def:8,spd:22,xp:120,goldMin:25,goldMax:40,fenTactic:'marked_lunge'},
+  {id:'enemy_bell_throated_toad',name:'Bell-Throated Toad',hp:180,maxHp:180,atk:33,def:12,spd:8,xp:125,goldMin:27,goldMax:40,fenTactic:'bell_chorus'},
+  {id:'enemy_reedbinder',name:'Reedbinder',hp:165,maxHp:165,atk:31,def:7,spd:15,xp:115,goldMin:25,goldMax:38,fenTactic:'reed_snare'},
+  {id:'enemy_bladder_leech',name:'Bladder Leech',hp:125,maxHp:125,atk:33,def:5,spd:17,xp:110,goldMin:24,goldMax:36,fenTactic:'blood_siphon'},
+];
+// Explicit pairs and trios; no arbitrary combinations or escape locks.
+const GREAT_FEN_FORMATIONS = Object.freeze([
+  ['peat_lights',['peatback','drownlight'],16],
+  ['hound_pair',['blackbriar_hound','blackbriar_hound'],8],
+  ['blood_hunt',['blackbriar_hound','bladder_leech'],16],
+  ['witchlight_chorus',['bell_throated_toad','drownlight'],16],
+  ['reed_hunt',['reedbinder','blackbriar_hound'],8],
+  ['stagnant_channel',['reedbinder','bladder_leech'],16],
+  ['flooded_peat',['peatback','bell_throated_toad'],8],
+  ['false_trail',['drownlight','drownlight','blackbriar_hound'],4],
+  ['deep_peat',['peatback','reedbinder','bladder_leech'],4],
+  ['deep_chorus',['bell_throated_toad','drownlight','blackbriar_hound'],4],
+].map(([id,enemies,weight])=>Object.freeze({id:'formation_great_fen_'+id,enemies:Object.freeze(enemies.map(id=>'enemy_'+id)),weight})));
 
 // Shared enemy-slot compositions for the full Eastern Fens Mornay roster,
 // reused by both weighted tables below (same formation ids and compositions,
@@ -955,6 +972,7 @@ const _ENCOUNTER_PROFILES = {
   // combat.js) normalizes/selects either shape identically.
   eastern_fens_mornay_easy: EASTERN_FENS_MORNAY_EASY_FORMATIONS,
   eastern_fens_mornay_hard: EASTERN_FENS_MORNAY_HARD_FORMATIONS,
+  great_fen: GREAT_FEN_FORMATIONS,
 };
 window._ENCOUNTER_PROFILES = _ENCOUNTER_PROFILES;
 

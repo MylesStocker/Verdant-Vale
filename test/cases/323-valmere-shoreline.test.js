@@ -4,6 +4,7 @@ const {createContext} = require('../harness');
 const {sha} = require('../regional-atlas');
 const {J} = require('./317-mainland-navigation.test');
 const before = require('../fixtures/valmere-shore-invariants.json');
+const {beforeAccessChunks,beforeAccessEdges,opened}=require('../fixtures/valmere-access-history');
 const {historicalChunks,historicalTiles} = require('../fixtures/mornay-marker-history');
 
 module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, playable grids, access, seams and connected open water', run() {
@@ -12,7 +13,16 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
   const changed = new Set(before.changedIds);
   // The later Reedbank village changes exactly one tile and its descriptive
   // note. Prove those values, then compare detached copies to the old fixture.
-  const historical=historicalChunks(d.chunks);
+  const historical=historicalChunks(beforeAccessChunks(d.chunks));
+  // The subsequent Great Fen encounter pass changes only the profile on these
+  // existing accessible wilderness chunks. Prove the new assignment before
+  // restoring its historical value on the detached snapshot for this audit.
+  const fen = historical.filter(c => c.region === 'Great Fen' && c.allowRandomEncounters && c.playerAccessible !== false);
+  assert.equal(fen.length, 174);
+  for (const c of fen) {
+    assert.equal(c.encounterProfileId, 'great_fen', c.mapId);
+    c.encounterProfileId = 'eastern_fens_mornay_hard';
+  }
   const reedbank=historical.find(c=>c.mapId==='MAINLAND_C22R3_MAP');
   assert.equal(reedbank.map[8][3],54);reedbank.map[8][3]=0;
   assert.equal(reedbank.notes,'Reedbank village entrance on the western riverbank; existing crossing and seams retained.');
@@ -21,7 +31,7 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
     'all other grids, including every playable grid and all Mornay approaches, are unchanged');
   assert.equal(sha(historical.map(({map, ...rest}) => rest)), before.metadataSha256,
     'identities, coordinates, capabilities, encounters and regional bounds are unchanged');
-  assert.equal(sha(d.edges), before.edgesSha256, 'no new crossings or altered transitions');
+  assert.equal(sha(beforeAccessEdges(d.edges)), before.edgesSha256, 'no new crossings or altered transitions');
   assert.equal(sha(historicalTiles(d.tiles)), before.tilesSha256, 'all pre-marker tile/collision definitions remain unchanged');
 
   g.run("storyCheckpointLab.apply('mq5_assignment_ready'); dialogue.open=false");
@@ -30,6 +40,7 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
   for (const id of changed) {
     const c = d.chunks.find(c => c.mapId === id);
     assert.ok(c, id + ' is registered');
+    if(opened.has(id))continue; // Access and return paths now covered by suite 344.
     assert.equal(c.playerAccessible, false);
     assert.equal(c.allowRandomEncounters, false);
     assert.equal(c.allowSave, false);
