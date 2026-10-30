@@ -623,6 +623,11 @@ function syncQuestFlagsToWindow() {
   // (not a boolean), normalized undefined -> 0 so saveGame() never writes undefined.
   window.basin_chamber_exits  = window.basin_chamber_exits || 0;
   window.basin_chamber_dream_done = !!window.basin_chamber_dream_done;
+  window.wilderness_dream_shingle_seen = !!window.wilderness_dream_shingle_seen;
+  window.wilderness_dream_fen_seen = !!window.wilderness_dream_fen_seen;
+  window.wilderness_dream_river_seen = !!window.wilderness_dream_river_seen;
+  window.wilderness_dream_woods_seen = !!window.wilderness_dream_woods_seen;
+  window.wilderness_dream_pasture_seen = !!window.wilderness_dream_pasture_seen;
   // Sunken Gallery investigation flags -- window-native, set directly by the
   // gallery interaction handlers; only normalized undefined -> false here.
   window.sunken_gallery_recess_opened = !!window.sunken_gallery_recess_opened;

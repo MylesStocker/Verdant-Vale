@@ -140,6 +140,7 @@ const MAP_FEATURES = mergeMapFeatureFragments([
   MORNAY_MAP_FEATURES,
   REEDBANK_MAP_FEATURES,
   THIRD_LOCK_MAP_FEATURES,
+  WILDERNESS_DISCOVERY_FEATURES,
 ]);
 
 // Evaluates a feature's `condition`, safely -- a throwing condition is
@@ -406,6 +407,7 @@ const DREAMS = [
 // Handlers wrap the start* calls so the lookup happens at dispatch time (no
 // load-order dependency on combat.js).
 const ENCOUNTER_HANDLERS = {
+  wilderness_discovery: () => wildernessDiscoveries.startNearby(),
   gallery_receiver: function() { galleryReceiverEncounter.startBattle(); },
   boss:         function() { startBossCombat(); },
   warden:       function() { startWardenCombat(); },
@@ -2053,6 +2055,7 @@ function interactOverworld() {
   if (interactMapN2Gate()) return true;
   if (interactThornmereStone()) return true;
   if (interactMireToadSpawnSite()) return true;
+  if (wildernessDiscoveries.inspect()) return true;
   for (const h of OVERWORLD_INTERACT_HANDLERS) {
     if (h.match()) return h.run();   // first matching location wins (else-if semantics)
   }

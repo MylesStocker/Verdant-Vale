@@ -124,14 +124,14 @@ const MAINLAND = Object.keys(GRID_FP.fingerprints).filter(id=>id.startsWith('MAI
 const EXPECTED = ['MAP', 'MAP2', 'MAP3', 'MAP4', 'MAP5', 'MAP_N1', 'MAP_N2', 'RODDON_WAY_MAP',
   'MAP3_N1', 'MAP3_N2', 'DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_S_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_C_MAP',
   'NORTH_BASIN_SW_MAP', 'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_W_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_NW_MAP', 'NORTH_BASIN_N_MAP',
-  'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE, ...MAINLAND];
+  'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE, ...MAINLAND, 'FEN_RUIN_RISE_MAP'];
 
 // The 15 ORIGINAL placed maps carry a derived compat alias (const/window) in data.js
 // for legacy consumers. Newer chunks, including every scenery-only addition, were
 // added after that pattern and deliberately have NO alias/standalone var/window export
 // (new code uses mapRefForId()/the catalog helpers).
 // Alias-specific checks use ALIASED.
-const ALIASLESS = ['DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE, ...MAINLAND];
+const ALIASLESS = ['DRENWICK_EAST_CANAL_MAP', 'THORNMERE_NORTH_FEN_MAP', 'THORNMERE_CANAL_HEAD_MAP', 'THORNMERE_UPPER_SHALLOWS_MAP', 'DRENWICK_WEST_OUTFALL_MAP', 'NORTH_BASIN_N_MAP', 'NORTH_BASIN_NE_MAP', 'NORTH_BASIN_NE2_MAP', 'NORTH_BASIN_E2_MAP', 'NORTH_BASIN_E_MAP', 'NORTH_BASIN_SE_MAP', 'EAST_CAUSEWAY_MAP', 'EASTERN_BANK_MAP', 'NORTH_BASIN_NW2_MAP', 'NORTH_BASIN_W2_MAP', 'NORTH_BASIN_MIREWOOD_MAP', 'NORTH_BASIN_ENVELOPE_C0RN1_MAP', 'NORTH_BASIN_ENVELOPE_C1RN1_MAP', 'NORTH_BASIN_ENVELOPE_C2RN1_MAP', ...EASTERN_FENS, ...EASTERN_FENS_ENVELOPE, ...GREAT_FEN, ...GREAT_FEN_ENVELOPE, ...VALMERE_EXPANSE, ...VALMERE_EXPANSE_ENVELOPE, ...EASTERN_SHORE, ...EASTERN_SHORE_ENVELOPE, ...SOUTHERN_MORAINE, ...SOUTHERN_MORAINE_ENVELOPE, ...MAINLAND, 'FEN_RUIN_RISE_MAP'];
 const ALIASED = EXPECTED.filter((id) => !ALIASLESS.includes(id));
 
 // Which fragment (and therefore which geographic file) authors each chunk.
@@ -153,6 +153,7 @@ const FRAGMENTS = {
   SOUTHERN_MORAINE_REGIONAL_CHUNK_DEFINITIONS: SOUTHERN_MORAINE,
   SOUTHERN_MORAINE_ENVELOPE_CHUNK_DEFINITIONS: SOUTHERN_MORAINE_ENVELOPE,
   MAINLAND_REGIONAL_CHUNK_DEFINITIONS: MAINLAND,
+  FEN_RUIN_REGIONAL_CHUNK_DEFINITIONS: ['FEN_RUIN_RISE_MAP'],
 };
 
 module.exports = {
@@ -230,6 +231,7 @@ module.exports = {
     //     legacy window export; data.js holds derived aliases (for the 15 original
     //     original maps only) + no terrain rows. New regional chunks have NO alias.
     const SRC = {
+      FEN_RUIN_RISE_MAP: 'content/maps/fen-caverns-maps.js',
       MAP: 'content/maps/calwick-maps.js',
       MAP2: 'content/maps/thornmere-wilds-maps.js', MAP3: 'content/maps/thornmere-wilds-maps.js',
       MAP4: 'content/maps/thornmere-wilds-maps.js', MAP5: 'content/maps/thornmere-wilds-maps.js',
@@ -347,8 +349,8 @@ module.exports = {
       }
       // geographic (physical-chunk) encounter pool equals the resolved catalog pool
       const p = J(`JSON.stringify(regionPlacementForMapId('${id}'))`);
-      const ctxPool = g.run(`(function(){ var c=geographicEncounterContext('${p.regionId}', (${p.chunkX}*COLS+8)*TILE, (${p.chunkY}*ROWS+7)*TILE); return c && c.encounterPool===REGIONAL_CHUNK_CATALOG['${id}'].encounterPool; })()`);
-      assert.equal(ctxPool, true, `${id}: geographic encounter context resolves the same pool as the catalog`);
+      const ctxPool = g.run(`(function(){ var c=geographicEncounterContext('${p.regionId}', (${p.chunkX}*COLS+8)*TILE, (${p.chunkY}*ROWS+7)*TILE); var entry=REGIONAL_CHUNK_CATALOG['${id}'];var expected=entry.map[7][8]===ROCKY_BEACH&&entry.allowRandomEncounters&&entry.encounterPool!==null?ROCKY_BEACH_ENEMY_TEMPLATES:entry.encounterPool;return c && c.encounterPool===expected; })()`);
+      assert.equal(ctxPool, true, `${id}: geographic encounter context resolves the catalog plus standing-terrain profile`);
     }
 
     // ── 12 of spec. Canonical + v4 save/load round-trips on a representative map

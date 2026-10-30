@@ -1920,6 +1920,21 @@ function drawExposedStone(x, y) {
 // Loose shingle/gravel — the moraine ridge's drier ground and the Valmere
 // shoreline's beach texture. Walkable, like EXPOSED_STONE, but reads as
 // smaller loose rounded pebbles rather than bare slab rock.
+// Cool, rounded wave-washed cobbles, distinct from the inland gravel's ochre grit.
+// Fixed pixel geometry: independent of camera position, time and gameplay RNG.
+function drawRockyBeach(x, y) {
+  ctx.fillStyle = '#777e7b'; ctx.fillRect(x, y, TILE, TILE);
+  const stones = [[2,2,8,5],[14,1,6,4],[24,4,6,5],[8,10,7,5],
+    [19,13,9,5],[1,19,6,5],[11,23,8,6],[25,25,5,4]];
+  for (let i=0;i<stones.length;i++) {
+    const [a,b,w,h]=stones[i];
+    ctx.fillStyle='#525e60'; ctx.fillRect(x+a,y+b+1,w,h);
+    ctx.fillStyle=i%3===0?'#afb6ad':'#949f9d'; ctx.fillRect(x+a+1,y+b,w-2,h-1);
+    ctx.fillStyle='#c1c5b8'; ctx.fillRect(x+a+2,y+b,Math.max(2,w-4),1);
+  }
+  ctx.fillStyle='#606c6c'; ctx.fillRect(x+3,y+12,2,2); ctx.fillRect(x+23,y+21,2,2);
+}
+
 function drawGravelBar(x, y) {
   ctx.fillStyle = '#9a9184';
   ctx.fillRect(x, y, TILE, TILE);
@@ -2648,6 +2663,7 @@ function drawTile(id, x, y) {
     case NOTICE_BOARD:        drawNoticeBoardTile(x, y);  break;
     case REEDS:               drawReeds(x, y);            break;
     case DEEP_REEDS:          drawDeepReeds(x, y);        break;
+    case ROCKY_BEACH:         drawRockyBeach(x, y);       break;
     case GRAVEL_BAR:          drawGravelBar(x, y);        break;
     case DRIFTWOOD:           drawDriftwood(x, y);        break;
     case STRANDED_BOAT:       drawStrandedBoat(x, y);     break;
@@ -2760,7 +2776,7 @@ function drawTile(id, x, y) {
 const RENDERABLE_TILE_IDS = new Set([
   GRASS, WATER, PATH, TREE, DUNGEON_FLOOR, DUNGEON_WALL, DUNGEON_ENTRANCE, DUNGEON_EXIT,
   DUNGEON2_FLOOR, DUNGEON2_WALL, DUNGEON_STAIRS_DOWN, DUNGEON2_STAIRS_UP,
-  TOWN_ROOFS, TOWN_FORT, TOWN_HARBOUR,
+  TOWN_ROOFS, TOWN_FORT, TOWN_HARBOUR, ROCKY_BEACH,
   TOWN_FLOOR, TOWN_BUILDING, TOWN_ENTRANCE, TOWN_EXIT, INN_DOOR, OFFICE_DOOR,
   INTERIOR_FLOOR, INTERIOR_WALL, INTERIOR_EXIT, TOWN_MARKET, NOTICE_BOARD, REEDS,
   EAST_ENTRANCE, EAST_EXIT, SLUICE_ENTRANCE, SLUICE_FLOOR, SLUICE_WALL, SLUICE_EXIT,

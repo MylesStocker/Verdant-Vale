@@ -15,6 +15,7 @@ const player = {
 
 // Returns the display name shown above the canvas for the current location.
 function locationName() {
+  if (FEN_CAVE_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
   if (THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
   if (REEDBANK_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
   // MAP_METADATA-driven lookup, restricted to type === 'outdoor': every
@@ -126,6 +127,8 @@ function locationName() {
 // 'house:<houseId>', per-apartment keys, and town-building/state distinctions
 // ('west', 'drenwick_civic', …). See MAP_CATALOG (data.js) for physical map ids.
 function currentContentLocationKey() {
+  const caveKey=FEN_CAVE_CONTENT_KEYS[mapIdForRef(activeMap)];
+  if(caveKey)return caveKey;
   const thirdLockKey=THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)];
   if(thirdLockKey)return thirdLockKey;
   const reedbankKey=REEDBANK_CONTENT_KEYS[mapIdForRef(activeMap)];
@@ -828,6 +831,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   player.moving = (dx !== 0 || dy !== 0);
 
   if (player.moving) {
+    const dreamStepFrom=regionalPlayerWorldPoint();
     // Edge-based transitions (world-transitions.js's EDGE_TRANSITIONS): when
     // the player is standing in the outermost row/col of the map and pushes
     // further in that direction, check for a configured open-edge link
@@ -902,6 +906,9 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
       if (edgeTransitioned) return; // activeMap/player position fully replaced; skip the rest of this frame, same as any other map transition
     }
 
+    // Waking visions interrupt before step damage, encounter RNG or pickups.
+    if(wildernessDreams.tryStep(dreamStepFrom)) return;
+
     player.step++;
     if ((stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers()) && hasStatusEffect('poison') && player.step % 60 === 0)
       stats.hp = Math.max(1, stats.hp - 1);
@@ -921,7 +928,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
     }
 
     // Map transitions
-    if (struckEntry.tryDoor() || reedbankTryDoor()) return;
+    if (fenCaverns.tryDoor() || struckEntry.tryDoor() || reedbankTryDoor()) return;
     const ttx = Math.floor(player.x / TILE);
     const tty = Math.floor(player.y / TILE);
     const curTile = activeMap[tty] ? activeMap[tty][ttx] : -1;

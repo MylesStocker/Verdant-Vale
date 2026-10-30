@@ -1262,7 +1262,11 @@
     "MAINLAND_CN4R12_MAP",
     "MAINLAND_CN3R12_MAP",
     "MAINLAND_CN2R12_MAP",
-    "MAINLAND_CN1R12_MAP"
+    "MAINLAND_CN1R12_MAP",
+    "FEN_RUIN_RISE_MAP",
+    "FEN_CAVE_DESCENT_MAP",
+    "FEN_CAVE_POOL_MAP",
+    "FEN_CAVE_ROOTS_MAP"
   ],
   "dimReport": [
     {
@@ -8839,6 +8843,30 @@
     },
     {
       "id": "MAINLAND_CN1R12_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "FEN_RUIN_RISE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "FEN_CAVE_DESCENT_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "FEN_CAVE_POOL_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "FEN_CAVE_ROOTS_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -16624,6 +16652,238 @@
       "verdict": "OK"
     },
     {
+      "name": "Fen cave passage 0: FEN_RUIN_RISE_MAP -> FEN_CAVE_DESCENT_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"FEN_RUIN_RISE_MAP\",x:272,y:144,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "FEN_CAVE_DESCENT_MAP",
+      "px": 240,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 4,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Fen cave passage 1: FEN_CAVE_DESCENT_MAP -> FEN_RUIN_RISE_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"FEN_CAVE_DESCENT_MAP\",x:240,y:400,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "FEN_RUIN_RISE_MAP",
+      "px": 272,
+      "py": 176,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 5,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 77,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Fen cave passage 2: FEN_CAVE_DESCENT_MAP -> FEN_CAVE_POOL_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"FEN_CAVE_DESCENT_MAP\",x:368,y:80,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "FEN_CAVE_POOL_MAP",
+      "px": 144,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 4,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 4,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Fen cave passage 3: FEN_CAVE_POOL_MAP -> FEN_CAVE_DESCENT_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"FEN_CAVE_POOL_MAP\",x:144,y:400,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "FEN_CAVE_DESCENT_MAP",
+      "px": 368,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 11,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 4,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": false
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Fen cave passage 4: FEN_CAVE_POOL_MAP -> FEN_CAVE_ROOTS_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"FEN_CAVE_POOL_MAP\",x:368,y:80,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "FEN_CAVE_ROOTS_MAP",
+      "px": 144,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 4,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 4,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Fen cave passage 5: FEN_CAVE_ROOTS_MAP -> FEN_CAVE_POOL_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"FEN_CAVE_ROOTS_MAP\",x:144,y:400,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "FEN_CAVE_POOL_MAP",
+      "px": 368,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 11,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 4,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Fen cave passage 6: FEN_CAVE_ROOTS_MAP -> MAINLAND_CN3RN14_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"FEN_CAVE_ROOTS_MAP\",x:336,y:80,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "MAINLAND_CN3RN14_MAP",
+      "px": 240,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 127,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Fen cave passage 7: MAINLAND_CN3RN14_MAP -> FEN_CAVE_ROOTS_MAP",
+      "group": "fen-caverns",
+      "setupCode": "transitionToLocation({mapId:\"MAINLAND_CN3RN14_MAP\",x:240,y:80,facing:'down'});fenCaverns.tryDoor();",
+      "error": null,
+      "destMap": "FEN_CAVE_ROOTS_MAP",
+      "px": 336,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 10,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 4,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
       "name": "Third Lock door 0: THIRD_LOCK_APPROACH_MAP -> GREAT_FEN_C8RN3_MAP",
       "group": "third-lock",
       "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_APPROACH_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
@@ -22945,7 +23205,7 @@
     },
     {
       "name": "DUNGEON_EXIT",
-      "mapsUsingIt": 1,
+      "mapsUsingIt": 4,
       "handledInMovement": true
     },
     {
@@ -23135,7 +23395,7 @@
     },
     {
       "name": "RUIN_STAIRS_DOWN",
-      "mapsUsingIt": 1,
+      "mapsUsingIt": 5,
       "handledInMovement": true
     },
     {
@@ -53747,10 +54007,10 @@
         "chunkX": 3,
         "chunkY": 0,
         "dir": "north",
-        "neighbor": null,
+        "neighbor": "FEN_RUIN_RISE_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "NORTH_BASIN_NE_MAP",
@@ -54007,10 +54267,10 @@
         "chunkX": 2,
         "chunkY": -1,
         "dir": "east",
-        "neighbor": null,
+        "neighbor": "FEN_RUIN_RISE_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "NORTH_BASIN_ENVELOPE_C2RN1_MAP",
@@ -58797,10 +59057,10 @@
         "chunkX": 3,
         "chunkY": -2,
         "dir": "south",
-        "neighbor": null,
+        "neighbor": "FEN_RUIN_RISE_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "GREAT_FEN_ENVELOPE_C3RN2_MAP",
@@ -58937,10 +59197,10 @@
         "chunkX": 4,
         "chunkY": -1,
         "dir": "west",
-        "neighbor": null,
+        "neighbor": "FEN_RUIN_RISE_MAP",
         "target": null,
         "type": null,
-        "verdict": "BORDER"
+        "verdict": "BLOCKED"
       },
       {
         "mapId": "GREAT_FEN_ENVELOPE_C5RN1_MAP",
@@ -94981,13 +95241,53 @@
         "target": null,
         "type": null,
         "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "FEN_RUIN_RISE_MAP",
+        "chunkX": 3,
+        "chunkY": -1,
+        "dir": "north",
+        "neighbor": "GREAT_FEN_ENVELOPE_C3RN2_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "FEN_RUIN_RISE_MAP",
+        "chunkX": 3,
+        "chunkY": -1,
+        "dir": "south",
+        "neighbor": "NORTH_BASIN_NE_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "FEN_RUIN_RISE_MAP",
+        "chunkX": 3,
+        "chunkY": -1,
+        "dir": "east",
+        "neighbor": "GREAT_FEN_ENVELOPE_C4RN1_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
+      },
+      {
+        "mapId": "FEN_RUIN_RISE_MAP",
+        "chunkX": 3,
+        "chunkY": -1,
+        "dir": "west",
+        "neighbor": "NORTH_BASIN_ENVELOPE_C2RN1_MAP",
+        "target": null,
+        "type": null,
+        "verdict": "BLOCKED"
       }
     ],
     "totals": {
       "INTENTIONAL_DISCRETE": 4,
-      "BLOCKED": 2494,
+      "BLOCKED": 2502,
       "ALIGNS": 1568,
-      "BORDER": 166
+      "BORDER": 162
     }
   }
 }

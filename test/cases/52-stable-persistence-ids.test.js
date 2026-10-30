@@ -25,9 +25,9 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // Frozen expectation snapshots (production stays registry-driven).
-const EXPECTED_PICKUP_COUNT = 54;  // +1: persisted Northern Fen Mire Toad spawning-site sparkle
+const EXPECTED_PICKUP_COUNT = 64;  // +10: expanded-wilderness discoveries (seven finds and three choice sites)
 const EXPECTED_CHEST_COUNT  = 14;  // +1: reservoir balance-puzzle compartment
-const EXPECTED_ENEMY_COUNT  = 81;  // Includes Receiver, Travellers' Rise, Fen Zolom, breakfast Beetles, Mornay bosses and six Great Fen enemies.
+const EXPECTED_ENEMY_COUNT  = 83;  // Includes Receiver, Travellers' Rise, Fen Zolom, breakfast Beetles, Mornay bosses six Great Fen enemies and two Rocky Beach enemies.
 const CHEST_IDS = [
   'chest_cat_armor', 'chest_dungeon8_east_bomb', 'chest_dungeon8_east_secret', 'chest_dungeon8_west_deep',
   'chest_dungeon_alcove', 'chest_dungeon_main', 'chest_meadow',

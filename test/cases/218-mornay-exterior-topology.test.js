@@ -196,7 +196,7 @@ module.exports = {
     assert.equal(R("MAP_CATALOG['EASTERN_FENS_TRAVELLERS_RISE_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].allowRandomEncounters"), false);
     assert.equal(R("MAP_CATALOG['TRAVELLERS_RISE_CAMP_MAP'].map.length"), 15);
-    assert.equal(R("Object.keys(MAP_CATALOG).length"), 1263, '1254-map baseline plus two Fleck exteriors and seven rooms');
+    assert.equal(R("Object.keys(MAP_CATALOG).length"), 1267, '1254-map baseline plus two Fleck exteriors and seven rooms');
     for (const [id, fp] of Object.entries(GRID_FP.fingerprints)) {
       const actual = R(`JSON.stringify(REGIONAL_CHUNK_CATALOG['${id}'].map)`);
       assert.equal(sha256(actual), fp, `${id}: regional fingerprint current`);

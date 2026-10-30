@@ -154,3 +154,49 @@ No camera, movement, save, content or encounter code changes. SAVE_VERSION remai
 The atlas, inventory, vector/production overviews and 45 legitimately changed fingerprints are refreshed. The read-only transition audit still matches its existing artifact, so that artifact is not regenerated for this increment. [Evidence and walkthrough](Art/qa/valmere-shoreline/README.md) include before/after production renders and native/2× detail views. Existing dirty Mornay and Wetwoods work is preserved; this pass remains unstaged and uncommitted.
 
 Final shoreline verification: **259/259 suites**, 55 JavaScript syntax checks, zero validation errors / six unchanged warnings, 1,058 matching fingerprints and unchanged transition artifact. Browser: 163 automated checks / 57 captures / zero errors. Exact 4,321-cell delta and preservation of all out-of-scope prior files verified.
+
+## Rocky Beach refinement (2026-10-30)
+
+Rocky Beach (tile 134) replaces 603 existing walkable shore cells across 23
+Valmere chunks. Cooler cobbles distinguish wave-washed banks from inland gravel.
+Exposed eastern headlands and western-shore points receive the broadest patches;
+reed coves remain sheltered. There are no new crossings or camera changes.
+Terrain profiles refine the physical chunk pool only at the standing tile;
+Shingleback Crab and Storm Gull are exclusive to this terrain. Existing rare
+encounter overrides remain. Exact cells, per-map counts, evidence and walkthrough:
+[Rocky Beach review](Art/qa/rocky-beach/README.md).
+
+
+## Broken Rise infill and northern cave connection
+
+The empty coordinate (3,-1), immediately north of the North Basin reservoir,
+is now `FEN_RUIN_RISE_MAP`: wooded high ground, a broken stone enclosure,
+exposed masonry and a reed-fringed southern bank. Its water/rock/woodland border
+is impassable on every side. Neighbouring scenery metadata and all seams are
+unchanged. Existing camera bounds are unchanged because this fills an internal
+hole. The ruin's origin is deliberately unspecified.
+
+A stair at local (8,4) connects to Broken Descent, Still Water and Root Cleft,
+three compressed discrete cave screens. The other mouth is in Willow Basin
+at (-3,-14), local (7,2), approached from (7,3). This is a two-way exploration
+branch from the later mainland, not a route through the early reservoir or
+around the ferry/Rise/camp sequence. Cave water stays impassable, with dry loops
+around it; no water simulation or new drainage connection is implied.
+
+Exact existing-cell delta in `MAINLAND_CN3RN14_MAP` (zero-based col,row):
+(7,1), (6,2), (8,2) TREE 3 → HILLS 119; (7,2) SATURATED_PEAT 127 → RUIN_STAIRS_DOWN 79.
+The earlier opening in (3,-9) is fully restored to its original trees and grass.
+The first three remain blocking; the entrance remains walkable. No other old
+terrain or metadata changes. New ruin/caves use only registered tiles, have no
+random encounters, rewards or quests, and preserve SAVE_VERSION 5.
+
+
+## Wilderness discovery pocket
+
+A small concealed clearing in River Lowlands, chunk (24,2), uses four GRASS
+cells at (4,4), (5,4), (4,5), (5,5), replacing TREE, and two WORLD_HOLLOW cells
+at (5,6), (5,7), also replacing TREE. All six cells stay internal to the chunk;
+the only entrance is through the tree-looking southern gap at (5,8). It is a
+returnable dead end, not a new crossing. All seams and cameras are unchanged.
+Ten item-set bindings populate existing expanded-world maps; other terrain is
+unchanged. See Art/qa/wilderness-discoveries/README.md for the full inventory.

@@ -6,6 +6,69 @@ actually fits together.
 
 ## Current state
 
+### Expanded-wilderness discoveries
+
+Ten examinable sparkles now mark six supply finds, three optional risk/reward
+encounters and a hidden woodland cache. The cache at world (24,2) lies behind
+existing tree-looking WORLD_HOLLOW tiles, with a repeatable bootmark clue.
+Safe choices resolve their site for a smaller reward; leaving, escaping or
+losing preserves it. Shared authenticated combat handles all three fights,
+including solo Lély. Stable pickup IDs preserve completion without new save
+fields or a version change. Six terrain cells change; no seams/cameras or
+progression boundaries change. Final verification: 285/285 regression suites,
+543 automated browser checks, 13 JavaScript syntax checks; validation 0 errors
+and 6 existing warnings, fingerprints and transition audit pass. Left uncommitted.
+See [locations, exact deltas and review](Art/qa/wilderness-discoveries/README.md).
+
+### Broken Rise and Fen Caverns
+
+The missing overworld chunk (3,-1) now contains a ruined wooded rise above the
+reservoir. Three traversable cave chambers connect its stair at local (8,4) to
+Willow Basin, chunk (-3,-14), local (7,2). The rise has closed surface borders;
+existing early-game routes, cameras and progression barriers stay unchanged.
+Four old terrain cells change at the northern opening; the former opening at
+(3,-9) is restored to its original trees and grass. No new tiles, enemies,
+items, quests, state fields or save-version change. Both cave ends are usable;
+all new locations support save/load. This is a quiet exploration branch.
+See [terrain deltas, screenshots and verification](Art/qa/fen-caverns/README.md).
+Final verification: 284/284 suites, 559 automated browser checks, 47 JavaScript
+syntax checks; validation zero errors/six existing warnings. All 1059 fingerprints
+and the regenerated transition audit verify. Left unstaged/uncommitted on main.
+
+
+### Optional wilderness dreams
+
+Five one-time walking visions are authored for Shingle Shore, Great Fen,
+River Lowlands, Southern Mixed Woods and Pasture Hollows. They reuse the white
+dream map and exact-return gateway, with Esla's conditional check-in afterward.
+No terrain, camera, route, reward or quest progression changes. Five independent
+seen flags use existing version-5 save bindings; older saves default them false.
+See [sites, full writing and walkthrough](Art/qa/wilderness-dreams/README.md).
+
+Focused suite 347 passes in continuous and legacy modes, solo and with Esla.
+Automated Chromium: 103 checks at native/2× scale. Save version remains 5.
+Full regression: 283/283 pass. Validation: zero errors, six existing warnings.
+Syntax checks, transition audit and regional fingerprint verification pass.
+Changes remain unstaged/uncommitted; prior Rocky Beach work is preserved.
+
+
+### Rocky Beach — Valmere
+
+New terrain ID 134 covers 603 existing walkable cells across 23 shoreline
+chunks. Roads, water, trees, camera settings, entrances, metadata and seams
+remain unchanged. A registered standing-terrain encounter profile selects
+Shingleback Crab (Brace) or Storm Gull (steal-and-flee), each with animated
+programmatic graphics and Observe text. All inland pools and rare overrides
+remain unchanged. No new persistent state; SAVE_VERSION remains 5.
+See [the exact terrain delta and review](Art/qa/rocky-beach/README.md).
+
+Verification: 282/282 regression suites pass, including new suites 345/346;
+59 automated Chromium checks pass at native/2× scale. All 30 changed JavaScript
+files pass syntax checks. Validation: zero errors, six existing warnings. The
+transition audit matches without regeneration; all 1058 fingerprints verify
+(23 intentionally updated). Diff/conflict checks pass.
+Changes are unstaged/uncommitted on main; nothing pushed.
+
 ### Grounded Sera/Liora battle presentation
 
 Both Bethany fights now crop the existing background to its clear floor, stage

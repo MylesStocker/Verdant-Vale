@@ -69,7 +69,7 @@ module.exports = {
     assert.equal(g.run('DEBUG_TILE_NAMES.includes("HILLS")'), true);
     assert.equal(g.run('RENDERABLE_TILE_IDS.has(HILLS)'), true);
     assert.equal(g.run('DEBUG_TILE_NAMES.length'), g.run('new Set(DEBUG_TILE_NAMES.map(function(n){return window[n];})).size'), 'all exported tile ids remain unique');
-    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER'&&n!=='ROCKS_IN_WATER'&&n!=='LIGHTHOUSE'&&n!=='HORROR_TENDON_DOWN'&&n!=='HORROR_TENDON_UP'&&n!=='HORROR_SECRET_ENTRANCE'&&n!=='HORROR_SECRET_EXIT'&&n!=='DEEP_REEDS'&&n!=='GRAVEL_BAR'&&n!=='DRIFTWOOD'&&n!=='STRANDED_BOAT'&&n!=='TOWN_ROOFS'&&n!=='TOWN_FORT'&&n!=='TOWN_HARBOUR';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
+    const oldIds = g.run("JSON.stringify(DEBUG_TILE_NAMES.filter(function(n){return n!=='HILLS'&&n!=='TREE_IN_WATER'&&n!=='ROCKS_IN_WATER'&&n!=='LIGHTHOUSE'&&n!=='HORROR_TENDON_DOWN'&&n!=='HORROR_TENDON_UP'&&n!=='HORROR_SECRET_ENTRANCE'&&n!=='HORROR_SECRET_EXIT'&&n!=='DEEP_REEDS'&&n!=='GRAVEL_BAR'&&n!=='DRIFTWOOD'&&n!=='STRANDED_BOAT'&&n!=='TOWN_ROOFS'&&n!=='TOWN_FORT'&&n!=='TOWN_HARBOUR'&&n!=='ROCKY_BEACH';}).map(function(n){return [n,window[n]];}).sort(function(a,b){return a[0].localeCompare(b[0]);}))");
     assert.equal(sha256(oldIds), OLD_TILE_ID_HASH, 'every pre-HILLS tile constant retains its reviewed numeric id');
     const hillRender = J(`(function(){
       var oldFill=ctx.fillRect, oldRandom=Math.random, randomCalls=0;
@@ -196,9 +196,9 @@ module.exports = {
     // Regional aggregates include the later Eastern Fens terrain skeleton;
     // the outfall remains scenery-only within that expanded catalogue.
     const audit = require('../transition-audit.js');
-    assert.deepEqual(audit.seamReadiness.totals,{"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2494, "ALIGNS": 1568, "BORDER": 166});
-    assert.equal(audit.seamReadiness.edges.length,4232);
-    assert.equal(g.run('Object.keys(MAP_METADATA).length'),1263);
+    assert.deepEqual(audit.seamReadiness.totals,{"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2502, "ALIGNS": 1568, "BORDER": 162});
+    assert.equal(audit.seamReadiness.edges.length,4236);
+    assert.equal(g.run('Object.keys(MAP_METADATA).length'),1267);
     assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),g.run('REGIONAL_LAYOUT.overworld.placements.length'));
     assert.equal(Object.keys(GRID_FP.fingerprints).length,g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'));
   },

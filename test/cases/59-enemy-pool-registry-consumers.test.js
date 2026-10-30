@@ -105,6 +105,11 @@ module.exports = {
       (function(){
         var routed = new Set();
         for (var k in MAP_METADATA) { var ep = MAP_METADATA[k].encounterPool; if (Array.isArray(ep)) routed.add(ep); }
+        for (const m of Object.values(MAP_METADATA)) if (m.allowRandomEncounters && m.playerAccessible !== false && m.encounterPool)
+          for (const row of m.map) for (const tile of row) {
+            const profile=TILE_PROPERTIES[tile]?.encounterProfileId;
+            if(profile!==undefined) routed.add(_ENCOUNTER_PROFILES[profile]);
+          }
         var pools = ENEMY_TEMPLATE_POOLS;
         var knownUnwired = { pool_eastern_fens_mornay: true };
         for (var i = 0; i < pools.length; i++)

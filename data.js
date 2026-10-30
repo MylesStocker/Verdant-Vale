@@ -954,9 +954,18 @@ const MIRE_VAULT_ITEMS = [
 // it into the definition. Both resolve to the SAME array references consumers used
 // before, so encounter/item reference identity is preserved.
 
+// Exclusive to Rocky Beach standing tiles. Flat entries retain the normal
+// single-enemy selection contract, including existing rare-encounter overrides.
+const ROCKY_BEACH_ENEMY_TEMPLATES = [
+  { id:'enemy_shingleback_crab', name:'Shingleback Crab', hp:150, maxHp:150,
+    atk:34, def:16, spd:8, xp:90, goldMin:18, goldMax:28, defendChance:0.30 },
+  { id:'enemy_storm_gull', name:'Storm Gull', hp:105, maxHp:105,
+    atk:38, def:7, spd:25, xp:95, goldMin:20, goldMax:30, stealAndFlee:true },
+];
 // Encounter-profile registry: stable id → the actual pool array. The sole place a
-// profile id resolves to a pool.
+// map or terrain profile id resolves to a pool.
 const _ENCOUNTER_PROFILES = {
+  rocky_beach: ROCKY_BEACH_ENEMY_TEMPLATES,
   early:       EARLY_ENEMY_TEMPLATES,
   reaches:     ENEMY_TEMPLATES,
   far:         FAR_ENEMY_TEMPLATES,
@@ -979,6 +988,7 @@ window._ENCOUNTER_PROFILES = _ENCOUNTER_PROFILES;
 // Item-set registry: stable id → the actual items array. The sole place an item-set
 // id resolves to an array. Item content itself stays authored in the map files.
 const _REGIONAL_ITEM_SETS = {
+  ...WILDERNESS_DISCOVERY_ITEM_SETS,
   world:          WORLD_ITEMS,
   map2:           MAP2_ITEMS,
   map3:           MAP3_ITEMS,
@@ -1018,6 +1028,7 @@ const _REGIONAL_CHUNK_DEFINITIONS = [].concat(
   EASTERN_SHORE_ENVELOPE_CHUNK_DEFINITIONS,
   SOUTHERN_MORAINE_ENVELOPE_CHUNK_DEFINITIONS,
   MAINLAND_REGIONAL_CHUNK_DEFINITIONS,
+  FEN_RUIN_REGIONAL_CHUNK_DEFINITIONS,
 );
 window._REGIONAL_CHUNK_DEFINITIONS = _REGIONAL_CHUNK_DEFINITIONS;
 
@@ -1863,6 +1874,11 @@ MAP_CATALOG['SUNKEN_GALLERY_R0C3'].items = SUNKEN_GALLERY_MIMIC_ITEMS;
 MAP_CATALOG['SUNKEN_GALLERY_R0C3'].notes = 'A blank room near the far corner of the Sunken Gallery 5×5 grid (maps.js), top row one in from the R0C4 corner. No inspect features of its own — it holds only one examine-only trap-potion sparkle (mid-room) that springs the scripted Mimic Potion fight, deliberately the sole sparkle in the room. Shares the entrance hall’s encounter pool and allowSave: false.';
 for (const def of MAINLAND_REGIONAL_CHUNK_DEFINITIONS)
   MAP_CATALOG[def.mapId] = _regionalChunkCatalogEntry(def.mapId);
+for (const def of FEN_RUIN_REGIONAL_CHUNK_DEFINITIONS)
+  MAP_CATALOG[def.mapId] = _regionalChunkCatalogEntry(def.mapId);
+for (const def of FEN_CAVE_MAPS)
+  MAP_CATALOG[def.id] = {id:def.id,map:def.map,displayName:def.name,region:'Great Fen',
+    type:'interior',items:[],encounterPool:null,allowRandomEncounters:false,allowSave:true};
 window.MAP_CATALOG = MAP_CATALOG;
 
 // ─── Derived compatibility views + canonical helpers ─────────────────────────

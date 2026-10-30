@@ -352,6 +352,12 @@ for(const [i,d] of g.run('REEDBANK_DOORS.map(d=>({...d}))').entries()) {
   check(`Reedbank door ${i}: ${d.source} -> ${d.target}`,setup+'reedbankTryDoor();',{group:'reedbank-buildings'});
 }
 
+// Fen cavern passages: the same active physical-cell dispatcher as walking.
+for(const [i,d] of g.run('FEN_CAVE_DOORS.map(d=>({...d}))').entries()) {
+  const setup=`transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},facing:'down'});`;
+  check(`Fen cave passage ${i}: ${d.source} -> ${d.target}`,setup+'fenCaverns.tryDoor();',{group:'fen-caverns'});
+}
+
 // Third Lock reciprocal local doors; gate bits are fixture state, not altered terrain.
 for(const [i,d] of g.run('THIRD_LOCK_DOORS.map(d=>({...d}))').entries()) {
   const setup=`struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},facing:'down'});`;

@@ -3913,8 +3913,47 @@ function drawBattleBladderLeech(cx,cy) {
   ctx.fillStyle='#302728';ctx.fillRect(cx-48,cy-24,17,16);ctx.fillStyle='#c8bba0';ctx.fillRect(cx-46,cy-21,3,9);ctx.fillRect(cx-38,cy-21,3,9);
 }
 
+// Valmere beach fauna: cobble-armoured crab and a dark-mantled freshwater gull.
+function drawBattleShinglebackCrab(cx, cy) {
+  const step=Math.round(Math.sin(tick*.12)*2),claw=Math.round(Math.sin(tick*.07)*3);
+  ctx.fillStyle='rgba(0,0,0,0.3)';ctx.beginPath();ctx.ellipse(cx,cy+2,46,7,0,0,Math.PI*2);ctx.fill();
+  for(const side of [-1,1]) {
+    ctx.fillStyle='#596366';
+    for(let i=0;i<3;i++){ctx.fillRect(cx+side*(29+i*4)-4,cy-17+i*8+(i%2?step:-step),12,5);}
+    ctx.fillStyle='#818f91';ctx.fillRect(cx+side*40-8,cy-27+claw,16,13);
+    ctx.fillStyle='#bcc4ba';ctx.fillRect(cx+side*44-5,cy-33+claw,5,12);
+    ctx.fillRect(cx+side*36-3,cy-33+claw,5,12);
+  }
+  ctx.fillStyle='#454f54';ctx.fillRect(cx-31,cy-42,62,32);
+  ctx.fillStyle='#8b979a';ctx.fillRect(cx-27,cy-45,54,29);
+  for(const [x,y,w] of [[-23,-39,14],[-5,-41,17],[15,-37,9],[-19,-25,13],[1,-28,19]]) {
+    ctx.fillStyle='#606e76';ctx.fillRect(cx+x,cy+y,w,7);
+    ctx.fillStyle='#c4c8ba';ctx.fillRect(cx+x+2,cy+y,w-4,2);
+  }
+  ctx.fillStyle='#424d51';ctx.fillRect(cx-12,cy-51,4,12);ctx.fillRect(cx+8,cy-51,4,12);
+  ctx.fillStyle='#d7a15a';ctx.fillRect(cx-14,cy-53,7,5);ctx.fillRect(cx+7,cy-53,7,5);
+  ctx.fillStyle='#222c30';ctx.fillRect(cx-12,cy-52,3,3);ctx.fillRect(cx+8,cy-52,3,3);
+}
+function drawBattleStormGull(cx,cy) {
+  const bob=Math.round(Math.sin(tick*.09)*2),wing=Math.round(Math.sin(tick*.16)*4);
+  ctx.fillStyle='rgba(0,0,0,0.28)';ctx.beginPath();ctx.ellipse(cx,cy+3,28,6,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#b77e51';ctx.fillRect(cx-11,cy-23,4,23);ctx.fillRect(cx+7,cy-23,4,23);
+  ctx.fillRect(cx-17,cy-3,15,4);ctx.fillRect(cx+3,cy-3,15,4);
+  ctx.fillStyle='#434f61';ctx.fillRect(cx-37,cy-58+bob-wing,20,28);ctx.fillRect(cx+17,cy-58+bob-wing,20,28);
+  ctx.fillStyle='#202d3d';ctx.fillRect(cx-37,cy-34+bob-wing,20,7);ctx.fillRect(cx+17,cy-34+bob-wing,20,7);
+  ctx.fillStyle='#bcc4bf';ctx.fillRect(cx-20,cy-63+bob,40,39);
+  ctx.fillStyle='#e2e3d3';ctx.fillRect(cx-15,cy-53+bob,30,30);ctx.fillRect(cx-7,cy-85+bob,20,30);
+  ctx.fillStyle='#727e86';ctx.fillRect(cx-6,cy-86+bob,18,7);ctx.fillRect(cx-9,cy-25+bob,18,6);
+  ctx.fillStyle='#d4ad58';ctx.fillRect(cx+11,cy-76+bob,20,6);ctx.fillRect(cx+26,cy-70+bob,5,4);
+  ctx.fillStyle='#955842';ctx.fillRect(cx+23,cy-73+bob,5,3);
+  ctx.fillStyle='#24313e';ctx.fillRect(cx+4,cy-78+bob,4,4);
+  ctx.fillStyle='#e8c77b';ctx.fillRect(cx+5,cy-78+bob,2,2);
+}
+
 (function buildEnemySpriteDispatch() {
   const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
+  def(drawBattleShinglebackCrab,60,['enemy_shingleback_crab']);
+  def(drawBattleStormGull,60,['enemy_storm_gull']);
   def(drawBattlePeatback,60,['enemy_peatback']);
   def(drawBattleDrownlight,0,['enemy_drownlight']);
   def(drawBattleBlackbriarHound,58,['enemy_blackbriar_hound']);
@@ -4175,6 +4214,8 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 // conservative visual bounds cover the existing idle animation of the eight
 // state-only templates; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
+  [drawBattleShinglebackCrab,Object.freeze([-50,-54,50,10])],
+  [drawBattleStormGull,Object.freeze([-38,-89,38,10])],
   [drawBattlePeatback,Object.freeze([-67,-80,65,11])],
   [drawBattleDrownlight,Object.freeze([-40,-55,40,65])],
   [drawBattleBlackbriarHound,Object.freeze([-56,-67,44,22])],

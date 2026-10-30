@@ -110,6 +110,7 @@ const LARGE_BUZZY_BEETLE_TEMPLATE = {
 // automatically picked up by validateEnemies() and the balance report — no
 // second list to maintain anywhere.
 const ENEMY_TEMPLATE_POOLS = [
+  { id:'pool_rocky_beach', label:'Valmere — Rocky Beach', templates:ROCKY_BEACH_ENEMY_TEMPLATES },
   { id: 'pool_overworld_core',    label: 'Overworld — post-start (MAP2)',      templates: ENEMY_TEMPLATES },
   { id: 'pool_overworld_early',   label: 'Overworld — starting area (MAP)',    templates: EARLY_ENEMY_TEMPLATES },
   { id: 'pool_dungeon_f1',        label: 'Dungeon — floor 1',                  templates: DUNGEON_ENEMY_TEMPLATES },

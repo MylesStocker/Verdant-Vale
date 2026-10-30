@@ -220,6 +220,7 @@ const STRANDED_BOAT = 130;
 const TOWN_ROOFS = 131;
 const TOWN_FORT = 132;
 const TOWN_HARBOUR = 133;
+const ROCKY_BEACH = 134; // wave-washed freshwater shingle; terrain-specific encounters
 
 // true = player can walk on it
 const WALKABLE = [
@@ -357,6 +358,7 @@ const WALKABLE = [
   /* 131 TOWN_ROOFS            */ false,
   /* 132 TOWN_FORT             */ false,
   /* 133 TOWN_HARBOUR          */ false,
+  /* 134 ROCKY_BEACH           */ true,
 ];
 
 // ─── Expose to global scope ───────────────────────────────────────────────────
@@ -491,6 +493,7 @@ window.STRANDED_BOAT          = STRANDED_BOAT;
 window.TOWN_ROOFS = TOWN_ROOFS;
 window.TOWN_FORT = TOWN_FORT;
 window.TOWN_HARBOUR = TOWN_HARBOUR;
+window.ROCKY_BEACH = ROCKY_BEACH;
 window.WALKABLE          = WALKABLE;
 
 // ─── Debug-only: tile ID → constant name lookup ───────────────────────────────
@@ -526,7 +529,7 @@ const DEBUG_TILE_NAMES = [
   'TOWN_BUILDING',  'TOWN_ENTRANCE',  'TOWN_EXIT',  'TOWN_FLOOR',  'TOWN_MARKET',  'TRAPPER_HUT',
   'TREE',  'WATER',  'WEST_ENTRANCE',  'WEST_EXIT',  'WORLD_HOLLOW',
   'HORROR_TENDON_DOWN',  'HORROR_TENDON_UP',  'HORROR_SECRET_ENTRANCE',  'HORROR_SECRET_EXIT',
-  'GRAVEL_BAR',  'DRIFTWOOD',  'STRANDED_BOAT', 'TOWN_ROOFS', 'TOWN_FORT', 'TOWN_HARBOUR',
+  'GRAVEL_BAR',  'DRIFTWOOD',  'STRANDED_BOAT', 'TOWN_ROOFS', 'TOWN_FORT', 'TOWN_HARBOUR', 'ROCKY_BEACH',
 ];
 
 let _debugTileNameById = null; // lazily built on first call, after every script has loaded
@@ -567,6 +570,12 @@ window.debugTileName = debugTileName;
 // isEncounterEligibleTile() (including context-sensitive dungeon-floor rules),
 // and regional geographic consistency.
 const TILE_PROPERTIES = {
+  [ROCKY_BEACH]: {
+    id: ROCKY_BEACH, name: 'Rocky Beach', debugName: 'ROCKY_BEACH',
+    walkable: WALKABLE[ROCKY_BEACH], category: 'terrain', tags: ['natural', 'shore'],
+    encounterEligible: true, encounterProfileId: 'rocky_beach',
+    notes: 'Freshwater cobbles and shingle. Existing location permissions still gate encounters.',
+  },
   [TOWN_ROOFS]: {id:TOWN_ROOFS,name:'Town Roofs',debugName:'TOWN_ROOFS',walkable:WALKABLE[TOWN_ROOFS],category:'building',tags:['building','settlement'],encounterEligible:false,isDecorative:true},
   [TOWN_FORT]: {id:TOWN_FORT,name:'Town Fort',debugName:'TOWN_FORT',walkable:WALKABLE[TOWN_FORT],category:'building',tags:['building','settlement'],encounterEligible:false,isDecorative:true},
   [TOWN_HARBOUR]: {id:TOWN_HARBOUR,name:'Town Harbour',debugName:'TOWN_HARBOUR',walkable:WALKABLE[TOWN_HARBOUR],category:'building',tags:['building','settlement'],encounterEligible:false,isDecorative:true},

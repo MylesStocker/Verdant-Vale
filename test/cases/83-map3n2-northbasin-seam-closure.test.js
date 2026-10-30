@@ -239,11 +239,11 @@ module.exports = {
     // ── C1. Zero NEEDS_REMAP; every directed edge classified; no CONFLICT/OUTSIDE ─
     const edges = audit.seamReadiness.edges;
     assert.equal(edges.filter((e) => e.verdict === 'NEEDS_REMAP').length, 0, 'NEEDS_REMAP === 0 (no unconverted point crossings remain)');
-    assert.equal(edges.length, 4232, '4232 directed regional edges total (1058 placed maps x 4 sides)');
+    assert.equal(edges.length, 4236, '4236 directed regional edges total (1059 placed maps x 4 sides)');
     const CLASSES = new Set(['ALIGNS', 'INTENTIONAL_DISCRETE', 'BLOCKED', 'BORDER']);
     assert.ok(edges.every((e) => CLASSES.has(e.verdict)), 'every directed edge is ALIGNS / INTENTIONAL_DISCRETE / BLOCKED / BORDER');
     assert.equal(edges.filter((e) => e.verdict === 'CONFLICT' || e.verdict === 'OUTSIDE_REGION').length, 0, 'no CONFLICT / OUTSIDE_REGION');
-    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2494, "ALIGNS": 1568, "BORDER": 166}, 'closure totals include the blocked ferry adjacency, route turns, and eastern threshold borders');
+    assert.deepEqual(audit.seamReadiness.totals, {"INTENTIONAL_DISCRETE": 4, "BLOCKED": 2502, "ALIGNS": 1568, "BORDER": 162}, 'closure totals include the blocked ferry adjacency, route turns, and eastern threshold borders');
 
     // ── C2. Every ALIGNS edge is represented by the fail-closed eligible-seam authority ─
     const alignsEdges = edges.filter((e) => e.verdict === 'ALIGNS').map((e) => e.mapId + '|' + e.dir);
@@ -260,9 +260,9 @@ module.exports = {
     //        maps. Seven scenery-only placements are deliberately unreachable, so
     //        the traversable-graph assertions run over the accessible nodes only.
     const allNodes = J("JSON.stringify(REGIONAL_LAYOUT.overworld.placements.map(function(p){return p.mapId;}))");
-    assert.equal(allNodes.length, 1058, '1058 placed regional maps (488 accessible + 570 scenery-only)');
+    assert.equal(allNodes.length, 1059, '1059 placed regional maps (489 accessible + 570 scenery-only)');
     const nodes = allNodes.filter((n) => g.run('mapPlayerAccessible(' + JSON.stringify(n) + ')'));
-    assert.equal(nodes.length, 488, '488 accessible regional maps include the existing routes and expanded mainland');
+    assert.equal(nodes.length, 489, '489 accessible regional maps include the existing routes and expanded mainland');
     assert.ok(allNodes.includes('DRENWICK_WEST_OUTFALL_MAP') && !nodes.includes('DRENWICK_WEST_OUTFALL_MAP'),
       'the West Outfall is placed but not player-accessible');
     assert.equal(g.run("continuousSeamEntries().filter(function(e){return e.from==='DRENWICK_WEST_OUTFALL_MAP'||e.to==='DRENWICK_WEST_OUTFALL_MAP';}).length"), 0,
@@ -283,20 +283,21 @@ module.exports = {
       for (const [a, b] of pairs) if (a in parent && b in parent) parent[find(a)] = find(b);
       return find(target);
     };
-    // continuous-only: 3 components — the legacy home and ferry-only eastern route are
+    // continuous-only: 4 components (including the cave-only ruined rise) — the legacy home and ferry-only eastern route are
     // isolated, while everything else is joined. The
     // Northern branch now joins the southern/basin cluster through the secret Roddon Way
     // <-> Northern Road WORLD_HOLLOW seam (MAP_N1.east <-> RODDON_WAY_MAP.west, row 1).
-    assert.equal(components(nodes, contPairs), 3, 'home, early mainland and ferry-side mainland remain separate in the continuous graph');
+    assert.equal(components(nodes, contPairs), 4, 'home, early mainland, ferry-side mainland and cave-only ruin remain separate in the continuous graph');
     assert.equal(compClass(nodes, contPairs, 'MAP_N1'), compClass(nodes, contPairs, 'MAP3'), 'the Northern Road branch (MAP_N1) now shares a continuous component with the southern cluster (MAP3) via the secret Roddon Way seam');
     assert.equal([...new Set(nodes.map((n) => compClass(nodes, contPairs, n)))].filter((c) => nodes.filter((n) => compClass(nodes, contPairs, n) === c).length === 1 && compClass(nodes, contPairs, 'MAP') === c).length, 1, 'Verdant Vale (MAP) is an isolated continuous component');
     // full graph = structural seams + intentional-discrete home crossings + the
     // MQ5 ferry connection → one component.
-    assert.equal(components(nodes, contPairs.concat(homePairs)), 2, 'home crossings retain the ferry separation; suite 317 also proves the sealed southern bank at tile level');
-    assert.equal(components(nodes, contPairs.concat(homePairs, ferryPairs)), 1, 'the coarse graph remains connected with the scripted ferry; physical cuts are verified in suite 317');
+    assert.equal(components(nodes, contPairs.concat(homePairs)), 3, 'home crossings retain the ferry separation; suite 317 also proves the sealed southern bank at tile level');
+    assert.equal(components(nodes, contPairs.concat(homePairs, ferryPairs)), 2, 'the cave-only ruin remains separate until its discrete cave connection is included');
+    assert.equal(components(nodes, contPairs.concat(homePairs, ferryPairs, [['FEN_RUIN_RISE_MAP','MAINLAND_CN3RN14_MAP']])),1,'adding the two-ended cave route connects the rise; suite 348 walks every actual passage');
     assert.equal(compClass(nodes, contPairs.concat(homePairs, ferryPairs), 'MAP_N1'), compClass(nodes, contPairs.concat(homePairs, ferryPairs), 'MAP3'), 'with the home crossings, the Northern branch and the southern cluster are in the same component');
     // the reconnection is via the legacy home presentation (INTENTIONAL_DISCRETE), NOT a blocked wall
     assert.equal(V['MAP_N1|south'], 'INTENTIONAL_DISCRETE', 'the Northern branch reconnects through the Verdant Vale legacy boundary (MAP_N1.south is INTENTIONAL_DISCRETE, not BLOCKED)');
-    assert.equal(components(nodes, contPairs.concat(homePairs.filter(([a, b]) => !(a === 'MAP_N1' || b === 'MAP_N1')), ferryPairs)), 1, 'removing the MAP<->MAP_N1 home crossing no longer re-isolates the Northern branch — the secret Roddon Way seam is a second reconnection');
+    assert.equal(components(nodes, contPairs.concat(homePairs.filter(([a, b]) => !(a === 'MAP_N1' || b === 'MAP_N1')), ferryPairs)), 2, 'removing the MAP<->MAP_N1 home crossing no longer re-isolates the Northern branch — the secret Roddon Way seam is a second reconnection');
   },
 };

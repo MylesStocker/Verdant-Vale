@@ -693,7 +693,10 @@ function validateEncounterGeography() {
       if (ctx.mapId !== p.mapId)
         addValidationError(GROUP, 'chunk centre of "' + p.mapId + '" resolves to the wrong physical map "' + ctx.mapId + '"');
       const entry = mapEntryForId(p.mapId);
-      const canonical = entry && entry.encounterPool !== undefined ? entry.encounterPool : null;
+      const tile = entry?.map?.[Math.floor(ROWS/2)]?.[Math.floor(COLS/2)];
+      const profile = TILE_PROPERTIES[tile]?.encounterProfileId;
+      const canonical = profile !== undefined && entry.allowRandomEncounters === true && entry.encounterPool != null
+        ? _ENCOUNTER_PROFILES[profile] : (entry && entry.encounterPool !== undefined ? entry.encounterPool : null);
       if (ctx.encounterPool !== canonical)
         addValidationError(GROUP, 'resolved encounter pool for "' + p.mapId + '" is not the canonical MAP_CATALOG reference');
     }
@@ -893,6 +896,10 @@ function validateTiles() {
       if (!props.name) addValidationError(PROPS_GROUP, lbl + ': missing name');
       if (typeof props.walkable !== 'boolean') addValidationError(PROPS_GROUP, lbl + ': walkable is not a boolean');
       if (typeof props.encounterEligible !== 'boolean') addValidationError(PROPS_GROUP, lbl + ': encounterEligible is not a boolean (use false explicitly, not undefined/omitted, for "never eligible")');
+      if (props.encounterProfileId !== undefined &&
+          (!props.encounterEligible || !Object.hasOwn(_ENCOUNTER_PROFILES, props.encounterProfileId) ||
+           !Array.isArray(_ENCOUNTER_PROFILES[props.encounterProfileId])))
+        addValidationError(PROPS_GROUP, lbl + ': invalid terrain encounter profile');
       if (!props.category) addValidationWarning(PROPS_GROUP, lbl + ': missing/vague category');
       if (!props.debugName && !props.deprecated) addValidationWarning(PROPS_GROUP, lbl + ': no debugName -- debug inspector/validation messages for this tile will be harder to identify');
       // Note: isSecret tiles deliberately render as some OTHER tile's art
@@ -1952,6 +1959,17 @@ function validateEnemies() {
       else
         reachablePoolIds.add(id);
     }
+    // Terrain refinements are live only on encounter-enabled, accessible maps.
+    for (const m of Object.values(MAP_METADATA)) {
+      if (!m.allowRandomEncounters || m.playerAccessible === false || !m.encounterPool) continue;
+      for (const row of m.map || []) for (const tile of row) {
+        const profile = TILE_PROPERTIES[tile]?.encounterProfileId;
+        if (profile === undefined) continue;
+        const id = poolIdByArray.get(_ENCOUNTER_PROFILES[profile]);
+        if (!id) addValidationError(GROUP, 'Terrain profile "' + profile + '" has no registered enemy pool');
+        else reachablePoolIds.add(id);
+      }
+    }
     for (const id of registeredPoolIds)
       if (!reachablePoolIds.has(id))
         addValidationWarning(GROUP, 'enemy pool "' + id + '" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)');
@@ -2015,6 +2033,11 @@ function validateDialogue() {
         checkPages(feature.repeatPages, 'feature.' + (feature.id || '?') + '.repeatPages');
       }
     }
+  }
+
+  if (typeof WILDERNESS_DREAMS !== 'undefined') for (const dream of WILDERNESS_DREAMS) {
+    checkPages(dream.pages, 'wilderness dream.' + dream.id);
+    checkPages([[dream.aftermath],[dream.esla]], 'wilderness aftermath.' + dream.id);
   }
 
   if (typeof ITEM_REGISTRY !== 'undefined') {
@@ -2396,6 +2419,25 @@ function validateEnemyCapabilityData() {
   catch(error){addValidationError('Enemy capabilities',error.message);return 0;}
 }
 
+// Optional scripted walking sites retain map/placement and saved-flag authorities.
+function validateWildernessDreams() {
+  const ids=new Set(),sites=new Set(),flags=new Set();
+  for(const d of WILDERNESS_DREAMS) {
+    const entry=mapEntryForId(d.mapId),site=d.mapId+':'+d.col+','+d.row;
+    if(ids.has(d.id)||sites.has(site)||flags.has(d.flag))addValidationError('Wilderness dreams','Duplicate dream identity, site or flag: '+d.id);
+    ids.add(d.id);sites.add(site);flags.add(d.flag);
+    if(!entry||!isRegionalMapId(d.mapId)||!mapPlayerAccessible(d.mapId)||
+       !Number.isInteger(d.col)||!Number.isInteger(d.row)||d.col<1||d.col>=COLS-1||d.row<1||d.row>=ROWS-1||
+       !isTileWalkable(entry.map[d.row]?.[d.col])||isTransitionTile(entry.map[d.row]?.[d.col]))
+      addValidationError('Wilderness dreams','Invalid walking site: '+d.id);
+    const binding=QUEST_FLAG_BINDINGS.find(b=>b.key===d.flag);
+    if(!binding||binding.kind!=='window'||binding.default!==false)addValidationError('Wilderness dreams','Missing boolean seen binding: '+d.id);
+    if(!Array.isArray(d.pages)||!d.pages.length||d.pages.some(p=>!Array.isArray(p)||!p.length||p.some(l=>typeof l!=='string'||!l.trim()))||
+       typeof d.aftermath!=='string'||typeof d.esla!=='string')addValidationError('Wilderness dreams','Invalid dream dialogue: '+d.id);
+  }
+  return WILDERNESS_DREAMS.length;
+}
+
 function validateGameData() {
   VALIDATION_ERRORS   = [];
   VALIDATION_WARNINGS = [];
@@ -2420,6 +2462,7 @@ function validateGameData() {
     'Dialogue':        validateDialogue(),
     'Save/Flags':      validateSaveFlags(),
     'Map Features':    validateMapFeatures(),
+    'Wilderness dreams': validateWildernessDreams(),
     'Pickups':         validatePickups(),
     'Chests':          validateChests(),
   };
@@ -2445,6 +2488,7 @@ function validateGameData() {
     'Dialogue':         'dialogue/text entries checked',
     'Save/Flags':       'save flags checked',
     'Map Features':     'map features checked',
+    'Wilderness dreams': 'optional walking dream sites checked',
     'Pickups':          'pickup ids checked',
     'Chests':           'chest ids checked',
   };

@@ -240,6 +240,8 @@ const DEBUG_WARP_DESTINATIONS_AUTHORED = [
     state: { inSluice: true, sluiceFloor: 3 }, defaultCol: 7, defaultRow: 4, facing: 'down' },
   { id: 'special:sluice_secret', label: 'East Sluice — Sealed Room', category: 'special', mapId: 'SLUICE_SECRET_MAP',
     state: { inSluice: true, sluiceFloor: 4 }, defaultCol: 7, defaultRow: 3, facing: 'down' },
+  ...FEN_CAVE_MAPS.map(m=>({id:'fen-cave:'+m.id,label:m.name,category:'dungeon',mapId:m.id,
+    state:{},defaultCol:m.id==='FEN_CAVE_DESCENT_MAP'?7:4,defaultRow:11,facing:'up'})),
   // DREAM_MAP is DISABLED: its location state is neutral (representable), but its
   // canonical lifecycle depends on a transient OUTSIDE LOCATION_STATE_BINDINGS —
   // enterDream() stashes _dreamReturn and the ONLY exit, exitDream() (a dialogue

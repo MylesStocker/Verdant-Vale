@@ -4,10 +4,10 @@
 // regional wilderness. The pool a random encounter draws from is owned by the
 // PHYSICAL CHUNK beneath the player's STANDING POINT in world space — never a
 // logical content key, the shared 'overworld' key, visible/neighbour chunks, the
-// 3×3 NPC simulation set, or an assumed single active screen. This is architectural
-// preparation for a continuous/chunked overworld; it is BEHAVIOUR-NEUTRAL with the
-// current maps (the standing point is always on the active chunk, so the resolved
-// pool equals the active map's own MAP_CATALOG pool).
+// 3×3 NPC simulation set, or an assumed single active screen.
+// The standing tile may refine the
+// chunk pool through its registered terrain encounter profile. Location permission
+// and the physical-chunk handoff remain authoritative.
 //
 // The pure resolver composes existing authorities (REGIONAL_LAYOUT placement +
 // mapIdForChunk + MAP_CATALOG via mapEntryForId); it adds no encounter table of its
@@ -18,9 +18,9 @@
 
 // ── Pure geographic resolver (world PIXELS) ──────────────────────────────────
 // Region world-pixel point -> { regionId, mapId, encounterPool } or null. The pool
-// comes straight from the canonical MAP_CATALOG entry (may be null where a placed
+// comes from the canonical MAP_CATALOG entry, refined by terrain (may be null where a placed
 // map legitimately has no pool — never invented). Missing chunk / documented void /
-// sparse hole / off-region / negative / non-finite point -> null (fail closed).
+// sparse hole / off-region / non-finite point -> null (fail closed).
 function geographicEncounterContext(regionId, worldPxX, worldPxY) {
   if (typeof REGIONAL_LAYOUT === 'undefined' || !REGIONAL_LAYOUT[regionId]) return null;
   if (!Number.isFinite(worldPxX) || !Number.isFinite(worldPxY)) return null;
@@ -30,7 +30,18 @@ function geographicEncounterContext(regionId, worldPxX, worldPxY) {
   if (!mapId) return null;                                   // void / sparse hole / unplaced
   const entry = (typeof mapEntryForId === 'function') ? mapEntryForId(mapId) : null;
   if (!entry) return null;
-  return { regionId, mapId, encounterPool: (entry.encounterPool !== undefined ? entry.encounterPool : null) };
+  let encounterPool = entry.encounterPool !== undefined ? entry.encounterPool : null;
+  // A terrain profile refines the physical chunk's pool; it cannot create
+  // encounter permission. Read ONE canonical cell, including at negative rows.
+  const col = Math.floor((worldPxX - chunkX * CW) / TILE);
+  const row = Math.floor((worldPxY - chunkY * CH) / TILE);
+  const tile = entry.map?.[row]?.[col];
+  const profile = TILE_PROPERTIES[tile]?.encounterProfileId;
+  if (profile !== undefined && entry.allowRandomEncounters === true && encounterPool !== null) {
+    if (!Object.hasOwn(_ENCOUNTER_PROFILES, profile) || !Array.isArray(_ENCOUNTER_PROFILES[profile])) return null;
+    encounterPool = _ENCOUNTER_PROFILES[profile];
+  }
+  return { regionId, mapId, encounterPool };
 }
 
 // ── Runtime selectors (read-only; used by the roll site + currentEncounterPool) ─
@@ -64,7 +75,7 @@ function regionalStandingEncounterContext() {
 //   { regional:false, ok:true,  pool:null }              -> nonregional/unplaced (legacy)
 //   { regional:true,  ok:true,  pool:<catalog pool|null> }-> placed, resolved, AGREES with activeMap
 //   { regional:true,  ok:false, pool:null }              -> placed but unresolved/void/inconsistent
-// `pool` is the raw canonical MAP_CATALOG pool (may be null) — callers apply their own
+// `pool` is the canonical geographic/terrain pool (may be null) — callers apply their own
 // empty/fallback contract. Read-only; consumes no randomness.
 function regionalEncounterResolution() {
   const activeMapId = (typeof mapIdForRef === 'function') ? mapIdForRef(activeMap) : null;

@@ -1,8 +1,8 @@
 {
-  "date": "2026-10-29",
+  "date": "2026-10-30",
   "totals": {
-    "chunks": 1058,
-    "explorable": 488,
+    "chunks": 1059,
+    "explorable": 489,
     "scenery": 570,
     "encounterEnabled": 469,
     "x": [
@@ -442,7 +442,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "great_fen",
-      "sha256": "ecbb4f1b6637cc819767a5540bd965995950c4ec508e63030496d59a6576fce5"
+      "sha256": "43408dadff793218ece061eb0cee8e318de1b10446074c5dad16c961423e625c"
     },
     {
       "mapId": "MAINLAND_CN2RN14_MAP",
@@ -1443,7 +1443,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "0a89337661ef03afb334642562dedd5a498e11d7635087e6f18a69b4d53860f7"
+      "sha256": "dc55b809667fcd17e5ee9168da1c43a132897daf7065bc851b23af7a5e97d673"
     },
     {
       "mapId": "MAINLAND_C11RN12_MAP",
@@ -2730,7 +2730,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "05dbbbae41cc523ae406deed505d0399839cc35895d9567925f797922fd0360a"
+      "sha256": "d022b07c6145ae8fd741d05d2e7a52b316fc7e05644c43e203836f808b01e2a7"
     },
     {
       "mapId": "MAINLAND_C11RN9_MAP",
@@ -3621,7 +3621,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "d4f7669efe90f81f4e0436f51dc553b38cc04beb16138a21b9923de7c06bb133"
+      "sha256": "96a23b792a3fa7228a7286e7518622ee4c7b3e84b644bf389fbda4ead995e87b"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C14RN7_MAP",
@@ -3632,7 +3632,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "1281bcdb2a8a001e3200327243afe267b6f883096cc8efccfce738748d2c8d28"
+      "sha256": "aae9098cbab584f58804035a2eeb4105a11f6d75920477f00ec3811e19ffb6b9"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C15RN7_MAP",
@@ -4006,7 +4006,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "great_fen",
-      "sha256": "f83c8b99a29f703c0c4494e7d42686c63e4f89f570d4cf21391477bc9930eb49"
+      "sha256": "b526d29aeead02224af6f8e137bd046bd8373eb5bd0606669a1ada746dc63a7c"
     },
     {
       "mapId": "MAINLAND_C11RN6_MAP",
@@ -4050,7 +4050,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "fa269fd3b6e26c040e43ec11e52c8ad8a878f435ba2081cd059fbbe42612e2f7"
+      "sha256": "7b78fc9c42344093334e40b065247908106260f25cb6c4d0143f024292ce7c22"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C15RN6_MAP",
@@ -4061,7 +4061,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "b5ff85e61f64f652c6a4f397812ab05a86d9cd31195b7d723748bfdaa3421a1b"
+      "sha256": "37b0f3c8e9121b83a2be32e76f2335c123c9197496b4b46a93dfd020658e9b94"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C16RN6_MAP",
@@ -4468,7 +4468,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "0bbf946ad5c9b0e17b5f115055f0045a9bc39d41b037dea7517f06cd0e264f53"
+      "sha256": "0f65716a0a11b9367cbf4e6f44060b53e6c524d41affea906fe434016cac6de3"
     },
     {
       "mapId": "VALMERE_EXPANSE_ENVELOPE_C16RN5_MAP",
@@ -4886,7 +4886,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "af5d463af0534c07bd23208ec4330a49f94be8ee0d2876b6fe53d88efba0029b"
+      "sha256": "710a1b3f535b0a1cd275ecbfbab79fd3bbeebb2014a3a39d65db884e3331e293"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C15RN4_MAP",
@@ -5304,7 +5304,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "c4075d461dec44de05e615e13cd10356f2fbed4b5567bc34a5c317ee0cfb1dd4"
+      "sha256": "268705db2b625a8f8e8b6c3ee5b91f9fca9b429e3f84b3b17f766b152831dae9"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C15RN3_MAP",
@@ -5711,7 +5711,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "8da492a40cc6c9d99276880de9662e365723f9fcf423b231abd3d4544fdf2dac"
+      "sha256": "7f57b8b59cee0792c669453a6bb7e5efdb48cfee82eea97c2b3d66cd1f399d2e"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C15RN2_MAP",
@@ -5854,7 +5854,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "f29615076687f169b9832097e2bc66a591007f24200aec6f16566ae843dd6682"
+      "sha256": "c72d2dd8422101cd123c2248832f82086c6df19c4397cd6a34367d3feda78ba6"
     },
     {
       "mapId": "MAINLAND_C28RN2_MAP",
@@ -5865,7 +5865,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "426e4cc06a0246bbcb88a61bd4a8a64d1d534e7088c49ddb2fbc533ee6bcd08d"
+      "sha256": "90b4ec616679cbe694726c6e84410589470b45ec32d4daad6cbb7bf75a5d1107"
     },
     {
       "mapId": "MAINLAND_C29RN2_MAP",
@@ -5876,7 +5876,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "99454e5550c026c471bd33542c51bb101529aa8411540be3194723a9c00e4b79"
+      "sha256": "e60bb44d3822bdbe2cc2708071f6954ffd2e864c2ee6f2139762f6488d872131"
     },
     {
       "mapId": "MAINLAND_C30RN2_MAP",
@@ -6011,6 +6011,17 @@
       "sha256": "c550291aaa601c398ddf875ba699119d6b4455ceb7d45470b9344609f35bceda"
     },
     {
+      "mapId": "FEN_RUIN_RISE_MAP",
+      "x": 3,
+      "y": -1,
+      "region": "Great Fen",
+      "name": "Great Fen — The Broken Rise",
+      "accessible": true,
+      "encounters": false,
+      "profile": "great_fen",
+      "sha256": "867e4f6482df83cffe499818cebe917bf2af2ff82b2b45912dcdb6aa37d38af0"
+    },
+    {
       "mapId": "GREAT_FEN_ENVELOPE_C4RN1_MAP",
       "x": 4,
       "y": -1,
@@ -6129,7 +6140,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "e77062a5e673532d7f3cd71473972ab2f6304ab579f7316fd5664979d9fd2e15"
+      "sha256": "38806006c0095b55d2748c514d5caf89fc202dfe603d877222147be4ddd5c610"
     },
     {
       "mapId": "EASTERN_FENS_ENVELOPE_C15RN1_MAP",
@@ -6195,7 +6206,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "d0f81a4be955d7b55024ebebd6401ee019fc326c905e60244c91a6686a245933"
+      "sha256": "db9d4277ee4868b0e1a8aba84fb80f1bef28880fed2eaeedf8f0ad52eddc4280"
     },
     {
       "mapId": "MAINLAND_C21RN1_MAP",
@@ -6217,7 +6228,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "e1672e12ab1c8b2a5a12c5864962ba7fb8ee85c3c7c0a0b85c51d0d3f2139255"
+      "sha256": "35b37812a3ac9a07211f3f6f732a9a53c72b2ce13ac2c08d197b516d5fce85d3"
     },
     {
       "mapId": "MAINLAND_C23RN1_MAP",
@@ -6228,7 +6239,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "ba240aff9df73f65087368161a0a20223f8acab793c282173aceeb0d7285581e"
+      "sha256": "b5dd10a32615ae2d297122330f0ef533893b68820292a292458fd93f0a44a3d3"
     },
     {
       "mapId": "MAINLAND_C24RN1_MAP",
@@ -6239,7 +6250,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "78ebc88018c9cebb7da71105c7b42cae5832f89cdb0dbebd3b54d1bb2016107d"
+      "sha256": "689f961fe518c9eb0f385436dab906bfada8c6ce0c342e90caa7b287012066a1"
     },
     {
       "mapId": "MAINLAND_C25RN1_MAP",
@@ -6294,7 +6305,7 @@
       "accessible": false,
       "encounters": false,
       "profile": "far",
-      "sha256": "1265691f9aebf178e432e4f4eac55237c93fec5ce3a9de4fd7a153dcbfb9177e"
+      "sha256": "0b7388a21365311248c50183ab1a71d90bdeb6ab64d1486f5c15d1913e8782e3"
     },
     {
       "mapId": "MAINLAND_CN8R0_MAP",
@@ -6613,7 +6624,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "d13f9f772109189566c2ca888540295721a4f4de4d794e97f279f85a3481bf2a"
+      "sha256": "3eb9c89ef2760e1af86a8aecbd96a00f15829b54dd2f0f24776ea954179b2649"
     },
     {
       "mapId": "MAINLAND_C21R0_MAP",
@@ -6624,7 +6635,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "71b040807b9bd33f7889c1d151005d7b25d85e99a71ba74a02f50c61c42f99cb"
+      "sha256": "bb6d53918b86ff1c86c7f64bf5c2c1a00347f10a3a82c22bf051c943fd7ae93d"
     },
     {
       "mapId": "MAINLAND_C22R0_MAP",
@@ -6635,7 +6646,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "3211a0890955d752623d7a4a8b1cd383919a08345d017a0b153201120ca0d71e"
+      "sha256": "62dd6ce70dee8e434b6eb6baa6f94f0c83e47a723b01b9165963ae4ef3f98223"
     },
     {
       "mapId": "MAINLAND_C23R0_MAP",
@@ -7515,7 +7526,7 @@
       "accessible": true,
       "encounters": true,
       "profile": "eastern_fens_mornay_hard",
-      "sha256": "91e11ee04601574b387fc3e844d38c1211b8511d6baf74e941108a05e547a74b"
+      "sha256": "8ba2b52a2f1f51fc62afae1b88ae646f4605e583b265e411616461106e1e73eb"
     },
     {
       "mapId": "MAINLAND_C25R2_MAP",

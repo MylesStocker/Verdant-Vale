@@ -21,7 +21,7 @@ function ctx() {
 const CW = 512, CH = 480; // COLS*TILE, ROWS*TILE
 
 module.exports = {
-  name: 'geographic encounters: physical-chunk pool authority, seam handoff, fail-closed, behaviour-neutral',
+  name: 'geographic encounters: physical-chunk pool authority, seam handoff, fail-closed, terrain refinements',
   run() {
     const g = ctx();
     const J = (e) => JSON.parse(g.run(e));
@@ -33,16 +33,17 @@ module.exports = {
         for (var i=0;i<pl.length;i++){ var p=pl[i];
           var wx=p.chunkX*${CW}+${CW/2}, wy=p.chunkY*${CH}+${CH/2};
           var c=geographicEncounterContext(region, wx, wy);
-          var canon=mapEntryForId(p.mapId).encounterPool; if(canon===undefined)canon=null;
+          var entry=mapEntryForId(p.mapId),canon=entry.encounterPool; if(canon===undefined)canon=null;
+          if(entry.allowRandomEncounters&&canon!==null&&entry.map[7][8]===ROCKY_BEACH)canon=ROCKY_BEACH_ENEMY_TEMPLATES;
           out.push({mapId:p.mapId, ok: !!c, right: c&&c.mapId===p.mapId, poolMatch: c&&c.encounterPool===canon});
         }
       }
       return JSON.stringify(out);
     })()`);
-    assert.equal(all.length, 1058, 'all 1058 placed regional maps considered');
+    assert.equal(all.length, 1059, 'all 1059 placed regional maps considered');
     for (const r of all) {
       assert.ok(r.ok && r.right, `${r.mapId} resolves from its own chunk centre to itself`);
-      assert.ok(r.poolMatch, `${r.mapId} resolves to the exact canonical MAP_CATALOG encounter pool (incl. empty/absent)`);
+      assert.ok(r.poolMatch, `${r.mapId} resolves to the canonical chunk/standing-terrain pool (incl. empty/absent)`);
     }
 
     // ── 2. Pixel-unit contract + no runtime mutation ────────────────────────

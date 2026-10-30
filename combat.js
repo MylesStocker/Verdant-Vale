@@ -5054,6 +5054,14 @@ function applyKillRewards(enemy, msgs) {
 // Templates that share one display identity (e.g. the three Marsh Wisp variant
 // ids) share a single entry via the alias block below the literal.
 const ENEMY_OBSERVATIONS = {
+  enemy_shingleback_crab: [
+    {lines:['Its shell is the grey of wet cobbles. It feeds between Valmere’s stones.',
+      'When the claws fold inward, it is bracing. That shell blunts a careless strike.']},
+  ],
+  enemy_storm_gull: [
+    {lines:['A broad-winged lake scavenger, bold enough to snatch from an open pack.',
+      'It steals gold on its first clean hit, then tries to fly off. Bring it down quickly.']},
+  ],
   enemy_peat_bed_maw: [
     {lines:['A mouth rooted beneath the peat. The whole clearing is its jaw.',
       'Defeat it within six full rounds. If it survives the sixth, Swallow takes the whole party.']},

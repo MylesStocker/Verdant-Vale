@@ -49,6 +49,8 @@ const EXPECTED_KEYS = [
   'corvin_favor_started', 'corvin_favor_done', 'corvin_favor_offer_day', 'corvin_favor_offered',
   'upper_reach_seen',
   'basin_chamber_seen', 'sunken_gallery_seen', 'basin_chamber_exits', 'basin_chamber_dream_done',
+  'wilderness_dream_shingle_seen', 'wilderness_dream_fen_seen', 'wilderness_dream_river_seen',
+  'wilderness_dream_woods_seen', 'wilderness_dream_pasture_seen',
   'sunken_gallery_recess_opened', 'sunken_gallery_drowned_freed', 'sunken_gallery_drowned_slain', 'sunken_gallery_gift_taken',
   'gallery_clue_silt', 'gallery_clue_satchel', 'gallery_clue_survey', 'gallery_clue_gauge',
   'gallery_clue_reliefs', 'gallery_clue_visitor', 'gallery_clue_notebook', 'gallery_clue_stair',
@@ -110,7 +112,7 @@ module.exports = {
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='lexical';})"), true, 'has lexical bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.some(function(b){return b.kind==='window';})"), true, 'has window bindings');
     assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='lexical';}).length"), 90, '90 lexical bindings');
-    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 23, '23 window bindings');
+    assert.equal(G("window.QUEST_FLAG_BINDINGS.filter(function(b){return b.kind==='window';}).length"), 28, '28 window bindings (five optional wilderness dreams)');
 
     // ── B. Complete flag round-trip (all bindings, generically) ─────────────
     // Assign each binding a value distinct from its default, save, reset every

@@ -3595,24 +3595,25 @@ runs on a map with an *empty* item list, not just one with items on it.
 For the placed regional wilderness, the random-encounter pool is owned by the
 **physical chunk beneath the player's STANDING POINT in world space** — never a
 logical content key, the shared `'overworld'` key, visible/neighbour chunks, the
-3×3 NPC simulation set, camera position, or an assumed single active screen. This
-is architectural preparation for a continuous/chunked overworld; it is
-**behaviour-neutral** with the current maps (the standing point is always on the
-active chunk, so the resolved pool equals the active map's own `MAP_CATALOG` pool —
-and `MAP_METADATA === MAP_CATALOG`, so the reference is identical).
+3×3 NPC simulation set, camera position, or an assumed single active screen.
+The physical chunk supplies the default pool. An eligible terrain definition may
+refine it through `TILE_PROPERTIES[tile].encounterProfileId`, resolved against
+`_ENCOUNTER_PROFILES`. Rocky Beach (134) is the first such terrain: its two
+enemies occur only on its standing tiles. This adds no mutable state or cache.
 
 - **Pure resolver, PIXEL units.** `geographicEncounterContext(regionId, worldPxX,
   worldPxY)` → `{ regionId, mapId, encounterPool } | null`. It composes existing
   authorities only (`REGIONAL_LAYOUT` placement + `mapIdForChunk` + `MAP_CATALOG`
   via `mapEntryForId`) — it adds no encounter table, consumes NO randomness, and
-  mutates NO runtime state. The pool comes straight from the canonical catalog entry
-  (may be `null` where a placed map legitimately has none — never invented). Missing
+  mutates NO runtime state. One canonical grid-cell lookup selects any terrain
+  refinement, only if the map permits encounters and has a non-null pool. An invalid
+  profile fails closed. Otherwise the catalog pool is preserved (including `null`). Missing
   chunk / documented void / sparse hole / off-region / non-finite point →
   `null` (**fail closed**). Physical map id is the authority; `OUTDOOR_CONTENT_KEYS`
   / `npc.map` / `'overworld'` are never consulted, so `MAP`, `MAP5`, and
   `RODDON_WAY_MAP` resolve independently despite sharing the `'overworld'` key.
 - **Runtime selectors + ONE shared authority.** `playerStandingWorldPoint()` converts
-  the player's centre (`player.x/player.y`) to region world pixels — the STANDING
+  the canonical regional position to world pixels — the STANDING
   POINT, not footprint corners/camera/visible chunks. `regionalStandingEncounterContext()`
   is the resolver at that point. **Both are independent of Continuous View — the debug
   toggle must not determine encounter geography.** `regionalEncounterResolution()` is
@@ -3622,8 +3623,8 @@ and `MAP_METADATA === MAP_CATALOG`, so the reference is identical).
   inconsistent. **Fail-closed protection lives in BOTH the eligibility gate and the
   pool selection, not only at the roll gate.** `currentEncounterPool()` (combat.js, the
   stable caller-facing API) keeps its special dungeon/sluice/vault branches exactly;
-  for a placed regional map it returns the geographic pool when `ok` (behaviour-neutral,
-  with the legacy `null → ENEMY_TEMPLATES` fallback), and the established empty no-pool
+  for a placed regional map it returns the geographic/terrain pool when `ok`
+  (with the legacy `null → ENEMY_TEMPLATES` fallback), and the established empty no-pool
   result **`EMPTY_ENCOUNTER_POOL`** (a frozen empty array) when NOT `ok` — **never the
   stale `activeMap` pool**. Nonregional/unplaced maps keep the unchanged legacy
   `MAP_METADATA` fall-through. `startCombat()` treats an empty pool as "no encounter":
@@ -3657,10 +3658,12 @@ and `MAP_METADATA === MAP_CATALOG`, so the reference is identical).
   GRASS/REEDS/BASIN_MUD/EXPOSED_STONE terrain is eligible; no new pool, rate,
   cadence, or enemy definition is involved.
 - **Validation.** `validateEncounterGeography()` (pure) checks every placed map
-  resolves from its own chunk centre back to itself with the exact canonical pool
-  reference, and that void/sparse/unknown-region/invalid coordinates fail closed.
-- **Limitation.** Encounter geography is per **physical chunk**; there are no
-  sub-chunk encounter zones and no cross-seam pool blending yet.
+  resolves from its own chunk centre back to itself with the canonical geographic/terrain
+  pool reference, and that void/sparse/unknown-region/invalid coordinates fail closed.
+  Tile profile registration and live terrain pool reachability are validated too.
+- **Scope.** Terrain refinements change only pool selection inside placed regional
+  wilderness. The location and standing-tile gates, cadence, rare overrides, scripted
+  fights, towns and dungeon dispatch are unchanged. No cross-seam pool blending.
 
 ## Interactions: `handleInteract()`, `SIMPLE_NPCS`, `MAP_FEATURES`
 
@@ -5184,3 +5187,56 @@ remains boss-locked; the older solo speed-contest Run is unchanged. Inventory pe
 `warnFenZolomArrival` reads canonical geography before movement and before an
 encounter roll, using a session-only per-visit latch; it adds no seam callbacks.
 Henric's upstairs stock uses `MORNAY_SHOPS.hidden_supplies`, not a new shop system.
+
+
+### Optional wilderness dreams
+
+`wilderness-dreams.js` owns five frozen walking-site definitions and a session-only
+active guard. `movement.js` supplies the canonical regional position before a
+movement step; an actual tile crossing into a registered site interrupts before
+encounter RNG and step effects. A map-keyed lookup bounds the work independently
+of world size. Loading, warping or standing on a site does not trigger it.
+
+The existing `enterDream()` / `exitDream()` gateway owns the white-map visit and
+exact waking location/facing restore. The optional aftermath uses speaker pages:
+neutral narration, then Esla's green words if she remains available. No rewards,
+healing, quest progression or day advancement occurs.
+
+Five `wilderness_dream_*_seen` booleans use `QUEST_FLAG_BINDINGS` and the existing
+window-native normalization pattern. They are the only new saved state; missing
+fields in version-5 saves default false. Save/load is blocked during the vision,
+so its session-only return location cannot be lost. The guard is cleared before
+the ordinary aftermath dialogue. No save version change or map/grid change.
+See `Art/qa/wilderness-dreams/README.md` for sites, writing and verification.
+
+
+### Broken Rise / Fen Caverns
+
+`content/maps/fen-caverns-maps.js` authors the regional definition at (3,-1),
+three discrete cave grids and eight reciprocal point-passage records.
+`data.js` extends the existing fragment assembler/catalogue; the regional grid
+has no standalone alias. The cave interiors have neutral location state,
+ordinary saves and explicit content keys/titles. `fen-caverns.js` indexes the
+passages by active physical map, derives outdoor cells from canonical regional
+position, and calls `transitionToLocation()` for the same atomic placement used
+elsewhere. `movement.js` invokes it with existing local-door dispatch.
+
+No new location mode, persistent field or seam is introduced. Arrivals are off
+reciprocal trigger tiles and face away. Cave maps have authored neutral debug
+warp destinations. Transition audit exercises every passage; suite 348 walks
+through all chambers in both directions and movement modes, saves/loads each
+map, verifies all floor components, old geometry/cameras and progression cuts.
+
+
+### Expanded-wilderness discoveries
+
+`content/wilderness-discoveries.js` defines one-time examine pickups and three
+scripted-inspect caches; authored `itemSetId` bindings resolve through
+`_REGIONAL_ITEM_SETS` before pickup registry construction. `wilderness-discoveries.js`
+owns active-physical-map choices and checks canonical regional coordinates.
+The `wilderness_discovery` formation in `scriptedPartyEncounters` uses existing
+solo/party combat and authenticated outcomes. Victory grants the selected cache
+once and marks its stable pickup ID; escape/defeat do neither. Two peaceful
+alternatives grant smaller supplies and consume the same pickup. The repeatable
+bootmark clue uses MAP_FEATURES; the hidden dead-end uses WORLD_HOLLOW terrain.
+No new persistent authority or save fields; version 5 collected IDs suffice.

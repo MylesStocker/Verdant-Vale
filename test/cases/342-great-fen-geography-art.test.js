@@ -5,7 +5,8 @@ const T=require('./341-great-fen-tactics.test');
 const J=(g,s)=>JSON.parse(g.run('JSON.stringify('+s+')'));
 module.exports={name:'Great Fen: physical encounter routing, unchanged road/Zolom, six animated sprites and safe rendering',run(){
  const g=createContext(),defs=J(g,'_REGIONAL_CHUNK_DEFINITIONS');
- const fen=defs.filter(d=>d.encounterProfileId==='great_fen');assert.equal(fen.length,174);
+ const fen=defs.filter(d=>d.encounterProfileId==='great_fen'&&d.allowRandomEncounters);assert.equal(fen.length,174);
+ assert.deepEqual(defs.filter(d=>d.encounterProfileId==='great_fen'&&!d.allowRandomEncounters).map(d=>d.mapId),['FEN_RUIN_RISE_MAP'],'only the new secluded ruin suppresses this profile');
  assert.ok(fen.every(d=>d.region==='Great Fen'&&d.allowRandomEncounters&&d.playerAccessible!==false));
  for(const legacy of [false,true]){
   g.run('dialogue.open=false;forceLegacyRegionalView='+legacy);

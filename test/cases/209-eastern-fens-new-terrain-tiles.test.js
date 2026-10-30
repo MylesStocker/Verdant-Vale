@@ -74,6 +74,8 @@ module.exports = {
         });
         if(typeof MAP_CATALOG!=='undefined')Object.keys(MAP_CATALOG).forEach(function(mid){
           if(REGIONAL_CHUNK_CATALOG[mid])return;
+          // Reviewed reuse: washed-in timber in the northern fen cave only.
+          if(mid==='FEN_CAVE_ROOTS_MAP' && ${id}===129)return;
           var grid=MAP_CATALOG[mid]&&(MAP_CATALOG[mid].map||MAP_CATALOG[mid].grid);
           if(Array.isArray(grid)&&grid.some(function(r){return Array.isArray(r)&&r.includes(${id});}))hits.push(mid);
         });

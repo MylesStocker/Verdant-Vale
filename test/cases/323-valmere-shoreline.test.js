@@ -1,4 +1,5 @@
 'use strict';
+const {beforeRockyChunks,beforeRockyTiles}=require('../fixtures/rocky-beach-history');
 const assert = require('assert/strict');
 const {createContext} = require('../harness');
 const {sha} = require('../regional-atlas');
@@ -13,7 +14,7 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
   const changed = new Set(before.changedIds);
   // The later Reedbank village changes exactly one tile and its descriptive
   // note. Prove those values, then compare detached copies to the old fixture.
-  const historical=historicalChunks(beforeAccessChunks(d.chunks));
+  const historical=historicalChunks(beforeAccessChunks(beforeRockyChunks(d.chunks)));
   // The subsequent Great Fen encounter pass changes only the profile on these
   // existing accessible wilderness chunks. Prove the new assignment before
   // restoring its historical value on the detached snapshot for this audit.
@@ -32,7 +33,7 @@ module.exports = {name: 'Valmere shoreline: scenery-only coves preserve Mornay, 
   assert.equal(sha(historical.map(({map, ...rest}) => rest)), before.metadataSha256,
     'identities, coordinates, capabilities, encounters and regional bounds are unchanged');
   assert.equal(sha(beforeAccessEdges(d.edges)), before.edgesSha256, 'no new crossings or altered transitions');
-  assert.equal(sha(historicalTiles(d.tiles)), before.tilesSha256, 'all pre-marker tile/collision definitions remain unchanged');
+  assert.equal(sha(historicalTiles(beforeRockyTiles(d.tiles))), before.tilesSha256, 'all pre-marker tile/collision definitions remain unchanged');
 
   g.run("storyCheckpointLab.apply('mq5_assignment_ready'); dialogue.open=false");
   const placement = () => g.run('JSON.stringify({position:regionalWorldPosition(),map:mapIdForRef(activeMap),x:player.x,y:player.y})');

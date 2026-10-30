@@ -1,5 +1,14 @@
 # Enemy capability audit
 
+Rocky Beach adds two ordinary identities: **83 total, 65 ordinary (64 static)**.
+Both reuse existing mechanics in singleton and party combat. Suite 191 prepares
+143,712 static combinations. Dedicated animated sprites use no gameplay RNG.
+
+| Template | Mechanics | Category |
+| --- | --- | --- |
+| `enemy_shingleback_crab` | Basic attack, Brace (30%), observation, rewards | ordinary |
+| `enemy_storm_gull` | Basic attack, steal-and-flee, observation, rewards | ordinary |
+
 Great Fen adds six ordinary identities (81 total; 63 ordinary including generated
 23). Five use `fen_tactics`: closed role metadata, battle-local telegraphs,
 observation exposure, combined Tech, binding and healing reactions. Peatback uses

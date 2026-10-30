@@ -4,6 +4,7 @@ const {createContext}=require('../harness');
 const ROOT=path.join(__dirname,'../..'),checks=[],test=(name,run)=>checks.push({name,run});
 const J=(g,s)=>JSON.parse(g.run('JSON.stringify('+s+')'));
 const ORDINARY=[
+  'enemy_shingleback_crab','enemy_storm_gull',
   'enemy_peatback','enemy_drownlight','enemy_blackbriar_hound','enemy_bell_throated_toad','enemy_reedbinder','enemy_bladder_leech',
   'enemy_marsh_wisp','enemy_briar_hound','enemy_marsh_wisp_early','enemy_briar_hound_early',
   'enemy_crypt_fiend','enemy_fen_shade','enemy_crypt_revenant','enemy_wall_tendril',
@@ -81,7 +82,7 @@ test('the audit covers every registered production template exactly once and rec
   const text=fs.readFileSync(path.join(ROOT,'ENEMY_CAPABILITY_AUDIT.md'),'utf8');
   const rows=[...text.matchAll(/^\| `(enemy_[^`]+)`[^\n]*\| (ordinary|special capability pending|scripted-only lifecycle|non-production\/debug fixture) \|/gm)]
     .map(match=>({id:match[1],category:match[2]}));
-  assert.equal(rows.length,81);assert.equal(new Set(rows.map(r=>r.id)).size,81);
+  assert.equal(rows.length,83);assert.equal(new Set(rows.map(r=>r.id)).size,83);
   const g=fresh();assert.deepEqual(rows.map(r=>r.id).sort(),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY).sort()'));
   assert.deepEqual(rows.filter(r=>r.category==='ordinary').map(r=>r.id).sort(),ORDINARY.slice().sort());
   assert.deepEqual(rows.filter(r=>r.category==='special capability pending').map(r=>r.id).sort(),Object.keys(SPECIAL).sort());
@@ -89,8 +90,8 @@ test('the audit covers every registered production template exactly once and rec
   assert.equal(rows.filter(r=>r.category==='non-production/debug fixture').length,0);
 });
 
-test('all 81 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),81);
+test('all 83 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),83);
   assert.deepEqual(J(g,'Object.keys(ENEMY_CAPABILITY_REGISTRY)'),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)'));
   for(const id of J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)')){
     const metadata=g.run('ENEMY_CAPABILITY_REGISTRY['+JSON.stringify(id)+']');frozen(metadata);

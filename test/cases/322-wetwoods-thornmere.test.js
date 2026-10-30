@@ -1,4 +1,5 @@
 'use strict';
+const {beforeRockyChunks,beforeRockyTiles}=require('../fixtures/rocky-beach-history');
 const assert=require('assert/strict');
 const {createContext}=require('../harness');
 const {sha}=require('../regional-atlas');
@@ -7,9 +8,9 @@ const {beforeAccessChunks,beforeAccessEdges}=require('../fixtures/valmere-access
 const before=require('../fixtures/wetwoods-invariants.json');
 const {historicalChunks,historicalTiles}=require('../fixtures/mornay-marker-history');
 module.exports={name:'Wetwoods and Thornmere: scenery-only expansion, unchanged ordinary gameplay/cameras, closed starting routes and coherent freshwater basin',run(){
- const g=createContext(),d=J(g,'({chunks:_REGIONAL_CHUNK_DEFINITIONS,edges:EDGE_TRANSITIONS,tiles:TILE_PROPERTIES})'),byId=new Map(d.chunks.map(c=>[c.mapId,c])),net=graph({...d,chunks:historicalChunks(beforeAccessChunks(d.chunks)),edges:beforeAccessEdges(d.edges)});
- assert.equal(sha(historicalTiles(d.tiles)),before.tileRegistrySha256,'preserve every pre-marker tile definition');
- const historicalById=new Map(historicalChunks(beforeAccessChunks(d.chunks)).map(c=>[c.mapId,c]));
+ const g=createContext(),d=J(g,'({chunks:_REGIONAL_CHUNK_DEFINITIONS,edges:EDGE_TRANSITIONS,tiles:TILE_PROPERTIES})'),byId=new Map(d.chunks.map(c=>[c.mapId,c])),net=graph({...d,chunks:historicalChunks(beforeAccessChunks(beforeRockyChunks(d.chunks))),edges:beforeAccessEdges(d.edges)});
+ assert.equal(sha(historicalTiles(beforeRockyTiles(d.tiles))),before.tileRegistrySha256,'preserve every pre-marker tile definition');
+ const historicalById=new Map(historicalChunks(beforeAccessChunks(beforeRockyChunks(d.chunks))).map(c=>[c.mapId,c]));
  // Keep the historical fixture strict while accounting for the later, single
  // approved Reedbank entrance. Normalize a detached copy only, never live grids.
  const reedbank=JSON.parse(JSON.stringify(byId.get('MAINLAND_C22R3_MAP').map));
@@ -23,7 +24,7 @@ module.exports={name:'Wetwoods and Thornmere: scenery-only expansion, unchanged 
   assert.deepEqual({count:cells.length,sha256:sha(cells.sort())},before.reachability[label],label+' has exactly the old reachable tiles, not just the same destination maps');
  }
  g.run("storyCheckpointLab.apply('mq5_assignment_ready'); dialogue.open=false");
- const original=new Set(before.originalChunkIds),added=d.chunks.filter(c=>!original.has(c.mapId));assert.ok(added.length>50,'substantial wooded scenery');
+ const original=new Set(before.originalChunkIds),added=beforeRockyChunks(d.chunks).filter(c=>!original.has(c.mapId));assert.ok(added.length>50,'substantial wooded scenery');
  const state=g.run('JSON.stringify({world:regionalWorldPosition(),map:mapIdForRef(activeMap),x:player.x,y:player.y})');
  for(const c of added){
   assert.equal(c.playerAccessible,false);assert.equal(c.allowRandomEncounters,false);assert.equal(c.allowSave,false);

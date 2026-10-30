@@ -1,0 +1,44 @@
+[
+  {
+    "mapId": "MAINLAND_C24R2_MAP",
+    "col": 4,
+    "row": 4,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C24R2_MAP",
+    "col": 5,
+    "row": 4,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C24R2_MAP",
+    "col": 4,
+    "row": 5,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C24R2_MAP",
+    "col": 5,
+    "row": 5,
+    "fromTile": 3,
+    "toTile": 0
+  },
+  {
+    "mapId": "MAINLAND_C24R2_MAP",
+    "col": 5,
+    "row": 6,
+    "fromTile": 3,
+    "toTile": 73
+  },
+  {
+    "mapId": "MAINLAND_C24R2_MAP",
+    "col": 5,
+    "row": 7,
+    "fromTile": 3,
+    "toTile": 73
+  }
+]

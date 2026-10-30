@@ -1,0 +1,23 @@
+[
+  "Art/qa/fen-caverns/README.md",
+  "Art/qa/fen-caverns/browser-results.json",
+  "Art/qa/fen-caverns/grid-deltas.json",
+  "Art/qa/fen-caverns/north-opening-1x.png",
+  "Art/qa/fen-caverns/north-opening-2x.png",
+  "Art/qa/fen-caverns/production-overview.png",
+  "Art/qa/fen-caverns/relocation-files.json",
+  "Art/qa/regional-geography/inventory.json",
+  "Art/qa/regional-geography/overview.svg",
+  "Art/qa/regional-geography/production-overview.png",
+  "OVERWORLD_ATLAS.md",
+  "PROJECT_STATUS.md",
+  "REGIONAL_GEOGRAPHY_PLAN.md",
+  "content/maps/fen-caverns-maps.js",
+  "content/maps/mainland-maps.js",
+  "test/cases/348-fen-caverns.test.js",
+  "test/cases/83-map3n2-northbasin-seam-closure.test.js",
+  "test/fen-caverns-browser.js",
+  "test/fixtures/regional-grid-fingerprints.js",
+  "test/regional-atlas.js",
+  "test/transition-audit-output.json"
+]

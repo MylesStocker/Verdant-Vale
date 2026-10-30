@@ -142,6 +142,12 @@ const QUEST_FLAG_BINDINGS = [
   win('sunken_gallery_seen', false),
   win('basin_chamber_exits', 0),          // window-native COUNTER (not a boolean)
   win('basin_chamber_dream_done', false),
+  // Optional wilderness visions: missing fields in existing v5 saves default false.
+  win('wilderness_dream_shingle_seen', false),
+  win('wilderness_dream_fen_seen', false),
+  win('wilderness_dream_river_seen', false),
+  win('wilderness_dream_woods_seen', false),
+  win('wilderness_dream_pasture_seen', false),
   win('sunken_gallery_recess_opened', false),
   win('sunken_gallery_drowned_freed', false),
   win('sunken_gallery_drowned_slain', false),
@@ -404,6 +410,7 @@ window.canSaveHere = canSaveHere;
 // ─── All mutable game state that must survive a save/load cycle should be
 // ─── included here. Add new persistent variables to both saveGame() and loadGame().
 function saveGame() {
+  if (typeof wildernessDreams!=='undefined' && wildernessDreams.isActive()) return false;
   if (riverWrestling.isActive()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof fineNeedlework!=='undefined' && fineNeedlework.isActive()) return false;
@@ -598,6 +605,7 @@ function resolveLoadLocation(data) {
 }
 
 function loadGame() {
+  if (typeof wildernessDreams!=='undefined' && wildernessDreams.isActive()) return false;
   if (fishing.active) return false;
   if (debugPromisePreview.isOpen()) return false;
   if (riverWrestling.isActive()) return false;
