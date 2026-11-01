@@ -38,7 +38,21 @@ const STORY_CHECKPOINTS = Object.freeze([STORY_CHECKPOINT_ASSIGNMENT,Object.free
     travellers_rise_ambush_payment:0,travellers_rise_camp_stage:0}),
   location:Object.freeze({mapId:'EASTERN_FENS_TRAVELLERS_RISE_MAP',x:10.5*TILE,y:7.5*TILE,
     facing:'left',state:Object.freeze({})}),
-}),Object.freeze({id:'sera_liora_battle_ready',label:'Sera/Liora — Breakfast Battle',scene:'breakfast_battle'})]);
+}),Object.freeze({id:'sera_liora_battle_ready',label:'Sera/Liora — Breakfast Battle',scene:'breakfast_battle'}),Object.freeze({
+  ...STORY_CHECKPOINT_ASSIGNMENT,
+  id:'mq5_mornay_report_ready',label:'MQ5 — Mornay Report Ready',party:'mq5',
+  flags:Object.freeze({...STORY_CHECKPOINT_ASSIGNMENT.flags,MainQuest:5,
+    travellers_rise_ambush_complete:true,travellers_rise_ambush_paid:false,
+    travellers_rise_ambush_payment:0,travellers_rise_camp_stage:2}),
+  location:Object.freeze({mapId:'MORNAY_OFFICE_MAP',x:4.5*TILE,y:4.5*TILE,
+    facing:'up',state:Object.freeze({inTown:true,currentTownId:'mornay',townBuilding:'mornay_office'})}),
+}),Object.freeze({
+  ...STORY_CHECKPOINT_ASSIGNMENT,id:'mq7_lantern_house_ready',label:'MQ7 — Missing Practitioner Ready',party:'mq5',
+  flags:Object.freeze({...STORY_CHECKPOINT_ASSIGNMENT.flags,MainQuest:6,mq5_report_delivered:true,
+    travellers_rise_ambush_complete:true,travellers_rise_ambush_paid:false,travellers_rise_ambush_payment:0,travellers_rise_camp_stage:2,
+    greybank_stage:4,greybank_wins:15,greybank_vision_seen:true}),
+  location:Object.freeze({mapId:'MORNAY_OFFICE_MAP',x:4.5*TILE,y:4.5*TILE,facing:'up',state:Object.freeze({inTown:true,currentTownId:'mornay',townBuilding:'mornay_office'})}),
+})]);
 
 const storyCheckpointLab=(()=>{
   let menuState=null,lastError='';
@@ -97,17 +111,23 @@ const storyCheckpointLab=(()=>{
     for(const [key,flag] of Object.entries(value.flags)){
       if(!QUEST_FLAG_SCHEMA.includes(key))fail('unknown quest flag '+key);flags[key]=flag;
     }
-    if(!['solo','mq5'].includes(value.party)||flags.MainQuest!==(value.party==='mq5'?5:4)||flags.sera_liora_opening_complete!==true||flags.gallery_receiver_defeated!==true||
+    if(!['solo','mq5'].includes(value.party)||flags.MainQuest!==(value.id==='mq7_lantern_house_ready'?6:value.party==='mq5'?5:4)||flags.sera_liora_opening_complete!==true||flags.gallery_receiver_defeated!==true||
         flags.reservoir_report_filed!==true||flags.gallery_body_found!==true)fail('contradictory MQ5 checkpoint');
     if(value.party==='mq5'){
       // Validate the same authored profile used by real MQ5 recruitment before reset.
       persistentParty.eslaRecruitmentProfile(11);
       if(flags.travellers_rise_ambush_complete!==true||flags.travellers_rise_ambush_paid!==false||
-          flags.travellers_rise_ambush_payment!==0||flags.travellers_rise_camp_stage!==0||
-          value.location.mapId!=='EASTERN_FENS_TRAVELLERS_RISE_MAP'||
-          value.location.x!==10.5*TILE||value.location.y!==7.5*TILE)fail('contradictory post-ambush checkpoint');
+          flags.travellers_rise_ambush_payment!==0||!!flags.mq5_report_delivered!==(value.id==='mq7_lantern_house_ready')||
+          !(['mq5_mornay_report_ready','mq7_lantern_house_ready'].includes(value.id)
+            ? flags.travellers_rise_camp_stage===2&&value.location.mapId==='MORNAY_OFFICE_MAP'&&
+              value.location.x===4.5*TILE&&value.location.y===4.5*TILE&&
+              value.location.state.inTown===true&&value.location.state.currentTownId==='mornay'&&value.location.state.townBuilding==='mornay_office'
+            : flags.travellers_rise_camp_stage===0&&value.location.mapId==='EASTERN_FENS_TRAVELLERS_RISE_MAP'&&
+              value.location.x===10.5*TILE&&value.location.y===7.5*TILE))fail('contradictory post-ambush checkpoint');
     }else if(flags.travellers_rise_ambush_complete||flags.travellers_rise_camp_stage!==0)fail('premature ambush progress');
-    if(travellersRiseAmbushInvariantErrors(flags).length)fail('invalid ambush state');
+    if(travellersRiseAmbushInvariantErrors({...flags,party:{order:value.party==='mq5'?['lely','esla']:['lely']}}).length)fail('invalid ambush state');
+    if(greybank.invariantErrors(flags).length||lanternHouse.invariantErrors(flags).length)fail('invalid later assignment state');
+    if(value.id==='mq7_lantern_house_ready'&&flags.greybank_stage!==4)fail('incomplete MQ6 checkpoint');
     if(lighthouseQuestInvariantErrors(flags).length)fail('invalid lighthouse route');
     const location=closed(value.location,['mapId','x','y','facing','state']);
     if(mapIdForRef(mapRefForId(location.mapId))!==location.mapId)fail('unknown map');
@@ -118,6 +138,10 @@ const storyCheckpointLab=(()=>{
   const resetTransient=()=>{
     if(typeof waterTravelController!=='undefined')waterTravelController.reset();
     if(typeof mq5AssignmentCutscene!=='undefined')mq5AssignmentCutscene.reset();
+    greybank.reset();
+    lanternHouse.reset();
+    meatPaw.reset();
+    mornayReport.reset();
     fineNeedlework.reset();
     if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.resetTransient();
     if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.resetTransient();
@@ -152,7 +176,8 @@ const storyCheckpointLab=(()=>{
     stats.level=plan.value.level;stats.xp=plan.value.xp;stats.maxHp=plan.growth.maxHp;stats.hp=plan.growth.maxHp;
     stats.atk=plan.growth.atk;stats.def=plan.growth.def;stats.spd=plan.growth.spd;stats.gold=plan.value.gold;
     for(const slot of gearSlots)stats[slot]=createItem(plan.equipment[slot]);
-    stats.items=plan.inventory.map(createItem);statusEffects=[];slitherSpd=1;
+    stats.items=plan.inventory.map(createItem);
+    if(plan.value.party==='mq5')stats.items.push(...Array.from({length:10},()=>createItem('Dart Seed')));statusEffects=[];slitherSpd=1;
     if(plan.value.party==='mq5')persistentParty.joinEsla({level:11});
     day=plan.value.day;travellerPresent=false;dilemma_voss=null;
     applyCollectedPickupIds([]);applyOpenedChestIds([]);HOUSE_DATA.player_house.chest.gold=0;

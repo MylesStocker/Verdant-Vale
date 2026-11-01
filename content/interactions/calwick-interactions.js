@@ -494,6 +494,12 @@ function supervisorDialogueBody() {
     // office. MainQuest itself is the ferry authorization; no inventory token
     // or parallel progression flag is created.
     mq5AssignmentCutscene.open();
+  } else if (mq5_report_delivered) {
+    setSpeakerDialoguePages([{speakerId:'supervisor',lines:[
+      '“The request was received, then. No people and no date. I see.”',
+      '“Thank you for giving your account. That part, at least, is on their record.”',
+    ]}]);
+    dialogue.callbacks = null;
   } else if (fort_quest_stage === 6 && reservoir_quest_started && reservoir_report_filed && MainQuest >= 5) {
     const reminder = [
       ['“The sealed report goes to the regional office in the eastern city of Mornay.”',

@@ -16,7 +16,12 @@ let sluice_pay_ticket_ready = false;
 let sluice_reward_given     = false;
 let MainQuest            = 0;    // tracks player progress through the main story
 
-// MQ5 completion owns both the assignment and canonical recruitment. Validate
+let meat_paw_stage=0; // 0 unaccepted, 1 hunting, 2 cleared, 3 paid
+let lantern_stage=0, lantern_wins=0, lantern_cache_taken=false;
+let greybank_stage=0, greybank_wins=0, greybank_vision_seen=false, greybank_cache_taken=false;
+let mq5_report_delivered = false; // MQ5 resolution; does not start the next mission.
+
+// MQ5 assignment owns canonical recruitment. Validate
 // the same prerequisites again at dialogue completion; party initialization
 // validates all candidate state before mutation. Only then advance MainQuest.
 function mq5AssignmentReady() {
@@ -27,7 +32,9 @@ function mq5AssignmentReady() {
 
 function completeMq5Assignment() {
   if (!mq5AssignmentReady()) return false;
+  const seeds=Array.from({length:10},()=>createItem('Dart Seed'));
   persistentParty.joinEsla({level: 11});
+  stats.items.push(...seeds);
   MainQuest = 5;
   syncQuestFlagsToWindow();
   refreshJobBoard();
@@ -86,6 +93,8 @@ let fort_quest_stage         = 0;     // tracks fight/spare/report progress
 // Optional Mornay jobs: 0 new, 1 accepted, 2 cleared, 3 paid.
 let mornay_peat_hunt = 0;
 let mornay_ridge_hunt = 0;
+let mornay_calendar_claims = 0; // Five stable one-time calendar opportunity bits.
+let mornay_dayoff_music = 0; // 0 new, 1 Enna, 2 Hessa, 3 return to Vessa, 4 paid
 let mornay_hoist_errand = 0; // 0 new, 1–4 packet deliveries, 5 paid
 let two_jorans_stage = 0; // 0 new, 1 evidence, 2 cleared, 3 key given, 4 supplies claimed
 let two_jorans_evidence = 0; // Beck, Perris, Varda, Alden: bits 1/2/4/8
@@ -520,6 +529,8 @@ function completeLighthouseQuest(giver) {
 function syncQuestFlagsToWindow() {
   window.mornay_peat_hunt = mornay_peat_hunt;
   window.mornay_ridge_hunt = mornay_ridge_hunt;
+  window.mornay_calendar_claims = mornay_calendar_claims;
+  window.mornay_dayoff_music = mornay_dayoff_music;
   window.mornay_hoist_errand = mornay_hoist_errand;
   window.two_jorans_stage = two_jorans_stage;
   window.two_jorans_evidence = two_jorans_evidence;
@@ -801,7 +812,8 @@ function getSpecialItemInspectAction(name) {
 // Pure: reads quest flags / stats.items / day but mutates nothing.
 function getActiveQuestNotes() {
   const notes = [];
-  notes.push(...mornayJobs.notes());
+  notes.push(...mornayJobs.notes(),...mornayCalendar.notes());
+  if(meatPaw.note())notes.push(meatPaw.note());
   const joransNote=twoJorans.note();if(joransNote)notes.push(joransNote);
   const needleworkNote=[null,'carrying','deliveredAwaitingReunion','withdrawnAwaitingReunion','completed','withdrawn'][fine_needlework_stage];
   if(needleworkNote)notes.push({title:FINE_NEEDLEWORK_CONTENT.title,body:FINE_NEEDLEWORK_CONTENT.journal[needleworkNote]});
@@ -858,9 +870,11 @@ function getActiveQuestNotes() {
     });
   } else if (MainQuest >= 5) {
     notes.push({
-      title: 'Sealed Report',
-      body: persistentParty.getAbsence('esla')
-        ? 'Esla is waiting at the Ledger House in Mornay. Rejoin her when your business is finished; the sealed report still needs qualified attention.'
+      title: 'Request for Assistance',
+      body: mq5_report_delivered
+        ? 'Completed: Magistrate Voss received the Supervisor’s signed request and heard your account. Dreyfuss’s death and Garrick’s disappearance are acknowledged; no assistance or timetable was promised.'
+        : persistentParty.getAbsence('esla')
+        ? 'Deliver the Supervisor’s request to Magistrate Voss at Mornay’s Regional IJC Office. You can report alone; Esla is waiting at the Ledger House.'
         : travellers_rise_ambush_complete
         ? (travellers_rise_camp_stage===0 ? "Inspect the ambushers’ campsite at Travellers’ Rise."
           : travellers_rise_camp_stage===1 ? "Settle in with Esla at the Travellers’ Rise campfire."
@@ -875,6 +889,8 @@ function getActiveQuestNotes() {
     notes.push({ title: 'Missing Person', body: "Find Schilling and bring him back." });
   }
   // The Struck Entry
+  const lanternNote=lanternHouse.note();if(lanternNote)notes.push(lanternNote);
+  const millNote=greybank.note();if(millNote)notes.push(millNote);
   const struckNote=struckEntry.note();if(struckNote)notes.push(struckNote);
   if (corvin_favor_started && !corvin_favor_done && !struckNote) {
     notes.push({ title: 'The Struck Entry', body: "Find Corvin's father's original towpath tally. Check the old canal-office papers in Drenwick’s district office (northeast shelf), or ask on Mornay’s lower western waterfront where the papers went." });

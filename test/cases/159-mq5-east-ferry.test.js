@@ -131,7 +131,7 @@ module.exports = {
     assert.equal(g.run('mq5AssignmentCutscene.getView().phase'), 'dialogue');g.run('finishDialogue();');
     assert.equal(g.run('MainQuest'), 5);
     assert.equal(g.run('dialogue.callbacks'), null);
-    const mq5Objective = questNotes(g).find((note) => note.title === 'Sealed Report');
+    const mq5Objective = questNotes(g).find((note) => note.title === 'Request for Assistance');
     assert.ok(mq5Objective);
     assert.match(mq5Objective.body, /ferry at the broken causeway/i);
 

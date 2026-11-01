@@ -64,10 +64,11 @@ test('the paginated Supervisor scene recruits only after its final confirmed pag
  assert.ok(pages>=10);assert.equal(g.run('MainQuest'),5);
  assert.equal(g.run('persistentParty.getMember("esla").level'),11);
 });
-test('canonical completion recruits level 11 using authored progression, without shared-resource or Lely mutation',()=>{
+test('canonical completion recruits level 11 using authored progression, with ten seeds and no other shared-resource or Lely mutation',()=>{
  const g=fresh();ready(g);g.run('stats.level=3;stats.items=[createItem("Potion"),createItem("Iron Sword")];stats.gold=73');
  const before=J(g,'({stats,statusEffects,slitherSpd,player,day,tick,flags:QUEST_FLAG_BINDINGS.filter(b=>b.key!=="MainQuest").map(b=>b.get())})');assign(g);
  const after=J(g,'({stats,statusEffects,slitherSpd,player,day,tick,flags:QUEST_FLAG_BINDINGS.filter(b=>b.key!=="MainQuest").map(b=>b.get())})');
+ before.stats.items.push(...Array.from({length:10},()=>({name:'Dart Seed',type:'component',price:4})));
  assert.deepEqual(after,before);assert.deepEqual(J(g,'persistentParty.serialize().order'),['lely','esla']);
  const e=J(g,'persistentParty.getMember("esla")');assert.equal(e.slot,1);assert.equal(e.level,11);
  assert.deepEqual([e.hp,e.maxHp,e.atk,e.def,e.spd],[80,80,16,7,11]);assert.equal(e.xp,g.run('XP_THRESHOLDS[10]'));
@@ -119,7 +120,7 @@ test('the hospital follow-up projection also disappears without changing its pre
 });
 test('journal and ferry authorization change at completion, with no new flag or key item',()=>{
  const g=fresh();ready(g);assert.equal(g.run('SIMPLE_NPCS.find(n=>n.id==="causeway_ferry_operator").map'),null);
- assign(g);assert.match(g.run('getActiveQuestNotes().find(n=>n.title==="Sealed Report").body'),/Lely and Esla.*ferry at the broken causeway.*Mornay/);
+ assign(g);assert.match(g.run('getActiveQuestNotes().find(n=>n.title==="Request for Assistance").body'),/Lely and Esla.*ferry at the broken causeway.*Mornay/);
  assert.notEqual(g.run('SIMPLE_NPCS.find(n=>n.id==="causeway_ferry_operator").map'),null);
  assert.equal(g.run('QUEST_FLAG_SCHEMA.some(k=>/esla.*join|recruit/i.test(k))'),false);
 });

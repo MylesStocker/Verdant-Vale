@@ -79,7 +79,9 @@ const mornayJobs=(()=>{
   if(here()===board.mapId&&near(board.x,board.y)){
    const pages=MORNAY_REMOVALS.map((b,i)=>[null,`${b.title}${progress(i)===3?' — paid':''}. ${b.reward} gold. Ask ${b.name} at ${b.giverPlace}. Dangerous removal work deep in the wilderness.`]);
    pages.push([null,'A Copy of a Copy. 35 gold for carrying inspection papers. Ask Gessa, the unloading forewoman on Middle Upper West. No wilderness travel required.']);
-   say('Mornay Job Board',pages);return true;
+   pages.push(...mornayCalendar.boardPages());
+   const bear=meatPaw.boardPage();if(bear)pages.push(bear);
+   say('Mornay Job Board',pages,bear?()=>meatPaw.boardAction():null);return true;
   }
   const i=MORNAY_REMOVALS.findIndex(b=>here()===b.mapId&&near(b.x,b.y,56));
   if(i<0||progress(i)>=2)return false;

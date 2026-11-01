@@ -1196,6 +1196,7 @@ function validateNPCs() {
   const VALID_CONTENT_LOCATION_KEYS = new Set([
     ...Object.values(REEDBANK_CONTENT_KEYS),
     ...Object.values(THIRD_LOCK_CONTENT_KEYS),
+    ...Object.values(LANTERN_CONTENT_KEYS), ...Object.values(GREYBANK_CONTENT_KEYS),
     ...MORNAY_TOWN_MAP_IDS.map(mornayContentKey),
     ...MORNAY_BUILDINGS.map(b => mornayContentKey(b.mapId)),
     'overworld',
@@ -2069,6 +2070,9 @@ function validateSaveFlags() {
 
     for (const key of schema) {
       checked++;
+      // Lexical bindings save through their getter; they need no window mirror.
+      const binding=Array.isArray(window.QUEST_FLAG_BINDINGS)?window.QUEST_FLAG_BINDINGS.find(b=>b?.key===key):null;
+      if (binding?.kind==='lexical') continue;
       if (window[key] === undefined) addValidationError(GROUP, 'schema flag "' + key + '" not set by syncQuestFlagsToWindow -- saveGame() would write undefined for this flag');
     }
 
@@ -2087,7 +2091,7 @@ function validateSaveFlags() {
         if (seenKeys.has(b.key)) addValidationError(GROUP, 'duplicate quest-flag binding key "' + b.key + '"'); else seenKeys.add(b.key);
         if (!('default' in b)) addValidationError(GROUP, 'quest-flag binding "' + b.key + '" declares no default');
         if (typeof b.get !== 'function') addValidationError(GROUP, 'quest-flag binding "' + b.key + '" has no callable getter');
-        else { try { b.get(); } catch (e) { addValidationError(GROUP, 'quest-flag binding "' + b.key + '" getter threw: ' + (e && e.message || e)); } }
+        else { try { if(b.get()===undefined)addValidationError(GROUP, 'quest-flag binding "'+b.key+'" getter returned undefined'); } catch (e) { addValidationError(GROUP, 'quest-flag binding "' + b.key + '" getter threw: ' + (e && e.message || e)); } }
         if (typeof b.set !== 'function') addValidationError(GROUP, 'quest-flag binding "' + b.key + '" has no callable setter');
       }
       // QUEST_FLAG_SCHEMA must be exactly the binding-key list, in order.
@@ -2100,6 +2104,9 @@ function validateSaveFlags() {
     // established MQ4 and Polwick outcome authorities. Runtime eligibility
     // fails closed on the same helper, while loadGame rejects a bad candidate
     // before mutating live state.
+    if(typeof mornayCalendar!=='undefined'){
+      checked++;for(const message of mornayCalendar.invariantErrors())addValidationError(GROUP,message);
+    }
     if(typeof mornayJobs!=='undefined'){
       checked++;for(const message of mornayJobs.invariantErrors())addValidationError(GROUP,message);
     }
@@ -2108,6 +2115,12 @@ function validateSaveFlags() {
     }
     if(typeof twoJorans!=='undefined'){
       checked++;for(const message of twoJorans.invariantErrors())addValidationError(GROUP,message);
+    }
+    if(typeof meatPaw!=='undefined'){checked++;for(const message of meatPaw.invariantErrors())addValidationError(GROUP,message);}
+    if(typeof lanternHouse!=='undefined'){checked++;for(const message of lanternHouse.invariantErrors())addValidationError(GROUP,message);}
+    if(typeof greybank!=='undefined'){checked++;for(const message of greybank.invariantErrors())addValidationError(GROUP,message);}
+    if(typeof mornayReport!=='undefined'){
+      checked++;for(const message of mornayReport.invariantErrors())addValidationError(GROUP,message);
     }
     if(typeof fineNeedlework!=='undefined'){
       checked++;

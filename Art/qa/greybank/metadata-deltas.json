@@ -1,0 +1,422 @@
+[
+  {
+    "mapId": "MAINLAND_C25RN1_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C25R0_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C26R0_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C24R1_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C25R1_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C26R1_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C24R2_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C25R2_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C26R2_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C23R3_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C24R3_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C25R3_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C26R3_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C27R3_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C23R4_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C24R4_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C25R4_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C26R4_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C27R4_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C26R5_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R5_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R5_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C25R6_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26R6_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R6_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R6_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C21R7_MAP",
+    "key": "displayName",
+    "before": "Wooded Moraine",
+    "after": "CHAMBERI RIVER — Greybank Approach"
+  },
+  {
+    "mapId": "MAINLAND_C21R7_MAP",
+    "key": "notes",
+    "before": "Terrain-only regional mainland; no content or persistent state.",
+    "after": "Single Greybank Mill entrance on the CHAMBERI RIVER valley tributary; all regional seams unchanged."
+  },
+  {
+    "mapId": "MAINLAND_C25R7_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26R7_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R7_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R7_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C29R7_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C24R8_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C25R8_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26R8_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R8_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R8_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C29R8_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C24R9_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C25R9_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26R9_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R9_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R9_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C24R10_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C25R10_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26R10_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R10_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R10_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C25R11_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26R11_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R11_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26RN1_MAP",
+    "key": "displayName",
+    "before": "River Lowlands",
+    "after": "CHAMBERI RIVER — Lowlands"
+  },
+  {
+    "mapId": "MAINLAND_C29R5_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C29R6_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C30R6_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C30R7_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C30R8_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C29R9_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C30R9_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C29R10_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C23R11_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C24R11_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R11_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C29R11_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C24R12_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C25R12_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C26R12_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C27R12_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  },
+  {
+    "mapId": "MAINLAND_C28R12_MAP",
+    "key": "displayName",
+    "before": "Upper River Valley",
+    "after": "CHAMBERI RIVER — Upper Valley"
+  }
+]

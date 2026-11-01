@@ -72,13 +72,13 @@ test('every static ordinary formation up to three slots prepares for every party
    for(let a=0;a<ids.length;a++){verify([ids[a]]);for(let b=a;b<ids.length;b++){verify([ids[a],ids[b]]);
     for(let c=b;c<ids.length;c++)verify([ids[a],ids[b],ids[c]]);}}
    return {templates:ids.length,cases};})()`);
-  assert.equal(report.templates,64);assert.equal(report.cases,47904);total+=report.cases;
+  assert.equal(report.templates,71);assert.equal(report.cases,64823);total+=report.cases;
   assert.equal(state(g),before);assert.equal(g.run('rolls'),0);assert.equal(g.run('combatEnemyInstanceSequence'),0);
  }
- assert.equal(total,143712);console.log('  143,712 complete immutable ordinary-formation preparations');
+ assert.equal(total,194469);console.log('  194,469 complete immutable ordinary-formation preparations');
 });
 test('all registered pools normalize unchanged and contain only ordinary supported templates; Eastern Fens Mornay route live except Travellers\' Rise',()=>{
- const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),83);
+ const g=fresh();assert.equal(g.run('Object.keys(ENEMY_TEMPLATE_REGISTRY).length'),90);
  // A pool entry may be a flat template OR an authored { id, enemies, weight }
  // formation (Eastern Fens Mornay's two pools) -- resolve formation entries
  // to their actual enemy templates before checking compatibility, same as

@@ -37,6 +37,13 @@ function isClosedToday(building) {
   if (building === 'provision_store') return isDayOff(); // Drenwick's shop; the inn/tavern stay open
   return false;
 }
+// Public access follows the calendar; private rooms and return doors stay usable.
+function isMornayBuildingClosed(building) {
+  return isDayOff() && !!building && ['shop','school','office'].includes(building.kind);
+}
+function isMornayShopClosed(service) {
+  return isDayOff() && Object.hasOwn(MORNAY_SHOPS, service) && service !== 'fleck_tavern';
+}
 let travellerPresent = false; // re-rolled each time the player enters town
 let inSluice             = false; // true when inside East Sluice
 let inLorraHouse         = false; // true when inside Lorra's farmhouse on MAP2
@@ -259,7 +266,7 @@ function groupItems() {
 function toggleMenu() {
   if(activityOwnership.conflicts(['menu','debug']).length)return;
   if (galleryReceiverEncounter.isLocked()) return;
-  if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&mq5AssignmentCutscene.isActive()) ||
+  if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&(mq5AssignmentCutscene.isActive() || mornayReport.isActive())) ||
       (typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.isExclusive()) ||
       (typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput()) ||
       dialogue.open || shop.open || continentMap.open || accordPanel.open) return;
@@ -277,7 +284,7 @@ function toggleMenu() {
 function toggleDebugMenu() {
   if(activityOwnership.conflicts(['menu','debug']).length)return;
   if (galleryReceiverEncounter.isLocked()) return;
-  if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&mq5AssignmentCutscene.isActive()) ||
+  if (seraLioraCutscene.active || (typeof mq5AssignmentCutscene!=='undefined'&&(mq5AssignmentCutscene.isActive() || mornayReport.isActive())) ||
       (typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.isExclusive()) ||
       (typeof travellersRiseCamp!=='undefined'&&travellersRiseCamp.blocksInput()) ||
       dialogue.open || shop.open || choice.open || combat.active) return;

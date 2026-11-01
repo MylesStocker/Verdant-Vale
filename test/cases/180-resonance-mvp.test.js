@@ -52,7 +52,7 @@ function finish(g){g.run('while(combatPlayerState.session.getView().phase==="pla
 test('explicit static metadata, frozen authored techniques, no capability by membership',()=>{
  const g=fresh({enabled:false});assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.lely.rareBorn'),false);assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.lely.affinity'),null);
  assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.esla.rareBorn'),true);assert.equal(g.run('PERSISTENT_CHARACTER_DEFINITIONS.esla.affinity'),'bloommarked');
- assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom','null','rainbow','eclipse']);frozen(g.run('RESONANCE_TECHNIQUES'));
+ assert.deepEqual(J(g,'Object.keys(RESONANCE_TECHNIQUES)'),['quickbloom','seed_dart','wildspore','null','rainbow','eclipse']);frozen(g.run('RESONANCE_TECHNIQUES'));
  g.run('var bad='+JSON.stringify(command(g)));reject(g,'combatPlayerState.resolveRound(bad)');assert.equal(view(g).resonance,undefined);
 });
 for(const edit of ["d.extra=1","d.kind='combined'","d.participants.push(d.participants[0]);d.kind='combined'","d.initiator='absent'","d.effect='damage'","d.target='enemy'","d.participants[0].affinity='unknown'","d.participants[0].strain=Infinity","d.participants[0].strain=-1","Object.defineProperty(d,'name',{get(){throw Error('getter invoked')}})","Object.setPrototypeOf(d,{})","d.callback=()=>{}","d.participants[0].extra=true","d.participants[0].characterId=''","d.participants.length=3"])
@@ -183,12 +183,13 @@ test('full or Fallen allies never enable Quickbloom; invalid phase leaves drafts
  for(const party of [[{hp:100},{hp:100}],[{hp:0},{hp:100}]]){
   const g=fresh({party});g.run('combatPlayerState.session.begin({commandSet:"standard"})');
   if(party[0].hp)g.run('combatPlayerState.session.submitAttack({actorId:combatPlayerState.session.getView().nextActorId,targetId:combat.enemies[0].instanceId})');
-  assert.equal(g.run('combatPlayerState.session.getView().enabledCommands.includes("resonance")'),false);
+  assert.equal(g.run('combatPlayerState.session.getView().enabledCommands.includes("resonance")'),true);
   const availability=J(g,'combatPlayerState.session.getView().resonanceAvailability');
-  assert.equal(availability[0].disabledReason,'No wounded ally');
+  assert.equal(availability[0].disabledReason,null);
+  assert.deepEqual(J(g,'combatPlayerState.session.getView().techniques.map(t=>t.techniqueId)'),['wildspore']);
   const command=J(g,'combatPlayerState.session.getView().commandAvailability.find(r=>r.command==="resonance")');
-  assert.equal(command.disabledReason,'No wounded ally');
-  reject(g,'combatPlayerState.session.confirmTechnique()');g.run('combatPlayerState.session.moveCommand("next")');assert.equal(g.run('combatPlayerState.session.getView().selectedCommand'),'item');
+  assert.equal(command.disabledReason,null);
+  reject(g,'combatPlayerState.session.confirmTechnique()');g.run('combatPlayerState.session.moveCommand("next")');assert.equal(g.run('combatPlayerState.session.getView().selectedCommand'),'resonance');
  }
 });
 test('terminal defeat clears Strain with immutable cleanup evidence',()=>{
@@ -242,4 +243,4 @@ test('malformed Lab capability metadata rejects before identity allocation',()=>
  assert.equal(g.run('partyCombatLab.enter("lely_esla_one")'),false);assert.equal(g.run('combatEnemyInstanceSequence===seq'),true);assert.equal(g.run('combatPlayerState.hasParty()'),false);assert.equal(g.run('combat.mode'),null);
 });
 
-module.exports={name:'Resonance MVP: authored capability, Quickbloom, Strain, synthetic combined contracts, history and Lab isolation',checks,run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' Resonance MVP checks passed');}};
+module.exports={fresh,J,view,ids,action,command,tape,resolve,reject,state,finish,editResult,name:'Resonance MVP: authored capability, Quickbloom, Strain, synthetic combined contracts, history and Lab isolation',checks,run(){for(const c of checks){try{c.run();}catch(e){e.message=c.name+': '+e.message;throw e;}}console.log('  '+checks.length+' Resonance MVP checks passed');}};

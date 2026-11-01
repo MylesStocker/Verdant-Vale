@@ -33,7 +33,7 @@ function interactSimpleNPCs() {
     const dx = player.x - npc.x;
     const dy = player.y - npc.y;
     if (Math.sqrt(dx * dx + dy * dy) < TALK_RADIUS) {
-      if (struckEntry.interact(npc) || twoJorans.interact(npc) || mornayJobs.interact(npc)) {
+      if (lanternHouse.interact(npc) || greybank.interact(npc) || mornayReport.interact(npc) || struckEntry.interact(npc) || twoJorans.interact(npc) || mornayJobs.interact(npc) || mornayCalendar.interact(npc)) {
         // The optional case owns only its explicitly named speakers.
       } else if (typeof npc.action === 'function') {
         npc.action(npc);
@@ -229,6 +229,7 @@ function tryExamineWorldItem() {
 }
 
 function tryMapFeatures() {
+  if(southRuinsDepths.inspect())return true;
   if(mornayJobs.inspect())return true;
   if(struckEntry.inspect())return true;
   if(typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.interact())return true;
@@ -2064,6 +2065,8 @@ function interactOverworld() {
 
 // Top-level interact priority list — first match wins, exactly one runs.
 const INTERACT_HANDLERS = [
+  {name:'lantern-house',match:()=>!!LANTERN_CONTENT_KEYS[mapIdForRef(activeMap)],run:()=>lanternHouse.inspect()||interactSimpleNPCs()},
+  {name:'greybank',match:()=>!!GREYBANK_CONTENT_KEYS[mapIdForRef(activeMap)],run:()=>greybank.inspect()||interactSimpleNPCs()},
   {name:'third-lock',match:()=>!!THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)],run:()=>interactSimpleNPCs()||tryMapFeatures()},
   {name:'reedbank',match:()=>!!REEDBANK_CONTENT_KEYS[mapIdForRef(activeMap)],run:()=>interactSimpleNPCs()||tryMapFeatures()},
   { name: 'dungeon-floor-1', match: () => inDungeon && dungeonFloor === 1, run: interactDungeonFloor1 },
@@ -2094,7 +2097,7 @@ function finishDialogue() {
   if (dialogue.callbacks) {
     const cb = dialogue.callbacks.shift();
     if (cb) cb();
-    if (dialogue.callbacks.length === 0) dialogue.callbacks = null;
+    if (dialogue.callbacks?.length === 0) dialogue.callbacks = null;
   }
   if (dialogue.triggerEncounterId) {
     const id = dialogue.triggerEncounterId;

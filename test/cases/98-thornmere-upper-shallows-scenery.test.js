@@ -167,7 +167,7 @@ module.exports = {
     assert.equal(g.run('continuousSeamEntries().length'), 1992);
     let placed = 0; for (let y = 0; y <= 5; y++) for (let x = 0; x <= 4; x++) if (g.run(`mapIdForChunk('overworld',${x},${y})`)) placed++;
     assert.equal(placed, 30); assert.equal(30 - placed, 0);
-    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 1267);
+    assert.equal(g.run('Object.keys(MAP_CATALOG).length'), 1318);
     assert.equal(g.run('SAVE_VERSION'), 5);
   },
 };

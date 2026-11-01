@@ -1,0 +1,113 @@
+{
+  "branch": "main",
+  "startingHead": "1519a92fbdd63b55241888c5917372a18351528d",
+  "finalHead": "1519a92fbdd63b55241888c5917372a18351528d",
+  "committed": false,
+  "pushed": false,
+  "saveVersion": 5,
+  "fullRegression": {
+    "passed": 293,
+    "failed": 0
+  },
+  "javascriptSyntaxFiles": 99,
+  "validation": {
+    "errors": 0,
+    "existingWarnings": 6
+  },
+  "fingerprints": {
+    "matched": 1059,
+    "changed": 0
+  },
+  "transitionAudit": {
+    "matchesArtifact": true,
+    "fixedDestinations": 589,
+    "preservedCoordinates": 8,
+    "edgeSegments": 2072,
+    "houseDoors": 42
+  },
+  "geographicArtifactsRegenerated": [],
+  "regionalGridCellChanges": [],
+  "browser": {
+    "automated": true,
+    "humanCampaignPlaytest": false,
+    "assertions": 124,
+    "captures": 10,
+    "errors": [],
+    "scales": [
+      [
+        512,
+        480
+      ],
+      [
+        1024,
+        960
+      ]
+    ]
+  },
+  "pickupReachability": {
+    "MAP3_N1": true,
+    "NORTH_BASIN_S_MAP": true
+  },
+  "incrementalFiles": {
+    "modified": [
+      "LORE.md",
+      "PROJECT_STATUS.md",
+      "architecture.md",
+      "combat.js",
+      "content/maps/north-basin-maps.js",
+      "content/maps/thornmere-wilds-maps.js",
+      "items.js",
+      "persistent-party.js",
+      "quests.js",
+      "render-battle.js",
+      "resonance.js",
+      "shops.js",
+      "story-checkpoint-lab.js",
+      "test/cases/149-formation-battle-rendering.test.js",
+      "test/cases/154-formation-command-rounds.test.js",
+      "test/cases/155-formation-four-command-integration.test.js",
+      "test/cases/169-party-combat-visual-convergence.test.js",
+      "test/cases/171-party-command-status-hardening.test.js",
+      "test/cases/172-party-command-playback.test.js",
+      "test/cases/179-mq5-esla-recruitment.test.js",
+      "test/cases/180-resonance-mvp.test.js",
+      "test/cases/183-canonical-party-combat-integration.test.js",
+      "test/cases/185-canonical-battle-envelope.test.js",
+      "test/cases/192-story-checkpoint-lab.test.js",
+      "test/cases/196-party-unequip-and-resonance-availability.test.js",
+      "test/cases/304-mornay-shop-controller.test.js",
+      "test/cases/52-stable-persistence-ids.test.js"
+    ],
+    "added": [
+      "Art/qa/seed-dart/apothecary-stock-1x.png",
+      "Art/qa/seed-dart/apothecary-stock-2x.png",
+      "Art/qa/seed-dart/browser-results.json",
+      "Art/qa/seed-dart/last-seed-spent-1x.png",
+      "Art/qa/seed-dart/last-seed-spent-2x.png",
+      "Art/qa/seed-dart/quickbloom-1x.png",
+      "Art/qa/seed-dart/quickbloom-2x.png",
+      "Art/qa/seed-dart/seed-dart-impact-1x.png",
+      "Art/qa/seed-dart/seed-dart-impact-2x.png",
+      "Art/qa/seed-dart/technique-list-1x.png",
+      "Art/qa/seed-dart/technique-list-2x.png",
+      "Art/qa/seed-dart/verification.json",
+      "SEED_DART.md",
+      "test/cases/356-seed-dart.test.js",
+      "test/cases/357-seed-dart-owners.test.js",
+      "test/seed-dart-browser.html",
+      "test/seed-dart-browser.js"
+    ],
+    "removed": []
+  },
+  "unchangedTaskEntryFiles": 1208,
+  "gitStatus": {
+    "trackedModified": 84,
+    "untrackedFiles": 224,
+    "stagedFiles": 0
+  },
+  "limitations": [
+    "Representative arithmetic damage comparison; no complete campaign balance playthrough.",
+    "Existing recruited Esla gains eligibility from level; recruitment supplies are not retroactively granted.",
+    "Six pre-existing validation warnings remain."
+  ]
+}

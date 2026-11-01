@@ -574,7 +574,8 @@ const combatPlayerState = (() => {
       const s=commandBattle;
       return copyFormationData({party:members.map(m=>({...view(m),side:'ally',effective:effective(m,equipment(s,m.definition.slot))})),
         enemies:enemies().map(e=>({...e,side:'enemy',...(Object.hasOwn(e,'defendChance')?{braced:s.braced.has(e.instanceId)}:{}),
-          ...(s.unusual.has(e.instanceId)?{unusual:s.unusual.get(e.instanceId)}:{})})),inventory:s.inventory,...(s.gold!==null?{gold:s.gold}:{}),
+          ...(s.unusual.has(e.instanceId)?{unusual:s.unusual.get(e.instanceId)}:{}),
+          ...(s.accuracyEffects.has(e.instanceId)?{accuracyEffect:s.accuracyEffects.get(e.instanceId)}:{})})),inventory:s.inventory,...(s.gold!==null?{gold:s.gold}:{}),
         equipment:s.loadouts.map((gear,slot)=>({actorId:members[slot].instanceId,...gear})),
         effects:s.effects.map((effect,slot)=>({actorId:members[slot].instanceId,...effect})),
         escapePolicy:s.escape,bossLocked:s.bossLocked,...(s.resonance?{resonance:s.resonance}:{} )});
@@ -591,7 +592,7 @@ const combatPlayerState = (() => {
         supportedStatuses(m.statuses);validateSlither(m,s.effects[m.definition.slot]);
       }
       if(s.resonance)for(const [slot,cap]of s.resonance.entries()){
-        dataRecord(cap,['actorId','characterId','rareBorn','affinity','strain','appliedRound',...(Object.hasOwn(cap,'source')?['source']:[])]);
+        dataRecord(cap,['actorId','characterId','rareBorn','affinity','strain','appliedRound',...(Object.hasOwn(cap,'source')?['source']:[]),...(Object.hasOwn(cap,'level')?['level']:[])]);
         if(cap.actorId!==members[slot].instanceId||!safe(cap.strain)||!safe(cap.appliedRound)||
             cap.appliedRound>(roundState?.completed||0)||(!cap.strain)!==(!cap.appliedRound)||
             !cap.rareBorn&&cap.strain)invalid();
@@ -608,7 +609,7 @@ const combatPlayerState = (() => {
         const spec=type==='item'?itemSpec(Object.getOwnPropertyDescriptor(a,'itemId')?.value):null;
         const keys=type==='resonance'?['type','actorId','techniqueId',resonanceTechnique(Object.getOwnPropertyDescriptor(a,'techniqueId')?.value).target==='all_living_enemies'?'targetIds':'targetId','participantIds']:type==='run'?['type','actorId']:type==='item'?['type','actorId','itemId',...(spec.effect==='damage_all'?[]:['targetId'])]:
           ['attack','observe'].includes(type)?['type','actorId','targetId']:null;
-        if(!keys)invalid();return dataRecord(a,keys);
+        if(!keys||spec?.effect==='component')invalid();return dataRecord(a,keys);
       });
       const living=members.filter(m=>m.hp>0);
       if(!supplied.length || new Set(supplied.map(a=>a.actorId)).size!==supplied.length ||
@@ -644,6 +645,8 @@ const combatPlayerState = (() => {
       const reserved=new Map(),observed=new Map();
       for(const a of allyActions) {
         const actor=exactMember(a.actorId);
+        const cost=resonanceActionCost(a,s.resonance);
+        if(cost)reserved.set(cost.itemId,(reserved.get(cost.itemId)||0)+cost.quantity);
         if(a.type==='run'||a.type==='resonance')continue;
         const target=members.find(m=>m.instanceId===a.targetId)||enemyData.find(e=>e.instanceId===a.targetId);
         const spec=a.type==='item'?itemSpec(a.itemId):null;
@@ -659,7 +662,7 @@ const combatPlayerState = (() => {
           const lines=copyFormationData(getObservationText(target,target.observeCount+count-1));
           if(!Array.isArray(lines)||lines.some(line=>typeof line!=='string'))invalid();
         }
-        if(spec) reserved.set(a.itemId,(reserved.get(a.itemId)||0)+1);
+
       }
       for(const [id,count]of reserved)if(s.inventory.filter(item=>item===id).length<count)invalid();
       const suppliedEnemies=array(command.enemyActions).map(a=>dataRecord(a,['actorId','targetId',...(Object.hasOwn(a||{},'brace')?['brace']:[])]));
@@ -736,7 +739,7 @@ const combatPlayerState = (() => {
         for(const seed of seeds)effects[seed.slot].slither={speed:seed.speed,round:0,roll:null,source:'prepared'};
         let resonance=null;
         if(Object.hasOwn(data,'resonance')){
-          const bindings=array(data.resonance).map(v=>dataRecord(v,['slot','characterId',...(Object.hasOwn(v||{},'source')?['source']:[])]));
+          const bindings=array(data.resonance).map(v=>dataRecord(v,['slot','characterId',...(Object.hasOwn(v||{},'source')?['source']:[]),...(Object.hasOwn(v||{},'level')?['level']:[])]));
           if(bindings.length!==candidates.length||new Set(bindings.map(v=>v.characterId)).size!==bindings.length)invalid();
           resonance=bindings.map((binding,slot)=>resonanceCapabilityBinding(candidates[slot],binding,slot,storyCombatPreparationPermits.has(handoff)));
         }
@@ -747,7 +750,7 @@ const combatPlayerState = (() => {
         const bossLocked=combat.enemies.some(e=>combatEnemyBossAtCreation.get(e));
         const escape=combat.mode==='formation'&&formationRounds.getView().escapePolicy==='blocked'?'blocked':data.escape;
         const view=installMembers(candidates);
-        commandBattle={handoff:prepared.handoff,roster:members,enemies:combat.enemies,inventory,loadouts,effects,bossLocked,escape,enemySeal:JSON.stringify(enemyData),braced:new Set(),
+        commandBattle={handoff:prepared.handoff,roster:members,enemies:combat.enemies,inventory,loadouts,effects,bossLocked,escape,enemySeal:JSON.stringify(enemyData),braced:new Set(),accuracyEffects:new Map(),
           mechanics:new Map(enemyData.map(e=>[e.instanceId,canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[e.id])])),
           unusual:new Map(enemyData.map(e=>[e.instanceId,canonicalUnusualEnemySeed(ENEMY_TEMPLATE_REGISTRY[e.id])]).filter(([,state])=>state!==null)),
           gold:enemyData.some(e=>e.stealAndFlee)?(data.gold||0):null,
@@ -842,26 +845,47 @@ const combatPlayerState = (() => {
             if(tech?.target==='living_enemy'&&!available(target)){events.push({type:'cancel',...planned,reason:'target_departed'});continue;}
             if(!ally(actor)&&s.unusual.get(actor.instanceId)?.suppressedRound===round){
               events.push({type:'skip',...planned,reason:'trollbane'});continue;}
+            if(!ally(actor)&&s.mechanics.get(actor.instanceId)?.vital_strikes){
+              const strikeRoll=roll(),evasionRoll=roll(),t=values(target),
+                chance=resonanceAccuracyEvasion(t.evadeAll?1:Math.max(evadeChance(actor.spd,t.spd,false),
+                  s.effects[target.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),s.accuracyEffects.get(actor.instanceId)),
+                move=Math.floor(strikeRoll*3),attackName=['Paw','Claw','Pounce'][move],hpBefore=target.hp,
+                attemptedDamage=move===2?hpBefore:Math.max(move===0?50:100,Math.floor(target.definition.maxHp/(move===0?3:2))),
+                evaded=evasionRoll<chance;
+              target.hp=Math.max(0,hpBefore-(evaded?0:attemptedDamage));
+              events.push({type:'vital_strike',...planned,attackName,strikeRoll,evasionRoll,chance,attemptedDamage,
+                evaded,hpBefore,hpAfter:target.hp,appliedDamage:hpBefore-target.hp});
+              fenStep('after',actor.instanceId,{previous:fenBefore});recoverGold();outcome=terminal();if(outcome!=='ongoing')break;continue;
+            }
             if(tech){
+              const cost=tech.reagentCost,consumption=cost?{reagent:{...cost,inventoryBefore:s.inventory.slice()}}:{};
+              if(cost){for(let n=0;n<cost.quantity;n++){
+                const at=s.inventory.indexOf(cost.itemId);if(at<0)invalid();s.inventory.splice(at,1);
+              }consumption.reagent.inventoryAfter=s.inventory.slice();}
               const hpBefore=target?.hp;
-              if(tech.target==='all_living_enemies'){
+              if(tech.effect==='accuracy_down'){
+                const before=s.accuracyEffects.get(target.instanceId)||null,
+                  after={techniqueId:tech.id,appliedRound:round,expiresRound:resonanceAccuracyExpiry(tech,round,plan.order,actor.instanceId,target.instanceId)};
+                s.accuracyEffects.set(target.instanceId,after);
+                events.push({type:'resonance_accuracy',...planned,...consumption,techniqueId:tech.id,techniqueName:tech.name,participantIds:action.participantIds,before,after});
+              }else if(tech.target==='all_living_enemies'){
                 const hits=action.targetIds.map(live).filter(available).map(enemy=>{
                   const attemptedDamage=resonanceDamageAmount(tech.power,enemy.def),hpBefore=enemy.hp,hpAfter=Math.max(0,hpBefore-attemptedDamage);
                   return {targetId:enemy.instanceId,defense:enemy.def,attemptedDamage,appliedDamage:hpBefore-hpAfter,hpBefore,hpAfter};
                 });
                 for(const hit of hits)live(hit.targetId).hp=hit.hpAfter;
-                events.push({type:'resonance_damage_all',...planned,techniqueId:tech.id,techniqueName:tech.name,
+                events.push({type:'resonance_damage_all',...planned,...consumption,techniqueId:tech.id,techniqueName:tech.name,
                   participantIds:action.participantIds,elements:tech.elements,power:tech.power,targetIds:action.targetIds,hits});
               }else if(tech.effect==='damage'){
                 const attemptedDamage=resonanceDamageAmount(tech.power,target.def);
                 target.hp=Math.max(0,hpBefore-attemptedDamage);
-                events.push({type:'resonance_damage',...planned,techniqueId:tech.id,techniqueName:tech.name,
+                events.push({type:'resonance_damage',...planned,...consumption,techniqueId:tech.id,techniqueName:tech.name,
                   participantIds:action.participantIds,elements:tech.elements,power:tech.power,defense:target.def,
                   attemptedDamage,appliedDamage:hpBefore-target.hp,hpBefore,hpAfter:target.hp});
               }else{
                 const attemptedHealing=Math.max(1,Math.floor(target.definition.maxHp/5));
                 target.hp+=Math.min(attemptedHealing,target.definition.maxHp-target.hp);
-                events.push({type:'resonance',...planned,techniqueId:tech.id,techniqueName:tech.name,participantIds:action.participantIds,
+                events.push({type:'resonance',...planned,...consumption,techniqueId:tech.id,techniqueName:tech.name,participantIds:action.participantIds,
                   attemptedHealing,appliedHealing:target.hp-hpBefore,hpBefore,hpAfter:target.hp});
               }
               for(const [i,id]of action.participantIds.entries()){
@@ -885,10 +909,11 @@ const combatPlayerState = (() => {
                 events.push({type:'curse_check',actorId:actor.instanceId,targetId:target.instanceId,side:'ally',
                   slot:planned.slot,status:'cursed',round,chance:0.25,roll:draw,fumbled});
               }
-              let critical=false,attemptedDamage=1,evaded=false,brace=null;const armorRolls=[];
+              let critical=false,attemptedDamage=1,evaded=false,brace=null;const armorRolls=[];let accuracy=null;
               const attackSpd=a.spd-(ally(actor)&&activeStatuses(actor).includes('dazzled')?DAZZLE_ACC_PENALTY:0);
-              const chance=ally(target)&&t.evadeAll?1:Math.max(evadeChance(attackSpd,t.spd,false),
-                ally(target)&&s.effects[target.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0);
+              const accuracyEffect=s.accuracyEffects.get(actor.instanceId),
+                chance=resonanceAccuracyEvasion(ally(target)&&t.evadeAll?1:Math.max(evadeChance(attackSpd,t.spd,false),
+                ally(target)&&s.effects[target.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),accuracyEffect);
               if(!fumbled) {
                 const varianceRoll=roll(),criticalRoll=roll();if(armor)armorRolls.push(varianceRoll,criticalRoll);
                 const variance=ATTACK_VARIANCE_MIN+varianceRoll*ATTACK_VARIANCE_SPAN;
@@ -897,11 +922,11 @@ const combatPlayerState = (() => {
                 if(braced){
                   brace={before:true,after:true,unmodifiedDamage:attemptedDamage,rolledCritical:critical};
                   attemptedDamage=Math.max(1,Math.floor(attemptedDamage/2));critical=false;
-                }else {const evasionRoll=roll();if(armor)armorRolls.push(evasionRoll);evaded=evasionRoll<chance;}
+                }else {const evasionRoll=roll();if(armor)armorRolls.push(evasionRoll);evaded=evasionRoll<chance;if(accuracyEffect)accuracy={roll:evasionRoll,chance};}
               }
               if(target.hp!==hpBefore)throw Error('Party target HP changed during RNG');
               target.hp=Math.max(0,hpBefore-(evaded?0:attemptedDamage));
-              events.push({type:'attack',...planned,attemptedDamage,appliedDamage:hpBefore-target.hp,critical,evaded,hpBefore,hpAfter:target.hp,...(brace?{brace}:{}),...(armor?{armor:{defense,bonus:armor,rolls:armorRolls,fumbled}}:{})});
+              events.push({type:'attack',...planned,attemptedDamage,appliedDamage:hpBefore-target.hp,critical,evaded,hpBefore,hpAfter:target.hp,...(accuracy?{accuracy}:{}),...(brace?{brace}:{}),...(armor?{armor:{defense,bonus:armor,rolls:armorRolls,fumbled}}:{})});
               if(!ally(actor)&&!evaded&&hpBefore-target.hp>0&&target.hp>0){
                 const mechanics=s.mechanics.get(actor.instanceId)||{},gear=equipment(s,target.definition.slot);
                 for(const capability of ['slither_on_hit','poison_spell','poison_on_hit','curse_on_hit','void_shard_burst','dazzle_on_hit','acid_corrosion']){
@@ -949,7 +974,7 @@ const combatPlayerState = (() => {
                 if(triggered){const v=values(actor),rolls=[roll(),roll(),roll()],hpBefore=actor.hp,
                   defense=playerIncomingMitigation(target.atk,v.def,v.defenseCapBypass),critical=rolls[1]<CRIT_CHANCE,
                   attemptedDamage=attackDamageNumbers(target.atk,defense,ATTACK_VARIANCE_MIN+rolls[0]*ATTACK_VARIANCE_SPAN,critical).dmg,
-                  evasionChance=v.evadeAll?1:Math.max(evadeChance(target.spd,v.spd,false),s.effects[actor.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),
+                  evasionChance=resonanceAccuracyEvasion(v.evadeAll?1:Math.max(evadeChance(target.spd,v.spd,false),s.effects[actor.definition.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),s.accuracyEffects.get(target.instanceId)),
                   evaded=rolls[2]<evasionChance;
                   actor.hp=Math.max(0,hpBefore-(evaded?0:attemptedDamage));
                   events.push({type:'counterattack',actorId:target.instanceId,targetId:actor.instanceId,rolls,defense,critical,evasionChance,evaded,
@@ -1068,6 +1093,9 @@ const combatPlayerState = (() => {
             s.braced.delete(actorId);
             events.push({type:'brace_end',actorId,before:true,after:false,reason:outcome==='ongoing'?'round_end':'cleanup'});
           }
+          for(const [actorId,before]of s.accuracyEffects)if(outcome!=='ongoing'||!available(live(actorId))||round>=before.expiresRound){
+            s.accuracyEffects.delete(actorId);events.push({type:'resonance_accuracy_end',actorId,before,reason:outcome!=='ongoing'?'cleanup':!available(live(actorId))?'unavailable':'expired'});
+          }
           for(const cap of s.resonance||[])if(cap.strain>0&&(outcome!=='ongoing'||cap.appliedRound!==round)){
             const before=cap.strain,appliedRoundBefore=cap.appliedRound;
             cap.strain=outcome==='ongoing'?cap.strain-1:0;if(cap.strain===0)cap.appliedRound=0;
@@ -1139,12 +1167,16 @@ const combatPlayerState = (() => {
     const currentAlly=s=>livingAllies(s).find(m=>!committedIds(s).includes(m.instanceId))||null;
     const pendingConsent=(s,actor=currentAlly(s))=>s.allyActions.find(a=>a.type==='resonance'&&
       resonanceTechnique(a.techniqueId).kind==='combined'&&a.participantIds.includes(actor?.instanceId));
+    const reagentAvailable=(s,tech,actor)=>!tech.reagentCost||pendingConsent(s,actor)?.techniqueId===tech.id||
+      s.snapshot.inventory.filter(id=>id===tech.reagentCost.itemId).length-
+        (reserved(s).find(r=>r.itemId===tech.reagentCost.itemId)?.quantity||0)>=tech.reagentCost.quantity;
     const resonanceReason=(s,actor)=>{
       const caps=s.snapshot.resonance,cap=caps?.find(c=>c.actorId===actor?.instanceId);
       if(!actor||!cap?.rareBorn)return null;
       if(actor.hp===0)return actor.name+' is Fallen';
       if(cap.strain>0)return 'Strained';
-      const techniques=Object.values(RESONANCE_TECHNIQUES).filter(tech=>tech.participants.some(p=>p.characterId===cap.characterId));
+      const techniques=Object.values(RESONANCE_TECHNIQUES).filter(tech=>tech.participants.some(p=>p.characterId===cap.characterId)&&
+        reagentAvailable(s,tech,actor));
       if(!techniques.length)return 'No authored technique';
       const committed=committedIds(s);
       if(!techniques.some(tech=>resonanceParticipants(tech,s.snapshot.party,caps).every(m=>
@@ -1159,7 +1191,7 @@ const combatPlayerState = (() => {
       const actor=currentAlly(s),caps=s.snapshot.resonance;if(!actor||!caps)return [];
       return [...Object.values(RESONANCE_TECHNIQUES)].filter(tech=>{
         const participants=resonanceParticipants(tech,s.snapshot.party,caps);
-        return (!pendingConsent(s)||pendingConsent(s).techniqueId===tech.id)&&tech.participants.some(p=>p.characterId===caps.find(c=>c.actorId===actor.instanceId)?.characterId)&&
+        return reagentAvailable(s,tech,actor)&&(!pendingConsent(s)||pendingConsent(s).techniqueId===tech.id)&&tech.participants.some(p=>p.characterId===caps.find(c=>c.actorId===actor.instanceId)?.characterId)&&
           participants.every(m=>m&&partyActorCanAct(m,s.snapshot.party)&&(!committedIds(s).includes(m.instanceId)||s.allyActions.some(a=>a.actorId===m.instanceId&&a.type==='resonance'&&a.techniqueId===tech.id))&&caps.find(c=>c.actorId===m.instanceId).strain===0)&&
           (resonanceTargetSide(tech)==='ally'?s.snapshot.party:s.snapshot.enemies)
             .some(m=>resonanceTargetEligible(tech,m,resonanceTargetSide(tech)));
@@ -1173,7 +1205,7 @@ const combatPlayerState = (() => {
     const itemSeal=snap=>JSON.stringify([...new Set([...snap.inventory,...snap.equipment.flatMap(g=>['weapon','armor','shield','accessory'].map(k=>g[k]).filter(Boolean))])]
       .map(id=>commandRounds.itemInfo(id).item));
     const reserved=s=>{
-      const counts=new Map();for(const a of s.allyActions)if(a.type==='item')counts.set(a.itemId,(counts.get(a.itemId)||0)+1);
+      const counts=new Map();for(const a of s.allyActions){const cost=resonanceActionCost(a,s.snapshot.resonance);if(cost)counts.set(cost.itemId,(counts.get(cost.itemId)||0)+cost.quantity);}
       return [...counts].map(([itemId,quantity])=>({itemId,quantity}));
     };
     const itemCategory=info=>info.effect==='damage_all'?'all_enemies':['equip','nothing'].includes(info.effect)?'self':
@@ -1181,7 +1213,7 @@ const combatPlayerState = (() => {
     const itemEntries=s=>{
       const rows=[],counts=new Map(),reservations=new Map(reserved(s).map(r=>[r.itemId,r.quantity]));
       for(const id of s.snapshot.inventory){if(counts.has(id)){rows[counts.get(id)].total++;continue;}
-        const info=commandRounds.itemInfo(id);counts.set(id,rows.length);rows.push({itemId:id,name:info.item.name,total:1,targeting:itemCategory(info)});}
+        const info=commandRounds.itemInfo(id);if(info.effect==='component')continue;counts.set(id,rows.length);rows.push({itemId:id,name:info.item.name,total:1,targeting:itemCategory(info)});}
       return rows.map(row=>({...row,available:row.total-(reservations.get(row.itemId)||0),usable:row.total>(reservations.get(row.itemId)||0)}));
     };
     const allTargets=s=>s.selection.pendingType==='resonance'&&resonanceTechnique(s.selection.techniqueId).target==='all_living_enemies';
@@ -1932,6 +1964,7 @@ const partyCommandPlayback = (() => {
   // Capture pure numeric validators once. Reels/projectors never call the live
   // resolver, AI, mutable formulas or RNG; validation checks recorded witnesses.
   const witnessDamage=attackDamageNumbers,witnessMitigation=playerIncomingMitigation,witnessEvasion=evadeChance,
+    witnessAccuracy=resonanceAccuracyEvasion,witnessAccuracyExpiry=resonanceAccuracyExpiry,
     witnessResonanceDamage=resonanceDamageAmount,witnessResonancePlanSpeed=resonancePlanSpeed,
     witnessResonancePlansActor=resonancePlansActor,witnessResonanceConsents=validateResonanceConsents;
   const reels=new WeakSet(),gearSlots=['weapon','armor','shield','accessory'];
@@ -1939,7 +1972,7 @@ const partyCommandPlayback = (() => {
     sexBane:item.sexBane||null,key:item.keyItem===true,slot:gearSlots.includes(item.type)?item.type:null,
     effect:item.escapeEnemyId?'escape':item.sexBane?'reagent':item.type==='potion'?(item.curesPoison||item.curesCursed?'cure':'heal'):
       item.type==='buff'?'evade':item.type==='throwable'?(item.fuse?'bomb':item.targetsAll?'damage_all':'damage'):
-      item.type==='stun'?'stun':gearSlots.includes(item.type)?'equip':item.type==='bait'?'nothing':null,
+      item.type==='stun'?'stun':gearSlots.includes(item.type)?'equip':item.type==='bait'?'nothing':item.type==='component'?'component':null,
     cures:Object.freeze(['poison','cursed'].filter(s=>s==='poison'?item.curesPoison:item.curesCursed)),mud:item.causesMuddied===true,
     preventsCursed:item.preventsCursed===true,preventsPoison:item.preventsPoison===true,
   })])));
@@ -1980,6 +2013,8 @@ const partyCommandPlayback = (() => {
     status:['targetId','statusesBefore','statusesAfter','sourceId','itemId'],effect:['sourceId','targetId','itemId','effectsBefore','effectsAfter'],
     delayed_effect_tick:['effect','ownerId','targetId','before','after','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
     resonance:[...planKeys,'techniqueId','techniqueName','participantIds','attemptedHealing','appliedHealing','hpBefore','hpAfter'],
+    resonance_accuracy:[...planKeys,'techniqueId','techniqueName','participantIds','before','after'],
+    resonance_accuracy_end:['actorId','before','reason'],
     resonance_damage:[...planKeys,'techniqueId','techniqueName','participantIds','elements','power','defense','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
     resonance_damage_all:[...planKeys,'techniqueId','techniqueName','participantIds','elements','power','targetIds','hits'],
     resonance_cancel:[...planKeys,'techniqueId','participantIds','reason','unavailableId'],
@@ -1993,6 +2028,7 @@ const partyCommandPlayback = (() => {
     counter_check:['actorId','targetId','chance','roll','triggered'],
     counterattack:['actorId','targetId','rolls','defense','critical','evasionChance','evaded','attemptedDamage','appliedDamage','hpBefore','hpAfter'],
     fen_effect:['phase','actorId','round','messages','hits','before','after'],
+    vital_strike:[...planKeys,'attackName','strikeRoll','evasionRoll','chance','attemptedDamage','evaded','hpBefore','hpAfter','appliedDamage'],
     swallow:['actorId','round','deadline','hits'],
     regeneration:['actorId','round','amount','hpBefore','hpAfter','before','after'],
     theft:['actorId','targetId','round','roll','attemptedGold','amount','goldBefore','goldAfter'],
@@ -2002,7 +2038,7 @@ const partyCommandPlayback = (() => {
   const create=source=>{
     const r=detach(source);keys(r,['round','command','initiative','order','events','outcome','before','after','party','enemies']);
     if(!safe(r.round)||!r.round||!['ongoing','victory','defeat','escape'].includes(r.outcome))fail();
-    const snapshot=(s,maxRound)=>{
+    const snapshot=(s,maxRound,intermediate=false)=>{
       keys(s,['party','enemies','inventory','equipment','effects','escapePolicy','bossLocked',...(Object.hasOwn(s,'gold')?['gold']:[]),...(Object.hasOwn(s,'resonance')?['resonance']:[])]);list(s.party,1,3);list(s.enemies,1,3);
       list(s.inventory);s.inventory.forEach(spec);list(s.equipment,s.party.length,s.party.length);list(s.effects,s.party.length,s.party.length);
       if(!['blocked','fastest_living','ignore_boss','observe_gated'].includes(s.escapePolicy)||!bool(s.bossLocked)||Object.hasOwn(s,'gold')&&!safe(s.gold))fail();
@@ -2016,7 +2052,12 @@ const partyCommandPlayback = (() => {
           !['runLock','guaranteedDrop'].includes(key)&&Object.hasOwn(template||{},key)&&
           ENEMY_CAPABILITY_DEFINITIONS[ENEMY_TEMPLATE_FIELD_CAPABILITIES[key]].canonical):[];
         const hasBrace=mechanicFields.includes('defendChance');
-        keys(m,[...fields,...mechanicFields,...(hasBrace?['braced']:[]),...(m.origin?['origin']:[]),...(unusual?['unusual']:[])]);
+        keys(m,[...fields,...mechanicFields,...(hasBrace?['braced']:[]),...(m.origin?['origin']:[]),...(unusual?['unusual']:[]),...(Object.hasOwn(m,'accuracyEffect')?['accuracyEffect']:[])]);
+        if(Object.hasOwn(m,'accuracyEffect')){
+          const a=m.accuracyEffect;keys(a,['techniqueId','appliedRound','expiresRound']);const tech=resonanceTechnique(a.techniqueId);
+          if(side!=='enemy'||tech.effect!=='accuracy_down'||!safe(a.appliedRound)||!a.appliedRound||a.appliedRound>maxRound||
+            !safe(a.expiresRound)||a.expiresRound<maxRound||!intermediate&&a.expiresRound===maxRound||a.expiresRound<a.appliedRound||a.expiresRound>a.appliedRound+tech.rounds)fail();
+        }
         if(unusual){keys(m.unusual,Object.keys(unusual));const u=m.unusual;
           if(u.fen)fenCombat.validate(u.fen,s,maxRound);
           if(Object.hasOwn(u,'healingSuppressed')&&(!bool(u.healingSuppressed)||!safe(u.suppressedRound)||u.suppressedRound>maxRound||u.healingSuppressed!==!!u.suppressedRound))fail();
@@ -2037,12 +2078,12 @@ const partyCommandPlayback = (() => {
       if(Object.hasOwn(s,'resonance')){
         list(s.resonance,s.party.length,s.party.length);const characters=new Set();
         s.resonance.forEach((c,i)=>{
-          keys(c,['actorId','characterId','rareBorn','affinity','strain','appliedRound',...(Object.hasOwn(c,'source')?['source']:[])]);
+          keys(c,['actorId','characterId','rareBorn','affinity','strain','appliedRound',...(Object.hasOwn(c,'source')?['source']:[]),...(Object.hasOwn(c,'level')?['level']:[])]);
           if(c.actorId!==s.party[i].instanceId||typeof c.characterId!=='string'||! /^[a-z][a-z0-9_]*$/.test(c.characterId)||characters.has(c.characterId)||
               !(c.source==='story'?[c.characterId]:[c.characterId,c.characterId+'_lab']).includes(s.party[i].characterId)||!bool(c.rareBorn)||
               (c.rareBorn?!(c.source==='story'?['bloommarked','voidborn','prismborn']:['bloommarked']).includes(c.affinity):c.affinity!==null||c.strain!==0)||
               !safe(c.strain)||!safe(c.appliedRound)||c.appliedRound>maxRound||(!c.strain)!==(!c.appliedRound))fail();
-          const authored=resonanceCapabilityBinding(s.party[i],{slot:i,characterId:c.characterId,...(Object.hasOwn(c,'source')?{source:c.source}:{})},i,c.source==='story');
+          const authored=resonanceCapabilityBinding(s.party[i],{slot:i,characterId:c.characterId,...(Object.hasOwn(c,'source')?{source:c.source}:{}),...(Object.hasOwn(c,'level')?{level:c.level}:{})},i,c.source==='story');
           if(c.rareBorn!==authored.rareBorn||c.affinity!==authored.affinity)fail();
           characters.add(c.characterId);
         });
@@ -2065,7 +2106,7 @@ const partyCommandPlayback = (() => {
     };
     snapshot(r.before,r.round-1);snapshot(r.after,r.round);equal(r.party,r.after.party);equal(r.enemies,r.after.enemies);
     if([...r.before.enemies,...r.after.enemies].some(m=>m.braced===true))fail();
-    const membership=s=>({party:s.party.map(({hp,statuses,effective,...m})=>m),enemies:s.enemies.map(({hp,observeCount,braced,unusual,...m})=>m),escapePolicy:s.escapePolicy,bossLocked:s.bossLocked,...(s.resonance?{resonance:s.resonance.map(({strain,appliedRound,...c})=>c)}:{})});
+    const membership=s=>({party:s.party.map(({hp,statuses,effective,...m})=>m),enemies:s.enemies.map(({hp,observeCount,braced,unusual,accuracyEffect,...m})=>m),escapePolicy:s.escapePolicy,bossLocked:s.bossLocked,...(s.resonance?{resonance:s.resonance.map(({strain,appliedRound,...c})=>c)}:{})});
     const fixed=membership(r.before);equal(membership(r.after),fixed);
     let state=clone(r.before),revealed='ongoing',completed=r.round-1,index=0;
     const statusApplications=state.party.map(()=>Object.create(null));
@@ -2111,7 +2152,10 @@ const partyCommandPlayback = (() => {
           if(friendly?target.side!==side:target.side===side)fail();
           if(info&&['equip','nothing'].includes(info.effect)&&target!==actor)fail();
         }
-        if(info)reservations.set(a.itemId,(reservations.get(a.itemId)||0)+1);
+        if(info?.effect==='component')fail();
+        const cost=side!=='ally'?null:kind==='item'?{itemId:a.itemId,quantity:1}:
+          kind==='resonance'&&witnessResonancePlansActor(a,state.resonance)?resonanceTechnique(a.techniqueId).reagentCost:null;
+        if(cost)reservations.set(cost.itemId,(reservations.get(cost.itemId)||0)+cost.quantity);
         if(side==='enemy'||witnessResonancePlansActor(a,state.resonance))commands.push({command:a,actorId:a.actorId,targetId:a.targetId??null,side,slot:actor.slot,commandType:kind});
       }
       equal([...covered].sort(),living.map(m=>m.instanceId).sort());
@@ -2123,6 +2167,8 @@ const partyCommandPlayback = (() => {
     for(const[id,n]of reservations)if(state.inventory.filter(x=>x===id).length<n)fail();
     list(r.events,2);r.events.forEach(e=>{if(!e||!Object.hasOwn(eventKeys,e.type))fail();
       keys(e,['type',...eventKeys[e.type],...(e.type==='attack'&&Object.hasOwn(e,'brace')?['brace']:[]),
+        ...(e.type==='attack'&&Object.hasOwn(e,'accuracy')?['accuracy']:[]),
+        ...(['resonance','resonance_damage','resonance_damage_all','resonance_accuracy'].includes(e.type)&&Object.hasOwn(e,'reagent')?['reagent']:[]),
         ...(e.type==='enemy_status'&&Object.hasOwn(e,'slither')?['slither']:[]),...(e.type==='attack'&&Object.hasOwn(e,'armor')?['armor']:[])]);});
     const frames=[];
     const frame=(event=null)=>copyFormationData({round:r.round,command:r.command,frameIndex:index,eventIndex:index-1,currentEvent:event,
@@ -2168,7 +2214,7 @@ const partyCommandPlayback = (() => {
     };
     const itemEvent=(e,c,actor,target)=>{
       const info=spec(c.command.itemId);if(e.itemId!==c.command.itemId||e.effect!==info.effect||e.type!==(info.effect==='equip'?'equipment':'item')||e.consumed!==!['equip','nothing'].includes(info.effect))fail();
-      snapshot(e.before,r.round);snapshot(e.after,r.round);equal(e.before,state);equal(membership(e.after),fixed);
+      snapshot(e.before,r.round,true);snapshot(e.after,r.round,true);equal(e.before,state);equal(membership(e.after),fixed);
       const expected=clone(state),a=expected.party[actor.slot],t=target?(target.side==='ally'?expected.party:expected.enemies)[target.slot]:null;
       const at=expected.inventory.indexOf(e.itemId);if(at<0)fail();if(e.consumed||info.effect==='equip')expected.inventory.splice(at,1);
       const afterTarget=target?(target.side==='ally'?e.after.party:e.after.enemies)[target.slot]:null;
@@ -2263,7 +2309,7 @@ const partyCommandPlayback = (() => {
       push(check);if(!check.triggered)return;
       const e=take('counterattack');list(e.rolls,3,3);if(e.rolls.some(v=>!roll(v)))fail();
       const defense=witnessMitigation(target.atk,actor.effective.def,actor.effective.defenseCapBypass),critical=e.rolls[1]<CRIT_CHANCE,
-        evasionChance=actor.effective.evadeAll?1:Math.max(witnessEvasion(target.spd,actor.effective.spd,false),state.effects[actor.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),
+        evasionChance=witnessAccuracy(actor.effective.evadeAll?1:Math.max(witnessEvasion(target.spd,actor.effective.spd,false),state.effects[actor.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),target.accuracyEffect),
         attemptedDamage=witnessDamage(target.atk,defense,ATTACK_VARIANCE_MIN+e.rolls[0]*ATTACK_VARIANCE_SPAN,critical).dmg;
       if(e.actorId!==target.instanceId||e.targetId!==actor.instanceId||e.defense!==defense||e.critical!==critical||e.evasionChance!==evasionChance||e.evaded!==(e.rolls[2]<evasionChance)||e.attemptedDamage!==attemptedDamage)fail();
       damage(e,actor,true);push(e);
@@ -2309,10 +2355,29 @@ const partyCommandPlayback = (() => {
       if(target?.hp===0){const e=take('cancel');matching(e,p);if(e.reason!=='target_dead')fail();push(e);continue;}
       if(tech?.target==='living_enemy'&&!available(target)){const e=take('cancel');equal(e,{type:'cancel',...p,reason:'target_departed'});push(e);continue;}
       if(actor.side==='enemy'&&actor.unusual?.suppressedRound===r.round){const e=take('skip');equal(e,{type:'skip',...p,reason:'trollbane'});push(e);continue;}
+      if(actor.side==='enemy'&&canonicalEnemyMechanicProfile(ENEMY_TEMPLATE_REGISTRY[actor.id]).vital_strikes){
+        const e=take('vital_strike');matching(e,p);
+        if(!roll(e.strikeRoll)||!roll(e.evasionRoll))fail();
+        const move=Math.floor(e.strikeRoll*3),chance=witnessAccuracy(target.effective.evadeAll?1:Math.max(witnessEvasion(actor.spd,target.effective.spd,false),
+          state.effects[target.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),actor.accuracyEffect),
+          attemptedDamage=move===2?target.hp:Math.max(move===0?50:100,Math.floor(target.maxHp/(move===0?3:2)));
+        if(e.attackName!==['Paw','Claw','Pounce'][move]||e.chance!==chance||e.attemptedDamage!==attemptedDamage||e.evaded!==(e.evasionRoll<chance))fail();
+        damage(e,target,true);push(e);fenStep('after',actor.instanceId,{previous:fenBefore});recoverGold();continue;
+      }
       if(tech){
-        const e=take(tech.target==='all_living_enemies'?'resonance_damage_all':tech.effect==='damage'?'resonance_damage':'resonance');matching(e,p);equal(e.participantIds,action.participantIds);
+        const e=take(tech.effect==='accuracy_down'?'resonance_accuracy':tech.target==='all_living_enemies'?'resonance_damage_all':tech.effect==='damage'?'resonance_damage':'resonance');matching(e,p);equal(e.participantIds,action.participantIds);
         if(e.techniqueId!==tech.id||e.techniqueName!==tech.name)fail();
-        if(tech.target==='all_living_enemies'){
+        if(tech.reagentCost){
+          if(!Object.hasOwn(e,'reagent'))fail();
+          const cost=tech.reagentCost,next=state.inventory.slice();
+          for(let n=0;n<cost.quantity;n++){const at=next.indexOf(cost.itemId);if(at<0)fail();next.splice(at,1);}
+          equal(e.reagent,{...cost,inventoryBefore:state.inventory,inventoryAfter:next});state.inventory=next;
+        }else if(Object.hasOwn(e,'reagent'))fail();
+        if(tech.effect==='accuracy_down'){
+          equal(e.before,target.accuracyEffect||null);
+          equal(e.after,{techniqueId:tech.id,appliedRound:r.round,expiresRound:witnessAccuracyExpiry(tech,r.round,r.order,actor.instanceId,target.instanceId)});
+          target.accuracyEffect=clone(e.after);
+        }else if(tech.target==='all_living_enemies'){
           equal(e.elements,tech.elements);equal(e.targetIds,action.targetIds);
           if(e.power!==tech.power)fail();
           const targets=action.targetIds.map(member).filter(available);list(e.hits,targets.length,targets.length);
@@ -2343,6 +2408,13 @@ const partyCommandPlayback = (() => {
       }
       const e=take(p.commandType==='item'&&spec(c.command.itemId).effect==='equip'?'equipment':p.commandType);matching(e,p);
       if(e.type==='attack'){
+        if(Object.hasOwn(e,'accuracy')!==!!actor.accuracyEffect)fail();
+        if(actor.accuracyEffect){
+          keys(e.accuracy,['roll','chance']);
+          const chance=witnessAccuracy(target.effective.evadeAll?1:Math.max(witnessEvasion(actor.spd,target.effective.spd,false),
+            state.effects[target.slot].evadeTurns>0?BULLET_TIME_EVADE_RATE:0),actor.accuracyEffect);
+          if(!roll(e.accuracy.roll)||e.accuracy.chance!==chance||e.evaded!==(e.accuracy.roll<chance))fail();
+        }
         const bonus=target.side==='enemy'?(target.meleeArmor||0):0;
         if(Object.hasOwn(e,'armor')!==!!bonus)fail();
         if(bonus){keys(e.armor,['defense','bonus','rolls','fumbled']);const a=e.armor;
@@ -2409,6 +2481,10 @@ const partyCommandPlayback = (() => {
     for(const m of state.enemies.filter(m=>m.braced)){
       const e=take('brace_end');equal(e,{type:'brace_end',actorId:m.instanceId,before:true,after:false,
         reason:finalOutcome==='ongoing'?'round_end':'cleanup'});m.braced=false;push(e);
+    }
+    for(const m of state.enemies)if(m.accuracyEffect&&(finalOutcome!=='ongoing'||!available(m)||r.round>=m.accuracyEffect.expiresRound)){
+      const e=take('resonance_accuracy_end');equal(e,{type:'resonance_accuracy_end',actorId:m.instanceId,before:m.accuracyEffect,
+        reason:finalOutcome!=='ongoing'?'cleanup':!available(m)?'unavailable':'expired'});delete m.accuracyEffect;push(e);
     }
     for(const cap of state.resonance||[])if(cap.strain>0&&(finalOutcome!=='ongoing'||cap.appliedRound!==r.round)){
       const after=finalOutcome==='ongoing'?cap.strain-1:0;
@@ -2500,7 +2576,7 @@ const FORMATION_STATE_DATA_FIELDS = Object.freeze([
 const FORMATION_STATE_UNSUPPORTED_FIELDS = Object.freeze([
   'defendChance', 'curseChance', 'acidChance', 'splits', 'regenPerTurn',
   'meleeArmor', 'counterChance', 'poisonChance', 'sex', 'dazzleChance',
-  'stealAndFlee', 'runLock', 'guaranteedDrop', 'inline', 'thornsReflect', 'swallowAfterRounds', 'fenTactic',
+  'stealAndFlee', 'runLock', 'guaranteedDrop', 'inline', 'thornsReflect', 'swallowAfterRounds', 'fenTactic', 'vitalStrikes',
 ]);
 
 // State construction stays inactive. Lab and Receiver lifecycle owners call it.
@@ -2994,6 +3070,9 @@ function itemAllowsEncounterEscape(itemId, enemies) {
   return itemId === 'Serpentsmoke' && living.length > 0 && living.every(e => e.id === 'enemy_fen_zolom');
 }
 
+// Components remain visible in the inventory and shops, but have no Item action.
+function battleItemGroups() { return groupItems().filter(({item})=>item.type!=='component'); }
+
 function formationItemDefinition(itemId) {
   if (typeof itemId !== 'string' || !Object.hasOwn(ITEM_REGISTRY,itemId)) throw new Error('Invalid formation item');
   const item = copyFormationData(ITEM_REGISTRY[itemId]);
@@ -3010,8 +3089,8 @@ function formationItemDefinition(itemId) {
     throw new Error('Unsupported escape item');
   const effect = item.escapeEnemyId ? 'escape' : item.sexBane ? 'reagent' : item.type === 'potion' ? (isStatusCureItem(item) ? 'cure' : 'heal') :
     item.type === 'buff' ? 'evade' : item.type === 'throwable' ? (item.fuse ? 'bomb' : item.targetsAll ? 'damage_all' : 'damage') :
-    item.type === 'stun' ? 'stun' : slotForType(item.type) ? 'equip' : item.type === 'bait' ? 'nothing' : null;
-  if (!effect) throw new Error('Unsupported formation item');
+    item.type === 'stun' ? 'stun' : slotForType(item.type) ? 'equip' : item.type === 'bait' ? 'nothing' : item.type === 'component' ? 'component' : null;
+  if (!effect || effect==='component'&&(Object.keys(item).some(k=>!['name','type','price'].includes(k))||!Number.isSafeInteger(item.price)||item.price<0)) throw new Error('Unsupported formation item');
   return {item,effect,targeted:['escape','reagent','bomb','damage','stun'].includes(effect)};
 }
 
@@ -3036,7 +3115,7 @@ function validateFormationRoundCommand(action) {
   assertSinglePlayerExecution();
   const type = Object.getOwnPropertyDescriptor(action || {},'type')?.value;
   let spec = null;
-  if (type === 'item') spec = formationItemDefinition(Object.getOwnPropertyDescriptor(action,'itemId')?.value);
+  if (type === 'item') {spec = formationItemDefinition(Object.getOwnPropertyDescriptor(action,'itemId')?.value);if(spec.effect==='component')throw Error('Unsupported component Item action');}
   const targeted = ['attack','observe'].includes(type) || spec?.targeted;
   const keys = type === 'item' ? ['type','itemId',...(targeted ? ['targetInstanceId'] : [])] :
     ['attack','observe'].includes(type) ? ['type','targetInstanceId'] : type === 'run' ? ['type'] : null;
@@ -3511,6 +3590,7 @@ function createFormationCommandPlayback(source) {
   const command=result.command;
   let spec=null;
   try { if (command.type==='item') spec=formationItemDefinition(command.itemId); } catch (_) { fail(); }
+  if(spec?.effect==='component')fail();
   const targeted=['attack','observe'].includes(command.type) || !!spec?.targeted;
   const keys=command.type==='item' ? ['type','itemId',...(targeted?['targetInstanceId']:[])] :
     ['attack','observe'].includes(command.type) ? ['type','targetInstanceId'] : command.type==='run' ? ['type'] : null;
@@ -3728,7 +3808,7 @@ const formationSessionController = (() => {
   };
   const selectedAction = state => ({...state.command, targetInstanceId:state.selectedTargetInstanceId});
   const validateSelection = state => validateFormationBasicAttackState({type:'attack',targetInstanceId:state.selectedTargetInstanceId},true);
-  const itemRows = () => groupItems().map(({name,item,count}) => Object.freeze({itemId:name,name,count,
+  const itemRows = () => battleItemGroups().map(({name,item,count}) => Object.freeze({itemId:name,name,count,
     detail:itemStatParen(item), targetsEnemy:formationItemDefinition(name).targeted}));
   const itemWindow = (cursor,total) => Math.max(0,Math.min(cursor-1,Math.max(0,total-3)));
   const resolve = (state, command) => {
@@ -5062,6 +5142,9 @@ const ENEMY_OBSERVATIONS = {
     {lines:['A broad-winged lake scavenger, bold enough to snatch from an open pack.',
       'It steals gold on its first clean hit, then tries to fly off. Bring it down quickly.']},
   ],
+  enemy_meat_paw: [
+    {lines:['Paw takes a third of maximum HP, at least 50. Claw takes half, at least 100.',
+      'Pounce fells one person outright. All three can miss. Running is impossible.']}],
   enemy_peat_bed_maw: [
     {lines:['A mouth rooted beneath the peat. The whole clearing is its jaw.',
       'Defeat it within six full rounds. If it survives the sixth, Swallow takes the whole party.']},
@@ -5727,7 +5810,7 @@ function handleCombatAction() {
     // Grouped view: multiples of the same item share one row (see groupItems()),
     // exactly like the pause menu's item list. The cursor indexes groups; the
     // action operates on the group's representative instance.
-    const groups = groupItems();
+    const groups = battleItemGroups();
     if (combat.itemCursor === groups.length) {
       // "Back" entry selected \u2014 return to the action menu; no turn spent, no enemy response.
       combat.phase = 'choose';
@@ -5746,7 +5829,7 @@ function handleCombatAction() {
     let enemyActs = true; // whether the enemy still gets its turn after this
     if (item.escapeEnemyId) {
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
       if (itemAllowsEncounterEscape(item.name, [enemy])) {
         combat.message = 'Serpentsmoke hides your scent. You escape the Fen Zolom!';
         combat.messageQueue = []; combat.pendingEscape = true; combat.phase = 'message';
@@ -5758,7 +5841,7 @@ function handleCombatAction() {
       // A sex-matched target drops instantly (no counter); the wrong sex, or any
       // enemy without a sex, shrugs it off and the turn is wasted.
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
       if (enemy.sex === item.sexBane) {
         enemy.hp = 0;
         msgs.push(`Used ${item.name} \u2014 the ${enemy.name} stiffens, shudders once, and goes still. The right sort.`);
@@ -5777,7 +5860,7 @@ function handleCombatAction() {
         // below, via enemyActs). Never heals HP or touches an unrelated status.
         const res = applyStatusCure(item);
         stats.items.splice(stats.items.indexOf(item), 1);
-        combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+        combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
         msgs.push(res.message);
       } else {
         const healed = healingItemAmount(item, stats.hp, stats.maxHp);
@@ -5785,7 +5868,7 @@ function handleCombatAction() {
         const muddies = MUDSLITHER_INFLICTABLE && item.causesMuddied;
         if (muddies) addStatusEffect('muddied');
         stats.items.splice(stats.items.indexOf(item), 1);
-        combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+        combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
         msgs.push(muddies
           ? `Used ${item.name} \u2014 restored ${healed} HP. Legs feel heavy.`
           : `Used ${item.name} \u2014 restored ${healed} HP!`);
@@ -5796,7 +5879,7 @@ function handleCombatAction() {
       // response is now rolled against the fresh evade rate.
       if (item.evadeTurns) combat.evadeTurns = item.evadeTurns;
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
       const pct = Math.round((item.evadeRate || 0) * 100);
       msgs.push(`Used ${item.name} \u2014 the world slows to a crawl. Evade up to ${pct}% for ${item.evadeTurns} turns.`);
     } else if (item.type === 'throwable' && item.fuse) {
@@ -5809,7 +5892,7 @@ function handleCombatAction() {
       combat.bombIgnoresDef = !!item.ignoresDef;
       combat.bombJustArmed  = true;   // this turn is the "use" turn, not one of the three after
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
       msgs.push(`You prime the ${item.name} and lob it at the ${enemy.name}. Its fuse begins to hiss\u2026`);
     } else if (item.type === 'throwable') {
       // Immediate damage consumable (e.g. Sapper Charge). Always lands (no evade
@@ -5818,7 +5901,7 @@ function handleCombatAction() {
       const dmg = offensiveItemDamage(item, enemy);
       enemy.hp = Math.max(0, enemy.hp - dmg);
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
       msgs.push(`Used ${item.name} \u2014 it ${item.impactVerb || 'hits'} the ${enemy.name} for ${dmg} damage!`);
       if (enemy.hp <= 0) {
         applyKillRewards(enemy, msgs);
@@ -5831,7 +5914,7 @@ function handleCombatAction() {
       // enemyRegenEntry). On anything that doesn't regenerate it does nothing and
       // the turn is wasted, matching a mismatched reagent. Consumed either way.
       stats.items.splice(stats.items.indexOf(item), 1);
-      combat.itemCursor = Math.min(combat.itemCursor, groupItems().length);
+      combat.itemCursor = Math.min(combat.itemCursor, battleItemGroups().length);
       if (enemy.regenPerTurn) {
         combat.enemyStunTurns = 1;
         enemyActs = false;

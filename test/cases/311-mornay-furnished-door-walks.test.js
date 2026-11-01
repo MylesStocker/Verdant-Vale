@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert/strict');
-const {J,fresh,place,until}=require('./301-mornay-manifest.test');
+const {J,fresh,place,until,dismiss}=require('./301-mornay-manifest.test');
 // Plan against live player collision, then execute exclusively with real held
 // controls. Interior placement is never used to bypass a furnished parent room.
 function pathTo(g,x,y){
@@ -68,7 +68,17 @@ module.exports={
     const chain=[b];let parent=rooms.find(p=>p.mapId===b.sourceMapId);
     while(parent){chain.unshift(parent);parent=rooms.find(p=>p.mapId===parent.sourceMapId);}
     place(g,chain[0].sourceMapId);assert.equal(g.run('canWalk(player.x,player.y)'),true,'street arrival');
-    for(const room of chain)enter(g,room);
+    const closed=day===5 && ['shop','school','office'].includes(chain[0].kind);
+    if(closed){
+     const front=chain[0];
+     walk(g,(front.returnCol+.5)*32,(front.returnRow+.5)*32,front.id+' closed approach');
+     until(g,front.returnRow>front.doorRow?'ArrowUp':'ArrowDown',()=>g.run('dialogue.open'));
+     assert.equal(g.run('mapIdForRef(activeMap)'),front.sourceMapId,'Dayoff entrance remains shut');
+     assert.match(g.run('JSON.stringify(dialogue.pages)'),/Closed for Dayoff/);dismiss(g);
+     // An earlier save may be inside the shop or its home. Every return stays open.
+     place(g,b.mapId);
+     assert.equal(g.run('saveGame()&&loadGame()'),true,b.id+' closed-day save/load');dismiss(g);
+    }else for(const room of chain)enter(g,room);
     if(chain.length>1){
      assert.equal(g.run('saveGame()'),true,b.id+' nested save');
      place(g,'MORNAY_WEST_GATE_MAP');assert.equal(g.run('loadGame()'),true);g.run('dialogue.open=false;');

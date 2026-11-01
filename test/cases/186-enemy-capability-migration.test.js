@@ -4,6 +4,8 @@ const {createContext}=require('../harness');
 const ROOT=path.join(__dirname,'../..'),checks=[],test=(name,run)=>checks.push({name,run});
 const J=(g,s)=>JSON.parse(g.run('JSON.stringify('+s+')'));
 const ORDINARY=[
+  'enemy_folded_seep','enemy_inverted_maw','enemy_knotted_tendril',
+  'enemy_manyfold_seep','enemy_hollowed_maw','enemy_nerve_lattice',
   'enemy_shingleback_crab','enemy_storm_gull',
   'enemy_peatback','enemy_drownlight','enemy_blackbriar_hound','enemy_bell_throated_toad','enemy_reedbinder','enemy_bladder_leech',
   'enemy_marsh_wisp','enemy_briar_hound','enemy_marsh_wisp_early','enemy_briar_hound_early',
@@ -30,7 +32,7 @@ const ORDINARY=[
   // (boss_escape_lock, canonical:true) already used by Takomo/Mulholland/etc.
   'enemy_fen_zolom','enemy_buzzy_beetle','enemy_large_buzzy_beetle',
   // Optional Mornay removal contracts reuse basic attack/observe/rewards.
-  'enemy_peat_bed_maw','enemy_ridgeback_snapper',
+  'enemy_peat_bed_maw','enemy_ridgeback_snapper','enemy_meat_paw',
 ];
 const SPECIAL={};
 const SCRIPTED={
@@ -82,7 +84,7 @@ test('the audit covers every registered production template exactly once and rec
   const text=fs.readFileSync(path.join(ROOT,'ENEMY_CAPABILITY_AUDIT.md'),'utf8');
   const rows=[...text.matchAll(/^\| `(enemy_[^`]+)`[^\n]*\| (ordinary|special capability pending|scripted-only lifecycle|non-production\/debug fixture) \|/gm)]
     .map(match=>({id:match[1],category:match[2]}));
-  assert.equal(rows.length,83);assert.equal(new Set(rows.map(r=>r.id)).size,83);
+  assert.equal(rows.length,90);assert.equal(new Set(rows.map(r=>r.id)).size,90);
   const g=fresh();assert.deepEqual(rows.map(r=>r.id).sort(),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY).sort()'));
   assert.deepEqual(rows.filter(r=>r.category==='ordinary').map(r=>r.id).sort(),ORDINARY.slice().sort());
   assert.deepEqual(rows.filter(r=>r.category==='special capability pending').map(r=>r.id).sort(),Object.keys(SPECIAL).sort());
@@ -90,8 +92,8 @@ test('the audit covers every registered production template exactly once and rec
   assert.equal(rows.filter(r=>r.category==='non-production/debug fixture').length,0);
 });
 
-test('all 83 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
-  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),83);
+test('all 90 deterministic metadata records are closed, deeply frozen and capability-valid',()=>{
+  const g=fresh();assert.equal(g.run('validateEnemyCapabilityRegistry()'),90);
   assert.deepEqual(J(g,'Object.keys(ENEMY_CAPABILITY_REGISTRY)'),J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)'));
   for(const id of J(g,'Object.keys(ENEMY_TEMPLATE_REGISTRY)')){
     const metadata=g.run('ENEMY_CAPABILITY_REGISTRY['+JSON.stringify(id)+']');frozen(metadata);
@@ -114,7 +116,7 @@ test('all 83 deterministic metadata records are closed, deeply frozen and capabi
   assert.deepEqual(J(g,'Array.from(ENEMY_GENERIC_SPRITE_IDS)'),['enemy_takomo']);
   assert.equal(g.run('Object.hasOwn(ENEMY_SPRITE_DISPATCH,"enemy_takomo")'),false);
   assert.deepEqual(J(g,'CANONICAL_ENEMY_CAPABILITIES'),['fen_tactics','basic_attack','standard_observe','standard_rewards','boss_escape_lock','brace',
-    'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','swallow_deadline','melee_armor','counterattack',
+    'curse_on_hit','void_shard_burst','acid_corrosion','split_followup','regeneration','vital_strikes','swallow_deadline','melee_armor','counterattack',
     'poison_on_hit','mire_toad_reagent_observation','slither_on_hit','poison_spell','dazzle_on_hit','steal_and_flee',
     'observe_run_lock','guaranteed_drop','generated_stats','warden_lifecycle','persistent_hp_lifecycle','rainfish_chain',
     'takomo_lifecycle','den_wraith_lifecycle','sailor_brawl_lifecycle','wrongteeth_lifecycle',

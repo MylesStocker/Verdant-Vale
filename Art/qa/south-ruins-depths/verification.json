@@ -1,0 +1,19 @@
+{
+  "baselineSuites": 288,
+  "finalSuites": 289,
+  "failedSuites": 0,
+  "browserChecks": 639,
+  "browserCaptures": 36,
+  "validationErrors": 0,
+  "existingWarnings": 6,
+  "syntaxChecks": 66,
+  "regionalFingerprints": 1059,
+  "maps": 1309,
+  "newMaps": 36,
+  "newDirectedDoors": 72,
+  "checkedFixedTransitions": 571,
+  "saveVersion": 5,
+  "head": "1519a92fbdd63b55241888c5917372a18351528d",
+  "committed": false,
+  "pushed": false
+}

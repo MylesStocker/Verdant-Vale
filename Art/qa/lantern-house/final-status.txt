@@ -1,0 +1,246 @@
+Branch: main
+HEAD: 1519a92fbdd63b55241888c5917372a18351528d
+Staged: none
+Committed/pushed: no
+
+ M Art/qa/regional-geography/inventory.json
+ M Art/qa/regional-geography/overview.svg
+ M ENEMY_CAPABILITY_AUDIT.md
+ M LORE.md
+ M MORNAY_TOWN_PLAN.md
+ M OVERWORLD_ATLAS.md
+ M PROJECT_STATUS.md
+ M REGIONAL_GEOGRAPHY_PLAN.md
+ M activity-ownership.js
+ M architecture.md
+ M content/interactions/calwick-interactions.js
+ M content/maps/mainland-maps.js
+ M content/maps/south-ruins-maps.js
+ M content/npcs/drenwick-interior-npcs.js
+ M content/npcs/mornay-npcs.js
+ M continuous-content.js
+ M data.js
+ M debug-warp.js
+ M enemy-catalog.js
+ M index.html
+ M input.js
+ M interactions.js
+ M movement.js
+ M mq5-assignment-cutscene.js
+ M npcs.js
+ M quests.js
+ M render-battle.js
+ M render-mornay.js
+ M render.js
+ M save.js
+ M scripted-party-encounters.js
+ M state.js
+ M story-checkpoint-lab.js
+ M test/cases/100-east-causeway.test.js
+ M test/cases/101-west-outfall-canal-tunnel.test.js
+ M test/cases/102-north-basin-drowned-rim.test.js
+ M test/cases/103-north-basin-mirewood.test.js
+ M test/cases/104-eastern-reaches-abandoned-farmhouse.test.js
+ M test/cases/159-mq5-east-ferry.test.js
+ M test/cases/179-mq5-esla-recruitment.test.js
+ M test/cases/186-enemy-capability-migration.test.js
+ M test/cases/188-status-specials-party-combat.test.js
+ M test/cases/189-unusual-enemy-capabilities-party-combat.test.js
+ M test/cases/191-universal-party-combat-compatibility.test.js
+ M test/cases/192-story-checkpoint-lab.test.js
+ M test/cases/199-travellers-rise-ambush.test.js
+ M test/cases/201-travellers-rise-campsite.test.js
+ M test/cases/207-travellers-rise-campfire-night.test.js
+ M test/cases/218-mornay-exterior-topology.test.js
+ M test/cases/301-mornay-manifest.test.js
+ M test/cases/308-mornay-dialogue-reservations.test.js
+ M test/cases/321-mornay-office-tenement.test.js
+ M test/cases/51-save-binding-registry-migration.test.js
+ M test/cases/52-stable-persistence-ids.test.js
+ M test/cases/58-regional-content-split.test.js
+ M test/cases/98-thornmere-upper-shallows-scenery.test.js
+ M test/cases/99-thornmere-canal-head.test.js
+ M test/fixtures/regional-grid-fingerprints.js
+ M test/fixtures/wilderness-discoveries-history.js
+ M test/regional-atlas.js
+ M test/transition-audit-output.json
+ M test/transition-audit.js
+ M validation.js
+?? Art/qa/greybank/README.md
+?? Art/qa/greybank/assignment-1x.png
+?? Art/qa/greybank/assignment-2x.png
+?? Art/qa/greybank/baseline.json
+?? Art/qa/greybank/browser-results.json
+?? Art/qa/greybank/confrontation-1x.png
+?? Art/qa/greybank/confrontation-2x.png
+?? Art/qa/greybank/fight-0-1x.png
+?? Art/qa/greybank/fight-0-2x.png
+?? Art/qa/greybank/fight-1-1x.png
+?? Art/qa/greybank/fight-1-2x.png
+?? Art/qa/greybank/fight-2-1x.png
+?? Art/qa/greybank/fight-2-2x.png
+?? Art/qa/greybank/fight-3-1x.png
+?? Art/qa/greybank/fight-3-2x.png
+?? Art/qa/greybank/fight-4-1x.png
+?? Art/qa/greybank/fight-4-2x.png
+?? Art/qa/greybank/final-audience-1x.png
+?? Art/qa/greybank/final-audience-2x.png
+?? Art/qa/greybank/final-status.txt
+?? Art/qa/greybank/grain-store-1x.png
+?? Art/qa/greybank/grain-store-2x.png
+?? Art/qa/greybank/grid-deltas.json
+?? Art/qa/greybank/machinery-1x.png
+?? Art/qa/greybank/machinery-2x.png
+?? Art/qa/greybank/main-floor-1x.png
+?? Art/qa/greybank/main-floor-2x.png
+?? Art/qa/greybank/metadata-deltas.json
+?? Art/qa/greybank/mill-marker-1x.png
+?? Art/qa/greybank/mill-marker-2x.png
+?? Art/qa/greybank/vision-1x.png
+?? Art/qa/greybank/vision-2x.png
+?? Art/qa/greybank/wheelhouse-1x.png
+?? Art/qa/greybank/wheelhouse-2x.png
+?? Art/qa/greybank/yard-1x.png
+?? Art/qa/greybank/yard-2x.png
+?? Art/qa/lantern-house/README.md
+?? Art/qa/lantern-house/accord-extract-1x.png
+?? Art/qa/lantern-house/accord-extract-2x.png
+?? Art/qa/lantern-house/after-intake-1x.png
+?? Art/qa/lantern-house/after-intake-2x.png
+?? Art/qa/lantern-house/browser-results.json
+?? Art/qa/lantern-house/common-room-1x.png
+?? Art/qa/lantern-house/common-room-2x.png
+?? Art/qa/lantern-house/fight-0-1x.png
+?? Art/qa/lantern-house/fight-0-2x.png
+?? Art/qa/lantern-house/fight-1-1x.png
+?? Art/qa/lantern-house/fight-1-2x.png
+?? Art/qa/lantern-house/fight-2-1x.png
+?? Art/qa/lantern-house/fight-2-2x.png
+?? Art/qa/lantern-house/fight-3-1x.png
+?? Art/qa/lantern-house/fight-3-2x.png
+?? Art/qa/lantern-house/fight-4-1x.png
+?? Art/qa/lantern-house/fight-4-2x.png
+?? Art/qa/lantern-house/final-status.txt
+?? Art/qa/lantern-house/grid-deltas.json
+?? Art/qa/lantern-house/guest-road-1x.png
+?? Art/qa/lantern-house/guest-road-2x.png
+?? Art/qa/lantern-house/guest-rooms-1x.png
+?? Art/qa/lantern-house/guest-rooms-2x.png
+?? Art/qa/lantern-house/guesthouse-1x.png
+?? Art/qa/lantern-house/guesthouse-2x.png
+?? Art/qa/lantern-house/guided-current-1x.png
+?? Art/qa/lantern-house/guided-current-2x.png
+?? Art/qa/lantern-house/gully-1x.png
+?? Art/qa/lantern-house/gully-2x.png
+?? Art/qa/lantern-house/history-1x.png
+?? Art/qa/lantern-house/history-2x.png
+?? Art/qa/lantern-house/intake-1x.png
+?? Art/qa/lantern-house/intake-2x.png
+?? Art/qa/lantern-house/lantern-sign-1x.png
+?? Art/qa/lantern-house/lantern-sign-2x.png
+?? Art/qa/lantern-house/lantern_ilan-1x.png
+?? Art/qa/lantern-house/lantern_ilan-2x.png
+?? Art/qa/lantern-house/lantern_mara-1x.png
+?? Art/qa/lantern-house/lantern_mara-2x.png
+?? Art/qa/lantern-house/lantern_vena-1x.png
+?? Art/qa/lantern-house/lantern_vena-2x.png
+?? Art/qa/lantern-house/letters-1x.png
+?? Art/qa/lantern-house/letters-2x.png
+?? Art/qa/lantern-house/named-equal-1x.png
+?? Art/qa/lantern-house/named-equal-2x.png
+?? Art/qa/lantern-house/old-store-1x.png
+?? Art/qa/lantern-house/old-store-2x.png
+?? Art/qa/lantern-house/politics-1x.png
+?? Art/qa/lantern-house/politics-2x.png
+?? Art/qa/lantern-house/private-bench-1x.png
+?? Art/qa/lantern-house/private-bench-2x.png
+?? Art/qa/lantern-house/private-response-1x.png
+?? Art/qa/lantern-house/private-response-2x.png
+?? Art/qa/lantern-house/reed-cut-1x.png
+?? Art/qa/lantern-house/reed-cut-2x.png
+?? Art/qa/lantern-house/supply-cache-1x.png
+?? Art/qa/lantern-house/supply-cache-2x.png
+?? Art/qa/lantern-house/tidebound-1x.png
+?? Art/qa/lantern-house/tidebound-2x.png
+?? Art/qa/lantern-house/truthful-report-1x.png
+?? Art/qa/lantern-house/truthful-report-2x.png
+?? Art/qa/lantern-house/verification.json
+?? Art/qa/lantern-house/voss-assignment-1x.png
+?? Art/qa/lantern-house/voss-assignment-2x.png
+?? Art/qa/lantern-house/welcome-1x.png
+?? Art/qa/lantern-house/welcome-2x.png
+?? Art/qa/mornay-report/esla-audience-1x.png
+?? Art/qa/mornay-report/esla-audience-2x.png
+?? Art/qa/mornay-report/lely-account-1x.png
+?? Art/qa/mornay-report/lely-account-2x.png
+?? Art/qa/mornay-report/solo-audience-1x.png
+?? Art/qa/mornay-report/solo-audience-2x.png
+?? Art/qa/south-ruins-depths/README.md
+?? Art/qa/south-ruins-depths/browser-results.json
+?? Art/qa/south-ruins-depths/chest_south_depth_2-1x.png
+?? Art/qa/south-ruins-depths/chest_south_depth_2-2x.png
+?? Art/qa/south-ruins-depths/chest_south_depth_4-1x.png
+?? Art/qa/south-ruins-depths/chest_south_depth_4-2x.png
+?? Art/qa/south-ruins-depths/chest_south_depth_6-1x.png
+?? Art/qa/south-ruins-depths/chest_south_depth_6-2x.png
+?? Art/qa/south-ruins-depths/deep-battle-1x.png
+?? Art/qa/south-ruins-depths/deep-battle-2x.png
+?? Art/qa/south-ruins-depths/enemy_folded_seep-1x.png
+?? Art/qa/south-ruins-depths/enemy_folded_seep-2x.png
+?? Art/qa/south-ruins-depths/enemy_hollowed_maw-1x.png
+?? Art/qa/south-ruins-depths/enemy_hollowed_maw-2x.png
+?? Art/qa/south-ruins-depths/enemy_inverted_maw-1x.png
+?? Art/qa/south-ruins-depths/enemy_inverted_maw-2x.png
+?? Art/qa/south-ruins-depths/enemy_knotted_tendril-1x.png
+?? Art/qa/south-ruins-depths/enemy_knotted_tendril-2x.png
+?? Art/qa/south-ruins-depths/enemy_manyfold_seep-1x.png
+?? Art/qa/south-ruins-depths/enemy_manyfold_seep-2x.png
+?? Art/qa/south-ruins-depths/enemy_nerve_lattice-1x.png
+?? Art/qa/south-ruins-depths/enemy_nerve_lattice-2x.png
+?? Art/qa/south-ruins-depths/final-status.txt
+?? Art/qa/south-ruins-depths/floor-1-1x.png
+?? Art/qa/south-ruins-depths/floor-1-2x.png
+?? Art/qa/south-ruins-depths/floor-2-1x.png
+?? Art/qa/south-ruins-depths/floor-2-2x.png
+?? Art/qa/south-ruins-depths/floor-3-1x.png
+?? Art/qa/south-ruins-depths/floor-3-2x.png
+?? Art/qa/south-ruins-depths/floor-4-1x.png
+?? Art/qa/south-ruins-depths/floor-4-2x.png
+?? Art/qa/south-ruins-depths/floor-5-1x.png
+?? Art/qa/south-ruins-depths/floor-5-2x.png
+?? Art/qa/south-ruins-depths/floor-6-1x.png
+?? Art/qa/south-ruins-depths/floor-6-2x.png
+?? Art/qa/south-ruins-depths/grid-deltas.json
+?? Art/qa/south-ruins-depths/open-descent-1x.png
+?? Art/qa/south-ruins-depths/open-descent-2x.png
+?? Art/qa/south-ruins-depths/sealed-descent-1x.png
+?? Art/qa/south-ruins-depths/sealed-descent-2x.png
+?? Art/qa/south-ruins-depths/verification.json
+?? MQ5_MORNAY_REPORT.md
+?? MQ6_GREYBANK_MILL.md
+?? MQ7_MISSING_PRACTITIONER.md
+?? SOUTH_RUINS_DEPTHS.md
+?? content/interactions/lantern-house-dialogue.js
+?? content/maps/greybank-maps.js
+?? content/maps/lantern-house-maps.js
+?? content/maps/south-ruins-depths-maps.js
+?? content/npcs/greybank-npcs.js
+?? content/npcs/lantern-house-npcs.js
+?? greybank.js
+?? lantern-house.js
+?? mornay-report.js
+?? south-ruins-depths.js
+?? test/cases/350-mornay-report.test.js
+?? test/cases/351-greybank-mill.test.js
+?? test/cases/352-greybank-geography.test.js
+?? test/cases/353-south-ruins-depths.test.js
+?? test/cases/354-lantern-house.test.js
+?? test/fixtures/greybank-history.js
+?? test/greybank-browser.html
+?? test/greybank-browser.js
+?? test/lantern-house-browser.html
+?? test/lantern-house-browser.js
+?? test/mornay-report-browser.html
+?? test/mornay-report-browser.js
+?? test/south-ruins-depths-browser.html
+?? test/south-ruins-depths-browser.js

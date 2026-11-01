@@ -36,7 +36,10 @@
 // and the water stay safe, so you meet things in the reeds.
 // NORTH_BASIN_S_MAP’s 15×16 tile grid is now authored inline in its regional chunk definition record below.
 
-const NORTH_BASIN_S_ITEMS = [];
+const NORTH_BASIN_S_ITEMS = [
+  {id:'pickup_basin_dart_seed',name:'Dart Seed',x:10.5*TILE,y:6.5*TILE,picked:false,examine:true,
+    examinePages:[['Among the withered stalks, a closed pod rattles. You shake out a sound Dart Seed.'],['Found: Dart Seed.']]},
+];
 
 // ─── The North Basin — Silt Flats  (16 × 15) ─────────────────────────────────
 // The region's first real encounter map: a low, drying marsh field, still

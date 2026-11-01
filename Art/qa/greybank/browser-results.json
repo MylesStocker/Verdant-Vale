@@ -1,0 +1,115 @@
+{
+  "ok": true,
+  "checks": 2695,
+  "captures": [
+    "assignment-1x",
+    "mill-marker-1x",
+    "yard-1x",
+    "confrontation-1x",
+    "vision-1x",
+    "main-floor-1x",
+    "fight-0-1x",
+    "machinery-1x",
+    "fight-1-1x",
+    "grain-store-1x",
+    "fight-2-1x",
+    "wheelhouse-1x",
+    "fight-3-1x",
+    "fight-4-1x",
+    "final-audience-1x",
+    "assignment-2x",
+    "mill-marker-2x",
+    "yard-2x",
+    "confrontation-2x",
+    "vision-2x",
+    "main-floor-2x",
+    "fight-0-2x",
+    "machinery-2x",
+    "fight-1-2x",
+    "grain-store-2x",
+    "fight-2-2x",
+    "wheelhouse-2x",
+    "fight-3-2x",
+    "fight-4-2x",
+    "final-audience-2x"
+  ],
+  "battles": [
+    {
+      "scale": 1,
+      "id": 0,
+      "rounds": 3,
+      "hp": 120,
+      "esla": 55
+    },
+    {
+      "scale": 1,
+      "id": 1,
+      "rounds": 3,
+      "hp": 120,
+      "esla": 55
+    },
+    {
+      "scale": 1,
+      "id": 2,
+      "rounds": 4,
+      "hp": 120,
+      "esla": 40
+    },
+    {
+      "scale": 1,
+      "id": 3,
+      "rounds": 7,
+      "hp": 120,
+      "esla": 0
+    },
+    {
+      "scale": 1,
+      "id": 4,
+      "rounds": 4,
+      "hp": 100,
+      "esla": 0
+    },
+    {
+      "scale": 2,
+      "id": 0,
+      "rounds": 3,
+      "hp": 120,
+      "esla": 55
+    },
+    {
+      "scale": 2,
+      "id": 1,
+      "rounds": 3,
+      "hp": 120,
+      "esla": 55
+    },
+    {
+      "scale": 2,
+      "id": 2,
+      "rounds": 4,
+      "hp": 120,
+      "esla": 40
+    },
+    {
+      "scale": 2,
+      "id": 3,
+      "rounds": 7,
+      "hp": 120,
+      "esla": 0
+    },
+    {
+      "scale": 2,
+      "id": 4,
+      "rounds": 4,
+      "hp": 100,
+      "esla": 0
+    }
+  ],
+  "errors": [],
+  "mq5Compatibility": {
+    "ok": true,
+    "checks": 575,
+    "errors": []
+  },
+  "method": "Automated headless Chromium, real keyboard events and Canvas; checkpoint travel fixtures; ordinary level-10 checkpoint stats and inventory, deterministic 0.5 RNG; no human gameplay claim."
+}

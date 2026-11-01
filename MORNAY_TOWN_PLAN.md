@@ -1363,3 +1363,44 @@ door, quest stage or discovery flag is added; the family remains present, and th
 shop is available through Henric's ordinary conversation. Serpentsmoke is a
 consumable escape from Fen Zolom fights, not a general boss escape. Price and
 flavour wording remain revisable.
+
+
+## MQ5 arrival resolution — current implementation
+
+This increment supersedes the earlier report-blocking certificate/copy loop.
+Regional Magistrate Marit Voss accepts Calwick’s signed **Request for Assistance**
+and hears Lély’s account. Delivery completes MQ5 through `mq5_report_delivered`,
+but produces no actual assistance and starts no subsequent mission. `MainQuest`
+remains 5. The office is still evasive and occupied with favoured interests;
+Esla’s audience response is restrained and dry. Fine Needlework’s temporarily
+absent Esla does not appear or speak. The existing secret-shop tip is retained.
+No town layout, population, institution, sidequest or future-story reservation
+changes. The complete revised audience and review route are in
+[MQ5_MORNAY_REPORT.md](MQ5_MORNAY_REPORT.md).
+
+## MQ6 — Greybank commission follow-up
+
+After the separately completed MQ5 audience, a new deliberate interaction with
+Marit Voss offers The Greybank Mill for 150g. She profits from withheld relief
+grain and protects the operating partners; completing the expedition supplies no
+assistance to Calwick or Drenwick. Esla remains Imperial and committed to that
+mission. No Mornay resident, room, route or service is moved. Greybank's four
+new NPCs live only in its separate yard/tent, including a first-name-only Brenna
+distinct from existing Crooked Oar keeper Brenna Kett. Shared names are approved
+when stable NPC IDs and character metadata distinguish the people: here,
+`greybank_brenna` is the mill expedition's organiser and `mornay_brenna_kett`
+is the Fleck tavern keeper. MQ7, ships, island and hydrographer remain reserved. See
+MQ6_GREYBANK_MILL.md for the complete lifecycle and dialogue.
+
+## Dayoff content pass
+
+Public shops, the ward school and public offices now close on every fifth day;
+inns, the Crooked Oar, infirmary and watchhouse remain available. Closed buildings
+always permit departure, including from upstairs homes after loading a save.
+Vessa Kest, Enna Quist and Hessa Vane now support **A Song the Floor Can Bear**,
+a Dayoff-only offer that can be completed later for 60 gold. No new residents
+or rooms were added. See MORNAY_CALENDAR.md for the exact route, persistence,
+verification and five dated activities: Maelin/Jessa offer valuable early finds
+through Days 10/14; Fennel/Ressa/Enna unlock small neighbourly activities on Days
+16/21/26. Existing inventory supplies all rewards; a v5 bitmask prevents repeats.
+Names, payment and flavour remain revisable content.

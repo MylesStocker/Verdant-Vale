@@ -150,8 +150,8 @@ const DRENWICK_INTERIOR_NPCS = [
          'Moderately careful.”'],
       ], 'veth', [
         {speakerId:'veth',lines:['“Calwick’s escalation reached this desk. It says the matter exceeded both offices.”']},
-        {speakerId:'esla',lines:['“That is accurate. Mornay gets the sealed report and our firsthand account.”']},
-        {speakerId:'veth',lines:['“Good. The report will arrive with witnesses, then.”']},
+        {speakerId:'esla',lines:[mq5_report_delivered ? '“Mornay has the request and Lély’s account now. No people have been assigned.”' : '“That is accurate. Mornay gets the sealed report and our firsthand account.”']},
+        {speakerId:'veth',lines:[mq5_report_delivered ? '“Acknowledged and acted on. Different columns, apparently.”' : '“Good. The report will arrive with witnesses, then.”']},
       ]);
       const pages = [
         ['\u201cCalwick posting. I heard about it.\u201d',
@@ -199,8 +199,8 @@ const DRENWICK_INTERIOR_NPCS = [
       pages.push(...drenwickObserverConcernPages('veth'));
       return postMq5CompanionDialogue(pages, 'veth', [
         {speakerId:'veth',lines:['“Calwick’s escalation reached this desk. It says the matter exceeded both offices.”']},
-        {speakerId:'esla',lines:['“That is accurate. Mornay gets the sealed report and our firsthand account.”']},
-        {speakerId:'veth',lines:['“Good. The report will arrive with witnesses, then.”']},
+        {speakerId:'esla',lines:[mq5_report_delivered ? '“Mornay has the request and Lély’s account now. No people have been assigned.”' : '“That is accurate. Mornay gets the sealed report and our firsthand account.”']},
+        {speakerId:'veth',lines:[mq5_report_delivered ? '“Acknowledged and acted on. Different columns, apparently.”' : '“Good. The report will arrive with witnesses, then.”']},
       ]);
     },
     flag_required: null,

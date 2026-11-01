@@ -23,7 +23,7 @@ module.exports={
    assert.equal(persistent(g),before);assert.deepEqual(J(g,'[mapIdForRef(activeMap),snapshotLocationState()]'),location,notice.id+' grants no access');
    assert.ok(!Object.hasOwn(notice,'onInteract'));assert.ok(!Object.hasOwn(notice,'flag_sets'));
   }
-  const keys=J(g,'Object.keys(MORNAY_COMPANION_EXCHANGES)');assert.equal(keys.length,11);
+  const keys=J(g,'Object.keys(MORNAY_COMPANION_EXCHANGES)');assert.deepEqual(keys,['mornay_halden_quill','mornay_inessa_cray','mornay_yara_kelm','mornay_elrin_vey','mornay_dena_mere','mornay_nessa_quill']);
   for(const recruited of [false,true]){
    if(recruited)g.run('persistentParty.joinEsla();');
    // Explicit Courier New model: harness fixed width is not pagination evidence.

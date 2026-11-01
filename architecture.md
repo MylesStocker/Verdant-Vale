@@ -1,6 +1,120 @@
 # Architecture
 
+## Mornay calendar
+
+`mornay-calendar.js` owns the Dayoff supper-request quest and notebook projection;
+`mornay_dayoff_music` is its defaulted v5 stage (0–4). `mornay_calendar_claims`
+is a defaulted five-bit receipt for the dated activities in the same module. Availability is
+derived from the existing global day. Input dispatch keeps main-quest/older
+quest handlers first; callback commits recheck NPC proximity and expected stage.
+`state.js` derives Mornay building/shop Dayoff closures. Public entry is gated in
+`enterMornayBuilding`; return transitions stay open. Merchant greetings and their
+callbacks both enforce closure. No NPC duplication or schedule persistence.
+Claim callbacks recheck the global date, NPC proximity and claim bit. The board
+and notebook are read-only projections. See MORNAY_CALENDAR.md for exact windows.
+
+## MQ7 — Lantern House
+
+`lantern-house.js` owns an eight-stage offered/active/completed investigation,
+point doors, repeatable readings and transient dialogue/choice sessions.
+`content/maps/lantern-house-maps.js` owns nine discrete grids and 18 directed
+reciprocal passages; the sole regional entrance is Shingle Headlands (20,0),
+local (7,3). No regional camera or seam changes. Actor records live in
+`content/npcs/lantern-house-npcs.js`; authored speech is separate in
+`content/interactions/lantern-house-dialogue.js`. Neris has one stage-derived
+location, never a duplicate actor or party slot.
+
+Three lexical v5 bindings (`lantern_stage`, `lantern_wins`, `lantern_cache_taken`)
+own all persistence. Stage doubles as mandatory narrative and payment receipt.
+Live/save-candidate invariants reject impossible combinations. Old v5 fields
+default to zero/false. `scriptedPartyEncounters` authenticates the five existing
+enemy formations and is the only production victory-bit writer. Shared combat
+owns stats, inventory, XP, gold, defeat recovery and escape.
+
+Activity ownership, input, movement and saving respect the transient scene lock.
+Callback generations plus origin, progress and availability checks prevent replay.
+Central scenes require actual available Esla, including a present Fallen member;
+no scene joins, summons or heals her. Her field sprite is a checked temporary
+projection; speaker pages own her green speech. The MQ7-ready checkpoint resets
+all transient state and installs completed MQ6 without granting a second fee.
+See MQ7_MISSING_PRACTITIONER.md for progression, narrative and verification.
+
+
+## South Ruins — post-MQ6 depths
+
+`content/maps/south-ruins-depths-maps.js` owns 36 discrete catalog maps and
+72 reciprocal point doors. `south-ruins-depths.js` gates only the old-room
+entrance on `greybank_stage === 4`, delegates placement to `transitionToLocation`
+and grants three registered chest rewards once. New rooms use neutral location
+context and catalog encounter pools; the old-room return restores floor 13.
+There are no new location flags, quest flags or save fields (SAVE_VERSION 5).
+The old regional geography and the original dungeon's combat routing are intact.
+Six sprites reuse existing animated draws through a bounded, read-only distortion
+wrapper. See SOUTH_RUINS_DEPTHS.md and suite 353 for geometry and lifecycle checks.
+
+## MQ6 — Greybank Mill
+
+`greybank.js` owns the offered/active/completed main-quest lifecycle after
+`mq5_report_delivered`. Acceptance alone sets `MainQuest=6`; turn-in sets stage 4
+and pays 150g without activating MQ7. Four registered lexical fields own stage,
+authenticated victory bits, the mandatory vision receipt and optional chest.
+The stage doubles as the mill-access and payment receipt. SAVE_VERSION remains 5.
+
+Six discrete maps and twelve reciprocal point doors live in
+`content/maps/greybank-maps.js`. One existing regional cell at (21,7), local
+(10,7), is the sole surface entrance; there is no new structural seam or bypass.
+`continuous-content.js:OUTDOOR_MAP_DECOR` renders its static marker for active and
+neighbour views. Interaction and passage dispatch remain active-map-only.
+
+`scriptedPartyEncounters` runs the existing templates through canonical combat
+for both solo and party play. Only authenticated victories write clearance bits.
+Scene tokens, checked Esla projections, input/ownership guards and checkpoint
+reset are transient. The mandatory white vision reuses `enterDream/exitDream`
+and persists only after exact restoration. Live and candidate-save invariants
+reject inconsistent stages, victories and receipts. See MQ6_GREYBANK_MILL.md.
+
+## MQ5 delivery at Mornay
+
+`mornay-report.js` owns the transient audience with existing Magistrate Marit
+Voss. `interactSimpleNPCs()` delegates her eligible, in-range office interaction
+before generic NPC dialogue. Genuine assignment and mandatory Gallery/report
+prerequisites are required; arrival alone never invokes completion. The report
+is mission-owned narrative state, not an inventory item.
+
+`quests.js:mq5_report_delivered` is the sole resolution authority, registered
+once through the lexical getter/setter in `save.js`. It is set only by the
+final audience callback after checking its live token, office, witness position,
+assignment eligibility and unchanged companion presence. Replays and reset
+callbacks cannot hand it over again. `MainQuest` remains 5: ferry, exploration
+and existing sidequests stay available; no MQ6 is automatically activated. A later
+deliberate conversation now offers MQ6 through `greybank.js`. The completion
+invariant validates live and candidate save data. Missing current-version flags
+default false; SAVE_VERSION stays 5. The save validator checks lexical getters
+without demanding an unnecessary window mirror; existing legacy mirrors remain.
+
+The audience uses existing speaker-aware dialogue and Esla’s light-green style.
+A stationary Esla field projection occupies a checked clear floor position beside
+Lély and enters `drawMornayRoomActors()`’s existing depth sort. No walking route
+or player relocation is introduced. `persistentParty.isAvailable('esla')`, not
+HP, governs her presence; absence prevents both sprite and speech. Input and
+simulation ownership freeze the room until dialogue finishes; save/load are
+blocked only during that transient audience. The checkpoint reset invalidates
+its callback and removes the projection. Party/resource authorities are read-only.
+
+The appended `mq5_mornay_report_ready` Story Checkpoint Lab definition reuses
+approved equipment, inventory and level profiles, with road victory and camp
+stage 2, at `(144,144)` in `MORNAY_OFFICE_MAP`. Its candidate invariant includes
+the already-validated proposed party membership, allowing a genuine post-camp
+fixture without altering live state during preparation. Applying it never writes
+stored saves. See `MQ5_MORNAY_REPORT.md` and suite 350.
+
 ## Current maintenance contracts
+
+NPC display names need not be unique. Separate people may share a name when
+their stable NPC IDs and character metadata distinguish their identities, roles
+and locations. Do not use a display name as an identity key or merge characters
+because their names match. Greybank's `greybank_brenna` and the Crooked Oar's
+`mornay_brenna_kett` are an approved example.
 
 Historical pass descriptions below record how systems were introduced. The
 current authorities take precedence: save version 5 accepts only current saves;
@@ -692,7 +806,7 @@ ownership, formulas, valid RNG order or ordinary encounter selection.
 ### Resonance MVP (Lab and canonical activation)
 
 `resonance.js` loads before `combat.js`; its closed, frozen registry contains
-`quickbloom`, `null`, `rainbow` and `eclipse`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
+`quickbloom`, `seed_dart`, `wildspore`, `null`, `rainbow` and `eclipse`. `PERSISTENT_CHARACTER_DEFINITIONS` explicitly declares
 Lely `{rareBorn:false, affinity:null}` and Esla
 `{rareBorn:true, affinity:'bloommarked'}`. These static fields are not saved.
 Canonical encounters supply these bindings through persistent-party preparation.
@@ -1029,8 +1143,9 @@ The callback invokes the one production `persistentParty.joinEsla({level:11})`
 call before setting MainQuest to 5 and refreshing the established quest mirrors
 and job board. All fallible member preparation precedes quest advancement; there
 is no second Esla record, runtime identity allocation, RNG, resource grant or
-recruitment flag. Already recruited members are never reset. Completed MQ5
-conversations use the existing short reminder and no recruitment callback.
+recruitment flag. Already recruited members are never reset. Repeated assignment
+conversations use the short reminder until delivery, then acknowledge receipt;
+neither repeats recruitment.
 
 The assignment presentation is owned transiently by
 `mq5-assignment-cutscene.js`. It divides the existing authored conversation into
@@ -1062,8 +1177,9 @@ body `#a8e89c` and name/prompt `#8fda86` on the unchanged dialogue box. Legacy
 string-array dialogue remains valid and byte-for-byte default-styled.
 
 Esla still chooses the journey; the Supervisor's reluctance concerns staff
-capacity. MainQuest remains the ferry authorization. The active Sealed Report
-note derives the joint Mornay objective from canonical membership.
+capacity. MainQuest remains the ferry authorization. The Request for Assistance
+note derives the travel objective from canonical membership until delivery,
+then displays the completed acknowledgement.
 `npcs.js:eslaAvailableAsNpc()` is the read-only membership gate shared by Calwick
 drawing, collision and interaction, and the infirmary follow-up's map projection.
 No follower or new save binding is introduced. Tests 179, 195 and 198 cover these
@@ -5240,3 +5356,89 @@ once and marks its stable pickup ID; escape/defeat do neither. Two peaceful
 alternatives grant smaller supplies and consume the same pickup. The repeatable
 bootmark clue uses MAP_FEATURES; the hidden dead-end uses WORLD_HOLLOW terrain.
 No new persistent authority or save fields; version 5 collected IDs suffice.
+
+### Meat Paw bounty
+
+`meat-paw.js` extends the existing Mornay board only at `lantern_stage === 8`.
+`meat_paw_stage` is a defaulted v5 binding; its validator rejects active bounty
+states without completed MQ7. The origin-bound `meat_paw_scene` owner freezes
+input/world simulation/save during emergence, then releases before authenticated
+`scriptedPartyEncounters` entry. Only that receipt owner records a victory; the
+board consumes the clearance before paying 5000g. No regional grids change.
+
+The `vital_strikes` capability routes through the canonical command resolver for
+both solo and party sessions. A closed `vital_strike` event records move and
+evasion draws, exact target and HP delta. Replay independently recomputes the
+selected move, maximum-HP damage floor and evasion outcome, consumes no RNG and
+rejects substituted ordinary attacks or malformed evidence. The bear is never
+added to random encounter pools. Existing Peat-Bed Maw mechanics are unchanged.
+
+
+### Seed Dart and inventory reagent costs
+
+Esla's frozen character learnset grants `seed_dart` at level 11. Canonical
+preparation copies her existing persistent level into an optional battle-only
+Resonance binding; historical bindings without a level retain their shape and
+baseline techniques. No learned-technique list or level copy is added to saves.
+`resonanceParticipants` applies the same authored knowledge/level rule in draft
+validation, execution preparation and historical playback.
+
+A technique may declare the closed `reagentCost:{itemId,quantity}` record.
+The ID must identify an ordinary registered `component` with only name, type and
+nonnegative integer price; quantity is a positive safe integer. Validated costs
+are frozen. Components remain in ordinary inventory/save/writeback and shops,
+but all battle Item rows and direct Item commands exclude them. Field item
+eligibility already rejects their type. This is not a second inventory owner.
+
+`resonanceActionCost` extends the existing Item-draft reservation calculation.
+A combined technique would reserve/pay once, on its initiating participant's
+command, while retaining explicit consent. Complete command preflight checks
+aggregate quantities before target/initiative RNG. Backtracking removes the
+same draft reservation. Action cancellation spends nothing and applies no
+Strain. After ordinary actor/target checks, execution removes the reagent from
+battle-local inventory and attaches `reagent` evidence to the existing effect
+event: ID, quantity, ordered inventory before and after. The historical projector
+independently verifies that evidence and the final inventory, alongside damage
+and Strain. It does not call the live reservation or resolver helper. Techniques
+without a reagent retain their old effect-event shapes and RNG order.
+
+Canonical terminal acknowledgement uses the existing authenticated inventory
+writeback; story contexts carry their own resources and retry entry snapshots;
+Lab cleanup discards private spending. Only `completeMq5Assignment()` grants the
+production ten-seed recruitment kit, under the existing one-time MQ5 boundary.
+Structural `joinEsla()` remains resource-neutral. Explicit post-recruitment
+checkpoint replacement supplies ten seeds, without a cleanup/rejoin grant.
+See `SEED_DART.md` for balance, supply and verification.
+
+
+### Wildspore: enemy accuracy and action-round duration
+
+Esla's starting `knownTechniques` includes `wildspore`, with Bloommarked metadata,
+one exact living enemy target, no damage or reagent cost, and Strain 3. The
+closed `accuracy_down` effect declares `hitMultiplier:0.25` and `rounds:2`.
+It scales the existing chance to hit: `evasion = 1 - (1 - baseEvasion) * 0.25`.
+Existing speed/equipment/Bullet Time evasion remains part of `baseEvasion`;
+Wildspore changes neither initiative nor the number/order of random draws.
+It affects ordinary attacks, their hit-dependent riders, counters and the
+Meat Paw vital strikes. Inherently guaranteed fen effects and deadline attacks
+still bypass hit checks; it does not add a universal miss roll.
+
+The private command battle owns enemy `accuracyEffects`, projected only while
+present as an optional `accuracyEffect` on an enemy snapshot. The record stores
+technique ID, applied round and expiry round. If the target's scheduled action
+is still ahead of the caster, expiry is the next round's end; otherwise expiry
+is two round ends later. Thus both fast and slow casts cover the target's next
+two action rounds. A brace or skipped turn counts as that round's action
+opportunity. The effect is removed at expiry, target loss or terminal cleanup;
+Lab/story teardown also discards its private owner. It is never saved.
+
+`resonance_accuracy` authenticates application and exact before/after records;
+`resonance_accuracy_end` authenticates expiry/cleanup. Affected ordinary attack
+events carry the already-consumed evasion roll and resulting chance; counters
+and vital strikes reuse their existing evidence. Independent playback checks
+these against copied state, reconstructs duration from recorded initiative,
+and rejects omitted/forged status, chance or cleanup. Intermediate Item
+snapshots may contain an effect due to expire at the current boundary; before
+and after round snapshots may not. Older results without spores retain their
+existing shapes. Shared Strain exempts the application round, then recovers
+3 → 2 → 1 → 0 over three full rounds. See `WILDSPORE.md`.

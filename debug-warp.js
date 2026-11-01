@@ -59,6 +59,7 @@ const DEBUG_OUTDOOR_WARP_OVERRIDES = {
 // are resolved at warp time). Landing coords mirror the wrappers' own known-
 // walkable landings; out-of-range/blocked picks are clamped+nudged at warp time.
 const DEBUG_WARP_DESTINATIONS_AUTHORED = [
+  ...SOUTH_DEPTH_MAPS.map(m=>({id:'dungeon:'+m.id,label:m.name,category:'dungeon',mapId:m.id,state:{},defaultCol:3,defaultRow:4,facing:'down'})),
   // ── Town exteriors ────────────────────────────────────────────────────────
   { id: 'town:calwick_south',   label: 'Calwick — South Gate', category: 'town', mapId: 'TOWN_MAP',
     state: { inTown: true, currentTownId: 'calwick', townBuilding: null }, defaultCol: 7, defaultRow: 13, facing: 'up' },

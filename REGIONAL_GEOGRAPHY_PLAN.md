@@ -200,3 +200,7 @@ the only entrance is through the tree-looking southern gap at (5,8). It is a
 returnable dead end, not a new crossing. All seams and cameras are unchanged.
 Ten item-set bindings populate existing expanded-world maps; other terrain is
 unchanged. See Art/qa/wilderness-discoveries/README.md for the full inventory.
+
+## CHAMBERI RIVER and Greybank Mill
+
+The previously unnamed southern river is the **CHAMBERI RIVER**. Its established southeastern-to-northern course and tributaries remain unchanged. Greybank Mill enters from the north bank of the valley tributary at chunk (21,7), local (10,7); the single grass cell becomes an existing entrance tile. Arrival back is local (368,240), facing east, off the trigger. Its six discrete maps return only to that marker. No seams, camera bounds, early access, Drenwick canal or western river cells change. See MQ6_GREYBANK_MILL.md and Art/qa/greybank/grid-deltas.json.

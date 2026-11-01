@@ -69,13 +69,20 @@ module.exports={
     const home=rooms.find(r=>r.key===homeKey),shop=rooms.find(r=>r.mapId===home?.sourceMapId);
     assert.ok(home&&shop,homeKey+' registered above its shop');
     const keeper=J(g,`MORNAY_NPCS.find(n=>n.service===${JSON.stringify(service)})`);
-    place(g,shop.sourceMapId);enterByWalking(g,shop);
+    place(g,shop.sourceMapId);
+    if(day===5){
+     walk(g,(shop.returnCol+.5)*32,(shop.returnRow+.5)*32,'closed shop approach');
+     until(g,'ArrowUp',()=>g.run('dialogue.open'));
+     assert.equal(g.run('mapIdForRef(activeMap)'),shop.sourceMapId,'Dayoff door refuses entry');dismiss(g);
+     // A save already indoors must retain access to the home and its way out.
+     place(g,shop.mapId);assert.equal(g.run('saveGame()&&loadGame()'),true);dismiss(g);
+    }else enterByWalking(g,shop);
     assertVisibleStair(g,true,home);enterByWalking(g,home);assertVisibleStair(g,false,home);
     for(const id of residents){
      converseByWalking(g,id);
      // Henric now offers private stock upstairs; leave it before visiting family.
      if(id==='mornay_henric_sorn'){
-      assert.equal(g.run('shop.open'),true);g.press('Escape');assert.equal(g.run('shop.open'),false);
+      assert.equal(g.run('shop.open'),day!==5);if(day!==5)g.press('Escape');assert.equal(g.run('shop.open'),false);
      }
     }
     assert.equal(g.run('saveGame()'),true);
@@ -85,14 +92,19 @@ module.exports={
     assert.equal(g.run('mapIdForRef(activeMap)'),home.mapId);assert.equal(g.run('townBuilding'),home.id);
     assert.deepEqual(J(g,'[player.x,player.y]'),upstairs);assert.deepEqual(J(g,'persistentParty.getView()'),partyBefore);
     descend(g,home);assert.equal(g.run('townBuilding'),shop.id);
-    converseByWalking(g,keeper.id);assert.equal(g.run('shop.open'),true,service+' keeper still serves after returning downstairs');
+    converseByWalking(g,keeper.id);assert.equal(g.run('shop.open'),day!==5,service+' keeper observes the calendar after returning downstairs');
     assert.equal(g.run('MORNAY_NPCS.find(n=>n.id==='+JSON.stringify(keeper.id)+').map'),keeper.map,'keeper stays at the counter');
+    if(day!==5){
     const gold=g.run('stats.gold'),items=J(g,'stats.items.map(i=>i.name)'),item=J(g,'shop.stock[0]');
     g.press('Enter');assert.equal(g.run('shop.screen'),'buy');g.press('Enter');
     assert.equal(g.run('stats.gold'),gold-item.price);assert.deepEqual(J(g,'stats.items.map(i=>i.name)'),items.concat(item.name));
     g.press('Escape');g.press('Escape');assert.equal(g.run('shop.open'),false);g.frames(2);
     assert.equal(g.run('stats.gold'),gold-item.price,'one input purchase debits exactly once');
     assert.deepEqual(J(g,'stats.items.map(i=>i.name)'),items.concat(item.name),'one input purchase adds exactly one item');
+    }else{
+     const resources=g.run('JSON.stringify(stats)');g.press('Enter');dismiss(g);
+     assert.equal(g.run('shop.open'),false);assert.equal(g.run('JSON.stringify(stats)'),resources,'closed keeper cannot trade');
+    }
     const bought=J(g,'persistentParty.getView()'),savedPosition=J(g,'[player.x,player.y]');
     assert.equal(g.run('saveGame()'),true);exitShop(g,shop);
     assert.equal(g.run('loadGame()'),true);dismiss(g);

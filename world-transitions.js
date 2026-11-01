@@ -20309,6 +20309,10 @@ function enterMornayBuilding(id) {
   const sourceRoom = mornayRoomForMap(sourceId);
   if (!b || !inTown || currentTownId !== 'mornay' || sourceId !== b.sourceMapId ||
       townBuilding !== (sourceRoom ? sourceRoom.id : null)) return false;
+  if (isMornayBuildingClosed(b)) {
+    openDialogue(b.name, [['Closed for Dayoff. Come back tomorrow.']]);
+    return false;
+  }
   const entrance = mornayInteriorEntrance(b);
   return transitionToLocation({mapId:b.mapId,x:(entrance.col+.5)*TILE,y:(entrance.arrivalRow+.5)*TILE,facing:entrance.facing,
     state:{inTown:true,currentTownId:'mornay',townBuilding:b.id},cooldown:true});

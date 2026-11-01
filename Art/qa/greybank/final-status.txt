@@ -1,0 +1,109 @@
+ M Art/qa/regional-geography/inventory.json
+ M Art/qa/regional-geography/overview.svg
+ M LORE.md
+ M MORNAY_TOWN_PLAN.md
+ M OVERWORLD_ATLAS.md
+ M PROJECT_STATUS.md
+ M REGIONAL_GEOGRAPHY_PLAN.md
+ M activity-ownership.js
+ M architecture.md
+ M content/interactions/calwick-interactions.js
+ M content/maps/mainland-maps.js
+ M content/npcs/drenwick-interior-npcs.js
+ M content/npcs/mornay-npcs.js
+ M continuous-content.js
+ M data.js
+ M index.html
+ M input.js
+ M interactions.js
+ M movement.js
+ M mq5-assignment-cutscene.js
+ M npcs.js
+ M quests.js
+ M render-mornay.js
+ M render.js
+ M save.js
+ M scripted-party-encounters.js
+ M state.js
+ M story-checkpoint-lab.js
+ M test/cases/100-east-causeway.test.js
+ M test/cases/101-west-outfall-canal-tunnel.test.js
+ M test/cases/102-north-basin-drowned-rim.test.js
+ M test/cases/103-north-basin-mirewood.test.js
+ M test/cases/104-eastern-reaches-abandoned-farmhouse.test.js
+ M test/cases/159-mq5-east-ferry.test.js
+ M test/cases/179-mq5-esla-recruitment.test.js
+ M test/cases/192-story-checkpoint-lab.test.js
+ M test/cases/199-travellers-rise-ambush.test.js
+ M test/cases/201-travellers-rise-campsite.test.js
+ M test/cases/207-travellers-rise-campfire-night.test.js
+ M test/cases/218-mornay-exterior-topology.test.js
+ M test/cases/301-mornay-manifest.test.js
+ M test/cases/308-mornay-dialogue-reservations.test.js
+ M test/cases/321-mornay-office-tenement.test.js
+ M test/cases/51-save-binding-registry-migration.test.js
+ M test/cases/58-regional-content-split.test.js
+ M test/cases/98-thornmere-upper-shallows-scenery.test.js
+ M test/cases/99-thornmere-canal-head.test.js
+ M test/fixtures/regional-grid-fingerprints.js
+ M test/fixtures/wilderness-discoveries-history.js
+ M test/regional-atlas.js
+ M test/transition-audit-output.json
+ M test/transition-audit.js
+ M validation.js
+?? Art/qa/greybank/README.md
+?? Art/qa/greybank/assignment-1x.png
+?? Art/qa/greybank/assignment-2x.png
+?? Art/qa/greybank/baseline.json
+?? Art/qa/greybank/browser-results.json
+?? Art/qa/greybank/confrontation-1x.png
+?? Art/qa/greybank/confrontation-2x.png
+?? Art/qa/greybank/fight-0-1x.png
+?? Art/qa/greybank/fight-0-2x.png
+?? Art/qa/greybank/fight-1-1x.png
+?? Art/qa/greybank/fight-1-2x.png
+?? Art/qa/greybank/fight-2-1x.png
+?? Art/qa/greybank/fight-2-2x.png
+?? Art/qa/greybank/fight-3-1x.png
+?? Art/qa/greybank/fight-3-2x.png
+?? Art/qa/greybank/fight-4-1x.png
+?? Art/qa/greybank/fight-4-2x.png
+?? Art/qa/greybank/final-audience-1x.png
+?? Art/qa/greybank/final-audience-2x.png
+?? Art/qa/greybank/final-status.txt
+?? Art/qa/greybank/grain-store-1x.png
+?? Art/qa/greybank/grain-store-2x.png
+?? Art/qa/greybank/grid-deltas.json
+?? Art/qa/greybank/machinery-1x.png
+?? Art/qa/greybank/machinery-2x.png
+?? Art/qa/greybank/main-floor-1x.png
+?? Art/qa/greybank/main-floor-2x.png
+?? Art/qa/greybank/metadata-deltas.json
+?? Art/qa/greybank/mill-marker-1x.png
+?? Art/qa/greybank/mill-marker-2x.png
+?? Art/qa/greybank/vision-1x.png
+?? Art/qa/greybank/vision-2x.png
+?? Art/qa/greybank/wheelhouse-1x.png
+?? Art/qa/greybank/wheelhouse-2x.png
+?? Art/qa/greybank/yard-1x.png
+?? Art/qa/greybank/yard-2x.png
+?? Art/qa/mornay-report/esla-audience-1x.png
+?? Art/qa/mornay-report/esla-audience-2x.png
+?? Art/qa/mornay-report/lely-account-1x.png
+?? Art/qa/mornay-report/lely-account-2x.png
+?? Art/qa/mornay-report/solo-audience-1x.png
+?? Art/qa/mornay-report/solo-audience-2x.png
+?? MQ5_MORNAY_REPORT.md
+?? MQ6_GREYBANK_MILL.md
+?? content/maps/greybank-maps.js
+?? content/npcs/greybank-npcs.js
+?? greybank.js
+?? mornay-report.js
+?? test/cases/350-mornay-report.test.js
+?? test/cases/351-greybank-mill.test.js
+?? test/cases/352-greybank-geography.test.js
+?? test/fixtures/greybank-history.js
+?? test/greybank-browser.html
+?? test/greybank-browser.js
+?? test/mornay-report-browser.html
+?? test/mornay-report-browser.js

@@ -90,6 +90,7 @@ const ITEM_REGISTRY = {
   // Bait — the per-cast cost of fishing. One is consumed each time you cast. An
   // ordinary stackable consumable (not a key item); sold at the Drenwick
   // Provision Store (Oda). ~6g each.
+  'Dart Seed': {name:'Dart Seed',type:'component',price:4},
   'Bait':          { name: 'Bait',          type: 'bait', price: 6 },
   'River Smelt':   { name: 'River Smelt',   type: 'potion', heals:  8, price:  4 },
   'Canal Eel':     { name: 'Canal Eel',     type: 'potion', heals: 20, price: 12 },

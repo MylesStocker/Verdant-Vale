@@ -25,14 +25,15 @@ const assert = require('assert/strict');
 const { createContext } = require('../harness');
 
 // Frozen expectation snapshots (production stays registry-driven).
-const EXPECTED_PICKUP_COUNT = 64;  // +10: expanded-wilderness discoveries (seven finds and three choice sites)
-const EXPECTED_CHEST_COUNT  = 14;  // +1: reservoir balance-puzzle compartment
-const EXPECTED_ENEMY_COUNT  = 83;  // Includes Receiver, Travellers' Rise, Fen Zolom, breakfast Beetles, Mornay bosses six Great Fen enemies and two Rocky Beach enemies.
+const EXPECTED_PICKUP_COUNT = 66;  // +2: one-time Dart Seed pods; earlier discoveries preserved
+const EXPECTED_CHEST_COUNT  = 17;  // +3: post-MQ6 South Ruins coffers
+const EXPECTED_ENEMY_COUNT  = 90;  // Includes Receiver, Travellers' Rise, Fen Zolom, breakfast Beetles, Mornay bosses six Great Fen enemies two Rocky Beach enemies six deep-ruins variants and Meat Paw.
 const CHEST_IDS = [
   'chest_cat_armor', 'chest_dungeon8_east_bomb', 'chest_dungeon8_east_secret', 'chest_dungeon8_west_deep',
   'chest_dungeon_alcove', 'chest_dungeon_main', 'chest_meadow',
   'chest_reservoir_balance',
   'chest_sluice1', 'chest_sluice2', 'chest_sluice3', 'chest_sluice_deep', 'chest_sluice_secret',
+  'chest_south_depth_2', 'chest_south_depth_4', 'chest_south_depth_6',
   'chest_sunken_gallery',
 ];
 

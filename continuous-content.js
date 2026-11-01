@@ -68,6 +68,8 @@ function outdoorContentKeyInfo(mapId) {
 // read canonical story/location state but never mutate it. Player-relative
 // hints/prompts are NOT here — they stay in the active-only draw functions.
 const OUTDOOR_MAP_DECOR = {
+  MAINLAND_C20R0_MAP: function(){if(typeof lanternHouse!=='undefined')lanternHouse.drawEntry();},
+  MAINLAND_C21R7_MAP: function(){if(typeof greybank!=='undefined')greybank.drawEntry();},
   GREAT_FEN_C8RN3_MAP: function(){if(typeof struckEntry!=='undefined')struckEntry.drawEntry();},
   MAP4:   function () { if (typeof drawThornmereStoneBody === 'function')  drawThornmereStoneBody(); },
   MAP_N2: function () { if (typeof drawDrenwichNorthGateBody === 'function') drawDrenwichNorthGateBody(); },

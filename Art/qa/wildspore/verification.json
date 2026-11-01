@@ -1,0 +1,95 @@
+{
+  "branch": "main",
+  "startingHead": "1519a92fbdd63b55241888c5917372a18351528d",
+  "finalHead": "1519a92fbdd63b55241888c5917372a18351528d",
+  "committed": false,
+  "pushed": false,
+  "saveVersion": 5,
+  "fullRegression": {
+    "total": 294,
+    "passed": 294,
+    "failed": 0
+  },
+  "javascriptSyntaxFiles": 11,
+  "validation": {
+    "errors": 0,
+    "preExistingWarnings": 6
+  },
+  "browser": {
+    "automated": true,
+    "humanCampaignPlaytest": false,
+    "wildsporeAssertions": 160,
+    "seedDartCompatibilityAssertions": 124,
+    "wildsporeCaptures": 8,
+    "errors": [],
+    "scales": [
+      [
+        512,
+        480
+      ],
+      [
+        1024,
+        960
+      ]
+    ]
+  },
+  "regionalGridChanges": [],
+  "geographicArtifactsRegenerated": [],
+  "files": {
+    "modified": [
+      "LORE.md",
+      "PROJECT_STATUS.md",
+      "architecture.md",
+      "combat.js",
+      "persistent-party.js",
+      "render-party-battle.js",
+      "resonance.js",
+      "test/cases/180-resonance-mvp.test.js",
+      "test/cases/183-canonical-party-combat-integration.test.js",
+      "test/cases/185-canonical-battle-envelope.test.js",
+      "test/cases/196-party-unequip-and-resonance-availability.test.js",
+      "test/cases/265-offensive-resonance.test.js"
+    ],
+    "added": [
+      "Art/qa/wildspore/browser-results.json",
+      "Art/qa/wildspore/spores-clear-1x.png",
+      "Art/qa/wildspore/spores-clear-2x.png",
+      "Art/qa/wildspore/technique-list-1x.png",
+      "Art/qa/wildspore/technique-list-2x.png",
+      "Art/qa/wildspore/three-strain-1x.png",
+      "Art/qa/wildspore/three-strain-2x.png",
+      "Art/qa/wildspore/verification.json",
+      "Art/qa/wildspore/wildspore-cast-1x.png",
+      "Art/qa/wildspore/wildspore-cast-2x.png",
+      "WILDSPORE.md",
+      "test/cases/358-wildspore.test.js",
+      "test/wildspore-browser.html",
+      "test/wildspore-browser.js"
+    ],
+    "removed": []
+  },
+  "unchangedTaskEntryFiles": 1240,
+  "gitStatus": {
+    "trackedModified": 85,
+    "untrackedFiles": 238,
+    "stagedFiles": 0
+  },
+  "mechanics": {
+    "startingTechnique": "esla",
+    "strain": 3,
+    "reagentCost": null,
+    "hitChanceMultiplier": 0.25,
+    "enemyActionRounds": 2,
+    "affects": [
+      "ordinary attacks",
+      "hit-dependent riders",
+      "counters",
+      "vital strikes"
+    ],
+    "unchanged": [
+      "initiative",
+      "inherently guaranteed effects",
+      "deadline attacks"
+    ]
+  }
+}

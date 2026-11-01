@@ -2701,6 +2701,25 @@ function drawBattleDrippingMaw(cx, cy) {
 // ooze bouncing straight at the player -- the horror is entirely
 // mechanical (it hits first, it hits enormously hard); the sprite itself
 // is deliberately adorable.
+// The deeper variants keep their source animation, but shear its silhouette,
+// shift the palette and overlay misplaced eyes / an open seam. Four clipped
+// bands are bounded work; there are no image assets or random rendering calls.
+function drawBattleDepthHorror(cx,cy,kind,deep){
+ const base=[drawBattleTheSeep,drawBattleDrippingMaw,drawBattleWallTendril][kind];
+ ctx.save();
+ ctx.filter='hue-rotate('+(kind===0?225:kind===1?100:285)+'deg) saturate(.65)';
+ for(let band=0;band<4;band++){
+  ctx.save();ctx.beginPath();ctx.rect(cx-110,cy-150+band*55,220,55);ctx.clip();
+  const shift=(band%2?1:-1)*(deep?9:5)+Math.round(Math.sin(tick*.045+band)*3);
+  ctx.translate(cx+shift,cy);ctx.transform(deep?1.25:1.12,0,band%2?.12:-.10,1,0,0);base(0,0);ctx.restore();
+ }
+ ctx.filter='none';
+ const y=cy-(kind===0?8:52),pulse=Math.round(Math.sin(tick*.06)*2);
+ ctx.fillStyle='#190f20';ctx.beginPath();ctx.ellipse(cx+7,y,deep?17:12,deep?23:16,.2,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#dfcbbb';for(let i=0;i<5;i++){ctx.fillRect(cx-2+i*4,y-12+(i%2)*3,2,7+pulse);ctx.fillRect(cx-2+i*4,y+8,2,6-pulse);}
+ for(const [x,dy]of [[-22,-19],[19,-30],[30,-4]]){ctx.fillStyle='#e4d8a0';ctx.fillRect(cx+x,y+dy,5,3);ctx.fillStyle='#371a3c';ctx.fillRect(cx+x+2,y+dy,1,3);}
+ ctx.restore();
+}
 function drawBattleTheSeep(cx, cy) {
   const bounce = Math.abs(Math.sin(tick * 0.15)) * 14;
   const squish = 1 - Math.abs(Math.sin(tick * 0.15)) * 0.25;
@@ -3950,6 +3969,22 @@ function drawBattleStormGull(cx,cy) {
   ctx.fillStyle='#e8c77b';ctx.fillRect(cx+5,cy-78+bob,2,2);
 }
 
+function drawBattleMeatPaw(cx,cy) {
+  ctx.save();ctx.translate(Math.round(cx),Math.round(cy));
+  ctx.fillStyle='#26211f';ctx.fillRect(-64,-42,128,88);ctx.fillRect(-49,-65,93,100);
+  ctx.fillRect(-53,-78,22,24);ctx.fillRect(25,-78,22,24);
+  ctx.fillStyle='#584331';ctx.fillRect(-49,-74,14,18);ctx.fillRect(29,-74,14,18);ctx.fillRect(-57,-38,114,77);ctx.fillRect(-43,-60,80,79);
+  ctx.fillStyle='#76583e';ctx.fillRect(-40,-57,72,20);ctx.fillRect(-50,-28,26,55);
+  ctx.fillStyle='#382d28';ctx.fillRect(-58,22,39,34);ctx.fillRect(18,22,39,34);
+  ctx.fillStyle='#b69b72';ctx.fillRect(-28,-18,55,29);ctx.fillRect(-21,-23,39,12);
+  ctx.fillStyle='#201b1a';ctx.fillRect(-13,-21,24,12);ctx.fillRect(-20,3,39,5);
+  ctx.fillRect(-31,-35,19,6);ctx.fillRect(12,-35,19,6);
+  ctx.fillStyle='#d9b46b';ctx.fillRect(-27,-29,7,4);ctx.fillRect(21,-29,7,4);
+  ctx.fillStyle='#eee0b9';for(const x of [-51,-42,-33,25,34,43])ctx.fillRect(x,49,5,11);
+  ctx.fillStyle='#8b6b48';for(const [x,y]of [[-50,-10],[-44,1],[38,-8],[43,5],[-9,-48],[2,-44]])ctx.fillRect(x,y,8,3);
+  ctx.restore();
+}
+
 (function buildEnemySpriteDispatch() {
   const def = (draw, dy, ids) => { for (const id of ids) ENEMY_SPRITE_DISPATCH[id] = { draw, dy }; };
   def(drawBattleShinglebackCrab,60,['enemy_shingleback_crab']);
@@ -3967,6 +4002,7 @@ function drawBattleStormGull(cx,cy) {
   def(drawBattleMudwrackSnapper, 60, ['enemy_mudwrack_snapper','enemy_ridgeback_snapper']);
   def(drawBattleFenRootworm, 60, ['enemy_fen_rootworm']);
   def(drawBattlePeatMaw, 60, ['enemy_peat_bed_maw']);
+  def(drawBattleMeatPaw,60,['enemy_meat_paw']);
   def(drawBattleWillowVeiledStalker, 60, ['enemy_willow_veiled_stalker']);
   def(drawBattleHollowreedChoker, 60, ['enemy_hollowreed_choker']);
   def(drawBattleBuzzyBeetle, 0, ['enemy_buzzy_beetle']);
@@ -4012,6 +4048,8 @@ function drawBattleStormGull(cx,cy) {
   def(drawBattleWallTendril,   20, ['enemy_wall_tendril']);
   def(drawBattleDrippingMaw,   10, ['enemy_dripping_maw']);
   def(drawBattleTheSeep,       30, ['enemy_the_seep']);
+  for(const [id,kind,deep]of [['enemy_folded_seep',0,false],['enemy_inverted_maw',1,false],['enemy_knotted_tendril',2,false],['enemy_manyfold_seep',0,true],['enemy_hollowed_maw',1,true],['enemy_nerve_lattice',2,true]])
+    def((x,y)=>drawBattleDepthHorror(x,y,kind,deep),[30,10,20][kind],[id]);
   def(drawBattlePaleDrowned,   30, ['enemy_pale_drowned_gallery']);
   def(drawBattleSiltHag,       40, ['enemy_silt_hag_gallery', 'enemy_silt_hag_vault']);
   def(drawBattleDustDrowned,   30, ['enemy_dust_drowned']);
@@ -4214,6 +4252,10 @@ function wrapMonospaceText(ctx, text, maxWidth) {
 // conservative visual bounds cover the existing idle animation of the eight
 // state-only templates; they do not grant any template combat capabilities.
 const FORMATION_SPRITE_BOUNDS = new Map([
+  [drawBattleMeatPaw,Object.freeze([-64,-78,64,60])],
+  // The wrapper clips every source band to this complete bound; overlays stay
+  // inside it. Explicit geometry keeps all 1–3 enemy layouts supported.
+  ...SOUTH_DEPTH_ENEMIES.map(e=>[ENEMY_SPRITE_DISPATCH[e.id].draw,Object.freeze([-110,-150,110,70])]),
   [drawBattleShinglebackCrab,Object.freeze([-50,-54,50,10])],
   [drawBattleStormGull,Object.freeze([-38,-89,38,10])],
   [drawBattlePeatback,Object.freeze([-67,-80,65,11])],
@@ -4714,7 +4756,7 @@ function drawCombat(formationView) {
 
     // Grouped view: multiples of the same item share one row (groupItems()),
     // matching the pause menu — a count suffix stands in for repeated rows.
-    const battleItems = groupItems();
+    const battleItems = battleItemGroups();
     const ROW_H       = 22;
     const listTop     = PY + 110 + shift;
     const listBottom  = PY + PH - 14;           // bottom edge of the item box

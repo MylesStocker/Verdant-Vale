@@ -35,8 +35,12 @@ test('inactive renderer is inert and normal render sources remain byte-stable',(
     drawBattleReceiver:'26993968664a9d93fadfa1da82051655abbc95c0d20fac0113d53f959e600b14',
     drawGalleryBattleCreature:'b67a00a63bbb24770dea20941d2b6c22f08b2b9f62bd1811e46a922c0d80e57a',
   };
-  for(const [name,digest] of Object.entries(expected))assert.equal(
-    crypto.createHash('sha256').update(g.run(name+'.toString()')).digest('hex'),digest,name);
+  for(const [name,digest] of Object.entries(expected)){
+    let source=g.run(name+'.toString()');
+    // Only the intentional component filter differs from the historical painter.
+    if(name==='drawCombat'){assert.equal(source.split('battleItemGroups()').length,2);source=source.replace('battleItemGroups()','groupItems()');}
+    assert.equal(crypto.createHash('sha256').update(source).digest('hex'),digest,name);
+  }
 });
 
 test('party battle reuses the ordinary background, frame, typography and real sprite dispatch',()=>{

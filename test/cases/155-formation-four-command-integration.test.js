@@ -140,7 +140,7 @@ test('Observe duplicate selection executes once and presents copied authored tex
 
 test('combat item rows reuse registry names, grouping, filtering and stable singleton order',()=>{
   const g=fresh();g.run(`stats.items=Object.values(ITEM_REGISTRY).map(i=>createItem(i.name));stats.items.push(createItem('Potion'));`);
-  const expected=J(g,'groupItems().map(({name,count})=>({name,count}))');const before=state(g);choose(g,'item');
+  const expected=J(g,'groupItems().filter(({item})=>item.type!=="component").map(({name,count})=>({name,count}))');const before=state(g);choose(g,'item');
   assert.deepEqual(view(g).items.map(({name,count})=>({name,count})),expected);
   assert.equal(view(g).items.length,46); // Fleck fish/food plus Serpentsmoke
   for(const name of ['Fine Sabre','Balanced Staff','Reinforced Travel Coat','Woven Guard Coat'])assert.equal(view(g).items.find(i=>i.name===name).count,1);assert.equal(view(g).items.find(i=>i.name==='Potion').count,2);
@@ -258,8 +258,8 @@ for(const success of [true,false])test('Run commits directly from menu with exac
 test('only established boss templates carry boolean registry metadata; singleton copies remain unchanged',()=>{
   const g=fresh(0);
   assert.deepEqual(J(g,'Object.values(ENEMY_TEMPLATE_REGISTRY).filter(e=>e.isBoss===true).map(e=>e.id).sort()'),
-    ['enemy_fen_zolom','enemy_gallery_receiver','enemy_lensweb_spider','enemy_mulholland','enemy_takomo','enemy_wrongteeth']);
-  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(e=>Object.hasOwn(e,"isBoss")).length'),6);
+    ['enemy_fen_zolom','enemy_gallery_receiver','enemy_lensweb_spider','enemy_meat_paw','enemy_mulholland','enemy_takomo','enemy_wrongteeth']);
+  assert.equal(g.run('Object.values(ENEMY_TEMPLATE_REGISTRY).filter(e=>Object.hasOwn(e,"isBoss")).length'),7);
   g.run('startBossCombat();');assert.equal(g.run('combat.mode'),'single');
   assert.equal(g.run('Object.hasOwn(combat.enemy,"isBoss")'),false);
 });

@@ -191,7 +191,7 @@ test('victory completes and rewards once, removes actors and advances only the c
   if(g.run('dialogue.open'))g.run('finishDialogue()'); // reward pages precede the camp introduction
   g.frames(1);assert.deepEqual(J(g,'dialogue.pageSpeakers'),['esla','lely','esla']);g.run('dialogue.page=0');
   assert.deepEqual(J(g,'dialoguePagePresentation()'),{name:'Esla',styleId:'esla_light_green',speakerId:'esla'});
-  assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Sealed Report').body,
+  assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Request for Assistance').body,
     'Inspect the ambushers’ campsite at Travellers’ Rise.');
   assert.equal(g.run("typeof window.travellers_rise_camp_started"),'undefined');assert.equal(g.run('canonicalPartyCombat.finish()'),false);
   g.run('finishDialogue()');g.frames(300);assert.equal(g.run('travellersRiseCamp.getView().phase'),'inside_dialogue');g.run('finishDialogue()');

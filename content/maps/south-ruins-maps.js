@@ -462,7 +462,7 @@ const DUNGEON8_EAST_LOWER_MAP = [
 // Two raw levels below the West Horror Branch, reached by climbing DOWN the
 // tendon (123) in the West Lower Chamber. DUNGEON3 tile set (62/63). Tendon
 // ascent (124) at col 8 row 1 climbs back up. Same horror enemies (dungeonFloor
-// 13 → the horror pool). No stairs deeper.
+// 13 → the horror pool). The new descent at (6,11) opens after MQ6.
 const DUNGEON8_WEST_LOWER2_MAP = [
   [63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63],  //  0
   [63,63,63,63,63,63,63,63,124,63,63,63,63,63,63,63], //  1  ← tendon ascent col 8 (→ West Lower Chamber)
@@ -475,7 +475,7 @@ const DUNGEON8_WEST_LOWER2_MAP = [
   [63,63,62,62,62,62,62,62,62,62,62,62,62,62,62,63],  //  8
   [63,63,62,62,62,62,63,62,62,63,62,62,62,62,63,63],  //  9  organic protrusions col 6, col 9
   [63,63,63,62,62,62,62,62,62,62,62,62,62,63,63,63],  // 10
-  [63,63,63,63,62,62,62,62,62,62,62,62,63,63,63,63],  // 11
+  [63,63,63,63,62,62,10,62,62,62,62,62,63,63,63,63],  // 11 — MQ6-gated descent at col 6
   [63,63,63,63,63,62,62,62,62,62,62,63,63,63,63,63],  // 12
   [63,63,63,63,63,63,62,62,62,62,63,63,63,63,63,63],  // 13
   [63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63],  // 14

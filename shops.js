@@ -30,7 +30,7 @@ const MORNAY_SHOPS = Object.freeze({
   fleck_tavern:Object.freeze({id:'mornay_fleck_tavern',label:'THE CROOKED OAR',stock:['Smoked Lake Fish'].map(createItem)}),
   fleck_smoker:Object.freeze({id:'mornay_fleck_smoker',label:'NERYS SMOKEHOUSE',stock:['Smoked Lake Fish','Bait'].map(createItem)}),
   provisioner: Object.freeze({id:'mornay_provisioner',label:'KELM PROVISIONS',stock:['Potion','Bait'].map(createItem)}),
-  apothecary: Object.freeze({id:'mornay_apothecary',label:'STERN APOTHECARY',stock:['Potion','Elixir','Reed Remedy','Amethyst Dust'].map(createItem)}),
+  apothecary: Object.freeze({id:'mornay_apothecary',label:'STERN APOTHECARY',stock:['Potion','Elixir','Reed Remedy','Amethyst Dust','Dart Seed'].map(createItem)}),
   workgear: Object.freeze({id:'mornay_workgear',label:'SORN WORK GEAR',stock:['Bronze Knife','Leather Armor','Iron Shield','Iron Sword','Fen Cowl'].map(createItem)}),
   chandler: Object.freeze({id:'mornay_chandler',label:'VENN CHANDLERY',stock:['Bait','Throwing Knife','Leather Armor','Swift Bangle'].map(createItem)})
 });

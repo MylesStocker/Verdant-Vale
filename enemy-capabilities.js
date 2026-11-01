@@ -15,6 +15,7 @@ const ENEMY_CAPABILITY_DEFINITIONS = Object.freeze({
   acid_corrosion:Object.freeze({canonical:true}),
   split_followup:Object.freeze({canonical:true}),
   regeneration:Object.freeze({canonical:true}),
+  vital_strikes:Object.freeze({canonical:true}),
   swallow_deadline:Object.freeze({canonical:true}),
   melee_armor:Object.freeze({canonical:true}),
   counterattack:Object.freeze({canonical:true}),
@@ -57,6 +58,7 @@ const CANONICAL_SCRIPTED_LIFECYCLE_CAPABILITIES = Object.freeze([
 
 const ENEMY_TEMPLATE_FIELD_CAPABILITIES = Object.freeze({
   fenTactic:'fen_tactics',
+  vitalStrikes:'vital_strikes',
   swallowAfterRounds:'swallow_deadline',
   defendChance:'brace', curseChance:'curse_on_hit', acidChance:'acid_corrosion',
   splits:'split_followup', regenPerTurn:'regeneration', meleeArmor:'melee_armor',
@@ -153,7 +155,7 @@ function enemyCapabilityMetadata(template) {
     fail('malformed capability field '+key+' for '+id);
   for(const key of ['regenPerTurn','meleeArmor','swallowAfterRounds'])if(fields[key]&&
       (!Number.isSafeInteger(fields[key].value)||fields[key].value<=0))fail('malformed capability field '+key+' for '+id);
-  for(const key of ['splits','stealAndFlee','inline'])if(fields[key]&&fields[key].value!==true)
+  for(const key of ['splits','stealAndFlee','inline','vitalStrikes'])if(fields[key]&&fields[key].value!==true)
     fail('malformed capability field '+key+' for '+id);
   if(fields.sex&&!['male','female'].includes(fields.sex.value))fail('malformed capability field sex for '+id);
   if(fields.runLock&&fields.runLock.value!=='observe_gated')fail('malformed capability field runLock for '+id);
@@ -173,7 +175,7 @@ function canonicalEnemyCompatibility(template) {
   const metadata=enemyCapabilityMetadata(template);
   const authored=ENEMY_CAPABILITY_REGISTRY[metadata.templateId];
   const mechanicIds=new Set(['fen_tactics','brace','curse_on_hit','void_shard_burst','acid_corrosion','slither_on_hit','poison_spell','dazzle_on_hit',
-    'split_followup','regeneration','swallow_deadline','melee_armor','counterattack','poison_on_hit','mire_toad_reagent_observation','steal_and_flee','generated_stats']);
+    'split_followup','regeneration','swallow_deadline','vital_strikes','melee_armor','counterattack','poison_on_hit','mire_toad_reagent_observation','steal_and_flee','generated_stats']);
   if(authored&&JSON.stringify(authored.capabilities.filter(id=>mechanicIds.has(id)))!==
       JSON.stringify(metadata.capabilities.filter(id=>mechanicIds.has(id))))
     throw Error('Enemy mechanic capability metadata is stale for '+metadata.templateId);
@@ -215,6 +217,7 @@ function canonicalEnemyMechanicProfile(template) {
     if(capability==='acid_corrosion'&&(!Number.isSafeInteger(data.cap)||data.cap<=0))throw Error('Enemy mechanic profile has invalid corrosion cap');
   }
   if(metadata.capabilities.includes('fen_tactics'))add('fen_tactics',{role:template.fenTactic});
+  if(metadata.capabilities.includes('vital_strikes'))add('vital_strikes',{enabled:true});
   if(metadata.capabilities.includes('swallow_deadline'))add('swallow_deadline',{rounds:template.swallowAfterRounds});
   if(metadata.capabilities.includes('regeneration'))add('regeneration',{amount:template.regenPerTurn});
   if(metadata.capabilities.includes('melee_armor'))add('melee_armor',{defense:template.meleeArmor});

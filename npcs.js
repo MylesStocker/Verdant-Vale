@@ -1803,6 +1803,8 @@ const SIMPLE_NPCS = [
   ...FINE_NEEDLEWORK_NPCS,
   ...REEDBANK_NPCS,
   ...THIRD_LOCK_NPCS,
+  ...GREYBANK_NPCS,
+  ...LANTERN_NPCS,
   ...TWO_JORANS_NPCS,
 ];
 
@@ -2255,6 +2257,8 @@ const DIALOGUE_SPEAKER_DEFINITIONS = Object.freeze({
   aldric: Object.freeze({speakerId:'aldric',name:'Aldric',dialogueStyleId:null}),
   petra: Object.freeze({speakerId:'petra',name:'Petra',dialogueStyleId:null}),
   corvin: Object.freeze({speakerId:'corvin',name:'Corvin',dialogueStyleId:null}),
+  ...Object.fromEntries(LANTERN_NPCS.map(n=>[n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
+  ...Object.fromEntries(GREYBANK_NPCS.map(n=>[n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
   ...Object.fromEntries(THIRD_LOCK_NPCS.map(n=>[n.id,Object.freeze({speakerId:n.id,name:n.name,dialogueStyleId:null})])),
   oswin: Object.freeze({speakerId:'oswin',name:'Oswin',dialogueStyleId:null}),
   veth: Object.freeze({speakerId:'veth',name:'Officer Veth',dialogueStyleId:null}),

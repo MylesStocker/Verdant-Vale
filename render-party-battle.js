@@ -308,12 +308,16 @@ function formatPartyBattleEvent(view) {
   const members=[...view.party,...view.enemies],name=id=>members.find(m=>m.instanceId===id)?.name;
   const actor=name(event.actorId),target=name(event.targetId);
   if(event.type==='fen_effect')return event.messages.join(' ')||'The fen creatures settle.';
+  if(event.type==='vital_strike')return event.evaded?`${target} evades ${actor}’s ${event.attackName}!`:
+    event.attackName==='Pounce'?`${actor} uses Pounce! ${target} falls!`:`${actor} uses ${event.attackName}! ${target} takes ${event.appliedDamage} damage.`;
   if(event.type==='swallow')return `${actor} uses Swallow! The ground opens beneath the party.`;
   if(event.type==='outcome')return event.outcome==='victory'?'Victory.':event.outcome==='defeat'?'Defeat.':event.outcome==='escape'?'The party escapes.':'Round complete.';
   if(event.type==='round_end') {
     const expired=event.effectsBefore.find((before,i)=>before.evadeTurns>0&&event.effectsAfter[i].evadeTurns===0);
     return expired?`Bullet Time wears off for ${name(expired.actorId)}.`:'Round complete.';
   }
+  if(event.type==='resonance_accuracy')return `${actor} uses ${event.techniqueName}. Spores cloud ${target}'s aim for two action rounds!`;
+  if(event.type==='resonance_accuracy_end')return `${actor}'s aim clears.`;
   if(event.type==='resonance_damage')return `${event.participantIds.map(name).join(' and ')} use${event.participantIds.length===1?'s':''} ${event.techniqueName}. ${target} takes ${event.appliedDamage} ${event.elements.map(id=>id[0].toUpperCase()+id.slice(1)).join('/')} damage.`;
   if(event.type==='resonance')return `${event.participantIds.map(name).join(' and ')} use${event.participantIds.length===1?'s':''} ${event.techniqueName}. ${target} recovers ${event.appliedHealing} HP.`;
   if(event.type==='strain')return event.reason==='application'?`${name(event.actorId)} needs ${event.after} recovery round${event.after===1?'':'s'}.`:

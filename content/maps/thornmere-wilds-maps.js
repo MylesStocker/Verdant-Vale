@@ -119,6 +119,8 @@ const MAP3_N1_ITEMS = [
   // choice/fight chain, and marks it picked only after all three toads die.
   { id: 'pickup_map3n1_mire_toad_spawn', name: 'Mire Toad spawning site', type: 'quest_item',
     x: 6.5 * TILE, y: 6.5 * TILE, picked: false, examine: true, scriptedInspect: 'mire_toad_spawn' },
+  {id:'pickup_fen_dart_seed',name:'Dart Seed',x:9.5*TILE,y:8.5*TILE,picked:false,examine:true,
+    examinePages:[['A dry, hooked seed-pod has split above the reeds. One hard Dart Seed remains inside.'],['Found: Dart Seed.']]},
 ];
 
 // ─── Roddon Way  (16 × 15) ────────────────────────────────────────────────────

@@ -15,7 +15,7 @@ const keys = new Proxy(pressedKeys, {
     if (held && typeof waterTravelController !== 'undefined' && waterTravelController.blocksInput()) return false;
     if (held && riverWrestling.isActive()) return false;
     if (held && typeof fineNeedlework!=='undefined' && fineNeedlework.isActive()) return false;
-    if (held && typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
+    if (held && typeof mq5AssignmentCutscene!=='undefined' && (mq5AssignmentCutscene.isActive() || mornayReport.isActive() || greybank.isActive() || lanternHouse.isActive() || meatPaw.isActive())) return false;
     if (held && typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.isExclusive()) return false;
     if (held && typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.blocksInput()) return false;
     if (held && storyBattle.hasContext()) return false;
@@ -220,11 +220,18 @@ window.addEventListener('keydown', e => {
     }
     return;
   }
-  if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) {
+  if (typeof mq5AssignmentCutscene!=='undefined' && (mq5AssignmentCutscene.isActive() || mornayReport.isActive() || greybank.isActive() || lanternHouse.isActive() || meatPaw.isActive())) {
     const wasHeld=pressedKeys[e.key];pressedKeys[e.key]=true;
     const confirm=e.key===' '||e.key==='Enter';
     if(confirm||e.key.startsWith('Arrow')||['m','M','Escape','`'].includes(e.key))e.preventDefault();
-    if(!wasHeld&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&confirm&&dialogue.open)handleInteract();
+    if(!wasHeld&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing){
+      if(confirm&&dialogue.open)handleInteract();
+      else if((greybank.isActive()||lanternHouse.isActive())&&choice.open){
+        if(e.key==='ArrowUp')choice.cursor=Math.max(0,choice.cursor-1);
+        else if(e.key==='ArrowDown')choice.cursor=Math.min(choice.options.length-1,choice.cursor+1);
+        else if(confirm){const cb=choice.callbacks[choice.cursor];choice.open=false;if(cb)cb();}
+      }
+    }
     return;
   }
   if(typeof travellersRiseAmbush!=='undefined'&&travellersRiseAmbush.isExclusive()){

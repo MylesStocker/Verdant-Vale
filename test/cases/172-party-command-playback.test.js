@@ -113,7 +113,7 @@ test('Burn ticks in owner-slot order once, before Bomb and round completion',()=
   equal(reel.frames.filter(f=>f.currentEvent?.type==='delayed_effect_tick').map(f=>f.currentEvent.attemptedDamage),[5,10]);
 });
 test('zero-HP starting members retain slots and collect no commands',()=>{const {reel}=fixture({allies:3,party:[{hp:0},{},{}]});assert.equal(reel.frames[0].party[0].defeated,true);assert.ok(reel.order.every(a=>a.actorId!==reel.frames[0].party[0].instanceId));});
-for(const [effect,items]of Object.entries(ITEM_MATRIX))if(effect!=='unavailable_key')for(const id of items)test('complete authored item playback '+id,()=>{
+for(const [effect,items]of Object.entries(ITEM_MATRIX))if(!['unavailable_key','component'].includes(effect))for(const id of items)test('complete authored item playback '+id,()=>{
   const friendly=['heal','cure','evade','equip','nothing'].includes(effect);
   fixture({inventory:[id],party:[{hp:20,statuses:['poison','cursed']},{}]},[['item',0,effect==='damage_all'?null:friendly?'a0':0,id],['observe',1,1]],null,[...HIT,...HIT]);
 });

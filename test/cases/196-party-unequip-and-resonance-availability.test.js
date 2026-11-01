@@ -72,12 +72,15 @@ test('equipment items still install through explicit Items targeting and save/lo
  assert.equal(g.run('saveGame()'),true);const expected=J(g,'persistentParty.getFieldView()');g.run('persistentParty.resetForNewGame()');assert.equal(g.run('loadGame()'),true);assert.deepEqual(J(g,'persistentParty.getFieldView()'),expected);assert.equal(g.run('SAVE_VERSION'),5);
 });
 
-test('real checkpoint recruitment and first battle authenticate No wounded ally without changing Quickbloom',()=>{
+test('healthy Esla has Wildspore; seeds also enable Seed Dart while Quickbloom still requires a wound',()=>{
+ for(const seeds of [true,false]){
  const g=createContext();g.run(`dialogue.open=false;dialogue.callbacks=null;Math=Object.create(Math);var auditRng=0;Math.random=()=>{auditRng++;throw Error('unexpected RNG')}`);
  recruitFromCheckpoint(g);assert.deepEqual(J(g,'persistentParty.getFieldView().members.map(m=>[m.characterId,m.hp,m.maxHp])'),[['lely',120,120],['esla',80,80]]);
- geographicBattle(g);let availability=J(g,'canonicalPartyCombat.getView().resonanceAvailability');assert.equal(availability[0].disabledReason,'No wounded ally');
+ if(!seeds)g.run("stats.items=stats.items.filter(i=>i.name!=='Dart Seed')");
+ geographicBattle(g);let availability=J(g,'canonicalPartyCombat.getView().resonanceAvailability');assert.equal(availability[0].disabledReason,null);
  draftLelyObserve(g);const command=J(g,'canonicalPartyCombat.getView().commandAvailability.find(row=>row.command==="resonance")');
- assert.deepEqual(command,{command:'resonance',enabled:false,disabledReason:'No wounded ally'});assert.deepEqual(J(g,'canonicalPartyCombat.getView().techniques'),[]);
+ assert.deepEqual(command,{command:'resonance',enabled:true,disabledReason:null});assert.deepEqual(J(g,'canonicalPartyCombat.getView().techniques.map(t=>t.techniqueId)'),seeds?['seed_dart','wildspore']:['wildspore']);
+ }
 });
 
 test('wounded ally targeting is exact and stable; Fallen targets are excluded',()=>{

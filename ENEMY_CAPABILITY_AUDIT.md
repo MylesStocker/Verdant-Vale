@@ -1,5 +1,21 @@
 # Enemy capability audit
 
+Meat Paw adds one scripted-location ordinary combat identity: **90 total, 72 ordinary (71 static)**. Its `vital_strikes` capability selects Paw, Claw or Pounce with equal probability, uses normal evasion and ignores armour for the authored HP damage. The canonical solo/party resolver and authenticated replay both enforce it. The no-escape bounty lifecycle and 5000g payment are separate from combat rewards.
+The new depth variants reuse basic attacks, standard observation/rewards and
+existing acid/curse riders. Suite 191 exhausts 186,585 static combinations across
+three party sizes; no new capability or battle lifecycle is introduced.
+
+| Template | Mechanics | Category |
+| --- | --- | --- |
+| `enemy_folded_seep` | Basic attack, observation, rewards | ordinary |
+| `enemy_inverted_maw` | Basic attack, acid (35%), observation, rewards | ordinary |
+| `enemy_knotted_tendril` | Basic attack, observation, rewards | ordinary |
+| `enemy_manyfold_seep` | Basic attack, curse (15%), observation, rewards | ordinary |
+| `enemy_hollowed_maw` | Basic attack, acid (40%), observation, rewards | ordinary |
+| `enemy_nerve_lattice` | Basic attack, observation, rewards | ordinary |
+
+The following sections record earlier roster expansions.
+
 Rocky Beach adds two ordinary identities: **83 total, 65 ordinary (64 static)**.
 Both reuse existing mechanics in singleton and party combat. Suite 191 prepares
 143,712 static combinations. Dedicated animated sprites use no gameplay RNG.
@@ -122,6 +138,7 @@ column says otherwise.
 | Stable ID / name | Declaration; encounter sources | Post-MQ5 reachability | Required capabilities | Direct ID-specific semantic references | Before Pass 3 | Final category | Migration result / deferral |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `enemy_peat_bed_maw` / Peat-Bed Maw | `enemy-catalog.js`; optional Mornay contract | one victory per job | basic attack, observe, standard XP, six-round Swallow | none | compatible | ordinary | authenticated removal outcome; giver owns gold; no random pool |
+| `enemy_meat_paw` / Meat Paw | `enemy-catalog.js`; post-MQ7 bounty | one victory per job | vital strikes, observe, standard XP, boss escape lock | none | compatible | ordinary | authenticated bounty clearance; board owns gold; no random pool |
 | `enemy_ridgeback_snapper` / Ridgeback Snapper | `enemy-catalog.js`; optional Mornay contract | one victory per job | basic attack, observe, standard XP | none | compatible | ordinary | authenticated removal outcome; giver owns gold; no random pool |
 | `enemy_buzzy_beetle` / Buzzy Beetle | `enemy-catalog.js`; Bethany breakfast only | repeatable local attempts | basic attack, observe, zero rewards | none | compatible | ordinary | shared story lifecycle; no random pool |
 | `enemy_large_buzzy_beetle` / Large Buzzy Beetle | `enemy-catalog.js`; Bethany breakfast only | repeatable local attempts | basic attack, observe, zero rewards | none | compatible | ordinary | shared story lifecycle; no random pool |

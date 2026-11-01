@@ -42,7 +42,7 @@ test('one local 16x15 map, one-tile entrance, safe paired fixed placements and n
  for(const id of ['TRAVELLERS_RISE_CAMP_MAP','EASTERN_FENS_TRAVELLERS_RISE_MAP']){
   assert.equal(g.run(`MAP_METADATA.${id}.allowRandomEncounters`),false);
  }
- assert.equal(g.run('Object.keys(MAP_CATALOG).length'),1267);
+ assert.equal(g.run('Object.keys(MAP_CATALOG).length'),1318);
  assert.equal(g.run('Object.keys(REGIONAL_CHUNK_CATALOG).length'),1059);
  assert.ok(map[0].every(t=>t===3)&&map[14].every(t=>t===3));assert.ok(map.every(row=>row[0]===3&&row[15]===3));
  const fixture=require('../fixtures/regional-grid-fingerprints');
@@ -154,10 +154,10 @@ test('exact authored pages use canonical green/default metadata and rendering is
 
 test('completion changes only the one camp stage and journal; no rest, resources, time or extra reward',()=>{
  const g=fresh();pending(g);g.run("stats.hp=73;statusEffects.push('Poison');slitherSpd=1");
- const before=persistent(g);assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Sealed Report').body,'Inspect the ambushers’ campsite at Travellers’ Rise.');
+ const before=persistent(g);assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Request for Assistance').body,'Inspect the ambushers’ campsite at Travellers’ Rise.');
  intro(g);arrive(g);g.run('var staleCampCallback=dialogue.callbacks[0];finishDialogue();staleCampCallback()');
  assert.equal(view(g).stage,1);assert.equal(view(g).actors.length,0);assert.equal(persistent(g),before);assert.equal(g.run('MainQuest'),5);
- assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Sealed Report').body,'Settle in with Esla at the Travellers’ Rise campfire.');
+ assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Request for Assistance').body,'Settle in with Esla at the Travellers’ Rise campfire.');
  assert.equal(g.run("Object.keys(NPC_ROUTES).some(id=>id.startsWith('camp_'))"),false);
 });
 

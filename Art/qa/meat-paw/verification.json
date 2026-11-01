@@ -1,0 +1,182 @@
+{
+  "task": "Meat Paw bounty",
+  "branch": "main",
+  "startingHead": "1519a92fbdd63b55241888c5917372a18351528d",
+  "finalHead": "1519a92fbdd63b55241888c5917372a18351528d",
+  "committed": false,
+  "pushed": false,
+  "saveVersion": 5,
+  "persistentBinding": "meat_paw_stage (default 0; accepted 1, cleared 2, paid 3)",
+  "regression": {
+    "command": "node test/run.js",
+    "total": 291,
+    "passed": 291,
+    "failed": 0,
+    "formationPreparations": 194469
+  },
+  "syntax": {
+    "allDirtyAndNewJavaScript": 80,
+    "result": "passed"
+  },
+  "focusedSuite": "355-meat-paw.test.js",
+  "validation": {
+    "errors": 0,
+    "warnings": 6,
+    "counts": {
+      "Maps": 1318,
+      "Map metadata": 1318,
+      "Regional layout": 1059,
+      "Regional chunks": 1059,
+      "Camera exclusion": 8,
+      "Continuous seams": 1992,
+      "Continuous content": 1059,
+      "Encounter geography": 1059,
+      "Regional presentation": 2,
+      "Tiles": 316320,
+      "EDGE_TRANSITIONS": 2072,
+      "NPCs": 517,
+      "Items": 167,
+      "Enemies": 275,
+      "Enemy capabilities": 90,
+      "Encounter formations": 121,
+      "Dialogue": 1059,
+      "Save/Flags": 263,
+      "Map Features": 100,
+      "Wilderness dreams": 5,
+      "Pickups": 89,
+      "Chests": 26
+    },
+    "errorList": [],
+    "warningList": [
+      {
+        "group": "Tile Properties",
+        "message": "TILE_PROPERTIES[22] (NOTICE_BOARD): marked isDecorative and also walkable -- confirm intentional (most decorative tiles are meant to block; NOTICE_BOARD is a deliberate, documented exception)"
+      },
+      {
+        "group": "Enemies",
+        "message": "pool_north_fen_zolom[0] (Fen Zolom): atk=65 is unusually high -- confirm this isn't a typo (see BALANCE_REPORT.md for the game's existing tier ranges)"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy_takomo (Takomo): no dedicated battle sprite -- registered in ENEMY_GENERIC_SPRITE_IDS, so it renders the generic silhouette (drawBattleGenericEnemy()); add an ENEMY_SPRITE_DISPATCH entry if this enemy deserves its own look"
+      },
+      {
+        "group": "Enemies",
+        "message": "enemy pool \"pool_eastern_fens_mornay\" is registered but no MAP_METADATA.encounterPool routes to it -- it is currently unreachable; wire it into a map/floor or remove it (if it is intentional future content, note that where the pool is registered)"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.student_a1 page 0 line 0 may exceed dialogue width (549 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      },
+      {
+        "group": "Dialogue",
+        "message": "npc.apt_desca page 1 line 2 may exceed dialogue width (346 chars, recommended max ~260) -- will word-wrap, confirm it still reads well split"
+      }
+    ]
+  },
+  "browser": {
+    "checks": 154,
+    "passed": true,
+    "captures": [
+      "battle-1x",
+      "battle-2x",
+      "bear-emerges-1x",
+      "bear-emerges-2x",
+      "bounty-notice-1x",
+      "bounty-notice-2x",
+      "cornered-1x",
+      "cornered-2x",
+      "esla-warning-1x",
+      "esla-warning-2x",
+      "passage-before-1x",
+      "passage-before-2x",
+      "passage-cleared-1x",
+      "passage-cleared-2x",
+      "payment-1x",
+      "payment-2x",
+      "pounce-1x",
+      "pounce-2x",
+      "victory-1x",
+      "victory-2x"
+    ],
+    "errors": [],
+    "method": "Automated real keyboard and Canvas at native resolution with 2x captures; continuous and legacy views. Fixture entry state, boosted victory stats. Screenshots visually inspected. No human full-world/balance playthrough."
+  },
+  "geography": {
+    "gridDeltas": [],
+    "matchingRegionalFingerprints": 1059,
+    "cameraChanged": false,
+    "transitionAudit": "passed, existing artifact matches (read-only)",
+    "regeneratedGeographicArtifacts": []
+  },
+  "incrementalFiles": [
+    "Art/qa/meat-paw/README.md",
+    "Art/qa/meat-paw/battle-1x.png",
+    "Art/qa/meat-paw/battle-2x.png",
+    "Art/qa/meat-paw/bear-emerges-1x.png",
+    "Art/qa/meat-paw/bear-emerges-2x.png",
+    "Art/qa/meat-paw/bounty-notice-1x.png",
+    "Art/qa/meat-paw/bounty-notice-2x.png",
+    "Art/qa/meat-paw/browser-results.json",
+    "Art/qa/meat-paw/cornered-1x.png",
+    "Art/qa/meat-paw/cornered-2x.png",
+    "Art/qa/meat-paw/esla-warning-1x.png",
+    "Art/qa/meat-paw/esla-warning-2x.png",
+    "Art/qa/meat-paw/final-status.txt",
+    "Art/qa/meat-paw/passage-before-1x.png",
+    "Art/qa/meat-paw/passage-before-2x.png",
+    "Art/qa/meat-paw/passage-cleared-1x.png",
+    "Art/qa/meat-paw/passage-cleared-2x.png",
+    "Art/qa/meat-paw/payment-1x.png",
+    "Art/qa/meat-paw/payment-2x.png",
+    "Art/qa/meat-paw/pounce-1x.png",
+    "Art/qa/meat-paw/pounce-2x.png",
+    "Art/qa/meat-paw/verification.json",
+    "Art/qa/meat-paw/victory-1x.png",
+    "Art/qa/meat-paw/victory-2x.png",
+    "ENEMY_CAPABILITY_AUDIT.md",
+    "MEAT_PAW_BOUNTY.md",
+    "PROJECT_STATUS.md",
+    "activity-ownership.js",
+    "architecture.md",
+    "combat.js",
+    "enemy-capabilities.js",
+    "enemy-catalog.js",
+    "index.html",
+    "input.js",
+    "meat-paw.js",
+    "mornay-jobs.js",
+    "movement.js",
+    "quests.js",
+    "render-battle.js",
+    "render-party-battle.js",
+    "render.js",
+    "save.js",
+    "scripted-party-encounters.js",
+    "story-checkpoint-lab.js",
+    "test/cases/155-formation-four-command-integration.test.js",
+    "test/cases/186-enemy-capability-migration.test.js",
+    "test/cases/188-status-specials-party-combat.test.js",
+    "test/cases/189-unusual-enemy-capabilities-party-combat.test.js",
+    "test/cases/191-universal-party-combat-compatibility.test.js",
+    "test/cases/355-meat-paw.test.js",
+    "test/cases/51-save-binding-registry-migration.test.js",
+    "test/cases/52-stable-persistence-ids.test.js",
+    "test/meat-paw-browser.html",
+    "test/meat-paw-browser.js",
+    "validation.js"
+  ],
+  "preservedExistingWork": "Earlier MQ5, MQ6, MQ7 and South Ruins edits remain intact; original maps, atlas and transition artifacts byte-identical to task entry.",
+  "manualChecklist": [
+    "Finish MQ7 report and accept at Mornay South Upper East board.",
+    "Save, then enter the southwest narrow grass at (27,3).",
+    "Review emergence and prepare for Paw, Claw and Pounce; Run cannot escape.",
+    "Playtest actual equipment and supply costs; automated victory is not a balance verdict.",
+    "Defeat Meat Paw and return to the board for exactly 5000g; reload and verify no repeat payment."
+  ],
+  "gitStatus": {
+    "trackedModified": 68,
+    "untrackedFiles": 207,
+    "stagedFiles": []
+  }
+}

@@ -6,6 +6,98 @@ actually fits together.
 
 ## Current state
 
+### Mornay calendar opportunities and Dayoff supper
+
+Mornay public shops, school and offices now close on Dayoff; continuous services
+and all return doors remain available. Existing Vessa, Enna and Hessa run a
+Dayoff-offered, 60g supper-request sidequest, completable on later workdays.
+A defaulted v5 stage prevents repeat payment. Five existing residents now offer
+one-time activities: early finds through Days 10/14 and later unlocks from Days
+16/21/26. A second v5 binding tracks five claim bits; the board gives dates and
+locations. No new NPCs, grids, item definitions or MainQuest changes. See
+MORNAY_CALENDAR.md for rewards, locations and review evidence. Verification:
+296/296 full suites; 1,891 scripted Chromium checks at native/2×; zero validation
+errors; transition artifact and all regional fingerprints match. Uncommitted.
+
+### Meat Paw — optional post-MQ7 bounty
+
+The Mornay board posts a 5000g bear removal after MQ7 completion. Walking into
+the narrow southwest grass at (27,3) triggers an exclusive emergence and a
+no-escape canonical battle. Paw/Claw use maximum-HP damage with 50/100 floors;
+Pounce fells one target. Normal evasion applies. One defaulted v5 bounty stage
+records acceptance, authenticated victory and payment. No geographic edits.
+See [MEAT_PAW_BOUNTY.md](MEAT_PAW_BOUNTY.md) for mechanics and review evidence.
+
+### MQ7 — The Missing Practitioner
+
+Voss now offers a separate 175g inquiry after MQ6 completion. Nine connected
+Lantern House maps lie off Shingle Headlands (20,0): a substantial guest-road
+approach, former guesthouse and blocked feeder route. Four required canonical
+fights and one optional supply encounter accompany Neris's voluntary-departure
+story, Rareborn history, Lély's exclusion and Esla's firm rejection of Flame rule.
+Five distinct civilian NPCs stay outside combat. Three v5 quest bindings persist
+stages, victories and optional loot; key scenes require actual Esla availability
+without overriding Fine Needlework or healing Fallen members. The truthful report
+completes MQ7 once; no MQ8, arrest, raid or onward travel activates.
+
+Story Checkpoint Lab has **MQ7 — Missing Practitioner Ready**. One existing
+regional cell becomes the guest-road entrance; no seams or cameras change.
+See [MQ7 implementation and walkthrough](MQ7_MISSING_PRACTITIONER.md) and
+[verification evidence](Art/qa/lantern-house/README.md). Work remains uncommitted.
+
+
+### South Ruins — post-MQ6 exploration
+
+Six deeper floors now open after Greybank Mill's paid report. The entrance is
+in West Passage, Deeper at (6,11), reached through the original South Ruins.
+Thirty-five main rooms span three columns per floor, with one descent per floor
+and a small final treasure vault. Six distorted variants of existing horror
+enemies have 240–720 HP; three saved coffers reward floors two, four and six.
+Existing ruins, camera, overworld and save version are preserved. See
+[SOUTH_RUINS_DEPTHS.md](SOUTH_RUINS_DEPTHS.md) for rewards, ownership and playtest route.
+Verification: 289/289 full suites, 639 automated Chromium checks at native/2×,
+zero validation errors, matching transition audit and all 1059 regional fingerprints.
+
+### MQ6 — The Greybank Mill
+
+Implemented after the completed MQ5 audience: a separate deliberate conversation
+with Marit Voss offers a 150g commission. Acceptance activates MainQuest 6;
+turn-in completes its own stage and pays once, without starting MQ7. One marker
+at chunk (21,7), local (10,7), leads to six connected mill maps. Tent search
+introduces Brenna and exactly two supporters, granting access without recruitment
+or combat. Four required shared-engine encounters expose withheld public relief
+grain, unpaid workers and Voss's distribution interest; a fifth optional fight
+guards ordinary supplies. A mandatory two-page white vision returns to the exact
+scene once. Solo Fine Needlework absence and Esla's green dialogue remain valid.
+
+The southern river is named CHAMBERI RIVER; no drainage, canal, structural seam,
+camera or progression boundary changes. Four registry bindings retain SAVE_VERSION
+5. See [implementation, full dialogue and review walkthrough](MQ6_GREYBANK_MILL.md)
+and [verification evidence](Art/qa/greybank/README.md). Work remains uncommitted.
+
+### MQ5 — Request for Assistance
+
+Lély can now finish MQ5 by reporting to existing Regional Magistrate Marit Voss
+in Mornay’s Regional IJC Office. Voss receives the signed request and firsthand
+account, acknowledges Dreyfuss’s death and Garrick’s disappearance, and promises
+no personnel or timetable. Completion is the single registered lexical
+`mq5_report_delivered` flag; `MainQuest` stays 5 and no next mission starts.
+The journal records delivery instead of continuing to direct it. Esla appears
+beside Lély when available and speaks on her own green pages; Fine Needlework
+absence, cargo and return location survive a solo audience. No rewards, time,
+resources, party changes, terrain or travel restrictions are introduced.
+
+The Story Checkpoint Lab now offers **MQ5 — Mornay Report Ready**, using the
+existing recruitment/resource profiles and a coherent completed road/camp state.
+It changes the live session only. SAVE_VERSION remains 5; older version-5 saves
+without the new flag default to undelivered. Report-specific office followups
+no longer impose the obsolete certificate/copy loop; the existing Serpentsmoke
+shop tip remains. See [full dialogue, ownership and walkthrough](MQ5_MORNAY_REPORT.md).
+Verification: 286/286 regression suites, 12 focused lifecycle checks, 567 automated
+Chromium checks at native/2× scale, 26 JavaScript syntax checks; validation zero
+errors/six existing warnings. This increment is left unstaged and uncommitted
+for review.
+
 ### Expanded-wilderness discoveries
 
 Ten examinable sparkles now mark six supply finds, three optional risk/reward
@@ -2522,3 +2614,44 @@ ordinary hard encounters. Henric sells Serpentsmoke for 60g upstairs at Sorn Wor
 Gear, with Messa's MQ5 paperwork dialogue supplying the tip. One use escapes a
 Zolom-only fight without rewards. It cannot unlock other bosses. MQ5 and save
 version 5 are unchanged. Exact deltas and verification: Art/qa/valmere-access/README.md.
+
+MQ7 final verification: **290/290 full regression suites**, 72 JS syntax checks,
+zero validation errors/six existing warnings, 1,059 matching fingerprints and
+matching transition artifact. Automated native/2× Chromium walkthrough: 4,830
+checks and 62 captures. No human manual full-world playtest claimed.
+
+
+### Esla Seed Dart — uncommitted review
+
+Level-11 Esla now has a Bloommarked, exact-target offensive Resonance ability:
+Seed Dart costs one ordinary Dart Seed and applies Strain 1. Damage is
+`max(1,75-target.def)`, using shared offensive Resonance. Ten seeds accompany
+production MQ5 recruitment once; existing recruited characters learn through
+level authority without re-recruitment. Stern Apothecary sells seeds for 4g;
+two examine-only seed pods use ordinary stable pickup persistence. No terrain,
+quest progression, enemy reward rolls or save schema changed. Reagent-free
+techniques retain their result shapes; shared reservation and historical
+inventory witnesses support canonical, Lab and story owners. See `SEED_DART.md`.
+
+Seed Dart final verification: **293/293 full regression suites**, 99 changed/new
+JavaScript syntax checks, zero validation errors/six existing warnings, all
+1,059 fingerprints and the transition artifact unchanged. Automated Chrome
+passed 124 assertions with ten native/2× captures. SAVE_VERSION remains 5;
+work is unstaged and uncommitted. Full evidence and file list: `SEED_DART.md`.
+
+
+### Esla Wildspore — uncommitted review
+
+Wildspore is a starting Bloommarked Resonance spell: one living enemy's normal
+hit chance is reduced by 75% for its next two action rounds; Esla takes Strain 3.
+No reagent, damage rider or persistent flag. Ordinary attacks, counters and
+Meat Paw's strikes use the same existing hit rolls with reduced hit probability.
+Guaranteed effects keep their existing behavior. Cleanup/retry and historical
+playback are covered; Save version 5, geography and Seed Dart supply are unchanged.
+See `WILDSPORE.md` for mechanics, evidence and the exact incremental file list.
+
+Wildspore final verification: **294/294 full regression suites**, 11 incremental
+JavaScript syntax checks, zero validation errors/six existing warnings; 160
+Wildspore and 124 Seed Dart automated browser assertions passed. Native/2×
+menu and message captures inspected. Save version 5 and geographic artifacts
+unchanged. Left unstaged/uncommitted; evidence and exact files in `WILDSPORE.md`.

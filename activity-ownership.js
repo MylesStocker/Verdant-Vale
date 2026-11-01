@@ -9,6 +9,10 @@ const activityOwnership = (() => {
     ['water_travel', () => waterTravelController.isActive()],
     ['fine_needlework', () => fineNeedlework.isActive()],
     ['mq5_assignment', () => mq5AssignmentCutscene.isActive()],
+    ['meat_paw_scene', () => meatPaw.isActive()],
+    ['lantern_house_scene', () => lanternHouse.isActive()],
+    ['greybank_scene', () => greybank.isActive()],
+    ['mq5_report', () => mornayReport.isActive()],
     ['camp', () => travellersRiseCamp.blocksInput()],
     ['ambush', () => travellersRiseAmbush.isExclusive()],
     ['cutaway', () => seraLioraCutscene.active],
@@ -39,11 +43,11 @@ const activityOwnership = (() => {
     // Receiver handoffs themselves. Add the shared story/travel exclusions
     // without overriding those token-specific policies.
     combatPreparationConflicts(ownDialogue,ownStory=false) {
-      return matching(id=>['promise_preview','river_wrestling','runtime_fault','water_travel','fine_needlework','mq5_assignment','camp','checkpoint',
+      return matching(id=>['promise_preview','river_wrestling','runtime_fault','water_travel','fine_needlework','mq5_assignment','mq5_report','greybank_scene','lantern_house_scene','meat_paw_scene','camp','checkpoint',
         ...(!ownDialogue?['ambush']:[]),...(!ownStory?['story_battle']:[])].includes(id));
     },
     legacyExecutionConflicts() {
-      return matching(id=>['promise_preview','river_wrestling','runtime_fault','water_travel','fine_needlework','mq5_assignment','camp','checkpoint','story_battle'].includes(id));
+      return matching(id=>['promise_preview','river_wrestling','runtime_fault','water_travel','fine_needlework','mq5_assignment','mq5_report','greybank_scene','lantern_house_scene','meat_paw_scene','camp','checkpoint','story_battle'].includes(id));
     },
   });
 })();

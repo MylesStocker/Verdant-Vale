@@ -376,6 +376,8 @@ function drawMornayRoomActors() {
   const layers=MORNAY_ROOM_FIXTURES[room.id].map(f=>({depth:f.row*TILE+24,draw:()=>drawMornayFixture(f)}));
   for(const npc of [...MORNAY_NPCS,...FINE_NEEDLEWORK_NPCS,...TWO_JORANS_NPCS].filter(n=>n.map===currentContentLocationKey()))
     layers.push({depth:npc.y+8,draw:()=>drawOneContentNPC(npc)});
+  const companion=mornayReport.companion()||greybank.companion()||lanternHouse.companion();
+  if(companion)layers.push({depth:companion.y+8,draw:()=>drawWalkingEslaFigure(companion,companion.facing,0)});
   layers.push({depth:player.y+8,draw:()=>drawPlayer()});
   layers.sort((a,b)=>a.depth-b.depth);
   for(const layer of layers)layer.draw();

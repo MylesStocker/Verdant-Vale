@@ -95,8 +95,12 @@ function drawActiveMapContent() {
   if (inTown && townBuilding === 'infirmary' && currentTownId === 'drenwick') drawInfirmaryFurniture();
   if (inTown && currentTownId === 'mornay') {drawMornayContent();twoJorans.draw();}
   drawReedbankContent();
+  greybank.draw();
+  lanternHouse.draw();
+  southRuinsDepths.draw();
   struckEntry.draw();
   mornayJobs.draw();
+  meatPaw.draw();
   if (!isMornayRoomView()) drawSimpleNPCs();
   if(typeof travellersRiseAmbush!=='undefined')travellersRiseAmbush.draw();
   if(typeof travellersRiseCamp!=='undefined')travellersRiseCamp.draw();

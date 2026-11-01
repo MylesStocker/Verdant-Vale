@@ -22,7 +22,8 @@ module.exports={
   g.run('day=1;');
   const children=J(g,"MORNAY_RESIDENTS.filter(r=>r.role==='child keeping house')");assert.equal(children.length,4);
   for(const r of children){assert.match(r.mapId,/SOUTH_ROWS_UNIT_/);place(g,r.mapId);talk(g,r.id);dismiss(g);}
-  // Real public conversations leave the sealed report, resources and MQ5 untouched.
+  // This synthetic MQ5 state has no genuine assignment: public conversations
+  // remain ambient. Suite 350 covers the eligible Magistrate audience.
   const officials=J(g,'MORNAY_RESIDENTS.filter(r=>r.reportText)');assert.equal(officials.length,14);
   for(const r of officials){
    place(g,r.mapId);const before=persistent(g);

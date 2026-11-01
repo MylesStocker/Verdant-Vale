@@ -358,6 +358,29 @@ for(const [i,d] of g.run('FEN_CAVE_DOORS.map(d=>({...d}))').entries()) {
   check(`Fen cave passage ${i}: ${d.source} -> ${d.target}`,setup+'fenCaverns.tryDoor();',{group:'fen-caverns'});
 }
 
+// MQ7 local passages, including the sole regional doorway.
+for(const [i,d] of g.run('LANTERN_DOORS.map(d=>({...d}))').entries()){
+ const setup=`lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},facing:'down'});`;
+ check(`Lantern House door ${i}: ${d.source} -> ${d.target}`,setup+'lanternHouse.tryDoor();',{group:'lantern-house'});
+}
+g.run('lantern_stage=0;lantern_wins=0;');
+
+// Greybank point doors, using the real dispatcher with cleared-access fixture state.
+for(const [i,d] of g.run('GREYBANK_DOORS.map(d=>({...d}))').entries()) {
+ const setup=`greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},facing:'down'});`;
+ check(`Greybank door ${i}: ${d.source} -> ${d.target}`,setup+'greybank.tryDoor();',{group:'greybank'});
+}
+g.run('greybank_stage=0;greybank_wins=0;');
+
+// Post-MQ6 South Ruins: explicit local doors; only the old-room return
+// restores its legacy floor discriminator. All new rooms are neutral catalog maps.
+for(const [i,d] of g.run('SOUTH_DEPTH_DOORS.map(d=>({...d}))').entries()) {
+ const state=d.source==='DUNGEON8_WEST_LOWER2_MAP'?{inDungeon:true,dungeonFloor:13}:{};
+ const setup=`greybank_stage=4;transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},state:${JSON.stringify(state)},facing:'down'});`;
+ check(`South depths door ${i}: ${d.source} -> ${d.target}`,setup+'southRuinsDepths.tryDoor();',{group:'south-depths'});
+}
+g.run('greybank_stage=0;');
+
 // Third Lock reciprocal local doors; gate bits are fixture state, not altered terrain.
 for(const [i,d] of g.run('THIRD_LOCK_DOORS.map(d=>({...d}))').entries()) {
   const setup=`struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:${esc(d.source)},x:${(d.col+.5)*32},y:${(d.row+.5)*32},facing:'down'});`;

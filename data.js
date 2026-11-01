@@ -77,6 +77,23 @@ const DUNGEON_HORROR_ENEMY_TEMPLATES = [
   { id: 'enemy_the_seep',     name: 'The Seep',     hp:  40, maxHp:  40, atk: 45, def:  0, spd: 18, xp: 170, goldMin: 35, goldMax: 62, splits: true },
 ];
 
+// Post-MQ6 depths: substantial endurance increases, familiar acid/curse rules.
+// No `splits`: the original Seep's fixed small successor belongs to that enemy.
+const SOUTH_DEPTH_ENEMIES = [
+ {id:'enemy_folded_seep',name:'Folded Seep',hp:240,maxHp:240,atk:42,def:2,spd:13,xp:300,goldMin:65,goldMax:95},
+ {id:'enemy_inverted_maw',name:'Inverted Maw',hp:420,maxHp:420,atk:36,def:8,spd:5,xp:340,goldMin:70,goldMax:110,acidChance:.35},
+ {id:'enemy_knotted_tendril',name:'Knotted Tendril',hp:280,maxHp:280,atk:38,def:4,spd:12,xp:320,goldMin:65,goldMax:105},
+ {id:'enemy_manyfold_seep',name:'Manyfold Seep',hp:520,maxHp:520,atk:46,def:3,spd:14,xp:490,goldMin:100,goldMax:150,curseChance:.15},
+ {id:'enemy_hollowed_maw',name:'Hollowed Maw',hp:720,maxHp:720,atk:40,def:9,spd:6,xp:550,goldMin:110,goldMax:165,acidChance:.40},
+ {id:'enemy_nerve_lattice',name:'Nerve Lattice',hp:440,maxHp:440,atk:42,def:5,spd:13,xp:510,goldMin:100,goldMax:155},
+];
+const SOUTH_DEPTH_POOLS=[SOUTH_DEPTH_ENEMIES.slice(0,3),[SOUTH_DEPTH_ENEMIES[1],SOUTH_DEPTH_ENEMIES[2],SOUTH_DEPTH_ENEMIES[3]],SOUTH_DEPTH_ENEMIES.slice(3)];
+const SOUTH_DEPTH_CHESTS=[
+ {id:'chest_south_depth_2',mapId:'SOUTH_DEPTH_2_2_MAP',x:12.5*TILE,y:11.5*TILE,opened:false,gold:1000,rewards:[['Dragon Blade',1],['Elixir',3]]},
+ {id:'chest_south_depth_4',mapId:'SOUTH_DEPTH_4_4_MAP',x:3.5*TILE,y:11.5*TILE,opened:false,gold:1600,rewards:[['Resonant Targe',1],['Amethyst Bangle',1],['Elixir',4]]},
+ {id:'chest_south_depth_6',mapId:'SOUTH_DEPTH_VAULT_MAP',x:12.5*TILE,y:11.5*TILE,opened:false,gold:3000,rewards:[['Fen Mask',1],['Void Shard',5],['Elixir',6]]},
+];
+
 // Rainfish — scripted encounter only (Still Water quest, MAP3_N1 bog-edge danger zone).
 // Very fast (almost always strike first), low HP, no reward to speak of. Three in a row.
 // Cannot flee — the school is all around the player in the shallows.
@@ -1876,9 +1893,12 @@ for (const def of MAINLAND_REGIONAL_CHUNK_DEFINITIONS)
   MAP_CATALOG[def.mapId] = _regionalChunkCatalogEntry(def.mapId);
 for (const def of FEN_RUIN_REGIONAL_CHUNK_DEFINITIONS)
   MAP_CATALOG[def.mapId] = _regionalChunkCatalogEntry(def.mapId);
+for(const def of LANTERN_MAPS) MAP_CATALOG[def.id]={id:def.id,map:def.map,displayName:def.name,region:'Shingle Headlands',type:def.indoor?'interior':'outdoor',items:[],encounterPool:null,allowRandomEncounters:false,allowSave:true};
+for(const def of GREYBANK_MAPS) MAP_CATALOG[def.id]={id:def.id,map:def.map,displayName:def.name,region:'CHAMBERI RIVER',type:def.id==='GREYBANK_YARD_MAP'?'outdoor':'interior',items:[],encounterPool:null,allowRandomEncounters:false,allowSave:true};
 for (const def of FEN_CAVE_MAPS)
   MAP_CATALOG[def.id] = {id:def.id,map:def.map,displayName:def.name,region:'Great Fen',
     type:'interior',items:[],encounterPool:null,allowRandomEncounters:false,allowSave:true};
+for(const def of SOUTH_DEPTH_MAPS) MAP_CATALOG[def.id]={id:def.id,map:def.map,displayName:def.name,region:'South Ruins',type:'dungeon',items:[],encounterPool:def.vault?null:SOUTH_DEPTH_POOLS[Math.floor((def.level-1)/2)],allowRandomEncounters:!def.vault,allowSave:true};
 window.MAP_CATALOG = MAP_CATALOG;
 
 // ─── Derived compatibility views + canonical helpers ─────────────────────────
@@ -2165,6 +2185,7 @@ const PICKUP_REGISTRY_IDS = Object.keys(PICKUP_REGISTRY).sort();
 // player-house stored-gold container (a value, not opened/closed), dresser
 // `.looted`, sparkle `.taken` — is deliberately NOT here and keeps its own field.
 const OPENABLE_CHESTS = [
+  ...SOUTH_DEPTH_CHESTS,
   DUNGEON_CHEST, DUNGEON_ALCOVE_CHEST, SLUICE_CHEST, SLUICE_LEVEL2_CHEST,
   SLUICE_SECRET_CHEST, SLUICE_LEVEL3_CHEST, SLUICE_DEEP_CHEST, CAT_ARMOR_CHEST, MEADOW_CHEST,
   RESERVOIR_BALANCE_CACHE,

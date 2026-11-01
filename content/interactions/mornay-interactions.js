@@ -84,8 +84,16 @@ function mornayTreatmentChoices(npc) {
 }
 NPC_ACTIONS.mornayService = function(npc) {
   if (!inTown || currentTownId !== 'mornay' || npc.map !== currentContentLocationKey()) return false;
+  if (isMornayShopClosed(npc.service)) {
+    mornayServiceMessage(npc.name,['No trading on Dayoff. Come back tomorrow.']);return true;
+  }
   dialogue.name=npc.name;setNpcDialoguePages(npc);dialogue.page=0;dialogue.open=true;
   dialogue.callbacks=[()=>{
+    if (!inTown || currentTownId !== 'mornay' || npc.map !== currentContentLocationKey() ||
+        Math.hypot(player.x-npc.x,player.y-npc.y)>=TALK_RADIUS) return;
+    if (isMornayShopClosed(npc.service)) {
+      mornayServiceMessage(npc.name,['No trading on Dayoff. Come back tomorrow.']);return;
+    }
     const stock=MORNAY_SHOPS[npc.service];
     if (stock) {shop.title=stock.label;shop.stock=stock.stock;shop.screen='main';shop.cursor=0;shop.open=true;return;}
     if (Object.hasOwn(MORNAY_INNS,npc.service)) {

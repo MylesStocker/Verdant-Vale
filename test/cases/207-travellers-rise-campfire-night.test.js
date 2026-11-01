@@ -141,7 +141,7 @@ test('overnight receipt restores each member and ONLY ordinary-night statuses on
  done(g);assert.equal(view(g).stage,2);const after=J(g,'({day,stats,party:persistentParty.serialize(),ids:combatEnemyInstanceSequence})');
  for(const key of ['items','gold','xp','level','weapon','armor','shield','accessory'])assert.deepEqual(after.stats[key],before.stats[key]);
  assert.deepEqual(after.party.rewards,before.party.rewards);assert.equal(after.ids,before.ids);assert.equal(g.run('MainQuest'),5);
- assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Sealed Report').body,'Continue east to the Mornay regional office with Esla. Deliver the sealed report and request qualified assistance.');
+ assert.equal(J(g,'getActiveQuestNotes()').find(n=>n.title==='Request for Assistance').body,'Continue east to the Mornay regional office with Esla. Deliver the sealed report and request qualified assistance.');
  assert.equal(g.run("travellersRiseAmbush.blocksExit('EASTERN_FENS_TRAVELLERS_RISE_MAP','east')"),false);assertNoOwners(g);assert.equal(g.run('nightRolls'),0);
 });
 
@@ -225,7 +225,7 @@ test('ordinary maps retain zero extra night draw calls, save version and all geo
  const g=createContext();record(g);g.run('paint=[];travellersRiseNight.drawFire();travellersRiseNight.drawEsla();travellersRiseNight.drawNight()');assert.deepEqual(J(g,'paint'),[]);
  assert.equal(g.run('travellersRiseNight.drawPlayerPose()'),false);assert.equal(g.run('SAVE_VERSION'),5);
  const fixture=require('../fixtures/regional-grid-fingerprints');for(const [id,hash]of Object.entries(fixture.fingerprints))assert.equal(crypto.createHash('sha256').update(g.run(`JSON.stringify(mapRefForId('${id}'))`)).digest('hex'),hash);
- assert.equal(g.run('Object.keys(MAP_CATALOG).length'),1267);
+ assert.equal(g.run('Object.keys(MAP_CATALOG).length'),1318);
 });
 
 module.exports={name:'Travellers Rise campfire night: private conversation, local firelight and authenticated ordinary rest',

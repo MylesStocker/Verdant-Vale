@@ -1264,9 +1264,60 @@
     "MAINLAND_CN2R12_MAP",
     "MAINLAND_CN1R12_MAP",
     "FEN_RUIN_RISE_MAP",
+    "LANTERN_TRACK_MAP",
+    "LANTERN_GULLY_MAP",
+    "LANTERN_ORCHARD_MAP",
+    "LANTERN_HALL_MAP",
+    "LANTERN_BUNKS_MAP",
+    "LANTERN_CHANNEL_MAP",
+    "LANTERN_BEND_MAP",
+    "LANTERN_INTAKE_MAP",
+    "LANTERN_COPSE_MAP",
+    "GREYBANK_YARD_MAP",
+    "GREYBANK_TENT_MAP",
+    "GREYBANK_MAIN_MAP",
+    "GREYBANK_UPPER_MAP",
+    "GREYBANK_STORE_MAP",
+    "GREYBANK_WHEEL_MAP",
     "FEN_CAVE_DESCENT_MAP",
     "FEN_CAVE_POOL_MAP",
-    "FEN_CAVE_ROOTS_MAP"
+    "FEN_CAVE_ROOTS_MAP",
+    "SOUTH_DEPTH_1_0_MAP",
+    "SOUTH_DEPTH_1_1_MAP",
+    "SOUTH_DEPTH_1_2_MAP",
+    "SOUTH_DEPTH_2_0_MAP",
+    "SOUTH_DEPTH_2_1_MAP",
+    "SOUTH_DEPTH_2_2_MAP",
+    "SOUTH_DEPTH_2_3_MAP",
+    "SOUTH_DEPTH_3_0_MAP",
+    "SOUTH_DEPTH_3_1_MAP",
+    "SOUTH_DEPTH_3_2_MAP",
+    "SOUTH_DEPTH_3_3_MAP",
+    "SOUTH_DEPTH_3_4_MAP",
+    "SOUTH_DEPTH_4_0_MAP",
+    "SOUTH_DEPTH_4_1_MAP",
+    "SOUTH_DEPTH_4_2_MAP",
+    "SOUTH_DEPTH_4_3_MAP",
+    "SOUTH_DEPTH_4_4_MAP",
+    "SOUTH_DEPTH_4_5_MAP",
+    "SOUTH_DEPTH_5_0_MAP",
+    "SOUTH_DEPTH_5_1_MAP",
+    "SOUTH_DEPTH_5_2_MAP",
+    "SOUTH_DEPTH_5_3_MAP",
+    "SOUTH_DEPTH_5_4_MAP",
+    "SOUTH_DEPTH_5_5_MAP",
+    "SOUTH_DEPTH_5_6_MAP",
+    "SOUTH_DEPTH_5_7_MAP",
+    "SOUTH_DEPTH_6_0_MAP",
+    "SOUTH_DEPTH_6_1_MAP",
+    "SOUTH_DEPTH_6_2_MAP",
+    "SOUTH_DEPTH_6_3_MAP",
+    "SOUTH_DEPTH_6_4_MAP",
+    "SOUTH_DEPTH_6_5_MAP",
+    "SOUTH_DEPTH_6_6_MAP",
+    "SOUTH_DEPTH_6_7_MAP",
+    "SOUTH_DEPTH_6_8_MAP",
+    "SOUTH_DEPTH_VAULT_MAP"
   ],
   "dimReport": [
     {
@@ -8854,6 +8905,96 @@
       "ok": true
     },
     {
+      "id": "LANTERN_TRACK_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_GULLY_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_ORCHARD_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_HALL_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_BUNKS_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_CHANNEL_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_BEND_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_INTAKE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "LANTERN_COPSE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "GREYBANK_YARD_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "GREYBANK_TENT_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "GREYBANK_MAIN_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "GREYBANK_UPPER_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "GREYBANK_STORE_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "GREYBANK_WHEEL_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
       "id": "FEN_CAVE_DESCENT_MAP",
       "rows": 15,
       "cols": 16,
@@ -8867,6 +9008,222 @@
     },
     {
       "id": "FEN_CAVE_ROOTS_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_1_0_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_1_1_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_1_2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_2_0_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_2_1_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_2_2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_2_3_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_3_0_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_3_1_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_3_2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_3_3_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_3_4_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_4_0_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_4_1_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_4_2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_4_3_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_4_4_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_4_5_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_0_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_1_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_3_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_4_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_5_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_6_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_5_7_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_0_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_1_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_2_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_3_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_4_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_5_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_6_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_7_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_6_8_MAP",
+      "rows": 15,
+      "cols": 16,
+      "ok": true
+    },
+    {
+      "id": "SOUTH_DEPTH_VAULT_MAP",
       "rows": 15,
       "cols": 16,
       "ok": true
@@ -16884,6 +17241,2964 @@
       "verdict": "OK"
     },
     {
+      "name": "Lantern House door 0: MAINLAND_C20R0_MAP -> LANTERN_TRACK_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"MAINLAND_C20R0_MAP\",x:240,y:112,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_TRACK_MAP",
+      "px": 80,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 2,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 1: LANTERN_TRACK_MAP -> MAINLAND_C20R0_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_TRACK_MAP\",x:80,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "MAINLAND_C20R0_MAP",
+      "px": 240,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 2: LANTERN_TRACK_MAP -> LANTERN_GULLY_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_TRACK_MAP\",x:400,y:48,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_GULLY_MAP",
+      "px": 80,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 2,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 3: LANTERN_GULLY_MAP -> LANTERN_TRACK_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_GULLY_MAP\",x:80,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_TRACK_MAP",
+      "px": 400,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 4: LANTERN_GULLY_MAP -> LANTERN_ORCHARD_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_GULLY_MAP\",x:400,y:48,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_ORCHARD_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 5: LANTERN_ORCHARD_MAP -> LANTERN_GULLY_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_ORCHARD_MAP\",x:240,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_GULLY_MAP",
+      "px": 400,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 6: LANTERN_ORCHARD_MAP -> LANTERN_HALL_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_ORCHARD_MAP\",x:240,y:176,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_HALL_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 7: LANTERN_HALL_MAP -> LANTERN_ORCHARD_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_HALL_MAP\",x:240,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_ORCHARD_MAP",
+      "px": 240,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 7,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 8: LANTERN_HALL_MAP -> LANTERN_BUNKS_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_HALL_MAP\",x:400,y:48,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_BUNKS_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 9: LANTERN_BUNKS_MAP -> LANTERN_HALL_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_BUNKS_MAP\",x:240,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_HALL_MAP",
+      "px": 400,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 10: LANTERN_ORCHARD_MAP -> LANTERN_CHANNEL_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_ORCHARD_MAP\",x:432,y:48,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_CHANNEL_MAP",
+      "px": 112,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 11: LANTERN_CHANNEL_MAP -> LANTERN_ORCHARD_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_CHANNEL_MAP\",x:112,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_ORCHARD_MAP",
+      "px": 432,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 13,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 12: LANTERN_CHANNEL_MAP -> LANTERN_BEND_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_CHANNEL_MAP\",x:112,y:48,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_BEND_MAP",
+      "px": 80,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 2,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 13: LANTERN_BEND_MAP -> LANTERN_CHANNEL_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_BEND_MAP\",x:80,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_CHANNEL_MAP",
+      "px": 112,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 14: LANTERN_BEND_MAP -> LANTERN_INTAKE_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_BEND_MAP\",x:112,y:48,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_INTAKE_MAP",
+      "px": 112,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 15: LANTERN_INTAKE_MAP -> LANTERN_BEND_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_INTAKE_MAP\",x:112,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_BEND_MAP",
+      "px": 112,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 16: LANTERN_BEND_MAP -> LANTERN_COPSE_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_BEND_MAP\",x:432,y:240,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_COPSE_MAP",
+      "px": 112,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Lantern House door 17: LANTERN_COPSE_MAP -> LANTERN_BEND_MAP",
+      "group": "lantern-house",
+      "setupCode": "lantern_stage=7;lantern_wins=31;transitionToLocation({mapId:\"LANTERN_COPSE_MAP\",x:112,y:432,facing:'down'});lanternHouse.tryDoor();",
+      "error": null,
+      "destMap": "LANTERN_BEND_MAP",
+      "px": 400,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 12,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 58,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": false,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 0: MAINLAND_C21R7_MAP -> GREYBANK_YARD_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"MAINLAND_C21R7_MAP\",x:336,y:240,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_YARD_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 1: GREYBANK_YARD_MAP -> MAINLAND_C21R7_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_YARD_MAP\",x:240,y:432,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "MAINLAND_C21R7_MAP",
+      "px": 368,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 11,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 2: GREYBANK_YARD_MAP -> GREYBANK_TENT_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_YARD_MAP\",x:112,y:176,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_TENT_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 3: GREYBANK_TENT_MAP -> GREYBANK_YARD_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_TENT_MAP\",x:240,y:432,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_YARD_MAP",
+      "px": 112,
+      "py": 208,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 6,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 0,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 4: GREYBANK_YARD_MAP -> GREYBANK_MAIN_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_YARD_MAP\",x:304,y:208,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_MAIN_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 5: GREYBANK_MAIN_MAP -> GREYBANK_YARD_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_MAIN_MAP\",x:240,y:432,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_YARD_MAP",
+      "px": 304,
+      "py": 240,
+      "facing": "down",
+      "tileCol": 9,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 2,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 6: GREYBANK_MAIN_MAP -> GREYBANK_UPPER_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_MAIN_MAP\",x:400,y:80,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_UPPER_MAP",
+      "px": 400,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 12,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 7: GREYBANK_UPPER_MAP -> GREYBANK_MAIN_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_UPPER_MAP\",x:400,y:400,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_MAIN_MAP",
+      "px": 400,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 8: GREYBANK_UPPER_MAP -> GREYBANK_STORE_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_UPPER_MAP\",x:112,y:80,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_STORE_MAP",
+      "px": 112,
+      "py": 368,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 11,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 9: GREYBANK_STORE_MAP -> GREYBANK_UPPER_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_STORE_MAP\",x:112,y:400,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_UPPER_MAP",
+      "px": 112,
+      "py": 112,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 3,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 10: GREYBANK_STORE_MAP -> GREYBANK_WHEEL_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_STORE_MAP\",x:400,y:80,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_WHEEL_MAP",
+      "px": 240,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 7,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "Greybank door 11: GREYBANK_WHEEL_MAP -> GREYBANK_STORE_MAP",
+      "group": "greybank",
+      "setupCode": "greybank_stage=3;greybank_wins=15;transitionToLocation({mapId:\"GREYBANK_WHEEL_MAP\",x:240,y:432,facing:'down'});greybank.tryDoor();",
+      "error": null,
+      "destMap": "GREYBANK_STORE_MAP",
+      "px": 400,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 18,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 0: SOUTH_DEPTH_1_0_MAP -> SOUTH_DEPTH_1_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_1_0_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_1_1_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 1: SOUTH_DEPTH_1_1_MAP -> SOUTH_DEPTH_1_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_1_1_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_1_0_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 2: SOUTH_DEPTH_1_1_MAP -> SOUTH_DEPTH_1_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_1_1_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_1_2_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 3: SOUTH_DEPTH_1_2_MAP -> SOUTH_DEPTH_1_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_1_2_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_1_1_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 4: SOUTH_DEPTH_1_2_MAP -> SOUTH_DEPTH_2_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_1_2_MAP\",x:400,y:368,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_0_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 5: SOUTH_DEPTH_2_0_MAP -> SOUTH_DEPTH_1_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_0_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_1_2_MAP",
+      "px": 400,
+      "py": 336,
+      "facing": "up",
+      "tileCol": 12,
+      "tileRow": 10,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 6: SOUTH_DEPTH_2_0_MAP -> SOUTH_DEPTH_2_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_0_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_1_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 7: SOUTH_DEPTH_2_1_MAP -> SOUTH_DEPTH_2_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_1_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_0_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 8: SOUTH_DEPTH_2_1_MAP -> SOUTH_DEPTH_2_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_1_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_2_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 9: SOUTH_DEPTH_2_2_MAP -> SOUTH_DEPTH_2_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_2_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_1_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 10: SOUTH_DEPTH_2_2_MAP -> SOUTH_DEPTH_2_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_2_MAP\",x:272,y:432,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_3_MAP",
+      "px": 272,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 11: SOUTH_DEPTH_2_3_MAP -> SOUTH_DEPTH_2_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_3_MAP\",x:272,y:48,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_2_MAP",
+      "px": 272,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 12: SOUTH_DEPTH_2_3_MAP -> SOUTH_DEPTH_3_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_2_3_MAP\",x:400,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_0_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 13: SOUTH_DEPTH_3_0_MAP -> SOUTH_DEPTH_2_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_0_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_2_3_MAP",
+      "px": 400,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 14: SOUTH_DEPTH_3_0_MAP -> SOUTH_DEPTH_3_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_0_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_1_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 15: SOUTH_DEPTH_3_1_MAP -> SOUTH_DEPTH_3_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_1_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_0_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 16: SOUTH_DEPTH_3_1_MAP -> SOUTH_DEPTH_3_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_1_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_2_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 17: SOUTH_DEPTH_3_2_MAP -> SOUTH_DEPTH_3_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_2_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_1_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 18: SOUTH_DEPTH_3_2_MAP -> SOUTH_DEPTH_3_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_2_MAP\",x:272,y:432,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_3_MAP",
+      "px": 272,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 19: SOUTH_DEPTH_3_3_MAP -> SOUTH_DEPTH_3_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_3_MAP\",x:272,y:48,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_2_MAP",
+      "px": 272,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 20: SOUTH_DEPTH_3_3_MAP -> SOUTH_DEPTH_3_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_3_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_4_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 21: SOUTH_DEPTH_3_4_MAP -> SOUTH_DEPTH_3_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_4_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_3_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 22: SOUTH_DEPTH_3_4_MAP -> SOUTH_DEPTH_4_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_3_4_MAP\",x:112,y:368,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_0_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 23: SOUTH_DEPTH_4_0_MAP -> SOUTH_DEPTH_3_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_0_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_3_4_MAP",
+      "px": 112,
+      "py": 336,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 10,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 24: SOUTH_DEPTH_4_0_MAP -> SOUTH_DEPTH_4_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_0_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_1_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 25: SOUTH_DEPTH_4_1_MAP -> SOUTH_DEPTH_4_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_1_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_0_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 26: SOUTH_DEPTH_4_1_MAP -> SOUTH_DEPTH_4_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_1_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_2_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 27: SOUTH_DEPTH_4_2_MAP -> SOUTH_DEPTH_4_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_2_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_1_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 28: SOUTH_DEPTH_4_2_MAP -> SOUTH_DEPTH_4_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_2_MAP\",x:272,y:432,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_3_MAP",
+      "px": 272,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 29: SOUTH_DEPTH_4_3_MAP -> SOUTH_DEPTH_4_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_3_MAP\",x:272,y:48,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_2_MAP",
+      "px": 272,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 30: SOUTH_DEPTH_4_3_MAP -> SOUTH_DEPTH_4_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_3_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_4_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 31: SOUTH_DEPTH_4_4_MAP -> SOUTH_DEPTH_4_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_4_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_3_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 32: SOUTH_DEPTH_4_4_MAP -> SOUTH_DEPTH_4_5_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_4_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_5_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 33: SOUTH_DEPTH_4_5_MAP -> SOUTH_DEPTH_4_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_5_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_4_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 34: SOUTH_DEPTH_4_5_MAP -> SOUTH_DEPTH_5_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_4_5_MAP\",x:112,y:368,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_0_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 35: SOUTH_DEPTH_5_0_MAP -> SOUTH_DEPTH_4_5_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_0_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_4_5_MAP",
+      "px": 112,
+      "py": 336,
+      "facing": "up",
+      "tileCol": 3,
+      "tileRow": 10,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 36: SOUTH_DEPTH_5_0_MAP -> SOUTH_DEPTH_5_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_0_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_1_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 37: SOUTH_DEPTH_5_1_MAP -> SOUTH_DEPTH_5_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_1_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_0_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 38: SOUTH_DEPTH_5_1_MAP -> SOUTH_DEPTH_5_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_1_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_2_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 39: SOUTH_DEPTH_5_2_MAP -> SOUTH_DEPTH_5_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_2_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_1_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 40: SOUTH_DEPTH_5_2_MAP -> SOUTH_DEPTH_5_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_2_MAP\",x:272,y:432,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_3_MAP",
+      "px": 272,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 41: SOUTH_DEPTH_5_3_MAP -> SOUTH_DEPTH_5_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_3_MAP\",x:272,y:48,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_2_MAP",
+      "px": 272,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 42: SOUTH_DEPTH_5_3_MAP -> SOUTH_DEPTH_5_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_3_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_4_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 43: SOUTH_DEPTH_5_4_MAP -> SOUTH_DEPTH_5_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_4_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_3_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 44: SOUTH_DEPTH_5_4_MAP -> SOUTH_DEPTH_5_5_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_4_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_5_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 45: SOUTH_DEPTH_5_5_MAP -> SOUTH_DEPTH_5_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_5_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_4_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 46: SOUTH_DEPTH_5_5_MAP -> SOUTH_DEPTH_5_6_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_5_MAP\",x:272,y:432,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_6_MAP",
+      "px": 272,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 47: SOUTH_DEPTH_5_6_MAP -> SOUTH_DEPTH_5_5_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_6_MAP\",x:272,y:48,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_5_MAP",
+      "px": 272,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 48: SOUTH_DEPTH_5_6_MAP -> SOUTH_DEPTH_5_7_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_6_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_7_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 49: SOUTH_DEPTH_5_7_MAP -> SOUTH_DEPTH_5_6_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_7_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_6_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 50: SOUTH_DEPTH_5_6_MAP -> SOUTH_DEPTH_6_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_5_6_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_0_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 51: SOUTH_DEPTH_6_0_MAP -> SOUTH_DEPTH_5_6_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_0_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_5_6_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 52: SOUTH_DEPTH_6_0_MAP -> SOUTH_DEPTH_6_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_0_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_1_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 53: SOUTH_DEPTH_6_1_MAP -> SOUTH_DEPTH_6_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_1_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_0_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 54: SOUTH_DEPTH_6_1_MAP -> SOUTH_DEPTH_6_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_1_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_2_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 55: SOUTH_DEPTH_6_2_MAP -> SOUTH_DEPTH_6_1_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_2_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_1_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 56: SOUTH_DEPTH_6_2_MAP -> SOUTH_DEPTH_6_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_2_MAP\",x:272,y:432,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_3_MAP",
+      "px": 272,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 57: SOUTH_DEPTH_6_3_MAP -> SOUTH_DEPTH_6_2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_3_MAP\",x:272,y:48,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_2_MAP",
+      "px": 272,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 58: SOUTH_DEPTH_6_3_MAP -> SOUTH_DEPTH_6_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_3_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_4_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 59: SOUTH_DEPTH_6_4_MAP -> SOUTH_DEPTH_6_3_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_4_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_3_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 60: SOUTH_DEPTH_6_4_MAP -> SOUTH_DEPTH_6_5_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_4_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_5_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 61: SOUTH_DEPTH_6_5_MAP -> SOUTH_DEPTH_6_4_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_5_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_4_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 62: SOUTH_DEPTH_6_5_MAP -> SOUTH_DEPTH_6_6_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_5_MAP\",x:272,y:432,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_6_MAP",
+      "px": 272,
+      "py": 80,
+      "facing": "down",
+      "tileCol": 8,
+      "tileRow": 2,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 63: SOUTH_DEPTH_6_6_MAP -> SOUTH_DEPTH_6_5_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_6_MAP\",x:272,y:48,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_5_MAP",
+      "px": 272,
+      "py": 400,
+      "facing": "up",
+      "tileCol": 8,
+      "tileRow": 12,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 64: SOUTH_DEPTH_6_6_MAP -> SOUTH_DEPTH_6_7_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_6_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_7_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 65: SOUTH_DEPTH_6_7_MAP -> SOUTH_DEPTH_6_6_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_7_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_6_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 66: SOUTH_DEPTH_6_7_MAP -> SOUTH_DEPTH_6_8_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_7_MAP\",x:464,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_8_MAP",
+      "px": 80,
+      "py": 240,
+      "facing": "right",
+      "tileCol": 2,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 67: SOUTH_DEPTH_6_8_MAP -> SOUTH_DEPTH_6_7_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_8_MAP\",x:48,y:240,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_7_MAP",
+      "px": 432,
+      "py": 240,
+      "facing": "left",
+      "tileCol": 13,
+      "tileRow": 7,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 68: SOUTH_DEPTH_6_7_MAP -> SOUTH_DEPTH_VAULT_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_6_7_MAP\",x:400,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_VAULT_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 69: SOUTH_DEPTH_VAULT_MAP -> SOUTH_DEPTH_6_7_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_VAULT_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_6_7_MAP",
+      "px": 400,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 12,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 70: DUNGEON8_WEST_LOWER2_MAP -> SOUTH_DEPTH_1_0_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"DUNGEON8_WEST_LOWER2_MAP\",x:208,y:368,state:{\"inDungeon\":true,\"dungeonFloor\":13},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "SOUTH_DEPTH_1_0_MAP",
+      "px": 112,
+      "py": 144,
+      "facing": "down",
+      "tileCol": 3,
+      "tileRow": 4,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": true,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
+      "name": "South depths door 71: SOUTH_DEPTH_1_0_MAP -> DUNGEON8_WEST_LOWER2_MAP",
+      "group": "south-depths",
+      "setupCode": "greybank_stage=4;transitionToLocation({mapId:\"SOUTH_DEPTH_1_0_MAP\",x:112,y:112,state:{},facing:'down'});southRuinsDepths.tryDoor();",
+      "error": null,
+      "destMap": "DUNGEON8_WEST_LOWER2_MAP",
+      "px": 208,
+      "py": 336,
+      "facing": "up",
+      "tileCol": 6,
+      "tileRow": 10,
+      "actualDims": {
+        "rows": 15,
+        "cols": 16
+      },
+      "dimsMismatch": false,
+      "outOfBounds": false,
+      "tileId": 62,
+      "walkableByTable": true,
+      "canWalkHere": true,
+      "escapes": {
+        "up": false,
+        "down": true,
+        "left": true,
+        "right": true
+      },
+      "canEscape": true,
+      "verdict": "OK"
+    },
+    {
       "name": "Third Lock door 0: THIRD_LOCK_APPROACH_MAP -> GREAT_FEN_C8RN3_MAP",
       "group": "third-lock",
       "setupCode": "struck_entry_stage=2;struck_entry_wins=31;transitionToLocation({mapId:\"THIRD_LOCK_APPROACH_MAP\",x:240,y:432,facing:'down'});struckEntry.tryDoor();",
@@ -23210,12 +26525,12 @@
     },
     {
       "name": "DUNGEON_STAIRS_DOWN",
-      "mapsUsingIt": 15,
+      "mapsUsingIt": 22,
       "handledInMovement": true
     },
     {
       "name": "DUNGEON2_STAIRS_UP",
-      "mapsUsingIt": 14,
+      "mapsUsingIt": 21,
       "handledInMovement": true
     },
     {
@@ -23240,7 +26555,7 @@
     },
     {
       "name": "INTERIOR_EXIT",
-      "mapsUsingIt": 110,
+      "mapsUsingIt": 127,
       "handledInMovement": true
     },
     {

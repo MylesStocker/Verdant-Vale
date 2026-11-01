@@ -20,7 +20,7 @@ const SAVE_VERSION = 5;
 // `QUEST_FLAG_SCHEMA` is DERIVED from these keys, so saveGame()/loadGame() and
 // validation stay in agreement automatically. Adding a persistent flag is a
 // single binding entry here (plus, for a lexical flag, its owning `let`
-// declaration and its syncQuestFlagsToWindow() mirror in quests.js) — there is
+// declaration; a window mirror is only needed by legacy readers) — there is
 // NO separate manual load assignment to maintain any more.
 // Value shapes derive from the binding, not a second list of quest names or
 // today's maximum stage/count. Closed quest invariants remain with their owners.
@@ -85,8 +85,11 @@ const QUEST_FLAG_BINDINGS = [
   lex('dispatch_rewarded', false, () => dispatch_rewarded, (v) => { dispatch_rewarded = v; }),
   lex('fort_quest_started', false, () => fort_quest_started, (v) => { fort_quest_started = v; }),
   lex('fort_quest_stage', 0, () => fort_quest_stage, (v) => { fort_quest_stage = v; }),
+  lex('meat_paw_stage',0,()=>meat_paw_stage,v=>{meat_paw_stage=v;}),
   lex('mornay_peat_hunt',0,()=>mornay_peat_hunt,v=>{mornay_peat_hunt=v;}),
   lex('mornay_ridge_hunt',0,()=>mornay_ridge_hunt,v=>{mornay_ridge_hunt=v;}),
+  lex('mornay_calendar_claims',0,()=>mornay_calendar_claims,v=>{mornay_calendar_claims=v;}),
+  lex('mornay_dayoff_music',0,()=>mornay_dayoff_music,v=>{mornay_dayoff_music=v;}),
   lex('mornay_hoist_errand',0,()=>mornay_hoist_errand,v=>{mornay_hoist_errand=v;}),
   lex('two_jorans_stage',0,()=>two_jorans_stage,v=>{two_jorans_stage=v;}),
   lex('two_jorans_evidence',0,()=>two_jorans_evidence,v=>{two_jorans_evidence=v;}),
@@ -162,6 +165,14 @@ const QUEST_FLAG_BINDINGS = [
   win('gallery_clue_stair', false),
   win('gallery_body_found', false),
   // ── Back to lexical (the Sunken Gallery report + Fourteenth File progression) ─
+  lex('lantern_stage',0,()=>lantern_stage,v=>{lantern_stage=v;}),
+  lex('lantern_wins',0,()=>lantern_wins,v=>{lantern_wins=v;}),
+  lex('lantern_cache_taken',false,()=>lantern_cache_taken,v=>{lantern_cache_taken=v;}),
+  lex('greybank_stage',0,()=>greybank_stage,v=>{greybank_stage=v;}),
+  lex('greybank_wins',0,()=>greybank_wins,v=>{greybank_wins=v;}),
+  lex('greybank_vision_seen',false,()=>greybank_vision_seen,v=>{greybank_vision_seen=v;}),
+  lex('greybank_cache_taken',false,()=>greybank_cache_taken,v=>{greybank_cache_taken=v;}),
+  lex('mq5_report_delivered', false, () => mq5_report_delivered, (v) => { mq5_report_delivered = v; }),
   lex('reservoir_report_filed', false, () => reservoir_report_filed, (v) => { reservoir_report_filed = v; }),
   lex('gallery_deeper_stair_seen', false, () => gallery_deeper_stair_seen, (v) => { gallery_deeper_stair_seen = v; }),
   lex('gallery_receiver_defeated', false, () => gallery_receiver_defeated, (v) => { gallery_receiver_defeated = v; }),
@@ -388,6 +399,7 @@ function savedEquipmentDisposition(item) {
 // allowSave: true; only the unmarked chamber and the Sunken Gallery it
 // leads to are actually blocked.
 function canSaveHere() {
+  if (mornayReport.isActive() || greybank.isActive() || lanternHouse.isActive() || meatPaw.isActive()) return false;
   if (fishing.active) return false; // a paid cast is transient until its result is dismissed
   if (debugPromisePreview.isOpen()) return false;
   if (riverWrestling.isActive()) return false;
@@ -414,7 +426,7 @@ function saveGame() {
   if (riverWrestling.isActive()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof fineNeedlework!=='undefined' && fineNeedlework.isActive()) return false;
-  if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
+  if (typeof mq5AssignmentCutscene!=='undefined' && (mq5AssignmentCutscene.isActive() || mornayReport.isActive() || greybank.isActive() || lanternHouse.isActive() || meatPaw.isActive())) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
   // Authoritative guard: refuse to write anything at all on a blocked map,
@@ -436,7 +448,8 @@ function saveGame() {
   // Quest-route guard: never persist a contradictory lighthouse/Polwick state.
   // The same pure invariant is used by offer/objective/reward eligibility,
   // load preflight, and validateGameData().
-  if(mornayJobs.invariantErrors().length||twoJorans.invariantErrors().length||struckEntry.invariantErrors().length)return false;
+  if(mornayCalendar.invariantErrors().length||mornayJobs.invariantErrors().length||twoJorans.invariantErrors().length||struckEntry.invariantErrors().length)return false;
+  if(meatPaw.invariantErrors().length||mornayReport.invariantErrors().length||greybank.invariantErrors().length||lanternHouse.invariantErrors().length)return false;
   if(fineNeedlework.invariantErrors().length)return false;
   const lighthouseErrors = lighthouseQuestInvariantErrors();
   if (lighthouseErrors.length) {
@@ -613,7 +626,7 @@ function loadGame() {
   if (gameRuntimeFailure.isActive()) return false;
   if (typeof waterTravelController !== 'undefined' && waterTravelController.blocksSaveLoad()) return false;
   if (typeof fineNeedlework!=='undefined' && fineNeedlework.isActive()) return false;
-  if (typeof mq5AssignmentCutscene!=='undefined' && mq5AssignmentCutscene.isActive()) return false;
+  if (typeof mq5AssignmentCutscene!=='undefined' && (mq5AssignmentCutscene.isActive() || mornayReport.isActive() || greybank.isActive() || lanternHouse.isActive() || meatPaw.isActive())) return false;
   if (typeof travellersRiseAmbush!=='undefined' && travellersRiseAmbush.blocksSaveLoad()) return false;
   if (typeof travellersRiseCamp!=='undefined' && travellersRiseCamp.isActive()) return false;
   if (canonicalPartyCombat.isActive() || canonicalPartyCombat.hasPendingHandoff()) return false;
@@ -663,7 +676,8 @@ function loadGame() {
   // Candidate-only quest preflight. Missing lighthouse_quest_stage is the
   // pre-feature default (0), preserving older current-version saves. Invalid
   // route/outcome mixtures reject atomically before any runtime mutation.
-  if(mornayJobs.invariantErrors(data).length||twoJorans.invariantErrors(data).length||struckEntry.invariantErrors(data).length)return false;
+  if(mornayCalendar.invariantErrors(data).length||mornayJobs.invariantErrors(data).length||twoJorans.invariantErrors(data).length||struckEntry.invariantErrors(data).length)return false;
+  if(meatPaw.invariantErrors(data).length||mornayReport.invariantErrors(data).length||greybank.invariantErrors(data).length||lanternHouse.invariantErrors(data).length)return false;
   if(fineNeedlework.invariantErrors(data).length)return false;
   const lighthouseErrors = lighthouseQuestInvariantErrors(data);
   if (lighthouseErrors.length) {

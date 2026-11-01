@@ -15,6 +15,9 @@ const player = {
 
 // Returns the display name shown above the canvas for the current location.
 function locationName() {
+  if (southDepthMap(mapIdForRef(activeMap))) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
+  if (LANTERN_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
+  if (GREYBANK_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
   if (FEN_CAVE_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
   if (THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
   if (REEDBANK_CONTENT_KEYS[mapIdForRef(activeMap)]) return MAP_METADATA[mapIdForRef(activeMap)].displayName;
@@ -127,6 +130,8 @@ function locationName() {
 // 'house:<houseId>', per-apartment keys, and town-building/state distinctions
 // ('west', 'drenwick_civic', …). See MAP_CATALOG (data.js) for physical map ids.
 function currentContentLocationKey() {
+  if(LANTERN_CONTENT_KEYS[mapIdForRef(activeMap)])return LANTERN_CONTENT_KEYS[mapIdForRef(activeMap)];
+  if(GREYBANK_CONTENT_KEYS[mapIdForRef(activeMap)])return GREYBANK_CONTENT_KEYS[mapIdForRef(activeMap)];
   const caveKey=FEN_CAVE_CONTENT_KEYS[mapIdForRef(activeMap)];
   if(caveKey)return caveKey;
   const thirdLockKey=THIRD_LOCK_CONTENT_KEYS[mapIdForRef(activeMap)];
@@ -750,6 +755,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
     return;
   }
   if (seraLioraBreakfastBattle.isActive()) {seraLioraBreakfastBattle.update(presentationSeconds);return;}
+  if(meatPaw.isActive()){meatPaw.update(deltaSeconds);return;}
   if (storyBattle.hasContext()) return; // headless story preparation freezes world simulation
   if (canonicalPartyCombat.isActive()) {
     partyBattleQuickbloomAnimation.update(canonicalPartyCombat.getView(),presentationSeconds);
@@ -767,6 +773,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
   if (galleryReceiverEncounter.blocksWorldInput()) return;
   // The MQ5 office walk owns simulation exclusively. It advances only its
   // authenticated Esla route and never ticks world time, cooldowns or encounters.
+  if (mornayReport.isActive() || greybank.isActive() || lanternHouse.isActive()) return;
   if (typeof fineNeedlework!=='undefined' && fineNeedlework.update()) return;
   if (typeof mq5AssignmentCutscene !== 'undefined' && mq5AssignmentCutscene.isActive()) {
     mq5AssignmentCutscene.update();
@@ -777,6 +784,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
     if(travellersRiseAmbush.isExclusive()){travellersRiseAmbush.update();return;}
     if(travellersRiseAmbush.tryTrigger())return;
   }
+  if(meatPaw.tryTrigger())return;
   // Cooldown ticks every frame regardless of game state
   if (combat.cooldown > 0) combat.cooldown--;
   if (worldToastTimer > 0) worldToastTimer--;
@@ -906,8 +914,9 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
       if (edgeTransitioned) return; // activeMap/player position fully replaced; skip the rest of this frame, same as any other map transition
     }
 
+    if(meatPaw.tryTrigger())return;
     // Waking visions interrupt before step damage, encounter RNG or pickups.
-    if(wildernessDreams.tryStep(dreamStepFrom)) return;
+    if(wildernessDreams.tryStep(dreamStepFrom) || greybank.tryVision()) return;
 
     player.step++;
     if ((stats.hp>0 || !canonicalPartyCombat.hasMultipleMembers()) && hasStatusEffect('poison') && player.step % 60 === 0)
@@ -928,7 +937,7 @@ function update(deltaSeconds, presentationSeconds = deltaSeconds) {
     }
 
     // Map transitions
-    if (fenCaverns.tryDoor() || struckEntry.tryDoor() || reedbankTryDoor()) return;
+    if (lanternHouse.tryDoor() || southRuinsDepths.tryDoor() || greybank.tryDoor() || fenCaverns.tryDoor() || struckEntry.tryDoor() || reedbankTryDoor()) return;
     const ttx = Math.floor(player.x / TILE);
     const tty = Math.floor(player.y / TILE);
     const curTile = activeMap[tty] ? activeMap[tty][ttx] : -1;

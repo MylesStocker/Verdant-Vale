@@ -12,7 +12,10 @@ const scriptedPartyEncounters=(()=>{
     mapId:mapIdForRef(activeMap),x:player.x,y:player.y,day,defeatWakeAtHome});
   const definitions=Object.freeze({
     wilderness_discovery:Object.freeze({formation:i=>WILDERNESS_DISCOVERIES[i].enemies.map(id=>ENEMY_TEMPLATE_REGISTRY[id]),escape:'fastest_living',lifecycle:[]}),
+    meat_paw:Object.freeze({formation:()=>[ENEMY_TEMPLATE_REGISTRY.enemy_meat_paw],escape:'blocked',lifecycle:[]}),
     mornay_removal:Object.freeze({formation:id=>[MORNAY_REMOVAL_TEMPLATES[id]],escape:'fastest_living',lifecycle:[]}),
+    lantern_house:Object.freeze({formation:id=>LANTERN_BATTLES[id].enemies.map(key=>ENEMY_TEMPLATE_REGISTRY[key]),escape:'fastest_living',lifecycle:[]}),
+    greybank:Object.freeze({formation:id=>GREYBANK_BATTLES[id].enemies.map(key=>ENEMY_TEMPLATE_REGISTRY[key]),escape:'fastest_living',lifecycle:[]}),
     struck_entry:Object.freeze({formation:id=>STRUCK_ENTRY_BATTLES[id].enemies.map(key=>ENEMY_TEMPLATE_REGISTRY[key]),escape:'fastest_living',lifecycle:[]}),
     pale_sentry:Object.freeze({template:()=>PALE_SENTRY_TEMPLATE,escape:'fastest_living',lifecycle:['persistent_hp_lifecycle']}),
     startWardenCombat:Object.freeze({template:()=>BRIAR_WARDEN_TEMPLATE,escape:'fastest_living',lifecycle:['warden_lifecycle']}),
@@ -32,7 +35,10 @@ const scriptedPartyEncounters=(()=>{
   });
   const eligible=(name,remaining)=>{
     if(name==='wilderness_discovery')return wildernessDiscoveries.eligible(remaining);
+    if(name==='meat_paw')return remaining===undefined&&meatPaw.eligible();
     if(name==='mornay_removal')return mornayJobs.eligible(remaining);
+    if(name==='lantern_house')return lanternHouse.eligible(remaining);
+    if(name==='greybank')return greybank.eligible(remaining);
     if(name==='struck_entry')return struckEntry.eligible(remaining);
     if(name==='pale_sentry')return sentry_quest_started&&!sentry_quest_done&&Number.isSafeInteger(pale_sentry_hp)&&
       pale_sentry_hp>0&&pale_sentry_hp<=PALE_SENTRY_TEMPLATE.maxHp;
@@ -79,7 +85,7 @@ const scriptedPartyEncounters=(()=>{
   };
   const request=(templates,escape)=>({enemies:templates,escape});
   const validate=(name,remaining)=>{
-    if(name!=='wilderness_discovery'&&name!=='struck_entry'&&name!=='mornay_removal'&&!canonicalPartyCombat.hasMultipleMembers())return scriptedCombatEntry.preflight(name,remaining);
+    if(name!=='meat_paw'&&name!=='lantern_house'&&name!=='greybank'&&name!=='wilderness_discovery'&&name!=='struck_entry'&&name!=='mornay_removal'&&!canonicalPartyCombat.hasMultipleMembers())return scriptedCombatEntry.preflight(name,remaining);
     const candidates=templatesFor(name,remaining,false);if(!candidates)return false;
     const definition=definitions[name],permit=pending&&pending.name===name&&pending.remaining===remaining?pending:null;
     // Mire Toad selection is the sole authored pre-entry selection draw. Both
@@ -96,7 +102,7 @@ const scriptedPartyEncounters=(()=>{
     return true;
   };
   const start=(name,remaining,activation=null)=>{
-    if(name!=='wilderness_discovery'&&name!=='struck_entry'&&name!=='mornay_removal'&&!canonicalPartyCombat.hasMultipleMembers())return false;
+    if(name!=='meat_paw'&&name!=='lantern_house'&&name!=='greybank'&&name!=='wilderness_discovery'&&name!=='struck_entry'&&name!=='mornay_removal'&&!canonicalPartyCombat.hasMultipleMembers())return false;
     if(!validate(name,remaining))return false;
     const definition=definitions[name],permit=pending&&pending.name===name&&pending.remaining===remaining?pending:null;
     let templates=templatesFor(name,remaining,!!definition.templates);
@@ -165,12 +171,24 @@ const scriptedPartyEncounters=(()=>{
       }
       return true;
     }
+    if(record.name==='meat_paw'){
+      if(victory){if(!meatPaw.eligible())fail('stale Meat Paw victory');meat_paw_stage=2;}
+      return true;
+    }
     if(record.name==='mornay_removal'){
       if(victory){
         if(!mornayJobs.eligible(record.remaining))fail('stale Mornay removal victory');
         if(record.remaining===0)mornay_peat_hunt=2;else mornay_ridge_hunt=2;
         syncQuestFlagsToWindow();
       }
+      return true;
+    }
+    if(record.name==='lantern_house'){
+      if(victory){if(!lanternHouse.eligible(record.remaining))fail('stale Lantern House victory');lantern_wins|=1<<record.remaining;}
+      return true;
+    }
+    if(record.name==='greybank'){
+      if(victory){if(!greybank.eligible(record.remaining))fail('stale Greybank victory');greybank_wins|=1<<record.remaining;}
       return true;
     }
     if(record.name==='struck_entry'){

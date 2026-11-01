@@ -332,7 +332,7 @@ for(const mutation of [
 // Every currently menu-usable definition is audited, including equipment and
 // non-regenerator/sex-mismatch items. Tests use production effect authorities.
 const inventory=JSON.parse(createContext().run('JSON.stringify(ITEM_REGISTRY)'));
-for(const [id,definition] of Object.entries(inventory).filter(([,v])=>!v.keyItem))test('registered combat item and authentic playback: '+id,()=>{
+for(const [id,definition] of Object.entries(inventory).filter(([,v])=>!v.keyItem&&v.type!=='component'))test('registered combat item and authentic playback: '+id,()=>{
   const g=fresh();g.run('stats.hp=70;');
   const targeted=['throwable','reagent','stun'].includes(definition.type) && !definition.targetsAll;
   const command=item(g,id,targeted?0:null);
@@ -343,6 +343,7 @@ for(const [id,definition] of Object.entries(inventory).filter(([,v])=>!v.keyItem
   assert.equal(g.run('formationRounds.getView().completedRounds'),1);
   if(['weapon','armor','shield','accessory'].includes(definition.type))assert.equal(g.run('stats.'+definition.type+'.name'),id);
 });
+test('casting components reject direct legacy Item use without mutation',()=>{const g=fresh();reject(g,'resolveFormationRound('+JSON.stringify(item(g,'Dart Seed',null))+')');});
 test('equipment exchange preserves the old item and Cat Armor cap bypass',()=>{
   const g=fresh();g.run("stats.armor=createItem('Leather Armor');stats.def=50;combat.enemies.forEach(e=>e.atk=20);");
   const {result}=resolve(g,item(g,'Cat Armor'),[0.99,0,...HIT,...HIT]);

@@ -26,7 +26,7 @@ const MQ5_ASSIGNMENT_OPENING_PAGES = Object.freeze([
     'He places a thick envelope on the desk. The district seal crosses the flap.',
   ])}),
   Object.freeze({speakerId:'supervisor',lines:Object.freeze([
-    '“This is the report. You will carry it east to the regional office in Mornay and request qualified assistance.”',
+    '“This is my signed request for assistance. Carry it east to the regional office in Mornay, with the account of your findings.”',
   ])}),
   Object.freeze({speakerId:'supervisor',lines:Object.freeze([
     '“They will want your firsthand account. You saw the Gallery, the body, and what came out of the lower rooms.”',

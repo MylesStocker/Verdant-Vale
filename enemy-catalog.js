@@ -110,6 +110,7 @@ const LARGE_BUZZY_BEETLE_TEMPLATE = {
 // automatically picked up by validateEnemies() and the balance report — no
 // second list to maintain anywhere.
 const ENEMY_TEMPLATE_POOLS = [
+  ...SOUTH_DEPTH_POOLS.map((templates,i)=>({id:'pool_south_depth_'+(i+1),label:'South Ruins — new depths '+(i*2+1)+'–'+(i*2+2),templates})),
   { id:'pool_rocky_beach', label:'Valmere — Rocky Beach', templates:ROCKY_BEACH_ENEMY_TEMPLATES },
   { id: 'pool_overworld_core',    label: 'Overworld — post-start (MAP2)',      templates: ENEMY_TEMPLATES },
   { id: 'pool_overworld_early',   label: 'Overworld — starting area (MAP)',    templates: EARLY_ENEMY_TEMPLATES },
@@ -152,7 +153,11 @@ const MORNAY_REMOVAL_TEMPLATES = [
   {id:'enemy_peat_bed_maw',name:'Peat-Bed Maw',hp:480,maxHp:480,atk:18,def:12,spd:9,swallowAfterRounds:6,xp:210,goldMin:0,goldMax:0},
   {id:'enemy_ridgeback_snapper',name:'Ridgeback Snapper',hp:330,maxHp:330,atk:40,def:14,spd:12,xp:230,goldMin:0,goldMax:0},
 ];
+const MEAT_PAW_TEMPLATE = {id:'enemy_meat_paw',name:'Meat Paw',hp:1200,maxHp:1200,atk:50,def:18,spd:18,
+  vitalStrikes:true,xp:1200,goldMin:0,goldMax:0};
+Object.defineProperty(MEAT_PAW_TEMPLATE, 'isBoss', {value:true});
 const ENEMY_SCRIPTED_TEMPLATES = [
+  MEAT_PAW_TEMPLATE,
   ...MORNAY_REMOVAL_TEMPLATES,
   BRIAR_WARDEN_TEMPLATE, SMUGGLER_GUARD_TEMPLATE, POLWICK_TEMPLATE, ESSA_TEMPLATE,
   PALE_SENTRY_TEMPLATE, RAINFISH_TEMPLATE, SWAMP_DONKEY_TEMPLATE, TAKOMO_TEMPLATE,

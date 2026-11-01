@@ -40,6 +40,8 @@ Though binding in law from 700 AC, the Accord's enforcement reached the outer pr
 
 Archives occasionally surface "Classification Registers" dated to the decades before 700 AC — before the Accord created lawful registration. What pre-Accord "classification" actually meant is deliberately ambiguous and quietly sinister: kill lists, containment ledgers, provincial intelligence records, proto-registry documents, or some mixture, many later folded without comment into Accord archives. Serious scholars handle such volumes carefully, and district offices prefer not to discuss them.
 
+Rareborn cannot inherit property and are effectively excluded from the houses of political power. This restriction is not a prohibition on ordinary ownership: earnings, purchases, gifts and family support can lawfully make a rareborn person wealthy, subject to the Accord’s safeguards. Sera Kethrin’s wealth is consistent with this distinction. Rarebirth remains random and non-hereditary; it creates no magical bloodline or hereditary rareborn caste.
+
 ## Political Structure
 
 The Council of Thirty-Three — the Three Elevens: eleven hereditary noble seats, eleven elected seats (one per region, five year terms), eleven Wisdom Council seats (selected by existing members after 33 years Imperial service, serve until death). The Concordant is the closest they have to a president, though really they are more like a speaker of the house- they vote only to break ties. The Wisdom Council sides with nobles approximately 90% of the time. The elected eleven represent 95% of the population. This representation gap is the system's central unresolved tension.
@@ -222,6 +224,8 @@ After Lely wakes, the Calwick supervisor judges Dreyfuss’s death, the losses i
 
 That road remains within the fens. It initially runs east along one of the few reliable raised embankments through deep water and unstable ground; a direct northeastern line is impractical. Farther out it meets a managed navigable channel, turns north along the channel’s bank, and reaches the Valmere before following its southern shore toward Mornay, a port settlement of roughly 8,000 people. The town grew on firm ground near the channel mouth, where shallow fen scows can transfer cargo to larger Valmere vessels and inland roads converge. Those connections support warehousing, customs, communications, labour and the Imperial regional office. Mornay has no railway and does not warrant one within the Empire’s scarce rail programme; water carries most bulk traffic, while roads and ferries carry officials, mail, pedestrians and local trade.
 
+The **CHAMBERI RIVER** arrives from the southeastern countryside, runs through the southern valley and enters Valmere east of Mornay. Its mouth is separate from the harbour. Greybank Mill works a tributary in this valley. The modest Drenwick canal connects Drenwick to the separate western river; neither its locks nor its course extends to Greybank.
+
 Mornay's working harbour supports fishing, boat repair, nets and rope, fish preserving, warehousing and transshipment, cart transport, and the movement of peat, reeds and other fen products. Its southern wards provide ordinary schooling, lodging and medical care; its northern streets contain wealthier households and regional institutions. The larger infirmary relies primarily on ordinary practitioners, nurses and orderlies, with one registered resonance healer whose work does not remove the need for rest, sanitation or continuing care.
 
 The **Mornay Civic Collegium** is a fee-paying upper school preparing adolescents for the Civic Examination, commercial clerkships and junior Imperial service. It is distinct from the ordinary ward school. Fees, preparatory tuition and household connections make entry socially exclusive even where the examination presents itself as open competition.
@@ -254,7 +258,7 @@ Six years on she is the station's second-highest officer — young for the post,
 
 After the Gallery investigation, Esla chooses to accompany Lely on the journey to Mornay. The Supervisor reluctantly releases her because Calwick is understaffed and relies on her work. Lely carries the sealed report for the regional office; Esla brings her greater local experience and knowledge of the road. They travel as companions, not as superior and subordinate.
 
-Esla’s ordinary Bloommarked healing technique is **Quickbloom**. It supports a living companion’s recovery; it does not revive the fallen or cure status ailments. Lely is not Rareborn, and travelling together does not grant the pair a combined technique.
+Esla’s ordinary Bloommarked healing technique is **Quickbloom**. It supports a living companion’s recovery; it does not revive the fallen or cure status ailments. Lely is not Rareborn, and travelling together does not grant the pair a combined technique. Esla also knows **Seed Dart**: she uses Bloommarked growth to make a specialized Dart Seed discharge a hardened, barbed projectile. Each casting consumes its seed. **Wildspore** clouds a foe’s aim with spores, giving her companions a brief opening against an aggressive attacker.
 
 ### The Supervisor — District Investigations
 

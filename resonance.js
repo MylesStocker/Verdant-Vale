@@ -12,7 +12,8 @@ function validateResonanceTechnique(value) {
     return Object.fromEntries(keys.map(k=>[k,d[k].value]));
   };
   const damaging=Object.getOwnPropertyDescriptor(value||{},'effect')?.value==='damage';
-  const d=record(value,['id','name','kind','initiator','participants','target','effect','elements',...(damaging?['power']:[])]);
+  const accuracy=Object.getOwnPropertyDescriptor(value||{},'effect')?.value==='accuracy_down';
+  const d=record(value,['id','name','kind','initiator','participants','target','effect','elements',...(damaging?['power']:[]),...(accuracy?['hitMultiplier','rounds']:[]),...(Object.hasOwn(value||{},'reagentCost')?['reagentCost']:[])]);
   if(!Array.isArray(d.elements)||Object.getPrototypeOf(d.elements)!==Object.getPrototypeOf([])||!Object.isFrozen(d.elements))fail();
   const elementFields=Object.getOwnPropertyDescriptors(d.elements),elements=[];
   if(!d.elements.length||Reflect.ownKeys(elementFields).length!==d.elements.length+1)fail();
@@ -25,6 +26,7 @@ function validateResonanceTechnique(value) {
   if(!id(d.id)||typeof d.name!=='string'||!d.name.trim()||d.name.length>40||!id(d.initiator)||
       !['ordinary','combined'].includes(d.kind)||
       (damaging?(!(d.kind==='ordinary'?d.target==='living_enemy':d.target==='all_living_enemies')||!Number.isSafeInteger(d.power)||d.power<1):
+        accuracy?(d.kind!=='ordinary'||d.target!=='living_enemy'||!Number.isFinite(d.hitMultiplier)||d.hitMultiplier<=0||d.hitMultiplier>=1||!Number.isSafeInteger(d.rounds)||d.rounds<1):
         d.target!=='living_wounded_ally'||d.effect!=='heal_fifth')||
       !Array.isArray(d.participants)||Object.getPrototypeOf(d.participants)!==Object.getPrototypeOf([]))fail();
   const props=Object.getOwnPropertyDescriptors(d.participants),n=d.participants.length;
@@ -37,12 +39,26 @@ function validateResonanceTechnique(value) {
     participants.push(Object.freeze(p));
   }
   if(new Set(participants.map(p=>p.characterId)).size!==n||!participants.some(p=>p.characterId===d.initiator))fail();
+  if(Object.hasOwn(d,'reagentCost')){
+    const cost=record(d.reagentCost,['itemId','quantity']);
+    const item=typeof cost.itemId==='string'&&Object.getOwnPropertyDescriptor(ITEM_REGISTRY,cost.itemId)?.value;
+    if(!item||item.name!==cost.itemId||item.type!=='component'||
+        Object.keys(item).some(k=>!['name','type','price'].includes(k))||!Number.isSafeInteger(item.price)||item.price<0||
+        !Number.isSafeInteger(cost.quantity)||cost.quantity<1)fail();
+    d.reagentCost=Object.freeze(cost);
+  }
   return Object.freeze({...d,elements:Object.freeze(elements),participants:Object.freeze(participants)});
 }
 const RESONANCE_TECHNIQUES = Object.freeze({
   quickbloom:validateResonanceTechnique({id:'quickbloom',name:'Quickbloom',kind:'ordinary',initiator:'esla',
     elements:Object.freeze(['bloommarked']),
     participants:[{characterId:'esla',affinity:'bloommarked',strain:1}],target:'living_wounded_ally',effect:'heal_fifth'}),
+  seed_dart:validateResonanceTechnique({id:'seed_dart',name:'Seed Dart',kind:'ordinary',initiator:'esla',
+    elements:Object.freeze(['bloommarked']),participants:[{characterId:'esla',affinity:'bloommarked',strain:1}],
+    target:'living_enemy',effect:'damage',power:75,reagentCost:{itemId:'Dart Seed',quantity:1}}),
+  wildspore:validateResonanceTechnique({id:'wildspore',name:'Wildspore',kind:'ordinary',initiator:'esla',
+    elements:Object.freeze(['bloommarked']),participants:[{characterId:'esla',affinity:'bloommarked',strain:3}],
+    target:'living_enemy',effect:'accuracy_down',hitMultiplier:0.25,rounds:2}),
   null:validateResonanceTechnique({id:'null',name:'Null',kind:'ordinary',initiator:'sera',
     elements:Object.freeze(['void']),participants:[{characterId:'sera',affinity:'voidborn',strain:1}],
     target:'living_enemy',effect:'damage',power:120}),
@@ -69,9 +85,11 @@ function resonanceParticipants(technique, party, capabilities) {
     const actor=party.find(m=>m.instanceId===cap?.actorId);
     // Authored knowledge is separate from identity/affinity and never saved.
     const definitions=cap?.source==='story'?STORY_CHARACTER_DEFINITIONS:PERSISTENT_CHARACTER_DEFINITIONS;
-    const known=Object.getOwnPropertyDescriptor(definitions,p.characterId)?.value.knownTechniques;
+    const definition=Object.getOwnPropertyDescriptor(definitions,p.characterId)?.value;
+    const known=definition?.knownTechniques;
+    const learned=cap&&definition?.learnset?.some(entry=>entry.techniqueId===technique.id&&(cap.level||1)>=entry.level);
     return actor&&cap.rareBorn===true&&cap.affinity===p.affinity&&
-      Array.isArray(known)&&known.includes(technique.id)?actor:null;
+      (Array.isArray(known)&&known.includes(technique.id)||learned)?actor:null;
   });
 }
 
@@ -82,7 +100,9 @@ function resonanceCapabilityBinding(member, binding, slot, allowStory=false) {
   if(!binding||typeof binding!=='object'||Object.getPrototypeOf(binding)!==Object.getPrototypeOf({}))fail();
   const d=Object.getOwnPropertyDescriptors(binding);
   const story=Object.hasOwn(d,'source');
-  if(Reflect.ownKeys(d).length!==(story?3:2)||!Object.hasOwn(d.slot||{},'value')||!Object.hasOwn(d.characterId||{},'value')||
+  const leveled=Object.hasOwn(d,'level');
+  if(leveled&&(!Object.hasOwn(d.level,'value')||!Number.isSafeInteger(d.level.value)||d.level.value<1||d.level.value>MAX_LEVEL))fail();
+  if(Reflect.ownKeys(d).length!==((story?3:2)+(leveled?1:0))||!Object.hasOwn(d.slot||{},'value')||!Object.hasOwn(d.characterId||{},'value')||
       story&&(!allowStory||!Object.hasOwn(d.source,'value')||d.source.value!=='story'))fail();
   const characterId=d.characterId.value;
   if(typeof characterId!=='string')fail();
@@ -91,7 +111,7 @@ function resonanceCapabilityBinding(member, binding, slot, allowStory=false) {
   if(d.slot.value!==slot||!definition||
       !(story?[characterId]:[characterId,characterId+'_lab']).includes(member.characterId)||typeof definition.rareBorn!=='boolean'||
       (definition.rareBorn?!(story?['bloommarked','voidborn','prismborn']:['bloommarked']).includes(definition.affinity):definition.affinity!==null))fail();
-  return {characterId,rareBorn:definition.rareBorn,affinity:definition.affinity,...(story?{source:'story'}:{}),strain:0,appliedRound:0};
+  return {characterId,rareBorn:definition.rareBorn,affinity:definition.affinity,...(story?{source:'story'}:{}),...(leveled?{level:d.level.value}:{}),strain:0,appliedRound:0};
 }
 
 // Shared pure target/effect policies. No character or technique ID dispatch.
@@ -101,6 +121,13 @@ function resonanceTargetSide(technique) {
 function resonanceTargetEligible(technique,target,side) {
   return !!target&&side===resonanceTargetSide(technique)&&target.hp>0&&!target.unusual?.departed&&
     (technique.target!=='living_wounded_ally'||target.hp<target.maxHp);
+}
+// Preserve existing hit checks and RNG; only scale the chance of a successful hit.
+function resonanceAccuracyEvasion(baseEvasion,effect) {
+  return effect?1-(1-baseEvasion)*resonanceTechnique(effect.techniqueId).hitMultiplier:baseEvasion;
+}
+function resonanceAccuracyExpiry(technique,round,order,actorId,targetId) {
+  return round+technique.rounds-(order.findIndex(p=>p.actorId===targetId)>order.findIndex(p=>p.actorId===actorId)?1:0);
 }
 function resonanceDamageAmount(power,defense) {
   if(!Number.isSafeInteger(power)||power<1||!Number.isSafeInteger(defense)||defense<0)
@@ -130,4 +157,10 @@ function resonancePlansActor(action,capabilities) {
 function resonancePlanSpeed(action,party) {
   const ids=action.type==='resonance'?action.participantIds:[action.actorId];
   return Math.min(...ids.map(id=>party.find(m=>m.instanceId===id).effective.spd));
+}
+
+function resonanceActionCost(action,capabilities) {
+  if(action.type==='item')return {itemId:action.itemId,quantity:1};
+  if(action.type!=='resonance'||!resonancePlansActor(action,capabilities))return null;
+  return resonanceTechnique(action.techniqueId).reagentCost||null;
 }

@@ -277,7 +277,11 @@ test('singleton rendering retains its exact guarded composition after sharing si
   const guard='  assertSinglePlayerExecution();\n';
   assert.ok(entry.startsWith('function drawCombat(formationView) {\n'+guard));
   assert.equal(entry.split(guard).length,2);
-  const reconstructed=entry.replace(guard,'')
+  // Components are deliberately absent from legacy Item rows. Preserve the
+  // historical painter hash by removing only this separately asserted filter.
+  const componentFilter='battleItemGroups()';
+  assert.equal(entry.split(componentFilter).length,2);
+  const reconstructed=entry.replace(componentFilter,'groupItems()').replace(guard,'')
     .replace('function drawCombat(formationView)', 'function drawCombat()')
     .replace('  // Explicit presentation-only entry. Normal render() still calls with no\n  // arguments; this does not activate combat or acquire a session implicitly.\n  if (arguments.length) return drawFormationCombat(formationView);\n','')
     .replace('  drawBattleBackground();',body);

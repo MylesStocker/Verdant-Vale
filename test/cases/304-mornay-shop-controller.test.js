@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('assert/strict');
 const {J,fresh,openService,dismiss}=require('./301-mornay-manifest.test');
-const STOCK={provisioner:[['Potion',30],['Bait',6]],apothecary:[['Potion',30],['Elixir',80],['Reed Remedy',50],['Amethyst Dust',60]],workgear:[['Bronze Knife',80],['Leather Armor',120],['Iron Shield',140],['Iron Sword',160],['Fen Cowl',240]],chandler:[['Bait',6],['Throwing Knife',35],['Leather Armor',120],['Swift Bangle',180]]};
+const STOCK={provisioner:[['Potion',30],['Bait',6]],apothecary:[['Potion',30],['Elixir',80],['Reed Remedy',50],['Amethyst Dust',60],['Dart Seed',4]],workgear:[['Bronze Knife',80],['Leather Armor',120],['Iron Shield',140],['Iron Sword',160],['Fen Cowl',240]],chandler:[['Bait',6],['Throwing Knife',35],['Leather Armor',120],['Swift Bangle',180]]};
 module.exports={
  name:'Mornay commerce: four real keeper offers, complete stock, buy/sell accounting, insufficient gold, cancellation and save continuity',
  run(){
